@@ -322,6 +322,7 @@
   "@molecule/api-payments-stripe",
   "@molecule/api-payroll-tax-us",
   "@molecule/api-pdf",
+  "@molecule/api-pdf-molecule",
   "@molecule/api-pdf-pdfkit",
   "@molecule/api-pdf-puppeteer",
   "@molecule/api-permissions",
