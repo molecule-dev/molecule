@@ -1,5 +1,11 @@
 # @molecule/api-resource-ai-models
 
+## 1.15.2
+
+### Patch Changes
+
+- a901a03: Kimi K2.7 Code now serves from Moonshot's native endpoint only — the US re-host retired the model.
+
 ## 1.15.1
 
 ### Patch Changes
