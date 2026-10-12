@@ -43,11 +43,12 @@ import process from 'node:process'
 import { createInterface } from 'node:readline/promises'
 
 import { assertPackComplete } from './lib/assert-pack-complete.mjs'
+import { commitTrustState } from './lib/commit-trust-state.mjs'
 import {
   loadSeed,
   parseSecret,
-  SEED_PATH,
   secondsLeftInWindow,
+  SEED_PATH,
   storeSeed,
   totp,
 } from './lib/npm-2fa.mjs'
@@ -287,9 +288,9 @@ const ensureOtp = async (label, force = false) => {
  * branch (--otp is always set), and the output is echoed through either way
  * so npm's own reason still reaches the terminal.
  *
- * @param {string[]} args - Full npm argv, including the --otp value.
- * @param {string} cwd - The package directory to publish from.
- * @returns {import('node:child_process').SpawnSyncReturns<string>} The result.
+ * @param args - Full npm argv, including the --otp value.
+ * @param cwd - The package directory to publish from.
+ * @returns The result.
  */
 const npmPublish = (args, cwd) => {
   const result = spawnSync('npm', args, { cwd, encoding: 'utf8' })
@@ -302,13 +303,14 @@ const npmPublish = (args, cwd) => {
  * Whether npm's failure output says the code (not something else) was the
  * problem — only then is it worth asking for a fresh one.
  *
- * @param {import('node:child_process').SpawnSyncReturns<string>} result
- * @returns {boolean}
+ * @param result
+ * @returns
  */
 const isOtpRejection = (result) =>
   /one-time password|\be?otp\b|two-factor|2fa/i.test(`${result.stderr ?? ''}${result.stdout ?? ''}`)
 
 const ledger = readTrustLedger()
+const ledgerBefore = new Set(ledger)
 const failed = []
 
 // One code up front; the endpoint takes it as a header, so it covers every
@@ -471,6 +473,19 @@ for (const pkg of untrusted) {
 // them with a fresh code for no reason.
 writeFileSync(TRUST_STATE_PATH, `${JSON.stringify([...ledger].sort(), null, 2)}\n`)
 
+// The run that records packages in the ledger commits it (never pushes, and only that file), so the
+// record is not left as an unexplained modification. CI keeps no ledger of its own and never commits.
+if (!CI) {
+  const outcome = commitTrustState({
+    root: ROOT,
+    file: '.trust-state.json',
+    added: [...ledger].filter((name) => !ledgerBefore.has(name)).sort(),
+  })
+  if (outcome.committed) console.log(`Committed .trust-state.json (${outcome.sha}); not pushed.`)
+  else if (outcome.reason && !outcome.reason.startsWith('nothing was added'))
+    console.error(`Did not commit .trust-state.json: ${outcome.reason}`)
+}
+
 if (failed.length) {
   console.error(
     `\n${failed.length} failed. If the code expired mid-run, the successes above\n` +
@@ -479,9 +494,7 @@ if (failed.length) {
   process.exit(1)
 }
 
-console.log(
-  `\nTrusted ${untrusted.length}. Commit .trust-state.json; no code needed for these again.`,
-)
+console.log(`\nTrusted ${untrusted.length}. No code needed for these again.`)
 
 if (RELEASE) {
   // The packages are trusted but still do not exist on npm. CI creates them over
