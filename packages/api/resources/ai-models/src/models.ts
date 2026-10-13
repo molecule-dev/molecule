@@ -388,6 +388,15 @@ const CHINA_PUBLIC_HOLIDAYS = [
  *   video/image/text/file input. No published knowledge cutoff. Not on
  *   DeepInfra (zai-org/GLM-5.3-FlashX 404s), so cn-region-only. glm-5.3 and
  *   glm-5.3-flash rates unchanged on the same page.)
+ *   (re-verified 2026-10-13: glm-5.3-flash flipped to cn-default — DeepInfra's
+ *   zai-org/GLM-5.3-Flash deployment is intermittently overloaded (429
+ *   engine_overloaded "Model busy, retry later" across the 2026-10-10 →
+ *   2026-10-13 cron sweeps, while two other DeepInfra models 200 on the same
+ *   key at the same moment). Z.ai pricing page unchanged: $0.15/$0.50, cached
+ *   $0.03. DeepInfra's card re-verified live and identical (input $0.15,
+ *   output $0.50, cache read 0.2× input); deployment not deprecated.
+ *   'us' stays selectable at that same card, like deepseek-flash's cn-first
+ *   default. glm-5.3 / glm-5.3-flashx unchanged, cn-only.)
  *
  * Knowledge-cutoff dates on non-Anthropic entries are best-effort estimates
  * where the provider doesn't publish one; the provider sources above verify
@@ -2688,9 +2697,15 @@ export const MODELS: readonly ModelDefinition[] = [
     // GLM context cache: read 0.2× input, no write premium.
     cacheReadPricePerMTok: 0.03,
     cacheWritePricePerMTok: 0.15,
-    // US default: DeepInfra (zai-org/GLM-5.3-Flash) bills exactly the list
-    // card — $0.15/$0.50, cache read 0.2× = $0.03. Verified live 2026-08-27.
-    regions: ['us', 'cn'],
+    // CN default since 2026-10-13: DeepInfra's zai-org/GLM-5.3-Flash deployment
+    // is intermittently out of capacity — 429 "Model busy, retry later" (code
+    // engine_overloaded) in the 2026-10-10 22:35 → 2026-10-13 cron sweeps, while
+    // two other DeepInfra models 200 on the same key at the same moment and
+    // native z.ai serves all three Synthase shapes. 'us' stays selectable as the
+    // fallback leg — DeepInfra still bills exactly the list card ($0.15/$0.50,
+    // cache read 0.2× = $0.03, re-verified live 2026-10-13, not deprecated) —
+    // the same shape as deepseek-flash's cn-first default.
+    regions: ['cn', 'us'],
     // NB: DeepInfra returns NO cached-token usage (verified live 2026-08-28:
     // an identical ~2.6k-token prefix twice reported full input both passes,
     // no prompt_tokens_details) — the us cacheRead rate below is informational
