@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.4.4
+
+### Patch Changes
+
+- 28219c1: A path check the sandbox could not answer now says so, instead of reading as a forbidden path.
+
 ## 1.4.3
 
 ### Patch Changes
