@@ -330,6 +330,42 @@ function denyByDefault(allowOut: string[]): { allowOut: string[]; denyOut: strin
 }
 
 /**
+ * Every IPv4 range that is not the public internet: this-network, private
+ * (RFC 1918), shared/CGN, loopback, link-local (cloud metadata lives here),
+ * IETF protocol assignments, the documentation and benchmarking nets, and
+ * multicast/reserved. An "open" policy denies exactly these, so a sandbox can
+ * reach any public host and none of the network it runs in. E2B applies a CIDR
+ * in `denyOut` to resolved addresses as well, so a hostname that resolves
+ * into one of these ranges is refused too (verified live, 2026-10-14).
+ */
+export const NON_PUBLIC_IPV4_CIDRS: readonly string[] = Object.freeze([
+  '0.0.0.0/8',
+  '10.0.0.0/8',
+  '100.64.0.0/10',
+  '127.0.0.0/8',
+  '169.254.0.0/16',
+  '172.16.0.0/12',
+  '192.0.0.0/24',
+  '192.0.2.0/24',
+  '192.168.0.0/16',
+  '198.18.0.0/15',
+  '198.51.100.0/24',
+  '203.0.113.0/24',
+  '224.0.0.0/4',
+  '240.0.0.0/4',
+])
+
+/**
+ * Build an "open internet" network update: no allow-list, every non-public
+ * range denied.
+ *
+ * @returns The SDK `updateNetwork` payload (denyOut only).
+ */
+function publicInternetOnly(): { denyOut: string[] } {
+  return { denyOut: [...NON_PUBLIC_IPV4_CIDRS] }
+}
+
+/**
  * Whether an error means the sandbox POSITIVELY does not exist.
  *
  * Asks the client (the real one compares against the SDK's own
@@ -1062,10 +1098,26 @@ class E2BSandbox implements Sandbox {
    * `create()`, which destroys a sandbox whose policy fails to apply, and
    * `verifyEgress()`, which never reports `filtered` for an unobserved policy).
    *
+   * With `options.open` the policy is "every public host": nothing is
+   * allow-listed and every non-public range ({@link NON_PUBLIC_IPV4_CIDRS}) is
+   * denied, so private, internal and metadata addresses stay unreachable.
+   *
    * @param allowOut - Domains/CIDRs to permit; everything else denied.
-   * @throws {Error} When a non-empty `allowOut` cannot be enforced.
+   * @param options - `open: true` for the public-internet policy (`allowOut` is then ignored).
+   * @param options.open - Allow every public host instead of the list.
+   * @throws {Error} When a non-empty `allowOut` (or an open policy) cannot be enforced.
    */
-  async applyNetwork(allowOut: string[]): Promise<void> {
+  async applyNetwork(allowOut: string[], options: { open?: boolean } = {}): Promise<void> {
+    if (options.open) {
+      if (!this.sbx.updateNetwork) {
+        throw new Error(
+          'e2b: this SDK build exposes no updateNetwork(), so the public-internet policy ' +
+            '(private ranges denied) CANNOT be applied — refusing to report success',
+        )
+      }
+      await this.sbx.updateNetwork(publicInternetOnly())
+      return
+    }
     if (allowOut.length === 0) return
     if (!this.sbx.updateNetwork) {
       throw new Error(

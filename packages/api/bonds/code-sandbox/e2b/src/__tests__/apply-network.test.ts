@@ -20,7 +20,7 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { E2BSandboxProvider } from '../provider.js'
+import { E2BSandboxProvider, NON_PUBLIC_IPV4_CIDRS } from '../provider.js'
 import type { E2BCommandResultLike, E2BSandboxClientLike, E2BSandboxLike } from '../types.js'
 
 /** One recorded `updateNetwork` payload. */
@@ -31,7 +31,7 @@ interface NetworkCall {
 
 /** The `applyNetwork` method the provider is expected to refuse without. */
 interface NetworkCapableHandle {
-  applyNetwork(allowOut: string[]): Promise<void>
+  applyNetwork(allowOut: string[], options?: { open?: boolean }): Promise<void>
 }
 
 /**
@@ -163,6 +163,38 @@ describe('applyNetwork — an unenforceable allow-list is refused, never dropped
 
     await expect(handle.applyNetwork([])).resolves.toBeUndefined()
     expect(networkCalls).toEqual([])
+  })
+})
+
+describe('applyNetwork({ open }) — every public host, no private one', () => {
+  it('denies every non-public range and allow-lists nothing', async () => {
+    const networkCalls: NetworkCall[] = []
+    const provider = providerWith(fakeSandbox('sbx-a', { networkCalls }))
+    const handle = (await provider.get('sbx-a')) as unknown as NetworkCapableHandle
+
+    await handle.applyNetwork(['github.com'], { open: true })
+
+    expect(networkCalls).toEqual([{ denyOut: [...NON_PUBLIC_IPV4_CIDRS] }])
+    // The ranges an open sandbox must never reach.
+    for (const cidr of [
+      '10.0.0.0/8',
+      '172.16.0.0/12',
+      '192.168.0.0/16',
+      '169.254.0.0/16',
+      '127.0.0.0/8',
+      '100.64.0.0/10',
+    ]) {
+      expect(NON_PUBLIC_IPV4_CIDRS).toContain(cidr)
+    }
+    // Never the all-traffic selector: that would deny the public internet too.
+    expect(NON_PUBLIC_IPV4_CIDRS).not.toContain('0.0.0.0/0')
+  })
+
+  it('REJECTS an open policy the sandbox cannot enforce', async () => {
+    const provider = providerWith(fakeSandbox('sbx-a', { hasUpdateNetwork: false }))
+    const handle = (await provider.get('sbx-a')) as unknown as NetworkCapableHandle
+
+    await expect(handle.applyNetwork([], { open: true })).rejects.toThrow(/updateNetwork/)
   })
 })
 

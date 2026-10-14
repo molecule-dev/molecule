@@ -173,7 +173,7 @@ export const SETTINGS: readonly SettingMeta[] = [
     id: 'autoApproveCommands',
     label: 'Auto-approve commands',
     description:
-      "Skip the 'Proceed?' confirmation before {{agentName}} runs a bulk/destructive command (a hard reset, a recursive delete, an in-place edit). The network-exfiltration guard still asks before sending data off the box.",
+      "Skip the 'Proceed?' confirmation before {{agentName}} runs a bulk/destructive command (a hard reset, a recursive delete, an in-place edit). Network access still follows the project's allowlist unless Full access is on.",
     editCommand: 'autoapprove',
   },
   {
