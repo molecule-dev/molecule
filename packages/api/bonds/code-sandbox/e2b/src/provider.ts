@@ -306,6 +306,12 @@ function bareSnapshotName(snapshot: E2BSnapshotLike): string {
   return withoutTag.includes('/') ? withoutTag.slice(withoutTag.lastIndexOf('/') + 1) : withoutTag
 }
 
+/**
+ * Request budget for `exportFiles` reading its archive back out of the sandbox —
+ * the same five minutes the in-sandbox `tar` gets, instead of the SDK default 60 s.
+ */
+const EXPORT_READ_TIMEOUT_MS = 300_000
+
 /** How much of an incoming archive `importFiles` holds before spooling it into the sandbox. */
 const IMPORT_PIECE_BYTES = 8 * 1024 * 1024
 
@@ -1069,7 +1075,15 @@ class E2BSandbox implements Sandbox {
       if (r.exitCode !== 0) {
         throw new Error(`exportFiles: tar create failed (${r.exitCode}): ${r.stderr.slice(0, 300)}`)
       }
-      bytes = await this.sbx.files.read(tarPath, { format: 'bytes' })
+      // The SDK's default 60 s request timeout is a per-call ceiling, not a
+      // transfer rate: a 125 MB deploy artifact read while other deploys share
+      // the link ran past it ("The operation was aborted due to timeout", every
+      // failure in a burst of three concurrent deploys). Give the read the same
+      // budget the tar itself gets.
+      bytes = await this.sbx.files.read(tarPath, {
+        format: 'bytes',
+        requestTimeoutMs: EXPORT_READ_TIMEOUT_MS,
+      })
     } finally {
       await this.sbx.commands.run(`rm -f ${tarPath}`, { timeoutMs: 20_000 }).catch((_error) => {
         // intentional noop — leftover /tmp tar is harmless; the sandbox is ephemeral.

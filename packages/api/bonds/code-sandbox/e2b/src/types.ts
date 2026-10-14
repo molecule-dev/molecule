@@ -63,7 +63,7 @@ export interface E2BCommandResultLike {
 export interface E2BFilesystemLike {
   read(path: string): Promise<string>
   /** Binary read (`format: 'bytes'`) — used by `exportFiles` to stream a tar out. */
-  read(path: string, opts: { format: 'bytes' }): Promise<Uint8Array>
+  read(path: string, opts: { format: 'bytes'; requestTimeoutMs?: number }): Promise<Uint8Array>
   /** Accepts text or binary; `importFiles` writes a tar blob in. */
   write(path: string, data: string | Uint8Array | ArrayBuffer | Blob): Promise<unknown>
   list(path: string): Promise<Array<{ name: string; type?: string; size?: number }>>

@@ -73,6 +73,24 @@ describe('E2B exportFiles / importFiles archive rooting', () => {
     expect(tar).not.toMatch(/ -C \/workspace\/my-app \./)
   })
 
+  it('reads the archive back with a budget past the SDK default 60 s request timeout', async () => {
+    // 2026-10-07/09: every deploy in a burst of three failed "The operation was
+    // aborted due to timeout" reading a 90–125 MB artifact at the SDK default.
+    const { sbx } = fakeSandbox('sbx-timeout')
+    let readOpts: { format?: string; requestTimeoutMs?: number } | undefined
+    sbx.files.read = (async (
+      _path: string,
+      opts?: { format: 'bytes'; requestTimeoutMs?: number },
+    ) => {
+      readOpts = opts
+      return new Uint8Array([9])
+    }) as E2BSandboxLike['files']['read']
+    const sandbox = await providerFor(sbx).get('sbx-timeout')
+    await sandbox!.exportFiles!('/workspace/my-app')
+    expect(readOpts?.format).toBe('bytes')
+    expect(readOpts?.requestTimeoutMs).toBeGreaterThanOrEqual(300_000)
+  })
+
   it('handles a trailing slash and a top-level directory', async () => {
     const { sbx, commands } = fakeSandbox('sbx-2')
     const sandbox = await providerFor(sbx).get('sbx-2')
