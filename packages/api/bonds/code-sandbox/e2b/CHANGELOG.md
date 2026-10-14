@@ -1,5 +1,11 @@
 # @molecule/api-code-sandbox-e2b
 
+## 1.2.13
+
+### Patch Changes
+
+- 43c753c: The open network policy no longer lists `0.0.0.0/8`, which E2B refuses as a denied CIDR.
+
 ## 1.2.12
 
 ### Patch Changes
