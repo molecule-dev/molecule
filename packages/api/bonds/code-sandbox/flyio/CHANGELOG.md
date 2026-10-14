@@ -1,5 +1,11 @@
 # @molecule/api-code-sandbox-flyio
 
+## 1.2.8
+
+### Patch Changes
+
+- 80c5708: Creating a Machine retries a 412 "volume already claimed" while Fly releases the volume of a Machine that was just destroyed.
+
 ## 1.2.7
 
 ### Patch Changes
