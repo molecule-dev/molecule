@@ -1,5 +1,15 @@
 # @molecule/app-ide-react
 
+## 1.21.0
+
+### Minor Changes
+
+- 3398d26: `ShareModal` accepts host sections as `children`, a `showLinks` toggle and a `refreshSignal`; `ChatPanel` forwards them as `shareModalContent`, `shareLinksAllowed` and `shareLinksRefreshSignal`.
+
+### Patch Changes
+
+- 5ceee42: The free-tier model picker now follows the server's per-mode defaults and the catalog's `freeTier` flag instead of hardcoded model ids.
+
 ## 1.20.5
 
 ### Patch Changes
