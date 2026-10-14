@@ -393,6 +393,17 @@ export interface ChatPanelProps {
    * false` (back-compat: hosts that gate the modal themselves see no change).
    */
   canShare?: boolean
+  /**
+   * Whether the share dialog shows the public-link section. Defaults to
+   * {@link canShare}. Set it below `canShare` when a host lets more roles open
+   * the dialog (for {@link shareModalContent}) than may list links — the links
+   * section is then hidden instead of 403ing.
+   */
+  shareLinksAllowed?: boolean
+  /** Changing this value re-fetches the share dialog's link list (another client changed the links). */
+  shareLinksRefreshSignal?: number
+  /** Host sections rendered inside the share dialog, below the links. */
+  shareModalContent?: ReactNode
   /** Spinner/busy indicator node to show for in-chat loading states (e.g. the "designing" indicator). Falls back to a built-in dots animation. */
   spinner?: ReactNode
   /** Path of the currently focused file in the editor (shown first in @ picker). */

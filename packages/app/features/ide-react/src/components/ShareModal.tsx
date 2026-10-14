@@ -13,13 +13,17 @@
  * credential, so write access through one is something a host has to opt into
  * rather than something this modal offers by default.
  *
+ * A host can add its own sections below the links (`children`) — e.g. what a
+ * link exposes beyond the app — and can hide the links section (`showLinks`)
+ * for a caller who may open the dialog but not see the links.
+ *
  * Styling uses `getClassMap()` (`cm.*`); the only inline styles are layout the
  * ClassMap can't express. All user-facing text goes through `t()`.
  *
  * @module
  */
 
-import type { JSX } from 'react'
+import type { JSX, ReactNode } from 'react'
 import { useEffect } from 'react'
 
 import { t } from '@molecule/app-i18n'
@@ -43,6 +47,9 @@ export function ShareModal({
   canManage = true,
   canCreate = canManage,
   canRevoke = canManage,
+  showLinks = true,
+  refreshSignal,
+  children,
   onClose,
   onCreated,
 }: {
@@ -66,6 +73,16 @@ export function ShareModal({
   canCreate?: boolean
   /** Whether the caller may REVOKE a link. Defaults to `canManage`. */
   canRevoke?: boolean
+  /**
+   * Whether to render the public-link section. Defaults to `true`; pass `false`
+   * when the caller may not even LIST links (the host gates the list above
+   * them) but the dialog still has host `children` to show.
+   */
+  showLinks?: boolean
+  /** Changing this value re-fetches the link list (e.g. another client changed it). */
+  refreshSignal?: number
+  /** Host sections rendered below the links, inside the dialog. */
+  children?: ReactNode
   onClose: () => void
   onCreated?: (result: ShareLinkResult) => void
 }): JSX.Element {
@@ -122,30 +139,38 @@ export function ShareModal({
         >
           {t('ide.chat.share.heading', undefined, { defaultValue: 'Share project' })}
         </div>
-        <div className={cm.textMuted} style={{ marginBottom: 12, lineHeight: 1.4 }}>
-          {offeredRoles.length > 1
-            ? t('ide.chat.share.subheading', undefined, {
-                defaultValue:
-                  'Create a public link. Anyone with the link gets the role you choose — a viewer link is read-only.',
-              })
-            : t(
-                `ide.chat.share.subheading.${offeredRoles[0]}`,
-                { role: offeredRoles[0] },
-                {
-                  defaultValue: 'Create a public link. Anyone with the link can act as {{role}}.',
-                },
-              )}
-        </div>
+        {showLinks && (
+          <>
+            <div className={cm.textMuted} style={{ marginBottom: 12, lineHeight: 1.4 }}>
+              {offeredRoles.length > 1
+                ? t('ide.chat.share.subheading', undefined, {
+                    defaultValue:
+                      'Create a public link. Anyone with the link gets the role you choose — a viewer link is read-only.',
+                  })
+                : t(
+                    `ide.chat.share.subheading.${offeredRoles[0]}`,
+                    { role: offeredRoles[0] },
+                    {
+                      defaultValue:
+                        'Create a public link. Anyone with the link can act as {{role}}.',
+                    },
+                  )}
+            </div>
 
-        <ShareLinkManager
-          projectId={projectId}
-          roles={offeredRoles}
-          initialRole={initialRole}
-          canManage={canManage}
-          canCreate={canCreate}
-          canRevoke={canRevoke}
-          onCreated={onCreated}
-        />
+            <ShareLinkManager
+              projectId={projectId}
+              roles={offeredRoles}
+              initialRole={initialRole}
+              canManage={canManage}
+              canCreate={canCreate}
+              canRevoke={canRevoke}
+              onCreated={onCreated}
+              refreshSignal={refreshSignal}
+            />
+          </>
+        )}
+
+        {children}
 
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
           <button

@@ -2728,6 +2728,12 @@ export interface ChatInnerProps {
   canEdit?: boolean
   /** Whether the user may manage public share links — see {@link ChatPanelProps.canShare}. */
   canShare?: boolean
+  /** Whether the share dialog shows its links — see {@link ChatPanelProps.shareLinksAllowed}. */
+  shareLinksAllowed?: boolean
+  /** Re-fetches the share dialog's links — see {@link ChatPanelProps.shareLinksRefreshSignal}. */
+  shareLinksRefreshSignal?: number
+  /** Host sections inside the share dialog — see {@link ChatPanelProps.shareModalContent}. */
+  shareModalContent?: ReactNode
   /** Host-supplied upgrade/sign-in CTA builder — see {@link ChatPanelProps.buildUpgradeCta}. */
   buildUpgradeCta?: ChatPanelProps['buildUpgradeCta']
   /** Host-supplied `/help` upgrade section builder — see {@link ChatPanelProps.buildHelpUpgradeSection}. */
@@ -2830,6 +2836,9 @@ function ChatInner({
   isAnonymous,
   canEdit,
   canShare,
+  shareLinksAllowed,
+  shareLinksRefreshSignal,
+  shareModalContent,
   buildUpgradeCta,
   buildHelpUpgradeSection,
   activeFile,
@@ -12299,6 +12308,8 @@ function ChatInner({
           projectId={projectId}
           initialRole={shareModal.role}
           canManage={shareAllowed}
+          showLinks={shareLinksAllowed ?? shareAllowed}
+          refreshSignal={shareLinksRefreshSignal}
           onClose={() => setShareModal(null)}
           onCreated={(result: ShareLinkResult) => {
             // Surface the created link in the timeline so it persists after the
@@ -12320,7 +12331,9 @@ function ChatInner({
               },
             )
           }}
-        />
+        >
+          {shareModalContent}
+        </ShareModal>
       )}
     </div>
   )
@@ -12390,6 +12403,9 @@ export function ChatPanel({
   isAnonymous,
   canEdit = true,
   canShare,
+  shareLinksAllowed,
+  shareLinksRefreshSignal,
+  shareModalContent,
   buildUpgradeCta,
   buildHelpUpgradeSection,
   userAvatar,
@@ -12818,6 +12834,9 @@ export function ChatPanel({
         isAnonymous={isAnonymous}
         canEdit={canEdit}
         canShare={shareAllowed}
+        shareLinksAllowed={shareLinksAllowed}
+        shareLinksRefreshSignal={shareLinksRefreshSignal}
+        shareModalContent={shareModalContent}
         buildUpgradeCta={buildUpgradeCta}
         buildHelpUpgradeSection={buildHelpUpgradeSection}
         activeFile={activeFile}
