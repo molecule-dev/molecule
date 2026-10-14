@@ -102,7 +102,7 @@ export const TOOL_SCHEMAS: Record<string, ToolSchema> = {
   edit_file: {
     name: 'edit_file',
     description:
-      'Make targeted search-and-replace edits to a file. Preferred over write_file for small changes. Each old_string must match exactly once in the file. The result shows each edited region as it now reads, with line numbers, so there is no need to re-read the file to check an edit.',
+      'Make targeted search-and-replace edits to a file. Preferred over write_file for small changes. Each old_string must match exactly once in the file, unless that replacement sets replace_all to change every occurrence (a rename, a repeated call). The result shows each edited region as it now reads, with line numbers, so there is no need to re-read the file to check an edit.',
     parameters: {
       type: 'object',
       properties: {
@@ -123,6 +123,11 @@ export const TOOL_SCHEMAS: Record<string, ToolSchema> = {
               new_string: {
                 type: 'string',
                 description: 'Replacement string.',
+              },
+              replace_all: {
+                type: 'boolean',
+                description:
+                  'Replace every occurrence of old_string instead of requiring exactly one (default false).',
               },
             },
             required: ['old_string', 'new_string'],

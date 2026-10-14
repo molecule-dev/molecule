@@ -620,7 +620,13 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       const path = resolve(input.path as string)
       // Support both formats: { replacements: [...] } (batch) and { old_string, new_string } (single, backwards-compatible)
       let replacements = input.replacements as
-        Array<{ old_string: string; new_string: string }> | undefined
+        | Array<{
+            old_string: string
+            new_string: string
+            replace_all?: unknown
+            replaceAll?: unknown
+          }>
+        | undefined
       // Accept the single format when BOTH are strings — `typeof` (not truthy) so
       // a deletion (new_string: "") is honoured rather than falling through to
       // "No replacements provided".
@@ -629,7 +635,13 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         typeof input.old_string === 'string' &&
         typeof input.new_string === 'string'
       ) {
-        replacements = [{ old_string: input.old_string, new_string: input.new_string }]
+        replacements = [
+          {
+            old_string: input.old_string,
+            new_string: input.new_string,
+            replace_all: input.replace_all,
+          },
+        ]
       }
       if (!replacements?.length)
         return {
@@ -654,7 +666,14 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         // latest content — rendered into the result so the model sees the edit.
         let spans: CharSpan[] = []
 
-        for (const { old_string: oldString, new_string: newString } of replacements) {
+        for (const {
+          old_string: oldString,
+          new_string: newString,
+          replace_all: replaceAll,
+          // Models sometimes send the camelCase spelling inside an item, where
+          // the input normalizer (top-level keys only) does not reach.
+          replaceAll: replaceAllCamel,
+        } of replacements) {
           // Validate each replacement is well-formed BEFORE touching content. A
           // weak model sometimes emits a batch element missing a field or with a
           // non-string value; left unchecked that either crashes (`undefined`
@@ -781,6 +800,15 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
                 `indentation — or include more surrounding context to make it unique.`,
             }
           }
+          if (count > 1 && (replaceAll === true || replaceAllCamel === true)) {
+            // Every occurrence, by split/join — never String.replace, whose
+            // replacement string treats `          if (count > 1) {
+            // Say WHERE,` and friends as patterns (see below).
+            const replaced = content.split(oldString).join(newString)
+            spans = addChangeSpan(spans, content, replaced)
+            content = replaced
+            continue
+          }
           if (count > 1) {
             // Say WHERE, so the retry can widen old_string around the one it means.
             const lines: number[] = []
@@ -791,7 +819,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
             )
               lines.push(content.slice(0, at).split('\n').length)
             return {
-              error: `old_string found ${count} times in ${path} (starting at lines ${lines.join(', ')}${count > lines.length ? ', …' : ''}) — must be unique. Include more surrounding context from the one you mean, or make one edit per occurrence.`,
+              error: `old_string found ${count} times in ${path} (starting at lines ${lines.join(', ')}${count > lines.length ? ', …' : ''}) — must be unique. Include more surrounding context from the one you mean, or set replace_all: true on this replacement to change every occurrence.`,
             }
           }
           // Splice by index rather than `content.replace(oldString, newString)`:

@@ -748,7 +748,30 @@ describe('buildTools', () => {
       new_string: 'bar()',
     })) as { error?: string }
     expect(result.error).toMatch(/found 2 times .*lines 2, 4/)
+    expect(result.error).toMatch(/replace_all: true/)
     expect(backend.writeFile).not.toHaveBeenCalled()
+  })
+
+  it('edit_file with replace_all changes every occurrence, literally', async () => {
+    // A rename used to need one edit per occurrence, and builders fell back to
+    // python heredocs for it (X1 sol-m02: ten of them).
+    for (const input of [
+      { path: '/test/x.ts', old_string: 'foo()', new_string: "bar('$&')", replace_all: true },
+      {
+        path: '/test/x.ts',
+        replacements: [{ old_string: 'foo()', new_string: "bar('$&')", replaceAll: true }],
+      },
+    ]) {
+      const backend = mockBackend()
+      ;(backend.readFile as ReturnType<typeof vi.fn>).mockResolvedValue('a\nfoo()\nb\nfoo()\nc\n')
+      const editFile = buildTools(backend).find((t) => t.name === 'edit_file')!
+      const result = (await editFile.execute(input)) as { ok?: boolean; error?: string }
+      expect(result.error).toBeUndefined()
+      expect(backend.writeFile).toHaveBeenCalledWith(
+        '/test/x.ts',
+        "a\nbar('$&')\nb\nbar('$&')\nc\n",
+      )
+    }
   })
 
   it('read_file of a missing @molecule README in node_modules points at read_molecule_doc', async () => {
