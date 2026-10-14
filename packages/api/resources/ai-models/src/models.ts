@@ -260,6 +260,17 @@ const CHINA_PUBLIC_HOLIDAYS = [
  *   low|medium|high, vision, tools, caching, search grounding, code execution,
  *   url context — identical surface to 3.7-flash. Knowledge cutoff is published
  *   by neither Google nor models.dev for this id)
+ *   (re-verified 2026-10-14: gemini-4-argon "New Stable" — ADDED, the first
+ *   Gemini 4 id and the flagship-reasoning tier. List $4/$20, implicit cache
+ *   read $0.20 (explicit caching unsupported, no write premium/storage fee),
+ *   launch promo $2/$10 + $0.10 through 2026-11-30 → KNOWN_DIVERGENCES.
+ *   Specs from /docs/models/gemini-4-argon: 1M unified ctx / 65,536 out
+ *   (up to 1M via long decode, not requested), thinking low|medium|high
+ *   default "On (medium)", text+image+video+audio+PDF input, function calling
+ *   + search grounding + code execution + URL context; knowledge cutoff
+ *   unpublished by Google — models.dev lead 2026-03. Does NOT supersede
+ *   3.8-flash: different tier — flash is the $1.50/$7.50 fast/agentic line
+ *   Google still recommends, and no Gemini 4 flash id exists yet.)
  * - xAI: https://docs.x.ai/developers/models + /developers/grok-4-7 +
  *   /developers/model-capabilities/text/reasoning (re-read 2026-09-30:
  *   grok-4.7 flagship: $2/$6, cached $0.50, 500K ctx, ≥200K prompts bill 2× —
@@ -1361,6 +1372,50 @@ export const MODELS: readonly ModelDefinition[] = [
   // replace outright: the google bond has never been implemented/wired, so no
   // historical usage can reference the old ids.
   // ---------------------------------------------------------------------------
+  {
+    id: 'gemini-4-argon',
+    provider: 'google',
+    label: 'Gemini 4 Argon',
+    description: 'Google flagship reasoning model — deep math, science & long-horizon agents',
+    // Verified against /docs/models/gemini-4-argon + /docs/thinking (2026-10-14).
+    contextWindow: 1_048_576,
+    // "65,536 (default synchronous) / up to 1,048,576" via the long-decode
+    // feature Synthase never requests — the synchronous default is what a
+    // maxOutputTokens cap can rely on.
+    maxOutputTokens: 65_536,
+    supportsThinking: true,
+    thinkingBudgetTokens: 10_000,
+    thinkingConfigurable: true,
+    // thinking_level low|medium|high, default "On (medium)" per /docs/thinking
+    // — no minimal tier on this model.
+    supportedEffortLevels: ['low', 'medium', 'high'],
+    defaultEffortLevel: 'medium',
+    supportsVision: true,
+    supportsPromptCaching: true,
+    supportsTools: true,
+    webSearchToolType: 'google_search',
+    webSearchPricePer1k: 14,
+    codeExecutionToolType: 'code_execution',
+    webFetchToolType: 'url_context',
+    // "New Stable" 2026-10-13 — the first Gemini 4 id. LIST price $4/$20 with
+    // implicit-cache reads at $0.20; a launch promo ($2/$10, cache read $0.10)
+    // runs through 2026-11-30 — billed here at standard list so metering never
+    // under-charges (see the matching KNOWN_DIVERGENCES entry in
+    // scripts/check-model-freshness.mjs). Explicit caching is UNSUPPORTED
+    // (implicit only); no write premium and no hourly storage fee.
+    inputPricePerMTok: 4,
+    outputPricePerMTok: 20,
+    cacheReadPricePerMTok: 0.2,
+    cacheWritePricePerMTok: 4,
+    // Published by neither Google's model page nor /docs/thinking — models.dev
+    // reports 2026-03 (lead, not authority), same carry-forward estimate policy
+    // as the 3.7/3.8-flash entries.
+    knowledgeCutoff: '2026-03-01',
+    // NOT superseding gemini-3.8-flash: argon is the flagship-REASONING tier
+    // ($4/$20 list, 2.7× flash) and Gemini 4 ships no flash id, so the flash
+    // tier stays the fast/cheap option Google itself still recommends — see
+    // INTENTIONAL_FAMILY_OVERLAPS in lookup.test.ts (same-tier rule).
+  },
   {
     id: 'gemini-3.8-flash',
     provider: 'google',

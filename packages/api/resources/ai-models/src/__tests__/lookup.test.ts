@@ -1120,6 +1120,20 @@ const INTENTIONAL_FAMILY_OVERLAPS: { older: string; newer: string; why: string }
     why: "Google's only pro-tier id — no GA 3.x Pro exists; 3.8 is the flash tier.",
   },
   {
+    older: 'gemini-3.8-flash',
+    newer: 'gemini-4-argon',
+    why:
+      'Flash is the fast/agentic tier ($1.50/$7.50 list) Google still recommends; ' +
+      'Gemini 4 ships no flash id — argon is the flagship-reasoning tier ($4/$20).',
+  },
+  {
+    older: 'gemini-3.1-pro-preview',
+    newer: 'gemini-4-argon',
+    why:
+      "Google's only pro-tier id ($2/$12); argon is the flagship-reasoning tier at " +
+      '$4/$20, not a pro successor — hiding pro would leave no mid-price Google option.',
+  },
+  {
     older: 'kimi-k2.7-code',
     newer: 'kimi-k3',
     why: 'Coding specialist and the only cheap Moonshot tier ($0.95/$4 vs $3/$15).',
