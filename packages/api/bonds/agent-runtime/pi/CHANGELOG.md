@@ -1,5 +1,11 @@
 # @molecule/api-agent-runtime-pi
 
+## 1.0.3
+
+### Patch Changes
+
+- 058f49c: Maps the new Gemini 4 Argon catalog id to its fully qualified Pi model id.
+
 ## 1.0.2
 
 ### Patch Changes

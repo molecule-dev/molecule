@@ -1,5 +1,15 @@
 # @molecule/api-resource-ai-models
 
+## 1.16.0
+
+### Minor Changes
+
+- 058f49c: Adds Gemini 4 Argon, Google's flagship reasoning model ($4/$20 per MTok, cached input $0.20).
+
+### Patch Changes
+
+- 34bffaa: GLM-5.3 Flash now defaults to the z.ai region; the US region stays selectable at the same price.
+
 ## 1.15.2
 
 ### Patch Changes
