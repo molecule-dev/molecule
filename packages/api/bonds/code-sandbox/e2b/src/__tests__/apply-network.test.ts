@@ -188,6 +188,8 @@ describe('applyNetwork({ open }) — every public host, no private one', () => {
     }
     // Never the all-traffic selector: that would deny the public internet too.
     expect(NON_PUBLIC_IPV4_CIDRS).not.toContain('0.0.0.0/0')
+    // E2B rejects this one as a denied CIDR, failing the whole update (2026-10-14).
+    expect(NON_PUBLIC_IPV4_CIDRS).not.toContain('0.0.0.0/8')
   })
 
   it('REJECTS an open policy the sandbox cannot enforce', async () => {

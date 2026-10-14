@@ -330,16 +330,20 @@ function denyByDefault(allowOut: string[]): { allowOut: string[]; denyOut: strin
 }
 
 /**
- * Every IPv4 range that is not the public internet: this-network, private
- * (RFC 1918), shared/CGN, loopback, link-local (cloud metadata lives here),
+ * Every IPv4 range that is not the public internet: private (RFC 1918),
+ * shared/CGN, loopback, link-local (cloud metadata lives here),
  * IETF protocol assignments, the documentation and benchmarking nets, and
  * multicast/reserved. An "open" policy denies exactly these, so a sandbox can
  * reach any public host and none of the network it runs in. E2B applies a CIDR
  * in `denyOut` to resolved addresses as well, so a hostname that resolves
  * into one of these ranges is refused too (verified live, 2026-10-14).
+ *
+ * `0.0.0.0/8` ("this network") is left out on purpose: E2B refuses it as a
+ * denied CIDR (`400: invalid denied CIDR`), which fails the WHOLE update, and it
+ * is not a routable destination anyway. Every entry here is one E2B accepts
+ * (each probed live, 2026-10-14).
  */
 export const NON_PUBLIC_IPV4_CIDRS: readonly string[] = Object.freeze([
-  '0.0.0.0/8',
   '10.0.0.0/8',
   '100.64.0.0/10',
   '127.0.0.0/8',
