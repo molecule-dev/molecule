@@ -223,10 +223,15 @@ const MACHINE_CREATE_ATTEMPTS = 6
 /**
  * Retrying a `POST /machines` on 404 is SAFE precisely because "app not found"
  * means no Machine was created — unlike a 5xx/timeout, where one might have
- * been. So only 404 is added here, on top of the client's default retryable
- * set; the retry cannot double-create.
+ * been. 412 is safe for the same reason: "volume already claimed by machine
+ * <id>" refuses the create. It is what the create answers in the seconds after
+ * {@link FlyioSandboxProvider.destroyStaleMachines} removed the Machine that
+ * held the volume — Fly releases the claim asynchronously, and an immediate
+ * create lost a production deploy to it (2026-10-14; the identical retry a
+ * minute later succeeded). Only these two are added on top of the client's
+ * default retryable set; neither retry can double-create.
  */
-const MACHINE_CREATE_RETRY_STATUSES = [404]
+const MACHINE_CREATE_RETRY_STATUSES = [404, 412]
 
 /**
  * Base64 chunk size for {@link Sandbox.importFiles}'s temp-file write. Bounded by

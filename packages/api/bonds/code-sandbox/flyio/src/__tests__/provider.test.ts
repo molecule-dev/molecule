@@ -250,6 +250,25 @@ describe('create — app provisioning and tenant isolation', () => {
     expect(double.matching(`POST /apps/${APP}/machines`)).toHaveLength(2)
   })
 
+  it('retries the create POST /machines through a volume claim Fly has not released yet', async () => {
+    // The Machine that held the volume was just destroyed; Fly frees the claim
+    // a few seconds later, and a create in between answers 412 without creating
+    // anything (a production deploy failed on it, 2026-10-14).
+    const double = createFetchDouble()
+      .on(`GET /apps/${APP}`, { status: 404, body: { error: 'not found' } })
+      .on('POST /apps', { status: 201, body: {} })
+      .on(`POST /apps/${APP}/machines`, {
+        status: 412,
+        body: { error: 'failed_precondition: volume already claimed by machine 8577ee9a42d378' },
+      })
+      .on(`POST /apps/${APP}/machines`, { body: { id: 'm1', state: 'started' } })
+
+    const sandbox = await makeProvider({}, double).create({ projectId: PROJECT_ID })
+
+    expect(sandbox.id).toBe(`${APP}:m1`)
+    expect(double.matching(`POST /apps/${APP}/machines`)).toHaveLength(2)
+  })
+
   it('refuses shared-app mode in production — it puts every tenant on one 6PN', async () => {
     process.env.NODE_ENV = 'production'
     const provider = makeProvider({ appPerProject: false, appName: 'shared' })
