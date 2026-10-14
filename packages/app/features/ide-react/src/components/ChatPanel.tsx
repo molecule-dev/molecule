@@ -7739,7 +7739,13 @@ function ChatInner({
           // own provider directly.
           const pickerMode = modelPicker.mode
           const isLocked = pickerMode
-            ? isModeModelLocked(model.id, pickerMode, isFreeTier, AVAILABLE_MODELS, FREE_TIER_MODEL)
+            ? isModeModelLocked(
+                model.id,
+                pickerMode,
+                isFreeTier,
+                AVAILABLE_MODELS,
+                serverModelDefaults,
+              )
             : isFreeTier && model.id !== FREE_TIER_MODEL && model.provider !== 'custom'
           if (!isLocked) void selectModel(model.id, model.label, pickerMode)
         }
@@ -9748,10 +9754,11 @@ function ChatInner({
                     const modelRegion = effectiveModelRegion(model)
                     const showRegionPill = modelRegionOptions.length > 1 || modelRegion !== 'us'
                     const accent = PROVIDER_BRAND_COLORS[model.provider] ?? '#888'
-                    // Free tier is clamped per mode (plan → deepseek-v4-pro,
-                    // execute → deepseek-v4-flash); the unscoped picker keeps
-                    // the single free-tier model. Custom (bring-your-own AI)
-                    // models are never locked — the user pays their own
+                    // Free tier is clamped per mode to what the SERVER allows
+                    // (the catalog's freeTier-flagged model + the server-sent
+                    // default for the scoped mode — never a hardcoded id); the
+                    // unscoped picker keeps the single free-tier model. Custom
+                    // (bring-your-own AI) models are never locked — the user pays their own
                     // provider directly. The lock REASON matters: 'paid' gets
                     // the Pro pill + upgrade card, while 'mode' (a model the
                     // free tier uses in a DIFFERENT mode, e.g. the execute
@@ -9762,7 +9769,7 @@ function ChatInner({
                           modelPicker.mode,
                           isFreeTier,
                           AVAILABLE_MODELS,
-                          FREE_TIER_MODEL,
+                          serverModelDefaults,
                         )
                       : isFreeTier && model.id !== FREE_TIER_MODEL && model.provider !== 'custom'
                         ? 'paid'
@@ -9772,7 +9779,7 @@ function ChatInner({
                     // this model in ('commit' stands for both aux jobs).
                     const usableMode =
                       lockReason === 'mode'
-                        ? freeTierUsableMode(model.id, AVAILABLE_MODELS, FREE_TIER_MODEL)
+                        ? freeTierUsableMode(model.id, AVAILABLE_MODELS, serverModelDefaults)
                         : null
                     const freeInLabel =
                       usableMode === 'plan'

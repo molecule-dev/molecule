@@ -53,12 +53,6 @@ function model(overrides: Partial<AppModelDefinition>): AppModelDefinition {
 
 const opus = model({ id: 'claude-opus-4-6', provider: 'anthropic', label: 'Opus' })
 const sonnet = model({ id: 'claude-sonnet-4-6', provider: 'anthropic', label: 'Sonnet' })
-const deepseekFlash = model({
-  id: 'deepseek-v4-flash',
-  provider: 'deepseek',
-  label: 'DeepSeek Flash',
-})
-const catalog = [opus, sonnet, deepseekFlash]
 
 describe('parseModelModeCommand', () => {
   it('parses --plan and --execute, case-insensitively', () => {
@@ -128,74 +122,52 @@ describe('resolveModeModel — back-compat', () => {
   })
 })
 
-describe('freeTierModeModelId — clamp', () => {
-  // The clamp ids mirror the server's FREE_TIER_MODELS (model-selection.ts):
-  // plan → deepseek-v4-pro, execute → deepseek-v4-flash. A stale Sonnet-plan
-  // assumption here once highlighted the wrong "current" model in the picker.
-  it('clamps plan mode to deepseek-v4-pro by exact id', () => {
-    const deepseekPro = model({ id: 'deepseek-v4-pro', provider: 'deepseek', label: 'DS Pro' })
-    expect(freeTierModeModelId([...catalog, deepseekPro], 'plan', 'fallback')).toBe(
-      'deepseek-v4-pro',
-    )
+// Arbitrary ids on purpose: the clamp must never depend on a model's name.
+const paidA = model({ id: 'paid-a', provider: 'vendor-a', label: 'Paid A' })
+const paidB = model({ id: 'paid-b', provider: 'vendor-b', label: 'Paid B' })
+const freeModel = model({ id: 'free-x', provider: 'vendor-c', label: 'Free X', freeTier: true })
+const clampCatalog = [opus, sonnet, paidA, paidB, freeModel]
+// What the server sends a free user today: every mode on the free model.
+const freeDefaults = { plan: 'free-x', execute: 'free-x', commit: 'free-x', compact: 'free-x' }
+
+describe('freeTierModeModelId — server-driven, no hardcoded ids', () => {
+  it('uses the server-sent default for the mode', () => {
+    const defaults = { plan: 'paid-a', execute: 'free-x' }
+    expect(freeTierModeModelId(clampCatalog, 'plan', 'fb', defaults)).toBe('paid-a')
+    expect(freeTierModeModelId(clampCatalog, 'execute', 'fb', defaults)).toBe('free-x')
   })
 
-  it('falls back to a deepseek pro model by provider when the exact id is absent', () => {
-    const otherPro = model({ id: 'deepseek-x-pro', provider: 'deepseek', label: 'X Pro' })
-    expect(freeTierModeModelId([opus, sonnet, otherPro], 'plan', 'fallback')).toBe('deepseek-x-pro')
+  it('falls back to the catalog freeTier model, then the supplied fallback', () => {
+    expect(freeTierModeModelId(clampCatalog, 'plan', 'fb')).toBe('free-x')
+    expect(freeTierModeModelId([opus, sonnet], 'execute', 'fb')).toBe('fb')
   })
 
-  it('falls back to any deepseek model for plan mode before the supplied fallback', () => {
-    expect(freeTierModeModelId(catalog, 'plan', 'fallback')).toBe('deepseek-v4-flash')
-  })
-
-  it('clamps execute mode to deepseek-v4-flash by exact id', () => {
-    expect(freeTierModeModelId(catalog, 'execute', 'fallback')).toBe('deepseek-v4-flash')
-  })
-
-  it('falls back to a deepseek flash model by provider when the exact id is absent', () => {
-    const otherFlash = model({ id: 'deepseek-x-flash', provider: 'deepseek', label: 'X' })
-    expect(freeTierModeModelId([opus, otherFlash], 'execute', 'fallback')).toBe('deepseek-x-flash')
-  })
-
-  it('falls back to the supplied fallback when no clamp match exists', () => {
-    expect(freeTierModeModelId([opus], 'plan', 'fallback')).toBe('fallback')
-    expect(freeTierModeModelId([opus], 'execute', 'fallback')).toBe('fallback')
+  it('never picks a model by provider or name pattern', () => {
+    const lookalikes = [
+      model({ id: 'deepseek-v4-pro', provider: 'deepseek', label: 'DS Pro' }),
+      model({ id: 'deepseek-v4-flash', provider: 'deepseek', label: 'DS Flash' }),
+    ]
+    expect(freeTierModeModelId([...lookalikes, freeModel], 'plan', 'fb')).toBe('free-x')
+    expect(freeTierModeModelId([...lookalikes, freeModel], 'execute', 'fb')).toBe('free-x')
   })
 })
 
 describe('isModeModelLocked', () => {
   it('never locks Pro users', () => {
-    expect(isModeModelLocked('claude-opus-4-6', 'plan', false, catalog, 'fallback')).toBe(false)
+    expect(isModeModelLocked('paid-a', 'plan', false, clampCatalog)).toBe(false)
   })
 
-  it('locks free users to the mode clamp (plan → deepseek-v4-pro)', () => {
-    const deepseekPro = model({ id: 'deepseek-v4-pro', provider: 'deepseek', label: 'DS Pro' })
-    const withPro = [...catalog, deepseekPro]
-    expect(isModeModelLocked('claude-opus-4-6', 'plan', true, withPro, 'fallback')).toBe(true)
-    expect(isModeModelLocked('claude-sonnet-4-6', 'plan', true, withPro, 'fallback')).toBe(true)
-    expect(isModeModelLocked('deepseek-v4-pro', 'plan', true, withPro, 'fallback')).toBe(false)
+  it('free users: the freeTier model is open in every mode, paid models are locked', () => {
+    for (const mode of ['plan', 'execute', 'commit', 'compact'] as const) {
+      expect(isModeModelLocked('free-x', mode, true, clampCatalog, freeDefaults)).toBe(false)
+      expect(isModeModelLocked('paid-a', mode, true, clampCatalog, freeDefaults)).toBe(true)
+    }
   })
 
-  it('locks free users to the mode clamp (execute → deepseek-v4-flash)', () => {
-    expect(isModeModelLocked('claude-sonnet-4-6', 'execute', true, catalog, 'fallback')).toBe(true)
-    expect(isModeModelLocked('deepseek-v4-flash', 'execute', true, catalog, 'fallback')).toBe(false)
-  })
-
-  it('aux modes (commit/compact): free users may pick any free-tier-flagged model', () => {
-    const freeFlash = model({
-      id: 'free-flash',
-      provider: 'deepseek',
-      label: 'Free Flash',
-      freeTier: true,
-    })
-    const withFree = [...catalog, freeFlash]
-    // Pro users are never locked.
-    expect(isModeModelLocked('claude-opus-4-6', 'commit', false, withFree, 'fallback')).toBe(false)
-    // Free users: free-tier-flagged models are selectable, paid ones are not.
-    expect(isModeModelLocked('free-flash', 'commit', true, withFree, 'fallback')).toBe(false)
-    expect(isModeModelLocked('free-flash', 'compact', true, withFree, 'fallback')).toBe(false)
-    expect(isModeModelLocked('claude-opus-4-6', 'commit', true, withFree, 'fallback')).toBe(true)
-    expect(isModeModelLocked('claude-sonnet-4-6', 'compact', true, withFree, 'fallback')).toBe(true)
+  it('free users: a server-sent per-mode default is open in that mode only', () => {
+    const defaults = { ...freeDefaults, plan: 'paid-a' }
+    expect(isModeModelLocked('paid-a', 'plan', true, clampCatalog, defaults)).toBe(false)
+    expect(isModeModelLocked('paid-a', 'execute', true, clampCatalog, defaults)).toBe(true)
   })
 
   it('never locks custom (bring-your-own AI) models, even for free users', () => {
@@ -209,75 +181,43 @@ describe('isModeModelLocked', () => {
       cacheWritePricePerMTok: 0,
       knowledgeCutoff: '',
     })
-    const withCustom = [...catalog, custom]
-    expect(isModeModelLocked('custom/mine/some-model', 'plan', true, withCustom, 'fallback')).toBe(
-      false,
-    )
-    expect(
-      isModeModelLocked('custom/mine/some-model', 'execute', true, withCustom, 'fallback'),
-    ).toBe(false)
-    // The aux modes honor the same exemption (checked before their free-tier rule).
-    expect(
-      isModeModelLocked('custom/mine/some-model', 'commit', true, withCustom, 'fallback'),
-    ).toBe(false)
-    expect(
-      isModeModelLocked('custom/mine/some-model', 'compact', true, withCustom, 'fallback'),
-    ).toBe(false)
+    for (const mode of ['plan', 'execute', 'commit', 'compact'] as const) {
+      expect(
+        isModeModelLocked(custom.id, mode, true, [...clampCatalog, custom], freeDefaults),
+      ).toBe(false)
+    }
   })
 })
 
 describe('freeTierLockReason', () => {
-  // A realistic clamp catalog: paid opus/sonnet, the plan clamp
-  // (deepseek-v4-pro, not freeTier-flagged), and the execute clamp
-  // (deepseek-v4-flash, freeTier-flagged — also the aux commit/compact pick).
-  const deepseekPro = model({ id: 'deepseek-v4-pro', provider: 'deepseek', label: 'DS Pro' })
-  const flaggedFlash = model({
-    id: 'deepseek-v4-flash',
-    provider: 'deepseek',
-    label: 'DeepSeek Flash',
-    freeTier: true,
-  })
-  const clampCatalog = [opus, sonnet, deepseekPro, flaggedFlash]
-
-  it('returns null for pro users and for the scoped mode’s own clamp', () => {
-    expect(freeTierLockReason('claude-opus-4-6', 'plan', false, clampCatalog, 'fb')).toBeNull()
-    expect(freeTierLockReason('deepseek-v4-pro', 'plan', true, clampCatalog, 'fb')).toBeNull()
-    expect(freeTierLockReason('deepseek-v4-flash', 'execute', true, clampCatalog, 'fb')).toBeNull()
-    // Aux modes accept any free-tier-flagged model.
-    expect(freeTierLockReason('deepseek-v4-flash', 'commit', true, clampCatalog, 'fb')).toBeNull()
-    expect(freeTierLockReason('deepseek-v4-flash', 'compact', true, clampCatalog, 'fb')).toBeNull()
+  it('returns null for pro users and for free-allowed models', () => {
+    expect(freeTierLockReason('paid-a', 'plan', false, clampCatalog)).toBeNull()
+    expect(freeTierLockReason('free-x', 'plan', true, clampCatalog, freeDefaults)).toBeNull()
+    expect(freeTierLockReason('free-x', 'commit', true, clampCatalog)).toBeNull()
   })
 
-  it("returns 'mode' for a free-tier model locked only because it belongs to a different mode", () => {
-    // The user's exact bug: the execute clamp shown in the plan scope must
-    // never read as a paid model.
-    expect(freeTierLockReason('deepseek-v4-flash', 'plan', true, clampCatalog, 'fb')).toBe('mode')
-    // The plan clamp shown in execute / aux scopes is a mode mismatch too.
-    expect(freeTierLockReason('deepseek-v4-pro', 'execute', true, clampCatalog, 'fb')).toBe('mode')
-    expect(freeTierLockReason('deepseek-v4-pro', 'commit', true, clampCatalog, 'fb')).toBe('mode')
+  it("returns 'mode' for a model the free tier uses only in a different mode", () => {
+    const defaults = { ...freeDefaults, execute: 'paid-b' }
+    expect(freeTierLockReason('paid-b', 'plan', true, clampCatalog, defaults)).toBe('mode')
   })
 
   it("returns 'paid' for genuinely paid models in every scope", () => {
-    expect(freeTierLockReason('claude-opus-4-6', 'plan', true, clampCatalog, 'fb')).toBe('paid')
-    expect(freeTierLockReason('claude-sonnet-4-6', 'execute', true, clampCatalog, 'fb')).toBe(
-      'paid',
-    )
-    expect(freeTierLockReason('claude-opus-4-6', 'commit', true, clampCatalog, 'fb')).toBe('paid')
+    for (const mode of ['plan', 'execute', 'commit', 'compact'] as const) {
+      expect(freeTierLockReason('paid-a', mode, true, clampCatalog, freeDefaults)).toBe('paid')
+    }
   })
 
-  it('exempts custom (bring-your-own AI) models entirely', () => {
-    const custom = model({ id: 'custom/mine/m', provider: 'custom', label: 'Mine' })
-    const withCustom = [...clampCatalog, custom]
-    for (const mode of ['plan', 'execute', 'commit', 'compact'] as const) {
-      expect(freeTierLockReason('custom/mine/m', mode, true, withCustom, 'fb')).toBeNull()
-    }
+  it('a non-free model is never free just because of its name (regression: hardcoded V4 Pro clamp)', () => {
+    const dsPro = model({ id: 'deepseek-v4-pro', provider: 'deepseek', label: 'DS Pro' })
+    const withPro = [...clampCatalog, dsPro]
+    expect(freeTierLockReason('deepseek-v4-pro', 'plan', true, withPro, freeDefaults)).toBe('paid')
   })
 
   it('stays the single source of truth for isModeModelLocked', () => {
     for (const mode of ['plan', 'execute', 'commit', 'compact'] as const) {
-      for (const id of ['claude-opus-4-6', 'deepseek-v4-pro', 'deepseek-v4-flash']) {
-        expect(isModeModelLocked(id, mode, true, clampCatalog, 'fb')).toBe(
-          freeTierLockReason(id, mode, true, clampCatalog, 'fb') !== null,
+      for (const id of ['paid-a', 'paid-b', 'free-x']) {
+        expect(isModeModelLocked(id, mode, true, clampCatalog, freeDefaults)).toBe(
+          freeTierLockReason(id, mode, true, clampCatalog, freeDefaults) !== null,
         )
       }
     }
@@ -285,24 +225,15 @@ describe('freeTierLockReason', () => {
 })
 
 describe('freeTierUsableMode', () => {
-  const deepseekPro = model({ id: 'deepseek-v4-pro', provider: 'deepseek', label: 'DS Pro' })
-  const flaggedFlash = model({
-    id: 'deepseek-v4-flash',
-    provider: 'deepseek',
-    label: 'DeepSeek Flash',
-    freeTier: true,
-  })
-  const clampCatalog = [opus, sonnet, deepseekPro, flaggedFlash]
-
-  it('names the clamp mode a model belongs to (never hardcoding ids at the call site)', () => {
-    expect(freeTierUsableMode('deepseek-v4-pro', clampCatalog, 'fb')).toBe('plan')
-    expect(freeTierUsableMode('deepseek-v4-flash', clampCatalog, 'fb')).toBe('execute')
-  })
-
-  it("returns 'commit' for a free-tier-flagged model that is no mode's clamp, null for paid", () => {
-    const flaggedOther = model({ id: 'other-free', provider: 'meta', label: 'F', freeTier: true })
-    expect(freeTierUsableMode('other-free', [...clampCatalog, flaggedOther], 'fb')).toBe('commit')
-    expect(freeTierUsableMode('claude-opus-4-6', clampCatalog, 'fb')).toBeNull()
+  it('names the mode the server lets the free tier use a model in', () => {
+    expect(freeTierUsableMode('paid-a', clampCatalog, { ...freeDefaults, execute: 'paid-a' })).toBe(
+      'execute',
+    )
+    expect(freeTierUsableMode('paid-a', clampCatalog, { ...freeDefaults, compact: 'paid-a' })).toBe(
+      'commit',
+    )
+    expect(freeTierUsableMode('free-x', clampCatalog, freeDefaults)).toBe('plan')
+    expect(freeTierUsableMode('paid-a', clampCatalog, freeDefaults)).toBeNull()
   })
 })
 
@@ -315,78 +246,57 @@ describe('command registry wiring', () => {
 })
 
 describe('effectiveModeModelId — what a mode ACTUALLY uses (display truth)', () => {
-  // Mirrors the prod 2026-08-13 catalog shape: Pro is the plan clamp, Flash is
-  // the flagged free-tier executor.
-  const deepseekPro = model({ id: 'deepseek-v4-pro', provider: 'deepseek', label: 'DS Pro' })
-  const flash = model({
-    id: 'deepseek-v4-flash',
-    provider: 'deepseek',
-    label: 'DS Flash',
-    freeTier: true,
-  })
-  const catalog = [opus, sonnet, deepseekPro, flash]
-  const serverDefaults = { plan: 'deepseek-v4-pro', execute: 'deepseek-v4-flash' }
-
-  it('unset settings resolve to the SERVER per-mode default, never the seeded catalog default', () => {
-    // The original bug: the UI seeded the free-tier model (the executor) as
-    // "current" and labeled plan mode with it, while the server planned with
-    // its own plan default.
-    expect(
-      effectiveModeModelId('plan', {}, serverDefaults, true, catalog, 'deepseek-v4-flash'),
-    ).toBe('deepseek-v4-pro')
-    expect(
-      effectiveModeModelId('execute', {}, serverDefaults, true, catalog, 'deepseek-v4-flash'),
-    ).toBe('deepseek-v4-flash')
+  it('unset settings resolve to the SERVER per-mode default', () => {
+    const defaults = { plan: 'paid-a', execute: 'free-x' }
+    expect(effectiveModeModelId('plan', {}, defaults, false, clampCatalog, 'fb')).toBe('paid-a')
+    expect(effectiveModeModelId('execute', {}, defaults, true, clampCatalog, 'fb')).toBe('free-x')
   })
 
   it('a per-mode setting wins over everything', () => {
     expect(
       effectiveModeModelId(
         'plan',
-        { planModel: 'claude-opus-4-6', chatModel: 'claude-sonnet-4-6' },
-        serverDefaults,
+        { planModel: 'paid-a', chatModel: 'paid-b' },
+        freeDefaults,
         false,
-        catalog,
-        'deepseek-v4-flash',
+        clampCatalog,
+        'fb',
       ),
-    ).toBe('claude-opus-4-6')
+    ).toBe('paid-a')
   })
 
   it('a SAVED chatModel outranks the server default (mirrors selection precedence)', () => {
     expect(
       effectiveModeModelId(
         'plan',
-        { chatModel: 'claude-sonnet-4-6' },
-        serverDefaults,
+        { chatModel: 'paid-b' },
+        freeDefaults,
         false,
-        catalog,
-        'deepseek-v4-flash',
+        clampCatalog,
+        'fb',
       ),
-    ).toBe('claude-sonnet-4-6')
+    ).toBe('paid-b')
   })
 
-  it('a free-tier-locked candidate falls through instead of sticking as the label', () => {
-    // A free user with a stale paid chatModel save: the server clamps, so the
-    // label must too.
+  it('a free user with a stale paid plan save sees the model the server actually uses', () => {
+    // The 2026-10-14 bug: a saved planModel for a no-longer-free model showed
+    // as the active plan model while the server clamped to the free model.
+    const dsPro = model({ id: 'deepseek-v4-pro', provider: 'deepseek', label: 'DS Pro' })
     expect(
       effectiveModeModelId(
         'plan',
-        { chatModel: 'claude-opus-4-6' },
-        serverDefaults,
+        { planModel: 'deepseek-v4-pro' },
+        freeDefaults,
         true,
-        catalog,
-        'deepseek-v4-flash',
+        [...clampCatalog, dsPro],
+        'fb',
       ),
-    ).toBe('deepseek-v4-pro')
+    ).toBe('free-x')
   })
 
-  it('falls back to the catalog clamp when the server sent no defaults', () => {
-    expect(effectiveModeModelId('plan', {}, undefined, true, catalog, 'deepseek-v4-flash')).toBe(
-      'deepseek-v4-pro',
-    )
-    expect(effectiveModeModelId('execute', {}, undefined, true, catalog, 'deepseek-v4-flash')).toBe(
-      'deepseek-v4-flash',
-    )
+  it('falls back to the catalog freeTier model when the server sent no defaults', () => {
+    expect(effectiveModeModelId('plan', {}, undefined, true, clampCatalog, 'fb')).toBe('free-x')
+    expect(effectiveModeModelId('execute', {}, undefined, true, clampCatalog, 'fb')).toBe('free-x')
   })
 
   it('honors a bring-your-own custom model on the free tier', () => {
@@ -395,10 +305,10 @@ describe('effectiveModeModelId — what a mode ACTUALLY uses (display truth)', (
       effectiveModeModelId(
         'plan',
         { planModel: 'custom/openai/gpt-6' },
-        serverDefaults,
+        freeDefaults,
         true,
-        [...catalog, custom],
-        'deepseek-v4-flash',
+        [...clampCatalog, custom],
+        'fb',
       ),
     ).toBe('custom/openai/gpt-6')
   })

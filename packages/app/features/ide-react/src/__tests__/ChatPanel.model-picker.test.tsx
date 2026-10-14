@@ -42,6 +42,14 @@ import { ChatPanel } from '../components/ChatPanel.js'
 
 // ── Stubs ───────────────────────────────────────────────────────────────────
 
+/** Per-mode defaults the server sends a free-tier requester. */
+const FREE_DEFAULTS = {
+  plan: 'free-model',
+  execute: 'execute-default',
+  commit: 'free-model',
+  compact: 'free-model',
+}
+
 const MODELS = [
   {
     id: 'free-model',
@@ -83,14 +91,14 @@ const MODELS = [
     knowledgeCutoff: '2025-06-01',
     freeTier: false,
   },
-  // The real free-tier clamps (mirroring the server's FREE_TIER_MODELS):
-  // deepseek-v4-pro is the plan clamp (not freeTier-flagged), deepseek-v4-flash
-  // the execute clamp (freeTier-flagged, so also the aux commit/compact pick).
+  // A non-free model the SERVER names as the free tier's execute default
+  // (`GET /ai/models` `defaults`) — the client must learn that from the
+  // server, never from the model's id.
   {
-    id: 'deepseek-v4-pro',
-    provider: 'deepseek',
-    label: 'DeepSeek Pro',
-    description: 'the plan clamp',
+    id: 'execute-default',
+    provider: 'vendor',
+    label: 'Execute Default',
+    description: 'the server-sent execute default',
     contextWindow: 128_000,
     maxOutputTokens: 8_000,
     supportsThinking: false,
@@ -105,26 +113,6 @@ const MODELS = [
     cacheWritePricePerMTok: 0,
     knowledgeCutoff: '2025-03-01',
     freeTier: false,
-  },
-  {
-    id: 'deepseek-v4-flash',
-    provider: 'deepseek',
-    label: 'DeepSeek Flash',
-    description: 'the execute clamp',
-    contextWindow: 128_000,
-    maxOutputTokens: 8_000,
-    supportsThinking: false,
-    thinkingBudgetTokens: 0,
-    thinkingConfigurable: false,
-    supportsVision: false,
-    supportsPromptCaching: false,
-    supportsTools: true,
-    inputPricePerMTok: 0.3,
-    outputPricePerMTok: 1.1,
-    cacheReadPricePerMTok: 0,
-    cacheWritePricePerMTok: 0,
-    knowledgeCutoff: '2025-03-01',
-    freeTier: true,
   },
 ]
 
@@ -141,7 +129,7 @@ type PatchCall = { path: string; body: unknown }
 function buildHttpClient(patchCalls: PatchCall[]): HttpClient {
   const reject = (): Promise<never> => Promise.reject(new Error('http disabled in test'))
   const get = async (path: string): Promise<unknown> => {
-    if (path.startsWith('/ai/models')) return { data: { models: MODELS } }
+    if (path.startsWith('/ai/models')) return { data: { models: MODELS, defaults: FREE_DEFAULTS } }
     if (/^\/projects\/[^/]+$/.test(path)) return { data: { settings: {} } }
     return Promise.reject(new Error('http disabled in test'))
   }
@@ -371,13 +359,13 @@ describe('ChatPanel /model picker — mode dropdown + manage seam', () => {
     expect(labels[2]).toContain('Execute')
     expect(labels[3]).toContain('Commit messages')
     expect(labels[4]).toContain('Compaction')
-    // Unset aux modes surface their server-side fast default; an unset
-    // plan/execute NAMES the model the mode actually resolves to (the server's
-    // per-mode default) — a vague "Follows default model" once mislabeled plan
-    // mode with the free-tier executor while the server planned with its own
-    // plan default (prod 2026-08-13).
-    expect(labels[3]).toContain('Fast default')
-    expect(labels[1]).toContain('Default (')
+    // Every unset mode NAMES the model it actually resolves to — the
+    // server-sent per-mode default — never a vague "Follows default model"
+    // (which once mislabeled plan mode while the server planned with its own
+    // plan default, prod 2026-08-13).
+    expect(labels[1]).toContain('Default (Free Model)')
+    expect(labels[2]).toContain('Default (Execute Default)')
+    expect(labels[3]).toContain('Default (Free Model)')
   })
 
   it('re-scopes the open picker: a selection persists to the dropdown mode settings key', async () => {
@@ -454,19 +442,19 @@ describe('ChatPanel /model picker — mode dropdown + manage seam', () => {
       if (!row) throw new Error(`row ${label} not rendered`)
       return Array.from(row.querySelectorAll('span')).map((s) => s.textContent ?? '')
     }
-    // The user's exact bug: DeepSeek Flash (the execute clamp) in the plan
-    // scope is a mode mismatch — muted "free in execute", never "Pro".
-    await waitFor(() => expect(pillsOf('DeepSeek Flash')).toContain('free in execute'))
-    expect(pillsOf('DeepSeek Flash')).not.toContain('Pro')
+    // The server-sent execute default in the plan scope is a mode mismatch —
+    // muted "free in execute", never "Pro".
+    await waitFor(() => expect(pillsOf('Execute Default')).toContain('free in execute'))
+    expect(pillsOf('Execute Default')).not.toContain('Pro')
     // A genuinely paid model keeps the Pro pill.
     expect(pillsOf('Pro Model')).toContain('Pro')
-    // The plan clamp itself is selectable — no pill of either kind.
-    expect(pillsOf('DeepSeek Pro')).not.toContain('Pro')
-    expect(pillsOf('DeepSeek Pro')).not.toContain('free in execute')
+    // The free-tier model is selectable in plan — no pill of either kind.
+    expect(pillsOf('Free Model')).not.toContain('Pro')
+    expect(pillsOf('Free Model')).not.toContain('free in execute')
 
     // Clicking the mode-locked row shows the plain one-liner, NOT the paid
     // upgrade pitch, and never persists a selection.
-    fireEvent.click(modelRow(container, 'DeepSeek Flash') as HTMLButtonElement)
+    fireEvent.click(modelRow(container, 'Execute Default') as HTMLButtonElement)
     await waitFor(() => {
       if (!container.textContent?.includes('used in execute mode')) {
         throw new Error('mode card not shown')

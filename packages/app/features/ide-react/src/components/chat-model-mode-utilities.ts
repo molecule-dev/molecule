@@ -8,12 +8,15 @@
  * commit-message generator) and `compactModel` (conversation compaction), which
  * fall back to the server's own fast default (never `chatModel`) when unset.
  * These helpers parse the mode flag, map a mode to its settings field, resolve
- * the effective model for a mode, and compute the free-tier clamp (plan →
- * `deepseek-v4-pro`, execute → `deepseek-v4-flash`, commit/compact → any
- * free-tier-flagged model) against the live catalog. The clamp ids mirror the
- * server's FREE_TIER_MODELS in molecule-dev's `model-selection.ts` — keep the
- * two in sync (a stale Sonnet-plan assumption here once highlighted the wrong
- * "current" model in the picker).
+ * the effective model for a mode, and compute the free-tier clamp.
+ *
+ * The clamp is entirely SERVER-DRIVEN — no model id is ever named here. A
+ * free/anon user may use, in any mode, a model the catalog flags `freeTier`,
+ * plus the server-sent per-mode default for that mode (`GET /ai/models`
+ * `defaults`, which the server resolves from its own free-tier policy). Two
+ * earlier generations of this file hardcoded the clamp ids (first a Sonnet
+ * planner, then `deepseek-v4-pro`); each went stale the moment the server's
+ * policy moved and the picker advertised a model the server would not use.
  *
  * Everything here is deterministic and side-effect free so it can be unit tested
  * without rendering or a backend. The component owns persistence (`PATCH
@@ -22,10 +25,17 @@
  * @module
  */
 
-import type { AppModelDefinition } from '@molecule/app-ai-models'
+import type { AppModelDefinition, AppModeModelDefaults } from '@molecule/app-ai-models'
 
 /** A conversation mode or auxiliary job that can have its own model. */
 export type ModelMode = 'plan' | 'execute' | 'commit' | 'compact'
+
+/**
+ * The server-sent per-mode defaults (`GET /ai/models` `defaults`) — the
+ * server's own resolution of what each mode uses for this requester's tier.
+ * Partial/absent while the catalog is loading or on servers that don't send it.
+ */
+export type ServerModeDefaults = Partial<AppModeModelDefaults> | undefined
 
 /** The subset of project settings this module reads for model resolution. */
 export interface PerModeModelSettings {
@@ -106,39 +116,45 @@ export function resolveModeModel(
 }
 
 /**
- * Computes the free-tier-allowed model id for a mode from the live catalog. The
- * free/anon tier is clamped — with no mixing — to `deepseek-v4-pro` in plan
- * mode and `deepseek-v4-flash` in execute mode (the auxiliary commit/compact
- * jobs share the execute clamp), mirroring the server's FREE_TIER_MODELS.
- * Matching is catalog-driven (by id/provider) so it survives id churn; when no
- * specific match exists it falls back to the supplied `fallback` (the
- * catalog's free-tier model id).
+ * The model a free/anon user gets in a mode when nothing else applies: the
+ * server-sent default for that mode, else the catalog's `freeTier`-flagged
+ * model, else the supplied `fallback`. Never names a model id — the server's
+ * free-tier policy (and the catalog flag it publishes) is the only source.
  *
  * @param models - The available models from the catalog.
  * @param mode - The conversation mode or auxiliary job.
- * @param fallback - The free-tier model id to use when no match is found.
- * @returns The clamped model id for the mode.
+ * @param fallback - The free-tier model id to use when neither source has one.
+ * @param serverDefaults - Server-sent per-mode defaults (`GET /ai/models`).
+ * @returns The free-tier model id for the mode.
  */
 export function freeTierModeModelId(
   models: readonly AppModelDefinition[],
   mode: ModelMode,
   fallback: string,
+  serverDefaults?: ServerModeDefaults,
 ): string {
-  if (mode === 'plan') {
-    const exact = models.find((m) => m.id === 'deepseek-v4-pro')
-    if (exact) return exact.id
-    const deepseekPro = models.find((m) => m.provider === 'deepseek' && /pro/i.test(m.id))
-    if (deepseekPro) return deepseekPro.id
-    const anyDeepseek = models.find((m) => m.provider === 'deepseek')
-    return anyDeepseek?.id ?? fallback
-  }
-  // execute (and the commit/compact auxiliary jobs, which share its clamp)
-  const exact = models.find((m) => m.id === 'deepseek-v4-flash')
-  if (exact) return exact.id
-  const deepseekFlash = models.find((m) => m.provider === 'deepseek' && /flash/i.test(m.id))
-  if (deepseekFlash) return deepseekFlash.id
-  const anyDeepseek = models.find((m) => m.provider === 'deepseek')
-  return anyDeepseek?.id ?? fallback
+  return serverDefaults?.[mode] || models.find((m) => m.freeTier === true)?.id || fallback
+}
+
+/**
+ * Whether a free/anon user may use a (non-custom) model in a mode: the catalog
+ * flags it `freeTier` (free in every mode, as the server's `freeTierAllows`
+ * treats it), or it is the server-sent default for that very mode (the server
+ * only sends a free user defaults it would itself dispatch to).
+ *
+ * @param model - The candidate's catalog entry (undefined when unknown).
+ * @param modelId - The candidate model id.
+ * @param mode - The conversation mode or auxiliary job.
+ * @param serverDefaults - Server-sent per-mode defaults (`GET /ai/models`).
+ * @returns `true` when the free tier may use the model in that mode.
+ */
+function freeTierAllowsIn(
+  model: AppModelDefinition | undefined,
+  modelId: string,
+  mode: ModelMode,
+  serverDefaults: ServerModeDefaults,
+): boolean {
+  return model?.freeTier === true || (!!serverDefaults?.[mode] && serverDefaults[mode] === modelId)
 }
 
 /**
@@ -148,28 +164,26 @@ export function freeTierModeModelId(
  * per-request override, which the UI never has): the project's per-mode model,
  * then the project's SAVED legacy `chatModel`, each skipped when the free-tier
  * clamp would reject it — then the server-sent per-mode default (which already
- * folds in the owner's account-level settings and tier), then the catalog
- * clamp as the last resort.
+ * folds in the owner's account-level settings and tier), then the catalog's
+ * free-tier model as the last resort.
  *
  * `settings.chatModel` must be the PERSISTED value only — never a UI-seeded
- * default. Seeding the catalog's single free-tier model (the executor) as
- * "current" is exactly the bug this exists to fix: every plan-mode surface
- * then labeled the planner as the executor model while the server planned
- * with its own plan default (observed on prod 2026-08-13 — the UI said
- * "DeepSeek V4 Flash" for a plan turn that DeepSeek V4 Pro served).
+ * default. Seeding the catalog's free-tier model as "current" once made every
+ * plan-mode surface label the wrong model while the server planned with its
+ * own plan default.
  *
  * @param mode - The conversation mode to resolve.
  * @param settings - Persisted per-mode + legacy model settings (saved only).
  * @param serverDefaults - Server-sent per-mode defaults (`GET /ai/models`).
  * @param isFreeTier - Whether the current user is on the free/anon tier.
  * @param models - The available models from the catalog.
- * @param fallback - The free-tier model id to use when no clamp match exists.
+ * @param fallback - The free-tier model id to use when no other source exists.
  * @returns The model id the mode resolves to.
  */
 export function effectiveModeModelId(
   mode: 'plan' | 'execute',
   settings: PerModeModelSettings,
-  serverDefaults: { plan?: string; execute?: string } | undefined,
+  serverDefaults: ServerModeDefaults,
   isFreeTier: boolean,
   models: readonly AppModelDefinition[],
   fallback: string,
@@ -182,17 +196,17 @@ export function effectiveModeModelId(
     if (!candidate) continue
     // Mirror the server: a candidate the free-tier clamp rejects falls
     // through to the next, it does not stick as the label.
-    if (freeTierLockReason(candidate, mode, isFreeTier, models, fallback) === null) {
+    if (freeTierLockReason(candidate, mode, isFreeTier, models, serverDefaults) === null) {
       return candidate
     }
   }
-  return serverDefaults?.[mode] ?? freeTierModeModelId(models, mode, fallback)
+  return freeTierModeModelId(models, mode, fallback, serverDefaults)
 }
 
 /**
  * Why a model is locked for a free-tier user in a given mode — `'paid'` for a
  * genuinely paid model, `'mode'` for a model the free tier CAN use, just in a
- * different mode (e.g. the execute clamp shown in the plan-scoped picker).
+ * different mode (e.g. another mode's server default shown in this picker).
  */
 export type FreeTierLockReason = 'paid' | 'mode'
 
@@ -202,22 +216,18 @@ const MODEL_MODES: readonly ModelMode[] = ['plan', 'execute', 'commit', 'compact
 /**
  * The lock reason for a model in a mode under the free-tier clamp, or `null`
  * when it is selectable. Pro users and `provider: 'custom'` (bring-your-own
- * AI) models are never locked; a free/anon user may pick only the mode's
- * clamped model (plan/execute) or any free-tier-flagged model (the auxiliary
- * commit/compact jobs, mirroring the server's aux-model selection, which
- * ignores a non-free platform pick anyway).
+ * AI) models are never locked; a free/anon user may pick a `freeTier`-flagged
+ * model in any mode, or the server-sent default for the scoped mode.
  *
  * A locked model splits into two very different cases the UI must not
  * conflate: `'paid'` (upgrade actually unlocks it) versus `'mode'` (the model
- * is free-tier-usable in ANOTHER mode — it is a different mode's clamp, or
- * free-tier-flagged and thus selectable for commit/compact — so a "Pro" badge
- * would be flatly wrong).
+ * is free-tier-usable in ANOTHER mode, so a "Pro" badge would be flatly wrong).
  *
  * @param modelId - The candidate model id.
  * @param mode - The conversation mode the picker is scoped to.
  * @param isFreeTier - Whether the current user is on the free/anon tier.
  * @param models - The available models from the catalog.
- * @param fallback - The free-tier model id to use when no clamp match is found.
+ * @param serverDefaults - Server-sent per-mode defaults (`GET /ai/models`).
  * @returns `'paid'` / `'mode'` when locked, `null` when selectable.
  */
 export function freeTierLockReason(
@@ -225,58 +235,57 @@ export function freeTierLockReason(
   mode: ModelMode,
   isFreeTier: boolean,
   models: readonly AppModelDefinition[],
-  fallback: string,
+  serverDefaults?: ServerModeDefaults,
 ): FreeTierLockReason | null {
   if (!isFreeTier) return null
   const candidate = models.find((m) => m.id === modelId)
   if (candidate?.provider === 'custom') return null
-  const allowedHere =
-    mode === 'commit' || mode === 'compact'
-      ? candidate?.freeTier === true
-      : modelId === freeTierModeModelId(models, mode, fallback)
-  if (allowedHere) return null
-  const freeElsewhere =
-    candidate?.freeTier === true ||
-    MODEL_MODES.some(
-      (other) => other !== mode && modelId === freeTierModeModelId(models, other, fallback),
-    )
+  if (freeTierAllowsIn(candidate, modelId, mode, serverDefaults)) return null
+  const freeElsewhere = MODEL_MODES.some(
+    (other) => other !== mode && freeTierAllowsIn(candidate, modelId, other, serverDefaults),
+  )
   return freeElsewhere ? 'mode' : 'paid'
 }
 
 /**
  * The mode a free-tier user can actually use this model in — `'plan'` /
- * `'execute'` when it is that mode's clamp, `'commit'` (standing for both
- * auxiliary jobs) when it is merely free-tier-flagged, `null` when the free
+ * `'execute'` when the free tier allows it there, `'commit'` (standing for
+ * both auxiliary jobs) when only an aux job allows it, `null` when the free
  * tier can't use it anywhere. Drives the "free in <mode>" labeling next to a
  * `'mode'`-locked row.
  *
  * @param modelId - The candidate model id.
  * @param models - The available models from the catalog.
- * @param fallback - The free-tier model id to use when no clamp match is found.
+ * @param serverDefaults - Server-sent per-mode defaults (`GET /ai/models`).
  * @returns The mode the model is free-tier-usable in, or `null`.
  */
 export function freeTierUsableMode(
   modelId: string,
   models: readonly AppModelDefinition[],
-  fallback: string,
+  serverDefaults?: ServerModeDefaults,
 ): ModelMode | null {
-  if (modelId === freeTierModeModelId(models, 'plan', fallback)) return 'plan'
-  if (modelId === freeTierModeModelId(models, 'execute', fallback)) return 'execute'
-  if (models.find((m) => m.id === modelId)?.freeTier === true) return 'commit'
+  const candidate = models.find((m) => m.id === modelId)
+  if (freeTierAllowsIn(candidate, modelId, 'plan', serverDefaults)) return 'plan'
+  if (freeTierAllowsIn(candidate, modelId, 'execute', serverDefaults)) return 'execute'
+  if (
+    freeTierAllowsIn(candidate, modelId, 'commit', serverDefaults) ||
+    freeTierAllowsIn(candidate, modelId, 'compact', serverDefaults)
+  ) {
+    return 'commit'
+  }
   return null
 }
 
 /**
  * Whether a model is locked (not selectable) for the given mode under the
  * free-tier clamp — the boolean view of {@link freeTierLockReason} (which see
- * for the rules: pro users and custom models never lock; plan/execute clamp to
- * one model; commit/compact accept any free-tier-flagged model).
+ * for the rules).
  *
  * @param modelId - The candidate model id.
  * @param mode - The conversation mode the picker is scoped to.
  * @param isFreeTier - Whether the current user is on the free/anon tier.
  * @param models - The available models from the catalog.
- * @param fallback - The free-tier model id to use when no clamp match is found.
+ * @param serverDefaults - Server-sent per-mode defaults (`GET /ai/models`).
  * @returns `true` when the model is locked for this user and mode.
  */
 export function isModeModelLocked(
@@ -284,7 +293,7 @@ export function isModeModelLocked(
   mode: ModelMode,
   isFreeTier: boolean,
   models: readonly AppModelDefinition[],
-  fallback: string,
+  serverDefaults?: ServerModeDefaults,
 ): boolean {
-  return freeTierLockReason(modelId, mode, isFreeTier, models, fallback) !== null
+  return freeTierLockReason(modelId, mode, isFreeTier, models, serverDefaults) !== null
 }
