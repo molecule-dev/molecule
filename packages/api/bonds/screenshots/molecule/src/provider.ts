@@ -1,0 +1,388 @@
+/**
+ * molecule.dev hosted screenshots.
+ *
+ * `capture` renders a URL or an HTML string to a PNG/JPEG image on
+ * molecule.dev's headless-Chrome render machine (the same one the hosted PDF
+ * service uses); the response carries the image as base64 plus its pixel
+ * dimensions.
+ *
+ * @module
+ */
+
+import type {
+  CaptureSource,
+  ScreenshotOptions,
+  ScreenshotProvider,
+} from '@molecule/api-screenshots'
+
+import type { MoleculeScreenshotsConfig } from './types.js'
+
+/** Default hosted services base URL. */
+export const DEFAULT_SERVICES_URL = 'https://api.molecule.dev/api/v1/services'
+
+/**
+ * Validates the hosted-services base URL and strips trailing slashes.
+ *
+ * The project API key rides as a Bearer token on every call, so a plain-http
+ * base URL must never send it across the PUBLIC internet in cleartext.
+ * Non-https URLs are refused unless the host is loopback (a self-hosted
+ * services instance for local development) or a PRIVATE-network endpoint —
+ * RFC 1918 addresses and `*.docker.internal`. Duplicated across the molecule
+ * service bonds on purpose: they are independent published packages with no
+ * shared runtime dependency.
+ *
+ * @param raw - The configured or defaulted base URL.
+ * @returns The validated base URL, without trailing slashes.
+ * @throws {Error} When the URL is not https and not loopback/private http.
+ */
+function resolveServicesUrl(raw: string): string {
+  const trimmed = raw.replace(/\/+$/, '')
+  let parsed: URL
+  try {
+    parsed = new URL(trimmed)
+  } catch (_error) {
+    throw new Error(
+      `Invalid MOLECULE_SERVICES_URL "${raw}" — it must be an absolute https URL (default ${DEFAULT_SERVICES_URL}).`,
+      { cause: _error },
+    )
+  }
+  const host = parsed.hostname.toLowerCase()
+  if (parsed.protocol === 'https:' || (parsed.protocol === 'http:' && isPrivateHttpHost(host))) {
+    return trimmed
+  }
+  throw new Error(
+    `MOLECULE_SERVICES_URL "${raw}" must use https: the project API key is sent as a Bearer token on every request and must not cross the public internet in cleartext. ` +
+      `Point it at ${DEFAULT_SERVICES_URL} or a private https endpoint; only loopback and private-network (RFC 1918 / *.docker.internal) http is allowed, for a local services instance or an in-sandbox app reaching its own platform.`,
+  )
+}
+
+/**
+ * Whether a plain-http URL to this host never leaves a trusted network.
+ *
+ * @param host - Lowercased URL hostname.
+ * @returns True when plain http to this host is a private-network hop.
+ */
+function isPrivateHttpHost(host: string): boolean {
+  if (host === 'localhost' || host === '[::1]' || host === '::1' || host.startsWith('127.')) {
+    return true
+  }
+  if (host === 'host.docker.internal' || host.endsWith('.docker.internal')) return true
+  const octets = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.exec(host)
+  if (!octets) return false
+  const [a, b, c, d] = octets.slice(1).map(Number)
+  if ([a, b, c, d].some((n) => n > 255)) return false
+  if (a === 10) return true
+  if (a === 172) return b >= 16 && b <= 31
+  if (a === 192) return b === 168
+  return false
+}
+
+/** Per-request limits of the hosted service (mirrored for local refusal). */
+export const SCREENSHOT_SERVICE_LIMITS = {
+  minViewport: 16,
+  maxViewport: 3840,
+  maxScale: 3,
+  maxQuality: 100,
+  maxDelayMs: 5000,
+  maxUrlChars: 2048,
+  maxHtmlChars: 2_000_000,
+  maxFullPageHeight: 20_000,
+  maxPixels: 25_000_000,
+  maxResultBytes: 12 * 1024 * 1024,
+} as const
+
+/** Error thrown for a refused or failed hosted-service call. */
+export class MoleculeServiceError extends Error {
+  /** HTTP status from molecule.dev. */
+  readonly status: number
+  /** Stable error key from molecule.dev. */
+  readonly errorKey: string | undefined
+
+  /**
+   * Create the error.
+   *
+   * @param message - Human-readable message.
+   * @param status - HTTP status.
+   * @param errorKey - Stable error key, when the service sent one.
+   * @param cause - The underlying error, if any.
+   */
+  constructor(message: string, status: number, errorKey?: string, cause?: unknown) {
+    super(message, cause === undefined ? undefined : { cause })
+    this.name = 'MoleculeServiceError'
+    this.status = status
+    this.errorKey = errorKey
+  }
+}
+
+/** What to tell the developer for each refusal the service can return. */
+const HINTS: Record<number, string> = {
+  401: 'Check MOLECULE_API_KEY: it must be a molecule project API key with the "broker" or "broker:screenshots" scope, and not revoked.',
+  402: "The molecule project's owner has used the included allowance. Enable usage billing on molecule.dev, or bond your own screenshot provider (e.g. @molecule/api-screenshots-puppeteer).",
+  413: 'HTML is limited to 2,000,000 characters, the viewport to 3840×3840, the full-page height to 20,000 px, and the raster to 25 megapixels.',
+  429: 'Too many requests for this project right now. Slow down and retry.',
+  503: 'molecule.dev has paused this service briefly. Retry after the Retry-After delay.',
+}
+
+/** The response the hosted screenshot service returns. */
+export interface ScreenshotResult {
+  /** The image, base64-encoded — no `data:` URL prefix. */
+  data: string
+  /** MIME type of the returned image (`image/png` or `image/jpeg`). */
+  mimeType: string
+  /** The image's width in pixels. */
+  width: number
+  /** The image's height in pixels. */
+  height: number
+  /** Size in bytes. */
+  bytes: number
+}
+
+/**
+ * Screenshot provider backed by molecule.dev's hosted service.
+ *
+ * The renderer fetches HTTP(S) subresources from PUBLIC addresses only —
+ * loopback, private-network and link-local targets are refused server-side —
+ * so a user-supplied URL cannot reach your network from molecule's render
+ * machine.
+ */
+export class MoleculeScreenshotProvider implements ScreenshotProvider {
+  readonly name = 'molecule'
+
+  private readonly apiKey: string
+  private readonly servicesUrl: string
+  private readonly timeoutMs: number
+
+  /**
+   * Create the provider.
+   *
+   * @param config - Options; each falls back to its env var.
+   */
+  constructor(config: MoleculeScreenshotsConfig = {}) {
+    this.apiKey = config.apiKey ?? process.env.MOLECULE_API_KEY ?? ''
+    this.servicesUrl = resolveServicesUrl(
+      config.servicesUrl ?? process.env.MOLECULE_SERVICES_URL ?? DEFAULT_SERVICES_URL,
+    )
+    this.timeoutMs = config.timeoutMs ?? 60_000
+  }
+
+  /**
+   * Captures one image on the hosted service and returns the decoded bytes.
+   * Prefer {@link captureWithMeta} when the pixel dimensions matter — it is
+   * the same single round trip.
+   *
+   * @param source - What to capture (URL or HTML — exactly one).
+   * @param options - Capture options (viewport, format, scale, …).
+   * @returns The image bytes.
+   */
+  async capture(source: CaptureSource, options?: ScreenshotOptions): Promise<Buffer> {
+    const result = await this.captureWithMeta(source, options)
+    return Buffer.from(result.data, 'base64')
+  }
+
+  /**
+   * Captures one image on the hosted service, returning the bytes together
+   * with their pixel dimensions and MIME type.
+   *
+   * @param source - What to capture (URL or HTML — exactly one).
+   * @param options - Capture options (viewport, format, scale, …).
+   * @returns The image plus its metadata.
+   */
+  async captureWithMeta(
+    source: CaptureSource,
+    options?: ScreenshotOptions,
+  ): Promise<ScreenshotResult> {
+    if (typeof source !== 'object' || source === null) {
+      throw new MoleculeServiceError(
+        'Pass exactly one of "url" or "html".',
+        400,
+        'hostedServices.error.invalidInput',
+      )
+    }
+    const { url, html } = source
+    if ((typeof url === 'string') === (typeof html === 'string')) {
+      throw new MoleculeServiceError(
+        'Pass exactly one of "url" or "html".',
+        400,
+        'hostedServices.error.invalidInput',
+      )
+    }
+    if (url !== undefined) {
+      if (url.length === 0 || url.length > SCREENSHOT_SERVICE_LIMITS.maxUrlChars) {
+        throw new MoleculeServiceError(
+          `"url" must be 1-${SCREENSHOT_SERVICE_LIMITS.maxUrlChars} characters.`,
+          400,
+          'hostedServices.error.invalidInput',
+        )
+      }
+      try {
+        const parsed = new URL(url)
+        if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') throw new Error('scheme')
+      } catch (_error) {
+        // Intentional: the parse failure becomes the field error below.
+        throw new MoleculeServiceError(
+          '"url" must be an absolute http(s) URL.',
+          400,
+          'hostedServices.error.invalidInput',
+        )
+      }
+    }
+    if (html !== undefined) {
+      if (html.length === 0) {
+        throw new MoleculeServiceError(
+          '"html" must be non-empty text.',
+          400,
+          'hostedServices.error.invalidInput',
+        )
+      }
+      if (html.length > SCREENSHOT_SERVICE_LIMITS.maxHtmlChars) {
+        throw new MoleculeServiceError(
+          `"html" is ${html.length} characters; the limit is ${SCREENSHOT_SERVICE_LIMITS.maxHtmlChars}.`,
+          413,
+          'hostedServices.error.inputTooLarge',
+        )
+      }
+    }
+    if (options !== undefined) {
+      if (typeof options !== 'object' || options === null) {
+        throw new MoleculeServiceError(
+          '"options" must be an object.',
+          400,
+          'hostedServices.error.invalidInput',
+        )
+      }
+      const o = options as Record<string, unknown>
+      const int = (v: unknown): boolean => typeof v === 'number' && Number.isInteger(v)
+      for (const key of ['width', 'height'] as const) {
+        const v = o[key]
+        if (
+          v !== undefined &&
+          (!int(v) ||
+            (v as number) < SCREENSHOT_SERVICE_LIMITS.minViewport ||
+            (v as number) > SCREENSHOT_SERVICE_LIMITS.maxViewport)
+        ) {
+          throw new MoleculeServiceError(
+            `"options.${key}" must be an integer from ${SCREENSHOT_SERVICE_LIMITS.minViewport} to ${SCREENSHOT_SERVICE_LIMITS.maxViewport}.`,
+            400,
+            'hostedServices.error.invalidInput',
+          )
+        }
+      }
+      if (
+        o.scale !== undefined &&
+        (typeof o.scale !== 'number' ||
+          !Number.isFinite(o.scale) ||
+          o.scale < 1 ||
+          o.scale > SCREENSHOT_SERVICE_LIMITS.maxScale)
+      ) {
+        throw new MoleculeServiceError(
+          `"options.scale" must be a number from 1 to ${SCREENSHOT_SERVICE_LIMITS.maxScale}.`,
+          400,
+          'hostedServices.error.invalidInput',
+        )
+      }
+      if (
+        o.quality !== undefined &&
+        (!int(o.quality) ||
+          (o.quality as number) < 1 ||
+          (o.quality as number) > SCREENSHOT_SERVICE_LIMITS.maxQuality)
+      ) {
+        throw new MoleculeServiceError(
+          `"options.quality" must be an integer from 1 to ${SCREENSHOT_SERVICE_LIMITS.maxQuality}.`,
+          400,
+          'hostedServices.error.invalidInput',
+        )
+      }
+      if (
+        o.delayMs !== undefined &&
+        (!int(o.delayMs) ||
+          (o.delayMs as number) < 0 ||
+          (o.delayMs as number) > SCREENSHOT_SERVICE_LIMITS.maxDelayMs)
+      ) {
+        throw new MoleculeServiceError(
+          `"options.delayMs" must be an integer from 0 to ${SCREENSHOT_SERVICE_LIMITS.maxDelayMs}.`,
+          400,
+          'hostedServices.error.invalidInput',
+        )
+      }
+      if (o.fullPage !== undefined && typeof o.fullPage !== 'boolean') {
+        throw new MoleculeServiceError(
+          '"options.fullPage" must be a boolean.',
+          400,
+          'hostedServices.error.invalidInput',
+        )
+      }
+      if (o.format !== undefined && o.format !== 'png' && o.format !== 'jpeg') {
+        throw new MoleculeServiceError(
+          '"options.format" must be "png" or "jpeg".',
+          400,
+          'hostedServices.error.invalidInput',
+        )
+      }
+      const width = (o.width as number | undefined) ?? 1280
+      const height = (o.height as number | undefined) ?? 800
+      const scale = (o.scale as number | undefined) ?? 1
+      const captureHeight =
+        o.fullPage === true ? SCREENSHOT_SERVICE_LIMITS.maxFullPageHeight : height
+      if (width * captureHeight * scale * scale > SCREENSHOT_SERVICE_LIMITS.maxPixels) {
+        throw new MoleculeServiceError(
+          `The capture is ${width}×${captureHeight} at scale ${scale} — over the ${SCREENSHOT_SERVICE_LIMITS.maxPixels}-pixel budget. Reduce the viewport or the scale.`,
+          400,
+          'hostedServices.error.invalidInput',
+        )
+      }
+    }
+    return this.request('screenshots/capture', {
+      ...(url !== undefined ? { url } : { html }),
+      ...(options !== undefined ? { options } : {}),
+    })
+  }
+
+  /** One POST to the hosted service. */
+  private async request(path: string, body: Record<string, unknown>): Promise<ScreenshotResult> {
+    if (!this.apiKey) {
+      throw new MoleculeServiceError(
+        'MOLECULE_API_KEY is not set. Create a project API key on molecule.dev (or with `mlcl apikey create`) and put it in the API .env.',
+        401,
+        'hostedServices.error.tokenInvalid',
+      )
+    }
+    const response = await fetch(`${this.servicesUrl}/${path}`, {
+      method: 'POST',
+      headers: { authorization: `Bearer ${this.apiKey}`, 'content-type': 'application/json' },
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(this.timeoutMs),
+    })
+    const text = await response.text()
+    let data: unknown
+    try {
+      data = text ? JSON.parse(text) : {}
+    } catch (error) {
+      throw new MoleculeServiceError(
+        `molecule.dev returned ${response.status} with a non-JSON body.`,
+        response.status,
+        undefined,
+        error,
+      )
+    }
+    if (!response.ok) {
+      const err = data as { error?: string; errorKey?: string }
+      const hint = HINTS[response.status]
+      throw new MoleculeServiceError(
+        `molecule.dev ${path} failed (${response.status}): ${err.error ?? 'error'}${hint ? ` ${hint}` : ''}`,
+        response.status,
+        err.errorKey,
+      )
+    }
+    return data as ScreenshotResult
+  }
+}
+
+/**
+ * Create a hosted screenshot provider.
+ *
+ * @param config - Options; each falls back to its env var.
+ * @returns A `ScreenshotProvider` backed by molecule.dev.
+ */
+export function createProvider(config?: MoleculeScreenshotsConfig): ScreenshotProvider {
+  return new MoleculeScreenshotProvider(config)
+}
