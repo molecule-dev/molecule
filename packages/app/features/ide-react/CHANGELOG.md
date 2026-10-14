@@ -1,5 +1,11 @@
 # @molecule/app-ide-react
 
+## 1.21.1
+
+### Patch Changes
+
+- 0546142: The auto-approve setting's description now says how it relates to the project's network allowlist and Full access.
+
 ## 1.21.0
 
 ### Minor Changes

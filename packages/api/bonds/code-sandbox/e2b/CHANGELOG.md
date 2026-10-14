@@ -1,5 +1,11 @@
 # @molecule/api-code-sandbox-e2b
 
+## 1.2.12
+
+### Patch Changes
+
+- 0546142: `applyNetwork(allowOut, { open: true })` allows every public host while denying all private, loopback, link-local and other non-public IPv4 ranges.
+
 ## 1.2.11
 
 ### Patch Changes
