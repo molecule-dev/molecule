@@ -168,8 +168,14 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       }
       return null
     } catch (_error) {
-      // readlink unavailable or timed out — deny access conservatively
-      return 'Unable to verify path safety — access denied'
+      // readlink unavailable or timed out — deny access conservatively, and say
+      // why: "access denied" read as a forbidden path, and builders spent call
+      // after call on paths that were fine while the sandbox was not answering.
+      return (
+        'Unable to verify path safety: the sandbox did not answer the check within 5 s (it may be ' +
+        'restarting or out of memory), so the path was refused to stay safe. Retry in a moment; if ' +
+        'every file tool fails this way, the sandbox needs a restart.'
+      )
     }
   }
 
