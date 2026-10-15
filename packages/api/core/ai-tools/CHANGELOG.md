@@ -1,5 +1,16 @@
 # @molecule/api-ai-tools
 
+## 1.5.0
+
+### Minor Changes
+
+- ea543ca: `edit_file` accepts `replace_all` on a replacement to change every occurrence of its `old_string`.
+
+### Patch Changes
+
+- b975c5d: A file tool given a path outside the workspace refuses it and says how to reach it, instead of answering about the workspace root.
+- 5d05ba3: `search_files` and `find_files` rooted inside `node_modules` see the package's `dist/`, and `find_files` no longer returns nothing there.
+
 ## 1.4.4
 
 ### Patch Changes

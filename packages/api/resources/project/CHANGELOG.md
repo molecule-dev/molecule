@@ -1,5 +1,11 @@
 # @molecule/api-resource-project
 
+## 1.0.5
+
+### Patch Changes
+
+- 83cdaa5: The package now publishes its table SQL, so a project installing it from npm can create its tables.
+
 ## 1.0.4
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/api-resource-inventory
 
+## 1.0.3
+
+### Patch Changes
+
+- 83cdaa5: The package now publishes its table SQL, so a project installing it from npm can create its tables.
+
 ## 1.0.1
 
 ### Patch Changes

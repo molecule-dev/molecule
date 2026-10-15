@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-resource-grade",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Per-student per-course assignment grades + GPA computation + transcript aggregation",
   "type": "module",
   "main": "dist/index.js",

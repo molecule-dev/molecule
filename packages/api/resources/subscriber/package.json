@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-resource-subscriber",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Tokenized email/sms/webhook subscriber records with confirm/unsubscribe links.",
   "homepage": "https://www.molecule.dev/packages/api-resource-subscriber",
   "type": "module",
