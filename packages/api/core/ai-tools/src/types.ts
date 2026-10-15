@@ -113,6 +113,13 @@ export interface ToolBuildConfig {
   commandBudgetMs?: number
 
   /**
+   * How long (ms) exec_command waits for a command it backgrounded only because the
+   * command asked for more than {@link commandBudgetMs}, before handing back a task
+   * id; one that finishes inside it returns like a foreground run. Default 45000.
+   */
+  overCeilingGraceMs?: number
+
+  /**
    * Directory names `search_files` and `find_files` skip (VS Code
    * `search.exclude` semantics). Defaults to `DEFAULT_SEARCH_EXCLUDED_DIRS`
    * (node_modules, VCS dirs, build output). Pass the consumer's per-project

@@ -197,7 +197,7 @@ describe('buildTools', () => {
 
   it('honors a smaller requested timeout and reports the ceiling for a larger one', async () => {
     const backend = mockBackend()
-    const tools = buildTools(backend, { commandBudgetMs: 290_000 })
+    const tools = buildTools(backend, { commandBudgetMs: 290_000, overCeilingGraceMs: 0 })
     const exec = tools.find((t) => t.name === 'exec_command')!
 
     const clamped = (await exec.execute({ command: 'npm test', timeout: 900_000 })) as {
@@ -302,7 +302,7 @@ describe('buildTools', () => {
     // It used to be refused ("Nothing was run"), costing a step in 48 of 48
     // production conversations that tried one; now the step does the work.
     const backend = mockBackend()
-    const tools = buildTools(backend, { commandBudgetMs: 290_000 })
+    const tools = buildTools(backend, { commandBudgetMs: 290_000, overCeilingGraceMs: 0 })
     const exec = tools.find((t) => t.name === 'exec_command')!
     const result = (await exec.execute({
       command: 'cd app && timeout 900 node scripts/verify-all.mjs --browser 2>&1 | tail -60',
@@ -314,9 +314,26 @@ describe('buildTools', () => {
     expect(backend.writeFile).toHaveBeenCalled()
   })
 
+  it('returns a declared-long command that finishes in the grace like a foreground run', async () => {
+    // X1 flash-m20: a Hurl suite asked for 300s, finished in 37 ms, and came back as a task id twice.
+    const backend = mockBackend()
+    backend.readFile = vi.fn(async (path: string) =>
+      path.endsWith('.exit') ? '0\n' : 'Executed files: 13\nSucceeded files: 13\n',
+    )
+    const tools = buildTools(backend, { commandBudgetMs: 290_000, overCeilingGraceMs: 5_000 })
+    const exec = tools.find((t) => t.name === 'exec_command')!
+    const result = (await exec.execute({
+      command: 'HOST=http://localhost:4000 bash run-api-tests-hurl.sh 2>&1 | tail -60',
+      timeout: 300_000,
+    })) as { taskId?: string; exitCode?: number; stdout?: string }
+    expect(result.taskId).toBeUndefined()
+    expect(result.exitCode).toBe(0)
+    expect(result.stdout).toContain('Succeeded files: 13')
+  })
+
   it('reads the declared budget from the timeout PARAMETER too', async () => {
     const backend = mockBackend()
-    const tools = buildTools(backend, { commandBudgetMs: 290_000 })
+    const tools = buildTools(backend, { commandBudgetMs: 290_000, overCeilingGraceMs: 0 })
     const exec = tools.find((t) => t.name === 'exec_command')!
     const result = (await exec.execute({
       command: "npm test 2>&1 | grep -E 'Tests |Test Files'",
@@ -331,7 +348,7 @@ describe('buildTools', () => {
     // Without a buffering pipe, an overrun hands back everything printed so
     // far — there is something to learn, so it is not refused.
     const backend = mockBackend()
-    const tools = buildTools(backend, { commandBudgetMs: 290_000 })
+    const tools = buildTools(backend, { commandBudgetMs: 290_000, overCeilingGraceMs: 0 })
     const exec = tools.find((t) => t.name === 'exec_command')!
     const result = (await exec.execute({
       command: 'timeout 900 npx playwright test --reporter=line',
@@ -342,7 +359,7 @@ describe('buildTools', () => {
 
   it('still RUNS a piped command that declares no budget of its own', async () => {
     const backend = mockBackend()
-    const tools = buildTools(backend, { commandBudgetMs: 290_000 })
+    const tools = buildTools(backend, { commandBudgetMs: 290_000, overCeilingGraceMs: 0 })
     const exec = tools.find((t) => t.name === 'exec_command')!
     const result = (await exec.execute({ command: 'npm run build 2>&1 | tail -20' })) as {
       error?: string
@@ -353,7 +370,7 @@ describe('buildTools', () => {
 
   it("does not read a filename that merely contains 'timeout' as a budget", async () => {
     const backend = mockBackend()
-    const tools = buildTools(backend, { commandBudgetMs: 290_000 })
+    const tools = buildTools(backend, { commandBudgetMs: 290_000, overCeilingGraceMs: 0 })
     const exec = tools.find((t) => t.name === 'exec_command')!
     const result = (await exec.execute({ command: 'cat src/timeout900.ts | grep foo' })) as {
       error?: string
@@ -1561,7 +1578,7 @@ describe('exec_command run_in_background', () => {
 
   it('returns a handle at once instead of waiting', async () => {
     const backend = bgBackend()
-    const tools = buildTools(backend, { commandBudgetMs: 290_000 })
+    const tools = buildTools(backend, { commandBudgetMs: 290_000, overCeilingGraceMs: 0 })
     const exec = tools.find((t) => t.name === 'exec_command')!
     const r = (await exec.execute({
       command: 'npx playwright test',

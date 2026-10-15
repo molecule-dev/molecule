@@ -68,6 +68,12 @@ import {
 } from './utilities.js'
 
 /**
+ * How long exec_command waits for a command it backgrounded only because the
+ * command asked for more than the tool's ceiling, before handing back a task id.
+ */
+const OVER_CEILING_GRACE_MS = 45_000
+
+/**
  * Build a complete set of AI agent tools bound to an execution backend.
  *
  * @param backend - The execution environment (sandbox or local filesystem)
@@ -85,6 +91,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
     blockCommand,
     execTimeoutMs = 120_000,
     commandBudgetMs,
+    overCeilingGraceMs = OVER_CEILING_GRACE_MS,
     searchExcludedDirs,
     onAfterWrite,
     onFileDiff,
@@ -1149,6 +1156,42 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
               `> /dev/null 2>&1 & echo $! > /tmp/${id}.pid`,
             { cwd, timeout: 15_000 },
           )
+          // A command backgrounded only for the budget it ASKED for often ends in
+          // seconds (a Hurl suite: 37 ms). Handing it back as a task cost a
+          // wait_for_task round trip each time (X1 flash-m20, twice in ten
+          // minutes), so wait a short grace first and return a finished command
+          // exactly as a foreground run returns.
+          if (overCeiling && input.run_in_background !== true) {
+            const graceUntil = Date.now() + overCeilingGraceMs
+            while (Date.now() < graceUntil) {
+              let code: number | null = null
+              try {
+                const raw = await backend.readFile(exitFile)
+                const parsed = Number.parseInt(raw.trim(), 10)
+                code = Number.isFinite(parsed) ? parsed : 0
+              } catch (_error) {
+                // No exit file yet: still running.
+                code = null
+              }
+              if (code !== null) {
+                let output = ''
+                try {
+                  output = await backend.readFile(log)
+                } catch (_error) {
+                  // Finished without writing anything: an empty output is still a result.
+                  output = ''
+                }
+                return {
+                  stdout: sanitizeOutput(truncateMiddle(output, MAX_OUTPUT_SIZE)),
+                  stderr: '',
+                  exitCode: code,
+                  ...(output.length > MAX_OUTPUT_SIZE ? { truncated: true, fullOutput: log } : {}),
+                  ...(streaming.changes.length ? { note: streaming.changes.join(' ') } : {}),
+                }
+              }
+              await new Promise((r) => setTimeout(r, 1_500))
+            }
+          }
           return {
             taskId: id,
             log,
