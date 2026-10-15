@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.5.1
+
+### Patch Changes
+
+- 42b294e: `wait_for_task` no longer calls a command stuck while its output is still growing.
+
 ## 1.5.0
 
 ### Minor Changes
