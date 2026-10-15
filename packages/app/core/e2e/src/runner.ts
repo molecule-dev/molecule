@@ -22,6 +22,13 @@ export const SANDBOX_TEST_TIMEOUT_MS = 30_000
 /** Per-test timeout everywhere else (your machine, CI), in ms. */
 export const DEFAULT_TEST_TIMEOUT_MS = 60_000
 
+/**
+ * Workers inside a sandbox with a real browser. `'50%'` of a 2-vCPU sandbox is ONE
+ * worker, so a 139-test suite ran one test at a time (4.5 minutes per full run, X1
+ * flash-m16/m20/m22); a browser test mostly waits on the app, so two keep both cores busy.
+ */
+export const SANDBOX_WORKERS = 2
+
 /** Inside a sandbox, the run stops after this many failed tests. */
 export const SANDBOX_MAX_FAILURES = 8
 
@@ -32,7 +39,8 @@ export const SANDBOX_MAX_FAILURES = 8
  *
  * - Over the preview provider (`resolveE2EProviderName() === 'preview'`):
  *   one worker, not fully parallel — there is one page to drive.
- * - On a real browser: `'50%'` workers, fully parallel.
+ * - On a real browser: `'50%'` workers, fully parallel ({@link SANDBOX_WORKERS} inside a
+ *   molecule sandbox, where half the cores is one).
  * - Inside a molecule sandbox (`isMoleculeSandbox()`): 0 retries, stop after
  *   {@link SANDBOX_MAX_FAILURES} failures, {@link SANDBOX_TEST_TIMEOUT_MS}
  *   per test.
@@ -44,7 +52,7 @@ export const e2eRunnerDefaults = (): E2ERunnerDefaults => {
   const sandbox = isMoleculeSandbox()
   const ci = Boolean(process.env['CI']?.trim())
   return {
-    workers: preview ? 1 : '50%',
+    workers: preview ? 1 : sandbox ? SANDBOX_WORKERS : '50%',
     fullyParallel: !preview,
     retries: sandbox ? 0 : ci ? 2 : 1,
     maxFailures: sandbox ? SANDBOX_MAX_FAILURES : 0,

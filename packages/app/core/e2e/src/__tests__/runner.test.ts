@@ -40,11 +40,11 @@ describe('e2eRunnerDefaults', () => {
     rmSync(browsers, { recursive: true, force: true })
   })
 
-  it('in a sandbox with a browser: half the cores, fully parallel, no retries, capped, 30 s', () => {
+  it('in a sandbox with a browser: two workers, fully parallel, no retries, capped, 30 s', () => {
     pretendSandbox(true)
     mkdirSync(join(browsers, 'chromium_headless_shell-1200'))
     expect(e2eRunnerDefaults()).toEqual({
-      workers: '50%',
+      workers: 2,
       fullyParallel: true,
       retries: 0,
       maxFailures: 8,
