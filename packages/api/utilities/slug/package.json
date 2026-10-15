@@ -1,0 +1,54 @@
+{
+  "name": "@molecule/api-slug",
+  "version": "1.0.0",
+  "description": "URL slugs from titles and names: accent-folding slugify, and unique slugs checked against your store (a table column or any lookup).",
+  "homepage": "https://www.molecule.dev/packages/api-slug",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "molecule",
+    "slug",
+    "slugify",
+    "url",
+    "permalink"
+  ],
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/utilities/slug"
+  },
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "@types/node": "26.1.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.11"
+  },
+  "peerDependencies": {
+    "@molecule/api-database": "^1.0.1"
+  },
+  "peerDependenciesMeta": {
+    "@molecule/api-database": {
+      "optional": true
+    }
+  }
+}

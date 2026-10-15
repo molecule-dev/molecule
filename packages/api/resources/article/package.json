@@ -1,0 +1,80 @@
+{
+  "name": "@molecule/api-resource-article",
+  "version": "1.0.0",
+  "description": "Articles and blog posts: unique slugs, tags, favorites, a followed-authors feed, and filtered, paginated lists",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src/__setup__",
+    "README.md"
+  ],
+  "keywords": [
+    "molecule",
+    "article",
+    "blog",
+    "post",
+    "resource",
+    "slug",
+    "favorites",
+    "feed"
+  ],
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@molecule/api-database": "1.0.2",
+    "@molecule/api-database-sqlite": "1.0.4",
+    "@molecule/api-resource-follow": "1.0.5",
+    "@molecule/api-resource-reaction": "1.0.3",
+    "@molecule/api-slug": "1.0.0",
+    "@types/node": "26.1.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.11",
+    "zod": "4.4.3"
+  },
+  "peerDependencies": {
+    "@molecule/api-database": "^1.0.1",
+    "@molecule/api-i18n": "^1.0.1",
+    "@molecule/api-logger": "^1.0.1",
+    "@molecule/api-resource": "^1.0.1",
+    "@molecule/api-resource-follow": "^1.0.5",
+    "@molecule/api-resource-reaction": "^1.0.3",
+    "@molecule/api-slug": "^1.0.0",
+    "zod": "^4.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@molecule/api-database": {
+      "optional": true
+    },
+    "@molecule/api-i18n": {
+      "optional": true
+    },
+    "@molecule/api-logger": {
+      "optional": true
+    },
+    "@molecule/api-resource": {
+      "optional": true
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/resources/article"
+  },
+  "homepage": "https://www.molecule.dev/packages/api-resource-article",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}
