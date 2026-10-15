@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.5.4
+
+### Patch Changes
+
+- 1375ccf: A blocked command's message says none of its parts ran.
+
 ## 1.5.3
 
 ### Patch Changes
