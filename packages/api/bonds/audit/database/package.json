@@ -18,6 +18,7 @@
   },
   "files": [
     "dist",
+    "setup",
     "README.md"
   ],
   "keywords": [

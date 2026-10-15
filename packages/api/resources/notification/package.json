@@ -19,6 +19,7 @@
   },
   "files": [
     "dist",
+    "src/__setup__",
     "README.md"
   ],
   "keywords": [
