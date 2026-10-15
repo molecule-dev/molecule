@@ -380,7 +380,9 @@ export const verifyMiddleware =
       // never trusted (no decode-fallback bypass).
       const rawAuth = req.headers.authorization
       const authHeader = Array.isArray(rawAuth) ? rawAuth[0] : rawAuth
-      const headerToken = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null
+      // `Bearer <jwt>`, or `Token <jwt>` (the scheme Django REST Framework and
+      // the RealWorld spec use): the same JWT, verified the same way.
+      const headerToken = /^(?:Bearer|Token) (.+)$/.exec(authHeader ?? '')?.[1] ?? null
       const cookies = (req as unknown as { cookies?: Record<string, unknown> }).cookies
       const cookieToken = readAuthCookie(cookies, 'token')
       const token =

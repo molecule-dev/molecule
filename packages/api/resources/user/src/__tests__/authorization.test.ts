@@ -385,6 +385,23 @@ describe('authorization', () => {
       expect(next).toHaveBeenCalled()
     })
 
+    it('accepts the Token scheme as well as Bearer (Django REST / RealWorld clients)', async () => {
+      const session = { userId: 'u1', deviceId: 'd1' }
+      mockVerify.mockReturnValue(session)
+      mockDecode.mockReturnValue({ iat: Math.floor(Date.now() / 1000) })
+      const next = vi.fn()
+      const res = makeRes()
+
+      await middleware(
+        makeReq({ headers: { authorization: 'Token valid-token' } }) as never,
+        res as never,
+        next,
+      )
+
+      expect(mockVerify).toHaveBeenCalledWith('valid-token')
+      expect(res.locals.session).toBe(session)
+    })
+
     it('requires both userId and deviceId in session', async () => {
       mockVerify.mockReturnValue({ userId: 'u1' }) // missing deviceId
       const next = vi.fn()
