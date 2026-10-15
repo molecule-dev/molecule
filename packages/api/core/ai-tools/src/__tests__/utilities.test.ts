@@ -512,3 +512,18 @@ describe('outputRedirectTarget', () => {
     expect(outputRedirectTarget('npm test 2>&1')).toBeNull()
   })
 })
+
+describe('redactSecrets — a value cut off mid-line', () => {
+  it('masks the truncated value and keeps the lines after it (flash-m32)', () => {
+    const out = redactSecrets(
+      '{"user":{"token":"eyJhbGciOiJIUzI1NiJ9.abc\ntoken len 491\n{"errors":{"x":1}}',
+    )
+    expect(out).not.toContain('eyJhbGciOiJIUzI1NiJ9')
+    expect(out).toContain('token len 491')
+    expect(out).toContain('{"errors":{"x":1}}')
+  })
+
+  it('still masks a complete value', () => {
+    expect(redactSecrets('{"token":"eyJhbGciOiJIUzI1NiJ9.abc.def"}')).not.toContain('eyJhbGci')
+  })
+})

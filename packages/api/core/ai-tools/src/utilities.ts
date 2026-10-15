@@ -82,11 +82,13 @@ const SECRET_ENV_ASSIGNMENT = new RegExp(
 )
 /** Catch JSON-formatted env dumps like { KEY: 'value' } from node/python. */
 const SECRET_JSON_DQ = new RegExp(
-  `(['"]?(?:\\w*(?:${SECRET_KEYWORDS})\\w*)['"]?\\s*[:=]\\s*)"(?:[^"\\\\]|\\\\.)*"`,
+  // A value ends at its closing quote OR the end of its line: cut off mid-value (`head -c`),
+  // the old pattern ran on to a quote on a LATER line and swallowed the lines between (flash-m32).
+  `(['"]?(?:\\w*(?:${SECRET_KEYWORDS})\\w*)['"]?\\s*[:=]\\s*)"(?:[^"\\\\\\n]|\\\\.)*(?:"|(?=\\n)|$)`,
   'gi',
 )
 const SECRET_JSON_SQ = new RegExp(
-  `(['"]?(?:\\w*(?:${SECRET_KEYWORDS})\\w*)['"]?\\s*[:=]\\s*)'(?:[^'\\\\]|\\\\.)*'`,
+  `(['"]?(?:\\w*(?:${SECRET_KEYWORDS})\\w*)['"]?\\s*[:=]\\s*)'(?:[^'\\\\\\n]|\\\\.)*(?:'|(?=\\n)|$)`,
   'gi',
 )
 

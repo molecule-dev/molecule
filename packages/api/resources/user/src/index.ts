@@ -20,6 +20,13 @@
  * so a handler reads the current user with `getUserId(res)` and does NOT add per-route auth
  * middleware (see the `auth` skill). Scope every custom user query by the authenticated id.
  *
+ * **Issuing a session yourself:** the middleware accepts both `Authorization: Bearer <jwt>`
+ * and `Authorization: Token <jwt>` (RealWorld's scheme), but only for a token whose
+ * `deviceId` names an ACTIVE row in `devices`. A JWT you `sign()` with an invented `deviceId`
+ * is answered 401 on every route. Mint sessions the way the built-in login does — create the
+ * device with `get('device').createOrUpdate(userId, deviceName)` (it returns the device id; or call
+ * `authorization.set(…)`) and sign that id — instead of inventing one.
+ *
  * **Revoking a session yourself:** the middleware caches "this device exists" for 10 s per
  * process, so a hand-written logout that deletes the `devices` row keeps authorizing that
  * token until the cache expires — a check right after logout still answers 200. Call
