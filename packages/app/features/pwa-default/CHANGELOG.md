@@ -1,5 +1,11 @@
 # @molecule/app-pwa-default
 
+## 1.0.5
+
+### Patch Changes
+
+- bdea8c2: A first visit is no longer reloaded when the service worker first takes control; only an update reloads.
+
 ## 1.0.4
 
 ### Patch Changes

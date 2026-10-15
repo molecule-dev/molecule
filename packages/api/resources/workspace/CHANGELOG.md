@@ -1,5 +1,11 @@
 # @molecule/api-resource-workspace
 
+## 1.0.5
+
+### Patch Changes
+
+- f6510fe: A second workspace with a name already in use gets the next free slug instead of failing; slugs fold accents.
+
 ## 1.0.4
 
 ### Patch Changes

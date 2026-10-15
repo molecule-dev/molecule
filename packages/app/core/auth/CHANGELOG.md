@@ -1,5 +1,11 @@
 # @molecule/app-auth
 
+## 1.2.0
+
+### Minor Changes
+
+- 0006e0e: The JWT auth client takes `requestBody`, `mapAuthResponse` and `authScheme`, for APIs with their own auth envelope and header scheme.
+
 ## 1.1.2
 
 ### Patch Changes

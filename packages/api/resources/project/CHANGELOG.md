@@ -1,5 +1,11 @@
 # @molecule/api-resource-project
 
+## 1.0.6
+
+### Patch Changes
+
+- f6510fe: Slugs fold accents, and a name that is taken gets the next free numbered slug.
+
 ## 1.0.5
 
 ### Patch Changes

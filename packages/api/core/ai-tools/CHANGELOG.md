@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.5.2
+
+### Patch Changes
+
+- a90b0ae: `search_files` reads its pattern as an extended regex (`a|b`), and a pattern that is not a valid regex as plain text.
+
 ## 1.5.1
 
 ### Patch Changes

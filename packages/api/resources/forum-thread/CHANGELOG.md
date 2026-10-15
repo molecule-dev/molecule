@@ -1,5 +1,11 @@
 # @molecule/api-resource-forum-thread
 
+## 1.0.4
+
+### Patch Changes
+
+- f6510fe: Thread slugs fold accents.
+
 ## 1.0.3
 
 ### Patch Changes

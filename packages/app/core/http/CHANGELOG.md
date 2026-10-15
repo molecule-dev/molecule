@@ -1,5 +1,11 @@
 # @molecule/app-http
 
+## 1.1.0
+
+### Minor Changes
+
+- 0e2d12e: The client config takes `authScheme` for APIs that read `Authorization: Token <jwt>` instead of `Bearer`.
+
 ## 1.0.1
 
 ### Patch Changes

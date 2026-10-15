@@ -1,5 +1,11 @@
 # @molecule/api-resource-wiki-page
 
+## 1.0.4
+
+### Patch Changes
+
+- f6510fe: `slugify` folds accents.
+
 ## 1.0.3
 
 ### Patch Changes

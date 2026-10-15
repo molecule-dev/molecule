@@ -1,5 +1,11 @@
 # @molecule/api-middleware-validation
 
+## 1.1.0
+
+### Minor Changes
+
+- 20e8911: `validate()` and its wrappers take an optional `{ status, body }` for APIs whose validation failures use another status or error envelope.
+
 ## 1.0.3
 
 ### Patch Changes

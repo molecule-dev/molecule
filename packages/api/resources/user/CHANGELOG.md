@@ -1,5 +1,11 @@
 # @molecule/api-resource-user
 
+## 1.4.11
+
+### Patch Changes
+
+- 401afac: The session middleware also reads `Authorization: Token <jwt>`, not only `Bearer`.
+
 ## 1.4.10
 
 ### Patch Changes

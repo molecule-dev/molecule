@@ -1,5 +1,11 @@
 # @molecule/api-database-sqlite
 
+## 1.0.5
+
+### Patch Changes
+
+- a5cdced: Document how migrations apply and which placeholders `pool.query` accepts.
+
 ## 1.0.3
 
 ### Patch Changes
