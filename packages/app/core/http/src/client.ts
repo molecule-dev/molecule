@@ -114,4 +114,11 @@ export interface HttpClientConfig {
    * Whether to include credentials by default.
    */
   withCredentials?: boolean
+
+  /**
+   * The scheme of the `Authorization` header the auth token is sent with:
+   * `Bearer` (default), or what your API expects, e.g. `Token` for an API that
+   * reads `Authorization: Token <jwt>`.
+   */
+  authScheme?: string
 }

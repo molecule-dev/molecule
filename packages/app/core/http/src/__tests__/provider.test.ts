@@ -218,6 +218,21 @@ describe('HTTP Provider', () => {
       )
     })
 
+    it('sends the token with the scheme the config names', async () => {
+      mockFetch.mockImplementation(() => createMockResponse({}))
+      const client = createFetchClient({ authScheme: 'Token' })
+
+      client.setAuthToken('jwt-1')
+      await client.get('/user')
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        '/user',
+        expect.objectContaining({
+          headers: expect.objectContaining({ Authorization: 'Token jwt-1' }),
+        }),
+      )
+    })
+
     it('should get the current auth token', () => {
       const client = createFetchClient()
 

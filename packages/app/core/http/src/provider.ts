@@ -98,7 +98,7 @@ export const createFetchClient = (config: HttpClientConfig = {}): HttpClient => 
 
       // Add auth token
       if (authToken) {
-        headers['Authorization'] = `Bearer ${authToken}`
+        headers['Authorization'] = `${config.authScheme ?? 'Bearer'} ${authToken}`
       }
 
       // Add content-type for JSON

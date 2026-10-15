@@ -41,6 +41,8 @@
  * Auth (the bearer token / session cookie) is attached by the client's interceptors — do not
  * read a token from `localStorage` or hand-attach it (the token is memory-only; see the user
  * resource).
+ * An API that wants another scheme than `Bearer` (`Authorization: Token <jwt>`) sets
+ * `authScheme: 'Token'` in the client config; do not hand-write a fetch wrapper for it.
  *
  * @module
  */
