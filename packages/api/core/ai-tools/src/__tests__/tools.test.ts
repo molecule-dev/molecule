@@ -533,9 +533,26 @@ describe('buildTools', () => {
     ;(backend.readDir as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('permission denied'))
     const tools = buildTools(backend)
     const readFile = tools.find((t) => t.name === 'read_file')!
-    const result = (await readFile.execute({ path: '/x' })) as { error?: string }
+    const result = (await readFile.execute({ path: '/test/x' })) as { error?: string }
     expect(result.error).toMatch(/is a directory/i)
     expect(result.error).toMatch(/list_files/)
+  })
+
+  it('refuses a path outside the workspace instead of answering about the workspace', async () => {
+    // list_files /tmp/x used to return the workspace listing as if it were /tmp/x
+    // (X1 runs sonnet-m17 and sol-m05, 2026-10-14).
+    const backend = mockBackend()
+    const tools = buildTools(backend)
+    for (const name of ['list_files', 'read_file']) {
+      const tool = tools.find((t) => t.name === name)!
+      const result = (await tool.execute({ path: '/tmp/conduit-tools/run.log' })) as {
+        error?: string
+      }
+      expect(result.error).toMatch(/outside the workspace \(\/test\)/)
+      expect(result.error).toMatch(/exec_command/)
+    }
+    expect(backend.readDir).not.toHaveBeenCalled()
+    expect(backend.readFile).not.toHaveBeenCalled()
   })
 
   it('read_file on a MISSING file lists the parent directory instead of a bare error', async () => {

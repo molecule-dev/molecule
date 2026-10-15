@@ -7,6 +7,13 @@
 
 import { redactSecrets } from './utilities.js'
 
+/**
+ * A tool call the handler refuses with a message meant for the model as is —
+ * thrown from deep inside a handler (a path check), returned by the guard as the
+ * call's `error` without the generic "check your parameters" wrapping.
+ */
+export class ToolInputError extends Error {}
+
 /** The JSON-Schema-ish shape every tool in this package declares. */
 export interface NormalizableSchema {
   name: string
@@ -206,6 +213,7 @@ export function guardToolExecute(
     try {
       return await impl(input, ...rest)
     } catch (e: unknown) {
+      if (e instanceof ToolInputError) return { error: e.message }
       if (missing.length > 0) return { error: missingParamError(schema, input, missing) }
       const message = redactError(e instanceof Error ? e.message : String(e))
       return {

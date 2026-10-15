@@ -17,7 +17,7 @@ import {
   renderEditExcerpt,
   renderSmallFile,
 } from './edit-excerpt.js'
-import { guardToolExecute, missingParamError } from './input-normalizer.js'
+import { guardToolExecute, missingParamError, ToolInputError } from './input-normalizer.js'
 import { TOOL_SCHEMAS } from './schemas.js'
 
 /**
@@ -34,6 +34,7 @@ import {
   DEFAULT_SEARCH_EXCLUDED_DIRS,
   directoryReadHint,
   isEnvFilePath,
+  isOutsideRoot,
   isValidGlob,
   MAX_BATCH_READ_BYTES,
   MAX_BATCH_READ_FILES,
@@ -145,7 +146,16 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
    * @param path - Relative or absolute path requested by the tool input.
    * @returns A normalized path honoring `pathGuards` and the backend root.
    */
-  function resolve(path: string): string {
+  function resolve(path: string, use: 'file' | 'cwd' = 'file'): string {
+    if (pathGuards && typeof path === 'string' && isOutsideRoot(path, root)) {
+      throw new ToolInputError(
+        use === 'cwd'
+          ? `${path} is outside the workspace (${root}), so it cannot be the working directory — ` +
+              `start the command with \`cd ${path} && \` instead.`
+          : `${path} is outside the workspace (${root}). The file tools only reach files inside it — ` +
+              `read or list anything else with exec_command (e.g. \`cat ${path}\` or \`ls ${path}\`).`,
+      )
+    }
     return pathGuards ? resolvePath(path, root) : path
   }
 
@@ -1031,7 +1041,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
 
     async exec_command(input) {
       const command = input.command as string
-      const cwd = input.cwd ? resolve(input.cwd as string) : root
+      const cwd = input.cwd ? resolve(input.cwd as string, 'cwd') : root
 
       // A model that sent the command under another name (`cmd`, `script`, …)
       // has already been normalized by guardToolExecute; reaching here with

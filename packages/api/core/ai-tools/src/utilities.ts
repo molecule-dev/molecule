@@ -293,6 +293,27 @@ export function resolvePath(path: string, projectRoot: string): string {
 }
 
 /**
+ * Whether a tool path points outside the project root once normalized (an
+ * absolute path elsewhere, or a `..` that climbs out). {@link resolvePath}
+ * clamps such a path to the root; a file tool must refuse it instead of
+ * answering about the root — a `list_files /tmp/x` used to return the
+ * workspace listing as if it were `/tmp/x` (X1 runs sonnet-m17 and sol-m05,
+ * 2026-10-14).
+ *
+ * @param path - The path the tool was given.
+ * @param projectRoot - The project root.
+ * @returns True when the path leaves the root.
+ */
+export function isOutsideRoot(path: string, projectRoot: string): boolean {
+  if (path === '' || path === '/') return false
+  const clean = path.replace(/\0/g, '')
+  const resolved = clean.startsWith('/')
+    ? posix.normalize(clean)
+    : posix.normalize(`${projectRoot}/${clean}`)
+  return resolved !== projectRoot && !resolved.startsWith(projectRoot + '/')
+}
+
+/**
  * Validate that a glob/include pattern is safe (no shell metacharacters that could
  * inject). Allows alphanumeric, `* ? . _ - /` and the bracket/paren glob chars `[] ()`.
  *
