@@ -173,4 +173,33 @@ if (dryRun.status !== 0) {
   process.exit(1)
 }
 
+// Every platform's build of a native package must be recorded. A lockfile
+// written on one machine with node_modules present can keep only that
+// machine's build (npm/cli#4828); `npm ci` on an x64 runner then installs no
+// binary and the package fails to load (2026-10-15: CI failed on
+// @tailwindcss/oxide-linux-x64-gnu, the lock held only the arm64 build).
+const PLATFORM = /(linux|darwin|win32|android|freebsd|wasm)/
+const recorded = new Set(Object.keys(packages).map((k) => k.replace(/^.*node_modules\//, '')))
+const partial = []
+for (const [key, node] of Object.entries(packages)) {
+  const builds = Object.keys(node.optionalDependencies ?? {}).filter((d) => PLATFORM.test(d))
+  if (!key || builds.length < 2) continue
+  const missing = builds.filter((d) => !recorded.has(d))
+  if (missing.length)
+    partial.push(
+      `${key} (lacks ${missing.slice(0, 3).join(', ')}${missing.length > 3 ? ', …' : ''})`,
+    )
+}
+if (partial.length) {
+  console.error(
+    '\npackage-lock.json records only some platform builds of a native package,',
+    '\nso `npm ci` on another platform installs no binary for it:\n',
+    `\n  ${partial.join('\n  ')}\n`,
+    '\nFix (from the workspace root): `node scripts/repair-lockfile-platforms.mjs molecule --write`,',
+    '\nthen `npm install` in molecule. Deleting the entries and running `npm install` in place',
+    '\ndoes not work: npm drops them instead of re-resolving them.',
+  )
+  process.exit(1)
+}
+
 console.log('Lock file OK — dependencies resolvable and in sync with package.json.')

@@ -56,7 +56,9 @@
  * - Article bodies are stored as given. Render markdown with
  *   `@molecule/app-markdown` + a provider (sanitized HTML) on the client.
  * - Comments on articles: `@molecule/api-resource-comment` with resource type
- *   `'article'` and the article id.
+ *   `'article'` and the article id. An API whose comment ids are integers
+ *   (RealWorld's) creates them with its `createNumberedComment` and finds them with
+ *   `getCommentByNumber`.
  *
  * @e2e
  * Integration checklist — drive the real UI (live preview, no mocks), adapt

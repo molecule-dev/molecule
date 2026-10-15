@@ -28,6 +28,10 @@
  * - **Migration required.** `src/__setup__/comments.sql` ships with this package
  *   and must exist in the target database before use (scaffolded apps apply it
  *   automatically; existing apps must apply it first).
+ * - **Integer comment ids (RealWorld's `comment.id`, most public API specs):** keep the
+ *   UUID and give each comment a sequential number — `createNumberedComment()` creates both
+ *   in one transaction, `getCommentByNumber(n)` finds it, `commentNumbers(ids)` maps a list.
+ *   Apply `src/__setup__/comment_numbers.sql` too. Never build your own id-mapping table.
  * - **Reads are PUBLIC by default.** `list`, `read`, `replies`, and `count` ship
  *   with no auth middleware (comment threads on public content). If the
  *   commented resources are private in your app, add an authorizer that checks
@@ -61,6 +65,7 @@
 export * from './authorizers/index.js'
 export * from './browser-guard.js'
 export * from './handlers/index.js'
+export * from './numbers.js'
 export * from './requestHandlerMap.js'
 export * from './routes.js'
 export * from './service.js'
