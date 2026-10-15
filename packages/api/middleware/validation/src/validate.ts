@@ -9,7 +9,7 @@ import { ZodError, type ZodType } from 'zod'
 
 import { t } from '@molecule/api-i18n'
 
-import type { ValidationError, ValidationSchema } from './types.js'
+import type { ValidateOptions, ValidationError, ValidationSchema } from './types.js'
 
 /**
  * Creates an Express middleware that validates the request body, params,
@@ -18,9 +18,11 @@ import type { ValidationError, ValidationSchema } from './types.js'
  * On success the parsed (and possibly coerced/defaulted) values replace the
  * original request properties and `next()` is called.
  *
- * On failure a `400` JSON response is returned with structured error details.
+ * On failure a `400` JSON response is returned with structured error details,
+ * or the status and body `options` name.
  *
  * @param schema - Object mapping request parts (`body`, `params`, `query`) to Zod schemas.
+ * @param options - The failure response's status and body, when they are not the defaults.
  * @returns Express middleware function.
  *
  * @example
@@ -34,7 +36,7 @@ import type { ValidationError, ValidationSchema } from './types.js'
  * }), handler)
  * ```
  */
-export function validate(schema: ValidationSchema): RequestHandler {
+export function validate(schema: ValidationSchema, options: ValidateOptions = {}): RequestHandler {
   return (req: Request, res: Response, next: NextFunction): void => {
     const errors: ValidationError[] = []
 
@@ -68,10 +70,14 @@ export function validate(schema: ValidationSchema): RequestHandler {
             code: issue.code,
           })
         }
-        res.status(400).json({
-          error: t('validation.failed', {}, { defaultValue: 'Validation failed' }),
-          errors,
-        })
+        res.status(options.status ?? 400).json(
+          options.body
+            ? options.body(errors)
+            : {
+                error: t('validation.failed', {}, { defaultValue: 'Validation failed' }),
+                errors,
+              },
+        )
         return
       }
       throw error
@@ -85,28 +91,40 @@ export function validate(schema: ValidationSchema): RequestHandler {
  * Convenience wrapper that validates only the request body.
  *
  * @param schema - Zod schema for `req.body`.
+ * @param options - The failure response's status and body, when they are not the defaults.
  * @returns Express middleware function.
  */
-export function validateBody<T extends ZodType>(schema: T): RequestHandler {
-  return validate({ body: schema })
+export function validateBody<T extends ZodType>(
+  schema: T,
+  options?: ValidateOptions,
+): RequestHandler {
+  return validate({ body: schema }, options)
 }
 
 /**
  * Convenience wrapper that validates only URL params.
  *
  * @param schema - Zod schema for `req.params`.
+ * @param options - The failure response's status and body, when they are not the defaults.
  * @returns Express middleware function.
  */
-export function validateParams<T extends ZodType>(schema: T): RequestHandler {
-  return validate({ params: schema })
+export function validateParams<T extends ZodType>(
+  schema: T,
+  options?: ValidateOptions,
+): RequestHandler {
+  return validate({ params: schema }, options)
 }
 
 /**
  * Convenience wrapper that validates only query string parameters.
  *
  * @param schema - Zod schema for `req.query`.
+ * @param options - The failure response's status and body, when they are not the defaults.
  * @returns Express middleware function.
  */
-export function validateQuery<T extends ZodType>(schema: T): RequestHandler {
-  return validate({ query: schema })
+export function validateQuery<T extends ZodType>(
+  schema: T,
+  options?: ValidateOptions,
+): RequestHandler {
+  return validate({ query: schema }, options)
 }

@@ -87,6 +87,35 @@ describe('validate', () => {
       expect(next).not.toHaveBeenCalled()
       expect(res.status).toHaveBeenCalledWith(400)
     })
+
+    it('answers with the status and body the options name', () => {
+      const req = mockRequest({ body: { name: '', email: 'alice@example.com' } })
+      const res = mockResponse()
+      const middleware = validateBody(schema, {
+        status: 422,
+        body: (errors) => ({
+          errors: Object.fromEntries(errors.map((e) => [e.field, [e.message]])),
+        }),
+      })
+
+      middleware(req, res, next)
+
+      expect(next).not.toHaveBeenCalled()
+      expect(res.status).toHaveBeenCalledWith(422)
+      expect(res.json).toHaveBeenCalledWith({ errors: { name: [expect.any(String)] } })
+    })
+
+    it('keeps the default body when only the status changes', () => {
+      const req = mockRequest({ body: {} })
+      const res = mockResponse()
+
+      validate({ body: schema }, { status: 422 })(req, res, next)
+
+      expect(res.status).toHaveBeenCalledWith(422)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ error: 'Validation failed', errors: expect.any(Array) }),
+      )
+    })
   })
 
   describe('params validation', () => {

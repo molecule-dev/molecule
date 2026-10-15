@@ -32,6 +32,20 @@ export interface ValidationError {
 }
 
 /**
+ * How a failed validation is answered.
+ */
+export interface ValidateOptions {
+  /** HTTP status of the failure response (default `400`; an API whose spec says `422` passes it). */
+  status?: number
+  /**
+   * Builds the failure response body from the field errors (default
+   * `{ error, errors: [{ field, message, code }] }`). For an API with its own
+   * error envelope, e.g. `(errors) => ({ errors: Object.fromEntries(errors.map((e) => [e.field, [e.message]])) })`.
+   */
+  body?: (errors: ValidationError[]) => unknown
+}
+
+/**
  * The result of validating a request against a schema.
  */
 export interface ValidationResult {

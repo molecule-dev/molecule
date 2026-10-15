@@ -23,7 +23,10 @@
  * frameworks, call the schemas directly and shape your own 400 response.
  * On success the parsed values REPLACE `req.body` / `req.params` /
  * `req.query`, so Zod coercions and defaults are what handlers see. On
- * failure the response is `400 { error, errors: [{ field, message, code }] }`.
+ * failure the response is `400 { error, errors: [{ field, message, code }] }`;
+ * an API whose spec answers differently passes `{ status, body }` as the
+ * second argument, e.g. `validateBody(schema, { status: 422, body: (errors) =>
+ * ({ errors: Object.fromEntries(errors.map((e) => [e.field, [e.message]])) }) })`.
  *
  * MASS-ASSIGNMENT SAFETY — Zod object schemas STRIP unknown keys by default, so
  * after `validateBody(schema)` the replaced `req.body` holds ONLY the schema's
