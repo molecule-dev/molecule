@@ -15,21 +15,13 @@ import {
   updateById,
   type WhereCondition,
 } from '@molecule/api-database'
+import { slugify } from '@molecule/api-slug'
 
 import type { ForumReplyRow, ForumThreadRow, ForumVoteRow, ThreadStatus } from './types.js'
 
 const THREADS_TABLE = 'forum_threads'
 const REPLIES_TABLE = 'forum_replies'
 const VOTES_TABLE = 'forum_votes'
-
-/** Convert a thread title into a URL-safe slug (max 120 chars). */
-function slugify(title: string): string {
-  return title
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '')
-    .slice(0, 120)
-}
 
 /** List forum threads with optional category/status filtering, sorting, and pagination. */
 export async function listThreads(opts: {
@@ -73,7 +65,7 @@ export async function createThread(
   authorId: string,
   data: { title: string; body: string; category_id?: string | null },
 ): Promise<ForumThreadRow> {
-  const slug = slugify(data.title)
+  const slug = slugify(data.title, { maxLength: 120 })
   const result = await create<ForumThreadRow>(THREADS_TABLE, {
     author_id: authorId,
     category_id: data.category_id ?? null,

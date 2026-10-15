@@ -30,6 +30,7 @@
   "devDependencies": {
     "@molecule/api-bond": "1.0.2",
     "@molecule/api-locales-project": "1.0.2",
+    "@molecule/api-slug": "1.0.0",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.11"
@@ -40,7 +41,8 @@
     "@molecule/api-i18n": "^1.0.1",
     "@molecule/api-locales-project": "^1.0.1",
     "@molecule/api-logger": "^1.0.1",
-    "@molecule/api-resource": "^1.0.1"
+    "@molecule/api-resource": "^1.0.1",
+    "@molecule/api-slug": "^1.0.0"
   },
   "peerDependenciesMeta": {
     "@molecule/api-resource": {

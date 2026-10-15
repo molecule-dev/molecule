@@ -227,8 +227,9 @@ describe('@molecule/api-resource-product handlers', () => {
       expect(res.status).toHaveBeenCalledWith(201)
     })
 
-    it('should append timestamp suffix on slug collision', async () => {
-      mockFindOne.mockResolvedValue({ id: 'existing', slug: 'widget' })
+    it('should take the next free numbered slug on a collision', async () => {
+      // The plain slug is taken, the numbered one is free.
+      mockFindOne.mockResolvedValueOnce({ id: 'existing', slug: 'widget' }).mockResolvedValue(null)
       mockCreate.mockResolvedValue({ data: { id: '2', slug: 'widget-abc' } })
 
       const req = mockReq({ body: { name: 'Widget', price: 500 } })
@@ -237,7 +238,7 @@ describe('@molecule/api-resource-product handlers', () => {
       await create(req, res)
 
       const createdSlug = mockCreate.mock.calls[0][1].slug as string
-      expect(createdSlug).toMatch(/^widget-[a-z0-9]+$/)
+      expect(createdSlug).toBe('widget-2')
     })
 
     it('should accept optional fields', async () => {

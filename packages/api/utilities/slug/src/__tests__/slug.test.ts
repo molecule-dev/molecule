@@ -38,6 +38,10 @@ describe('uniqueSlug', () => {
     )
     expect(await uniqueSlug('!!!', () => false, { fallback: 'post' })).toBe('post')
   })
+
+  it('gives up with an error when every slug is reported taken', async () => {
+    await expect(uniqueSlug('x', () => true)).rejects.toThrow('No free slug for "x"')
+  })
 })
 
 describe('uniqueSlugInTable', () => {

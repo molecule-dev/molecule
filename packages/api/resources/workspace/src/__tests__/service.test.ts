@@ -62,6 +62,22 @@ describe('@molecule/api-resource-workspace service', () => {
   })
 
   describe('createWorkspace', () => {
+    it('gives a second workspace with the same name the next free slug', async () => {
+      // workspaces.slug is UNIQUE: this create used to hit the constraint.
+      mockFindOne.mockResolvedValueOnce({ id: 'w0', slug: 'acme' }).mockResolvedValueOnce(null)
+      mockCreate
+        .mockResolvedValueOnce({ data: { id: 'w2', ownerId: 'u1', name: 'Acme', slug: 'acme-2' } })
+        .mockResolvedValueOnce({ data: { workspaceId: 'w2', userId: 'u1', role: 'owner' } })
+
+      await createWorkspace('u1', { name: 'Acme' })
+
+      expect(mockCreate).toHaveBeenNthCalledWith(
+        1,
+        'workspaces',
+        expect.objectContaining({ slug: 'acme-2' }),
+      )
+    })
+
     it('creates the workspace and an owner membership', async () => {
       const workspace = {
         id: 'w1',

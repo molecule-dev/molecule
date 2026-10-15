@@ -117,8 +117,11 @@ describe('@molecule/api-resource-project handlers', () => {
       expect(res.status).toHaveBeenCalledWith(201)
     })
 
-    it('should append timestamp suffix on slug collision', async () => {
-      mockFindOne.mockResolvedValue({ id: 'existing', slug: 'my-project' })
+    it('should take the next free numbered slug on a collision', async () => {
+      // The plain slug is taken, the numbered one is free.
+      mockFindOne
+        .mockResolvedValueOnce({ id: 'existing', slug: 'my-project' })
+        .mockResolvedValue(null)
       mockCreate.mockResolvedValue({ data: { id: '2', slug: 'my-project-abc123' } })
 
       const req = mockReq({
@@ -129,7 +132,7 @@ describe('@molecule/api-resource-project handlers', () => {
       await create(req, res)
 
       const createdSlug = mockCreate.mock.calls[0][1].slug as string
-      expect(createdSlug).toMatch(/^my-project-[a-z0-9]+$/)
+      expect(createdSlug).toBe('my-project-2')
     })
 
     it('should return 500 on database error', async () => {

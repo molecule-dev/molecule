@@ -18,6 +18,7 @@ import {
   findOne,
   updateById,
 } from '@molecule/api-database'
+import { slugify as slugifyText, uniqueSlugInTable } from '@molecule/api-slug'
 
 import type {
   CreateWorkspaceInput,
@@ -44,12 +45,7 @@ const DEFAULT_INVITE_TTL_MS = 7 * 24 * 60 * 60 * 1000
  * @returns Lowercased, hyphen-separated slug.
  */
 export function slugify(input: string): string {
-  return input
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 255)
+  return slugifyText(input, { maxLength: 255 })
 }
 
 /**
@@ -75,7 +71,10 @@ export async function createWorkspace(
   ownerId: string,
   input: CreateWorkspaceInput,
 ): Promise<Workspace> {
-  const slug = input.slug ?? slugify(input.name)
+  // workspaces.slug is UNIQUE: a second workspace with the same name used to
+  // fail on the constraint; it now gets the next free slug.
+  const slug =
+    input.slug ?? (await uniqueSlugInTable(WORKSPACES, 'slug', input.name, { maxLength: 255 }))
   const result = await dbCreate<Workspace>(WORKSPACES, {
     ownerId,
     name: input.name,

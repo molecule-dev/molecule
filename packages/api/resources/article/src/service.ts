@@ -59,7 +59,7 @@ const articleSlug = (title: string, excludeId?: string): Promise<string> =>
       const row = await findOne<{ id: string }>(ARTICLES, [
         { field: 'slug', operator: '=', value: slug },
       ])
-      return row !== null && row.id !== excludeId
+      return row != null && row.id !== excludeId
     },
     { fallback: 'article' },
   )

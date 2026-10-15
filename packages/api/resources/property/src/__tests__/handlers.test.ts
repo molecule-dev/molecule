@@ -177,8 +177,11 @@ describe('@molecule/api-resource-property handlers', () => {
       expect(res.status).toHaveBeenCalledWith(201)
     })
 
-    it('appends timestamp suffix on slug collision', async () => {
-      mockFindOne.mockResolvedValue({ id: 'existing', slug: 'building' })
+    it('takes the next free numbered slug on a collision', async () => {
+      // The plain slug is taken, the numbered one is free.
+      mockFindOne
+        .mockResolvedValueOnce({ id: 'existing', slug: 'building' })
+        .mockResolvedValue(null)
       mockCreate.mockResolvedValue({ data: { id: '2' } })
 
       const req = mockReq({ body: { name: 'Building', ...validAddress } })
@@ -187,7 +190,7 @@ describe('@molecule/api-resource-property handlers', () => {
       await create(req, res)
 
       const createdSlug = mockCreate.mock.calls[0][1].slug as string
-      expect(createdSlug).toMatch(/^building-[a-z0-9]+$/)
+      expect(createdSlug).toBe('building-2')
     })
 
     it('accepts optional fields', async () => {

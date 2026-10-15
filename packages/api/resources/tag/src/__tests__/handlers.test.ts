@@ -210,8 +210,9 @@ describe('@molecule/api-resource-tag handlers', () => {
       expect(res.status).toHaveBeenCalledWith(201)
     })
 
-    it('should append timestamp suffix on slug collision', async () => {
-      mockFindOne.mockResolvedValue({ id: 'existing', slug: 'my-tag' })
+    it('should take the next free numbered slug on a collision', async () => {
+      // The plain slug is taken, the numbered one is free.
+      mockFindOne.mockResolvedValueOnce({ id: 'existing', slug: 'my-tag' }).mockResolvedValue(null)
       mockCreate.mockResolvedValue({ data: { id: '2', slug: 'my-tag-abc' } })
 
       const req = mockReq({ body: { name: 'My Tag' } })
@@ -220,7 +221,7 @@ describe('@molecule/api-resource-tag handlers', () => {
       await create(req, res)
 
       const createdSlug = mockCreate.mock.calls[0][1].slug as string
-      expect(createdSlug).toMatch(/^my-tag-[a-z0-9]+$/)
+      expect(createdSlug).toBe('my-tag-2')
     })
 
     it('should accept optional color and description', async () => {

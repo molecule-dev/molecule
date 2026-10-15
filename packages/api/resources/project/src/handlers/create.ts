@@ -1,25 +1,13 @@
 import { getAnalytics } from '@molecule/api-bond'
-import { create as dbCreate, findOne } from '@molecule/api-database'
+import { create as dbCreate } from '@molecule/api-database'
 import { t } from '@molecule/api-i18n'
 import { logger } from '@molecule/api-logger'
 
 const analytics = getAnalytics()
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
+import { uniqueSlugInTable } from '@molecule/api-slug'
 
 import type { CreateProjectInput, Project } from '../types.js'
-
-/**
- * Converts a string to a URL-friendly slug by lowercasing, replacing non-alphanumeric
- * characters with hyphens, and trimming leading/trailing hyphens.
- * @param name - The string to slugify.
- * @returns The slugified string.
- */
-function slugify(name: string): string {
-  return name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '')
-}
 
 /**
  * Creates a new project with a unique slug derived from the project name. Requires `name` and
@@ -48,13 +36,11 @@ export async function create(req: MoleculeRequest, res: MoleculeResponse): Promi
     return
   }
 
-  let slug = slugify(input.name)
-
-  // Ensure slug uniqueness
-  const existing = await findOne('projects', [{ field: 'slug', operator: '=', value: slug }])
-  if (existing) {
-    slug = `${slug}-${Date.now().toString(36)}`
-  }
+  // The plain slug, or the next free one (name-2, name-3 …): `@molecule/api-slug`.
+  const slug = await uniqueSlugInTable('projects', 'slug', input.name, {
+    maxLength: 255,
+    fallback: 'project',
+  })
 
   try {
     const result = await dbCreate<Project>('projects', {

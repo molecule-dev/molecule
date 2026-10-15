@@ -1,22 +1,11 @@
-import { create as dbCreate, findOne } from '@molecule/api-database'
+import { create as dbCreate } from '@molecule/api-database'
 import { t } from '@molecule/api-i18n'
 import { logger } from '@molecule/api-logger'
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
+import { slugify, uniqueSlugInTable } from '@molecule/api-slug'
 
 import { isProductAdmin } from '../authorizers/index.js'
 import type { CreateProductInput, Product } from '../types.js'
-
-/**
- * Converts a string to a URL-friendly slug.
- * @param name - The string to slugify.
- * @returns The slugified string.
- */
-function slugify(name: string): string {
-  return name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '')
-}
 
 /**
  * Creates a new product with a unique slug derived from the name.
@@ -71,7 +60,7 @@ export async function create(req: MoleculeRequest, res: MoleculeResponse): Promi
     return
   }
 
-  let slug = slugify(input.name)
+  let slug = slugify(input.name, { maxLength: 255 })
   if (!slug) {
     res.status(400).json({
       error: t('product.error.invalidName', undefined, { defaultValue: 'Product name is invalid' }),
@@ -80,10 +69,8 @@ export async function create(req: MoleculeRequest, res: MoleculeResponse): Promi
     return
   }
 
-  const existing = await findOne('products', [{ field: 'slug', operator: '=', value: slug }])
-  if (existing) {
-    slug = `${slug}-${Date.now().toString(36)}`
-  }
+  // The plain slug, or the next free one (name-2, name-3 …): `@molecule/api-slug`.
+  slug = await uniqueSlugInTable('products', 'slug', input.name, { maxLength: 255 })
 
   try {
     const result = await dbCreate<Product>('products', {

@@ -1,14 +1,13 @@
 import { z } from 'zod'
 
+import { slugify as slugifyText } from '@molecule/api-slug'
+
 /** Regex that matches a valid wiki-page slug: lowercase alphanumeric with interior hyphens. */
 export const slugRegex = /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/
 
 /** Converts an arbitrary string into a URL-safe lowercase slug. */
 export function slugify(input: string): string {
-  return input
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '')
+  return slugifyText(input, { maxLength: 120 })
 }
 
 /** Zod schema for validating wiki-page creation payloads. */

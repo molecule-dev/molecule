@@ -23,6 +23,7 @@ const randomSuffix = (): string => Math.random().toString(36).slice(2, 8).padEnd
  * @param isTaken - Whether a slug is already used (your store's lookup).
  * @param options - Slug options, the numbered tries and a fallback for text with no letters.
  * @returns A slug `isTaken` reported free.
+ * @throws {Error} When every candidate is reported taken (a lookup that always says yes).
  */
 export async function uniqueSlug(
   text: string,
@@ -44,10 +45,13 @@ export async function uniqueSlug(
       if (!(await isTaken(candidate))) return candidate
     }
   }
-  for (;;) {
+  // Twelve random characters are free on the first try unless the lookup is
+  // broken (it says everything is taken): stop and say so instead of spinning.
+  for (let i = 0; i < 10; i++) {
     const candidate = `${base}${separator}${randomSuffix()}${randomSuffix()}`
     if (!(await isTaken(candidate))) return candidate
   }
+  throw new Error(`No free slug for "${base}": every candidate was reported taken`)
 }
 
 /**
@@ -72,7 +76,8 @@ export async function uniqueSlugInTable(
       const row = await findOne<{ id?: string }>(table, [
         { field: column, operator: '=', value: slug },
       ])
-      return row !== null && (options.excludeId === undefined || row.id !== options.excludeId)
+      // Not found is null from the bonds, undefined from some stores and stubs.
+      return row != null && (options.excludeId === undefined || row.id !== options.excludeId)
     },
     options,
   )
