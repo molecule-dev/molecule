@@ -1,5 +1,13 @@
 # @molecule/api-ai-tools
 
+## 1.5.8
+
+### Patch Changes
+
+- c451e9f: A Playwright run piped through a filter is started in the background even when it declares no time budget.
+- 417b24b: A secret value cut off before its closing quote is masked up to the end of its line, without swallowing the lines after it.
+- bc19aa9: A background command that redirects its own output is told where that output goes, and its stuck check reads that file.
+
 ## 1.5.7
 
 ### Patch Changes

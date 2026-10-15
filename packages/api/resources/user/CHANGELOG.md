@@ -1,5 +1,11 @@
 # @molecule/api-resource-user
 
+## 1.4.13
+
+### Patch Changes
+
+- 417b24b: Documents that a session token needs an active device row, and how to mint one.
+
 ## 1.4.12
 
 ### Patch Changes
