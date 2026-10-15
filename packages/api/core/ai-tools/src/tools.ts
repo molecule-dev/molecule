@@ -171,9 +171,16 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       .run(command, { cwd: path.slice(0, path.lastIndexOf('/')) || '/', timeout: 15_000 })
       .catch(() => null)
     const problem = result ? parseCheckProblem(result) : null
+    // JSX in a `.ts` file parses as a type assertion and fails on the first
+    // attribute — `Expected ">" but found "className"` — which does not say the
+    // file just needs to be `.tsx` (X1 flash-m28: three writes and 2.5 minutes).
+    const jsxInTs =
+      problem !== null && /\.ts$/.test(path) && /Expected ">" but found|JSX/i.test(problem)
+        ? '\nThis looks like JSX in a `.ts` file: JSX only parses in a `.tsx` file — rename it (and its imports keep the `.js` extension).'
+        : ''
     return problem
       ? {
-          syntaxError: `The file no longer parses after this change — fix it before anything else, every build and test fails until it does:\n${problem}`,
+          syntaxError: `The file no longer parses after this change — fix it before anything else, every build and test fails until it does:\n${problem}${jsxInTs}`,
         }
       : {}
   }

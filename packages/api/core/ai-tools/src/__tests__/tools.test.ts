@@ -2002,6 +2002,21 @@ describe('parse check after a write', () => {
     }
   }
 
+  it('names .tsx when a .ts file fails to parse on JSX (flash-m28)', async () => {
+    const backend = mockBackend()
+    ;(backend.run as ReturnType<typeof vi.fn>).mockResolvedValue({
+      stdout: '',
+      stderr:
+        '3:14: Expected ">" but found "className"\n  return <div className="x">\n             ^',
+      exitCode: 1,
+    })
+    const write = buildTools(backend).find((t) => t.name === 'write_file')!
+    const result = (await write.execute({ path: '/test/src/Page.ts', content: 'x' })) as {
+      syntaxError?: string
+    }
+    expect(result.syntaxError).toContain('JSX only parses in a `.tsx` file')
+  })
+
   it('edit_file returns the parse error in its own result when the file no longer parses', async () => {
     const backend = mockBackend()
     ;(backend.run as ReturnType<typeof vi.fn>).mockImplementation(async (command: string) =>
