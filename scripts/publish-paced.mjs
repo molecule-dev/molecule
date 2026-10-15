@@ -437,6 +437,41 @@ for (const pkg of todo) {
         process.stderr.write(
           `  ⚠ ${pkg.name}: auth rejected — skipping, not aborting. npm said:\n      ${npmSaid}\n`,
         )
+        // ENEEDAUTH hides WHY the OIDC exchange gave nothing. api-database-pglite
+        // was refused twice on 2026-10-15 although its trust link (repo +
+        // release.yml) was confirmed with `npm trust list`; the reason was in no
+        // log. Re-run this one package with npm's own trace and print its OIDC
+        // lines (npm logs the exchange's status and message, never a token).
+        try {
+          execFileSync(
+            'npm',
+            ['publish', '--access', 'public', '--fetch-retries=0', '--loglevel=silly'],
+            {
+              cwd: pkg.dir,
+              stdio: ['ignore', 'pipe', 'pipe'],
+              encoding: 'utf8',
+              timeout: 120_000,
+              killSignal: 'SIGKILL',
+              env: Object.fromEntries(
+                Object.entries(process.env).filter(
+                  ([key]) => key !== 'NODE_AUTH_TOKEN' && key !== 'NPM_CONFIG_USERCONFIG',
+                ),
+              ),
+            },
+          )
+          // The traced attempt went through: the first refusal was transient.
+          failed.pop()
+          published = true
+          process.stderr.write(`      ${pkg.name}: published on the traced retry\n`)
+        } catch (trace) {
+          const traced = `${trace.stdout ?? ''}${trace.stderr ?? ''}`
+            .split('\n')
+            .filter((line) => /oidc|trusted|exchange|id[-_ ]token|provenance/i.test(line))
+            .slice(0, 25)
+          process.stderr.write(
+            `      OIDC trace for ${pkg.name}:\n      ${traced.join('\n      ') || '(npm printed no OIDC lines — the exchange was never attempted)'}\n`,
+          )
+        }
         // BREAK OUT OF THE RETRY LOOP. Retrying an auth rejection cannot help —
         // the credential does not change between attempts — and without this the
         // same package burned all three tolerated failures by itself and then

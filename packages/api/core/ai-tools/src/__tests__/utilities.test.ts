@@ -190,6 +190,12 @@ describe('checkBlockedCommand', () => {
     expect(checkBlockedCommand("env -i PATH=/usr/bin sh -c 'npm test'")).toBeNull()
   })
 
+  it('says a blocked command ran none of its parts (X1 m53 lost a chained mkdir)', () => {
+    expect(checkBlockedCommand('mkdir -p /workspace/x && env | grep URL')).toMatch(
+      /Nothing in this command ran — none of its other parts either/,
+    )
+  })
+
   it('still blocks env when it dumps: bare, -0, piped, redirected, chained', () => {
     expect(checkBlockedCommand('env -0')).toMatch(/dumping environment variables/)
     expect(checkBlockedCommand('env --null | tr "\\0" "\\n"')).toMatch(

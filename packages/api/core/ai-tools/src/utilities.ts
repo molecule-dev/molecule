@@ -254,7 +254,11 @@ export function checkBlockedCommand(command: string): string | null {
   // These blocks fire when the executor tries to DUMP the environment (usually to discover
   // what managed services are configured). Don't just refuse — redirect: the values are
   // already in the process environment, so it never needs to print them.
+  // A blocked command runs NONE of its parts: X1 run m53 lost the `mkdir -p …`
+  // chained before a blocked env read and only found out from the retry.
   const envDumpSteer =
+    ' Nothing in this command ran — none of its other parts either, so run those again ' +
+    'without the dump.' +
     ' You do NOT need to dump it: the managed service values (DATABASE_URL, etc.) are already ' +
     'in the process environment — read them IN CODE via process.env / your config loader, or ' +
     "check the project's provisioned env file to see WHICH services exist. Printing them only " +
