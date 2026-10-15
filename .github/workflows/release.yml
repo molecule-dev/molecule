@@ -217,3 +217,19 @@ jobs:
           # Dispatch inputs reach the publisher as ENV, not CLI flags.
           MOL_PUBLISH_LIMIT: ${{ inputs.limit }}
           MOL_PUBLISH_DELAY: ${{ inputs.delay }}
+
+      # npm's own reason for a refused publish lives only in its debug log (its
+      # ENEEDAUTH line says nothing about why the OIDC exchange gave no
+      # credential). Keep the logs, and the failure list, when the step fails:
+      # 2026-10-15 api-database-pglite was refused twice and the reason was in
+      # a file on a runner that no longer existed.
+      - name: Keep npm's logs of a failed publish
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-publish-logs
+          path: |
+            ~/.npm/_logs/
+            .publish-failures.json
+          retention-days: 14
+          if-no-files-found: ignore
