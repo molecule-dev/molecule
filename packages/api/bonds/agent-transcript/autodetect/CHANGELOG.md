@@ -1,5 +1,14 @@
 # @molecule/api-agent-transcript-autodetect
 
+## 1.2.3
+
+### Patch Changes
+
+- Updated dependencies [cdcdabb]
+  - @molecule/api-agent-transcript-claude-code@1.0.1
+  - @molecule/api-agent-transcript-codex@1.0.1
+  - @molecule/api-agent-transcript-molecule-ide@1.0.1
+
 ## 1.2.2
 
 ### Patch Changes

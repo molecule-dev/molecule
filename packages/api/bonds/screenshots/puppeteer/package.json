@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-screenshots-puppeteer",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Puppeteer screenshot capture provider for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
@@ -35,7 +35,7 @@
     "puppeteer": "25.4.0"
   },
   "devDependencies": {
-    "@molecule/api-screenshots": "1.1.0",
+    "@molecule/api-screenshots": "1.1.1",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.11"

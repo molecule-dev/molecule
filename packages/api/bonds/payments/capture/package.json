@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-payments-capture",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "In-memory payments capture provider for molecule.dev — simulates a hosted-checkout vendor with no network calls.",
   "type": "module",
   "main": "dist/index.js",

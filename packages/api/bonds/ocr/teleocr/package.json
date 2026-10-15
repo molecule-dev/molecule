@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-ocr-teleocr",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "TeleOCR provider for molecule.dev — extracts text from images with the open TeleOCR document-parsing model served by vLLM",
   "homepage": "https://www.molecule.dev/packages/api-ocr-teleocr",
   "type": "module",

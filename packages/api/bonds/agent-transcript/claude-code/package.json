@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-agent-transcript-claude-code",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Reads Claude Code sessions — the /export text and the session .jsonl — into a normalized agent session",
   "type": "module",
   "main": "dist/index.js",

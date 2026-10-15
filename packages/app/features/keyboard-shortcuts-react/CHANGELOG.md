@@ -1,5 +1,11 @@
 # @molecule/app-keyboard-shortcuts-react
 
+## 1.0.3
+
+### Patch Changes
+
+- cdcdabb: Republished through trusted publishing; no code changes.
+
 ## 1.0.2
 
 ### Patch Changes

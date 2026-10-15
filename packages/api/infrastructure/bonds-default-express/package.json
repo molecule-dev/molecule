@@ -95,7 +95,7 @@
     "@molecule/api-password": "1.0.2",
     "@molecule/api-password-bcrypt": "1.0.3",
     "@molecule/api-payments": "1.2.1",
-    "@molecule/api-payments-capture": "1.0.0",
+    "@molecule/api-payments-capture": "1.0.1",
     "@molecule/api-payments-stripe": "1.2.6",
     "@molecule/api-pdf": "1.0.2",
     "@molecule/api-pdf-pdfkit": "1.0.2",

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-agent-transcript-pi",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Reads Pi coding-agent session files and pi --mode json output into a normalized agent session",
   "type": "module",
   "main": "dist/index.js",

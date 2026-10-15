@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-model-hosting",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Model hosting for molecule.dev — run a model server container on rented GPUs or CPUs (Cloud Run, Modal, RunPod, Koyeb) or your own Docker host, and get an HTTPS URL plus auth headers, behind swappable bonds",
   "type": "module",
   "main": "dist/index.js",

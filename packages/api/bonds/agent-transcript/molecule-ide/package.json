@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-agent-transcript-molecule-ide",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Reads a Molecule IDE conversation (its stored JSON) into a normalized agent session",
   "type": "module",
   "main": "dist/index.js",

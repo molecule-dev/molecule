@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-agent-transcript-codex",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Reads Codex CLI sessions — the Markdown export and the rollout .jsonl — into a normalized agent session",
   "type": "module",
   "main": "dist/index.js",

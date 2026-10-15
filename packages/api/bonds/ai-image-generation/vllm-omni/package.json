@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-ai-image-generation-vllm-omni",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "vLLM-Omni image generation provider for molecule.dev — self-hosted Qwen-Image-2.1 and other diffusion models over the OpenAI-compatible Images API",
   "homepage": "https://www.molecule.dev/packages/api-ai-image-generation-vllm-omni",
   "author": "Molecule Dev, Inc. (https://molecule.dev)",

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-project-archive-external-state-pglite",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "PGlite external-state provider for @molecule/api-project-archive — captures a project's PGlite data directory with PGlite's own dumpDataDir, proves the dump loads back with the same row counts before the caller destroys anything, and restores it byte-for-byte with loadDataDir after a checksum check. In-memory databases are declared, never inferred.",
   "homepage": "https://www.molecule.dev/packages/api-project-archive-external-state-pglite",
   "type": "module",

@@ -1,5 +1,11 @@
 # @molecule/api-ai-embeddings-gemini
 
+## 1.0.1
+
+### Patch Changes
+
+- cdcdabb: Republished through trusted publishing; no code changes.
+
 ## 1.0.0
 
 ### Major Changes

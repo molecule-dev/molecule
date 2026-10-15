@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-push-notifications-molecule",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "molecule.dev hosted push notifications provider — web push delivery through your molecule project, VAPID handled for you",
   "homepage": "https://www.molecule.dev/packages/api-push-notifications-molecule",
   "type": "module",

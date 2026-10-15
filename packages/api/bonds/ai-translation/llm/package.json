@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-ai-translation-llm",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Language-model translation provider for molecule.dev — translates through any @molecule/api-ai model, hosted or self-hosted",
   "homepage": "https://www.molecule.dev/packages/api-ai-translation-llm",
   "type": "module",
