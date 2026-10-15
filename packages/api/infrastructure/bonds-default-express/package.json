@@ -56,7 +56,7 @@
     "@molecule/api-config-env": "1.0.2",
     "@molecule/api-cron": "1.0.3",
     "@molecule/api-cron-node-cron": "1.0.2",
-    "@molecule/api-database": "1.0.2",
+    "@molecule/api-database": "1.1.0",
     "@molecule/api-database-pglite": "1.0.0",
     "@molecule/api-database-postgresql": "1.0.5",
     "@molecule/api-emails": "1.0.2",

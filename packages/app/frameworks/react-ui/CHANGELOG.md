@@ -1,5 +1,11 @@
 # @molecule/app-ui-react
 
+## 1.3.2
+
+### Patch Changes
+
+- 3a0eda6: `Switch` delivers a click that lands right after it renders, instead of dropping it.
+
 ## 1.3.1
 
 ### Patch Changes

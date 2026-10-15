@@ -1,5 +1,11 @@
 # @molecule/app-vite-config-default
 
+## 1.1.2
+
+### Patch Changes
+
+- 41df247: Pins `react` and `react-dom` to the one copy the app resolves, adds `react-router-dom` to `dedupe`, and force-includes only optimize dependencies that are installed.
+
 ## 1.1.0
 
 ### Minor Changes

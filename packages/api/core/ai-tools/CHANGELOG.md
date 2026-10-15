@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.5.3
+
+### Patch Changes
+
+- c8894f7: A TypeScript file that fails the post-write parse check reports the line and column, the offending line, and a caret.
+
 ## 1.5.2
 
 ### Patch Changes

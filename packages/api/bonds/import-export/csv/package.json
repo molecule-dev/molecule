@@ -32,7 +32,7 @@
     "@molecule/api-import-export": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/api-database": "1.0.2",
+    "@molecule/api-database": "1.1.0",
     "@molecule/api-import-export": "1.0.3",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",

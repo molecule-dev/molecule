@@ -1,5 +1,11 @@
 # @molecule/api-database
 
+## 1.1.0
+
+### Minor Changes
+
+- fe449e2: Adds `withTransaction(fn)`: every database call made inside `fn` (the CRUD helpers and `query()`) joins one transaction, committed when `fn` resolves and rolled back when it throws.
+
 ## 1.0.1
 
 ### Patch Changes
