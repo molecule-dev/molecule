@@ -121,6 +121,29 @@ describe('@molecule/api-database-sqlite × REAL better-sqlite3', () => {
     expect((await store.deleteById('todos', id)).affected).toBe(0)
   })
 
+  it('a column added to an existing CREATE TABLE IF NOT EXISTS reaches the database on the next run', async () => {
+    // flash-m20 added article_tags.position to its migration after the table existed and had
+    // to ALTER the live database by hand: IF NOT EXISTS skipped the whole statement.
+    const dir = join(workDir, 'drift-migrations')
+    const { mkdirSync } = await import('node:fs')
+    mkdirSync(dir, { recursive: true })
+    const file = join(dir, '0001_tags.sql')
+    writeFileSync(
+      file,
+      'CREATE TABLE IF NOT EXISTS "article_tags" ("article_id" INTEGER NOT NULL, "tag" TEXT NOT NULL, PRIMARY KEY ("article_id", "tag"));',
+    )
+    await createMigrator(dir)()
+    writeFileSync(
+      file,
+      'CREATE TABLE IF NOT EXISTS "article_tags" ("article_id" INTEGER NOT NULL, "tag" TEXT NOT NULL, "position" INTEGER NOT NULL DEFAULT 0, PRIMARY KEY ("article_id", "tag"));',
+    )
+    await createMigrator(dir)()
+    const columns = await pool.query<{ name: string }>('SELECT name FROM pragma_table_info(?)', [
+      'article_tags',
+    ])
+    expect(columns.rows.map((c) => c.name)).toEqual(['article_id', 'tag', 'position'])
+  })
+
   it('a bare create on an INTEGER PRIMARY KEY table lets SQLite number the row (no uuid in it)', async () => {
     // RealWorld numbers its comments; a generated uuid in a rowid column failed every
     // insert with "datatype mismatch" (X1 runs flash-m17, m19, m20).

@@ -39,6 +39,85 @@ function isIdempotencyError(err: unknown): boolean {
 }
 
 /**
+ * The tables a migration declares with `CREATE TABLE IF NOT EXISTS`, and each one's
+ * column definitions (constraint clauses left out).
+ *
+ * @param sql - One migration file, already translated to SQLite DDL.
+ * @returns `{ table, columns: [{ name, definition }] }` per declared table.
+ */
+function declaredTables(
+  sql: string,
+): { table: string; columns: { name: string; definition: string }[] }[] {
+  const out: { table: string; columns: { name: string; definition: string }[] }[] = []
+  const head = /CREATE\s+TABLE\s+IF\s+NOT\s+EXISTS\s+["`]?([A-Za-z_][A-Za-z0-9_]*)["`]?\s*\(/gi
+  for (let m = head.exec(sql); m; m = head.exec(sql)) {
+    // The body runs to the parenthesis that closes the one after the name.
+    let depth = 1
+    let i = head.lastIndex
+    const start = i
+    for (; i < sql.length && depth > 0; i++) {
+      if (sql[i] === '(') depth++
+      else if (sql[i] === ')') depth--
+    }
+    const body = sql.slice(start, i - 1)
+    const parts: string[] = []
+    let level = 0
+    let current = ''
+    for (const ch of body) {
+      if (ch === '(') level++
+      if (ch === ')') level--
+      if (ch === ',' && level === 0) {
+        parts.push(current)
+        current = ''
+      } else current += ch
+    }
+    parts.push(current)
+    const columns = parts
+      .map((p) => p.trim())
+      .filter((p) => p && !/^(CONSTRAINT|PRIMARY\s+KEY|UNIQUE|FOREIGN\s+KEY|CHECK)\b/i.test(p))
+      .map((p) => ({ name: /^["`]?([A-Za-z_][A-Za-z0-9_]*)/.exec(p)?.[1] ?? '', definition: p }))
+      .filter((c) => c.name)
+    out.push({ table: m[1], columns })
+  }
+  return out
+}
+
+/**
+ * Add the columns a `CREATE TABLE IF NOT EXISTS` declares that the existing table
+ * lacks. Every migration file runs on every boot, and on a table that already exists
+ * `IF NOT EXISTS` is a silent no-op: a column added to the file later never reached
+ * the database, nothing said so, and the app failed on it (X1 runs flash-m19, m20
+ * hand-altered the live database). Additive only; a column SQLite cannot add in
+ * place (PRIMARY KEY, UNIQUE, NOT NULL without a default) is reported, not forced.
+ *
+ * @param db - The open database.
+ * @param sql - The migration file just applied.
+ * @param file - Its name, for the log.
+ */
+function addMissingColumns(db: Database.Database, sql: string, file: string): void {
+  for (const { table, columns } of declaredTables(sql)) {
+    const existing = db.prepare('SELECT name FROM pragma_table_info(?)').all(table) as {
+      name: string
+    }[]
+    if (existing.length === 0) continue
+    const have = new Set(existing.map((c) => c.name.toLowerCase()))
+    for (const column of columns) {
+      if (have.has(column.name.toLowerCase())) continue
+      try {
+        db.exec(`ALTER TABLE "${table}" ADD COLUMN ${column.definition}`)
+        console.log(`+ ${file}: added column ${table}.${column.name}`)
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err)
+        console.warn(
+          `⚠ ${file}: ${table}.${column.name} is in the migration but not in the database, and SQLite cannot add it in place (${msg}); ` +
+            'add it in a new migration file (ALTER TABLE … ADD COLUMN with a DEFAULT), or recreate the table',
+        )
+      }
+    }
+  }
+}
+
+/**
  * Returns a `runMigrations()` bound to a migrations directory.
  *
  * @param migrationsDir - Absolute path to the directory of ordered `*.sql`
@@ -86,11 +165,13 @@ export function createMigrator(migrationsDir: string): () => Promise<void> {
           // exec() (not prepare/run) so a file with multiple statements applies.
           db.exec(sql)
           console.log(`✓ ${file}`)
+          addMissingColumns(db, sql, file)
         } catch (err) {
           const msg = err instanceof Error ? err.message : String(err)
           if (isIdempotencyError(err)) {
             // IF NOT EXISTS re-runs are expected to hit this — warn, don't fail.
             console.warn(`⚠ ${file}: ${msg}`)
+            addMissingColumns(db, sql, file)
           } else {
             // A genuinely broken migration must NOT be swallowed as if it were
             // idempotent — that boots the app with a missing/partial schema and
