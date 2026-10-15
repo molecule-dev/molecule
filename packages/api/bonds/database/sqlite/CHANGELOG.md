@@ -1,5 +1,11 @@
 # @molecule/api-database-sqlite
 
+## 1.1.1
+
+### Patch Changes
+
+- 99e5a84: A create without an id on a table whose id is `INTEGER PRIMARY KEY` lets SQLite number the row instead of inserting a uuid.
+
 ## 1.1.0
 
 ### Minor Changes
