@@ -169,22 +169,27 @@ function buildOrderBy(orderBy?: { field: string; direction: 'asc' | 'desc' }[]):
  * @returns A DataStore that translates CRUD operations to SQLite-compatible SQL.
  */
 export function createStore(pool: DatabasePool): DataStore {
-  // Cache of "does this table have an `id` column" so we don't re-introspect per insert.
+  // Cache of "does this table need a generated `id`" so we don't re-introspect per insert.
   const hasIdColumnCache = new Map<string, boolean>()
   /**
-   * Returns whether `table` has an `id` column (cached), used to decide if `create()`
-   * should auto-generate an id when the caller omits one.
+   * Returns whether `table` has an `id` column that `create()` must fill (cached) when
+   * the caller omits one. An `INTEGER PRIMARY KEY` id is SQLite's rowid, which SQLite
+   * assigns itself; a generated uuid in it fails with "datatype mismatch" (apps that
+   * number their rows, like RealWorld's integer comment ids, hit that on every insert).
    * @param table - The table name to introspect.
-   * @returns True if the table has an `id` column.
+   * @returns True if the table has an `id` column that is not the rowid.
    */
   async function tableHasIdColumn(table: string): Promise<boolean> {
     const cached = hasIdColumnCache.get(table)
     if (cached !== undefined) return cached
-    const result = await pool.query<{ x: number }>(
-      `SELECT 1 AS x FROM pragma_table_info(?) WHERE name = 'id' LIMIT 1`,
+    const result = await pool.query<{ type: string; pk: number }>(
+      `SELECT type, pk FROM pragma_table_info(?) WHERE name = 'id' LIMIT 1`,
       [table],
     )
-    const has = (result.rows?.length ?? 0) > 0
+    const column = result.rows?.[0]
+    const isRowid =
+      column != null && Number(column.pk) > 0 && /^INTEGER$/i.test(String(column.type ?? '').trim())
+    const has = column != null && !isRowid
     hasIdColumnCache.set(table, has)
     return has
   }

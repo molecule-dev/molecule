@@ -121,6 +121,21 @@ describe('@molecule/api-database-sqlite × REAL better-sqlite3', () => {
     expect((await store.deleteById('todos', id)).affected).toBe(0)
   })
 
+  it('a bare create on an INTEGER PRIMARY KEY table lets SQLite number the row (no uuid in it)', async () => {
+    // RealWorld numbers its comments; a generated uuid in a rowid column failed every
+    // insert with "datatype mismatch" (X1 runs flash-m17, m19, m20).
+    await pool.query(
+      'CREATE TABLE "numbered" ("id" INTEGER PRIMARY KEY AUTOINCREMENT, "body" TEXT NOT NULL)',
+    )
+    const first = await store.create<{ id: number; body: string }>('numbered', { body: 'one' })
+    const second = await store.create<{ id: number; body: string }>('numbered', { body: 'two' })
+    expect(first.data?.id).toBe(1)
+    expect(second.data?.id).toBe(2)
+    // A uuid-keyed table still gets its id generated.
+    const todo = await store.create<{ id: string }>('todos', { user_id: 'u-int', title: 't' })
+    expect(todo.data?.id).toMatch(/^[0-9a-f-]{36}$/)
+  })
+
   it('CONSUMER PROPERTY: ilike is a case-insensitive literal-substring search across bonds', async () => {
     await store.create('todos', { user_id: 'user-ilike', title: 'Buy MILK' })
     await store.create('todos', { user_id: 'user-ilike', title: 'buy milk later' })
