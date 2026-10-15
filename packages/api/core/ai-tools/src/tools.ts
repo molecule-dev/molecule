@@ -34,6 +34,9 @@ const waitedByTask = new Map<string, number>()
  * m21, 2026-10-15).
  */
 const logBytesByTask = new Map<string, number>()
+
+/** The file a background command writes its own output to, when it redirects it. */
+const outputFileByTask = new Map<string, string>()
 import type { ExecutionBackend, ToolBuildConfig } from './types.js'
 import {
   checkBlockedCommand,
@@ -53,6 +56,7 @@ import {
   MAX_SEARCH_RESULTS,
   MAX_WRITE_SIZE,
   outputIsWithheldUntilExit,
+  outputRedirectTarget,
   parseCheckCommand,
   parseCheckProblem,
   pathArgError,
@@ -1177,6 +1181,13 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           // Keep the log growing while it runs (see streamingBackgroundCommand):
           // an empty log is what wait_for_task reads as stuck.
           const streaming = streamingBackgroundCommand(command)
+          const ownTarget = outputRedirectTarget(streaming.command)
+          const ownFile = ownTarget
+            ? ownTarget.startsWith('/')
+              ? ownTarget
+              : `${cwd}/${ownTarget}`
+            : null
+          if (ownFile) outputFileByTask.set(id, ownFile)
           await backend.writeFile(script, `${streaming.command}\n`)
           await backend.run(
             `nohup sh -c ${shellQuote(`sh ${script} > ${log} 2>&1; echo $? > ${exitFile}`)} ` +
@@ -1236,7 +1247,10 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
               `to peek mid-run, exec_command: tail ${log}). If you have other work, do it and ` +
               `check back. If you need this result before you can continue, call wait_for_task ` +
               `with this taskId — never sleep and read the log by hand.` +
-              (streaming.changes.length ? ` ${streaming.changes.join(' ')}` : ''),
+              (streaming.changes.length ? ` ${streaming.changes.join(' ')}` : '') +
+              (ownFile
+                ? ` This command writes its own output to ${ownFile}, so the task log stays empty: peek with exec_command: tail ${ownFile}.`
+                : ''),
           }
         } catch (e: unknown) {
           return {
@@ -1377,7 +1391,11 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         if (!/^mol-bg-[a-z0-9]+-[a-z0-9]+$/.test(taskId)) return null
         let r: { stdout: string } | null | undefined
         try {
-          r = await backend.run(`wc -c < /tmp/${taskId}.log 2>/dev/null`, { timeout: 5_000 })
+          const own = outputFileByTask.get(taskId)
+          r = await backend.run(
+            `cat /tmp/${taskId}.log${own ? ` ${shellQuote(own)}` : ''} 2>/dev/null | wc -c`,
+            { timeout: 5_000 },
+          )
         } catch (_error) {
           // No answer about the log: treat the size as unknown, which keeps the
           // stuck verdict exactly as before.

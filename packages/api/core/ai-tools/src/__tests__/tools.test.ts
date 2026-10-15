@@ -1658,6 +1658,16 @@ describe('exec_command run_in_background', () => {
     expect(r.note).toContain('--reporter=line')
   })
 
+  it('names the file a background command redirects its output to (flash-m29)', async () => {
+    const backend = bgBackend()
+    const exec = buildTools(backend).find((t) => t.name === 'exec_command')!
+    const r = (await exec.execute({
+      command: 'npx playwright test > /tmp/pw.txt 2>&1',
+      run_in_background: true,
+    })) as { note: string }
+    expect(r.note).toContain('writes its own output to /tmp/pw.txt')
+  })
+
   it('leaves a command with its own reporter, or no tail, exactly as sent', async () => {
     const backend = bgBackend()
     const tools = buildTools(backend)

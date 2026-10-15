@@ -219,6 +219,25 @@ export function outputIsWithheldUntilExit(command: string): boolean {
   return /\|\s*(?:tail|head|grep|egrep|fgrep|sort|uniq|wc|jq)\b/.test(command)
 }
 
+/**
+ * The file a command sends its own output to, when it redirects it (`> out.txt`,
+ * `>> log`, `&> run.log`, `| tee [-a] file`), or null. A background command that does
+ * this leaves its task log empty, so the log is the wrong place to look and an empty
+ * log proves nothing (X1 flash-m29).
+ *
+ * @param command - The shell command.
+ * @returns The target as written, or null (`/dev/null` and `&1`/`&2` are not files).
+ */
+export function outputRedirectTarget(command: string): string | null {
+  const tee = /\|\s*tee\s+(?:-a\s+)?([^\s;&|]+)/.exec(command)
+  if (tee) return tee[1]
+  let last: string | null = null
+  for (const m of command.matchAll(/(?:^|[^0-9&>])(?:&>|1?>>?)\s*([^\s;&|]+)/g)) {
+    if (m[1] !== '/dev/null' && !m[1].startsWith('&')) last = m[1]
+  }
+  return last
+}
+
 /** A trailing `| tail -N` / `| tail -n N` (stderr redirects before it stay). */
 const TRAILING_TAIL = /\s*\|\s*tail(?:\s+-n)?\s+[-+]?\d+\s*$/
 

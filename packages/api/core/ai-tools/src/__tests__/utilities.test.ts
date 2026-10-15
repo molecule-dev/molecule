@@ -4,6 +4,7 @@ import {
   checkBlockedCommand,
   isEnvFilePath,
   isValidGlob,
+  outputRedirectTarget,
   redactSecrets,
   redactSecretsInCode,
   resolvePath,
@@ -495,5 +496,19 @@ describe('streamingBackgroundCommand', () => {
     ]) {
       expect(streamingBackgroundCommand(command)).toEqual({ command, changes: [] })
     }
+  })
+})
+
+describe('outputRedirectTarget', () => {
+  it('finds the file a command sends its output to (flash-m29)', () => {
+    expect(outputRedirectTarget('npx playwright test > /tmp/pw.txt 2>&1')).toBe('/tmp/pw.txt')
+    expect(outputRedirectTarget('npx playwright test 2>&1 | tee run.log')).toBe('run.log')
+    expect(outputRedirectTarget('npm test >> out.log')).toBe('out.log')
+  })
+
+  it('is null for no redirect, /dev/null, or only joining stderr', () => {
+    expect(outputRedirectTarget('npx playwright test')).toBeNull()
+    expect(outputRedirectTarget('npm i > /dev/null 2>&1')).toBeNull()
+    expect(outputRedirectTarget('npm test 2>&1')).toBeNull()
   })
 })
