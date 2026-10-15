@@ -43,6 +43,7 @@ import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
 import { assertPackComplete } from './lib/assert-pack-complete.mjs'
+import { dependencyOrder, exactMoleculeDeps, missingDependency } from './lib/publish-order.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const args = process.argv.slice(2)
@@ -80,7 +81,9 @@ function discover() {
       try {
         const pkg = JSON.parse(readFileSync(manifest, 'utf8'))
         if (pkg.name?.startsWith('@molecule/') && !pkg.private) {
-          found.push({ name: pkg.name, dir, version: pkg.version })
+          // The exact @molecule versions it installs: a package must not reach npm
+          // before them (see the dependency check in the publish loop).
+          found.push({ name: pkg.name, dir, version: pkg.version, deps: exactMoleculeDeps(pkg) })
           // Deliberately NOT `return`: a package directory can contain more
           // packages. `packages/api/testing/` is @molecule/api-testing AND the
           // parent of @molecule/api-mock-server, so returning here excluded
@@ -247,7 +250,8 @@ const inconclusive = []
     }
   }
   await Promise.all(Array.from({ length: 8 }, worker))
-  todo.sort((a, b) => a.name.localeCompare(b.name))
+  // Dependencies first (lib/publish-order.mjs says why).
+  todo.splice(0, todo.length, ...dependencyOrder(todo))
   process.stderr.write(
     `scanned ${scanned}/${all.length} | queued to publish: ${todo.length}` +
       (inconclusive.length ? ` | inconclusive (skipped): ${inconclusive.length}` : '') +
@@ -256,6 +260,9 @@ const inconclusive = []
 }
 
 let attempted = 0
+// name@version this run put on the registry (or found already there).
+const publishedThisRun = new Set()
+const queuedVersions = new Set(todo.map((p) => `${p.name}@${p.version}`))
 
 for (const pkg of todo) {
   if (abortReason) break
@@ -264,6 +271,23 @@ for (const pkg of todo) {
   // 2026-08-05 it attempted four and failed all four, which is precisely the
   // blast radius a probe exists to avoid.
   if (attempted >= LIMIT) break
+  // Never publish a package whose exact @molecule dependency is not on npm: it
+  // would install nowhere. A dependency queued in this run must have gone
+  // through first (the queue is dependency-ordered); one the scan could not read
+  // is not assumed present. The failure names the dependency so the release
+  // holds this package together with it.
+  const missingDep = missingDependency(pkg, {
+    queued: queuedVersions,
+    published: publishedThisRun,
+    unknown: new Set(inconclusive),
+  })
+  if (missingDep) {
+    const why = failed.find((f) => f.name === missingDep.name)?.error
+    const error = `blocked: depends on ${missingDep.name}@${missingDep.version}, which is not on npm${why ? ` (${why.slice(0, 160)})` : ''}`
+    failed.push({ name: pkg.name, error })
+    process.stderr.write(`  ⚠ ${pkg.name}: ${error}\n`)
+    continue
+  }
   attempted++
   let published = false
   // How this package came to count as published — a real upload or npm saying
@@ -541,6 +565,7 @@ for (const pkg of todo) {
 
   if (published) {
     done++
+    publishedThisRun.add(`${pkg.name}@${pkg.version}`)
     // One line PER package, as it happens. The summary alone ("6/6 published")
     // cannot say WHICH packages landed or how — on 2026-09-02 a run reported 6/6
     // while npm never served @molecule/app-ide-react@1.10.0, and nothing in the
