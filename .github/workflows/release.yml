@@ -45,6 +45,10 @@ on:
         description: 'npm one-time code. Trusts any package that has none, then publishes it — both in CI. npm has no OIDC path for trust config, so this is the only way to do it without a local prompt. Single-use and expires in ~30s, so it is dead before the log is readable.'
         required: false
         type: string
+      hold:
+        description: 'Comma-separated @molecule packages to leave at their published version this run (a package npm refuses until its trust link is re-added). Their dependents are held with them.'
+        required: false
+        type: string
       requester:
         description: 'Who dispatched (agent-presence session id). Tags the run-name so the dispatcher watches its OWN run — see run-name above.'
         required: false
@@ -217,6 +221,7 @@ jobs:
           # Dispatch inputs reach the publisher as ENV, not CLI flags.
           MOL_PUBLISH_LIMIT: ${{ inputs.limit }}
           MOL_PUBLISH_DELAY: ${{ inputs.delay }}
+          MOL_PUBLISH_HOLD: ${{ inputs.hold }}
 
       # npm's own reason for a refused publish lives only in its debug log (its
       # ENEEDAUTH line says nothing about why the OIDC exchange gave no

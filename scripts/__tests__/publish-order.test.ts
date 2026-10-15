@@ -56,6 +56,16 @@ describe('dependencyOrder', () => {
     ])
   })
 
+  it('puts held packages last, except before what pins them', () => {
+    const other = { name: '@molecule/zz', version: '1.0.0', deps: [] }
+    const names = dependencyOrder([autodetect, codex, claudeCode, other], {
+      last: new Set([claudeCode.name, codex.name]),
+    }).map((p) => p.name)
+    expect(names[0]).toBe('@molecule/zz')
+    expect(names.indexOf(autodetect.name)).toBeGreaterThan(names.indexOf(claudeCode.name))
+    expect(names.indexOf(autodetect.name)).toBeGreaterThan(names.indexOf(codex.name))
+  })
+
   it('keeps name order through a cycle and loses no package', () => {
     const a = {
       name: '@molecule/a',

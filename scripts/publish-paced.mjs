@@ -65,6 +65,17 @@ const flag = (name, fallback) => {
 const DELAY_S = flag('delay', Number(process.env.MOL_PUBLISH_DELAY) || 20)
 const LIMIT = flag('limit', Number(process.env.MOL_PUBLISH_LIMIT) || Infinity)
 const DRY = args.includes('--dry-run')
+// Packages the release holds because npm refused them (MOL_PUBLISH_HOLD, the
+// Release workflow's `hold` input). They are still tried, so they ship the run
+// after their trust link is fixed, but LAST, and their refusals never count as
+// systemic: three of them first in the queue read as "auth is broken" and stopped
+// the run before anything else was tried (2026-10-15: api-ai-tools never shipped).
+const HOLD = new Set(
+  (process.env.MOL_PUBLISH_HOLD ?? '')
+    .split(',')
+    .map((n) => n.trim())
+    .filter(Boolean),
+)
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 
@@ -251,7 +262,8 @@ const inconclusive = []
   }
   await Promise.all(Array.from({ length: 8 }, worker))
   // Dependencies first (lib/publish-order.mjs says why).
-  todo.splice(0, todo.length, ...dependencyOrder(todo))
+  // Held packages after everything else (their dependents follow them anyway).
+  todo.splice(0, todo.length, ...dependencyOrder(todo, { last: HOLD }))
   process.stderr.write(
     `scanned ${scanned}/${all.length} | queued to publish: ${todo.length}` +
       (inconclusive.length ? ` | inconclusive (skipped): ${inconclusive.length}` : '') +
@@ -408,9 +420,13 @@ for (const pkg of todo) {
         break
       } else if (
         /ENEEDAUTH|E401|401 Unauthorized|EOTP/i.test(out) &&
-        (!existsOnRegistry(pkg) || done > 0 || authFailures < AUTH_FAILURES_BEFORE_SYSTEMIC)
+        (HOLD.has(pkg.name) ||
+          !existsOnRegistry(pkg) ||
+          done > 0 ||
+          authFailures < AUTH_FAILURES_BEFORE_SYSTEMIC)
       ) {
-        authFailures++
+        // A held package's refusal is the known one it is held for.
+        if (!HOLD.has(pkg.name)) authFailures++
         // NOT systemic, for either of two reasons.
         //
         // (a) done > 0 — packages ALREADY published in this very run, so the

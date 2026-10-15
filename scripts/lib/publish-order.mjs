@@ -25,14 +25,32 @@ export function exactMoleculeDeps(manifest) {
 
 /**
  * Sort a publish queue so each package follows the queued versions it pins.
- * Name order is the tie-break; a cycle keeps name order.
+ * Name order is the tie-break; a cycle keeps name order. Names in `last` go as
+ * late as possible, and so does every queued package that pins one of them.
  *
  * @param queue - `{ name, version, deps }` entries.
+ * @param options - `last`: names to publish after everything that does not need them.
  * @returns A new array in publish order.
  */
-export function dependencyOrder(queue) {
+export function dependencyOrder(queue, { last = new Set() } = {}) {
   const byName = new Map(queue.map((p) => [p.name, p]))
-  const sorted = [...queue].sort((a, b) => a.name.localeCompare(b.name))
+  // Late: a `last` name, or a package pinning a late package's queued version.
+  const late = new Set(queue.filter((p) => last.has(p.name)).map((p) => p.name))
+  for (let grew = true; grew;) {
+    grew = false
+    for (const p of queue) {
+      if (late.has(p.name)) continue
+      if (
+        (p.deps ?? []).some((d) => late.has(d.name) && byName.get(d.name)?.version === d.version)
+      ) {
+        late.add(p.name)
+        grew = true
+      }
+    }
+  }
+  const sorted = [...queue].sort(
+    (a, b) => Number(late.has(a.name)) - Number(late.has(b.name)) || a.name.localeCompare(b.name),
+  )
   const seen = new Set()
   const ordered = []
   const visit = (pkg) => {
