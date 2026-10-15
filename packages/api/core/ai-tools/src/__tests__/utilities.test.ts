@@ -476,6 +476,13 @@ describe('streamingBackgroundCommand', () => {
     expect(streamingBackgroundCommand('npm test | tail -n 100').command).toBe('npm test')
   })
 
+  it('drops a trailing head from a Playwright run, whose tally prints last (flash-m32)', () => {
+    expect(streamingBackgroundCommand('npx playwright test 2>&1 | head -60').command).toBe(
+      'npx playwright test 2>&1 --reporter=line',
+    )
+    expect(streamingBackgroundCommand('cat big.log | head -60').changes).toEqual([])
+  })
+
   it('keeps a tail that is not the last step, and any other pipe', () => {
     expect(streamingBackgroundCommand('npm test | tail -5 > out.txt').changes).toEqual([])
     expect(streamingBackgroundCommand('npm test | grep -c passed').changes).toEqual([])

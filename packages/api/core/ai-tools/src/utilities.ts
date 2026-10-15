@@ -273,6 +273,15 @@ export function streamingBackgroundCommand(command: string): {
         'and wait_for_task returns the end of the log anyway.',
     )
   }
+  // A Playwright run behind `| head -N` loses its tally, which prints last (X1
+  // flash-m32 counted ✓/✘ marks by hand); the full log comes back anyway.
+  const head = /\s*\|\s*head(?:\s+-n)?\s+-?\d+\s*$/.exec(out)
+  if (head && /\bplaywright\s+test\b/.test(out)) {
+    out = out.slice(0, head.index)
+    changes.push(
+      `Dropped the trailing \`${head[0].trim()}\`: Playwright prints its pass/fail count last, and it would be cut.`,
+    )
+  }
   const lastStep = out.split(/&&|\|\||;/).at(-1) ?? ''
   if (
     /\bplaywright\s+test\b/.test(lastStep) &&
