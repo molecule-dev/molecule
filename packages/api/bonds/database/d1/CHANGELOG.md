@@ -1,5 +1,13 @@
 # @molecule/api-database-d1
 
+## 1.0.7
+
+### Patch Changes
+
+- Updated dependencies [a8cce33]
+- Updated dependencies [a8cce33]
+  - @molecule/api-database-sqlite@1.1.0
+
 ## 1.0.6
 
 ### Patch Changes

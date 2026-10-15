@@ -1,5 +1,11 @@
 # @molecule/app-ui
 
+## 1.3.5
+
+### Patch Changes
+
+- b876925: Documents that `Button` defaults to `type="button"` and that a form's primary action needs `type="submit"`.
+
 ## 1.3.4
 
 ### Patch Changes

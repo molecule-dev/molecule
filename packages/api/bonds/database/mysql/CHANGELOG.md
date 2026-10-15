@@ -1,5 +1,15 @@
 # @molecule/api-database-mysql
 
+## 1.1.0
+
+### Minor Changes
+
+- a8cce33: Queries made inside `withTransaction()` from `@molecule/api-database` run on its transaction.
+
+### Patch Changes
+
+- a8cce33: A transaction's connection is released even when `COMMIT` or `ROLLBACK` fails.
+
 ## 1.0.4
 
 ### Patch Changes

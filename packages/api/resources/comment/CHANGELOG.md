@@ -1,5 +1,11 @@
 # @molecule/api-resource-comment
 
+## 1.1.0
+
+### Minor Changes
+
+- d48ed8c: Adds sequential integer numbers for comments: `createNumberedComment`, `numberComment`, `getCommentByNumber` and `commentNumbers`, with the `comment_numbers` table SQL.
+
 ## 1.0.5
 
 ### Patch Changes

@@ -1,5 +1,15 @@
 # @molecule/api-database-sqlite
 
+## 1.1.0
+
+### Minor Changes
+
+- a8cce33: Queries made inside `withTransaction()` from `@molecule/api-database` run on its transaction.
+
+### Patch Changes
+
+- a8cce33: A query that waits 30 s behind an open transaction fails with an error naming `withTransaction()` instead of waiting forever.
+
 ## 1.0.5
 
 ### Patch Changes
