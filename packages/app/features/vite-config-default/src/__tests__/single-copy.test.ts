@@ -6,7 +6,12 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
+
+// The plugins load native binaries and are not under test (as in index.test.ts).
+vi.mock('@tailwindcss/vite', () => ({ default: () => ({ name: 'tailwindcss' }) }))
+vi.mock('@vitejs/plugin-react', () => ({ default: () => ({ name: 'react' }) }))
+vi.mock('vite-plugin-pwa', () => ({ VitePWA: () => ({ name: 'pwa' }) }))
 
 import { isInstalled, singleReactAliases } from '../config.js'
 
