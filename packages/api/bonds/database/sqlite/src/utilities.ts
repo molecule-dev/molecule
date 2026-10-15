@@ -62,6 +62,9 @@ export const convertPlaceholders = (
  * - `::type` casts (e.g. `'{}'::jsonb`) → removed (Postgres-only syntax).
  * - `USING <method>` on an index (`gin`/`btree`/`hash`/`gist`) → removed
  *   (SQLite indexes have no access method).
+ * - `ADD COLUMN IF NOT EXISTS` → `ADD COLUMN` (SQLite has no such clause, and the
+ *   whole boot failed on it; a re-run's "duplicate column name" is already treated
+ *   as idempotent by the migrator, which is what IF NOT EXISTS was for).
  *
  * These are no-ops on already-SQLite DDL (the executor's own migrations don't use
  * them), so it is safe to run on every migration file.
@@ -75,6 +78,7 @@ export const translateDdlToSqlite = (sql: string): string =>
     .replace(/\bnow\(\)/gi, 'current_timestamp')
     .replace(/::[a-z_]+/gi, '')
     .replace(/\s+USING\s+(gin|btree|hash|gist)\b/gi, '')
+    .replace(/\bADD\s+COLUMN\s+IF\s+NOT\s+EXISTS\b/gi, 'ADD COLUMN')
 
 /**
  * Coerce a JS value into something better-sqlite3 can bind. better-sqlite3 only

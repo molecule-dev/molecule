@@ -111,6 +111,12 @@ describe('convertPlaceholders', () => {
 })
 
 describe('translateDdlToSqlite', () => {
+  it('drops IF NOT EXISTS from ADD COLUMN, which SQLite does not parse (flash-m28)', () => {
+    expect(translateDdlToSqlite('ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "bio" TEXT;')).toBe(
+      'ALTER TABLE "users" ADD COLUMN "bio" TEXT;',
+    )
+  })
+
   it('translates DEFAULT gen_random_uuid() to the SQLite random-id default', () => {
     // Must TRANSLATE, not strip: a custom handler using the bare create('t', {…})
     // (no explicit id) relies on the column default. Stripping left `id … NOT NULL`
