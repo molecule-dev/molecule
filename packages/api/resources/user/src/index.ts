@@ -20,6 +20,12 @@
  * so a handler reads the current user with `getUserId(res)` and does NOT add per-route auth
  * middleware (see the `auth` skill). Scope every custom user query by the authenticated id.
  *
+ * **Revoking a session yourself:** the middleware caches "this device exists" for 10 s per
+ * process, so a hand-written logout that deletes the `devices` row keeps authorizing that
+ * token until the cache expires — a check right after logout still answers 200. Call
+ * `invalidateDeviceExistsCache(deviceId)` (or `invalidateAllDeviceExistsCache()`) after the
+ * delete; the built-in log-out route already does.
+ *
  * On the CLIENT, the bearer token is held IN MEMORY only — a `localStorage` copy is
  * XSS-exfiltratable and is forbidden. The session is restored after a reload via the
  * httpOnly cookie + `GET /users/me`; don't persist the token yourself.
