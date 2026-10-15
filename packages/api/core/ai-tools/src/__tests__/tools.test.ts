@@ -1230,9 +1230,11 @@ describe('search excludes (VS Code search.exclude semantics)', () => {
     const tool = buildTools(backend).find((t) => t.name === 'find_files')!
     await tool.execute({ pattern: '*.ts' })
     const cmd = (backend.run as ReturnType<typeof vi.fn>).mock.calls[0][0] as string
-    expect(cmd).toContain("-not -path '*/node_modules/*'")
-    expect(cmd).toContain("-not -path '*/.git/*'")
-    expect(cmd).toContain("-not -path '*/molecule/*'")
+    // Pruned below the root, by name, from the same set grep excludes.
+    expect(cmd).toContain("-name 'node_modules'")
+    expect(cmd).toContain("-name '.git'")
+    expect(cmd).toContain("-name 'molecule'")
+    expect(cmd).toMatch(/-mindepth 1 .*-prune/)
   })
 
   it('honors a per-project searchExcludedDirs override and drops unsafe names', async () => {
@@ -1864,7 +1866,9 @@ describe('read_file window notes', () => {
 
 describe('wait_for_task on a stuck command', () => {
   it('reports it stuck once the total waiting crosses the threshold, then refuses to wait again', async () => {
-    process.env.MOL_AI_BG_STUCK_AFTER_MS = '40'
+    // Margins wide enough that a loaded test machine cannot flip the first
+    // answer: 40 ms against a 30 ms wait read 'stuck' under a full-suite run.
+    process.env.MOL_AI_BG_STUCK_AFTER_MS = '2000'
     try {
       const backend: ExecutionBackend = {
         projectRoot: '/test',
@@ -1878,9 +1882,9 @@ describe('wait_for_task on a stuck command', () => {
       }
       const wait = buildTools(backend).find((t) => t.name === 'wait_for_task')!
       const id = 'mol-bg-stuck00-abc123'
-      const first = (await wait.execute({ taskId: id, timeout: 30 })) as { status: string }
+      const first = (await wait.execute({ taskId: id, timeout: 1100 })) as { status: string }
       expect(first.status).toBe('running')
-      const second = (await wait.execute({ taskId: id, timeout: 30 })) as {
+      const second = (await wait.execute({ taskId: id, timeout: 1100 })) as {
         status: string
         note: string
       }

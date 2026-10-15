@@ -112,8 +112,31 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       ? searchExcludedDirs
       : DEFAULT_SEARCH_EXCLUDED_DIRS
   ).filter((d) => /^[A-Za-z0-9._-]+$/.test(d))
-  const grepExcludeArgs = excludedDirs.map((d) => `--exclude-dir=${shellQuote(d)}`).join(' ')
-  const findExcludeArgs = excludedDirs.map((d) => `-not -path ${shellQuote(`*/${d}/*`)}`).join(' ')
+  /**
+   * The excluded dirs for a search rooted at `path`. Inside an installed
+   * package the build output IS the code: excluding `dist` there returned
+   * nothing for `IconName` in `node_modules/@molecule/app-icons` (it lives in
+   * `dist/types.d.ts`; X1 run sol-m04).
+   *
+   * @param path - The resolved search root.
+   * @returns The dir names to skip below it.
+   */
+  const excludesFor = (path: string): string[] =>
+    /(?:^|\/)node_modules(?:\/|$)/.test(path)
+      ? excludedDirs.filter((d) => d !== 'dist')
+      : excludedDirs
+  const grepExcludeArgs = (path: string): string =>
+    excludesFor(path)
+      .map((d) => `--exclude-dir=${shellQuote(d)}`)
+      .join(' ')
+  // Pruned BELOW the root only (-mindepth 1): a `-not -path '*/node_modules/*'`
+  // filter matched every result of a search rooted inside node_modules and
+  // returned none.
+  const findPruneArgs = (path: string): string => {
+    const dirs = excludesFor(path)
+    if (dirs.length === 0) return ''
+    return `-mindepth 1 \\( -type d \\( ${dirs.map((d) => `-name ${shellQuote(d)}`).join(' -o ')} \\) -prune \\) -o`
+  }
 
   // ── Path helpers ───────────────────────────────────────────────
 
@@ -915,7 +938,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         // shapes are parsed below; without context the output is unchanged.
         const contextArg = contextLines > 0 ? `-C ${contextLines}` : ''
         const result = await backend.run(
-          `grep -rn ${globArg} ${contextArg} ${grepExcludeArgs} --max-count=${MAX_SEARCH_RESULTS} -- ${shellQuote(pattern)} ${shellQuote(path)} 2>/dev/null || true`,
+          `grep -rn ${globArg} ${contextArg} ${grepExcludeArgs(path)} --max-count=${MAX_SEARCH_RESULTS} -- ${shellQuote(pattern)} ${shellQuote(path)} 2>/dev/null || true`,
           { timeout: 10000 },
         )
         // grep emits `<file>:<line>:<content>`, so redaction runs PER MATCH on the
@@ -981,7 +1004,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       if (symlinkErr) return { error: symlinkErr }
       try {
         const result = await backend.run(
-          `find ${shellQuote(path)} -name ${shellQuote(pattern)} ${findExcludeArgs} 2>/dev/null | head -${MAX_FIND_RESULTS}`,
+          `find ${shellQuote(path)} ${findPruneArgs(path)} -name ${shellQuote(pattern)} -print 2>/dev/null | head -${MAX_FIND_RESULTS}`,
           { timeout: 10000 },
         )
         const files = result.stdout.trim().split('\n').filter(Boolean)
