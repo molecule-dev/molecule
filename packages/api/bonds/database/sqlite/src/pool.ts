@@ -20,9 +20,13 @@ import type {
   DatabaseTransaction,
   QueryResult,
 } from '@molecule/api-database'
+import { getActiveTransaction } from '@molecule/api-database'
 
 import type { SqliteConfig } from './types.js'
 import { coerceSqliteParam, convertPlaceholders, normalizeSqliteRows } from './utilities.js'
+
+/** How long an operation may wait for the connection before it fails. */
+const QUEUE_WAIT_LIMIT_MS = 30_000
 
 /**
  * Serializes access to the ONE shared better-sqlite3 connection so
@@ -47,11 +51,12 @@ class OperationQueue {
    * Reserves the next slot in the queue, resolving once every
    * previously-queued operation has released. The caller MUST call the
    * returned release function exactly once (even on error) — an operation
-   * that never releases deadlocks every subsequent queued operation forever.
+   * that never releases blocks every queued operation until its wait limit.
    *
+   * @param waitLimitMs - How long to wait before rejecting (default 30 s).
    * @returns A release function that unblocks the next queued operation.
    */
-  acquire(): Promise<() => void> {
+  acquire(waitLimitMs = QUEUE_WAIT_LIMIT_MS): Promise<() => void> {
     const release = (): void => {
       const next = this.waiters.shift()
       if (next) {
@@ -66,11 +71,24 @@ class OperationQueue {
       return Promise.resolve(release)
     }
 
-    return new Promise<() => void>((resolve) => {
-      this.waiters.push(() => {
+    return new Promise<() => void>((resolve, reject) => {
+      const waiter = (): void => {
+        clearTimeout(timer)
         this.locked = true
         resolve(release)
-      })
+      }
+      // A query issued INSIDE a transaction through the pool (not through the
+      // transaction) waits for that transaction, which waits for it: a
+      // deadlock with no error. Fail with the fix instead of hanging.
+      const timer = setTimeout(() => {
+        this.waiters = this.waiters.filter((w) => w !== waiter)
+        reject(
+          new Error(
+            `SQLite: waited ${waitLimitMs / 1000}s behind an open transaction. If this call is part of that transaction, run the work in withTransaction() from @molecule/api-database (the CRUD helpers and query() join it), or use the transaction's own query().`,
+          ),
+        )
+      }, waitLimitMs)
+      this.waiters.push(waiter)
     })
   }
 }
@@ -105,6 +123,9 @@ export const createPool = (config?: SqliteConfig): DatabasePool => {
   logger.debug('SQLite database opened')
 
   const queue = new OperationQueue()
+  // Transactions this pool opened: a `query()` made inside `withTransaction()`
+  // runs on the active one when it is ours.
+  const ownTransactions = new WeakSet<DatabaseTransaction>()
 
   /**
    * Runs one statement against the shared connection. Does NOT acquire the
@@ -161,6 +182,8 @@ export const createPool = (config?: SqliteConfig): DatabasePool => {
       text: string,
       values?: unknown[],
     ): Promise<QueryResult<T>> {
+      const active = getActiveTransaction()
+      if (active && ownTransactions.has(active)) return active.query<T>(text, values)
       // Acquire the queue for this ONE statement — if a transaction is
       // currently open, this waits until it commits/rolls back instead of
       // running INSIDE it (see `OperationQueue`).
@@ -233,6 +256,7 @@ export const createPool = (config?: SqliteConfig): DatabasePool => {
           }
         },
       }
+      ownTransactions.add(conn)
       return conn
     },
 

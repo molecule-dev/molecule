@@ -27,6 +27,7 @@ import type {
   DatabaseTransaction,
   QueryResult,
 } from '@molecule/api-database'
+import { getActiveTransaction } from '@molecule/api-database'
 import { configNotConfiguredError } from '@molecule/api-secrets'
 
 import type { MysqlFieldMeta } from './utilities.js'
@@ -102,13 +103,19 @@ const wrapTransaction = (connection: PoolConnection): DatabaseTransaction => ({
   },
 
   async commit(): Promise<void> {
-    await connection.commit()
-    connection.release()
+    try {
+      await connection.commit()
+    } finally {
+      connection.release()
+    }
   },
 
   async rollback(): Promise<void> {
-    await connection.rollback()
-    connection.release()
+    try {
+      await connection.rollback()
+    } finally {
+      connection.release()
+    }
   },
 })
 
@@ -119,56 +126,65 @@ const wrapTransaction = (connection: PoolConnection): DatabaseTransaction => ({
  * @param mysqlPool - The mysql2 promise pool to wrap.
  * @returns A `DatabasePool` adapter.
  */
-const createMySQLPool = (mysqlPool: Pool): DatabasePool => ({
-  async query<T = Record<string, unknown>>(
-    text: string,
-    values?: unknown[],
-  ): Promise<QueryResult<T>> {
-    const { text: mysqlQuery, values: params } = convertPlaceholders(text, values)
-    const [rows, fields] = await mysqlPool.query<RowDataPacket[]>(
-      mysqlQuery,
-      params.map(coerceMysqlParam),
-    )
+const createMySQLPool = (mysqlPool: Pool): DatabasePool => {
+  // Transactions this pool opened: a `query()` made inside `withTransaction()`
+  // runs on the active one when it is ours.
+  const ownTransactions = new WeakSet<DatabaseTransaction>()
+  return {
+    async query<T = Record<string, unknown>>(
+      text: string,
+      values?: unknown[],
+    ): Promise<QueryResult<T>> {
+      const active = getActiveTransaction()
+      if (active && ownTransactions.has(active)) return active.query<T>(text, values)
+      const { text: mysqlQuery, values: params } = convertPlaceholders(text, values)
+      const [rows, fields] = await mysqlPool.query<RowDataPacket[]>(
+        mysqlQuery,
+        params.map(coerceMysqlParam),
+      )
 
-    return {
-      rows: normalizeMysqlRows<T>(rows as Record<string, unknown>[], fields as MysqlFieldMeta[]),
-      rowCount: Array.isArray(rows)
-        ? rows.length
-        : ((rows as ResultSetHeader).affectedRows ?? null),
-      fields: fields?.map((f) => ({
-        name: f.name,
-        dataTypeID: f.type,
-      })),
-    }
-  },
+      return {
+        rows: normalizeMysqlRows<T>(rows as Record<string, unknown>[], fields as MysqlFieldMeta[]),
+        rowCount: Array.isArray(rows)
+          ? rows.length
+          : ((rows as ResultSetHeader).affectedRows ?? null),
+        fields: fields?.map((f) => ({
+          name: f.name,
+          dataTypeID: f.type,
+        })),
+      }
+    },
 
-  async connect(): Promise<DatabaseConnection> {
-    const connection = await mysqlPool.getConnection()
-    return wrapConnection(connection)
-  },
+    async connect(): Promise<DatabaseConnection> {
+      const connection = await mysqlPool.getConnection()
+      return wrapConnection(connection)
+    },
 
-  async transaction(): Promise<DatabaseTransaction> {
-    const connection = await mysqlPool.getConnection()
-    await connection.beginTransaction()
-    return wrapTransaction(connection)
-  },
+    async transaction(): Promise<DatabaseTransaction> {
+      const connection = await mysqlPool.getConnection()
+      await connection.beginTransaction()
+      const tx = wrapTransaction(connection)
+      ownTransactions.add(tx)
+      return tx
+    },
 
-  async end(): Promise<void> {
-    await mysqlPool.end()
-  },
+    async end(): Promise<void> {
+      await mysqlPool.end()
+    },
 
-  // `stats` is intentionally OMITTED (the `DatabasePool.stats` method is optional)
-  // rather than fabricated: mysql2's pool exposes NO public stats API, and a prior
-  // version returned hardcoded `{ total: 0, idle: 0, waiting: 0 }` — a health/
-  // monitoring page reading those zeros could not tell "MySQL bond, stats
-  // unsupported" from "pool down, zero connections" (the postgres bond DOES
-  // return real counts). Callers already use the optional-call form
-  // (`pool.stats?.()`, e.g. `molecule-dev/api/src/db/pool-monitor.ts`), which
-  // correctly reads `undefined` as "unavailable" instead of a misleading healthy
-  // zero. Reaching into mysql2's private `_allConnections`/`_freeConnections`
-  // internals (unexported, no public types) to fake real numbers would be a
-  // second undocumented-internals coupling on top of the first misleading one.
-})
+    // `stats` is intentionally OMITTED (the `DatabasePool.stats` method is optional)
+    // rather than fabricated: mysql2's pool exposes NO public stats API, and a prior
+    // version returned hardcoded `{ total: 0, idle: 0, waiting: 0 }` — a health/
+    // monitoring page reading those zeros could not tell "MySQL bond, stats
+    // unsupported" from "pool down, zero connections" (the postgres bond DOES
+    // return real counts). Callers already use the optional-call form
+    // (`pool.stats?.()`, e.g. `molecule-dev/api/src/db/pool-monitor.ts`), which
+    // correctly reads `undefined` as "unavailable" instead of a misleading healthy
+    // zero. Reaching into mysql2's private `_allConnections`/`_freeConnections`
+    // internals (unexported, no public types) to fake real numbers would be a
+    // second undocumented-internals coupling on top of the first misleading one.
+  }
+}
 
 /**
  * Creates a MySQL database pool that implements the `DatabasePool` interface.

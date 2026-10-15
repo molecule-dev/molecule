@@ -27,7 +27,12 @@
  *   the matching SQL and release the client back to the pool. Call `commit()`
  *   on success and `rollback()` on a thrown error; either one (or a bare
  *   `release()`) returns the client exactly once, so wrap in try/catch/finally
- *   and never leak it.
+ *   and never leak it. The CRUD helpers do NOT run on that client — they commit
+ *   on their own — so prefer the form below.
+ * - **All-or-nothing writes: `withTransaction(async () => { … })` from
+ *   `@molecule/api-database`.** Every call inside it — the CRUD helpers
+ *   (`create`, `findMany`, `updateById`, …) and `query()` — joins the one
+ *   transaction; it commits when the callback resolves, rolls back when it throws.
  * - **The pool fails fast when `DATABASE_URL` is unset**: first use throws an
  *   actionable "DATABASE_URL is not set" error (via `@molecule/api-secrets`)
  *   instead of silently connecting to the pg driver defaults (localhost:5432,
@@ -68,6 +73,7 @@ import type {
   DatabasePool,
   DatabaseTransaction,
 } from '@molecule/api-database'
+import { getActiveTransaction } from '@molecule/api-database'
 import { configNotConfiguredError } from '@molecule/api-secrets'
 
 export * from './browser-guard.js'
@@ -154,8 +160,14 @@ function wrapPool(pgPool: pg.Pool): DatabasePool {
     getLogger().error('Unexpected error on idle database client', err.message)
   })
 
+  // Transactions this pool opened: a `query()` made inside `withTransaction()`
+  // runs on the active one when it is ours.
+  const ownTransactions = new WeakSet<DatabaseTransaction>()
+
   return {
     async query<T = Record<string, unknown>>(text: string, values?: unknown[]) {
+      const active = getActiveTransaction()
+      if (active && ownTransactions.has(active)) return active.query<T>(text, values)
       const result = await pgPool.query<T & pg.QueryResultRow>(text, values)
       return {
         rows: result.rows as T[],
@@ -193,7 +205,9 @@ function wrapPool(pgPool: pg.Pool): DatabasePool {
         client.release()
         throw error
       }
-      return wrapTransaction(client)
+      const tx = wrapTransaction(client)
+      ownTransactions.add(tx)
+      return tx
     },
 
     async end() {

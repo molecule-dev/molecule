@@ -11,6 +11,7 @@ import type { Results } from '@electric-sql/pglite'
 
 import { getLogger } from '@molecule/api-bond'
 import type { DatabaseConnection, DatabaseTransaction, QueryResult } from '@molecule/api-database'
+import { getActiveTransaction } from '@molecule/api-database'
 
 import { acquireInstance, type PgliteInstance, releaseInstance } from './instances.js'
 import type { PgliteConfig, PglitePool } from './types.js'
@@ -110,6 +111,10 @@ export const createPool = (config?: PgliteConfig): PglitePool => {
     return { inst, release }
   }
 
+  // Transactions this pool opened: a `query()` made inside `withTransaction()`
+  // runs on the active one when it is ours.
+  const ownTransactions = new WeakSet<DatabaseTransaction>()
+
   const pool: PglitePool = {
     get dataDir() {
       return opened?.dataDir
@@ -119,6 +124,8 @@ export const createPool = (config?: PgliteConfig): PglitePool => {
       text: string,
       values?: unknown[],
     ): Promise<QueryResult<T>> {
+      const active = getActiveTransaction()
+      if (active && ownTransactions.has(active)) return active.query<T>(text, values)
       const { inst, release } = await hold('query')
       try {
         return await run<T>(inst, text, values)
@@ -166,7 +173,7 @@ export const createPool = (config?: PgliteConfig): PglitePool => {
         finish()
         throw error
       }
-      return {
+      const tx: DatabaseTransaction = {
         async query<T = Record<string, unknown>>(text: string, values?: unknown[]) {
           if (done) throw new Error('PGlite: query on a finished transaction')
           return run<T>(inst, text, values)
@@ -202,6 +209,8 @@ export const createPool = (config?: PgliteConfig): PglitePool => {
           }
         },
       }
+      ownTransactions.add(tx)
+      return tx
     },
 
     async end() {

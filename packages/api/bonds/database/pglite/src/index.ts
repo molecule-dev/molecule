@@ -50,6 +50,10 @@
  *   with an error saying a connection is held, instead of hanging. Inside a
  *   transaction run every statement on that transaction's own `query()`, and
  *   always release in `finally` (the same rule the postgresql bond needs).
+ * - **All-or-nothing writes: `withTransaction(async () => { … })` from
+ *   `@molecule/api-database`.** Every call inside it — the CRUD helpers
+ *   (`create`, `findMany`, `updateById`, …) and `query()` — joins the one
+ *   transaction; it commits when the callback resolves, rolls back when it throws.
  * - **Where data lives** (`dataDir`, else `PGLITE_DATA_DIR`): a filesystem path
  *   (Node; default `./data/pglite`, parent folders created), `idb://<name>`
  *   (browser IndexedDB), or `memory://` (gone when the process ends; the

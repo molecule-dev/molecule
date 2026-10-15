@@ -33,6 +33,13 @@
  *   or silently running inside — and being discarded by — someone else's
  *   rollback. Don't hold a transaction open across an `await` on unrelated
  *   work; every other query on this pool queues behind it until it resolves.
+ * - **All-or-nothing writes: `withTransaction(async () => { … })` from
+ *   `@molecule/api-database`.** Every call inside it — the CRUD helpers
+ *   (`create`, `findMany`, `updateById`, …) and `query()` — joins the one
+ *   transaction; it commits when the callback resolves, rolls back when it throws.
+ *   Never call the CRUD helpers between a manual `pool.transaction()` and its
+ *   `commit()`: they queue behind the transaction they belong to, and fail
+ *   after 30 s with an error naming `withTransaction()`.
  * - **`like` is case-insensitive and does NOT escape the value** — the caller's
  *   own `%`/`_` are honored as wildcards, identical to the postgresql/mysql
  *   bonds. For human-typed search input, use `ilike` instead (escapes + auto-
