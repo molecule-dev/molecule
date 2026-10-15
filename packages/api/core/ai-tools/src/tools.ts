@@ -27,6 +27,13 @@ import { TOOL_SCHEMAS } from './schemas.js'
 const stuckAfterMs = (): number => Number(process.env.MOL_AI_BG_STUCK_AFTER_MS) || 5 * 60 * 1000
 /** Cumulative wait_for_task time per task id, this process. */
 const waitedByTask = new Map<string, number>()
+/**
+ * Each waited task's log size at the end of its last wait. A command whose log
+ * keeps growing is slow, not stuck: a serial 139-test suite was called stuck at
+ * 560 s and the executor was told to kill it while its log still grew (X1 run
+ * m21, 2026-10-15).
+ */
+const logBytesByTask = new Map<string, number>()
 import type { ExecutionBackend, ToolBuildConfig } from './types.js'
 import {
   checkBlockedCommand,
@@ -1279,7 +1286,31 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       // exiting is not going to: on one run the executor waited five times,
       // 120 s each, on an e2e suite that could never start (no browser page
       // attached). Say so once, name the pid, and refuse to wait on it again.
-      const waitedBefore = waitedByTask.get(taskId) ?? 0
+      let waitedBefore = waitedByTask.get(taskId) ?? 0
+      // Output since the last wait means the command is working: the stuck
+      // clock starts again from here.
+      const logBytes = async (): Promise<number | null> => {
+        if (!/^mol-bg-[a-z0-9]+-[a-z0-9]+$/.test(taskId)) return null
+        let r: { stdout: string } | null | undefined
+        try {
+          r = await backend.run(`wc -c < /tmp/${taskId}.log 2>/dev/null`, { timeout: 5_000 })
+        } catch (_error) {
+          // No answer about the log: treat the size as unknown, which keeps the
+          // stuck verdict exactly as before.
+          r = null
+        }
+        const n = Number.parseInt(r?.stdout?.trim() ?? '', 10)
+        return Number.isFinite(n) ? n : null
+      }
+      if (taskId && waitedBefore >= stuckAfterMs()) {
+        const now = await logBytes()
+        const before = logBytesByTask.get(taskId)
+        if (now !== null && before !== undefined && now > before) {
+          logBytesByTask.set(taskId, now)
+          waitedByTask.set(taskId, 0)
+          waitedBefore = 0
+        }
+      }
       if (taskId && waitedBefore >= stuckAfterMs()) {
         return {
           taskId,
@@ -1329,6 +1360,23 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       const waitedMs = Date.now() - startedAt
       waitedByTask.set(taskId, waitedBefore + waitedMs)
       if (exitCode === null) {
+        const grownTo = await logBytes()
+        const lastSize = logBytesByTask.get(taskId)
+        if (grownTo !== null) logBytesByTask.set(taskId, grownTo)
+        const stillWriting =
+          grownTo !== null && (lastSize === undefined ? grownTo > 0 : grownTo > lastSize)
+        if (stillWriting && waitedBefore + waitedMs >= stuckAfterMs()) {
+          waitedByTask.set(taskId, 0)
+          return {
+            taskId,
+            status: 'running',
+            waitedMs,
+            note:
+              `Still running after ${Math.round((waitedBefore + waitedMs) / 1000)}s of waiting, and its ` +
+              `output is still growing (${grownTo} bytes) — slow, not stuck. Call wait_for_task again to ` +
+              `keep waiting; peek with exec_command: tail ${log}.`,
+          }
+        }
         if (waitedBefore + waitedMs >= stuckAfterMs()) {
           return {
             taskId,

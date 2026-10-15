@@ -1864,6 +1864,34 @@ describe('read_file window notes', () => {
 // ── a command that never exits ──────────────────────────────────────────────
 // X0 run x9: five waits of 120 s each on an e2e suite that could never start.
 
+describe('wait_for_task on a slow command whose output keeps growing', () => {
+  it('stays "running" past the threshold while the log grows (X1 m21: a live suite called stuck)', async () => {
+    process.env.MOL_AI_BG_STUCK_AFTER_MS = '200'
+    try {
+      let size = 100
+      const backend: ExecutionBackend = {
+        projectRoot: '/test',
+        readFile: vi.fn(async () => {
+          throw new Error('ENOENT')
+        }),
+        writeFile: vi.fn(),
+        deleteFile: vi.fn(),
+        readDir: vi.fn(),
+        // Each look at the log finds it larger: the suite is still printing.
+        run: vi.fn(async () => ({ stdout: String((size += 500)), stderr: '', exitCode: 0 })),
+      }
+      const wait = buildTools(backend).find((t) => t.name === 'wait_for_task')!
+      const id = 'mol-bg-slow000-abc123'
+      for (let i = 0; i < 4; i++) {
+        const r = (await wait.execute({ taskId: id, timeout: 120 })) as { status: string }
+        expect(r.status).toBe('running')
+      }
+    } finally {
+      delete process.env.MOL_AI_BG_STUCK_AFTER_MS
+    }
+  })
+})
+
 describe('wait_for_task on a stuck command', () => {
   it('reports it stuck once the total waiting crosses the threshold, then refuses to wait again', async () => {
     // Margins wide enough that a loaded test machine cannot flip the first
