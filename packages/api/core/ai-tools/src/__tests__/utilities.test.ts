@@ -8,6 +8,7 @@ import {
   redactSecretsInCode,
   resolvePath,
   shellQuote,
+  streamingBackgroundCommand,
   stripControlChars,
   truncate,
   truncateMiddle,
@@ -462,6 +463,37 @@ describe('isValidGlob — scoped packages', () => {
   it('still refuses shell metacharacters', () => {
     for (const bad of ['foo;rm -rf /', 'a|b', '$(whoami)', '`id`', 'a>b', 'a&b']) {
       expect(isValidGlob(bad), bad).toBe(false)
+    }
+  })
+})
+
+describe('streamingBackgroundCommand', () => {
+  it('drops a trailing tail, in both of its spellings', () => {
+    expect(streamingBackgroundCommand('npm run build 2>&1 | tail -40').command).toBe(
+      'npm run build 2>&1',
+    )
+    expect(streamingBackgroundCommand('npm test | tail -n 100').command).toBe('npm test')
+  })
+
+  it('keeps a tail that is not the last step, and any other pipe', () => {
+    expect(streamingBackgroundCommand('npm test | tail -5 > out.txt').changes).toEqual([])
+    expect(streamingBackgroundCommand('npm test | grep -c passed').changes).toEqual([])
+  })
+
+  it('adds a line reporter to a final playwright run that names none', () => {
+    expect(
+      streamingBackgroundCommand('cd e2e && npx playwright test specs/auth.spec.ts').command,
+    ).toBe('cd e2e && npx playwright test specs/auth.spec.ts --reporter=line')
+  })
+
+  it('leaves playwright alone when it picks a reporter, redirects, or is not the last step', () => {
+    for (const command of [
+      'npx playwright test --reporter=list',
+      'npx playwright test > log.txt',
+      'npx playwright test && echo done',
+      'npm run build',
+    ]) {
+      expect(streamingBackgroundCommand(command)).toEqual({ command, changes: [] })
     }
   })
 })

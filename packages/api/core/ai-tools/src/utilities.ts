@@ -219,6 +219,55 @@ export function outputIsWithheldUntilExit(command: string): boolean {
   return /\|\s*(?:tail|head|grep|egrep|fgrep|sort|uniq|wc|jq)\b/.test(command)
 }
 
+/** A trailing `| tail -N` / `| tail -n N` (stderr redirects before it stay). */
+const TRAILING_TAIL = /\s*\|\s*tail(?:\s+-n)?\s+[-+]?\d+\s*$/
+
+/**
+ * Rewrite a command about to run in the background so its log grows while it
+ * runs. Two shapes left the log empty until exit, and an empty log is what
+ * `wait_for_task` reads as "stuck", so working suites were reported stuck and
+ * killed (X1 run flash-m15 lost 20 of its 60 minutes this way, 2026-10-15):
+ *
+ * - a trailing `| tail -N`, which holds everything back until the command ends.
+ *   It is dropped: `wait_for_task` already returns the end of the log.
+ * - `playwright test` with no `--reporter`, which runs the config's reporter —
+ *   often `html`, which prints nothing per test. `--reporter=line` is added
+ *   when the playwright run is the command's last step and nothing is piped or
+ *   redirected from it ( aside); the results are the same, printed as they happen.
+ *
+ * @param command - The command as the executor sent it.
+ * @returns The command to run and one sentence per change made (empty when none).
+ */
+export function streamingBackgroundCommand(command: string): {
+  command: string
+  changes: string[]
+} {
+  const changes: string[] = []
+  let out = command
+  const tail = TRAILING_TAIL.exec(out)
+  if (tail) {
+    out = out.slice(0, tail.index)
+    changes.push(
+      `Dropped the trailing \`${tail[0].trim()}\`: it holds all output back until the command ends, ` +
+        'and wait_for_task returns the end of the log anyway.',
+    )
+  }
+  const lastStep = out.split(/&&|\|\||;/).at(-1) ?? ''
+  if (
+    /\bplaywright\s+test\b/.test(lastStep) &&
+    !/--reporter\b/.test(lastStep) &&
+    // `2>&1` only joins stderr to the log; any other pipe or redirect sends the output elsewhere.
+    !/[|>]/.test(lastStep.replace(/\d?>&\d/g, ''))
+  ) {
+    out = `${out.trimEnd()} --reporter=line`
+    changes.push(
+      'Added `--reporter=line` so each test result is written to the log as it finishes ' +
+        '(the config reporter may print nothing until the end).',
+    )
+  }
+  return { command: out, changes }
+}
+
 // ── Command blocking ──────────────────────────────────────────────────────────
 
 /**

@@ -61,6 +61,7 @@ import {
   resolvePath,
   shellQuote,
   sliceLines,
+  streamingBackgroundCommand,
   stripControlChars,
   truncateMiddle,
   whitespaceTolerantReplace,
@@ -1139,7 +1140,10 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           // an executor's commands routinely carry quotes, heredocs and
           // newlines, and re-quoting them into a detached `sh -c` is how a
           // background runner corrupts the very thing it is running.
-          await backend.writeFile(script, `${command}\n`)
+          // Keep the log growing while it runs (see streamingBackgroundCommand):
+          // an empty log is what wait_for_task reads as stuck.
+          const streaming = streamingBackgroundCommand(command)
+          await backend.writeFile(script, `${streaming.command}\n`)
           await backend.run(
             `nohup sh -c ${shellQuote(`sh ${script} > ${log} 2>&1; echo $? > ${exitFile}`)} ` +
               `> /dev/null 2>&1 & echo $! > /tmp/${id}.pid`,
@@ -1158,7 +1162,8 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
               `stdout of wait_for_task when the command finishes (read_file cannot reach /tmp — ` +
               `to peek mid-run, exec_command: tail ${log}). If you have other work, do it and ` +
               `check back. If you need this result before you can continue, call wait_for_task ` +
-              `with this taskId — never sleep and read the log by hand.`,
+              `with this taskId — never sleep and read the log by hand.` +
+              (streaming.changes.length ? ` ${streaming.changes.join(' ')}` : ''),
           }
         } catch (e: unknown) {
           return {

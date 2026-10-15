@@ -1613,6 +1613,32 @@ describe('exec_command run_in_background', () => {
     expect(backend.writeFile).not.toHaveBeenCalled()
   })
 
+  it('keeps the log growing: drops a trailing | tail and streams a playwright run', async () => {
+    // flash-m15 (2026-10-15): `playwright test … | tail -70` in the background left a
+    // 0-byte log, wait_for_task called it stuck twice, and two working suites were killed.
+    const backend = bgBackend()
+    const tools = buildTools(backend)
+    const exec = tools.find((t) => t.name === 'exec_command')!
+    const r = (await exec.execute({
+      command: 'cd e2e && npx playwright test 2>&1 | tail -70',
+      run_in_background: true,
+    })) as { note: string }
+    const written = (backend.writeFile as ReturnType<typeof vi.fn>).mock.calls[0][1]
+    expect(written).toBe('cd e2e && npx playwright test 2>&1 --reporter=line\n')
+    expect(r.note).toContain('Dropped the trailing `| tail -70`')
+    expect(r.note).toContain('--reporter=line')
+  })
+
+  it('leaves a command with its own reporter, or no tail, exactly as sent', async () => {
+    const backend = bgBackend()
+    const tools = buildTools(backend)
+    const exec = tools.find((t) => t.name === 'exec_command')!
+    const command = 'npx playwright test --reporter=list > out.txt'
+    const r = (await exec.execute({ command, run_in_background: true })) as { note: string }
+    expect((backend.writeFile as ReturnType<typeof vi.fn>).mock.calls[0][1]).toBe(`${command}\n`)
+    expect(r.note).not.toContain('Dropped')
+  })
+
   it('reports a failure to start rather than throwing', async () => {
     const backend = bgBackend()
     backend.writeFile = vi.fn().mockRejectedValue(new Error('read-only filesystem'))
