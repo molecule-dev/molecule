@@ -331,6 +331,17 @@ describe('buildTools', () => {
     expect(result.stdout).toContain('Succeeded files: 13')
   })
 
+  it('backgrounds a piped Playwright run that declares no budget (flash-m29)', async () => {
+    const backend = mockBackend()
+    const tools = buildTools(backend, { commandBudgetMs: 290_000, overCeilingGraceMs: 0 })
+    const exec = tools.find((t) => t.name === 'exec_command')!
+    const result = (await exec.execute({
+      command: 'TEST_MODE=fullstack npx playwright test 2>&1 | tail -40',
+    })) as { taskId?: string; note?: string }
+    expect(result.taskId).toMatch(/^mol-bg-/)
+    expect(result.note).toContain('A Playwright run can take longer')
+  })
+
   it('reads the declared budget from the timeout PARAMETER too', async () => {
     const backend = mockBackend()
     const tools = buildTools(backend, { commandBudgetMs: 290_000, overCeilingGraceMs: 0 })
@@ -1139,7 +1150,8 @@ describe('buildTools', () => {
       exitCode: 124,
     })
     const piped = (await execCmd.execute({
-      command: 'cd app && npx playwright test 2>&1 | tail -40',
+      // (A piped `playwright test` is backgrounded before it can overrun — see the flash-m29 test.)
+      command: 'cd app && npm run test:e2e 2>&1 | tail -40',
     })) as { stdout: string; exitCode: number; error?: string }
     expect(piped.stdout).toBe('')
     expect(piped.error).toMatch(/pipe through tail\/head holds everything back/)

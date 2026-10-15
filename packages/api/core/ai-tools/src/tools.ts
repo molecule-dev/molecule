@@ -1155,10 +1155,14 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       // executor gets a handle to wait on.
       const ceilingSeconds = commandBudgetMs ? Math.max(1, Math.round(commandBudgetMs / 1000)) : 0
       const declaredSeconds = commandBudgetMs ? declaredBudgetSeconds(command, input.timeout) : 0
+      // A Playwright run with its output held back by a pipe is backgrounded without
+      // declaring a budget too: a suite routinely outlasts the ceiling, and killed there
+      // behind `| tail` it returns nothing (X1 flash-m29 lost a 290 s run that way).
+      // A short one still comes back as a foreground result, through the grace below.
       const overCeiling =
         commandBudgetMs !== undefined &&
-        declaredSeconds > ceilingSeconds &&
-        outputIsWithheldUntilExit(command)
+        outputIsWithheldUntilExit(command) &&
+        (declaredSeconds > ceilingSeconds || /\bplaywright\s+test\b/.test(command))
 
       if (input.run_in_background === true || overCeiling) {
         const id = `mol-bg-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`
@@ -1221,8 +1225,11 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
             exitFile,
             note:
               (overCeiling
-                ? `This command asks for ${declaredSeconds}s, more than this tool's ${ceilingSeconds}s, and its ` +
-                  'output only appears when it ends — so it was started in the background instead. '
+                ? declaredSeconds > ceilingSeconds
+                  ? `This command asks for ${declaredSeconds}s, more than this tool's ${ceilingSeconds}s, and its ` +
+                    'output only appears when it ends — so it was started in the background instead. '
+                  : `A Playwright run can take longer than this tool's ${ceilingSeconds}s, and behind a pipe its ` +
+                    'output only appears when it ends — so it was started in the background instead. '
                 : '') +
               `Started in the background. Its output is written to ${log} and comes back as the ` +
               `stdout of wait_for_task when the command finishes (read_file cannot reach /tmp — ` +
