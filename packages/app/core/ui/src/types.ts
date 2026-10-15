@@ -152,6 +152,11 @@ export interface InputElementProps extends HTMLElementProps {
  * Base props for button elements.
  */
 export interface ButtonElementProps extends HTMLElementProps {
+  /**
+   * Defaults to `'button'` in every framework binding, so a button never submits a
+   * form by accident. A form's primary action must set `type="submit"`: Enter then
+   * submits the form, and tests that select `button[type="submit"]` find it.
+   */
   type?: 'button' | 'submit' | 'reset'
   name?: string
   value?: string

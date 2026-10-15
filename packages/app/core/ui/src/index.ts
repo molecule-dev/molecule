@@ -14,6 +14,9 @@
  * only the bond — a literal `"flex p-4"` in a component defeats that and is the #1 styling
  * mistake.
  *
+ * - **`Button` defaults to `type="button"`.** A form's primary action needs
+ *   `type="submit"`, or Enter does nothing and tests that select `button[type="submit"]`
+ *   miss it (X1 RealWorld runs failed 15 browser tests on one Settings button).
  * - **Inline styles must not fight ClassMap.** An inline `style` has higher specificity and
  *   SILENTLY overrides the class controlling the same property (e.g. `style={{ background }}`
  *   kills `cm.surface`). Use inline only for what ClassMap can't express (a specific pixel
