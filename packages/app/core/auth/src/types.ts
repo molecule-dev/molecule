@@ -374,6 +374,32 @@ export interface AuthClientConfig {
   storagePrefix?: string
 
   /**
+   * Scheme of the `Authorization` header the access token is sent with:
+   * `Bearer` (default), or e.g. `Token` for an API that reads
+   * `Authorization: Token <jwt>`.
+   */
+  authScheme?: string
+
+  /**
+   * Shape the login/register request body for an API that expects another
+   * envelope (default: the credentials as given). RealWorld, for example:
+   * `(kind, payload) => ({ user: payload })`.
+   * @param kind - Which request.
+   * @param payload - The credentials or registration data.
+   * @returns The JSON body to send.
+   */
+  requestBody?: (kind: 'login' | 'register', payload: Record<string, unknown>) => unknown
+
+  /**
+   * Turn the API's login/register answer into the client's
+   * `{ accessToken, refreshToken?, user }` (default: the answer as given).
+   * RealWorld, for example: `(data) => ({ accessToken: data.user.token, user: data.user })`.
+   * @param data - The parsed response body.
+   * @returns The auth result.
+   */
+  mapAuthResponse?: (data: unknown) => AuthResult<UserProfile>
+
+  /**
    * Token storage type or custom storage adapter.
    * - 'memory': In-memory storage (lost on page refresh)
    * - StorageAdapter: Custom storage implementation (e.g., from `@molecule/app-storage`)

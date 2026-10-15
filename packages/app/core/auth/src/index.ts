@@ -9,6 +9,11 @@
  * same client.
  *
  * @remarks
+ * - **An API with its own auth envelope keeps this client.** `requestBody` wraps the
+ *   login/register payload (`(kind, p) => ({ user: p })`), `mapAuthResponse` reads the
+ *   token and user out of the answer (`(d) => ({ accessToken: d.user.token, user: d.user })`),
+ *   and `authScheme: 'Token'` sends `Authorization: Token <jwt>`. Do not hand-write an
+ *   auth client for a spec like RealWorld.
  * - **A page reload "logging the user out" is the config default, not a bug.**
  *   Token storage defaults to `'memory'` (the secure default — a localStorage
  *   bearer token is XSS-exfiltratable). Staying signed in across reloads works

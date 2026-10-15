@@ -351,6 +351,36 @@ describe('JWT Auth Client', () => {
     })
   })
 
+  describe('an API with its own auth envelope', () => {
+    it('shapes the request, reads the answer, and sends the token with the configured scheme', async () => {
+      const token = createMockJWT({ sub: 'u1', exp: Math.floor(Date.now() / 1000) + 3600 })
+      mockFetch
+        .mockImplementationOnce(() =>
+          createMockResponse({ user: { email: 'a@b.c', username: 'ann', token } }),
+        )
+        .mockImplementation(() => createMockResponse({}))
+      const client = createJWTAuthClient({
+        authScheme: 'Token',
+        requestBody: (_kind, payload) => ({ user: payload }),
+        mapAuthResponse: (data) => {
+          const user = (data as { user: { token: string; username: string; email: string } }).user
+          return { accessToken: user.token, user: { id: user.username, email: user.email } }
+        },
+      })
+
+      await client.login({ email: 'a@b.c', password: 'pw' })
+
+      expect(JSON.parse(mockFetch.mock.calls[0][1].body)).toEqual({
+        user: { email: 'a@b.c', password: 'pw' },
+      })
+      expect(client.isAuthenticated()).toBe(true)
+      expect(client.getUser()).toMatchObject({ email: 'a@b.c' })
+      await client.logout().catch(() => {})
+      const sent = mockFetch.mock.calls.slice(1).find((c) => c[1]?.headers?.Authorization)
+      expect(sent?.[1].headers.Authorization).toBe(`Token ${token}`)
+    })
+  })
+
   describe('getState', () => {
     it('should return current auth state', () => {
       const client = createJWTAuthClient()

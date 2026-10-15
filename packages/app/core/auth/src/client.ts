@@ -147,6 +147,12 @@ export const createJWTAuthClient = <T extends UserProfile = UserProfile>(
     }, refreshTime)
   }
 
+  // An API with its own auth envelope (config.requestBody / mapAuthResponse).
+  const shapeBody = (kind: 'login' | 'register', payload: object): unknown =>
+    config.requestBody ? config.requestBody(kind, payload as Record<string, unknown>) : payload
+  const mapResult = (data: unknown): AuthResult<T> =>
+    (config.mapAuthResponse ? config.mapAuthResponse(data) : data) as AuthResult<T>
+
   const fetchAPI = async <R>(endpoint: string, options: RequestInit = {}): Promise<R> => {
     const url = baseURL + endpoint
     const headers: Record<string, string> = {
@@ -156,7 +162,7 @@ export const createJWTAuthClient = <T extends UserProfile = UserProfile>(
 
     const token = tokenStorage.getAccessToken()
     if (token) {
-      headers['Authorization'] = `Bearer ${token}`
+      headers['Authorization'] = `${config.authScheme ?? 'Bearer'} ${token}`
     }
 
     // 'include' so httpOnly session cookies flow when the API is on another
@@ -263,10 +269,12 @@ export const createJWTAuthClient = <T extends UserProfile = UserProfile>(
       setState({ loading: true, error: null })
 
       try {
-        const result = await fetchAPI<AuthResult<T>>(loginEndpoint, {
-          method: 'POST',
-          body: JSON.stringify(credentials),
-        })
+        const result = mapResult(
+          await fetchAPI<unknown>(loginEndpoint, {
+            method: 'POST',
+            body: JSON.stringify(shapeBody('login', credentials)),
+          }),
+        )
 
         // Two-factor gate: the server answered 206 `{ twoFactorRequired: true }`
         // — no tokens/user issued. Surface the result WITHOUT marking the
@@ -345,10 +353,12 @@ export const createJWTAuthClient = <T extends UserProfile = UserProfile>(
       setState({ loading: true, error: null })
 
       try {
-        const result = await fetchAPI<AuthResult<T>>(registerEndpoint, {
-          method: 'POST',
-          body: JSON.stringify(data),
-        })
+        const result = mapResult(
+          await fetchAPI<unknown>(registerEndpoint, {
+            method: 'POST',
+            body: JSON.stringify(shapeBody('register', data)),
+          }),
+        )
 
         tokenStorage.setAccessToken(result.accessToken || null)
         tokenStorage.setRefreshToken(result.refreshToken || null)
