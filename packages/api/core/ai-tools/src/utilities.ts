@@ -616,9 +616,15 @@ export function parseCheckCommand(path: string): string | null {
   if (/\.(m?js|cjs)$/.test(path)) return `node --check ${q}`
   if (/\.json$/.test(path))
     return `node -e "JSON.parse(require('fs').readFileSync(process.argv[1],'utf8'))" ${q}`
+  // On failure print `line:column: message`, the offending source line and a
+  // caret: esbuild's own message names only `<stdin>:7:44`, which left agents
+  // re-emitting whole files or running scripts just to see the character
+  // (X1 runs sol-m05, sol-m06).
   return (
     `node -e "const p=process.argv[1];const src=require('fs').readFileSync(p,'utf8');` +
-    `require('esbuild').transformSync(src,{loader:p.endsWith('x')?'tsx':'ts',logLevel:'silent'})" ${q}`
+    `try{require('esbuild').transformSync(src,{loader:p.endsWith('x')?'tsx':'ts',logLevel:'silent'})}` +
+    `catch(e){const m=(e.errors||[])[0];if(!m||!m.location)throw e;const l=m.location;` +
+    `console.error(l.line+':'+(l.column+1)+': '+m.text+String.fromCharCode(10)+l.lineText.slice(0,240)+String.fromCharCode(10)+' '.repeat(Math.min(l.column,240))+'^');process.exit(1)}" ${q}`
   )
 }
 

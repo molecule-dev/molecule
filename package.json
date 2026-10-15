@@ -58,6 +58,7 @@
     "version": "changeset version && npm install --package-lock-only --no-audit --no-fund"
   },
   "devDependencies": {
+    "@babel/core": "7.29.7",
     "@bufbuild/protobuf": "2.13.0",
     "@changesets/cli": "2.31.1",
     "@eslint/js": "10.0.1",
