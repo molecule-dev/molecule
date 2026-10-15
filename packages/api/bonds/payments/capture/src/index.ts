@@ -110,6 +110,23 @@
  * })
  * ```
  *
+ * @e2e
+ * Integration checklist for an app bonded to this provider — drive the real UI
+ * (live preview, no mocks) and check every box. This provider makes no network
+ * call, so there are no test cards and no captured deliveries to read: YOU play
+ * the vendor with the provider's own methods.
+ * - [ ] Upgrading from the pricing or billing surface lands on the app's own
+ *   `/plan-updated?provider=stripe&sessionId=cs_capture_…` page, and the plan
+ *   shows as active after its verify call (checkouts complete as paid by default).
+ * - [ ] With `autoCompleteCheckout: false`, the plan stays unpaid until
+ *   `provider.completeCheckout(sessionId, { outcome: 'paid' })`, and
+ *   `{ outcome: 'declined' }` leaves the user on their old plan with a sane UI.
+ * - [ ] A webhook built with `provider.buildWebhookRequest(...)` and POSTed byte
+ *   for byte to `/users/payment-notification/stripe` is accepted, and its
+ *   effect shows (e.g. after `failRenewal(sub.id)`, the account shows past due).
+ * - [ ] Canceling from the account screen ends the subscription at period end
+ *   and the status says so.
+ *
  * @module
  */
 
