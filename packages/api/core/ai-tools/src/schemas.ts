@@ -147,7 +147,8 @@ export const TOOL_SCHEMAS: Record<string, ToolSchema> = {
       properties: {
         pattern: {
           type: 'string',
-          description: 'Text or regex pattern to search for.',
+          description:
+            'Extended regex (`a|b`, `(x)+`) or plain text to search for; a pattern that is not a valid regex is searched as plain text.',
         },
         path: {
           type: 'string',

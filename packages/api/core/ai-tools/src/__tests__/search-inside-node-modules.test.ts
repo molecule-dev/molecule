@@ -50,6 +50,26 @@ describe('search inside node_modules', () => {
     expect(out).not.toContain('nested')
   })
 
+  it('search_files reads `a|b` as alternation, and a pattern that is no regex as plain text', async () => {
+    write('node_modules/@molecule/app-icons/dist/router.js', 'function BrowserRouter(props) {}\n')
+    // X1 sol-m07: as a basic regex this found nothing.
+    const either = JSON.stringify(
+      await tool('search_files').execute({
+        pattern: 'NoSuchThing|BrowserRouter',
+        path: 'node_modules/@molecule/app-icons',
+      }),
+    )
+    expect(either).toContain('router.js')
+    // An unbalanced paren is not a valid extended regex: searched as text.
+    const literal = JSON.stringify(
+      await tool('search_files').execute({
+        pattern: 'BrowserRouter(',
+        path: 'node_modules/@molecule/app-icons',
+      }),
+    )
+    expect(literal).toContain('router.js')
+  })
+
   it('find_files finds files under a package rooted inside node_modules', async () => {
     const out = (await tool('find_files').execute({
       pattern: '*.d.ts',

@@ -944,8 +944,14 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         // `file:line:content` for matches, plus `--` group separators. Both
         // shapes are parsed below; without context the output is unchanged.
         const contextArg = contextLines > 0 ? `-C ${contextLines}` : ''
+        // Extended regex, the dialect a pattern like `useTransitions|BrowserRouter`
+        // is written in: as a basic regex its `|` was a literal character and the
+        // search found nothing (X1 run sol-m07). A pattern that is not a valid
+        // extended regex (`foo(` — an unbalanced paren) makes grep exit 2; it is
+        // then searched as the plain text it was meant as.
+        const grepArgs = `-rn ${globArg} ${contextArg} ${grepExcludeArgs(path)} --max-count=${MAX_SEARCH_RESULTS} -- ${shellQuote(pattern)} ${shellQuote(path)}`
         const result = await backend.run(
-          `grep -rn ${globArg} ${contextArg} ${grepExcludeArgs(path)} --max-count=${MAX_SEARCH_RESULTS} -- ${shellQuote(pattern)} ${shellQuote(path)} 2>/dev/null || true`,
+          `{ grep -E ${grepArgs}; s=$?; if [ "$s" -eq 2 ]; then grep -F ${grepArgs}; fi; } 2>/dev/null || true`,
           { timeout: 10000 },
         )
         // grep emits `<file>:<line>:<content>`, so redaction runs PER MATCH on the
