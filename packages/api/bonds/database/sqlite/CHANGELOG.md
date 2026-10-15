@@ -1,5 +1,11 @@
 # @molecule/api-database-sqlite
 
+## 1.1.3
+
+### Patch Changes
+
+- 3293f6f: Migrations translate `ADD COLUMN IF NOT EXISTS` to `ADD COLUMN`, which SQLite can run.
+
 ## 1.1.2
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/api-resource-user
 
+## 1.4.12
+
+### Patch Changes
+
+- 29e9bc0: Documents that a hand-written logout must call `invalidateDeviceExistsCache` after deleting the device row.
+
 ## 1.4.11
 
 ### Patch Changes

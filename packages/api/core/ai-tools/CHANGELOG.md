@@ -1,5 +1,12 @@
 # @molecule/api-ai-tools
 
+## 1.5.7
+
+### Patch Changes
+
+- 4bffe01: A `.ts` file that fails to parse on JSX is told it needs to be `.tsx`.
+- 564833e: edit_file says when a replacement removed the line break after the replaced text.
+
 ## 1.5.6
 
 ### Patch Changes
