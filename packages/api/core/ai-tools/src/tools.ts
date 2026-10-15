@@ -912,11 +912,27 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           }
         }
         const excerpt = renderEditExcerpt(finalContent, spans)
+        // A replacement whose old text ended in a newline and whose new text does not
+        // joins the line after it onto its last line. Applied as written, but said:
+        // flash-m28 saw two lines merged only one round trip later.
+        const joined = replacements.filter(
+          (r) =>
+            typeof r.old_string === 'string' &&
+            typeof r.new_string === 'string' &&
+            r.old_string.endsWith('\n') &&
+            r.new_string !== '' &&
+            !r.new_string.endsWith('\n'),
+        ).length
 
         return {
           path,
           ok: true,
           replacementsApplied: replacements.length - alreadyApplied,
+          ...(joined > 0
+            ? {
+                newlineNote: `${joined === 1 ? 'A replacement' : `${joined} replacements`} removed the line break after the replaced text (old_string ended with a newline, new_string does not), so the next line now continues on the same line. Check the excerpt; add the newline back if that was not intended.`,
+              }
+            : {}),
           ...(alreadyApplied > 0 ? { alreadyApplied, note: alreadyNote } : {}),
           totalLines: countLines(finalContent),
           ...(excerpt ? { excerpt: sanitizeFileContent(excerpt, path) } : {}),

@@ -2068,3 +2068,32 @@ describe('parse check after a write', () => {
     expect(backend.run).toHaveBeenCalledTimes(1)
   })
 })
+
+describe('edit_file — a dropped line break is said', () => {
+  it('notes a replacement whose old text ended in a newline and new text does not (flash-m28)', async () => {
+    let file = 'const a = 1\nconst b = 2\n'
+    const backend = {
+      projectRoot: '/test',
+      readFile: vi.fn(async () => file),
+      writeFile: vi.fn(async (_p: string, c: string) => {
+        file = c
+      }),
+      deleteFile: vi.fn(),
+      readDir: vi.fn(),
+      run: vi.fn().mockResolvedValue({ stdout: '', stderr: '', exitCode: 0 }),
+    }
+    const edit = buildTools(backend).find((t) => t.name === 'edit_file')!
+    const r = (await edit.execute({
+      path: 'a.ts',
+      old_string: 'const a = 1\n',
+      new_string: 'const a = 10',
+    })) as { newlineNote?: string }
+    expect(r.newlineNote).toContain('removed the line break')
+    const ok = (await edit.execute({
+      path: 'a.ts',
+      old_string: 'const b = 2',
+      new_string: 'const b = 3',
+    })) as { newlineNote?: string }
+    expect(ok.newlineNote).toBeUndefined()
+  })
+})
