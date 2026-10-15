@@ -24,7 +24,17 @@ export function registerPWA(): void {
   // blind-timeout-reload: that reloaded before the swap completed and landed the
   // user back on the stale bundle after clicking Update.
   let reloading = false
+  // A page with no worker yet is CLAIMED on its first visit (`clientsClaim`),
+  // which fires `controllerchange` too: that is not an update, and reloading on
+  // it threw away whatever the visitor had started on their very first page
+  // (and every fresh browser context, so end-to-end runs saw pages reload under
+  // them). Only a change FROM an existing worker is an update.
+  let hadController = Boolean(navigator.serviceWorker?.controller)
   navigator.serviceWorker?.addEventListener('controllerchange', () => {
+    if (!hadController) {
+      hadController = true
+      return
+    }
     if (reloading) return
     reloading = true
     window.location.reload()
