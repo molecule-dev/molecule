@@ -4,10 +4,15 @@
  * @module
  */
 
-import React, { forwardRef, useEffect, useRef } from 'react'
+import React, { forwardRef, useEffect, useLayoutEffect, useRef } from 'react'
 
 import type { SwitchProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
+
+// Layout effects run in the commit itself, so the listener below is attached
+// before the browser can deliver a click; on the server, fall back to
+// useEffect to avoid React's SSR useLayoutEffect warning.
+const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect
 
 /**
  * Switch component.
@@ -37,13 +42,21 @@ export const Switch = forwardRef<HTMLButtonElement, SwitchProps>(
     // whichever one isn't the direct target.
     const hiddenInputRef = useRef<HTMLInputElement>(null)
 
-    useEffect(() => {
+    // Attached ONCE, in the commit, reading the latest `onChange` through a
+    // ref. A passive `useEffect` left a gap between the switch appearing and
+    // its listener existing: a click in that gap toggled nothing, silently
+    // (it flaked molecule-dev's auto-refill toggle test under load).
+    const onChangeRef = useRef(onChange)
+    useIsomorphicLayoutEffect(() => {
+      onChangeRef.current = onChange
+    })
+    useIsomorphicLayoutEffect(() => {
       const input = hiddenInputRef.current
-      if (!input || !onChange) return
-      const listener = (event: Event): void => onChange(event)
+      if (!input) return
+      const listener = (event: Event): void => onChangeRef.current?.(event)
       input.addEventListener('change', listener)
       return () => input.removeEventListener('change', listener)
-    }, [onChange])
+    }, [])
 
     const handleClick = (): void => {
       if (!disabled) {
