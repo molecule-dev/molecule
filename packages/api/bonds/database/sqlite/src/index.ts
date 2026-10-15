@@ -17,6 +17,14 @@
  * @remarks
  * Configure via the SQLITE_PATH environment variable (default: ./data/app.db).
  * WAL mode and foreign key constraints are enabled by default.
+ * - **Schema changes are `*.sql` files in the app's `api/migrations/`.** A
+ *   scaffolded API applies every file in lexical order each time it starts
+ *   (`server.ts` runs `createMigrator`), so a new file applies on the next
+ *   restart; write `CREATE TABLE IF NOT EXISTS`. Postgres-dialect DDL is
+ *   translated (`gen_random_uuid()`, `now()`, `::` casts, `USING <method>`),
+ *   so the same file works on the postgres bond.
+ * - **`pool.query(text, values)` takes Postgres-style `$1, $2` placeholders**
+ *   (converted to `?` and reordered) or plain `?` placeholders.
  * - **`pool.transaction()` calls and plain `pool.query()` calls are serialized**
  *   behind an internal FIFO queue (better-sqlite3 has only ONE shared connection
  *   — there is no per-transaction isolation). A `transaction()` holds the queue
