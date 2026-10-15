@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.5.6
+
+### Patch Changes
+
+- c9ff45e: A command backgrounded only because it asked for more than the tool's time limit, and that finishes within `overCeilingGraceMs` (45 s), returns its output like a foreground run.
+
 ## 1.5.5
 
 ### Patch Changes

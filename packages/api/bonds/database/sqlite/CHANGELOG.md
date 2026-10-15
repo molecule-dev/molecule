@@ -1,5 +1,11 @@
 # @molecule/api-database-sqlite
 
+## 1.1.2
+
+### Patch Changes
+
+- 68ac2bd: Re-running migrations adds a column that a `CREATE TABLE IF NOT EXISTS` declares but the existing table lacks.
+
 ## 1.1.1
 
 ### Patch Changes
