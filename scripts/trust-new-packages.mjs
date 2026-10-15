@@ -12,9 +12,15 @@
  * the open issue asking for one.
  *
  * So for a name npm has never seen this does two things, both needing a code:
- * publishes it, then trusts it. Everything afterwards is free — CI publishes
- * every later version over OIDC with no code, no stored secret and no human,
- * which is why the one-time cost is worth paying.
+ * publishes a PLACEHOLDER (`0.0.0-stage`, dist-tag `stage`) so the name exists,
+ * then trusts it. The real first version is left for CI: npm marks a new trust
+ * link "Pending validation" until a publish goes through it, and one that is
+ * never used stops working — still listed, but its exchange and its revoke both
+ * answer 404. Publishing the real 1.0.0 from the owner's account (as this did
+ * until 2026-10-15) meant no CI publish ever validated the link, and 33 packages
+ * sat on links nobody had proven until a release tried one (api-database-pglite,
+ * api-payments-capture). Everything afterwards is free — CI publishes every
+ * version over OIDC with no code, no stored secret and no human.
  *
  * It is also once per package, ever, and the pre-push hook runs it so nobody has
  * to remember. `npm publish` gets the terminal for its own 2FA prompt (it has no
@@ -410,23 +416,37 @@ for (const pkg of untrusted) {
       // network) surface immediately instead of triggering a prompt. Without
       // any code available, stdio: 'inherit' keeps npm's OWN interactive
       // prompt as the fallback.
-      if ((otp && /^\d{6}$/.test(otp)) || loadSeed()) {
-        const attempt = async (force) => {
-          const code = await ensureOtp(`${pkg.name} publish`, force)
-          return npmPublish(['publish', '--access', 'public', '--otp', code], join(ROOT, pkg.dir))
+      // Publish the placeholder: the manifest says 0.0.0-stage for this one
+      // command only, and the real version is restored before anything else.
+      const manifestPath = join(ROOT, pkg.dir, 'package.json')
+      const manifestText = readFileSync(manifestPath, 'utf8')
+      const staged = JSON.parse(manifestText)
+      staged.version = '0.0.0-stage'
+      writeFileSync(manifestPath, `${JSON.stringify(staged, null, 2)}\n`)
+      try {
+        if ((otp && /^\d{6}$/.test(otp)) || loadSeed()) {
+          const attempt = async (force) => {
+            const code = await ensureOtp(`${pkg.name} publish`, force)
+            return npmPublish(
+              ['publish', '--access', 'public', '--tag', 'stage', '--otp', code],
+              join(ROOT, pkg.dir),
+            )
+          }
+          let result = await attempt(false)
+          if (result.status !== 0 && isOtpRejection(result)) {
+            result = await attempt(true)
+          }
+          if (result.status !== 0) {
+            throw new Error('npm publish exited non-zero — npm printed the reason above')
+          }
+        } else {
+          execFileSync('npm', ['publish', '--access', 'public', '--tag', 'stage'], {
+            cwd: join(ROOT, pkg.dir),
+            stdio: 'inherit',
+          })
         }
-        let result = await attempt(false)
-        if (result.status !== 0 && isOtpRejection(result)) {
-          result = await attempt(true)
-        }
-        if (result.status !== 0) {
-          throw new Error('npm publish exited non-zero — npm printed the reason above')
-        }
-      } else {
-        execFileSync('npm', ['publish', '--access', 'public'], {
-          cwd: join(ROOT, pkg.dir),
-          stdio: 'inherit',
-        })
+      } finally {
+        writeFileSync(manifestPath, manifestText)
       }
     } catch (error) {
       // `npm publish` with stdio: 'inherit' prints its own reason, so its
@@ -494,7 +514,12 @@ if (failed.length) {
   process.exit(1)
 }
 
-console.log(`\nTrusted ${untrusted.length}. No code needed for these again.`)
+console.log(
+  `\nTrusted ${untrusted.length}. Their links are PENDING until CI publishes through them — npm ` +
+    'gives about two days. Run the release now so CI publishes their real versions:\n' +
+    '  node ../scripts/release.mjs --only=gates,version,publish,pins,lockfiles\n' +
+    'Then `node ../scripts/audit-npm-trust.mjs` lists any package still never published over OIDC.',
+)
 
 if (RELEASE) {
   // The packages are trusted but still do not exist on npm. CI creates them over
