@@ -233,3 +233,5 @@ jobs:
             .publish-failures.json
           retention-days: 14
           if-no-files-found: ignore
+          # .publish-failures.json is a dot-file; v4 skips those unless asked.
+          include-hidden-files: true
