@@ -1,5 +1,6 @@
 /// <reference types="vitest/config" />
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
+import { createRequire } from 'node:module'
 import { dirname, resolve } from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
@@ -19,13 +20,59 @@ export interface DefaultViteConfigBranding {
 }
 
 /**
+ * `react` and `react-dom` pinned to the one copy this app resolves. An install
+ * inside the app gives it its own React beside the workspace's, the
+ * `@molecule/*` packages still resolve the workspace's, and the preview went
+ * blank with "Invalid hook call" until an alias like this one was written by
+ * hand (X1 run sol-m09, 2026-10-15). `dedupe` alone did not prevent it.
+ *
+ * @param appRoot - The app directory (where its package.json is).
+ * @returns Alias entries for the copies that resolve; none when React is absent.
+ */
+export function singleReactAliases(appRoot: string): Record<string, string> {
+  const req = createRequire(resolve(appRoot, 'package.json'))
+  const aliases: Record<string, string> = {}
+  for (const name of ['react', 'react-dom']) {
+    try {
+      aliases[name] = dirname(req.resolve(`${name}/package.json`))
+    } catch (_error) {
+      // Not installed for this app: nothing to pin.
+    }
+  }
+  return aliases
+}
+
+/**
+ * Whether the package a specifier names is installed for this app. An
+ * `optimizeDeps.include` entry that is not installed makes Vite log "Failed to
+ * resolve dependency" and re-scan on every discovery, which can drop the dev
+ * server mid-reoptimize. Checked by directory, not `require.resolve`, so an
+ * ESM-only package or a subpath export still counts.
+ *
+ * @param spec - A bare specifier, e.g. `react/jsx-runtime` or `@scope/pkg/sub`.
+ * @param appRoot - The app directory to search upward from.
+ * @returns `true` when `node_modules/<package>` exists at or above `appRoot`.
+ */
+export function isInstalled(spec: string, appRoot: string): boolean {
+  const parts = spec.split('/')
+  const name = spec.startsWith('@') ? parts.slice(0, 2).join('/') : parts[0]
+  let dir = resolve(appRoot)
+  for (;;) {
+    if (existsSync(resolve(dir, 'node_modules', name, 'package.json'))) return true
+    const parent = dirname(dir)
+    if (parent === dir) return false
+    dir = parent
+  }
+}
+
+/**
  * Returns the canonical Vite config used by every fleet app — react +
  * tailwind + VitePWA plugins, molecule-package pre-bundle exclusion,
  * dev server proxy for `/api` + `/health` + `/socket.io` (ws), and the
  * standard env conventions.
  *
- * Replaces the 105-line per-app `vite.config.ts` shipped by 110 fleet
- * apps. Per-app vite.config.ts shrinks to:
+ * Replaces the per-app copy of this config that every flagship app used to
+ * ship. A per-app vite.config.ts shrinks to:
  *
  * ```ts
  * import { defineConfig } from 'vite'
@@ -220,7 +267,8 @@ export function createDefaultViteConfig(branding: DefaultViteConfigBranding): Us
     ...(process.env.VITE_CACHE_DIR ? { cacheDir: process.env.VITE_CACHE_DIR } : {}),
     resolve: {
       preserveSymlinks: true,
-      dedupe: ['react', 'react-dom', 'react-router', 'react-router'],
+      dedupe: ['react', 'react-dom', 'react-router', 'react-router-dom'],
+      alias: singleReactAliases(process.cwd()),
     },
     optimizeDeps: {
       // Locale bond packages are pre-bundled (see above) — exclude wins over
@@ -243,7 +291,6 @@ export function createDefaultViteConfig(branding: DefaultViteConfigBranding): Us
         'react-dom/client',
         'react/jsx-runtime',
         'react/jsx-dev-runtime',
-        'void-elements',
         'html-parse-stringify',
         'use-sync-external-store',
         'use-sync-external-store/shim',
@@ -254,7 +301,7 @@ export function createDefaultViteConfig(branding: DefaultViteConfigBranding): Us
         // (the one that depends on the CJS library) so the fix lands in
         // the same commit as the dep — not added to this hardcoded list.
         ...declaredOptimizeIncludes,
-      ],
+      ].filter((spec) => localePackages.includes(spec) || isInstalled(spec, process.cwd())),
     },
     server: {
       port: parseInt(process.env.VITE_PORT || '3000'),

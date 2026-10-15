@@ -24,6 +24,15 @@ describe('@molecule/app-vite-config-default', () => {
     })
     expect(cfg.plugins).toBeDefined()
     expect(cfg.resolve?.dedupe).toContain('react')
+    expect(cfg.resolve?.dedupe).toContain('react-router-dom')
+    // Run from this package, where React is installed: both are pinned.
+    expect(Object.keys((cfg.resolve?.alias ?? {}) as Record<string, string>)).toEqual([
+      'react',
+      'react-dom',
+    ])
+    // Every forced include is installed here (none Vite cannot resolve).
+    expect(cfg.optimizeDeps?.include).toContain('react')
+    expect(cfg.optimizeDeps?.include).not.toContain('void-elements')
     expect(cfg.optimizeDeps).toBeDefined()
     expect(cfg.server?.proxy).toHaveProperty('/api')
     expect(cfg.server?.proxy).toHaveProperty('/health')
