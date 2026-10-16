@@ -555,3 +555,24 @@ describe('redactSecrets — package names that end in a keyword', () => {
     expect(redactSecrets('{"auth": "Bearer abcdef0123456789"}')).not.toContain('abcdef0123')
   })
 })
+
+describe('truncateMiddle — test runs (flash-m45)', () => {
+  it('keeps the failure blocks over passing progress', async () => {
+    const { truncateMiddle } = await import('../utilities.js')
+    const progress = Array.from(
+      { length: 400 },
+      (_, i) => `  ✓  ${i} [chromium] › e2e/a.spec.ts:${i}:1 › passes`,
+    ).join('\n')
+    const failures = Array.from(
+      { length: 3 },
+      (_, i) =>
+        `  ${i + 1}) [chromium] › e2e/b.spec.ts:${i}:1 › fails ${i}\n\n    Error: expected thing ${i}\n      at b.spec.ts:${i}:5`,
+    ).join('\n\n')
+    const out = `Running 403 tests using 1 worker\n${progress}\n\n${failures}\n\n  3 failed\n  400 passed (7.2m)`
+    const cut = truncateMiddle(out, 8000)
+    expect(cut.length).toBeLessThanOrEqual(8000)
+    for (let i = 0; i < 3; i++) expect(cut).toContain(`Error: expected thing ${i}`)
+    expect(cut).toContain('3 failed')
+    expect(cut).toContain('3 of 3 failure blocks kept')
+  })
+})

@@ -614,6 +614,30 @@ export function truncateMiddle(s: string, maxLength: number): string {
   // within maxLength; the middle-preserving form only helps at real sizes).
   if (maxLength <= noticeReserve) return s.slice(0, maxLength)
   const budget = maxLength - noticeReserve
+  // A test run's numbered failure blocks are what the reader needs, and in a long run they
+  // sit in the middle, between per-test progress and the tally: keep them over progress
+  // (X1 flash-m45: 31 failure bodies dropped, 8 KB of passing progress kept).
+  const failures = failureBlocks(s)
+  if (failures.length > 0) {
+    const headLen = Math.min(800, Math.floor(budget * 0.1))
+    const tailLen = Math.min(1500, Math.floor(budget * 0.2))
+    let room = budget - headLen - tailLen
+    const kept: string[] = []
+    for (const block of failures) {
+      const piece = block.length > 900 ? `${block.slice(0, 897)}...` : block
+      if (piece.length + 1 > room) break
+      kept.push(piece)
+      room -= piece.length + 1
+    }
+    const left = failures.length - kept.length
+    return (
+      s.slice(0, headLen) +
+      `\n\n... [middle truncated — progress lines left out; ${kept.length} of ${failures.length} failure blocks kept${left ? `, ${left} more not shown` : ''}] ...\n\n` +
+      kept.join('\n') +
+      '\n\n' +
+      s.slice(s.length - tailLen)
+    )
+  }
   const headLen = Math.floor(budget * 0.4)
   const tailLen = budget - headLen
   const omitted = s.length - headLen - tailLen
@@ -622,6 +646,32 @@ export function truncateMiddle(s: string, maxLength: number): string {
     `\n\n... [middle truncated — ${omitted} chars omitted; the head AND the tail are shown, a failing command's error is usually near the end] ...\n\n` +
     s.slice(s.length - tailLen)
   )
+}
+
+/**
+ * The numbered failure blocks of a Playwright report (`  1) [chromium] › file:line › title`
+ * up to the next block or the tally).
+ *
+ * @param s - Test-runner output.
+ * @returns Each block, in order (empty when there are none).
+ */
+export function failureBlocks(s: string): string[] {
+  const lines = s.split('\n')
+  const blocks: string[] = []
+  let current: string[] | null = null
+  for (const line of lines) {
+    if (/^\s*\d+\) \[[^\]\n]+\] › /.test(line)) {
+      if (current) blocks.push(current.join('\n').trimEnd())
+      current = [line]
+    } else if (current) {
+      if (/^\s*\d+ (?:passed|failed|flaky|skipped|did not run)\b/.test(line)) {
+        blocks.push(current.join('\n').trimEnd())
+        current = null
+      } else current.push(line)
+    }
+  }
+  if (current) blocks.push(current.join('\n').trimEnd())
+  return blocks
 }
 
 /**
