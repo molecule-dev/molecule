@@ -80,13 +80,21 @@ const taskPidsCommand = (taskId: string): string =>
 /**
  * The command that stops a running background task, read from the sandbox's own pid files.
  *
+ * THE one builder for it, so every note that hands the executor a way to stop a run hands over the
+ * same pid-only form: a `pkill -f <something>` matches the shell running it (its argv IS the
+ * command), and `molecule-dev/api/src/ai/pattern-kill-guard.ts` holds exactly that — X1
+ * xr-molecule-flash-m87's stuck note suggested `kill $(cat /tmp/<id>.pid) 2>/dev/null; pkill -f
+ * <id>.sh`, which the platform's own guard then refused, and the same shape cost a refused call at
+ * +21:57. The pid tree is the whole of what the pattern was for: the detached shell and every
+ * process under it.
+ *
  * @param backend - The execution backend.
  * @param taskId - The task's `mol-bg-…` handle.
  * @returns The command to hand the executor — `kill <pids>` — falling back to the task's own pid
  *   file when the walk comes back empty (a sandbox without `pgrep`, or a pid file already gone,
  *   in which case the pid-file form is still the one the platform's guard names).
  */
-async function taskStopCommand(backend: ExecutionBackend, taskId: string): Promise<string> {
+export async function taskStopCommand(backend: ExecutionBackend, taskId: string): Promise<string> {
   const fallback = `kill $(cat /tmp/${taskId}.pid)`
   try {
     const r = await backend.run(taskPidsCommand(taskId), { timeout: 10_000 })
@@ -1963,8 +1971,8 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           waitedMs: waitedBefore,
           note:
             `You have already waited ${Math.round(waitedBefore / 1000)}s on this command and it ` +
-            `has not exited — it is stuck, not slow. Kill it (exec_command: kill $(cat /tmp/${taskId}.pid) ` +
-            `2>/dev/null; pkill -f ${taskId}.sh) and move on; do not wait on it again.`,
+            `has not exited — it is stuck, not slow. Kill it (\`exec_command: ` +
+            `${await taskStopCommand(backend, taskId)}\`) and move on; do not wait on it again.`,
         }
       }
       // The id names files under /tmp; only an id this tool minted may be used
@@ -2110,8 +2118,8 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
             note:
               `${Math.round((waitedBefore + waitedMs) / 1000)}s of waiting and it has not exited — it is ` +
               `stuck, not slow. See what it printed with exec_command (tail /tmp/${taskId}.log — ` +
-              `read_file cannot reach /tmp), kill it (exec_command: ` +
-              `kill $(cat /tmp/${taskId}.pid) 2>/dev/null; pkill -f ${taskId}.sh) and move on; do not wait on it again.`,
+              `read_file cannot reach /tmp), kill it (\`exec_command: ` +
+              `${await taskStopCommand(backend, taskId)}\`) and move on; do not wait on it again.`,
           }
         }
         return {
