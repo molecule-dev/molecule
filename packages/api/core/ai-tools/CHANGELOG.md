@@ -1,5 +1,17 @@
 # @molecule/api-ai-tools
 
+## 1.6.0
+
+### Minor Changes
+
+- 219e140: A batched `read_file` returns whole files only: one result is capped at `MAX_READ_CALL_CHARS` (60,000 characters, the ceiling a host puts on one tool result) instead of `MAX_BATCH_READ_BYTES` (200 KB). Files are returned whole up to it and every path past that is named in `note` and listed in `files` as `not returned`, so no file is ever handed back in part and the caller can see which reads it still owes. `MAX_READ_RETURN_CHARS` is now that ceiling less its envelope, `MAX_BATCH_READ_BYTES` is removed, and `serializedChars` / `linesWithinSerialized` are new: a window is sized on the text as JSON counts it, so a large read no longer arrives one newline per line over the bound it was sized for.
+- 09e538d: `commandSegments` and `runsInCommandPosition` answer what a shell command actually runs: the command is split at its pipeline and statement separators, and each segment's word in command position is read after the wrapper prefixes a shell may put in front of it (environment assignments, `sudo`/`env`/`time`/`timeout`/`nice`, `npx`/`bunx`/`pnpm dlx`, `sh`/`bash`, and a nested `sh -c '<command>'`). `commandRunsNoTests`, `isSuiteRunCommand` and `isPlaywrightRunCommand` match a runner only in that position, so a runner named as an argument to a reader — `head -30 run-api-tests-hurl.sh`, `grep -n playwright e2e/README.md` — is no longer read as an invocation.
+
+### Patch Changes
+
+- 24305fc: A background Playwright run ends up with exactly ONE reporter that prints each failure. A run that names another printing reporter (`line`, `dot`, `basic`, `spec`) has it replaced by `list` rather than joined beside it — two of them write every test result into the log twice — while a reporter set that writes a machine format to a file (`json`, `html`, `junit`) is left exactly as it was. And `wait_for_task`'s repeating-cause note now counts DISTINCT tests: a test that two reporters printed, or that a retry failed again, is one test, so the note needs three different tests behind one cause before it names it, and it says so ("N different tests in this run have already failed the same way").
+- b162c75: `wait_for_task`'s repeating-cause note now tells a run to KEEP GOING. It still names the cause at the third same-shaped failure so the fix can start mid-run, but the run is the only thing that names its OTHER causes, so the note tells the executor to let it finish and gives a stop command only when the cause is failing the whole run — every failure sharing it, across three spec files or more, with nothing passing since the first (an app that is not up, a 5xx on every request, a selector missing on every page). A finished run whose log holds failures now also comes back with a note grouping them by cause, one line per cause with the tests it hit, so one round of fixes covers every cause the run found.
+
 ## 1.5.20
 
 ### Patch Changes

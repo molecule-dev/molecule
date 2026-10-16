@@ -1,5 +1,11 @@
 # @molecule/app-vite-config-default
 
+## 1.1.5
+
+### Patch Changes
+
+- 12d164d: The dev server polls for file changes inside a sandbox, so edits are picked up after a watched folder is replaced.
+
 ## 1.1.4
 
 ### Patch Changes
