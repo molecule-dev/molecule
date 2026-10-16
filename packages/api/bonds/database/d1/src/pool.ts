@@ -16,6 +16,39 @@ import { coerceSqliteParam, convertPlaceholders } from '@molecule/api-database-s
 
 import type { D1Config, D1DatabaseLike } from './types.js'
 
+/** How much of a failing statement the error message carries (whitespace-collapsed). */
+const STATEMENT_IN_MESSAGE_CAP = 200
+
+/**
+ * Runs `statement` and, when D1 throws, names the statement that failed.
+ *
+ * SQLite's errors carry a code and nothing else: X0 flash-m89's seed hit
+ * `SqliteError: datatype mismatch` and the executor spent 38 s grepping the app for which table
+ * the insert was aimed at. D1's errors are the same shape (they come from the same engine), so
+ * the pool states the statement itself — the same rule the sqlite bond's own pool applies to
+ * better-sqlite3 (`@molecule/api-database-sqlite`, `pool.ts`).
+ *
+ * The error keeps its class and code (it is mutated, not replaced): its message gains the
+ * statement on one line, and `sql` carries it whole. The bound VALUES are never part of either —
+ * they hold whatever the caller was storing.
+ *
+ * @param sql - The statement as the binding received it (after placeholder conversion).
+ * @param run - Runs the statement and returns its result.
+ * @returns Whatever `run` returned.
+ */
+async function withStatementContext<T>(sql: string, run: () => Promise<T>): Promise<T> {
+  try {
+    return await run()
+  } catch (error) {
+    if (error instanceof Error && !(error as { sql?: unknown }).sql) {
+      const oneLine = sql.replace(/\s+/g, ' ').trim().slice(0, STATEMENT_IN_MESSAGE_CAP)
+      ;(error as { sql?: string }).sql = sql
+      error.message = `${error.message} — in: ${oneLine}`
+    }
+    throw error
+  }
+}
+
 /**
  * Runs one statement against D1 and normalises the result.
  *
@@ -33,15 +66,17 @@ async function runQuery<T>(
   // match), bare `?` (values pass through 1:1), and no placeholders at all
   // (values dropped, so D1 does not reject the statement for extra params).
   const converted = convertPlaceholders(text, values)
-  const bound = database.prepare(converted.text).bind(...converted.values.map(coerceSqliteParam))
-  const result = await bound.all<T>()
-  const rows = result.results ?? []
-  return {
-    rows,
-    // D1 reports `changes` only for writes. Falling back to the row count keeps
-    // `rowCount` meaningful for reads, matching what the other pools return.
-    rowCount: result.meta?.changes ?? rows.length,
-  }
+  return withStatementContext<QueryResult<T>>(converted.text, async () => {
+    const bound = database.prepare(converted.text).bind(...converted.values.map(coerceSqliteParam))
+    const result = await bound.all<T>()
+    const rows = result.results ?? []
+    return {
+      rows,
+      // D1 reports `changes` only for writes. Falling back to the row count keeps
+      // `rowCount` meaningful for reads, matching what the other pools return.
+      rowCount: result.meta?.changes ?? rows.length,
+    }
+  })
 }
 
 /**

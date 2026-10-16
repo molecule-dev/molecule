@@ -87,6 +87,41 @@ describe('createPool', () => {
     expect([1, '1']).toContain(calls[0].values[0])
   })
 
+  it('names the failing statement, and never the bound values (X0 flash-m89)', async () => {
+    // The engine errors D1 surfaces carry a code and nothing else, so the statement has to come
+    // from the pool: m89 spent 38 s grepping the app for which table an insert was aimed at.
+    const database: D1DatabaseLike = {
+      prepare(): D1PreparedStatementLike {
+        return {
+          bind() {
+            return this
+          },
+          async all() {
+            throw new Error('datatype mismatch')
+          },
+        } as unknown as D1PreparedStatementLike
+      },
+    }
+    const pool = createPool({ database })
+    const secret = 'a-comment-nobody-should-log'
+    const error = await pool
+      .query('INSERT INTO "conduit_comments" ("id", "body") VALUES ($1, $2)', [7, secret])
+      .then(
+        () => {
+          throw new Error('expected the query to reject')
+        },
+        (thrown: Error & { sql?: string }) => thrown,
+      )
+
+    expect(error.message).toContain('datatype mismatch')
+    expect(error.message).toContain(
+      '— in: INSERT INTO "conduit_comments" ("id", "body") VALUES (?, ?)',
+    )
+    expect(error.sql).toBe('INSERT INTO "conduit_comments" ("id", "body") VALUES (?, ?)')
+    // The values the caller was storing are in neither — they are user data.
+    expect(error.message).not.toContain(secret)
+  })
+
   it('throws a directive error when the binding is missing', () => {
     expect(() => createPool({ database: undefined as unknown as D1DatabaseLike })).toThrow(
       /must be a D1 binding/,
