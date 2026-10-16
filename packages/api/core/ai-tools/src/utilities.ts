@@ -121,9 +121,13 @@ const NON_SECRET_VALUES = new Set([
  */
 const jsonValueReplacer =
   (quote: '"' | "'") =>
-  (match: string, prefix: string): string => {
+  (match: string, prefix: string, offset: number, whole: string): string => {
     const value = match.slice(prefix.length)
     const inner = value.slice(1, -1)
+    // A TypeScript type literal is never a credential: `type AuthState = 'authenticated' | …`
+    // (X1 flash-m58). A union member is followed by `|`; a declaration starts `type`.
+    if (/^\s*\|/.test(whole.slice(offset + match.length))) return match
+    if (/\btype\s+$/.test(whole.slice(Math.max(0, offset - 16), offset))) return match
     // An empty value hides nothing, and a suite fixture's `"password": ""` is the fact a
     // failing assertion turns on (X1 flash-m52).
     // A version (`"jsonwebtoken": "9.0.2"`, a package name that holds a keyword) is not a
@@ -175,6 +179,36 @@ export function redactSecrets(s: string): string {
  */
 export function redactSecretsInCode(s: string): string {
   return s.replace(SECRET_ENV_ASSIGNMENT, '$1=[REDACTED]')
+}
+
+/** Source-file extensions a printing command's output is read as code for. */
+const SOURCE_FILE_RE = /\.(?:[cm]?[jt]sx?|css|scss|html|vue|svelte|md|sql|hurl)$/
+
+/**
+ * Whether a shell command only PRINTS source files (`cat a.tsx`, `sed -n '1,40p' x.ts`,
+ * `head -50 b.hurl`): its output is file content and gets the code-safe redaction, like
+ * read_file. Through the env-dump grade a printed `type AuthState = 'authenticated' | …`
+ * came back as `'[REDACTED]'`, and the executor wrote the mask into a new file (X1
+ * flash-m58). Any segment that is not such a print, or any env file named, keeps the full grade.
+ *
+ * @param command - The shell command.
+ * @returns True when every segment prints source files only.
+ */
+export function printsOnlySource(command: string): boolean {
+  if (/\.env\b/.test(command)) return false
+  const segments = command
+    .split(/\s*(?:&&|;|\n)\s*/)
+    .map((s) => s.trim())
+    .filter((s) => s && !/^cd\s/.test(s))
+  if (segments.length === 0) return false
+  return segments.every((seg) => {
+    const m = /^(?:cat|head|tail|nl|sed\s+-n)\b(.*)$/.exec(seg)
+    if (!m || /[|>]/.test(m[1])) return false
+    const files = m[1]
+      .split(/\s+/)
+      .filter((t) => t && !t.startsWith('-') && !/^'[^']*'$|^"[^"]*"$|^\d+$/.test(t))
+    return files.length > 0 && files.every((f) => SOURCE_FILE_RE.test(f))
+  })
 }
 
 /**
@@ -324,8 +358,9 @@ export function streamingBackgroundCommand(command: string): {
  * a keyless build still succeeds, and blocking those sent it looking for
  * workarounds (X0 rehearsal 14).
  */
+// `(?<!\\)`: a backslash-escaped `\|` is a literal in the shell (grep "a\|env"), not a pipe (X1 flash-m58).
 const BLOCKED_COMMANDS =
-  /(?:^|[;&|`]\s*|(?:sh|bash|zsh|dash)\s+-c\s+['"]?\s*)(?:\/usr\/bin\/)?(?:\benv(?:\s+(?:-0|--null|--))?\s*(?:$|[;&|>)`'"])|\bprintenv\b|\bexport\s*$|\bset\s*$|\bdeclare\s+-x|cat\s+\/etc\/environment|cat\s+\/root\/\.bashrc|cat\s+\/proc\/\d+\/environ|cat\s+\/proc\/self\/environ|strings\s+\/proc|xargs[^;&|\n]*\/proc\/[^;&|\n]*environ|less\s+\/proc|head\s+\/proc|tail\s+\/proc|xxd\s+\/proc|od\s+\/proc|base64\s+\/proc|dd\s[^\n]*\/proc|sed\s[^\n]*\/proc\/[^\n]*environ|awk\s[^\n]*\/proc\/[^\n]*environ|cp\s[^\n]*\/proc\/[^\n]*environ|(?:cat|less|head|tail|xxd|od|base64|strings|dd|cp|sed|awk)\s[^\n;&|]*\/etc\/mol(?:\/|\b))/i
+  /(?<!\\)(?:^|[;&|`]\s*|(?:sh|bash|zsh|dash)\s+-c\s+['"]?\s*)(?:\/usr\/bin\/)?(?:\benv(?:\s+(?:-0|--null|--))?\s*(?:$|[;&|>)`'"])|\bprintenv\b|\bexport\s*$|\bset\s*$|\bdeclare\s+-x|cat\s+\/etc\/environment|cat\s+\/root\/\.bashrc|cat\s+\/proc\/\d+\/environ|cat\s+\/proc\/self\/environ|strings\s+\/proc|xargs[^;&|\n]*\/proc\/[^;&|\n]*environ|less\s+\/proc|head\s+\/proc|tail\s+\/proc|xxd\s+\/proc|od\s+\/proc|base64\s+\/proc|dd\s[^\n]*\/proc|sed\s[^\n]*\/proc\/[^\n]*environ|awk\s[^\n]*\/proc\/[^\n]*environ|cp\s[^\n]*\/proc\/[^\n]*environ|(?:cat|less|head|tail|xxd|od|base64|strings|dd|cp|sed|awk)\s[^\n;&|]*\/etc\/mol(?:\/|\b))/i
 /** Block shell redirects from /proc environ. */
 const BLOCKED_PROC_REDIRECT = /(?:<\s*\/proc\/(?:\d+|self)\/environ)/i
 /** Block shell redirects from the molecule platform secrets dir (`/etc/mol`). */

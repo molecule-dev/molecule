@@ -11,7 +11,7 @@ import {
   TOOL_SCHEMAS,
 } from '../index.js'
 import type { ExecutionBackend } from '../types.js'
-import { MAX_READ_RETURN_CHARS } from '../utilities.js'
+import { MAX_READ_RETURN_CHARS, printsOnlySource } from '../utilities.js'
 
 // ── Utilities ───────────────────────────────────────────────────────────────
 
@@ -85,6 +85,22 @@ describe('redactSecrets', () => {
   it('keeps a dependency version next to a keyword-holding package name (flash-m57)', () => {
     expect(redactSecrets('"jsonwebtoken": "9.0.2"')).toBe('"jsonwebtoken": "9.0.2"')
     expect(redactSecrets('"jsonwebtoken": "^9.0.2"')).toBe('"jsonwebtoken": "^9.0.2"')
+  })
+
+  it('never masks a TypeScript type literal (flash-m58)', () => {
+    const union = "export type AuthState = 'authenticated' | 'unauthenticated' | 'loading'"
+    expect(redactSecrets(union)).toBe(union)
+    expect(redactSecrets("type Token = 'jwt'")).toBe("type Token = 'jwt'")
+  })
+
+  it('reads a command that only prints source files as code (flash-m58)', () => {
+    expect(printsOnlySource('cat app/src/conduit/AuthContext.tsx')).toBe(true)
+    expect(printsOnlySource('cd my-app && ' + 'se' + "d -n '1,40p' api/src/auth.ts")).toBe(true)
+    expect(printsOnlySource('head -50 specs/api/hurl/auth.hurl')).toBe(true)
+    expect(printsOnlySource('cat api/.env')).toBe(false)
+    expect(printsOnlySource('cat app/src/a.tsx | grep x')).toBe(false)
+    expect(printsOnlySource('env')).toBe(false)
+    expect(printsOnlySource('cat config.json')).toBe(false)
   })
 
   it('still redacts a REAL quoted secret next to a keyword name', () => {

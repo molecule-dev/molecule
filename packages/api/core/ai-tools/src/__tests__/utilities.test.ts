@@ -193,6 +193,14 @@ describe('checkBlockedCommand', () => {
     expect(checkBlockedCommand("env -i PATH=/usr/bin sh -c 'npm test'")).toBeNull()
   })
 
+  it('allows an escaped `\\|env` inside a grep pattern, and still blocks a real env (flash-m58)', () => {
+    expect(checkBlockedCommand('grep -rn "setupBonds\\|dotenv\\|env" api/src')).toBeNull()
+    expect(checkBlockedCommand('ls | env')).not.toBeNull()
+    expect(checkBlockedCommand('ls && env')).not.toBeNull()
+    expect(checkBlockedCommand('env')).not.toBeNull()
+    expect(checkBlockedCommand('bash -c "env"')).not.toBeNull()
+  })
+
   it('says a blocked command ran none of its parts (X1 m53 lost a chained mkdir)', () => {
     expect(checkBlockedCommand('mkdir -p /workspace/x && env | grep URL')).toMatch(
       /Nothing in this command ran — none of its other parts either/,
