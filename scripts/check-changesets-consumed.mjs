@@ -15,8 +15,10 @@
  * push that carried the changeset, and a refusal in the release script before
  * anything is pushed or dispatched.
  *
- * Tracked files only: an untracked changeset in a working tree belongs to a
- * change that is not committed yet, and neither a push nor CI ever sees it.
+ * Committed files only (HEAD's tree, not the index): an untracked OR merely
+ * staged changeset belongs to a change that is not committed yet, and neither a
+ * push nor CI ever sees it. Reading the index made one session's staged
+ * changeset refuse another session's publish (2026-10-16).
  *
  * Usage:
  *   node scripts/check-changesets-consumed.mjs        # exit 1 and list them
@@ -29,7 +31,10 @@ import { fileURLToPath } from 'node:url'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 
-const pending = execFileSync('git', ['ls-files', '.changeset'], { cwd: ROOT, encoding: 'utf8' })
+const pending = execFileSync('git', ['ls-tree', '-r', '--name-only', 'HEAD', '--', '.changeset'], {
+  cwd: ROOT,
+  encoding: 'utf8',
+})
   .split('\n')
   .map((p) => p.replace(/^\.changeset\//, ''))
   .filter((f) => f.endsWith('.md') && f.toLowerCase() !== 'readme.md')
