@@ -157,6 +157,34 @@ describe('chat() — request shape', () => {
     expect(body.reasoning_effort).toBe('max') // 13k >= 12k → max (V4 accepts high|max)
   })
 
+  const stopBody = async (stop?: string[]) => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockResolvedValue(jsonResponse(200, { choices: [{ message: { content: 'x' } }] }))
+    await drain(
+      createProvider({ apiKey: 'k' }).chat({
+        messages: [{ role: 'user', content: 'hi' }],
+        stream: false,
+        stop,
+      }),
+    )
+    return JSON.parse((fetch.mock.calls[0][1] as RequestInit).body as string)
+  }
+
+  it('sends the caller’s stop sequences as `stop`', async () => {
+    expect((await stopBody(['<analysis>'])).stop).toEqual(['<analysis>'])
+  })
+
+  it('sends no `stop` field when the caller asks for none', async () => {
+    expect('stop' in (await stopBody())).toBe(false)
+    expect('stop' in (await stopBody([]))).toBe(false)
+  })
+
+  it('caps the list at the API’s 16 sequences', async () => {
+    const body = await stopBody(Array.from({ length: 18 }, (_, i) => `s${i}`))
+    expect(body.stop).toHaveLength(16)
+    expect(body.stop[0]).toBe('s0')
+  })
+
   it('maps a small thinking budget to reasoning_effort high', async () => {
     const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
     fetch.mockResolvedValue(jsonResponse(200, { choices: [{ message: { content: 'x' } }] }))

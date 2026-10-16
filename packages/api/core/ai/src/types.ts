@@ -347,6 +347,18 @@ export interface ChatParams {
    */
   toolChoice?: 'auto' | 'required' | { type: 'tool'; name: string }
   /**
+   * Sequences the provider stops generating at (`stop` on the OpenAI-compatible
+   * wire). The provider drops the matched text from the reply — the sequence
+   * itself is never returned — so this ends a reply the caller would discard
+   * anyway, at the cost of the tokens written before the match instead of the
+   * whole answer.
+   *
+   * Providers cap the list (DeepSeek and OpenAI accept 16 and 4 respectively);
+   * a bond sends as many as its own API takes and ignores the rest. Bonds whose
+   * provider has no stop parameter ignore it.
+   */
+  stop?: string[]
+  /**
    * Opaque, stable identifier for the END USER on whose behalf this request is
    * made — forwarded to providers that accept one (Anthropic `metadata.user_id`,
    * OpenAI-compatible `user`).

@@ -144,6 +144,13 @@ const DEFAULT_STREAM_SILENCE_TIMEOUT_MS = 60_000
 const MAX_TIMER_MS = 2_147_483_647
 
 /**
+ * How many stop sequences DeepSeek accepts in one request ("Up to 16 sequences
+ * where the API will stop generating further tokens", create-chat-completion).
+ * A longer list is sent truncated rather than refused by the API.
+ */
+const MAX_STOP_SEQUENCES = 16
+
+/**
  * Resolve a stream bound from the config, then the environment, then the
  * default. A value that is not a positive finite number is IGNORED rather than
  * armed: these values arm `setTimeout`, and a non-positive one (or one past
@@ -281,6 +288,17 @@ class DeepseekAIProviderImpl implements AIProvider {
 
     const messages = this.formatMessages(params.messages, params.system)
 
+    // Stop sequences, capped at the API's own limit. Verified honoured by the
+    // native endpoint on 2026-10-17: with `stop: ['<analysis>']` a reply that
+    // would have opened with that tag streamed nothing at all, and one that
+    // reached it mid-answer ended there with the tag dropped from the text.
+    const stop = (params.stop ?? []).filter((s) => s.length > 0).slice(0, MAX_STOP_SEQUENCES)
+    if ((params.stop?.length ?? 0) > MAX_STOP_SEQUENCES) {
+      logger.warn('DeepSeek takes at most 16 stop sequences — the rest were dropped', {
+        requested: params.stop?.length,
+      })
+    }
+
     const body: Record<string, unknown> = {
       // Abuse attribution (see ChatParams.endUserId): OpenAI-compatible APIs
       // scope enforcement by `user`, so an abusive tenant can be actioned
@@ -294,6 +312,7 @@ class DeepseekAIProviderImpl implements AIProvider {
       messages,
       stream: params.stream !== false,
       ...(params.stream !== false ? { stream_options: { include_usage: true } } : {}),
+      ...(stop.length > 0 ? { stop } : {}),
     }
 
     // Tools: merge custom tools (function format) and server tools
