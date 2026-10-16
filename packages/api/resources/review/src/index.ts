@@ -46,7 +46,7 @@
  * parent resource's own access check.
  *
  * Tables: `src/__setup__/reviews.sql` creates `reviews` and `review_helpful`.
- * An mlcl-scaffolded API replays `__setup__/*.sql` automatically on migrate;
+ * An mlcl-scaffolded API replays `__setup__/*.sql` on migrate (a `CREATE TABLE IF NOT EXISTS`, so a table the app's own migrations already create keeps only its own columns: ALTER in the ones it lacks);
  * anywhere else run it once — nothing at runtime creates them.
  *
  * @e2e

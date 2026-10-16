@@ -24,7 +24,7 @@
  * `update`, and `del` reuse it instead of re-deriving ownership.
  *
  * Table: `src/__setup__/projects.sql` creates `projects`. An mlcl-scaffolded
- * API replays `__setup__/*.sql` automatically on migrate; anywhere else run
+ * API replays `__setup__/*.sql` on migrate (a `CREATE TABLE IF NOT EXISTS`, so a table the app's own migrations already create keeps only its own columns: ALTER in the ones it lacks); anywhere else run
  * it once. User-facing strings use `t(key, …, { defaultValue })`; translations
  * ship in the companion `@molecule/api-locales-project` bond.
  *

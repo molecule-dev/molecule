@@ -36,7 +36,7 @@
  * @remarks
  * Tables: `src/__setup__/medications.sql` creates `medications` +
  * `medication_logs`. An mlcl-scaffolded API replays `__setup__/*.sql`
- * automatically on migrate; anywhere else run it once — nothing at runtime
+ * on migrate (a `CREATE TABLE IF NOT EXISTS`, so a table the app's own migrations already create keeps only its own columns: ALTER in the ones it lacks); anywhere else run it once — nothing at runtime
  * creates them.
  *
  * The router does not authenticate — it reads the caller from

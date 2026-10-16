@@ -31,7 +31,7 @@
  * writes: without that column every create 500s) and `notification_preferences`
  * (one row per user: `email`/`push`/`sms` booleans + JSON `channels` map;
  * without it the preferences routes 500). An mlcl-scaffolded API replays
- * `__setup__/*.sql` automatically on migrate; anywhere else run it once. Do
+ * `__setup__/*.sql` on migrate (a `CREATE TABLE IF NOT EXISTS`, so a table the app's own migrations already create keeps only its own columns: ALTER in the ones it lacks); anywhere else run it once. Do
  * NOT "normalise" the columns to camelCase — the provider maps rows itself
  * and a mismatched column 500s every request.
  *

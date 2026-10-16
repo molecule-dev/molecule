@@ -28,7 +28,7 @@
  * implementing the same SetupIntent-shaped `PaymentProvider` surface.
  *
  * Table: `src/__setup__/payment_methods.sql` creates `payment_methods`. An
- * mlcl-scaffolded API replays `__setup__/*.sql` automatically on migrate;
+ * mlcl-scaffolded API replays `__setup__/*.sql` on migrate (a `CREATE TABLE IF NOT EXISTS`, so a table the app's own migrations already create keeps only its own columns: ALTER in the ones it lacks);
  * anywhere else run it once.
  *
  * All routes are SELF-scoped under `/me/payment-methods` and read the

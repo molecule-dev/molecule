@@ -88,7 +88,7 @@
  * Tables: `src/__setup__/resource-shares.sql` and
  * `src/__setup__/resource-share-links.sql` create `resource-shares` and
  * `resource-share-links`. An mlcl-scaffolded API replays `__setup__/*.sql`
- * automatically on migrate; anywhere else run them once — nothing at runtime
+ * on migrate (a `CREATE TABLE IF NOT EXISTS`, so a table the app's own migrations already create keeps only its own columns: ALTER in the ones it lacks); anywhere else run them once — nothing at runtime
  * creates them.
  *
  * @e2e

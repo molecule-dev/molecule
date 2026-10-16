@@ -29,7 +29,7 @@
  * @remarks
  * Tables: `src/__setup__/feature_flags.sql` creates `feature_flags` +
  * `feature_flag_targeting_rules`. An mlcl-scaffolded API replays
- * `__setup__/*.sql` automatically on migrate; anywhere else run it once —
+ * `__setup__/*.sql` on migrate (a `CREATE TABLE IF NOT EXISTS`, so a table the app's own migrations already create keeps only its own columns: ALTER in the ones it lacks); anywhere else run it once —
  * nothing at runtime creates the tables.
  *
  * Flags are OWNER-SCOPED rows, not app-global config: every service function

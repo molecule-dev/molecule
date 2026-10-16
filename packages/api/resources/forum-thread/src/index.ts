@@ -18,7 +18,7 @@
  * @remarks
  * Tables: `src/__setup__/forum_threads.sql` creates `forum_threads`,
  * `forum_replies`, and `forum_votes`. An mlcl-scaffolded API replays
- * `__setup__/*.sql` automatically on migrate; anywhere else run it once —
+ * `__setup__/*.sql` on migrate (a `CREATE TABLE IF NOT EXISTS`, so a table the app's own migrations already create keeps only its own columns: ALTER in the ones it lacks); anywhere else run it once —
  * nothing at runtime creates them.
  *
  * Reads (`GET /`, `GET /:id`, `GET /:id/replies`) are PUBLIC. Writes read the

@@ -26,7 +26,7 @@
  *
  * @remarks
  * Table: `src/__setup__/invoices.sql` creates the single `invoices` table. An
- * mlcl-scaffolded API replays `__setup__/*.sql` automatically on migrate;
+ * mlcl-scaffolded API replays `__setup__/*.sql` on migrate (a `CREATE TABLE IF NOT EXISTS`, so a table the app's own migrations already create keeps only its own columns: ALTER in the ones it lacks);
  * anywhere else run it once. The bundled `computeTotals(items, taxRate)`
  * helper is exported for client-side total previews.
  *

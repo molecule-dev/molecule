@@ -14,7 +14,7 @@
  * @remarks
  * Tables: `src/__setup__/properties.sql` creates `properties`,
  * `property_units`, `property_photos`, and `property_amenities`. An
- * mlcl-scaffolded API replays `__setup__/*.sql` automatically on migrate;
+ * mlcl-scaffolded API replays `__setup__/*.sql` on migrate (a `CREATE TABLE IF NOT EXISTS`, so a table the app's own migrations already create keeps only its own columns: ALTER in the ones it lacks);
  * anywhere else run it once.
  *
  * Listing-site visibility semantics: `list`/`read` (and the units/photos/

@@ -13,7 +13,7 @@
  * @remarks
  * Tables: `src/__setup__/products.sql` creates `products` +
  * `product_variants`. An mlcl-scaffolded API replays `__setup__/*.sql`
- * automatically on migrate; anywhere else run it once.
+ * on migrate (a `CREATE TABLE IF NOT EXISTS`, so a table the app's own migrations already create keeps only its own columns: ALTER in the ones it lacks); anywhere else run it once.
  *
  * A product is a SHARED catalog entity — there is no per-user owner column.
  * Reads (`GET /products`, `GET /products/:id`, variant reads) are PUBLIC.

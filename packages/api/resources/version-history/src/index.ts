@@ -28,7 +28,7 @@
  * either a registered resolver or your own resource-ownership gate.
  *
  * Tables: `src/__setup__/versions.sql` creates `versions`. An mlcl-scaffolded
- * API replays `__setup__/*.sql` automatically on migrate; anywhere else run it
+ * API replays `__setup__/*.sql` on migrate (a `CREATE TABLE IF NOT EXISTS`, so a table the app's own migrations already create keeps only its own columns: ALTER in the ones it lacks); anywhere else run it
  * once — nothing at runtime creates them. Handler errors flow through `t()`
  * with English defaults; install `@molecule/api-locales-resource-version-history`
  * and register it with `registerLocaleModule` for translations.

@@ -48,7 +48,7 @@
  *
  * Tables: `src/__setup__/threads.sql` creates `threads`, `thread_messages`,
  * and `thread_read_status`. An mlcl-scaffolded API replays `__setup__/*.sql`
- * automatically on migrate; anywhere else run it once — nothing at runtime
+ * on migrate (a `CREATE TABLE IF NOT EXISTS`, so a table the app's own migrations already create keeps only its own columns: ALTER in the ones it lacks); anywhere else run it once — nothing at runtime
  * creates them.
  */
 

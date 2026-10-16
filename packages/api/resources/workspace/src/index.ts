@@ -80,7 +80,7 @@
  *
  * Tables: `src/__setup__/workspaces.sql` creates `workspaces`,
  * `workspace_members`, and `workspace_invites`. An mlcl-scaffolded API replays
- * `__setup__/*.sql` automatically on migrate; anywhere else run it once —
+ * `__setup__/*.sql` on migrate (a `CREATE TABLE IF NOT EXISTS`, so a table the app's own migrations already create keeps only its own columns: ALTER in the ones it lacks); anywhere else run it once —
  * nothing at runtime creates them.
  */
 

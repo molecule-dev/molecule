@@ -44,8 +44,7 @@
  * request).
  *
  * Tables: `src/__setup__/readings.sql` creates `readings` (owner-scoped via
- * `owner_id`). An mlcl-scaffolded API replays `__setup__/*.sql` automatically
- * on migrate; anywhere else run it once — nothing at runtime creates them.
+ * `owner_id`). An mlcl-scaffolded API replays `__setup__/*.sql` on migrate (a `CREATE TABLE IF NOT EXISTS`, so a table the app's own migrations already create keeps only its own columns: ALTER in the ones it lacks); anywhere else run it once — nothing at runtime creates them.
  *
  * @e2e
  * Integration checklist — drive the real UI (live preview, no mocks), adapt

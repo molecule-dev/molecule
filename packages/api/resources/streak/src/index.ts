@@ -46,7 +46,7 @@
  *
  * Tables: `src/__setup__/streaks.sql` creates `streaks` (unique per
  * `(user_id, activity_kind)`). An mlcl-scaffolded API replays
- * `__setup__/*.sql` automatically on migrate; anywhere else run it once —
+ * `__setup__/*.sql` on migrate (a `CREATE TABLE IF NOT EXISTS`, so a table the app's own migrations already create keeps only its own columns: ALTER in the ones it lacks); anywhere else run it once —
  * nothing at runtime creates them.
  *
  * @e2e

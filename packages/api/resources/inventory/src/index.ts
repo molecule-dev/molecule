@@ -13,7 +13,7 @@
  * @remarks
  * Tables: `src/__setup__/inventory.sql` creates `inventory_stock`,
  * `inventory_reservations`, and `inventory_movements`. An mlcl-scaffolded API
- * replays `__setup__/*.sql` automatically on migrate; anywhere else run it
+ * replays `__setup__/*.sql` on migrate (a `CREATE TABLE IF NOT EXISTS`, so a table the app's own migrations already create keeps only its own columns: ALTER in the ones it lacks); anywhere else run it
  * once — nothing at runtime creates them.
  *
  * Stock rows are keyed by `productId` — SHARED app-wide state, not per-user
