@@ -82,8 +82,10 @@ const SQLITE_ISO_NOW = `(strftime('%Y-%m-%dT%H:%M:%fZ','now'))`
  * - `USING <method>` on an index (`gin`/`btree`/`hash`/`gist`) → removed
  *   (SQLite indexes have no access method).
  * - `ADD COLUMN IF NOT EXISTS` → `ADD COLUMN` (SQLite has no such clause, and the
- *   whole boot failed on it; a re-run's "duplicate column name" is already treated
- *   as idempotent by the migrator, which is what IF NOT EXISTS was for).
+ *   whole boot failed on it). The migrator honors the clause itself — it drops the
+ *   statement when the column is already there (see `dropSatisfiedAddColumns`), so
+ *   what reaches here is a column that is genuinely missing; the rewrite is what
+ *   keeps that statement parseable.
  *
  * These are no-ops on already-SQLite DDL (the executor's own migrations don't use
  * them), so it is safe to run on every migration file.

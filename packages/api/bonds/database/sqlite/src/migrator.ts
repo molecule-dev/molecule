@@ -87,6 +87,77 @@ function declaredTables(
   return out
 }
 
+/** The head of an `ALTER TABLE … ADD COLUMN IF NOT EXISTS …` statement. */
+const ADD_COLUMN_IF_NOT_EXISTS =
+  /ALTER\s+TABLE\s+["`]?([A-Za-z_][A-Za-z0-9_]*)["`]?\s+ADD\s+COLUMN\s+IF\s+NOT\s+EXISTS\s+["`]?([A-Za-z_][A-Za-z0-9_]*)["`]?/gi
+
+/**
+ * The `ALTER TABLE … ADD COLUMN IF NOT EXISTS …;` statements in a setup file,
+ * with the span each occupies in the text.
+ *
+ * @param sql - The migration file as written (Postgres dialect).
+ * @returns One entry per statement.
+ */
+function addColumnSpans(
+  sql: string,
+): { table: string; column: string; from: number; to: number }[] {
+  const out: { table: string; column: string; from: number; to: number }[] = []
+  ADD_COLUMN_IF_NOT_EXISTS.lastIndex = 0
+  for (let m = ADD_COLUMN_IF_NOT_EXISTS.exec(sql); m; m = ADD_COLUMN_IF_NOT_EXISTS.exec(sql)) {
+    // The statement runs to its first `;` outside a string and outside parens
+    // (a `DEFAULT (…)` may hold one). No terminator means the file's end.
+    let depth = 0
+    let quote = ''
+    let i = m.index + m[0].length
+    for (; i < sql.length; i++) {
+      const ch = sql[i]
+      if (quote) {
+        if (ch === quote) quote = ''
+        continue
+      }
+      if (ch === "'" || ch === '"' || ch === '`') quote = ch
+      else if (ch === '(') depth++
+      else if (ch === ')') depth--
+      else if (ch === ';' && depth === 0) break
+    }
+    const to = i < sql.length ? i + 1 : sql.length
+    out.push({ table: m[1], column: m[2], from: m.index, to })
+    ADD_COLUMN_IF_NOT_EXISTS.lastIndex = to
+  }
+  return out
+}
+
+/**
+ * Remove the `ADD COLUMN IF NOT EXISTS` statements whose column the table
+ * already has, or that this same file declares in its own
+ * `CREATE TABLE IF NOT EXISTS` — the whole point of the clause, which SQLite
+ * itself has no `ADD COLUMN` form of. Left in, the translated statement fails
+ * with `duplicate column name`: the file rolls back, is never recorded, and
+ * warns on every boot that "nothing in this file was applied" while the schema is
+ * in fact complete. A statement for a table that does not exist is kept, so a
+ * genuinely wrong table still fails the run.
+ *
+ * @param db - The open database.
+ * @param sql - The migration file as written.
+ * @returns The file with the satisfied statements removed.
+ */
+function dropSatisfiedAddColumns(db: Database.Database, sql: string): string {
+  const declared = new Set(
+    declaredTables(sql).flatMap((t) => t.columns.map((c) => `${t.table}.${c.name}`.toLowerCase())),
+  )
+  let out = sql
+  for (const span of addColumnSpans(sql).reverse()) {
+    const key = `${span.table}.${span.column}`.toLowerCase()
+    const existing = db.prepare('SELECT name FROM pragma_table_info(?)').all(span.table) as {
+      name: string
+    }[]
+    const has =
+      declared.has(key) || existing.some((c) => c.name.toLowerCase() === span.column.toLowerCase())
+    if (has) out = out.slice(0, span.from) + out.slice(span.to)
+  }
+  return out
+}
+
 /**
  * Add the columns a `CREATE TABLE IF NOT EXISTS` declares that the existing table
  * lacks. Every migration file runs on every boot, and on a table that already exists
@@ -206,7 +277,12 @@ export function createMigrator(migrationsDir: string): () => Promise<void> {
         // now(), ::casts, index USING <method>) so they apply on SQLite. No-op on
         // already-SQLite DDL. Without this, those migrations abort with
         // `near "(": syntax error` and the app never boots.
-        const sql = translateDdlToSqlite(readFileSync(join(migrationsDir, file), 'utf-8'))
+        // `ADD COLUMN IF NOT EXISTS` is honored (the statement is dropped when the
+        // column is already there) rather than merely translated: see
+        // dropSatisfiedAddColumns.
+        const sql = translateDdlToSqlite(
+          dropSatisfiedAddColumns(db, readFileSync(join(migrationsDir, file), 'utf-8')),
+        )
         if (applied.has(file)) {
           // A recorded file never runs again (a DROP or a backfill in it would repeat
           // on every boot); columns added to its CREATE TABLE are still added.

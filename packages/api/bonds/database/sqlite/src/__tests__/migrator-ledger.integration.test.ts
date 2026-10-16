@@ -138,4 +138,60 @@ describe('createMigrator (sqlite) — ledger', () => {
       query<{ name: string }>("SELECT name FROM sqlite_master WHERE name = 'comments'"),
     ).toHaveLength(1)
   })
+
+  it('honors ADD COLUMN IF NOT EXISTS on a column that is there: skipped, file records, no warning', async () => {
+    // SQLite has no `ADD COLUMN IF NOT EXISTS`; translated to a bare ADD COLUMN it
+    // failed with `duplicate column name`, rolled the file back, left it unrecorded
+    // and warned "nothing in this file was applied" on every boot while the schema
+    // was complete (a new column declared in a setup file with `IF NOT EXISTS`).
+    writeFileSync(
+      join(migrationsDir, '0001_init.sql'),
+      'CREATE TABLE IF NOT EXISTS "notes" ("id" INTEGER PRIMARY KEY, "seq" INTEGER);\n' +
+        'ALTER TABLE "notes" ADD COLUMN IF NOT EXISTS "seq" INTEGER;',
+    )
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    vi.spyOn(console, 'log').mockImplementation(() => {})
+    await createMigrator(migrationsDir)()
+    expect(warn).not.toHaveBeenCalled()
+    expect(
+      query<{ name: string }>("SELECT name FROM pragma_table_info('notes')").map((c) => c.name),
+    ).toEqual(['id', 'seq'])
+    expect(
+      query<{ file: string }>(`SELECT file FROM "${MIGRATION_LEDGER}"`).map((r) => r.file),
+    ).toEqual(['0001_init.sql'])
+  })
+
+  it('applies ADD COLUMN IF NOT EXISTS when the column really is missing', async () => {
+    writeFileSync(
+      join(migrationsDir, '0001_init.sql'),
+      'CREATE TABLE IF NOT EXISTS "notes" ("id" INTEGER PRIMARY KEY);',
+    )
+    await createMigrator(migrationsDir)()
+    writeFileSync(
+      join(migrationsDir, '0002_seq.sql'),
+      'ALTER TABLE "notes" ADD COLUMN IF NOT EXISTS "seq" INTEGER NOT NULL DEFAULT 0;',
+    )
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    vi.spyOn(console, 'log').mockImplementation(() => {})
+    await createMigrator(migrationsDir)()
+    expect(warn).not.toHaveBeenCalled()
+    expect(
+      query<{ name: string }>("SELECT name FROM pragma_table_info('notes')").map((c) => c.name),
+    ).toEqual(['id', 'seq'])
+    expect(
+      query<{ file: string }>(`SELECT file FROM "${MIGRATION_LEDGER}" ORDER BY file`).map(
+        (r) => r.file,
+      ),
+    ).toEqual(['0001_init.sql', '0002_seq.sql'])
+  })
+
+  it('still fails the run when ADD COLUMN IF NOT EXISTS names a table that is not there', async () => {
+    writeFileSync(
+      join(migrationsDir, '0001_init.sql'),
+      'ALTER TABLE "missing" ADD COLUMN IF NOT EXISTS "seq" INTEGER;',
+    )
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+    vi.spyOn(console, 'log').mockImplementation(() => {})
+    await expect(createMigrator(migrationsDir)()).rejects.toThrow(/0001_init\.sql/)
+  })
 })
