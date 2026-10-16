@@ -1,5 +1,18 @@
 # @molecule/api-ai-tools
 
+## 1.5.16
+
+### Patch Changes
+
+- 017194a: A command that only prints source files returns it with the code-safe redaction, a TypeScript type literal is never masked, and a running `wait_for_task` asks not to edit the code under test.
+- 017194a: A backslash-escaped `\|` inside a quoted pattern no longer reads as a pipe into `env`.
+- deb4a8d: A non-recursive grep of named source files, or a source print piped through text filters, also gets the code-safe redaction.
+- 9b2d21f: A long test run cut in the middle keeps its tally lines ("N failed", "N passed").
+- b07851b: A backgrounded Playwright run is started with `--reporter=list` — and an explicit `--reporter=line` is switched to it — so each test result is written to the log as it finishes, in the shape the platform reads back.
+- 9b230b2: `edit_file` reports a dropped line break only when the file proves the lines joined, so an edit that removed a blank line is no longer described as fusing two lines.
+- 613dcaa: `wait_for_task` on a task that is still running returns the log's failure lines (up to 40) followed by its end, instead of only the last 3 000 bytes, so a running test suite's failures are no longer hidden below its progress lines.
+- b0fcefc: `search_files` scoped to one file reports each match with its file and line.
+
 ## 1.5.15
 
 ### Patch Changes

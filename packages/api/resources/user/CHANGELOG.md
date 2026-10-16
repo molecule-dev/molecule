@@ -1,5 +1,11 @@
 # @molecule/api-resource-user
 
+## 1.5.1
+
+### Patch Changes
+
+- fc8dd5a: The `set` docs say a session token needs a real device row on every sign-in path.
+
 ## 1.5.0
 
 ### Minor Changes
