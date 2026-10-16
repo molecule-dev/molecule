@@ -1888,6 +1888,34 @@ describe('wait_for_task', () => {
     expect(r.stdout).toContain('14 failed')
   })
 
+  it("recovers a command's own output file after the process that started it is gone (flash-m63)", async () => {
+    // Which file a task redirects its output to is process memory, and the task
+    // is not: a release or a patch swaps the API process mid-run while the
+    // command keeps running in the sandbox. The script the task was started from
+    // names the target, so a wait that outlives the process still reads the run's
+    // output instead of handing back the near-empty task log as the whole result.
+    // The map has no entry for this id — the same state the fresh process is in.
+    const restarted = 'mol-bg-restart-abc999'
+    const backend: ExecutionBackend = {
+      projectRoot: '/test',
+      readFile: vi.fn(async (path: string) => {
+        if (path === `/tmp/${restarted}.sh`) return 'npx playwright test > e2e.out 2>&1\n'
+        if (path === `/tmp/${restarted}.exit`) return '1\n'
+        if (path === `/tmp/${restarted}.log`) return 'started'
+        if (path === '/test/e2e.out') return '  14 failed\n  60 passed (5.3m)'
+        throw new Error(`ENOENT: ${path}`)
+      }),
+      writeFile: vi.fn(),
+      deleteFile: vi.fn(),
+      readDir: vi.fn(),
+      run: vi.fn(async () => ({ stdout: '', stderr: '', exitCode: 0 })),
+    }
+    const wait = buildTools(backend).find((t) => t.name === 'wait_for_task')!
+    const r = (await wait.execute({ taskId: restarted })) as { exitCode: number; stdout: string }
+    expect(r.exitCode).toBe(1)
+    expect(r.stdout).toContain('14 failed')
+  })
+
   it('returns the exit code and output when the command has already finished', async () => {
     const backend = backendWith({ [`/tmp/${id}.exit`]: '1\n', [`/tmp/${id}.log`]: '3 failed' })
     const wait = buildTools(backend).find((t) => t.name === 'wait_for_task')!

@@ -37,6 +37,14 @@ const logBytesByTask = new Map<string, number>()
 
 /** The file a background command writes its own output to, when it redirects it. */
 const outputFileByTask = new Map<string, string>()
+/**
+ * Task ids whose own-output file has already been looked for this process.
+ * {@link outputFileByTask} is empty for every task after a restart — it is
+ * process memory and the task is not — so without this the recovery below
+ * would re-read the task's script on every single wait.
+ */
+const outputFileProbed = new Set<string>()
+
 /** A millisecond span the way a model reads it: seconds under 90, else minutes. */
 function durationText(ms: number): string {
   const s = Math.max(0, Math.round(ms / 1000))
@@ -1594,6 +1602,34 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
     // server-side costs no round trip and no context.
     async wait_for_task(input) {
       const taskId = typeof input.taskId === 'string' ? input.taskId.trim() : ''
+      // Where a task writes its own output is process memory; the task is not.
+      // An API process swapped mid-run (a release, a patch, a crash) leaves the
+      // command running in the sandbox with nothing left that remembers the file
+      // it redirects to — and then `wait_for_task` returns the task's near-empty
+      // log as the command's whole result, which is the X1 flash-m48 loss all
+      // over again (X1 flash-m63's +43:20 restart: the public walk's handle
+      // outlived the process, its redirect target did not). The script the task
+      // was started from is still on disk and carries the command, so read the
+      // target back from there. The id is format-checked before any /tmp path is
+      // built from it, exactly as the reads below are.
+      if (
+        !outputFileByTask.has(taskId) &&
+        !outputFileProbed.has(taskId) &&
+        /^mol-bg-[a-z0-9]+-[a-z0-9]+$/.test(taskId)
+      ) {
+        outputFileProbed.add(taskId)
+        try {
+          const target = outputRedirectTarget(await backend.readFile(`/tmp/${taskId}.sh`))
+          // A relative target was written against the command's own cwd, which
+          // the handle does not carry; the project root is where a background
+          // command runs unless the caller passed one.
+          if (target)
+            outputFileByTask.set(taskId, target.startsWith('/') ? target : `${root}/${target}`)
+        } catch (_error) {
+          // No script under that id: this process did not start the task, so
+          // there is nothing to recover. The log stays the whole result.
+        }
+      }
       // A command that has been waited on for stuckAfterMs() in total without
       // exiting is not going to: on one run the executor waited five times,
       // 120 s each, on an e2e suite that could never start (no browser page
