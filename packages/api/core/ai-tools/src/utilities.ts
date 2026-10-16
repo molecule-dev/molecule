@@ -551,6 +551,9 @@ export const MAX_BATCH_READ_BYTES = 200 * 1024
  */
 export const MAX_READ_RETURN_CHARS = 80 * 1024
 
+/** A file this small is returned whole even when a window is asked for (paging it costs a call each). */
+export const SMALL_FILE_WHOLE_CHARS = 24 * 1024
+
 /** Max search results. */
 export const MAX_SEARCH_RESULTS = 50
 /** Max find results. */

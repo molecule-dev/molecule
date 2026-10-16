@@ -65,6 +65,7 @@ import {
   resolvePath,
   shellQuote,
   sliceLines,
+  SMALL_FILE_WHOLE_CHARS,
   streamingBackgroundCommand,
   stripControlChars,
   truncateMiddle,
@@ -207,6 +208,9 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
     }
     return pathGuards ? resolvePath(path, root) : path
   }
+
+  /** Paths read with a window in this tool set, to tell paging from one targeted read. */
+  const windowedReads = new Set<string>()
 
   /**
    * Verify that `path` does not symlink outside the project root when guards are enabled.
@@ -478,6 +482,19 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         !sliceLines(content, window) && content.length > MAX_READ_RETURN_CHARS
           ? { offset: 1, limit: linesWithin(content, MAX_READ_RETURN_CHARS) }
           : window
+      // A SECOND window of the same small file: hand back all of it (one window is a targeted read). X1 flash-m50 paged files that fit in one
+      // call 13 times in a row, each window answered with "read it again with no offset/limit".
+      const small = sliceLines(content, window)
+      const pagedBefore = small?.truncated ? windowedReads.has(path) : false
+      if (small?.truncated) windowedReads.add(path)
+      if (small?.truncated && pagedBefore && content.length <= SMALL_FILE_WHOLE_CHARS) {
+        return {
+          path,
+          content: sanitizeFileContent(content, path),
+          totalLines: small.totalLines,
+          note: `The whole file is returned (${Math.round(content.length / 1024)} KB, ${small.totalLines} lines): a file this small fits in one call, so it is not paged.`,
+        }
+      }
       const windowed = sliceLines(content, effectiveWindow)
       if (windowed) {
         return {
@@ -1536,10 +1553,25 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
               `kill $(cat /tmp/${taskId}.pid) 2>/dev/null; pkill -f ${taskId}.sh) and move on; do not wait on it again.`,
           }
         }
+        // The output so far rides the result: a wait that shows nothing was waited blind
+        // (X1 flash-m50: 4m42s across two waits on an 11-minute run).
+        const own = outputFileByTask.get(taskId)
+        let soFar: string
+        try {
+          const r = await backend.run(
+            `cat ${log}${own ? ` ${shellQuote(own)}` : ''} 2>/dev/null | tail -c 3000`,
+            { timeout: 5_000 },
+          )
+          soFar = r.stdout ?? ''
+        } catch (_error) {
+          // No tail: the note still says how to peek.
+          soFar = ''
+        }
         return {
           taskId,
           status: 'running',
           waitedMs,
+          ...(soFar.trim() ? { outputSoFar: sanitizeOutput(soFar) } : {}),
           note:
             `Still running after ${Math.round(waitedMs / 1000)}s. Call wait_for_task again to ` +
             `keep waiting — its result carries the log output. To peek at the output so far, ` +
@@ -1553,6 +1585,18 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         // The command finished but wrote nothing (or the log was removed);
         // an empty output with a real exit code is still a result.
         output = ''
+      }
+      // A command that wrote its output to its own file (`> /tmp/e2e.log`) left the task log
+      // holding a word: read that file too, so the result (and every note built on it) has the
+      // run's output (X1 flash-m48: 60 passed / 14 failed, and the notes saw "started").
+      const ownFile = outputFileByTask.get(taskId)
+      if (ownFile && output.trim().length < 2000) {
+        try {
+          const ownText = await backend.readFile(ownFile)
+          if (ownText.trim()) output = `${output.trim() ? `${output.trimEnd()}\n` : ''}${ownText}`
+        } catch (_error) {
+          // The file is gone or unreadable: the task log is the whole result, as before.
+        }
       }
       // Same shaping as a foreground exec result, so the executor reads both
       // the same way.

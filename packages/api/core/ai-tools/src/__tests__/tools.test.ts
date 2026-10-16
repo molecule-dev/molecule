@@ -1381,6 +1381,20 @@ describe('search excludes (VS Code search.exclude semantics)', () => {
 // forbidding exactly that in capital letters.
 
 describe('read_file windows', () => {
+  it('returns the whole small file on the second window of it', async () => {
+    const readFile = buildTools(windowBackend(120)).find((t) => t.name === 'read_file')!
+    const first = (await readFile.execute({ path: '/test/a.ts', offset: 1, limit: 40 })) as {
+      lines?: number
+    }
+    expect(first.lines).toBe(40)
+    const second = (await readFile.execute({ path: '/test/a.ts', offset: 41, limit: 40 })) as {
+      content?: string
+      note?: string
+    }
+    expect(second.content).toContain('line 120')
+    expect(second.note).toContain('not paged')
+  })
+
   function windowBackend(lines: number): ExecutionBackend {
     const content = Array.from({ length: lines }, (_, i) => `line ${i + 1}`).join('\n')
     return {
@@ -1769,6 +1783,37 @@ describe('wait_for_task', () => {
     }
   }
   const id = 'mol-bg-abc123-def456'
+
+  it("reads a command's own output file when the task log holds almost nothing (flash-m48)", async () => {
+    const backend: ExecutionBackend = {
+      projectRoot: '/test',
+      readFile: vi.fn(async (path: string) => {
+        if (path.endsWith('.exit')) return '1\n'
+        if (path === '/tmp/e2e.log') return '  14 failed\n  60 passed (5.3m)'
+        if (path.startsWith('/tmp/mol-bg-')) return 'started'
+        throw new Error(`ENOENT: ${path}`)
+      }),
+      writeFile: vi.fn(),
+      deleteFile: vi.fn(),
+      readDir: vi.fn(),
+      run: vi.fn(async () => ({ stdout: '', stderr: '', exitCode: 0 })),
+    }
+    const tools = buildTools(backend)
+    const started = (await tools
+      .find((t) => t.name === 'exec_command')!
+      .execute({
+        command: 'npx playwright test > /tmp/e2e.log 2>&1',
+        run_in_background: true,
+      })) as {
+      taskId: string
+    }
+    const r = (await tools
+      .find((t) => t.name === 'wait_for_task')!
+      .execute({ taskId: started.taskId })) as {
+      stdout: string
+    }
+    expect(r.stdout).toContain('14 failed')
+  })
 
   it('returns the exit code and output when the command has already finished', async () => {
     const backend = backendWith({ [`/tmp/${id}.exit`]: '1\n', [`/tmp/${id}.log`]: '3 failed' })
