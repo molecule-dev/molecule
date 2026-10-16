@@ -6,14 +6,16 @@
  * @module
  */
 
+import { createHash } from 'node:crypto'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import process from 'node:process'
 
 import type { Plugin } from 'vite'
 
-import { E2E_RUNTIME_VERSION, installE2ERuntime } from '@molecule/app-e2e-fixtures-default/runtime'
+import { E2E_RUNTIME_VERSION } from '@molecule/app-e2e-fixtures-default/runtime'
 
 import { E2E_PREVIEW_CLIENT_SCRIPT } from './client.js'
+import { E2E_PREVIEW_RUNTIME_SCRIPT } from './runtime.js'
 import { attachE2EHub } from './server.js'
 import { E2E_CLIENT_PATH, E2E_RUNTIME_PATH } from './types.js'
 
@@ -35,12 +37,10 @@ const tags = (base: string): string =>
   `<script src="${E2E_CLIENT_PATH}" data-mol-e2e data-base="${base}"></script>` +
   `<script src="${E2E_RUNTIME_PATH}" data-mol-e2e-runtime></script>`
 
-/**
- * The runtime as a classic script: installing it with the document saves the
- * driver a ~60 KB `evaluate` on the first call after every navigation.
- */
-const RUNTIME_SCRIPT = `;(${String(installE2ERuntime)})();`
-const RUNTIME_ETAG = `"mol-e2e-runtime-${E2E_RUNTIME_VERSION}"`
+// The version alone stopped identifying the body once the banner rode it: an ETag
+// has to change with the bytes (banner, runtime, anything else), or a revalidating
+// client keeps the copy it has and never sees the change.
+const RUNTIME_ETAG = `"mol-e2e-runtime-${E2E_RUNTIME_VERSION}-${createHash('sha1').update(E2E_PREVIEW_RUNTIME_SCRIPT).digest('hex').slice(0, 12)}"`
 
 /** Put the client and runtime tags at the top of `<head>` unless they are already there. */
 export const injectE2EClientTag = (html: string, base = '/'): string => {
@@ -69,7 +69,7 @@ const serveClient: Middleware = (req, res, next) => {
       return
     }
     res.setHeader('content-type', 'text/javascript; charset=utf-8')
-    res.end(RUNTIME_SCRIPT)
+    res.end(E2E_PREVIEW_RUNTIME_SCRIPT)
     return
   }
   if (path !== E2E_CLIENT_PATH) return next()

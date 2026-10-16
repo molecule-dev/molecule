@@ -10,10 +10,16 @@
  * @module
  */
 
+import { E2E_DRIVER_BANNER } from './driver-banner.js'
 import { E2E_WS_PATH } from './types.js'
 
-/** The client script's source, ready to serve as `text/javascript`. */
-export const E2E_PREVIEW_CLIENT_SCRIPT = `;(function () {
+/**
+ * The client script's source, ready to serve as `text/javascript`. It opens
+ * with {@link E2E_DRIVER_BANNER} — the served file has to say what it is, since
+ * a reader who finds it (in the preview HTML, or in a fetch of that page) has
+ * nothing else to go on.
+ */
+export const E2E_PREVIEW_CLIENT_SCRIPT = `${E2E_DRIVER_BANNER};(function () {
   if (window.__molE2EClient) return
   var PATH = ${JSON.stringify(E2E_WS_PATH)}
   // The app's base path, from the plugin's resolved Vite config ('/blog/'); '/' when none.

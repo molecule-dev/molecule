@@ -88,6 +88,34 @@ describe('molE2EPreviewPlugin on a dev server', () => {
     expect(rt.headers.get('content-type')).toContain('text/javascript')
   })
 
+  // X1 flash-m67: the injected scripts said nothing about what they are, so a run
+  // that fetched its own preview page had nothing to go on but the 61 KB body — it
+  // read the runtime bundle for its app's browser contract. Both served scripts now
+  // open with the banner that answers it.
+  it('serves both injected scripts with the header that says what they are', async () => {
+    const index = await html('/blog/')
+    const src = index.match(/<script src="([^"]*e2e-client\.js)"/)?.[1]
+    expect(src, 'the tag names the client').toBeTruthy()
+    const bodies = [
+      ['client', await (await fetch(origin + src)).text()],
+      ['runtime', await (await fetch(origin + '/blog/__mol/e2e-runtime.js')).text()],
+    ] as const
+    for (const [name, body] of bodies) {
+      expect(body.startsWith('/* molecule.dev preview test driver'), name).toBe(true)
+      expect(body, name).toContain('NOT part of your app')
+      expect(body, name).toContain('SELECTORS.md')
+      // The banner is a comment: the script it precedes still runs (the integration
+      // test drives this same client in a real browser).
+      expect(
+        body
+          .slice(body.indexOf('*/') + 2)
+          .trimStart()
+          .startsWith(';'),
+        name,
+      ).toBe(true)
+    }
+  })
+
   it('leaves non-HTML responses alone', async () => {
     const res = await fetch(origin + '/blog/data.json', { headers: { accept: 'text/html' } })
     expect(await res.text()).toBe('{"ok":true}')

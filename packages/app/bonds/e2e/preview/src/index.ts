@@ -101,7 +101,9 @@
  */
 
 export * from './client.js'
+export * from './driver-banner.js'
 export * from './provider.js'
+export * from './runtime.js'
 export * from './server.js'
 export * from './types.js'
 export * from './vite.js'
