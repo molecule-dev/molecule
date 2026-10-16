@@ -40,6 +40,17 @@ export const convertPlaceholders = (
 }
 
 /**
+ * The SQLite expression for "the current instant, ISO-8601 UTC with milliseconds"
+ * — `2026-10-16T01:22:21.416Z`, exactly the text `Date.prototype.toISOString()`
+ * produces for the instant the postgres/mysql bonds hand back as a `Date`, so a
+ * stored value round-trips through `new Date(value)` unchanged and two
+ * timestamps compare as strings in time order (SQLite's own
+ * `CURRENT_TIMESTAMP`/`datetime('now')` are UTC but space-separated,
+ * un-suffixed and whole-second — see `translateDdlToSqlite`).
+ */
+const SQLITE_ISO_NOW = `(strftime('%Y-%m-%dT%H:%M:%fZ','now'))`
+
+/**
  * Translate PostgreSQL-dialect DDL to SQLite-compatible DDL at migration time.
  *
  * Resource/template setup migrations are authored in PostgreSQL dialect, but a
@@ -58,7 +69,15 @@ export const convertPlaceholders = (
  *   `NOT NULL constraint failed: t.id`. Translating (not stripping) keeps both
  *   paths working: resource handlers pass an id that overrides the default, custom
  *   handlers get one generated.
- * - `now()` / `NOW()` → `current_timestamp` (a SQLite keyword).
+ * - `now()` / `NOW()`, and a literal `DEFAULT CURRENT_TIMESTAMP` (either case —
+ *   the form 831 of the template migrations use), →
+ *   `DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))`: ISO-8601, UTC, milliseconds.
+ *   Those defaults previously became SQLite's `current_timestamp`, whose
+ *   `YYYY-MM-DD HH:MM:SS` has no `T`/`Z` and only whole seconds. `new Date(value)`
+ *   parses a space-separated string as LOCAL time (so every stored timestamp read
+ *   back hours off), and two rows written in the same second were byte-identical
+ *   strings, so "newest first" returned them in arbitrary order. `strftime` is
+ *   evaluated per insert, and a column the caller writes explicitly is untouched.
  * - `::type` casts (e.g. `'{}'::jsonb`) → removed (Postgres-only syntax).
  * - `USING <method>` on an index (`gin`/`btree`/`hash`/`gist`) → removed
  *   (SQLite indexes have no access method).
@@ -75,7 +94,8 @@ export const convertPlaceholders = (
 export const translateDdlToSqlite = (sql: string): string =>
   sql
     .replace(/DEFAULT\s+gen_random_uuid\(\)/gi, 'DEFAULT (lower(hex(randomblob(16))))')
-    .replace(/\bnow\(\)/gi, 'current_timestamp')
+    .replace(/\bnow\(\)/gi, SQLITE_ISO_NOW)
+    .replace(/DEFAULT\s+current_timestamp\b/gi, `DEFAULT ${SQLITE_ISO_NOW}`)
     .replace(/::[a-z_]+/gi, '')
     .replace(/\s+USING\s+(gin|btree|hash|gist)\b/gi, '')
     .replace(/\bADD\s+COLUMN\s+IF\s+NOT\s+EXISTS\b/gi, 'ADD COLUMN')

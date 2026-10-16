@@ -24,8 +24,15 @@
  *   `_molecule_migrations` table records it, and an edit to a recorded file
  *   does not run again — except that a column added to its `CREATE TABLE` is
  *   still added. Every other change to an applied schema goes in a NEW file. Postgres-dialect DDL is
- *   translated (`gen_random_uuid()`, `now()`, `::` casts, `USING <method>`),
- *   so the same file works on the postgres bond.
+ *   translated (`gen_random_uuid()`, `now()` / `CURRENT_TIMESTAMP`, `::` casts,
+ *   `USING <method>`), so the same file works on the postgres bond.
+ * - **A `DEFAULT now()` / `DEFAULT CURRENT_TIMESTAMP` column yields ISO-8601 UTC
+ *   with milliseconds** (`2026-10-16T01:22:21.416Z`) — the format the other bonds
+ *   and `new Date().toISOString()` produce. SQLite's own `current_timestamp` is
+ *   space-separated, `Z`-less and whole-second, which `new Date()` reparses as
+ *   LOCAL time and which ties for two rows written in the same second; the
+ *   migrator translates those defaults so stored values are ISO and compare as
+ *   strings in time order. A column a caller writes explicitly is left alone.
  * - **`pool.query(text, values)` takes Postgres-style `$1, $2` placeholders**
  *   (converted to `?` and reordered) or plain `?` placeholders.
  * - **`pool.transaction()` calls and plain `pool.query()` calls are serialized**

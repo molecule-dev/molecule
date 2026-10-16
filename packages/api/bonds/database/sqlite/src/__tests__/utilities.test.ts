@@ -126,11 +126,41 @@ describe('translateDdlToSqlite', () => {
     )
   })
 
-  it('maps now()/NOW() to current_timestamp', () => {
+  it('maps now()/NOW() to the ISO-8601 UTC millisecond default', () => {
     expect(translateDdlToSqlite('"createdAt" TIMESTAMPTZ DEFAULT now()')).toBe(
-      '"createdAt" TIMESTAMPTZ DEFAULT current_timestamp',
+      `"createdAt" TIMESTAMPTZ DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))`,
     )
-    expect(translateDdlToSqlite('DEFAULT NOW()')).toBe('DEFAULT current_timestamp')
+    expect(translateDdlToSqlite('DEFAULT NOW()')).toBe(
+      `DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))`,
+    )
+  })
+
+  it('maps a literal DEFAULT CURRENT_TIMESTAMP (either case) to the same ISO default', () => {
+    // The form the template migrations use: `… DEFAULT CURRENT_TIMESTAMP NOT NULL`.
+    expect(
+      translateDdlToSqlite(
+        '"createdAt" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,',
+      ),
+    ).toBe(
+      `"createdAt" timestamp with time zone DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')) NOT NULL,`,
+    )
+    expect(translateDdlToSqlite('"updatedAt" TIMESTAMPTZ DEFAULT current_timestamp')).toBe(
+      `"updatedAt" TIMESTAMPTZ DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))`,
+    )
+  })
+
+  it('leaves CURRENT_TIMESTAMP alone when it is not a column DEFAULT', () => {
+    // Only the DEFAULT form is rewritten — a comparison against the current
+    // instant is a different construct and stays as written.
+    const sql = '"createdAt" < CURRENT_TIMESTAMP'
+    expect(translateDdlToSqlite(sql)).toBe(sql)
+  })
+
+  it('is idempotent: translating already-translated DDL changes nothing', () => {
+    const once = translateDdlToSqlite(
+      `"createdAt" TIMESTAMPTZ NOT NULL DEFAULT now(), "updatedAt" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP`,
+    )
+    expect(translateDdlToSqlite(once)).toBe(once)
   })
 
   it('strips ::type casts', () => {
@@ -167,6 +197,13 @@ describe('translateDdlToSqlite', () => {
       id: string
     }
     expect(generated.id).toMatch(/^[0-9a-f]{32}$/)
+    // The translated `DEFAULT now()` must store ISO-8601 UTC with milliseconds —
+    // the value `new Date()` round-trips unchanged.
+    const { createdAt } = db
+      .prepare(`SELECT "createdAt" FROM "projects" WHERE "userId" = ?`)
+      .get('uuid-3') as { createdAt: string }
+    expect(createdAt).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/)
+    expect(new Date(createdAt).toISOString()).toBe(createdAt)
     db.close()
   })
 })
