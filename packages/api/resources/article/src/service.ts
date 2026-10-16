@@ -78,6 +78,19 @@ const nextCreatedAt = (): string => {
   return new Date(lastCreatedMs).toISOString()
 }
 
+/**
+ * An update time strictly later than the row's last one: an edit in the same
+ * millisecond (or the same second, on a store that keeps seconds) as the create
+ * must still show a changed `updatedAt`.
+ *
+ * @param previous - The row's current `updatedAt`, as stored.
+ * @returns The ISO time.
+ */
+const nextUpdatedAt = (previous: unknown): string => {
+  const before = previous instanceof Date ? previous.getTime() : Date.parse(String(previous ?? ''))
+  return new Date(Math.max(Date.now(), Number.isFinite(before) ? before + 1 : 0)).toISOString()
+}
+
 /** Largest page a list returns. */
 export const MAX_ARTICLES_PAGE = 100
 
@@ -332,7 +345,7 @@ export async function updateArticle(
   const row = await findArticleRow(slug)
   if (!row) return { status: 'not_found' }
   if (row.authorId !== userId) return { status: 'forbidden' }
-  const patch: Record<string, unknown> = { updatedAt: new Date().toISOString() }
+  const patch: Record<string, unknown> = { updatedAt: nextUpdatedAt(row.updatedAt) }
   if (input.title !== undefined && input.title !== row.title) {
     patch.title = input.title
     patch.slug = await articleSlug(input.title, row.id)

@@ -134,6 +134,17 @@ describe('articles', () => {
     expect(feed.data.every((x) => x.authorId === CAROL)).toBe(true)
   })
 
+  it('moves updatedAt forward on every update, even within the same millisecond', async () => {
+    const before = await getArticleBySlug('hello-world')
+    const first = await updateArticle('hello-world', ALICE, { body: 'one' })
+    const second = await updateArticle('hello-world', ALICE, { body: 'two' })
+    if (!before || first.status !== 'ok' || second.status !== 'ok') throw new Error('update failed')
+    expect(Date.parse(first.article.updatedAt)).toBeGreaterThan(Date.parse(before.updatedAt))
+    expect(Date.parse(second.article.updatedAt)).toBeGreaterThan(
+      Date.parse(first.article.updatedAt),
+    )
+  })
+
   it('lets only the author update and delete, and re-slugs on a new title', async () => {
     expect((await updateArticle('hello-world', BOB, { body: 'hijack' })).status).toBe('forbidden')
     const updated = await updateArticle('hello-world', ALICE, {

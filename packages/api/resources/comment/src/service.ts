@@ -117,7 +117,11 @@ export async function updateComment(
   const result = await updateById<Comment>(TABLE, commentId, {
     body: data.body,
     editedAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    // Strictly later than the last write: an edit in the same millisecond as the create
+    // still shows a changed updatedAt.
+    updatedAt: new Date(
+      Math.max(Date.now(), (Date.parse(String(existing.updatedAt ?? '')) || 0) + 1),
+    ).toISOString(),
   })
   return result.data
 }

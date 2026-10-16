@@ -109,6 +109,17 @@ describe('@molecule/api-resource-comment service', () => {
       expect(await getCommentById('c1')).toEqual(comment)
     })
 
+    it('moves updatedAt past a stored time that is ahead of the clock', async () => {
+      const ahead = new Date(Date.now() + 60_000).toISOString()
+      mockFindById.mockResolvedValue({ id: 'c1', userId: 'user-1', updatedAt: ahead })
+      mockUpdateById.mockResolvedValue({ data: { id: 'c1' } })
+
+      await updateComment('c1', 'user-1', { body: 'Updated' })
+
+      const patch = mockUpdateById.mock.calls.at(-1)?.[2] as { updatedAt: string }
+      expect(Date.parse(patch.updatedAt)).toBe(Date.parse(ahead) + 1)
+    })
+
     it('should return null when not found', async () => {
       mockFindById.mockResolvedValue(null)
 
