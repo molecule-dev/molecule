@@ -26,7 +26,13 @@ import type {
  */
 export const provider: JwtProvider = {
   sign(payload: JSONObject, options?: JwtSignOptions, privateKey?: string | Buffer): string {
-    if (!privateKey) throw new Error('JWT private key is required for signing')
+    // Named the way out: X1 flash-m44 called getProvider().sign(payload, opts) and spent
+    // its next minute on JWT_PRIVATE_KEY in .env, which was fine.
+    if (!privateKey)
+      throw new Error(
+        'JWT private key is required for signing: call sign() from @molecule/api-jwt, which passes ' +
+          'JWT_PRIVATE_KEY, or pass the key as the third argument of getProvider().sign().',
+      )
     return jsonwebtoken.sign(payload, privateKey, options as jsonwebtoken.SignOptions)
   },
 
@@ -35,7 +41,11 @@ export const provider: JwtProvider = {
     options?: JwtVerifyOptions,
     publicKey?: string | Buffer,
   ): string | JwtPayload {
-    if (!publicKey) throw new Error('JWT public key is required for verification')
+    if (!publicKey)
+      throw new Error(
+        'JWT public key is required for verification: call verify() from @molecule/api-jwt, which ' +
+          'passes JWT_PUBLIC_KEY, or pass the key as the third argument of getProvider().verify().',
+      )
     // Force expiration/notBefore checks — never allow callers to bypass token expiry
     const safeOptions = { ...options, ignoreExpiration: false, ignoreNotBefore: false }
     return jsonwebtoken.verify(token, publicKey, safeOptions as jsonwebtoken.VerifyOptions) as
