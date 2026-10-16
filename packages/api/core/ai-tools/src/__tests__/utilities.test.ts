@@ -897,7 +897,12 @@ describe('repeatingFailure', () => {
     // "different tests": the count is of DISTINCT tests, never of log lines (flash-m83).
     expect(note).toContain('3 different tests in this run have already failed the same way')
     expect(note).toContain('each after ~15.6s')
-    expect(note).toContain('✘ e2e/articles.spec.ts:32 › should create a new article (15.6s)')
+    // The row names the test by the path the RUN wrote — the same one the reproduce hint
+    // uses (flash-m82: a suite-relative form here, `fixtures/realworld/specs/e2e/…` three
+    // lines below, and the run read the short one as the app's own stale starter spec).
+    expect(note).toContain(
+      '✘ ../../fixtures/realworld/specs/e2e/articles.spec.ts:32 › should create a new article (15.6s)',
+    )
     // The cause is named mid-run so the model can start on it — and the run keeps walking.
     expect(note).toContain('Start fixing it now, while the run keeps walking')
     expect(note).toContain('Let the rest of the run finish')
@@ -905,6 +910,53 @@ describe('repeatingFailure', () => {
     // And it is told NOT to stop: this cause is one file, and `auth.spec.ts` still has a cause.
     expect(note).not.toContain('exec_command')
     expect(note).not.toContain('Stop it and fix')
+  })
+
+  it('prints every failure by the SAME path as its own re-run hint (flash-m82)', () => {
+    // X1 flash-m82 (+41:52): the note listed `✘ e2e/auth.spec.ts:19 › should login with
+    // existing user` while its own hint three lines down said `Re-run
+    // fixtures/realworld/specs/e2e/auth.spec.ts:19 alone`. The run read the short form as
+    // "the project's own stale starter spec" — a path that does not exist in the suite —
+    // rewrote its Playwright config, deleted the app's tests and wrote its own: four
+    // minutes of a 60-minute run, on a config that was right. One file, one name.
+    const log = [
+      'Running 139 tests using 1 worker',
+      '',
+      '  1) [chromium] › fixtures/realworld/specs/e2e/auth.spec.ts:19:3 › Authentication › should login ────────',
+      '',
+      '    TimeoutError: page.waitForURL: Timeout 10000ms exceeded.',
+      '',
+      '       at helpers/auth.ts:11',
+      '',
+      '  2) [chromium] › fixtures/realworld/specs/e2e/auth.spec.ts:27:3 › Authentication › should sign up ────────',
+      '',
+      '    TimeoutError: page.waitForURL: Timeout 10000ms exceeded.',
+      '',
+      '       at helpers/auth.ts:11',
+      '',
+      '  3) [chromium] › fixtures/realworld/specs/e2e/auth.spec.ts:35:3 › Authentication › should log out ────────',
+      '',
+      '    TimeoutError: page.waitForURL: Timeout 10000ms exceeded.',
+      '',
+      '       at helpers/auth.ts:11',
+    ].join('\n')
+    const found = repeatingFailure(log)!
+    const note = repeatingFailureNote(found, {
+      taskId: 'mol-bg-mvb3cv1n-1kfydl',
+      log: '/tmp/mol-bg-mvb3cv1n-1kfydl.log',
+      stop: '',
+    })
+
+    const hint = /Re-run `([^`]+)` alone/.exec(note)?.[1]
+    expect(hint).toBe('fixtures/realworld/specs/e2e/auth.spec.ts:19')
+    // Every row names its test by exactly the path the hint names: same file, same name.
+    const hintFile = hint!.replace(/:\d+$/, '')
+    for (const test of found.tests) {
+      expect(note).toContain(`✘ ${test.where} › ${test.title}`)
+      expect(test.where.replace(/:\d+$/, '')).toBe(hintFile)
+    }
+    // …and none of them is the suite-relative form the run mistook for an app file.
+    expect(note).not.toContain('✘ e2e/')
   })
 
   it('reads a cause confined to one file as NOT failing the whole run', () => {

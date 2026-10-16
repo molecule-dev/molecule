@@ -2739,7 +2739,11 @@ describe('wait_for_task on a suite repeating one failure', () => {
       // couple of seconds rather than spending the minute.
       expect(Date.now() - t0).toBeLessThan(10_000)
       expect(r.note).toContain('3 different tests in this run have already failed the same way')
-      expect(r.note).toContain('✘ e2e/articles.spec.ts:32 › should create a new article (15.6s)')
+      // The row names the path the run's log wrote — the same one the reproduce hint
+      // below names (flash-m82 took the shortened form for the app's own file).
+      expect(r.note).toContain(
+        '✘ ../../fixtures/realworld/specs/e2e/articles.spec.ts:32 › should create a new article (15.6s)',
+      )
       expect(r.note).toContain('Start fixing it now, while the run keeps walking')
       expect(r.note).toContain('Let the rest of the run finish')
       expect(r.note).toContain(`task ${id}`)

@@ -1533,18 +1533,6 @@ export const FAILURE_CAUSES_LISTED = 5
 export const FAILURE_CAUSE_TESTS_LISTED = 6
 
 /**
- * The shortest unambiguous tail of a logged path (`…/specs/e2e/articles.spec.ts:32` →
- * `e2e/articles.spec.ts:32`).
- *
- * @param where - The location the log wrote.
- * @returns The last two path segments, with the line number.
- */
-function shortWhere(where: string): string {
-  const parts = where.split('/')
-  return parts.slice(-2).join('/')
-}
-
-/**
  * The shortest unambiguous tail of a logged path's FILE (`…/specs/e2e/articles.spec.ts` →
  * `e2e/articles.spec.ts`).
  *
@@ -1781,10 +1769,18 @@ export function repeatingFailureNote(
   o: { taskId: string; log: string; stop: string; universal?: UniversalCause | null },
 ): string {
   const listed = found.tests.slice(0, REPEATING_FAILURE_LISTED)
+  // Every row names its test by the SAME path the re-run hint below uses (`shortWhere`
+  // would print this one file under two names: X1 flash-m82 read `✘ e2e/auth.spec.ts:19`
+  // here against `Re-run fixtures/realworld/specs/e2e/auth.spec.ts:19 alone` three lines
+  // down, took the suite-relative form for "the project's own stale starter spec" and
+  // rewrote its Playwright config over it, deleted the app's tests and wrote its own —
+  // 4 minutes of a 60-minute run, on a run whose config was right). The path the log
+  // wrote is relative to the command's own cwd, so it is the one the executor can paste
+  // back into a command.
   const rows = listed
     .map(
       (t) =>
-        `  ✘ ${[t.where && shortWhere(t.where), t.title].filter(Boolean).join(' › ')}` +
+        `  ✘ ${[t.where, t.title].filter(Boolean).join(' › ')}` +
         (t.seconds === null ? '' : ` (${t.seconds}s)`),
     )
     .join('\n')
