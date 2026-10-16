@@ -1,5 +1,14 @@
 # @molecule/api-ai-tools
 
+## 1.5.17
+
+### Patch Changes
+
+- b9df4fd: read_file steers a successful read of a package's built dist at that package's README (`read_molecule_doc`) — the pointer used to fire only when the read failed.
+- a36cd68: `wait_for_task` on a task that is still running now says how long it has been running, how far its own log says it has got (when the log carries a `[done/total]` counter) and how much longer that implies, so waiting on a suite that outlasts one call is not blind.
+- 7fc6bae: `wait_for_task` reads a background command's own output file again after the API process restarts.
+- ba79f61: read_file returns a file whole on a second window up to the one-call bound its note states, and only once per version of the file.
+
 ## 1.5.16
 
 ### Patch Changes

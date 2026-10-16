@@ -1,5 +1,11 @@
 # @molecule/app-bonds-default-react
 
+## 1.1.0
+
+### Minor Changes
+
+- 7b77ed5: `setupAllDefaultBonds()` now bonds a state provider, and `<MoleculeProvider>` supplies the React state context from it, so `createStore()` + `useStore()` work in a scaffolded app without wiring a state bond or passing a `state` prop; `@molecule/app-state`'s Quick Start no longer creates a store at module scope, where it would throw before the providers are set up.
+
 ## 1.0.5
 
 ### Patch Changes
