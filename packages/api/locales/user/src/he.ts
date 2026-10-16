@@ -18,6 +18,10 @@ export const he: UserTranslations = {
   'user.notification.newLogin': 'התחברות חדשה',
   'user.notification.newLoginBody': 'התחברות חדשה מ-{{deviceName}}.',
   'user.error.usernameCannotBeEmpty': 'שם המשתמש לא יכול להיות ריק.',
+  'user.error.usernameInvalid':
+    'שם המשתמש יכול לכלול רק אותיות, ספרות, נקודות, מקפים וקווים תחתונים.',
+  'user.error.bodyNestedUnderUser':
+    'גוף הבקשה מקנן את השדות שלו תחת "user"; שלחו שם משתמש, אימייל וסיסמה ברמה העליונה.',
   'user.error.failedToUpdateUser': 'עדכון המשתמש נכשל.',
   'user.error.failedToDeleteUser': 'מחיקת המשתמש נכשלה.',
   'user.error.failedToReadUser': 'קריאת המשתמש נכשלה.',

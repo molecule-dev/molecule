@@ -18,6 +18,10 @@ export const mn: UserTranslations = {
   'user.notification.newLogin': 'Шинэ нэвтрэлт',
   'user.notification.newLoginBody': '{{deviceName}}-аас шинэ нэвтрэлт.',
   'user.error.usernameCannotBeEmpty': 'Хэрэглэгчийн нэр хоосон байж болохгүй.',
+  'user.error.usernameInvalid':
+    'Хэрэглэгчийн нэр зөвхөн үсэг, тоо, цэг, зураас, доогуур зураас агуулж болно.',
+  'user.error.bodyNestedUnderUser':
+    'Энэ хүсэлт талбаруудаа "user" дотор байрлуулдаг; хэрэглэгчийн нэр, имэйл, нууц үгээ дээд түвшинд илгээнэ үү.',
   'user.error.failedToUpdateUser': 'Хэрэглэгч шинэчлэхэд алдаа гарлаа.',
   'user.error.failedToDeleteUser': 'Хэрэглэгч устгахад алдаа гарлаа.',
   'user.error.failedToReadUser': 'Хэрэглэгч уншихад алдаа гарлаа.',

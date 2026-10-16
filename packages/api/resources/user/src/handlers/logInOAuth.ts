@@ -15,6 +15,7 @@ import type * as types from '../types.js'
 import { fetchAvatarDataUri } from '../utilities/fetchAvatarDataUri.js'
 import { normalizeEmail } from '../utilities/normalizeEmail.js'
 import { stripSensitiveUserColumns } from '../utilities/stripSensitiveUserColumns.js'
+import { USERNAME_STRIP_RE } from '../utilities/username.js'
 
 const analytics = getAnalytics()
 const logger = getLogger()
@@ -389,7 +390,11 @@ export const logInOAuth = ({ name, tableName, schema }: types.Resource) => {
         // then. When no usable handle exists at all, fall back to the
         // provider id — never to the flattened provider name (`github`),
         // which the full-string sanitize would produce.
-        const sanitize = (raw: string): string => raw.replace(/[^a-zA-Z0-9]/g, '').substring(0, 255)
+        const sanitize = (raw: string): string =>
+          raw
+            .replace(USERNAME_STRIP_RE, '')
+            .replace(/^[^A-Za-z0-9]+/, '')
+            .substring(0, 255)
         const base =
           sanitize((oauthProps.username || '').split('@')[0]) ||
           sanitize(oauthProps.oauthId) ||

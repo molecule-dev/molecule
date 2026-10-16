@@ -18,6 +18,10 @@ export const de: UserTranslations = {
   'user.notification.newLogin': 'Neue Anmeldung',
   'user.notification.newLoginBody': 'Neue Anmeldung von {{deviceName}}.',
   'user.error.usernameCannotBeEmpty': 'Benutzername darf nicht leer sein.',
+  'user.error.usernameInvalid':
+    'Der Benutzername darf nur Buchstaben, Ziffern, Punkte, Bindestriche und Unterstriche enthalten.',
+  'user.error.bodyNestedUnderUser':
+    'Dieser Body verschachtelt seine Felder unter "user"; sende Benutzername, E-Mail und Passwort auf oberster Ebene.',
   'user.error.failedToUpdateUser': 'Benutzer konnte nicht aktualisiert werden.',
   'user.error.failedToDeleteUser': 'Benutzer konnte nicht gelöscht werden.',
   'user.error.failedToReadUser': 'Benutzer konnte nicht gelesen werden.',

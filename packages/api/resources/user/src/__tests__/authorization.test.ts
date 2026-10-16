@@ -402,6 +402,30 @@ describe('authorization', () => {
       expect(res.locals.session).toBe(session)
     })
 
+    it('accepts the token cookie when no header is sent, unless allowCookieSession is false', async () => {
+      const session = { userId: 'u1', deviceId: 'd1' }
+      mockVerify.mockReturnValue(session)
+      mockDecode.mockReturnValue({ iat: Math.floor(Date.now() / 1000) })
+      const withCookie = () => ({ ...makeReq({ headers: {} }), cookies: { token: 'cookie-token' } })
+
+      const browser = makeRes()
+      await middleware(withCookie() as never, browser as never, vi.fn())
+      expect(mockVerify).toHaveBeenCalledWith('cookie-token')
+      expect(browser.locals.session).toBe(session)
+
+      mockVerify.mockClear()
+      const api = makeRes()
+      const next = vi.fn()
+      await verifyMiddleware({ allowCookieSession: false })(
+        withCookie() as never,
+        api as never,
+        next,
+      )
+      expect(mockVerify).not.toHaveBeenCalled()
+      expect(api.locals.session).toBeUndefined()
+      expect(next).toHaveBeenCalled()
+    })
+
     it('requires both userId and deviceId in session', async () => {
       mockVerify.mockReturnValue({ userId: 'u1' }) // missing deviceId
       const next = vi.fn()

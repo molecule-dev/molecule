@@ -18,6 +18,10 @@ export const be: UserTranslations = {
   'user.notification.newLogin': 'Новы ўваход',
   'user.notification.newLoginBody': 'Новы ўваход з {{deviceName}}.',
   'user.error.usernameCannotBeEmpty': 'Імя карыстальніка не можа быць пустым.',
+  'user.error.usernameInvalid':
+    'Імя карыстальніка можа ўтрымліваць толькі літары, лічбы, кропкі, злучкі і падкрэсліванні.',
+  'user.error.bodyNestedUnderUser':
+    'Гэты запыт укладвае палі ў "user"; адпраўце імя карыстальніка, электронную пошту і пароль на верхнім узроўні.',
   'user.error.failedToUpdateUser': 'Не ўдалося абнавіць карыстальніка.',
   'user.error.failedToDeleteUser': 'Не ўдалося выдаліць карыстальніка.',
   'user.error.failedToReadUser': 'Не ўдалося прачытаць карыстальніка.',

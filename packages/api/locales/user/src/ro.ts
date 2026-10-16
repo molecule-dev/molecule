@@ -18,6 +18,10 @@ export const ro: UserTranslations = {
   'user.notification.newLogin': 'Autentificare nouă',
   'user.notification.newLoginBody': 'Autentificare nouă de pe {{deviceName}}.',
   'user.error.usernameCannotBeEmpty': 'Numele de utilizator nu poate fi gol.',
+  'user.error.usernameInvalid':
+    'Numele de utilizator poate conține doar litere, cifre, puncte, cratime și caractere de subliniere.',
+  'user.error.bodyNestedUnderUser':
+    'Acest corp își imbrică câmpurile sub "user"; trimiteți numele de utilizator, e-mailul și parola la nivelul superior.',
   'user.error.failedToUpdateUser': 'Nu s-a putut actualiza utilizatorul.',
   'user.error.failedToDeleteUser': 'Nu s-a putut șterge utilizatorul.',
   'user.error.failedToReadUser': 'Nu s-a putut citi utilizatorul.',

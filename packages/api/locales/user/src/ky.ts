@@ -18,6 +18,10 @@ export const ky: UserTranslations = {
   'user.notification.newLogin': 'Жаңы кирүү',
   'user.notification.newLoginBody': '{{deviceName}} түзмөгүнөн жаңы кирүү.',
   'user.error.usernameCannotBeEmpty': 'Колдонуучу аты бош болбошу керек.',
+  'user.error.usernameInvalid':
+    'Колдонуучунун аты тамгаларды, сандарды, чекиттерди, сызыкчаларды жана астыңкы сызыктарды гана камтый алат.',
+  'user.error.bodyNestedUnderUser':
+    'Бул суроо талаалорун "user" ичине жайгаштырат; колдонуучунун атын, электрондук почтаны жана сырсөздү жогорку деңгээлде жөнөтүңүз.',
   'user.error.failedToUpdateUser': 'Колдонуучуну жаңыртуу ишке ашкан жок.',
   'user.error.failedToDeleteUser': 'Колдонуучуну өчүрүү ишке ашкан жок.',
   'user.error.failedToReadUser': 'Колдонуучуну окуу ишке ашкан жок.',

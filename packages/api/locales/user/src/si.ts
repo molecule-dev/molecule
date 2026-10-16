@@ -18,6 +18,10 @@ export const si: UserTranslations = {
   'user.notification.newLogin': 'නව පිවිසීම',
   'user.notification.newLoginBody': '{{deviceName}} වෙතින් නව පිවිසීම.',
   'user.error.usernameCannotBeEmpty': 'පරිශීලක නාමය හිස් විය නොහැක.',
+  'user.error.usernameInvalid':
+    'පරිශීලක නාමයේ අකුරු, ඉලක්කම්, තිත්, යටි ඉරි සහ හයිෆන් පමණක් තිබිය හැක.',
+  'user.error.bodyNestedUnderUser':
+    'මෙම ඉල්ලීම එහි ක්ෂේත්‍ර "user" යටතේ තබයි; පරිශීලක නාමය, ඊමේල් සහ මුරපදය ඉහළම මට්ටමේ යවන්න.',
   'user.error.failedToUpdateUser': 'පරිශීලකයා යාවත්කාලීන කිරීමට අසමත් විය.',
   'user.error.failedToDeleteUser': 'පරිශීලකයා මකා දැමීමට අසමත් විය.',
   'user.error.failedToReadUser': 'පරිශීලකයා කියවීමට අසමත් විය.',

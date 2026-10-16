@@ -19,6 +19,10 @@ export const ka: UserTranslations = {
   'user.notification.newLogin': 'Akhali Shesvla',
   'user.notification.newLoginBody': 'Akhali shesvla {{deviceName}}-dan.',
   'user.error.usernameCannotBeEmpty': 'Momkhmareblis sakheli ar sheidzleba ikhos tsarieli.',
+  'user.error.usernameInvalid':
+    'მომხმარებლის სახელი შეიძლება შეიცავდეს მხოლოდ ასოებს, ციფრებს, წერტილებს, დეფისებს და ქვედა ხაზებს.',
+  'user.error.bodyNestedUnderUser':
+    'ეს მოთხოვნა თავის ველებს "user"-ში ათავსებს; გაგზავნეთ მომხმარებლის სახელი, ელფოსტა და პაროლი ზედა დონეზე.',
   'user.error.failedToUpdateUser': 'Momkhmareblis ganakhlieba ver mokherkhda.',
   'user.error.failedToDeleteUser': 'Momkhmareblis tsashla ver mokherkhda.',
   'user.error.failedToReadUser': 'Momkhmareblis tsaakitkhva ver mokherkhda.',

@@ -18,6 +18,10 @@ export const th: UserTranslations = {
   'user.notification.newLogin': 'เข้าสู่ระบบใหม่',
   'user.notification.newLoginBody': 'เข้าสู่ระบบใหม่จาก {{deviceName}}',
   'user.error.usernameCannotBeEmpty': 'ชื่อผู้ใช้ต้องไม่ว่างเปล่า',
+  'user.error.usernameInvalid':
+    'ชื่อผู้ใช้มีได้เฉพาะตัวอักษร ตัวเลข จุด ขีดกลาง และขีดล่างเท่านั้น',
+  'user.error.bodyNestedUnderUser':
+    'คำขอนี้ซ้อนฟิลด์ไว้ใต้ "user" โปรดส่งชื่อผู้ใช้ อีเมล และรหัสผ่านที่ระดับบนสุด',
   'user.error.failedToUpdateUser': 'อัปเดตผู้ใช้ไม่สำเร็จ',
   'user.error.failedToDeleteUser': 'ลบผู้ใช้ไม่สำเร็จ',
   'user.error.failedToReadUser': 'อ่านผู้ใช้ไม่สำเร็จ',

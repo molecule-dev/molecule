@@ -18,6 +18,10 @@ export const km: UserTranslations = {
   'user.notification.newLogin': 'ការចូលថ្មី',
   'user.notification.newLoginBody': 'ការចូលថ្មីពី {{deviceName}}។',
   'user.error.usernameCannotBeEmpty': 'ឈ្មោះអ្នកប្រើមិនអាចទទេ។',
+  'user.error.usernameInvalid':
+    'ឈ្មោះអ្នកប្រើអាចមានតែអក្សរ លេខ ចំណុច សញ្ញាដក និងសញ្ញាគូសក្រោមប៉ុណ្ណោះ។',
+  'user.error.bodyNestedUnderUser':
+    'សំណើនេះដាក់វាលរបស់វានៅក្រោម "user"; សូមផ្ញើឈ្មោះអ្នកប្រើ អ៊ីមែល និងពាក្យសម្ងាត់នៅកម្រិតខាងលើ។',
   'user.error.failedToUpdateUser': 'បរាជ័យក្នុងការធ្វើបច្ចុប្បន្នភាពអ្នកប្រើ។',
   'user.error.failedToDeleteUser': 'បរាជ័យក្នុងការលុបអ្នកប្រើ។',
   'user.error.failedToReadUser': 'បរាជ័យក្នុងការអានអ្នកប្រើ។',

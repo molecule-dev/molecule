@@ -18,6 +18,10 @@ export const mk: UserTranslations = {
   'user.notification.newLogin': 'Нова најава',
   'user.notification.newLoginBody': 'Нова најава од {{deviceName}}.',
   'user.error.usernameCannotBeEmpty': 'Корисничкото име не може да биде празно.',
+  'user.error.usernameInvalid':
+    'Корисничкото име може да содржи само букви, бројки, точки, цртички и долни црти.',
+  'user.error.bodyNestedUnderUser':
+    'Ова барање ги вгнездува своите полиња под "user"; испратете корисничко име, е-пошта и лозинка на највисокото ниво.',
   'user.error.failedToUpdateUser': 'Неуспешно ажурирање на корисникот.',
   'user.error.failedToDeleteUser': 'Неуспешно бришење на корисникот.',
   'user.error.failedToReadUser': 'Неуспешно читање на корисникот.',

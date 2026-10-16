@@ -16,6 +16,8 @@ export type UserTranslationKey =
   | 'user.notification.newLogin'
   | 'user.notification.newLoginBody'
   | 'user.error.usernameCannotBeEmpty'
+  | 'user.error.usernameInvalid'
+  | 'user.error.bodyNestedUnderUser'
   | 'user.error.failedToUpdateUser'
   | 'user.error.failedToDeleteUser'
   | 'user.error.failedToReadUser'

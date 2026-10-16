@@ -18,6 +18,10 @@ export const fil: UserTranslations = {
   'user.notification.newLogin': 'Bagong Login',
   'user.notification.newLoginBody': 'Bagong login mula sa {{deviceName}}.',
   'user.error.usernameCannotBeEmpty': 'Hindi maaaring walang laman ang username.',
+  'user.error.usernameInvalid':
+    'Ang username ay maaari lamang maglaman ng mga titik, numero, tuldok, gitling at underscore.',
+  'user.error.bodyNestedUnderUser':
+    'Inilalagay ng body na ito ang mga field nito sa ilalim ng "user"; ipadala ang username, email at password sa pinakamataas na antas.',
   'user.error.failedToUpdateUser': 'Nabigo ang pag-update ng user.',
   'user.error.failedToDeleteUser': 'Nabigo ang pagbura ng user.',
   'user.error.failedToReadUser': 'Nabigo ang pagbasa ng user.',

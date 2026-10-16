@@ -19,6 +19,10 @@ export const zu: UserTranslations = {
   'user.notification.newLogin': 'Ukungena Okusha',
   'user.notification.newLoginBody': 'Ukungena okusha kusuka ku-{{deviceName}}.',
   'user.error.usernameCannotBeEmpty': 'Igama lomsebenzisi alikwazi ukuba ngeze.',
+  'user.error.usernameInvalid':
+    'Igama lomsebenzisi lingaqukatha kuphela izinhlamvu, izinombolo, amachashazi, ama-hyphen nama-underscore.',
+  'user.error.bodyNestedUnderUser':
+    'Lesi sicelo sibeka izinkambu zaso ngaphansi kwe-"user"; thumela igama lomsebenzisi, i-imeyili nephasiwedi ezingeni eliphezulu.',
   'user.error.failedToUpdateUser': 'Yehlulekile ukubuyekeza umsebenzisi.',
   'user.error.failedToDeleteUser': 'Yehlulekile ukususa umsebenzisi.',
   'user.error.failedToReadUser': 'Yehlulekile ukufunda umsebenzisi.',

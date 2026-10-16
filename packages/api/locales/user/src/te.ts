@@ -18,6 +18,10 @@ export const te: UserTranslations = {
   'user.notification.newLogin': 'కొత్త లాగిన్',
   'user.notification.newLoginBody': '{{deviceName}} నుండి కొత్త లాగిన్.',
   'user.error.usernameCannotBeEmpty': 'వినియోగదారు పేరు ఖాళీగా ఉండకూడదు.',
+  'user.error.usernameInvalid':
+    'వినియోగదారు పేరులో అక్షరాలు, సంఖ్యలు, చుక్కలు, హైఫన్‌లు మరియు అండర్‌స్కోర్‌లు మాత్రమే ఉండవచ్చు.',
+  'user.error.bodyNestedUnderUser':
+    'ఈ అభ్యర్థన దాని ఫీల్డ్‌లను "user" కింద ఉంచుతుంది; వినియోగదారు పేరు, ఇమెయిల్ మరియు పాస్‌వర్డ్‌ను పై స్థాయిలో పంపండి.',
   'user.error.failedToUpdateUser': 'వినియోగదారుని అప్‌డేట్ చేయడంలో విఫలమైంది.',
   'user.error.failedToDeleteUser': 'వినియోగదారుని తొలగించడంలో విఫలమైంది.',
   'user.error.failedToReadUser': 'వినియోగదారుని చదవడంలో విఫలమైంది.',

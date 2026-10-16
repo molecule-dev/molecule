@@ -18,6 +18,10 @@ export const pl: UserTranslations = {
   'user.notification.newLogin': 'Nowe logowanie',
   'user.notification.newLoginBody': 'Nowe logowanie z {{deviceName}}.',
   'user.error.usernameCannotBeEmpty': 'Nazwa użytkownika nie może być pusta.',
+  'user.error.usernameInvalid':
+    'Nazwa użytkownika może zawierać tylko litery, cyfry, kropki, myślniki i podkreślenia.',
+  'user.error.bodyNestedUnderUser':
+    'To ciało zagnieżdża swoje pola pod "user"; wyślij nazwę użytkownika, e-mail i hasło na najwyższym poziomie.',
   'user.error.failedToUpdateUser': 'Nie udało się zaktualizować użytkownika.',
   'user.error.failedToDeleteUser': 'Nie udało się usunąć użytkownika.',
   'user.error.failedToReadUser': 'Nie udało się odczytać użytkownika.',

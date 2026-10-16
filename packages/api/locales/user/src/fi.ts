@@ -18,6 +18,10 @@ export const fi: UserTranslations = {
   'user.notification.newLogin': 'Uusi Kirjautuminen',
   'user.notification.newLoginBody': 'Uusi kirjautuminen laitteesta {{deviceName}}.',
   'user.error.usernameCannotBeEmpty': 'Käyttäjänimi ei voi olla tyhjä.',
+  'user.error.usernameInvalid':
+    'Käyttäjänimessä saa olla vain kirjaimia, numeroita, pisteitä, yhdysmerkkejä ja alaviivoja.',
+  'user.error.bodyNestedUnderUser':
+    'Tämä runko sijoittaa kenttänsä kohteen "user" alle; lähetä käyttäjänimi, sähköposti ja salasana ylimmällä tasolla.',
   'user.error.failedToUpdateUser': 'Käyttäjän päivitys epäonnistui.',
   'user.error.failedToDeleteUser': 'Käyttäjän poisto epäonnistui.',
   'user.error.failedToReadUser': 'Käyttäjän lukeminen epäonnistui.',

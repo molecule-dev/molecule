@@ -18,6 +18,10 @@ export const pt: UserTranslations = {
   'user.notification.newLogin': 'Novo início de sessão',
   'user.notification.newLoginBody': 'Novo início de sessão a partir de {{deviceName}}.',
   'user.error.usernameCannotBeEmpty': 'O nome de utilizador não pode estar vazio.',
+  'user.error.usernameInvalid':
+    'O nome de usuário só pode conter letras, números, pontos, hifens e sublinhados.',
+  'user.error.bodyNestedUnderUser':
+    'Este corpo aninha seus campos sob "user"; envie nome de usuário, e-mail e senha no nível superior.',
   'user.error.failedToUpdateUser': 'Não foi possível atualizar o utilizador.',
   'user.error.failedToDeleteUser': 'Não foi possível eliminar o utilizador.',
   'user.error.failedToReadUser': 'Não foi possível ler o utilizador.',

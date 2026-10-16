@@ -18,6 +18,10 @@ export const lv: UserTranslations = {
   'user.notification.newLogin': 'Jauna Pieteikšanās',
   'user.notification.newLoginBody': 'Jauna pieteikšanās no {{deviceName}}.',
   'user.error.usernameCannotBeEmpty': 'Lietotājvārds nevar būt tukšs.',
+  'user.error.usernameInvalid':
+    'Lietotājvārdā drīkst būt tikai burti, cipari, punkti, defises un pasvītras.',
+  'user.error.bodyNestedUnderUser':
+    'Šis pieprasījums ievieto savus laukus zem "user"; sūtiet lietotājvārdu, e-pastu un paroli augšējā līmenī.',
   'user.error.failedToUpdateUser': 'Neizdevās atjaunināt lietotāju.',
   'user.error.failedToDeleteUser': 'Neizdevās dzēst lietotāju.',
   'user.error.failedToReadUser': 'Neizdevās nolasīt lietotāju.',

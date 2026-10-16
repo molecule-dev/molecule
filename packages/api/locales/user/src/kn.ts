@@ -18,6 +18,10 @@ export const kn: UserTranslations = {
   'user.notification.newLogin': 'ಹೊಸ ಲಾಗಿನ್',
   'user.notification.newLoginBody': '{{deviceName}} ಯಿಂದ ಹೊಸ ಲಾಗಿನ್.',
   'user.error.usernameCannotBeEmpty': 'ಬಳಕೆದಾರ ಹೆಸರು ಖಾಲಿ ಇರಬಾರದು.',
+  'user.error.usernameInvalid':
+    'ಬಳಕೆದಾರ ಹೆಸರಿನಲ್ಲಿ ಅಕ್ಷರಗಳು, ಸಂಖ್ಯೆಗಳು, ಚುಕ್ಕೆಗಳು, ಹೈಫನ್‌ಗಳು ಮತ್ತು ಅಂಡರ್‌ಸ್ಕೋರ್‌ಗಳು ಮಾತ್ರ ಇರಬಹುದು.',
+  'user.error.bodyNestedUnderUser':
+    'ಈ ವಿನಂತಿಯು ತನ್ನ ಕ್ಷೇತ್ರಗಳನ್ನು "user" ಒಳಗೆ ಇರಿಸುತ್ತದೆ; ಬಳಕೆದಾರ ಹೆಸರು, ಇಮೇಲ್ ಮತ್ತು ಪಾಸ್‌ವರ್ಡ್ ಅನ್ನು ಮೇಲಿನ ಮಟ್ಟದಲ್ಲಿ ಕಳುಹಿಸಿ.',
   'user.error.failedToUpdateUser': 'ಬಳಕೆದಾರರನ್ನು ನವೀಕರಿಸಲು ವಿಫಲ.',
   'user.error.failedToDeleteUser': 'ಬಳಕೆದಾರರನ್ನು ಅಳಿಸಲು ವಿಫಲ.',
   'user.error.failedToReadUser': 'ಬಳಕೆದಾರರನ್ನು ಓದಲು ವಿಫಲ.',

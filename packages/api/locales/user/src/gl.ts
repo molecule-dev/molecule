@@ -18,6 +18,10 @@ export const gl: UserTranslations = {
   'user.notification.newLogin': 'Novo inicio de sesión',
   'user.notification.newLoginBody': 'Novo inicio de sesión desde {{deviceName}}.',
   'user.error.usernameCannotBeEmpty': 'O nome de usuario non pode estar baleiro.',
+  'user.error.usernameInvalid':
+    'O nome de usuario só pode conter letras, números, puntos, guións e guións baixos.',
+  'user.error.bodyNestedUnderUser':
+    'Este corpo aniña os seus campos baixo "user"; envía o nome de usuario, o correo e o contrasinal no nivel superior.',
   'user.error.failedToUpdateUser': 'Non se puido actualizar o usuario.',
   'user.error.failedToDeleteUser': 'Non se puido eliminar o usuario.',
   'user.error.failedToReadUser': 'Non se puido ler o usuario.',

@@ -18,6 +18,10 @@ export const ga: UserTranslations = {
   'user.notification.newLogin': 'Logáil Isteach Nua',
   'user.notification.newLoginBody': 'Logáil isteach nua ó {{deviceName}}.',
   'user.error.usernameCannotBeEmpty': 'Ní féidir le hainm úsáideora a bheith folamh.',
+  'user.error.usernameInvalid':
+    'Ní féidir ach litreacha, uimhreacha, poncanna, fleiscíní agus fostríocanna a bheith in ainm úsáideora.',
+  'user.error.bodyNestedUnderUser':
+    'Neadaíonn an corp seo a réimsí faoi "user"; seol ainm úsáideora, ríomhphost agus pasfhocal ag an mbarrleibhéal.',
   'user.error.failedToUpdateUser': 'Theip ar nuashonrú úsáideora.',
   'user.error.failedToDeleteUser': 'Theip ar scriosadh úsáideora.',
   'user.error.failedToReadUser': 'Theip ar léamh úsáideora.',

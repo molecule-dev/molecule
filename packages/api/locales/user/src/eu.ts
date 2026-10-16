@@ -18,6 +18,10 @@ export const eu: UserTranslations = {
   'user.notification.newLogin': 'Saio-hasiera berria',
   'user.notification.newLoginBody': 'Saio-hasiera berria {{deviceName}} gailutik.',
   'user.error.usernameCannotBeEmpty': 'Erabiltzaile-izena ezin da hutsik egon.',
+  'user.error.usernameInvalid':
+    'Erabiltzaile-izenak letrak, zenbakiak, puntuak, marratxoak eta azpimarrak soilik izan ditzake.',
+  'user.error.bodyNestedUnderUser':
+    'Gorputz honek bere eremuak "user" barruan habiaratzen ditu; bidali erabiltzaile-izena, posta eta pasahitza goiko mailan.',
   'user.error.failedToUpdateUser': 'Ezin izan da erabiltzailea eguneratu.',
   'user.error.failedToDeleteUser': 'Ezin izan da erabiltzailea ezabatu.',
   'user.error.failedToReadUser': 'Ezin izan da erabiltzailea irakurri.',

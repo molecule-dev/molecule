@@ -18,6 +18,10 @@ export const lt: UserTranslations = {
   'user.notification.newLogin': 'Naujas Prisijungimas',
   'user.notification.newLoginBody': 'Naujas prisijungimas iš {{deviceName}}.',
   'user.error.usernameCannotBeEmpty': 'Naudotojo vardas negali būti tuščias.',
+  'user.error.usernameInvalid':
+    'Naudotojo varde gali būti tik raidės, skaičiai, taškai, brūkšneliai ir pabraukimai.',
+  'user.error.bodyNestedUnderUser':
+    'Ši užklausa savo laukus deda po "user"; siųskite naudotojo vardą, el. paštą ir slaptažodį aukščiausiame lygyje.',
   'user.error.failedToUpdateUser': 'Nepavyko atnaujinti naudotojo.',
   'user.error.failedToDeleteUser': 'Nepavyko ištrinti naudotojo.',
   'user.error.failedToReadUser': 'Nepavyko perskaityti naudotojo.',

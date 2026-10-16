@@ -25,7 +25,21 @@
  * `deviceId` names an ACTIVE row in `devices`. A JWT you `sign()` with an invented `deviceId`
  * is answered 401 on every route. Mint sessions the way the built-in login does — create the
  * device with `get('device').createOrUpdate(userId, deviceName)` (it returns the device id; or call
- * `authorization.set(…)`) and sign that id — instead of inventing one.
+ * `authorization.set(…)`) and sign that id — instead of inventing one. Return the user
+ * through `utilities.stripSensitiveUserColumns(row)` so no secret column reaches the client.
+ *
+ * **A different wire format** (RealWorld's `{ user: { … } }`): the route handlers read a
+ * FLAT body (`req.body.username`, `req.body.password`) and are not a wire-format adapter —
+ * a nested body is answered 400 `user.error.bodyNestedUnderUser`. Unwrap the envelope
+ * before calling a handler, or write the route yourself. A username keeps exactly what was
+ * sent (letters, digits, `.`, `-`, `_`); anything else is answered 400
+ * `user.error.usernameInvalid`, never rewritten.
+ *
+ * **A token-only JSON API:** `verifyMiddleware()` also accepts the `token` cookie that
+ * login sets, so a client that keeps a cookie jar (an HTTP test runner, `curl -b`) is
+ * still signed in on a request that sends no `Authorization` header, and gets 200 where a
+ * spec expects 401. Mount `verifyMiddleware({ allowCookieSession: false })` for an API
+ * whose clients send the header.
  *
  * **Revoking a session yourself:** the middleware caches "this device exists" for 10 s per
  * process, so a hand-written logout that deletes the `devices` row keeps authorizing that

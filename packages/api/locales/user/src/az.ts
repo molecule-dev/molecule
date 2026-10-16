@@ -18,6 +18,10 @@ export const az: UserTranslations = {
   'user.notification.newLogin': 'Yeni Giriş',
   'user.notification.newLoginBody': '{{deviceName}} cihazından yeni giriş.',
   'user.error.usernameCannotBeEmpty': 'İstifadəçi adı boş ola bilməz.',
+  'user.error.usernameInvalid':
+    'İstifadəçi adı yalnız hərflər, rəqəmlər, nöqtələr, defislər və alt xətlərdən ibarət ola bilər.',
+  'user.error.bodyNestedUnderUser':
+    'Bu sorğu sahələrini "user" altında yerləşdirir; istifadəçi adı, e-poçt və şifrəni yuxarı səviyyədə göndərin.',
   'user.error.failedToUpdateUser': 'İstifadəçi yenilənə bilmədi.',
   'user.error.failedToDeleteUser': 'İstifadəçi silinə bilmədi.',
   'user.error.failedToReadUser': 'İstifadəçi oxuna bilmədi.',

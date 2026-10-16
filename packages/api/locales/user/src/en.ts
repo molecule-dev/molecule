@@ -18,6 +18,10 @@ export const en: UserTranslations = {
   'user.notification.newLogin': 'New Login',
   'user.notification.newLoginBody': 'New login from {{deviceName}}.',
   'user.error.usernameCannotBeEmpty': 'Username cannot be empty.',
+  'user.error.usernameInvalid':
+    'Username may use only letters, numbers, dots, hyphens and underscores.',
+  'user.error.bodyNestedUnderUser':
+    'This body nests its fields under "user"; send username, email and password at the top level.',
   'user.error.failedToUpdateUser': 'Failed to update user.',
   'user.error.failedToDeleteUser': 'Failed to delete user.',
   'user.error.failedToReadUser': 'Failed to read user.',

@@ -18,6 +18,10 @@ export const sq: UserTranslations = {
   'user.notification.newLogin': 'Hyrje e Re',
   'user.notification.newLoginBody': 'Hyrje e re nga {{deviceName}}.',
   'user.error.usernameCannotBeEmpty': 'Emri i perdoruesit nuk mund te jete bosh.',
+  'user.error.usernameInvalid':
+    'Emri i përdoruesit mund të përmbajë vetëm shkronja, numra, pika, viza dhe nënvizime.',
+  'user.error.bodyNestedUnderUser':
+    'Ky trup i fut fushat e tij nën "user"; dërgoni emrin e përdoruesit, email-in dhe fjalëkalimin në nivelin më të lartë.',
   'user.error.failedToUpdateUser': 'Deshtoi perditesimi i perdoruesit.',
   'user.error.failedToDeleteUser': 'Deshtoi fshirja e perdoruesit.',
   'user.error.failedToReadUser': 'Deshtoi leximi i perdoruesit.',

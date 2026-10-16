@@ -18,6 +18,10 @@ export const kk: UserTranslations = {
   'user.notification.newLogin': 'Жаңа кіру',
   'user.notification.newLoginBody': '{{deviceName}} құрылғысынан жаңа кіру.',
   'user.error.usernameCannotBeEmpty': 'Пайдаланушы аты бос болуы мүмкін емес.',
+  'user.error.usernameInvalid':
+    'Пайдаланушы атында тек әріптер, сандар, нүктелер, сызықшалар және астын сызу белгілері болуы мүмкін.',
+  'user.error.bodyNestedUnderUser':
+    'Бұл сұрау өрістерін "user" ішіне орналастырады; пайдаланушы атын, электрондық поштаны және құпиясөзді жоғарғы деңгейде жіберіңіз.',
   'user.error.failedToUpdateUser': 'Пайдаланушыны жаңарту сәтсіз аяқталды.',
   'user.error.failedToDeleteUser': 'Пайдаланушыны жою сәтсіз аяқталды.',
   'user.error.failedToReadUser': 'Пайдаланушыны оқу сәтсіз аяқталды.',

@@ -18,6 +18,10 @@ export const hu: UserTranslations = {
   'user.notification.newLogin': 'Új Bejelentkezés',
   'user.notification.newLoginBody': 'Új bejelentkezés erről: {{deviceName}}.',
   'user.error.usernameCannotBeEmpty': 'A felhasználónév nem lehet üres.',
+  'user.error.usernameInvalid':
+    'A felhasználónév csak betűket, számokat, pontokat, kötőjeleket és aláhúzásjeleket tartalmazhat.',
+  'user.error.bodyNestedUnderUser':
+    'Ez a kéréstörzs a mezőit a "user" alá ágyazza; a felhasználónevet, az e-mailt és a jelszót a legfelső szinten küldje.',
   'user.error.failedToUpdateUser': 'A felhasználó frissítése sikertelen.',
   'user.error.failedToDeleteUser': 'A felhasználó törlése sikertelen.',
   'user.error.failedToReadUser': 'A felhasználó olvasása sikertelen.',

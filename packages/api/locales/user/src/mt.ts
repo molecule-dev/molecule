@@ -18,6 +18,10 @@ export const mt: UserTranslations = {
   'user.notification.newLogin': 'Dhul Gdid',
   'user.notification.newLoginBody': 'Dhul gdid minn {{deviceName}}.',
   'user.error.usernameCannotBeEmpty': 'Username ma jistax ikun vojt.',
+  'user.error.usernameInvalid':
+    "L-isem tal-utent jista' jkun fih biss ittri, numri, tikki, sing u sing taħt.",
+  'user.error.bodyNestedUnderUser':
+    'Dan il-korp ipoġġi l-oqsma tiegħu taħt "user"; ibgħat l-isem tal-utent, l-email u l-password fil-livell ta\' fuq.',
   'user.error.failedToUpdateUser': 'Ma rnexxiex taggorna l-utent.',
   'user.error.failedToDeleteUser': 'Ma rnexxiex thasssar l-utent.',
   'user.error.failedToReadUser': 'Ma rnexxiex taqra l-utent.',

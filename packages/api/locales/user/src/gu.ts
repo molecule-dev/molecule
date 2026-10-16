@@ -18,6 +18,10 @@ export const gu: UserTranslations = {
   'user.notification.newLogin': 'નવું લૉગિન',
   'user.notification.newLoginBody': '{{deviceName}} થી નવું લૉગિન.',
   'user.error.usernameCannotBeEmpty': 'વપરાશકર્તા નામ ખાલી ન હોઈ શકે.',
+  'user.error.usernameInvalid':
+    'વપરાશકર્તાનામમાં ફક્ત અક્ષરો, અંકો, પૂર્ણવિરામ, હાઇફન અને અન્ડરસ્કોર હોઈ શકે છે.',
+  'user.error.bodyNestedUnderUser':
+    'આ વિનંતી તેના ક્ષેત્રોને "user" હેઠળ મૂકે છે; વપરાશકર્તાનામ, ઇમેઇલ અને પાસવર્ડ ટોચના સ્તરે મોકલો.',
   'user.error.failedToUpdateUser': 'વપરાશકર્તા અપડેટ કરવામાં નિષ્ફળ.',
   'user.error.failedToDeleteUser': 'વપરાશકર્તા કાઢી નાખવામાં નિષ્ફળ.',
   'user.error.failedToReadUser': 'વપરાશકર્તા વાંચવામાં નિષ્ફળ.',

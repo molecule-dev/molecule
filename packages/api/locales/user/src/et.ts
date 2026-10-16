@@ -18,6 +18,10 @@ export const et: UserTranslations = {
   'user.notification.newLogin': 'Uus Sisselogimine',
   'user.notification.newLoginBody': 'Uus sisselogimine seadmest {{deviceName}}.',
   'user.error.usernameCannotBeEmpty': 'Kasutajanimi ei tohi olla tühi.',
+  'user.error.usernameInvalid':
+    'Kasutajanimi võib sisaldada ainult tähti, numbreid, punkte, sidekriipse ja alakriipse.',
+  'user.error.bodyNestedUnderUser':
+    'See päring paigutab oma väljad "user" alla; saatke kasutajanimi, e-post ja parool ülemisel tasemel.',
   'user.error.failedToUpdateUser': 'Kasutaja uuendamine ebaõnnestus.',
   'user.error.failedToDeleteUser': 'Kasutaja kustutamine ebaõnnestus.',
   'user.error.failedToReadUser': 'Kasutaja lugemine ebaõnnestus.',

@@ -18,6 +18,10 @@ export const bn: UserTranslations = {
   'user.notification.newLogin': 'নতুন লগইন',
   'user.notification.newLoginBody': '{{deviceName}} থেকে নতুন লগইন।',
   'user.error.usernameCannotBeEmpty': 'ব্যবহারকারীর নাম খালি রাখা যাবে না।',
+  'user.error.usernameInvalid':
+    'ব্যবহারকারীর নামে শুধু অক্ষর, সংখ্যা, বিন্দু, হাইফেন এবং আন্ডারস্কোর থাকতে পারে।',
+  'user.error.bodyNestedUnderUser':
+    'এই অনুরোধ তার ক্ষেত্রগুলি "user"-এর ভিতরে রাখে; ব্যবহারকারীর নাম, ইমেল এবং পাসওয়ার্ড শীর্ষ স্তরে পাঠান।',
   'user.error.failedToUpdateUser': 'ব্যবহারকারী আপডেট করতে ব্যর্থ।',
   'user.error.failedToDeleteUser': 'ব্যবহারকারী মুছতে ব্যর্থ।',
   'user.error.failedToReadUser': 'ব্যবহারকারী পড়তে ব্যর্থ।',

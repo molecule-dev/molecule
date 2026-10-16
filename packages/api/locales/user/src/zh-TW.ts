@@ -18,6 +18,9 @@ export const zhTW: UserTranslations = {
   'user.notification.newLogin': '新登入',
   'user.notification.newLoginBody': '來自 {{deviceName}} 的新登入。',
   'user.error.usernameCannotBeEmpty': '使用者名稱不能為空。',
+  'user.error.usernameInvalid': '使用者名稱只能包含字母、數字、句點、連字號和底線。',
+  'user.error.bodyNestedUnderUser':
+    '此請求主體將欄位巢狀放在 "user" 之下；請在最上層傳送使用者名稱、電子郵件和密碼。',
   'user.error.failedToUpdateUser': '更新使用者失敗。',
   'user.error.failedToDeleteUser': '刪除使用者失敗。',
   'user.error.failedToReadUser': '讀取使用者失敗。',

@@ -18,6 +18,10 @@ export const ja: UserTranslations = {
   'user.notification.newLogin': '新しいログイン',
   'user.notification.newLoginBody': '{{deviceName}}から新しいログインがありました。',
   'user.error.usernameCannotBeEmpty': 'ユーザー名を空にすることはできません。',
+  'user.error.usernameInvalid':
+    'ユーザー名に使えるのは英字、数字、ピリオド、ハイフン、アンダースコアのみです。',
+  'user.error.bodyNestedUnderUser':
+    'このボディはフィールドを "user" の下に入れています。ユーザー名、メールアドレス、パスワードは最上位に置いて送信してください。',
   'user.error.failedToUpdateUser': 'ユーザーの更新に失敗しました。',
   'user.error.failedToDeleteUser': 'ユーザーの削除に失敗しました。',
   'user.error.failedToReadUser': 'ユーザーの読み取りに失敗しました。',

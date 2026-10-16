@@ -261,6 +261,54 @@ describe('create handler — password validation', () => {
   })
 })
 
+describe('create handler — username and body shape', () => {
+  const handler = create(testResource)
+
+  it('stores a username with dots, hyphens and underscores exactly as sent', async () => {
+    mockFindOne.mockResolvedValue(null)
+    mockHash.mockResolvedValue('hashed-password')
+    mockStoreCreate.mockResolvedValue({ affected: 1 })
+    mockResourceCreate.mockResolvedValue({
+      statusCode: 201,
+      body: { props: { id: '00000000-0000-0000-0000-000000000001', username: 'art_x.y-1' } },
+    })
+    mockGet.mockReturnValue({ createOrUpdate: vi.fn().mockResolvedValue('device-id') })
+
+    const req = makeReq({ body: { username: 'art_x.y-1', password: 'password1' } })
+    await handler(req as MoleculeRequest, makeRes() as MoleculeResponse)
+
+    expect(mockResourceCreate.mock.calls.at(-1)?.[0]).toMatchObject({
+      props: expect.objectContaining({ username: 'art_x.y-1' }),
+    })
+  })
+
+  it('refuses a username with other characters instead of rewriting it', async () => {
+    const req = makeReq({ body: { username: 'jane doe!', password: 'password1' } })
+    const result = await handler(req as MoleculeRequest, makeRes() as MoleculeResponse)
+
+    expect(result).toEqual(
+      expect.objectContaining({
+        statusCode: 400,
+        body: expect.objectContaining({ errorKey: 'user.error.usernameInvalid' }),
+      }),
+    )
+  })
+
+  it('names a body nested under user instead of answering password required', async () => {
+    const req = makeReq({
+      body: { user: { username: 'jane', email: 'j@example.com', password: 'password1' } },
+    })
+    const result = await handler(req as MoleculeRequest, makeRes() as MoleculeResponse)
+
+    expect(result).toEqual(
+      expect.objectContaining({
+        statusCode: 400,
+        body: expect.objectContaining({ errorKey: 'user.error.bodyNestedUnderUser' }),
+      }),
+    )
+  })
+})
+
 // ===== 1b. Privileged-field mass-assignment prevention (create.ts) =========
 
 describe('create handler — privileged field mass-assignment prevention (P2E-1)', () => {
@@ -1434,17 +1482,17 @@ describe('logInOAuth handler — username derivation on account creation', () =>
     // GitLab-style handle.
     wireGet('octo-fan@gitlab')
     await run()
-    expect(createdUsername()).toBe('octofan')
+    expect(createdUsername()).toBe('octo-fan')
 
     // Google-style email-based handle (email, then `@google`).
     wireGet('jane.doe@gmail.com@google')
     await run()
-    expect(createdUsername()).toBe('janedoe')
+    expect(createdUsername()).toBe('jane.doe')
 
     // A bond that ignores the `handle@provider` contract entirely (no `@`).
     wireGet('zoe.chan')
     await run()
-    expect(createdUsername()).toBe('zoechan')
+    expect(createdUsername()).toBe('zoe.chan')
   })
 
   it('falls back to the oauthId when the provider sends no username at all', async () => {
@@ -1453,7 +1501,7 @@ describe('logInOAuth handler — username derivation on account creation', () =>
     const result = await run()
 
     expect(result?.statusCode).toBe(200)
-    expect(createdUsername()).toBe('gh98765')
+    expect(createdUsername()).toBe('gh-98765')
   })
 
   it('falls back to the oauthId when the handle sanitizes to nothing (never the provider name)', async () => {

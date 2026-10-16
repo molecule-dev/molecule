@@ -18,6 +18,10 @@ export const cy: UserTranslations = {
   'user.notification.newLogin': 'Mewngofnodiad Newydd',
   'user.notification.newLoginBody': 'Mewngofnodiad newydd o {{deviceName}}.',
   'user.error.usernameCannotBeEmpty': 'Ni all enw defnyddiwr fod yn wag.',
+  'user.error.usernameInvalid':
+    'Dim ond llythrennau, rhifau, dotiau, cysylltnodau a thanlinellau y gall enw defnyddiwr eu cynnwys.',
+  'user.error.bodyNestedUnderUser':
+    'Mae\'r corff hwn yn nythu ei feysydd o dan "user"; anfonwch enw defnyddiwr, e-bost a chyfrinair ar y lefel uchaf.',
   'user.error.failedToUpdateUser': 'Methwyd diweddaru defnyddiwr.',
   'user.error.failedToDeleteUser': 'Methwyd dileu defnyddiwr.',
   'user.error.failedToReadUser': 'Methwyd darllen defnyddiwr.',

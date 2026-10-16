@@ -18,6 +18,10 @@ export const da: UserTranslations = {
   'user.notification.newLogin': 'Nyt login',
   'user.notification.newLoginBody': 'Nyt login fra {{deviceName}}.',
   'user.error.usernameCannotBeEmpty': 'Brugernavn må ikke være tomt.',
+  'user.error.usernameInvalid':
+    'Brugernavnet må kun indeholde bogstaver, tal, punktummer, bindestreger og understregninger.',
+  'user.error.bodyNestedUnderUser':
+    'Denne forespørgsel indlejrer sine felter under "user"; send brugernavn, e-mail og adgangskode på øverste niveau.',
   'user.error.failedToUpdateUser': 'Kunne ikke opdatere bruger.',
   'user.error.failedToDeleteUser': 'Kunne ikke slette bruger.',
   'user.error.failedToReadUser': 'Kunne ikke læse bruger.',

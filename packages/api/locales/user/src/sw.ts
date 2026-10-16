@@ -18,6 +18,10 @@ export const sw: UserTranslations = {
   'user.notification.newLogin': 'Kuingia Mpya',
   'user.notification.newLoginBody': 'Kuingia mpya kutoka {{deviceName}}.',
   'user.error.usernameCannotBeEmpty': 'Jina la mtumiaji haliwezi kuwa tupu.',
+  'user.error.usernameInvalid':
+    'Jina la mtumiaji linaweza kuwa na herufi, nambari, nukta, vistari na mistari ya chini pekee.',
+  'user.error.bodyNestedUnderUser':
+    'Ombi hili linaweka sehemu zake chini ya "user"; tuma jina la mtumiaji, barua pepe na nenosiri katika kiwango cha juu.',
   'user.error.failedToUpdateUser': 'Imeshindwa kusasisha mtumiaji.',
   'user.error.failedToDeleteUser': 'Imeshindwa kufuta mtumiaji.',
   'user.error.failedToReadUser': 'Imeshindwa kusoma mtumiaji.',

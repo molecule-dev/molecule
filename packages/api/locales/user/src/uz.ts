@@ -18,6 +18,10 @@ export const uz: UserTranslations = {
   'user.notification.newLogin': 'Yangi kirish',
   'user.notification.newLoginBody': '{{deviceName}} qurilmasidan yangi kirish.',
   'user.error.usernameCannotBeEmpty': "Foydalanuvchi nomi bo'sh bo'lishi mumkin emas.",
+  'user.error.usernameInvalid':
+    'Foydalanuvchi nomida faqat harflar, raqamlar, nuqtalar, chiziqchalar va pastki chiziqlar boʻlishi mumkin.',
+  'user.error.bodyNestedUnderUser':
+    'Bu soʻrov maydonlarini "user" ichiga joylaydi; foydalanuvchi nomi, email va parolni yuqori darajada yuboring.',
   'user.error.failedToUpdateUser': "Foydalanuvchini yangilab bo'lmadi.",
   'user.error.failedToDeleteUser': "Foydalanuvchini o'chirib bo'lmadi.",
   'user.error.failedToReadUser': "Foydalanuvchini o'qib bo'lmadi.",

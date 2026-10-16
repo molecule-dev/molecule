@@ -18,6 +18,10 @@ export const vi: UserTranslations = {
   'user.notification.newLogin': 'Đăng nhập mới',
   'user.notification.newLoginBody': 'Đăng nhập mới từ {{deviceName}}.',
   'user.error.usernameCannotBeEmpty': 'Tên người dùng không được để trống.',
+  'user.error.usernameInvalid':
+    'Tên người dùng chỉ được chứa chữ cái, chữ số, dấu chấm, dấu gạch ngang và dấu gạch dưới.',
+  'user.error.bodyNestedUnderUser':
+    'Phần thân này lồng các trường của nó dưới "user"; hãy gửi tên người dùng, email và mật khẩu ở cấp cao nhất.',
   'user.error.failedToUpdateUser': 'Cập nhật người dùng thất bại.',
   'user.error.failedToDeleteUser': 'Xóa người dùng thất bại.',
   'user.error.failedToReadUser': 'Đọc người dùng thất bại.',

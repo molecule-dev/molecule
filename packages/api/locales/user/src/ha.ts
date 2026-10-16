@@ -18,6 +18,10 @@ export const ha: UserTranslations = {
   'user.notification.newLogin': 'Sabuwar shiga',
   'user.notification.newLoginBody': 'Sabuwar shiga daga {{deviceName}}.',
   'user.error.usernameCannotBeEmpty': 'Sunan mai amfani ba zai iya zama fanko ba.',
+  'user.error.usernameInvalid':
+    'Sunan mai amfani zai iya ƙunsar haruffa, lambobi, ɗigo, layi da layin ƙasa kawai.',
+  'user.error.bodyNestedUnderUser':
+    'Wannan buƙatar tana saka filayenta ƙarƙashin "user"; aika sunan mai amfani, imel da kalmar sirri a babban mataki.',
   'user.error.failedToUpdateUser': 'An kasa sabunta mai amfani.',
   'user.error.failedToDeleteUser': 'An kasa share mai amfani.',
   'user.error.failedToReadUser': 'An kasa karanta mai amfani.',

@@ -18,6 +18,10 @@ export const id: UserTranslations = {
   'user.notification.newLogin': 'Login Baru',
   'user.notification.newLoginBody': 'Login baru dari {{deviceName}}.',
   'user.error.usernameCannotBeEmpty': 'Username tidak boleh kosong.',
+  'user.error.usernameInvalid':
+    'Nama pengguna hanya boleh berisi huruf, angka, titik, tanda hubung, dan garis bawah.',
+  'user.error.bodyNestedUnderUser':
+    'Body ini menaruh kolomnya di bawah "user"; kirim nama pengguna, email, dan kata sandi di tingkat teratas.',
   'user.error.failedToUpdateUser': 'Gagal memperbarui pengguna.',
   'user.error.failedToDeleteUser': 'Gagal menghapus pengguna.',
   'user.error.failedToReadUser': 'Gagal membaca pengguna.',

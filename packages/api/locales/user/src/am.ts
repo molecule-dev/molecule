@@ -18,6 +18,9 @@ export const am: UserTranslations = {
   'user.notification.newLogin': 'አዲስ መግቢያ',
   'user.notification.newLoginBody': 'ከ{{deviceName}} አዲስ መግቢያ።',
   'user.error.usernameCannotBeEmpty': 'የተጠቃሚ ስም ባዶ መሆን አይችልም።',
+  'user.error.usernameInvalid': 'የተጠቃሚ ስም ፊደሎችን፣ ቁጥሮችን፣ ነጥቦችን፣ ሰረዞችን እና የስር መስመሮችን ብቻ መያዝ ይችላል።',
+  'user.error.bodyNestedUnderUser':
+    'ይህ አካል መስኮቹን በ"user" ስር ያስቀምጣል፤ የተጠቃሚ ስም፣ ኢሜይል እና የይለፍ ቃል በላይኛው ደረጃ ይላኩ።',
   'user.error.failedToUpdateUser': 'ተጠቃሚን ማዘመን አልተሳካም።',
   'user.error.failedToDeleteUser': 'ተጠቃሚን መሰረዝ አልተሳካም።',
   'user.error.failedToReadUser': 'ተጠቃሚን ማንበብ አልተሳካም።',

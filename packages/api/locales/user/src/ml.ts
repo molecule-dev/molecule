@@ -18,6 +18,10 @@ export const ml: UserTranslations = {
   'user.notification.newLogin': 'പുതിയ ലോഗിൻ',
   'user.notification.newLoginBody': '{{deviceName}} ൽ നിന്ന് പുതിയ ലോഗിൻ.',
   'user.error.usernameCannotBeEmpty': 'ഉപയോക്തൃനാമം ശൂന്യമാകരുത്.',
+  'user.error.usernameInvalid':
+    'ഉപയോക്തൃനാമത്തിൽ അക്ഷരങ്ങൾ, അക്കങ്ങൾ, കുത്തുകൾ, ഹൈഫനുകൾ, അണ്ടർസ്കോറുകൾ എന്നിവ മാത്രമേ ഉണ്ടാകാവൂ.',
+  'user.error.bodyNestedUnderUser':
+    'ഈ അഭ്യർത്ഥന അതിന്റെ ഫീൽഡുകൾ "user" ന് കീഴിൽ വയ്ക്കുന്നു; ഉപയോക്തൃനാമം, ഇമെയിൽ, പാസ്‌വേഡ് എന്നിവ മുകളിലെ തലത്തിൽ അയയ്ക്കുക.',
   'user.error.failedToUpdateUser': 'ഉപയോക്താവിനെ അപ്‌ഡേറ്റ് ചെയ്യുന്നതിൽ പരാജയപ്പെട്ടു.',
   'user.error.failedToDeleteUser': 'ഉപയോക്താവിനെ ഇല്ലാതാക്കുന്നതിൽ പരാജയപ്പെട്ടു.',
   'user.error.failedToReadUser': 'ഉപയോക്താവിനെ വായിക്കുന്നതിൽ പരാജയപ്പെട്ടു.',

@@ -18,6 +18,10 @@ export const ru: UserTranslations = {
   'user.notification.newLogin': 'Новый вход',
   'user.notification.newLoginBody': 'Новый вход с {{deviceName}}.',
   'user.error.usernameCannotBeEmpty': 'Имя пользователя не может быть пустым.',
+  'user.error.usernameInvalid':
+    'Имя пользователя может содержать только буквы, цифры, точки, дефисы и подчёркивания.',
+  'user.error.bodyNestedUnderUser':
+    'Этот запрос вкладывает поля в "user"; отправьте имя пользователя, электронную почту и пароль на верхнем уровне.',
   'user.error.failedToUpdateUser': 'Не удалось обновить пользователя.',
   'user.error.failedToDeleteUser': 'Не удалось удалить пользователя.',
   'user.error.failedToReadUser': 'Не удалось прочитать пользователя.',

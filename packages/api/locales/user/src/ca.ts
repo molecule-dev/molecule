@@ -18,6 +18,10 @@ export const ca: UserTranslations = {
   'user.notification.newLogin': 'Nou inici de sessió',
   'user.notification.newLoginBody': 'Nou inici de sessió des de {{deviceName}}.',
   'user.error.usernameCannotBeEmpty': "El nom d'usuari no pot estar buit.",
+  'user.error.usernameInvalid':
+    "El nom d'usuari només pot contenir lletres, números, punts, guions i guions baixos.",
+  'user.error.bodyNestedUnderUser':
+    'Aquest cos niua els seus camps sota "user"; envieu el nom d\'usuari, el correu electrònic i la contrasenya al nivell superior.',
   'user.error.failedToUpdateUser': "No s'ha pogut actualitzar l'usuari.",
   'user.error.failedToDeleteUser': "No s'ha pogut eliminar l'usuari.",
   'user.error.failedToReadUser': "No s'ha pogut llegir l'usuari.",

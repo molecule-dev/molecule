@@ -18,6 +18,10 @@ export const ms: UserTranslations = {
   'user.notification.newLogin': 'Log Masuk Baharu',
   'user.notification.newLoginBody': 'Log masuk baharu dari {{deviceName}}.',
   'user.error.usernameCannotBeEmpty': 'Nama pengguna tidak boleh kosong.',
+  'user.error.usernameInvalid':
+    'Nama pengguna hanya boleh mengandungi huruf, nombor, titik, sempang dan garis bawah.',
+  'user.error.bodyNestedUnderUser':
+    'Badan ini meletakkan medannya di bawah "user"; hantar nama pengguna, e-mel dan kata laluan pada peringkat teratas.',
   'user.error.failedToUpdateUser': 'Gagal mengemas kini pengguna.',
   'user.error.failedToDeleteUser': 'Gagal memadamkan pengguna.',
   'user.error.failedToReadUser': 'Gagal membaca pengguna.',

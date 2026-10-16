@@ -18,6 +18,9 @@ export const zh: UserTranslations = {
   'user.notification.newLogin': '新登录',
   'user.notification.newLoginBody': '来自 {{deviceName}} 的新登录。',
   'user.error.usernameCannotBeEmpty': '用户名不能为空。',
+  'user.error.usernameInvalid': '用户名只能包含字母、数字、句点、连字符和下划线。',
+  'user.error.bodyNestedUnderUser':
+    '此请求体将字段嵌套在 "user" 之下；请在顶层发送用户名、邮箱和密码。',
   'user.error.failedToUpdateUser': '更新用户失败。',
   'user.error.failedToDeleteUser': '删除用户失败。',
   'user.error.failedToReadUser': '读取用户失败。',

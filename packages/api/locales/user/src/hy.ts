@@ -18,6 +18,10 @@ export const hy: UserTranslations = {
   'user.notification.newLogin': 'Nor mutq',
   'user.notification.newLoginBody': 'Nor mutq {{deviceName}}-its.',
   'user.error.usernameCannotBeEmpty': 'Ogtagorcoghy datark chi kareli linely.',
+  'user.error.usernameInvalid':
+    'Օգտանունը կարող է պարունակել միայն տառեր, թվեր, կետեր, գծիկներ և ընդգծումներ։',
+  'user.error.bodyNestedUnderUser':
+    'Այս հարցումը իր դաշտերը տեղադրում է "user"-ի տակ․ ուղարկեք օգտանունը, էլ. փոստը և գաղտնաբառը վերին մակարդակում։',
   'user.error.failedToUpdateUser': 'Ogtagorcoghy tarmacnely dzakhogvec.',
   'user.error.failedToDeleteUser': 'Ogtagorcoghy jnjely dzakhogvec.',
   'user.error.failedToReadUser': 'Ogtagorcoghy kardaly dzakhogvec.',

@@ -18,6 +18,10 @@ export const fr: UserTranslations = {
   'user.notification.newLogin': 'Nouvelle connexion',
   'user.notification.newLoginBody': 'Nouvelle connexion depuis {{deviceName}}.',
   'user.error.usernameCannotBeEmpty': "Le nom d'utilisateur ne peut pas être vide.",
+  'user.error.usernameInvalid':
+    "Le nom d'utilisateur ne peut contenir que des lettres, des chiffres, des points, des tirets et des tirets bas.",
+  'user.error.bodyNestedUnderUser':
+    'Ce corps imbrique ses champs sous "user" ; envoyez le nom d\'utilisateur, l\'e-mail et le mot de passe au niveau supérieur.',
   'user.error.failedToUpdateUser': "Impossible de mettre à jour l'utilisateur.",
   'user.error.failedToDeleteUser': "Impossible de supprimer l'utilisateur.",
   'user.error.failedToReadUser': "Impossible de lire l'utilisateur.",

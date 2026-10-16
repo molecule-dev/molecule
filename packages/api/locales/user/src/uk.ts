@@ -18,6 +18,10 @@ export const uk: UserTranslations = {
   'user.notification.newLogin': 'Новий вхід',
   'user.notification.newLoginBody': 'Новий вхід з {{deviceName}}.',
   'user.error.usernameCannotBeEmpty': "Ім'я користувача не може бути порожнім.",
+  'user.error.usernameInvalid':
+    'Імʼя користувача може містити лише літери, цифри, крапки, дефіси та підкреслення.',
+  'user.error.bodyNestedUnderUser':
+    'Цей запит вкладає свої поля в "user"; надішліть імʼя користувача, електронну пошту й пароль на верхньому рівні.',
   'user.error.failedToUpdateUser': 'Не вдалося оновити користувача.',
   'user.error.failedToDeleteUser': 'Не вдалося видалити користувача.',
   'user.error.failedToReadUser': 'Не вдалося прочитати користувача.',

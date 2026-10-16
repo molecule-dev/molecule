@@ -18,6 +18,10 @@ export const cs: UserTranslations = {
   'user.notification.newLogin': 'Nové přihlášení',
   'user.notification.newLoginBody': 'Nové přihlášení z {{deviceName}}.',
   'user.error.usernameCannotBeEmpty': 'Uživatelské jméno nesmí být prázdné.',
+  'user.error.usernameInvalid':
+    'Uživatelské jméno smí obsahovat pouze písmena, číslice, tečky, pomlčky a podtržítka.',
+  'user.error.bodyNestedUnderUser':
+    'Toto tělo vnořuje svá pole pod "user"; pošlete uživatelské jméno, e-mail a heslo na nejvyšší úrovni.',
   'user.error.failedToUpdateUser': 'Nepodařilo se aktualizovat uživatele.',
   'user.error.failedToDeleteUser': 'Nepodařilo se smazat uživatele.',
   'user.error.failedToReadUser': 'Nepodařilo se přečíst uživatele.',

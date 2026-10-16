@@ -359,11 +359,19 @@ export interface VerifyMiddlewareOptions {
    * @returns Whether the session may be re-issued.
    */
   shouldRefreshSession?: (session: Session, req: MoleculeRequest) => boolean | Promise<boolean>
+  /**
+   * Accept the `token` cookie as the session when no `Authorization` header is sent.
+   * Defaults to `true` (browser clients sign in once and every page request carries
+   * the cookie). Pass `false` for a token-only JSON API: any client that keeps a
+   * cookie jar (an HTTP test runner, `curl -b`) would otherwise arrive authenticated
+   * on a request that sends no header, and get 200 where the API should answer 401.
+   */
+  allowCookieSession?: boolean
 }
 
 /**
  * Middleware that verifies the JWT token from the `Authorization` header and sets `res.locals.session`.
- * Falls back to cookie-based session for browser clients. Auto-refreshes tokens older than `JWT_REFRESH_TIME`.
+ * Falls back to cookie-based session for browser clients unless `allowCookieSession` is `false`. Auto-refreshes tokens older than `JWT_REFRESH_TIME`.
  * @param options - {@link VerifyMiddlewareOptions} controlling the auto-refresh.
  * @returns An Express-compatible middleware function.
  */
@@ -386,7 +394,10 @@ export const verifyMiddleware =
       const cookies = (req as unknown as { cookies?: Record<string, unknown> }).cookies
       const cookieToken = readAuthCookie(cookies, 'token')
       const token =
-        headerToken ?? (typeof cookieToken === 'string' && cookieToken ? cookieToken : null)
+        headerToken ??
+        (options?.allowCookieSession !== false && typeof cookieToken === 'string' && cookieToken
+          ? cookieToken
+          : null)
 
       if (!token) {
         return next()

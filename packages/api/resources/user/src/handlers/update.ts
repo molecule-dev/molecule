@@ -10,6 +10,7 @@ import { update as resourceUpdate } from '@molecule/api-resource'
 import { MAX_AVATAR_LENGTH, MAX_BIO_LENGTH, propsSchema, updatePropsSchema } from '../schema.js'
 import type * as types from '../types.js'
 import { normalizeEmail } from '../utilities/normalizeEmail.js'
+import { USERNAME_RE } from '../utilities/username.js'
 
 /**
  * Extended update schema that also permits the application-specific
@@ -61,9 +62,7 @@ export const update = ({ name, tableName, schema: _schema }: types.Resource) => 
       } = {}
 
       if (req.body.username !== undefined) {
-        props.username = String(req.body.username)
-          .replace(/[^a-zA-Z0-9]/g, '')
-          .substring(0, 255)
+        props.username = String(req.body.username).trim().substring(0, 255)
 
         if (!props.username) {
           return {
@@ -71,6 +70,19 @@ export const update = ({ name, tableName, schema: _schema }: types.Resource) => 
             body: {
               error: t('user.error.usernameCannotBeEmpty'),
               errorKey: 'user.error.usernameCannotBeEmpty',
+            },
+          }
+        }
+
+        if (!USERNAME_RE.test(props.username)) {
+          return {
+            statusCode: 400,
+            body: {
+              error: t('user.error.usernameInvalid', undefined, {
+                defaultValue:
+                  'Username may use only letters, numbers, dots, hyphens and underscores.',
+              }),
+              errorKey: 'user.error.usernameInvalid',
             },
           }
         }

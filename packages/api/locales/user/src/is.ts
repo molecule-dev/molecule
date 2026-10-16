@@ -18,6 +18,10 @@ export const is: UserTranslations = {
   'user.notification.newLogin': 'Ný innskráning',
   'user.notification.newLoginBody': 'Ný innskráning frá {{deviceName}}.',
   'user.error.usernameCannotBeEmpty': 'Notandanafn má ekki vera autt.',
+  'user.error.usernameInvalid':
+    'Notandanafn má aðeins innihalda bókstafi, tölustafi, punkta, bandstrik og undirstrik.',
+  'user.error.bodyNestedUnderUser':
+    'Þessi beiðni hreiðrar reitina sína undir "user"; sendu notandanafn, netfang og lykilorð á efsta stigi.',
   'user.error.failedToUpdateUser': 'Mistókst að uppfæra notanda.',
   'user.error.failedToDeleteUser': 'Mistókst að eyða notanda.',
   'user.error.failedToReadUser': 'Mistókst að lesa notanda.',

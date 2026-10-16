@@ -18,6 +18,10 @@ export const bg: UserTranslations = {
   'user.notification.newLogin': 'Ново влизане',
   'user.notification.newLoginBody': 'Ново влизане от {{deviceName}}.',
   'user.error.usernameCannotBeEmpty': 'Потребителското име не може да бъде празно.',
+  'user.error.usernameInvalid':
+    'Потребителското име може да съдържа само букви, цифри, точки, тирета и долни черти.',
+  'user.error.bodyNestedUnderUser':
+    'Тази заявка влага полетата си в "user"; изпратете потребителско име, имейл и парола на най-горното ниво.',
   'user.error.failedToUpdateUser': 'Неуспешно актуализиране на потребителя.',
   'user.error.failedToDeleteUser': 'Неуспешно изтриване на потребителя.',
   'user.error.failedToReadUser': 'Неуспешно четене на потребителя.',

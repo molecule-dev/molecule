@@ -18,6 +18,10 @@ export const ta: UserTranslations = {
   'user.notification.newLogin': 'புதிய உள்நுழைவு',
   'user.notification.newLoginBody': '{{deviceName}} இலிருந்து புதிய உள்நுழைவு.',
   'user.error.usernameCannotBeEmpty': 'பயனர்பெயர் காலியாக இருக்கக்கூடாது.',
+  'user.error.usernameInvalid':
+    'பயனர் பெயரில் எழுத்துகள், எண்கள், புள்ளிகள், இணைப்புக்குறிகள் மற்றும் அடிக்கோடுகள் மட்டுமே இருக்கலாம்.',
+  'user.error.bodyNestedUnderUser':
+    'இந்தக் கோரிக்கை அதன் புலங்களை "user" கீழ் வைக்கிறது; பயனர் பெயர், மின்னஞ்சல், கடவுச்சொல்லை மேல் நிலையில் அனுப்பவும்.',
   'user.error.failedToUpdateUser': 'பயனரைப் புதுப்பிக்க இயலவில்லை.',
   'user.error.failedToDeleteUser': 'பயனரை நீக்க இயலவில்லை.',
   'user.error.failedToReadUser': 'பயனரைப் படிக்க இயலவில்லை.',

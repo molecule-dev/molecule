@@ -18,6 +18,10 @@ export const ne: UserTranslations = {
   'user.notification.newLogin': 'नयाँ लगइन',
   'user.notification.newLoginBody': '{{deviceName}} बाट नयाँ लगइन।',
   'user.error.usernameCannotBeEmpty': 'प्रयोगकर्ता नाम खाली हुन सक्दैन।',
+  'user.error.usernameInvalid':
+    'प्रयोगकर्ता नाममा अक्षर, अंक, थोप्ला, हाइफन र अन्डरस्कोर मात्र हुन सक्छन्।',
+  'user.error.bodyNestedUnderUser':
+    'यो अनुरोधले आफ्ना फिल्डहरू "user" भित्र राख्छ; प्रयोगकर्ता नाम, इमेल र पासवर्ड माथिल्लो तहमा पठाउनुहोस्।',
   'user.error.failedToUpdateUser': 'प्रयोगकर्ता अपडेट गर्न असफल।',
   'user.error.failedToDeleteUser': 'प्रयोगकर्ता मेटाउन असफल।',
   'user.error.failedToReadUser': 'प्रयोगकर्ता पढ्न असफल।',

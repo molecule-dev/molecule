@@ -18,6 +18,10 @@ export const fa: UserTranslations = {
   'user.notification.newLogin': 'ورود جدید',
   'user.notification.newLoginBody': 'ورود جدید از {{deviceName}}.',
   'user.error.usernameCannotBeEmpty': 'نام کاربری نمی‌تواند خالی باشد.',
+  'user.error.usernameInvalid':
+    'نام کاربری فقط می‌تواند شامل حروف، اعداد، نقطه، خط تیره و زیرخط باشد.',
+  'user.error.bodyNestedUnderUser':
+    'این درخواست فیلدهای خود را زیر "user" قرار می‌دهد؛ نام کاربری، ایمیل و رمز عبور را در سطح بالا بفرستید.',
   'user.error.failedToUpdateUser': 'به‌روزرسانی کاربر ناموفق بود.',
   'user.error.failedToDeleteUser': 'حذف کاربر ناموفق بود.',
   'user.error.failedToReadUser': 'خواندن کاربر ناموفق بود.',

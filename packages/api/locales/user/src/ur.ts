@@ -18,6 +18,10 @@ export const ur: UserTranslations = {
   'user.notification.newLogin': 'نیا لاگ ان',
   'user.notification.newLoginBody': '{{deviceName}} سے نیا لاگ ان۔',
   'user.error.usernameCannotBeEmpty': 'صارف نام خالی نہیں ہو سکتا۔',
+  'user.error.usernameInvalid':
+    'صارف نام میں صرف حروف، اعداد، نقطے، ہائفن اور انڈر اسکور ہو سکتے ہیں۔',
+  'user.error.bodyNestedUnderUser':
+    'یہ درخواست اپنے فیلڈز "user" کے اندر رکھتی ہے؛ صارف نام، ای میل اور پاس ورڈ اوپری سطح پر بھیجیں۔',
   'user.error.failedToUpdateUser': 'صارف کو اپ ڈیٹ کرنے میں ناکامی۔',
   'user.error.failedToDeleteUser': 'صارف کو حذف کرنے میں ناکامی۔',
   'user.error.failedToReadUser': 'صارف کو پڑھنے میں ناکامی۔',

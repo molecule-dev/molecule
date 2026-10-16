@@ -11,6 +11,7 @@ import * as authorization from '../authorization.js'
 import type * as types from '../types.js'
 import { normalizeEmail } from '../utilities/normalizeEmail.js'
 import { stripSensitiveUserColumns } from '../utilities/stripSensitiveUserColumns.js'
+import { isNestedBody, USERNAME_RE } from '../utilities/username.js'
 
 const analytics = getAnalytics()
 const logger = getLogger()
@@ -61,14 +62,38 @@ export const create = ({ name, tableName, schema }: types.Resource) => {
       props = {}
 
       if (req.body.username !== undefined) {
-        // Limit username to 255 alphanumeric characters.
-        props.username = String(req.body.username)
-          .replace(/[^a-zA-Z0-9]/g, '')
-          .substring(0, 255)
+        // Stored exactly as sent (up to 255 characters), or refused: a rewritten
+        // username no longer matches what the user signs in with.
+        props.username = String(req.body.username).trim().substring(0, 255)
+        if (props.username && !USERNAME_RE.test(props.username)) {
+          return {
+            statusCode: 400,
+            body: {
+              error: t('user.error.usernameInvalid', undefined, {
+                defaultValue:
+                  'Username may use only letters, numbers, dots, hyphens and underscores.',
+              }),
+              errorKey: 'user.error.usernameInvalid',
+            },
+          }
+        }
       }
 
       if (req.body.name !== undefined) {
         props.name = String(req.body.name).substring(0, 255)
+      }
+
+      if (!body.password && isNestedBody(req.body)) {
+        return {
+          statusCode: 400,
+          body: {
+            error: t('user.error.bodyNestedUnderUser', undefined, {
+              defaultValue:
+                'This body nests its fields under "user"; send username, email and password at the top level.',
+            }),
+            errorKey: 'user.error.bodyNestedUnderUser',
+          },
+        }
       }
 
       if (!body.password) {

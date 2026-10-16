@@ -18,6 +18,10 @@ export const lo: UserTranslations = {
   'user.notification.newLogin': 'ການເຂົ້າສູ່ລະບົບໃໝ່',
   'user.notification.newLoginBody': 'ການເຂົ້າສູ່ລະບົບໃໝ່ຈາກ {{deviceName}}.',
   'user.error.usernameCannotBeEmpty': 'ຊື່ຜູ້ໃຊ້ບໍ່ສາມາດຫວ່າງເປົ່າ.',
+  'user.error.usernameInvalid':
+    'ຊື່ຜູ້ໃຊ້ສາມາດມີໄດ້ສະເພາະຕົວອັກສອນ, ຕົວເລກ, ຈຸດ, ຂີດ ແລະ ຂີດກ້ອງເທົ່ານັ້ນ.',
+  'user.error.bodyNestedUnderUser':
+    'ຄຳຮ້ອງນີ້ວາງຊ່ອງຂໍ້ມູນໄວ້ພາຍໃຕ້ "user"; ກະລຸນາສົ່ງຊື່ຜູ້ໃຊ້, ອີເມວ ແລະ ລະຫັດຜ່ານໃນລະດັບເທິງສຸດ.',
   'user.error.failedToUpdateUser': 'ບໍ່ສາມາດອັບເດດຜູ້ໃຊ້ໄດ້.',
   'user.error.failedToDeleteUser': 'ບໍ່ສາມາດລຶບຜູ້ໃຊ້ໄດ້.',
   'user.error.failedToReadUser': 'ບໍ່ສາມາດອ່ານຜູ້ໃຊ້ໄດ້.',

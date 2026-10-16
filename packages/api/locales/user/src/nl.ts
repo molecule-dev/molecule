@@ -18,6 +18,10 @@ export const nl: UserTranslations = {
   'user.notification.newLogin': 'Nieuwe aanmelding',
   'user.notification.newLoginBody': 'Nieuwe aanmelding vanaf {{deviceName}}.',
   'user.error.usernameCannotBeEmpty': 'Gebruikersnaam mag niet leeg zijn.',
+  'user.error.usernameInvalid':
+    'Een gebruikersnaam mag alleen letters, cijfers, punten, koppeltekens en underscores bevatten.',
+  'user.error.bodyNestedUnderUser':
+    'Deze body nest zijn velden onder "user"; stuur gebruikersnaam, e-mail en wachtwoord op het hoogste niveau.',
   'user.error.failedToUpdateUser': 'Kon gebruiker niet bijwerken.',
   'user.error.failedToDeleteUser': 'Kon gebruiker niet verwijderen.',
   'user.error.failedToReadUser': 'Kon gebruiker niet lezen.',

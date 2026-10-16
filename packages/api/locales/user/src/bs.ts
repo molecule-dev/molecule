@@ -18,6 +18,10 @@ export const bs: UserTranslations = {
   'user.notification.newLogin': 'Nova prijava',
   'user.notification.newLoginBody': 'Nova prijava sa {{deviceName}}.',
   'user.error.usernameCannotBeEmpty': 'Korisničko ime ne može biti prazno.',
+  'user.error.usernameInvalid':
+    'Korisničko ime može sadržavati samo slova, brojeve, tačke, crtice i donje crte.',
+  'user.error.bodyNestedUnderUser':
+    'Ovaj zahtjev ugnježđuje polja pod "user"; pošaljite korisničko ime, e-poštu i lozinku na najvišem nivou.',
   'user.error.failedToUpdateUser': 'Neuspješno ažuriranje korisnika.',
   'user.error.failedToDeleteUser': 'Neuspješno brisanje korisnika.',
   'user.error.failedToReadUser': 'Neuspješno čitanje korisnika.',

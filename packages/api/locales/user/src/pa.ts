@@ -18,6 +18,10 @@ export const pa: UserTranslations = {
   'user.notification.newLogin': 'ਨਵਾਂ ਲੌਗਇਨ',
   'user.notification.newLoginBody': '{{deviceName}} ਤੋਂ ਨਵਾਂ ਲੌਗਇਨ।',
   'user.error.usernameCannotBeEmpty': 'ਉਪਭੋਗਤਾ ਨਾਮ ਖਾਲੀ ਨਹੀਂ ਹੋ ਸਕਦਾ।',
+  'user.error.usernameInvalid':
+    'ਯੂਜ਼ਰਨੇਮ ਵਿੱਚ ਸਿਰਫ਼ ਅੱਖਰ, ਅੰਕ, ਬਿੰਦੂ, ਹਾਈਫ਼ਨ ਅਤੇ ਅੰਡਰਸਕੋਰ ਹੋ ਸਕਦੇ ਹਨ।',
+  'user.error.bodyNestedUnderUser':
+    'ਇਹ ਬੇਨਤੀ ਆਪਣੇ ਖੇਤਰ "user" ਹੇਠਾਂ ਰੱਖਦੀ ਹੈ; ਯੂਜ਼ਰਨੇਮ, ਈਮੇਲ ਅਤੇ ਪਾਸਵਰਡ ਸਿਖਰਲੇ ਪੱਧਰ ਤੇ ਭੇਜੋ।',
   'user.error.failedToUpdateUser': 'ਉਪਭੋਗਤਾ ਅੱਪਡੇਟ ਕਰਨ ਵਿੱਚ ਅਸਫਲ।',
   'user.error.failedToDeleteUser': 'ਉਪਭੋਗਤਾ ਮਿਟਾਉਣ ਵਿੱਚ ਅਸਫਲ।',
   'user.error.failedToReadUser': 'ਉਪਭੋਗਤਾ ਪੜ੍ਹਨ ਵਿੱਚ ਅਸਫਲ।',

@@ -18,6 +18,10 @@ export const el: UserTranslations = {
   'user.notification.newLogin': 'Νέα Σύνδεση',
   'user.notification.newLoginBody': 'Νέα σύνδεση από {{deviceName}}.',
   'user.error.usernameCannotBeEmpty': 'Το όνομα χρήστη δεν μπορεί να είναι κενό.',
+  'user.error.usernameInvalid':
+    'Το όνομα χρήστη μπορεί να περιέχει μόνο γράμματα, αριθμούς, τελείες, παύλες και κάτω παύλες.',
+  'user.error.bodyNestedUnderUser':
+    'Αυτό το σώμα τοποθετεί τα πεδία του κάτω από το "user"· στείλτε όνομα χρήστη, email και κωδικό πρόσβασης στο ανώτατο επίπεδο.',
   'user.error.failedToUpdateUser': 'Αποτυχία ενημέρωσης χρήστη.',
   'user.error.failedToDeleteUser': 'Αποτυχία διαγραφής χρήστη.',
   'user.error.failedToReadUser': 'Αποτυχία ανάγνωσης χρήστη.',

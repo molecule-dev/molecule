@@ -18,6 +18,10 @@ export const sv: UserTranslations = {
   'user.notification.newLogin': 'Ny inloggning',
   'user.notification.newLoginBody': 'Ny inloggning från {{deviceName}}.',
   'user.error.usernameCannotBeEmpty': 'Användarnamn kan inte vara tomt.',
+  'user.error.usernameInvalid':
+    'Användarnamnet får bara innehålla bokstäver, siffror, punkter, bindestreck och understreck.',
+  'user.error.bodyNestedUnderUser':
+    'Den här förfrågan lägger sina fält under "user"; skicka användarnamn, e-post och lösenord på översta nivån.',
   'user.error.failedToUpdateUser': 'Kunde inte uppdatera användare.',
   'user.error.failedToDeleteUser': 'Kunde inte ta bort användare.',
   'user.error.failedToReadUser': 'Kunde inte läsa användare.',

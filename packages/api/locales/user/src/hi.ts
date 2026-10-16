@@ -18,6 +18,10 @@ export const hi: UserTranslations = {
   'user.notification.newLogin': 'नया लॉगिन',
   'user.notification.newLoginBody': '{{deviceName}} से नया लॉगिन।',
   'user.error.usernameCannotBeEmpty': 'उपयोगकर्ता नाम खाली नहीं हो सकता।',
+  'user.error.usernameInvalid':
+    'उपयोगकर्ता नाम में केवल अक्षर, अंक, बिंदु, हाइफ़न और अंडरस्कोर हो सकते हैं।',
+  'user.error.bodyNestedUnderUser':
+    'यह अनुरोध अपने फ़ील्ड "user" के अंदर रखता है; उपयोगकर्ता नाम, ईमेल और पासवर्ड शीर्ष स्तर पर भेजें।',
   'user.error.failedToUpdateUser': 'उपयोगकर्ता अपडेट करने में विफल।',
   'user.error.failedToDeleteUser': 'उपयोगकर्ता हटाने में विफल।',
   'user.error.failedToReadUser': 'उपयोगकर्ता पढ़ने में विफल।',

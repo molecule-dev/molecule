@@ -18,6 +18,10 @@ export const my: UserTranslations = {
   'user.notification.newLogin': 'အကောင့်ဝင်မှု အသစ်',
   'user.notification.newLoginBody': '{{deviceName}} မှ အကောင့်ဝင်မှု အသစ်။',
   'user.error.usernameCannotBeEmpty': 'အသုံးပြုသူအမည် ဗလာ မဖြစ်ရပါ။',
+  'user.error.usernameInvalid':
+    'အသုံးပြုသူအမည်တွင် စာလုံး၊ ဂဏန်း၊ အစက်၊ တုံးတို နှင့် အောက်မျဉ်းများသာ ပါဝင်နိုင်သည်။',
+  'user.error.bodyNestedUnderUser':
+    'ဤတောင်းဆိုချက်သည် ၎င်း၏အကွက်များကို "user" အောက်တွင် ထားသည်; အသုံးပြုသူအမည်၊ အီးမေးလ်နှင့် စကားဝှက်ကို အပေါ်ဆုံးအဆင့်တွင် ပို့ပါ။',
   'user.error.failedToUpdateUser': 'အသုံးပြုသူ အပ်ဒိတ်လုပ်ရန် မအောင်မြင်ပါ။',
   'user.error.failedToDeleteUser': 'အသုံးပြုသူ ဖျက်ရန် မအောင်မြင်ပါ။',
   'user.error.failedToReadUser': 'အသုံးပြုသူ ဖတ်ရန် မအောင်မြင်ပါ။',

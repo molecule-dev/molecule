@@ -18,6 +18,10 @@ export const ko: UserTranslations = {
   'user.notification.newLogin': '새 로그인',
   'user.notification.newLoginBody': '{{deviceName}}에서 새로 로그인했습니다.',
   'user.error.usernameCannotBeEmpty': '사용자 이름은 비어 있을 수 없습니다.',
+  'user.error.usernameInvalid':
+    '사용자 이름에는 문자, 숫자, 마침표, 하이픈, 밑줄만 사용할 수 있습니다.',
+  'user.error.bodyNestedUnderUser':
+    '이 본문은 필드를 "user" 아래에 중첩합니다. 사용자 이름, 이메일, 비밀번호를 최상위 수준으로 보내세요.',
   'user.error.failedToUpdateUser': '사용자 업데이트에 실패했습니다.',
   'user.error.failedToDeleteUser': '사용자 삭제에 실패했습니다.',
   'user.error.failedToReadUser': '사용자 조회에 실패했습니다.',

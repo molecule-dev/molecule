@@ -18,6 +18,10 @@ export const af: UserTranslations = {
   'user.notification.newLogin': 'Nuwe Aanmelding',
   'user.notification.newLoginBody': 'Nuwe aanmelding van {{deviceName}}.',
   'user.error.usernameCannotBeEmpty': 'Gebruikersnaam kan nie leeg wees nie.',
+  'user.error.usernameInvalid':
+    'Gebruikersnaam mag slegs letters, syfers, punte, koppeltekens en onderstrepe bevat.',
+  'user.error.bodyNestedUnderUser':
+    'Hierdie liggaam plaas sy velde onder "user"; stuur gebruikersnaam, e-pos en wagwoord op die boonste vlak.',
   'user.error.failedToUpdateUser': 'Kon nie gebruiker opdateer nie.',
   'user.error.failedToDeleteUser': 'Kon nie gebruiker verwyder nie.',
   'user.error.failedToReadUser': 'Kon nie gebruiker lees nie.',

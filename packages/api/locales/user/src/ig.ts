@@ -18,6 +18,10 @@ export const ig: UserTranslations = {
   'user.notification.newLogin': 'Ịbanye ọhụrụ',
   'user.notification.newLoginBody': 'Ịbanye ọhụrụ sitere na {{deviceName}}.',
   'user.error.usernameCannotBeEmpty': 'Aha njirimara apụghị ịbụ efu.',
+  'user.error.usernameInvalid':
+    'Aha njirimara nwere ike ịnwe naanị mkpụrụedemede, ọnụọgụ, ntụpọ, hyphen na underscore.',
+  'user.error.bodyNestedUnderUser':
+    'Arịrịọ a na-etinye mpaghara ya n\'okpuru "user"; zipu aha njirimara, email na paswọọdụ n\'ọkwa kachasị elu.',
   'user.error.failedToUpdateUser': 'Enweghị ike imelite onye ọrụ.',
   'user.error.failedToDeleteUser': 'Enweghị ike ihichapụ onye ọrụ.',
   'user.error.failedToReadUser': 'Enweghị ike ịgụ onye ọrụ.',

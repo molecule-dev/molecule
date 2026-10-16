@@ -18,6 +18,10 @@ export const yo: UserTranslations = {
   'user.notification.newLogin': 'Wiwọle tuntun',
   'user.notification.newLoginBody': 'Wiwọle tuntun lati {{deviceName}}.',
   'user.error.usernameCannotBeEmpty': 'Orukọ olumulo ko le jẹ ofo.',
+  'user.error.usernameInvalid':
+    'Orúkọ olùmúlò lè ní lẹ́tà, nọ́mbà, àmì ìdánudúró, ìlà kékeré àti ìlà ìsàlẹ̀ nìkan.',
+  'user.error.bodyNestedUnderUser':
+    'Ìbéèrè yìí fi àwọn pápá rẹ̀ sí abẹ́ "user"; fi orúkọ olùmúlò, ímeèlì àti ọ̀rọ̀ aṣínà ránṣẹ́ ní ìpele òkè.',
   'user.error.failedToUpdateUser': 'Imudojuiwọn olumulo kuna.',
   'user.error.failedToDeleteUser': 'Piparẹ olumulo kuna.',
   'user.error.failedToReadUser': 'Kika olumulo kuna.',

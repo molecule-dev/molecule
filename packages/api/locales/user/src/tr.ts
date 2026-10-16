@@ -18,6 +18,10 @@ export const tr: UserTranslations = {
   'user.notification.newLogin': 'Yeni Giriş',
   'user.notification.newLoginBody': '{{deviceName}} cihazından yeni giriş.',
   'user.error.usernameCannotBeEmpty': 'Kullanıcı adı boş olamaz.',
+  'user.error.usernameInvalid':
+    'Kullanıcı adı yalnızca harf, rakam, nokta, kısa çizgi ve alt çizgi içerebilir.',
+  'user.error.bodyNestedUnderUser':
+    'Bu gövde alanlarını "user" altına yerleştiriyor; kullanıcı adı, e-posta ve şifreyi en üst düzeyde gönderin.',
   'user.error.failedToUpdateUser': 'Kullanıcı güncellenemedi.',
   'user.error.failedToDeleteUser': 'Kullanıcı silinemedi.',
   'user.error.failedToReadUser': 'Kullanıcı okunamadı.',

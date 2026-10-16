@@ -18,6 +18,10 @@ export const ar: UserTranslations = {
   'user.notification.newLogin': 'تسجيل دخول جديد',
   'user.notification.newLoginBody': 'تسجيل دخول جديد من {{deviceName}}.',
   'user.error.usernameCannotBeEmpty': 'لا يمكن أن يكون اسم المستخدم فارغًا.',
+  'user.error.usernameInvalid':
+    'يمكن أن يحتوي اسم المستخدم على أحرف وأرقام ونقاط وشرطات وشرطات سفلية فقط.',
+  'user.error.bodyNestedUnderUser':
+    'هذا الطلب يضع حقوله داخل "user"؛ أرسل اسم المستخدم والبريد الإلكتروني وكلمة المرور في المستوى الأعلى.',
   'user.error.failedToUpdateUser': 'فشل تحديث المستخدم.',
   'user.error.failedToDeleteUser': 'فشل حذف المستخدم.',
   'user.error.failedToReadUser': 'فشل قراءة المستخدم.',
