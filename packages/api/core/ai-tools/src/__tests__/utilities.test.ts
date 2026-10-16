@@ -844,8 +844,167 @@ describe('repeatingFailure', () => {
     ].join('\n\n')
     const found = repeatingFailure(log)
     expect(found!.count).toBe(3)
-    expect(found!.message).toBe('TimeoutError: page.waitForURL: Timeout 10000ms exceeded.')
+    // The signature is the cause, not the line verbatim: the error class, what it waited for, and
+    // the timeout normalized (the timeout is the config's, not the cause's — flash-m84).
+    expect(found!.message).toBe(
+      'TimeoutError: page.waitForURL: Timeout <n> exceeded. — waiting for navigation to "/" until "load"',
+    )
     expect(found!.tests[0].where).toBe('../../fixtures/realworld/specs/e2e/auth.spec.ts:1')
+  })
+
+  /** One failure of the m84 runs, as those logs wrote it. */
+  interface TestBlock {
+    n: number
+    line: number
+    title: string
+    seconds: string
+    thrown: string
+    waited: string
+    at: string
+  }
+
+  /**
+   * A run under `--reporter=list,line`: the `list` result line for each failure, then its
+   * numbered `line` block with its `Call log`, in the shape m84's logs wrote them (the config
+   * declares no projects, so the `[chromium] › ` half is absent).
+   *
+   * @param tests - The failures the run printed.
+   * @returns The log.
+   */
+  const m84Run = (tests: TestBlock[]): string =>
+    ['Running 139 tests using 1 worker', '']
+      .concat(
+        tests.flatMap((t) => [
+          // The suite sits OUTSIDE the app, so the path is the one m84's log wrote — the same
+          // path the block header below carries, which is what ties a body to its result line.
+          `  ✘    ${t.n} ../../specs/specs/e2e/articles.spec.ts:${t.line}:3 › Articles › ${t.title} (${t.seconds})`,
+          [
+            `  ${t.n}) ../../specs/specs/e2e/articles.spec.ts:${t.line}:3 › Articles › ${t.title} ────────`,
+            '',
+            `    ${t.thrown}`,
+            '    Call log:',
+            `      - ${t.waited}`,
+            '',
+            '',
+            `       at ${t.at}`,
+            '',
+            `    Error Context: test-results/articles-Articles-${t.title.replace(/ /g, '-')}/error-context.md`,
+          ].join('\n'),
+          '',
+        ]),
+      )
+      .join('\n')
+
+  /**
+   * X1 flash-m84 (2026-10-16), the log both halves of the finding were read from:
+   * `/tmp/pw-art.log`, the `articles.spec.ts` re-run after the tag fix, four failures at
+   * 7.4 / 6.8 / 7.0 / 7.3 s. The `TimeoutError` line and the `waiting for locator(…)` line of
+   * each block are the ones the run's own +17:40 grep printed, in that order: four different
+   * elements were missing — the editor's button label, the preview's heading, its author, and a
+   * generated article title — and the suite's config puts `actionTimeout: 5_000` behind every one
+   * of those durations, so all four ran the same length for four different reasons.
+   */
+  const m84 = m84Run([
+    {
+      n: 1,
+      line: 50,
+      title: 'should edit an existing article',
+      seconds: '7.4s',
+      thrown: 'TimeoutError: page.click: Timeout 5000ms exceeded.',
+      waited: `waiting for locator('button:has-text("Publish Article")')`,
+      at: 'helpers/articles.ts:27',
+    },
+    {
+      n: 2,
+      line: 123,
+      title: 'should favorite an article',
+      seconds: '6.8s',
+      thrown: 'TimeoutError: page.click: Timeout 5000ms exceeded.',
+      waited: `waiting for locator('.article-preview h1')`,
+      at: 'helpers/articles.ts:41',
+    },
+    {
+      n: 3,
+      line: 139,
+      title: 'should unfavorite an article',
+      seconds: '7s',
+      thrown: 'TimeoutError: locator.textContent: Timeout 5000ms exceeded.',
+      waited: `waiting for locator('.article-preview').first().locator('.author')`,
+      at: 'articles.spec.ts:154',
+    },
+    {
+      n: 4,
+      line: 207,
+      title: 'should display article preview correctly',
+      seconds: '7.3s',
+      thrown: 'TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.',
+      waited: `waiting for locator('h1:has-text("Test Article 1792164491421")') to be visible`,
+      at: 'helpers/articles.ts:58',
+    },
+  ])
+
+  it('reads m84’s four failures as FOUR causes, whatever duration they shared (flash-m84)', () => {
+    const causes = failuresByCause(m84)
+    expect(causes).toHaveLength(4)
+    expect(causes.map((c) => c.tests.length)).toEqual([1, 1, 1, 1])
+    // The two `page.click` timeouts are two causes: their locators differ, and the signature is
+    // what differs between causes — the error class plus the locator, with the timeout, which is
+    // the config's own number, normalized away.
+    expect(causes.map((c) => c.message)).toEqual([
+      `TimeoutError: page.click: Timeout <n> exceeded. — waiting for locator('button:has-text("Publish Article")')`,
+      `TimeoutError: page.click: Timeout <n> exceeded. — waiting for locator('.article-preview h1')`,
+      `TimeoutError: locator.textContent: Timeout <n> exceeded. — waiting for locator('.article-preview').first().locator('.author')`,
+      `TimeoutError: page.waitForSelector: Timeout <n> exceeded. — waiting for locator('h1:has-text("Test Article <n>")') to be visible`,
+    ])
+    expect(failureCausesNote(m84)).toContain('4 failures in this run, grouped by cause')
+  })
+
+  it('never calls m84’s four failures one cause for their shared duration (flash-m84)', () => {
+    // Before this, the four fell through to the duration arm — 6.8-7.4 s is the 0.5 s band — and
+    // the note told the executor "4 different tests … have already failed the same way … so one
+    // cause is repeating" about four different elements. A duration the suite's own config
+    // produces must never overrule a body the log already carries.
+    expect(repeatingFailure(m84)).toBeNull()
+  })
+
+  it('still names a cause repeating when the SAME locator times out in three tests (flash-m84)', () => {
+    // The true repeat this must keep answering for: one element, three tests, one cause — and the
+    // signature says WHICH element, which a duration never could. The durations differ by 0.4 s
+    // and the timeouts are the same config value, so nothing here rests on either.
+    const repeat = m84Run(
+      [50, 123, 139].map((line, i) => ({
+        n: i + 1,
+        line,
+        title: [
+          'should edit an existing article',
+          'should favorite an article',
+          'should unfavorite an article',
+        ][i]!,
+        seconds: ['7.4s', '6.8s', '7.2s'][i]!,
+        thrown: 'TimeoutError: page.click: Timeout 5000ms exceeded.',
+        waited: `waiting for locator('button:has-text("Publish Article")')`,
+        at: 'helpers/articles.ts:27',
+      })),
+    )
+    const found = repeatingFailure(repeat)!
+    expect(found.count).toBe(3)
+    // A message cause, not a duration one: the count rests on the signature, not on how long the
+    // three took.
+    expect(found.seconds).toBeNull()
+    expect(found.message).toBe(
+      `TimeoutError: page.click: Timeout <n> exceeded. — waiting for locator('button:has-text("Publish Article")')`,
+    )
+    expect(failuresByCause(repeat)).toHaveLength(1)
+    // And the note names the shared cause, with the stop still withheld: one file is not the run.
+    const note = repeatingFailureNote(found, {
+      taskId: 'mol-bg-mvb4g3dq-2erprb',
+      log: '/tmp/pw-art.log',
+      stop: 'kill 1 2',
+      universal: universalCause(repeat, found),
+    })
+    expect(note).toContain('3 different tests in this run have already failed the same way')
+    expect(note).toContain(`every one with \`${found.message}\``)
+    expect(note).not.toContain('exec_command')
   })
 
   /**
@@ -895,16 +1054,18 @@ describe('repeatingFailure', () => {
       universal: universalCause(oneFileInsideArticles, found),
     })
     // "different tests": the count is of DISTINCT tests, never of log lines (flash-m83).
-    expect(note).toContain('3 different tests in this run have already failed the same way')
-    expect(note).toContain('each after ~15.6s')
+    expect(note).toContain('3 different tests in this run each failed after ~15.6s')
+    // …and it is NOT called one cause: this log is `list`-only, so the duration is all it carries,
+    // and a shared duration is what the suite's own timeout produces (flash-m84).
+    expect(note).toContain('A shared duration is a lead, not a cause')
     // The row names the test by the path the RUN wrote — the same one the reproduce hint
     // uses (flash-m82: a suite-relative form here, `fixtures/realworld/specs/e2e/…` three
     // lines below, and the run read the short one as the app's own stale starter spec).
     expect(note).toContain(
       '✘ ../../fixtures/realworld/specs/e2e/articles.spec.ts:32 › should create a new article (15.6s)',
     )
-    // The cause is named mid-run so the model can start on it — and the run keeps walking.
-    expect(note).toContain('Start fixing it now, while the run keeps walking')
+    // What is named mid-run so the model can start on it — and the run keeps walking.
+    expect(note).toContain('Start on them now, while the run keeps walking')
     expect(note).toContain('Let the rest of the run finish')
     expect(note).toContain('it is the only thing that will name the causes that are NOT this one')
     // And it is told NOT to stop: this cause is one file, and `auth.spec.ts` still has a cause.
@@ -966,7 +1127,9 @@ describe('repeatingFailure', () => {
 
   it('reads every test of four files failing on one connection error as the whole run', () => {
     const found = repeatingFailure(refusedEverywhere)!
-    expect(found.message).toBe('Error: connect ECONNREFUSED 127.0.0.1:4000')
+    // The port is normalized: which port the app was not listening on is a fact about the run's
+    // environment, not about the cause (flash-m84 normalizes the values that vary between runs).
+    expect(found.message).toBe('Error: connect ECONNREFUSED 127.0.0.1:<n>')
     expect(found.count).toBe(4)
     const universal = universalCause(refusedEverywhere, found)!
     expect(universal.count).toBe(4)
@@ -1040,7 +1203,8 @@ describe('repeatingFailure', () => {
     it('groups every failure by the cause behind it, most tests first', () => {
       const causes = failuresByCause(finished)
       expect(causes.map((c) => c.tests.length)).toEqual([3, 1])
-      expect(causes[0].message).toBe('TimeoutError: page.waitForURL: Timeout 10000ms exceeded.')
+      // The signature, not the line verbatim: the timeout is the config's own number (flash-m84).
+      expect(causes[0].message).toBe('TimeoutError: page.waitForURL: Timeout <n> exceeded.')
       expect(causes[0].tests.map((t) => t.title)).toEqual([
         'should create',
         'should edit',
@@ -1055,7 +1219,7 @@ describe('repeatingFailure', () => {
       expect(note).toContain('4 failures in this run, grouped by cause')
       expect(note).toContain('fix every cause below before the next deploy')
       expect(note).toContain(
-        '1. `TimeoutError: page.waitForURL: Timeout 10000ms exceeded.` — 3 tests in 2 files',
+        '1. `TimeoutError: page.waitForURL: Timeout <n> exceeded.` — 3 tests in 2 files',
       )
       // The path the log itself wrote, so it can be pasted into a re-run (flash-m82).
       expect(note).toContain(

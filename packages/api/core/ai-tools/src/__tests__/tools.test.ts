@@ -2114,8 +2114,10 @@ describe('wait_for_task', () => {
       .find((t) => t.name === 'wait_for_task')!
       .execute({ taskId: started.taskId })) as { note?: string }
     expect(r.note).toContain('3 failures in this run, grouped by cause')
+    // The cause signature, with the timeout — the suite's own number, not the cause's — normalized
+    // (flash-m84).
     expect(r.note).toContain(
-      '1. `TimeoutError: page.waitForURL: Timeout 10000ms exceeded.` — 2 tests in 2 files',
+      '1. `TimeoutError: page.waitForURL: Timeout <n> exceeded.` — 2 tests in 2 files',
     )
     expect(r.note).toContain('2. `Expected class "active" but got ""` — 1 test in 1 file')
   })
@@ -2794,13 +2796,16 @@ describe('wait_for_task on a suite repeating one failure', () => {
       // The wait was 60 s; the cause was there at the third failure, so it returns in the first
       // couple of seconds rather than spending the minute.
       expect(Date.now() - t0).toBeLessThan(10_000)
-      expect(r.note).toContain('3 different tests in this run have already failed the same way')
+      // A `list`-only log carries no failure bodies, so the duration is the only signature it
+      // has — and the note says so rather than calling it one cause (flash-m84).
+      expect(r.note).toContain('3 different tests in this run each failed after ~15.6s')
+      expect(r.note).toContain('A shared duration is a lead, not a cause')
       // The row names the path the run's log wrote — the same one the reproduce hint
       // below names (flash-m82 took the shortened form for the app's own file).
       expect(r.note).toContain(
         '✘ ../../fixtures/realworld/specs/e2e/articles.spec.ts:32 › should create a new article (15.6s)',
       )
-      expect(r.note).toContain('Start fixing it now, while the run keeps walking')
+      expect(r.note).toContain('Start on them now, while the run keeps walking')
       expect(r.note).toContain('Let the rest of the run finish')
       expect(r.note).toContain(`task ${id}`)
       // Three failures inside ONE file is not a broken run — X1 flash-m83 stopped eight runs at

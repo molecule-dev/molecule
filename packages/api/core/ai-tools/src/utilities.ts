@@ -1419,17 +1419,27 @@ function failedTests(log: string): FailedTest[] {
  * while running "beforeEach" hook.`), which changes with the hook; the thrown error below it is
  * what repeats verbatim, so it is preferred.
  *
- * @param block - One block from {@link failureBlocks}.
+ * @param body - The block's lines, from {@link failureBody}.
  * @returns The error line, or null when the block has no body.
  */
-function failureMessage(block: string): string | null {
-  const body = block
+function failureErrorLine(body: string[]): string | null {
+  const thrown = body.find((l) => /^[A-Za-z_$][\w.$]*(?:Error|Exception)\b/.test(l))
+  return thrown ?? body[0] ?? null
+}
+
+/**
+ * A failure block's own words, one per line: its body without the runner's progress lines (the
+ * `list` reporter interleaves them with the `line` reporter's blocks), without a code frame or an
+ * `at …` line (where the error happened, not what it said), and without the report's file list.
+ *
+ * @param block - One block from {@link failureBlocks}.
+ * @returns The body's lines, ANSI stripped and trimmed.
+ */
+function failureBody(block: string): string[] {
+  return block
     .split('\n')
     .slice(1)
     .map((l) => l.replace(ANSI_SGR, '').trim())
-    // Progress lines the `list` reporter interleaves with the `line` reporter's blocks are not
-    // the block's own words, and a code frame or an `at …` line is where the error happened, not
-    // what it said.
     .filter(
       (l) =>
         l &&
@@ -1437,8 +1447,86 @@ function failureMessage(block: string): string | null {
         !/^(?:at\s|\d+ \||>\s*\d+ \||\|)/.test(l) &&
         !/^Error Context:/.test(l),
     )
-  const thrown = body.find((l) => /^[A-Za-z_$][\w.$]*(?:Error|Exception)\b/.test(l))
-  return thrown ?? body[0] ?? null
+}
+
+/**
+ * What a failure block says the failure is ABOUT, when its error line does not already say it:
+ * the locator it waited for, the navigation it waited on, or the locator and the expected/received
+ * pair of a failed assertion.
+ *
+ * Without this, every `TimeoutError: page.press: Timeout 5000ms exceeded.` in a log is one
+ * message, because that line names the ACTION (`page.press`) and never its subject. X1 flash-m84
+ * (2026-10-16) had four such failures in one run — one waiting on
+ * `button:has-text("Publish Article")`, one on `.article-preview h1`, one on
+ * `.article-preview').first().locator('.author')`, one on a generated `h1:has-text("Test
+ * Article …")` — and the run's summary called them two causes while its mid-run note called them
+ * one. The subject is what separates causes; it is in the block, and nothing else in the block
+ * carries it.
+ *
+ * @param body - The block's lines, from {@link failureBody}.
+ * @returns The detail line, or null when the block names none.
+ */
+function failureDetail(body: string[]): string | null {
+  const waited = body.find((l) =>
+    /^-?\s*waiting for (?:locator\(|navigation|element|selector)/.test(l),
+  )
+  if (waited !== undefined) return waited.replace(/^-\s*/, '')
+  // A failed assertion names its locator and the two values that differ.
+  const locator = body.find((l) => /^Locator:\s/.test(l))
+  if (locator === undefined) return null
+  const parts = [
+    locator,
+    body.find((l) => /^Expected\b/.test(l)),
+    body.find((l) => /^Received\b/.test(l)),
+  ]
+  return parts.filter((p): p is string => p !== undefined).join(' · ')
+}
+
+/**
+ * A cause signature with the values that differ between two tests of ONE cause replaced by `<n>`:
+ * a duration, a generated id or timestamp, a host's port.
+ *
+ * The duration is the one that matters. A suite that sets `actionTimeout: 5_000` — the X1
+ * realworld suite does — spends `5 s` plus teardown on every "the locator never appeared"
+ * failure, so `~7 s` is a property of the CONFIG, not of the cause, and four different missing
+ * elements print the same number (X1 flash-m84, 2026-10-16). Two tests waiting on the same
+ * locator for 5 s and for 10 s wait for the same thing; two waiting on different locators do not
+ * become one cause by timing out together.
+ *
+ * @param s - An error line, with its detail.
+ * @returns The signature.
+ */
+function normalizedSignature(s: string): string {
+  return (
+    s
+      // A duration: the suite's own timeout, in whatever unit the runner printed.
+      .replace(/\b\d+(?:\.\d+)?\s*(?:ms|s|m)\b/g, '<n>')
+      // A host's port. The shape is what makes it a port: a bare `:32` is a line number.
+      .replace(/\b(\d{1,3}(?:\.\d{1,3}){3}|localhost|0\.0\.0\.0):\d+/g, '$1:<n>')
+      // A generated id, a timestamp, a serial: five digits or more is no part of a selector.
+      .replace(/\b\d{5,}\b/g, '<n>')
+      .replace(/\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/gi, '<id>')
+  )
+}
+
+/**
+ * What separates one cause from another in a `playwright test` log: the error CLASS plus the
+ * normalized message — the error line, the thing it waited for or asserted on, and the values
+ * with the test's own data normalized out.
+ *
+ * One test printed twice, or two tests failing the same way, share a signature; two tests whose
+ * errors differ in their locator do not, however alike the rest of the line is.
+ *
+ * @param block - One block from {@link failureBlocks}.
+ * @returns The signature, or null when the block has no body.
+ */
+function failureMessage(block: string): string | null {
+  const body = failureBody(block)
+  const line = failureErrorLine(body)
+  if (line === null) return null
+  const detail = failureDetail(body)
+  const signature = detail !== null && !line.includes(detail) ? `${line} — ${detail}` : line
+  return normalizedSignature(signature)
 }
 
 /**
@@ -1490,9 +1578,11 @@ function distinctTests(tests: FailedTest[]): FailedTest[] {
  * Playwright's `list` reporter prints one line per test as it finishes — its mark, its title
  * path and how long it ran — and defers each failure's error to the summary at the end, so
  * mid-run the only signature those lines carry is the duration. Where the log carries the
- * failure bodies (a `line` reporter's output, or a finished run's summary) the repeated error
- * message itself is the signature, which is stronger (it needs no assumption about how long a
- * failure should take), so the message is looked for first.
+ * failure bodies (a `line` reporter's output, or a finished run's summary) the signature is the
+ * error itself — {@link failureMessage}: the error class plus the locator or the values that
+ * differ — which is stronger (it needs no assumption about how long a failure should take), so
+ * the message is looked for first and the duration is then left with the tests whose bodies the
+ * log does NOT carry.
  *
  * Either way the point is the same: a suite whose failures repeat one cause spends its whole
  * runtime proving that one cause, and the executor watching it can be told so at the third
@@ -1514,11 +1604,13 @@ export function repeatingFailure(log: string): RepeatingFailure | null {
   // DISTINCT test, so the largest group is the cause the most tests share — not the one whose
   // failures happen to have been printed the most times.
   const byMessage = new Map<string, FailedTest[]>()
+  const withBody = new Set<string>()
   for (const block of failureBlocks(text)) {
-    const message = failureMessage(block)
-    if (message === null) continue
     const m = FAILURE_BLOCK_HEADER.exec(block.split('\n')[0] ?? '')
     const { where, title } = splitTitlePath(m?.[1] ?? '')
+    const message = failureMessage(block)
+    if (message === null) continue
+    withBody.add(testKey({ where, title, seconds: null }))
     const group = byMessage.get(message)
     if (group) group.push({ where, title, seconds: null })
     else byMessage.set(message, [{ where, title, seconds: null }])
@@ -1533,10 +1625,16 @@ export function repeatingFailure(log: string): RepeatingFailure | null {
       seconds: null,
       tests: messageGroup.members,
     }
-  // Otherwise the durations: the largest set of failures that took the same time to within the
-  // band. A test that runs to its timeout prints slightly different durations on each attempt
-  // (15.6 s, 15.1 s, 15.0 s), so the band is 0.5 s or 5% of the duration, whichever is larger.
-  const tests = distinctTests(failedTests(text))
+  // Otherwise the durations — of the tests the log says nothing ELSE about. A test whose failure
+  // body is in the log has a signature, and how long it took must not overrule it: a suite whose
+  // config sets a timeout makes every failure that waits for anything land on the same number, so
+  // the duration would merge causes the bodies just separated (X1 flash-m84, 2026-10-16 — four
+  // failures at 6.8-7.4 s, four locators, `actionTimeout: 5_000`). What is left is the shape this
+  // was written for: a `list`-only log, or a run whose bodies have not been printed yet, where
+  // the duration is the ONLY signature the log carries. A test that runs to its timeout prints
+  // slightly different durations on each attempt (15.6 s, 15.1 s, 15.0 s), so the band is 0.5 s
+  // or 5% of the duration, whichever is larger.
+  const tests = distinctTests(failedTests(text)).filter((t) => !withBody.has(testKey(t)))
   const withSeconds = tests.filter((t): t is FailedTest & { seconds: number } => t.seconds !== null)
   let best: Array<FailedTest & { seconds: number }> = []
   for (const t of withSeconds) {
@@ -1687,9 +1785,11 @@ export interface FailureCause {
  * bodies to read; X1 flash-m83 (2026-10-16) spent three deploys (6.7 minutes) each fixing a
  * single cause, two of them found by runs stopped before they walked the rest.
  *
- * The signature is the failures' own error line where the log carries their bodies (a finished
- * run, or a `line` reporter), and how long they took where it does not (a still-running `list`
- * log). A test the log printed twice, or failed twice, is one test.
+ * The signature is the cause itself where the log carries the failures' bodies (a finished run,
+ * or a `line` reporter) — {@link failureMessage}: the error class plus the locator or the values
+ * that differ — and how long they took where it does not (a still-running `list` log, which is
+ * why a duration group is labelled as a duration and not as a proven cause). A test the log
+ * printed twice, or failed twice, is one test.
  *
  * @param log - The log of a finished or running run.
  * @returns The causes, the one with the most tests first.
@@ -1755,7 +1855,10 @@ export function failureCausesNote(log: string): string | null {
     const tests = c.tests.slice(0, FAILURE_CAUSE_TESTS_LISTED).map((t) => t.where || t.title)
     const more =
       c.tests.length > tests.length ? `, … and ${c.tests.length - tests.length} more` : ''
-    const signature = c.message !== null ? `\`${c.message}\`` : `each after ~${c.seconds}s`
+    const signature =
+      c.message !== null
+        ? `\`${c.message}\``
+        : `each after ~${c.seconds}s (a shared duration, not a proven cause)`
     const files = new Set(c.tests.map((t) => specFile(t.where)).filter(Boolean)).size
     return (
       `  ${i + 1}. ${signature} — ${c.tests.length} test${c.tests.length === 1 ? '' : 's'} ` +
@@ -1811,10 +1914,15 @@ export function repeatingFailureNote(
     )
     .join('\n')
   const more = found.count > listed.length ? `\n  … and ${found.count - listed.length} more` : ''
-  const signature =
-    found.message !== null
-      ? `every one with \`${found.message}\``
-      : `each after ~${found.seconds}s — the same duration to within half a second`
+  // Two signatures, and only ONE of them is a cause. An error repeating verbatim is the cause
+  // itself; a duration repeating is what a suite's own `actionTimeout` does to every failure that
+  // waits for anything, so the note must not call it one cause (X1 flash-m84, 2026-10-16: four
+  // failures at 6.8-7.4 s, four different missing elements, and this sentence told the executor
+  // "one cause is repeating").
+  const isCause = found.message !== null
+  const signature = isCause
+    ? `every one with \`${found.message}\``
+    : `each after ~${found.seconds}s — the same duration to within half a second`
   const first = found.tests[0]
   const reproduce =
     first?.where && !found.message
@@ -1836,15 +1944,25 @@ export function repeatingFailureNote(
       `then run the whole suite again. It is still going (${where}).${reproduce}`
     )
   }
-  return (
-    `${found.count} different tests in this run have already failed the same way — ${signature} — ` +
-    `so one cause is repeating:\n${rows}${more}\n` +
-    `Start fixing it now, while the run keeps walking.${reproduce} ` +
+  const keepGoing =
     `Let the rest of the run finish — it is the only thing that will name the causes that are NOT ` +
     `this one, and a run stopped at its first repeating cause costs a second whole run to find ` +
     `them. Stop it only if every test it walks fails this same way (the app unreachable, a 5xx on ` +
     `every request, the same selector timing out on every test of every file so far). ` +
     `It is still going (${where}).`
+  if (isCause)
+    return (
+      `${found.count} different tests in this run have already failed the same way — ${signature} — ` +
+      `so one cause is repeating:\n${rows}${more}\n` +
+      `Start fixing it now, while the run keeps walking.${reproduce} ${keepGoing}`
+    )
+  return (
+    `${found.count} different tests in this run each failed after ~${found.seconds}s — the same ` +
+    `duration to within half a second. A shared duration is a lead, not a cause: a suite whose ` +
+    `config sets a timeout spends that timeout on every failure that waits for anything, so ` +
+    `different missing elements land on the same number. Read these failures before fixing one ` +
+    `of them:\n${rows}${more}\n` +
+    `Start on them now, while the run keeps walking.${reproduce} ${keepGoing}`
   )
 }
 
