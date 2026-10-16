@@ -1,5 +1,11 @@
 # @molecule/api-ai-anthropic
 
+## 1.3.5
+
+### Patch Changes
+
+- 65d90c5: Each call carries a per-request id and reports the response's own id, trace id and served model back on `done`, so a reply that does not belong to the request that asked for it can be identified and traced.
+
 ## 1.3.4
 
 ### Patch Changes
