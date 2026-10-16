@@ -288,7 +288,9 @@ export const TOOL_SCHEMAS: Record<string, ToolSchema> = {
       'code. Blocks until it finishes or the time budget runs out, then returns — one call, ' +
       'no polling. Use it the moment you need that result to continue; never `sleep` and ' +
       'read the log by hand. If it is still running when the budget ends, the result says so ' +
-      'and you can call it again.',
+      'and you can call it again. A suite whose failures keep repeating one cause comes back ' +
+      'EARLY with that cause named, the tests it hit and the command that stops the run — act ' +
+      'on it instead of waiting for the rest.',
     parameters: {
       type: 'object',
       properties: {

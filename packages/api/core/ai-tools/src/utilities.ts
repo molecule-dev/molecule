@@ -332,6 +332,14 @@ const LINE_REPORTER_FLAG = /--reporter([= ])line\b/
  *   `[n/N] <title>` with no ✓/✘ mark and no duration, so on X1 flash-m62 an
  *   8.3-minute walk of one suite could never trip the fail-fast note.
  *
+ * A run being ITERATED on (capped, narrowed, or by file) gets `list,line` instead
+ * of `list` alone. `list` holds every failure's error for the summary at the end,
+ * so mid-run its log says only how long each failure took; `line` writes the body
+ * as the failure happens, and a look at a running suite (`wait_for_task`'s
+ * repeating-cause note, `suite-fail-fast.ts`) can then name the repeating cause by
+ * its error message. X1 flash-m76 walked 15 tests for 4.0 minutes, every one a
+ * `TimeoutError: page.waitForURL` from one missing `navigate('/')`.
+ *
  * Only the command's last step is touched, and only its reporter.
  *
  * @param command - The command as the executor sent it.
@@ -365,22 +373,6 @@ export function streamingBackgroundCommand(command: string): {
     /\bplaywright\s+test\b/.test(lastStep) &&
     // `2>&1` only joins stderr to the log; any other pipe or redirect sends the output elsewhere.
     !/[|>]/.test(lastStep.replace(/\d?>&\d/g, ''))
-  if (finalPlaywrightRun && LINE_REPORTER_FLAG.test(lastStep)) {
-    // Only the last step is rewritten, and `lastStep` is a suffix of `out`.
-    out =
-      out.slice(0, out.length - lastStep.length) +
-      lastStep.replace(LINE_REPORTER_FLAG, '--reporter$1list')
-    changes.push(
-      'Switched `--reporter=line` to `--reporter=list`: it also writes each test result as it ' +
-        'finishes, and it is the shape the platform reads back from a background run.',
-    )
-  } else if (finalPlaywrightRun && !/--reporter\b/.test(lastStep)) {
-    out = `${out.trimEnd()} --reporter=list`
-    changes.push(
-      'Added `--reporter=list` so each test result is written to the log as it finishes ' +
-        '(the config reporter may print nothing until the end).',
-    )
-  }
   // A diagnosis or a re-run (capped, last-failed, grepped, or named files) walks each failure
   // once: the suite's own `retries` doubled every failure of X1 flash-m71's first whole run,
   // which had dropped the `--retries=0` it used one command earlier. The uncapped proof run
@@ -389,6 +381,45 @@ export function streamingBackgroundCommand(command: string): {
     /--max-failures\b|--last-failed\b|(?:^|\s)(?:-g|--grep)\b|\S+\.(?:spec|test)\.[cm]?[jt]sx?(?::\d+)?\b/.test(
       lastStep,
     )
+  // `list` is the shape the platform reads a background suite back in (the fail-fast note and
+  // the Tests bar both parse its `  ✓/✘  <n> … (…)` lines), and it prints each failure's error
+  // only in the summary at the END. A run being iterated on is the one whose failures are read
+  // mid-run and stopped early, and for that the log has to carry the error as it happens —
+  // `line` writes exactly that, so an iterating run gets both reporters and a proof run, which
+  // nothing stops early, keeps `list` alone rather than doubling its log.
+  const wanted = iterating ? 'list,line' : 'list'
+  if (finalPlaywrightRun && LINE_REPORTER_FLAG.test(lastStep)) {
+    // Only the last step is rewritten, and `lastStep` is a suffix of `out`.
+    out =
+      out.slice(0, out.length - lastStep.length) +
+      lastStep.replace(LINE_REPORTER_FLAG, `--reporter$1${wanted}`)
+    changes.push(
+      `Switched \`--reporter=line\` to \`--reporter=${wanted}\`: it also writes each test result as it ` +
+        'finishes, and it is the shape the platform reads back from a background run.' +
+        (iterating
+          ? ' `line` stays alongside it so each failure writes its error to the log as it happens — that is what a mid-run look reads.'
+          : ''),
+    )
+  } else if (finalPlaywrightRun && iterating && /--reporter([= ])list\b/.test(lastStep)) {
+    // Only the last step's reporter, the same rule as above.
+    out =
+      out.slice(0, out.length - lastStep.length) +
+      lastStep.replace(/--reporter([= ])list\b/, '--reporter$1list,line')
+    changes.push(
+      'Added `line` to your `--reporter=list`: `list` writes each test result as it finishes but ' +
+        'holds every failure’s error for the summary at the end, and `line` writes it as the failure ' +
+        'happens — which is what names a cause that repeats while this run is still going.',
+    )
+  } else if (finalPlaywrightRun && !/--reporter\b/.test(lastStep)) {
+    out = `${out.trimEnd()} --reporter=${wanted}`
+    changes.push(
+      `Added \`--reporter=${wanted}\` so each test result is written to the log as it finishes ` +
+        '(the config reporter may print nothing until the end).' +
+        (iterating
+          ? ' `line` writes each failure’s error as it happens, which is what a mid-run look reads.'
+          : ''),
+    )
+  }
   if (finalPlaywrightRun && iterating && !/--retries\b/.test(lastStep)) {
     out = `${out.trimEnd()} --retries=0`
     changes.push(
@@ -1009,6 +1040,17 @@ function truncateMiddleBody(s: string, maxLength: number): string {
 }
 
 /**
+ * A Playwright failure block's header line:
+ * `  3) [chromium] › e2e/a.spec.ts:5:1 › home › shows the title ────────`.
+ *
+ * Two things vary and both are optional here. The `[<project>] › ` half is absent from a run
+ * whose config declares no projects, and the `line` reporter draws a rule after the title on
+ * the same line. Both forms name a title path, so a header is only a header when the line
+ * carries a `›` — a plain numbered list in a build log must not read as test failures.
+ */
+const FAILURE_BLOCK_HEADER = /^\s*\d+\)\s+(?:\[[^\]\n]*\]\s*›\s*)?(?=[^\n]*›)(.+?)\s*─*\s*$/
+
+/**
  * The numbered failure blocks of a Playwright report (`  1) [chromium] › file:line › title`
  * up to the next block or the tally).
  *
@@ -1020,7 +1062,7 @@ export function failureBlocks(s: string): string[] {
   const blocks: string[] = []
   let current: string[] | null = null
   for (const line of lines) {
-    if (/^\s*\d+\) \[[^\]\n]+\] › /.test(line)) {
+    if (FAILURE_BLOCK_HEADER.test(line)) {
       if (current) blocks.push(current.join('\n').trimEnd())
       current = [line]
     } else if (current) {
@@ -1065,6 +1107,272 @@ export function runningOutputSliceCommand(log: string, own?: string): string {
   return (
     `{ ${read} | grep -aE ${shellQuote(RUNNING_FAILURE_LINE_RE)} | head -${RUNNING_FAILURE_LINES} | cut -c1-300; ` +
     `echo; ${read} | tail -c ${RUNNING_TAIL_BYTES}; }`
+  )
+}
+
+/** Bytes of a running log a repeating-cause look reads back. */
+export const REPEATING_CAUSE_TAIL_BYTES = 40_000
+
+/**
+ * The shell command whose stdout is enough of a running log to tell whether one cause is
+ * repeating: its tail, {@link REPEATING_CAUSE_TAIL_BYTES} of it.
+ *
+ * {@link runningOutputSliceCommand} is the wrong read for this: it keeps only the FIRST 40
+ * failure lines plus 1 000 bytes, so on a run whose failures print a body each — which is what
+ * a `line` reporter does, and the only form that names the cause as an error message rather than
+ * a duration — three bodies do not fit, and the repeat is invisible. This read is not shown to
+ * anyone; it is parsed.
+ *
+ * @param log - The task log path.
+ * @param own - A file the command redirects its own output to, if any.
+ * @returns The shell command, safe to hand to the execution backend as-is.
+ */
+export function runningCauseCommand(log: string, own?: string): string {
+  const read = `cat ${log}${own ? ` ${shellQuote(own)}` : ''} 2>/dev/null`
+  return `${read} | tail -c ${REPEATING_CAUSE_TAIL_BYTES}`
+}
+
+/** Failures that must share one signature before a running suite's repeating cause is named. */
+export const REPEATING_FAILURE_MIN = 3
+
+/** One failed test, as a running suite's log names it. */
+export interface FailedTest {
+  /** The location the log writes (`specs/e2e/articles.spec.ts:32`), or '' when it writes none. */
+  where: string
+  /** The test's own title — the last segment of its title path. */
+  title: string
+  /** How long it ran before failing, in seconds, or null when the log does not say. */
+  seconds: number | null
+}
+
+/** A cause repeating among a running suite's failures. */
+export interface RepeatingFailure {
+  /** How many failures share the signature. */
+  count: number
+  /** The shared error line, when the log carries the failures' bodies (`line` reporter). */
+  message: string | null
+  /** The shared duration in seconds, when the failures line up by how long they ran. */
+  seconds: number | null
+  /** The failures that share it, in log order. */
+  tests: FailedTest[]
+}
+
+/** ANSI SGR sequences — the `line` reporter writes cursor moves even into a file. */
+// eslint-disable-next-line no-control-regex -- an escape sequence IS a control character
+const ANSI_SGR = /\u001B\[[0-9;]*[A-Za-z]/g
+
+/**
+ * A `list`-reporter result line: `  ✘    3 [chromium] › e2e/a.spec.ts:5:1 › A › does x (15.6s)`.
+ * The `[<project>]` half is optional (a config with no projects prints none), as is the title
+ * path's `›` tail. Durations are Playwright's own: `ms`, `s`, `m`.
+ */
+const LIST_RESULT_LINE =
+  /^\s*([✓✘])\s+\d+\s+(?:\[[^\]\n]*\]\s*›\s*)?(.+?)\s+\((\d+(?:\.\d+)?)\s*(ms|s|m)\)\s*$/
+
+/** A title path's location segment (`…/articles.spec.ts:32:3`). */
+const TITLE_LOCATION = /^(.*?:\d+)(?::\d+)?$/
+
+/**
+ * Split a Playwright title path (`…/a.spec.ts:5:1 › Home › shows the title`) into the location
+ * and the test's own title, dropping the column (a re-run names `file:line`).
+ *
+ * @param titlePath - The title path the log writes.
+ * @returns The location ('' when the path names none) and the title.
+ */
+function splitTitlePath(titlePath: string): { where: string; title: string } {
+  const parts = titlePath.split(' › ')
+  const location = TITLE_LOCATION.exec(parts[0]?.trim() ?? '')?.[1]
+  if (location)
+    return { where: location, title: parts.length > 1 ? (parts.at(-1) ?? '').trim() : '' }
+  return { where: '', title: parts.join(' › ').trim() }
+}
+
+/**
+ * The seconds a Playwright duration is worth, in Playwright's units.
+ *
+ * @param value - The digits the log printed.
+ * @param unit - `ms`, `s` or `m`.
+ * @returns Seconds.
+ */
+function durationSeconds(value: string, unit: string): number {
+  const n = Number(value)
+  if (unit === 'ms') return n / 1000
+  return unit === 'm' ? n * 60 : n
+}
+
+/**
+ * Every failed test a running log names, in the order it names them.
+ *
+ * @param log - The log so far (ANSI already stripped).
+ * @returns The failed tests.
+ */
+function failedTests(log: string): FailedTest[] {
+  const out: FailedTest[] = []
+  for (const line of log.split('\n')) {
+    const m = LIST_RESULT_LINE.exec(line)
+    if (!m || m[1] !== '✘') continue
+    const { where, title } = splitTitlePath(m[2])
+    out.push({ where, title, seconds: durationSeconds(m[3], m[4]) })
+  }
+  return out
+}
+
+/**
+ * The error a failure block reports: the first line of its body that names a thrown error
+ * (`TimeoutError: page.waitForURL: Timeout 10000ms exceeded.`), else its first real line.
+ *
+ * The body's first line is usually the runner's own sentence (`Test timeout of 15000ms exceeded
+ * while running "beforeEach" hook.`), which changes with the hook; the thrown error below it is
+ * what repeats verbatim, so it is preferred.
+ *
+ * @param block - One block from {@link failureBlocks}.
+ * @returns The error line, or null when the block has no body.
+ */
+function failureMessage(block: string): string | null {
+  const body = block
+    .split('\n')
+    .slice(1)
+    .map((l) => l.replace(ANSI_SGR, '').trim())
+    // Progress lines the `list` reporter interleaves with the `line` reporter's blocks are not
+    // the block's own words, and a code frame or an `at …` line is where the error happened, not
+    // what it said.
+    .filter(
+      (l) =>
+        l &&
+        !LIST_RESULT_LINE.test(l) &&
+        !/^(?:at\s|\d+ \||>\s*\d+ \||\|)/.test(l) &&
+        !/^Error Context:/.test(l),
+    )
+  const thrown = body.find((l) => /^[A-Za-z_$][\w.$]*(?:Error|Exception)\b/.test(l))
+  return thrown ?? body[0] ?? null
+}
+
+/**
+ * The largest group of items sharing a key.
+ *
+ * @param groups - Keyed groups, in the order they were built.
+ * @returns The largest group's key and members, or null when there are none.
+ */
+function largestGroup<T>(groups: Map<string, T[]>): { key: string; members: T[] } | null {
+  let best: { key: string; members: T[] } | null = null
+  for (const [key, members] of groups) {
+    if (!best || members.length > best.members.length) best = { key, members }
+  }
+  return best
+}
+
+/**
+ * The cause repeating among a running suite's failures, or null.
+ *
+ * Playwright's `list` reporter prints one line per test as it finishes — its mark, its title
+ * path and how long it ran — and defers each failure's error to the summary at the end, so
+ * mid-run the only signature those lines carry is the duration. A `line` reporter prints the
+ * failure bodies as they happen, and there the repeated error message itself is the signature,
+ * which is stronger (it needs no assumption about how long a failure should take), so the
+ * message is looked for first.
+ *
+ * Either way the point is the same: a suite whose failures repeat one cause spends its whole
+ * runtime proving that one cause, and the executor watching it can be told so at the third
+ * failure instead of at the last. X1 flash-m76 walked 15 tests in 4.0 minutes where 15.6 s
+ * each was the test timeout and one missing `navigate('/')` was the cause of all of them.
+ *
+ * @param log - The log so far.
+ * @returns The repeating cause, or null when no signature has {@link REPEATING_FAILURE_MIN}
+ *   failures behind it.
+ */
+export function repeatingFailure(log: string): RepeatingFailure | null {
+  const text = log.replace(ANSI_SGR, '')
+  // The failure BODIES first: a message repeating verbatim names the cause itself.
+  const byMessage = new Map<string, FailedTest[]>()
+  for (const block of failureBlocks(text)) {
+    const message = failureMessage(block)
+    if (message === null) continue
+    const m = FAILURE_BLOCK_HEADER.exec(block.split('\n')[0] ?? '')
+    const { where, title } = splitTitlePath(m?.[1] ?? '')
+    const group = byMessage.get(message)
+    if (group) group.push({ where, title, seconds: null })
+    else byMessage.set(message, [{ where, title, seconds: null }])
+  }
+  const messageGroup = largestGroup(byMessage)
+  if (messageGroup && messageGroup.members.length >= REPEATING_FAILURE_MIN)
+    return {
+      count: messageGroup.members.length,
+      message: messageGroup.key,
+      seconds: null,
+      tests: messageGroup.members,
+    }
+  // Otherwise the durations: the largest set of failures that took the same time to within the
+  // band. A test that runs to its timeout prints slightly different durations on each attempt
+  // (15.6 s, 15.1 s, 15.0 s), so the band is 0.5 s or 5% of the duration, whichever is larger.
+  const tests = failedTests(text)
+  const withSeconds = tests.filter((t): t is FailedTest & { seconds: number } => t.seconds !== null)
+  let best: Array<FailedTest & { seconds: number }> = []
+  for (const t of withSeconds) {
+    const band = Math.max(0.5, t.seconds * 0.05)
+    const near = withSeconds.filter((x) => Math.abs(x.seconds - t.seconds) <= band)
+    if (near.length > best.length) best = near
+  }
+  if (best.length < REPEATING_FAILURE_MIN) return null
+  const mean = best.reduce((sum, t) => sum + t.seconds, 0) / best.length
+  return { count: best.length, message: null, seconds: Math.round(mean * 10) / 10, tests: best }
+}
+
+/** How many of a repeating cause's failures the note lists before it says "and N more". */
+export const REPEATING_FAILURE_LISTED = 5
+
+/**
+ * The shortest unambiguous tail of a logged path (`…/specs/e2e/articles.spec.ts:32` →
+ * `e2e/articles.spec.ts:32`).
+ *
+ * @param where - The location the log wrote.
+ * @returns The last two path segments.
+ */
+function shortWhere(where: string): string {
+  const parts = where.split('/')
+  return parts.slice(-2).join('/')
+}
+
+/**
+ * The sentence that names a cause repeating among a running suite's failures, and the command
+ * that stops the run so the cause can be fixed first.
+ *
+ * Kept here, beside {@link repeatingFailure}, so the two stay in step: every word below is about
+ * what that function could actually see in the log.
+ *
+ * @param found - What {@link repeatingFailure} found.
+ * @param o - The run's facts: its `taskId`, its `log` path, and `stop` — the shell command that
+ *   stops it (the pids the platform's own pid file leads to).
+ * @returns The note.
+ */
+export function repeatingFailureNote(
+  found: RepeatingFailure,
+  o: { taskId: string; log: string; stop: string },
+): string {
+  const listed = found.tests.slice(0, REPEATING_FAILURE_LISTED)
+  const rows = listed
+    .map(
+      (t) =>
+        `  ✘ ${[t.where && shortWhere(t.where), t.title].filter(Boolean).join(' › ')}` +
+        (t.seconds === null ? '' : ` (${t.seconds}s)`),
+    )
+    .join('\n')
+  const more = found.count > listed.length ? `\n  … and ${found.count - listed.length} more` : ''
+  const signature =
+    found.message !== null
+      ? `every one with \`${found.message}\``
+      : `each after ~${found.seconds}s — the same duration to within half a second`
+  const first = found.tests[0]
+  const reproduce =
+    first?.where && !found.message
+      ? ` \`${first.where}\` alone reproduces the first one.`
+      : first?.where
+        ? ` Re-run \`${first.where}\` alone to see its error in full.`
+        : ''
+  return (
+    `${found.count} of this run’s tests have already failed the same way — ${signature} — so one ` +
+    `cause is repeating and the rest of the run only repeats it:\n${rows}${more}\n` +
+    `Stop this run and fix that cause before the rest: \`exec_command: ${o.stop}\`. ` +
+    `It is still going (task ${o.taskId}, log ${o.log}) — do not wait for the rest of it.${reproduce}`
   )
 }
 

@@ -10,6 +10,9 @@ import {
   outputRedirectTarget,
   redactSecrets,
   redactSecretsInCode,
+  type RepeatingFailure,
+  repeatingFailure,
+  repeatingFailureNote,
   resolvePath,
   shellQuote,
   streamingBackgroundCommand,
@@ -558,14 +561,18 @@ describe('streamingBackgroundCommand', () => {
     // reporter's `  ✓/✘  <n> … (…)` lines and reads their durations. The `line` reporter writes
     // `[n/N] <title>` with no durations, so under it the note could never fire on a suite
     // repeating one cause: X0 flash-m62 spent 8.3 minutes walking 139 tests that way.
+    //
+    // A run being iterated on also carries `line`: `list` holds each failure's error for the
+    // summary at the end, so mid-run its log says only how long a failure took, while the
+    // repeating-cause look (flash-m76) needs the error the failure wrote.
     expect(
       streamingBackgroundCommand('cd e2e && npx playwright test specs/auth.spec.ts').command,
-    ).toBe('cd e2e && npx playwright test specs/auth.spec.ts --reporter=list --retries=0')
+    ).toBe('cd e2e && npx playwright test specs/auth.spec.ts --reporter=list,line --retries=0')
   })
 
   it('runs a diagnosis or re-run with --retries=0, and leaves the proof run alone (flash-m71)', () => {
     expect(streamingBackgroundCommand('npx playwright test --max-failures=15').command).toBe(
-      'npx playwright test --max-failures=15 --reporter=list --retries=0',
+      'npx playwright test --max-failures=15 --reporter=list,line --retries=0',
     )
     expect(streamingBackgroundCommand('npx playwright test --last-failed').command).toContain(
       '--retries=0',
@@ -609,6 +616,131 @@ describe('streamingBackgroundCommand', () => {
     ]) {
       expect(streamingBackgroundCommand(command)).toEqual({ command, changes: [] })
     }
+  })
+
+  it('adds `line` to an iterating run’s own `list` reporter (flash-m76)', () => {
+    // flash-m76's diagnosis run ended `--max-failures=15 … --reporter=list`: 15 tests took the
+    // full 4.0 minutes to report one cause, because the log carried each failure's duration and
+    // nothing of its error until the very end.
+    expect(
+      streamingBackgroundCommand('npx playwright test --max-failures=15 --reporter=list').command,
+    ).toBe('npx playwright test --max-failures=15 --reporter=list,line --retries=0')
+    // A whole-suite proof run keeps `list` alone — nothing stops it early, and the second
+    // reporter would only double its log.
+    expect(streamingBackgroundCommand('npx playwright test --reporter=list').command).toBe(
+      'npx playwright test --reporter=list',
+    )
+  })
+})
+
+/**
+ * X1 flash-m76: a capped diagnosis run walked 17 tests in 4.0 minutes; all 15 failures were the
+ * same `TimeoutError: page.waitForURL` from one missing `navigate('/')`, and the executor learned
+ * it only when the whole run was over. Lines below are that run's own log.
+ */
+describe('repeatingFailure', () => {
+  /** A `list`-reporter result line, as the log writes it. */
+  const list = (mark: string, n: number, where: string, title: string, seconds: string): string =>
+    `  ${mark}  ${String(n).padStart(3)} [chromium] › ../../fixtures/realworld/specs/e2e/${where} › ${title} (${seconds})`
+
+  const m76 = [
+    'Running 139 tests using 1 worker',
+    '',
+    list('✘', 1, 'articles.spec.ts:32:3', 'Articles › should create a new article', '15.6s'),
+    list('✘', 2, 'articles.spec.ts:50:3', 'Articles › should edit an existing article', '15.6s'),
+    list('✘', 3, 'articles.spec.ts:71:3', 'Articles › should delete an article', '15.6s'),
+  ].join('\n')
+
+  it('names the cause at the third failure of one shape, mid-run', () => {
+    const found = repeatingFailure(m76)
+    expect(found).not.toBeNull()
+    expect(found!.count).toBe(3)
+    expect(found!.seconds).toBe(15.6)
+    expect(found!.message).toBeNull()
+    expect(found!.tests.map((t) => t.where)).toEqual([
+      '../../fixtures/realworld/specs/e2e/articles.spec.ts:32',
+      '../../fixtures/realworld/specs/e2e/articles.spec.ts:50',
+      '../../fixtures/realworld/specs/e2e/articles.spec.ts:71',
+    ])
+    expect(found!.tests[0].title).toBe('should create a new article')
+  })
+
+  it('reads through a pass and a second duration that is the same timeout', () => {
+    const log = `${m76}\n${list('✓', 13, 'auth.spec.ts:33:3', 'Authentication › should show an error', '1.1s')}\n${list('✘', 14, 'auth.spec.ts:42:3', 'Authentication › should fail login', '15.1s')}`
+    // 15.6 s and 15.1 s are 0.5 s apart: one test timeout, not two causes.
+    expect(repeatingFailure(log)!.count).toBe(4)
+  })
+
+  it('says nothing about two failures, or about three that are not the same', () => {
+    expect(repeatingFailure(m76.split('\n').slice(0, 4).join('\n'))).toBeNull()
+    const mixed = [
+      list('✘', 1, 'a.spec.ts:1:1', 'A › one', '0.2s'),
+      list('✘', 2, 'b.spec.ts:2:2', 'B › two', '5.1s'),
+      list('✘', 3, 'c.spec.ts:3:3', 'C › three', '12.0s'),
+    ].join('\n')
+    expect(repeatingFailure(mixed)).toBeNull()
+  })
+
+  it('prefers the repeated error MESSAGE when the log carries the failure bodies', () => {
+    // A `line` reporter writes each failure's body as it happens — the shape an iterating run is
+    // put on so a mid-run look can read the cause itself.
+    const block = (n: number, title: string): string =>
+      [
+        `\u001B[1A\u001B[2K  ${n}) [chromium] › ../../fixtures/realworld/specs/e2e/auth.spec.ts:${n}:3 › Authentication › ${title} ────────`,
+        '',
+        '    Test timeout of 15000ms exceeded while running "beforeEach" hook.',
+        '',
+        '      12 |',
+        '    > 14 |   test.beforeEach(async ({ page }) => {',
+        '        at /workspace/fixtures/realworld/specs/e2e/articles.spec.ts:14:8',
+        '',
+        '    TimeoutError: page.waitForURL: Timeout 10000ms exceeded.',
+        '    =========================== logs ===========================',
+        '    waiting for navigation to "/" until "load"',
+        '',
+        '       at helpers/auth.ts:11',
+      ].join('\n')
+    const log = [
+      block(1, 'should register a new user'),
+      block(2, 'should login with an existing user'),
+      block(3, 'should fail login with the wrong password'),
+    ].join('\n\n')
+    const found = repeatingFailure(log)
+    expect(found!.count).toBe(3)
+    expect(found!.message).toBe('TimeoutError: page.waitForURL: Timeout 10000ms exceeded.')
+    expect(found!.tests[0].where).toBe('../../fixtures/realworld/specs/e2e/auth.spec.ts:1')
+  })
+
+  it('builds the note with the tests it hit, the stop command and no waiting', () => {
+    const found = repeatingFailure(m76)!
+    const note = repeatingFailureNote(found, {
+      taskId: 'mol-bg-mvax0rgp-63okfo',
+      log: '/tmp/mol-bg-mvax0rgp-63okfo.log',
+      stop: 'kill 412 419',
+    })
+    expect(note).toContain('3 of this run’s tests have already failed the same way')
+    expect(note).toContain('each after ~15.6s')
+    expect(note).toContain('✘ e2e/articles.spec.ts:32 › should create a new article (15.6s)')
+    expect(note).toContain('exec_command: kill 412 419')
+    expect(note).toContain('do not wait for the rest of it')
+  })
+
+  it('names the error message in the note when the log carried one', () => {
+    const found: RepeatingFailure = {
+      count: 4,
+      message: 'TimeoutError: page.waitForURL: Timeout 10000ms exceeded.',
+      seconds: null,
+      tests: [{ where: 'specs/e2e/auth.spec.ts:7', title: 'should register', seconds: null }],
+    }
+    const note = repeatingFailureNote(found, {
+      taskId: 'mol-bg-x-y',
+      log: '/tmp/mol-bg-x-y.log',
+      stop: 'kill 9',
+    })
+    expect(note).toContain(
+      'every one with `TimeoutError: page.waitForURL: Timeout 10000ms exceeded.`',
+    )
+    expect(note).toContain('Re-run `specs/e2e/auth.spec.ts:7` alone')
   })
 })
 

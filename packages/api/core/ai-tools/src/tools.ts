@@ -45,6 +45,62 @@ const outputFileByTask = new Map<string, string>()
  */
 const outputFileProbed = new Set<string>()
 
+/**
+ * How often a wait looks at a running task's log for a cause repeating among its failures.
+ * Env-tunable so a test can exercise it.
+ */
+const repeatingCauseLookMs = (): number => Number(process.env.MOL_AI_BG_CAUSE_LOOK_MS) || 10_000
+
+/**
+ * Task ids a wait has already named a repeating cause for. The note is news once; a second wait
+ * on the same run has nothing to add to it, and re-sending it would spend the executor's turns
+ * telling it what it has already been told.
+ */
+const repeatingCauseNoted = new Set<string>()
+
+/**
+ * The shell command that stops a background task by pid: the pid the platform wrote when it
+ * detached the run, plus every process under it.
+ *
+ * Both halves matter and neither is a pattern. Killing only the pid file's entry can leave the
+ * runner (`sh -c` wraps the command here) orphaned and still driving the app, and a
+ * `pkill -f <something>` is the shape that matches the shell running the kill itself — the
+ * platform holds that command once with the processes it would hit named
+ * (`molecule-dev/api/src/ai/pattern-kill-guard.ts`). `pgrep -P` walks to a real pid list, which
+ * is what the guard's own note sends the executor to.
+ *
+ * @param taskId - The task's `mol-bg-…` handle (format already checked by the caller).
+ * @returns The pids, space-separated, or '' when the pid file is gone.
+ */
+const taskPidsCommand = (taskId: string): string =>
+  `R=$(cat /tmp/${taskId}.pid 2>/dev/null); ` +
+  'all() { echo "$1"; for c in $(pgrep -P "$1" 2>/dev/null); do all "$c"; done; }; ' +
+  'all "$R" | tr "\\n" " "'
+
+/**
+ * The command that stops a running background task, read from the sandbox's own pid files.
+ *
+ * @param backend - The execution backend.
+ * @param taskId - The task's `mol-bg-…` handle.
+ * @returns The command to hand the executor — `kill <pids>` — falling back to the task's own pid
+ *   file when the walk comes back empty (a sandbox without `pgrep`, or a pid file already gone,
+ *   in which case the pid-file form is still the one the platform's guard names).
+ */
+async function taskStopCommand(backend: ExecutionBackend, taskId: string): Promise<string> {
+  const fallback = `kill $(cat /tmp/${taskId}.pid)`
+  try {
+    const r = await backend.run(taskPidsCommand(taskId), { timeout: 10_000 })
+    const pids = String(r.stdout ?? '')
+      .split(/\s+/)
+      .filter((p) => /^\d+$/.test(p))
+    return pids.length ? `kill ${pids.join(' ')}` : fallback
+  } catch (_error) {
+    // The sandbox would not answer the pid walk. The pid-file form below is what the platform
+    // tells the executor to use anyway, so there is nothing to report and nothing to lose.
+    return fallback
+  }
+}
+
 /** A millisecond span the way a model reads it: seconds under 90, else minutes. */
 function durationText(ms: number): string {
   const s = Math.max(0, Math.round(ms / 1000))
@@ -159,8 +215,11 @@ import {
   printsOnlySource,
   redactSecrets,
   redactSecretsInCode,
+  repeatingFailure,
+  repeatingFailureNote,
   resolvePath,
   RUNNING_FAILURE_LINES,
+  runningCauseCommand,
   runningOutputSliceCommand,
   shellQuote,
   sliceLines,
@@ -1810,12 +1869,50 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           return null
         }
       }
+      // A running SUITE whose failures repeat one cause is named at the third of them. The run
+      // would otherwise spend its whole clock proving that cause, and the executor only learns it
+      // from the finished log: X1 flash-m76 waited out 4.0 minutes of 15 tests where every
+      // failure was the same `TimeoutError: page.waitForURL` from one missing `navigate('/')`,
+      // and then fixed it in 51 s. The task is NOT stopped — the executor is handed the cause and
+      // its own pid command and decides.
+      let lastCauseLookAt = startedAt - repeatingCauseLookMs()
       let exitCode = await readExit()
       while (exitCode === null && Date.now() - startedAt < budgetMs) {
         await new Promise((r) =>
           setTimeout(r, Math.min(2_000, budgetMs - (Date.now() - startedAt))),
         )
         exitCode = await readExit()
+        // The exit file is read first, so a run that finishes between two looks still returns
+        // its real result instead of a note about it.
+        if (exitCode !== null) break
+        if (repeatingCauseNoted.has(taskId)) continue
+        if (Date.now() - lastCauseLookAt < repeatingCauseLookMs()) continue
+        lastCauseLookAt = Date.now()
+        let causeLog: string
+        try {
+          const r = await backend.run(runningCauseCommand(log, outputFileByTask.get(taskId)), {
+            timeout: 10_000,
+          })
+          causeLog = r.stdout ?? ''
+        } catch (_error) {
+          // No look at the log this tick; the next one asks again.
+          continue
+        }
+        const found = repeatingFailure(causeLog)
+        if (!found) continue
+        repeatingCauseNoted.add(taskId)
+        const earlyMs = Date.now() - startedAt
+        waitedByTask.set(taskId, waitedBefore + earlyMs)
+        return {
+          taskId,
+          status: 'repeating_failure',
+          waitedMs: earlyMs,
+          note: repeatingFailureNote(found, {
+            taskId,
+            log,
+            stop: await taskStopCommand(backend, taskId),
+          }),
+        }
       }
       const waitedMs = Date.now() - startedAt
       waitedByTask.set(taskId, waitedBefore + waitedMs)

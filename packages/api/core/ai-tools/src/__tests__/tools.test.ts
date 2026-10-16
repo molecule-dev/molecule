@@ -2147,9 +2147,11 @@ describe('wait_for_task output on a running task (flash-m61)', () => {
     expect(r.status).toBe('running')
     expect(r.outputSoFar).toContain('A › fails')
     const commands = run.mock.calls.map((c) => String(c[0]))
-    const sliceCommand = commands.find((c) => c.includes('tail -c'))
+    // The slice is the read that greps the failure lines out; the wait also makes a plain tail
+    // read of the same log to look for a repeating failure (repeatingFailure), and that one has
+    // no grep in it.
+    const sliceCommand = commands.find((c) => c.includes('grep -aE'))
     expect(sliceCommand).toBeDefined()
-    expect(sliceCommand).toContain('grep -aE')
     expect(sliceCommand).not.toContain('| tail -c 3000')
     expect(r.note).toContain(`grep -n '✘' /tmp/${id}.log`)
     expect(r.note).not.toContain('no need to tail it')
@@ -2487,6 +2489,116 @@ describe('wait_for_task on a stuck command', () => {
     }
     const cmd = (backend.run as ReturnType<typeof vi.fn>).mock.calls[0][0] as string
     expect(cmd).toContain(`echo $! > /tmp/${r.taskId}.pid`)
+  })
+})
+
+// ── a running suite whose failures repeat one cause ─────────────────────────
+// X1 flash-m76: a capped diagnosis run walked 17 tests in 4.0 minutes and every one of its 15
+// failures was the same page.waitForURL timeout from one missing `navigate('/')`, which the
+// executor learned only when `wait_for_task(280s)` returned the finished log. It then fixed the
+// cause in 51 s. The lines below are that run's own `list` output.
+describe('wait_for_task on a suite repeating one failure', () => {
+  const M76_LOG = [
+    'Running 139 tests using 1 worker',
+    '',
+    '  ✘    1 [chromium] › ../../fixtures/realworld/specs/e2e/articles.spec.ts:32:3 › Articles › should create a new article (15.6s)',
+    '  ✘    2 [chromium] › ../../fixtures/realworld/specs/e2e/articles.spec.ts:50:3 › Articles › should edit an existing article (15.6s)',
+    '  ✘    3 [chromium] › ../../fixtures/realworld/specs/e2e/articles.spec.ts:71:3 › Articles › should delete an article (15.6s)',
+  ].join('\n')
+
+  /**
+   * A backend for a task that has not exited: it answers the wait's log reads with `log`, its
+   * size probe with a constant, and the pid walk with `pids` (empty when it cannot).
+   */
+  function repeatingBackend(log: string, pids: string): ExecutionBackend {
+    return {
+      projectRoot: '/test',
+      readFile: vi.fn(async () => {
+        throw new Error('ENOENT')
+      }),
+      writeFile: vi.fn(),
+      deleteFile: vi.fn(),
+      readDir: vi.fn(),
+      run: vi.fn(async (command: string) => ({
+        stdout: /wc -c/.test(command) ? '900' : /pgrep -P/.test(command) ? pids : log,
+        stderr: '',
+        exitCode: 0,
+      })),
+    }
+  }
+
+  it('hands back the cause, the tests it hit and the stop command instead of waiting it out', async () => {
+    process.env.MOL_AI_BG_CAUSE_LOOK_MS = '1'
+    try {
+      const id = 'mol-bg-m76rep-abc123'
+      const wait = buildTools(repeatingBackend(M76_LOG, '412 419')).find(
+        (t) => t.name === 'wait_for_task',
+      )!
+      const t0 = Date.now()
+      const r = (await wait.execute({ taskId: id, timeout: 60_000 })) as {
+        status: string
+        note: string
+      }
+      expect(r.status).toBe('repeating_failure')
+      // The wait was 60 s; the cause was there at the third failure, so it returns in the first
+      // couple of seconds rather than spending the minute.
+      expect(Date.now() - t0).toBeLessThan(10_000)
+      expect(r.note).toContain('3 of this run’s tests have already failed the same way')
+      expect(r.note).toContain('✘ e2e/articles.spec.ts:32 › should create a new article (15.6s)')
+      // Every pid the task owns, from the sandbox's own pid file — never a pattern.
+      expect(r.note).toContain('`exec_command: kill 412 419`')
+      expect(r.note).toContain(`task ${id}`)
+    } finally {
+      delete process.env.MOL_AI_BG_CAUSE_LOOK_MS
+    }
+  })
+
+  it('falls back to the platform’s pid-file command when the pid walk comes back empty', async () => {
+    process.env.MOL_AI_BG_CAUSE_LOOK_MS = '1'
+    try {
+      const id = 'mol-bg-m76pid-abc124'
+      const wait = buildTools(repeatingBackend(M76_LOG, '')).find(
+        (t) => t.name === 'wait_for_task',
+      )!
+      const r = (await wait.execute({ taskId: id, timeout: 60_000 })) as { note: string }
+      expect(r.note).toContain(`kill $(cat /tmp/${id}.pid)`)
+    } finally {
+      delete process.env.MOL_AI_BG_CAUSE_LOOK_MS
+    }
+  })
+
+  it('keeps waiting when the failures are not the same shape', async () => {
+    process.env.MOL_AI_BG_CAUSE_LOOK_MS = '1'
+    try {
+      const log = [
+        '  ✘   1 [chromium] › e2e/a.spec.ts:1:1 › A › one (0.2s)',
+        '  ✘   2 [chromium] › e2e/b.spec.ts:2:2 › B › two (5.1s)',
+        '  ✘   3 [chromium] › e2e/c.spec.ts:3:3 › C › three (12.0s)',
+      ].join('\n')
+      const wait = buildTools(repeatingBackend(log, '')).find((t) => t.name === 'wait_for_task')!
+      const r = (await wait.execute({ taskId: 'mol-bg-m76mix-abc125', timeout: 300 })) as {
+        status: string
+      }
+      expect(r.status).toBe('running')
+    } finally {
+      delete process.env.MOL_AI_BG_CAUSE_LOOK_MS
+    }
+  })
+
+  it('names the cause once — a second wait on the same run just waits', async () => {
+    process.env.MOL_AI_BG_CAUSE_LOOK_MS = '1'
+    try {
+      const id = 'mol-bg-m76once-abc126'
+      const wait = buildTools(repeatingBackend(M76_LOG, '')).find(
+        (t) => t.name === 'wait_for_task',
+      )!
+      const first = (await wait.execute({ taskId: id, timeout: 60_000 })) as { status: string }
+      expect(first.status).toBe('repeating_failure')
+      const second = (await wait.execute({ taskId: id, timeout: 300 })) as { status: string }
+      expect(second.status).toBe('running')
+    } finally {
+      delete process.env.MOL_AI_BG_CAUSE_LOOK_MS
+    }
   })
 })
 
