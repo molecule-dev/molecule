@@ -1,5 +1,11 @@
 # @molecule/api-database-mysql
 
+## 1.2.4
+
+### Patch Changes
+
+- c3b7ee2: `convertPlaceholders` refuses a statement whose `$N` placeholders and supplied values disagree — a value that no placeholder names, or a placeholder with no value — instead of dropping the value (or binding `NULL`) in silence and returning the wrong rows. The error names the placeholder and the statement, matching the contract PostgreSQL enforces at bind time.
+
 ## 1.2.3
 
 ### Patch Changes

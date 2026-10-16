@@ -1,5 +1,12 @@
 # @molecule/api-database-sqlite
 
+## 1.2.5
+
+### Patch Changes
+
+- 608805b: A statement that fails now names itself: the error keeps its class and code and carries the one-line SQL in its message and on `sql`, so `datatype mismatch` and `no such table` say which statement hit them. The bound values are never included. `DataStore` queries put the table they were asked for in front of that statement.
+- bb676b3: `convertPlaceholders` refuses a statement whose `$N` placeholders and supplied values disagree — a value that no placeholder names, or a placeholder with no value — instead of dropping the value (or binding `NULL`) in silence and returning the wrong rows. The error names the placeholder and the statement, matching the contract PostgreSQL enforces at bind time.
+
 ## 1.2.4
 
 ### Patch Changes

@@ -1,5 +1,14 @@
 # @molecule/api-database-d1
 
+## 1.0.16
+
+### Patch Changes
+
+- d6b201c: A statement that fails now names itself: the D1 error keeps its class and code and carries the one-line SQL in its message and on `sql`, the same rule the SQLite bond applies to better-sqlite3. The bound values are never included.
+- Updated dependencies [608805b]
+- Updated dependencies [bb676b3]
+  - @molecule/api-database-sqlite@1.2.5
+
 ## 1.0.15
 
 ### Patch Changes

@@ -1,5 +1,26 @@
 # @molecule/api-ai-tools
 
+## 1.6.5
+
+### Patch Changes
+
+- b8129e7: The command-position reader nests: a command substitution opened inside a double-quoted string is tracked as its own context, so `DIR="$(cd "$(dirname "$0")" && pwd)"` no longer ends the statement's quotes early. Previously that line left the reader inside an unclosed substitution, and every newline after it was swallowed into one segment — `commandSegments` and `runsInCommandPosition` reported no program for the statements that followed, and a shell script whose text opens `"$( … )"` inside `"$( … )"` (a project's own test-runner script, for one) reported the runner it invokes as absent.
+- 56cec2c: `edit_file` refuses a replacement whose only change is the line break at its boundary — `new_string` is `old_string` with its trailing newline added or removed — whenever the file has text on the same line there, since applying it would move that text across lines. The rest of the batch is applied, and the result carries `skippedNote` naming the replacement and how to make the change on purpose.
+- 11f2676: `edit_file` reports where a not-found `old_string` stops matching the file — the diverging line, both versions of it, and the file from that point — instead of showing nearby lines the caller already matched.
+- 37ab149: The file tools refuse a write whose target is inside an installed package: `write_file`, `edit_file`, `delete_file`, `rename_file` and `create_directory` answer with the package's name and one line saying why — a `node_modules` path is not the app's code, the next install replaces it and a deploy never carries it — plus how to restore the package if a file there was already overwritten. Reading those files is unchanged. The refusal is exported as `installedPackageWriteRefusal` so a consumer's shell guard can apply the same one.
+- e9f389a: `repeatingFailureNote` no longer offers the failing test as something to run while the run is
+  still walking — a second suite run against the same app and database is refused — and names the
+  exact re-run command to send once the run ends instead: the running command, narrowed to that
+  test, in the directory the run was started in. The rule behind that refusal is now shared with
+  the caller rather than restated: `suiteRunInTheWay` answers whether a second suite run may start
+  beside the runs already in flight, and it, `suiteCommandTarget` and `scopedRerunCommand` live in
+  this package so both the note and the hold that enforces it read one implementation.
+- c0630ab: A whole-suite Playwright run keeps the suite's own retries even when it names an uncapped
+  `--max-failures=0`. Each was read as a capped diagnosis and had `--retries=0` added, so a proof
+  run against a deployed URL walked every failure once where the graded run retries it. Which runs
+  are diagnoses is now one predicate (`isDiagnosisRun`) shared with the platform's own notes, and a
+  run can no longer be a diagnosis to one of them and the whole suite to the other.
+
 ## 1.6.4
 
 ### Patch Changes
