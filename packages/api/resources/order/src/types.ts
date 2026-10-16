@@ -262,6 +262,12 @@ export interface OrderItemRow {
   quantity: number
   /** Optional product image URL. */
   image: string | null
+  /**
+   * The line's position in the submitted item list (0-based). Rows written
+   * before this column existed default to `0`; reads order by it so
+   * `Order.items` keeps the order the customer submitted.
+   */
+  position: number
 }
 
 /**

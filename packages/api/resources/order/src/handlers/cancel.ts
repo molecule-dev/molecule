@@ -6,7 +6,7 @@ import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 import { canDriveOrderLifecycle } from '../authorizers/index.js'
 import type { CancelOrderInput, OrderItemRow, OrderRow, OrderStatus } from '../types.js'
 import { BUYER_ALLOWED_TRANSITIONS, STATUS_TRANSITIONS } from '../types.js'
-import { assembleOrder } from '../utilities.js'
+import { assembleOrder, ORDER_ITEMS_IN_ORDER } from '../utilities.js'
 
 /**
  * Cancels an order. Only the order owner can cancel, and only from valid states.
@@ -94,6 +94,7 @@ export async function cancel(req: MoleculeRequest, res: MoleculeResponse): Promi
     const updatedRow: OrderRow = { ...orderRow, status: 'cancelled', updatedAt: now }
     const itemRows = await findMany<OrderItemRow>('order_items', {
       where: [{ field: 'orderId', operator: '=' as const, value: orderRow.id }],
+      orderBy: [...ORDER_ITEMS_IN_ORDER],
     })
 
     logger.debug('Order cancelled', { orderId: orderRow.id, userId, reason: input?.reason })

@@ -70,6 +70,13 @@ export interface OrderBy {
  */
 export interface FindManyOptions {
   where?: WhereCondition[]
+  /**
+   * The order the rows come back in, applied before `limit`/`offset`.
+   *
+   * **Row order is unspecified unless this is given** — see the note on
+   * {@link DataStore.findMany}. Pass it for every list whose order the caller
+   * depends on, not only for a list that "looks" sorted.
+   */
   orderBy?: OrderBy[]
   limit?: number
   offset?: number
@@ -105,6 +112,24 @@ export interface DataStore {
 
   /**
    * Find many records with filtering, sorting, and pagination.
+   *
+   * **Row order is unspecified unless `orderBy` is given.** No bond sorts for
+   * you — no database does. The rows come back in whatever order the plan
+   * produces: an un-indexed full scan yields heap order (which on SQLite is
+   * often insertion order), but a `where` on an INDEXED column — a foreign key
+   * like an `articleId`, an `orderId`, a `userId` — is answered from that
+   * index, so the rows arrive in the index's order instead. Two rows inserted
+   * first/second can therefore come back second/first.
+   *
+   * So any caller that depends on the order of the rows must pass `orderBy`
+   * explicitly — a list a spec asserts (`tagList[0]`, `items[0]`, a `[0]`/`[1]`
+   * index anywhere), a join table whose insertion order IS the client's data, a
+   * "newest first" feed. `orderBy: [{ field: 'createdAt', direction: 'desc' }]`
+   * is the usual one. Never assume the order rows were inserted in, and never
+   * assume the order an earlier call happened to return. When the table has no
+   * column that encodes the intended order, store one — a `position` integer
+   * written from the array index (see `@molecule/api-resource-article`'s
+   * `article_tags` and `@molecule/api-resource-order`'s `order_items`).
    */
   findMany<T = Record<string, unknown>>(table: string, options?: FindManyOptions): Promise<T[]>
 

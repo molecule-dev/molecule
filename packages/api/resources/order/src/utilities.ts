@@ -4,6 +4,8 @@
  * @module
  */
 
+import type { OrderBy } from '@molecule/api-database'
+
 import type {
   Address,
   Order,
@@ -13,6 +15,22 @@ import type {
   OrderItemRow,
   OrderRow,
 } from './types.js'
+
+/**
+ * The order an order's line items are read in: the order the customer submitted
+ * them in.
+ *
+ * `findMany` returns rows in whatever order the database's plan produces, and
+ * `where: [{ field: 'orderId', … }]` hits `idx_order_items_orderId` — so without
+ * this, `Order.items` comes back in the index's order instead of the submitted
+ * one. `position` is written from the array index at create time; `id` breaks
+ * the tie for rows written before the column existed (they all defaulted to
+ * `0`), which a spec asserting `items[0]` otherwise leaves to the database.
+ */
+export const ORDER_ITEMS_IN_ORDER: readonly OrderBy[] = [
+  { field: 'position', direction: 'asc' },
+  { field: 'id', direction: 'asc' },
+]
 
 /**
  * Converts a database order-item row into a typed {@link OrderItem}.
@@ -71,8 +89,13 @@ function parseAddress(json: string | null): Address | undefined {
 
 /**
  * Assembles a full {@link Order} object from a database order row and item rows.
+ *
+ * The items come out in the order `itemRows` is given, so the caller must read
+ * them with {@link ORDER_ITEMS_IN_ORDER} — `findMany`'s own order is the
+ * database's, not the customer's.
+ *
  * @param orderRow - The order database row.
- * @param itemRows - The order item database rows.
+ * @param itemRows - The order item database rows, in line order.
  * @returns The assembled order.
  */
 export function assembleOrder(orderRow: OrderRow, itemRows: OrderItemRow[]): Order {

@@ -94,7 +94,14 @@ const ITEM_ROW = {
   price: 10,
   quantity: 2,
   image: null,
+  position: 0,
 }
+
+/** The `orderBy` every read of `order_items` must pass (see the utilities test pinning it). */
+const ITEMS_ORDER_BY = [
+  { field: 'position', direction: 'asc' },
+  { field: 'id', direction: 'asc' },
+]
 
 describe('@molecule/api-resource-order handlers', () => {
   beforeEach(() => {
@@ -488,6 +495,33 @@ describe('@molecule/api-resource-order handlers', () => {
 
       expect(res.status).toHaveBeenCalledWith(500)
     })
+
+    it('writes each line at its submitted index, so a later read keeps the order', async () => {
+      mockCreate
+        .mockResolvedValueOnce({ data: ORDER_ROW }) // orders
+        .mockResolvedValueOnce({ data: { ...ITEM_ROW, id: 'item-1', productId: 'prod-1' } })
+        .mockResolvedValueOnce({ data: { ...ITEM_ROW, id: 'item-2', productId: 'prod-2' } })
+        .mockResolvedValueOnce({ data: { id: 'event-1' } }) // order_events
+
+      const req = mockReq({
+        body: {
+          items: [
+            { productId: 'prod-1', name: 'Widget', price: 10, quantity: 1 },
+            { productId: 'prod-2', name: 'Gadget', price: 5, quantity: 1 },
+          ],
+        },
+      })
+      const res = mockRes()
+
+      await create(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(201)
+      // Without this the column is left at its 0 default and every line ties,
+      // so `ORDER_ITEMS_IN_ORDER` collapses onto the `id` tie-break (a uuid):
+      // the read side is only as good as this write.
+      const writes = mockCreate.mock.calls.filter((call) => call[0] === 'order_items')
+      expect(writes.map((call) => (call[1] as { position: number }).position)).toEqual([0, 1])
+    })
   })
 
   describe('list', () => {
@@ -551,6 +585,22 @@ describe('@molecule/api-resource-order handlers', () => {
 
       expect(res.status).toHaveBeenCalledWith(500)
     })
+
+    it('reads each order’s lines in submitted order, not the row order the database gives', async () => {
+      mockFindMany.mockResolvedValueOnce([ORDER_ROW])
+      mockCount.mockResolvedValueOnce(1)
+      mockFindMany.mockResolvedValueOnce([ITEM_ROW])
+
+      const req = mockReq({ query: { page: '1', limit: '10' } })
+      const res = mockRes()
+
+      await list(req, res)
+
+      expect(mockFindMany).toHaveBeenCalledWith(
+        'order_items',
+        expect.objectContaining({ orderBy: ITEMS_ORDER_BY }),
+      )
+    })
   })
 
   describe('read', () => {
@@ -599,6 +649,23 @@ describe('@molecule/api-resource-order handlers', () => {
           id: 'order-1',
           items: [expect.objectContaining({ productId: 'prod-1' })],
         }),
+      )
+    })
+
+    it('reads the lines in submitted order, not the row order the database happens to give', async () => {
+      // `where orderId = ?` is an INDEXED lookup, so an unordered read returns
+      // the index's order — the submitted order is only kept by asking for it.
+      mockFindById.mockResolvedValueOnce(ORDER_ROW)
+      mockFindMany.mockResolvedValueOnce([ITEM_ROW])
+
+      const req = mockReq({ params: { id: 'order-1' } })
+      const res = mockRes()
+
+      await read(req, res)
+
+      expect(mockFindMany).toHaveBeenCalledWith(
+        'order_items',
+        expect.objectContaining({ orderBy: ITEMS_ORDER_BY }),
       )
     })
   })
@@ -700,6 +767,10 @@ describe('@molecule/api-resource-order handlers', () => {
         expect.objectContaining({ status: 'confirmed' }),
       )
       expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ status: 'confirmed' }))
+      expect(mockFindMany).toHaveBeenCalledWith(
+        'order_items',
+        expect.objectContaining({ orderBy: ITEMS_ORDER_BY }),
+      )
     })
   })
 
@@ -805,6 +876,10 @@ describe('@molecule/api-resource-order handlers', () => {
         expect.objectContaining({ status: 'cancelled' }),
       )
       expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ status: 'cancelled' }))
+      expect(mockFindMany).toHaveBeenCalledWith(
+        'order_items',
+        expect.objectContaining({ orderBy: ITEMS_ORDER_BY }),
+      )
     })
   })
 

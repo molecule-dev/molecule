@@ -93,9 +93,19 @@ export const findOne = async <T = Record<string, unknown>>(
  * Finds multiple records with optional filtering, sorting, pagination,
  * and column selection.
  *
+ * **The order of the rows is unspecified unless `options.orderBy` is given.**
+ * A `where` on an INDEXED column (an `articleId`, an `orderId`, a `userId`) is
+ * answered from that index, so the rows come back in the index's order — not
+ * the order they were inserted in, and not the order an earlier call returned.
+ * Pass `orderBy` for every list whose order the caller depends on: a feed
+ * (`orderBy: [{ field: 'createdAt', direction: 'desc' }]`), a list a spec
+ * asserts an index of (`tagList[0]`, `items[0]`), a join table whose insertion
+ * order is the client's data. See {@link DataStore.findMany} for the full note.
+ *
  * @param table - The database table name.
  * @param options - Query options including `where`, `orderBy`, `limit`, `offset`, and `select`.
- * @returns Array of matching records cast to `T`.
+ * @returns Array of matching records cast to `T`, in the order `options.orderBy` asks for
+ *   (an unspecified order when it is omitted).
  * @throws {Error} If no DataStore has been bonded.
  */
 export const findMany = async <T = Record<string, unknown>>(

@@ -4,7 +4,7 @@ import { logger } from '@molecule/api-logger'
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
 import type { OrderItemRow, OrderRow } from '../types.js'
-import { assembleOrder } from '../utilities.js'
+import { assembleOrder, ORDER_ITEMS_IN_ORDER } from '../utilities.js'
 
 /** Default page size for order listings. */
 const DEFAULT_LIMIT = 20
@@ -55,6 +55,7 @@ export async function list(req: MoleculeRequest, res: MoleculeResponse): Promise
       orderRows.map(async (orderRow) => {
         const itemRows = await findMany<OrderItemRow>('order_items', {
           where: [{ field: 'orderId', operator: '=', value: orderRow.id }],
+          orderBy: [...ORDER_ITEMS_IN_ORDER],
         })
         return assembleOrder(orderRow, itemRows)
       }),

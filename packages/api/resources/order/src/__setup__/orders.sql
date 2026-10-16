@@ -27,7 +27,12 @@ CREATE TABLE IF NOT EXISTS "order_items" (
   "name" VARCHAR(255) NOT NULL,
   "price" NUMERIC(12,2) NOT NULL,
   "quantity" INTEGER NOT NULL DEFAULT 1,
-  "image" TEXT
+  "image" TEXT,
+  -- The order the line was submitted in (0-based). Without it a reader of this
+  -- table gets the items in whatever order the database returns rows — and
+  -- `where "orderId" = ?` is an INDEXED lookup, so that is the index's order,
+  -- not the order the customer submitted.
+  "position" INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE INDEX IF NOT EXISTS "idx_order_items_orderId" ON "order_items" ("orderId");

@@ -1,7 +1,13 @@
 import { describe, expect, it } from 'vitest'
 
 import type { OrderEventRow, OrderItemRow, OrderRow } from '../types.js'
-import { assembleOrder, computeSubtotal, toOrderEvent, toOrderItem } from '../utilities.js'
+import {
+  assembleOrder,
+  computeSubtotal,
+  ORDER_ITEMS_IN_ORDER,
+  toOrderEvent,
+  toOrderItem,
+} from '../utilities.js'
 
 describe('order utilities', () => {
   describe('toOrderItem', () => {
@@ -15,6 +21,7 @@ describe('order utilities', () => {
         price: 10,
         quantity: 2,
         image: null,
+        position: 0,
       }
 
       const item = toOrderItem(row)
@@ -40,6 +47,7 @@ describe('order utilities', () => {
         price: 10,
         quantity: 1,
         image: 'https://example.com/img.png',
+        position: 0,
       }
 
       const item = toOrderItem(row)
@@ -146,6 +154,7 @@ describe('order utilities', () => {
           price: 20,
           quantity: 2,
           image: null,
+          position: 0,
         },
       ]
 
@@ -195,6 +204,19 @@ describe('order utilities', () => {
       expect(order.paymentId).toBeUndefined()
       expect(order.notes).toBeUndefined()
       expect(order.items).toEqual([])
+    })
+  })
+
+  describe('ORDER_ITEMS_IN_ORDER', () => {
+    it('orders by the stored line index first, so a re-read keeps the submitted order', () => {
+      // Pinned literally: this array is a PUBLIC contract (`Order.items` is in
+      // this order, and an app reading `order_items` itself passes it). An
+      // `id`-first or missing `position` here silently returns the database's
+      // row order — which is the index's, not the customer's.
+      expect(ORDER_ITEMS_IN_ORDER).toEqual([
+        { field: 'position', direction: 'asc' },
+        { field: 'id', direction: 'asc' },
+      ])
     })
   })
 })

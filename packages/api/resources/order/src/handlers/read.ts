@@ -4,7 +4,7 @@ import { logger } from '@molecule/api-logger'
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
 import type { OrderItemRow, OrderRow } from '../types.js'
-import { assembleOrder } from '../utilities.js'
+import { assembleOrder, ORDER_ITEMS_IN_ORDER } from '../utilities.js'
 
 /**
  * Retrieves a single order by ID. Only the order owner can read it.
@@ -44,6 +44,7 @@ export async function read(req: MoleculeRequest, res: MoleculeResponse): Promise
 
     const itemRows = await findMany<OrderItemRow>('order_items', {
       where: [{ field: 'orderId', operator: '=', value: orderRow.id }],
+      orderBy: [...ORDER_ITEMS_IN_ORDER],
     })
 
     res.json(assembleOrder(orderRow, itemRows))

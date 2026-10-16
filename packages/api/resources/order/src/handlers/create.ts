@@ -281,7 +281,10 @@ export async function create(req: MoleculeRequest, res: MoleculeResponse): Promi
     const orderRow = orderResult.data!
 
     const itemRows: OrderItemRow[] = []
-    for (const item of pricedItems) {
+    // `position` is the array index so `order_items` keeps the submitted line
+    // order — a reader of the table (read/list/cancel/updateStatus, an app's own
+    // query) must not depend on the row order the database happens to return.
+    for (const [position, item] of pricedItems.entries()) {
       const itemResult = await dbCreate<OrderItemRow>('order_items', {
         orderId: orderRow.id,
         productId: item.productId,
@@ -290,6 +293,7 @@ export async function create(req: MoleculeRequest, res: MoleculeResponse): Promi
         price: item.price,
         quantity: item.quantity,
         image: item.image ?? null,
+        position,
       })
       itemRows.push(itemResult.data!)
     }

@@ -38,9 +38,17 @@
  * row records only the BUYER (`userId`), so it cannot know who the seller is.
  *
  * Tables: `src/__setup__/orders.sql` creates `orders`, `order_items`, and
- * `order_events`. An mlcl-scaffolded API replays `__setup__/*.sql`
+ * `order_events`. `src/__setup__/orders_position.sql` adds `order_items.position`
+ * to a database whose table predates the column. An mlcl-scaffolded API replays `__setup__/*.sql`
  * on migrate (a `CREATE TABLE IF NOT EXISTS`, so a table the app's own migrations already create keeps only its own columns: ALTER in the ones it lacks); anywhere else run it once — nothing at runtime
  * creates them.
+ *
+ * `Order.items` is in the order the customer submitted the lines in, kept by
+ * `order_items.position` (0-based). An app that reads `order_items` itself must
+ * order by `position` — `where: [{ field: 'orderId', … }]` is an INDEXED lookup,
+ * so `findMany` without `orderBy` returns the index's order, and an assertion on
+ * `items[0]` reads the wrong line otherwise. Pass
+ * `orderBy: [...ORDER_ITEMS_IN_ORDER]` (exported here).
  *
  * @e2e
  * Integration checklist — drive the real UI (live preview, no mocks), adapt

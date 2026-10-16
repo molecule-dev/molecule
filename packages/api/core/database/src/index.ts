@@ -43,6 +43,15 @@
  *   `findMany('plants', { where: [{ field: 'speciesId', operator: '=', value: id }], limit: 50 })`.
  *   A bare key object — `findMany('plants', { speciesId: id })` — is NOT a valid
  *   `FindManyOptions` and will not filter.
+ * - **A list's order is unspecified unless you pass `orderBy`.** `findMany` returns rows in
+ *   whatever order the database's plan produces: a `where` on an INDEXED column (an
+ *   `articleId`, an `orderId`, a `userId`) is answered from that index, so the rows come back
+ *   in the INDEX's order — NOT the order they were inserted. Pass
+ *   `orderBy: [{ field: 'createdAt', direction: 'desc' }]` for anything whose order matters (a
+ *   feed, a list a spec asserts an index of — `tagList[0]`, `items[0]`). If no column encodes
+ *   the intended order, store one: a `position` integer written from the array index (see
+ *   `@molecule/api-resource-article`'s `article_tags`, `@molecule/api-resource-order`'s
+ *   `order_items`).
  * - **Raw SQL: import the standalone `query(sql, values)` from this package** —
  *   NOT `getStore().query()`. The DataStore has no `query`; raw parameterized
  *   query lives on the pool/provider. The store also has NO `.exec()`,

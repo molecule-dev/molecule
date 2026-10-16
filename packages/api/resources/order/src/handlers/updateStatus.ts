@@ -6,7 +6,7 @@ import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 import { canDriveOrderLifecycle } from '../authorizers/index.js'
 import type { OrderItemRow, OrderRow, OrderStatus, UpdateOrderStatusInput } from '../types.js'
 import { BUYER_ALLOWED_TRANSITIONS, ORDER_STATUSES, STATUS_TRANSITIONS } from '../types.js'
-import { assembleOrder } from '../utilities.js'
+import { assembleOrder, ORDER_ITEMS_IN_ORDER } from '../utilities.js'
 
 /**
  * Updates an order's status with transition validation.
@@ -101,6 +101,7 @@ export async function updateStatus(req: MoleculeRequest, res: MoleculeResponse):
     const updatedRow: OrderRow = { ...orderRow, status: input.status, updatedAt: now }
     const itemRows = await findMany<OrderItemRow>('order_items', {
       where: [{ field: 'orderId', operator: '=' as const, value: orderRow.id }],
+      orderBy: [...ORDER_ITEMS_IN_ORDER],
     })
 
     logger.debug('Order status updated', {
