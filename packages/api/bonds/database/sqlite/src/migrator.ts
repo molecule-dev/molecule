@@ -128,14 +128,19 @@ function addColumnSpans(
 }
 
 /**
- * Remove the `ADD COLUMN IF NOT EXISTS` statements whose column the table
- * already has, or that this same file declares in its own
- * `CREATE TABLE IF NOT EXISTS` — the whole point of the clause, which SQLite
- * itself has no `ADD COLUMN` form of. Left in, the translated statement fails
- * with `duplicate column name`: the file rolls back, is never recorded, and
- * warns on every boot that "nothing in this file was applied" while the schema is
- * in fact complete. A statement for a table that does not exist is kept, so a
- * genuinely wrong table still fails the run.
+ * Remove the `ADD COLUMN IF NOT EXISTS` statements the database already
+ * satisfies — Postgres's reading of the clause, which SQLite itself has no
+ * `ADD COLUMN` form of. A statement is satisfied when the table has the column,
+ * or when the table does not exist yet and this same file declares the column in
+ * its own `CREATE TABLE IF NOT EXISTS` (the CREATE makes it, so the ALTER is the
+ * no-op Postgres would see). A statement for a table that does not exist and that
+ * the file does not create is kept, so a genuinely wrong table still fails the
+ * run.
+ *
+ * Left in, an unsatisfied statement is what fails: translated to a bare
+ * `ADD COLUMN` it hits `duplicate column name`, the file rolls back, is never
+ * recorded, and warns on every boot that "nothing in this file was applied"
+ * while the schema is in fact complete.
  *
  * @param db - The open database.
  * @param sql - The migration file as written.
@@ -152,7 +157,8 @@ function dropSatisfiedAddColumns(db: Database.Database, sql: string): string {
       name: string
     }[]
     const has =
-      declared.has(key) || existing.some((c) => c.name.toLowerCase() === span.column.toLowerCase())
+      existing.some((c) => c.name.toLowerCase() === span.column.toLowerCase()) ||
+      (existing.length === 0 && declared.has(key))
     if (has) out = out.slice(0, span.from) + out.slice(span.to)
   }
   return out

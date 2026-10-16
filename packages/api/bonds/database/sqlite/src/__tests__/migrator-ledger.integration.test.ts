@@ -185,6 +185,35 @@ describe('createMigrator (sqlite) — ledger', () => {
     ).toEqual(['0001_init.sql', '0002_seq.sql'])
   })
 
+  it('still adds the column when the table exists without it, even though the file declares it', async () => {
+    // Postgres's reading of the clause, which this bond matches: on the existing
+    // table the file's own `CREATE TABLE IF NOT EXISTS` is a no-op, so the ADD
+    // COLUMN is what has to deliver the column — the same shape as a setup file
+    // that adds a column to a table created by an earlier file.
+    writeFileSync(
+      join(migrationsDir, '0001_init.sql'),
+      'CREATE TABLE IF NOT EXISTS "notes" ("id" INTEGER PRIMARY KEY);',
+    )
+    await createMigrator(migrationsDir)()
+    writeFileSync(
+      join(migrationsDir, '0002_seq.sql'),
+      'CREATE TABLE IF NOT EXISTS "notes" ("id" INTEGER PRIMARY KEY, "seq" INTEGER);\n' +
+        'ALTER TABLE "notes" ADD COLUMN IF NOT EXISTS "seq" INTEGER;',
+    )
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    vi.spyOn(console, 'log').mockImplementation(() => {})
+    await createMigrator(migrationsDir)()
+    expect(warn).not.toHaveBeenCalled()
+    expect(
+      query<{ name: string }>("SELECT name FROM pragma_table_info('notes')").map((c) => c.name),
+    ).toEqual(['id', 'seq'])
+    expect(
+      query<{ file: string }>(`SELECT file FROM "${MIGRATION_LEDGER}" ORDER BY file`).map(
+        (r) => r.file,
+      ),
+    ).toEqual(['0001_init.sql', '0002_seq.sql'])
+  })
+
   it('still fails the run when ADD COLUMN IF NOT EXISTS names a table that is not there', async () => {
     writeFileSync(
       join(migrationsDir, '0001_init.sql'),
