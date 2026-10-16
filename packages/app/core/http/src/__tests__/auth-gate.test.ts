@@ -105,6 +105,23 @@ describe('the auth gate', () => {
     expect(mockFetch).toHaveBeenCalledTimes(1)
   })
 
+  it('sends the request rather than holding it forever when the gate never settles', async () => {
+    // A stalled restore must not hold back every request for the life of the page.
+    vi.useFakeTimers()
+    try {
+      setAuthGate(() => new Promise<void>(() => {}))
+      const client = createFetchClient({ baseURL: 'http://api.test' })
+
+      const request = client.get('/feed')
+      await vi.advanceTimersByTimeAsync(10_000)
+      await request
+
+      expect(mockFetch).toHaveBeenCalledTimes(1)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
   it('does not wait once the gate is cleared', async () => {
     setAuthGate(null)
     const client = createFetchClient({ baseURL: 'http://api.test' })
