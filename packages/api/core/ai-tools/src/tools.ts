@@ -65,6 +65,8 @@ import {
   redactSecrets,
   redactSecretsInCode,
   resolvePath,
+  RUNNING_FAILURE_LINES,
+  runningOutputSliceCommand,
   shellQuote,
   sliceLines,
   SMALL_FILE_WHOLE_CHARS,
@@ -1620,17 +1622,16 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           }
         }
         // The output so far rides the result: a wait that shows nothing was waited blind
-        // (X1 flash-m50: 4m42s across two waits on an 11-minute run).
+        // (X1 flash-m50: 4m42s across two waits on an 11-minute run). The slice leads with the
+        // failure lines, not the last bytes — a suite's tail is its progress lines
+        // (X1 flash-m61: the last 3 000 bytes of a 139-test walk were the skip list).
         const own = outputFileByTask.get(taskId)
         let soFar: string
         try {
-          const r = await backend.run(
-            `cat ${log}${own ? ` ${shellQuote(own)}` : ''} 2>/dev/null | tail -c 3000`,
-            { timeout: 5_000 },
-          )
+          const r = await backend.run(runningOutputSliceCommand(log, own), { timeout: 5_000 })
           soFar = r.stdout ?? ''
         } catch (_error) {
-          // No tail: the note still says how to peek.
+          // No slice: the note still says how to peek.
           soFar = ''
         }
         return {
@@ -1640,7 +1641,12 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           ...(soFar.trim() ? { outputSoFar: sanitizeOutput(soFar) } : {}),
           note:
             `Still running after ${Math.round(waitedMs / 1000)}s. Call wait_for_task again to ` +
-            `keep waiting — its result carries the log output${soFar.trim() ? '; outputSoFar is the end of the log as it stands, so there is no need to tail it' : ''}. ` +
+            `keep waiting — its result carries the log output. ` +
+            (soFar.trim()
+              ? `outputSoFar is the failure lines so far (up to ${RUNNING_FAILURE_LINES}) and then the end of ` +
+                `the log, not the whole run — \`grep -n '✘' ${log} | head -40\` lists every failure, ` +
+                `\`grep -n -A 20 '<test name>' ${log}\` reads one failure's error. `
+              : `Nothing has been printed yet — \`grep -n '✘' ${log} | head -40\` lists failures as they appear. `) +
             `Meanwhile do work that leaves the code under test alone (read the failures so far, plan the fixes): editing app/src or api/src now changes the code the run is testing, and its result no longer counts.`,
         }
       }
