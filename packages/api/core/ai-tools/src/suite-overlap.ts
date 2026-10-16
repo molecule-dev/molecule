@@ -19,8 +19,18 @@
  * note hands over is built from the same reading of the running command
  * ({@link scopedRerunCommand}).
  *
+ * The same treatment for the other pair that answered one question twice: whether a run walks the
+ * WHOLE suite or a part of it. The rewriter that decides whether a background Playwright run gets
+ * `--retries=0` ({@link ./utilities.js} `streamingBackgroundCommand`) and the platform's own notes
+ * (molecule-dev's `suite-cli-override.ts`) asked it separately — a regex there, a predicate here —
+ * until xr-molecule-flash-m89 showed the two answers were never the same question
+ * ({@link isDiagnosisRun}).
+ *
  * @module
  */
+
+import { commandSegments } from './command-position.js'
+import { commandRunsNoTests } from './no-test-run.js'
 
 /**
  * A command with its heredoc bodies removed: the runs, kills and hosts it names in a file it
@@ -139,4 +149,95 @@ export function suiteRunInTheWay<T extends SuiteRunInFlight>(
       (run) => run.runsSuite && run.target === candidate.target && !run.stoppedByCommand,
     ) ?? null
   )
+}
+
+/**
+ * The Playwright invocation of a command, as its own command-position text (`playwright test …`),
+ * or null when the command starts no Playwright run.
+ *
+ * The runner's own word has to END where the sub-command starts (`(?=\s|$)`, not a `\b`): a
+ * segment can be a fragment beginning at a `playwright test` printed INSIDE a string
+ * (`echo "then npx playwright test" && npx playwright test`), and a match that ends against the
+ * closing quote is that echo. A version-pinned `playwright@1.44.0 test` is the same run.
+ */
+const PLAYWRIGHT_RUN = /^(?:@playwright\/test|playwright)(?:@\S+)?\s+test(?=\s|$)/
+
+/**
+ * What narrows a Playwright run to a part of the suite: a named file or line, a title filter, or
+ * the tests the run before it printed (`--last-failed`, `--only-changed`).
+ */
+const NARROWED_RUN =
+  /\.(?:spec|test)\.[cm]?[jt]sx?\b|\.[cm]?[jt]sx?:\d+|(?:^|\s)(?:-g|--grep(?:-invert)?|--last-failed|--only-changed)\b/
+
+/**
+ * The Playwright invocation's text when the command starts one, or null.
+ *
+ * @param command - The command as the executor sent it.
+ * @returns The invocation's command-position text, or null.
+ */
+function playwrightRun(command: string): string | null {
+  return (
+    commandSegments(withoutHeredocs(command)).find((segment) => PLAYWRIGHT_RUN.test(segment.text))
+      ?.text ?? null
+  )
+}
+
+/**
+ * Whether a `--max-failures` BOUNDS the walk: the flag is given a count above zero.
+ *
+ * Playwright's own spelling of "no cap" is zero — `maxFailures: 0` "disables the feature" — and
+ * that is the flag the platform's `testRunNote` asks for on the uncapped whole-suite run ("run the
+ * whole suite once with `--max-failures=0`"), which is why this is not a plain flag test.
+ *
+ * @param command - The command as the executor sent it.
+ * @returns True when a failure cap would stop the walk.
+ */
+function boundsFailures(command: string): boolean {
+  const flag = /(?:^|[\s;&|(])--max-failures(?![-\w])/.exec(command)
+  if (!flag) return false
+  const value = /(?:^|[\s;&|(])--max-failures(?:=|\s+)(['"]?)(\d[\d_]*)/.exec(command)?.[2]
+  // A `--max-failures` with no count at all is not the uncapped spelling of anything: it is read
+  // as a cap, the way Playwright's own default reading of the flag is a count of failures.
+  if (value === undefined) return true
+  return Number(value.replace(/_/g, '')) !== 0
+}
+
+/**
+ * Whether a command walks a PART of a suite instead of all of it: a cap that stops it at a failure
+ * count, the failures the last run printed (`--last-failed`, `--only-changed`), a title filter, or
+ * named files/lines.
+ *
+ * THE one reading of that question, in one place. Two sites act on the answer and must never
+ * disagree:
+ *
+ * - the command rewriter that adds `--retries=0` to a background Playwright run
+ *   ({@link ./utilities.js} `streamingBackgroundCommand`) — a diagnosis walks each failure once,
+ *   while the run the suite is judged by keeps the suite's own retries; and
+ * - the platform's own notes (molecule-dev's `suite-cli-override.ts`), which must not tell the
+ *   executor to drop the `--retries=0` the platform itself has just added — the contradiction X1
+ *   flash-m74 and m75 filed, and m76 filed a third time.
+ *
+ * Until xr-molecule-flash-m89 they were a regex and a predicate that only LOOKED alike, and the
+ * gap was exactly the run the platform had asked for: its `testRunNote` says "run the whole suite
+ * once with `--max-failures=0`", and the rewriter read that cap flag as a capped diagnosis and
+ * stripped the suite's retries from the uncapped proof run that follows a deploy — the one run the
+ * graded run is compared against (+25:03, +31:39, +36:40 and +49:57, the last two against the
+ * deployed URL, where a network blip is likeliest and the retries it dropped are the ones that
+ * absorb it).
+ *
+ * `--max-failures=0` is Playwright's own "no cap" ({@link boundsFailures}), so it is not a
+ * diagnosis. A command that starts no Playwright run is not one either (false): the question is
+ * about a run already read as a Playwright suite.
+ *
+ * @param command - The command as the executor sent it.
+ * @returns True when the run is a diagnosis or a re-run, not the whole suite.
+ */
+export function isDiagnosisRun(command: string): boolean {
+  if (boundsFailures(command)) return true
+  const run = playwrightRun(command)
+  if (run === null) return false
+  // A run that only collects and prints (`playwright test --list`, `--version`) walks no part of
+  // the suite either, and is not the whole-suite run the retries belong on.
+  if (commandRunsNoTests(run)) return true
+  return NARROWED_RUN.test(run)
 }

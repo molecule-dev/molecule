@@ -10,6 +10,7 @@ import { posix } from 'path'
 import { commandSegments } from './command-position.js'
 import { commandRunsNoTests } from './no-test-run.js'
 import {
+  isDiagnosisRun,
   scopedRerunCommand,
   suiteCommandTarget,
   suiteRunInTheWay,
@@ -437,11 +438,11 @@ export function streamingBackgroundCommand(command: string): {
   // A diagnosis or a re-run (capped, last-failed, grepped, or named files) walks each failure
   // once: the suite's own `retries` doubled every failure of X1 flash-m71's first whole run,
   // which had dropped the `--retries=0` it used one command earlier. The uncapped proof run
-  // keeps the suite's retries.
-  const iterating =
-    /--max-failures\b|--last-failed\b|(?:^|\s)(?:-g|--grep)\b|\S+\.(?:spec|test)\.[cm]?[jt]sx?(?::\d+)?\b/.test(
-      lastStep,
-    )
+  // keeps the suite's retries — including the `--max-failures=0` the platform's own note asks
+  // for on it (xr-molecule-flash-m89). Which runs those are is {@link isDiagnosisRun}'s answer
+  // and nobody else's: the platform's notes ask the same function, so a run cannot be a
+  // diagnosis to one of them and the whole suite to the other.
+  const diagnosis = isDiagnosisRun(lastStep)
   // The last step's reporters: one printer, and it is `list`. Every branch below only ever moves
   // the command TO that shape — a reporter set is never left with two printers in it.
   const reporters = finalPlaywrightRun ? lastReporterFlag(lastStep) : null
@@ -491,7 +492,7 @@ export function streamingBackgroundCommand(command: string): {
         '(the config reporter may print nothing until the end).',
     )
   }
-  if (finalPlaywrightRun && iterating && !/--retries\b/.test(lastStep)) {
+  if (finalPlaywrightRun && diagnosis && !/--retries\b/.test(lastStep)) {
     out = `${out.trimEnd()} --retries=0`
     changes.push(
       'Added `--retries=0`: a diagnosis or re-run walks each failure once; keep the suite’s retries for the proof run.',

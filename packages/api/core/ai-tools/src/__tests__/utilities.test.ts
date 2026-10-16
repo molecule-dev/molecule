@@ -589,6 +589,40 @@ describe('streamingBackgroundCommand', () => {
     ).not.toContain('--retries=0')
   })
 
+  it('keeps the suite’s retries on the uncapped proof run the platform asked for (flash-m89)', () => {
+    // The platform's own `testRunNote` asks for the whole suite with `--max-failures=0` ("run the
+    // whole suite once with `--max-failures=0`"), and every one of those runs came back "Added
+    // `--retries=0`: a diagnosis or re-run walks each failure once" — including m89's two proofs
+    // against the deployed URL (+36:40 and +49:57), where the retries it dropped are the ones that
+    // absorb a network blip. `maxFailures: 0` is Playwright's own spelling of NO cap ("Setting to
+    // zero disables the feature"), so the run is the whole suite and keeps them.
+    //
+    // m89's proof command: its last local whole-suite run, which the platform's deploy note hands
+    // back with the base URL swapped for the deployed one.
+    const proof =
+      'cd /workspace/.mol-scratch/e2e && TEST_MODE=fullstack ' +
+      'BASE_URL=https://loopcheck-xr-molecule-flash-m89.apps.mlcl.dev npx --no-install ' +
+      'playwright test --config=playwright.config.ts --reporter=list --workers=1 --max-failures=0'
+    // Already the shape the platform reads back (one `list` reporter), so nothing is rewritten.
+    expect(streamingBackgroundCommand(proof)).toEqual({ command: proof, changes: [] })
+    // The space spelling is the same flag to Playwright, and neither is a cap.
+    expect(
+      streamingBackgroundCommand('npx playwright test --max-failures 0').command,
+    ).not.toContain('--retries')
+    // A cap that bounds something still is a diagnosis — m89's own first local run.
+    expect(
+      streamingBackgroundCommand(
+        'cd /workspace/.mol-scratch/e2e && TEST_MODE=fullstack BASE_URL=http://localhost:5173 ' +
+          'npx --no-install playwright test --max-failures=15 --config=playwright.config.ts ' +
+          '2>&1 | tail -70',
+      ).command,
+    ).toContain('--retries=0')
+    // And so is a run that is uncapped AND narrowed: it still walks a part of the suite.
+    expect(
+      streamingBackgroundCommand('npx playwright test --max-failures=0 -g "signs in"').command,
+    ).toContain('--retries=0')
+  })
+
   it('switches a final playwright run off a printing reporter the fail-fast cannot read', () => {
     expect(
       streamingBackgroundCommand('cd spec/run && npx playwright test --reporter=line'),
