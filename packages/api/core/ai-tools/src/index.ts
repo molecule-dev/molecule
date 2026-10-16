@@ -38,6 +38,15 @@
  *   Line numbers count the way `read_file` does, so they are valid offsets. The
  *   excerpt is redacted like a read. The existing fields (`ok`,
  *   `replacementsApplied`, `alreadyApplied`, `syntaxError`) are unchanged.
+ * - **A dropped line break and the parse error it causes are reported as ONE
+ *   thing.** When a replacement's `old_string` ended with a newline and its
+ *   `new_string` does not (so the next line is pulled up onto it) and the file
+ *   then fails its parse check, `edit_file` returns a single `syntaxError` that
+ *   names the replacement, shows the fused line with its number, and says to
+ *   re-send that replacement with the newline restored — instead of the
+ *   `newlineNote` hint beside an unrelated-looking parse error, which an executor
+ *   repairs by rewriting the fused line's text and fuses the next one. The
+ *   `newlineNote` alone is still returned when the file parses.
  * - **A parameter under another name is not a broken tool.** Every tool's input
  *   is normalized first (`cmd` → `command`, `file` → `path`, camelCase ⇄
  *   snake_case), and a handler that throws returns an error naming the missing

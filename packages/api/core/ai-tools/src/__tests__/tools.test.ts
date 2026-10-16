@@ -2254,4 +2254,43 @@ describe('edit_file — a dropped line break is said', () => {
     })) as { newlineNote?: string }
     expect(ok.newlineNote).toBeUndefined()
   })
+
+  it('folds the dropped newline and the parse error it caused into one message naming the fused line (flash-m55)', async () => {
+    let file = 'const a = 1\nconst b = 2\nconst c = 3\n'
+    const backend = {
+      projectRoot: '/test',
+      readFile: vi.fn(async () => file),
+      writeFile: vi.fn(async (_p: string, c: string) => {
+        file = c
+      }),
+      deleteFile: vi.fn(),
+      readDir: vi.fn(),
+      // The parse check runs the real esbuild command; its failure is faked in the
+      // shape `parseCheckCommand` prints — `line:col: message`, the source line,
+      // and a caret.
+      run: vi.fn().mockResolvedValue({
+        stdout: '',
+        stderr:
+          '2:22: Expected ";" but found "const"\nconst b = 22const c = 33\n                     ^',
+        exitCode: 1,
+      }),
+    }
+    const edit = buildTools(backend).find((t) => t.name === 'edit_file')!
+    // One batch, exactly the shape flash-m55 re-fused three times: one replacement
+    // drops the trailing newline and another edits what was the following line.
+    const r = (await edit.execute({
+      path: 'a.ts',
+      replacements: [
+        { old_string: 'const b = 2\n', new_string: 'const b = 22' },
+        { old_string: 'const c = 3', new_string: 'const c = 33' },
+      ],
+    })) as { newlineNote?: string; syntaxError?: string }
+    expect(r.syntaxError).toMatch(/no longer parses/)
+    expect(r.syntaxError).toContain('replacement 1')
+    // The two joined lines shown as the one line they now are, with its number.
+    expect(r.syntaxError).toContain('2: const b = 22const c = 33')
+    expect(r.syntaxError).toMatch(/restored on new_string/)
+    // One message, not a hint beside an unrelated-looking parse error.
+    expect(r.newlineNote).toBeUndefined()
+  })
 })

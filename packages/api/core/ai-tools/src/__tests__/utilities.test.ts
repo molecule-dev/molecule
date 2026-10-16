@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import {
   checkBlockedCommand,
+  fusedLine,
   isEnvFilePath,
   isValidGlob,
   outputRedirectTarget,
@@ -574,6 +575,26 @@ describe('truncateMiddle — test runs (flash-m45)', () => {
     for (let i = 0; i < 3; i++) expect(cut).toContain(`Error: expected thing ${i}`)
     expect(cut).toContain('3 failed')
     expect(cut).toContain('3 of 3 failure blocks kept')
+  })
+})
+
+describe('fusedLine', () => {
+  it('reads back the line two lines became when a newline was dropped', () => {
+    expect(fusedLine('const a = 1\nconst b = 22const c = 33\n', 'const b = 22')).toEqual({
+      line: 2,
+      text: 'const b = 22const c = 33',
+    })
+  })
+
+  it('is null when the newline survived, and when the replacement ends the file', () => {
+    expect(fusedLine('const a = 1\nconst b = 22\n', 'const b = 22')).toBeNull()
+    expect(fusedLine('const a = 1\nconst b = 22', 'const b = 22')).toBeNull()
+  })
+
+  it('keeps looking past an occurrence a later edit rewrote the boundary of', () => {
+    // The replacement's text appears twice; only the second occurrence has more
+    // of the line after it.
+    expect(fusedLine('x b\nx btail\n', 'x b')).toEqual({ line: 2, text: 'x btail' })
   })
 })
 

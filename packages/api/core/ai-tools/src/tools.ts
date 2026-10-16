@@ -43,6 +43,7 @@ import {
   declaredBudgetSeconds,
   DEFAULT_SEARCH_EXCLUDED_DIRS,
   directoryReadHint,
+  fusedLine,
   isEnvFilePath,
   isOutsideRoot,
   isValidGlob,
@@ -995,28 +996,67 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         // A replacement whose old text ended in a newline and whose new text does not
         // joins the line after it onto its last line. Applied as written, but said:
         // flash-m28 saw two lines merged only one round trip later.
-        const joined = replacements.filter(
-          (r) =>
-            typeof r.old_string === 'string' &&
-            typeof r.new_string === 'string' &&
-            r.old_string.endsWith('\n') &&
-            r.new_string !== '' &&
-            !r.new_string.endsWith('\n'),
-        ).length
+        const dropped = replacements
+          .map((r, i) => ({ ...r, position: i + 1 }))
+          .filter(
+            (r) =>
+              typeof r.old_string === 'string' &&
+              typeof r.new_string === 'string' &&
+              r.old_string.endsWith('\n') &&
+              r.new_string !== '' &&
+              !r.new_string.endsWith('\n'),
+          )
+        const syntax = await syntaxErrorAfterWrite(path)
+        // Those two facts are ONE accident, and reported apart the model repairs the
+        // wrong one: flash-m55 dropped the boundary on two consecutive edit_file calls,
+        // both left `handlers/conduit.ts` unparseable, and it fixed the fused LINE's
+        // text — which re-fused the next line in the same batch. When the parse error
+        // follows a dropped newline, name the fused line and the single edit that
+        // undoes it, instead of a style note beside an unrelated-looking parse error.
+        const which =
+          dropped.length === 1
+            ? `replacement ${dropped[0].position}`
+            : `replacements ${dropped.map((r) => r.position).join(', ')}`
+        const located = dropped.flatMap((r) => {
+          const line = fusedLine(finalContent, r.new_string)
+          return line ? [line] : []
+        })
+        const fused = located.slice(0, 3)
+        const fusedOmitted = located.length - fused.length
+        const shownFused = fused
+          .map((l) => `  ${l.line}: ${l.text.length > 200 ? `${l.text.slice(0, 200)}…` : l.text}`)
+          .join('\n')
+        const fusedNote =
+          syntax.syntaxError && dropped.length > 0
+            ? 'The file no longer parses after this change, and ' +
+              `${which} removed the line break that followed the replaced text — so the next line ` +
+              'now continues on the line before it, and that fused line is what the parser rejects:\n' +
+              (shownFused || `  (not located as the file now reads — read_file ${path})`) +
+              (fusedOmitted > 0
+                ? `\n  (${fusedOmitted} more fused line(s) — read_file ${path})`
+                : '') +
+              `\nRe-send ${which} with the trailing newline restored on new_string (change nothing ` +
+              "else about it). Editing the FUSED LINE's text instead fuses the next line the same " +
+              `way (flash-m55: three edits in a row).\n${syntax.syntaxError}`
+            : null
 
         return {
           path,
           ok: true,
           replacementsApplied: replacements.length - alreadyApplied,
-          ...(joined > 0
-            ? {
-                newlineNote: `${joined === 1 ? 'A replacement' : `${joined} replacements`} removed the line break after the replaced text (old_string ended with a newline, new_string does not), so the next line now continues on the same line. Check the excerpt; add the newline back if that was not intended.`,
-              }
-            : {}),
+          ...(fusedNote
+            ? { syntaxError: fusedNote }
+            : {
+                ...(dropped.length > 0
+                  ? {
+                      newlineNote: `${dropped.length === 1 ? 'A replacement' : `${dropped.length} replacements`} removed the line break after the replaced text (old_string ended with a newline, new_string does not), so the next line now continues on the same line. Check the excerpt; add the newline back if that was not intended.`,
+                    }
+                  : {}),
+                ...syntax,
+              }),
           ...(alreadyApplied > 0 ? { alreadyApplied, note: alreadyNote } : {}),
           totalLines: countLines(finalContent),
           ...(excerpt ? { excerpt: sanitizeFileContent(excerpt, path) } : {}),
-          ...(await syntaxErrorAfterWrite(path)),
         }
       } catch (e: unknown) {
         return { error: `Failed to edit ${path}: ${(e as Error).message}` }

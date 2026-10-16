@@ -789,3 +789,36 @@ export function parseCheckProblem(result: {
   if (/Cannot find module|not found/i.test(text) && !/SyntaxError/.test(text)) return null
   return text.slice(0, 1200)
 }
+
+/**
+ * The line a replacement fused when it dropped the newline its `old_string`
+ * ended with: `new_string`'s text is followed on the same line by what used to
+ * be the next line. Read off the file as it now is, so the line shown is the
+ * line the parser is actually complaining about.
+ *
+ * @param content - The file's content after the edit.
+ * @param newString - A replacement's `new_string`, whose `old_string` ended with a newline.
+ * @returns The fused line's 1-based number and its text, or null when the
+ *   replacement's text is not followed by more of the same line (it ends the
+ *   file, the following newline survived, or another replacement rewrote it).
+ */
+export function fusedLine(
+  content: string,
+  newString: string,
+): { line: number; text: string } | null {
+  for (let at = content.indexOf(newString); at >= 0; at = content.indexOf(newString, at + 1)) {
+    const endsAt = at + newString.length
+    const next = content[endsAt]
+    // End of file (nothing was joined) or a newline (the boundary survived) are
+    // both "not fused". A later replacement in the same batch may have rewritten
+    // this text, so keep looking rather than giving up on the first occurrence.
+    if (next === undefined || next === '\n') continue
+    const lineStart = content.lastIndexOf('\n', at) + 1
+    const lineEnd = content.indexOf('\n', endsAt)
+    return {
+      line: content.slice(0, lineStart).split('\n').length,
+      text: content.slice(lineStart, lineEnd === -1 ? undefined : lineEnd),
+    }
+  }
+  return null
+}
