@@ -752,8 +752,113 @@ export function isValidGlob(pattern: string): boolean {
  */
 export function findPatternArgs(pattern: string): string {
   if (!pattern.includes('/')) return `-name ${shellQuote(pattern)}`
+  return findPathArgs(pattern)
+}
+
+/**
+ * The `-path` alternatives of {@link findPatternArgs}, for a pattern whose
+ * directory the caller has already rooted the search at.
+ *
+ * `find_files` narrows the search root itself when the pattern spells its own
+ * directory out (see {@link literalDirPrefix}) — `node_modules` plus
+ * `@molecule/api-resource-user/dist/*.d.ts` searched that one directory. The
+ * remainder (`*.d.ts`) must then keep the `-path` form rather than collapsing to
+ * `-name`: `*` crosses `/` in an fnmatch glob, so the `-path` form still finds a
+ * declaration file in a `dist/utilities/` subdirectory, which `-name '*.d.ts'`
+ * would drop (a silent partial answer, which is worse than the timeout it
+ * replaced).
+ *
+ * @param pattern - The pattern's remainder, with a `/` in it or not.
+ * @returns One or more `-path '…'` alternatives, ORed inside parens when there
+ *   is more than one.
+ */
+export function findPathArgs(pattern: string): string {
   const paths = pathPatternVariants(pattern).map((p) => `-path ${shellQuote(`*/${p}`)}`)
   return paths.length === 1 ? paths[0] : `\\( ${paths.join(' -o ')} \\)`
+}
+
+/**
+ * The directory a GLOB pattern spells out, when it spells one out: everything
+ * before the pattern's first glob character, trimmed back to the last `/`.
+ *
+ * A pattern is matched against the whole path with a leading "any parent"
+ * anchor ({@link findPatternArgs}), so `find` visits every entry below the
+ * search root. Handed `/workspace/node_modules` and
+ * `@molecule/api-resource-user/dist/*.d.ts` — a directory named outright —
+ * `find` walked the sandbox's entire dependency tree and hit the tool's 10 s
+ * deadline without printing a result (xr-molecule-flash-m94: the one directory
+ * the model meant answered a `list_files` in 0 s). The literal prefix is that
+ * directory, and rooting the search at it is what keeps the call instant.
+ *
+ * A BARE first segment (`helpers/*`, `bonds/*`, `e2e/*.spec.ts`) is NOT one:
+ * `helpers/*` means "a `helpers/` directory anywhere below the root", which the
+ * tool documents and a live run relied on (xr-molecule-flash-m77 — a path
+ * pattern is not anchored to one depth). Rooting those at
+ * `<root>/helpers` would answer with a SUBSET, silently: the nested
+ * `api/src/helpers/` matches would disappear, and a missing file reads as
+ * "no such file". So a prefix is returned only when it names a path of two or
+ * more segments (`@molecule/api-resource-user/dist`), which is the shape that
+ * is a directory rather than a directory name.
+ *
+ * @param pattern - A pattern already accepted by {@link isValidGlob}.
+ * @returns The literal directory prefix, without a trailing slash, or null when
+ *   the pattern has no glob character, no `/`, or only a bare name before one.
+ */
+export function literalDirPrefix(pattern: string): string | null {
+  const stripped = pattern.replace(/^(?:\.?\/)+/, '')
+  const firstGlob = stripped.search(/[?*[]/)
+  // No glob at all: the pattern IS a path, and the whole-tree form already
+  // finds it at any depth.
+  if (firstGlob === -1) return null
+  const at = stripped.slice(0, firstGlob).lastIndexOf('/')
+  if (at <= 0) return null
+  const prefix = stripped.slice(0, at)
+  return prefix.includes('/') ? prefix : null
+}
+
+/**
+ * Whether a backend error is the sandbox's own command deadline.
+ *
+ * The E2B SDK answers a timed-out `exec` with its generic text —
+ * `[deadline_exceeded] the operation timed out: … It can be modified by passing
+ * 'timeoutMs' when making the request. Use '0' to disable the timeout.` — which
+ * names an option the executor cannot set and says nothing about the search
+ * that died. Handing that sentence to the model is what xr-molecule-flash-m94
+ * read after `find_files` spent 10 s walking `node_modules`; the tool answers
+ * the deadline in its own words instead (see {@link searchTimeoutError}).
+ *
+ * @param error - The error the backend threw.
+ * @returns True when the error reads as a timeout or a deadline.
+ */
+export function isCommandTimeout(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error)
+  return /deadline[_ ]?exceeded|timed out|timeout/i.test(message)
+}
+
+/**
+ * The answer a search tool gives when the backend's deadline fires: what was
+ * searched, for what, how long the tool allowed, and the two ways to get an
+ * answer — a narrower `path`, or a listing. Never the vendor's `timeoutMs`
+ * sentence (see {@link isCommandTimeout}).
+ *
+ * @param tool - The tool that timed out (`find_files`, `search_files`).
+ * @param searched - The directory the search actually covered.
+ * @param pattern - The pattern it was searching for.
+ * @param seconds - The tool's own limit, in seconds.
+ * @param hint - What to do differently — the narrower target or the listing tool.
+ * @returns The message's text.
+ */
+export function searchTimeoutError(
+  tool: string,
+  searched: string,
+  pattern: string,
+  seconds: number,
+  hint: string,
+): string {
+  return (
+    `${tool} timed out after ${seconds}s searching ${searched} for "${pattern}" — the sandbox stopped the ` +
+    `command at its deadline, so there is no result (this is not an empty directory). ${hint}`
+  )
 }
 
 /**

@@ -246,15 +246,18 @@ import {
   directoryReadHint,
   emptyCallError,
   failureCausesNote,
+  findPathArgs,
   findPatternArgs,
   fusedLine,
   htmlOutline,
+  isCommandTimeout,
   isEnvFilePath,
   isOutsideRoot,
   isPlaywrightRunCommand,
   isSuiteRunCommand,
   isValidGlob,
   linesWithinSerialized,
+  literalDirPrefix,
   MAX_BATCH_READ_FILES,
   MAX_FIND_RESULTS,
   MAX_HTML_INLINE_CHARS,
@@ -280,6 +283,7 @@ import {
   RUNNING_FAILURE_LINES,
   runningCauseCommand,
   runningOutputSliceCommand,
+  searchTimeoutError,
   serializedChars,
   shellQuote,
   sliceLines,
@@ -325,6 +329,14 @@ export const SUITE_OVER_BUDGET_ADVICE =
   'in this result says which test or request never finished — run it in the background ' +
   '(`run_in_background`, then `wait_for_task`), which takes it off this budget and writes its output ' +
   "to a log, and read that log (or the app's own log) for what it was waiting on."
+
+/**
+ * How long a tree walk (`find_files`, `search_files`) may run before the backend's
+ * own deadline stops it. Both tools answer that deadline in their own words
+ * (see searchTimeoutError) rather than forwarding the sandbox SDK's `timeoutMs`
+ * sentence, which names an option the executor cannot set.
+ */
+const SEARCH_TIMEOUT_MS = 10_000
 
 /**
  * The share of its budget a command must use before the "you asked for more than
@@ -1695,7 +1707,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         const grepArgs = `-rnH ${globArg} ${contextArg} ${grepExcludeArgs(path)} --max-count=${MAX_SEARCH_RESULTS} -- ${shellQuote(pattern)} ${shellQuote(path)}`
         const result = await backend.run(
           `{ grep -E ${grepArgs}; s=$?; if [ "$s" -eq 2 ]; then grep -F ${grepArgs}; fi; } 2>/dev/null || true`,
-          { timeout: 10000 },
+          { timeout: SEARCH_TIMEOUT_MS },
         )
         // grep emits `<file>:<line>:<content>`, so redaction runs PER MATCH on the
         // content alone: the file prefix would otherwise hide an env assignment from
@@ -1733,6 +1745,17 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           })
         return { pattern, path, matches }
       } catch (e: unknown) {
+        if (isCommandTimeout(e))
+          return {
+            error: searchTimeoutError(
+              'search_files',
+              path,
+              pattern,
+              SEARCH_TIMEOUT_MS / 1000,
+              `Give \`path\` the subdirectory you mean and narrow with \`include\` ` +
+                `(e.g. "*.ts"), or use find_files with the directory in the pattern.`,
+            ),
+          }
         return { error: `Search failed: ${(e as Error).message}` }
       }
     },
@@ -1758,24 +1781,62 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
 
       const symlinkErr = await checkSymlink(path)
       if (symlinkErr) return { error: symlinkErr }
+      // The directory the PATTERN itself names (`node_modules` +
+      // `@molecule/api-resource-user/dist/*.d.ts`) becomes the search root. Matched
+      // against the whole path with an implicit "any parent" anchor, the pattern
+      // made `find` visit every entry below `path` — the whole dependency tree,
+      // which hit the 10 s deadline with no result at all while the one directory
+      // the model meant answered a `list_files` instantly (xr-molecule-flash-m94).
+      // A bare first segment (`helpers/*`) is left alone on purpose: it means "any
+      // `helpers/` below the root" (xr-molecule-flash-m77, see literalDirPrefix).
+      const prefixDir = literalDirPrefix(pattern)
+      let findRoot = path
+      let findArgs = findPatternArgs(pattern)
+      let missingPrefix: string | undefined
       try {
+        if (prefixDir) {
+          const candidate = `${path.replace(/\/+$/, '')}/${prefixDir}`
+          const probe = await backend.run(`test -d ${shellQuote(candidate)}`, {
+            timeout: SEARCH_TIMEOUT_MS,
+          })
+          if (probe.exitCode === 0) {
+            findRoot = candidate
+            // The remainder keeps the `-path` form: `*` crosses `/`, so a `.d.ts`
+            // in `dist/utilities/` is still found (see findPathArgs).
+            findArgs = findPathArgs(pattern.replace(/^(?:\.?\/)+/, '').slice(prefixDir.length + 1))
+          } else {
+            missingPrefix = `"${candidate}" does not exist; searched all of ${path}.`
+          }
+        }
         // `findPatternArgs`, not `-name`: a pattern with a `/` in it
         // (`helpers/*`, `e2e/*.spec.ts`) matched nothing at all, because `-name`
         // compares it against the basename (xr-molecule-flash-m77).
         const result = await backend.run(
-          `find ${shellQuote(path)} ${findPruneArgs(path)} ${findPatternArgs(pattern)} -print 2>/dev/null | head -${MAX_FIND_RESULTS}`,
-          { timeout: 10000 },
+          `find ${shellQuote(findRoot)} ${findPruneArgs(findRoot)} ${findArgs} -print 2>/dev/null | head -${MAX_FIND_RESULTS}`,
+          { timeout: SEARCH_TIMEOUT_MS },
         )
         const files = result.stdout.trim().split('\n').filter(Boolean)
         // A slash changes what the pattern means — the whole path, not the file
         // name — and an empty result does not say so, so the model reads it as
         // "no such file" and goes looking elsewhere. Name the rule on the miss.
-        const note =
+        const missNote =
           files.length === 0 && pattern.includes('/')
             ? `"${pattern}" contains a "/", so it was matched against each file's PATH below ${path} (a leading "*/" is implicit), not against the file name — no path matched it. list_files shows the real entries.`
             : undefined
-        return { pattern, path, files, ...(note ? { note } : {}) }
+        const notes = [missingPrefix, missNote].filter((n): n is string => Boolean(n))
+        return { pattern, path, files, ...(notes.length ? { note: notes.join(' ') } : {}) }
       } catch (e: unknown) {
+        if (isCommandTimeout(e))
+          return {
+            error: searchTimeoutError(
+              'find_files',
+              findRoot === path ? path : `${findRoot} (under ${path})`,
+              pattern,
+              SEARCH_TIMEOUT_MS / 1000,
+              `Give \`path\` the directory you mean (a package's own folder rather than all of ` +
+                `${path}) or use list_files on it, and keep the pattern narrow.`,
+            ),
+          }
         return { error: `Find failed: ${(e as Error).message}` }
       }
     },
