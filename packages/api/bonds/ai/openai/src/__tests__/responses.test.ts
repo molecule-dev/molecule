@@ -286,14 +286,20 @@ describe('Responses parsing', () => {
         }),
       ]),
     )
-    const events = (await run({})).filter((e) => e.type !== 'keep_alive')
+    const events = (await run({ requestId: 'req-test' })).filter((e) => e.type !== 'keep_alive')
     expect(events).toEqual([
       { type: 'text', content: 'Hi' },
       { type: 'tool_use_start', id: 'call_1', name: 'add' },
       { type: 'tool_input_delta', id: 'call_1', chars: 5, text: '{"a":' },
       { type: 'tool_input_delta', id: 'call_1', chars: 2, text: '1}' },
       { type: 'tool_use', id: 'call_1', name: 'add', input: { a: 1 } },
-      { type: 'done', usage: { inputTokens: 6, outputTokens: 3, cacheReadInputTokens: 4 } },
+      {
+        type: 'done',
+        usage: { inputTokens: 6, outputTokens: 3, cacheReadInputTokens: 4 },
+        // Per-call correlation: the request id we minted/sent and the endpoint
+        // that served it (see ProviderResponseMeta).
+        provider: { requestId: 'req-test', endpoint: 'https://api.openai.com/v1/responses' },
+      },
     ])
   })
 
@@ -310,10 +316,11 @@ describe('Responses parsing', () => {
         },
       ]),
     )
-    const events = await run({})
+    const events = await run({ requestId: 'req-test' })
     expect(events.at(-1)).toEqual({
       type: 'done',
       usage: { inputTokens: 5, outputTokens: 9, cacheReadInputTokens: 0 },
+      provider: { requestId: 'req-test', endpoint: 'https://api.openai.com/v1/responses' },
     })
   })
 

@@ -13,6 +13,8 @@
 // Side-effect import: registers this bond's secret definitions so the
 // runtime registry is populated even when provider.js is imported directly
 // (not through the package barrel).
+import { randomUUID } from 'node:crypto'
+
 import './secrets.js'
 
 import type {
@@ -23,6 +25,7 @@ import type {
   ChatMessage,
   ChatParams,
   ContentBlock,
+  ProviderResponseMeta,
   TokenUsage,
 } from '@molecule/api-ai'
 import { getLogger } from '@molecule/api-bond'
@@ -56,6 +59,16 @@ const FOREIGN_CALL_THOUGHT_SIGNATURE = 'skip_thought_signature_validator'
  */
 function isGeminiSignature(signature: string | undefined): signature is string {
   return typeof signature === 'string' && /^[A-Za-z0-9+/_-]+={0,2}$/.test(signature)
+}
+
+/**
+ * The call as the wire saw it, so a reply can be checked against the request
+ * that asked for it and named afterwards. See `ProviderResponseMeta` — the same
+ * shape every bond reports (canonical implementation: `@molecule/api-ai-deepseek`).
+ */
+interface GoogleCallContext {
+  readonly meta: ProviderResponseMeta
+  readonly endUserId?: string
 }
 
 /** Mutable state shared across SSE line-processing calls for the Gemini streaming parser. */
@@ -199,8 +212,18 @@ class GoogleAIProvider implements AIProvider {
 
     const body = this.buildRequestBody(params, model)
 
+    // Per-call correlation (see ChatParams.requestId): our own handle for this
+    // request, sent as a header and reported back alongside whatever the
+    // provider says about the answer.
+    const requestId = params.requestId ?? randomUUID()
+    const call: GoogleCallContext = {
+      meta: { requestId, endpoint: this.baseUrl },
+      endUserId: params.endUserId,
+    }
+
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
+      'X-Mol-Request-Id': requestId,
     }
 
     // Default timeout of 5 minutes to prevent hung connections.
@@ -331,7 +354,12 @@ class GoogleAIProvider implements AIProvider {
       return
     }
 
-    yield* this.parseStreamingResponse(response!)
+    // Whatever the transport exposes about this call.
+    const traceId =
+      response!.headers.get('x-request-id') ?? response!.headers.get('request-id') ?? undefined
+    if (traceId) call.meta.traceId = traceId
+
+    yield* this.parseStreamingResponse(response!, call)
   }
 
   /**
@@ -597,7 +625,10 @@ class GoogleAIProvider implements AIProvider {
    * @param response - The fetch Response with an SSE body stream.
    * @yields {ChatEvent} Chat events as they arrive from the SSE stream.
    */
-  private async *parseStreamingResponse(response: Response): AsyncIterable<ChatEvent> {
+  private async *parseStreamingResponse(
+    response: Response,
+    call: GoogleCallContext,
+  ): AsyncIterable<ChatEvent> {
     const reader = response.body?.getReader()
     if (!reader) {
       yield {
@@ -631,7 +662,7 @@ class GoogleAIProvider implements AIProvider {
         buffer = lines.pop() ?? ''
 
         let yielded = false
-        for (const event of this.processSSELines(lines, state)) {
+        for (const event of this.processSSELines(lines, state, call)) {
           yielded = true
           yield event
           // A mid-stream error (overload/rate-limit during high load, sent as a
@@ -650,7 +681,7 @@ class GoogleAIProvider implements AIProvider {
 
       // Flush any remaining data in the buffer after EOF.
       if (buffer.trim()) {
-        for (const event of this.processSSELines(buffer.split('\n'), state)) {
+        for (const event of this.processSSELines(buffer.split('\n'), state, call)) {
           yield event
           if (event.type === 'error') return
         }
@@ -673,7 +704,7 @@ class GoogleAIProvider implements AIProvider {
       reader.releaseLock()
     }
 
-    yield { type: 'done', usage: snapshotUsage(state) }
+    yield { type: 'done', usage: snapshotUsage(state), provider: call.meta }
   }
 
   /**
@@ -684,7 +715,11 @@ class GoogleAIProvider implements AIProvider {
    * @param state - Mutable stream state (token counters, tool counter).
    * @yields {ChatEvent} Chat events extracted from the SSE lines.
    */
-  private *processSSELines(lines: string[], state: GoogleStreamState): Iterable<ChatEvent> {
+  private *processSSELines(
+    lines: string[],
+    state: GoogleStreamState,
+    call: GoogleCallContext,
+  ): Iterable<ChatEvent> {
     for (const line of lines) {
       if (!line.startsWith('data:')) continue
       const json = line.slice(5).trim()
@@ -692,6 +727,34 @@ class GoogleAIProvider implements AIProvider {
 
       try {
         const chunk = JSON.parse(json) as Record<string, unknown>
+
+        // What the provider says about the answer: the model version that
+        // served it, and (when the endpoint echoes one) a response id. Gemini
+        // names no per-response id of its own, so responseId stays unset unless
+        // a proxy supplies one.
+        if (typeof chunk.modelVersion === 'string') call.meta.model = chunk.modelVersion
+        if (typeof chunk.responseId === 'string') call.meta.responseId = chunk.responseId
+        const echoedUser = typeof chunk.user === 'string' ? chunk.user : undefined
+        if (
+          echoedUser !== undefined &&
+          call.endUserId !== undefined &&
+          echoedUser !== call.endUserId
+        ) {
+          logger.error('Provider echoed a different identity — this reply is not ours', {
+            requestId: call.meta.requestId,
+            responseId: call.meta.responseId,
+            traceId: call.meta.traceId,
+          })
+          yield {
+            type: 'error',
+            message: t('ai.error.apiError', undefined, {
+              defaultValue: 'AI service error. Please try again.',
+            }),
+            errorKey: 'ai.error.apiError',
+          }
+          return
+        }
+
         // Gemini can deliver a mid-stream error chunk shaped
         // { error: { code, message, status } } (e.g. status "UNAVAILABLE" /
         // "RESOURCE_EXHAUSTED" during high load) — it has no `candidates`, so

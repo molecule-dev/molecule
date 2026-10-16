@@ -1662,3 +1662,107 @@ describe('AnthropicAIProvider — non-streaming response (stream: false)', () =>
     })
   })
 })
+
+// ---------------------------------------------------------------------------
+// Per-call correlation — a reply is nameable to the request that asked for it
+// ---------------------------------------------------------------------------
+// 2026-10-16 (x0 `xr-molecule-flash-m87`): a conversation was handed a complete
+// foreign completion on a stream whose own usage matched its context exactly,
+// and nothing recorded which upstream response it was. These pin both halves:
+// the request carries OUR id, and the reply reports the provider's own.
+describe('chat() — per-call correlation', () => {
+  beforeEach(() => {
+    mockFetch.mockReset()
+    vi.stubGlobal('fetch', mockFetch)
+  })
+
+  /** An SSE Response built from Anthropic event objects. */
+  function sseResponseOf(
+    events: Array<Record<string, unknown>>,
+    headers: Record<string, string> = {},
+  ): Response {
+    const text = events.map((e) => `data: ${JSON.stringify(e)}`).join('\n') + '\n'
+    const body = new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(new TextEncoder().encode(text))
+        controller.close()
+      },
+    })
+    return new Response(body, {
+      status: 200,
+      headers: { 'content-type': 'text/event-stream', ...headers },
+    })
+  }
+
+  it('sends the caller’s request id and reports the message it produced on done', async () => {
+    mockFetch.mockResolvedValue(
+      sseResponseOf([
+        {
+          type: 'message_start',
+          message: { id: 'msg_abc', model: 'claude-served', usage: { input_tokens: 10 } },
+        },
+        { type: 'content_block_delta', index: 0, delta: { type: 'text_delta', text: 'hi' } },
+        { type: 'message_delta', delta: { stop_reason: 'end_turn' }, usage: { output_tokens: 2 } },
+      ]),
+    )
+    let done: { provider?: Record<string, string> } | undefined
+    for await (const event of createProvider({ apiKey: 'k', baseUrl: 'https://test.api' }).chat({
+      messages: [{ role: 'user', content: 'hi' }],
+      stream: true,
+      requestId: 'req-abc',
+    })) {
+      if (event.type === 'done') done = event as unknown as { provider?: Record<string, string> }
+    }
+    const init = (mockFetch.mock.calls[0] as [string, RequestInit])[1]
+    expect((init.headers as Record<string, string>)['X-Mol-Request-Id']).toBe('req-abc')
+    expect(done?.provider).toEqual(
+      expect.objectContaining({
+        requestId: 'req-abc',
+        responseId: 'msg_abc',
+        model: 'claude-served',
+      }),
+    )
+  })
+
+  it('records the request-id header the API returns as the trace id', async () => {
+    mockFetch.mockResolvedValue(
+      sseResponseOf([{ type: 'message_delta', delta: { stop_reason: 'end_turn' } }], {
+        'request-id': 'req_011CABCDEF',
+      }),
+    )
+    let done: { provider?: Record<string, string> } | undefined
+    for await (const event of createProvider({ apiKey: 'k', baseUrl: 'https://test.api' }).chat({
+      messages: [{ role: 'user', content: 'hi' }],
+      stream: true,
+      requestId: 'req-abc',
+    })) {
+      if (event.type === 'done') done = event as unknown as { provider?: Record<string, string> }
+    }
+    expect(done?.provider?.traceId).toBe('req_011CABCDEF')
+  })
+
+  it('refuses a reply that echoes an identity which is not ours', async () => {
+    mockFetch.mockResolvedValue(
+      sseResponseOf([
+        {
+          type: 'message_start',
+          request_id: 'somebody-elses',
+          message: { id: 'msg_abc', model: 'claude-served', usage: { input_tokens: 10 } },
+        },
+        { type: 'content_block_delta', index: 0, delta: { type: 'text_delta', text: 'hi' } },
+      ]),
+    )
+    let sawText = false
+    let sawError = false
+    for await (const event of createProvider({ apiKey: 'k', baseUrl: 'https://test.api' }).chat({
+      messages: [{ role: 'user', content: 'hi' }],
+      stream: true,
+      requestId: 'req-abc',
+    })) {
+      if (event.type === 'text') sawText = true
+      if (event.type === 'error') sawError = true
+    }
+    expect(sawError).toBe(true)
+    expect(sawText).toBe(false)
+  })
+})

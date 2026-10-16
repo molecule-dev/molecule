@@ -31,6 +31,7 @@ import type {
   ChatMessage,
   ChatParams,
   ContentBlock,
+  ProviderResponseMeta,
   ServerTool,
   TokenUsage,
 } from '@molecule/api-ai'
@@ -367,6 +368,7 @@ export function* parseResponsesNonStreaming(
 export async function* parseResponsesStream(
   response: Response,
   model: string,
+  meta?: ProviderResponseMeta,
 ): AsyncIterable<ChatEvent> {
   const reader = response.body?.getReader()
   if (!reader) {
@@ -403,6 +405,13 @@ export async function* parseResponsesStream(
     } catch (error) {
       logger.debug('Skipping malformed OpenAI Responses SSE JSON line', { json, error })
       return
+    }
+    // The reply's own identity: the Responses stream carries it on the
+    // container event (`response.created` / `response.completed`).
+    const envelope = event.response as { id?: unknown; model?: unknown } | undefined
+    if (meta) {
+      if (typeof envelope?.id === 'string') meta.responseId = envelope.id
+      if (typeof envelope?.model === 'string') meta.model = envelope.model
     }
     const item = event.item as Record<string, unknown> | undefined
     switch (event.type) {
@@ -522,5 +531,5 @@ export async function* parseResponsesStream(
     }
     return
   }
-  yield { type: 'done', usage }
+  yield { type: 'done', usage, ...(meta ? { provider: meta } : {}) }
 }

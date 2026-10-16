@@ -14,6 +14,8 @@
 // Side-effect import: registers this bond's OPTIONAL secret definitions so the
 // runtime registry is populated even when provider.js is imported directly
 // (not through the package barrel).
+import { randomUUID } from 'node:crypto'
+
 import './secrets.js'
 
 import type {
@@ -24,6 +26,7 @@ import type {
   ChatMessage,
   ChatParams,
   ContentBlock,
+  ProviderResponseMeta,
 } from '@molecule/api-ai'
 import { getLogger } from '@molecule/api-bond'
 
@@ -37,6 +40,16 @@ const DEFAULT_BASE_URL = 'http://localhost:11434/v1'
 const DEFAULT_MODEL = 'llama3.1'
 /** Default max output tokens. */
 const DEFAULT_MAX_TOKENS = 4096
+
+/**
+ * The call as the wire saw it, so a reply can be checked against the request
+ * that asked for it and named afterwards. See `ProviderResponseMeta` — the same
+ * shape every bond reports (canonical implementation: `@molecule/api-ai-deepseek`).
+ */
+interface LocalCallContext {
+  readonly meta: ProviderResponseMeta
+  readonly endUserId?: string
+}
 
 /** Mutable streaming state for the OpenAI-compatible parser. */
 interface LocalStreamState {
@@ -123,8 +136,17 @@ export class LocalAIProvider implements AIProvider {
       body.stream_options = { include_usage: true }
     }
 
+    // Per-call correlation (see ChatParams.requestId): a header rather than the
+    // body's `user`, the stable per-account abuse-attribution value.
+    const requestId = params.requestId ?? randomUUID()
+    const call: LocalCallContext = {
+      meta: { requestId, endpoint: this.baseUrl },
+      endUserId: params.endUserId,
+    }
+
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
+      'X-Mol-Request-Id': requestId,
     }
     // Only authenticate when a key is configured — local servers are keyless.
     if (this.apiKey) headers.Authorization = `Bearer ${this.apiKey}`
@@ -242,7 +264,12 @@ export class LocalAIProvider implements AIProvider {
         return
       }
 
-      yield* this.parseStreamingResponse(response!)
+      // Whatever the transport exposes about this call.
+      const traceId =
+        response!.headers.get('x-request-id') ?? response!.headers.get('request-id') ?? undefined
+      if (traceId) call.meta.traceId = traceId
+
+      yield* this.parseStreamingResponse(response!, call)
     } catch (error) {
       // A deliberate abort — client disconnect via `params.signal`, or the
       // internal stream timeout — must PROPAGATE as a rejection with NO error
@@ -443,7 +470,10 @@ export class LocalAIProvider implements AIProvider {
    * @param response - The fetch Response whose body is an SSE stream.
    * @yields {ChatEvent} Incremental text, tool-use progress, keep-alive, and done events.
    */
-  private async *parseStreamingResponse(response: Response): AsyncIterable<ChatEvent> {
+  private async *parseStreamingResponse(
+    response: Response,
+    call: LocalCallContext,
+  ): AsyncIterable<ChatEvent> {
     const reader = response.body?.getReader()
     if (!reader) {
       yield {
@@ -471,7 +501,7 @@ export class LocalAIProvider implements AIProvider {
         const lines = buffer.split('\n')
         buffer = lines.pop() ?? ''
         let yielded = false
-        for (const event of this.processSSELines(lines, state)) {
+        for (const event of this.processSSELines(lines, state, call)) {
           yielded = true
           yield event
           // A mid-stream error (rate-limit/overload during high load, sent as a
@@ -487,7 +517,7 @@ export class LocalAIProvider implements AIProvider {
         if (!yielded) yield { type: 'keep_alive' }
       }
       if (buffer.trim()) {
-        for (const event of this.processSSELines(buffer.split('\n'), state)) {
+        for (const event of this.processSSELines(buffer.split('\n'), state, call)) {
           yield event
           if (event.type === 'error') return
         }
@@ -515,6 +545,7 @@ export class LocalAIProvider implements AIProvider {
         outputTokens: state.outputTokens,
         cacheReadInputTokens: state.cachedTokens,
       },
+      provider: call.meta,
     }
   }
 
@@ -525,13 +556,49 @@ export class LocalAIProvider implements AIProvider {
    * @param state - Mutable stream state tracking tokens and pending tool calls.
    * @yields {ChatEvent} Text, tool-use progress, and usage events parsed from the SSE data lines.
    */
-  private *processSSELines(lines: string[], state: LocalStreamState): Iterable<ChatEvent> {
+  private *processSSELines(
+    lines: string[],
+    state: LocalStreamState,
+    call: LocalCallContext,
+  ): Iterable<ChatEvent> {
     for (const line of lines) {
       if (!line.startsWith('data: ')) continue
       const json = line.slice(6).trim()
       if (json === '[DONE]') continue
       try {
         const event = JSON.parse(json) as Record<string, unknown>
+
+        // The reply's own identity, recorded for the caller: the completion id
+        // and the model the provider says answered. A reply carrying somebody
+        // else's identity is not ours to stream on.
+        if (typeof event.id === 'string') call.meta.responseId = event.id
+        if (typeof event.model === 'string') call.meta.model = event.model
+        const echoedUser = typeof event.user === 'string' ? event.user : undefined
+        const echoedRequest =
+          typeof event.request_id === 'string'
+            ? event.request_id
+            : typeof event.requestId === 'string'
+              ? event.requestId
+              : undefined
+        const wrongUser =
+          echoedUser !== undefined && call.endUserId !== undefined && echoedUser !== call.endUserId
+        const wrongRequest = echoedRequest !== undefined && echoedRequest !== call.meta.requestId
+        if (wrongUser || wrongRequest) {
+          logger.error('Provider echoed a different identity — this reply is not ours', {
+            requestId: call.meta.requestId,
+            echoedUser: wrongUser ? echoedUser : undefined,
+            echoedRequestId: wrongRequest ? echoedRequest : undefined,
+            responseId: call.meta.responseId,
+            traceId: call.meta.traceId,
+          })
+          yield {
+            type: 'error',
+            message: 'AI service error. Please try again.',
+            errorKey: 'ai.error.apiError',
+          }
+          return
+        }
+
         // A mid-stream error arrives as a `data: {"error": {...}}` chunk (no
         // `choices`) — most importantly rate-limit/overload when a shared local
         // endpoint is under load. Without this it matches no branch below and is

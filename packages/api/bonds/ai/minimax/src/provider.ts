@@ -6,6 +6,8 @@
  * @module
  */
 
+import { randomUUID } from 'node:crypto'
+
 import type {
   AIProvider,
   AiRateLimitCallback,
@@ -14,6 +16,7 @@ import type {
   ChatMessage,
   ChatParams,
   ContentBlock,
+  ProviderResponseMeta,
 } from '@molecule/api-ai'
 import { getLogger } from '@molecule/api-bond'
 import { t } from '@molecule/api-i18n'
@@ -26,6 +29,16 @@ const logger = getLogger()
 import './secrets.js'
 
 import type { MiniMaxConfig } from './types.js'
+
+/**
+ * The call as the wire saw it, so a reply can be checked against the request
+ * that asked for it and named afterwards. See `ProviderResponseMeta` — the same
+ * shape every bond reports, canonical implementation in `@molecule/api-ai-deepseek`.
+ */
+interface MiniMaxCallContext {
+  readonly meta: ProviderResponseMeta
+  readonly endUserId?: string
+}
 
 /** Mutable token usage counters shared across SSE line-processing calls. */
 interface MiniMaxStreamState {
@@ -167,9 +180,18 @@ class MiniMaxAIProvider implements AIProvider {
       body.temperature = params.temperature
     }
 
+    // Per-call correlation (see ChatParams.requestId): a header rather than the
+    // body's `user`, which is the stable per-account abuse-attribution value.
+    const requestId = params.requestId ?? randomUUID()
+    const call: MiniMaxCallContext = {
+      meta: { requestId, endpoint: `${this.baseUrl}${this.completionsPath}` },
+      endUserId: params.endUserId,
+    }
+
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${this.apiKey}`,
+      'X-Mol-Request-Id': requestId,
     }
 
     const DEFAULT_TIMEOUT_MS = 5 * 60 * 1000
@@ -268,13 +290,22 @@ class MiniMaxAIProvider implements AIProvider {
       return
     }
 
+    // Whatever the transport exposes about this call — the handle a vendor
+    // investigation needs (DeepSeek's edge answers `x-ds-trace-id`).
+    const traceId =
+      response!.headers.get('x-request-id') ??
+      response!.headers.get('request-id') ??
+      response!.headers.get('x-ds-trace-id') ??
+      undefined
+    if (traceId) call.meta.traceId = traceId
+
     if (params.stream === false) {
       const data = (await response!.json()) as Record<string, unknown>
       yield* this.parseNonStreamingResponse(data)
       return
     }
 
-    yield* this.parseStreamingResponse(response!)
+    yield* this.parseStreamingResponse(response!, call)
   }
 
   /**
@@ -473,7 +504,10 @@ class MiniMaxAIProvider implements AIProvider {
    * @param response - The fetch Response with an SSE body stream.
    * @yields {ChatEvent} Chat events as they arrive from the SSE stream.
    */
-  private async *parseStreamingResponse(response: Response): AsyncIterable<ChatEvent> {
+  private async *parseStreamingResponse(
+    response: Response,
+    call: MiniMaxCallContext,
+  ): AsyncIterable<ChatEvent> {
     const reader = response.body?.getReader()
     if (!reader) {
       yield {
@@ -501,7 +535,7 @@ class MiniMaxAIProvider implements AIProvider {
         buffer = lines.pop() ?? ''
 
         let yieldedContent = false
-        for (const event of this.processSSELines(lines, pendingTools, state)) {
+        for (const event of this.processSSELines(lines, pendingTools, state, call)) {
           yieldedContent = true
           yield event
           // A mid-stream error (rate-limit/overload during high load, sent as a
@@ -522,7 +556,7 @@ class MiniMaxAIProvider implements AIProvider {
 
       // Flush any remaining data in the buffer after EOF
       if (buffer.trim()) {
-        for (const event of this.processSSELines(buffer.split('\n'), pendingTools, state)) {
+        for (const event of this.processSSELines(buffer.split('\n'), pendingTools, state, call)) {
           yield event
           if (event.type === 'error') return
         }
@@ -554,6 +588,7 @@ class MiniMaxAIProvider implements AIProvider {
         outputTokens: state.outputTokens,
         ...(state.cacheReadTokens ? { cacheReadInputTokens: state.cacheReadTokens } : {}),
       },
+      provider: call.meta,
     }
   }
 
@@ -564,12 +599,15 @@ class MiniMaxAIProvider implements AIProvider {
    * @param lines - Raw SSE lines to process.
    * @param pendingTools - Mutable map tracking tool call deltas accumulated across chunks.
    * @param state - Mutable token usage counters.
+   * @param call - The request's identity: the answer's own `id` and `model` are
+   *   recorded on `call.meta`, and any echo of the request is verified.
    * @yields {ChatEvent} Chat events extracted from the SSE lines.
    */
   private *processSSELines(
     lines: string[],
     pendingTools: Map<number, { id: string; name: string; args: string }>,
     state: MiniMaxStreamState,
+    call: MiniMaxCallContext,
   ): Iterable<ChatEvent> {
     for (const line of lines) {
       if (!line.startsWith('data: ')) continue
@@ -578,6 +616,35 @@ class MiniMaxAIProvider implements AIProvider {
 
       try {
         const event = JSON.parse(json) as Record<string, unknown>
+
+        // The reply's own identity, recorded for the caller (see
+        // ProviderResponseMeta), and the request's identity verified against
+        // whatever the host echoes back. A reply carrying somebody else's
+        // identity is not ours to stream on — 2026-10-16 a conversation was
+        // handed a complete foreign completion and nothing could tell.
+        if (typeof event.id === 'string') call.meta.responseId = event.id
+        if (typeof event.model === 'string') call.meta.model = event.model
+        const echoedUser = typeof event.user === 'string' ? event.user : undefined
+        const echoedRequest =
+          typeof event.request_id === 'string'
+            ? event.request_id
+            : typeof event.requestId === 'string'
+              ? event.requestId
+              : undefined
+        const wrongUser =
+          echoedUser !== undefined && call.endUserId !== undefined && echoedUser !== call.endUserId
+        const wrongRequest = echoedRequest !== undefined && echoedRequest !== call.meta.requestId
+        if (wrongUser || wrongRequest) {
+          logger.error('Provider echoed a different identity — this reply is not ours', {
+            requestId: call.meta.requestId,
+            echoedUser: wrongUser ? echoedUser : undefined,
+            echoedRequestId: wrongRequest ? echoedRequest : undefined,
+            responseId: call.meta.responseId,
+            traceId: call.meta.traceId,
+          })
+          yield { type: 'error', message: t('ai.error.apiError'), errorKey: 'ai.error.apiError' }
+          return
+        }
 
         // A mid-stream error arrives as a `data: {"error": {...}}` chunk (no
         // `choices`) — most importantly rate-limit/overload during high load.

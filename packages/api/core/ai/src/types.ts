@@ -48,6 +48,39 @@ export type ContentBlock =
   | { type: 'tool_result'; tool_use_id: string; content: string | unknown }
 
 /**
+ * What the provider said about the call itself — the ids an investigation needs
+ * when a reply is wrong.
+ *
+ * A completion that does not belong to the request that asked for it is not
+ * hypothetical: on 2026-10-16 a molecule.dev conversation was handed a complete
+ * foreign answer (a Flutter/.NET ticket review) on a stream whose own token
+ * usage matched that conversation's context exactly — the request was ours, the
+ * text was not. Nothing on the platform recorded which upstream response it
+ * was, so neither we nor the provider could trace it afterwards. Bonds report
+ * this on `done` so the platform can log our request id next to the provider's
+ * own ids, and attach them to the message that gets persisted (or dropped).
+ *
+ * Every field is optional: a provider that exposes none of them simply reports
+ * nothing, and the platform still has its own side of the correlation.
+ */
+export interface ProviderResponseMeta {
+  /** The caller's `ChatParams.requestId`, echoed back (or the bond's own mint). */
+  requestId?: string
+  /** The provider's id for this completion, e.g. an OpenAI-compatible `chatcmpl`. */
+  responseId?: string
+  /** A transport-level trace id, when the provider returns one (e.g. `x-ds-trace-id`). */
+  traceId?: string
+  /**
+   * The model id the PROVIDER says answered. A re-host may serve a different
+   * snapshot than the id we asked for (dated vs. undated weights), so this is
+   * recorded rather than assumed equal to the requested model.
+   */
+  model?: string
+  /** The endpoint the request was sent to — which region/host actually served it. */
+  endpoint?: string
+}
+
+/**
  * Streaming event from an AI chat call.
  */
 export type ChatEvent =
@@ -86,7 +119,7 @@ export type ChatEvent =
   // reports usage at stream end (OpenAI-compatible `include_usage`) cannot emit
   // mid-stream snapshots; consumers must estimate aborted turns for those.
   | { type: 'usage'; usage: TokenUsage }
-  | { type: 'done'; usage: TokenUsage }
+  | { type: 'done'; usage: TokenUsage; provider?: ProviderResponseMeta }
   | { type: 'error'; message: string; errorKey?: string }
   // Liveness signal. PROVIDER CONTRACT: every streaming provider MUST yield
   // `keep_alive` whenever it receives data from the upstream API that produces
@@ -333,6 +366,21 @@ export interface ChatParams {
    * Bonds whose provider has no equivalent field ignore it.
    */
   endUserId?: string
+  /**
+   * Correlation id for THIS call, minted by the caller and sent to the provider
+   * so a reply can be tied back to the request that asked for it.
+   *
+   * The provider's own response id is not enough on its own: when a reply is
+   * wrong (2026-10-16: a molecule.dev conversation received a complete, foreign
+   * completion — a Flutter/.NET ticket review — from the provider), the vendor
+   * can only trace it if we can name the request. Bonds that have a transport
+   * header to carry it send it verbatim (they MUST NOT fold it into
+   * `endUserId`, which is a stable per-user abuse-attribution value that every
+   * request must share), capture whatever trace id the provider returns, and
+   * report both back in the `done` event's `provider` field. Bonds with no such
+   * channel still report the response's own id. Absent = the bond mints one.
+   */
+  requestId?: string
   /**
    * Extra provider-native request-body params, shallow-merged into the outgoing
    * request body as a BASE — the bond's own structural fields (model, messages,

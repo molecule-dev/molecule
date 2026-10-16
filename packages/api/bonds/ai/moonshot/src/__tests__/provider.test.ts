@@ -658,3 +658,64 @@ describe('secret registration', () => {
     expect(getSecretDefinition('MOONSHOT_API_KEY')).toBeDefined()
   })
 })
+
+// ---------------------------------------------------------------------------
+// Per-call correlation — a reply is nameable to the request that asked for it
+// ---------------------------------------------------------------------------
+// 2026-10-16 (x0 `xr-molecule-flash-m87`): a conversation was handed a complete
+// foreign completion on a stream whose own usage matched its context exactly,
+// and nothing on the platform recorded which upstream response it was. These
+// pin both halves of the fix: the request carries OUR id, and the reply reports
+// the provider's own ids back on `done`.
+describe('chat() — per-call correlation', () => {
+  it('sends the caller’s request id and reports the provider’s ids on done', async () => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockResolvedValue(
+      sseResponse([
+        'data: {"id":"cmpl-abc","model":"served-model","choices":[{"delta":{"content":"hi"}}]}',
+        'data: [DONE]',
+      ]),
+    )
+    let done: { provider?: Record<string, string> } | undefined
+    for await (const event of createProvider({ apiKey: 'k' }).chat({
+      messages: [{ role: 'user', content: 'hi' }],
+      stream: true,
+      requestId: 'req-abc',
+    })) {
+      if (event.type === 'done') done = event as unknown as { provider?: Record<string, string> }
+    }
+
+    const headers = (fetch.mock.calls[0][1] as RequestInit).headers as Record<string, string>
+    expect(headers['X-Mol-Request-Id']).toBe('req-abc')
+    expect(done?.provider).toEqual(
+      expect.objectContaining({
+        requestId: 'req-abc',
+        responseId: 'cmpl-abc',
+        model: 'served-model',
+      }),
+    )
+  })
+
+  it('refuses a reply whose echoed identity is not ours, instead of streaming it on', async () => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockResolvedValue(
+      sseResponse([
+        'data: {"user":"mol_someone_else","choices":[{"delta":{"content":"their answer"}}]}',
+        'data: [DONE]',
+      ]),
+    )
+    let sawText = false
+    let sawError = false
+    for await (const event of createProvider({ apiKey: 'k' }).chat({
+      messages: [{ role: 'user', content: 'hi' }],
+      stream: true,
+      requestId: 'req-abc',
+      endUserId: 'mol_ours',
+    })) {
+      if (event.type === 'text') sawText = true
+      if (event.type === 'error') sawError = true
+    }
+    expect(sawError).toBe(true)
+    expect(sawText).toBe(false)
+  })
+})

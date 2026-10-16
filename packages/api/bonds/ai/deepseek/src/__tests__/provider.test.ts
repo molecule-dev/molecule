@@ -30,7 +30,7 @@ function jsonResponse(
   })
 }
 
-function sseResponse(lines: string[]): Response {
+function sseResponse(lines: string[], headers: Record<string, string> = {}): Response {
   const encoder = new TextEncoder()
   const body = new ReadableStream<Uint8Array>({
     start(controller) {
@@ -38,7 +38,10 @@ function sseResponse(lines: string[]): Response {
       controller.close()
     },
   })
-  return new Response(body, { status: 200, headers: { 'content-type': 'text/event-stream' } })
+  return new Response(body, {
+    status: 200,
+    headers: { 'content-type': 'text/event-stream', ...headers },
+  })
 }
 
 async function drain(iter: AsyncIterable<ChatEvent>): Promise<ChatEvent[]> {
@@ -716,5 +719,125 @@ describe('chat() — mixed tool-result + image message', () => {
     expect(imageMsg.content[0].image_url.url).toBe('data:image/jpeg;base64,QUJD')
     const imageMsgIdx = body.messages.indexOf(imageMsg)
     expect(imageMsgIdx).toBeGreaterThan(body.messages.indexOf(toolMsg))
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Per-call correlation — nailing a reply to the request that asked for it
+// ---------------------------------------------------------------------------
+//
+// 2026-10-16 (x0 `xr-molecule-flash-m87`): a conversation was handed a complete,
+// foreign completion — a Flutter/.NET ticket review — on a stream whose own
+// usage matched that conversation's context exactly. The request was ours, the
+// text was not, and nothing on the platform recorded WHICH upstream response it
+// was, so neither we nor the vendor could trace it afterwards. These tests pin
+// the two halves of the fix: the request carries an id we can name, and the
+// reply reports the provider's own ids back on `done`.
+
+/** One OpenAI-compatible SSE chunk with the provider's identity fields. */
+function chunk(fields: Record<string, unknown> = {}): string {
+  return `data: ${JSON.stringify({
+    id: 'cmpl-abc',
+    object: 'chat.completion.chunk',
+    model: 'deepseek-flash',
+    choices: [{ index: 0, delta: { content: 'hi' } }],
+    usage: null,
+    ...fields,
+  })}`
+}
+
+describe('chat() — per-call correlation', () => {
+  it('sends the caller’s request id on the wire and reports the provider’s ids on done', async () => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockResolvedValue(
+      sseResponse([chunk(), 'data: [DONE]'], { 'x-ds-trace-id': 'trace-39191aaf' }),
+    )
+    const provider = createProvider({ apiKey: 'k' })
+    const events = await drain(
+      provider.chat({
+        messages: [{ role: 'user', content: 'hi' }],
+        stream: true,
+        requestId: 'req-abc',
+      }),
+    )
+
+    const headers = (fetch.mock.calls[0][1] as RequestInit).headers as Record<string, string>
+    expect(headers['X-Mol-Request-Id']).toBe('req-abc')
+
+    const done = events.find((e) => e.type === 'done') as
+      { provider?: Record<string, string> } | undefined
+    expect(done?.provider).toEqual({
+      requestId: 'req-abc',
+      endpoint: 'https://api.deepseek.com/v1/chat/completions',
+      traceId: 'trace-39191aaf',
+      responseId: 'cmpl-abc',
+      model: 'deepseek-flash',
+    })
+  })
+
+  it('mints its own request id when the caller names none, so the call is still nameable', async () => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockResolvedValue(sseResponse([chunk(), 'data: [DONE]']))
+    const provider = createProvider({ apiKey: 'k' })
+    await drain(provider.chat({ messages: [{ role: 'user', content: 'hi' }], stream: true }))
+    const headers = (fetch.mock.calls[0][1] as RequestInit).headers as Record<string, string>
+    expect(headers['X-Mol-Request-Id']).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
+    )
+  })
+
+  it('never folds the request id into the abuse-attribution `user` value', async () => {
+    // `user` is stable per ACCOUNT — the provider scopes enforcement by it, so a
+    // per-request value there would make one account look like thousands.
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockResolvedValue(sseResponse([chunk(), 'data: [DONE]']))
+    const provider = createProvider({ apiKey: 'k' })
+    await drain(
+      provider.chat({
+        messages: [{ role: 'user', content: 'hi' }],
+        stream: true,
+        requestId: 'req-abc',
+        endUserId: 'mol_0123456789abcdef0123456789abcdef',
+      }),
+    )
+    const body = JSON.parse((fetch.mock.calls[0][1] as RequestInit).body as string)
+    expect(body.user).toBe('mol_0123456789abcdef0123456789abcdef')
+  })
+
+  it('treats an echoed identity that is not ours as an error instead of streaming somebody else’s text', async () => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockResolvedValue(
+      sseResponse([
+        chunk({ user: 'mol_someone_else', choices: [{ delta: { content: 'their answer' } }] }),
+        'data: [DONE]',
+      ]),
+    )
+    const provider = createProvider({ apiKey: 'k' })
+    const events = await drain(
+      provider.chat({
+        messages: [{ role: 'user', content: 'hi' }],
+        stream: true,
+        requestId: 'req-abc',
+        endUserId: 'mol_ours',
+      }),
+    )
+    expect(events.some((e) => e.type === 'error')).toBe(true)
+    expect(events.some((e) => e.type === 'text')).toBe(false)
+  })
+
+  it('accepts a reply that echoes the identity we sent', async () => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockResolvedValue(sseResponse([chunk({ user: 'mol_ours' }), 'data: [DONE]']))
+    const provider = createProvider({ apiKey: 'k' })
+    const events = await drain(
+      provider.chat({
+        messages: [{ role: 'user', content: 'hi' }],
+        stream: true,
+        requestId: 'req-abc',
+        endUserId: 'mol_ours',
+      }),
+    )
+    expect(events.some((e) => e.type === 'error')).toBe(false)
+    expect(events.some((e) => e.type === 'text')).toBe(true)
   })
 })

@@ -12,6 +12,8 @@
 // Side-effect import: registers this bond's secret definitions so the
 // runtime registry is populated even when provider.js is imported directly
 // (not through the package barrel).
+import { randomUUID } from 'node:crypto'
+
 import './secrets.js'
 
 import type {
@@ -22,6 +24,7 @@ import type {
   ChatMessage,
   ChatParams,
   ContentBlock,
+  ProviderResponseMeta,
 } from '@molecule/api-ai'
 import { getLogger } from '@molecule/api-bond'
 
@@ -52,6 +55,16 @@ function defaultApiFor(baseUrl: string): OpenaiApi {
     // An unparseable base URL is not OpenAI's; the request itself will report it.
     return 'chat-completions'
   }
+}
+
+/**
+ * The call as the wire saw it, so a reply can be checked against the request
+ * that asked for it and named afterwards. See `ProviderResponseMeta` — the same
+ * shape every bond reports (canonical implementation: `@molecule/api-ai-deepseek`).
+ */
+interface OpenaiCallContext {
+  readonly meta: ProviderResponseMeta
+  readonly endUserId?: string
 }
 
 /** Mutable streaming state for the OpenAI parser. */
@@ -188,10 +201,19 @@ export class OpenaiAIProvider implements AIProvider {
       : this.buildChatCompletionsBody(params, model, maxTokens, useStream)
     const path = isResponses ? '/v1/responses' : '/v1/chat/completions'
 
+    // Per-call correlation (see ChatParams.requestId): a header rather than the
+    // body's `user`, which is the stable per-account abuse-attribution value.
+    const requestId = params.requestId ?? randomUUID()
+    const call: OpenaiCallContext = {
+      meta: { requestId, endpoint: `${this.baseUrl}${path}` },
+      endUserId: params.endUserId,
+    }
+
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       // Omitted for a keyless custom endpoint (a self-hosted / local server).
       ...(this.apiKey ? { Authorization: `Bearer ${this.apiKey}` } : {}),
+      'X-Mol-Request-Id': requestId,
     }
 
     const DEFAULT_TIMEOUT_MS = 5 * 60 * 1000
@@ -297,9 +319,15 @@ export class OpenaiAIProvider implements AIProvider {
       return
     }
 
+    // Whatever the transport exposes about this call — the handle a vendor
+    // investigation needs.
+    const traceId =
+      response!.headers.get('x-request-id') ?? response!.headers.get('request-id') ?? undefined
+    if (traceId) call.meta.traceId = traceId
+
     yield* isResponses
-      ? parseResponsesStream(response!, model)
-      : this.parseStreamingResponse(response!)
+      ? parseResponsesStream(response!, model, call.meta)
+      : this.parseStreamingResponse(response!, call)
   }
 
   /**
@@ -490,7 +518,10 @@ export class OpenaiAIProvider implements AIProvider {
    * @param response - The fetch Response whose body is an SSE stream.
    * @yields {ChatEvent} Incremental text, keep-alive, tool-use, and done events.
    */
-  private async *parseStreamingResponse(response: Response): AsyncIterable<ChatEvent> {
+  private async *parseStreamingResponse(
+    response: Response,
+    call: OpenaiCallContext,
+  ): AsyncIterable<ChatEvent> {
     const reader = response.body?.getReader()
     if (!reader) {
       yield {
@@ -518,7 +549,7 @@ export class OpenaiAIProvider implements AIProvider {
         const lines = buffer.split('\n')
         buffer = lines.pop() ?? ''
         let yielded = false
-        for (const event of this.processSSELines(lines, state)) {
+        for (const event of this.processSSELines(lines, state, call)) {
           yielded = true
           yield event
           // A mid-stream error (rate-limit/overload during high load, sent as a
@@ -535,7 +566,7 @@ export class OpenaiAIProvider implements AIProvider {
         if (!yielded) yield { type: 'keep_alive' }
       }
       if (buffer.trim()) {
-        for (const event of this.processSSELines(buffer.split('\n'), state)) {
+        for (const event of this.processSSELines(buffer.split('\n'), state, call)) {
           yield event
           if (event.type === 'error') return
         }
@@ -563,6 +594,7 @@ export class OpenaiAIProvider implements AIProvider {
         outputTokens: state.outputTokens,
         cacheReadInputTokens: state.cachedTokens,
       },
+      provider: call.meta,
     }
   }
 
@@ -573,13 +605,49 @@ export class OpenaiAIProvider implements AIProvider {
    * @param state - Mutable stream state tracking tokens and pending tool calls.
    * @yields {ChatEvent} Text and no-op events parsed from the SSE data lines.
    */
-  private *processSSELines(lines: string[], state: OpenaiStreamState): Iterable<ChatEvent> {
+  private *processSSELines(
+    lines: string[],
+    state: OpenaiStreamState,
+    call: OpenaiCallContext,
+  ): Iterable<ChatEvent> {
     for (const line of lines) {
       if (!line.startsWith('data: ')) continue
       const json = line.slice(6).trim()
       if (json === '[DONE]') continue
       try {
         const event = JSON.parse(json) as Record<string, unknown>
+
+        // The reply's own identity, recorded for the caller, and the request's
+        // identity verified against whatever the host echoes back — a reply
+        // carrying somebody else's identity is not ours to stream on.
+        if (typeof event.id === 'string') call.meta.responseId = event.id
+        if (typeof event.model === 'string') call.meta.model = event.model
+        const echoedUser = typeof event.user === 'string' ? event.user : undefined
+        const echoedRequest =
+          typeof event.request_id === 'string'
+            ? event.request_id
+            : typeof event.requestId === 'string'
+              ? event.requestId
+              : undefined
+        const wrongUser =
+          echoedUser !== undefined && call.endUserId !== undefined && echoedUser !== call.endUserId
+        const wrongRequest = echoedRequest !== undefined && echoedRequest !== call.meta.requestId
+        if (wrongUser || wrongRequest) {
+          logger.error('Provider echoed a different identity — this reply is not ours', {
+            requestId: call.meta.requestId,
+            echoedUser: wrongUser ? echoedUser : undefined,
+            echoedRequestId: wrongRequest ? echoedRequest : undefined,
+            responseId: call.meta.responseId,
+            traceId: call.meta.traceId,
+          })
+          yield {
+            type: 'error',
+            message: 'AI service error. Please try again.',
+            errorKey: 'ai.error.apiError',
+          }
+          return
+        }
+
         // A mid-stream error arrives as a `data: {"error": {...}}` chunk (no
         // `choices`) — most importantly rate-limit/overload during high load.
         // Without this it matches no branch below and is silently dropped, so the

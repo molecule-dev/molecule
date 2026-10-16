@@ -9,6 +9,8 @@
  * @module
  */
 
+import { randomUUID } from 'node:crypto'
+
 import type {
   AIProvider,
   AiRateLimitCallback,
@@ -18,6 +20,7 @@ import type {
   ChatMessage,
   ChatParams,
   ContentBlock,
+  ProviderResponseMeta,
 } from '@molecule/api-ai'
 import { getLogger } from '@molecule/api-bond'
 import { t } from '@molecule/api-i18n'
@@ -30,6 +33,24 @@ const logger = getLogger()
 import './secrets.js'
 
 import type { DeepseekConfig } from './types.js'
+
+/**
+ * The call as the wire saw it, carried alongside the stream so the reply can be
+ * checked against the request that asked for it.
+ */
+interface DeepseekCallContext {
+  /**
+   * Filled in as the response arrives (transport trace id off the headers, the
+   * answer's own id and model off the stream) and reported on `done`.
+   */
+  readonly meta: ProviderResponseMeta
+  /**
+   * The `endUserId` this request sent, when it sent one. A host that echoes the
+   * field back lets the reply be verified against it; one that does not (DeepSeek
+   * itself) leaves the check inert.
+   */
+  readonly endUserId?: string
+}
 
 /** Mutable token usage counters shared across SSE line-processing calls. */
 interface DeepseekStreamState {
@@ -325,9 +346,25 @@ class DeepseekAIProviderImpl implements AIProvider {
       }
     }
 
+    // Correlation for THIS call (see ChatParams.requestId). It rides a header
+    // rather than the body's `user`: `user` is the stable per-user
+    // abuse-attribution value the provider scopes enforcement by, and varying it
+    // per request would make one account look like thousands. The header is
+    // ignored by every OpenAI-compatible server and is here so the vendor can
+    // find our request when a reply turns out not to belong to it.
+    const requestId = params.requestId ?? randomUUID()
+    // What the provider tells us about the call, reported on `done` (or logged
+    // when the reply has to be dropped as foreign). `responseId` and `model`
+    // come off the stream itself; the trace id off the response headers.
+    const call: DeepseekCallContext = {
+      meta: { requestId, endpoint: `${this.baseUrl}${this.completionsPath}` },
+      endUserId: params.endUserId,
+    }
+
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${this.apiKey}`,
+      'X-Mol-Request-Id': requestId,
     }
 
     const DEFAULT_TIMEOUT_MS = 5 * 60 * 1000
@@ -362,6 +399,17 @@ class DeepseekAIProviderImpl implements AIProvider {
           model,
           signal,
         })
+
+        // Whatever the transport exposes about this call. DeepSeek's edge
+        // answers with `x-ds-trace-id`; other OpenAI-compatible hosts use
+        // `x-request-id`. Recorded rather than read for control flow: it is the
+        // handle a vendor investigation needs.
+        const traceId =
+          response.headers.get('x-ds-trace-id') ??
+          response.headers.get('x-request-id') ??
+          response.headers.get('request-id') ??
+          undefined
+        if (traceId) call.meta.traceId = traceId
 
         if (!response.ok) {
           const errorBody = await response.text()
@@ -420,10 +468,12 @@ class DeepseekAIProviderImpl implements AIProvider {
         }
         armBound(firstTokenTimeoutMs, 'before_content')
         try {
-          yield* this.parseStreamingResponse(response, state, {
-            silenceMs: this.streamSilenceTimeoutMs,
-            arm: armBound,
-          })
+          yield* this.parseStreamingResponse(
+            response,
+            state,
+            { silenceMs: this.streamSilenceTimeoutMs, arm: armBound },
+            call,
+          )
         } catch (error) {
           // Only a bound expiry is this provider's to absorb — anything else
           // (the caller aborting, a socket failure) belongs to the caller.
@@ -749,12 +799,15 @@ class DeepseekAIProviderImpl implements AIProvider {
    *   and streamed content. Owned by the caller so a retry can read what the
    *   abandoned attempt produced.
    * @param bounds - How to re-arm the stream bound after the reply starts.
+   * @param call - The request's own identity, filled in from the response —
+   *   see {@link DeepseekCallContext}.
    * @yields {ChatEvent} Chat events as they arrive from the SSE stream.
    */
   private async *parseStreamingResponse(
     response: Response,
     state: DeepseekStreamState,
     bounds: StreamBoundControl,
+    call: DeepseekCallContext,
   ): AsyncIterable<ChatEvent> {
     const reader = response.body?.getReader()
     if (!reader) {
@@ -784,7 +837,7 @@ class DeepseekAIProviderImpl implements AIProvider {
         buffer = lines.pop() ?? ''
 
         let yieldedContent = false
-        for (const event of this.processSSELines(lines, pendingTools, state)) {
+        for (const event of this.processSSELines(lines, pendingTools, state, call)) {
           yieldedContent = true
           // The reply has started. Counting this from the EVENTS (rather than
           // from the byte stream) is what lets the first-token bound see a
@@ -823,7 +876,7 @@ class DeepseekAIProviderImpl implements AIProvider {
 
       // Flush any remaining data in the buffer after EOF
       if (buffer.trim()) {
-        for (const event of this.processSSELines(buffer.split('\n'), pendingTools, state)) {
+        for (const event of this.processSSELines(buffer.split('\n'), pendingTools, state, call)) {
           yield event
           if (event.type === 'error') return
         }
@@ -853,6 +906,7 @@ class DeepseekAIProviderImpl implements AIProvider {
         outputTokens: state.outputTokens,
         cacheReadInputTokens: state.cachedTokens,
       },
+      provider: call.meta,
     }
   }
 
@@ -863,12 +917,15 @@ class DeepseekAIProviderImpl implements AIProvider {
    * @param lines - Raw SSE lines to process.
    * @param pendingTools - Mutable map tracking tool call deltas accumulated across chunks.
    * @param state - Mutable token usage counters.
+   * @param call - The request's identity: the answer's own `id` and `model` are
+   *   recorded on `call.meta`, and any echo of the request is verified.
    * @yields {ChatEvent} Chat events extracted from the SSE lines.
    */
   private *processSSELines(
     lines: string[],
     pendingTools: Map<number, { id: string; name: string; args: string; started: boolean }>,
     state: DeepseekStreamState,
+    call: DeepseekCallContext,
   ): Iterable<ChatEvent> {
     for (const line of lines) {
       if (!line.startsWith('data: ')) continue
@@ -877,6 +934,46 @@ class DeepseekAIProviderImpl implements AIProvider {
 
       try {
         const event = JSON.parse(json) as Record<string, unknown>
+
+        // The reply's OWN identity, recorded for the caller: the completion id
+        // (one per answer, repeated on every delta) and the model the provider
+        // says answered. Recorded rather than asserted — a re-host legitimately
+        // answers under its own dated snapshot id.
+        if (typeof event.id === 'string') call.meta.responseId = event.id
+        if (typeof event.model === 'string') call.meta.model = event.model
+
+        // If this host echoes an identity back, verify it. A reply carrying an
+        // identity that is not the one we sent is a reply that was produced for
+        // somebody else's request, and it must not be streamed on as ours —
+        // 2026-10-16 a conversation received a complete foreign completion on a
+        // stream whose usage matched its own context, and nothing could tell.
+        // DeepSeek's own API echoes nothing, so this arm is inert there; it is
+        // live for any OpenAI-compatible host that does, and it is the only
+        // check that runs BEFORE the text reaches the caller.
+        const echoedUser = typeof event.user === 'string' ? event.user : undefined
+        const echoedRequest =
+          typeof event.request_id === 'string'
+            ? event.request_id
+            : typeof event.requestId === 'string'
+              ? event.requestId
+              : undefined
+        const wrongUser =
+          echoedUser !== undefined && call.endUserId !== undefined && echoedUser !== call.endUserId
+        const wrongRequest = echoedRequest !== undefined && echoedRequest !== call.meta.requestId
+        if (wrongUser || wrongRequest) {
+          logger.error('Provider echoed a different identity — this reply is not ours', {
+            requestId: call.meta.requestId,
+            echoedUser: wrongUser ? echoedUser : undefined,
+            echoedRequestId: wrongRequest ? echoedRequest : undefined,
+            responseId: call.meta.responseId,
+            traceId: call.meta.traceId,
+            endpoint: call.meta.endpoint,
+          })
+          yield { type: 'error', message: t('ai.error.apiError'), errorKey: 'ai.error.apiError' }
+          // The whole reply is somebody else's: stop reading it. The caller's
+          // error ladder retries the request once.
+          return
+        }
 
         // A mid-stream error arrives as a `data: {"error": {...}}` chunk (no
         // `choices`) — most importantly rate-limit/overload during high load.

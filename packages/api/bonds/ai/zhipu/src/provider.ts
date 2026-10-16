@@ -19,6 +19,8 @@
  * @module
  */
 
+import { randomUUID } from 'node:crypto'
+
 import type {
   AIProvider,
   AiRateLimitCallback,
@@ -27,6 +29,7 @@ import type {
   ChatMessage,
   ChatParams,
   ContentBlock,
+  ProviderResponseMeta,
   ServerTool,
 } from '@molecule/api-ai'
 import { getLogger } from '@molecule/api-bond'
@@ -40,6 +43,16 @@ const logger = getLogger()
 import './secrets.js'
 
 import type { ZhipuConfig } from './types.js'
+
+/**
+ * The call as the wire saw it, so a reply can be checked against the request
+ * that asked for it and named afterwards. See `ProviderResponseMeta` — the same
+ * shape every bond reports (canonical implementation: `@molecule/api-ai-deepseek`).
+ */
+interface ZhipuCallContext {
+  readonly meta: ProviderResponseMeta
+  readonly endUserId?: string
+}
 
 /** Mutable token usage counters shared across SSE line-processing calls. */
 interface ZhipuStreamState {
@@ -176,9 +189,18 @@ class ZhipuAIProvider implements AIProvider {
       body.temperature = params.temperature
     }
 
+    // Per-call correlation (see ChatParams.requestId): a header rather than the
+    // body's `user`, which is the stable per-account abuse-attribution value.
+    const requestId = params.requestId ?? randomUUID()
+    const call: ZhipuCallContext = {
+      meta: { requestId, endpoint: `${this.baseUrl}${this.completionsPath}` },
+      endUserId: params.endUserId,
+    }
+
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${this.apiKey}`,
+      'X-Mol-Request-Id': requestId,
     }
 
     const DEFAULT_TIMEOUT_MS = 5 * 60 * 1000
@@ -283,7 +305,16 @@ class ZhipuAIProvider implements AIProvider {
       return
     }
 
-    yield* this.parseStreamingResponse(response!)
+    // Whatever the transport exposes about this call — the handle a vendor
+    // investigation needs.
+    const traceId =
+      response!.headers.get('x-request-id') ??
+      response!.headers.get('request-id') ??
+      response!.headers.get('x-ds-trace-id') ??
+      undefined
+    if (traceId) call.meta.traceId = traceId
+
+    yield* this.parseStreamingResponse(response!, call)
   }
 
   /**
@@ -478,7 +509,10 @@ class ZhipuAIProvider implements AIProvider {
    * @param response - The fetch Response with an SSE body stream.
    * @yields {ChatEvent} Chat events as they arrive from the SSE stream.
    */
-  private async *parseStreamingResponse(response: Response): AsyncIterable<ChatEvent> {
+  private async *parseStreamingResponse(
+    response: Response,
+    call: ZhipuCallContext,
+  ): AsyncIterable<ChatEvent> {
     const reader = response.body?.getReader()
     if (!reader) {
       yield {
@@ -511,7 +545,7 @@ class ZhipuAIProvider implements AIProvider {
         buffer = lines.pop() ?? ''
 
         let yieldedContent = false
-        for (const event of this.processSSELines(lines, pendingTools, state)) {
+        for (const event of this.processSSELines(lines, pendingTools, state, call)) {
           yieldedContent = true
           yield event
           // A mid-stream error (rate-limit/overload during high load, sent as a
@@ -532,7 +566,7 @@ class ZhipuAIProvider implements AIProvider {
 
       // Flush any remaining data in the buffer after EOF
       if (buffer.trim()) {
-        for (const event of this.processSSELines(buffer.split('\n'), pendingTools, state)) {
+        for (const event of this.processSSELines(buffer.split('\n'), pendingTools, state, call)) {
           yield event
           if (event.type === 'error') return
         }
@@ -565,6 +599,7 @@ class ZhipuAIProvider implements AIProvider {
         ...(state.cacheReadTokens ? { cacheReadInputTokens: state.cacheReadTokens } : {}),
         ...(state.searched ? { webSearchRequests: 1 } : {}),
       },
+      provider: call.meta,
     }
   }
 
@@ -581,6 +616,7 @@ class ZhipuAIProvider implements AIProvider {
     lines: string[],
     pendingTools: Map<number, { id: string; name: string; args: string }>,
     state: ZhipuStreamState,
+    call: ZhipuCallContext,
   ): Iterable<ChatEvent> {
     for (const line of lines) {
       if (!line.startsWith('data: ')) continue
@@ -589,6 +625,35 @@ class ZhipuAIProvider implements AIProvider {
 
       try {
         const event = JSON.parse(json) as Record<string, unknown>
+
+        // The reply's own identity, recorded for the caller (see
+        // ProviderResponseMeta), and the request's identity verified against
+        // whatever the host echoes back. A reply carrying somebody else's
+        // identity is not ours to stream on — 2026-10-16 a conversation was
+        // handed a complete foreign completion and nothing could tell.
+        if (typeof event.id === 'string') call.meta.responseId = event.id
+        if (typeof event.model === 'string') call.meta.model = event.model
+        const echoedUser = typeof event.user === 'string' ? event.user : undefined
+        const echoedRequest =
+          typeof event.request_id === 'string'
+            ? event.request_id
+            : typeof event.requestId === 'string'
+              ? event.requestId
+              : undefined
+        const wrongUser =
+          echoedUser !== undefined && call.endUserId !== undefined && echoedUser !== call.endUserId
+        const wrongRequest = echoedRequest !== undefined && echoedRequest !== call.meta.requestId
+        if (wrongUser || wrongRequest) {
+          logger.error('Provider echoed a different identity — this reply is not ours', {
+            requestId: call.meta.requestId,
+            echoedUser: wrongUser ? echoedUser : undefined,
+            echoedRequestId: wrongRequest ? echoedRequest : undefined,
+            responseId: call.meta.responseId,
+            traceId: call.meta.traceId,
+          })
+          yield { type: 'error', message: t('ai.error.apiError'), errorKey: 'ai.error.apiError' }
+          return
+        }
 
         // A mid-stream error arrives as a `data: {"error": {...}}` chunk (no
         // `choices`) — most importantly rate-limit/overload during high load.

@@ -363,6 +363,8 @@ describe('chat() — streaming response parsing', () => {
     expect(events.at(-1)).toEqual({
       type: 'done',
       usage: { inputTokens: 10, outputTokens: 2, cacheReadInputTokens: 0 },
+      // Per-call correlation, reported on done (see ProviderResponseMeta).
+      provider: { requestId: expect.any(String), endpoint: 'http://localhost:11434/v1' },
     })
   })
 

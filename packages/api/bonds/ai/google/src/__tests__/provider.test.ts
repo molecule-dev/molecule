@@ -904,3 +904,72 @@ describe('secret registration', () => {
     expect(getSecretDefinition('GOOGLE_AI_API_KEY')).toBeDefined()
   })
 })
+
+// ---------------------------------------------------------------------------
+// Per-call correlation — a reply is nameable to the request that asked for it
+// ---------------------------------------------------------------------------
+// 2026-10-16 (x0 `xr-molecule-flash-m87`): a conversation was handed a complete
+// foreign completion on a stream whose own usage matched its context exactly,
+// and nothing recorded which upstream response it was. Gemini names no
+// per-response id of its own, so what is recorded here is our request id, the
+// model version that served the answer, and the endpoint.
+describe('chat() — per-call correlation', () => {
+  beforeEach(() => {
+    mockFetch.mockReset()
+    vi.stubGlobal('fetch', mockFetch)
+  })
+
+  it('sends the caller’s request id and reports what served the answer on done', async () => {
+    mockFetch.mockResolvedValue(
+      streamRaw([
+        sse({
+          candidates: [{ content: { role: 'model', parts: [{ text: 'hi' }] } }],
+          modelVersion: 'gemini-served-001',
+        }),
+      ]),
+    )
+    let done: { provider?: Record<string, string> } | undefined
+    for await (const event of createProvider({
+      apiKey: 'k',
+      baseUrl: 'https://test.api',
+    }).chat({
+      messages: [{ role: 'user', content: 'hi' }],
+      stream: true,
+      requestId: 'req-abc',
+    })) {
+      if (event.type === 'done') done = event as unknown as { provider?: Record<string, string> }
+    }
+    const init = (mockFetch.mock.calls[0] as [string, RequestInit])[1]
+    expect((init.headers as Record<string, string>)['X-Mol-Request-Id']).toBe('req-abc')
+    expect(done?.provider).toEqual(
+      expect.objectContaining({ requestId: 'req-abc', model: 'gemini-served-001' }),
+    )
+  })
+
+  it('refuses a reply whose echoed identity is not ours, instead of streaming it on', async () => {
+    mockFetch.mockResolvedValue(
+      streamRaw([
+        sse({
+          user: 'mol_someone_else',
+          candidates: [{ content: { role: 'model', parts: [{ text: 'theirs' }] } }],
+        }),
+      ]),
+    )
+    let sawText = false
+    let sawError = false
+    for await (const event of createProvider({
+      apiKey: 'k',
+      baseUrl: 'https://test.api',
+    }).chat({
+      messages: [{ role: 'user', content: 'hi' }],
+      stream: true,
+      requestId: 'req-abc',
+      endUserId: 'mol_ours',
+    })) {
+      if (event.type === 'text') sawText = true
+      if (event.type === 'error') sawError = true
+    }
+    expect(sawError).toBe(true)
+    expect(sawText).toBe(false)
+  })
+})

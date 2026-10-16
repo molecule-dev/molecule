@@ -8,6 +8,8 @@
  * @module
  */
 
+import { randomUUID } from 'node:crypto'
+
 import type {
   AIProvider,
   AiRateLimitCallback,
@@ -16,6 +18,7 @@ import type {
   ChatMessage,
   ChatParams,
   ContentBlock,
+  ProviderResponseMeta,
   TokenUsage,
 } from '@molecule/api-ai'
 import { getLogger } from '@molecule/api-bond'
@@ -30,6 +33,16 @@ import './secrets.js'
 
 import { toAnthropicToolId } from './tool-ids.js'
 import type { AnthropicConfig } from './types.js'
+
+/**
+ * The call as the wire saw it, so a reply can be checked against the request
+ * that asked for it and named afterwards. See `ProviderResponseMeta` — the same
+ * shape every bond reports (canonical implementation: `@molecule/api-ai-deepseek`).
+ */
+interface AnthropicCallContext {
+  readonly meta: ProviderResponseMeta
+  readonly endUserId?: string
+}
 
 /** Mutable state shared across SSE line-processing calls for the Anthropic streaming parser. */
 interface AnthropicStreamState {
@@ -227,11 +240,22 @@ class AnthropicAIProvider implements AIProvider {
       body.temperature = params.temperature
     }
 
+    // Per-call correlation (see ChatParams.requestId): a header rather than the
+    // body's `metadata.user_id`, which is the stable per-account
+    // abuse-attribution value. Anthropic's `request-id` header comes back with
+    // the response and is recorded as the trace id.
+    const requestId = params.requestId ?? randomUUID()
+    const call: AnthropicCallContext = {
+      meta: { requestId, endpoint: `${this.baseUrl}/v1/messages` },
+      endUserId: params.endUserId,
+    }
+
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       // Omitted for a keyless custom endpoint (a self-hosted / local server).
       ...(this.apiKey ? { 'x-api-key': this.apiKey } : {}),
       'anthropic-version': '2023-06-01',
+      'X-Mol-Request-Id': requestId,
     }
     // Build anthropic-beta header — features that require beta flags.
     // Prompt caching is GA (no longer needs a beta flag). Interleaved thinking
@@ -484,8 +508,14 @@ class AnthropicAIProvider implements AIProvider {
     // HTTP-level path and the mid-stream SSE `error` path keep). The CALLER's
     // own abort is the one exception: it is the caller's act, and rethrowing
     // its reason is what every abort-aware consumer expects.
+    // Anthropic's own trace handle for this request, alongside the `id` of the
+    // message it produces (recorded by the parser).
+    const traceId =
+      response!.headers.get('request-id') ?? response!.headers.get('x-request-id') ?? undefined
+    if (traceId) call.meta.traceId = traceId
+
     try {
-      yield* this.parseStreamingResponse(response!)
+      yield* this.parseStreamingResponse(response!, call)
     } catch (error) {
       if (params.signal?.aborted) throw error
       logger.error('Anthropic stream body died mid-response', { error })
@@ -641,7 +671,10 @@ class AnthropicAIProvider implements AIProvider {
    * @param response - The fetch Response with an SSE body stream.
    * @yields {ChatEvent} Chat events as they arrive from the SSE stream.
    */
-  private async *parseStreamingResponse(response: Response): AsyncIterable<ChatEvent> {
+  private async *parseStreamingResponse(
+    response: Response,
+    call: AnthropicCallContext,
+  ): AsyncIterable<ChatEvent> {
     const reader = response.body?.getReader()
     if (!reader) {
       yield {
@@ -676,7 +709,7 @@ class AnthropicAIProvider implements AIProvider {
         buffer = lines.pop() ?? ''
 
         let yielded = false
-        for (const event of this.processSSELines(lines, state)) {
+        for (const event of this.processSSELines(lines, state, call)) {
           yielded = true
           yield event
           // A mid-stream provider error (Anthropic sends `overloaded_error` as an
@@ -698,7 +731,7 @@ class AnthropicAIProvider implements AIProvider {
 
       // Flush any remaining data in the buffer after EOF
       if (buffer.trim()) {
-        for (const event of this.processSSELines(buffer.split('\n'), state)) {
+        for (const event of this.processSSELines(buffer.split('\n'), state, call)) {
           yield event
           if (event.type === 'error') return
         }
@@ -738,7 +771,7 @@ class AnthropicAIProvider implements AIProvider {
       reader.releaseLock()
     }
 
-    yield { type: 'done', usage: snapshotUsage(state) }
+    yield { type: 'done', usage: snapshotUsage(state), provider: call.meta }
   }
 
   /**
@@ -749,7 +782,11 @@ class AnthropicAIProvider implements AIProvider {
    * @param state - Mutable stream state (token counters, pending blocks).
    * @yields {ChatEvent} Chat events extracted from the SSE lines.
    */
-  private *processSSELines(lines: string[], state: AnthropicStreamState): Iterable<ChatEvent> {
+  private *processSSELines(
+    lines: string[],
+    state: AnthropicStreamState,
+    call: AnthropicCallContext,
+  ): Iterable<ChatEvent> {
     for (const line of lines) {
       if (!line.startsWith('data: ')) continue
       const json = line.slice(6).trim()
@@ -758,6 +795,32 @@ class AnthropicAIProvider implements AIProvider {
       try {
         const event = JSON.parse(json) as Record<string, unknown>
         const eventType = event.type as string
+
+        // The reply's own identity, recorded for the caller: Anthropic names the
+        // message it is streaming in `message_start` (and repeats it on
+        // `message_delta`), with the model that answered. Recorded rather than
+        // asserted — a proxy in front of the API may rewrite either.
+        const message = event.message as { id?: unknown; model?: unknown } | undefined
+        if (typeof message?.id === 'string') call.meta.responseId = message.id
+        if (typeof message?.model === 'string') call.meta.model = message.model
+        // Anthropic echoes no request identity today; a proxy that does is
+        // checked here so another request's reply is never streamed on as ours.
+        const echoedRequest =
+          typeof event.request_id === 'string'
+            ? event.request_id
+            : typeof event.requestId === 'string'
+              ? event.requestId
+              : undefined
+        if (echoedRequest !== undefined && echoedRequest !== call.meta.requestId) {
+          logger.error('Provider echoed a different identity — this reply is not ours', {
+            requestId: call.meta.requestId,
+            echoedRequestId: echoedRequest,
+            responseId: call.meta.responseId,
+            traceId: call.meta.traceId,
+          })
+          yield { type: 'error', message: t('ai.error.apiError'), errorKey: 'ai.error.apiError' }
+          return
+        }
 
         if (eventType === 'content_block_delta') {
           const delta = event.delta as Record<string, unknown>
