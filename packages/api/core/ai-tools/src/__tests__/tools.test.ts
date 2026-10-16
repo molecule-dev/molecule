@@ -623,6 +623,38 @@ describe('buildTools', () => {
     expect(result.error).not.toMatch(/Failed to read .*Failed to read/)
   })
 
+  it("read_file gives the same parent listing for E2B's not-found wording (flash-m44)", async () => {
+    const backend = mockBackend()
+    ;(backend.readFile as ReturnType<typeof vi.fn>).mockRejectedValue(
+      new Error("path '/test/specs/api/hurl/01-register.hurl' does not exist"),
+    )
+    ;(backend.readDir as ReturnType<typeof vi.fn>).mockResolvedValue([
+      { name: 'auth.hurl', type: 'file' },
+    ])
+    const readFile = buildTools(backend).find((t) => t.name === 'read_file')!
+    const result = (await readFile.execute({ path: '/test/specs/api/hurl/01-register.hurl' })) as {
+      error?: string
+    }
+    expect(result.error).toContain('/test/specs/api/hurl exists and contains: auth.hurl')
+  })
+
+  it('the path-safety check retries once and names a failure that was not a timeout (flash-m44)', async () => {
+    const backend = mockBackend()
+    const run = backend.run as ReturnType<typeof vi.fn>
+    run.mockRejectedValueOnce(new Error('socket hang up')).mockResolvedValueOnce({
+      stdout: '/test/a.ts\n',
+      stderr: '',
+      exitCode: 0,
+    })
+    ;(backend.readFile as ReturnType<typeof vi.fn>).mockResolvedValue('x')
+    const tools = buildTools(backend, { symlinkGuards: true } as never)
+    const readFile = tools.find((t) => t.name === 'read_file')!
+    expect(await readFile.execute({ path: '/test/a.ts' })).not.toHaveProperty('error')
+    run.mockRejectedValue(new Error('socket hang up'))
+    const refused = (await readFile.execute({ path: '/test/b.ts' })) as { error?: string }
+    expect(refused.error).toContain('command channel failed (Error: socket hang up)')
+  })
+
   it('read_file on a missing file says so when the parent directory is missing too', async () => {
     const backend = mockBackend()
     ;(backend.readFile as ReturnType<typeof vi.fn>).mockRejectedValue(

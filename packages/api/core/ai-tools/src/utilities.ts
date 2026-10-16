@@ -233,10 +233,13 @@ export function outputIsWithheldUntilExit(command: string): boolean {
  * @returns The target as written, or null (`/dev/null` and `&1`/`&2` are not files).
  */
 export function outputRedirectTarget(command: string): string | null {
-  const tee = /\|\s*tee\s+(?:-a\s+)?([^\s;&|]+)/.exec(command)
+  // A heredoc that writes a file (`cat > cfg.ts <<'EOF' … EOF`) is not where the run's output
+  // goes: X1 flash-m44 was told its config file was the suite's log.
+  const text = command.replace(/[^\n;&|]*<<-?\s*(['"]?)(\w+)\1[\s\S]*?\n\s*\2\b/g, '')
+  const tee = /\|\s*tee\s+(?:-a\s+)?([^\s;&|]+)/.exec(text)
   if (tee) return tee[1]
   let last: string | null = null
-  for (const m of command.matchAll(/(?:^|[^0-9&>])(?:&>|1?>>?)\s*([^\s;&|]+)/g)) {
+  for (const m of text.matchAll(/(?:^|[^0-9&>])(?:&>|1?>>?)\s*([^\s;&|]+)/g)) {
     if (m[1] !== '/dev/null' && !m[1].startsWith('&')) last = m[1]
   }
   return last

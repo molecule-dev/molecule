@@ -509,6 +509,15 @@ describe('streamingBackgroundCommand', () => {
 describe('outputRedirectTarget', () => {
   it('finds the file a command sends its output to (flash-m29)', () => {
     expect(outputRedirectTarget('npx playwright test > /tmp/pw.txt 2>&1')).toBe('/tmp/pw.txt')
+    // A heredoc that writes a config is not the run's output (flash-m44).
+    expect(
+      outputRedirectTarget(
+        "cat > e2e/playwright.deployed.config.ts <<'EOF'\nexport default { use: { baseURL: 'https://x' } }\nEOF\nnpx playwright test -c e2e/playwright.deployed.config.ts",
+      ),
+    ).toBeNull()
+    expect(
+      outputRedirectTarget('cat > c.ts <<EOF\nx\nEOF\nnpx playwright test > /tmp/run.log 2>&1'),
+    ).toBe('/tmp/run.log')
     expect(outputRedirectTarget('npx playwright test 2>&1 | tee run.log')).toBe('run.log')
     expect(outputRedirectTarget('npm test >> out.log')).toBe('out.log')
   })

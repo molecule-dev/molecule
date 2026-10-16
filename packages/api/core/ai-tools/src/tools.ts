@@ -216,26 +216,38 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
    */
   async function checkSymlink(path: string): Promise<string | null> {
     if (!symlinkGuards) return null
-    try {
-      const result = await backend.run(
-        `readlink -f ${shellQuote(path)} 2>/dev/null || echo ${shellQuote(path)}`,
-        { timeout: 5000 },
-      )
-      const realPath = result.stdout.trim()
-      if (realPath && realPath !== root && !realPath.startsWith(root + '/')) {
-        return 'Access denied: path resolves outside the project workspace'
+    // One retry: the first commands on a just-attached sandbox can fail at once (X1
+    // flash-m44: three paths refused in 332 ms, the same check passing a beat later).
+    let lastError: unknown
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const started = Date.now()
+      try {
+        const result = await backend.run(
+          `readlink -f ${shellQuote(path)} 2>/dev/null || echo ${shellQuote(path)}`,
+          { timeout: 5000 },
+        )
+        const realPath = result.stdout.trim()
+        if (realPath && realPath !== root && !realPath.startsWith(root + '/')) {
+          return 'Access denied: path resolves outside the project workspace'
+        }
+        return null
+      } catch (error) {
+        lastError = Object.assign(error instanceof Error ? error : new Error(String(error)), {
+          elapsedMs: Date.now() - started,
+        })
+        if (attempt === 0) await new Promise((resolve) => setTimeout(resolve, 300))
       }
-      return null
-    } catch (_error) {
-      // readlink unavailable or timed out — deny access conservatively, and say
-      // why: "access denied" read as a forbidden path, and builders spent call
-      // after call on paths that were fine while the sandbox was not answering.
-      return (
-        'Unable to verify path safety: the sandbox did not answer the check within 5 s (it may be ' +
-        'restarting or out of memory), so the path was refused to stay safe. Retry in a moment; if ' +
-        'every file tool fails this way, the sandbox needs a restart.'
-      )
     }
+    // Deny conservatively, and say what failed: "access denied" read as a forbidden path,
+    // and a fixed "did not answer within 5 s" hid an error that took 332 ms.
+    const err = lastError as (Error & { elapsedMs?: number }) | undefined
+    const timedOut = err?.name === 'TimeoutError' || (err?.elapsedMs ?? 0) >= 4900
+    return timedOut
+      ? 'Unable to verify path safety: the sandbox did not answer the check within 5 s (it may be ' +
+          'restarting or out of memory), so the path was refused to stay safe. Retry in a moment; if ' +
+          'every file tool fails this way, the sandbox needs a restart.'
+      : `Unable to verify path safety: the sandbox's command channel failed (${err?.name ?? 'Error'}: ${String(err?.message ?? err).slice(0, 160)}), ` +
+          'so the path was refused to stay safe. Retry the call; if every file tool fails this way, the sandbox needs a restart.'
   }
 
   /**
@@ -523,12 +535,15 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       // the next read uses a real name instead of another guess.
       // A package's docs are one tool call away wherever node_modules happens to live.
       const moleculePkg = /node_modules\/(@molecule\/[^/]+)\//.exec(path)?.[1]
-      if (moleculePkg && /No such file or directory/i.test(message)) {
+      // Docker's `cat` says "No such file or directory"; E2B's SDK says "path '…' does not
+      // exist" (X1 flash-m44: the hints below never fired on E2B).
+      const notFound = /No such file or directory|does not exist|ENOENT/i.test(message)
+      if (moleculePkg && notFound) {
         return {
           error: `No such file: ${path}. Read ${moleculePkg}'s documentation with read_molecule_doc("${moleculePkg}") instead of looking for it in node_modules.`,
         }
       }
-      if (/No such file or directory/i.test(message)) {
+      if (notFound) {
         const parent = path.replace(/\/[^/]*$/, '') || '/'
         let listing: string
         try {
@@ -563,7 +578,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         const message = (e as Error).message
         // Same ground-truth answer as read_file's miss: a guessed path gets the parent's
         // real contents back, so the next call names something that exists.
-        if (/No such file or directory|cannot access/i.test(message)) {
+        if (/No such file or directory|cannot access|does not exist|ENOENT/i.test(message)) {
           const parent = path.replace(/\/[^/]*$/, '') || '/'
           try {
             const siblings = await backend.readDir(parent)
