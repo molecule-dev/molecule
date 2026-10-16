@@ -293,6 +293,13 @@ export default tseslint.config(
       'packages/**/dist/',
       'packages/**/node_modules/',
       'packages/**/*.d.ts',
+      // …except the HAND-WRITTEN ambient declare-module shims for runtime-loaded
+      // native peers. .gitignore carves the same glob out, so they are tracked
+      // as real source and lint must see them too: eslint reports an
+      // ignored-but-named file as a WARNING, and the pre-commit hook runs with
+      // --max-warnings 0, so committing one fails with "File ignored because of
+      // a matching ignore pattern" — a gate firing at the wrong thing.
+      '!packages/api/bonds/**/src/**/*.d.ts',
       'packages/**/*.js',
       'packages/**/*.js.map',
     ],

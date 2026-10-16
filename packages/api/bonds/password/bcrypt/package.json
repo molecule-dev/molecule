@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-password-bcrypt",
   "version": "1.0.3",
-  "description": "Password hashing provider using bcryptjs for molecule.dev",
+  "description": "Password hashing provider using native bcrypt, falling back to bcryptjs, for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -24,10 +24,13 @@
     "molecule",
     "password",
     "bcrypt",
+    "bcryptjs",
+    "native",
     "provider"
   ],
   "license": "Apache-2.0",
   "dependencies": {
+    "bcrypt": "6.0.0",
     "bcryptjs": "3.0.3"
   },
   "peerDependencies": {
