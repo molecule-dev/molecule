@@ -45,6 +45,8 @@ const {
   getAuthCookieOptions,
   invalidateDeviceExistsCache,
   invalidateAllDeviceExistsCache,
+  ALLOW_COOKIE_SESSION_LOCALS_KEY,
+  AUTH_SESSION_SOURCE_LOCALS_KEY,
 } = await import('../authorization.js')
 
 /** Helper to build a mock request. */
@@ -236,6 +238,42 @@ describe('authorization', () => {
       expect(res.cookie).not.toHaveBeenCalled()
     })
 
+    it('writes NO cookies when the mount that passed the request is token-only, header still set', () => {
+      // The option turns the cookie off in both directions: a token-only API must not
+      // hand the client a session cookie at sign-in, or a cookie-jar client (Hurl,
+      // `curl -b`) is authenticated on the next "no auth" request.
+      mockSign.mockReturnValue('jwt-token-xyz')
+      mockGetConfig.mockReturnValue('test')
+      const res = makeRes()
+      res.locals[ALLOW_COOKIE_SESSION_LOCALS_KEY] = false
+
+      const token = set(
+        makeReq() as never,
+        res as never,
+        { userId: 'u1', deviceId: 'd1', id: 'sid' } as never,
+      )
+
+      expect(token).toBe('jwt-token-xyz')
+      expect(res.setHeader).toHaveBeenCalledWith('Authorization', 'Bearer jwt-token-xyz')
+      expect(res.cookie).not.toHaveBeenCalled()
+    })
+
+    it('still writes the session cookies when the policy allows them (explicit and absent)', () => {
+      // The default must not move: every scaffolded browser app restores its session
+      // from these cookies, and a direct `set()` caller never passes a mount at all.
+      mockSign.mockReturnValue('jwt-token-xyz')
+      mockGetConfig.mockReturnValue('test')
+
+      for (const policy of [true, undefined]) {
+        const res = makeRes()
+        if (policy !== undefined) res.locals[ALLOW_COOKIE_SESSION_LOCALS_KEY] = policy
+
+        set(makeReq() as never, res as never, { userId: 'u1', deviceId: 'd1', id: 'sid' } as never)
+
+        expect(res.cookie).toHaveBeenCalledWith('mol_auth', '1', expect.any(Object))
+      }
+    })
+
     // C2-1: in production the auth cookies must be `__Host-` prefixed so a
     // sibling subdomain (tenant preview) cannot create a colliding
     // `.molecule.dev`-scoped duplicate that shadows the real session cookie.
@@ -424,6 +462,116 @@ describe('authorization', () => {
       expect(mockVerify).not.toHaveBeenCalled()
       expect(api.locals.session).toBeUndefined()
       expect(next).toHaveBeenCalled()
+    })
+
+    it('records the mount policy on res.locals even on a request that carries no token', async () => {
+      // The sign-in request (POST /users/login) resolves no session — but the policy
+      // must already be on the response, because THAT is the request `set()` writes
+      // the cookies on. Recording it behind the token lookup would let the first
+      // sign-in fill the client's cookie jar.
+      const res = makeRes()
+      const next = vi.fn()
+
+      await verifyMiddleware({ allowCookieSession: false })(makeReq() as never, res as never, next)
+
+      expect(res.locals[ALLOW_COOKIE_SESSION_LOCALS_KEY]).toBe(false)
+      expect(next).toHaveBeenCalled()
+    })
+
+    it('a token-only mount drops a session an earlier laxer mount resolved from the cookie', async () => {
+      // The scaffold mounts verifyMiddleware twice — server.ts's `preApiRouter` first
+      // (default options, sees every /api request) and App/router.ts after it. Without
+      // this the app's own routes still read res.locals.session off the cookie and
+      // answer 200 where a spec expects 401 on its "no auth" step.
+      const session = { userId: 'u1', deviceId: 'd1' }
+      mockVerify.mockReturnValue(session)
+      mockDecode.mockReturnValue({ iat: Math.floor(Date.now() / 1000) })
+
+      const res = makeRes()
+      await middleware(
+        { ...makeReq({ headers: {} }), cookies: { token: 'cookie-token' } } as never,
+        res as never,
+        vi.fn(),
+      )
+      expect(res.locals.session).toBe(session)
+      expect(res.locals[AUTH_SESSION_SOURCE_LOCALS_KEY]).toBe('cookie')
+
+      mockVerify.mockClear()
+      await verifyMiddleware({ allowCookieSession: false })(
+        makeReq({ headers: {} }) as never,
+        res as never,
+        vi.fn(),
+      )
+
+      expect(res.locals.session).toBeUndefined()
+      expect(res.locals[AUTH_SESSION_SOURCE_LOCALS_KEY]).toBeUndefined()
+      expect(mockVerify).not.toHaveBeenCalled()
+    })
+
+    it('a token-only mount keeps a session an earlier mount resolved from the HEADER', async () => {
+      // A token-only API accepts credentials the client actually sent; only the
+      // cookie is refused.
+      const session = { userId: 'u1', deviceId: 'd1' }
+      mockVerify.mockReturnValue(session)
+      mockDecode.mockReturnValue({ iat: Math.floor(Date.now() / 1000) })
+
+      const res = makeRes()
+      await middleware(
+        makeReq({ headers: { authorization: 'Bearer valid-token' } }) as never,
+        res as never,
+        vi.fn(),
+      )
+      expect(res.locals[AUTH_SESSION_SOURCE_LOCALS_KEY]).toBe('header')
+
+      await verifyMiddleware({ allowCookieSession: false })(
+        makeReq({ headers: {} }) as never,
+        res as never,
+        vi.fn(),
+      )
+
+      expect(res.locals.session).toBe(session)
+    })
+
+    it('a later token-only mount owns the sign-in cookies of the request (the scaffold double mount)', async () => {
+      // server.ts's `preApiRouter` mount runs first with default options; the app's
+      // own mount, one line later in App/router.ts, is the one whose policy the
+      // handler's `set()` reads. Both orders must leave the jar empty.
+      mockSign.mockReturnValue('jwt-token-xyz')
+      mockGetConfig.mockReturnValue('test')
+      const res = makeRes()
+
+      await middleware(makeReq({ headers: {} }) as never, res as never, vi.fn())
+      await verifyMiddleware({ allowCookieSession: false })(
+        makeReq({ headers: {} }) as never,
+        res as never,
+        vi.fn(),
+      )
+      set(makeReq() as never, res as never, { userId: 'u1', deviceId: 'd1', id: 'sid' } as never)
+
+      expect(res.cookie).not.toHaveBeenCalled()
+      expect(res.setHeader).toHaveBeenCalledWith('Authorization', 'Bearer jwt-token-xyz')
+    })
+
+    it('a token-only sign-in response carries the header and no cookie (the Hurl jar stays empty)', async () => {
+      // The whole m70 shape in one test: POST /users/login through the app's own
+      // token-only mount, then the handler mints the session. The client must come out
+      // with a token it sends as a header and NOTHING the runner will replay on the
+      // next request.
+      mockVerify.mockReturnValue(null)
+      mockDecode.mockReturnValue(null)
+      mockSign.mockReturnValue('jwt-token-xyz')
+      mockGetConfig.mockReturnValue('test')
+      const res = makeRes()
+
+      await verifyMiddleware({ allowCookieSession: false })(
+        makeReq({ headers: {} }) as never,
+        res as never,
+        vi.fn(),
+      )
+      set(makeReq() as never, res as never, { userId: 'u1', deviceId: 'd1', id: 'sid' } as never)
+
+      expect(res.setHeader).toHaveBeenCalledWith('Authorization', 'Bearer jwt-token-xyz')
+      expect(res.cookie).not.toHaveBeenCalled()
     })
 
     it('requires both userId and deviceId in session', async () => {

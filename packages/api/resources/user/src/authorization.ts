@@ -268,6 +268,50 @@ const isDeviceActive = async (deviceId: string): Promise<boolean> => {
 }
 
 /**
+ * `res.locals` key carrying THIS request's cookie-session policy. {@link verifyMiddleware}
+ * writes it from its `allowCookieSession` option; {@link set} reads it. When the value is
+ * `false` the request arrived through a mount that authenticates by `Authorization` header
+ * only, so `set()` must not hand the client the `token` / `sessionId` / `mol_auth` cookies
+ * either: a cookie written here authenticates that same client on its NEXT request (an HTTP
+ * test runner's cookie jar, `curl -b`, a browser) through any mount that does accept one,
+ * which is how a suite step called "no auth" comes back 200.
+ *
+ * Exported so a custom auth middleware can declare the same policy for the requests it
+ * handles, and so tests can assert the key rather than a string literal.
+ */
+export const ALLOW_COOKIE_SESSION_LOCALS_KEY = 'allowCookieSession'
+
+/**
+ * `res.locals` key carrying HOW this request's session was resolved — `'header'` when
+ * the `Authorization` header named the token, `'cookie'` when only the `token` cookie
+ * did. {@link verifyMiddleware} writes it alongside `res.locals.session`.
+ *
+ * A mount with `allowCookieSession: false` reads it to drop a session an EARLIER, laxer
+ * mount already resolved out of the cookie (the scaffold mounts `verifyMiddleware` twice,
+ * and the first one runs for every `/api` request). A session resolved from the header is
+ * never dropped: that client sent its credentials, which is exactly what a token-only API
+ * accepts.
+ */
+export const AUTH_SESSION_SOURCE_LOCALS_KEY = 'authSessionSource'
+
+/** How {@link verifyMiddleware} resolved a request's session. See {@link AUTH_SESSION_SOURCE_LOCALS_KEY}. */
+export type AuthSessionSource = 'header' | 'cookie'
+
+/**
+ * Whether THIS request may be handed a session cookie by {@link set}.
+ *
+ * {@link verifyMiddleware} records its `allowCookieSession` option in `res.locals`
+ * ({@link ALLOW_COOKIE_SESSION_LOCALS_KEY}); an ABSENT record means the request never
+ * passed a mount that declares a policy, so the historical default applies (cookies on)
+ * and a direct `set()` caller outside the scaffold is unchanged.
+ *
+ * @param res - The response object.
+ * @returns `true` when the session cookies may be written.
+ */
+const maySetSessionCookie = (res: MoleculeResponse): boolean =>
+  res.locals?.[ALLOW_COOKIE_SESSION_LOCALS_KEY] !== false
+
+/**
  * Set authorization headers and cookie for a session.
  *
  * The token is bound to `session.deviceId`, and `verifyMiddleware` rejects any session whose
@@ -275,6 +319,17 @@ const isDeviceActive = async (deviceId: string): Promise<boolean> => {
  * `get('device').createOrUpdate(userId, deviceName)` on every path that signs a user in
  * (register, login, OAuth, password reset), as `handlers/logIn.ts` does: a placeholder
  * (`'unknown'`, `''`, the user's id) yields a token that every later request answers 401.
+ *
+ * Always sets the `Authorization` response header. Writes the session cookies (the httpOnly
+ * `token` and `sessionId`, plus the readable `mol_auth` presence hint) UNLESS the request's
+ * cookie-session policy is off — see {@link ALLOW_COOKIE_SESSION_LOCALS_KEY}, written by
+ * {@link verifyMiddleware}. A token-only API (`allowCookieSession: false`) gets the header
+ * and no cookies, so its clients cannot drift into a cookie session.
+ *
+ * The policy is the MOUNT's, and the mount records it on every request it passes — including
+ * the sign-in request itself, which carries no token and therefore resolves no session. So a
+ * token-only API writes no cookie from the very first response: mount
+ * `verifyMiddleware({ allowCookieSession: false })` in front of the routes that sign users in.
  *
  * @param _req - The request object (unused; reserved for handler signature parity).
  * @param res - The response object.
@@ -303,7 +358,20 @@ export const set = (
     const token = sign(sessionPayload)
 
     if (token) {
+      // The header is the credential a token-only API's clients read; it is set on
+      // every request that mints a token, cookies or not.
       res.setHeader('Authorization', `Bearer ${token}`)
+
+      // A request whose cookie policy is OFF gets the header and NOTHING else. The
+      // cookie is not a convenience here — it is a second credential the client did
+      // not ask for: once written, an HTTP test runner's cookie jar (Hurl, `curl -b`)
+      // or a browser sends it on the NEXT request, including one that sends no
+      // `Authorization` header, and a suite step called "no auth" answers 200 where
+      // its spec says 401. Gated on the mount's own option (see
+      // `allowCookieSession`), so a token-only API cannot hand one out at sign-in.
+      if (!maySetSessionCookie(res)) {
+        return token
+      }
 
       // Set as cookies for web browser clients.
       // In production the names are `__Host-`-prefixed (see getAuthCookieName),
@@ -366,18 +434,23 @@ export interface VerifyMiddlewareOptions {
    */
   shouldRefreshSession?: (session: Session, req: MoleculeRequest) => boolean | Promise<boolean>
   /**
-   * Accept the `token` cookie as the session when no `Authorization` header is sent.
+   * Whether the `token` cookie is a session on this mount, in BOTH directions.
    * Defaults to `true` (browser clients sign in once and every page request carries
-   * the cookie). Pass `false` for a token-only JSON API: any client that keeps a
-   * cookie jar (an HTTP test runner, `curl -b`) would otherwise arrive authenticated
-   * on a request that sends no header, and get 200 where the API should answer 401.
+   * the cookie).
+   *
+   * Pass `false` for a token-only JSON API. Then the cookie is not a credential here:
+   * the middleware does not resolve a session from it (and drops one an earlier, laxer
+   * mount already resolved from it), and {@link set} does not write it either — so a
+   * client that keeps a cookie jar (an HTTP test runner, `curl -b`) never picks up a
+   * session it should not have, and stops answering 200 on the step its spec calls
+   * "no auth".
    */
   allowCookieSession?: boolean
 }
 
 /**
  * Middleware that verifies the JWT token from the `Authorization` header and sets `res.locals.session`.
- * Falls back to cookie-based session for browser clients unless `allowCookieSession` is `false`. Auto-refreshes tokens older than `JWT_REFRESH_TIME`.
+ * Falls back to cookie-based session for browser clients unless `allowCookieSession` is `false` — which also stops `set()` writing the session cookie for this request. Auto-refreshes tokens older than `JWT_REFRESH_TIME`.
  * @param options - {@link VerifyMiddlewareOptions} controlling the auto-refresh.
  * @returns An Express-compatible middleware function.
  */
@@ -385,6 +458,15 @@ export const verifyMiddleware =
   (options?: VerifyMiddlewareOptions): MoleculeRequestHandler =>
   async (req, res, next) => {
     try {
+      // Record THIS mount's cookie policy for the rest of the request, before any
+      // early return: `set()` reads it (so a token-only API writes no cookie from the
+      // sign-in response on) and a later, stricter mount reads it to know it may
+      // strip a session an earlier one resolved out of the cookie. The sign-in
+      // request itself carries no token, so the write cannot sit behind the
+      // token lookup below.
+      const allowCookieSession = options?.allowCookieSession !== false
+      res.locals[ALLOW_COOKIE_SESSION_LOCALS_KEY] = allowCookieSession
+
       // Get token from Authorization header, falling back to the `token`
       // cookie that `set()` writes alongside the header. The JSDoc above
       // promises this fallback for browser clients; without it the cookie
@@ -401,11 +483,22 @@ export const verifyMiddleware =
       const cookieToken = readAuthCookie(cookies, 'token')
       const token =
         headerToken ??
-        (options?.allowCookieSession !== false && typeof cookieToken === 'string' && cookieToken
-          ? cookieToken
-          : null)
+        (allowCookieSession && typeof cookieToken === 'string' && cookieToken ? cookieToken : null)
 
       if (!token) {
+        // A token-only mount accepts NOTHING from the cookie — not even a session an
+        // earlier, laxer mount already resolved out of it. The scaffold mounts
+        // `verifyMiddleware` twice (server.ts's `preApiRouter` runs first, then
+        // App/router.ts), and the first one runs for every `/api` request: without
+        // this the app's own routes would still read `res.locals.session` off the
+        // cookie and answer 200 where the spec says 401. A header-resolved session is
+        // left alone — that client sent its credentials, which is what a token-only
+        // API accepts.
+        if (!allowCookieSession && res.locals[AUTH_SESSION_SOURCE_LOCALS_KEY] === 'cookie') {
+          delete res.locals.session
+          delete res.locals[AUTH_SESSION_SOURCE_LOCALS_KEY]
+        }
+
         return next()
       }
 
@@ -433,6 +526,11 @@ export const verifyMiddleware =
         }
 
         res.locals.session = session
+        // Record HOW the session was resolved, so a later mount with
+        // `allowCookieSession: false` can drop a cookie-resolved session (and only
+        // that one) — see {@link AUTH_SESSION_SOURCE_LOCALS_KEY}.
+        const sessionSource: AuthSessionSource = headerToken ? 'header' : 'cookie'
+        res.locals[AUTH_SESSION_SOURCE_LOCALS_KEY] = sessionSource
 
         // Auto-refresh the token if it's old enough.
         try {

@@ -35,11 +35,19 @@
  * sent (letters, digits, `.`, `-`, `_`); anything else is answered 400
  * `user.error.usernameInvalid`, never rewritten.
  *
- * **A token-only JSON API:** `verifyMiddleware()` also accepts the `token` cookie that
- * login sets, so a client that keeps a cookie jar (an HTTP test runner, `curl -b`) is
- * still signed in on a request that sends no `Authorization` header, and gets 200 where a
- * spec expects 401. Mount `verifyMiddleware({ allowCookieSession: false })` for an API
- * whose clients send the header.
+ * **A token-only JSON API:** by default the `token` cookie that login sets IS a session,
+ * and `authorization.set()` writes it on every sign-in — so a client that keeps a cookie
+ * jar (an HTTP test runner, `curl -b`) stays signed in on a request that sends no
+ * `Authorization` header, and gets 200 on the step the suite calls "no auth". Mount
+ * `verifyMiddleware({ allowCookieSession: false })` for an API whose clients send the
+ * header: that ONE option turns the cookie off in BOTH directions — the middleware no
+ * longer resolves a session from it (nor keeps one an earlier, laxer mount resolved), and
+ * `set()` stops writing `token` / `sessionId` / `mol_auth`, so even the sign-in response
+ * carries the `Authorization` header alone and the jar never fills. Set it on the mount
+ * whose routes answer: the scaffold mounts `verifyMiddleware` twice (`api/src/server.ts`'s
+ * `preApiRouter` runs first, then `api/src/App/router.ts`), and the last mount a request
+ * passes sets the policy both halves read — a stricter mount drops a session the looser
+ * earlier one resolved out of the cookie, and `set()` writes none.
  *
  * **Revoking a session yourself:** the middleware caches "this device exists" for 10 s per
  * process, so a hand-written logout that deletes the `devices` row keeps authorizing that
