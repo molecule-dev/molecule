@@ -287,6 +287,9 @@ describe('@molecule/api-database-sqlite × REAL better-sqlite3', () => {
     await expect(
       store.findMany('todos', { where: [{ field: 'user_id', operator: 'in', value: 'user-1' }] }),
     ).rejects.toThrow(`'in' operator requires an array value`)
+    await expect(
+      store.findMany('todos', { where: [{ field: 'user_id', operator: '=', value: ['a', 'b'] }] }),
+    ).rejects.toThrow(`'=' operator takes one value, not a list`)
   })
 
   it('empty in/not_in arrays behave like the postgres bond instead of raising `IN ()` syntax errors', async () => {

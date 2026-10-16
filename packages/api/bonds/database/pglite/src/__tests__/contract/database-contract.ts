@@ -416,6 +416,11 @@ export function describeDatabaseContract(
             { field: 'qty', operator: '=', value: 4 },
           ]),
         ).toMatchObject({ name: 'delta' })
+        await expect(
+          store.findMany('contract_items', {
+            where: [{ field: 'name', operator: '=', value: ['beta', 'delta'] }],
+          }),
+        ).rejects.toThrow(`'=' operator takes one value, not a list`)
       })
 
       it('updates and deletes by id and by condition', async () => {

@@ -535,6 +535,12 @@ describe('@molecule/api-database-postgresql', () => {
           store.findOne('users', [{ field: 'col"inject', operator: '=', value: '1' }]),
         ).rejects.toThrow('Invalid SQL identifier')
       })
+
+      it('rejects a list given to a one-value operator', async () => {
+        await expect(
+          store.findOne('users', [{ field: 'role', operator: '=', value: ['a', 'b'] }]),
+        ).rejects.toThrow(`'=' operator takes one value, not a list`)
+      })
     })
 
     describe('enforced on column names in ORDER BY', () => {

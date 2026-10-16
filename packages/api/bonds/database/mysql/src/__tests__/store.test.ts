@@ -136,6 +136,15 @@ describe('createStore (mysql)', () => {
       expect(mockPool.query).not.toHaveBeenCalled()
     })
 
+    it('rejects a list given to a one-value operator', async () => {
+      await expect(
+        store.findMany('users', {
+          where: [{ field: 'role', operator: '=', value: ['admin', 'owner'] }],
+        }),
+      ).rejects.toThrow(`'=' operator takes one value, not a list`)
+      expect(mockPool.query).not.toHaveBeenCalled()
+    })
+
     it('rejects an unknown operator loudly instead of silently dropping the condition', async () => {
       await expect(
         store.findMany('users', {

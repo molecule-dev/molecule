@@ -73,6 +73,13 @@ function buildWhere(conditions: WhereCondition[]): { clause: string; values: unk
       case '<':
       case '>=':
       case '<=':
+        // A list given to a one-value operator matches nothing on every store: say so, the way
+        // 'in' given a scalar does.
+        if (Array.isArray(cond.value)) {
+          throw new Error(
+            `'${cond.operator}' operator takes one value, not a list (field "${cond.field}"); use 'in' for a list`,
+          )
+        }
         parts.push(`\`${cond.field}\` ${cond.operator} ?`)
         values.push(cond.value)
         break
