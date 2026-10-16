@@ -8,6 +8,10 @@ import type { ReactNode } from 'react'
 import React from 'react'
 
 import type { AuthClient } from '@molecule/app-auth'
+import {
+  getProvider as getStateProvider,
+  hasProvider as hasStateProvider,
+} from '@molecule/app-state'
 
 import {
   AuthContext,
@@ -241,7 +245,10 @@ export function PreviewProvider({ provider, children }: PreviewProviderProps): R
  * Combined provider for all molecule services.
  *
  * Provides a convenient way to wrap your app with all molecule providers at once.
- * Only providers that are passed will be included.
+ * Only providers that are passed will be included — except `state`, which falls
+ * back to the state provider bonded under `@molecule/app-state` (set by
+ * `setupAllDefaultBonds()` or a state bond) so `useStore()` works without a
+ * `state` prop.
  *
  * @param props - Component props (see {@link MoleculeProviderProps}) — each service is
  *   optional, and ONLY the services passed are provided to the tree.
@@ -325,8 +332,15 @@ export function MoleculeProvider({
     result = <AuthContext.Provider value={auth}>{result}</AuthContext.Provider>
   }
 
-  if (state) {
-    result = <StateContext.Provider value={state}>{result}</StateContext.Provider>
+  // Fall back to the BONDED state provider: it is the singleton every
+  // `createStore()` reads, so `useStore()` inside a scaffolded app needs no
+  // `state` prop. Nothing wired the React context before, so the documented
+  // createStore()+useStore() pattern threw "useStateProvider must be used
+  // within a StateProvider" on a correctly-built app (X1 flash-m65). A
+  // `state` prop still wins — that is how an app overrides the bond.
+  const stateContext = state ?? (hasStateProvider() ? getStateProvider() : undefined)
+  if (stateContext) {
+    result = <StateContext.Provider value={stateContext}>{result}</StateContext.Provider>
   }
 
   return <>{result}</>

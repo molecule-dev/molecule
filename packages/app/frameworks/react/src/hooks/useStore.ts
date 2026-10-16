@@ -15,6 +15,10 @@ import type { UseStoreOptions } from '../types.js'
 /**
  * Hook to access the state provider from context.
  *
+ * The context comes from `<StateProvider provider={…}>` or from
+ * `<MoleculeProvider>` — which supplies the provider bonded under
+ * `@molecule/app-state` by default, so a scaffolded app needs no `state` prop.
+ *
  * @returns The state provider from context
  * @throws {Error} Error if used outside of StateProvider
  */
