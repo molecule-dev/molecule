@@ -1,5 +1,11 @@
 # @molecule/api-code-sandbox-flyio
 
+## 1.2.9
+
+### Patch Changes
+
+- `exec` retries the `412 failed_precondition: exec request failed` Fly answers when it drops the connection to a Machine's exec agent — up to four attempts with 1 s / 3 s / 7 s backoff, each preceded by a Machine-state read and a wait for `started` when the Machine has not got there — instead of failing the whole boot or deploy on one dropped connection. A 412 that names a Machine state (`machine not running`) is still never retried, and every 412 that is not retried now reports the Machine's current state in its message.
+
 ## 1.2.8
 
 ### Patch Changes
