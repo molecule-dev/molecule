@@ -534,3 +534,15 @@ describe('redactSecrets — a value cut off mid-line', () => {
     expect(redactSecrets('{"token":"eyJhbGciOiJIUzI1NiJ9.abc.def"}')).not.toContain('eyJhbGci')
   })
 })
+
+describe('redactSecrets — package names that end in a keyword', () => {
+  it('keeps the version of a package whose name ends in auth or secrets (flash-m35)', () => {
+    const line = '    "@molecule/app-auth": "1.2.0",\n    "@molecule/api-secrets": "1.0.4",'
+    expect(redactSecrets(line)).toBe(line)
+  })
+
+  it('still masks a real secret key', () => {
+    expect(redactSecrets('{"apiToken": "sk-abcdef0123456789"}')).not.toContain('sk-abcdef')
+    expect(redactSecrets('{"auth": "Bearer abcdef0123456789"}')).not.toContain('abcdef0123')
+  })
+})

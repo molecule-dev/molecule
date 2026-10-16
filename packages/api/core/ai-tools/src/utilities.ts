@@ -84,11 +84,13 @@ const SECRET_ENV_ASSIGNMENT = new RegExp(
 const SECRET_JSON_DQ = new RegExp(
   // A value ends at its closing quote OR the end of its line: cut off mid-value (`head -c`),
   // the old pattern ran on to a quote on a LATER line and swallowed the lines between (flash-m32).
-  `(['"]?(?:\\w*(?:${SECRET_KEYWORDS})\\w*)['"]?\\s*[:=]\\s*)"(?:[^"\\\\\\n]|\\\\.)*(?:"|(?=\\n)|$)`,
+  // The key starts at a real boundary: a package name ending in a keyword ("@molecule/app-auth": "1.2.0")
+  // is not a secret, and matching from its tail masked the version (flash-m35).
+  `((?<![\\w@/.-])['"]?(?:\\w*(?:${SECRET_KEYWORDS})\\w*)['"]?\\s*[:=]\\s*)"(?:[^"\\\\\\n]|\\\\.)*(?:"|(?=\\n)|$)`,
   'gi',
 )
 const SECRET_JSON_SQ = new RegExp(
-  `(['"]?(?:\\w*(?:${SECRET_KEYWORDS})\\w*)['"]?\\s*[:=]\\s*)'(?:[^'\\\\\\n]|\\\\.)*(?:'|(?=\\n)|$)`,
+  `((?<![\\w@/.-])['"]?(?:\\w*(?:${SECRET_KEYWORDS})\\w*)['"]?\\s*[:=]\\s*)'(?:[^'\\\\\\n]|\\\\.)*(?:'|(?=\\n)|$)`,
   'gi',
 )
 
