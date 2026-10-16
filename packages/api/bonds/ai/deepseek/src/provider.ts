@@ -71,6 +71,8 @@ interface StreamBounds {
   expired: 'before_content' | 'after_content' | null
   /** The armed timer, or null when nothing is armed. */
   timer: ReturnType<typeof setTimeout> | null
+  /** When the armed window began — the stall an expiry reports. */
+  windowStartedAt: number
 }
 
 /**
@@ -351,7 +353,6 @@ class DeepseekAIProviderImpl implements AIProvider {
       const ceiling = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT_MS)
       ceiling.unref?.()
       const signal = controller.signal
-      const requestStartedAt = Date.now()
 
       try {
         const response = await this.requestWithRateLimitRetries({
@@ -403,10 +404,14 @@ class DeepseekAIProviderImpl implements AIProvider {
           streamedChars: 0,
           contentSeen: false,
         }
-        // Both bounds abort the same request; `expired` says which one did.
-        const bounds: StreamBounds = { expired: null, timer: null }
+        // Both bounds abort the same request; `expired` says which one did, and
+        // `windowStartedAt` how long that one had been running — the stall is
+        // the WINDOW that expired, not the time since the request went out (an
+        // inter-chunk stall after a long reply would otherwise report minutes).
+        const bounds: StreamBounds = { expired: null, timer: null, windowStartedAt: 0 }
         const armBound = (ms: number, phase: 'before_content' | 'after_content'): void => {
           if (bounds.timer) clearTimeout(bounds.timer)
+          bounds.windowStartedAt = Date.now()
           bounds.timer = setTimeout(() => {
             bounds.expired = phase
             controller.abort()
@@ -423,7 +428,7 @@ class DeepseekAIProviderImpl implements AIProvider {
           // (the caller aborting, a socket failure) belongs to the caller.
           if (!bounds.expired) throw error
           const stall = {
-            stallMs: Date.now() - requestStartedAt,
+            stallMs: Date.now() - bounds.windowStartedAt,
             attempt: stalledAttempt + 1,
             // Only a stream that never started may be asked again: a reply that
             // already partly reached the consumer would be duplicated.
