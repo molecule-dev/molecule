@@ -63,17 +63,26 @@ export function createDefaultHttpClient(baseURL: string): {
  * Replaces ~20 per-app `bonds/http-default.ts` files that hand-roll
  * this same wiring. Pass `stripApiPrefix: true` when the app uses
  * `baseURL: '/api'` to handle pages that pass `/api/`-prefixed paths
- * (would otherwise resolve to `/api/api/...` and 404).
+ * (would otherwise resolve to `/api/api/...` and 404). Pass `authScheme`
+ * when the API reads another scheme than `Bearer`.
  */
 export function createDefaultHttpClientWithAuthBearer(opts: {
   baseURL: string
   withCredentials?: boolean
   stripApiPrefix?: boolean
   getToken: () => string | null | undefined
+  /**
+   * The scheme of the `Authorization` header the token from `getToken()` is sent
+   * with: `Bearer` (default), or what the API expects, e.g. `Token` for an API
+   * that reads `Authorization: Token <jwt>` — the same option
+   * `@molecule/app-http`'s client config calls `authScheme`.
+   */
+  authScheme?: string
 }): {
   httpClient: HttpClient
   setupHttpDefault: () => void
 } {
+  const authScheme = opts.authScheme ?? 'Bearer'
   const httpClient = createFetchClient({
     baseURL: opts.baseURL,
     withCredentials: opts.withCredentials,
@@ -84,7 +93,7 @@ export function createDefaultHttpClientWithAuthBearer(opts: {
     }
     const token = opts.getToken()
     if (token) {
-      config.headers = { ...config.headers, Authorization: `Bearer ${token}` }
+      config.headers = { ...config.headers, Authorization: `${authScheme} ${token}` }
     }
     return config
   })

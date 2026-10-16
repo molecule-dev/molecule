@@ -45,6 +45,15 @@ export interface AxiosHttpClientConfig {
   withCredentials?: boolean
 
   /**
+   * The scheme of the `Authorization` header the auth token is sent with:
+   * `Bearer` (default), or what your API expects, e.g. `Token` for an API that
+   * reads `Authorization: Token <jwt>`. Same option as `@molecule/app-http`'s
+   * `HttpClientConfig.authScheme`, so the client config reads the same whichever
+   * transport is bonded.
+   */
+  authScheme?: string
+
+  /**
    * Existing Axios instance to wrap (optional).
    */
   instance?: AxiosInstance

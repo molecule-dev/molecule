@@ -34,6 +34,11 @@
  * - The exported `provider` constant is a pre-built default client (no baseURL,
  *   30 s timeout); prefer `createAxiosClient({...})` so baseURL/credentials are
  *   explicit.
+ * - An API whose scheme is not `Bearer` (`Authorization: Token <jwt>`) takes
+ *   `authScheme: 'Token'` in the client config; `createAxiosClient` then sends
+ *   the auth token with that scheme. It is the same option name as
+ *   `@molecule/app-http`'s `HttpClientConfig.authScheme`, so the config reads the
+ *   same whichever transport is bonded.
  * - `instance`/`axiosConfig` accept raw Axios options — anything the app sets
  *   there couples it to Axios; keep app code on the `@molecule/app-http`
  *   interface so the bond stays swappable.

@@ -476,6 +476,38 @@ describe('@molecule/app-http-axios', () => {
       expect(client.getAuthToken()).toBe('token-2')
       expect(mockAxiosInstance.defaults.headers.common['Authorization']).toBe('Bearer token-2')
     })
+
+    it('should send the token with the configured authScheme', () => {
+      // An app bonds THIS provider, so `authScheme: 'Token'` — the option
+      // `@molecule/app-http`'s doc tells it to set — must work here too, not only on
+      // the core's own fetch client.
+      const client = createAxiosClient({ authScheme: 'Token' })
+
+      client.setAuthToken('my-jwt-token')
+
+      expect(mockAxiosInstance.defaults.headers.common['Authorization']).toBe('Token my-jwt-token')
+      expect(client.defaultHeaders['Authorization']).toBe('Token my-jwt-token')
+    })
+
+    it('should clear the token with a non-Bearer authScheme too', () => {
+      const client = createAxiosClient({ authScheme: 'Token' })
+
+      client.setAuthToken('my-jwt-token')
+      client.setAuthToken(null)
+
+      expect(client.getAuthToken()).toBeNull()
+      expect(mockAxiosInstance.defaults.headers.common['Authorization']).toBeUndefined()
+      expect(client.defaultHeaders['Authorization']).toBeUndefined()
+    })
+
+    it('should keep the Bearer scheme when authScheme is not configured', () => {
+      const client = createAxiosClient({ baseURL: 'http://api.test' })
+
+      client.setAuthToken('my-jwt-token')
+
+      expect(mockAxiosInstance.defaults.headers.common['Authorization']).toBe('Bearer my-jwt-token')
+      expect(client.defaultHeaders['Authorization']).toBe('Bearer my-jwt-token')
+    })
   })
 
   // ===================================================================
@@ -713,6 +745,7 @@ describe('@molecule/app-http-axios', () => {
         defaultHeaders: { 'X-Custom': 'value' },
         timeout: 5000,
         withCredentials: false,
+        authScheme: 'Token',
         axiosConfig: {},
       }
       expect(config).toBeDefined()

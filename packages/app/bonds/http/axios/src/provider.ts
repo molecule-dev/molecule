@@ -92,7 +92,11 @@ function toHttpResponse<T>(response: AxiosResponse<T>, config: FullRequestConfig
  * const response = await client.get('/users')
  * ```
  *
- * @param config - Axios client configuration (base URL, headers, timeout, credentials, or an existing Axios instance).
+ * An API that reads another scheme than `Bearer` (`Authorization: Token <jwt>`)
+ * passes `authScheme: 'Token'` — `setAuthToken()` then sends the token with that
+ * scheme, the same option `@molecule/app-http`'s own client takes.
+ *
+ * @param config - Axios client configuration (base URL, headers, timeout, credentials, auth scheme, or an existing Axios instance).
  * @returns An `HttpClient` backed by Axios with interceptor and auth token support.
  */
 export function createAxiosClient(config: AxiosHttpClientConfig = {}): HttpClient {
@@ -101,6 +105,7 @@ export function createAxiosClient(config: AxiosHttpClientConfig = {}): HttpClien
     defaultHeaders = {},
     timeout = 30000,
     withCredentials = false,
+    authScheme = 'Bearer',
     instance: existingInstance,
     axiosConfig = {},
   } = config
@@ -339,8 +344,8 @@ export function createAxiosClient(config: AxiosHttpClientConfig = {}): HttpClien
     setAuthToken(token: string | null): void {
       authToken = token
       if (token) {
-        axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`
-        currentDefaultHeaders['Authorization'] = `Bearer ${token}`
+        axiosInstance.defaults.headers.common['Authorization'] = `${authScheme} ${token}`
+        currentDefaultHeaders['Authorization'] = `${authScheme} ${token}`
       } else {
         delete axiosInstance.defaults.headers.common['Authorization']
         delete currentDefaultHeaders['Authorization']
