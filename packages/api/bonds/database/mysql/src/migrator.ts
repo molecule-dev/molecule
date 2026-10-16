@@ -81,6 +81,53 @@ function deriveConfig(): MysqlMigrateConfig {
   }
 }
 
+/** The table that records which migration files have run. */
+export const MIGRATION_LEDGER = '_molecule_migrations'
+
+/**
+ * Opens the ledger: the files already applied, and whether the table is new on a
+ * database that already holds tables (one migrated before this runner kept a
+ * record, so its files ran under the old every-boot rule).
+ *
+ * @param connection - The migration connection (ANSI_QUOTES on).
+ * @returns The applied file names and whether this boot adopts an existing database.
+ */
+async function openLedger(
+  connection: mysql.Connection,
+): Promise<{ applied: Set<string>; adopting: boolean }> {
+  const count = async (sql: string, params: unknown[] = []): Promise<number> => {
+    const [rows] = (await connection.query(sql, params)) as unknown as [{ n?: unknown }[]]
+    return Number(rows?.[0]?.n ?? 0)
+  }
+  const tables =
+    'SELECT COUNT(*) AS n FROM information_schema.tables WHERE table_schema = DATABASE()'
+  const had = await count(`${tables} AND table_name = ?`, [MIGRATION_LEDGER])
+  const others = await count(tables)
+  await connection.query(
+    `CREATE TABLE IF NOT EXISTS "${MIGRATION_LEDGER}" ("file" VARCHAR(255) PRIMARY KEY, "applied_at" VARCHAR(40) NOT NULL)`,
+  )
+  const [rows] = (await connection.query(
+    `SELECT "file" FROM "${MIGRATION_LEDGER}"`,
+  )) as unknown as [{ file?: unknown }[]]
+  return {
+    applied: new Set((rows ?? []).map((r) => String(r.file))),
+    adopting: had === 0 && others > 0,
+  }
+}
+
+/**
+ * Records a file as applied.
+ *
+ * @param connection - The migration connection.
+ * @param file - The migration file name.
+ */
+async function record(connection: mysql.Connection, file: string): Promise<void> {
+  await connection.query(
+    `INSERT IGNORE INTO "${MIGRATION_LEDGER}" ("file", "applied_at") VALUES (?, ?)`,
+    [file, new Date().toISOString()],
+  )
+}
+
 /**
  * Returns a `runMigrations()` bound to a migrations directory.
  *
@@ -142,19 +189,38 @@ export function createMigrator(migrationsDir: string): () => Promise<void> {
       }
 
       const failures: { file: string; message: string }[] = []
+      const { applied, adopting } = await openLedger(connection)
+      let skipped = 0
 
       for (const file of sqlFiles) {
+        // A recorded file never runs again: a DROP or a backfill in it would repeat on
+        // every boot (X1 flash-m39).
+        if (applied.has(file)) {
+          skipped++
+          continue
+        }
         // Migrations are authored in Postgres dialect; translate the strict-MySQL
         // incompatibilities (types, functions, index syntax/prefixes) before exec.
         const sql = translateDdlToMysql(readFileSync(join(migrationsDir, file), 'utf-8'))
         try {
           await connection.query(sql)
+          await record(connection, file)
           console.log(`✓ ${file}`)
         } catch (err) {
           const msg = err instanceof Error ? err.message : String(err)
           if (isIdempotencyError(err)) {
-            // IF NOT EXISTS re-runs are expected to hit this — warn, don't fail.
-            console.warn(`⚠ ${file}: ${msg}`)
+            if (adopting) {
+              // Ran on an earlier boot, before this database kept a record.
+              await record(connection, file)
+              console.warn(`⚠ ${file}: ${msg} (applied before; now recorded)`)
+            } else {
+              // A multi-statement query stops at the failing statement. Not recorded,
+              // so it is retried, and the log says what did not happen.
+              console.warn(
+                `⚠ ${file}: ${msg} — the statements after this one did NOT run; ` +
+                  'move them to a new migration file',
+              )
+            }
           } else {
             // A genuinely broken migration must NOT be swallowed as if it were
             // idempotent — that boots the app with a missing/partial schema and
@@ -174,6 +240,7 @@ export function createMigrator(migrationsDir: string): () => Promise<void> {
         )
       }
 
+      if (skipped > 0) console.log(`· ${skipped} migration file(s) already applied`)
       console.log('Migrations complete.')
     } finally {
       await connection.end()

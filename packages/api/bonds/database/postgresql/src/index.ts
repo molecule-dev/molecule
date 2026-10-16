@@ -10,8 +10,9 @@
  *   RDS, Heroku) requires SSL and works out of the box; local Postgres needs none. Do NOT
  *   disable certificate verification to silence a cert error — that opens a MITM on your DB
  *   traffic. Fix the URL / CA instead (e.g. `?sslmode=require`).
- * - Tables are created by timestamped `.sql` files in `migrations/` (the runner applies them
- *   on boot) — never `CREATE TABLE` at runtime; ids are UUID strings (see `@molecule/api-database`).
+ * - Tables are created by timestamped `.sql` files in `migrations/` (the runner applies new
+ *   ones on boot, each ONCE: the `_molecule_migrations` table records it, so an edit to an
+ *   applied file never runs — change an applied schema in a NEW file) — never `CREATE TABLE` at runtime; ids are UUID strings (see `@molecule/api-database`).
  * - **Pool `max` defaults to 10** (not the server's `max_connections`) — tune with
  *   `DATABASE_POOL_MAX`. A migration file with a genuine error (not an idempotent
  *   "already exists") now FAILS the boot with every broken file named, instead of

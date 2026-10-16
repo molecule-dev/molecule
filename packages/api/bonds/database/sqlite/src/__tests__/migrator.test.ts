@@ -13,7 +13,16 @@ const { execSpy, closeSpy, DatabaseMock } = vi.hoisted(() => {
   const closeSpy = vi.fn()
   // Regular function (not arrow) so it works with `new Database(...)`.
   const DatabaseMock = vi.fn(function MockDatabase() {
-    return { exec: execSpy, close: closeSpy }
+    // The ledger's own statements are kept out of execSpy, so it sees only migration files
+    // (the ledger is covered against a real database in migrator-ledger.integration.test.ts).
+    return {
+      exec: (sql: string) =>
+        sql.includes('_molecule_migrations') || /^(BEGIN|COMMIT|ROLLBACK)$/.test(sql)
+          ? undefined
+          : execSpy(sql),
+      prepare: () => ({ get: () => undefined, all: () => [], run: () => undefined }),
+      close: closeSpy,
+    }
   })
   return { execSpy, closeSpy, DatabaseMock }
 })

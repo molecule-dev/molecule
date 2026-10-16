@@ -18,9 +18,12 @@
  * Configure via the SQLITE_PATH environment variable (default: ./data/app.db).
  * WAL mode and foreign key constraints are enabled by default.
  * - **Schema changes are `*.sql` files in the app's `api/migrations/`.** A
- *   scaffolded API applies every file in lexical order each time it starts
+ *   scaffolded API applies new files in lexical order each time it starts
  *   (`server.ts` runs `createMigrator`), so a new file applies on the next
- *   restart; write `CREATE TABLE IF NOT EXISTS`. Postgres-dialect DDL is
+ *   restart; write `CREATE TABLE IF NOT EXISTS`. Each file runs ONCE: the
+ *   `_molecule_migrations` table records it, and an edit to a recorded file
+ *   does not run again — except that a column added to its `CREATE TABLE` is
+ *   still added. Every other change to an applied schema goes in a NEW file. Postgres-dialect DDL is
  *   translated (`gen_random_uuid()`, `now()`, `::` casts, `USING <method>`),
  *   so the same file works on the postgres bond.
  * - **`pool.query(text, values)` takes Postgres-style `$1, $2` placeholders**

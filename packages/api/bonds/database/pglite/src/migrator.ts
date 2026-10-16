@@ -56,6 +56,49 @@ export function isIdempotencyError(err: unknown): boolean {
   )
 }
 
+/** The table that records which migration files have run. */
+export const MIGRATION_LEDGER = '_molecule_migrations'
+
+/** A query function, as the migrator's connection exposes it. */
+type Query = (sql: string, params?: unknown[]) => Promise<{ rows: Record<string, unknown>[] }>
+
+/**
+ * Opens the ledger: the files already applied, and whether the table is new on a
+ * database that already holds tables (one migrated before this runner kept a
+ * record, so its files ran under the old every-boot rule).
+ *
+ * @param query - Runs one statement.
+ * @returns The applied file names and whether this boot adopts an existing database.
+ */
+async function openLedger(query: Query): Promise<{ applied: Set<string>; adopting: boolean }> {
+  const had = (await query('SELECT to_regclass($1) AS t', [`"${MIGRATION_LEDGER}"`])).rows[0]?.t
+  const others = (
+    await query(
+      "SELECT count(*)::int AS n FROM information_schema.tables WHERE table_schema = current_schema() AND table_type = 'BASE TABLE'",
+    )
+  ).rows[0]?.n
+  await query(
+    `CREATE TABLE IF NOT EXISTS "${MIGRATION_LEDGER}" ("file" TEXT PRIMARY KEY, "applied_at" TIMESTAMPTZ NOT NULL DEFAULT now())`,
+  )
+  const rows = (await query(`SELECT "file" FROM "${MIGRATION_LEDGER}"`)).rows
+  return {
+    applied: new Set(rows.map((r) => String(r.file))),
+    adopting: had == null && Number(others ?? 0) > 0,
+  }
+}
+
+/**
+ * Records a file as applied.
+ *
+ * @param query - Runs one statement.
+ * @param file - The migration file name.
+ */
+async function record(query: Query, file: string): Promise<void> {
+  await query(`INSERT INTO "${MIGRATION_LEDGER}" ("file") VALUES ($1) ON CONFLICT DO NOTHING`, [
+    file,
+  ])
+}
+
 /**
  * Applies migrations to a pool, in name order. Works in any runtime (the SQL is
  * passed in, nothing is read from disk) — use this in a browser, with the SQL
@@ -76,15 +119,37 @@ export async function applyMigrations(
     return
   }
   const failures: { file: string; message: string }[] = []
+  const query: Query = (text, params) =>
+    pool.query(text, params) as unknown as Promise<{ rows: Record<string, unknown>[] }>
+  const { applied, adopting } = await openLedger(query)
+  let skipped = 0
   for (const migration of sorted) {
+    // A recorded file never runs again: a DROP or a backfill in it would repeat on
+    // every boot (X1 flash-m39).
+    if (applied.has(migration.name)) {
+      skipped++
+      continue
+    }
     try {
       // exec() runs a file holding several statements.
       await pool.exec(migration.sql)
+      await record(query, migration.name)
       console.log(`✓ ${migration.name}`)
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
       if (isIdempotencyError(err)) {
-        console.warn(`⚠ ${migration.name}: ${msg}`)
+        if (adopting) {
+          // Ran on an earlier boot, before this database kept a record.
+          await record(query, migration.name)
+          console.warn(`⚠ ${migration.name}: ${msg} (applied before; now recorded)`)
+        } else {
+          // The simple-query protocol runs the file as one implicit transaction, so it
+          // rolled back. Not recorded, so it is retried, and the log says so.
+          console.warn(
+            `⚠ ${migration.name}: ${msg} — nothing in this file was applied; an object it ` +
+              'creates already exists, so remove that statement or move the rest to a new migration file',
+          )
+        }
       } else {
         // A broken migration must fail the boot, not leave a partial schema
         // that surfaces later as "relation does not exist". Keep going so one
@@ -94,6 +159,7 @@ export async function applyMigrations(
       }
     }
   }
+  if (skipped > 0) console.log(`· ${skipped} migration file(s) already applied`)
   if (failures.length > 0) {
     throw new Error(
       `Migrations failed — ${failures.length} file(s) had non-idempotency errors; ` +

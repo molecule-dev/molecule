@@ -19,6 +19,8 @@
  *   `%`/`_` are honored as wildcards, identical to the postgresql/sqlite bonds. For
  *   human-typed search input, use `ilike` instead (escapes + auto-wraps `%…%`) — see
  *   `WhereCondition['operator']` in `@molecule/api-database`.
+ * - **Each migration file runs ONCE**: the `_molecule_migrations` table records it, so an
+ *   edit to an applied file never runs — change an applied schema in a NEW file.
  * - **A migration file with a genuine error** (not an idempotent "already exists")
  *   now FAILS the boot with every broken file named, instead of warn-logging and
  *   booting with a partial schema.

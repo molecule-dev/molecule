@@ -10,7 +10,12 @@ import { join } from 'node:path'
 
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 
-import { applyMigrations, createMigrator, isIdempotencyError } from '../migrator.js'
+import {
+  applyMigrations,
+  createMigrator,
+  isIdempotencyError,
+  MIGRATION_LEDGER,
+} from '../migrator.js'
 import { createPool } from '../pool.js'
 import type { PglitePool } from '../types.js'
 
@@ -58,7 +63,32 @@ describe('applyMigrations', () => {
       ['write tests'],
     )
     expect(r.rows).toEqual([{ title: 'write tests' }])
-    expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('0002_tags.sql'))
+    // The second run skips both: the ledger recorded them (X1 flash-m39).
+    expect(console.log).toHaveBeenCalledWith('· 2 migration file(s) already applied')
+    expect(
+      (await pool.query(`SELECT "file" FROM "${MIGRATION_LEDGER}" ORDER BY "file"`)).rows,
+    ).toEqual([{ file: '0001_init.sql' }, { file: '0002_tags.sql' }])
+  })
+
+  it('adopts a database migrated before the ledger, and names a new file that did not run', async () => {
+    pool = createPool({ dataDir: 'memory://' })
+    await pool.exec(INIT)
+    await pool.exec(ADD_PK_AGAIN)
+    await applyMigrations(pool, [
+      { name: '0001_init.sql', sql: INIT },
+      { name: '0002_tags.sql', sql: ADD_PK_AGAIN },
+    ])
+    expect(console.warn).toHaveBeenCalledWith(
+      expect.stringContaining('applied before; now recorded'),
+    )
+    vi.mocked(console.warn).mockClear()
+    await applyMigrations(pool, [{ name: '0003_again.sql', sql: ADD_PK_AGAIN }])
+    expect(console.warn).toHaveBeenCalledWith(
+      expect.stringContaining('nothing in this file was applied'),
+    )
+    expect(
+      (await pool.query(`SELECT "file" FROM "${MIGRATION_LEDGER}" ORDER BY "file"`)).rows,
+    ).toHaveLength(2)
   })
 
   it('fails with every broken file named, after applying the good ones', async () => {

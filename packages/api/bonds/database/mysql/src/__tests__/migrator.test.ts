@@ -18,7 +18,17 @@ const { createConnectionMock, adminQuery, adminEnd, migrationQuery, migrationEnd
     // connection is not.
     const createConnectionMock = vi.fn((cfg?: { multipleStatements?: boolean }) =>
       cfg?.multipleStatements
-        ? { query: migrationQuery, end: migrationEnd }
+        ? {
+            // The ledger's own queries are kept out of migrationQuery, so it sees only
+            // migration files and session setup.
+            query: (sql: string, params?: unknown[]) =>
+              /_molecule_migrations|information_schema\.tables/.test(sql)
+                ? Promise.resolve([[]])
+                : params === undefined
+                  ? migrationQuery(sql)
+                  : migrationQuery(sql, params),
+            end: migrationEnd,
+          }
         : { query: adminQuery, end: adminEnd },
     )
     return { createConnectionMock, adminQuery, adminEnd, migrationQuery, migrationEnd }

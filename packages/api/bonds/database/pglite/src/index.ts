@@ -85,7 +85,8 @@
  *   starts in about 1–2 s, once per instance.
  * - Same SQL dialect as production, so migrations are plain Postgres `.sql`
  *   files in `migrations/` (no translation layer, unlike the sqlite bond), and
- *   `like` / `ilike` behave exactly as on the postgresql bond.
+ *   `like` / `ilike` behave exactly as on the postgresql bond. Each file runs
+ *   ONCE (the `_molecule_migrations` table records it), as on the postgresql bond.
  *
  * @module
  */

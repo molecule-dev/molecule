@@ -6,7 +6,8 @@
  * `CREATE DATABASE` bootstrap step. Migration files are applied with
  * better-sqlite3's `db.exec()`, which runs a file containing MULTIPLE statements
  * (a prepared statement / the pool's `query()` runs only one), so a normal
- * multi-statement `*.sql` migration applies correctly.
+ * multi-statement `*.sql` migration applies correctly. Each file runs once: the
+ * `_molecule_migrations` table records it after its statements succeed.
  *
  * @module
  */
@@ -59,7 +60,11 @@ function declaredTables(
       if (sql[i] === '(') depth++
       else if (sql[i] === ')') depth--
     }
-    const body = sql.slice(start, i - 1)
+    // Comments out first: a comma inside `-- …` made a phantom column (flash-m39 `articles.and`).
+    const body = sql
+      .slice(start, i - 1)
+      .replace(/--[^\n]*/g, '')
+      .replace(/\/\*[\s\S]*?\*\//g, '')
     const parts: string[] = []
     let level = 0
     let current = ''
@@ -117,6 +122,45 @@ function addMissingColumns(db: Database.Database, sql: string, file: string): vo
   }
 }
 
+/** The table that records which migration files have run. */
+export const MIGRATION_LEDGER = '_molecule_migrations'
+
+/**
+ * Opens the ledger: the files already applied, and whether the table is new on a
+ * database that already holds tables (one migrated before this runner kept a
+ * record, so its files ran under the old every-boot rule).
+ *
+ * @param db - The open database.
+ * @returns The applied file names and whether this boot adopts an existing database.
+ */
+function openLedger(db: Database.Database): { applied: Set<string>; adopting: boolean } {
+  const had = db
+    .prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = ?")
+    .get(MIGRATION_LEDGER)
+  const others = db
+    .prepare(
+      "SELECT count(*) AS n FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'",
+    )
+    .get() as { n: number } | undefined
+  db.exec(
+    `CREATE TABLE IF NOT EXISTS "${MIGRATION_LEDGER}" ("file" TEXT PRIMARY KEY, "applied_at" TEXT NOT NULL)`,
+  )
+  const rows = db.prepare(`SELECT "file" FROM "${MIGRATION_LEDGER}"`).all() as { file: string }[]
+  return { applied: new Set(rows.map((r) => r.file)), adopting: !had && (others?.n ?? 0) > 0 }
+}
+
+/**
+ * Records a file as applied.
+ *
+ * @param db - The open database.
+ * @param file - The migration file name.
+ */
+function record(db: Database.Database, file: string): void {
+  db.prepare(
+    `INSERT OR IGNORE INTO "${MIGRATION_LEDGER}" ("file", "applied_at") VALUES (?, ?)`,
+  ).run(file, new Date().toISOString())
+}
+
 /**
  * Returns a `runMigrations()` bound to a migrations directory.
  *
@@ -153,6 +197,8 @@ export function createMigrator(migrationsDir: string): () => Promise<void> {
       }
 
       const failures: { file: string; message: string }[] = []
+      const { applied, adopting } = openLedger(db)
+      let skipped = 0
 
       for (const file of sqlFiles) {
         // Resource/template setup migrations are authored in Postgres dialect;
@@ -161,16 +207,41 @@ export function createMigrator(migrationsDir: string): () => Promise<void> {
         // already-SQLite DDL. Without this, those migrations abort with
         // `near "(": syntax error` and the app never boots.
         const sql = translateDdlToSqlite(readFileSync(join(migrationsDir, file), 'utf-8'))
+        if (applied.has(file)) {
+          // A recorded file never runs again (a DROP or a backfill in it would repeat
+          // on every boot); columns added to its CREATE TABLE are still added.
+          skipped++
+          addMissingColumns(db, sql, file)
+          continue
+        }
+        // In a transaction, so a file that fails applies none of its statements: a
+        // half-applied file made its fixed version fail on its own first statement
+        // (X1 flash-m40). A file that manages its own transaction runs as written.
+        const wrap = !db.inTransaction && !/^\s*(?:BEGIN|COMMIT|END|ROLLBACK)\b/im.test(sql)
         try {
+          if (wrap) db.exec('BEGIN')
           // exec() (not prepare/run) so a file with multiple statements applies.
           db.exec(sql)
+          record(db, file)
+          if (wrap) db.exec('COMMIT')
           console.log(`✓ ${file}`)
           addMissingColumns(db, sql, file)
         } catch (err) {
+          if (wrap && db.inTransaction) db.exec('ROLLBACK')
           const msg = err instanceof Error ? err.message : String(err)
           if (isIdempotencyError(err)) {
-            // IF NOT EXISTS re-runs are expected to hit this — warn, don't fail.
-            console.warn(`⚠ ${file}: ${msg}`)
+            if (adopting) {
+              // Ran on an earlier boot, before this database kept a record.
+              record(db, file)
+              console.warn(`⚠ ${file}: ${msg} (applied before; now recorded)`)
+            } else {
+              // The file rolled back (flash-m39 froze a backfill behind an ADD COLUMN
+              // this way). Not recorded, so it is retried, and the log says so.
+              console.warn(
+                `⚠ ${file}: ${msg} — nothing in this file was applied; an object it creates ` +
+                  'already exists, so remove that statement or move the rest to a new migration file',
+              )
+            }
             addMissingColumns(db, sql, file)
           } else {
             // A genuinely broken migration must NOT be swallowed as if it were
@@ -191,6 +262,7 @@ export function createMigrator(migrationsDir: string): () => Promise<void> {
         )
       }
 
+      if (skipped > 0) console.log(`· ${skipped} migration file(s) already applied`)
       console.log('Migrations complete.')
     } finally {
       db.close()

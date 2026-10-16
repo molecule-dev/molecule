@@ -23,7 +23,18 @@ const { mockClientClass, adminQuery, adminConnect, migrateQuery, migrateConnect,
       const isAdmin = opts?.connectionString?.endsWith('/postgres')
       return isAdmin
         ? { query: adminQuery, connect: adminConnect, end: adminEnd }
-        : { query: migrateQuery, connect: migrateConnect, end: migrateEnd }
+        : {
+            // The ledger's own queries are kept out of migrateQuery, so it sees only
+            // migration files (the ledger runs against a real engine in the pglite bond's tests).
+            query: (sql: string, params?: unknown[]) =>
+              /_molecule_migrations|information_schema\.tables|to_regclass/.test(sql)
+                ? Promise.resolve({ rows: [] })
+                : params === undefined
+                  ? migrateQuery(sql)
+                  : migrateQuery(sql, params),
+            connect: migrateConnect,
+            end: migrateEnd,
+          }
     })
 
     return {
