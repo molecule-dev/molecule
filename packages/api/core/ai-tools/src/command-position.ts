@@ -38,6 +38,11 @@ export interface CommandSegment {
   args: readonly string[]
   /** The program and its arguments as one line — what a runner pattern is matched against. */
   text: string
+  /**
+   * The seconds the segment's own `timeout` wrapper allows the command it runs
+   * (`timeout 280 hurl --test …` → 280), or null when it carries none.
+   */
+  timeoutSeconds: number | null
 }
 
 /** A command's words, quotes kept whole — the same reading a printed-source check uses. */
@@ -118,6 +123,23 @@ const ENV_ASSIGNMENT = /^[A-Za-z_][A-Za-z0-9_]*=/
 /** A wrapper's own duration — `timeout 280 …`, `timeout 1m …` — which is not a flag. */
 const DURATION = /^\d+(?:\.\d+)?[smhd]?$/
 
+/** The seconds a `timeout` duration word names (`280`, `1m`, `1.5h`), or null when it is none. */
+const DURATION_UNITS: Readonly<Record<string, number>> = { s: 1, m: 60, h: 3600, d: 86_400 }
+
+/**
+ * The seconds a duration word stands for.
+ *
+ * @param word - A duration (`280`, `20s`, `1m`).
+ * @returns The seconds, or null when the word is not a duration.
+ */
+export function durationSeconds(word: string): number | null {
+  if (!DURATION.test(word)) return null
+  const [, number = '', unit = 's'] = /^(\d+(?:\.\d+)?)([smhd]?)$/.exec(word) ?? []
+  const scale = DURATION_UNITS[unit] ?? 1
+  const seconds = Number(number) * scale
+  return Number.isFinite(seconds) ? seconds : null
+}
+
 /**
  * A word without its shell quotes.
  *
@@ -183,14 +205,20 @@ function nestedCommand(words: readonly string[], from: number): string | null {
 }
 
 /**
- * Where the program starts in one segment's words.
+ * Where the program starts in one segment's words, and the bound the segment puts on itself.
  *
  * @param words - The segment's words, quotes kept.
  * @returns The index of the word in command position (one past the end when the segment runs
- *   nothing), and the command string of a `sh -c '<command>'` this segment turns out to be.
+ *   nothing), the command string of a `sh -c '<command>'` this segment turns out to be, and the
+ *   seconds its own `timeout` wrapper allows that command (`timeout 280 hurl …` → 280) or null.
  */
-function commandStart(words: readonly string[]): { at: number; nested: string | null } {
+function commandStart(words: readonly string[]): {
+  at: number
+  nested: string | null
+  timeoutSeconds: number | null
+} {
   let at = 0
+  let timeoutSeconds: number | null = null
   for (let guard = 0; guard < MAX_WRAPPERS && at < words.length; guard++) {
     const word = words[at] ?? ''
     if (ENV_ASSIGNMENT.test(word)) {
@@ -205,7 +233,7 @@ function commandStart(words: readonly string[]): { at: number; nested: string | 
     }
     if (SHELLS.has(name)) {
       const nested = nestedCommand(words, at + 1)
-      if (nested !== null) return { at, nested }
+      if (nested !== null) return { at, nested, timeoutSeconds }
       at += 1 + flagWords(words, at + 1, name)
       continue
     }
@@ -220,11 +248,14 @@ function commandStart(words: readonly string[]): { at: number; nested: string | 
       at += 2 + flagWords(words, at + 2, name)
       continue
     }
-    if (!LAUNCHERS.has(name)) return { at, nested: null }
+    if (!LAUNCHERS.has(name)) return { at, nested: null, timeoutSeconds }
     at += 1 + flagWords(words, at + 1, name)
-    if (name === 'timeout' && DURATION.test(words[at] ?? '')) at += 1
+    if (name === 'timeout' && DURATION.test(words[at] ?? '')) {
+      timeoutSeconds = durationSeconds(words[at] ?? '')
+      at += 1
+    }
   }
-  return { at, nested: null }
+  return { at, nested: null, timeoutSeconds }
 }
 
 /**
@@ -368,6 +399,28 @@ export function commandSegments(command: string): CommandSegment[] {
 }
 
 /**
+ * The bound a command puts on its own run: the largest `timeout <N>` any of its segments runs
+ * under (`timeout 280 hurl --test …` → 280), or null when it carries none.
+ *
+ * This is the bound `man timeout` enforces by KILLING the command — so a run that used it did not
+ * finish, whatever the pipeline's own exit status says. It is read here, from the same parse every
+ * other command reader uses, rather than matched as text: `timeout` in an argument
+ * (`grep -n 'timeout 280' notes.md`) bounds nothing, and `-k 5` is the grace before the kill, not
+ * the bound ({@link WRAPPER_VALUE_FLAGS}).
+ *
+ * @param command - The shell command.
+ * @returns The seconds the command allows itself, or null.
+ */
+export function commandTimeoutSeconds(command: string): number | null {
+  let bound: number | null = null
+  for (const segment of segmentsOf(command, 0)) {
+    if (segment.timeoutSeconds === null) continue
+    bound = bound === null ? segment.timeoutSeconds : Math.max(bound, segment.timeoutSeconds)
+  }
+  return bound
+}
+
+/**
  * {@link commandSegments}'s recursion, so a `sh -c '<command>'` is opened as far as
  * {@link MAX_NESTING} allows.
  *
@@ -391,7 +444,12 @@ function segmentsOf(command: string, depth: number): CommandSegment[] {
     if (word === undefined) continue
     const program = programName(word)
     const args = words.slice(start.at + 1)
-    out.push({ program, args, text: [program, ...args].join(' ') })
+    out.push({
+      program,
+      args,
+      text: [program, ...args].join(' '),
+      timeoutSeconds: start.timeoutSeconds,
+    })
   }
   return out
 }

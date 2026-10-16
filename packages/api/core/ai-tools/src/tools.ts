@@ -9,6 +9,7 @@
 
 import type { AITool } from '@molecule/api-ai'
 
+import { commandCutRun, CUT_AT_BUDGET, cutRunSentence } from './cut-run.js'
 import {
   addChangeSpan,
   changedSpan,
@@ -2112,18 +2113,38 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           : sanitizeOutput
         const stdout = grade(truncateMiddle(result.stdout, MAX_OUTPUT_SIZE))
         const stderr = sanitizeOutput(truncateMiddle(result.stderr, MAX_OUTPUT_SIZE))
-        if (budgetSeconds && result.exitCode === 124) {
+        // A run a budget stopped is NOT a run that ended: it reports `status: 'cut_at_budget'`,
+        // never a 0 the pipeline produced, and names how far it got. Read from the command, the
+        // output and the clock in one place (cut-run.ts) so every reader of a run's verdict reads
+        // the same state (X1 xr-molecule-flash-m93: `timeout 280 hurl … | tail -60` came back
+        // `exitCode: 0` after 284 s and four of thirteen files, and the executor re-sent it).
+        const cut = commandCutRun(
+          command,
+          { exitCode: result.exitCode, stdout, stderr },
+          elapsedMs,
+          budgetSeconds,
+        )
+        if (cut) {
+          const cutLead = cutRunSentence(cut)
           return {
             stdout,
             stderr,
-            exitCode: result.exitCode,
+            status: CUT_AT_BUDGET,
+            exitCode: cut.exitCode,
+            // The facts, so a reader that can also see the suite itself (its own `.hurl` file
+            // count) says the same sentence with the total the output alone cannot give.
+            cutRun: cut,
             error:
-              `The command was stopped after ${budgetSeconds}s, this tool's limit; the output above is ` +
-              'everything it printed until then' +
-              (/\|\s*(tail|head)\b/.test(command)
-                ? ' — and a pipe through tail/head holds everything back until the command ends, so it printed nothing: run it without the pipe (use a line reporter and let the output stream)'
+              `${cutLead} ` +
+              // The tool's own budget stopping a run that printed nothing: keep the sentence that
+              // says why the output is empty, since nothing else in the result can say it.
+              (cut.stoppedBy === 'tool-budget'
+                ? `The output above is everything it printed until then${
+                    /\|\s*(tail|head)\b/.test(command)
+                      ? ' — and a pipe through tail/head holds everything back until the command ends, so it printed nothing: run it without the pipe (use a line reporter and let the output stream)'
+                      : ''
+                  }. `
                 : '') +
-              '. ' +
               (isSuiteRunCommand(command) ? SUITE_OVER_BUDGET_ADVICE : SPLIT_WORK_ADVICE),
           }
         }
@@ -2464,6 +2485,34 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       // the second and third were found by runs stopped before they walked the rest. Null for
       // anything that is not a run with failures in it.
       const causes = failureCausesNote(output)
+      // A backgrounded run is under no tool budget, and the exit file hands back the PIPELINE's
+      // code — so a suite killed at a `timeout 280` the command carried behind a `| tail` reports
+      // 0 here too. The run's start is in its own id ({@link taskStartedAt}), so the bound it used
+      // is readable without new state: say stopped, and never hand the pipeline's 0 back as the
+      // run's (X1 xr-molecule-flash-m93 re-sent that run three times).
+      const run = runByTask.get(taskId)
+      const startedAtMs = taskStartedAt(taskId)
+      const cut =
+        run && startedAtMs !== null
+          ? commandCutRun(
+              run.command,
+              { exitCode, stdout: output, stderr: '' },
+              Date.now() - startedAtMs,
+              0,
+            )
+          : null
+      if (cut) {
+        return {
+          taskId,
+          status: CUT_AT_BUDGET,
+          exitCode: cut.exitCode,
+          waitedMs,
+          cutRun: cut,
+          note: [cutRunSentence(cut), causes].filter((n): n is string => Boolean(n)).join(' '),
+          stdout: sanitizeOutput(truncateMiddle(output, MAX_OUTPUT_SIZE)),
+          ...(output.length > MAX_OUTPUT_SIZE ? { truncated: true, fullOutput: log } : {}),
+        }
+      }
       // Same shaping as a foreground exec result, so the executor reads both
       // the same way.
       return {
