@@ -783,8 +783,14 @@ class DeepseekAIProviderImpl implements AIProvider {
           // The reply has started. Counting this from the EVENTS (rather than
           // from the byte stream) is what lets the first-token bound see a
           // stall whose connection is kept alive by empty frames — the shape
-          // DeepSeek actually produces.
-          if (isContentEvent(event)) state.contentSeen = true
+          // DeepSeek actually produces. And the bound is swapped the instant it
+          // starts, not at the end of the batch: a first-token timer that fired
+          // on a reply already yielded to the consumer would retry and
+          // duplicate it.
+          if (isContentEvent(event) && !state.contentSeen) {
+            state.contentSeen = true
+            bounds.arm(bounds.silenceMs, 'after_content')
+          }
           if (event.type === 'text' || event.type === 'thinking') {
             state.streamedChars += event.content.length
           }
