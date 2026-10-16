@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.5.13
+
+### Patch Changes
+
+- 5505ca9: Secret redaction no longer masks `author=…` values; `AUTH*` and `authorization` values are still masked.
+
 ## 1.5.12
 
 ### Patch Changes

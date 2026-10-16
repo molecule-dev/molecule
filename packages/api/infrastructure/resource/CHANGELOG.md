@@ -1,5 +1,11 @@
 # @molecule/api-resource
 
+## 1.0.3
+
+### Patch Changes
+
+- 60d0840: The README documents every export with its signature, parameters and return value, namespace members included.
+
 ## 1.0.1
 
 ### Patch Changes

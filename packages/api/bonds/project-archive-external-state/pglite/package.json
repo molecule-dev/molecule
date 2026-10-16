@@ -51,7 +51,7 @@
   "devDependencies": {
     "@electric-sql/pglite": "0.5.8",
     "@molecule/api-bond": "1.0.2",
-    "@molecule/api-database": "1.1.0",
+    "@molecule/api-database": "1.1.1",
     "@molecule/api-database-pglite": "1.2.0",
     "@molecule/api-project-archive": "1.0.2",
     "@molecule/api-secrets": "1.0.2",

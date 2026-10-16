@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-resource-tag",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Tag/category resource handlers with polymorphic resource tagging",
   "type": "module",
   "main": "dist/index.js",
