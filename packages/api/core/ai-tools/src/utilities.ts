@@ -1660,6 +1660,12 @@ export const FAILURE_CAUSE_TESTS_LISTED = 6
  * The shortest unambiguous tail of a logged path's FILE (`…/specs/e2e/articles.spec.ts` →
  * `e2e/articles.spec.ts`).
  *
+ * Used only where a COUNT of files is what the sentence needs; every note that names a
+ * test to the executor prints the path the log wrote, because that is the path its own
+ * re-run hint names and the one the executor can paste back into a command (flash-m82
+ * read a shortened `e2e/auth.spec.ts:19` as a file the app owned, and rewrote its config
+ * over a suite path that was already right).
+ *
  * @param file - A path as {@link specFile} returns it.
  * @returns The last two path segments.
  */
