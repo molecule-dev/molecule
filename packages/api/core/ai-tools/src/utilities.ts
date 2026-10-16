@@ -381,6 +381,20 @@ export function streamingBackgroundCommand(command: string): {
         '(the config reporter may print nothing until the end).',
     )
   }
+  // A diagnosis or a re-run (capped, last-failed, grepped, or named files) walks each failure
+  // once: the suite's own `retries` doubled every failure of X1 flash-m71's first whole run,
+  // which had dropped the `--retries=0` it used one command earlier. The uncapped proof run
+  // keeps the suite's retries.
+  const iterating =
+    /--max-failures\b|--last-failed\b|(?:^|\s)(?:-g|--grep)\b|\S+\.(?:spec|test)\.[cm]?[jt]sx?(?::\d+)?\b/.test(
+      lastStep,
+    )
+  if (finalPlaywrightRun && iterating && !/--retries\b/.test(lastStep)) {
+    out = `${out.trimEnd()} --retries=0`
+    changes.push(
+      'Added `--retries=0`: a diagnosis or re-run walks each failure once; keep the suite’s retries for the proof run.',
+    )
+  }
   return { command: out, changes }
 }
 

@@ -520,7 +520,24 @@ describe('streamingBackgroundCommand', () => {
     // repeating one cause: X0 flash-m62 spent 8.3 minutes walking 139 tests that way.
     expect(
       streamingBackgroundCommand('cd e2e && npx playwright test specs/auth.spec.ts').command,
-    ).toBe('cd e2e && npx playwright test specs/auth.spec.ts --reporter=list')
+    ).toBe('cd e2e && npx playwright test specs/auth.spec.ts --reporter=list --retries=0')
+  })
+
+  it('runs a diagnosis or re-run with --retries=0, and leaves the proof run alone (flash-m71)', () => {
+    expect(streamingBackgroundCommand('npx playwright test --max-failures=15').command).toBe(
+      'npx playwright test --max-failures=15 --reporter=list --retries=0',
+    )
+    expect(streamingBackgroundCommand('npx playwright test --last-failed').command).toContain(
+      '--retries=0',
+    )
+    expect(streamingBackgroundCommand('npx playwright test e2e/home.spec.ts:12').command).toContain(
+      '--retries=0',
+    )
+    // The uncapped proof run keeps the suite's retries; an explicit --retries is respected.
+    expect(streamingBackgroundCommand('npx playwright test').command).not.toContain('--retries')
+    expect(
+      streamingBackgroundCommand('npx playwright test --max-failures=15 --retries=1').command,
+    ).not.toContain('--retries=0')
   })
 
   it('switches a final playwright run off the line reporter the fail-fast cannot read', () => {
