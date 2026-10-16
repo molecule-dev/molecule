@@ -5,34 +5,45 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 // vi.mock factory (Vitest hoists vi.mock to the top of the file).
 // -------------------------------------------------------------------
 
-const { mockAxiosInstance, mockInterceptorsRequest, mockInterceptorsResponse } = vi.hoisted(() => {
-  const mockInterceptorsRequest = {
-    use: vi.fn(),
-  }
-  const mockInterceptorsResponse = {
-    use: vi.fn(),
-  }
+const { mockAxiosInstance, mockInterceptorsRequest, mockInterceptorsResponse, mockAwaitAuthGate } =
+  vi.hoisted(() => {
+    const mockInterceptorsRequest = {
+      use: vi.fn(),
+    }
+    const mockInterceptorsResponse = {
+      use: vi.fn(),
+    }
 
-  const mockAxiosInstance = {
-    request: vi.fn(),
-    get: vi.fn(),
-    post: vi.fn(),
-    put: vi.fn(),
-    patch: vi.fn(),
-    delete: vi.fn(),
-    interceptors: {
-      request: mockInterceptorsRequest,
-      response: mockInterceptorsResponse,
-    },
-    defaults: {
-      headers: {
-        common: {} as Record<string, string>,
+    // The auth gate this provider awaits before it lets a request through. Mocked here so the
+    // mock of `@molecule/app-http` below is complete (an incomplete one made the provider's own
+    // import undefined) and so a test can hold the gate open.
+    const mockAwaitAuthGate = vi.fn(async () => {})
+
+    const mockAxiosInstance = {
+      request: vi.fn(),
+      get: vi.fn(),
+      post: vi.fn(),
+      put: vi.fn(),
+      patch: vi.fn(),
+      delete: vi.fn(),
+      interceptors: {
+        request: mockInterceptorsRequest,
+        response: mockInterceptorsResponse,
       },
-    },
-  }
+      defaults: {
+        headers: {
+          common: {} as Record<string, string>,
+        },
+      },
+    }
 
-  return { mockAxiosInstance, mockInterceptorsRequest, mockInterceptorsResponse }
-})
+    return {
+      mockAxiosInstance,
+      mockInterceptorsRequest,
+      mockInterceptorsResponse,
+      mockAwaitAuthGate,
+    }
+  })
 
 vi.mock('axios', () => ({
   default: {
@@ -61,7 +72,7 @@ vi.mock('@molecule/app-http', () => {
       this.config = config
     }
   }
-  return { HttpError }
+  return { HttpError, awaitAuthGate: mockAwaitAuthGate }
 })
 
 import type { AxiosInstance } from 'axios'
@@ -110,6 +121,39 @@ describe('@molecule/app-http-axios', () => {
     vi.clearAllMocks()
     // Reset common headers
     mockAxiosInstance.defaults.headers.common = {}
+  })
+
+  describe('the auth gate', () => {
+    it('holds a request until the gate resolves (m95 fetch-before-restore race)', async () => {
+      // A request fired by a page effect while the session restore is still running must not
+      // leave the client unauthenticated — every method goes through this one interceptor
+      // (`@molecule/app-http` auth-gate.ts).
+      let release!: () => void
+      mockAwaitAuthGate.mockImplementation(
+        () =>
+          new Promise<void>((resolve) => {
+            release = resolve
+          }),
+      )
+      createAxiosClient({ baseURL: 'http://api.test' })
+      const interceptor = mockInterceptorsRequest.use.mock.calls[0]?.[0] as (
+        config: unknown,
+      ) => Promise<unknown>
+      const axiosConfig = { method: 'GET', url: '/profiles/alice', headers: { set: vi.fn() } }
+
+      let sent = false
+      const request = interceptor(axiosConfig).then(() => {
+        sent = true
+      })
+      await Promise.resolve()
+      await Promise.resolve()
+      expect(sent).toBe(false)
+      expect(mockAwaitAuthGate).toHaveBeenCalledTimes(1)
+
+      release()
+      await request
+      expect(sent).toBe(true)
+    })
   })
 
   // ===================================================================
