@@ -113,12 +113,14 @@ export const createSchema = <
 export const propsSchema = createSchema()
 
 /**
- * User props type inferred from schema.
+ * User props type inferred from schema — the row shape of the `users` table, which holds no
+ * password.
  */
 export type Props = z.infer<typeof propsSchema>
 
 /**
- * Secret properties stored in a separate table.
+ * Secret properties stored in the separate `usersSecrets` table, keyed by `id` = the user's id
+ * (the value of `users.id`, never a fresh uuid).
  */
 export const secretPropsSchema = z.object({
   /**
@@ -155,7 +157,7 @@ export const secretPropsSchema = z.object({
 })
 
 /**
- * Secret Props type.
+ * Secret props type — the row shape of the `usersSecrets` table, whose `id` is the user's id.
  */
 export type SecretProps = z.infer<typeof secretPropsSchema>
 

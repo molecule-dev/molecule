@@ -5,6 +5,10 @@
  * updates, health-check history, and uptime windows. The read endpoints power
  * a public status page; the mutation endpoints are for operators.
  *
+ * **Tables this package owns: four.** `services` is the parent; `checks`, `incidents` and
+ * `uptimeWindows` each join to it on their own `serviceId` = `services.id` (a declared FK,
+ * `ON DELETE CASCADE`) — that `serviceId` is the column every per-service query filters on.
+ *
  * @e2e
  * Integration checklist — drive the real UI (live preview, no mocks), adapt
  * each item to this app's actual status-page screens/flows, and check every

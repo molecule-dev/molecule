@@ -8,6 +8,11 @@
  * feed reads `@molecule/api-resource-follow`'s follows, so they are the same
  * favorites and follows the rest of the app sees.
  *
+ * **Tables this package owns: `articles` and `article_tags`.** The join between them is
+ * `article_tags.articleId` = `articles.id` (a declared FK, `ON DELETE CASCADE`; `("articleId", "tag")` is
+ * unique, and `article_tags.position` is the order the tags were given in). It also ships
+ * `reactions.sql` and `follows.sql`, which create the `reactions` and `follows` tables it reads by name.
+ *
  * @module
  * @example
  * ```typescript

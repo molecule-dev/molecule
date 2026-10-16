@@ -1,15 +1,37 @@
 /**
  * The `user` resource types, schema, and definition.
  *
+ * **This package owns TWO tables, and the key that joins them is the user's own id.**
+ * - `users` — {@link Props}: `id`, `username`, `name`, `email`, `emailVerified`, `avatar`,
+ *   `bio`, `twoFactorEnabled`, the `oauth*` and `plan*` columns. **There is no password column
+ *   here.**
+ * - `usersSecrets` — {@link SecretProps}: `passwordHash`, `passwordResetToken` (and
+ *   `passwordResetTokenAt`), `twoFactorSecret` / `pendingTwoFactorSecret`, `lastTwoFactorTimeStep`.
+ *
+ * **`usersSecrets.id` IS the user's id — the value of `users.id`, never a fresh uuid.** The DDL
+ * declares it `UNIQUE PRIMARY KEY` with no foreign key, so nothing enforces the pairing: a row
+ * written under another id is never found again — login answers "invalid credentials" while
+ * `GET /api/users/me` (which reads `users` only) still answers 200. A hand-written signup writes
+ * both rows from one id:
+ * `const id = uuid(); await create('users', { ...props, id }); await create('usersSecrets', { id, passwordHash: await hash(password) })`.
+ *
+ * Prefer not to hand-write any of that: the handlers this package ships already do it —
+ * `handlers.create` (signup: writes both rows, hashes with `@molecule/api-password`, mints the
+ * session device), `handlers.logIn` (login: reads `usersSecrets` by the user's id and compares the
+ * hash), `handlers.updatePassword`, and `handlers.forgotPassword` / `handlers.resetPassword` (the
+ * emailed-token reset). To read or write one secret yourself, use the abstract datastore on the
+ * same key — `findById('usersSecrets', userId)`, or `${tableName}Secrets` when the resource
+ * carries a custom `tableName` — never SQL.
+ *
  * @remarks
  * The user record is split across TWO schemas — pick the right one or you leak credentials:
  * - **{@link Props} (`propsSchema`)** — SAFE, client-facing fields (username, name, email,
  *   `emailVerified`, `twoFactorEnabled`, plan). This is what handlers return and what lives
  *   in the `users` table.
  * - **{@link SecretProps} (`secretPropsSchema`)** — SERVER-ONLY secrets: `passwordHash`, the
- *   TOTP `twoFactorSecret` (and its pending-setup value). Stored in a SEPARATE secrets table
- *   and NEVER serialized to the client. Note the pair `twoFactorEnabled` (safe boolean, in
- *   `Props`) vs `twoFactorSecret` (secret, in `SecretProps`).
+ *   TOTP `twoFactorSecret` (and its pending-setup value). Stored in the SEPARATE `usersSecrets`
+ *   table (keyed by `id` = the user's id) and NEVER serialized to the client. Note the pair
+ *   `twoFactorEnabled` (safe boolean, in `Props`) vs `twoFactorSecret` (secret, in `SecretProps`).
  *
  * When you extend the user, put a secret (token, hash, key, provider refresh token) in
  * `SecretProps`; put a display field in `Props`. **Never add a secret to `Props`, never
@@ -88,7 +110,7 @@
  * ```ts
  * // Extend safely: a display field in Props, a secret in SecretProps.
  * //   propsSchema:       { …, timezone: z.string().optional() }           // safe → client
- * //   secretPropsSchema: { …, passwordResetToken: z.string().optional() } // server-only, secrets table
+ * //   secretPropsSchema: { …, passwordResetToken: z.string().optional() } // server-only, usersSecrets
  *
  * // A custom handler returns SAFE props — never the secrets row.
  * router.get('/me/timezone', async (req, res) => {

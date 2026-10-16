@@ -200,10 +200,14 @@ export const create = ({ name, tableName, schema }: types.Resource) => {
       logger.error(error)
     }
 
-    // Create the id in advance.
+    // Create the id in advance — the SAME id keys both rows. `usersSecrets` is
+    // read by this id (`usersSecrets.id` = `users.id`) and its DDL declares no
+    // foreign key, so a secrets row written under another id inserts fine and is
+    // then simply never found: login answers "invalid credentials" forever while
+    // a self-read of `users` still succeeds.
     const id = uuid()
 
-    // Create the user first (usersSecrets has a FK to users.id).
+    // Create the user, then the secrets row under that same id.
     const createdResponse = await createResource({ props, id: id as string })
 
     if (!createdResponse || createdResponse.statusCode !== 201) {

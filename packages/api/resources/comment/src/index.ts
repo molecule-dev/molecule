@@ -4,6 +4,11 @@
  * Polymorphic comments that attach to any resource type. Supports threaded
  * replies, pagination, and ownership-based authorization.
  *
+ * **Tables this package owns: `comments` and `comment_numbers`.** A comment row is found by its
+ * `comments.id` (a UUID); `comment_numbers` gives it the sequential integer many clients address it
+ * by, and the join between the two is `comment_numbers.commentId` = `comments.id` (declared FK,
+ * `ON DELETE CASCADE`) — one row per numbered comment, never a mapping table of your own.
+ *
  * @module
  * @example
  * ```typescript
