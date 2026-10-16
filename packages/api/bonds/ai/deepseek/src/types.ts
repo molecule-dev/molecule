@@ -4,7 +4,7 @@
  * @module
  */
 
-import type { AiRateLimitCallback } from '@molecule/api-ai'
+import type { AiRateLimitCallback, AiStreamStallCallback } from '@molecule/api-ai'
 
 /**
  * Configuration for DeepSeek.
@@ -36,6 +36,31 @@ export interface DeepseekConfig {
   modelMap?: Record<string, string>
   /** Called on each rate-limited/overloaded upstream response, before any retry sleep. */
   onRateLimit?: AiRateLimitCallback
+  /** Called when a stream accepts the request and then produces no content for the whole first-token window. */
+  onStreamStall?: AiStreamStallCallback
+  /**
+   * How long a stream may wait for its FIRST content event before the provider
+   * abandons it and asks again (ms). Defaults to 45 000.
+   *
+   * Counted from the moment the request is sent, and cleared by the first
+   * `text` / `thinking` / `tool_use` event — NOT by a liveness frame, because
+   * DeepSeek keeps a stalled prefill's connection alive with `: keep-alive`
+   * comments, so a byte-level idle timeout never sees the stall at all. A turn's
+   * healthy first-token wait is ~1 s even on million-token prompts, so this
+   * window is a stall bound, not a latency budget.
+   */
+  firstTokenTimeoutMs?: number
+  /**
+   * How long a stream that has ALREADY started may go without a single byte
+   * before the provider abandons it (ms). Defaults to 60 000.
+   *
+   * Measured over the socket, not over content: once the reply has started, any
+   * byte proves the connection is alive, and a stretch with none is a broken
+   * stream rather than a slow one. Abandoning it here is not retried — the
+   * partial reply is already on the wire — it is reported as an error event for
+   * the caller's own ladder, which keeps the partial.
+   */
+  streamSilenceTimeoutMs?: number
 }
 
 /**

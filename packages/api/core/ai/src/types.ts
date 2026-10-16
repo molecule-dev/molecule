@@ -162,6 +162,59 @@ export interface AiRateLimitEvent {
 export type AiRateLimitCallback = (event: AiRateLimitEvent) => void
 
 /**
+ * Details of one upstream stream that accepted the request and then produced no
+ * CONTENT for the whole first-token window — reported via a provider config's
+ * `onStreamStall` callback the moment the provider's first-token watchdog gives
+ * up on that attempt.
+ *
+ * A stall is NOT an HTTP failure and NOT a rate limit: the provider answered
+ * 200 and opened a stream, then sat there. It is invisible to every other
+ * signal the platform has — a 200 with no content looks like a healthy request
+ * until the bytes stop — so without this callback a multi-minute pause cannot
+ * be told apart from a long think, a platform hold, or a retry backoff after
+ * the fact (X0 xr-molecule-flash-m71, 2026-10-16: a 3 min 15 s gap that
+ * production could not classify).
+ */
+export interface AiStreamStallEvent {
+  /** Provider name (e.g. 'deepseek'). */
+  provider: string
+  /** Model the stalled request targeted. */
+  model: string
+  /**
+   * Which bound the stream broke: `before_content` is the first-token window
+   * (retryable — the reply never started), `after_content` is the inter-chunk
+   * silence window (not retryable — a partial reply is already on the wire).
+   */
+  phase: 'before_content' | 'after_content'
+  /** How long the attempt waited for its first content event, in milliseconds. */
+  stallMs: number
+  /** 1-based attempt number that stalled. */
+  attempt: number
+  /** Whether the provider retries this request with a fresh stream. */
+  willRetry: boolean
+  /**
+   * Content characters the stalled attempt streamed before it was abandoned —
+   * always 0 for a first-token stall, and non-zero only for a post-content
+   * stall, where a retry is impossible and the partial reply is kept.
+   */
+  streamedChars: number
+  /**
+   * Liveness frames the attempt received, counted as data arrived that carried
+   * no content. Distinguishes the two stall shapes: 0 is a stream that went
+   * completely silent, a high count is an upstream that is OPEN and dripping
+   * empty frames (DeepSeek's `: keep-alive` comments during a long prefill),
+   * which no byte-level idle timeout can see.
+   */
+  keepAlives: number
+}
+
+/**
+ * Callback invoked on each stalled upstream stream. Must not throw (providers
+ * guard it anyway); keep it fast — it runs on the request path.
+ */
+export type AiStreamStallCallback = (event: AiStreamStallEvent) => void
+
+/**
  * JSON Schema subset for tool parameter definitions.
  */
 export interface JSONSchema {

@@ -31,6 +31,14 @@
  * malformed tool schema) gets its own non-retryable message distinct from the generic
  * "AI service error. Please try again." used for retryable failures.
  *
+ * **A stream that opens and then produces nothing is bounded, not waited on.** DeepSeek answers
+ * 200 and then keeps a stalled prefill alive with `: keep-alive` comments, so no HTTP status is
+ * ever wrong and a byte-level idle timeout never sees the stall. `chat()` therefore bounds the
+ * wait for the first CONTENT event (45 s, `MOL_DEEPSEEK_FIRST_TOKEN_TIMEOUT_MS`) and asks once
+ * more with a fresh stream; after the reply has started it bounds the silence between chunks
+ * instead (60 s, `MOL_DEEPSEEK_STREAM_SILENCE_TIMEOUT_MS`) and surfaces an error event, keeping
+ * the partial reply. Hosts observe both through the `onStreamStall` callback.
+ *
  * @module
  */
 

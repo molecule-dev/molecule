@@ -402,6 +402,276 @@ describe('secret registration', () => {
   })
 })
 
+/**
+ * An SSE response that delivers `lines` and then HANGS — the shape a stalled
+ * upstream produces. The abort listener mirrors real `fetch`: aborting the
+ * request's controller errors the body stream, which is what unblocks the
+ * provider's pending `reader.read()` in production.
+ */
+function stallingSseResponse(signal: AbortSignal, lines: string[] = []): Response {
+  const encoder = new TextEncoder()
+  const body = new ReadableStream<Uint8Array>({
+    start(controller) {
+      for (const line of lines) controller.enqueue(encoder.encode(line + '\n'))
+      signal.addEventListener('abort', () => controller.error(new Error('aborted')))
+    },
+  })
+  return new Response(body, { status: 200, headers: { 'content-type': 'text/event-stream' } })
+}
+
+/** One OpenAI-shaped content chunk. */
+function sseText(content: string): string {
+  return `data: ${JSON.stringify({ choices: [{ delta: { content } }] })}`
+}
+
+describe('chat() — first-token stall', () => {
+  it('abandons a stream that produces no content, retries once, and returns the retry reply', async () => {
+    vi.useFakeTimers()
+    try {
+      const stalls: unknown[] = []
+      let attempt = 0
+      const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+      fetch.mockImplementation((_url: string, init: RequestInit) => {
+        attempt += 1
+        return Promise.resolve(
+          attempt === 1
+            ? stallingSseResponse(init.signal as AbortSignal)
+            : sseResponse([sseText('recovered')]),
+        )
+      })
+      const provider = createProvider({
+        apiKey: 'k',
+        firstTokenTimeoutMs: 1_000,
+        onStreamStall: (e) => stalls.push(e),
+      })
+
+      const eventsPromise = drain(provider.chat({ messages: [{ role: 'user', content: 'hi' }] }))
+      await vi.advanceTimersByTimeAsync(1_100)
+      const events = await eventsPromise
+
+      expect(
+        events.filter((e) => e.type === 'text').map((e) => (e as { content: string }).content),
+      ).toEqual(['recovered'])
+      expect(fetch).toHaveBeenCalledTimes(2)
+      expect(stalls).toEqual([
+        {
+          provider: 'deepseek',
+          model: 'deepseek-flash',
+          phase: 'before_content',
+          stallMs: 1_000,
+          attempt: 1,
+          willRetry: true,
+          streamedChars: 0,
+          keepAlives: 0,
+        },
+      ])
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('treats a keep-alive drip as a stall: liveness frames are NOT content', async () => {
+    vi.useFakeTimers()
+    try {
+      const stalls: { keepAlives: number; willRetry: boolean }[] = []
+      let attempt = 0
+      const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+      fetch.mockImplementation((_url: string, init: RequestInit) => {
+        attempt += 1
+        return Promise.resolve(
+          attempt === 1
+            ? // Data IS arriving every second, and none of it is a reply — the
+              // production shape a byte-level idle timeout cannot see.
+              stallingSseResponse(init.signal as AbortSignal, [
+                ': keep-alive',
+                'data: {choices:[]}',
+              ])
+            : sseResponse([sseText('ok')]),
+        )
+      })
+      const provider = createProvider({
+        apiKey: 'k',
+        firstTokenTimeoutMs: 1_000,
+        onStreamStall: (e) => stalls.push(e),
+      })
+
+      const eventsPromise = drain(provider.chat({ messages: [{ role: 'user', content: 'hi' }] }))
+      await vi.advanceTimersByTimeAsync(1_100)
+      await eventsPromise
+
+      expect(stalls[0].keepAlives).toBeGreaterThan(0)
+      expect(stalls[0].willRetry).toBe(true)
+      expect(fetch).toHaveBeenCalledTimes(2)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('does not retry a stall that arrived AFTER content, and surfaces an error instead', async () => {
+    vi.useFakeTimers()
+    try {
+      const stalls: { phase: string; streamedChars: number; willRetry: boolean }[] = []
+      const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+      fetch.mockImplementation((_url: string, init: RequestInit) =>
+        Promise.resolve(stallingSseResponse(init.signal as AbortSignal, [sseText('half a rep')])),
+      )
+      const provider = createProvider({
+        apiKey: 'k',
+        firstTokenTimeoutMs: 1_000,
+        // The reply starts, so the first-token window is replaced by the
+        // inter-chunk silence window; the stream then goes quiet for good.
+        streamSilenceTimeoutMs: 500,
+        onStreamStall: (e) => stalls.push(e),
+      })
+
+      const eventsPromise = drain(provider.chat({ messages: [{ role: 'user', content: 'hi' }] }))
+      await vi.advanceTimersByTimeAsync(1_100)
+      const events = await eventsPromise
+
+      // The partial reply is kept, the stall is recorded, and it is NOT retried
+      // (a second attempt would duplicate the text already on the wire).
+      expect(
+        events.filter((e) => e.type === 'text').map((e) => (e as { content: string }).content),
+      ).toEqual(['half a rep'])
+      expect(events.some((e) => e.type === 'error')).toBe(true)
+      expect(fetch).toHaveBeenCalledTimes(1)
+      expect(stalls).toEqual([
+        {
+          provider: 'deepseek',
+          model: 'deepseek-flash',
+          phase: 'after_content',
+          stallMs: 500,
+          attempt: 1,
+          willRetry: false,
+          streamedChars: 10,
+          keepAlives: 0,
+        },
+      ])
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('does not treat a caller abort as a stall', async () => {
+    vi.useFakeTimers()
+    try {
+      const stalls: unknown[] = []
+      const abort = new AbortController()
+      const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+      fetch.mockImplementation((_url: string, init: RequestInit) =>
+        Promise.resolve(stallingSseResponse(init.signal as AbortSignal)),
+      )
+      const provider = createProvider({
+        apiKey: 'k',
+        firstTokenTimeoutMs: 5_000,
+        onStreamStall: (e) => stalls.push(e),
+      })
+
+      const eventsPromise = drain(
+        provider.chat({ messages: [{ role: 'user', content: 'hi' }], signal: abort.signal }),
+      )
+      await vi.advanceTimersByTimeAsync(10)
+      abort.abort()
+      await expect(eventsPromise).rejects.toThrow()
+      expect(fetch).toHaveBeenCalledTimes(1)
+      expect(stalls).toEqual([])
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('gives up after one retry when the second attempt stalls too', async () => {
+    vi.useFakeTimers()
+    try {
+      const stalls: { attempt: number; willRetry: boolean }[] = []
+      const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+      fetch.mockImplementation((_url: string, init: RequestInit) =>
+        Promise.resolve(stallingSseResponse(init.signal as AbortSignal)),
+      )
+      const provider = createProvider({
+        apiKey: 'k',
+        firstTokenTimeoutMs: 1_000,
+        onStreamStall: (e) => stalls.push(e),
+      })
+
+      const eventsPromise = drain(provider.chat({ messages: [{ role: 'user', content: 'hi' }] }))
+      await vi.advanceTimersByTimeAsync(1_100)
+      await vi.advanceTimersByTimeAsync(1_100)
+      const events = await eventsPromise
+
+      expect(fetch).toHaveBeenCalledTimes(2)
+      expect(stalls.map((s) => [s.attempt, s.willRetry])).toEqual([
+        [1, true],
+        [2, false],
+      ])
+      expect(events.filter((e) => e.type === 'error')).toHaveLength(1)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('leaves a stream that produces content alone (the bound is a stall bound)', async () => {
+    vi.useFakeTimers()
+    try {
+      const stalls: unknown[] = []
+      const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+      fetch.mockResolvedValue(sseResponse([sseText('hello')]))
+      const provider = createProvider({
+        apiKey: 'k',
+        firstTokenTimeoutMs: 1_000,
+        onStreamStall: (e) => stalls.push(e),
+      })
+
+      const eventsPromise = drain(provider.chat({ messages: [{ role: 'user', content: 'hi' }] }))
+      await vi.advanceTimersByTimeAsync(5_000)
+      const events = await eventsPromise
+
+      expect(fetch).toHaveBeenCalledTimes(1)
+      expect(stalls).toEqual([])
+      expect(events.filter((e) => e.type === 'text')).toHaveLength(1)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('ignores a bound that would abandon every stream on its first tick', async () => {
+    // A non-positive bound arms `setTimeout` at once, and one past Node's 32-bit
+    // timer ceiling is clamped to 1 ms — either would turn a stall bound into a
+    // universal failure. Both must fall back to the default window instead.
+    vi.useFakeTimers()
+    try {
+      const stalls: unknown[] = []
+      const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+      fetch.mockImplementation((_url: string, init: RequestInit) =>
+        Promise.resolve(stallingSseResponse(init.signal as AbortSignal)),
+      )
+      const provider = createProvider({
+        apiKey: 'k',
+        firstTokenTimeoutMs: 0,
+        onStreamStall: (e) => stalls.push(e),
+      })
+
+      const eventsPromise = drain(provider.chat({ messages: [{ role: 'user', content: 'hi' }] }))
+      // Nothing fires early: the default 45 s window is in force, not a 0 ms one.
+      await vi.advanceTimersByTimeAsync(40_000)
+      expect(stalls).toEqual([])
+      expect(fetch).toHaveBeenCalledTimes(1)
+      // …and it does fire at the default window, so the value was replaced, not
+      // disabled: the first attempt is abandoned at 45 s and asked again.
+      await vi.advanceTimersByTimeAsync(6_000)
+      expect(stalls).toHaveLength(1)
+      expect((stalls[0] as { stallMs: number }).stallMs).toBe(45_000)
+      // The retry stalls too, so the turn gets the error event.
+      await vi.advanceTimersByTimeAsync(46_000)
+      const events = await eventsPromise
+      expect(stalls).toHaveLength(2)
+      expect(events.filter((e) => e.type === 'error')).toHaveLength(1)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+})
+
 describe('chat() — mixed tool-result + image message', () => {
   it('emits non-tool parts (a screenshot riding a tool result) instead of dropping them', async () => {
     const fetch = globalThis.fetch as ReturnType<typeof vi.fn>

@@ -12,6 +12,7 @@
 import type {
   AIProvider,
   AiRateLimitCallback,
+  AiStreamStallCallback,
   AITool,
   ChatEvent,
   ChatMessage,
@@ -37,6 +38,65 @@ interface DeepseekStreamState {
   outputTokens: number
   /** Cached prompt tokens (subset of inputTokens), from prompt_tokens_details. */
   cachedTokens: number
+  /**
+   * Liveness frames received — data arrived that carried no content. A stream
+   * that has produced NONE of these went completely silent; a high count is an
+   * OPEN upstream dripping empty frames (DeepSeek's `: keep-alive` comments
+   * during a long prefill). The two need different bounds, so they are counted
+   * separately rather than inferred from the byte stream.
+   */
+  keepAlives: number
+  /** Content characters streamed so far: 0 proves the reply never started. */
+  streamedChars: number
+  /** True once a content event (text / thinking / tool use) was produced. */
+  contentSeen: boolean
+}
+
+/**
+ * The two bounds on one attempt's stream, sharing one timer.
+ *
+ * - BEFORE the reply starts: the first-token window. It has to be measured in
+ *   CONTENT, not bytes — a stalled upstream keeps the connection alive with
+ *   empty frames, so a byte-level quiet period never arrives.
+ * - AFTER the reply starts: the inter-chunk silence window, re-armed on every
+ *   chunk. Bytes are the right measure there (any byte proves the socket is
+ *   alive), and the reply is already partly on the wire, so this one is not
+ *   retryable.
+ *
+ * `expired` records WHICH fired, because only the first is retryable and the
+ * caller's catch must not treat a caller-cancelled stream as either.
+ */
+interface StreamBounds {
+  /** Which bound expired, if any. */
+  expired: 'before_content' | 'after_content' | null
+  /** The armed timer, or null when nothing is armed. */
+  timer: ReturnType<typeof setTimeout> | null
+}
+
+/**
+ * What the SSE reader needs to swap the first-token bound for the inter-chunk
+ * silence bound once the reply has started.
+ */
+interface StreamBoundControl {
+  /** The inter-chunk silence window, in milliseconds. */
+  silenceMs: number
+  /**
+   * (Re-)arm the shared timer for `ms`, recording `phase` when it fires.
+   *
+   * @param ms - The window length.
+   * @param phase - Which bound this window represents.
+   */
+  arm: (ms: number, phase: 'before_content' | 'after_content') => void
+}
+
+/** What one stalled attempt looked like, for the `onStreamStall` callback. */
+interface StreamStallDetail {
+  stallMs: number
+  attempt: number
+  willRetry: boolean
+  streamedChars: number
+  keepAlives: number
+  phase: 'before_content' | 'after_content'
 }
 
 /**
@@ -49,6 +109,96 @@ interface DeepseekStreamState {
  */
 function budgetToEffort(budgetTokens: number): string {
   return budgetTokens >= 12_000 ? 'max' : 'high'
+}
+
+/** How long a stream may wait for its first content event. */
+export const DEFAULT_FIRST_TOKEN_TIMEOUT_MS = 45_000
+
+/** How long a stream that HAS started may go without a single byte. */
+const DEFAULT_STREAM_SILENCE_TIMEOUT_MS = 60_000
+
+/** Node's `setTimeout` ceiling: a larger delay is clamped to 1 ms, i.e. instant. */
+const MAX_TIMER_MS = 2_147_483_647
+
+/**
+ * Resolve a stream bound from the config, then the environment, then the
+ * default. A value that is not a positive finite number is IGNORED rather than
+ * armed: these values arm `setTimeout`, and a non-positive one (or one past
+ * Node's 32-bit timer ceiling, which `setTimeout` clamps to 1 ms) would abandon
+ * every stream on its first tick — turning a stall bound into a universal
+ * failure.
+ *
+ * @param configured - The value from the provider config, when set.
+ * @param envValue - The raw environment value, when set.
+ * @param fallback - The default to use when neither resolves.
+ * @returns Milliseconds for the bound.
+ */
+function resolveBoundMs(
+  configured: number | undefined,
+  envValue: string | undefined,
+  fallback: number,
+): number {
+  for (const candidate of [configured, Number(envValue)]) {
+    if (
+      typeof candidate === 'number' &&
+      Number.isFinite(candidate) &&
+      candidate > 0 &&
+      candidate <= MAX_TIMER_MS
+    ) {
+      return candidate
+    }
+  }
+  return fallback
+}
+
+/**
+ * The first-token bound, from the config, then
+ * `MOL_DEEPSEEK_FIRST_TOKEN_TIMEOUT_MS`, then the default.
+ *
+ * @param configured - The value from {@link DeepseekConfig.firstTokenTimeoutMs}.
+ * @returns Milliseconds to wait for the first content event.
+ */
+function resolveFirstTokenTimeoutMs(configured?: number): number {
+  return resolveBoundMs(
+    configured,
+    process.env.MOL_DEEPSEEK_FIRST_TOKEN_TIMEOUT_MS,
+    DEFAULT_FIRST_TOKEN_TIMEOUT_MS,
+  )
+}
+
+/**
+ * The post-content inter-chunk silence bound, from the config, then
+ * `MOL_DEEPSEEK_STREAM_SILENCE_TIMEOUT_MS`, then the default.
+ *
+ * @param configured - The value from {@link DeepseekConfig.streamSilenceTimeoutMs}.
+ * @returns Milliseconds a started stream may go without a byte.
+ */
+function resolveStreamSilenceTimeoutMs(configured?: number): number {
+  return resolveBoundMs(
+    configured,
+    process.env.MOL_DEEPSEEK_STREAM_SILENCE_TIMEOUT_MS,
+    DEFAULT_STREAM_SILENCE_TIMEOUT_MS,
+  )
+}
+
+/**
+ * Whether an event means the reply has STARTED, i.e. the first-token bound no
+ * longer applies. A `keep_alive` is deliberately NOT content: it is exactly what
+ * a stalled upstream keeps dripping, so treating it as progress would disarm the
+ * bound on the one stream it exists to catch. `usage` and `done` are not content
+ * either — a stream that reports usage and closes produced no reply.
+ *
+ * @param event - One event from the provider stream.
+ * @returns True for the first real output of a reply.
+ */
+function isContentEvent(event: ChatEvent): boolean {
+  return (
+    event.type === 'text' ||
+    event.type === 'thinking' ||
+    event.type === 'tool_use' ||
+    event.type === 'tool_use_start' ||
+    event.type === 'tool_input_delta'
+  )
 }
 
 /**
@@ -65,6 +215,9 @@ class DeepseekAIProviderImpl implements AIProvider {
   private completionsPath: string
   private modelMap: Record<string, string>
   private onRateLimit?: AiRateLimitCallback
+  private onStreamStall?: AiStreamStallCallback
+  private firstTokenTimeoutMs: number
+  private streamSilenceTimeoutMs: number
 
   constructor(config: DeepseekConfig = {}) {
     this.apiKey = config.apiKey ?? process.env.DEEPSEEK_API_KEY ?? ''
@@ -75,6 +228,9 @@ class DeepseekAIProviderImpl implements AIProvider {
       config.completionsPath ?? process.env.DEEPSEEK_COMPLETIONS_PATH ?? '/v1/chat/completions'
     this.modelMap = config.modelMap ?? {}
     this.onRateLimit = config.onRateLimit
+    this.onStreamStall = config.onStreamStall
+    this.firstTokenTimeoutMs = resolveFirstTokenTimeoutMs(config.firstTokenTimeoutMs)
+    this.streamSilenceTimeoutMs = resolveStreamSilenceTimeoutMs(config.streamSilenceTimeoutMs)
 
     // Fail fast with an actionable local error rather than a cryptic 401 on the
     // first request. The default `provider` export constructs lazily on first
@@ -173,8 +329,143 @@ class DeepseekAIProviderImpl implements AIProvider {
     }
 
     const DEFAULT_TIMEOUT_MS = 5 * 60 * 1000
-    const signal = params.signal ?? AbortSignal.timeout(DEFAULT_TIMEOUT_MS)
+    const firstTokenTimeoutMs = this.firstTokenTimeoutMs
+    const MAX_STALL_RETRIES = 1
 
+    // A stream that OPENS and then produces no content is invisible to every
+    // other signal this provider has: the request returns 200, no status is ever
+    // wrong, and DeepSeek keeps a stalled prefill's connection alive with
+    // `: keep-alive` comments — so a byte-level idle timeout stays quiet too.
+    // Left alone, the whole first-token window is spent before anything notices.
+    // Measured in production (X0 xr-molecule-flash-m71, 2026-10-16): the chat
+    // handler's 180 s progress watchdog was the ONLY bound, and a 3 min 15 s hole
+    // opened in the middle of a live turn. Bound it here instead, where the same
+    // request can simply be asked again.
+    for (let stalledAttempt = 0; ; stalledAttempt++) {
+      const controller = new AbortController()
+      const forwardAbort = (): void => controller.abort()
+      if (params.signal?.aborted) controller.abort()
+      else params.signal?.addEventListener('abort', forwardAbort, { once: true })
+      // The provider's own ceiling bounds each ATTEMPT; the caller's signal, when
+      // present, still wins over it (both abort this one controller).
+      const ceiling = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT_MS)
+      ceiling.unref?.()
+      const signal = controller.signal
+      const requestStartedAt = Date.now()
+
+      try {
+        const response = await this.requestWithRateLimitRetries({
+          body,
+          headers,
+          model,
+          signal,
+        })
+
+        if (!response.ok) {
+          const errorBody = await response.text()
+          let detail = `HTTP ${response.status}`
+          try {
+            const parsed = JSON.parse(errorBody) as { error?: { message?: string } }
+            if (parsed.error?.message) detail = parsed.error.message
+          } catch (_error) {
+            // JSON.parse failed — raw text is already in `errorBody`; use it as-is.
+            if (errorBody.length > 0 && errorBody.length < 200) detail = errorBody
+          }
+          logger.error('DeepSeek API error', { status: response.status, detail, errorBody })
+          const clientMessage =
+            response.status === 429
+              ? 'AI rate limit exceeded. Please try again shortly.'
+              : response.status === 401
+                ? 'AI service configuration error.'
+                : response.status === 400 &&
+                    /prompt is too long|too many tokens|token.*limit|context.*length/i.test(detail)
+                  ? "Conversation too long for the model's context window. Use /compact to free space, or start a new conversation."
+                  : response.status === 400
+                    ? 'AI request was invalid — check the model and request parameters.'
+                    : response.status === 503
+                      ? 'AI service is temporarily overloaded. Please try again in a moment.'
+                      : 'AI service error. Please try again.'
+          yield { type: 'error', message: clientMessage, errorKey: 'ai.error.apiError' }
+          return
+        }
+
+        if (params.stream === false) {
+          const data = (await response.json()) as Record<string, unknown>
+          yield* this.parseNonStreamingResponse(data)
+          return
+        }
+
+        const state: DeepseekStreamState = {
+          inputTokens: 0,
+          outputTokens: 0,
+          cachedTokens: 0,
+          keepAlives: 0,
+          streamedChars: 0,
+          contentSeen: false,
+        }
+        // Both bounds abort the same request; `expired` says which one did.
+        const bounds: StreamBounds = { expired: null, timer: null }
+        const armBound = (ms: number, phase: 'before_content' | 'after_content'): void => {
+          if (bounds.timer) clearTimeout(bounds.timer)
+          bounds.timer = setTimeout(() => {
+            bounds.expired = phase
+            controller.abort()
+          }, ms)
+        }
+        armBound(firstTokenTimeoutMs, 'before_content')
+        try {
+          yield* this.parseStreamingResponse(response, state, {
+            silenceMs: this.streamSilenceTimeoutMs,
+            arm: armBound,
+          })
+        } catch (error) {
+          // Only a bound expiry is this provider's to absorb — anything else
+          // (the caller aborting, a socket failure) belongs to the caller.
+          if (!bounds.expired) throw error
+          const stall = {
+            stallMs: Date.now() - requestStartedAt,
+            attempt: stalledAttempt + 1,
+            // Only a stream that never started may be asked again: a reply that
+            // already partly reached the consumer would be duplicated.
+            willRetry: bounds.expired === 'before_content' && stalledAttempt < MAX_STALL_RETRIES,
+            streamedChars: state.streamedChars,
+            keepAlives: state.keepAlives,
+            phase: bounds.expired,
+          }
+          this.reportStreamStall(model, stall)
+          if (stall.willRetry) continue
+          // Out of retries, or the partial reply is already on the wire. Hand it
+          // to the caller's own error ladder, which keeps the partial.
+          yield { type: 'error', message: t('ai.error.apiError'), errorKey: 'ai.error.apiError' }
+          return
+        } finally {
+          if (bounds.timer) clearTimeout(bounds.timer)
+        }
+        return
+      } finally {
+        clearTimeout(ceiling)
+        params.signal?.removeEventListener('abort', forwardAbort)
+      }
+    }
+  }
+
+  /**
+   * POST the chat body, retrying with exponential backoff on a rate-limited
+   * (429) or overloaded (503) status. Extracted from {@link chat} so the
+   * stream-level first-token retry can wrap it: a rate-limited request and a
+   * stalled stream are different failures with different budgets, and nesting
+   * them in one loop made each one's attempt count depend on the other's.
+   *
+   * @param args - The request body, headers, upstream model and abort signal.
+   * @returns The upstream response (possibly a 429/503 that exhausted retries).
+   */
+  private async requestWithRateLimitRetries(args: {
+    body: Record<string, unknown>
+    headers: Record<string, string>
+    model: string
+    signal: AbortSignal
+  }): Promise<Response> {
+    const { body, headers, model, signal } = args
     // Retry with exponential backoff for rate limits (429) and overloaded (503)
     const MAX_RETRIES = 3
     let response: Response | null = null
@@ -239,42 +530,42 @@ class DeepseekAIProviderImpl implements AIProvider {
       }
       break
     }
+    return response!
+  }
 
-    if (!response!.ok) {
-      const errorBody = await response!.text()
-      let detail = `HTTP ${response!.status}`
-      try {
-        const parsed = JSON.parse(errorBody) as { error?: { message?: string } }
-        if (parsed.error?.message) detail = parsed.error.message
-      } catch (_error) {
-        // JSON.parse failed — raw text is already in `errorBody`; use it as-is.
-        if (errorBody.length > 0 && errorBody.length < 200) detail = errorBody
-      }
-      logger.error('DeepSeek API error', { status: response!.status, detail, errorBody })
-      const clientMessage =
-        response!.status === 429
-          ? 'AI rate limit exceeded. Please try again shortly.'
-          : response!.status === 401
-            ? 'AI service configuration error.'
-            : response!.status === 400 &&
-                /prompt is too long|too many tokens|token.*limit|context.*length/i.test(detail)
-              ? "Conversation too long for the model's context window. Use /compact to free space, or start a new conversation."
-              : response!.status === 400
-                ? 'AI request was invalid — check the model and request parameters.'
-                : response!.status === 503
-                  ? 'AI service is temporarily overloaded. Please try again in a moment.'
-                  : 'AI service error. Please try again.'
-      yield { type: 'error', message: clientMessage, errorKey: 'ai.error.apiError' }
-      return
+  /**
+   * Record one stalled attempt: a warn line always, plus the host's
+   * `onStreamStall` callback so the gap is queryable from the turn's own
+   * analytics rather than only from a log buffer that has since rotated.
+   *
+   * @param model - The upstream model id the stalled request targeted.
+   * @param stall - What the stalled attempt looked like.
+   */
+  private reportStreamStall(model: string, stall: StreamStallDetail): void {
+    logger.warn('DeepSeek stream stalled', {
+      model,
+      phase: stall.phase,
+      stallMs: stall.stallMs,
+      attempt: stall.attempt,
+      willRetry: stall.willRetry,
+      streamedChars: stall.streamedChars,
+      keepAlives: stall.keepAlives,
+    })
+    try {
+      this.onStreamStall?.({
+        provider: this.name,
+        model,
+        phase: stall.phase,
+        stallMs: stall.stallMs,
+        attempt: stall.attempt,
+        willRetry: stall.willRetry,
+        streamedChars: stall.streamedChars,
+        keepAlives: stall.keepAlives,
+      })
+    } catch (error) {
+      // Host-app telemetry; its failure must never break the request.
+      logger.warn('onStreamStall callback threw', { error })
     }
-
-    if (params.stream === false) {
-      const data = (await response!.json()) as Record<string, unknown>
-      yield* this.parseNonStreamingResponse(data)
-      return
-    }
-
-    yield* this.parseStreamingResponse(response!)
   }
 
   /**
@@ -448,9 +739,17 @@ class DeepseekAIProviderImpl implements AIProvider {
    * format), yielding `ChatEvent` objects as they arrive.
    *
    * @param response - The fetch Response with an SSE body stream.
+   * @param state - Mutable counters for this attempt's tokens, liveness frames
+   *   and streamed content. Owned by the caller so a retry can read what the
+   *   abandoned attempt produced.
+   * @param bounds - How to re-arm the stream bound after the reply starts.
    * @yields {ChatEvent} Chat events as they arrive from the SSE stream.
    */
-  private async *parseStreamingResponse(response: Response): AsyncIterable<ChatEvent> {
+  private async *parseStreamingResponse(
+    response: Response,
+    state: DeepseekStreamState,
+    bounds: StreamBoundControl,
+  ): AsyncIterable<ChatEvent> {
     const reader = response.body?.getReader()
     if (!reader) {
       yield {
@@ -463,7 +762,6 @@ class DeepseekAIProviderImpl implements AIProvider {
 
     const decoder = new TextDecoder()
     let buffer = ''
-    const state: DeepseekStreamState = { inputTokens: 0, outputTokens: 0, cachedTokens: 0 }
 
     // Track pending tool calls (accumulated across deltas). `started` guards the
     // one-shot tool_use_start emission once the id + name are first known.
@@ -482,6 +780,14 @@ class DeepseekAIProviderImpl implements AIProvider {
         let yieldedContent = false
         for (const event of this.processSSELines(lines, pendingTools, state)) {
           yieldedContent = true
+          // The reply has started. Counting this from the EVENTS (rather than
+          // from the byte stream) is what lets the first-token bound see a
+          // stall whose connection is kept alive by empty frames — the shape
+          // DeepSeek actually produces.
+          if (isContentEvent(event)) state.contentSeen = true
+          if (event.type === 'text' || event.type === 'thinking') {
+            state.streamedChars += event.content.length
+          }
           yield event
           // A mid-stream error (rate-limit/overload during high load, sent as a
           // `data: {"error": {...}}` chunk) means the turn was truncated. Stop
@@ -495,8 +801,12 @@ class DeepseekAIProviderImpl implements AIProvider {
         // (e.g., during extended reasoning with empty chunks or keepalive comments).
         // This resets the consumer's stream timeout without forwarding to the client.
         if (!yieldedContent) {
+          state.keepAlives += 1
           yield { type: 'keep_alive' }
         }
+        // Any chunk at all proves the socket is alive, so the post-content bound
+        // is re-armed here rather than on content events only.
+        if (state.contentSeen) bounds.arm(bounds.silenceMs, 'after_content')
       }
 
       // Flush any remaining data in the buffer after EOF
