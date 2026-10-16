@@ -1219,6 +1219,179 @@ describe('buildTools', () => {
     expect(result.error).not.toMatch(/^.*re-read the file with read_file/)
   })
 
+  it('reports where a long old_string DIVERGES, not the part it already matches (m89 router.ts)', async () => {
+    // X0 m89 +05:12: a 39-line old_string whose first 38 lines were verbatim — the
+    // model had read only lines 1-60, so after \`Article.favorite)\` it invented
+    // \`router.post(\`/devices\`,\`, while the file continues with the unfavorite
+    // route and the Bookmark block. The old anchor snippet showed lines 23-33 of
+    // the file, every one of which MATCHED, so the model re-sent the same
+    // old_string (same snippet, same error), re-read the whole file and rewrote
+    // it. The file head below is verbatim from that run's read.
+    const fileLines = [
+      "import { Router } from 'express'",
+      '',
+      "import handlers from '../handlers/index.js'",
+      "import { requestHandlerMap as Article } from './Resource/Article/index.js'",
+      "import { requestHandlerMap as Bookmark } from './Resource/Bookmark/index.js'",
+      "import { requestHandlerMap as Comment } from './Resource/Comment/index.js'",
+      "import { requestHandlerMap as Device } from './Resource/Device/index.js'",
+      "import { requestHandlerMap as Follow } from './Resource/Follow/index.js'",
+      "import { requestHandlerMap as Reaction } from './Resource/Reaction/index.js'",
+      "import { requestHandlerMap as Tag } from './Resource/Tag/index.js'",
+      "import { authorization as userAuthorization } from './Resource/User/index.js'",
+      "import { requestHandlerMap as User } from './Resource/User/index.js'",
+      '',
+      'export const router = Router()',
+      '',
+      'router.use(userAuthorization.verifyMiddleware({ allowCookieSession: false }))',
+      '',
+      '// Conduit owns the RealWorld paths (/users, /user, /articles, /profiles, …),',
+      "// which the framework's own user/device/resources handlers below would",
+      '// otherwise answer first — Express replies with the FIRST match. Mounting the',
+      '// Conduit router here puts it in front of every built-in. `allowCookieSession:',
+      '// false` keeps this a token-only JSON API: no session cookie is written or',
+      '// honored, so a request with no Authorization header is a real 401.',
+      'router.use(handlers)',
+      '',
+      "// The app's own routes come first: Express answers with the first match, so a route",
+      '// in ../handlers takes precedence over a built-in route below at the same path.',
+      'router.use(handlers)',
+      '',
+      'router.post(`/articles`,',
+      '  Article.create',
+      ')',
+      '',
+      'router.get(`/articles`,',
+      '  Article.list',
+      ')',
+      '',
+      'router.get(`/articles/feed`,',
+      '  Article.feed',
+      ')',
+      '',
+      'router.get(`/articles/tags`,',
+      '  Article.tags',
+      ')',
+      '',
+      'router.get(`/articles/:slug`,',
+      '  Article.read',
+      ')',
+      '',
+      'router.put(`/articles/:slug`,',
+      '  Article.update',
+      ')',
+      '',
+      'router.delete(`/articles/:slug`,',
+      '  Article.del',
+      ')',
+      '',
+      'router.post(`/articles/:slug/favorite`,',
+      '  Article.favorite',
+      ')',
+      '',
+      'router.delete(`/articles/:slug/favorite`,',
+      '  Article.unfavorite',
+      ')',
+      '',
+      'router.post(`/bookmarks`,',
+      '  Bookmark.create',
+    ]
+    const oldLines = [
+      'router.use(handlers)',
+      '',
+      "// The app's own routes come first: Express answers with the first match, so a route",
+      '// in ../handlers takes precedence over a built-in route below at the same path.',
+      'router.use(handlers)',
+      '',
+      'router.post(`/articles`,',
+      '  Article.create',
+      ')',
+      '',
+      'router.get(`/articles`,',
+      '  Article.list',
+      ')',
+      '',
+      'router.get(`/articles/feed`,',
+      '  Article.feed',
+      ')',
+      '',
+      'router.get(`/articles/tags`,',
+      '  Article.tags',
+      ')',
+      '',
+      'router.get(`/articles/:slug`,',
+      '  Article.read',
+      ')',
+      '',
+      'router.put(`/articles/:slug`,',
+      '  Article.update',
+      ')',
+      '',
+      'router.delete(`/articles/:slug`,',
+      '  Article.del',
+      ')',
+      '',
+      'router.post(`/articles/:slug/favorite`,',
+      '  Article.favorite',
+      ')',
+      '',
+      'router.post(`/devices`,',
+    ]
+    const backend = mockBackend()
+    ;(backend.readFile as ReturnType<typeof vi.fn>).mockResolvedValue(fileLines.join('\n'))
+    const tools = buildTools(backend)
+    const editFile = tools.find((t) => t.name === 'edit_file')!
+    const result = (await editFile.execute({
+      path: '/test/router.ts',
+      old_string: oldLines.join('\n'),
+      new_string: 'router.use(handlers)',
+    })) as Record<string, unknown>
+    expect(result.ok).toBeUndefined()
+    const error = result.error as string
+    // It matched through line 61 and stops at the file's line 62, where the run's
+    // old_string had gone on to \`router.post(\`/devices\`,\`.
+    expect(error).toMatch(/matches the file through line 61/i)
+    expect(error).toContain('Your old_string line 39: router.post(`/devices`,')
+    expect(error).toContain("The file's line 62: router.delete(`/articles/:slug/favorite`,")
+    // …and the snippet is centred on THAT line, not on the anchor it had right.
+    expect(error).toContain('62: router.delete(`/articles/:slug/favorite`,')
+    expect(error).toContain('63:   Article.unfavorite')
+    expect(error).not.toMatch(/\n2[0-9]: /)
+  })
+
+  it('shows the whitespace when the divergence is whitespace-only', async () => {
+    // The one whitespace difference the tolerant match cannot absorb: a space
+    // dropped between two words (the run's own m42 shape, one space missing).
+    const backend = mockBackend()
+    ;(backend.readFile as ReturnType<typeof vi.fn>).mockResolvedValue(
+      'export function ScorePanel({ player }) {\n' +
+        '  // the request handler map for every resource\n' +
+        '  return <span className="score">{points}</span>\n' +
+        '}',
+    )
+    const tools = buildTools(backend)
+    const editFile = tools.find((t) => t.name === 'edit_file')!
+    const result = (await editFile.execute({
+      path: '/test/ScorePanel.tsx',
+      old_string:
+        'export function ScorePanel({ player }) {\n' +
+        '  // the request handler map for everyresource\n' +
+        '  return <span className="score">{points}</span>\n' +
+        '}',
+      new_string: 'x',
+    })) as Record<string, unknown>
+    expect(result.ok).toBeUndefined()
+    const error = result.error as string
+    expect(error).toMatch(/matches the file through line 1,/i)
+    expect(error).toMatch(/whitespace only/)
+    // Both lines, with the invisible difference made visible.
+    expect(error).toContain(
+      'Your old_string line 2: ··//·the·request·handler·map·for·everyresource',
+    )
+    expect(error).toContain("The file's line 2: ··//·the·request·handler·map·for·every·resource")
+    expect(error).toContain('2:   // the request handler map for every resource')
+  })
+
   it('edit_file tells the model to re-read when nothing matches at all', async () => {
     const backend = mockBackend()
     ;(backend.readFile as ReturnType<typeof vi.fn>).mockResolvedValue('completely different')

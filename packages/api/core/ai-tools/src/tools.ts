@@ -1117,18 +1117,42 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         }
         const oldContent = content
         let alreadyApplied = 0
+        // Replacements refused for changing the line break at old_string's boundary and
+        // nothing else — reported by position, never applied (see below).
+        const skipped: Array<{ position: number; shape: 'removed' | 'added' }> = []
         // Where each applied replacement landed, in the coordinates of the
         // latest content — rendered into the result so the model sees the edit.
         let spans: CharSpan[] = []
 
-        for (const {
-          old_string: oldString,
-          new_string: newString,
-          replace_all: replaceAll,
-          // Models sometimes send the camelCase spelling inside an item, where
-          // the input normalizer (top-level keys only) does not reach.
-          replaceAll: replaceAllCamel,
-        } of replacements) {
+        // A replacement whose ONLY effect is the line break at old_string's boundary:
+        // `new_string` is `old_string` minus its trailing newline (applying it runs the
+        // line after it onto the last line) or `old_string` plus one (applying it moves
+        // the rest of that line down). A weaker model sends the first as an "anchor" — it
+        // repeats a line it means to keep, minus its `\n` — and the join is silent when
+        // it still parses: flash-m28 merged two lines three times in one run, flash-m89
+        // twice in two consecutive calls (comments.ts, then articles.ts), flash-m55,
+        // m62 and m89 all paid a repair round trip for it. A real edit changes some other
+        // character, so this costs nothing.
+        const boundaryOnly = (oldText: string, newText: string): 'removed' | 'added' | null => {
+          const oldBody = oldText.replace(/\r?\n$/, '')
+          // `newText !== ''` keeps a deletion out of this: `old_string: "\n"` → `""` is a
+          // real request to remove a blank line, and the notes below already cover it.
+          if (newText !== '' && oldBody !== oldText && newText === oldBody) return 'removed'
+          if (!oldText.endsWith('\n') && newText === `${oldText}\n`) return 'added'
+          return null
+        }
+
+        for (const [
+          index,
+          {
+            old_string: oldString,
+            new_string: newString,
+            replace_all: replaceAll,
+            // Models sometimes send the camelCase spelling inside an item, where
+            // the input normalizer (top-level keys only) does not reach.
+            replaceAll: replaceAllCamel,
+          },
+        ] of replacements.entries()) {
           // Validate each replacement is well-formed BEFORE touching content. A
           // weak model sometimes emits a batch element missing a field or with a
           // non-string value; left unchecked that either crashes (`undefined`
@@ -1238,13 +1262,68 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
                   .filter((l) => l.length >= 8),
               ),
             ].sort((a, b) => b.length - a.length)
+            const oldLines = oldString.split('\n')
+            // Whitespace is the one difference the model cannot see in its own
+            // text, so make it visible when that is the whole difference.
+            const visible = (l: string): string => l.replace(/ /g, '·').replace(/\t/g, '⇥')
+            // Report where old_string and the file STOP agreeing, not where the
+            // match starts. A snippet centred on the anchor is the part the model
+            // already has right, so it re-sends the same old_string and fails the
+            // same way (X0 m89: two failed edits, a whole-file re-read and a
+            // rewrite, 9 s, for a divergence 35 lines below the anchor).
+            const showDivergence = (base: number, k: number): { error: string } => {
+              const expected = oldLines[k]
+              const actual = fileLines[base + k] ?? '(end of file)'
+              const whitespaceOnly = expected.replace(/\s/g, '') === actual.replace(/\s/g, '')
+              let col = 0
+              while (col < expected.length && col < actual.length && expected[col] === actual[col])
+                col++
+              const howFar = whitespaceOnly
+                ? ' (whitespace only — · is a space, ⇥ a tab)'
+                : col > 0
+                  ? ` (first character difference at column ${col + 1})`
+                  : ''
+              const start = Math.max(0, base + k - 2)
+              const snippet = fileLines
+                .slice(start, base + k + 6)
+                .map((l, i) => `${start + i + 1}: ${l}`)
+                .join('\n')
+              return {
+                error:
+                  `old_string not found in ${path} — it matches the file through line ${base + k}, ` +
+                  `then diverges at your line ${k + 1} of ${oldLines.length}${howFar}.\n` +
+                  `Your old_string line ${k + 1}: ${whitespaceOnly ? visible(expected) : expected}\n` +
+                  `The file's line ${base + k + 1}: ${whitespaceOnly ? visible(actual) : actual}\n` +
+                  `The file's ACTUAL content near your target (copy the exact text from here):\n${snippet}`,
+              }
+            }
+            // The longest run of old_string lines that IS in the file decides which
+            // alignment to report, so a later distinctive line can beat an earlier
+            // one. k === 0 means nothing beyond the anchor itself lines up; only
+            // then fall back to the old anchor snippet.
+            let best: { base: number; k: number } | null = null
+            let firstUniqueHit: number | null = null
             for (const anchor of distinctiveLines) {
               const hits = fileLines.reduce<number[]>((acc, l, i) => {
                 if (l.includes(anchor)) acc.push(i)
                 return acc
               }, [])
-              if (hits.length === 1) return showSnippet(hits[0])
+              if (hits.length !== 1) continue
+              if (firstUniqueHit === null) firstUniqueHit = hits[0]
+              const base = hits[0] - oldLines.findIndex((l) => l.trim() === anchor)
+              if (base < 0) continue
+              // Exact comparison: a line that differs only in trailing whitespace
+              // is itself a reason the exact match failed, and it is invisible in
+              // the model's own text — report it as the divergence (the message
+              // renders it with · for space).
+              let k = 0
+              while (k < oldLines.length && fileLines[base + k] === oldLines[k]) {
+                k++
+              }
+              if (k > 0 && k < oldLines.length && (best === null || k > best.k)) best = { base, k }
             }
+            if (best) return showDivergence(best.base, best.k)
+            if (firstUniqueHit !== null) return showSnippet(firstUniqueHit)
             // Fallback: the first non-blank line, even if not unique (better than a
             // bare "re-read" when the model just needs to see nearby real content).
             const firstLine = oldString
@@ -1311,10 +1390,40 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           // a self-inflicted syntax error written with ok:true that the executor
           // then can't locate. count === 1 here, so indexOf is the unique site.
           const at = content.indexOf(oldString)
+          // Refuse a replacement whose only effect is the line break at the boundary,
+          // INSTEAD of applying it (flash-m89 +08:32 left `function pageLimit(req): number
+          // {  const raw = …` on one line and +07:25 left a comment handler unparseable,
+          // twice in two calls, and the API was down between the pair). The file's own
+          // next character is the evidence that decides it: text on the same line means
+          // the break is moving across lines (a join, or a split), which the shape of the
+          // replacement says the model did not ask for. At a line boundary — a blank line
+          // after it, or the end of the file — nothing crosses lines and the edit stands.
+          const boundary = boundaryOnly(oldString, newString)
+          const after = content[at + oldString.length]
+          if (boundary !== null && after !== undefined && after !== '\n') {
+            skipped.push({ position: index + 1, shape: boundary })
+            continue
+          }
           const spliced = content.slice(0, at) + newString + content.slice(at + oldString.length)
           spans = addChangeSpan(spans, content, spliced)
           content = spliced
         }
+
+        // One line per refused replacement: what it would have done, and the two ways to
+        // say it on purpose. The rest of the batch is applied — the second half of the pair
+        // above (`comments.ts`'s third replacement, `articles.ts`'s own text edit) anchors
+        // on text a joined file no longer has, so applying the join takes the batch down
+        // with it.
+        const skippedNote =
+          skipped.length === 0
+            ? null
+            : skipped
+                .map(({ position, shape }) =>
+                  shape === 'removed'
+                    ? `replacement ${position} was skipped, nothing was changed for it: its new_string is its old_string minus the trailing newline, so the only thing it changes is the line break between that text and the line after it — applying it would run the two lines together. To join two lines on purpose, include the next line in old_string.`
+                    : `replacement ${position} was skipped, nothing was changed for it: its new_string is its old_string plus a trailing newline, so the only thing it changes is the line break after that text — applying it would move the rest of that line down. To split a line on purpose, include the text that follows it in old_string.`,
+                )
+                .join('\n')
 
         const alreadyNote =
           alreadyApplied > 0
@@ -1331,7 +1440,16 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
             (identical > 0
               ? `Nothing changed: ${identical === 1 ? 'the replacement’s new_string is' : `${identical} replacements’ new_string are`} identical to old_string, so the file is exactly as it was. Write the text you want in new_string.`
               : 'Nothing changed: the file is exactly as it was.')
-          return { path, ok: true, replacementsApplied: 0, alreadyApplied, note }
+          // A refused boundary-newline replacement is why nothing changed: "the file is
+          // exactly as it was" would read as "your edit landed".
+          return {
+            path,
+            ok: true,
+            replacementsApplied: 0,
+            alreadyApplied,
+            note: skippedNote ?? note,
+            ...(skippedNote ? { skippedNote } : {}),
+          }
         }
 
         if (onFileDiff) onFileDiff({ path, oldContent, newContent: content })
@@ -1358,11 +1476,14 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         const excerpt = renderEditExcerpt(finalContent, spans)
         // A replacement whose old text ended in a newline and whose new text does not
         // joins the line after it onto its last line. Applied as written, but said:
-        // flash-m28 saw two lines merged only one round trip later.
+        // flash-m28 saw two lines merged only one round trip later. The refused ones
+        // above were never applied, so what the file holds is not their work.
+        const refused = new Set(skipped.map((s) => s.position))
         const dropped = replacements
           .map((r, i) => ({ ...r, position: i + 1 }))
           .filter(
             (r) =>
+              !refused.has(r.position) &&
               typeof r.old_string === 'string' &&
               typeof r.new_string === 'string' &&
               r.old_string.endsWith('\n') &&
@@ -1406,7 +1527,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         return {
           path,
           ok: true,
-          replacementsApplied: replacements.length - alreadyApplied,
+          replacementsApplied: replacements.length - alreadyApplied - skipped.length,
           ...(fusedNote
             ? { syntaxError: fusedNote }
             : {
@@ -1425,6 +1546,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
                   : {}),
                 ...syntax,
               }),
+          ...(skippedNote ? { skippedNote } : {}),
           ...(alreadyApplied > 0 ? { alreadyApplied, note: alreadyNote } : {}),
           totalLines: countLines(finalContent),
           ...(excerpt ? { excerpt: sanitizeFileContent(excerpt, path) } : {}),
