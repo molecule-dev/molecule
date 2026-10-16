@@ -1,5 +1,11 @@
 # @molecule/api-database-sqlite
 
+## 1.2.0
+
+### Minor Changes
+
+- 390283d: Migrations are recorded in a `_molecule_migrations` table, so each file runs once; a database migrated before is adopted on its first boot, and SQLite ignores `--` comments when it adds columns declared in a `CREATE TABLE`.
+
 ## 1.1.3
 
 ### Patch Changes

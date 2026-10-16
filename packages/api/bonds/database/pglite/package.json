@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-database-pglite",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "PGlite database provider for molecule.dev — real Postgres compiled to WebAssembly, in-process, in memory, on disk, or in the browser's IndexedDB.",
   "type": "module",
   "main": "dist/index.js",

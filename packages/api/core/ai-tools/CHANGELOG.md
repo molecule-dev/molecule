@@ -1,5 +1,13 @@
 # @molecule/api-ai-tools
 
+## 1.5.9
+
+### Patch Changes
+
+- 77168a8: A Playwright run that redirects its output to a file is started in the background.
+- 3442b2a: A background Playwright run drops a trailing `| head -N`, which would cut its pass/fail count.
+- b8817ae: A dependency whose package name ends in a secret keyword (`@molecule/app-auth`) no longer has its version masked.
+
 ## 1.5.8
 
 ### Patch Changes
