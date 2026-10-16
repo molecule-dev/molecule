@@ -311,6 +311,9 @@ export function outputRedirectTarget(command: string): string | null {
 /** A trailing `| tail -N` / `| tail -n N` (stderr redirects before it stay). */
 const TRAILING_TAIL = /\s*\|\s*tail(?:\s+-n)?\s+[-+]?\d+\s*$/
 
+/** `--reporter=line` / `--reporter line`, the one reporter the platform cannot read back. */
+const LINE_REPORTER_FLAG = /--reporter([= ])line\b/
+
 /**
  * Rewrite a command about to run in the background so its log grows while it
  * runs. Two shapes left the log empty until exit, and an empty log is what
@@ -320,9 +323,16 @@ const TRAILING_TAIL = /\s*\|\s*tail(?:\s+-n)?\s+[-+]?\d+\s*$/
  * - a trailing `| tail -N`, which holds everything back until the command ends.
  *   It is dropped: `wait_for_task` already returns the end of the log.
  * - `playwright test` with no `--reporter`, which runs the config's reporter —
- *   often `html`, which prints nothing per test. `--reporter=line` is added
+ *   often `html`, which prints nothing per test. `--reporter=list` is added
  *   when the playwright run is the command's last step and nothing is piped or
- *   redirected from it ( aside); the results are the same, printed as they happen.
+ *   redirected from it: it writes each result as it finishes, and it is the
+ *   shape the platform reads a background suite back in (`suite-fail-fast.ts`'s
+ *   fail-fast note and the Tests bar both parse `list` lines). A run that names
+ *   `--reporter=line` is switched to `list` for the same reason — `line` writes
+ *   `[n/N] <title>` with no ✓/✘ mark and no duration, so on X1 flash-m62 an
+ *   8.3-minute walk of one suite could never trip the fail-fast note.
+ *
+ * Only the command's last step is touched, and only its reporter.
  *
  * @param command - The command as the executor sent it.
  * @returns The command to run and one sentence per change made (empty when none).
@@ -351,15 +361,23 @@ export function streamingBackgroundCommand(command: string): {
     )
   }
   const lastStep = out.split(/&&|\|\||;/).at(-1) ?? ''
-  if (
+  const finalPlaywrightRun =
     /\bplaywright\s+test\b/.test(lastStep) &&
-    !/--reporter\b/.test(lastStep) &&
     // `2>&1` only joins stderr to the log; any other pipe or redirect sends the output elsewhere.
     !/[|>]/.test(lastStep.replace(/\d?>&\d/g, ''))
-  ) {
-    out = `${out.trimEnd()} --reporter=line`
+  if (finalPlaywrightRun && LINE_REPORTER_FLAG.test(lastStep)) {
+    // Only the last step is rewritten, and `lastStep` is a suffix of `out`.
+    out =
+      out.slice(0, out.length - lastStep.length) +
+      lastStep.replace(LINE_REPORTER_FLAG, '--reporter$1list')
     changes.push(
-      'Added `--reporter=line` so each test result is written to the log as it finishes ' +
+      'Switched `--reporter=line` to `--reporter=list`: it also writes each test result as it ' +
+        'finishes, and it is the shape the platform reads back from a background run.',
+    )
+  } else if (finalPlaywrightRun && !/--reporter\b/.test(lastStep)) {
+    out = `${out.trimEnd()} --reporter=list`
+    changes.push(
+      'Added `--reporter=list` so each test result is written to the log as it finishes ' +
         '(the config reporter may print nothing until the end).',
     )
   }
@@ -773,6 +791,40 @@ export function failureBlocks(s: string): string[] {
   }
   if (current) blocks.push(current.join('\n').trimEnd())
   return blocks
+}
+
+/** Failure lines shown from a log that is still being written. */
+export const RUNNING_FAILURE_LINES = 40
+
+/** Bytes of a running log's end appended after its failure lines. */
+export const RUNNING_TAIL_BYTES = 1000
+
+/**
+ * The lines worth showing from a log that is still being written: a failed test's mark or
+ * numbered block header, and a runner's own error lines. Matched with `grep -E`.
+ */
+export const RUNNING_FAILURE_LINE_RE =
+  '^[[:space:]]*(✘|✗|×|✖|✕|[0-9]+\\)|[0-9]+ (passed|failed|flaky|skipped|did not run)|FAIL|FAILED|ERROR|Error:|error:|Traceback|AssertionError)'
+
+/**
+ * The shell command whose stdout is the interesting part of a log that is still being written:
+ * the failure lines so far (capped at {@link RUNNING_FAILURE_LINES}), then the end of the log.
+ *
+ * A Playwright `list` run prints one line per test as it finishes and its error blocks only at
+ * the end, so the LAST bytes of a running log are its least informative part — in X1 flash-m61
+ * the last 3 000 bytes of a 139-test walk were the skip list, and all 61 failures were above
+ * them, which cost the run the grep it had to make anyway.
+ *
+ * @param log - The task log path.
+ * @param own - A file the command redirects its own output to, if any.
+ * @returns The shell command, safe to hand to the execution backend as-is.
+ */
+export function runningOutputSliceCommand(log: string, own?: string): string {
+  const read = `cat ${log}${own ? ` ${shellQuote(own)}` : ''} 2>/dev/null`
+  return (
+    `{ ${read} | grep -aE ${shellQuote(RUNNING_FAILURE_LINE_RE)} | head -${RUNNING_FAILURE_LINES} | cut -c1-300; ` +
+    `echo; ${read} | tail -c ${RUNNING_TAIL_BYTES}; }`
+  )
 }
 
 /**

@@ -503,7 +503,7 @@ describe('streamingBackgroundCommand', () => {
 
   it('drops a trailing head from a Playwright run, whose tally prints last (flash-m32)', () => {
     expect(streamingBackgroundCommand('npx playwright test 2>&1 | head -60').command).toBe(
-      'npx playwright test 2>&1 --reporter=line',
+      'npx playwright test 2>&1 --reporter=list',
     )
     expect(streamingBackgroundCommand('cat big.log | head -60').changes).toEqual([])
   })
@@ -513,15 +513,39 @@ describe('streamingBackgroundCommand', () => {
     expect(streamingBackgroundCommand('npm test | grep -c passed').changes).toEqual([])
   })
 
-  it('adds a line reporter to a final playwright run that names none', () => {
+  it('adds the reporter the platform reads a background suite back in (flash-m62)', () => {
+    // The fail-fast note (molecule-dev `api/src/ai/suite-fail-fast.ts`) matches the `list`
+    // reporter's `  ✓/✘  <n> … (…)` lines and reads their durations. The `line` reporter writes
+    // `[n/N] <title>` with no durations, so under it the note could never fire on a suite
+    // repeating one cause: X0 flash-m62 spent 8.3 minutes walking 139 tests that way.
     expect(
       streamingBackgroundCommand('cd e2e && npx playwright test specs/auth.spec.ts').command,
-    ).toBe('cd e2e && npx playwright test specs/auth.spec.ts --reporter=line')
+    ).toBe('cd e2e && npx playwright test specs/auth.spec.ts --reporter=list')
+  })
+
+  it('switches a final playwright run off the line reporter the fail-fast cannot read', () => {
+    expect(
+      streamingBackgroundCommand('cd spec/run && npx playwright test --reporter=line'),
+    ).toEqual({
+      command: 'cd spec/run && npx playwright test --reporter=list',
+      changes: [
+        'Switched `--reporter=line` to `--reporter=list`: it also writes each test result as it ' +
+          'finishes, and it is the shape the platform reads back from a background run.',
+      ],
+    })
+    // The space spelling is the same flag to Playwright, and only the last step is rewritten.
+    expect(streamingBackgroundCommand('cd e2e; npx playwright test --reporter line').command).toBe(
+      'cd e2e; npx playwright test --reporter list',
+    )
+    expect(
+      streamingBackgroundCommand('npx playwright test --reporter line && echo done').command,
+    ).toBe('npx playwright test --reporter line && echo done')
   })
 
   it('leaves playwright alone when it picks a reporter, redirects, or is not the last step', () => {
     for (const command of [
       'npx playwright test --reporter=list',
+      'npx playwright test --reporter=html',
       'npx playwright test > log.txt',
       'npx playwright test && echo done',
       'npm run build',

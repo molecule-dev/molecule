@@ -1,3 +1,8 @@
+import { spawnSync } from 'node:child_process'
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+
 import { describe, expect, it, vi } from 'vitest'
 
 import {
@@ -7,6 +12,7 @@ import {
   isValidGlob,
   redactSecrets,
   resolvePath,
+  runningOutputSliceCommand,
   shellQuote,
   TOOL_SCHEMAS,
 } from '../index.js'
@@ -1779,9 +1785,25 @@ describe('exec_command run_in_background', () => {
       run_in_background: true,
     })) as { note: string }
     const written = (backend.writeFile as ReturnType<typeof vi.fn>).mock.calls[0][1]
-    expect(written).toBe('cd e2e && npx playwright test 2>&1 --reporter=line\n')
+    expect(written).toBe('cd e2e && npx playwright test 2>&1 --reporter=list\n')
     expect(r.note).toContain('Dropped the trailing `| tail -70`')
-    expect(r.note).toContain('--reporter=line')
+    expect(r.note).toContain('--reporter=list')
+  })
+
+  it('switches a backgrounded run off the line reporter, which the fail-fast cannot read', async () => {
+    // flash-m62: `--reporter=line` writes `[n/N] <title>` and no ✓/✘ durations, so the
+    // running suite could never trip the platform's fail-fast note (X0 m62 walked 139
+    // tests for 8.3 min with one cause repeating).
+    const backend = bgBackend()
+    const tools = buildTools(backend)
+    const exec = tools.find((t) => t.name === 'exec_command')!
+    const r = (await exec.execute({
+      command: 'cd spec/run && npx playwright test --retries=0 --reporter=line',
+      run_in_background: true,
+    })) as { note: string }
+    const written = (backend.writeFile as ReturnType<typeof vi.fn>).mock.calls[0][1]
+    expect(written).toBe('cd spec/run && npx playwright test --retries=0 --reporter=list\n')
+    expect(r.note).toContain('Switched `--reporter=line` to `--reporter=list`')
   })
 
   it('names the file a background command redirects its output to (flash-m29)', async () => {
@@ -1915,6 +1937,73 @@ describe('wait_for_task', () => {
     }
     expect(r.note).toContain('wait_for_task')
     expect(r.note).toContain('never sleep')
+  })
+})
+
+// ── a running log comes back as its failures, not its tail ───────────────────
+// A Playwright `list` run prints its failures as they happen and the end of the log is the
+// skips, so `tail -c 3000` handed the executor the least useful bytes of the walk
+// (X1 flash-m61: 61 failures were above the last 3 000 bytes of a 139-test log).
+
+describe('wait_for_task output on a running task (flash-m61)', () => {
+  const id = 'mol-bg-abc123-def456'
+
+  it('the slice command leads with the failures and still shows the log end', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'runlog-'))
+    try {
+      const log = join(dir, 'task.log')
+      const failures = [
+        'Running 139 tests using 1 worker',
+        '  ✘    1 [chromium] › e2e/articles.spec.ts:32:3 › Articles › should create a new article (13.2s)',
+        '  ✘    2 [chromium] › e2e/articles.spec.ts:50:3 › Articles › should edit an existing article (12.7s)',
+      ]
+      // 120 skip lines — ~9 KB — so the failures are far above the last 3 000 bytes.
+      const skips = Array.from(
+        { length: 120 },
+        (_, i) => `  -    ${i + 3} [chromium] › e2e/skip.spec.ts:${i + 1}:1 › Skipped › case ${i}`,
+      )
+      writeFileSync(log, `${[...failures, ...skips].join('\n')}\n`)
+      const r = spawnSync('sh', ['-c', runningOutputSliceCommand(log)], { encoding: 'utf8' })
+      expect(r.status).toBe(0)
+      expect(r.stdout).toContain('should create a new article')
+      expect(r.stdout).toContain('should edit an existing article')
+      // And the end of the log rides along.
+      expect(r.stdout).toContain('Skipped › case 119')
+      expect(r.stdout.length).toBeLessThan(4000)
+    } finally {
+      rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('returns the failures so far with a note that says to grep the log, not to tail it', async () => {
+    const slice = '  ✘    1 [chromium] › e2e/a.spec.ts:1:1 › A › fails (12.0s)\n\n…the log end…'
+    const run = vi.fn().mockResolvedValue({ stdout: slice, stderr: '', exitCode: 0 })
+    const backend: ExecutionBackend = {
+      projectRoot: '/test',
+      // No task files at all: the command is still running.
+      readFile: vi.fn(async (path: string) => {
+        throw new Error(`ENOENT: ${path}`)
+      }),
+      writeFile: vi.fn(),
+      deleteFile: vi.fn(),
+      readDir: vi.fn(),
+      run,
+    }
+    const wait = buildTools(backend).find((t) => t.name === 'wait_for_task')!
+    const r = (await wait.execute({ taskId: id, timeout: 30 })) as {
+      status?: string
+      outputSoFar?: string
+      note?: string
+    }
+    expect(r.status).toBe('running')
+    expect(r.outputSoFar).toContain('A › fails')
+    const commands = run.mock.calls.map((c) => String(c[0]))
+    const sliceCommand = commands.find((c) => c.includes('tail -c'))
+    expect(sliceCommand).toBeDefined()
+    expect(sliceCommand).toContain('grep -aE')
+    expect(sliceCommand).not.toContain('| tail -c 3000')
+    expect(r.note).toContain(`grep -n '✘' /tmp/${id}.log`)
+    expect(r.note).not.toContain('no need to tail it')
   })
 })
 
@@ -2328,5 +2417,50 @@ describe('edit_file — a dropped line break is said', () => {
     expect(r.syntaxError).toMatch(/restored on new_string/)
     // One message, not a hint beside an unrelated-looking parse error.
     expect(r.newlineNote).toBeUndefined()
+  })
+
+  it('says nothing when the dropped newline only ate a blank line (flash-m62)', async () => {
+    let file =
+      "import { compare, hash } from '@molecule/api-password'\n" +
+      "import { findById, updateById } from '@molecule/api-database'\n" +
+      '\n' +
+      'import {\n' +
+      '  type ConduitUserRow,\n' +
+      '} from "@molecule/api-database"\n'
+    const backend = {
+      projectRoot: '/test',
+      readFile: vi.fn(async () => file),
+      writeFile: vi.fn(async (_p: string, c: string) => {
+        file = c
+      }),
+      deleteFile: vi.fn(),
+      readDir: vi.fn(),
+      run: vi.fn().mockResolvedValue({ stdout: '', stderr: '', exitCode: 0 }),
+    }
+    const edit = buildTools(backend).find((t) => t.name === 'edit_file')!
+    // The pair a weaker model sends for one line: the line minus its trailing
+    // newline, then the line's own text edited. The newline the first replacement
+    // consumed ended the import line and a blank line followed it, so the two
+    // surviving lines are still on their own lines — nothing was joined, and there
+    // is nothing to tell the model to undo.
+    const r = (await edit.execute({
+      path: 'conduit-auth.ts',
+      replacements: [
+        {
+          old_string: "import { findById, updateById } from '@molecule/api-database'\n",
+          new_string: "import { findById, updateById } from '@molecule/api-database'",
+        },
+        {
+          old_string: "import { findById, updateById } from '@molecule/api-database'",
+          new_string: "import { create, findById, updateById } from '@molecule/api-database'",
+        },
+      ],
+    })) as { newlineNote?: string; syntaxError?: string }
+    expect(r.newlineNote).toBeUndefined()
+    expect(r.syntaxError).toBeUndefined()
+    // The blank line is gone; the kept lines did not run together.
+    expect(file).toContain(
+      "import { create, findById, updateById } from '@molecule/api-database'\nimport {",
+    )
   })
 })
