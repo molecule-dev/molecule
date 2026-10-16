@@ -1048,7 +1048,15 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           ...(fusedNote
             ? { syntaxError: fusedNote }
             : {
-                ...(dropped.length > 0
+                // The evidence for this note is `located`, not `dropped`: a drop joins
+                // two lines only when something other than a newline (or EOF) follows
+                // the replaced text. A weaker model writes one line's change as two
+                // replacements — the line including its trailing newline, then the
+                // line's own text — and the newline it consumed ended that line with a
+                // BLANK line after it, so nothing joined while the model was told it
+                // had: it spent a new round trip putting the blank line back
+                // (flash-m62). Say nothing when nothing was joined.
+                ...(dropped.length > 0 && located.length > 0
                   ? {
                       newlineNote: `${dropped.length === 1 ? 'A replacement' : `${dropped.length} replacements`} removed the line break after the replaced text (old_string ended with a newline, new_string does not), so the next line now continues on the same line. Check the excerpt; add the newline back if that was not intended.`,
                     }
