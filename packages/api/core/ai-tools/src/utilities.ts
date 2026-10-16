@@ -398,6 +398,78 @@ export function streamingBackgroundCommand(command: string): {
   return { command: out, changes }
 }
 
+/**
+ * How a shell command starts each runner whose whole-suite run saturates the
+ * sandbox it shares. The three are the runners this platform runs whole suites
+ * of from a sandbox; `suiteRunKind` (molecule-dev `api/src/ai/suite-proof.ts`)
+ * is the platform's fuller list of URL-testing runners, and the shapes here are
+ * its shapes.
+ */
+const SUITE_RUN_COMMANDS: ReadonlyArray<RegExp> = [
+  // `playwright test`, not a bare `playwright` (`--version` is not a run).
+  /(?:^|[\s;&|(])(?:npx\s+(?:--no-install\s+)?)?(?:\S*\/)?playwright\s+test\b/,
+  // Vitest, however it is invoked (`vitest`, `npx vitest run`).
+  /(?:^|[\s;&|(])(?:npx\s+(?:--no-install\s+)?)?(?:\S*\/)?vitest\b/,
+  // `hurl --test …` or `hurl … x.hurl`.
+  /(?:^|[\s;&|(])(?:\S*\/)?hurl\s+[^|\n]*(?:--test|\.hurl)/,
+]
+
+/**
+ * Whether a command runs a whole test suite — a Playwright, Vitest or Hurl run
+ * — rather than a build, an install or a one-off script.
+ *
+ * @param command - The shell command.
+ * @returns True when the command starts one of those runners.
+ */
+export function isSuiteRunCommand(command: string): boolean {
+  return SUITE_RUN_COMMANDS.some((re) => re.test(command))
+}
+
+/**
+ * Start a background suite run at lower CPU and IO priority, so the sandbox it
+ * shares with everything else stays responsive to what the executor does next.
+ *
+ * A whole-suite Playwright run saturates the one container the app's Vite
+ * server, its API process and every other command also live in: on X1 flash-m75
+ * the model backgrounded a 139-test run at +36:23 and the two-word shell
+ * command it sent next — tick its plan file — returned nothing for 2 min 40 s,
+ * measured on the chat payload and on the live-stream follower independently.
+ * The backgrounding note is right that the executor should go do other work;
+ * what it cannot promise is that the sandbox will let it.
+ *
+ * `nice -n 10` lowers the run's CPU share and `ionice -c3` its IO class. Both
+ * are PROBED in the sandbox by RUNNING them, not with `command -v`: a syscall a
+ * container's seccomp policy refuses leaves `-v` passing while the real run
+ * fails. Each is applied only if its probe passed, so a sandbox with neither,
+ * or with only one, runs the suite exactly as it did before. Playwright's own
+ * workers are children of this shell and inherit both (niceness and IO class
+ * are inherited across fork/exec).
+ *
+ * Only a command the caller has already detached reaches this: foreground
+ * commands are never touched.
+ *
+ * @param command - The command as the executor sent it; the suite detection reads this.
+ * @param launch - The shell line that would start it, with no prefix of its own.
+ * @returns The line to run, and one sentence for the tool note ('' when unchanged).
+ */
+export function suiteRunPriorityLaunch(
+  command: string,
+  launch: string,
+): { launch: string; note: string } {
+  if (!isSuiteRunCommand(command)) return { launch, note: '' }
+  return {
+    // `$p` is deliberately unquoted: it expands to the prefix words, and to
+    // nothing at all when neither probe passed.
+    launch:
+      "p=''; nice -n 10 true >/dev/null 2>&1 && p='nice -n 10'; " +
+      'ionice -c3 true >/dev/null 2>&1 && p="$p ionice -c3"; ' +
+      `$p ${launch}`,
+    note:
+      'Started at lower CPU and IO priority, so commands you run while it works stay ' +
+      'responsive (the suite itself may take a little longer).',
+  }
+}
+
 // ── Command blocking ──────────────────────────────────────────────────────────
 
 /**

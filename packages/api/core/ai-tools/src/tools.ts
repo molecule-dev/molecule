@@ -164,6 +164,7 @@ import {
   SMALL_FILE_WHOLE_CHARS,
   streamingBackgroundCommand,
   stripControlChars,
+  suiteRunPriorityLaunch,
   truncateMiddle,
   whitespaceTolerantReplace,
 } from './utilities.js'
@@ -1444,6 +1445,14 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           // Keep the log growing while it runs (see streamingBackgroundCommand):
           // an empty log is what wait_for_task reads as stuck.
           const streaming = streamingBackgroundCommand(command)
+          // A whole-suite run starves the sandbox it shares with the app and with
+          // every command the executor sends next, so it starts at lower CPU and
+          // IO priority (see suiteRunPriorityLaunch). Foreground runs are never
+          // touched, and a sandbox without the tools runs it unchanged.
+          const prioritized = suiteRunPriorityLaunch(
+            streaming.command,
+            `sh ${script} > ${log} 2>&1; echo $? > ${exitFile}`,
+          )
           const ownTarget = outputRedirectTarget(streaming.command)
           const ownFile = ownTarget
             ? ownTarget.startsWith('/')
@@ -1453,7 +1462,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           if (ownFile) outputFileByTask.set(id, ownFile)
           await backend.writeFile(script, `${streaming.command}\n`)
           await backend.run(
-            `nohup sh -c ${shellQuote(`sh ${script} > ${log} 2>&1; echo $? > ${exitFile}`)} ` +
+            `nohup sh -c ${shellQuote(prioritized.launch)} ` +
               `> /dev/null 2>&1 & echo $! > /tmp/${id}.pid`,
             { cwd, timeout: 15_000 },
           )
@@ -1511,6 +1520,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
               `check back. If you need this result before you can continue, call wait_for_task ` +
               `with this taskId — never sleep and read the log by hand.` +
               (streaming.changes.length ? ` ${streaming.changes.join(' ')}` : '') +
+              (prioritized.note ? ` ${prioritized.note}` : '') +
               (ownFile
                 ? ` This command writes its own output to ${ownFile}, so the task log stays empty: peek with exec_command: tail ${ownFile}.`
                 : ''),

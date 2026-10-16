@@ -4,6 +4,7 @@ import {
   checkBlockedCommand,
   fusedLine,
   isEnvFilePath,
+  isSuiteRunCommand,
   isValidGlob,
   outputRedirectTarget,
   redactSecrets,
@@ -12,6 +13,7 @@ import {
   shellQuote,
   streamingBackgroundCommand,
   stripControlChars,
+  suiteRunPriorityLaunch,
   truncate,
   truncateMiddle,
   whitespaceTolerantReplace,
@@ -568,6 +570,56 @@ describe('streamingBackgroundCommand', () => {
       'npm run build',
     ]) {
       expect(streamingBackgroundCommand(command)).toEqual({ command, changes: [] })
+    }
+  })
+})
+
+describe('suiteRunPriorityLaunch', () => {
+  const LAUNCH = 'sh /tmp/mol-bg-1.sh > /tmp/mol-bg-1.log 2>&1; echo $? > /tmp/mol-bg-1.exit'
+
+  it('lowers a background suite run in CPU and IO priority (flash-m75)', () => {
+    // flash-m75: a backgrounded 139-test Playwright run saturated the sandbox, and
+    // the two-word command the executor sent next returned nothing for 2 min 40 s.
+    const r = suiteRunPriorityLaunch('cd e2e && npx playwright test --retries=1', LAUNCH)
+    // Each tool is PROBED BY RUNNING IT: an `ioprio_set` a container's seccomp policy
+    // refuses is invisible to `command -v`, which would leave the run failing on a
+    // probe that lied. The probes are independent, so one missing tool still lowers.
+    expect(r.launch.startsWith("p=''")).toBe(true)
+    expect(r.launch).toContain("nice -n 10 true >/dev/null 2>&1 && p='nice -n 10'")
+    expect(r.launch).toContain('ionice -c3 true >/dev/null 2>&1 && p="$p ionice -c3"')
+    // `$p` unquoted: it expands to the prefix words, or to nothing at all — the run
+    // keeps the exit code its `.exit` file is written from either way.
+    expect(r.launch.endsWith(`$p ${LAUNCH}`)).toBe(true)
+    expect(r.note).toContain('lower CPU and IO priority')
+  })
+
+  it('covers Playwright, Vitest and Hurl however they are invoked', () => {
+    for (const command of [
+      'npx playwright test',
+      'playwright test --reporter=list',
+      'cd spec && node_modules/.bin/playwright test specs/auth.spec.ts',
+      'vitest',
+      'npx vitest run',
+      'hurl --test --variable host=http://localhost:4000 api/*.hurl',
+      '/usr/local/bin/hurl auth.hurl',
+    ]) {
+      expect(isSuiteRunCommand(command), command).toBe(true)
+      expect(suiteRunPriorityLaunch(command, LAUNCH).launch, command).toContain('nice -n 10')
+    }
+  })
+
+  it('leaves a build, an install and a one-off script exactly as sent', () => {
+    for (const command of [
+      'npm run build',
+      'npm install',
+      'npm ci',
+      'npx tsc --noEmit',
+      'npx playwright --version',
+      'hurl --version',
+      'curl -s http://localhost:4000/health',
+    ]) {
+      expect(isSuiteRunCommand(command), command).toBe(false)
+      expect(suiteRunPriorityLaunch(command, LAUNCH), command).toEqual({ launch: LAUNCH, note: '' })
     }
   })
 })

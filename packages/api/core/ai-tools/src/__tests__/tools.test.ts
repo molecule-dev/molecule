@@ -1845,6 +1845,56 @@ describe('exec_command run_in_background', () => {
     expect(backend.writeFile).not.toHaveBeenCalled()
   })
 
+  it('starts a background suite run at lower CPU and IO priority (flash-m75)', async () => {
+    // flash-m75 (2026-10-16): the executor backgrounded a 139-test Playwright run and
+    // the two-word command it sent next returned nothing for 2 min 40 s — the suite
+    // saturates the one container the app, its API and every other command share.
+    const backend = bgBackend()
+    const exec = buildTools(backend).find((t) => t.name === 'exec_command')!
+    const r = (await exec.execute({
+      command: 'npx playwright test --retries=1',
+      run_in_background: true,
+    })) as { taskId: string; note: string }
+    const cmd = (backend.run as ReturnType<typeof vi.fn>).mock.calls[0][0] as string
+    // The priority is put on the shell that runs the script file, so the suite's own
+    // workers (children of it) inherit both — and the probes are run, not guessed,
+    // so a sandbox without either tool runs the suite exactly as before.
+    expect(cmd).toBe(
+      `nohup sh -c ${shellQuote(
+        `p=''; nice -n 10 true >/dev/null 2>&1 && p='nice -n 10'; ` +
+          'ionice -c3 true >/dev/null 2>&1 && p="$p ionice -c3"; ' +
+          `$p sh /tmp/${r.taskId}.sh > /tmp/${r.taskId}.log 2>&1; ` +
+          `echo $? > /tmp/${r.taskId}.exit`,
+      )} > /dev/null 2>&1 & echo $! > /tmp/${r.taskId}.pid`,
+    )
+    // The command itself is still written verbatim: lowering priority is the launcher's.
+    expect((backend.writeFile as ReturnType<typeof vi.fn>).mock.calls[0][1]).toBe(
+      'npx playwright test --retries=1 --reporter=list\n',
+    )
+    expect(r.note).toContain('lower CPU and IO priority')
+  })
+
+  it('leaves a background command that is not a suite run untouched (flash-m75)', async () => {
+    const backend = bgBackend()
+    const exec = buildTools(backend).find((t) => t.name === 'exec_command')!
+    const r = (await exec.execute({ command: 'npm run build', run_in_background: true })) as {
+      taskId: string
+    }
+    const cmd = (backend.run as ReturnType<typeof vi.fn>).mock.calls[0][0] as string
+    expect(cmd).toContain(`sh -c 'sh /tmp/${r.taskId}.sh`)
+    expect(cmd).not.toContain('nice')
+    expect(cmd).not.toContain('ionice')
+  })
+
+  it('never lowers a foreground command, suite run or not (flash-m75)', async () => {
+    const backend = bgBackend()
+    const exec = buildTools(backend).find((t) => t.name === 'exec_command')!
+    await exec.execute({ command: 'npx playwright test' })
+    const cmd = (backend.run as ReturnType<typeof vi.fn>).mock.calls[0][0] as string
+    expect(cmd).not.toContain('nice')
+    expect(cmd).not.toContain('ionice')
+  })
+
   it('keeps the log growing: drops a trailing | tail and streams a playwright run', async () => {
     // flash-m15 (2026-10-15): `playwright test … | tail -70` in the background left a
     // 0-byte log, wait_for_task called it stuck twice, and two working suites were killed.
