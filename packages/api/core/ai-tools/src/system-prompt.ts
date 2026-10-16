@@ -19,7 +19,7 @@ const TOOL_DESCRIPTIONS: Record<string, string> = {
   write_file: 'Create or overwrite files (full content)',
   edit_file: 'Make targeted search-and-replace edits (preferred for small changes)',
   search_files: 'Search for text patterns across files (grep)',
-  find_files: 'Find files by name/glob pattern recursively',
+  find_files: 'Find files by name/glob pattern recursively (a pattern with "/" matches the path)',
   create_directory: 'Create directories (with parents)',
   rename_file: 'Rename or move files and directories',
   delete_file: 'Remove files',

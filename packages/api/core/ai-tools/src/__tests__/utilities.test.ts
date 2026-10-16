@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import {
   checkBlockedCommand,
+  findPatternArgs,
   fusedLine,
   isEnvFilePath,
   isSuiteRunCommand,
@@ -359,6 +360,43 @@ describe('isValidGlob', () => {
 
   it('rejects empty input', () => {
     expect(isValidGlob('')).toBe(false)
+  })
+})
+
+describe('findPatternArgs', () => {
+  it('matches a bare name/glob with -name', () => {
+    expect(findPatternArgs('*.ts')).toBe("-name '*.ts'")
+    expect(findPatternArgs('Dashboard*')).toBe("-name 'Dashboard*'")
+  })
+
+  it('matches a pattern containing a slash against the path, anchored by a leading */', () => {
+    // The live run's own patterns: `-name` compared these against the basename
+    // and answered [] (xr-molecule-flash-m77).
+    expect(findPatternArgs('helpers/*')).toBe("-path '*/helpers/*'")
+    expect(findPatternArgs('e2e/*.spec.ts')).toBe("-path '*/e2e/*.spec.ts'")
+    expect(findPatternArgs('node_modules/@molecule/app-ui/*')).toBe(
+      "-path '*/node_modules/@molecule/app-ui/*'",
+    )
+  })
+
+  it('strips a leading ./ or / before anchoring', () => {
+    expect(findPatternArgs('./src/index.ts')).toBe("-path '*/src/index.ts'")
+    expect(findPatternArgs('/src/index.ts')).toBe("-path '*/src/index.ts'")
+  })
+
+  it('gives a doubled-star segment the zero-or-more meaning it has as a glob', () => {
+    // `*` crosses `/` in a -path glob, so the KEPT segment already covers one or
+    // more directories; only the DROPPED one matches the file directly in `src/`.
+    const args = findPatternArgs('src/**/App.tsx')
+    expect(args).toBe("\\( -path '*/src/App.tsx' -o -path '*/src/**/App.tsx' \\)")
+    const anyDepth = findPatternArgs('**/SELECTORS.md')
+    expect(anyDepth).toBe("\\( -path '*/SELECTORS.md' -o -path '*/**/SELECTORS.md' \\)")
+  })
+
+  it('keeps the leading `*/` inside the shell quoting, never as a bare glob', () => {
+    // The anchor is part of the quoted pattern: an unquoted `*` would be
+    // expanded by the shell against this machine's cwd before find ever ran.
+    expect(findPatternArgs('a b/c')).toBe("-path '*/a b/c'")
   })
 })
 

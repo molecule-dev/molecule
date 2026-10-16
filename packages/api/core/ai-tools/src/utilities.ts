@@ -596,6 +596,65 @@ export function isValidGlob(pattern: string): boolean {
 }
 
 /**
+ * The `find` predicate for a `find_files` pattern.
+ *
+ * `find -name` compares a pattern against a file's BASENAME, so a pattern
+ * containing a slash (`helpers/*`, `e2e/*.spec.ts`, `src` + `**` + `/App.tsx`)
+ * can never match and the tool answers `[]` (xr-molecule-flash-m77, on two
+ * calls in one run). Such a pattern is matched with `-path` instead: an fnmatch
+ * glob over the whole printed path, whose `*` crosses `/` — the rule
+ * `.gitignore` uses, and the reason a bare `helpers/*` means "a `helpers/`
+ * directory anywhere below the root". The pattern is anchored with a leading
+ * `*` then `/` ("any parent") so the search root — an absolute
+ * `/workspace/<app>` in a sandbox — need not be spelled out.
+ *
+ * A doubled-star directory segment keeps its usual meaning of ZERO or more
+ * directories; `-path` alone would demand at least one, so the pattern is also
+ * emitted with each such segment removed.
+ *
+ * @param pattern - A pattern already accepted by {@link isValidGlob}.
+ * @returns A `find` predicate: `-name '…'` for a bare name, else one or more
+ *   `-path '…'` alternatives, ORed inside parens when there is more than one.
+ */
+export function findPatternArgs(pattern: string): string {
+  if (!pattern.includes('/')) return `-name ${shellQuote(pattern)}`
+  const paths = pathPatternVariants(pattern).map((p) => `-path ${shellQuote(`*/${p}`)}`)
+  return paths.length === 1 ? paths[0] : `\\( ${paths.join(' -o ')} \\)`
+}
+
+/**
+ * The `-path` globs for a pattern that contains a slash, one per way each
+ * doubled-star directory segment can stand for zero directories.
+ *
+ * Dropping the segment is not a convenience: `*` already crosses `/` in a
+ * `-path` glob, so the KEPT form (`src` + `**` + `/App.tsx`) matches one or more
+ * intervening directories at any depth, and only the DROPPED form
+ * (`src/App.tsx`) matches the file sitting directly in `src/`. Both are what
+ * the glob means to a caller.
+ *
+ * @param pattern - The glob, e.g. `src` + `**` + `/App.tsx`.
+ * @returns The path globs, each without the leading "any parent" anchor (added
+ *   by {@link findPatternArgs}).
+ */
+function pathPatternVariants(pattern: string): string[] {
+  const rooted = pattern.replace(/^(?:\.?\/)+/, '')
+  const out = new Set<string>()
+  const pending: Array<{ text: string; from: number }> = [{ text: rooted, from: 0 }]
+  while (pending.length > 0) {
+    const { text, from } = pending.pop()!
+    const at = text.indexOf('**/', from)
+    if (at === -1) {
+      out.add(text)
+      continue
+    }
+    pending.push({ text, from: at + '**/'.length }) // keep it: one or more dirs
+    // Drop it — the zero-directories case, which `-path` cannot express on its own.
+    pending.push({ text: text.slice(0, at) + text.slice(at + '**/'.length), from: at })
+  }
+  return [...out]
+}
+
+/**
  * Validate a file tool's `path` argument is a non-empty string. A weak model
  * sometimes omits it or passes a non-string, which would otherwise crash
  * `resolvePath` (`path.replace` on undefined) with the cryptic, unactionable

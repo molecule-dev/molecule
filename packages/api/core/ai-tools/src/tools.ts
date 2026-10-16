@@ -135,6 +135,7 @@ import {
   declaredBudgetSeconds,
   DEFAULT_SEARCH_EXCLUDED_DIRS,
   directoryReadHint,
+  findPatternArgs,
   fusedLine,
   isEnvFilePath,
   isOutsideRoot,
@@ -1312,12 +1313,22 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       const symlinkErr = await checkSymlink(path)
       if (symlinkErr) return { error: symlinkErr }
       try {
+        // `findPatternArgs`, not `-name`: a pattern with a `/` in it
+        // (`helpers/*`, `e2e/*.spec.ts`) matched nothing at all, because `-name`
+        // compares it against the basename (xr-molecule-flash-m77).
         const result = await backend.run(
-          `find ${shellQuote(path)} ${findPruneArgs(path)} -name ${shellQuote(pattern)} -print 2>/dev/null | head -${MAX_FIND_RESULTS}`,
+          `find ${shellQuote(path)} ${findPruneArgs(path)} ${findPatternArgs(pattern)} -print 2>/dev/null | head -${MAX_FIND_RESULTS}`,
           { timeout: 10000 },
         )
         const files = result.stdout.trim().split('\n').filter(Boolean)
-        return { pattern, path, files }
+        // A slash changes what the pattern means — the whole path, not the file
+        // name — and an empty result does not say so, so the model reads it as
+        // "no such file" and goes looking elsewhere. Name the rule on the miss.
+        const note =
+          files.length === 0 && pattern.includes('/')
+            ? `"${pattern}" contains a "/", so it was matched against each file's PATH below ${path} (a leading "*/" is implicit), not against the file name — no path matched it. list_files shows the real entries.`
+            : undefined
+        return { pattern, path, files, ...(note ? { note } : {}) }
       } catch (e: unknown) {
         return { error: `Find failed: ${(e as Error).message}` }
       }
