@@ -196,6 +196,7 @@ import {
   htmlOutline,
   isEnvFilePath,
   isOutsideRoot,
+  isPlaywrightRunCommand,
   isValidGlob,
   MAX_BATCH_READ_BYTES,
   MAX_BATCH_READ_FILES,
@@ -1535,13 +1536,16 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       // declaring a budget too: a suite routinely outlasts the ceiling, and killed there
       // behind `| tail` it returns nothing (X1 flash-m29 lost a 290 s run that way).
       // A short one still comes back as a foreground result, through the grace below.
+      // A Playwright command that runs no test is not one of these either: `playwright test
+      // --list` piped through `tail` takes two seconds, and backgrounding it costs the round
+      // trip `wait_for_task` owes the executor (flash-m79's config check).
       const overCeiling =
         commandBudgetMs !== undefined &&
         ((outputIsWithheldUntilExit(command) &&
-          (declaredSeconds > ceilingSeconds || /\bplaywright\s+test\b/.test(command))) ||
+          (declaredSeconds > ceilingSeconds || isPlaywrightRunCommand(command))) ||
           // A redirected Playwright run shows nothing either (`> out.txt`), and was killed at
           // the ceiling with 38 tests unrun (X1 flash-m36).
-          (/\bplaywright\s+test\b/.test(command) && outputRedirectTarget(command) !== null))
+          (isPlaywrightRunCommand(command) && outputRedirectTarget(command) !== null))
 
       if (input.run_in_background === true || overCeiling) {
         const id = `mol-bg-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`

@@ -7,6 +7,8 @@
 
 import { posix } from 'path'
 
+import { commandRunsNoTests } from './no-test-run.js'
+
 /**
  * Shell-safe quoting using single quotes. Unlike JSON.stringify (double quotes),
  * single-quoted strings prevent command substitution ($(), backticks) and variable expansion.
@@ -340,7 +342,9 @@ const LINE_REPORTER_FLAG = /--reporter([= ])line\b/
  * its error message. X1 flash-m76 walked 15 tests for 4.0 minutes, every one a
  * `TimeoutError: page.waitForURL` from one missing `navigate('/')`.
  *
- * Only the command's last step is touched, and only its reporter.
+ * Only the command's last step is touched, and only its reporter, and only when that step runs
+ * something: `npx playwright test --list` takes two seconds and writes nothing per test, so
+ * neither reporter nor `--retries=0` is added to it ({@link isPlaywrightRunCommand}).
  *
  * @param command - The command as the executor sent it.
  * @returns The command to run and one sentence per change made (empty when none).
@@ -349,6 +353,10 @@ export function streamingBackgroundCommand(command: string): {
   command: string
   changes: string[]
 } {
+  // A command that runs no test is not a run to keep a growing log for: nothing about it is
+  // rewritten (flash-m79's `--list` was read as a whole-suite run end to end, and got a ~4 KB
+  // refusal to send itself again with `--max-failures=15`).
+  if (commandRunsNoTests(command)) return { command, changes: [] }
   const changes: string[] = []
   let out = command
   const tail = TRAILING_TAIL.exec(out)
@@ -362,7 +370,7 @@ export function streamingBackgroundCommand(command: string): {
   // A Playwright run behind `| head -N` loses its tally, which prints last (X1
   // flash-m32 counted ✓/✘ marks by hand); the full log comes back anyway.
   const head = /\s*\|\s*head(?:\s+-n)?\s+-?\d+\s*$/.exec(out)
-  if (head && /\bplaywright\s+test\b/.test(out)) {
+  if (head && isPlaywrightRunCommand(out)) {
     out = out.slice(0, head.index)
     changes.push(
       `Dropped the trailing \`${head[0].trim()}\`: Playwright prints its pass/fail count last, and it would be cut.`,
@@ -370,7 +378,7 @@ export function streamingBackgroundCommand(command: string): {
   }
   const lastStep = out.split(/&&|\|\||;/).at(-1) ?? ''
   const finalPlaywrightRun =
-    /\bplaywright\s+test\b/.test(lastStep) &&
+    isPlaywrightRunCommand(lastStep) &&
     // `2>&1` only joins stderr to the log; any other pipe or redirect sends the output elsewhere.
     !/[|>]/.test(lastStep.replace(/\d?>&\d/g, ''))
   // A diagnosis or a re-run (capped, last-failed, grepped, or named files) walks each failure
@@ -449,11 +457,30 @@ const SUITE_RUN_COMMANDS: ReadonlyArray<RegExp> = [
  * Whether a command runs a whole test suite — a Playwright, Vitest or Hurl run
  * — rather than a build, an install or a one-off script.
  *
+ * A command that invokes a runner only to print is not one of these
+ * ({@link commandRunsNoTests}): `npx playwright test --list` prints the tests it would run and
+ * exits, and `npx playwright install`, `vitest list` and `hurl --help` start no test either.
+ *
  * @param command - The shell command.
  * @returns True when the command starts one of those runners.
  */
 export function isSuiteRunCommand(command: string): boolean {
-  return SUITE_RUN_COMMANDS.some((re) => re.test(command))
+  return !commandRunsNoTests(command) && SUITE_RUN_COMMANDS.some((re) => re.test(command))
+}
+
+/**
+ * Whether a command starts a Playwright run — `playwright test` in a form that runs something.
+ *
+ * `npx playwright test --list` matched every `\bplaywright\s+test\b` test in the platform and was
+ * then treated as a run: held (flash-m79's config check), backgrounded for a run that outlasts
+ * the tool's ceiling, and rewritten with `--reporter`. A list takes two seconds, prints its lines
+ * and exits, so it is none of those; {@link commandRunsNoTests} is what decides.
+ *
+ * @param command - The shell command.
+ * @returns True when the command starts a Playwright run.
+ */
+export function isPlaywrightRunCommand(command: string): boolean {
+  return /\bplaywright\s+test\b/.test(command) && !commandRunsNoTests(command)
 }
 
 /**

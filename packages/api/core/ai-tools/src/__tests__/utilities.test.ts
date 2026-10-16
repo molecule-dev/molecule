@@ -618,6 +618,37 @@ describe('streamingBackgroundCommand', () => {
     }
   })
 
+  it('rewrites no part of a Playwright command that runs no test (flash-m79)', () => {
+    // flash-m79's config check: a config written and copied beside the suite, used with `--list`.
+    // It was held and never ran; had it run, the platform would have added `--reporter` and
+    // `--retries=0` to a command that walks no test.
+    const list = [
+      'cd /workspace/fixtures/realworld/specs/e2e',
+      "cat > /tmp/pw.config.ts <<'EOF'",
+      'export default {}',
+      'EOF',
+      'cp /tmp/pw.config.ts playwright.local.config.ts && npx playwright test -c playwright.local.config.ts --list 2>&1 | tail -5',
+    ].join('\n')
+    expect(streamingBackgroundCommand(list)).toEqual({ command: list, changes: [] })
+    for (const command of [
+      'npx playwright test --list',
+      'npx playwright test --help',
+      'npx playwright show-report',
+      'npx playwright install chromium',
+    ])
+      expect(streamingBackgroundCommand(command), command).toEqual({ command, changes: [] })
+    // A run in the same command is still a run.
+    expect(streamingBackgroundCommand('npx playwright test --list && npx playwright test')).toEqual(
+      {
+        command: 'npx playwright test --list && npx playwright test --reporter=list',
+        changes: [
+          'Added `--reporter=list` so each test result is written to the log as it finishes ' +
+            '(the config reporter may print nothing until the end).',
+        ],
+      },
+    )
+  })
+
   it('adds `line` to an iterating run’s own `list` reporter (flash-m76)', () => {
     // flash-m76's diagnosis run ended `--max-failures=15 … --reporter=list`: 15 tests took the
     // full 4.0 minutes to report one cause, because the log carried each failure's duration and
@@ -776,6 +807,25 @@ describe('suiteRunPriorityLaunch', () => {
       expect(isSuiteRunCommand(command), command).toBe(true)
       expect(suiteRunPriorityLaunch(command, LAUNCH).launch, command).toContain('nice -n 10')
     }
+  })
+
+  it('does not lower a runner that only prints (flash-m79)', () => {
+    // The priority note promises the suite "may take a little longer": a `--list` that takes two
+    // seconds is not a suite run, and neither is a report, a browser install or a help screen.
+    for (const command of [
+      'npx playwright test --list',
+      'npx playwright test --help',
+      'npx playwright show-report',
+      'npx playwright install chromium',
+      'npx vitest list',
+      'npx vitest --list',
+      'hurl --help',
+    ]) {
+      expect(isSuiteRunCommand(command), command).toBe(false)
+      expect(suiteRunPriorityLaunch(command, LAUNCH), command).toEqual({ launch: LAUNCH, note: '' })
+    }
+    // A real run in the same command is still lowered.
+    expect(isSuiteRunCommand('npx playwright install && npx playwright test')).toBe(true)
   })
 
   it('leaves a build, an install and a one-off script exactly as sent', () => {
