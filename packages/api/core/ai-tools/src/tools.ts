@@ -37,6 +37,90 @@ const logBytesByTask = new Map<string, number>()
 
 /** The file a background command writes its own output to, when it redirects it. */
 const outputFileByTask = new Map<string, string>()
+/** A millisecond span the way a model reads it: seconds under 90, else minutes. */
+function durationText(ms: number): string {
+  const s = Math.max(0, Math.round(ms / 1000))
+  const mins = Math.floor(s / 60)
+  return s < 90 ? `${s} s` : s % 60 ? `${mins} min ${s % 60} s` : `${mins} min`
+}
+
+/**
+ * When a background command started, read from its own id: the handle is minted
+ * as `mol-bg-${Date.now().toString(36)}-…`, so the start stamp is in the id and
+ * no new state has to be kept to have it.
+ *
+ * @param taskId - The handle a run_in_background command returned.
+ * @returns Epoch ms, or null when the id carries no usable stamp (a hand-written
+ * or synthetic id) — a wrong number in a note is worse than none.
+ */
+function taskStartedAt(taskId: string): number | null {
+  const stamp = Number.parseInt(taskId.split('-')[2] ?? '', 36)
+  const now = Date.now()
+  return Number.isFinite(stamp) && stamp > now - 24 * 3600_000 && stamp < now + 60_000
+    ? stamp
+    : null
+}
+
+/**
+ * The progress a run reports in its own log: the last `[done/total]` counter a
+ * Playwright reporter writes (`[86/139] [chromium] › e2e/settings.spec.ts:…`).
+ *
+ * @param log - The log slice this wait read.
+ * @returns The counter, or null when the log carries none.
+ */
+function logProgress(log: string): { done: number; total: number } | null {
+  const last = [...log.matchAll(/\[(\d+)\/(\d+)\]/g)].at(-1)
+  const done = Number(last?.[1])
+  const total = Number(last?.[2])
+  return last && total > 0 && done >= 0 && done <= total ? { done, total } : null
+}
+
+/**
+ * What a wait knows about the command BESIDES "it has not exited": how long it
+ * has been running, whether its output is still growing, how far its own log
+ * says it has got, and how much longer that implies.
+ *
+ * X1 flash-m62 (2026-10-16) spent three 290 s waits on one 8.3-minute suite and
+ * every answer read only "Still running after 280s": the run could not tell a
+ * suite with 30 s left from one with 6 minutes left, so the wait cadence — not
+ * the suite — set the pace, and the run learned nothing for its 14 minutes of
+ * waiting. The elapsed time comes from the task id, the progress from the log
+ * this wait already read, and the time left is the rate so far, said as such.
+ *
+ * @param o - The wait's facts: `taskId`, the `slice` of the log it read,
+ *   `stillWriting` (the log grew during this wait), `bytes` (the log's size, null
+ *   when unreadable), and `ceilingMs` (this call's ceiling, for "one more wait").
+ * @returns A sentence to append to a running note, or '' when nothing is known.
+ */
+function waitProgressNote(o: {
+  taskId: string
+  slice: string
+  stillWriting: boolean
+  bytes: number | null
+  ceilingMs: number
+}): string {
+  const startedAt = taskStartedAt(o.taskId)
+  const elapsedMs = startedAt === null ? null : Math.max(0, Date.now() - startedAt)
+  const parts: string[] = []
+  if (elapsedMs !== null) parts.push(`it has been running ${durationText(elapsedMs)}`)
+  if (o.stillWriting) parts.push(`its output is still growing (${o.bytes} bytes) — slow, not stuck`)
+  else if (o.bytes !== null) parts.push(`its log has not grown during this wait (${o.bytes} bytes)`)
+  const counter = logProgress(o.slice)
+  if (counter) {
+    parts.push(`its log is at ${counter.done} of ${counter.total}`)
+    if (elapsedMs !== null && counter.done > 0 && counter.done < counter.total) {
+      const leftMs = Math.round((elapsedMs * (counter.total - counter.done)) / counter.done)
+      parts.push(
+        leftMs <= o.ceilingMs
+          ? `about ${durationText(leftMs)} left at that rate — one more wait covers it`
+          : `about ${durationText(leftMs)} left at that rate (${Math.ceil(leftMs / o.ceilingMs)} more waits)`,
+      )
+    }
+  }
+  if (!parts.length) return ''
+  const sentence = parts.join('; ')
+  return ` ${sentence[0].toUpperCase()}${sentence.slice(1)}.`
+}
 import type { ExecutionBackend, ToolBuildConfig } from './types.js'
 import {
   checkBlockedCommand,
@@ -1595,18 +1679,45 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         const grownTo = await logBytes()
         const lastSize = logBytesByTask.get(taskId)
         if (grownTo !== null) logBytesByTask.set(taskId, grownTo)
+        // Evidence of liveness, read the same way by every answer below: a log
+        // that grew during THIS wait means the command is working. On the first
+        // wait any output at all counts (there is no earlier size to compare).
         const stillWriting =
           grownTo !== null && (lastSize === undefined ? grownTo > 0 : grownTo > lastSize)
+        // The log's own slice, read ONCE for whichever answer follows: it is what
+        // the progress sentence is built from, and a wait that showed nothing was
+        // waited blind (X1 flash-m50: 4m42s across two waits on an 11-minute run).
+        // The slice leads with the failure lines, not the last bytes — a suite's
+        // tail is its progress lines (X1 flash-m61: the last 3 000 bytes of a
+        // 139-test walk were the skip list).
+        const own = outputFileByTask.get(taskId)
+        let soFar = ''
+        try {
+          const r = await backend.run(runningOutputSliceCommand(log, own), { timeout: 5_000 })
+          soFar = r.stdout ?? ''
+        } catch (_error) {
+          // No slice: the notes still say how to peek, and the task id still
+          // carries how long the command has been running.
+        }
+        const progress = waitProgressNote({
+          taskId,
+          slice: soFar,
+          stillWriting,
+          bytes: grownTo,
+          ceilingMs: ceiling,
+        })
+        const sliceField = soFar.trim() ? { outputSoFar: sanitizeOutput(soFar) } : {}
         if (stillWriting && waitedBefore + waitedMs >= stuckAfterMs()) {
           waitedByTask.set(taskId, 0)
           return {
             taskId,
             status: 'running',
             waitedMs,
+            ...sliceField,
             note:
               `Still running after ${Math.round((waitedBefore + waitedMs) / 1000)}s of waiting, and its ` +
-              `output is still growing (${grownTo} bytes) — slow, not stuck. Call wait_for_task again to ` +
-              `keep waiting; peek with exec_command: tail ${log}.`,
+              `output is still growing (${grownTo} bytes) — slow, not stuck.${progress} Call wait_for_task ` +
+              `again to keep waiting; peek with exec_command: tail ${log}.`,
           }
         }
         if (waitedBefore + waitedMs >= stuckAfterMs()) {
@@ -1621,26 +1732,13 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
               `kill $(cat /tmp/${taskId}.pid) 2>/dev/null; pkill -f ${taskId}.sh) and move on; do not wait on it again.`,
           }
         }
-        // The output so far rides the result: a wait that shows nothing was waited blind
-        // (X1 flash-m50: 4m42s across two waits on an 11-minute run). The slice leads with the
-        // failure lines, not the last bytes — a suite's tail is its progress lines
-        // (X1 flash-m61: the last 3 000 bytes of a 139-test walk were the skip list).
-        const own = outputFileByTask.get(taskId)
-        let soFar: string
-        try {
-          const r = await backend.run(runningOutputSliceCommand(log, own), { timeout: 5_000 })
-          soFar = r.stdout ?? ''
-        } catch (_error) {
-          // No slice: the note still says how to peek.
-          soFar = ''
-        }
         return {
           taskId,
           status: 'running',
           waitedMs,
-          ...(soFar.trim() ? { outputSoFar: sanitizeOutput(soFar) } : {}),
+          ...sliceField,
           note:
-            `Still running after ${Math.round(waitedMs / 1000)}s. Call wait_for_task again to ` +
+            `Still running after ${Math.round(waitedMs / 1000)}s.${progress} Call wait_for_task again to ` +
             `keep waiting — its result carries the log output. ` +
             (soFar.trim()
               ? `outputSoFar is the failure lines so far (up to ${RUNNING_FAILURE_LINES}) and then the end of ` +

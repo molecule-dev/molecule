@@ -2203,6 +2203,89 @@ describe('wait_for_task on a slow command whose output keeps growing', () => {
   })
 })
 
+// ── what a wait knows about the command it is waiting on ────────────────────
+// X1 flash-m62 (2026-10-16): three 290 s waits on one 8.3-minute suite, every
+// answer reading only "Still running after 280s".
+describe('wait_for_task on a task that is still running', () => {
+  /**
+   * A backend for a task with no exit file yet: its log is `slice`, and it
+   * answers the wait's two shell reads (the size probe and the log slice).
+   */
+  function runningBackend(slice: string, size = 40_000): ExecutionBackend {
+    return {
+      projectRoot: '/test',
+      readFile: vi.fn(async () => {
+        throw new Error('ENOENT')
+      }),
+      writeFile: vi.fn(),
+      deleteFile: vi.fn(),
+      readDir: vi.fn(),
+      run: vi.fn(async (command: string) => ({
+        stdout: /wc -c/.test(command) ? String(size) : slice,
+        stderr: '',
+        exitCode: 0,
+      })),
+    }
+  }
+  /** A task id whose embedded start stamp is `agoMs` before now (as the tool mints them). */
+  const idStartedAgo = (agoMs: number): string =>
+    `mol-bg-${(Date.now() - agoMs).toString(36)}-abc123`
+
+  it('says how long the suite has been running and how much is left, from its id and its log', async () => {
+    const id = idStartedAgo(6 * 60_000)
+    const slice = '[120/139] [chromium] › e2e/navigation.spec.ts:44:3 › tag filter\n'
+    const wait = buildTools(runningBackend(slice)).find((t) => t.name === 'wait_for_task')!
+    const r = (await wait.execute({ taskId: id, timeout: 50 })) as { status: string; note: string }
+    expect(r.status).toBe('running')
+    expect(r.note).toContain('has been running 6 min')
+    expect(r.note).toContain('its log is at 120 of 139')
+    // 6 min at 120 of 139 tests is ~57 s of work left, inside one wait's ceiling.
+    expect(r.note).toContain('one more wait covers it')
+  })
+
+  it('says how long it has been running even when the log carries no counter', async () => {
+    const id = idStartedAgo(11 * 60_000)
+    const wait = buildTools(runningBackend('npm install: still working\n')).find(
+      (t) => t.name === 'wait_for_task',
+    )!
+    const r = (await wait.execute({ taskId: id, timeout: 50 })) as { status: string; note: string }
+    expect(r.note).toContain('has been running 11 min')
+    expect(r.note).not.toContain('its log is at')
+  })
+
+  it('counts the waits still owed when the rate says the suite outlasts one of them', async () => {
+    const id = idStartedAgo(8 * 60_000)
+    // 20 of 139 done after 8 minutes: the remaining 119 tests are ~47 min at that rate.
+    const wait = buildTools(runningBackend('[20/139] [chromium] › e2e/a.spec.ts:1:1 › x\n')).find(
+      (t) => t.name === 'wait_for_task',
+    )!
+    const r = (await wait.execute({ taskId: id, timeout: 50 })) as { note: string }
+    expect(r.note).toMatch(/left at that rate \(\d+ more waits\)/)
+    expect(r.note).not.toContain('one more wait covers it')
+  })
+
+  it('carries the log slice on the "slow, not stuck" answer too, not just the plain one', async () => {
+    process.env.MOL_AI_BG_STUCK_AFTER_MS = '100'
+    try {
+      const id = idStartedAgo(90_000)
+      const slice = '✘ 41 [chromium] › e2e/tags.spec.ts:12:3 › popular tags\n[41/139] done so far\n'
+      const wait = buildTools(runningBackend(slice, 900)).find((t) => t.name === 'wait_for_task')!
+      const r = (await wait.execute({ taskId: id, timeout: 200 })) as {
+        status: string
+        note: string
+        outputSoFar?: string
+      }
+      expect(r.status).toBe('running')
+      expect(r.note).toContain('slow, not stuck')
+      expect(r.note).toContain('has been running 1 min')
+      expect(r.note).toContain('its log is at 41 of 139')
+      expect(r.outputSoFar).toContain('popular tags')
+    } finally {
+      delete process.env.MOL_AI_BG_STUCK_AFTER_MS
+    }
+  })
+})
+
 describe('wait_for_task on a stuck command', () => {
   it('reports it stuck once the total waiting crosses the threshold, then refuses to wait again', async () => {
     // Margins wide enough that a loaded test machine cannot flip the first
