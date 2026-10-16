@@ -9,11 +9,11 @@
 -- runs on every database that has the table, whether it was created before or
 -- after the column existed.
 --
--- The CREATE mirrors articles.sql's "article_tags" (see the test that keeps the
--- two in step). It is a no-op in a scaffolded app, where articles.sql runs
--- first, and states the table's shape for anything that applies this file on its
--- own — the scaffolding tool finds a setup file through the table it declares
--- here, and copies it into the project.
+-- The CREATE repeats articles.sql's "article_tags" (see the test that keeps the
+-- two in step). In a scaffolded app it is a no-op — articles.sql sorts first and
+-- has already created the table, so the column below is what this file is for —
+-- and it is what lets the scaffolding tool find the file at all: a setup file is
+-- copied into a project through the table it declares.
 CREATE TABLE IF NOT EXISTS "article_tags" (
   "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   "articleId" UUID NOT NULL REFERENCES "articles"("id") ON DELETE CASCADE,
