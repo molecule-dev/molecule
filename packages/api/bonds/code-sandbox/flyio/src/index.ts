@@ -315,12 +315,26 @@
  * short-term burst limit up to 3 req/s, per action", scoped "per-action,
  * per-machine … That might be Machine ID or App ID, depending on the type of
  * request", with Get Machine at 5 req/s and app deletions capped at 100 per
- * minute. `429` and `5xx` are retried with `Retry-After`-aware backoff; other
- * `4xx` responses are real answers and are never retried. The consequence to
- * plan for is that EVERY file operation is an exec API call, so one sandbox's
- * reads and writes serialize at roughly one per second and a multi-megabyte
- * `writeFile` (chunked at ~45 KB decoded) takes tens of seconds. An agent that
- * edits files in a tight loop will feel this; batch where you can.
+ * minute. `429` and `5xx` are retried with `Retry-After`-aware backoff, plus the
+ * `404` an app-propagation lag answers the Machine create with; every other
+ * `4xx` is a real answer and is never retried. The consequence to plan for is
+ * that EVERY file operation is an exec API call, so one sandbox's reads and
+ * writes serialize at roughly one per second and a multi-megabyte `writeFile`
+ * (chunked at ~45 KB decoded) takes tens of seconds. An agent that edits files
+ * in a tight loop will feel this; batch where you can.
+ *
+ * **A refused exec that dropped the connection is retried; a refused exec that
+ * names a Machine state is not.** Fly answers `412 failed_precondition: exec
+ * request failed: EOF` when the request reached a `started` Machine's exec agent
+ * and the connection died before the command ran — a Machine seconds past boot,
+ * or Fly's own exec burst. `exec` retries that one at the transport (up to four
+ * attempts, ~11 s of backoff, each preceded by a Machine-state read and a wait
+ * for `started` when it has not got there), because every caller's alternative
+ * is to throw away a whole boot or deploy and start over. The OTHER `412`,
+ * `failed_precondition: machine not running`, is a real state and is not
+ * repeated: `start()`/`wake()` wait it out before the first exec. A 412 that is
+ * not retried comes back with the Machine's current state appended to its
+ * message, and a 412 the retries could not clear carries the state it ended in.
  *
  * **`create()` launches the Machine, and `start()`/`wake()` WAIT for it.** Unlike
  * Docker's create-then-start, the Machines API starts a Machine as part of

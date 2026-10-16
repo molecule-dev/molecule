@@ -16,9 +16,9 @@ vi.mock('@molecule/api-i18n', () => ({
     opts?.defaultValue ?? key,
 }))
 
-const { FlyApiClient } = await import('../api.js')
+const { FlyApiClient, FlyApiError } = await import('../api.js')
 const { FLY_EXEC_MAX_ARG_BYTES } = await import('../exec.js')
-const { createProvider } = await import('../provider.js')
+const { createProvider, isTransientExecPrecondition } = await import('../provider.js')
 const { shellQuote } = await import('../utilities.js')
 
 import type { FlyioConfig } from '../types.js'
@@ -1820,5 +1820,140 @@ describe('private routes (Flycast)', () => {
     // The pre-existing app is never touched (pinned above too, but it is the
     // reason the release here is the address and not the app).
     expect(double.matching(`DELETE /apps/${APP}`)).toHaveLength(0)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// A dropped exec connection: 412 failed_precondition: exec request failed: EOF
+// ---------------------------------------------------------------------------
+
+describe('exec — a dropped connection (412 failed_precondition: exec request failed)', () => {
+  /** Fly's own body for the transient case, verbatim from production. */
+  const EXEC_EOF = '{"error":"failed_precondition: exec request failed: EOF"}'
+  /** The other 412 this provider sees: a REAL state, not a dropped connection. */
+  const NOT_RUNNING = '{"error":"failed_precondition: machine not running"}'
+
+  /** One queued answer for the exec route. */
+  interface ExecAnswer {
+    status: number
+    body: string
+  }
+
+  /**
+   * A double whose exec route answers from a queue (the last answer repeats)
+   * and whose Machine reads walk a state list (the last state repeats).
+   * @param execAnswers - Queued exec answers.
+   * @param states - Machine states the `GET /machines/{id}` route reports, in order.
+   * @returns The sandbox and the per-route call counts.
+   */
+  async function execScenario(execAnswers: ExecAnswer[], states: string[] = ['started']) {
+    const calls = { exec: 0, state: 0, wait: 0 }
+    const answer = (status: number, text: string): Response =>
+      ({
+        status,
+        headers: { get: () => null },
+        text: async () => text,
+      }) as unknown as Response
+
+    const fetchImpl = vi.fn(async (input: string | URL) => {
+      const url = String(input)
+      if (url.endsWith('/exec')) {
+        const one = execAnswers[Math.min(calls.exec, execAnswers.length - 1)]
+        calls.exec++
+        return answer(one.status, one.body)
+      }
+      if (url.includes('/wait')) {
+        calls.wait++
+        return answer(200, '{}')
+      }
+      const state = states[Math.min(calls.state, states.length - 1)]
+      calls.state++
+      return answer(200, JSON.stringify({ id: 'm1', state }))
+    }) as unknown as typeof fetch
+
+    const client = new FlyApiClient({
+      token: () => 'tok',
+      baseUrl: 'https://api.machines.dev/v1',
+      fetchImpl,
+      sleep: async () => {},
+    })
+    const sandbox = await createProvider({ orgSlug: 'acme' }, client).get(`${APP}:m1`)
+    if (!sandbox) throw new Error('expected a sandbox')
+    // `get()` itself reads the Machine once; the exec's own reads are measured
+    // from here.
+    const stateReadsBeforeExec = calls.state
+    return { sandbox, calls, stateReadsBeforeExec }
+  }
+
+  it('retries the exec and returns its result instead of failing the caller', async () => {
+    // X1 flash-m85 (2026-10-16): three consecutive production deploys died on
+    // exactly this body, each retry handed to the model at ~75 s a deploy.
+    const { sandbox, calls, stateReadsBeforeExec } = await execScenario([
+      { status: 412, body: EXEC_EOF },
+      { status: 200, body: '{"stdout":"ok","exit_code":0}' },
+    ])
+
+    await expect(sandbox.exec('echo ok', { timeout: 5_000 })).resolves.toMatchObject({
+      stdout: 'ok',
+      exitCode: 0,
+    })
+    expect(calls.exec).toBe(2)
+    // The Machine's state is re-read between attempts: the retry is only
+    // defensible while the Machine is genuinely up.
+    expect(calls.state).toBe(stateReadsBeforeExec + 1)
+    expect(calls.wait).toBe(0)
+  })
+
+  it('waits for the Machine to report started before retrying an exec it refused', async () => {
+    // Three states for two reads before the retry: `get()`, then the exec
+    // retry's own re-read, then the retry's second read once the wait resolved.
+    const { sandbox, calls } = await execScenario(
+      [
+        { status: 412, body: EXEC_EOF },
+        { status: 200, body: '{"stdout":"ok","exit_code":0}' },
+      ],
+      ['starting', 'starting', 'started'],
+    )
+
+    await expect(sandbox.exec('echo ok', { timeout: 5_000 })).resolves.toMatchObject({
+      stdout: 'ok',
+    })
+    expect(calls.wait).toBe(1)
+  })
+
+  it('does NOT retry a real precondition, and names the state the exec was refused in', async () => {
+    // `machine not running` is answered by startMachine's wait, before the
+    // first exec — repeating the exec against it would only burn the budget.
+    const { sandbox, calls } = await execScenario([{ status: 412, body: NOT_RUNNING }], ['stopped'])
+
+    await expect(sandbox.exec('echo ok', { timeout: 5_000 })).rejects.toThrow(
+      /machine not running.*machine m1 state: stopped/s,
+    )
+    expect(calls.exec).toBe(1)
+    expect(calls.wait).toBe(0)
+  })
+
+  it('gives up after the bounded attempts, saying which state the Machine is in', async () => {
+    const { sandbox, calls } = await execScenario([{ status: 412, body: EXEC_EOF }], ['started'])
+
+    await expect(sandbox.exec('echo ok', { timeout: 5_000 })).rejects.toThrow(
+      /exec request failed.*machine m1 state: started/s,
+    )
+    // Bounded: the caller waits at most the attempt count, never a hot loop.
+    expect(calls.exec).toBeLessThanOrEqual(4)
+    expect(calls.exec).toBeGreaterThan(1)
+  })
+
+  it('is not a retryable status by itself — the classification reads the BODY', async () => {
+    expect(isTransientExecPrecondition(new FlyApiError('POST', '/x/exec', 412, EXEC_EOF))).toBe(
+      true,
+    )
+    expect(isTransientExecPrecondition(new FlyApiError('POST', '/x/exec', 412, NOT_RUNNING))).toBe(
+      false,
+    )
+    // A different status carrying the same words is not this condition.
+    expect(isTransientExecPrecondition(new FlyApiError('POST', '/x/exec', 500, EXEC_EOF))).toBe(
+      false,
+    )
   })
 })

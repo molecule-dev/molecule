@@ -87,6 +87,27 @@ function describeDestroyFailure(step: string, id: string, error: unknown): strin
 }
 
 /**
+ * Whether a failed exec is Fly's TRANSIENT precondition — the request reached
+ * the Machine's exec agent and the connection was dropped before the command
+ * ran (`412 failed_precondition: exec request failed: EOF`) — rather than the
+ * Machine being in a state an exec cannot run in.
+ *
+ * The distinction decides what retrying can achieve. A dropped connection is
+ * worth repeating: the Machine is `started` and its agent recovers in seconds.
+ * `failed_precondition: machine not running` is NOT — the Machine really is not
+ * running, and that is what {@link FlyioSandboxProvider.startMachine} waits out
+ * before the first exec. Repeating the exec there would only burn the caller's
+ * budget against a condition the wait endpoint already answers.
+ *
+ * @param error - The failure an exec attempt raised.
+ * @returns `true` when repeating the exec is the right recovery.
+ */
+export function isTransientExecPrecondition(error: unknown): boolean {
+  if (!(error instanceof FlyApiError) || error.status !== 412) return false
+  return EXEC_BODY_TRANSIENT.test(error.body) && !EXEC_BODY_MACHINE_NOT_RUNNING.test(error.body)
+}
+
+/**
  * Default sandbox image. Fly pulls images itself, so this MUST be a reference
  * Fly can resolve — a tag in the org's `registry.fly.io` repository or a public
  * registry. A local `molecule-sandbox:latest` is invisible to Fly.
@@ -232,6 +253,56 @@ const MACHINE_CREATE_ATTEMPTS = 6
  * default retryable set; neither retry can double-create.
  */
 const MACHINE_CREATE_RETRY_STATUSES = [404, 412]
+
+/**
+ * What Fly answers when it reached the exec endpoint but the connection to the
+ * Machine's exec agent died before the command ran: `412 {"error":
+ * "failed_precondition: exec request failed: EOF"}`. The Machine is `started`;
+ * the agent inside it dropped the request (a Machine seconds past boot, or
+ * Fly's own exec burst). The SAME status carries the precondition this provider
+ * already handles — `failed_precondition: machine not running` — which is a
+ * real state, not a dropped connection, and is reconciled by `startMachine`
+ * BEFORE the first exec instead of by repeating it (see {@link
+ * isTransientExecPrecondition}).
+ */
+const EXEC_BODY_TRANSIENT = /exec request failed/i
+
+/** The real-precondition 412, which retrying an exec cannot fix. */
+const EXEC_BODY_MACHINE_NOT_RUNNING = /machine not running/i
+
+/**
+ * Attempts for one exec when Fly answers the transient 412 of
+ * {@link EXEC_BODY_TRANSIENT}. Four attempts over the three backoffs below is
+ * under 12 s of waiting, against the ~75 s each fresh production deploy costs
+ * when this is left to a caller: X1 run flash-m85 (2026-10-16) lost three
+ * consecutive deploys, and the run, to this one condition.
+ */
+const EXEC_PRECONDITION_ATTEMPTS = 4
+
+/**
+ * Backoff before each exec retry (ms), indexed by the failed attempt number.
+ * Short on purpose: the Machine is up, and the agent recovers in seconds —
+ * nothing here is waiting on a boot.
+ */
+const EXEC_PRECONDITION_BACKOFF_MS = [1_000, 3_000, 7_000]
+
+/**
+ * Wall-clock ceiling on {@link EXEC_PRECONDITION_ATTEMPTS}, so a Machine whose
+ * exec agent keeps dropping requests cannot hold a caller for the whole budget
+ * while the rest of the backoff ladder runs. Measured from the first attempt.
+ */
+const EXEC_PRECONDITION_BUDGET_MS = 60_000
+
+/**
+ * The backoff before an exec retry, clamped to the last rung so an attempt
+ * count raised past the ladder's length cannot read off the end of it.
+ * @param attempt - The 1-based number of the attempt that just failed.
+ * @returns The delay in milliseconds.
+ */
+function execPreconditionBackoffMs(attempt: number): number {
+  const last = EXEC_PRECONDITION_BACKOFF_MS.length - 1
+  return EXEC_PRECONDITION_BACKOFF_MS[Math.min(Math.max(attempt - 1, 0), last)]
+}
 
 /**
  * Base64 chunk size for {@link Sandbox.importFiles}'s temp-file write. Bounded by
@@ -2096,28 +2167,130 @@ class FlyioSandboxProvider implements SandboxProvider {
 
   /**
    * Issues one Fly exec call against a Machine.
+   *
+   * A transient 412 (see {@link isTransientExecPrecondition}) is retried here, at
+   * the transport, because everywhere it surfaces — a boot, the production
+   * artifact copy, the boot script, a health probe — the caller's alternative is
+   * to throw the whole operation away and start over, which costs tens of seconds
+   * or minutes. Before the retry the Machine's state is re-read (and waited on
+   * when it is not yet `started`), so a Machine that really is still coming up is
+   * not hammered.
+   *
+   * A 412 that is NOT that condition is never retried, and its message carries
+   * the Machine's current state — the caller is told which state the exec was
+   * refused in rather than a bare `failed_precondition`.
+   *
    * @param app - The Fly app name.
    * @param machineId - The Fly Machine id.
    * @returns A transport callback for {@link execCommand}.
    */
   private rawExec(app: string, machineId: string): RawExec {
     return async (command: string[], timeoutSeconds: number): Promise<FlyExecResponse> => {
-      const response = await this.client.request<FlyExecResponse>(
-        `/apps/${app}/machines/${machineId}/exec`,
-        {
-          method: 'POST',
-          body: { command, timeout: timeoutSeconds },
-          // The API's own timeout bounds the command; allow the HTTP request a
-          // little longer so the transport never fires first.
-          timeoutMs: (timeoutSeconds + 15) * 1000,
-          // A 404 on a Machine we created and are actively driving (e.g. the
-          // exec burst importFiles issues) is Fly API inconsistency under load,
-          // not a real absence — retry it alongside the default 429/5xx.
-          retryStatuses: [404],
-        },
-      )
-      return response ?? {}
+      const deadline = Date.now() + EXEC_PRECONDITION_BUDGET_MS
+      for (let attempt = 1; ; attempt++) {
+        try {
+          const response = await this.client.request<FlyExecResponse>(
+            `/apps/${app}/machines/${machineId}/exec`,
+            {
+              method: 'POST',
+              body: { command, timeout: timeoutSeconds },
+              // The API's own timeout bounds the command; allow the HTTP request a
+              // little longer so the transport never fires first.
+              timeoutMs: (timeoutSeconds + 15) * 1000,
+              // A 404 on a Machine we created and are actively driving (e.g. the
+              // exec burst importFiles issues) is Fly API inconsistency under load,
+              // not a real absence — retry it alongside the default 429/5xx.
+              retryStatuses: [404],
+            },
+          )
+          return response ?? {}
+        } catch (error) {
+          if (!isTransientExecPrecondition(error)) {
+            throw await this.withMachineState(error, app, machineId)
+          }
+          if (attempt >= EXEC_PRECONDITION_ATTEMPTS || Date.now() >= deadline) {
+            logger.warn('Fly kept dropping the exec connection; giving up on this exec', {
+              app,
+              machineId,
+              attempt,
+            })
+            throw await this.withMachineState(error, app, machineId)
+          }
+          logger.warn('Fly dropped the exec connection (412 exec request failed); retrying', {
+            app,
+            machineId,
+            attempt,
+            attempts: EXEC_PRECONDITION_ATTEMPTS,
+          })
+          // The Machine is up (that is what makes this 412 the transient one), but
+          // re-read it anyway: `stop`/`suspend` can land between attempts, and
+          // retrying an exec against a Machine that is not running would repeat a
+          // 412 that waiting — not repeating — is what answers.
+          await this.waitForExecReady(app, machineId)
+          await this.client.sleep(execPreconditionBackoffMs(attempt))
+        }
+      }
     }
+  }
+
+  /**
+   * Confirms the Machine is in a state an exec can run in, waiting for `started`
+   * when it is still on its way up.
+   *
+   * A wait that does not reach `started` is logged and the exec is retried
+   * anyway: the retry is the recovery this path exists for, and turning a
+   * recoverable dropped connection into a start-timeout error would hide the
+   * condition the caller's error message is supposed to name.
+   *
+   * @param app - The Fly app name.
+   * @param machineId - The Fly Machine id.
+   */
+  private async waitForExecReady(app: string, machineId: string): Promise<void> {
+    const machine = await this.client
+      .request<FlyMachine>(`/apps/${app}/machines/${machineId}`, { nullOn: [404] })
+      .catch(() => null)
+    if (machine?.state === 'started') return
+    try {
+      await this.waitForStarted(app, machineId)
+    } catch (error) {
+      logger.warn('The Machine did not report started after a refused exec; retrying the exec', {
+        app,
+        machineId,
+        state: machine?.state ?? 'unknown',
+        error,
+      })
+    }
+  }
+
+  /**
+   * Names the Machine's state on an exec 412, so the caller is told WHICH state
+   * the exec was refused in. Fly's own body says only `failed_precondition`.
+   *
+   * A state that cannot be read is reported as such rather than guessed, and any
+   * non-412 error (or an error that already carries the state) is returned
+   * untouched — this runs on the failure path, where a diagnostic must never
+   * replace the failure it is describing.
+   *
+   * @param error - The failure to annotate.
+   * @param app - The Fly app name.
+   * @param machineId - The Fly Machine id.
+   * @returns The original error, or a 412 carrying the Machine's state.
+   */
+  private async withMachineState(error: unknown, app: string, machineId: string): Promise<Error> {
+    if (!(error instanceof Error)) return new Error(String(error))
+    if (!(error instanceof FlyApiError) || error.status !== 412) return error
+    if (/machine state:/i.test(error.message)) return error
+    const machine = await this.client
+      .request<FlyMachine>(`/apps/${app}/machines/${machineId}`, { nullOn: [404] })
+      .catch(() => null)
+    const state = machine?.state ?? 'unreadable'
+    return new FlyApiError(
+      error.method,
+      error.path,
+      error.status,
+      `${error.body} (machine ${machineId} state: ${state})`,
+      { cause: error },
+    )
   }
 
   /**

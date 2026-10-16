@@ -245,7 +245,12 @@ export class FlyApiClient {
   private readonly baseUrl: string
   private readonly timeoutMs: number
   private readonly fetchImpl: typeof fetch
-  private readonly sleep: (ms: number) => Promise<void>
+  /**
+   * Injectable delay, shared with the provider: a retry that a CALLER drives
+   * (the provider's exec-precondition backoff) waits on the same injected clock
+   * the client's own retries use, so tests collapse every wait in one place.
+   */
+  readonly sleep: (ms: number) => Promise<void>
 
   /**
    * Creates a Fly Machines API client.
