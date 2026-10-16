@@ -17,8 +17,11 @@
  * app.use(cookieParser)
  *
  * // Signed cookies: pass the server-side secret; verified values land on
- * // req.signedCookies with the Express bond.
- * const sessionSecret = process.env.SESSION_SECRET ?? ''
+ * // req.signedCookies with the Express bond. Read it with NO fallback — a
+ * // literal (or an empty-string) default ships in the source, so every
+ * // deployment that does not set the variable signs cookies anyone can forge.
+ * const sessionSecret = process.env.SESSION_SECRET
+ * if (!sessionSecret) throw new Error('SESSION_SECRET must be set')
  * app.use(createCookieParserMiddleware(sessionSecret))
  * ```
  *
@@ -33,6 +36,10 @@
  *   the client and sent on every request. Sign cookies with a SERVER-side secret
  *   (`SESSION_SECRET`) when you need tamper detection, and keep the real state server-side
  *   keyed by the session.
+ * - **Never give that secret a default.** `process.env.SESSION_SECRET ?? 'dev-secret'` (or
+ *   `?? ''`) puts the signing key in the source: the deployed app puts it in production, and
+ *   anyone who can read the code or the repo can mint a cookie the parser accepts. Read the
+ *   variable and fail at boot when it is missing.
  *
  * @module
  */
