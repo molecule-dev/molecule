@@ -1067,6 +1067,24 @@ describe('buildTools', () => {
     expect(result.error).toMatch(/do not retry the same old_string/i)
   })
 
+  it('edit_file names a rebuilt import block and shows the real one (flash-m42)', async () => {
+    const backend = mockBackend()
+    ;(backend.readFile as ReturnType<typeof vi.fn>).mockResolvedValue(
+      "import {\n  errorMap,\n  Optional,\n  publicUser,\n  type ConduitUser,\n} from './helpers.js'\n\nexport const x = 1\n",
+    )
+    const editFile = buildTools(backend).find((t) => t.name === 'edit_file')!
+    const result = (await editFile.execute({
+      path: '/test/users.ts',
+      old_string:
+        "import {\n  type ConduitUser,\n  Optional,\n  errorMap,\n  publicUser,\n} from './helpers.js'",
+      new_string:
+        "import {\n  type ConduitUser,\n  Optional,\n  errorMap,\n  publicUser,\n  signToken,\n} from './helpers.js'",
+    })) as Record<string, unknown>
+    expect(result.error).toMatch(/import sort decides its order/)
+    expect(result.error).toContain('1: import {')
+    expect(result.error).toContain("6: } from './helpers.js'")
+  })
+
   it('exec_command blocks dangerous commands when configured', async () => {
     const tools = buildTools(mockBackend(), { blockDangerousCommands: true })
     const execCmd = tools.find((t) => t.name === 'exec_command')!

@@ -807,6 +807,33 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
                 error: `old_string not found in ${path}. The file's ACTUAL content near your target (copy the exact text from here):\n${snippet}`,
               }
             }
+            // An import block the model rebuilt in its own order: the linter's
+            // import sort owns that order, so name it and show the real block. X1
+            // flash-m42 sent the same block three times in three orders.
+            // Only when old_string is import statements and nothing else.
+            const imported = /^(?:\s*import\b[^;]*?\bfrom\s+(['"])([^'"]+)\1;?)+\s*$/.exec(
+              oldString,
+            )?.[2]
+            if (imported) {
+              const at = fileLines.findIndex(
+                (l) => l.includes(`'${imported}'`) || l.includes(`"${imported}"`),
+              )
+              if (at >= 0) {
+                let start = at
+                while (start > 0 && !/^\s*import\b/.test(fileLines[start])) start--
+                const block = fileLines
+                  .slice(start, at + 1)
+                  .map((l, i) => `${start + i + 1}: ${l}`)
+                  .join('\n')
+                return {
+                  error:
+                    `old_string not found in ${path}: it is an import block, and the linter's import ` +
+                    `sort decides its order, so do not rebuild it. The file's import from ` +
+                    `'${imported}' reads:\n${block}\nEdit one line of it, or add your import as a ` +
+                    'new line and let the linter sort it.',
+                }
+              }
+            }
             const distinctiveLines = [
               ...new Set(
                 oldString
