@@ -5,6 +5,22 @@
  * building RESTful API resources. Every `@molecule/api-resource-*` package
  * (user, project, device, ...) is built on these factories.
  *
+ * **A handler returns `{ statusCode, headers?, body }` and NEVER writes to `res`** — not through
+ * `res.json`, not through `res.send`, not through `res.end`. `createRequestHandler` is the wrapper
+ * that applies the returned object (`res.set(headers)`, `res.status(statusCode)`, `res.send(body)`),
+ * and a handler returns `null` only when the request should fall through to `next()`. Calling a
+ * handler directly from your own route is therefore only correct if you apply that return value
+ * yourself:
+ *
+ * ```typescript
+ * const { statusCode, headers, body } = await handler(req, res)
+ * if (headers) res.set(headers)
+ * res.status(statusCode).send(body)
+ * ```
+ *
+ * Monkey-patching `res.json` (or `res.send`/`res.end`) to re-shape a handler's answer intercepts
+ * nothing the handler produces, so the request it was meant to answer is left unanswered and hangs.
+ *
  * @example
  * ```typescript
  * import { z } from 'zod'

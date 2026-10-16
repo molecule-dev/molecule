@@ -6,6 +6,20 @@
  * VAPID key browsers need to subscribe), and API-side push fan-outs read the
  * stored subscriptions.
  *
+ * **`handlers.*` return `{ statusCode, headers?, body }` and never write to `res`** — not through
+ * `res.json`, not through `res.send`, not through `res.end`. The mounted routes apply that object
+ * for you (`createRequestHandler` does `res.set(headers)`, `res.status(statusCode)`,
+ * `res.send(body)`); calling a handler directly is only correct if you apply the result yourself:
+ *
+ * ```typescript
+ * const { statusCode, headers, body } = await handlers.read(resource)(req, res)
+ * if (headers) res.set(headers)
+ * res.status(statusCode).send(body)
+ * ```
+ *
+ * Monkey-patching `res.json` to re-shape a handler's answer intercepts nothing the handler
+ * produces, so the request it was meant to answer is left unanswered and hangs.
+ *
  * @example
  * ```typescript
  * import { createRequestHandler } from '@molecule/api-resource'

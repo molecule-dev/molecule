@@ -23,6 +23,20 @@
  * same key — `findById('usersSecrets', userId)`, or `${tableName}Secrets` when the resource
  * carries a custom `tableName` — never SQL.
  *
+ * **`handlers.*` return `{ statusCode, headers?, body }` and never write to `res`** — not through
+ * `res.json`, not through `res.send`, not through `res.end`. The mounted routes apply that object
+ * for you (`createRequestHandler` does `res.set(headers)`, `res.status(statusCode)`,
+ * `res.send(body)`); calling a handler directly is only correct if you apply the result yourself:
+ *
+ * ```typescript
+ * const { statusCode, headers, body } = await handlers.logIn(resource)(req, res)
+ * if (headers) res.set(headers)
+ * res.status(statusCode).send(body)
+ * ```
+ *
+ * Monkey-patching `res.json` to re-shape a handler's answer intercepts nothing the handler
+ * produces, so the request it was meant to answer is left unanswered and hangs.
+ *
  * @remarks
  * The user record is split across TWO schemas — pick the right one or you leak credentials:
  * - **{@link Props} (`propsSchema`)** — SAFE, client-facing fields (username, name, email,
