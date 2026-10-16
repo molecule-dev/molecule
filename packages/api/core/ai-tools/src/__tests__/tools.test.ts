@@ -2660,6 +2660,79 @@ describe('wait_for_task on a task that is still running', () => {
       delete process.env.MOL_AI_BG_STUCK_AFTER_MS
     }
   })
+
+  /**
+   * The note's clauses. It joins facts with "; " and ends each sentence with a
+   * period, so those are the boundaries; lowercased and trimmed so a clause that
+   * repeats one already said still reads as the same one.
+   */
+  const noteClauses = (note: string): string[] =>
+    note
+      .split(/[.;]\s+/)
+      .map((c) =>
+        c
+          .trim()
+          .toLowerCase()
+          .replace(/[.,;]+$/, ''),
+      )
+      .filter((c) => c.length > 12)
+  /** The clause that repeats another, whole or inside a longer one, or null. */
+  const repeatedClause = (note: string): string | null => {
+    const clauses = noteClauses(note)
+    for (const [i, clause] of clauses.entries())
+      for (const other of clauses.slice(i + 1))
+        if (clause.includes(other) || other.includes(clause)) return `${clause} / ${other}`
+    return null
+  }
+
+  it('says each fact once — m87 §+47:20 read the elapsed time and the growth clause twice', async () => {
+    process.env.MOL_AI_BG_STUCK_AFTER_MS = '100'
+    try {
+      // m87 §+47:20's answer, fact for fact: a 139-test suite 5 min 51 s into its
+      // run at 105 of 139, its log 71 839 bytes and still growing, read by a wait
+      // whose ceiling leaves "one more wait covers it".
+      const id = idStartedAgo(351_000)
+      const slice = '[105/139] [chromium] › e2e/settings.spec.ts:120:3 › tag filter\n'
+      const wait = buildTools(runningBackend(slice, 71_839)).find(
+        (t) => t.name === 'wait_for_task',
+      )!
+      const r = (await wait.execute({ taskId: id, timeout: 200 })) as {
+        status: string
+        note: string
+      }
+      expect(r.status).toBe('running')
+      expect(r.note).toMatch(/has been running 5 min 5\d s/)
+      expect(r.note).toContain('its log is at 105 of 139')
+      expect(r.note).toContain('one more wait covers it')
+      // The note used to read "Still running after 342s of waiting, and its output
+      // is still growing (71839 bytes) — slow, not stuck." with the progress
+      // sentence appended: one answer in which those two facts were each stated
+      // twice. Each is stated once here, and no clause contains another.
+      expect(r.note.match(/still growing \(71839 bytes\)/g) ?? []).toHaveLength(1)
+      expect(
+        noteClauses(r.note).filter((c) =>
+          /has been running|\d+s of waiting|still running after/.test(c),
+        ),
+      ).toHaveLength(1)
+      expect(repeatedClause(r.note)).toBeNull()
+    } finally {
+      delete process.env.MOL_AI_BG_STUCK_AFTER_MS
+    }
+  })
+
+  it('states the elapsed time once on the plain answer too, before the stuck threshold', async () => {
+    const id = idStartedAgo(6 * 60_000)
+    const slice = '[120/139] [chromium] › e2e/navigation.spec.ts:44:3 › tag filter\n'
+    const wait = buildTools(runningBackend(slice)).find((t) => t.name === 'wait_for_task')!
+    const r = (await wait.execute({ taskId: id, timeout: 50 })) as { note: string }
+    // "Still running after 0s. It has been running 6 min; …" said it twice in two
+    // formats, the same defect as §+47:20 on the branch that fires before the
+    // threshold.
+    expect(r.note).not.toContain('of waiting')
+    expect(r.note).not.toMatch(/Still running after/)
+    expect(r.note.match(/has been running/g) ?? []).toHaveLength(1)
+    expect(repeatedClause(r.note)).toBeNull()
+  })
 })
 
 describe('wait_for_task on a stuck command', () => {

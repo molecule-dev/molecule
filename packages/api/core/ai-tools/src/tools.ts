@@ -142,7 +142,8 @@ function logProgress(log: string): { done: number; total: number } | null {
 /**
  * What a wait knows about the command BESIDES "it has not exited": how long it
  * has been running, whether its output is still growing, how far its own log
- * says it has got, and how much longer that implies.
+ * says it has got, and how much longer that implies — one fact per clause, built
+ * here so the note carrying them cannot state one of them twice.
  *
  * X1 flash-m62 (2026-10-16) spent three 290 s waits on one 8.3-minute suite and
  * every answer read only "Still running after 280s": the run could not tell a
@@ -151,39 +152,72 @@ function logProgress(log: string): { done: number; total: number } | null {
  * waiting. The elapsed time comes from the task id, the progress from the log
  * this wait already read, and the time left is the rate so far, said as such.
  *
+ * X1 flash-m87 §+47:20 (2026-10-16): that suite's answer read "Still running
+ * after 342s of waiting, and its output is still growing (71839 bytes) — slow,
+ * not stuck." and then this sentence, which opens with the same growth clause
+ * and gives the same elapsed time in its other format — one answer, two facts,
+ * each said twice. The clauses ARE the facts, and {@link runningNote} is the
+ * only place they become a sentence, so a lead the caller writes itself cannot
+ * repeat one (the way `deployOwedNote` returns one sentence rather than a join).
+ *
  * @param o - The wait's facts: `taskId`, the `slice` of the log it read,
  *   `stillWriting` (the log grew during this wait), `bytes` (the log's size, null
- *   when unreadable), and `ceilingMs` (this call's ceiling, for "one more wait").
- * @returns A sentence to append to a running note, or '' when nothing is known.
+ *   when unreadable), `ceilingMs` (this call's ceiling, for "one more wait"), and
+ *   `waitedMs` (this call's own wait, the elapsed figure when the id carries no
+ *   start stamp).
+ * @returns The clauses in reading order. The first states the elapsed time, so a
+ *   sentence built from them always says something.
  */
-function waitProgressNote(o: {
+function waitProgressClauses(o: {
   taskId: string
   slice: string
   stillWriting: boolean
   bytes: number | null
   ceilingMs: number
-}): string {
+  waitedMs: number
+}): string[] {
   const startedAt = taskStartedAt(o.taskId)
-  const elapsedMs = startedAt === null ? null : Math.max(0, Date.now() - startedAt)
-  const parts: string[] = []
-  if (elapsedMs !== null) parts.push(`it has been running ${durationText(elapsedMs)}`)
-  if (o.stillWriting) parts.push(`its output is still growing (${o.bytes} bytes) — slow, not stuck`)
-  else if (o.bytes !== null) parts.push(`its log has not grown during this wait (${o.bytes} bytes)`)
+  const sinceStart = startedAt === null ? null : Math.max(0, Date.now() - startedAt)
+  // A task id this process minted always carries its start stamp; a synthetic one
+  // does not, and the time this call spent waiting is then the floor for how long
+  // the command has been running — it ran throughout that wait.
+  const clauses = [
+    sinceStart === null
+      ? `it has been running at least ${durationText(o.waitedMs)}`
+      : `it has been running ${durationText(sinceStart)}`,
+  ]
+  if (o.stillWriting)
+    clauses.push(`its output is still growing (${o.bytes} bytes) — slow, not stuck`)
+  else if (o.bytes !== null)
+    clauses.push(`its log has not grown during this wait (${o.bytes} bytes)`)
   const counter = logProgress(o.slice)
   if (counter) {
-    parts.push(`its log is at ${counter.done} of ${counter.total}`)
-    if (elapsedMs !== null && counter.done > 0 && counter.done < counter.total) {
-      const leftMs = Math.round((elapsedMs * (counter.total - counter.done)) / counter.done)
-      parts.push(
+    clauses.push(`its log is at ${counter.done} of ${counter.total}`)
+    // The rate is the task's own elapsed time, never this call's wait: with no
+    // start stamp, "34 tests in the 290 s I just waited" would be reported as the
+    // speed of a suite that has been walking for ten minutes.
+    if (sinceStart !== null && counter.done > 0 && counter.done < counter.total) {
+      const leftMs = Math.round((sinceStart * (counter.total - counter.done)) / counter.done)
+      clauses.push(
         leftMs <= o.ceilingMs
           ? `about ${durationText(leftMs)} left at that rate — one more wait covers it`
           : `about ${durationText(leftMs)} left at that rate (${Math.ceil(leftMs / o.ceilingMs)} more waits)`,
       )
     }
   }
-  if (!parts.length) return ''
-  const sentence = parts.join('; ')
-  return ` ${sentence[0].toUpperCase()}${sentence.slice(1)}.`
+  return clauses
+}
+
+/**
+ * One sentence from clauses: joined by "; ", capitalised and punctuated once.
+ *
+ * @param clauses - The facts to state, each in its own clause.
+ * @returns The sentence, or '' when there is nothing to say.
+ */
+function runningNote(clauses: string[]): string {
+  if (!clauses.length) return ''
+  const joined = clauses.join('; ')
+  return `${joined[0].toUpperCase()}${joined.slice(1)}.`
 }
 import type { ExecutionBackend, ToolBuildConfig } from './types.js'
 import {
@@ -2040,13 +2074,21 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           // No slice: the notes still say how to peek, and the task id still
           // carries how long the command has been running.
         }
-        const progress = waitProgressNote({
-          taskId,
-          slice: soFar,
-          stillWriting,
-          bytes: grownTo,
-          ceilingMs: ceiling,
-        })
+        // ONE sentence of facts, each said once, then what to do next: the lead
+        // this branch used to write ("Still running after 342s of waiting, and its
+        // output is still growing (71839 bytes) — slow, not stuck") restated the
+        // elapsed time and the growth clause these clauses already hold — the same
+        // sentence, twice (X1 flash-m87 §+47:20).
+        const progress = runningNote(
+          waitProgressClauses({
+            taskId,
+            slice: soFar,
+            stillWriting,
+            bytes: grownTo,
+            ceilingMs: ceiling,
+            waitedMs: waitedBefore + waitedMs,
+          }),
+        )
         const sliceField = soFar.trim() ? { outputSoFar: sanitizeOutput(soFar) } : {}
         if (stillWriting && waitedBefore + waitedMs >= stuckAfterMs()) {
           waitedByTask.set(taskId, 0)
@@ -2056,9 +2098,8 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
             waitedMs,
             ...sliceField,
             note:
-              `Still running after ${Math.round((waitedBefore + waitedMs) / 1000)}s of waiting, and its ` +
-              `output is still growing (${grownTo} bytes) — slow, not stuck.${progress} Call wait_for_task ` +
-              `again to keep waiting; peek with exec_command: tail ${log}.`,
+              `${progress} Call wait_for_task again to keep waiting; peek with exec_command: ` +
+              `tail ${log}.`,
           }
         }
         if (waitedBefore + waitedMs >= stuckAfterMs()) {
@@ -2078,8 +2119,11 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           status: 'running',
           waitedMs,
           ...sliceField,
+          // No "Still running after Ns" lead here either: the clauses already say
+          // how long it has been running, and the lead said it a second time in
+          // the other format (X1 flash-m87 §+47:20).
           note:
-            `Still running after ${Math.round(waitedMs / 1000)}s.${progress} Call wait_for_task again to ` +
+            `${progress} Call wait_for_task again to ` +
             `keep waiting — its result carries the log output. ` +
             (soFar.trim()
               ? `outputSoFar is the failure lines so far (up to ${RUNNING_FAILURE_LINES}) and then the end of ` +
