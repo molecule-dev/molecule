@@ -25,7 +25,16 @@
  *   does not run again — except that a column added to its `CREATE TABLE` is
  *   still added. Every other change to an applied schema goes in a NEW file. Postgres-dialect DDL is
  *   translated (`gen_random_uuid()`, `now()` / `CURRENT_TIMESTAMP`, `::` casts,
- *   `USING <method>`), so the same file works on the postgres bond.
+ *   `USING <method>`, `ADD COLUMN IF NOT EXISTS`), so the same file works on the postgres bond.
+ * - **A `@molecule/api-resource-*` package's `src/__setup__/*.sql` is Postgres
+ *   dialect and applies here as it is** — copy the file into `api/migrations/`
+ *   unchanged. The migrator translates it on the way in (above), and a
+ *   resource package's `uuid`/`timestamptz`/`jsonb` type names need no
+ *   translation at all: SQLite takes them by affinity, and the store reads a
+ *   `JSON`/`JSONB` column back as a parsed value. Never hand-write a SQLite
+ *   version of a package's schema: a transcribed copy drifts from the schema
+ *   that package's own queries expect, and the drift surfaces as `no such
+ *   column` at runtime rather than at the migration.
  * - **A `DEFAULT now()` / `DEFAULT CURRENT_TIMESTAMP` column yields ISO-8601 UTC
  *   with milliseconds** (`2026-10-16T01:22:21.416Z`) — the format the other bonds
  *   and `new Date().toISOString()` produce. SQLite's own `current_timestamp` is
