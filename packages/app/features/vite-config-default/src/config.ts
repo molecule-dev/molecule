@@ -258,6 +258,33 @@ export function createDefaultViteConfig(branding: DefaultViteConfigBranding): Us
       ? true
       : ['localhost', '.localhost', ...extraAllowedHosts]
 
+  // The API routes the dev server and `vite preview` both proxy.
+  const apiProxy = {
+    '/api': {
+      target:
+        process.env.VITE_API_URL?.replace(/\/api$/, '') ||
+        `http://localhost:${process.env.PORT || 4000}`,
+      changeOrigin: true,
+    },
+    '/health': {
+      target:
+        process.env.VITE_API_URL?.replace(/\/api$/, '') ||
+        `http://localhost:${process.env.PORT || 4000}`,
+      changeOrigin: true,
+    },
+    // Realtime shares the API port at /socket.io — the API attaches its
+    // socket.io server to the same HTTP server (see
+    // @molecule/api-realtime-socketio deferAttach). ws: true proxies the
+    // websocket upgrade.
+    '/socket.io': {
+      target:
+        process.env.VITE_API_URL?.replace(/\/api$/, '') ||
+        `http://localhost:${process.env.PORT || 4000}`,
+      changeOrigin: true,
+      ws: true,
+    },
+  }
+
   return {
     plugins: [react(), tailwindcss(), VitePWA(pwaOptions), moleculePushServiceWorkerPlugin()],
     // Vite's default cacheDir (node_modules/.vite) resolves THROUGH a
@@ -303,6 +330,15 @@ export function createDefaultViteConfig(branding: DefaultViteConfigBranding): Us
         ...declaredOptimizeIncludes,
       ].filter((spec) => localePackages.includes(spec) || isInstalled(spec, process.cwd())),
     },
+    // `vite preview` serves the production bundle (dist/) with the same API routes as the
+    // dev server, so a production-only bug can be tested before a deploy (X1 flash-m42 found
+    // one only on the deployed URL: "vite preview has no API proxy").
+    preview: {
+      port: parseInt(process.env.VITE_PREVIEW_PORT || '4173'),
+      host: serverHost,
+      allowedHosts: serverAllowedHosts,
+      proxy: apiProxy,
+    },
     server: {
       port: parseInt(process.env.VITE_PORT || '3000'),
       host: serverHost,
@@ -320,31 +356,7 @@ export function createDefaultViteConfig(branding: DefaultViteConfigBranding): Us
       // Standalone keeps Vite's default (strict), which confines /@fs/ to
       // the project root + workspace — see the host-exposure block above.
       ...(inMoleculeSandbox ? { fs: { strict: false } } : {}),
-      proxy: {
-        '/api': {
-          target:
-            process.env.VITE_API_URL?.replace(/\/api$/, '') ||
-            `http://localhost:${process.env.PORT || 4000}`,
-          changeOrigin: true,
-        },
-        '/health': {
-          target:
-            process.env.VITE_API_URL?.replace(/\/api$/, '') ||
-            `http://localhost:${process.env.PORT || 4000}`,
-          changeOrigin: true,
-        },
-        // Realtime shares the API port at /socket.io — the API attaches its
-        // socket.io server to the same HTTP server (see
-        // @molecule/api-realtime-socketio deferAttach). ws: true proxies the
-        // websocket upgrade.
-        '/socket.io': {
-          target:
-            process.env.VITE_API_URL?.replace(/\/api$/, '') ||
-            `http://localhost:${process.env.PORT || 4000}`,
-          changeOrigin: true,
-          ws: true,
-        },
-      },
+      proxy: apiProxy,
       warmup: {
         clientFiles: ['src/main.tsx', 'src/App.tsx', 'src/bonds/*.ts'],
       },

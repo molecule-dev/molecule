@@ -25,6 +25,11 @@
  * ```
  *
  * @remarks
+ * **`vite preview` proxies the API too.** `npm run build && npx vite preview` serves the
+ * production bundle (`dist/`, port 4173) with the same `/api`, `/health` and `/socket.io`
+ * routes as the dev server, so the e2e suite can run against the bundle that ships — a bug
+ * that exists only in the production build shows there before a deploy.
+ *
  * **Dev-server host exposure is environment-detected: molecule sandbox vs
  * standalone machine.** Inside a molecule preview container (`/etc/mol`
  * exists, or `VITE_HOST` is set) the dev server binds `0.0.0.0` with

@@ -37,6 +37,8 @@ describe('@molecule/app-vite-config-default', () => {
     expect(cfg.server?.proxy).toHaveProperty('/api')
     expect(cfg.server?.proxy).toHaveProperty('/health')
     expect(cfg.server?.proxy).toHaveProperty('/socket.io')
+    // `vite preview` serves the production bundle with the same routes (X1 flash-m42).
+    expect(cfg.preview?.proxy).toBe(cfg.server?.proxy)
     expect(cfg.build?.outDir).toBe('dist')
     expect(cfg.envPrefix).toBe('VITE_')
   })
