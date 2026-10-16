@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.5.12
+
+### Patch Changes
+
+- 7c270dc: A long test run's output keeps its failure blocks and tally when cut, instead of the passing progress lines.
+
 ## 1.5.11
 
 ### Patch Changes

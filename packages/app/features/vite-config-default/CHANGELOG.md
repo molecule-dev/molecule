@@ -1,5 +1,11 @@
 # @molecule/app-vite-config-default
 
+## 1.1.3
+
+### Patch Changes
+
+- 46a8938: `vite preview` proxies `/api`, `/health` and `/socket.io` like the dev server, so the production bundle can be tested locally.
+
 ## 1.1.2
 
 ### Patch Changes
