@@ -865,6 +865,9 @@ export function looksLikeHtml(text: string): boolean {
  */
 export function htmlOutline(text: string, label = 'document'): string | null {
   if (!looksLikeHtml(text)) return null
+  // "0 KB" for anything under a kilobyte reads like a bug; say the real unit.
+  const size = (chars: number): string =>
+    chars >= 1024 ? `${Math.round(chars / 1024)} KB` : `${chars} char${chars === 1 ? '' : 's'}`
   const lines = text.split('\n')
   const out: string[] = []
   let skipped = 0
@@ -872,9 +875,7 @@ export function htmlOutline(text: string, label = 'document'): string | null {
   let truncated = false
   const flushSkipped = (): void => {
     if (skipped === 0) return
-    out.push(
-      `        … ${skipped} more line${skipped === 1 ? '' : 's'} (${Math.round(skippedChars / 1024)} KB) …`,
-    )
+    out.push(`        … ${skipped} more line${skipped === 1 ? '' : 's'} (${size(skippedChars)}) …`)
     skipped = 0
     skippedChars = 0
   }
@@ -898,10 +899,8 @@ export function htmlOutline(text: string, label = 'document'): string | null {
     }
   }
   flushSkipped()
-  // "0 KB" for anything under a kilobyte reads like a bug; say the real unit.
-  const size = text.length >= 1024 ? `${Math.round(text.length / 1024)} KB` : `${text.length} chars`
   const header =
-    `OUTLINE of ${label} — ${size}, ${lines.length} lines. ` +
+    `OUTLINE of ${label} — ${size(text.length)}, ${lines.length} lines. ` +
     `Its tags and the tags that open each section, one line each; tag bodies (CSS, JS, text) are not shown.` +
     (truncated ? ` (Outline capped at ${MAX_HTML_OUTLINE_LINES} lines.)` : '')
   return `${header}\n\n${out.join('\n')}`
