@@ -3335,3 +3335,219 @@ describe('edit_file — a dropped line break is said', () => {
     )
   })
 })
+
+// The same shape as above, one step earlier: a replacement whose ONLY effect is the
+// line break at its boundary is REFUSED rather than applied-and-noted. flash-m89 sent
+// it as the last replacement of a batch twice in two calls — `comments.ts` at +07:25
+// (the joined line was a parse error, so the dev API restarted on it) and
+// `articles.ts` at +08:32 — and each cost a repair round trip. Five of these shapes
+// appear in that one run's transcript, three of them in frontend files.
+describe('edit_file — a boundary-newline-only replacement is refused', () => {
+  function fileBackend(initial: string): {
+    backend: ExecutionBackend
+    file: () => string
+    writes: () => number
+  } {
+    let file = initial
+    let written = 0
+    const backend = {
+      projectRoot: '/test',
+      readFile: vi.fn(async () => file),
+      writeFile: vi.fn(async (_p: string, c: string) => {
+        file = c
+        written++
+      }),
+      deleteFile: vi.fn(),
+      readDir: vi.fn(),
+      run: vi.fn().mockResolvedValue({ stdout: '', stderr: '', exitCode: 0 }),
+    } as unknown as ExecutionBackend
+    return { backend, file: () => file, writes: () => written }
+  }
+
+  /** The `DELETE /articles/:slug/comments/:id` handler as flash-m89 had it, verbatim. */
+  const COMMENTS_BEFORE = [
+    "import { create, findById } from '@molecule/api-database'",
+    '',
+    'const router = Router()',
+    '',
+    "router.post('/articles/:slug/comments', async (req, res) => {",
+    '  try {',
+    "    const { data } = await create<CommentRow>('conduit_comments', {",
+    '      articleId: article.id,',
+    '      authorId: viewerId,',
+    '      body: text,',
+    '    })',
+    '',
+    '    res.status(200).json({ comment: await shapeComment(data, viewerId) })',
+    '  } catch (error) {',
+    "    sendErrors(res, 500, 'server', 'unexpected error')",
+    '  }',
+    '})',
+    '',
+    "router.delete('/articles/:slug/comments/:id', async (req, res) => {",
+    '  if (!viewerId) return setUnauthorized(res)',
+    '',
+    '  const params = req.params as Record<string, string>',
+    "  const comment = await findById<CommentRow>('conduit_comments', String(params.id))",
+    "  if (!comment) return notFound(res, 'comment')",
+    '  if (String(comment.authorId) !== String(viewerId)) {',
+    "    return sendErrors(res, 403, 'comment', 'forbidden')",
+    '  }',
+    '})',
+    '',
+  ].join('\n')
+
+  it('refuses it and applies the rest of the batch (flash-m89 comments.ts, +07:25)', async () => {
+    const { backend, file, writes } = fileBackend(COMMENTS_BEFORE)
+    const edit = buildTools(backend).find((t) => t.name === 'edit_file')!
+    // The batch exactly as the run sent it: two real edits, then the anchor — the two
+    // lines it means to keep, repeated with the trailing newline dropped.
+    const r = (await edit.execute({
+      path: 'handlers/comments.ts',
+      replacements: [
+        {
+          new_string:
+            '    res.status(201).json({ comment: await shapeComment(data as CommentRow, viewerId) })',
+          old_string: '    res.status(200).json({ comment: await shapeComment(data, viewerId) })',
+        },
+        {
+          new_string:
+            "  if (!comment) return notFound(res, 'comment')\n\n  // The article in the path must exist too.\n  const article = await articleBySlug(String(params.slug))\n  if (!article) return notFound(res, 'article')\n\n  if (String(comment.authorId) !== String(viewerId)) {",
+          old_string:
+            "  if (!comment) return notFound(res, 'comment')\n  if (String(comment.authorId) !== String(viewerId)) {",
+        },
+        {
+          new_string:
+            "  const params = req.params as Record<string, string>\n  const comment = await findById<CommentRow>('conduit_comments', String(params.id))",
+          old_string:
+            "  const params = req.params as Record<string, string>\n  const comment = await findById<CommentRow>('conduit_comments', String(params.id))\n",
+        },
+      ],
+    })) as {
+      skippedNote?: string
+      replacementsApplied?: number
+      newlineNote?: string
+      syntaxError?: string
+      note?: string
+    }
+    // The file the run's own excerpt shows at line 117: `…String(params.id))  if (!comment)
+    // return notFound(res, 'comment')`, a parse error the dev API restarted on.
+    expect(file()).not.toContain('String(params.id))  if (!comment)')
+    expect(file()).toContain("String(params.id))\n  if (!comment) return notFound(res, 'comment')")
+    // The two real edits in the batch landed.
+    expect(file()).toContain('  res.status(201).json(')
+    expect(file()).toContain('  const article = await articleBySlug(String(params.slug))')
+    expect(writes()).toBe(1)
+    expect(r.skippedNote).toContain('replacement 3 was skipped')
+    expect(r.skippedNote).toContain('include the next line in old_string')
+    expect(r.replacementsApplied).toBe(2)
+    // Nothing was joined, so the note about a joined line does not also fire.
+    expect(r.newlineNote).toBeUndefined()
+    expect(r.syntaxError).toBeUndefined()
+  })
+
+  it('leaves the later replacement that anchors on the same text landing (flash-m89 articles.ts, +08:32)', async () => {
+    // `function pageLimit(req: Request): number {\n` → the same minus its newline, then a
+    // third replacement that anchors on `function pageLimit(req: Request): number {`. The
+    // join is what left `function pageLimit(req: Request): number {  const raw = …` on one
+    // line; it still parsed, so only the newline note fired.
+    const { backend, file } = fileBackend(
+      [
+        'const router = Router()',
+        '',
+        "router.get('/articles', async (req, res) => {",
+        '  const limit = pageLimit(req)',
+        '  res.json(await listArticles(limit))',
+        '})',
+        '',
+        'function pageLimit(req: Request): number {',
+        '  const raw = Number(req.query.limit)',
+        '  if (!Number.isFinite(raw)) return 20',
+        '  return Math.min(Math.max(Math.trunc(raw), 1), 100)',
+        '}',
+        '',
+      ].join('\n'),
+    )
+    const edit = buildTools(backend).find((t) => t.name === 'edit_file')!
+    const r = (await edit.execute({
+      path: 'handlers/articles.ts',
+      replacements: [
+        {
+          new_string:
+            '  const limit = pageLimit(req)\n  res.status(200).json(await listArticles(limit))',
+          old_string: '  const limit = pageLimit(req)\n  res.json(await listArticles(limit))',
+        },
+        {
+          new_string: 'function pageLimit(req: Request): number {',
+          old_string: 'function pageLimit(req: Request): number {\n',
+        },
+        {
+          new_string:
+            '/**\n * The page size for a list route: `?limit=`, 1..100, 20 by default.\n */\nfunction pageLimit(req: Request): number {',
+          old_string: 'function pageLimit(req: Request): number {',
+        },
+      ],
+    })) as { skippedNote?: string; replacementsApplied?: number }
+    // The signature keeps its own line, so the body is not on it; the doc block the third
+    // replacement inserts lands directly above it.
+    expect(file()).not.toContain('number {  const raw')
+    expect(file()).toContain('function pageLimit(req: Request): number {\n  const raw')
+    expect(file()).toContain('/**\n * The page size for a list route')
+    expect(r.skippedNote).toContain('replacement 2 was skipped')
+    expect(r.replacementsApplied).toBe(2)
+  })
+
+  it('refuses the reverse shape: a new_string that adds the newline its line continues past', async () => {
+    // The same accident read the other way: adding a trailing newline to text the file
+    // continues on the same line moves the rest of that line down.
+    const { backend, file } = fileBackend(
+      [
+        "router.delete('/articles/:slug', async (req, res) => {",
+        '  const params = req.params as Record<string, string> // { slug: string }',
+        '  const article = await articleBySlug(String(params.slug))',
+        '})',
+        '',
+      ].join('\n'),
+    )
+    const edit = buildTools(backend).find((t) => t.name === 'edit_file')!
+    const r = (await edit.execute({
+      path: 'handlers/articles.ts',
+      old_string: '  const params = req.params as Record<string, string>',
+      new_string: '  const params = req.params as Record<string, string>\n',
+    })) as { skippedNote?: string; note?: string; replacementsApplied?: number }
+    expect(file()).toContain(
+      '  const params = req.params as Record<string, string> // { slug: string }',
+    )
+    expect(r.skippedNote).toContain('replacement 1 was skipped')
+    expect(r.skippedNote).toContain('include the text that follows it in old_string')
+    // Nothing else in the call changed anything, so the "exactly as it was" line must not
+    // stand in for the reason.
+    expect(r.note).toContain('replacement 1 was skipped')
+    expect(r.replacementsApplied).toBe(0)
+  })
+
+  it('applies a boundary newline change at a line boundary, where nothing crosses lines', async () => {
+    // Both shapes the file itself shows were intended: the edit is the LAST line of the
+    // file (nothing follows), and the line it ends already ends at a boundary, so the
+    // newline only adds a blank line.
+    const last = fileBackend('const a = 1\nconst b = 2\n')
+    const editLast = buildTools(last.backend).find((t) => t.name === 'edit_file')!
+    const tail = (await editLast.execute({
+      path: 'a.ts',
+      old_string: 'const b = 2\n',
+      new_string: 'const b = 2',
+    })) as { skippedNote?: string }
+    expect(tail.skippedNote).toBeUndefined()
+    expect(last.file()).toBe('const a = 1\nconst b = 2')
+
+    const blank = fileBackend('const a = 1\nconst b = 2\n')
+    const editBlank = buildTools(blank.backend).find((t) => t.name === 'edit_file')!
+    const gap = (await editBlank.execute({
+      path: 'a.ts',
+      old_string: 'const a = 1\n',
+      new_string: 'const a = 1\n\n',
+    })) as { skippedNote?: string }
+    expect(gap.skippedNote).toBeUndefined()
+    expect(blank.file()).toBe('const a = 1\n\nconst b = 2\n')
+  })
+})
