@@ -129,6 +129,21 @@ export const hasProvider = (): boolean => {
  * `verifyMiddleware` accepts a JWT only when its payload also carries a
  * `deviceId` naming an active row in `devices` (see the module `@remarks`).
  *
+ * **There is ONE JWT provider per app, and this signs with it.** The scaffold
+ * bonds `@molecule/api-jwt-jsonwebtoken` once (the app's `api/src/bonds/`), keyed
+ * by `JWT_PRIVATE_KEY`/`JWT_PUBLIC_KEY` (auto-generated on first boot when unset)
+ * with algorithm `JWT_ALGORITHM` (default `RS256`). There is no `JWT_SECRET` and
+ * no second verifier to match: `setProvider()` in your own file REPLACES the
+ * provider for the whole process, so every token this app and its packages mint
+ * and verify changes with it.
+ *
+ * To return a session token in a response BODY — an API whose clients send
+ * `Authorization: Token <jwt>` — do not sign a second token with another key or
+ * algorithm. `authorization.set(req, res, { userId, deviceId })` from
+ * `@molecule/api-resource-user` RETURNS the signed token; mount
+ * `verifyMiddleware({ allowCookieSession: false })` in front of the routes that
+ * sign users in so no session cookie is written alongside it.
+ *
  * @param object - The JSON payload to sign.
  * @param options - Signing options; `algorithm` defaults to `JWT_ALGORITHM`, `expiresIn` defaults to `JWT_EXPIRES_TIME`.
  * @param options.algorithm - The signing algorithm (e.g. `RS256`, `HS256`).

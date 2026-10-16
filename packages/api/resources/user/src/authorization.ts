@@ -312,7 +312,14 @@ const maySetSessionCookie = (res: MoleculeResponse): boolean =>
   res.locals?.[ALLOW_COOKIE_SESSION_LOCALS_KEY] !== false
 
 /**
- * Set authorization headers and cookie for a session.
+ * Set authorization headers and cookie for a session, and RETURN the signed token.
+ *
+ * To put a session token in a JSON response BODY — an API whose clients send
+ * `Authorization: Token <jwt>` — call this and use its return value. Do NOT sign a
+ * second token with another key or algorithm: `verifyMiddleware` verifies with the app's
+ * bonded `@molecule/api-jwt` provider, so a self-signed one answers 401 on the very next
+ * request. Mount `verifyMiddleware({ allowCookieSession: false })` in front of the routes
+ * that sign users in and the client gets the token without any session cookie.
  *
  * The token is bound to `session.deviceId`, and `verifyMiddleware` rejects any session whose
  * device row does not exist (that is how signing out revokes a session). Mint the id with
