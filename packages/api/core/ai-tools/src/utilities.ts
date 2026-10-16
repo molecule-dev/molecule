@@ -124,7 +124,9 @@ const jsonValueReplacer =
   (match: string, prefix: string): string => {
     const value = match.slice(prefix.length)
     const inner = value.slice(1, -1)
-    if (NON_SECRET_VALUES.has(inner.toLowerCase())) return match
+    // An empty value hides nothing, and a suite fixture's `"password": ""` is the fact a
+    // failing assertion turns on (X1 flash-m52).
+    if (inner === '' || NON_SECRET_VALUES.has(inner.toLowerCase())) return match
     return `${prefix}${quote}[REDACTED]${quote}`
   }
 

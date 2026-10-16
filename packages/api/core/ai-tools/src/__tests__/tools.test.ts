@@ -78,6 +78,8 @@ describe('redactSecrets', () => {
     expect(redactSecrets(obj)).toBe(obj)
     // i18n-style dictionaries keep their labels too.
     expect(redactSecrets('"password": "Password"')).toBe('"password": "Password"')
+    // An empty value hides nothing (a suite fixture's blank password, flash-m52).
+    expect(redactSecrets('{"user":{"password": ""}}')).toBe('{"user":{"password": ""}}')
   })
 
   it('still redacts a REAL quoted secret next to a keyword name', () => {
