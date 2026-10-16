@@ -1,5 +1,11 @@
 # @molecule/api-resource-comment
 
+## 1.1.2
+
+### Patch Changes
+
+- 197d316: An update always moves `updatedAt` forward, even in the same millisecond as the previous write.
+
 ## 1.1.1
 
 ### Patch Changes

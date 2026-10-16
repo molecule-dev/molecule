@@ -1,5 +1,11 @@
 # @molecule/api-locales-user
 
+## 1.1.0
+
+### Minor Changes
+
+- 0ed89f7: Usernames are stored as sent or refused (letters, digits, `.`, `-`, `_`), a body nested under `user` gets its own error, `verifyMiddleware({ allowCookieSession: false })` makes an API token-only, and `utilities.stripSensitiveUserColumns` is exported.
+
 ## 1.0.1
 
 ### Patch Changes

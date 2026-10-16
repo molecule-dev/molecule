@@ -1,5 +1,11 @@
 # @molecule/api-database-mysql
 
+## 1.2.2
+
+### Patch Changes
+
+- 8cb65bb: An unknown query operator's error lists the valid operators, which are lowercase.
+
 ## 1.2.1
 
 ### Patch Changes

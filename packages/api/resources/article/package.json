@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-resource-article",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Articles and blog posts: unique slugs, tags, favorites, a followed-authors feed, and filtered, paginated lists",
   "type": "module",
   "main": "dist/index.js",
@@ -34,7 +34,7 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "@molecule/api-database": "1.1.1",
-    "@molecule/api-database-sqlite": "1.2.1",
+    "@molecule/api-database-sqlite": "1.2.2",
     "@molecule/api-resource-follow": "1.0.6",
     "@molecule/api-resource-reaction": "1.0.3",
     "@molecule/api-slug": "1.0.1",

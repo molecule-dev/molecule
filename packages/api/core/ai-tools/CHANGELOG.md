@@ -1,5 +1,14 @@
 # @molecule/api-ai-tools
 
+## 1.5.14
+
+### Patch Changes
+
+- f91ca93: `edit_file` says when nothing changed, including a replacement whose new text is identical to its old text.
+- ee3741c: An empty quoted value next to a secret-looking name is no longer masked in command output.
+- 938e108: `read_file` returns a small file whole when it is paged a second time.
+- 938e108: `wait_for_task` shows the output so far while a command runs, and reads a command's own output file when the task log holds almost nothing.
+
 ## 1.5.13
 
 ### Patch Changes

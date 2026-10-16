@@ -1,5 +1,11 @@
 # @molecule/api-resource-user
 
+## 1.5.0
+
+### Minor Changes
+
+- 0ed89f7: Usernames are stored as sent or refused (letters, digits, `.`, `-`, `_`), a body nested under `user` gets its own error, `verifyMiddleware({ allowCookieSession: false })` makes an API token-only, and `utilities.stripSensitiveUserColumns` is exported.
+
 ## 1.4.14
 
 ### Patch Changes
