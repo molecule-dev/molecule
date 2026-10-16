@@ -910,6 +910,47 @@ describe('buildTools', () => {
     expect(result.error).toMatch(/read_molecule_doc\("@molecule\/api-feed-rss"\)/)
   })
 
+  it('steers a SUCCESSFUL read of a package’s built output, not just a failed one', async () => {
+    // X0 flash-m70: 24 reads of node_modules/@molecule/*/dist/*.js in 57 s, not one of
+    // them steered — the redirect above fires only when the read FAILS.
+    const backend = mockBackend()
+    ;(backend.readFile as ReturnType<typeof vi.fn>).mockResolvedValue('exports.a = 1\n')
+    const readFile = buildTools(backend).find((t) => t.name === 'read_file')!
+    const result = (await readFile.execute({
+      path: '/test/app/node_modules/@molecule/api-feed-rss/dist/index.js',
+    })) as { content?: string; distNote?: string }
+    expect(result.content).toBe('exports.a = 1\n')
+    expect(result.distNote).toMatch(/read_molecule_doc\("@molecule\/api-feed-rss"\)/)
+    expect(result.distNote).toMatch(/matching \.d\.ts file/)
+  })
+
+  it('steers a .d.ts read at the README without sending it back to the file it just read', async () => {
+    const backend = mockBackend()
+    ;(backend.readFile as ReturnType<typeof vi.fn>).mockResolvedValue(
+      'export declare const a: number\n',
+    )
+    const readFile = buildTools(backend).find((t) => t.name === 'read_file')!
+    const result = (await readFile.execute({
+      path: '/test/app/node_modules/@molecule/app-ui/dist/types.d.ts',
+    })) as { distNote?: string }
+    expect(result.distNote).toMatch(/read_molecule_doc\("@molecule\/app-ui"\)/)
+    expect(result.distNote).not.toMatch(/matching \.d\.ts file/)
+  })
+
+  it('leaves a read of a project file (or a package’s src) unsteered', async () => {
+    const backend = mockBackend()
+    const readFile = buildTools(backend).find((t) => t.name === 'read_file')!
+    for (const path of [
+      '/test/app/src/index.ts',
+      '/test/app/node_modules/@molecule/api-feed-rss/package.json',
+      // `src/` is not built output (and does not exist in an installed package).
+      '/test/app/node_modules/@molecule/api-feed-rss/src/index.ts',
+    ]) {
+      const result = (await readFile.execute({ path })) as { distNote?: string }
+      expect(result.distNote).toBeUndefined()
+    }
+  })
+
   it("list_files on a missing path answers with the parent's real contents", async () => {
     const backend = mockBackend()
     ;(backend.readDir as ReturnType<typeof vi.fn>).mockImplementation(async (p: string) => {
@@ -1439,8 +1480,38 @@ describe('read_file windows', () => {
     expect(second.note).toContain('not paged')
   })
 
-  function windowBackend(lines: number): ExecutionBackend {
-    const content = Array.from({ length: lines }, (_, i) => `line ${i + 1}`).join('\n')
+  it('returns a file the one-call bound covers whole on its second window, past 24 KB (flash-m67)', async () => {
+    // 600 lines of ~42 chars: ~25 KB, the size of RealWorld's openapi.yml.
+    const readFile = buildTools(windowBackend(600, 'x'.repeat(32))).find(
+      (t) => t.name === 'read_file',
+    )!
+    await readFile.execute({ path: '/test/a.ts', offset: 200, limit: 100 })
+    const second = (await readFile.execute({ path: '/test/a.ts', offset: 40, limit: 100 })) as {
+      content?: string
+      note?: string
+    }
+    expect(second.content).toContain('line 600')
+    expect(second.note).toContain('not paged')
+  })
+
+  it('hands the whole file back once, then gives later windows their window (flash-m67)', async () => {
+    const readFile = buildTools(windowBackend(120)).find((t) => t.name === 'read_file')!
+    await readFile.execute({ path: '/test/a.ts', offset: 1, limit: 40 })
+    const whole = (await readFile.execute({ path: '/test/a.ts', offset: 41, limit: 40 })) as {
+      lines?: number
+    }
+    expect(whole.lines).toBe(120)
+    const third = (await readFile.execute({ path: '/test/a.ts', offset: 81, limit: 10 })) as {
+      lines?: number
+      note?: string
+    }
+    expect(third.lines).toBe(10)
+    expect(third.note).toContain('returned earlier')
+    expect(third.note).not.toContain('read it again')
+  })
+
+  function windowBackend(lines: number, pad = ''): ExecutionBackend {
+    const content = Array.from({ length: lines }, (_, i) => `line ${i + 1}${pad}`).join('\n')
     return {
       projectRoot: '/test',
       readFile: vi.fn().mockResolvedValue(content),

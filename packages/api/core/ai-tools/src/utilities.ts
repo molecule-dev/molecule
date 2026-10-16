@@ -632,8 +632,12 @@ export const MAX_BATCH_READ_BYTES = 200 * 1024
  */
 export const MAX_READ_RETURN_CHARS = 80 * 1024
 
-/** A file this small is returned whole even when a window is asked for (paging it costs a call each). */
-export const SMALL_FILE_WHOLE_CHARS = 24 * 1024
+/**
+ * A file this small is returned whole on a second window of it (paging it costs a call each).
+ * The same bound as {@link MAX_READ_RETURN_CHARS}: the windowed-read note promises that a
+ * file under it "fits in ONE call", and a smaller bound here broke that promise (X1 flash-m67).
+ */
+export const SMALL_FILE_WHOLE_CHARS = MAX_READ_RETURN_CHARS
 
 /** Max search results. */
 export const MAX_SEARCH_RESULTS = 50

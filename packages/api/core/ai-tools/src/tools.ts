@@ -175,6 +175,30 @@ import {
 const OVER_CEILING_GRACE_MS = 45_000
 
 /**
+ * The steer attached to a SUCCESSFUL read of a package's built output. The ENOENT
+ * redirect below fires only when the read FAILS, so a model that knows the hoisted
+ * layout reads `node_modules/@molecule/<pkg>/dist/*.js` happily and never learns the
+ * documented API is one call away (X0 flash-m70: 24 such reads in 57 s, no note on
+ * any of them). Carried as `distNote` rather than merged into `note` so a host that
+ * has read_molecule_doc (molecule-dev's cadence note, which also names the functions)
+ * can supersede it without string-matching.
+ *
+ * @param path - The resolved path that was read.
+ * @returns The note, or null when the path is not inside a package's `dist`.
+ */
+export function moleculeDistReadNote(path: string): string | null {
+  const pkg = /node_modules\/@molecule\/([a-z0-9-]+)\/dist\//.exec(path)?.[1]
+  if (!pkg) return null
+  return (
+    `This is @molecule/${pkg}'s compiled dist, not its API: read_molecule_doc("@molecule/${pkg}") ` +
+    'returns its README.md — the functions, options and bond wiring — in one call.' +
+    (/\.d\.ts$/.test(path)
+      ? ' The declarations above are generated from it.'
+      : ' For one signature, read the matching .d.ts file.')
+  )
+}
+
+/**
  * Build a complete set of AI agent tools bound to an execution backend.
  *
  * @param backend - The execution environment (sandbox or local filesystem)
@@ -307,6 +331,8 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
 
   /** Paths read with a window in this tool set, to tell paging from one targeted read. */
   const windowedReads = new Set<string>()
+  /** The text each path was last handed back WHOLE as, so that correction fires once per version. */
+  const wholeReturned = new Map<string, string>()
 
   /**
    * Verify that `path` does not symlink outside the project root when guards are enabled.
@@ -550,6 +576,11 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
     const path = resolve(rawPath as string)
     const symlinkErr = await checkSymlink(path)
     if (symlinkErr) return { error: symlinkErr }
+    // Carried on every successful read of a package's built output, so no dist read
+    // goes out unsteered (see moleculeDistReadNote).
+    const distNote = moleculeDistReadNote(path)
+    const noted = (r: Record<string, unknown>): Record<string, unknown> =>
+      distNote ? { ...r, distNote } : r
     try {
       const content = await backend.readFile(path)
       // A read that produced no usable text is verified against the file's real
@@ -560,12 +591,12 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       if (typeof content !== 'string' || content === '') {
         const verdict = await classifyEmptyRead(path, 'read_file')
         if ('error' in verdict) return verdict
-        return {
+        return noted({
           path,
           content: sanitizeFileContent(verdict.content, path),
           ...(verdict.content === '' ? { empty: true } : {}),
           ...(verdict.note ? { note: verdict.note } : {}),
-        }
+        })
       }
       if (content.length > MAX_READ_SIZE)
         return {
@@ -580,20 +611,33 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           : window
       // A SECOND window of the same small file: hand back all of it (one window is a targeted read). X1 flash-m50 paged files that fit in one
       // call 13 times in a row, each window answered with "read it again with no offset/limit".
+      // The bound is the one that note states (SMALL_FILE_WHOLE_CHARS = MAX_READ_RETURN_CHARS): 24 KB left
+      // RealWorld's 24,935-byte openapi.yml paged nine times under "fits in ONE call" (flash-m67).
       const small = sliceLines(content, window)
       const pagedBefore = small?.truncated ? windowedReads.has(path) : false
       if (small?.truncated) windowedReads.add(path)
-      if (small?.truncated && pagedBefore && content.length <= SMALL_FILE_WHOLE_CHARS) {
-        return {
+      // Once per version of the file: after the whole text went back, a later window is a
+      // targeted read and gets its window (X1 flash-m67: 25 firings, 8 byte-identical repeats).
+      const sentWhole = wholeReturned.get(path) === content
+      if (
+        small?.truncated &&
+        pagedBefore &&
+        !sentWhole &&
+        content.length <= SMALL_FILE_WHOLE_CHARS
+      ) {
+        wholeReturned.set(path, content)
+        return noted({
           path,
           content: sanitizeFileContent(content, path),
+          offset: 1,
+          lines: small.totalLines,
           totalLines: small.totalLines,
           note: `The whole file is returned (${Math.round(content.length / 1024)} KB, ${small.totalLines} lines): a file this small fits in one call, so it is not paged.`,
-        }
+        })
       }
       const windowed = sliceLines(content, effectiveWindow)
       if (windowed) {
-        return {
+        return noted({
           path,
           content: sanitizeFileContent(windowed.text, path),
           offset: windowed.offset,
@@ -606,8 +650,10 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           // exact next window so the executor does not have to compute it.
           ...(windowed.truncated
             ? {
-                note:
-                  content.length <= MAX_READ_RETURN_CHARS
+                note: sentWhole
+                  ? `Lines ${windowed.offset}-${windowed.offset + windowed.lines - 1} of ${windowed.totalLines}; ` +
+                    'the whole file, unchanged, was returned earlier in this conversation.'
+                  : content.length <= MAX_READ_RETURN_CHARS
                     ? `Lines ${windowed.offset}-${windowed.offset + windowed.lines - 1} of ` +
                       `${windowed.totalLines}. The whole file is ${Math.round(content.length / 1024)} KB ` +
                       `and fits in ONE call — read it again with no offset/limit instead of paging.`
@@ -616,9 +662,9 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
                       `limit ${windowed.lines}.`,
               }
             : {}),
-        }
+        })
       }
-      return { path, content: sanitizeFileContent(content, path) }
+      return noted({ path, content: sanitizeFileContent(content, path) })
     } catch (e: unknown) {
       // Backends (e.g. the docker provider's `cat`) already prefix "Failed to read <path>: ";
       // strip it so the wrap below doesn't stutter ("Failed to read X: Failed to read X: …").
