@@ -108,6 +108,57 @@ describe('convertPlaceholders', () => {
     expect(result.text).toBe('INSERT INTO t (a, b) VALUES (?, ?)')
     expect(result.values).toEqual(['x', 7])
   })
+
+  it('throws when a value has no $N placeholder, naming the value and the SQL', () => {
+    // flash-m88 §+07:07: `ids.map((_, i) => `$${i + 1}`)` restarted at $1, so the
+    // SQL named $1..$2 while three values were supplied — and the third was
+    // dropped in silence, returning WRONG ROWS (Postgres refuses the same call:
+    // `bind message supplies 3 parameters … requires 2`).
+    const sql = `SELECT * FROM "reactions" WHERE "resourceType" = $1 AND "userId" = $2 AND "type" = 'favorite' AND "resourceId" IN ($1)`
+    expect(() =>
+      convertPlaceholders(sql, ['article', 'mvb9y0lb0001fdc54e62', 'mvb9y0le000458f1f82c']),
+    ).toThrowError(/bind message supplies 3 parameters, but the statement requires only 2/)
+    expect(() =>
+      convertPlaceholders(sql, ['article', 'mvb9y0lb0001fdc54e62', 'mvb9y0le000458f1f82c']),
+    ).toThrowError(/value 3 has no \$N placeholder/)
+    expect(() =>
+      convertPlaceholders(sql, ['article', 'mvb9y0lb0001fdc54e62', 'mvb9y0le000458f1f82c']),
+    ).toThrowError(/SQL: SELECT \* FROM "reactions"/)
+    // a plain surplus: 1 value, no placeholder names it
+    expect(() => convertPlaceholders('SELECT 1 FROM t', ['unused'])).not.toThrow()
+    expect(() => convertPlaceholders('SELECT $1 FROM t', ['a', 'b'])).toThrowError(
+      /supplies 2 parameters, but the statement requires only 1/,
+    )
+  })
+
+  it('throws when a $N has no value, naming the placeholder and the SQL', () => {
+    expect(() =>
+      convertPlaceholders('SELECT * FROM t WHERE a = $1 AND b = $2', ['x']),
+    ).toThrowError(/bind message supplies 1 parameters, but the SQL names \$2 with no value/)
+    expect(() =>
+      convertPlaceholders('SELECT * FROM t WHERE a = $1 AND b = $2', ['x']),
+    ).toThrowError(/SQL: SELECT \* FROM t WHERE a = \$1 AND b = \$2/)
+    // a gap in the numbering: $3 is named, only one value was supplied
+    expect(() => convertPlaceholders('SELECT * FROM t WHERE a = $3', ['x'])).toThrowError(
+      /the SQL names \$3 with no value/,
+    )
+  })
+
+  it('throws on a $0 placeholder, which no value can fill', () => {
+    // The off-by-one the other way (`ids.map((_, i) => `$${i}`)`) used to bind
+    // values[-1] — undefined → NULL — and return the wrong rows.
+    expect(() => convertPlaceholders('SELECT * FROM t WHERE a = $0', ['x'])).toThrowError(
+      /the SQL names \$0 with no value — placeholders are \$1-based/,
+    )
+  })
+
+  it('still binds an explicit undefined value as NULL, like Postgres', () => {
+    // Not a placeholders/values disagreement: the counts agree, and node-postgres
+    // sends undefined as NULL, so this bond must not start refusing it.
+    const result = convertPlaceholders('SELECT * FROM t WHERE a = $1', [undefined])
+    expect(result.text).toBe('SELECT * FROM t WHERE a = ?')
+    expect(result.values).toEqual([undefined])
+  })
 })
 
 describe('translateDdlToSqlite', () => {
@@ -264,5 +315,31 @@ describe('store + pool round-trip (real better-sqlite3)', () => {
     )
     expect(row?.active).toBe(false) // 0 → boolean
     expect(row?.meta).toEqual({ tags: ['a', 'b'], n: 3 }) // JSON text → object
+  })
+
+  it('refuses a query whose placeholders and values disagree, and stays usable', async () => {
+    // The reported failure end to end (flash-m88 §+07:07): a `$N` numbering slip
+    // made `"resourceId" IN ($1)` collide with `"resourceType" = $1`. Before the
+    // fix this returned the WRONG rows with no error at all, because the value
+    // the SQL never named was dropped.
+    const pool = createPool({ path: ':memory:', walMode: false, foreignKeys: false })
+    await pool.query(
+      'CREATE TABLE reactions ("resourceType" TEXT, "userId" TEXT, type TEXT, "resourceId" TEXT)',
+    )
+    await pool.query('INSERT INTO reactions VALUES ($1, $2, $3, $4)', [
+      'article',
+      'u1',
+      'favorite',
+      'a1',
+    ])
+    await expect(
+      pool.query(
+        `SELECT * FROM reactions WHERE "resourceType" = $1 AND "userId" = $2 AND type = 'favorite' AND "resourceId" IN ($1)`,
+        ['article', 'u1', 'a1'],
+      ),
+    ).rejects.toThrow(/bind message supplies 3 parameters, but the statement requires only 2/)
+    // The refused statement must not wedge the single-connection queue.
+    const after = await pool.query<{ n: number }>('SELECT COUNT(*) AS n FROM reactions')
+    expect(after.rows[0].n).toBe(1)
   })
 })
