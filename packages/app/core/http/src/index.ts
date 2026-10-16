@@ -44,9 +44,17 @@
  * An API that wants another scheme than `Bearer` (`Authorization: Token <jwt>`) sets
  * `authScheme: 'Token'` in the client config; do not hand-write a fetch wrapper for it.
  *
+ * A request made while the session is still being restored WAITS for that restore, so a page
+ * that fetches viewer-dependent data on mount (a profile's `following` flag, a feed, a
+ * `favorited` state) cannot go out unauthenticated and answer for an anonymous viewer. The auth
+ * bond registers that wait with `setAuthGate`; apps that bond auth through
+ * `@molecule/app-bonds-default-react` get it without doing anything. An app with its own session
+ * module registers its own: `setAuthGate(() => session.whenRestored())`.
+ *
  * @module
  */
 
+export * from './auth-gate.js'
 export * from './client.js'
 export * from './interceptors.js'
 export * from './provider.js'

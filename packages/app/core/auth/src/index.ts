@@ -25,6 +25,15 @@
  *   `/auth/register`, `/auth/refresh`, `/users/logout`, `/users/me`, …).
  *   Align them via `createJWTAuthClient({ baseURL, ...endpoints })` — never by
  *   hand-editing fetch calls in components.
+ * - **Do not fetch viewer-dependent data before the restore settles.** A component
+ *   effect that runs on mount fires while `initialize()` is still restoring, so its
+ *   request leaves without the `Authorization` header and the server answers for an
+ *   anonymous viewer — a followed user renders "Follow", a saved item renders unsaved.
+ *   On localhost the restore usually wins this race; over the network it does not, so
+ *   the bug appears only on the deployed URL. Two ways out: gate the fetch on the auth
+ *   state being settled (`state.initialized`), or let the HTTP client do it — bond the
+ *   auth client through `@molecule/app-bonds-default-react`, which registers
+ *   `whenRestored()` as the http gate so every request waits for the restore.
  * - Client-side auth state is UX only — the server enforces authorization on
  *   every request; hiding a screen is not protection.
  *

@@ -9,6 +9,7 @@
 import { t } from '@molecule/app-i18n'
 import { getLogger } from '@molecule/app-logger'
 
+import { awaitAuthGate } from './auth-gate.js'
 import type { HttpClient, HttpClientConfig } from './client.js'
 import type { ErrorInterceptor, RequestInterceptor, ResponseInterceptor } from './interceptors.js'
 import type { FullRequestConfig, HttpResponse, RequestConfig } from './types.js'
@@ -58,6 +59,11 @@ export const createFetchClient = (config: HttpClientConfig = {}): HttpClient => 
     defaultHeaders: config.defaultHeaders || {},
 
     async request<T = unknown>(requestConfig: FullRequestConfig): Promise<HttpResponse<T>> {
+      // Wait for the session restore before anything else: the interceptors below
+      // read the auth token, and the request must not leave unauthenticated just
+      // because a page effect ran before the restore settled (see auth-gate.ts).
+      await awaitAuthGate()
+
       // Apply request interceptors
       let finalConfig = { ...requestConfig }
       for (const interceptor of requestInterceptors) {

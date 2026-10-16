@@ -12,6 +12,8 @@ import axios, {
   type InternalAxiosRequestConfig,
 } from 'axios'
 
+import { awaitAuthGate } from '@molecule/app-http'
+
 import type {
   AxiosHttpClientConfig,
   ErrorInterceptor,
@@ -125,6 +127,11 @@ export function createAxiosClient(config: AxiosHttpClientConfig = {}): HttpClien
 
   // Add Axios request interceptor to run molecule interceptors
   axiosInstance.interceptors.request.use(async (axiosConfig: InternalAxiosRequestConfig) => {
+    // Wait for the session restore first — every method on this client goes through
+    // here, so a request fired by a page effect before the restore settled cannot
+    // leave unauthenticated (see `@molecule/app-http` `auth-gate.ts`).
+    await awaitAuthGate()
+
     let config: FullRequestConfig = {
       method: (axiosConfig.method?.toUpperCase() as FullRequestConfig['method']) ?? 'GET',
       url: axiosConfig.url ?? '',

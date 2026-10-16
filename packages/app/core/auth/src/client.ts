@@ -101,6 +101,11 @@ export const createJWTAuthClient = <T extends UserProfile = UserProfile>(
   const stateListeners = new Set<(state: AuthState<T>) => void>()
   const eventListeners = new Set<AuthEventListener>()
   let refreshTimer: ReturnType<typeof setTimeout> | null = null
+  // [m95] The session restore `initialize()` started, or null when none is running.
+  // Assigned SYNCHRONOUSLY, before that call's first await, so a component effect
+  // running in the same tick (bootstrapApp calls initialize() and then renders)
+  // already sees the restore and its HTTP requests wait for it (`whenRestored`).
+  let restoreInFlight: Promise<void> | null = null
 
   let state: AuthState<T> = {
     initialized: false,
@@ -245,9 +250,46 @@ export const createJWTAuthClient = <T extends UserProfile = UserProfile>(
     return null
   }
 
+  // The body of `initialize()`, kept separate so the client can record the in-flight
+  // promise SYNCHRONOUSLY (see `restoreInFlight`): a caller that awaits `initialize()`
+  // still sees a rejection, while `whenRestored()` hands out a promise that resolves.
+  const initializeSession = async (): Promise<void> => {
+    const token = tokenStorage.getAccessToken()
+    const user = tokenStorage.getUser<T>()
+
+    if (token && user) {
+      if (!isTokenExpired(token)) {
+        setState({
+          initialized: true,
+          authenticated: true,
+          user,
+        })
+        scheduleRefresh()
+        return
+      }
+
+      // Token expired, try to refresh
+      const refreshToken = tokenStorage.getRefreshToken()
+      if (refreshToken) {
+        try {
+          await client.refresh()
+          setState({ initialized: true })
+          return
+        } catch (err) {
+          logger.warn('Initial token refresh failed', err)
+          tokenStorage.clear()
+        }
+      }
+    }
+
+    // [M1-1] Cookie-restore — this is what keeps a refresh / deep-link logged
+    // in under the in-memory-token model. See restoreFromSessionCookie above.
+    await restoreFromSessionCookie()
+    setState({ initialized: true })
+  }
+
   const client: AuthClient<T> = {
     getState: () => state,
-
     isAuthenticated: () => state.authenticated,
 
     getUser: () => state.user,
@@ -461,38 +503,19 @@ export const createJWTAuthClient = <T extends UserProfile = UserProfile>(
     },
 
     async initialize(): Promise<void> {
-      const token = tokenStorage.getAccessToken()
-      const user = tokenStorage.getUser<T>()
+      // Record BEFORE awaiting, so a component effect that runs in the same tick as
+      // this call (bootstrapApp calls initialize() and then renders) already sees a
+      // restore in flight and holds its requests for it (see whenRestored below).
+      const inFlight = initializeSession()
+      restoreInFlight = inFlight
+      await inFlight
+    },
 
-      if (token && user) {
-        if (!isTokenExpired(token)) {
-          setState({
-            initialized: true,
-            authenticated: true,
-            user,
-          })
-          scheduleRefresh()
-          return
-        }
-
-        // Token expired, try to refresh
-        const refreshToken = tokenStorage.getRefreshToken()
-        if (refreshToken) {
-          try {
-            await this.refresh()
-            setState({ initialized: true })
-            return
-          } catch (err) {
-            logger.warn('Initial token refresh failed', err)
-            tokenStorage.clear()
-          }
-        }
-      }
-
-      // [M1-1] Cookie-restore — this is what keeps a refresh / deep-link logged
-      // in under the in-memory-token model. See restoreFromSessionCookie above.
-      await restoreFromSessionCookie()
-      setState({ initialized: true })
+    whenRestored(): Promise<void> {
+      // Resolve, never reject: this is awaited before every authenticated request, so a
+      // restore that failed must not turn into a rejected request — the request goes out
+      // unauthenticated instead (the same outcome as not waiting at all).
+      return restoreInFlight ? restoreInFlight.catch(() => undefined) : Promise.resolve()
     },
 
     subscribe(callback: (state: AuthState<T>) => void): () => void {

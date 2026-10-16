@@ -1519,6 +1519,70 @@ describe('JWT Auth Client', () => {
         delete (globalThis as { document?: unknown }).document
       }
     })
+
+    it('whenRestored resolves only once the restore has settled', async () => {
+      // X1 xr-molecule-flash-m95: a page effect fetched viewer-dependent data while the
+      // restore was still in flight. The http client awaits this promise before every
+      // request, so it must not resolve early.
+      ;(globalThis as { document?: { cookie: string } }).document = { cookie: 'mol_auth=1' }
+      let releaseRestore!: () => void
+      const restoreGate = new Promise<void>((resolve) => {
+        releaseRestore = resolve
+      })
+      mockFetch.mockImplementation(async () => {
+        await restoreGate
+        return createMockResponse({ user: mockUser })
+      })
+      const client = createJWTAuthClient({ autoRefresh: false })
+      try {
+        const initialized = client.initialize()
+        let settled = false
+        void client.whenRestored?.().then(() => {
+          settled = true
+        })
+
+        // The restore is held open: nothing may have settled yet.
+        await Promise.resolve()
+        await Promise.resolve()
+        expect(settled).toBe(false)
+        expect(client.getState().initialized).toBe(false)
+
+        releaseRestore()
+        await initialized
+        await client.whenRestored?.()
+        expect(settled).toBe(true)
+        expect(client.getState().initialized).toBe(true)
+      } finally {
+        delete (globalThis as { document?: unknown }).document
+      }
+    })
+
+    it('whenRestored resolves immediately before initialize() and after it', async () => {
+      const client = createJWTAuthClient({ autoRefresh: false })
+      // Before any initialize(): a request must never be held forever by a restore
+      // that will never run (an app that bonds auth but never initializes).
+      await expect(client.whenRestored?.()).resolves.toBeUndefined()
+
+      mockFetch.mockImplementation(() => createMockResponse({ error: 'Unauthorized' }, 401))
+      await client.initialize()
+      await expect(client.whenRestored?.()).resolves.toBeUndefined()
+    })
+
+    it('whenRestored resolves (does not reject) when the restore fails', async () => {
+      // The http client awaits this promise before EVERY request: a rejected restore
+      // handed to that await would reject unrelated requests.
+      ;(globalThis as { document?: { cookie: string } }).document = { cookie: 'mol_auth=1' }
+      mockFetch.mockImplementation(() => {
+        throw new Error('network down')
+      })
+      const client = createJWTAuthClient({ autoRefresh: false })
+      try {
+        await client.initialize()
+        await expect(client.whenRestored?.()).resolves.toBeUndefined()
+      } finally {
+        delete (globalThis as { document?: unknown }).document
+      }
+    })
   })
 
   describe('subscribe', () => {

@@ -4,8 +4,31 @@ import type { HttpClient } from '@molecule/app-http'
 import {
   createFetchClient,
   getClient as getHttpClient,
+  setAuthGate,
   setClient as setHttpClient,
 } from '@molecule/app-http'
+
+/**
+ * Holds every HTTP request until this auth client's session restore has settled.
+ *
+ * Without it a page effect that fires on mount (fetching a profile's `following`
+ * flag, a feed, a `favorited` state) sends its request before `initialize()` has
+ * restored the session, so it leaves with no `Authorization` header and the server
+ * answers for an anonymous viewer. Localhost usually hides it — the restore wins
+ * the race against the first effect there — and the deployed URL exposes it, which
+ * is how X1 xr-molecule-flash-m95 spent ~25 min treating a "Follow" button on a
+ * followed user as database leftovers.
+ *
+ * `whenRestored()` resolves immediately when no restore is in flight, so a request
+ * made after boot never waits at all; it holds only while the restore is actually
+ * running. A provider without `whenRestored` (a bond that restores nothing) leaves
+ * requests ungated.
+ *
+ * @param authClient - The bonded auth client.
+ */
+function registerAuthGate(authClient: { whenRestored?: () => Promise<void> }): void {
+  setAuthGate(() => authClient.whenRestored?.() ?? Promise.resolve())
+}
 
 /**
  * Builds the default fetch-based HTTP client + wires it into
@@ -122,6 +145,9 @@ export function createDefaultAuthClientWithHttpSync<TUser extends UserProfile = 
     authClient,
     setupAuthDefault: () => {
       setClient(authClient)
+      // Requests made while the session is still restoring wait for it, so a page
+      // effect that fetches viewer-dependent data on mount cannot race the restore.
+      registerAuthGate(authClient)
       const initialToken = authClient.getAccessToken()
       if (initialToken) {
         getHttpClient().setAuthToken(initialToken)
@@ -168,6 +194,7 @@ export function createDefaultAuthClientWithFetchClient<TUser extends UserProfile
       })
       setHttpClient(httpClient)
       setClient(authClient)
+      registerAuthGate(authClient)
       const initialToken = authClient.getAccessToken()
       if (initialToken) {
         httpClient.setAuthToken(initialToken)
