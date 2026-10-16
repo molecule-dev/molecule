@@ -672,6 +672,40 @@ export function truncate(s: string, maxLength: number): string {
  */
 export function truncateMiddle(s: string, maxLength: number): string {
   if (s.length <= maxLength) return s
+  // Room for the tally line it may append, so the result stays near the cap.
+  return withRunTally(
+    s,
+    truncateMiddleBody(s, Math.max(Math.floor(maxLength / 2), maxLength - 200)),
+  )
+}
+
+/**
+ * A test run's tally lines (`  3 failed`, `  71 passed (4.6m)`) the cut text lost, put back at
+ * its end: Playwright lists every failed test after its "N failed" line, so a long list pushed
+ * the line itself into the cut middle and the run read as having no failures (X1 flash-m60).
+ *
+ * @param original - The whole output.
+ * @param cut - The truncated output.
+ * @returns The cut output, with any lost tally lines appended.
+ */
+function withRunTally(original: string, cut: string): string {
+  const tally = [
+    ...original.matchAll(
+      /^\s*\d+ (?:failed|passed|flaky|skipped|did not run|interrupted)\b[^\n]{0,40}$/gm,
+    ),
+  ].map((m) => m[0].trim())
+  const lost = tally.filter((line) => !cut.includes(line))
+  return lost.length ? `${cut}\n[run tally] ${lost.join(' · ')}` : cut
+}
+
+/**
+ * {@link truncateMiddle} without the tally guard.
+ *
+ * @param s - The text.
+ * @param maxLength - The budget.
+ * @returns The cut text.
+ */
+function truncateMiddleBody(s: string, maxLength: number): string {
   // Reserve room for the elision notice so head + notice + tail stays WITHIN
   // maxLength — the cap is a real token budget the caller relies on (a head-only
   // truncate that overshoots by its suffix length breaks that contract). 140 =

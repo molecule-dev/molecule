@@ -382,6 +382,22 @@ describe('truncate', () => {
 })
 
 describe('truncateMiddle', () => {
+  it('puts back a run tally the cut lost (flash-m60)', () => {
+    const blocks = Array.from(
+      { length: 40 },
+      (_, i) =>
+        `  ${i + 1}) [chromium] › e2e/a.spec.ts:${i}:3 › A › case ${i}\n    Error: boom ${'x'.repeat(200)}`,
+    ).join('\n')
+    const list = Array.from(
+      { length: 40 },
+      (_, i) => `    [chromium] › e2e/a.spec.ts:${i}:3 › A › case ${i}`,
+    ).join('\n')
+    const out = `Running 139 tests\n${blocks}\n  40 failed\n${list}\n  65 skipped\n  34 passed (5.6m)`
+    const cut = truncateMiddle(out, 6000)
+    expect(cut).toContain('40 failed')
+    expect(cut).toContain('34 passed (5.6m)')
+  })
+
   it('returns input unchanged when at or below maxLength', () => {
     expect(truncateMiddle('hello', 100)).toBe('hello')
     expect(truncateMiddle('hello', 5)).toBe('hello')
