@@ -126,6 +126,9 @@ const jsonValueReplacer =
     const inner = value.slice(1, -1)
     // An empty value hides nothing, and a suite fixture's `"password": ""` is the fact a
     // failing assertion turns on (X1 flash-m52).
+    // A version (`"jsonwebtoken": "9.0.2"`, a package name that holds a keyword) is not a
+    // credential, and a masked one hid which version is installed (X1 flash-m57).
+    if (/^[\^~]?\d+\.\d+\.\d+(?:[-+][\w.-]+)?$/.test(inner)) return match
     if (inner === '' || NON_SECRET_VALUES.has(inner.toLowerCase())) return match
     return `${prefix}${quote}[REDACTED]${quote}`
   }

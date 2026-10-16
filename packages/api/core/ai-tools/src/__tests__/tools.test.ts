@@ -82,6 +82,11 @@ describe('redactSecrets', () => {
     expect(redactSecrets('{"user":{"password": ""}}')).toBe('{"user":{"password": ""}}')
   })
 
+  it('keeps a dependency version next to a keyword-holding package name (flash-m57)', () => {
+    expect(redactSecrets('"jsonwebtoken": "9.0.2"')).toBe('"jsonwebtoken": "9.0.2"')
+    expect(redactSecrets('"jsonwebtoken": "^9.0.2"')).toBe('"jsonwebtoken": "^9.0.2"')
+  })
+
   it('still redacts a REAL quoted secret next to a keyword name', () => {
     expect(redactSecrets('"password": "hunter2-real"')).toBe('"password": "[REDACTED]"')
     expect(redactSecrets("API_TOKEN: 'abc123xyz'")).toBe("API_TOKEN: '[REDACTED]'")
