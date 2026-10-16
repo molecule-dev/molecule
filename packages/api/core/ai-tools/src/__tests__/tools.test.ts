@@ -3097,7 +3097,7 @@ describe('wait_for_task on a suite repeating one failure', () => {
       // wording suggested 23 s later to be refused.
       expect(r.note).not.toContain('reproduces the first one')
       expect(r.note).toContain('Read `../../fixtures/realworld/specs/e2e/articles.spec.ts:32`')
-      expect(r.note).toContain('do not run anything against this app while the run walks')
+      expect(r.note).toContain('nothing may run against this app while the run walks')
       expect(r.note).toContain('Send this once the run ends:')
       // …and it names the exact command, composed from the run's own invocation in the directory
       // it was started in, narrowed to the test the log named.

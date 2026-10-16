@@ -1928,21 +1928,21 @@ export function rerunOfRunningSuite(
  * stopped eight runs at their first repeating cause in 14.5 minutes and never finished one, so
  * the note must not say to stop when the run still has other causes to name.
  *
- * The run is STILL WALKING while this note is written, so a re-run of one of its tests is a
- * second run against the same app and database, and the platform refuses that
- * ({@link suiteRunInTheWay}, the same rule its overlap hold answers with): xr-molecule-flash-m89
- * (2026-10-16) read *"Start on them now, while the run keeps walking. `null-fields.spec.ts:53`
- * alone reproduces the first one."* and sent exactly that re-run 23 s later, where the hold
- * answered *"A playwright suite is already running against this app and database … Wait for it."*
- * Where the rule says a run is in the way, the note therefore hands over the read-and-fix to do
- * NOW and the exact re-run to send once the run ends; where it does not (no record of the running
- * command, or a re-run aimed at another app), the single test is named as before.
+ * The run is STILL WALKING while this note is written — both callers produce it mid-run — so a
+ * re-run of one of its tests is a second run against the same app and database, and the platform
+ * refuses that ({@link suiteRunInTheWay}, the same rule its overlap hold answers with):
+ * xr-molecule-flash-m89 (2026-10-16) read *"Start on them now, while the run keeps walking.
+ * `null-fields.spec.ts:53` alone reproduces the first one."* and sent exactly that re-run 23 s
+ * later, where the hold answered *"A playwright suite is already running against this app and
+ * database … Wait for it."* The note therefore hands over the read-and-fix to do NOW and the
+ * re-run for after the run ends — the exact command where the caller knows how the run was
+ * started ({@link rerunOfRunningSuite}), the timing alone where it does not.
  *
  * @param found - What {@link repeatingFailure} found.
  * @param o - The run's facts: its `taskId`, its `log` path, `stop` — the shell command that
  *   stops it, printed only for a {@link UniversalCause} — `universal`, what
  *   {@link universalCause} found (absent means the run is not failing whole), and `run`, how the
- *   run was started ({@link rerunOfRunningSuite}) when this process watched it start.
+ *   run was started ({@link rerunOfRunningSuite}) when the caller knows it.
  * @returns The note.
  */
 export function repeatingFailureNote(
@@ -1983,33 +1983,33 @@ export function repeatingFailureNote(
     : `each after ~${found.seconds}s — the same duration to within half a second`
   const first = found.tests[0]
   const firstAt = first?.where ?? ''
-  // The re-run this note may name, and whether the platform would refuse it right now — the SAME
-  // rule the overlap hold answers with, asked of the same pair of commands (see the note's doc):
-  // the running command's app, and the app the composed re-run would measure.
+  // The re-run this note names, and whether a run is in its way — the SAME rule the platform's
+  // overlap hold answers with (@link suiteRunInTheWay), asked of the same pair: the app the
+  // composed re-run would measure, and the app the run in flight measures (both read off the two
+  // commands, so a re-run aimed anywhere else is not refused).
   const rerun = firstAt && o.run ? rerunOfRunningSuite(o.run, [firstAt]) : null
+  const measured = o.run ? suiteCommandTarget(o.run.command) : null
   const inTheWay =
-    rerun && o.run
-      ? suiteRunInTheWay(
-          { target: suiteCommandTarget(rerun) },
-          // The composer only narrows a `playwright test` run, so the run in flight is a suite by
-          // that fact alone.
-          [{ runsSuite: true, target: suiteCommandTarget(o.run.command) }],
-        )
-      : null
-  const reproduce =
-    inTheWay && rerun
-      ? ` Read \`${firstAt}\` and the code it drives now, and fix it: do not run anything ` +
-        `against this app while the run walks — a second run against the same app and database is ` +
-        `refused.`
-      : firstAt && !found.message
-        ? ` \`${firstAt}\` alone reproduces the first one.`
-        : firstAt
-          ? ` Re-run \`${firstAt}\` alone to see its error in full.`
-          : ''
-  // The exact command for AFTER the run ends — the one thing the note may not hand over for now,
-  // and the one thing the executor needs in hand by the time it does: the whole-suite command it
-  // must not send again, narrowed to the failing test, in the directory the run started in.
-  const thenRun = inTheWay && rerun ? `\nSend this once the run ends:\n  ${rerun}` : ''
+    measured === null
+      ? null
+      : suiteRunInTheWay({ target: rerun ? suiteCommandTarget(rerun) : measured }, [
+          // The composer only narrows a `playwright test` run, and the sentence below says the run
+          // is still walking, so the run in flight is a suite either way.
+          { runsSuite: true, target: measured },
+        ])
+  // Where the run's own app is not known (this process did not start it — a restart between the
+  // launch and the wait), the note still knows the run is WALKING, which is the whole of the
+  // reason the re-run waits: nothing may start against the app it walks.
+  const aRunIsInTheWay = measured === null || inTheWay !== null
+  const reproduce = firstAt
+    ? ` Read \`${firstAt}\` and the code it drives now, and fix it: nothing may run against this ` +
+      `app while the run walks — a second run against the same app and database is refused — so ` +
+      `run it alone once the run has ended.`
+    : ''
+  // Where the note knows how the run was started, it also hands over the exact command for after
+  // it: the whole-suite command it must not send again, narrowed to the failing test, in the
+  // directory the run started in. Without that record it says the timing and nothing more.
+  const thenRun = aRunIsInTheWay && rerun ? `\nSend this once the run ends:\n  ${rerun}` : ''
   const where = `task ${o.taskId}, log ${o.log}`
   if (o.universal) {
     const files = o.universal.files.map(shortFile)

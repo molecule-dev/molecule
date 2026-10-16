@@ -1129,8 +1129,9 @@ describe('repeatingFailure', () => {
     expect(note).not.toContain('reproduces the first one')
     // What the note hands over for NOW is the read and the fix…
     expect(note).toContain('Read `../../fixtures/realworld/specs/e2e/null-fields.spec.ts:53`')
-    expect(note).toContain('do not run anything against this app while the run walks')
+    expect(note).toContain('nothing may run against this app while the run walks')
     expect(note).toContain('a second run against the same app and database is refused')
+    expect(note).toContain('run it alone once the run has ended')
     // …and for AFTER the run, the exact re-run: the log's own `file:line`, the run's own
     // invocation, and the directory it started in, so the path resolves against the suite it was
     // printed from rather than against whatever directory the next command starts in.
@@ -1145,11 +1146,15 @@ describe('repeatingFailure', () => {
     expect(note).not.toContain('playwright test --max-failures=15 --config')
   })
 
-  it('keeps the old wording when the run it is watching was not recorded', () => {
-    // A run this process did not start (a restart between the launch and the wait) leaves no
-    // command to narrow: the note says what it knows and no more.
+  it('defers the re-run with the timing alone when the run was not recorded', () => {
+    // A run this caller did not see start (a restart between the launch and the wait) leaves no
+    // command to narrow. The timing is what the note knows for certain, and it is the half that
+    // cost m89 the round trip: no wording of this note offers a run for now.
     const note = m89Note({})
-    expect(note).toContain('`../../fixtures/realworld/specs/e2e/null-fields.spec.ts:53` alone')
+    expect(note).not.toContain('reproduces the first one')
+    expect(note).toContain('Read `../../fixtures/realworld/specs/e2e/null-fields.spec.ts:53`')
+    expect(note).toContain('nothing may run against this app while the run walks')
+    expect(note).toContain('run it alone once the run has ended')
     expect(note).not.toContain('Send this once the run ends')
   })
 
@@ -1188,7 +1193,7 @@ describe('repeatingFailure', () => {
       stop: '',
     })
 
-    const hint = /Re-run `([^`]+)` alone/.exec(note)?.[1]
+    const hint = /Read `([^`]+)` and the code it drives now/.exec(note)?.[1]
     expect(hint).toBe('fixtures/realworld/specs/e2e/auth.spec.ts:19')
     // Every row names its test by exactly the path the hint names: same file, same name.
     const hintFile = hint!.replace(/:\d+$/, '')
@@ -1344,7 +1349,9 @@ describe('repeatingFailure', () => {
     expect(note).toContain(
       'every one with `TimeoutError: page.waitForURL: Timeout 10000ms exceeded.`',
     )
-    expect(note).toContain('Re-run `specs/e2e/auth.spec.ts:7` alone')
+    // The test's own location, named for after the run ends — the error text of a `list` log only
+    // arrives with the run (or with a re-run of it), and the run is still walking.
+    expect(note).toContain('Read `specs/e2e/auth.spec.ts:7` and the code it drives now')
   })
 })
 
