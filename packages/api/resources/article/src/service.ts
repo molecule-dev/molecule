@@ -11,6 +11,7 @@
  * @module
  */
 
+import type { OrderBy } from '@molecule/api-database'
 import {
   count,
   create as dbCreate,
@@ -142,9 +143,24 @@ export async function hydrateArticles(rows: ArticleRow[], viewerId?: string): Pr
   }))
 }
 
+/**
+ * The order a reader of `article_tags` sees: the order the article gave its tags
+ * in, then the tag name to break the tie a row written outside this package (no
+ * `position`) would otherwise leave to the database.
+ */
+const TAGS_IN_ARTICLE_ORDER: OrderBy[] = [
+  { field: 'position', direction: 'asc' },
+  { field: 'tag', direction: 'asc' },
+]
+
 const writeTags = async (articleId: string, tags: string[]): Promise<void> => {
   await deleteMany(ARTICLE_TAGS, [{ field: 'articleId', operator: '=', value: articleId }])
-  for (const tag of tags) await dbCreate(ARTICLE_TAGS, { articleId, tag })
+  // `position` is the array index so the join table keeps the submitted order —
+  // a reader of it (the tag filter below, an app's own query) must not depend on
+  // the row order the database happens to return.
+  for (const [position, tag] of tags.entries()) {
+    await dbCreate(ARTICLE_TAGS, { articleId, tag, position })
+  }
 }
 
 /**
@@ -214,6 +230,7 @@ async function filteredIds(options: ListArticlesOptions): Promise<string[] | nul
   if (options.tag) {
     const rows = await findMany<{ articleId: string }>(ARTICLE_TAGS, {
       where: [{ field: 'tag', operator: '=', value: options.tag }],
+      orderBy: TAGS_IN_ARTICLE_ORDER,
       select: ['articleId'],
     })
     ids = rows.map((r) => r.articleId)
@@ -379,7 +396,11 @@ export async function setFavorite(
  * @returns Tags with their article counts.
  */
 export async function popularTags(limit = 20): Promise<TagCount[]> {
-  const rows = await findMany<{ tag: string }>(ARTICLE_TAGS, { select: ['tag'], limit: 50_000 })
+  const rows = await findMany<{ tag: string }>(ARTICLE_TAGS, {
+    orderBy: TAGS_IN_ARTICLE_ORDER,
+    select: ['tag'],
+    limit: 50_000,
+  })
   const counts = new Map<string, number>()
   for (const r of rows) counts.set(r.tag, (counts.get(r.tag) ?? 0) + 1)
   return [...counts.entries()]

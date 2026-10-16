@@ -9,7 +9,7 @@ import { join } from 'node:path'
 
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
-import { setStore } from '@molecule/api-database'
+import { findMany, setStore } from '@molecule/api-database'
 import { createMigrator, createPool, createStore } from '@molecule/api-database-sqlite'
 
 import {
@@ -29,6 +29,17 @@ const CAROL = '00000000-0000-4000-8000-00000000000c'
 
 let dir: string
 
+/** The tags of an article as a reader of the join table sees them. */
+const tagsInTable = (articleId: string): Promise<{ tag: string; position: number }[]> =>
+  findMany<{ tag: string; position: number }>('article_tags', {
+    where: [{ field: 'articleId', operator: '=', value: articleId }],
+    orderBy: [
+      { field: 'position', direction: 'asc' },
+      { field: 'tag', direction: 'asc' },
+    ],
+    select: ['tag', 'position'],
+  })
+
 beforeAll(async () => {
   dir = mkdtempSync(join(tmpdir(), 'article-service-'))
   const migrations = join(dir, 'migrations')
@@ -36,13 +47,20 @@ beforeAll(async () => {
   mkdirSync(migrations)
   const here = new URL('.', import.meta.url).pathname
   copyFileSync(join(here, '../__setup__/articles.sql'), join(migrations, '1-articles.sql'))
+  // The scaffold applies both setup files, in this order (articles.sql sorts
+  // first) — the position file is the one a database that predates the column
+  // gets its upgrade from.
+  copyFileSync(
+    join(here, '../__setup__/articles_position.sql'),
+    join(migrations, '2-articles-position.sql'),
+  )
   copyFileSync(
     join(here, '../../../reaction/src/__setup__/reactions.sql'),
-    join(migrations, '2-reactions.sql'),
+    join(migrations, '3-reactions.sql'),
   )
   copyFileSync(
     join(here, '../../../follow/src/__setup__/follows.sql'),
-    join(migrations, '3-follows.sql'),
+    join(migrations, '4-follows.sql'),
   )
   const path = join(dir, 'app.db')
   process.env.SQLITE_PATH = path
@@ -136,5 +154,35 @@ describe('articles', () => {
   it('ranks tags by use', async () => {
     const tags = await popularTags()
     expect(tags[0]).toEqual({ tag: 'dragons', count: 2 })
+  })
+
+  it('keeps the submitted tag order in the join table', async () => {
+    const article = await createArticle(CAROL, {
+      title: 'Tag order',
+      body: 'x',
+      tagList: ['d', 't'],
+    })
+    expect(await tagsInTable(article.id)).toEqual([
+      { tag: 'd', position: 0 },
+      { tag: 't', position: 1 },
+    ])
+  })
+
+  it('keeps an order that is not alphabetical, so a row order cannot stand in for it', async () => {
+    const article = await createArticle(CAROL, {
+      title: 'Tag order reversed',
+      body: 'x',
+      tagList: ['zebra', 'apple', 'middle'],
+    })
+    expect((await tagsInTable(article.id)).map((row) => row.tag)).toEqual([
+      'zebra',
+      'apple',
+      'middle',
+    ])
+    const updated = await updateArticle(article.slug, CAROL, { tagList: ['apple', 'zebra'] })
+    expect(updated.status).toBe('ok')
+    if (updated.status !== 'ok') return
+    // Re-writing the tags replaces the rows, positions included.
+    expect((await tagsInTable(article.id)).map((row) => row.tag)).toEqual(['apple', 'zebra'])
   })
 })

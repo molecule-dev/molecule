@@ -44,6 +44,12 @@
  * - **Migration required.** `src/__setup__/articles.sql` creates `articles` and
  *   `article_tags`; the reaction and follow packages bring `reactions` and
  *   `follows`. Scaffolded apps apply all of them on boot.
+ *   `src/__setup__/articles_position.sql` adds `article_tags.position` to a
+ *   database whose table predates the column.
+ * - **`article_tags` keeps the order the tags were given in**, in its `position`
+ *   column (0-based). An app that reads the join table itself must order by
+ *   `position` — a submission-order assertion (`tagList[0]`, `tagList[1]`) reads
+ *   the wrong tag otherwise. `Article.tagList` is already in that order.
  * - **Lists are newest first and paginated** — `{ data, total, limit, offset }`,
  *   at most 100 per page. `createdAt` is written with milliseconds, so two
  *   articles from the same second still come back in order on SQLite.

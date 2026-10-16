@@ -17,6 +17,10 @@ CREATE TABLE IF NOT EXISTS "article_tags" (
   "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   "articleId" UUID NOT NULL REFERENCES "articles"("id") ON DELETE CASCADE,
   "tag" VARCHAR(100) NOT NULL,
+  -- The order the tag was given in (0-based). Without it a reader of this table
+  -- gets the tags in whatever order the database returns rows, which is not the
+  -- order the article was submitted with.
+  "position" INTEGER NOT NULL DEFAULT 0,
   "createdAt" TIMESTAMPTZ NOT NULL DEFAULT now(),
   UNIQUE ("articleId", "tag")
 );
