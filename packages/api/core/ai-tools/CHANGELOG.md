@@ -1,5 +1,12 @@
 # @molecule/api-ai-tools
 
+## 1.5.15
+
+### Patch Changes
+
+- 3152ed6: A version string next to a secret-looking name is no longer masked in command output.
+- c7e5755: `edit_file` reports a replacement that dropped the newline after the replaced text and the parse error it caused as one message: it shows the line the two lines became and says to re-send that replacement with the newline restored.
+
 ## 1.5.14
 
 ### Patch Changes

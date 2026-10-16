@@ -1,5 +1,11 @@
 # @molecule/api-database-mysql
 
+## 1.2.3
+
+### Patch Changes
+
+- ac33c4b: A list given to a one-value operator (`=`, `!=`, `<`…) throws instead of silently matching nothing.
+
 ## 1.2.2
 
 ### Patch Changes

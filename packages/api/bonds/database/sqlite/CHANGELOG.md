@@ -1,5 +1,12 @@
 # @molecule/api-database-sqlite
 
+## 1.2.3
+
+### Patch Changes
+
+- ac33c4b: A list given to a one-value operator (`=`, `!=`, `<`…) throws instead of silently matching nothing.
+- ff8c42c: A "no such column" or "no such table" error names the table the statement was for.
+
 ## 1.2.2
 
 ### Patch Changes

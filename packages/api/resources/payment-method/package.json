@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-resource-payment-method",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Saved payment-method resource for Stripe SetupIntent flow (saved cards, default card, detach).",
   "type": "module",
   "main": "dist/index.js",

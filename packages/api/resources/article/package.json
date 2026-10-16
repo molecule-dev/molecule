@@ -34,9 +34,9 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "@molecule/api-database": "1.1.1",
-    "@molecule/api-database-sqlite": "1.2.2",
-    "@molecule/api-resource-follow": "1.0.6",
-    "@molecule/api-resource-reaction": "1.0.3",
+    "@molecule/api-database-sqlite": "1.2.3",
+    "@molecule/api-resource-follow": "1.0.7",
+    "@molecule/api-resource-reaction": "1.0.4",
     "@molecule/api-slug": "1.0.1",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",

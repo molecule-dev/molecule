@@ -1,5 +1,11 @@
 # @molecule/api-resource-review
 
+## 1.0.5
+
+### Patch Changes
+
+- 5ece940: The docs say that a table the app already creates keeps its own columns, so missing ones need an ALTER.
+
 ## 1.0.4
 
 ### Patch Changes
