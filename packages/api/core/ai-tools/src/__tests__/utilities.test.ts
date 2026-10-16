@@ -1073,6 +1073,86 @@ describe('repeatingFailure', () => {
     expect(note).not.toContain('Stop it and fix')
   })
 
+  /**
+   * xr-molecule-flash-m89's own log at +19:59 (read out of the run's chat dump): three
+   * `null-fields.spec.ts` tests, each ~6.6 s, in a `list` log that carries durations and no error
+   * bodies — and the command the run was started with, as the platform ran it.
+   */
+  const m89Log = [
+    'Running 139 tests using 1 worker',
+    list('✓', 1, 'articles.spec.ts:32:3', 'Articles › should create a new article', '2.3s'),
+    list(
+      '✘',
+      4,
+      'null-fields.spec.ts:53:3',
+      'newly registered user should show default avatar in comment section',
+      '6.7s',
+    ),
+    list(
+      '✘',
+      5,
+      'null-fields.spec.ts:107:3',
+      'null bio should not render as literal "null" on profile page',
+      '6.4s',
+    ),
+    list(
+      '✘',
+      6,
+      'null-fields.spec.ts:152:3',
+      'author avatars should render on other user articles in feed',
+      '6.8s',
+    ),
+  ].join('\n')
+
+  const m89Run = {
+    command:
+      'cd /workspace/.mol-scratch/e2e && TEST_MODE=fullstack BASE_URL=http://localhost:5173 ' +
+      'npx --no-install playwright test --max-failures=15 --config=playwright.config.ts ' +
+      '--reporter=list --retries=0',
+    cwd: '/workspace',
+  }
+
+  const m89Note = (over: { run?: { command: string; cwd?: string } }): string =>
+    repeatingFailureNote(repeatingFailure(m89Log)!, {
+      taskId: 'mol-bg-mvbc3t11-ojf6js',
+      log: '/tmp/mol-bg-mvbc3t11-ojf6js.log',
+      stop: '',
+      universal: universalCause(m89Log, repeatingFailure(m89Log)!),
+      ...over,
+    })
+
+  it('names the re-run for AFTER the run ends, never one for now (xr-molecule-flash-m89)', () => {
+    const note = m89Note({ run: m89Run })
+    // The shape that cost the round trip: a bare path, offered for now. The executor built the
+    // re-run from it 23 s later and the overlap hold refused exactly that command —
+    // "A playwright suite is already running against this app and database … Wait for it."
+    expect(note).not.toContain('reproduces the first one')
+    // What the note hands over for NOW is the read and the fix…
+    expect(note).toContain('Read `../../fixtures/realworld/specs/e2e/null-fields.spec.ts:53`')
+    expect(note).toContain('do not run anything against this app while the run walks')
+    expect(note).toContain('a second run against the same app and database is refused')
+    // …and for AFTER the run, the exact re-run: the log's own `file:line`, the run's own
+    // invocation, and the directory it started in, so the path resolves against the suite it was
+    // printed from rather than against whatever directory the next command starts in.
+    expect(note).toContain('Send this once the run ends:')
+    expect(note).toContain(
+      '\n  cd /workspace/.mol-scratch/e2e && TEST_MODE=fullstack BASE_URL=http://localhost:5173 ' +
+        'npx --no-install playwright test ../../fixtures/realworld/specs/e2e/null-fields.spec.ts:53 ' +
+        '--retries=0 --max-failures=15 --config=playwright.config.ts --reporter=list',
+    )
+    // Never the whole-suite command back: that is the run the executor must not repeat (flash-m83
+    // stopped eight runs at their first repeating cause over 14.5 minutes).
+    expect(note).not.toContain('playwright test --max-failures=15 --config')
+  })
+
+  it('keeps the old wording when the run it is watching was not recorded', () => {
+    // A run this process did not start (a restart between the launch and the wait) leaves no
+    // command to narrow: the note says what it knows and no more.
+    const note = m89Note({})
+    expect(note).toContain('`../../fixtures/realworld/specs/e2e/null-fields.spec.ts:53` alone')
+    expect(note).not.toContain('Send this once the run ends')
+  })
+
   it('prints every failure by the SAME path as its own re-run hint (flash-m82)', () => {
     // X1 flash-m82 (+41:52): the note listed `✘ e2e/auth.spec.ts:19 › should login with
     // existing user` while its own hint three lines down said `Re-run

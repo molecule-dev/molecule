@@ -3074,6 +3074,43 @@ describe('wait_for_task on a suite repeating one failure', () => {
     ].join('\n')
   })()
 
+  it('hands the failing test’s re-run over for AFTER the run ends (xr-molecule-flash-m89)', async () => {
+    process.env.MOL_AI_BG_CAUSE_LOOK_MS = '1'
+    try {
+      const tools = buildTools(repeatingBackend(M76_LOG, '412 419'))
+      // The run is started HERE, so the process that writes the note knows how it was run — which
+      // is what makes an exact re-run possible at all.
+      const started = (await tools
+        .find((t) => t.name === 'exec_command')!
+        .execute({
+          command:
+            'cd /workspace/.mol-scratch/e2e && BASE_URL=http://localhost:5173 ' +
+            'npx --no-install playwright test --max-failures=15',
+          run_in_background: true,
+        })) as { taskId: string }
+      const r = (await tools
+        .find((t) => t.name === 'wait_for_task')!
+        .execute({ taskId: started.taskId, timeout: 60_000 })) as { status: string; note: string }
+      expect(r.status).toBe('repeating_failure')
+      // The mid-run note never offers the re-run for now: the platform refuses a second run
+      // against the same app and database while this one walks, and m89 sent exactly what the old
+      // wording suggested 23 s later to be refused.
+      expect(r.note).not.toContain('reproduces the first one')
+      expect(r.note).toContain('Read `../../fixtures/realworld/specs/e2e/articles.spec.ts:32`')
+      expect(r.note).toContain('do not run anything against this app while the run walks')
+      expect(r.note).toContain('Send this once the run ends:')
+      // …and it names the exact command, composed from the run's own invocation in the directory
+      // it was started in, narrowed to the test the log named.
+      expect(r.note).toContain('cd /workspace/.mol-scratch/e2e && BASE_URL=http://localhost:5173')
+      expect(r.note).toContain(
+        'playwright test ../../fixtures/realworld/specs/e2e/articles.spec.ts:32',
+      )
+      expect(r.note).toContain('--retries=0')
+    } finally {
+      delete process.env.MOL_AI_BG_CAUSE_LOOK_MS
+    }
+  })
+
   it('names the cause mid-run and says to let the run finish, with NO stop command (flash-m83)', async () => {
     process.env.MOL_AI_BG_CAUSE_LOOK_MS = '1'
     try {

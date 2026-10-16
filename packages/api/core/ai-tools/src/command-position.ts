@@ -22,7 +22,7 @@
  * (`head -30 run-api-tests-hurl.sh`, `grep -n playwright e2e/README.md`,
  * `git show HEAD:run-api-tests.sh`), and a runner named in a heredoc body — a file a command
  * WRITES is the caller's business, so a command with a heredoc goes through the caller's own
- * stripper first (`withoutHeredocs` in molecule-dev's suite checks).
+ * stripper first (`withoutHeredocs`, in `./suite-overlap.js`).
  *
  * @module
  */

@@ -9,6 +9,12 @@ import { posix } from 'path'
 
 import { commandSegments } from './command-position.js'
 import { commandRunsNoTests } from './no-test-run.js'
+import {
+  scopedRerunCommand,
+  suiteCommandTarget,
+  suiteRunInTheWay,
+  withoutHeredocs,
+} from './suite-overlap.js'
 
 /**
  * Shell-safe quoting using single quotes. Unlike JSON.stringify (double quotes),
@@ -1880,6 +1886,35 @@ export function failureCausesNote(log: string): string | null {
 }
 
 /**
+ * The command that re-runs the tests at `locations` the way the run IN FLIGHT ran them: the same
+ * invocation, in the same directory, narrowed to those tests — or null when the running command
+ * is not a Playwright run this can narrow.
+ *
+ * The `locations` are the paths the run's own log printed, which are relative to the directory
+ * that run started in, so a re-run has to resolve them there: the command names that directory
+ * unless it already changes into one of its own, because the executor's next command starts
+ * wherever it starts. The returned command is for AFTER the run ends — it is a second run against
+ * the same app and database, and that is exactly what is refused while the run walks
+ * ({@link suiteRunInTheWay}).
+ *
+ * @param run - The run in flight: the command it was started with, as it was run, and the
+ *   directory that command ran in.
+ * @param locations - The failing `file:line`s to re-run, as the run's log printed them.
+ * @returns The re-run command, or null when there is no suite to narrow.
+ */
+export function rerunOfRunningSuite(
+  run: { command: string; cwd?: string },
+  locations: readonly string[],
+): string | null {
+  if (locations.length === 0) return null
+  const scoped = scopedRerunCommand(run.command, locations)
+  if (scoped === run.command) return null
+  if (!run.cwd || commandSegments(withoutHeredocs(run.command)).some((s) => s.program === 'cd'))
+    return scoped
+  return `cd ${shellQuote(run.cwd)} && ${scoped}`
+}
+
+/**
  * The sentence that names a cause repeating among a running suite's failures, mid-run.
  *
  * Kept here, beside {@link repeatingFailure}, so the two stay in step: every word below is about
@@ -1893,15 +1928,32 @@ export function failureCausesNote(log: string): string | null {
  * stopped eight runs at their first repeating cause in 14.5 minutes and never finished one, so
  * the note must not say to stop when the run still has other causes to name.
  *
+ * The run is STILL WALKING while this note is written, so a re-run of one of its tests is a
+ * second run against the same app and database, and the platform refuses that
+ * ({@link suiteRunInTheWay}, the same rule its overlap hold answers with): xr-molecule-flash-m89
+ * (2026-10-16) read *"Start on them now, while the run keeps walking. `null-fields.spec.ts:53`
+ * alone reproduces the first one."* and sent exactly that re-run 23 s later, where the hold
+ * answered *"A playwright suite is already running against this app and database … Wait for it."*
+ * Where the rule says a run is in the way, the note therefore hands over the read-and-fix to do
+ * NOW and the exact re-run to send once the run ends; where it does not (no record of the running
+ * command, or a re-run aimed at another app), the single test is named as before.
+ *
  * @param found - What {@link repeatingFailure} found.
  * @param o - The run's facts: its `taskId`, its `log` path, `stop` — the shell command that
- *   stops it, printed only for a {@link UniversalCause} — and `universal`, what
- *   {@link universalCause} found (absent means the run is not failing whole).
+ *   stops it, printed only for a {@link UniversalCause} — `universal`, what
+ *   {@link universalCause} found (absent means the run is not failing whole), and `run`, how the
+ *   run was started ({@link rerunOfRunningSuite}) when this process watched it start.
  * @returns The note.
  */
 export function repeatingFailureNote(
   found: RepeatingFailure,
-  o: { taskId: string; log: string; stop: string; universal?: UniversalCause | null },
+  o: {
+    taskId: string
+    log: string
+    stop: string
+    universal?: UniversalCause | null
+    run?: { command: string; cwd?: string }
+  },
 ): string {
   const listed = found.tests.slice(0, REPEATING_FAILURE_LISTED)
   // Every row names its test by the SAME path the re-run hint below uses (`shortWhere`
@@ -1930,12 +1982,34 @@ export function repeatingFailureNote(
     ? `every one with \`${found.message}\``
     : `each after ~${found.seconds}s — the same duration to within half a second`
   const first = found.tests[0]
+  const firstAt = first?.where ?? ''
+  // The re-run this note may name, and whether the platform would refuse it right now — the SAME
+  // rule the overlap hold answers with, asked of the same pair of commands (see the note's doc):
+  // the running command's app, and the app the composed re-run would measure.
+  const rerun = firstAt && o.run ? rerunOfRunningSuite(o.run, [firstAt]) : null
+  const inTheWay =
+    rerun && o.run
+      ? suiteRunInTheWay(
+          { target: suiteCommandTarget(rerun) },
+          // The composer only narrows a `playwright test` run, so the run in flight is a suite by
+          // that fact alone.
+          [{ runsSuite: true, target: suiteCommandTarget(o.run.command) }],
+        )
+      : null
   const reproduce =
-    first?.where && !found.message
-      ? ` \`${first.where}\` alone reproduces the first one.`
-      : first?.where
-        ? ` Re-run \`${first.where}\` alone to see its error in full.`
-        : ''
+    inTheWay && rerun
+      ? ` Read \`${firstAt}\` and the code it drives now, and fix it: do not run anything ` +
+        `against this app while the run walks — a second run against the same app and database is ` +
+        `refused.`
+      : firstAt && !found.message
+        ? ` \`${firstAt}\` alone reproduces the first one.`
+        : firstAt
+          ? ` Re-run \`${firstAt}\` alone to see its error in full.`
+          : ''
+  // The exact command for AFTER the run ends — the one thing the note may not hand over for now,
+  // and the one thing the executor needs in hand by the time it does: the whole-suite command it
+  // must not send again, narrowed to the failing test, in the directory the run started in.
+  const thenRun = inTheWay && rerun ? `\nSend this once the run ends:\n  ${rerun}` : ''
   const where = `task ${o.taskId}, log ${o.log}`
   if (o.universal) {
     const files = o.universal.files.map(shortFile)
@@ -1960,7 +2034,7 @@ export function repeatingFailureNote(
     return (
       `${found.count} different tests in this run have already failed the same way — ${signature} — ` +
       `so one cause is repeating:\n${rows}${more}\n` +
-      `Start fixing it now, while the run keeps walking.${reproduce} ${keepGoing}`
+      `Start fixing it now, while the run keeps walking.${reproduce} ${keepGoing}${thenRun}`
     )
   return (
     `${found.count} different tests in this run each failed after ~${found.seconds}s — the same ` +
@@ -1968,7 +2042,7 @@ export function repeatingFailureNote(
     `config sets a timeout spends that timeout on every failure that waits for anything, so ` +
     `different missing elements land on the same number. Read these failures before fixing one ` +
     `of them:\n${rows}${more}\n` +
-    `Start on them now, while the run keeps walking.${reproduce} ${keepGoing}`
+    `Start on them now, while the run keeps walking.${reproduce} ${keepGoing}${thenRun}`
   )
 }
 

@@ -37,6 +37,17 @@ const logBytesByTask = new Map<string, number>()
 
 /** The file a background command writes its own output to, when it redirects it. */
 const outputFileByTask = new Map<string, string>()
+
+/**
+ * How each background task was started: the command as it was actually run (after
+ * {@link streamingBackgroundCommand} rewrote it) and the directory it ran in.
+ *
+ * A mid-run note has to hand over the re-run of a test that just failed, and a re-run is composed
+ * from the command that is still walking ({@link rerunOfRunningSuite}) — a whole-suite re-run is
+ * what the executor must not be handed for now, and a re-run narrowed for the wrong directory
+ * resolves the failing test's `file:line` against the wrong suite.
+ */
+const runByTask = new Map<string, { command: string; cwd: string }>()
 /**
  * Task ids whose own-output file has already been looked for this process.
  * {@link outputFileByTask} is empty for every task after a restart — it is
@@ -1882,6 +1893,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
               : `${cwd}/${ownTarget}`
             : null
           if (ownFile) outputFileByTask.set(id, ownFile)
+          runByTask.set(id, { command: streaming.command, cwd })
           await backend.writeFile(script, `${streaming.command}\n`)
           await backend.run(
             `nohup sh -c ${shellQuote(prioritized.launch)} ` +
@@ -2229,6 +2241,11 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         // Only a cause that is failing the whole run gets a stop command — and only then is the
         // pid walk paid for.
         const universal = universalCause(causeLog, found)
+        // How this run was started, so the note can hand over the re-run to send once it ends
+        // instead of one for now — the platform refuses a second run against the same app and
+        // database while this one walks (xr-molecule-flash-m89: the +19:59 note named a re-run
+        // and its overlap hold refused that exact run 23 s later).
+        const started = runByTask.get(taskId)
         repeatingCauseNoted.add(taskId)
         const earlyMs = Date.now() - startedAt
         waitedByTask.set(taskId, waitedBefore + earlyMs)
@@ -2241,6 +2258,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
             log,
             stop: universal ? await taskStopCommand(backend, taskId) : '',
             universal,
+            ...(started ? { run: started } : {}),
           }),
         }
       }
