@@ -1165,8 +1165,11 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       // A short one still comes back as a foreground result, through the grace below.
       const overCeiling =
         commandBudgetMs !== undefined &&
-        outputIsWithheldUntilExit(command) &&
-        (declaredSeconds > ceilingSeconds || /\bplaywright\s+test\b/.test(command))
+        ((outputIsWithheldUntilExit(command) &&
+          (declaredSeconds > ceilingSeconds || /\bplaywright\s+test\b/.test(command))) ||
+          // A redirected Playwright run shows nothing either (`> out.txt`), and was killed at
+          // the ceiling with 38 tests unrun (X1 flash-m36).
+          (/\bplaywright\s+test\b/.test(command) && outputRedirectTarget(command) !== null))
 
       if (input.run_in_background === true || overCeiling) {
         const id = `mol-bg-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`

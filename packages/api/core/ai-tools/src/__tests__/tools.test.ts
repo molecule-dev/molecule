@@ -342,6 +342,17 @@ describe('buildTools', () => {
     expect(result.note).toContain('A Playwright run can take longer')
   })
 
+  it('backgrounds a Playwright run redirected to a file (flash-m36)', async () => {
+    const backend = mockBackend()
+    const exec = buildTools(backend, { commandBudgetMs: 290_000, overCeilingGraceMs: 0 }).find(
+      (t) => t.name === 'exec_command',
+    )!
+    const r = (await exec.execute({ command: 'npx playwright test > /tmp/pw.txt 2>&1' })) as {
+      taskId?: string
+    }
+    expect(r.taskId).toMatch(/^mol-bg-/)
+  })
+
   it('reads the declared budget from the timeout PARAMETER too', async () => {
     const backend = mockBackend()
     const tools = buildTools(backend, { commandBudgetMs: 290_000, overCeilingGraceMs: 0 })
