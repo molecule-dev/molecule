@@ -270,6 +270,12 @@ const isDeviceActive = async (deviceId: string): Promise<boolean> => {
 /**
  * Set authorization headers and cookie for a session.
  *
+ * The token is bound to `session.deviceId`, and `verifyMiddleware` rejects any session whose
+ * device row does not exist (that is how signing out revokes a session). Mint the id with
+ * `get('device').createOrUpdate(userId, deviceName)` on every path that signs a user in
+ * (register, login, OAuth, password reset), as `handlers/logIn.ts` does: a placeholder
+ * (`'unknown'`, `''`, the user's id) yields a token that every later request answers 401.
+ *
  * @param _req - The request object (unused; reserved for handler signature parity).
  * @param res - The response object.
  * @param session - The session.
