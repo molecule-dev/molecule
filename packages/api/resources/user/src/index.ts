@@ -43,11 +43,12 @@
  * header: that ONE option turns the cookie off in BOTH directions — the middleware no
  * longer resolves a session from it (nor keeps one an earlier, laxer mount resolved), and
  * `set()` stops writing `token` / `sessionId` / `mol_auth`, so even the sign-in response
- * carries the `Authorization` header alone and the jar never fills. Set it on the mount
- * whose routes answer: the scaffold mounts `verifyMiddleware` twice (`api/src/server.ts`'s
- * `preApiRouter` runs first, then `api/src/App/router.ts`), and the last mount a request
- * passes sets the policy both halves read — a stricter mount drops a session the looser
- * earlier one resolved out of the cookie, and `set()` writes none.
+ * carries the `Authorization` header alone and the jar never fills. Set it on the mount in
+ * front of the routes that sign users in — the scaffold's `api/src/App/router.ts` — and
+ * check for a SECOND one: a request can pass several mounts (`api/src/server.ts`'s
+ * `preApiRouter` runs before `App/router.ts` and covers all of `/api`), the last one it
+ * passes sets the policy both halves read, and a laxer mount later in the chain cannot
+ * re-admit the cookie. If the app mounts two, mount it once instead.
  *
  * **Revoking a session yourself:** the middleware caches "this device exists" for 10 s per
  * process, so a hand-written logout that deletes the `devices` row keeps authorizing that
