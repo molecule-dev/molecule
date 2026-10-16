@@ -156,4 +156,61 @@ describe('createMigrator (mysql)', () => {
     expect(fileCalls).toHaveLength(3) // still attempts every file
     expect(migrationEnd).toHaveBeenCalled() // connection closed even on failure
   })
+
+  it('honors ADD COLUMN IF NOT EXISTS: applied on its own, a duplicate column is not a failure', async () => {
+    // MySQL 8 has no such clause. Inside the file it was either a syntax error or —
+    // rewritten to a bare ADD COLUMN — it aborted the multi-statement query at the
+    // duplicate column, skipping the statements after it and leaving the file
+    // unrecorded, warned about on every boot.
+    writeFileSync(
+      join(migrationsDir, '0001_tags.sql'),
+      'CREATE TABLE IF NOT EXISTS "article_tags" ("id" VARCHAR(36) PRIMARY KEY, "position" INTEGER);\n' +
+        'CREATE INDEX IF NOT EXISTS "idx_article_tags_tag" ON "article_tags" ("tag");\n' +
+        'ALTER TABLE "article_tags" ADD COLUMN IF NOT EXISTS "position" INTEGER NOT NULL DEFAULT 0;\n',
+    )
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    vi.spyOn(console, 'log').mockImplementation(() => {})
+    migrationQuery.mockImplementation((sql: string) => {
+      if (/^SET /i.test(sql)) return Promise.resolve()
+      // The column is already there — the clause's own case.
+      if (/ADD COLUMN/i.test(sql)) {
+        return Promise.reject(
+          Object.assign(new Error("Duplicate column name 'position'"), {
+            code: 'ER_DUP_FIELDNAME',
+          }),
+        )
+      }
+      return Promise.resolve()
+    })
+
+    await expect(createMigrator(migrationsDir)()).resolves.toBeUndefined()
+    const fileCalls = migrationQuery.mock.calls.filter((c) => !/^SET /i.test(String(c[0])))
+    // The file body in one query (index included — nothing is skipped), then the
+    // ADD COLUMN on its own.
+    expect(fileCalls).toHaveLength(2)
+    expect(String(fileCalls[0][0])).toContain('CREATE INDEX "idx_article_tags_tag"')
+    expect(String(fileCalls[0][0])).not.toContain('ADD COLUMN')
+    expect(String(fileCalls[1][0])).toBe(
+      'ALTER TABLE "article_tags" ADD COLUMN "position" INTEGER NOT NULL DEFAULT 0;',
+    )
+    expect(warn).not.toHaveBeenCalled()
+  })
+
+  it('still fails the run when an ADD COLUMN IF NOT EXISTS statement is genuinely broken', async () => {
+    writeFileSync(
+      join(migrationsDir, '0001_bad.sql'),
+      'ALTER TABLE "missing" ADD COLUMN IF NOT EXISTS "position" INTEGER;\n',
+    )
+    migrationQuery.mockImplementation((sql: string) => {
+      if (/^SET /i.test(sql)) return Promise.resolve()
+      if (/ADD COLUMN/i.test(sql)) {
+        return Promise.reject(new Error("Table 'missing' doesn't exist"))
+      }
+      return Promise.resolve()
+    })
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+    vi.spyOn(console, 'log').mockImplementation(() => {})
+
+    await expect(createMigrator(migrationsDir)()).rejects.toThrow(/0001_bad\.sql/)
+  })
 })

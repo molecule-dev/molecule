@@ -54,6 +54,57 @@ function isIdempotencyError(err: unknown): boolean {
   return /already exists/i.test(msg) || /duplicate (column|key) name/i.test(msg)
 }
 
+/** The head of an `ALTER TABLE … ADD COLUMN IF NOT EXISTS …` statement. */
+const ADD_COLUMN_IF_NOT_EXISTS =
+  /ALTER\s+TABLE\s+["`]?([A-Za-z_][A-Za-z0-9_]*)["`]?\s+ADD\s+COLUMN\s+IF\s+NOT\s+EXISTS\s+["`]?([A-Za-z_][A-Za-z0-9_]*)["`]?/gi
+
+/**
+ * Split a migration file into the `ALTER TABLE … ADD COLUMN IF NOT EXISTS …;`
+ * statements it contains and the rest of the file.
+ *
+ * MySQL 8 has no such clause, so the migrator honors it rather than the server.
+ * Left inside the file, the statement either fails the whole run (MySQL rejects
+ * the syntax) or — rewritten to a bare `ADD COLUMN` — aborts the multi-statement
+ * query at the duplicate column, which skips every statement after it and leaves
+ * the file unrecorded, warned about on every boot. Applied on their own, after
+ * the rest of the file, a duplicate column is just what the clause means: the
+ * column is already in place.
+ *
+ * @param sql - The migration file as written (Postgres dialect).
+ * @returns The file without those statements, and the statements in file order.
+ */
+function splitAddColumnIfNotExists(sql: string): { body: string; statements: string[] } {
+  const statements: string[] = []
+  let body = ''
+  let cursor = 0
+  ADD_COLUMN_IF_NOT_EXISTS.lastIndex = 0
+  for (let m = ADD_COLUMN_IF_NOT_EXISTS.exec(sql); m; m = ADD_COLUMN_IF_NOT_EXISTS.exec(sql)) {
+    // The statement runs to its first `;` outside a string and outside parens
+    // (a `DEFAULT (…)` may hold one); no terminator means the file's end.
+    let depth = 0
+    let quote = ''
+    let i = m.index + m[0].length
+    for (; i < sql.length; i++) {
+      const ch = sql[i]
+      if (quote) {
+        if (ch === quote) quote = ''
+        continue
+      }
+      if (ch === "'" || ch === '"' || ch === '`') quote = ch
+      else if (ch === '(') depth++
+      else if (ch === ')') depth--
+      else if (ch === ';' && depth === 0) break
+    }
+    const to = i < sql.length ? i + 1 : sql.length
+    body += sql.slice(cursor, m.index)
+    statements.push(sql.slice(m.index, to))
+    cursor = to
+    ADD_COLUMN_IF_NOT_EXISTS.lastIndex = to
+  }
+  body += sql.slice(cursor)
+  return { body, statements }
+}
+
 /**
  * Derives connection settings from `MYSQL_URL` or the discrete `MYSQL_*` env
  * vars, matching `createPool` in provider.ts.
@@ -201,9 +252,25 @@ export function createMigrator(migrationsDir: string): () => Promise<void> {
         }
         // Migrations are authored in Postgres dialect; translate the strict-MySQL
         // incompatibilities (types, functions, index syntax/prefixes) before exec.
-        const sql = translateDdlToMysql(readFileSync(join(migrationsDir, file), 'utf-8'))
+        // `ADD COLUMN IF NOT EXISTS` is honored by the loop rather than by the
+        // server (MySQL has no such clause): those statements are applied on their
+        // own below, where a duplicate column means the column is already there.
+        const { body, statements: addColumns } = splitAddColumnIfNotExists(
+          readFileSync(join(migrationsDir, file), 'utf-8'),
+        )
+        const sql = translateDdlToMysql(body)
         try {
-          await connection.query(sql)
+          // A file that is only such statements has an empty body.
+          if (sql.trim()) await connection.query(sql)
+          for (const statement of addColumns) {
+            try {
+              await connection.query(translateDdlToMysql(statement))
+            } catch (err) {
+              // What the clause means: the column is already in place. Anything
+              // else is a real failure — the outer catch classifies it.
+              if (!isIdempotencyError(err)) throw err
+            }
+          }
           await record(connection, file)
           console.log(`✓ ${file}`)
         } catch (err) {

@@ -108,6 +108,17 @@ describe('translateDdlToMysql', () => {
       'CREATE UNIQUE INDEX',
     )
   })
+  it('drops the ADD COLUMN IF NOT EXISTS clause MySQL does not parse', () => {
+    // MySQL 8 rejects the clause outright (a syntax error that fails the whole
+    // migration run). The migrator honors it by applying the statement on its own
+    // and treating a duplicate column as the clause's meaning; this rewrite is
+    // what keeps the statement parseable.
+    expect(
+      translateDdlToMysql(
+        'ALTER TABLE "article_tags" ADD COLUMN IF NOT EXISTS "position" INTEGER;',
+      ),
+    ).toBe('ALTER TABLE "article_tags" ADD COLUMN "position" INTEGER;')
+  })
   it('parenthesizes TEXT/JSON literal defaults and DEFAULT CURRENT_DATE', () => {
     expect(translateDdlToMysql(`"s" TEXT NOT NULL DEFAULT 'draft'`)).toBe(
       `"s" TEXT NOT NULL DEFAULT ('draft')`,

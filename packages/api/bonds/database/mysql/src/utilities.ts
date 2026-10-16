@@ -77,6 +77,11 @@ const prefixColRef = (ref: string, types: Record<string, string>): string => {
  *   drop indexes on JSON columns and functional/expression indexes (unsupported
  *   without generated columns) — the resource layer's uniqueness still holds at
  *   the app level.
+ * - `ALTER TABLE … ADD COLUMN IF NOT EXISTS …`: MySQL 8 has no such clause and
+ *   rejects the file outright (a syntax error, which fails the whole run). The
+ *   migrator honors the clause itself — it applies those statements separately and
+ *   treats a duplicate column as what the clause means (see `createMigrator`) — so
+ *   this rewrite is what keeps the statement parseable.
  *
  * @param sql - Raw migration SQL, possibly in Postgres dialect.
  * @returns MySQL-compatible SQL.
@@ -84,6 +89,7 @@ const prefixColRef = (ref: string, types: Record<string, string>): string => {
 export const translateDdlToMysql = (sql: string): string => {
   let s = sql
     .replace(/::[a-z_]+/gi, '')
+    .replace(/\bADD\s+COLUMN\s+IF\s+NOT\s+EXISTS\b/gi, 'ADD COLUMN')
     .replace(
       /\bCREATE\s+(UNIQUE\s+)?INDEX\s+IF\s+NOT\s+EXISTS\b/gi,
       (_m, u) => `CREATE ${u ? 'UNIQUE ' : ''}INDEX`,
