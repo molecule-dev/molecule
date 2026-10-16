@@ -1584,8 +1584,8 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           ...(soFar.trim() ? { outputSoFar: sanitizeOutput(soFar) } : {}),
           note:
             `Still running after ${Math.round(waitedMs / 1000)}s. Call wait_for_task again to ` +
-            `keep waiting — its result carries the log output. To peek at the output so far, ` +
-            `exec_command: tail ${log} (read_file cannot reach /tmp).`,
+            `keep waiting — its result carries the log output${soFar.trim() ? '; outputSoFar is the end of the log as it stands, so there is no need to tail it' : ''}. ` +
+            `Do other work in the meantime (another suite, a fix you have already found) rather than waiting.`,
         }
       }
       let output: string
