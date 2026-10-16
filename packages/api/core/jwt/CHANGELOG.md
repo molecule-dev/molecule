@@ -1,5 +1,11 @@
 # @molecule/api-jwt
 
+## 1.0.6
+
+### Patch Changes
+
+- `sign()`'s reference and `authorization.set()`'s now state how a session token reaches a JSON response body — `authorization.set(req, res, { userId, deviceId })` returns it, and `verifyMiddleware({ allowCookieSession: false })` keeps the cookie off — and that an app has exactly one bonded JWT provider (keys from `JWT_PRIVATE_KEY`/`JWT_PUBLIC_KEY`, no `JWT_SECRET`), so replacing it changes every token the app and its packages mint and verify.
+
 ## 1.0.5
 
 ### Patch Changes

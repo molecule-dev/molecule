@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.6.2
+
+### Patch Changes
+
+- A repeating failure is identified by its error and the element it waited for, never by how long the tests took, so timeouts on different elements are reported as the different causes they are.
+
 ## 1.6.1
 
 ### Patch Changes
