@@ -80,7 +80,7 @@
     "@molecule/api-import-export": "1.0.3",
     "@molecule/api-import-export-csv": "1.0.2",
     "@molecule/api-jwt": "1.0.3",
-    "@molecule/api-jwt-jsonwebtoken": "1.0.2",
+    "@molecule/api-jwt-jsonwebtoken": "1.0.3",
     "@molecule/api-logger": "1.0.2",
     "@molecule/api-media-streaming": "1.0.3",
     "@molecule/api-media-streaming-hls": "1.1.1",

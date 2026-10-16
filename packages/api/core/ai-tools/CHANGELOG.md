@@ -1,5 +1,12 @@
 # @molecule/api-ai-tools
 
+## 1.5.11
+
+### Patch Changes
+
+- fb864fc: `read_file` and `list_files` give the parent-directory hint for E2B's not-found wording too, and the path-safety check retries once and names a failure that is not a timeout.
+- fb864fc: A heredoc that writes a file is no longer taken for the output file of a backgrounded command.
+
 ## 1.5.10
 
 ### Patch Changes
