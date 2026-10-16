@@ -1734,9 +1734,11 @@ export function failureCausesNote(log: string): string | null {
   if (total < 2) return null
   const listed = causes.slice(0, FAILURE_CAUSES_LISTED)
   const lines = listed.map((c, i) => {
-    const tests = c.tests
-      .slice(0, FAILURE_CAUSE_TESTS_LISTED)
-      .map((t) => shortWhere(t.where) || t.title)
+    // The path the log itself wrote, never a shortened one: it is relative to the command's own
+    // cwd, so it is the form the executor can paste back (X1 flash-m82 read a shortened
+    // `e2e/auth.spec.ts:19` as the suite's own stale starter spec, rewrote its Playwright config
+    // over it and deleted the app's tests — 4 minutes of a 60-minute run on a working config).
+    const tests = c.tests.slice(0, FAILURE_CAUSE_TESTS_LISTED).map((t) => t.where || t.title)
     const more =
       c.tests.length > tests.length ? `, … and ${c.tests.length - tests.length} more` : ''
     const signature = c.message !== null ? `\`${c.message}\`` : `each after ~${c.seconds}s`

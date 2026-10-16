@@ -1005,8 +1005,11 @@ describe('repeatingFailure', () => {
       expect(note).toContain(
         '1. `TimeoutError: page.waitForURL: Timeout 10000ms exceeded.` — 3 tests in 2 files',
       )
+      // The path the log itself wrote, so it can be pasted into a re-run (flash-m82).
       expect(note).toContain(
-        'e2e/articles.spec.ts:32, e2e/articles.spec.ts:50, e2e/auth.spec.ts:78',
+        '../fixtures/realworld/specs/e2e/articles.spec.ts:32, ' +
+          '../fixtures/realworld/specs/e2e/articles.spec.ts:50, ' +
+          '../fixtures/realworld/specs/e2e/auth.spec.ts:78',
       )
       expect(note).toContain('2. `Expected class "active" but got ""` — 1 test in 1 file')
     })
