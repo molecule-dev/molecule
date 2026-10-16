@@ -157,9 +157,10 @@ const writeTags = async (articleId: string, tags: string[]): Promise<void> => {
 export async function createArticle(authorId: string, input: CreateArticleInput): Promise<Article> {
   const slug = await articleSlug(input.title)
   const tags = cleanTags(input.tagList)
-  // Written here rather than by the column default: SQLite's CURRENT_TIMESTAMP
-  // has whole seconds, so two articles from the same second tied and "newest
-  // first" came back in either order; this one is unique per process.
+  // Written here rather than left to the column default: the default is
+  // millisecond-precision, so two articles created inside the same millisecond
+  // would still tie and "newest first" would come back in either order. This one
+  // is strictly increasing per process (see nextCreatedAt).
   const now = nextCreatedAt()
   const result = await dbCreate<ArticleRow>(ARTICLES, {
     slug,
