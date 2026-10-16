@@ -132,7 +132,9 @@ export function createDefaultAuthClient<TUser extends UserProfile = UserProfile>
  * authed endpoints return 401 after page reloads or token refresh.
  *
  * Hydrates the HTTP client's token from the persisted auth state
- * on setup, then listens for auth events to keep them aligned.
+ * on setup, then listens for auth events to keep them aligned, and holds
+ * requests until the session restore settles so a page effect that fetches
+ * viewer-dependent data on mount cannot race it (see {@link registerAuthGate}).
  */
 export function createDefaultAuthClientWithHttpSync<TUser extends UserProfile = UserProfile>(
   authConfig: AuthClientConfig,
@@ -176,6 +178,10 @@ export function createDefaultAuthClientWithHttpSync<TUser extends UserProfile = 
  *
  * Used by apps where molecule packages render pricing / billing /
  * other authed JSON-fetching screens that need both behaviors.
+ *
+ * Requests are also held until the session restore settles (see
+ * {@link registerAuthGate}), so a page that fetches viewer-dependent data on
+ * mount cannot race it and answer for an anonymous viewer.
  */
 export function createDefaultAuthClientWithFetchClient<TUser extends UserProfile = UserProfile>(
   authConfig: AuthClientConfig,
