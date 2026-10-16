@@ -1,7 +1,8 @@
 /**
- * The article service against a real database: the SQLite bond, this
- * package's migration and the reaction and follow packages' tables, applied
- * the way a scaffolded app applies them on boot.
+ * The article service against a real database: the SQLite bond and this
+ * package's own `src/__setup__/` files (which include the `reactions` and
+ * `follows` tables it reads), applied the way a scaffolded app applies them on
+ * boot.
  */
 import { copyFileSync, mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
@@ -43,25 +44,23 @@ const tagsInTable = (articleId: string): Promise<{ tag: string; position: number
 beforeAll(async () => {
   dir = mkdtempSync(join(tmpdir(), 'article-service-'))
   const migrations = join(dir, 'migrations')
-  const { mkdirSync } = await import('node:fs')
+  const { mkdirSync, readdirSync } = await import('node:fs')
   mkdirSync(migrations)
   const here = new URL('.', import.meta.url).pathname
-  copyFileSync(join(here, '../__setup__/articles.sql'), join(migrations, '1-articles.sql'))
-  // The scaffold applies both setup files, in this order (articles.sql sorts
-  // first) — the position file is the one a database that predates the column
-  // gets its upgrade from.
-  copyFileSync(
-    join(here, '../__setup__/articles_position.sql'),
-    join(migrations, '2-articles-position.sql'),
-  )
-  copyFileSync(
-    join(here, '../../../reaction/src/__setup__/reactions.sql'),
-    join(migrations, '3-reactions.sql'),
-  )
-  copyFileSync(
-    join(here, '../../../follow/src/__setup__/follows.sql'),
-    join(migrations, '4-follows.sql'),
-  )
+  // Everything this package SHIPS — its own `src/__setup__/`, which includes the
+  // `reactions` and `follows` tables it reads (`@molecule/api-resource-reaction`
+  // and `@molecule/api-resource-follow` own those tables; the copies are what a
+  // scaffold copies, because a scaffold copies what the registry declares for
+  // the package being installed). Reaching into the sibling packages' own setup
+  // dirs here would hide a missing table: the test would build a database the
+  // scaffold never builds. self-sufficient-setup.test.ts is the guard.
+  const setupDir = join(here, '../__setup__')
+  readdirSync(setupDir)
+    .filter((file) => file.endsWith('.sql'))
+    .sort()
+    .forEach((file, index) => {
+      copyFileSync(join(setupDir, file), join(migrations, `${index + 1}-${file}`))
+    })
   const path = join(dir, 'app.db')
   process.env.SQLITE_PATH = path
   await createMigrator(migrations)()

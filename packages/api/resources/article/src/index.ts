@@ -41,11 +41,21 @@
  * ```
  *
  * @remarks
- * - **Migration required.** `src/__setup__/articles.sql` creates `articles` and
- *   `article_tags`; the reaction and follow packages bring `reactions` and
- *   `follows`. Scaffolded apps apply all of them on boot.
- *   `src/__setup__/articles_position.sql` adds `article_tags.position` to a
- *   database whose table predates the column.
+ * - **Migration required: FOUR tables, and every file in `src/__setup__/` is
+ *   this package's own.** `articles.sql` creates `articles` and `article_tags`;
+ *   `articles_position.sql` adds `article_tags.position` to a database whose
+ *   table predates the column; and `reactions.sql` / `follows.sql` are the
+ *   `reactions` and `follows` tables, which this package reads directly by name
+ *   (favorites on every response, the followed-authors feed) and therefore
+ *   declares and ships itself — they are copies of
+ *   `@molecule/api-resource-reaction`'s and `@molecule/api-resource-follow`'s
+ *   own `__setup__` files, statement for statement (`CREATE TABLE IF NOT
+ *   EXISTS`, so an app that also installs those packages applies both copies
+ *   with no effect on the second). A scaffold copies the tables its registry
+ *   entry declares, so with all four shipped here an app that installs only
+ *   this package creates every table its endpoints need. Applying only
+ *   `articles.sql` leaves every article response failing with `no such table:
+ *   reactions`.
  * - **`article_tags` keeps the order the tags were given in**, in its `position`
  *   column (0-based). An app that reads the join table itself must order by
  *   `position` — a submission-order assertion (`tagList[0]`, `tagList[1]`) reads
