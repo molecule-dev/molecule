@@ -123,6 +123,12 @@ export const hasProvider = (): boolean => {
  * Signs a payload into a JWT string using the bonded provider. Uses the
  * configured algorithm, expiry, and private key as defaults.
  *
+ * This is the LOW-LEVEL signer: it signs whatever payload it is given, and a
+ * token it mints is not by itself a session. For a session, use
+ * `authorization.set()` from `@molecule/api-resource-user` — the app's global
+ * `verifyMiddleware` accepts a JWT only when its payload also carries a
+ * `deviceId` naming an active row in `devices` (see the module `@remarks`).
+ *
  * @param object - The JSON payload to sign.
  * @param options - Signing options; `algorithm` defaults to `JWT_ALGORITHM`, `expiresIn` defaults to `JWT_EXPIRES_TIME`.
  * @param options.algorithm - The signing algorithm (e.g. `RS256`, `HS256`).

@@ -21,6 +21,14 @@
  *   and populates `res.locals.session`, so a handler calls `getUserId(res)` — do NOT call
  *   `verify()`/`sign()` by hand for the session (see the `auth` skill). Use these directly
  *   only for a CUSTOM token, e.g. a signed email/reset link.
+ * - **{@link sign} is the low-level signer; a token it mints is NOT a session.**
+ *   `verifyMiddleware` (`@molecule/api-resource-user`) accepts a JWT only when its payload
+ *   also carries a `deviceId` naming an ACTIVE row in the app's `devices` table, so a
+ *   payload without one is treated as no session: `sign({ userId })` answers 401 on every
+ *   route although the token itself verifies. Mint a session with `authorization.set()`
+ *   from `@molecule/api-resource-user`, which signs and writes the session cookies — call
+ *   `get('device').createOrUpdate(userId, deviceName)` first and pass `{ userId, deviceId }`
+ *   to `set()`, as that package's own log-in handler does.
  * - **Re-signing decoded claims (refresh flows): strip `exp`/`iat` first.** `sign()`
  *   always sets `expiresIn` (default {@link JWT_EXPIRES_TIME}), and the underlying library
  *   throws (`Bad "options.expiresIn" option the payload already has an "exp" property`)
