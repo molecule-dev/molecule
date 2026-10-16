@@ -33,6 +33,27 @@ emailed-token reset). To read or write one secret yourself, use the abstract dat
 same key — `findById('usersSecrets', userId)`, or `${tableName}Secrets` when the resource
 carries a custom `tableName` — never SQL.
 
+**Issuing a session yourself (the sequence is device, then session — two calls, and the first
+RETURNS the id):** the middleware accepts both `Authorization: Bearer <jwt>` and
+`Authorization: Token <jwt>` (RealWorld's scheme), but only for a token whose `deviceId` names
+an ACTIVE row in `devices` — a JWT you `sign()` with an invented `deviceId` is answered 401 on
+every route.
+
+```typescript
+import { get } from '@molecule/api-bond'
+import { authorization } from '@molecule/api-resource-user'
+import type { DeviceService } from '@molecule/api-resource-device'
+
+const deviceId = await get<DeviceService>('device')?.createOrUpdate(userId, deviceName)
+const token = authorization.set(req, res, { userId, deviceId })
+```
+
+`get<DeviceService>('device')` is the typed accessor (never hand-type a
+`get<{ createOrUpdate(): … }>('device')` generic: a wrong one still compiles and leaves the
+field you invented — `device.id` — `undefined`), and `createOrUpdate` RESOLVES TO THE DEVICE ID
+STRING, not to a row. `authorization.set()` throws when `deviceId` is missing rather than mint a
+token every later request answers 401.
+
 **`handlers.*` return `{ statusCode, headers?, body }` and never write to `res`** — not through
 `res.json`, not through `res.send`, not through `res.end`. The mounted routes apply that object
 for you (`createRequestHandler` does `res.set(headers)`, `res.status(statusCode)`,
@@ -688,24 +709,28 @@ type AuthSessionSource = 'header' | 'cookie'
 
 Set authorization headers and cookie for a session, and RETURN the signed token.
 
-To put a session token in a JSON response BODY — an API whose clients send
-`Authorization: Token <jwt>` — call this and use its return value. Do NOT sign a
-second token with another key or algorithm: `verifyMiddleware` verifies with the app's
-bonded `@molecule/api-jwt` provider, so a self-signed one answers 401 on the very next
-request. Mount `verifyMiddleware({ allowCookieSession: false })` in front of the routes
-that sign users in and the client gets the token without any session cookie.
+**The sign-in sequence is device → session — one call each, and the device call gives you an ID:**
+
+```ts
+import type { DeviceService } from '@molecule/api-resource-device'
+
+const deviceId = await get<DeviceService>('device')?.createOrUpdate(userId, deviceName)
+const token = set(req, res, { userId, deviceId })
+```
+
+`createOrUpdate` RESOLVES TO THE DEVICE ID — the id string, never a row — and to `null` when the
+row could not be written. `get<DeviceService>('device')` (the type comes from
+`@molecule/api-resource-device`) is the typed accessor: do NOT hand-type a `get<…>('device')`
+generic, because a wrong one still compiles and hands you `undefined` for whatever field you
+invented (`device.id`), which is how a run signed a token no request ever accepted. Read the
+value the call RETURNS, and check it is there before signing.
 
 The token is bound to `session.deviceId`, and `verifyMiddleware` rejects any session whose
-device row does not exist (that is how signing out revokes a session). Mint the id with
-`get('device').createOrUpdate(userId, deviceName)` on every path that signs a user in
-(register, login, OAuth, password reset), as `handlers/logIn.ts` does: a placeholder
-(`'unknown'`, `''`, the user's id) yields a token that every later request answers 401.
-
-Always sets the `Authorization` response header. Writes the session cookies (the httpOnly
-`token` and `sessionId`, plus the readable `mol_auth` presence hint) UNLESS the request's
-cookie-session policy is off — see {@link ALLOW_COOKIE_SESSION_LOCALS_KEY}, written by
-{@link verifyMiddleware}. A token-only API (`allowCookieSession: false`) gets the header
-and no cookies, so its clients cannot drift into a cookie session.
+device row does not exist (that is how signing out revokes a session). So this function REFUSES
+to mint a token without one: it throws when `session.userId` or `session.deviceId` is missing or
+is not a non-empty string, naming the field and the call that supplies it, instead of letting the
+client discover it as a 401 on every later request. Do the device step on every path that signs a
+user in (register, login, OAuth, password reset), as `handlers/logIn.ts` does: a placeholder
 
 _(description truncated — read the full text in `node_modules/@molecule/api-resource-user/dist/authorization.d.ts`.)_
 
@@ -725,7 +750,7 @@ function set(
 
 - `_req` — The request object (unused; reserved for handler signature parity).
 - `res` — The response object.
-- `session` — The session.
+- `session` — The session, carrying the `userId` AND the `deviceId` the token is bound to.
 
 **Returns:** The signed JWT token string, or null if signing failed.
 
@@ -2012,14 +2037,6 @@ row** — return `Props`.
 Auth is ALREADY wired globally (the router's `verifyMiddleware` → `res.locals.session`),
 so a handler reads the current user with `getUserId(res)` and does NOT add per-route auth
 middleware (see the `auth` skill). Scope every custom user query by the authenticated id.
-
-**Issuing a session yourself:** the middleware accepts both `Authorization: Bearer <jwt>`
-and `Authorization: Token <jwt>` (RealWorld's scheme), but only for a token whose
-`deviceId` names an ACTIVE row in `devices`. A JWT you `sign()` with an invented `deviceId`
-is answered 401 on every route. Mint sessions the way the built-in login does — create the
-device with `get('device').createOrUpdate(userId, deviceName)` (it returns the device id; or call
-`authorization.set(…)`) and sign that id — instead of inventing one. Return the user
-through `utilities.stripSensitiveUserColumns(row)` so no secret column reaches the client.
 
 **A different wire format** (RealWorld's `{ user: { … } }`): the route handlers read a
 FLAT body (`req.body.username`, `req.body.password`) and are not a wire-format adapter —

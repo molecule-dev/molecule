@@ -38,6 +38,7 @@ vi.mock('uuid', () => ({
 }))
 
 // Import after mocks are set up.
+const { get } = await import('@molecule/api-bond')
 const {
   set,
   verifyMiddleware,
@@ -308,6 +309,88 @@ describe('authorization', () => {
       expect(names).toContain('sessionId')
       expect(names).not.toContain('__Host-token')
       expect(names).not.toContain('__Host-sessionId')
+    })
+
+    // ---------------------------------------------------------------
+    // The session contract: a token without a deviceId authenticates
+    // nothing, so set() refuses to mint one (xr-flash-m100: the run's own
+    // hand-typed `get<{ createOrUpdate(): Promise<{ id }> }>('device')`
+    // made `device.id` undefined and signed a session that answered 401 on
+    // every request — silently, at sign-in).
+    // ---------------------------------------------------------------
+    describe('refuses to mint a session its own verify path would reject', () => {
+      it('throws when deviceId is missing, and signs nothing', () => {
+        const res = makeRes()
+
+        expect(() => set(makeReq() as never, res as never, { userId: 'u1' } as never)).toThrow(
+          /deviceId/,
+        )
+
+        // The failure has to be AT SIGN-IN: nothing signed, nothing handed out.
+        expect(mockSign).not.toHaveBeenCalled()
+        expect(res.setHeader).not.toHaveBeenCalled()
+        expect(res.cookie).not.toHaveBeenCalled()
+      })
+
+      it('names the call that supplies the deviceId and what it resolves to', () => {
+        expect(() =>
+          set(makeReq() as never, makeRes() as never, { userId: 'u1' } as never),
+        ).toThrow(/createOrUpdate/)
+        expect(() =>
+          set(makeReq() as never, makeRes() as never, { userId: 'u1' } as never),
+        ).toThrow(/device id STRING/)
+      })
+
+      it('rejects the m100 value: an undefined deviceId from a hand-typed generic', () => {
+        // `device.id` off `get<{ createOrUpdate(): Promise<{ id: string }> }>('device')`:
+        // the generic is the model's own, so typecheck was green and the value was undefined.
+        const device = undefined as unknown as { id: string }
+        const session = { userId: 'u1', deviceId: device?.id } as never
+
+        expect(() => set(makeReq() as never, makeRes() as never, session)).toThrow(/undefined/)
+      })
+
+      it('rejects a non-string, and an empty, deviceId', () => {
+        // A placeholder (`''`, `'unknown'` is a string but names no row — that one the
+        // middleware catches), a number, or a whole row instead of its id.
+        expect(() =>
+          set(makeReq() as never, makeRes() as never, { userId: 'u1', deviceId: '' } as never),
+        ).toThrow(/deviceId/)
+        expect(() =>
+          set(makeReq() as never, makeRes() as never, { userId: 'u1', deviceId: 123 } as never),
+        ).toThrow(/123/)
+        expect(() =>
+          set(
+            makeReq() as never,
+            makeRes() as never,
+            { userId: 'u1', deviceId: { id: 'd1' } } as never,
+          ),
+        ).toThrow(/deviceId/)
+      })
+
+      it('throws when userId is missing too (the middleware needs both)', () => {
+        expect(() =>
+          set(makeReq() as never, makeRes() as never, { deviceId: 'd1' } as never),
+        ).toThrow(/userId/)
+      })
+
+      it('mints the token when the device id the accessor resolved to is passed (the JSDoc sequence)', async () => {
+        mockSign.mockReturnValue('jwt-token-xyz')
+        mockGetConfig.mockReturnValue('test')
+        // The typed accessor's contract: createOrUpdate RESOLVES TO THE ID STRING.
+        const createOrUpdate = vi.fn(async () => 'device-1')
+        mockGet.mockReturnValue({ createOrUpdate })
+        const res = makeRes()
+
+        const deviceId = await get<{ createOrUpdate(u: string, n: string): Promise<string> }>(
+          'device',
+        )?.createOrUpdate('u1', 'web')
+        const token = set(makeReq() as never, res as never, { userId: 'u1', deviceId } as never)
+
+        expect(createOrUpdate).toHaveBeenCalledWith('u1', 'web')
+        expect(token).toBe('jwt-token-xyz')
+        expect(res.setHeader).toHaveBeenCalledWith('Authorization', 'Bearer jwt-token-xyz')
+      })
     })
   })
 

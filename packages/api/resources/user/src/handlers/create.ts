@@ -6,6 +6,7 @@ import { t } from '@molecule/api-i18n'
 import { hash } from '@molecule/api-password'
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 import { create as resourceCreate } from '@molecule/api-resource'
+import type { DeviceService } from '@molecule/api-resource-device'
 
 import * as authorization from '../authorization.js'
 import type * as types from '../types.js'
@@ -235,9 +236,13 @@ export const create = ({ name, tableName, schema }: types.Resource) => {
 
     // User and secrets created — now set up the session.
     try {
-      const deviceId = await get<{
-        createOrUpdate(userId: string, deviceName: string): Promise<string | null>
-      }>('device')?.createOrUpdate(id, body.deviceName || 'Unknown')
+      // `get<DeviceService>('device')` is the typed accessor; `createOrUpdate` resolves
+      // to the device id STRING (or null on failure) — see the sign-in sequence on
+      // `authorization.set`.
+      const deviceId = await get<DeviceService>('device')?.createOrUpdate(
+        id,
+        body.deviceName || 'Unknown',
+      )
 
       if (deviceId) {
         const accessToken = authorization.set(req, res, { userId: id, deviceId })

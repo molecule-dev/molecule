@@ -128,6 +128,10 @@ export const hasProvider = (): boolean => {
  * `authorization.set()` from `@molecule/api-resource-user` — the app's global
  * `verifyMiddleware` accepts a JWT only when its payload also carries a
  * `deviceId` naming an active row in `devices` (see the module `@remarks`).
+ * The sequence is device → session, and the device call RESOLVES TO THE ID:
+ * `const deviceId = await get<DeviceService>('device')?.createOrUpdate(userId, deviceName)`
+ * (`DeviceService` is exported by `@molecule/api-resource-device`), then
+ * `authorization.set(req, res, { userId, deviceId })`.
  *
  * **There is ONE JWT provider per app, and this signs with it.** The scaffold
  * bonds `@molecule/api-jwt-jsonwebtoken` once (the app's `api/src/bonds/`), keyed

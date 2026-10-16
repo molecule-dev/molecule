@@ -314,18 +314,36 @@ const maySetSessionCookie = (res: MoleculeResponse): boolean =>
 /**
  * Set authorization headers and cookie for a session, and RETURN the signed token.
  *
+ * **The sign-in sequence is device → session — one call each, and the device call gives you an ID:**
+ *
+ * ```ts
+ * import type { DeviceService } from '@molecule/api-resource-device'
+ *
+ * const deviceId = await get<DeviceService>('device')?.createOrUpdate(userId, deviceName)
+ * const token = set(req, res, { userId, deviceId })
+ * ```
+ *
+ * `createOrUpdate` RESOLVES TO THE DEVICE ID — the id string, never a row — and to `null` when the
+ * row could not be written. `get<DeviceService>('device')` (the type comes from
+ * `@molecule/api-resource-device`) is the typed accessor: do NOT hand-type a `get<…>('device')`
+ * generic, because a wrong one still compiles and hands you `undefined` for whatever field you
+ * invented (`device.id`), which is how a run signed a token no request ever accepted. Read the
+ * value the call RETURNS, and check it is there before signing.
+ *
+ * The token is bound to `session.deviceId`, and `verifyMiddleware` rejects any session whose
+ * device row does not exist (that is how signing out revokes a session). So this function REFUSES
+ * to mint a token without one: it throws when `session.userId` or `session.deviceId` is missing or
+ * is not a non-empty string, naming the field and the call that supplies it, instead of letting the
+ * client discover it as a 401 on every later request. Do the device step on every path that signs a
+ * user in (register, login, OAuth, password reset), as `handlers/logIn.ts` does: a placeholder
+ * (`'unknown'`, `''`, the user's id) yields a token that every later request answers 401.
+ *
  * To put a session token in a JSON response BODY — an API whose clients send
  * `Authorization: Token <jwt>` — call this and use its return value. Do NOT sign a
  * second token with another key or algorithm: `verifyMiddleware` verifies with the app's
  * bonded `@molecule/api-jwt` provider, so a self-signed one answers 401 on the very next
  * request. Mount `verifyMiddleware({ allowCookieSession: false })` in front of the routes
  * that sign users in and the client gets the token without any session cookie.
- *
- * The token is bound to `session.deviceId`, and `verifyMiddleware` rejects any session whose
- * device row does not exist (that is how signing out revokes a session). Mint the id with
- * `get('device').createOrUpdate(userId, deviceName)` on every path that signs a user in
- * (register, login, OAuth, password reset), as `handlers/logIn.ts` does: a placeholder
- * (`'unknown'`, `''`, the user's id) yields a token that every later request answers 401.
  *
  * Always sets the `Authorization` response header. Writes the session cookies (the httpOnly
  * `token` and `sessionId`, plus the readable `mol_auth` presence hint) UNLESS the request's
@@ -340,14 +358,44 @@ const maySetSessionCookie = (res: MoleculeResponse): boolean =>
  *
  * @param _req - The request object (unused; reserved for handler signature parity).
  * @param res - The response object.
- * @param session - The session.
+ * @param session - The session, carrying the `userId` AND the `deviceId` the token is bound to.
  * @returns The signed JWT token string, or null if signing failed.
+ * @throws {Error} When `session.userId` or `session.deviceId` is missing, or is not a non-empty
+ * string. Such a token verifies and then answers 401 on every request; failing here names the field
+ * and the call that supplies it, at sign-in, instead of silently minting a dead session.
  */
 export const set = (
   _req: MoleculeRequest,
   res: MoleculeResponse,
   session: Session,
 ): string | null => {
+  // A token the middleware will not accept is not a session. `verifyMiddleware` (below) exposes a
+  // session only when BOTH `userId` and `deviceId` are set, so a token minted without a device id
+  // is signed, handed to the client, and then answered 401 on every request — with nothing said at
+  // sign-in (X1 flash-m100 spent 53 s and 7 calls, three of them reading this module's compiled
+  // `dist`, on exactly that: its own generic made `device.id` `undefined`).
+  if (typeof session?.userId !== 'string' || session.userId.length === 0) {
+    throw new Error(
+      'authorization.set: session.userId is ' +
+        JSON.stringify(session?.userId) +
+        ' — a session needs the signed-in user’s id, not a placeholder. Call set() with ' +
+        '{ userId, deviceId }.',
+    )
+  }
+  if (typeof session?.deviceId !== 'string' || session.deviceId.length === 0) {
+    throw new Error(
+      'authorization.set: session.deviceId is ' +
+        JSON.stringify(session?.deviceId) +
+        ' — a token without a device id answers 401 on every request, because verifyMiddleware ' +
+        'exposes a session only when its deviceId names an ACTIVE `devices` row. Mint the id ' +
+        'first, and use what the call RETURNS: `const deviceId = await ' +
+        "get<DeviceService>('device')?.createOrUpdate(userId, deviceName)` (the type is exported " +
+        'by @molecule/api-resource-device; createOrUpdate resolves to the device id STRING, or ' +
+        'null on failure — never a row, so a hand-typed generic like ' +
+        "`get<{ createOrUpdate(): Promise<{ id: string }> }>('device')` gives you `undefined`).",
+    )
+  }
+
   try {
     // Create a session ID for web browser clients.
     if (!session.id) {

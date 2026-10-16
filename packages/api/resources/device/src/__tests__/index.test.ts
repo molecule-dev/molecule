@@ -2,6 +2,9 @@
  * Tests for the Device resource types, schema, and definition.
  */
 
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
+
 import { describe, expect, it } from 'vitest'
 
 import { resource } from '../resource.js'
@@ -30,6 +33,20 @@ describe('Device resource definition', () => {
   it('should have a schema', () => {
     expect(resource.schema).toBeDefined()
     expect(resource.schema.safeParse).toBeDefined()
+  })
+
+  // The interface a CONSUMER writes at the call site — `get<DeviceService>('device')` — has to be
+  // importable by that name from the package root. Reachable only through the `types` namespace, it
+  // was not: X1 flash-m100 (2026-10-16) hand-typed
+  // `get<{ createOrUpdate(): Promise<{ id: string }> }>('device')` instead — a generic of its own
+  // invention, so `device.id` was `undefined` at runtime and every token the app minted answered
+  // 401. The `types` namespace stays for callers that already use it; this asserts the flat export
+  // (a type-only export, so the check is on the barrel source — the compile proof is the user
+  // resource, which imports the name).
+  it('re-exports the DeviceService interface by name, so get<DeviceService>(…) compiles', () => {
+    const barrel = readFileSync(join(__dirname, '../index.ts'), 'utf8')
+    expect(barrel).toContain("export * from './types.js'")
+    expect(barrel).toContain("export * as types from './types.js'")
   })
 })
 

@@ -26,9 +26,14 @@
  *   also carries a `deviceId` naming an ACTIVE row in the app's `devices` table, so a
  *   payload without one is treated as no session: `sign({ userId })` answers 401 on every
  *   route although the token itself verifies. Mint a session with `authorization.set()`
- *   from `@molecule/api-resource-user`, which signs and writes the session cookies — call
- *   `get('device').createOrUpdate(userId, deviceName)` first and pass `{ userId, deviceId }`
- *   to `set()`, as that package's own log-in handler does.
+ *   from `@molecule/api-resource-user`, which signs and writes the session cookies — the
+ *   sequence is device → session, and the device call RESOLVES TO THE ID:
+ *   `const deviceId = await get<DeviceService>('device')?.createOrUpdate(userId, deviceName)`
+ *   (the `DeviceService` type comes from `@molecule/api-resource-device`; do not hand-type a
+ *   `get<{ createOrUpdate(): … }>('device')` generic — a wrong one compiles and yields
+ *   `undefined`), then `authorization.set(req, res, { userId, deviceId })`, as that package's
+ *   own log-in handler does. `authorization.set()` throws when the device id is missing
+ *   rather than mint a token every route answers 401.
  * - **Re-signing decoded claims (refresh flows): strip `exp`/`iat` first.** `sign()`
  *   always sets `expiresIn` (default {@link JWT_EXPIRES_TIME}), and the underlying library
  *   throws (`Bad "options.expiresIn" option the payload already has an "exp" property`)

@@ -8,6 +8,7 @@ import { create as storeCreate, findById, findOne, updateById } from '@molecule/
 import { t } from '@molecule/api-i18n'
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 import { create as resourceCreate } from '@molecule/api-resource'
+import type { DeviceService } from '@molecule/api-resource-device'
 
 import * as authorization from '../authorization.js'
 import { MAX_BIO_LENGTH } from '../schema.js'
@@ -608,10 +609,12 @@ export const logInOAuth = ({ name, tableName, schema }: types.Resource) => {
         }
       }
 
-      // Create or update device.
-      const deviceId = await get<{
-        createOrUpdate(userId: string, deviceName: string): Promise<string | null>
-      }>('device')?.createOrUpdate(user.id, body.deviceName || 'Unknown')
+      // Create or update device — the typed accessor, and `createOrUpdate` resolves to
+      // the device id STRING (or null on failure), which is what `set()` needs.
+      const deviceId = await get<DeviceService>('device')?.createOrUpdate(
+        user.id,
+        body.deviceName || 'Unknown',
+      )
 
       if (!deviceId) {
         return {

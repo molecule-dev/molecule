@@ -106,4 +106,10 @@ export * from './resource.js'
 export * from './routes.js'
 export * from './schema.js'
 export * from './service.js'
+// `DeviceService` is an INTERFACE a consumer writes at the call site —
+// `get<DeviceService>('device')` — so it has to be importable by that name, not reachable only
+// through the `types` namespace (X1 flash-m100 hand-typed
+// `get<{ createOrUpdate(): Promise<{ id: string }> }>('device')` instead, a generic of its own
+// invention that left `device.id` undefined). The `types` namespace stays for callers that use it.
+export * from './types.js'
 export * as types from './types.js'

@@ -5,6 +5,7 @@ import { findById, findOne, updateMany, type WhereCondition } from '@molecule/ap
 import { t } from '@molecule/api-i18n'
 import { compare, hash } from '@molecule/api-password'
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
+import type { DeviceService } from '@molecule/api-resource-device'
 
 import * as authorization from '../authorization.js'
 import type * as types from '../types.js'
@@ -360,9 +361,14 @@ export const logIn = ({ name: _name, tableName, schema: _schema }: types.Resourc
       }
 
       // Create or update device.
-      const deviceId = await get<{
-        createOrUpdate(userId: string, deviceName: string): Promise<string | null>
-      }>('device')?.createOrUpdate(user.id, body.deviceName || 'Unknown')
+      // `get<DeviceService>('device')` is the typed accessor — never a hand-typed
+      // `get<{ createOrUpdate(): … }>` generic (a wrong one compiles and returns
+      // `undefined` for a field you invented, which mints a token no request accepts).
+      // `createOrUpdate` resolves to the device id STRING, or null on failure.
+      const deviceId = await get<DeviceService>('device')?.createOrUpdate(
+        user.id,
+        body.deviceName || 'Unknown',
+      )
 
       if (!deviceId) {
         return {

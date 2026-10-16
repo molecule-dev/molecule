@@ -44,6 +44,12 @@ describe('the session contract in @molecule/api-jwt’s own docs (flash-m73)', (
     // Why a hand-signed token is refused, and what a caller needs to supply.
     expect(doc).toContain('deviceId')
     expect(doc).toContain('createOrUpdate')
+    // The TYPED call, and what the device call resolves to — the untyped
+    // `get('device').createOrUpdate(…)` is what a run hand-types a wrong generic around
+    // (X1 flash-m100: `device.id` came out `undefined` and every token answered 401).
+    expect(doc).toContain("get<DeviceService>('device')")
+    expect(doc).toContain('RESOLVES TO THE ID')
+    expect(doc).toContain('@molecule/api-resource-device')
   })
 
   it('says the same on sign() itself, where the function is documented', () => {
@@ -52,6 +58,7 @@ describe('the session contract in @molecule/api-jwt’s own docs (flash-m73)', (
     expect(doc).toContain('not by itself a session')
     expect(doc).toContain('authorization.set()')
     expect(doc).toContain('deviceId')
+    expect(doc).toContain("get<DeviceService>('device')")
   })
 
   it('carries it into the generated README, the doc read_molecule_doc serves', () => {
@@ -61,5 +68,6 @@ describe('the session contract in @molecule/api-jwt’s own docs (flash-m73)', (
     expect(readme).toContain('authorization.set()')
     expect(readme).toContain('@molecule/api-resource-user')
     expect(readme).toContain('createOrUpdate')
+    expect(readme).toContain("get<DeviceService>('device')")
   })
 })

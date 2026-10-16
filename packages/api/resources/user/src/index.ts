@@ -23,6 +23,27 @@
  * same key — `findById('usersSecrets', userId)`, or `${tableName}Secrets` when the resource
  * carries a custom `tableName` — never SQL.
  *
+ * **Issuing a session yourself (the sequence is device, then session — two calls, and the first
+ * RETURNS the id):** the middleware accepts both `Authorization: Bearer <jwt>` and
+ * `Authorization: Token <jwt>` (RealWorld's scheme), but only for a token whose `deviceId` names
+ * an ACTIVE row in `devices` — a JWT you `sign()` with an invented `deviceId` is answered 401 on
+ * every route.
+ *
+ * ```typescript
+ * import { get } from '@molecule/api-bond'
+ * import { authorization } from '@molecule/api-resource-user'
+ * import type { DeviceService } from '@molecule/api-resource-device'
+ *
+ * const deviceId = await get<DeviceService>('device')?.createOrUpdate(userId, deviceName)
+ * const token = authorization.set(req, res, { userId, deviceId })
+ * ```
+ *
+ * `get<DeviceService>('device')` is the typed accessor (never hand-type a
+ * `get<{ createOrUpdate(): … }>('device')` generic: a wrong one still compiles and leaves the
+ * field you invented — `device.id` — `undefined`), and `createOrUpdate` RESOLVES TO THE DEVICE ID
+ * STRING, not to a row. `authorization.set()` throws when `deviceId` is missing rather than mint a
+ * token every later request answers 401.
+ *
  * **`handlers.*` return `{ statusCode, headers?, body }` and never write to `res`** — not through
  * `res.json`, not through `res.send`, not through `res.end`. The mounted routes apply that object
  * for you (`createRequestHandler` does `res.set(headers)`, `res.status(statusCode)`,
@@ -55,14 +76,6 @@
  * Auth is ALREADY wired globally (the router's `verifyMiddleware` → `res.locals.session`),
  * so a handler reads the current user with `getUserId(res)` and does NOT add per-route auth
  * middleware (see the `auth` skill). Scope every custom user query by the authenticated id.
- *
- * **Issuing a session yourself:** the middleware accepts both `Authorization: Bearer <jwt>`
- * and `Authorization: Token <jwt>` (RealWorld's scheme), but only for a token whose
- * `deviceId` names an ACTIVE row in `devices`. A JWT you `sign()` with an invented `deviceId`
- * is answered 401 on every route. Mint sessions the way the built-in login does — create the
- * device with `get('device').createOrUpdate(userId, deviceName)` (it returns the device id; or call
- * `authorization.set(…)`) and sign that id — instead of inventing one. Return the user
- * through `utilities.stripSensitiveUserColumns(row)` so no secret column reaches the client.
  *
  * **A different wire format** (RealWorld's `{ user: { … } }`): the route handlers read a
  * FLAT body (`req.body.username`, `req.body.password`) and are not a wire-format adapter —
