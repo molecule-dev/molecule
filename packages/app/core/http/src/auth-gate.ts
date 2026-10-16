@@ -81,7 +81,9 @@ export const awaitAuthGate = async (): Promise<void> => {
   let timedOut = false
   try {
     await Promise.race([
-      Promise.resolve(current()).catch((error) => {
+      // `(async () => current())()` also turns a gate that throws SYNCHRONOUSLY into a rejection:
+      // a gate is someone else's code, and no shape of it may reject the request it was holding.
+      (async () => current())().catch((error) => {
         logger.warn('The auth gate rejected; sending the request without waiting for it', {
           error,
         })

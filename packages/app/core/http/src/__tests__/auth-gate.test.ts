@@ -105,6 +105,17 @@ describe('the auth gate', () => {
     expect(mockFetch).toHaveBeenCalledTimes(1)
   })
 
+  it('sends the request when the gate throws synchronously', async () => {
+    // A gate is someone else's code; no shape of it may reject the request it was holding.
+    setAuthGate(() => {
+      throw new Error('bad gate')
+    })
+    const client = createFetchClient({ baseURL: 'http://api.test' })
+
+    await expect(client.get('/feed')).resolves.toBeDefined()
+    expect(mockFetch).toHaveBeenCalledTimes(1)
+  })
+
   it('sends the request rather than holding it forever when the gate never settles', async () => {
     // A stalled restore must not hold back every request for the life of the page.
     vi.useFakeTimers()
