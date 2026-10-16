@@ -7,6 +7,7 @@
 
 import { posix } from 'path'
 
+import { commandSegments } from './command-position.js'
 import { commandRunsNoTests } from './no-test-run.js'
 
 /**
@@ -443,14 +444,18 @@ export function streamingBackgroundCommand(command: string): {
  * of from a sandbox; `suiteRunKind` (molecule-dev `api/src/ai/suite-proof.ts`)
  * is the platform's fuller list of URL-testing runners, and the shapes here are
  * its shapes.
+ *
+ * Each is matched at the START of a pipeline segment's command-position text
+ * (`commandSegments`), so a runner named as an argument is not an invocation:
+ * `grep -n playwright e2e/README.md` reads a file and starts nothing.
  */
 const SUITE_RUN_COMMANDS: ReadonlyArray<RegExp> = [
   // `playwright test`, not a bare `playwright` (`--version` is not a run).
-  /(?:^|[\s;&|(])(?:npx\s+(?:--no-install\s+)?)?(?:\S*\/)?playwright\s+test\b/,
+  /^playwright\s+test\b/,
   // Vitest, however it is invoked (`vitest`, `npx vitest run`).
-  /(?:^|[\s;&|(])(?:npx\s+(?:--no-install\s+)?)?(?:\S*\/)?vitest\b/,
+  /^vitest\b/,
   // `hurl --test …` or `hurl … x.hurl`.
-  /(?:^|[\s;&|(])(?:\S*\/)?hurl\s+[^|\n]*(?:--test|\.hurl)/,
+  /^hurl\s+[^|\n]*(?:--test|\.hurl)/,
 ]
 
 /**
@@ -465,22 +470,30 @@ const SUITE_RUN_COMMANDS: ReadonlyArray<RegExp> = [
  * @returns True when the command starts one of those runners.
  */
 export function isSuiteRunCommand(command: string): boolean {
-  return !commandRunsNoTests(command) && SUITE_RUN_COMMANDS.some((re) => re.test(command))
+  if (commandRunsNoTests(command)) return false
+  return commandSegments(command).some((segment) =>
+    SUITE_RUN_COMMANDS.some((re) => re.test(segment.text)),
+  )
 }
 
 /**
- * Whether a command starts a Playwright run — `playwright test` in a form that runs something.
+ * Whether a command starts a Playwright run — a `playwright test` in command position, in a form
+ * that runs something.
  *
  * `npx playwright test --list` matched every `\bplaywright\s+test\b` test in the platform and was
  * then treated as a run: held (flash-m79's config check), backgrounded for a run that outlasts
  * the tool's ceiling, and rewritten with `--reporter`. A list takes two seconds, prints its lines
  * and exits, so it is none of those; {@link commandRunsNoTests} is what decides.
  *
+ * A `playwright test` named as an argument is not a run either (`head -30 run-tests.sh`,
+ * `grep -n "playwright test" e2e/README.md`): the command that runs is the reader.
+ *
  * @param command - The shell command.
  * @returns True when the command starts a Playwright run.
  */
 export function isPlaywrightRunCommand(command: string): boolean {
-  return /\bplaywright\s+test\b/.test(command) && !commandRunsNoTests(command)
+  if (commandRunsNoTests(command)) return false
+  return commandSegments(command).some((segment) => /^playwright\s+test\b/.test(segment.text))
 }
 
 /**

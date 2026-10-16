@@ -24,23 +24,30 @@
  * through it. A command that runs no test is never held, never noted, and never rewritten
  * (`--retries`, `--reporter`) as if it were a run.
  *
+ * What counts as an invocation is COMMAND POSITION, read by `@molecule/api-ai-tools`'
+ * `commandSegments`: `npx playwright test --list`, `hurl --help` and `bash run.sh` invoke the
+ * runner, while a runner named as an argument (`grep -n playwright e2e/README.md`,
+ * `head -30 run-api-tests-hurl.sh`) invokes nothing at all. X1 xr-molecule-flash-m81 (+20:03)
+ * read a runner script with `head -30` and the suite-overlap hold answered "a Playwright suite is
+ * already running … wait for it", for a command that runs nothing.
+ *
  * @module
  */
+
+import { commandSegments } from './command-position.js'
 
 /** The runners whose runs the platform watches — the ones a "run" claim can be about. */
 type Runner = 'playwright' | 'vitest' | 'hurl'
 
 /**
- * A runner's name as a statement invokes it, from the start of its own arguments. The trailing
- * guard is what separates the runner from a FILE named after it — `-c playwright.local.config.ts`
- * names a config, not a second invocation, and reading it as one would give that "invocation" no
- * `--list` of its own and un-do the answer for the real one.
+ * The runners by the word in command position. A runner spelled as a FILE's name is not one:
+ * `-c playwright.local.config.ts` names a config, and `node playwright.js` runs node.
  */
-const INVOCATIONS: ReadonlyArray<[Runner, RegExp]> = [
-  ['playwright', /(?:^|[\s;&|(])(?:npx\s+(?:--no-install\s+)?)?(?:\S*\/)?playwright(?![\w.-])/g],
-  ['vitest', /(?:^|[\s;&|(])(?:npx\s+(?:--no-install\s+)?)?(?:\S*\/)?vitest(?![\w.-])/g],
-  ['hurl', /(?:^|[\s;&|(])(?:\S*\/)?hurl(?![\w.-])/g],
-]
+const RUNNERS: Readonly<Record<string, Runner>> = {
+  playwright: 'playwright',
+  vitest: 'vitest',
+  hurl: 'hurl',
+}
 
 /** Playwright's subcommands that start no test. */
 const PLAYWRIGHT_INFO_SUBCOMMANDS: readonly string[] = [
@@ -77,9 +84,6 @@ const NO_RUN_FLAGS: Readonly<Record<Runner, readonly RegExp[]>> = {
   hurl: [/(?:^|\s)--help(?=\s|$)/, /(?:^|\s)-h(?=\s|$)/, /(?:^|\s)--version(?=\s|$)/],
 }
 
-/** Statements of a shell command, the way the suite checks split them. */
-const STATEMENT_SEP = /\s*(?:&&|\|\||;|\||\n)\s*/
-
 /**
  * A heredoc body is data a command writes, not what it runs: a `playwright test --list` inside
  * the config a command writes is not a run of this command either way. The pattern consumes the
@@ -89,10 +93,10 @@ const HEREDOC = /[^\n;&|]*<<-?\s*(['"]?)(\w+)\1[\s\S]*?\n\s*\2\b/g
 
 /**
  * Whether this runner's invocation — the text from just after its name to the end of its
- * statement — only prints.
+ * segment ({@link commandSegments}) — only prints.
  *
- * @param runner - The runner the statement invokes.
- * @param after - Everything after the runner's name in that statement.
+ * @param runner - The runner the segment invokes.
+ * @param after - Everything after the runner's name in that segment.
  * @returns True when the invocation starts no test.
  */
 function informational(runner: Runner, after: string): boolean {
@@ -105,6 +109,12 @@ function informational(runner: Runner, after: string): boolean {
 /**
  * Whether a shell command invokes a test runner and EVERY such invocation only prints — so the
  * command runs no test at all.
+ *
+ * A runner counts only where a shell would RUN it ({@link commandSegments}): the word in command
+ * position of a segment, after its wrapper prefixes. A runner named in an argument is not an
+ * invocation — `head -30 run-api-tests-hurl.sh` and `grep -n playwright e2e/README.md` name a
+ * file to read, and a `--list` written inside a file the command writes is not a flag anyone runs
+ * with (flash-m81).
  *
  * A command that invokes no runner is NOT one of these (false): "the command runs no test" is
  * then true for `ls`, which is not the question any caller is asking. The question is whether
@@ -120,13 +130,11 @@ function informational(runner: Runner, after: string): boolean {
 export function commandRunsNoTests(command: string): boolean {
   if (typeof command !== 'string' || !command.trim()) return false
   let invocations = 0
-  for (const statement of command.replace(HEREDOC, ' ').split(STATEMENT_SEP)) {
-    for (const [runner, re] of INVOCATIONS) {
-      for (const m of statement.matchAll(re)) {
-        invocations += 1
-        if (!informational(runner, statement.slice((m.index ?? 0) + m[0].length))) return false
-      }
-    }
+  for (const segment of commandSegments(command.replace(HEREDOC, ' '))) {
+    const runner = RUNNERS[segment.program]
+    if (!runner) continue
+    invocations += 1
+    if (!informational(runner, segment.args.join(' '))) return false
   }
   return invocations > 0
 }

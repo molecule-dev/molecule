@@ -121,6 +121,7 @@
 export * from './backends/local.js'
 export * from './backends/sandbox.js'
 export * from './browser-guard.js'
+export * from './command-position.js'
 export * from './input-normalizer.js'
 export * from './no-test-run.js'
 export * from './schemas.js'
