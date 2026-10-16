@@ -87,24 +87,55 @@ function describeDestroyFailure(step: string, id: string, error: unknown): strin
 }
 
 /**
- * Whether a failed exec is Fly's TRANSIENT precondition — the request reached
- * the Machine's exec agent and the connection was dropped before the command
- * ran (`412 failed_precondition: exec request failed: EOF`) — rather than the
- * Machine being in a state an exec cannot run in.
+ * Whether a failed exec is Fly's TRANSIENT precondition — one a repeat (after a
+ * short wait) can clear, rather than a Machine state the exec has to wait out.
  *
- * The distinction decides what retrying can achieve. A dropped connection is
- * worth repeating: the Machine is `started` and its agent recovers in seconds.
- * `failed_precondition: machine not running` is NOT — the Machine really is not
- * running, and that is what {@link FlyioSandboxProvider.startMachine} waits out
- * before the first exec. Repeating the exec there would only burn the caller's
- * budget against a condition the wait endpoint already answers.
+ * Fly answers the exec endpoint with 412 in two different situations, and only
+ * the BODY and the Machine's own reported state separate them:
+ *
+ * 1. `failed_precondition: exec request failed: EOF` — the request reached the
+ *    Machine's exec agent and the connection dropped before the command ran.
+ *    Always transient: the Machine is `started` and its agent recovers in
+ *    seconds.
+ * 2. `failed_precondition: machine not running` — transient ONLY while Fly's
+ *    own Machines API reports the Machine `started`, `starting` or `replacing`
+ *    (`machineState`). The exec endpoint lags the state Fly reports: a Machine
+ *    whose config or image was just updated, or that is seconds past boot,
+ *    reads `started` in `GET /machines/{id}` while its exec endpoint still
+ *    refuses requests. Against a Machine Fly reports `stopped`/`suspended`/
+ *    `destroyed` the same body is the REAL precondition — the Machine is not
+ *    running, and {@link FlyioSandboxProvider.startMachine} is what answers it;
+ *    repeating the exec would only burn the caller's budget.
  *
  * @param error - The failure an exec attempt raised.
+ * @param machineState - The state `GET /machines/{id}` reports for the Machine,
+ *   or `null`/`undefined` when it could not be read (which classifies case 2 as
+ *   NOT transient — an unknown state is never assumed recoverable).
  * @returns `true` when repeating the exec is the right recovery.
  */
-export function isTransientExecPrecondition(error: unknown): boolean {
+export function isTransientExecPrecondition(error: unknown, machineState?: string | null): boolean {
   if (!(error instanceof FlyApiError) || error.status !== 412) return false
-  return EXEC_BODY_TRANSIENT.test(error.body) && !EXEC_BODY_MACHINE_NOT_RUNNING.test(error.body)
+  if (EXEC_BODY_DROPPED_CONNECTION.test(error.body)) return true
+  return EXEC_BODY_MACHINE_NOT_RUNNING.test(error.body) && isMachineWarmingUp(machineState)
+}
+
+/**
+ * Whether a state Fly reports for a Machine means the Machine is up, or on its
+ * way up — the states in which an exec that was refused for `machine not
+ * running` is the exec endpoint lagging the state, not the truth.
+ *
+ * A deliberate allow-list rather than "anything but stopped/suspended": the
+ * three states here are the ones a refused exec was observed to recover from,
+ * and every other state — `stopped`, `suspended`, `destroyed`, `failed`,
+ * `created`, unreadable — keeps today's immediate throw. Widening it without
+ * that evidence would turn a real precondition into a retry budget spent
+ * against a Machine that is not coming up.
+ *
+ * @param state - The Machine state from `GET /machines/{id}`, if readable.
+ * @returns `true` when waiting and repeating the exec can clear the refusal.
+ */
+export function isMachineWarmingUp(state: string | null | undefined): boolean {
+  return state === 'started' || state === 'starting' || state === 'replacing'
 }
 
 /**
@@ -259,23 +290,27 @@ const MACHINE_CREATE_RETRY_STATUSES = [404, 412]
  * Machine's exec agent died before the command ran: `412 {"error":
  * "failed_precondition: exec request failed: EOF"}`. The Machine is `started`;
  * the agent inside it dropped the request (a Machine seconds past boot, or
- * Fly's own exec burst). The SAME status carries the precondition this provider
- * already handles — `failed_precondition: machine not running` — which is a
- * real state, not a dropped connection, and is reconciled by `startMachine`
- * BEFORE the first exec instead of by repeating it (see {@link
- * isTransientExecPrecondition}).
+ * Fly's own exec burst).
  */
-const EXEC_BODY_TRANSIENT = /exec request failed/i
+const EXEC_BODY_DROPPED_CONNECTION = /exec request failed/i
 
-/** The real-precondition 412, which retrying an exec cannot fix. */
+/**
+ * The OTHER 412 the exec endpoint answers — `{"error":"failed_precondition:
+ * machine not running"}`. Whether that is the real precondition or the exec
+ * endpoint lagging a Machine that is up cannot be read off the body, so it is
+ * settled by the state Fly reports for the Machine at that moment
+ * ({@link isMachineWarmingUp}).
+ */
 const EXEC_BODY_MACHINE_NOT_RUNNING = /machine not running/i
 
 /**
- * Attempts for one exec when Fly answers the transient 412 of
- * {@link EXEC_BODY_TRANSIENT}. Four attempts over the three backoffs below is
- * under 12 s of waiting, against the ~75 s each fresh production deploy costs
- * when this is left to a caller: X1 run flash-m85 (2026-10-16) lost three
- * consecutive deploys, and the run, to this one condition.
+ * Attempts for one exec when Fly answers a transient 412 — either body of
+ * {@link isTransientExecPrecondition}. Four attempts over the three backoffs
+ * below is under 12 s of waiting, against the ~75 s each fresh production
+ * deploy costs when this is left to a caller: X1 run flash-m85 (2026-10-16)
+ * lost three consecutive deploys, and the run, to the dropped connection;
+ * flash-m94 (2026-10-16) lost 65 s and a whole redeploy to the same budget not
+ * covering `machine not running` on a Machine Fly reported `started`.
  */
 const EXEC_PRECONDITION_ATTEMPTS = 4
 
@@ -2166,6 +2201,34 @@ class FlyioSandboxProvider implements SandboxProvider {
   // ---------------------------------------------------------------------------
 
   /**
+   * Reads the state Fly reports for a Machine, or `null` when it cannot be read.
+   *
+   * Best-effort on purpose: this runs both on the failure path and just before a
+   * retry, and a failed diagnostic read must not replace the failure it is
+   * describing. `null` is meaningful — it never classifies a refusal as
+   * recoverable (see {@link isTransientExecPrecondition}).
+   *
+   * @param app - The Fly app name.
+   * @param machineId - The Fly Machine id.
+   * @returns The Machine's state, or `null` when the read failed or 404'd.
+   */
+  private async readMachineState(app: string, machineId: string): Promise<string | null> {
+    try {
+      const machine = await this.client.request<FlyMachine>(`/apps/${app}/machines/${machineId}`, {
+        nullOn: [404],
+      })
+      return machine?.state ?? null
+    } catch (error) {
+      logger.debug('Could not read the Machine state while an exec was refused', {
+        app,
+        machineId,
+        error,
+      })
+      return null
+    }
+  }
+
+  /**
    * Issues one Fly exec call against a Machine.
    *
    * A transient 412 (see {@link isTransientExecPrecondition}) is retried here, at
@@ -2205,28 +2268,39 @@ class FlyioSandboxProvider implements SandboxProvider {
           )
           return response ?? {}
         } catch (error) {
-          if (!isTransientExecPrecondition(error)) {
-            throw await this.withMachineState(error, app, machineId)
+          // Which 412 this is cannot be read off the body alone: `machine not
+          // running` is transient against a Machine Fly reports `started` and the
+          // real precondition against one it reports `stopped`. So the state is
+          // read here, once, and the same read decides the classification, the
+          // wait below, and the state the error finally names.
+          const state =
+            error instanceof FlyApiError && error.status === 412
+              ? await this.readMachineState(app, machineId)
+              : null
+          if (!isTransientExecPrecondition(error, state)) {
+            throw await this.withMachineState(error, app, machineId, state)
           }
           if (attempt >= EXEC_PRECONDITION_ATTEMPTS || Date.now() >= deadline) {
-            logger.warn('Fly kept dropping the exec connection; giving up on this exec', {
+            logger.warn('Fly kept refusing the exec with a transient precondition', {
               app,
               machineId,
               attempt,
+              state: state ?? 'unreadable',
             })
-            throw await this.withMachineState(error, app, machineId)
+            throw await this.withMachineState(error, app, machineId, state)
           }
-          logger.warn('Fly dropped the exec connection (412 exec request failed); retrying', {
+          logger.warn('Fly refused the exec with a transient precondition; retrying', {
             app,
             machineId,
             attempt,
             attempts: EXEC_PRECONDITION_ATTEMPTS,
+            state: state ?? 'unreadable',
           })
           // The Machine is up (that is what makes this 412 the transient one), but
           // re-read it anyway: `stop`/`suspend` can land between attempts, and
           // retrying an exec against a Machine that is not running would repeat a
           // 412 that waiting — not repeating — is what answers.
-          await this.waitForExecReady(app, machineId)
+          await this.waitForExecReady(app, machineId, state)
           await this.client.sleep(execPreconditionBackoffMs(attempt))
         }
       }
@@ -2239,24 +2313,28 @@ class FlyioSandboxProvider implements SandboxProvider {
    *
    * A wait that does not reach `started` is logged and the exec is retried
    * anyway: the retry is the recovery this path exists for, and turning a
-   * recoverable dropped connection into a start-timeout error would hide the
-   * condition the caller's error message is supposed to name.
+   * recoverable refusal into a start-timeout error would hide the condition the
+   * caller's error message is supposed to name.
    *
    * @param app - The Fly app name.
    * @param machineId - The Fly Machine id.
+   * @param state - The state already read for this Machine, when the caller read
+   *   one (the exec retry does); read again when omitted.
    */
-  private async waitForExecReady(app: string, machineId: string): Promise<void> {
-    const machine = await this.client
-      .request<FlyMachine>(`/apps/${app}/machines/${machineId}`, { nullOn: [404] })
-      .catch(() => null)
-    if (machine?.state === 'started') return
+  private async waitForExecReady(
+    app: string,
+    machineId: string,
+    state?: string | null,
+  ): Promise<void> {
+    const machineState = state === undefined ? await this.readMachineState(app, machineId) : state
+    if (machineState === 'started') return
     try {
       await this.waitForStarted(app, machineId)
     } catch (error) {
       logger.warn('The Machine did not report started after a refused exec; retrying the exec', {
         app,
         machineId,
-        state: machine?.state ?? 'unknown',
+        state: machineState ?? 'unknown',
         error,
       })
     }
@@ -2274,16 +2352,21 @@ class FlyioSandboxProvider implements SandboxProvider {
    * @param error - The failure to annotate.
    * @param app - The Fly app name.
    * @param machineId - The Fly Machine id.
+   * @param knownState - The state already read for this Machine, when the caller
+   *   read one (the exec retry does); read again when omitted.
    * @returns The original error, or a 412 carrying the Machine's state.
    */
-  private async withMachineState(error: unknown, app: string, machineId: string): Promise<Error> {
+  private async withMachineState(
+    error: unknown,
+    app: string,
+    machineId: string,
+    knownState?: string | null,
+  ): Promise<Error> {
     if (!(error instanceof Error)) return new Error(String(error))
     if (!(error instanceof FlyApiError) || error.status !== 412) return error
     if (/machine state:/i.test(error.message)) return error
-    const machine = await this.client
-      .request<FlyMachine>(`/apps/${app}/machines/${machineId}`, { nullOn: [404] })
-      .catch(() => null)
-    const state = machine?.state ?? 'unreadable'
+    const read = knownState === undefined ? await this.readMachineState(app, machineId) : knownState
+    const state = read ?? 'unreadable'
     return new FlyApiError(
       error.method,
       error.path,

@@ -1827,10 +1827,14 @@ describe('private routes (Flycast)', () => {
 // A dropped exec connection: 412 failed_precondition: exec request failed: EOF
 // ---------------------------------------------------------------------------
 
-describe('exec — a dropped connection (412 failed_precondition: exec request failed)', () => {
-  /** Fly's own body for the transient case, verbatim from production. */
+describe('exec — the two transient 412s (dropped connection; "machine not running" on a started Machine)', () => {
+  /** Fly's own body for the dropped connection, verbatim from production. */
   const EXEC_EOF = '{"error":"failed_precondition: exec request failed: EOF"}'
-  /** The other 412 this provider sees: a REAL state, not a dropped connection. */
+  /**
+   * The other 412 this provider sees: a dropped connection when the Machine Fly
+   * reports is `started`/`starting`/`replacing`, and the REAL precondition when
+   * it reports anything else.
+   */
   const NOT_RUNNING = '{"error":"failed_precondition: machine not running"}'
 
   /** One queued answer for the exec route. */
@@ -1954,6 +1958,81 @@ describe('exec — a dropped connection (412 failed_precondition: exec request f
     // A different status carrying the same words is not this condition.
     expect(isTransientExecPrecondition(new FlyApiError('POST', '/x/exec', 500, EXEC_EOF))).toBe(
       false,
+    )
+  })
+
+  it('retries a "machine not running" reply from a Machine Fly itself reports started', async () => {
+    // X1 flash-m94 (2026-10-16): the deploy failed at `failedStep: hosting` on
+    // `412 … machine not running` that this provider had already annotated
+    // `(machine … state: started)` — 65 s lost and a whole second deploy, on the
+    // frontend's first deploy carrying the real app. The exec endpoint lags the
+    // state Fly reports for the Machine; one repeat clears it.
+    const { sandbox, calls, stateReadsBeforeExec } = await execScenario([
+      { status: 412, body: NOT_RUNNING },
+      { status: 200, body: '{"stdout":"ok","exit_code":0}' },
+    ])
+
+    await expect(sandbox.exec('echo ok', { timeout: 5_000 })).resolves.toMatchObject({
+      stdout: 'ok',
+      exitCode: 0,
+    })
+    expect(calls.exec).toBe(2)
+    // ONE state read, not one to classify plus one to wait: the same read that
+    // says `started` is what makes this refusal transient.
+    expect(calls.state).toBe(stateReadsBeforeExec + 1)
+    expect(calls.wait).toBe(0)
+  })
+
+  it('waits for started before retrying the same reply from a Machine still coming up', async () => {
+    const { sandbox, calls } = await execScenario(
+      [
+        { status: 412, body: NOT_RUNNING },
+        { status: 200, body: '{"stdout":"ok","exit_code":0}' },
+      ],
+      ['starting', 'starting', 'started'],
+    )
+
+    await expect(sandbox.exec('echo ok', { timeout: 5_000 })).resolves.toMatchObject({
+      stdout: 'ok',
+    })
+    expect(calls.wait).toBe(1)
+    expect(calls.exec).toBe(2)
+  })
+
+  it('gives up bounded on that reply, naming the state the Machine kept reporting', async () => {
+    const { sandbox, calls } = await execScenario([{ status: 412, body: NOT_RUNNING }], ['started'])
+
+    await expect(sandbox.exec('echo ok', { timeout: 5_000 })).rejects.toThrow(
+      /machine not running.*machine m1 state: started/s,
+    )
+    expect(calls.exec).toBeGreaterThan(1)
+    expect(calls.exec).toBeLessThanOrEqual(4)
+  })
+
+  it('still refuses to retry that reply against a Machine Fly reports is NOT up', async () => {
+    // The allow-list is the three states a refused exec was observed to
+    // recover from. `stopped` is the real precondition `startMachine` answers.
+    for (const state of ['stopped', 'suspended', 'destroyed', 'failed']) {
+      const { sandbox, calls } = await execScenario([{ status: 412, body: NOT_RUNNING }], [state])
+      await expect(sandbox.exec('echo ok', { timeout: 5_000 })).rejects.toThrow(
+        new RegExp(`machine not running.*machine m1 state: ${state}`, 's'),
+      )
+      expect(calls.exec).toBe(1)
+    }
+  })
+
+  it('needs the Machine’s state as well as the body to call that reply transient', () => {
+    const notRunning = new FlyApiError('POST', '/x/exec', 412, NOT_RUNNING)
+    expect(isTransientExecPrecondition(notRunning, 'started')).toBe(true)
+    expect(isTransientExecPrecondition(notRunning, 'starting')).toBe(true)
+    expect(isTransientExecPrecondition(notRunning, 'replacing')).toBe(true)
+    expect(isTransientExecPrecondition(notRunning, 'stopped')).toBe(false)
+    // An unread state is never assumed recoverable.
+    expect(isTransientExecPrecondition(notRunning, undefined)).toBe(false)
+    expect(isTransientExecPrecondition(notRunning, null)).toBe(false)
+    // The dropped connection needs no state at all — the body is the proof.
+    expect(isTransientExecPrecondition(new FlyApiError('POST', '/x/exec', 412, EXEC_EOF))).toBe(
+      true,
     )
   })
 })
