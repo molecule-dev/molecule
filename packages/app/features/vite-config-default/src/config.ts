@@ -244,6 +244,27 @@ export function createDefaultViteConfig(branding: DefaultViteConfigBranding): Us
   // "bind this" — either selects sandbox behavior.
   const inMoleculeSandbox = existsSync('/etc/mol') || process.env.VITE_HOST !== undefined
 
+  // ── Watcher hardening (sandbox only) ──
+  //
+  // chokidar's inotify watch is pinned to the INODE of each directory it walks. Replace a
+  // directory inside the served tree (`rm -rf src` + recreate — a restore, a checkout, a
+  // tool that rewrites a tree, and in a molecule sandbox the platform's own operations) and
+  // that watch points at a dead inode: writes, touches and brand-new files then produce NO
+  // event, chokidar reports NO error, and it never re-arms. The dev server keeps serving the
+  // modules it transformed before the swap while the files on disk are current, and nothing
+  // in its log says so (reproduced against vite 8.1.5 on 2026-10-16: with the app's own
+  // `src/` replaced under a live server, the next edit was served as the PRE-edit module
+  // forever). An executor whose edits silently stop hot-reloading then debugs its own code:
+  // X1 flash-m79 lost 3.5 minutes and a 1.6-minute Playwright run to it, flash-m38 the same
+  // class. A stat-based polling watcher has no inode to lose, so in a sandbox it is the
+  // correct trade — the tree walked is the app's own source (`node_modules`, `.git`, `dist`
+  // and `test-results` stay excluded), a few hundred stats per interval. A developer's
+  // machine keeps the inotify watcher; `VITE_WATCH_POLLING=0|1` overrides either way.
+  const watchPolling =
+    process.env.VITE_WATCH_POLLING === undefined
+      ? inMoleculeSandbox
+      : process.env.VITE_WATCH_POLLING !== '0' && process.env.VITE_WATCH_POLLING !== 'false'
+
   // Extra Host values allowed in standalone mode, comma-separated via
   // VITE_ALLOWED_HOSTS (e.g. 'myapp.test,dev.lan'). `*` disables Host
   // checking entirely — same trust level as sandbox mode, opt-in only.
@@ -356,6 +377,9 @@ export function createDefaultViteConfig(branding: DefaultViteConfigBranding): Us
       // Standalone keeps Vite's default (strict), which confines /@fs/ to
       // the project root + workspace — see the host-exposure block above.
       ...(inMoleculeSandbox ? { fs: { strict: false } } : {}),
+      // Sandbox-only, for the same reason: a replaced directory cannot kill a
+      // stat-based watcher (see the watcher-hardening block above).
+      ...(watchPolling ? { watch: { usePolling: true, interval: 500, binaryInterval: 1000 } } : {}),
       proxy: apiProxy,
       warmup: {
         clientFiles: ['src/main.tsx', 'src/App.tsx', 'src/bonds/*.ts'],

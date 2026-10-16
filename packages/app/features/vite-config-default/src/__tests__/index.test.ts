@@ -165,4 +165,41 @@ describe('@molecule/app-vite-config-default', () => {
       expect(cfg.server?.fs).toEqual({ strict: false })
     })
   })
+
+  describe('dev-server watcher: sandbox polls, a dev machine keeps inotify', () => {
+    const originalEnv = { ...process.env }
+    const BRANDING = { APP_NAME: 'TestApp', APP_DESCRIPTION: 'A test app', BRAND_COLOR: '#ff0000' }
+
+    beforeEach(() => {
+      delete process.env.VITE_HOST
+      delete process.env.VITE_WATCH_POLLING
+    })
+
+    afterEach(() => {
+      process.env = { ...originalEnv }
+    })
+
+    // A replaced directory kills an inotify watch silently and permanently (chokidar never
+    // re-arms), so the dev server serves pre-edit modules forever — X1 flash-m79 lost 3.5
+    // minutes and a run to it. A polling watcher has no inode to lose.
+    it('standalone (default): leaves Vite’s inotify watcher alone', () => {
+      const cfg = createDefaultViteConfig(BRANDING)
+      expect(cfg.server?.watch).toBeUndefined()
+    })
+
+    it('sandbox: polls the app tree instead of watching inodes', () => {
+      process.env.VITE_HOST = '0.0.0.0'
+      const cfg = createDefaultViteConfig(BRANDING)
+      expect(cfg.server?.watch?.usePolling).toBe(true)
+      // Bounded: the tree walked is the app's own source, so this stays cheap.
+      expect(cfg.server?.watch?.interval).toBeLessThanOrEqual(1000)
+    })
+
+    it('VITE_WATCH_POLLING overrides the detection both ways', () => {
+      process.env.VITE_WATCH_POLLING = '1'
+      expect(createDefaultViteConfig(BRANDING).server?.watch?.usePolling).toBe(true)
+      process.env.VITE_WATCH_POLLING = '0'
+      expect(createDefaultViteConfig(BRANDING).server?.watch).toBeUndefined()
+    })
+  })
 })
