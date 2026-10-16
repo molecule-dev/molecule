@@ -292,8 +292,11 @@ export const TOOL_SCHEMAS: Record<string, ToolSchema> = {
       'no polling. Use it the moment you need that result to continue; never `sleep` and ' +
       'read the log by hand. If it is still running when the budget ends, the result says so ' +
       'and you can call it again. A suite whose failures keep repeating one cause comes back ' +
-      'EARLY with that cause named, the tests it hit and the command that stops the run — act ' +
-      'on it instead of waiting for the rest.',
+      'EARLY with that cause named and the tests it hit — start fixing it, and still LET THE RUN ' +
+      'FINISH, because the run is what names its other causes; the note says so, and names the ' +
+      'command that stops the run only when that one cause is failing every test. A finished ' +
+      'run with failures comes back with a note grouping them by cause, so one round of fixes ' +
+      'covers every cause it found.',
     parameters: {
       type: 'object',
       properties: {

@@ -1526,12 +1526,18 @@ export function repeatingFailure(log: string): RepeatingFailure | null {
 /** How many of a repeating cause's failures the note lists before it says "and N more". */
 export const REPEATING_FAILURE_LISTED = 5
 
+/** How many causes a finished run's summary lists before it says "and N more". */
+export const FAILURE_CAUSES_LISTED = 5
+
+/** How many of one cause's tests that summary names before it says "and N more". */
+export const FAILURE_CAUSE_TESTS_LISTED = 6
+
 /**
  * The shortest unambiguous tail of a logged path (`…/specs/e2e/articles.spec.ts:32` →
  * `e2e/articles.spec.ts:32`).
  *
  * @param where - The location the log wrote.
- * @returns The last two path segments.
+ * @returns The last two path segments, with the line number.
  */
 function shortWhere(where: string): string {
   const parts = where.split('/')
@@ -1539,21 +1545,238 @@ function shortWhere(where: string): string {
 }
 
 /**
- * The sentence that names a cause repeating among a running suite's failures, and the command
- * that stops the run so the cause can be fixed first.
+ * The shortest unambiguous tail of a logged path's FILE (`…/specs/e2e/articles.spec.ts` →
+ * `e2e/articles.spec.ts`).
+ *
+ * @param file - A path as {@link specFile} returns it.
+ * @returns The last two path segments.
+ */
+function shortFile(file: string): string {
+  return file.split('/').slice(-2).join('/')
+}
+
+/**
+ * The spec file a logged location names (`…/e2e/articles.spec.ts:32` → `…/e2e/articles.spec.ts`).
+ *
+ * @param where - A location from {@link FailedTest.where}.
+ * @returns The path without its line number.
+ */
+function specFile(where: string): string {
+  return where.replace(/:\d+$/, '')
+}
+
+/**
+ * The mark of every test result a log names, in the order it printed them (`✘` failed, `✓`
+ * passed).
+ *
+ * A `line`-only log writes none: `[n/N] <title>` carries no mark. An empty list therefore means
+ * the log cannot say whether anything passed, not that nothing did.
+ *
+ * @param text - The log (ANSI already stripped).
+ * @returns The marks.
+ */
+function resultMarks(text: string): string[] {
+  const out: string[] = []
+  for (const line of text.split('\n')) {
+    const m = LIST_RESULT_LINE.exec(line)
+    if (m) out.push(m[1])
+  }
+  return out
+}
+
+/**
+ * Every test the log's numbered failure blocks name, in the order it names them.
+ *
+ * @param text - The log (ANSI already stripped).
+ * @returns The failed tests, with the location and title their header carries.
+ */
+function failureBlockTests(text: string): FailedTest[] {
+  return failureBlocks(text).map((block) => {
+    const m = FAILURE_BLOCK_HEADER.exec(block.split('\n')[0] ?? '')
+    const { where, title } = splitTitlePath(m?.[1] ?? '')
+    return { where, title, seconds: null }
+  })
+}
+
+/**
+ * Distinct spec FILES a repeating cause must span — with every failure sharing it and nothing
+ * passing since — before a run is called broken for the whole suite.
+ *
+ * One file's failures can be that file's own setup, so a cause confined to one file is never
+ * this. Across {@link UNIVERSAL_CAUSE_FILES} files, on the other hand, whatever it is is a
+ * property of the run rather than of a page.
+ */
+export const UNIVERSAL_CAUSE_FILES = 3
+
+/** A repeating cause that is failing the WHOLE run — see {@link universalCause}. */
+export interface UniversalCause {
+  /** How many distinct tests share it. */
+  count: number
+  /** The distinct spec files they live in, in the order the log named them. */
+  files: string[]
+}
+
+/**
+ * Whether a repeating cause is failing the whole run — the one case where stopping it is the
+ * right call.
+ *
+ * The test is: the cause accounts for every failure the log names, it has hit
+ * {@link UNIVERSAL_CAUSE_FILES} spec files or more, and nothing has passed since its first
+ * failure. An app that is not up, a 5xx on every request, or a selector that is missing on every
+ * page all look like that, and every remaining test will fail the same way — so the run's
+ * remaining minutes measure nothing. Anything less is NOT this: a cause that stops at one file,
+ * or that leaves other tests passing, or that shares the run with failures of another shape,
+ * leaves the run with something to say, and the run is the only thing that will say it. X1
+ * flash-m83 (2026-10-16) stopped eight local runs at their first repeating cause over 14.5
+ * minutes and never finished one; three of its deploys each fixed a single cause that a finished
+ * run would have listed alongside the others.
+ *
+ * @param log - The log so far.
+ * @param found - The repeating cause {@link repeatingFailure} found in it.
+ * @returns The cause's count and files, or null when the run is not failing whole.
+ */
+export function universalCause(log: string, found: RepeatingFailure): UniversalCause | null {
+  const text = log.replace(ANSI_SGR, '')
+  const files = [...new Set(found.tests.map((t) => specFile(t.where)).filter(Boolean))]
+  if (files.length < UNIVERSAL_CAUSE_FILES) return null
+  // Every failure the log names has to be this cause: another cause anywhere in the run means
+  // the run still has something to say, and stopping it throws that away.
+  const named = Math.max(
+    distinctTests(failedTests(text)).length,
+    distinctTests(failureBlockTests(text)).length,
+  )
+  if (found.count < named) return null
+  // And nothing may have passed since its first failure. A pass after it means the app answered
+  // a request, so a test that still fails the same way fails for a reason this run has not seen.
+  const marks = resultMarks(text)
+  const firstFailure = marks.indexOf('✘')
+  if (firstFailure === -1 || marks.slice(firstFailure).includes('✓')) return null
+  return { count: found.count, files }
+}
+
+/** One cause of failure in a run, and the tests it hit. */
+export interface FailureCause {
+  /** The error line its tests all reported, or null when only the duration ties them together. */
+  message: string | null
+  /** The duration they shared in seconds, or null when the error line is the signature. */
+  seconds: number | null
+  /** The distinct tests it hit, in the order the log named them. */
+  tests: FailedTest[]
+}
+
+/**
+ * Every failure a run names, grouped by the cause behind it — one group per cause, with the
+ * tests it hit.
+ *
+ * The point is that ONE run yields EVERY cause. A Playwright report prints its failures one
+ * after another with no statement of which of them share a cause, so a run of 19 failures is 19
+ * bodies to read; X1 flash-m83 (2026-10-16) spent three deploys (6.7 minutes) each fixing a
+ * single cause, two of them found by runs stopped before they walked the rest.
+ *
+ * The signature is the failures' own error line where the log carries their bodies (a finished
+ * run, or a `line` reporter), and how long they took where it does not (a still-running `list`
+ * log). A test the log printed twice, or failed twice, is one test.
+ *
+ * @param log - The log of a finished or running run.
+ * @returns The causes, the one with the most tests first.
+ */
+export function failuresByCause(log: string): FailureCause[] {
+  const text = log.replace(ANSI_SGR, '')
+  const byMessage = new Map<string, FailedTest[]>()
+  for (const block of failureBlocks(text)) {
+    const message = failureMessage(block)
+    if (message === null) continue
+    const m = FAILURE_BLOCK_HEADER.exec(block.split('\n')[0] ?? '')
+    const { where, title } = splitTitlePath(m?.[1] ?? '')
+    const group = byMessage.get(message)
+    if (group) group.push({ where, title, seconds: null })
+    else byMessage.set(message, [{ where, title, seconds: null }])
+  }
+  const causes: FailureCause[] = []
+  for (const [message, members] of byMessage) {
+    const tests = distinctTests(members)
+    if (tests.length > 0) causes.push({ message, seconds: null, tests })
+  }
+  // The failures with no body of their own — every failure of a still-running `list` log — are
+  // grouped by how long they took: a band is opened by its first test and takes the ones that
+  // then ran the same length, the same band {@link repeatingFailure} uses.
+  const claimed = new Set(causes.flatMap((c) => c.tests.map(testKey)))
+  const unclaimed = distinctTests(failedTests(text)).filter(
+    (t): t is FailedTest & { seconds: number } => t.seconds !== null && !claimed.has(testKey(t)),
+  )
+  const byDuration: Array<{ seconds: number; tests: FailedTest[] }> = []
+  for (const t of unclaimed) {
+    const band = Math.max(0.5, t.seconds * 0.05)
+    const open = byDuration.find(
+      (g) => Math.abs(g.seconds - t.seconds) <= Math.max(band, g.seconds * 0.05),
+    )
+    if (open) open.tests.push(t)
+    else byDuration.push({ seconds: t.seconds, tests: [t] })
+  }
+  for (const g of byDuration) causes.push({ message: null, seconds: g.seconds, tests: g.tests })
+  return causes.sort((a, b) => b.tests.length - a.tests.length)
+}
+
+/**
+ * The one-line-per-cause summary of a finished run's failures, or null when the run named fewer
+ * than two of them.
+ *
+ * This is what makes a run worth finishing: every cause the run found, in the result the
+ * executor reads, so one round of fixes covers all of them rather than the one cause a run
+ * stopped early happened to reach.
+ *
+ * @param log - The finished run's output.
+ * @returns The note, or null.
+ */
+export function failureCausesNote(log: string): string | null {
+  const causes = failuresByCause(log)
+  const total = causes.reduce((n, c) => n + c.tests.length, 0)
+  if (total < 2) return null
+  const listed = causes.slice(0, FAILURE_CAUSES_LISTED)
+  const lines = listed.map((c, i) => {
+    const tests = c.tests
+      .slice(0, FAILURE_CAUSE_TESTS_LISTED)
+      .map((t) => shortWhere(t.where) || t.title)
+    const more =
+      c.tests.length > tests.length ? `, … and ${c.tests.length - tests.length} more` : ''
+    const signature = c.message !== null ? `\`${c.message}\`` : `each after ~${c.seconds}s`
+    const files = new Set(c.tests.map((t) => specFile(t.where)).filter(Boolean)).size
+    return (
+      `  ${i + 1}. ${signature} — ${c.tests.length} test${c.tests.length === 1 ? '' : 's'} ` +
+      `in ${files} file${files === 1 ? '' : 's'}: ${tests.join(', ')}${more}`
+    )
+  })
+  const moreCauses =
+    causes.length > listed.length ? `\n  … and ${causes.length - listed.length} more causes` : ''
+  return (
+    `${total} failure${total === 1 ? '' : 's'} in this run, grouped by cause — fix every cause ` +
+    `below before the next deploy:\n${lines.join('\n')}${moreCauses}`
+  )
+}
+
+/**
+ * The sentence that names a cause repeating among a running suite's failures, mid-run.
  *
  * Kept here, beside {@link repeatingFailure}, so the two stay in step: every word below is about
  * what that function could actually see in the log — including the count, which is of DISTINCT
- * tests, so the note never asks for a run to be killed over a cause that one or two tests show.
+ * tests, so the note never names one or two tests as a cause.
+ *
+ * The note names the cause early so the executor can START FIXING while the run keeps walking,
+ * and it asks for the run to be stopped only when {@link universalCause} says the cause is
+ * failing the whole run. X1 flash-m76 (2026-10-16) spent 4.0 minutes walking 15 tests whose one
+ * cause was certain at the third, 47 s in, and the note answers exactly that; X1 flash-m83 then
+ * stopped eight runs at their first repeating cause in 14.5 minutes and never finished one, so
+ * the note must not say to stop when the run still has other causes to name.
  *
  * @param found - What {@link repeatingFailure} found.
- * @param o - The run's facts: its `taskId`, its `log` path, and `stop` — the shell command that
- *   stops it (the pids the platform's own pid file leads to).
+ * @param o - The run's facts: its `taskId`, its `log` path, `stop` — the shell command that
+ *   stops it, printed only for a {@link UniversalCause} — and `universal`, what
+ *   {@link universalCause} found (absent means the run is not failing whole).
  * @returns The note.
  */
 export function repeatingFailureNote(
   found: RepeatingFailure,
-  o: { taskId: string; log: string; stop: string },
+  o: { taskId: string; log: string; stop: string; universal?: UniversalCause | null },
 ): string {
   const listed = found.tests.slice(0, REPEATING_FAILURE_LISTED)
   const rows = listed
@@ -1575,11 +1798,29 @@ export function repeatingFailureNote(
       : first?.where
         ? ` Re-run \`${first.where}\` alone to see its error in full.`
         : ''
+  const where = `task ${o.taskId}, log ${o.log}`
+  if (o.universal) {
+    const files = o.universal.files.map(shortFile)
+    const shown = files.slice(0, 4).join(', ')
+    const moreFiles = files.length > 4 ? `, … and ${files.length - 4} more` : ''
+    return (
+      `Every test this run has walked so far has failed the same way — all ${found.count} of ` +
+      `them, ${signature} — across ${files.length} files (${shown}${moreFiles}), with nothing ` +
+      `passing since the first:\n${rows}${more}\n` +
+      `Every remaining test will fail the same way too, so walking the rest of this run only ` +
+      `repeats this one cause. Stop it and fix that cause first: \`exec_command: ${o.stop}\`, ` +
+      `then run the whole suite again. It is still going (${where}).${reproduce}`
+    )
+  }
   return (
     `${found.count} different tests in this run have already failed the same way — ${signature} — ` +
-    `so one cause is repeating and the rest of the run only repeats it:\n${rows}${more}\n` +
-    `Stop this run and fix that cause before the rest: \`exec_command: ${o.stop}\`. ` +
-    `It is still going (task ${o.taskId}, log ${o.log}) — do not wait for the rest of it.${reproduce}`
+    `so one cause is repeating:\n${rows}${more}\n` +
+    `Start fixing it now, while the run keeps walking.${reproduce} ` +
+    `Let the rest of the run finish — it is the only thing that will name the causes that are NOT ` +
+    `this one, and a run stopped at its first repeating cause costs a second whole run to find ` +
+    `them. Stop it only if every test it walks fails this same way (the app unreachable, a 5xx on ` +
+    `every request, the same selector timing out on every test of every file so far). ` +
+    `It is still going (${where}).`
   )
 }
 

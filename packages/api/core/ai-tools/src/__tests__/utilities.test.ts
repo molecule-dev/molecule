@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest'
 
 import {
   checkBlockedCommand,
+  failureCausesNote,
+  failuresByCause,
   findPatternArgs,
   fusedLine,
   isEnvFilePath,
@@ -20,6 +22,7 @@ import {
   suiteRunPriorityLaunch,
   truncate,
   truncateMiddle,
+  universalCause,
   whitespaceTolerantReplace,
 } from '../utilities.js'
 
@@ -845,19 +848,186 @@ describe('repeatingFailure', () => {
     expect(found!.tests[0].where).toBe('../../fixtures/realworld/specs/e2e/auth.spec.ts:1')
   })
 
-  it('builds the note with the tests it hit, the stop command and no waiting', () => {
-    const found = repeatingFailure(m76)!
+  /**
+   * X1 flash-m83's local loop, 2026-10-16: `+16:21 → +30:51 (8 runs, each stopped at the first
+   * repeating cause; no local whole run ever finished)`. Three of the run's tests share one
+   * duration inside ONE file while another file fails differently — the shape that must NOT be
+   * answered with a stop.
+   */
+  const oneFileInsideArticles = [
+    'Running 139 tests using 1 worker',
+    list('✘', 1, 'articles.spec.ts:32:3', 'Articles › should create a new article', '15.6s'),
+    list('✘', 2, 'articles.spec.ts:50:3', 'Articles › should edit an existing article', '15.6s'),
+    list('✘', 3, 'articles.spec.ts:71:3', 'Articles › should delete an article', '15.6s'),
+    list('✘', 4, 'auth.spec.ts:12:3', 'Authentication › should log in', '2.4s'),
+  ].join('\n')
+
+  /**
+   * The other m83 shape: the app is not answering, so every test the run walked — four files —
+   * failed on the same `connect ECONNREFUSED`, with nothing passing between them.
+   */
+  const refusedEverywhere = (() => {
+    const block = (n: number, file: string, line: number, title: string): string =>
+      [
+        `  ${n}) [chromium] › ../fixtures/realworld/specs/e2e/${file}:${line}:3 › ${title} ────────`,
+        '',
+        '    Error: connect ECONNREFUSED 127.0.0.1:4000',
+        '',
+        '       at helpers/request.ts:9',
+      ].join('\n')
+    const test = (n: number, file: string, line: number, title: string, seconds: string): string =>
+      [list('✘', n, `${file}:${line}:3`, title, seconds), block(n, file, line, title)].join('\n')
+    return [
+      'Running 139 tests using 1 worker',
+      test(1, 'articles.spec.ts', 32, 'Articles › should create a new article', '2.1s'),
+      test(2, 'auth.spec.ts', 12, 'Authentication › should log in', '1.9s'),
+      test(3, 'comments.spec.ts', 60, 'Comments › should delete a comment', '2.0s'),
+      test(4, 'tags.spec.ts', 12, 'Tags › shows the pill', '2.2s'),
+    ].join('\n')
+  })()
+
+  it('names the cause and says to let the run finish, with no stop command (flash-m83)', () => {
+    const found = repeatingFailure(oneFileInsideArticles)!
     const note = repeatingFailureNote(found, {
       taskId: 'mol-bg-mvax0rgp-63okfo',
       log: '/tmp/mol-bg-mvax0rgp-63okfo.log',
-      stop: 'kill 412 419',
+      stop: '',
+      universal: universalCause(oneFileInsideArticles, found),
     })
     // "different tests": the count is of DISTINCT tests, never of log lines (flash-m83).
     expect(note).toContain('3 different tests in this run have already failed the same way')
     expect(note).toContain('each after ~15.6s')
     expect(note).toContain('✘ e2e/articles.spec.ts:32 › should create a new article (15.6s)')
+    // The cause is named mid-run so the model can start on it — and the run keeps walking.
+    expect(note).toContain('Start fixing it now, while the run keeps walking')
+    expect(note).toContain('Let the rest of the run finish')
+    expect(note).toContain('it is the only thing that will name the causes that are NOT this one')
+    // And it is told NOT to stop: this cause is one file, and `auth.spec.ts` still has a cause.
+    expect(note).not.toContain('exec_command')
+    expect(note).not.toContain('Stop it and fix')
+  })
+
+  it('reads a cause confined to one file as NOT failing the whole run', () => {
+    const found = repeatingFailure(oneFileInsideArticles)!
+    expect(universalCause(oneFileInsideArticles, found)).toBeNull()
+  })
+
+  it('reads every test of four files failing on one connection error as the whole run', () => {
+    const found = repeatingFailure(refusedEverywhere)!
+    expect(found.message).toBe('Error: connect ECONNREFUSED 127.0.0.1:4000')
+    expect(found.count).toBe(4)
+    const universal = universalCause(refusedEverywhere, found)!
+    expect(universal.count).toBe(4)
+    expect(universal.files.map((f) => f.split('/').pop())).toEqual([
+      'articles.spec.ts',
+      'auth.spec.ts',
+      'comments.spec.ts',
+      'tags.spec.ts',
+    ])
+    const note = repeatingFailureNote(found, {
+      taskId: 'mol-bg-mvax0rgp-63okfo',
+      log: '/tmp/mol-bg-mvax0rgp-63okfo.log',
+      stop: 'kill 412 419',
+      universal,
+    })
+    expect(note).toContain('Every test this run has walked so far has failed the same way')
+    expect(note).toContain('across 4 files')
+    expect(note).toContain('with nothing passing since the first')
+    // Why: the rest of the walk can only repeat this one cause.
+    expect(note).toContain('Every remaining test will fail the same way too')
     expect(note).toContain('exec_command: kill 412 419')
-    expect(note).toContain('do not wait for the rest of it')
+  })
+
+  it('does not call a run broken when a test passed after the first failure', () => {
+    // The app answered a request, so the remaining failures have a reason this run has not seen.
+    const withPass = [
+      oneFileInsideArticles,
+      list('✓', 5, 'auth.spec.ts:20:3', 'Authentication › should log out', '0.9s'),
+      list('✘', 6, 'tags.spec.ts:12:3', 'Tags › shows the pill', '15.6s'),
+    ].join('\n')
+    const found = repeatingFailure(withPass)!
+    expect(found.count).toBeGreaterThanOrEqual(3)
+    expect(universalCause(withPass, found)).toBeNull()
+  })
+
+  describe('failuresByCause', () => {
+    /**
+     * A finished run (X1 flash-m83's shape): one `TimeoutError` hit three tests in two files,
+     * a class assertion hit one — the report prints four bodies with nothing saying which share
+     * a cause, and the run's own `3 failed` tally is all it says.
+     */
+    const finished = [
+      'Running 139 tests using 1 worker',
+      '',
+      '  1) [chromium] › ../fixtures/realworld/specs/e2e/articles.spec.ts:32:3 › Articles › should create ────────',
+      '',
+      '    TimeoutError: page.waitForURL: Timeout 10000ms exceeded.',
+      '',
+      '       at helpers/auth.ts:11',
+      '',
+      '  2) [chromium] › ../fixtures/realworld/specs/e2e/articles.spec.ts:50:3 › Articles › should edit ────────',
+      '',
+      '    TimeoutError: page.waitForURL: Timeout 10000ms exceeded.',
+      '',
+      '       at helpers/auth.ts:11',
+      '',
+      '  3) [chromium] › ../fixtures/realworld/specs/e2e/auth.spec.ts:78:3 › Authentication › should sign up ────────',
+      '',
+      '    TimeoutError: page.waitForURL: Timeout 10000ms exceeded.',
+      '',
+      '       at helpers/auth.ts:11',
+      '',
+      '  4) [chromium] › ../fixtures/realworld/specs/e2e/tags.spec.ts:12:3 › Tags › shows the pill ────────',
+      '',
+      '    Expected class "active" but got ""',
+      '',
+      '  3 failed',
+      '  136 passed',
+    ].join('\n')
+
+    it('groups every failure by the cause behind it, most tests first', () => {
+      const causes = failuresByCause(finished)
+      expect(causes.map((c) => c.tests.length)).toEqual([3, 1])
+      expect(causes[0].message).toBe('TimeoutError: page.waitForURL: Timeout 10000ms exceeded.')
+      expect(causes[0].tests.map((t) => t.title)).toEqual([
+        'should create',
+        'should edit',
+        'should sign up',
+      ])
+      expect(causes[1].message).toBe('Expected class "active" but got ""')
+      expect(causes[1].tests[0].title).toBe('shows the pill')
+    })
+
+    it('summarizes a finished run as one line per cause, so one round fixes them all', () => {
+      const note = failureCausesNote(finished)!
+      expect(note).toContain('4 failures in this run, grouped by cause')
+      expect(note).toContain('fix every cause below before the next deploy')
+      expect(note).toContain(
+        '1. `TimeoutError: page.waitForURL: Timeout 10000ms exceeded.` — 3 tests in 2 files',
+      )
+      expect(note).toContain(
+        'e2e/articles.spec.ts:32, e2e/articles.spec.ts:50, e2e/auth.spec.ts:78',
+      )
+      expect(note).toContain('2. `Expected class "active" but got ""` — 1 test in 1 file')
+    })
+
+    it('counts a test printed twice by two reporters once (flash-m83)', () => {
+      // `--reporter=list,line` printed every failure twice: same location, same title, one test.
+      const print = (n: number): string =>
+        [
+          `  ${n}) [chromium] › ../fixtures/realworld/specs/e2e/tags.spec.ts:12:3 › Tags › shows the pill ────────`,
+          '',
+          '    Expected class "active" but got ""',
+        ].join('\n')
+      const twice = [print(1), print(2)].join('\n\n')
+      expect(failuresByCause(twice).map((c) => c.tests.length)).toEqual([1])
+      expect(failureCausesNote(twice)).toBeNull()
+    })
+
+    it('says nothing for a run that named fewer than two failures', () => {
+      expect(failureCausesNote('  1 passed\n')).toBeNull()
+      expect(failureCausesNote(finished.split('\n').slice(0, 9).join('\n'))).toBeNull()
+    })
   })
 
   it('names the error message in the note when the log carried one', () => {

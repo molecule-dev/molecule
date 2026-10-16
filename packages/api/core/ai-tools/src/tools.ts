@@ -191,6 +191,7 @@ import {
   declaredBudgetSeconds,
   DEFAULT_SEARCH_EXCLUDED_DIRS,
   directoryReadHint,
+  failureCausesNote,
   findPatternArgs,
   fusedLine,
   htmlOutline,
@@ -232,6 +233,7 @@ import {
   stripControlChars,
   suiteRunPriorityLaunch,
   truncateMiddle,
+  universalCause,
   whitespaceTolerantReplace,
 } from './utilities.js'
 
@@ -1937,7 +1939,11 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       // from the finished log: X1 flash-m76 waited out 4.0 minutes of 15 tests where every
       // failure was the same `TimeoutError: page.waitForURL` from one missing `navigate('/')`,
       // and then fixed it in 51 s. The task is NOT stopped — the executor is handed the cause and
-      // its own pid command and decides.
+      // decides, and the note tells it to let the run finish because the run's other causes only
+      // surface in it (X1 flash-m83 stopped eight runs at their first repeating cause and never
+      // finished one). Only a cause that is failing the WHOLE run — every failure sharing it,
+      // across `UNIVERSAL_CAUSE_FILES` files or more, with nothing passing since the first —
+      // comes with a stop command.
       let lastCauseLookAt = startedAt - repeatingCauseLookMs()
       let exitCode = await readExit()
       while (exitCode === null && Date.now() - startedAt < budgetMs) {
@@ -1963,6 +1969,9 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         }
         const found = repeatingFailure(causeLog)
         if (!found) continue
+        // Only a cause that is failing the whole run gets a stop command — and only then is the
+        // pid walk paid for.
+        const universal = universalCause(causeLog, found)
         repeatingCauseNoted.add(taskId)
         const earlyMs = Date.now() - startedAt
         waitedByTask.set(taskId, waitedBefore + earlyMs)
@@ -1973,7 +1982,8 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           note: repeatingFailureNote(found, {
             taskId,
             log,
-            stop: await taskStopCommand(backend, taskId),
+            stop: universal ? await taskStopCommand(backend, taskId) : '',
+            universal,
           }),
         }
       }
@@ -2072,12 +2082,20 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           // The file is gone or unreadable: the task log is the whole result, as before.
         }
       }
+      // Every cause a finished run found, one line each, so ONE round of fixes covers all of
+      // them. A Playwright report prints its failures in sequence with nothing saying which of
+      // them share a cause, so a run's other causes are read only by reading every failure: X1
+      // flash-m83 (2026-10-16) spent three deploys (6.7 minutes) each fixing a single cause, and
+      // the second and third were found by runs stopped before they walked the rest. Null for
+      // anything that is not a run with failures in it.
+      const causes = failureCausesNote(output)
       // Same shaping as a foreground exec result, so the executor reads both
       // the same way.
       return {
         taskId,
         exitCode,
         waitedMs,
+        ...(causes ? { note: causes } : {}),
         stdout: sanitizeOutput(truncateMiddle(output, MAX_OUTPUT_SIZE)),
         ...(output.length > MAX_OUTPUT_SIZE ? { truncated: true, fullOutput: log } : {}),
       }

@@ -2014,6 +2014,56 @@ describe('wait_for_task', () => {
     expect(r.stdout).toContain('14 failed')
   })
 
+  it('groups a finished run’s failures by cause, so one round of fixes covers them all (flash-m83)', async () => {
+    // X1 flash-m83 spent three deploys (6.7 minutes) each fixing a single cause; the result the
+    // executor reads at the end says `3 failed` and prints the bodies with nothing tying them
+    // together, so the grouping is what makes a finished run worth finishing.
+    const finished = [
+      'Running 139 tests using 1 worker',
+      '',
+      '  1) [chromium] › ../fixtures/realworld/specs/e2e/articles.spec.ts:32:3 › Articles › should create ────────',
+      '',
+      '    TimeoutError: page.waitForURL: Timeout 10000ms exceeded.',
+      '',
+      '  2) [chromium] › ../fixtures/realworld/specs/e2e/auth.spec.ts:78:3 › Authentication › should sign up ────────',
+      '',
+      '    TimeoutError: page.waitForURL: Timeout 10000ms exceeded.',
+      '',
+      '  3) [chromium] › ../fixtures/realworld/specs/e2e/tags.spec.ts:12:3 › Tags › shows the pill ────────',
+      '',
+      '    Expected class "active" but got ""',
+      '',
+      '  3 failed',
+      '  136 passed',
+    ].join('\n')
+    const backend: ExecutionBackend = {
+      projectRoot: '/test',
+      readFile: vi.fn(async (path: string) => {
+        if (path.endsWith('.exit')) return '1\n'
+        if (path.endsWith('.log')) return finished
+        throw new Error(`ENOENT: ${path}`)
+      }),
+      writeFile: vi.fn(),
+      deleteFile: vi.fn(),
+      readDir: vi.fn(),
+      run: vi.fn(async () => ({ stdout: '', stderr: '', exitCode: 0 })),
+    }
+    const tools = buildTools(backend)
+    const started = (await tools
+      .find((t) => t.name === 'exec_command')!
+      .execute({ command: 'npx playwright test', run_in_background: true })) as {
+      taskId: string
+    }
+    const r = (await tools
+      .find((t) => t.name === 'wait_for_task')!
+      .execute({ taskId: started.taskId })) as { note?: string }
+    expect(r.note).toContain('3 failures in this run, grouped by cause')
+    expect(r.note).toContain(
+      '1. `TimeoutError: page.waitForURL: Timeout 10000ms exceeded.` — 2 tests in 2 files',
+    )
+    expect(r.note).toContain('2. `Expected class "active" but got ""` — 1 test in 1 file')
+  })
+
   it("recovers a command's own output file after the process that started it is gone (flash-m63)", async () => {
     // Which file a task redirects its output to is process memory, and the task
     // is not: a release or a patch swaps the API process mid-run while the
@@ -2644,7 +2694,35 @@ describe('wait_for_task on a suite repeating one failure', () => {
     }
   }
 
-  it('hands back the cause, the tests it hit and the stop command instead of waiting it out', async () => {
+  /**
+   * The other flash-m83 shape: the app is not answering, so every test the run walked — four
+   * files — failed on the same `connect ECONNREFUSED`, with nothing passing between them. This
+   * is the one shape the note is allowed to stop a run over.
+   */
+  const REFUSED_LOG = (() => {
+    const block = (n: number, file: string, line: number, title: string): string =>
+      [
+        `  ${n}) [chromium] › ../../fixtures/realworld/specs/e2e/${file}:${line}:3 › ${title} ────────`,
+        '',
+        '    Error: connect ECONNREFUSED 127.0.0.1:4000',
+        '',
+        '       at helpers/request.ts:9',
+      ].join('\n')
+    const test = (n: number, file: string, line: number, title: string, seconds: string): string =>
+      [
+        `  ✘    ${n} [chromium] › ../../fixtures/realworld/specs/e2e/${file}:${line}:3 › ${title} (${seconds})`,
+        block(n, file, line, title),
+      ].join('\n')
+    return [
+      'Running 139 tests using 1 worker',
+      test(1, 'articles.spec.ts', 32, 'Articles › should create a new article', '2.1s'),
+      test(2, 'auth.spec.ts', 12, 'Authentication › should log in', '1.9s'),
+      test(3, 'comments.spec.ts', 60, 'Comments › should delete a comment', '2.0s'),
+      test(4, 'tags.spec.ts', 12, 'Tags › shows the pill', '2.2s'),
+    ].join('\n')
+  })()
+
+  it('names the cause mid-run and says to let the run finish, with NO stop command (flash-m83)', async () => {
     process.env.MOL_AI_BG_CAUSE_LOOK_MS = '1'
     try {
       const id = 'mol-bg-m76rep-abc123'
@@ -2662,9 +2740,30 @@ describe('wait_for_task on a suite repeating one failure', () => {
       expect(Date.now() - t0).toBeLessThan(10_000)
       expect(r.note).toContain('3 different tests in this run have already failed the same way')
       expect(r.note).toContain('✘ e2e/articles.spec.ts:32 › should create a new article (15.6s)')
+      expect(r.note).toContain('Start fixing it now, while the run keeps walking')
+      expect(r.note).toContain('Let the rest of the run finish')
+      expect(r.note).toContain(`task ${id}`)
+      // Three failures inside ONE file is not a broken run — X1 flash-m83 stopped eight runs at
+      // their first repeating cause and never finished one, so this shape gets no kill command.
+      expect(r.note).not.toContain('exec_command')
+    } finally {
+      delete process.env.MOL_AI_BG_CAUSE_LOOK_MS
+    }
+  })
+
+  it('hands over the stop command when one cause is failing the WHOLE run (flash-m83)', async () => {
+    process.env.MOL_AI_BG_CAUSE_LOOK_MS = '1'
+    try {
+      const id = 'mol-bg-m83ref-abc127'
+      const wait = buildTools(repeatingBackend(REFUSED_LOG, '412 419')).find(
+        (t) => t.name === 'wait_for_task',
+      )!
+      const r = (await wait.execute({ taskId: id, timeout: 60_000 })) as { note: string }
+      expect(r.note).toContain('Every test this run has walked so far has failed the same way')
+      expect(r.note).toContain('across 4 files')
+      expect(r.note).toContain('Every remaining test will fail the same way too')
       // Every pid the task owns, from the sandbox's own pid file — never a pattern.
       expect(r.note).toContain('`exec_command: kill 412 419`')
-      expect(r.note).toContain(`task ${id}`)
     } finally {
       delete process.env.MOL_AI_BG_CAUSE_LOOK_MS
     }
@@ -2674,7 +2773,7 @@ describe('wait_for_task on a suite repeating one failure', () => {
     process.env.MOL_AI_BG_CAUSE_LOOK_MS = '1'
     try {
       const id = 'mol-bg-m76pid-abc124'
-      const wait = buildTools(repeatingBackend(M76_LOG, '')).find(
+      const wait = buildTools(repeatingBackend(REFUSED_LOG, '')).find(
         (t) => t.name === 'wait_for_task',
       )!
       const r = (await wait.execute({ taskId: id, timeout: 60_000 })) as { note: string }
