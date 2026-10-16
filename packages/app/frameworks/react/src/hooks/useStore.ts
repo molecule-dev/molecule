@@ -13,14 +13,34 @@ import { StateContext } from '../contexts.js'
 import type { UseStoreOptions } from '../types.js'
 
 /**
+ * The fix, appended to the error below — this hook is the one place that READS
+ * the context, so it is the one place that has to say where the context comes
+ * from. The sentences are code (an import, a component, a bond call), so they
+ * are appended in English rather than translated.
+ */
+const STATE_CONTEXT_FIX =
+  ' To fix: render a state provider above this component — ' +
+  "`import { MoleculeProvider, StateProvider } from '@molecule/app-react'`; " +
+  '<MoleculeProvider> passes the provider bonded under `@molecule/app-state` ' +
+  '(bond one with `setupAllDefaultBonds()` from `@molecule/app-bonds-default-react`, ' +
+  'or `setProvider(provider)` from `@molecule/app-state`), and ' +
+  '<StateProvider provider={provider}> passes one you hold. ' +
+  'To read a store you already have, call useStore(store) instead — it subscribes to the ' +
+  'store it is given and needs no provider.'
+
+/**
  * Hook to access the state provider from context.
  *
  * The context comes from `<StateProvider provider={…}>` or from
  * `<MoleculeProvider>` — which supplies the provider bonded under
  * `@molecule/app-state` by default, so a scaffolded app needs no `state` prop.
  *
+ * Only hooks that read the context call this; `useStore(store)` takes its store
+ * as an argument and works with no provider at all.
+ *
  * @returns The state provider from context
- * @throws {Error} Error if used outside of StateProvider
+ * @throws {Error} when no `StateProvider` is above the component — the message
+ * names the fix (which provider to render, and the import for it).
  */
 export function useStateProvider(): StateProvider {
   const provider = useContext(StateContext)
@@ -28,7 +48,7 @@ export function useStateProvider(): StateProvider {
     throw new Error(
       t('react.error.useStoreOutsideProvider', undefined, {
         defaultValue: 'useStateProvider must be used within a StateProvider',
-      }),
+      }) + STATE_CONTEXT_FIX,
     )
   }
   return provider
@@ -36,6 +56,12 @@ export function useStateProvider(): StateProvider {
 
 /**
  * Hook to subscribe to a store with optional selector and equality function.
+ *
+ * The store is the argument, so this hook needs NO `StateProvider`: it reads
+ * `store.getState()` and subscribes with `store.subscribe()`, and never touches
+ * the state context. A store minted outside the `state` bond — the direct
+ * `createStoreWithActions()` / `createStore()` a provider package exports — is
+ * therefore as valid here as one `@molecule/app-state`'s `createStore()` made.
  *
  * @param store - The store to subscribe to
  * @param options - Hook options (selector, equalityFn)
@@ -48,9 +74,6 @@ export function useStateProvider(): StateProvider {
  * ```
  */
 export function useStore<T, S = T>(store: Store<T>, options?: UseStoreOptions<T, S>): S {
-  // Validate that we're within a StateProvider
-  useStateProvider()
-
   const { selector, equalityFn } = options ?? {}
 
   // Use a ref to track the previous selected value for equality comparison

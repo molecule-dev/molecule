@@ -19,6 +19,7 @@ import {
   useHttp,
   useLogger,
   useRouter,
+  useStateProvider,
   useStorageValue,
   useStore,
   useTheme,
@@ -611,15 +612,41 @@ describe('useLogger', () => {
 })
 
 describe('Provider errors', () => {
-  it('should throw when useStore is used outside StateProvider', () => {
+  // The hook is HANDED its store, so it must work with no provider at all
+  // (X1 flash-m100): an app that made its store with a provider package's own
+  // `createStoreWithActions()` — never calling `setProvider()` — had every page
+  // throw "useStateProvider must be used within a StateProvider" on mount, from
+  // a hook that only ever calls `store.getState()` / `store.subscribe()`.
+  it('should render useStore(store) with no StateProvider anywhere', () => {
     const store = createMockStore({ count: 0 })
 
-    // Suppress console.error for this test
+    const { result } = renderHook(() => useStore(store, { selector: (s) => s.count }))
+
+    expect(result.current).toBe(0)
+
+    act(() => store.setState({ count: 1 }))
+    expect(result.current).toBe(1)
+  })
+
+  it('should name the fix when useStateProvider is used outside StateProvider', () => {
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
-    expect(() => {
-      renderHook(() => useStore(store))
-    }).toThrow('useStateProvider must be used within a StateProvider')
+    let thrown: Error | undefined
+    try {
+      renderHook(() => useStateProvider())
+    } catch (error) {
+      thrown = error as Error
+    }
+
+    expect(thrown?.message).toContain('useStateProvider must be used within a StateProvider')
+    // The message has to carry the fix, not just the diagnosis: the import line,
+    // the bond that supplies the provider by default, and the hook to reach for
+    // when the caller already holds a store.
+    expect(thrown?.message).toContain(
+      "import { MoleculeProvider, StateProvider } from '@molecule/app-react'",
+    )
+    expect(thrown?.message).toContain('setupAllDefaultBonds()')
+    expect(thrown?.message).toContain('useStore(store)')
 
     consoleSpy.mockRestore()
   })
