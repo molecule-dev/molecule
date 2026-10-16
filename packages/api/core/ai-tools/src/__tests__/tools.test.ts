@@ -1929,7 +1929,7 @@ describe('exec_command run_in_background', () => {
     })) as { note: string }
     const written = (backend.writeFile as ReturnType<typeof vi.fn>).mock.calls[0][1]
     expect(written).toBe('cd spec/run && npx playwright test --retries=0 --reporter=list\n')
-    expect(r.note).toContain('Switched `--reporter=line` to `--reporter=list`')
+    expect(r.note).toContain('Switched the test reporters to `--reporter=list`')
   })
 
   it('names the file a background command redirects its output to (flash-m29)', async () => {
@@ -2660,7 +2660,7 @@ describe('wait_for_task on a suite repeating one failure', () => {
       // The wait was 60 s; the cause was there at the third failure, so it returns in the first
       // couple of seconds rather than spending the minute.
       expect(Date.now() - t0).toBeLessThan(10_000)
-      expect(r.note).toContain('3 of this run’s tests have already failed the same way')
+      expect(r.note).toContain('3 different tests in this run have already failed the same way')
       expect(r.note).toContain('✘ e2e/articles.spec.ts:32 › should create a new article (15.6s)')
       // Every pid the task owns, from the sandbox's own pid file — never a pattern.
       expect(r.note).toContain('`exec_command: kill 412 419`')

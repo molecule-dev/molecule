@@ -562,17 +562,16 @@ describe('streamingBackgroundCommand', () => {
     // `[n/N] <title>` with no durations, so under it the note could never fire on a suite
     // repeating one cause: X0 flash-m62 spent 8.3 minutes walking 139 tests that way.
     //
-    // A run being iterated on also carries `line`: `list` holds each failure's error for the
-    // summary at the end, so mid-run its log says only how long a failure took, while the
-    // repeating-cause look (flash-m76) needs the error the failure wrote.
+    // ONE reporter, iterating or not: a second one writes every result into the log twice
+    // (flash-m83 — see the test below).
     expect(
       streamingBackgroundCommand('cd e2e && npx playwright test specs/auth.spec.ts').command,
-    ).toBe('cd e2e && npx playwright test specs/auth.spec.ts --reporter=list,line --retries=0')
+    ).toBe('cd e2e && npx playwright test specs/auth.spec.ts --reporter=list --retries=0')
   })
 
   it('runs a diagnosis or re-run with --retries=0, and leaves the proof run alone (flash-m71)', () => {
     expect(streamingBackgroundCommand('npx playwright test --max-failures=15').command).toBe(
-      'npx playwright test --max-failures=15 --reporter=list,line --retries=0',
+      'npx playwright test --max-failures=15 --reporter=list --retries=0',
     )
     expect(streamingBackgroundCommand('npx playwright test --last-failed').command).toContain(
       '--retries=0',
@@ -587,16 +586,21 @@ describe('streamingBackgroundCommand', () => {
     ).not.toContain('--retries=0')
   })
 
-  it('switches a final playwright run off the line reporter the fail-fast cannot read', () => {
+  it('switches a final playwright run off a printing reporter the fail-fast cannot read', () => {
     expect(
       streamingBackgroundCommand('cd spec/run && npx playwright test --reporter=line'),
     ).toEqual({
       command: 'cd spec/run && npx playwright test --reporter=list',
       changes: [
-        'Switched `--reporter=line` to `--reporter=list`: it also writes each test result as it ' +
-          'finishes, and it is the shape the platform reads back from a background run.',
+        'Switched the test reporters to `--reporter=list`: `list` writes each test result as it ' +
+          'finishes and is the shape the platform reads back from a background run, and it is the ' +
+          'only printing reporter — two of them write every result into the log twice (X1 flash-m83).',
       ],
     })
+    // `dot` prints one dot per test and nothing a note can read, so it is put on `list` too.
+    expect(streamingBackgroundCommand('npx playwright test --reporter=dot').command).toBe(
+      'npx playwright test --reporter=list',
+    )
     // The space spelling is the same flag to Playwright, and only the last step is rewritten.
     expect(streamingBackgroundCommand('cd e2e; npx playwright test --reporter line').command).toBe(
       'cd e2e; npx playwright test --reporter list',
@@ -606,10 +610,37 @@ describe('streamingBackgroundCommand', () => {
     ).toBe('npx playwright test --reporter line && echo done')
   })
 
+  it('never leaves TWO reporters printing each failure (flash-m83)', () => {
+    // flash-m83's whole remote run (2026-10-16): `--reporter=list,line`, its `line` added by this
+    // function one run earlier. Both reporters print every failure, so the log carried each test
+    // twice and the mid-run repeating-cause note read two distinct failures as four.
+    const run =
+      'TEST_MODE=fullstack npx playwright test --config=e2e-realworld.config.ts ' +
+      '--max-failures=15 --reporter=list,line --retries=0'
+    const { command, changes } = streamingBackgroundCommand(run)
+    expect(command).toBe(run.replace('--reporter=list,line', '--reporter=list'))
+    expect(changes).toEqual([
+      'Dropped `line` from your `--reporter=list,line`: two reporters that both print each failure ' +
+        'write every test result into the log twice — the whole log doubled for nothing (X1 ' +
+        'flash-m83) — so this run keeps `list` alone.',
+    ])
+    // A file the executor asked for is theirs and stays: only the printers are collapsed.
+    expect(streamingBackgroundCommand('npx playwright test --reporter=html,line').command).toBe(
+      'npx playwright test --reporter=html,list',
+    )
+    expect(streamingBackgroundCommand('npx playwright test --reporter=html,line,dot').command).toBe(
+      'npx playwright test --reporter=html,list',
+    )
+  })
+
   it('leaves playwright alone when it picks a reporter, redirects, or is not the last step', () => {
     for (const command of [
       'npx playwright test --reporter=list',
       'npx playwright test --reporter=html',
+      // A machine format written to a file is the executor's own business: no printer of the
+      // platform's is added beside it.
+      'npx playwright test --reporter=json',
+      'npx playwright test --reporter=junit,html',
       'npx playwright test > log.txt',
       'npx playwright test && echo done',
       'npm run build',
@@ -649,15 +680,20 @@ describe('streamingBackgroundCommand', () => {
     )
   })
 
-  it('adds `line` to an iterating run’s own `list` reporter (flash-m76)', () => {
+  it('keeps an iterating run on `list` alone, with no second reporter beside it (flash-m76/m83)', () => {
     // flash-m76's diagnosis run ended `--max-failures=15 … --reporter=list`: 15 tests took the
     // full 4.0 minutes to report one cause, because the log carried each failure's duration and
-    // nothing of its error until the very end.
+    // nothing of its error until the very end. m76 answered that by adding `line` beside `list`;
+    // m83 showed what two printers cost (the log doubled, and the repeating-cause count with it),
+    // so an iterating run is put on `list` alone, exactly like a whole-suite proof run.
     expect(
-      streamingBackgroundCommand('npx playwright test --max-failures=15 --reporter=list').command,
-    ).toBe('npx playwright test --max-failures=15 --reporter=list,line --retries=0')
-    // A whole-suite proof run keeps `list` alone — nothing stops it early, and the second
-    // reporter would only double its log.
+      streamingBackgroundCommand('npx playwright test --max-failures=15 --reporter=list'),
+    ).toEqual({
+      command: 'npx playwright test --max-failures=15 --reporter=list --retries=0',
+      changes: [
+        'Added `--retries=0`: a diagnosis or re-run walks each failure once; keep the suite’s retries for the proof run.',
+      ],
+    })
     expect(streamingBackgroundCommand('npx playwright test --reporter=list').command).toBe(
       'npx playwright test --reporter=list',
     )
@@ -712,6 +748,73 @@ describe('repeatingFailure', () => {
     expect(repeatingFailure(mixed)).toBeNull()
   })
 
+  it('counts DISTINCT tests, so one test printed twice is one test', () => {
+    // A `list` line the log carries twice — a second reporter, or a retried test — is the same
+    // test, and two of them are not a cause.
+    const twice = [
+      list('✘', 1, 'a.spec.ts:11:1', 'A › one', '15.6s'),
+      list('✘', 1, 'a.spec.ts:11:1', 'A › one', '15.6s'),
+      list('✘', 2, 'b.spec.ts:22:1', 'B › two', '15.6s'),
+      list('✘', 2, 'b.spec.ts:22:1', 'B › two', '15.6s'),
+    ].join('\n')
+    expect(repeatingFailure(twice)).toBeNull()
+    // Three DISTINCT tests behind one duration still name the cause — counted once each.
+    const three = `${twice}\n${list('✘', 3, 'c.spec.ts:33:1', 'C › three', '15.6s')}\n${list('✘', 3, 'c.spec.ts:33:1', 'C › three', '15.6s')}`
+    const found = repeatingFailure(three)
+    expect(found!.count).toBe(3)
+    expect(found!.tests.map((t) => t.where)).toEqual([
+      '../../fixtures/realworld/specs/e2e/a.spec.ts:11',
+      '../../fixtures/realworld/specs/e2e/b.spec.ts:22',
+      '../../fixtures/realworld/specs/e2e/c.spec.ts:33',
+    ])
+  })
+
+  /**
+   * X1 flash-m83 (2026-10-16): a whole remote run under `--reporter=list,line`, so BOTH reporters
+   * printed every failure (and every failure block). Two distinct tests — one of them the brief's
+   * own excluded `should require login to post comment` — shared one `TimeoutError`, and the note
+   * said "4 of this run’s tests have already failed the same way". The executor stopped the
+   * 139-test walk at test 21 with a single cause in hand. Lines below are that run's own log.
+   */
+  const m83 = (() => {
+    const block = (n: number, file: string, line: number, title: string): string =>
+      [
+        `  ${n}) [chromium] › ../fixtures/realworld/specs/e2e/${file}:${line}:3 › Comments › ${title} `,
+        '',
+        '    TimeoutError: page.waitForURL: Timeout 10000ms exceeded.',
+        '    =========================== logs ===========================',
+        '    waiting for navigation until "load"',
+        '',
+        '       at helpers/articles.ts:27',
+      ].join('\n')
+    // Each test exactly as the two reporters print it: the `line` reporter's `[n/N]` header and
+    // its block as the failure happens, the `list` reporter's result line and its block in the
+    // summary at the end.
+    const test = (n: number, file: string, line: number, title: string, seconds: string): string =>
+      [
+        `[${n}/139] [chromium] › ../fixtures/realworld/specs/e2e/${file}:${line}:3 › Comments › ${title}`,
+        `[${n}/139] [chromium] › ../fixtures/realworld/specs/e2e/${file}:${line}:3 › Comments › ${title}`,
+        list('✘', n, `${file}:${line}:3`, `Comments › ${title}`, seconds),
+        block(1, file, line, title),
+        block(1, file, line, title),
+      ].join('\n')
+    return [
+      'Running 139 tests using 1 worker',
+      test(
+        21,
+        'comments.spec.ts',
+        60,
+        'should delete comment when server returns 200 instead of 204',
+        '11.9s',
+      ),
+      test(23, 'comments.spec.ts', 102, 'should require login to post comment', '11.8s'),
+    ].join('\n')
+  })()
+
+  it('says nothing about two distinct tests however many times the log printed them (flash-m83)', () => {
+    expect(repeatingFailure(m83)).toBeNull()
+  })
+
   it('prefers the repeated error MESSAGE when the log carries the failure bodies', () => {
     // A `line` reporter writes each failure's body as it happens — the shape an iterating run is
     // put on so a mid-run look can read the cause itself.
@@ -749,7 +852,8 @@ describe('repeatingFailure', () => {
       log: '/tmp/mol-bg-mvax0rgp-63okfo.log',
       stop: 'kill 412 419',
     })
-    expect(note).toContain('3 of this run’s tests have already failed the same way')
+    // "different tests": the count is of DISTINCT tests, never of log lines (flash-m83).
+    expect(note).toContain('3 different tests in this run have already failed the same way')
     expect(note).toContain('each after ~15.6s')
     expect(note).toContain('✘ e2e/articles.spec.ts:32 › should create a new article (15.6s)')
     expect(note).toContain('exec_command: kill 412 419')
