@@ -235,6 +235,14 @@ describe('buildTools', () => {
     const backend = mockBackend()
     const tools = buildTools(backend, { commandBudgetMs: 290_000, overCeilingGraceMs: 0 })
     const exec = tools.find((t) => t.name === 'exec_command')!
+    // The note is for a command that actually neared the ceiling: it says to
+    // split the work, which only means something when the run was long.
+    let clock = 1_000_000
+    const now = vi.spyOn(Date, 'now').mockImplementation(() => clock)
+    backend.run = vi.fn(async () => {
+      clock += 250_000
+      return { stdout: '', stderr: '', exitCode: 0 }
+    })
 
     const clamped = (await exec.execute({ command: 'npm test', timeout: 900_000 })) as {
       note?: string
@@ -253,6 +261,31 @@ describe('buildTools', () => {
       'npm test',
       expect.objectContaining({ budgetMs: 30_000 }),
     )
+    now.mockRestore()
+  })
+
+  // xr-molecule-flash-m83 +53:11: a 25 s Hurl run carried "You asked for 600s;
+  // this tool's ceiling is 290s" — a warning about splitting work, attached to
+  // work that had already finished cleanly in a tenth of the budget. The ask was
+  // clamped and the clamp never mattered, so the call says nothing about it.
+  it('does not report the ceiling clamp for a command that finished well inside it', async () => {
+    const backend = mockBackend()
+    const tools = buildTools(backend, { commandBudgetMs: 290_000, overCeilingGraceMs: 0 })
+    const exec = tools.find((t) => t.name === 'exec_command')!
+    let clock = 1_000_000
+    const now = vi.spyOn(Date, 'now').mockImplementation(() => clock)
+    backend.run = vi.fn(async () => {
+      clock += 25_000
+      return { stdout: '13/13', stderr: '', exitCode: 0 }
+    })
+
+    const fast = (await exec.execute({
+      command: 'HOST=https://x bash api/run-api-tests-hurl.sh',
+      timeout: 600_000,
+    })) as { note?: string; exitCode?: number }
+    expect(fast.exitCode).toBe(0)
+    expect(fast.note).toBeUndefined()
+    now.mockRestore()
   })
 
   // ── batched reads ─────────────────────────────────────────────────────────
@@ -580,7 +613,30 @@ describe('buildTools', () => {
     const tools = buildTools(mockBackend())
     const readFile = tools.find((t) => t.name === 'read_file')!
     const result = (await readFile.execute({})) as { error?: string }
-    expect(result.error).toMatch(/requires a non-empty "path"/)
+    // NO argument at all is the truncated-call shape, and says so (see the
+    // edit_file case below); a call that carried arguments but no path still
+    // gets the path message (the next test).
+    expect(result.error).toMatch(/arrived with no arguments/)
+    expect(result.error).toMatch(/truncated/)
+  })
+
+  // x0 flash-m83 +29:32: `edit_file {}` — the provider cut the call short, and
+  // "requires a non-empty path argument" told the model its PATH was the problem,
+  // so it re-sent the same empty call instead of sending it whole. One round lost.
+  it('edit_file with no arguments at all says the call was truncated, not that the path is missing', async () => {
+    const tools = buildTools(mockBackend())
+    const editFile = tools.find((t) => t.name === 'edit_file')!
+    const empty = (await editFile.execute({})) as { error?: string }
+    expect(empty.error).toMatch(/edit_file arrived with no arguments/)
+    expect(empty.error).toMatch(/truncated/)
+    expect(empty.error).toMatch(/Send the whole call again/)
+    expect(empty.error).not.toMatch(/requires a non-empty "path"/)
+    expect(empty.error).not.toMatch(/\n/)
+    // A call that DID carry arguments and left out the path keeps the path message.
+    const noPath = (await editFile.execute({ old_string: 'a', new_string: 'b' })) as {
+      error?: string
+    }
+    expect(noPath.error).toMatch(/requires a non-empty "path"/)
   })
 
   it('read_file returns the directory listing (DWIM) when the target is a directory', async () => {

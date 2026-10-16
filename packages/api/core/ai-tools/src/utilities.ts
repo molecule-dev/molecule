@@ -799,6 +799,32 @@ export function pathArgError(path: unknown, tool: string): string | null {
 }
 
 /**
+ * The error for a file tool called with NO arguments at all — `edit_file {}`, the
+ * shape a truncated provider stream leaves behind.
+ *
+ * The path message is the wrong reading of it: "requires a non-empty path
+ * argument" says the call was understood and the path was left out, so the model
+ * retries the call it just made instead of sending the whole call again (x0
+ * flash-m83 +29:32: `edit_file {}`, one round lost). An empty object and a
+ * missing `path` are different failures and deserve different sentences.
+ *
+ * @param input - The raw tool input.
+ * @param tool - The tool name, for the message.
+ * @returns The truncation message, or null when the call carried any argument.
+ */
+export function emptyCallError(input: unknown, tool: string): string | null {
+  const empty =
+    input === undefined ||
+    input === null ||
+    (typeof input === 'object' &&
+      !Array.isArray(input) &&
+      Object.keys(input as Record<string, unknown>).length === 0)
+  return empty
+    ? `${tool} arrived with no arguments at all — the call was cut short, usually a truncated response. Send the whole call again.`
+    : null
+}
+
+/**
  * Detect a "read/edit targeted a directory, not a file" failure from a backend
  * error message (local fs `EISDIR` or the sandbox's `cat: X: Is a directory`),
  * and return an actionable message steering the model to `list_files`. Returns

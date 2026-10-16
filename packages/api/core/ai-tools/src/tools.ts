@@ -191,6 +191,7 @@ import {
   declaredBudgetSeconds,
   DEFAULT_SEARCH_EXCLUDED_DIRS,
   directoryReadHint,
+  emptyCallError,
   failureCausesNote,
   findPatternArgs,
   fusedLine,
@@ -242,6 +243,15 @@ import {
  * command asked for more than the tool's ceiling, before handing back a task id.
  */
 const OVER_CEILING_GRACE_MS = 45_000
+
+/**
+ * The share of its budget a command must use before the "you asked for more than
+ * this tool's ceiling" note is worth attaching. Below it the clamp changed nothing
+ * about the run, and the line read as a warning about work that had already
+ * finished (xr-molecule-flash-m83 +53:11: a Hurl run of 25 s against a 290 s
+ * ceiling carried the note).
+ */
+const CEILING_NOTE_MIN_USED = 0.5
 
 /**
  * The steer attached to a SUCCESSFUL read of a package's built output. The ENOENT
@@ -858,6 +868,8 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
     },
 
     async read_file(input) {
+      const emptyErr = emptyCallError(input, 'read_file')
+      if (emptyErr) return { error: emptyErr }
       // Several paths in ONE call. The executor issues one tool call per model
       // round-trip 89% of the time (X0: 464 assistant messages, 515 tool calls,
       // a ~10s mean gap), so a turn's wall clock IS its round-trip count — and
@@ -967,6 +979,8 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
     },
 
     async write_file(input) {
+      const emptyErr = emptyCallError(input, 'write_file')
+      if (emptyErr) return { error: emptyErr }
       const argErr = pathArgError(input.path, 'write_file')
       if (argErr) return { error: argErr }
       const path = resolve(input.path as string)
@@ -1012,6 +1026,8 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
     },
 
     async edit_file(input) {
+      const emptyErr = emptyCallError(input, 'edit_file')
+      if (emptyErr) return { error: emptyErr }
       const argErr = pathArgError(input.path, 'edit_file')
       if (argErr) return { error: argErr }
       const path = resolve(input.path as string)
@@ -1731,18 +1747,29 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           Number.isFinite(requestedMs) && requestedMs > 0 && commandBudgetMs
             ? Math.min(requestedMs, commandBudgetMs)
             : commandBudgetMs
-        const ceilingNote =
-          wantsMore && budgetSeconds
-            ? `You asked for ${Math.round(requestedMs / 1000)}s; this tool's ceiling is ${budgetSeconds}s. ` +
-              'Split the work into smaller commands (one test file, one build step) rather than ' +
-              're-running the same long one.'
-            : null
-
+        const startedAt = Date.now()
         const result = await backend.run(command, {
           cwd,
           timeout: execTimeoutMs,
           ...(effectiveBudgetMs ? { budgetMs: effectiveBudgetMs } : {}),
         })
+        const elapsedMs = Date.now() - startedAt
+        // The clamped ask is only worth a line when the clamp was felt: a command
+        // that asked for 600 s and finished in 25 s says nothing about splitting
+        // work, and the note read as a warning about a run that had already
+        // finished cleanly (xr-molecule-flash-m83 +53:11 — a Hurl run, 25 s).
+        // Half the budget is the line; below it no smaller unit would have been
+        // chosen any differently. A run that actually hit the ceiling is answered
+        // by the exit-124 message below, not by this note.
+        const ceilingNote =
+          wantsMore &&
+          budgetSeconds &&
+          effectiveBudgetMs &&
+          elapsedMs >= effectiveBudgetMs * CEILING_NOTE_MIN_USED
+            ? `You asked for ${Math.round(requestedMs / 1000)}s; this tool's ceiling is ${budgetSeconds}s. ` +
+              'Split the work into smaller commands (one test file, one build step) rather than ' +
+              're-running the same long one.'
+            : null
         // truncateMiddle (not truncate): a failing build/test/migration puts its
         // error at the TAIL, so keep the head AND the tail — head-only truncation
         // strands the executor with passing progress and no failure reason.
