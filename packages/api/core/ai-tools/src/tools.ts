@@ -1094,7 +1094,9 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         // search found nothing (X1 run sol-m07). A pattern that is not a valid
         // extended regex (`foo(` — an unbalanced paren) makes grep exit 2; it is
         // then searched as the plain text it was meant as.
-        const grepArgs = `-rn ${globArg} ${contextArg} ${grepExcludeArgs(path)} --max-count=${MAX_SEARCH_RESULTS} -- ${shellQuote(pattern)} ${shellQuote(path)}`
+        // -H: a search scoped to one file printed `line:content` with no file, and every match
+        // came back `{file: "", line: 0}` (X1 flash-m62).
+        const grepArgs = `-rnH ${globArg} ${contextArg} ${grepExcludeArgs(path)} --max-count=${MAX_SEARCH_RESULTS} -- ${shellQuote(pattern)} ${shellQuote(path)}`
         const result = await backend.run(
           `{ grep -E ${grepArgs}; s=$?; if [ "$s" -eq 2 ]; then grep -F ${grepArgs}; fi; } 2>/dev/null || true`,
           { timeout: 10000 },

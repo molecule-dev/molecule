@@ -1345,6 +1345,14 @@ describe('search excludes (VS Code search.exclude semantics)', () => {
     expect(cmd).toContain("--exclude-dir='molecule'")
   })
 
+  it('search_files always prints the file, so a one-file search has locations (flash-m62)', async () => {
+    const backend = mockBackend()
+    const tool = buildTools(backend).find((t) => t.name === 'search_files')!
+    await tool.execute({ pattern: 'useState', path: 'app/src/App.tsx' })
+    const cmd = (backend.run as ReturnType<typeof vi.fn>).mock.calls[0][0] as string
+    expect(cmd).toContain('-rnH ')
+  })
+
   it('find_files uses the same synchronized set', async () => {
     const backend = mockBackend()
     const tool = buildTools(backend).find((t) => t.name === 'find_files')!
