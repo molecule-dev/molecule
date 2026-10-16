@@ -83,6 +83,53 @@ describe('convertPlaceholders', () => {
     expect(result.text).toBe('SELECT "column$name" FROM users WHERE id = ?')
     expect(result.values).toEqual(['u1'])
   })
+
+  it('throws when a value has no $N placeholder, naming the value and the SQL', () => {
+    // A `$N` numbering slip (a list numbered from the loop index that restarts at
+    // $1) used to drop the surplus value in silence and return the wrong rows.
+    // Postgres refuses the same call: `bind message supplies 3 parameters … requires 2`.
+    const sql = `SELECT * FROM reactions WHERE "resourceType" = $1 AND "userId" = $2 AND "type" = 'favorite' AND "resourceId" IN ($1)`
+    expect(() => convertPlaceholders(sql, ['article', 'u1', 'a1'])).toThrowError(
+      /bind message supplies 3 parameters, but the statement requires only 2/,
+    )
+    expect(() => convertPlaceholders(sql, ['article', 'u1', 'a1'])).toThrowError(
+      /value 3 has no \$N placeholder/,
+    )
+    expect(() => convertPlaceholders(sql, ['article', 'u1', 'a1'])).toThrowError(
+      /SQL: SELECT \* FROM reactions/,
+    )
+    expect(() => convertPlaceholders('SELECT $1 FROM t', ['a', 'b'])).toThrowError(
+      /supplies 2 parameters, but the statement requires only 1/,
+    )
+  })
+
+  it('throws when a $N has no value, naming the placeholder and the SQL', () => {
+    expect(() =>
+      convertPlaceholders('SELECT * FROM t WHERE a = $1 AND b = $2', ['x']),
+    ).toThrowError(/bind message supplies 1 parameters, but the SQL names \$2 with no value/)
+    expect(() =>
+      convertPlaceholders('SELECT * FROM t WHERE a = $1 AND b = $2', ['x']),
+    ).toThrowError(/SQL: SELECT \* FROM t WHERE a = \$1 AND b = \$2/)
+    expect(() => convertPlaceholders('SELECT * FROM t WHERE a = $3', ['x'])).toThrowError(
+      /the SQL names \$3 with no value/,
+    )
+  })
+
+  it('throws on a $0 placeholder, which no value can fill', () => {
+    // The off-by-one the other way (`ids.map((_, i) => `$${i}`)`) used to bind
+    // values[-1] — undefined → NULL — and return the wrong rows.
+    expect(() => convertPlaceholders('SELECT * FROM t WHERE a = $0', ['x'])).toThrowError(
+      /the SQL names \$0 with no value — placeholders are \$1-based/,
+    )
+  })
+
+  it('still binds an explicit undefined value as NULL, like Postgres', () => {
+    // Not a placeholders/values disagreement: the counts agree, and node-postgres
+    // sends undefined as NULL, so this bond must not start refusing it.
+    const result = convertPlaceholders('SELECT * FROM t WHERE a = $1', [undefined])
+    expect(result.text).toBe('SELECT * FROM t WHERE a = ?')
+    expect(result.values).toEqual([undefined])
+  })
 })
 
 describe('translateDdlToMysql', () => {

@@ -4,6 +4,10 @@
  * @module
  */
 
+/** The `$N` placeholders a statement names, as numbers, in the order they appear. */
+const namedPlaceholderIndexes = (text: string): number[] =>
+  [...text.matchAll(/\$(\d+)/g)].map((match) => parseInt(match[1], 10))
+
 /**
  * Convert PostgreSQL-style positional placeholders ($1, $2, ...) to MySQL-style (?) placeholders.
  * Also reorders the values array to match the placeholder order — `$N` is *positional*
@@ -11,9 +15,20 @@
  * substitution alone silently binds the wrong values for out-of-order placeholders and
  * under-supplies parameters for repeated ones. Mirrors the sqlite bond's converter.
  *
+ * A statement whose placeholders and values disagree is REFUSED, with the same
+ * contract PostgreSQL enforces at bind time (`bind message supplies 3 parameters,
+ * but prepared statement "" requires 2`). This converter is the only place that
+ * sees both the SQL text and the values, and without the check a `$N` numbering
+ * slip — a list numbered from the loop index that restarts at `$1` and collides
+ * with a `$1` already in the statement, leaving a supplied value with no
+ * placeholder — returns WRONG ROWS with no error at all. Postgres rejects the
+ * same call outright, so an app developed on this bond otherwise carries a class
+ * of bug only its production database would name.
+ *
  * @param text - SQL query text with $N placeholders.
  * @param values - Parameter values ordered by $N index.
  * @returns The query text with ? placeholders and the reordered values.
+ * @throws {Error} When a `$N` has no value, or a supplied value has no `$N`.
  */
 export const convertPlaceholders = (
   text: string,
@@ -28,6 +43,39 @@ export const convertPlaceholders = (
   // drops the (unused) values to avoid "too many parameters".
   if (!/\$\d+/.test(text)) {
     return { text, values: text.includes('?') ? values : [] }
+  }
+
+  // The bound list was built from the placeholders the SQL NAMES and never checked
+  // against the values it was GIVEN, so a value with no `$N` was dropped in silence
+  // and a `$N` with no value bound `undefined` (→ NULL) in silence.
+
+  // A `$N` no value can fill: `N > values.length` (no such entry was supplied)
+  // or `N < 1` (placeholders are $1-based, so `values[-1]` is undefined). Both
+  // used to bind NULL — `undefined` — in silence.
+  const named = namedPlaceholderIndexes(text)
+  const unbound = [...new Set(named.filter((index) => index < 1 || index > values.length))].sort(
+    (a, b) => a - b,
+  )
+  if (unbound.length > 0) {
+    const because =
+      unbound[0] < 1 ? 'placeholders are $1-based' : 'every $N placeholder needs a matching value'
+    throw new Error(
+      `bind message supplies ${values.length} parameters, but the SQL names ${unbound
+        .map((index) => `$${index}`)
+        .join(', ')} with no value — ${because}. SQL: ${text}`,
+    )
+  }
+
+  // Values the SQL names no placeholder for: they used to be dropped in silence.
+  // `maxIndex` is the number of values the statement needs, which is what the
+  // Postgres bind error reports as `requires`.
+  const maxIndex = Math.max(...named)
+  if (values.length > maxIndex) {
+    const unused = Array.from({ length: values.length - maxIndex }, (_, i) => maxIndex + i + 1)
+    const list = unused.map((position) => `value ${position}`).join(', ')
+    throw new Error(
+      `bind message supplies ${values.length} parameters, but the statement requires only ${maxIndex} — ${list} ${unused.length === 1 ? 'has' : 'have'} no $N placeholder. SQL: ${text}`,
+    )
   }
 
   const reorderedValues: unknown[] = []
