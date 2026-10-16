@@ -631,6 +631,7 @@
   "@molecule/app-fonts-ibm-plex-mono",
   "@molecule/app-fonts-ibm-plex-sans",
   "@molecule/app-fonts-inter",
+  "@molecule/app-fonts-ionicons",
   "@molecule/app-fonts-jetbrains-mono",
   "@molecule/app-fonts-lato",
   "@molecule/app-fonts-lora",

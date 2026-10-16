@@ -35,18 +35,11 @@
  */
 import { execFileSync, spawnSync } from 'node:child_process'
 import console from 'node:console'
-import {
-  closeSync,
-  createReadStream,
-  createWriteStream,
-  existsSync,
-  openSync,
-  readFileSync,
-  writeFileSync,
-} from 'node:fs'
+import { closeSync, existsSync, openSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import process from 'node:process'
 import { createInterface } from 'node:readline/promises'
+import { ReadStream, WriteStream } from 'node:tty'
 
 import { assertPackComplete } from './lib/assert-pack-complete.mjs'
 import { commitTrustState } from './lib/commit-trust-state.mjs'
@@ -201,8 +194,11 @@ const askOtp = async (label) => {
   // Separate descriptors. Sharing one fd between a read and a write stream and
   // then destroying both closes it twice, which threw EBADF and killed a run
   // after the user had already typed a code.
-  const input = createReadStream('/dev/tty')
-  const output = createWriteStream('/dev/tty')
+  // tty streams, not fs streams: destroying an fs ReadStream leaves its
+  // blocking read on /dev/tty pending, so the process never exited after the
+  // last prompt until the user pressed Ctrl-C.
+  const input = new ReadStream(openSync('/dev/tty', 'r'))
+  const output = new WriteStream(openSync('/dev/tty', 'w'))
   const rl = createInterface({ input, output })
   try {
     return (await rl.question(`npm 2FA code for ${label} (6 digits): `)).trim()
@@ -419,7 +415,15 @@ for (const pkg of untrusted) {
       // Publish the placeholder: the manifest says 0.0.0-stage for this one
       // command only, and the real version is restored before anything else.
       const manifestPath = join(ROOT, pkg.dir, 'package.json')
-      const manifestText = readFileSync(manifestPath, 'utf8')
+      let manifestText = readFileSync(manifestPath, 'utf8')
+      // An interrupted earlier run leaves the placeholder in the manifest; restoring
+      // "what was there" would then keep it. Take the committed text instead.
+      if (/-stage"/.test(manifestText)) {
+        manifestText = execFileSync('git', ['show', `HEAD:${pkg.dir}/package.json`], {
+          cwd: ROOT,
+          encoding: 'utf8',
+        })
+      }
       const staged = JSON.parse(manifestText)
       try {
         if ((otp && /^\d{6}$/.test(otp)) || loadSeed()) {
