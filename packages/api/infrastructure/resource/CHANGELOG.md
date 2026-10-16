@@ -1,5 +1,11 @@
 # @molecule/api-resource
 
+## 1.0.4
+
+### Patch Changes
+
+- 5264569: The package reference now states the handler contract up front: a handler returns `{ statusCode, headers?, body }` and never writes to `res`, so `createRequestHandler` is what applies it — with the three lines to write when a handler is called directly.
+
 ## 1.0.3
 
 ### Patch Changes

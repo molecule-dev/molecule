@@ -1,5 +1,13 @@
 # @molecule/api-ai-tools
 
+## 1.6.6
+
+### Patch Changes
+
+- f32213e: A command a budget stopped reports `status: 'cut_at_budget'` instead of the pipeline's `exitCode: 0` — with the bound that stopped it, how far the runner's own output shows it got, and the last line it printed — so a suite killed at a `timeout` behind a `| tail` is readable as the run that did not finish: `commandRunState`, `cutRunFacts` and `cutRunSentence` are the readers.
+- b76378c: `find_files` searches the directory a pattern names instead of walking the whole search root, and a timed-out search is reported in the tool's own words — what was searched, the limit, and a narrower `path` to try — instead of the sandbox's timeout option.
+- 0bd1ff1: `exec_command`'s over-budget message now tells a stopped test suite to run in the background instead of advising "run a smaller unit per command" — a suite stopped at the limit reports no tally at all, so splitting its files measures nothing and leaves no word on which test or request never finished.
+
 ## 1.6.5
 
 ### Patch Changes
