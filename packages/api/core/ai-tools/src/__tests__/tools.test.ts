@@ -14,6 +14,8 @@ import {
   resolvePath,
   runningOutputSliceCommand,
   shellQuote,
+  SPLIT_WORK_ADVICE,
+  SUITE_OVER_BUDGET_ADVICE,
   TOOL_SCHEMAS,
 } from '../index.js'
 import type { ExecutionBackend } from '../types.js'
@@ -1576,6 +1578,41 @@ describe('buildTools', () => {
     expect(piped.stdout).toBe('')
     expect(piped.error).toMatch(/pipe through tail\/head holds everything back/)
     expect(piped.error).toMatch(/run it without the pipe/)
+  })
+
+  it('the over-budget message sends a SUITE to the background, not to a smaller unit', async () => {
+    // xr-molecule-flash-m93 (+06:22, 2026-10-16): a Hurl suite whose one unanswered request held
+    // the run until the budget stopped it. "Run a smaller unit per command" is the wrong direction
+    // for a suite — splitting its files changes nothing about a request the app never answers, and
+    // a run stopped here reports no tally at all, so nothing says which one it was.
+    const backend = mockBackend()
+    ;(backend.run as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      stdout: '',
+      stderr: '',
+      exitCode: 124,
+    })
+    const execCmd = buildTools(backend, { commandBudgetMs: 290_000 }).find(
+      (t) => t.name === 'exec_command',
+    )!
+    const result = (await execCmd.execute({
+      command: 'hurl --test --jobs 1 --variable host=http://localhost:4000 hurl/*.hurl',
+    })) as { exitCode: number; error?: string }
+    expect(result.exitCode).toBe(124)
+    expect(result.error).toContain(SUITE_OVER_BUDGET_ADVICE)
+    expect(result.error).toMatch(/run_in_background/)
+    expect(result.error).not.toContain(SPLIT_WORK_ADVICE)
+
+    // A command that is NOT a suite keeps the advice that fits it — and so does a runner named
+    // only in an argument (`head -30 run-api-tests-hurl.sh` reads a file and starts nothing).
+    ;(backend.run as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      stdout: 'building…\n',
+      stderr: '',
+      exitCode: 124,
+    })
+    const build = (await execCmd.execute({
+      command: 'cd app && npm run build && head -30 run-api-tests-hurl.sh',
+    })) as { error?: string }
+    expect(build.error).toContain(SPLIT_WORK_ADVICE)
   })
 })
 

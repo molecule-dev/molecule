@@ -252,6 +252,7 @@ import {
   isEnvFilePath,
   isOutsideRoot,
   isPlaywrightRunCommand,
+  isSuiteRunCommand,
   isValidGlob,
   linesWithinSerialized,
   MAX_BATCH_READ_FILES,
@@ -296,6 +297,34 @@ import {
  * command asked for more than the tool's ceiling, before handing back a task id.
  */
 const OVER_CEILING_GRACE_MS = 45_000
+
+/**
+ * The closing advice on an over-budget message for a command that is not a test
+ * suite: the work it was chaining is what to split.
+ */
+export const SPLIT_WORK_ADVICE =
+  'Run a smaller unit per command (one test file, one build step) instead of chaining ' +
+  'a build and a whole suite.'
+
+/**
+ * The closing advice on an over-budget message for a command that IS a suite run
+ * (Playwright, Vitest, a `hurl` run — {@link isSuiteRunCommand}): its files are not
+ * a bigger unit to break up.
+ *
+ * X1 flash-m36 asked for this half and the message kept saying "run a smaller unit"
+ * for two months. It is the wrong direction for a suite, and measurably: a run
+ * stopped here reports NO tally, so nothing in the result says which test or request
+ * hung — the run has to be sent again in the background (off this budget, its output
+ * written to a log that can be read mid-run) or, when a consumer knows the runner's
+ * per-request limit, with each request bounded. xr-molecule-flash-m93 (+06:22,
+ * 2026-10-16) lost 4.8 minutes to a Hurl run whose ONE unanswered request had hurl's
+ * 300 s default per request holding the file, ten seconds past this tool's budget.
+ */
+export const SUITE_OVER_BUDGET_ADVICE =
+  'A test suite is not a bigger unit to split: stopped here it reports no tally at all, so nothing ' +
+  'in this result says which test or request never finished — run it in the background ' +
+  '(`run_in_background`, then `wait_for_task`), which takes it off this budget and writes its output ' +
+  "to a log, and read that log (or the app's own log) for what it was waiting on."
 
 /**
  * The share of its budget a command must use before the "you asked for more than
@@ -2033,8 +2062,8 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
               (/\|\s*(tail|head)\b/.test(command)
                 ? ' — and a pipe through tail/head holds everything back until the command ends, so it printed nothing: run it without the pipe (use a line reporter and let the output stream)'
                 : '') +
-              '. Run a smaller unit per command (one test file, one build step) instead of chaining ' +
-              'a build and a whole suite.',
+              '. ' +
+              (isSuiteRunCommand(command) ? SUITE_OVER_BUDGET_ADVICE : SPLIT_WORK_ADVICE),
           }
         }
         return {
