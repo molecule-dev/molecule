@@ -957,7 +957,17 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
             ? `${alreadyApplied} of these edits ${alreadyApplied === 1 ? 'was' : 'were'} already in the file (its new_string is there and its old_string is not) — nothing to do for ${alreadyApplied === 1 ? 'it' : 'them'}.`
             : null
         if (content === oldContent) {
-          return { path, ok: true, replacementsApplied: 0, alreadyApplied, note: alreadyNote }
+          // A replacement whose new_string IS its old_string changes nothing; `ok` alone read
+          // as a fix applied (X1 flash-m51).
+          const identical = replacements.filter(
+            (r) => typeof r.old_string === 'string' && r.old_string === r.new_string,
+          ).length
+          const note =
+            alreadyNote ??
+            (identical > 0
+              ? `Nothing changed: ${identical === 1 ? 'the replacement’s new_string is' : `${identical} replacements’ new_string are`} identical to old_string, so the file is exactly as it was. Write the text you want in new_string.`
+              : 'Nothing changed: the file is exactly as it was.')
+          return { path, ok: true, replacementsApplied: 0, alreadyApplied, note }
         }
 
         if (onFileDiff) onFileDiff({ path, oldContent, newContent: content })
