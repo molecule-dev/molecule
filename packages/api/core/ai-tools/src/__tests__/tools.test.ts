@@ -1012,6 +1012,54 @@ describe('buildTools', () => {
     }
   })
 
+  it('refuses a write INTO an installed package, and names it', async () => {
+    // X0 xr-molecule-flash-m91 (+04:43): `write_file` of a reconstructed `.d.ts` over
+    // the package's own declaration file answered `ok: true`, and the next call put
+    // `module.exports = {}` over its runtime module — a CommonJS stub over the ESM
+    // handler the app's own code imports. 18 s and an `npm pack` to undo.
+    const backend = mockBackend()
+    const writeFile = buildTools(backend).find((t) => t.name === 'write_file')!
+    const result = (await writeFile.execute({
+      path: '/test/app/node_modules/@molecule/api-resource-comment/dist/numbers.d.ts',
+      content: 'export declare const createNumberedComment: unknown\n',
+    })) as { error?: string; ok?: boolean }
+    expect(result.ok).toBeUndefined()
+    expect(result.error).toMatch(/@molecule\/api-resource-comment/)
+    expect(result.error).toMatch(/read-only/)
+    // The repair route is named, because the obvious one is refused in the
+    // pre-installed sandbox where the fleet lives at the workspace root.
+    expect(result.error).toMatch(/npm pack @molecule\/api-resource-comment@<version>/)
+    expect(result.error).toMatch(/node_modules\/@molecule\/api-resource-comment/)
+    expect(backend.writeFile).not.toHaveBeenCalled()
+  })
+
+  it('refuses every other way into an installed package, and still reads it', async () => {
+    const backend = mockBackend()
+    const tools = buildTools(backend)
+    const call = (name: string, input: Record<string, unknown>): Promise<unknown> =>
+      tools.find((t) => t.name === name)!.execute(input)
+    const pkg = '/test/app/node_modules/@molecule/api-feed-rss/dist/index.js'
+    for (const [name, input] of [
+      ['edit_file', { path: pkg, old_string: 'a', new_string: 'b' }],
+      ['delete_file', { path: pkg }],
+      ['create_directory', { path: '/test/app/node_modules/@molecule/api-feed-rss/new' }],
+      ['rename_file', { old_path: pkg, new_path: '/test/app/src/index.js' }],
+      ['rename_file', { old_path: '/test/app/src/index.js', new_path: pkg }],
+      // A NESTED node_modules is an installed package too.
+      ['write_file', { path: '/test/app/vendor/node_modules/left-pad/index.js', content: 'x' }],
+    ] as Array<[string, Record<string, unknown>]>) {
+      const result = (await call(name, input)) as { error?: string }
+      expect(result.error, `${name} ${JSON.stringify(input)}`).toMatch(/node_modules/)
+      expect(result.error).toMatch(/read-only/)
+    }
+    expect(backend.writeFile).not.toHaveBeenCalled()
+    expect(backend.deleteFile).not.toHaveBeenCalled()
+    // Reading it is how a package's declarations are read at all — never refused.
+    ;(backend.readFile as ReturnType<typeof vi.fn>).mockResolvedValue('exports.a = 1\n')
+    const read = (await call('read_file', { path: pkg })) as { content?: string }
+    expect(read.content).toBe('exports.a = 1\n')
+  })
+
   it("list_files on a missing path answers with the parent's real contents", async () => {
     const backend = mockBackend()
     ;(backend.readDir as ReturnType<typeof vi.fn>).mockImplementation(async (p: string) => {

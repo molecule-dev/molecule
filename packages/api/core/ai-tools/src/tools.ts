@@ -320,6 +320,54 @@ export function moleculeDistReadNote(path: string): string | null {
 }
 
 /**
+ * The refusal for a write whose target is inside an installed package, or null
+ * when the path is not under a `node_modules` directory.
+ *
+ * `node_modules` is not the project's code: nothing written there survives the
+ * next install, no deploy carries it, and a sandbox whose dependency tree is
+ * shared (the pre-installed superset) breaks every other run through it. X0
+ * xr-molecule-flash-m91 (+04:43) called `write_file` on
+ * `node_modules/@molecule/api-resource-comment/dist/numbers.d.ts` while reading
+ * the package's declarations and clobbered its runtime module a call later
+ * (`module.exports = {}` over the ESM handler its own code imports) — the write
+ * answered `ok: true`, and 18 s went to noticing, `npm pack`-ing the package and
+ * putting the file back. Reading these files stays allowed (that is how the
+ * declarations above are read at all).
+ *
+ * The restore route is named because the model that has ALREADY clobbered a file
+ * (this refusal is too late for it) is the one who needs it, and because the
+ * obvious repair — `npm install <pkg>` — is itself refused in the pre-installed
+ * sandbox. `npm pack` + a `tar` extraction over the package directory is what
+ * m91 used, and what both guards leave alone.
+ *
+ * @param path - An absolute path a tool is about to write.
+ * @returns The one-line refusal naming the package, or null when nothing is installed there.
+ */
+export function installedPackageWriteRefusal(path: string): string | null {
+  // A path may sit in a NESTED node_modules (`app/node_modules/...`) as well as the
+  // hoisted root one: both are installed packages.
+  const at = /(?:^|\/)node_modules(?:\/|$)/.exec(path)
+  if (!at) return null
+  const named = /(?:^|\/)node_modules\/((?:@[^/]+\/)?[^/]+)(?:\/|$)/.exec(path)
+  const name = named?.[1] ?? null
+  const scoped = at[0].startsWith('/') ? path.slice(0, at.index) : ''
+  const dir = name ? `${scoped}/node_modules/${name}` : null
+  const what = name ? `the installed package ${name}` : 'an installed package'
+  const change =
+    'Installed packages are read-only: the next install replaces that file and a deploy never ' +
+    'carries it. Change its behaviour from your app instead (its options, your own handler, a ' +
+    'bond), and where the package itself is wrong, report it rather than patching it here. ' +
+    'Reading these files is fine.'
+  const restore =
+    name && dir
+      ? ` If you have already overwritten one there, restore the package before anything else: ` +
+        `\`npm pack ${name}@<version>\` (the version is in ${dir}/package.json), then ` +
+        `\`tar -xzf <the tarball npm pack printed> --strip-components=1 -C ${dir}\` — never a hand-edit.`
+      : ''
+  return `Not written: ${path} is inside ${what} (node_modules). ${change}${restore}`
+}
+
+/**
  * Build a complete set of AI agent tools bound to an execution backend.
  *
  * @param backend - The execution environment (sandbox or local filesystem)
@@ -449,6 +497,22 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       )
     }
     return pathGuards ? resolvePath(path, root) : path
+  }
+
+  /**
+   * Resolve the path a WRITING tool was given, refusing a target inside an
+   * installed package ({@link installedPackageWriteRefusal}). Reads are not sent
+   * through this: reading `node_modules` is how a package's declarations are
+   * read at all, and only the write is unrecoverable.
+   *
+   * @param path - Relative or absolute path requested by the tool input.
+   * @returns The normalized path, when writing it is allowed.
+   */
+  function resolveWrite(path: string): string {
+    const resolved = resolve(path)
+    const refusal = installedPackageWriteRefusal(resolved)
+    if (refusal) throw new ToolInputError(refusal)
+    return resolved
   }
 
   /** Paths read with a window in this tool set, to tell paging from one targeted read. */
@@ -1025,7 +1089,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       if (emptyErr) return { error: emptyErr }
       const argErr = pathArgError(input.path, 'write_file')
       if (argErr) return { error: argErr }
-      const path = resolve(input.path as string)
+      const path = resolveWrite(input.path as string)
       const content = input.content as string
       if (content.length > MAX_WRITE_SIZE)
         return {
@@ -1072,7 +1136,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       if (emptyErr) return { error: emptyErr }
       const argErr = pathArgError(input.path, 'edit_file')
       if (argErr) return { error: argErr }
-      const path = resolve(input.path as string)
+      const path = resolveWrite(input.path as string)
       // Support both formats: { replacements: [...] } (batch) and { old_string, new_string } (single, backwards-compatible)
       let replacements = input.replacements as
         | Array<{
@@ -1677,7 +1741,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
     },
 
     async create_directory(input) {
-      const path = resolve(input.path as string)
+      const path = resolveWrite(input.path as string)
       const parentPath = path.substring(0, path.lastIndexOf('/')) || root
       const symlinkErr = await checkSymlink(parentPath)
       if (symlinkErr) return { error: symlinkErr }
@@ -1691,8 +1755,10 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
     },
 
     async rename_file(input) {
-      const oldPath = resolve(input.old_path as string)
-      const newPath = resolve(input.new_path as string)
+      // Both ends: moving a package's file OUT is as much a change to the installed
+      // package as moving one in.
+      const oldPath = resolveWrite(input.old_path as string)
+      const newPath = resolveWrite(input.new_path as string)
       const oldSymlinkErr = await checkSymlink(oldPath)
       if (oldSymlinkErr) return { error: oldSymlinkErr }
       const newParent = newPath.substring(0, newPath.lastIndexOf('/')) || root
@@ -1712,7 +1778,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
     },
 
     async delete_file(input) {
-      const path = resolve(input.path as string)
+      const path = resolveWrite(input.path as string)
       const symlinkErr = await checkSymlink(path)
       if (symlinkErr) return { error: symlinkErr }
       try {
