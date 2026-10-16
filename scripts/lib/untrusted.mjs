@@ -93,3 +93,40 @@ export const existsOnRegistry = async (name) => {
   })
   return res.status !== 404
 }
+
+/** Who publishes a version over OIDC, as npm records it in the version's `_npmUser`. */
+const OIDC_PUBLISHER = /GitHub Actions|npm-oidc-no-reply/i
+
+/**
+ * Packages npm HAS, none of whose versions was published over OIDC — their trust
+ * link was never proven, and a link nothing proves stops working while staying
+ * listed (the OIDC exchange answers `404 package not found`). The ledger cannot
+ * see this: it records that a link was ADDED, not that one ever worked, so 15
+ * such packages read as trusted on 2026-10-16 while every release refused them.
+ * Public registry data only, no login.
+ *
+ * @param pkgs - Package records to check (from collectPackages).
+ * @returns The unproven ones, sorted by name.
+ */
+export const unprovenPackages = async (pkgs) => {
+  const unproven = []
+  for (let i = 0; i < pkgs.length; i += 40) {
+    await Promise.all(
+      pkgs.slice(i, i + 40).map(async (pkg) => {
+        const res = await fetch(`https://registry.npmjs.org/${pkg.name.replace('/', '%2f')}`, {
+          signal: AbortSignal.timeout(20_000),
+        }).catch((_error) => null)
+        // Unreachable or absent: not this check's case (absent names are the ledger's).
+        if (!res?.ok) return
+        const doc = await res.json().catch((_error) => null)
+        const versions = Object.values(doc?.versions ?? {})
+        if (!versions.length) return
+        const viaOidc = versions.some((v) =>
+          OIDC_PUBLISHER.test(`${v?._npmUser?.name ?? ''} ${v?._npmUser?.email ?? ''}`),
+        )
+        if (!viaOidc) unproven.push(pkg)
+      }),
+    )
+  }
+  return unproven.sort((a, b) => a.name.localeCompare(b.name))
+}

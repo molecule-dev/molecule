@@ -51,13 +51,14 @@ import {
   storeSeed,
   totp,
 } from './lib/npm-2fa.mjs'
-import { readNpmToken, trustPackage } from './lib/npm-trust.mjs'
+import { readNpmToken, relinkPackage, trustPackage } from './lib/npm-trust.mjs'
 import {
   collectPackages,
   existsOnRegistry,
   readTrustLedger,
   ROOT,
   TRUST_STATE_PATH,
+  unprovenPackages,
   untrustedPackages,
 } from './lib/untrusted.mjs'
 
@@ -102,6 +103,19 @@ const RELEASE = args.includes('--release')
 // never seen, which is a fact we can ask the registry for.
 const untrusted = CI ? await registryAbsentPackages() : untrustedPackages()
 
+// The ledger records that a link was ADDED, never that one worked: a package npm has
+// but never accepted an OIDC publish for sits on a dead link while the ledger calls it
+// trusted (15 of them on 2026-10-16, refused by every release while this script
+// reported nothing to do). Those are re-linked — revoked and added fresh — not skipped.
+if (!CI) {
+  const listed = new Set(untrusted.map((pkg) => pkg.name))
+  const ledgerNow = readTrustLedger()
+  const unproven = await unprovenPackages(collectPackages().filter((p) => ledgerNow.has(p.name)))
+  untrusted.push(
+    ...unproven.filter((pkg) => !listed.has(pkg.name)).map((pkg) => ({ ...pkg, relink: true })),
+  )
+}
+
 // The common case by far: nothing new, no output, no network call, no delay.
 if (!untrusted.length) process.exit(0)
 
@@ -113,8 +127,11 @@ if (process.env.MOL_SKIP_TRUST === '1') {
   process.exit(0)
 }
 
-console.log(`\n${untrusted.length} package(s) have no trusted publisher yet:`)
-for (const pkg of untrusted) console.log(`  ${pkg.name}`)
+console.log(`\n${untrusted.length} package(s) have no working trusted publisher:`)
+for (const pkg of untrusted)
+  console.log(
+    `  ${pkg.name}${pkg.relink ? '  (on npm, never published over OIDC: its link is re-made)' : ''}`,
+  )
 console.log(
   `\nUntil they are trusted, npm rejects their OIDC publish and the release\n` +
     `skips them silently. This is a one-time step per package.\n`,
@@ -333,6 +350,19 @@ for (const pkg of untrusted) {
   // So: publish once here, then trust. Every version after this one is published
   // by CI over OIDC with no code at all — which is the arrangement worth having,
   // and the reason this one-time step is worth paying.
+  if (pkg.relink) {
+    let relinked = await relinkPackage(pkg.name, { otp })
+    if (relinked.outcome === 'needs-otp')
+      relinked = await relinkPackage(pkg.name, { otp: await ensureOtp(pkg.name, true) })
+    if (relinked.outcome === 'relinked') {
+      ledger.add(pkg.name)
+      console.log(`  ✓ ${pkg.name} (re-linked)`)
+    } else {
+      console.error(`  ✗ ${pkg.name}: ${relinked.status ?? ''} ${relinked.text}`)
+      failed.push(pkg.name)
+    }
+    continue
+  }
   if (!CI && !(await existsOnRegistry(pkg.name))) {
     console.log(`\n  ${pkg.name}: npm has never seen this — publishing it first`)
     try {

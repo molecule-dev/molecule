@@ -107,3 +107,68 @@ export async function trustPackage(name, options) {
     return { outcome: 'needs-otp', status: res.status, text }
   return { outcome: 'error', status: res.status, text }
 }
+
+/**
+ * Replaces a package's trust link: lists its trusted publishers, revokes each, and
+ * adds a fresh GitHub one.
+ *
+ * For a package that EXISTS on npm but has never been published through its
+ * link. A link nothing validated stops working while staying listed — its OIDC
+ * exchange answers `404 package not found` — and a new POST answers "already"
+ * because the dead one is still there. That is how 15 packages sat untrusted on
+ * 2026-10-16 while the ledger called them done. The fresh link is pending until
+ * CI publishes through it, so the caller releases right after.
+ *
+ * Same endpoints the npm CLI uses (`npm trust list` / `npm trust revoke`).
+ *
+ * @param name - Package name.
+ * @param options - otp (a current 2FA code).
+ * @returns Outcome: `relinked`, `needs-otp`, `stuck` (npm kept a link it would not revoke) or `error`.
+ */
+export async function relinkPackage(name, options) {
+  const { otp } = options
+  const base = `https://registry.npmjs.org/-/package/${name.replace('/', '%2f')}/trust`
+  const headers = {
+    authorization: `Bearer ${readNpmToken()}`,
+    accept: 'application/json',
+    ...(otp ? { 'npm-otp': otp } : {}),
+  }
+  const listed = await fetch(base, { headers, signal: AbortSignal.timeout(20_000) })
+  const listText = await listed.text()
+  if (listed.status === 401 || /otp|one-time|EOTP/i.test(listText))
+    return { outcome: 'needs-otp', status: listed.status, text: listText.slice(0, 400) }
+  if (!listed.ok && listed.status !== 404)
+    return { outcome: 'error', status: listed.status, text: listText.slice(0, 400) }
+  let configs
+  try {
+    const body = JSON.parse(listText)
+    configs = Array.isArray(body) ? body : (body?.trustedPublishers ?? body?.objects ?? [])
+  } catch (_error) {
+    // A 404 or empty body lists nothing; the POST below adds the first link.
+    configs = []
+  }
+  const revokeFailures = []
+  for (const config of configs) {
+    if (!config?.id) continue
+    const res = await fetch(`${base}/${encodeURIComponent(config.id)}`, {
+      method: 'DELETE',
+      headers,
+      signal: AbortSignal.timeout(20_000),
+    })
+    if (!res.ok)
+      revokeFailures.push(`${config.id}: ${res.status} ${(await res.text()).slice(0, 160)}`)
+  }
+  const added = await trustPackage(name, { otp })
+  if (added.outcome === 'trusted')
+    return { outcome: 'relinked', status: added.status, text: added.text }
+  if (added.outcome === 'needs-otp') return added
+  if (added.outcome === 'already')
+    return {
+      outcome: 'stuck',
+      status: added.status,
+      text:
+        `npm kept a link it would not revoke (${revokeFailures.join('; ') || 'no id listed'}). ` +
+        `Remove it at https://www.npmjs.com/package/${name}/access (Trusted publishing), then run trust:new again.`,
+    }
+  return added
+}
