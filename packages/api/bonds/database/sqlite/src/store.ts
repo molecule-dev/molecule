@@ -137,7 +137,9 @@ function buildWhere(conditions: WhereCondition[]): { clause: string; values: unk
       default:
         // Parity with the postgres bond: an unknown operator must FAIL LOUDLY, not
         // silently drop the condition (which would return unfiltered rows).
-        throw new Error(`Invalid SQL operator: ${String((cond as { operator: unknown }).operator)}`)
+        throw new Error(
+          `Invalid SQL operator: ${String((cond as { operator: unknown }).operator)}. The operators are lowercase: =, !=, >, <, >=, <=, in, not_in, like, ilike, is_null, is_not_null.`,
+        )
     }
   }
 

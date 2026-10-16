@@ -103,7 +103,9 @@ function buildWhere(
         parts.push(`"${cond.field}" IS NOT NULL`)
         break
       default:
-        throw new Error(`Invalid SQL operator: ${String((cond as { operator: unknown }).operator)}`)
+        throw new Error(
+          `Invalid SQL operator: ${String((cond as { operator: unknown }).operator)}. The operators are lowercase: =, !=, >, <, >=, <=, in, not_in, like, ilike, is_null, is_not_null.`,
+        )
     }
   }
 
