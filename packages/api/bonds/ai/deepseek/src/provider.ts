@@ -339,10 +339,11 @@ class DeepseekAIProviderImpl implements AIProvider {
     // wrong, and DeepSeek keeps a stalled prefill's connection alive with
     // `: keep-alive` comments — so a byte-level idle timeout stays quiet too.
     // Left alone, the whole first-token window is spent before anything notices.
-    // Measured in production (X0 xr-molecule-flash-m71, 2026-10-16): the chat
-    // handler's 180 s progress watchdog was the ONLY bound, and a 3 min 15 s hole
-    // opened in the middle of a live turn. Bound it here instead, where the same
-    // request can simply be asked again.
+    // Measured in production: on 2026-10-01 nine turns died this way in one
+    // project, each spending 540-582 s — three 180 s windows of the chat
+    // handler's progress watchdog, which was the ONLY bound on the stream, and
+    // their own record named no provider time at all. Bound it here instead,
+    // where the same request can simply be asked again.
     for (let stalledAttempt = 0; ; stalledAttempt++) {
       const controller = new AbortController()
       const forwardAbort = (): void => controller.abort()
