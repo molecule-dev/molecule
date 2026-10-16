@@ -41,6 +41,65 @@ const READER_FORMS: ReadonlyArray<[string, string]> = [
   ['git log', 'git log -p -- run-api-tests-hurl.sh'],
 ]
 
+/**
+ * The RealWorld suite's own Hurl runner, VERBATIM from X1 xr-molecule-flash-m89's conversation
+ * (`cat run-api-tests-hurl.sh`, +17:12): the tree the platform had fetched three hours earlier.
+ * A runner script is a shell command, so the reader is handed its whole TEXT — and the second
+ * line opens a command substitution INSIDE double quotes, which the flat (quote, depth) walk in
+ * `splitSegments` could not model: the `"$( … "` nested quote closed the outer one, the `)`
+ * landed inside that stray quote, and the substitution count was left at 1 for the rest of the
+ * script. Every newline from there on was swallowed into one segment, program `$(dirname `, so
+ * `hurl --test` was never in command position and the script classified as NOTHING.
+ */
+const REALWORLD_HURL_RUNNER = [
+  '#!/usr/bin/env bash',
+  'set -euo pipefail',
+  '',
+  'DIR="$(cd "$(dirname "$0")" && pwd)"',
+  'HOST="${HOST:-http://localhost:8000}"',
+  'UID_VAL="${UID_VAL:-$(date +%s)$$}"',
+  '',
+  'echo "Running Hurl tests against $HOST with uid=$UID_VAL"',
+  '',
+  'FILES=("$@")',
+  'if [ ${#FILES[@]} -eq 0 ]; then',
+  '  FILES=("$DIR"/hurl/*.hurl)',
+  'fi',
+  '',
+  'hurl --test \\',
+  '  --jobs 1 \\',
+  '  --variable "host=$HOST" \\',
+  '  --variable "uid=$UID_VAL" \\',
+  '  "${FILES[@]}"',
+].join('\n')
+
+describe('a `"$( … )"` nests, and the line after it still splits (flash-m89)', () => {
+  it('reads the script’s own `hurl --test` in command position', () => {
+    expect(runsInCommandPosition(REALWORLD_HURL_RUNNER, HURL_INVOCATION)).toBe(true)
+    expect(commandSegments(REALWORLD_HURL_RUNNER).map((s) => s.program)).toContain('hurl')
+    // …and nothing before it is misread as the run: `set`, the three assignments, the `if`.
+    expect(
+      commandSegments(REALWORLD_HURL_RUNNER).filter((s) => /^hurl\b/.test(s.program)),
+    ).toHaveLength(1)
+  })
+
+  it('keeps a separator inside the substitution with the substitution', () => {
+    expect(
+      commandSegments('cd "$(dirname "$0")" && hurl --test hurl/*.hurl').map((s) => s.program),
+    ).toEqual(['cd', 'hurl'])
+    // The `&&` inside `$( … )` belongs to the substitution, not to this command.
+    const withSubstitution = commandSegments('BASE="$(cd a && pwd)" && hurl --test x.hurl')
+    expect(withSubstitution).toHaveLength(2)
+    expect(withSubstitution.at(-1)?.program).toBe('hurl')
+  })
+
+  it('opens no substitution inside single quotes, where nothing expands', () => {
+    expect(commandSegments("echo '$(a && b)' && hurl --test x.hurl").map((s) => s.program)).toEqual(
+      ['echo', 'hurl'],
+    )
+  })
+})
+
 describe('commandSegments — which word a segment actually runs (flash-m81)', () => {
   it('reads m81’s command as three reads: cd, ls, head — no Hurl run', () => {
     expect(commandSegments(M81_READ).map((segment) => segment.program)).toEqual([

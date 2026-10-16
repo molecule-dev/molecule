@@ -228,11 +228,29 @@ function commandStart(words: readonly string[]): { at: number; nested: string | 
 }
 
 /**
+ * One open nesting a shell word can be inside: a single-quoted string, a double-quoted string, or
+ * a command substitution's parentheses (`$(`), which open a command of their own.
+ */
+type Nesting = 'single' | 'double' | 'sub'
+
+/**
  * A command's statements and pipeline stages, split where the shell splits them — inside quotes
  * and inside a command substitution, a `|`, `;` or `&&` belongs to that command, not to this one.
  *
  * A single `&` separates only when it backgrounds a command: the one in a redirect (`2>&1`,
  * `&>log`) is part of the word it sits in.
+ *
+ * The nestings are a STACK, not a (quote, depth) pair, because they interleave: a command
+ * substitution opened inside a double quote can itself hold double quotes, and each of those can
+ * hold another substitution. `DIR="$(cd "$(dirname "$0")" && pwd)"` is exactly that shape — it
+ * opens `"`, `$(`, `"`, `$(`, `"` in order — and every runner script of the RealWorld kind has it.
+ * A flat walk read that first inner `"` as the CLOSE of the outer one, so the `)` that ends the
+ * outer substitution landed inside a quote that was never opened, the depth was left standing at
+ * 1, and every newline in the rest of the script was swallowed: the script's own `hurl --test`
+ * never reached command position, and X1 xr-molecule-flash-m89 saw seven passing Hurl runs the
+ * platform could not see (the runner is read from the tree's own script TEXT —
+ * `molecule-dev/api/src/ai/supplied-tree-guard.ts` — so a script that does not classify records
+ * no runner, and every run of it reads as nothing).
  *
  * @param command - The shell command.
  * @returns Each segment's text, in order, with empty ones dropped.
@@ -240,40 +258,63 @@ function commandStart(words: readonly string[]): { at: number; nested: string | 
 function splitSegments(command: string): string[] {
   const parts: string[] = []
   let buffer = ''
-  let quote: '"' | "'" | null = null
-  let substitutions = 0
+  /** The nestings this position sits inside, outermost first. */
+  const stack: Nesting[] = []
   for (let i = 0; i < command.length; i++) {
     const char = command[i] ?? ''
-    if (quote !== null) {
+    const next = command[i + 1]
+    const top = stack[stack.length - 1]
+
+    // A single-quoted string expands nothing at all: no escape, no substitution, and no quote
+    // but its own ends it.
+    if (top === 'single') {
       buffer += char
-      if (char === '\\' && quote === '"' && i + 1 < command.length) {
-        buffer += command[i + 1] ?? ''
-        i += 1
-      } else if (char === quote) quote = null
+      if (char === "'") stack.pop()
       continue
     }
-    if (char === '"' || char === "'") {
-      quote = char
-      buffer += char
-      continue
-    }
-    if (char === '\\' && i + 1 < command.length) {
-      buffer += char + (command[i + 1] ?? '')
+    // A command substitution, wherever a shell opens one — inside double quotes too, and never
+    // inside single quotes (handled above). The `(` is consumed here so the depth is counted once.
+    if (char === '$' && next === '(') {
+      stack.push('sub')
+      buffer += '$('
       i += 1
       continue
     }
-    if (char === '$' && command[i + 1] === '(') {
-      substitutions += 1
+    // Inside double quotes: a `"` closes them, a backslash escapes the next character (so
+    // `"\$("` opens nothing), and everything else is literal — a `'`, a `|`, a newline included.
+    if (top === 'double') {
+      if (char === '"') stack.pop()
+      else if (char === '\\' && next !== undefined) {
+        buffer += char + next
+        i += 1
+        continue
+      }
       buffer += char
       continue
     }
-    if (substitutions > 0) {
-      if (char === '(') substitutions += 1
-      else if (char === ')') substitutions -= 1
+    if (char === '"') {
+      stack.push('double')
       buffer += char
       continue
     }
-    const next = command[i + 1]
+    if (char === "'") {
+      stack.push('single')
+      buffer += char
+      continue
+    }
+    // Inside a substitution or a subshell of one: its own parentheses nest, its `|`/`;`/`&&`
+    // belong to the nested command, and its newlines are that command's too.
+    if (top === 'sub') {
+      if (char === '(') stack.push('sub')
+      else if (char === ')') stack.pop()
+      buffer += char
+      continue
+    }
+    if (char === '\\' && next !== undefined) {
+      buffer += char + next
+      i += 1
+      continue
+    }
     if ((char === '&' && next === '&') || (char === '|' && next === '|')) {
       parts.push(buffer)
       buffer = ''
