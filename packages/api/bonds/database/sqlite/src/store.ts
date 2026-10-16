@@ -203,13 +203,43 @@ export function createStore(pool: DatabasePool): DataStore {
     return has
   }
 
+  /**
+   * Run a statement for `table`, naming the table in a column or table error: SQLite's
+   * "no such column: x" says neither, and X1 flash-m56 rewrote the wrong table on it. The
+   * error itself is kept (its class and code), only its message gains the table.
+   * @param table - The table the statement is for.
+   * @param sql - The statement.
+   * @param values - Its parameters.
+   * @returns The query result.
+   */
+  async function queryOn<T = Record<string, unknown>>(
+    table: string,
+    sql: string,
+    values?: unknown[],
+  ): ReturnType<typeof pool.query<T>> {
+    try {
+      return await pool.query<T>(sql, values)
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        /no such column|has no column named|no such table/i.test(error.message) &&
+        !error.message.includes(`"${table}"`)
+      ) {
+        error.message = `${error.message} (table "${table}")`
+      }
+      throw error
+    }
+  }
+
   return {
     async findById<T = Record<string, unknown>>(
       table: string,
       id: string | number,
     ): Promise<T | null> {
       assertSafeIdentifier(table)
-      const result = await pool.query<T>(`SELECT * FROM "${table}" WHERE "id" = ? LIMIT 1`, [id])
+      const result = await queryOn<T>(table, `SELECT * FROM "${table}" WHERE "id" = ? LIMIT 1`, [
+        id,
+      ])
       return result.rows[0] ?? null
     },
 
@@ -219,7 +249,7 @@ export function createStore(pool: DatabasePool): DataStore {
     ): Promise<T | null> {
       assertSafeIdentifier(table)
       const { clause, values } = buildWhere(where)
-      const result = await pool.query<T>(`SELECT * FROM "${table}" ${clause} LIMIT 1`, values)
+      const result = await queryOn<T>(table, `SELECT * FROM "${table}" ${clause} LIMIT 1`, values)
       return result.rows[0] ?? null
     },
 
@@ -252,14 +282,15 @@ export function createStore(pool: DatabasePool): DataStore {
 
       const sql =
         `SELECT ${selectFields} FROM "${table}" ${clause} ${orderBy} ${limit} ${offset}`.trim()
-      const result = await pool.query<T>(sql, values)
+      const result = await queryOn<T>(table, sql, values)
       return result.rows
     },
 
     async count(table: string, where?: WhereCondition[]): Promise<number> {
       assertSafeIdentifier(table)
       const { clause, values } = buildWhere(where ?? [])
-      const result = await pool.query<{ count: number }>(
+      const result = await queryOn<{ count: number }>(
+        table,
         `SELECT COUNT(*) AS "count" FROM "${table}" ${clause}`,
         values,
       )
@@ -287,7 +318,8 @@ export function createStore(pool: DatabasePool): DataStore {
       const placeholders = keys.map(() => '?').join(', ')
       const values = keys.map((k) => data[k])
 
-      const result = await pool.query<T>(
+      const result = await queryOn<T>(
+        table,
         `INSERT INTO "${table}" (${columns}) VALUES (${placeholders}) RETURNING *`,
         values,
       )
@@ -308,16 +340,19 @@ export function createStore(pool: DatabasePool): DataStore {
       // strip every input field via Zod `.partial().pick({...})` and end up
       // passing `{}` here.
       if (keys.length === 0) {
-        const existing = await pool.query<T>(`SELECT * FROM "${table}" WHERE "id" = ? LIMIT 1`, [
-          id,
-        ])
+        const existing = await queryOn<T>(
+          table,
+          `SELECT * FROM "${table}" WHERE "id" = ? LIMIT 1`,
+          [id],
+        )
         return { data: existing.rows[0] ?? null, affected: existing.rowCount ?? 0 }
       }
       for (const k of keys) assertSafeIdentifier(k)
       const setClauses = keys.map((k) => `"${k}" = ?`).join(', ')
       const values = [...keys.map((k) => data[k]), id]
 
-      const result = await pool.query<T>(
+      const result = await queryOn<T>(
+        table,
         `UPDATE "${table}" SET ${setClauses} WHERE "id" = ? RETURNING *`,
         values,
       )
@@ -345,13 +380,13 @@ export function createStore(pool: DatabasePool): DataStore {
       const { clause, values: whereValues } = buildWhere(where)
       const values = [...setValues, ...whereValues]
 
-      const result = await pool.query(`UPDATE "${table}" SET ${setClauses} ${clause}`, values)
+      const result = await queryOn(table, `UPDATE "${table}" SET ${setClauses} ${clause}`, values)
       return { data: null, affected: result.rowCount ?? 0 }
     },
 
     async deleteById(table: string, id: string | number): Promise<MutationResult> {
       assertSafeIdentifier(table)
-      const result = await pool.query(`DELETE FROM "${table}" WHERE "id" = ?`, [id])
+      const result = await queryOn(table, `DELETE FROM "${table}" WHERE "id" = ?`, [id])
       return { data: null, affected: result.rowCount ?? 0 }
     },
 
@@ -365,7 +400,7 @@ export function createStore(pool: DatabasePool): DataStore {
       }
       assertSafeIdentifier(table)
       const { clause, values } = buildWhere(where)
-      const result = await pool.query(`DELETE FROM "${table}" ${clause}`, values)
+      const result = await queryOn(table, `DELETE FROM "${table}" ${clause}`, values)
       return { data: null, affected: result.rowCount ?? 0 }
     },
   }
