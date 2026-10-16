@@ -45,7 +45,8 @@ export const TOOL_SCHEMAS: Record<string, ToolSchema> = {
       'gathering the files behind one feature — pass them all as `paths` in ONE call rather ' +
       'than calling this tool once per file: same content, a fraction of the time. ' +
       'For a @molecule package\u2019s docs call read_molecule_doc instead — one call, the whole ' +
-      'document. A file under 80 KB comes back whole; do not page through it with offset/limit.',
+      'document. A file that fits one read result comes back whole; do not page through it with ' +
+      'offset/limit.',
     parameters: {
       type: 'object',
       properties: {
@@ -59,7 +60,9 @@ export const TOOL_SCHEMAS: Record<string, ToolSchema> = {
           description:
             'Paths to SEVERAL files to read in one call — preferred whenever you want more ' +
             'than one file. Returns `files`, one entry per path in the order given, each ' +
-            "with that file's content or its own error.",
+            "with that file's content or its own error. Whole files are returned up to what one " +
+            'read result carries; every path past that comes back in the same list marked ' +
+            '`not returned` — read those next, in their own calls. No file is ever returned in part.',
         },
         offset: {
           type: 'number',

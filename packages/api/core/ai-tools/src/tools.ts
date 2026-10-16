@@ -198,11 +198,12 @@ import {
   isOutsideRoot,
   isPlaywrightRunCommand,
   isValidGlob,
-  MAX_BATCH_READ_BYTES,
+  linesWithinSerialized,
   MAX_BATCH_READ_FILES,
   MAX_FIND_RESULTS,
   MAX_HTML_INLINE_CHARS,
   MAX_OUTPUT_SIZE,
+  MAX_READ_CALL_CHARS,
   MAX_READ_RETURN_CHARS,
   MAX_READ_SIZE,
   MAX_SEARCH_CONTEXT_LINES,
@@ -214,6 +215,7 @@ import {
   parseCheckProblem,
   pathArgError,
   printsOnlySource,
+  READ_RESULT_ENVELOPE_CHARS,
   redactSecrets,
   redactSecretsInCode,
   repeatingFailure,
@@ -222,6 +224,7 @@ import {
   RUNNING_FAILURE_LINES,
   runningCauseCommand,
   runningOutputSliceCommand,
+  serializedChars,
   shellQuote,
   sliceLines,
   SMALL_FILE_WHOLE_CHARS,
@@ -603,39 +606,26 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
    * listing, ENOENT parent listing, empty-read classification). Shared by the
    * single-path and batched forms of the tool.
    *
-   * @param rawPath - The path as the model sent it.
-   * @returns The same result shape read_file returns for one file.
-   */
-  /**
-   * How many leading lines of a file fit in a char budget.
-   *
-   * @param content - The file text.
-   * @param chars - The budget in chars.
-   * @returns The line count, at least one.
-   */
-  function linesWithin(content: string, chars: number): number {
-    let used = 0
-    let lines = 0
-    for (const line of content.split('\n')) {
-      used += line.length + 1
-      if (used > chars && lines > 0) break
-      lines++
-    }
-    return Math.max(1, lines)
-  }
-
-  /**
-   * Read one file for the model: symlink-checked, size-bounded, optionally
-   * windowed by line, and never more than MAX_READ_RETURN_CHARS at once.
+   * Symlink-checked, size-bounded, optionally windowed by line, and never more
+   * than `ceiling` SERIALIZED chars at once (a window of raw text grows by its
+   * own newlines once the result is JSON — see {@link serializedChars}).
    *
    * @param rawPath - The path as the model sent it.
    * @param window - Optional `offset`/`limit` in lines.
+   * @param ceiling - The most this read may return, in serialized chars
+   *   ({@link MAX_READ_RETURN_CHARS} when the call has the whole result to
+   *   itself; a batched call passes what it has left, so the read stops short of
+   *   the request-side cut instead of being cut by it). A read that comes back
+   *   short carries `truncated: true`, which is how the batch tells a whole file
+   *   from a window of one.
    * @returns The file content (or a window of it) or a model-readable error.
    */
   async function readOneFile(
     rawPath: unknown,
     window?: { offset?: unknown; limit?: unknown },
+    ceiling?: number,
   ): Promise<unknown> {
+    const maxChars = ceiling ?? MAX_READ_RETURN_CHARS
     const argErr = pathArgError(rawPath, 'read_file')
     if (argErr) return { error: argErr }
     const path = resolve(rawPath as string)
@@ -709,8 +699,8 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       // back: return its first window, sized to the ceiling, and say so. The
       // model can read on with offset/limit; it cannot un-send 300k tokens.
       const effectiveWindow =
-        !sliceLines(content, window) && content.length > MAX_READ_RETURN_CHARS
-          ? { offset: 1, limit: linesWithin(content, MAX_READ_RETURN_CHARS) }
+        !sliceLines(content, window) && serializedChars(content) > maxChars
+          ? { offset: 1, limit: linesWithinSerialized(content, maxChars) }
           : window
       // A SECOND window of the same small file: hand back all of it (one window is a targeted read). X1 flash-m50 paged files that fit in one
       // call 13 times in a row, each window answered with "read it again with no offset/limit".
@@ -726,7 +716,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         small?.truncated &&
         pagedBefore &&
         !sentWhole &&
-        content.length <= SMALL_FILE_WHOLE_CHARS
+        serializedChars(content) <= Math.min(SMALL_FILE_WHOLE_CHARS, maxChars)
       ) {
         wholeReturned.set(path, content)
         return noted({
@@ -746,6 +736,10 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           offset: windowed.offset,
           lines: windowed.lines,
           totalLines: windowed.totalLines,
+          // What the model has is PART of the file. Named on the result, not only
+          // in the note: a batched read keeps whole files and lists the rest, and
+          // this is how it tells the two apart (see the `paths` branch).
+          ...(windowed.truncated ? { truncated: true } : {}),
           // The note decides the executor's next call. Observed (X0 run x7): a
           // 44 KB README read as seven 300-line windows, one round trip each,
           // because the note only ever said "read another window" — when the
@@ -756,7 +750,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
                 note: sentWhole
                   ? `Lines ${windowed.offset}-${windowed.offset + windowed.lines - 1} of ${windowed.totalLines}; ` +
                     'the whole file, unchanged, was returned earlier in this conversation.'
-                  : content.length <= MAX_READ_RETURN_CHARS
+                  : serializedChars(content) <= MAX_READ_RETURN_CHARS
                     ? `Lines ${windowed.offset}-${windowed.offset + windowed.lines - 1} of ` +
                       `${windowed.totalLines}. The whole file is ${Math.round(content.length / 1024)} KB ` +
                       `and fits in ONE call — read it again with no offset/limit instead of paging.`
@@ -879,28 +873,93 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           }
         }
         const files: unknown[] = []
-        let budget = MAX_BATCH_READ_BYTES
-        let stoppedAt: string | null = null
+        // The paths this call does NOT return, in request order, each with the
+        // reason it is missing. Never a partial file in their place: a batch
+        // that broke off mid-file is what MAX_READ_CALL_CHARS exists to stop —
+        // the request side cuts a longer block through its middle, between two
+        // `"content"` values, so whole files vanish and the note says only
+        // "N characters cut here" (X0 flash-m81).
+        const notReturned: Array<{ path: string; reason: 'budget' | 'count' }> = []
+        const explicitWindow = input.offset !== undefined || input.limit !== undefined
+        // Every entry names its file the way a returned entry does — resolved —
+        // so a path out of this list can go straight back into the next call.
+        const missing = (requestedPath: string, reason: 'budget' | 'count'): void => {
+          notReturned.push({ path: resolve(requestedPath), reason })
+        }
         for (const [index, requestedPath] of requested.entries()) {
-          if (index >= MAX_BATCH_READ_FILES || budget <= 0) {
-            stoppedAt = requestedPath
-            break
+          if (index >= MAX_BATCH_READ_FILES) {
+            missing(requestedPath, 'count')
+            continue
           }
-          const one = (await readOneFile(requestedPath, input)) as { content?: unknown }
+          // What this file's read may still carry: the call's ceiling less the
+          // envelope, which has to hold the note and one entry per missing path.
+          const room =
+            MAX_READ_CALL_CHARS - JSON.stringify(files).length - READ_RESULT_ENVELOPE_CHARS
+          if (room <= 0) {
+            missing(requestedPath, 'budget')
+            continue
+          }
+          const one = (await readOneFile(requestedPath, input, room)) as {
+            content?: unknown
+            truncated?: boolean
+          }
+          // A window is not a batch entry. It is returned only when the caller
+          // asked for a window, or when the FIRST file alone is bigger than the
+          // whole call — then a window with its own offset/limit note is the only
+          // answer available, and everything after it is listed anyway.
+          if (one.truncated === true && !explicitWindow && files.length > 0) {
+            missing(requestedPath, 'budget')
+            continue
+          }
           files.push(one)
-          if (typeof one.content === 'string') budget -= one.content.length
         }
-        return {
-          files,
-          ...(stoppedAt
-            ? {
-                note:
-                  `Stopped after ${files.length} of ${requested.length} files (limit: ${MAX_BATCH_READ_FILES} ` +
-                  `files or ${Math.round(MAX_BATCH_READ_BYTES / 1024)}KB per call). Call read_file again ` +
-                  `starting at ${stoppedAt}.`,
-              }
-            : {}),
+        const entryError = (reason: 'budget' | 'count'): string =>
+          reason === 'count'
+            ? `not returned: one read_file call returns at most ${MAX_BATCH_READ_FILES} files. Read this file in its own read_file call.`
+            : `not returned: this call goes in order and has reached the ${Math.round(MAX_READ_CALL_CHARS / 1024)} KB one read_file result carries. Read this file in its own read_file call.`
+        const build = (returned: unknown[]): Record<string, unknown> => {
+          let returnedChars = 0
+          let windowed = 0
+          for (const f of returned) {
+            const entry = f as { content?: unknown; truncated?: boolean }
+            if (typeof entry.content === 'string') returnedChars += entry.content.length
+            if (entry.truncated === true) windowed++
+          }
+          const size =
+            `${Math.round(returnedChars / 1024)} KB of the ` +
+            `${Math.round(MAX_READ_CALL_CHARS / 1024)} KB one read_file result carries`
+          return {
+            files: [
+              ...returned,
+              ...notReturned.map(({ path, reason }) => ({ path, error: entryError(reason) })),
+            ],
+            ...(notReturned.length
+              ? {
+                  note:
+                    (windowed > 0
+                      ? `Returned ${returned.length} of ${requested.length} files (${size}); the ` +
+                        `${windowed} marked truncated is a first window — its own note names the next one. `
+                      : `Returned whole: ${returned.length} of ${requested.length} files (${size}). `) +
+                    'Not returned — read these next, in this order, in further read_file calls: ' +
+                    `${notReturned.map((n) => n.path).join(', ')}.`,
+                }
+              : {}),
+          }
         }
+        let result = build(files)
+        // The envelope is measured, not estimated: if the note and the entries for
+        // the missing paths take more than their share, whole files — from the end
+        // — move to the missing list until the result fits.
+        while (
+          notReturned.length > 0 &&
+          files.length > 0 &&
+          JSON.stringify(result).length > MAX_READ_CALL_CHARS
+        ) {
+          const last = files.pop() as { path?: unknown }
+          notReturned.unshift({ path: String(last?.path ?? ''), reason: 'budget' })
+          result = build(files)
+        }
+        return result
       }
       return readOneFile(input.path, input)
     },

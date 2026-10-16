@@ -17,7 +17,7 @@ import {
   TOOL_SCHEMAS,
 } from '../index.js'
 import type { ExecutionBackend } from '../types.js'
-import { MAX_READ_RETURN_CHARS, printsOnlySource } from '../utilities.js'
+import { MAX_READ_CALL_CHARS, MAX_READ_RETURN_CHARS, printsOnlySource } from '../utilities.js'
 
 // ── Utilities ───────────────────────────────────────────────────────────────
 
@@ -313,10 +313,15 @@ describe('buildTools', () => {
     const readFile = tools.find((t) => t.name === 'read_file')!
     const paths = Array.from({ length: 30 }, (_, i) => `f${i}.ts`)
     const result = (await readFile.execute({ paths })) as {
-      files: unknown[]
+      files: Array<{ path: string; content?: string; error?: string }>
       note: string
     }
-    expect(result.files).toHaveLength(25)
+    // One entry per path in the order given (the schema's contract), so the model
+    // can see exactly which files it does NOT have — the 25-file cap names the
+    // rest instead of dropping them.
+    expect(result.files).toHaveLength(30)
+    expect(result.files.slice(0, 25).every((f) => f.content === 'x')).toBe(true)
+    expect(result.files.slice(25).every((f) => f.error?.startsWith('not returned'))).toBe(true)
     expect(result.note).toContain('25 of 30')
     expect(result.note).toContain('f25.ts')
   })
@@ -2210,14 +2215,126 @@ describe('read_file return ceiling', () => {
     expect(r.lines).toBeUndefined()
   })
 
-  it('bounds a batch to the ceiling per file, so one giant file cannot fill the call', async () => {
+  it('bounds a batch by the call, so one giant file cannot fill it and the rest are named', async () => {
     const read = buildTools(backendWith(huge)).find((t) => t.name === 'read_file')!
     const r = (await read.execute({ paths: ['a.md', 'b.md', 'c.md'] })) as {
-      files: Array<{ content: string }>
+      files: Array<{ path: string; content?: string; truncated?: boolean; error?: string }>
       note?: string
     }
-    for (const f of r.files)
-      expect(f.content.length).toBeLessThanOrEqual(MAX_READ_RETURN_CHARS + 100)
+    // The first file alone is bigger than the whole call: it comes back as a
+    // window (a contiguous prefix with its own next-window note), and the files
+    // after it are listed rather than returned in part.
+    expect(r.files).toHaveLength(3)
+    expect(r.files[0].truncated).toBe(true)
+    expect(r.files[0].content!.length).toBeLessThanOrEqual(MAX_READ_CALL_CHARS)
+    expect(r.files.slice(1).every((f) => f.error?.startsWith('not returned'))).toBe(true)
+    expect(r.note).toContain('Returned 1 of 3 files')
+    expect(r.note).toContain('/test/b.md, /test/c.md')
+    expect(JSON.stringify(r).length).toBeLessThanOrEqual(MAX_READ_CALL_CHARS)
+  })
+})
+
+// ── the ten-file batch whose middle the request side cut ─────────────────────
+// X0 flash-m81 (2026-10-16, +01:04): the planner read ten e2e specs in ONE call,
+// 121,467 chars. The tool believed every file was whole (each was under the
+// 80 KB one file gets), but the request side cuts any block over 60,000 to
+// ~30 KB of head plus ~30 KB of tail — so the middle six files fell out between
+// two `"content"` values and the planner re-read them in six further calls
+// (52,908 chars), after a note that had promised each one "fits in one call".
+// The batch now gets that same 60,000-char ceiling: whole files up to it, and
+// every path it did not return named. The sizes below are the ones measured.
+
+describe('read_file on a batch the request side would cut', () => {
+  const sizes: Array<[string, number]> = [
+    ['e2e/comments.spec.ts', 8065],
+    ['e2e/error-handling.spec.ts', 34_332],
+    ['e2e/health.spec.ts', 1283],
+    ['e2e/null-fields.spec.ts', 8590],
+    ['e2e/navigation.spec.ts', 9965],
+    ['e2e/settings.spec.ts', 10_173],
+    ['e2e/social.spec.ts', 8069],
+    ['e2e/url-navigation.spec.ts', 12_830],
+    ['e2e/user-fetch-errors.spec.ts', 11_966],
+    ['e2e/xss-security.spec.ts', 12_030],
+  ]
+  /** Exactly `chars` long, in lines the shape of a Playwright spec. */
+  const specOf = (chars: number): string => {
+    const lines: string[] = []
+    let left = chars
+    while (left > 62) {
+      const line = `  await expect(page.getByText('row ${lines.length}')).toBeVisible()`
+      lines.push(line)
+      left -= line.length + 1
+    }
+    lines.push('x'.repeat(left))
+    return lines.join('\n')
+  }
+  const contents = new Map(sizes.map(([path, n]) => [path, specOf(n)]))
+
+  function backend(): ExecutionBackend {
+    return {
+      projectRoot: '/test',
+      readFile: vi.fn(async (p: string) => {
+        const path = p.replace('/test/', '')
+        const content = contents.get(path)
+        if (content === undefined) throw new Error('No such file or directory')
+        return content
+      }),
+      writeFile: vi.fn(),
+      deleteFile: vi.fn(),
+      readDir: vi.fn(),
+      run: vi.fn().mockResolvedValue({ stdout: '', stderr: '', exitCode: 0 }),
+    }
+  }
+
+  it('returns whole files up to the ceiling and names every file it did not', async () => {
+    for (const [path, n] of sizes) expect(contents.get(path)!.length).toBe(n)
+    const read = buildTools(backend()).find((t) => t.name === 'read_file')!
+    const paths = sizes.map(([path]) => path)
+    const r = (await read.execute({ paths })) as {
+      files: Array<{ path: string; content?: string; truncated?: boolean; error?: string }>
+      note?: string
+    }
+    // One entry per path, in the order given (the schema's contract), each named
+    // the way the tool reports a resolved path…
+    const resolved = paths.map((p) => `/test/${p}`)
+    expect(r.files.map((f) => f.path)).toEqual(resolved)
+    // …the first files whole, and no file in part: this is what the request side
+    // did instead — a head and a tail with the middle six files gone.
+    const returned = r.files.filter((f) => typeof f.content === 'string')
+    expect(returned.length).toBeGreaterThan(0)
+    expect(returned.length).toBeLessThan(sizes.length)
+    expect(returned.map((f) => f.path)).toEqual(resolved.slice(0, returned.length))
+    for (const f of returned) expect(f.content).toBe(contents.get(f.path.replace('/test/', '')))
+    expect(r.files.some((f) => f.truncated === true)).toBe(false)
+    // The files it did not return are named, in order, in the note AND in the
+    // batch itself — the planner can see exactly which reads are still owed.
+    const missing = r.files.slice(returned.length)
+    expect(missing.every((f) => f.error?.startsWith('not returned'))).toBe(true)
+    expect(r.note).toContain(`Returned whole: ${returned.length} of 10 files`)
+    for (const p of resolved.slice(returned.length)) expect(r.note).toContain(p)
+    // Under the ceiling the request side enforces, so nothing is cut at all.
+    expect(JSON.stringify(r).length).toBeLessThanOrEqual(MAX_READ_CALL_CHARS)
+  })
+
+  it('reads the rest in the calls the note points at, each of them whole', async () => {
+    const read = buildTools(backend()).find((t) => t.name === 'read_file')!
+    const paths = sizes.map(([path]) => path)
+    const first = (await read.execute({ paths })) as {
+      files: Array<{ path: string; content?: string }>
+    }
+    const owed = first.files.filter((f) => typeof f.content !== 'string').map((f) => f.path)
+    expect(owed).toHaveLength(6)
+    const next = (await read.execute({ paths: owed })) as {
+      files: Array<{ path: string; content?: string }>
+    }
+    // A second call for the files it was told about comes back with them whole,
+    // in order — and (the six specs total 64,953 chars) not all in one shot.
+    expect(next.files.map((f) => f.path)).toEqual(owed)
+    expect(next.files.some((f) => typeof f.content === 'string')).toBe(true)
+    for (const f of next.files)
+      if (typeof f.content === 'string')
+        expect(f.content).toBe(contents.get(f.path.replace('/test/', '')))
   })
 })
 

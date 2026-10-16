@@ -807,33 +807,100 @@ export function sliceLines(
   }
 }
 
-/** Max search results. */
+/**
+ * A file's text as the request counts it: the length of its JSON string.
+ *
+ * JSON escaping (`\n` → `\\n`, `"` → `\"`) costs characters, and the request
+ * side counts the SERIALIZED tool result. A window of 59,000 characters of
+ * source — 1,200 lines — arrives as ~60,200 characters of JSON, over the
+ * ceiling it was sized for, so a window is measured with this rather than by
+ * its raw text length.
+ *
+ * @param text - The text.
+ * @returns Its serialized length, without the surrounding quotes.
+ */
+export function serializedChars(text: string): number {
+  return JSON.stringify(text).length - 2
+}
+
+/**
+ * How many leading lines of a file fit inside a budget of SERIALIZED chars,
+ * the way `read_file` sizes a window (see {@link serializedChars}).
+ *
+ * @param content - The file's full text.
+ * @param chars - The budget in serialized chars.
+ * @returns The line count, at least one.
+ */
+export function linesWithinSerialized(content: string, chars: number): number {
+  let used = 0
+  let lines = 0
+  for (const line of content.split('\n')) {
+    // +2: the newline between two lines escapes to `\n`. The last line of a
+    // window has no trailing newline, so this counts 2 chars it does not use —
+    // a window that errs small is the safe direction here.
+    used += serializedChars(line) + 2
+    if (used > chars && lines > 0) break
+    lines++
+  }
+  return Math.max(1, lines)
+}
+
 /**
  * Most files one batched `read_file` call returns. The cap exists so a survey
- * of a large tree cannot swallow the turn's context in one result; the tool
- * reports where it stopped so the model continues from there.
+ * of a large tree cannot swallow the turn's context in one result; every path
+ * past it is named in the result's `note` and listed with its own `error`, so
+ * the model continues from there.
  */
 export const MAX_BATCH_READ_FILES = 25
 
 /**
- * Total content bytes one batched `read_file` call returns, across all files.
- * The per-file {@link MAX_READ_SIZE} still applies to each one.
+ * The most one `read_file` RESULT may carry, in chars of its JSON — every file
+ * the call returns, the envelope and the note included. That is how the request
+ * side counts a tool result, so it is how this tool counts one too
+ * ({@link serializedChars}).
+ *
+ * One tool result is ONE block in the request, and the request side caps a
+ * block: molecule-dev cuts any block over `MAX_TAIL_BLOCK_CHARS` (60,000) in
+ * place, keeping ~30 KB of each end. A batched read that crossed it lost its
+ * MIDDLE — the cut lands between two `"content"` values, so whole files fell
+ * out and the note in their place said only "N characters cut here" — while
+ * this tool's own note had promised each of those files that it "fits in one
+ * call, so it is not paged": X0 flash-m81 (2026-10-16) read ten e2e specs in
+ * one call (121,467 chars), lost the middle six, and bought them again in six
+ * further calls (52,908 chars).
+ *
+ * So the CALL gets the ceiling the request gives it. Whole files are returned
+ * up to it; the paths that did not fit are named in `note` and listed in
+ * `files` with their own `error`, the shape every other entry has. No file is
+ * ever cut, and no read result reaches the request-side cut. A test in
+ * molecule-dev's `context-fit` asserts the two ceilings still agree.
  */
-export const MAX_BATCH_READ_BYTES = 200 * 1024
+export const MAX_READ_CALL_CHARS = 60_000
+
+/**
+ * Room inside one read result for what is not file content: the `path`, the
+ * offset/line fields, and the note.
+ *
+ * A batch sizes each file against what the call has left
+ * ({@link MAX_READ_CALL_CHARS} less this), so the entry that does not fit is
+ * caught here rather than by the request-side cut.
+ */
+export const READ_RESULT_ENVELOPE_CHARS = 1_000
 
 /**
  * The most one read_file call returns for ONE file when no window was asked
- * for, in chars. Larger files come back as their first window with a note
- * saying how to read the rest.
+ * for, in serialized chars: larger files come back as their first window, with
+ * a note saying how to read the rest.
  *
  * MAX_READ_SIZE (5 MB) is a bound on what the tool will open, not on what it
  * should hand a model: a single batched read that returned a 1.2 MB README
  * put the next three provider calls at 366k tokens (~330k of them fresh)
- * against a 120k-token context cap (X0 run x5, call 26). ~80 KB is ~20–25k
- * tokens — a fifth of that cap, and more than any one file read usually
- * needs.
+ * against a 120k-token context cap (X0 run x5, call 26). This is the call's
+ * own ceiling ({@link MAX_READ_CALL_CHARS}) less the room its envelope takes,
+ * so one read result — one file or twenty-five — fits inside what the request
+ * side carries without being cut.
  */
-export const MAX_READ_RETURN_CHARS = 80 * 1024
+export const MAX_READ_RETURN_CHARS = MAX_READ_CALL_CHARS - READ_RESULT_ENVELOPE_CHARS
 
 /**
  * A file this small is returned whole on a second window of it (paging it costs a call each).

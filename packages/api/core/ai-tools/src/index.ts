@@ -26,9 +26,13 @@
  * - **`read_file` takes `paths` as well as `path`.** An agent that issues one
  *   tool call per model round-trip pays a full round-trip per file, so a project
  *   survey costs minutes; batched, the same reads cost one call each 25 files
- *   (`MAX_BATCH_READ_FILES` / `MAX_BATCH_READ_BYTES`, which report where they
- *   stopped). Each entry carries its own content or its own error, so one bad
- *   path never fails the batch.
+ *   (`MAX_BATCH_READ_FILES`). One result is capped at `MAX_READ_CALL_CHARS`, the
+ *   ceiling the request side puts on a single tool result: whole files are
+ *   returned up to it and every path past that is named in `note` and listed as
+ *   `not returned`, so a file is never handed back in part — the shape that lost
+ *   the middle of a ten-file batch to the request-side cut (X0 flash-m81). Each
+ *   entry carries its own content or its own error, so one bad path never fails
+ *   the batch.
  * - **`edit_file` shows the result, so the model need not re-read.** A
  *   successful edit returns `excerpt`: each edited region as it now reads, with
  *   1-based line numbers (`N: text`) and a few lines of context, capped at
