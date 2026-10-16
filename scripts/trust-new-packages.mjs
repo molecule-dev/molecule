@@ -313,7 +313,7 @@ const npmPublish = (args, cwd) => {
  * @returns
  */
 const isOtpRejection = (result) =>
-  /one-time password|\be?otp\b|two-factor|2fa/i.test(`${result.stderr ?? ''}${result.stdout ?? ''}`)
+  /EOTP|one-time password|\botp\b|two-factor/i.test(`${result.stderr ?? ''}${result.stdout ?? ''}`)
 
 const ledger = readTrustLedger()
 const ledgerBefore = new Set(ledger)
@@ -421,25 +421,42 @@ for (const pkg of untrusted) {
       const manifestPath = join(ROOT, pkg.dir, 'package.json')
       const manifestText = readFileSync(manifestPath, 'utf8')
       const staged = JSON.parse(manifestText)
-      staged.version = '0.0.0-stage'
-      writeFileSync(manifestPath, `${JSON.stringify(staged, null, 2)}\n`)
       try {
         if ((otp && /^\d{6}$/.test(otp)) || loadSeed()) {
-          const attempt = async (force) => {
-            const code = await ensureOtp(`${pkg.name} publish`, force)
-            return npmPublish(
-              ['publish', '--access', 'public', '--tag', 'stage', '--otp', code],
-              join(ROOT, pkg.dir),
-            )
-          }
-          let result = await attempt(false)
-          if (result.status !== 0 && isOtpRejection(result)) {
-            result = await attempt(true)
+          // npm answers a 403 "You cannot publish using the version" for a
+          // version its policy refuses (0.0.0-stage is refused), so walk a
+          // list of placeholder versions until one is accepted.
+          const placeholders = ['0.0.1-stage', '0.0.1-stage.0', '0.1.0-stage']
+          let result
+          for (const version of placeholders) {
+            staged.version = version
+            writeFileSync(manifestPath, `${JSON.stringify(staged, null, 2)}\n`)
+            const attempt = async (force) => {
+              const code = await ensureOtp(`${pkg.name} publish`, force)
+              return npmPublish(
+                ['publish', '--access', 'public', '--tag', 'stage', '--otp', code],
+                join(ROOT, pkg.dir),
+              )
+            }
+            result = await attempt(false)
+            if (result.status !== 0 && isOtpRejection(result)) {
+              result = await attempt(true)
+            }
+            if (
+              result.status === 0 ||
+              !/cannot publish using the version/i.test(
+                `${result.stderr ?? ''}${result.stdout ?? ''}`,
+              )
+            ) {
+              break
+            }
           }
           if (result.status !== 0) {
             throw new Error('npm publish exited non-zero — npm printed the reason above')
           }
         } else {
+          staged.version = '0.0.1-stage'
+          writeFileSync(manifestPath, `${JSON.stringify(staged, null, 2)}\n`)
           execFileSync('npm', ['publish', '--access', 'public', '--tag', 'stage'], {
             cwd: join(ROOT, pkg.dir),
             stdio: 'inherit',
