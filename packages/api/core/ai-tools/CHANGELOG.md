@@ -1,5 +1,13 @@
 # @molecule/api-ai-tools
 
+## 1.5.19
+
+### Patch Changes
+
+- 2a6ec85: A backgrounded test-suite run (Playwright, Vitest or Hurl) now starts at lower CPU and IO priority, so the commands an executor sends while it runs stay responsive instead of queueing behind the suite's own workers.
+- 844e722: `find_files` matches a pattern containing `/` against each file's path, so `helpers/*`, `src/**/App.tsx` and `e2e/*.spec.ts` return the files they name instead of an empty list.
+- e7a04c5: A running background suite whose failures keep repeating one cause is now named while it runs: `wait_for_task` reads the live log, and at the third failure sharing a signature — the same error message, or the same duration to within half a second — it returns early with that cause, the tests it hit and the pid command that stops the run, instead of handing back the finished log minutes later. An iterating Playwright run also reports `list,line`, so each failure's own error reaches the log as the failure happens.
+
 ## 1.5.18
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/api-ai-deepseek
 
+## 1.0.8
+
+### Patch Changes
+
+- 8b56035: Clarify the documentation of the stream stall bound.
+
 ## 1.0.7
 
 ### Patch Changes

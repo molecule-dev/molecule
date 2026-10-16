@@ -1,5 +1,11 @@
 # @molecule/api-ai
 
+## 1.3.2
+
+### Patch Changes
+
+- 8b56035: Clarify the documentation of the stream stall bound.
+
 ## 1.3.1
 
 ### Patch Changes

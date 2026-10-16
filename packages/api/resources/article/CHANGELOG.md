@@ -1,5 +1,11 @@
 # @molecule/api-resource-article
 
+## 1.0.6
+
+### Patch Changes
+
+- 3bcb78c: The package ships the `reactions` and `follows` tables it reads, so a project that installs only `@molecule/api-resource-article` creates every table its endpoints need — favorites and the followed-authors feed answered `no such table: reactions` before.
+
 ## 1.0.5
 
 ### Patch Changes
