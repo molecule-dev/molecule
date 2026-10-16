@@ -1,5 +1,11 @@
 # @molecule/app-vite-config-default
 
+## 1.1.4
+
+### Patch Changes
+
+- In a molecule sandbox the dev server now polls the app tree instead of watching filesystem inodes, so replacing a directory (a restore, a checkout, a tool that rewrites a tree) can no longer leave it serving pre-edit modules with no reload and no error in its log. `VITE_WATCH_POLLING=1|0` overrides the choice; a developer's machine is unchanged.
+
 ## 1.1.3
 
 ### Patch Changes
