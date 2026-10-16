@@ -202,12 +202,35 @@ export function printsOnlySource(command: string): boolean {
     .filter((s) => s && !/^cd\s/.test(s))
   if (segments.length === 0) return false
   return segments.every((seg) => {
-    const m = /^(?:cat|head|tail|nl|sed\s+-n)\b(.*)$/.exec(seg)
-    if (!m || /[|>]/.test(m[1])) return false
-    const files = m[1]
-      .split(/\s+/)
-      .filter((t) => t && !t.startsWith('-') && !/^'[^']*'$|^"[^"]*"$|^\d+$/.test(t))
-    return files.length > 0 && files.every((f) => SOURCE_FILE_RE.test(f))
+    // Words, quotes kept whole: a grep pattern like "sign\\|verify" is one word, not a pipe.
+    const words = seg.match(/"(?:\\.|[^"\\])*"|'[^']*'|\S+/g) ?? []
+    const stages: string[][] = [[]]
+    for (const w of words) {
+      if (w === '|') stages.push([])
+      else if (!/^\d?>&\d$|^2>\/dev\/null$/.test(w)) stages[stages.length - 1].push(w)
+    }
+    const [first, ...rest] = stages
+    const head = first[0]
+    // A print of named source files: cat/head/tail/nl/sed -n, or a non-recursive grep/rg
+    // (X1 flash-m61 read a fixture's password masked through `grep -n … auth.hurl`).
+    let args = first.slice(1)
+    if (head === 'sed' && args[0] !== '-n') return false
+    if (head === 'grep' || head === 'rg') {
+      if (args.some((a) => /^-[a-zA-Z]*[rR]/.test(a) || a === '--recursive')) return false
+      const flags = args.filter((a) => a.startsWith('-'))
+      const rest2 = args.filter((a) => !a.startsWith('-'))
+      args = flags.includes('-e') ? rest2 : rest2.slice(1)
+    } else if (!/^(?:cat|head|tail|nl|sed)$/.test(head ?? '')) return false
+    const files = args.filter(
+      (t) => !t.startsWith('-') && !/^'[^']*'$|^"[^"]*"$|^\d+$|^\d+,\d+p$/.test(t),
+    )
+    if (files.length === 0 || !files.every((f) => SOURCE_FILE_RE.test(f))) return false
+    // After it, only text filters that read no file of their own.
+    return rest.every(
+      (stage) =>
+        /^(?:head|tail|sort|uniq|wc|cut|nl|grep)$/.test(stage[0] ?? '') &&
+        !stage.slice(1).some((a) => !a.startsWith('-') && /\.[a-z]+$/i.test(a) && !/^['"]/.test(a)),
+    )
   })
 }
 

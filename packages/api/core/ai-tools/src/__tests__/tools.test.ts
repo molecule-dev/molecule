@@ -98,7 +98,14 @@ describe('redactSecrets', () => {
     expect(printsOnlySource('cd my-app && ' + 'se' + "d -n '1,40p' api/src/auth.ts")).toBe(true)
     expect(printsOnlySource('head -50 specs/api/hurl/auth.hurl')).toBe(true)
     expect(printsOnlySource('cat api/.env')).toBe(false)
-    expect(printsOnlySource('cat app/src/a.tsx | grep x')).toBe(false)
+    // A pipe through a text filter, or a grep of named source files, still prints source (flash-m61).
+    expect(printsOnlySource('cat app/src/a.tsx | grep x')).toBe(true)
+    expect(printsOnlySource('grep -n "password" specs/api/hurl/auth.hurl | head -20')).toBe(true)
+    expect(printsOnlySource('grep -n "sign\\|verify" src/a.ts')).toBe(true)
+    // A recursive grep may reach an env file; a filter that reads its own file is not a filter.
+    expect(printsOnlySource('grep -rn password specs/')).toBe(false)
+    expect(printsOnlySource('cat a.ts | tee out.json')).toBe(false)
+    expect(printsOnlySource('grep -n x app/src/a.tsx 2>/dev/null | sort | uniq')).toBe(true)
     expect(printsOnlySource('env')).toBe(false)
     expect(printsOnlySource('cat config.json')).toBe(false)
   })
