@@ -1,5 +1,12 @@
 # @molecule/api-ai-tools
 
+## 1.6.1
+
+### Patch Changes
+
+- 7c67237: `read_file`, `write_file` and `edit_file` called with no arguments at all now answer that the call arrived empty and was probably truncated, instead of asking for a `path` the caller never had a chance to send. The exec_command note about a requested timeout above the tool's ceiling is attached only when the command actually came near that ceiling.
+- 886d60a: The mid-run repeating-failure note names each failing test by the path the run's own log wrote — the same path its re-run hint names — instead of the shortened form, so the file a row names and the file the hint names are one file.
+
 ## 1.6.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # @molecule/api-resource-article
 
+## 1.0.7
+
+### Patch Changes
+
+- 733afff: The package reference now names the two tables it owns — `articles` and `article_tags` — and the column that joins them: `article_tags.articleId` = `articles.id`.
+
 ## 1.0.6
 
 ### Patch Changes

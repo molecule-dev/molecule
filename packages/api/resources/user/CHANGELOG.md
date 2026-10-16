@@ -1,5 +1,11 @@
 # @molecule/api-resource-user
 
+## 1.5.3
+
+### Patch Changes
+
+- 733afff: The package reference now names the two tables it owns — `users` (props only, no password column) and `usersSecrets` — and the key that joins them: `usersSecrets.id` is the user's id, never a fresh uuid. It also names the handlers to call for signup, login and password changes instead of hand-writing both rows.
+
 ## 1.5.2
 
 ### Patch Changes

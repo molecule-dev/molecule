@@ -1,5 +1,11 @@
 # @molecule/api-resource-comment
 
+## 1.1.3
+
+### Patch Changes
+
+- 733afff: The package reference now names the two tables it owns — `comments` and `comment_numbers` — and the column that joins them: `comment_numbers.commentId` = `comments.id`.
+
 ## 1.1.2
 
 ### Patch Changes
