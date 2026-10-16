@@ -1120,6 +1120,80 @@ describe('buildTools', () => {
     expect(result.replacementsApplied).toBe(2)
   })
 
+  it('names EVERY failed replacement of a batch in one refusal, and writes nothing (flash-m98)', async () => {
+    // m98's six-replacement batch carried two bad hunks. The refusal named the first,
+    // the model fixed it and re-sent the whole batch, and only then heard about the
+    // second — 7 s and a full re-send apart. Both are checked before the refusal now,
+    // and the file on disk is untouched either way.
+    const backend = mockBackend()
+    let written: string | null = null
+    ;(backend.readFile as ReturnType<typeof vi.fn>).mockResolvedValue(
+      'import { a } from "a"\nconst tags = await popularTags(100)\nfunction profileOf(row) {\n  return row\n}\n',
+    )
+    ;(backend.writeFile as ReturnType<typeof vi.fn>).mockImplementation(
+      async (_p: string, c: string) => {
+        written = c
+      },
+    )
+    const editFile = buildTools(backend).find((t) => t.name === 'edit_file')!
+    const result = (await editFile.execute({
+      path: '/test/handlers.ts',
+      replacements: [
+        { old_string: 'const tags = await popularTags(100)', new_string: 'x' },
+        { old_string: 'import { MISSING_A } from "miss"', new_string: 'x' },
+        { old_string: 'function profileOf(row) {', new_string: 'x' },
+        { old_string: 'const gone = 1\nconst alsoGone = 2', new_string: 'x' },
+      ],
+    })) as Record<string, unknown>
+    expect(result.ok).toBeUndefined()
+    expect(written).toBeNull() // atomic: the two that DID match were not written either
+    const error = String(result.error)
+    expect(error).toContain('Replacement 2 of 4 failed')
+    expect(error).toContain('MISSING_A')
+    expect(error).toContain('Replacement 4 of 4 failed')
+    expect(error).toContain('const gone = 1')
+    // …and the ones that matched are not listed as failures.
+    expect(error).not.toContain('Replacement 1 of 4')
+    expect(error).not.toContain('Replacement 3 of 4')
+  })
+
+  it('gives each failing replacement of a batch its own divergence point', async () => {
+    // The per-replacement detail the single-failure message computes (where the match
+    // stops agreeing with the file) is what makes one round trip enough; it has to be
+    // there for every listed failure, not just for the first.
+    const backend = mockBackend()
+    ;(backend.readFile as ReturnType<typeof vi.fn>).mockResolvedValue(
+      'const a = 1\nfunction profileOf(row) {\n  return row\n}\n',
+    )
+    const editFile = buildTools(backend).find((t) => t.name === 'edit_file')!
+    const result = (await editFile.execute({
+      path: '/test/x.ts',
+      replacements: [
+        { old_string: 'const a = 1', new_string: 'const a = 2' },
+        { old_string: 'function profileOf(row) {\n  return ROW\n}', new_string: 'y' },
+        { old_string: 'const zzz = 3', new_string: 'z' },
+      ],
+    })) as Record<string, unknown>
+    const error = String(result.error)
+    expect(error).toContain('Replacement 2 of 3 failed')
+    expect(error).toContain('then diverges at your line 2 of 3')
+    expect(error).toContain('Replacement 3 of 3 failed')
+    expect(error).toContain('NONE of its lines appear anywhere')
+  })
+
+  it('keeps a single replacement’s own message, with no batch framing', async () => {
+    const backend = mockBackend()
+    ;(backend.readFile as ReturnType<typeof vi.fn>).mockResolvedValue('only one line\n')
+    const editFile = buildTools(backend).find((t) => t.name === 'edit_file')!
+    const result = (await editFile.execute({
+      path: '/test/x.ts',
+      old_string: 'nothing like this is here',
+      new_string: 'x',
+    })) as Record<string, unknown>
+    expect(String(result.error)).toMatch(/^old_string not found in /)
+    expect(String(result.error)).not.toContain('Replacement 1 of 1')
+  })
+
   it('edit_file writes new_string verbatim when it contains $ replacement patterns (no corruption)', async () => {
     // Regression: String.replace(oldString, newString) interprets `$&`, `$$`,
     // `` $` ``, `$'` in the replacement — so regex-replacement code or literal

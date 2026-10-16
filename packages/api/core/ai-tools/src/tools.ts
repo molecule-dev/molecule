@@ -420,6 +420,52 @@ export function installedPackageWriteRefusal(path: string): string | null {
   return `Not written: ${path} is inside ${what} (node_modules). ${change}${restore}`
 }
 
+/** How many failing replacements one refusal names before it stops listing. */
+const MAX_REPORTED_REPLACEMENT_FAILURES = 5
+
+/**
+ * The one refusal a batch `edit_file` gets, naming EVERY replacement that did not
+ * match — each with the same detail a lone failure gets (which replacement, the
+ * head of its old_string, where it diverges from the file).
+ *
+ * A batch is applied all-or-nothing, so one bad `old_string` means none of the
+ * others were applied either: they are not "the rest, which worked", they are
+ * unchecked work the model will otherwise re-send as-is. Naming one per round trip
+ * cost flash-m98 two full re-sends of a six-replacement batch — the second bad
+ * hunk was not reported until the first was fixed, 7 s later.
+ *
+ * @param path - The file the batch targets (nothing was written to it).
+ * @param total - How many replacements the batch carried.
+ * @param failures - Every failing replacement, in batch order.
+ * @returns The error message.
+ */
+function batchFailureError(
+  path: string,
+  total: number,
+  failures: ReadonlyArray<{ index: number; start: string; message: string }>,
+): string {
+  // A single replacement keeps the message it has always had: "Replacement 1 of 1"
+  // is noise, and the failure of a lone edit is not a batch problem.
+  if (total === 1 && failures.length === 1) return failures[0].message
+  const shown = failures.slice(0, MAX_REPORTED_REPLACEMENT_FAILURES)
+  const omitted = failures.length - shown.length
+  const blocks = shown.map(
+    (f) =>
+      `Replacement ${f.index} of ${total} failed` +
+      (f.start ? ` (its old_string starts "${f.start}")` : '') +
+      `:\n${f.message}`,
+  )
+  return (
+    `edit_file (${
+      path
+    }): nothing was written — ${failures.length} of the ${total} replacements do not match the file, and the batch is all-or-nothing, so re-send it with every one of these fixed.\n\n` +
+    blocks.join('\n\n') +
+    (omitted > 0
+      ? `\n\n(${omitted} more replacement${omitted === 1 ? '' : 's'} also failed and are not shown.)`
+      : '')
+  )
+}
+
 /**
  * Build a complete set of AI agent tools bound to an execution backend.
  *
@@ -1237,6 +1283,13 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         // Replacements refused for changing the line break at old_string's boundary and
         // nothing else — reported by position, never applied (see below).
         const skipped: Array<{ position: number; shape: 'removed' | 'added' }> = []
+        // Every replacement this batch refuses, collected rather than returned on the
+        // first: a batch is atomic, so the other bad hunks are just as unreported, and
+        // one-per-round-trip cost flash-m98 two full re-sends of a six-replacement
+        // batch (the second bad hunk was not named until the first was fixed).
+        const failures: Array<{ index: number; start: string; message: string }> = []
+        /** How a failure names the replacement it is about: the head of its old_string. */
+        const startOf = (text: string): string => text.split('\n')[0].trim().slice(0, 80)
         // Where each applied replacement landed, in the coordinates of the
         // latest content — rendered into the result so the model sees the edit.
         let spans: CharSpan[] = []
@@ -1276,9 +1329,12 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           // method access) or silently inserts the literal "undefined" (a missing
           // new_string). Fail fast with an actionable message instead.
           if (typeof oldString !== 'string' || oldString === '' || typeof newString !== 'string') {
-            return {
-              error: `edit_file: each replacement needs a non-empty string old_string and a string new_string (got old_string: ${oldString === '' ? 'empty' : typeof oldString}, new_string: ${typeof newString}). To delete text, pass new_string: "".`,
-            }
+            failures.push({
+              index: index + 1,
+              start: typeof oldString === 'string' ? startOf(oldString) : '',
+              message: `each replacement needs a non-empty string old_string and a string new_string (got old_string: ${oldString === '' ? 'empty' : typeof oldString}, new_string: ${typeof newString}). To delete text, pass new_string: "".`,
+            })
+            continue
           }
           const count = content.split(oldString).length - 1
           // The edit is ALREADY in the file: old_string is gone and a distinctive
@@ -1302,9 +1358,12 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
             // match failed and hand back the file's actual content so it fixes in
             // one retry instead of many.
             if (oldString.includes('\\n')) {
-              return {
-                error: `old_string not found in ${path} (hint: old_string contains literal "\\n" — use actual newlines in JSON strings, not escaped \\n)`,
-              }
+              failures.push({
+                index: index + 1,
+                start: startOf(oldString),
+                message: `old_string not found in ${path} (hint: old_string contains literal "\\n" — use actual newlines in JSON strings, not escaped \\n)`,
+              })
+              continue
             }
             // Whitespace-only mismatch: the text is there but indentation/spacing
             // differs (tabs vs spaces, trailing whitespace). If a UNIQUE line-run
@@ -1320,9 +1379,12 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
             const normalize = (s: string): string => s.replace(/\s+/g, ' ').trim()
             const normOld = normalize(oldString)
             if (normOld && normalize(content).includes(normOld)) {
-              return {
-                error: `old_string not found in ${path} — a match exists but whitespace/indentation differs and is not unique enough to apply automatically. Re-read the file and copy the exact text (tabs vs spaces, trailing spaces, blank lines must match), or include more surrounding context.`,
-              }
+              failures.push({
+                index: index + 1,
+                start: startOf(oldString),
+                message: `old_string not found in ${path} — a match exists but whitespace/indentation differs and is not unique enough to apply automatically. Re-read the file and copy the exact text (tabs vs spaces, trailing spaces, blank lines must match), or include more surrounding context.`,
+              })
+              continue
             }
             // Anchor probe: locate the target region by the most DISTINCTIVE line
             // of old_string (longest non-trivial line first, requiring a UNIQUE
@@ -1334,15 +1396,13 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
             // content there so the model copies exact text in ONE retry. Only show
             // a UNIQUE match so the snippet is reliably the right place.
             const fileLines = content.split('\n')
-            const showSnippet = (idx: number): { error: string } => {
+            const showSnippet = (idx: number): string => {
               const start = Math.max(0, idx - 3)
               const snippet = fileLines
                 .slice(start, idx + 8)
                 .map((l, i) => `${start + i + 1}: ${l}`)
                 .join('\n')
-              return {
-                error: `old_string not found in ${path}. The file's ACTUAL content near your target (copy the exact text from here):\n${snippet}`,
-              }
+              return `old_string not found in ${path}. The file's ACTUAL content near your target (copy the exact text from here):\n${snippet}`
             }
             // An import block the model rebuilt in its own order: the linter's
             // import sort owns that order, so name it and show the real block. X1
@@ -1362,13 +1422,16 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
                   .slice(start, at + 1)
                   .map((l, i) => `${start + i + 1}: ${l}`)
                   .join('\n')
-                return {
-                  error:
+                failures.push({
+                  index: index + 1,
+                  start: startOf(oldString),
+                  message:
                     `old_string not found in ${path}: it is an import block, and the linter's import ` +
                     `sort decides its order, so do not rebuild it. The file's import from ` +
                     `'${imported}' reads:\n${block}\nEdit one line of it, or add your import as a ` +
                     'new line and let the linter sort it.',
-                }
+                })
+                continue
               }
             }
             const distinctiveLines = [
@@ -1388,7 +1451,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
             // already has right, so it re-sends the same old_string and fails the
             // same way (X0 m89: two failed edits, a whole-file re-read and a
             // rewrite, 9 s, for a divergence 35 lines below the anchor).
-            const showDivergence = (base: number, k: number): { error: string } => {
+            const showDivergence = (base: number, k: number): string => {
               const expected = oldLines[k]
               const actual = fileLines[base + k] ?? '(end of file)'
               const whitespaceOnly = expected.replace(/\s/g, '') === actual.replace(/\s/g, '')
@@ -1405,14 +1468,13 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
                 .slice(start, base + k + 6)
                 .map((l, i) => `${start + i + 1}: ${l}`)
                 .join('\n')
-              return {
-                error:
-                  `old_string not found in ${path} — it matches the file through line ${base + k}, ` +
-                  `then diverges at your line ${k + 1} of ${oldLines.length}${howFar}.\n` +
-                  `Your old_string line ${k + 1}: ${whitespaceOnly ? visible(expected) : expected}\n` +
-                  `The file's line ${base + k + 1}: ${whitespaceOnly ? visible(actual) : actual}\n` +
-                  `The file's ACTUAL content near your target (copy the exact text from here):\n${snippet}`,
-              }
+              return (
+                `old_string not found in ${path} — it matches the file through line ${base + k}, ` +
+                `then diverges at your line ${k + 1} of ${oldLines.length}${howFar}.\n` +
+                `Your old_string line ${k + 1}: ${whitespaceOnly ? visible(expected) : expected}\n` +
+                `The file's line ${base + k + 1}: ${whitespaceOnly ? visible(actual) : actual}\n` +
+                `The file's ACTUAL content near your target (copy the exact text from here):\n${snippet}`
+              )
             }
             // The longest run of old_string lines that IS in the file decides which
             // alignment to report, so a later distinctive line can beat an earlier
@@ -1439,8 +1501,22 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
               }
               if (k > 0 && k < oldLines.length && (best === null || k > best.k)) best = { base, k }
             }
-            if (best) return showDivergence(best.base, best.k)
-            if (firstUniqueHit !== null) return showSnippet(firstUniqueHit)
+            if (best) {
+              failures.push({
+                index: index + 1,
+                start: startOf(oldString),
+                message: showDivergence(best.base, best.k),
+              })
+              continue
+            }
+            if (firstUniqueHit !== null) {
+              failures.push({
+                index: index + 1,
+                start: startOf(oldString),
+                message: showSnippet(firstUniqueHit),
+              })
+              continue
+            }
             // Fallback: the first non-blank line, even if not unique (better than a
             // bare "re-read" when the model just needs to see nearby real content).
             const firstLine = oldString
@@ -1449,7 +1525,14 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
               ?.trim()
             if (firstLine) {
               const idx = fileLines.findIndex((l) => l.includes(firstLine))
-              if (idx >= 0) return showSnippet(idx)
+              if (idx >= 0) {
+                failures.push({
+                  index: index + 1,
+                  start: startOf(oldString),
+                  message: showSnippet(idx),
+                })
+                continue
+              }
             }
             // Nothing anchored. Say WHICH of the two situations this is — they
             // call for different next moves, and the old message implied the
@@ -1461,22 +1544,20 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
             const anchorsPresent = distinctiveLines.some((anchor) =>
               fileLines.some((l) => l.includes(anchor)),
             )
-            if (!anchorsPresent) {
-              return {
-                error:
-                  `old_string not found in ${path} — and NONE of its lines appear anywhere in ` +
+            failures.push({
+              index: index + 1,
+              start: startOf(oldString),
+              message: !anchorsPresent
+                ? `old_string not found in ${path} — and NONE of its lines appear anywhere in ` +
                   `that file, so this is not a whitespace problem. Either the edit was already ` +
                   `applied, or this is the wrong file. read_file it and look before trying ` +
-                  `again; do not retry the same old_string.`,
-              }
-            }
-            return {
-              error:
-                `old_string not found in ${path}. Parts of it ARE in the file but no single ` +
-                `line is distinctive enough to locate the target. read_file the region you ` +
-                `mean and copy old_string verbatim from what it returns — including ` +
-                `indentation — or include more surrounding context to make it unique.`,
-            }
+                  `again; do not retry the same old_string.`
+                : `old_string not found in ${path}. Parts of it ARE in the file but no single ` +
+                  `line is distinctive enough to locate the target. read_file the region you ` +
+                  `mean and copy old_string verbatim from what it returns — including ` +
+                  `indentation — or include more surrounding context to make it unique.`,
+            })
+            continue
           }
           if (count > 1 && (replaceAll === true || replaceAllCamel === true)) {
             // Every occurrence, by split/join — never String.replace, whose
@@ -1496,9 +1577,12 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
               at = content.indexOf(oldString, at + 1)
             )
               lines.push(content.slice(0, at).split('\n').length)
-            return {
-              error: `old_string found ${count} times in ${path} (starting at lines ${lines.join(', ')}${count > lines.length ? ', …' : ''}) — must be unique. Include more surrounding context from the one you mean, or set replace_all: true on this replacement to change every occurrence.`,
-            }
+            failures.push({
+              index: index + 1,
+              start: startOf(oldString),
+              message: `old_string found ${count} times in ${path} (starting at lines ${lines.join(', ')}${count > lines.length ? ', …' : ''}) — must be unique. Include more surrounding context from the one you mean, or set replace_all: true on this replacement to change every occurrence.`,
+            })
+            continue
           }
           // Splice by index rather than `content.replace(oldString, newString)`:
           // String.replace treats `$&`, `$$`, `` $` ``, `$'` in the REPLACEMENT as
@@ -1525,6 +1609,14 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           spans = addChangeSpan(spans, content, spliced)
           content = spliced
         }
+
+        // Every replacement was checked before this: a batch that refuses ANY of them
+        // writes nothing, so the ones that DID match are just as unreported as the ones
+        // that did not — and naming them one per round trip cost flash-m98 two full
+        // re-sends of a six-replacement batch. Nothing is written here: the file on disk
+        // is the original, and the model fixes all of them in one retry.
+        if (failures.length)
+          return { error: batchFailureError(path, replacements.length, failures) }
 
         // One line per refused replacement: what it would have done, and the two ways to
         // say it on purpose. The rest of the batch is applied — the second half of the pair
