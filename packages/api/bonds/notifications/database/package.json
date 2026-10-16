@@ -38,7 +38,7 @@
     "@molecule/api-notification-center": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/api-database": "1.1.1",
+    "@molecule/api-database": "1.1.2",
     "@molecule/api-notification-center": "1.0.3",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",

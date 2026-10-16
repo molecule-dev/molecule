@@ -35,7 +35,7 @@
   },
   "devDependencies": {
     "@molecule/api-audit": "1.0.3",
-    "@molecule/api-database": "1.1.1",
+    "@molecule/api-database": "1.1.2",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.11"

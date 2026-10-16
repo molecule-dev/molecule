@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.5.18
+
+### Patch Changes
+
+- 2b62b46: A background Playwright diagnosis or re-run runs with --retries=0, so each failure is walked once; the uncapped run keeps the suite's retries.
+
 ## 1.5.17
 
 ### Patch Changes
