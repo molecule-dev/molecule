@@ -127,6 +127,23 @@ export interface ToolBuildConfig {
    */
   searchExcludedDirs?: string[]
 
+  /**
+   * Whether a LARGE HTML document should come back as its OUTLINE — the head's
+   * tags and the tags that open each body section, one line each, plus a note
+   * naming the offset/limit that returns the whole document — instead of its
+   * whole text. Over {@link MAX_HTML_INLINE_CHARS}, and only when the read named
+   * no line window.
+   *
+   * A getter, not a boolean, because the answer belongs to the TURN, not to the
+   * tool set: a host that plans first and builds after wants an outline while the
+   * executor is researching (where a read it cannot act on is pure context cost)
+   * and the document itself while it is writing the page. Unset means every big
+   * HTML read returns its text, which is what a host with no such phases wants.
+   *
+   * @returns True when a large HTML read should be outlined rather than returned.
+   */
+  outlineLargeHtml?: () => boolean
+
   /** Post-write hook (e.g. auto-format via Prettier/ESLint). Called after every write_file/edit_file. */
   onAfterWrite?: (path: string) => Promise<void>
 

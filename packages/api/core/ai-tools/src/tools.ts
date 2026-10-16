@@ -137,12 +137,14 @@ import {
   directoryReadHint,
   findPatternArgs,
   fusedLine,
+  htmlOutline,
   isEnvFilePath,
   isOutsideRoot,
   isValidGlob,
   MAX_BATCH_READ_BYTES,
   MAX_BATCH_READ_FILES,
   MAX_FIND_RESULTS,
+  MAX_HTML_INLINE_CHARS,
   MAX_OUTPUT_SIZE,
   MAX_READ_RETURN_CHARS,
   MAX_READ_SIZE,
@@ -220,6 +222,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
     commandBudgetMs,
     overCeilingGraceMs = OVER_CEILING_GRACE_MS,
     searchExcludedDirs,
+    outlineLargeHtml,
     onAfterWrite,
     onFileDiff,
     onFileChange,
@@ -604,6 +607,44 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         return {
           error: `File too large (${Math.round(content.length / 1024)}KB). Maximum is ${MAX_READ_SIZE / 1024 / 1024}MB.`,
         }
+      // A LARGE HTML document comes back as its OUTLINE, not its text, when the
+      // host asks for that (a plan-mode turn: see `outlineLargeHtml`). X0
+      // flash-m77 paid 63,735 chars for one `read_file` of `app/index.html` —
+      // ~60 KB of it the IDE's own preview bridges — and that read alone took the
+      // transcript past its context cap, so the e2e specs it had just read were
+      // trimmed to summaries and it read the whole suite again, twice (+01:23,
+      // +02:56). An outline is not a truncation: the note names the exact
+      // offset/limit that returns the whole document, and any line range works.
+      if (
+        !sliceLines(content, window) &&
+        content.length > MAX_HTML_INLINE_CHARS &&
+        outlineLargeHtml?.()
+      ) {
+        const outline = htmlOutline(content, path)
+        if (outline) {
+          const totalLines = content.split('\n').length
+          return noted({
+            path,
+            // Same redaction every other read goes through: an outline is made of
+            // the document's own lines, and a meta tag can carry a key.
+            content: sanitizeFileContent(outline, path),
+            outline: true,
+            bytes: content.length,
+            totalLines,
+            note:
+              `Outlined, not returned whole: a ${Math.round(content.length / 1024)} KB HTML document is ` +
+              `its tags plus a lot of plumbing, and the tags are what matter. ` +
+              `The whole file is ONE call — read_file {path, offset: 1, limit: ${totalLines}} — ` +
+              `and any line range works the same way.` +
+              // The IDE's own preview scripts are in this document but are not the
+              // app's behaviour, and an executor that reads them pays 60 KB for
+              // something it must never edit (flash-m77). Named only when present.
+              (/<!--\s*mol:[a-z0-9-]+-(?:bridge|shim)/.test(content)
+                ? ' The `mol:*-bridge` scripts the IDE injects belong to the platform, not to the app: leave them as they are.'
+                : ''),
+          })
+        }
+      }
       // No window asked for and the file is bigger than one call should hand
       // back: return its first window, sized to the ceiling, and say so. The
       // model can read on with offset/limit; it cannot un-send 300k tokens.

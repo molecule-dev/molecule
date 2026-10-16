@@ -784,6 +784,98 @@ export const MAX_READ_RETURN_CHARS = 80 * 1024
  */
 export const SMALL_FILE_WHOLE_CHARS = MAX_READ_RETURN_CHARS
 
+/**
+ * How large an HTML document must be before a whole-file read is replaced by its
+ * outLINE — much smaller than {@link MAX_READ_RETURN_CHARS}, because the cost of
+ * an HTML read is almost never worth it.
+ *
+ * An entry document is boilerplate the reader rarely needs in full: meta tags,
+ * stylesheet and preload links, a `<style>` block, and a handful of `<script>`
+ * tags. The parts an executor acts on — the body's structure, where a script is
+ * loaded — are all visible in an outline of one line per tag. X0 flash-m77 paid
+ * 63,735 chars for one such read: ~60 KB of it was the IDE's own preview bridges,
+ * and the read pushed the transcript past its context cap, so the e2e specs the
+ * executor had just read were trimmed to summaries and it read the whole suite
+ * again — twice (findings, +01:23 and +02:56). The scaffold now keeps those
+ * bridges in separate files, but a template's own head is still ~5-12 KB, and a
+ * static-site or SSR entry can be far more.
+ *
+ * The outline is not a truncation: the note beside it names the exact
+ * offset/limit that returns the whole document in one call.
+ */
+export const MAX_HTML_INLINE_CHARS = 16 * 1024
+
+/** Most lines an HTML outline prints before it stops and says so. */
+export const MAX_HTML_OUTLINE_LINES = 200
+
+/** Longest a single outline line may be before it is cut. */
+const MAX_HTML_OUTLINE_LINE_CHARS = 200
+
+/** Whether `text` is an HTML document (a doctype or an `<html` root tag). */
+export function looksLikeHtml(text: string): boolean {
+  return /^\s*(?:<!doctype\s+html|<html[\s>])/i.test(text)
+}
+
+/**
+ * An OUTLINE of an HTML document: its head's tags and the tags that open each
+ * body section, one per line, with line numbers.
+ *
+ * Line-based on purpose — a parser would be a dependency and an attack surface
+ * for a read that only has to be *navigable*. A line is shown when it starts with
+ * `<` after trimming, which is what keeps the inside of a `<style>` block, a
+ * `<script>` body or a prerendered text section out of the outline while keeping
+ * every tag the document is built from. Long lines (a minified tag, a data URI)
+ * are cut, and the whole outline is capped, so a pathological document cannot
+ * turn one read into another wall of text.
+ *
+ * @param text - The document's full text.
+ * @param label - What to call the document in the outline's header (its path).
+ * @returns The outline — or null when `text` is not an HTML document.
+ */
+export function htmlOutline(text: string, label = 'document'): string | null {
+  if (!looksLikeHtml(text)) return null
+  const lines = text.split('\n')
+  const out: string[] = []
+  let skipped = 0
+  let skippedChars = 0
+  let truncated = false
+  const flushSkipped = (): void => {
+    if (skipped === 0) return
+    out.push(
+      `        … ${skipped} more line${skipped === 1 ? '' : 's'} (${Math.round(skippedChars / 1024)} KB) …`,
+    )
+    skipped = 0
+    skippedChars = 0
+  }
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i] ?? ''
+    const trimmed = line.trim()
+    if (trimmed !== '' && trimmed.startsWith('<')) {
+      if (out.length >= MAX_HTML_OUTLINE_LINES) {
+        truncated = true
+        break
+      }
+      flushSkipped()
+      const shown =
+        trimmed.length > MAX_HTML_OUTLINE_LINE_CHARS
+          ? `${trimmed.slice(0, MAX_HTML_OUTLINE_LINE_CHARS)}… (${trimmed.length} chars on this line)`
+          : trimmed
+      out.push(`${String(i + 1).padStart(6)}  ${shown}`)
+    } else {
+      skipped++
+      skippedChars += line.length + 1
+    }
+  }
+  flushSkipped()
+  // "0 KB" for anything under a kilobyte reads like a bug; say the real unit.
+  const size = text.length >= 1024 ? `${Math.round(text.length / 1024)} KB` : `${text.length} chars`
+  const header =
+    `OUTLINE of ${label} — ${size}, ${lines.length} lines. ` +
+    `Its tags and the tags that open each section, one line each; tag bodies (CSS, JS, text) are not shown.` +
+    (truncated ? ` (Outline capped at ${MAX_HTML_OUTLINE_LINES} lines.)` : '')
+  return `${header}\n\n${out.join('\n')}`
+}
+
 /** Max search results. */
 export const MAX_SEARCH_RESULTS = 50
 /** Max find results. */
