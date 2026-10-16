@@ -28,6 +28,39 @@ import { coerceSqliteParam, convertPlaceholders, normalizeSqliteRows } from './u
 /** How long an operation may wait for the connection before it fails. */
 const QUEUE_WAIT_LIMIT_MS = 30_000
 
+/** How much of a failing statement the error message carries (whitespace-collapsed). */
+const STATEMENT_IN_MESSAGE_CAP = 200
+
+/**
+ * Runs `statement` and, when better-sqlite3 throws, names the statement that failed.
+ *
+ * better-sqlite3's errors carry a code (`SQLITE_MISMATCH`, `SQLITE_CONSTRAINT_NOTNULL`) but
+ * no SQL. X0 flash-m89's seed hit `SqliteError: datatype mismatch` with a stack into this
+ * file and nothing else, and the model spent 38 s grepping every `create(` call to find
+ * which table the insert was aimed at before finding the statement itself. Postgres' driver
+ * hands back `table` and `column` on the same class of failure; SQLite's hands back nothing.
+ *
+ * The error keeps its class and its `code` (it is mutated, not replaced): its message gains
+ * the statement on one line, and `sql` carries the statement whole. The bound VALUES are
+ * never part of either — they hold whatever the caller was storing.
+ *
+ * @param sql - The statement as the driver received it (after placeholder conversion).
+ * @param run - Runs the statement and returns its result.
+ * @returns Whatever `run` returned.
+ */
+function withStatementContext<T>(sql: string, run: () => T): T {
+  try {
+    return run()
+  } catch (error) {
+    if (error instanceof Error && !(error as { sql?: unknown }).sql) {
+      const oneLine = sql.replace(/\s+/g, ' ').trim().slice(0, STATEMENT_IN_MESSAGE_CAP)
+      ;(error as { sql?: string }).sql = sql
+      error.message = `${error.message} — in: ${oneLine}`
+    }
+    throw error
+  }
+}
+
 /**
  * Serializes access to the ONE shared better-sqlite3 connection so
  * transactions and ordinary queries never interleave.
@@ -147,34 +180,40 @@ export const createPool = (config?: SqliteConfig): DatabasePool => {
     // booleans → 0/1 and objects/arrays → JSON text so create()/update() with a
     // boolean or jsonb value don't crash at bind time.
     const params = rawParams.map(coerceSqliteParam)
-    const stmt = db.prepare(sql)
 
-    // Dispatch on better-sqlite3's own `Statement.reader` flag — true for ANY
-    // statement that returns rows (SELECT, WITH…SELECT CTEs, VALUES, PRAGMA,
-    // INSERT/UPDATE/DELETE…RETURNING). The old string heuristic
-    // (`startsWith('SELECT') || includes('RETURNING')`) misrouted CTEs and
-    // PRAGMAs to `stmt.run()`, which better-sqlite3 executes WITHOUT returning
-    // rows — so a perfectly valid raw `query('WITH … SELECT …')` silently came
-    // back as `rows: []`, indistinguishable from a genuinely empty result.
-    if (stmt.reader) {
-      const rows = (params.length > 0 ? stmt.all(...params) : stmt.all()) as Record<
-        string,
-        unknown
-      >[]
-      // Round-trip storage form back to JS types (0/1 → boolean, JSON text →
-      // value) using the declared column types, matching the Postgres driver.
-      return {
-        rows: normalizeSqliteRows<T>(rows, stmt.columns()),
-        rowCount: rows.length,
+    // `prepare` (unknown table/column, syntax) and `all`/`run` (datatype mismatch,
+    // constraint failures) throw from different places, so the whole execution is wrapped:
+    // whichever of them fails, the error names the statement (see `withStatementContext`).
+    return withStatementContext<QueryResult<T>>(sql, () => {
+      const stmt = db.prepare(sql)
+
+      // Dispatch on better-sqlite3's own `Statement.reader` flag — true for ANY
+      // statement that returns rows (SELECT, WITH…SELECT CTEs, VALUES, PRAGMA,
+      // INSERT/UPDATE/DELETE…RETURNING). The old string heuristic
+      // (`startsWith('SELECT') || includes('RETURNING')`) misrouted CTEs and
+      // PRAGMAs to `stmt.run()`, which better-sqlite3 executes WITHOUT returning
+      // rows — so a perfectly valid raw `query('WITH … SELECT …')` silently came
+      // back as `rows: []`, indistinguishable from a genuinely empty result.
+      if (stmt.reader) {
+        const rows = (params.length > 0 ? stmt.all(...params) : stmt.all()) as Record<
+          string,
+          unknown
+        >[]
+        // Round-trip storage form back to JS types (0/1 → boolean, JSON text →
+        // value) using the declared column types, matching the Postgres driver.
+        return {
+          rows: normalizeSqliteRows<T>(rows, stmt.columns()),
+          rowCount: rows.length,
+        }
       }
-    }
 
-    // INSERT/UPDATE/DELETE without RETURNING (and other non-reader statements)
-    const result = params.length > 0 ? stmt.run(...params) : stmt.run()
-    return {
-      rows: [] as T[],
-      rowCount: result.changes,
-    }
+      // INSERT/UPDATE/DELETE without RETURNING (and other non-reader statements)
+      const result = params.length > 0 ? stmt.run(...params) : stmt.run()
+      return {
+        rows: [] as T[],
+        rowCount: result.changes,
+      }
+    })
   }
 
   const pool: DatabasePool = {

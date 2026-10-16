@@ -207,6 +207,12 @@ export function createStore(pool: DatabasePool): DataStore {
    * Run a statement for `table`, naming the table in a column or table error: SQLite's
    * "no such column: x" says neither, and X1 flash-m56 rewrote the wrong table on it. The
    * error itself is kept (its class and code), only its message gains the table.
+   *
+   * The pool appends the failing statement to the same message (` — in: <statement>`), and a
+   * statement quotes the table it targets — so the "does this message already name the
+   * table" test looks for THIS note, not for the name anywhere. Reading it as `"todos"`
+   * anywhere made the appended statement stand in for the note and the table went unnamed
+   * on exactly the errors the note exists for.
    * @param table - The table the statement is for.
    * @param sql - The statement.
    * @param values - Its parameters.
@@ -223,7 +229,7 @@ export function createStore(pool: DatabasePool): DataStore {
       if (
         error instanceof Error &&
         /no such column|has no column named|no such table/i.test(error.message) &&
-        !error.message.includes(`"${table}"`)
+        !error.message.includes(`(table "${table}")`)
       ) {
         error.message = `${error.message} (table "${table}")`
       }
