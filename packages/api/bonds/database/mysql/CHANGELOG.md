@@ -1,5 +1,11 @@
 # @molecule/api-database-mysql
 
+## 1.2.1
+
+### Patch Changes
+
+- 2a7c48a: A migration's `ALTER TABLE … ADD COLUMN IF NOT EXISTS` is accepted and applied when the column is missing, instead of failing the migration run.
+
 ## 1.2.0
 
 ### Minor Changes

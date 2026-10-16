@@ -1,5 +1,12 @@
 # @molecule/api-database-sqlite
 
+## 1.2.1
+
+### Patch Changes
+
+- 7b3653a: A migration's `ALTER TABLE … ADD COLUMN IF NOT EXISTS` is applied only when the column is missing, instead of failing the whole file and warning about it on every boot.
+- 42bcebb: Timestamp columns declared with a `DEFAULT now()` / `DEFAULT CURRENT_TIMESTAMP` default now store ISO-8601 UTC values with milliseconds (e.g. `2026-10-16T01:22:21.416Z`) instead of SQLite's space-separated whole-second form, so a stored timestamp parses as the UTC instant it was written and two rows written in the same second sort in insertion order.
+
 ## 1.2.0
 
 ### Minor Changes

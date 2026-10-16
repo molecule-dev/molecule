@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.5.10
+
+### Patch Changes
+
+- e3dc1cd: `edit_file` names an `old_string` that is an import block in a different order, and shows the file's actual import.
+
 ## 1.5.9
 
 ### Patch Changes
