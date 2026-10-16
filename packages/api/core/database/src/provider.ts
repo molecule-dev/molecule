@@ -59,7 +59,9 @@ export const hasPool = (): boolean => {
  *
  * @param text - SQL query text with placeholders (`$1`, `$2`, etc.).
  * @param values - Parameter values corresponding to the placeholders.
- * @returns The query result containing `rows`, `rowCount`, and optional `fields`.
+ * @returns The query result containing `rows`, `rowCount`, and optional `fields`
+ *   — a plain object with no `.get()`, `.all()` or `.run()` on it (those are
+ *   better-sqlite3 driver methods; `rows[0]` is the "one row" here).
  * @throws {Error} If no database pool has been bonded.
  */
 export const query = async <T = Record<string, unknown>>(

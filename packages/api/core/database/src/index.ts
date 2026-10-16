@@ -56,7 +56,13 @@
  *   NOT `getStore().query()`. The DataStore has no `query`; raw parameterized
  *   query lives on the pool/provider. The store also has NO `.exec()`,
  *   `.prepare()`, `.run()`, `.get()`, or `.all()` — those are driver methods
- *   (better-sqlite3 / pg) and calling them fails the type-check.
+ *   (better-sqlite3 / pg) and calling them fails the type-check. **What
+ *   `query()` RESOLVES to is one plain object, `{ rows, rowCount, fields? }`, with
+ *   no `.get()`, `.all()` or `.run()` on it either** — read
+ *   `(await query(sql, values)).rows`, and `rowCount` for how many rows an
+ *   INSERT/UPDATE/DELETE changed. `TypeError: result.get is not a function` is
+ *   that mistake: better-sqlite3's `db.prepare(…).get()`/`.all()` have no
+ *   equivalent here, so a "fetch one row" is `rows[0]` (possibly `undefined`).
  * - **Atomic multi-write = `withTransaction(async () => { … })`.** When several
  *   writes must be all-or-nothing (move funds between two accounts, create an
  *   order AND decrement its stock, accept a booking AND mark the slot taken),
