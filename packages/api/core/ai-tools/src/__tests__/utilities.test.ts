@@ -576,3 +576,12 @@ describe('truncateMiddle — test runs (flash-m45)', () => {
     expect(cut).toContain('3 of 3 failure blocks kept')
   })
 })
+
+describe('redactSecrets — author is not auth (flash-m44)', () => {
+  it('keeps author=… and still masks AUTH_TOKEN and Authorization values', async () => {
+    const { redactSecrets } = await import('../utilities.js')
+    expect(redactSecrets('slug=a author=testuser17921')).toContain('author=testuser17921')
+    expect(redactSecrets('AUTH_TOKEN=abc123secret')).not.toContain('abc123secret')
+    expect(redactSecrets('authorization=Bearer abcdef123')).not.toContain('abcdef123')
+  })
+})

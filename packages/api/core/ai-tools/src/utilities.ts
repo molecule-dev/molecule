@@ -45,8 +45,9 @@ export const stripControlChars = (s: string): string =>
 // access controls than the vault). PWD (DB_PWD/MYSQL_PWD), APIKEY (no underscore,
 // e.g. MAILGUN_APIKEY), and SERVICE_ACCOUNT were the gaps; `_KEY` already covers
 // OPENAI_KEY / *_ROLE_KEY.
+// AUTH but not AUTHOR (usernames printed as `author=…` were masked, X1 flash-m44); AUTHORIZATION still counts.
 const SECRET_KEYWORDS =
-  'SECRET|PASSWORD|PASSWD|PWD|TOKEN|API_KEY|APIKEY|PRIVATE_KEY|DATABASE_URL|REDIS_URL|AUTH|CREDENTIAL|ACCESS_KEY|SIGNING_KEY|ENCRYPTION_KEY|CONNECTION_STRING|SERVICE_ACCOUNT|DSN|SMTP_PASS|_KEY'
+  'SECRET|PASSWORD|PASSWD|PWD|TOKEN|API_KEY|APIKEY|PRIVATE_KEY|DATABASE_URL|REDIS_URL|AUTH(?!OR(?!IZ))|CREDENTIAL|ACCESS_KEY|SIGNING_KEY|ENCRYPTION_KEY|CONNECTION_STRING|SERVICE_ACCOUNT|DSN|SMTP_PASS|_KEY'
 /**
  * A keyword-named `NAME=value` anywhere on a line — the ENV-DUMP grade pattern,
  * used by {@link redactSecrets} for command output and `.env` reads. The permissive
