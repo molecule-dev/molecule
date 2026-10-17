@@ -1067,6 +1067,13 @@ describe('buildTools', () => {
     // `module.exports = {}` over its runtime module — a CommonJS stub over the ESM
     // handler the app's own code imports. 18 s and an `npm pack` to undo.
     const backend = mockBackend()
+    // The guard asks the backend what is installed: this mock's node_modules is a
+    // real install (a package.json resolves under every package named).
+    ;(backend.run as ReturnType<typeof vi.fn>).mockImplementation(async (command: string) => ({
+      stdout: command.includes('package.json') ? 'installed\n' : '',
+      stderr: '',
+      exitCode: 0,
+    }))
     const writeFile = buildTools(backend).find((t) => t.name === 'write_file')!
     const result = (await writeFile.execute({
       path: '/test/app/node_modules/@molecule/api-resource-comment/dist/numbers.d.ts',
@@ -1084,6 +1091,12 @@ describe('buildTools', () => {
 
   it('refuses every other way into an installed package, and still reads it', async () => {
     const backend = mockBackend()
+    // What the guard asks the backend: a package.json resolves under each name.
+    ;(backend.run as ReturnType<typeof vi.fn>).mockImplementation(async (command: string) => ({
+      stdout: command.includes('package.json') ? 'installed\n' : '',
+      stderr: '',
+      exitCode: 0,
+    }))
     const tools = buildTools(backend)
     const call = (name: string, input: Record<string, unknown>): Promise<unknown> =>
       tools.find((t) => t.name === name)!.execute(input)

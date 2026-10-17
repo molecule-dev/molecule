@@ -400,8 +400,86 @@ export function moleculeDistReadNote(path: string): string | null {
 }
 
 /**
- * The refusal for a write whose target is inside an installed package, or null
- * when the path is not under a `node_modules` directory.
+ * What the filesystem says about a write target under `node_modules` — the half
+ * of the decision a path's spelling cannot make.
+ *
+ * @remarks
+ * A path that reads `node_modules` is not necessarily an install: a run links
+ * `node_modules` beside its e2e copy to borrow the hoisted tree, and that link
+ * is its own. X0 xr-molecule-flash-m106 (+07:58) made exactly that link, found
+ * it dangling (everything was hoisted to `/workspace/node_modules`), and was
+ * refused three times for trying to remove it — 40 s and a "3rd time this turn
+ * … ask the user" escalation, in an unattended run, over a broken symlink in
+ * the run's own scratch directory. So the guard asks what is there.
+ */
+export interface InstalledPackageFacts {
+  /** Whether the `node_modules` entry the path goes through is a symbolic link. */
+  readonly symlink: boolean
+  /** Whether a package is really installed there: a `package.json` resolves under the entry. */
+  readonly installed: boolean
+}
+
+/**
+ * Looks at the filesystem for {@link InstalledPackageFacts}.
+ *
+ * The guard cannot `stat` the path itself: the tools act through a backend (a
+ * sandbox over the network for the fleet), so the caller — which holds that
+ * backend — supplies the look. {@link shellInstalledPackageProbe} builds one
+ * from any shell runner.
+ */
+export type InstalledPackageProbe = (path: string) => Promise<InstalledPackageFacts>
+
+/**
+ * The `node_modules` entry a path goes through, and the package name after it
+ * (`null` when the path IS the entry).
+ *
+ * @param path - An absolute path.
+ * @returns The entry and the name, or null when no `node_modules` component is in the path.
+ */
+function nodeModulesParts(path: string): { entry: string; name: string | null } | null {
+  // A path may sit in a NESTED node_modules (`app/node_modules/...`) as well as the
+  // hoisted root one: both can be installed trees.
+  const at = /(?:^|\/)node_modules(?:\/|$)/.exec(path)
+  if (!at) return null
+  const head = path.slice(0, at.index)
+  const entry = `${head}${head === '' || head.endsWith('/') ? '' : '/'}node_modules`
+  const named = /node_modules\/((?:@[^/]+\/)?[^/]+)(?:\/|$)/.exec(path.slice(at.index))
+  return { entry, name: named?.[1] ?? null }
+}
+
+/**
+ * Build an {@link InstalledPackageProbe} from a shell runner (a backend's
+ * `run`, or a sandbox's `exec`): one command reports whether the entry is a
+ * link and whether a `package.json` resolves under it.
+ *
+ * @param run - Runs a command where the path lives.
+ * @returns The probe.
+ */
+export function shellInstalledPackageProbe(
+  run: (command: string) => Promise<{ stdout?: string } | null | undefined>,
+): InstalledPackageProbe {
+  return async (path: string): Promise<InstalledPackageFacts> => {
+    const parts = nodeModulesParts(path)
+    if (!parts) return { symlink: false, installed: false }
+    const { entry, name } = parts
+    // A bare `@scope` is not a package, but removing it takes every package under
+    // it: treat the scope directory like the entry itself and look beneath it.
+    const scopeOnly = name !== null && /^@[^/]+$/.test(name)
+    const install =
+      name !== null && !scopeOnly
+        ? `if [ -e ${shellQuote(`${entry}/${name}/package.json`)} ]; then echo installed; fi`
+        : `if find ${shellQuote(name === null ? entry : `${entry}/${name}`)} -maxdepth 3 -name package.json -print -quit 2>/dev/null | grep -q .; then echo installed; fi`
+    const out = String(
+      (await run(`if [ -L ${shellQuote(entry)} ]; then echo symlink; fi; ${install}`))?.stdout ??
+        '',
+    )
+    return { symlink: out.includes('symlink'), installed: out.includes('installed') }
+  }
+}
+
+/**
+ * The refusal for a write whose target is inside an INSTALLED package, or null
+ * when the path is not under `node_modules` or nothing is installed there.
  *
  * `node_modules` is not the project's code: nothing written there survives the
  * next install, no deploy carries it, and a sandbox whose dependency tree is
@@ -414,6 +492,19 @@ export function moleculeDistReadNote(path: string): string | null {
  * putting the file back. Reading these files stays allowed (that is how the
  * declarations above are read at all).
  *
+ * What is protected is the INSTALL, not the spelling: the decision comes from
+ * {@link InstalledPackageFacts}, never from the path alone (m106 above). Three
+ * things are the run's own to remove or replace —
+ *
+ * - a `node_modules` that is a SYMLINK: `rm`/`unlink` removes the link, never the
+ *   tree it points at, so a link the run made cannot clobber anything;
+ * - anything under the run's own `.mol-scratch/` directory;
+ * - a `node_modules` with no `package.json` under it (nothing was ever installed).
+ *
+ * A path INSIDE the link is still decided by what resolves there: a link into a
+ * real tree is refused, because removing or writing through it reaches the
+ * install.
+ *
  * The restore route is named because the model that has ALREADY clobbered a file
  * (this refusal is too late for it) is the one who needs it, and because the
  * obvious repair — `npm install <pkg>` — is itself refused in the pre-installed
@@ -421,18 +512,33 @@ export function moleculeDistReadNote(path: string): string | null {
  * m91 used, and what both guards leave alone.
  *
  * @param path - An absolute path a tool is about to write.
+ * @param probe - Looks at the filesystem where the path lives.
  * @returns The one-line refusal naming the package, or null when nothing is installed there.
  */
-export function installedPackageWriteRefusal(path: string): string | null {
-  // A path may sit in a NESTED node_modules (`app/node_modules/...`) as well as the
-  // hoisted root one: both are installed packages.
-  const at = /(?:^|\/)node_modules(?:\/|$)/.exec(path)
-  if (!at) return null
-  const named = /(?:^|\/)node_modules\/((?:@[^/]+\/)?[^/]+)(?:\/|$)/.exec(path)
-  const name = named?.[1] ?? null
-  const scoped = at[0].startsWith('/') ? path.slice(0, at.index) : ''
-  const dir = name ? `${scoped}/node_modules/${name}` : null
-  const what = name ? `the installed package ${name}` : 'an installed package'
+export async function installedPackageWriteRefusal(
+  path: string,
+  probe?: InstalledPackageProbe,
+): Promise<string | null> {
+  const parts = nodeModulesParts(path)
+  if (!parts) return null
+  const { entry, name } = parts
+  // The run's own scratch directory is the run's to clean: the platform tells it
+  // to put throwaway work there (system prompt, "Throwaway probes go in
+  // `.mol-scratch/`"), so nothing in it is the pre-installed tree.
+  if (/(?:^|\/)\.mol-scratch(?:\/|$)/.test(path)) return null
+  // No probe, or a probe that could not answer: keep the old, conservative
+  // reading (everything under node_modules is an install).
+  const facts = probe ? await probe(path).catch(() => null) : null
+  const symlink = facts?.symlink ?? false
+  const installed = facts?.installed ?? true
+  // The entry itself — the link (or a tree with nothing in it) the run may take
+  // away. Removing a symlink deletes the LINK only; its target is untouched.
+  if (name === null && (symlink || !installed)) return null
+  // A path under the entry: `installed` resolved through any link, so it is true
+  // exactly when a write here would land in a real installation.
+  if (name !== null && !installed) return null
+  const dir = name ? `${entry}/${name}` : null
+  const what = name ? `the installed package ${name}` : 'an installed node_modules tree'
   const change =
     'Installed packages are read-only: the next install replaces that file and a deploy never ' +
     'carries it. Change its behaviour from your app instead (its options, your own handler, a ' +
@@ -635,9 +741,14 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
    * @param path - Relative or absolute path requested by the tool input.
    * @returns The normalized path, when writing it is allowed.
    */
-  function resolveWrite(path: string): string {
+  async function resolveWrite(path: string): Promise<string> {
     const resolved = resolve(path)
-    const refusal = installedPackageWriteRefusal(resolved)
+    // The guard decides from what is installed where the path lives, so the
+    // backend is asked (one command, only for a path that names node_modules).
+    const refusal = await installedPackageWriteRefusal(
+      resolved,
+      shellInstalledPackageProbe((command) => backend.run(command, { timeout: 8000 })),
+    )
     if (refusal) throw new ToolInputError(refusal)
     return resolved
   }
@@ -1216,7 +1327,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       if (emptyErr) return { error: emptyErr }
       const argErr = pathArgError(input.path, 'write_file')
       if (argErr) return { error: argErr }
-      const path = resolveWrite(input.path as string)
+      const path = await resolveWrite(input.path as string)
       const content = input.content as string
       if (content.length > MAX_WRITE_SIZE)
         return {
@@ -1263,7 +1374,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       if (emptyErr) return { error: emptyErr }
       const argErr = pathArgError(input.path, 'edit_file')
       if (argErr) return { error: argErr }
-      const path = resolveWrite(input.path as string)
+      const path = await resolveWrite(input.path as string)
       // Support both formats: { replacements: [...] } (batch) and { old_string, new_string } (single, backwards-compatible)
       let replacements = input.replacements as
         | Array<{
@@ -1963,7 +2074,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
     },
 
     async create_directory(input) {
-      const path = resolveWrite(input.path as string)
+      const path = await resolveWrite(input.path as string)
       const parentPath = path.substring(0, path.lastIndexOf('/')) || root
       const symlinkErr = await checkSymlink(parentPath)
       if (symlinkErr) return { error: symlinkErr }
@@ -1979,8 +2090,8 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
     async rename_file(input) {
       // Both ends: moving a package's file OUT is as much a change to the installed
       // package as moving one in.
-      const oldPath = resolveWrite(input.old_path as string)
-      const newPath = resolveWrite(input.new_path as string)
+      const oldPath = await resolveWrite(input.old_path as string)
+      const newPath = await resolveWrite(input.new_path as string)
       const oldSymlinkErr = await checkSymlink(oldPath)
       if (oldSymlinkErr) return { error: oldSymlinkErr }
       const newParent = newPath.substring(0, newPath.lastIndexOf('/')) || root
@@ -2000,7 +2111,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
     },
 
     async delete_file(input) {
-      const path = resolveWrite(input.path as string)
+      const path = await resolveWrite(input.path as string)
       const symlinkErr = await checkSymlink(path)
       if (symlinkErr) return { error: symlinkErr }
       try {
