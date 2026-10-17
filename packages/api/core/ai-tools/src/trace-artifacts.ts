@@ -27,6 +27,7 @@
  * @module
  */
 
+import { commandSegments } from './command-position.js'
 import { isDiagnosisRun } from './suite-overlap.js'
 import { isPlaywrightRunCommand } from './utilities.js'
 
@@ -416,6 +417,38 @@ function namesTraceMode(command: string): boolean {
   return /(?:^|[\s;&|(])--trace(?:=|\s)/.test(command)
 }
 
+/**
+ * Where the `test` word of the command's Playwright run ends, or null when it has none that the
+ * shell parse can place.
+ *
+ * The flag has to land INSIDE the Playwright step, not at the end of the whole command: a run
+ * Flash sends almost every time ends `… 2>&1 | tail -60` or `… > log 2>&1; echo "exit=$?";
+ * grep -c "" log`, and a flag appended after those is an operand of `tail`/`grep` — GNU `tail`
+ * refuses it outright (`tail: option used in invalid context -- 6`) and Playwright never sees it
+ * (xr-molecule-flash-m102 +07:40 → +07:53).
+ *
+ * The step is found by the package's own shell parse ({@link commandSegments}), the one every
+ * runner classifier reads: it answers which SEGMENT runs `playwright test` in command position,
+ * so a `playwright test` named in an argument (`grep -n "playwright test" e2e/README.md`) is not
+ * a run and is left alone. Each segment's text is its program and arguments re-joined with single
+ * spaces, so its offset in the command is found by locating that text, walking the segments in
+ * order. A segment whose text cannot be located verbatim (irregular whitespace) ends the walk —
+ * null, and the caller adds nothing rather than splicing into a guess.
+ *
+ * @param command - The shell command.
+ * @returns The offset just after `test`, or null.
+ */
+function playwrightTestWordEnd(command: string): number | null {
+  let cursor = 0
+  for (const segment of commandSegments(command)) {
+    const at = command.indexOf(segment.text, cursor)
+    if (at < 0) return null
+    cursor = at + segment.text.length
+    if (/^playwright\s+test\b/.test(segment.text)) return at + 'playwright test'.length
+  }
+  return null
+}
+
 /** The config paths a candidate directory could hold, in the order Playwright itself looks. */
 const CONFIG_NAMES: readonly string[] = [
   'playwright.config.ts',
@@ -512,8 +545,17 @@ export async function diagnosisTraceCommand(args: {
   if (!isPlaywrightRunCommand(args.command)) return unchanged
   const config = await readRunConfig(args.command, args.cwd, args.readFile)
   if (suiteRecordsTraces(config)) return unchanged
+  // The flag goes into the Playwright step, right after its `test` word — an option of the run
+  // itself, whatever the command opens with and wherever it pipes or redirects its output. Appended
+  // at the end of the whole command it belonged to the LAST pipeline stage instead (`tail`, `grep`),
+  // which either refused it or silently ran without it (xr-molecule-flash-m102 +07:40 → +07:53). The
+  // step's shape is untouched otherwise, so the rewrites that run on this command afterwards still
+  // see what they expect: a trailing `| tail -60` is still trailing and is still dropped
+  // (`streamingBackgroundCommand`).
+  const at = playwrightTestWordEnd(args.command)
+  if (at === null) return unchanged
   return {
-    command: `${args.command.trimEnd()} ${DIAGNOSIS_TRACE_FLAG}`,
+    command: `${args.command.slice(0, at)} ${DIAGNOSIS_TRACE_FLAG}${args.command.slice(at)}`,
     change:
       `Added \`${DIAGNOSIS_TRACE_FLAG}\`: the suite's config records no trace for a failure` +
       `${/trace:/.test(config) ? '' : ' (it sets none)'}, and this diagnosis run's failures are ` +
