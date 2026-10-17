@@ -41,8 +41,12 @@
  * Auth (the bearer token / session cookie) is attached by the client's interceptors — do not
  * read a token from `localStorage` or hand-attach it (the token is memory-only; see the user
  * resource).
- * An API that wants another scheme than `Bearer` (`Authorization: Token <jwt>`) sets
- * `authScheme: 'Token'` in the client config; do not hand-write a fetch wrapper for it.
+ * An API that wants another scheme than `Bearer` (`Authorization: Token <jwt>`) passes
+ * `authScheme: 'Token'` to the client's CONSTRUCTOR — `setClient(createFetchClient({ baseURL,
+ * authScheme: 'Token' }))`, or the bonded provider's constructor
+ * (`createAxiosClient({ … })` from `@molecule/app-http-axios`). It is NOT a property of
+ * `getClient()`'s result: that is a built client, and `client.authScheme = 'Token'` is a type
+ * error (TS2339) that changes no header. Do not hand-write a fetch wrapper for the scheme either.
  *
  * A request made while the session is still being restored WAITS for that restore, so a page
  * that fetches viewer-dependent data on mount (a profile's `following` flag, a feed, a

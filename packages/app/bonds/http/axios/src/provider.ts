@@ -92,9 +92,11 @@ function toHttpResponse<T>(response: AxiosResponse<T>, config: FullRequestConfig
  * const response = await client.get('/users')
  * ```
  *
- * An API that reads another scheme than `Bearer` (`Authorization: Token <jwt>`)
- * passes `authScheme: 'Token'` — `setAuthToken()` then sends the token with that
- * scheme, the same option `@molecule/app-http`'s own client takes.
+ * An API that reads another scheme than `Bearer` (`Authorization: Token <jwt>`) passes
+ * `authScheme: 'Token'` HERE, in this constructor —
+ * `setClient(createAxiosClient({ baseURL, authScheme: 'Token' }))` — and the auth token is
+ * then sent with that scheme. It is the same option `@molecule/app-http`'s own client
+ * takes, and not a property of the client you pass to `setClient()`.
  *
  * @param config - Axios client configuration (base URL, headers, timeout, credentials, auth scheme, or an existing Axios instance).
  * @returns An `HttpClient` backed by Axios with interceptor and auth token support.

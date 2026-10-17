@@ -118,7 +118,10 @@ export interface HttpClientConfig {
   /**
    * The scheme of the `Authorization` header the auth token is sent with:
    * `Bearer` (default), or what your API expects, e.g. `Token` for an API that
-   * reads `Authorization: Token <jwt>`.
+   * reads `Authorization: Token <jwt>`. It is an option of the client's
+   * CONSTRUCTOR (`createFetchClient({ baseURL, authScheme: 'Token' })`, or the
+   * bonded provider's `createAxiosClient({ … })`), never a property of the client
+   * it returns.
    */
   authScheme?: string
 }

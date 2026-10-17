@@ -64,7 +64,10 @@ export function createDefaultHttpClient(baseURL: string): {
  * this same wiring. Pass `stripApiPrefix: true` when the app uses
  * `baseURL: '/api'` to handle pages that pass `/api/`-prefixed paths
  * (would otherwise resolve to `/api/api/...` and 404). Pass `authScheme`
- * when the API reads another scheme than `Bearer`.
+ * when the API reads another scheme than `Bearer`: it is an option of THIS
+ * constructor (`createDefaultHttpClientWithAuthBearer({ authScheme: 'Token', … })`,
+ * or `createFetchClient({ baseURL, authScheme: 'Token' })` directly), never a
+ * property of the client it returns.
  */
 export function createDefaultHttpClientWithAuthBearer(opts: {
   baseURL: string
@@ -74,8 +77,9 @@ export function createDefaultHttpClientWithAuthBearer(opts: {
   /**
    * The scheme of the `Authorization` header the token from `getToken()` is sent
    * with: `Bearer` (default), or what the API expects, e.g. `Token` for an API
-   * that reads `Authorization: Token <jwt>` — the same option
-   * `@molecule/app-http`'s client config calls `authScheme`.
+   * that reads `Authorization: Token <jwt>`. Pass it to this constructor — the
+   * same option `@molecule/app-http`'s client config calls `authScheme`, and not
+   * a property of the client that comes back.
    */
   authScheme?: string
 }): {
