@@ -650,6 +650,83 @@ describe('buildTools', () => {
     expect(backend.readFile).not.toHaveBeenCalled() // never read the out-of-workspace target
   })
 
+  // The run's FIRST file tool was refused with `SandboxNotFoundError` while the
+  // sandbox it had just claimed was still attaching — and the same tool answered
+  // 300 ms later (xr-molecule-flash-m120 +00:29). A channel that is still coming up
+  // gets a longer, failure-aware retry budget than a plain slow answer.
+  describe('the symlink guard waits for a sandbox that is still attaching (m120)', () => {
+    const notFound = (): Error =>
+      Object.assign(new Error('Sandbox is probably not running anymore'), {
+        name: 'SandboxNotFoundError',
+      })
+
+    it('answers the read when the channel attaches on a later retry', async () => {
+      vi.useFakeTimers()
+      try {
+        const backend = mockBackend()
+        const run = backend.run as ReturnType<typeof vi.fn>
+        run.mockRejectedValueOnce(notFound()).mockRejectedValueOnce(notFound())
+        run.mockResolvedValue({ stdout: '/test/file.ts', stderr: '', exitCode: 0 })
+        const readFile = buildTools(backend, { symlinkGuards: true }).find(
+          (t) => t.name === 'read_file',
+        )!
+        const pending = readFile.execute({ path: '/test/file.ts' })
+        // Two backoffs (300 ms, then 800 ms) before the third attempt succeeds.
+        await vi.advanceTimersByTimeAsync(300)
+        await vi.advanceTimersByTimeAsync(800)
+        const result = (await pending) as { content?: string; error?: string }
+        expect(result.error).toBeUndefined()
+        expect(result.content).toBe('file content')
+        expect(run).toHaveBeenCalledTimes(3)
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+
+    it('says the sandbox is still STARTING (not gone) when it never attaches', async () => {
+      vi.useFakeTimers()
+      try {
+        const backend = mockBackend()
+        const run = backend.run as ReturnType<typeof vi.fn>
+        run.mockRejectedValue(notFound())
+        const readFile = buildTools(backend, { symlinkGuards: true }).find(
+          (t) => t.name === 'read_file',
+        )!
+        const pending = readFile.execute({ path: '/test/file.ts' })
+        // Four attempts: 300 + 800 + 1500 ms of backoff.
+        await vi.advanceTimersByTimeAsync(300)
+        await vi.advanceTimersByTimeAsync(800)
+        await vi.advanceTimersByTimeAsync(1_500)
+        const result = (await pending) as { error?: string }
+        expect(result.error).toMatch(/still starting/)
+        expect(result.error).toMatch(/Retry in a few seconds/)
+        expect(result.error).not.toMatch(/needs a restart/)
+        expect(run).toHaveBeenCalledTimes(4)
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+
+    it('keeps the single quick retry for an error that is not about a starting sandbox', async () => {
+      vi.useFakeTimers()
+      try {
+        const backend = mockBackend()
+        const run = backend.run as ReturnType<typeof vi.fn>
+        run.mockRejectedValue(new Error('readlink exploded'))
+        const readFile = buildTools(backend, { symlinkGuards: true }).find(
+          (t) => t.name === 'read_file',
+        )!
+        const pending = readFile.execute({ path: '/test/file.ts' })
+        await vi.advanceTimersByTimeAsync(300)
+        const result = (await pending) as { error?: string }
+        expect(result.error).toMatch(/command channel failed/)
+        expect(run).toHaveBeenCalledTimes(2)
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+  })
+
   it('read_file returns structured result', async () => {
     const backend = mockBackend()
     const tools = buildTools(backend)

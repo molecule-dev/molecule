@@ -745,6 +745,36 @@ function batchFailureError(
 }
 
 /**
+ * Delays between retries of the symlink guard while a sandbox's command channel is
+ * still attaching: four attempts over roughly 2.6 s (plus the commands' own time),
+ * which covers the span a freshly claimed E2B sandbox answers `SandboxNotFoundError`
+ * before its exec channel is usable (xr-molecule-flash-m120 +00:29). A plain slow
+ * answer keeps the single 300 ms retry instead — a sandbox that is gone does not
+ * come back inside five seconds.
+ */
+const SANDBOX_STARTING_BACKOFF_MS: readonly number[] = [300, 800, 1_500]
+
+/**
+ * Whether an error from the sandbox's command channel says the sandbox is still
+ * STARTING rather than gone for good.
+ *
+ * A sandbox created seconds earlier answers `SandboxNotFoundError` ("Sandbox is
+ * probably not running anymore") until its channel attaches, and that message names
+ * the worse of the two causes — so a file tool refused it as if the sandbox were
+ * dead. These shapes are retried; anything else keeps the one quick retry.
+ *
+ * @param error - The error thrown by `backend.run`.
+ * @returns True when the sandbox looks like it is still coming up.
+ */
+function sandboxStillStarting(error: unknown): boolean {
+  const err = error as { name?: unknown; message?: unknown } | null | undefined
+  const name = typeof err?.name === 'string' ? err.name : ''
+  const message = typeof err?.message === 'string' ? err.message : ''
+  if (/^SandboxNotFound(?:Error)?$/i.test(name)) return true
+  return /not (?:found|running)|notfound|not attached|still starting/i.test(`${name} ${message}`)
+}
+
+/**
  * Build a complete set of AI agent tools bound to an execution backend.
  *
  * @param backend - The execution environment (sandbox or local filesystem)
@@ -911,10 +941,18 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
    */
   async function checkSymlink(path: string): Promise<string | null> {
     if (!symlinkGuards) return null
-    // One retry: the first commands on a just-attached sandbox can fail at once (X1
-    // flash-m44: three paths refused in 332 ms, the same check passing a beat later).
+    // The retry budget is failure-aware. A plain slow answer gets ONE quick retry
+    // (X1 flash-m44: three paths refused in 332 ms, the same check passing a beat
+    // later). A channel that is still ATTACHING gets longer: a sandbox created
+    // seconds earlier answers `SandboxNotFoundError` for well over 600 ms, so the
+    // fixed 2 × 300 ms budget ran out and the run's FIRST file tool was refused with
+    // "probably not running anymore" 300 ms before the same tool answered
+    // (xr-molecule-flash-m120 +00:29). Those errors are about a sandbox that is
+    // still starting, not one that is gone, so they are retried up to ~5 s.
     let lastError: unknown
-    for (let attempt = 0; attempt < 2; attempt++) {
+    let attempts = 0
+    for (;;) {
+      attempts++
       const started = Date.now()
       try {
         const result = await backend.run(
@@ -930,19 +968,34 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         lastError = Object.assign(error instanceof Error ? error : new Error(String(error)), {
           elapsedMs: Date.now() - started,
         })
-        if (attempt === 0) await new Promise((resolve) => setTimeout(resolve, 300))
+        const backoff = sandboxStillStarting(lastError) ? SANDBOX_STARTING_BACKOFF_MS : []
+        const wait = backoff[attempts - 1] ?? (attempts === 1 ? 300 : undefined)
+        if (wait === undefined) break
+        await new Promise((resolve) => setTimeout(resolve, wait))
       }
     }
     // Deny conservatively, and say what failed: "access denied" read as a forbidden path,
     // and a fixed "did not answer within 5 s" hid an error that took 332 ms.
     const err = lastError as (Error & { elapsedMs?: number }) | undefined
     const timedOut = err?.name === 'TimeoutError' || (err?.elapsedMs ?? 0) >= 4900
-    return timedOut
-      ? 'Unable to verify path safety: the sandbox did not answer the check within 5 s (it may be ' +
-          'restarting or out of memory), so the path was refused to stay safe. Retry in a moment; if ' +
-          'every file tool fails this way, the sandbox needs a restart.'
-      : `Unable to verify path safety: the sandbox's command channel failed (${err?.name ?? 'Error'}: ${String(err?.message ?? err).slice(0, 160)}), ` +
-          'so the path was refused to stay safe. Retry the call; if every file tool fails this way, the sandbox needs a restart.'
+    if (timedOut) {
+      return (
+        'Unable to verify path safety: the sandbox did not answer the check within 5 s (it may be ' +
+        'restarting or out of memory), so the path was refused to stay safe. Retry in a moment; if ' +
+        'every file tool fails this way, the sandbox needs a restart.'
+      )
+    }
+    if (sandboxStillStarting(err)) {
+      return (
+        'Unable to verify path safety: the sandbox is still starting (its command channel is not ' +
+        'attached yet), so the path was refused to stay safe. Retry in a few seconds — a freshly ' +
+        'created sandbox can take a moment to attach.'
+      )
+    }
+    return (
+      `Unable to verify path safety: the sandbox's command channel failed (${err?.name ?? 'Error'}: ${String(err?.message ?? err).slice(0, 160)}), ` +
+      'so the path was refused to stay safe. Retry the call; if every file tool fails this way, the sandbox needs a restart.'
+    )
   }
 
   /**
