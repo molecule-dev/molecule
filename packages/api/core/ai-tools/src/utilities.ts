@@ -2558,6 +2558,23 @@ export interface FailureCause {
    * (xr-molecule-flash-m110 +18:42 rewrote a CORS middleware for a 20 s connection timeout).
    */
   kind: RunFailureKind
+  /**
+   * What the page itself showed at the moment of the failure, when the caller read it from
+   * Playwright's `error-context.md` (the alert / error list). The failure's own error line names
+   * the symptom — `waitForURL` timed out — and never what the page was saying: xr-molecule-flash-
+   * m122 +23:39 grouped eight `waitForURL` timeouts under one line while the page snapshots named
+   * the cause (`email can't be blank`, `username can't be blank` — the settings form submitted
+   * before its values had loaded). Attached to the cause so the fix needs no `cat` of the file.
+   */
+  pageShowed?: string[]
+}
+
+/** One failing test's page errors, as read from its `error-context.md`. */
+export interface CausePageErrors {
+  /** The test's location as the log prints it (`settings.spec.ts:107`). */
+  where: string
+  /** The alert / error items the page showed at the moment it failed. */
+  items: readonly string[]
 }
 
 /**
@@ -2647,6 +2664,7 @@ function flakyTestsDeclared(text: string): FailedTest[] {
 function groupFailures(
   log: string,
   excluded: readonly string[],
+  pageErrors: readonly CausePageErrors[] = [],
 ): { causes: FailureCause[]; ignored: FailedTest[]; flaky: FailedTest[] } {
   const text = log.replace(ANSI_SGR, '')
   const flakyTests = flakyTestsDeclared(text)
@@ -2682,9 +2700,19 @@ function groupFailures(
       })
   }
   const causes: FailureCause[] = []
+  // The page's own words for a test, keyed the way both sides spell the location: the log's
+  // `file:line` and the artifact's `file:line` are the same string from one run.
+  const showedBy = new Map<string, readonly string[]>()
+  for (const entry of pageErrors) if (entry.items.length > 0) showedBy.set(entry.where, entry.items)
   for (const [message, group] of byMessage) {
     const tests = distinctTests(group.tests)
-    if (tests.length > 0)
+    if (tests.length > 0) {
+      // The first test of the cause that has page errors speaks for it: tests grouped under one
+      // error were failing the same way, and every one of m122's eight snapshots carried the same
+      // two blank-field alerts.
+      const showed = tests
+        .map((t) => showedBy.get(t.where))
+        .find((items): items is readonly string[] => items !== undefined)
       causes.push({
         message,
         seconds: null,
@@ -2694,7 +2722,9 @@ function groupFailures(
         // no layer of its own is read as an assertion (unknown is never `connection`).
         kind: group.kind,
         ...(group.budgetMs === null ? {} : { budgetMs: group.budgetMs }),
+        ...(showed === undefined ? {} : { pageShowed: [...showed] }),
       })
+    }
   }
   // The failures with no body of their own — a `list` log with no error blocks in it, from a run
   // not started in the background — are grouped by how long they took: a band is opened by its
@@ -2839,8 +2869,9 @@ export function failureCausesNote(
   log: string,
   excluded: readonly string[] = [],
   run?: { command: string; cwd?: string; log?: string; config?: string | null },
+  pageErrors: readonly CausePageErrors[] = [],
 ): string | null {
-  const { causes, ignored, flaky } = groupFailures(log, excluded)
+  const { causes, ignored, flaky } = groupFailures(log, excluded, pageErrors)
   const total = causes.reduce((n, c) => n + c.tests.length, 0)
   if (total < 2) return null
   // One cause that is not in the app: every failure is the browser refusing a navigation with no
@@ -2972,11 +3003,22 @@ function failureCauseLine(cause: FailureCause, index: number): string {
   const shortened = body.map((line) =>
     line.length > FAILURE_EVIDENCE_CHARS ? `${line.slice(0, FAILURE_EVIDENCE_CHARS - 1)}…` : line,
   )
+  // The page's own words at the failure (xr-molecule-flash-m122 +23:39): the error line names the
+  // symptom, and these name what the app was saying while it happened. The parenthetical is said
+  // only for the shape the items themselves show — validation copy on a form — where "submitted
+  // before its values loaded" is the reading, and never for arbitrary page text.
+  const showed = cause.pageShowed?.length
+    ? `\n     the page showed: ${cause.pageShowed.map((t) => `\`${t}\``).join(', ')}` +
+      (cause.pageShowed.some((t) => /\b(?:blank|required|invalid|must be)\b/i.test(t))
+        ? ' (the action ran before the form’s values had loaded)'
+        : '')
+    : ''
   return (
     `  ${index + 1}. ${cause.kind === 'connection' ? 'CONNECTION error, not the app’s — ' : ''}${signature} — ` +
     `${cause.tests.length} test${cause.tests.length === 1 ? '' : 's'} ` +
     `in ${files} file${files === 1 ? '' : 's'}: ${tests.join(', ')}${more}` +
-    (shortened.length ? `\n     ${shortened.join(' · ')}` : '')
+    (shortened.length ? `\n     ${shortened.join(' · ')}` : '') +
+    showed
   )
 }
 

@@ -2235,6 +2235,57 @@ describe('failureCausesNote — a clipped log says it is clipped (xr-molecule-fl
   })
 })
 
+/**
+ * xr-molecule-flash-m122 (+23:39): eight deployed `waitForURL` timeouts were grouped under one
+ * error line — the SYMPTOM — while each test's own `error-context.md` named the cause: the settings
+ * form was submitted with blank fields before the session user that fills it had loaded. The
+ * platform had the file on disk (failure-artifacts names it) but never read the alert list into
+ * the cause, and the model opened it by hand.
+ */
+describe('failureCausesNote — the page’s own errors ride the cause (xr-molecule-flash-m122)', () => {
+  /** The two settings tests, as the list reporter printed them in the deployed run. */
+  const m122 = [
+    '  2 failed',
+    '',
+    '  1) [chromium] › settings.spec.ts:107:5 › Settings › should update bio only ─────',
+    '',
+    '    TimeoutError: page.waitForURL: Timeout 5000ms exceeded.',
+    '    =========================== logs ===========================',
+    '    waiting for navigation until "load"',
+    '    ============================================================',
+    '',
+    '  2) [chromium] › null-fields.spec.ts:71:5 › Nulls › empty fields ─────',
+    '',
+    '    TimeoutError: page.waitForURL: Timeout 5000ms exceeded.',
+    '    =========================== logs ===========================',
+    '    waiting for navigation until "load"',
+    '    ============================================================',
+    '',
+  ].join('\n')
+
+  it('appends the alert list the snapshot showed to the cause that owns the test', () => {
+    const note = failureCausesNote(m122, [], undefined, [
+      {
+        where: 'settings.spec.ts:107',
+        items: ["email can't be blank", "username can't be blank"],
+      },
+      { where: 'null-fields.spec.ts:71', items: ["email can't be blank"] },
+    ])!
+    expect(note).toContain("the page showed: `email can't be blank`, `username can't be blank`")
+    expect(note).toContain('the action ran before the form’s values had loaded')
+  })
+
+  it('says nothing about a page when no snapshot carried an alert list', () => {
+    expect(failureCausesNote(m122)!).not.toContain('the page showed')
+    // Another test's errors are never borrowed for this cause.
+    expect(
+      failureCausesNote(m122, [], undefined, [
+        { where: 'somewhere-else.spec.ts:1', items: ["email can't be blank"] },
+      ])!,
+    ).not.toContain('the page showed')
+  })
+})
+
 describe('suiteRunPriorityLaunch', () => {
   const LAUNCH = 'sh /tmp/mol-bg-1.sh > /tmp/mol-bg-1.log 2>&1; echo $? > /tmp/mol-bg-1.exit'
 
