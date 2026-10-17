@@ -204,6 +204,36 @@ export function suiteTally(text: string): boolean {
   return suiteSummary(text) !== null
 }
 
+/** A failure count in a runner's own tally — `1 failed`, `Tests  1 failed | 149 passed (151)`. */
+const FAILED_TALLY = /\b[1-9]\d*\s+failed\b/
+
+/**
+ * The exit code a finished suite run may report.
+ *
+ * The code in a background result is the code of the command's LAST pipeline stage. When a stage
+ * after the suite runner still consumes its output (`| tee run.log`, or a filter the platform could
+ * not prove output-only), that stage produced the code, not the run — and `… | grep … | tail -20`
+ * exited 0 for a run with a failure in it (xr-molecule-flash-m101 +25:54). No code is reported
+ * then: the log's own tally decides.
+ *
+ * The same reading covers a code of 0 beside a tally that names a failure: whatever ended the
+ * pipeline, a run whose log counts a failure did not pass.
+ *
+ * @param exitCode - The code the pipeline reported (null when it has none).
+ * @param output - The run's full log.
+ * @param piped - Whether a pipeline stage after the suite runner still consumes its output.
+ * @returns The code the run may report, or null when the code is the filter's or contradicts the tally.
+ */
+export function suiteRunExitCode(
+  exitCode: number | null,
+  output: string,
+  piped: boolean,
+): number | null {
+  if (piped) return null
+  if (exitCode === 0 && FAILED_TALLY.test(output)) return null
+  return exitCode
+}
+
 /** What stopped a run. */
 export type CutBy =
   /** This tool's own budget (the backend's `timeout`, just past it). */

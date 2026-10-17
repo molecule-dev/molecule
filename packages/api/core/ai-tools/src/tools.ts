@@ -9,7 +9,7 @@
 
 import type { AITool } from '@molecule/api-ai'
 
-import { commandCutRun, CUT_AT_BUDGET, cutRunSentence } from './cut-run.js'
+import { commandCutRun, CUT_AT_BUDGET, cutRunSentence, suiteRunExitCode } from './cut-run.js'
 import {
   addChangeSpan,
   changedSpan,
@@ -49,6 +49,17 @@ const outputFileByTask = new Map<string, string>()
  * resolves the failing test's `file:line` against the wrong suite.
  */
 const runByTask = new Map<string, { command: string; cwd: string }>()
+
+/**
+ * Why a finished suite run's result carries no exit code: the code a pipeline reports is its last
+ * stage's, and a stage after the runner (or a code of 0 beside a failure in the tally) is not the
+ * run's verdict. Said in the result so the missing field does not read as an omission.
+ */
+const FILTERED_EXIT_NOTE =
+  'No exit code is reported for this run: a stage after the test runner produced the pipeline’s ' +
+  'code (or the code says 0 beside a failure in the tally), so read the pass/fail tally in the ' +
+  'log instead.'
+
 /**
  * Task ids whose own-output file has already been looked for this process.
  * {@link outputFileByTask} is empty for every task after a restart — it is
@@ -306,6 +317,7 @@ import {
   SMALL_FILE_WHOLE_CHARS,
   streamingBackgroundCommand,
   stripControlChars,
+  suiteRunPipedAfterRunner,
   suiteRunPriorityLaunch,
   truncateMiddle,
   universalCause,
@@ -2171,12 +2183,21 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
                       (isSuiteRunCommand(command) ? SUITE_OVER_BUDGET_ADVICE : SPLIT_WORK_ADVICE),
                   }
                 }
+                // The exit file holds the PIPELINE's code: when a stage this rewrite could not
+                // prove is output-only still follows the suite runner (`| tee run.log`), that code
+                // is the filter's — report none and let the log's tally decide (m101 +25:54).
+                const piped = suiteRunPipedAfterRunner(streaming.command)
+                const reported = suiteRunExitCode(code, output, piped)
+                const notes = [
+                  ...streaming.changes,
+                  ...(reported === null ? [FILTERED_EXIT_NOTE] : []),
+                ]
                 return {
                   stdout,
                   stderr: '',
-                  exitCode: code,
+                  exitCode: reported,
                   ...(output.length > MAX_OUTPUT_SIZE ? { truncated: true, fullOutput: log } : {}),
-                  ...(streaming.changes.length ? { note: streaming.changes.join(' ') } : {}),
+                  ...(notes.length ? { note: notes.join(' ') } : {}),
                 }
               }
               await new Promise((r) => setTimeout(r, 1_500))
@@ -2727,12 +2748,19 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         }
       }
       // Same shaping as a foreground exec result, so the executor reads both
-      // the same way.
+      // the same way. The exit file holds the PIPELINE's code: when a stage this rewrite could not
+      // prove is output-only still follows the suite runner (`| tee run.log`), that code is the
+      // filter's — report none and let the log's tally decide (m101 +25:54).
+      const piped = run ? suiteRunPipedAfterRunner(run.command) : false
+      const reported = suiteRunExitCode(exitCode, output, piped)
+      const noCodeNote = reported === null ? FILTERED_EXIT_NOTE : null
       return {
         taskId,
-        exitCode,
+        exitCode: reported,
         waitedMs,
-        ...(causes ? { note: causes } : {}),
+        ...(causes || noCodeNote
+          ? { note: [causes, noCodeNote].filter((n): n is string => Boolean(n)).join(' ') }
+          : {}),
         stdout: sanitizeOutput(truncateMiddle(output, MAX_OUTPUT_SIZE)),
         ...(output.length > MAX_OUTPUT_SIZE ? { truncated: true, fullOutput: log } : {}),
       }

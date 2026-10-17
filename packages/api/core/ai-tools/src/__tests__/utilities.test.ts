@@ -1,5 +1,11 @@
+import { execFileSync } from 'node:child_process'
+import { chmodSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+
 import { describe, expect, it } from 'vitest'
 
+import { suiteRunExitCode } from '../cut-run.js'
 import {
   checkBlockedCommand,
   earlyReturnCause,
@@ -21,6 +27,8 @@ import {
   shellQuote,
   streamingBackgroundCommand,
   stripControlChars,
+  stripTrailingSuiteFilters,
+  suiteRunPipedAfterRunner,
   suiteRunPriorityLaunch,
   TOOL_RESULT_CHARS,
   truncate,
@@ -2027,5 +2035,180 @@ describe('redactSecrets — author is not auth (flash-m44)', () => {
     expect(redactSecrets('slug=a author=testuser17921')).toContain('author=testuser17921')
     expect(redactSecrets('AUTH_TOKEN=abc123secret')).not.toContain('abc123secret')
     expect(redactSecrets('authorization=Bearer abcdef123')).not.toContain('abcdef123')
+  })
+})
+
+/**
+ * X1 xr-molecule-flash-m101 (+25:54): the production Playwright run was sent as
+ * `… playwright test --reporter=list --timeout=30000 2>&1 | grep -E "✘|passed|failed|skipped" |
+ * tail -20` in the background. The rewrite dropped only the trailing `| tail -20`, so the log held
+ * 6 lines with no failure body, and `wait_for_task` reported `exitCode: 0` — the code of `tail`,
+ * for a run whose own tally said `1 failed`.
+ */
+describe('a suite’s pipeline is not the suite’s result (xr-molecule-flash-m101 +25:54)', () => {
+  /** The head a background suite run is given (see `streamingBackgroundCommand`). */
+  const INLINE = 'export PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE=1; '
+  /** m101's production run, verbatim. */
+  const M101 =
+    'cd /workspace/my-app && npx --prefix /workspace/my-app/app playwright test ' +
+    '--config playwright.run.config.ts --reporter=list --timeout=30000 2>&1 ' +
+    '| grep -E "✘|passed|failed|skipped" | tail -20'
+  /** m101's run with every filter gone — the command the tool must actually start. */
+  const M101_BARE =
+    `${INLINE}cd /workspace/my-app && npx --prefix /workspace/my-app/app playwright test ` +
+    '--config playwright.run.config.ts --reporter=list --timeout=30000 2>&1'
+
+  it('drops every output-only filter after the runner, not only a trailing tail', () => {
+    const { command, changes } = streamingBackgroundCommand(M101)
+    expect(command).toBe(M101_BARE)
+    // One sentence says what went and why.
+    expect(changes[0]).toBe(
+      'Dropped `| grep -E "✘|passed|failed|skipped" | tail -20` from after the test runner: a ' +
+        'filtered log cannot be diagnosed — the failing test’s own error is not in it — and ' +
+        'wait_for_task returns the end of the full log anyway.',
+    )
+  })
+
+  it('drops a grep, cut, awk, sed or tr filter as readily as a tail and a head', () => {
+    for (const filter of [
+      'grep -E "✘|passed"',
+      'cut -d: -f1',
+      "awk '{print $1}'",
+      "sed -n '1,20p'",
+      "tr -d '\\r'",
+      'head -40',
+    ])
+      expect(streamingBackgroundCommand(`npx playwright test 2>&1 | ${filter}`).command).toBe(
+        `${INLINE}npx playwright test 2>&1 --reporter=list`,
+      )
+  })
+
+  it('applies the reporter and retries rewrites to a run whose pipe must stay', () => {
+    // `tee` writes a file and `sed -i` edits one: neither is provably output-only, so the pipe
+    // stays — but that no longer withholds the run's flags, and they land on the RUNNER, never on
+    // the filter (m102's dangling `--trace` was the same shape).
+    expect(
+      streamingBackgroundCommand('npx playwright test --max-failures=15 2>&1 | tee /tmp/run.log')
+        .command,
+    ).toBe(
+      `${INLINE}npx playwright test --max-failures=15 2>&1 --reporter=list --retries=0 ` +
+        '| tee /tmp/run.log',
+    )
+    expect(streamingBackgroundCommand("npx playwright test 2>&1 | sed -i 's/a/b/'").command).toBe(
+      `${INLINE}npx playwright test 2>&1 --reporter=list | sed -i 's/a/b/'`,
+    )
+  })
+
+  it('strips only a suite’s trailing filters, and only output-only ones', () => {
+    const unchanged = (command: string): void =>
+      expect(stripTrailingSuiteFilters(command)).toEqual({ command, dropped: '' })
+    // Not a suite, or a runner that only lists: nothing to strip.
+    unchanged('npm run build 2>&1 | tail -5')
+    unchanged('npx playwright test --list 2>&1 | tail -5')
+    // A statement after the suite is that statement's pipeline, not the run's.
+    unchanged('npx playwright test | grep x; echo done')
+    unchanged('npx playwright test && grep x file')
+    // Output-only proof is required: `tee` writes a file, `sed -i` edits one.
+    unchanged('npx playwright test | tee run.log')
+    unchanged("npx playwright test | sed -i 's/a/b/'")
+    // Another suite runner is covered by the same rule.
+    expect(stripTrailingSuiteFilters('npx vitest run 2>&1 | grep failed')).toEqual({
+      command: 'npx vitest run 2>&1',
+      dropped: '| grep failed',
+    })
+  })
+
+  it('tells a run whose code is its own from one whose code is a filter’s', () => {
+    expect(suiteRunPipedAfterRunner(M101)).toBe(true)
+    expect(suiteRunPipedAfterRunner(M101_BARE)).toBe(false)
+    expect(suiteRunPipedAfterRunner('npx playwright test | tee run.log')).toBe(true)
+    expect(suiteRunPipedAfterRunner('npx playwright test')).toBe(false)
+    expect(suiteRunPipedAfterRunner('npx playwright test; echo done')).toBe(false)
+  })
+
+  it('never hands back a filter’s code, and never 0 beside a failure', () => {
+    expect(suiteRunExitCode(0, '  1 failed\n  1 passed (4.2m)', true)).toBeNull()
+    // Even with no pipe left, a 0 beside a failure in the tally is not a pass.
+    expect(suiteRunExitCode(0, '  1 failed\n  1 passed (4.2m)', false)).toBeNull()
+    // A run's own non-zero code is preserved.
+    expect(suiteRunExitCode(1, '  1 failed\n  1 passed (4.2m)', false)).toBe(1)
+    expect(suiteRunExitCode(0, '  2 passed (1.2s)', false)).toBe(0)
+    expect(suiteRunExitCode(null, '', false)).toBeNull()
+  })
+
+  it('leaves the run’s own exit code through a real shell', () => {
+    /** Recording stubs: the runner exits 1, the filters exit 0 as grep and tail do on a match. */
+    const sandbox = (): { dir: string; cwd: string; log: string; env: NodeJS.ProcessEnv } => {
+      const dir = mkdtempSync(join(tmpdir(), 'mol-piped-suite-'))
+      const cwd = join(dir, 'my-app')
+      mkdirSync(cwd)
+      for (const name of ['npx', 'grep', 'tail']) {
+        writeFileSync(
+          join(dir, name),
+          '#!/bin/sh\n' +
+            `printf '%s' '${name}' >> "$ARGV_LOG.${name}"\n` +
+            `for a in "$@"; do printf ' <%s>' "$a" >> "$ARGV_LOG.${name}"; done\n` +
+            `printf '\\n' >> "$ARGV_LOG.${name}"\n` +
+            (name === 'npx' ? 'exit 1\n' : 'exit 0\n'),
+        )
+        chmodSync(join(dir, name), 0o755)
+      }
+      return {
+        dir,
+        cwd,
+        log: join(dir, 'argv.log'),
+        env: {
+          ...process.env,
+          PATH: `${dir}:${process.env.PATH ?? ''}`,
+          ARGV_LOG: join(dir, 'argv.log'),
+        },
+      }
+    }
+    /** One recorded invocation of `name`, or undefined when it never ran. */
+    const invocation = (log: string, name: string): string | undefined => {
+      try {
+        return readFileSync(`${log}.${name}`, 'utf8')
+          .split('\n')
+          .find((line) => line.length > 0)
+      } catch (_error) {
+        return undefined
+      }
+    }
+    /** The shell's exit status for a command, through a real `sh`. */
+    const status = (command: string, s: ReturnType<typeof sandbox>): number => {
+      const file = join(s.dir, 'status')
+      execFileSync('sh', ['-c', `${command}; echo $? > ${file}`], { cwd: s.cwd, env: s.env })
+      return Number(readFileSync(file, 'utf8'))
+    }
+    /** The command with only the directory it `cd`s into made this test's own. */
+    const here = (command: string, cwd: string): string =>
+      command.replace('cd /workspace/my-app && ', `cd ${cwd} && `)
+
+    // The bug, reproduced: the pipeline's status is the last filter's, and the run's own code
+    // never reaches the caller.
+    const before = sandbox()
+    try {
+      expect(status(here(M101, before.cwd), before)).toBe(0)
+      expect(invocation(before.log, 'grep')).toBeDefined()
+      expect(invocation(before.log, 'tail')).toBe('tail <-20>')
+    } finally {
+      rmSync(before.dir, { recursive: true, force: true })
+    }
+
+    // The rewrite: the runner's 1 is the run's status, and no filter runs at all.
+    const after = sandbox()
+    try {
+      expect(status(here(streamingBackgroundCommand(M101).command, after.cwd), after)).toBe(1)
+      expect(invocation(after.log, 'grep')).toBeUndefined()
+      expect(invocation(after.log, 'tail')).toBeUndefined()
+      // Playwright received the run's flags, once each.
+      const playwright = invocation(after.log, 'npx')
+      expect(playwright).toContain('<playwright>')
+      expect(playwright).toContain('<test>')
+      expect(playwright).toContain('<--reporter=list>')
+      expect(playwright?.match(/--reporter=/g)).toHaveLength(1)
+    } finally {
+      rmSync(after.dir, { recursive: true, force: true })
+    }
   })
 })

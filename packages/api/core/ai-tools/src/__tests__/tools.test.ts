@@ -4037,3 +4037,65 @@ describe('edit_file — a boundary-newline-only replacement is refused', () => {
     expect(blank.file()).toBe('const a = 1\n\nconst b = 2\n')
   })
 })
+
+/**
+ * X1 xr-molecule-flash-m101 (+25:54): a background suite sent as
+ * `… playwright test … 2>&1 | grep -E "✘|passed|failed|skipped" | tail -20` came back
+ * `{"exitCode": 0}` while its log's own tally said `1 failed`. The exit file holds the code of
+ * the command's LAST pipeline stage, so the filter's 0 was read as the run's verdict.
+ */
+describe('a background suite’s exit code is the runner’s, never a filter’s (m101 +25:54)', () => {
+  /** A finished run's own tally: the runner announced 2, and one of them failed. */
+  const TALLY = ['Running 2 tests using 1 worker', '', '  1 failed', '  1 passed (4.2m)'].join('\n')
+
+  function backendWith(exit: string, log: string): ExecutionBackend {
+    return {
+      projectRoot: '/test',
+      readFile: vi.fn(async (path: string) => {
+        if (path.endsWith('.exit')) return exit
+        if (path.endsWith('.log')) return log
+        throw new Error(`ENOENT: ${path}`)
+      }),
+      writeFile: vi.fn(),
+      deleteFile: vi.fn(),
+      readDir: vi.fn(),
+      run: vi.fn(async () => ({ stdout: '', stderr: '', exitCode: 0 })),
+    }
+  }
+
+  /** Start a background command and wait on it, exactly as the executor does. */
+  async function run(
+    command: string,
+    exit: string,
+    log: string,
+  ): Promise<{ exitCode?: number | null; note?: string }> {
+    const tools = buildTools(backendWith(exit, log))
+    const started = (await tools
+      .find((t) => t.name === 'exec_command')!
+      .execute({ command, run_in_background: true })) as { taskId: string }
+    return (await tools
+      .find((t) => t.name === 'wait_for_task')!
+      .execute({ taskId: started.taskId })) as { exitCode?: number | null; note?: string }
+  }
+
+  it('reports no code for a run a pipe still consumes, and says why', async () => {
+    const r = await run('npx playwright test 2>&1 | tee /tmp/run.log', '0\n', TALLY)
+    expect(r.exitCode).toBeNull()
+    expect(r.note).toContain('No exit code is reported')
+  })
+
+  it('reports no 0 when a dropped filter masked the tally’s failure', async () => {
+    const r = await run(
+      'npx playwright test 2>&1 | grep -E "✘|passed|failed|skipped" | tail -20',
+      '0\n',
+      TALLY,
+    )
+    expect(r.exitCode).toBeNull()
+    expect(r.note).toContain('No exit code is reported')
+  })
+
+  it('reports the runner’s own non-zero code unchanged', async () => {
+    const r = await run('npx playwright test', '1\n', TALLY)
+    expect(r.exitCode).toBe(1)
+  })
+})

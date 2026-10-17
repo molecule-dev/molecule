@@ -7,7 +7,7 @@
 
 import { posix } from 'path'
 
-import { commandSegments } from './command-position.js'
+import { type CommandSegment, commandSegments } from './command-position.js'
 import { commandRunsNoTests } from './no-test-run.js'
 import {
   isDiagnosisRun,
@@ -394,11 +394,15 @@ export const PLAYWRIGHT_FAILURES_INLINE_ENV = 'PLAYWRIGHT_LIST_PRINT_FAILURES_IN
  *
  * - a trailing `| tail -N`, which holds everything back until the command ends.
  *   It is dropped: `wait_for_task` already returns the end of the log.
+ * - any output-only filter piped after a SUITE runner (`| grep … | tail -20`), which hides the
+ *   failing test's own error and leaves the pipeline's exit status — the filter's — as the run's.
+ *   Every such stage is dropped ({@link stripTrailingSuiteFilters}); `wait_for_task` already
+ *   returns the end of the full log, and a run whose tally shows a failure must never report 0
+ *   (xr-molecule-flash-m101 +25:54).
  * - `playwright test` with no `--reporter`, which runs the config's reporter —
  *   often `html`, which prints nothing per test. `--reporter=list` is added
- *   when the playwright run is the command's last step and nothing is piped or
- *   redirected from it: it writes each result as it finishes, and it is the
- *   shape the platform reads a background suite back in.
+ *   when the playwright run is the command's last step, piped or not: it writes each result as
+ *   it finishes, and it is the shape the platform reads a background suite back in.
  *
  * The run ends up with exactly ONE reporter that prints each failure — `list`. A run that names
  * any other printing reporter has it REPLACED, never joined: two of them write every test result
@@ -433,6 +437,26 @@ export function streamingBackgroundCommand(command: string): {
   if (commandRunsNoTests(command)) return { command, changes: [] }
   const changes: string[] = []
   let out = command
+  // A filter after the suite runner is not output the platform can read: it hides the failing
+  // test's own error, and its exit status replaces the run's with the filter's — m101's
+  // `… | grep -E "✘|passed|failed|skipped" | tail -20` reported `exitCode: 0` for a run with a
+  // failure in it. Every stage the parse proves is output-only is dropped; the end of the FULL
+  // log comes back anyway.
+  const filtered = stripTrailingSuiteFilters(out)
+  if (filtered.dropped) {
+    out = filtered.command
+    // A lone trailing `| tail -N` keeps its own sentence: the reason it goes is that it holds all
+    // output back until the command ends, not that a filter cannot be read back.
+    const tailOnly = TRAILING_TAIL.exec(filtered.dropped)
+    changes.push(
+      tailOnly && tailOnly[0].trim() === filtered.dropped
+        ? `Dropped the trailing \`${filtered.dropped}\`: it holds all output back until the command ends, ` +
+            'and wait_for_task returns the end of the log anyway.'
+        : `Dropped \`${filtered.dropped}\` from after the test runner: a filtered log cannot be ` +
+            'diagnosed — the failing test’s own error is not in it — and wait_for_task returns the ' +
+            'end of the full log anyway.',
+    )
+  }
   const tail = TRAILING_TAIL.exec(out)
   if (tail) {
     out = out.slice(0, tail.index)
@@ -451,10 +475,26 @@ export function streamingBackgroundCommand(command: string): {
     )
   }
   const lastStep = out.split(/&&|\|\||;/).at(-1) ?? ''
+  // The last step runs Playwright — whether or not anything is piped from it. Keying this on
+  // "nothing is piped out of the last step" withheld the reporter, the inline-failure switch and
+  // `--retries=0` from exactly the runs whose output was filtered (xr-molecule-flash-m101
+  // +25:54); what the runner writes into its log does not depend on what reads the pipe. A
+  // REDIRECT still sends the output somewhere this tool cannot read it (`> out.txt`); `2>&1` only
+  // joins stderr to it.
   const finalPlaywrightRun =
-    isPlaywrightRunCommand(lastStep) &&
-    // `2>&1` only joins stderr to the log; any other pipe or redirect sends the output elsewhere.
-    !/[|>]/.test(lastStep.replace(/\d?>&\d/g, ''))
+    isPlaywrightRunCommand(lastStep) && !/>/.test(lastStep.replace(/\d?>&\d/g, ''))
+  /**
+   * Add a word to the suite runner's own arguments. A pipe this rewrite could not drop still
+   * follows the runner (`| tee run.log`), so appending at the end of the whole command would make
+   * the word an operand of the filter — m102's dangling `--trace` flag, in the same shape.
+   */
+  const addToRun = (flag: string): void => {
+    const pipeline = lastSuitePipeline(out)
+    const runner = pipeline ? pipeline.located[pipeline.at] : undefined
+    out = runner
+      ? `${out.slice(0, runner.end)} ${flag}${out.slice(runner.end)}`
+      : `${out.trimEnd()} ${flag}`
+  }
   // A diagnosis or a re-run (capped, last-failed, grepped, or named files) walks each failure
   // once: the suite's own `retries` doubled every failure of X1 flash-m71's first whole run,
   // which had dropped the `--retries=0` it used one command earlier. The uncapped proof run
@@ -506,7 +546,7 @@ export function streamingBackgroundCommand(command: string): {
       )
     }
   } else if (finalPlaywrightRun) {
-    out = `${out.trimEnd()} --reporter=list`
+    addToRun('--reporter=list')
     changes.push(
       'Added `--reporter=list` so each test result is written to the log as it finishes ' +
         '(the config reporter may print nothing until the end).',
@@ -530,7 +570,7 @@ export function streamingBackgroundCommand(command: string): {
     )
   }
   if (finalPlaywrightRun && diagnosis && !/--retries\b/.test(lastStep)) {
-    out = `${out.trimEnd()} --retries=0`
+    addToRun('--retries=0')
     changes.push(
       'Added `--retries=0`: a diagnosis or re-run walks each failure once; keep the suite’s retries for the proof run.',
     )
@@ -594,6 +634,189 @@ export function isSuiteRunCommand(command: string): boolean {
 export function isPlaywrightRunCommand(command: string): boolean {
   if (commandRunsNoTests(command)) return false
   return commandSegments(command).some((segment) => /^playwright\s+test\b/.test(segment.text))
+}
+
+/**
+ * The programs a pipeline may end with when all they do is read what the runner printed and print
+ * it again — the filters a background suite may lose without changing what it ran.
+ *
+ * Everything else stays: `tee` writes a file, `xargs` runs a command, and an unknown program may
+ * do either. Dropping a filter is only sound where the parse can PROVE it is output-only.
+ */
+const OUTPUT_ONLY_FILTERS: ReadonlySet<string> = new Set([
+  'awk',
+  'cat',
+  'column',
+  'cut',
+  'egrep',
+  'fgrep',
+  'fmt',
+  'fold',
+  'grep',
+  'head',
+  'jq',
+  'nl',
+  'rg',
+  'sed',
+  'sort',
+  'tail',
+  'tr',
+  'uniq',
+  'wc',
+])
+
+/** A word that sends output to a file (`> f`, `>> f`, `2> f`); `2>&1` only joins stderr, so it is not one. */
+const OUTPUT_REDIRECT = /^(?:\d*|&)>>?(?!&)/
+
+/** One segment of the shell parse, and where it sits in the command. */
+interface LocatedSegment {
+  segment: CommandSegment
+  /** Offset of the segment's program word in the command. */
+  start: number
+  /** Offset one past its last word. */
+  end: number
+  /** The text between the previous segment's end and this one's start (`|`, `&&`, `;`, a newline). */
+  between: string
+}
+
+/**
+ * The shell parse's segments with their offsets in the command, or null when one cannot be placed.
+ *
+ * {@link commandSegments} answers which program each stage runs, but re-joins the words with single
+ * spaces — so a segment written with irregular whitespace, or a program spelled with a directory,
+ * has no offset a caller can cut at. Null is the honest answer there: every caller then leaves the
+ * command exactly as written rather than cutting into a guess.
+ *
+ * @param command - The shell command.
+ * @returns The located segments, in order, or null.
+ */
+function locatedSegments(command: string): LocatedSegment[] | null {
+  const out: LocatedSegment[] = []
+  let cursor = 0
+  let previousEnd: number | null = null
+  for (const segment of commandSegments(command)) {
+    const at = command.indexOf(segment.text, cursor)
+    if (at < 0) return null
+    out.push({
+      segment,
+      start: at,
+      end: at + segment.text.length,
+      between: previousEnd === null ? '' : command.slice(previousEnd, at),
+    })
+    cursor = at + segment.text.length
+    previousEnd = cursor
+  }
+  return out
+}
+
+/**
+ * Whether a pipeline stage only reads the output it is handed and prints it again.
+ *
+ * `sed`/`awk` are listed for the filters they usually are (`sed -n '1,20p'`, `awk '{print $1}'`),
+ * but a program that can WRITE is not output-only: `-i` edits a file in place, and a program that
+ * names `>`, `w <file>` or `system(` writes a file or runs a command. Those keep their pipe.
+ *
+ * @param segment - One pipeline stage of the shell parse.
+ * @returns True when dropping the stage can only change what is printed.
+ */
+function isOutputOnlyFilter(segment: CommandSegment): boolean {
+  if (!OUTPUT_ONLY_FILTERS.has(segment.program)) return false
+  if (segment.args.some((arg) => OUTPUT_REDIRECT.test(arg))) return false
+  if (
+    segment.program === 'sed' &&
+    segment.args.some((arg) => /^(?:--in-place\b|-[A-Za-z]*i)/.test(arg))
+  )
+    return false
+  if (segment.program === 'awk' || segment.program === 'sed') {
+    const program = segment.args.map((arg) => arg.replace(/^['"]|['"]$/g, '')).join(' ')
+    if (/\bsystem\s*\(|>|\bw\s+\S/.test(program)) return false
+  }
+  return true
+}
+
+/**
+ * The command's last step, when that step runs a suite: the suite's own segment and every stage
+ * piped after it. Null when no suite runs, or when the suite is not the last step — a `;` or `&&`
+ * after it starts another statement, whose output and status are then what the command describes.
+ *
+ * A stage belongs to the same statement as its predecessor only when the two are joined by a
+ * single `|` ({@link LocatedSegment.between}); `||` is a different separator and is not one.
+ *
+ * @param command - The shell command.
+ * @returns The located segments and the last suite stage's index among them, or null.
+ */
+function lastSuitePipeline(command: string): { located: LocatedSegment[]; at: number } | null {
+  if (commandRunsNoTests(command)) return null
+  const located = locatedSegments(command)
+  if (located === null) return null
+  let at = -1
+  for (let i = 0; i < located.length; i += 1) {
+    const segment = located[i]?.segment
+    if (segment && SUITE_RUN_COMMANDS.some((re) => re.test(segment.text))) at = i
+  }
+  if (at < 0) return null
+  for (let i = at + 1; i < located.length; i += 1) {
+    if ((located[i]?.between ?? '').trim() !== '|') return null
+  }
+  return { located, at }
+}
+
+/** A command with the output filters after its suite runner removed. */
+export interface SuiteFilterStrip {
+  /** The command to run. */
+  command: string
+  /** The pipeline stages dropped, as written (`| grep … | tail -20`), or '' when none were. */
+  dropped: string
+}
+
+/**
+ * Drop the output-only filters piped after the command's suite runner.
+ *
+ * A filter after the runner is not "the end of the log" the executor asked for: it hides the
+ * failing test's own error (it usually matches none of `✘|passed|failed`), and the pipeline's exit
+ * status becomes the FILTER's, so `… 2>&1 | grep -E "✘|passed|failed|skipped" | tail -20` came back
+ * `exitCode: 0` for a run with a failure in it (xr-molecule-flash-m101 +25:54). The tool returns
+ * the end of the full log anyway, so the filter only costs diagnosability.
+ *
+ * Only a contiguous suffix of the stages after the runner is cut, and only stages the parse proves
+ * are output-only ({@link isOutputOnlyFilter}): a `| tee` or `| xargs` keeps its place, and a
+ * caller that reports the run's exit code must then treat it as unknown
+ * ({@link suiteRunPipedAfterRunner}).
+ *
+ * @param command - The shell command.
+ * @returns The rewritten command and the stages dropped.
+ */
+export function stripTrailingSuiteFilters(command: string): SuiteFilterStrip {
+  const pipeline = lastSuitePipeline(command)
+  if (pipeline === null) return { command, dropped: '' }
+  const { located, at } = pipeline
+  let first = located.length
+  for (let i = located.length - 1; i > at; i -= 1) {
+    const stage = located[i]
+    if (!stage || !isOutputOnlyFilter(stage.segment)) break
+    first = i
+  }
+  if (first === located.length) return { command, dropped: '' }
+  const previous = located[first - 1]
+  const stage = located[first]
+  if (!previous || !stage) return { command, dropped: '' }
+  const pipe = stage.between.indexOf('|')
+  if (pipe < 0) return { command, dropped: '' }
+  const cut = previous.end + pipe
+  return { command: command.slice(0, cut).trimEnd(), dropped: command.slice(cut).trim() }
+}
+
+/**
+ * Whether the command's last step runs a suite whose output still passes through a stage after
+ * the runner — one {@link stripTrailingSuiteFilters} could not prove is output-only (`| tee log`,
+ * `| xargs …`). The pipeline's exit status is that stage's, not the run's.
+ *
+ * @param command - The shell command, after the streaming rewrite when one was applied.
+ * @returns True when a pipe this tool must not drop still follows the suite runner.
+ */
+export function suiteRunPipedAfterRunner(command: string): boolean {
+  const pipeline = lastSuitePipeline(command)
+  return pipeline !== null && pipeline.located.length > pipeline.at + 1
 }
 
 /**
