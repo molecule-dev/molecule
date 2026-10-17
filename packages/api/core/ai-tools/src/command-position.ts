@@ -450,11 +450,14 @@ type Nesting = 'single' | 'double' | 'sub'
  * no runner, and every run of it reads as nothing).
  *
  * @param command - The shell command.
- * @returns Each segment's text, in order, with empty ones dropped.
+ * @returns Each segment's text and the offset in the command its first character sits at, in
+ *   order, with empty ones dropped.
  */
-function splitSegments(command: string): string[] {
-  const parts: string[] = []
+function splitSegments(command: string): Array<{ text: string; start: number }> {
+  const parts: Array<{ text: string; start: number }> = []
   let buffer = ''
+  /** The offset in the command of the current buffer's first character. */
+  let bufferStart = 0
   /** The nestings this position sits inside, outermost first. */
   const stack: Nesting[] = []
   for (let i = 0; i < command.length; i++) {
@@ -513,25 +516,33 @@ function splitSegments(command: string): string[] {
       continue
     }
     if ((char === '&' && next === '&') || (char === '|' && next === '|')) {
-      parts.push(buffer)
+      parts.push({ text: buffer, start: bufferStart })
       buffer = ''
       i += 1
+      bufferStart = i + 1
       continue
     }
     if (char === ';' || char === '|' || char === '\n') {
-      parts.push(buffer)
+      parts.push({ text: buffer, start: bufferStart })
       buffer = ''
+      bufferStart = i + 1
       continue
     }
     if (char === '&' && command[i - 1] !== '>' && next !== '>') {
-      parts.push(buffer)
+      parts.push({ text: buffer, start: bufferStart })
       buffer = ''
+      bufferStart = i + 1
       continue
     }
     buffer += char
   }
-  parts.push(buffer)
-  return parts.map((part) => part.trim()).filter(Boolean)
+  parts.push({ text: buffer, start: bufferStart })
+  return parts
+    .map((part) => ({
+      text: part.text.trim(),
+      start: part.start + (part.text.length - part.text.trimStart().length),
+    }))
+    .filter((part) => part.text !== '')
 }
 
 /**
@@ -553,6 +564,38 @@ function segmentWords(text: string): string[] {
   return cleaned
 }
 
+/** {@link WORD} anchored at an offset, for walking a statement's raw words. */
+const WORD_AT = new RegExp(WORD.source, 'y')
+
+/**
+ * A statement's own leading `NAME=value` words, and where they end.
+ *
+ * The shell binds these to the command the statement runs, so they are the environment THAT
+ * program sees — which is why a caller writing a variable for a run has to write it here and not
+ * at the start of the whole command.
+ *
+ * @param text - One statement's text.
+ * @returns The assignments as written, and the offset in `text` just before the word that runs.
+ */
+function leadingAssignments(text: string): { words: string[]; end: number } {
+  const words: string[] = []
+  let at = 0
+  for (let guard = 0; guard < MAX_WRAPPERS; guard++) {
+    while (at < text.length && /\s/.test(text[at] ?? '')) at += 1
+    // Grouping in front of the statement (`(npx …)`, `{ …`): not a word the shell assigns with.
+    if (text[at] === '(' || text[at] === '{') {
+      at += 1
+      continue
+    }
+    WORD_AT.lastIndex = at
+    const match = WORD_AT.exec(text)
+    if (!match || !ENV_ASSIGNMENT.test(match[0])) return { words, end: at }
+    words.push(match[0])
+    at += match[0].length
+  }
+  return { words, end: at }
+}
+
 /**
  * The segments of a command, each with its program and arguments — the answer every classifier
  * that reads a command as "this runs the suite" is asking for.
@@ -561,7 +604,106 @@ function segmentWords(text: string): string[] {
  * @returns One entry per statement or pipeline stage that runs something, in order.
  */
 export function commandSegments(command: string): CommandSegment[] {
-  return segmentsOf(command, 0)
+  return locatedSegmentsOf(command, 0).flatMap((located) =>
+    located.segment === null ? [] : [located.segment],
+  )
+}
+
+/**
+ * One statement of a shell command, with where it sits and the variables it sets for itself.
+ *
+ * `commandSegments` answers WHAT runs; this answers where, and what the shell binds to it — the
+ * two things a caller that WRITES into a command needs. The platform composes a run from the
+ * executor's own command in more than one place, and a value written for the runner belongs in
+ * the runner's own statement: `APP_BASE=https://… cd app && npx playwright test` sets the variable
+ * for `cd` alone, so the Playwright config falls back to the local app while the command line
+ * still names the deployed host (xr-molecule-flash-m103 +28:08).
+ */
+export interface LocatedCommandSegment {
+  /**
+   * What the statement runs, or null when it only sets variables (`BASE=http://…` on its own):
+   * that shape persists in the shell, so a caller following assignments across `;`/`&&` has to
+   * see it.
+   */
+  segment: CommandSegment | null
+  /** The statement's own leading `NAME=value` words, as written (`TEST_MODE=fullstack`). */
+  assignments: readonly string[]
+  /**
+   * The offset in the command of the statement's first word, or null for a segment inside a
+   * nested `sh -c '<command>'` string — its positions are offsets in THAT string, not in this
+   * command, so nothing may be spliced at them.
+   */
+  start: number | null
+  /**
+   * The offset in the command just before the word the statement runs — after its own leading
+   * `NAME=value` words and their whitespace. A `NAME=value` written here is in the environment of
+   * the program the statement runs (`… TEST_MODE=fullstack <here>npx playwright test`). Null
+   * inside a nested `sh -c` string, for the same reason as {@link start}.
+   */
+  assignmentOffset: number | null
+}
+
+/**
+ * Every statement of a command, with its own assignments and where it sits — assignment-only
+ * statements included, because the variables those persist are exactly what a later statement of
+ * the same command reads.
+ *
+ * @param command - The shell command.
+ * @returns One entry per statement or pipeline stage, in order.
+ */
+export function locatedCommandSegments(command: string): LocatedCommandSegment[] {
+  return locatedSegmentsOf(command, 0)
+}
+
+/**
+ * {@link locatedCommandSegments}'s recursion, so a `sh -c '<command>'` is opened as far as
+ * {@link MAX_NESTING} allows. A nested statement's offsets are cleared: they are positions in
+ * the nested string, not in the command this walk started from.
+ *
+ * @param command - The shell command.
+ * @param depth - How many `sh -c` strings this command already sits inside.
+ * @returns The located statements.
+ */
+function locatedSegmentsOf(command: string, depth: number): LocatedCommandSegment[] {
+  if (typeof command !== 'string' || depth > MAX_NESTING) return []
+  const out: LocatedCommandSegment[] = []
+  for (const part of splitSegments(command)) {
+    const words = segmentWords(part.text)
+    const start = commandStart(words)
+    const leading = leadingAssignments(part.text)
+    if (start.nested !== null) {
+      for (const inner of locatedSegmentsOf(start.nested, depth + 1))
+        out.push({ ...inner, start: null, assignmentOffset: null })
+      continue
+    }
+    const word = words[start.at]
+    if (word === undefined) {
+      // Only wrappers and assignments: nothing this statement runs, but the variables it sets
+      // persist in the shell the rest of the command runs in.
+      if (leading.words.length > 0)
+        out.push({
+          segment: null,
+          assignments: leading.words,
+          start: part.start,
+          assignmentOffset: part.start + leading.end,
+        })
+      continue
+    }
+    const program = programName(word)
+    const args = words.slice(start.at + 1)
+    out.push({
+      segment: {
+        program,
+        args,
+        text: [program, ...args].join(' '),
+        timeoutSeconds: start.timeoutSeconds,
+      },
+      assignments: leading.words,
+      start: part.start,
+      assignmentOffset: part.start + leading.end,
+    })
+  }
+  return out
 }
 
 /**
@@ -579,45 +721,11 @@ export function commandSegments(command: string): CommandSegment[] {
  */
 export function commandTimeoutSeconds(command: string): number | null {
   let bound: number | null = null
-  for (const segment of segmentsOf(command, 0)) {
+  for (const segment of commandSegments(command)) {
     if (segment.timeoutSeconds === null) continue
     bound = bound === null ? segment.timeoutSeconds : Math.max(bound, segment.timeoutSeconds)
   }
   return bound
-}
-
-/**
- * {@link commandSegments}'s recursion, so a `sh -c '<command>'` is opened as far as
- * {@link MAX_NESTING} allows.
- *
- * @param command - The shell command.
- * @param depth - How many `sh -c` strings this command already sits inside.
- * @returns The segments.
- */
-function segmentsOf(command: string, depth: number): CommandSegment[] {
-  if (typeof command !== 'string' || depth > MAX_NESTING) return []
-  const out: CommandSegment[] = []
-  for (const text of splitSegments(command)) {
-    const words = segmentWords(text)
-    if (words.length === 0) continue
-    const start = commandStart(words)
-    if (start.nested !== null) {
-      out.push(...segmentsOf(start.nested, depth + 1))
-      continue
-    }
-    const word = words[start.at]
-    // Only wrappers and assignments: nothing this segment runs.
-    if (word === undefined) continue
-    const program = programName(word)
-    const args = words.slice(start.at + 1)
-    out.push({
-      program,
-      args,
-      text: [program, ...args].join(' '),
-      timeoutSeconds: start.timeoutSeconds,
-    })
-  }
-  return out
 }
 
 /**

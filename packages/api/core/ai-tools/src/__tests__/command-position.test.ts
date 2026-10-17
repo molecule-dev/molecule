@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
-import { commandSegments, runsInCommandPosition } from '../command-position.js'
+import {
+  commandSegments,
+  locatedCommandSegments,
+  runsInCommandPosition,
+} from '../command-position.js'
 import { commandRunsNoTests } from '../no-test-run.js'
 import { isPlaywrightRunCommand, isSuiteRunCommand } from '../utilities.js'
 
@@ -278,5 +282,47 @@ describe('the package manager’s own options are skipped, never read as the pro
     expect(commandSegments('bunx --package @playwright/test playwright test')[0]?.program).toBe(
       'playwright',
     )
+  })
+})
+
+/**
+ * X1 xr-molecule-flash-m103 (+28:08), verbatim: the deploy result's "whole-suite command against
+ * this URL" put `APP_BASE=<deployed>` in front of `cd`, where a shell binds it to that one
+ * statement — the runner never saw it, and the suite fell back to its local default.
+ */
+const M103_COMMAND =
+  'APP_BASE=https://loopcheck-xr-molecule-flash-m103.apps.mlcl.dev cd /workspace/my-app/app && ' +
+  'rm -f e2e/playwright.base.ts && TEST_MODE=fullstack npx playwright test --max-failures=15 ' +
+  '--workers=4 --retries=0 > /tmp/mol-e2e.log 2>&1'
+
+describe('locatedCommandSegments — where an assignment for the RUNNER belongs (m103)', () => {
+  it('points at the runner, after its own assignments and before its wrapper', () => {
+    const located = locatedCommandSegments(M103_COMMAND)
+    const runner = located.find((entry) => entry.segment?.program === 'playwright')
+    expect(runner).toBeDefined()
+    const at = runner?.assignmentOffset ?? -1
+    // The insertion point is right after `TEST_MODE=fullstack` and right before `npx`.
+    expect(M103_COMMAND.slice(0, at)).toMatch(/TEST_MODE=fullstack $/)
+    expect(M103_COMMAND.slice(at)).toMatch(/^npx playwright test\b/)
+    expect(runner?.assignments).toEqual(['TEST_MODE=fullstack'])
+    // The assignment in front of `cd` belongs to `cd`, not to the runner.
+    const cd = located.find((entry) => entry.segment?.program === 'cd')
+    expect(cd?.assignments).toEqual([
+      'APP_BASE=https://loopcheck-xr-molecule-flash-m103.apps.mlcl.dev',
+    ])
+  })
+
+  it('reports assignment-only statements, which later statements of the command read', () => {
+    const located = locatedCommandSegments('U=https://x.test; BASE_URL=$U npx playwright test')
+    expect(located[0]?.segment).toBeNull()
+    expect(located[0]?.assignments).toEqual(['U=https://x.test'])
+    expect(located[1]?.assignments).toEqual(['BASE_URL=$U'])
+    expect(located[1]?.segment?.program).toBe('playwright')
+  })
+
+  it('clears offsets for a statement inside a `sh -c` string: they are not offsets here', () => {
+    const located = locatedCommandSegments(`sh -c 'cd app && npx playwright test'`)
+    expect(located.map((entry) => entry.segment?.program)).toEqual(['cd', 'playwright'])
+    expect(located.map((entry) => entry.assignmentOffset)).toEqual([null, null])
   })
 })
