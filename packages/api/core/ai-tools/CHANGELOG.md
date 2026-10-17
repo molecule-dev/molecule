@@ -1,5 +1,17 @@
 # @molecule/api-ai-tools
 
+## 1.9.0
+
+### Minor Changes
+
+- 8f58e49: `classifyRunFailure` reads what a failing request hit — the transport (refused, timeout, DNS, TLS), the HTTP status, or an assertion — and the failures-by-cause note names a connection error as a re-run, not as a cause in the app's code.
+- 24e31b1: `scopedRerunCommand`/`rerunOfRunningSuite` carry the `--config` a run was measured under, and a finished run whose failures are all `Cannot navigate to invalid URL` is reported as one configuration failure naming that config and the exact command, instead of a list of causes.
+
+### Patch Changes
+
+- c6c04db: `@molecule/app-http`'s docs state the call shape every body-taking verb uses — `post(url, data, config)`, `put(url, data, config)`, `patch(url, data, config)`: the body is the SECOND argument, never `{ data: body }` (which sends `{"data":…}` as the body). A failed run's trace read now quotes the body a 4xx request sent beside the status and the response, so a wrapped body is visible in one line.
+- 3d38041: A failed run's cause recap prints the suite's own per-test budget in place of the normalized `<n>` (`Test timeout of 15000ms exceeded`), and a trace read now carries the page's own actions with their start and end times.
+
 ## 1.8.3
 
 ### Patch Changes

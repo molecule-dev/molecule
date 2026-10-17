@@ -1,5 +1,11 @@
 # @molecule/app-e2e-preview
 
+## 1.0.10
+
+### Patch Changes
+
+- 4760c4f: The preview client is injected into compressed HTML responses by decoding and re-encoding the body, so a page served by `vite preview` (Vite 8 compresses HTML) loads instead of failing with `net::ERR_CONTENT_DECODING_FAILED`.
+
 ## 1.0.9
 
 ### Patch Changes

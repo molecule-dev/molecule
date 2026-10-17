@@ -1,5 +1,11 @@
 # @molecule/app-auth
 
+## 1.3.1
+
+### Patch Changes
+
+- f0f9426: `AuthClientConfig.storage` docs name the scaffold's generated auth bond, which is where `createBrowserStorageAdapter()` is passed — not `authConfig`.
+
 ## 1.3.0
 
 ### Minor Changes
