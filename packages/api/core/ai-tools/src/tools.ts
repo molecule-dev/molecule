@@ -2109,6 +2109,9 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           if (ownFile) outputFileByTask.set(id, ownFile)
           runByTask.set(id, { command: streaming.command, cwd })
           await backend.writeFile(script, `${streaming.command}\n`)
+          // The clock the grace return below reports a stopped run against: the command is
+          // started here, and how long it ran is what a stop at its own bound is read from.
+          const launchedAt = Date.now()
           await backend.run(
             `nohup sh -c ${shellQuote(prioritized.launch)} ` +
               `> /dev/null 2>&1 & echo $! > /tmp/${id}.pid`,
@@ -2139,8 +2142,37 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
                   // Finished without writing anything: an empty output is still a result.
                   output = ''
                 }
+                const stdout = sanitizeOutput(truncateMiddle(output, MAX_OUTPUT_SIZE))
+                // A grace return is a foreground-shaped result, so it carries the same stop: this
+                // command was started because its output is withheld until it ends (a Playwright
+                // run behind a pipe), and a run that printed a tally accounting for fewer tests
+                // than it announced was stopped — not "Finished … with exit code 0" (the pipeline's
+                // 0 is the filter's). No tool budget applies to a detached run, so the command's
+                // own `timeout` is the only bound here.
+                const cut = commandCutRun(
+                  command,
+                  { exitCode: code, stdout, stderr: '' },
+                  Date.now() - launchedAt,
+                  0,
+                  output,
+                )
+                if (cut) {
+                  return {
+                    stdout,
+                    stderr: '',
+                    status: CUT_AT_BUDGET,
+                    exitCode: cut.exitCode,
+                    cutRun: cut,
+                    ...(output.length > MAX_OUTPUT_SIZE
+                      ? { truncated: true, fullOutput: log }
+                      : {}),
+                    error:
+                      `${cutRunSentence(cut)} ` +
+                      (isSuiteRunCommand(command) ? SUITE_OVER_BUDGET_ADVICE : SPLIT_WORK_ADVICE),
+                  }
+                }
                 return {
-                  stdout: sanitizeOutput(truncateMiddle(output, MAX_OUTPUT_SIZE)),
+                  stdout,
                   stderr: '',
                   exitCode: code,
                   ...(output.length > MAX_OUTPUT_SIZE ? { truncated: true, fullOutput: log } : {}),
@@ -2656,7 +2688,14 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       const run = runByTask.get(taskId)
       // The tests the request excludes are not causes to fix, and the re-run below inverts them
       // out — a result must never ask the executor to fix a test it also says does not count.
-      const causes = failureCausesNote(output, excludedTestTitles?.() ?? [], run)
+      // The log's own path rides along so a recap that leaves causes out can hand over the ONE
+      // grep that prints their bodies: the stdout above is cut in the middle, so the log is where
+      // they still are whole.
+      const causes = failureCausesNote(
+        output,
+        excludedTestTitles?.() ?? [],
+        run ? { ...run, log: ownFile ?? log } : undefined,
+      )
       // A backgrounded run is under no tool budget, and the exit file hands back the PIPELINE's
       // code — so a suite killed at a `timeout 280` the command carried behind a `| tail` reports
       // 0 here too. The run's start is in its own id ({@link taskStartedAt}), so the bound it used

@@ -445,6 +445,36 @@ describe('exec_command reports the stopped run', () => {
     expect(result.stdout).not.toContain('Running 139 tests')
   })
 
+  it('reports a run stopped inside the grace as stopped, not as a finished 0', async () => {
+    // A Playwright run behind a pipe is started detached and handed back after the grace when it
+    // ends inside it — the same foreground shape, and the same lie if a partial tally is read as a
+    // finish (X1 xr-molecule-flash-m101 +12:13).
+    const backend = mockBackend()
+    const tools = buildTools(backend, { commandBudgetMs: 290_000, overCeilingGraceMs: 5_000 })
+    const exec = tools.find((t) => t.name === 'exec_command')!
+    const now = vi.spyOn(Date, 'now').mockReturnValue(1_000_000)
+    backend.run = vi.fn().mockResolvedValue({ stdout: '', stderr: '', exitCode: 0 })
+    backend.readFile = vi.fn(async (p: string) =>
+      p.endsWith('.exit')
+        ? '0'
+        : 'Running 139 tests using 1 worker\n  1 failed\n  1 skipped\n  36 passed (2.5m)\n',
+    ) as unknown as ExecutionBackend['readFile']
+
+    const result = (await exec.execute({
+      command: 'npx playwright test --reporter=list 2>&1 | tail -20',
+    })) as {
+      status?: string
+      exitCode?: number | null
+      cutRun?: { ran?: number | null; total?: number | null }
+      error?: string
+    }
+    now.mockRestore()
+    expect(result.status).toBe(CUT_AT_BUDGET)
+    expect(result.exitCode).toBeNull()
+    expect(result.cutRun).toMatchObject({ ran: 38, total: 139 })
+    expect(result.error?.startsWith('Ran 38 of 139 tests')).toBe(true)
+  })
+
   it('answers the tool-budget stop with the state and 124', async () => {
     const backend = mockBackend()
     const tools = buildTools(backend, { commandBudgetMs: 290_000, overCeilingGraceMs: 0 })
