@@ -2124,6 +2124,9 @@ describe('a suite’s pipeline is not the suite’s result (xr-molecule-flash-m1
     expect(suiteRunPipedAfterRunner('npx playwright test | tee run.log')).toBe(true)
     expect(suiteRunPipedAfterRunner('npx playwright test')).toBe(false)
     expect(suiteRunPipedAfterRunner('npx playwright test; echo done')).toBe(false)
+    // Irregular spacing inside the run leaves its stages unplaceable: unknown is reported as
+    // piped, never as the runner's own code.
+    expect(suiteRunPipedAfterRunner('npx  playwright   test --max-failures=15')).toBe(true)
   })
 
   it('never hands back a filter’s code, and never 0 beside a failure', () => {

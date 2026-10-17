@@ -811,12 +811,22 @@ export function stripTrailingSuiteFilters(command: string): SuiteFilterStrip {
  * the runner — one {@link stripTrailingSuiteFilters} could not prove is output-only (`| tee log`,
  * `| xargs …`). The pipeline's exit status is that stage's, not the run's.
  *
+ * A command whose stages cannot be placed in the text (irregular whitespace inside the run) is
+ * reported as piped too: whether a pipe follows the runner is then UNKNOWN, and an unknown exit
+ * code that gets trusted is a failing run read as a pass — the failure this rule exists to stop.
+ *
  * @param command - The shell command, after the streaming rewrite when one was applied.
- * @returns True when a pipe this tool must not drop still follows the suite runner.
+ * @returns True when a pipe this tool must not drop still follows the suite runner, or when the
+ *   command runs a suite the parse cannot place.
  */
 export function suiteRunPipedAfterRunner(command: string): boolean {
   const pipeline = lastSuitePipeline(command)
-  return pipeline !== null && pipeline.located.length > pipeline.at + 1
+  if (pipeline !== null) return pipeline.located.length > pipeline.at + 1
+  // No placed pipeline: either there is no suite at all, or its stages cannot be located.
+  if (commandRunsNoTests(command) || locatedSegments(command) !== null) return false
+  return commandSegments(command).some((segment) =>
+    SUITE_RUN_COMMANDS.some((re) => re.test(segment.text)),
+  )
 }
 
 /**
