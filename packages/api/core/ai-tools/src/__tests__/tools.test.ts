@@ -2257,6 +2257,12 @@ describe('exec_command run_in_background', () => {
     expect(r.exitFile).toBe(`/tmp/${r.taskId}.exit`)
     expect(r.note).toContain('read_file')
     expect(r.note).toContain('never sleep')
+    // The one concrete instruction used to be a hand peek ("peek with exec_command: tail …"),
+    // which the executor implemented as `sleep N; tail` (X1 xr-molecule-flash-m105). The note
+    // names wait_for_task as the way to wait and hands over no tail recipe.
+    expect(r.note).toContain('wait_for_task')
+    expect(r.note).not.toContain('peek with exec_command')
+    expect(r.note).not.toMatch(/tail \/tmp/)
   })
 
   it('writes the command to a FILE rather than re-quoting it into sh -c', async () => {
@@ -2395,6 +2401,9 @@ describe('exec_command run_in_background', () => {
       run_in_background: true,
     })) as { note: string }
     expect(r.note).toContain('writes its own output to /tmp/pw.txt')
+    // …and the way to read it while the command runs is wait_for_task, not a hand `sleep; tail`.
+    expect(r.note).toContain('wait_for_task reads that file')
+    expect(r.note).not.toContain('peek with exec_command')
   })
 
   it('leaves a command with its own reporter, or no tail, exactly as sent', async () => {
@@ -2415,6 +2424,163 @@ describe('exec_command run_in_background', () => {
     const r = (await exec.execute({ command: 'ls', run_in_background: true })) as { error: string }
     expect(r.error).toContain('Could not start the background command')
     expect(r.error).toContain('read-only filesystem')
+  })
+})
+
+// ── a sleep that was really a poll ──────────────────────────────────────────
+// X1 xr-molecule-flash-m105 (+08:49 → +10:53, 2026-10-17): 225 s of run clock
+// inside three `exec_command` calls of the shape `sleep N; <read a task's log>`.
+// Two were provably dead — the task had ended 0.1 s in (exit 127) and another had
+// already printed `Error: No tests found` — and the third slept 120 s beside a
+// live 139-test run whose failures were already in the log.
+describe('exec_command does not sleep through a background task (m105)', () => {
+  /**
+   * A backend for one background task: `files` answers its `/tmp` reads (an `.exit`
+   * entry means it has ended; a missing one means it is still running) and `slice`
+   * is what its log holds.
+   */
+  function peekBackend(files: Record<string, string>, slice = ''): ExecutionBackend {
+    return {
+      projectRoot: '/test',
+      readFile: vi.fn(async (path: string) => {
+        if (path in files) return files[path]
+        throw new Error(`ENOENT: ${path}`)
+      }),
+      writeFile: vi.fn().mockResolvedValue(undefined),
+      deleteFile: vi.fn(),
+      readDir: vi.fn(),
+      run: vi.fn(async (command: string) => ({
+        stdout: command.includes('grep -aE') ? slice : '',
+        stderr: '',
+        exitCode: 0,
+      })),
+    }
+  }
+  const exec = (backend: ExecutionBackend) =>
+    buildTools(backend, { commandBudgetMs: 290_000, overCeilingGraceMs: 0 }).find(
+      (t) => t.name === 'exec_command',
+    )!
+  const ran = (backend: ExecutionBackend): string[] =>
+    (backend.run as ReturnType<typeof vi.fn>).mock.calls.map((call) => String(call[0]))
+
+  /** Start the task the peeks follow, so it is in the tool's own registry. */
+  async function launch(backend: ExecutionBackend): Promise<string> {
+    const r = (await exec(backend).execute({
+      command: 'npx playwright test > /tmp/rw-e2e.log 2>&1',
+      run_in_background: true,
+    })) as { taskId: string }
+    return r.taskId
+  }
+
+  it('answers the +08:49 peek at a task that had already died, without sleeping', async () => {
+    const files: Record<string, string> = {}
+    const backend = peekBackend(files, 'playwright: not found\n')
+    const taskId = await launch(backend)
+    files[`/tmp/${taskId}.exit`] = '127'
+    const startedAt = Date.now()
+    const r = (await exec(backend).execute({
+      command: 'sleep 45; tail -30 /tmp/rw-e2e.log',
+    })) as { note: string }
+    expect(Date.now() - startedAt).toBeLessThan(1000)
+    expect(r.note).toContain('had already ended')
+    expect(r.note).toContain('exit code 127')
+    expect(r.note).toContain(`wait_for_task ${taskId}`)
+    // The sleep was dropped; the tail the executor asked for still ran.
+    expect(ran(backend).some((command) => /\bsleep\b/.test(command))).toBe(false)
+    expect(ran(backend)).toContain('tail -30 /tmp/rw-e2e.log')
+  })
+
+  it('answers the +09:38 peek at a finished "No tests found" run with its log', async () => {
+    const files: Record<string, string> = {}
+    const backend = peekBackend(files, 'Error: No tests found\n')
+    const taskId = await launch(backend)
+    files[`/tmp/${taskId}.exit`] = '1'
+    const r = (await exec(backend).execute({
+      command:
+        'sleep 60; grep -cE "✓" /tmp/rw-e2e.log; grep -E "✘|passed|failed|Error" /tmp/rw-e2e.log',
+    })) as { note: string; outputSoFar?: string }
+    expect(r.note).toContain('had already ended (exit code 1)')
+    expect(r.outputSoFar).toContain('Error: No tests found')
+    expect(ran(backend).some((command) => /\bsleep\b/.test(command))).toBe(false)
+    expect(ran(backend).some((command) => command.startsWith('grep -cE'))).toBe(true)
+  })
+
+  it('answers the +10:53 peek at a live run with progress and its failures, in under a second', async () => {
+    const slice =
+      '[72/139] [chromium] › e2e/navigation.spec.ts:44:3 › tag filter\n' +
+      '  ✘  41 [chromium] › e2e/tags.spec.ts:12:3 › popular tags (1.2s)\n'
+    const backend = peekBackend({}, slice)
+    const taskId = await launch(backend)
+    const startedAt = Date.now()
+    const r = (await exec(backend).execute({
+      command: 'sleep 120; tail -c 3000 /tmp/rw-e2e.log',
+    })) as { note: string; outputSoFar?: string }
+    expect(Date.now() - startedAt).toBeLessThan(1000)
+    expect(r.note).toContain('is live')
+    expect(r.note).toContain('72 of 139')
+    expect(r.note).toContain(`wait_for_task ${taskId}`)
+    expect(r.outputSoFar).toContain('popular tags')
+    expect(ran(backend).some((command) => /\bsleep\b/.test(command))).toBe(false)
+  })
+
+  it('answers a bare `sleep 30` with the live task state, running nothing for 30 s', async () => {
+    const backend = peekBackend({}, '[12/139] x\n')
+    const taskId = await launch(backend)
+    const startedAt = Date.now()
+    const r = (await exec(backend).execute({ command: 'sleep 30' })) as {
+      status: string
+      note: string
+    }
+    expect(Date.now() - startedAt).toBeLessThan(1000)
+    expect(r.status).toBe('task_state')
+    expect(r.note).toContain('is live')
+    expect(r.note).toContain(`wait_for_task ${taskId}`)
+    expect(ran(backend).some((command) => /\bsleep\b/.test(command))).toBe(false)
+  })
+
+  it('runs a sleep as sent when no background task this process started is live', async () => {
+    const backend: ExecutionBackend = {
+      projectRoot: '/test',
+      readFile: vi.fn(async (path: string) => {
+        // Every task the process ever started reads as ended.
+        if (/^\/tmp\/mol-bg-[a-z0-9]+-[a-z0-9]+\.exit$/.test(path)) return '0'
+        throw new Error(`ENOENT: ${path}`)
+      }),
+      writeFile: vi.fn(),
+      deleteFile: vi.fn(),
+      readDir: vi.fn(),
+      run: vi.fn(async () => ({ stdout: 'done', stderr: '', exitCode: 0 })),
+    }
+    const r = (await exec(backend).execute({ command: 'sleep 6; echo done' })) as {
+      note?: string
+    }
+    expect(ran(backend)).toContain('sleep 6; echo done')
+    expect(r.note ?? '').not.toContain('Did not sleep')
+  })
+})
+
+describe('the wait notes name wait_for_task, not a hand peek (m105)', () => {
+  it('gives the running note no tail recipe', async () => {
+    const backend: ExecutionBackend = {
+      projectRoot: '/test',
+      readFile: vi.fn(async () => {
+        throw new Error('ENOENT')
+      }),
+      writeFile: vi.fn(),
+      deleteFile: vi.fn(),
+      readDir: vi.fn(),
+      run: vi.fn(async (command: string) => ({
+        stdout: /wc -c/.test(command) ? '1000' : '[1/139] [chromium] › e2e/a.spec.ts:1:1 › x\n',
+        stderr: '',
+        exitCode: 0,
+      })),
+    }
+    const wait = buildTools(backend).find((t) => t.name === 'wait_for_task')!
+    const taskId = `mol-bg-${Date.now().toString(36)}-abc123`
+    const r = (await wait.execute({ taskId, timeout: 20 })) as { note: string }
+    expect(r.note).toContain('Call wait_for_task again')
+    expect(r.note).not.toContain('peek with exec_command')
+    expect(r.note).not.toMatch(/tail \/tmp/)
   })
 })
 
@@ -2467,6 +2633,76 @@ describe('wait_for_task', () => {
       stdout: string
     }
     expect(r.stdout).toContain('14 failed')
+  })
+
+  /**
+   * m105's +08:12 command: a wrapper config WRITTEN by a heredoc in the same call, then the run
+   * with its output piped through `tail -60`. The heredoc body made the stage placement fail, the
+   * answer fell through to "piped", and `wait_for_task` reported no exit code at all — with a note
+   * claiming a stage after the runner that the rewrite had already dropped.
+   */
+  const M105_HEREDOC = `cat > /workspace/.mol-scratch/realworld-e2e/playwright.config.ts <<'EOF'
+import { defineConfig, devices } from '@playwright/test'
+import { baseConfig } from './playwright.base'
+EOF
+cd /workspace/.mol-scratch/realworld-e2e && npx playwright test --config playwright.config.ts --retries=0 2>&1 | tail -60`
+
+  it('keeps the run’s own code after a heredoc, and claims no stage that is not there (m105 +08:12)', async () => {
+    const backend: ExecutionBackend = {
+      projectRoot: '/test',
+      readFile: vi.fn(async (path: string) => {
+        if (path.endsWith('.exit')) return '1\n'
+        if (path.startsWith('/tmp/mol-bg-')) return 'Error: No tests found'
+        throw new Error(`ENOENT: ${path}`)
+      }),
+      writeFile: vi.fn(),
+      deleteFile: vi.fn(),
+      readDir: vi.fn(),
+      run: vi.fn(async () => ({ stdout: '', stderr: '', exitCode: 0 })),
+    }
+    const tools = buildTools(backend)
+    const started = (await tools
+      .find((t) => t.name === 'exec_command')!
+      .execute({
+        command: M105_HEREDOC,
+        run_in_background: true,
+      })) as { taskId: string }
+    const r = (await tools
+      .find((t) => t.name === 'wait_for_task')!
+      .execute({ taskId: started.taskId })) as { exitCode: number | null; note?: string }
+    // The tail was dropped by the rewrite, so nothing follows the runner any more: the code the
+    // exit file holds is the RUN's, and it is reported.
+    expect(r.exitCode).toBe(1)
+    expect(r.note ?? '').not.toContain('No exit code is reported')
+  })
+
+  it('still reports no code, and says why, when a stage really does follow the runner', async () => {
+    const backend: ExecutionBackend = {
+      projectRoot: '/test',
+      readFile: vi.fn(async (path: string) => {
+        if (path.endsWith('.exit')) return '1\n'
+        if (path.startsWith('/tmp/mol-bg-')) return '  1 failed\n  1 passed (3.1s)'
+        throw new Error(`ENOENT: ${path}`)
+      }),
+      writeFile: vi.fn(),
+      deleteFile: vi.fn(),
+      readDir: vi.fn(),
+      run: vi.fn(async () => ({ stdout: '', stderr: '', exitCode: 0 })),
+    }
+    const tools = buildTools(backend)
+    const started = (await tools
+      .find((t) => t.name === 'exec_command')!
+      .execute({
+        command: 'npx playwright test 2>&1 | tee /tmp/run.log',
+        run_in_background: true,
+      })) as { taskId: string }
+    const r = (await tools
+      .find((t) => t.name === 'wait_for_task')!
+      .execute({ taskId: started.taskId })) as { exitCode: number | null; note?: string }
+    // `tee` is not provably output-only, so it stays: its code is the pipeline's, not the run's.
+    expect(r.exitCode).toBeNull()
+    expect(r.note).toContain('No exit code is reported')
+    expect(r.note).toContain('a stage after the test runner')
   })
 
   it('groups a finished run’s failures by cause, so one round of fixes covers them all (flash-m83)', async () => {

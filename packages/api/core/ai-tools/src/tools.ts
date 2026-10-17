@@ -20,6 +20,7 @@ import {
 } from './edit-excerpt.js'
 import { guardToolExecute, missingParamError, ToolInputError } from './input-normalizer.js'
 import { TOOL_SCHEMAS } from './schemas.js'
+import { leadingSleepPeek } from './sleep-peek.js'
 
 /**
  * Total waiting, per background task, after which wait_for_task reports it
@@ -262,6 +263,110 @@ function runningNote(clauses: string[]): string {
   if (!clauses.length) return ''
   const joined = clauses.join('; ')
   return `${joined[0].toUpperCase()}${joined.slice(1)}.`
+}
+
+/**
+ * The background task a leading `sleep` was about to peek at, and its state now — or null when the
+ * command has no task of this process's to report, in which case the sleep runs as written (the
+ * tool's own budget bounds it, as before).
+ *
+ * X1 xr-molecule-flash-m105 (+08:49 → +10:53, 2026-10-17) hand-polled with `sleep N; tail …`
+ * three times. The state the executor wanted was always one the platform already held: two tasks
+ * had ended 0.1 s in (exit 127, and `Error: No tests found`) and the third was live at 72 of 139
+ * with failures the log already carried. So a command that opens with a long sleep is answered
+ * from the same reads `wait_for_task` makes — the exit file, and the failure-lines-plus-tail slice
+ * of the log — and the sleep is dropped.
+ *
+ * The command names WHAT it is peeking at (`/tmp/<id>.log`, or the file the task redirects its own
+ * output to), and that task is the answer whether it has ended or not: the two dead peeks are
+ * exactly this shape. With no name to follow, the newest LIVE task is the answer — the point of
+ * the rule is that a sleep never outlives a run it could have been waiting on — and with no live
+ * task there is nothing to report.
+ *
+ * @param backend - The execution backend the task runs on.
+ * @param command - The command whose leading sleep is being replaced.
+ * @param seconds - The seconds that leading sleep asked for.
+ * @param ceilingMs - The wait ceiling a `wait_for_task` would have, so the ETA it states is the
+ *   one an actual wait would act on.
+ * @returns One sentence naming the task's state and how to get its result, plus the log slice the
+ *   caller attaches as `outputSoFar`; null when no task answers this command.
+ */
+async function backgroundTaskState(
+  backend: ExecutionBackend,
+  command: string,
+  seconds: number,
+  ceilingMs: number,
+): Promise<{ note: string; slice: string } | null> {
+  const ids = [...runByTask.keys()]
+  if (!ids.length) return null
+  const exitCodeOf = async (id: string): Promise<number | null> => {
+    try {
+      const raw = await backend.readFile(`/tmp/${id}.exit`)
+      const code = Number.parseInt(raw.trim(), 10)
+      return Number.isFinite(code) ? code : 0
+    } catch (_error) {
+      // No exit file yet: the task is still running. Not an error.
+      return null
+    }
+  }
+  const names = (id: string): boolean => {
+    if (command.includes(`/tmp/${id}.log`)) return true
+    const own = outputFileByTask.get(id)
+    return own !== undefined && command.includes(own)
+  }
+  const newestFirst = [...ids].reverse()
+  const namedId = newestFirst.find(names)
+  let target: { id: string; exitCode: number | null } | null = namedId
+    ? { id: namedId, exitCode: await exitCodeOf(namedId) }
+    : null
+  if (!target) {
+    // Bounded: a long session can leave many finished tasks behind, and each look costs a read.
+    for (const id of newestFirst.slice(0, 8)) {
+      const exitCode = await exitCodeOf(id)
+      if (exitCode === null) {
+        target = { id, exitCode }
+        break
+      }
+    }
+  }
+  if (!target) return null
+  let slice = ''
+  try {
+    const r = await backend.run(
+      runningOutputSliceCommand(`/tmp/${target.id}.log`, outputFileByTask.get(target.id)),
+      { timeout: 5_000 },
+    )
+    slice = r.stdout ?? ''
+  } catch (_error) {
+    // No slice: the note still says the task's state and how to get its result.
+  }
+  const secondsText = `Did not sleep ${Math.round(seconds)} s: background task \`${target.id}\``
+  if (target.exitCode === null) {
+    const facts = waitProgressClauses({
+      taskId: target.id,
+      slice,
+      stillWriting: false,
+      bytes: null,
+      ceilingMs,
+      waitedMs: 0,
+    })
+    const failures = slice.trim() ? '; the failures already in its log are in outputSoFar' : ''
+    return {
+      note:
+        `${secondsText} is live (${facts.join('; ')})${failures} — ` +
+        `\`wait_for_task ${target.id}\` returns its result the moment it ends.`,
+      slice,
+    }
+  }
+  const counter = logProgress(slice)
+  const progress = counter ? `, at ${counter.done} of ${counter.total} in its log` : ''
+  const failures = slice.trim() ? '; the failures in its log are in outputSoFar' : ''
+  return {
+    note:
+      `${secondsText} had already ended (exit code ${target.exitCode})${progress}${failures} — ` +
+      `\`wait_for_task ${target.id}\` returns its result now.`,
+    slice,
+  }
 }
 import { diagnosisTraceCommand } from './trace-artifacts.js'
 import type { ExecutionBackend, ToolBuildConfig } from './types.js'
@@ -2161,7 +2266,34 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         cwd,
         readFile: (path) => backend.readFile(path),
       })
-      const command = traced.command
+      let command = traced.command
+
+      // A leading `sleep N; <read of a background task's log>` is a hand-rolled poll, and the
+      // platform knows the task's state better than the log's tail does (see
+      // {@link backgroundTaskState}): X1 xr-molecule-flash-m105 slept 225 s this way, two of the
+      // three on tasks that had already ended. The sleep is dropped and the rest of the command
+      // runs at once; with no background task behind it, the sleep is left exactly as sent — the
+      // tool's own budget is the existing bound.
+      const sleepPeek = leadingSleepPeek(command)
+      const peekedTask = sleepPeek
+        ? await backgroundTaskState(
+            backend,
+            command,
+            sleepPeek.seconds,
+            Math.max(5_000, (commandBudgetMs ?? 290_000) - 10_000),
+          )
+        : null
+      const sleepNote = peekedTask?.note ?? null
+      if (sleepPeek && peekedTask) {
+        command = sleepPeek.rest
+        if (!command) {
+          return {
+            status: 'task_state',
+            note: peekedTask.note,
+            ...(peekedTask.slice.trim() ? { outputSoFar: sanitizeOutput(peekedTask.slice) } : {}),
+          }
+        }
+      }
 
       // Detached: start it, hand back a handle, let the turn continue. A
       // command that outlives the tool's ceiling is otherwise simply lost —
@@ -2290,6 +2422,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
                       ? { truncated: true, fullOutput: log }
                       : {}),
                     error:
+                      (sleepNote ? `${sleepNote} ` : '') +
                       `${cutRunSentence(cut)} ` +
                       (isSuiteRunCommand(command) ? SUITE_OVER_BUDGET_ADVICE : SPLIT_WORK_ADVICE),
                   }
@@ -2300,6 +2433,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
                 const piped = suiteRunPipedAfterRunner(streaming.command)
                 const reported = suiteRunExitCode(code, output, piped)
                 const notes = [
+                  ...(sleepNote ? [sleepNote] : []),
                   ...streaming.changes,
                   ...(reported === null ? [FILTERED_EXIT_NOTE] : []),
                 ]
@@ -2318,7 +2452,9 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
             taskId: id,
             log,
             exitFile,
+            ...(peekedTask?.slice.trim() ? { outputSoFar: sanitizeOutput(peekedTask.slice) } : {}),
             note:
+              (sleepNote ? `${sleepNote} ` : '') +
               (overCeiling
                 ? declaredSeconds > ceilingSeconds
                   ? `This command asks for ${declaredSeconds}s, more than this tool's ${ceilingSeconds}s, and its ` +
@@ -2327,14 +2463,15 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
                     'output only appears when it ends — so it was started in the background instead. '
                 : '') +
               `Started in the background. Its output is written to ${log} and comes back as the ` +
-              `stdout of wait_for_task when the command finishes (read_file cannot reach /tmp — ` +
-              `to peek mid-run, exec_command: tail ${log}). If you have other work, do it and ` +
-              `check back. If you need this result before you can continue, call wait_for_task ` +
-              `with this taskId — never sleep and read the log by hand.` +
+              `stdout of wait_for_task when the command finishes (read_file cannot reach /tmp). If ` +
+              `you have other work, do it and check back. If you need this result before you can ` +
+              `continue, call wait_for_task with this taskId: it returns the moment the command ` +
+              `ends, returns early when a failure cause repeats, and reports progress and the ` +
+              `failures so far — never sleep and read the log by hand.` +
               (streaming.changes.length ? ` ${streaming.changes.join(' ')}` : '') +
               (prioritized.note ? ` ${prioritized.note}` : '') +
               (ownFile
-                ? ` This command writes its own output to ${ownFile}, so the task log stays empty: peek with exec_command: tail ${ownFile}.`
+                ? ` This command writes its own output to ${ownFile}, so the task log stays empty: wait_for_task reads that file when the command ends and reports its progress while it runs — never sleep and tail it by hand.`
                 : ''),
           }
         } catch (e: unknown) {
@@ -2427,6 +2564,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
             // count) says the same sentence with the total the output alone cannot give.
             cutRun: cut,
             error:
+              (sleepNote ? `${sleepNote} ` : '') +
               `${cutLead} ` +
               // The tool's own budget stopping a run that printed nothing: keep the sentence that
               // says why the output is empty, since nothing else in the result can say it.
@@ -2444,8 +2582,11 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           stdout,
           stderr,
           exitCode: result.exitCode,
-          ...(ceilingNote || traced.change
-            ? { note: [ceilingNote, traced.change].filter(Boolean).join(' ') }
+          ...(peekedTask?.slice.trim() ? { outputSoFar: sanitizeOutput(peekedTask.slice) } : {}),
+          ...(sleepNote || ceilingNote || traced.change
+            ? {
+                note: [sleepNote, ceilingNote, traced.change].filter(Boolean).join(' '),
+              }
             : {}),
         }
       } catch (e: unknown) {
@@ -2751,8 +2892,8 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
             waitedMs,
             ...sliceField,
             note:
-              `${progress} Call wait_for_task again to keep waiting; peek with exec_command: ` +
-              `tail ${log}.${midRun}`,
+              `${progress} Call wait_for_task again to keep waiting — it returns the moment the ` +
+              `command ends and reports the failures as they appear.${midRun}`,
           }
         }
         if (waitedBefore + waitedMs >= stuckAfterMs()) {
