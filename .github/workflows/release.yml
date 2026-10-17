@@ -61,6 +61,15 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false
 
+# Same reason as ci.yml: onnxruntime-node's postinstall fetches CUDA binaries
+# from api.nuget.org on linux/x64, which publishing does not need — the CPU
+# binary ships inside the package and this job runs no tests. Keeping it off
+# means a nuget.org outage cannot block a release's `npm ci`. Both workflows
+# must carry this; scripts/__tests__/ci-onnxruntime-install-skip.test.ts
+# enforces it.
+env:
+  ONNXRUNTIME_NODE_INSTALL: skip
+
 jobs:
   release:
     runs-on: ubuntu-latest

@@ -23,6 +23,20 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+# onnxruntime-node (a transitive dependency of @huggingface/transformers, used
+# by the local ai-embeddings bonds) downloads CUDA execution-provider binaries
+# from api.nuget.org in its postinstall — and ONLY on linux/x64, the one
+# platform whose install metadata lists a download (script/install-metadata.js
+# `requirements`). Nothing here runs on a GPU, and the CPU binary is bundled
+# inside the package (`bin/napi-v6/linux/x64/libonnxruntime.so.1`), so the
+# fetch bought CI nothing but a hard dependency on nuget.org reachability:
+# run 39075987540 (2026-10-17) failed `npm ci` on a connection timeout to
+# 150.171.110.210:443. `skip` is the documented value (install.js reads
+# ONNXRUNTIME_NODE_INSTALL and exits before its first request); see
+# scripts/__tests__/ci-onnxruntime-install-skip.test.ts, which keeps it set.
+env:
+  ONNXRUNTIME_NODE_INSTALL: skip
+
 jobs:
   build:
     runs-on: ubuntu-latest
