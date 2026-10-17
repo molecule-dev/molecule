@@ -534,6 +534,77 @@ function unansweredRequest(request: TraceRequest): boolean {
 }
 
 /**
+ * How far a trace's last recorded step can sit after an earlier walk's failing test and still be
+ * that test. The trace names the LINE of the last step it recorded (the click, the wait), while the
+ * run's own summary names the test's DECLARATION line, so a row that repeats a failure sits a few
+ * lines below the declaration it repeats: m112's favorite test is declared at
+ * `articles.spec.ts:123` and its last step, the click that changed nothing, was on `:133`.
+ */
+const RECURRENCE_LINE_WINDOW = 40
+
+/** A `file:line` split, with a leading `./` dropped: the two readers spell the same file apart. */
+function splitLocation(location: string): { file: string; line: number } {
+  const trimmed = location.trim().replace(/^\.\//, '')
+  const match = /^(.*):(\d+)$/.exec(trimmed)
+  if (match === null) return { file: trimmed, line: 0 }
+  return { file: match[1] ?? trimmed, line: Number(match[2]) }
+}
+
+/** Whether two locations name the same file — one may be absolute where the other is relative. */
+function sameLocationFile(left: string, right: string): boolean {
+  return left === right || left.endsWith(`/${right}`) || right.endsWith(`/${left}`)
+}
+
+/**
+ * Whether this trace's test is one an EARLIER walk of the suite failed.
+ *
+ * The earlier walk's locations come from the run's own summary — the test's DECLARATION line —
+ * while the trace names the last step's line, so a repeat is the same file with its step inside
+ * {@link RECURRENCE_LINE_WINDOW} lines after the NEAREST earlier declaration before it (the test
+ * body it belongs to). A line BEFORE the declaration is a hook, not the test: m112's
+ * `url-navigation.spec.ts:107` is the Pagination suite's `afterEach`, which four different tests
+ * share. A trace that names no spec cannot be placed at all.
+ *
+ * @param item - The trace.
+ * @param earlier - The failing `file:line`s earlier walks of the suite left.
+ * @returns True when the trace repeats one of them.
+ */
+function repeatsEarlierFailure(item: TraceArtifact, earlier: readonly string[]): boolean {
+  if (item.spec === null) return false
+  for (const location of earlier) {
+    const before = splitLocation(location)
+    if (!sameLocationFile(item.spec, before.file)) continue
+    // Either side without a line is the same file alone, which is all that can be compared.
+    if (item.line === 0 || before.line === 0) return true
+    if (before.line <= item.line && item.line - before.line <= RECURRENCE_LINE_WINDOW) return true
+  }
+  return false
+}
+
+/**
+ * Whether a trace holds evidence the note can explain: a request that got a RECORDED response, a
+ * real failure (4xx/5xx or a network error), or a console error. A request with no response is
+ * not evidence (m112 +53:46): four of the note's five rows were traces of one `afterEach` line
+ * whose every request was `-1`, so the favorite cause — repeated in all three walks — stayed
+ * hidden in "… and 7 more traced failures".
+ */
+function traceRowEvidence(item: TraceArtifact): boolean {
+  return item.console.length > 0 || item.requests.some((request) => !unansweredRequest(request))
+}
+
+/**
+ * The note's row order: a row with a REAL failure first, then a row whose failure an earlier walk
+ * also had, then the rest. A recurrence is the only evidence a row carries when its requests were
+ * all answered (m112's favorite cause: the click's own request answered, the button never
+ * changed).
+ */
+function traceRowTier(item: TraceArtifact, earlier: readonly string[]): number {
+  if (item.requests.some(failedRequest)) return 0
+  if (repeatsEarlierFailure(item, earlier)) return 1
+  return 2
+}
+
+/**
  * The note a failed suite run's result carries: what each failing test's page actually sent, and
  * what came back.
  *
@@ -553,15 +624,43 @@ function unansweredRequest(request: TraceRequest): boolean {
  * line rather than inferred from the status; when one of those bodies is an object whose only key
  * is `data`, the note names the call shape that produces it (xr-molecule-flash-m111 +11:36).
  *
+ * WHICH rows it spends is evidence, not artifact order (xr-molecule-flash-m112 +53:46): a row
+ * needs a recorded response, a real failure or a console error ({@link traceRowEvidence}), rows are
+ * deduplicated by the test's location, and they are ordered real failure → repeated from an
+ * earlier walk → the rest ({@link traceRowTier}). Without that the note spent all five rows on four
+ * traces of one `afterEach` line whose every request was `-1`, and left the favorite cause — the
+ * one failure that repeated in every walk — in its "… and N more".
+ *
  * @param items - The traces {@link parseTraceArtifacts} read.
  * @param target - Where the run went — the deployed host, as the note names it.
- * @returns The note, or null when no trace held a request or a console error.
+ * @param earlierFailures - The failing `file:line`s earlier walks of this suite left, so a repeat
+ *   is ranked above a one-off. Empty when the caller knows of no earlier walk.
+ * @returns The note, or null when no trace held a recorded response, a real failure or a console
+ *   error.
  */
-export function failureTraceNote(items: readonly TraceArtifact[], target: string): string | null {
-  const withEvidence = items.filter((item) => item.requests.length > 0 || item.console.length > 0)
-  if (withEvidence.length === 0) return null
-  const traced = withEvidence.slice(0, MAX_TRACE_NOTE_TESTS)
-  const wrapped = withEvidence.some((item) =>
+export function failureTraceNote(
+  items: readonly TraceArtifact[],
+  target: string,
+  earlierFailures: readonly string[] = [],
+): string | null {
+  const candidates = items.filter(traceRowEvidence)
+  if (candidates.length === 0) return null
+  // Ranked, then deduplicated BY LOCATION — in that order, so the row kept for a location is the
+  // one carrying the strongest evidence (m112's duplicate `afterEach` rows).
+  const ranked = candidates
+    .map((item, index) => ({ item, index, tier: traceRowTier(item, earlierFailures) }))
+    .sort((left, right) => left.tier - right.tier || left.index - right.index)
+  const traced: TraceArtifact[] = []
+  const seen = new Set<string>()
+  for (const { item, index } of ranked) {
+    // A trace that names no spec cannot be placed; it is never collapsed onto another one.
+    const where = item.spec === null ? `#${index}` : whereOf(item)
+    if (seen.has(where)) continue
+    seen.add(where)
+    traced.push(item)
+    if (traced.length === MAX_TRACE_NOTE_TESTS) break
+  }
+  const wrapped = traced.some((item) =>
     item.requests.some((request) => request.sent !== undefined && wrappedInData(request.sent)),
   )
   // The "one of these requests failing" answer is only honest when a listed request really failed.
@@ -600,9 +699,14 @@ export function failureTraceNote(items: readonly TraceArtifact[], target: string
       )
     rows.push(`  ${index + 1}. ${whereOf(item)} — ${parts.join(' — ')}`)
   }
+  // Distinct locations the note did not name: the repeats collapse, so the count is what is left
+  // to look at, not how many zips Playwright wrote.
+  const distinct = new Set(
+    candidates.map((item, index) => (item.spec === null ? `#${index}` : whereOf(item))),
+  )
   const more =
-    withEvidence.length > MAX_TRACE_NOTE_TESTS
-      ? `\n  … and ${withEvidence.length - MAX_TRACE_NOTE_TESTS} more traced failures`
+    distinct.size > traced.length
+      ? `\n  … and ${distinct.size - traced.length} more traced failures`
       : ''
   return (
     `The platform read the failing tests' own Playwright traces from the run against ${target} ` +

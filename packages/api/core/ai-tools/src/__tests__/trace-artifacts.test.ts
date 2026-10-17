@@ -246,8 +246,18 @@ describe('failureTraceNote — a request with no response is not a failed reques
   it('never prints a `-1` and never calls an unanswered request a failure (m112 +30:45)', () => {
     const root = layout({ 'pending-chromium': PENDING_MINUS_ONE })
     try {
+      const items = parseTraceArtifacts(readTraces(root))
+      // A trace whose only request got NO response is not a row at all: there is nothing in it
+      // the note can explain, and the +53:46 note's five rows were exactly this shape.
+      expect(failureTraceNote(items, 'loopcheck-xr-molecule-flash-m112')).toBeNull()
+
+      // Where the same trace also raised a page error it IS a row, and the request is named under
+      // what it actually is — never as a `-1` status.
       const note = String(
-        failureTraceNote(parseTraceArtifacts(readTraces(root)), 'loopcheck-xr-molecule-flash-m112'),
+        failureTraceNote(
+          items.map((item) => ({ ...item, console: ['favorite failed'] })),
+          'loopcheck-xr-molecule-flash-m112',
+        ),
       )
       // The raw trace status is not a status a reader can act on.
       expect(note).not.toMatch(/→ -1/)
@@ -305,10 +315,13 @@ describe('failureTraceNote — a request with no response is not a failed reques
 
   it('splits a row into failures and unanswered requests, and only promises a failure when one is listed', () => {
     // m112's own first row, verbatim: four requests, every one `-1` (the page closed under them).
+    // One answered request keeps this a row at all (+53:46: a trace of nothing but `-1`s is not
+    // one — the note is about what a page sent and got).
     const m112: TraceArtifact = {
       spec: 'e2e/realworld-specs/url-navigation.spec.ts',
       line: 107,
       requests: [
+        { method: 'GET', path: '/sw.js', status: 200 },
         { method: 'GET', path: '/api/articles?limit=20&offset=0', status: -1 },
         { method: 'GET', path: '/api/tags', status: -1 },
         { method: 'GET', path: '/default-avatar.svg', status: -1 },
@@ -347,6 +360,174 @@ describe('failureTraceNote — a request with no response is not a failed reques
     )
     expect(withFailure).toContain('no response recorded')
     expect(withFailure).not.toMatch(/→ -1/)
+  })
+})
+
+/**
+ * X0 xr-molecule-flash-m112's +53:46 deployed walk is the case: the note's five rows were
+ * `url-navigation.spec.ts:268` and FOUR traces of `:107`'s `afterEach` line, every request `→ -1`,
+ * while the favorite cause — `articles.spec.ts:123/:139`, `social.spec.ts:115`, the one failure
+ * that repeated in all three walks — sat in "… and 7 more traced failures". The rows are spent on
+ * evidence now: a recorded response, deduplicated by location, ranked real-failures-first.
+ */
+describe('failureTraceNote — the rows it spends (m112 +53:46)', () => {
+  /** One of the +53:46 walk's `-1`-only rows: the page closed under every request it made. */
+  const teardown = (line: number, paths: readonly string[]): TraceArtifact => ({
+    spec: 'e2e/realworld-specs/url-navigation.spec.ts',
+    line,
+    requests: paths.map((path) => ({ method: 'GET', path, status: -1 })),
+    console: [],
+  })
+
+  /**
+   * The favorite cause's trace: the click's own request was ANSWERED, the button never changed.
+   * Declared at `articles.spec.ts:123`; the last traced step (the click) is the line below it.
+   */
+  const favorite = (line: number, status = 200): TraceArtifact => ({
+    spec: 'e2e/realworld-specs/articles.spec.ts',
+    line,
+    requests: [
+      { method: 'GET', path: '/api/articles?limit=10&offset=0', status: 200 },
+      { method: 'POST', path: '/api/articles/some-article/favorite', status },
+    ],
+    console: [],
+  })
+
+  it('spends no row on requests that got no response, and shows the cause those rows hid', () => {
+    // The walk's +53:46 note, in the order the traces were read (newest first): five rows of
+    // `-1`s, then the causes.
+    const items: TraceArtifact[] = [
+      teardown(268, [
+        '/api/articles?limit=10&offset=0',
+        '/api/tags',
+        '/default-avatar.svg',
+        '/index.html',
+      ]),
+      teardown(107, [
+        '/api/articles?limit=10&offset=0',
+        '/api/tags',
+        '/default-avatar.svg',
+        '/logo.svg',
+      ]),
+      teardown(107, [
+        '/logo.svg',
+        '/api/articles?limit=10&offset=0',
+        '/api/tags',
+        '/default-avatar.svg',
+      ]),
+      teardown(107, [
+        '/logo.svg',
+        '/api/articles?limit=10&offset=0',
+        '/api/tags',
+        '/default-avatar.svg',
+      ]),
+      teardown(107, [
+        '/og-image.svg',
+        '/api/articles?limit=10&offset=0',
+        '/api/tags',
+        '/default-avatar.svg',
+      ]),
+      favorite(133),
+      {
+        spec: 'e2e/realworld-specs/articles.spec.ts',
+        line: 145,
+        requests: [{ method: 'POST', path: '/api/articles/some-article/favorite', status: 200 }],
+        console: [],
+      },
+      {
+        spec: 'e2e/realworld-specs/social.spec.ts',
+        line: 120,
+        requests: [{ method: 'GET', path: '/api/profiles/some-user', status: 200 }],
+        console: [],
+      },
+    ]
+    const note = String(failureTraceNote(items, 'the deployed app'))
+    // Not one `-1`-only trace occupies a row any more (the note had five).
+    expect(note).not.toContain('url-navigation.spec.ts')
+    expect(note).not.toMatch(/→ -1/)
+    // The favorite cause the note hid is in it.
+    expect(note).toContain('e2e/realworld-specs/articles.spec.ts:133')
+    expect(note).toContain('POST /api/articles/some-article/favorite → 200')
+    expect(note).toContain('e2e/realworld-specs/social.spec.ts:120')
+    // Every listed request was answered, so the note does not send the run at the API.
+    expect(note).toContain('No listed request failed')
+    expect(note).not.toContain('usually one of these requests failing')
+  })
+
+  it('is null when every trace is `-1` only — there is no request to explain', () => {
+    expect(failureTraceNote([teardown(107, ['/api/tags'])], 'the deployed app')).toBeNull()
+    expect(
+      failureTraceNote([teardown(268, ['/api/tags', '/default-avatar.svg'])], 'the deployed app'),
+    ).toBeNull()
+  })
+
+  it('orders a real failure first, then a failure an earlier walk repeated, then the rest', () => {
+    const oneOff: TraceArtifact = {
+      spec: 'e2e/realworld-specs/social.spec.ts',
+      line: 120,
+      requests: [{ method: 'GET', path: '/api/profiles/some-user', status: 200 }],
+      console: [],
+    }
+    const failing = favorite(150, 500)
+    const list = failureTraceNote(
+      [oneOff, favorite(133), failing],
+      'the deployed app',
+      // The previous walk failed the test declared at `articles.spec.ts:123`; this walk's trace
+      // of the same test names the step it got to (:133), the click.
+      ['/workspace/my-app/app/e2e/realworld-specs/articles.spec.ts:123'],
+    )
+    const rows = String(list)
+      .split('\n')
+      .filter((line) => /^\s+\d+\./.test(line))
+    // The 500 leads even though its trace was read last.
+    expect(rows[0]).toContain('failed: POST /api/articles/some-article/favorite → 500')
+    expect(rows[0]).toContain('articles.spec.ts:150')
+    // Then the test the previous walk also failed — above the one-off read first.
+    expect(rows[1]).toContain('e2e/realworld-specs/articles.spec.ts:133')
+    expect(rows[2]).toContain('e2e/realworld-specs/social.spec.ts:120')
+  })
+
+  it('does not read a hook line ABOVE an earlier failure as that test', () => {
+    // `:107` is the Pagination suite's `afterEach`, shared by every test below it. The earlier
+    // walk failed the test declared at `:111`; a line before it is not that test.
+    const hook: TraceArtifact = {
+      spec: 'e2e/realworld-specs/url-navigation.spec.ts',
+      line: 107,
+      requests: [{ method: 'GET', path: '/api/tags', status: 200 }],
+      console: [],
+    }
+    const oneOff: TraceArtifact = {
+      spec: 'e2e/realworld-specs/social.spec.ts',
+      line: 120,
+      requests: [{ method: 'GET', path: '/api/profiles/some-user', status: 200 }],
+      console: [],
+    }
+    const rows = String(
+      failureTraceNote([oneOff, hook], 'the deployed app', [
+        '/workspace/my-app/app/e2e/realworld-specs/url-navigation.spec.ts:111',
+      ]),
+    )
+      .split('\n')
+      .filter((line) => /^\s+\d+\./.test(line))
+    expect(rows[0]).toContain('social.spec.ts:120')
+  })
+
+  it('keeps one row per location, and the copy that carries the real failure', () => {
+    const answered: TraceArtifact = {
+      spec: 'e2e/realworld-specs/articles.spec.ts',
+      line: 123,
+      requests: [{ method: 'POST', path: '/api/articles/some-article/favorite', status: 200 }],
+      console: [],
+    }
+    const failed: TraceArtifact = {
+      ...answered,
+      requests: [{ method: 'POST', path: '/api/articles/some-article/favorite', status: 500 }],
+    }
+    const note = String(failureTraceNote([answered, failed], 'the deployed app'))
+    expect(note.match(/e2e\/realworld-specs\/articles\.spec\.ts:123/g)).toHaveLength(1)
+    // The row kept is the one with evidence — not whichever trace was read first.
+    expect(note).toContain('failed: POST /api/articles/some-article/favorite → 500')
+    expect(note).not.toContain('answered: POST /api/articles/some-article/favorite → 200')
   })
 })
 
