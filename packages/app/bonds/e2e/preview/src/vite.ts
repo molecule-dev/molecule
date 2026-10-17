@@ -9,6 +9,14 @@
 import { createHash } from 'node:crypto'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import process from 'node:process'
+import {
+  brotliCompressSync,
+  brotliDecompressSync,
+  deflateSync,
+  gunzipSync,
+  gzipSync,
+  inflateSync,
+} from 'node:zlib'
 
 import type { Plugin } from 'vite'
 
@@ -82,6 +90,46 @@ const serveClient: Middleware = (req, res, next) => {
  * `vite preview` serves built files as-is, so the client is spliced into HTML
  * responses on the way out (navigations only — requests that accept HTML).
  */
+/**
+ * One compressed response body, decoded — or null for an encoding this does not know.
+ *
+ * @param body - The bytes as the middleware accumulated them.
+ * @param encoding - The response's `content-encoding`, lower-cased.
+ * @returns The decoded bytes, or null when the encoding is not one of gzip/deflate/br or the
+ *   stream is not valid for it (which is passed through untouched).
+ */
+function decodeBody(body: Buffer, encoding: string): Buffer | null {
+  try {
+    if (encoding === 'gzip' || encoding === 'x-gzip') return gunzipSync(body)
+    if (encoding === 'deflate') return inflateSync(body)
+    if (encoding === 'br') return brotliDecompressSync(body)
+  } catch (_error) {
+    // Undecodable under the header it declares: pass the response through as it came, rather
+    // than hand the browser a body that disagrees with its own `content-encoding`.
+    return null
+  }
+  return null
+}
+
+/**
+ * One HTML document, compressed the way the response already promised it would be.
+ *
+ * @param body - The injected UTF-8 document.
+ * @param encoding - The response's `content-encoding`, lower-cased.
+ * @returns The compressed bytes, or null when this cannot produce that encoding.
+ */
+function encodeBody(body: Buffer, encoding: string): Buffer | null {
+  try {
+    if (encoding === 'gzip' || encoding === 'x-gzip') return gzipSync(body)
+    if (encoding === 'deflate') return deflateSync(body)
+    if (encoding === 'br') return brotliCompressSync(body)
+  } catch (_error) {
+    // Same rule as {@link decodeBody}: no re-encoding, no splice.
+    return null
+  }
+  return null
+}
+
 const injectIntoHtmlResponses =
   (base: string): Middleware =>
   (req, res, next) => {
@@ -123,12 +171,30 @@ const injectIntoHtmlResponses =
       if (!isHtml) return (origEnd as (...a: unknown[]) => ServerResponse)(chunk, ...args)
       if (chunk && typeof chunk !== 'function')
         chunks.push(Buffer.from(chunk as string | Uint8Array))
-      const html = injectE2EClientTag(Buffer.concat(chunks).toString('utf8'), base)
+      // A COMPRESSED body cannot be spliced as text: `vite preview` (Vite 8) gzips HTML over a
+      // size threshold, and decoding gzip bytes as UTF-8 and injecting into them left the
+      // `content-encoding: gzip` header promising a stream that was no longer gzip — Chromium
+      // failed the page with `net::ERR_CONTENT_DECODING_FAILED` and Firefox never loaded it
+      // (reproduced 2026-10-17 on a flagship template's preview, with this plugin on and off as
+      // the only difference). Decode, inject, and re-encode with the SAME encoding, so the
+      // header still tells the truth and the page keeps the client.
+      const body = Buffer.concat(chunks)
+      const encoding = String(res.getHeader('content-encoding') ?? '').toLowerCase()
+      const compressed = encoding !== '' && encoding !== 'identity'
+      const decoded = compressed ? decodeBody(body, encoding) : body
+      // An encoding this cannot decode is passed through untouched: a corrupt splice is worse
+      // than a page with no client.
+      if (decoded === null) return (origEnd as (...a: unknown[]) => ServerResponse)(chunk, ...args)
+      const html = injectE2EClientTag(decoded.toString('utf8'), base)
+      const encoded = compressed ? encodeBody(Buffer.from(html, 'utf8'), encoding) : null
+      if (compressed && encoded === null)
+        return (origEnd as (...a: unknown[]) => ServerResponse)(chunk, ...args)
+      const answer: string | Buffer = encoded ?? html
       if (!res.headersSent) {
         res.removeHeader('content-length')
-        origSetHeader('content-length', Buffer.byteLength(html))
+        origSetHeader('content-length', Buffer.byteLength(answer))
       }
-      return origEnd(html)
+      return origEnd(answer)
     }) as typeof res.end
     next()
   }

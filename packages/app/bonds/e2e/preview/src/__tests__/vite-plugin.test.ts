@@ -1,4 +1,5 @@
 import type { AddressInfo } from 'node:net'
+import { gzipSync } from 'node:zlib'
 
 import { createServer, type Plugin, type ViteDevServer } from 'vite'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
@@ -30,6 +31,20 @@ describe('molE2EPreviewPlugin on a dev server', () => {
         if (path === '/blog/data.json') {
           res.setHeader('content-type', 'application/json')
           res.end('{"ok":true}')
+          return
+        }
+        // `vite preview` (Vite 8) compresses HTML over a size threshold: a gzip body under a
+        // `content-encoding: gzip` header, streamed. Reproduced here so the injector is held to
+        // splicing the DECODED document and re-encoding it.
+        if (path === '/blog/gz/') {
+          const body = gzipSync(
+            Buffer.from(
+              '<!doctype html><html><head><title>Post</title></head><body><h1>Compressed</h1></body></html>',
+            ),
+          )
+          res.setHeader('content-type', 'text/html; charset=utf-8')
+          res.setHeader('content-encoding', 'gzip')
+          res.end(body)
           return
         }
         next()
@@ -66,6 +81,16 @@ describe('molE2EPreviewPlugin on a dev server', () => {
     expect(page).toContain('data-base="/blog/"')
     expect(page).toContain('<h1>Post</h1>')
     expect(page.match(/data-mol-e2e(?:=""| |>)/g)?.length, 'the client tag once').toBe(1)
+  })
+
+  // Vite 8's `vite preview` gzips HTML over a size threshold. The injector decoded the gzip
+  // bytes as UTF-8 and re-sent them under `content-encoding: gzip`, so every browser failed the
+  // page with `net::ERR_CONTENT_DECODING_FAILED` — a production-build walk of an app was
+  // unusable with this plugin on (2026-10-17, reproduced on a flagship template's preview).
+  it('injects into a GZIPPED HTML response without corrupting it', async () => {
+    const page = await html('/blog/gz/')
+    expect(page).toContain('<h1>Compressed</h1>')
+    expect(page.match(/data-mol-e2e(?:=""| |>)/g)?.length).toBe(1)
   })
 
   it("tags Vite's own index exactly once (the hook and the injector do not double up)", async () => {
