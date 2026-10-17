@@ -317,19 +317,28 @@ function addMissingColumns(
   owners: ReadonlyMap<string, string>,
 ): void {
   for (const { table, columns } of declaredTables(sql)) {
-    const owner = owners.get(table.toLowerCase())
-    if (owner !== undefined && owner !== file) {
-      console.warn(
-        `⚠ ${file}: CREATE TABLE IF NOT EXISTS "${table}" is a no-op — ${owner} creates it; ` +
-          'add columns with ALTER TABLE … ADD COLUMN in a new migration',
-      )
-      continue
-    }
     const existing = db.prepare('SELECT name FROM pragma_table_info(?)').all(table) as {
       name: string
     }[]
     if (existing.length === 0) continue
     const have = new Set(existing.map((c) => c.name.toLowerCase()))
+    const owner = owners.get(table.toLowerCase())
+    if (owner !== undefined && owner !== file) {
+      // Repeating the owner's CREATE is a package pattern (a setup file that adds a
+      // column declares its table so the scaffold can find it, then ALTERs): say
+      // nothing when the table already has every column this CREATE declares — this
+      // runs after the file's own statements, so its ALTERs have landed. Only the
+      // columns that would have been reconciled in are worth a word.
+      const missing = columns.filter((c) => !have.has(c.name.toLowerCase())).map((c) => c.name)
+      if (missing.length > 0) {
+        console.warn(
+          `⚠ ${file}: CREATE TABLE IF NOT EXISTS "${table}" is a no-op — ${owner} creates it, so ` +
+            `${missing.join(', ')} ${missing.length === 1 ? 'is' : 'are'} not added; ` +
+            'add columns with ALTER TABLE … ADD COLUMN in a new migration',
+        )
+      }
+      continue
+    }
     for (const column of columns) {
       if (have.has(column.name.toLowerCase())) continue
       if (!addableColumn(column.definition)) {

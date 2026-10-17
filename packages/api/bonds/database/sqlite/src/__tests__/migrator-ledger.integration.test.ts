@@ -185,11 +185,13 @@ describe('createMigrator (sqlite) — ledger', () => {
     ).toEqual(['0001_init.sql', '0002_seq.sql'])
   })
 
-  it('adds the column a later file declares, via its own ALTER, and says its CREATE is a no-op', async () => {
+  it('adds the column a later file declares via its own ALTER, and says nothing — the table has every column', async () => {
     // Postgres's reading of the clause, which this bond matches: on the existing
     // table the later file's own `CREATE TABLE IF NOT EXISTS` is a no-op (the earlier
     // file OWNS the table — columns are reconciled only there, X1 m103), so the ADD
-    // COLUMN is what has to deliver the column.
+    // COLUMN is what delivers the column. Repeating the owner's CREATE is how a
+    // package's column-adding setup file is found by the scaffold (api-resource-article
+    // articles_position.sql), so once the ALTER has landed there is nothing to warn about.
     writeFileSync(
       join(migrationsDir, '0001_init.sql'),
       'CREATE TABLE IF NOT EXISTS "notes" ("id" INTEGER PRIMARY KEY);',
@@ -203,8 +205,7 @@ describe('createMigrator (sqlite) — ledger', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
     vi.spyOn(console, 'log').mockImplementation(() => {})
     await createMigrator(migrationsDir)()
-    expect(String(warn.mock.calls[0]?.[0])).toContain('is a no-op')
-    expect(String(warn.mock.calls[0]?.[0])).toContain('0001_init.sql creates it')
+    expect(warn).not.toHaveBeenCalled()
     expect(
       query<{ name: string }>("SELECT name FROM pragma_table_info('notes')").map((c) => c.name),
     ).toEqual(['id', 'seq'])
@@ -213,6 +214,28 @@ describe('createMigrator (sqlite) — ledger', () => {
         (r) => r.file,
       ),
     ).toEqual(['0001_init.sql', '0002_seq.sql'])
+  })
+
+  it('names the columns a later CREATE of another file’s table would have added, and adds none', async () => {
+    writeFileSync(
+      join(migrationsDir, '0001_init.sql'),
+      'CREATE TABLE IF NOT EXISTS "notes" ("id" INTEGER PRIMARY KEY);',
+    )
+    await createMigrator(migrationsDir)()
+    writeFileSync(
+      join(migrationsDir, '0002_rewrite.sql'),
+      'CREATE TABLE IF NOT EXISTS "notes" ("id" INTEGER PRIMARY KEY, "userId" TEXT NOT NULL);',
+    )
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    vi.spyOn(console, 'log').mockImplementation(() => {})
+    await createMigrator(migrationsDir)()
+    expect(String(warn.mock.calls[0]?.[0])).toContain('is a no-op')
+    expect(String(warn.mock.calls[0]?.[0])).toContain(
+      '0001_init.sql creates it, so userId is not added',
+    )
+    expect(
+      query<{ name: string }>("SELECT name FROM pragma_table_info('notes')").map((c) => c.name),
+    ).toEqual(['id'])
   })
 
   it('still fails the run when ADD COLUMN IF NOT EXISTS names a table that is not there', async () => {
