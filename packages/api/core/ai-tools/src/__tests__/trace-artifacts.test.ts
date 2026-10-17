@@ -155,6 +155,10 @@ describe('traceArtifactsScript — a real trace, read headlessly', () => {
       // The wrapping is named with the call shape that produces it.
       expect(note).toContain('wrapped in `data`')
       expect(note).toContain("post('/users', { user })")
+      // The registration body's password is masked in the note (the trace keeps it).
+      expect(note).toContain('"password":"[REDACTED]"')
+      expect(note).not.toContain('secret-pw')
+      expect(post?.sent).toContain('secret-pw')
     } finally {
       rmSync(root, { recursive: true, force: true })
     }

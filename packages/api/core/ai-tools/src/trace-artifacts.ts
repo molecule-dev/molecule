@@ -29,7 +29,7 @@
 
 import { locatedCommandSegments } from './command-position.js'
 import { isDiagnosisRun } from './suite-overlap.js'
-import { isPlaywrightRunCommand } from './utilities.js'
+import { isPlaywrightRunCommand, redactSecrets } from './utilities.js'
 
 /** One request a traced page made, as `*.network` records it. */
 export interface TraceRequest {
@@ -450,8 +450,15 @@ function requestLine(request: TraceRequest): string {
       ? `${request.path.slice(0, TRACE_NOTE_URL_CHARS)}…`
       : request.path
   const head = `${request.method} ${url} → ${request.status === 0 ? 'no response' : request.status}`
-  const sent = request.sent ? ` sent ${bodyLine(request.sent, TRACE_NOTE_SENT_CHARS)}` : ''
-  const got = request.got ? ` got ${bodyLine(request.got, TRACE_NOTE_GOT_CHARS)}` : ''
+  // The body a page sends to its own API can carry a credential (a registration's password, a
+  // token in a form) — the note is egress, so it goes through the same redactor command output
+  // does. The parsed trace keeps the body; only the text the model reads is masked.
+  const sent = request.sent
+    ? ` sent ${bodyLine(redactSecrets(request.sent), TRACE_NOTE_SENT_CHARS)}`
+    : ''
+  const got = request.got
+    ? ` got ${bodyLine(redactSecrets(request.got), TRACE_NOTE_GOT_CHARS)}`
+    : ''
   return `${head}${sent}${got}`
 }
 
