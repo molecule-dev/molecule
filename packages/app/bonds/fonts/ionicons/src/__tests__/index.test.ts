@@ -1,4 +1,9 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+
+import { resetFonts, setFont } from '@molecule/app-fonts'
+// The exact import form the package README documents: a bundler asset URL.
+// It resolves only because package.json exports `./fonts/*`.
+import woffUrl from '@molecule/app-fonts-ionicons/fonts/ionicons.woff?url'
 
 import { font } from '../index.js'
 import { ioniconsUtilityCss } from '../utility-css.js'
@@ -48,5 +53,33 @@ describe('@molecule/app-fonts-ionicons', () => {
     // The same refusal mlcl's assertSafeFontMeta applies to registry metadata.
     expect(font.utilityCss).not.toContain('</style')
     expect(font.utilityCss).not.toContain('@font-face')
+  })
+})
+
+describe('wiring it without mlcl (the documented asset import)', () => {
+  afterEach(() => {
+    resetFonts()
+    vi.unstubAllGlobals()
+  })
+
+  it('uses the imported webfont URL as the face, not <basePath>fonts/<file>', () => {
+    const appended: Record<string, unknown>[] = []
+    vi.stubGlobal('document', {
+      documentElement: { style: { setProperty: vi.fn() } },
+      head: { appendChild: (el: Record<string, unknown>) => appended.push(el) },
+      querySelector: vi.fn().mockReturnValue(null),
+      getElementById: vi.fn().mockReturnValue(null),
+      createElement: vi.fn().mockImplementation(() => ({ tagName: 'style' })),
+    })
+
+    setFont(
+      { ...font, source: { type: 'local', faces: [{ file: woffUrl, weight: 400 }] } },
+      { basePath: '/blog/' },
+    )
+
+    expect(typeof woffUrl).toBe('string')
+    const styleEl = appended[0]
+    expect(styleEl.textContent).toContain(`src: url('${woffUrl}')`)
+    expect(styleEl.textContent).not.toContain('/blog/fonts/')
   })
 })

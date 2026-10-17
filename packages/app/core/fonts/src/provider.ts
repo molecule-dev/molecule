@@ -51,6 +51,41 @@ export function resolveFontBasePath(basePath?: string): string {
   return base
 }
 
+/** A `faces[].file` that already names its own final location. */
+const ABSOLUTE_FACE_FILE = /^(?:[a-z][a-z0-9+.-]*:|\/\/|\/)/i
+
+/**
+ * Whether a local face's `file` is already a final URL, so `setFont()` must use
+ * it as-is instead of resolving it under `<basePath>fonts/`.
+ *
+ * True for a root-absolute path (`/assets/ionicons-1a2b.woff`), a full URL
+ * (`https:`, `http:`, `//host/…`) or an inline `data:` URL. Those are exactly
+ * the shapes a bundler emits for `import woff from '…woff?url'`.
+ *
+ * @param file - The face's `file` field.
+ * @returns `true` when the value is already a URL.
+ */
+export function isAbsoluteFontFileUrl(file: string): boolean {
+  return ABSOLUTE_FACE_FILE.test(file)
+}
+
+/**
+ * Resolves a local face's `file` to the URL its `@font-face` loads from.
+ *
+ * An already-final URL is returned unchanged (including a Vite asset URL that
+ * already carries the configured `base`). A plain filename is served from
+ * `<basePath>fonts/<file>`.
+ *
+ * @param file - The face's `file` field.
+ * @param basePath - Public base path from {@link resolveFontBasePath} (default `/`).
+ * @returns The URL to put in `src: url(…)`.
+ */
+export function resolveFontFaceUrl(file: string, basePath = '/'): string {
+  if (isAbsoluteFontFileUrl(file)) return file
+  const base = basePath.endsWith('/') ? basePath : `${basePath}/`
+  return `${base}fonts/${file}`
+}
+
 /**
  * Registers a font definition for a specific role (`sans`, `serif`, or `mono`).
  *
@@ -104,7 +139,7 @@ export function setFont(font: FontDefinition, options: SetFontOptions = {}): voi
           const style = face.style ?? 'normal'
           return `@font-face {
   font-family: '${font.family}';
-  src: url('${base}fonts/${face.file}');
+  src: url('${resolveFontFaceUrl(face.file, base)}');
   font-weight: ${weight};
   font-style: ${style};
   font-display: swap;

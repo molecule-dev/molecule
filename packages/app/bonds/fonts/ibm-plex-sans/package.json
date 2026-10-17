@@ -14,7 +14,8 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
-    }
+    },
+    "./fonts/*": "./fonts/*"
   },
   "files": [
     "dist",

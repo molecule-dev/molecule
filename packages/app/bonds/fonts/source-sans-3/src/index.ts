@@ -19,9 +19,19 @@
  * - The package name follows the font's current upstream name (Adobe renamed
  *   Source Sans Pro to Source Sans 3); the `family` is `Source Sans Pro` so the
  *   CSS family a shipped theme writes matches with no edit.
- * - The packaged `fonts/SourceSans3-VariableFont.ttf` is served from
- *   `<basePath>fonts/`, so a project that does not use the scaffold's font
- *   copy step must copy it into `public/fonts/` itself.
+ * - **Wiring it without `mlcl` (the sandbox):** the package is already
+ *   installed under `node_modules` — add an `"@molecule/app-fonts-source-sans-3"`
+ *   dependency to the app's `package.json` (pin the version already installed
+ *   there), then in `app/src/bonds/index.ts` call `setFont(sans)`.
+ *   Preferred: import the webfont as an asset so nothing is copied —
+ *   `import woff from '@molecule/app-fonts-source-sans-3/fonts/SourceSans3-VariableFont.ttf?url'` then
+ *   `setFont({ ...sans, source: { type: 'local', faces: [{ file: woff,
+ *   weight: '200 900' }] } })`. `setFont()` uses a `file` starting with
+ *   `/`, `http` or `data:` as-is.
+ *   Without an asset import, copy
+ *   `node_modules/@molecule/app-fonts-source-sans-3/fonts/SourceSans3-VariableFont.ttf` to
+ *   `app/public/fonts/SourceSans3-VariableFont.ttf` and call `setFont(sans)` — a
+ *   plain filename is served from `<basePath>fonts/<file>`.
  *
  * @module
  */

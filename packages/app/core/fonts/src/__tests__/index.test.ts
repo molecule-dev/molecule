@@ -7,8 +7,10 @@ import {
   getFontConfig,
   hasFont,
   hasFontConfig,
+  isAbsoluteFontFileUrl,
   resetFonts,
   resolveFontBasePath,
+  resolveFontFaceUrl,
   setFont,
   systemMono,
   systemSans,
@@ -55,6 +57,20 @@ const localFont: FontDefinition = {
   },
 }
 
+const assetFont: FontDefinition = {
+  family: 'Arimo',
+  role: 'sans',
+  fallbacks: ['sans-serif'],
+  source: {
+    type: 'local',
+    faces: [
+      // What `import ttf from '…Arimo-Regular.ttf?url'` yields in a built app.
+      { file: '/blog/assets/Arimo-Regular-1a2b3c.ttf', weight: 400 },
+      { file: 'Arimo-Bold.ttf', weight: 700 },
+    ],
+  },
+}
+
 const systemFont: FontDefinition = {
   family: 'system-ui',
   role: 'sans',
@@ -91,6 +107,45 @@ describe('resolveFontBasePath', () => {
     expect(resolveFontBasePath('.')).toBe('/')
     expect(resolveFontBasePath('./')).toBe('/')
     expect(resolveFontBasePath(undefined)).toBe('/')
+  })
+})
+
+describe('font face URLs', () => {
+  it('treats root-absolute, protocol-relative, scheme and data files as final URLs', () => {
+    for (const file of [
+      '/assets/ionicons-1a2b3c.woff',
+      '//cdn.example.com/x.woff',
+      'http://localhost:3000/x.woff',
+      'https://example.com/x.woff',
+      'data:font/woff2;base64,d09GMgABAAAAAA==',
+    ]) {
+      expect(isAbsoluteFontFileUrl(file)).toBe(true)
+    }
+  })
+
+  it('treats a plain package font filename as relative', () => {
+    expect(isAbsoluteFontFileUrl('ionicons.woff')).toBe(false)
+    expect(isAbsoluteFontFileUrl('Inter-VariableFont_opsz,wght.ttf')).toBe(false)
+  })
+
+  it('uses an absolute face URL as-is, ignoring the base path', () => {
+    // A bundler asset URL already carries the app's base (`/blog/assets/…`), so
+    // prefixing `<basePath>fonts/` again would point at nothing.
+    expect(resolveFontFaceUrl('/blog/assets/ionicons-1a2b.woff', '/blog/')).toBe(
+      '/blog/assets/ionicons-1a2b.woff',
+    )
+    expect(resolveFontFaceUrl('https://example.com/x.woff', '/blog/')).toBe(
+      'https://example.com/x.woff',
+    )
+    expect(resolveFontFaceUrl('data:font/woff2;base64,AAAA', '/blog/')).toBe(
+      'data:font/woff2;base64,AAAA',
+    )
+  })
+
+  it('resolves a plain filename under <basePath>fonts/', () => {
+    expect(resolveFontFaceUrl('ionicons.woff', '/')).toBe('/fonts/ionicons.woff')
+    expect(resolveFontFaceUrl('ionicons.woff', '/blog/')).toBe('/blog/fonts/ionicons.woff')
+    expect(resolveFontFaceUrl('ionicons.woff', '/blog')).toBe('/blog/fonts/ionicons.woff')
   })
 })
 
@@ -345,6 +400,15 @@ describe('@molecule/app-fonts', () => {
       setFont(localFont, { basePath: '/blog' })
       const styleEl = mockAppendChild.mock.calls[0][0]
       expect(styleEl.textContent).toContain("src: url('/blog/fonts/Arimo-Regular.ttf')")
+    })
+
+    it('injects a bundler asset URL face as-is and still prefixes plain filenames', () => {
+      setFont(assetFont, { basePath: '/blog/' })
+      const styleEl = mockAppendChild.mock.calls[0][0]
+      expect(styleEl.textContent).toContain("src: url('/blog/assets/Arimo-Regular-1a2b3c.ttf')")
+      expect(styleEl.textContent).not.toContain("url('/blog/fonts//blog/assets/")
+      // The plain filename beside it keeps the <basePath>fonts/ resolution.
+      expect(styleEl.textContent).toContain("src: url('/blog/fonts/Arimo-Bold.ttf')")
     })
 
     it('should inject @font-face plus the utility class for icon fonts', () => {

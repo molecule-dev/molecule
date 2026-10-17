@@ -19,7 +19,13 @@ export type FontRole = 'sans' | 'serif' | 'mono' | 'icon'
 
 /** Descriptor for a single `@font-face` declaration (local fonts). */
 export interface FontFaceDescriptor {
-  /** Font filename relative to the package's fontsDir (e.g., 'Arimo-Regular.ttf'). */
+  /**
+   * Font file: a filename relative to the package's fontsDir
+   * (e.g., 'Arimo-Regular.ttf'), or an already-final URL — a root-absolute
+   * asset path (`/assets/Arimo-1a2b.ttf`), a full `http(s):` URL or a
+   * `data:` URL — which `setFont()` uses as-is. That is the shape a bundler
+   * emits for `import ttf from '…Arimo-Regular.ttf?url'`.
+   */
   file: string
   /** CSS font-weight value — number (400) or range string ('100 1000'). */
   weight: number | string

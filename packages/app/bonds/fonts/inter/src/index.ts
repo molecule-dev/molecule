@@ -16,13 +16,23 @@
  *   `bond('font', …)`** — `setFont()` is what sets the `--mol-font-sans` CSS
  *   variable and injects the `@font-face` rules; a raw bond registers the
  *   definition but renders nothing.
- * - **Serve this package's `fonts/` directory at the public path `/fonts/`**
- *   (e.g. copy `node_modules/@molecule/app-fonts-inter/fonts/*` to the app's
- *   `public/fonts/`). Every `@font-face` src is `/fonts/<file>`; missing files
- *   silently 404 and the fallback stack renders instead.
  * - Fills the `sans` role only — `serif`/`mono` stay on system stacks unless
  *   another font bond is wired. Consume via `var(--mol-font-sans)`, never a
  *   hardcoded `font-family`.
+ * - **Wiring it without `mlcl` (the sandbox):** the package is already
+ *   installed under `node_modules` — add an `"@molecule/app-fonts-inter"`
+ *   dependency to the app's `package.json` (pin the version already installed
+ *   there), then in `app/src/bonds/index.ts` call `setFont(font)`.
+ *   Preferred: import each face as an asset so nothing is copied (one
+ *   import per entry of `font.source.faces`) —
+ *   `import face0 from '@molecule/app-fonts-inter/fonts/Inter-Regular.ttf?url'` then
+ *   `setFont({ ...font, source: { type: 'local', faces: [{ file: face0,
+ *   weight: 400 }] } })`, one entry per import. `setFont()` uses a
+ *   `file` starting with `/`, `http` or `data:` as-is.
+ *   Without asset imports, copy
+ *   `node_modules/@molecule/app-fonts-inter/fonts/*` to `app/public/fonts/` and call
+ *   `setFont(font)` — plain filenames are served from
+ *   `<basePath>fonts/<file>`.
  *
  * @module
  */
