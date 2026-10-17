@@ -41,6 +41,16 @@ export interface TraceRequest {
   status: number
 }
 
+/** One action the traced page performed, with the trace's own timing for it. */
+export interface TraceAction {
+  /** The Playwright API the entry names: `Frame.goto`, `Locator.fill`, `Locator.click`. */
+  api: string
+  /** When the action started, on the trace's own monotonic clock (ms). */
+  start: number
+  /** When it finished, or null when the run ended before it did. */
+  end: number | null
+}
+
 /** What one trace says: the test it belongs to, the requests it made, and its console errors. */
 export interface TraceArtifact {
   /** The failure's spec file, relative to the run's directory, when the trace names one. */
@@ -51,6 +61,12 @@ export interface TraceArtifact {
   requests: TraceRequest[]
   /** The console errors and page errors the page raised. */
   console: string[]
+  /**
+   * The page's own actions in the order the trace recorded them, bounded — what a test that ran
+   * out of a per-test budget spends its time on. A test that repeats one action prints it once per
+   * repeat, so the gap between two starts is one repeat's measured cost.
+   */
+  actions: TraceAction[]
 }
 
 /** How many traces one read reports, newest first. */
@@ -61,6 +77,9 @@ export const MAX_TRACED_REQUESTS = 6
 
 /** How many console errors one test's trace contributes. */
 export const MAX_TRACED_CONSOLE = 4
+
+/** How many of the page's own actions one test's trace contributes, the LAST ones. */
+export const MAX_TRACED_ACTIONS = 40
 
 /** How many tests the note in a run's result names. */
 export const MAX_TRACE_NOTE_TESTS = 5
@@ -98,6 +117,7 @@ const ROOT = process.argv[2] || '/workspace'
 const MAX_TRACES = ${MAX_TRACE_ARTIFACTS}
 const MAX_REQUESTS = ${MAX_TRACED_REQUESTS}
 const MAX_CONSOLE = ${MAX_TRACED_CONSOLE}
+const MAX_ACTIONS = ${MAX_TRACED_ACTIONS}
 const MAX_URL = 200
 
 function walk(dir, depth, out) {
@@ -249,6 +269,25 @@ for (const one of found.slice(0, MAX_TRACES)) {
     seen.add(key)
     chosen.push({ method: r.method, path: r.path, status: r.status })
   }
+  // The page's own actions, timed. before/after pair on the call id, and only the LIBRARY
+  // traces carry a class and a method (Frame.goto, Locator.fill); the test runner's own
+  // trace times its hooks and fixtures with class Test, which is not a page action.
+  const ended = {}
+  for (const entry of trace) {
+    if (entry && entry.type === 'after' && typeof entry.callId === 'string' && typeof entry.endTime === 'number')
+      ended[entry.callId] = entry.endTime
+  }
+  const actions = []
+  for (const entry of trace) {
+    if (!entry || entry.type !== 'before') continue
+    if (typeof entry.class !== 'string' || typeof entry.method !== 'string') continue
+    if (entry.class === 'Test' || typeof entry.startTime !== 'number') continue
+    actions.push({
+      api: entry.class + '.' + entry.method,
+      start: entry.startTime,
+      end: typeof ended[entry.callId] === 'number' ? ended[entry.callId] : null,
+    })
+  }
   const consoleErrors = []
   let spec = null
   let line = 0
@@ -271,13 +310,14 @@ for (const one of found.slice(0, MAX_TRACES)) {
   // of its own about it, that is the line worth reading.
   const specific = consoleErrors.filter(function (text) { return !/^Failed to load resource/.test(text) })
   const keptConsole = specific.length > 0 ? specific : consoleErrors
-  if (chosen.length === 0 && keptConsole.length === 0) continue
+  if (chosen.length === 0 && keptConsole.length === 0 && actions.length === 0) continue
   process.stdout.write('TRACE ' + JSON.stringify({
     dir: path.relative(ROOT, path.dirname(one.file)),
     spec: spec,
     line: line,
     requests: chosen.slice(-MAX_REQUESTS),
     console: keptConsole.slice(0, MAX_CONSOLE).map(function (text) { return text.slice(0, 300) }),
+    actions: actions.slice(-MAX_ACTIONS),
   }) + '\\n')
 }
 `
@@ -299,6 +339,7 @@ export function parseTraceArtifacts(stdout: string): TraceArtifact[] {
       const raw = JSON.parse(line.slice('TRACE '.length)) as Record<string, unknown>
       const requests = Array.isArray(raw.requests) ? raw.requests : []
       const consoleMessages = Array.isArray(raw.console) ? raw.console : []
+      const actions = Array.isArray(raw.actions) ? raw.actions : []
       out.push({
         spec: typeof raw.spec === 'string' ? raw.spec : null,
         line: typeof raw.line === 'number' ? raw.line : 0,
@@ -310,6 +351,14 @@ export function parseTraceArtifacts(stdout: string): TraceArtifact[] {
             status: Number(r.status ?? 0) || 0,
           })),
         console: consoleMessages.map(String),
+        actions: actions
+          .filter((a): a is Record<string, unknown> => typeof a === 'object' && a !== null)
+          .filter((a) => typeof a.api === 'string' && Number.isFinite(Number(a.start)))
+          .map((a) => ({
+            api: String(a.api),
+            start: Number(a.start),
+            end: a.end === null || a.end === undefined ? null : Number(a.end),
+          })),
       })
     } catch (_error) {
       continue

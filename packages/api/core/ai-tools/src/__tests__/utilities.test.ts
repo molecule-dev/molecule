@@ -2399,3 +2399,55 @@ cd /workspace/.mol-scratch/realworld-e2e && TEST_MODE=fullstack TEST_BASE_URL=ht
     }
   })
 })
+
+/**
+ * xr-molecule-flash-m110 (+20:44): five failures in one run were `Test timeout of 15000ms
+ * exceeded`, and the recap printed `Test timeout of <n> exceeded` — the number the whole failure
+ * class is about replaced by the placeholder that makes equal causes group. The budget is the one
+ * value that differs BETWEEN CAUSES and never within one, so it survives the grouping.
+ */
+describe('failureCausesNote — the test budget a timeout cause normalized away', () => {
+  /** Two failures the suite's own 15 s budget stopped, before and after the placeholders. */
+  const budget = [
+    '  1) [chromium] › e2e/url-navigation.spec.ts:137:3 › Pagination › loads ?page=N ────────',
+    '',
+    '    Test timeout of 15000ms exceeded.',
+    '',
+    '    Error: page.goto: Target page, context or browser has been closed',
+    '',
+    '  2) [chromium] › e2e/url-navigation.spec.ts:182:3 › Pagination › works with a tag ────────',
+    '',
+    '    Test timeout of 15000ms exceeded.',
+    '',
+    '    Error: page.goto: Target page, context or browser has been closed',
+    '',
+    '  2 failed',
+  ].join('\n')
+
+  it('prints the budget instead of <n>, and keeps it on the cause', () => {
+    const causes = failuresByCause(budget)
+    expect(causes).toHaveLength(1)
+    expect(causes[0].message).toBe('Test timeout of <n> exceeded.')
+    expect(causes[0].budgetMs).toBe(15000)
+    const note = failureCausesNote(budget)!
+    expect(note).toContain('`Test timeout of 15000ms exceeded.`')
+    expect(note).not.toContain('Test timeout of <n>')
+  })
+
+  it("leaves a locator wait's own timeout normalized — that is the config, not the budget", () => {
+    const waits = [
+      '  1) [chromium] › e2e/a.spec.ts:10:3 › A › one ────────',
+      '',
+      '    TimeoutError: page.click: Timeout 5000ms exceeded.',
+      '',
+      '  2) [chromium] › e2e/a.spec.ts:20:3 › A › two ────────',
+      '',
+      '    TimeoutError: page.click: Timeout 5000ms exceeded.',
+      '',
+      '  2 failed',
+    ].join('\n')
+    const causes = failuresByCause(waits)
+    expect(causes[0].budgetMs).toBeUndefined()
+    expect(failureCausesNote(waits)!).toContain('`TimeoutError: page.click: Timeout <n> exceeded.`')
+  })
+})

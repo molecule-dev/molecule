@@ -1983,6 +1983,34 @@ function normalizedSignature(s: string): string {
 }
 
 /**
+ * The per-test budget a failure block's own message names, in ms, or null. Only the runner's
+ * budget kill (`Test timeout of 15000ms exceeded`) is read: a locator wait's own
+ * `Timeout 5000ms exceeded` is the config's action timeout, not the budget a test body has to fit
+ * its repeated work into.
+ *
+ * @param block - One failure block, as {@link failureBlocks} splits them.
+ * @returns The budget in ms, or null.
+ */
+function failureBudgetMs(block: string): number | null {
+  const m = /\bTest timeout of (\d+)ms exceeded\b/.exec(block.replace(ANSI_SGR, ''))
+  return m ? Number(m[1]) : null
+}
+
+/**
+ * The cause signature with the budget it normalized away put back: `Test timeout of <n> exceeded`
+ * becomes `Test timeout of 15000ms exceeded`. Every other `<n>` stays — those are the values that
+ * differ between tests of one cause, while the budget is the one that does not, and it is what
+ * turns "a timeout" into "15 creates in 15 s" (xr-molecule-flash-m110 +20:44).
+ *
+ * @param message - The normalized signature.
+ * @param budgetMs - The budget the cause's first block printed.
+ * @returns The signature to print.
+ */
+function signatureWithBudget(message: string, budgetMs: number): string {
+  return message.replace(/Test timeout of <n> exceeded/, `Test timeout of ${budgetMs}ms exceeded`)
+}
+
+/**
  * What separates one cause from another in a `playwright test` log: the error CLASS plus the
  * normalized message — the error line, the thing it waited for or asserted on, and the values
  * with the test's own data normalized out.
@@ -2356,6 +2384,13 @@ export interface FailureCause {
    * for a duration group, whose blocks carried no bodies.
    */
   evidence: string[]
+  /**
+   * The suite's own per-test budget in ms, when the cause is the test-budget kill
+   * (`Test timeout of 15000ms exceeded`). The signature normalizes the number away
+   * ({@link normalizedSignature}) so equal causes group, and that number is the one fact that
+   * predicts a test spending its budget on a repeated action (xr-molecule-flash-m110 +20:44).
+   */
+  budgetMs?: number
 }
 
 /**
@@ -2449,7 +2484,10 @@ function groupFailures(
   const text = log.replace(ANSI_SGR, '')
   const flakyTests = flakyTestsDeclared(text)
   const flaky = new Set(flakyTests.map(testKey))
-  const byMessage = new Map<string, { tests: FailedTest[]; evidence: string[] }>()
+  const byMessage = new Map<
+    string,
+    { tests: FailedTest[]; evidence: string[]; budgetMs: number | null }
+  >()
   const named: FailedTest[] = []
   for (const block of failureBlocks(text)) {
     const message = failureMessage(block)
@@ -2470,12 +2508,20 @@ function groupFailures(
       byMessage.set(message, {
         tests: [test],
         evidence: failureEvidence(failureBody(block), message),
+        budgetMs: failureBudgetMs(block),
       })
   }
   const causes: FailureCause[] = []
   for (const [message, group] of byMessage) {
     const tests = distinctTests(group.tests)
-    if (tests.length > 0) causes.push({ message, seconds: null, tests, evidence: group.evidence })
+    if (tests.length > 0)
+      causes.push({
+        message,
+        seconds: null,
+        tests,
+        evidence: group.evidence,
+        ...(group.budgetMs === null ? {} : { budgetMs: group.budgetMs }),
+      })
   }
   // The failures with no body of their own — a `list` log with no error blocks in it, from a run
   // not started in the background — are grouped by how long they took: a band is opened by its
@@ -2605,7 +2651,7 @@ function failureCauseLine(cause: FailureCause, index: number): string {
     cause.tests.length > tests.length ? `, … and ${cause.tests.length - tests.length} more` : ''
   const signature =
     cause.message !== null
-      ? `\`${cause.message}\``
+      ? `\`${cause.budgetMs === undefined ? cause.message : signatureWithBudget(cause.message, cause.budgetMs)}\``
       : `each after ~${cause.seconds}s (a shared duration, not a proven cause)`
   const files = new Set(cause.tests.map((t) => specFile(t.where)).filter(Boolean)).size
   // A line the signature already carries (a timeout's `waiting for` locator, say) is not printed

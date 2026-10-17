@@ -83,6 +83,31 @@ describe('traceArtifactsScript — a real trace, read headlessly', () => {
     }
   })
 
+  it('reads the page actions with the trace’s own timing, so a repeated action measures one repeat', () => {
+    const root = layout({ [FOLDER]: FIXTURE })
+    try {
+      const line = readTraces(root)
+        .split('\n')
+        .find((l) => l.startsWith('TRACE '))
+      const raw = JSON.parse(String(line).slice('TRACE '.length)) as {
+        actions: Array<{ api: string; start: number; end: number | null }>
+      }
+      const goto = raw.actions.filter((a) => a.api === 'Frame.goto')
+      expect(goto.length).toBeGreaterThan(0)
+      // A finished action carries both ends, and the end is after the start.
+      expect(goto[0].start).toBeGreaterThan(0)
+      expect(Number(goto[0].end)).toBeGreaterThan(goto[0].start)
+      // The runner's own hooks and fixtures are not page actions.
+      expect(raw.actions.some((a) => a.api.startsWith('Test.'))).toBe(false)
+      // And the parsed form keeps it.
+      const items = parseTraceArtifacts(line + '\n')
+      expect(items[0].actions.length).toBeGreaterThan(0)
+      expect(items[0].actions[0].api).toMatch(/^[A-Za-z]+\.[A-Za-z]+$/)
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
   it('is read into the note the failed run carries, with the request the click sent', () => {
     const root = layout({ [FOLDER]: FIXTURE })
     try {
