@@ -96,7 +96,7 @@
  * Handler text flows through `t()` with English defaults; the companion
  * locale bond `@molecule/api-locales-status-page` provides translations.
  *
- * Tables: `setup/*.sql` creates `services`, `incidents`, `checks`, and
+ * Tables: `src/__setup__/*.sql` creates `services`, `incidents`, `checks`, and
  * `uptimeWindows`. An mlcl-scaffolded API replays these setup files
  * automatically on migrate; anywhere else run them once — nothing at runtime
  * creates them.

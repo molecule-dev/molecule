@@ -18,7 +18,7 @@
  * ```
  *
  * @remarks
- * Schema lives in `__setup__/journal_entries.sql` — two tables:
+ * Schema lives in `src/__setup__/journal_entries.sql` — two tables:
  * `journal_entries` + `mood_entries`. Mood rows are upserted per
  * (user, day) so multiple entries in a day share one mood row.
  *

@@ -11,7 +11,7 @@
  * **Tables this package owns: `articles` and `article_tags`.** The join between them is
  * `article_tags.articleId` = `articles.id` (a declared FK, `ON DELETE CASCADE`; `("articleId", "tag")` is
  * unique, and `article_tags.position` is the order the tags were given in). It also ships
- * `reactions.sql` and `follows.sql`, which create the `reactions` and `follows` tables it reads by name.
+ * `src/__setup__/reactions.sql` and `src/__setup__/follows.sql`, which create the `reactions` and `follows` tables it reads by name.
  *
  * @module
  * @example
@@ -58,9 +58,9 @@
  *
  * @remarks
  * - **Migration required: this package ships every table it reads, four in
- *   all.** `articles.sql` creates the `articles` and `article_tags` tables;
- *   `articles_position.sql` adds the `position` column to a database whose
- *   `article_tags` predates it; `reactions.sql` and `follows.sql` create the
+ *   all.** `src/__setup__/articles.sql` creates the `articles` and `article_tags` tables;
+ *   `src/__setup__/articles_position.sql` adds the `position` column to a database whose
+ *   `article_tags` predates it; `src/__setup__/reactions.sql` and `src/__setup__/follows.sql` create the
  *   `reactions` and `follows` tables, which this package reads directly by name
  *   on every response (favorites) and on its feed (who a reader follows). Those
  *   last two are copies of `@molecule/api-resource-reaction`'s and
@@ -69,7 +69,7 @@
  *   installs those packages runs both copies harmlessly. A scaffold copies the
  *   tables a package's registry entry declares, and this one declares all four,
  *   so a project that installs only this package gets every table its endpoints
- *   need. Applying `articles.sql` alone leaves every article response failing
+ *   need. Applying `src/__setup__/articles.sql` alone leaves every article response failing
  *   with `no such table: reactions`.
  * - **`article_tags` keeps the order the tags were given in**, in its `position`
  *   column (0-based). An app that reads the join table itself must order by

@@ -43,7 +43,7 @@
  * ```
  *
  * @remarks
- * The schema in `__setup__/firmware.sql` creates `firmware_versions`,
+ * The schema in `src/__setup__/firmware.sql` creates `firmware_versions`,
  * `firmware_rollouts`, and `firmware_update_tasks`. The resource also
  * reads/writes `iot_devices`, `fleets`, `fleet_memberships`,
  * `device_commands`, and `device_alerts` — those tables are owned by

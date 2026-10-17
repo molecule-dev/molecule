@@ -35,9 +35,10 @@
  * ```
  *
  * @remarks
- * - **Table setup:** `setup/devices.sql` ships with this package (the standard
- *   scaffold applies it as a base migration; `resource.tableName` is `devices`).
- *   When adding to an existing app, apply it before use.
+ * - **Table setup:** `src/__setup__/devices.sql` ships with this package (the
+ *   standard scaffold replays `__setup__/*.sql` on migrate;
+ *   `resource.tableName` is `devices`). When adding to an existing app, apply
+ *   it before use — nothing at runtime creates the table.
  * - **The handler map is a factory, not a constant.** Call
  *   `createRequestHandlerMap(createRequestHandler)`; do not import a
  *   `requestHandlerMap` constant like other resources export. Its `auth` /

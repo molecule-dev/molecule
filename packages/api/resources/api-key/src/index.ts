@@ -21,8 +21,10 @@
  * ```
  *
  * @remarks
- * - **Migration required.** The `setup/api_keys.sql` migration file ships with
- *   this package and must be applied to the target database before use.
+ * - **Migration required.** `src/__setup__/api_keys.sql` ships with this
+ *   package and must be applied to the target database before use. An
+ *   mlcl-scaffolded API replays `__setup__/*.sql` on migrate; anywhere else
+ *   run it once — nothing at runtime creates the table.
  * - **No routes ship — you own the HTTP surface AND the ownership checks.** The
  *   service functions are deliberately auth-agnostic: `rotateApiKey(id)` and
  *   `revokeApiKey(id)` act on any id. Every endpoint you expose must

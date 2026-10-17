@@ -8,6 +8,8 @@
  * - `usersSecrets` — {@link SecretProps}: `passwordHash`, `passwordResetToken` (and
  *   `passwordResetTokenAt`), `twoFactorSecret` / `pendingTwoFactorSecret`, `lastTwoFactorTimeStep`.
  *
+ * **Table setup:** `src/__setup__/users.sql` + `src/__setup__/usersSecrets.sql`; an mlcl-scaffolded API replays `__setup__/*.sql` on migrate, anywhere else run them once.
+ *
  * **`usersSecrets.id` IS the user's id — the value of `users.id`, never a fresh uuid.** The DDL
  * declares it `UNIQUE PRIMARY KEY` with no foreign key, so nothing enforces the pairing: a row
  * written under another id is never found again — login answers "invalid credentials" while
