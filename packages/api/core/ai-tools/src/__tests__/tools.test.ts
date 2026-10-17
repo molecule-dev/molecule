@@ -2517,6 +2517,68 @@ describe('exec_command run_in_background', () => {
     expect(r.note).not.toContain('peek with exec_command')
   })
 
+  it('stays silent about output when only the preview launch redirects (flash-m136)', async () => {
+    // The platform's own composed production walk: the preview server is backgrounded inside
+    // the prelude's `( … )` group with `>'/tmp/mol-preview-4173.log' 2>&1 &`, and the suite's
+    // foreground command follows. The note — and the progress read behind it — must follow the
+    // suite, which writes to the task log.
+    const composed =
+      "MOL_LOCAL_WALK_BASE='http://127.0.0.1:4173'; if [ -d '/workspace/my-app/app' ]; then " +
+      "( cd '/workspace/my-app/app' || exit 1; npm run build; " +
+      `if ! curl -sf -o /dev/null 'http://127.0.0.1:4173/'; then ` +
+      `MOL_E2E_PREVIEW_PLUGIN=0 setsid nohup npx vite preview --host 127.0.0.1 --port 4173 ` +
+      `--strictPort >'/tmp/mol-preview-4173.log' 2>&1 & fi; ` +
+      `for _i in $(seq 1 60); do curl -sf -o /dev/null 'http://127.0.0.1:4173/' && break; ` +
+      `sleep 0.5; done ) || { echo 'preview failed' >&2; }; fi; ` +
+      'export BASE_URL="$MOL_LOCAL_WALK_BASE"; ' +
+      'TEST_MODE=fullstack BASE_URL="$MOL_LOCAL_WALK_BASE" npx playwright test --config e2e-suite.config.ts'
+    const backend = bgBackend()
+    const exec = buildTools(backend).find((t) => t.name === 'exec_command')!
+    const r = (await exec.execute({ command: composed, run_in_background: true })) as {
+      note: string
+    }
+    expect(r.note).not.toContain('writes its own output')
+    expect(r.note).not.toContain('mol-preview-4173.log')
+    await exec.execute({ command: 'sleep 30' })
+    const reads = (backend.run as ReturnType<typeof vi.fn>).mock.calls.map((call) =>
+      String(call[0]),
+    )
+    expect(reads.some((command) => command.includes('mol-preview-4173.log'))).toBe(false)
+  })
+
+  it('resolves a quoted redirect target, and the probe reads that file (flash-m134)', async () => {
+    // The platform's own composed walk writes `>'/tmp/mol-preview-4173.log'`: the quotes made
+    // the target relative, so the note named `/workspace/'/tmp/…'` and the running-suite slice
+    // read a file that cannot exist.
+    const backend = bgBackend()
+    const exec = buildTools(backend).find((t) => t.name === 'exec_command')!
+    const r = (await exec.execute({
+      command: "npx playwright test > '/tmp/pw-quoted.log' 2>&1",
+      run_in_background: true,
+    })) as { taskId: string; note: string }
+    expect(r.note).toContain('writes its own output to /tmp/pw-quoted.log')
+    expect(r.note).not.toContain("/test/'")
+    // The sleep peek is answered from the same map wait_for_task fills: it must read the file
+    // the command names, at the absolute path it names.
+    await exec.execute({ command: 'sleep 30' })
+    const slice = (backend.run as ReturnType<typeof vi.fn>).mock.calls
+      .map((call) => String(call[0]))
+      .find((command) => command.includes('grep -aE'))
+    expect(slice).toBeDefined()
+    expect(slice).toContain("'/tmp/pw-quoted.log'")
+    expect(slice).not.toContain("/test/'")
+  })
+
+  it('resolves a relative redirect target under the cwd it ran in (flash-m134)', async () => {
+    const backend = bgBackend()
+    const exec = buildTools(backend).find((t) => t.name === 'exec_command')!
+    const r = (await exec.execute({
+      command: 'npx playwright test > out.log 2>&1',
+      run_in_background: true,
+    })) as { note: string }
+    expect(r.note).toContain('writes its own output to /test/out.log')
+  })
+
   it('leaves a command with its own reporter, or no tail, exactly as sent', async () => {
     const backend = bgBackend()
     const tools = buildTools(backend)

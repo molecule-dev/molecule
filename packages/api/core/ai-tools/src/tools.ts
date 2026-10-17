@@ -7,6 +7,8 @@
  * @module
  */
 
+import { posix } from 'path'
+
 import type { AITool } from '@molecule/api-ai'
 
 import { commandCutRun, CUT_AT_BUDGET, cutRunSentence, suiteRunExitCode } from './cut-run.js'
@@ -2448,12 +2450,12 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
             streaming.command,
             `sh ${script} > ${log} 2>&1; echo $? > ${exitFile}`,
           )
+          // The target comes back without its shell quotes (`> '/tmp/x.log'` is `/tmp/x.log`);
+          // `posix.resolve` leaves an absolute one absolute and places a relative one under the
+          // cwd the command ran in (X1 flash-m134 +31:20: `${cwd}/${target}` produced
+          // `/workspace/'/tmp/…'`, a path nothing writes).
           const ownTarget = outputRedirectTarget(streaming.command)
-          const ownFile = ownTarget
-            ? ownTarget.startsWith('/')
-              ? ownTarget
-              : `${cwd}/${ownTarget}`
-            : null
+          const ownFile = ownTarget === null ? null : posix.resolve(cwd, ownTarget)
           if (ownFile) outputFileByTask.set(id, ownFile)
           runByTask.set(id, { command: streaming.command, cwd })
           await backend.writeFile(script, `${streaming.command}\n`)
@@ -2782,9 +2784,9 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           const target = outputRedirectTarget(await backend.readFile(`/tmp/${taskId}.sh`))
           // A relative target was written against the command's own cwd, which
           // the handle does not carry; the project root is where a background
-          // command runs unless the caller passed one.
-          if (target)
-            outputFileByTask.set(taskId, target.startsWith('/') ? target : `${root}/${target}`)
+          // command runs unless the caller passed one. An absolute target is
+          // already resolved and stays as written.
+          if (target) outputFileByTask.set(taskId, posix.resolve(root, target))
         } catch (_error) {
           // No script under that id: this process did not start the task, so
           // there is nothing to recover. The log stays the whole result.

@@ -2412,6 +2412,53 @@ describe('outputRedirectTarget', () => {
     expect(outputRedirectTarget('npm i > /dev/null 2>&1')).toBeNull()
     expect(outputRedirectTarget('npm test 2>&1')).toBeNull()
   })
+
+  it('ignores a backgrounded process log and a group redirect (flash-m136)', () => {
+    // The platform's own production walk composes exactly this: the preview server is started
+    // in the background INSIDE the build/serve prelude's `( … )` group with its own log, and the
+    // suite's foreground command follows. The note used to name the PREVIEW's log as the run's
+    // output, so wait_for_task read a file the suite never wrote.
+    const composed =
+      "MOL_LOCAL_WALK_BASE='http://127.0.0.1:4173'; if [ -d '/workspace/my-app/app' ]; then " +
+      "( cd '/workspace/my-app/app' || exit 1; npm run build; " +
+      `if ! curl -sf -o /dev/null 'http://127.0.0.1:4173/'; then ` +
+      `MOL_E2E_PREVIEW_PLUGIN=0 setsid nohup npx vite preview --host 127.0.0.1 --port 4173 ` +
+      `--strictPort >'/tmp/mol-preview-4173.log' 2>&1 & fi; ` +
+      `for _i in $(seq 1 60); do curl -sf -o /dev/null 'http://127.0.0.1:4173/' && break; ` +
+      `sleep 0.5; done ) || { echo 'preview failed' >&2; }; fi; ` +
+      'export BASE_URL="$MOL_LOCAL_WALK_BASE"; ' +
+      'TEST_MODE=fullstack BASE_URL="$MOL_LOCAL_WALK_BASE" npx playwright test --config e2e-suite.config.ts'
+    expect(outputRedirectTarget(composed)).toBeNull()
+    // The two shapes on their own, whatever surrounds them.
+    expect(
+      outputRedirectTarget("npx vite preview --port 4173 >'/tmp/preview.log' 2>&1 &"),
+    ).toBeNull()
+    expect(outputRedirectTarget('( npx playwright test > out.log )')).toBeNull()
+    expect(outputRedirectTarget('{ npx playwright test > out.log; }')).toBeNull()
+    // …while a foreground redirect beside a backgrounded one is still the run's output.
+    expect(
+      outputRedirectTarget(
+        'npx vite preview --port 4173 > /tmp/preview.log 2>&1 & npx playwright test > out.log',
+      ),
+    ).toBe('out.log')
+    // A group's own redirect, written outside it, carries the group.
+    expect(outputRedirectTarget('( cd app && npx playwright test ) > out.log')).toBe('out.log')
+    // A `sh -c` string is a command of its own: its redirect counts, the shell's own counts,
+    // and a `>` inside the quotes is never read as the shell's.
+    expect(outputRedirectTarget("sh -c 'npx playwright test > out.log'")).toBe('out.log')
+    expect(outputRedirectTarget("sh -c 'npx playwright test' > run.log")).toBe('run.log')
+    expect(outputRedirectTarget("sh -c 'npx playwright test' | tee run.log")).toBe('run.log')
+  })
+
+  it('leaves the quotes out of the target (flash-m134)', () => {
+    // The composed walk writes `>'/tmp/…'`; keeping the quotes made the target a relative path
+    // and the callers joined the cwd onto it (`/workspace/'/tmp/…'`).
+    expect(outputRedirectTarget("npx playwright test > '/tmp/x.log' 2>&1")).toBe('/tmp/x.log')
+    expect(outputRedirectTarget('npx playwright test > "out.log"')).toBe('out.log')
+    expect(outputRedirectTarget("npx playwright test 2>&1 | tee 'out file.txt'")).toBe(
+      'out file.txt',
+    )
+  })
 })
 
 describe('redactSecrets — a value cut off mid-line', () => {

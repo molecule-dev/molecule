@@ -580,12 +580,36 @@ function splitSegments(command: string): Array<{
   start: number
   after: string
   before: string
+  /**
+   * The group depth before each character of `text`, aligned with it, and -1 for a character
+   * inside a quote or a command substitution — neither writes to the command's own stdout.
+   */
+  depths: readonly number[]
 }> {
   const source = blankHeredocBodies(command)
-  const parts: Array<{ text: string; start: number; after: string }> = []
+  const parts: Array<{ text: string; start: number; after: string; depths: number[] }> = []
   let buffer = ''
   /** The offset in the command of the current buffer's first character. */
   let bufferStart = 0
+  /** How many `( … )` / `{ … }` groups are open at the current position. */
+  let groupDepth = 0
+  /** The depth each character of `buffer` was written at, aligned with it (-1 when quoted). */
+  let depths: number[] = []
+  /**
+   * Append shell text to the statement being read, recording the depth it was written at.
+   * Text inside a quote or a command substitution is recorded as -1: a `>` there is a literal
+   * character or a nested command's business, never the outer command's redirect.
+   */
+  const put = (text: string, depth = groupDepth): void => {
+    for (let n = 0; n < text.length; n++) depths.push(depth)
+    buffer += text
+  }
+  /** Close the statement being read at `after`. */
+  const end = (after: string): void => {
+    parts.push({ text: buffer, start: bufferStart, after, depths })
+    buffer = ''
+    depths = []
+  }
   /** The nestings this position sits inside, outermost first. */
   const stack: Nesting[] = []
   for (let i = 0; i < source.length; i++) {
@@ -596,7 +620,7 @@ function splitSegments(command: string): Array<{
     // A single-quoted string expands nothing at all: no escape, no substitution, and no quote
     // but its own ends it.
     if (top === 'single') {
-      buffer += char
+      put(char, -1)
       if (char === "'") stack.pop()
       continue
     }
@@ -604,7 +628,7 @@ function splitSegments(command: string): Array<{
     // inside single quotes (handled above). The `(` is consumed here so the depth is counted once.
     if (char === '$' && next === '(') {
       stack.push('sub')
-      buffer += '$('
+      put('$(', -1)
       i += 1
       continue
     }
@@ -613,21 +637,21 @@ function splitSegments(command: string): Array<{
     if (top === 'double') {
       if (char === '"') stack.pop()
       else if (char === '\\' && next !== undefined) {
-        buffer += char + next
+        put(char + next, -1)
         i += 1
         continue
       }
-      buffer += char
+      put(char, -1)
       continue
     }
     if (char === '"') {
       stack.push('double')
-      buffer += char
+      put(char, -1)
       continue
     }
     if (char === "'") {
       stack.push('single')
-      buffer += char
+      put(char, -1)
       continue
     }
     // Inside a substitution or a subshell of one: its own parentheses nest, its `|`/`;`/`&&`
@@ -635,41 +659,59 @@ function splitSegments(command: string): Array<{
     if (top === 'sub') {
       if (char === '(') stack.push('sub')
       else if (char === ')') stack.pop()
-      buffer += char
+      put(char, -1)
       continue
     }
     if (char === '\\' && next !== undefined) {
-      buffer += char + next
+      // An escaped character is a literal (`\>` writes no file).
+      put(char + next, -1)
       i += 1
       continue
     }
+    // Grouping belongs to the shell, not to a word: a statement written inside `( … )` or
+    // `{ … }` writes through that group, so the depth travels with every character a caller
+    // reading a redirect may ask about.
+    if (char === '(' || char === '{') {
+      put(char)
+      groupDepth += 1
+      continue
+    }
+    if (char === ')' || char === '}') {
+      groupDepth = Math.max(0, groupDepth - 1)
+      put(char)
+      continue
+    }
     if ((char === '&' && next === '&') || (char === '|' && next === '|')) {
-      parts.push({ text: buffer, start: bufferStart, after: char + next })
-      buffer = ''
+      end(char + next)
       i += 1
       bufferStart = i + 1
       continue
     }
     if (char === ';' || char === '|' || char === '\n') {
-      parts.push({ text: buffer, start: bufferStart, after: char })
-      buffer = ''
+      end(char)
       bufferStart = i + 1
       continue
     }
     if (char === '&' && source[i - 1] !== '>' && next !== '>') {
-      parts.push({ text: buffer, start: bufferStart, after: '&' })
-      buffer = ''
+      end('&')
       bufferStart = i + 1
       continue
     }
-    buffer += char
+    put(char)
   }
-  parts.push({ text: buffer, start: bufferStart, after: '' })
-  const out: Array<{ text: string; start: number; after: string; before: string }> = []
+  end('')
+  const out: Array<{
+    text: string
+    start: number
+    after: string
+    before: string
+    depths: readonly number[]
+  }> = []
   // The separator of the last part, kept across the empty ones so a statement's own separator
   // survives the blank lines around it (`a &&\n b` and a heredoc's blanked body alike).
   let lastAfter: string | null = null
   for (const part of parts) {
+    const trimStart = part.text.length - part.text.trimStart().length
     const text = part.text.trim()
     if (text === '') {
       lastAfter = part.after
@@ -677,13 +719,71 @@ function splitSegments(command: string): Array<{
     }
     out.push({
       text,
-      start: part.start + (part.text.length - part.text.trimStart().length),
+      start: part.start + trimStart,
       after: part.after,
       before: lastAfter ?? '',
+      depths: part.depths.slice(trimStart),
     })
     lastAfter = part.after
   }
   return out
+}
+
+/** A redirect's target word: a quoted one keeps its spaces (`tee 'out file.txt'`). */
+const REDIRECT_TARGET_WORD = String.raw`(?:'[^']*'|"[^"]*"|[^\s;&|]+)`
+
+/**
+ * A `>`, `>>` or `&>` redirect written at a statement's own level, with the word it writes to.
+ * The lookbehind is what keeps `2>&1` out: the `>` of a descriptor redirect follows a digit.
+ */
+const REDIRECT_AND_TARGET = new RegExp(
+  String.raw`(?<![0-9&>])(?:&>|1?>>?)\s*(${REDIRECT_TARGET_WORD})`,
+  'g',
+)
+
+/** A word with one layer of MATCHING shell quotes removed (`'out file.txt'` → `out file.txt`). */
+function unquotedWord(word: string): string {
+  return word.replace(/^(['"])(.*)\1$/, '$2')
+}
+
+/**
+ * The file a statement sends its own output to, when it redirects it at the command's own level.
+ *
+ * Three shapes are deliberately not one: a redirect inside a `( … )` / `{ … }` group (it writes
+ * through that group, not through the command's own shell), a statement that feeds a heredoc's
+ * file (`cat > cfg.ts <<'EOF'` writes a config), and `/dev/null` or a descriptor (`2>&1`).
+ *
+ * @param text - The statement's text, as the tokenizer split it.
+ * @param depths - The depth each character of `text` was written at: the open-group count, 0 at
+ *   the command's own level, -1 inside a quote or a command substitution.
+ * @param program - The word in command position (`tee` writes through its own file argument).
+ * @param args - The statement's words after the program.
+ * @returns The target with one layer of quotes removed, or null.
+ */
+function redirectTargetOf(
+  text: string,
+  depths: readonly number[],
+  program: string,
+  args: readonly string[],
+): string | null {
+  // A heredoc's own file is a config the command WRITES, never where the run's output goes
+  // (X1 flash-m44).
+  if (/(?:^|\s)<<(?![<])-?/.test(text)) return null
+  // `| tee file` is a statement of its own: the pipe is a statement separator here.
+  if (program === 'tee') {
+    const target = args.find((arg) => !arg.startsWith('-'))
+    return target === undefined ? null : unquotedWord(target)
+  }
+  let last: string | null = null
+  for (const match of text.matchAll(REDIRECT_AND_TARGET)) {
+    const word = unquotedWord(match[1] ?? '')
+    // Only the command's own level counts: not a group's redirect (depth > 0), and not one
+    // written inside a quote or a command substitution (depth -1).
+    if ((depths[match.index ?? 0] ?? 0) !== 0) continue
+    if (word === '/dev/null' || word.startsWith('&')) continue
+    last = word
+  }
+  return last
 }
 
 /**
@@ -833,6 +933,18 @@ export interface LocatedCommandSegment {
    * statements are one pipeline (`|`, never `;`) asks it instead of reading the text between them.
    */
   separator: string
+  /**
+   * The separator that ENDED this statement — `&` when the shell backgrounds it (so the process
+   * writes its own output, not the command's), '' for the last statement of a command.
+   */
+  terminator: string
+  /**
+   * The file this statement sends its own output to (`> out.log`, `>> log`, `&> run.log`,
+   * `| tee file`), or null. Only a redirect written at the command's own level counts: one
+   * inside a `( … )` / `{ … }` group writes through that group, and one that feeds a heredoc's
+   * file (`cat > cfg.ts <<'EOF'`) is writing a config (X1 flash-m44, flash-m136).
+   */
+  redirectTarget: string | null
 }
 
 /**
@@ -1004,6 +1116,9 @@ function locatedSegmentsOf(command: string, depth: number): LocatedCommandSegmen
       programOffset:
         words[start.at] === undefined ? null : part.start + (wordOffset(part.text, start.at) ?? 0),
     }
+    const program = words[start.at] === undefined ? '' : programName(words[start.at] ?? '')
+    const args = words.slice(start.at + 1)
+    const redirectTarget = redirectTargetOf(part.text, part.depths, program, args)
     if (start.nested !== null) {
       const inner = locatedSegmentsOf(start.nested, depth + 1)
       for (let i = 0; i < inner.length; i += 1) {
@@ -1018,6 +1133,13 @@ function locatedSegmentsOf(command: string, depth: number): LocatedCommandSegmen
           end: null,
           assignmentOffset: null,
           programOffset: null,
+          // `sh -c '…' &` backgrounds the command inside the string too.
+          terminator: part.after === '&' ? '&' : entry.terminator,
+          // A redirect written OUTSIDE the string (`sh -c '…' > run.log`) carries the nested
+          // command's output, so the first nested statement holds it — unless that statement
+          // redirects on its own, which takes the output away from the outer file.
+          redirectTarget:
+            i === 0 && entry.redirectTarget === null ? redirectTarget : entry.redirectTarget,
           separator: i === 0 ? part.before : entry.separator,
         })
       }
@@ -1034,11 +1156,11 @@ function locatedSegmentsOf(command: string, depth: number): LocatedCommandSegmen
           ...placed,
           programOffset: null,
           separator: part.before,
+          terminator: part.after,
+          redirectTarget,
         })
       continue
     }
-    const program = programName(word)
-    const args = words.slice(start.at + 1)
     out.push({
       segment: {
         program,
@@ -1049,6 +1171,8 @@ function locatedSegmentsOf(command: string, depth: number): LocatedCommandSegmen
       assignments: leading.words,
       ...placed,
       separator: part.before,
+      terminator: part.after,
+      redirectTarget,
     })
   }
   return out

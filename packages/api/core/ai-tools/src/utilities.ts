@@ -309,18 +309,26 @@ export function outputIsWithheldUntilExit(command: string): boolean {
  * this leaves its task log empty, so the log is the wrong place to look and an empty
  * log proves nothing (X1 flash-m29).
  *
+ * Which redirect counts is decided by the command's own shell structure, from the same
+ * parse every other command reader uses: a redirect written in a BACKGROUNDED statement
+ * (`… &`) or inside a `( … )` / `{ … }` group writes that process's or group's output, not
+ * the command's. The platform's own preview launch is exactly that — the preview server is
+ * started with `>/tmp/mol-preview-4173.log 2>&1 &` inside the build/serve prelude, and the
+ * suite's foreground command follows it — so a reader that took the last `>` in the whole
+ * text told a run its output went to the PREVIEW's log (X1 flash-m136 +18:31).
+ *
+ * The target comes back without its shell quotes: `> '/tmp/x.log'` is `/tmp/x.log`, and
+ * the callers resolve a relative one against the command's cwd.
+ *
  * @param command - The shell command.
- * @returns The target as written, or null (`/dev/null` and `&1`/`&2` are not files).
+ * @returns The target, or null (`/dev/null` and `&1`/`&2` are not files).
  */
 export function outputRedirectTarget(command: string): string | null {
-  // A heredoc that writes a file (`cat > cfg.ts <<'EOF' … EOF`) is not where the run's output
-  // goes: X1 flash-m44 was told its config file was the suite's log.
-  const text = command.replace(/[^\n;&|]*<<-?\s*(['"]?)(\w+)\1[\s\S]*?\n\s*\2\b/g, '')
-  const tee = /\|\s*tee\s+(?:-a\s+)?([^\s;&|]+)/.exec(text)
-  if (tee) return tee[1]
   let last: string | null = null
-  for (const m of text.matchAll(/(?:^|[^0-9&>])(?:&>|1?>>?)\s*([^\s;&|]+)/g)) {
-    if (m[1] !== '/dev/null' && !m[1].startsWith('&')) last = m[1]
+  for (const statement of locatedCommandSegments(command)) {
+    // A backgrounded statement's own redirect is that process's log, never the command's.
+    if (statement.terminator === '&') continue
+    if (statement.redirectTarget !== null) last = statement.redirectTarget
   }
   return last
 }
