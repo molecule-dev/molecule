@@ -43,6 +43,26 @@ const FIXTURE = fileURLToPath(new URL('./fixtures/trace-follow-401.zip', import.
  */
 const REGISTER_422 = fileURLToPath(new URL('./fixtures/trace-register-422.zip', import.meta.url))
 
+/**
+ * A real trace whose one request was still in flight when the test ended: Playwright records it
+ * with status `-1` and NO `_failureText`. X1 xr-molecule-flash-m112's note read exactly this as a
+ * failed request (`GET /api/tags → -1`) and told the run the click's request had failed (+30:45).
+ */
+const PENDING_MINUS_ONE = fileURLToPath(
+  new URL('./fixtures/trace-pending-minus-one.zip', import.meta.url),
+)
+
+/** A real trace of a request refused by the peer: status `-1` WITH `net::ERR_CONNECTION_REFUSED`. */
+const NETWORK_ERROR = fileURLToPath(new URL('./fixtures/trace-network-error.zip', import.meta.url))
+
+/**
+ * A real trace of a page that made seven requests where the FIRST got a 401: the read keeps the
+ * failures at the head of its order, so the 401 must survive the per-trace bound.
+ */
+const MANY_REQUESTS_401 = fileURLToPath(
+  new URL('./fixtures/trace-many-requests-with-401.zip', import.meta.url),
+)
+
 /** How Playwright names the folder for the fixture's test. */
 const FOLDER = 'realworld-social-should-follow-a-user-chromium'
 
@@ -201,6 +221,132 @@ describe('traceArtifactsScript — a real trace, read headlessly', () => {
     } finally {
       rmSync(root, { recursive: true, force: true })
     }
+  })
+})
+
+/**
+ * Playwright's `-1` is "no response recorded", not a status: its HAR entry starts at `-1` and only
+ * a response event overwrites it, and a request that FAILED without a response carries its own
+ * `_failureText` instead. The five tests below are the note's honesty about that distinction
+ * (xr-molecule-flash-m112 +30:45: the note listed only `-1`s and 200s and called them failures).
+ */
+describe('failureTraceNote — a request with no response is not a failed request', () => {
+  it('reads a request left in flight as `-1` with no failure text (m112)', () => {
+    const root = layout({ 'pending-chromium': PENDING_MINUS_ONE })
+    try {
+      const items = parseTraceArtifacts(readTraces(root))
+      expect(items).toHaveLength(1)
+      expect(items[0].requests[0]).toMatchObject({ status: -1, path: '/api/tags' })
+      expect(items[0].requests[0]?.failure).toBeUndefined()
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
+  it('never prints a `-1` and never calls an unanswered request a failure (m112 +30:45)', () => {
+    const root = layout({ 'pending-chromium': PENDING_MINUS_ONE })
+    try {
+      const note = String(
+        failureTraceNote(parseTraceArtifacts(readTraces(root)), 'loopcheck-xr-molecule-flash-m112'),
+      )
+      // The raw trace status is not a status a reader can act on.
+      expect(note).not.toMatch(/→ -1/)
+      // The request is named, under what it actually is.
+      expect(note).toContain('/api/tags')
+      expect(note).toContain('no response recorded')
+      expect(note).toContain('not a server failure')
+      // And the closing line sends the run to the page, not to the API.
+      expect(note).not.toContain('usually one of these requests failing')
+      expect(note).toContain('No listed request failed')
+      expect(note).toContain('the cause is in the page')
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
+  it('reads a refused connection as a real failure, with Playwright’s own error text', () => {
+    const root = layout({ 'network-error-chromium': NETWORK_ERROR })
+    try {
+      const items = parseTraceArtifacts(readTraces(root))
+      const refused = items[0].requests.find((request) => request.failure !== undefined)
+      expect(refused).toMatchObject({
+        status: -1,
+        failure: 'net::ERR_CONNECTION_REFUSED',
+      })
+      const note = String(failureTraceNote(items, 'the deployed app'))
+      // Unlike the aborted request above, this one IS evidence of failure.
+      expect(note).toContain('failed: GET http://127.0.0.1:')
+      expect(note).toContain('→ no response (net::ERR_CONNECTION_REFUSED)')
+      expect(note).not.toContain('not a server failure')
+      expect(note).toContain(
+        'A click that changed nothing is usually one of these requests failing',
+      )
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
+  it('keeps the failing request a page made before its other requests (m112’s 200-filled rows)', () => {
+    const root = layout({ 'many-chromium': MANY_REQUESTS_401 })
+    try {
+      const items = parseTraceArtifacts(readTraces(root))
+      // Seven requests, and the read's bound must keep the 401 rather than the last six answers.
+      expect(items[0].requests.map((request) => request.path)).toContain('/api/fail')
+      expect(items[0].requests.find((request) => request.path === '/api/fail')?.status).toBe(401)
+      const note = String(failureTraceNote(items, 'the deployed app'))
+      expect(note).toContain('failed: GET /api/fail → 401')
+      expect(note).toContain(
+        'A click that changed nothing is usually one of these requests failing',
+      )
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
+  it('splits a row into failures and unanswered requests, and only promises a failure when one is listed', () => {
+    // m112's own first row, verbatim: four requests, every one `-1` (the page closed under them).
+    const m112: TraceArtifact = {
+      spec: 'e2e/realworld-specs/url-navigation.spec.ts',
+      line: 107,
+      requests: [
+        { method: 'GET', path: '/api/articles?limit=20&offset=0', status: -1 },
+        { method: 'GET', path: '/api/tags', status: -1 },
+        { method: 'GET', path: '/default-avatar.svg', status: -1 },
+        {
+          method: 'GET',
+          path: 'https://code.ionicframework.com/ionicons/2.0.1/fonts/ionicons.ttf?v=2.0.1',
+          status: -1,
+        },
+      ],
+      console: [],
+    }
+    const withoutFailure = String(failureTraceNote([m112], 'the deployed app'))
+    expect(withoutFailure).not.toMatch(/→ -1/)
+    expect(withoutFailure).not.toContain('failed:')
+    expect(withoutFailure).toContain('no response recorded')
+    expect(withoutFailure).toContain('No listed request failed')
+
+    // The same row with one real 401: the failure leads, and the closing answer is the click's.
+    const withFailure = String(
+      failureTraceNote(
+        [
+          {
+            ...m112,
+            requests: [
+              { method: 'GET', path: '/api/tags', status: 401 },
+              ...m112.requests.slice(1),
+            ],
+          },
+        ],
+        'the deployed app',
+      ),
+    )
+    expect(withFailure).toContain('failed: GET /api/tags → 401')
+    expect(withFailure).toContain(
+      'A click that changed nothing is usually one of these requests failing',
+    )
+    expect(withFailure).toContain('no response recorded')
+    expect(withFailure).not.toMatch(/→ -1/)
   })
 })
 

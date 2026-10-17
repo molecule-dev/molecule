@@ -37,8 +37,19 @@ export interface TraceRequest {
   method: string
   /** The request's path (`/api/articles/x/favorite`), or the whole URL when it is cross-origin. */
   path: string
-  /** The response status, or 0 when the request never got a response. */
+  /**
+   * The response status as the trace recorded it. Playwright writes `-1` when a request was never
+   * answered (its HAR entry starts at `-1` and only a response event overwrites it); `0` is the
+   * same absence when the snapshot carried no response at all. Neither is a server failure.
+   */
   status: number
+  /**
+   * Playwright's own error text for a request that failed WITHOUT a response
+   * (`net::ERR_CONNECTION_REFUSED`) — a real failure. A request that got no response and recorded
+   * no text was aborted or still in flight when the test ended (the page closed under it), so it
+   * says nothing about the server (xr-molecule-flash-m112 +30:45).
+   */
+  failure?: string
   /**
    * What the page SENT, for a 4xx answered by the app's own API — bounded (see
    * {@link MAX_TRACED_BODY_CHARS}). A body wrapped as `{"data":{…}}` is visible here in one line:
@@ -108,6 +119,9 @@ export const TRACE_NOTE_SENT_CHARS = 160
 /** How much of the response body the note prints — the API's first error line. */
 export const TRACE_NOTE_GOT_CHARS = 120
 
+/** How much of a network error's own text (`net::ERR_CONNECTION_REFUSED`) the note prints. */
+const TRACE_NOTE_FAILURE_CHARS = 120
+
 /**
  * The Node program the sandbox runs to read a failed run's traces: `node <script> <dir>` prints one
  * `TRACE <json>` line per `trace.zip` under `<dir>` (newest first, {@link MAX_TRACE_ARTIFACTS} of
@@ -119,10 +133,11 @@ export const TRACE_NOTE_GOT_CHARS = 120
  * central directory and `zlib.inflateRawSync` — about forty lines, and the only thing that has to
  * be true of a `trace.zip` is that it IS one.
  *
- * A request is kept over a static asset when it failed (`status >= 400`) or never answered
- * (`status === 0`), and over anything else when it is the page talking to the app
- * (`fetch`/`xhr`/`document`): a failing test's trace holds the whole page load, and the answer is
- * always at the end of it.
+ * A request is kept over a static asset when it failed — a `status >= 400`, or no response at all
+ * together with Playwright's own error text (`-1` plus `_failureText`, a refused connection) — and
+ * over anything else when it is the page talking to the app (`fetch`/`xhr`/`document`): a failing
+ * test's trace holds the whole page load. A request with no response and NO error text was aborted
+ * or still in flight when the test ended; it is kept too, but as what it is, not as a failure.
  *
  * A request answered 4xx by the app's OWN API also keeps what the page SENT and the first of what
  * came back: Playwright stores either inline (`text`) or in a resource entry (`_file`), and both
@@ -279,6 +294,7 @@ for (const one of found.slice(0, MAX_TRACES)) {
       method: String(request.method).toUpperCase(),
       path: String(request.url).slice(0, MAX_URL),
       status: Number(response.status) || 0,
+      failure: typeof response._failureText === 'string' ? response._failureText : undefined,
       type: type,
       postData: request.postData,
       content: response.content,
@@ -299,12 +315,17 @@ for (const one of found.slice(0, MAX_TRACES)) {
     if (sent) r.sent = sent
     if (got) r.got = got
   }
+  // A failed request: a 4xx/5xx, or no response at all WITH Playwright's error text (a refused
+  // connection). No response and no text is an aborted/pending request, not a failure.
+  function failedRequest(r) {
+    return r.status >= 400 || (r.status <= 0 && typeof r.failure === 'string')
+  }
   const failing = []
   const api = []
   const rest = []
   for (let i = 0; i < requests.length; i++) {
     const r = requests[i]
-    if (r.status === 0 || r.status >= 400) failing.push(i)
+    if (failedRequest(r)) failing.push(i)
     else if (r.type === 'fetch' || r.type === 'xhr' || r.type === 'document') api.push(i)
     else rest.push(i)
   }
@@ -312,8 +333,8 @@ for (const one of found.slice(0, MAX_TRACES)) {
   const chosen = []
   const seen = new Set()
   for (const i of keep.sort(function (a, b) {
-    const wrong = requests[a].status === 0 || requests[a].status >= 400 ? 0 : 1
-    const other = requests[b].status === 0 || requests[b].status >= 400 ? 0 : 1
+    const wrong = failedRequest(requests[a]) ? 0 : 1
+    const other = failedRequest(requests[b]) ? 0 : 1
     return wrong === other ? a - b : wrong - other
   })) {
     const r = requests[i]
@@ -324,6 +345,7 @@ for (const one of found.slice(0, MAX_TRACES)) {
       method: r.method,
       path: r.path,
       status: r.status,
+      failure: r.failure,
       sent: r.sent,
       got: r.got,
     })
@@ -374,7 +396,10 @@ for (const one of found.slice(0, MAX_TRACES)) {
     dir: path.relative(ROOT, path.dirname(one.file)),
     spec: spec,
     line: line,
-    requests: chosen.slice(-MAX_REQUESTS),
+    // Failures first, per the sort above; the keep-window is the HEAD of that order. Taking the
+    // tail here dropped every failed request as soon as a page made more than MAX_REQUESTS of them
+    // plus the answered ones (xr-molecule-flash-m112's note listed only -1s and 200s).
+    requests: chosen.slice(0, MAX_REQUESTS),
     console: keptConsole.slice(0, MAX_CONSOLE).map(function (text) { return text.slice(0, 300) }),
     actions: actions.slice(-MAX_ACTIONS),
   }) + '\\n')
@@ -408,6 +433,7 @@ export function parseTraceArtifacts(stdout: string): TraceArtifact[] {
             method: String(r.method ?? ''),
             path: String(r.path ?? ''),
             status: Number(r.status ?? 0) || 0,
+            ...(typeof r.failure === 'string' && r.failure ? { failure: r.failure } : {}),
             ...(typeof r.sent === 'string' && r.sent ? { sent: r.sent } : {}),
             ...(typeof r.got === 'string' && r.got ? { got: r.got } : {}),
           })),
@@ -440,16 +466,30 @@ function bodyLine(text: string, max: number): string {
   return oneLine.length > max ? `${oneLine.slice(0, max)}…` : oneLine
 }
 
+/** One request named the way the note names it — `GET /api/tags`, its URL bounded. */
+function requestLabel(request: TraceRequest): string {
+  const url =
+    request.path.length > TRACE_NOTE_URL_CHARS
+      ? `${request.path.slice(0, TRACE_NOTE_URL_CHARS)}…`
+      : request.path
+  return `${request.method} ${url}`
+}
+
 /**
  * One request as the note writes it: `POST /api/articles/x/favorite → 401`, plus what a 4xx
  * request sent and got — `POST /api/users → 422 sent {"data":{…}} got {"errors":{…}}`.
  */
 function requestLine(request: TraceRequest): string {
-  const url =
-    request.path.length > TRACE_NOTE_URL_CHARS
-      ? `${request.path.slice(0, TRACE_NOTE_URL_CHARS)}…`
-      : request.path
-  const head = `${request.method} ${url} → ${request.status === 0 ? 'no response' : request.status}`
+  // Playwright records `-1` for every request it never got a response for, so `-1` is never a
+  // status to print: a request that failed without one carries its own error text, and one with
+  // neither was still in flight when the test ended (xr-molecule-flash-m112 +30:45).
+  const status =
+    request.status > 0
+      ? String(request.status)
+      : request.failure
+        ? `no response (${bodyLine(redactSecrets(request.failure), TRACE_NOTE_FAILURE_CHARS)})`
+        : 'no response'
+  const head = `${requestLabel(request)} → ${status}`
   // The body a page sends to its own API can carry a credential (a registration's password, a
   // token in a form) — the note is egress, so it goes through the same redactor command output
   // does. The parsed trace keeps the body; only the text the model reads is masked.
@@ -480,6 +520,19 @@ function wrappedInData(text: string): boolean {
   }
 }
 
+/** Whether a trace recorded a request the server actually failed: a 4xx/5xx, or a network error. */
+function failedRequest(request: TraceRequest): boolean {
+  return request.status >= 400 || (request.status <= 0 && request.failure !== undefined)
+}
+
+/**
+ * Whether a trace recorded NO response and no reason for it — a request that was aborted or still
+ * in flight when the test ended. It is not evidence that the server failed (m112 +30:45).
+ */
+function unansweredRequest(request: TraceRequest): boolean {
+  return request.status <= 0 && request.failure === undefined
+}
+
 /**
  * The note a failed suite run's result carries: what each failing test's page actually sent, and
  * what came back.
@@ -489,6 +542,12 @@ function wrappedInData(text: string): boolean {
  * with them: read the handler the route reaches, not the selector. It is BOUNDED to
  * {@link MAX_TRACE_NOTE_TESTS} tests with {@link MAX_TRACE_NOTE_REQUESTS} requests each, because it
  * rides in a result the model pays for.
+ *
+ * The three kinds are kept apart, because they mean different things. A FAILED request (4xx/5xx, or
+ * a network error with Playwright's own text) is a cause. A request with NO RESPONSE RECORDED —
+ * Playwright's `-1`, no error text — was still in flight when the test ended (the page closed under
+ * it); listing it as a failure sent a run hunting an API that never answered anything wrong
+ * (xr-molecule-flash-m112 +30:45). The rest are the page's last answered requests.
  *
  * A 4xx request carries what the page SENT beside its status, so a wrapped body is visible in one
  * line rather than inferred from the status; when one of those bodies is an object whose only key
@@ -501,14 +560,37 @@ function wrappedInData(text: string): boolean {
 export function failureTraceNote(items: readonly TraceArtifact[], target: string): string | null {
   const withEvidence = items.filter((item) => item.requests.length > 0 || item.console.length > 0)
   if (withEvidence.length === 0) return null
+  const traced = withEvidence.slice(0, MAX_TRACE_NOTE_TESTS)
   const wrapped = withEvidence.some((item) =>
     item.requests.some((request) => request.sent !== undefined && wrappedInData(request.sent)),
   )
+  // The "one of these requests failing" answer is only honest when a listed request really failed.
+  const anyFailed = traced.some((item) => item.requests.some(failedRequest))
   const rows: string[] = []
-  for (const [index, item] of withEvidence.slice(0, MAX_TRACE_NOTE_TESTS).entries()) {
-    const requests = item.requests.slice(-MAX_TRACE_NOTE_REQUESTS).map(requestLine)
+  for (const [index, item] of traced.entries()) {
+    const failed = item.requests.filter(failedRequest)
+    const unanswered = item.requests.filter(unansweredRequest)
+    const answered = item.requests.filter(
+      (request) => !failedRequest(request) && !unansweredRequest(request),
+    )
+    let room = MAX_TRACE_NOTE_REQUESTS
     const parts: string[] = []
-    if (requests.length > 0) parts.push(requests.join('; '))
+    if (failed.length > 0) {
+      const shown = failed.slice(0, room)
+      room -= shown.length
+      parts.push(`failed: ${shown.map(requestLine).join('; ')}`)
+    }
+    if (unanswered.length > 0 && room > 0) {
+      const shown = unanswered.slice(0, room)
+      room -= shown.length
+      parts.push(
+        `no response recorded — still in flight when the test ended, so not a server failure: ` +
+          shown.map(requestLabel).join('; '),
+      )
+    }
+    if (answered.length > 0 && room > 0) {
+      parts.push(`answered: ${answered.slice(0, room).map(requestLine).join('; ')}`)
+    }
     if (item.console.length > 0)
       parts.push(
         `console: ${item.console
@@ -524,11 +606,15 @@ export function failureTraceNote(items: readonly TraceArtifact[], target: string
       : ''
   return (
     `The platform read the failing tests' own Playwright traces from the run against ${target} ` +
-    `(the last requests each page made, including the body a 4xx request sent and got):\n` +
+    `(what each page sent and got: the requests that failed, the ones that got no response, and ` +
+    `its last answered ones):\n` +
     `${rows.join('\n')}${more}\n` +
-    'A click that changed nothing is usually one of these requests failing, not the selector: ' +
-    'read the handler this route reaches in your own source, and stop `catch`-ing the request of a ' +
-    'user action silently — log it.' +
+    (anyFailed
+      ? 'A click that changed nothing is usually one of these requests failing, not the selector: ' +
+        'read the handler this route reaches in your own source, and stop `catch`-ing the request of a ' +
+        'user action silently — log it.'
+      : 'No listed request failed — none got a 4xx/5xx or a network error — so the cause is in the ' +
+        'page, not the API: read the state the failing test waited on.') +
     (wrapped
       ? ' The API received a body wrapped in `data`: app-http’s `post(url, data, config)` / ' +
         '`put(url, data, config)` / `patch(url, data, config)` take the body as their SECOND ' +
