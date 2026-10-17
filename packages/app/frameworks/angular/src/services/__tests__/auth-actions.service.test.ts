@@ -15,6 +15,7 @@ const mockClient = {
   logout: vi.fn(),
   refresh: vi.fn(),
   getState: vi.fn(() => ({
+    status: 'loading' as const,
     initialized: false,
     authenticated: false,
     user: null,

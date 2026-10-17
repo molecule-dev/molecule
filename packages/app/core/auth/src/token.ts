@@ -15,6 +15,8 @@ import type { StorageAdapter, TokenStorage, UserProfile } from './types.js'
  * @param storage - `'memory'` for in-memory storage (lost on refresh),
  *   or a `StorageAdapter` for persistent storage.
  * @param prefix - Key prefix for storage items (default: `'molecule:auth:'`).
+ * @param tokenKey - Exact key for the access token (default `${prefix}accessToken`),
+ *   for a store another tool reads at its own key.
  * @returns A `TokenStorage` instance.
  *
  * @example
@@ -30,6 +32,7 @@ import type { StorageAdapter, TokenStorage, UserProfile } from './types.js'
 export const createTokenStorage = (
   storage: 'memory' | StorageAdapter = 'memory',
   prefix: string = 'molecule:auth:',
+  tokenKey?: string,
 ): TokenStorage => {
   const memoryStore: Record<string, string | null> = {}
 
@@ -38,6 +41,8 @@ export const createTokenStorage = (
   if (typeof storage === 'object') {
     adapter = storage
   }
+
+  const accessTokenKey = (): string => tokenKey ?? `${prefix}accessToken`
 
   const get = (key: string): string | null => {
     if (adapter) {
@@ -58,9 +63,25 @@ export const createTokenStorage = (
     }
   }
 
+  // The access token can live under an exact key (`tokenKey`) that another tool
+  // reads; the refresh token and the cached user always use the prefix.
+  const getTokenValue = (): string | null => {
+    if (adapter) return adapter.getItem(accessTokenKey())
+    return memoryStore.accessToken ?? null
+  }
+
+  const setTokenValue = (value: string | null): void => {
+    if (adapter) {
+      if (value === null) adapter.removeItem(accessTokenKey())
+      else adapter.setItem(accessTokenKey(), value)
+    } else {
+      memoryStore.accessToken = value
+    }
+  }
+
   return {
-    getAccessToken: () => get('accessToken'),
-    setAccessToken: (token) => set('accessToken', token),
+    getAccessToken: getTokenValue,
+    setAccessToken: setTokenValue,
     getRefreshToken: () => get('refreshToken'),
     setRefreshToken: (token) => set('refreshToken', token),
     getUser: <T = UserProfile>(): T | null => {
@@ -77,7 +98,7 @@ export const createTokenStorage = (
       set('user', user ? JSON.stringify(user) : null)
     },
     clear: () => {
-      set('accessToken', null)
+      setTokenValue(null)
       set('refreshToken', null)
       set('user', null)
     },

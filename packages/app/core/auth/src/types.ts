@@ -151,9 +151,30 @@ export interface PasswordResetConfirm {
 }
 
 /**
+ * The single value an app renders the session from — the four states every auth
+ * UI needs, derived from {@link AuthState} so no caller has to combine
+ * `initialized`/`authenticated`/`loading`/`error` itself.
+ *
+ * - `'loading'`: no decision yet (before `initialize()` settles, or an auth
+ *   operation is in flight).
+ * - `'authenticated'`: a session exists.
+ * - `'unauthenticated'`: the client settled the question and nobody is signed in.
+ * - `'unavailable'`: a stored session exists but the server could not confirm it
+ *   (a network or 5xx failure in {@link AuthClient.validateSession}); the session
+ *   is KEPT and the app can say "reconnecting" instead of signing the user out.
+ */
+export type AuthStatus = 'loading' | 'authenticated' | 'unauthenticated' | 'unavailable'
+
+/**
  * Reactive authentication state snapshot (initialized, authenticated, user, loading, and error).
  */
 export interface AuthState<T = UserProfile> {
+  /**
+   * The session's state as one value — render from this instead of combining
+   * `initialized`/`authenticated`/`loading`. See {@link AuthStatus}.
+   */
+  status: AuthStatus
+
   /**
    * Whether auth state has been initialized.
    */
@@ -289,6 +310,27 @@ export interface AuthClient<T = UserProfile> {
   initialize(): Promise<void>
 
   /**
+   * Re-checks a restored session against the server, in the background — the
+   * boot-time validation an app with a stored token needs when a revoked or
+   * expired token must sign the user out. Call it AFTER the first render
+   * (`initialize()` restores synchronously from storage; this costs one request).
+   *
+   * - The server confirms the user: the session is refreshed and {@link AuthState.status}
+   *   stays `'authenticated'`.
+   * - The server answers 4xx: the token is dead — the stored session is cleared and
+   *   the status becomes `'unauthenticated'`.
+   * - The server cannot answer (network failure or 5xx): the session is KEPT and the
+   *   status becomes `'unavailable'`, so the app can retry instead of signing the
+   *   user out over a bad connection.
+   *
+   * Do not hand-write this beside the client: a parallel token/user store for a
+   * "validating"/"unavailable" flag is the race this method removes.
+   *
+   * Optional: a provider with no restorable session has nothing to validate.
+   */
+  validateSession?(): Promise<void>
+
+  /**
    * Resolves when the session restore started by `initialize()` has settled — the point
    * after which the client knows whether this visitor is signed in.
    *
@@ -394,6 +436,18 @@ export interface AuthClientConfig {
    * Storage key prefix.
    */
   storagePrefix?: string
+
+  /**
+   * The EXACT `StorageAdapter` key the access token is written under (default
+   * `${storagePrefix}accessToken`).
+   *
+   * Set it when something outside this package reads the token at its own key —
+   * an e2e suite's contract (RealWorld's specs read `localStorage.jwtToken`), a
+   * second library, a host page — instead of mirroring the token into
+   * `localStorage` beside the client. The refresh token and the cached user keep
+   * the prefix.
+   */
+  tokenKey?: string
 
   /**
    * Scheme of the `Authorization` header the access token is sent with:

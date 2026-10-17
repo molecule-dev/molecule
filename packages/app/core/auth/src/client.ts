@@ -17,6 +17,7 @@ import type {
   AuthEventListener,
   AuthResult,
   AuthState,
+  AuthStatus,
   LoginCredentials,
   PasswordResetConfirm,
   PasswordResetRequest,
@@ -97,7 +98,7 @@ export const createJWTAuthClient = <T extends UserProfile = UserProfile>(
   } = config
 
   const logger = getLogger('auth')
-  const tokenStorage = createTokenStorage(storage, storagePrefix)
+  const tokenStorage = createTokenStorage(storage, storagePrefix, config.tokenKey)
   const stateListeners = new Set<(state: AuthState<T>) => void>()
   const eventListeners = new Set<AuthEventListener>()
   let refreshTimer: ReturnType<typeof setTimeout> | null = null
@@ -108,6 +109,7 @@ export const createJWTAuthClient = <T extends UserProfile = UserProfile>(
   let restoreInFlight: Promise<void> | null = null
 
   let state: AuthState<T> = {
+    status: 'loading',
     initialized: false,
     authenticated: false,
     user: null,
@@ -123,8 +125,23 @@ export const createJWTAuthClient = <T extends UserProfile = UserProfile>(
     eventListeners.forEach((listener) => listener(event))
   }
 
+  /**
+   * The status an update implies. `'unavailable'` is sticky until something
+   * actually decides the session (a login/logout, a successful validation, or a
+   * 4xx that cleared the token): a later `setState({ error })` must not turn
+   * "the server did not answer" into "nobody is signed in".
+   */
+  const deriveStatus = (next: AuthState<T>, explicit: AuthStatus | undefined): AuthStatus => {
+    if (explicit) return explicit
+    if (next.authenticated) return 'authenticated'
+    if (next.loading || !next.initialized) return 'loading'
+    if (state.status === 'unavailable' && tokenStorage.getAccessToken()) return 'unavailable'
+    return 'unauthenticated'
+  }
+
   const setState = (updates: Partial<AuthState<T>>): void => {
-    state = { ...state, ...updates }
+    const next = { ...state, ...updates }
+    state = { ...next, status: deriveStatus(next, updates.status) }
     notify()
   }
 
@@ -186,7 +203,12 @@ export const createJWTAuthClient = <T extends UserProfile = UserProfile>(
       const body = await response.json().catch(() => ({}))
       const key = body.errorKey ?? 'auth.error.requestFailed'
       const fallback = body.error ?? body.message ?? 'Request failed'
-      throw new I18nError(key, undefined, fallback)
+      const failure = new I18nError(key, undefined, fallback) as I18nError & { status?: number }
+      // The HTTP status, so a caller can tell "this token is dead" (4xx) from
+      // "the server did not answer" (5xx) — `validateSession` keeps the session
+      // on the latter and clears it on the former.
+      failure.status = response.status
+      throw failure
     }
 
     const data = await response.json()
@@ -385,6 +407,8 @@ export const createJWTAuthClient = <T extends UserProfile = UserProfile>(
           loading: false,
           authenticated: false,
           user: null,
+          // An explicit sign-out settles the question, whatever came before.
+          status: 'unauthenticated',
         })
         logger.debug('User logged out')
         emitEvent({ type: 'logout' })
@@ -516,6 +540,63 @@ export const createJWTAuthClient = <T extends UserProfile = UserProfile>(
       // restore that failed must not turn into a rejected request — the request goes out
       // unauthenticated instead (the same outcome as not waiting at all).
       return restoreInFlight ? restoreInFlight.catch(() => undefined) : Promise.resolve()
+    },
+
+    async validateSession(): Promise<void> {
+      const token = tokenStorage.getAccessToken()
+      if (!token) {
+        setState({
+          initialized: true,
+          authenticated: false,
+          user: null,
+          status: 'unauthenticated',
+        })
+        return
+      }
+      try {
+        // `fetchAPI` sends the stored token, so this asks the server "is this
+        // session still valid?" — the background check `initialize()` does not do
+        // (it restores from storage without a request by design).
+        const result = await fetchAPI<{ user?: T }>(currentUserEndpoint, { method: 'GET' })
+        const user = (result?.user ?? tokenStorage.getUser<T>()) as T | null
+        if (user) {
+          tokenStorage.setUser(user)
+          setState({
+            initialized: true,
+            authenticated: true,
+            user,
+            status: 'authenticated',
+            error: null,
+          })
+        } else {
+          tokenStorage.clear()
+          setState({
+            initialized: true,
+            authenticated: false,
+            user: null,
+            status: 'unauthenticated',
+          })
+        }
+      } catch (error) {
+        const httpStatus = (error as { status?: number }).status
+        if (httpStatus !== undefined && httpStatus >= 400 && httpStatus < 500) {
+          // The token is dead (revoked, expired, a reset database): drop the
+          // session rather than keep sending a header the server refuses.
+          tokenStorage.clear()
+          setState({
+            initialized: true,
+            authenticated: false,
+            user: null,
+            status: 'unauthenticated',
+          })
+          return
+        }
+        // The server could not answer. Keep the session so a later reload or a
+        // retry can restore it; say so with `unavailable` instead of signing the
+        // user out over a network failure.
+        const message = error instanceof Error ? error.message : 'Session could not be confirmed'
+        setState({ status: 'unavailable', error: message })
+      }
     },
 
     subscribe(callback: (state: AuthState<T>) => void): () => void {

@@ -36,6 +36,24 @@
  * the HTTP client do it: `@molecule/app-bonds-default-react` registers
  * `whenRestored()` as the gate so every request waits for the restore.
  *
+ * **`getState().status` is the session state to render, in one value.**
+ * `'loading'` (no decision yet) → `'authenticated'` / `'unauthenticated'`, and
+ * `'unavailable'` when a stored session exists but the server could not confirm it.
+ * `validateSession()` is the background re-check that produces the last two: call
+ * it after the first render — a 4xx clears the token (`'unauthenticated'`), a
+ * network failure or 5xx KEEPS it (`'unavailable'`, retryable). Do not build a
+ * `validating`/`unavailable` flag beside the client: a second module-level state
+ * plus its own listener set is a second session store, and it drifts from the
+ * client's.
+ *
+ * **A token another tool reads at its own key is a CONFIG field, not a mirror.**
+ * An e2e suite or host page that expects `localStorage.jwtToken` (the RealWorld
+ * specs do) is satisfied by `tokenKey: 'jwtToken'` with
+ * `storage: createBrowserStorageAdapter()`; writing the token into that key from a
+ * subscription beside the client is a second store. In React, `useAuth()` from
+ * `@molecule/app-react` returns the client's `state` (with `status`), `user` and
+ * `isAuthenticated`; the token is `useAuthClient().getAccessToken()`.
+ *
  * **A store that registers its own gate must exempt the restore's own request.**
  * This client restores with `fetch`, so the gate registered over it never holds
  * the restore. A store that restores THROUGH the bonded HTTP client and
