@@ -186,3 +186,97 @@ describe('a runner named as an argument is not an invocation (flash-m81)', () =>
     }
   })
 })
+
+/**
+ * X1 xr-molecule-flash-m101 (+15:43): all three of the run's suite invocations were
+ * `npx --prefix /workspace/my-app/app playwright test` — the model wanted the app's own Playwright,
+ * since the suite lives in `fixtures/`. The wrapper walk consumed the VALUE of `--prefix` as the
+ * program (`app`), so no gate that keys on "a suite ran" saw a run: the deploy was held with "the
+ * Playwright suite has never run" after two full runs, and the same blindness covered the
+ * first-deploy hold, stale-proof, cut-run and the in-flight overlap. The wrapper skips the package
+ * manager's own options before taking the program now, with the value-taking flags read from the
+ * versions the sandbox image ships (npm 10.9.9's `npm exec --help` and `npm config ls -l`, pnpm
+ * 10.34.7's `pnpm help exec` / `pnpm dlx --help`, Yarn 4.18.1's `yarn dlx --help`).
+ */
+const PACKAGE_MANAGER_FORMS: ReadonlyArray<[string, string]> = [
+  ['a bare npx', 'npx playwright test'],
+  ['npx -y', 'npx -y playwright test'],
+  ['npx --prefix=<dir>', 'npx --prefix=/x playwright test'],
+  ['npx --prefix <dir>', 'npx --prefix /workspace/my-app/app playwright test'],
+  ['npx -p <package>', 'npx -p @playwright/test playwright test'],
+  ['npm exec --prefix <dir>', 'npm exec --prefix /x playwright test'],
+  ['npm exec --prefix <dir> --', 'npm exec --prefix x -- playwright test'],
+]
+
+describe('the package manager’s own options are skipped, never read as the program (flash-m101)', () => {
+  it.each(PACKAGE_MANAGER_FORMS)(
+    '%s runs `playwright test`, like a bare npx',
+    (_label, command) => {
+      expect(commandSegments(command)[0]).toMatchObject({ program: 'playwright', args: ['test'] })
+      expect(commandSegments(command).map((s) => s.program)).toEqual(
+        commandSegments('npx playwright test').map((s) => s.program),
+      )
+      expect(isPlaywrightRunCommand(command)).toBe(true)
+      expect(isSuiteRunCommand(command)).toBe(true)
+    },
+  )
+
+  it('reads the shape flashed first: `npx --prefix <app dir> playwright test`', () => {
+    // Verbatim from xr-molecule-flash-m101's three invocations.
+    const command =
+      'cd /workspace/my-app/app && npx --prefix /workspace/my-app/app playwright test --reporter=line'
+    expect(commandSegments(command).at(-1)).toMatchObject({
+      program: 'playwright',
+      args: ['test', '--reporter=line'],
+    })
+    expect(isPlaywrightRunCommand(command)).toBe(true)
+  })
+
+  it('leaves a program that is not a runner alone: `npx --prefix x eslint .` is no run', () => {
+    expect(commandSegments('npx --prefix x eslint .')[0]).toMatchObject({
+      program: 'eslint',
+      args: ['.'],
+    })
+    expect(isPlaywrightRunCommand('npx --prefix x eslint .')).toBe(false)
+    expect(isSuiteRunCommand('npx --prefix x eslint .')).toBe(false)
+  })
+
+  it('reads npm’s `-c` as a command of its own, and pnpm’s `-c` as a switch', () => {
+    // npm: `-c <command>` is the command string, with `--package`'s bin on PATH.
+    expect(commandSegments(`npx -c 'playwright test'`)[0]).toMatchObject({
+      program: 'playwright',
+      args: ['test'],
+    })
+    expect(commandSegments(`npx -p @playwright/test -c 'playwright test'`)[0]).toMatchObject({
+      program: 'playwright',
+      args: ['test'],
+    })
+    // pnpm: `-c, --shell-mode` takes no value, so the command follows it.
+    expect(commandSegments('pnpm exec -c playwright test')[0]).toMatchObject({
+      program: 'playwright',
+      args: ['test'],
+    })
+  })
+
+  it('skips the value flags of every package runner the sandbox image ships', () => {
+    expect(commandSegments('npx --package @playwright/test playwright test')[0]?.program).toBe(
+      'playwright',
+    )
+    expect(
+      commandSegments('npm exec --package @playwright/test -- playwright test')[0]?.program,
+    ).toBe('playwright')
+    expect(commandSegments('npm exec -w app -- playwright test')[0]?.program).toBe('playwright')
+    expect(commandSegments('pnpm exec playwright test')[0]?.program).toBe('playwright')
+    expect(commandSegments('pnpm dlx --package @playwright/test playwright test')[0]?.program).toBe(
+      'playwright',
+    )
+    expect(commandSegments('yarn dlx -p @playwright/test playwright test')[0]?.program).toBe(
+      'playwright',
+    )
+    expect(commandSegments('yarn dlx playwright test')[0]?.program).toBe('playwright')
+    expect(commandSegments('bun x playwright test')[0]?.program).toBe('playwright')
+    expect(commandSegments('bunx --package @playwright/test playwright test')[0]?.program).toBe(
+      'playwright',
+    )
+  })
+})

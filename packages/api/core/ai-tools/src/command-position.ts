@@ -92,6 +92,126 @@ const PACKAGE_RUNNER_HEADS: ReadonlySet<string> = new Set(['bun', 'npm', 'pnpm',
  */
 const PACKAGE_RUNNER_SUBCOMMANDS: ReadonlySet<string> = new Set(['dlx', 'exec', 'x'])
 
+/**
+ * npm's value-taking options: `npm exec`'s own (`-p/--package`, `-c/--call`, `-w/--workspace`,
+ * `--prefix`) and the string-valued configs `npm config ls -l` lists in the sandbox image, which
+ * npm accepts on the command line of any invocation.
+ */
+const NPM_VALUE_FLAGS: readonly string[] = [
+  '-c',
+  '--call',
+  '-p',
+  '--package',
+  '-w',
+  '--workspace',
+  '--prefix',
+  '--registry',
+  '--cache',
+  '--userconfig',
+  '--globalconfig',
+  '--loglevel',
+  '--logs-dir',
+  '--script-shell',
+  '--shell',
+  '--tag',
+  '--otp',
+  '--scope',
+  '--location',
+  '--user-agent',
+  '--which',
+  '--viewer',
+  '--proxy',
+  '--https-proxy',
+  '--cert',
+  '--key',
+  '--ca',
+  '--cafile',
+  '--editor',
+  '--message',
+  '--node-options',
+  '--save-prefix',
+  '--preid',
+  '--access',
+  '--also',
+  '--audit-level',
+  '--auth-type',
+  '--before',
+  '--browser',
+  '--cidr',
+  '--cpu',
+  '--depth',
+  '--expect-result-count',
+  '--expect-results',
+  '--install-strategy',
+  '--libc',
+  '--local-address',
+  '--lockfile-version',
+  '--only',
+  '--os',
+  '--pack-destination',
+  '--provenance-file',
+  '--replace-registry-host',
+  '--sbom-format',
+  '--sbom-type',
+  '--searchexclude',
+  '--searchopts',
+  '--tag-version-prefix',
+]
+
+/** pnpm dlx's value-taking options (`pnpm dlx --help`); its `-c` is the boolean shell-mode. */
+const PNPM_DLX_VALUE_FLAGS: readonly string[] = ['--allow-build', '--package', '--reporter']
+
+/**
+ * The package manager's OWN options that take their value from the next word — read from the
+ * versions the sandbox image (`node:22-trixie-slim`) ships: npm 10.9.9 (`npm exec --help`, and
+ * every string-valued key of `npm config ls -l`), pnpm 10.34.7 (`pnpm help exec`,
+ * `pnpm dlx --help`) and Yarn 4.18.1 (`yarn dlx --help`). A flag absent here is skipped as a
+ * boolean, which is what every documented switch is.
+ *
+ * The table is keyed per manager because the same short flag means different things in two of
+ * them: `-c` is npm's `--call <command>` (a value, and a command of its own —
+ * {@link PACKAGE_RUNNER_CALL_FLAGS}) but pnpm's `--shell-mode` (a switch), and `-w` is npm's
+ * `--workspace <name>` (a value) but pnpm's `--workspace-root` (a switch).
+ */
+const PACKAGE_RUNNER_VALUE_FLAGS: Readonly<Record<string, readonly string[]>> = {
+  // npm exec's documented options, plus the config flags npm accepts on any invocation.
+  npx: NPM_VALUE_FLAGS,
+  'npm exec': NPM_VALUE_FLAGS,
+  'npm x': NPM_VALUE_FLAGS,
+  // `npx --prefix /app playwright test` is how flash-m101's run reached the app's own Playwright.
+  bunx: ['-p', '--package'],
+  'bun x': ['-p', '--package'],
+  pnpx: PNPM_DLX_VALUE_FLAGS,
+  'pnpm dlx': PNPM_DLX_VALUE_FLAGS,
+  'pnpm x': PNPM_DLX_VALUE_FLAGS,
+  'pnpm exec': [
+    '-C',
+    '--dir',
+    '--loglevel',
+    '--resume-from',
+    '--reporter',
+    '--filter',
+    '--filter-prod',
+    '--changed-files-ignore-pattern',
+    '--workspace-concurrency',
+    '--prefix',
+  ],
+  'yarn dlx': ['-p', '--package'],
+  'yarn exec': [],
+  'yarn x': [],
+}
+
+/**
+ * The package-runner options whose VALUE is itself a command (`npm exec -c '<command>'`), so it is
+ * parsed as one: `npx -c 'playwright test'` runs Playwright, and its program is not the word after
+ * the flag.
+ */
+const PACKAGE_RUNNER_CALL_FLAGS: Readonly<Record<string, readonly string[]>> = {
+  npx: ['-c', '--call'],
+  'npm exec': ['-c', '--call'],
+  'npm x': ['-c', '--call'],
+}
+
 /** Wrapper flags that are followed by their own value (`sudo -u root`, `timeout -k 5`). */
 const WRAPPER_VALUE_FLAGS: Readonly<Record<string, readonly string[]>> = {
   env: ['-S', '--split-string', '-u', '--unset', '-C', '--chdir'],
@@ -184,6 +304,47 @@ function flagWords(words: readonly string[], from: number, wrapper: string): num
 }
 
 /**
+ * How many words a package runner (`npx`, `npm exec`, `pnpm dlx`, `yarn dlx`) owns before the
+ * program it runs — its own options, and each value flag's value — plus the command string of a
+ * `-c '<command>'`, which is a command of its own rather than the program word.
+ *
+ * A `--` ends the options: `npm exec --prefix x -- playwright test` runs `playwright` with `test`,
+ * so the terminator is consumed and the walk stops there.
+ *
+ * @param words - The segment's words.
+ * @param from - The index just after the runner (or after `npm exec`).
+ * @param key - The runner's table key (`npm`, `npx`, `pnpm exec`, `yarn dlx`, …).
+ * @returns The count of words the runner owns, and the `-c` command string when it carries one.
+ */
+function packageRunnerOptions(
+  words: readonly string[],
+  from: number,
+  key: string,
+): { count: number; nested: string | null } {
+  const withValue = PACKAGE_RUNNER_VALUE_FLAGS[key] ?? []
+  const callFlags = PACKAGE_RUNNER_CALL_FLAGS[key] ?? []
+  let count = 0
+  while (from + count < words.length) {
+    const word = words[from + count] ?? ''
+    if (!word.startsWith('-')) break
+    // `--` ends the runner's options; the program is the next word.
+    if (word === '--') return { count: count + 1, nested: null }
+    const flag = unquoted(word)
+    // `--flag=value` carries its value inside the same word.
+    if (word.includes('=')) {
+      count += 1
+      continue
+    }
+    if (callFlags.includes(flag)) {
+      const value = words[from + count + 1]
+      return { count: count + 2, nested: value === undefined ? null : unquoted(value) }
+    }
+    count += withValue.includes(flag) ? 2 : 1
+  }
+  return { count, nested: null }
+}
+
+/**
  * The `-c '<command>'` string a shell was handed, or null when the shell was given a FILE
  * (`bash run.sh`) — the wrapper walk then steps past its flags instead.
  *
@@ -238,14 +399,19 @@ function commandStart(words: readonly string[]): {
       continue
     }
     if (PACKAGE_RUNNERS.has(name)) {
-      at += 1 + flagWords(words, at + 1, name)
+      const runner = packageRunnerOptions(words, at + 1, name)
+      if (runner.nested !== null) return { at, nested: runner.nested, timeoutSeconds }
+      at += 1 + runner.count
       continue
     }
     if (
       PACKAGE_RUNNER_HEADS.has(name) &&
       PACKAGE_RUNNER_SUBCOMMANDS.has(unquoted(words[at + 1] ?? ''))
     ) {
-      at += 2 + flagWords(words, at + 2, name)
+      const subcommand = unquoted(words[at + 1] ?? '')
+      const runner = packageRunnerOptions(words, at + 2, `${name} ${subcommand}`)
+      if (runner.nested !== null) return { at, nested: runner.nested, timeoutSeconds }
+      at += 2 + runner.count
       continue
     }
     if (!LAUNCHERS.has(name)) return { at, nested: null, timeoutSeconds }
