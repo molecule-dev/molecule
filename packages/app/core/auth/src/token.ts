@@ -19,17 +19,12 @@ import type { StorageAdapter, TokenStorage, UserProfile } from './types.js'
  *
  * @example
  * ```typescript
- * // In-memory storage (default)
+ * // In-memory storage (the client's default)
  * const storage = createTokenStorage('memory')
  *
- * // Custom storage adapter from @molecule/app-storage
- * import { getProvider } from '@molecule/app-storage'
- * const provider = getProvider()
- * const storage = createTokenStorage({
- *   getItem: (key) => provider.get(key),
- *   setItem: (key, value) => provider.set(key, value),
- *   removeItem: (key) => provider.remove(key),
- * })
+ * // The browser's persistent storage — a reload keeps the session
+ * import { createBrowserStorageAdapter } from '@molecule/app-auth'
+ * const storage = createTokenStorage(createBrowserStorageAdapter())
  * ```
  */
 export const createTokenStorage = (

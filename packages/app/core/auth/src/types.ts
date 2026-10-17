@@ -383,10 +383,10 @@ export interface AuthClientConfig {
 
   /**
    * Current-user endpoint for session restore (default `/users/me`). Called by
-   * `initialize()` with credentials to re-establish the session from the
-   * httpOnly cookie after a full page load — the only way to stay logged in when
-   * the bearer token is held in memory (the secure default; a localStorage copy
-   * is XSS-exfiltratable). Must return the user (as `user` or `props`).
+   * `initialize()` with credentials to re-establish the session after a full page
+   * load when the token did not survive the reload itself — i.e. when `storage` is
+   * `'memory'` and the API sets an httpOnly session cookie. Must return the user
+   * (as `user` or `props`).
    */
   currentUserEndpoint?: string
 
@@ -422,23 +422,35 @@ export interface AuthClientConfig {
   mapAuthResponse?: (data: unknown) => AuthResult<UserProfile>
 
   /**
-   * Token storage type or custom storage adapter.
-   * - 'memory': In-memory storage (lost on page refresh)
-   * - StorageAdapter: Custom storage implementation (e.g., from `@molecule/app-storage`)
+   * Where the access/refresh token and the cached user are kept — the field that
+   * decides whether a page reload keeps the user signed in.
+   *
+   * - `'memory'` (the client's default): a process-local store, lost on reload.
+   *   Correct when the API sets an httpOnly session cookie, which `initialize()`
+   *   then restores through {@link AuthClientConfig.currentUserEndpoint} — the
+   *   strongest configuration, because no script can read the cookie.
+   * - a `StorageAdapter`: the token survives the reload itself. The browser
+   *   adapter is `createBrowserStorageAdapter()` (from `@molecule/app-auth`), and it
+   *   is what the scaffold's `authConfig` passes. A bearer token in Web Storage is
+   *   readable by any script on the origin, so an XSS can steal it; see that
+   *   function's `@remarks` for the trade and for the cookie alternative.
+   *
+   * Any adapter with `getItem`/`setItem`/`removeItem` works — the methods are
+   * SYNCHRONOUS, so the async `@molecule/app-storage` provider
+   * (`getProvider()`, whose `get()` returns a Promise) is NOT one: wrap the
+   * `Storage` object it was built on (`createBrowserStorageAdapter({ storage })`),
+   * or store a different way.
    *
    * @example
    * ```typescript
-   * // Use in-memory storage
-   * storage: 'memory'
+   * import { createBrowserStorageAdapter } from '@molecule/app-auth'
    *
-   * // Use custom storage from `@molecule/app-storage`
-   * import { getProvider } from '@molecule/app-storage'
-   * const storageProvider = getProvider()
-   * storage: {
-   *   getItem: (key) => storageProvider.get(key),
-   *   setItem: (key, value) => storageProvider.set(key, value),
-   *   removeItem: (key) => storageProvider.remove(key),
-   * }
+   * // A reload keeps the session (the scaffold's own default):
+   * storage: createBrowserStorageAdapter()
+   * // Only this tab's lifetime, at a narrower exposure than localStorage:
+   * storage: createBrowserStorageAdapter({ kind: 'session' })
+   * // An httpOnly cookie session instead — memory only, the stronger route:
+   * storage: 'memory'
    * ```
    */
   storage?: 'memory' | StorageAdapter

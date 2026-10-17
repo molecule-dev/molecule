@@ -17,13 +17,18 @@
  *   (`setClient(createJWTAuthClient({ authScheme: 'Token', … }))` in the auth bond), not
  *   properties of a client that already exists. Do not hand-write an auth client for a spec
  *   like RealWorld.
- * - **A page reload "logging the user out" is the config default, not a bug.**
- *   Token storage defaults to `'memory'` (the secure default — a localStorage
- *   bearer token is XSS-exfiltratable). Staying signed in across reloads works
- *   by calling `client.initialize()` once at startup: it re-fetches
- *   `currentUserEndpoint` (default `/users/me`) with the httpOnly cookie the
- *   API set at login. Wire `initialize()`; do NOT "fix" reload-logout by
- *   copying tokens into localStorage.
+ * - **Whether a reload keeps the user signed in is `AuthClientConfig.storage`,
+ *   and one of the two routes must be wired.** The client's own default is
+ *   `'memory'`, which is lost on reload, so a session survives one only by
+ *   having a credential that survived: (1) `storage: createBrowserStorageAdapter()`
+ *   — the browser's `localStorage`, what a scaffolded app's `authConfig` passes
+ *   (see `@molecule/app-auth`'s `createBrowserStorageAdapter` for the trade: Web
+ *   Storage is script-readable, so an XSS can steal the token), or (2) an
+ *   httpOnly session cookie the API sets at login, which `initialize()` restores
+ *   through `currentUserEndpoint` (default `/users/me`) — the stronger option
+ *   wherever the API supports it, and what `@molecule/api-resource-user` issues.
+ *   Wire `initialize()` once at startup either way. Do NOT hand-roll a token
+ *   store beside the client for this: it is a config field.
  * - **Endpoint defaults must match your API's real routes** (`/auth/login`,
  *   `/auth/register`, `/auth/refresh`, `/users/logout`, `/users/me`, …).
  *   Align them via `createJWTAuthClient({ baseURL, ...endpoints })` — never by
@@ -85,26 +90,32 @@
  * - [ ] Visiting a protected route while logged OUT redirects to login (the
  *   guard reads `isAuthenticated()`), and after authenticating you land back on
  *   the originally-requested screen rather than a generic home.
- * - [ ] The session survives a FULL page reload: after login, hard-reload →
- *   `initialize()` restores it from the httpOnly cookie (via
- *   `currentUserEndpoint`, default `/users/me`) and you stay signed in — you are
- *   NOT bounced to login. (The in-memory bearer token is dropped by design; the
- *   cookie restore is what keeps you in — do not "fix" this by writing the token
- *   to localStorage.)
+ * - [ ] The session survives a FULL page reload: after login, hard-reload → you
+ *   stay signed in (the profile/sign-out UI a signed-in visitor sees is still
+ *   there), and you are NOT bounced to login. Which route does it is the app's
+ *   `AuthClientConfig.storage`: the scaffold's `createBrowserStorageAdapter()` keeps
+ *   the token in the browser, an httpOnly session cookie is restored by
+ *   `initialize()` through `currentUserEndpoint` (default `/users/me`). If the
+ *   app has neither — `storage` left at `'memory'` against an API that sets no
+ *   cookie — this box cannot be checked, and the fix is the config, not a token
+ *   store written beside the client.
  * - [ ] Password reset round-trips: `requestPasswordReset({ email })` then
  *   `confirmPasswordReset({ token, password })` with the emailed token, after
  *   which `login()` with the NEW password succeeds and the OLD password no
  *   longer works.
  * - [ ] Authorization holds: a signed-in user only ever reads/edits their OWN
  *   record (`getUser()` is the caller's profile, never another user's); the
- *   bearer token lives in memory only — it is never written to
- *   localStorage / sessionStorage where another script could read it; and an
- *   expired/invalid token fails closed — the app re-authenticates (`refresh()`
- *   or `logout()`), never silently serving another user's data.
+ *   token's storage is the deliberate choice `AuthClientConfig.storage` names —
+ *   if it is Web Storage (the scaffold default, which a reload requires when the
+ *   API sets no cookie), say so in the app's own words rather than leaving a
+ *   second, undocumented store beside it; and an expired/invalid token fails
+ *   closed — the app re-authenticates (`refresh()` or `logout()`), never
+ *   silently serving another user's data.
  *
  * @module
  */
 
+export * from './browser-storage.js'
 export * from './client.js'
 export * from './provider.js'
 export * from './token.js'
