@@ -284,47 +284,18 @@ function playwrightLocations(
 const SPEC_FILE_ARGUMENT = /^(?!-)[^\s]*\.(?:spec|test)\.[cm]?[jt]sx?(?::\d+(?::\d+)?)?$/
 
 /**
- * A `file:line` location's own file part: Playwright prints failures as
- * `url-navigation.spec.ts:13:7`, and the file is the argument that supersedes.
+ * The statement with every bare spec-file argument taken out once the re-run names failure locations.
  *
- * @param location - A location (`file.spec.ts:13`, `file.spec.ts:13:7`) or a spec-file argument.
- * @returns The path without its line numbers.
- */
-function locationFile(location: string): string {
-  return location.replace(/:\d+(?::\d+)?$/, '')
-}
-
-/**
- * Whether two spellings name the same spec file: equal, or one the absolute (or longer) form of
- * the other. The command and the reporter routinely spell the same file differently — the model
- * names `url-navigation.spec.ts`, the summary prints `specs/e2e/url-navigation.spec.ts:13`, and a
- * hold hands back `/workspace/fixtures/realworld/specs/e2e/url-navigation.spec.ts:13`.
- *
- * @param argument - The spec-file argument as the command wrote it.
- * @param location - The failing location.
- * @returns True when the location is inside that file.
- */
-function sameSpecFile(argument: string, location: string): boolean {
-  const a = locationFile(argument)
-    .replace(/^['"]|['"]$/g, '')
-    .replace(/^\.\//, '')
-  const l = locationFile(location)
-    .replace(/^['"]|['"]$/g, '')
-    .replace(/^\.\//, '')
-  return a === l || a.endsWith(`/${l}`) || l.endsWith(`/${a}`)
-}
-
-/**
- * The statement with every spec-file argument its OWN failure locations already name taken out.
- *
- * A `file:line` inside a named file supersedes the whole file, so keeping both runs the file plus
- * the locations — the whole suite again, with the failures duplicated inside it. xr-molecule-flash-m118
- * (+45:24) composed just that: the model's `npx playwright test … url-navigation.spec.ts` was
- * narrowed to the 14 `file:line`s AND the bare file, "~297s" for a file and fourteen duplicates.
+ * The re-run is "just these": Playwright matches each positional argument against every collected
+ * file's path, so a bare file left beside the `file:line`s re-admits ALL of that file's tests.
+ * xr-molecule-flash-m118 (+45:24) kept the one file its 14 failures were in ("~297s" for a file and
+ * fourteen duplicates); xr-molecule-flash-m134 (+20:0x) kept all four files of a run whose 8
+ * failures sat in two of them — 32 tests, ~3 min, instead of the 8 failures' ~30 s. A file with no
+ * failure in it has nothing to re-run, so it goes too.
  *
  * @param statement - The Playwright statement, starting at its own `playwright test`.
  * @param locations - The failing `file:line`s the re-run names.
- * @returns The statement without those superseded file arguments.
+ * @returns The statement without its bare spec-file arguments.
  */
 function dropSupersededSpecFiles(statement: string, locations: readonly string[]): string {
   if (locations.length === 0) return statement
@@ -334,8 +305,7 @@ function dropSupersededSpecFiles(statement: string, locations: readonly string[]
   const kept = statement
     .slice(head.length)
     .replace(/(^|\s+)([^\s]+)(?=\s|$)/g, (whole: string, _space: string, token: string) => {
-      if (!SPEC_FILE_ARGUMENT.test(token)) return whole
-      return locations.every((location) => sameSpecFile(token, location)) ? '' : whole
+      return SPEC_FILE_ARGUMENT.test(token) ? '' : whole
     })
   return `${head}${kept}`
 }

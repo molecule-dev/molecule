@@ -134,18 +134,31 @@ describe('the readings the note and the hold share', () => {
     )
   })
 
-  it('keeps a spec file the locations are NOT inside, and drops only the one they are', () => {
-    // A command naming two files whose failures all belong to one of them: the superseded file
-    // goes, the other stays (Playwright would otherwise drop it from the re-run).
+  it('drops every bare spec file once the re-run names its failures (m134 +20:0x)', () => {
+    // Two named files, failures in one of them: a bare file left in re-admits all its tests.
     const whole = 'npx playwright test specs/e2e/auth.spec.ts specs/e2e/editor.spec.ts --workers=1'
     expect(scopedRerunCommand(whole, ['specs/e2e/editor.spec.ts:41'])).toBe(
-      'npx playwright test specs/e2e/editor.spec.ts:41 --retries=0 specs/e2e/auth.spec.ts --workers=1',
+      'npx playwright test specs/e2e/editor.spec.ts:41 --retries=0 --workers=1',
     )
-    // No location inside any named file: every argument stays exactly where it was.
-    expect(scopedRerunCommand(whole, ['specs/e2e/comments.spec.ts:12'])).toBe(
-      'npx playwright test specs/e2e/comments.spec.ts:12 --retries=0 ' +
-        'specs/e2e/auth.spec.ts specs/e2e/editor.spec.ts --workers=1',
-    )
+    // xr-molecule-flash-m134: four named files, 8 failures in two of them → only the 8 locations.
+    const m134 =
+      'npx playwright test --config e2e-run/playwright.config.ts articles.spec.ts comments.spec.ts ' +
+      'settings.spec.ts social.spec.ts --max-failures=15'
+    const rerun = scopedRerunCommand(m134, [
+      'fixtures/realworld/specs/e2e/settings.spec.ts:20',
+      'fixtures/realworld/specs/e2e/articles.spec.ts:207',
+    ])
+    for (const file of [
+      'articles.spec.ts ',
+      'comments.spec.ts',
+      'settings.spec.ts ',
+      'social.spec.ts',
+    ]) {
+      expect(rerun).not.toMatch(new RegExp(`\\s${file.trim().replace('.', '\\.')}(\\s|$)`))
+    }
+    expect(rerun).toContain('settings.spec.ts:20')
+    expect(rerun).toContain('articles.spec.ts:207')
+    expect(rerun).toContain('--config e2e-run/playwright.config.ts')
   })
 
   it('inverts the request’s excluded tests out of the narrowed re-run, as real argv', () => {
