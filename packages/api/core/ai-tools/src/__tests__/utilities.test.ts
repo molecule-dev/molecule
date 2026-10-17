@@ -22,6 +22,7 @@ import {
   streamingBackgroundCommand,
   stripControlChars,
   suiteRunPriorityLaunch,
+  TOOL_RESULT_CHARS,
   truncate,
   truncateMiddle,
   universalCause,
@@ -1646,6 +1647,196 @@ describe('repeatingFailure', () => {
       ).toEqual(excluded)
       expect(matchingExcludedTitles('should require login', excluded)).toEqual([])
       expect(matchingExcludedTitles('anything', [])).toEqual([])
+    })
+
+    /**
+     * xr-molecule-flash-m102's +12:43 `wait_for_task` result, in its real shape: `12 failures`
+     * and 8 causes, a note that listed 5 and said "… and 3 more causes", and a stdout whose
+     * middle 35 628 characters the tool-result cut had removed. The four causes past the old cap
+     * (`navigation.spec.ts:200`, `url-navigation.spec.ts:39` and `:234`, `social.spec.ts:115`)
+     * cost the run four `grep -A` round trips (≈25 s) before its first fix.
+     */
+    const m102 = ((): string => {
+      const block = (n: number, where: string, title: string, body: string[]): string =>
+        [
+          `  ${n}) [chromium] › ../../fixtures/realworld/specs/e2e/${where} › ${title} `,
+          '',
+          ...body,
+        ].join('\n')
+      const unfavorite = [
+        '    TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.',
+        '    Call log:',
+        '      - waiting for locator(\'button.btn-primary:has-text("Unfavorite")\') to be visible',
+      ]
+      const pageUrl = (expected: string, received: string): string[] => [
+        '    Error: expect(page).toHaveURL(expected) failed',
+        '',
+        `    Expected: "${expected}"`,
+        `    Received: "${received}"`,
+      ]
+      return [
+        'Running 139 tests using 1 worker',
+        '',
+        block(1, 'articles.spec.ts:123:3', 'Articles › should favorite an article', unfavorite),
+        block(2, 'articles.spec.ts:139:3', 'Articles › should unfavorite an article', unfavorite),
+        block(
+          3,
+          'social.spec.ts:115:3',
+          'Social Features › should display favorited articles on profile',
+          unfavorite,
+        ),
+        block(
+          4,
+          'url-navigation.spec.ts:111:3',
+          'Pagination › pagination should update URL with ?page=N',
+          pageUrl('http://localhost:5173/?page=2', 'http://localhost:5173/'),
+        ),
+        block(
+          5,
+          'url-navigation.spec.ts:182:3',
+          'Pagination › pagination should work with /tag/:tag',
+          pageUrl(
+            'http://localhost:5173/tag/technology?page=2',
+            'http://localhost:5173/tag/technology',
+          ),
+        ),
+        block(
+          6,
+          'url-navigation.spec.ts:206:3',
+          'Pagination › page should reset when switching feeds',
+          pageUrl('http://localhost:5173/?page=1', 'http://localhost:5173/?page=3'),
+        ),
+        block(
+          7,
+          'auth.spec.ts:72:3',
+          'Authentication › should prevent accessing editor when not logged in',
+          [
+            '    Error: expect(page).not.toHaveURL(expected) failed',
+            '',
+            '    Expected: not "http://localhost:5173/editor"',
+            '    Received: "http://localhost:5173/editor"',
+          ],
+        ),
+        block(8, 'comments.spec.ts:102:3', 'Comments › should require login to post comment', [
+          '    Error: expect(locator).toBeVisible() failed',
+          '',
+          '    Locator: locator(\'a[href="/login"]\')',
+          '    Expected: visible',
+          '    Error: strict mode violation: locator(\'a[href="/login"]\') resolved to 2 elements:',
+          '',
+          '    Call log:',
+          '      - waiting for locator(\'a[href="/login"]\')',
+        ]),
+        block(9, 'navigation.spec.ts:63:3', 'Navigation and Filtering › should filter by tag', [
+          '    Error: expect(locator).toBeVisible() failed',
+          '',
+          '    Locator: locator(\'.nav-link:has-text("playwright-test")\')',
+          '    Expected: visible',
+          '',
+          '    Call log:',
+          '      - waiting for locator(\'.nav-link:has-text("playwright-test")\')',
+        ]),
+        block(
+          10,
+          'navigation.spec.ts:200:3',
+          'Navigation and Filtering › should show article count on profile tabs',
+          [
+            '    Error: expect(locator).toHaveCount(expected) failed',
+            '',
+            "    Locator:  locator('.article-preview')",
+            '    Expected: 1',
+            '    Received: 0',
+            '    Timeout:  5000ms',
+            '',
+            '    Call log:',
+            '      - Expect "toHaveCount" locator(\'.article-preview\') with timeout 5000ms',
+            "      - waiting for locator('.article-preview')",
+          ],
+        ),
+        block(
+          11,
+          'url-navigation.spec.ts:39:3',
+          'URL-based Navigation › /tag/:tag should filter by tag',
+          [
+            '    Error: expect(page).toHaveURL(expected) failed',
+            '',
+            '    Expected: "http://localhost:5173/tag/technology"',
+            '    Received: "http://localhost:5173/"',
+            '',
+            '    Call log:',
+            '      - waiting for navigation until "load"',
+          ],
+        ),
+        block(
+          12,
+          'url-navigation.spec.ts:234:3',
+          'Pagination › tag pagination shows correct articles per page',
+          [
+            '    Error: expect(locator).toHaveCount(expected) failed',
+            '',
+            "    Locator:  locator('.pagination .page-item')",
+            '    Expected: 10',
+            '    Received: 4',
+          ],
+        ),
+        '',
+        '  12 failed',
+        '  65 skipped',
+        '  62 passed (4.4m)',
+      ].join('\n')
+    })()
+
+    it('lists EVERY cause the result has room for, each with its own body lines (m102)', () => {
+      const note = failureCausesNote(m102)!
+      expect(note).toContain('12 failures in this run, grouped by cause')
+      // 8 causes, not the old 5: the recap is the part of the result the tool-output cut keeps.
+      expect(note.split('\n').filter((l) => /^ {2}\d+\. /.test(l))).toHaveLength(8)
+      expect(note).not.toContain('more causes')
+      // The values the normalised signature drops (`Expected:` / `Received:`), on the cause line.
+      expect(note).toContain('     Expected: 1 · Received: 0')
+      expect(note).toContain(
+        '     Expected: "http://localhost:5173/tag/technology" · Received: "http://localhost:5173/"',
+      )
+      expect(note).toContain(
+        '     Expected: not "http://localhost:5173/editor" · Received: "http://localhost:5173/editor"',
+      )
+      // The locator from the Call log, and the line that explains the failure below the error.
+      expect(note).toContain(
+        '     Locator: locator(\'a[href="/login"]\') · Error: strict mode violation:',
+      )
+      // The causes the old cap withheld are named with the path the log wrote, not shortened.
+      for (const where of [
+        'specs/e2e/navigation.spec.ts:200',
+        'specs/e2e/url-navigation.spec.ts:39',
+        'specs/e2e/url-navigation.spec.ts:234',
+      ])
+        expect(note).toContain(`../../fixtures/realworld/${where}`)
+      // The note must itself survive the platform's tool-result cut whole.
+      expect(note.length).toBeLessThanOrEqual(TOOL_RESULT_CHARS)
+    })
+
+    it('names the causes it had to leave out, and the ONE command that prints their bodies', () => {
+      // 13 causes of one test each: the readability bound (12) is what withholds the last.
+      const many = Array.from({ length: 13 }, (_, i) =>
+        [
+          `  ${i + 1}) [chromium] › ../../fixtures/realworld/specs/e2e/tags.spec.ts:${10 + i}:3 › Tags › case ${i} `,
+          '',
+          `    Expected class "active-${i}" but got ""`,
+        ].join('\n'),
+      ).join('\n')
+      const note = failureCausesNote(many, [], {
+        command: 'npx playwright test --config e2e-suite.config.ts --reporter=line',
+        log: '/tmp/mol-bg-m102.log',
+      })!
+      expect(note.split('\n').filter((l) => /^ {2}\d+\. /.test(l))).toHaveLength(12)
+      expect(note).toContain(
+        '… and 1 more cause: ../../fixtures/realworld/specs/e2e/tags.spec.ts:22',
+      )
+      expect(note).toContain('their bodies are past the part of this result the cut keeps.')
+      expect(note).toContain(
+        "Print them: `grep -n -A 40 -e '../../fixtures/realworld/specs/e2e/tags.spec.ts:22' '/tmp/mol-bg-m102.log'`",
+      )
+      expect(note.length).toBeLessThanOrEqual(TOOL_RESULT_CHARS)
     })
   })
 

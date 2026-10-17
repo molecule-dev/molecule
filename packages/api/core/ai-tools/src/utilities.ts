@@ -1633,6 +1633,44 @@ function failureDetail(body: string[]): string | null {
   return parts.filter((p): p is string => p !== undefined).join(' · ')
 }
 
+/** The longest one body line a cause's recap carries before it is shortened. */
+const FAILURE_EVIDENCE_CHARS = 200
+
+/**
+ * The two body lines worth carrying beside a cause's signature: the values that differ
+ * (`Expected:` / `Received:`), or — where the failure asserts no pair — the locator from the
+ * `Call log` and the error line that follows it.
+ *
+ * The signature is normalised ({@link normalizedSignature}): `Expected: 100000` becomes
+ * `Expected: <n>`, and a signature built from a `waiting for` line never carries the assertion
+ * values at all. Those values are what a fix round needs, and the run's stdout they came from is
+ * cut in the MIDDLE by the tool-result cap, so a listed cause that does not carry them sends the
+ * executor back to the log — xr-molecule-flash-m102 (+12:43) made four `grep -A` round trips
+ * (~25 s) for the bodies of causes the note had already listed.
+ *
+ * @param body - The block's lines, from {@link failureBody}.
+ * @param message - The cause's signature: a line it already carries is not repeated.
+ * @returns Up to two lines, most useful first (empty when the body names none).
+ */
+function failureEvidence(body: string[], message: string | null): string[] {
+  const carried = (line: string): boolean => message !== null && message.includes(line)
+  const expected = body.find((l) => /^Expected\b/.test(l))
+  const received = body.find((l) => /^Received\b/.test(l))
+  if (expected !== undefined && received !== undefined) return [expected, received]
+  const picked: string[] = []
+  const waiting = body.find((l) =>
+    /^-?\s*waiting for (?:locator\(|navigation|element|selector)/.test(l),
+  )
+  if (waiting !== undefined) picked.push(waiting.replace(/^-\s*/, ''))
+  const locator = body.find((l) => /^Locator:\s/.test(l))
+  if (locator !== undefined) picked.push(locator)
+  // The first body line IS the error the signature already names; a later `Error:` line is the
+  // detail that explains it (a strict-mode violation, the two elements it resolved to).
+  const detail = body.slice(1).find((l) => /^Error:\s/.test(l))
+  if (detail !== undefined) picked.push(detail)
+  return picked.filter((line) => !carried(line)).slice(0, 2)
+}
+
 /**
  * A cause signature with the values that differ between two tests of ONE cause replaced by `<n>`:
  * a duration, a generated id or timestamp, a host's port.
@@ -1803,8 +1841,34 @@ export function repeatingFailure(log: string): RepeatingFailure | null {
 /** How many of a repeating cause's failures the note lists before it says "and N more". */
 export const REPEATING_FAILURE_LISTED = 5
 
-/** How many causes a finished run's summary lists before it says "and N more". */
-export const FAILURE_CAUSES_LISTED = 5
+/**
+ * The platform's cap on one tool result's text: `MAX_TOOL_OUTPUT_CHARS` in molecule-dev's
+ * `api/src/ai/chat-handler.ts`, which cuts a longer string field's MIDDLE. A finished run's
+ * stdout is cut to it, so the cause list must not depend on reading the log back — and must
+ * itself fit inside it, or the cut lands in the list.
+ */
+export const TOOL_RESULT_CHARS = 8000
+
+/**
+ * The characters a finished run's cause list may use of {@link TOOL_RESULT_CHARS}. The recap
+ * measured by xr-molecule-flash-m102 (+12:43) was `12 failures, 8 causes`: one cause line is
+ * ~200 chars and ~80 more with its two body lines, so 8 causes is ~2.3 k against the 8 k cap —
+ * the old 5-cause cap withheld 3 causes that the same result had room for.
+ *
+ * The rest of the cap is left to the header, the narrowed re-run command and the exclusion
+ * line, which ride the same note.
+ */
+export const FAILURE_CAUSES_CHARS = TOOL_RESULT_CHARS - 2600
+
+/**
+ * How many causes a finished run's summary lists at most. The character budget above is the
+ * bound that must hold (it is what keeps the note on the surviving side of the tool-result
+ * cut); this is the bound past which a list stops being read at all.
+ */
+export const FAILURE_CAUSES_LISTED = 12
+
+/** The room the "and N more causes" sentence gets inside {@link FAILURE_CAUSES_CHARS}. */
+const FAILURE_CAUSES_OMITTED_CHARS = 800
 
 /** How many of one cause's tests that summary names before it says "and N more". */
 export const FAILURE_CAUSE_TESTS_LISTED = 6
@@ -2002,6 +2066,12 @@ export interface FailureCause {
   seconds: number | null
   /** The distinct tests it hit, in the order the log named them. */
   tests: FailedTest[]
+  /**
+   * The FIRST failure's two most useful body lines — the values that differ, or the locator from
+   * its `Call log` ({@link failureEvidence}) — so a fix round needs no re-read of the log. Empty
+   * for a duration group, whose blocks carried no bodies.
+   */
+  evidence: string[]
 }
 
 /**
@@ -2048,7 +2118,7 @@ function groupFailures(
   excluded: readonly string[],
 ): { causes: FailureCause[]; ignored: FailedTest[] } {
   const text = log.replace(ANSI_SGR, '')
-  const byMessage = new Map<string, FailedTest[]>()
+  const byMessage = new Map<string, { tests: FailedTest[]; evidence: string[] }>()
   const named: FailedTest[] = []
   for (const block of failureBlocks(text)) {
     const message = failureMessage(block)
@@ -2059,13 +2129,19 @@ function groupFailures(
     named.push(test)
     if (matchingExcludedTitles(title, excluded).length > 0) continue
     const group = byMessage.get(message)
-    if (group) group.push(test)
-    else byMessage.set(message, [test])
+    if (group) group.tests.push(test)
+    // The FIRST block with this signature carries the evidence: a later block of the same cause
+    // says the same thing, and the first is the one the note's own line refers to.
+    else
+      byMessage.set(message, {
+        tests: [test],
+        evidence: failureEvidence(failureBody(block), message),
+      })
   }
   const causes: FailureCause[] = []
-  for (const [message, members] of byMessage) {
-    const tests = distinctTests(members)
-    if (tests.length > 0) causes.push({ message, seconds: null, tests })
+  for (const [message, group] of byMessage) {
+    const tests = distinctTests(group.tests)
+    if (tests.length > 0) causes.push({ message, seconds: null, tests, evidence: group.evidence })
   }
   // The failures with no body of their own — a `list` log with no error blocks in it, from a run
   // not started in the background — are grouped by how long they took: a band is opened by its
@@ -2089,7 +2165,8 @@ function groupFailures(
     if (open) open.tests.push(t)
     else byDuration.push({ seconds: t.seconds, tests: [t] })
   }
-  for (const g of byDuration) causes.push({ message: null, seconds: g.seconds, tests: g.tests })
+  for (const g of byDuration)
+    causes.push({ message: null, seconds: g.seconds, tests: g.tests, evidence: [] })
   const ignored = distinctTests(named).filter(
     (t) => matchingExcludedTitles(t.title, excluded).length > 0,
   )
@@ -2111,38 +2188,19 @@ function groupFailures(
  *
  * @param log - The finished run's output.
  * @param excluded - The test titles the request carves out, if the caller knows them.
- * @param run - How the run was started, when the caller knows it, for the narrowed re-run.
+ * @param run - How the run was started, when the caller knows it: the narrowed re-run is built
+ *   from `command`/`cwd`, and `log` (the path the output was written to) is what the "left out"
+ *   sentence greps when more causes exist than the result has room for.
  * @returns The note, or null.
  */
 export function failureCausesNote(
   log: string,
   excluded: readonly string[] = [],
-  run?: { command: string; cwd?: string },
+  run?: { command: string; cwd?: string; log?: string },
 ): string | null {
   const { causes, ignored } = groupFailures(log, excluded)
   const total = causes.reduce((n, c) => n + c.tests.length, 0)
   if (total < 2) return null
-  const listed = causes.slice(0, FAILURE_CAUSES_LISTED)
-  const lines = listed.map((c, i) => {
-    // The path the log itself wrote, never a shortened one: it is relative to the command's own
-    // cwd, so it is the form the executor can paste back (X1 flash-m82 read a shortened
-    // `e2e/auth.spec.ts:19` as the suite's own stale starter spec, rewrote its Playwright config
-    // over it and deleted the app's tests — 4 minutes of a 60-minute run on a working config).
-    const tests = c.tests.slice(0, FAILURE_CAUSE_TESTS_LISTED).map((t) => t.where || t.title)
-    const more =
-      c.tests.length > tests.length ? `, … and ${c.tests.length - tests.length} more` : ''
-    const signature =
-      c.message !== null
-        ? `\`${c.message}\``
-        : `each after ~${c.seconds}s (a shared duration, not a proven cause)`
-    const files = new Set(c.tests.map((t) => specFile(t.where)).filter(Boolean)).size
-    return (
-      `  ${i + 1}. ${signature} — ${c.tests.length} test${c.tests.length === 1 ? '' : 's'} ` +
-      `in ${files} file${files === 1 ? '' : 's'}: ${tests.join(', ')}${more}`
-    )
-  })
-  const moreCauses =
-    causes.length > listed.length ? `\n  … and ${causes.length - listed.length} more causes` : ''
   // The narrowed run, so the next fix round costs two tests instead of the whole suite
   // (xr-molecule-flash-m101 +12:13 re-ran all 139, ~4 minutes, to check two). The command is the
   // run's own invocation narrowed by the ONE composer the mid-run note also uses
@@ -2151,12 +2209,119 @@ export function failureCausesNote(
   const locations = [...new Set(causes.flatMap((c) => c.tests.map((t) => t.where)).filter(Boolean))]
   const rerun = run ? rerunOfRunningSuite(run, locations, excluded) : null
   const ignoredTitles = [...new Set(ignored.map((t) => t.title || t.where).filter(Boolean))]
-  return (
+  const header =
     `${total} failure${total === 1 ? '' : 's'} in this run, grouped by cause — fix every cause ` +
-    `below before the next deploy:\n${lines.join('\n')}${moreCauses}` +
+    `below before the next deploy:\n`
+  const tail =
     (rerun ? ` Re-run just these once they are fixed: \`${rerun}\`` : '') +
     (ignoredTitles.length ? ` Ignored (excluded by the request): ${ignoredTitles.join(', ')}.` : '')
+  // This list is the part of the result that SURVIVES the platform's tool-output cut: the stdout
+  // above it is cut in the MIDDLE at {@link TOOL_RESULT_CHARS}, which is why the recap must fit
+  // whole ({@link FAILURE_CAUSES_CHARS}) instead of being capped at a line count that left 3 of
+  // xr-molecule-flash-m102's 8 causes out of a result that had room for them (+12:43).
+  const room = Math.min(
+    FAILURE_CAUSES_CHARS,
+    TOOL_RESULT_CHARS - header.length - tail.length - FAILURE_CAUSES_OMITTED_CHARS,
   )
+  const lines: string[] = []
+  let used = 0
+  for (const cause of causes) {
+    if (lines.length >= FAILURE_CAUSES_LISTED) break
+    const line = failureCauseLine(cause, lines.length)
+    if (lines.length > 0 && used + line.length + 1 > room) break
+    lines.push(line)
+    used += line.length + 1
+  }
+  return `${header}${lines.join('\n')}${omittedCausesRecap(causes.slice(lines.length), run, excluded)}${tail}`
+}
+
+/**
+ * One cause's line in a finished run's recap: its signature, the tests it hit, and the first
+ * failure's two most useful body lines underneath.
+ *
+ * The path is the one the log itself wrote, never a shortened one: it is relative to the
+ * command's own cwd, so it is the form the executor can paste back (X1 flash-m82 read a shortened
+ * `e2e/auth.spec.ts:19` as the suite's own stale starter spec, rewrote its Playwright config over
+ * it and deleted the app's tests — 4 minutes of a 60-minute run on a working config).
+ *
+ * @param cause - The cause to write.
+ * @param index - Its position in the recap (0-based; printed 1-based).
+ * @returns The line, with its body line when it has one.
+ */
+function failureCauseLine(cause: FailureCause, index: number): string {
+  const tests = cause.tests.slice(0, FAILURE_CAUSE_TESTS_LISTED).map((t) => t.where || t.title)
+  const more =
+    cause.tests.length > tests.length ? `, … and ${cause.tests.length - tests.length} more` : ''
+  const signature =
+    cause.message !== null
+      ? `\`${cause.message}\``
+      : `each after ~${cause.seconds}s (a shared duration, not a proven cause)`
+  const files = new Set(cause.tests.map((t) => specFile(t.where)).filter(Boolean)).size
+  // A line the signature already carries (a timeout's `waiting for` locator, say) is not printed
+  // twice; the rest are the values the normalised signature replaced with `<n>`.
+  const body = cause.evidence.filter(
+    (line) => cause.message === null || !cause.message.includes(line),
+  )
+  const shortened = body.map((line) =>
+    line.length > FAILURE_EVIDENCE_CHARS ? `${line.slice(0, FAILURE_EVIDENCE_CHARS - 1)}…` : line,
+  )
+  return (
+    `  ${index + 1}. ${signature} — ${cause.tests.length} test${cause.tests.length === 1 ? '' : 's'} ` +
+    `in ${files} file${files === 1 ? '' : 's'}: ${tests.join(', ')}${more}` +
+    (shortened.length ? `\n     ${shortened.join(' · ')}` : '')
+  )
+}
+
+/**
+ * The sentence for the causes a recap could not fit: exactly which `file:line` each one was
+ * found at, and the ONE command that prints their bodies.
+ *
+ * Without it the old note said "… and 3 more causes" and left the executor to find them in a
+ * stdout whose middle the tool-result cut had already removed — xr-molecule-flash-m102 (+12:43)
+ * spent four `grep -A` round trips (~25 s) naming three causes the platform had withheld, and a
+ * weaker turn reads the listed ones and skips the rest.
+ *
+ * @param omitted - The causes past the recap's budget.
+ * @param run - How the run was started, and where its log is, when the caller knows.
+ * @param excluded - The test titles the request carves out (the fallback re-run inverts them out).
+ * @returns The sentence, or '' when nothing was omitted.
+ */
+function omittedCausesRecap(
+  omitted: FailureCause[],
+  run: { command: string; cwd?: string; log?: string } | undefined,
+  excluded: readonly string[],
+): string {
+  if (omitted.length === 0) return ''
+  const all = omitted
+    .map((c) => c.tests[0]?.where || c.tests[0]?.title)
+    .filter((l): l is string => Boolean(l))
+  // The one command: a grep of the run's own log when the caller knows its path (the bodies are
+  // still there, whole), else a narrowed re-run of exactly these tests, which prints them.
+  const print = (named: string[]): string => {
+    if (run?.log && named.length > 0)
+      return (
+        ` Print them: \`grep -n -A 40 ` +
+        `${named.map((l) => `-e ${shellQuote(l)}`).join(' ')} ${shellQuote(run.log)}\`.`
+      )
+    const rerun = run ? rerunOfRunningSuite(run, named, excluded) : null
+    if (rerun) return ` Print them by re-running just these: \`${rerun}\`.`
+    if (named.length === 0) return ''
+    return ` Print one with \`grep -n -A 40 -e ${shellQuote(named[0])} <the run's log>\`.`
+  }
+  let keep = all.length
+  for (;;) {
+    const named = all.slice(0, keep)
+    const dropped = all.length - keep
+    const sentence =
+      `\n  … and ${omitted.length} more cause${omitted.length === 1 ? '' : 's'}` +
+      (named.length
+        ? `: ${named.join(', ')}${dropped > 0 ? ` (+${dropped} more, also in the log)` : ''}`
+        : '') +
+      ` — their bodies are past the part of this result the cut keeps.` +
+      print(named)
+    if (sentence.length <= FAILURE_CAUSES_OMITTED_CHARS || keep <= 1) return sentence
+    keep = Math.max(1, Math.floor(keep / 2))
+  }
 }
 
 /**
