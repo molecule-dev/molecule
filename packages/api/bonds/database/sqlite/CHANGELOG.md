@@ -1,5 +1,12 @@
 # @molecule/api-database-sqlite
 
+## 1.2.6
+
+### Patch Changes
+
+- ecaf7de: `ALTER TABLE … DROP COLUMN IF EXISTS` now applies on SQLite: the migrator drops the statement when the table has no such column (the no-op Postgres performs) and strips the clause SQLite cannot parse. A migration written with it used to fail the run — and an app booting on a fresh production database that never had the column could not start.
+- c5e34dd: Column reconciliation after a `CREATE TABLE IF NOT EXISTS` now only runs for the migration file that CREATES a table, and never adds a `NOT NULL` column with no default. Before, a rewritten — and then deleted — older migration silently added a column to another file's table, and every insert that did not write it failed.
+
 ## 1.2.5
 
 ### Patch Changes

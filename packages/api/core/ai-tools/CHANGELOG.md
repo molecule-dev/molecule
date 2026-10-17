@@ -1,5 +1,19 @@
 # @molecule/api-ai-tools
 
+## 1.8.0
+
+### Minor Changes
+
+- b94527a: A finished test run's cause note leaves out the tests the request excludes, names the ones it ignored, and hands over a narrowed re-run command for the remaining failures.
+
+### Patch Changes
+
+- 0148c56: A background suite's output-only filters (`grep`, `tail`, `head`, `cut`, `awk`, `sed`, …) are now dropped from its pipeline, so the log keeps every failure's own error and the reported exit code is the runner's rather than the filter's.
+- d4b75bf: A diagnosis run's `--trace=retain-on-failure` now goes into the Playwright step itself, so it is still recorded when the command pipes to `tail` or ends in `grep`.
+- 6ea0270: A finished test run's cause list now carries every cause the result has room for (bounded by the platform's tool-output cap), each with its first failure's `Expected:`/`Received:` lines or locator, and names any cause it had to leave out with the one command that prints its body.
+- 9647bcd: A test run's closing summary now counts as finished only when it reconciles with the total the runner announced, so a run stopped part-way is reported as stopped (with how many tests it never reached) instead of handing back `exitCode: 0`; detection reads the run's untruncated output.
+- e9b5834: The command reader skips a package manager's own options and their values before the program, so `npx --prefix <dir> playwright test`, `npm exec --prefix <dir> -- playwright test`, and the `-p`/`--package`/`-c` forms classify exactly like `npx playwright test`.
+
 ## 1.7.0
 
 ### Minor Changes
