@@ -183,8 +183,16 @@ fi
 # embeds the re-exported API) — ~0.4s/package via tsx
 # against mlcl source, no build needed — then auto-stages the refreshed
 # README.md files into THIS commit (script prints changed paths on stdout).
-# Generation reads the WORKTREE source, same as the gates above, so a partially
-# staged package produces a doc reflecting the worktree state. Uses its own
+# Generation reads the source BEING COMMITTED — an export of the index
+# (`git checkout-index`, which honours a private GIT_INDEX_FILE and the
+# temporary index of a pathspec commit) — never the worktree. Reading the
+# worktree documented other sessions' uncommitted source: on 2026-10-17 a commit
+# to app-http regenerated the framework READMEs, which embed app-auth's API,
+# from an app-auth worktree carrying another session's unstaged
+# `browser-storage.ts`, and the release's docs gate then failed on READMEs
+# describing code no commit had. The export lives under the workspace root so
+# packages resolve the same `node_modules` the checkout does (see
+# prepareDocsCheckTree in ../scripts/lib/release-ci-gates.mjs). Uses its own
 # diff-filter (incl. D): a deleted src file changes the public API and thus the
 # doc, which --diff-filter=AM would miss.
 DOC_STAGED=$(git diff --cached --name-only --diff-filter=ACMRD |
@@ -196,7 +204,17 @@ if [ -n "$DOC_STAGED" ]; then
       d="${d%/package.json}"
       echo "$d"
     done | sort -u)
-    REGENERATED=$( cd ../mlcl && "$MLCL_TSX" scripts/regen-molecule-docs.mjs $DOC_DIRS )
+    DOC_TREE="$(cd .. && pwd)/.precommit-docs-$$"
+    rm -rf "$DOC_TREE"
+    # set -e exits on a failed regen; the 190 MB export must not outlive the hook.
+    trap 'rm -rf "$DOC_TREE"' EXIT
+    git checkout-index -a --prefix="$DOC_TREE/"
+    node -e "import('../scripts/lib/release-ci-gates.mjs').then((m) => m.prepareDocsCheckTree({ moleculeDir: process.cwd(), treeDir: process.argv[1] }))" "$DOC_TREE"
+    REGENERATED=$( cd ../mlcl && MOLECULE_PACKAGES_DIR="$DOC_TREE/packages" "$MLCL_TSX" scripts/regen-molecule-docs.mjs $DOC_DIRS )
+    # The regenerated docs were written into the export; carry each one into the
+    # worktree, where the prettier check and `git add` below read it.
+    echo "$REGENERATED" | while IFS= read -r md; do if [ -n "$md" ]; then cp "$DOC_TREE/$md" "$md"; fi; done
+    rm -rf "$DOC_TREE"
     if [ -n "$REGENERATED" ]; then
       # These are staged AFTER the prettier/eslint pass above, so they would
       # otherwise enter the commit unchecked — which is how generated docs
