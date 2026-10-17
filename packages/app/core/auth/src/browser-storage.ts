@@ -50,6 +50,13 @@ const warn = (message: string, error?: unknown): void => {
 /**
  * The auth client's `StorageAdapter` over the browser's Web Storage.
  *
+ * **The restore it enables costs NO request — never block the first paint on one.** With the
+ * token AND the user in the store, `initialize()` restores the authenticated state synchronously
+ * (`whenRestored()` is already resolved on the first render); render from it, and validate the
+ * token as a background request — never in front of the first render. A page that waits on its
+ * own `/me` call pays a round trip on EVERY navigation (xr-molecule-flash-m122: a 1–5 s restore
+ * window, eight `waitForURL` timeouts).
+ *
  * Pass it as `AuthClientConfig.storage` to keep the session across a page reload:
  * the client's default (`'memory'`) is lost on reload, and re-establishing the
  * session then needs a credential that survived — this adapter, or an httpOnly
