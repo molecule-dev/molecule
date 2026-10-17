@@ -2197,6 +2197,44 @@ describe('failureCausesNote — a document the browser could not load (xr-molecu
   })
 })
 
+/**
+ * xr-molecule-flash-m123 (2026-10-17): the collected result of a background run carried a text
+ * that began `…(33772 earlier characters omitted)` — the last 8,000 characters of a 42 KB
+ * Playwright log. The grouped-cause note count is computed from that text, so it said "2
+ * failures in this run" for a run whose own tally listed 14. The root fix is to hand this
+ * function the whole log; when a caller cannot, the note must not present its count as the run's.
+ */
+describe('failureCausesNote — a clipped log says it is clipped (xr-molecule-flash-m123)', () => {
+  const clipped =
+    '…(33772 earlier characters omitted)\n' +
+    [
+      '  3) [chromium] › a.spec.ts:3:3 › A › one ─────────',
+      '',
+      '    Expected class "active" but got ""',
+      '',
+      '  4) [chromium] › a.spec.ts:9:3 › A › two ─────────',
+      '',
+      '    Expected class "active" but got ""',
+      '',
+      '  15 failed',
+    ].join('\n')
+
+  it('does not present the failures still in the text as the run’s own count', () => {
+    const note = failureCausesNote(clipped)!
+    expect(note).not.toContain('in this run, grouped by cause')
+    expect(note).toContain('LAST part of this run’s log')
+    expect(note).toContain('its first 33772 characters were clipped')
+    expect(note).toContain('read the whole run log before concluding')
+    // The causes still in the kept text are still handed over.
+    expect(note).toContain('2 tests')
+  })
+
+  it('leaves a whole log’s wording unchanged', () => {
+    const whole = clipped.slice(clipped.indexOf('\n') + 1)
+    expect(failureCausesNote(whole)).toContain('2 failures in this run, grouped by cause')
+  })
+})
+
 describe('suiteRunPriorityLaunch', () => {
   const LAUNCH = 'sh /tmp/mol-bg-1.sh > /tmp/mol-bg-1.log 2>&1; echo $? > /tmp/mol-bg-1.exit'
 
