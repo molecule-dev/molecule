@@ -7,6 +7,13 @@
  * from a CDN or `npm pack`ing fontsource in the sandbox. The bond registers the
  * `sans` role and injects the `@font-face` for the packaged file.
  *
+ * **Do not `npm install source-sans-pro`** (or `@fontsource/source-sans-pro`,
+ * `typeface-source-sans-pro`) for a stylesheet that asks for this family: this
+ * bond IS the family, already available to the sandbox, and wiring it is one
+ * `setFont()` call. The install only adds a second, unused copy under the
+ * workspace root's `node_modules` after ~90 s, and that copy is not where a
+ * path relative to the app directory looks.
+ *
  * @example
  * ```typescript
  * import { setFont } from '@molecule/app-fonts'

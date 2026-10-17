@@ -8,6 +8,20 @@
  * `@molecule/app-fonts-inter`, `@molecule/app-fonts-jetbrains-mono`) export a
  * ready-made `FontDefinition` named `font`.
  *
+ * **Before adding a font, check the font bonds — the fleet ships 20 families.**
+ * The providers under `@molecule/app-fonts-*` cover arimo, dm-sans,
+ * dm-serif-display, ibm-plex-mono, ibm-plex-sans, inter, ionicons,
+ * jetbrains-mono, lato, lora, manrope, material-symbols, merriweather,
+ * newsreader, playfair-display, plus-jakarta-sans, source-sans-3, source-serif-4,
+ * space-grotesk and system. **`source-sans-3` IS Source Sans Pro** (Adobe
+ * renamed the typeface), so a stylesheet that asks for `'Source Sans Pro'` is
+ * served by `@molecule/app-fonts-source-sans-3`. Do NOT `npm install` a webfont
+ * package (`fontsource`, `typeface-*`, a family's npm package such as
+ * `source-sans-pro`) for a family on this list: the bond is the font and wiring
+ * it is one `setFont(font)` call, while an install in the sandbox re-resolves
+ * the whole tree (~90 s) and nests `node_modules` at the workspace root, so a
+ * relative path from the app directory misses it.
+ *
  * @example
  * ```typescript
  * import { setFont } from '@molecule/app-fonts'
