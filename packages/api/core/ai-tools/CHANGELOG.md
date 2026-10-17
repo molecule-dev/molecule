@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.9.5
+
+### Patch Changes
+
+- 4457202: The preview launch command the failure notes quote now binds `--host 127.0.0.1`, so it answers on the address the browser requests.
+
 ## 1.9.4
 
 ### Patch Changes
