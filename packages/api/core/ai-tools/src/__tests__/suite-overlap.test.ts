@@ -14,11 +14,13 @@ import { describe, expect, it } from 'vitest'
 
 import { commandSegments } from '../command-position.js'
 import {
+  namesSuiteConfig,
   scopedRerunCommand,
   suiteCommandTarget,
   type SuiteRunInFlight,
   suiteRunInTheWay,
   withoutHeredocs,
+  withSuiteConfig,
 } from '../suite-overlap.js'
 
 const URL = 'https://loopcheck-m89.apps.mlcl.dev'
@@ -139,5 +141,51 @@ describe('the readings the note and the hold share', () => {
     expect(
       scopedRerunCommand(already, ['a.spec.ts:1'], ['should require login to post comment']),
     ).toBe(already.replace('playwright test', 'playwright test a.spec.ts:1 --retries=0'))
+  })
+})
+
+/**
+ * xr-molecule-flash-m113 (+19:09 → +20:34): the fix-round re-run dropped the
+ * `--config playwright.conduit.config.ts` both earlier runs carried. Playwright started with no
+ * base URL, all 10 failures were `page.goto: Cannot navigate to invalid URL`, and the platform's
+ * own suggested re-run — composed from that command — had no `--config` either, so following it
+ * reproduced the mistake. The composed commands carry the config of the run they narrow.
+ */
+describe('a composed re-run carries the config its run was measured under (m113)', () => {
+  /** The command the model sent at 07:06:17Z. */
+  const m113 = (config = ''): string =>
+    'cd /workspace/my-app && TEST_MODE=fullstack BASE_URL=http://localhost:5173 timeout 900 ' +
+    `npx playwright test${config ? ` --config ${config}` : ''} specs/e2e/articles.spec.ts ` +
+    'specs/e2e/comments.spec.ts --reporter=line --max-failures=10'
+  const locations = ['specs/e2e/articles.spec.ts:32', 'specs/e2e/helpers/auth.ts:4']
+
+  it('adds the config to the run’s own statement, and never a second one', () => {
+    expect(withSuiteConfig(m113(), 'playwright.conduit.config.ts')).toContain(
+      "npx playwright test --config 'playwright.conduit.config.ts' specs/e2e/",
+    )
+    // A command that already names a config keeps exactly one.
+    const own = m113('playwright.conduit.config.ts')
+    expect(withSuiteConfig(own, 'playwright.conduit.config.ts')).toBe(own)
+    expect(
+      (withSuiteConfig(own, 'playwright.conduit.config.ts').match(/--config/g) ?? []).length,
+    ).toBe(1)
+    // `-c` and `--config=` are the same statement's config.
+    expect(namesSuiteConfig('npx playwright test -c pw.ts')).toBe(true)
+    expect(namesSuiteConfig('npx playwright test --config=pw.ts')).toBe(true)
+    // Everything chained after the run is left as it was.
+    expect(
+      withSuiteConfig('cd /w && npx playwright test a.spec.ts 2>&1 | tail -20', 'pw.config.ts'),
+    ).toBe("cd /w && npx playwright test --config 'pw.config.ts' a.spec.ts 2>&1 | tail -20")
+    // No Playwright run, nothing to add.
+    expect(withSuiteConfig('npx vitest run', 'pw.config.ts')).toBe('npx vitest run')
+  })
+
+  it('narrows the command with the same config the run lacked', () => {
+    const composed = scopedRerunCommand(m113(), locations, [], 'playwright.conduit.config.ts')
+    expect(composed).toContain("--config 'playwright.conduit.config.ts'")
+    expect(composed).toContain('specs/e2e/articles.spec.ts:32')
+    // …while a command that already carried it does not gain a second.
+    const own = scopedRerunCommand(m113('playwright.conduit.config.ts'), locations)
+    expect((own.match(/--config/g) ?? []).length).toBe(1)
   })
 })

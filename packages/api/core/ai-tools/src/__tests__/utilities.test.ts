@@ -2521,3 +2521,83 @@ describe('failureCausesNote — the test budget a timeout cause normalized away'
     expect(failureCausesNote(waits)!).toContain('`TimeoutError: page.click: Timeout <n> exceeded.`')
   })
 })
+
+/**
+ * xr-molecule-flash-m113 (+19:09 → +20:34): the fix-round re-run dropped the `--config` both
+ * earlier runs carried, Playwright started with no base URL, and the run's ten failures were all
+ * `page.goto: Cannot navigate to invalid URL`. The result read them as ten causes to fix; the app
+ * was never measured, and the re-run the platform handed back carried the same missing flag.
+ */
+describe('failureCausesNote — a run with no base URL is one configuration failure (m113)', () => {
+  /** The 07:12-shaped fix re-run, one line per failing test as Playwright's report prints them. */
+  const m113 = [
+    'Running 19 tests using 1 worker',
+    '',
+    '  1) [chromium] › specs/e2e/articles.spec.ts:32:3 › Articles › should create an article ────────',
+    '',
+    '    Error: page.goto: Protocol error (Page.navigate): Cannot navigate to invalid URL',
+    '',
+    '       at specs/e2e/helpers/auth.ts:4',
+    '',
+    '  2) [chromium] › specs/e2e/articles.spec.ts:50:3 › Articles › should edit an article ────────',
+    '',
+    '    Error: page.goto: Protocol error (Page.navigate): Cannot navigate to invalid URL',
+    '',
+    '       at specs/e2e/helpers/auth.ts:4',
+    '',
+    '  3) [chromium] › specs/e2e/articles.spec.ts:71:3 › Articles › should delete an article ────────',
+    '',
+    '    Error: page.goto: Protocol error (Page.navigate): Cannot navigate to invalid URL',
+    '',
+    '       at specs/e2e/helpers/auth.ts:4',
+    '',
+    '  10 failed',
+    '  9 did not run',
+  ].join('\n')
+  const command =
+    'cd /workspace/my-app && TEST_MODE=fullstack BASE_URL=http://localhost:5173 timeout 900 ' +
+    'npx playwright test specs/e2e/articles.spec.ts specs/e2e/comments.spec.ts ' +
+    '--reporter=line --max-failures=10'
+  const config = 'playwright.conduit.config.ts'
+
+  it('says it is a configuration failure in one line, not a list of causes', () => {
+    const note = failureCausesNote(m113, [], { command, config })!
+    expect(note).toContain('same configuration failure')
+    expect(note).toContain('Cannot navigate to invalid URL')
+    // The list shape is exactly what m113 misread as ten defects.
+    expect(note).not.toContain('grouped by cause')
+    expect(note).not.toContain('1. `')
+  })
+
+  it('names the config the previous run loaded and hands over the exact command with it', () => {
+    const note = failureCausesNote(m113, [], { command, config })!
+    expect(note).toContain('`playwright.conduit.config.ts`')
+    expect(note).toContain(`--config '${config}'`)
+    // Narrowed to the failing locations, in the directory the run started in, so it can be
+    // pasted back as it is.
+    expect(note).toContain('specs/e2e/articles.spec.ts:32')
+    expect(note).toContain('specs/e2e/articles.spec.ts:71')
+    expect(note).toContain('timeout 900')
+    expect(note).not.toContain('--config playwright.conduit.config.ts --config')
+  })
+
+  it('still says the failure is configuration when the config is unknown — never repeats the shape', () => {
+    const note = failureCausesNote(m113, [], { command })!
+    expect(note).toContain('configuration failure')
+    // No command is handed back without the flag that caused the failure.
+    expect(note).not.toContain('Send exactly this')
+    expect(note).toContain('passed with `--config`')
+  })
+
+  it('keeps the cause list for a run that DID navigate and failed in the app', () => {
+    const mixed = m113.replace(
+      '  3) [chromium] › specs/e2e/articles.spec.ts:71:3 › Articles › should delete an article ────────\n\n' +
+        '    Error: page.goto: Protocol error (Page.navigate): Cannot navigate to invalid URL',
+      '  3) [chromium] › specs/e2e/articles.spec.ts:71:3 › Articles › should delete an article ────────\n\n' +
+        '    Error: expect(locator).toBeVisible() failed',
+    )
+    const note = failureCausesNote(mixed, [], { command, config })!
+    expect(note).toContain('grouped by cause')
+    expect(note).not.toContain('same configuration failure')
+  })
+})

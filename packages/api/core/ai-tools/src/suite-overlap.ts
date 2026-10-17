@@ -79,11 +79,64 @@ export function suiteCommandTarget(command: string): string {
   return 'local'
 }
 
+/** Whether a Playwright statement already names its own config (`-c`, `--config`, `--config=`). */
+const NAMES_CONFIG = /(?:^|\s)(?:-c|--config)(?:\s+|=)/
+
+/**
+ * Whether a Playwright statement names its own config — the reading {@link withSuiteConfig} and
+ * {@link scopedRerunCommand} share, so neither adds a second `--config` to a command that has one.
+ *
+ * @param command - A command, or the Playwright statement inside it.
+ * @returns True when the statement loads a config of its own.
+ */
+export function namesSuiteConfig(command: string): boolean {
+  return NAMES_CONFIG.test(command)
+}
+
+/**
+ * The command with a `--config` added to the Playwright invocation it starts — or unchanged when
+ * it already names one, or starts no Playwright run.
+ *
+ * The flag rides the same statement the runner does: a `cd`, an env prefix and a `timeout` before
+ * it are left exactly as they were, and so is everything chained after the run (`| tail -50`).
+ *
+ * xr-molecule-flash-m113 (+19:09): the model's fix-round re-run dropped the
+ * `--config playwright.conduit.config.ts` both earlier runs had carried, so Playwright started with
+ * NO base URL and all 10 failures were `page.goto: Cannot navigate to invalid URL` — a failure list
+ * that says nothing about the app. The platform composes commands back to the executor too (the
+ * narrowed re-run of a finished run's failures), and a command it hands back has to carry the
+ * config the run was measured under, never the shape that caused that finding.
+ *
+ * @param command - The command as the executor sent it.
+ * @param config - The config the run loads, when the caller knows it.
+ * @returns The command with the flag, or the command unchanged.
+ */
+export function withSuiteConfig(command: string, config: string | null | undefined): string {
+  if (!config) return command
+  const at = command.search(/\bplaywright\s+test\b/)
+  if (at === -1) return command
+  const head = command.slice(0, at)
+  const rest = command.slice(at)
+  const end = rest.search(/&&|\|\||;|\|/)
+  const statement = end === -1 ? rest : rest.slice(0, end)
+  const tail = end === -1 ? '' : rest.slice(end)
+  if (namesSuiteConfig(statement)) return command
+  return `${head}${statement.replace(
+    /^(playwright\s+test)\b/,
+    `$1 --config ${shellQuote(config)}`,
+  )}${tail}`
+}
+
 /**
  * The whole-suite command made scoped to the tests it should re-run instead: the same
  * invocation — same directory, same settings — with the named `file:line`s in place of the whole
  * suite, `--last-failed` dropped (it re-runs the tests that never ran too, X1 flash-m60) and
  * `--retries=0` set (a re-run of a known failure does not need to pay for retries).
+ *
+ * `config` is the config the run was measured under ({@link withSuiteConfig}): the narrowed re-run
+ * carries it whenever the command itself does not, so a run that dropped `--config` cannot be
+ * handed back a command with the same defect (xr-molecule-flash-m113: every failing test was
+ * `Cannot navigate to invalid URL` because the re-run loaded no base URL).
  *
  * @param command - The whole-suite run's command.
  * @param locations - The failing `file:line`s to re-run, as the run's own log printed them — or,
@@ -93,12 +146,15 @@ export function suiteCommandTarget(command: string): string {
  *   (`--grep-invert`) so a re-run of the failing locations cannot report one of them again —
  *   xr-molecule-flash-m101 re-ran the whole 139-test suite and spent ~4 minutes to be told about
  *   a test the request had already said does not count.
+ * @param config - The config the run loaded, when the caller knows it; added when the command
+ *   does not name one.
  * @returns The scoped command, or the command unchanged when it runs no Playwright suite.
  */
 export function scopedRerunCommand(
   command: string,
   locations: readonly string[],
   excluded: readonly string[] = [],
+  config?: string | null,
 ): string {
   const at = command.search(/\bplaywright\s+test\b/)
   if (at === -1) return command
@@ -121,10 +177,13 @@ export function scopedRerunCommand(
             .join('|'),
         )}`
       : ''
+  // The run's own config: the command's `--config` when it has one, else the config the caller
+  // recorded for the run. A re-run without it measures nothing (m113).
+  const carry = config && !namesSuiteConfig(statement) ? ` --config ${shellQuote(config)}` : ''
   const scoped = statement
     .replace(/\s*--last-failed\b/g, '')
     .replace(/\s*--retries(?:[= ]\d+)?/g, '')
-    .replace(/^(playwright\s+test)\b/, `$1 ${locations.join(' ')} --retries=0${invert}`)
+    .replace(/^(playwright\s+test)\b/, `$1 ${locations.join(' ')} --retries=0${carry}${invert}`)
   return `${head}${scoped}${tail}`
 }
 

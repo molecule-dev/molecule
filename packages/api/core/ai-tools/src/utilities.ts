@@ -16,6 +16,7 @@ import {
   suiteCommandTarget,
   suiteRunInTheWay,
   withoutHeredocs,
+  withSuiteConfig,
 } from './suite-overlap.js'
 
 /**
@@ -2581,6 +2582,54 @@ function groupFailures(
 }
 
 /**
+ * The error every test of a Playwright run reports when the run loaded no base URL: `page.goto('/')`
+ * has nothing to resolve against, so the browser refuses the navigation before any page loads.
+ * xr-molecule-flash-m113 (+20:34) got ten of these and a list that called them ten causes.
+ */
+const NO_BASE_URL_ERROR = /Cannot navigate to invalid URL/i
+
+/**
+ * The one-line note for a run whose EVERY failure is {@link NO_BASE_URL_ERROR}: a configuration
+ * failure, not a result about the app.
+ *
+ * A list of causes is the wrong shape here — there is one cause, and it is not in the app: the
+ * command loaded no base URL. The line names the config the run should have loaded (the caller
+ * passes the one the platform recorded for this suite) and hands over the exact narrowed command
+ * with it, so the next run measures the app instead of spending another six minutes on the same
+ * configuration mistake (xr-molecule-flash-m113 ran four such runs, 07:06:17 → 07:12:03).
+ *
+ * @param causes - The run's failures, all carrying the same error.
+ * @param run - How the run was started, when the caller knows it.
+ * @param excluded - The test titles the request carves out (inverted out of the re-run).
+ * @returns The one-line sentence.
+ */
+function noBaseUrlConfigNote(
+  causes: readonly FailureCause[],
+  run: { command: string; cwd?: string; config?: string | null } | undefined,
+  excluded: readonly string[],
+): string {
+  const total = causes.reduce((n, c) => n + c.tests.length, 0)
+  const locations = [...new Set(causes.flatMap((c) => c.tests.map((t) => t.where)).filter(Boolean))]
+  const config = run?.config ?? null
+  // The command is only worth handing over WITH the config: the same command without it is the
+  // run that just failed this way. Where the caller does not know the config, the line says what
+  // to find instead of repeating the mistake.
+  const rerun = run && config ? rerunOfRunningSuite(run, locations, excluded) : null
+  const command = rerun ?? (run && config ? withSuiteConfig(run.command, config) : null)
+  return (
+    `Every one of these ${total} failures is the same configuration failure, not a result about ` +
+    `the app: the run loaded no base URL, so every \`page.goto\` was refused with ` +
+    `\`Cannot navigate to invalid URL\` before a page opened. Nothing here is a defect to fix. ` +
+    (config
+      ? `\`${config}\` is the config that sets \`use.baseURL\`, and the run before this one loaded ` +
+        `it; this command left it out. `
+      : 'The app’s own Playwright config (the one that sets `use.baseURL`) has to be passed ' +
+        'with `--config`; this command names none. ') +
+    (command ? `Send exactly this: \`${command}\`` : '')
+  )
+}
+
+/**
  * The one-line-per-cause summary of a finished run's failures, or null when the run named fewer
  * than two of them.
  *
@@ -2596,21 +2645,29 @@ function groupFailures(
  * exactly those tests ({@link rerunOfRunningSuite}) instead of leaving the executor to re-run the
  * whole suite.
  *
+ * A run whose failures are ALL {@link NO_BASE_URL_ERROR} is not a set of causes at all: it is one
+ * configuration failure, said in one line ({@link noBaseUrlConfigNote}) rather than a list that
+ * reads as ten defects in the app.
+ *
  * @param log - The finished run's output.
  * @param excluded - The test titles the request carves out, if the caller knows them.
  * @param run - How the run was started, when the caller knows it: the narrowed re-run is built
- *   from `command`/`cwd`, and `log` (the path the output was written to) is what the "left out"
- *   sentence greps when more causes exist than the result has room for.
+ *   from `command`/`cwd`/`config`, and `log` (the path the output was written to) is what the
+ *   "left out" sentence greps when more causes exist than the result has room for.
  * @returns The note, or null.
  */
 export function failureCausesNote(
   log: string,
   excluded: readonly string[] = [],
-  run?: { command: string; cwd?: string; log?: string },
+  run?: { command: string; cwd?: string; log?: string; config?: string | null },
 ): string | null {
   const { causes, ignored, flaky } = groupFailures(log, excluded)
   const total = causes.reduce((n, c) => n + c.tests.length, 0)
   if (total < 2) return null
+  // One cause that is not in the app: every failure is the browser refusing a navigation with no
+  // base URL. The list shape is what m113 read as ten causes, so it is never printed for this.
+  if (causes.every((c) => c.message !== null && NO_BASE_URL_ERROR.test(c.message)))
+    return noBaseUrlConfigNote(causes, run, excluded)
   // The narrowed run, so the next fix round costs two tests instead of the whole suite
   // (xr-molecule-flash-m101 +12:13 re-ran all 139, ~4 minutes, to check two). The command is the
   // run's own invocation narrowed by the ONE composer the mid-run note also uses
@@ -2727,7 +2784,7 @@ function failureCauseLine(cause: FailureCause, index: number): string {
  */
 function omittedCausesRecap(
   omitted: FailureCause[],
-  run: { command: string; cwd?: string; log?: string } | undefined,
+  run: { command: string; cwd?: string; log?: string; config?: string | null } | undefined,
   excluded: readonly string[],
 ): string {
   if (omitted.length === 0) return ''
@@ -2775,20 +2832,20 @@ function omittedCausesRecap(
  * the same app and database, and that is exactly what is refused while the run walks
  * ({@link suiteRunInTheWay}).
  *
- * @param run - The run in flight: the command it was started with, as it was run, and the
- *   directory that command ran in.
+ * @param run - The run in flight: the command it was started with, as it was run, the directory
+ *   that command ran in, and the config it loaded when the caller knows it.
  * @param locations - The failing `file:line`s to re-run, as the run's log printed them.
  * @param excluded - The test titles the request carves out: the re-run inverts them out
  *   (`--grep-invert`) so it cannot report them again.
  * @returns The re-run command, or null when there is no suite to narrow.
  */
 export function rerunOfRunningSuite(
-  run: { command: string; cwd?: string },
+  run: { command: string; cwd?: string; config?: string | null },
   locations: readonly string[],
   excluded: readonly string[] = [],
 ): string | null {
   if (locations.length === 0) return null
-  const scoped = scopedRerunCommand(run.command, locations, excluded)
+  const scoped = scopedRerunCommand(run.command, locations, excluded, run.config)
   if (scoped === run.command) return null
   if (!run.cwd || commandSegments(withoutHeredocs(run.command)).some((s) => s.program === 'cd'))
     return scoped
