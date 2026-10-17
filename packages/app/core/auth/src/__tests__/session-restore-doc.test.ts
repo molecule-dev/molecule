@@ -47,3 +47,42 @@ describe('the restore-cost contract in @molecule/app-auth’s own docs (xr-molec
     expect(readme).toContain('xr-molecule-flash-m122')
   })
 })
+
+/**
+ * xr-molecule-flash-m130's hand-rolled store (`app/src/lib/conduit.ts`) survived a migration
+ * onto `@molecule/app-http` and raced its own async restore: the first authenticated page
+ * rendered signed-out and its 401 signed the user out. The wiring that replaces it has to be
+ * on the surface a whole-doc read delivers — the module DESCRIPTION, not `@remarks`, which the
+ * generated README renders after the entire API reference and a truncated read never reaches.
+ */
+describe('the scaffolded-app wiring in the module description (xr-molecule-flash-m130)', () => {
+  it('says how to wire the package without `mlcl add`, and what races the restore', () => {
+    const doc = docFor(read('src/index.ts'), '@module')
+    expect(doc).toContain('mlcl add')
+    expect(doc).toContain('createJWTAuthClient')
+    expect(doc).toContain('initialize()')
+    expect(doc).toContain('MoleculeProvider')
+    expect(doc).toContain('useAuth()')
+    expect(doc).toContain('BEFORE the first render')
+    expect(doc).toContain('401 signs the user out')
+    // The second trap the same run hit (+25:40): a hand-rolled gate holding its own restore.
+    expect(doc).toContain('skipAuthGate')
+  })
+
+  it('puts those sentences before the README’s API reference, where no truncation drops them', () => {
+    const readme = read('README.md')
+    for (const sentence of ['mlcl add', 'MoleculeProvider', 'BEFORE the first render']) {
+      const at = readme.indexOf(sentence)
+      expect(at).toBeGreaterThan(-1)
+      expect(at).toBeLessThan(readme.indexOf('## API'))
+    }
+  })
+
+  it('does not leave the same guidance behind in @remarks, where a truncated read misses it', () => {
+    const doc = docFor(read('src/index.ts'), '@module')
+    const remarks = doc.slice(doc.indexOf('@remarks'))
+    expect(remarks).not.toContain('Do not fetch viewer-dependent data')
+    expect(remarks).not.toContain('Do NOT hand-roll a token')
+    expect(remarks).not.toContain('skipAuthGate')
+  })
+})

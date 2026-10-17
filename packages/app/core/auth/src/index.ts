@@ -8,6 +8,43 @@
  * bindings (e.g. `AuthProvider`/`useAuth` in `@molecule/app-react`) wrap the
  * same client.
  *
+ * **In a scaffolded app, wire it by hand — the sandbox cannot run `mlcl add`.**
+ * The package is already installed; create the client once at startup with
+ * `setClient(createJWTAuthClient({ baseURL, authScheme: 'Token', storage:
+ * createBrowserStorageAdapter() }))`, or `createDefaultAuthClient(authConfig)`
+ * from `@molecule/app-bonds-default-react` (which also registers
+ * `whenRestored()` as the HTTP gate), call `initialize()`, and read the session
+ * through `MoleculeProvider`/`useAuth()` in a React app.
+ *
+ * **`initialize()` restores the session BEFORE the first render, and no
+ * hand-rolled token store may replace it.** With the token AND user in the
+ * store the restore is synchronous and costs no request; with an httpOnly
+ * session cookie the API sets at login it restores through
+ * `currentUserEndpoint` (default `/users/me`). `AuthClientConfig.storage` is
+ * the config field that decides which route a reload takes. A store written
+ * beside the client answers requests before its own restore settles: the first
+ * authenticated page renders signed-out, and its 401 signs the user out for
+ * good.
+ *
+ * **Never fetch viewer-dependent data before the restore settles.** A
+ * component effect that runs on mount fires while `initialize()` is still
+ * restoring, so its request leaves without the `Authorization` header and the
+ * server answers for an anonymous viewer — a followed user renders "Follow", a
+ * saved item renders unsaved. On localhost the restore usually wins this race;
+ * over the network it does not, so the bug appears only on the deployed URL.
+ * Gate the fetch on the auth state being settled (`state.initialized`), or let
+ * the HTTP client do it: `@molecule/app-bonds-default-react` registers
+ * `whenRestored()` as the gate so every request waits for the restore.
+ *
+ * **A store that registers its own gate must exempt the restore's own request.**
+ * This client restores with `fetch`, so the gate registered over it never holds
+ * the restore. A store that restores THROUGH the bonded HTTP client and
+ * registers that restore as the gate (`setAuthGate(() => store.whenSettled())`)
+ * waits on itself unless the restore's request passes `skipAuthGate: true` —
+ * otherwise the gate holds the very request it is waiting for, and every
+ * request it holds stalls until the gate times out. See
+ * `RequestConfig.skipAuthGate` in `@molecule/app-http`.
+ *
  * @remarks
  * - **An API with its own auth envelope keeps this client.** `requestBody` wraps the
  *   login/register payload (`(kind, p) => ({ user: p })`), `mapAuthResponse` reads the
@@ -17,38 +54,10 @@
  *   (`setClient(createJWTAuthClient({ authScheme: 'Token', … }))` in the auth bond), not
  *   properties of a client that already exists. Do not hand-write an auth client for a spec
  *   like RealWorld.
- * - **Whether a reload keeps the user signed in is `AuthClientConfig.storage`,
- *   and one of the two routes must be wired.** The client's own default is
- *   `'memory'`, which is lost on reload, so a session survives one only by
- *   having a credential that survived: (1) `storage: createBrowserStorageAdapter()`
- *   — the browser's `localStorage`, what a scaffolded app's `authConfig` passes
- *   (see `@molecule/app-auth`'s `createBrowserStorageAdapter` for the trade: Web
- *   Storage is script-readable, so an XSS can steal the token), or (2) an
- *   httpOnly session cookie the API sets at login, which `initialize()` restores
- *   through `currentUserEndpoint` (default `/users/me`) — the stronger option
- *   wherever the API supports it, and what `@molecule/api-resource-user` issues.
- *   Wire `initialize()` once at startup either way. Do NOT hand-roll a token
- *   store beside the client for this: it is a config field.
  * - **Endpoint defaults must match your API's real routes** (`/auth/login`,
  *   `/auth/register`, `/auth/refresh`, `/users/logout`, `/users/me`, …).
  *   Align them via `createJWTAuthClient({ baseURL, ...endpoints })` — never by
  *   hand-editing fetch calls in components.
- * - **Do not fetch viewer-dependent data before the restore settles.** A component
- *   effect that runs on mount fires while `initialize()` is still restoring, so its
- *   request leaves without the `Authorization` header and the server answers for an
- *   anonymous viewer — a followed user renders "Follow", a saved item renders unsaved.
- *   On localhost the restore usually wins this race; over the network it does not, so
- *   the bug appears only on the deployed URL. Two ways out: gate the fetch on the auth
- *   state being settled (`state.initialized`), or let the HTTP client do it — bond the
- *   auth client through `@molecule/app-bonds-default-react`, which registers
- *   `whenRestored()` as the http gate so every request waits for the restore.
- * - **Your own session store's gate must exempt its restore's own request.** This client
- *   restores with `fetch`, so the gate registered over it never holds the restore. A store
- *   that restores THROUGH the bonded HTTP client and registers that restore as the gate
- *   (`setAuthGate(() => store.whenSettled())`) waits on itself unless the restore's request
- *   passes `skipAuthGate: true` — otherwise the gate holds the very request it is waiting
- *   for, and every request it holds stalls until the gate times out. See
- *   `RequestConfig.skipAuthGate` in `@molecule/app-http`.
  * - Client-side auth state is UX only — the server enforces authorization on
  *   every request; hiding a screen is not protection.
  *
