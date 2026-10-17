@@ -24,6 +24,12 @@
  *    `backends/sandbox.ts`), which reports 124 whatever the pipeline did, and returns everything
  *    printed until then. The budget is the tool's own, so its number belongs to the tool.
  *
+ * A runner's closing summary is what separates "used the bound and finished" from "stopped at the
+ * bound", but it is only half the evidence: Playwright prints one when its process is stopped too,
+ * listing just the tests it reached. So a summary is a finish only when it accounts for the total
+ * the runner announced before it started ({@link suiteSummary}) — a summary that does not
+ * reconcile is a stopped run like any other, and the result says so.
+ *
  * @module
  */
 
@@ -60,7 +66,8 @@ export function commandRunState(result: unknown): CommandRunState {
  * not a tolerance: a command killed at its bound reports AT LEAST the bound (the shell's own
  * bookkeeping runs after the kill, and this tool's round trip is on top), so any slack would only
  * make a SHORT bound fire on a run that finished inside it (`timeout 5 curl …` answering in 3 s).
- * A run that finished near its bound carried its runner's closing summary — {@link suiteTally}.
+ * A run that finished near its bound carried a summary that reconciles with its announced total —
+ * {@link suiteSummary}.
  *
  * @param boundSeconds - The bound the run was allowed.
  * @returns The elapsed ms a run stopped at that bound reports at least.
@@ -70,27 +77,145 @@ function atBoundMs(boundSeconds: number): number {
 }
 
 /**
- * A runner's closing summary, printed only by a run that walked its whole suite: Hurl's
- * `Executed files:` block and the `N passed` / `N failed` / `N flaky` line Playwright and Vitest
- * print when they finish.
+ * What a runner's own closing summary reports, and whether it accounts for the whole run.
  *
- * This is what separates "stopped at the bound" from "used the bound and finished": a suite that
- * printed its summary ran to its end, and is read as the run it was.
+ * A summary is not by itself proof that the run finished. Playwright prints one when its process
+ * is stopped too (SIGTERM/SIGINT), listing only the tests it reached — so a run killed at 36 of
+ * 139 tests ends with the same `36 passed (2.5m)` line as a run that walked all 139. The only
+ * thing that separates them is the total the runner announced before it started
+ * (`Running 139 tests using 1 worker`), which {@link suiteSummary} reconciles the summary against.
  */
-const SUITE_TALLY = /\bExecuted files:\s*\d+|\b\d+\s+(?:passed|failed|flaky|skipped)\b/
+export interface SuiteSummary {
+  /**
+   * The total the runner announced before its first test, or null when it announced none (Hurl
+   * announces nothing; Vitest's own summary line carries its total in parentheses).
+   */
+  announced: number | null
+  /**
+   * Every test the summary accounts for — the ones it passed, failed, marked flaky, timed out,
+   * interrupted, skipped or left "did not run". This is how far the walk got, which is what a
+   * stopped run's sentence says; a summary that accounts for fewer than {@link announced} was
+   * printed by a process that stopped early.
+   */
+  accounted: number
+  /** Whether the summary accounts for every test the runner announced. */
+  finished: boolean
+}
+
+/** A runner's announcement of the whole walk — Playwright's `Running 139 tests using 1 worker`. */
+const ANNOUNCED_TOTAL = /^\s*Running\s+(\d+)\s+tests?\s+using\b/gm
 
 /**
- * Whether text carries a runner's closing summary ({@link SUITE_TALLY}).
+ * One line of Playwright's end-of-run tally — `  1 failed`, `  36 passed (2.5m)`,
+ * `  1 did not run`.
+ */
+const SUMMARY_STATUS =
+  /^\s*(\d+)\s+(passed|failed|flaky|skipped|interrupted|timed out|did not run)\b/gm
+
+/**
+ * Vitest's end-of-run tally — `Tests  1 failed | 149 passed (151)` — whose parenthesised number is
+ * the total the line accounts for, and so its own announcement ({@link SuiteSummary.announced}).
+ */
+const VITEST_TESTS = /^\s*Tests\s+(.+?)\s+\((\d+)\)\s*$/gm
+
+/** One status inside Vitest's `Tests` line — `149 passed`. */
+const VITEST_STATUS = /(\d+)\s+(passed|failed|skipped|todo)\b/g
+
+/** Hurl's closing block, printed only by a run that walked its whole file list. */
+const HURL_TALLY = /\bExecuted files:\s*\d+/
+
+/**
+ * The marker {@link truncateMiddle} puts before the tally lines it restores — read only when the
+ * truncated text carries no tally line of its own.
+ */
+const RESTORED_TALLY = /\[run tally\]\s*([^\n]*)/g
+
+/** One status inside a restored tally line — `36 passed`. */
+const RESTORED_STATUS = /(\d+)\s+(passed|failed|flaky|skipped|interrupted|timed out|did not run)\b/g
+
+/**
+ * Add the statuses in `text` to a running tally.
+ *
+ * Every status counts the same way: a test the runner skipped or left "did not run" was still
+ * reached, which is what a stopped run's count measures.
+ *
+ * @param text - A tally line, or a block of them.
+ * @param re - The status pattern to read them with.
+ * @param counts - The tally to add to.
+ */
+function addStatuses(text: string, re: RegExp, counts: { accounted: number; saw: boolean }): void {
+  for (const m of text.matchAll(re)) {
+    counts.saw = true
+    counts.accounted += Number(m[1])
+  }
+}
+
+/**
+ * What the runner's closing summary accounts for, or null when it printed none.
+ *
+ * Three runners' summaries are read, each by its own wording: Playwright's per-status lines
+ * (reconciled against its `Running N tests` announcement), Vitest's single `Tests …` line (its own
+ * parenthesised total), and Hurl's `Executed files:` block (which it prints only at the end, and
+ * which announces no total — so it is a finish by construction).
+ *
+ * @param text - The run's stdout and stderr, RAW (a truncated copy can lose the announcement).
+ * @returns The summary, or null when the text carries none.
+ */
+export function suiteSummary(text: string): SuiteSummary | null {
+  if (typeof text !== 'string' || !text) return null
+  let announced: number | null = null
+  for (const m of text.matchAll(ANNOUNCED_TOTAL)) announced = Number(m[1])
+  const counts = { accounted: 0, saw: false }
+  addStatuses(text, SUMMARY_STATUS, counts)
+  if (!counts.saw) {
+    // Only when no tally line of its own survived: the restored line is a copy of lines that may
+    // also be present, and adding both would over-count a cut run into a finish.
+    for (const m of text.matchAll(RESTORED_TALLY)) addStatuses(m[1] ?? '', RESTORED_STATUS, counts)
+  }
+  if (counts.saw) {
+    return {
+      announced,
+      accounted: counts.accounted,
+      finished: announced === null || counts.accounted >= announced,
+    }
+  }
+  const vitest = [...text.matchAll(VITEST_TESTS)].at(-1)
+  if (vitest) {
+    const total = Number(vitest[2])
+    const line = { accounted: 0, saw: true }
+    addStatuses(vitest[1] ?? '', VITEST_STATUS, line)
+    return { announced: total, accounted: line.accounted, finished: line.accounted >= total }
+  }
+  // Hurl prints `Executed files:` only after walking its whole list.
+  if (HURL_TALLY.test(text)) return { announced: null, accounted: 0, finished: true }
+  return null
+}
+
+/**
+ * Whether text carries a runner's closing summary.
+ *
+ * A summary is NOT a finish on its own — a stopped Playwright run prints one too. Use
+ * {@link suiteSummary} and its `finished` for that.
  *
  * @param text - The run's stdout and stderr.
  * @returns True when the runner's own end-of-run summary is there.
  */
 export function suiteTally(text: string): boolean {
-  return SUITE_TALLY.test(text)
+  return suiteSummary(text) !== null
 }
 
 /** What stopped a run. */
-export type CutBy = 'tool-budget' | 'command-timeout'
+export type CutBy =
+  /** This tool's own budget (the backend's `timeout`, just past it). */
+  | 'tool-budget'
+  /** The `timeout <N>` the command itself carried. */
+  | 'command-timeout'
+  /**
+   * Something outside the run: the runner's summary does not account for the total it announced,
+   * and neither of the two bounds above had fired — the process was killed by something this
+   * platform does not own (the sandbox's own process supervisor, the box going away, a signal).
+   */
+  | 'process-stop'
 
 /** A run a budget stopped, as its result reports it. */
 export interface CutRun {
@@ -103,9 +228,15 @@ export interface CutRun {
    * the pipeline's filter (`… | tail`) rather than to the run — the case that read as success.
    */
   exitCode: number | null
-  /** How many files or tests the runner's own output shows finishing, or null when it shows none. */
+  /**
+   * How far the run got, as its own output counts it — the files that finished, or the tests its
+   * summary accounts for — or null when the output says nothing.
+   */
   ran: number | null
-  /** How many the run was walking, when the runner printed it (Playwright's `[n/K]`), or null. */
+  /**
+   * How many the run was walking: the total its runner announced (`Running 139 tests`), or
+   * Playwright's `[n/K]`, whichever the output carries; null when neither does.
+   */
   total: number | null
   /** The noun the runner counts in. */
   noun: 'files' | 'tests'
@@ -133,17 +264,28 @@ const PROGRESS_LINE = /^\s*\[(\d+)\/(\d+)\]/gm
  * What the runner's own output says the run got through.
  *
  * Hurl prints a line per finished file and no total unless it finished; Playwright's line reporter
- * prints `[n/K]` with both numbers. Neither is inferred from the command — a run that printed
- * nothing says nothing, which is what `null` means here.
+ * prints `[n/K]` with both numbers, and its end-of-run summary (with the `Running N tests` total it
+ * is reconciled against) says how far a stopped walk got. Neither is inferred from the command — a
+ * run that printed nothing says nothing, which is what `null` means here.
  *
- * @param text - The run's stdout and stderr.
+ * @param text - The run's stdout and stderr, raw.
  * @param suite - Whether the command runs a suite.
- * @returns How many finished, how many the run was walking, and the noun.
+ * @param summary - The closing summary the text carries, when it carries one.
+ * @returns How far it got, how many it was walking, and the noun.
  */
-function runProgress(text: string, suite: boolean): Pick<CutRun, 'ran' | 'total' | 'noun'> {
+function runProgress(
+  text: string,
+  suite: boolean,
+  summary: SuiteSummary | null,
+): Pick<CutRun, 'ran' | 'total' | 'noun'> {
   const files = new Set<string>()
   for (const m of text.matchAll(HURL_FILE_LINE)) files.add(m[1] ?? '')
   if (files.size > 0) return { ran: files.size, total: null, noun: 'files' }
+  // A summary that does not account for its announced total: both numbers come from the runner's
+  // own lines, so the sentence can say `Ran 38 of 139` without the caller counting anything.
+  if (summary && summary.announced !== null) {
+    return { ran: summary.accounted, total: summary.announced, noun: 'tests' }
+  }
   let ran: number | null = null
   let total: number | null = null
   for (const m of text.matchAll(PROGRESS_LINE)) {
@@ -160,6 +302,9 @@ function runProgress(text: string, suite: boolean): Pick<CutRun, 'ran' | 'total'
  *
  * Evidence, in order — never a guess:
  *
+ * - the runner's own summary, when it printed one: it is a finish only if it accounts for the total
+ *   the runner announced. A summary that accounts for fewer is a walk a process stopped early, and
+ *   falls through to the branches below with its own counts ({@link suiteSummary}).
  * - `timeout`'s own 124 (the code the backend's wrapper returns whenever the TOOL's budget fired,
  *   whatever the pipeline ended with) — and, when the clock says the command's own smaller bound
  *   ran out first and less than the budget, that bound instead.
@@ -168,11 +313,16 @@ function runProgress(text: string, suite: boolean): Pick<CutRun, 'ran' | 'total'
  *   killed at its own bound. Its exit code, when the pipeline handed one back, is the filter's.
  * - the run used this tool's whole budget behind a filter that withheld its output, and printed no
  *   closing summary: the budget stopped it, and no code in the result is the run's.
+ * - a summary that does not account for its announced total, with neither bound fired: something
+ *   outside this platform stopped the process ({@link CutBy} `process-stop`).
  *
  * @param command - The command the executor sent.
  * @param result - Its result.
  * @param elapsedMs - How long the command ran, in ms.
  * @param budgetSeconds - This tool's foreground budget, in seconds (0 when it has none).
+ * @param rawOutput - The run's output BEFORE truncation, when the caller has it: the announcement
+ *   a summary is reconciled against is the first line a long run prints, which is exactly what a
+ *   size cap drops. Detection reads this; the sentence's last line still comes from `result`.
  * @returns The stopped run, or null.
  */
 export function commandCutRun(
@@ -180,6 +330,7 @@ export function commandCutRun(
   result: unknown,
   elapsedMs: number,
   budgetSeconds = 0,
+  rawOutput?: string,
 ): CutRun | null {
   if (typeof command !== 'string' || !command.trim()) return null
   if (result === null || typeof result !== 'object') return null
@@ -187,11 +338,17 @@ export function commandCutRun(
   const r = result as { exitCode?: unknown; stdout?: unknown; stderr?: unknown }
   const exitCode = typeof r.exitCode === 'number' ? r.exitCode : null
   const text = `${String(r.stdout ?? '')}\n${String(r.stderr ?? '')}`
-  // A suite that printed its summary ran to its end, whatever it was wrapped in.
-  if (suiteTally(text)) return null
+  const detected = typeof rawOutput === 'string' ? rawOutput : text
+  // A runner's summary is a finish only when it accounts for the total the runner announced. A run
+  // stopped at 36 of 139 prints the same `36 passed` line a finished run does (X1 xr-molecule-flash-
+  // m101 +12:13 read `36 passed` as `exitCode: 0` and moved on), so the announcement decides.
+  const summary = suiteSummary(detected)
+  // Only a summary that ACCOUNTS for the announced total ends the search for a stop. No summary
+  // at all is not a finish — it is the case the bounds below exist for.
+  if (summary?.finished) return null
   const suite = isSuiteRunCommand(command)
   const withheld = /\|\s*(?:tail|head|grep|egrep|fgrep|sort|uniq|wc|jq)\b/.test(command)
-  const progress = runProgress(text, suite)
+  const progress = runProgress(detected, suite, summary)
   const doing = lastPrinted(text)
   const declared = commandTimeoutSeconds(command)
   // A command whose own bound is inside this tool's budget is stopped by ITS bound: a larger one
@@ -238,6 +395,21 @@ export function commandCutRun(
       doing,
     }
   }
+  // The runner printed a summary that does not account for the total it announced, and neither
+  // bound above fired: the process was stopped from outside the run. A run that used the whole
+  // budget is the backend's deadline (which sits just past it); anything else is a stop this tool
+  // does not own. Either way the summary counts are all that ran, and a pipeline's 0 is not the
+  // run's code — the run never reached its own verdict.
+  if (summary !== null && summary.announced !== null) {
+    const usedBudget = budgetSeconds > 0 && elapsedMs >= atBoundMs(budgetSeconds)
+    return {
+      seconds: usedBudget ? budgetSeconds : Math.max(1, Math.round(elapsedMs / 1000)),
+      stoppedBy: usedBudget ? 'tool-budget' : 'process-stop',
+      exitCode: withheld || exitCode === 0 ? null : exitCode,
+      ...progress,
+      doing,
+    }
+  }
   return null
 }
 
@@ -272,32 +444,39 @@ export function cutRunFacts(result: unknown): CutRun | null {
 }
 
 /**
- * The first line of a stopped run's result: how long it was allowed, what stopped it, how far it
- * got, and the last thing it printed.
+ * The first line of a stopped run's result: how far it got, what stopped it, the last thing it
+ * printed, and what the reader must do next.
  *
  * Written to be quotable by the model in one sentence and to leave no room for "nearly passing":
  * the counts come from the runner's own output ({@link runProgress}), and a `total` the caller
- * read elsewhere (the suite's own file count) fills in the "M of K" it can then state.
+ * read elsewhere (the suite's own file count) fills in the "of N" it can then state. The sentence
+ * says how many tests the stop left unrun — a number a reader cannot round up to "the suite
+ * passed" — and hands over the one move that survives a long run: run it in the background.
  *
  * @param run - The stopped run.
  * @returns The sentence.
  */
 export function cutRunSentence(run: CutRun): string {
   const by =
-    run.stoppedBy === 'tool-budget' ? "this tool's limit" : `its own \`timeout ${run.seconds}\``
-  const lead = `This run was stopped after ${run.seconds}s (${by})`
-  const count =
-    run.ran !== null && run.total !== null
-      ? `: ${run.ran} of ${run.total} ${run.noun} ran, the rest did not run`
+    run.stoppedBy === 'tool-budget'
+      ? "this tool's limit"
+      : run.stoppedBy === 'command-timeout'
+        ? `its own \`timeout ${run.seconds}\``
+        : 'a process kill outside this tool (no `timeout` of its own and no limit of this tool had fired)'
+  const background = 'run it in the background (run_in_background + wait_for_task)'
+  const missing = run.ran !== null && run.total !== null ? run.total - run.ran : null
+  const lead =
+    missing !== null
+      ? `Ran ${run.ran} of ${run.total} ${run.noun} in ${run.seconds} s and was stopped by ${by} — the ${missing} it never reached ${missing === 1 ? 'has' : 'have'} not run; ${background}`
       : run.ran !== null
-        ? `: ${run.ran} ${run.noun} ran and the rest did not run`
-        : ' before it finished'
-  const doing = run.doing ? `; the last thing it was doing: ${run.doing}` : ''
+        ? `Ran ${run.ran} ${run.noun} in ${run.seconds} s and was stopped by ${by} — the rest have not run; ${background}`
+        : `This run was stopped after ${run.seconds}s (${by}) before it finished; ${background}`
+  const doing = run.doing ? ` The last thing it was doing: ${run.doing}.` : ''
   // Why the result carries no code: without this the model reads the missing field as an
   // omission, and the number it used to read there was the pipeline's own 0.
   const code =
     run.exitCode === null
       ? ' It has no exit code of its own to report — the one this pipeline produced belongs to the filter, not to the run.'
       : ''
-  return `${lead}${count}${doing}.${code}`
+  return `${lead}.${doing}${code}`
 }

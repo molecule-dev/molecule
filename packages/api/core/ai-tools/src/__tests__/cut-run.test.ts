@@ -14,6 +14,7 @@ import {
   commandTimeoutSeconds,
   CUT_AT_BUDGET,
   cutRunSentence,
+  suiteSummary,
   suiteTally,
 } from '../index.js'
 import { buildTools } from '../tools.js'
@@ -75,10 +76,13 @@ describe('commandCutRun — the run m93 re-sent three times', () => {
       290,
     )!
     const sentence = cutRunSentence({ ...cut, total: 13 })
-    expect(sentence).toContain('This run was stopped after 280s')
-    expect(sentence).toContain('4 of 13 files ran, the rest did not run')
     expect(sentence).toContain(
-      'the last thing it was doing: Failure hurl/errors_articles.hurl (20 request(s) in 270 ms)',
+      'Ran 4 of 13 files in 280 s and was stopped by its own `timeout 280`',
+    )
+    expect(sentence).toContain('the 9 it never reached have not run')
+    expect(sentence).toContain('run it in the background (run_in_background + wait_for_task)')
+    expect(sentence).toContain(
+      'The last thing it was doing: Failure hurl/errors_articles.hurl (20 request(s) in 270 ms).',
     )
     expect(sentence).toContain('no exit code of its own to report')
   })
@@ -174,7 +178,9 @@ describe('commandCutRun — the run m93 re-sent three times', () => {
       290,
     )
     expect(cut).toMatchObject({ seconds: 90, ran: 4, total: 11, noun: 'tests', exitCode: null })
-    expect(cutRunSentence(cut!)).toContain('4 of 11 tests ran, the rest did not run')
+    expect(cutRunSentence(cut!)).toContain(
+      'Ran 4 of 11 tests in 90 s and was stopped by its own `timeout 90` — the 7 it never reached have not run',
+    )
   })
 })
 
@@ -214,6 +220,150 @@ describe('suiteTally — what separates finished from stopped', () => {
   })
 })
 
+// X1 xr-molecule-flash-m101 (+12:13, 2026-10-17): the executor re-ran the suite in the FOREGROUND,
+// got back `1 failed / 1 skipped / 36 passed (2.5m)` with `exitCode: 0` and no state, read it as
+// "all previously failing tests pass", and spent the next three minutes on a production build and
+// a deploy decision. Every fixture below is the run's own output, copied from the chat payload.
+describe('the summary that does not account for its announced total (m101)', () => {
+  /** The executor's command, verbatim — the three failing spec files, through `| tail -25`. */
+  const M101_COMMAND =
+    'cd /workspace/my-app/app && npx tsc --noEmit 2>&1 | head -5; cd /workspace/fixtures/realworld/specs/e2e ' +
+    '&& TEST_MODE=fullstack baseURL=http://localhost:5173 npx --prefix /workspace/my-app/app playwright ' +
+    'test --config playwright.run.config.ts --reporter=list navigation.spec.ts social.spec.ts comments.spec.ts ' +
+    '2>&1 | tail -25'
+
+  /** The runner's announcement, printed before the first test — the half `| tail -25` cut away. */
+  const M101_ANNOUNCEMENT = 'Running 139 tests using 1 worker\n'
+
+  /** The stdout the tool returned: only the tally lines survived the executor's own `| tail`. */
+  const M101_STDOUT =
+    'npm warn config ignoring workspace config at /workspace/my-app/app/.npmrc\n' +
+    '\n' +
+    '  1 failed\n' +
+    '    [chromium] › comments.spec.ts:102:3 › Comments › should require login to post comment ────────\n' +
+    '  1 skipped\n' +
+    '  36 passed (2.5m)\n'
+
+  it('reads 38 accounted for 139 as stopped, and never hands back the pipeline’s 0', () => {
+    const cut = commandCutRun(
+      M101_COMMAND,
+      { stdout: `${M101_ANNOUNCEMENT}${M101_STDOUT}`, stderr: '', exitCode: 0 },
+      153_326,
+      290,
+    )
+    expect(cut).toMatchObject({
+      seconds: 153,
+      stoppedBy: 'process-stop',
+      exitCode: null,
+      ran: 38,
+      total: 139,
+      noun: 'tests',
+      doing: '36 passed (2.5m)',
+    })
+  })
+
+  it('says how many tests the stop left unrun, and sends the next run to the background', () => {
+    const cut = commandCutRun(
+      M101_COMMAND,
+      { stdout: `${M101_ANNOUNCEMENT}${M101_STDOUT}`, stderr: '', exitCode: 0 },
+      153_326,
+      290,
+    )!
+    expect(cutRunSentence(cut)).toContain(
+      'Ran 38 of 139 tests in 153 s and was stopped by a process kill outside this tool ' +
+        '(no `timeout` of its own and no limit of this tool had fired) — the 101 it never reached ' +
+        'have not run; run it in the background (run_in_background + wait_for_task)',
+    )
+  })
+
+  it('does NOT call a summary that accounts for the announced total stopped', () => {
+    expect(
+      commandCutRun(
+        M101_COMMAND,
+        {
+          stdout:
+            'Running 139 tests using 1 worker\n  2 failed\n  1 skipped\n  136 passed (4.0m)\n',
+          stderr: '',
+          exitCode: 0,
+        },
+        240_000,
+        290,
+      ),
+    ).toBeNull()
+  })
+
+  it('detects the cut on the RAW output when the truncation dropped the announcement', () => {
+    const truncated = M101_STDOUT
+    // Without the raw text the tally reconciles with nothing, so it reads as a finished run…
+    expect(
+      commandCutRun(M101_COMMAND, { stdout: truncated, stderr: '', exitCode: 0 }, 153_326, 290),
+    ).toBeNull()
+    // …and with it, the announcement it announced against is there.
+    const cut = commandCutRun(
+      M101_COMMAND,
+      { stdout: truncated, stderr: '', exitCode: 0 },
+      153_326,
+      290,
+      `${M101_ANNOUNCEMENT}${truncated}`,
+    )
+    expect(cut).toMatchObject({ ran: 38, total: 139, exitCode: null })
+  })
+
+  it('reads Vitest’s own total in parentheses the same way', () => {
+    expect(
+      commandCutRun(
+        'npx vitest run',
+        {
+          stdout:
+            ' Test Files  1 failed | 2 passed (3)\n      Tests  1 failed | 149 passed (151)\n',
+          stderr: '',
+          exitCode: 0,
+        },
+        120_000,
+        290,
+      ),
+    ).toMatchObject({
+      ran: 150,
+      total: 151,
+      noun: 'tests',
+      exitCode: null,
+      stoppedBy: 'process-stop',
+    })
+    expect(
+      commandCutRun(
+        'npx vitest run',
+        { stdout: '      Tests  151 passed (151)\n', stderr: '', exitCode: 0 },
+        120_000,
+        290,
+      ),
+    ).toBeNull()
+  })
+
+  it('reads a non-reconciling summary that used the whole budget as this tool’s limit', () => {
+    const cut = commandCutRun(
+      'npx playwright test 2>&1 | tail -20',
+      { stdout: `${M101_ANNOUNCEMENT}${M101_STDOUT}`, stderr: '', exitCode: 124 },
+      295_000,
+      290,
+    )
+    expect(cut).toMatchObject({ seconds: 290, stoppedBy: 'tool-budget', exitCode: 124 })
+    expect(cutRunSentence(cut!)).toContain("this tool's limit")
+  })
+
+  it('reports what the summary accounts for', () => {
+    expect(suiteSummary(`${M101_ANNOUNCEMENT}${M101_STDOUT}`)).toMatchObject({
+      announced: 139,
+      accounted: 38,
+      finished: false,
+    })
+    expect(suiteSummary('Running 2 tests using 1 worker\n  2 passed (1.1s)\n')).toMatchObject({
+      announced: 2,
+      accounted: 2,
+      finished: true,
+    })
+  })
+})
+
 describe('exec_command reports the stopped run', () => {
   function mockBackend(): ExecutionBackend {
     return {
@@ -247,9 +397,52 @@ describe('exec_command reports the stopped run', () => {
     expect(result.status).toBe(CUT_AT_BUDGET)
     expect(result.exitCode).toBeNull()
     expect(commandRunState(result)).toBe(CUT_AT_BUDGET)
-    expect(result.error?.startsWith('This run was stopped after 280s')).toBe(true)
+    expect(result.error?.startsWith('Ran 4 files in 280 s and was stopped by')).toBe(true)
     expect(result.stdout).toContain('Success hurl/articles.hurl')
     now.mockRestore()
+  })
+
+  it('detects the cut on the RAW output after the size cap dropped the announcement', async () => {
+    const backend = mockBackend()
+    const tools = buildTools(backend, { commandBudgetMs: 290_000, overCeilingGraceMs: 0 })
+    const exec = tools.find((t) => t.name === 'exec_command')!
+    let clock = 1_000_000
+    const now = vi.spyOn(Date, 'now').mockImplementation(() => clock)
+    // A long run: the announcement sits behind the install warnings, and `truncateMiddle` keeps
+    // only 800 characters of head once a failure block is present — so the announcement survives
+    // only in the raw output.
+    const raw =
+      `${'npm warn deprecated fsevents@1.2.13: please update\n'.repeat(80)}` +
+      'Running 139 tests using 1 worker\n' +
+      '  ✓  1 [chromium] › articles.spec.ts:32:3 › Articles › should create a new article (2.6s)\n'.repeat(
+        2000,
+      ) +
+      '  1) [chromium] › comments.spec.ts:102:3 › Comments › should require login to post comment ────\n' +
+      '    Error: expect(locator).toBeVisible() failed\n  1 failed\n  1 skipped\n  36 passed (2.5m)\n'
+    expect(raw.length).toBeGreaterThan(100 * 1024)
+    backend.run = vi.fn(async () => {
+      clock += 153_326
+      return { stdout: raw, stderr: '', exitCode: 0 }
+    })
+
+    const result = (await exec.execute({
+      // No pipe: a Playwright run behind one is backgrounded by this tool, and this is the
+      // foreground path whose returned stdout the size cap shortens.
+      command:
+        'TEST_MODE=fullstack npx --prefix /workspace/my-app/app playwright test --config ' +
+        'playwright.run.config.ts --reporter=line',
+    })) as {
+      status?: string
+      exitCode?: number | null
+      cutRun?: { ran?: number | null; total?: number | null }
+      stdout?: string
+    }
+    now.mockRestore()
+    expect(result.status).toBe(CUT_AT_BUDGET)
+    expect(result.exitCode).toBeNull()
+    expect(result.cutRun).toMatchObject({ ran: 38, total: 139 })
+    // The returned stdout is still the capped copy — which is exactly why detection cannot read it.
+    expect(result.stdout).not.toContain('Running 139 tests')
   })
 
   it('answers the tool-budget stop with the state and 124', async () => {
@@ -313,6 +506,6 @@ describe('exec_command reports the stopped run', () => {
     now.mockRestore()
     expect(result.status).toBe(CUT_AT_BUDGET)
     expect(result.exitCode).toBeNull()
-    expect(result.note).toContain('This run was stopped after 280s')
+    expect(result.note).toContain('Ran 4 files in 280 s and was stopped by')
   })
 })
