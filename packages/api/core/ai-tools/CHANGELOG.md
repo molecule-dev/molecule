@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.9.6
+
+### Patch Changes
+
+- 0a6965a: A composed "re-run just these" Playwright command now drops every bare spec-file argument, so it runs only the failing tests.
+
 ## 1.9.5
 
 ### Patch Changes

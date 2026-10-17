@@ -1,5 +1,11 @@
 # @molecule/app-fonts
 
+## 1.2.1
+
+### Patch Changes
+
+- 30cfbeb: Document the 20 bundled font families — including `source-sans-3` serving the "Source Sans Pro" family — and say to wire a bond instead of npm-installing a webfont package.
+
 ## 1.2.0
 
 ### Minor Changes

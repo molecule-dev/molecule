@@ -1,5 +1,11 @@
 # @molecule/app-auth
 
+## 1.4.0
+
+### Minor Changes
+
+- ec3aaaa: Add `AuthState.status` and `AuthClient.validateSession()` for a restored session the server has not yet confirmed, and `tokenKey` to store the access token under another tool's exact key.
+
 ## 1.3.2
 
 ### Patch Changes
