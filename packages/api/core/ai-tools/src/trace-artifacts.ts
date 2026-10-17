@@ -887,7 +887,7 @@ export function failureTraceNote(
         (transport.error === 'net::ERR_CONTENT_DECODING_FAILED'
           ? 'A body whose gzip `content-encoding` no longer matches its bytes does this; a ' +
             '`vite preview` over a build must be started with ' +
-            '`MOL_E2E_PREVIEW_PLUGIN=0 npx vite preview --port 4173 --strictPort`. '
+            '`MOL_E2E_PREVIEW_PLUGIN=0 npx vite preview --host 127.0.0.1 --port 4173 --strictPort`. '
           : '') +
         'Fix the server before the app.\n\n'
   return (

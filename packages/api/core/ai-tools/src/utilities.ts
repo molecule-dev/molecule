@@ -2933,7 +2933,7 @@ export function failureCausesNote(
       (networkError === 'net::ERR_CONTENT_DECODING_FAILED'
         ? ': a body whose gzip `content-encoding` no longer matches its bytes does this, and a ' +
           '`vite preview` over a build must be started with ' +
-          '`MOL_E2E_PREVIEW_PLUGIN=0 npx vite preview --port 4173 --strictPort`'
+          '`MOL_E2E_PREVIEW_PLUGIN=0 npx vite preview --host 127.0.0.1 --port 4173 --strictPort`'
         : ' (what the run hit, and why it refused the connection)') +
       (rerun ? `. Then send exactly this: \`${rerun}\`` : '') +
       (locations.length > 0 ? `. Failing tests: ${locations.join(', ')}.` : '')

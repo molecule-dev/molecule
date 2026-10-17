@@ -3814,7 +3814,9 @@ describe('wait_for_task on a suite repeating one failure', () => {
       expect(r.note).toContain('nothing may run against this app while the run walks')
       expect(r.note).toContain('Send this once the run ends:')
       // …and it names the exact command, composed from the run's own invocation in the directory
-      // it was started in, narrowed to the test the log named.
+      // it was started in, narrowed to the test the log named — the location resolved against
+      // that directory, since Playwright matches file arguments against absolute paths and the
+      // reported `../../…` form matches nothing (m118 +16:34, m124 +18:38).
       expect(r.note).toContain('cd /workspace/.mol-scratch/e2e && BASE_URL=http://localhost:5173')
       expect(r.note).toContain(
         'playwright test /workspace/fixtures/realworld/specs/e2e/articles.spec.ts:32',

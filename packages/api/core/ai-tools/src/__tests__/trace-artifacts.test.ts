@@ -515,7 +515,9 @@ describe('failureTraceNote — a page that never loaded (xr-molecule-flash-m118)
     ).toBe(true)
     expect(note).toContain('net::ERR_CONTENT_DECODING_FAILED')
     expect(note).toContain('http://localhost:4173/')
-    expect(note).toContain('MOL_E2E_PREVIEW_PLUGIN=0 npx vite preview --port 4173 --strictPort')
+    expect(note).toContain(
+      'MOL_E2E_PREVIEW_PLUGIN=0 npx vite preview --host 127.0.0.1 --port 4173 --strictPort',
+    )
   })
 
   it('reads the error from the console when the request carried no failure text', () => {

@@ -1306,13 +1306,15 @@ describe('repeatingFailure', () => {
     expect(note).toContain('nothing may run against this app while the run walks')
     expect(note).toContain('a second run against the same app and database is refused')
     expect(note).toContain('run it alone once the run has ended')
-    // …and for AFTER the run, the exact re-run: the log's own `file:line`, the run's own
-    // invocation, and the directory it started in, so the path resolves against the suite it was
-    // printed from rather than against whatever directory the next command starts in.
+    // …and for AFTER the run, the exact re-run: the log's own `file:line`, resolved against the
+    // directory the run started in (Playwright matches file arguments against absolute paths, so
+    // the reporter's `../../…` form would list no tests at all — m118 +16:34, m124 +18:38), the
+    // run's own invocation, and that directory as the `cd`.
     expect(note).toContain('Send this once the run ends:')
     expect(note).toContain(
       '\n  cd /workspace/.mol-scratch/e2e && TEST_MODE=fullstack BASE_URL=http://localhost:5173 ' +
-        'npx --no-install playwright test /workspace/fixtures/realworld/specs/e2e/null-fields.spec.ts:53 ' +
+        'npx --no-install playwright test ' +
+        '/workspace/fixtures/realworld/specs/e2e/null-fields.spec.ts:53 ' +
         '--retries=0 --max-failures=15 --config=playwright.config.ts --reporter=list',
     )
     // Never the whole-suite command back: that is the run the executor must not repeat (flash-m83
@@ -2183,7 +2185,9 @@ describe('failureCausesNote — a document the browser could not load (xr-molecu
     expect(note).toContain('every one is a `page.goto` that never loaded')
     expect(note).toContain('`net::ERR_CONTENT_DECODING_FAILED`')
     expect(note).toContain('none of these is the app’s code or a selector')
-    expect(note).toContain('MOL_E2E_PREVIEW_PLUGIN=0 npx vite preview --port 4173 --strictPort')
+    expect(note).toContain(
+      'MOL_E2E_PREVIEW_PLUGIN=0 npx vite preview --host 127.0.0.1 --port 4173 --strictPort',
+    )
     // The list shape would read as fourteen defects.
     expect(note).not.toContain('grouped by cause')
   })
