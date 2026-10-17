@@ -321,10 +321,38 @@ for (const one of found.slice(0, MAX_TRACES)) {
     if (sent) r.sent = sent
     if (got) r.got = got
   }
+  // The page's own actions, timed. before/after pair on the call id, and only the LIBRARY
+  // traces carry a class and a method (Frame.goto, Locator.fill); the test runner's own
+  // trace times its hooks and fixtures with class Test, which is not a page action. Read BEFORE
+  // the request buckets: whether the navigation itself finished decides whether a subresource
+  // with no response is evidence (see \`navigationOpen\` below).
+  const ended = {}
+  for (const entry of trace) {
+    if (entry && entry.type === 'after' && typeof entry.callId === 'string' && typeof entry.endTime === 'number')
+      ended[entry.callId] = entry.endTime
+  }
+  const actions = []
+  for (const entry of trace) {
+    if (!entry || entry.type !== 'before') continue
+    if (typeof entry.class !== 'string' || typeof entry.method !== 'string') continue
+    if (entry.class === 'Test' || typeof entry.startTime !== 'number') continue
+    actions.push({
+      api: entry.class + '.' + entry.method,
+      start: entry.startTime,
+      end: typeof ended[entry.callId] === 'number' ? ended[entry.callId] : null,
+    })
+  }
+  // A \`page.goto\` that has no end time: the page never finished loading. When that is the
+  // failure, a document subresource with no response is the reason — the navigation waits for
+  // its stylesheets and scripts — and it is evidence, not the aborted noise a finished
+  // navigation leaves behind (xr-molecule-flash-m135: three goto timeouts on a deployed app
+  // where one 88 KB stylesheet fetch stalled 27 s, and the trace of each held the pending CSS).
+  const navigationOpen = actions.some(function (a) { return /\\.goto$/.test(a.api) && a.end === null })
   // The page shell's own requests (a service worker probe, a manifest, a font) are not the
   // failing step's dependencies: a 404 on one, or no response at all, is not a cause and takes
   // no row (xr-molecule-flash-m125 +29:33 — "GET /sw.js; GET /fonts/ionicons.woff" sent the
-  // model to write a caching service worker into the app).
+  // model to write a caching service worker into the app). A document's OWN stylesheet or
+  // script is not shell noise: the navigation blocks on it.
   const SHELL_TYPE = { font: 1, image: 1, stylesheet: 1, script: 1, manifest: 1 }
   function shellPath(path) {
     return /^\\/(?:sw|service-worker)\\.js(?:[?#]|$)|\\/manifest\\.webmanifest(?:[?#]|$)|\\/favicon[^/]*(?:[?#]|$)|\\/fonts?\\//.test(path) ||
@@ -334,6 +362,13 @@ for (const one of found.slice(0, MAX_TRACES)) {
     if (r.type === 'document') return false
     return SHELL_TYPE[r.type] === 1 || shellPath(r.path)
   }
+  // The shell requests that stay noise even when they never finished: the PWA worker, the
+  // manifest, a favicon, a font. A pending \`/assets/*.css\` is the document's dependency.
+  function incidentalShell(r) {
+    if (r.type === 'document') return false
+    return r.type === 'font' || r.type === 'manifest' ||
+      /^\\/(?:sw|service-worker)\\.js(?:[?#]|$)|\\/manifest\\.webmanifest(?:[?#]|$)|\\/favicon[^/]*(?:[?#]|$)|\\/fonts?\\//.test(r.path)
+  }
   // A failed request: a 4xx/5xx, or no response at all WITH Playwright's error text (a refused
   // connection). No response and no text is an aborted/pending request, not a failure. A 404 on
   // the page shell is excepted, for the reason above.
@@ -341,18 +376,27 @@ for (const one of found.slice(0, MAX_TRACES)) {
     if (shellRequest(r) && r.status === 404) return false
     return r.status >= 400 || (r.status <= 0 && typeof r.failure === 'string')
   }
+  // No response and no error text at all — still in flight when the test ended.
+  function neverFinished(r) {
+    return r.status <= 0 && typeof r.failure !== 'string'
+  }
   const failing = []
   const api = []
+  const pending = []
   const rest = []
   for (let i = 0; i < requests.length; i++) {
     const r = requests[i]
     // An answered/aborted shell request is no evidence at all — do not spend a kept row on it.
-    if (shellRequest(r) && !failedRequest(r)) continue
+    // The exception is a document subresource that never finished while the navigation was
+    // still open: that IS what the timeout waited on.
+    if (shellRequest(r) && !failedRequest(r) && !(navigationOpen && neverFinished(r) && !incidentalShell(r))) continue
     if (failedRequest(r)) failing.push(i)
     else if (r.type === 'fetch' || r.type === 'xhr' || r.type === 'document') api.push(i)
+    else if (navigationOpen && neverFinished(r)) pending.push(i)
     else rest.push(i)
   }
-  const keep = failing.slice(-MAX_REQUESTS).concat(api.slice(-MAX_REQUESTS)).concat(rest.slice(-2))
+  const keep = failing.slice(-MAX_REQUESTS).concat(api.slice(-MAX_REQUESTS))
+    .concat(pending.slice(-MAX_REQUESTS)).concat(rest.slice(-2))
   const chosen = []
   const seen = new Set()
   for (const i of keep.sort(function (a, b) {
@@ -372,25 +416,6 @@ for (const one of found.slice(0, MAX_TRACES)) {
       sent: r.sent,
       got: r.got,
       type: r.type || undefined,
-    })
-  }
-  // The page's own actions, timed. before/after pair on the call id, and only the LIBRARY
-  // traces carry a class and a method (Frame.goto, Locator.fill); the test runner's own
-  // trace times its hooks and fixtures with class Test, which is not a page action.
-  const ended = {}
-  for (const entry of trace) {
-    if (entry && entry.type === 'after' && typeof entry.callId === 'string' && typeof entry.endTime === 'number')
-      ended[entry.callId] = entry.endTime
-  }
-  const actions = []
-  for (const entry of trace) {
-    if (!entry || entry.type !== 'before') continue
-    if (typeof entry.class !== 'string' || typeof entry.method !== 'string') continue
-    if (entry.class === 'Test' || typeof entry.startTime !== 'number') continue
-    actions.push({
-      api: entry.class + '.' + entry.method,
-      start: entry.startTime,
-      end: typeof ended[entry.callId] === 'number' ? ended[entry.callId] : null,
     })
   }
   const consoleErrors = []
@@ -622,6 +647,30 @@ export function unansweredRequest(request: TraceRequest): boolean {
 }
 
 /**
+ * Whether a trace recorded a DOCUMENT SUBRESOURCE that never finished: a stylesheet, script or
+ * other asset the page itself loads, with no response and no error text — still in flight when
+ * the navigation timed out.
+ *
+ * The page shell's own incidental requests (`/sw.js`, the manifest, a favicon, a font) are
+ * excepted for the reason {@link isStaticAssetRequest} documents: m125's run was sent to write a
+ * caching service worker by an aborted `/sw.js`. A pending `/assets/*.css` is different — the
+ * navigation blocks on it, so it is the reason `page.goto` ran out of time rather than one of the
+ * app's API calls (xr-molecule-flash-m135 +34:10: three deployed `page.goto` timeouts on tests that
+ * pass locally, one 88 KB stylesheet fetch measured at 27 s, and the failing tests' traces each
+ * held the never-answered CSS while the note said "the cause is in the page").
+ *
+ * @param request - One request a trace recorded.
+ * @returns True when the request is a document subresource that never finished.
+ */
+export function stalledDocumentSubresource(request: TraceRequest): boolean {
+  if (request.status > 0 || request.failure !== undefined) return false
+  if (request.type === 'document') return false
+  if (request.type === 'font' || request.type === 'manifest') return false
+  if (STATIC_ASSET_PATH.test(requestPath(request))) return false
+  return isStaticAssetRequest(request)
+}
+
+/**
  * How far a trace's last recorded step can sit after an earlier walk's failing test and still be
  * that test. The trace names the LINE of the last step it recorded (the click, the wait), while the
  * run's own summary names the test's DECLARATION line, so a row that repeats a failure sits a few
@@ -677,7 +726,9 @@ function repeatsEarlierFailure(item: TraceArtifact, earlier: readonly string[]):
  * hidden in "… and 7 more traced failures".
  *
  * A request the page shell made (m125 +29:33: `/sw.js`, a font) is not evidence about the step
- * either, answered or not.
+ * either, answered or not. The exception is a document subresource that never finished while the
+ * page's own navigation was still open: the navigation waits on it, so it is the reason the
+ * `page.goto` timed out ({@link stalledDocumentSubresource}).
  *
  * @param item - One traced failure.
  * @returns True when the trace holds a request or console error worth a row.
@@ -685,7 +736,12 @@ function repeatsEarlierFailure(item: TraceArtifact, earlier: readonly string[]):
 function traceRowEvidence(item: TraceArtifact): boolean {
   return (
     item.console.length > 0 ||
-    item.requests.some((request) => !isStaticAssetRequest(request) && !unansweredRequest(request))
+    item.requests.some(
+      (request) => !isStaticAssetRequest(request) && !unansweredRequest(request),
+    ) ||
+    // The one shape in which a subresource with no response IS the cause: the navigation it was
+    // part of never finished (see {@link stalledDocumentSubresource}).
+    (navigationNeverFinished(item) && item.requests.some(stalledDocumentSubresource))
   )
 }
 
@@ -697,6 +753,9 @@ function traceRowEvidence(item: TraceArtifact): boolean {
  */
 function traceRowTier(item: TraceArtifact, earlier: readonly string[]): number {
   if (item.requests.some(failedRequest)) return 0
+  // A navigation that never finished because its own subresource never got a response is as
+  // strong a cause as a failed request — it is the one fact the timeout was waiting on (m135).
+  if (navigationNeverFinished(item) && item.requests.some(stalledDocumentSubresource)) return 0
   if (repeatsEarlierFailure(item, earlier)) return 1
   return 2
 }
@@ -790,6 +849,13 @@ function transportFailure(items: readonly TraceArtifact[]): TransportFailure | n
  * transport error (`net::ERR_CONTENT_DECODING_FAILED` and friends) and the document it hit: nothing
  * rendered, so no row below is app evidence (xr-molecule-flash-m118 +37:09).
  *
+ * When a navigation never finished and one of the document's own subresources (a stylesheet, a
+ * script, an asset under `/assets/`) never got a response either, that request takes a row and the
+ * note says the page was waiting on it. It is not an API call, but on a `page.goto` timeout it is
+ * the only request that can explain the timeout — the deployed app was serving the page while one
+ * fetch stalled for 27 s (xr-molecule-flash-m135 +34:10). The page shell's incidental requests
+ * (`/sw.js`, the manifest, a favicon, a font) stay out, for m125's reason.
+ *
  * @param items - The traces {@link parseTraceArtifacts} read.
  * @param target - Where the run went — the deployed host, as the note names it.
  * @param earlierFailures - The failing `file:line`s earlier walks of this suite left, so a repeat
@@ -824,6 +890,16 @@ export function failureTraceNote(
   )
   // The "one of these requests failing" answer is only honest when a listed request really failed.
   const anyFailed = traced.some((item) => item.requests.some(failedRequest))
+  // The document subresources that never finished anywhere in this read — the assets a timed-out
+  // navigation was waiting on, when there is no failed request to explain the timeout.
+  const stalledAssets = [
+    ...new Set(
+      traced
+        .filter(navigationNeverFinished)
+        .flatMap((item) => item.requests.filter(stalledDocumentSubresource))
+        .map(requestLabel),
+    ),
+  ]
   const rows: string[] = []
   for (const [index, item] of traced.entries()) {
     // The page shell's own requests take no row, in any bucket: an aborted `/sw.js` would
@@ -834,12 +910,25 @@ export function failureTraceNote(
     const answered = requests.filter(
       (request) => !failedRequest(request) && !unansweredRequest(request),
     )
+    // A document subresource that never finished, on a trace whose navigation never finished:
+    // the page was waiting on it when the test's budget ran out (m135).
+    const stalled = navigationNeverFinished(item)
+      ? item.requests.filter(stalledDocumentSubresource)
+      : []
     let room = MAX_TRACE_NOTE_REQUESTS
     const parts: string[] = []
     if (failed.length > 0) {
       const shown = failed.slice(0, room)
       room -= shown.length
       parts.push(`failed: ${shown.map(requestLine).join('; ')}`)
+    }
+    if (stalled.length > 0 && room > 0) {
+      const shown = stalled.slice(0, room)
+      room -= shown.length
+      parts.push(
+        `never finished: ${shown.map(requestLabel).join('; ')} — a document subresource with no ` +
+          'response, still in flight when the navigation timed out',
+      )
     }
     if (unanswered.length > 0 && room > 0) {
       const shown = unanswered.slice(0, room)
@@ -890,8 +979,26 @@ export function failureTraceNote(
             '`MOL_E2E_PREVIEW_PLUGIN=0 npx vite preview --host 127.0.0.1 --port 4173 --strictPort`. '
           : '') +
         'Fix the server before the app.\n\n'
+  // A navigation that never finished WITH a subresource that never got a response, and no
+  // transport error: the page was waiting on the asset when the budget ran out. That is the host
+  // or the network serving that file, not the app's state — say it before any app-side reading
+  // (xr-molecule-flash-m135 +34:10: three deployed goto timeouts on tests passing locally in
+  // 1.2-5.6 s, one 88 KB stylesheet fetch measured at 27 s, and the note said "the cause is in
+  // the page").
+  const stalledLead =
+    transport !== null || stalledAssets.length === 0
+      ? ''
+      : `Every failure this run traced is a \`page.goto\` that never finished, and the document's ` +
+        `own ${stalledAssets.length === 1 ? 'subresource' : 'subresources'} ${stalledAssets.join(', ')} ` +
+        `never got a response — the navigation was waiting on ${stalledAssets.length === 1 ? 'it' : 'them'} ` +
+        `when the test's budget ran out. That is the host or the network serving the asset, not the ` +
+        `app's state or a selector: re-run the same tests once, unchanged, against ${target} before ` +
+        `editing anything, and if the stall repeats measure that exact fetch ` +
+        `(\`curl -o /dev/null -w '%{time_starttransfer} %{time_total}' <url>\`) before treating it as ` +
+        `the app's.\n\n`
   return (
     transportLead +
+    stalledLead +
     `The platform read the failing tests' own Playwright traces from the run against ${target} ` +
     `(what each page sent and got: the requests that failed, the ones that got no response, and ` +
     `its last answered ones):\n` +
@@ -900,8 +1007,13 @@ export function failureTraceNote(
       ? 'A click that changed nothing is usually one of these requests failing, not the selector: ' +
         'read the handler this route reaches in your own source, and stop `catch`-ing the request of a ' +
         'user action silently — log it.'
-      : 'No listed request failed — none got a 4xx/5xx or a network error — so the cause is in the ' +
-        'page, not the API: read the state the failing test waited on.') +
+      : stalledAssets.length > 0
+        ? 'No listed request failed — none got a 4xx/5xx or a network error — but the document did ' +
+          'not finish loading because its own subresource never answered. Do not read this as a ' +
+          'page-state bug: re-run these tests against the same URL first, and change the app only ' +
+          'if the same navigation times out again with no stalled asset in the trace.'
+        : 'No listed request failed — none got a 4xx/5xx or a network error — so the cause is in the ' +
+          'page, not the API: read the state the failing test waited on.') +
     (wrapped
       ? ' The API received a body wrapped in `data`: app-http’s `post(url, data, config)` / ' +
         '`put(url, data, config)` / `patch(url, data, config)` take the body as their SECOND ' +

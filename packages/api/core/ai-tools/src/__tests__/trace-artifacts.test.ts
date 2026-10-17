@@ -1024,3 +1024,156 @@ describe('diagnosisTraceCommand — the rewritten command a real shell runs', ()
     }
   })
 })
+
+/**
+ * A stored-method (uncompressed) zip built in memory.
+ *
+ * The reader only needs a central directory and entries it can slice (`zipEntries`/`zipData` in
+ * {@link traceArtifactsScript}), so a synthetic `trace.zip` is enough to cover the shape below —
+ * and building one by hand keeps the test independent of a browser run that would have to stall
+ * a real stylesheet for 27 seconds to produce it.
+ */
+function storedZip(entries: Record<string, string>): Buffer {
+  const locals: Buffer[] = []
+  const centrals: Buffer[] = []
+  let offset = 0
+  for (const [name, text] of Object.entries(entries)) {
+    const nameBytes = Buffer.from(name, 'utf8')
+    const data = Buffer.from(text, 'utf8')
+    const local = Buffer.alloc(30)
+    local.writeUInt32LE(0x04034b50, 0)
+    local.writeUInt16LE(20, 4)
+    local.writeUInt16LE(0, 8) // stored
+    local.writeUInt32LE(data.length, 18)
+    local.writeUInt32LE(data.length, 22)
+    local.writeUInt16LE(nameBytes.length, 26)
+    const central = Buffer.alloc(46)
+    central.writeUInt32LE(0x02014b50, 0)
+    central.writeUInt16LE(20, 4)
+    central.writeUInt16LE(20, 6)
+    central.writeUInt16LE(0, 10) // stored
+    central.writeUInt32LE(data.length, 20)
+    central.writeUInt32LE(data.length, 24)
+    central.writeUInt16LE(nameBytes.length, 28)
+    central.writeUInt32LE(offset, 42)
+    locals.push(local, nameBytes, data)
+    centrals.push(central, nameBytes)
+    offset += local.length + nameBytes.length + data.length
+  }
+  const centralBytes = Buffer.concat(centrals)
+  const eocd = Buffer.alloc(22)
+  eocd.writeUInt32LE(0x06054b50, 0)
+  eocd.writeUInt16LE(Object.keys(entries).length, 8)
+  eocd.writeUInt16LE(Object.keys(entries).length, 10)
+  eocd.writeUInt32LE(centralBytes.length, 12)
+  eocd.writeUInt32LE(offset, 16)
+  return Buffer.concat([...locals, centralBytes, eocd])
+}
+
+/** A trace.zip with a `page.goto` that never ended and a stylesheet that never got a response. */
+function stalledNavigationZip(options: { gotoFinished: boolean; withStylesheet: boolean }): Buffer {
+  const network = [
+    {
+      type: 'resource-snapshot',
+      snapshot: {
+        _resourceType: 'document',
+        request: { url: 'https://app.apps.mlcl.dev/jobs', method: 'GET' },
+        response: { status: 200 },
+      },
+    },
+    ...(options.withStylesheet
+      ? [
+          {
+            type: 'resource-snapshot',
+            snapshot: {
+              _resourceType: 'stylesheet',
+              request: { url: 'https://app.apps.mlcl.dev/assets/index-abc123.css', method: 'GET' },
+              // No response at all: still in flight when the test's budget ran out.
+              response: {},
+            },
+          },
+        ]
+      : []),
+    {
+      // The page shell's own probe: noise even when it never answered (m125).
+      type: 'resource-snapshot',
+      snapshot: {
+        _resourceType: 'script',
+        request: { url: 'https://app.apps.mlcl.dev/sw.js', method: 'GET' },
+        response: {},
+      },
+    },
+  ]
+  const trace: unknown[] = [
+    {
+      type: 'before',
+      class: 'Frame',
+      method: 'goto',
+      callId: 'call-1',
+      startTime: 100,
+      stack: [{ file: 'e2e/navigation.spec.ts', line: 160 }],
+    },
+  ]
+  if (options.gotoFinished) trace.push({ type: 'after', callId: 'call-1', endTime: 250 })
+  const ndjson = (rows: unknown[]): string => rows.map((row) => JSON.stringify(row)).join('\n')
+  return storedZip({ 'trace.trace': ndjson(trace), 'trace.network': ndjson(network) })
+}
+
+/** A run's directory holding one synthetic trace. */
+function stalledRun(zip: Buffer): string {
+  const root = mkdtempSync(join(tmpdir(), 'mol-traces-'))
+  const dir = join(root, 'test-results', 'navigation-should-paginate-chromium')
+  mkdirSync(dir, { recursive: true })
+  writeFileSync(join(dir, 'trace.zip'), zip)
+  return root
+}
+
+describe('traceArtifactsScript — a document subresource that never finished (m135)', () => {
+  it('keeps the pending stylesheet of a navigation that never finished, and not the service worker', () => {
+    const root = stalledRun(stalledNavigationZip({ gotoFinished: false, withStylesheet: true }))
+    try {
+      const items = parseTraceArtifacts(readTraces(root))
+      expect(items).toHaveLength(1)
+      const paths = items[0].requests.map((request) => request.path)
+      expect(paths).toContain('/assets/index-abc123.css')
+      // m125: the PWA probe stays out even when it never answered.
+      expect(paths).not.toContain('/sw.js')
+      expect(items[0].requests.find((r) => r.path.endsWith('.css'))?.status).toBe(0)
+      expect(items[0].actions.some((a) => a.api === 'Frame.goto' && a.end === null)).toBe(true)
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
+  it('names the stalled asset in the note, ahead of any page-state reading', () => {
+    const root = stalledRun(stalledNavigationZip({ gotoFinished: false, withStylesheet: true }))
+    try {
+      const items = parseTraceArtifacts(readTraces(root))
+      const note = String(failureTraceNote(items, 'https://app.apps.mlcl.dev'))
+      expect(note).toContain('never finished: GET /assets/index-abc123.css')
+      expect(note).toContain('never got a response')
+      expect(note).toContain('re-run the same tests once, unchanged')
+      // The old reading — "the cause is in the page, not the API" — must not be the conclusion.
+      expect(note).not.toContain('the cause is in the page')
+      // And the shell probe is never named.
+      expect(note).not.toContain('/sw.js')
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
+  it('treats a pending subresource as evidence only while the navigation is still open', () => {
+    const root = stalledRun(stalledNavigationZip({ gotoFinished: true, withStylesheet: true }))
+    try {
+      const items = parseTraceArtifacts(readTraces(root))
+      // The goto finished, so a request still in flight at the end is the ordinary aborted noise
+      // every finished test leaves (m112 +30:45): no stalled-asset row and no stalled-asset
+      // reading, even though the trace holds the same pending CSS.
+      const note = String(failureTraceNote(items, 'https://app.apps.mlcl.dev'))
+      expect(note).not.toContain('never finished')
+      expect(note).not.toContain('never got a response')
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+})
