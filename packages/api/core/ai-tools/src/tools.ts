@@ -2545,7 +2545,9 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
             (soFar.trim()
               ? `outputSoFar is the failure lines so far (up to ${RUNNING_FAILURE_LINES}) and then the end of ` +
                 `the log, not the whole run — \`grep -n '✘' ${log} | head -40\` lists every failure, ` +
-                `\`grep -n -A 20 '<test name>' ${log}\` reads one failure's error. `
+                `\`grep -n -A 20 '<test name>' ${log}\` reads one failure's error: this run writes ` +
+                `each failure's own report into the log as that test fails, right under its ✘ line, ` +
+                `not only in the summary at the end. `
               : `Nothing has been printed yet — \`grep -n '✘' ${log} | head -40\` lists failures as they appear. `) +
             `Meanwhile do work that leaves the code under test alone (read the failures so far, plan the fixes): editing app/src or api/src now changes the code the run is testing, and its result no longer counts.`,
         }

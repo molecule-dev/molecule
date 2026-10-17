@@ -372,6 +372,21 @@ function lastReporterFlag(step: string): ReporterFlag | null {
 const PRINTING_REPORTERS = new Set(['list', 'line', 'dot', 'basic', 'spec'])
 
 /**
+ * Playwright's switch for printing each failure's own error as that test fails, instead of only in
+ * the summary at the end: `list` reads it in its constructor (`ListReporterOptions.printFailuresInline`,
+ * `playwright/lib/reporters/list.js` — 1.63, the version the toolchain pins), and when it prints
+ * inline the end-of-run repeat is suppressed with it (`epilogue(!printFailuresInline)`), so one
+ * reporter still prints each failure exactly once.
+ *
+ * A background suite is put on `list` (see {@link streamingBackgroundCommand}) and this with it, so
+ * the log names its causes WHILE it walks. Without it the log's only failure lines are `✘` rows:
+ * X1 xr-molecule-flash-m99 (+19:27 → +21:00, 2026-10-16) was told to `grep -n -A 20 '<test name>'`
+ * the log, got nothing back through four greps, inferred causes from the spec prose instead, and
+ * edited `app/src` while the run was still walking — which voids the run.
+ */
+export const PLAYWRIGHT_FAILURES_INLINE_ENV = 'PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE'
+
+/**
  * Rewrite a command about to run in the background so its log grows while it
  * runs. Two shapes left the log empty until exit, and an empty log is what
  * `wait_for_task` reads as "stuck", so working suites were reported stuck and
@@ -395,6 +410,11 @@ const PRINTING_REPORTERS = new Set(['list', 'line', 'dot', 'basic', 'spec'])
  * the fail-fast note. A reporter set that writes a machine format to a file (`json`, `html`,
  * `junit`) is the
  * executor's own and is left exactly as it is — so is any reporter this build does not know.
+ *
+ * A run put on `list` is also given {@link PLAYWRIGHT_FAILURES_INLINE_ENV}, so each failure's own
+ * error is in the log as that test fails rather than only at the end: a suite that is still walking
+ * is exactly when the executor reads the log, and without it a running log carries `✘` rows and
+ * nothing else (xr-molecule-flash-m99 spent ~90 s on greps of one, then fixed what it guessed).
  *
  * Only the command's last step is touched, and only its reporter, and only when that step runs
  * something: `npx playwright test --list` takes two seconds and writes nothing per test, so
@@ -490,6 +510,23 @@ export function streamingBackgroundCommand(command: string): {
     changes.push(
       'Added `--reporter=list` so each test result is written to the log as it finishes ' +
         '(the config reporter may print nothing until the end).',
+    )
+  }
+  // The run's failures, in the log as they fail (see PLAYWRIGHT_FAILURES_INLINE_ENV). Only for a
+  // run that ends on `list` — a run whose only reporters are machine formats has no failure lines
+  // to make inline, and this is inert for one — and set as an `export` at the head of the whole
+  // command, never mid-command: the last step may be a wrapper (`timeout 280 npx playwright test`)
+  // or start a line of its own (a multi-line command's last line), and an assignment written in
+  // front of either would be read as the program to run.
+  const endsOnListReporter =
+    finalPlaywrightRun &&
+    (reporters === null || reporters.values.some((v) => PRINTING_REPORTERS.has(v)))
+  if (endsOnListReporter) {
+    out = `export ${PLAYWRIGHT_FAILURES_INLINE_ENV}=1; ${out}`
+    changes.push(
+      'Each failure’s own error is now written into the log as that test fails, not only in the ' +
+        'summary at the end — so a run that is still walking already says what its failures are, ' +
+        'and you need not wait for it to end to start on them.',
     )
   }
   if (finalPlaywrightRun && diagnosis && !/--retries\b/.test(lastStep)) {
@@ -1393,10 +1430,12 @@ export const RUNNING_FAILURE_LINE_RE =
  * The shell command whose stdout is the interesting part of a log that is still being written:
  * the failure lines so far (capped at {@link RUNNING_FAILURE_LINES}), then the end of the log.
  *
- * A Playwright `list` run prints one line per test as it finishes and its error blocks only at
- * the end, so the LAST bytes of a running log are its least informative part — in X1 flash-m61
- * the last 3 000 bytes of a 139-test walk were the skip list, and all 61 failures were above
- * them, which cost the run the grep it had to make anyway.
+ * A Playwright `list` run prints one line per test as it finishes, so the LAST bytes of a running
+ * log are its least informative part — in X1 flash-m61 the last 3 000 bytes of a 139-test walk
+ * were the skip list, and all 61 failures were above them, which cost the run the grep it had to
+ * make anyway. A background run also carries each failure's own error as it fails
+ * ({@link PLAYWRIGHT_FAILURES_INLINE_ENV}), and {@link RUNNING_FAILURE_LINE_RE} already matches
+ * those blocks' headers and their `Error:` lines, so this slice shows the causes too.
  *
  * @param log - The task log path.
  * @param own - A file the command redirects its own output to, if any.
@@ -1688,9 +1727,11 @@ function distinctTests(tests: FailedTest[]): FailedTest[] {
  * The cause repeating among a running suite's failures, or null.
  *
  * Playwright's `list` reporter prints one line per test as it finishes — its mark, its title
- * path and how long it ran — and defers each failure's error to the summary at the end, so
- * mid-run the only signature those lines carry is the duration. Where the log carries the
- * failure bodies (a `line` reporter's output, or a finished run's summary) the signature is the
+ * path and how long it ran — and, on a run the platform started in the background, each failure's
+ * own error with it ({@link PLAYWRIGHT_FAILURES_INLINE_ENV}); a `list` run with no error bodies in
+ * its log (an older Playwright, a log the bodies have been cut from) carries only the duration as
+ * a signature. Where the log carries the failure bodies (either inline, or in a finished run's
+ * summary) the signature is the
  * error itself — {@link failureMessage}: the error class plus the locator or the values that
  * differ — which is stronger (it needs no assumption about how long a failure should take), so
  * the message is looked for first and the duration is then left with the tests whose bodies the
@@ -1903,11 +1944,11 @@ export interface FailureCause {
  * bodies to read; X1 flash-m83 (2026-10-16) spent three deploys (6.7 minutes) each fixing a
  * single cause, two of them found by runs stopped before they walked the rest.
  *
- * The signature is the cause itself where the log carries the failures' bodies (a finished run,
- * or a `line` reporter) — {@link failureMessage}: the error class plus the locator or the values
- * that differ — and how long they took where it does not (a still-running `list` log, which is
- * why a duration group is labelled as a duration and not as a proven cause). A test the log
- * printed twice, or failed twice, is one test.
+ * The signature is the cause itself where the log carries the failures' bodies (a finished run, a
+ * background `list` run — whose failures print as they fail — or a `line` reporter) —
+ * {@link failureMessage}: the error class plus the locator or the values that differ — and how long
+ * they took where it does not, which is why a duration group is labelled as a duration and not as a
+ * proven cause. A test the log printed twice, or failed twice, is one test.
  *
  * @param log - The log of a finished or running run.
  * @returns The causes, the one with the most tests first.
@@ -1929,8 +1970,9 @@ export function failuresByCause(log: string): FailureCause[] {
     const tests = distinctTests(members)
     if (tests.length > 0) causes.push({ message, seconds: null, tests })
   }
-  // The failures with no body of their own — every failure of a still-running `list` log — are
-  // grouped by how long they took: a band is opened by its first test and takes the ones that
+  // The failures with no body of their own — a `list` log with no error blocks in it, from a run
+  // not started in the background — are grouped by how long they took: a band is opened by its
+  // first test and takes the ones that
   // then ran the same length, the same band {@link repeatingFailure} uses.
   const claimed = new Set(causes.flatMap((c) => c.tests.map(testKey)))
   const unclaimed = distinctTests(failedTests(text)).filter(

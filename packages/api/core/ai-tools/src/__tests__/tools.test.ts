@@ -15,6 +15,7 @@ import {
   runningOutputSliceCommand,
   shellQuote,
   SPLIT_WORK_ADVICE,
+  streamingBackgroundCommand,
   SUITE_OVER_BUDGET_ADVICE,
   TOOL_SCHEMAS,
 } from '../index.js'
@@ -2260,9 +2261,10 @@ describe('exec_command run_in_background', () => {
           `echo $? > /tmp/${r.taskId}.exit`,
       )} > /dev/null 2>&1 & echo $! > /tmp/${r.taskId}.pid`,
     )
-    // The command itself is still written verbatim: lowering priority is the launcher's.
+    // The command itself only carries the reporter and the inline-failure switch; lowering
+    // priority is the launcher's.
     expect((backend.writeFile as ReturnType<typeof vi.fn>).mock.calls[0][1]).toBe(
-      'npx playwright test --retries=1 --reporter=list\n',
+      'export PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE=1; npx playwright test --retries=1 --reporter=list\n',
     )
     expect(r.note).toContain('lower CPU and IO priority')
   })
@@ -2299,9 +2301,13 @@ describe('exec_command run_in_background', () => {
       run_in_background: true,
     })) as { note: string }
     const written = (backend.writeFile as ReturnType<typeof vi.fn>).mock.calls[0][1]
-    expect(written).toBe('cd e2e && npx playwright test 2>&1 --reporter=list\n')
+    expect(written).toBe(
+      'export PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE=1; cd e2e && npx playwright test 2>&1 --reporter=list\n',
+    )
     expect(r.note).toContain('Dropped the trailing `| tail -70`')
     expect(r.note).toContain('--reporter=list')
+    // The run's failures are readable while it walks (flash-m99).
+    expect(r.note).toContain('as that test fails')
   })
 
   it('switches a backgrounded run off the line reporter, which the fail-fast cannot read', async () => {
@@ -2316,7 +2322,9 @@ describe('exec_command run_in_background', () => {
       run_in_background: true,
     })) as { note: string }
     const written = (backend.writeFile as ReturnType<typeof vi.fn>).mock.calls[0][1]
-    expect(written).toBe('cd spec/run && npx playwright test --retries=0 --reporter=list\n')
+    expect(written).toBe(
+      'export PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE=1; cd spec/run && npx playwright test --retries=0 --reporter=list\n',
+    )
     expect(r.note).toContain('Switched the test reporters to `--reporter=list`')
   })
 
@@ -2600,6 +2608,98 @@ describe('wait_for_task output on a running task (flash-m61)', () => {
     expect(sliceCommand).not.toContain('| tail -c 3000')
     expect(r.note).toContain(`grep -n '✘' /tmp/${id}.log`)
     expect(r.note).not.toContain('no need to tail it')
+    // And the note says where those failures' errors are: written as each test fails (flash-m99),
+    // not only in the summary at the end.
+    expect(r.note).toContain('as that test fails')
+  })
+
+  it('hands over a recipe that reads one failure’s error out of a running log (flash-m99)', async () => {
+    // xr-molecule-flash-m99 (+19:27 → +21:00, 2026-10-16). This note told the model
+    // `grep -n -A 20 '<test name>' <log>` "reads one failure's error", and the run it was reading
+    // was a bare `--reporter=list` one — whose failures print at `onEnd`, minutes later. The model
+    // ran it four ways, got `✘` rows and nothing else, inferred the causes from the spec prose, and
+    // edited `app/src` while the run was still walking, which voids the run.
+    //
+    // The `✘` rows below are that run's own log, verbatim. The numbered block under the second row
+    // is what Playwright 1.63 writes for a failure with the inline switch the backgrounder sets on
+    // a background suite (captured from a real run of a test with the same name) — which is the
+    // whole difference between a recipe that returns the error and one that returns nothing.
+    const log = [
+      'Running 139 tests using 1 worker',
+      '',
+      '  ✓    6 [chromium] › specs/e2e/articles.spec.ts:160:7 › Articles › should show the article list (3.1s)',
+      '  ✘    7 [chromium] › specs/e2e/articles.spec.ts:182:7 › Articles › should view article from home feed (4.5s)',
+      '  ✘    9 [chromium] › specs/e2e/articles.spec.ts:229:7 › Articles › should remove all tags when editing an article (3.7s)',
+      '',
+      '  9) [chromium] › specs/e2e/articles.spec.ts:229:7 › Articles › should remove all tags when editing an article ────',
+      '',
+      '    Error: expect(locator).toHaveCount(expected) failed',
+      '',
+      "    Locator:  locator('.tag-pill')",
+      '    Expected: 2',
+      '    Received: 0',
+      '    Timeout:  5000ms',
+      '',
+      '    Call log:',
+      '      - Expect "toHaveCount" locator(\'.tag-pill\') with timeout 5000ms',
+      "      - waiting for locator('.tag-pill')",
+      '',
+      "       8 | test('should remove all tags', async ({ page }) => {",
+      "    > 10 |   await expect(page.locator('.tag-pill')).toHaveCount(2)",
+      '         |                                           ^',
+      '',
+      '    Error Context: test-results/articles-should-remove-all-tags/error-context.md',
+      '',
+      '  ✘   25 [chromium] › specs/e2e/comments.spec.ts:141:7 › Comments › should handle long comments (8.7s)',
+    ].join('\n')
+    const run = vi.fn().mockResolvedValue({ stdout: log, stderr: '', exitCode: 0 })
+    const backend: ExecutionBackend = {
+      projectRoot: '/test',
+      // No task files at all: the command is still running.
+      readFile: vi.fn(async (path: string) => {
+        throw new Error(`ENOENT: ${path}`)
+      }),
+      writeFile: vi.fn(),
+      deleteFile: vi.fn(),
+      readDir: vi.fn(),
+      run,
+    }
+    const wait = buildTools(backend).find((t) => t.name === 'wait_for_task')!
+    const note = String(
+      ((await wait.execute({ taskId: id, timeout: 30 })) as { note?: string }).note ?? '',
+    )
+    // THE LOAD-BEARING HALF: the command the platform starts a background suite with is the one
+    // whose log carries failures' errors mid-run. Without it the recipe below returns `✘` rows.
+    const m99 =
+      'cd /workspace/my-app && TEST_MODE=fullstack npx playwright test --config playwright.config.ts ' +
+      '--max-failures=15 --retries=0 --reporter=list 2>&1 | tail -140'
+    expect(streamingBackgroundCommand(m99).command).toBe(
+      'export PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE=1; cd /workspace/my-app && TEST_MODE=fullstack ' +
+        'npx playwright test --config playwright.config.ts --max-failures=15 --retries=0 ' +
+        '--reporter=list 2>&1',
+    )
+    // And the recipe the note hands over is the one that READS that log: the note's own text, run
+    // against the run's log, returns the assertion, the locator and the values.
+    const recipe = /`(grep -n -A 20 '<test name>' [^`]+)`/.exec(note)?.[1]
+    expect(recipe).toBeDefined()
+    const dir = mkdtempSync(join(tmpdir(), 'm99-midrun-'))
+    try {
+      const file = join(dir, 'mol-bg-mvblpdsm-8pxt4j.log')
+      writeFileSync(file, `${log}\n`)
+      // Exactly what the note asks the executor to do: name one failed test and read its error.
+      const command = recipe!
+        .replace(`/tmp/${id}.log`, file)
+        .replace('<test name>', 'should remove all tags when editing an article')
+      const r = spawnSync('sh', ['-c', command], { encoding: 'utf8' })
+      expect(r.status).toBe(0)
+      expect(r.stdout).toContain('Error: expect(locator).toHaveCount(expected) failed')
+      expect(r.stdout).toContain('Received: 0')
+      expect(r.stdout).toContain("Locator:  locator('.tag-pill')")
+      // A test that PASSED carries no block under its row: the read stays about the failure named.
+      expect(r.stdout).not.toContain('should show the article list')
+    } finally {
+      rmSync(dir, { recursive: true, force: true })
+    }
   })
 })
 

@@ -540,6 +540,17 @@ describe('isValidGlob — scoped packages', () => {
 })
 
 describe('streamingBackgroundCommand', () => {
+  /**
+   * The head the rewrite puts on every background suite run: the `list` reporter prints each
+   * failure's own error as that test fails when Playwright's inline switch is set (flash-m99).
+   */
+  const INLINE_HEAD = 'export PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE=1; '
+  /** The sentence that head is announced with. */
+  const INLINE_CHANGE =
+    'Each failure’s own error is now written into the log as that test fails, not only in the ' +
+    'summary at the end — so a run that is still walking already says what its failures are, ' +
+    'and you need not wait for it to end to start on them.'
+
   it('drops a trailing tail, in both of its spellings', () => {
     expect(streamingBackgroundCommand('npm run build 2>&1 | tail -40').command).toBe(
       'npm run build 2>&1',
@@ -549,7 +560,7 @@ describe('streamingBackgroundCommand', () => {
 
   it('drops a trailing head from a Playwright run, whose tally prints last (flash-m32)', () => {
     expect(streamingBackgroundCommand('npx playwright test 2>&1 | head -60').command).toBe(
-      'npx playwright test 2>&1 --reporter=list',
+      `${INLINE_HEAD}npx playwright test 2>&1 --reporter=list`,
     )
     expect(streamingBackgroundCommand('cat big.log | head -60').changes).toEqual([])
   })
@@ -567,14 +578,20 @@ describe('streamingBackgroundCommand', () => {
     //
     // ONE reporter, iterating or not: a second one writes every result into the log twice
     // (flash-m83 — see the test below).
-    expect(
-      streamingBackgroundCommand('cd e2e && npx playwright test specs/auth.spec.ts').command,
-    ).toBe('cd e2e && npx playwright test specs/auth.spec.ts --reporter=list --retries=0')
+    expect(streamingBackgroundCommand('cd e2e && npx playwright test specs/auth.spec.ts')).toEqual({
+      command: `${INLINE_HEAD}cd e2e && npx playwright test specs/auth.spec.ts --reporter=list --retries=0`,
+      changes: [
+        'Added `--reporter=list` so each test result is written to the log as it finishes ' +
+          '(the config reporter may print nothing until the end).',
+        INLINE_CHANGE,
+        'Added `--retries=0`: a diagnosis or re-run walks each failure once; keep the suite’s retries for the proof run.',
+      ],
+    })
   })
 
   it('runs a diagnosis or re-run with --retries=0, and leaves the proof run alone (flash-m71)', () => {
     expect(streamingBackgroundCommand('npx playwright test --max-failures=15').command).toBe(
-      'npx playwright test --max-failures=15 --reporter=list --retries=0',
+      `${INLINE_HEAD}npx playwright test --max-failures=15 --reporter=list --retries=0`,
     )
     expect(streamingBackgroundCommand('npx playwright test --last-failed').command).toContain(
       '--retries=0',
@@ -603,8 +620,12 @@ describe('streamingBackgroundCommand', () => {
       'cd /workspace/.mol-scratch/e2e && TEST_MODE=fullstack ' +
       'BASE_URL=https://loopcheck-xr-molecule-flash-m89.apps.mlcl.dev npx --no-install ' +
       'playwright test --config=playwright.config.ts --reporter=list --workers=1 --max-failures=0'
-    // Already the shape the platform reads back (one `list` reporter), so nothing is rewritten.
-    expect(streamingBackgroundCommand(proof)).toEqual({ command: proof, changes: [] })
+    // Already the shape the platform reads back (one `list` reporter): the reporter is not
+    // rewritten, and the run is still put on the inline-failure switch (flash-m99).
+    expect(streamingBackgroundCommand(proof)).toEqual({
+      command: `${INLINE_HEAD}${proof}`,
+      changes: [INLINE_CHANGE],
+    })
     // The space spelling is the same flag to Playwright, and neither is a cap.
     expect(
       streamingBackgroundCommand('npx playwright test --max-failures 0').command,
@@ -627,20 +648,21 @@ describe('streamingBackgroundCommand', () => {
     expect(
       streamingBackgroundCommand('cd spec/run && npx playwright test --reporter=line'),
     ).toEqual({
-      command: 'cd spec/run && npx playwright test --reporter=list',
+      command: `${INLINE_HEAD}cd spec/run && npx playwright test --reporter=list`,
       changes: [
         'Switched the test reporters to `--reporter=list`: `list` writes each test result as it ' +
           'finishes and is the shape the platform reads back from a background run, and it is the ' +
           'only printing reporter — two of them write every result into the log twice (X1 flash-m83).',
+        INLINE_CHANGE,
       ],
     })
     // `dot` prints one dot per test and nothing a note can read, so it is put on `list` too.
     expect(streamingBackgroundCommand('npx playwright test --reporter=dot').command).toBe(
-      'npx playwright test --reporter=list',
+      `${INLINE_HEAD}npx playwright test --reporter=list`,
     )
     // The space spelling is the same flag to Playwright, and only the last step is rewritten.
     expect(streamingBackgroundCommand('cd e2e; npx playwright test --reporter line').command).toBe(
-      'cd e2e; npx playwright test --reporter list',
+      `${INLINE_HEAD}cd e2e; npx playwright test --reporter list`,
     )
     expect(
       streamingBackgroundCommand('npx playwright test --reporter line && echo done').command,
@@ -655,27 +677,67 @@ describe('streamingBackgroundCommand', () => {
       'TEST_MODE=fullstack npx playwright test --config=e2e-realworld.config.ts ' +
       '--max-failures=15 --reporter=list,line --retries=0'
     const { command, changes } = streamingBackgroundCommand(run)
-    expect(command).toBe(run.replace('--reporter=list,line', '--reporter=list'))
+    expect(command).toBe(`${INLINE_HEAD}${run.replace('--reporter=list,line', '--reporter=list')}`)
     expect(changes).toEqual([
       'Dropped `line` from your `--reporter=list,line`: two reporters that both print each failure ' +
         'write every test result into the log twice — the whole log doubled for nothing (X1 ' +
         'flash-m83) — so this run keeps `list` alone.',
+      INLINE_CHANGE,
     ])
+    // The inline switch belongs to `list` alone: it is not set when the only reporters are machine
+    // formats, which write no per-test line at all.
+    expect(
+      streamingBackgroundCommand('npx playwright test --reporter=json --reporter=list').command,
+    ).toBe(`${INLINE_HEAD}npx playwright test --reporter=json --reporter=list`)
     // A file the executor asked for is theirs and stays: only the printers are collapsed.
     expect(streamingBackgroundCommand('npx playwright test --reporter=html,line').command).toBe(
-      'npx playwright test --reporter=html,list',
+      `${INLINE_HEAD}npx playwright test --reporter=html,list`,
     )
     expect(streamingBackgroundCommand('npx playwright test --reporter=html,line,dot').command).toBe(
-      'npx playwright test --reporter=html,list',
+      `${INLINE_HEAD}npx playwright test --reporter=html,list`,
     )
   })
 
+  it('puts a background suite on the reporter that prints each failure as it fails (flash-m99)', () => {
+    // xr-molecule-flash-m99 (+19:27 → +21:00, 2026-10-16): the wait note handed the model
+    // `grep -n -A 20 '<test name>' <log>` to read one failure's error, and under a bare `list` run
+    // that grep returns only the `✘` row — the errors print at `onEnd`, minutes later. Four greps
+    // returned nothing, the model inferred causes from the spec prose and edited `app/src` while
+    // the run was still walking, which voids the run. `list` prints each failure as it fails when
+    // Playwright's inline switch is set, so the background run is put on it.
+    const { command, changes } = streamingBackgroundCommand('npx playwright test')
+    expect(command).toBe(`${INLINE_HEAD}npx playwright test --reporter=list`)
+    expect(changes).toEqual([
+      'Added `--reporter=list` so each test result is written to the log as it finishes ' +
+        '(the config reporter may print nothing until the end).',
+      INLINE_CHANGE,
+    ])
+    // The head is an `export` at the start of the WHOLE command, never written in front of the
+    // last step: `timeout 280 npx playwright test` and a multi-line command whose last line is the
+    // run would both read the assignment as the program to run.
+    expect(streamingBackgroundCommand('timeout 280 npx playwright test').command).toBe(
+      `${INLINE_HEAD}timeout 280 npx playwright test --reporter=list`,
+    )
+    const multi = 'cd /workspace/my-app\nnpx playwright test'
+    expect(streamingBackgroundCommand(multi).command).toBe(
+      `export PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE=1; ${multi} --reporter=list`,
+    )
+    // Still exactly ONE reporter printing each failure — the inline switch is a switch on that one
+    // reporter, never a second reporter beside it (flash-m83).
+    expect(command.match(/--reporter/g)).toHaveLength(1)
+  })
+
   it('leaves playwright alone when it picks a reporter, redirects, or is not the last step', () => {
+    // `--reporter=list` is the shape the platform reads back: its reporter is left exactly as the
+    // executor spelled it, and only the inline switch is set on it (flash-m99).
+    expect(streamingBackgroundCommand('npx playwright test --reporter=list')).toEqual({
+      command: `${INLINE_HEAD}npx playwright test --reporter=list`,
+      changes: [INLINE_CHANGE],
+    })
     for (const command of [
-      'npx playwright test --reporter=list',
       'npx playwright test --reporter=html',
       // A machine format written to a file is the executor's own business: no printer of the
-      // platform's is added beside it.
+      // platform's is added beside it, and there is no per-test failure line to make inline.
       'npx playwright test --reporter=json',
       'npx playwright test --reporter=junit,html',
       'npx playwright test > log.txt',
@@ -708,10 +770,11 @@ describe('streamingBackgroundCommand', () => {
     // A run in the same command is still a run.
     expect(streamingBackgroundCommand('npx playwright test --list && npx playwright test')).toEqual(
       {
-        command: 'npx playwright test --list && npx playwright test --reporter=list',
+        command: `${INLINE_HEAD}npx playwright test --list && npx playwright test --reporter=list`,
         changes: [
           'Added `--reporter=list` so each test result is written to the log as it finishes ' +
             '(the config reporter may print nothing until the end).',
+          INLINE_CHANGE,
         ],
       },
     )
@@ -726,14 +789,12 @@ describe('streamingBackgroundCommand', () => {
     expect(
       streamingBackgroundCommand('npx playwright test --max-failures=15 --reporter=list'),
     ).toEqual({
-      command: 'npx playwright test --max-failures=15 --reporter=list --retries=0',
+      command: `${INLINE_HEAD}npx playwright test --max-failures=15 --reporter=list --retries=0`,
       changes: [
+        INLINE_CHANGE,
         'Added `--retries=0`: a diagnosis or re-run walks each failure once; keep the suite’s retries for the proof run.',
       ],
     })
-    expect(streamingBackgroundCommand('npx playwright test --reporter=list').command).toBe(
-      'npx playwright test --reporter=list',
-    )
   })
 })
 
@@ -884,6 +945,72 @@ describe('repeatingFailure', () => {
       'TimeoutError: page.waitForURL: Timeout <n> exceeded. — waiting for navigation to "/" until "load"',
     )
     expect(found!.tests[0].where).toBe('../../fixtures/realworld/specs/e2e/auth.spec.ts:1')
+  })
+
+  it('reads a background run’s inline failures: one reporter, each error under its own ✘ row (flash-m99)', () => {
+    // The shape a background suite's log has since 2026-10-16: ONE reporter (`list`), each failure
+    // printed as it fails — the numbered block with its error, locator and values right under that
+    // test's `✘` row — so the run names its causes while it walks. The block below is what Playwright
+    // 1.63 writes with the inline switch on (captured from a real run of this test name).
+    const row = (
+      mark: string,
+      n: number,
+      file: string,
+      line: number,
+      title: string,
+      s: string,
+    ): string =>
+      `  ${mark}  ${String(n).padStart(3)} [chromium] › specs/e2e/${file}:${line}:7 › Articles › ${title} (${s})`
+    const block = (n: number, file: string, line: number, title: string): string =>
+      [
+        `  ${n}) [chromium] › specs/e2e/${file}:${line}:7 › Articles › ${title} ─────────────────────────`,
+        '',
+        '    Error: expect(locator).toHaveCount(expected) failed',
+        '',
+        "    Locator:  locator('.tag-pill')",
+        '    Expected: 2',
+        '    Received: 0',
+        '    Timeout:  5000ms',
+        '',
+        '    Call log:',
+        '      - Expect "toHaveCount" locator(\'.tag-pill\') with timeout 5000ms',
+        "      - waiting for locator('.tag-pill')",
+        '',
+        '    Error Context: test-results/articles/error-context.md',
+      ].join('\n')
+    const log = [
+      'Running 139 tests using 1 worker',
+      '',
+      row(
+        '✘',
+        9,
+        'articles.spec.ts',
+        229,
+        'should remove all tags when editing an article',
+        '3.7s',
+      ),
+      block(1, 'articles.spec.ts', 229, 'should remove all tags when editing an article'),
+      '',
+      row('✓', 10, 'articles.spec.ts', 260, 'should show the article list', '2.1s'),
+      row('✘', 11, 'articles.spec.ts', 301, 'should keep tags on reload', '3.6s'),
+      block(2, 'articles.spec.ts', 301, 'should keep tags on reload'),
+      '',
+      row('✘', 12, 'comments.spec.ts', 141, 'should tag a comment', '3.8s'),
+      block(3, 'comments.spec.ts', 141, 'should tag a comment'),
+    ].join('\n')
+    const found = repeatingFailure(log)
+    expect(found!.count).toBe(3)
+    // The cause is the assertion and its locator — not a duration group, which is all a `list` log
+    // with no bodies could offer.
+    expect(found!.message).toBe(
+      "Error: expect(locator).toHaveCount(expected) failed — waiting for locator('.tag-pill')",
+    )
+    expect(found!.seconds).toBeNull()
+    expect(found!.tests.map((t) => t.where)).toEqual([
+      'specs/e2e/articles.spec.ts:229',
+      'specs/e2e/articles.spec.ts:301',
+      'specs/e2e/comments.spec.ts:141',
+    ])
   })
 
   /** One failure of the m84 runs, as those logs wrote it. */
