@@ -27,7 +27,7 @@
  * @module
  */
 
-import { commandSegments } from './command-position.js'
+import { locatedCommandSegments } from './command-position.js'
 import { isDiagnosisRun } from './suite-overlap.js'
 import { isPlaywrightRunCommand } from './utilities.js'
 
@@ -422,29 +422,33 @@ function namesTraceMode(command: string): boolean {
  * shell parse can place.
  *
  * The flag has to land INSIDE the Playwright step, not at the end of the whole command: a run
- * Flash sends almost every time ends `… 2>&1 | tail -60` or `… > log 2>&1; echo "exit=$?";
- * grep -c "" log`, and a flag appended after those is an operand of `tail`/`grep` — GNU `tail`
- * refuses it outright (`tail: option used in invalid context -- 6`) and Playwright never sees it
+ * Flash sends almost every time ends `… 2>&1 | tail -60` or `… > log 2>&1; echo "exit=$?"; grep -c
+ * "" log`, and a flag appended after those is an operand of `tail`/`grep` — GNU `tail` refuses it
+ * outright (`tail: option used in invalid context -- 6`) and Playwright never sees it
  * (xr-molecule-flash-m102 +07:40 → +07:53).
  *
- * The step is found by the package's own shell parse ({@link commandSegments}), the one every
- * runner classifier reads: it answers which SEGMENT runs `playwright test` in command position,
- * so a `playwright test` named in an argument (`grep -n "playwright test" e2e/README.md`) is not
- * a run and is left alone. Each segment's text is its program and arguments re-joined with single
- * spaces, so its offset in the command is found by locating that text, walking the segments in
- * order. A segment whose text cannot be located verbatim (irregular whitespace) ends the walk —
- * null, and the caller adds nothing rather than splicing into a guess.
+ * The step is found by the package's own shell parse ({@link locatedCommandSegments}), the one
+ * every runner classifier reads: it answers which STATEMENT runs `playwright test` in command
+ * position, and where that statement's program word sits in the command. The offset is the parse's
+ * own token position, never a search for the re-joined text — that text drops grouping braces and
+ * single-space-joins the words, so a command carrying a heredoc body or a `"quoted"` program found
+ * nothing at all and the flag was not added.
  *
  * @param command - The shell command.
  * @returns The offset just after `test`, or null.
  */
 function playwrightTestWordEnd(command: string): number | null {
-  let cursor = 0
-  for (const segment of commandSegments(command)) {
-    const at = command.indexOf(segment.text, cursor)
-    if (at < 0) return null
-    cursor = at + segment.text.length
-    if (/^playwright\s+test\b/.test(segment.text)) return at + 'playwright test'.length
+  for (const located of locatedCommandSegments(command)) {
+    const segment = located.segment
+    if (!segment || located.programOffset === null) continue
+    if (!/^playwright\s+test\b/.test(segment.text)) continue
+    // `playwright` and `test` are the statement's own first two words; the flag follows `test`.
+    const words = new RegExp(/\S+/.source, 'g')
+    words.lastIndex = located.programOffset
+    const program = words.exec(command)
+    if (!program) continue
+    const second = words.exec(command)
+    return second ? second.index + second[0].length : null
   }
   return null
 }

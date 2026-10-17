@@ -324,5 +324,65 @@ describe('locatedCommandSegments — where an assignment for the RUNNER belongs 
     const located = locatedCommandSegments(`sh -c 'cd app && npx playwright test'`)
     expect(located.map((entry) => entry.segment?.program)).toEqual(['cd', 'playwright'])
     expect(located.map((entry) => entry.assignmentOffset)).toEqual([null, null])
+    expect(located.map((entry) => entry.start)).toEqual([null, null])
+    expect(located.map((entry) => entry.end)).toEqual([null, null])
+    expect(located.map((entry) => entry.programOffset)).toEqual([null, null])
+  })
+})
+
+/**
+ * X1 xr-molecule-flash-m105 (+08:12): a heredoc body read as shell. Its first line,
+ * `import { defineConfig, devices } from '@playwright/test'`, joins back as
+ * `import defineConfig, devices from '@playwright/test'` (grouping braces dropped), so locating a
+ * statement by searching for that re-joined text found nothing — in a command whose real
+ * statements sat at known offsets all along.
+ */
+describe('locatedCommandSegments — a heredoc body is data, not statements (m105)', () => {
+  const M105 = `cat > /workspace/.mol-scratch/realworld-e2e/playwright.config.ts <<'EOF'
+import { defineConfig, devices } from '@playwright/test'
+import { baseConfig } from './playwright.base'
+
+export default defineConfig({
+  ...baseConfig,
+  reporter: [['list']],
+})
+EOF
+cd /workspace/.mol-scratch/realworld-e2e && TEST_MODE=fullstack npx --prefix /workspace/my-app/app playwright test --config playwright.config.ts 2>&1 | tail -60`
+
+  it('reads only the command’s own statements, never a line of the body', () => {
+    expect(locatedCommandSegments(M105).map((entry) => entry.segment?.program)).toEqual([
+      'cat',
+      'cd',
+      'playwright',
+      'tail',
+    ])
+  })
+
+  it('places the run and the stage after it at their real offsets', () => {
+    const located = locatedCommandSegments(M105)
+    const run = located.find((entry) => entry.segment?.program === 'playwright')
+    const tail = located.find((entry) => entry.segment?.program === 'tail')
+    expect(run?.start).not.toBeNull()
+    // The statement begins at its own first word — the assignment the shell binds to the run.
+    expect(M105.slice(run?.start ?? 0)).toMatch(/^TEST_MODE=fullstack npx\b/)
+    expect(M105.slice(run?.assignmentOffset ?? 0)).toMatch(/^npx\b/)
+    // `end` is one past the run's own last word — where an option of the run belongs.
+    expect(M105.slice(0, run?.end ?? 0)).toMatch(/--config playwright\.config\.ts 2>&1$/)
+    // `programOffset` is the word actually in command position, after `npx` and its value flag.
+    expect(M105.slice(run?.programOffset ?? 0)).toMatch(/^playwright test\b/)
+    // The stages are one pipeline: the separator is the parse's own answer, not a text search.
+    expect(tail?.separator).toBe('|')
+    expect(M105.slice(0, tail?.start ?? 0)).toMatch(/\| $/)
+  })
+
+  it('keeps grouping braces off the words but keeps every offset exact', () => {
+    // The body's first line is the one that used to defeat the search; the real statement is
+    // written with a quoted program word, which joins back without its quotes.
+    const command = `cat > c.ts <<'EOF'\nimport { a } from 'x'\nEOF\n"npx" playwright test 2>&1`
+    const run = locatedCommandSegments(command).find(
+      (entry) => entry.segment?.program === 'playwright',
+    )
+    expect(run?.programOffset).toBe(command.indexOf('playwright test'))
+    expect(run?.end).toBe(command.length)
   })
 })

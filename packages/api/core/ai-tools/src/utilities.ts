@@ -7,7 +7,7 @@
 
 import { posix } from 'path'
 
-import { type CommandSegment, commandSegments } from './command-position.js'
+import { type CommandSegment, commandSegments, locatedCommandSegments } from './command-position.js'
 import { commandRunsNoTests } from './no-test-run.js'
 import {
   isDiagnosisRun,
@@ -484,16 +484,22 @@ export function streamingBackgroundCommand(command: string): {
   const finalPlaywrightRun =
     isPlaywrightRunCommand(lastStep) && !/>/.test(lastStep.replace(/\d?>&\d/g, ''))
   /**
-   * Add a word to the suite runner's own arguments. A pipe this rewrite could not drop still
-   * follows the runner (`| tee run.log`), so appending at the end of the whole command would make
-   * the word an operand of the filter — m102's dangling `--trace` flag, in the same shape.
+   * Add a word to the suite runner's own arguments; false when the runner could not be placed.
+   *
+   * A pipe this rewrite could not drop still follows the runner (`| tee run.log`), so appending at
+   * the end of the whole command would make the word an operand of the filter — m102's dangling
+   * `--trace` flag, in the same shape. A suite inside a nested `sh -c '<command>'` string has no
+   * offsets in this command (they are positions in THAT string), so the command is left exactly as
+   * written and the caller reports no rewrite: appending at the end would hand the flag to the
+   * shell, outside the quotes.
    */
-  const addToRun = (flag: string): void => {
+  const addToRun = (flag: string): boolean => {
     const pipeline = lastSuitePipeline(out)
     const runner = pipeline ? pipeline.located[pipeline.at] : undefined
-    out = runner
-      ? `${out.slice(0, runner.end)} ${flag}${out.slice(runner.end)}`
-      : `${out.trimEnd()} ${flag}`
+    if (runner && runner.end === null) return false
+    const at = runner?.end ?? out.trimEnd().length
+    out = `${out.slice(0, at)} ${flag}${out.slice(at)}`
+    return true
   }
   // A diagnosis or a re-run (capped, last-failed, grepped, or named files) walks each failure
   // once: the suite's own `retries` doubled every failure of X1 flash-m71's first whole run,
@@ -545,8 +551,7 @@ export function streamingBackgroundCommand(command: string): {
               'write every result into the log twice (X1 flash-m83).',
       )
     }
-  } else if (finalPlaywrightRun) {
-    addToRun('--reporter=list')
+  } else if (finalPlaywrightRun && addToRun('--reporter=list')) {
     changes.push(
       'Added `--reporter=list` so each test result is written to the log as it finishes ' +
         '(the config reporter may print nothing until the end).',
@@ -570,10 +575,10 @@ export function streamingBackgroundCommand(command: string): {
     )
   }
   if (finalPlaywrightRun && diagnosis && !/--retries\b/.test(lastStep)) {
-    addToRun('--retries=0')
-    changes.push(
-      'Added `--retries=0`: a diagnosis or re-run walks each failure once; keep the suite’s retries for the proof run.',
-    )
+    if (addToRun('--retries=0'))
+      changes.push(
+        'Added `--retries=0`: a diagnosis or re-run walks each failure once; keep the suite’s retries for the proof run.',
+      )
   }
   return { command: out, changes }
 }
@@ -671,40 +676,45 @@ const OUTPUT_REDIRECT = /^(?:\d*|&)>>?(?!&)/
 /** One segment of the shell parse, and where it sits in the command. */
 interface LocatedSegment {
   segment: CommandSegment
-  /** Offset of the segment's program word in the command. */
-  start: number
-  /** Offset one past its last word. */
-  end: number
-  /** The text between the previous segment's end and this one's start (`|`, `&&`, `;`, a newline). */
+  /** Offset of the segment's program word in the command, when the parse placed it. */
+  start: number | null
+  /** Offset one past its last word, when the parse placed it. */
+  end: number | null
+  /**
+   * The separator the shell split at just before this segment (`|`, `&&`, `;`, a newline), as the
+   * parse read it. Known even for a segment whose offsets are not ({@link LocatedSegment.start}).
+   */
   between: string
 }
 
 /**
- * The shell parse's segments with their offsets in the command, or null when one cannot be placed.
+ * The shell parse's segments with their offsets in the command.
  *
- * {@link commandSegments} answers which program each stage runs, but re-joins the words with single
- * spaces — so a segment written with irregular whitespace, or a program spelled with a directory,
- * has no offset a caller can cut at. Null is the honest answer there: every caller then leaves the
- * command exactly as written rather than cutting into a guess.
+ * {@link commandSegments} answers which program each stage runs; this answers where it is. The
+ * offsets come from the parse's own token positions ({@link locatedCommandSegments}), never from
+ * searching the command for the re-joined text: the words are joined back with single spaces for
+ * matching, so `command.indexOf(segment.text)` comes up empty on irregular spacing, on a grouping
+ * brace, or on anything a heredoc body shifts — and the caller then cut at a guess or refused to
+ * cut at all (xr-molecule-flash-m105 +08:12, where a heredoc body turned a finished run into
+ * "piped" for the rest of the session).
+ *
+ * A statement inside a nested `sh -c '<command>'` string is listed with null offsets: its
+ * positions are positions in THAT string, so nothing may be spliced at them — but its separator
+ * is known, which is all a pipeline question needs.
  *
  * @param command - The shell command.
- * @returns The located segments, in order, or null.
+ * @returns The located segments, in order.
  */
-function locatedSegments(command: string): LocatedSegment[] | null {
+function locatedSegments(command: string): LocatedSegment[] {
   const out: LocatedSegment[] = []
-  let cursor = 0
-  let previousEnd: number | null = null
-  for (const segment of commandSegments(command)) {
-    const at = command.indexOf(segment.text, cursor)
-    if (at < 0) return null
+  for (const located of locatedCommandSegments(command)) {
+    if (located.segment === null) continue
     out.push({
-      segment,
-      start: at,
-      end: at + segment.text.length,
-      between: previousEnd === null ? '' : command.slice(previousEnd, at),
+      segment: located.segment,
+      start: located.start,
+      end: located.end,
+      between: located.separator,
     })
-    cursor = at + segment.text.length
-    previousEnd = cursor
   }
   return out
 }
@@ -748,7 +758,6 @@ function isOutputOnlyFilter(segment: CommandSegment): boolean {
 function lastSuitePipeline(command: string): { located: LocatedSegment[]; at: number } | null {
   if (commandRunsNoTests(command)) return null
   const located = locatedSegments(command)
-  if (located === null) return null
   let at = -1
   for (let i = 0; i < located.length; i += 1) {
     const segment = located[i]?.segment
@@ -800,10 +809,63 @@ export function stripTrailingSuiteFilters(command: string): SuiteFilterStrip {
   const previous = located[first - 1]
   const stage = located[first]
   if (!previous || !stage) return { command, dropped: '' }
+  // A stage inside a nested `sh -c` string has no offsets in this command: nothing can be cut.
+  if (previous.end === null || stage.start === null) return { command, dropped: '' }
   const pipe = stage.between.indexOf('|')
   if (pipe < 0) return { command, dropped: '' }
   const cut = previous.end + pipe
   return { command: command.slice(0, cut).trimEnd(), dropped: command.slice(cut).trim() }
+}
+
+/** Whether a finished run's exit code belongs to a stage after the suite runner. */
+export interface SuiteRunPipelinePlacement {
+  /**
+   * True when a pipe this tool must not drop still follows the suite runner: the code in the
+   * result is that stage's, not the run's.
+   */
+  piped: boolean
+  /**
+   * True when the suite (or a stage of its pipeline) sits inside a nested `sh -c '<command>'`
+   * string, so the parse cannot place it in the command's own text. The caller then says so
+   * plainly instead of implying a stage it can point at — and keeps the command's own code when
+   * no pipe follows the runner, because on that command the pipeline's last stage IS the run.
+   */
+  unplaced: boolean
+}
+
+/**
+ * Where the suite runner's exit code comes from: the runner itself, or a stage piped after it.
+ *
+ * {@link suiteRunPipedAfterRunner}'s one question, with the honest third answer kept apart. The
+ * code a finished run reports is its LAST pipeline stage's, so a stage after the runner makes the
+ * code the stage's — but only when such a stage EXISTS. The platform used to report "piped" for
+ * any run whose statements it could not place in the text, which one heredoc body was enough to
+ * cause: on X1 xr-molecule-flash-m105 (+08:12) a config written in the same `exec_command` made
+ * the run come back with no exit code at all, and the note under it claimed a stage after the
+ * runner that was not there. The parse now places every statement (`locatedCommandSegments`), so
+ * "unplaced" is the rare, named case rather than a guess dressed as an answer.
+ *
+ * @param command - The shell command, after the streaming rewrite when one was applied.
+ * @returns Whether a stage follows the runner, and whether the run could be placed at all.
+ */
+export function suiteRunPipelinePlacement(command: string): SuiteRunPipelinePlacement {
+  const located = locatedSegments(command)
+  const pipeline = lastSuitePipeline(command)
+  if (pipeline !== null) {
+    const stages = pipeline.located.slice(pipeline.at)
+    // Every stage of the pipeline has to sit somewhere in THIS command to be read as a pipeline
+    // of it: a suite inside a `sh -c '<command>'` string has no offsets here.
+    const unplaced = stages.some((stage) => stage.start === null)
+    return { piped: pipeline.located.length > pipeline.at + 1, unplaced }
+  }
+  if (commandRunsNoTests(command)) return { piped: false, unplaced: false }
+  const runner = located.find((stage) =>
+    SUITE_RUN_COMMANDS.some((re) => re.test(stage.segment.text)),
+  )
+  // No suite at all, or a suite that is not the command's last step (a `; echo done` follows it):
+  // either way no stage after the RUNNER produces this command's code.
+  if (!runner) return { piped: false, unplaced: false }
+  return { piped: false, unplaced: runner.start === null }
 }
 
 /**
@@ -811,22 +873,11 @@ export function stripTrailingSuiteFilters(command: string): SuiteFilterStrip {
  * the runner — one {@link stripTrailingSuiteFilters} could not prove is output-only (`| tee log`,
  * `| xargs …`). The pipeline's exit status is that stage's, not the run's.
  *
- * A command whose stages cannot be placed in the text (irregular whitespace inside the run) is
- * reported as piped too: whether a pipe follows the runner is then UNKNOWN, and an unknown exit
- * code that gets trusted is a failing run read as a pass — the failure this rule exists to stop.
- *
  * @param command - The shell command, after the streaming rewrite when one was applied.
- * @returns True when a pipe this tool must not drop still follows the suite runner, or when the
- *   command runs a suite the parse cannot place.
+ * @returns True when a pipe this tool must not drop still follows the suite runner.
  */
 export function suiteRunPipedAfterRunner(command: string): boolean {
-  const pipeline = lastSuitePipeline(command)
-  if (pipeline !== null) return pipeline.located.length > pipeline.at + 1
-  // No placed pipeline: either there is no suite at all, or its stages cannot be located.
-  if (commandRunsNoTests(command) || locatedSegments(command) !== null) return false
-  return commandSegments(command).some((segment) =>
-    SUITE_RUN_COMMANDS.some((re) => re.test(segment.text)),
-  )
+  return suiteRunPipelinePlacement(command).piped
 }
 
 /**
@@ -2337,20 +2388,67 @@ export function failuresByCause(log: string, excluded: readonly string[] = []): 
 }
 
 /**
- * The causes a run's log names, and the failures the request excludes out of them.
+ * A finished run's own count of tests that failed their first attempt and passed on the retry:
+ * Playwright's `  1 flaky`, printed in its closing tally.
+ */
+const FLAKY_TALLY_LINE = /^\s*[1-9]\d*\s+flaky\b/
+
+/**
+ * The tests a finished run's tally declares FLAKY (`  1 flaky` followed by their headings), keyed
+ * the way a failure block is.
+ *
+ * Playwright prints a numbered failure block for the FIRST attempt of a test that then passes on
+ * its retry, and also declares the test under `N flaky` — so a reader that only looks at the
+ * blocks counts a flake as a cause to fix. xr-molecule-flash-m105's proof run against the deployed
+ * URL reported ten `waitForURL` timing flakes as "causes" of a red run (+24:54), and the executor
+ * spent its next minutes re-running them one by one until three passed untouched. The
+ * declaration under the count is the runner's own answer, and its heading carries the same words
+ * as the failure block's ({@link splitTitlePath} reads both the same way).
+ *
+ * @param text - The run's output, ANSI already stripped.
+ * @returns Each flaky test, first seen first.
+ */
+function flakyTestsDeclared(text: string): FailedTest[] {
+  const tests: FailedTest[] = []
+  let underFlakyCount = false
+  for (const line of text.split('\n')) {
+    if (FLAKY_TALLY_LINE.test(line)) {
+      underFlakyCount = true
+      continue
+    }
+    if (!underFlakyCount) continue
+    // The declaration lines are the reporter's own headings (`    [chromium] › a.spec.ts:5:1 › …`);
+    // the first line that is not one ends them (the next tally line, or the end of the report).
+    const heading = /^\s+\[[^\]\n]+\]\s*›\s*(.+)$/.exec(line)?.[1]
+    if (heading === undefined) {
+      underFlakyCount = false
+      continue
+    }
+    const { where, title } = splitTitlePath(heading.replace(/[\s─]+$/, ''))
+    tests.push({ where, title, seconds: null })
+  }
+  return distinctTests(tests)
+}
+
+/**
+ * The causes a run's log names, the failures the request excludes, and the failures the runner
+ * itself counted as flaky out of them.
  *
  * One grouping pass, because a note that lists the causes must know what it left out to say so
  * ({@link failureCausesNote}).
  *
  * @param log - The log of a finished or running run.
  * @param excluded - The test titles the request carves out.
- * @returns The causes to fix, and the distinct tests dropped as excluded.
+ * @returns The causes to fix, the distinct tests dropped as excluded, and the distinct tests the
+ *   runner counted as flaky (a retried pass is not a cause to fix).
  */
 function groupFailures(
   log: string,
   excluded: readonly string[],
-): { causes: FailureCause[]; ignored: FailedTest[] } {
+): { causes: FailureCause[]; ignored: FailedTest[]; flaky: FailedTest[] } {
   const text = log.replace(ANSI_SGR, '')
+  const flakyTests = flakyTestsDeclared(text)
+  const flaky = new Set(flakyTests.map(testKey))
   const byMessage = new Map<string, { tests: FailedTest[]; evidence: string[] }>()
   const named: FailedTest[] = []
   for (const block of failureBlocks(text)) {
@@ -2359,6 +2457,9 @@ function groupFailures(
     const m = FAILURE_BLOCK_HEADER.exec(block.split('\n')[0] ?? '')
     const { where, title } = splitTitlePath(m?.[1] ?? '')
     const test: FailedTest = { where, title, seconds: null }
+    // The runner declared this test flaky: the block above is its first attempt, which it
+    // passed on the retry, so it is neither a cause nor a failure to re-run.
+    if (flaky.has(testKey(test))) continue
     named.push(test)
     if (matchingExcludedTitles(title, excluded).length > 0) continue
     const group = byMessage.get(message)
@@ -2387,6 +2488,9 @@ function groupFailures(
     (t): t is FailedTest & { seconds: number } =>
       t.seconds !== null &&
       !claimed.has(testKey(t)) &&
+      // A flaky test's `✘` row is its first attempt; its `✓` retry follows it in the same log,
+      // and the runner's tally already said the test passed.
+      !flaky.has(testKey(t)) &&
       matchingExcludedTitles(t.title, excluded).length === 0,
   )
   const byDuration: Array<{ seconds: number; tests: FailedTest[] }> = []
@@ -2403,7 +2507,11 @@ function groupFailures(
   const ignored = distinctTests(named).filter(
     (t) => matchingExcludedTitles(t.title, excluded).length > 0,
   )
-  return { causes: causes.sort((a, b) => b.tests.length - a.tests.length), ignored }
+  return {
+    causes: causes.sort((a, b) => b.tests.length - a.tests.length),
+    ignored,
+    flaky: flakyTests,
+  }
 }
 
 /**
@@ -2415,9 +2523,12 @@ function groupFailures(
  * stopped early happened to reach.
  *
  * A test the request excludes is not one of the causes — it is dropped and named once, at the
- * end, so a result never asks to fix a test it also says to ignore. Where the caller knows how
- * the run was started, the note also hands over the narrowed re-run of exactly those tests
- * ({@link rerunOfRunningSuite}) instead of leaving the executor to re-run the whole suite.
+ * end, so a result never asks to fix a test it also says to ignore. A test the runner itself
+ * declared `flaky` (it failed once and passed on its config retry) is not a cause either: it is
+ * named apart from them, once, as what the tally called it ({@link flakyTestsDeclared}). Where
+ * the caller knows how the run was started, the note also hands over the narrowed re-run of
+ * exactly those tests ({@link rerunOfRunningSuite}) instead of leaving the executor to re-run the
+ * whole suite.
  *
  * @param log - The finished run's output.
  * @param excluded - The test titles the request carves out, if the caller knows them.
@@ -2431,7 +2542,7 @@ export function failureCausesNote(
   excluded: readonly string[] = [],
   run?: { command: string; cwd?: string; log?: string },
 ): string | null {
-  const { causes, ignored } = groupFailures(log, excluded)
+  const { causes, ignored, flaky } = groupFailures(log, excluded)
   const total = causes.reduce((n, c) => n + c.tests.length, 0)
   if (total < 2) return null
   // The narrowed run, so the next fix round costs two tests instead of the whole suite
@@ -2442,11 +2553,18 @@ export function failureCausesNote(
   const locations = [...new Set(causes.flatMap((c) => c.tests.map((t) => t.where)).filter(Boolean))]
   const rerun = run ? rerunOfRunningSuite(run, locations, excluded) : null
   const ignoredTitles = [...new Set(ignored.map((t) => t.title || t.where).filter(Boolean))]
+  const flakyTitles = [...new Set(flaky.map((t) => t.where || t.title).filter(Boolean))]
   const header =
     `${total} failure${total === 1 ? '' : 's'} in this run, grouped by cause — fix every cause ` +
     `below before the next deploy:\n`
+  // The flaky sentence sits before the ignored one: the ignored sentence is the LAST thing the
+  // note says, and callers assert on that ending.
   const tail =
     (rerun ? ` Re-run just these once they are fixed: \`${rerun}\`` : '') +
+    (flakyTitles.length
+      ? ' Flaky (failed once, passed on the config retry — the runner counts these as flaky, not ' +
+        `as failures): ${flakyTitles.join(', ')}.`
+      : '') +
     (ignoredTitles.length ? ` Ignored (excluded by the request): ${ignoredTitles.join(', ')}.` : '')
   // This list is the part of the result that SURVIVES the platform's tool-output cut: the stdout
   // above it is cut in the MIDDLE at {@link TOOL_RESULT_CHARS}, which is why the recap must fit

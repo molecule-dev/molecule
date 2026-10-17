@@ -62,6 +62,43 @@ const FILTERED_EXIT_NOTE =
   'log instead.'
 
 /**
+ * What a finished run says when its suite sits inside a `sh -c '<command>'` string: the stages are
+ * positions in THAT string, so the platform cannot point at one in the command's own text. Said
+ * instead of {@link FILTERED_EXIT_NOTE} — that note names a stage after the runner, and this run
+ * cannot be read as having one; a command with nothing piped after the runner keeps its code.
+ */
+const UNPLACED_KEPT_NOTE =
+  'The suite sits inside a `sh -c` string, so its stages cannot be placed in the command’s own ' +
+  'text; nothing follows the runner there, so the exit code above is the run’s own — read the ' +
+  'pass/fail tally in the log for the verdict.'
+
+/** {@link UNPLACED_KEPT_NOTE} when between them a stage after the runner produced the code. */
+const UNPLACED_PIPED_NOTE =
+  'The suite sits inside a `sh -c` string, so its stages cannot be placed in the command’s own ' +
+  'text, and a stage after the runner may have produced the pipeline’s code: none is reported, ' +
+  'so read the pass/fail tally in the log instead.'
+
+/**
+ * The sentence a finished suite run's result carries about its exit code, or null when the code it
+ * reports is the run's own and needs no explanation.
+ *
+ * {@link FILTERED_EXIT_NOTE} names a stage after the runner, so it is said only when the parse
+ * found one; a run whose stages cannot be placed says THAT instead, and keeps the command's own
+ * code when nothing follows the runner.
+ *
+ * @param placement - Where the code came from ({@link suiteRunPipelinePlacement}).
+ * @param reported - The code the result reports, or null when it reports none.
+ * @returns The note, or null.
+ */
+function suiteExitCodeNote(
+  placement: SuiteRunPipelinePlacement,
+  reported: number | null,
+): string | null {
+  if (placement.unplaced) return reported === null ? UNPLACED_PIPED_NOTE : UNPLACED_KEPT_NOTE
+  return reported === null ? FILTERED_EXIT_NOTE : null
+}
+
+/**
  * Task ids whose own-output file has already been looked for this process.
  * {@link outputFileByTask} is empty for every task after a restart — it is
  * process memory and the task is not — so without this the recovery below
@@ -422,7 +459,8 @@ import {
   SMALL_FILE_WHOLE_CHARS,
   streamingBackgroundCommand,
   stripControlChars,
-  suiteRunPipedAfterRunner,
+  type SuiteRunPipelinePlacement,
+  suiteRunPipelinePlacement,
   suiteRunPriorityLaunch,
   truncateMiddle,
   universalCause,
@@ -2429,13 +2467,15 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
                 }
                 // The exit file holds the PIPELINE's code: when a stage this rewrite could not
                 // prove is output-only still follows the suite runner (`| tee run.log`), that code
-                // is the filter's — report none and let the log's tally decide (m101 +25:54).
-                const piped = suiteRunPipedAfterRunner(streaming.command)
-                const reported = suiteRunExitCode(code, output, piped)
+                // is the filter's — report none and let the log's tally decide (m101 +25:54). The
+                // note says this only when the parse found such a stage (m105 +08:12).
+                const placement = suiteRunPipelinePlacement(streaming.command)
+                const reported = suiteRunExitCode(code, output, placement.piped)
+                const exitNote = suiteExitCodeNote(placement, reported)
                 const notes = [
                   ...(sleepNote ? [sleepNote] : []),
                   ...streaming.changes,
-                  ...(reported === null ? [FILTERED_EXIT_NOTE] : []),
+                  ...(exitNote === null ? [] : [exitNote]),
                 ]
                 return {
                   stdout,
@@ -3002,10 +3042,13 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       // Same shaping as a foreground exec result, so the executor reads both
       // the same way. The exit file holds the PIPELINE's code: when a stage this rewrite could not
       // prove is output-only still follows the suite runner (`| tee run.log`), that code is the
-      // filter's — report none and let the log's tally decide (m101 +25:54).
-      const piped = run ? suiteRunPipedAfterRunner(run.command) : false
-      const reported = suiteRunExitCode(exitCode, output, piped)
-      const noCodeNote = reported === null ? FILTERED_EXIT_NOTE : null
+      // filter's — report none and let the log's tally decide (m101 +25:54). The note says this
+      // only when the parse found such a stage (m105 +08:12).
+      const placement = run
+        ? suiteRunPipelinePlacement(run.command)
+        : { piped: false, unplaced: false }
+      const reported = suiteRunExitCode(exitCode, output, placement.piped)
+      const noCodeNote = suiteExitCodeNote(placement, reported)
       return {
         taskId,
         exitCode: reported,

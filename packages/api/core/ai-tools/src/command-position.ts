@@ -21,8 +21,14 @@
  * Not command position, and therefore not an invocation: a runner named as an argument
  * (`head -30 run-api-tests-hurl.sh`, `grep -n playwright e2e/README.md`,
  * `git show HEAD:run-api-tests.sh`), and a runner named in a heredoc body — a file a command
- * WRITES is the caller's business, so a command with a heredoc goes through the caller's own
- * stripper first (`withoutHeredocs`, in `./suite-overlap.js`).
+ * WRITES is not a command it runs, so the bodies are blanked to spaces before anything is split
+ * ({@link blankHeredocBodies}); offsets stay exact, because the blanking preserves every position.
+ *
+ * The parser also answers WHERE each statement sits ({@link locatedCommandSegments}): `start`,
+ * `end`, `programOffset` and `assignmentOffset` are the offsets a caller splices at. They are
+ * token positions from this walk, never a search for re-joined text — the words are joined back
+ * with single spaces for matching, so `command.indexOf(segment.text)` fails on irregular spacing,
+ * on grouping braces, and on anything a heredoc body shifts (xr-molecule-flash-m105 +08:12).
  *
  * @module
  */
@@ -431,6 +437,111 @@ function commandStart(words: readonly string[]): {
 type Nesting = 'single' | 'double' | 'sub'
 
 /**
+ * A command with every heredoc BODY blanked to spaces, so its length and every offset in it are
+ * unchanged.
+ *
+ * A heredoc body is data the command writes, not a command it runs: `cat > playwright.config.ts
+ * <<'EOF' … import { defineConfig, devices } from '@playwright/test' … EOF` writes a file and runs
+ * `cat`. Read as shell, though, every line of the body is a statement — and the words joined back
+ * for matching are not the words written, so a caller that placed a statement by searching for
+ * them found nothing, in a command whose real statements sat all along. On X1
+ * xr-molecule-flash-m105 (+08:12) the body's `import { defineConfig, devices } …` alone made
+ * `suiteRunPipedAfterRunner` answer "piped" for a run with no pipe left, and the run's exit code
+ * was dropped for the rest of the session.
+ *
+ * The body runs from the line after the operator to the line whose whole content is the delimiter
+ * (leading TABS stripped for `<<-`, as `man bash` defines it); the terminator line is blanked too,
+ * and its newline kept, so the statements around it still split at the same places. Newlines
+ * inside the body are kept for the same reason. `<<<` is a herestring, not a heredoc, and a `<<`
+ * inside quotes or a comment opens nothing.
+ *
+ * @param command - The shell command.
+ * @returns The command with the bodies blanked to spaces, the same length as the input.
+ */
+function blankHeredocBodies(command: string): string {
+  if (!command.includes('<<')) return command
+  const chars = command.split('')
+  /** Overwrite a range with spaces, keeping its newlines so statements still split there. */
+  const blank = (from: number, to: number): void => {
+    for (let i = from; i < to; i++) if (chars[i] !== '\n') chars[i] = ' '
+  }
+  let lineStart = 0
+  while (lineStart < command.length) {
+    const lineEndRaw = command.indexOf('\n', lineStart)
+    const lineEnd = lineEndRaw < 0 ? command.length : lineEndRaw
+    const openers: Array<{ delimiter: string; stripTabs: boolean }> = []
+    let quote: string | null = null
+    for (let i = lineStart; i < lineEnd; i++) {
+      const char = command[i] ?? ''
+      if (quote !== null) {
+        if (char === quote) quote = null
+        continue
+      }
+      if (char === '"' || char === "'") {
+        quote = char
+        continue
+      }
+      // A `#` that starts a word opens a comment: the rest of the line is not shell words.
+      if (char === '#' && (i === lineStart || /\s/.test(command[i - 1] ?? ''))) break
+      if (char !== '<' || command[i + 1] !== '<') continue
+      // `<<<` is a herestring: it opens no body.
+      if (command[i + 2] === '<') {
+        i += 2
+        continue
+      }
+      let at = i + 2
+      const stripTabs = command[at] === '-'
+      if (stripTabs) at += 1
+      while (command[at] === ' ' || command[at] === '\t') at += 1
+      let delimiter: string
+      const opener = command[at]
+      if (opener === '"' || opener === "'") {
+        const close = command.indexOf(opener, at + 1)
+        const wordEnd = close < 0 || close > lineEnd ? lineEnd : close
+        delimiter = command.slice(at + 1, wordEnd)
+        at = wordEnd + 1
+      } else {
+        let wordEnd = at
+        while (wordEnd < lineEnd && !/\s/.test(command[wordEnd] ?? '')) wordEnd += 1
+        delimiter = command.slice(at, wordEnd)
+        at = wordEnd
+      }
+      if (delimiter !== '') openers.push({ delimiter, stripTabs })
+      i = at - 1
+    }
+    if (openers.length === 0) {
+      if (lineEndRaw < 0) break
+      lineStart = lineEnd + 1
+      continue
+    }
+    // The bodies follow the line that opened them, in the order the operators were written.
+    let cursor = lineEndRaw < 0 ? command.length : lineEnd + 1
+    for (const heredoc of openers) {
+      let bodyEnd = command.length
+      let after = command.length
+      let from = cursor
+      while (from < command.length) {
+        const nl = command.indexOf('\n', from)
+        const line = command.slice(from, nl < 0 ? command.length : nl)
+        const compared = heredoc.stripTabs ? line.replace(/^\t+/, '') : line
+        if (compared === heredoc.delimiter) {
+          bodyEnd = from
+          after = nl < 0 ? command.length : nl + 1
+          break
+        }
+        if (nl < 0) break
+        from = nl + 1
+      }
+      blank(cursor, bodyEnd)
+      blank(bodyEnd, after)
+      cursor = after
+    }
+    lineStart = cursor
+  }
+  return chars.join('')
+}
+
+/**
  * A command's statements and pipeline stages, split where the shell splits them — inside quotes
  * and inside a command substitution, a `|`, `;` or `&&` belongs to that command, not to this one.
  *
@@ -450,19 +561,26 @@ type Nesting = 'single' | 'double' | 'sub'
  * no runner, and every run of it reads as nothing).
  *
  * @param command - The shell command.
- * @returns Each segment's text and the offset in the command its first character sits at, in
- *   order, with empty ones dropped.
+ * @returns Each statement's text, the offset its first character sits at, and the separator that
+ *   ended it (`|`, `&&`, `;`, a newline, … — '' after the last one), in order, with empty ones
+ *   dropped.
  */
-function splitSegments(command: string): Array<{ text: string; start: number }> {
-  const parts: Array<{ text: string; start: number }> = []
+function splitSegments(command: string): Array<{
+  text: string
+  start: number
+  after: string
+  before: string
+}> {
+  const source = blankHeredocBodies(command)
+  const parts: Array<{ text: string; start: number; after: string }> = []
   let buffer = ''
   /** The offset in the command of the current buffer's first character. */
   let bufferStart = 0
   /** The nestings this position sits inside, outermost first. */
   const stack: Nesting[] = []
-  for (let i = 0; i < command.length; i++) {
-    const char = command[i] ?? ''
-    const next = command[i + 1]
+  for (let i = 0; i < source.length; i++) {
+    const char = source[i] ?? ''
+    const next = source[i + 1]
     const top = stack[stack.length - 1]
 
     // A single-quoted string expands nothing at all: no escape, no substitution, and no quote
@@ -516,33 +634,46 @@ function splitSegments(command: string): Array<{ text: string; start: number }> 
       continue
     }
     if ((char === '&' && next === '&') || (char === '|' && next === '|')) {
-      parts.push({ text: buffer, start: bufferStart })
+      parts.push({ text: buffer, start: bufferStart, after: char + next })
       buffer = ''
       i += 1
       bufferStart = i + 1
       continue
     }
     if (char === ';' || char === '|' || char === '\n') {
-      parts.push({ text: buffer, start: bufferStart })
+      parts.push({ text: buffer, start: bufferStart, after: char })
       buffer = ''
       bufferStart = i + 1
       continue
     }
-    if (char === '&' && command[i - 1] !== '>' && next !== '>') {
-      parts.push({ text: buffer, start: bufferStart })
+    if (char === '&' && source[i - 1] !== '>' && next !== '>') {
+      parts.push({ text: buffer, start: bufferStart, after: '&' })
       buffer = ''
       bufferStart = i + 1
       continue
     }
     buffer += char
   }
-  parts.push({ text: buffer, start: bufferStart })
-  return parts
-    .map((part) => ({
-      text: part.text.trim(),
+  parts.push({ text: buffer, start: bufferStart, after: '' })
+  const out: Array<{ text: string; start: number; after: string; before: string }> = []
+  // The separator of the last part, kept across the empty ones so a statement's own separator
+  // survives the blank lines around it (`a &&\n b` and a heredoc's blanked body alike).
+  let lastAfter: string | null = null
+  for (const part of parts) {
+    const text = part.text.trim()
+    if (text === '') {
+      lastAfter = part.after
+      continue
+    }
+    out.push({
+      text,
       start: part.start + (part.text.length - part.text.trimStart().length),
-    }))
-    .filter((part) => part.text !== '')
+      after: part.after,
+      before: lastAfter ?? '',
+    })
+    lastAfter = part.after
+  }
+  return out
 }
 
 /**
@@ -610,6 +741,39 @@ export function commandSegments(command: string): CommandSegment[] {
 }
 
 /**
+ * Where a statement's word sits in its own raw text, as {@link segmentWords} counts the words.
+ *
+ * The words are matched for READING (quotes whole, grouping braces dropped, a leading `(` taken
+ * off the first word); a caller that writes into the statement needs the offset it was written
+ * at. Both come from this one walk, so the two can never disagree about which word is which.
+ *
+ * @param text - One statement's text.
+ * @param index - The word's index in {@link segmentWords}'s list.
+ * @returns The word's offset in `text`, or null when there is no such word.
+ */
+function wordOffset(text: string, index: number): number | null {
+  const placement = new RegExp(WORD.source, 'g')
+  let kept = 0
+  let first = true
+  for (let match = placement.exec(text); match !== null; match = placement.exec(text)) {
+    if (GROUPING.has(match[0])) continue
+    if (first) {
+      first = false
+      const bare = match[0].replace(/^[({]+/, '')
+      // `segmentWords` shifts a first word that was nothing but grouping away, so the NEXT word
+      // is not stripped and is counted from zero.
+      if (bare === '') continue
+      if (kept === index) return match.index + (match[0].length - bare.length)
+      kept += 1
+      continue
+    }
+    if (kept === index) return match.index
+    kept += 1
+  }
+  return null
+}
+
+/**
  * One statement of a shell command, with where it sits and the variables it sets for itself.
  *
  * `commandSegments` answers WHAT runs; this answers where, and what the shell binds to it — the
@@ -641,6 +805,24 @@ export interface LocatedCommandSegment {
    * inside a nested `sh -c` string, for the same reason as {@link start}.
    */
   assignmentOffset: number | null
+  /**
+   * The offset in the command one past the statement's last word — where an option of this
+   * statement's program belongs, before whatever closes it. Null inside a nested `sh -c` string.
+   */
+  end: number | null
+  /**
+   * The offset in the command of the word in command position — the program, once every wrapper
+   * in front of it is taken away (`npx --prefix /app <here>playwright test`). Null inside a
+   * nested `sh -c` string, and for a statement that only sets variables.
+   */
+  programOffset: number | null
+  /**
+   * The separator the shell split at immediately before this statement — `|`, `||`, `&&`, `;`,
+   * a newline or `&` — or '' when it is the first statement of the command. It is the parse's own
+   * answer, so it is known even where the offsets are not, and a caller deciding whether two
+   * statements are one pipeline (`|`, never `;`) asks it instead of reading the text between them.
+   */
+  separator: string
 }
 
 /**
@@ -671,9 +853,31 @@ function locatedSegmentsOf(command: string, depth: number): LocatedCommandSegmen
     const words = segmentWords(part.text)
     const start = commandStart(words)
     const leading = leadingAssignments(part.text)
+    /** Every offset in this statement is an offset in the command it was written in. */
+    const placed = {
+      start: part.start,
+      end: part.start + part.text.length,
+      assignmentOffset: part.start + leading.end,
+      programOffset:
+        words[start.at] === undefined ? null : part.start + (wordOffset(part.text, start.at) ?? 0),
+    }
     if (start.nested !== null) {
-      for (const inner of locatedSegmentsOf(start.nested, depth + 1))
-        out.push({ ...inner, start: null, assignmentOffset: null })
+      const inner = locatedSegmentsOf(start.nested, depth + 1)
+      for (let i = 0; i < inner.length; i += 1) {
+        const entry = inner[i]
+        if (!entry) continue
+        out.push({
+          ...entry,
+          // A nested statement's positions are positions in the nested string, not in this
+          // command. The FIRST one keeps this statement's own separator: the shell reads the
+          // nested string where this statement stands.
+          start: null,
+          end: null,
+          assignmentOffset: null,
+          programOffset: null,
+          separator: i === 0 ? part.before : entry.separator,
+        })
+      }
       continue
     }
     const word = words[start.at]
@@ -684,8 +888,9 @@ function locatedSegmentsOf(command: string, depth: number): LocatedCommandSegmen
         out.push({
           segment: null,
           assignments: leading.words,
-          start: part.start,
-          assignmentOffset: part.start + leading.end,
+          ...placed,
+          programOffset: null,
+          separator: part.before,
         })
       continue
     }
@@ -699,8 +904,8 @@ function locatedSegmentsOf(command: string, depth: number): LocatedCommandSegmen
         timeoutSeconds: start.timeoutSeconds,
       },
       assignments: leading.words,
-      start: part.start,
-      assignmentOffset: part.start + leading.end,
+      ...placed,
+      separator: part.before,
     })
   }
   return out

@@ -290,6 +290,34 @@ describe('diagnosisTraceCommand — the trace a diagnosis run must record', () =
     // change, so what bash runs is the spliced command itself.
     expect(streamingBackgroundCommand(traced.command).command).toBe(traced.command)
   })
+
+  /**
+   * m105's +08:12 shape: the wrapper config is WRITTEN in the same command, by a heredoc whose
+   * first line carries grouping braces, and the run follows on the next line. Locating the step by
+   * searching for the re-joined segment text found nothing, so the flag was never added — on the
+   * very run whose failing tests someone was about to read a trace for.
+   */
+  const M105_HEREDOC = `cat > /workspace/.mol-scratch/realworld-e2e/playwright.config.ts <<'EOF'
+import { defineConfig, devices } from '@playwright/test'
+import { baseConfig } from './playwright.base'
+
+export default defineConfig({ ...baseConfig, use: { ...baseConfig.use, baseURL: 'http://localhost:5173' } })
+EOF
+cd /workspace/.mol-scratch/realworld-e2e && npx playwright test --config playwright.config.ts e2e/realworld/social.spec.ts:22 --retries=0 2>&1 | tail -60`
+
+  it('finds the step after a heredoc body, and only there (m105 +08:12)', async () => {
+    const traced = await diagnosisTraceCommand({
+      command: M105_HEREDOC,
+      cwd: '/workspace',
+      readFile: config(''),
+    })
+    // The flag is an option of the RUN, right after `test` — never inside the body it writes.
+    expect(traced.command).toContain(`playwright test ${DIAGNOSIS_TRACE_FLAG} --config`)
+    expect(traced.command.match(/--trace=/g)).toHaveLength(1)
+    // The body is untouched, byte for byte.
+    expect(traced.command).toContain("import { defineConfig, devices } from '@playwright/test'")
+    expect(traced.command.endsWith('| tail -60')).toBe(true)
+  })
 })
 
 describe('diagnosisTraceCommand — the rewritten command a real shell runs', () => {

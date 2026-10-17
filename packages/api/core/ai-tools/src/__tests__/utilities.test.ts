@@ -29,6 +29,7 @@ import {
   stripControlChars,
   stripTrailingSuiteFilters,
   suiteRunPipedAfterRunner,
+  suiteRunPipelinePlacement,
   suiteRunPriorityLaunch,
   TOOL_RESULT_CHARS,
   truncate,
@@ -1658,6 +1659,60 @@ describe('repeatingFailure', () => {
     })
 
     /**
+     * xr-molecule-flash-m105's deployed proof run in the shape the runner prints with the suite's
+     * own `retries: 1`: one test failed its first attempt and passed on the retry, so Playwright
+     * prints a failure block for the first attempt AND declares the test under `  1 flaky`.
+     */
+    const flakyRun = [
+      'Running 3 tests using 1 worker',
+      '',
+      '  ✘  1 [chromium] › comments.spec.ts:116:3 › Comments › should post a comment (20.5s)',
+      '  ✓  1 [chromium] › comments.spec.ts:116:3 › Comments › should post a comment (retry #1) (3.2s)',
+      '',
+      '  1) [chromium] › comments.spec.ts:116:3 › Comments › should post a comment ────────',
+      '',
+      '    TimeoutError: page.waitForURL: Timeout 20000ms exceeded.',
+      '',
+      '  2) [chromium] › navigation.spec.ts:200:3 › Navigation › should show article count ─────',
+      '',
+      '    Expected class "active" but got ""',
+      '',
+      '  3) [chromium] › social.spec.ts:115:3 › Social › should favorite ─────',
+      '',
+      '    Expected class "active" but got ""',
+      '',
+      '  1 flaky',
+      '    [chromium] › comments.spec.ts:116:3 › Comments › should post a comment ─────────',
+      '  2 failed',
+      '  1 passed (4.1m)',
+    ].join('\n')
+
+    it('does not count a test the tally declared flaky as a cause to fix (xr-molecule-flash-m105)', () => {
+      const causes = failuresByCause(flakyRun)
+      expect(causes).toHaveLength(1)
+      expect(causes[0].tests.map((t) => t.title)).toEqual([
+        'should show article count',
+        'should favorite',
+      ])
+      // The flaky test's FIRST-attempt block carries an error of its own: it must not become one,
+      // and its `✘` row must not come back as a shared-duration cause either.
+      expect(causes.some((c) => (c.message ?? '').includes('TimeoutError'))).toBe(false)
+      expect(causes.flatMap((c) => c.tests.map((t) => t.where))).not.toContain(
+        'comments.spec.ts:116',
+      )
+    })
+
+    it('names a flaky test apart from the causes, as the tally called it', () => {
+      const note = failureCausesNote(flakyRun)!
+      expect(note).toContain('2 failures in this run, grouped by cause')
+      expect(note).not.toContain('TimeoutError')
+      expect(note).toContain(
+        'Flaky (failed once, passed on the config retry — the runner counts these as flaky, not ' +
+          'as failures): comments.spec.ts:116.',
+      )
+    })
+
+    /**
      * xr-molecule-flash-m102's +12:43 `wait_for_task` result, in its real shape: `12 failures`
      * and 8 causes, a note that listed 5 and said "… and 3 more causes", and a stdout whose
      * middle 35 628 characters the tool-result cut had removed. The four causes past the old cap
@@ -2124,9 +2179,21 @@ describe('a suite’s pipeline is not the suite’s result (xr-molecule-flash-m1
     expect(suiteRunPipedAfterRunner('npx playwright test | tee run.log')).toBe(true)
     expect(suiteRunPipedAfterRunner('npx playwright test')).toBe(false)
     expect(suiteRunPipedAfterRunner('npx playwright test; echo done')).toBe(false)
-    // Irregular spacing inside the run leaves its stages unplaceable: unknown is reported as
-    // piped, never as the runner's own code.
-    expect(suiteRunPipedAfterRunner('npx  playwright   test --max-failures=15')).toBe(true)
+    // Irregular spacing inside the run no longer leaves its stages unplaceable: the offsets are the
+    // parse's own token positions, so the run's code is its own (m105 +08:12 — this used to be
+    // reported as "piped", and a heredoc body was enough to make every run look that way).
+    expect(suiteRunPipedAfterRunner('npx  playwright   test --max-failures=15')).toBe(false)
+    // A suite inside a `sh -c` string has no offsets in the command's own text: the stages cannot
+    // be placed, and the result says so instead of naming a stage that does not exist.
+    expect(suiteRunPipelinePlacement("sh -c 'npx playwright test'")).toEqual({
+      piped: false,
+      unplaced: true,
+    })
+    expect(suiteRunPipelinePlacement("sh -c 'npx playwright test | tee run.log'")).toEqual({
+      piped: true,
+      unplaced: true,
+    })
+    expect(suiteRunPipedAfterRunner("sh -c 'npx playwright test'")).toBe(false)
   })
 
   it('never hands back a filter’s code, and never 0 beside a failure', () => {
@@ -2212,6 +2279,123 @@ describe('a suite’s pipeline is not the suite’s result (xr-molecule-flash-m1
       expect(playwright?.match(/--reporter=/g)).toHaveLength(1)
     } finally {
       rmSync(after.dir, { recursive: true, force: true })
+    }
+  })
+})
+
+/**
+ * X1 xr-molecule-flash-m105 (+08:12): the executor wrote its wrapper Playwright config in the SAME
+ * `exec_command` as the run, via a heredoc, then launched the suite `2>&1 | tail -60`. The body's
+ * `import { defineConfig, devices } from '@playwright/test'` put braces in the text, the stage
+ * placement searched for re-joined words it could not find, and the answer fell through to "cannot
+ * be placed ⇒ treat as piped": the run came back with no exit code and a note claiming a stage
+ * after the runner that had already been dropped. Every later re-run of that command inherited it.
+ */
+describe('a heredoc body does not defeat statement placement (xr-molecule-flash-m105 +08:12)', () => {
+  /** m105's +08:12 command, verbatim. */
+  const M105 = `cat > /workspace/.mol-scratch/realworld-e2e/playwright.config.ts <<'EOF'
+import { defineConfig, devices } from '@playwright/test'
+import { baseConfig } from './playwright.base'
+
+export default defineConfig({
+  ...baseConfig,
+  reporter: [['list']],
+  use: {
+    ...baseConfig.use,
+    baseURL: process.env.TEST_BASE_URL || 'http://localhost:5173',
+    actionTimeout: 15_000,
+    navigationTimeout: 20_000,
+  },
+  expect: { timeout: 10_000 },
+  timeout: 45_000,
+  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
+})
+EOF
+cd /workspace/.mol-scratch/realworld-e2e && TEST_MODE=fullstack TEST_BASE_URL=http://localhost:5173 npx --prefix /workspace/my-app/app playwright test --config playwright.config.ts --retries=0 --workers=1 2>&1 | tail -60`
+
+  it('places the run after the heredoc: the rewritten command is not piped', () => {
+    const { command, changes } = streamingBackgroundCommand(M105)
+    // The tail is dropped and the reporter lands on the RUNNER, after its own last argument.
+    expect(command.endsWith('--workers=1 2>&1 --reporter=list')).toBe(true)
+    expect(changes[0]).toContain('Dropped the trailing `| tail -60`')
+    // The run's own code is its own: no filter follows it any more.
+    expect(suiteRunPipedAfterRunner(command)).toBe(false)
+    expect(suiteRunPipelinePlacement(command)).toEqual({ piped: false, unplaced: false })
+    // The command as sent really did have a pipe — the answer above is about the rewrite.
+    expect(suiteRunPipedAfterRunner(M105)).toBe(true)
+  })
+
+  it('runs the rewritten command through a real shell: the heredoc writes, no tail runs', () => {
+    /** Recording stubs: the runner exits 1, the tail exits 0 as tail does on a match. */
+    const sandbox = (): { dir: string; suite: string; log: string; env: NodeJS.ProcessEnv } => {
+      const dir = mkdtempSync(join(tmpdir(), 'mol-heredoc-suite-'))
+      const suite = join(dir, 'realworld-e2e')
+      mkdirSync(suite)
+      for (const name of ['npx', 'tail']) {
+        writeFileSync(
+          join(dir, name),
+          '#!/bin/sh\n' +
+            `printf '%s' '${name}' >> "$ARGV_LOG.${name}"\n` +
+            `for a in "$@"; do printf ' <%s>' "$a" >> "$ARGV_LOG.${name}"; done\n` +
+            `printf '\\n' >> "$ARGV_LOG.${name}"\n` +
+            (name === 'npx' ? 'exit 1\n' : 'exit 0\n'),
+        )
+        chmodSync(join(dir, name), 0o755)
+      }
+      return {
+        dir,
+        suite,
+        log: join(dir, 'argv.log'),
+        env: {
+          ...process.env,
+          PATH: `${dir}:${process.env.PATH ?? ''}`,
+          ARGV_LOG: join(dir, 'argv.log'),
+        },
+      }
+    }
+    /** One recorded invocation of `name`, or undefined when it never ran. */
+    const invocation = (log: string, name: string): string | undefined => {
+      try {
+        return readFileSync(`${log}.${name}`, 'utf8')
+          .split('\n')
+          .find((line) => line.length > 0)
+      } catch (_error) {
+        return undefined
+      }
+    }
+    /** The command with m105's absolute paths made this test's own. */
+    const here = (command: string, s: ReturnType<typeof sandbox>): string =>
+      command.replaceAll('/workspace/.mol-scratch/realworld-e2e', s.suite)
+
+    const s = sandbox()
+    try {
+      const rewritten = here(streamingBackgroundCommand(M105).command, s)
+      const file = join(s.dir, 'status')
+      const output = execFileSync('sh', ['-c', `${rewritten}; echo $? > ${file}`], {
+        cwd: s.dir,
+        env: s.env,
+        encoding: 'utf8',
+      })
+      // The shell's status is the run's 1 — the pipeline's `tail` 0 is gone with the filter.
+      const status = Number(readFileSync(file, 'utf8'))
+      expect(status).toBe(1)
+      expect(invocation(s.log, 'tail')).toBeUndefined()
+      // What the TOOL reports for that run. Before the fix the stages could not be placed, the
+      // answer fell through to "piped", and the result carried no code at all (null) — the note
+      // under it claiming a stage after the runner that the rewrite had already dropped.
+      expect(suiteRunExitCode(status, output, suiteRunPipedAfterRunner(rewritten))).toBe(1)
+      // The heredoc still wrote the config the run was given, body and all.
+      expect(readFileSync(join(s.suite, 'playwright.config.ts'), 'utf8')).toContain(
+        "import { defineConfig, devices } from '@playwright/test'",
+      )
+      // Playwright received the run's own flags, the reporter once.
+      const playwright = invocation(s.log, 'npx')
+      expect(playwright).toContain('<playwright>')
+      expect(playwright).toContain('<test>')
+      expect(playwright).toContain('<--config>')
+      expect(playwright?.match(/--reporter=/g)).toHaveLength(1)
+    } finally {
+      rmSync(s.dir, { recursive: true, force: true })
     }
   })
 })
