@@ -59,6 +59,11 @@ export interface TraceRequest {
   sent?: string
   /** What came back for that 4xx, bounded the same way — the API's own error body. */
   got?: string
+  /**
+   * `document` when the request was the page load itself — the only resource type the read emits.
+   * When it ended in a `net::ERR_*`, nothing rendered and no selector or app request was measured.
+   */
+  type?: 'document'
 }
 
 /** One action the traced page performed, with the trace's own timing for it. */
@@ -348,6 +353,7 @@ for (const one of found.slice(0, MAX_TRACES)) {
       failure: r.failure,
       sent: r.sent,
       got: r.got,
+      type: r.type === 'document' ? 'document' : undefined,
     })
   }
   // The page's own actions, timed. before/after pair on the call id, and only the LIBRARY
@@ -436,6 +442,7 @@ export function parseTraceArtifacts(stdout: string): TraceArtifact[] {
             ...(typeof r.failure === 'string' && r.failure ? { failure: r.failure } : {}),
             ...(typeof r.sent === 'string' && r.sent ? { sent: r.sent } : {}),
             ...(typeof r.got === 'string' && r.got ? { got: r.got } : {}),
+            ...(r.type === 'document' ? { type: 'document' as const } : {}),
           })),
         console: consoleMessages.map(String),
         actions: actions
@@ -604,6 +611,64 @@ function traceRowTier(item: TraceArtifact, earlier: readonly string[]): number {
   return 2
 }
 
+/** A browser-level transport failure Chromium and Firefox both record (`net::ERR_*`). */
+const NETWORK_ERROR = /\bnet::ERR_[A-Z0-9_]+\b/
+
+/**
+ * Whether the trace's page never finished a navigation: its own `Frame.goto` has no end time.
+ *
+ * A page that never loaded is not a set of app failures: a `page.goto` timeout on a document that
+ * ended in a `net::ERR_*` is the one line that explains every test that timed out on it, and it is
+ * what m118's preview walk never saw (`net::ERR_CONTENT_DECODING_FAILED` on a gzipped HTML body).
+ *
+ * @param item - One traced failure.
+ * @returns True when the page's navigation started and never ended.
+ */
+function navigationNeverFinished(item: TraceArtifact): boolean {
+  return item.actions?.some((action) => /\.goto$/.test(action.api) && action.end === null) ?? false
+}
+
+/** The browser transport failure behind a page that never loaded. */
+interface TransportFailure {
+  /** The browser's own error (`net::ERR_CONTENT_DECODING_FAILED`). */
+  error: string
+  /** The request/URL it hit, as the trace recorded it. */
+  where: string
+}
+
+/**
+ * The `net::ERR_*` the traced pages recorded, with the request it hit — or null.
+ *
+ * The request's own `_failureText` is preferred (Playwright records the browser's error there);
+ * a console error is the fallback, because the browser logs the same failure as
+ * `Failed to load resource: net::ERR_…` and a page that timed out on its document has no request
+ * failure text at all.
+ *
+ * @param items - The traces the note is about.
+ * @returns The first transport failure, or null when the browser reported none.
+ */
+function transportFailure(items: readonly TraceArtifact[]): TransportFailure | null {
+  for (const item of items) {
+    const document = item.requests.find((request) => request.type === 'document')
+    const failed = item.requests.find(
+      (request) => request.failure !== undefined && NETWORK_ERROR.test(request.failure),
+    )
+    if (failed !== undefined) {
+      const error = NETWORK_ERROR.exec(failed.failure ?? '')?.[0] ?? failed.failure ?? ''
+      return { error, where: failed.path }
+    }
+    for (const line of item.console) {
+      const error = NETWORK_ERROR.exec(line)?.[0]
+      if (error !== undefined)
+        return {
+          error,
+          where: document?.path ?? item.requests[0]?.path ?? 'the page',
+        }
+    }
+  }
+  return null
+}
+
 /**
  * The note a failed suite run's result carries: what each failing test's page actually sent, and
  * what came back.
@@ -630,6 +695,10 @@ function traceRowTier(item: TraceArtifact, earlier: readonly string[]): number {
  * earlier walk → the rest ({@link traceRowTier}). Without that the note spent all five rows on four
  * traces of one `afterEach` line whose every request was `-1`, and left the favorite cause — the
  * one failure that repeated in every walk — in its "… and N more".
+ *
+ * A run whose every traced page never finished its navigation leads with the browser's own
+ * transport error (`net::ERR_CONTENT_DECODING_FAILED` and friends) and the document it hit: nothing
+ * rendered, so no row below is app evidence (xr-molecule-flash-m118 +37:09).
  *
  * @param items - The traces {@link parseTraceArtifacts} read.
  * @param target - Where the run went — the deployed host, as the note names it.
@@ -708,7 +777,28 @@ export function failureTraceNote(
     distinct.size > traced.length
       ? `\n  … and ${distinct.size - traced.length} more traced failures`
       : ''
+  // A run whose pages never loaded has one cause, and it is not in the app: every traced failure is
+  // a `page.goto` that timed out on a document the browser could not load. The transport error is
+  // the first line the executor needs — m118 (+37:09) read 14 goto timeouts as app failures while
+  // the trace held `net::ERR_CONTENT_DECODING_FAILED` on every one.
+  const transport =
+    candidates.length > 0 && candidates.every(navigationNeverFinished)
+      ? transportFailure(candidates)
+      : null
+  const transportLead =
+    transport === null
+      ? ''
+      : `Every failure this run traced is the same browser TRANSPORT failure: \`page.goto\` timed out ` +
+        `because the document at ${transport.where} ended \`${transport.error}\` — the page never ` +
+        `loaded, so none of these failures is the app's code or a selector. ` +
+        (transport.error === 'net::ERR_CONTENT_DECODING_FAILED'
+          ? 'A body whose gzip `content-encoding` no longer matches its bytes does this; a ' +
+            '`vite preview` over a build must be started with ' +
+            '`MOL_E2E_PREVIEW_PLUGIN=0 npx vite preview --port 4173 --strictPort`. '
+          : '') +
+        'Fix the server before the app.\n\n'
   return (
+    transportLead +
     `The platform read the failing tests' own Playwright traces from the run against ${target} ` +
     `(what each page sent and got: the requests that failed, the ones that got no response, and ` +
     `its last answered ones):\n` +

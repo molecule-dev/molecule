@@ -364,6 +364,68 @@ describe('failureTraceNote — a request with no response is not a failed reques
 })
 
 /**
+ * xr-molecule-flash-m118 (+37:09 → +44:23): a `vite preview` walk's 14 failures were all
+ * `page.goto` timeouts whose document request had ended `net::ERR_CONTENT_DECODING_FAILED` (a
+ * gzipped HTML body the published preview plugin corrupted). The note said nothing about it, and
+ * the run spent seven minutes treating a transport failure as app code. A page that never loaded
+ * leads with the browser's own line and the document it hit.
+ */
+describe('failureTraceNote — a page that never loaded (xr-molecule-flash-m118)', () => {
+  const timedOut = (path: string, failure?: string): TraceArtifact => ({
+    spec: 'url-navigation.spec.ts',
+    line: 13,
+    requests: [
+      {
+        method: 'GET',
+        path,
+        status: -1,
+        type: 'document',
+        ...(failure === undefined ? {} : { failure }),
+      },
+      { method: 'GET', path: '/assets/index.js', status: 200 },
+    ],
+    console:
+      failure === undefined ? ['Failed to load resource: net::ERR_CONTENT_DECODING_FAILED'] : [],
+    actions: [{ api: 'Frame.goto', start: 1, end: null }],
+  })
+
+  it('leads with the transport error and the document it hit', () => {
+    const note = String(
+      failureTraceNote(
+        [timedOut('http://localhost:4173/', 'net::ERR_CONTENT_DECODING_FAILED')],
+        'localhost:4173',
+      ),
+    )
+    expect(
+      note.startsWith('Every failure this run traced is the same browser TRANSPORT failure'),
+    ).toBe(true)
+    expect(note).toContain('net::ERR_CONTENT_DECODING_FAILED')
+    expect(note).toContain('http://localhost:4173/')
+    expect(note).toContain('MOL_E2E_PREVIEW_PLUGIN=0 npx vite preview --port 4173 --strictPort')
+  })
+
+  it('reads the error from the console when the request carried no failure text', () => {
+    const note = String(failureTraceNote([timedOut('http://localhost:4173/')], 'localhost:4173'))
+    expect(note.startsWith('Every failure this run traced')).toBe(true)
+    expect(note).toContain('net::ERR_CONTENT_DECODING_FAILED')
+    expect(note).toContain('http://localhost:4173/')
+  })
+
+  it('does not lead with it when the page loaded and a request was the failure', () => {
+    const loaded: TraceArtifact = {
+      spec: 'social.spec.ts',
+      line: 6,
+      requests: [{ method: 'POST', path: '/api/articles/x/favorite', status: 401 }],
+      console: [],
+      actions: [{ api: 'Frame.goto', start: 1, end: 9 }],
+    }
+    const note = String(failureTraceNote([loaded], 'the deployed app'))
+    expect(note).not.toContain('TRANSPORT failure')
+    expect(note).toContain('POST /api/articles/x/favorite → 401')
+  })
+})
+
+/**
  * X0 xr-molecule-flash-m112's +53:46 deployed walk is the case: the note's five rows were
  * `url-navigation.spec.ts:268` and FOUR traces of `:107`'s `afterEach` line, every request `→ -1`,
  * while the favorite cause — `articles.spec.ts:123/:139`, `social.spec.ts:115`, the one failure

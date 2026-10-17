@@ -2706,6 +2706,27 @@ function groupFailures(
  */
 const NO_BASE_URL_ERROR = /Cannot navigate to invalid URL/i
 
+/** The browser's own `net::ERR_*`, as Playwright prints it for a document that never loaded. */
+const NETWORK_ERROR_TEXT = /\bnet::ERR_[A-Z0-9_]+\b/
+
+/**
+ * Whether every cause this run grouped is a `page.goto` that ran out of time.
+ *
+ * @param causes - The run's grouped causes.
+ * @returns True when the run measured no page at all.
+ */
+function everyCauseIsNavigationTimeout(causes: readonly FailureCause[]): boolean {
+  return (
+    causes.length > 0 &&
+    causes.every(
+      (cause) =>
+        cause.message !== null &&
+        (/\bpage\.goto\b/.test(cause.message) || /navigating to/.test(cause.message)) &&
+        /timeout|timed out/i.test(cause.message),
+    )
+  )
+}
+
 /**
  * The one-line note for a run whose EVERY failure is {@link NO_BASE_URL_ERROR}: a configuration
  * failure, not a result about the app.
@@ -2793,6 +2814,25 @@ export function failureCausesNote(
   // cannot report them again.
   const locations = [...new Set(causes.flatMap((c) => c.tests.map((t) => t.where)).filter(Boolean))]
   const rerun = run ? rerunOfRunningSuite(run, locations, excluded) : null
+  // A document the browser could not load explains every failure at once, and it is not in the
+  // app: m118 (+37:09) read 14 `page.goto` timeouts as app failures while the page load had ended
+  // `net::ERR_CONTENT_DECODING_FAILED`. The cause list is the wrong shape here — there is one
+  // cause and it is the server — so the note leads with the browser's own line, not a fix round.
+  const networkError = NETWORK_ERROR_TEXT.exec(log)?.[0]
+  if (networkError !== undefined && everyCauseIsNavigationTimeout(causes)) {
+    return (
+      `${total} failure${total === 1 ? '' : 's'} in this run, and every one is a \`page.goto\` ` +
+      `that never loaded while the browser reported \`${networkError}\` — the document request ` +
+      `itself failed, so none of these is the app’s code or a selector. Fix the server first` +
+      (networkError === 'net::ERR_CONTENT_DECODING_FAILED'
+        ? ': a body whose gzip `content-encoding` no longer matches its bytes does this, and a ' +
+          '`vite preview` over a build must be started with ' +
+          '`MOL_E2E_PREVIEW_PLUGIN=0 npx vite preview --port 4173 --strictPort`'
+        : ' (what the run hit, and why it refused the connection)') +
+      (rerun ? `. Then send exactly this: \`${rerun}\`` : '') +
+      (locations.length > 0 ? `. Failing tests: ${locations.join(', ')}.` : '')
+    )
+  }
   const ignoredTitles = [...new Set(ignored.map((t) => t.title || t.where).filter(Boolean))]
   const flakyTitles = [...new Set(flaky.map((t) => t.where || t.title).filter(Boolean))]
   // A cause that never reached the app is not a cause the app's code can fix: the transport

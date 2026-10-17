@@ -2151,6 +2151,52 @@ describe('failureCausesNote — a connection failure is not an app-code cause (x
   })
 })
 
+/**
+ * xr-molecule-flash-m118 (+37:09 → +44:23): every one of 14 `page.goto` timeouts against a
+ * `vite preview` had ended `net::ERR_CONTENT_DECODING_FAILED` — a gzipped HTML body the published
+ * preview plugin corrupted — and the run read them as app failures for seven minutes. The note
+ * must lead with the browser's own line, not a fix round.
+ */
+describe('failureCausesNote — a document the browser could not load (xr-molecule-flash-m118)', () => {
+  const undecodable = [
+    'Running 14 tests using 1 worker',
+    '',
+    '  1) [chromium] › url-navigation.spec.ts:13:5 › should show the home page ─────────',
+    '',
+    '    Error: page.goto: Timeout 30000ms exceeded.',
+    '    Call log:',
+    '      - navigating to "http://localhost:4173/", waiting until "load"',
+    '    [chromium] Failed to load resource: net::ERR_CONTENT_DECODING_FAILED',
+    '',
+    '  2) [chromium] › url-navigation.spec.ts:23:5 › should show an article ─────────',
+    '',
+    '    Error: page.goto: Timeout 30000ms exceeded.',
+    '    Call log:',
+    '      - navigating to "http://localhost:4173/articles", waiting until "load"',
+    '    [chromium] Failed to load resource: net::ERR_CONTENT_DECODING_FAILED',
+    '',
+    '  14 failed',
+  ].join('\n')
+
+  it('leads with the document-request error, and says none of it is app code', () => {
+    const note = failureCausesNote(undecodable)!
+    expect(note).toContain('every one is a `page.goto` that never loaded')
+    expect(note).toContain('`net::ERR_CONTENT_DECODING_FAILED`')
+    expect(note).toContain('none of these is the app’s code or a selector')
+    expect(note).toContain('MOL_E2E_PREVIEW_PLUGIN=0 npx vite preview --port 4173 --strictPort')
+    // The list shape would read as fourteen defects.
+    expect(note).not.toContain('grouped by cause')
+  })
+
+  it('keeps the cause list when the failures are not page loads', () => {
+    const note = failureCausesNote(
+      undecodable.replace(/Error: page\.goto: Timeout 30000ms exceeded\./g, 'Expected: 2'),
+    )!
+    expect(note).toContain('grouped by cause')
+    expect(note).not.toContain('never loaded')
+  })
+})
+
 describe('suiteRunPriorityLaunch', () => {
   const LAUNCH = 'sh /tmp/mol-bg-1.sh > /tmp/mol-bg-1.log 2>&1; echo $? > /tmp/mol-bg-1.exit'
 
