@@ -1,5 +1,11 @@
 # @molecule/api-code-sandbox-flyio
 
+## 1.3.0
+
+### Minor Changes
+
+- d0e9e17: A caller can hold a sandbox awake for one provisioning window: `SandboxConfig.idleAction` sets the idle policy for a single sandbox, `Sandbox.setIdleAction` changes it in place, and `SandboxProvider.defaultIdleAction` reports the steady-state policy to restore afterwards.
+
 ## 1.2.10
 
 ### Patch Changes

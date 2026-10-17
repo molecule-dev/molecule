@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.8.2
+
+### Patch Changes
+
+- aa0c741: Adds `locatedCommandSegments`, which reports each shell statement's offset and its own leading `NAME=value` words, so an environment assignment can be placed in the statement that runs a command.
+
 ## 1.8.1
 
 ### Patch Changes
