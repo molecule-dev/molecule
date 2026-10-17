@@ -8,6 +8,7 @@
 import { posix } from 'path'
 
 import { type CommandSegment, commandSegments, locatedCommandSegments } from './command-position.js'
+import { classifyRunFailure, type RunFailureKind } from './failure-kind.js'
 import { commandRunsNoTests } from './no-test-run.js'
 import {
   isDiagnosisRun,
@@ -2391,6 +2392,13 @@ export interface FailureCause {
    * predicts a test spending its budget on a repeated action (xr-molecule-flash-m110 +20:44).
    */
   budgetMs?: number
+  /**
+   * The layer the failure came from ({@link classifyRunFailure}). A `connection` cause never
+   * reached the app, so it is NOT a cause the app's code can fix: the note says to re-run it
+   * once and read the app's log on a repeat, instead of sending a fix at a handler
+   * (xr-molecule-flash-m110 +18:42 rewrote a CORS middleware for a 20 s connection timeout).
+   */
+  kind: RunFailureKind
 }
 
 /**
@@ -2486,7 +2494,7 @@ function groupFailures(
   const flaky = new Set(flakyTests.map(testKey))
   const byMessage = new Map<
     string,
-    { tests: FailedTest[]; evidence: string[]; budgetMs: number | null }
+    { tests: FailedTest[]; evidence: string[]; budgetMs: number | null; kind: RunFailureKind }
   >()
   const named: FailedTest[] = []
   for (const block of failureBlocks(text)) {
@@ -2503,12 +2511,15 @@ function groupFailures(
     const group = byMessage.get(message)
     if (group) group.tests.push(test)
     // The FIRST block with this signature carries the evidence: a later block of the same cause
-    // says the same thing, and the first is the one the note's own line refers to.
+    // says the same thing, and the first is the one the note's own line refers to. Its LAYER
+    // rides along too: a cause that never reached the app is not an app-code fix
+    // (`failure-kind.ts`).
     else
       byMessage.set(message, {
         tests: [test],
         evidence: failureEvidence(failureBody(block), message),
         budgetMs: failureBudgetMs(block),
+        kind: classifyRunFailure(block)?.kind ?? 'assertion',
       })
   }
   const causes: FailureCause[] = []
@@ -2520,6 +2531,9 @@ function groupFailures(
         seconds: null,
         tests,
         evidence: group.evidence,
+        // A duration group carries no block, so nothing says the transport failed: a cause with
+        // no layer of its own is read as an assertion (unknown is never `connection`).
+        kind: group.kind,
         ...(group.budgetMs === null ? {} : { budgetMs: group.budgetMs }),
       })
   }
@@ -2549,7 +2563,13 @@ function groupFailures(
     else byDuration.push({ seconds: t.seconds, tests: [t] })
   }
   for (const g of byDuration)
-    causes.push({ message: null, seconds: g.seconds, tests: g.tests, evidence: [] })
+    causes.push({
+      message: null,
+      seconds: g.seconds,
+      tests: g.tests,
+      evidence: [],
+      kind: 'assertion',
+    })
   const ignored = distinctTests(named).filter(
     (t) => matchingExcludedTitles(t.title, excluded).length > 0,
   )
@@ -2600,9 +2620,24 @@ export function failureCausesNote(
   const rerun = run ? rerunOfRunningSuite(run, locations, excluded) : null
   const ignoredTitles = [...new Set(ignored.map((t) => t.title || t.where).filter(Boolean))]
   const flakyTitles = [...new Set(flaky.map((t) => t.where || t.title).filter(Boolean))]
+  // A cause that never reached the app is not a cause the app's code can fix: the transport
+  // failed, so the one action is a re-run (xr-molecule-flash-m110 +18:42 — a 20 s connection
+  // timeout was read as an assertion and answered with a CORS middleware). Every cause being one
+  // is its own sentence: nothing the app produced was measured, so there is no fix round at all.
+  const connections = causes.filter((cause) => cause.kind === 'connection')
+  if (causes.length > 0 && connections.length === causes.length) {
+    const at = [...new Set(connections.flatMap((c) => c.tests.map((t) => t.where)).filter(Boolean))]
+    return (
+      `${total} failure${total === 1 ? '' : 's'} in this run, and every one is a CONNECTION error — ` +
+      `the requests never reached the app, so nothing here is an app-code cause${at.length ? `: ${at.join(', ')}` : ''}. ` +
+      `Send the same file${at.length === 1 ? '' : 's'} once more as ${at.length === 1 ? 'it is' : 'they are'}; ` +
+      "if the failure repeats, read the app's own log (`read_logs`) — a connection error is never a " +
+      'handler shape, a header or CORS.'
+    )
+  }
   const header =
     `${total} failure${total === 1 ? '' : 's'} in this run, grouped by cause — fix every cause ` +
-    `below before the next deploy:\n`
+    `below${connections.length > 0 ? ' the app’s code can produce, and re-send the connection error once as it is' : ' before the next deploy'}:\n`
   // The flaky sentence sits before the ignored one: the ignored sentence is the LAST thing the
   // note says, and callers assert on that ending.
   const tail =
@@ -2611,7 +2646,13 @@ export function failureCausesNote(
       ? ' Flaky (failed once, passed on the config retry — the runner counts these as flaky, not ' +
         `as failures): ${flakyTitles.join(', ')}.`
       : '') +
-    (ignoredTitles.length ? ` Ignored (excluded by the request): ${ignoredTitles.join(', ')}.` : '')
+    (ignoredTitles.length
+      ? ` Ignored (excluded by the request): ${ignoredTitles.join(', ')}.`
+      : '') +
+    (connections.length > 0
+      ? ` The connection error is not app code: send that file once more as it is, and if it repeats, ` +
+        "read the app's own log (`read_logs`) — it never reached the app."
+      : '')
   // This list is the part of the result that SURVIVES the platform's tool-output cut: the stdout
   // above it is cut in the MIDDLE at {@link TOOL_RESULT_CHARS}, which is why the recap must fit
   // whole ({@link FAILURE_CAUSES_CHARS}) instead of being capped at a line count that left 3 of
@@ -2663,7 +2704,8 @@ function failureCauseLine(cause: FailureCause, index: number): string {
     line.length > FAILURE_EVIDENCE_CHARS ? `${line.slice(0, FAILURE_EVIDENCE_CHARS - 1)}…` : line,
   )
   return (
-    `  ${index + 1}. ${signature} — ${cause.tests.length} test${cause.tests.length === 1 ? '' : 's'} ` +
+    `  ${index + 1}. ${cause.kind === 'connection' ? 'CONNECTION error, not the app’s — ' : ''}${signature} — ` +
+    `${cause.tests.length} test${cause.tests.length === 1 ? '' : 's'} ` +
     `in ${files} file${files === 1 ? '' : 's'}: ${tests.join(', ')}${more}` +
     (shortened.length ? `\n     ${shortened.join(' · ')}` : '')
   )

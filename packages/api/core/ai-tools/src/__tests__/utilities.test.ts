@@ -1924,6 +1924,76 @@ describe('repeatingFailure', () => {
   })
 })
 
+describe('failureCausesNote — a connection failure is not an app-code cause (xr-molecule-flash-m110)', () => {
+  /** Two tests whose requests never reached the app, as Playwright prints a transport failure. */
+  const refused = [
+    'Running 2 tests using 1 worker',
+    '',
+    '  1) [chromium] › auth.spec.ts:22:3 › Auth › should sign up ─────────',
+    '',
+    '    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4000/api/users',
+    '    Call log:',
+    '      - navigating to "http://localhost:4000/api/users", waiting until "load"',
+    '',
+    '  2) [chromium] › articles.spec.ts:14:3 › Articles › should list ─────────',
+    '',
+    '    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4000/api/articles',
+    '',
+    '  2 failed',
+  ].join('\n')
+
+  it('says every failure is the transport, and sends the file again instead of fixing code', () => {
+    const note = failureCausesNote(refused)!
+    expect(note).toContain('every one is a CONNECTION error')
+    expect(note).toContain('nothing here is an app-code cause')
+    expect(note).toContain('auth.spec.ts:22')
+    expect(note).toContain('Send the same files once more as they are')
+    expect(note).toContain('`read_logs`')
+    // Never the "fix every cause before the next deploy" instruction: there is no fix round.
+    expect(note).not.toContain('fix every cause')
+    expect(failuresByCause(refused).every((cause) => cause.kind === 'connection')).toBe(true)
+  })
+
+  it('keeps the app’s causes, and marks the connection failure apart from them', () => {
+    const mixed = [
+      refused,
+      '',
+      '  3) [chromium] › tags.spec.ts:12:3 › Tags › shows the pill ─────────',
+      '',
+      '    Expected class "active" but got ""',
+      '',
+      '  3 failed',
+    ].join('\n')
+    const note = failureCausesNote(mixed)!
+    expect(note).toContain('3 failures in this run, grouped by cause')
+    expect(note).toContain('fix every cause below the app’s code can produce')
+    expect(note).toContain('CONNECTION error, not the app’s —')
+    expect(note).toContain('3. `Expected class "active" but got ""`')
+    // The connection failures never reached the app and are not what the fix round is for.
+    expect(note).toContain('The connection error is not app code')
+    // The connection failure is not counted among the causes the app's code can fix.
+    expect(note).not.toContain('fix every cause below before the next deploy')
+  })
+
+  it('leaves a run whose failures all reached the app exactly as it was', () => {
+    const note = failureCausesNote(
+      [
+        '  1) [chromium] › a.spec.ts:3:3 › A › one ─────────',
+        '',
+        '    Expected class "active" but got ""',
+        '',
+        '  2) [chromium] › a.spec.ts:9:3 › A › two ─────────',
+        '',
+        '    Expected class "active" but got ""',
+        '',
+        '  2 failed',
+      ].join('\n'),
+    )!
+    expect(note).toContain('fix every cause below before the next deploy')
+    expect(note).not.toContain('CONNECTION')
+  })
+})
+
 describe('suiteRunPriorityLaunch', () => {
   const LAUNCH = 'sh /tmp/mol-bg-1.sh > /tmp/mol-bg-1.log 2>&1; echo $? > /tmp/mol-bg-1.exit'
 
