@@ -1,5 +1,11 @@
 # @molecule/app-fonts
 
+## 1.2.0
+
+### Minor Changes
+
+- 2584a32: A local face's `file` may now be a final URL — a root-absolute asset path (`/assets/…`), an `http(s):` URL or a `data:` URL — and `setFont()` uses it as-is instead of resolving it under `<basePath>fonts/`, so a bundler's `?url` import can serve a font without copying files.
+
 ## 1.1.0
 
 ### Minor Changes

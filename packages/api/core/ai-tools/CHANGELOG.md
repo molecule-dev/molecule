@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.9.2
+
+### Patch Changes
+
+- `exec_command` results now carry `exitCodeNote` when a piped check's reported code belongs to the pipeline's last stage rather than the check — naming the stage and what the output carries, so `tsc … | head` reporting 0 beside a printed type error is no longer read as a clean run.
+
 ## 1.9.1
 
 ### Patch Changes
