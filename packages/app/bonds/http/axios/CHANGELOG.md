@@ -1,5 +1,13 @@
 # @molecule/app-http-axios
 
+## 1.0.4
+
+### Patch Changes
+
+- 54ccf7c: A request can opt out of the auth gate with `skipAuthGate: true`. That is what a request the gate itself depends on must set: a gate that waits for a session restore whose own request goes through the same client waits on itself, holding the very request it is waiting for, and every request it holds stalls until the gate times out. That bound is now 3 s (was 10 s, measured against a normal restore's one round trip) and a timeout with requests held is reported at error level naming `skipAuthGate`, instead of a console warning.
+- 8e3ac7b: The `authScheme` guidance now names the call that takes it: `setClient(createFetchClient({ baseURL, authScheme: 'Token' }))`, the bonded provider's `createAxiosClient({ baseURL, authScheme: 'Token' })`, or the auth client's `createJWTAuthClient({ authScheme: 'Token' })`. It is a CONSTRUCTOR option — "the client config's `authScheme`" read as a property of the client `getClient()` returns, which has no such property.
+- bb7e96a: The auth token is sent with a configurable scheme. `createAxiosClient` takes `authScheme` — `Bearer` by default, or what the API expects, e.g. `Token` for an API that reads `Authorization: Token <jwt>`. It is the same option `@molecule/app-http`'s `HttpClientConfig` already declares, so a client config written against the core works unchanged on the Axios bond the scaffold wires. `createDefaultHttpClientWithAuthBearer` takes `authScheme` too.
+
 ## 1.0.3
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # @molecule/app-bonds-default-react
 
+## 1.1.2
+
+### Patch Changes
+
+- 54ccf7c: The auth docs name the one request a registered gate must exempt: an app whose own session store restores through the bonded HTTP client sends that request with `skipAuthGate: true`, or the gate holds the request it is waiting for. The shipped restore never needs it — it sends its current-user request with `fetch`, so the gate the default auth bonds register cannot hold it.
+- 8e3ac7b: The `authScheme` guidance now names the call that takes it: `setClient(createFetchClient({ baseURL, authScheme: 'Token' }))`, the bonded provider's `createAxiosClient({ baseURL, authScheme: 'Token' })`, or the auth client's `createJWTAuthClient({ authScheme: 'Token' })`. It is a CONSTRUCTOR option — "the client config's `authScheme`" read as a property of the client `getClient()` returns, which has no such property.
+- bb7e96a: The auth token is sent with a configurable scheme. `createAxiosClient` takes `authScheme` — `Bearer` by default, or what the API expects, e.g. `Token` for an API that reads `Authorization: Token <jwt>`. It is the same option `@molecule/app-http`'s `HttpClientConfig` already declares, so a client config written against the core works unchanged on the Axios bond the scaffold wires. `createDefaultHttpClientWithAuthBearer` takes `authScheme` too.
+
 ## 1.1.1
 
 ### Patch Changes

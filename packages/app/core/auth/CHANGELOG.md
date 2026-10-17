@@ -1,5 +1,21 @@
 # @molecule/app-auth
 
+## 1.3.0
+
+### Minor Changes
+
+- 3e3a20f: `createBrowserStorageAdapter()` builds a `StorageAdapter` over the browser's Web Storage, which is what
+  keeps a signed-in session across a page reload when the API issues no httpOnly session cookie. Pass it as
+  `AuthClientConfig.storage`; `kind: 'session'` narrows it to the tab's lifetime. The client's own default
+  stays `'memory'`, and an httpOnly cookie session remains the stronger choice wherever the API sets one —
+  a token in Web Storage is readable by any script on the origin. `AuthClientConfig.storage`'s docs now say
+  which store to pick, how to swap it, and what each costs.
+
+### Patch Changes
+
+- 54ccf7c: The auth docs name the one request a registered gate must exempt: an app whose own session store restores through the bonded HTTP client sends that request with `skipAuthGate: true`, or the gate holds the request it is waiting for. The shipped restore never needs it — it sends its current-user request with `fetch`, so the gate the default auth bonds register cannot hold it.
+- 8e3ac7b: The `authScheme` guidance now names the call that takes it: `setClient(createFetchClient({ baseURL, authScheme: 'Token' }))`, the bonded provider's `createAxiosClient({ baseURL, authScheme: 'Token' })`, or the auth client's `createJWTAuthClient({ authScheme: 'Token' })`. It is a CONSTRUCTOR option — "the client config's `authScheme`" read as a property of the client `getClient()` returns, which has no such property.
+
 ## 1.2.2
 
 ### Patch Changes

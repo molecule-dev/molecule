@@ -1,5 +1,13 @@
 # @molecule/app-http
 
+## 1.1.3
+
+### Patch Changes
+
+- 54ccf7c: A request can opt out of the auth gate with `skipAuthGate: true`. That is what a request the gate itself depends on must set: a gate that waits for a session restore whose own request goes through the same client waits on itself, holding the very request it is waiting for, and every request it holds stalls until the gate times out. That bound is now 3 s (was 10 s, measured against a normal restore's one round trip) and a timeout with requests held is reported at error level naming `skipAuthGate`, instead of a console warning.
+- fffa0c5: A request is released when the auth gate throws synchronously, instead of waiting on it.
+- 8e3ac7b: The `authScheme` guidance now names the call that takes it: `setClient(createFetchClient({ baseURL, authScheme: 'Token' }))`, the bonded provider's `createAxiosClient({ baseURL, authScheme: 'Token' })`, or the auth client's `createJWTAuthClient({ authScheme: 'Token' })`. It is a CONSTRUCTOR option — "the client config's `authScheme`" read as a property of the client `getClient()` returns, which has no such property.
+
 ## 1.1.2
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/api-resource-device
 
+## 1.0.7
+
+### Patch Changes
+
+- 5f74674: `DeviceService` is exported from the package root, so the interface a caller writes at the call site — `get<DeviceService>('device')` — can be imported by name rather than re-declared as an inline generic. The `types` namespace export is unchanged.
+
 ## 1.0.6
 
 ### Patch Changes

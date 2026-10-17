@@ -1,5 +1,11 @@
 # @molecule/api-jwt
 
+## 1.0.7
+
+### Patch Changes
+
+- 5f74674: The session guidance now names the typed calls: mint the device id with `get<DeviceService>('device')?.createOrUpdate(userId, deviceName)` — it resolves to the id string, not a row — before `authorization.set(req, res, { userId, deviceId })`.
+
 ## 1.0.6
 
 ### Patch Changes

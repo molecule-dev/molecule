@@ -1,5 +1,17 @@
 # @molecule/api-ai-tools
 
+## 1.7.0
+
+### Minor Changes
+
+- 3e28465: Read a failed Playwright run's own `trace.zip` files, and hand the platform what they say: `parseTraceArtifacts` (with `traceArtifactsScript`, a dependency-free in-sandbox reader) returns each failing test's last requests with their statuses and its console errors, and `failureTraceNote` writes them as a bounded note — so a click that changed nothing is answered by `POST /api/articles/x/favorite → 401` instead of by hand-written browser probes. `diagnosisTraceCommand` adds `--trace=retain-on-failure` to a run narrowed to a part of the suite when the config it reads records traces for no failure (`suiteRecordsTraces`), never to the whole-suite proof run.
+
+### Patch Changes
+
+- a0ee997: A background Playwright run prints each failure's own error into its log as that test fails, not only in the summary at the end: `streamingBackgroundCommand` sets Playwright's inline-failure switch on the `list` reporter it puts a background suite on. A run that is still walking therefore carries its causes, so `grep -n -A 20 '<test name>' <log>` returns a failure's error while the suite is running instead of the `✘` row alone.
+- 67faa69: `edit_file` names every replacement of a batch that does not match the file. A batch is applied all-or-nothing, so the failure now reports each bad `old_string` — its position in the batch, and where it stops agreeing with the file — in one result, instead of one replacement per round trip. Nothing is written when any of them fails.
+- c60bd0b: `wait_for_task` ends a wait early — and a note hands over a stop command — only for a cause that is PROVEN by a repeated error and failing the whole run. A shared duration is reported as a lead while the wait goes on, instead of ending it.
+
 ## 1.6.6
 
 ### Patch Changes
