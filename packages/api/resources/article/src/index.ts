@@ -22,7 +22,7 @@
  * // POST   /articles                   create (signed in)
  * // GET    /articles                   ?tag= &author= &favoritedBy= &limit= &offset=
  * // GET    /articles/feed              authors the signed-in user follows
- * // GET    /articles/tags              tags in use, most-used first
+ * // GET    /articles/tags              every tag in use, most-used first (?limit= caps it)
  * // GET    /articles/:slug
  * // PUT    /articles/:slug             author only; a new title gives a new slug
  * // DELETE /articles/:slug             author only
@@ -45,6 +45,17 @@
  * // page.data[0].favorited, page.data[0].favoritesCount, page.total
  * ```
  *
+ * @example
+ * ```typescript
+ * // RealWorld's `GET /api/tags` returns EVERY tag in use — that is `allTags()`,
+ * // not `popularTags()`, whose default is the top 20:
+ * import { allTags } from '@molecule/api-resource-article'
+ *
+ * router.get('/api/tags', async (_req, res) => {
+ *   res.json({ tags: (await allTags()).map((tag) => tag.tag) })
+ * })
+ * ```
+ *
  * @remarks
  * - **Migration required: this package ships every table it reads, four in
  *   all.** `articles.sql` creates the `articles` and `article_tags` tables;
@@ -64,6 +75,13 @@
  *   column (0-based). An app that reads the join table itself must order by
  *   `position` — a submission-order assertion (`tagList[0]`, `tagList[1]`) reads
  *   the wrong tag otherwise. `Article.tagList` is already in that order.
+ * - **Tags: `allTags()` is every tag in use; `popularTags(limit)` is the top 20
+ *   by default.** A `GET /tags` endpoint (RealWorld's `GET /api/tags`, which
+ *   returns the whole list) built on `popularTags()` with no argument drops
+ *   every tag past the twentieth as soon as the database holds more than 20 —
+ *   call `allTags()` for that endpoint, and pass a `limit` only where the caller
+ *   asked for the N most-used. The package's own `GET /articles/tags` route does
+ *   exactly this: no `?limit=` is the whole list.
  * - **Lists are newest first and paginated** — `{ data, total, limit, offset }`,
  *   at most 100 per page. `createdAt` is written with milliseconds, so two
  *   articles from the same second still come back in order on SQLite.

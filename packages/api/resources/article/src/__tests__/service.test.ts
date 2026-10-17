@@ -14,6 +14,7 @@ import { findMany, setStore } from '@molecule/api-database'
 import { createMigrator, createPool, createStore } from '@molecule/api-database-sqlite'
 
 import {
+  allTags,
   createArticle,
   deleteArticle,
   getArticleBySlug,
@@ -164,6 +165,28 @@ describe('articles', () => {
   it('ranks tags by use', async () => {
     const tags = await popularTags()
     expect(tags[0]).toEqual({ tag: 'dragons', count: 2 })
+  })
+
+  it('allTags returns every tag in use once the database holds more than 20', async () => {
+    const bulk = Array.from({ length: 25 }, (_, i) => `bulk-${String(i).padStart(2, '0')}`)
+    await createArticle(CAROL, { title: 'Bulk tags', body: 'x', tagList: bulk })
+
+    const all = await allTags()
+    const names = all.map((t) => t.tag)
+    // The list a GET /tags endpoint returns: every tag just written is in it,
+    // though the database holds well over 20 (29 before this article).
+    expect(bulk.every((tag) => names.includes(tag))).toBe(true)
+    expect(names.length).toBeGreaterThanOrEqual(25)
+    // Most-used first, ties alphabetical, so the order is stable between calls.
+    expect(all).toEqual([...all].sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag)))
+
+    // The sibling call's default is the top 20 — the difference between the two
+    // is exactly what a handler built on `popularTags()` gets wrong.
+    const top = await popularTags()
+    expect(top).toHaveLength(20)
+    expect(top.filter((t) => bulk.includes(t.tag)).length).toBeLessThan(bulk.length)
+    // …and asking the same function for everything is the documented alternative.
+    expect(await popularTags(Number.POSITIVE_INFINITY)).toEqual(all)
   })
 
   it('keeps the submitted tag order in the join table', async () => {

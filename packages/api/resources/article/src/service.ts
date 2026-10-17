@@ -403,12 +403,43 @@ export async function setFavorite(
 }
 
 /**
- * Tags in use, most-used first.
+ * Every tag in use, most-used first (ties alphabetical).
  *
- * @param limit - How many to return (default 20).
- * @returns Tags with their article counts.
+ * This is the list a `GET /tags` endpoint returns, in the shape RealWorld's
+ * `GET /api/tags` asks for: **all** of the tags in use, however many the
+ * database holds. Use it for that endpoint — `popularTags` is the top-N
+ * leaderboard and its default of 20 silently drops every tag past the
+ * twentieth.
+ *
+ * @returns Every tag in use, with its article count.
+ */
+export async function allTags(): Promise<TagCount[]> {
+  return countTagRows()
+}
+
+/**
+ * The `limit` most-used tags, most-used first (ties alphabetical).
+ *
+ * **This is a leaderboard, not "every tag".** The default is the top 20, so a
+ * `GET /tags`-shaped endpoint that returns all tags in use (RealWorld's
+ * `GET /api/tags`) must call `allTags` — or pass
+ * `Number.POSITIVE_INFINITY` — or it silently drops every tag past the
+ * twentieth once the database holds more than 20. Pass an explicit `limit`
+ * when the caller really did ask for the N most-used, e.g. a sidebar of ten.
+ *
+ * @param limit - How many tags to return, most-used first (default 20; `Number.POSITIVE_INFINITY` for every tag).
+ * @returns The tags with their article counts.
  */
 export async function popularTags(limit = 20): Promise<TagCount[]> {
+  return (await countTagRows()).slice(0, Math.max(1, limit))
+}
+
+/**
+ * Tags in use with their article counts, most-used first (ties alphabetical).
+ *
+ * @returns Every tag in use.
+ */
+const countTagRows = async (): Promise<TagCount[]> => {
   const rows = await findMany<{ tag: string }>(ARTICLE_TAGS, {
     orderBy: TAGS_IN_ARTICLE_ORDER,
     select: ['tag'],
@@ -418,6 +449,5 @@ export async function popularTags(limit = 20): Promise<TagCount[]> {
   for (const r of rows) counts.set(r.tag, (counts.get(r.tag) ?? 0) + 1)
   return [...counts.entries()]
     .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
-    .slice(0, Math.max(1, limit))
     .map(([tag, n]) => ({ tag, count: n }))
 }

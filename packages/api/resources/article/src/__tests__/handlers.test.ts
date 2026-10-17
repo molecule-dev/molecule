@@ -6,6 +6,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const service = vi.hoisted(() => ({
+  allTags: vi.fn(),
   createArticle: vi.fn(),
   deleteArticle: vi.fn(),
   getArticleBySlug: vi.fn(),
@@ -23,7 +24,7 @@ vi.mock('@molecule/api-i18n', () => ({
   t: (_key: string, _v: unknown, opts?: { defaultValue?: string }) => opts?.defaultValue ?? _key,
 }))
 
-import { create, del, favorite, feed, list, read, update } from '../handlers/index.js'
+import { create, del, favorite, feed, list, read, tags, update } from '../handlers/index.js'
 
 interface FakeRes {
   statusCode: number
@@ -132,6 +133,23 @@ describe('article handlers', () => {
     const noFav = res('u1')
     await favorite(req({ params: { slug: 'nope' } }), noFav as never)
     expect(noFav.statusCode).toBe(404)
+  })
+
+  it('tags lists every tag in use, and ?limit= is the only thing that caps it', async () => {
+    service.allTags.mockResolvedValue([{ tag: 'a', count: 3 }])
+    service.popularTags.mockResolvedValue([{ tag: 'a', count: 3 }])
+
+    // No `?limit=`: the whole list — a GET /tags endpoint must not be capped at
+    // the top 20 by the handler's own choice of call.
+    const whole = res()
+    await tags(req(), whole as never)
+    expect(service.allTags).toHaveBeenCalledTimes(1)
+    expect(service.popularTags).not.toHaveBeenCalled()
+    expect(whole.body).toEqual([{ tag: 'a', count: 3 }])
+
+    const capped = res()
+    await tags(req({ query: { limit: '5' } }), capped as never)
+    expect(service.popularTags).toHaveBeenCalledWith(5)
   })
 
   it('answers 500 when the service throws', async () => {

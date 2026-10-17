@@ -8,6 +8,7 @@ import { logger } from '@molecule/api-logger'
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
 import {
+  allTags,
   createArticle,
   deleteArticle,
   getArticleBySlug,
@@ -96,14 +97,18 @@ export async function feed(req: MoleculeRequest, res: MoleculeResponse): Promise
 }
 
 /**
- * `GET /articles/tags` — tags in use, most-used first (`?limit=`).
+ * `GET /articles/tags` — every tag in use, most-used first.
  *
- * @param req - The request.
+ * With no `?limit=` this is the whole list, the shape RealWorld's `GET /tags`
+ * asks for; `?limit=` narrows it to that many most-used tags.
+ *
+ * @param req - The request; `?limit=` caps the list.
  * @param res - `[{ tag, count }]`.
  */
 export async function tags(req: MoleculeRequest, res: MoleculeResponse): Promise<void> {
   try {
-    res.json(await popularTags(queryInt(req.query.limit)))
+    const limit = queryInt(req.query.limit)
+    res.json(limit === undefined ? await allTags() : await popularTags(limit))
   } catch (error) {
     logger.error('Failed to list article tags', { error })
     failed(res, 'article.error.tagsFailed', 'Failed to list tags')
