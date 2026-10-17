@@ -164,6 +164,97 @@ function dropSatisfiedAddColumns(db: Database.Database, sql: string): string {
   return out
 }
 
+/** The head of an `ALTER TABLE … DROP COLUMN IF EXISTS …` statement. */
+const DROP_COLUMN_IF_EXISTS =
+  /ALTER\s+TABLE\s+["`]?([A-Za-z_][A-Za-z0-9_]*)["`]?\s+DROP\s+COLUMN\s+IF\s+EXISTS\s+["`]?([A-Za-z_][A-Za-z0-9_]*)["`]?/gi
+
+/**
+ * The `ALTER TABLE … DROP COLUMN IF EXISTS …;` statements in a setup file, with
+ * the span each occupies in the text — the same span reader as
+ * {@link addColumnSpans}, so both honor one quoting/terminator grammar.
+ *
+ * @param sql - The migration file as written (Postgres dialect).
+ * @returns One entry per statement.
+ */
+function dropColumnSpans(
+  sql: string,
+): { table: string; column: string; from: number; to: number }[] {
+  const out: { table: string; column: string; from: number; to: number }[] = []
+  DROP_COLUMN_IF_EXISTS.lastIndex = 0
+  for (let m = DROP_COLUMN_IF_EXISTS.exec(sql); m; m = DROP_COLUMN_IF_EXISTS.exec(sql)) {
+    // The statement runs to its first `;` outside a string and outside parens.
+    // No terminator means the file's end.
+    let depth = 0
+    let quote = ''
+    let i = m.index + m[0].length
+    for (; i < sql.length; i++) {
+      const ch = sql[i]
+      if (quote) {
+        if (ch === quote) quote = ''
+        continue
+      }
+      if (ch === "'" || ch === '"' || ch === '`') quote = ch
+      else if (ch === '(') depth++
+      else if (ch === ')') depth--
+      else if (ch === ';' && depth === 0) break
+    }
+    const to = i < sql.length ? i + 1 : sql.length
+    out.push({ table: m[1], column: m[2], from: m.index, to })
+    DROP_COLUMN_IF_EXISTS.lastIndex = to
+  }
+  return out
+}
+
+/**
+ * Remove the `DROP COLUMN IF EXISTS` statements the database already satisfies —
+ * Postgres's reading of the clause, which SQLite has no form of. A statement is
+ * satisfied when the table has no such column: either it EXISTS without the column
+ * (the drop is the no-op Postgres would perform), or this same file creates the
+ * table and does not declare the column in its own `CREATE TABLE IF NOT EXISTS`
+ * (by the time the DROP runs the column is absent, so Postgres no-ops too).
+ *
+ * This is the one that broke production. An agent repairing a column that only its
+ * DEV database had (a since-deleted migration added it) wrote
+ * `ALTER TABLE "usersSecrets" DROP COLUMN IF EXISTS "userId";`. In dev the column
+ * existed and the drop was the fix; on the FRESH production database it never
+ * existed, and SQLite rejects the clause outright (`near "EXISTS": syntax error`),
+ * so the deploy crashed with `Migrations failed` (X1 flash-m103, 2026-10-17).
+ *
+ * A statement for a table that does not exist is KEPT: Postgres refuses that too
+ * (`relation … does not exist`), so a migration naming a table no file creates
+ * still fails the run instead of disappearing into a no-op.
+ *
+ * @param db - The open database.
+ * @param sql - The migration file as written.
+ * @returns The file with the satisfied statements removed.
+ */
+function dropSatisfiedDropColumns(db: Database.Database, sql: string): string {
+  // Tables this same file creates, with the columns it declares for each — the
+  // absent-table branch reads the file's own intent rather than guessing.
+  const declared = new Map(
+    declaredTables(sql).map((t) => [
+      t.table.toLowerCase(),
+      new Set(t.columns.map((c) => c.name.toLowerCase())),
+    ]),
+  )
+  let out = sql
+  for (const span of dropColumnSpans(sql).reverse()) {
+    const existing = db.prepare('SELECT name FROM pragma_table_info(?)').all(span.table) as {
+      name: string
+    }[]
+    if (existing.length === 0) {
+      const own = declared.get(span.table.toLowerCase())
+      if (own && !own.has(span.column.toLowerCase())) {
+        out = out.slice(0, span.from) + out.slice(span.to)
+      }
+      continue
+    }
+    const has = existing.some((c) => c.name.toLowerCase() === span.column.toLowerCase())
+    if (!has) out = out.slice(0, span.from) + out.slice(span.to)
+  }
+  return out
+}
+
 /**
  * The file that CREATES each table: the first file in run order whose text declares
  * it. Ownership is what keeps a re-read OLD file from shaping a table another file
@@ -353,10 +444,12 @@ export function createMigrator(migrationsDir: string): () => Promise<void> {
         // now(), ::casts, index USING <method>) so they apply on SQLite. No-op on
         // already-SQLite DDL. Without this, those migrations abort with
         // `near "(": syntax error` and the app never boots.
-        // `ADD COLUMN IF NOT EXISTS` is honored (the statement is dropped when the
-        // column is already there) rather than merely translated: see
-        // dropSatisfiedAddColumns.
-        const sql = translateDdlToSqlite(dropSatisfiedAddColumns(db, sources.get(file) ?? ''))
+        // `ADD COLUMN IF NOT EXISTS` and `DROP COLUMN IF EXISTS` are honored (the
+        // statement is dropped when the database already satisfies it) rather than
+        // merely translated: see dropSatisfiedAddColumns / dropSatisfiedDropColumns.
+        const sql = translateDdlToSqlite(
+          dropSatisfiedAddColumns(db, dropSatisfiedDropColumns(db, sources.get(file) ?? '')),
+        )
         if (applied.has(file)) {
           // A recorded file never runs again (a DROP or a backfill in it would repeat
           // on every boot); columns its own CREATE TABLE declares are still added.

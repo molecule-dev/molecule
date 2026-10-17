@@ -138,6 +138,13 @@ const SQLITE_ISO_NOW = `(strftime('%Y-%m-%dT%H:%M:%fZ','now'))`
  *   statement when the column is already there (see `dropSatisfiedAddColumns`), so
  *   what reaches here is a column that is genuinely missing; the rewrite is what
  *   keeps that statement parseable.
+ * - `DROP COLUMN IF EXISTS` → `DROP COLUMN` for the same reason, honored the same
+ *   way: the migrator drops the statement when the table has no such column (the
+ *   no-op Postgres sees — see `dropSatisfiedDropColumns`), so what reaches here is
+ *   a column that genuinely exists and whose removal SQLite parses. SQLite has no
+ *   `DROP COLUMN IF EXISTS` at all (`near "EXISTS": syntax error`), and a migration
+ *   an agent wrote to repair its DEV database fails on the FRESH production one
+ *   without this (X1 flash-m103).
  *
  * These are no-ops on already-SQLite DDL (the executor's own migrations don't use
  * them), so it is safe to run on every migration file.
@@ -153,6 +160,7 @@ export const translateDdlToSqlite = (sql: string): string =>
     .replace(/::[a-z_]+/gi, '')
     .replace(/\s+USING\s+(gin|btree|hash|gist)\b/gi, '')
     .replace(/\bADD\s+COLUMN\s+IF\s+NOT\s+EXISTS\b/gi, 'ADD COLUMN')
+    .replace(/\bDROP\s+COLUMN\s+IF\s+EXISTS\b/gi, 'DROP COLUMN')
 
 /**
  * Coerce a JS value into something better-sqlite3 can bind. better-sqlite3 only

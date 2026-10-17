@@ -168,6 +168,15 @@ describe('translateDdlToSqlite', () => {
     )
   })
 
+  it('drops IF EXISTS from DROP COLUMN, which SQLite does not parse either (flash-m103)', () => {
+    // The migrator removes the statement when the table has no such column (the
+    // no-op Postgres sees); what survives names a column that does exist, and
+    // SQLite rejects the clause itself with `near "EXISTS": syntax error`.
+    expect(translateDdlToSqlite('ALTER TABLE "usersSecrets" DROP COLUMN IF EXISTS "userId";')).toBe(
+      'ALTER TABLE "usersSecrets" DROP COLUMN "userId";',
+    )
+  })
+
   it('translates DEFAULT gen_random_uuid() to the SQLite random-id default', () => {
     // Must TRANSLATE, not strip: a custom handler using the bare create('t', {…})
     // (no explicit id) relies on the column default. Stripping left `id … NOT NULL`
