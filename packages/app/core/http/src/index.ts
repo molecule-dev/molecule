@@ -4,6 +4,16 @@
  * Provides a unified HTTP client API that works across different
  * HTTP libraries (fetch, axios, ky, etc.).
  *
+ * **The body is the SECOND argument: `post(url, data, config?)` — likewise `put` and `patch`,
+ * and the response is `HttpResponse<T>` (read `.data` for the body).** `data` IS the request
+ * body; a plain object is serialized as the JSON body. Passing `{ data: body }` there is NOT a
+ * config object — it makes the wire body `{"data":{…}}`, so the API sees an object whose only
+ * key is `data`, finds none of the fields it validates, and answers
+ * `422 {"errors":{"username":["can't be blank"],…}}`. Write `post('/users', { user })`, never
+ * `post('/users', { data: { user } })`. The config object (headers, params, timeout,
+ * `skipAuthGate`) is the THIRD argument. Only `request({ method, url, data, … })` takes `data`
+ * inside an options object, because there that object IS the config.
+ *
  * @example
  * ```tsx
  * // In a React component, get the configured client from context and call it.
@@ -17,7 +27,10 @@
  *     const res = await http.get<Plant[]>('/plants')   // baseURL ('/api') is prepended
  *     setPlants(res.data)
  *   }
- *   // http.post(url, body), http.put, http.delete are also available.
+ *   // Body-carrying verbs take the body as the SECOND argument:
+ *   //   http.post('/plants', plant)      — wire body is `plant`
+ *   //   http.post('/plants', { data: plant })  — WRONG: wire body is `{"data": plant}`
+ *   // http.put(url, body), http.patch(url, body) and http.delete(url) are also available.
  * }
  * ```
  *

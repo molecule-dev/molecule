@@ -39,6 +39,15 @@ export interface TraceRequest {
   path: string
   /** The response status, or 0 when the request never got a response. */
   status: number
+  /**
+   * What the page SENT, for a 4xx answered by the app's own API — bounded (see
+   * {@link MAX_TRACED_BODY_CHARS}). A body wrapped as `{"data":{…}}` is visible here in one line:
+   * app-http's verbs take the body as their second argument, so a helper that passes
+   * `{ data: body }` there ships the wrapper (xr-molecule-flash-m111 +11:36).
+   */
+  sent?: string
+  /** What came back for that 4xx, bounded the same way — the API's own error body. */
+  got?: string
 }
 
 /** One action the traced page performed, with the trace's own timing for it. */
@@ -81,6 +90,9 @@ export const MAX_TRACED_CONSOLE = 4
 /** How many of the page's own actions one test's trace contributes, the LAST ones. */
 export const MAX_TRACED_ACTIONS = 40
 
+/** How much of a 4xx request's sent body (or its response body) the trace read keeps. */
+export const MAX_TRACED_BODY_CHARS = 300
+
 /** How many tests the note in a run's result names. */
 export const MAX_TRACE_NOTE_TESTS = 5
 
@@ -89,6 +101,12 @@ export const MAX_TRACE_NOTE_REQUESTS = 4
 
 /** How long a URL the note prints, before the middle is cut. */
 export const TRACE_NOTE_URL_CHARS = 96
+
+/** How much of the sent body the note prints — enough to see a `{"data":…}` wrapper. */
+export const TRACE_NOTE_SENT_CHARS = 160
+
+/** How much of the response body the note prints — the API's first error line. */
+export const TRACE_NOTE_GOT_CHARS = 120
 
 /**
  * The Node program the sandbox runs to read a failed run's traces: `node <script> <dir>` prints one
@@ -106,6 +124,12 @@ export const TRACE_NOTE_URL_CHARS = 96
  * (`fetch`/`xhr`/`document`): a failing test's trace holds the whole page load, and the answer is
  * always at the end of it.
  *
+ * A request answered 4xx by the app's OWN API also keeps what the page SENT and the first of what
+ * came back: Playwright stores either inline (`text`) or in a resource entry (`_file`), and both
+ * are read. That is where a wrapped body shows: xr-molecule-flash-m111's helper passed
+ * `{ data: body }` as app-http's second argument, so every POST/PUT was `{"data":{…}}` and the API
+ * validated `{}`. Status alone said only "422".
+ *
  * @returns The program's source, to write to a file and run.
  */
 export const traceArtifactsScript = (): string => `
@@ -118,6 +142,7 @@ const MAX_TRACES = ${MAX_TRACE_ARTIFACTS}
 const MAX_REQUESTS = ${MAX_TRACED_REQUESTS}
 const MAX_CONSOLE = ${MAX_TRACED_CONSOLE}
 const MAX_ACTIONS = ${MAX_TRACED_ACTIONS}
+const MAX_BODY = ${MAX_TRACED_BODY_CHARS}
 const MAX_URL = 200
 
 function walk(dir, depth, out) {
@@ -190,6 +215,22 @@ function messageOf(value) {
   return null
 }
 
+// A request/response body exactly as Playwright stored it: inline on the value, or in a resource
+// entry the value names. Bounded, and binary is dropped — a JSON body is what this is for, and a
+// multipart upload would print bytes.
+function bodyText(buf, entries, value, max) {
+  if (!value || typeof value !== 'object') return ''
+  const inline = typeof value.text === 'string' ? value.text : ''
+  if (inline) return inline.slice(0, max)
+  if (typeof value._file !== 'string') return ''
+  const entry = entries.find(function (e) { return e.name === value._file })
+  if (!entry) return ''
+  const data = zipData(buf, entry)
+  if (!data) return ''
+  const text = data.toString('utf8').slice(0, max)
+  return text.indexOf('\\u0000') === -1 ? text : ''
+}
+
 let origin = ''
 function pathOf(url) {
   try {
@@ -239,6 +280,8 @@ for (const one of found.slice(0, MAX_TRACES)) {
       path: String(request.url).slice(0, MAX_URL),
       status: Number(response.status) || 0,
       type: type,
+      postData: request.postData,
+      content: response.content,
     })
   }
   if (!origin) {
@@ -246,6 +289,16 @@ for (const one of found.slice(0, MAX_TRACES)) {
     origin = first ? originOf(first.path) : ''
   }
   for (const r of requests) r.path = pathOf(r.path).slice(0, MAX_URL)
+  // A 4xx from the app's own API is where a body SHAPE is diagnosed: keep what the page sent and
+  // what came back (bounded). A relative path here means the same origin as the traced document.
+  for (const r of requests) {
+    if (r.status < 400 || r.status >= 500) continue
+    if (/^https?:/i.test(r.path)) continue
+    const sent = bodyText(buf, entries, r.postData, MAX_BODY)
+    const got = bodyText(buf, entries, r.content, MAX_BODY)
+    if (sent) r.sent = sent
+    if (got) r.got = got
+  }
   const failing = []
   const api = []
   const rest = []
@@ -267,7 +320,13 @@ for (const one of found.slice(0, MAX_TRACES)) {
     const key = r.method + ' ' + r.path + ' ' + r.status
     if (seen.has(key)) continue
     seen.add(key)
-    chosen.push({ method: r.method, path: r.path, status: r.status })
+    chosen.push({
+      method: r.method,
+      path: r.path,
+      status: r.status,
+      sent: r.sent,
+      got: r.got,
+    })
   }
   // The page's own actions, timed. before/after pair on the call id, and only the LIBRARY
   // traces carry a class and a method (Frame.goto, Locator.fill); the test runner's own
@@ -349,6 +408,8 @@ export function parseTraceArtifacts(stdout: string): TraceArtifact[] {
             method: String(r.method ?? ''),
             path: String(r.path ?? ''),
             status: Number(r.status ?? 0) || 0,
+            ...(typeof r.sent === 'string' && r.sent ? { sent: r.sent } : {}),
+            ...(typeof r.got === 'string' && r.got ? { got: r.got } : {}),
           })),
         console: consoleMessages.map(String),
         actions: actions
@@ -373,13 +434,43 @@ function whereOf(item: TraceArtifact): string {
   return item.line > 0 ? `${item.spec}:${item.line}` : item.spec
 }
 
-/** One request as the note writes it: `POST /api/articles/x/favorite → 401`. */
+/** One body as the note writes it: one line, bounded. */
+function bodyLine(text: string, max: number): string {
+  const oneLine = text.replace(/\s+/g, ' ').trim()
+  return oneLine.length > max ? `${oneLine.slice(0, max)}…` : oneLine
+}
+
+/**
+ * One request as the note writes it: `POST /api/articles/x/favorite → 401`, plus what a 4xx
+ * request sent and got — `POST /api/users → 422 sent {"data":{…}} got {"errors":{…}}`.
+ */
 function requestLine(request: TraceRequest): string {
   const url =
     request.path.length > TRACE_NOTE_URL_CHARS
       ? `${request.path.slice(0, TRACE_NOTE_URL_CHARS)}…`
       : request.path
-  return `${request.method} ${url} → ${request.status === 0 ? 'no response' : request.status}`
+  const head = `${request.method} ${url} → ${request.status === 0 ? 'no response' : request.status}`
+  const sent = request.sent ? ` sent ${bodyLine(request.sent, TRACE_NOTE_SENT_CHARS)}` : ''
+  const got = request.got ? ` got ${bodyLine(request.got, TRACE_NOTE_GOT_CHARS)}` : ''
+  return `${head}${sent}${got}`
+}
+
+/** Whether a sent body is an object whose only top-level key is `data` — the wrapped-body trap. */
+function wrappedInData(text: string): boolean {
+  try {
+    const parsed: unknown = JSON.parse(text)
+    return (
+      typeof parsed === 'object' &&
+      parsed !== null &&
+      !Array.isArray(parsed) &&
+      Object.keys(parsed).length === 1 &&
+      'data' in parsed
+    )
+  } catch (_error) {
+    // The body was cut at MAX_TRACED_BODY_CHARS, so it need not parse; the wrapper is still the
+    // first thing in it — `{"data":…}` with no other top-level key before the cut.
+    return /^\{\s*"data"\s*:/.test(text.trim())
+  }
 }
 
 /**
@@ -392,6 +483,10 @@ function requestLine(request: TraceRequest): string {
  * {@link MAX_TRACE_NOTE_TESTS} tests with {@link MAX_TRACE_NOTE_REQUESTS} requests each, because it
  * rides in a result the model pays for.
  *
+ * A 4xx request carries what the page SENT beside its status, so a wrapped body is visible in one
+ * line rather than inferred from the status; when one of those bodies is an object whose only key
+ * is `data`, the note names the call shape that produces it (xr-molecule-flash-m111 +11:36).
+ *
  * @param items - The traces {@link parseTraceArtifacts} read.
  * @param target - Where the run went — the deployed host, as the note names it.
  * @returns The note, or null when no trace held a request or a console error.
@@ -399,6 +494,9 @@ function requestLine(request: TraceRequest): string {
 export function failureTraceNote(items: readonly TraceArtifact[], target: string): string | null {
   const withEvidence = items.filter((item) => item.requests.length > 0 || item.console.length > 0)
   if (withEvidence.length === 0) return null
+  const wrapped = withEvidence.some((item) =>
+    item.requests.some((request) => request.sent !== undefined && wrappedInData(request.sent)),
+  )
   const rows: string[] = []
   for (const [index, item] of withEvidence.slice(0, MAX_TRACE_NOTE_TESTS).entries()) {
     const requests = item.requests.slice(-MAX_TRACE_NOTE_REQUESTS).map(requestLine)
@@ -419,10 +517,16 @@ export function failureTraceNote(items: readonly TraceArtifact[], target: string
       : ''
   return (
     `The platform read the failing tests' own Playwright traces from the run against ${target} ` +
-    `(the last requests each page made and what came back):\n${rows.join('\n')}${more}\n` +
+    `(the last requests each page made, including the body a 4xx request sent and got):\n` +
+    `${rows.join('\n')}${more}\n` +
     'A click that changed nothing is usually one of these requests failing, not the selector: ' +
     'read the handler this route reaches in your own source, and stop `catch`-ing the request of a ' +
-    'user action silently — log it.'
+    'user action silently — log it.' +
+    (wrapped
+      ? ' The API received a body wrapped in `data`: app-http’s `post(url, data, config)` / ' +
+        '`put(url, data, config)` / `patch(url, data, config)` take the body as their SECOND ' +
+        "argument — `post('/users', { user })`, not `post('/users', { data: { user } })`."
+      : '')
   )
 }
 

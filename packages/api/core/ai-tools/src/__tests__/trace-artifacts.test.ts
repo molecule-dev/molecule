@@ -26,6 +26,7 @@ import {
   diagnosisTraceCommand,
   failureTraceNote,
   MAX_TRACE_NOTE_TESTS,
+  MAX_TRACED_BODY_CHARS,
   parseTraceArtifacts,
   suiteRecordsTraces,
   type TraceArtifact,
@@ -35,6 +36,12 @@ import { streamingBackgroundCommand } from '../utilities.js'
 
 /** The real trace.zip this module is tested against. */
 const FIXTURE = fileURLToPath(new URL('./fixtures/trace-follow-401.zip', import.meta.url))
+
+/**
+ * A real trace.zip of a POST answered 422 — xr-molecule-flash-m111's registration shape, where the
+ * body the page sent was `{"data":{…}}` and the API validated nothing (`can't be blank`).
+ */
+const REGISTER_422 = fileURLToPath(new URL('./fixtures/trace-register-422.zip', import.meta.url))
 
 /** How Playwright names the folder for the fixture's test. */
 const FOLDER = 'realworld-social-should-follow-a-user-chromium'
@@ -77,6 +84,8 @@ describe('traceArtifactsScript — a real trace, read headlessly', () => {
         method: 'POST',
         path: '/api/articles/x/favorite',
         status: 401,
+        // A 4xx also carries what came back (the request itself had no body).
+        got: '{"error":"unauthorized"}',
       })
     } finally {
       rmSync(root, { recursive: true, force: true })
@@ -118,6 +127,48 @@ describe('traceArtifactsScript — a real trace, read headlessly', () => {
       expect(note).toContain('e2e/realworld/social.spec.ts:')
       expect(note).toContain('https://app.apps.mlcl.dev')
       expect(note).toContain('stop `catch`-ing')
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
+  /**
+   * X1 xr-molecule-flash-m111 (+11:36 → +17:55): every frontend POST/PUT shipped `{"data":{…}}`
+   * because the app's `api()` helper passed `{ data: body }` as app-http's DATA argument. The run's
+   * own trace held the answer — `POST /api/users → 422` plus the body — and status alone said
+   * nothing about the wrapping. This fixture is a real Playwright trace of exactly that exchange.
+   */
+  it('quotes what a 4xx request sent and got, so a wrapped `{"data":…}` body is visible (m111)', () => {
+    const root = layout({ 'register-chromium': REGISTER_422 })
+    try {
+      const items = parseTraceArtifacts(readTraces(root))
+      expect(items).toHaveLength(1)
+      const post = items[0].requests.find((request) => request.method === 'POST')
+      expect(post).toMatchObject({ path: '/api/users', status: 422 })
+      expect(post?.sent).toContain('{"data":{"user":')
+      expect(post?.sent?.length).toBeLessThanOrEqual(MAX_TRACED_BODY_CHARS)
+      expect(post?.got).toContain('"errors"')
+
+      const note = String(failureTraceNote(items, 'app.apps.mlcl.dev'))
+      expect(note).toContain('POST /api/users → 422 sent {"data":')
+      expect(note).toContain('got {"errors"')
+      // The wrapping is named with the call shape that produces it.
+      expect(note).toContain('wrapped in `data`')
+      expect(note).toContain("post('/users', { user })")
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
+  it('keeps no body for a 4xx that carried none, and claims no wrapper', () => {
+    const root = layout({ [FOLDER]: FIXTURE })
+    try {
+      const items = parseTraceArtifacts(readTraces(root))
+      expect(items[0].requests[0]?.status).toBe(401)
+      expect(items[0].requests[0]?.sent).toBeUndefined()
+      const note = String(failureTraceNote(items, 'https://app.apps.mlcl.dev'))
+      expect(note).not.toContain(' sent {')
+      expect(note).not.toContain('wrapped in `data`')
     } finally {
       rmSync(root, { recursive: true, force: true })
     }

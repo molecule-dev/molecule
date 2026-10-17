@@ -4,6 +4,12 @@
  * This package provides an Axios-based implementation of the molecule HttpClient interface,
  * allowing you to use molecule's HTTP abstractions with Axios.
  *
+ * **The body is the SECOND argument: `post(url, data, config?)` — likewise `put` and `patch`.**
+ * `data` IS the request body, so `post(url, { data: body })` sends the JSON body
+ * `{"data":body}`, not `body`, and the API finds none of its fields at the top level (it
+ * answers `422 {"errors":{"username":["can't be blank"],…}}`). Write `post('/users', { user })`,
+ * never `post('/users', { data: { user } })`; a config (headers, params) is the THIRD argument.
+ *
  * @module `@molecule/app-http-axios`
  *
  * @example

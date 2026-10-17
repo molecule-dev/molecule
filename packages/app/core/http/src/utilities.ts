@@ -58,9 +58,13 @@ export const get = <T = unknown>(url: string, config?: RequestConfig): Promise<H
 /**
  * Makes a POST request using the bonded HTTP client.
  *
+ * The body is `data` — the SECOND argument. `post(url, { data: body })` sends the JSON body
+ * `{"data":body}`, not `body`, so the API finds none of its fields at the top level; pass the
+ * body directly (`post('/users', { user })`). The config is the THIRD argument.
+ *
  * @param url - The request URL.
- * @param data - The request body.
- * @param config - Optional request configuration.
+ * @param data - The request body itself (never `{ data: body }`).
+ * @param config - Optional request configuration (headers, params, timeout).
  * @returns The HTTP response with typed data.
  */
 export const post = <T = unknown>(
@@ -73,8 +77,10 @@ export const post = <T = unknown>(
  * Makes a PUT request using the bonded HTTP client.
  *
  * @param url - The request URL.
- * @param data - The request body.
- * @param config - Optional request configuration.
+ * The body is `data` — the SECOND argument, never `{ data: body }`.
+ *
+ * @param data - The request body itself.
+ * @param config - Optional request configuration (the third argument).
  * @returns The HTTP response with typed data.
  */
 export const put = <T = unknown>(
@@ -87,8 +93,10 @@ export const put = <T = unknown>(
  * Makes a PATCH request using the bonded HTTP client.
  *
  * @param url - The request URL.
- * @param data - The request body (partial update).
- * @param config - Optional request configuration.
+ * The body is `data` — the SECOND argument, never `{ data: body }`.
+ *
+ * @param data - The request body itself (the partial update).
+ * @param config - Optional request configuration (the third argument).
  * @returns The HTTP response with typed data.
  */
 export const patch = <T = unknown>(

@@ -26,7 +26,8 @@ export interface HttpClient {
   defaultHeaders: Record<string, string>
 
   /**
-   * Makes a generic HTTP request.
+   * Makes a generic HTTP request. `data` is a field of THIS config object — the same body
+   * `post(url, data, config)` takes as its second argument.
    */
   request<T = unknown>(config: FullRequestConfig): Promise<HttpResponse<T>>
 
@@ -36,17 +37,21 @@ export interface HttpClient {
   get<T = unknown>(url: string, config?: RequestConfig): Promise<HttpResponse<T>>
 
   /**
-   * Makes a POST request.
+   * Makes a POST request. `data` is the request BODY, not a config object: the wire body is
+   * `data` itself, so `post(url, { data: body })` sends `{"data":body}` — pass `body` directly.
+   * A config (headers, params) is the THIRD argument.
    */
   post<T = unknown>(url: string, data?: unknown, config?: RequestConfig): Promise<HttpResponse<T>>
 
   /**
-   * Makes a PUT request.
+   * Makes a PUT request. `data` is the request BODY (second argument) — never `{ data: body }`,
+   * which sends `{"data":body}`; a config is the THIRD argument.
    */
   put<T = unknown>(url: string, data?: unknown, config?: RequestConfig): Promise<HttpResponse<T>>
 
   /**
-   * Makes a PATCH request.
+   * Makes a PATCH request. `data` is the request BODY (second argument) — never `{ data: body }`,
+   * which sends `{"data":body}`; a config is the THIRD argument.
    */
   patch<T = unknown>(url: string, data?: unknown, config?: RequestConfig): Promise<HttpResponse<T>>
 

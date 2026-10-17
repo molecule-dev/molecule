@@ -64,7 +64,11 @@ export interface RequestConfig {
   signal?: AbortSignal
 
   /**
-   * Request body data.
+   * Request body data, as a field of THIS config object — the `request({ method, url, data })`
+   * form. The verb methods take the body as their SECOND argument: `post(url, data, config)`,
+   * `put(url, data, config)`, `patch(url, data, config)`. Never wrap it there as
+   * `{ data: body }`: that object is the body, so the wire sends `{"data":body}` and the API
+   * sees none of the fields at its top level.
    */
   data?: unknown
 
@@ -115,7 +119,7 @@ export interface FullRequestConfig extends RequestConfig {
   url: string
 
   /**
-   * Request body data.
+   * Request body data — a field of this config object, never a second argument here.
    */
   data?: unknown
 }
