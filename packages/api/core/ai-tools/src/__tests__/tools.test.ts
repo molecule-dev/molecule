@@ -2705,6 +2705,36 @@ cd /workspace/.mol-scratch/realworld-e2e && npx playwright test --config playwri
     expect(r.note).toContain('a stage after the test runner')
   })
 
+  it('says plainly that a `sh -c` suite could not be placed, and keeps its code', async () => {
+    const backend: ExecutionBackend = {
+      projectRoot: '/test',
+      readFile: vi.fn(async (path: string) => {
+        if (path.endsWith('.exit')) return '1\n'
+        if (path.startsWith('/tmp/mol-bg-')) return 'Error: No tests found'
+        throw new Error(`ENOENT: ${path}`)
+      }),
+      writeFile: vi.fn(),
+      deleteFile: vi.fn(),
+      readDir: vi.fn(),
+      run: vi.fn(async () => ({ stdout: '', stderr: '', exitCode: 0 })),
+    }
+    const tools = buildTools(backend)
+    const started = (await tools
+      .find((t) => t.name === 'exec_command')!
+      .execute({
+        command: "sh -c 'cd /workspace/my-app && npx playwright test'",
+        run_in_background: true,
+      })) as { taskId: string }
+    const r = (await tools
+      .find((t) => t.name === 'wait_for_task')!
+      .execute({ taskId: started.taskId })) as { exitCode: number | null; note?: string }
+    // Nothing follows the runner inside the nested string, so the code is the run's own — and the
+    // note says the stages could not be placed rather than naming a stage that does not exist.
+    expect(r.exitCode).toBe(1)
+    expect(r.note).toContain('cannot be placed')
+    expect(r.note).not.toContain('a stage after the test runner')
+  })
+
   it('groups a finished run’s failures by cause, so one round of fixes covers them all (flash-m83)', async () => {
     // X1 flash-m83 spent three deploys (6.7 minutes) each fixing a single cause; the result the
     // executor reads at the end says `3 failed` and prints the bodies with nothing tying them
