@@ -165,19 +165,75 @@ function dropSatisfiedAddColumns(db: Database.Database, sql: string): string {
 }
 
 /**
+ * The file that CREATES each table: the first file in run order whose text declares
+ * it. Ownership is what keeps a re-read OLD file from shaping a table another file
+ * created — the run's own `CREATE TABLE IF NOT EXISTS` must not be a second, silent
+ * author of a schema it does not own.
+ *
+ * @param files - The migration files in run order.
+ * @param sources - Each file's text.
+ * @returns Lower-cased table name → the owning file.
+ */
+function tableOwners(
+  files: readonly string[],
+  sources: ReadonlyMap<string, string>,
+): Map<string, string> {
+  const owners = new Map<string, string>()
+  for (const file of files) {
+    for (const { table } of declaredTables(sources.get(file) ?? '')) {
+      const key = table.toLowerCase()
+      if (!owners.has(key)) owners.set(key, file)
+    }
+  }
+  return owners
+}
+
+/**
+ * Whether SQLite can add this column definition to a table that already exists.
+ * `NOT NULL` without a `DEFAULT` is refused once the table holds a row — and an
+ * empty table today is not empty tomorrow, so the decision comes from the text, not
+ * from whether this boot's table happens to be empty.
+ *
+ * @param definition - The column's definition, as declared.
+ * @returns True when `ADD COLUMN <definition>` is safe.
+ */
+function addableColumn(definition: string): boolean {
+  const def = definition.replace(/--[^\n]*/g, '').replace(/'(?:[^']|'')*'/g, "''")
+  return !/\bNOT\s+NULL\b/i.test(def) || /\bDEFAULT\b/i.test(def)
+}
+
+/**
  * Add the columns a `CREATE TABLE IF NOT EXISTS` declares that the existing table
- * lacks. Every migration file runs on every boot, and on a table that already exists
- * `IF NOT EXISTS` is a silent no-op: a column added to the file later never reached
- * the database, nothing said so, and the app failed on it (X1 runs flash-m19, m20
- * hand-altered the live database). Additive only; a column SQLite cannot add in
- * place (PRIMARY KEY, UNIQUE, NOT NULL without a default) is reported, not forced.
+ * lacks — but only for tables THIS file creates. Every migration file is re-read on
+ * every boot, and on a table that already exists `IF NOT EXISTS` is a silent no-op:
+ * a column added to the file that created the table later never reached the database,
+ * nothing said so, and the app failed on it (X1 runs flash-m19, m20 hand-altered the
+ * live database). A table another file creates is NOT reconciled: that made a
+ * rewritten, since-deleted old migration add `userId NOT NULL` to a package's table
+ * (X1 m103), and every insert the package's own service made failed. Additive only;
+ * a column SQLite cannot add in place (a `NOT NULL` with no default, PRIMARY KEY,
+ * UNIQUE) is reported, not forced.
  *
  * @param db - The open database.
  * @param sql - The migration file just applied.
  * @param file - Its name, for the log.
+ * @param owners - Table → the file that creates it ({@link tableOwners}).
  */
-function addMissingColumns(db: Database.Database, sql: string, file: string): void {
+function addMissingColumns(
+  db: Database.Database,
+  sql: string,
+  file: string,
+  owners: ReadonlyMap<string, string>,
+): void {
   for (const { table, columns } of declaredTables(sql)) {
+    const owner = owners.get(table.toLowerCase())
+    if (owner !== undefined && owner !== file) {
+      console.warn(
+        `⚠ ${file}: CREATE TABLE IF NOT EXISTS "${table}" is a no-op — ${owner} creates it; ` +
+          'add columns with ALTER TABLE … ADD COLUMN in a new migration',
+      )
+      continue
+    }
     const existing = db.prepare('SELECT name FROM pragma_table_info(?)').all(table) as {
       name: string
     }[]
@@ -185,6 +241,14 @@ function addMissingColumns(db: Database.Database, sql: string, file: string): vo
     const have = new Set(existing.map((c) => c.name.toLowerCase()))
     for (const column of columns) {
       if (have.has(column.name.toLowerCase())) continue
+      if (!addableColumn(column.definition)) {
+        console.warn(
+          `⚠ ${file}: ${table}.${column.name} is NOT NULL with no DEFAULT, and SQLite cannot add ` +
+            'a NOT NULL column with no default to a table that already exists; add it in a new ' +
+            'migration file (ALTER TABLE … ADD COLUMN with a DEFAULT)',
+        )
+        continue
+      }
       try {
         db.exec(`ALTER TABLE "${table}" ADD COLUMN ${column.definition}`)
         console.log(`+ ${file}: added column ${table}.${column.name}`)
@@ -275,6 +339,12 @@ export function createMigrator(migrationsDir: string): () => Promise<void> {
 
       const failures: { file: string; message: string }[] = []
       const { applied, adopting } = openLedger(db)
+      // Read once: column reconciliation is limited to the file that CREATES a table,
+      // so every file's declarations are needed before the first one is applied.
+      const sources = new Map(
+        sqlFiles.map((file) => [file, readFileSync(join(migrationsDir, file), 'utf-8')]),
+      )
+      const owners = tableOwners(sqlFiles, sources)
       let skipped = 0
 
       for (const file of sqlFiles) {
@@ -286,14 +356,12 @@ export function createMigrator(migrationsDir: string): () => Promise<void> {
         // `ADD COLUMN IF NOT EXISTS` is honored (the statement is dropped when the
         // column is already there) rather than merely translated: see
         // dropSatisfiedAddColumns.
-        const sql = translateDdlToSqlite(
-          dropSatisfiedAddColumns(db, readFileSync(join(migrationsDir, file), 'utf-8')),
-        )
+        const sql = translateDdlToSqlite(dropSatisfiedAddColumns(db, sources.get(file) ?? ''))
         if (applied.has(file)) {
           // A recorded file never runs again (a DROP or a backfill in it would repeat
-          // on every boot); columns added to its CREATE TABLE are still added.
+          // on every boot); columns its own CREATE TABLE declares are still added.
           skipped++
-          addMissingColumns(db, sql, file)
+          addMissingColumns(db, sql, file, owners)
           continue
         }
         // In a transaction, so a file that fails applies none of its statements: a
@@ -307,7 +375,7 @@ export function createMigrator(migrationsDir: string): () => Promise<void> {
           record(db, file)
           if (wrap) db.exec('COMMIT')
           console.log(`✓ ${file}`)
-          addMissingColumns(db, sql, file)
+          addMissingColumns(db, sql, file, owners)
         } catch (err) {
           if (wrap && db.inTransaction) db.exec('ROLLBACK')
           const msg = err instanceof Error ? err.message : String(err)
@@ -324,7 +392,7 @@ export function createMigrator(migrationsDir: string): () => Promise<void> {
                   'already exists, so remove that statement or move the rest to a new migration file',
               )
             }
-            addMissingColumns(db, sql, file)
+            addMissingColumns(db, sql, file, owners)
           } else {
             // A genuinely broken migration must NOT be swallowed as if it were
             // idempotent — that boots the app with a missing/partial schema and

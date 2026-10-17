@@ -185,11 +185,11 @@ describe('createMigrator (sqlite) — ledger', () => {
     ).toEqual(['0001_init.sql', '0002_seq.sql'])
   })
 
-  it('still adds the column when the table exists without it, even though the file declares it', async () => {
+  it('adds the column a later file declares, via its own ALTER, and says its CREATE is a no-op', async () => {
     // Postgres's reading of the clause, which this bond matches: on the existing
-    // table the file's own `CREATE TABLE IF NOT EXISTS` is a no-op, so the ADD
-    // COLUMN is what has to deliver the column — the same shape as a setup file
-    // that adds a column to a table created by an earlier file.
+    // table the later file's own `CREATE TABLE IF NOT EXISTS` is a no-op (the earlier
+    // file OWNS the table — columns are reconciled only there, X1 m103), so the ADD
+    // COLUMN is what has to deliver the column.
     writeFileSync(
       join(migrationsDir, '0001_init.sql'),
       'CREATE TABLE IF NOT EXISTS "notes" ("id" INTEGER PRIMARY KEY);',
@@ -203,7 +203,8 @@ describe('createMigrator (sqlite) — ledger', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
     vi.spyOn(console, 'log').mockImplementation(() => {})
     await createMigrator(migrationsDir)()
-    expect(warn).not.toHaveBeenCalled()
+    expect(String(warn.mock.calls[0]?.[0])).toContain('is a no-op')
+    expect(String(warn.mock.calls[0]?.[0])).toContain('0001_init.sql creates it')
     expect(
       query<{ name: string }>("SELECT name FROM pragma_table_info('notes')").map((c) => c.name),
     ).toEqual(['id', 'seq'])
