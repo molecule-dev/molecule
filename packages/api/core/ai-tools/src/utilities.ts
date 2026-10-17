@@ -3038,11 +3038,11 @@ function omittedCausesRecap(
  * is not a Playwright run this can narrow.
  *
  * The `locations` are the paths the run's own log printed, which are relative to the directory
- * that run started in, so a re-run has to resolve them there: the command names that directory
- * unless it already changes into one of its own, because the executor's next command starts
- * wherever it starts. The returned command is for AFTER the run ends — it is a second run against
- * the same app and database, and that is exactly what is refused while the run walks
- * ({@link suiteRunInTheWay}).
+ * that run started in, so the composer resolves them there ({@link scopedRerunCommand}): the
+ * command names that directory unless it already changes into one of its own, because the
+ * executor's next command starts wherever it starts. The returned command is for AFTER the run
+ * ends — it is a second run against the same app and database, and that is exactly what is
+ * refused while the run walks ({@link suiteRunInTheWay}).
  *
  * @param run - The run in flight: the command it was started with, as it was run, the directory
  *   that command ran in, and the config it loaded when the caller knows it.
@@ -3057,7 +3057,10 @@ export function rerunOfRunningSuite(
   excluded: readonly string[] = [],
 ): string | null {
   if (locations.length === 0) return null
-  const scoped = scopedRerunCommand(run.command, locations, excluded, run.config)
+  // The run's own directory is the base a relative failure location resolves against: the
+  // reporter prints it from where the runner started, and Playwright matches file arguments
+  // against absolute paths (xr-molecule-flash-m118 +16:34, m124 +18:38).
+  const scoped = scopedRerunCommand(run.command, locations, excluded, run.config, run.cwd)
   if (scoped === run.command) return null
   if (!run.cwd || commandSegments(withoutHeredocs(run.command)).some((s) => s.program === 'cd'))
     return scoped

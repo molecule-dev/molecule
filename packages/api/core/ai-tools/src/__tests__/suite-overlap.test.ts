@@ -99,12 +99,15 @@ describe('the readings the note and the hold share', () => {
 
   it('narrows a whole-suite command to the tests the run named, keeping its own invocation', () => {
     const whole = `cd /workspace/.mol-scratch/e2e && BASE_URL=http://localhost:5173 npx --no-install playwright test --max-failures=15 --reporter=list --retries=0`
+    // The reporter printed the location relative to the runner's own directory, and Playwright
+    // matches file arguments against ABSOLUTE paths — so the composed command resolves it there.
+    // Sent back verbatim it printed "No tests found" (xr-molecule-flash-m118 +16:34).
     expect(
       scopedRerunCommand(whole, ['../../fixtures/realworld/specs/e2e/null-fields.spec.ts:53']),
     ).toBe(
       'cd /workspace/.mol-scratch/e2e && BASE_URL=http://localhost:5173 npx --no-install ' +
-        'playwright test ../../fixtures/realworld/specs/e2e/null-fields.spec.ts:53 --retries=0 ' +
-        '--max-failures=15 --reporter=list',
+        'playwright test /workspace/fixtures/realworld/specs/e2e/null-fields.spec.ts:53 ' +
+        '--retries=0 --max-failures=15 --reporter=list',
     )
     // A unit runner is left exactly as it is: there is no Playwright invocation to narrow.
     expect(scopedRerunCommand('npx vitest run', ['a.test.ts:9'])).toBe('npx vitest run')
@@ -222,5 +225,94 @@ describe('a composed re-run carries the config its run was measured under (m113)
     // …while a command that already carried it does not gain a second.
     const own = scopedRerunCommand(m113('playwright.conduit.config.ts'), locations)
     expect((own.match(/--config/g) ?? []).length).toBe(1)
+  })
+})
+
+/**
+ * xr-molecule-flash-m118 (+15:26 → +16:34 → +16:46) and m124 (+18:38): every composed re-run
+ * handed the executor the reporter's own relative form (`../../fixtures/…/articles.spec.ts:32`),
+ * and Playwright matches each file argument as a regex against the ABSOLUTE path of every test
+ * file it collects — so the obedient re-run printed "No tests found". The platform's own
+ * `testRunNote` explained the mistake the platform's own note had made.
+ *
+ * Playwright 1.63, measured with `--list` on a project whose config sets an absolute `testDir`
+ * (the supplied-suite shape): from the config's directory,
+ * `playwright test --list ../../fixtures/realworld/specs/e2e/articles.spec.ts:3` lists 0 tests,
+ * the absolute path lists 1, and `fixtures/realworld/specs/e2e/articles.spec.ts:3` (the leading
+ * `../` segments dropped) lists 1 as well.
+ */
+describe('a composed re-run names its locations the way Playwright matches them (m118, m124)', () => {
+  /** The command m118's run was started with, and the failure its list reporter printed. */
+  const m118Whole =
+    'export PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE=1; cd /workspace/.mol-scratch/e2e && ' +
+    'TEST_MODE=fullstack BASE_URL=http://localhost:5173 npx playwright test ' +
+    '--trace=retain-on-failure --max-failures=15 --config playwright.config.ts --reporter=list'
+  const m118At = '../../fixtures/realworld/specs/e2e/articles.spec.ts:32'
+
+  it('resolves the fail-fast note’s location against the run’s own directory (m118)', () => {
+    expect(scopedRerunCommand(m118Whole, [m118At])).toBe(
+      'export PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE=1; cd /workspace/.mol-scratch/e2e && ' +
+        'TEST_MODE=fullstack BASE_URL=http://localhost:5173 npx playwright test ' +
+        '/workspace/fixtures/realworld/specs/e2e/articles.spec.ts:32 --retries=0 ' +
+        '--trace=retain-on-failure --max-failures=15 --config playwright.config.ts --reporter=list',
+    )
+  })
+
+  it('resolves the “Re-run just these” locations from a run started outside the suite (m124)', () => {
+    // The +10:40 wait note's re-run, composed from a run started in the app directory while the
+    // suite lives under `/workspace/fixtures/` — every location printed as `../../fixtures/…`.
+    const whole =
+      'cd /workspace/my-app/app && BASE_URL=http://localhost:5173 npx playwright test ' +
+      '--reporter=list --max-failures=15'
+    const composed = scopedRerunCommand(whole, [
+      '../../fixtures/realworld/specs/e2e/auth.spec.ts:19',
+      '../../fixtures/realworld/specs/e2e/articles.spec.ts:50:3',
+    ])
+    expect(composed).toContain(
+      'playwright test /workspace/fixtures/realworld/specs/e2e/auth.spec.ts:19 ' +
+        '/workspace/fixtures/realworld/specs/e2e/articles.spec.ts:50:3 --retries=0',
+    )
+    expect(composed).not.toContain('..')
+  })
+
+  it('falls back to the tool’s cwd when the command does not cd anywhere', () => {
+    const composed = scopedRerunCommand(
+      'npx playwright test --reporter=list',
+      [m118At],
+      [],
+      null,
+      '/workspace/.mol-scratch/e2e',
+    )
+    expect(composed).toBe(
+      'npx playwright test /workspace/fixtures/realworld/specs/e2e/articles.spec.ts:32 ' +
+        '--retries=0 --reporter=list',
+    )
+    // A relative cwd is not an anchor: nothing is guessed, and the location keeps only its
+    // suffix — which the absolute path still contains (measured with Playwright 1.63).
+    expect(
+      scopedRerunCommand('npx playwright test --reporter=list', [m118At], [], null, 'app'),
+    ).toBe(
+      'npx playwright test fixtures/realworld/specs/e2e/articles.spec.ts:32 --retries=0 ' +
+        '--reporter=list',
+    )
+  })
+
+  it('strips the leading dot segments when the run’s directory is unknown', () => {
+    // A command whose `cd` is a variable reaches no useful directory; the composed location is
+    // still one Playwright matches, and a location that is already absolute or a suffix is left
+    // exactly as it was.
+    expect(scopedRerunCommand('cd $ROOT && npx playwright test --reporter=list', [m118At])).toBe(
+      'cd $ROOT && npx playwright test fixtures/realworld/specs/e2e/articles.spec.ts:32 ' +
+        '--retries=0 --reporter=list',
+    )
+    expect(
+      scopedRerunCommand('cd /w && npx playwright test', [
+        '/workspace/fixtures/realworld/specs/e2e/a.spec.ts:1',
+        'fixtures/realworld/specs/e2e/b.spec.ts:2',
+      ]),
+    ).toBe(
+      'cd /w && npx playwright test /workspace/fixtures/realworld/specs/e2e/a.spec.ts:1 ' +
+        'fixtures/realworld/specs/e2e/b.spec.ts:2 --retries=0',
+    )
   })
 })

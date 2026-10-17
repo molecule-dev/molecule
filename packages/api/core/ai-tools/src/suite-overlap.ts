@@ -29,7 +29,9 @@
  * @module
  */
 
-import { commandSegments } from './command-position.js'
+import { posix } from 'node:path'
+
+import { commandSegments, locatedCommandSegments } from './command-position.js'
 import { commandRunsNoTests } from './no-test-run.js'
 import { shellQuote } from './utilities.js'
 
@@ -139,15 +141,18 @@ export function withSuiteConfig(command: string, config: string | null | undefin
  * `Cannot navigate to invalid URL` because the re-run loaded no base URL).
  *
  * @param command - The whole-suite run's command.
- * @param locations - The failing `file:line`s to re-run, as the run's own log printed them — or,
- *   for a run that started outside the suite, the absolute form Playwright matches each file
- *   argument against.
+ * @param locations - The failing `file:line`s to re-run, as the run's own log printed them. A
+ *   location the reporter printed relative to the runner's own directory (`../../fixtures/…`,
+ *   which no absolute path contains) is resolved here ({@link playwrightLocations}), so the
+ *   command this returns is one Playwright can match.
  * @param excluded - The test titles the request carves out. They are inverted out
  *   (`--grep-invert`) so a re-run of the failing locations cannot report one of them again —
  *   xr-molecule-flash-m101 re-ran the whole 139-test suite and spent ~4 minutes to be told about
  *   a test the request had already said does not count.
  * @param config - The config the run loaded, when the caller knows it; added when the command
  *   does not name one.
+ * @param cwd - The directory `exec_command` was given, when it was; the base a location is
+ *   resolved against when the command does not `cd` anywhere.
  * @returns The scoped command, or the command unchanged when it runs no Playwright suite.
  */
 export function scopedRerunCommand(
@@ -155,6 +160,7 @@ export function scopedRerunCommand(
   locations: readonly string[],
   excluded: readonly string[] = [],
   config?: string | null,
+  cwd?: string | null,
 ): string {
   const at = command.search(/\bplaywright\s+test\b/)
   if (at === -1) return command
@@ -180,11 +186,98 @@ export function scopedRerunCommand(
   // The run's own config: the command's `--config` when it has one, else the config the caller
   // recorded for the run. A re-run without it measures nothing (m113).
   const carry = config && !namesSuiteConfig(statement) ? ` --config ${shellQuote(config)}` : ''
-  const scoped = dropSupersededSpecFiles(statement, locations)
+  // Playwright matches each positional argument as a regex against the ABSOLUTE path of every test
+  // file it collects (`playwright test --help`: "Each argument is treated as a regular expression.
+  // Matching is performed against the absolute file paths."), while the reporter prints a failure
+  // relative to the runner's own directory. A `../../fixtures/…` location therefore matches
+  // nothing — "No tests found" — so every location is rendered in a form Playwright can match
+  // ({@link playwrightLocations}).
+  const narrowed = playwrightLocations(locations, command, cwd)
+  const scoped = dropSupersededSpecFiles(statement, narrowed)
     .replace(/\s*--last-failed\b/g, '')
     .replace(/\s*--retries(?:[= ]\d+)?/g, '')
-    .replace(/^(playwright\s+test)\b/, `$1 ${locations.join(' ')} --retries=0${carry}${invert}`)
+    .replace(/^(playwright\s+test)\b/, `$1 ${narrowed.join(' ')} --retries=0${carry}${invert}`)
   return `${head}${scoped}${tail}`
+}
+
+/** A directory a `cd` can name literally: no `~`, no variable, no glob. */
+const LITERAL_DIR = /^[A-Za-z0-9_./+-]+$/
+
+/** A word without its shell quotes. */
+const unquoted = (word: string): string => word.replace(/^['"]|['"]$/g, '')
+
+/**
+ * The absolute directory the Playwright statement in a command runs in, or null when the command
+ * does not say.
+ *
+ * The reporter prints a failing test's file relative to the process directory the runner started
+ * in (`../fixtures/…` from a run whose suite lives outside its own tree), so the directory has to
+ * come from the command itself: `exec_command`'s `cwd` when it was given, then each `cd` before
+ * the runner. Only a literal `cd` is followed — a target holding a variable, a glob or `~`
+ * resolves nowhere useful, and a guessed absolute path is worse than the relative one the
+ * reporter printed.
+ *
+ * @param command - The shell command.
+ * @param cwd - The `cwd` the tool was given, when it was.
+ * @returns The absolute directory, or null.
+ */
+function suiteRunDirectory(command: string, cwd?: string | null): string | null {
+  let dir = typeof cwd === 'string' && cwd.startsWith('/') ? posix.normalize(cwd) : null
+  for (const { segment } of locatedCommandSegments(command)) {
+    if (segment === null) continue
+    if (segment.program === 'cd') {
+      const target = unquoted(segment.args[0] ?? '').replace(/\/+$/, '')
+      if (!target || target.startsWith('-') || target.startsWith('~') || !LITERAL_DIR.test(target))
+        return null
+      // A shell `cd /abs` DISCARDS the directory before it; only a relative target resolves
+      // against the one the run started in.
+      if (target.startsWith('/')) dir = posix.normalize(target)
+      else if (dir === null) return null
+      else dir = posix.normalize(posix.join(dir, target))
+      continue
+    }
+    if (segment.program === 'playwright' && segment.args[0] === 'test') break
+  }
+  return dir
+}
+
+/** A failure location's path and its `:line[:column]` suffix, split the way Playwright does. */
+const LOCATION_LINE = /^(.*?)(:\d+(?::\d+)?)$/
+
+/**
+ * Each location in a form Playwright matches, so a re-run composed from a run's own report can
+ * actually run.
+ *
+ * Playwright compiles every positional file argument into a regex and tests it against the
+ * absolute path of each collected test file (`playwright test --help`; `createFiltersFromArguments`
+ * → `forceRegExp` → `createFileMatcher`, verified against Playwright 1.63 with `--list`: the
+ * reporter's `../../fixtures/…/articles.spec.ts:3` lists 0 tests, the absolute path lists 1). A
+ * location the reporter printed relative to the runner's directory is resolved against it; where
+ * that directory cannot be known, only the leading `./`/`../` segments are dropped, which leaves a
+ * suffix the absolute path still contains (`fixtures/…/articles.spec.ts:3` matches).
+ *
+ * A location without a leading dot is left alone: it is either absolute or already a suffix of the
+ * absolute path, and rewriting it against a mis-guessed base could only break it
+ * (xr-molecule-flash-m118 +16:34 "No tests found"; m124 +18:38 the platform's own "Re-run just
+ * these" command).
+ *
+ * @param locations - The failing `file:line`s as the run's log printed them.
+ * @param command - The run's command, for its own `cd`s.
+ * @param cwd - The `cwd` the tool was given, when it was.
+ * @returns The locations, matchable by Playwright.
+ */
+function playwrightLocations(
+  locations: readonly string[],
+  command: string,
+  cwd?: string | null,
+): string[] {
+  const base = suiteRunDirectory(command, cwd)
+  return locations.map((location) => {
+    const [, file = '', suffix = ''] = LOCATION_LINE.exec(location) ?? []
+    if (!file.startsWith('./') && !file.startsWith('../')) return location
+    const resolved = base === null ? file.replace(/^(?:\.{1,2}\/)+/, '') : posix.resolve(base, file)
+    return `${resolved}${suffix}`
+  })
 }
 
 /** A spec-file argument Playwright accepts as its positional filter — never a flag. */
