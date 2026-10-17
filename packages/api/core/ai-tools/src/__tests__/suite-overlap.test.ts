@@ -266,11 +266,12 @@ describe('a composed re-run names its locations the way Playwright matches them 
       '--reporter=list --max-failures=15'
     const composed = scopedRerunCommand(whole, [
       '../../fixtures/realworld/specs/e2e/auth.spec.ts:19',
-      '../../fixtures/realworld/specs/e2e/articles.spec.ts:50:3',
+      // The finding's own spelling: `articles.spec.ts:50` (file:line, no column).
+      '../../fixtures/realworld/specs/e2e/articles.spec.ts:50',
     ])
     expect(composed).toContain(
       'playwright test /workspace/fixtures/realworld/specs/e2e/auth.spec.ts:19 ' +
-        '/workspace/fixtures/realworld/specs/e2e/articles.spec.ts:50:3 --retries=0',
+        '/workspace/fixtures/realworld/specs/e2e/articles.spec.ts:50 --retries=0',
     )
     expect(composed).not.toContain('..')
   })
