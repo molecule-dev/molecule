@@ -1,5 +1,14 @@
 # @molecule/api-ai-tools
 
+## 1.8.3
+
+### Patch Changes
+
+- 09b04f4: `exec_command` no longer blocks on a leading `sleep N` while a background task can answer it: the task's state, progress and failures so far come back at once, and the start and wait notes name `wait_for_task` instead of a hand `tail`.
+- 1f2f9ca: The failure-causes recap no longer lists a test the runner counted as `flaky` among the causes to fix: a test that failed once and passed on its retry is named apart, once, so a run whose only reds were retried passes does not send the executor to chase them.
+- d716b3f: A suite's pipeline stages are placed from the shell parse's own offsets, so a heredoc body or a quoted word in the command no longer hides a finished run's exit code; `suiteRunPipelinePlacement` reports whether a stage really follows the runner.
+- c090ada: The installed-package guard now refuses only writes that would reach a real install: a `node_modules` entry that is a symlink (removing it deletes the link, not its target), one inside the run's own `.mol-scratch/`, or one with no `package.json` under it can be removed, while a real install stays read-only — including through a link. `installedPackageWriteRefusal` takes a filesystem probe and is async; `shellInstalledPackageProbe` builds one from a shell runner.
+
 ## 1.8.2
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/api-resource
 
+## 1.0.5
+
+### Patch Changes
+
+- adbb585: An Express 5 `Request` is now assignable to `MoleculeRequest` without a cast (`params` accepts `string | string[]`, as Express declares), so handlers can pass `req` straight to functions such as `authorization.set`.
+
 ## 1.0.4
 
 ### Patch Changes

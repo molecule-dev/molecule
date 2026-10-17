@@ -40,7 +40,7 @@
     "@molecule/api-i18n": "1.0.3",
     "@molecule/api-logger": "1.0.2",
     "@molecule/api-permissions": "1.0.3",
-    "@molecule/api-resource": "1.0.4",
+    "@molecule/api-resource": "1.0.5",
     "@molecule/api-resource-property": "1.0.5",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
