@@ -225,6 +225,40 @@ describe('buildTools', () => {
     expect(result.error).not.toMatch(/Cannot read properties of undefined/)
   })
 
+  it('exec_command says which stage the exit code came from when a pipe hides the check’s (m117)', async () => {
+    // `npx tsc --noEmit 2>&1 | head -40` reported `exitCode: 0` with a type error printed above
+    // it (xr-molecule-flash-m117 +04:06): the shell reports the pipeline's LAST stage's code, and
+    // a model that trusts the number concludes "clean".
+    const backend = mockBackend()
+    ;(backend.run as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      stdout: 'src/handlers/conduit.ts(867,24): error TS2339: Property does not exist.\n',
+      stderr: '',
+      exitCode: 0,
+    })
+    const exec = buildTools(backend).find((t) => t.name === 'exec_command')!
+    const result = (await exec.execute({
+      command: 'cd /workspace/my-app/api && npx tsc --noEmit 2>&1 | head -40',
+    })) as { exitCode?: number; exitCodeNote?: string }
+    expect(result.exitCode).toBe(0)
+    expect(result.exitCodeNote).toContain('exit code 0')
+    expect(result.exitCodeNote).toContain('head')
+    expect(result.exitCodeNote).toContain('1 type error')
+  })
+
+  it('exec_command leaves exitCodeNote off when no checker runs behind the pipe', async () => {
+    const backend = mockBackend()
+    ;(backend.run as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      stdout: 'src/a.ts:3 TODO x\n',
+      stderr: '',
+      exitCode: 0,
+    })
+    const exec = buildTools(backend).find((t) => t.name === 'exec_command')!
+    const result = (await exec.execute({ command: 'grep -rn TODO src | head -20' })) as {
+      exitCodeNote?: string
+    }
+    expect(result.exitCodeNote).toBeUndefined()
+  })
+
   it('every tool survives an empty input without throwing', async () => {
     const tools = buildTools(mockBackend(), { blockDangerousCommands: true })
     for (const tool of tools) {

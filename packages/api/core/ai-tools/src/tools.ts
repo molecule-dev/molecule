@@ -19,6 +19,7 @@ import {
   renderSmallFile,
 } from './edit-excerpt.js'
 import { guardToolExecute, missingParamError, ToolInputError } from './input-normalizer.js'
+import { pipelineExitCodeNote } from './pipeline-exit-note.js'
 import { TOOL_SCHEMAS } from './schemas.js'
 import { leadingSleepPeek } from './sleep-peek.js'
 
@@ -2472,6 +2473,13 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
                 const placement = suiteRunPipelinePlacement(streaming.command)
                 const reported = suiteRunExitCode(code, output, placement.piped)
                 const exitNote = suiteExitCodeNote(placement, reported)
+                // The same question the foreground path asks: when the code is a filter's, say
+                // which stage produced it (and what the output carries) rather than leaving a
+                // 0 beside a printed error.
+                const pipeNote =
+                  reported === null
+                    ? null
+                    : pipelineExitCodeNote(streaming.command, reported, output)
                 const notes = [
                   ...(sleepNote ? [sleepNote] : []),
                   ...streaming.changes,
@@ -2481,6 +2489,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
                   stdout,
                   stderr: '',
                   exitCode: reported,
+                  ...(pipeNote === null ? {} : { exitCodeNote: pipeNote }),
                   ...(output.length > MAX_OUTPUT_SIZE ? { truncated: true, fullOutput: log } : {}),
                   ...(notes.length ? { note: notes.join(' ') } : {}),
                 }
@@ -2618,10 +2627,20 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
               (isSuiteRunCommand(command) ? SUITE_OVER_BUDGET_ADVICE : SPLIT_WORK_ADVICE),
           }
         }
+        // A pipeline reports its LAST stage's code: `tsc | head` says 0 beside a printed type
+        // error, and `tsc | head && tail missing.log` says 1 beside a clean check. Name the
+        // stage the number came from (pipeline-exit-note.ts) — the field the executor trusts
+        // most must not contradict the text it can read.
+        const exitCodeNote = pipelineExitCodeNote(
+          command,
+          result.exitCode,
+          `${result.stdout}\n${result.stderr}`,
+        )
         return {
           stdout,
           stderr,
           exitCode: result.exitCode,
+          ...(exitCodeNote === null ? {} : { exitCodeNote }),
           ...(peekedTask?.slice.trim() ? { outputSoFar: sanitizeOutput(peekedTask.slice) } : {}),
           ...(sleepNote || ceilingNote || traced.change
             ? {
