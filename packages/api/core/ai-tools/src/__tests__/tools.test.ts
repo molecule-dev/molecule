@@ -3301,8 +3301,11 @@ describe('wait_for_task on a suite repeating one failure', () => {
         })) as { taskId: string }
       const r = (await tools
         .find((t) => t.name === 'wait_for_task')!
-        .execute({ taskId: started.taskId, timeout: 60_000 })) as { status: string; note: string }
-      expect(r.status).toBe('repeating_failure')
+        .execute({ taskId: started.taskId, timeout: 300 })) as { status: string; note: string }
+      // A shared duration is a LEAD: this log is `list`-only, so the three 15.6 s failures carry no
+      // error to name a cause with, and the wait keeps going — the note rides its result instead
+      // of ending it (`earlyReturnCause`).
+      expect(r.status).toBe('running')
       // The mid-run note never offers the re-run for now: the platform refuses a second run
       // against the same app and database while this one walks, and m89 sent exactly what the old
       // wording suggested 23 s later to be refused.
@@ -3322,7 +3325,7 @@ describe('wait_for_task on a suite repeating one failure', () => {
     }
   })
 
-  it('names the cause mid-run and says to let the run finish, with NO stop command (flash-m83)', async () => {
+  it('keeps waiting on a shared duration and attaches it as a note, with NO stop command (flash-m83, flash-m84)', async () => {
     process.env.MOL_AI_BG_CAUSE_LOOK_MS = '1'
     try {
       const id = 'mol-bg-m76rep-abc123'
@@ -3330,14 +3333,17 @@ describe('wait_for_task on a suite repeating one failure', () => {
         (t) => t.name === 'wait_for_task',
       )!
       const t0 = Date.now()
-      const r = (await wait.execute({ taskId: id, timeout: 60_000 })) as {
+      const r = (await wait.execute({ taskId: id, timeout: 300 })) as {
         status: string
+        waitedMs: number
         note: string
       }
-      expect(r.status).toBe('repeating_failure')
-      // The wait was 60 s; the cause was there at the third failure, so it returns in the first
-      // couple of seconds rather than spending the minute.
-      expect(Date.now() - t0).toBeLessThan(10_000)
+      // Nothing here names a cause, so nothing here ends the wait: the caller's own budget does,
+      // and the wait has to spend it (xr-molecule-flash-m99: the early return this replaced made
+      // the model stop waiting and edit the code the run was still testing).
+      expect(r.status).toBe('running')
+      expect(Date.now() - t0).toBeGreaterThanOrEqual(250)
+      expect(r.waitedMs).toBeGreaterThanOrEqual(250)
       // A `list`-only log carries no failure bodies, so the duration is the only signature it
       // has — and the note says so rather than calling it one cause (flash-m84).
       expect(r.note).toContain('3 different tests in this run each failed after ~15.6s')
@@ -3352,7 +3358,75 @@ describe('wait_for_task on a suite repeating one failure', () => {
       expect(r.note).toContain(`task ${id}`)
       // Three failures inside ONE file is not a broken run — X1 flash-m83 stopped eight runs at
       // their first repeating cause and never finished one, so this shape gets no kill command.
-      expect(r.note).not.toContain('exec_command')
+      // Neither does a shared duration: the status says `running`, and the lead's own words never
+      // hand a run over to be stopped.
+      expect(r.note).not.toContain('Stop it and fix')
+      expect(r.note).not.toContain('kill')
+    } finally {
+      delete process.env.MOL_AI_BG_CAUSE_LOOK_MS
+    }
+  })
+
+  /**
+   * xr-molecule-flash-m99's own log at +43:23, as the run's chat dump recorded it: three
+   * `url-navigation.spec.ts` tests, each ~16.2 s, in a `list` log with durations and no error
+   * bodies — the suite's own `timeout: 15_000` plus teardown. `wait_for_task` was handed back
+   * `status: 'repeating_failure'` on exactly this, 224 s into a 280 s wait, and the run's result
+   * was voided by the edits that followed.
+   */
+  const M99_TIMEOUTS = [
+    'Running 24 tests using 1 worker',
+    '  ✘    7 [chromium] › e2e/url-navigation.spec.ts:111:3 › URL navigation › back button returns to the feed (16.1s)',
+    '  ✘   11 [chromium] › e2e/url-navigation.spec.ts:137:3 › URL navigation › forward button returns to the article (16.2s)',
+    '  ✘   14 [chromium] › e2e/url-navigation.spec.ts:182:3 › URL navigation › direct URL loads the article (16.4s)',
+  ].join('\n')
+
+  it('never ends a wait on three timeouts that only share the suite’s own timeout (xr-molecule-flash-m99)', async () => {
+    process.env.MOL_AI_BG_CAUSE_LOOK_MS = '1'
+    try {
+      const wait = buildTools(repeatingBackend(M99_TIMEOUTS, '412 419')).find(
+        (t) => t.name === 'wait_for_task',
+      )!
+      const t0 = Date.now()
+      const r = (await wait.execute({ taskId: 'mol-bg-m99to-abc130', timeout: 300 })) as {
+        status: string
+        note: string
+      }
+      expect(r.status).toBe('running')
+      // The whole budget, not an early return: a duration the config produces is a lead, and the
+      // run is the only thing that will say what those tests did.
+      expect(Date.now() - t0).toBeGreaterThanOrEqual(250)
+      expect(r.note).toContain('3 different tests in this run each failed after ~16.2s')
+      expect(r.note).toContain('A shared duration is a lead, not a cause')
+      expect(r.note).not.toContain('Stop it and fix')
+    } finally {
+      delete process.env.MOL_AI_BG_CAUSE_LOOK_MS
+    }
+  })
+
+  it('still keeps waiting when a shared duration spans the whole run (three files, nothing passing)', async () => {
+    process.env.MOL_AI_BG_CAUSE_LOOK_MS = '1'
+    try {
+      // Every test the run walked failed, across three files, with nothing passing since the
+      // first — `universalCause` says the run is failing WHOLE. The one thing this log does not
+      // carry is an error: three 16.x s timeouts are the suite's `timeout: 15_000` and nothing
+      // else, so this is still a lead and the wait still goes on. Only a PROVEN cause stops it.
+      const log = [
+        'Running 24 tests using 1 worker',
+        '  ✘    3 [chromium] › e2e/auth.spec.ts:12:3 › Authentication › should log in (16.1s)',
+        '  ✘    7 [chromium] › e2e/articles.spec.ts:32:3 › Articles › should create an article (16.2s)',
+        '  ✘   14 [chromium] › e2e/url-navigation.spec.ts:111:3 › URL navigation › back button (16.4s)',
+      ].join('\n')
+      const wait = buildTools(repeatingBackend(log, '412 419')).find(
+        (t) => t.name === 'wait_for_task',
+      )!
+      const r = (await wait.execute({ taskId: 'mol-bg-m99uni-abc131', timeout: 300 })) as {
+        status: string
+        note: string
+      }
+      expect(r.status).toBe('running')
+      expect(r.note).not.toContain('Every remaining test will fail the same way too')
+      expect(r.note).not.toContain('Stop it and fix')
     } finally {
       delete process.env.MOL_AI_BG_CAUSE_LOOK_MS
     }
@@ -3365,7 +3439,13 @@ describe('wait_for_task on a suite repeating one failure', () => {
       const wait = buildTools(repeatingBackend(REFUSED_LOG, '412 419')).find(
         (t) => t.name === 'wait_for_task',
       )!
-      const r = (await wait.execute({ taskId: id, timeout: 60_000 })) as { note: string }
+      const r = (await wait.execute({ taskId: id, timeout: 60_000 })) as {
+        status: string
+        note: string
+      }
+      // The ONE finding that ends a wait early: a proven cause — the same `connect ECONNREFUSED`
+      // verbatim in four files — failing every test the run walked.
+      expect(r.status).toBe('repeating_failure')
       expect(r.note).toContain('Every test this run has walked so far has failed the same way')
       expect(r.note).toContain('across 4 files')
       expect(r.note).toContain('Every remaining test will fail the same way too')
@@ -3408,17 +3488,17 @@ describe('wait_for_task on a suite repeating one failure', () => {
     }
   })
 
-  it('names the cause once — a second wait on the same run just waits', async () => {
+  it('names the lead once — a second wait on the same run just waits', async () => {
     process.env.MOL_AI_BG_CAUSE_LOOK_MS = '1'
     try {
       const id = 'mol-bg-m76once-abc126'
       const wait = buildTools(repeatingBackend(M76_LOG, '')).find(
         (t) => t.name === 'wait_for_task',
       )!
-      const first = (await wait.execute({ taskId: id, timeout: 60_000 })) as { status: string }
-      expect(first.status).toBe('repeating_failure')
-      const second = (await wait.execute({ taskId: id, timeout: 300 })) as { status: string }
-      expect(second.status).toBe('running')
+      const first = (await wait.execute({ taskId: id, timeout: 300 })) as { note: string }
+      expect(first.note).toContain('3 different tests in this run each failed after ~15.6s')
+      const second = (await wait.execute({ taskId: id, timeout: 300 })) as { note: string }
+      expect(second.note).not.toContain('A shared duration is a lead, not a cause')
     } finally {
       delete process.env.MOL_AI_BG_CAUSE_LOOK_MS
     }

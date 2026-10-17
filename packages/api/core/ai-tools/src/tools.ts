@@ -67,8 +67,21 @@ const repeatingCauseLookMs = (): number => Number(process.env.MOL_AI_BG_CAUSE_LO
  * Task ids a wait has already named a repeating cause for. The note is news once; a second wait
  * on the same run has nothing to add to it, and re-sending it would spend the executor's turns
  * telling it what it has already been told.
+ *
+ * Only a wait that ENDED EARLY on the finding lands here ({@link earlyReturnCause}); a lead does
+ * not, because the wait it was found in keeps looking — a run can go from a shared duration to a
+ * proven cause failing everything as the app goes down, and that is exactly the finding the wait
+ * must not sleep through.
  */
 const repeatingCauseNoted = new Set<string>()
+
+/**
+ * Task ids whose mid-run finding has already ridden a result as a note ({@link
+ * repeatingFailureNote} without an {@link earlyReturnCause}). Same rule as
+ * {@link repeatingCauseNoted} — news once, and the executor still has the ✘ rows in its context —
+ * but kept apart from it, because a task in this set keeps being looked at.
+ */
+const midRunLeadNoted = new Set<string>()
 
 /**
  * The shell command that stops a background task by pid: the pid the platform wrote when it
@@ -245,6 +258,7 @@ import {
   declaredBudgetSeconds,
   DEFAULT_SEARCH_EXCLUDED_DIRS,
   directoryReadHint,
+  earlyReturnCause,
   emptyCallError,
   failureCausesNote,
   findPathArgs,
@@ -2413,9 +2427,19 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       // and then fixed it in 51 s. The task is NOT stopped — the executor is handed the cause and
       // decides, and the note tells it to let the run finish because the run's other causes only
       // surface in it (X1 flash-m83 stopped eight runs at their first repeating cause and never
-      // finished one). Only a cause that is failing the WHOLE run — every failure sharing it,
-      // across `UNIVERSAL_CAUSE_FILES` files or more, with nothing passing since the first —
-      // comes with a stop command.
+      // finished one).
+      //
+      // WHAT ENDS THIS WAIT is the whole of the executor's next move, so only ONE finding does:
+      // `earlyReturnCause` — a PROVEN cause (an error repeating verbatim, never a shared duration)
+      // that is failing the WHOLE run (every failure the log names, across `UNIVERSAL_CAUSE_FILES`
+      // files or more, with nothing passing since the first). Anything else is a LEAD: the wait
+      // keeps going to the caller's own timeout, and the finding is attached to the result of this
+      // wait as a note. X1 xr-molecule-flash-m99 (2026-10-16) was cut short twice by a status that
+      // returned early on three tests sharing the suite's own `timeout: 15_000` — a signature the
+      // note it printed called "a lead, not a cause" — and read the early return as "stop waiting,
+      // edit now", voiding a run that was still walking both times (the second wait, 224 s of a
+      // 280 s budget, ended with nothing at all).
+      let midRunNote: string | null = null
       let lastCauseLookAt = startedAt - repeatingCauseLookMs()
       let exitCode = await readExit()
       while (exitCode === null && Date.now() - startedAt < budgetMs) {
@@ -2441,28 +2465,45 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         }
         const found = repeatingFailure(causeLog)
         if (!found) continue
-        // Only a cause that is failing the whole run gets a stop command — and only then is the
-        // pid walk paid for.
-        const universal = universalCause(causeLog, found)
+        // The ONE predicate behind this decision and `repeatingFailureNote`'s wording, so the two
+        // cannot come to different verdicts.
+        const stopCause = earlyReturnCause(found, universalCause(causeLog, found))
         // How this run was started, so the note can hand over the re-run to send once it ends
         // instead of one for now — the platform refuses a second run against the same app and
         // database while this one walks (xr-molecule-flash-m89: the +19:59 note named a re-run
         // and its overlap hold refused that exact run 23 s later).
         const started = runByTask.get(taskId)
-        repeatingCauseNoted.add(taskId)
-        const earlyMs = Date.now() - startedAt
-        waitedByTask.set(taskId, waitedBefore + earlyMs)
-        return {
-          taskId,
-          status: 'repeating_failure',
-          waitedMs: earlyMs,
-          note: repeatingFailureNote(found, {
+        if (stopCause) {
+          // …and only now is the pid walk paid for.
+          repeatingCauseNoted.add(taskId)
+          const earlyMs = Date.now() - startedAt
+          waitedByTask.set(taskId, waitedBefore + earlyMs)
+          return {
+            taskId,
+            status: 'repeating_failure',
+            waitedMs: earlyMs,
+            note: repeatingFailureNote(found, {
+              taskId,
+              log,
+              stop: await taskStopCommand(backend, taskId),
+              universal: stopCause,
+              ...(started ? { run: started } : {}),
+            }),
+          }
+        }
+        // A lead: this wait goes on, and the finding rides its result as a note — the executor has
+        // to keep waiting for the run's own result, so it must not be told one in the status. The
+        // look keeps running for the same reason: an app that goes down mid-run turns a shared
+        // duration into a proven whole-run cause, and that one is worth returning early for.
+        if (!midRunLeadNoted.has(taskId)) {
+          midRunLeadNoted.add(taskId)
+          midRunNote = repeatingFailureNote(found, {
             taskId,
             log,
-            stop: universal ? await taskStopCommand(backend, taskId) : '',
-            universal,
+            stop: '',
+            universal: null,
             ...(started ? { run: started } : {}),
-          }),
+          })
         }
       }
       const waitedMs = Date.now() - startedAt
@@ -2507,6 +2548,13 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           }),
         )
         const sliceField = soFar.trim() ? { outputSoFar: sanitizeOutput(soFar) } : {}
+        // What this wait found mid-run, when it was not a reason to end early: it rides the result
+        // the wait is about to hand back, because that result is where the executor decides what to
+        // do next and a lead it never saw is a lead it cannot weigh. Not on the `stuck` answer
+        // below — that verdict is about the command having stopped PRINTING and carries its own
+        // instruction — and not on a finished run's result, where `failureCausesNote` reads the
+        // whole log instead of the 40 KB tail a mid-run look is given.
+        const midRun = midRunNote ? ` ${midRunNote}` : ''
         if (stillWriting && waitedBefore + waitedMs >= stuckAfterMs()) {
           waitedByTask.set(taskId, 0)
           return {
@@ -2516,7 +2564,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
             ...sliceField,
             note:
               `${progress} Call wait_for_task again to keep waiting; peek with exec_command: ` +
-              `tail ${log}.`,
+              `tail ${log}.${midRun}`,
           }
         }
         if (waitedBefore + waitedMs >= stuckAfterMs()) {
@@ -2549,7 +2597,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
                 `each failure's own report into the log as that test fails, right under its ✘ line, ` +
                 `not only in the summary at the end. `
               : `Nothing has been printed yet — \`grep -n '✘' ${log} | head -40\` lists failures as they appear. `) +
-            `Meanwhile do work that leaves the code under test alone (read the failures so far, plan the fixes): editing app/src or api/src now changes the code the run is testing, and its result no longer counts.`,
+            `Meanwhile do work that leaves the code under test alone (read the failures so far, plan the fixes): editing app/src or api/src now changes the code the run is testing, and its result no longer counts.${midRun}`,
         }
       }
       let output: string

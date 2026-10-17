@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import {
   checkBlockedCommand,
+  earlyReturnCause,
   failureCausesNote,
   failuresByCause,
   findPatternArgs,
@@ -1409,6 +1410,80 @@ describe('repeatingFailure', () => {
     const found = repeatingFailure(withPass)!
     expect(found.count).toBeGreaterThanOrEqual(3)
     expect(universalCause(withPass, found)).toBeNull()
+  })
+
+  /**
+   * xr-molecule-flash-m99's own shape at +43:23, run out to the three files {@link universalCause}
+   * asks for: three tests, one `TimeoutError` each after ~16.2 s — the suite's own
+   * `timeout: 15_000` plus teardown — nothing passing, nothing else failing, and no error body
+   * anywhere in the `list` log. By files, by count and by the pass rule this IS the whole run.
+   */
+  const m99Timeouts = [
+    'Running 24 tests using 1 worker',
+    list('✘', 3, 'auth.spec.ts:12:3', 'Authentication › should log in', '16.1s'),
+    list('✘', 7, 'articles.spec.ts:32:3', 'Articles › should create an article', '16.2s'),
+    list('✘', 14, 'url-navigation.spec.ts:111:3', 'URL navigation › back button', '16.4s'),
+  ].join('\n')
+
+  describe('earlyReturnCause', () => {
+    it('is null for a shared duration, however whole the run looks (xr-molecule-flash-m99)', () => {
+      const found = repeatingFailure(m99Timeouts)!
+      // The duration arm, not the message arm: the log carries no error for any of the three.
+      expect(found.message).toBeNull()
+      expect(found.count).toBe(3)
+      // Every other clause of "failing the whole run" holds — which is exactly why the guard has
+      // to be here. A suite whose config sets a timeout spends it on every failure that waits for
+      // anything, so three unrelated tests timing out together is a LEAD, and the wait that ended
+      // on it twice in m99 cost the run a result both times.
+      const universal = universalCause(m99Timeouts, found)!
+      expect(universal.files).toHaveLength(3)
+      expect(earlyReturnCause(found, universal)).toBeNull()
+    })
+
+    it('is null for a proven cause that is NOT failing the whole run (flash-m83)', () => {
+      // Three tests, one error VERBATIM, and all three in ONE file: the run still has other
+      // causes to name, and X1 flash-m83 lost eight runs to stopping at exactly this.
+      const oneFileWithBodies = [
+        'Running 139 tests using 1 worker',
+        ...[1, 2, 3].map((n) =>
+          [
+            `  ${n}) [chromium] › ../../fixtures/realworld/specs/e2e/articles.spec.ts:${20 + n}:3 › Articles › test ${n} ────────`,
+            '',
+            `    TimeoutError: page.click: Timeout 5000ms exceeded.`,
+            `    waiting for locator('button:has-text("Publish Article")')`,
+            '',
+            `       at helpers/articles.ts:27`,
+          ].join('\n'),
+        ),
+      ].join('\n')
+      const found = repeatingFailure(oneFileWithBodies)!
+      expect(found.message).not.toBeNull()
+      expect(earlyReturnCause(found, universalCause(oneFileWithBodies, found))).toBeNull()
+    })
+
+    it('is the cause for a proven error failing every test of the run (flash-m83)', () => {
+      const found = repeatingFailure(refusedEverywhere)!
+      const universal = universalCause(refusedEverywhere, found)!
+      expect(earlyReturnCause(found, universal)).toBe(universal)
+    })
+
+    it('keeps a stop command out of the note for a lead, whatever the caller passes (m99)', () => {
+      // The note's wording is decided by the SAME predicate, so a caller holding a pid list — the
+      // platform's own log poll does (`suite-fail-fast.ts`) — cannot talk a lead into a stop.
+      const found = repeatingFailure(m99Timeouts)!
+      const note = repeatingFailureNote(found, {
+        taskId: 'mol-bg-m99to-abc130',
+        log: '/tmp/mol-bg-m99to-abc130.log',
+        stop: 'kill 412 419',
+        universal: universalCause(m99Timeouts, found),
+      })
+      expect(note).toContain('3 different tests in this run each failed after ~16.2s')
+      expect(note).toContain('A shared duration is a lead, not a cause')
+      expect(note).toContain('Let the rest of the run finish')
+      expect(note).not.toContain('Stop it and fix')
+      expect(note).not.toContain('kill 412 419')
+      expect(note).not.toContain('Every remaining test will fail the same way too')
+    })
   })
 
   describe('failuresByCause', () => {

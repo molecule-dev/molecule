@@ -1925,6 +1925,45 @@ export function universalCause(log: string, found: RepeatingFailure): UniversalC
   return { count: found.count, files }
 }
 
+/**
+ * The ONE finding that ends a wait early, and the only one a note may hand a stop command over
+ * for: a PROVEN cause that is failing the whole run.
+ *
+ * Both halves are load-bearing, each of them learned from a run that lost minutes to the other.
+ *
+ * - **Failing the WHOLE run** is {@link universalCause}: every failure the log names, across
+ *   {@link UNIVERSAL_CAUSE_FILES} spec files or more, with nothing passing since the first — the
+ *   dont-stop-runs rule. X1 flash-m83 (2026-10-16) stopped eight local runs at their first
+ *   repeating cause in 14.5 minutes and never finished one, and a run that still has other causes
+ *   left to name is the only thing that will name them.
+ * - **A PROVEN cause** is an error repeated VERBATIM. A shared DURATION is a LEAD, never a cause:
+ *   a suite whose config sets a timeout spends that timeout on every failure that waits for
+ *   anything, so three unrelated tests timing out together look exactly like one broken run
+ *   (`~7 s` is a property of the CONFIG, not of the cause — {@link normalizedSignature}). X1
+ *   xr-molecule-flash-m99 (2026-10-16) was told `status: 'repeating_failure'` twice on that
+ *   shape — three `url-navigation.spec.ts` tests at ~16.2 s, one `timeout: 15_000` plus teardown
+ *   — read the early return as "stop waiting, edit now", and voided a run that was still walking;
+ *   the second cost a 224 s wait that ended with no result at all.
+ *
+ * Neither half alone is enough, and {@link repeatingFailure} finding a signature is not either:
+ * that answers "is a cause repeating among this run's failures", which is worth telling the
+ * executor mid-run as a NOTE while the wait goes on. This answers the narrower question the wait
+ * needs — is the run over as a measuring instrument — and it is THE one predicate behind both
+ * that decision and the note's wording, so the two cannot come to different verdicts.
+ *
+ * @param found - What {@link repeatingFailure} found mid-run.
+ * @param universal - What {@link universalCause} found for it, if anything.
+ * @returns The cause to stop the run over, or null — in which case nothing may be stopped, the
+ *   wait keeps going, and the finding rides the run's result as a note.
+ */
+export function earlyReturnCause(
+  found: RepeatingFailure,
+  universal: UniversalCause | null | undefined,
+): UniversalCause | null {
+  if (found.message === null) return null
+  return universal ?? null
+}
+
 /** One cause of failure in a run, and the tests it hit. */
 export interface FailureCause {
   /** The error line its tests all reported, or null when only the duration ties them together. */
@@ -2070,11 +2109,15 @@ export function rerunOfRunningSuite(
  * tests, so the note never names one or two tests as a cause.
  *
  * The note names the cause early so the executor can START FIXING while the run keeps walking,
- * and it asks for the run to be stopped only when {@link universalCause} says the cause is
- * failing the whole run. X1 flash-m76 (2026-10-16) spent 4.0 minutes walking 15 tests whose one
- * cause was certain at the third, 47 s in, and the note answers exactly that; X1 flash-m83 then
- * stopped eight runs at their first repeating cause in 14.5 minutes and never finished one, so
- * the note must not say to stop when the run still has other causes to name.
+ * and it hands a stop command over only when {@link earlyReturnCause} says so — the SAME
+ * predicate the wait uses to decide whether to return early, so a finding the wait keeps waiting
+ * on is a finding this note never asks to stop for. X1 flash-m76 (2026-10-16) spent 4.0 minutes
+ * walking 15 tests whose one cause was certain at the third, 47 s in, and the note answers
+ * exactly that; X1 flash-m83 then stopped eight runs at their first repeating cause in 14.5
+ * minutes and never finished one, so the note must not say to stop when the run still has other
+ * causes to name. X1 xr-molecule-flash-m99 (2026-10-16) is the third shape: a shared duration is
+ * not a cause at all, so a lead reaches the executor as a note on a result it is still waiting
+ * for — never as a verdict with a stop command in it.
  *
  * The run is STILL WALKING while this note is written — both callers produce it mid-run — so a
  * re-run of one of its tests is a second run against the same app and database, and the platform
@@ -2088,7 +2131,7 @@ export function rerunOfRunningSuite(
  *
  * @param found - What {@link repeatingFailure} found.
  * @param o - The run's facts: its `taskId`, its `log` path, `stop` — the shell command that
- *   stops it, printed only for a {@link UniversalCause} — `universal`, what
+ *   stops it, printed only for an {@link earlyReturnCause} — `universal`, what
  *   {@link universalCause} found (absent means the run is not failing whole), and `run`, how the
  *   run was started ({@link rerunOfRunningSuite}) when the caller knows it.
  * @returns The note.
@@ -2159,8 +2202,11 @@ export function repeatingFailureNote(
   // directory the run started in. Without that record it says the timing and nothing more.
   const thenRun = aRunIsInTheWay && rerun ? `\nSend this once the run ends:\n  ${rerun}` : ''
   const where = `task ${o.taskId}, log ${o.log}`
-  if (o.universal) {
-    const files = o.universal.files.map(shortFile)
+  // The ONE predicate behind this wording and the wait's own early return (`earlyReturnCause`), so
+  // a finding the wait keeps waiting on can never be handed a stop command here.
+  const stop = earlyReturnCause(found, o.universal)
+  if (stop) {
+    const files = stop.files.map(shortFile)
     const shown = files.slice(0, 4).join(', ')
     const moreFiles = files.length > 4 ? `, … and ${files.length - 4} more` : ''
     return (
@@ -2172,17 +2218,22 @@ export function repeatingFailureNote(
       `then run the whole suite again. It is still going (${where}).${reproduce}`
     )
   }
+  // Everything else is a note on a run the wait is still waiting for, and both its shapes end the
+  // same way: the run finishes, because it is the only thing that names the causes this finding is
+  // not. What it does NOT carry is the "Stop it if every test fails this way" clause — that one
+  // belongs to a PROVEN cause the run is still walking (the sentence below), never to a lead:
+  // xr-molecule-flash-m99's executor read it on a shared duration and voided the run.
   const keepGoing =
     `Let the rest of the run finish — it is the only thing that will name the causes that are NOT ` +
     `this one, and a run stopped at its first repeating cause costs a second whole run to find ` +
-    `them. Stop it only if every test it walks fails this same way (the app unreachable, a 5xx on ` +
-    `every request, the same selector timing out on every test of every file so far). ` +
-    `It is still going (${where}).`
+    `them. It is still going (${where}).`
   if (isCause)
     return (
       `${found.count} different tests in this run have already failed the same way — ${signature} — ` +
       `so one cause is repeating:\n${rows}${more}\n` +
-      `Start fixing it now, while the run keeps walking.${reproduce} ${keepGoing}${thenRun}`
+      `Start fixing it now, while the run keeps walking. Stop it only if every test it walks ` +
+      `fails this same way (the app unreachable, a 5xx on every request, the same selector timing ` +
+      `out on every test of every file so far).${reproduce} ${keepGoing}${thenRun}`
     )
   return (
     `${found.count} different tests in this run each failed after ~${found.seconds}s — the same ` +
