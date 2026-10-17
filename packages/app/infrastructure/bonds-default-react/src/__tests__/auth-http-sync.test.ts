@@ -197,4 +197,26 @@ describe('the default auth bonds hold requests until the session restore settles
     await httpClient.get('/feed')
     expect(mockFetch).toHaveBeenCalledTimes(1)
   })
+
+  it('the shipped restore cannot be held by the gate (it does not go through the gated client)', async () => {
+    // The wiring these helpers ship cannot deadlock on the gate they register: the restore
+    // sends its current-user request with `fetch`, not through the bonded client, so even a
+    // gate that NEVER settles cannot hold it. (A store that restores through the client has to
+    // exempt its own request with `skipAuthGate: true` — see `RequestConfig.skipAuthGate`.)
+    ;(globalThis as { document?: unknown }).document = { cookie: 'mol_auth=1' }
+    const mockFetch = vi.fn(async () => jsonResponse({ user: { id: 'u1', username: 'alice' } }))
+    vi.stubGlobal('fetch', mockFetch)
+
+    const { authClient, setupAuthDefault } = createDefaultAuthClientWithHttpSync({
+      currentUserEndpoint: '/users/me',
+    })
+    setupAuthDefault()
+    setAuthGate(() => new Promise<void>(() => {}))
+
+    await authClient.initialize()
+
+    expect(mockFetch).toHaveBeenCalledTimes(1)
+    expect(String(mockFetch.mock.calls[0]?.[0])).toContain('/users/me')
+    expect(authClient.isAuthenticated()).toBe(true)
+  })
 })

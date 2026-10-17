@@ -24,6 +24,14 @@ import {
  * running. A provider without `whenRestored` (a bond that restores nothing) leaves
  * requests ungated.
  *
+ * The restore this gate waits for does NOT go through the gated client — both default auth
+ * bonds' `createJWTAuthClient` restores with `fetch` — so the scaffold's own wiring cannot
+ * deadlock. An app that registers its own gate over a restore made through the bonded client
+ * must exempt that request with `skipAuthGate: true`
+ * (`setAuthGate(() => store.whenSettled())` + `http.get(currentUserEndpoint, { skipAuthGate: true })`
+ * in the store); otherwise the gate holds the request it is waiting for and every request it
+ * holds stalls until the gate times out. See `RequestConfig.skipAuthGate` in `@molecule/app-http`.
+ *
  * @param authClient - The bonded auth client.
  */
 function registerAuthGate(authClient: { whenRestored?: () => Promise<void> }): void {

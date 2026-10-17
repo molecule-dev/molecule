@@ -34,6 +34,26 @@ export interface RequestConfig {
   withCredentials?: boolean
 
   /**
+   * Send this request WITHOUT waiting for the session restore (the auth gate).
+   *
+   * A request the gate itself depends on must set this. A gate registered with
+   * `setAuthGate` that waits for a session restore whose own request goes through this
+   * client otherwise waits on itself: the gate holds the restore's request, the restore's
+   * promise never settles, and every request on the page stalls until the gate times out —
+   * so pass `skipAuthGate: true` on the restore's own request:
+   *
+   * ```typescript
+   * // the request the gate's restore makes, through the same client the gate holds back
+   * await http.get(currentUserEndpoint, { skipAuthGate: true })
+   * ```
+   *
+   * `@molecule/app-auth`'s own restore does not need it — it sends its request with
+   * `fetch`, not through this client. An app with its own session store that registers a
+   * gate with `setAuthGate` does.
+   */
+  skipAuthGate?: boolean
+
+  /**
    * Response type.
    */
   responseType?: 'json' | 'text' | 'blob' | 'arraybuffer'
@@ -52,6 +72,32 @@ export interface RequestConfig {
    * Custom request options (implementation-specific).
    */
   options?: Record<string, unknown>
+}
+
+/**
+ * What the auth gate is told about the request it is about to hold: whether the request
+ * opts out of the wait, and how to name it in the stalled-gate report.
+ *
+ * A request's own `RequestConfig` satisfies this — the providers pass it straight through
+ * (`awaitAuthGate(requestConfig)`), so a provider never has to build one by hand.
+ */
+export interface AuthGateRequest {
+  /**
+   * Send this request without waiting for the gate at all — see
+   * `RequestConfig.skipAuthGate`.
+   */
+  skipAuthGate?: boolean
+
+  /**
+   * The request's HTTP method, for the message logged when the gate never settles.
+   */
+  method?: string
+
+  /**
+   * The request's URL, for the message logged when the gate never settles. A URL may carry
+   * an id; it never carries a credential (tokens travel in headers).
+   */
+  url?: string
 }
 
 /**

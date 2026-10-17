@@ -55,6 +55,14 @@
  * `@molecule/app-bonds-default-react` get it without doing anything. An app with its own session
  * module registers its own: `setAuthGate(() => session.whenRestored())`.
  *
+ * **A request the gate itself depends on must opt out of it: pass `skipAuthGate: true`.** A gate
+ * that waits for a session restore whose own request goes through this client waits on itself —
+ * that request is held by the gate waiting for it, so the restore never settles and every request
+ * the gate holds stalls until it times out (3 s). The request that restores the session for a gate
+ * you registered yourself is therefore written
+ * `http.get(currentUserEndpoint, { skipAuthGate: true })`; `@molecule/app-auth`'s own restore does
+ * not need it (it calls `fetch`, not this client).
+ *
  * @module
  */
 

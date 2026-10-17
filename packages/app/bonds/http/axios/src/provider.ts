@@ -27,11 +27,20 @@ import type {
 import { HttpError } from './types.js'
 
 /**
+ * The molecule request option Axios itself does not know: `skipAuthGate`, set on
+ * `client.get(url, { skipAuthGate: true })` and read by the request interceptor below. Axios
+ * passes unknown config fields through untouched, which is what carries the option from
+ * `toAxiosConfig` to the interceptor (`__tests__/skip-auth-gate.test.ts` proves it against a
+ * real Axios instance).
+ */
+type WithSkipAuthGate = { skipAuthGate?: boolean }
+
+/**
  * Converts a molecule `RequestConfig` to an Axios-compatible `AxiosRequestConfig`.
  * @param config - The molecule request configuration.
  * @returns An `AxiosRequestConfig` with mapped headers, params, timeout, and other options.
  */
-function toAxiosConfig(config: RequestConfig): AxiosRequestConfig {
+function toAxiosConfig(config: RequestConfig): AxiosRequestConfig & WithSkipAuthGate {
   return {
     headers: config.headers,
     params: config.params,
@@ -41,6 +50,8 @@ function toAxiosConfig(config: RequestConfig): AxiosRequestConfig {
     signal: config.signal,
     data: config.data,
     ...config.options,
+    // After `config.options`, so the documented option wins over an implementation-specific one.
+    skipAuthGate: config.skipAuthGate,
   }
 }
 
@@ -147,7 +158,15 @@ export function createAxiosClient(config: AxiosHttpClientConfig = {}): HttpClien
       timeout: axiosConfig.timeout,
       withCredentials: axiosConfig.withCredentials,
       data: axiosConfig.data,
+      skipAuthGate: (axiosConfig as InternalAxiosRequestConfig & WithSkipAuthGate).skipAuthGate,
     }
+
+    // Wait for the session restore first — every method on this client goes through
+    // here, so a request fired by a page effect before the restore settled cannot
+    // leave unauthenticated (see `@molecule/app-http` `auth-gate.ts`). The config goes with
+    // it so a request the gate itself depends on can opt out (`skipAuthGate`) and a stalled
+    // gate can name what it held.
+    await awaitAuthGate(config)
 
     // Run request interceptors
     for (const interceptor of requestInterceptors) {

@@ -62,7 +62,9 @@ export const createFetchClient = (config: HttpClientConfig = {}): HttpClient => 
       // Wait for the session restore before anything else: the interceptors below
       // read the auth token, and the request must not leave unauthenticated just
       // because a page effect ran before the restore settled (see auth-gate.ts).
-      await awaitAuthGate()
+      // The request config goes with it so a request the gate itself depends on can opt out
+      // (`skipAuthGate`) and a stalled gate can name what it held.
+      await awaitAuthGate(requestConfig)
 
       // Apply request interceptors
       let finalConfig = { ...requestConfig }

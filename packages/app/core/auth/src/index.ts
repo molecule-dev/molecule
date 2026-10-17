@@ -37,6 +37,13 @@
  *   state being settled (`state.initialized`), or let the HTTP client do it — bond the
  *   auth client through `@molecule/app-bonds-default-react`, which registers
  *   `whenRestored()` as the http gate so every request waits for the restore.
+ * - **Your own session store's gate must exempt its restore's own request.** This client
+ *   restores with `fetch`, so the gate registered over it never holds the restore. A store
+ *   that restores THROUGH the bonded HTTP client and registers that restore as the gate
+ *   (`setAuthGate(() => store.whenSettled())`) waits on itself unless the restore's request
+ *   passes `skipAuthGate: true` — otherwise the gate holds the very request it is waiting
+ *   for, and every request it holds stalls until the gate times out. See
+ *   `RequestConfig.skipAuthGate` in `@molecule/app-http`.
  * - Client-side auth state is UX only — the server enforces authorization on
  *   every request; hiding a screen is not protection.
  *

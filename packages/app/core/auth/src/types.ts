@@ -301,6 +301,12 @@ export interface AuthClient<T = UserProfile> {
    *
    * Optional: a provider that restores no session has nothing to wait for. Without it, an
    * HTTP client bonded to that provider sends first-paint requests unauthenticated.
+   *
+   * A provider whose restore sends a request THROUGH the gated HTTP client must send that
+   * request with `skipAuthGate: true` (`RequestConfig` in `@molecule/app-http`): the gate
+   * waits on this promise, so holding the restore's own request makes the gate wait on
+   * itself and stalls every request it holds until it times out. `createJWTAuthClient`'s
+   * restore does not need it — it uses `fetch`, not the bonded client.
    */
   whenRestored?(): Promise<void>
 
