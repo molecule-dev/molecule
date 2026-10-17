@@ -57,8 +57,10 @@
  * ```
  *
  * @remarks
- * - **Migration required: this package ships every table it reads, four in
- *   all.** `src/__setup__/articles.sql` creates the `articles` and `article_tags` tables;
+ * - **A scaffold that lists this package already has these tables** — its `__setup__` SQL is
+ *   copied into the app at create time and replayed on every boot, so do not copy it into
+ *   `api/migrations/` yourself. This package ships every table it reads, four in
+ *   all. `src/__setup__/articles.sql` creates the `articles` and `article_tags` tables;
  *   `src/__setup__/articles_position.sql` adds the `position` column to a database whose
  *   `article_tags` predates it; `src/__setup__/reactions.sql` and `src/__setup__/follows.sql` create the
  *   `reactions` and `follows` tables, which this package reads directly by name

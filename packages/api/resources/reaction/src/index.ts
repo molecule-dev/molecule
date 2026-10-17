@@ -31,7 +31,10 @@
  * resource's own access check; this package cannot know who owns an arbitrary
  * `(resourceType, resourceId)`.
  *
- * Tables: `src/__setup__/reactions.sql` creates `reactions` (unique per
+ * A scaffold that lists this package already has this table: its `__setup__` SQL is copied
+ * into the app at create time and replayed on every boot, so do not copy it into
+ * `api/migrations/` yourself — only a package added after the scaffold needs that.
+ * `src/__setup__/reactions.sql` creates `reactions` (unique per
  * `(resourceType, resourceId, userId, type)` — add is idempotent). An
  * mlcl-scaffolded API replays `__setup__/*.sql` on migrate (a `CREATE TABLE IF NOT EXISTS`, so a table the app's own migrations already create keeps only its own columns: ALTER in the ones it lacks);
  * anywhere else run it once — nothing at runtime creates them.

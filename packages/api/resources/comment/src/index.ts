@@ -30,9 +30,12 @@
  *   from `@molecule/app-http` normalizes this envelope (pass it the whole HttpResponse), so
  *   the rows come back; reading the response as a bare array — or `res.data` alone (which is
  *   the envelope) — yields an EMPTY list.
- * - **Migration required.** `src/__setup__/comments.sql` ships with this package
- *   and must exist in the target database before use (scaffolded apps apply it
- *   automatically; existing apps must apply it first).
+ * - **A scaffold that lists this package already has these tables** — its `__setup__` SQL is
+ *   copied into the app at create time and replayed on every boot, so do not copy it into
+ *   `api/migrations/` yourself; only a package added after the scaffold needs that.
+ *   `src/__setup__/comments.sql` ships with this package and must exist in the target
+ *   database before use (scaffolded apps apply it automatically; existing apps must apply it
+ *   first).
  * - **Integer comment ids (RealWorld's `comment.id`, most public API specs):** keep the
  *   UUID and give each comment a sequential number — `createNumberedComment()` creates both
  *   in one transaction, `getCommentByNumber(n)` finds it, `commentNumbers(ids)` maps a list.
