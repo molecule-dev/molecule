@@ -641,6 +641,7 @@
   "@molecule/app-fonts-newsreader",
   "@molecule/app-fonts-playfair-display",
   "@molecule/app-fonts-plus-jakarta-sans",
+  "@molecule/app-fonts-source-sans-3",
   "@molecule/app-fonts-source-serif-4",
   "@molecule/app-fonts-space-grotesk",
   "@molecule/app-fonts-system",
