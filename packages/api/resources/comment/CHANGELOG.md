@@ -1,5 +1,14 @@
 # @molecule/api-resource-comment
 
+## 1.1.4
+
+### Patch Changes
+
+- 84337e0: - `@molecule/api-resource-article`: the README now leads with the fact that a scaffold that lists this package already has its tables.
+  - `@molecule/api-resource-comment`: the README now leads with the fact that a scaffold that lists this package already has its tables.
+  - `@molecule/api-resource-follow`: the README now leads with the fact that a scaffold that lists this package already has its table.
+  - `@molecule/api-resource-reaction`: the README now leads with the fact that a scaffold that lists this package already has its table.
+
 ## 1.1.3
 
 ### Patch Changes
