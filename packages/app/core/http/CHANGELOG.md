@@ -1,5 +1,11 @@
 # @molecule/app-http
 
+## 1.1.5
+
+### Patch Changes
+
+- 9dd7092: A JSON request answered with an HTML document now throws an `HttpError` naming the page server and the client's `baseURL`, instead of resolving with the HTML as `data`; `getClient()` warns once when it mints its no-baseURL fallback.
+
 ## 1.1.4
 
 ### Patch Changes

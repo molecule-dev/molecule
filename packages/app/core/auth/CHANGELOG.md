@@ -1,5 +1,12 @@
 # @molecule/app-auth
 
+## 1.3.2
+
+### Patch Changes
+
+- cc7c874: `createBrowserStorageAdapter` now documents that a stored token and user restore the session synchronously with no request, so an app should render from that state and never block its first paint on its own profile request.
+- afd9c9e: `@molecule/app-auth` documents how to wire it by hand in a scaffolded app (`createJWTAuthClient`/`setClient`, `initialize()`, `MoleculeProvider`/`useAuth()`) and why a hand-rolled token store races the session restore.
+
 ## 1.3.1
 
 ### Patch Changes

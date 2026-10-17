@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-resource-api-key",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Hashed API tokens with scopes, masking, rotation, revocation, last-used tracking.",
   "type": "module",
   "main": "dist/index.js",

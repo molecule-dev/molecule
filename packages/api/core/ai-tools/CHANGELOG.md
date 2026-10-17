@@ -1,5 +1,17 @@
 # @molecule/api-ai-tools
 
+## 1.9.3
+
+### Patch Changes
+
+- b4c9693: A failure-causes note built from a clipped log (a tail that begins `…(N earlier characters omitted)`) now says the log was clipped and that its count covers only the last part, instead of calling those failures the run's failures.
+- 28d3dc2: A Playwright run narrowed to one or two spec files now ends its wait early when every test in it fails the same way — including when the app never answered at all.
+- 434e7c9: A composed re-run of a Playwright suite now names each failing test by a path Playwright can match, instead of the reporter's `../../fixtures/…` form, which matched no tests and printed "No tests found".
+- a55e13f: A file tool called while a newly claimed sandbox is still attaching now waits for its command channel (four attempts over about 2.6 s) and reports "the sandbox is still starting" instead of refusing the path as if the sandbox were gone.
+- 7dcb83b: A background suite run now drops an output-only pipe (`| tail -5`, `| grep …`) that sits before a trailing statement such as `; echo done`, so its log keeps the run's failure list instead of only the tally.
+- ed5be69: A failed run's trace note no longer lists the page shell's own requests — a service worker, a manifest, a favicon, fonts, and build assets — as missing responses or as failures; a 404 on one of them is not a cause to fix.
+- 8ff0485: A failed Playwright run whose pages never loaded now leads with the browser's own `net::ERR_*` on the document request, naming the document it hit.
+
 ## 1.9.2
 
 ### Patch Changes
