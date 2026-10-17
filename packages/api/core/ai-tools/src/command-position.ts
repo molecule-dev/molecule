@@ -57,6 +57,16 @@ const WORD = /"(?:\\.|[^"\\])*"|'[^']*'|\S+/g
 /** Shell words that stand alone: grouping, never an argument. */
 const GROUPING = new Set(['(', ')', '{', '}'])
 
+/**
+ * A redirection written as ONE word, its target attached: `2>&1`, `>out.log`, `&>/dev/null`,
+ * `<<'EOF'`. Matched against a word of the statement, so a redirect's target written as its own
+ * word is {@link REDIRECT_OPERATOR}'s case instead.
+ */
+const REDIRECT_WORD = /^(?:\d*|&)(?:<<<|<<-?|>>?\|?|<>|>&|<&)(?:&?\d+|-|[^\s;&|()<>]*)?$/
+
+/** A redirection operator on its own, whose target is the word after it (`> out.log`). */
+const REDIRECT_OPERATOR = /^(?:\d*|&)(?:<<<|<<-?|>>?\|?|<>|>&|<&)$/
+
 /** How deep a `sh -c '<command>'` is opened before the parser leaves it alone. */
 const MAX_NESTING = 3
 
@@ -835,6 +845,139 @@ export interface LocatedCommandSegment {
  */
 export function locatedCommandSegments(command: string): LocatedCommandSegment[] {
   return locatedSegmentsOf(command, 0)
+}
+
+/**
+ * How many `$( … )` and `${ … }` expansions a piece of shell text has open at its end.
+ *
+ * Quotes are honoured (a `'$('` expands nothing, and `"$("` opens one), and a backslash escapes
+ * the next character. Only `$(`/`${` are counted: a bare `(` or `{` opens a group whose closer is
+ * the statement's own punctuation and may be stepped over, while an expansion opened inside the
+ * statement is an argument in progress, and its closer must not be crossed.
+ *
+ * @param text - The statement's text, up to (not including) the position being asked about.
+ * @returns The open parentheses and braces.
+ */
+function substitutionDepth(text: string): { parens: number; braces: number } {
+  let parens = 0
+  let braces = 0
+  let quote: '"' | "'" | null = null
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i] ?? ''
+    if (quote === "'") {
+      if (char === "'") quote = null
+      continue
+    }
+    if (char === '\\') {
+      i += 1
+      continue
+    }
+    if (char === "'" && quote === null) {
+      quote = "'"
+      continue
+    }
+    if (char === '"') {
+      quote = quote === '"' ? null : '"'
+      continue
+    }
+    if (char === '$' && text[i + 1] === '(') {
+      parens += 1
+      i += 1
+      continue
+    }
+    if (char === '$' && text[i + 1] === '{') {
+      braces += 1
+      i += 1
+      continue
+    }
+    if (char === ')' && parens > 0) parens -= 1
+    else if (char === '}' && braces > 0) braces -= 1
+  }
+  return { parens, braces }
+}
+
+/**
+ * Where an option of a statement's program belongs: one past the statement's last ARGUMENT.
+ *
+ * A flag written "at the end of the command" is not the runner's: a statement can end on a
+ * redirection (`… 2>&1`), and a statement can sit inside a group whose closer belongs to the
+ * shell, not to the words (`( … )`, `{ …; }`). Appending after that closer is a different shell
+ * word that the group has already closed — `… --config=x 2>&1) --reporter=list` is
+ * `sh: Syntax error: word unexpected`, which killed a backgrounded walk at once and pushed the
+ * model off the platform's runner shape (xr-molecule-flash-m129 +34:29). Write the option where
+ * the program's own arguments end and the rest of the statement still parses:
+ * `… --config=x --reporter=list 2>&1)`.
+ *
+ * The statement must be one {@link locatedCommandSegments} placed in THIS command: a statement
+ * inside a nested `sh -c '<command>'` string has no offsets here (its positions are positions in
+ * that string), so null is returned rather than a splice into the outer text.
+ *
+ * @param command - The shell command.
+ * @param start - The statement's first character ({@link LocatedCommandSegment.start}).
+ * @param end - One past the statement's last character ({@link LocatedCommandSegment.end}).
+ * @returns The offset to write the option at, or null when the statement cannot be placed here.
+ */
+export function statementArgumentEnd(
+  command: string,
+  start: number | null,
+  end: number | null,
+): number | null {
+  if (start === null || end === null) return null
+  if (!Number.isInteger(start) || !Number.isInteger(end)) return null
+  if (start < 0 || end > command.length || end < start) return null
+  let at = end
+  // Group closers are the shell's words, not the program's: `… 2>&1)` and `… ; }` end the
+  // statement with punctuation no option can follow. A `)` that closes a `$(` opened INSIDE the
+  // statement is not one of those — it is the last character of an argument
+  // (`… $(cat e2e/args.txt)`), and crossing it would write the option inside the substitution.
+  for (;;) {
+    let cursor = at
+    while (cursor > start && /\s/.test(command[cursor - 1] ?? '')) cursor -= 1
+    const closer = command[cursor - 1]
+    if (closer !== ')' && closer !== '}') {
+      at = cursor
+      break
+    }
+    const open = substitutionDepth(command.slice(start, cursor - 1))
+    if ((closer === ')' && open.parens > 0) || (closer === '}' && open.braces > 0)) {
+      at = cursor
+      break
+    }
+    at = cursor - 1
+  }
+  const words = [...command.slice(start, at).matchAll(new RegExp(WORD.source, 'g'))].map((m) => ({
+    text: m[0],
+    index: start + (m.index ?? 0),
+  }))
+  // A trailing redirection belongs to the statement but is not an argument of its program. An
+  // option written after it would still parse, but the option belongs with the program's own
+  // words (`… --flag 2>&1`, not `… 2>&1 --flag`), so every redirect suffix is stepped over.
+  while (words.length > 0) {
+    const last = words[words.length - 1]
+    if (last === undefined) break
+    if (GROUPING.has(last.text) || REDIRECT_WORD.test(last.text)) {
+      at = last.index
+      words.pop()
+      continue
+    }
+    const operator = words[words.length - 2]
+    if (operator !== undefined && REDIRECT_OPERATOR.test(operator.text)) {
+      at = operator.index
+      words.pop()
+      words.pop()
+      // `2 > out.log` spells the same redirect as `2>out.log`: the descriptor is the word before
+      // the operator, and an option written between them would turn it into an argument.
+      const descriptor = words[words.length - 1]
+      if (descriptor !== undefined && /^\d+$/.test(descriptor.text)) {
+        at = descriptor.index
+        words.pop()
+      }
+      continue
+    }
+    break
+  }
+  while (at > start && /\s/.test(command[at - 1] ?? '')) at -= 1
+  return at
 }
 
 /**

@@ -573,7 +573,7 @@ describe('streamingBackgroundCommand', () => {
 
   it('drops a trailing head from a Playwright run, whose tally prints last (flash-m32)', () => {
     expect(streamingBackgroundCommand('npx playwright test 2>&1 | head -60').command).toBe(
-      `${INLINE_HEAD}npx playwright test 2>&1 --reporter=list`,
+      `${INLINE_HEAD}npx playwright test --reporter=list 2>&1`,
     )
     expect(streamingBackgroundCommand('cat big.log | head -60').changes).toEqual([])
   })
@@ -2528,7 +2528,7 @@ describe('a suite’s pipeline is not the suite’s result (xr-molecule-flash-m1
       'head -40',
     ])
       expect(streamingBackgroundCommand(`npx playwright test 2>&1 | ${filter}`).command).toBe(
-        `${INLINE}npx playwright test 2>&1 --reporter=list`,
+        `${INLINE}npx playwright test --reporter=list 2>&1`,
       )
   })
 
@@ -2540,11 +2540,11 @@ describe('a suite’s pipeline is not the suite’s result (xr-molecule-flash-m1
       streamingBackgroundCommand('npx playwright test --max-failures=15 2>&1 | tee /tmp/run.log')
         .command,
     ).toBe(
-      `${INLINE}npx playwright test --max-failures=15 2>&1 --reporter=list --retries=0 ` +
+      `${INLINE}npx playwright test --max-failures=15 --reporter=list --retries=0 2>&1 ` +
         '| tee /tmp/run.log',
     )
     expect(streamingBackgroundCommand("npx playwright test 2>&1 | sed -i 's/a/b/'").command).toBe(
-      `${INLINE}npx playwright test 2>&1 --reporter=list | sed -i 's/a/b/'`,
+      `${INLINE}npx playwright test --reporter=list 2>&1 | sed -i 's/a/b/'`,
     )
   })
 
@@ -2739,7 +2739,7 @@ cd /workspace/.mol-scratch/realworld-e2e && TEST_MODE=fullstack TEST_BASE_URL=ht
   it('places the run after the heredoc: the rewritten command is not piped', () => {
     const { command, changes } = streamingBackgroundCommand(M105)
     // The tail is dropped and the reporter lands on the RUNNER, after its own last argument.
-    expect(command.endsWith('--workers=1 2>&1 --reporter=list')).toBe(true)
+    expect(command.endsWith('--workers=1 --reporter=list 2>&1')).toBe(true)
     expect(changes[0]).toContain('Dropped the trailing `| tail -60`')
     // The run's own code is its own: no filter follows it any more.
     expect(suiteRunPipedAfterRunner(command)).toBe(false)
@@ -2952,5 +2952,88 @@ describe('failureCausesNote — a run with no base URL is one configuration fail
     const note = failureCausesNote(mixed, [], { command, config })!
     expect(note).toContain('grouped by cause')
     expect(note).not.toContain('same configuration failure')
+  })
+})
+
+/**
+ * X1 xr-molecule-flash-m129 (+34:29): the platform's flag injection appended
+ * `--trace=retain-on-failure --reporter=list` AFTER the closing `)` of a subshell, and the
+ * backgrounded command died at once with `sh: Syntax error: word unexpected`.
+ *
+ * The flags are options of the RUN, so they belong where the runner's own arguments end — before
+ * the `)` that closes a group, before a pipeline stage, and before a redirection. Every composed
+ * command here is also handed to `bash -n`, because "the flag is in the text" is not the
+ * assertion: the composed command has to PARSE.
+ */
+describe('streamingBackgroundCommand — flags go at the end of the runner’s own arguments', () => {
+  /** The composed command must PARSE as shell (`bash -n`), which is where m129's died. */
+  const expectParses = (command: string): void => {
+    expect(() =>
+      execFileSync('bash', ['-n', '-c', command], { encoding: 'utf8', stdio: 'pipe' }),
+    ).not.toThrow()
+  }
+
+  /** The m129 command's shape: the production walk, sent whole inside a subshell. */
+  const M129 =
+    `cd /workspace && (MOL_LOCAL_WALK_BASE='http://127.0.0.1:4173'; ` +
+    `if [ -d /workspace/my-app/app ]; then ( cd /workspace/my-app/app || exit 1; ` +
+    `npm run build && touch /workspace/my-app/app/dist/.mol-walk-stamp ); fi; ` +
+    `if [ "$MOL_LOCAL_WALK_BASE" = 'http://127.0.0.1:4173' ]; then ` +
+    `( cd /workspace/my-app/app || exit 1; ` +
+    `for _i in $(seq 1 60); do curl -sf -o /dev/null http://127.0.0.1:4173/ && break; sleep 0.5; done ); fi; ` +
+    `cd /workspace/.mol-scratch/e2e-shim && TEST_MODE=fullstack APP_BASE=http://127.0.0.1:4173 ` +
+    `/workspace/node_modules/.bin/playwright test ` +
+    `/workspace/fixtures/realworld/specs/e2e/url-navigation.spec.ts:111 ` +
+    `/workspace/fixtures/realworld/specs/e2e/url-navigation.spec.ts:137 ` +
+    `--retries=0 --grep-invert 'Home|Article' --config=playwright.config.ts 2>&1)`
+
+  it('writes the flag before the `2>&1)` of the m129 subshell run', () => {
+    const rewritten = streamingBackgroundCommand(M129).command
+    // The failure's own shape: the word after the group's closer, which the shell cannot parse.
+    expect(M129).toMatch(/--config=playwright\.config\.ts 2>&1\)$/)
+    expect(rewritten).toMatch(/--config=playwright\.config\.ts --reporter=list 2>&1\)$/)
+    expect(rewritten).not.toMatch(/\) --reporter=list/)
+    expectParses(rewritten)
+  })
+
+  it('writes it inside a subshell, a brace group, a pipeline stage and before `2>&1`', () => {
+    const shapes: ReadonlyArray<[string, RegExp]> = [
+      [
+        '( npx playwright test --config=playwright.config.ts 2>&1 )',
+        /--config=playwright\.config\.ts --reporter=list 2>&1 \)$/,
+      ],
+      [
+        '{ cd app && npx playwright test --config=playwright.config.ts; }',
+        /--config=playwright\.config\.ts --reporter=list; \}$/,
+      ],
+      [
+        'cd app && npx playwright test --config=playwright.config.ts 2>&1 | tee run.log',
+        /--config=playwright\.config\.ts --reporter=list 2>&1 \| tee run\.log$/,
+      ],
+    ]
+    for (const [command, expected] of shapes) {
+      const rewritten = streamingBackgroundCommand(command).command
+      expect(rewritten, command).toMatch(expected)
+      expectParses(rewritten)
+    }
+    // A run whose output is redirected to a file is left as written: the platform cannot read
+    // that log back, so there is no reporter rewrite to make (`>`, unlike `2>&1`).
+    const toFile = 'cd app && npx playwright test --config=playwright.config.ts > /tmp/run.log 2>&1'
+    expect(streamingBackgroundCommand(toFile).command).toBe(toFile)
+  })
+
+  it('leaves a run it cannot place exactly as written (must-not-fire)', () => {
+    // A statement inside a nested `sh -c '<command>'` string: its offsets are positions in THAT
+    // string, so there is nowhere in this command the flag belongs. The inline-switch head is
+    // harmless (it exports one variable), but no flag may be written after the closing quote.
+    const nested = `sh -c 'npx playwright test --config=playwright.config.ts 2>&1'`
+    const nestedRewrite = streamingBackgroundCommand(nested).command
+    expect(nestedRewrite.endsWith(`'`)).toBe(true)
+    expect(nestedRewrite).not.toContain('--reporter=list')
+    expect(nestedRewrite).not.toContain('--retries')
+    // The suite is not the command's last step: whatever follows owns the output and the exit
+    // status, so this is not a background run to rewrite.
+    const followed = 'npx playwright test --config=playwright.config.ts && echo done'
+    expect(streamingBackgroundCommand(followed).command).toBe(followed)
   })
 })

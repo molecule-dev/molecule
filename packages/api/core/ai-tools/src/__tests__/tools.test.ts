@@ -2478,7 +2478,7 @@ describe('exec_command run_in_background', () => {
     })) as { note: string }
     const written = (backend.writeFile as ReturnType<typeof vi.fn>).mock.calls[0][1]
     expect(written).toBe(
-      'export PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE=1; cd e2e && npx playwright test 2>&1 --reporter=list\n',
+      'export PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE=1; cd e2e && npx playwright test --reporter=list 2>&1\n',
     )
     expect(r.note).toContain('Dropped the trailing `| tail -70`')
     expect(r.note).toContain('--reporter=list')

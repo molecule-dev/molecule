@@ -1,9 +1,12 @@
+import { spawnSync } from 'node:child_process'
+
 import { describe, expect, it } from 'vitest'
 
 import {
   commandSegments,
   locatedCommandSegments,
   runsInCommandPosition,
+  statementArgumentEnd,
 } from '../command-position.js'
 import { commandRunsNoTests } from '../no-test-run.js'
 import { isPlaywrightRunCommand, isSuiteRunCommand } from '../utilities.js'
@@ -384,5 +387,131 @@ cd /workspace/.mol-scratch/realworld-e2e && TEST_MODE=fullstack npx --prefix /wo
     )
     expect(run?.programOffset).toBe(command.indexOf('playwright test'))
     expect(run?.end).toBe(command.length)
+  })
+})
+
+/**
+ * X1 xr-molecule-flash-m129 (+34:29), reconstructed from the finding: the platform's production
+ * walk, sent whole in a subshell. The platform appended `--trace=retain-on-failure
+ * --reporter=list` at the end of the command text — after the `)` that closed the group — and the
+ * backgrounded script died at once with `Syntax error: word unexpected` (exit 2, 76 ms).
+ */
+const M129_SUBSHELL_RUN =
+  `cd /workspace && (MOL_LOCAL_WALK_BASE='http://127.0.0.1:4173'; ` +
+  `if [ -d /workspace/my-app/app ]; then ( cd /workspace/my-app/app || exit 1; ` +
+  `npm run build && touch /workspace/my-app/app/dist/.mol-walk-stamp ); fi; ` +
+  `if [ "$MOL_LOCAL_WALK_BASE" = 'http://127.0.0.1:4173' ]; then ` +
+  `( cd /workspace/my-app/app || exit 1; ` +
+  `for _i in $(seq 1 60); do curl -sf -o /dev/null http://127.0.0.1:4173/ && break; sleep 0.5; done ); fi; ` +
+  `cd /workspace/.mol-scratch/e2e-shim && TEST_MODE=fullstack APP_BASE=http://127.0.0.1:4173 ` +
+  `/workspace/node_modules/.bin/playwright test ` +
+  `/workspace/fixtures/realworld/specs/e2e/url-navigation.spec.ts:111 ` +
+  `/workspace/fixtures/realworld/specs/e2e/url-navigation.spec.ts:137 ` +
+  `--retries=0 --grep-invert 'Home|Article' --config=playwright.config.ts 2>&1)`
+
+/**
+ * Whether the shell PARSES a composed command, without running it (`bash -n`).
+ *
+ * Every command this platform composes from the executor's own is a shell word: a flag spliced at
+ * the wrong offset is not a weaker rewrite, it is a command that dies before the runner starts
+ * (m129 +34:29). The parse is the assertion, so a composed command is never shipped unparsed.
+ *
+ * @param command - The composed command.
+ * @returns The parse's exit status and its stderr.
+ */
+function parseComposed(command: string): { ok: boolean; status: number | null; stderr: string } {
+  const result = spawnSync('bash', ['-n', '-c', command], { encoding: 'utf8' })
+  return { ok: result.status === 0, status: result.status, stderr: String(result.stderr ?? '') }
+}
+
+/** The offset {@link statementArgumentEnd} answers for the statement running `program`. */
+function optionOffsetFor(command: string, program: string): number | null {
+  const located = locatedCommandSegments(command).find(
+    (entry) => entry.segment?.program === program,
+  )
+  return statementArgumentEnd(command, located?.start ?? null, located?.end ?? null)
+}
+
+/** The command with `word` written at {@link statementArgumentEnd}'s answer, or null. */
+function withOptionAtArgumentEnd(command: string, program: string, word: string): string | null {
+  const at = optionOffsetFor(command, program)
+  return at === null ? null : `${command.slice(0, at)} ${word}${command.slice(at)}`
+}
+
+describe('statementArgumentEnd — an option belongs inside the runner’s own arguments', () => {
+  it('writes the flag before the `2>&1)` that ended the m129 subshell run', () => {
+    const composed = withOptionAtArgumentEnd(M129_SUBSHELL_RUN, 'playwright', '--reporter=list')
+    expect(composed).not.toBeNull()
+    // The m129 failure shape: the word after the group closer, which the shell cannot parse.
+    expect(M129_SUBSHELL_RUN).toMatch(/--config=playwright\.config\.ts 2>&1\)$/)
+    expect(composed).toMatch(/--config=playwright\.config\.ts --reporter=list 2>&1\)$/)
+    expect(parseComposed(composed ?? '').ok).toBe(true)
+    // The shape the platform shipped instead is the control: it is a syntax error, so the test
+    // would fail without the fix rather than pass on a command that never had a `)`.
+    expect(parseComposed(`${M129_SUBSHELL_RUN} --reporter=list`).status).not.toBe(0)
+  })
+
+  it('places the flag inside a plain subshell, a brace group, a pipeline and a redirect', () => {
+    const shapes: ReadonlyArray<[string, RegExp]> = [
+      [
+        '( npx playwright test --config=playwright.config.ts 2>&1 )',
+        /--config=playwright\.config\.ts --reporter=list 2>&1 \)$/,
+      ],
+      [
+        '{ cd app && npx playwright test --config=playwright.config.ts; }',
+        /--config=playwright\.config\.ts --reporter=list; \}$/,
+      ],
+      [
+        'cd app && npx playwright test --config=playwright.config.ts 2>&1 | tail -5',
+        /--config=playwright\.config\.ts --reporter=list 2>&1 \| tail -5$/,
+      ],
+      [
+        'cd app && npx playwright test --config=playwright.config.ts > /tmp/run.log 2>&1',
+        /--config=playwright\.config\.ts --reporter=list > \/tmp\/run\.log 2>&1$/,
+      ],
+    ]
+    for (const [command, expected] of shapes) {
+      const composed = withOptionAtArgumentEnd(command, 'playwright', '--reporter=list')
+      expect(composed, command).not.toBeNull()
+      expect(composed, command).toMatch(expected)
+      const parsed = parseComposed(composed ?? '')
+      expect(parsed.ok, `${command}\n${parsed.stderr}`).toBe(true)
+    }
+  })
+
+  it('writes the flag after a command substitution argument, never inside it', () => {
+    const command = 'npx playwright test --config=playwright.config.ts $(cat e2e/args.txt)'
+    const composed = withOptionAtArgumentEnd(command, 'playwright', '--reporter=list')
+    expect(composed).toBe(
+      'npx playwright test --config=playwright.config.ts $(cat e2e/args.txt) --reporter=list',
+    )
+    expect(parseComposed(composed ?? '').ok).toBe(true)
+  })
+
+  it('keeps a `}` that closes a `${…}` expansion which is an argument', () => {
+    // The closer is the argument's last character, not the shell's group punctuation.
+    const command = 'npx playwright test --config=playwright.config.ts --grep=${PATTERN}'
+    const composed = withOptionAtArgumentEnd(command, 'playwright', '--reporter=list')
+    expect(composed).toBe(`${command} --reporter=list`)
+    expect(parseComposed(composed ?? '').ok).toBe(true)
+  })
+
+  it('places it before a redirect whose descriptor is its own word (`2 > log`)', () => {
+    const command = 'npx playwright test --config=playwright.config.ts 2 > /tmp/run.log'
+    const composed = withOptionAtArgumentEnd(command, 'playwright', '--reporter=list')
+    expect(composed).toBe(
+      'npx playwright test --config=playwright.config.ts --reporter=list 2 > /tmp/run.log',
+    )
+    expect(parseComposed(composed ?? '').ok).toBe(true)
+  })
+
+  it('answers null for a statement inside a nested `sh -c` string, which has no offsets here', () => {
+    const command = `sh -c 'npx playwright test --config=playwright.config.ts 2>&1'`
+    expect(optionOffsetFor(command, 'playwright')).toBeNull()
+  })
+
+  it('answers null when the statement was never placed in this command', () => {
+    expect(statementArgumentEnd('npx playwright test', null, 18)).toBeNull()
+    expect(statementArgumentEnd('npx playwright test', 0, null)).toBeNull()
   })
 })

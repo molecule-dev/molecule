@@ -755,10 +755,9 @@ describe('diagnosisTraceCommand — the trace a diagnosis run must record', () =
       cwd: '/workspace/my-app/app',
       readFile: config("use: { trace: 'on-first-retry' }"),
     })
-    // Inside the step, right after `test` — where Playwright reads it as its own option.
-    expect(out.command).toBe(
-      DIAGNOSIS.replace('playwright test ', `playwright test ${DIAGNOSIS_TRACE_FLAG} `),
-    )
+    // Inside the step, at the end of the RUN's own arguments — where Playwright reads it as its
+    // own option, and before any redirection or group closer.
+    expect(out.command).toBe(`${DIAGNOSIS} ${DIAGNOSIS_TRACE_FLAG}`)
     expect(out.change).toContain(DIAGNOSIS_TRACE_FLAG)
   })
 
@@ -819,9 +818,7 @@ describe('diagnosisTraceCommand — the trace a diagnosis run must record', () =
         throw new Error('no such file')
       },
     })
-    expect(out.command).toBe(
-      DIAGNOSIS.replace('playwright test ', `playwright test ${DIAGNOSIS_TRACE_FLAG} `),
-    )
+    expect(out.command).toBe(`${DIAGNOSIS} ${DIAGNOSIS_TRACE_FLAG}`)
   })
 
   /**
@@ -844,7 +841,9 @@ describe('diagnosisTraceCommand — the trace a diagnosis run must record', () =
       cwd: '/workspace/my-app/app',
       readFile: config(''),
     })
-    expect(traced.command).toContain(`playwright test ${DIAGNOSIS_TRACE_FLAG} --max-failures=15`)
+    expect(traced.command).toContain(
+      `--config e2e-suite.config.ts --reporter=line ${DIAGNOSIS_TRACE_FLAG} 2>&1`,
+    )
     expect(traced.command.endsWith('| tail -60')).toBe(true)
 
     // The rewrite that runs next still finds a TRAILING tail — the shape it drops — and the
@@ -854,7 +853,7 @@ describe('diagnosisTraceCommand — the trace a diagnosis run must record', () =
     expect(streamed.changes.join(' ')).toContain('Dropped the trailing `| tail -60`')
     expect(streamed.command).not.toContain('tail')
     // The flag is still on the step, not left dangling where the tail was.
-    expect(streamed.command).toContain(`playwright test ${DIAGNOSIS_TRACE_FLAG} --max-failures=15`)
+    expect(streamed.command).toContain('--trace=retain-on-failure')
     expect(streamed.command).toContain('--config e2e-suite.config.ts --reporter=list')
     expect(streamed.changes.join(' ')).toContain('Switched the test reporters')
     expect(streamed.command).toContain('--retries=0')
@@ -866,7 +865,9 @@ describe('diagnosisTraceCommand — the trace a diagnosis run must record', () =
       cwd: '/workspace/my-app/app',
       readFile: config(''),
     })
-    expect(traced.command).toContain(`playwright test ${DIAGNOSIS_TRACE_FLAG} --max-failures=15`)
+    expect(traced.command).toContain(
+      `--config e2e-suite.config.ts --reporter=line ${DIAGNOSIS_TRACE_FLAG} > /tmp/pw-run1.log 2>&1`,
+    )
     expect(traced.command.endsWith('; echo "exit=$?"; grep -c "" /tmp/pw-run1.log')).toBe(true)
     expect(traced.command.match(/--trace=/g)).toHaveLength(1)
     // Nothing in this command is a tail or a last-step Playwright run: the other rewrites make no
@@ -894,8 +895,9 @@ cd /workspace/.mol-scratch/realworld-e2e && npx playwright test --config playwri
       cwd: '/workspace',
       readFile: config(''),
     })
-    // The flag is an option of the RUN, right after `test` — never inside the body it writes.
-    expect(traced.command).toContain(`playwright test ${DIAGNOSIS_TRACE_FLAG} --config`)
+    // The flag is an option of the RUN, at the end of its arguments — never inside the body it
+    // writes, and never after the `| tail` that follows it.
+    expect(traced.command).toContain(`--retries=0 ${DIAGNOSIS_TRACE_FLAG} 2>&1`)
     expect(traced.command.match(/--trace=/g)).toHaveLength(1)
     // The body is untouched, byte for byte.
     expect(traced.command).toContain("import { defineConfig, devices } from '@playwright/test'")
@@ -971,11 +973,11 @@ describe('diagnosisTraceCommand — the rewritten command a real shell runs', ()
         'npx',
         '<playwright>',
         '<test>',
-        `<${DIAGNOSIS_TRACE_FLAG}>`,
         '<--max-failures=15>',
         '<--config>',
         '<e2e-suite.config.ts>',
         '<--reporter=line>',
+        `<${DIAGNOSIS_TRACE_FLAG}>`,
       ])
       // `tail` got its own operand and nothing of Playwright's.
       expect(invocation(s.log, 'tail')).toBe('tail <-60>')

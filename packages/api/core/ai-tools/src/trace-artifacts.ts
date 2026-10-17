@@ -27,7 +27,7 @@
  * @module
  */
 
-import { locatedCommandSegments } from './command-position.js'
+import { locatedCommandSegments, statementArgumentEnd } from './command-position.js'
 import { isDiagnosisRun } from './suite-overlap.js'
 import { isPlaywrightRunCommand, redactSecrets } from './utilities.js'
 
@@ -951,37 +951,34 @@ function namesTraceMode(command: string): boolean {
 }
 
 /**
- * Where the `test` word of the command's Playwright run ends, or null when it has none that the
- * shell parse can place.
+ * Where an option of the command's Playwright run belongs, or null when the shell parse cannot
+ * place the run or its arguments.
  *
- * The flag has to land INSIDE the Playwright step, not at the end of the whole command: a run
- * Flash sends almost every time ends `… 2>&1 | tail -60` or `… > log 2>&1; echo "exit=$?"; grep -c
- * "" log`, and a flag appended after those is an operand of `tail`/`grep` — GNU `tail` refuses it
- * outright (`tail: option used in invalid context -- 6`) and Playwright never sees it
- * (xr-molecule-flash-m102 +07:40 → +07:53).
+ * The flag has to land INSIDE the Playwright step, in the run's own argument list — never at the
+ * end of the whole command: a run Flash sends almost every time ends `… 2>&1 | tail -60` or
+ * `… > log 2>&1; echo "exit=$?"; grep -c "" log`, and a flag appended after those is an operand of
+ * `tail`/`grep` — GNU `tail` refuses it outright (`tail: option used in invalid context -- 6`) and
+ * Playwright never sees it (xr-molecule-flash-m102 +07:40 → +07:53). A step inside a subshell
+ * (`( … playwright test … 2>&1)`) is the same rule the other way: a flag written after the `)`
+ * closes the group before the shell has read the flag at all
+ * (`sh: Syntax error: word unexpected`, xr-molecule-flash-m129 +34:29).
  *
- * The step is found by the package's own shell parse ({@link locatedCommandSegments}), the one
- * every runner classifier reads: it answers which STATEMENT runs `playwright test` in command
- * position, and where that statement's program word sits in the command. The offset is the parse's
- * own token position, never a search for the re-joined text — that text drops grouping braces and
- * single-space-joins the words, so a command carrying a heredoc body or a `"quoted"` program found
- * nothing at all and the flag was not added.
+ * The step and the offset are the package's own shell parse's answers
+ * ({@link locatedCommandSegments}, {@link statementArgumentEnd}): the parse says which STATEMENT
+ * runs `playwright test` in command position, and where that statement's own arguments end — before
+ * a trailing redirection and before any group closer. Never a search for the re-joined text: that
+ * text drops grouping braces and single-space-joins the words, so a command carrying a heredoc body
+ * or a `"quoted"` program found nothing at all and the flag was not added.
  *
  * @param command - The shell command.
- * @returns The offset just after `test`, or null.
+ * @returns The offset to write the flag at, or null.
  */
-function playwrightTestWordEnd(command: string): number | null {
+function playwrightOptionOffset(command: string): number | null {
   for (const located of locatedCommandSegments(command)) {
     const segment = located.segment
     if (!segment || located.programOffset === null) continue
     if (!/^playwright\s+test\b/.test(segment.text)) continue
-    // `playwright` and `test` are the statement's own first two words; the flag follows `test`.
-    const words = new RegExp(/\S+/.source, 'g')
-    words.lastIndex = located.programOffset
-    const program = words.exec(command)
-    if (!program) continue
-    const second = words.exec(command)
-    return second ? second.index + second[0].length : null
+    return statementArgumentEnd(command, located.start, located.end)
   }
   return null
 }
@@ -1082,14 +1079,16 @@ export async function diagnosisTraceCommand(args: {
   if (!isPlaywrightRunCommand(args.command)) return unchanged
   const config = await readRunConfig(args.command, args.cwd, args.readFile)
   if (suiteRecordsTraces(config)) return unchanged
-  // The flag goes into the Playwright step, right after its `test` word — an option of the run
-  // itself, whatever the command opens with and wherever it pipes or redirects its output. Appended
-  // at the end of the whole command it belonged to the LAST pipeline stage instead (`tail`, `grep`),
-  // which either refused it or silently ran without it (xr-molecule-flash-m102 +07:40 → +07:53). The
-  // step's shape is untouched otherwise, so the rewrites that run on this command afterwards still
-  // see what they expect: a trailing `| tail -60` is still trailing and is still dropped
+  // The flag goes into the Playwright step's own argument list, at the end of it — an option of
+  // the run itself, whatever the command opens with, whatever pipes or redirects its output, and
+  // before the `)` that may close a subshell around it. Appended at the end of the whole command
+  // it belonged to the LAST pipeline stage instead (`tail`, `grep`), which either refused it or
+  // silently ran without it (xr-molecule-flash-m102 +07:40 → +07:53); written after a subshell's
+  // `)` it was a shell syntax error (xr-molecule-flash-m129 +34:29). The step's shape is untouched
+  // otherwise, so the rewrites that run on this command afterwards still see what they expect: a
+  // trailing `| tail -60` is still trailing and is still dropped
   // (`streamingBackgroundCommand`).
-  const at = playwrightTestWordEnd(args.command)
+  const at = playwrightOptionOffset(args.command)
   if (at === null) return unchanged
   return {
     command: `${args.command.slice(0, at)} ${DIAGNOSIS_TRACE_FLAG}${args.command.slice(at)}`,

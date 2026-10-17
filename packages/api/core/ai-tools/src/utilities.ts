@@ -7,7 +7,12 @@
 
 import { posix } from 'path'
 
-import { type CommandSegment, commandSegments, locatedCommandSegments } from './command-position.js'
+import {
+  type CommandSegment,
+  commandSegments,
+  locatedCommandSegments,
+  statementArgumentEnd,
+} from './command-position.js'
 import { classifyRunFailure, type RunFailureKind } from './failure-kind.js'
 import { commandRunsNoTests } from './no-test-run.js'
 import {
@@ -476,7 +481,17 @@ export function streamingBackgroundCommand(command: string): {
       `Dropped the trailing \`${head[0].trim()}\`: Playwright prints its pass/fail count last, and it would be cut.`,
     )
   }
-  const lastStep = out.split(/&&|\|\||;/).at(-1) ?? ''
+  // The last step that RUNS something. A trailing group closer is punctuation, not a step: a
+  // brace group writes it after a `;` (`{ …; }`), so reading the split's last part literally
+  // made `}` the step and withheld every rewrite from a run inside a group.
+  const parts = out.split(/&&|\|\||;/)
+  let stepIndex = parts.length - 1
+  while (stepIndex > 0 && /^[\s)}]*$/.test(parts[stepIndex] ?? '')) stepIndex -= 1
+  const rawLastStep = parts[stepIndex] ?? ''
+  // The step's own text, with the punctuation that closes the group it sits in taken off — the
+  // options are parsed and placed against this text, while the closer is kept in the command.
+  const lastStep = rawLastStep.replace(/[\s)}]+$/, '')
+  const stepStart = rawLastStep === '' ? out.length : Math.max(0, out.lastIndexOf(rawLastStep))
   // The last step runs Playwright — whether or not anything is piped from it. Keying this on
   // "nothing is piped out of the last step" withheld the reporter, the inline-failure switch and
   // `--retries=0` from exactly the runs whose output was filtered (xr-molecule-flash-m101
@@ -488,18 +503,25 @@ export function streamingBackgroundCommand(command: string): {
   /**
    * Add a word to the suite runner's own arguments; false when the runner could not be placed.
    *
-   * A pipe this rewrite could not drop still follows the runner (`| tee run.log`), so appending at
-   * the end of the whole command would make the word an operand of the filter — m102's dangling
-   * `--trace` flag, in the same shape. A suite inside a nested `sh -c '<command>'` string has no
-   * offsets in this command (they are positions in THAT string), so the command is left exactly as
-   * written and the caller reports no rewrite: appending at the end would hand the flag to the
-   * shell, outside the quotes.
+   * The word goes where the runner's own arguments end ({@link statementArgumentEnd}), never at
+   * the end of the command's text: a pipe this rewrite could not drop still follows the runner
+   * (`| tee run.log`), and a statement can end on a group closer (`( … )`, `{ …; }`) or a
+   * redirection (`… 2>&1`). Appending after the `)` of a subshell was a shell syntax error that
+   * killed the run at once (`sh: Syntax error: word unexpected`) and pushed the model off the
+   * platform's runner shape (xr-molecule-flash-m129 +34:29); appending after a pipe hands the
+   * word to the filter (m102's dangling `--trace` flag, in the same shape).
+   *
+   * A suite the parse could not place — one inside a nested `sh -c '<command>'` string, whose
+   * offsets are positions in THAT string, or a runner that is not the command's last step — is
+   * left exactly as written and the caller reports no rewrite. There is nowhere in this command
+   * the word belongs, and guessing at the text is what produced both failures above.
    */
   const addToRun = (flag: string): boolean => {
     const pipeline = lastSuitePipeline(out)
     const runner = pipeline ? pipeline.located[pipeline.at] : undefined
-    if (runner && runner.end === null) return false
-    const at = runner?.end ?? out.trimEnd().length
+    if (!runner) return false
+    const at = statementArgumentEnd(out, runner.start, runner.end)
+    if (at === null) return false
     out = `${out.slice(0, at)} ${flag}${out.slice(at)}`
     return true
   }
@@ -531,12 +553,15 @@ export function streamingBackgroundCommand(command: string): {
           return 'list'
         })
         .filter((v): v is string => v !== null)
-      // Only the last step is rewritten, and `lastStep` is a suffix of `out`.
+      // Only the last step is rewritten, and its offsets are the parse's own. The punctuation
+      // after the step (`; }`, or the `)` attached to it) is kept verbatim.
       out =
-        out.slice(0, out.length - lastStep.length) +
+        out.slice(0, stepStart) +
         lastStep.slice(0, reporters.start) +
         `--reporter${reporters.separator}${kept.join(',')}` +
-        lastStep.slice(reporters.end)
+        lastStep.slice(reporters.end) +
+        rawLastStep.slice(lastStep.length) +
+        out.slice(stepStart + rawLastStep.length)
       changes.push(
         // `list` was already there and a second printer sat beside it: that one is dropped. When
         // no `list` was named at all, the printer is SWITCHED to it (flash-m62's `line`).
