@@ -758,6 +758,30 @@ function isOutputOnlyFilter(segment: CommandSegment): boolean {
  * @returns The located segments and the last suite stage's index among them, or null.
  */
 function lastSuitePipeline(command: string): { located: LocatedSegment[]; at: number } | null {
+  const run = lastSuiteRun(command)
+  if (run === null) return null
+  for (let i = run.at + 1; i < run.located.length; i += 1) {
+    if ((run.located[i]?.between ?? '').trim() !== '|') return null
+  }
+  return run
+}
+
+/**
+ * The command's last suite stage, and the parse's segments around it — whatever follows that
+ * statement.
+ *
+ * {@link lastSuitePipeline} refuses a suite that is not the command's last step, because the code
+ * the command exits with is then the following statement's. That is the right answer to "whose
+ * exit code is this", and the wrong one to "which stages filter this run's output": a
+ * `… --reporter=list 2>&1 | tail -5; echo done` still pipes its log through a tail, and the tail
+ * still throws away every failure line the run printed (xr-molecule-flash-m121 +09:14, where the
+ * platform's own hold handed that shape back and the first 95-second walk's log held only the
+ * tally).
+ *
+ * @param command - The shell command.
+ * @returns The located segments and the last suite stage's index among them, or null.
+ */
+function lastSuiteRun(command: string): { located: LocatedSegment[]; at: number } | null {
   if (commandRunsNoTests(command)) return null
   const located = locatedSegments(command)
   let at = -1
@@ -765,11 +789,7 @@ function lastSuitePipeline(command: string): { located: LocatedSegment[]; at: nu
     const segment = located[i]?.segment
     if (segment && SUITE_RUN_COMMANDS.some((re) => re.test(segment.text))) at = i
   }
-  if (at < 0) return null
-  for (let i = at + 1; i < located.length; i += 1) {
-    if ((located[i]?.between ?? '').trim() !== '|') return null
-  }
-  return { located, at }
+  return at < 0 ? null : { located, at }
 }
 
 /** A command with the output filters after its suite runner removed. */
@@ -794,29 +814,49 @@ export interface SuiteFilterStrip {
  * caller that reports the run's exit code must then treat it as unknown
  * ({@link suiteRunPipedAfterRunner}).
  *
+ * A statement after the run's own pipeline (`; echo done`, `&& echo ok`) does not protect the
+ * filters before it: the filter is thrown away and the trailing statement is kept, so the log the
+ * run writes still holds every failure (xr-molecule-flash-m121 — a `| tail -5; echo done` kept its
+ * tail, and a 95-second walk's log held only the tally while the platform's own hold had handed
+ * that command back).
+ *
  * @param command - The shell command.
  * @returns The rewritten command and the stages dropped.
  */
 export function stripTrailingSuiteFilters(command: string): SuiteFilterStrip {
-  const pipeline = lastSuitePipeline(command)
-  if (pipeline === null) return { command, dropped: '' }
-  const { located, at } = pipeline
-  let first = located.length
-  for (let i = located.length - 1; i > at; i -= 1) {
+  const run = lastSuiteRun(command)
+  if (run === null) return { command, dropped: '' }
+  const { located, at } = run
+  // Where the suite's own pipeline ends: the first stage after the runner that is not joined to
+  // its predecessor by a single `|`. Everything from there on is another statement, kept as it is.
+  let end = at
+  for (let i = at + 1; i < located.length; i += 1) {
+    if ((located[i]?.between ?? '').trim() !== '|') break
+    end = i
+  }
+  let first = end + 1
+  for (let i = end; i > at; i -= 1) {
     const stage = located[i]
     if (!stage || !isOutputOnlyFilter(stage.segment)) break
     first = i
   }
-  if (first === located.length) return { command, dropped: '' }
+  if (first === end + 1) return { command, dropped: '' }
   const previous = located[first - 1]
   const stage = located[first]
-  if (!previous || !stage) return { command, dropped: '' }
+  const lastDropped = located[end]
+  if (!previous || !stage || !lastDropped) return { command, dropped: '' }
   // A stage inside a nested `sh -c` string has no offsets in this command: nothing can be cut.
-  if (previous.end === null || stage.start === null) return { command, dropped: '' }
+  if (previous.end === null || stage.start === null || lastDropped.end === null)
+    return { command, dropped: '' }
   const pipe = stage.between.indexOf('|')
   if (pipe < 0) return { command, dropped: '' }
   const cut = previous.end + pipe
-  return { command: command.slice(0, cut).trimEnd(), dropped: command.slice(cut).trim() }
+  // The stages dropped are a middle slice when a statement follows, so the text after them is
+  // kept — `; echo done` still runs.
+  return {
+    command: `${command.slice(0, cut).trimEnd()}${command.slice(lastDropped.end)}`,
+    dropped: command.slice(cut, lastDropped.end).trim(),
+  }
 }
 
 /** Whether a finished run's exit code belongs to a stage after the suite runner. */

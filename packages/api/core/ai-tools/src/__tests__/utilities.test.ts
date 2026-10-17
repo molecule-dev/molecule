@@ -2471,16 +2471,45 @@ describe('a suite’s pipeline is not the suite’s result (xr-molecule-flash-m1
     // Not a suite, or a runner that only lists: nothing to strip.
     unchanged('npm run build 2>&1 | tail -5')
     unchanged('npx playwright test --list 2>&1 | tail -5')
-    // A statement after the suite is that statement's pipeline, not the run's.
-    unchanged('npx playwright test | grep x; echo done')
+    // A statement AFTER the suite's own pipeline is not a filter of it: `&&` starts a command of
+    // its own, and a suite with no pipe has nothing to drop.
     unchanged('npx playwright test && grep x file')
-    // Output-only proof is required: `tee` writes a file, `sed -i` edits one.
-    unchanged('npx playwright test | tee run.log')
-    unchanged("npx playwright test | sed -i 's/a/b/'")
+    unchanged('npx playwright test; echo done')
+    // Output-only proof is required: `tee` writes a file, `sed -i` edits one — even when a
+    // statement follows the pipeline (xr-molecule-flash-m121).
+    unchanged('npx playwright test | tee run.log; echo done')
+    unchanged("npx playwright test | sed -i 's/a/b/' && echo done")
     // Another suite runner is covered by the same rule.
     expect(stripTrailingSuiteFilters('npx vitest run 2>&1 | grep failed')).toEqual({
       command: 'npx vitest run 2>&1',
       dropped: '| grep failed',
+    })
+  })
+
+  it('drops a suite pipeline’s filters when a statement follows them (xr-molecule-flash-m121)', () => {
+    // The platform's hold handed this shape back at +09:14; the background start kept the tail,
+    // and the 95-second walk's log held only its tally.
+    const command =
+      'npx playwright test --max-failures=15 --config /tmp/rw/playwright.config.ts ' +
+      '--project=chromium --reporter=list 2>&1 | tail -5; echo done'
+    const bare =
+      'npx playwright test --max-failures=15 --config /tmp/rw/playwright.config.ts ' +
+      '--project=chromium --reporter=list 2>&1; echo done'
+    expect(stripTrailingSuiteFilters(command)).toEqual({ command: bare, dropped: '| tail -5' })
+    const { command: streamed, changes } = streamingBackgroundCommand(command)
+    // The trailing statement is kept, and the log keeps every failure line.
+    expect(streamed).toBe(bare)
+    expect(changes[0]).toBe(
+      'Dropped the trailing `| tail -5`: it holds all output back until the command ends, ' +
+        'and wait_for_task returns the end of the log anyway.',
+    )
+    // A filter run before the statement goes as one slice, and the statement still runs.
+    expect(
+      stripTrailingSuiteFilters('npx playwright test 2>&1 | grep ✘ | tail -5; echo done'),
+    ).toEqual({ command: 'npx playwright test 2>&1; echo done', dropped: '| grep ✘ | tail -5' })
+    expect(stripTrailingSuiteFilters('npx playwright test 2>&1 | tail -5 && echo ok')).toEqual({
+      command: 'npx playwright test 2>&1 && echo ok',
+      dropped: '| tail -5',
     })
   })
 
