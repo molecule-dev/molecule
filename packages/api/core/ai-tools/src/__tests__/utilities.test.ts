@@ -2286,6 +2286,38 @@ describe('failureCausesNote — the page’s own errors ride the cause (xr-molec
   })
 })
 
+/**
+ * xr-molecule-flash-m122 (+23:39): `button:has-text("Follow")` died with
+ * `strict mode violation: … resolved to 2 elements:` and the cause line stopped there — the two
+ * `<button class=…>` lines were dropped, and the run fixed a duplicate on a page its failing test
+ * never visits. The element list IS the address of the fix, so it is kept whole.
+ */
+describe('failureCausesNote — a strict-mode violation keeps the elements it resolved to (m122)', () => {
+  const strict = [
+    '  2 failed',
+    '',
+    '  1) [chromium] › social.spec.ts:62:5 › Social › follow user ─────',
+    '',
+    '    Error: strict mode violation: locator(\'button:has-text("Follow")\') resolved to 2 elements:',
+    "        1) <button class=\"btn btn-sm btn-outline-secondary action-btn\">Follow</button> aka getByRole('button', { name: 'Follow user' })",
+    "        2) <button class=\"btn btn-sm btn-outline-secondary\">Follow</button> aka getByRole('button', { name: 'Follow' })",
+    '',
+    '  2) [chromium] › profile.spec.ts:9:5 › Profile › follows ─────',
+    '',
+    '    Error: strict mode violation: locator(\'button:has-text("Follow")\') resolved to 2 elements:',
+    "        1) <button class=\"btn btn-sm btn-outline-secondary action-btn\">Follow</button> aka getByRole('button', { name: 'Follow user' })",
+    "        2) <button class=\"btn btn-sm btn-outline-secondary\">Follow</button> aka getByRole('button', { name: 'Follow' })",
+    '',
+  ].join('\n')
+
+  it('prints the two elements the locator matched, under the cause', () => {
+    const note = failureCausesNote(strict)!
+    expect(note).toContain('resolved to 2 elements')
+    expect(note).toContain('<button class="btn btn-sm btn-outline-secondary action-btn">')
+    expect(note).toContain('<button class="btn btn-sm btn-outline-secondary">')
+  })
+})
+
 describe('suiteRunPriorityLaunch', () => {
   const LAUNCH = 'sh /tmp/mol-bg-1.sh > /tmp/mol-bg-1.log 2>&1; echo $? > /tmp/mol-bg-1.exit'
 

@@ -1980,6 +1980,16 @@ const FAILURE_EVIDENCE_CHARS = 200
  */
 function failureEvidence(body: string[], message: string | null): string[] {
   const carried = (line: string): boolean => message !== null && message.includes(line)
+  // A strict-mode violation lists the elements it resolved to, and that list is the fix's own
+  // address: `1) <button class="… action-btn">` and `2) <button class="…">` name where each
+  // duplicate is written. They were dropped here (the first body line is the signature, and the
+  // only later `Error:` line this read for is absent), so xr-molecule-flash-m122's run read
+  // "resolved to 2 elements:" followed by nothing and fixed a duplicate on a page its failing
+  // test never visits. Kept whole — a locator list is what the executor has to match to a file.
+  if (message !== null && /resolved to \d+ elements?/i.test(message)) {
+    const elements = body.filter((line) => /^\d+\)\s/.test(line))
+    if (elements.length > 0) return elements.slice(0, 2)
+  }
   const expected = body.find((l) => /^Expected\b/.test(l))
   const received = body.find((l) => /^Received\b/.test(l))
   if (expected !== undefined && received !== undefined) return [expected, received]
