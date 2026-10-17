@@ -156,6 +156,61 @@ describe('traceArtifactsScript — a real trace, read headlessly', () => {
   })
 
   /**
+   * m135's Follow test: the click sent an UNFOLLOW (a `DELETE`, because the page's `following`
+   * state was stale) and got a 200 back. The row must lead with that exchange and its response,
+   * whether or not the request failed — the result's old rows named only the test's earlier
+   * answered requests, so the run never saw the verb the click used.
+   */
+  it('leads each row with the request the failing step sent, answered or not (m135)', () => {
+    const root = layout({ [FOLDER]: FIXTURE })
+    try {
+      const items = parseTraceArtifacts(readTraces(root))
+      expect(items[0].lead).toMatchObject({
+        method: 'POST',
+        path: '/api/articles/x/favorite',
+        status: 401,
+        type: 'fetch',
+      })
+      const row = String(failureTraceNote(items, 'https://app.apps.mlcl.dev'))
+        .split('\n')
+        .find((line) => /^\s+1\./.test(line))
+      expect(row).toContain('the failing step sent POST /api/articles/x/favorite → 401')
+      // It leads the row once; the buckets below do not repeat it.
+      expect(String(row).match(/POST \/api\/articles\/x\/favorite/g)).toHaveLength(1)
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
+  it('prints the failing step’s ANSWERED response and names a stale click state (m135)', () => {
+    const note = String(
+      failureTraceNote(
+        [
+          {
+            spec: 'e2e/realworld/social.spec.ts',
+            line: 22,
+            requests: [{ method: 'GET', path: '/api/profiles/probe2', status: 200, type: 'fetch' }],
+            lead: {
+              method: 'DELETE',
+              path: '/api/profiles/probe2/follow',
+              status: 200,
+              type: 'fetch',
+              got: '{"profile":{"username":"probe2","following":false}}',
+            },
+            console: [],
+          },
+        ],
+        'the local app',
+      ),
+    )
+    const row = note.split('\n').find((line) => /^\s+1\./.test(line))
+    expect(row).toContain(
+      'the failing step sent DELETE /api/profiles/probe2/follow → 200 got {"profile":{"username":"probe2","following":false}}',
+    )
+    expect(note).toContain('the state the click read was stale')
+  })
+
+  /**
    * X1 xr-molecule-flash-m111 (+11:36 → +17:55): every frontend POST/PUT shipped `{"data":{…}}`
    * because the app's `api()` helper passed `{ data: body }` as app-http's DATA argument. The run's
    * own trace held the answer — `POST /api/users → 422` plus the body — and status alone said

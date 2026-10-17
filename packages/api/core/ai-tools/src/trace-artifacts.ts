@@ -85,6 +85,16 @@ export interface TraceArtifact {
   line: number
   /** The requests the page made, the interesting ones first ({@link traceArtifactsScript}). */
   requests: TraceRequest[]
+  /**
+   * The request the failing step itself sent: the trace's LAST `fetch`/`xhr` in recording order
+   * (a click's own call), else its document request. It leads the note's row, because a click that
+   * changed nothing is explained by the request the click sent and what came back — xr-molecule-
+   * flash-m135's Follow click sent `DELETE /api/profiles/x/follow → 200` (its `following` state was
+   * stale) and the note listed only the test's earlier, answered requests.
+   *
+   * Absent when the trace recorded neither, and on traces read before this field existed.
+   */
+  lead?: TraceRequest
   /** The console errors and page errors the page raised. */
   console: string[]
   /**
@@ -124,6 +134,13 @@ export const TRACE_NOTE_SENT_CHARS = 160
 
 /** How much of the response body the note prints — the API's first error line. */
 export const TRACE_NOTE_GOT_CHARS = 120
+
+/**
+ * How much of the FAILING STEP's response body the note prints. Longer than
+ * {@link TRACE_NOTE_GOT_CHARS}: it is the one line that answers "what did the click actually get
+ * back", and an app's own body (`{"profile":{…}}`) can carry the answer past its first clause.
+ */
+export const TRACE_NOTE_LEAD_GOT_CHARS = 200
 
 /** How much of a network error's own text (`net::ERR_CONNECTION_REFUSED`) the note prints. */
 const TRACE_NOTE_FAILURE_CHARS = 120
@@ -380,6 +397,51 @@ for (const one of found.slice(0, MAX_TRACES)) {
   function neverFinished(r) {
     return r.status <= 0 && typeof r.failure !== 'string'
   }
+  // The request the failing step itself sent: the page's LAST call to the app's own origin (a
+  // click's fetch/xhr), else the document load. It leads the test's line, because the request a
+  // click sent answers "why did nothing change?" — xr-molecule-flash-m135 clicked Follow and sent
+  // a DELETE (its \`following\` state was stale), and the trace held the whole exchange while the
+  // result listed only the test's earlier, answered requests.
+  //
+  // Never a request that is still in flight (no response, no error text): it says nothing about
+  // what came back, and the note has its own honest row for it (m112 +30:45). Never the page
+  // shell's own probe (a refused \`/sw.js\` is not the step's request — m125 +29:33).
+  function leadCandidate(r) {
+    if (r.status <= 0 && typeof r.failure !== 'string') return false
+    if (r.type === 'document') return true
+    if (r.type !== 'fetch' && r.type !== 'xhr') return false
+    // The request the page makes for its own shell is not the step's (m125 +29:33). The recorded
+    // path can be an absolute URL when the probe's origin differs from the document's, so judge
+    // its pathname.
+    var p = r.path
+    try { p = new URL(r.path, 'http://trace.local').pathname } catch (e) { p = String(r.path).split(/[?#]/)[0] }
+    return !shellPath(p)
+  }
+  let leadIndex = -1
+  for (let i = requests.length - 1; i >= 0; i--) {
+    const r = requests[i]
+    if ((r.type === 'fetch' || r.type === 'xhr') && leadCandidate(r)) { leadIndex = i; break }
+  }
+  if (leadIndex === -1) {
+    for (let i = requests.length - 1; i >= 0; i--) {
+      if (requests[i].type === 'document' && leadCandidate(requests[i])) { leadIndex = i; break }
+    }
+  }
+  let lead = null
+  if (leadIndex !== -1) {
+    const r = requests[leadIndex]
+    const sent = bodyText(buf, entries, r.postData, MAX_BODY)
+    const got = bodyText(buf, entries, r.content, MAX_BODY)
+    lead = {
+      method: r.method,
+      path: r.path,
+      status: r.status,
+      failure: r.failure,
+      type: r.type || undefined,
+      ...(sent ? { sent: sent } : {}),
+      ...(got ? { got: got } : {}),
+    }
+  }
   const failing = []
   const api = []
   const pending = []
@@ -445,6 +507,7 @@ for (const one of found.slice(0, MAX_TRACES)) {
     dir: path.relative(ROOT, path.dirname(one.file)),
     spec: spec,
     line: line,
+    lead: lead,
     // Failures first, per the sort above; the keep-window is the HEAD of that order. Taking the
     // tail here dropped every failed request as soon as a page made more than MAX_REQUESTS of them
     // plus the answered ones (xr-molecule-flash-m112's note listed only -1s and 200s).
@@ -454,6 +517,26 @@ for (const one of found.slice(0, MAX_TRACES)) {
   }) + '\\n')
 }
 `
+
+/**
+ * One request out of a `TRACE` line's json, or null when the value is not an object.
+ *
+ * @param value - One entry of the line's `requests` array, or its `lead`.
+ * @returns The request, or null.
+ */
+function parseTraceRequest(value: unknown): TraceRequest | null {
+  if (typeof value !== 'object' || value === null) return null
+  const r = value as Record<string, unknown>
+  return {
+    method: String(r.method ?? ''),
+    path: String(r.path ?? ''),
+    status: Number(r.status ?? 0) || 0,
+    ...(typeof r.failure === 'string' && r.failure ? { failure: r.failure } : {}),
+    ...(typeof r.sent === 'string' && r.sent ? { sent: r.sent } : {}),
+    ...(typeof r.got === 'string' && r.got ? { got: r.got } : {}),
+    ...(typeof r.type === 'string' && r.type ? { type: r.type } : {}),
+  }
+}
 
 /**
  * The traces {@link traceArtifactsScript} printed, parsed.
@@ -473,20 +556,14 @@ export function parseTraceArtifacts(stdout: string): TraceArtifact[] {
       const requests = Array.isArray(raw.requests) ? raw.requests : []
       const consoleMessages = Array.isArray(raw.console) ? raw.console : []
       const actions = Array.isArray(raw.actions) ? raw.actions : []
+      const lead = parseTraceRequest(raw.lead)
       out.push({
         spec: typeof raw.spec === 'string' ? raw.spec : null,
         line: typeof raw.line === 'number' ? raw.line : 0,
         requests: requests
-          .filter((r): r is Record<string, unknown> => typeof r === 'object' && r !== null)
-          .map((r) => ({
-            method: String(r.method ?? ''),
-            path: String(r.path ?? ''),
-            status: Number(r.status ?? 0) || 0,
-            ...(typeof r.failure === 'string' && r.failure ? { failure: r.failure } : {}),
-            ...(typeof r.sent === 'string' && r.sent ? { sent: r.sent } : {}),
-            ...(typeof r.got === 'string' && r.got ? { got: r.got } : {}),
-            ...(typeof r.type === 'string' && r.type ? { type: r.type } : {}),
-          })),
+          .map(parseTraceRequest)
+          .filter((request): request is TraceRequest => request !== null),
+        ...(lead === null ? {} : { lead }),
         console: consoleMessages.map(String),
         actions: actions
           .filter((a): a is Record<string, unknown> => typeof a === 'object' && a !== null)
@@ -550,6 +627,33 @@ function requestLine(request: TraceRequest): string {
     ? ` got ${bodyLine(redactSecrets(request.got), TRACE_NOTE_GOT_CHARS)}`
     : ''
   return `${head}${sent}${got}`
+}
+
+/**
+ * The failing step's own request as the note writes it first: `the failing step sent DELETE
+ * /api/profiles/x/follow → 200 got {"profile":{…}}`.
+ *
+ * It prints the response body whatever the status — an ANSWERED request is the point: m135's
+ * Follow click sent the DELETE an unfollow sends, got a 200 and a profile with `following: false`,
+ * and nothing in the result said which verb the click used.
+ *
+ * @param request - The trace's `lead` request.
+ * @returns The clause the test's row opens with.
+ */
+function leadRequestLine(request: TraceRequest): string {
+  const status =
+    request.status > 0
+      ? String(request.status)
+      : request.failure
+        ? `no response (${bodyLine(redactSecrets(request.failure), TRACE_NOTE_FAILURE_CHARS)})`
+        : 'no response'
+  const sent = request.sent
+    ? ` sent ${bodyLine(redactSecrets(request.sent), TRACE_NOTE_SENT_CHARS)}`
+    : ''
+  const got = request.got
+    ? ` got ${bodyLine(redactSecrets(request.got), TRACE_NOTE_LEAD_GOT_CHARS)}`
+    : ''
+  return `the failing step sent ${requestLabel(request)} → ${status}${sent}${got}`
 }
 
 /** Whether a sent body is an object whose only top-level key is `data` — the wrapped-body trap. */
@@ -838,6 +942,12 @@ function transportFailure(items: readonly TraceArtifact[]): TransportFailure | n
  * line rather than inferred from the status; when one of those bodies is an object whose only key
  * is `data`, the note names the call shape that produces it (xr-molecule-flash-m111 +11:36).
  *
+ * Every row opens with the request the failing step ITSELF sent ({@link TraceArtifact.lead}) and
+ * its response — whatever its status — because the question a `waiting for locator` failure asks
+ * is what the click did: xr-molecule-flash-m135's Follow click sent `DELETE …/follow → 200` (an
+ * unfollow, from a stale `following` state) and the run's result named only the test's earlier
+ * answered requests, so the executor spent 14 minutes on its own browser probes.
+ *
  * WHICH rows it spends is evidence, not artifact order (xr-molecule-flash-m112 +53:46): a row
  * needs a recorded response, a real failure or a console error ({@link traceRowEvidence}), rows are
  * deduplicated by the test's location, and they are ordered real failure → repeated from an
@@ -902,9 +1012,20 @@ export function failureTraceNote(
   ]
   const rows: string[] = []
   for (const [index, item] of traced.entries()) {
+    // The request the failing step itself sent LEADS the row (m135): a click that changed nothing
+    // is answered by the request it sent and what came back, whether or not that request failed.
+    // It is not repeated in the buckets below.
+    const lead = item.lead
+    const isLead = (request: TraceRequest): boolean =>
+      lead !== undefined &&
+      request.method === lead.method &&
+      request.path === lead.path &&
+      request.status === lead.status
     // The page shell's own requests take no row, in any bucket: an aborted `/sw.js` would
     // otherwise be printed as an "answered" request with no response (m125 +29:33).
-    const requests = item.requests.filter((request) => !isStaticAssetRequest(request))
+    const requests = item.requests.filter(
+      (request) => !isStaticAssetRequest(request) && !isLead(request),
+    )
     const failed = requests.filter(failedRequest)
     const unanswered = requests.filter(unansweredRequest)
     const answered = requests.filter(
@@ -917,6 +1038,10 @@ export function failureTraceNote(
       : []
     let room = MAX_TRACE_NOTE_REQUESTS
     const parts: string[] = []
+    if (lead !== undefined) {
+      parts.push(leadRequestLine(lead))
+      room -= 1
+    }
     if (failed.length > 0) {
       const shown = failed.slice(0, room)
       room -= shown.length
@@ -1000,8 +1125,8 @@ export function failureTraceNote(
     transportLead +
     stalledLead +
     `The platform read the failing tests' own Playwright traces from the run against ${target} ` +
-    `(what each page sent and got: the requests that failed, the ones that got no response, and ` +
-    `its last answered ones):\n` +
+    `(what each page sent and got — first the request the failing step itself sent, then the ` +
+    `requests that failed, the ones that got no response, and its last answered ones):\n` +
     `${rows.join('\n')}${more}\n` +
     (anyFailed
       ? 'A click that changed nothing is usually one of these requests failing, not the selector: ' +
@@ -1013,7 +1138,10 @@ export function failureTraceNote(
           'page-state bug: re-run these tests against the same URL first, and change the app only ' +
           'if the same navigation times out again with no stalled asset in the trace.'
         : 'No listed request failed — none got a 4xx/5xx or a network error — so the cause is in the ' +
-          'page, not the API: read the state the failing test waited on.') +
+          'page, not the API. Start with the request the failing step sent (the first line of each ' +
+          'row): if it is not the request the test meant — an unfollow sent where the test clicked ' +
+          'follow — the state the click read was stale before it. Otherwise read the state the ' +
+          'failing test waited on.') +
     (wrapped
       ? ' The API received a body wrapped in `data`: app-http’s `post(url, data, config)` / ' +
         '`put(url, data, config)` / `patch(url, data, config)` take the body as their SECOND ' +
