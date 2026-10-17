@@ -60,10 +60,11 @@ export interface TraceRequest {
   /** What came back for that 4xx, bounded the same way — the API's own error body. */
   got?: string
   /**
-   * `document` when the request was the page load itself — the only resource type the read emits.
-   * When it ended in a `net::ERR_*`, nothing rendered and no selector or app request was measured.
+   * The browser's own resource type (`document`, `fetch`, `xhr`, `font`, `image`, `stylesheet`,
+   * `script`, …). `document` when the request was the page load itself; when it ended in a
+   * `net::ERR_*`, nothing rendered and no selector or app request was measured.
    */
-  type?: 'document'
+  type?: string
 }
 
 /** One action the traced page performed, with the trace's own timing for it. */
@@ -320,9 +321,24 @@ for (const one of found.slice(0, MAX_TRACES)) {
     if (sent) r.sent = sent
     if (got) r.got = got
   }
+  // The page shell's own requests (a service worker probe, a manifest, a font) are not the
+  // failing step's dependencies: a 404 on one, or no response at all, is not a cause and takes
+  // no row (xr-molecule-flash-m125 +29:33 — "GET /sw.js; GET /fonts/ionicons.woff" sent the
+  // model to write a caching service worker into the app).
+  const SHELL_TYPE = { font: 1, image: 1, stylesheet: 1, script: 1, manifest: 1 }
+  function shellPath(path) {
+    return /^\\/(?:sw|service-worker)\\.js(?:[?#]|$)|\\/manifest\\.webmanifest(?:[?#]|$)|\\/favicon[^/]*(?:[?#]|$)|\\/fonts?\\//.test(path) ||
+      /^\\/(?:assets|@vite|__mol)\\//.test(path)
+  }
+  function shellRequest(r) {
+    if (r.type === 'document') return false
+    return SHELL_TYPE[r.type] === 1 || shellPath(r.path)
+  }
   // A failed request: a 4xx/5xx, or no response at all WITH Playwright's error text (a refused
-  // connection). No response and no text is an aborted/pending request, not a failure.
+  // connection). No response and no text is an aborted/pending request, not a failure. A 404 on
+  // the page shell is excepted, for the reason above.
   function failedRequest(r) {
+    if (shellRequest(r) && r.status === 404) return false
     return r.status >= 400 || (r.status <= 0 && typeof r.failure === 'string')
   }
   const failing = []
@@ -330,6 +346,8 @@ for (const one of found.slice(0, MAX_TRACES)) {
   const rest = []
   for (let i = 0; i < requests.length; i++) {
     const r = requests[i]
+    // An answered/aborted shell request is no evidence at all — do not spend a kept row on it.
+    if (shellRequest(r) && !failedRequest(r)) continue
     if (failedRequest(r)) failing.push(i)
     else if (r.type === 'fetch' || r.type === 'xhr' || r.type === 'document') api.push(i)
     else rest.push(i)
@@ -353,7 +371,7 @@ for (const one of found.slice(0, MAX_TRACES)) {
       failure: r.failure,
       sent: r.sent,
       got: r.got,
-      type: r.type === 'document' ? 'document' : undefined,
+      type: r.type || undefined,
     })
   }
   // The page's own actions, timed. before/after pair on the call id, and only the LIBRARY
@@ -442,7 +460,7 @@ export function parseTraceArtifacts(stdout: string): TraceArtifact[] {
             ...(typeof r.failure === 'string' && r.failure ? { failure: r.failure } : {}),
             ...(typeof r.sent === 'string' && r.sent ? { sent: r.sent } : {}),
             ...(typeof r.got === 'string' && r.got ? { got: r.got } : {}),
-            ...(r.type === 'document' ? { type: 'document' as const } : {}),
+            ...(typeof r.type === 'string' && r.type ? { type: r.type } : {}),
           })),
         console: consoleMessages.map(String),
         actions: actions
@@ -527,16 +545,79 @@ function wrappedInData(text: string): boolean {
   }
 }
 
-/** Whether a trace recorded a request the server actually failed: a 4xx/5xx, or a network error. */
-function failedRequest(request: TraceRequest): boolean {
+/**
+ * A request the page made for its own shell rather than for the step under test: the PWA's
+ * service worker (`/sw.js` — the scaffold registers one there and a project without one answers
+ * 404), the manifest, a favicon, the fonts a stylesheet pulls, and Vite's/dev's own asset paths.
+ *
+ * These are not the failing step's dependencies, so neither a missing response nor a 404 on one is
+ * a cause. xr-molecule-flash-m125 (+29:33) was handed "no response recorded — still in flight when
+ * the test ended … GET /sw.js; GET /fonts/ionicons.woff" and answered it by writing a CACHING
+ * service worker into the app — in front of `/assets/*`, exactly what makes a redeployed fix
+ * invisible to the next proof run. The note is about the test's own API calls.
+ */
+const STATIC_ASSET_PATH =
+  /^\/(?:sw|service-worker)\.js(?:[?#]|$)|\/manifest\.webmanifest(?:[?#]|$)|\/favicon[^/]*(?:[?#]|$)|\/fonts?\//i
+
+/** The build/dev output paths the page shell loads (Vite's bundle, the platform's own files). */
+const STATIC_ASSET_DIR = /^\/(?:assets|@vite|__mol)\//i
+
+/** The resource types a page loads for itself rather than for the step under test. */
+const STATIC_ASSET_TYPES = new Set(['font', 'image', 'stylesheet', 'script', 'manifest'])
+
+/** The path part of a request, for the static-asset test. */
+function requestPath(request: TraceRequest): string {
+  const url = String(request.path ?? '')
+  try {
+    const parsed = new URL(url, 'http://trace.local')
+    return parsed.pathname
+  } catch (_error) {
+    // Not a URL this can parse: judge the text itself, up to any query or fragment.
+    return url.split(/[?#]/)[0] ?? url
+  }
+}
+
+/**
+ * Whether a request is one of the page shell's, not the test's (`STATIC_ASSET_PATH`).
+ *
+ * The document itself is never incidental — a page that never loaded IS the failure — and a
+ * request whose type is the app's own API (`fetch`/`xhr`) is judged by its path alone.
+ *
+ * @param request - One request a trace recorded.
+ * @returns True when the request is incidental to the step under test.
+ */
+export function isStaticAssetRequest(request: TraceRequest): boolean {
+  if (request.type === 'document') return false
+  if (request.type !== undefined && STATIC_ASSET_TYPES.has(request.type)) return true
+  const path = requestPath(request)
+  return STATIC_ASSET_PATH.test(path) || STATIC_ASSET_DIR.test(path)
+}
+
+/**
+ * Whether a trace recorded a request the server actually failed: a 4xx/5xx, or a network error.
+ *
+ * A 404 on a static asset is excepted: `/sw.js` and `/fonts/*` 404 on an app that never shipped
+ * them, and naming one as a failure sent m125 into writing the caching worker it had asked about.
+ * A 5xx on an asset, or a network error, still counts — the server did fail.
+ *
+ * @param request - One request a trace recorded.
+ * @returns True when the request failed in a way the note should name.
+ */
+export function failedRequest(request: TraceRequest): boolean {
+  if (isStaticAssetRequest(request) && request.status === 404) return false
   return request.status >= 400 || (request.status <= 0 && request.failure !== undefined)
 }
 
 /**
  * Whether a trace recorded NO response and no reason for it — a request that was aborted or still
- * in flight when the test ended. It is not evidence that the server failed (m112 +30:45).
+ * in flight when the test ended. It is not evidence that the server failed (m112 +30:45), and one
+ * the page shell made is not evidence about the step at all (m125 +29:33).
+ *
+ * @param request - One request a trace recorded.
+ * @returns True when the request is still in flight and worth naming.
  */
-function unansweredRequest(request: TraceRequest): boolean {
+export function unansweredRequest(request: TraceRequest): boolean {
+  if (isStaticAssetRequest(request)) return false
   return request.status <= 0 && request.failure === undefined
 }
 
@@ -594,9 +675,18 @@ function repeatsEarlierFailure(item: TraceArtifact, earlier: readonly string[]):
  * not evidence (m112 +53:46): four of the note's five rows were traces of one `afterEach` line
  * whose every request was `-1`, so the favorite cause — repeated in all three walks — stayed
  * hidden in "… and 7 more traced failures".
+ *
+ * A request the page shell made (m125 +29:33: `/sw.js`, a font) is not evidence about the step
+ * either, answered or not.
+ *
+ * @param item - One traced failure.
+ * @returns True when the trace holds a request or console error worth a row.
  */
 function traceRowEvidence(item: TraceArtifact): boolean {
-  return item.console.length > 0 || item.requests.some((request) => !unansweredRequest(request))
+  return (
+    item.console.length > 0 ||
+    item.requests.some((request) => !isStaticAssetRequest(request) && !unansweredRequest(request))
+  )
 }
 
 /**
@@ -736,9 +826,12 @@ export function failureTraceNote(
   const anyFailed = traced.some((item) => item.requests.some(failedRequest))
   const rows: string[] = []
   for (const [index, item] of traced.entries()) {
-    const failed = item.requests.filter(failedRequest)
-    const unanswered = item.requests.filter(unansweredRequest)
-    const answered = item.requests.filter(
+    // The page shell's own requests take no row, in any bucket: an aborted `/sw.js` would
+    // otherwise be printed as an "answered" request with no response (m125 +29:33).
+    const requests = item.requests.filter((request) => !isStaticAssetRequest(request))
+    const failed = requests.filter(failedRequest)
+    const unanswered = requests.filter(unansweredRequest)
+    const answered = requests.filter(
       (request) => !failedRequest(request) && !unansweredRequest(request),
     )
     let room = MAX_TRACE_NOTE_REQUESTS

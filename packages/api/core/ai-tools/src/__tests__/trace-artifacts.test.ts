@@ -104,6 +104,9 @@ describe('traceArtifactsScript — a real trace, read headlessly', () => {
         method: 'POST',
         path: '/api/articles/x/favorite',
         status: 401,
+        // The browser's own resource type rides along, so the note can tell the page shell from
+        // the test's own API calls (m125 +29:33).
+        type: 'fetch',
         // A 4xx also carries what came back (the request itself had no body).
         got: '{"error":"unauthorized"}',
       })
@@ -283,14 +286,37 @@ describe('failureTraceNote — a request with no response is not a failed reques
         status: -1,
         failure: 'net::ERR_CONNECTION_REFUSED',
       })
-      const note = String(failureTraceNote(items, 'the deployed app'))
-      // Unlike the aborted request above, this one IS evidence of failure.
-      expect(note).toContain('failed: GET http://127.0.0.1:')
-      expect(note).toContain('→ no response (net::ERR_CONNECTION_REFUSED)')
-      expect(note).not.toContain('not a server failure')
-      expect(note).toContain(
-        'A click that changed nothing is usually one of these requests failing',
+      // This fixture's refused request IS the page shell's `/sw.js` probe (m125 +29:33): its
+      // refusal is not the failing step's dependency, so the note names the console error and not
+      // the request — exactly the line that sent a run to write a caching service worker.
+      expect(refused?.path.endsWith('/sw.js')).toBe(true)
+      const shell = String(failureTraceNote(items, 'the deployed app'))
+      expect(shell).not.toContain('/sw.js')
+      expect(shell).not.toContain('failed:')
+      // A refused request the APP made is still a real failure, with Playwright's own text.
+      const app = String(
+        failureTraceNote(
+          [
+            {
+              ...items[0],
+              requests: [
+                {
+                  method: 'GET',
+                  path: '/api/tags',
+                  status: -1,
+                  failure: 'net::ERR_CONNECTION_REFUSED',
+                },
+                { method: 'GET', path: '/', status: 200, type: 'document' },
+              ],
+            },
+          ],
+          'the deployed app',
+        ),
       )
+      expect(app).toContain('failed: GET /api/tags')
+      expect(app).toContain('→ no response (net::ERR_CONNECTION_REFUSED)')
+      expect(app).not.toContain('not a server failure')
+      expect(app).toContain('A click that changed nothing is usually one of these requests failing')
     } finally {
       rmSync(root, { recursive: true, force: true })
     }
@@ -314,14 +340,16 @@ describe('failureTraceNote — a request with no response is not a failed reques
   })
 
   it('splits a row into failures and unanswered requests, and only promises a failure when one is listed', () => {
-    // m112's own first row, verbatim: four requests, every one `-1` (the page closed under them).
-    // One answered request keeps this a row at all (+53:46: a trace of nothing but `-1`s is not
-    // one — the note is about what a page sent and got).
+    // m112's own first row: four page requests, every one `-1` (the page closed under them), plus
+    // the app's own answered request. That answer keeps this a row at all (+53:46: a trace of
+    // nothing but `-1`s is not one — the note is about what a page sent and got); the `/sw.js` it
+    // also recorded is the page shell and no longer counts as that answer (m125 +29:33).
     const m112: TraceArtifact = {
       spec: 'e2e/realworld-specs/url-navigation.spec.ts',
       line: 107,
       requests: [
         { method: 'GET', path: '/sw.js', status: 200 },
+        { method: 'GET', path: '/api/user', status: 200 },
         { method: 'GET', path: '/api/articles?limit=20&offset=0', status: -1 },
         { method: 'GET', path: '/api/tags', status: -1 },
         { method: 'GET', path: '/default-avatar.svg', status: -1 },
@@ -360,6 +388,92 @@ describe('failureTraceNote — a request with no response is not a failed reques
     )
     expect(withFailure).toContain('no response recorded')
     expect(withFailure).not.toMatch(/→ -1/)
+  })
+})
+
+/**
+ * xr-molecule-flash-m125 (+29:33): the note's item 2 read "no response recorded — still in flight
+ * when the test ended … GET /sw.js; GET /fonts/ionicons.woff", and the model answered it by writing
+ * a CACHING service worker into the app — in front of `/assets/*`, exactly what makes a redeployed
+ * fix invisible to the next proof run. Neither request is the failing step's dependency.
+ */
+describe('failureTraceNote — the page shell is not the step (xr-molecule-flash-m125)', () => {
+  const shellOnly = (requests: TraceArtifact['requests']): TraceArtifact => ({
+    spec: 'e2e/null-fields.spec.ts',
+    line: 18,
+    requests,
+    console: [],
+  })
+
+  it('never lists a service worker, a font or an asset as a missing response', () => {
+    const note = String(
+      failureTraceNote(
+        [
+          shellOnly([
+            { method: 'GET', path: '/sw.js', status: -1 },
+            { method: 'GET', path: '/fonts/ionicons.woff', status: -1 },
+            { method: 'GET', path: '/api/users', status: 200 },
+          ]),
+        ],
+        'the deployed app',
+      ),
+    )
+    expect(note).not.toContain('no response recorded')
+    expect(note).not.toContain('/sw.js')
+    expect(note).not.toContain('ionicons.woff')
+    // The test's own call is still the row.
+    expect(note).toContain('GET /api/users → 200')
+  })
+
+  it('never calls a 404 on the shell a failure', () => {
+    const note = String(
+      failureTraceNote(
+        [
+          shellOnly([
+            { method: 'GET', path: '/sw.js', status: 404 },
+            { method: 'GET', path: '/manifest.webmanifest', status: 404 },
+            { method: 'GET', path: '/favicon.ico', status: 404 },
+            { method: 'GET', path: '/api/tags', status: 200 },
+          ]),
+        ],
+        'the deployed app',
+      ),
+    )
+    expect(note).not.toContain('failed:')
+    expect(note).not.toContain('/sw.js')
+    expect(note).toContain('No listed request failed')
+  })
+
+  it('keeps naming the request the failing step depends on', () => {
+    const note = String(
+      failureTraceNote(
+        [
+          shellOnly([
+            { method: 'GET', path: '/sw.js', status: -1 },
+            { method: 'PUT', path: '/api/user', status: 422 },
+          ]),
+        ],
+        'the deployed app',
+      ),
+    )
+    expect(note).toContain('failed: PUT /api/user → 422')
+    expect(note).not.toContain('/sw.js')
+  })
+
+  it('reads a resource type when the path does not say (an image the page owns)', () => {
+    const note = String(
+      failureTraceNote(
+        [
+          shellOnly([
+            { method: 'GET', path: '/media/logo', status: -1, type: 'image' },
+            { method: 'GET', path: '/api/tags', status: 200 },
+          ]),
+        ],
+        'the deployed app',
+      ),
+    )
+    expect(note).not.toContain('no response recorded')
+    expect(note).toContain('GET /api/tags → 200')
   })
 })
 
