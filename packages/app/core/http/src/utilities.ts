@@ -9,12 +9,16 @@
  */
 
 import { bond, get as bondGet } from '@molecule/app-bond'
+import { getLogger } from '@molecule/app-logger'
 
 import type { HttpClient } from './client.js'
 import { createFetchClient } from './provider.js'
 import type { HttpResponse, RequestConfig } from './types.js'
 
 const BOND_TYPE = 'http-client'
+
+/** One warning per page load is enough to name a missing bond. */
+let warnedAboutFallback = false
 
 /**
  * Registers an HTTP client as the active singleton.
@@ -35,6 +39,12 @@ export const setClient = (client: HttpClient): void => {
  * Retrieves the bonded HTTP client. If none is bonded, automatically
  * creates a default fetch-based client.
  *
+ * The fallback has NO `baseURL` — a core cannot know an app's API prefix. A relative
+ * call then resolves against the page origin, where a dev server answers its own HTML
+ * shell with a 200. It warns once so the misconfiguration is named instead of showing up
+ * as a crash three components later; a scaffold bonds the shared client with its API
+ * prefix, so the fallback only runs in an app that never bonded one.
+ *
  * @returns The active HTTP client instance.
  */
 export const getClient = (): HttpClient => {
@@ -42,6 +52,13 @@ export const getClient = (): HttpClient => {
   if (existing) return existing
   const fallback = createFetchClient()
   bond(BOND_TYPE, fallback)
+  if (!warnedAboutFallback) {
+    warnedAboutFallback = true
+    getLogger('http').warn(
+      '@molecule/app-http: no client is bonded — requests go to the page origin with no baseURL. ' +
+        "Bond one: setClient(createFetchClient({ baseURL: '/api' })).",
+    )
+  }
   return fallback
 }
 

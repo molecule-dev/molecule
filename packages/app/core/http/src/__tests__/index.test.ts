@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { unbondSingleton } from '@molecule/app-bond'
+
 import type {
   ErrorInterceptor,
   FullRequestConfig,
@@ -111,6 +113,21 @@ describe('@molecule/app-http', () => {
       expect(client).toBeDefined()
       expect(typeof client.get).toBe('function')
       expect(typeof client.post).toBe('function')
+    })
+
+    it('warns once when it mints the no-baseURL fallback', () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      unbondSingleton('http-client')
+
+      const client = getClient()
+
+      expect(client.baseURL).toBe('')
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining('no client is bonded'))
+      // One warning per page load, not one per call.
+      const calls = warn.mock.calls.length
+      getClient()
+      expect(warn.mock.calls.length).toBe(calls)
+      warn.mockRestore()
     })
 
     it('should allow replacing the client multiple times', () => {

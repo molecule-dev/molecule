@@ -15,6 +15,9 @@ import type { ErrorInterceptor, RequestInterceptor, ResponseInterceptor } from '
 import type { FullRequestConfig, HttpResponse, RequestConfig } from './types.js'
 import { HttpError } from './types.js'
 
+/** A response whose body is an HTML document, not JSON. */
+const HTML_CONTENT_TYPE = /^text\/html\b/i
+
 /**
  * Creates a fetch-based HTTP client using the native Fetch API.
  *
@@ -181,6 +184,31 @@ export const createFetchClient = (config: HttpClientConfig = {}): HttpClient => 
               // Safe to ignore: the raw text is already captured above and used
               // as the fallback value. Non-JSON responses (plain text, HTML errors)
               // are a known valid case for some APIs.
+              //
+              // A 2xx HTML DOCUMENT is not one of those cases: it is the app's page
+              // server answering a request that expected JSON — the Vite dev server's
+              // SPA fallback when a relative URL had no API baseURL. Resolving with the
+              // HTML as `data` turns that into a `Cannot read properties of undefined`
+              // crash far from the call (xr-molecule-flash-m126: 6.5 minutes and 22
+              // probe scripts to discover `getClient().baseURL` was `''`).
+              const contentType = fetchResponse.headers.get('content-type') ?? ''
+              if (fetchResponse.ok && HTML_CONTENT_TYPE.test(contentType)) {
+                throw new HttpError(
+                  `${finalConfig.method} ${url} answered ${contentType.split(';')[0]} instead of ` +
+                    "JSON — the request reached the page server, not the API; check the client's " +
+                    'baseURL (a relative path with no baseURL resolves against the page origin)',
+                  fetchResponse.status,
+                  {
+                    data: text as T,
+                    status: fetchResponse.status,
+                    statusText: fetchResponse.statusText,
+                    headers: responseHeaders,
+                    config: finalConfig,
+                  },
+                  finalConfig,
+                  'http.error.requestFailed',
+                )
+              }
               logger.debug('Response is not JSON, using raw text', url)
               data = text as T
             }

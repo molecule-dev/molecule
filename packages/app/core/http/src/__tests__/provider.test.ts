@@ -496,6 +496,38 @@ describe('HTTP Provider', () => {
       // Should return the raw text when JSON parsing fails
       expect(response.data).toBe('Not JSON')
     })
+
+    it('throws when a JSON request is answered with an HTML document', async () => {
+      // The shape the SPA fallback has: 200 + text/html + the page's own shell.
+      mockFetch.mockImplementation(() => ({
+        ok: true,
+        status: 200,
+        statusText: 'OK',
+        headers: new Headers({ 'content-type': 'text/html' }),
+        text: () =>
+          Promise.resolve('<!doctype html><html><body><div id="root"></div></body></html>'),
+      }))
+      const client = createFetchClient()
+
+      await expect(client.get('/articles')).rejects.toThrow(HttpError)
+      await expect(client.get('/articles')).rejects.toThrow(
+        /answered text\/html instead of JSON .*check the client's baseURL/,
+      )
+    })
+
+    it('keeps the raw body for a non-2xx HTML response', async () => {
+      // A proxy's own error page still reports its status message first.
+      mockFetch.mockImplementation(() => ({
+        ok: false,
+        status: 502,
+        statusText: 'Bad Gateway',
+        headers: new Headers({ 'content-type': 'text/html' }),
+        text: () => Promise.resolve('<html><body>Bad Gateway</body></html>'),
+      }))
+      const client = createFetchClient()
+
+      await expect(client.get('/articles')).rejects.toThrow(/status 502/)
+    })
   })
 
   describe('credentials', () => {
