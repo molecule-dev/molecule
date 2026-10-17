@@ -36,8 +36,8 @@
  *   `data:` is used as-is — that is what a bundler's asset import produces
  *   (`import woff from '@molecule/app-fonts-ionicons/fonts/ionicons.woff?url'`),
  *   so an app that cannot copy files into `public/` can still bond a font
- *   package. Every font provider package ships a `./fonts/*` export for exactly
- *   that import. Any other `file` is a filename that must be served at
+ *   package. Every local font provider package ships a `./fonts/*` export for
+ *   exactly that import. Any other `file` is a filename that must be served at
  *   `<basePath>fonts/` (copy the bond's `fonts/` into the app's
  *   `public/fonts/`) or every face silently 404s and the fallback stack renders
  *   instead. CDN sources inject `<link>` tags (with preconnect origins).
