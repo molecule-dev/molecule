@@ -1,5 +1,12 @@
 # @molecule/api-ai-tools
 
+## 1.9.1
+
+### Patch Changes
+
+- b176d39: `failureTraceNote` names a request whose response Playwright never recorded as exactly that — not as a failure — and reports a network error with its own error text; the "a click that changed nothing is usually one of these requests failing" line now appears only when a listed request really failed.
+- 6fdc7e1: `failureTraceNote` spends its bounded rows on evidence: a trace whose every request got no response no longer takes one, rows are deduplicated by the test's location, and a real 4xx/5xx or a failure an earlier walk of the suite repeated is listed before the rest.
+
 ## 1.9.0
 
 ### Minor Changes
