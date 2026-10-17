@@ -1964,6 +1964,36 @@ export function earlyReturnCause(
   return universal ?? null
 }
 
+/**
+ * The titles a request excludes that a test's heading names — the ONE matcher for "is this
+ * failure one the request does not count?".
+ *
+ * The request quotes a test's own title (`… except "should require login to post comment"`,
+ * extracted by molecule-dev's `excludedTestTitles`) while a run's heading carries more of it
+ * (`comments.spec.ts › Comments › should require login to post comment`), so containment is the
+ * comparison. Whitespace is normalised and case is ignored: a brief may wrap the title across a
+ * line (`xr-molecule-flash-m44`), and the reporter's own casing never has to match the brief's.
+ *
+ * Two readers used to answer this separately — the causes note (which therefore asked the
+ * executor to fix a test the same result said not to) and molecule-dev's exclusion notes — and
+ * xr-molecule-flash-m101 paid for the gap (+12:00: a turn and an edit spent on the excluded
+ * test).
+ *
+ * @param heading - The text to match against: a test's title, its whole `file › describe › title`
+ *   path, or (for a note that only has the run's output) the run's text.
+ * @param excluded - The titles the request carves out, if the caller knows them.
+ * @returns The excluded titles this heading names, in the request's order.
+ */
+export function matchingExcludedTitles(heading: string, excluded: readonly string[]): string[] {
+  const normalise = (s: string): string => s.replace(/\s+/g, ' ').trim().toLowerCase()
+  const haystack = normalise(heading)
+  if (!haystack) return []
+  return excluded.filter((title) => {
+    const needle = normalise(title)
+    return needle.length > 0 && haystack.includes(needle)
+  })
+}
+
 /** One cause of failure in a run, and the tests it hit. */
 export interface FailureCause {
   /** The error line its tests all reported, or null when only the duration ties them together. */
@@ -1989,20 +2019,48 @@ export interface FailureCause {
  * they took where it does not, which is why a duration group is labelled as a duration and not as a
  * proven cause. A test the log printed twice, or failed twice, is one test.
  *
+ * A test the request EXCLUDES by name is not a cause to fix: its failure does not count for
+ * this request ({@link matchingExcludedTitles}), so it is dropped here rather than handed to the
+ * executor as work — a result that names it beside "it does not count" is the contradiction
+ * xr-molecule-flash-m101 filed (+12:00: the model spent a turn and an edit on the excluded test,
+ * on a page that was passing).
+ *
  * @param log - The log of a finished or running run.
+ * @param excluded - The test titles the request carves out, if the caller knows them.
  * @returns The causes, the one with the most tests first.
  */
-export function failuresByCause(log: string): FailureCause[] {
+export function failuresByCause(log: string, excluded: readonly string[] = []): FailureCause[] {
+  return groupFailures(log, excluded).causes
+}
+
+/**
+ * The causes a run's log names, and the failures the request excludes out of them.
+ *
+ * One grouping pass, because a note that lists the causes must know what it left out to say so
+ * ({@link failureCausesNote}).
+ *
+ * @param log - The log of a finished or running run.
+ * @param excluded - The test titles the request carves out.
+ * @returns The causes to fix, and the distinct tests dropped as excluded.
+ */
+function groupFailures(
+  log: string,
+  excluded: readonly string[],
+): { causes: FailureCause[]; ignored: FailedTest[] } {
   const text = log.replace(ANSI_SGR, '')
   const byMessage = new Map<string, FailedTest[]>()
+  const named: FailedTest[] = []
   for (const block of failureBlocks(text)) {
     const message = failureMessage(block)
     if (message === null) continue
     const m = FAILURE_BLOCK_HEADER.exec(block.split('\n')[0] ?? '')
     const { where, title } = splitTitlePath(m?.[1] ?? '')
+    const test: FailedTest = { where, title, seconds: null }
+    named.push(test)
+    if (matchingExcludedTitles(title, excluded).length > 0) continue
     const group = byMessage.get(message)
-    if (group) group.push({ where, title, seconds: null })
-    else byMessage.set(message, [{ where, title, seconds: null }])
+    if (group) group.push(test)
+    else byMessage.set(message, [test])
   }
   const causes: FailureCause[] = []
   for (const [message, members] of byMessage) {
@@ -2013,9 +2071,14 @@ export function failuresByCause(log: string): FailureCause[] {
   // not started in the background — are grouped by how long they took: a band is opened by its
   // first test and takes the ones that
   // then ran the same length, the same band {@link repeatingFailure} uses.
+  const listed = failedTests(text)
+  named.push(...listed)
   const claimed = new Set(causes.flatMap((c) => c.tests.map(testKey)))
-  const unclaimed = distinctTests(failedTests(text)).filter(
-    (t): t is FailedTest & { seconds: number } => t.seconds !== null && !claimed.has(testKey(t)),
+  const unclaimed = distinctTests(listed).filter(
+    (t): t is FailedTest & { seconds: number } =>
+      t.seconds !== null &&
+      !claimed.has(testKey(t)) &&
+      matchingExcludedTitles(t.title, excluded).length === 0,
   )
   const byDuration: Array<{ seconds: number; tests: FailedTest[] }> = []
   for (const t of unclaimed) {
@@ -2027,7 +2090,10 @@ export function failuresByCause(log: string): FailureCause[] {
     else byDuration.push({ seconds: t.seconds, tests: [t] })
   }
   for (const g of byDuration) causes.push({ message: null, seconds: g.seconds, tests: g.tests })
-  return causes.sort((a, b) => b.tests.length - a.tests.length)
+  const ignored = distinctTests(named).filter(
+    (t) => matchingExcludedTitles(t.title, excluded).length > 0,
+  )
+  return { causes: causes.sort((a, b) => b.tests.length - a.tests.length), ignored }
 }
 
 /**
@@ -2038,11 +2104,22 @@ export function failuresByCause(log: string): FailureCause[] {
  * executor reads, so one round of fixes covers all of them rather than the one cause a run
  * stopped early happened to reach.
  *
+ * A test the request excludes is not one of the causes — it is dropped and named once, at the
+ * end, so a result never asks to fix a test it also says to ignore. Where the caller knows how
+ * the run was started, the note also hands over the narrowed re-run of exactly those tests
+ * ({@link rerunOfRunningSuite}) instead of leaving the executor to re-run the whole suite.
+ *
  * @param log - The finished run's output.
+ * @param excluded - The test titles the request carves out, if the caller knows them.
+ * @param run - How the run was started, when the caller knows it, for the narrowed re-run.
  * @returns The note, or null.
  */
-export function failureCausesNote(log: string): string | null {
-  const causes = failuresByCause(log)
+export function failureCausesNote(
+  log: string,
+  excluded: readonly string[] = [],
+  run?: { command: string; cwd?: string },
+): string | null {
+  const { causes, ignored } = groupFailures(log, excluded)
   const total = causes.reduce((n, c) => n + c.tests.length, 0)
   if (total < 2) return null
   const listed = causes.slice(0, FAILURE_CAUSES_LISTED)
@@ -2066,9 +2143,19 @@ export function failureCausesNote(log: string): string | null {
   })
   const moreCauses =
     causes.length > listed.length ? `\n  … and ${causes.length - listed.length} more causes` : ''
+  // The narrowed run, so the next fix round costs two tests instead of the whole suite
+  // (xr-molecule-flash-m101 +12:13 re-ran all 139, ~4 minutes, to check two). The command is the
+  // run's own invocation narrowed by the ONE composer the mid-run note also uses
+  // ({@link rerunOfRunningSuite}), with the request's exclusions inverted out so the re-run
+  // cannot report them again.
+  const locations = [...new Set(causes.flatMap((c) => c.tests.map((t) => t.where)).filter(Boolean))]
+  const rerun = run ? rerunOfRunningSuite(run, locations, excluded) : null
+  const ignoredTitles = [...new Set(ignored.map((t) => t.title || t.where).filter(Boolean))]
   return (
     `${total} failure${total === 1 ? '' : 's'} in this run, grouped by cause — fix every cause ` +
-    `below before the next deploy:\n${lines.join('\n')}${moreCauses}`
+    `below before the next deploy:\n${lines.join('\n')}${moreCauses}` +
+    (rerun ? ` Re-run just these once they are fixed: \`${rerun}\`` : '') +
+    (ignoredTitles.length ? ` Ignored (excluded by the request): ${ignoredTitles.join(', ')}.` : '')
   )
 }
 
@@ -2087,14 +2174,17 @@ export function failureCausesNote(log: string): string | null {
  * @param run - The run in flight: the command it was started with, as it was run, and the
  *   directory that command ran in.
  * @param locations - The failing `file:line`s to re-run, as the run's log printed them.
+ * @param excluded - The test titles the request carves out: the re-run inverts them out
+ *   (`--grep-invert`) so it cannot report them again.
  * @returns The re-run command, or null when there is no suite to narrow.
  */
 export function rerunOfRunningSuite(
   run: { command: string; cwd?: string },
   locations: readonly string[],
+  excluded: readonly string[] = [],
 ): string | null {
   if (locations.length === 0) return null
-  const scoped = scopedRerunCommand(run.command, locations)
+  const scoped = scopedRerunCommand(run.command, locations, excluded)
   if (scoped === run.command) return null
   if (!run.cwd || commandSegments(withoutHeredocs(run.command)).some((s) => s.program === 'cd'))
     return scoped

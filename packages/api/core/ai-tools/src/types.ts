@@ -144,6 +144,20 @@ export interface ToolBuildConfig {
    */
   outlineLargeHtml?: () => boolean
 
+  /**
+   * The test titles the person's request EXCLUDES by name (molecule-dev's `excludedTestTitles`),
+   * asked when a finished suite run's cause note is built. Their failures are not causes to fix:
+   * the note drops them, says so at the end, and inverts them out of the narrowed re-run it hands
+   * over — a result must never name a test beside "it does not count" (xr-molecule-flash-m101
+   * +12:00, where the executor spent a turn and an edit on the excluded test).
+   *
+   * A getter, not an array, because the request is read per turn while the tool set is built
+   * once. Unset means no test is excluded.
+   *
+   * @returns The quoted titles the request carves out.
+   */
+  excludedTestTitles?: () => readonly string[]
+
   /** Post-write hook (e.g. auto-format via Prettier/ESLint). Called after every write_file/edit_file. */
   onAfterWrite?: (path: string) => Promise<void>
 

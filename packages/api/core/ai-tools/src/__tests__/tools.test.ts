@@ -2508,6 +2508,70 @@ describe('wait_for_task', () => {
     expect(r.note).toContain('2. `Expected class "active" but got ""` — 1 test in 1 file')
   })
 
+  it('drops the request’s excluded test and narrows the re-run (xr-molecule-flash-m101)', async () => {
+    // m101's +12:00 result, verbatim: three failures, one of them `except "should require login
+    // to post comment"`. The note used to name it as cause #1 while the same result carried
+    // `excludedTestNote` telling the executor not to spend time on it; the executor spent a turn
+    // and an edit on it, then re-ran all 139 tests (~4 min) to check two fixes.
+    const m101 = [
+      'Running 139 tests using 1 worker',
+      '',
+      '  1) [chromium] › comments.spec.ts:102:3 › Comments › should require login to post comment ─────────',
+      '',
+      '    Error: expect(locator).toBeVisible() failed',
+      '',
+      '    Error: strict mode violation: locator(\'a[href="/login"]\') resolved to 2 elements:',
+      '',
+      '  2) [chromium] › navigation.spec.ts:200:3 › Navigation and Filtering › should show article count on profile tabs ',
+      '',
+      '    TimeoutError: page.click: Timeout 5000ms exceeded.',
+      '',
+      '  3) [chromium] › social.spec.ts:115:3 › Social Features › should display favorited articles on profile ',
+      '',
+      '    TimeoutError: page.waitForSelector: Timeout 3000ms exceeded.',
+      '',
+      '  3 failed',
+      '  65 skipped',
+      '  71 passed (4.1m)',
+    ].join('\n')
+    const backend: ExecutionBackend = {
+      projectRoot: '/test',
+      readFile: vi.fn(async (path: string) => {
+        if (path.endsWith('.exit')) return '1\n'
+        if (path.endsWith('.log')) return m101
+        throw new Error(`ENOENT: ${path}`)
+      }),
+      writeFile: vi.fn(),
+      deleteFile: vi.fn(),
+      readDir: vi.fn(),
+      run: vi.fn(async () => ({ stdout: '', stderr: '', exitCode: 0 })),
+    }
+    const tools = buildTools(backend, {
+      excludedTestTitles: () => ['should require login to post comment'],
+    })
+    const started = (await tools
+      .find((t) => t.name === 'exec_command')!
+      .execute({
+        command:
+          'cd /workspace/fixtures/realworld/specs/e2e && npx playwright test --config playwright.run.config.ts',
+        run_in_background: true,
+      })) as { taskId: string }
+    const r = (await tools
+      .find((t) => t.name === 'wait_for_task')!
+      .execute({ taskId: started.taskId })) as { note?: string }
+    expect(r.note).toContain('2 failures in this run, grouped by cause')
+    expect(r.note).not.toContain('expect(locator).toBeVisible()')
+    expect(r.note).toContain(
+      'Ignored (excluded by the request): should require login to post comment.',
+    )
+    // The narrowed re-run: the two surviving locations, the exclusion inverted out.
+    expect(r.note).toContain(
+      'playwright test navigation.spec.ts:200 social.spec.ts:115 --retries=0 ' +
+        "--grep-invert 'should require login to post comment'",
+    )
+    expect(r.note).not.toContain('comments.spec.ts:102')
+  })
+
   it("recovers a command's own output file after the process that started it is gone (flash-m63)", async () => {
     // Which file a task redirects its output to is process memory, and the task
     // is not: a release or a patch swaps the API process mid-run while the

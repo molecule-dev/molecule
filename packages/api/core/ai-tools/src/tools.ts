@@ -502,6 +502,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
     overCeilingGraceMs = OVER_CEILING_GRACE_MS,
     searchExcludedDirs,
     outlineLargeHtml,
+    excludedTestTitles,
     onAfterWrite,
     onFileDiff,
     onFileChange,
@@ -2245,6 +2246,11 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           { exitCode: result.exitCode, stdout, stderr },
           elapsedMs,
           budgetSeconds,
+          // Detection reads the RAW output: `truncateMiddle` keeps the head and the tail, and the
+          // runner's announcement (`Running 139 tests using 1 worker`) is the first line a long run
+          // prints — the one a size cap drops first. Only the counts and the tally come from here;
+          // what the result quotes is still the sanitized, truncated text.
+          `${result.stdout}\n${result.stderr}`,
         )
         if (cut) {
           const cutLead = cutRunSentence(cut)
@@ -2644,13 +2650,18 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       // flash-m83 (2026-10-16) spent three deploys (6.7 minutes) each fixing a single cause, and
       // the second and third were found by runs stopped before they walked the rest. Null for
       // anything that is not a run with failures in it.
-      const causes = failureCausesNote(output)
+      // How this run was started, so the note can hand over the narrowed re-run of exactly its
+      // failing tests instead of leaving the executor to re-run the whole suite (xr-molecule-
+      // flash-m101 +12:13: 139 tests, ~4 minutes, to check two fixes).
+      const run = runByTask.get(taskId)
+      // The tests the request excludes are not causes to fix, and the re-run below inverts them
+      // out — a result must never ask the executor to fix a test it also says does not count.
+      const causes = failureCausesNote(output, excludedTestTitles?.() ?? [], run)
       // A backgrounded run is under no tool budget, and the exit file hands back the PIPELINE's
       // code — so a suite killed at a `timeout 280` the command carried behind a `| tail` reports
       // 0 here too. The run's start is in its own id ({@link taskStartedAt}), so the bound it used
       // is readable without new state: say stopped, and never hand the pipeline's 0 back as the
       // run's (X1 xr-molecule-flash-m93 re-sent that run three times).
-      const run = runByTask.get(taskId)
       const startedAtMs = taskStartedAt(taskId)
       const cut =
         run && startedAtMs !== null
@@ -2659,6 +2670,9 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
               { exitCode, stdout: output, stderr: '' },
               Date.now() - startedAtMs,
               0,
+              // Same reason as the foreground path: the log is raw here, and the returned stdout
+              // below is the truncated copy — detection must not read that copy.
+              output,
             )
           : null
       if (cut) {

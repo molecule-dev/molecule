@@ -31,6 +31,7 @@
 
 import { commandSegments } from './command-position.js'
 import { commandRunsNoTests } from './no-test-run.js'
+import { shellQuote } from './utilities.js'
 
 /**
  * A command with its heredoc bodies removed: the runs, kills and hosts it names in a file it
@@ -88,9 +89,17 @@ export function suiteCommandTarget(command: string): string {
  * @param locations - The failing `file:line`s to re-run, as the run's own log printed them — or,
  *   for a run that started outside the suite, the absolute form Playwright matches each file
  *   argument against.
+ * @param excluded - The test titles the request carves out. They are inverted out
+ *   (`--grep-invert`) so a re-run of the failing locations cannot report one of them again —
+ *   xr-molecule-flash-m101 re-ran the whole 139-test suite and spent ~4 minutes to be told about
+ *   a test the request had already said does not count.
  * @returns The scoped command, or the command unchanged when it runs no Playwright suite.
  */
-export function scopedRerunCommand(command: string, locations: readonly string[]): string {
+export function scopedRerunCommand(
+  command: string,
+  locations: readonly string[],
+  excluded: readonly string[] = [],
+): string {
   const at = command.search(/\bplaywright\s+test\b/)
   if (at === -1) return command
   const head = command.slice(0, at)
@@ -100,10 +109,22 @@ export function scopedRerunCommand(command: string, locations: readonly string[]
   const end = rest.search(/&&|\|\||;|\|/)
   const statement = end === -1 ? rest : rest.slice(0, end)
   const tail = end === -1 ? '' : rest.slice(end)
+  // One literal alternation, regex-escaped and shell-quoted: a title carries parentheses and
+  // quotes (`should only allow comment author to delete`) that are regex and shell syntax alike.
+  const invert =
+    excluded.length > 0 && !/--grep-invert\b/.test(command)
+      ? ` --grep-invert ${shellQuote(
+          excluded
+            .map((t) => t.replace(/\s+/g, ' ').trim())
+            .filter(Boolean)
+            .map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+            .join('|'),
+        )}`
+      : ''
   const scoped = statement
     .replace(/\s*--last-failed\b/g, '')
     .replace(/\s*--retries(?:[= ]\d+)?/g, '')
-    .replace(/^(playwright\s+test)\b/, `$1 ${locations.join(' ')} --retries=0`)
+    .replace(/^(playwright\s+test)\b/, `$1 ${locations.join(' ')} --retries=0${invert}`)
   return `${head}${scoped}${tail}`
 }
 

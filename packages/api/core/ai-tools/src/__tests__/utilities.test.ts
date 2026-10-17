@@ -10,6 +10,7 @@ import {
   isEnvFilePath,
   isSuiteRunCommand,
   isValidGlob,
+  matchingExcludedTitles,
   outputRedirectTarget,
   redactSecrets,
   redactSecretsInCode,
@@ -1567,6 +1568,84 @@ describe('repeatingFailure', () => {
     it('says nothing for a run that named fewer than two failures', () => {
       expect(failureCausesNote('  1 passed\n')).toBeNull()
       expect(failureCausesNote(finished.split('\n').slice(0, 9).join('\n'))).toBeNull()
+    })
+
+    /**
+     * xr-molecule-flash-m101's +12:00 `wait_for_task` result, verbatim: 3 failures, one of them
+     * the test the request carves out (`except "should require login to post comment"`).
+     */
+    const m101 = [
+      'Running 139 tests using 1 worker',
+      '',
+      '  1) [chromium] › comments.spec.ts:102:3 › Comments › should require login to post comment ─────────',
+      '',
+      '    Error: expect(locator).toBeVisible() failed',
+      '',
+      '    Locator: locator(\'a[href="/login"]\')',
+      '    Expected: visible',
+      '    Error: strict mode violation: locator(\'a[href="/login"]\') resolved to 2 elements:',
+      '',
+      '  2) [chromium] › navigation.spec.ts:200:3 › Navigation and Filtering › should show article count on profile tabs ',
+      '',
+      '    TimeoutError: page.click: Timeout 5000ms exceeded.',
+      '    Call log:',
+      '      - waiting for locator(\'a:has-text("Favorited")\')',
+      '',
+      '  3) [chromium] › social.spec.ts:115:3 › Social Features › should display favorited articles on profile ',
+      '',
+      '    TimeoutError: page.waitForSelector: Timeout 3000ms exceeded.',
+      '    Call log:',
+      '      - waiting for locator(\'a:has-text("Favorited")\') to be visible',
+      '',
+      '  3 failed',
+      '  65 skipped',
+      '  71 passed (4.1m)',
+    ].join('\n')
+    const excluded = ['should require login to post comment']
+
+    it('drops a failure the request excludes, recounts, and says which one it ignored', () => {
+      expect(failureCausesNote(m101)).toContain('3 failures in this run')
+      const causes = failuresByCause(m101, excluded)
+      expect(causes.flatMap((c) => c.tests.map((t) => t.title))).toEqual([
+        'should show article count on profile tabs',
+        'should display favorited articles on profile',
+      ])
+      const note = failureCausesNote(m101, excluded)!
+      expect(note).toContain('2 failures in this run, grouped by cause')
+      // The excluded test is not a cause the executor is told to fix...
+      expect(note).not.toContain('expect(locator).toBeVisible()')
+      expect(note).toContain('1. `TimeoutError: page.click: Timeout <n> exceeded.')
+      // ...and it is named once, at the end, as ignored.
+      expect(
+        note.endsWith('Ignored (excluded by the request): should require login to post comment.'),
+      ).toBe(true)
+    })
+
+    it('hands over the narrowed re-run of the surviving failures, with the exclusion inverted out', () => {
+      const command =
+        'cd /workspace/fixtures/realworld/specs/e2e && TEST_MODE=fullstack baseURL=http://localhost:5173 ' +
+        'npx --prefix /workspace/my-app/app playwright test --config playwright.run.config.ts --reporter=list 2>&1'
+      const note = failureCausesNote(m101, excluded, { command })!
+      expect(note).toContain('Re-run just these once they are fixed: `')
+      expect(note).toContain(
+        'playwright test navigation.spec.ts:200 social.spec.ts:115 --retries=0 ' +
+          "--grep-invert 'should require login to post comment'",
+      )
+      // The excluded test's own location is not in the re-run.
+      expect(note).not.toContain('comments.spec.ts:102')
+      // No run record, no re-run: the note stays the plain cause list.
+      expect(failureCausesNote(m101, excluded)).not.toContain('Re-run just these')
+    })
+
+    it('matches an excluded title by containment, ignoring case and wrapped whitespace', () => {
+      expect(matchingExcludedTitles('should require login to post comment', excluded)).toEqual(
+        excluded,
+      )
+      expect(
+        matchingExcludedTitles('Comments › Should Require Login\n  to Post Comment', excluded),
+      ).toEqual(excluded)
+      expect(matchingExcludedTitles('should require login', excluded)).toEqual([])
+      expect(matchingExcludedTitles('anything', [])).toEqual([])
     })
   })
 

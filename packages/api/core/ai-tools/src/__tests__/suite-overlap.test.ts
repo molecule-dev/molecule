@@ -12,6 +12,7 @@
  */
 import { describe, expect, it } from 'vitest'
 
+import { commandSegments } from '../command-position.js'
 import {
   scopedRerunCommand,
   suiteCommandTarget,
@@ -105,5 +106,38 @@ describe('the readings the note and the hold share', () => {
     )
     // A unit runner is left exactly as it is: there is no Playwright invocation to narrow.
     expect(scopedRerunCommand('npx vitest run', ['a.test.ts:9'])).toBe('npx vitest run')
+  })
+
+  it('inverts the request’s excluded tests out of the narrowed re-run, as real argv', () => {
+    // xr-molecule-flash-m101's own suite and invocation (its trailing `| tail -60` is already
+    // dropped by streamingBackgroundCommand, which is what runByTask records).
+    const whole =
+      'cd /workspace/fixtures/realworld/specs/e2e && TEST_MODE=fullstack baseURL=http://localhost:5173 ' +
+      'npx playwright test --config playwright.run.config.ts --reporter=list 2>&1'
+    const composed = scopedRerunCommand(
+      whole,
+      ['navigation.spec.ts:200', 'social.spec.ts:115'],
+      ['should require login to post comment'],
+    )
+    // The composed command parses back into the words a shell would hand Playwright — the
+    // quoting helper's work is only real if the real parser agrees.
+    const playwright = commandSegments(composed).find((s) => s.program === 'playwright')!
+    expect(playwright.args).toEqual([
+      'test',
+      'navigation.spec.ts:200',
+      'social.spec.ts:115',
+      '--retries=0',
+      '--grep-invert',
+      "'should require login to post comment'",
+      '--config',
+      'playwright.run.config.ts',
+      '--reporter=list',
+      '2>&1',
+    ])
+    // A command that already filters by title keeps its own flag rather than gaining a second.
+    const already = `${whole} --grep-invert 'some other test'`
+    expect(
+      scopedRerunCommand(already, ['a.spec.ts:1'], ['should require login to post comment']),
+    ).toBe(already.replace('playwright test', 'playwright test a.spec.ts:1 --retries=0'))
   })
 })
