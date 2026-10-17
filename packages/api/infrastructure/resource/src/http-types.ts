@@ -14,10 +14,21 @@
  * Framework-agnostic HTTP request interface. Structurally compatible with Express's
  * `Request` — Express objects satisfy this interface without adapters, but the type
  * doesn't depend on Express, allowing use with Fastify, Hono, or Lambda.
+ *
+ * `params` is `Record<string, any>` on purpose. Express 5 declares
+ * `ParamsDictionary` as `{ [key: string]: string | string[] }` — a wildcard or a
+ * repeated parameter yields an array — so `Record<string, string>` is NOT a
+ * supertype of it, and every Express handler passing its own `Request` to a
+ * function declared on this interface (`authorization.set(req, …)`) failed with
+ * TS2345 and was told to cast. This is the same shape `body` and `query` already
+ * use. A reader that needs one segment as a string checks it
+ * (`typeof req.params.id === 'string'`) rather than trusting the annotation;
+ * the packages that own the routes do exactly that where it matters (see
+ * `@molecule/api-bonds-default-express`'s `getParamId`).
  */
 export interface MoleculeRequest {
   body: any
-  params: Record<string, string>
+  params: Record<string, any>
   query: Record<string, any>
   headers: Record<string, string | string[] | undefined>
   cookies?: Record<string, string>
