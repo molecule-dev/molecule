@@ -30,6 +30,18 @@ export interface SandboxResources {
 }
 
 /**
+ * What a provider does to a sandbox's public service when nothing is using it.
+ *
+ * The words are Fly's (`autostop` on a Machine's service), because Fly is the
+ * provider whose idle policy is the reason this exists: `suspend` snapshots the
+ * Machine and resumes it from memory on the next request, `stop` shuts it down
+ * for a cold boot on the next request, and `off` never parks it. Providers whose
+ * sandbox has no proxy in front of it (Docker) have no idle policy at all — they
+ * leave the methods that take this type unimplemented rather than pretending.
+ */
+export type SandboxIdleAction = 'off' | 'stop' | 'suspend'
+
+/**
  * Configuration for creating a new sandbox.
  */
 export interface SandboxConfig {
@@ -137,6 +149,23 @@ export interface SandboxConfig {
    * the workload reads for itself.
    */
   selfDeliveredEnv?: Record<string, string>
+  /**
+   * Idle policy for THIS sandbox's public service, overriding the provider's
+   * configured default.
+   *
+   * A caller that is about to spend minutes populating the sandbox needs it to
+   * stay up, and an idle policy decided by PROXIED traffic cannot see that work:
+   * files moved over the provider's own API (or commands run through its exec
+   * endpoint) are not proxy traffic, so a Machine created with `suspend` parks
+   * itself in the middle of a copy. A deploy therefore creates its instance with
+   * `off` and restores the app's real policy with {@link Sandbox.setIdleAction}
+   * once it is populated, booted and healthy. See
+   * {@link SandboxProvider.defaultIdleAction} for the value to restore.
+   *
+   * Optional: providers with no proxy in front of their sandboxes (and no idle
+   * concept) ignore it.
+   */
+  idleAction?: SandboxIdleAction
   resources?: SandboxResources
 }
 
@@ -384,6 +413,27 @@ export interface Sandbox {
    * @param resources - The ceilings to change.
    */
   setResources?(resources: Partial<SandboxResources>): Promise<void>
+
+  /**
+   * Change the idle policy applied to this sandbox's public service.
+   *
+   * The counterpart to {@link SandboxConfig.idleAction}: a caller creates a
+   * sandbox with the policy its provisioning window needs (`off`, so nothing
+   * parks it while files are being copied in) and then hands it back to the
+   * app's real policy. On Fly this is a Machines API config update, which
+   * REBOOTS a running Machine; a provider MUST wait until a sandbox it rebooted
+   * is running again before resolving, because the caller's next act is to run
+   * commands in it.
+   *
+   * Implementations MUST NOT change the policy when the sandbox already has it
+   * (a no-op, not a reboot).
+   *
+   * Optional: providers with no proxy in front of their sandboxes have no idle
+   * policy to change.
+   *
+   * @param action - The idle policy to apply.
+   */
+  setIdleAction?(action: SandboxIdleAction): Promise<void>
 
   /**
    * Stream a directory tree out of the sandbox as a POSIX tar archive.
@@ -693,6 +743,20 @@ export interface SandboxCapacity {
  */
 export interface SandboxProvider {
   readonly name: string
+
+  /**
+   * The idle policy this provider applies to a sandbox the caller does not
+   * override with {@link SandboxConfig.idleAction}.
+   *
+   * This is what a caller restores with {@link Sandbox.setIdleAction} after a
+   * provisioning window that had to keep the sandbox awake, without knowing
+   * which provider it is talking to.
+   *
+   * Optional, and absent means "no idle policy": providers with no proxy in
+   * front of their sandboxes (Docker, local) never park one, so there is
+   * nothing to restore and nothing to report.
+   */
+  readonly defaultIdleAction?: SandboxIdleAction
 
   create(config: SandboxConfig): Promise<Sandbox>
   get(id: string): Promise<Sandbox | null>

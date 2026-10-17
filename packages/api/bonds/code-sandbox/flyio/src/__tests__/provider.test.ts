@@ -383,6 +383,155 @@ describe('create — Machine configuration', () => {
     expect(body.config.services[0].autostop).toBe('stop')
   })
 
+  it('lets ONE create override the provider policy (a deploy keeps its destination awake)', async () => {
+    // m103 (2026-10-17): a production Machine created with the app's steady
+    // `suspend` went to `suspending` in the middle of an 84.2 MB artifact copy,
+    // because Fly's autostop timer counts PROXIED traffic and the copy is not.
+    // A deploy creates with `off` and restores the steady policy afterwards.
+    const double = queueCreate(createFetchDouble())
+    await makeProvider({ autostop: 'suspend' }, double).create({
+      projectId: PROJECT_ID,
+      idleAction: 'off',
+    })
+
+    const body = double.matching(`POST /apps/${APP}/machines`)[0].body as {
+      config: { services: Array<{ autostop: string }> }
+    }
+    expect(body.config.services[0].autostop).toBe('off')
+  })
+
+  it('reports the steady-state policy a caller restores after a deploy window', () => {
+    expect(makeProvider({ autostop: 'suspend' }).defaultIdleAction).toBe('suspend')
+    expect(makeProvider({ autostop: 'stop' }).defaultIdleAction).toBe('stop')
+    // No proxy policy configured = never park — the same value `create` applies.
+    expect(makeProvider({}).defaultIdleAction).toBe('off')
+  })
+
+  it('changes the idle policy in place with the WHOLE Machine config, then waits for the reboot', async () => {
+    // Fly's update endpoint is not a patch ("You need to specify the entire
+    // Machine config") and reboots a running Machine, so everything the Machine
+    // had must go back in the body, and the call must not resolve until the
+    // Machine is running again (the caller's next act is to exec in it).
+    const double = queueCreate(createFetchDouble())
+    const sandbox = await makeProvider({ autostop: 'suspend' }, double).create({
+      projectId: PROJECT_ID,
+      idleAction: 'off',
+    })
+    // Queued AFTER create: create's own wait call prefix-matches this route.
+    double.on(`GET /apps/${APP}/machines/m1`, {
+      body: {
+        id: 'm1',
+        name: 'mol-prod-machine',
+        state: 'started',
+        region: 'iad',
+        config: {
+          image: 'registry.fly.io/molecule-sandbox:latest',
+          metadata: { 'molecule-sandbox.managed': 'true' },
+          services: [
+            {
+              protocol: 'tcp',
+              internal_port: 4000,
+              ports: [{ port: 443, handlers: ['tls', 'http'] }],
+              autostart: true,
+              autostop: 'off',
+              min_machines_running: 0,
+            },
+          ],
+        },
+      },
+    })
+
+    // create's own start wait already hit this route; only a NEW call counts.
+    const waitsBefore = double.matching(`GET /apps/${APP}/machines/m1/wait`).length
+    await sandbox.setIdleAction?.('suspend')
+
+    const update = double.matching(`POST /apps/${APP}/machines/m1`)[0]
+    expect(update).toBeDefined()
+    const body = update.body as {
+      config: {
+        image?: string
+        metadata?: Record<string, string>
+        services?: Array<Record<string, unknown>>
+      }
+      name?: string
+      region?: string
+      skip_launch?: boolean
+    }
+    expect(body.config.services?.[0]).toMatchObject({
+      autostop: 'suspend',
+      internal_port: 4000,
+      autostart: true,
+      min_machines_running: 0,
+    })
+    // The whole config travelled, not just the services block.
+    expect(body.config.image).toBe('registry.fly.io/molecule-sandbox:latest')
+    expect(body.config.metadata).toEqual({ 'molecule-sandbox.managed': 'true' })
+    expect(body.name).toBe('mol-prod-machine')
+    expect(body.region).toBe('iad')
+    // A running Machine reboots to apply this; the caller is told when it is back.
+    expect(body.skip_launch).toBeUndefined()
+    expect(double.matching(`GET /apps/${APP}/machines/m1/wait`)).toHaveLength(waitsBefore + 1)
+  })
+
+  it('does not reboot a Machine that already has the idle policy', async () => {
+    const double = queueCreate(createFetchDouble())
+    const sandbox = await makeProvider({ autostop: 'suspend' }, double).create({
+      projectId: PROJECT_ID,
+      idleAction: 'off',
+    })
+    double.on(`GET /apps/${APP}/machines/m1`, {
+      body: {
+        id: 'm1',
+        state: 'started',
+        config: {
+          image: 'registry.fly.io/molecule-sandbox:latest',
+          services: [
+            {
+              protocol: 'tcp',
+              internal_port: 4000,
+              ports: [],
+              autostart: true,
+              autostop: 'suspend',
+            },
+          ],
+        },
+      },
+    })
+
+    await sandbox.setIdleAction?.('suspend')
+
+    expect(double.matching(`POST /apps/${APP}/machines/m1`)).toHaveLength(0)
+  })
+
+  it('does not wake a parked Machine just to change its policy', async () => {
+    const double = queueCreate(createFetchDouble())
+    const sandbox = await makeProvider({ autostop: 'suspend' }, double).create({
+      projectId: PROJECT_ID,
+      idleAction: 'off',
+    })
+    double.on(`GET /apps/${APP}/machines/m1`, {
+      body: {
+        id: 'm1',
+        state: 'suspended',
+        config: {
+          image: 'registry.fly.io/molecule-sandbox:latest',
+          services: [
+            { protocol: 'tcp', internal_port: 4000, ports: [], autostart: true, autostop: 'off' },
+          ],
+        },
+      },
+    })
+
+    const waitsBefore = double.matching(`GET /apps/${APP}/machines/m1/wait`).length
+    await sandbox.setIdleAction?.('suspend')
+
+    const body = double.matching(`POST /apps/${APP}/machines/m1`)[0].body as {
+      skip_launch?: boolean
+    }
+    expect(body.skip_launch).toBe(true)
+    expect(double.matching(`GET /apps/${APP}/machines/m1/wait`)).toHaveLength(waitsBefore)
+  })
+
   it('merges caller labels but never lets them clobber the managed keys', async () => {
     const double = queueCreate(createFetchDouble())
     await makeProvider({}, double).create({

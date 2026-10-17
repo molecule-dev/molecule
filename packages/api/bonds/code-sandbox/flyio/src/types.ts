@@ -112,6 +112,12 @@ export interface FlyioConfig {
    * `suspend` is the scale-to-zero mapping (resume from a memory snapshot on the
    * next request) and `stop` is a full stop with a cold boot on wake; opt into
    * either deliberately.
+   *
+   * This is the provider's STEADY-STATE policy, reported as
+   * `SandboxProvider.defaultIdleAction`. A caller can override it for one sandbox
+   * with `SandboxConfig.idleAction` and restore this value afterwards with
+   * `Sandbox.setIdleAction` — which is what a production deploy does so its
+   * destination cannot suspend mid-copy (m103, 2026-10-17).
    */
   autostop?: 'off' | 'stop' | 'suspend'
   /**

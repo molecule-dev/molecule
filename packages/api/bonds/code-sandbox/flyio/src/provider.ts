@@ -22,6 +22,7 @@ import type {
   Sandbox,
   SandboxConfig,
   SandboxDescriptor,
+  SandboxIdleAction,
   SandboxProvider,
   SandboxQuery,
   SandboxTemplate,
@@ -378,6 +379,16 @@ const PROBE_EXEC_HEADROOM_SECONDS = 10
 class FlyioSandboxProvider implements SandboxProvider {
   readonly name = 'flyio'
 
+  /**
+   * The idle policy a sandbox gets when its own create does not name one — this
+   * provider's configured `autostop` (`FLY_PRODUCTION_AUTOSTOP` for production
+   * hosting). {@link SandboxConfig.idleAction} overrides it per Machine, and
+   * {@link Sandbox.setIdleAction} puts it back, which is how a deploy keeps its
+   * destination awake through a multi-minute copy and then returns the Machine
+   * to the app's real cost policy.
+   */
+  readonly defaultIdleAction: SandboxIdleAction
+
   private readonly config: FlyioConfig
   private readonly client: FlyApiClient
   private readonly metadataPrefix: string
@@ -401,6 +412,7 @@ class FlyioSandboxProvider implements SandboxProvider {
    */
   constructor(config: FlyioConfig = {}, client?: FlyApiClient, store?: ObjectStore | null) {
     this.config = config
+    this.defaultIdleAction = config.autostop ?? 'off'
     this.metadataPrefix = config.metadataPrefix ?? DEFAULT_METADATA_PREFIX
     if (store !== undefined) this.templateStoreCache = store
     this.client =
@@ -510,10 +522,16 @@ class FlyioSandboxProvider implements SandboxProvider {
    * instead driven by the consumer's own per-tier hibernation loop, which calls
    * `sleep()`/`hibernate()` — the same provider-agnostic mechanism the Docker
    * bond relies on. An operator who wants Fly-native scale-to-zero can still opt
-   * in with `config.autostop: 'suspend'`.
+   * in with `config.autostop: 'suspend'`, and a caller can override it for ONE
+   * Machine with {@link SandboxConfig.idleAction} (a production deploy keeps its
+   * destination `'off'` until the artifact has landed and the app is healthy).
+   * @param action - The idle action for this Machine's service; defaults to the
+   *   provider's configured policy.
    * @returns The service definition, or `undefined`.
    */
-  private previewService(): FlyMachineService | undefined {
+  private previewService(
+    action: SandboxIdleAction = this.defaultIdleAction,
+  ): FlyMachineService | undefined {
     if (this.config.publicService === false) return undefined
     return {
       protocol: 'tcp',
@@ -523,7 +541,7 @@ class FlyioSandboxProvider implements SandboxProvider {
         { port: 443, handlers: ['tls', 'http'] },
       ],
       autostart: true,
-      autostop: this.config.autostop ?? 'off',
+      autostop: action,
       min_machines_running: 0,
     }
   }
@@ -1349,7 +1367,7 @@ class FlyioSandboxProvider implements SandboxProvider {
       machineConfig.mounts = [{ volume: volumeId, path: config.volumeMountPath ?? WORKSPACE_PATH }]
     }
 
-    const service = this.previewService()
+    const service = this.previewService(config.idleAction)
     if (service) machineConfig.services = [service]
 
     const machine = await this.client.request<FlyMachine>(`/apps/${app}/machines`, {
@@ -2484,6 +2502,75 @@ class FlyioSandboxProvider implements SandboxProvider {
   }
 
   /**
+   * Applies an idle policy to a running Machine's public service, in place.
+   *
+   * Fly's update endpoint takes the ENTIRE Machine config — "we don't support
+   * partial updates" — and "If the Machine is running and the request is
+   * successful, it will reboot" (verified against
+   * https://docs.fly.io/machines/api/machines-resource, 2026-10-17). So this
+   * re-reads the Machine, changes only each service's `autostop`, and waits for
+   * the Machine to reach `started` again before resolving: the caller's next act
+   * is to run commands in it. A Machine that ALREADY has the policy is left
+   * alone — the reboot is a real cost, not a formality — and one that is not
+   * running is updated with `skip_launch` so changing a parked Machine's policy
+   * does not wake it.
+   *
+   * A Machine with no services has no proxy in front of it and therefore no
+   * idle policy; that is a supported shape (a private sandbox), not an error.
+   *
+   * @param app - The Fly app name.
+   * @param machineId - The Fly Machine id.
+   * @param action - The idle action to apply to every service.
+   * @throws {Error} When the Machine or its config cannot be read, the update is
+   *   rejected, or a rebooted Machine does not come back to `started`.
+   */
+  private async applyIdleAction(
+    app: string,
+    machineId: string,
+    action: SandboxIdleAction,
+  ): Promise<void> {
+    const machine = await this.client.request<FlyMachine>(`/apps/${app}/machines/${machineId}`, {
+      nullOn: [404],
+    })
+    if (!machine?.config) {
+      throw new Error(
+        t(
+          'codeSandbox.flyio.error.idlePolicyUnreadable',
+          { machineId },
+          {
+            defaultValue:
+              `Cannot change the idle policy of Fly Machine ${machineId}: its config could not be ` +
+              'read, so the Machine is left exactly as it is.',
+          },
+        ),
+      )
+    }
+    const services = machine.config.services
+    if (!services?.length) return
+    if (services.every((service) => (service.autostop ?? 'off') === action)) return
+
+    const config: FlyMachineConfig = {
+      ...machine.config,
+      services: services.map((service) => ({ ...service, autostop: action })),
+    }
+    // A running Machine reboots to apply the config, so wait for it; a parked
+    // one is updated without being started (there is nothing to wait for).
+    const wasRunning = machine.state === 'started' || machine.state === 'starting'
+    await this.client.request(`/apps/${app}/machines/${machineId}`, {
+      method: 'POST',
+      body: {
+        config,
+        // Immutable, but the update body is a whole Machine description; send
+        // back what was read rather than letting Fly infer them.
+        ...(machine.name ? { name: machine.name } : {}),
+        ...(machine.region ? { region: machine.region } : {}),
+        ...(wasRunning ? {} : { skip_launch: true }),
+      },
+    })
+    if (wasRunning) await this.waitForStarted(app, machineId)
+  }
+
+  /**
    * Builds the `Sandbox` facade for one Machine.
    * @param app - The Fly app name.
    * @param machineId - The Fly Machine id.
@@ -2530,6 +2617,16 @@ class FlyioSandboxProvider implements SandboxProvider {
        */
       async wake(): Promise<void> {
         await provider.startMachine(app, machineId)
+        this.status = 'running'
+      },
+
+      /**
+       * Applies an idle policy to this Machine's public service (see
+       * {@link FlyioSandboxProvider.applyIdleAction} for the endpoint and the
+       * reboot it costs). Resolves with the Machine running again.
+       */
+      async setIdleAction(action: SandboxIdleAction): Promise<void> {
+        await provider.applyIdleAction(app, machineId, action)
         this.status = 'running'
       },
 
