@@ -1312,7 +1312,7 @@ describe('repeatingFailure', () => {
     expect(note).toContain('Send this once the run ends:')
     expect(note).toContain(
       '\n  cd /workspace/.mol-scratch/e2e && TEST_MODE=fullstack BASE_URL=http://localhost:5173 ' +
-        'npx --no-install playwright test ../../fixtures/realworld/specs/e2e/null-fields.spec.ts:53 ' +
+        'npx --no-install playwright test /workspace/fixtures/realworld/specs/e2e/null-fields.spec.ts:53 ' +
         '--retries=0 --max-failures=15 --config=playwright.config.ts --reporter=list',
     )
     // Never the whole-suite command back: that is the run the executor must not repeat (flash-m83

@@ -3817,7 +3817,7 @@ describe('wait_for_task on a suite repeating one failure', () => {
       // it was started in, narrowed to the test the log named.
       expect(r.note).toContain('cd /workspace/.mol-scratch/e2e && BASE_URL=http://localhost:5173')
       expect(r.note).toContain(
-        'playwright test ../../fixtures/realworld/specs/e2e/articles.spec.ts:32',
+        'playwright test /workspace/fixtures/realworld/specs/e2e/articles.spec.ts:32',
       )
       expect(r.note).toContain('--retries=0')
     } finally {
