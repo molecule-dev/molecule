@@ -110,6 +110,41 @@ describe('the readings the note and the hold share', () => {
     expect(scopedRerunCommand('npx vitest run', ['a.test.ts:9'])).toBe('npx vitest run')
   })
 
+  it('drops a spec file its own locations are already inside (m118)', () => {
+    // xr-molecule-flash-m118 (+45:24): the model's command named `url-navigation.spec.ts`, and the
+    // hold's composed re-run kept the bare file beside the 14 `file:line`s — the whole file plus
+    // fourteen duplicates, estimated "~297s". A location inside a named file supersedes it.
+    const whole =
+      'cd /workspace/fixtures/realworld/specs/e2e && BASE_URL=http://localhost:4173 ' +
+      'npx playwright test url-navigation.spec.ts --max-failures=15'
+    expect(
+      scopedRerunCommand(whole, [
+        '/workspace/fixtures/realworld/specs/e2e/url-navigation.spec.ts:13',
+        'url-navigation.spec.ts:23',
+        'specs/e2e/url-navigation.spec.ts:234:7',
+      ]),
+    ).toBe(
+      'cd /workspace/fixtures/realworld/specs/e2e && BASE_URL=http://localhost:4173 ' +
+        'npx playwright test /workspace/fixtures/realworld/specs/e2e/url-navigation.spec.ts:13 ' +
+        'url-navigation.spec.ts:23 specs/e2e/url-navigation.spec.ts:234:7 --retries=0 ' +
+        '--max-failures=15',
+    )
+  })
+
+  it('keeps a spec file the locations are NOT inside, and drops only the one they are', () => {
+    // A command naming two files whose failures all belong to one of them: the superseded file
+    // goes, the other stays (Playwright would otherwise drop it from the re-run).
+    const whole = 'npx playwright test specs/e2e/auth.spec.ts specs/e2e/editor.spec.ts --workers=1'
+    expect(scopedRerunCommand(whole, ['specs/e2e/editor.spec.ts:41'])).toBe(
+      'npx playwright test specs/e2e/editor.spec.ts:41 --retries=0 specs/e2e/auth.spec.ts --workers=1',
+    )
+    // No location inside any named file: every argument stays exactly where it was.
+    expect(scopedRerunCommand(whole, ['specs/e2e/comments.spec.ts:12'])).toBe(
+      'npx playwright test specs/e2e/comments.spec.ts:12 --retries=0 ' +
+        'specs/e2e/auth.spec.ts specs/e2e/editor.spec.ts --workers=1',
+    )
+  })
+
   it('inverts the request’s excluded tests out of the narrowed re-run, as real argv', () => {
     // xr-molecule-flash-m101's own suite and invocation (its trailing `| tail -60` is already
     // dropped by streamingBackgroundCommand, which is what runByTask records).

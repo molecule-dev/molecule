@@ -180,11 +180,71 @@ export function scopedRerunCommand(
   // The run's own config: the command's `--config` when it has one, else the config the caller
   // recorded for the run. A re-run without it measures nothing (m113).
   const carry = config && !namesSuiteConfig(statement) ? ` --config ${shellQuote(config)}` : ''
-  const scoped = statement
+  const scoped = dropSupersededSpecFiles(statement, locations)
     .replace(/\s*--last-failed\b/g, '')
     .replace(/\s*--retries(?:[= ]\d+)?/g, '')
     .replace(/^(playwright\s+test)\b/, `$1 ${locations.join(' ')} --retries=0${carry}${invert}`)
   return `${head}${scoped}${tail}`
+}
+
+/** A spec-file argument Playwright accepts as its positional filter — never a flag. */
+const SPEC_FILE_ARGUMENT = /^(?!-)[^\s]*\.(?:spec|test)\.[cm]?[jt]sx?(?::\d+(?::\d+)?)?$/
+
+/**
+ * A `file:line` location's own file part: Playwright prints failures as
+ * `url-navigation.spec.ts:13:7`, and the file is the argument that supersedes.
+ *
+ * @param location - A location (`file.spec.ts:13`, `file.spec.ts:13:7`) or a spec-file argument.
+ * @returns The path without its line numbers.
+ */
+function locationFile(location: string): string {
+  return location.replace(/:\d+(?::\d+)?$/, '')
+}
+
+/**
+ * Whether two spellings name the same spec file: equal, or one the absolute (or longer) form of
+ * the other. The command and the reporter routinely spell the same file differently — the model
+ * names `url-navigation.spec.ts`, the summary prints `specs/e2e/url-navigation.spec.ts:13`, and a
+ * hold hands back `/workspace/fixtures/realworld/specs/e2e/url-navigation.spec.ts:13`.
+ *
+ * @param argument - The spec-file argument as the command wrote it.
+ * @param location - The failing location.
+ * @returns True when the location is inside that file.
+ */
+function sameSpecFile(argument: string, location: string): boolean {
+  const a = locationFile(argument)
+    .replace(/^['"]|['"]$/g, '')
+    .replace(/^\.\//, '')
+  const l = locationFile(location)
+    .replace(/^['"]|['"]$/g, '')
+    .replace(/^\.\//, '')
+  return a === l || a.endsWith(`/${l}`) || l.endsWith(`/${a}`)
+}
+
+/**
+ * The statement with every spec-file argument its OWN failure locations already name taken out.
+ *
+ * A `file:line` inside a named file supersedes the whole file, so keeping both runs the file plus
+ * the locations — the whole suite again, with the failures duplicated inside it. xr-molecule-flash-m118
+ * (+45:24) composed just that: the model's `npx playwright test … url-navigation.spec.ts` was
+ * narrowed to the 14 `file:line`s AND the bare file, "~297s" for a file and fourteen duplicates.
+ *
+ * @param statement - The Playwright statement, starting at its own `playwright test`.
+ * @param locations - The failing `file:line`s the re-run names.
+ * @returns The statement without those superseded file arguments.
+ */
+function dropSupersededSpecFiles(statement: string, locations: readonly string[]): string {
+  if (locations.length === 0) return statement
+  const runner = /^(playwright\s+test)\b/.exec(statement)
+  if (runner === null) return statement
+  const head = runner[1]
+  const kept = statement
+    .slice(head.length)
+    .replace(/(^|\s+)([^\s]+)(?=\s|$)/g, (whole: string, _space: string, token: string) => {
+      if (!SPEC_FILE_ARGUMENT.test(token)) return whole
+      return locations.every((location) => sameSpecFile(token, location)) ? '' : whole
+    })
+  return `${head}${kept}`
 }
 
 /**
