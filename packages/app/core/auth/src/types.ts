@@ -430,10 +430,11 @@ export interface AuthClientConfig {
    *   then restores through {@link AuthClientConfig.currentUserEndpoint} — the
    *   strongest configuration, because no script can read the cookie.
    * - a `StorageAdapter`: the token survives the reload itself. The browser
-   *   adapter is `createBrowserStorageAdapter()` (from `@molecule/app-auth`), and it
-   *   is what the scaffold's `authConfig` passes. A bearer token in Web Storage is
-   *   readable by any script on the origin, so an XSS can steal it; see that
-   *   function's `@remarks` for the trade and for the cookie alternative.
+   *   adapter is `createBrowserStorageAdapter()` (from `@molecule/app-auth`), and
+   *   the scaffold's generated auth bond (`src/bonds/auth-default.ts`) passes it;
+   *   `src/config.ts` leaves `storage` out on purpose. A bearer token in Web
+   *   Storage is readable by any script on the origin, so an XSS can steal it; see
+   *   that function's `@remarks` for the trade and for the cookie alternative.
    *
    * Any adapter with `getItem`/`setItem`/`removeItem` works — the methods are
    * SYNCHRONOUS, so the async `@molecule/app-storage` provider
