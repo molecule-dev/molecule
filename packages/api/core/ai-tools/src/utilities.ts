@@ -3098,8 +3098,10 @@ export function rerunOfRunningSuite(
  * @param found - What {@link repeatingFailure} found.
  * @param o - The run's facts: its `taskId`, its `log` path, `stop` — the shell command that
  *   stops it, printed only for an {@link earlyReturnCause} — `universal`, what
- *   {@link universalCause} found (absent means the run is not failing whole), and `run`, how the
- *   run was started ({@link rerunOfRunningSuite}) when the caller knows it.
+ *   {@link universalCause} found (absent means the run is not failing whole), `run`, how the
+ *   run was started ({@link rerunOfRunningSuite}) when the caller knows it, and
+ *   `editsInvalidateRun`, true when the run measures the sandbox's own app (a local run, where an
+ *   edit now changes what the suite is testing and its result stops counting).
  * @returns The note.
  */
 export function repeatingFailureNote(
@@ -3110,6 +3112,7 @@ export function repeatingFailureNote(
     stop: string
     universal?: UniversalCause | null
     run?: { command: string; cwd?: string }
+    editsInvalidateRun?: boolean
   },
 ): string {
   const listed = found.tests.slice(0, REPEATING_FAILURE_LISTED)
@@ -3201,7 +3204,9 @@ export function repeatingFailureNote(
     return (
       `${found.count} different tests in this run have already failed the same way — ${signature} — ` +
       `so one cause is repeating:\n${rows}${more}\n` +
-      `Start fixing it now, while the run keeps walking. Stop it only if every test it walks ` +
+      (o.editsInvalidateRun
+        ? `Work out the fix now: apply it when the run ends, not while it walks. Stop it only if every test it walks `
+        : `Start fixing it now, while the run keeps walking. Stop it only if every test it walks `) +
       `fails this same way (the app unreachable, a 5xx on every request, the same selector timing ` +
       `out on every test of every file so far).${reproduce} ${keepGoing}${thenRun}`
     )
@@ -3211,7 +3216,10 @@ export function repeatingFailureNote(
     `config sets a timeout spends that timeout on every failure that waits for anything, so ` +
     `different missing elements land on the same number. Read these failures before fixing one ` +
     `of them:\n${rows}${more}\n` +
-    `Start on them now, while the run keeps walking.${reproduce} ${keepGoing}${thenRun}`
+    (o.editsInvalidateRun
+      ? `Work out the fixes now: apply them when the run ends, not while it walks.`
+      : `Start on them now, while the run keeps walking.`) +
+    `${reproduce} ${keepGoing}${thenRun}`
   )
 }
 

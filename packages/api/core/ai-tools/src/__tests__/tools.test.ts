@@ -3776,7 +3776,13 @@ describe('wait_for_task on a suite repeating one failure', () => {
       expect(r.note).toContain(
         '✘ ../../fixtures/realworld/specs/e2e/articles.spec.ts:32 › should create a new article (15.6s)',
       )
-      expect(r.note).toContain('Start on them now, while the run keeps walking')
+      // This task was not started by this process (no command to read a target from), so the note
+      // assumes the sandbox's own app — the conservative reading — and plans the fix instead of
+      // telling the executor to edit under the run (xr-molecule-flash-m122 +19:00).
+      expect(r.note).toContain(
+        'Work out the fixes now: apply them when the run ends, not while it walks.',
+      )
+      expect(r.note).not.toContain('Start on them now, while the run keeps walking')
       expect(r.note).toContain('Let the rest of the run finish')
       expect(r.note).toContain(`task ${id}`)
       // Three failures inside ONE file is not a broken run — X1 flash-m83 stopped eight runs at
@@ -3922,6 +3928,119 @@ describe('wait_for_task on a suite repeating one failure', () => {
       expect(first.note).toContain('3 different tests in this run each failed after ~15.6s')
       const second = (await wait.execute({ taskId: id, timeout: 300 })) as { note: string }
       expect(second.note).not.toContain('A shared duration is a lead, not a cause')
+    } finally {
+      delete process.env.MOL_AI_BG_CAUSE_LOOK_MS
+    }
+  })
+})
+
+// ── what the running note says an edit does ─────────────────────────────────
+// xr-molecule-flash-m122 (+19:00): one `wait_for_task` result told a run against
+// `BASE_URL=https://…apps.mlcl.dev` that "editing app/src or api/src now changes the code the run is
+// testing, and its result no longer counts", and then, in the same result, "Start fixing it now,
+// while the run keeps walking". The run obeyed the first sentence and spent the rest of the suite
+// waiting; it was measuring the deployed build, which no local edit can change.
+describe('the running note knows what the run measures (xr-molecule-flash-m122)', () => {
+  /**
+   * A line-reporter log whose three failures share one body: the mid-run look names it, so the
+   * wait's result carries the lead note whose wording has to agree with the wait's own sentence.
+   */
+  const REPEATING = (() => {
+    const test = (n: number, line: number, title: string): string =>
+      [
+        `  ✘    ${n} ../../specs/specs/e2e/null-fields.spec.ts:${line}:3 › Nulls › ${title} (6.7s)`,
+        `  ${n}) ../../specs/specs/e2e/null-fields.spec.ts:${line}:3 › Nulls › ${title} ────────`,
+        '',
+        '    TimeoutError: page.waitForURL: Timeout 5000ms exceeded.',
+        '    Call log:',
+        '      - waiting for navigation until "load"',
+        '',
+        '       at null-fields.spec.ts:71',
+      ].join('\n')
+    return [
+      'Running 139 tests using 1 worker',
+      test(4, 71, 'a'),
+      test(5, 88, 'b'),
+      test(6, 117, 'c'),
+    ].join('\n')
+  })()
+
+  /**
+   * A backend for a background run that has not exited: its log reads answer with the run's own
+   * output (the size probe with a constant), so the mid-run look finds the repeating cause.
+   *
+   * @returns The backend.
+   */
+  function runningSuiteBackend(): ExecutionBackend {
+    return {
+      projectRoot: '/test',
+      readFile: vi.fn(async () => {
+        throw new Error('ENOENT')
+      }),
+      writeFile: vi.fn(),
+      deleteFile: vi.fn(),
+      readDir: vi.fn(),
+      run: vi.fn(async (command: string) => ({
+        stdout: /wc -c/.test(command) ? '900' : REPEATING,
+        stderr: '',
+        exitCode: 0,
+      })),
+    }
+  }
+
+  /**
+   * Start `command` in the background and take the first wait answer.
+   *
+   * @param command - The suite command the executor sent.
+   * @returns The wait's result.
+   */
+  async function firstWait(command: string): Promise<{ status: string; note: string }> {
+    const tools = buildTools(runningSuiteBackend())
+    const started = (await tools
+      .find((t) => t.name === 'exec_command')!
+      .execute({ command, run_in_background: true })) as { taskId: string }
+    return (await tools
+      .find((t) => t.name === 'wait_for_task')!
+      .execute({ taskId: started.taskId, timeout: 60 })) as { status: string; note: string }
+  }
+
+  it('tells a DEPLOYED-URL run that editing does not change what it tests, and to fix while it walks', async () => {
+    process.env.MOL_AI_BG_CAUSE_LOOK_MS = '1'
+    try {
+      const r = await firstWait(
+        'cd /workspace/.mol-scratch/rw-e2e && TEST_MODE=fullstack ' +
+          'BASE_URL=https://loopcheck-xr-molecule-flash-m122.apps.mlcl.dev ' +
+          'npx playwright test --config ./playwright.config.ts --retries=0',
+      )
+      expect(r.status).toBe('running')
+      expect(r.note).toContain('this run tests the deployed build')
+      expect(r.note).toContain('editing app/src or api/src now does not change what it tests')
+      // The two halves of the result agree: the fix can start while the run walks.
+      expect(r.note).toContain('Start fixing it now, while the run keeps walking')
+      expect(r.note).not.toContain('its result no longer counts')
+      expect(r.note).not.toContain('apply it when the run ends')
+    } finally {
+      delete process.env.MOL_AI_BG_CAUSE_LOOK_MS
+    }
+  })
+
+  it('keeps the local sentence for a localhost run, and the lead note plans instead of editing', async () => {
+    process.env.MOL_AI_BG_CAUSE_LOOK_MS = '1'
+    try {
+      const r = await firstWait(
+        'cd /workspace/.mol-scratch/rw-e2e && BASE_URL=http://localhost:5173 ' +
+          'npx playwright test --config ./playwright.config.ts --retries=0',
+      )
+      expect(r.status).toBe('running')
+      expect(r.note).toContain(
+        'editing app/src or api/src now changes the code the run is testing, and its result no longer counts',
+      )
+      expect(r.note).not.toContain('this run tests the deployed build')
+      // ONE result never says both "editing changes the code under test" and "Start fixing it now".
+      expect(r.note).toContain(
+        'Work out the fix now: apply it when the run ends, not while it walks.',
+      )
+      expect(r.note).not.toContain('Start fixing it now')
     } finally {
       delete process.env.MOL_AI_BG_CAUSE_LOOK_MS
     }

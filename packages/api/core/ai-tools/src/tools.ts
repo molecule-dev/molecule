@@ -406,6 +406,7 @@ async function backgroundTaskState(
     slice,
   }
 }
+import { suiteCommandTarget } from './suite-overlap.js'
 import { diagnosisTraceCommand } from './trace-artifacts.js'
 import type { ExecutionBackend, ToolBuildConfig } from './types.js'
 import {
@@ -2827,6 +2828,13 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       // note it printed called "a lead, not a cause" — and read the early return as "stop waiting,
       // edit now", voiding a run that was still walking both times (the second wait, 224 s of a
       // 280 s budget, ended with nothing at all).
+      // How this run was started, so the note can hand over the re-run to send once it ends
+      // instead of one for now — the platform refuses a second run against the same app and
+      // database while this one walks (xr-molecule-flash-m89: the +19:59 note named a re-run
+      // and its overlap hold refused that exact run 23 s later) — and so a run narrowed to a
+      // file or two is judged against what it selected (xr-molecule-flash-m119 +42:08). Read
+      // BEFORE the loop: the running answers below are built after it closes and still need it.
+      const started = runByTask.get(taskId)
       let midRunNote: string | null = null
       let lastCauseLookAt = startedAt - repeatingCauseLookMs()
       let exitCode = await readExit()
@@ -2853,12 +2861,6 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         }
         const found = repeatingFailure(causeLog)
         if (!found) continue
-        // How this run was started, so the note can hand over the re-run to send once it ends
-        // instead of one for now — the platform refuses a second run against the same app and
-        // database while this one walks (xr-molecule-flash-m89: the +19:59 note named a re-run
-        // and its overlap hold refused that exact run 23 s later) — and so a run narrowed to a
-        // file or two is judged against what it selected (xr-molecule-flash-m119 +42:08).
-        const started = runByTask.get(taskId)
         // The ONE predicate behind this decision and `repeatingFailureNote`'s wording, so the two
         // cannot come to different verdicts.
         const stopCause = earlyReturnCause(found, universalCause(causeLog, found, started?.command))
@@ -2886,12 +2888,19 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         // duration into a proven whole-run cause, and that one is worth returning early for.
         if (!midRunLeadNoted.has(taskId)) {
           midRunLeadNoted.add(taskId)
+          // A run against the sandbox's own app is changed by an edit while it walks — the two
+          // instructions the note and the wait's own sentence give must agree (xr-molecule-flash-
+          // m122 +19:00: one result said editing app/src "changes the code the run is testing" and
+          // "Start fixing it now"). The target is read off the command the task was started with.
+          const editsInvalidateRun =
+            started === undefined || suiteCommandTarget(started.command) === 'local'
           midRunNote = repeatingFailureNote(found, {
             taskId,
             log,
             stop: '',
             universal: null,
             ...(started ? { run: started } : {}),
+            ...(editsInvalidateRun ? { editsInvalidateRun: true } : {}),
           })
         }
       }
@@ -2986,7 +2995,16 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
                 `each failure's own report into the log as that test fails, right under its ✘ line, ` +
                 `not only in the summary at the end. `
               : `Nothing has been printed yet — \`grep -n '✘' ${log} | head -40\` lists failures as they appear. `) +
-            `Meanwhile do work that leaves the code under test alone (read the failures so far, plan the fixes): editing app/src or api/src now changes the code the run is testing, and its result no longer counts.${midRun}`,
+            // What an edit does to this run depends on what the run MEASURES: the sandbox's own
+            // app is re-served from app/src as it is edited, so the run's result stops counting; a
+            // run against the deployed build is untouched by a local edit, and the executor can
+            // spend the rest of the run fixing (xr-molecule-flash-m122 +19:00: a deployed run was
+            // told editing changes what it tests, then handed "Start fixing it now" in the same
+            // result — it waited out 1 min 11 s of free fixing time).
+            (started !== undefined && suiteCommandTarget(started.command) !== 'local'
+              ? `Meanwhile fix what it has already named: this run tests the deployed build, so editing app/src or api/src now does not change what it tests — fix the causes it has already named while it walks, run nothing against the app until it ends, then deploy once.`
+              : `Meanwhile do work that leaves the code under test alone (read the failures so far, plan the fixes): editing app/src or api/src now changes the code the run is testing, and its result no longer counts.`) +
+            `${midRun}`,
         }
       }
       let output: string
