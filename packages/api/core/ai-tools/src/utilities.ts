@@ -2266,28 +2266,144 @@ export interface UniversalCause {
 }
 
 /**
+ * How many tests a connection-class cause must cover before the run is stopped even when they
+ * are all in one file — see {@link universalCause}.
+ */
+export const CONNECTION_CAUSE_TESTS = 3
+
+/**
+ * The failures that mean the browser never reached the app: neither the page's code nor a
+ * selector can be the cause, and every remaining test can only repeat it.
+ */
+const CONNECTION_CAUSE = /\bpage\.goto\b[^\n]*\btimeout\b|\bnet::ERR_[A-Z0-9_]+\b|\bECONNREFUSED\b/i
+
+/** A Playwright positional argument that names one test file (`e2e/auth.spec.ts:19:3`). */
+const SPEC_FILE_ARG = /\.(?:spec|test)\.[cm]?[jt]sx?(?::\d+(?::\d+)?)?$/
+
+/**
+ * The `playwright test` flags that take the next word as their value when they are not written
+ * `--flag=value`. A flag NOT in this set is a switch (`--headed`, `--last-failed`), so the word
+ * after it is a positional filter and not a value.
+ */
+const PLAYWRIGHT_VALUE_FLAGS: ReadonlySet<string> = new Set([
+  '-c',
+  '-g',
+  '-j',
+  '-x',
+  '--config',
+  '--global-timeout',
+  '--grep',
+  '--grep-invert',
+  '--max-failures',
+  '--output',
+  '--project',
+  '--repeat-each',
+  '--reporter',
+  '--retries',
+  '--shard',
+  '--timeout',
+  '--trace',
+  '--ui-host',
+  '--ui-port',
+  '--workers',
+])
+
+/**
+ * How many test FILES a Playwright run's own command narrows it to, or null when it selects the
+ * whole suite (or its selection cannot be read).
+ *
+ * {@link universalCause}'s file threshold is written for a whole-suite run, which a narrowed run
+ * can never reach. xr-molecule-flash-m119 (+42:08) re-ran ONE spec file against a hand-started
+ * `vite preview` the browser could not reach, and every test in it failed `page.goto: Timeout` —
+ * but one file is below {@link UNIVERSAL_CAUSE_FILES}, so the wait sat out its entire 280 s
+ * budget on a run that had already measured all it could.
+ *
+ * The command is read through {@link commandSegments}, so a `playwright test` named as an
+ * argument is not a run. A {@link PLAYWRIGHT_VALUE_FLAGS} flag written without `=` takes the next
+ * word as its value, so a `--config app/e2e-suite.config.ts` is never counted as a spec file; a
+ * directory or a bare substring filter names files the command does not list, which answers null
+ * (the whole-suite threshold) rather than a count of the wrong files.
+ *
+ * @param command - The run's command.
+ * @returns The number of distinct test files it names, or null when it names none (the whole
+ *   suite) or the selection cannot be told.
+ */
+export function specFilesSelected(command: string): number | null {
+  for (const segment of commandSegments(command)) {
+    if (!/^playwright\s+test\b/.test(segment.text)) continue
+    const files = new Set<string>()
+    let flagValue = false
+    for (const word of segment.args.slice(1)) {
+      const token = word.replace(/^(['"])(.*)\1$/, '$2')
+      if (flagValue) {
+        flagValue = false
+        continue
+      }
+      if (token.startsWith('-')) {
+        const flag = token.includes('=') ? token.slice(0, token.indexOf('=')) : token
+        flagValue = !token.includes('=') && PLAYWRIGHT_VALUE_FLAGS.has(flag)
+        continue
+      }
+      if (SPEC_FILE_ARG.test(token)) {
+        files.add(token.replace(/:\d+(?::\d+)?$/, ''))
+        continue
+      }
+      // A directory (`e2e/`), a glob, or a bare substring filter (`npx playwright test login`):
+      // the command does not name the files it selects, so there is no count to take.
+      return null
+    }
+    return files.size > 0 ? files.size : null
+  }
+  return null
+}
+
+/**
  * Whether a repeating cause is failing the whole run — the one case where stopping it is the
  * right call.
  *
- * The test is: the cause accounts for every failure the log names, it has hit
- * {@link UNIVERSAL_CAUSE_FILES} spec files or more, and nothing has passed since its first
- * failure. An app that is not up, a 5xx on every request, or a selector that is missing on every
- * page all look like that, and every remaining test will fail the same way — so the run's
- * remaining minutes measure nothing. Anything less is NOT this: a cause that stops at one file,
- * or that leaves other tests passing, or that shares the run with failures of another shape,
- * leaves the run with something to say, and the run is the only thing that will say it. X1
- * flash-m83 (2026-10-16) stopped eight local runs at their first repeating cause over 14.5
- * minutes and never finished one; three of its deploys each fixed a single cause that a finished
- * run would have listed alongside the others.
+ * The test is: the cause accounts for every failure the log names, it has hit the spec-file
+ * threshold, and nothing has passed since its first failure. The threshold is
+ * {@link UNIVERSAL_CAUSE_FILES} for a whole-suite run but the number of files the command
+ * SELECTED for a narrowed one ({@link specFilesSelected}): a one-file run can never span three,
+ * and xr-molecule-flash-m119 (+42:08) waited out its whole budget on exactly that shape. An app
+ * that is not up, a 5xx on every request, or a selector that is missing on every page all look
+ * like that, and every remaining test will fail the same way — so the run's remaining minutes
+ * measure nothing. A CONNECTION-class cause ({@link CONNECTION_CAUSE}) needs no file span at all:
+ * three tests that could not reach the app, with nothing passing since, is the app-unreachable
+ * case however few files the run walks.
+ *
+ * Anything less is NOT this: a cause that stops at one file of a multi-file run, or that leaves
+ * other tests passing, or that shares the run with failures of another shape, leaves the run with
+ * something to say, and the run is the only thing that will say it. X1 flash-m83 (2026-10-16)
+ * stopped eight local runs at their first repeating cause over 14.5 minutes and never finished
+ * one; three of its deploys each fixed a single cause that a finished run would have listed
+ * alongside the others.
  *
  * @param log - The log so far.
  * @param found - The repeating cause {@link repeatingFailure} found in it.
+ * @param command - How the run was started, when the caller knows it: its spec-file selection
+ *   scales the file threshold ({@link specFilesSelected}).
  * @returns The cause's count and files, or null when the run is not failing whole.
  */
-export function universalCause(log: string, found: RepeatingFailure): UniversalCause | null {
+export function universalCause(
+  log: string,
+  found: RepeatingFailure,
+  command?: string | null,
+): UniversalCause | null {
   const text = log.replace(ANSI_SGR, '')
   const files = [...new Set(found.tests.map((t) => specFile(t.where)).filter(Boolean))]
-  if (files.length < UNIVERSAL_CAUSE_FILES) return null
+  // The threshold is what THIS run selects, not the suite's total: a run narrowed to one file
+  // can never span three of them, however whole its failure is.
+  const selected = command ? specFilesSelected(command) : null
+  const threshold =
+    selected === null ? UNIVERSAL_CAUSE_FILES : Math.min(UNIVERSAL_CAUSE_FILES, selected)
+  // The app never answered: three tests of that with nothing passing since is the whole of what
+  // a whole-suite run would have said, whatever the file count (xr-molecule-flash-m119).
+  const unreachable =
+    found.message !== null &&
+    CONNECTION_CAUSE.test(found.message) &&
+    found.count >= CONNECTION_CAUSE_TESTS
+  if (!unreachable && files.length < threshold) return null
   // Every failure the log names has to be this cause: another cause anywhere in the run means
   // the run still has something to say, and stopping it throws that away.
   const named = Math.max(
@@ -2309,8 +2425,10 @@ export function universalCause(log: string, found: RepeatingFailure): UniversalC
  *
  * Both halves are load-bearing, each of them learned from a run that lost minutes to the other.
  *
- * - **Failing the WHOLE run** is {@link universalCause}: every failure the log names, across
- *   {@link UNIVERSAL_CAUSE_FILES} spec files or more, with nothing passing since the first — the
+ * - **Failing the WHOLE run** is {@link universalCause}: every failure the log names, across the
+ *   spec-file threshold — {@link UNIVERSAL_CAUSE_FILES}, or the files a narrowed run's own
+ *   command selects, or {@link CONNECTION_CAUSE_TESTS} tests of an app that never answered — with
+ *   nothing passing since the first. That is the
  *   dont-stop-runs rule. X1 flash-m83 (2026-10-16) stopped eight local runs at their first
  *   repeating cause in 14.5 minutes and never finished one, and a run that still has other causes
  *   left to name is the only thing that will name them.
@@ -2960,9 +3078,13 @@ export function repeatingFailureNote(
     const files = stop.files.map(shortFile)
     const shown = files.slice(0, 4).join(', ')
     const moreFiles = files.length > 4 ? `, … and ${files.length - 4} more` : ''
+    const span =
+      files.length === 0
+        ? ''
+        : ` — across ${files.length} file${files.length === 1 ? '' : 's'} (${shown}${moreFiles})`
     return (
       `Every test this run has walked so far has failed the same way — all ${found.count} of ` +
-      `them, ${signature} — across ${files.length} files (${shown}${moreFiles}), with nothing ` +
+      `them, ${signature}${span}, with nothing ` +
       `passing since the first:\n${rows}${more}\n` +
       `Every remaining test will fail the same way too, so walking the rest of this run only ` +
       `repeats this one cause. Stop it and fix that cause first: \`exec_command: ${o.stop}\`, ` +

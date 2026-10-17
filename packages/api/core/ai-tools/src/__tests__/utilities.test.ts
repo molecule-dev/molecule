@@ -25,6 +25,7 @@ import {
   repeatingFailureNote,
   resolvePath,
   shellQuote,
+  specFilesSelected,
   streamingBackgroundCommand,
   stripControlChars,
   stripTrailingSuiteFilters,
@@ -1494,6 +1495,162 @@ describe('repeatingFailure', () => {
       expect(note).not.toContain('Stop it and fix')
       expect(note).not.toContain('kill 412 419')
       expect(note).not.toContain('Every remaining test will fail the same way too')
+    })
+
+    /**
+     * xr-molecule-flash-m119 (+42:08 → +46:48): ONE spec file re-run against a hand-started
+     * `vite preview` the browser could not reach. Every test it walked failed `page.goto:
+     * Timeout`, and the wait sat out its whole 280 s budget — one file can never span
+     * {@link UNIVERSAL_CAUSE_FILES}, so the whole-run rule never fired.
+     */
+    const oneFileUnreachable = [
+      'Running 24 tests using 1 worker',
+      ...[1, 2, 3].map((n) =>
+        [
+          list(
+            '✘',
+            n,
+            `url-navigation.spec.ts:${10 + n}:3`,
+            `URL navigation › walks page ${n}`,
+            '15.6s',
+          ),
+          `  ${n}) [chromium] › specs/e2e/url-navigation.spec.ts:${10 + n}:3 › URL navigation › walks page ${n} ────────`,
+          '',
+          '    Error: page.goto: Timeout 15000ms exceeded.',
+          '',
+          '       at specs/e2e/url-navigation.spec.ts:12:3',
+        ].join('\n'),
+      ),
+    ].join('\n')
+
+    const oneFileCommand =
+      'TEST_MODE=fullstack BASE_URL=http://localhost:4173 npx playwright test --config ' +
+      'app/e2e-suite.config.ts url-navigation.spec.ts --retries=0'
+
+    it('stops a one-file run whose every test failed to reach the app (m119)', () => {
+      const found = repeatingFailure(oneFileUnreachable)!
+      expect(found.message).toBe('Error: page.goto: Timeout <n> exceeded.')
+      // The connection rule needs no command: the app is not answering at all, so the file span
+      // says nothing about whether the rest of the run can measure anything.
+      const universal = universalCause(oneFileUnreachable, found, oneFileCommand)!
+      expect(universal.files).toHaveLength(1)
+      expect(earlyReturnCause(found, universal)).toBe(universal)
+      expect(earlyReturnCause(found, universalCause(oneFileUnreachable, found))).not.toBeNull()
+      const note = repeatingFailureNote(found, {
+        taskId: 'mol-bg-m119a-abc123',
+        log: '/tmp/mol-bg-m119a-abc123.log',
+        stop: 'kill 412 419',
+        universal,
+        run: { command: oneFileCommand, cwd: '/workspace' },
+      })
+      expect(note).toContain('across 1 file (')
+      expect(note).toContain('exec_command: kill 412 419')
+    })
+
+    it('scales the file threshold to the files the command selects (m119)', () => {
+      // The general shape: ONE file, one proven cause shared by every test, nothing passing —
+      // below the multi-file rule for a whole-suite run, whole for the run the command makes.
+      const oneFileSharedCause = [
+        'Running 139 tests using 1 worker',
+        ...[1, 2, 3].map((n) =>
+          [
+            list('✘', n, `articles.spec.ts:${20 + n}:3`, `Articles › test ${n}`, '5.1s'),
+            `  ${n}) [chromium] › ../../fixtures/realworld/specs/e2e/articles.spec.ts:${20 + n}:3 › Articles › test ${n} ────────`,
+            '',
+            '    TimeoutError: page.click: Timeout 5000ms exceeded.',
+            `    waiting for locator('button:has-text("Publish Article")')`,
+          ].join('\n'),
+        ),
+      ].join('\n')
+      const found = repeatingFailure(oneFileSharedCause)!
+      expect(universalCause(oneFileSharedCause, found)).toBeNull()
+      const universal = universalCause(
+        oneFileSharedCause,
+        found,
+        'npx playwright test --config app/e2e-suite.config.ts articles.spec.ts',
+      )!
+      expect(universal.files).toHaveLength(1)
+    })
+
+    it('does not stop a multi-file run on one flaky timeout among passes (m83)', () => {
+      // The app answered a request between the failures, so the remaining ones have a reason
+      // this run has not seen — however connection-shaped the individual messages are.
+      const withPass = [
+        'Running 24 tests using 1 worker',
+        list('✘', 1, 'url-navigation.spec.ts:11:3', 'URL navigation › walks page 1', '15.6s'),
+        list('✓', 2, 'auth.spec.ts:1:3', 'Authentication › logs in', '0.4s'),
+        list('✘', 3, 'url-navigation.spec.ts:12:3', 'URL navigation › walks page 2', '15.6s'),
+        list('✘', 4, 'url-navigation.spec.ts:13:3', 'URL navigation › walks page 3', '15.6s'),
+        ...[1, 2, 3].map((n) =>
+          [
+            `  ${n}) [chromium] › specs/e2e/url-navigation.spec.ts:${10 + n}:3 › URL navigation › walks page ${n} ────────`,
+            '',
+            '    Error: page.goto: Timeout 15000ms exceeded.',
+          ].join('\n'),
+        ),
+      ].join('\n')
+      const found = repeatingFailure(withPass)!
+      expect(found.message).toBe('Error: page.goto: Timeout <n> exceeded.')
+      const command =
+        'npx playwright test --config app/e2e-suite.config.ts e2e/auth.spec.ts ' +
+        'e2e/url-navigation.spec.ts'
+      expect(universalCause(withPass, found, command)).toBeNull()
+    })
+
+    it('keeps a one-file cause of a MULTI-file run as a lead — the m83 rule (m83)', () => {
+      // Three tests, one error VERBATIM, all in ONE file — while the run's own command selects
+      // three files. The other files still have causes to name, so this is not the whole run.
+      const oneFileSharedCause = [
+        'Running 139 tests using 1 worker',
+        ...[1, 2, 3].map((n) =>
+          [
+            list('✘', n, `articles.spec.ts:${20 + n}:3`, `Articles › test ${n}`, '5.1s'),
+            `  ${n}) [chromium] › ../../fixtures/realworld/specs/e2e/articles.spec.ts:${20 + n}:3 › Articles › test ${n} ────────`,
+            '',
+            '    TimeoutError: page.click: Timeout 5000ms exceeded.',
+            `    waiting for locator('button:has-text("Publish Article")')`,
+          ].join('\n'),
+        ),
+      ].join('\n')
+      const found = repeatingFailure(oneFileSharedCause)!
+      expect(found.message).not.toBeNull()
+      const command =
+        'npx playwright test --config app/e2e-suite.config.ts e2e/auth.spec.ts ' +
+        'e2e/articles.spec.ts e2e/tags.spec.ts'
+      expect(universalCause(oneFileSharedCause, found, command)).toBeNull()
+    })
+  })
+
+  describe('specFilesSelected', () => {
+    it('counts the spec files a Playwright command names', () => {
+      expect(
+        specFilesSelected(
+          'npx playwright test --config app/e2e-suite.config.ts url-navigation.spec.ts --retries=0',
+        ),
+      ).toBe(1)
+      expect(
+        specFilesSelected(
+          'npx playwright test e2e/auth.spec.ts:19 e2e/articles.spec.ts --grep-invert "a b"',
+        ),
+      ).toBe(2)
+    })
+
+    it('answers null for a command that selects the whole suite or cannot be read', () => {
+      // A whole-suite run keeps the multi-file rule.
+      expect(specFilesSelected('npx playwright test --config app/e2e-suite.config.ts')).toBeNull()
+      // A directory or a bare substring filter selects files the command does not name.
+      expect(specFilesSelected('npx playwright test e2e/')).toBeNull()
+      expect(specFilesSelected('npx playwright test login')).toBeNull()
+      // A flag's value is not a positional argument.
+      expect(
+        specFilesSelected(
+          'npx playwright test --grep-invert "should require login to post comment"',
+        ),
+      ).toBeNull()
+      // …and a runner named as an argument runs nothing.
+      expect(
+        specFilesSelected('grep -n "npx playwright test auth.spec.ts" e2e/README.md'),
+      ).toBeNull()
     })
   })
 

@@ -2853,14 +2853,15 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         }
         const found = repeatingFailure(causeLog)
         if (!found) continue
-        // The ONE predicate behind this decision and `repeatingFailureNote`'s wording, so the two
-        // cannot come to different verdicts.
-        const stopCause = earlyReturnCause(found, universalCause(causeLog, found))
         // How this run was started, so the note can hand over the re-run to send once it ends
         // instead of one for now — the platform refuses a second run against the same app and
         // database while this one walks (xr-molecule-flash-m89: the +19:59 note named a re-run
-        // and its overlap hold refused that exact run 23 s later).
+        // and its overlap hold refused that exact run 23 s later) — and so a run narrowed to a
+        // file or two is judged against what it selected (xr-molecule-flash-m119 +42:08).
         const started = runByTask.get(taskId)
+        // The ONE predicate behind this decision and `repeatingFailureNote`'s wording, so the two
+        // cannot come to different verdicts.
+        const stopCause = earlyReturnCause(found, universalCause(causeLog, found, started?.command))
         if (stopCause) {
           // …and only now is the pid walk paid for.
           repeatingCauseNoted.add(taskId)
