@@ -151,11 +151,33 @@ npm run check:locale-placeholders
 # the scanner subgraph imports no @molecule/* packages). Skips (does not block)
 # when mlcl is a non-sibling or its deps aren't installed — e.g. a standalone
 # molecule clone — where the registry simply isn't reachable.
+# The gates below that read package SOURCE read the source this commit carries:
+# one export of the index (`git checkout-index`, which honours a private
+# GIT_INDEX_FILE and a pathspec commit's temporary index), made once, on first
+# use. The worktree is the wrong input in a shared checkout: another session's
+# uncommitted export in the same package made this registry check refuse a
+# commit that did not touch it (2026-10-17, ai-tools), and made the README regen
+# below document code no commit had. It lives under the workspace root so
+# packages resolve the same node_modules the checkout does (prepareDocsCheckTree
+# in ../scripts/lib/release-ci-gates.mjs).
+INDEX_TREE=""
+index_tree() {
+  if [ -z "$INDEX_TREE" ]; then
+    INDEX_TREE="$(cd .. && pwd)/.precommit-docs-$$"
+    rm -rf "$INDEX_TREE"
+    # set -e exits on a failed gate; the 190 MB export must not outlive the hook.
+    trap 'rm -rf "$INDEX_TREE"' EXIT
+    git checkout-index -a --prefix="$INDEX_TREE/"
+    node -e "import('../scripts/lib/release-ci-gates.mjs').then((m) => m.prepareDocsCheckTree({ moleculeDir: process.cwd(), treeDir: process.argv[1] }))" "$INDEX_TREE"
+  fi
+}
+
 PKG_SRC=$(echo "$STAGED" | grep -E '^packages/.+/src/' || true)
 if [ -n "$PKG_SRC" ]; then
   PKG_DIRS=$(echo "$PKG_SRC" | while IFS= read -r f; do echo "${f%%/src/*}"; done | sort -u)
   if [ -n "$MLCL_TSX" ]; then
-    ( cd ../mlcl && "$MLCL_TSX" scripts/check-registry-exports.mjs $PKG_DIRS )
+    index_tree
+    ( cd ../mlcl && MOLECULE_PACKAGES_DIR="$INDEX_TREE/packages" "$MLCL_TSX" scripts/check-registry-exports.mjs $PKG_DIRS )
   else
     echo "ℹ registry-export check skipped: mlcl deps not installed — run 'npm ci' in mlcl, then 'npm run verify:registry-exports' to verify"
   fi
@@ -204,17 +226,11 @@ if [ -n "$DOC_STAGED" ]; then
       d="${d%/package.json}"
       echo "$d"
     done | sort -u)
-    DOC_TREE="$(cd .. && pwd)/.precommit-docs-$$"
-    rm -rf "$DOC_TREE"
-    # set -e exits on a failed regen; the 190 MB export must not outlive the hook.
-    trap 'rm -rf "$DOC_TREE"' EXIT
-    git checkout-index -a --prefix="$DOC_TREE/"
-    node -e "import('../scripts/lib/release-ci-gates.mjs').then((m) => m.prepareDocsCheckTree({ moleculeDir: process.cwd(), treeDir: process.argv[1] }))" "$DOC_TREE"
-    REGENERATED=$( cd ../mlcl && MOLECULE_PACKAGES_DIR="$DOC_TREE/packages" "$MLCL_TSX" scripts/regen-molecule-docs.mjs $DOC_DIRS )
+    index_tree
+    REGENERATED=$( cd ../mlcl && MOLECULE_PACKAGES_DIR="$INDEX_TREE/packages" "$MLCL_TSX" scripts/regen-molecule-docs.mjs $DOC_DIRS )
     # The regenerated docs were written into the export; carry each one into the
     # worktree, where the prettier check and `git add` below read it.
-    echo "$REGENERATED" | while IFS= read -r md; do if [ -n "$md" ]; then cp "$DOC_TREE/$md" "$md"; fi; done
-    rm -rf "$DOC_TREE"
+    echo "$REGENERATED" | while IFS= read -r md; do if [ -n "$md" ]; then cp "$INDEX_TREE/$md" "$md"; fi; done
     if [ -n "$REGENERATED" ]; then
       # These are staged AFTER the prettier/eslint pass above, so they would
       # otherwise enter the commit unchecked — which is how generated docs
