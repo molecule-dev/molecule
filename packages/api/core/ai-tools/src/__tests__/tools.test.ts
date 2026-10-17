@@ -291,6 +291,52 @@ describe('buildTools', () => {
     now.mockRestore()
   })
 
+  // ── the trace a diagnosis run must record (trace-artifacts.ts) ─────────────
+  // X1 xr-molecule-flash-m100 (+51:19) ended on three failures against the deployed URL with the
+  // app swallowing the request's error; the run's own config asked for `trace: 'on-first-retry'`
+  // and every run carried `--retries=0`, so no trace existed to read the network log from.
+
+  it('adds --trace=retain-on-failure to a diagnosis run whose config records no trace', async () => {
+    const backend = mockBackend()
+    backend.readFile = vi.fn(async () => "export default { use: { trace: 'on-first-retry' } }")
+    const tools = buildTools(backend)
+    const exec = tools.find((t) => t.name === 'exec_command')!
+    const result = (await exec.execute({
+      command: 'npx playwright test e2e/realworld/social.spec.ts:22 --reporter=list',
+    })) as { note?: string }
+    const ran = String(backend.run.mock.calls[0]?.[0])
+    expect(ran).toContain('--trace=retain-on-failure')
+    expect(result.note).toContain('--trace=retain-on-failure')
+  })
+
+  it('leaves the whole-suite proof run, and an existing --trace, exactly as sent', async () => {
+    const backend = mockBackend()
+    backend.readFile = vi.fn(async () => "export default { use: { trace: 'on-first-retry' } }")
+    const tools = buildTools(backend)
+    const exec = tools.find((t) => t.name === 'exec_command')!
+
+    await exec.execute({ command: 'npx playwright test --max-failures=0 --config p.config.ts' })
+    expect(String(backend.run.mock.calls[0]?.[0])).not.toContain('--trace')
+
+    await exec.execute({
+      command: 'npx playwright test e2e/a.spec.ts:3 --trace=on --config p.config.ts',
+    })
+    expect(String(backend.run.mock.calls[1]?.[0])).toContain('--trace=on')
+    expect(String(backend.run.mock.calls[1]?.[0])).not.toContain('retain-on-failure')
+  })
+
+  it('says nothing when the suite’s own config already records failures', async () => {
+    const backend = mockBackend()
+    backend.readFile = vi.fn(async () => "export default { use: { trace: 'retain-on-failure' } }")
+    const tools = buildTools(backend)
+    const exec = tools.find((t) => t.name === 'exec_command')!
+    const result = (await exec.execute({
+      command: 'npx playwright test e2e/a.spec.ts:3 --config playwright.config.ts',
+    })) as { note?: string }
+    expect(String(backend.run.mock.calls[0]?.[0])).not.toContain('--trace')
+    expect(result.note).toBeUndefined()
+  })
+
   // ── batched reads ─────────────────────────────────────────────────────────
   // The executor issues one tool call per round-trip 89% of the time, so a
   // survey of 93 files cost 121 sequential calls and ten minutes of wall clock.

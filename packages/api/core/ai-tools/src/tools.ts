@@ -252,6 +252,7 @@ function runningNote(clauses: string[]): string {
   const joined = clauses.join('; ')
   return `${joined[0].toUpperCase()}${joined.slice(1)}.`
 }
+import { diagnosisTraceCommand } from './trace-artifacts.js'
 import type { ExecutionBackend, ToolBuildConfig } from './types.js'
 import {
   checkBlockedCommand,
@@ -1999,7 +2000,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
     },
 
     async exec_command(input) {
-      const command = input.command as string
+      const rawCommand = input.command as string
       const cwd = input.cwd ? resolve(input.cwd as string, 'cwd') : root
 
       // A model that sent the command under another name (`cmd`, `script`, …)
@@ -2010,21 +2011,33 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       // undefined (reading 'match')" — the executor read that as a broken shell,
       // stopped verifying, and ended the turn claiming all checks passed while
       // seven acceptance checks failed (X0 rehearsal 83, 2026-09-16).
-      if (typeof command !== 'string' || command.trim() === '') {
+      if (typeof rawCommand !== 'string' || rawCommand.trim() === '') {
         return { error: missingParamError(TOOL_SCHEMAS.exec_command, input, ['command']) }
       }
 
       if (blockDangerousCommands) {
-        const blocked = checkBlockedCommand(command)
+        const blocked = checkBlockedCommand(rawCommand)
         if (blocked) return { error: blocked }
       }
 
       // Consumer-specific guard (see ToolBuildConfig.blockCommand) — an environment can
       // veto commands the generic dangerous-command check can't know about.
       if (blockCommand) {
-        const blocked = blockCommand(command, cwd)
+        const blocked = blockCommand(rawCommand, cwd)
         if (blocked) return { error: blocked }
       }
+
+      // A diagnosis run of a suite whose config records no trace gets one recorded anyway
+      // (`diagnosisTraceCommand`, trace-artifacts.ts): the failing tests' own network log is what
+      // tells a swallowed request error from a selector, and X1 xr-molecule-flash-m100 spent the
+      // last minutes of its run hand-writing Chromium probes for what the trace it never wrote
+      // down would have said. The whole rule is that function's; the proof run is never touched.
+      const traced = await diagnosisTraceCommand({
+        command: rawCommand,
+        cwd,
+        readFile: (path) => backend.readFile(path),
+      })
+      const command = traced.command
 
       // Detached: start it, hand back a handle, let the turn continue. A
       // command that outlives the tool's ceiling is otherwise simply lost —
@@ -2075,6 +2088,9 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           // Keep the log growing while it runs (see streamingBackgroundCommand):
           // an empty log is what wait_for_task reads as stuck.
           const streaming = streamingBackgroundCommand(command)
+          // …and the trace flag this tool added (above), which the streaming rewrite never saw:
+          // its changes are what this branch reports the run's own settings in.
+          if (traced.change) streaming.changes.unshift(traced.change)
           // A whole-suite run starves the sandbox it shares with the app and with
           // every command the executor sends next, so it starts at lower CPU and
           // IO priority (see suiteRunPriorityLaunch). Foreground runs are never
@@ -2258,7 +2274,9 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           stdout,
           stderr,
           exitCode: result.exitCode,
-          ...(ceilingNote ? { note: ceilingNote } : {}),
+          ...(ceilingNote || traced.change
+            ? { note: [ceilingNote, traced.change].filter(Boolean).join(' ') }
+            : {}),
         }
       } catch (e: unknown) {
         return { error: `Command failed: ${(e as Error).message}` }
