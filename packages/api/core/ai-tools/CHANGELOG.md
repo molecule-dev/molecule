@@ -1,5 +1,12 @@
 # @molecule/api-ai-tools
 
+## 1.9.15
+
+### Patch Changes
+
+- f49fed9: A background command that starts the test suite more than once is refused, and a re-run composed for a running suite addresses one walk instead of the whole chain.
+- 328f95d: A websocket frame's own message is quoted in the failure-trace note instead of being cut inside its frame envelope.
+
 ## 1.9.14
 
 ### Patch Changes

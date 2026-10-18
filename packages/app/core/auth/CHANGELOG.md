@@ -1,5 +1,12 @@
 # @molecule/app-auth
 
+## 1.5.3
+
+### Patch Changes
+
+- 5467bd0: A current-user route that answers 404 no longer signs the user out: `validateSession()` clears the stored session only on 401/403, and a 404 keeps the token and user with an error naming `currentUserEndpoint`.
+- dc0ed41: In a browser the auth client now keeps the session in Web Storage by default (and warns when an explicit `'memory'` store is paired with a `tokenKey`), so a page reload stays signed in without extra wiring.
+
 ## 1.5.2
 
 ### Patch Changes
