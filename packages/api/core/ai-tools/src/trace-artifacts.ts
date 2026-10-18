@@ -770,6 +770,13 @@ for (const one of found.slice(0, MAX_TRACES)) {
         break
       }
     }
+    if (failedContext === null) {
+      for (const r of requestsAll) {
+        if (r.pageId !== failedPage) continue
+        failedContext = r.context
+        break
+      }
+    }
   }
   // Two used contexts and no identified page: the note makes no causal claim rather than
   // merging them (m160's rule). With one used context everything in it belongs to the test's page.
