@@ -128,6 +128,9 @@ describe('traceArtifactsScript — a real trace, read headlessly', () => {
         type: 'fetch',
         // A 4xx also carries what came back (the request itself had no body).
         got: '{"error":"unauthorized"}',
+        // The trace's monotonic clock rides with the request, so a pending asset can be told from
+        // one that was already in flight before the navigation the runner reported (m153).
+        startedAt: expect.any(Number),
       })
     } finally {
       rmSync(root, { recursive: true, force: true })
@@ -1367,6 +1370,22 @@ function stalledRun(zip: Buffer): string {
   return root
 }
 
+/**
+ * The runner's report for the m135 walk: the test at `e2e/navigation.spec.ts:160` failed on its
+ * `page.goto` after the suite's 15 s per-test budget. Without this the note must not call a
+ * pending asset the cause — the gate is the runner's own failing operation (m153).
+ */
+const STALLED_GOTO_REPORT = {
+  failures: [
+    {
+      spec: 'e2e/navigation.spec.ts',
+      line: 160,
+      operation: 'page.goto',
+      budgetMs: 15_000,
+    },
+  ],
+}
+
 describe('traceArtifactsScript — a document subresource that never finished (m135)', () => {
   it('keeps the pending stylesheet of a navigation that never finished, and not the service worker', () => {
     const root = stalledRun(stalledNavigationZip({ gotoFinished: false, withStylesheet: true }))
@@ -1388,7 +1407,9 @@ describe('traceArtifactsScript — a document subresource that never finished (m
     const root = stalledRun(stalledNavigationZip({ gotoFinished: false, withStylesheet: true }))
     try {
       const items = parseTraceArtifacts(readTraces(root))
-      const note = String(failureTraceNote(items, 'https://app.apps.mlcl.dev'))
+      const note = String(
+        failureTraceNote(items, 'https://app.apps.mlcl.dev', [], [], STALLED_GOTO_REPORT),
+      )
       expect(note).toContain('never finished: GET /assets/index-abc123.css')
       expect(note).toContain('never got a response')
       expect(note).toContain('re-run the same tests once, unchanged')
@@ -1423,11 +1444,197 @@ describe('traceArtifactsScript — a document subresource that never finished (m
     const root = stalledRun(stalledNavigationZip({ gotoFinished: false, withStylesheet: true }))
     try {
       const items = parseTraceArtifacts(readTraces(root))
-      const row = String(failureTraceNote(items, 'https://app.apps.mlcl.dev'))
+      const row = String(
+        failureTraceNote(items, 'https://app.apps.mlcl.dev', [], [], STALLED_GOTO_REPORT),
+      )
         .split('\n')
         .find((line) => /^\s+1\./.test(line))
       expect(row).toContain('never finished: GET /assets/index-abc123.css')
       expect(row).not.toContain("the test's last action")
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+})
+
+/**
+ * xr-molecule-flash-m153 (+13:43): the navigation re-run passed its four original failures but
+ * failed `url-navigation.spec.ts:206` with `Test timeout of 15000ms exceeded` at a
+ * `page.waitForSelector` (`.article-preview`). Its trace carried an open `Frame.goto` and a
+ * `/src/components/ArticleBody.tsx` module still pending when the context closed — the teardown
+ * trace, placed at `:107`, the Pagination suite's `afterEach`. The note called the pending module
+ * the cause and told the run to re-run the same tests unchanged on the same dev server, while the
+ * same result's `testRunNote` said "Before changing app code, run the same suite against a
+ * production build".
+ *
+ * The gate is the RUNNER's reported failing operation: a selector wait that spent the test budget
+ * is not a navigation, and an `afterEach` trace is not the failing test.
+ */
+function urlNavigationTeardownZip(): Buffer {
+  const network = [
+    {
+      // An answered app call keeps the trace as evidence, as it was on the real run.
+      type: 'resource-snapshot',
+      snapshot: {
+        _resourceType: 'fetch',
+        _monotonicTime: 80,
+        request: { url: 'http://localhost:5173/api/tags', method: 'GET' },
+        response: { status: 200 },
+      },
+    },
+    {
+      // The dev server's unbundled module, still in flight when the test budget ran out.
+      type: 'resource-snapshot',
+      snapshot: {
+        _resourceType: 'script',
+        _monotonicTime: 120,
+        request: { url: 'http://localhost:5173/src/components/ArticleBody.tsx', method: 'GET' },
+        response: {},
+      },
+    },
+  ]
+  const trace: unknown[] = [
+    // The navigation that was open when the test was cut off.
+    {
+      type: 'before',
+      class: 'Frame',
+      method: 'goto',
+      callId: 'call-goto',
+      startTime: 100,
+      stack: [
+        { file: '/workspace/fixtures/realworld/specs/e2e/url-navigation.spec.ts', line: 221 },
+      ],
+    },
+    // The afterEach hook the trace's last recorded step belongs to (line 107, before the failing
+    // test's declaration at 206): `Test` entries are not page actions, only the location.
+    {
+      type: 'before',
+      class: 'Test',
+      method: 'afterEach',
+      callId: 'call-after',
+      startTime: 16_000,
+      stack: [
+        { file: '/workspace/fixtures/realworld/specs/e2e/url-navigation.spec.ts', line: 107 },
+      ],
+    },
+  ]
+  const ndjson = (rows: unknown[]): string => rows.map((row) => JSON.stringify(row)).join('\n')
+  return storedZip({ 'trace.trace': ndjson(trace), 'trace.network': ndjson(network) })
+}
+
+/** The runner's report for the m153 failure: a selector wait, declared at :206, budget 15 s. */
+const WAIT_FOR_SELECTOR_REPORT = {
+  failures: [
+    {
+      spec: 'fixtures/realworld/specs/e2e/url-navigation.spec.ts',
+      line: 206,
+      operation: 'page.waitForSelector',
+      budgetMs: 15_000,
+    },
+  ],
+}
+
+describe('failureTraceNote — a pending asset is not a cause the runner did not report (m153)', () => {
+  it('does not turn a selector-wait timeout in an afterEach trace into an asset hang', () => {
+    const root = stalledRun(urlNavigationTeardownZip())
+    try {
+      const items = parseTraceArtifacts(readTraces(root))
+      const note = String(
+        failureTraceNote(items, 'http://localhost:5173', [], [], WAIT_FOR_SELECTOR_REPORT),
+      )
+      // The reported operation is a selector wait, and this trace belongs to the afterEach hook —
+      // neither the stalled row nor the run-wide asset-hang lead is honest here.
+      expect(note).not.toContain('never finished')
+      expect(note).not.toContain('Every failure this run traced')
+      expect(note).not.toContain('re-run the same tests once, unchanged')
+      // The pending module is named for what it is: no evidence of a cause.
+      expect(note).toContain('had no recorded response when the test ended')
+      expect(note).toContain('that alone does not establish the cause')
+      expect(note).toContain('/src/components/ArticleBody.tsx')
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
+  it('keeps the note silent about a cause when the trace maps to the test but its operation is not a navigation', () => {
+    const root = stalledRun(urlNavigationTeardownZip())
+    try {
+      const items = parseTraceArtifacts(readTraces(root))
+      // The SAME trace, placed at the failing test's own last step (221, inside :206's body).
+      const atTest = items.map((item) => ({ ...item, line: 221 }))
+      const note = String(
+        failureTraceNote(atTest, 'http://localhost:5173', [], [], WAIT_FOR_SELECTOR_REPORT),
+      )
+      expect(note).not.toContain('never finished')
+      expect(note).not.toContain('Every failure this run traced')
+      expect(note).toContain('that alone does not establish the cause')
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
+  it('composes ONE next step when the run’s own test note already names a production build', () => {
+    const root = stalledRun(stalledNavigationZip({ gotoFinished: false, withStylesheet: true }))
+    try {
+      const items = parseTraceArtifacts(readTraces(root))
+      const note = String(
+        failureTraceNote(items, 'http://localhost:5173', [], [], {
+          ...STALLED_GOTO_REPORT,
+          productionBuildAdvised: true,
+        }),
+      )
+      // The stall reading survives, but the same-target unchanged re-run — the opposite of the
+      // production-build advice the same result carries — does not.
+      expect(note).toContain('never finished: GET /assets/index-abc123.css')
+      expect(note).not.toContain('re-run the same tests once, unchanged')
+      expect(note).not.toContain('re-run these tests against the same URL first')
+      expect(note).toContain('production build')
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
+  it('says "Every failure" only when every traced test meets the bar', () => {
+    const root = stalledRun(stalledNavigationZip({ gotoFinished: false, withStylesheet: true }))
+    try {
+      const items = parseTraceArtifacts(readTraces(root))
+      // A second traced test — a selector-wait failure with its own pending module (m153) — means
+      // the run is not "every failure a navigation that never finished".
+      const selectorTrace = {
+        ...items[0],
+        spec: 'e2e/url-navigation.spec.ts',
+        line: 260,
+        actions: [{ api: 'Frame.waitForSelector', start: 9_000, end: null }],
+        // A console line keeps this trace a row of its own, the way the real run's own page error
+        // did — the point is that it is TRACED and its runner-reported operation is not a
+        // navigation.
+        console: ['TimeoutError: page.waitForSelector: Timeout 2000ms exceeded'],
+        requests: [
+          {
+            method: 'GET',
+            path: '/src/components/ArticleBody.tsx',
+            status: 0,
+            type: 'script',
+            startedAt: 120,
+          },
+        ],
+      }
+      const note = String(
+        failureTraceNote([...items, selectorTrace], 'http://localhost:5173', [], [], {
+          failures: [
+            ...(STALLED_GOTO_REPORT.failures ?? []),
+            {
+              spec: 'e2e/url-navigation.spec.ts',
+              line: 240,
+              operation: 'page.waitForSelector',
+              budgetMs: 15_000,
+            },
+          ],
+        }),
+      )
+      expect(note).not.toContain('Every failure this run traced')
+      // The navigation trace still keeps its own stalled row.
+      expect(note).toContain('never finished: GET /assets/index-abc123.css')
     } finally {
       rmSync(root, { recursive: true, force: true })
     }
