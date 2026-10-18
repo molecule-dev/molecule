@@ -159,7 +159,9 @@ export const TOOL_SCHEMAS: Record<string, ToolSchema> = {
         },
         include: {
           type: 'string',
-          description: "File glob pattern to filter files (e.g. '*.ts', '*.tsx'). Optional.",
+          description:
+            "File glob pattern to filter files (e.g. '*.ts', '*.tsx'). Several extensions go in one " +
+            "brace group of comma-separated alternatives: '*.{ts,tsx,yml,json,md}' (up to 16). Optional.",
         },
         contextLines: {
           type: 'number',

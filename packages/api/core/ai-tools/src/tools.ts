@@ -746,6 +746,62 @@ export const SUITE_OVER_BUDGET_ADVICE =
 const SEARCH_TIMEOUT_MS = 10_000
 
 /**
+ * The most alternatives one brace group in a `search_files` include may expand
+ * to. The point is to accept the ordinary multi-extension form a model writes
+ * from habit (`*.{ts,tsx,yml,json,md}`), not to grow a glob engine: a group is
+ * bounded so a pattern cannot turn one grep call into hundreds.
+ */
+const MAX_INCLUDE_BRACE_ALTERNATIVES = 16
+
+/**
+ * Expand ONE level of brace alternatives in a `search_files` include pattern,
+ * validating every expanded pattern.
+ *
+ * `grep --include` has no brace expansion of its own (the shell that would do it
+ * is never involved — the pattern is `shellQuote`d first), so the group has to
+ * be expanded here and each alternative passed as its own `--include`. The
+ * m189 run wrote the everyday `*.{ts,tsx,yml,json,md}` and the search was
+ * refused outright, costing a round trip and pushing the agent to a narrower
+ * search.
+ *
+ * Bounded on purpose: one level of braces, alternatives split on `,`, at most
+ * {@link MAX_INCLUDE_BRACE_ALTERNATIVES}, none empty, and each EXPANDED
+ * pattern must still pass {@link isValidGlob} — so a shell metacharacter in any
+ * alternative (`*.{ts,$(rm)}`) is refused exactly as a bare one is.
+ *
+ * @param pattern - The user-supplied `include` value.
+ * @returns Every pattern to pass to grep, or null when the value is not
+ *   accepted (the caller reports the include-glob error).
+ */
+function expandIncludeGlob(pattern: string): string[] | null {
+  const open = pattern.indexOf('{')
+  if (open === -1) return isValidGlob(pattern) ? [pattern] : null
+  const close = pattern.indexOf('}', open + 1)
+  if (close === -1) return null
+  // One level only: a second `{` before the close or a second `}` after it is a
+  // nested/malformed group, not an alternative.
+  const nextOpen = pattern.indexOf('{', open + 1)
+  if (nextOpen !== -1 && nextOpen < close) return null
+  if (pattern.indexOf('}', close + 1) !== -1) return null
+  const alternatives = pattern.slice(open + 1, close).split(',')
+  if (alternatives.length > MAX_INCLUDE_BRACE_ALTERNATIVES) return null
+  if (alternatives.some((alt) => alt.length === 0)) return null
+  const expanded = alternatives.map(
+    (alt) => `${pattern.slice(0, open)}${alt}${pattern.slice(close + 1)}`,
+  )
+  return expanded.every((p) => isValidGlob(p)) ? expanded : null
+}
+
+/**
+ * The include-glob error. It keeps the original character-rule sentence and
+ * names the accepted multi-extension form, so a refusal teaches the syntax
+ * rather than only reporting that the value was wrong.
+ */
+const INCLUDE_GLOB_ERROR =
+  'Invalid include glob pattern. Allowed: alphanumeric and @ * ? . _ - / [ ] ( ), ' +
+  'or one brace group of up to 16 comma-separated alternatives such as *.{ts,tsx}.'
+
+/**
  * The share of its budget a command must use before the "you asked for more than
  * this tool's ceiling" note is worth attaching. Below it the clamp changed nothing
  * about the run, and the line read as a warning about work that had already
@@ -2493,15 +2549,17 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         ? Math.min(Math.max(Math.trunc(rawContext), 0), MAX_SEARCH_CONTEXT_LINES)
         : 0
 
-      if (include && !isValidGlob(include))
-        return {
-          error: 'Invalid include glob pattern. Allowed: alphanumeric and @ * ? . _ - / [ ] ( ).',
-        }
+      // `--include` has no brace expansion inside the quoted grep argument, so
+      // a brace group is expanded here and grep gets one --include per pattern.
+      const includes = include ? expandIncludeGlob(include) : []
+      if (includes === null) return { error: INCLUDE_GLOB_ERROR }
 
       const symlinkErr = await checkSymlink(path)
       if (symlinkErr) return { error: symlinkErr }
       try {
-        const globArg = include ? `--include=${shellQuote(include)}` : ''
+        const globArg = includes.length
+          ? includes.map((p) => `--include=${shellQuote(p)}`).join(' ')
+          : ''
         // With context, grep emits `file-line-content` for context lines and
         // `file:line:content` for matches, plus `--` group separators. Both
         // shapes are parsed below; without context the output is unchanged.
