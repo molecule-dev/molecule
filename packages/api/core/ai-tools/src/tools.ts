@@ -21,6 +21,7 @@ import {
   renderSmallFile,
 } from './edit-excerpt.js'
 import { guardToolExecute, missingParamError, ToolInputError } from './input-normalizer.js'
+import { diffLineCount } from './line-diff.js'
 import { pipelineExitCodeNote } from './pipeline-exit-note.js'
 import { TOOL_SCHEMAS } from './schemas.js'
 import { leadingSleepPeek } from './sleep-peek.js'
@@ -470,7 +471,6 @@ import {
   truncateMiddle,
   universalCause,
   whitespaceTolerantReplace,
-  withoutSuiteTimeout,
 } from './utilities.js'
 
 /**
@@ -1137,24 +1137,30 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
   /**
    * Compute a lightweight diff summary for telemetry and UI badges.
    *
+   * The counts are a real line diff ({@link diffLineCount}), not the change in
+   * line count: replacing one line with another leaves the file the same
+   * length, and a length delta reported that edit as `0/0` — reading to the
+   * model as "your write changed nothing" (xr-molecule-flash-m141 +09:56, a
+   * one-line rewrite of `ArticlePreview.tsx`). A write that leaves the content
+   * identical is `unchanged` rather than a `modified` with `0/0`, so the two
+   * are distinguishable.
+   *
    * @param oldContent - Previous file contents, or `null` when creating a file.
    * @param newContent - Replacement file contents after a write/edit.
-   * @returns Counts describing whether the file was created or modified.
+   * @returns Counts describing whether the file was created, modified or left unchanged.
    */
   function computeDiff(
     oldContent: string | null,
     newContent: string,
-  ): { type: 'created' | 'modified'; linesAdded: number; linesRemoved: number } {
+  ): { type: 'created' | 'modified' | 'unchanged'; linesAdded: number; linesRemoved: number } {
     if (oldContent === null) {
-      return { type: 'created', linesAdded: newContent.split('\n').length, linesRemoved: 0 }
+      return { type: 'created', linesAdded: countLines(newContent), linesRemoved: 0 }
     }
-    const oldLines = oldContent.split('\n')
-    const newLines = newContent.split('\n')
-    return {
-      type: 'modified',
-      linesAdded: Math.max(0, newLines.length - oldLines.length),
-      linesRemoved: Math.max(0, oldLines.length - newLines.length),
+    if (oldContent === newContent) {
+      return { type: 'unchanged', linesAdded: 0, linesRemoved: 0 }
     }
+    const { added, removed } = diffLineCount(oldContent.split('\n'), newContent.split('\n'))
+    return { type: 'modified', linesAdded: added, linesRemoved: removed }
   }
 
   // ── Tool implementations ───────────────────────────────────────
@@ -2438,30 +2444,12 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           // an executor's commands routinely carry quotes, heredocs and
           // newlines, and re-quoting them into a detached `sh -c` is how a
           // background runner corrupts the very thing it is running.
-          // The platform moved this run to the background because its own bound could not fit
-          // this tool's ceiling — and in the background the ceiling no longer applies, so the
-          // `timeout N` the executor wrote to fit it is the only bound left, and it kills the
-          // walk mid-run with no tally (X1 xr-molecule-flash-m143 +24:45). Lift it from the
-          // statement that runs the suite. A run the EXECUTOR detached keeps the bound it chose.
-          const lifted =
-            overCeiling && input.run_in_background !== true
-              ? withoutSuiteTimeout(command)
-              : { command, seconds: null }
-          if (lifted.seconds !== null) command = lifted.command
           // Keep the log growing while it runs (see streamingBackgroundCommand):
           // an empty log is what wait_for_task reads as stuck.
           const streaming = streamingBackgroundCommand(command)
           // …and the trace flag this tool added (above), which the streaming rewrite never saw:
           // its changes are what this branch reports the run's own settings in.
           if (traced.change) streaming.changes.unshift(traced.change)
-          // Said once, in the result that also hands back the task id or the run's output.
-          if (lifted.seconds !== null) {
-            streaming.changes.unshift(
-              `Dropped your \`timeout ${lifted.seconds}\` from the suite run: in the background it ` +
-                'is bounded by `wait_for_task` and the turn’s deadline, not by this tool’s ' +
-                'ceiling, so the bound you wrote would only have killed the walk.',
-            )
-          }
           // A whole-suite run starves the sandbox it shares with the app and with
           // every command the executor sends next, so it starts at lower CPU and
           // IO priority (see suiteRunPriorityLaunch). Foreground runs are never
@@ -2538,17 +2526,8 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
                       : {}),
                     error:
                       (sleepNote ? `${sleepNote} ` : '') +
-                      cutRunSentence(cut) +
-                      // A suite stopped in the background is never sent to the background again:
-                      // the sentence says what to do, and the advice's reason (it “takes the run
-                      // off this budget and writes its output to a log”) has already happened.
-                      (cut.background
-                        ? ''
-                        : ` ${
-                            isSuiteRunCommand(command)
-                              ? SUITE_OVER_BUDGET_ADVICE
-                              : SPLIT_WORK_ADVICE
-                          }`),
+                      `${cutRunSentence(cut)} ` +
+                      (isSuiteRunCommand(command) ? SUITE_OVER_BUDGET_ADVICE : SPLIT_WORK_ADVICE),
                   }
                 }
                 // The exit file holds the PIPELINE's code: when a stage this rewrite could not

@@ -253,3 +253,100 @@ describe('edit_file / write_file results show the result', () => {
     expect(result.excerpt).toBeUndefined()
   })
 })
+
+describe('write_file diff counts the lines it changed, not the length delta', () => {
+  /** m141's file before the rewrite: `{article.favoriteLabel ?? 'Favorite'}`. */
+  const articleBefore = [
+    'export function ArticlePreview({ article }: { article: Article }) {',
+    '  return (',
+    '    <div className="article-preview">',
+    '      <button className="btn btn-outline-primary">',
+    "        {article.favoriteLabel ?? 'Favorite'}",
+    '      </button>',
+    '    </div>',
+    '  )',
+    '}',
+  ].join('\n')
+
+  /** m141's file after the rewrite: the same line, one ternary instead. */
+  const articleAfter = articleBefore.replace(
+    "{article.favoriteLabel ?? 'Favorite'}",
+    "{article.favorited ? 'Unfavorite' : 'Favorite'}",
+  )
+
+  /**
+   * Run write_file over an in-memory file and return its `diff`.
+   *
+   * @param before - The file's content before the write.
+   * @param after - The content the tool is asked to write.
+   * @returns The diff summary from the tool result.
+   */
+  async function writeDiff(
+    before: string | null,
+    after: string,
+  ): Promise<{ type: string; linesAdded: number; linesRemoved: number }> {
+    const backend = memoryBackend(before)
+    const write = buildTools(backend).find((t) => t.name === 'write_file')!
+    const result = (await write.execute({ path: 'src/ArticlePreview.tsx', content: after })) as {
+      diff: { type: string; linesAdded: number; linesRemoved: number }
+    }
+    return result.diff
+  }
+
+  it("reports m141's one-line rewrite as +1/−1 (a 0/0 result reads as a no-op)", async () => {
+    // The rewrite leaves the line count identical — the shape the length delta
+    // reported as `0/0`, telling the model its write changed nothing.
+    expect(articleAfter.split('\n').length).toBe(articleBefore.split('\n').length)
+    expect(await writeDiff(articleBefore, articleAfter)).toEqual({
+      type: 'modified',
+      linesAdded: 1,
+      linesRemoved: 1,
+    })
+  })
+
+  it('reports a whitespace-only change as +1/−1 too', async () => {
+    const before = 'a\nconst value = 1\nb'
+    const after = 'a\nconst value = 1  \nb'
+    expect(await writeDiff(before, after)).toEqual({
+      type: 'modified',
+      linesAdded: 1,
+      linesRemoved: 1,
+    })
+  })
+
+  it('reports the real counts for a block rewrite that adds a line', async () => {
+    // Two lines become three: the length delta happened to equal +1, but the
+    // lines that actually changed are all five.
+    const before = 'a\ntwo old lines\nthat are replaced\nz'
+    const after = 'a\nthree new lines\nthat replace them\nand say more\nz'
+    expect(await writeDiff(before, after)).toEqual({
+      type: 'modified',
+      linesAdded: 3,
+      linesRemoved: 2,
+    })
+  })
+
+  it('reports an insertion as +1/−0', async () => {
+    expect(await writeDiff('a\nb', 'a\ninserted\nb')).toEqual({
+      type: 'modified',
+      linesAdded: 1,
+      linesRemoved: 0,
+    })
+  })
+
+  it('reports a content-identical write as unchanged, not modified 0/0', async () => {
+    expect(await writeDiff(articleBefore, articleBefore)).toEqual({
+      type: 'unchanged',
+      linesAdded: 0,
+      linesRemoved: 0,
+    })
+  })
+
+  it('still reports a new file as created with its line count', async () => {
+    expect(await writeDiff(null, articleBefore)).toEqual({
+      type: 'created',
+      linesAdded: 9,
+      linesRemoved: 0,
+    })
+  })
+})
