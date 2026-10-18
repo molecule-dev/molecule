@@ -20,6 +20,13 @@
  * keys to the app's `locales/en/ui.ts` (and per-locale `{code}/ui.ts`) — not in
  * feature packages.
  *
+ * This is what makes a string a test suite (or a contract document) pins
+ * verbatim cheap to satisfy: write it on the FIRST pass as
+ * `t('article.favorited', undefined, { defaultValue: 'Favorited' })`. The
+ * default renders exactly that English, so the markup is right immediately and
+ * the page never needs an i18n retrofit later — and no locale entry is required
+ * for copy the suite already fixes.
+ *
  * Interpolation tokens use **DOUBLE braces** `{{var}}` — in BOTH the
  * `defaultValue` and any matching locale-file entry:
  * `t('hero', { tagline }, { defaultValue: 'Eat well — {{tagline}}' })` and
