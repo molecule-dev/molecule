@@ -56,7 +56,8 @@ import { fileURLToPath } from 'node:url'
 
 const ROOT = join(fileURLToPath(new URL('.', import.meta.url)), '..')
 const LOCALE_DIRS = [join(ROOT, 'packages/app/locales'), join(ROOT, 'packages/api/locales')]
-const SKIP = new Set(['en.ts', 'index.ts', 'types.ts'])
+// `loader.ts` is a locale bond's lazy loader (its exported list of locale codes), not a table.
+const SKIP = new Set(['en.ts', 'index.ts', 'types.ts', 'loader.ts'])
 
 /**
  * Every `{{…}}` placeholder in a value, with its raw inner text, in order.

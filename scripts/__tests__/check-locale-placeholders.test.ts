@@ -161,7 +161,10 @@ describe('the gate reads exactly what the app reads', () => {
     const src = join(pkg, 'src')
     const bond = pkg.split('/').pop() as string
     const files = SHAPE_BONDS.includes(bond)
-      ? readdirSync(src).filter((f) => f.endsWith('.ts') && f !== 'index.ts' && f !== 'types.ts')
+      ? readdirSync(src).filter(
+          // `loader.ts` is the bond's lazy loader (a list of locale codes), not a translation table.
+          (f) => f.endsWith('.ts') && f !== 'index.ts' && f !== 'types.ts' && f !== 'loader.ts',
+        )
       : ['en.ts']
     for (const file of files) targets.push(join(src, file))
   }
