@@ -82,6 +82,7 @@ function createMockAuthClient<T>(user: T | null = null): AuthClient<T> {
   const listeners = new Set<() => void>()
 
   const getState = (): AuthState<T> => ({
+    status: authenticated ? 'authenticated' : 'unauthenticated',
     initialized: true,
     authenticated,
     user: currentUser,
@@ -417,6 +418,11 @@ describe('useAuth', () => {
 
     const { result } = renderHook(() => useAuth<{ id: string }>(), { wrapper })
     expect(result.current.state.status).toBe('loading')
+    // `status` is also exposed at the top level: it is the ONE value a route guard
+    // or a page renders the session from, so it must not be reachable only through
+    // `state` (xr-molecule-flash-m177 — a page gated its first paint on its own
+    // current-user request instead of the client's status).
+    expect(result.current.status).toBe('loading')
 
     act(() => {
       state = { ...state, status: 'unavailable' }
@@ -424,6 +430,7 @@ describe('useAuth', () => {
     })
 
     expect(result.current.state.status).toBe('unavailable')
+    expect(result.current.status).toBe('unavailable')
   })
 })
 

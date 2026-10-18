@@ -216,6 +216,14 @@ export function createDefaultAuthClientWithHttpSync<
  * `${baseURL}/path` instead of the SPA's catch-all route), AND keeps
  * its bearer token in sync with auth events.
  *
+ * The auth client restores a stored token AND user SYNCHRONOUSLY, so the first
+ * render is the signed-in UI — do not gate a protected page (or a provider of
+ * yours) on a current-user request. This bond registers `whenRestored()` as the
+ * HTTP gate, so requests still wait for the background restore/verification to
+ * settle; only `useAuth().status === 'loading'` means "no decision yet"
+ * (xr-molecule-flash-m177: a page that waited on its own `/me` paid a round trip
+ * on every navigation).
+ *
  * Used by apps where molecule packages render pricing / billing /
  * other authed JSON-fetching screens that need both behaviors.
  *

@@ -46,6 +46,14 @@
  * **`getState().status` is the session state to render, in one value.**
  * `'loading'` (no decision yet) → `'authenticated'` / `'unauthenticated'`, and
  * `'unavailable'` when a stored session exists but the server could not confirm it.
+ * **A stored token AND a stored user make the FIRST render `'authenticated'`**:
+ * `initialize()` sets that state synchronously, before any request, and every
+ * verification settles behind that render. Never hold the first paint on
+ * `validateSession()` or a `/me` request of your own — a protected page then pays
+ * an API round trip on every navigation (xr-molecule-flash-m177: ~30 full page
+ * loads in one pagination spec; its four tests sat at 15.0–15.9 s of a 15 s
+ * budget and the grader timed two out). Route guards read this same `status`:
+ * wait only while it is `'loading'`.
  * `validateSession()` is the background re-check that produces the last two: call
  * it after the first render — a 401 or 403 clears the token (`'unauthenticated'`),
  * while a network failure, a 5xx, or a 404 from a wrong `currentUserEndpoint`
@@ -102,7 +110,11 @@
  * - **An API with its own auth envelope keeps this client.** `requestBody` wraps the
  *   login/register payload (`(kind, p) => ({ user: p })`), `mapAuthResponse` reads the
  *   token and user out of the answer (`(d) => ({ accessToken: d.user.token, user: d.user })`),
- *   and `authScheme: 'Token'` sends `Authorization: Token <jwt>` — both are fields of the
+ *   and `authScheme: 'Token'` sends `Authorization: Token <jwt>`. `mapAuthResponse` is the
+ *   ONE user-shape adapter: the client applies it to every answer that carries a user (login,
+ *   register, `validateSession()`, the cookie restore, a token refresh, `updateProfile()`), so
+ *   the adapted profile survives a reload instead of being replaced by the raw wire user.
+ *   Both are fields of the
  *   `AuthClientConfig` the client is CONSTRUCTED with
  *   (`setClient(createJWTAuthClient({ authScheme: 'Token', … }))` in the auth bond), not
  *   properties of a client that already exists. Do not hand-write an auth client for a spec

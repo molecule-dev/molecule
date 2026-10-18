@@ -1371,7 +1371,11 @@ describe('JWT Auth Client', () => {
       expect(client.getUser()).toEqual(mockUser)
     })
 
-    it('should clear state if stored token is expired and no refresh token', async () => {
+    it('keeps the stored session when the token is expired and nothing can verify it', async () => {
+      // Only an explicit 401/403 ends a stored session (xr-molecule-flash-m177):
+      // the stored token AND user are rendered optimistically, and an expired token
+      // with no refresh token and no cookie hint gives the server nothing to ask.
+      // The API's next 401 — or `validateSession()`/logout — decides.
       const expiredToken = createMockJWT({
         sub: mockUser.id,
         exp: Math.floor(Date.now() / 1000) - 3600,
@@ -1384,7 +1388,9 @@ describe('JWT Auth Client', () => {
       await client.initialize()
 
       expect(client.getState().initialized).toBe(true)
-      expect(client.isAuthenticated()).toBe(false)
+      expect(client.getState().status).toBe('authenticated')
+      expect(client.isAuthenticated()).toBe(true)
+      expect(client.getUser()).toEqual(mockUser)
     })
 
     it('should attempt refresh if token expired but refresh token exists', async () => {

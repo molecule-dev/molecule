@@ -13,10 +13,10 @@ import { useAuth, useTranslation } from '@molecule/app-react'
  */
 export interface AuthGuardProps {
   /**
-   * Element rendered while `useAuth().state.initialized` is `false`.
-   * Overrides the default `<div data-mol-id="auth-guard-loading">…</div>`
-   * loading tag — pass a full-page spinner or any other UI you want
-   * during the auth bootstrap window.
+   * Element rendered while `useAuth().status` is `'loading'` — no session
+   * decision yet. Overrides the default
+   * `<div data-mol-id="auth-guard-loading">…</div>` loading tag — pass a
+   * full-page spinner or any other UI you want during the auth bootstrap window.
    */
   loadingFallback?: ReactNode
   /**
@@ -54,11 +54,17 @@ export interface AuthGuardProps {
 /**
  * Route-element guard for authenticated sections of a React Router tree.
  *
- * - While `useAuth().state.initialized` is `false`, renders the
+ * - While `useAuth().status` is `'loading'` (no session decision yet), renders the
  *   `loadingFallback` (or the default `<div data-mol-id="auth-guard-loading">{t('common.loading')}</div>`).
  * - If the user is not authenticated, redirects to `loginPath` carrying
  *   the attempted location in `state.from` for post-login restoration.
  * - Otherwise renders `children` (or `<Outlet />` if none).
+ *
+ * The guard reads `status`, not `initialized`: a stored token AND user make the
+ * FIRST render `'authenticated'`, so a protected page paints immediately instead
+ * of waiting for the background verification (`validateSession()`) or a
+ * current-user round trip. `'unavailable'` (a stored session the server could not
+ * confirm) counts as signed in — the page renders and the API decides.
  *
  * The default loading tag carries `data-mol-id="auth-guard-loading"`
  * so AI agents and e2e tests can target it reliably. When the caller
@@ -75,7 +81,7 @@ export function AuthGuard({
   onAuthenticated,
   children,
 }: AuthGuardProps = {}): ReactNode {
-  const { isAuthenticated, state } = useAuth()
+  const { isAuthenticated, status } = useAuth()
   const { t } = useTranslation()
   const location = useLocation()
   const lastAuthRef = useRef(false)
@@ -88,7 +94,7 @@ export function AuthGuard({
     lastAuthRef.current = isAuthenticated
   }, [isAuthenticated, onAuthenticated])
 
-  if (!state.initialized) {
+  if (status === 'loading') {
     return (
       loadingFallback ?? (
         <div data-mol-id="auth-guard-loading">

@@ -123,6 +123,23 @@ const sameUserData = (left: unknown, right: unknown, depth = 0): boolean => {
 }
 
 /**
+ * What a cookie-restore probe learned, so its caller can tell "there was nothing to
+ * ask" from "the server rejected the session" and "the server did not answer".
+ *
+ * @template T - The user profile the API returns.
+ */
+interface SessionCookieRestore<T> {
+  /** The user the server returned, already in the app's profile shape, or `null`. */
+  user: T | null
+  /** Whether a current-user request was sent at all. */
+  attempted: boolean
+  /** Whether the server rejected the cookie (401/403) — the session is dead. */
+  rejected: boolean
+  /** What went wrong when a request was sent but no user came back. */
+  error?: string
+}
+
+/**
  * Creates a simple JWT-based auth client.
  *
  * This is a basic implementation that can be extended or replaced
@@ -302,6 +319,37 @@ export const createJWTAuthClient = <
   const mapResult = (data: unknown): AuthResult<T> =>
     (config.mapAuthResponse ? config.mapAuthResponse(data) : data) as AuthResult<T>
 
+  /**
+   * The user a current-user answer carries, passed through the SAME
+   * `mapAuthResponse` that turns a login/register answer into the app's profile
+   * shape. Session validation and the cookie restore adopt a user too, and their
+   * answer is the raw wire user — storing it as-is replaced the adapted profile a
+   * sign-in had cached, so after a reload the app was authenticated without the
+   * `id`/`name` it derives from the adapter (xr-molecule-flash-m184: the username
+   * and profile link disappeared although `GET /user` answered 200).
+   *
+   * A mapper written for a login envelope may not be able to read a bare
+   * current-user answer; when it throws or yields no user, the answer is used as
+   * given — exactly what every path did before this helper.
+   *
+   * @param data - The parsed current-user (or refresh) response body.
+   * @param fallback - The user to keep when no mapping applies.
+   * @returns The user in the app's profile shape.
+   */
+  const mapCurrentUser = (data: unknown, fallback: T | null): T | null => {
+    if (!config.mapAuthResponse) return fallback
+    try {
+      const mapped = config.mapAuthResponse(data)
+      return (mapped?.user as T | undefined) ?? fallback
+    } catch (error) {
+      logger.debug(
+        'mapAuthResponse could not read the user in this answer; using it as given',
+        error,
+      )
+      return fallback
+    }
+  }
+
   const fetchAPI = async <R>(endpoint: string, options: RequestInit = {}): Promise<R> => {
     const url = baseURL + endpoint
     const headers: Record<string, string> = {
@@ -364,16 +412,19 @@ export const createJWTAuthClient = <
   //
   // Shared by initialize() (reload/deep-link restore) and refresh() (see the
   // no-refresh-token fallback there).
-  const restoreFromSessionCookie = async (): Promise<T | null> => {
+  const restoreFromSessionCookie = async (): Promise<SessionCookieRestore<T>> => {
     const hasSessionHint =
       typeof document !== 'undefined' && /(?:^|;\s*)mol_auth=1(?:;|$)/.test(document.cookie)
-    if (!hasSessionHint) return null
+    if (!hasSessionHint) return { user: null, attempted: false, rejected: false }
     try {
       const result = await fetchAPI<{ user?: T }>(currentUserEndpoint, {
         method: 'GET',
         credentials: 'include',
       })
-      const restoredUser = (result?.user ?? null) as T | null
+      const rawUser = (result?.user ?? null) as T | null
+      // The same adapter a sign-in's answer goes through — this answer is the
+      // wire shape too, and storing it raw dropped the adapted identity.
+      const restoredUser = rawUser ? mapCurrentUser(result, rawUser) : null
       if (restoredUser && shouldRestoreUser && !shouldRestoreUser(restoredUser)) {
         // The server DOES have a session (e.g. an anonymous/guest one), but the
         // app says it must not count as a signed-in client. Stay logged out and
@@ -381,13 +432,14 @@ export const createJWTAuthClient = <
         // httpOnly session cookie is untouched and keeps authenticating API
         // calls (a guest's projects still work).
         clearSessionHintCookie()
-        return null
+        return { user: null, attempted: true, rejected: false }
       }
       if (restoredUser) {
         tokenStorage.setUser(restoredUser)
         setState({ authenticated: true, user: restoredUser })
-        return restoredUser
+        return { user: restoredUser, attempted: true, rejected: false }
       }
+      return { user: null, attempted: true, rejected: false }
     } catch (error) {
       const httpStatus = (error as { status?: number }).status
       // Only a REJECTED cookie (401/403) proves the hint stale: the session
@@ -395,7 +447,7 @@ export const createJWTAuthClient = <
       // later loads skip a guaranteed-401 probe; the next login re-sets it.
       if (httpStatus === 401 || httpStatus === 403) {
         clearSessionHintCookie()
-        return null
+        return { user: null, attempted: true, rejected: true }
       }
       // Every other failure says nothing about the cookie. A 404 means the
       // configured `currentUserEndpoint` does not exist (a config error the app
@@ -410,8 +462,18 @@ export const createJWTAuthClient = <
       } else {
         logger.debug('Session restore skipped — the server could not confirm the cookie', error)
       }
+      return {
+        user: null,
+        attempted: true,
+        rejected: false,
+        error:
+          httpStatus === 404
+            ? 'The current-user endpoint was not found. Serve the route or set currentUserEndpoint to it; the stored session was kept.'
+            : error instanceof Error
+              ? error.message
+              : 'The session could not be confirmed',
+      }
     }
-    return null
   }
 
   // The body of `initialize()`, kept separate so the client can record the in-flight
@@ -422,32 +484,85 @@ export const createJWTAuthClient = <
     const user = tokenStorage.getUser<T>()
 
     if (token && user) {
+      // A stored token AND a stored user ARE the session this client holds: set
+      // it — synchronously, before the first `await` — so the first render is the
+      // signed-in UI and no page has to wait for a verification round trip. Every
+      // verification below settles BEHIND that render; only an explicit 401/403
+      // ends the session (the same classification `validateSession` uses). A page
+      // that waited on its own `/me` call before painting paid a full API round
+      // trip on every navigation (xr-molecule-flash-m177: ~30 page loads in one
+      // pagination spec, its four tests at 15.0–15.9 s of a 15 s budget).
+      setState({
+        initialized: true,
+        authenticated: true,
+        user,
+      })
+
       if (!isTokenExpired(token)) {
-        setState({
-          initialized: true,
-          authenticated: true,
-          user,
-        })
         scheduleRefresh()
         return
       }
 
-      // Token expired, try to refresh
+      // The token is expired, or carries no readable `exp` (an opaque session
+      // token: `isTokenExpired` cannot tell). Confirm the session behind the
+      // render — never in front of it.
       const refreshToken = tokenStorage.getRefreshToken()
       if (refreshToken) {
         try {
           await client.refresh()
           setState({ initialized: true })
           return
-        } catch (err) {
-          logger.warn('Initial token refresh failed', err)
-          tokenStorage.clear()
+        } catch (error) {
+          const httpStatus = (error as { status?: number }).status
+          // Only the server REJECTING the refresh token proves the session dead.
+          // A network drop or a 5xx is not about the credential, and it used to
+          // sign the user out here (the m159 class).
+          if (httpStatus === 401 || httpStatus === 403) {
+            logger.warn('Initial token refresh was rejected; signing out', error)
+            tokenStorage.clear()
+            setState({
+              initialized: true,
+              authenticated: false,
+              user: null,
+              status: 'unauthenticated',
+            })
+            return
+          }
+          logger.warn(
+            'Initial token refresh failed; keeping the stored session until the API rejects it',
+            error,
+          )
         }
       }
+
+      // [M1-1] Cookie-restore — this is what keeps a refresh / deep-link logged
+      // in under the in-memory-token model. See restoreFromSessionCookie above.
+      const outcome = await restoreFromSessionCookie()
+      if (outcome.rejected) {
+        // The only other proof of this session was rejected by the server.
+        tokenStorage.clear()
+        setState({ initialized: true, authenticated: false, user: null, status: 'unauthenticated' })
+        return
+      }
+      if (outcome.attempted && !outcome.user) {
+        // The server could not confirm the session — keep the stored token and
+        // user, and say the session is unconfirmed instead of signing out over a
+        // network failure, a 5xx, or a misplaced current-user route.
+        setState({
+          initialized: true,
+          status: 'unavailable',
+          error: outcome.error ?? 'The session could not be confirmed',
+        })
+        return
+      }
+      // Nothing to ask (no refresh token, no cookie hint) or the cookie restored
+      // the session: keep the optimistic state.
+      setState({ initialized: true })
+      return
     }
 
-    // [M1-1] Cookie-restore — this is what keeps a refresh / deep-link logged
-    // in under the in-memory-token model. See restoreFromSessionCookie above.
+    // No stored user: there is no session to paint, so this load stays `'loading'`
+    // until the cookie-restore decides it.
     await restoreFromSessionCookie()
     setState({ initialized: true })
   }
@@ -470,6 +585,9 @@ export const createJWTAuthClient = <
     },
 
     setSession: (session) => {
+      // NOT passed through `mapAuthResponse`: a seed is not an API answer, it is
+      // the profile the caller already built in this client's shape. Mapping it
+      // would adapt an adapted profile a second time.
       tokenStorage.setAccessToken(session.accessToken)
       if (session.refreshToken !== undefined) {
         tokenStorage.setRefreshToken(session.refreshToken)
@@ -623,10 +741,10 @@ export const createJWTAuthClient = <
         // (the auth modal's finishAuth, the upgrade-tab focus-return) threw
         // 'No refresh token available' — which silently aborted the modal's
         // signup/login flow right after the account was created.
-        const restoredUser = await restoreFromSessionCookie()
-        if (restoredUser) {
+        const outcome = await restoreFromSessionCookie()
+        if (outcome.user) {
           emitEvent({ type: 'refresh' })
-          return { user: restoredUser }
+          return { user: outcome.user }
         }
         throw new I18nError('auth.error.noRefreshToken', undefined, 'No refresh token available')
       }
@@ -636,21 +754,25 @@ export const createJWTAuthClient = <
         body: JSON.stringify({ refreshToken }),
       })
 
+      // The refresh answer carries the user too, in the same wire shape a
+      // sign-in's does — route it through the same mapper so a token refresh
+      // cannot replace the adapted profile with the raw one.
+      const user = mapCurrentUser(result, (result?.user ?? null) as T | null)
       tokenStorage.setAccessToken(result.accessToken || null)
       if (result.refreshToken) {
         tokenStorage.setRefreshToken(result.refreshToken)
       }
-      tokenStorage.setUser(result.user)
+      if (user) tokenStorage.setUser(user)
 
       setState({
         authenticated: true,
-        user: result.user,
+        user,
       })
 
       emitEvent({ type: 'refresh' })
       scheduleRefresh()
 
-      return result
+      return { ...result, user: user ?? result.user }
     },
 
     async requestPasswordReset(data: PasswordResetRequest): Promise<void> {
@@ -673,10 +795,13 @@ export const createJWTAuthClient = <
         body: JSON.stringify(data),
       })
 
-      tokenStorage.setUser(result)
-      setState({ user: result })
+      // The profile route answers with the wire shape as well; map it like every
+      // other answer that replaces the cached user.
+      const user = mapCurrentUser(result, result) ?? result
+      tokenStorage.setUser(user)
+      setState({ user })
 
-      return result
+      return user
     },
 
     async changePassword(oldPassword: string, newPassword: string): Promise<void> {
@@ -722,7 +847,11 @@ export const createJWTAuthClient = <
         // session still valid?" — the background check `initialize()` does not do
         // (it restores from storage without a request by design).
         const result = await fetchAPI<{ user?: T }>(currentUserEndpoint, { method: 'GET' })
-        const user = (result?.user ?? tokenStorage.getUser<T>()) as T | null
+        // The answer is the wire user, not the app's adapted profile: pass it
+        // through the same `mapAuthResponse` a sign-in uses before storing it
+        // (xr-molecule-flash-m184 — a reload replaced the adapted user with the
+        // raw one and the profile link disappeared).
+        const user = mapCurrentUser(result, (result?.user ?? tokenStorage.getUser<T>()) as T | null)
         if (user) {
           tokenStorage.setUser(user)
           setState({

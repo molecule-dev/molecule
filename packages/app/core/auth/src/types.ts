@@ -373,6 +373,19 @@ export interface AuthClient<
 
   /**
    * Initializes auth state (e.g., from stored tokens).
+   *
+   * With a stored token AND a stored user it marks the session `'authenticated'`
+   * SYNCHRONOUSLY — before its first `await` — so the first render is the
+   * signed-in UI and no page waits on a verification round trip. Any check
+   * (a refresh, the cookie-restore probe) settles behind that render, and only an
+   * explicit 401/403 ends the session; a network/5xx/404 failure keeps it and
+   * reports `'unavailable'`. With no stored user the client stays `'loading'`
+   * until the cookie restore decides.
+   *
+   * Do not put this call (or a `/me` request of your own) in front of the first
+   * render, and do not render a loading screen over a session it just restored:
+   * `whenRestored()` already resolves as soon as the restore has settled, and the
+   * HTTP gate built on it holds requests for exactly that window.
    */
   initialize(): Promise<void>
 
@@ -566,9 +579,23 @@ export interface AuthClientConfig {
   requestBody?: (kind: 'login' | 'register', payload: Record<string, unknown>) => unknown
 
   /**
-   * Turn the API's login/register answer into the client's
+   * Turn an answer that carries a user into the client's
    * `{ accessToken, refreshToken?, user }` (default: the answer as given).
    * RealWorld, for example: `(data) => ({ accessToken: data.user.token, user: data.user })`.
+   *
+   * It is the ONE user-shape adapter, and the client applies it on EVERY path
+   * that adopts a user from an API answer — `login()`, `register()`,
+   * `validateSession()`, the cookie restore `initialize()`/`refresh()` run, the
+   * token-refresh answer, and `updateProfile()`. Those answers carry the raw wire
+   * user (a current-user route typically answers a bare `{ user }`), so applying
+   * the same mapping is what keeps the adapted profile after a reload instead of
+   * replacing it with the unadapted one (xr-molecule-flash-m184). A mapper that
+   * cannot read a given answer (it throws, or returns no `user`) leaves that
+   * answer's user as it came.
+   *
+   * It is NOT applied to `setSession()` or `setUser()`: those receive a profile
+   * the caller already built in this client's shape, not a wire answer.
+   *
    * @param data - The parsed response body.
    * @returns The auth result.
    */

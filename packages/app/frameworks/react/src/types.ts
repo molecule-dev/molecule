@@ -164,6 +164,13 @@ export interface UseAuthOptions {
  * Hook result for useAuth.
  */
 export interface UseAuthResult<T = unknown> {
+  /**
+   * The session state as one value — render from this instead of combining
+   * `initialized`/`authenticated`/`loading`. A stored token AND user make it
+   * `'authenticated'` on the first render; only `'loading'` means "no decision
+   * yet", so a route guard waits on that and nothing else.
+   */
+  status: AuthState<T>['status']
   state: AuthState<T>
   login: AuthClient<T>['login']
   logout: AuthClient<T>['logout']

@@ -100,6 +100,10 @@ export function useAuth<T = unknown>(options?: UseAuthOptions): UseAuthResult<T>
   const setUser = useCallback((user: T | null) => client.setUser(user), [client])
 
   return {
+    // The single value to render from. A stored token AND user make it
+    // `'authenticated'` on the FIRST render (the client restores synchronously);
+    // only `'loading'` means no decision yet, so a guard waits on that alone.
+    status: state.status,
     state,
     login,
     logout,
