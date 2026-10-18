@@ -1063,6 +1063,64 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
     return result
   }
 
+  // ── Binary reads ───────────────────────────────────────────────
+
+  /** Extensions whose files are never text: a `read_file` on one is refused by name. */
+  const BINARY_FILE_EXTENSIONS = new Set([
+    'avif',
+    'gif',
+    'gz',
+    'ico',
+    'jpeg',
+    'jpg',
+    'otf',
+    'pdf',
+    'png',
+    'tgz',
+    'ttf',
+    'wasm',
+    'webp',
+    'woff',
+    'woff2',
+    'zip',
+  ])
+  /** How many chars of a read are inspected for binary markers. */
+  const BINARY_SAMPLE_CHARS = 512
+  /**
+   * A replacement character (a byte UTF-8 could not decode) marks binary only in
+   * bulk: one literal U+FFFD in a source string is ordinary text.
+   */
+  const BINARY_MIN_REPLACEMENTS = 8
+  const BINARY_REPLACEMENT_DENSITY = 0.05
+
+  /**
+   * The kind of a BINARY file, or `null` for text.
+   *
+   * `read_file` asks the backend for a string, so a PNG comes back as UTF-8
+   * replacement characters and used to be handed to the model whole — 21,191
+   * chars of unreadable bytes it cannot look at, ~12k tokens per read, asked for
+   * twice in one run (xr-molecule-flash-m155 +09:58). A known binary extension is
+   * refused by name; a file without one is caught from the bytes themselves, by
+   * a NUL byte or by the density of replacement characters in its first
+   * {@link BINARY_SAMPLE_CHARS} chars.
+   *
+   * @param path - The already-resolved path.
+   * @param content - The content the backend decoded as UTF-8.
+   * @returns The binary kind to name (e.g. `png`, `binary data`), or `null` for text.
+   */
+  function binaryFileKind(path: string, content: string): string | null {
+    const ext = posix.extname(path).slice(1).toLowerCase()
+    if (BINARY_FILE_EXTENSIONS.has(ext)) return ext
+    const sample = content.slice(0, BINARY_SAMPLE_CHARS)
+    if (sample.includes('\u0000')) return 'binary data'
+    let replacements = 0
+    for (const char of sample) if (char === '\uFFFD') replacements += 1
+    return replacements >= BINARY_MIN_REPLACEMENTS &&
+      replacements / sample.length >= BINARY_REPLACEMENT_DENSITY
+      ? 'binary data'
+      : null
+  }
+
   // ── Empty-read verification ────────────────────────────────────
 
   /**
@@ -1247,6 +1305,20 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           ...(verdict.content === '' ? { empty: true } : {}),
           ...(verdict.note ? { note: verdict.note } : {}),
         })
+      }
+      // A binary file decoded as UTF-8 is unreadable by definition — say what it
+      // is instead of returning the bytes (see binaryFileKind).
+      const binaryKind = binaryFileKind(path, content)
+      if (binaryKind) {
+        // The read already happened, so the decoded length is the fallback size;
+        // `wc -c` gives the file's real byte count when the backend can run it.
+        const bytes = (await probeFileSize(path)) ?? content.length
+        return {
+          error:
+            `${path} is a binary file (${binaryKind}, ${Math.max(1, Math.round(bytes / 1024))} KB). ` +
+            `read_file returns text only — to look at a page use screenshot_preview; to inspect an ` +
+            `image you produced, measure it in a script and print the numbers (its size, pixel counts).`,
+        }
       }
       if (content.length > MAX_READ_SIZE)
         return {

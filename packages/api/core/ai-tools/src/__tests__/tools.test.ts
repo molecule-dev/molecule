@@ -2135,6 +2135,55 @@ describe('search excludes (VS Code search.exclude semantics)', () => {
 // tools could not express, so the executor shelled out despite a prompt rule
 // forbidding exactly that in capital letters.
 
+// xr-molecule-flash-m155 +09:58: two `read_file` calls on a `.png` returned the
+// file's raw bytes as 21,191 and 24,934 chars of replacement characters — ~46 KB
+// of context the model cannot look at, spent asking for an image.
+describe('read_file refuses binary files', () => {
+  function binaryBackend(content: string): ExecutionBackend {
+    return {
+      projectRoot: '/test',
+      readFile: vi.fn().mockResolvedValue(content),
+      writeFile: vi.fn().mockResolvedValue(undefined),
+      deleteFile: vi.fn().mockResolvedValue(undefined),
+      readDir: vi.fn().mockResolvedValue([]),
+      run: vi.fn().mockResolvedValue({ stdout: '', stderr: '', exitCode: 0 }),
+    }
+  }
+
+  it('names a .png by kind and size instead of returning its bytes', async () => {
+    // A real PNG decodes as U+FFFD + "PNG" + control bytes + NULs.
+    const png = '\uFFFDPNG\r\n\u001a\n' + '\u0000'.repeat(1000) + 'IDATx\uFFFDeff'
+    const readFile = buildTools(binaryBackend(png)).find((t) => t.name === 'read_file')!
+    const result = (await readFile.execute({ path: 'logo.png' })) as {
+      error?: string
+      content?: string
+    }
+    expect(result.content).toBeUndefined()
+    expect(result.error).toContain('logo.png is a binary file (png, 1 KB)')
+    expect(result.error).toContain('read_file returns text only')
+    expect(result.error).toContain('screenshot_preview')
+    expect(result.error).toContain('measure it in a script')
+  })
+
+  it('catches binary content at a path with no binary extension', async () => {
+    const blob = '\u0000\u0001binary\u0000payload\u0000' + '\u0000'.repeat(64)
+    const readFile = buildTools(binaryBackend(blob)).find((t) => t.name === 'read_file')!
+    const result = (await readFile.execute({ path: 'assets/blob' })) as { error?: string }
+    expect(result.error).toContain('is a binary file (binary data')
+  })
+
+  it('still reads a source file that contains a literal U+FFFD in a string', async () => {
+    const source = "export const label = 'caf\uFFFD'\n"
+    const readFile = buildTools(binaryBackend(source)).find((t) => t.name === 'read_file')!
+    const result = (await readFile.execute({ path: 'src/labels.ts' })) as {
+      content?: string
+      error?: string
+    }
+    expect(result.error).toBeUndefined()
+    expect(result.content).toBe(source)
+  })
+})
+
 describe('read_file windows', () => {
   it('returns the whole small file on the second window of it', async () => {
     const readFile = buildTools(windowBackend(120)).find((t) => t.name === 'read_file')!
