@@ -54,6 +54,30 @@ export interface ExecutionBackend {
 }
 
 /**
+ * The supplied suite's own settings, put back on a run whose runner config changes them.
+ *
+ * A graded suite is walked by the grader under its own per-test budget, worker count and
+ * timeouts. An executor's run that reads a config setting different numbers measures a run the
+ * grader never sees: a shorter budget fails tests the graded walk passes, a longer one passes
+ * tests the graded walk times out on. The platform that knows the suite supplies these values
+ * before the run ({@link ToolBuildConfig.suiteBudget}); the shared tool puts the flags on the
+ * runner's own command line, where Playwright lets them win over every config file.
+ */
+export interface SuiteBudgetPin {
+  /**
+   * The Playwright flags that carry the suite's own settings onto the command
+   * (`--timeout=15000`, `--workers=1`), as the consumer's own scan reads them. Empty when the
+   * difference is in settings no flag carries — the pin is then the sentence alone.
+   */
+  flags: string[]
+  /**
+   * One sentence for the run's result: this run uses the suite's own budget, and which settings
+   * a config keeps because Playwright has no flag for them.
+   */
+  note: string
+}
+
+/**
  * Configuration for building the tool set.
  * Allows consumers to customize security, callbacks, and tool selection.
  */
@@ -157,6 +181,23 @@ export interface ToolBuildConfig {
    * @returns The quoted titles the request carves out.
    */
   excludedTestTitles?: () => readonly string[]
+
+  /**
+   * The supplied suite's own budget, when the Playwright config a command would load sets
+   * different settings, asked BEFORE the run executes. The consumer knows where the suite and its
+   * base config live; this shared package does not, so the reading is the consumer's and the
+   * mechanics — putting the flags on the runner's own arguments, before the pipeline and outside
+   * any redirect or group closer — are this tool's.
+   *
+   * Called for a Playwright suite command only, and only the LAST suite step is touched. A run
+   * that already keeps the suite's settings, or a sandbox with no supplied suite, answers `null`.
+   * Unset (or a hook that throws) changes nothing: the command runs as the model wrote it.
+   *
+   * @param command - The shell command, as the model sent it.
+   * @param cwd - The resolved working directory it will run in.
+   * @returns The flags and the sentence, or null when nothing is put back.
+   */
+  suiteBudget?: (command: string, cwd: string) => Promise<SuiteBudgetPin | null | undefined>
 
   /** Post-write hook (e.g. auto-format via Prettier/ESLint). Called after every write_file/edit_file. */
   onAfterWrite?: (path: string) => Promise<void>

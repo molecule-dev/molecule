@@ -762,6 +762,91 @@ export function repeatedSuiteRunError(command: string): string | null {
   )
 }
 
+/** A flag with its value, as {@link suiteRunBudgetCommand} writes it: `--timeout=15000`. */
+const BUDGET_FLAG = /^(--[A-Za-z][\w-]*)=(\S+)$/
+
+/**
+ * The statement the suite runner occupies, and where its own arguments end.
+ *
+ * The LAST suite statement, wherever it sits: unlike a reporter or `--retries=0` (which only make
+ * sense on the run a launcher measures), the suite's budget belongs on the run itself even when
+ * another command follows it (`… ; npm run build`).
+ */
+function suiteRunnerArguments(command: string): { start: number; end: number; at: number } | null {
+  const pipeline = lastSuiteRun(command)
+  const runner = pipeline ? pipeline.located[pipeline.at] : undefined
+  if (!runner || runner.start === null || runner.end === null) return null
+  const start = runner.start
+  const end = runner.end
+  const at = statementArgumentEnd(command, start, end)
+  if (at === null) return null
+  return { start, end, at }
+}
+
+/**
+ * A command with the supplied suite's own settings written back onto its runner as Playwright
+ * flags, and the flags that could not be placed.
+ *
+ * The grader walks the suite under its OWN budget, so a run whose runner config sets a different
+ * timeout or worker count measures a run the grader never sees (xr-molecule-flash-m169: a 60 s
+ * wrapper config produced a green local proof the official 15 s grader then failed). Playwright
+ * lets a command-line flag win over every config file, so the suite's values are put on the
+ * runner's own arguments — written where {@link statementArgumentEnd} places them, never after a
+ * pipe, redirect or group closer. Only the command's LAST suite step is touched: that is the run
+ * every launch site measures.
+ *
+ * A flag the command already carries is REWRITTEN in place (last occurrence wins, as it does for
+ * Playwright); a flag it does not carry is inserted at the end of the runner's arguments. A
+ * command whose runner cannot be placed is returned exactly as written, with every flag reported
+ * as unplaced, so the caller states the fact instead of claiming a pin it did not make.
+ *
+ * @param command - The shell command about to run.
+ * @param flags - The flags to put on it, each as `--name=value`.
+ * @returns The command to run, the flags placed on it, and the ones it could not carry.
+ */
+export function suiteRunBudgetCommand(
+  command: string,
+  flags: readonly string[],
+): { command: string; placed: string[]; unplaced: string[] } {
+  const placed: string[] = []
+  const unplaced: string[] = []
+  let out = command
+  for (const flag of flags) {
+    const parts = BUDGET_FLAG.exec(flag)
+    if (parts === null) {
+      unplaced.push(flag)
+      continue
+    }
+    const name = parts[1] ?? ''
+    const value = parts[2] ?? ''
+    const run = suiteRunnerArguments(out)
+    if (run === null) {
+      unplaced.push(flag)
+      continue
+    }
+    // `--name=value` and `--name value` alike; the last occurrence is the one Playwright uses.
+    // The value is digits (milliseconds, worker counts), so a percentage or an expression is
+    // left alone rather than half-rewritten.
+    const written = new RegExp(
+      `(?:^|[\\s;&|(])${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?:=|\\s+)(['"]?)(\\d[\\d_]*)(?![\\w%.])`,
+      'g',
+    )
+    const text = out.slice(run.start, run.at)
+    let last: RegExpExecArray | null = null
+    for (let m = written.exec(text); m !== null; m = written.exec(text)) last = m
+    if (last !== null) {
+      const digits = last[2] ?? ''
+      const at = run.start + last.index + last[0].length - digits.length
+      out = `${out.slice(0, at)}${value}${out.slice(at + digits.length)}`
+      placed.push(`${name}=${value}`)
+      continue
+    }
+    out = `${out.slice(0, run.at)} ${flag}${out.slice(run.at)}`
+    placed.push(flag)
+  }
+  return { command: out, placed, unplaced }
+}
+
 /**
  * The command with the `timeout <N>` wrapper lifted off the statement that runs the suite, and the
  * bound that was lifted.

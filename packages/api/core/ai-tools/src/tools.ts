@@ -535,6 +535,7 @@ import {
   SMALL_FILE_WHOLE_CHARS,
   streamingBackgroundCommand,
   stripControlChars,
+  suiteRunBudgetCommand,
   type SuiteRunPipelinePlacement,
   suiteRunPipelinePlacement,
   suiteRunPriorityLaunch,
@@ -550,6 +551,18 @@ import {
  * command asked for more than the tool's ceiling, before handing back a task id.
  */
 const OVER_CEILING_GRACE_MS = 45_000
+
+/**
+ * The machine-readable mark on a result whose run carried the supplied suite's own settings
+ * ({@link ToolBuildConfig.suiteBudget}) — the flags actually written, so a consumer's notes can
+ * treat those settings as equal to the suite's instead of re-reading the config.
+ *
+ * @param pinned - The flags put on the command.
+ * @returns The result field, or nothing when no flag was placed.
+ */
+function suiteBudgetField(pinned: readonly string[]): Record<string, unknown> {
+  return pinned.length === 0 ? {} : { suiteBudget: { pinned: [...pinned] } }
+}
 
 /**
  * The closing advice on an over-budget message for a command that is not a test
@@ -2639,6 +2652,32 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         }
       }
 
+      // The supplied suite's own budget. A run whose runner config sets a different per-test
+      // timeout or worker count measures a run the grader never sees: xr-molecule-flash-m169 wrote
+      // a 60 s wrapper config, the platform proved the suite on it, and the official 15 s grader
+      // then failed five tests the proof could never show. The suite's values are put back on the
+      // runner's own arguments — the one place Playwright lets them win over every config — and the
+      // result carries the sentence. The consumer reads the configs (it knows where the suite and
+      // its base live); this tool only writes the flags where they belong. Before the background
+      // branch, so a task launch and a foreground run carry them alike.
+      let budgetNote: string | null = null
+      let budgetPinned: string[] = []
+      if (config?.suiteBudget !== undefined && isPlaywrightRunCommand(command)) {
+        try {
+          const pin = await config.suiteBudget(command, cwd)
+          if (pin !== null && pin !== undefined) {
+            budgetNote = pin.note
+            if (pin.flags.length > 0) {
+              const pinned = suiteRunBudgetCommand(command, pin.flags)
+              command = pinned.command
+              budgetPinned = pinned.placed
+            }
+          }
+        } catch (_error) {
+          // A consumer's scan that fails changes nothing: the command runs exactly as asked.
+        }
+      }
+
       // Detached: start it, hand back a handle, let the turn continue. A
       // command that outlives the tool's ceiling is otherwise simply lost —
       // measured across six agent runs, ten of them were killed at the
@@ -2794,6 +2833,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
                       : {}),
                     error:
                       (sleepNote ? `${sleepNote} ` : '') +
+                      (budgetNote ? `${budgetNote} ` : '') +
                       cutRunSentence(cut) +
                       // A suite stopped in the background is never sent to the background again:
                       // the sentence says what to do, and the advice's reason (it “takes the run
@@ -2823,6 +2863,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
                     : pipelineExitCodeNote(streaming.command, reported, output)
                 const notes = [
                   ...(sleepNote ? [sleepNote] : []),
+                  ...(budgetNote ? [budgetNote] : []),
                   ...streaming.changes,
                   ...(exitNote === null ? [] : [exitNote]),
                 ]
@@ -2833,6 +2874,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
                   ...(pipeNote === null ? {} : { exitCodeNote: pipeNote }),
                   ...(output.length > MAX_OUTPUT_SIZE ? { truncated: true, fullOutput: log } : {}),
                   ...(notes.length ? { note: notes.join(' ') } : {}),
+                  ...suiteBudgetField(budgetPinned),
                 }
               }
               await new Promise((r) => setTimeout(r, 1_500))
@@ -2843,8 +2885,10 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
             log,
             exitFile,
             ...(peekedTask?.slice.trim() ? { outputSoFar: sanitizeOutput(peekedTask.slice) } : {}),
+            ...suiteBudgetField(budgetPinned),
             note:
               (sleepNote ? `${sleepNote} ` : '') +
+              (budgetNote ? `${budgetNote} ` : '') +
               (overCeiling
                 ? declaredSeconds > ceilingSeconds
                   ? `This command asks for ${declaredSeconds}s, more than this tool's ${ceilingSeconds}s, and its ` +
@@ -2955,6 +2999,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
             cutRun: cut,
             error:
               (sleepNote ? `${sleepNote} ` : '') +
+              (budgetNote ? `${budgetNote} ` : '') +
               `${cutLead} ` +
               // The tool's own budget stopping a run that printed nothing: keep the sentence that
               // says why the output is empty, since nothing else in the result can say it.
@@ -2987,9 +3032,10 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           exitCode: result.exitCode,
           ...(exitCodeNote === null ? {} : { exitCodeNote }),
           ...(peekedTask?.slice.trim() ? { outputSoFar: sanitizeOutput(peekedTask.slice) } : {}),
-          ...(sleepNote || ceilingNote || traced.change
+          ...suiteBudgetField(budgetPinned),
+          ...(sleepNote || ceilingNote || traced.change || budgetNote
             ? {
-                note: [sleepNote, ceilingNote, traced.change].filter(Boolean).join(' '),
+                note: [sleepNote, ceilingNote, traced.change, budgetNote].filter(Boolean).join(' '),
               }
             : {}),
         }
