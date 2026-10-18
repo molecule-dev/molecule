@@ -1,5 +1,13 @@
 # @molecule/api-ai-tools
 
+## 1.9.8
+
+### Patch Changes
+
+- ac813be: A command the platform moves to the background no longer keeps the `timeout N` prefix that was written for the foreground ceiling, and a background run stopped by its own timeout is told to drop that prefix instead of being sent to the background again.
+- 01b94a9: When a traced request 404s on a path that lacks the API prefix the app's own calls carry, the failure trace note names the prefix and points at the unset HTTP client base URL instead of the route handler.
+- 1b6ee8b: A file-writing tool's `diff` now counts the lines it actually changed, so a same-length rewrite reports its added and removed lines instead of `0/0`, and a content-identical write reports `type: "unchanged"`.
+
 ## 1.9.7
 
 ### Patch Changes
