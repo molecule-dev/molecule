@@ -2578,6 +2578,60 @@ function formResetSentence(reset: FormResetEvidence): string {
 }
 
 /**
+ * Chromium's webfont decode failure: the URL it fetched, and OTS's reason.
+ *
+ * A page that serves its SPA fallback for a missing `.woff` produces exactly this line — the
+ * browser downloads `index.html` and OTS rejects the first four bytes.
+ */
+const FONT_DECODE_FAILURE =
+  /Failed to decode downloaded font:\s*(\S+)\s*\|\s*OTS parsing error:\s*(.+?)\s*$/i
+
+/**
+ * Whether an OTS `invalid sfntVersion: <n>` number is four ASCII bytes that start an HTML
+ * document (`<!do` — `0x3C21646F` is the doctype's first four bytes).
+ *
+ * @param reason - The OTS reason text after `OTS parsing error:`.
+ * @returns True when the codec read an HTML signature instead of a font signature.
+ */
+function sfntVersionIsHtml(reason: string): boolean {
+  const raw = /invalid sfntVersion:\s*(\d+)/i.exec(reason)?.[1]
+  if (raw === undefined) return false
+  const value = Number(raw)
+  if (!Number.isInteger(value) || value < 0 || value > 0xffffffff) return false
+  const magic = String.fromCharCode(
+    (value >>> 24) & 0xff,
+    (value >>> 16) & 0xff,
+    (value >>> 8) & 0xff,
+    value & 0xff,
+  )
+  return magic.startsWith('<')
+}
+
+/**
+ * One line of a failure row's `console:` list, with the webfont-decode signature explained.
+ *
+ * `Failed to decode downloaded font: <url> | OTS parsing error: invalid sfntVersion: 1008821359`
+ * is not a font to debug: the URL answered HTML (the app's `index.html`, the SPA fallback), so
+ * the file the `@font-face` names is not there. xr-molecule-flash-m186's page fetched
+ * `/fonts/ionicons.woff`, got the index document, and the note printed the raw decode error
+ * while the model went looking elsewhere.
+ *
+ * @param text - The console line, as the trace recorded it.
+ * @returns The line to print, naming the URL that served HTML when it is that failure.
+ */
+function consoleLine(text: string): string {
+  const normalized = text.replace(/\s+/g, ' ').trim()
+  const failure = FONT_DECODE_FAILURE.exec(normalized)
+  if (!failure) return normalized
+  const [, url, reason] = failure
+  if (!sfntVersionIsHtml(reason)) return normalized
+  return (
+    `${url} answered the app's index.html, not a font — the file is missing from ` +
+    `\`app/public/\` (or the asset import); copy/import it`
+  )
+}
+
+/**
  * The note a failed suite run's result carries: what each failing test's page actually sent, and
  * what came back.
  *
@@ -2922,7 +2976,7 @@ export function failureTraceNote(
       parts.push(
         `console: ${item.console
           .slice(0, 2)
-          .map((text) => text.replace(/\s+/g, ' ').trim().slice(0, 160))
+          .map((text) => consoleLine(text).slice(0, 160))
           .join(' | ')}`,
       )
     // A request from another browser context the test opened is not the failing action's effect:

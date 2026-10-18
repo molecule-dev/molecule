@@ -832,6 +832,44 @@ describe('failureTraceNote — which half of the wire refused the request (m148 
 })
 
 /**
+ * X0 xr-molecule-flash-m186 (+15:52): every failing row carried
+ * `Failed to decode downloaded font: http://127.0.0.1:4173/fonts/ionicons.woff | OTS parsing
+ * error: invalid sfntVersion: 1008821359` and nothing named it. The URL had answered the SPA's
+ * `index.html` — 1008821359 is 0x3C21646F, `<!do` — so the file the `@font-face` named was
+ * missing, and the run replaced the icon elements instead of loading the font.
+ */
+describe('failureTraceNote — a font URL that answered index.html (m186 +15:52)', () => {
+  const traced: TraceArtifact = {
+    spec: 'e2e/url-navigation.spec.ts',
+    line: 206,
+    requests: [
+      { method: 'GET', path: '/api/articles?limit=10&offset=10', status: 200, type: 'fetch' },
+    ],
+    console: [
+      'Failed to decode downloaded font: http://127.0.0.1:4173/fonts/ionicons.woff | OTS parsing error: invalid sfntVersion: 1008821359',
+    ],
+  }
+
+  it('names the URL and says it answered index.html, not a font', () => {
+    const note = String(failureTraceNote([traced], 'the deployed app'))
+    expect(note).toContain(
+      "http://127.0.0.1:4173/fonts/ionicons.woff answered the app's index.html, not a font",
+    )
+    expect(note).toContain('the file is missing from `app/public/`')
+    expect(note).not.toContain('OTS parsing error')
+  })
+
+  it('leaves a font signature OTS rejected for another reason alone', () => {
+    // 0x774F4646 = "wOFF": a real font that failed to parse is not the HTML fallback.
+    const woff =
+      'Failed to decode downloaded font: /fonts/x.woff | OTS parsing error: invalid sfntVersion: 2001548358'
+    const note = String(failureTraceNote([{ ...traced, console: [woff] }], 'the deployed app'))
+    expect(note).toContain('OTS parsing error')
+    expect(note).not.toContain('answered the app')
+  })
+})
+
+/**
  * X0 xr-molecule-flash-m165 (+10:22): `navigation.spec.ts:160` failed inside `helpers/auth.ts`
  * `login`, whose `POST /api/users/login` answered 401 `{"errors":{"credentials":["invalid"]}}`.
  * Setup had run against `https://api.realworld.show/api` (the command set `BASE_URL` but no
