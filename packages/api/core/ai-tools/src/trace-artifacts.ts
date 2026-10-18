@@ -1522,6 +1522,9 @@ function authRefusalAdvice(items: readonly TraceArtifact[]): string {
     for (const request of item.requests) {
       if (request.status !== 401 && request.status !== 403) continue
       if (sameOriginPath(request) === null) continue
+      // A 4xx on the logout endpoint is the shape the row itself answers: the auth client
+      // ignores it and clears the session, and the page owes the navigation (m156).
+      if (isLogoutRequest(request)) continue
       const key = `${request.status} ${request.sentAuthorization ? (request.authorization ?? 'header') : 'none'} ${request.sentCookie ? 'cookie' : ''}`
       if (seen.has(key)) continue
       seen.add(key)
@@ -1530,6 +1533,45 @@ function authRefusalAdvice(items: readonly TraceArtifact[]): string {
     }
   }
   return sentences.length === 0 ? '' : ` ${sentences.join(' ')}`
+}
+
+/**
+ * Whether a request went to an auth client's logout endpoint. The client's default
+ * `logoutEndpoint` is `/users/logout` (`@molecule/app-auth`), and a project may name its own
+ * (`/auth/logout`), so the last segment is what identifies it — never a literal path.
+ *
+ * @param request - One request a trace recorded.
+ * @returns True for a POST to a path ending in `/logout`.
+ */
+function isLogoutRequest(request: TraceRequest): boolean {
+  if (request.method !== 'POST') return false
+  return /\/(?:users\/)?logout$/i.test(requestPath(request))
+}
+
+/**
+ * The sentence a 4xx on the auth client's logout endpoint owes when the page then stayed put.
+ *
+ * `@molecule/app-auth`'s `logout()` calls the endpoint inside a `.catch` and clears the session in
+ * `finally` (`packages/app/core/auth/src/client.ts`): a 401 there is EXPECTED on a sign-out and is
+ * not the failure. What the test waits for is the URL moving, which the page has to do itself.
+ * xr-molecule-flash-m156 (+24:02 → +33:52) read `POST /api/users/logout → 401` as a broken
+ * endpoint, added a backend logout route, and paid a re-run and a redeploy — while the real cause
+ * was the `navigate('/')` the refactor had dropped.
+ *
+ * @param request - The 4xx logout request.
+ * @param pageUrl - The URL the page stayed at, when the trace recorded one.
+ * @returns The sentence the note appends to the row.
+ */
+function logoutIgnoredSentence(request: TraceRequest, pageUrl: string | undefined): string {
+  const where = pageUrl === undefined ? 'The page' : `\`${pageUrl}\``
+  return (
+    `The ${request.status} on \`${requestLabel(request)}\` is ignored by the auth client — ` +
+    '`logout()` catches that call and clears the session in `finally` (`@molecule/app-auth`), so ' +
+    'the request is not what broke the test and the API is not the fix; do not add or change a ' +
+    `logout route. ${where} stayed on the same URL: the page has to navigate itself after ` +
+    "`logout()` (call `navigate('/')`, or the route the suite waits for) in the handler that " +
+    'signs out.'
+  )
 }
 
 /**
@@ -1747,10 +1789,18 @@ export function failureTraceNote(
   // own `Authorization` record says whether the CLIENT attached the token at all (m148 +29:18).
   const authRefusals = failedRequests.filter(
     (request) =>
-      sameOriginPath(request) !== null && (request.status === 401 || request.status === 403),
+      sameOriginPath(request) !== null &&
+      (request.status === 401 || request.status === 403) &&
+      // A 4xx on the logout endpoint is not a credential refusal to diagnose: the auth client
+      // ignores it and clears the session anyway, and the row says so itself (m156).
+      !isLogoutRequest(request),
   )
   const everyFailureAuth =
     failedRequests.length > 0 && authRefusals.length === failedRequests.length
+  // Every recorded failure is the logout endpoint answering 4xx: the row's own sentence explains
+  // it, and neither the handler lead nor the credential reading applies (m156 +24:02).
+  const onlyLogoutFailures =
+    failedRequests.length > 0 && failedRequests.every((request) => isLogoutRequest(request))
   const authAdvice = authRefusalAdvice(traced)
   // The stalled-navigation reading, per traced test: non-null only when the RUNNER says this
   // test's failing operation is a navigation and a document subresource still pending at the end
@@ -1833,6 +1883,21 @@ export function failureTraceNote(
             : `the page stayed at ${step.pageAfter}`,
         )
       }
+      // A 4xx on the logout endpoint with the page unmoved is not a backend failure: the auth
+      // client swallows the call and clears the session, and the URL can only move if the page
+      // navigates itself (xr-molecule-flash-m156 +24:02: the refactor dropped `navigate('/')` and
+      // the run went and added a logout route instead).
+      const stepLast = stepRequests.length > 0 ? stepRequests[stepRequests.length - 1] : undefined
+      if (
+        stepLast !== undefined &&
+        stepLast.status >= 400 &&
+        stepLast.status < 500 &&
+        isLogoutRequest(stepLast) &&
+        step.pageBefore !== undefined &&
+        step.pageAfter !== undefined &&
+        step.pageBefore === step.pageAfter
+      )
+        parts.push(logoutIgnoredSentence(stepLast, step.pageAfter))
     } else if (lead !== undefined) {
       parts.push(leadRequestLine(lead))
       room -= 1
@@ -1950,14 +2015,19 @@ export function failureTraceNote(
     (anyFailed
       ? everyFailureLacksPrefix
         ? ''
-        : everyFailureAuth
-          ? // Every failure was a credential refusal: the handler is not the problem, and the
-            // auth advice already names what is (m148 was sent to the handler six walks running).
-            authAdvice
-          : 'A click that changed nothing is usually one of these requests failing, not the selector: ' +
-            'read the handler this route reaches in your own source, and stop `catch`-ing the request of a ' +
-            'user action silently — log it.' +
-            authAdvice
+        : onlyLogoutFailures
+          ? // The rows already say it: a 4xx on the logout endpoint is ignored by the auth client
+            // and the page's own navigation is the missing step. The handler lead would send the
+            // run at the backend (m156 +33:52 added a logout route).
+            ''
+          : everyFailureAuth
+            ? // Every failure was a credential refusal: the handler is not the problem, and the
+              // auth advice already names what is (m148 was sent to the handler six walks running).
+              authAdvice
+            : 'A click that changed nothing is usually one of these requests failing, not the selector: ' +
+              'read the handler this route reaches in your own source, and stop `catch`-ing the request of a ' +
+              'user action silently — log it.' +
+              authAdvice
       : anyStalled
         ? report.productionBuildAdvised
           ? 'No listed request failed — none got a 4xx/5xx or a network error — but a navigation ' +

@@ -2041,3 +2041,56 @@ describe('failureTraceNote — a 404 that never reached the API prefix (m145)', 
     expect(note).not.toContain('without the `/api` prefix')
   })
 })
+
+describe('a 4xx on the logout endpoint with the page unmoved (xr-molecule-flash-m156 +24:02)', () => {
+  /** The failing step m156's trace carried: the logout click, its 401, and a page that stayed. */
+  const logoutRequest = {
+    method: 'POST',
+    path: '/api/users/logout',
+    status: 401,
+    type: 'fetch',
+    got: 'Unauthorized',
+  } as const
+  const logoutTrace = (pageAfter = '/settings'): TraceArtifact => ({
+    spec: 'e2e/auth.spec.ts',
+    line: 19,
+    requests: [{ ...logoutRequest }],
+    lastAction: {
+      api: 'Frame.click',
+      start: 100,
+      end: 150,
+      requests: [{ ...logoutRequest }],
+      pageBefore: '/settings',
+      pageAfter,
+    },
+    console: [],
+    actions: [{ api: 'Frame.click', start: 100, end: 150 }],
+  })
+
+  it('says the auth client ignores it and the page has to navigate itself', () => {
+    const note = String(failureTraceNote([logoutTrace()], 'https://app.apps.mlcl.dev'))
+    expect(note).toContain('POST /api/users/logout → 401')
+    expect(note).toContain('is ignored by the auth client')
+    expect(note).toContain('clears the session in `finally`')
+    expect(note).toContain('the page has to navigate itself after `logout()`')
+    // The backend is explicitly not the fix (m156 added a logout route and paid a redeploy).
+    expect(note).toContain('do not add or change a logout route')
+    // The generic 401 reading (the client never attached the token) is not said about a logout.
+    expect(note).not.toContain('with NO `Authorization` header')
+  })
+
+  it('says nothing when the page moved after the logout', () => {
+    const note = String(failureTraceNote([logoutTrace('/')], 'https://app.apps.mlcl.dev'))
+    expect(note).toContain('the page then navigated to /')
+    expect(note).not.toContain('is ignored by the auth client')
+  })
+
+  it('keeps the ordinary 401 reading for a request that is not the logout endpoint', () => {
+    const item = logoutTrace()
+    item.requests[0]!.path = '/api/user'
+    item.lastAction!.requests[0]!.path = '/api/user'
+    const note = String(failureTraceNote([item], 'https://app.apps.mlcl.dev'))
+    expect(note).not.toContain('is ignored by the auth client')
+    expect(note).toContain('with NO `Authorization` header')
+  })
+})
