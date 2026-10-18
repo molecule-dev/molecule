@@ -27,24 +27,26 @@
  * `setupHttpDefault()`), and a gate installed on the throwaway client the auth
  * bond saw would be silently lost.
  *
- * ## A request the gate is waiting for must opt out
+ * ## The gate's own restore requests are never held
  *
- * `awaitAuthGate` holds every request while the gate is pending — including one the gate
- * itself depends on. A gate that waits for a session restore whose own request goes through
- * the SAME client waits on itself: the restore's `GET /users/me` is held by the gate, the
- * restore's promise cannot settle, and nothing but the timeout releases anything (X1
- * xr-molecule-flash-m97 lost ~4 min to exactly this — an app registering
- * `setAuthGate(() => whenSettled())` over a restore that fetched through its own client, with
- * every request stalling the full bound and only a console warning to show for it). So a
- * request the gate's restore makes must pass `skipAuthGate: true`
- * (`RequestConfig.skipAuthGate`).
+ * `awaitAuthGate` holds every request while the gate is pending — except the ones the gate's
+ * settle function issues itself. Those are part of the restore it is waiting for; holding them
+ * makes the gate wait on itself, and nothing but the timeout releases anything (X1
+ * xr-molecule-flash-m97 and xr-molecule-flash-m173 both lost minutes to this: an app
+ * registering `setAuthGate(() => restoreSession())` over a restore that fetched through the
+ * same client, every page held for the full bound, and 917 `GET /api/user` requests named by
+ * one console line). So `setAuthGate(() => restoreSession())` works as written when
+ * `restoreSession` calls the gated client.
  *
- * Which held request is the gate's own is NOT detectable here: the gate is arbitrary code
- * returning a promise, so a request cannot be attributed to the async chain that awaits it —
- * and browsers have no async-context API (`AsyncContext` is not shipped) to ask. Releasing
- * requests merely because the gate is pending and they carry no token would drop exactly the
- * first-paint requests the gate exists to hold. The opt-out is therefore the fix, and a
- * timeout with requests held is reported as an error naming it.
+ * "Issued by the gate" means issued while the settle function is running: the client's
+ * `request()` reaches `awaitAuthGate` before its first `await`, so a restore's call is made in
+ * the settle function's own synchronous execution. A restore that awaits something else first
+ * (a storage read, a `Promise.resolve()`) and only then calls the client issues its request
+ * from a later continuation, which nothing can attribute to the gate — browsers ship no
+ * async-context API (`AsyncContext`/`AsyncLocalStorage`) to ask, and releasing requests merely
+ * because the gate is pending would drop exactly the first-paint requests the gate exists to
+ * hold (m95). That request must pass `skipAuthGate: true` (`RequestConfig.skipAuthGate`), and
+ * a timeout with requests held is reported at error level naming it.
  *
  * @module
  */
@@ -73,6 +75,27 @@ const heldRequests = new Map<symbol, string>()
  * gates. Cleared when the same gate later releases a request normally.
  */
 let reportedStall: (() => Promise<void>) | null = null
+
+/**
+ * The settle-function invocation requests are currently waiting on, shared by every request
+ * that arrives while the gate is pending.
+ *
+ * Without it each held request re-invokes the gate, and a gate that issues a request on every
+ * call floods the network: the m97 shape measured 855 `fetch` calls for one page (`task-auth-
+ * gate-deadlock.report.md`). `null` when no invocation is in flight; `setAuthGate` clears it
+ * so a re-registered gate is never shared with the old one's waiters.
+ */
+let inFlightGate: Promise<void> | null = null
+
+/**
+ * True only while the gate's settle function is executing synchronously.
+ *
+ * A request that reaches `awaitAuthGate` in this window was issued BY the restore — the fetch
+ * client's `request()` awaits the gate before anything else, so the call is made in the settle
+ * function's own execution. Holding it would make the gate wait on itself (see the module
+ * doc); requests issued after the function awaits something else are held as usual.
+ */
+let gateSettling = false
 
 /**
  * How long a request may be held by the gate before it is sent anyway.
@@ -105,10 +128,20 @@ const GATE_TIMEOUT_MS = 3_000
  * immediately when no restore is in flight, so registering it never makes a
  * request wait longer than the restore it was about to race anyway.
  *
- * A gate whose restore sends its OWN request through the gated client deadlocks — the
- * gate holds the request it is waiting for. That request must pass `skipAuthGate: true`
- * (see `RequestConfig.skipAuthGate`); `@molecule/app-auth`'s own restore does not
- * need it because it uses `fetch` rather than the bonded client.
+ * Waiting for the restore does NOT attach its token: a separately created HTTP
+ * client needs `createDefaultHttpClientWithAuthBearer({ baseURL,
+ * getToken: () => authClient.getAccessToken(), authScheme })` from
+ * `@molecule/app-bonds-default-react` (or the auth client built with
+ * `createDefaultAuthClientWithHttpSync`, which mirrors the token into the
+ * bonded client) plus `setAuthGate(() => authClient.whenRestored())`.
+ *
+ * The restore's own requests are never held: a request the settle function issues while it
+ * runs goes out immediately, so `setAuthGate(() => restoreSession())` cannot deadlock even
+ * when `restoreSession` calls the gated client. A restore that awaits something else first
+ * (a storage read, a `Promise.resolve()`) issues its request from a later continuation, which
+ * the gate cannot recognize — that request needs `skipAuthGate: true` (see
+ * `RequestConfig.skipAuthGate`). `@molecule/app-auth`'s own restore needs neither because it
+ * uses `fetch` rather than the bonded client.
  *
  * @param next - The gate, or `null` to clear a previously registered one.
  *
@@ -121,6 +154,7 @@ const GATE_TIMEOUT_MS = 3_000
  */
 export const setAuthGate = (next: (() => Promise<void>) | null): void => {
   gate = next
+  inFlightGate = null
   reportedStall = null
 }
 
@@ -134,21 +168,70 @@ const describeRequest = (request?: AuthGateRequest): string =>
     : 'a request'
 
 /**
+ * How many held request names the stalled-gate report prints before summarizing the rest.
+ *
+ * The report is console output, and every reader of it truncates: molecule-dev's route walk
+ * keeps the first 200 characters of a console error, so the sentence naming the fix has to
+ * come first — and the request list is capped so the message stays readable when a deadlocked
+ * gate has held hundreds of requests (xr-molecule-flash-m173: 917 `GET /api/user`).
+ */
+const MAX_NAMED_HELD_REQUESTS = 5
+
+/**
  * Reports a gate that timed out while holding requests: once per stuck gate, at error level
  * so it reaches the page's error console and any error transport — a console warning on a
  * deployed URL reads as "the site is slow", which is what the gate itself was added for.
+ *
+ * Leads with the cause and the fix, then names at most `MAX_NAMED_HELD_REQUESTS` distinct
+ * requests and counts the rest: an unbounded join buried the fix clause behind 900 names in
+ * xr-molecule-flash-m173, and no reader of the line ever reached it.
  */
 const reportStalledGate = (stuck: () => Promise<void>): void => {
   if (reportedStall === stuck) return
   reportedStall = stuck
-  const held = [...heldRequests.values()].join(', ')
+  const names = [...new Set(heldRequests.values())]
+  const shown = names.slice(0, MAX_NAMED_HELD_REQUESTS)
+  const more = heldRequests.size - shown.length
   logger.error(
-    `The auth gate has not settled after ${GATE_TIMEOUT_MS}ms and ${heldRequests.size} request(s) ` +
-      `were held by it (${held}); sending them without waiting. If the gate waits for a session ` +
-      `restore that makes its own request through this HTTP client, that request is being held by ` +
-      `the gate waiting for it: send it with \`skipAuthGate: true\`, or clear the gate with ` +
-      `\`setAuthGate(null)\` if nothing restores a session.`,
+    `The auth gate is waiting on itself: its restore's request is held by it. Send that ` +
+      `request with \`skipAuthGate: true\`, or clear the gate with \`setAuthGate(null)\` if ` +
+      `nothing restores a session. Held ${heldRequests.size} request(s) for ` +
+      `${GATE_TIMEOUT_MS}ms${shown.length ? `: ${shown.join(', ')}` : ''}` +
+      `${more > 0 ? ` (and ${more} more)` : ''}.`,
   )
+}
+
+/**
+ * Starts the gate's settle function — once, shared by every request that arrives while it is
+ * pending — turning a rejection (or a synchronous throw) into a logged warning so a failed
+ * restore releases its waiters instead of rejecting them.
+ *
+ * `gateSettling` is true only for the function's synchronous execution: the IIFE runs
+ * `current()` up to its first `await` before this call returns, and any request the restore
+ * issues there (the gated client's `request()` awaits the gate before anything else) bypasses
+ * the gate instead of waiting on the invocation it belongs to.
+ */
+const invokeGate = (current: () => Promise<void>): Promise<void> => {
+  if (inFlightGate) return inFlightGate
+
+  let invocation: Promise<void>
+  gateSettling = true
+  try {
+    invocation = (async () => current())()
+  } finally {
+    gateSettling = false
+  }
+
+  const shared = invocation.catch((error) => {
+    logger.warn('The auth gate rejected; sending the request without waiting for it', {
+      error,
+    })
+  })
+  inFlightGate = shared
+  void shared.then(() => {
+    if (inFlightGate === shared) inFlightGate = null
+  })
+  return shared
 }
 
 /**
@@ -174,6 +257,10 @@ export const awaitAuthGate = async (request?: AuthGateRequest): Promise<void> =>
   const current = gate
   if (!current) return
 
+  // Issued while the gate's settle function is running: part of the restore it is settling,
+  // never held by it. See `invokeGate` and the module doc.
+  if (gateSettling) return
+
   const token = Symbol('held-request')
   heldRequests.set(token, describeRequest(request))
 
@@ -181,13 +268,10 @@ export const awaitAuthGate = async (request?: AuthGateRequest): Promise<void> =>
   let timedOut = false
   try {
     await Promise.race([
-      // `(async () => current())()` also turns a gate that throws SYNCHRONOUSLY into a rejection:
-      // a gate is someone else's code, and no shape of it may reject the request it was holding.
-      (async () => current())().catch((error) => {
-        logger.warn('The auth gate rejected; sending the request without waiting for it', {
-          error,
-        })
-      }),
+      // One invocation, shared: `invokeGate` also turns a gate that throws SYNCHRONOUSLY into
+      // a rejection — a gate is someone else's code, and no shape of it may reject the
+      // request it was holding.
+      invokeGate(current),
       new Promise<void>((resolve) => {
         timer = setTimeout(() => {
           timedOut = true

@@ -302,3 +302,162 @@ describe('the skipAuthGate opt-out', () => {
     expect(warnSpy).not.toHaveBeenCalled()
   })
 })
+
+/**
+ * X1 xr-molecule-flash-m173 (+20:37): the app wired `setAuthGate(() => restoreSession())`,
+ * where `restoreSession` sent `GET /api/user` through the same gated client with no opt-out.
+ * Every page held its requests 3 s and looped the restore, and the only trace was one console
+ * line naming 917 held requests — cut, by every reader, before the sentence that named the
+ * fix. A request the settle function issues while it runs is part of the restore the gate is
+ * waiting for, so holding it makes the gate wait on itself.
+ */
+describe('the gate never holds its own restore request', () => {
+  const mockFetch = vi.fn()
+
+  beforeEach(() => {
+    vi.stubGlobal('fetch', mockFetch)
+    mockFetch.mockReset()
+    mockFetch.mockImplementation(() => okResponse())
+    setAuthGate(null)
+  })
+
+  afterEach(() => {
+    setAuthGate(null)
+    vi.unstubAllGlobals()
+    vi.restoreAllMocks()
+  })
+
+  it('settles when the gate’s own function calls the gated client (the m173 shape)', async () => {
+    const client = createFetchClient({ baseURL: 'http://api.test' })
+    mockFetch.mockImplementation(() => okResponse({ user: { id: 'u1' } }))
+    let restored = false
+    setAuthGate(async () => {
+      const response = await client.get<{ user: unknown }>('/users/me')
+      restored = Boolean(response.data.user)
+    })
+
+    const started = Date.now()
+    // Neither request passes `skipAuthGate`: the restore's is recognized, the page's is held
+    // until the restore settles.
+    await client.get('/profiles/alice')
+
+    expect(restored).toBe(true)
+    // The deadlock cost every request the full 3 s bound; a resolved gate costs a round trip.
+    expect(Date.now() - started).toBeLessThan(1_000)
+    expect(mockFetch.mock.calls.map((call) => String(call[0]))).toEqual([
+      'http://api.test/users/me',
+      'http://api.test/profiles/alice',
+    ])
+  })
+
+  it('invokes the settle function once for all the requests that share it', async () => {
+    // A gate that issues a request per call floods the network while it is stuck: the m97
+    // report measured 855 `fetch` calls for one page. Every request arriving while an
+    // invocation is pending waits on that invocation instead of starting another.
+    const gate = deferred()
+    let calls = 0
+    setAuthGate(() => {
+      calls += 1
+      return gate.promise
+    })
+    const client = createFetchClient({ baseURL: 'http://api.test' })
+
+    const first = client.get('/profiles/alice')
+    const second = client.get('/feed')
+    const third = client.get('/articles')
+    await Promise.resolve()
+    await Promise.resolve()
+
+    expect(calls).toBe(1)
+    gate.resolve()
+    await Promise.all([first, second, third])
+    expect(mockFetch).toHaveBeenCalledTimes(3)
+  })
+
+  it('still holds a page request that arrives while the gate is pending', async () => {
+    // The bypass is scoped to the settle function's own execution — not to everything the
+    // gate is pending over. A mount effect firing during the restore is the m95 race the
+    // gate exists to hold: releasing it would send it anonymously.
+    const gate = deferred()
+    setAuthGate(() => gate.promise)
+    const client = createFetchClient({ baseURL: 'http://api.test' })
+
+    const first = client.get('/profiles/alice')
+    await Promise.resolve()
+    await Promise.resolve()
+    expect(mockFetch).not.toHaveBeenCalled()
+
+    const second = client.get('/feed')
+    await Promise.resolve()
+    await Promise.resolve()
+    expect(mockFetch).not.toHaveBeenCalled()
+
+    gate.resolve()
+    await Promise.all([first, second])
+    expect(mockFetch).toHaveBeenCalledTimes(2)
+  })
+
+  it('still holds a restore request issued after the settle function awaits first', async () => {
+    // Only a request issued DURING the settle function is attributable to it. One issued from
+    // a later continuation is indistinguishable from a page's first-paint request (which the
+    // gate must hold), so it needs the documented opt-out — and the stall report says so.
+    vi.useFakeTimers()
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    try {
+      const client = createFetchClient({ baseURL: 'http://api.test' })
+      setAuthGate(async () => {
+        await Promise.resolve()
+        await client.get('/users/me')
+      })
+
+      const request = client.get('/profiles/alice')
+      await vi.advanceTimersByTimeAsync(3_000)
+      await request
+
+      expect(mockFetch).toHaveBeenCalledTimes(2)
+      expect(String(errorSpy.mock.calls.flat().map(String).join(' '))).toContain(
+        'skipAuthGate: true',
+      )
+    } finally {
+      errorSpy.mockRestore()
+      vi.useRealTimers()
+    }
+  })
+
+  it('leads the stall report with the fix and bounds the request list', async () => {
+    vi.useFakeTimers()
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    try {
+      setAuthGate(() => new Promise<void>(() => {}))
+      const distinct = [
+        '/api/profile',
+        '/api/feed',
+        '/api/settings',
+        '/api/articles',
+        '/api/comments',
+        '/api/tags',
+        '/api/favorites',
+      ]
+      const waits = [
+        ...Array.from({ length: 917 }, () => awaitAuthGate({ method: 'GET', url: '/api/user' })),
+        ...distinct.map((url) => awaitAuthGate({ method: 'GET', url })),
+      ]
+      await vi.advanceTimersByTimeAsync(3_000)
+      await Promise.all(waits)
+
+      expect(errorSpy).toHaveBeenCalledTimes(1)
+      const logged = errorSpy.mock.calls.flat().map(String).join(' ')
+      // molecule-dev's route walk keeps the first 200 characters of a console error: the
+      // sentence naming the fix has to be inside that prefix (m173 never saw it).
+      expect(logged.slice(0, 200)).toContain('skipAuthGate: true')
+      // 924 performed, 8 distinct names: 5 are named and the other 919 are counted, so the
+      // message stays readable instead of joining every held request.
+      expect(logged).toContain('Held 924 request(s)')
+      expect(logged).toContain('(and 919 more)')
+      expect(logged.length).toBeLessThan(600)
+    } finally {
+      errorSpy.mockRestore()
+      vi.useRealTimers()
+    }
+  })
+})

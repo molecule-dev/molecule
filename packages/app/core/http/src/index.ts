@@ -78,13 +78,15 @@
  * `createDefaultAuthClientWithHttpSync`, which mirrors the token into the bonded client), because
  * `setAuthGate` alone sends no `Authorization` header.
  *
- * **A request the gate itself depends on must opt out of it: pass `skipAuthGate: true`.** A gate
- * that waits for a session restore whose own request goes through this client waits on itself —
- * that request is held by the gate waiting for it, so the restore never settles and every request
- * the gate holds stalls until it times out (3 s). The request that restores the session for a gate
- * you registered yourself is therefore written
- * `http.get(currentUserEndpoint, { skipAuthGate: true })`; `@molecule/app-auth`'s own restore does
- * not need it (it calls `fetch`, not this client).
+ * **The gate never holds its own restore's request.** A request the settle function issues
+ * while it runs (its call reaches this client before the function awaits anything) is part of
+ * the restore it is waiting for, so it goes out immediately — `setAuthGate(() =>
+ * restoreSession())` does not deadlock even when `restoreSession` uses this client. A restore
+ * that awaits something else first and only then calls the client reaches it after that
+ * window, and that request must opt out of the gate: `http.get(currentUserEndpoint, {
+ * skipAuthGate: true })`. Without the opt-out the gate waits on itself, the restore never
+ * settles, and every request the gate holds stalls until it times out (3 s).
+ * `@molecule/app-auth`'s own restore does not need it (it calls `fetch`, not this client).
  *
  * @module
  */

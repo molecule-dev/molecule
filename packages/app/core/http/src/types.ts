@@ -36,11 +36,13 @@ export interface RequestConfig {
   /**
    * Send this request WITHOUT waiting for the session restore (the auth gate).
    *
-   * A request the gate itself depends on must set this. A gate registered with
-   * `setAuthGate` that waits for a session restore whose own request goes through this
-   * client otherwise waits on itself: the gate holds the restore's request, the restore's
-   * promise never settles, and every request on the page stalls until the gate times out —
-   * so pass `skipAuthGate: true` on the restore's own request:
+   * A request the gate's restore issues from a LATER continuation must set this. The gate
+   * recognizes a request the settle function issues while it runs and never holds it — the
+   * gated client awaits the gate before anything else, so a `restoreSession()` that calls it
+   * directly does not deadlock. But a restore that awaits something else first
+   * (`await storage.get()`), then calls the client, reaches `awaitAuthGate` after that window:
+   * the gate then waits on itself, and every request on the page stalls until the gate times
+   * out (3 s) — so pass `skipAuthGate: true` on that request:
    *
    * ```typescript
    * // the request the gate's restore makes, through the same client the gate holds back
@@ -49,7 +51,8 @@ export interface RequestConfig {
    *
    * `@molecule/app-auth`'s own restore does not need it — it sends its request with
    * `fetch`, not through this client. An app with its own session store that registers a
-   * gate with `setAuthGate` does.
+   * gate with `setAuthGate` does not need it either when its restore calls the client
+   * directly.
    */
   skipAuthGate?: boolean
 
