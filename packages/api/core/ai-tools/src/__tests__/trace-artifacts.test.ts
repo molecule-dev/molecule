@@ -2094,3 +2094,122 @@ describe('a 4xx on the logout endpoint with the page unmoved (xr-molecule-flash-
     expect(note).toContain('with NO `Authorization` header')
   })
 })
+
+/**
+ * A trace.zip whose page opened Vite's HMR socket and received the error frame that
+ * xr-molecule-flash-m157's failure notes cut off: `main.tsx` imported `/styles.css` from
+ * `public/`, the dev server answered `GET /src/main.tsx` with 500, and the socket carried
+ * `{"type":"error","err":{"message":"Cannot import non-asset file …"}}`. The raw frame's own
+ * envelope is ~35 characters, so every note stopped at `{"type":"error","err":{"message":"Cannot…`
+ * before the words that name the cause.
+ */
+function viteHmrErrorZip(): Buffer {
+  const network = [
+    {
+      type: 'resource-snapshot',
+      snapshot: {
+        _resourceType: 'document',
+        _monotonicTime: 150,
+        request: { url: 'http://localhost:5173/register', method: 'GET' },
+        response: { status: 200, content: { text: '<!doctype html><html></html>' } },
+      },
+    },
+    {
+      type: 'resource-snapshot',
+      snapshot: {
+        _resourceType: 'websocket',
+        _monotonicTime: 160,
+        request: { url: 'http://localhost:5173/?token=abc123', method: 'GET' },
+        response: { status: 101, content: { _file: 'ws-frames.jsonl' } },
+      },
+    },
+  ]
+  const frames = [
+    { type: 'send', time: 1, opcode: 1, data: '{"type":"connected"}' },
+    {
+      type: 'receive',
+      time: 2,
+      opcode: 1,
+      // Exactly the frame m157's trace recorded: Vite's HMR error, with the message, the id of
+      // the module it came from, and its location.
+      data: JSON.stringify({
+        type: 'error',
+        err: {
+          message:
+            'Cannot import non-asset file /styles.css which is inside /public. JS/CSS files ' +
+            'inside /public are copied as-is on build and can only be referenced via ' +
+            '<script src> or <link href> in html. If you want to get the URL of that file, use ' +
+            '/styles.css?url instead.',
+          id: '/workspace/my-app/app/src/main.tsx',
+          loc: { file: '/workspace/my-app/app/src/main.tsx', line: 1, column: 0 },
+        },
+      }),
+    },
+    {
+      type: 'receive',
+      time: 3,
+      opcode: 1,
+      // A non-error JSON frame: its envelope would eat the cut too, so the note prints the JSON.
+      data: JSON.stringify({
+        type: 'update',
+        updates: [{ type: 'js-update', path: '/src/App.tsx' }],
+      }),
+    },
+  ]
+  const trace = [
+    {
+      type: 'before',
+      class: 'Frame',
+      method: 'goto',
+      callId: 'call-1',
+      startTime: 100,
+      stack: [{ file: 'specs/e2e/health.spec.ts', line: 9 }],
+    },
+    { type: 'after', callId: 'call-1', endTime: 250 },
+  ]
+  const ndjson = (rows: unknown[]): string => rows.map((row) => JSON.stringify(row)).join('\n')
+  return storedZip({
+    'trace.trace': ndjson(trace),
+    'trace.network': ndjson(network),
+    'ws-frames.jsonl': ndjson(frames),
+  })
+}
+
+describe('traceArtifactsScript — a Vite HMR error frame (xr-molecule-flash-m157)', () => {
+  it('quotes err.message instead of cutting the frame’s envelope', () => {
+    const root = stalledRun(viteHmrErrorZip())
+    try {
+      const printed = readTraces(root)
+      const line = printed.split('\n').find((l) => l.startsWith('TRACE '))
+      expect(line, printed).toBeDefined()
+      const artifact = JSON.parse(String(line).slice('TRACE '.length)) as {
+        lastAction?: { requests: Array<{ path: string; got?: string }> }
+        requests: Array<{ path: string; got?: string }>
+      }
+      const socket = [...(artifact.lastAction?.requests ?? []), ...artifact.requests].find(
+        (request) => request.path.includes('/?token='),
+      )
+      expect(socket?.got).toContain('vite error: Cannot import non-asset file /styles.css')
+      expect(socket?.got).toContain('(id: /workspace/my-app/app/src/main.tsx)')
+      expect(socket?.got).toContain('(loc: /workspace/my-app/app/src/main.tsx:1:0)')
+      // The non-error JSON frame prints its own data, not its envelope.
+      expect(socket?.got).toContain(
+        '{"type":"update","updates":[{"type":"js-update","path":"/src/App.tsx"}]}',
+      )
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
+  it('writes the message into the note the failing run carries', () => {
+    const root = stalledRun(viteHmrErrorZip())
+    try {
+      const items = parseTraceArtifacts(readTraces(root))
+      const note = String(failureTraceNote(items, 'http://localhost:5173'))
+      expect(note).toContain('Cannot import non-asset file /styles.css')
+      expect(note).toContain('which is inside /public')
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+})

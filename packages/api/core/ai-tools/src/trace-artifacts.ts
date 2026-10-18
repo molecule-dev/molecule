@@ -194,6 +194,14 @@ export const MAX_TRACED_ACTIONS = 40
 /** How much of a 4xx request's sent body (or its response body) the trace read keeps. */
 export const MAX_TRACED_BODY_CHARS = 300
 
+/**
+ * How much of a websocket's frames the trace read keeps. Longer than {@link MAX_TRACED_BODY_CHARS}
+ * because a frame read back to its own message still has the message, the module id and the
+ * location to carry — Vite's transform error alone is a sentence longer than the plain body cap,
+ * and the note prints its first 120–200 characters anyway (xr-molecule-flash-m157).
+ */
+const MAX_TRACED_WEBSOCKET_CHARS = 600
+
 /** How many tests the note in a run's result names. */
 export const MAX_TRACE_NOTE_TESTS = 5
 
@@ -256,6 +264,7 @@ const MAX_NOTE = ${MAX_TRACE_NOTE_REQUESTS}
 const MAX_CONSOLE = ${MAX_TRACED_CONSOLE}
 const MAX_ACTIONS = ${MAX_TRACED_ACTIONS}
 const MAX_BODY = ${MAX_TRACED_BODY_CHARS}
+const MAX_WS = ${MAX_TRACED_WEBSOCKET_CHARS}
 const MAX_URL = 200
 // A console line that is not an error but still has to reach the note (m148): one a molecule
 // package wrote — it names the package, the \`[molecule/…]\` prefix, or the \`[scope]\` prefix
@@ -356,6 +365,51 @@ function bodyText(buf, entries, value, max) {
   if (!data) return ''
   const text = data.toString('utf8').slice(0, max)
   return text.indexOf('\\u0000') === -1 ? text : ''
+}
+
+// A websocket's content is a JSONL stream of frames (\`{type, time, opcode, data}\`), and the data
+// is the page's own message. The envelope is ~35 characters on every frame, so cutting the raw
+// stream lands inside it and never reaches the text that names a cause: xr-molecule-flash-m157's
+// Vite HMR error frame was \`{"type":"receive","time":…,"opcode":1,"data":"{\\"type\\":\\"error\\",
+// \\"err\\":{\\"message\\":\\"Cannot import non-asset file /styles.css which is inside /public …\` and
+// every note stopped at \`{"type":"error","err":{"message":"Cannot…\`. Read the frames and print
+// what they carry — a Vite error's message, id and loc, or the JSON a frame sends — so the cut
+// lands in the message itself.
+function websocketText(raw) {
+  const errors = []
+  const others = []
+  for (const line of String(raw).split('\\n')) {
+    if (!line.trim()) continue
+    let frame
+    try { frame = JSON.parse(line) } catch (e) { continue }
+    if (!frame || typeof frame.data !== 'string') continue
+    let data = frame.data
+    try { data = JSON.parse(frame.data) } catch (e) { /* a text frame: print the data as it is */ }
+    const err = data && typeof data === 'object' && data.type === 'error' ? data.err : null
+    if (err && typeof err.message === 'string') {
+      let text = 'vite error: ' + err.message
+      if (err.id !== undefined && err.id !== null && err.id !== '')
+        text += ' (id: ' + String(err.id) + ')'
+      const loc = err.loc
+      if (loc && typeof loc === 'object') {
+        const file = typeof loc.file === 'string' && loc.file ? loc.file : String(err.id || '')
+        text += ' (loc: ' + file +
+          (typeof loc.line === 'number' ? ':' + loc.line + ':' + (typeof loc.column === 'number' ? loc.column : 0) : '') +
+          ')'
+      } else if (typeof loc === 'string' && loc) text += ' (loc: ' + loc + ')'
+      errors.push(text)
+    } else if (typeof data === 'string') others.push(data)
+    else others.push(JSON.stringify(data))
+  }
+  return errors.concat(others).join(' ')
+}
+
+// What a request got back, as the note reads it: a websocket's frames are read as the messages
+// they carry (m157), every other request's body as stored.
+function gotText(buf, entries, r) {
+  if (r.type !== 'websocket') return bodyText(buf, entries, r.content, MAX_BODY)
+  const raw = bodyText(buf, entries, r.content, 8000)
+  return (websocketText(raw) || raw).slice(0, MAX_WS)
 }
 
 let origin = ''
@@ -590,7 +644,7 @@ for (const one of found.slice(0, MAX_TRACES)) {
   for (const i of actionIndexes) {
     const r = requests[i]
     const sent = bodyText(buf, entries, r.postData, MAX_BODY)
-    const got = bodyText(buf, entries, r.content, MAX_BODY)
+    const got = gotText(buf, entries, r)
     if (sent) r.sent = sent
     if (got) r.got = got
   }
@@ -598,7 +652,7 @@ for (const one of found.slice(0, MAX_TRACES)) {
     if (r.status < 400 || r.status >= 500) continue
     if (/^https?:/i.test(r.path)) continue
     const sent = bodyText(buf, entries, r.postData, MAX_BODY)
-    const got = bodyText(buf, entries, r.content, MAX_BODY)
+    const got = gotText(buf, entries, r)
     if (sent) r.sent = sent
     if (got) r.got = got
   }
@@ -668,7 +722,7 @@ for (const one of found.slice(0, MAX_TRACES)) {
     if (leadIndex !== -1) {
       const r = requests[leadIndex]
       const sent = bodyText(buf, entries, r.postData, MAX_BODY)
-      const got = bodyText(buf, entries, r.content, MAX_BODY)
+      const got = gotText(buf, entries, r)
       lead = wire(r)
       if (sent) lead.sent = sent
       if (got) lead.got = got
