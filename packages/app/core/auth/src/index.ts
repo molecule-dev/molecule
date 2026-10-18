@@ -47,8 +47,10 @@
  * `'loading'` (no decision yet) → `'authenticated'` / `'unauthenticated'`, and
  * `'unavailable'` when a stored session exists but the server could not confirm it.
  * `validateSession()` is the background re-check that produces the last two: call
- * it after the first render — a 4xx clears the token (`'unauthenticated'`), a
- * network failure or 5xx KEEPS it (`'unavailable'`, retryable). Do not build a
+ * it after the first render — a 401 or 403 clears the token (`'unauthenticated'`),
+ * while a network failure, a 5xx, or a 404 from a wrong `currentUserEndpoint`
+ * KEEPS the token and the user (`'unavailable'`, retryable; the 404 error names
+ * `currentUserEndpoint`). Do not build a
  * `validating`/`unavailable` flag beside the client: a second module-level state
  * plus its own listener set is a second session store, and it drifts from the
  * client's.

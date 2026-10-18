@@ -783,6 +783,29 @@ describe('JWT Auth Client', () => {
       }
     })
 
+    it('[m159] a 404 from the current-user route KEEPS the mol_auth hint for a later load', async () => {
+      // A 404 means `currentUserEndpoint` is misconfigured, not that the cookie
+      // is dead. Dropping the hint here would stop every later load from even
+      // trying to restore — the session could never come back once the route is
+      // fixed, without a fresh login.
+      ;(globalThis as { document?: { cookie: string } }).document = { cookie: 'mol_auth=1' }
+      mockFetch.mockImplementation(() =>
+        createMockResponse({ errors: { route: ['not found'] } }, 404),
+      )
+      const client = createJWTAuthClient({
+        baseURL: 'https://api.example.com',
+        autoRefresh: false,
+      })
+      try {
+        await client.initialize()
+        expect(client.isAuthenticated()).toBe(false)
+        const cookie = (globalThis as { document?: { cookie: string } }).document.cookie
+        expect(cookie).toContain('mol_auth=1')
+      } finally {
+        delete (globalThis as { document?: unknown }).document
+      }
+    })
+
     it('[M1-1] logs out server-side after a cookie-restored session (no in-memory token)', async () => {
       // Regression: after a reload the in-memory bearer token is gone but the
       // session is restored from the httpOnly cookie (authenticated, no token).

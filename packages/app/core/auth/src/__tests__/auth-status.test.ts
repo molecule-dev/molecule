@@ -112,7 +112,7 @@ describe('AuthState.status', () => {
     expect(client.getAccessToken()).not.toBeNull()
   })
 
-  it('validateSession clears a dead token on 4xx and becomes unauthenticated', async () => {
+  it('validateSession clears a dead token on 401 and becomes unauthenticated', async () => {
     const storage = createMockStorage()
     const client = createJWTAuthClient({ storage, currentUserEndpoint: '/user' })
     client.setAccessToken(createMockJWT())
@@ -126,6 +126,45 @@ describe('AuthState.status', () => {
     expect(client.isAuthenticated()).toBe(false)
     expect(client.getAccessToken()).toBeNull()
     expect(storage.getItem('molecule:auth:user')).toBeNull()
+  })
+
+  it('validateSession clears a dead token on 403 too', async () => {
+    const client = createJWTAuthClient({ storage: createMockStorage() })
+    client.setAccessToken(createMockJWT())
+    client.setUser(user)
+    await client.initialize()
+    mockFetch.mockImplementationOnce(() => createMockResponse({ error: 'forbidden' }, 403))
+
+    await client.validateSession()
+
+    expect(client.getState().status).toBe('unauthenticated')
+    expect(client.getAccessToken()).toBeNull()
+  })
+
+  it('validateSession KEEPS the token and user on a 404 and names currentUserEndpoint', async () => {
+    // xr-molecule-flash-m159: an app served its own current-user route and
+    // rewrote `authConfig` without `currentUserEndpoint`, so the default
+    // `/users/me` answered 404. A route-not-found says nothing about the token —
+    // the old all-4xx rule destroyed a valid stored session on every reload.
+    const storage = createMockStorage()
+    const token = createMockJWT()
+    const client = createJWTAuthClient({ storage, currentUserEndpoint: '/user' })
+    client.setAccessToken(token)
+    client.setUser(user)
+    await client.initialize()
+    mockFetch.mockImplementationOnce(() =>
+      createMockResponse({ errors: { route: ['not found'] } }, 404),
+    )
+
+    await client.validateSession()
+
+    expect(client.getState().status).toBe('unavailable')
+    expect(client.isAuthenticated()).toBe(true)
+    expect(client.getAccessToken()).toBe(token)
+    expect(client.getUser()).toEqual(user)
+    expect(client.getState().error).toContain('currentUserEndpoint')
+    // The stored user survives too, so a later reload still restores it.
+    expect(storage.getItem('molecule:auth:user')).toBe(JSON.stringify(user))
   })
 
   it('validateSession confirms a live session and caches the server user', async () => {

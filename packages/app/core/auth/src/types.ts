@@ -343,11 +343,13 @@ export interface AuthClient<
    *
    * - The server confirms the user: the session is refreshed and {@link AuthState.status}
    *   stays `'authenticated'`.
-   * - The server answers 4xx: the token is dead — the stored session is cleared and
-   *   the status becomes `'unauthenticated'`.
-   * - The server cannot answer (network failure or 5xx): the session is KEPT and the
-   *   status becomes `'unavailable'`, so the app can retry instead of signing the
-   *   user out over a bad connection.
+   * - The server answers 401 or 403: the token is dead — the stored session is
+   *   cleared and the status becomes `'unauthenticated'`.
+   * - The server cannot confirm the session — a network failure, a 5xx, or a 404
+   *   from a misconfigured {@link AuthClientConfig.currentUserEndpoint}: the
+   *   session (token AND user) is KEPT and the status becomes `'unavailable'`, so
+   *   the app can retry instead of signing the user out over a bad connection or a
+   *   route that does not exist. The 404 error names `currentUserEndpoint`.
    *
    * Do not hand-write this beside the client: a parallel token/user store for a
    * "validating"/"unavailable" flag is the race this method removes.
@@ -450,11 +452,17 @@ export interface AuthClientConfig {
   profileEndpoint?: string
 
   /**
-   * Current-user endpoint for session restore (default `/users/me`). Called by
-   * `initialize()` with credentials to re-establish the session after a full page
-   * load when the token did not survive the reload itself — i.e. when `storage` is
-   * `'memory'` and the API sets an httpOnly session cookie. Must return the user
-   * (as `user` or `props`).
+   * The API route that returns the signed-in user (default `/users/me`). Called
+   * with credentials by `initialize()` to re-establish the session after a full
+   * page load when the token did not survive the reload itself — i.e. when
+   * `storage` is `'memory'` and the API sets an httpOnly session cookie — and by
+   * {@link AuthClient.validateSession} on every reload to confirm a stored token
+   * is still valid. Must return the user (as `user` or `props`).
+   *
+   * Set it whenever the app serves its own current-user route: a wrong value
+   * answers 404, which `validateSession` reports as `'unavailable'` and keeps the
+   * stored token instead of signing the user out — but the session then stays
+   * unconfirmed.
    */
   currentUserEndpoint?: string
 

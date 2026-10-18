@@ -134,7 +134,7 @@ export const createJWTAuthClient = <
   /**
    * The status an update implies. `'unavailable'` is sticky until something
    * actually decides the session (a login/logout, a successful validation, or a
-   * 4xx that cleared the token): a later `setState({ error })` must not turn
+   * 401/403 that cleared the token): a later `setState({ error })` must not turn
    * "the server did not answer" into "nobody is signed in".
    */
   const deriveStatus = (next: AuthState<T>, explicit: AuthStatus | undefined): AuthStatus => {
@@ -239,9 +239,9 @@ export const createJWTAuthClient = <
       const key = body.errorKey ?? 'auth.error.requestFailed'
       const fallback = body.error ?? body.message ?? 'Request failed'
       const failure = new I18nError(key, undefined, fallback) as I18nError & { status?: number }
-      // The HTTP status, so a caller can tell "this token is dead" (4xx) from
-      // "the server did not answer" (5xx) — `validateSession` keeps the session
-      // on the latter and clears it on the former.
+      // The HTTP status, so a caller can tell "this token is dead" (401/403)
+      // from "the server did not answer" (5xx, network) or "the route does not
+      // exist" (404) — `validateSession` clears the session only on the first.
       failure.status = response.status
       throw failure
     }
@@ -296,13 +296,28 @@ export const createJWTAuthClient = <
         setState({ authenticated: true, user: restoredUser })
         return restoredUser
       }
-    } catch (_error) {
-      // No valid session cookie (401) or no current-user endpoint — remain
-      // logged out. This is an expected path for anonymous visitors. Drop the
-      // presence hint: a stale hint (server-side session expired, or a DB
-      // reset) would otherwise re-fire a guaranteed-401 probe on every load.
-      // The next real login re-sets it alongside the fresh cookie.
-      clearSessionHintCookie()
+    } catch (error) {
+      const httpStatus = (error as { status?: number }).status
+      // Only a REJECTED cookie (401/403) proves the hint stale: the session
+      // expired server-side, or the database was reset. Drop the hint then, so
+      // later loads skip a guaranteed-401 probe; the next login re-sets it.
+      if (httpStatus === 401 || httpStatus === 403) {
+        clearSessionHintCookie()
+        return null
+      }
+      // Every other failure says nothing about the cookie. A 404 means the
+      // configured `currentUserEndpoint` does not exist (a config error the app
+      // fixes in source — the hint must survive to retry after the fix), and a
+      // 5xx or a network drop is transient. Stay logged out for THIS load, but
+      // keep the hint so a later load can still restore the session.
+      if (httpStatus === 404) {
+        logger.warn(
+          `Session restore skipped — the current-user endpoint "${currentUserEndpoint}" was not found. Set currentUserEndpoint to your API's current-user route.`,
+          error,
+        )
+      } else {
+        logger.debug('Session restore skipped — the server could not confirm the cookie', error)
+      }
     }
     return null
   }
@@ -614,9 +629,14 @@ export const createJWTAuthClient = <
         }
       } catch (error) {
         const httpStatus = (error as { status?: number }).status
-        if (httpStatus !== undefined && httpStatus >= 400 && httpStatus < 500) {
-          // The token is dead (revoked, expired, a reset database): drop the
-          // session rather than keep sending a header the server refuses.
+        // ONLY 401 and 403 are the server rejecting this token (revoked, expired,
+        // a reset database): drop the session rather than keep sending a header
+        // the server refuses. Any other status is not about the credential —
+        // most importantly a 404, which means `currentUserEndpoint` does not
+        // exist on this API. A route-not-found neither verifies nor rejects the
+        // token, so clearing it here signed every user out of a working session
+        // over a configuration mistake.
+        if (httpStatus === 401 || httpStatus === 403) {
           tokenStorage.clear()
           setState({
             initialized: true,
@@ -626,10 +646,22 @@ export const createJWTAuthClient = <
           })
           return
         }
-        // The server could not answer. Keep the session so a later reload or a
-        // retry can restore it; say so with `unavailable` instead of signing the
-        // user out over a network failure.
-        const message = error instanceof Error ? error.message : 'Session could not be confirmed'
+        // The server could not confirm the session. Keep the token AND the user
+        // so a later reload or a retry can restore them; say so with
+        // `unavailable` instead of signing the user out over a network failure,
+        // a 5xx, or a misplaced current-user route.
+        const message =
+          httpStatus === 404
+            ? "The current-user endpoint was not found. Set currentUserEndpoint to your API's current-user route; the stored token was kept."
+            : error instanceof Error
+              ? error.message
+              : 'Session could not be confirmed'
+        if (httpStatus === 404) {
+          logger.warn(
+            `validateSession could not verify the session — the current-user endpoint "${currentUserEndpoint}" was not found. Set currentUserEndpoint to your API's current-user route; the stored token was kept.`,
+            error,
+          )
+        }
         setState({ status: 'unavailable', error: message })
       }
     },
