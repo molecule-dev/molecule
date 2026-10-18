@@ -37,12 +37,14 @@ export interface RequestConfig {
    * Send this request WITHOUT waiting for the session restore (the auth gate).
    *
    * A request the gate's restore issues from a LATER continuation must set this. The gate
-   * recognizes a request the settle function issues while it runs and never holds it — the
-   * gated client awaits the gate before anything else, so a `restoreSession()` that calls it
-   * directly does not deadlock. But a restore that awaits something else first
+   * recognizes a request the settle function issues while it runs and never holds it — this
+   * package's client awaits the gate before anything else, so a `restoreSession()` that calls
+   * it directly does not deadlock. But a restore that awaits something else first
    * (`await storage.get()`), then calls the client, reaches `awaitAuthGate` after that window:
    * the gate then waits on itself, and every request on the page stalls until the gate times
-   * out (3 s) — so pass `skipAuthGate: true` on that request:
+   * out (3 s) — so pass `skipAuthGate: true` on that request. A provider that awaits the gate
+   * inside a scheduled interceptor (the Axios bond) also reaches it after the window, so its
+   * restore's request needs the opt-out.
    *
    * ```typescript
    * // the request the gate's restore makes, through the same client the gate holds back

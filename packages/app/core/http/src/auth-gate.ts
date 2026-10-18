@@ -38,15 +38,17 @@
  * one console line). So `setAuthGate(() => restoreSession())` works as written when
  * `restoreSession` calls the gated client.
  *
- * "Issued by the gate" means issued while the settle function is running: the client's
- * `request()` reaches `awaitAuthGate` before its first `await`, so a restore's call is made in
- * the settle function's own synchronous execution. A restore that awaits something else first
- * (a storage read, a `Promise.resolve()`) and only then calls the client issues its request
- * from a later continuation, which nothing can attribute to the gate — browsers ship no
- * async-context API (`AsyncContext`/`AsyncLocalStorage`) to ask, and releasing requests merely
- * because the gate is pending would drop exactly the first-paint requests the gate exists to
- * hold (m95). That request must pass `skipAuthGate: true` (`RequestConfig.skipAuthGate`), and
- * a timeout with requests held is reported at error level naming it.
+ * "Issued by the gate" means issued while the settle function is running: this package's
+ * fetch client awaits the gate before anything else, so a restore's call is made in the settle
+ * function's own synchronous execution. A restore that awaits something else first (a storage
+ * read, a `Promise.resolve()`) and only then calls the client issues its request from a later
+ * continuation, which nothing can attribute to the gate — browsers ship no async-context API
+ * (`AsyncContext`/`AsyncLocalStorage`) to ask, and releasing requests merely because the gate is
+ * pending would drop exactly the first-paint requests the gate exists to hold (m95). A provider
+ * whose request pipeline awaits the gate in a scheduled interceptor (the Axios bond) reaches it
+ * a microtask after the settle function returns, outside the window, for the same reason. Such a
+ * request must pass `skipAuthGate: true` (`RequestConfig.skipAuthGate`), and a timeout with
+ * requests held is reported at error level naming it.
  *
  * @module
  */
