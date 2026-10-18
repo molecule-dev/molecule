@@ -28,7 +28,6 @@
  */
 
 import { locatedCommandSegments, statementArgumentEnd } from './command-position.js'
-import { isDiagnosisRun } from './suite-overlap.js'
 import { isPlaywrightRunCommand, redactSecrets } from './utilities.js'
 
 /** One request a traced page made, as `*.network` records it. */
@@ -1542,6 +1541,14 @@ export interface TraceRunReport {
    * contradicts it.
    */
   productionBuildAdvised?: boolean
+  /**
+   * The endpoints the app's own auth config names for a credential exchange — a login, a
+   * registration, a token endpoint (`loginEndpoint: '/users/login'`, resolved from the app's
+   * source). A 401/403 there answers credentials the app was ASKED to check, never a token the
+   * client failed to attach, so the note says so even when the path is mounted somewhere unusual.
+   * Empty when the caller could not read the app's config.
+   */
+  authEndpoints?: readonly string[]
 }
 
 /** The Playwright navigation calls whose wait a pending document subresource can explain. */
@@ -1812,6 +1819,73 @@ function sameOriginPath(request: TraceRequest): string | null {
 }
 
 /**
+ * The path segments a request ASKS FOR a credential through — a login, a registration, a token
+ * endpoint — as opposed to a protected resource that presents one.
+ */
+const CREDENTIAL_EXCHANGE_PATH =
+  /(?:^|\/)(?:login|log-in|signin|sign-in|register|signup|sign-up|token)(?:\/|$)/i
+
+/** The field a credential payload carries: a password, a grant, or a refresh token. */
+const CREDENTIAL_FIELD = /"(?:password|credentials|grant_type|refresh_token)"\s*:/i
+
+/** The field that pairs with a password in a login/registration body. */
+const CREDENTIAL_IDENTITY = /"(?:email|username)"\s*:/i
+
+/**
+ * Whether a request's recorded body is a credential payload — the shape a login, a registration
+ * or a token exchange sends, never a protected write (an article, a comment, a profile).
+ *
+ * @param sent - What the request sent, as the trace recorded it (bounded).
+ * @returns True for a body carrying credentials.
+ */
+function credentialExchangeBody(sent: string | undefined): boolean {
+  if (!sent) return false
+  const text = sent.slice(0, MAX_TRACED_BODY_CHARS)
+  // A password alone is a profile write as often as a login; the exchange is a password beside
+  // an identity, or a token grant.
+  if (!CREDENTIAL_FIELD.test(text)) return false
+  return (
+    CREDENTIAL_IDENTITY.test(text) || /"(?:credentials|grant_type|refresh_token)"\s*:/i.test(text)
+  )
+}
+
+/**
+ * Whether a refused request is a CREDENTIAL EXCHANGE: the app was asked to mint a token (a login,
+ * a registration, a token endpoint), so it never needed one attached.
+ *
+ * Three readings, weakest last: the app's own auth config names the endpoint (a project may mount
+ * `/session` or `/auth/signin`), the path's own last segments name it (`/users/login`), or the
+ * body is a credential payload (`{"user":{"email":…,"password":…}}` sends a registration).
+ *
+ * xr-molecule-flash-m165 (+10:22): `POST /api/users/login → 401
+ * {"errors":{"credentials":["invalid"]}}` was answered with the missing-token sentence — "the
+ * client did not attach the token … The API handler is not the problem" — for a request whose
+ * whole purpose is to obtain a token. The model read helpers and configs for 40 minutes instead of
+ * the real cause: the suite's setup had seeded `https://api.realworld.show`, not this app.
+ *
+ * @param request - The refused request (401/403).
+ * @param authEndpoints - The endpoints the app's auth config names (`/users/login`).
+ * @returns True when the request is a credential exchange.
+ */
+function isCredentialExchange(request: TraceRequest, authEndpoints: readonly string[]): boolean {
+  if (request.method !== 'POST') return false
+  const path = sameOriginPath(request)
+  if (path === null) return false
+  // The app's own config names it: matched as a path suffix, because an auth config writes the
+  // endpoint relative to its API base (`/users/login`) while the trace records the mounted path
+  // (`/api/users/login`).
+  if (
+    authEndpoints.some((endpoint) => {
+      const named = `/${String(endpoint).replace(/^\/+|\/+$/g, '')}`
+      return named.length > 1 && (path === named || path.endsWith(named))
+    })
+  )
+    return true
+  if (CREDENTIAL_EXCHANGE_PATH.test(path)) return true
+  return credentialExchangeBody(request.sent)
+}
+
+/**
  * The sentence a 401/403 on the app's own API gets: which half of the wire refused the request.
  *
  * A fixed "read the handler this route reaches" line is the wrong half for a credential refusal.
@@ -1832,6 +1906,15 @@ function sameOriginPath(request: TraceRequest): string | null {
  * sent through. When the trace carries that line, the no-header sentence names the ordering fix
  * instead of leaving the run to re-derive it.
  *
+ * xr-molecule-flash-m165 (+10:22): a `POST /api/users/login → 401
+ * {"errors":{"credentials":["invalid"]}}` is a CREDENTIAL EXCHANGE — the request is how a token is
+ * obtained, so an absent `Authorization` header is the request being what it is, not a client bug.
+ * The note said "the client did not attach the token … The API handler is not the problem" and the
+ * run went looking through the app instead of at the credentials or the setup's API origin. The
+ * exchange branch names the credentials, the account's origin, and the response body; the
+ * categorical handler sentence is gone from the no-header branch too, because a route that
+ * requires a token where the app allows anonymous access is the handler's own mistake.
+ *
  * The trace cannot name the file that made the call: a real HAR entry carries the request, response,
  * `_resourceType`, `_monotonicTime` and a frame ref, but no initiator stack. So the sentence names
  * the shared client and the auth bond instead of guessing a file.
@@ -1839,15 +1922,37 @@ function sameOriginPath(request: TraceRequest): string | null {
  * @param request - The refused request, a 401 or 403 on the app's own origin.
  * @param unbondedClient - Whether the traced page logged `no client is bonded`, which explains a
  *   request that carried no `Authorization` header.
+ * @param authEndpoints - The endpoints the app's auth config names, so a credential exchange is
+ *   recognised even under a path the segment list does not.
  * @returns The sentence the note appends.
  */
-function authRefusalSentence(request: TraceRequest, unbondedClient = false): string {
+function authRefusalSentence(
+  request: TraceRequest,
+  unbondedClient = false,
+  authEndpoints: readonly string[] = [],
+): string {
   const label = requestLabel(request)
   // The header's scheme, when it parsed; presence alone is still the server's half of the wire.
   const carried =
     request.authorization !== undefined
       ? `with \`Authorization: ${request.authorization} …\``
       : 'with an `Authorization` header'
+  // A credential exchange asks the app to MINT a token: no token is expected to be attached, so a
+  // refusal here is about the credentials themselves — never the client's omission (m165).
+  if (isCredentialExchange(request, authEndpoints)) {
+    const got = request.got
+      ? ` got ${bodyLine(redactSecrets(request.got), TRACE_NOTE_GOT_CHARS)}`
+      : ''
+    return (
+      `The browser sent \`${label}\`${got} and the API answered ${request.status} — this is a ` +
+      'credential exchange (a login/registration/token endpoint), so the client is not expected ' +
+      'to attach a token: the credentials were rejected. Check that the account the test logs in ' +
+      'with was created on THIS app — the same database and origin this run drives; a user seeded ' +
+      'somewhere else is unknown here — and read the response body’s `errors` (a login answers 401 ' +
+      '`{"errors":{"credentials":["invalid"]}}` for a wrong email/password or a user that does not ' +
+      'exist here).'
+    )
+  }
   // The console line names the mechanism the no-header branch otherwise has to guess at:
   // `getClient()` ran before `setupHttpDefault()` and the token was mirrored into the
   // client that later setup replaced (xr-molecule-flash-m156).
@@ -1888,7 +1993,6 @@ function authRefusalSentence(request: TraceRequest, unbondedClient = false): str
       ? 'The request did carry a `Cookie` header, so if this app signs in with a session cookie ' +
         'that is the credential the server did not accept. '
       : '') +
-    'The API handler is not the problem.' +
     unbonded
   )
 }
@@ -1896,15 +2000,21 @@ function authRefusalSentence(request: TraceRequest, unbondedClient = false): str
 /**
  * The note's credential-refusal advice, one sentence per distinct shape — at most two.
  *
- * The shapes are `(status, Authorization scheme, cookie present)`: m148's ten walks repeated one
- * shape (`401`, no header) on every failing test, and repeating its sentence per row would bury
- * the fact rather than state it.
+ * The shapes are `(status, Authorization scheme, cookie present, credential exchange)`: m148's ten
+ * walks repeated one shape (`401`, no header) on every failing test, and repeating its sentence per
+ * row would bury the fact rather than state it. A login and a protected request that both carry no
+ * header are DIFFERENT shapes — one is the credentials being checked, the other is a token that was
+ * never attached (m165).
  *
  * @param items - The traces the note is about.
+ * @param authEndpoints - The endpoints the app's auth config names.
  * @returns The sentences to append (each led by a space), or '' when no same-origin 401/403 was
  *   traced.
  */
-function authRefusalAdvice(items: readonly TraceArtifact[]): string {
+function authRefusalAdvice(
+  items: readonly TraceArtifact[],
+  authEndpoints: readonly string[] = [],
+): string {
   const sentences: string[] = []
   const seen = new Set<string>()
   // A page that logged `no client is bonded` explains every request it sent without a
@@ -1920,10 +2030,11 @@ function authRefusalAdvice(items: readonly TraceArtifact[]): string {
       // A 4xx on the logout endpoint is the shape the row itself answers: the auth client
       // ignores it and clears the session, and the page owes the navigation (m156).
       if (isLogoutRequest(request)) continue
-      const key = `${request.status} ${request.sentAuthorization ? (request.authorization ?? 'header') : 'none'} ${request.sentCookie ? 'cookie' : ''}`
+      const exchange = isCredentialExchange(request, authEndpoints)
+      const key = `${request.status} ${exchange ? 'exchange' : request.sentAuthorization ? (request.authorization ?? 'header') : 'none'} ${request.sentCookie ? 'cookie' : ''}`
       if (seen.has(key)) continue
       seen.add(key)
-      sentences.push(authRefusalSentence(request, unbondedClient))
+      sentences.push(authRefusalSentence(request, unbondedClient, authEndpoints))
       if (sentences.length === 2) return ` ${sentences.join(' ')}`
     }
   }
@@ -1994,6 +2105,136 @@ function tracedApiPrefixes(items: readonly TraceArtifact[]): string[] {
 }
 
 /**
+ * Every API path prefix the traces support: the one the app's client config names and the ones the
+ * traces' own same-origin requests show ({@link tracedApiPrefixes}).
+ *
+ * @param items - The traces the note is about.
+ * @param apiPrefixes - Prefixes the app's client config names (`['/api']`), never a literal.
+ * @returns The one-segment prefixes, without duplicates.
+ */
+function knownApiPrefixes(
+  items: readonly TraceArtifact[],
+  apiPrefixes: readonly string[],
+): string[] {
+  const prefixes = new Set(
+    [...apiPrefixes, ...tracedApiPrefixes(items)]
+      .map((prefix) => `/${String(prefix).replace(/^\/+|\/+$/g, '')}`)
+      .filter((prefix) => prefix !== '/'),
+  )
+  return [...prefixes]
+}
+
+/** A URL written in full (`https://api.realworld.show/api/articles`). */
+const ABSOLUTE_URL = /^[a-z][a-z0-9+.-]*:\/\//i
+
+/** A request a trace made to an API on an origin other than the page's own. */
+interface ForeignOriginRequest {
+  /** The other origin (`https://api.realworld.show`). */
+  origin: string
+  /** The app's own API prefix its path carries (`/api`). */
+  prefix: string
+  /** The first such request, for the sentence's example. */
+  request: TraceRequest
+}
+
+/**
+ * The API requests a trace made to an origin other than the page's own — set-up traffic that ran
+ * against someone else's server.
+ *
+ * The trace reader relativises every request whose origin is the page's (`pathOf`), so a request
+ * recorded with an absolute URL went to ANOTHER origin by construction. It counts as set-up/API
+ * traffic when its path carries a prefix the app's own API is known to use ({@link
+ * knownApiPrefixes}) — a CDN font or a third-party script has no `/api` under it, and with no
+ * known prefix nothing is claimed.
+ *
+ * xr-molecule-flash-m165 (+10:22): the suite's helper defaulted `API_BASE` to
+ * `https://api.realworld.show/api` and its set-up seeded rows there, while the browser drove this
+ * app — whose own `/api` answers a login for none of those users. The trace's absolute-URL rows
+ * were the evidence, and the note said nothing about them.
+ *
+ * @param items - The traces the note is about.
+ * @param apiPrefixes - Prefixes the app's client config names (`['/api']`).
+ * @returns One entry per distinct (origin, prefix), in trace order.
+ */
+function foreignOriginApiRequests(
+  items: readonly TraceArtifact[],
+  apiPrefixes: readonly string[],
+): ForeignOriginRequest[] {
+  const prefixes = knownApiPrefixes(items, apiPrefixes)
+  if (prefixes.length === 0) return []
+  const out: ForeignOriginRequest[] = []
+  const seen = new Set<string>()
+  for (const item of items) {
+    for (const request of item.requests) {
+      const raw = String(request.path ?? '')
+      if (!ABSOLUTE_URL.test(raw)) continue
+      let parsed: URL
+      try {
+        parsed = new URL(raw)
+      } catch (_error) {
+        // Not a URL this can parse: it is not evidence of another origin.
+        continue
+      }
+      const prefix = prefixes.find(
+        (one) => parsed.pathname === one || parsed.pathname.startsWith(`${one}/`),
+      )
+      if (prefix === undefined) continue
+      const key = `${parsed.origin}${prefix}`
+      if (seen.has(key)) continue
+      seen.add(key)
+      out.push({ origin: parsed.origin, prefix, request })
+    }
+  }
+  return out
+}
+
+/**
+ * The origin a run's target names, when it names one: a URL (`http://localhost:4173`), or the
+ * deployed host the note prints (`loopcheck-….apps.mlcl.dev`). Null for the note's descriptive
+ * targets ("the deployed app", "the local app").
+ *
+ * @param target - Where the run went, as {@link failureTraceNote} names it.
+ * @returns The origin, or null.
+ */
+function appOriginOfTarget(target: string): string | null {
+  const text = target.trim()
+  try {
+    if (ABSOLUTE_URL.test(text)) return new URL(text).origin
+    if (/^[a-z0-9.-]+(?::\d+)?$/i.test(text)) return new URL(`https://${text}`).origin
+  } catch (_error) {
+    // A target that is not a URL names no origin.
+  }
+  return null
+}
+
+/**
+ * The sentence naming the foreign origin a run's set-up traffic went to, and the setting that
+ * points it at this app instead.
+ *
+ * It leads the note because it is the cheapest possible wrong result: every row the suite creates
+ * lands in a database this app never reads, so the failure says nothing about the app's code.
+ * xr-molecule-flash-m165 spent the walk after its failed login reading helpers and configs for a
+ * missing token, when the command's `BASE_URL`/`API_BASE` disagreement was the cause.
+ *
+ * @param found - The foreign-origin request the trace holds.
+ * @param target - Where the run went, for the app's own origin when the note knows it.
+ * @returns The sentence, led by nothing and closed by a blank line.
+ */
+function foreignOriginSentence(found: ForeignOriginRequest, target: string): string {
+  const appOrigin = appOriginOfTarget(target)
+  const where = appOrigin ?? 'this app’s origin'
+  const apiBase = `${appOrigin ?? '<this app’s origin>'}${found.prefix}`
+  return (
+    `The suite’s setup ran against ${found.origin}, not this app ` +
+    `(\`${requestLabel(found.request)}\`) — its set-up/API traffic went to another origin while ` +
+    `this app serves its own API at \`${found.prefix}\` on ${where}. Set ` +
+    `\`API_BASE=${apiBase}\` on the run — the supplied suite reads it (verify the variable name ` +
+    `in the suite’s own helpers before writing it) — so the rows it creates are in the database ` +
+    `this app reads.\n\n`
+  )
+}
+
+/**
  * The failed 404s whose path carries none of the known API prefixes.
  *
  * Only a run where the prefix is KNOWABLE diagnoses: the caller reads it from the app's client
@@ -2009,13 +2250,8 @@ function missingApiPrefixRequests(
   items: readonly TraceArtifact[],
   apiPrefixes: readonly string[],
 ): MissingApiPrefixRequest[] {
-  const prefixes = new Set(
-    [...apiPrefixes, ...tracedApiPrefixes(items)]
-      .map((prefix) => `/${String(prefix).replace(/^\/+|\/+$/g, '')}`)
-      .filter((prefix) => prefix !== '/'),
-  )
-  if (prefixes.size === 0) return []
-  const known = [...prefixes]
+  const known = knownApiPrefixes(items, apiPrefixes)
+  if (known.length === 0) return []
   const out: MissingApiPrefixRequest[] = []
   const seen = new Set<string>()
   for (const item of items) {
@@ -2126,6 +2362,13 @@ function missingApiPrefixSentence(request: MissingApiPrefixRequest): string {
  * xr-molecule-flash-m148 (+29:18) hit this exactly: six local walks read
  * `POST …/favorite → 401 {"errors":{"token":["is missing"]}}` as a handler bug.
  *
+ * A credential EXCHANGE (a login/registration/token endpoint, read from the app's auth config, the
+ * path or the body) is never that shape: the request's purpose is to obtain a token, so an absent
+ * header is not a client omission ({@link isCredentialExchange}). xr-molecule-flash-m165's login
+ * 401 was answered as one for 40 minutes; the trace also showed the suite's SET-UP traffic going
+ * to `https://api.realworld.show/api` instead of this app, which is what the note leads with
+ * ({@link foreignOriginApiRequests}).
+ *
  * @param items - The traces {@link parseTraceArtifacts} read.
  * @param target - Where the run went — the deployed host, as the note names it.
  * @param earlierFailures - The failing `file:line`s earlier walks of this suite left, so a repeat
@@ -2205,7 +2448,13 @@ export function failureTraceNote(
   // it, and neither the handler lead nor the credential reading applies (m156 +24:02).
   const onlyLogoutFailures =
     failedRequests.length > 0 && failedRequests.every((request) => isLogoutRequest(request))
-  const authAdvice = authRefusalAdvice(traced)
+  const authAdvice = authRefusalAdvice(traced, report.authEndpoints ?? [])
+  // Set-up traffic the trace shows going to an origin other than the app's (m165): the rows it
+  // creates are not in this app's database, so the note says it before any app-side reading.
+  const foreignOrigins = foreignOriginApiRequests(traced, apiPrefixes)
+  const [firstForeign] = foreignOrigins
+  const setupOriginLead =
+    firstForeign === undefined ? '' : foreignOriginSentence(firstForeign, target)
   // The stalled-navigation reading, per traced test: non-null only when the RUNNER says this
   // test's failing operation is a navigation and a document subresource still pending at the end
   // started inside that wait ({@link stalledNavigation}).
@@ -2469,6 +2718,7 @@ export function failureTraceNote(
     : ''
   return (
     transportLead +
+    setupOriginLead +
     stalledLead +
     staleRouteLead +
     `The platform read the failing tests' own Playwright traces from the run against ${target} ` +
@@ -2678,15 +2928,21 @@ export interface DiagnosisTraceRewrite {
 }
 
 /**
- * The command a DIAGNOSIS run needs to leave a readable trace behind, when the suite's config
+ * The command a Playwright run needs to leave a readable trace behind, when the suite's config
  * would record none.
  *
  * The failing tests' requests are only readable if the run wrote them down (see the module doc),
  * and the config is where the decision about that lives — the platform does not edit the suite's
- * config, so it passes the flag instead, and only where it can do no harm: on a run narrowed to a
- * part of the suite or capped ({@link isDiagnosisRun}), never on the whole-suite proof run, and
- * never over a `--trace` the executor wrote itself. A capped walk is exactly the run whose
- * failures someone is about to work on; the proof run is graded as it is.
+ * config, so it passes the flag instead, on every Playwright run that starts tests and does not
+ * already decide its own `--trace`. That includes the whole-suite proof run, which an earlier
+ * version of this function skipped on the reasoning that its flags are graded: the flag changes
+ * what is RETAINED, not what passes. `retain-on-failure` keeps the trace only of a test that
+ * fails — Playwright records it and deletes it when the test passes (playwright's
+ * `_shouldAbandonTrace` unlinks the temporary trace files of a passing test) — so a green proof
+ * run keeps nothing extra. A failing one keeps the network log its failures need.
+ * xr-molecule-flash-m163 (+24:58) is why the proof run is no longer skipped: its one deployed
+ * failure left only an `error-context.md`, the executor spent the next calls hunting a `trace.zip`
+ * that could not exist, and then shipped a guessed fix.
  *
  * @param args - The command, the directory it starts in, and the backend's file read.
  * @returns The command to run and the sentence to report, or the command unchanged.
@@ -2697,8 +2953,6 @@ export async function diagnosisTraceCommand(args: {
   readFile: (path: string) => Promise<string>
 }): Promise<DiagnosisTraceRewrite> {
   const unchanged = { command: args.command, change: null }
-  // The proof run is the one run this must never touch: its flags are graded.
-  if (!isDiagnosisRun(args.command)) return unchanged
   if (namesTraceMode(args.command)) return unchanged
   // Only a Playwright run leaves a trace to read.
   if (!isPlaywrightRunCommand(args.command)) return unchanged
@@ -2719,7 +2973,8 @@ export async function diagnosisTraceCommand(args: {
     command: `${args.command.slice(0, at)} ${DIAGNOSIS_TRACE_FLAG}${args.command.slice(at)}`,
     change:
       `Added \`${DIAGNOSIS_TRACE_FLAG}\`: the suite's config records no trace for a failure` +
-      `${/trace:/.test(config) ? '' : ' (it sets none)'}, and this diagnosis run's failures are ` +
-      'what the platform reads the network log from. The proof run keeps the suite’s own settings.',
+      `${/trace:/.test(config) ? '' : ' (it sets none)'}, and a failing test's own network log is ` +
+      'what the platform reads the cause from. It keeps a trace only for a test that fails, so a ' +
+      'green run retains nothing.',
   }
 }

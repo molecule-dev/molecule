@@ -330,7 +330,7 @@ describe('buildTools', () => {
     now.mockRestore()
   })
 
-  // ── the trace a diagnosis run must record (trace-artifacts.ts) ─────────────
+  // ── the trace a run must record (trace-artifacts.ts) ──────────────────────
   // X1 xr-molecule-flash-m100 (+51:19) ended on three failures against the deployed URL with the
   // app swallowing the request's error; the run's own config asked for `trace: 'on-first-retry'`
   // and every run carried `--retries=0`, so no trace existed to read the network log from.
@@ -348,14 +348,17 @@ describe('buildTools', () => {
     expect(result.note).toContain('--trace=retain-on-failure')
   })
 
-  it('leaves the whole-suite proof run, and an existing --trace, exactly as sent', async () => {
+  it('adds the flag to the whole-suite proof run too, and leaves an existing --trace alone', async () => {
     const backend = mockBackend()
     backend.readFile = vi.fn(async () => "export default { use: { trace: 'on-first-retry' } }")
     const tools = buildTools(backend)
     const exec = tools.find((t) => t.name === 'exec_command')!
 
+    // xr-molecule-flash-m163 (+24:58): the whole-suite proof run's one failure left no trace, and
+    // the result pointed at a trace reading that could not exist. `retain-on-failure` keeps a
+    // trace only for a failing test, so the green proof retains nothing (tools.ts).
     await exec.execute({ command: 'npx playwright test --max-failures=0 --config p.config.ts' })
-    expect(String(backend.run.mock.calls[0]?.[0])).not.toContain('--trace')
+    expect(String(backend.run.mock.calls[0]?.[0])).toContain('--trace=retain-on-failure')
 
     await exec.execute({
       command: 'npx playwright test e2e/a.spec.ts:3 --trace=on --config p.config.ts',
@@ -2595,7 +2598,7 @@ describe('exec_command run_in_background', () => {
     // The command itself only carries the reporter and the inline-failure switch; lowering
     // priority is the launcher's.
     expect((backend.writeFile as ReturnType<typeof vi.fn>).mock.calls[0][1]).toBe(
-      'export PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE=1; npx playwright test --retries=1 --reporter=list\n',
+      'export PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE=1; npx playwright test --retries=1 --trace=retain-on-failure --reporter=list\n',
     )
     expect(r.note).toContain('lower CPU and IO priority')
   })
@@ -2633,7 +2636,7 @@ describe('exec_command run_in_background', () => {
     })) as { note: string }
     const written = (backend.writeFile as ReturnType<typeof vi.fn>).mock.calls[0][1]
     expect(written).toBe(
-      'export PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE=1; cd e2e && npx playwright test --reporter=list --retries=0 2>&1\n',
+      'export PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE=1; cd e2e && npx playwright test --trace=retain-on-failure --reporter=list --retries=0 2>&1\n',
     )
     expect(r.note).toContain('Dropped the trailing `| tail -70`')
     expect(r.note).toContain('--reporter=list')
@@ -2656,7 +2659,7 @@ describe('exec_command run_in_background', () => {
     })) as { note: string }
     const written = (backend.writeFile as ReturnType<typeof vi.fn>).mock.calls[0][1]
     expect(written).toBe(
-      'export PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE=1; cd spec/run && npx playwright test --retries=0 --reporter=list\n',
+      'export PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE=1; cd spec/run && npx playwright test --retries=0 --reporter=list --trace=retain-on-failure\n',
     )
     expect(r.note).toContain('Switched the test reporters to `--reporter=list`')
   })
@@ -2736,13 +2739,15 @@ describe('exec_command run_in_background', () => {
     expect(r.note).toContain('writes its own output to /test/out.log')
   })
 
-  it('leaves a command with its own reporter, or no tail, exactly as sent', async () => {
+  it('keeps its own reporter, adds no drop note, and gains only the trace flag', async () => {
     const backend = bgBackend()
     const tools = buildTools(backend)
     const exec = tools.find((t) => t.name === 'exec_command')!
     const command = 'npx playwright test --reporter=list > out.txt'
     const r = (await exec.execute({ command, run_in_background: true })) as { note: string }
-    expect((backend.writeFile as ReturnType<typeof vi.fn>).mock.calls[0][1]).toBe(`${command}\n`)
+    expect((backend.writeFile as ReturnType<typeof vi.fn>).mock.calls[0][1]).toBe(
+      'npx playwright test --reporter=list --trace=retain-on-failure > out.txt\n',
+    )
     expect(r.note).not.toContain('Dropped')
   })
 

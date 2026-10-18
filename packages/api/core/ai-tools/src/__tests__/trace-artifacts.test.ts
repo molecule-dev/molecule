@@ -684,7 +684,9 @@ describe('failureTraceNote — which half of the wire refused the request (m148 
       expect(note).toContain('that the token is stored where the client reads it')
       // The fix the once-only split-store note states, beside the request that proves it.
       expect(note).toContain('setAuthToken')
-      expect(note).toContain('The API handler is not the problem.')
+      // The categorical handler verdict is gone (m165): a route that demands a token where the
+      // app allows anonymous access is the handler's own mistake, and the trace cannot exclude it.
+      expect(note).not.toContain('The API handler is not the problem.')
       // The handler sentence is the wrong half of the wire and is gone.
       expect(note).not.toContain('read the handler this route reaches')
     } finally {
@@ -826,6 +828,144 @@ describe('failureTraceNote — which half of the wire refused the request (m148 
       failureTraceNote([{ ...traced, console: [] }], 'the deployed app'),
     )
     expect(withoutConsole).not.toContain('setupHttpDefault()')
+  })
+})
+
+/**
+ * X0 xr-molecule-flash-m165 (+10:22): `navigation.spec.ts:160` failed inside `helpers/auth.ts`
+ * `login`, whose `POST /api/users/login` answered 401 `{"errors":{"credentials":["invalid"]}}`.
+ * Setup had run against `https://api.realworld.show/api` (the command set `BASE_URL` but no
+ * `API_BASE`), so the account the login used was created in someone else's database. The note
+ * said "the client did not attach the token" and "The API handler is not the problem" anyway, and
+ * the run spent the next 40 minutes in helper/config/Settings code instead of fixing the command.
+ */
+describe('failureTraceNote — a rejected login is not a missing token (m165 +10:22)', () => {
+  /** The failing trace's own requests: the login refusal, and the set-up rows of another origin. */
+  const m165: TraceArtifact = {
+    spec: 'e2e/realworld-specs/navigation.spec.ts',
+    line: 160,
+    requests: [
+      {
+        method: 'POST',
+        path: '/api/users/login',
+        status: 401,
+        type: 'fetch',
+        got: '{"errors":{"credentials":["invalid"]}}',
+      },
+      {
+        method: 'POST',
+        path: 'https://api.realworld.show/api/articles',
+        status: 201,
+        type: 'fetch',
+      },
+      {
+        method: 'POST',
+        path: 'https://api.realworld.show/api/users',
+        status: 201,
+        type: 'fetch',
+      },
+    ],
+    console: [],
+  }
+
+  it('says the credentials were rejected, and leads with the setup origin', () => {
+    const note = String(
+      failureTraceNote([m165], 'loopcheck-xr-molecule-flash-m165.apps.mlcl.dev', [], ['/api']),
+    )
+    // The setup-origin fact leads: the suite seeded someone else's server.
+    expect(
+      note.startsWith('The suite’s setup ran against https://api.realworld.show, not this app'),
+    ).toBe(true)
+    expect(note).toContain('POST https://api.realworld.show/api/articles')
+    expect(note).toContain('API_BASE=https://loopcheck-xr-molecule-flash-m165.apps.mlcl.dev/api')
+    expect(note).toContain('verify the variable name in the suite’s own helpers')
+    // The login refusal is the credentials, never the client's missing header.
+    expect(note).toContain('credential exchange')
+    expect(note).toContain('the credentials were rejected')
+    expect(note).toContain('created on THIS app')
+    expect(note).toContain('{"errors":{"credentials":["invalid"]}}')
+    expect(note).not.toContain('with NO `Authorization` header')
+    expect(note).not.toContain('the client did not attach the token')
+    expect(note).not.toContain('The API handler is not the problem.')
+    expect(note).not.toContain('setAuthToken')
+  })
+
+  it('recognises an endpoint the app’s own auth config names', () => {
+    const traced: TraceArtifact = {
+      spec: 'e2e/auth.spec.ts',
+      line: 4,
+      requests: [{ method: 'POST', path: '/api/session', status: 401, type: 'fetch' }],
+      console: [],
+    }
+    const report = { authEndpoints: ['/session'] }
+    const withConfig = String(
+      failureTraceNote([traced], 'https://app.apps.mlcl.dev', [], ['/api'], report),
+    )
+    expect(withConfig).toContain('the credentials were rejected')
+    expect(withConfig).not.toContain('with NO `Authorization` header')
+
+    // Without the app's config the path says nothing, so the protected-request reading stands.
+    const withoutConfig = String(
+      failureTraceNote([traced], 'https://app.apps.mlcl.dev', [], ['/api']),
+    )
+    expect(withoutConfig).toContain('with NO `Authorization` header')
+
+    // A 403 from the same endpoint is still the credentials, not a permission verdict.
+    const forbidden: TraceArtifact = {
+      ...traced,
+      requests: [{ method: 'POST', path: '/api/session', status: 403, type: 'fetch' }],
+    }
+    const forbiddenNote = String(
+      failureTraceNote([forbidden], 'https://app.apps.mlcl.dev', [], ['/api'], report),
+    )
+    expect(forbiddenNote).toContain('the credentials were rejected')
+    expect(forbiddenNote).not.toContain('may not do it')
+  })
+
+  it('reads a credential body even when the path does not name the exchange', () => {
+    // A registration sends `{"user":{"email":…,"password":…}}` to a path a project mounted itself.
+    const traced: TraceArtifact = {
+      spec: 'e2e/register.spec.ts',
+      line: 9,
+      requests: [
+        {
+          method: 'POST',
+          path: '/api/members',
+          status: 401,
+          type: 'fetch',
+          sent: '{"user":{"email":"a@b.c","username":"a","password":"secret"}}',
+        },
+      ],
+      console: [],
+    }
+    const note = String(failureTraceNote([traced], 'https://app.apps.mlcl.dev', [], ['/api']))
+    expect(note).toContain('credential exchange')
+    expect(note).toContain('the credentials were rejected')
+    expect(note).not.toContain('with NO `Authorization` header')
+    expect(note).not.toContain('read the handler this route reaches')
+  })
+
+  it('still reads a protected request with no token as the client’s omission', () => {
+    const traced: TraceArtifact = {
+      spec: 'e2e/social.spec.ts',
+      line: 12,
+      requests: [{ method: 'POST', path: '/api/articles', status: 401, type: 'fetch' }],
+      console: [],
+    }
+    const note = String(failureTraceNote([traced], 'https://app.apps.mlcl.dev', [], ['/api']))
+    expect(note).toContain('with NO `Authorization` header')
+    expect(note).toContain('the client did not attach the token')
+    expect(note).toContain('setAuthToken')
+    expect(note).not.toContain('credential exchange')
+  })
+
+  it('claims no foreign origin when the app’s own API prefix is unknown', () => {
+    // No prefix from the app and no same-origin path to learn one from: the absolute URL alone
+    // says nothing about this app's API.
+    const note = String(failureTraceNote([m165], 'loopcheck-xr-molecule-flash-m165.apps.mlcl.dev'))
+    expect(note).not.toContain('setup ran against')
+    // The login is still a credential exchange from its own path.
+    expect(note).toContain('the credentials were rejected')
   })
 })
 
@@ -1019,7 +1159,7 @@ describe('failureTraceNote — bounded, and honest about what it has', () => {
   })
 })
 
-describe('diagnosisTraceCommand — the trace a diagnosis run must record', () => {
+describe('diagnosisTraceCommand — the trace a run must record', () => {
   /** The m100 shape: a run narrowed to the failing files, named explicitly. */
   const DIAGNOSIS =
     'cd /workspace/my-app/app && TEST_MODE=fullstack npx playwright test --config e2e/realworld.config.ts ' +
@@ -1066,11 +1206,41 @@ describe('diagnosisTraceCommand — the trace a diagnosis run must record', () =
     expect(seen).toContain('/workspace/my-app/app/e2e/realworld.config.ts')
   })
 
-  it('leaves the proof run alone', async () => {
+  it('adds the flag to the whole-suite proof run too (xr-molecule-flash-m163 +24:58)', async () => {
     const out = await diagnosisTraceCommand({
       command: PROOF,
       cwd: '/workspace/my-app/app',
       readFile: config(''),
+    })
+    // The proof run's one deployed failure left only an `error-context.md`: its config traces
+    // `on-first-retry` and the run has no retries, so no trace was kept and the executor hunted a
+    // `trace.zip` that could not exist. `retain-on-failure` keeps a trace only for a failing test,
+    // so a green proof retains nothing and a failing one leaves the log its cause is read from.
+    expect(out.command).toBe(`${PROOF} ${DIAGNOSIS_TRACE_FLAG}`)
+    expect(out.change).toContain(DIAGNOSIS_TRACE_FLAG)
+    expect(out.change).toContain('keeps a trace only for a test that fails')
+  })
+
+  it('puts the proof run’s flag inside a step its output is piped from, and the rewrite keeps it', async () => {
+    const piped = `${PROOF} 2>&1 | tail -60`
+    const traced = await diagnosisTraceCommand({
+      command: piped,
+      cwd: '/workspace/my-app/app',
+      readFile: config("use: { trace: 'on-first-retry' }"),
+    })
+    expect(traced.command).toContain(
+      `--config e2e/realworld.config.ts --retries=0 --reporter=list ${DIAGNOSIS_TRACE_FLAG} 2>&1`,
+    )
+    const streamed = streamingBackgroundCommand(traced.command)
+    expect(streamed.command).toContain(DIAGNOSIS_TRACE_FLAG)
+    expect(streamed.command).not.toContain('tail')
+  })
+
+  it('leaves a whole-suite run whose config already records traces alone', async () => {
+    const out = await diagnosisTraceCommand({
+      command: PROOF,
+      cwd: '/workspace/my-app/app',
+      readFile: config("use: { trace: 'retain-on-failure' }"),
     })
     expect(out.command).toBe(PROOF)
     expect(out.change).toBeNull()
