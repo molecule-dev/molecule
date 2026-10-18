@@ -1,5 +1,11 @@
 # @molecule/api-code-sandbox-flyio
 
+## 1.3.1
+
+### Patch Changes
+
+- cf2a646: A detached command's output is collected in length-checked chunks, so a large stdout the Fly API silently truncates is retried in smaller reads instead of being returned short.
+
 ## 1.3.0
 
 ### Minor Changes

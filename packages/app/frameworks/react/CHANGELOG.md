@@ -1,5 +1,12 @@
 # @molecule/app-react
 
+## 1.6.6
+
+### Patch Changes
+
+- f1a9581: `useAuth()` returns `status` directly, so a guard or page reads the session state without unpacking `state`.
+- a139b9c: `useAuth()` re-renders when only `status` changes, so a session check that reports `'unavailable'` with an unchanged user is no longer dropped.
+
 ## 1.6.5
 
 ### Patch Changes

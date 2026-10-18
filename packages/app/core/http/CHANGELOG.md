@@ -1,5 +1,11 @@
 # @molecule/app-http
 
+## 1.2.1
+
+### Patch Changes
+
+- dc13c70: A request the auth gate's own session restore makes is never held by the gate, so a restore that uses the HTTP client no longer deadlocks every page.
+
 ## 1.2.0
 
 ### Minor Changes

@@ -1,5 +1,18 @@
 # @molecule/api-ai-tools
 
+## 1.9.19
+
+### Patch Changes
+
+- 972d288: A whole-suite run whose first three tests, in three different spec files, each fail waiting for their own first element with nothing passing in between is stopped as a page that renders nothing — naming the page's thrown error — instead of walking the rest of the suite against it.
+- 1cc0334: A suite run piped through a chain of output filters (`grep … | head …`) is recognised as filtered, so the unfiltered command is handed back together with the pipe that cut the failure detail.
+- bd93b6b: Exports `isCredentialExchangePath`, so a failing request named only by method and path is classified as a login, registration or token endpoint.
+- c3e2188: A Playwright run launched by file (`node …/node_modules/.bin/playwright test`) is read as the same run as `npx playwright test`, so it keeps its trace, suite-budget pin and background-launch rewrites.
+- 1d272ed: `wait_for_task` reads and names the file a background command redirects its output to, and the narrowed re-run it composes writes to a fresh file instead of overwriting that log.
+- 7dca613: `wait_for_task` promises inline failure reports only for a background suite run that was actually put on the inline-failure switch, and a suite run whose output is redirected to a file and followed by a status echo is rewritten like any other run.
+- db4fb41: The suite-overlap rule has no per-run-uid exemption: two suite runs against the same app and database are serialized, because a suite's cleanup can delete public rows the other suite reads.
+- d1dcf79: A failed suite's trace note names a form field the test typed and the page submitted empty, so a form that re-seeded itself after the typing is read as the cause.
+
 ## 1.9.18
 
 ### Patch Changes

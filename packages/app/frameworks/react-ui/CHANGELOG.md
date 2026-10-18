@@ -1,5 +1,11 @@
 # @molecule/app-ui-react
 
+## 1.3.5
+
+### Patch Changes
+
+- f1a9581: `AuthGuard` renders from the session status, so a restored session paints immediately instead of waiting for a background verification.
+
 ## 1.3.4
 
 ### Patch Changes

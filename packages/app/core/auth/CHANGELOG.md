@@ -1,5 +1,12 @@
 # @molecule/app-auth
 
+## 1.5.4
+
+### Patch Changes
+
+- f1a9581: `initialize()` renders a stored token and user as authenticated on the first paint, and `mapAuthResponse` shapes the user on every answer that adopts one, including session validation, cookie restore and token refresh.
+- cb2f781: `setSession({ accessToken, user })` adopts a session an exchange outside the client already established, and a session check that returns an unchanged user no longer notifies subscribers or replaces the user object.
+
 ## 1.5.3
 
 ### Patch Changes
