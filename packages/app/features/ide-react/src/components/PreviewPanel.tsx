@@ -1046,19 +1046,38 @@ export function PreviewPanel({
   // Whenever the iframe gets a fresh src or is remounted, the onLoad flag and any
   // pending grace timer belong to the PREVIOUS load — clear them so the new load's
   // own onLoad drives the fallback.
-  useEffect(() => {
+  //
+  // Reset DURING RENDER (the same ref-sync shape used for `wakeAt`/`prevUrl` above), NOT in a
+  // passive effect: these fields describe the CURRENT document, so they must flip in the same
+  // commit that changes the document. A passive effect is scheduled on a later task than the
+  // commit, so the new document's `onLoad` can be handled BEFORE the reset runs and then be
+  // silently discarded — after which the cold-boot evaluator never arms (it requires
+  // `iframeLoadedRef`) and a genuinely dead document is never accused, while the stuck detector
+  // "retries" a load that had already succeeded (CI flake 2026-10-18, run 39098572320: the
+  // "clears the blank notice once the app confirms it rendered" wait timed out at 60s with
+  // "Retry attempt 1" on screen). A test that delivers onLoad before the mount's passive effects
+  // flush reproduces it deterministically.
+  const loadedForSrcRef = useRef(iframeSrc)
+  const loadedForMountKeyRef = useRef(iframeMountKey)
+  if (loadedForSrcRef.current !== iframeSrc || loadedForMountKeyRef.current !== iframeMountKey) {
+    loadedForSrcRef.current = iframeSrc
+    loadedForMountKeyRef.current = iframeMountKey
     iframeLoadedRef.current = false
     if (onLoadGraceRef.current) {
       clearTimeout(onLoadGraceRef.current)
       onLoadGraceRef.current = null
     }
-    return () => {
+  }
+  // The per-document fields are reset synchronously above; this is only the unmount cleanup.
+  useEffect(
+    () => () => {
       if (onLoadGraceRef.current) {
         clearTimeout(onLoadGraceRef.current)
         onLoadGraceRef.current = null
       }
-    }
-  }, [iframeSrc, iframeMountKey])
+    },
+    [],
+  )
 
   // --- When the preview is ready to SHOW, trigger fade-out ---
   // Reveal is driven by `iframeReady`, set by the `molecule:ready` handshake (always) OR the

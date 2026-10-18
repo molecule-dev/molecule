@@ -125,6 +125,39 @@ async function mountWithIframe(isBuilding: boolean): Promise<{
   return { container, iframe }
 }
 
+/**
+ * Mount the panel and return the iframe as soon as React COMMITS it — on the MutationObserver
+ * microtask that follows the DOM mutation, before the commit's passive effects have flushed
+ * (React schedules those on a later task). This is the ordering a loaded CI runner produced, and
+ * it is delivered deterministically here instead of being hoped for.
+ */
+async function mountWithIframeBeforeEffects(isBuilding: boolean): Promise<{
+  container: HTMLElement
+  iframe: HTMLIFrameElement
+}> {
+  const provider = providerAtUrl()
+  const { container } = render(
+    <Wrap provider={provider}>
+      <PreviewPanel isBuilding={isBuilding} />
+    </Wrap>,
+  )
+  const iframe = await new Promise<HTMLIFrameElement>((resolve, reject) => {
+    const giveUp = setTimeout(() => {
+      observer.disconnect()
+      reject(new Error('the preview iframe never mounted'))
+    }, 4000)
+    const observer = new MutationObserver(() => {
+      const el = container.querySelector('iframe')
+      if (!el) return
+      clearTimeout(giveUp)
+      observer.disconnect()
+      resolve(el as HTMLIFrameElement)
+    })
+    observer.observe(container, { childList: true, subtree: true })
+  })
+  return { container, iframe }
+}
+
 // TIMING: the dead-document blank notice is gated on PreviewPanel's BLANK_DEAD_MS
 // (15s since 1.0.2's proxy/Fly retuning; the 12s LOAD_RECOVER_AFTER_MS auto-reload
 // fires before it), so every positive waitFor must clear 15s by a wide margin, and
@@ -245,6 +278,21 @@ describe('PreviewPanel — no bare white screen (blank/building overlay)', () =>
     // A real render confirmation tears the notice down — the app is showing content now.
     postFromPreview({ type: 'molecule:ready' })
     await waitFor(() => expect(q(container, 'preview-blank-notice')).toBeNull(), { timeout: 4000 })
+  }, 90000)
+
+  it('honors an onLoad that lands before the mount commit finishes its effects (the loaded-CI ordering)', async () => {
+    // CI flake 2026-10-18 (run 39098572320): on a loaded runner React's passive effects for the
+    // iframe's mounting commit were still queued when the document's onLoad was handled. The
+    // per-load reset then ran AFTER the load, discarded it, and the cold-boot evaluator never
+    // armed — the notice never appeared (the panel showed "Retry attempt 1" instead). Deliver the
+    // load on the commit's MutationObserver microtask, before those effects flush, so the ordering
+    // is exercised every run instead of only under scheduler starvation.
+    const { container, iframe } = await mountWithIframeBeforeEffects(false)
+    fireEvent.load(iframe)
+    // No heartbeat: a loaded document whose inline bridge never ran. It must still be accused.
+    await waitFor(() => expect(q(container, 'preview-blank-notice')).not.toBeNull(), {
+      timeout: 60000,
+    })
   }, 90000)
 
   it('a raw document the user clicked to (feed.xml, provenance.json) is content, never a blank app', async () => {
