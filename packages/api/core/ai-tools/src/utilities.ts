@@ -404,6 +404,26 @@ const PRINTING_REPORTERS = new Set(['list', 'line', 'dot', 'basic', 'spec'])
 export const PLAYWRIGHT_FAILURES_INLINE_ENV = 'PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE'
 
 /**
+ * Whether a command step only reports or discards the status of the steps before it: `echo EXIT
+ * $?`, `echo $?`, `printf …`, `true`, `exit 0`.
+ *
+ * The shape models and the platform's own re-run notes send routinely ends on one of these —
+ * `npx playwright test … > /tmp/pw.log 2>&1; echo EXIT $?` — and reading the split's last part as
+ * the run withheld the reporter, the inline-failure switch and `--retries=0` from every one of
+ * them: the log then carried `✘` rows and nothing else while the wait note promised each failure's
+ * error under them (xr-molecule-flash-m173 +17:07, +39:14). Whitespace and a group's closing
+ * punctuation are not part of the step; {@link streamingBackgroundCommand} strips those before
+ * asking, and strips them here too for the split it is given.
+ *
+ * @param step - One statement of the command, as the `&&`/`||`/`;` split left it.
+ * @returns True when the step runs nothing but a status report.
+ */
+function isStatusOnlyStep(step: string): boolean {
+  const text = step.replace(/[\s)}]+$/, '').trim()
+  return /^(?:echo|printf)\b/.test(text) || /^true$/.test(text) || /^exit(?:\s+\S+)?$/.test(text)
+}
+
+/**
  * Rewrite a command about to run in the background so its log grows while it
  * runs. Two shapes left the log empty until exit, and an empty log is what
  * `wait_for_task` reads as "stuck", so working suites were reported stuck and
@@ -437,9 +457,12 @@ export const PLAYWRIGHT_FAILURES_INLINE_ENV = 'PLAYWRIGHT_LIST_PRINT_FAILURES_IN
  * is exactly when the executor reads the log, and without it a running log carries `✘` rows and
  * nothing else (xr-molecule-flash-m99 spent ~90 s on greps of one, then fixed what it guessed).
  *
- * Only the command's last step is touched, and only its reporter, and only when that step runs
- * something: `npx playwright test --list` takes two seconds and writes nothing per test, so
- * neither reporter nor `--retries=0` is added to it ({@link isPlaywrightRunCommand}).
+ * Only the step that runs the suite is touched, and only its reporter, and only when that step
+ * runs something: `npx playwright test --list` takes two seconds and writes nothing per test, so
+ * neither reporter nor `--retries=0` is added to it ({@link isPlaywrightRunCommand}). A trailing
+ * status step (`; echo EXIT $?`, `&& true`) is not the run and is skipped when the run step is
+ * found ({@link isStatusOnlyStep}); a run whose output is redirected to a file is still readable
+ * through that file, which the launch records as the task's own output.
  *
  * A command that starts the suite MORE THAN ONCE is not launched at all: every run it carries is
  * a whole walk of the same suite against the same app, and only the last step is rewritten, so the
@@ -512,10 +535,18 @@ export function streamingBackgroundCommand(
   }
   // The last step that RUNS something. A trailing group closer is punctuation, not a step: a
   // brace group writes it after a `;` (`{ …; }`), so reading the split's last part literally
-  // made `}` the step and withheld every rewrite from a run inside a group.
+  // made `}` the step and withheld every rewrite from a run inside a group. A trailing status
+  // step is not the run either: `… > /tmp/pw.log 2>&1; echo EXIT $?` ends on the echo, and
+  // treating THAT as the run withheld the reporter, the inline-failure switch and `--retries=0`
+  // from the exact shape models and the platform's re-run notes send (xr-molecule-flash-m173
+  // +17:07, +39:14).
   const parts = out.split(/&&|\|\||;/)
   let stepIndex = parts.length - 1
-  while (stepIndex > 0 && /^[\s)}]*$/.test(parts[stepIndex] ?? '')) stepIndex -= 1
+  while (
+    stepIndex > 0 &&
+    (/^[\s)}]*$/.test(parts[stepIndex] ?? '') || isStatusOnlyStep(parts[stepIndex] ?? ''))
+  )
+    stepIndex -= 1
   const rawLastStep = parts[stepIndex] ?? ''
   // The step's own text, with the punctuation that closes the group it sits in taken off — the
   // options are parsed and placed against this text, while the closer is kept in the command.
@@ -534,10 +565,18 @@ export function streamingBackgroundCommand(
   // "nothing is piped out of the last step" withheld the reporter, the inline-failure switch and
   // `--retries=0` from exactly the runs whose output was filtered (xr-molecule-flash-m101
   // +25:54); what the runner writes into its log does not depend on what reads the pipe. A
-  // REDIRECT still sends the output somewhere this tool cannot read it (`> out.txt`); `2>&1` only
-  // joins stderr to it.
+  // REDIRECT used to withhold them too (`> out.txt`), but a redirect to a FILE is readable: the
+  // launch records that file as the task's own output (`outputFileByTask`, resolved from this
+  // same reader) and every wait reads it back. `> /tmp/pw-full.log 2>&1; echo EXIT $?` is the
+  // shape models and the platform's re-run notes send, so a run whose own redirect target is the
+  // one the launch will read is a readable run (xr-molecule-flash-m173 +17:07, +39:14). A target
+  // that is not a file (`/dev/null`, `2>&1`) still leaves the output unreadable.
+  const runRedirect = outputRedirectTarget(lastStep)
   const finalPlaywrightRun =
-    isPlaywrightRunCommand(lastStep) && !/>/.test(lastStep.replace(/\d?>&\d/g, ''))
+    isPlaywrightRunCommand(lastStep) &&
+    (runRedirect === null
+      ? !/>/.test(lastStep.replace(/\d?>&\d/g, ''))
+      : runRedirect === outputRedirectTarget(out))
   /**
    * Add a word to the suite runner's own arguments; false when the runner could not be placed.
    *
@@ -549,14 +588,17 @@ export function streamingBackgroundCommand(
    * platform's runner shape (xr-molecule-flash-m129 +34:29); appending after a pipe hands the
    * word to the filter (m102's dangling `--trace` flag, in the same shape).
    *
-   * A suite the parse could not place — one inside a nested `sh -c '<command>'` string, whose
-   * offsets are positions in THAT string, or a runner that is not the command's last step — is
-   * left exactly as written and the caller reports no rewrite. There is nowhere in this command
-   * the word belongs, and guessing at the text is what produced both failures above.
+   * The suite's own segment is found wherever it sits ({@link lastSuiteRun}), because a trailing
+   * status step is not another command's output: in `… > /tmp/pw.log 2>&1; echo EXIT $?` the run
+   * is what the launcher measures, and the echo only repeats its status
+   * ({@link isStatusOnlyStep}). A suite the parse could not place — one inside a nested
+   * `sh -c '<command>'` string, whose offsets are positions in THAT string — is left exactly as
+   * written and the caller reports no rewrite. There is nowhere in this command the word
+   * belongs, and guessing at the text is what produced both failures above.
    */
   const addToRun = (flag: string): boolean => {
-    const pipeline = lastSuitePipeline(out)
-    const runner = pipeline ? pipeline.located[pipeline.at] : undefined
+    const run = lastSuiteRun(out)
+    const runner = run ? run.located[run.at] : undefined
     if (!runner) return false
     const at = statementArgumentEnd(out, runner.start, runner.end)
     if (at === null) return false

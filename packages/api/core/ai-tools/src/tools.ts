@@ -51,6 +51,20 @@ const logBytesByTask = new Map<string, number>()
 const outputFileByTask = new Map<string, string>()
 
 /**
+ * Task ids whose launch put the suite on {@link PLAYWRIGHT_FAILURES_INLINE_ENV} — the inline
+ * failure switch, announced by the launch's own change list and written as an `export` at the
+ * head of the command.
+ *
+ * The wait note may promise that each failure's own error sits under its ✘ line only when the run
+ * was actually given the switch: a run whose shape withheld the rewrite prints its failures only
+ * in the end-of-run summary, and the note that promised inline reports sent the model grepping a
+ * file they were not in (the m99 class, recurring at xr-molecule-flash-m173 +17:07, +39:14).
+ * Process memory, like {@link outputFileByTask}: a task this process did not launch recovers it
+ * from the script on disk, which carries the rewritten command.
+ */
+const inlineFailuresByTask = new Set<string>()
+
+/**
  * How each background task was started: the command as it was actually run (after
  * {@link streamingBackgroundCommand} rewrote it) and the directory it ran in.
  *
@@ -516,6 +530,7 @@ import {
   parseCheckCommand,
   parseCheckProblem,
   pathArgError,
+  PLAYWRIGHT_FAILURES_INLINE_ENV,
   printsOnlySource,
   READ_RESULT_ENVELOPE_CHARS,
   redactSecrets,
@@ -2772,6 +2787,10 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           const ownTarget = outputRedirectTarget(streaming.command)
           const ownFile = ownTarget === null ? null : posix.resolve(cwd, ownTarget)
           if (ownFile) outputFileByTask.set(id, ownFile)
+          // Whether the run's failures print as they fail, so a wait can promise that only when
+          // it is true (see inlineFailuresByTask).
+          if (streaming.command.startsWith(`export ${PLAYWRIGHT_FAILURES_INLINE_ENV}=1; `))
+            inlineFailuresByTask.add(id)
           runByTask.set(id, { command: streaming.command, cwd })
           await backend.writeFile(script, `${streaming.command}\n`)
           // The clock the grace return below reports a stopped run against: the command is
@@ -3116,12 +3135,18 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       ) {
         outputFileProbed.add(taskId)
         try {
-          const target = outputRedirectTarget(await backend.readFile(`/tmp/${taskId}.sh`))
+          const script = await backend.readFile(`/tmp/${taskId}.sh`)
+          const target = outputRedirectTarget(script)
           // A relative target was written against the command's own cwd, which
           // the handle does not carry; the project root is where a background
           // command runs unless the caller passed one. An absolute target is
           // already resolved and stays as written.
           if (target) outputFileByTask.set(taskId, posix.resolve(root, target))
+          // The rewritten command is on disk with the `export` head it was given: a task this
+          // process did not launch still says whether its failures print as they fail
+          // (see inlineFailuresByTask).
+          if (script.startsWith(`export ${PLAYWRIGHT_FAILURES_INLINE_ENV}=1; `))
+            inlineFailuresByTask.add(taskId)
         } catch (_error) {
           // No script under that id: this process did not start the task, so
           // there is nothing to recover. The log stays the whole result.
@@ -3416,9 +3441,17 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
                 (soFar.trim()
                   ? `outputSoFar is the failure lines so far (up to ${RUNNING_FAILURE_LINES}) and then the end of ` +
                     `the log, not the whole run — \`grep -n '✘' ${readLog} | head -40\` lists every failure, ` +
-                    `\`grep -n -A 20 '<test name>' ${readLog}\` reads one failure's error: this run writes ` +
-                    `each failure's own report into the log as that test fails, right under its ✘ line, ` +
-                    `not only in the summary at the end. `
+                    `\`grep -n -A 20 '<test name>' ${readLog}\` reads one failure's error: ` +
+                    // The promise is made only when the launch actually set the inline switch
+                    // (inlineFailuresByTask). A run whose shape withheld it prints each failure's
+                    // error in the end-of-run summary alone, and telling the model to grep under
+                    // the ✘ row sent it through greps that could not match (xr-molecule-flash-m173
+                    // +17:07, +39:14 — the m99 class, recurring).
+                    (inlineFailuresByTask.has(taskId)
+                      ? `this run writes each failure's own report into the log as that test fails, ` +
+                        `right under its ✘ line, not only in the summary at the end. `
+                      : `this run prints each failure's error only in the summary at the end; until ` +
+                        `then the ✘ rows are all there is. `)
                   : `Nothing has been printed yet — \`grep -n '✘' ${readLog} | head -40\` lists failures as they appear. `) +
                 // What an edit does to this run depends on what the run MEASURES: the sandbox's own
                 // app is re-served from app/src as it is edited, so the run's result stops counting; a

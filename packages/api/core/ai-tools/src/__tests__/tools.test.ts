@@ -2832,7 +2832,8 @@ describe('exec_command run_in_background', () => {
     const command = 'npx playwright test --reporter=list > out.txt'
     const r = (await exec.execute({ command, run_in_background: true })) as { note: string }
     expect((backend.writeFile as ReturnType<typeof vi.fn>).mock.calls[0][1]).toBe(
-      'npx playwright test --reporter=list --trace=retain-on-failure > out.txt\n',
+      'export PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE=1; npx playwright test --reporter=list ' +
+        '--trace=retain-on-failure --retries=0 > out.txt\n',
     )
     expect(r.note).not.toContain('Dropped')
   })
@@ -3425,9 +3426,10 @@ describe('wait_for_task output on a running task (flash-m61)', () => {
     expect(sliceCommand).not.toContain('| tail -c 3000')
     expect(r.note).toContain(`grep -n '✘' /tmp/${id}.log`)
     expect(r.note).not.toContain('no need to tail it')
-    // And the note says where those failures' errors are: written as each test fails (flash-m99),
-    // not only in the summary at the end.
-    expect(r.note).toContain('as that test fails')
+    // This task's launch cannot be read back (no script under that id), so the inline switch is
+    // unknown and the note promises nothing it cannot prove: it says where the errors are for a
+    // run whose failures print only in the summary (xr-molecule-flash-m173 +39:14).
+    expect(r.note).toContain("this run prints each failure's error only in the summary at the end")
   })
 
   it('hands over a recipe that reads one failure’s error out of a running log (flash-m99)', async () => {
@@ -4492,6 +4494,32 @@ describe('the running note knows what the run measures (xr-molecule-flash-m122)'
       // …and the re-run the note hands over does not overwrite the full walk's log.
       expect(r.note).toContain('> /tmp/pw-full.log.rerun.log')
       expect(r.note).not.toContain('> /tmp/pw-full.log 2>&1')
+    } finally {
+      delete process.env.MOL_AI_BG_CAUSE_LOOK_MS
+    }
+  })
+
+  it('promises inline failure reports only when the launch set the switch (m173 +39:14)', async () => {
+    process.env.MOL_AI_BG_CAUSE_LOOK_MS = '1'
+    try {
+      // m173's shape, which the launch rewrite now puts on the inline-failure switch: each
+      // failure's own error is written under its ✘ row as the test fails, so the note may say so.
+      const inline = await firstWait(
+        'cd app && npx playwright test --reporter=list > /tmp/pw-full.log 2>&1; echo EXIT $?',
+      )
+      expect(inline.status).toBe('running')
+      expect(inline.note).toContain('right under its ✘ line')
+      // A machine reporter writes no per-test failure line, so the switch is not set. The note
+      // must not promise bodies under the ✘ rows: it says where they actually are.
+      const summaryOnly = await firstWait(
+        'npx playwright test --reporter=html > /tmp/pw-full.log 2>&1; echo EXIT $?',
+      )
+      expect(summaryOnly.status).toBe('running')
+      expect(summaryOnly.note).not.toContain('right under its ✘ line')
+      expect(summaryOnly.note).toContain(
+        "this run prints each failure's error only in the summary at the end; until then the ✘ " +
+          'rows are all there is',
+      )
     } finally {
       delete process.env.MOL_AI_BG_CAUSE_LOOK_MS
     }

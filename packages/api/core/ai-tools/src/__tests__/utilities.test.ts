@@ -688,13 +688,16 @@ describe('streamingBackgroundCommand', () => {
     expect(streamingBackgroundCommand('npx playwright test --reporter=dot').command).toBe(
       `${INLINE_HEAD}npx playwright test --reporter=list --retries=0`,
     )
-    // The space spelling is the same flag to Playwright, and only the last step is rewritten.
+    // The space spelling is the same flag to Playwright, and only the run step is rewritten.
     expect(streamingBackgroundCommand('cd e2e; npx playwright test --reporter line').command).toBe(
       `${INLINE_HEAD}cd e2e; npx playwright test --reporter list --retries=0`,
     )
+    // A trailing status step (`&& echo done`) is not the run: the run before it is still the
+    // last step that runs something, so it keeps the reporter, the inline switch and the retries
+    // (xr-molecule-flash-m173 +17:07, +39:14).
     expect(
       streamingBackgroundCommand('npx playwright test --reporter line && echo done').command,
-    ).toBe('npx playwright test --reporter line && echo done')
+    ).toBe(`${INLINE_HEAD}npx playwright test --reporter list --retries=0 && echo done`)
   })
 
   it('never leaves TWO reporters printing each failure (flash-m83)', () => {
@@ -756,7 +759,27 @@ describe('streamingBackgroundCommand', () => {
     expect(command.match(/--reporter/g)).toHaveLength(1)
   })
 
-  it('leaves playwright’s own reporter alone, and a redirect or a non-final run untouched', () => {
+  it('rewrites a run whose output is redirected and followed by a status echo (m173 +17:07, +39:14)', () => {
+    // m173's exact shape, on every walk it launched: a redirect to its own log, then
+    // `echo EXIT $?`. The last step read as the echo, so the reporter, the inline-failure switch
+    // and `--retries=0` were all withheld — the log carried ✘ rows only, while the wait note
+    // promised each failure's error under them and the model grepped for bodies that were absent.
+    const m173 = 'cd app && npx playwright test --reporter=list > /tmp/pw.log 2>&1; echo EXIT $?'
+    const r = streamingBackgroundCommand(m173)
+    expect(r.command).toBe(
+      `${INLINE_HEAD}cd app && npx playwright test --reporter=list --retries=0 ` +
+        '> /tmp/pw.log 2>&1; echo EXIT $?',
+    )
+    expect(r.changes).toContain(INLINE_CHANGE)
+    // The redirect stays where it was, and the status echo still runs last.
+    expect(r.command.endsWith('; echo EXIT $?')).toBe(true)
+    // A redirect target that is not a file is still not readable, so the same tail with
+    // `/dev/null` leaves the run exactly as written.
+    const discard = 'npx playwright test > /dev/null 2>&1; echo EXIT $?'
+    expect(streamingBackgroundCommand(discard)).toEqual({ command: discard, changes: [] })
+  })
+
+  it('leaves playwright’s own reporter alone, and a run whose output cannot be read untouched', () => {
     // `--reporter=list` is the shape the platform reads back: its reporter is left exactly as the
     // executor spelled it, and only the inline switch is set on it (flash-m99) — plus the
     // `--retries=0` a local run is given (xr-molecule-flash-m155).
@@ -781,11 +804,17 @@ describe('streamingBackgroundCommand', () => {
           'Added `--retries=0`: a local run walks each failure once; the suite’s retries apply on the deployed proof run.',
         ],
       })
-    for (const command of [
-      'npx playwright test > log.txt',
-      'npx playwright test && echo done',
-      'npm run build',
-    ]) {
+    // A redirect to a FILE is readable — the launch records it as the task's own output and
+    // every wait reads it back — so it no longer withholds the rewrite (xr-molecule-flash-m173).
+    expect(streamingBackgroundCommand('npx playwright test > log.txt').command).toBe(
+      `${INLINE_HEAD}npx playwright test --reporter=list --retries=0 > log.txt`,
+    )
+    // A status step after the run is not another command: the run is still what is measured.
+    expect(streamingBackgroundCommand('npx playwright test && echo done').command).toBe(
+      `${INLINE_HEAD}npx playwright test --reporter=list --retries=0 && echo done`,
+    )
+    // Output sent to nowhere is not readable, so nothing is added to the run that discards it.
+    for (const command of ['npx playwright test > /dev/null 2>&1', 'npm run build']) {
       expect(streamingBackgroundCommand(command)).toEqual({ command, changes: [] })
     }
   })
@@ -3093,8 +3122,13 @@ describe('a suite’s pipeline is not the suite’s result (xr-molecule-flash-m1
       '--project=chromium --reporter=list 2>&1; echo done'
     expect(stripTrailingSuiteFilters(command)).toEqual({ command: bare, dropped: '| tail -5' })
     const { command: streamed, changes } = streamingBackgroundCommand(command)
-    // The trailing statement is kept, and the log keeps every failure line.
-    expect(streamed).toBe(bare)
+    // The trailing statement is kept, and the log keeps every failure line. It is a status echo,
+    // not another command, so the run before it is still rewritten (xr-molecule-flash-m173).
+    expect(streamed).toBe(
+      'export PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE=1; npx playwright test --max-failures=15 ' +
+        '--config /tmp/rw/playwright.config.ts --project=chromium --reporter=list --retries=0 ' +
+        '2>&1; echo done',
+    )
     expect(changes[0]).toBe(
       'Dropped the trailing `| tail -5`: it holds all output back until the command ends, ' +
         'and wait_for_task returns the end of the log anyway.',
@@ -3600,10 +3634,16 @@ describe('streamingBackgroundCommand — flags go at the end of the runner’s o
       expect(rewritten, command).toMatch(expected)
       expectParses(rewritten)
     }
-    // A run whose output is redirected to a file is left as written: the platform cannot read
-    // that log back, so there is no reporter rewrite to make (`>`, unlike `2>&1`).
+    // A run whose output is redirected to a file IS readable: the launch records that file as the
+    // task's own output and wait_for_task reads it back, so the run keeps its reporter, the inline
+    // switch and the retries (xr-molecule-flash-m173 +17:07). The redirect stays where it was.
     const toFile = 'cd app && npx playwright test --config=playwright.config.ts > /tmp/run.log 2>&1'
-    expect(streamingBackgroundCommand(toFile).command).toBe(toFile)
+    const toFileRewrite = streamingBackgroundCommand(toFile).command
+    expect(toFileRewrite).toContain(
+      'npx playwright test --config=playwright.config.ts --reporter=list --retries=0 ' +
+        '> /tmp/run.log 2>&1',
+    )
+    expectParses(toFileRewrite)
   })
 
   it('leaves a run it cannot place exactly as written (must-not-fire)', () => {
@@ -3615,9 +3655,18 @@ describe('streamingBackgroundCommand — flags go at the end of the runner’s o
     expect(nestedRewrite.endsWith(`'`)).toBe(true)
     expect(nestedRewrite).not.toContain('--reporter=list')
     expect(nestedRewrite).not.toContain('--retries')
-    // The suite is not the command's last step: whatever follows owns the output and the exit
-    // status, so this is not a background run to rewrite.
+  })
+
+  it('rewrites the run before a trailing status step, and the echo still runs last', () => {
+    // A trailing `echo` (or `true`/`exit`) only repeats the run's status — it owns neither the
+    // output nor what the run measures — so the run before it is still the step to rewrite
+    // (xr-molecule-flash-m173 +17:07, +39:14). The flag goes before the `&&`, never after it.
     const followed = 'npx playwright test --config=playwright.config.ts && echo done'
-    expect(streamingBackgroundCommand(followed).command).toBe(followed)
+    const followedRewrite = streamingBackgroundCommand(followed).command
+    expect(followedRewrite).toBe(
+      'export PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE=1; npx playwright test ' +
+        '--config=playwright.config.ts --reporter=list --retries=0 && echo done',
+    )
+    expectParses(followedRewrite)
   })
 })
