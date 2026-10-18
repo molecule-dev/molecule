@@ -1,5 +1,12 @@
 # @molecule/api-ai-tools
 
+## 1.9.16
+
+### Patch Changes
+
+- b421a60: Read a failing Playwright trace per page and browser context, so a two-context test's assertion is diagnosed on the page it ran on.
+- 0c63136: Name a failing trace test at the line the runner reports, and say when a route change that fetched nothing left the page showing the previous route's data.
+
 ## 1.9.15
 
 ### Patch Changes
