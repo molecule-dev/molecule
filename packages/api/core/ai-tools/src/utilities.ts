@@ -536,12 +536,18 @@ export function streamingBackgroundCommand(command: string): {
   }
   // A diagnosis or a re-run (capped, last-failed, grepped, or named files) walks each failure
   // once: the suite's own `retries` doubled every failure of X1 flash-m71's first whole run,
-  // which had dropped the `--retries=0` it used one command earlier. The uncapped proof run
-  // keeps the suite's retries — including the `--max-failures=0` the platform's own note asks
-  // for on it (xr-molecule-flash-m89). Which runs those are is {@link isDiagnosisRun}'s answer
-  // and nobody else's: the platform's notes ask the same function, so a run cannot be a
-  // diagnosis to one of them and the whole suite to the other.
+  // which had dropped the `--retries=0` it used one command earlier. A whole run whose TARGET is
+  // local — its env names `localhost`/`127.0.0.1`/`0.0.0.0`, or names no URL at all, as the
+  // wrapper config's default does — is not the proof run either and walks them once too:
+  // xr-molecule-flash-m155 (+11:34) spent 10 minutes on its first local whole run, and the
+  // suite's `retries: 1` walked each of its 68 failures a second time (0 flaky) for nothing.
+  // The suite's retries are kept only for a run that names a non-local URL — the deployed proof
+  // (xr-molecule-flash-m89), where they absorb a network blip. Which runs are diagnoses is
+  // {@link isDiagnosisRun}'s answer and nobody else's: the platform's notes ask the same
+  // function, so a run cannot be a diagnosis to one of them and the whole suite to the other.
+  // Which targets are local is {@link suiteCommandTarget}'s answer.
   const diagnosis = isDiagnosisRun(lastStep)
+  const localTarget = suiteCommandTarget(lastStep) === 'local'
   // The last step's reporters: one printer, and it is `list`. Every branch below only ever moves
   // the command TO that shape — a reporter set is never left with two printers in it.
   const reporters = finalPlaywrightRun ? lastReporterFlag(lastStep) : null
@@ -610,10 +616,10 @@ export function streamingBackgroundCommand(command: string): {
         'and you need not wait for it to end to start on them.',
     )
   }
-  if (finalPlaywrightRun && diagnosis && !/--retries\b/.test(lastStep)) {
+  if (finalPlaywrightRun && (diagnosis || localTarget) && !/--retries\b/.test(lastStep)) {
     if (addToRun('--retries=0'))
       changes.push(
-        'Added `--retries=0`: a diagnosis or re-run walks each failure once; keep the suite’s retries for the proof run.',
+        'Added `--retries=0`: a local run walks each failure once; the suite’s retries apply on the deployed proof run.',
       )
   }
   return { command: out, changes }
@@ -2163,6 +2169,24 @@ function testKey(t: FailedTest): string {
 }
 
 /**
+ * One test's identity with the runner's retry marker taken off: `… a.spec.ts:32 › does x
+ * (retry #1)` is the same test as `… a.spec.ts:32 › does x`.
+ *
+ * A retried failure prints twice in a `list` log — its first attempt, then the same test with
+ * `(retry #1)` after the title — while its failure block names it without the marker. Keyed
+ * literally, the retry row is a test no cause claims, so it fell through to the duration arm and
+ * was listed as a "shared duration" cause beside the proven cause it repeated: on
+ * xr-molecule-flash-m155 (+21:50) every retry row of the run became one of six extra causes
+ * duplicating the causes above them.
+ *
+ * @param t - A failed test, as a result line or a failure block spelled it.
+ * @returns The key a test's retry row shares with its failure block.
+ */
+function retrylessTestKey(t: FailedTest): string {
+  return `${t.where}|${t.title.replace(/\s*\(retry #\d+\)$/, '')}`
+}
+
+/**
  * The same tests with each one kept once, in first-seen order.
  *
  * @param tests - Failed tests, as the log printed them (possibly more than once each).
@@ -2903,6 +2927,10 @@ function groupFailures(
   const listed = failedTests(text)
   named.push(...listed)
   const claimed = new Set(causes.flatMap((c) => c.tests.map(testKey)))
+  // The causes above as a test can recognise itself: a retried failure's second row carries the
+  // runner's `(retry #1)` marker, its failure block does not, and comparing the literal keys
+  // read the same test as an unclaimed one (xr-molecule-flash-m155 +21:50).
+  const proven = new Set(causes.flatMap((c) => c.tests.map(retrylessTestKey)))
   const unclaimed = distinctTests(listed).filter(
     (t): t is FailedTest & { seconds: number } =>
       t.seconds !== null &&
@@ -2921,14 +2949,20 @@ function groupFailures(
     if (open) open.tests.push(t)
     else byDuration.push({ seconds: t.seconds, tests: [t] })
   }
-  for (const g of byDuration)
+  for (const g of byDuration) {
+    // A duration band is a LEAD, not a cause: a test already carrying a proven cause above is
+    // not named a second time here, and a band whose every member is one is not a cause at all —
+    // it reads as one more thing to fix. m155's retry rows made six such bands.
+    const tests = g.tests.filter((t) => !proven.has(retrylessTestKey(t)))
+    if (tests.length === 0) continue
     causes.push({
       message: null,
       seconds: g.seconds,
-      tests: g.tests,
+      tests,
       evidence: [],
       kind: 'assertion',
     })
+  }
   const ignored = distinctTests(named).filter(
     (t) => matchingExcludedTitles(t.title, excluded).length > 0,
   )

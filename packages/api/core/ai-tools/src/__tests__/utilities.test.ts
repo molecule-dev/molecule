@@ -574,7 +574,7 @@ describe('streamingBackgroundCommand', () => {
 
   it('drops a trailing head from a Playwright run, whose tally prints last (flash-m32)', () => {
     expect(streamingBackgroundCommand('npx playwright test 2>&1 | head -60').command).toBe(
-      `${INLINE_HEAD}npx playwright test --reporter=list 2>&1`,
+      `${INLINE_HEAD}npx playwright test --reporter=list --retries=0 2>&1`,
     )
     expect(streamingBackgroundCommand('cat big.log | head -60').changes).toEqual([])
   })
@@ -598,12 +598,12 @@ describe('streamingBackgroundCommand', () => {
         'Added `--reporter=list` so each test result is written to the log as it finishes ' +
           '(the config reporter may print nothing until the end).',
         INLINE_CHANGE,
-        'Added `--retries=0`: a diagnosis or re-run walks each failure once; keep the suite’s retries for the proof run.',
+        'Added `--retries=0`: a local run walks each failure once; the suite’s retries apply on the deployed proof run.',
       ],
     })
   })
 
-  it('runs a diagnosis or re-run with --retries=0, and leaves the proof run alone (flash-m71)', () => {
+  it('runs a diagnosis, re-run or local run with --retries=0, and leaves the deployed proof alone', () => {
     expect(streamingBackgroundCommand('npx playwright test --max-failures=15').command).toBe(
       `${INLINE_HEAD}npx playwright test --max-failures=15 --reporter=list --retries=0`,
     )
@@ -613,8 +613,15 @@ describe('streamingBackgroundCommand', () => {
     expect(streamingBackgroundCommand('npx playwright test e2e/home.spec.ts:12').command).toContain(
       '--retries=0',
     )
-    // The uncapped proof run keeps the suite's retries; an explicit --retries is respected.
-    expect(streamingBackgroundCommand('npx playwright test').command).not.toContain('--retries')
+    // A whole run that names no URL at all runs against the sandbox's own app: it is a local run,
+    // not the deployed proof, so it walks each failure once too (xr-molecule-flash-m155 +11:34).
+    expect(streamingBackgroundCommand('npx playwright test').command).toContain('--retries=0')
+    // Only a run whose command names a non-local URL — the deployed proof — keeps the suite's
+    // retries. An explicit --retries is respected either way.
+    expect(
+      streamingBackgroundCommand('BASE_URL=https://loopcheck-xr.apps.mlcl.dev npx playwright test')
+        .command,
+    ).not.toContain('--retries')
     expect(
       streamingBackgroundCommand('npx playwright test --max-failures=15 --retries=1').command,
     ).not.toContain('--retries=0')
@@ -640,10 +647,12 @@ describe('streamingBackgroundCommand', () => {
       command: `${INLINE_HEAD}${proof}`,
       changes: [INLINE_CHANGE],
     })
-    // The space spelling is the same flag to Playwright, and neither is a cap.
-    expect(
-      streamingBackgroundCommand('npx playwright test --max-failures 0').command,
-    ).not.toContain('--retries')
+    // The space spelling is the same flag to Playwright, and neither is a cap — but this command
+    // names no URL, so it runs against the sandbox's own app, and a local run walks each failure
+    // once (xr-molecule-flash-m155 +11:34).
+    expect(streamingBackgroundCommand('npx playwright test --max-failures 0').command).toContain(
+      '--retries=0',
+    )
     // A cap that bounds something still is a diagnosis — m89's own first local run.
     expect(
       streamingBackgroundCommand(
@@ -662,21 +671,22 @@ describe('streamingBackgroundCommand', () => {
     expect(
       streamingBackgroundCommand('cd spec/run && npx playwright test --reporter=line'),
     ).toEqual({
-      command: `${INLINE_HEAD}cd spec/run && npx playwright test --reporter=list`,
+      command: `${INLINE_HEAD}cd spec/run && npx playwright test --reporter=list --retries=0`,
       changes: [
         'Switched the test reporters to `--reporter=list`: `list` writes each test result as it ' +
           'finishes and is the shape the platform reads back from a background run, and it is the ' +
           'only printing reporter — two of them write every result into the log twice (X1 flash-m83).',
         INLINE_CHANGE,
+        'Added `--retries=0`: a local run walks each failure once; the suite’s retries apply on the deployed proof run.',
       ],
     })
     // `dot` prints one dot per test and nothing a note can read, so it is put on `list` too.
     expect(streamingBackgroundCommand('npx playwright test --reporter=dot').command).toBe(
-      `${INLINE_HEAD}npx playwright test --reporter=list`,
+      `${INLINE_HEAD}npx playwright test --reporter=list --retries=0`,
     )
     // The space spelling is the same flag to Playwright, and only the last step is rewritten.
     expect(streamingBackgroundCommand('cd e2e; npx playwright test --reporter line').command).toBe(
-      `${INLINE_HEAD}cd e2e; npx playwright test --reporter list`,
+      `${INLINE_HEAD}cd e2e; npx playwright test --reporter list --retries=0`,
     )
     expect(
       streamingBackgroundCommand('npx playwright test --reporter line && echo done').command,
@@ -702,13 +712,13 @@ describe('streamingBackgroundCommand', () => {
     // formats, which write no per-test line at all.
     expect(
       streamingBackgroundCommand('npx playwright test --reporter=json --reporter=list').command,
-    ).toBe(`${INLINE_HEAD}npx playwright test --reporter=json --reporter=list`)
+    ).toBe(`${INLINE_HEAD}npx playwright test --reporter=json --reporter=list --retries=0`)
     // A file the executor asked for is theirs and stays: only the printers are collapsed.
     expect(streamingBackgroundCommand('npx playwright test --reporter=html,line').command).toBe(
-      `${INLINE_HEAD}npx playwright test --reporter=html,list`,
+      `${INLINE_HEAD}npx playwright test --reporter=html,list --retries=0`,
     )
     expect(streamingBackgroundCommand('npx playwright test --reporter=html,line,dot').command).toBe(
-      `${INLINE_HEAD}npx playwright test --reporter=html,list`,
+      `${INLINE_HEAD}npx playwright test --reporter=html,list --retries=0`,
     )
   })
 
@@ -720,40 +730,54 @@ describe('streamingBackgroundCommand', () => {
     // the run was still walking, which voids the run. `list` prints each failure as it fails when
     // Playwright's inline switch is set, so the background run is put on it.
     const { command, changes } = streamingBackgroundCommand('npx playwright test')
-    expect(command).toBe(`${INLINE_HEAD}npx playwright test --reporter=list`)
+    expect(command).toBe(`${INLINE_HEAD}npx playwright test --reporter=list --retries=0`)
     expect(changes).toEqual([
       'Added `--reporter=list` so each test result is written to the log as it finishes ' +
         '(the config reporter may print nothing until the end).',
       INLINE_CHANGE,
+      'Added `--retries=0`: a local run walks each failure once; the suite’s retries apply on the deployed proof run.',
     ])
     // The head is an `export` at the start of the WHOLE command, never written in front of the
     // last step: `timeout 280 npx playwright test` and a multi-line command whose last line is the
     // run would both read the assignment as the program to run.
     expect(streamingBackgroundCommand('timeout 280 npx playwright test').command).toBe(
-      `${INLINE_HEAD}timeout 280 npx playwright test --reporter=list`,
+      `${INLINE_HEAD}timeout 280 npx playwright test --reporter=list --retries=0`,
     )
     const multi = 'cd /workspace/my-app\nnpx playwright test'
     expect(streamingBackgroundCommand(multi).command).toBe(
-      `export PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE=1; ${multi} --reporter=list`,
+      `export PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE=1; ${multi} --reporter=list --retries=0`,
     )
     // Still exactly ONE reporter printing each failure — the inline switch is a switch on that one
     // reporter, never a second reporter beside it (flash-m83).
     expect(command.match(/--reporter/g)).toHaveLength(1)
   })
 
-  it('leaves playwright alone when it picks a reporter, redirects, or is not the last step', () => {
+  it('leaves playwright’s own reporter alone, and a redirect or a non-final run untouched', () => {
     // `--reporter=list` is the shape the platform reads back: its reporter is left exactly as the
-    // executor spelled it, and only the inline switch is set on it (flash-m99).
+    // executor spelled it, and only the inline switch is set on it (flash-m99) — plus the
+    // `--retries=0` a local run is given (xr-molecule-flash-m155).
     expect(streamingBackgroundCommand('npx playwright test --reporter=list')).toEqual({
-      command: `${INLINE_HEAD}npx playwright test --reporter=list`,
-      changes: [INLINE_CHANGE],
+      command: `${INLINE_HEAD}npx playwright test --reporter=list --retries=0`,
+      changes: [
+        INLINE_CHANGE,
+        'Added `--retries=0`: a local run walks each failure once; the suite’s retries apply on the deployed proof run.',
+      ],
     })
+    // A machine format written to a file is the executor's own business: no printer of the
+    // platform's is added beside it, and there is no per-test failure line to make inline. The
+    // run is still local, so it still walks each failure once.
     for (const command of [
       'npx playwright test --reporter=html',
-      // A machine format written to a file is the executor's own business: no printer of the
-      // platform's is added beside it, and there is no per-test failure line to make inline.
       'npx playwright test --reporter=json',
       'npx playwright test --reporter=junit,html',
+    ])
+      expect(streamingBackgroundCommand(command)).toEqual({
+        command: `${command} --retries=0`,
+        changes: [
+          'Added `--retries=0`: a local run walks each failure once; the suite’s retries apply on the deployed proof run.',
+        ],
+      })
+    for (const command of [
       'npx playwright test > log.txt',
       'npx playwright test && echo done',
       'npm run build',
@@ -784,11 +808,12 @@ describe('streamingBackgroundCommand', () => {
     // A run in the same command is still a run.
     expect(streamingBackgroundCommand('npx playwright test --list && npx playwright test')).toEqual(
       {
-        command: `${INLINE_HEAD}npx playwright test --list && npx playwright test --reporter=list`,
+        command: `${INLINE_HEAD}npx playwright test --list && npx playwright test --reporter=list --retries=0`,
         changes: [
           'Added `--reporter=list` so each test result is written to the log as it finishes ' +
             '(the config reporter may print nothing until the end).',
           INLINE_CHANGE,
+          'Added `--retries=0`: a local run walks each failure once; the suite’s retries apply on the deployed proof run.',
         ],
       },
     )
@@ -806,9 +831,65 @@ describe('streamingBackgroundCommand', () => {
       command: `${INLINE_HEAD}npx playwright test --max-failures=15 --reporter=list --retries=0`,
       changes: [
         INLINE_CHANGE,
-        'Added `--retries=0`: a diagnosis or re-run walks each failure once; keep the suite’s retries for the proof run.',
+        'Added `--retries=0`: a local run walks each failure once; the suite’s retries apply on the deployed proof run.',
       ],
     })
+  })
+})
+
+/**
+ * xr-molecule-flash-m155 (+11:34 → +21:50): the first whole run of the supplied suite against the
+ * local production build kept the suite's `retries: 1` from `playwright.base.ts`, so all 68
+ * failures walked a second time at their 5–7 s action timeout and not one passed on the retry (the
+ * tally printed no `flaky` line). The platform's own re-run command carried `--retries=0`; its
+ * first run did not. The uncapped proof run is the one against the deployed URL — the local whole
+ * run is the one that fails most and gains nothing from retries.
+ */
+describe('streamingBackgroundCommand — a local whole run walks each failure once (m155)', () => {
+  const INLINE = 'export PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE=1; '
+  /** The run's +11:34 command, verbatim. */
+  const RUN =
+    'cd /workspace/my-app/app && TEST_MODE=fullstack npx playwright test ' +
+    '--config=e2e-suite.config.ts --reporter=list'
+
+  it('adds --retries=0 to the suite’s first local whole run', () => {
+    const { command, changes } = streamingBackgroundCommand(RUN)
+    expect(command).toBe(`${INLINE}${RUN} --retries=0`)
+    // The run's reporter is already the shape the platform reads back; the inline-failure switch
+    // and `--retries=0` are the only changes.
+    expect(changes).toEqual([
+      'Each failure’s own error is now written into the log as that test fails, not only in the ' +
+        'summary at the end — so a run that is still walking already says what its failures are, ' +
+        'and you need not wait for it to end to start on them.',
+      'Added `--retries=0`: a local run walks each failure once; the suite’s retries apply on the deployed proof run.',
+    ])
+  })
+
+  it('treats every local base-URL spelling — and no URL at all — as a local run', () => {
+    for (const env of [
+      'BASE_URL=http://localhost:4173',
+      'APP_BASE=http://localhost:4173',
+      'PLAYWRIGHT_BASE_URL=http://127.0.0.1:4173',
+      'HOST=0.0.0.0',
+    ])
+      expect(
+        streamingBackgroundCommand(`cd app && ${env} npx playwright test`).command,
+        env,
+      ).toContain('--retries=0')
+  })
+
+  it('keeps the suite’s retries when the command names the deployed URL', () => {
+    const deployed =
+      'cd /workspace/my-app/app && BASE_URL=https://x.apps.mlcl.dev TEST_MODE=fullstack ' +
+      'npx playwright test --config=e2e-suite.config.ts --reporter=list'
+    expect(streamingBackgroundCommand(deployed).command).not.toContain('--retries')
+  })
+
+  it('leaves an explicit --retries alone', () => {
+    const { command, changes } = streamingBackgroundCommand(`${RUN} --retries=2`)
+    expect(command).toContain('--retries=2')
+    expect(command).not.toContain('--retries=0')
+    expect(changes.join(' ')).not.toContain('--retries=0')
   })
 })
 
@@ -2753,7 +2834,7 @@ describe('a suite’s pipeline is not the suite’s result (xr-molecule-flash-m1
   /** m101's run with every filter gone — the command the tool must actually start. */
   const M101_BARE =
     `${INLINE}cd /workspace/my-app && npx --prefix /workspace/my-app/app playwright test ` +
-    '--config playwright.run.config.ts --reporter=list --timeout=30000 2>&1'
+    '--config playwright.run.config.ts --reporter=list --timeout=30000 --retries=0 2>&1'
 
   it('drops every output-only filter after the runner, not only a trailing tail', () => {
     const { command, changes } = streamingBackgroundCommand(M101)
@@ -2776,7 +2857,7 @@ describe('a suite’s pipeline is not the suite’s result (xr-molecule-flash-m1
       'head -40',
     ])
       expect(streamingBackgroundCommand(`npx playwright test 2>&1 | ${filter}`).command).toBe(
-        `${INLINE}npx playwright test --reporter=list 2>&1`,
+        `${INLINE}npx playwright test --reporter=list --retries=0 2>&1`,
       )
   })
 
@@ -2792,7 +2873,7 @@ describe('a suite’s pipeline is not the suite’s result (xr-molecule-flash-m1
         '| tee /tmp/run.log',
     )
     expect(streamingBackgroundCommand("npx playwright test 2>&1 | sed -i 's/a/b/'").command).toBe(
-      `${INLINE}npx playwright test --reporter=list 2>&1 | sed -i 's/a/b/'`,
+      `${INLINE}npx playwright test --reporter=list --retries=0 2>&1 | sed -i 's/a/b/'`,
     )
   })
 
@@ -3204,6 +3285,77 @@ describe('failureCausesNote — a run with no base URL is one configuration fail
 })
 
 /**
+ * xr-molecule-flash-m155 (+21:50): the run's suite had `retries: 1`, so every failure printed
+ * twice — its first attempt, then the same test as `… (retry #1)` — while its failure block named
+ * the test without the marker. Keyed literally, each retry row was an unclaimed test, and the
+ * duration arm listed the run's 34 retry rows as six "shared duration" causes beside the proven
+ * causes they repeated: group 1 named 24 tests that groups 2, 3 and 6 named again. A duration band
+ * that is nothing but a proven cause's retry rows is not a cause to fix, and it is not listed.
+ */
+describe('failureCausesNote — a retried failure is one test, not a duration cause (m155)', () => {
+  /** A `list` result row, as the inline-switch log writes it. */
+  const row = (n: number, line: number, title: string, seconds: string): string =>
+    `  ✘  ${String(n).padStart(3)} [chromium] › ../../fixtures/realworld/specs/e2e/articles.spec.ts:${line}:3 › Articles › ${title} (${seconds})`
+  /** That test's numbered failure block, with its own error and locator. */
+  const block = (n: number, line: number, title: string, message: string, waited: string): string =>
+    [
+      `  ${n}) [chromium] › ../../fixtures/realworld/specs/e2e/articles.spec.ts:${line}:3 › Articles › ${title} ────────`,
+      '',
+      `    ${message}`,
+      '    Call log:',
+      `      - waiting for locator('${waited}')`,
+    ].join('\n')
+  /** The run's shape: each failure's rows, its block, and the retry row that duplicates it. */
+  const m155 = [
+    'Running 139 tests using 1 worker',
+    row(1, 32, 'should create a new article', '6.5s'),
+    block(
+      1,
+      32,
+      'should create a new article',
+      'TimeoutError: page.fill: Timeout 5000ms exceeded.',
+      'input[placeholder="Enter tags"]',
+    ),
+    row(2, 32, 'should create a new article (retry #1)', '7s'),
+    row(3, 50, 'should edit an existing article', '6.7s'),
+    block(
+      2,
+      50,
+      'should edit an existing article',
+      'TimeoutError: page.press: Timeout 5000ms exceeded.',
+      'input[placeholder="Enter tags"]',
+    ),
+    row(4, 50, 'should edit an existing article (retry #1)', '7.1s'),
+    '',
+    '  68 failed',
+  ].join('\n')
+
+  it('drops a duration group whose every member is a proven cause’s retry row', () => {
+    const causes = failuresByCause(m155)
+    // The two failures, and nothing else: the 7 s retry band duplicated both of them.
+    expect(causes).toHaveLength(2)
+    expect(causes.map((c) => c.message !== null)).toEqual([true, true])
+    expect(causes.map((c) => c.tests.length)).toEqual([1, 1])
+    const note = failureCausesNote(m155)!
+    expect(note).toContain('2 failures in this run, grouped by cause')
+    expect(note).not.toContain('a shared duration')
+  })
+
+  it('keeps a duration group for a failure no cause explains', () => {
+    // A test with no block of its own is exactly what the duration arm is for; its 6.4 s band is
+    // separate from the retries' 7 s one, so the run still names it.
+    const withUnproven = [m155, row(5, 209, 'should show a validation error', '6.4s')].join('\n')
+    const causes = failuresByCause(withUnproven)
+    expect(causes).toHaveLength(3)
+    expect(causes.filter((c) => c.message === null)).toHaveLength(1)
+    const note = failureCausesNote(withUnproven)!
+    expect(note).toContain('3 failures in this run, grouped by cause')
+    expect(note).toContain('a shared duration')
+    expect(note).toContain('articles.spec.ts:209')
+  })
+})
+
+/**
  * X1 xr-molecule-flash-m129 (+34:29): the platform's flag injection appended
  * `--trace=retain-on-failure --reporter=list` AFTER the closing `)` of a subshell, and the
  * backgrounded command died at once with `sh: Syntax error: word unexpected`.
@@ -3248,15 +3400,15 @@ describe('streamingBackgroundCommand — flags go at the end of the runner’s o
     const shapes: ReadonlyArray<[string, RegExp]> = [
       [
         '( npx playwright test --config=playwright.config.ts 2>&1 )',
-        /--config=playwright\.config\.ts --reporter=list 2>&1 \)$/,
+        /--config=playwright\.config\.ts --reporter=list --retries=0 2>&1 \)$/,
       ],
       [
         '{ cd app && npx playwright test --config=playwright.config.ts; }',
-        /--config=playwright\.config\.ts --reporter=list; \}$/,
+        /--config=playwright\.config\.ts --reporter=list --retries=0; \}$/,
       ],
       [
         'cd app && npx playwright test --config=playwright.config.ts 2>&1 | tee run.log',
-        /--config=playwright\.config\.ts --reporter=list 2>&1 \| tee run\.log$/,
+        /--config=playwright\.config\.ts --reporter=list --retries=0 2>&1 \| tee run\.log$/,
       ],
     ]
     for (const [command, expected] of shapes) {

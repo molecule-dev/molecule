@@ -2633,10 +2633,12 @@ describe('exec_command run_in_background', () => {
     })) as { note: string }
     const written = (backend.writeFile as ReturnType<typeof vi.fn>).mock.calls[0][1]
     expect(written).toBe(
-      'export PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE=1; cd e2e && npx playwright test --reporter=list 2>&1\n',
+      'export PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE=1; cd e2e && npx playwright test --reporter=list --retries=0 2>&1\n',
     )
     expect(r.note).toContain('Dropped the trailing `| tail -70`')
     expect(r.note).toContain('--reporter=list')
+    // The run names no URL, so it measures the sandbox's own app: each failure walks once.
+    expect(r.note).toContain('--retries=0')
     // The run's failures are readable while it walks (flash-m99).
     expect(r.note).toContain('as that test fails')
   })
