@@ -2945,6 +2945,43 @@ describe('exec_command does not sleep through a background task (m105)', () => {
     expect(ran(backend).some((command) => /\bsleep\b/.test(command))).toBe(false)
   })
 
+  /**
+   * m182's +30:25 peek: `sleep 240; tail -3 /tmp/full-run.log`. The file it names IS the task's
+   * own output, so the peek bound the sleep to that task — and answered "is live" from a missing
+   * exit file, though the run had ended 20 s into the task and written `EXIT=0` into that file.
+   */
+  it('does not call a task live when its own output already records the end (m182 +30:25)', async () => {
+    const backend: ExecutionBackend = {
+      projectRoot: '/test',
+      readFile: vi.fn(async (path: string) => {
+        if (path === '/tmp/rw-e2e.log') return '  139 skipped (0.4s)\nEXIT=0\n'
+        throw new Error(`ENOENT: ${path}`)
+      }),
+      writeFile: vi.fn().mockResolvedValue(undefined),
+      deleteFile: vi.fn(),
+      readDir: vi.fn(),
+      run: vi.fn(async (command: string) => ({
+        // The wrapper is still alive (m182's was blocked); the run's own file is what ended.
+        stdout: command.includes('MOL_TASK_STATE')
+          ? 'MOL_TASK_STATE alive\n  139 skipped (0.4s)\nEXIT=0'
+          : '',
+        stderr: '',
+        exitCode: 0,
+      })),
+    }
+    const taskId = await launch(backend)
+    const startedAt = Date.now()
+    const r = (await exec(backend).execute({
+      command: 'sleep 240; tail -3 /tmp/rw-e2e.log',
+    })) as { note: string }
+    expect(Date.now() - startedAt).toBeLessThan(1000)
+    expect(r.note).toContain('had already ended')
+    expect(r.note).toContain('exit code 0')
+    expect(r.note).not.toContain('is live')
+    expect(r.note).toContain(`wait_for_task ${taskId}`)
+    expect(ran(backend).some((command) => /\bsleep\b/.test(command))).toBe(false)
+  })
+
   it('answers a bare `sleep 30` with the live task state, running nothing for 30 s', async () => {
     const backend = peekBackend({}, '[12/139] x\n')
     const taskId = await launch(backend)
@@ -3358,6 +3395,133 @@ cd /workspace/.mol-scratch/realworld-e2e && npx playwright test --config playwri
     expect(r.note).toContain('wait_for_task')
     expect(r.note).toContain('never sleep')
   })
+
+  /**
+   * m182's +30:03 task: `(TEST_MODE=fullstack … npx playwright test … > /tmp/full-run.log 2>&1;
+   * echo EXIT=$? >> /tmp/full-run.log) & sleep 5; …`. The run ended in ~20 s and wrote its own
+   * verdict, but the platform's task log stayed at 0 bytes and no exit file appeared, so the
+   * +30:28 wait sat out its whole 281 s ceiling.
+   *
+   * `run` answers the platform's own probes: the end test (`MOL_TASK_STATE …` + the tail of the
+   * task's own file) and the log-size read. The pid is ALIVE — the wrapper was blocked on
+   * something else — and the `EXIT=0` the run appended is the verdict.
+   */
+  it('returns at once for a task whose own output records the run’s ending (m182 +30:03)', async () => {
+    const backend: ExecutionBackend = {
+      projectRoot: '/test',
+      readFile: vi.fn(async (path: string) => {
+        // No `.exit`: the wrapper never wrote one. The task log stayed empty too.
+        if (path === '/tmp/full-run.log') return '  139 skipped (0.4s)\nEXIT=0\n'
+        if (path.endsWith('.log')) return ''
+        throw new Error(`ENOENT: ${path}`)
+      }),
+      writeFile: vi.fn().mockResolvedValue(undefined),
+      deleteFile: vi.fn(),
+      readDir: vi.fn(),
+      run: vi.fn(async (command: string) => ({
+        stdout: command.includes('MOL_TASK_STATE')
+          ? 'MOL_TASK_STATE alive\n  139 skipped (0.4s)\nEXIT=0'
+          : '',
+        stderr: '',
+        exitCode: 0,
+      })),
+    }
+    const tools = buildTools(backend)
+    const started = (await tools
+      .find((t) => t.name === 'exec_command')!
+      .execute({
+        // The run writes its own verdict to its own file, the way m182's wrapper did; the
+        // wrapper's exit file never appears (the mock has none) while its pid is still alive.
+        command:
+          'npx playwright test e2e/tmp-batch1.spec.ts > /tmp/full-run.log 2>&1; echo EXIT=$? >> /tmp/full-run.log',
+        run_in_background: true,
+      })) as { taskId: string }
+    const startedAt = Date.now()
+    const r = (await tools
+      .find((t) => t.name === 'wait_for_task')!
+      .execute({ taskId: started.taskId, timeout: 60_000 })) as {
+      status?: string
+      exitCode: number | null
+      stdout: string
+    }
+    // The wait ended on the run's own verdict, not on the ceiling.
+    expect(Date.now() - startedAt).toBeLessThan(10_000)
+    expect(r.status).toBe('completed')
+    expect(r.exitCode).toBe(0)
+    expect(r.stdout).toContain('139 skipped')
+  }, 20_000)
+
+  /**
+   * The wrapper is gone and its run recorded no verdict — but the task HAS ended. Saying so, with
+   * an unknown exit, is what stops the executor from waiting on a handle that can never answer.
+   */
+  it('ends a task whose process is gone, with no exit code and no invented one (m182)', async () => {
+    const backend: ExecutionBackend = {
+      projectRoot: '/test',
+      readFile: vi.fn(async (path: string) => {
+        // No exit file either: only the task's own log exists.
+        if (path.endsWith('.log')) return ''
+        throw new Error(`ENOENT: ${path}`)
+      }),
+      writeFile: vi.fn().mockResolvedValue(undefined),
+      deleteFile: vi.fn(),
+      readDir: vi.fn(),
+      run: vi.fn(async () => ({ stdout: 'MOL_TASK_STATE gone', stderr: '', exitCode: 0 })),
+    }
+    const tools = buildTools(backend)
+    const started = (await tools
+      .find((t) => t.name === 'exec_command')!
+      .execute({
+        command: 'npx playwright test > /tmp/full-run.log 2>&1',
+        run_in_background: true,
+      })) as {
+      taskId: string
+    }
+    const startedAt = Date.now()
+    const r = (await tools
+      .find((t) => t.name === 'wait_for_task')!
+      .execute({ taskId: started.taskId, timeout: 60_000 })) as {
+      status?: string
+      exitCode: number | null
+      note?: string
+    }
+    expect(Date.now() - startedAt).toBeLessThan(10_000)
+    expect(r.status).toBe('completed')
+    expect(r.exitCode).toBeNull()
+    expect(r.note).toContain('ended without writing an exit code')
+  }, 20_000)
+
+  it('still waits on a live long task (m182)', async () => {
+    const backend: ExecutionBackend = {
+      projectRoot: '/test',
+      readFile: vi.fn(async (path: string) => {
+        // No exit file either: only the task's own log exists.
+        if (path.endsWith('.log')) return ''
+        throw new Error(`ENOENT: ${path}`)
+      }),
+      writeFile: vi.fn().mockResolvedValue(undefined),
+      deleteFile: vi.fn(),
+      readDir: vi.fn(),
+      run: vi.fn(async () => ({ stdout: 'MOL_TASK_STATE alive', stderr: '', exitCode: 0 })),
+    }
+    const tools = buildTools(backend)
+    const started = (await tools
+      .find((t) => t.name === 'exec_command')!
+      .execute({
+        command: 'npx playwright test > /tmp/full-run.log 2>&1',
+        run_in_background: true,
+      })) as {
+      taskId: string
+    }
+    const r = (await tools
+      .find((t) => t.name === 'wait_for_task')!
+      .execute({ taskId: started.taskId, timeout: 5_000 })) as {
+      status?: string
+      note?: string
+    }
+    expect(r.status).toBe('running')
+    expect(r.note).toContain('Call wait_for_task again')
+  }, 20_000)
 })
 
 // ── a running log comes back as its failures, not its tail ───────────────────

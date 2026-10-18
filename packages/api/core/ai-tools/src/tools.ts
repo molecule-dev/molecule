@@ -11,7 +11,13 @@ import { posix } from 'path'
 
 import type { AITool } from '@molecule/api-ai'
 
-import { commandCutRun, CUT_AT_BUDGET, cutRunSentence, suiteRunExitCode } from './cut-run.js'
+import {
+  commandCutRun,
+  CUT_AT_BUDGET,
+  cutRunSentence,
+  suiteRunExitCode,
+  suiteSummary,
+} from './cut-run.js'
 import {
   addChangeSpan,
   changedSpan,
@@ -205,6 +211,114 @@ export async function taskStopCommand(backend: ExecutionBackend, taskId: string)
     // tells the executor to use anyway, so there is nothing to report and nothing to lose.
     return fallback
   }
+}
+
+/**
+ * How often a wait re-asks whether a task whose exit file has not appeared has ended. The exit
+ * file is read every tick; this probe is a process test plus the task's own output, and 3 s is
+ * close enough that a run which ended is never waited out (m182: 281 s on a walk that ended in 20).
+ */
+const TASK_END_LOOK_MS = 3_000
+
+/** How much of a task's own output the end test reads — a runner's tally is its last lines. */
+const TASK_OUTPUT_END_BYTES = 4_000
+
+/** What a background task's process and its own output say about whether it has ended. */
+interface TaskEndState {
+  /** Whether the task has ended. */
+  ended: boolean
+  /** The code its own output records (`EXIT=<n>`), or null when nothing recorded one. */
+  exitCode: number | null
+}
+
+/**
+ * The shell probe behind {@link taskEndState}: the pid the launcher wrote, and the end of the
+ * file the command redirects its own output to.
+ *
+ * The pid test is the one `molecule-dev/api/src/ai/background-tasks.ts` applies in `liveness` —
+ * a written exit code ends the task, a live pid keeps it running, and a handle the sandbox cannot
+ * account for stays unknown — so this package and that one cannot disagree about whether a task
+ * is still walking.
+ *
+ * @param taskId - The task's `mol-bg-…` handle (format already checked by the caller).
+ * @param own - The file the command redirects its own output to, when the launch could tell.
+ * @returns The command; its first line is `MOL_TASK_STATE <alive|gone|unknown>`, the rest the tail.
+ */
+const taskStateCommand = (taskId: string, own?: string): string =>
+  `P=$(cat /tmp/${taskId}.pid 2>/dev/null); ` +
+  `if [ -z "$P" ] || [ ! -f /tmp/${taskId}.sh ]; then echo MOL_TASK_STATE unknown; ` +
+  `elif kill -0 "$P" 2>/dev/null; then echo MOL_TASK_STATE alive; ` +
+  `else echo MOL_TASK_STATE gone; fi; ` +
+  (own ? `tail -c ${TASK_OUTPUT_END_BYTES} ${shellQuote(own)} 2>/dev/null` : 'true')
+
+/**
+ * The ending a task's own output already records, read from the file its command redirects to.
+ *
+ * A command can put its real work in a subshell and leave the platform's wrapper waiting on
+ * something else — `( runner > /tmp/full-run.log; echo EXIT=$? >> /tmp/full-run.log ) &` — so
+ * the task log stays empty and the exit file may never appear while the run itself is over. The
+ * run's own file is where its outcome is: an `EXIT=<n>` line the command appended, or the
+ * runner's closing tally (Playwright's status lines, Vitest's `Tests …` line, Hurl's
+ * `Executed files:`), which is the last thing a finished run prints.
+ *
+ * @param text - The tail of the task's own output file.
+ * @returns Whether the output records an ending, and the code when it recorded one.
+ */
+function outputEnding(text: string): TaskEndState {
+  const trimmed = text.trimEnd()
+  if (!trimmed) return { ended: false, exitCode: null }
+  // An explicit marker the command appended is the run's own verdict, whatever precedes it.
+  const marker = /(?:^|\n)EXIT=(\d+)\s*$/.exec(trimmed)
+  if (marker) return { ended: true, exitCode: Number(marker[1]) }
+  const lastLine = trimmed.slice(trimmed.lastIndexOf('\n') + 1).trim()
+  // A tally is an ending only as the LAST line: a second walk starts by printing its own header,
+  // so a file whose last line is still the first walk's tally is between the two.
+  const tallyLine =
+    /^\d+\s+(?:passed|failed|flaky|skipped|interrupted|timed out|did not run)\b/.test(lastLine) ||
+    /^Tests\s+.+\(\d+\)$/.test(lastLine) ||
+    /\bExecuted files:\s*\d+/.test(lastLine)
+  if (!tallyLine) return { ended: false, exitCode: null }
+  return { ended: suiteSummary(trimmed)?.finished ?? false, exitCode: null }
+}
+
+/**
+ * Whether a background task has ENDED, asked of the task itself rather than of a note about it.
+ *
+ * A missing exit file alone is not "running": the launcher writes that file from the wrapper it
+ * started, and a command that backgrounds its real work leaves the file missing after the run is
+ * over. X1 xr-molecule-flash-m182 (+30:25) waited 281 s — its whole remaining ceiling — on a walk
+ * that had ended in 20 s, and a `sleep 240; tail` on the same handle was answered "is live". The
+ * end is read the way `molecule-dev/api/src/ai/background-tasks.ts` reads it — exit file, then
+ * the pid — plus the one signal this package has and that tracker does not: the task's own output
+ * file already holding its ending.
+ *
+ * @param backend - The execution backend the task runs on.
+ * @param taskId - The task's `mol-bg-…` handle.
+ * @returns Whether it has ended, and the code its own output recorded when it recorded one.
+ */
+async function taskEndState(backend: ExecutionBackend, taskId: string): Promise<TaskEndState> {
+  const own = outputFileByTask.get(taskId)
+  let stdout: string
+  try {
+    const r = await backend.run(taskStateCommand(taskId, own), { timeout: 5_000 })
+    stdout = String(r.stdout ?? '')
+  } catch (_error) {
+    // A sandbox that cannot answer is not evidence of an ending: the quiet failure (a wait) beats
+    // the loud one (a result handed back for a run that is still walking).
+    return { ended: false, exitCode: null }
+  }
+  const [stateLine = '', ...rest] = stdout.split('\n')
+  const state = /MOL_TASK_STATE (alive|gone|unknown)/.exec(stateLine)?.[1] ?? 'unknown'
+  const ownEnding = outputEnding(rest.join('\n'))
+  // The run's own output can end the task while its wrapper is still alive: the wrapper may be
+  // waiting on the wrong thing (m182's was blocked) while the run it started is over. An explicit
+  // `EXIT=<n>` is that verdict; a bare tally is trusted only once the pid is gone, because the
+  // instant between a walk's tally and its next walk's header reads the same.
+  if (ownEnding.ended && (ownEnding.exitCode !== null || state === 'gone')) return ownEnding
+  // A pid this sandbox can account for and that is gone, with no exit file: the wrapper that
+  // writes the exit code was killed or exited, so the task ended and has no verdict to invent.
+  if (state === 'gone') return { ended: true, exitCode: null }
+  return { ended: false, exitCode: null }
 }
 
 /** A millisecond span the way a model reads it: seconds under 90, else minutes. */
@@ -438,17 +552,28 @@ async function backgroundTaskState(
     const own = outputFileByTask.get(id)
     return own !== undefined && command.includes(own)
   }
+  // A task is only a candidate to WAIT on while it is still walking: the exit file and the same
+  // end test `wait_for_task` applies both say when it ended, so a sleep is never held for a handle
+  // whose run is already over (m182 +30:25: `sleep 240; tail /tmp/full-run.log` was answered "is
+  // live" for a task that had ended 20 s after it started).
+  const stateOf = async (
+    id: string,
+  ): Promise<{ id: string; ended: boolean; exitCode: number | null }> => {
+    const exitCode = await exitCodeOf(id)
+    if (exitCode !== null) return { id, ended: true, exitCode }
+    return { id, ...(await taskEndState(backend, id)) }
+  }
   const newestFirst = [...ids].reverse()
   const namedId = newestFirst.find(names)
-  let target: { id: string; exitCode: number | null } | null = namedId
-    ? { id: namedId, exitCode: await exitCodeOf(namedId) }
+  let target: { id: string; ended: boolean; exitCode: number | null } | null = namedId
+    ? await stateOf(namedId)
     : null
   if (!target) {
     // Bounded: a long session can leave many finished tasks behind, and each look costs a read.
     for (const id of newestFirst.slice(0, 8)) {
-      const exitCode = await exitCodeOf(id)
-      if (exitCode === null) {
-        target = { id, exitCode }
+      const state = await stateOf(id)
+      if (!state.ended) {
+        target = state
         break
       }
     }
@@ -465,7 +590,7 @@ async function backgroundTaskState(
     // No slice: the note still says the task's state and how to get its result.
   }
   const secondsText = `Did not sleep ${Math.round(seconds)} s: background task \`${target.id}\``
-  if (target.exitCode === null) {
+  if (!target.ended) {
     const facts = waitProgressClauses({
       taskId: target.id,
       slice,
@@ -485,9 +610,14 @@ async function backgroundTaskState(
   const counter = logProgress(slice)
   const progress = counter ? `, at ${counter.done} of ${counter.total} in its log` : ''
   const failures = slice.trim() ? '; the failures in its log are in outputSoFar' : ''
+  // No exit file and no code in the run's own output: it ended and there is no verdict to invent.
+  const verdict =
+    target.exitCode === null
+      ? 'no exit code — its process is gone and its output recorded none'
+      : `exit code ${target.exitCode}`
   return {
     note:
-      `${secondsText} had already ended (exit code ${target.exitCode})${progress}${failures} — ` +
+      `${secondsText} had already ended (${verdict})${progress}${failures} — ` +
       `\`wait_for_task ${target.id}\` returns its result now.`,
     slice,
   }
@@ -3260,6 +3390,8 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       const started = runByTask.get(taskId)
       let midRunNote: string | null = null
       let lastCauseLookAt = startedAt - repeatingCauseLookMs()
+      let lastEndLookAt = startedAt - TASK_END_LOOK_MS
+      let endedWithoutCode = false
       let exitCode = await readExit()
       while (exitCode === null && Date.now() - startedAt < budgetMs) {
         await new Promise((r) =>
@@ -3269,6 +3401,19 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         // The exit file is read first, so a run that finishes between two looks still returns
         // its real result instead of a note about it.
         if (exitCode !== null) break
+        // A missing exit file is not "running": the launcher writes that file from its wrapper,
+        // and a command that backgrounds its real work leaves it missing after the run is over.
+        // The same end test the sleep peek uses answers here, before a cause look can `continue`
+        // past it — m182 (+30:25) waited 281 s on a walk that had ended in 20 s.
+        if (Date.now() - lastEndLookAt >= TASK_END_LOOK_MS) {
+          lastEndLookAt = Date.now()
+          const state = await taskEndState(backend, taskId)
+          if (state.ended) {
+            exitCode = state.exitCode
+            endedWithoutCode = state.exitCode === null
+            break
+          }
+        }
         if (repeatingCauseNoted.has(taskId)) continue
         if (Date.now() - lastCauseLookAt < repeatingCauseLookMs()) continue
         lastCauseLookAt = Date.now()
@@ -3344,7 +3489,10 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       }
       const waitedMs = Date.now() - startedAt
       waitedByTask.set(taskId, waitedBefore + waitedMs)
-      if (exitCode === null) {
+      // A task the end test found over with no exit code is FINISHED, not still walking: its
+      // result is read below from its own output. Only a task still alive (or a sandbox that
+      // could not answer) reaches the running/stuck answers.
+      if (exitCode === null && !endedWithoutCode) {
         const grownTo = await logBytes()
         const lastSize = logBytesByTask.get(taskId)
         if (grownTo !== null) logBytesByTask.set(taskId, grownTo)
@@ -3554,7 +3702,16 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         ? suiteRunPipelinePlacement(run.command)
         : { piped: false, unplaced: false }
       const reported = suiteRunExitCode(exitCode, output, placement.piped)
-      const noCodeNote = suiteExitCodeNote(placement, reported)
+      // A run that ended with no code at all is not a filtered pipeline: the sentence below says
+      // where its result came from, and claiming a stage after the runner would contradict it.
+      const noCodeNote = endedWithoutCode ? null : suiteExitCodeNote(placement, reported)
+      // The task ended and no exit file recorded a verdict: say so, and say where the result came
+      // from, so the executor reads it instead of waiting on a handle that can never answer.
+      const endedNote = endedWithoutCode
+        ? 'It ended without writing an exit code — its process is gone' +
+          (ownFile ? `, and its own output (${ownFile}) is the result below` : '') +
+          '. Read that result; do not wait on this task again.'
+        : null
       // A FINISHED result says so, even when the code it would report is withheld: a filtered
       // pipeline's code is not the run's verdict ({@link FILTERED_EXIT_NOTE}), so `exitCode` alone
       // cannot tell a caller this is the delivered result rather than a progress return — and a
@@ -3564,8 +3721,12 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         status: 'completed',
         exitCode: reported,
         waitedMs,
-        ...(causes || noCodeNote
-          ? { note: [causes, noCodeNote].filter((n): n is string => Boolean(n)).join(' ') }
+        ...(causes || noCodeNote || endedNote
+          ? {
+              note: [causes, noCodeNote, endedNote]
+                .filter((n): n is string => Boolean(n))
+                .join(' '),
+            }
           : {}),
         stdout: sanitizeOutput(truncateMiddle(output, MAX_OUTPUT_SIZE)),
         ...(output.length > MAX_OUTPUT_SIZE ? { truncated: true, fullOutput: log } : {}),
