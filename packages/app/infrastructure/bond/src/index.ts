@@ -42,6 +42,12 @@
  *   `const cm = getClassMap()` or `const router = require('routing')` in a
  *   component file therefore runs pre-wiring and breaks the app at load.
  *   Call accessors inside components/functions, never at module top-level.
+ *   The thrown error says WHICH case it is — "ran before the app's bonds were
+ *   set up" (nothing bonded yet: this call is at module scope, so move it into
+ *   a function/hook/effect or import the module after `setupProviders()`), or
+ *   "the app's bond setup has already run" (other categories are bonded and
+ *   this one was never wired: add `bond(...)` to the file that defines
+ *   `setupProviders()`) — and names the calling module from the stack.
  * - **All cores now read this registry.** Every `@molecule/app-*` core routes
  *   its `setProvider()`/`getProvider()` through this bond registry (the ai-*,
  *   audio, color-picker, date-range-picker, gallery, image-crop,

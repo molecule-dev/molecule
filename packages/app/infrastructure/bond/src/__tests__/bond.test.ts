@@ -123,9 +123,28 @@ describe('require()', () => {
     expect(bondRequire<{ v: number }>('state').v).toBe(1)
   })
 
-  it('throws with a helpful message when singleton missing', () => {
+  it('says the call ran before setup when nothing has been bonded yet', () => {
     expect(() => bondRequire('state')).toThrow(/No 'state' provider bonded/)
-    expect(() => bondRequire('state')).toThrow(/Bond one first/)
+    expect(() => bondRequire('state')).toThrow(/ran before the app's bonds were set up/)
+    expect(() => bondRequire('state')).toThrow(/module's top level/)
+    expect(() => bondRequire('state')).toThrow(/Move it inside a function, hook or effect/)
+  })
+
+  it('says the setup ran and names the missing bond when other categories are bonded', () => {
+    bond('theme', { v: 1 })
+    bond('storage', { v: 1 })
+
+    expect(() => bondRequire('state')).toThrow(/No 'state' provider bonded/)
+    expect(() => bondRequire('state')).toThrow(/bond setup has already run/)
+    expect(() => bondRequire('state')).toThrow(/it bonded 'theme'/)
+    expect(() => bondRequire('state')).toThrow(/bond\('state', provider\)/)
+  })
+
+  it('reports before-setup again after reset() forgets the first bond', () => {
+    bond('theme', { v: 1 })
+    reset()
+
+    expect(() => bondRequire('state')).toThrow(/ran before the app's bonds were set up/)
   })
 
   it('returns the bonded named provider', () => {
@@ -135,6 +154,15 @@ describe('require()', () => {
 
   it('throws with a helpful message when named missing', () => {
     expect(() => bondRequire('routing', 'react')).toThrow(/'routing:react'/)
+    expect(() => bondRequire('routing', 'react')).toThrow(/ran before the app's bonds were set up/)
+  })
+
+  it('names the missing named bond when the setup already bonded others', () => {
+    bond('routing', 'vue', { v: 1 })
+
+    expect(() => bondRequire('routing', 'react')).toThrow(/'routing:react'/)
+    expect(() => bondRequire('routing', 'react')).toThrow(/bond setup has already run/)
+    expect(() => bondRequire('routing', 'react')).toThrow(/bond\('routing', 'react', provider\)/)
   })
 })
 
