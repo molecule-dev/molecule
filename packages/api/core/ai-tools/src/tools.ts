@@ -471,6 +471,7 @@ import {
   truncateMiddle,
   universalCause,
   whitespaceTolerantReplace,
+  withoutSuiteTimeout,
 } from './utilities.js'
 
 /**
@@ -2444,12 +2445,30 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           // an executor's commands routinely carry quotes, heredocs and
           // newlines, and re-quoting them into a detached `sh -c` is how a
           // background runner corrupts the very thing it is running.
+          // The platform moved this run to the background because its own bound could not fit
+          // this tool's ceiling — and in the background the ceiling no longer applies, so the
+          // `timeout N` the executor wrote to fit it is the only bound left, and it kills the
+          // walk mid-run with no tally (X1 xr-molecule-flash-m143 +24:45). Lift it from the
+          // statement that runs the suite. A run the EXECUTOR detached keeps the bound it chose.
+          const lifted =
+            overCeiling && input.run_in_background !== true
+              ? withoutSuiteTimeout(command)
+              : { command, seconds: null }
+          if (lifted.seconds !== null) command = lifted.command
           // Keep the log growing while it runs (see streamingBackgroundCommand):
           // an empty log is what wait_for_task reads as stuck.
           const streaming = streamingBackgroundCommand(command)
           // …and the trace flag this tool added (above), which the streaming rewrite never saw:
           // its changes are what this branch reports the run's own settings in.
           if (traced.change) streaming.changes.unshift(traced.change)
+          // Said once, in the result that also hands back the task id or the run's output.
+          if (lifted.seconds !== null) {
+            streaming.changes.unshift(
+              `Dropped your \`timeout ${lifted.seconds}\` from the suite run: in the background it ` +
+                'is bounded by `wait_for_task` and the turn’s deadline, not by this tool’s ' +
+                'ceiling, so the bound you wrote would only have killed the walk.',
+            )
+          }
           // A whole-suite run starves the sandbox it shares with the app and with
           // every command the executor sends next, so it starts at lower CPU and
           // IO priority (see suiteRunPriorityLaunch). Foreground runs are never
@@ -2526,8 +2545,17 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
                       : {}),
                     error:
                       (sleepNote ? `${sleepNote} ` : '') +
-                      `${cutRunSentence(cut)} ` +
-                      (isSuiteRunCommand(command) ? SUITE_OVER_BUDGET_ADVICE : SPLIT_WORK_ADVICE),
+                      cutRunSentence(cut) +
+                      // A suite stopped in the background is never sent to the background again:
+                      // the sentence says what to do, and the advice's reason (it “takes the run
+                      // off this budget and writes its output to a log”) has already happened.
+                      (cut.background
+                        ? ''
+                        : ` ${
+                            isSuiteRunCommand(command)
+                              ? SUITE_OVER_BUDGET_ADVICE
+                              : SPLIT_WORK_ADVICE
+                          }`),
                   }
                 }
                 // The exit file holds the PIPELINE's code: when a stage this rewrite could not
