@@ -3026,9 +3026,16 @@ cd /workspace/.mol-scratch/realworld-e2e && npx playwright test --config playwri
       })) as { taskId: string }
     const r = (await tools
       .find((t) => t.name === 'wait_for_task')!
-      .execute({ taskId: started.taskId })) as { exitCode: number | null; note?: string }
+      .execute({ taskId: started.taskId })) as {
+      exitCode: number | null
+      status?: string
+      note?: string
+    }
     // `tee` is not provably output-only, so it stays: its code is the pipeline's, not the run's.
     expect(r.exitCode).toBeNull()
+    // …but the run HAS finished: the result says so, because a caller cannot read a withheld code
+    // as "this is the delivered result, not a progress return" (m152 +29:40).
+    expect(r.status).toBe('completed')
     expect(r.note).toContain('No exit code is reported')
     expect(r.note).toContain('a stage after the test runner')
   })

@@ -3332,8 +3332,13 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         : { piped: false, unplaced: false }
       const reported = suiteRunExitCode(exitCode, output, placement.piped)
       const noCodeNote = suiteExitCodeNote(placement, reported)
+      // A FINISHED result says so, even when the code it would report is withheld: a filtered
+      // pipeline's code is not the run's verdict ({@link FILTERED_EXIT_NOTE}), so `exitCode` alone
+      // cannot tell a caller this is the delivered result rather than a progress return — and a
+      // caller that tracks background tasks would hand the same result back as fresh news later.
       return {
         taskId,
+        status: 'completed',
         exitCode: reported,
         waitedMs,
         ...(causes || noCodeNote
