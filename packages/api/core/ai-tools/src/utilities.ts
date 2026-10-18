@@ -3442,6 +3442,13 @@ export function failureCausesNote(
     env?: readonly RunEnvSetting[]
   },
   pageErrors: readonly CausePageErrors[] = [],
+  /**
+   * Spec files whose selector-contract rows an edit broke since the last whole walk, when the
+   * caller knows them: the narrowed re-run names them beside the failing tests. A green re-run of
+   * the failure alone would certify a tree it never measured, and the specs selecting the
+   * element the edit removed were never walked (xr-molecule-flash-m187 shipped that).
+   */
+  regressedSpecs: readonly string[] = [],
 ): string | null {
   const { causes, ignored, flaky } = groupFailures(log, excluded, pageErrors)
   const total = causes.reduce((n, c) => n + c.tests.length, 0)
@@ -3454,8 +3461,14 @@ export function failureCausesNote(
   // (xr-molecule-flash-m101 +12:13 re-ran all 139, ~4 minutes, to check two). The command is the
   // run's own invocation narrowed by the ONE composer the mid-run note also uses
   // ({@link rerunOfRunningSuite}), with the request's exclusions inverted out so the re-run
-  // cannot report them again.
-  const locations = [...new Set(causes.flatMap((c) => c.tests.map((t) => t.where)).filter(Boolean))]
+  // cannot report them again. The regressed specs ride the same set: a re-run of the failures
+  // alone does not measure what an edit removed from the markup those specs select (m187).
+  const locations = [
+    ...new Set([
+      ...causes.flatMap((c) => c.tests.map((t) => t.where)).filter(Boolean),
+      ...regressedSpecs,
+    ]),
+  ]
   const rerun = run ? rerunOfRunningSuite(run, locations, excluded) : null
   // A document the browser could not load explains every failure at once, and it is not in the
   // app: m118 (+37:09) read 14 `page.goto` timeouts as app failures while the page load had ended

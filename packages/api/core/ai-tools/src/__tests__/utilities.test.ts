@@ -2472,6 +2472,29 @@ describe('repeatingFailure', () => {
       expect(failureCausesNote(m101, excluded)).not.toContain('Re-run just these')
     })
 
+    it('names the specs an edit broke beside the failing tests (m187)', () => {
+      // xr-molecule-flash-m187: a narrowed re-run that named only the failing test certified a
+      // tree whose edits had removed `.user-img`, and the specs selecting it were never walked —
+      // the deployed walk found it at +40. The caller passes those spec files, and the ONE
+      // composer puts them on the same command.
+      const command =
+        'cd /workspace/my-app/app && TEST_MODE=fullstack ' +
+        'npx playwright test url-navigation.spec.ts:206 --retries=0 --reporter=list'
+      const note = failureCausesNote(
+        m101,
+        excluded,
+        { command },
+        [],
+        ['null-fields.spec.ts', 'settings.spec.ts'],
+      )!
+      expect(note).toContain('Re-run just these once they are fixed: `')
+      expect(note).toContain('null-fields.spec.ts settings.spec.ts')
+      // The failure the run itself named is still there.
+      expect(note).toContain('navigation.spec.ts:200')
+      // The control: no row data, no regressed specs on the command.
+      expect(failureCausesNote(m101, excluded, { command })!).not.toContain('null-fields.spec.ts')
+    })
+
     it('carries the request’s required setting into the re-run it hands over (m182)', () => {
       // m182 +12:06: the request names `TEST_MODE=fullstack`, the run omitted it, and the
       // narrowed re-run was composed from that run — so it measured the `spa` suite again.
