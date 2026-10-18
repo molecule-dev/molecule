@@ -1,5 +1,17 @@
 # @molecule/api-ai-tools
 
+## 1.10.0
+
+### Minor Changes
+
+- ba332cd: A failing test's trace note now names a read route whose response contradicts what the same trace's write answered — the route's middleware is missing, not the page's state handling.
+
+### Patch Changes
+
+- 8fa175a: A failure note now says when a font URL was answered with the app's index.html instead of the font file.
+- 448987e: A composed re-run of a finished suite run now carries the settings the request requires, including ones the original run omitted.
+- a10354f: A background task is only reported as running while its process is alive: a wait returns the run's own result once its output records the ending, and a sleep is never held for a task that has ended.
+
 ## 1.9.19
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/app-fonts-ionicons
 
+## 1.1.2
+
+### Patch Changes
+
+- 6928ea3: The default face resolves to the package's bundled webfont, so `setFont(font)` loads the icons in development and in a production build with no copy into the app.
+
 ## 1.1.1
 
 ### Patch Changes
