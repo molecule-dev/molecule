@@ -178,6 +178,30 @@ describe('createServerFactory server (L1-1 — real /health response carries the
     expect(headers['content-security-policy']).toBe("frame-ancestors 'none'")
   })
 
+  it('keeps idle keep-alive sockets longer than any client pool in front of it', async () => {
+    // Node's server default (5000 ms) equals Node's global-agent idle timeout
+    // (5000 ms), so a proxy reusing a pooled socket can be handed one the server
+    // is closing in the same instant — the request is lost. The server must let
+    // go LAST; a client-side timeout strictly below it closes first, always.
+    const realCreateServer = http.createServer.bind(http)
+    vi.spyOn(http, 'createServer').mockImplementation(
+      (...args: Parameters<typeof http.createServer>) => {
+        const s = realCreateServer(...(args as Parameters<typeof realCreateServer>))
+        servers.push(s)
+        return s
+      },
+    )
+    const create = createServerFactory({
+      setupBonds: async () => {},
+      runMigrations: async () => {},
+      getRouter: async () => ({ router: expressLib.Router() }),
+    })
+    await create(0)
+    const server = servers[0]
+    expect(server.keepAliveTimeout).toBeGreaterThan(5000)
+    expect(server.headersTimeout).toBeGreaterThan(server.keepAliveTimeout)
+  })
+
   describe('HTTPS mode (optional pem dependency, loaded from ESM)', () => {
     let prevHttps: string | undefined
 

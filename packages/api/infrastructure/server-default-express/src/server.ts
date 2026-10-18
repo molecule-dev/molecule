@@ -365,6 +365,20 @@ export function createServerFactory(
     const httpServer: http.Server | https.Server = process.env.HTTPS
       ? (server as https.Server)
       : http.createServer(app)
+
+    // Outlive every connection pool that sits in front of this server. Node's
+    // default keepAliveTimeout is 5000 ms — exactly what Node's global http
+    // agent (what a proxy's `http.request` uses with no agent given) keeps an
+    // idle socket for. With both sides on the same 5 s timer, an idle
+    // connection is closed by the server at the very moment a proxy reuses it,
+    // and that one request is lost (measured against the platform front: a
+    // dropped reuse answers it a fast ECONNRESET, which costs a retry). A
+    // server-side timeout well above the client's makes the CLIENT always let
+    // go first, so a reuse can never land on a socket the server is closing.
+    // `headersTimeout` must stay greater than `keepAliveTimeout` (Node throws
+    // on boot otherwise).
+    httpServer.keepAliveTimeout = 65_000
+    httpServer.headersTimeout = 66_000
     await runServerCreatedHooks(httpServer)
     httpServer.listen(port, () => {
       logger.info(
