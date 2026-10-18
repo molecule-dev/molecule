@@ -167,6 +167,27 @@ export interface TraceContextEvidence {
   requests: TraceRequest[]
 }
 
+/**
+ * The text a failing assertion waited for that a same-page API response carried and the page never
+ * rendered.
+ *
+ * The assertion's own error names the text (a `has-text(…)` / `getByText(…)` / `toContainText(…)`
+ * argument), and the trace's network log holds the response that contained it. That pair is the
+ * whole diagnosis: the API returned the value and the page dropped it before rendering, so the cut
+ * is in the component that maps the response onto the list — not in the API, the route or the
+ * selector. xr-molecule-flash-m169 (+13:09) spent its fix rounds on the wrong component and on a
+ * markup detail while `GET /api/tags` was returning the missing "trending" and `PopularTags`
+ * sliced the response to its first 20 entries (the m99 top-N class, in the frontend).
+ */
+export interface TraceMissingText {
+  /** The text the assertion waited for (`trending`). */
+  text: string
+  /** The method of the response that carried it (`GET`). */
+  method: string
+  /** The path of the response that carried it (`/api/tags`). */
+  path: string
+}
+
 /** What one trace says: the test it belongs to, the requests it made, and its console lines. */
 export interface TraceArtifact {
   /** The failure's spec file, relative to the run's directory, when the trace names one. */
@@ -232,6 +253,17 @@ export interface TraceArtifact {
    * and on traces read before this field existed.
    */
   otherContexts?: TraceContextEvidence[]
+  /**
+   * The text the failing assertion waited for and a same-page API response carried, when the trace
+   * recorded both. The note leads with it: the value reached the browser and the page did not
+   * render it, so the next read is where that response is mapped — never the API or the selector
+   * (xr-molecule-flash-m169).
+   *
+   * Absent when the assertion waited for no text (a text-free selector, a strict-mode violation),
+   * when no page-scoped `fetch`/`xhr` answered 2xx/3xx with the text in its body, and on traces
+   * read before this field existed.
+   */
+  missingText?: TraceMissingText
 }
 
 /** How many traces one read reports, newest first. */
@@ -414,6 +446,27 @@ function messageOf(value) {
     at = at.error
   }
   return null
+}
+
+// The text a failing assertion waited for, named by its own error: a \`has-text(…)\` CSS
+// pseudo-class, a \`getByText(…)\` locator, or a \`toContainText(…)\` expectation. A strict-mode
+// violation is not this shape — two elements DID match the text — and neither is a wait on a
+// selector with no text argument. The ANSI colouring Playwright leaves in the message is dropped
+// before the read, or the quotes it wraps around a locator would never parse.
+function waitedTextOf(message) {
+  if (!message) return null
+  const text = String(message).replace(/\\u001b\\[[0-9;]*m/g, '')
+  if (text.indexOf('strict mode violation') !== -1) return null
+  const quoted = function (pattern) {
+    const m = pattern.exec(text)
+    return m === null ? null : m[2]
+  }
+  const hasText = quoted(/has-text\\(\\s*(['"])((?:(?!\\1).)*)\\1/)
+  if (hasText !== null) return hasText
+  const byText = quoted(/getByText\\(\\s*(['"])((?:(?!\\1).)*)\\1/)
+  if (byText !== null) return byText
+  if (text.indexOf('toContainText') === -1) return null
+  return quoted(/Expected(?: string)?:\\s*(["'])((?:(?!\\1).)*)\\1/)
 }
 
 // A request/response body exactly as Playwright stored it: inline on the value, or in a resource
@@ -677,6 +730,7 @@ for (const one of found.slice(0, MAX_TRACES)) {
   let failedStepId = null
   let failedStep = null
   let failedEnd = null
+  let failedError = ''
   let failureSpec = null
   let failureLine = 0
   let lastSpec = null
@@ -686,6 +740,7 @@ for (const one of found.slice(0, MAX_TRACES)) {
     if (entry.type === 'after' && entry.error && typeof entry.callId === 'string' && failedStepId === null) {
       failedStepId = entry.callId
       failedEnd = typeof entry.endTime === 'number' ? entry.endTime : null
+      failedError = messageOf(entry.error) || ''
     }
   }
   // The fallback location — the last step that names a spec — is read from every member, runner
@@ -928,6 +983,26 @@ for (const one of found.slice(0, MAX_TRACES)) {
     if (sent) r.sent = sent
     if (got) r.got = got
   }
+  // The text the failing assertion waited for, and a response the SAME page received that carried
+  // it (m169). The assertion's own error names the text; the network log says whether it ever
+  // reached the browser. Only an answered fetch/xhr can say the API returned it — a 4xx body is an
+  // error message, not data. The most focused response wins (smallest body): an articles list also
+  // carries tag names in its \`tagList\`, while the tags response is the collection whose membership
+  // the assertion tests.
+  const waitedText = waitedTextOf(failedError)
+  let missingText = null
+  if (waitedText !== null && !unattributed) {
+    let best = null
+    for (const r of requests) {
+      if (r.type !== 'fetch' && r.type !== 'xhr') continue
+      if (r.status < 200 || r.status >= 400) continue
+      const got = gotText(buf, entries, r)
+      if (!got || got.indexOf(waitedText) === -1) continue
+      if (best === null || got.length < best.got.length) best = { request: r, got: got }
+    }
+    if (best !== null)
+      missingText = { text: waitedText, method: best.request.method, path: best.request.path }
+  }
   function wire(r) {
     return {
       method: r.method,
@@ -1099,6 +1174,7 @@ for (const one of found.slice(0, MAX_TRACES)) {
     // tail here dropped every failed request as soon as a page made more than MAX_REQUESTS of them
     // plus the answered ones (xr-molecule-flash-m112's note listed only -1s and 200s).
     requests: chosen.slice(0, MAX_REQUESTS),
+    ...(missingText === null ? {} : { missingText: missingText }),
     console: keptConsole.slice(0, MAX_CONSOLE).map(function (text) { return text.slice(0, 300) }),
     actions: actions.slice(-MAX_ACTIONS),
     ...(unattributed ? { unattributed: true } : {}),
@@ -1134,6 +1210,21 @@ function parseTraceRequest(value: unknown): TraceRequest | null {
     ...(typeof r.context === 'string' && r.context ? { context: r.context } : {}),
     ...(typeof r.pageId === 'string' && r.pageId ? { pageId: r.pageId } : {}),
   }
+}
+
+/**
+ * One `missingText` out of a `TRACE` line's json, or null when the value is not one.
+ *
+ * @param value - The line's `missingText`.
+ * @returns The awaited text and the response that carried it, or null.
+ */
+function parseMissingText(value: unknown): TraceMissingText | null {
+  if (typeof value !== 'object' || value === null) return null
+  const raw = value as Record<string, unknown>
+  if (typeof raw.text !== 'string' || raw.text === '') return null
+  if (typeof raw.method !== 'string' || raw.method === '') return null
+  if (typeof raw.path !== 'string' || raw.path === '') return null
+  return { text: raw.text, method: raw.method, path: raw.path }
 }
 
 /**
@@ -1179,6 +1270,7 @@ export function parseTraceArtifacts(stdout: string): TraceArtifact[] {
       const actions = Array.isArray(raw.actions) ? raw.actions : []
       const lead = parseTraceRequest(raw.lead)
       const lastAction = parseLastAction(raw.lastAction)
+      const missingText = parseMissingText(raw.missingText)
       const otherContexts = Array.isArray(raw.otherContexts)
         ? raw.otherContexts
             .filter((c): c is Record<string, unknown> => typeof c === 'object' && c !== null)
@@ -1212,6 +1304,7 @@ export function parseTraceArtifacts(stdout: string): TraceArtifact[] {
           })),
         ...(otherContexts.length === 0 ? {} : { otherContexts }),
         ...(raw.unattributed === true ? { unattributed: true as const } : {}),
+        ...(missingText === null ? {} : { missingText }),
       })
     } catch (_error) {
       continue
@@ -2286,6 +2379,25 @@ function missingApiPrefixSentence(request: MissingApiPrefixRequest): string {
 }
 
 /**
+ * The sentence for a failing assertion whose awaited text a same-page API response carried.
+ *
+ * It names the response and the fact the trace proves — the value reached the browser and the page
+ * did not render it — and stops there. Which cut drops it (a slice, a filter, a limit) is in the
+ * component that maps the response, and the note cannot see that component; naming the mapping
+ * step is the whole instruction (xr-molecule-flash-m169).
+ *
+ * @param missing - The awaited text and the response that carried it.
+ * @returns The sentence the note leads with.
+ */
+function missingTextSentence(missing: TraceMissingText): string {
+  return (
+    `The API returned "${missing.text}" (in ${missing.method} ${missing.path}), but the page did ` +
+    `not render it — the page drops it before rendering (a slice/filter/limit in the component ` +
+    `that renders that list); find where that response is mapped.`
+  )
+}
+
+/**
  * The note a failed suite run's result carries: what each failing test's page actually sent, and
  * what came back.
  *
@@ -2716,7 +2828,26 @@ export function failureTraceNote(
       `does not define is always undefined, and a missing effect dependency on the route means ` +
       `the fetch never re-runs — before touching the markup or the CSS.\n\n`
     : ''
+  // An assertion whose awaited text a same-page API response carried: the fact the run needs
+  // first, before any row, is that the value arrived and the page dropped it (m169's missing
+  // "trending" came back from GET /api/tags while the sidebar rendered a cut list). Each distinct
+  // response is named once; the note makes no claim about which cut did it.
+  const missingTexts = [
+    ...new Map(
+      traced
+        .filter((item) => item.missingText !== undefined)
+        .map((item) => {
+          const missing = item.missingText as TraceMissingText
+          return [`${missing.method} ${missing.path}\u0000${missing.text}`, missing] as const
+        }),
+    ).values(),
+  ]
+  const missingTextLead =
+    missingTexts.length === 0
+      ? ''
+      : `${missingTexts.slice(0, 2).map(missingTextSentence).join(' ')}\n\n`
   return (
+    missingTextLead +
     transportLead +
     setupOriginLead +
     stalledLead +

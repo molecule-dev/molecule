@@ -2734,3 +2734,254 @@ describe('failureTraceNote — a route change that fetched nothing (xr-molecule-
     }
   })
 })
+
+/**
+ * m169's trace: `navigation.spec.ts` waits for `.sidebar .tag-list .tag-pill:has-text("trending")`,
+ * and the sidebar rendered the API's tag list CUT to its first 20 entries — "popular" is in that
+ * window, "trending" is the 21st — while `GET /api/tags` answered with both.
+ *
+ * The articles response also carries "trending" (inside a `tagList`), so a reader that names the
+ * first body containing the text names the wrong response: the tags response is the collection the
+ * assertion tests, and the most focused body (the least surrounding text) is that one.
+ *
+ * `assertion` switches the failing call's own error, which is where the awaited text is named: a
+ * `has-text(…)` CSS pseudo-class, a `getByText(…)` locator, a `toContainText(…)` expectation, or a
+ * strict-mode violation (two elements DID match — not this shape).
+ */
+function droppedTextZip(
+  options: {
+    assertion?: 'has-text' | 'getByText' | 'toContainText' | 'strict'
+    withText?: boolean
+  } = {},
+): Buffer {
+  const assertion = options.assertion ?? 'has-text'
+  const withText = options.withText ?? true
+  const spec = '/workspace/fixtures/openapi/specs/e2e/navigation.spec.ts'
+  const ndjson = (rows: unknown[]): string => rows.map((row) => JSON.stringify(row)).join('\n')
+  const quoted = `'.sidebar .tag-list .tag-pill:has-text("trending")'`
+  const message =
+    assertion === 'getByText'
+      ? `Error: expect(locator).toBeVisible() failed\n\nLocator: getByText('trending')\n` +
+        `Expected: visible\nTimeout: 5000ms\nError: element(s) not found\n`
+      : assertion === 'toContainText'
+        ? `Error: expect(locator).toContainText(expected) failed\n\n` +
+          `Locator: locator('.sidebar .tag-list')\nExpected string: "trending"\n` +
+          `Received string: "popular css design dragons html"\nTimeout: 5000ms\n`
+        : assertion === 'strict'
+          ? `Error: expect(locator).toBeVisible() failed\n\nLocator: locator(${quoted})\n` +
+            `Expected: visible\nError: strict mode violation: locator(${quoted}) resolved to 2 elements\n`
+          : `Error: expect(locator).toBeVisible() failed\n\nLocator: locator(${quoted})\n` +
+            `Expected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n` +
+            `  - waiting for locator(${quoted})\n`
+  // The API's list, cut by the app to its first 20 entries: "popular" is the 14th, "trending" the
+  // 21st — exactly the sidebar m169's failure snapshot showed.
+  const tags = [
+    'api',
+    'backend',
+    'css',
+    'design',
+    'dragons',
+    'frontend',
+    'guide',
+    'howto',
+    'html',
+    'javascript',
+    'news',
+    'node',
+    'ops',
+    'popular',
+    'react',
+    'sql',
+    'testing',
+    'typescript',
+    'vite',
+    'web',
+    ...(withText ? ['trending'] : []),
+    'ux',
+  ]
+  // Longer than the tags body on purpose: the article list carries the tag names too, and the note
+  // must name the collection the assertion tests, not the first body that happens to contain it.
+  const articles = {
+    articles: [
+      {
+        slug: 'how-to-build-a-realworld-app',
+        title: 'How to build a RealWorld app',
+        description: 'A walk through the Conduit spec, step by step',
+        body:
+          'The full walkthrough, with the API and the frontend kept in one repository and every ' +
+          'endpoint exercised by the e2e suite.',
+        tagList: ['popular', 'trending'],
+        author: { username: 'testuser1792335312076' },
+      },
+    ],
+    articlesCount: 1,
+  }
+  const request = (url: string, at: number, type: string, text?: string): unknown => ({
+    type: 'resource-snapshot',
+    snapshot: {
+      _resourceType: type,
+      _monotonicTime: at,
+      pageref: 'page@1',
+      request: { url, method: 'GET' },
+      response: { status: 200, ...(text === undefined ? {} : { content: { text } }) },
+    },
+  })
+  return storedZip({
+    'test.trace': ndjson([
+      {
+        type: 'before',
+        callId: 'r2',
+        title: 'should display popular tags',
+        class: 'Test',
+        method: 'step',
+        startTime: 3,
+      },
+      {
+        type: 'before',
+        callId: 'r3',
+        title: 'expect.toBeVisible',
+        class: 'Test',
+        method: 'step',
+        startTime: 110,
+        parentId: 'r2',
+        stack: [{ file: spec, line: 157 }],
+      },
+      { type: 'after', callId: 'r3', endTime: 120, error: { message } },
+      {
+        type: 'before',
+        callId: 'r4',
+        title: 'After Hooks',
+        class: 'Test',
+        method: 'step',
+        startTime: 122,
+      },
+      {
+        type: 'before',
+        callId: 'r5',
+        title: 'afterEach hook',
+        class: 'Test',
+        method: 'step',
+        startTime: 123,
+        parentId: 'r4',
+        stack: [{ file: spec, line: 12 }],
+      },
+      { type: 'after', callId: 'r5', endTime: 124 },
+    ]),
+    '1-trace.trace': ndjson([
+      {
+        type: 'before',
+        class: 'Frame',
+        method: 'goto',
+        callId: 'c0',
+        startTime: 5,
+        stepId: 'r3',
+        stack: [{ file: spec, line: 155 }],
+      },
+      { type: 'after', callId: 'c0', endTime: 20 },
+      {
+        type: 'frame-snapshot',
+        snapshot: {
+          callId: 'c0',
+          pageId: 'page@1',
+          frameId: 'frame@1',
+          frameUrl: 'http://127.0.0.1:4173/',
+          timestamp: 10,
+          isMainFrame: true,
+        },
+      },
+      {
+        type: 'frame-snapshot',
+        snapshot: {
+          callId: 'c0',
+          pageId: 'page@1',
+          frameId: 'frame@1',
+          frameUrl: 'http://127.0.0.1:4173/',
+          timestamp: 130,
+          isMainFrame: true,
+        },
+      },
+      {
+        type: 'before',
+        class: 'BrowserContext',
+        method: 'close',
+        callId: 'c2',
+        startTime: 200,
+        stack: [{ file: spec, line: 12 }],
+      },
+      { type: 'after', callId: 'c2', endTime: 201 },
+    ]),
+    '1-trace.network': ndjson([
+      request(
+        'http://127.0.0.1:4173/',
+        6,
+        'document',
+        '<html><body><div id="root"></div></body></html>',
+      ),
+      request(
+        'http://127.0.0.1:4173/api/articles?limit=20&offset=0',
+        12,
+        'fetch',
+        JSON.stringify(articles),
+      ),
+      request('http://127.0.0.1:4173/api/tags', 14, 'fetch', JSON.stringify({ tags })),
+    ]),
+  })
+}
+
+describe('failureTraceNote — a tag the API returned and the sidebar cut away (xr-molecule-flash-m169)', () => {
+  const note = (zip: Buffer): string => {
+    const root = stalledRun(zip)
+    try {
+      const items = parseTraceArtifacts(readTraces(root))
+      return String(failureTraceNote(items, 'https://loopcheck.apps.mlcl.dev', [], ['/api']))
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  }
+
+  it('names the response that carried the awaited text, before anything else', () => {
+    const root = stalledRun(droppedTextZip())
+    try {
+      const items = parseTraceArtifacts(readTraces(root))
+      expect(items[0].missingText).toEqual({
+        text: 'trending',
+        method: 'GET',
+        path: '/api/tags',
+      })
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+    const text = note(droppedTextZip())
+    const [lead] = text.split('\n')
+    expect(lead).toBe(
+      'The API returned "trending" (in GET /api/tags), but the page did not render it — the page ' +
+        'drops it before rendering (a slice/filter/limit in the component that renders that list); ' +
+        'find where that response is mapped.',
+    )
+    // The articles list carried the same tag name, and it is not the collection to look at.
+    expect(lead).not.toContain('/api/articles')
+    // The row still carries the requests and their answers.
+    expect(text).toContain("the test's last action was Frame.goto")
+    expect(text).toContain('/api/tags → 200')
+  })
+
+  it('reads the awaited text from a getByText locator too', () => {
+    const [lead] = note(droppedTextZip({ assertion: 'getByText' })).split('\n')
+    expect(lead).toContain('The API returned "trending" (in GET /api/tags)')
+  })
+
+  it('reads the awaited text from a toContainText expectation too', () => {
+    const [lead] = note(droppedTextZip({ assertion: 'toContainText' })).split('\n')
+    expect(lead).toContain('The API returned "trending" (in GET /api/tags)')
+  })
+
+  it('says nothing when no response carried the text', () => {
+    const text = note(droppedTextZip({ withText: false }))
+    expect(text).not.toContain('The API returned')
+  })
+
+  it('makes no such claim on a strict-mode violation, where two elements DID match', () => {
+    const text = note(droppedTextZip({ assertion: 'strict' }))
+    expect(text).not.toContain('The API returned')
+  })
+})
