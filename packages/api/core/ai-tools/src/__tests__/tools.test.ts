@@ -221,6 +221,74 @@ describe('buildTools', () => {
     )
   })
 
+  it('exec_command refuses a foreground probe that starts the app server and never exits (m167)', async () => {
+    // m167's +19:16 command verbatim, and the probe it wrote: the script imports the scaffold's
+    // `create()` (which `listen()`s and returns the server) and never exits. Behind `| tail` it
+    // printed nothing, and the tool waited its whole 290 s budget before answering.
+    const backend = mockBackend()
+    ;(backend.readFile as ReturnType<typeof vi.fn>).mockResolvedValue(
+      "const { create } = await import('/workspace/my-app/api/src/server.ts')\n" +
+        'const inst = await create(0)\n' +
+        'console.log(JSON.stringify(inst.address()))\n',
+    )
+    const tools = buildTools(backend, { blockDangerousCommands: true })
+    const exec = tools.find((t) => t.name === 'exec_command')!
+    const result = (await exec.execute({
+      command: 'npx tsx --env-file=.env /tmp/probe.mts 2>&1 | tail -15',
+    })) as { error?: string }
+    expect(result.error).toContain('starts a server')
+    expect(result.error).toContain('never exits')
+    expect(result.error).toContain('run_in_background')
+    expect(result.error).toContain(':4000')
+    expect(backend.run).not.toHaveBeenCalled()
+  })
+
+  it('exec_command runs a one-shot script that starts no server', async () => {
+    // The same shape (a script behind a pipe) without a server in it: it exits, so it runs.
+    const backend = mockBackend()
+    ;(backend.readFile as ReturnType<typeof vi.fn>).mockResolvedValue(
+      "const res = await fetch('http://localhost:4000/api/users')\nconsole.log(res.status)\n",
+    )
+    const tools = buildTools(backend, { blockDangerousCommands: true })
+    const exec = tools.find((t) => t.name === 'exec_command')!
+    const result = (await exec.execute({
+      command: 'npx tsx --env-file=.env /tmp/probe.mts 2>&1 | tail -15',
+    })) as { error?: string; exitCode?: number }
+    expect(result.error).toBeUndefined()
+    expect(backend.run).toHaveBeenCalledWith(
+      'npx tsx --env-file=.env /tmp/probe.mts 2>&1 | tail -15',
+      expect.anything(),
+    )
+  })
+
+  it('exec_command refuses a foreground `npm run dev`/`node server.js` and lets a background one run', async () => {
+    const tools = buildTools(mockBackend(), { blockDangerousCommands: true })
+    const exec = tools.find((t) => t.name === 'exec_command')!
+
+    const dev = (await exec.execute({ command: 'cd /workspace/my-app/app && npm run dev' })) as {
+      error?: string
+    }
+    expect(dev.error).toContain('starts a server')
+
+    const node = (await exec.execute({
+      command: 'cd /workspace/my-app/api && node server.js',
+    })) as {
+      error?: string
+    }
+    expect(node.error).toContain('starts a server')
+
+    // The advised shape: a background launch is the platform's own tracked task, never refused.
+    const background = mockBackend()
+    const bgExec = buildTools(background, {
+      blockDangerousCommands: true,
+    }).find((t) => t.name === 'exec_command')!
+    await bgExec.execute({
+      command: 'cd /workspace/my-app/app && npm run dev',
+      run_in_background: true,
+    })
+    expect(background.run).toHaveBeenCalled()
+  })
+
   it('exec_command never crashes when no command arrives under any name', async () => {
     const tools = buildTools(mockBackend(), { blockDangerousCommands: true })
     const exec = tools.find((t) => t.name === 'exec_command')!

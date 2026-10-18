@@ -24,6 +24,12 @@ import { guardToolExecute, missingParamError, ToolInputError } from './input-nor
 import { diffLineCount } from './line-diff.js'
 import { pipelineExitCodeNote } from './pipeline-exit-note.js'
 import { TOOL_SCHEMAS } from './schemas.js'
+import {
+  foregroundServerCommand,
+  SERVER_OVER_BUDGET_ADVICE,
+  serverCommandRefusal,
+  startsServerProgram,
+} from './server-command.js'
 import { leadingSleepPeek } from './sleep-peek.js'
 
 /**
@@ -2562,6 +2568,26 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         if (blocked) return { error: blocked }
       }
 
+      // A FOREGROUND command that starts a server never returns: it holds this tool for its whole
+      // budget and — behind `| tail`, the way these probes are usually written — prints nothing
+      // until it does. X1 xr-molecule-flash-m167 (+19:16 → +24:04) sent
+      // `npx tsx --env-file=.env /tmp/probe.mts | tail -15` where the script imports the app's
+      // `api/src/server.ts` and calls `create(0)`, whose `listen()` keeps the process alive; the
+      // run waited 290 s and was then told to "run a smaller unit". Refused BEFORE anything runs,
+      // with the two shapes that work: a background launch (which the platform tracks and hands a
+      // task id for) or a probe of the API already on :4000.
+      if (input.run_in_background !== true) {
+        const server = await foregroundServerCommand(rawCommand, (path) => backend.readFile(path))
+        if (server) {
+          return {
+            error: serverCommandRefusal(
+              server,
+              Math.max(1, Math.round((commandBudgetMs ?? 290_000) / 1000)),
+            ),
+          }
+        }
+      }
+
       // A Playwright run of a suite whose config records no trace gets one recorded anyway
       // (`diagnosisTraceCommand`, trace-artifacts.ts): the failing tests' own network log is what
       // tells a swallowed request error from a selector, and X1 xr-molecule-flash-m100 spent the
@@ -2924,7 +2950,11 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
                       : ''
                   }. `
                 : '') +
-              (isSuiteRunCommand(command) ? SUITE_OVER_BUDGET_ADVICE : SPLIT_WORK_ADVICE),
+              (startsServerProgram(command)
+                ? SERVER_OVER_BUDGET_ADVICE
+                : isSuiteRunCommand(command)
+                  ? SUITE_OVER_BUDGET_ADVICE
+                  : SPLIT_WORK_ADVICE),
           }
         }
         // A pipeline reports its LAST stage's code: `tsc | head` says 0 beside a printed type
