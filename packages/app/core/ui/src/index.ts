@@ -14,6 +14,11 @@
  * only the bond — a literal `"flex p-4"` in a component defeats that and is the #1 styling
  * mistake.
  *
+ * A stylesheet the request supplies (a theme CSS, a CSS framework, a design export with its
+ * own class names) is used by those class names written directly in `className` — ClassMap
+ * governs molecule's own utilities, not a supplied stylesheet's contract; never wrap,
+ * re-generate or rename its classes.
+ *
  * - **`Button` defaults to `type="button"`.** A form's primary action needs
  *   `type="submit"`, or Enter does nothing and tests that select `button[type="submit"]`
  *   miss it (X1 RealWorld runs failed 15 browser tests on one Settings button).
