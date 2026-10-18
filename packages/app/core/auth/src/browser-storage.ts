@@ -57,10 +57,11 @@ const warn = (message: string, error?: unknown): void => {
  * own `/me` call pays a round trip on EVERY navigation (xr-molecule-flash-m122: a 1–5 s restore
  * window, eight `waitForURL` timeouts).
  *
- * Pass it as `AuthClientConfig.storage` to keep the session across a page reload:
- * the client's default (`'memory'`) is lost on reload, and re-establishing the
- * session then needs a credential that survived — this adapter, or an httpOnly
- * session cookie the API sets (see the security note below).
+ * In a browser this IS the auth client's default `AuthClientConfig.storage`, so a scaffolded
+ * app keeps its session across a page reload with no extra wiring. Outside a browser (SSR, a Node
+ * test) the client defaults to `'memory'` instead, because there is no Web Storage to use. Pass
+ * `'memory'` explicitly to keep the bearer token out of script-reachable storage when the API sets
+ * an httpOnly session cookie (see the security note below).
  *
  * ```ts
  * import { createJWTAuthClient, createBrowserStorageAdapter } from '@molecule/app-auth'
@@ -71,7 +72,7 @@ const warn = (message: string, error?: unknown): void => {
  * })
  * ```
  *
- * The scaffold's `authConfig` already passes it, so a scaffolded app survives a
+ * The browser client already defaults to it, so a scaffolded app survives a
  * reload out of the box; each of these replaces that default:
  *
  * ```ts
@@ -91,10 +92,11 @@ const warn = (message: string, error?: unknown): void => {
  *   your API supports it.** Script cannot read an httpOnly cookie, so an XSS
  *   cannot exfiltrate the credential; the token stays in memory and
  *   `initialize()` restores the session through `currentUserEndpoint`
- *   (`@molecule/api-resource-user` issues exactly this cookie — that is why the
- *   client's default is `'memory'`). If the API sets one, `storage: 'memory'` is
- *   the strongest configuration. If it does not and you cannot change it, keep
- *   the token's lifetime short and rotate it on refresh.
+ *   (`@molecule/api-resource-user` issues exactly this cookie — pass
+ *   `storage: 'memory'` when it does). `'memory'` is then the strongest
+ *   configuration. If the API sets no such cookie and you cannot change that,
+ *   this adapter is the alternative — keep the token's lifetime short and rotate
+ *   it on refresh.
  * - **`kind: 'session'` narrows the window** to the tab's lifetime at the cost of
  *   losing the session in a new tab; `'local'` is the default because a reload is
  *   the requirement it exists for, and a fresh tab is the same person.

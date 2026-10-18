@@ -9,6 +9,7 @@
 import { I18nError } from '@molecule/app-i18n'
 import { getLogger } from '@molecule/app-logger'
 
+import { createBrowserStorageAdapter } from './browser-storage.js'
 import { createTokenStorage, getTokenExpiration, isTokenExpired } from './token.js'
 import type {
   AuthClient,
@@ -68,6 +69,27 @@ const clearSessionHintCookie = (): void => {
 }
 
 /**
+ * Whether a usable browser Web Storage exists — the condition under which the
+ * client's storage default is {@link createBrowserStorageAdapter} rather than
+ * `'memory'`.
+ *
+ * A browser app kept in memory loses the session on every full page load: a
+ * `page.goto` after sign-in signs the user out. Non-browser runtimes (SSR, a
+ * Node test) have no Web Storage, so they keep the in-memory default.
+ *
+ * @returns `true` when `window.localStorage` can be read.
+ */
+const hasBrowserStorage = (): boolean => {
+  try {
+    return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined'
+  } catch (_error) {
+    // A blocked/opaque context can throw on the property access itself; without a
+    // readable store the client stays in memory (the non-browser default).
+    return false
+  }
+}
+
+/**
  * Creates a simple JWT-based auth client.
  *
  * This is a basic implementation that can be extended or replaced
@@ -97,13 +119,30 @@ export const createJWTAuthClient = <
     changePasswordEndpoint = '/auth/password/change',
     currentUserEndpoint = '/users/me',
     storagePrefix = 'molecule:auth:',
-    storage = 'memory',
+    storage: configuredStorage,
     shouldRestoreUser,
     autoRefresh = true,
     refreshBuffer = 60,
   } = config
 
   const logger = getLogger('auth')
+
+  // In a browser the default is Web Storage: a session kept in memory is lost on
+  // every full page load, so a `page.goto` after sign-in signs the user out
+  // (xr-molecule-flash-m158: 40 of 65 local failures were this one default). SSR
+  // and Node tests have no Web Storage, so they keep `'memory'`.
+  const storage =
+    configuredStorage ?? (hasBrowserStorage() ? createBrowserStorageAdapter() : 'memory')
+
+  // `tokenKey` exists so something OUTSIDE this client reads the token at its own
+  // key. An explicit in-memory store makes that impossible: nothing else can see
+  // the value, and a reload signs the user out.
+  if (config.tokenKey !== undefined && configuredStorage === 'memory') {
+    logger.warn(
+      `tokenKey '${config.tokenKey}' is in memory — nothing outside this client can read it and a reload signs the user out; pass storage: createBrowserStorageAdapter()`,
+    )
+  }
+
   const tokenStorage = createTokenStorage(storage, storagePrefix, config.tokenKey)
   const stateListeners = new Set<(state: AuthState<T>) => void>()
   const eventListeners = new Set<AuthEventListener>()

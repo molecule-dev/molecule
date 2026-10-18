@@ -159,7 +159,9 @@ describe('a signed-in session across a page reload', () => {
     vi.unstubAllGlobals()
   })
 
-  it("is lost with the client's own default (the state X1 flash-m98 spent 34 minutes on)", async () => {
+  // A Node test has no `window`, so the client's default here is memory — the state a browser
+  // would be in only if it had no usable Web Storage (the adapter then degrades to memory too).
+  it('is lost outside a browser, where the default is memory (the state X1 flash-m98 spent 34 minutes on)', async () => {
     const token = createMockJWT({ sub: 'u1', exp: Math.floor(Date.now() / 1000) + 3600 })
     mockFetch.mockImplementation(() => createMockResponse({ accessToken: token, user: mockUser }))
     const first = createJWTAuthClient({ baseURL: '/api' })

@@ -66,8 +66,10 @@
  *
  * **A token another tool reads at its own key is a CONFIG field, not a mirror.**
  * An e2e suite or host page that expects `localStorage.jwtToken` (the RealWorld
- * specs do) is satisfied by `tokenKey: 'jwtToken'` with
- * `storage: createBrowserStorageAdapter()`; writing the token into that key from a
+ * specs do) is satisfied by `tokenKey: 'jwtToken'` — in a browser the client's
+ * storage default is already `createBrowserStorageAdapter()`, so with an explicit
+ * `'memory'` store you must also pass
+ * `storage: createBrowserStorageAdapter()`. Writing the token into that key from a
  * subscription beside the client is a second store. In React, `useAuth()` from
  * `@molecule/app-react` returns the client's `state` (with `status`), `user` and
  * `isAuthenticated`; the token is `useAuthClient().getAccessToken()`.
@@ -163,12 +165,12 @@
  * - [ ] The session survives a FULL page reload: after login, hard-reload → you
  *   stay signed in (the profile/sign-out UI a signed-in visitor sees is still
  *   there), and you are NOT bounced to login. Which route does it is the app's
- *   `AuthClientConfig.storage`: the scaffold's `createBrowserStorageAdapter()` keeps
- *   the token in the browser, an httpOnly session cookie is restored by
- *   `initialize()` through `currentUserEndpoint` (default `/users/me`). If the
- *   app has neither — `storage` left at `'memory'` against an API that sets no
- *   cookie — this box cannot be checked, and the fix is the config, not a token
- *   store written beside the client.
+ *   `AuthClientConfig.storage`: in a browser the client defaults to
+ *   `createBrowserStorageAdapter()`, which keeps the token there; an httpOnly
+ *   session cookie is restored by `initialize()` through `currentUserEndpoint`
+ *   (default `/users/me`). If the app sets `storage: 'memory'` explicitly against
+ *   an API that sets no cookie, this box cannot be checked, and the fix is the
+ *   config, not a token store written beside the client.
  * - [ ] Password reset round-trips: `requestPasswordReset({ email })` then
  *   `confirmPasswordReset({ token, password })` with the emailed token, after
  *   which `login()` with the NEW password succeeds and the OLD password no

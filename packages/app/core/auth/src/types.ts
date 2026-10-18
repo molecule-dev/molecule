@@ -480,6 +480,12 @@ export interface AuthClientConfig {
    * second library, a host page — instead of mirroring the token into
    * `localStorage` beside the client. The refresh token and the cached user keep
    * the prefix.
+   *
+   * In a browser the client's storage default is {@link createBrowserStorageAdapter},
+   * so `tokenKey` alone writes the token to exactly that key and a reload keeps
+   * the session. An EXPLICIT `storage: 'memory'` beside it warns at construction:
+   * the value then lives in a process-local Map nothing outside this client can
+   * read, and a reload signs the user out.
    */
   tokenKey?: string
 
@@ -531,19 +537,21 @@ export interface AuthClientConfig {
    * Where the access/refresh token and the cached user are kept — the field that
    * decides whether a page reload keeps the user signed in.
    *
-   * **In-memory is the secure default.** `'memory'` is a process-local store, lost
-   * on reload. It is correct when the API sets an httpOnly session cookie, which
-   * `initialize()` then restores through {@link AuthClientConfig.currentUserEndpoint}
-   * — the strongest configuration, because no script can read the cookie.
+   * **In a browser the default is `createBrowserStorageAdapter()` (Web Storage)**,
+   * so a reload keeps the session with no wiring of its own; outside a browser
+   * (SSR, a Node test) the default is `'memory'`. Pass `'memory'` EXPLICITLY when
+   * the API sets an httpOnly session cookie and you do not want a script-readable
+   * copy: `'memory'` is a process-local store, and `initialize()` then restores
+   * through {@link AuthClientConfig.currentUserEndpoint} — the strongest
+   * configuration, because no script can read the cookie.
    *
-   * **An app whose external contract requires a token in storage opts in
-   * EXPLICITLY, with these two fields together.** A supplied e2e suite (the
-   * RealWorld specs read `localStorage.jwtToken` in `SELECTORS.md`), a host page
-   * or a second library can require the token at its own key: then set
-   * `storage: createBrowserStorageAdapter()` and `tokenKey: 'jwtToken'`, and the
-   * session (token AND user) is restored synchronously in `initialize()` — with no
-   * store of your own. `tokenKey` places the access token at that exact key; the
-   * refresh token and the cached user keep `storagePrefix`.
+   * **An app whose external contract requires the token at a specific key** — a
+   * supplied e2e suite (the RealWorld specs read `localStorage.jwtToken` in
+   * `SELECTORS.md`), a host page, a second library — sets `tokenKey: 'jwtToken'`;
+   * in a browser that is enough, because the default store is Web Storage. The
+   * session (token AND user) is then restored synchronously in `initialize()` —
+   * with no store of your own. `tokenKey` places the access token at that exact
+   * key; the refresh token and the cached user keep `storagePrefix`.
    *
    * A bearer token in Web Storage is readable by any script on the origin, so an
    * XSS can steal it; see {@link createBrowserStorageAdapter}'s `@remarks` for the
@@ -561,14 +569,13 @@ export interface AuthClientConfig {
    * ```typescript
    * import { createBrowserStorageAdapter } from '@molecule/app-auth'
    *
-   * // A suite/host page reads the token at its own key — the opt-in:
+   * // A suite/host page reads the token at its own key (the browser default
+   * // already stores it; `storage` is shown for an explicit choice):
    * storage: createBrowserStorageAdapter()
    * tokenKey: 'jwtToken'
-   * // A reload keeps the session at this client's own keys:
-   * storage: createBrowserStorageAdapter()
    * // Only this tab's lifetime, at a narrower exposure than localStorage:
    * storage: createBrowserStorageAdapter({ kind: 'session' })
-   * // An httpOnly cookie session instead — memory only, the stronger route:
+   * // An httpOnly cookie session — keep the bearer out of script-reachable storage:
    * storage: 'memory'
    * ```
    */

@@ -21,7 +21,8 @@ import type { StorageAdapter, TokenStorage, UserProfile } from './types.js'
  *
  * @example
  * ```typescript
- * // In-memory storage (the client's default)
+ * // In-memory storage (this factory's default; the client's browser default is
+ * // createBrowserStorageAdapter — pass `'memory'` there for a cookie session)
  * const storage = createTokenStorage('memory')
  *
  * // The browser's persistent storage — a reload keeps the session
