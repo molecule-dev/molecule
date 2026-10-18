@@ -468,6 +468,7 @@ import {
   type SuiteRunPipelinePlacement,
   suiteRunPipelinePlacement,
   suiteRunPriorityLaunch,
+  TOOL_RESULT_CHARS,
   truncateMiddle,
   universalCause,
   whitespaceTolerantReplace,
@@ -777,6 +778,35 @@ function sandboxStillStarting(error: unknown): boolean {
   const message = typeof err?.message === 'string' ? err.message : ''
   if (/^SandboxNotFound(?:Error)?$/i.test(name)) return true
   return /not (?:found|running)|notfound|not attached|still starting/i.test(`${name} ${message}`)
+}
+
+/**
+ * The most entries a bounded `list_files` result lists. A package catalog is not read entry by
+ * entry — the executor wants one package it can name — so the summary keeps enough names to show
+ * the naming pattern and no more.
+ */
+const LIST_FILES_HEAD_ENTRIES = 20
+
+/**
+ * The line a package-catalog listing carries instead of a catalog's worth of names: a directory
+ * of 1,032 names answers no question, while `find_package` answers the one that was asked.
+ */
+const MOLECULE_CATALOG_POINTER =
+  'use find_package(query) to search the @molecule catalog by what you need, and ' +
+  'read_molecule_doc(name) for one package'
+
+/**
+ * Which package catalog a `list_files` path is, when it is one: the `@molecule` scope (1,032
+ * package directories, ~53 KB of names in one plan-phase call — X0 xr-molecule-flash-m151 at
+ * +01:54) or the `node_modules` root above it.
+ *
+ * @param path - A resolved (absolute, normalized) directory path.
+ * @returns `'molecule'` for the `@molecule` scope, `'packages'` for a `node_modules` root, or null.
+ */
+function packageCatalog(path: string): 'molecule' | 'packages' | null {
+  if (/(^|\/)node_modules\/@molecule$/.test(path)) return 'molecule'
+  if (/(^|\/)node_modules$/.test(path)) return 'packages'
+  return null
 }
 
 /**
@@ -1387,6 +1417,43 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
     }
   }
 
+  /**
+   * A `list_files` result, bounded when the directory is a package catalog or when the whole
+   * listing would not fit one tool result ({@link TOOL_RESULT_CHARS} — molecule-dev's cap on a
+   * tool result's text, which cuts a longer one through its MIDDLE). A normal app directory whose
+   * listing fits comes back exactly as it always has.
+   *
+   * @param path - The resolved directory path.
+   * @param entries - Everything the backend listed.
+   * @returns The listing, or its count plus the first {@link LIST_FILES_HEAD_ENTRIES} names and a note.
+   */
+  function listFilesResult(
+    path: string,
+    entries: Array<{ name: string; type: 'file' | 'directory' }>,
+  ): Record<string, unknown> {
+    const listing = {
+      path,
+      entries: entries.map((entry) => ({ name: entry.name, type: entry.type })),
+    }
+    const catalog = packageCatalog(path)
+    if (!catalog && JSON.stringify(listing).length <= TOOL_RESULT_CHARS) return listing
+    const head = listing.entries.slice(0, LIST_FILES_HEAD_ENTRIES)
+    const cut = head.length < entries.length
+    const note =
+      catalog === 'molecule'
+        ? `${entries.length} @molecule packages are installed here` +
+          (cut ? `; this listing is cut to ${head.length} names` : '') +
+          `. ${MOLECULE_CATALOG_POINTER}.`
+        : catalog === 'packages'
+          ? `This node_modules holds ${entries.length} entries` +
+            (cut ? `; this listing is cut to ${head.length} names` : '') +
+            `. ${MOLECULE_CATALOG_POINTER}.`
+          : `This directory holds ${entries.length} entries` +
+            (cut ? `; this listing is cut to ${head.length}` : '') +
+            '. Narrow it with find_files (by path pattern) or search_files (by content), or list a subdirectory.'
+    return { path, count: entries.length, entries: head, note }
+  }
+
   const toolImpls: Record<string, (input: Record<string, unknown>) => Promise<unknown>> = {
     async list_files(input) {
       const path = resolve((input.path as string) || '')
@@ -1394,7 +1461,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       if (symlinkErr) return { error: symlinkErr }
       try {
         const entries = await backend.readDir(path)
-        return { path, entries: entries.map((e) => ({ name: e.name, type: e.type })) }
+        return listFilesResult(path, entries)
       } catch (e: unknown) {
         const message = (e as Error).message
         // Same ground-truth answer as read_file's miss: a guessed path gets the parent's

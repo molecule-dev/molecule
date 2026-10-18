@@ -20,7 +20,12 @@ import {
   TOOL_SCHEMAS,
 } from '../index.js'
 import type { ExecutionBackend } from '../types.js'
-import { MAX_READ_CALL_CHARS, MAX_READ_RETURN_CHARS, printsOnlySource } from '../utilities.js'
+import {
+  MAX_READ_CALL_CHARS,
+  MAX_READ_RETURN_CHARS,
+  printsOnlySource,
+  TOOL_RESULT_CHARS,
+} from '../utilities.js'
 
 // ── Utilities ───────────────────────────────────────────────────────────────
 
@@ -1120,6 +1125,68 @@ describe('buildTools', () => {
     }
     expect(result.entries).toBeUndefined()
     expect(result.error).toMatch(/No such directory: \/test\/ghost/)
+  })
+
+  it('list_files on node_modules/@molecule returns a bounded summary pointing at find_package', async () => {
+    // X0 xr-molecule-flash-m151 (+01:54): the 1,032 package directories came back as a plain
+    // ~53 KB listing with no note, so the executor used it as its catalog (read_molecule_doc on
+    // names it had scrolled past) and every later model call carried the list. The catalog is
+    // one tool call away: find_package names the package, read_molecule_doc its API.
+    const backend = mockBackend()
+    const packages = Array.from({ length: 1032 }, (_, i) => ({
+      name: `package-${String(i).padStart(4, '0')}`,
+      type: 'directory' as const,
+    }))
+    ;(backend.readDir as ReturnType<typeof vi.fn>).mockResolvedValue(packages)
+    const listFiles = buildTools(backend).find((t) => t.name === 'list_files')!
+    const result = (await listFiles.execute({ path: 'node_modules/@molecule' })) as {
+      path: string
+      count?: number
+      entries?: Array<{ name: string; type: string }>
+      note?: string
+    }
+    expect(result.count).toBe(1032)
+    expect(result.entries).toHaveLength(20)
+    // Well under the cap molecule-dev puts on one tool result (8,000 chars): the whole point is
+    // that the catalog stops riding every model call.
+    expect(JSON.stringify(result).length).toBeLessThan(TOOL_RESULT_CHARS / 4)
+    expect(result.note).toContain('1032')
+    expect(result.note).toContain('find_package(query)')
+    expect(result.note).toContain('read_molecule_doc(name)')
+  })
+
+  it('list_files leaves a normal app directory listing that fits unchanged', async () => {
+    const backend = mockBackend()
+    const entries = [
+      { name: 'App.tsx', type: 'file' as const },
+      { name: 'main.tsx', type: 'file' as const },
+    ]
+    ;(backend.readDir as ReturnType<typeof vi.fn>).mockResolvedValue(entries)
+    const listFiles = buildTools(backend).find((t) => t.name === 'list_files')!
+    const result = await listFiles.execute({ path: 'app/src' })
+    expect(result).toEqual({ path: '/test/app/src', entries })
+  })
+
+  it('list_files bounds a large non-node_modules directory with its count', async () => {
+    // Any listing that would not fit one tool result is bounded the same way — the cap is the
+    // platform's, not a node_modules special case.
+    const backend = mockBackend()
+    const entries = Array.from({ length: 500 }, (_, i) => ({
+      name: `generated-${String(i).padStart(4, '0')}.ts`,
+      type: 'file' as const,
+    }))
+    ;(backend.readDir as ReturnType<typeof vi.fn>).mockResolvedValue(entries)
+    const listFiles = buildTools(backend).find((t) => t.name === 'list_files')!
+    const result = (await listFiles.execute({ path: 'app/generated' })) as {
+      count?: number
+      entries?: Array<{ name: string; type: string }>
+      note?: string
+    }
+    expect(result.count).toBe(500)
+    expect(result.entries).toHaveLength(20)
+    expect(JSON.stringify(result).length).toBeLessThan(TOOL_RESULT_CHARS)
+    expect(result.note).toContain('500')
+    expect(result.note).toContain('find_files')
   })
 
   it('edit_file with an ambiguous old_string names the lines it matched', async () => {
