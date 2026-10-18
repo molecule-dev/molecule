@@ -90,6 +90,39 @@ const hasBrowserStorage = (): boolean => {
 }
 
 /**
+ * Whether two user profiles carry the same data.
+ *
+ * The profile the API returns is plain JSON — objects of scalars, arrays and nested objects —
+ * so a structural walk is enough. `JSON.stringify` is not: it compares key order too, and two
+ * objects built in a different order would read as a change.
+ *
+ * @param left - One profile (or `null`).
+ * @param right - The other profile (or `null`).
+ * @param depth - How deep the walk already is; a profile nested deeper than this is treated as
+ *   different, which only costs one notification.
+ * @returns `true` when both carry the same data.
+ */
+const sameUserData = (left: unknown, right: unknown, depth = 0): boolean => {
+  if (left === right) return true
+  if (depth > 8 || left === null || right === null) return false
+  if (typeof left !== 'object' || typeof right !== 'object') return false
+  if (Array.isArray(left) || Array.isArray(right)) {
+    if (!Array.isArray(left) || !Array.isArray(right)) return false
+    if (left.length !== right.length) return false
+    return left.every((value, index) => sameUserData(value, right[index], depth + 1))
+  }
+  const leftRecord = left as Record<string, unknown>
+  const rightRecord = right as Record<string, unknown>
+  const leftKeys = Object.keys(leftRecord)
+  if (leftKeys.length !== Object.keys(rightRecord).length) return false
+  return leftKeys.every(
+    (key) =>
+      Object.prototype.hasOwnProperty.call(rightRecord, key) &&
+      sameUserData(leftRecord[key], rightRecord[key], depth + 1),
+  )
+}
+
+/**
  * Creates a simple JWT-based auth client.
  *
  * This is a basic implementation that can be extended or replaced
@@ -185,9 +218,29 @@ export const createJWTAuthClient = <
   }
 
   const setState = (updates: Partial<AuthState<T>>): void => {
-    const next = { ...state, ...updates }
-    state = { ...next, status: deriveStatus(next, updates.status) }
-    notify()
+    const previous = state
+    const next = { ...previous, ...updates }
+    // A user REFERENCE changes only when its data changes. A background verification
+    // (`validateSession`, a reload's cookie restore) answers with a freshly parsed object that
+    // usually carries exactly the data already in state; handing that new reference to every
+    // subscriber re-runs every effect keyed on `user`, and a form seeded from it resets whatever
+    // the user has typed since (xr-molecule-flash-m173: a Settings form wiped the test's bio
+    // between `fill` and submit, so the PUT sent `"bio": ""`).
+    if (updates.user !== undefined && sameUserData(updates.user, previous.user)) {
+      next.user = previous.user
+    }
+    const nextState = { ...next, status: deriveStatus(next, updates.status) }
+    state = nextState
+    // Nothing the subscriber can observe changed — the same user object, the same flags: do not
+    // notify. A listener that renders from this state has nothing new to render.
+    const unchanged =
+      previous.status === nextState.status &&
+      previous.initialized === nextState.initialized &&
+      previous.authenticated === nextState.authenticated &&
+      previous.user === nextState.user &&
+      previous.loading === nextState.loading &&
+      previous.error === nextState.error
+    if (!unchanged) notify()
   }
 
   /**
@@ -414,6 +467,28 @@ export const createJWTAuthClient = <
 
     setAccessToken: (token: string | null) => {
       tokenStorage.setAccessToken(token)
+    },
+
+    setSession: (session) => {
+      tokenStorage.setAccessToken(session.accessToken)
+      if (session.refreshToken !== undefined) {
+        tokenStorage.setRefreshToken(session.refreshToken)
+      }
+      tokenStorage.setUser(session.user)
+      // The COMPLETE state, in one update and one notification: an out-of-band exchange has
+      // already proved the session, so `authenticated` must flip with the token. Writing the
+      // token and the user with the two field setters leaves the client signed out for every
+      // shared hook (xr-molecule-flash-m178: nine navbar/profile assertions read
+      // `state.authenticated` and timed out after a successful registration).
+      setState({
+        initialized: true,
+        authenticated: true,
+        loading: false,
+        user: session.user,
+        status: 'authenticated',
+        error: null,
+      })
+      scheduleRefresh()
     },
 
     getRefreshToken: () => tokenStorage.getRefreshToken(),

@@ -64,6 +64,21 @@
  * (`validateSession()` clears it) or the user logs out. `autoRefresh: true`
  * against such an API is harmless but pointless — leave it `false`.
  *
+ * **Seeding a session from an exchange the app runs itself: `setSession()`.** When an OAuth
+ * redirect or the app's own sign-in endpoint has already issued the token and returned the
+ * user, `setSession({ accessToken, user })` stores both and flips the client to
+ * `authenticated` in one update, so every hook reading the shared client is signed in at once
+ * (a form's own sign-in code wrote the token and the user with `setAccessToken`/`setUser`,
+ * which change their field only — the UI stayed signed out and nine browser assertions timed
+ * out, xr-molecule-flash-m178). `setAccessToken()` and `setUser()` are field setters, not a
+ * sign-in: neither sets `authenticated`.
+ *
+ * **A background verification that returns an unchanged user changes nothing.** When
+ * `validateSession()` (or a reload's restore) answers with the same profile data the client
+ * already holds, the client keeps the SAME user object and does not notify subscribers — so an
+ * effect seeded from `user` does not re-run, and a form it fills keeps what has been typed.
+ * Seed such a form once (on its first load), never on every `user` identity.
+ *
  * **A token another tool reads at its own key is a CONFIG field, not a mirror.**
  * An e2e suite or host page that expects `localStorage.jwtToken` (the RealWorld
  * specs do) is satisfied by `tokenKey: 'jwtToken'` — in a browser the client's

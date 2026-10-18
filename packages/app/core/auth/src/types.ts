@@ -235,6 +235,22 @@ export type AuthEvent =
 export type AuthEventListener = (event: AuthEvent) => void
 
 /**
+ * A complete session an exchange outside the client has already established — an OAuth
+ * code→token redirect, or the app's own sign-in endpoint. {@link AuthClient.setSession} adopts
+ * it in one update: the token and the user are stored and the client becomes `authenticated`.
+ *
+ * @template T - The user profile the API returns.
+ */
+export interface AuthSessionSeed<T = UserProfile> {
+  /** The access token the exchange issued. */
+  accessToken: string
+  /** The profile that token belongs to, as the API returned it. */
+  user: T
+  /** A refresh token, when the exchange issued one; omitted leaves the stored one untouched. */
+  refreshToken?: string | null
+}
+
+/**
  * Auth client interface that all auth bond packages must implement.
  * Provides login/logout/register flows, token management, profile
  * updates, and auth state subscription.
@@ -267,6 +283,11 @@ export interface AuthClient<
    * hitting the network. Intended for local refreshes after a per-app
    * mutation (e.g., the user just PATCHed their own profile and the
    * server returned the canonical row). Does NOT change tokens.
+   *
+   * This does not sign the client in: `authenticated` and `status` are
+   * unchanged, so an anonymous client stays anonymous. Use
+   * {@link login} / {@link register} for a credential exchange, or
+   * {@link setSession} when the token was issued outside the client.
    */
   setUser(user: T | null): void
 
@@ -276,13 +297,33 @@ export interface AuthClient<
   getAccessToken(): string | null
 
   /**
-   * Stores the access token in the configured token storage adapter (in-memory
-   * by default). Use this to seed the token after an out-of-band exchange (e.g.
-   * the OAuth code→token redirect) instead of writing to `localStorage` directly,
-   * which would violate the in-memory-default storage contract and make the bearer
-   * token JS-readable (XSS-exfiltratable). Pass `null` to clear it.
+   * Stores the access token in the configured token storage adapter (in a
+   * browser, Web Storage; `'memory'` where no browser store exists). Use this
+   * to seed the token after an out-of-band exchange (e.g. the OAuth
+   * code→token redirect) instead of writing to `localStorage` directly,
+   * which would violate the storage contract and make a stored bearer token
+   * JS-readable (XSS-exfiltratable). Pass `null` to clear it.
+   *
+   * This changes token storage only; it does not sign the client in
+   * (`authenticated` and `status` are unchanged). Use {@link login} /
+   * {@link register} for a credential exchange, or call {@link setSession}
+   * with the token and the user to establish an already-issued session.
    */
   setAccessToken(token: string | null): void
+
+  /**
+   * Adopts a session an out-of-band exchange already established: stores the
+   * access token (and the refresh token when given), caches the user, and
+   * sets the COMPLETE state — `initialized`, `authenticated`, `status:
+   * 'authenticated'`, no error — in one update, with one subscriber
+   * notification. Every hook reading the shared client sees the user as
+   * signed in immediately.
+   *
+   * This is the way to seed an OAuth/custom sign-in. Calling
+   * {@link setAccessToken} and {@link setUser} instead does NOT sign the
+   * client in.
+   */
+  setSession(session: AuthSessionSeed<T>): void
 
   /**
    * Gets the refresh token.

@@ -181,6 +181,45 @@ describe('AuthState.status', () => {
     expect(client.getUser()).toEqual(fresh)
   })
 
+  it('validateSession keeps the SAME user object and stays silent when the profile is unchanged', async () => {
+    // xr-molecule-flash-m173: the deployed Settings form re-seeded itself from `user` and wiped
+    // what the test had typed, because every background verification handed subscribers a fresh
+    // object carrying the same data. A user reference changes only when its data changes.
+    const client = createJWTAuthClient({ storage: createMockStorage() })
+    client.setAccessToken(createMockJWT())
+    client.setUser(user)
+    await client.initialize()
+    const before = client.getUser()
+    const listener = vi.fn()
+    client.subscribe(listener)
+    mockFetch.mockImplementationOnce(() => createMockResponse({ user: { ...user } }))
+
+    await client.validateSession()
+
+    expect(client.getUser()).toBe(before)
+    expect(listener).not.toHaveBeenCalled()
+  })
+
+  it('validateSession hands a changed profile to listeners once, as a new object', async () => {
+    const client = createJWTAuthClient({ storage: createMockStorage() })
+    client.setAccessToken(createMockJWT())
+    client.setUser(user)
+    await client.initialize()
+    const before = client.getUser()
+    const listener = vi.fn()
+    client.subscribe(listener)
+    mockFetch.mockImplementationOnce(() =>
+      createMockResponse({ user: { ...user, bio: 'Updated bio' } }),
+    )
+
+    await client.validateSession()
+
+    expect(client.getUser()).not.toBe(before)
+    expect(client.getUser()?.bio).toBe('Updated bio')
+    expect(listener).toHaveBeenCalledTimes(1)
+    expect(listener.mock.calls[0][0].user).toBe(client.getUser())
+  })
+
   it('validateSession with no token settles as unauthenticated without a request', async () => {
     const client = createJWTAuthClient({ storage: createMockStorage() })
 
