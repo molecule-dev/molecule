@@ -2646,11 +2646,12 @@ export interface UniversalCause {
  * (m177: 18 tests, ~4.2 minutes, on a page whose thrown error was visible in the first
  * `pageerror`). Three is the smallest count that is not one page's own bug: the cause additionally
  * needs three DISTINCT spec files (`UNIVERSAL_CAUSE_FILES`, or the files a narrowed run selected),
- * each spec waiting for its OWN first element, and no test passing after the first failure. A page
- * that renders misses elements, but three unrelated specs in three files failing at three
- * different first locators with nothing passing in between is the page, not three bugs. At the
- * suite's own 5 s action timeout that verdict lands ~20 s into the walk, so the early stop costs
- * about one test's worth of time instead of fifteen.
+ * no failure showing a locator RESOLVING ({@link ELEMENT_FOUND} — a blank page cannot resolve
+ * one), and no test passing after the first failure. A page that renders misses elements, but
+ * three unrelated specs in three files failing at three different locators that never resolved,
+ * with nothing passing in between, is the page, not three bugs. At the suite's own 5 s action
+ * timeout that verdict lands ~20 s into the walk, so the early stop costs about one test's worth
+ * of time instead of fifteen.
  */
 export const EMPTY_PAGE_CAUSE_TESTS = 3
 
@@ -2661,6 +2662,21 @@ export const EMPTY_PAGE_CAUSE_TESTS = 3
  * test's own code — is a different failure and leaves this reading nothing.
  */
 const LOCATOR_WAIT = /waiting for locator\(|element\(s\) not found|toBeVisible\(\) failed/
+
+/**
+ * A failure body that shows the page PAINTED: Playwright's call log RESOLVED the locator to an
+ * element (`locator resolved to <i …>`, `resolved to 2 elements`) and only then found it
+ * unusable (`element is not visible` / `not enabled` / `not stable` / `not attached`, `outside
+ * of the viewport`). A blank page cannot resolve a locator, so one of these anywhere in a run
+ * disproves {@link emptyPageCause}.
+ *
+ * xr-molecule-flash-m187 (+15:39 and +18:54) narrowed two re-runs to the tests that had just
+ * failed, and both were stopped as "the app is rendering NOTHING" while every block in the log
+ * carried `locator resolved to <i class="ion-close-circled"></i>` followed by `element is not
+ * visible` — the page was drawn, and only an icon had no box.
+ */
+const ELEMENT_FOUND =
+  /locator resolved to (?:<|[1-9]\d* elements?\b)|element is (?:not (?:visible|enabled|stable|attached)\b|outside of the viewport)/
 
 /** An uncaught page error, as a run that listens for `pageerror` prints it. */
 const PAGE_ERROR_LINE = /^\s*(?:\[pageerror\]|pageerror:)\s*(.+)$/m
@@ -2684,7 +2700,18 @@ function pageErrorInLog(text: string): string | null {
  * The "nothing has passed and nothing renders" cause: the run's FIRST consecutive failures — from
  * its first failed test, with no pass since — are all locator waits, at least
  * {@link EMPTY_PAGE_CAUSE_TESTS} of them across {@link UNIVERSAL_CAUSE_FILES} different spec
- * files, and each waits for its own spec's first element.
+ * files, and NO failure block shows the page resolving the locator it waited for
+ * ({@link ELEMENT_FOUND}).
+ *
+ * "No locator resolved" is the check that says the page painted nothing; it replaced an
+ * earlier claim that each failure waits for its own spec's FIRST element, which the code never
+ * verified and the log alone cannot verify (Playwright prints only the failing line, not the
+ * spec's first one). A narrowed re-run of known failures meets every other condition by
+ * construction — every test in it failed last time at a locator wait — so the page-painted
+ * evidence is what keeps it from reading as an empty page. When the command names the
+ * individual tests (`file:line`), a re-run of exactly those is also skipped
+ * ({@link selectedTestRefs}): the executor is verifying fixes, and the stop would throw away
+ * the verdict the re-run exists to give.
  *
  * The file span stays at {@link UNIVERSAL_CAUSE_FILES} whatever the run selected: "the page
  * renders nothing" is a claim about the APP, and one file's failures can be that file's own setup
@@ -2704,20 +2731,41 @@ function pageErrorInLog(text: string): string | null {
  *
  * @param text - The log (ANSI already stripped).
  * @param found - The repeating cause {@link repeatingFailure} found, when it found one.
+ * @param command - How the run was started, when the caller knows it: a command naming the
+ *   individual tests it selects marks a re-run of known failures ({@link selectedTestRefs}).
  * @returns The cause, or null when the log is not this shape.
  */
-function emptyPageCause(text: string, found: RepeatingFailure | null): UniversalCause | null {
+function emptyPageCause(
+  text: string,
+  found: RepeatingFailure | null,
+  command?: string | null,
+): UniversalCause | null {
   const marks = resultMarks(text)
   const firstFailure = marks.indexOf('✘')
   if (firstFailure === -1 || marks.slice(firstFailure).includes('✓')) return null
   const blocks = failureBlocks(text)
   if (blocks.length === 0 || !blocks.every((block) => LOCATOR_WAIT.test(block))) return null
+  // A blank page cannot RESOLVE a locator: `locator resolved to …` (or an actionability outcome
+  // like `element is not visible`) means the page painted and only the element's box or
+  // visibility was wrong. xr-molecule-flash-m187 stopped two narrowed re-runs on exactly this.
+  if (blocks.some((block) => ELEMENT_FOUND.test(block))) return null
   // Both readings of the same failures: a `list` line carries the test and its duration, a
   // numbered block carries its body. The larger is the count — a failure that has a block but
   // whose result line the poll had not reached yet is still a failure.
   const byList = distinctTests(failedTests(text))
   const byBlock = distinctTests(failureBlockTests(text))
   const tests = byBlock.length >= byList.length ? byBlock : byList
+  // A run whose command names individual tests, and whose every failure is one of them, is a
+  // re-run of known failures, never an empty-page stop: the executor is checking fixes it just
+  // made, and stopping it throws away that verdict (xr-molecule-flash-m187, twice).
+  const selected = command ? selectedTestRefs(command) : null
+  if (
+    selected !== null &&
+    tests.length > 0 &&
+    tests.every((test) => selected.some((ref) => sameTestRef(ref, test.where)))
+  ) {
+    return null
+  }
   // One signature already covers every failure: that is the signature cause, and its wording
   // (which names the repeated error) says more than "the page renders nothing" would.
   if (found !== null && found.message !== null && found.count >= tests.length) return null
@@ -2831,6 +2879,67 @@ export function specFilesSelected(command: string): number | null {
   return null
 }
 
+/** One test a command selects by `file:line`, as the command wrote the path (relative to its cwd). */
+interface SelectedTestRef {
+  path: string
+  line: number
+}
+
+/**
+ * The individual tests a `playwright test` command names (`file:line` positionals), or null when
+ * it selects whole files, a directory, a glob, a bare filter, or nothing at all.
+ *
+ * A command that names `file:line` tests is a re-run of tests that already failed — the shape
+ * {@link emptyPageCause} must not read as "the page renders nothing", because the executor is
+ * verifying fixes and the stop throws that verdict away (xr-molecule-flash-m187, twice).
+ *
+ * @param command - The run's command.
+ * @returns The selected test references, or null when the selection is not per-test.
+ */
+function selectedTestRefs(command: string): SelectedTestRef[] | null {
+  for (const segment of commandSegments(command)) {
+    if (!/^playwright\s+test\b/.test(segment.text)) continue
+    const refs: SelectedTestRef[] = []
+    let flagValue = false
+    for (const word of segment.args.slice(1)) {
+      const token = word.replace(/^(['"])(.*)\1$/, '$2')
+      if (flagValue) {
+        flagValue = false
+        continue
+      }
+      if (token.startsWith('-')) {
+        const flag = token.includes('=') ? token.slice(0, token.indexOf('=')) : token
+        flagValue = !token.includes('=') && PLAYWRIGHT_VALUE_FLAGS.has(flag)
+        continue
+      }
+      const m = /^(.*\.(?:spec|test)\.[cm]?[jt]sx?):(\d+)(?::\d+)?$/.exec(token)
+      if (!m) return null
+      refs.push({ path: m[1]!, line: Number(m[2]) })
+    }
+    return refs.length > 0 ? refs : null
+  }
+  return null
+}
+
+/**
+ * Whether a failing test (`file:line`, as the log printed it) is the test one of the command's
+ * `file:line` selectors names.
+ *
+ * Paths are compared by suffix: the log prints the path from the suite root
+ * (`fixtures/conduit-spec/specs/e2e/articles.spec.ts:229`) while the command names it from its
+ * own cwd (`articles.spec.ts:229`), so neither is a prefix of the other.
+ *
+ * @param ref - One selected test reference.
+ * @param where - The failed test's `file:line` (see {@link splitTitlePath}).
+ * @returns True when they name the same test.
+ */
+function sameTestRef(ref: SelectedTestRef, where: string): boolean {
+  const m = /^(.*\.(?:spec|test)\.[cm]?[jt]sx?):(\d+)$/.exec(where)
+  if (!m || Number(m[2]) !== ref.line) return false
+  const path = m[1]!
+  return path === ref.path || path.endsWith(`/${ref.path}`) || ref.path.endsWith(`/${path}`)
+}
+
 /**
  * Whether a repeating cause is failing the whole run — the one case where stopping it is the
  * right call.
@@ -2872,9 +2981,9 @@ export function universalCause(
   const selected = command ? specFilesSelected(command) : null
   const threshold =
     selected === null ? UNIVERSAL_CAUSE_FILES : Math.min(UNIVERSAL_CAUSE_FILES, selected)
-  // Nothing has passed and nothing renders: EVERY spec so far is waiting for its own first
-  // element, so the signatures differ while the cause does not (xr-molecule-flash-m141).
-  const emptyPage = emptyPageCause(text, found)
+  // Nothing has passed and nothing renders: EVERY spec so far is waiting for an element the
+  // page never painted, so the signatures differ while the cause does not (xr-molecule-flash-m141).
+  const emptyPage = emptyPageCause(text, found, command)
   if (emptyPage) return emptyPage
   if (!found) return null
   const files = [...new Set(found.tests.map((t) => specFile(t.where)).filter(Boolean))]

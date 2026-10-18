@@ -2106,6 +2106,189 @@ describe('repeatingFailure', () => {
     })
   })
 
+  /**
+   * xr-molecule-flash-m187 (+15:39 and +18:54): the agent re-ran ONLY the tests that had just
+   * failed, and the wait stopped both runs as "the app is rendering NOTHING" four and five tests
+   * in. The app had rendered — every failure's call log carried `locator resolved to <i …>`
+   * followed by `element is not visible`, and `14 × locator resolved to 2 elements` — so the
+   * targeted re-run was cut off before it could give a verdict on the fixes it was measuring.
+   */
+  describe('a re-run of known failures is not a blank page (m187)', () => {
+    /** One test's result line and the numbered failure block Playwright writes under it. */
+    const failed = (n: number, file: string, line: number, title: string, body: string): string =>
+      [
+        list('✘', n, `${file}:${line}:3`, title, '8.8s'),
+        `  ${n}) [chromium] › fixtures/conduit-spec/specs/e2e/${file}:${line}:3 › ${title} ────────`,
+        '',
+        body,
+      ].join('\n')
+
+    /** The block m187 read twice: the icon resolved, then had no box (`element is not visible`). */
+    const notVisible = (locator: string, element: string): string =>
+      [
+        '    TimeoutError: locator.click: Timeout 5000ms exceeded.',
+        '    Call log:',
+        `      - waiting for locator('${locator}').first()`,
+        `        - locator resolved to ${element}`,
+        '      - attempting click action',
+        '        - element is not visible',
+      ].join('\n')
+
+    /** The same failure with the page-painted evidence removed: the page resolved nothing. */
+    const neverFound = (locator: string): string =>
+      [
+        '    TimeoutError: locator.click: Timeout 5000ms exceeded.',
+        '    Call log:',
+        `      - waiting for locator('${locator}').first()`,
+        '        - element(s) not found',
+      ].join('\n')
+
+    const TAG_ICON = notVisible(
+      '.tag-list .tag-pill i, .tag-list .tag-default i',
+      '<i tabindex="0" role="button" aria-label="Remove test" class="ion-close-circled"></i>',
+    )
+    const TRASH_ICON = notVisible(
+      'span.mod-options i.ion-trash-a',
+      '<i tabindex="0" role="button" class="ion-trash-a" aria-label="Delete comment"></i>',
+    )
+    const NAV_LINK = notVisible(
+      '.navbar .nav-link:has-text("test")',
+      '<a class="nav-link" href="/tag/test">test</a>',
+    )
+    const FOLLOW = [
+      '    Error: expect(locator).toBeVisible() failed',
+      '',
+      '    Locator: locator(\'button:has-text("Follow")\')',
+      '    Expected: visible',
+      '    Error: strict mode violation: locator(\'button:has-text("Follow")\') resolved to 2 elements:',
+      '        1) <button class="btn btn-sm btn-outline-secondary">Follow</button>',
+      '        2) <button class="btn btn-sm btn-outline-secondary">Follow</button>',
+    ].join('\n')
+
+    /** The re-run the agent sent at +15:39: exactly the tests that had failed. */
+    const RERUN =
+      'cd /workspace && TEST_MODE=fullstack npx playwright test --config playwright.conduit.config.ts ' +
+      'articles.spec.ts:229 comments.spec.ts:38 comments.spec.ts:116 navigation.spec.ts:63 ' +
+      'social.spec.ts:62 --retries=0 --reporter=list'
+
+    /** m187's second stopped re-run: 4 ✘ across 3 files, each with `locator resolved to`. */
+    const logAt1539 = (): string =>
+      [
+        'Running 11 tests using 1 worker',
+        failed(
+          1,
+          'articles.spec.ts',
+          229,
+          'Articles › should remove all tags when editing an article',
+          TAG_ICON,
+        ),
+        failed(2, 'comments.spec.ts', 38, 'Comments › should delete own comment', TRASH_ICON),
+        failed(
+          3,
+          'comments.spec.ts',
+          116,
+          'Comments › should only allow comment author to delete',
+          TRASH_ICON,
+        ),
+        failed(
+          4,
+          'navigation.spec.ts',
+          63,
+          'Navigation and Filtering › should filter articles by tag',
+          NAV_LINK,
+        ),
+      ].join('\n\n')
+
+    /** m187's third stopped re-run: 5 ✘ across 4 files, one of them a strict-mode match. */
+    const logAt1854 = (): string =>
+      [
+        'Running 11 tests using 1 worker',
+        failed(
+          1,
+          'articles.spec.ts',
+          229,
+          'Articles › should remove all tags when editing an article',
+          TAG_ICON,
+        ),
+        failed(2, 'comments.spec.ts', 38, 'Comments › should delete own comment', TRASH_ICON),
+        failed(
+          3,
+          'comments.spec.ts',
+          116,
+          'Comments › should only allow comment author to delete',
+          TRASH_ICON,
+        ),
+        failed(
+          4,
+          'navigation.spec.ts',
+          63,
+          'Navigation and Filtering › should filter articles by tag',
+          NAV_LINK,
+        ),
+        failed(5, 'social.spec.ts', 62, 'Social Features › should view other user profile', FOLLOW),
+      ].join('\n\n')
+
+    it('does not stop either m187 re-run: a locator that resolved disproves a blank page', () => {
+      for (const log of [logAt1539(), logAt1854()]) {
+        // The condition every other reading meets — no ✓ after the first ✘, ≥3 tests, ≥3 files.
+        // Only the page-painted evidence keeps it from being an empty-page stop.
+        const found = repeatingFailure(log)
+        expect(universalCause(log, null)).toBeNull()
+        expect(earlyReturnCause(found, universalCause(log, found))).toBeNull()
+        expect(
+          earlyReturnCause(repeatingFailure(log), universalCause(log, found, RERUN)),
+        ).toBeNull()
+      }
+    })
+
+    it('still stops a genuinely blank page in the same files (no locator resolves)', () => {
+      const blank = logAt1539()
+        .replace(/\n\s+- locator resolved to <[^\n]*>/g, '')
+        .replace(/\n\s+- element is not visible/g, '')
+      // Every block now says `element(s) not found`: nothing the page was asked for exists.
+      expect(blank).not.toContain('locator resolved to')
+      const universal = universalCause(blank, null)!
+      expect(universal.pageRendersNothing).toBe(true)
+      expect(universal.count).toBe(4)
+      expect(universal.files).toEqual([
+        'fixtures/conduit-spec/specs/e2e/articles.spec.ts',
+        'fixtures/conduit-spec/specs/e2e/comments.spec.ts',
+        'fixtures/conduit-spec/specs/e2e/navigation.spec.ts',
+      ])
+      // earlyReturnCause is what turns the reading into a stop (the note's wording follows it).
+      expect(earlyReturnCause(null, universal)).toBe(universal)
+    })
+
+    it('never reads a command that names individual tests as an empty-page stop', () => {
+      // Without page-painted evidence the log looks like a blank page, but every failing test is
+      // one the command names by `file:line`: this is the re-run of known failures the executor
+      // sent, and its verdict is the whole point of walking it.
+      const blank = logAt1539()
+        .replace(TAG_ICON, neverFound('.tag-list .tag-pill i, .tag-list .tag-default i'))
+        .replaceAll(TRASH_ICON, neverFound('span.mod-options i.ion-trash-a'))
+        .replace(NAV_LINK, neverFound('.navbar .nav-link:has-text("test")'))
+      expect(universalCause(blank, null)).not.toBeNull()
+      expect(universalCause(blank, null, RERUN)).toBeNull()
+      // A command that selects whole FILES is not a per-test re-run and keeps the reading.
+      expect(
+        universalCause(
+          blank,
+          null,
+          'npx playwright test e2e/articles.spec.ts e2e/comments.spec.ts e2e/navigation.spec.ts',
+        ),
+      ).not.toBeNull()
+      // A re-run that also walks a test the command did not name is not a re-run of known
+      // failures; something else failed, and the run still has that to say.
+      expect(
+        universalCause(
+          blank,
+          null,
+          'npx playwright test articles.spec.ts:229 comments.spec.ts:38 navigation.spec.ts:63',
+        ),
+      ).not.toBeNull()
+    })
+  })
+
   describe('specFilesSelected', () => {
     it('counts the spec files a Playwright command names', () => {
       expect(
