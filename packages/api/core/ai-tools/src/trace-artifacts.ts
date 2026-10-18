@@ -202,12 +202,6 @@ const TRACE_NOTE_FAILURE_CHARS = 120
  * `TRACE <json>` line per `trace.zip` under `<dir>` (newest first, {@link MAX_TRACE_ARTIFACTS} of
  * them), each with the test it belongs to, the requests its page made and its console lines.
  *
- * The console lines are ranked, because the level alone is not enough: errors first, then a line
- * that names a session decision or comes from a molecule package, then any other warning, then the
- * browser's own resource error. `@molecule/app-auth`'s "Token refresh failed, logging out" is a
- * WARNING, and keeping errors only dropped the one line that explained a whole signed-out run
- * (xr-molecule-flash-m148 +38:21).
- *
  * It is a standalone program, not an import, for the reason `@molecule/api-code-sandbox` runs it:
  * Playwright's own zip reader is not reachable from a project's `node_modules`, and a dependency
  * on `unzip` would make the read fail on every sandbox that has none. The zip is read with the
