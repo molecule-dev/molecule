@@ -63,6 +63,25 @@ const MANY_REQUESTS_401 = fileURLToPath(
   new URL('./fixtures/trace-many-requests-with-401.zip', import.meta.url),
 )
 
+/**
+ * A real trace of a click whose `fetch` DID send `Authorization: Bearer …` and got a 401 back —
+ * the other half of m148's wire: the client attached a token and the SERVER refused it. The
+ * header's value in the fixture is a fake (`secret-token-abc123`) so a test can prove the reader
+ * carries the scheme word and never the credential.
+ */
+const BEARER_401 = fileURLToPath(new URL('./fixtures/trace-bearer-401.zip', import.meta.url))
+
+/** A real trace of the same click answered `403` — a permission answer, not a credential one. */
+const BEARER_403 = fileURLToPath(new URL('./fixtures/trace-bearer-403.zip', import.meta.url))
+
+/**
+ * A real trace whose `Authorization` header carried a value with NO scheme word (the credential
+ * pasted straight in). Only the header's PRESENCE may leave the trace — never the value.
+ */
+const RAW_AUTH_VALUE = fileURLToPath(
+  new URL('./fixtures/trace-raw-auth-value.zip', import.meta.url),
+)
+
 /** How Playwright names the folder for the fixture's test. */
 const FOLDER = 'realworld-social-should-follow-a-user-chromium'
 
@@ -149,7 +168,10 @@ describe('traceArtifactsScript — a real trace, read headlessly', () => {
       expect(note).toContain('POST /api/articles/x/favorite → 401')
       expect(note).toContain('e2e/realworld/social.spec.ts:')
       expect(note).toContain('https://app.apps.mlcl.dev')
-      expect(note).toContain('stop `catch`-ing')
+      // m148 +29:18: the trace proves the request carried no Authorization header, so the note
+      // answers on the CLIENT side — the handler is not the problem.
+      expect(note).toContain('with NO `Authorization` header')
+      expect(note).not.toContain('stop `catch`-ing')
     } finally {
       rmSync(root, { recursive: true, force: true })
     }
@@ -390,10 +412,11 @@ describe('failureTraceNote — a request with no response is not a failed reques
       // The last action caused the 401, so the row leads with the action's requests — the failed
       // one included, once, with its status.
       expect(note).toContain('GET /api/fail → 401')
-      expect(note.match(/GET \/api\/fail/g)).toHaveLength(1)
-      expect(note).toContain(
-        'A click that changed nothing is usually one of these requests failing',
-      )
+      const row = String(note.split('\n').find((line) => /^\s+1\./.test(line)))
+      expect(row.match(/GET \/api\/fail/g)).toHaveLength(1)
+      // Its only failure is a credential refusal, so the closing answer is the client's omission
+      // (m148 +29:18), not the handler sentence.
+      expect(note).toContain('with NO `Authorization` header')
     } finally {
       rmSync(root, { recursive: true, force: true })
     }
@@ -443,9 +466,9 @@ describe('failureTraceNote — a request with no response is not a failed reques
       ),
     )
     expect(withFailure).toContain('failed: GET /api/tags → 401')
-    expect(withFailure).toContain(
-      'A click that changed nothing is usually one of these requests failing',
-    )
+    // The one real failure is a credential refusal: the note answers on the client's side (m148).
+    expect(withFailure).toContain('with NO `Authorization` header')
+    expect(withFailure).not.toContain('No listed request failed')
     expect(withFailure).toContain('no response recorded')
     expect(withFailure).not.toMatch(/→ -1/)
   })
@@ -598,6 +621,159 @@ describe('failureTraceNote — a page that never loaded (xr-molecule-flash-m118)
     const note = String(failureTraceNote([loaded], 'the deployed app'))
     expect(note).not.toContain('TRANSPORT failure')
     expect(note).toContain('POST /api/articles/x/favorite → 401')
+  })
+})
+
+/**
+ * xr-molecule-flash-m148 +29:18: `POST /api/articles/…/favorite → 401
+ * {"errors":{"token":["is missing"]}}` was answered with "read the handler this route reaches in
+ * your own source" for six local walks. The API's own body says the request arrived with no
+ * `Authorization` header — the client's omission, not the handler's. The trace's request record
+ * now carries the header's scheme word (never its value), and the note branches on it.
+ */
+describe('failureTraceNote — which half of the wire refused the request (m148 +29:18)', () => {
+  /** The fixture's generated suite: `<root>/test-results/<folder>/trace.zip`. */
+  const fixtureNote = (zip: string, folder: string): string => {
+    const root = layout({ [folder]: zip })
+    try {
+      return String(failureTraceNote(parseTraceArtifacts(readTraces(root)), 'the deployed app'))
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  }
+
+  it('reads a 401 with NO Authorization header as the client not attaching the token', () => {
+    const root = layout({ [FOLDER]: FIXTURE })
+    try {
+      const printed = readTraces(root)
+      const items = parseTraceArtifacts(printed)
+      const refused = items[0]?.requests.find((request) => request.status === 401)
+      // The record says what the request lacked — and keeps nothing that could be a credential.
+      expect(refused?.authorization).toBeUndefined()
+      expect(refused?.sentAuthorization).toBeUndefined()
+      // No header VALUE is ever serialized: only the scheme word, when one parsed.
+      expect(printed).not.toMatch(/"authorization":"(?!Bearer|Token|Basic)[^"]+"/i)
+
+      const note = String(failureTraceNote(items, 'https://app.apps.mlcl.dev'))
+      expect(note).toContain('with NO `Authorization` header')
+      expect(note).toContain('the client did not attach the token')
+      expect(note).toContain('the app’s HTTP client that the auth bond configures')
+      expect(note).toContain('that the token is stored where the client reads it')
+      // The fix the once-only split-store note states, beside the request that proves it.
+      expect(note).toContain('setAuthToken')
+      expect(note).toContain('The API handler is not the problem.')
+      // The handler sentence is the wrong half of the wire and is gone.
+      expect(note).not.toContain('read the handler this route reaches')
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
+  it('reads a 401 that carried a Bearer token as the server refusing what it was sent', () => {
+    const root = layout({ 'bearer-401-chromium': BEARER_401 })
+    try {
+      const printed = readTraces(root)
+      // Only the scheme word leaves the trace — the fixture's fake token never does.
+      expect(printed).not.toContain('secret-token-abc123')
+      expect(printed).toContain('"authorization":"Bearer"')
+      const items = parseTraceArtifacts(printed)
+      expect(
+        items[0]?.requests.find(
+          (request) => request.status === 401 && request.path === '/api/bearer',
+        ),
+      ).toMatchObject({ authorization: 'Bearer', sentAuthorization: true })
+      expect(
+        items[0]?.requests.find(
+          (request) => request.status === 401 && request.path === '/api/bearer',
+        )?.sentCookie,
+      ).toBeUndefined()
+
+      const note = String(failureTraceNote(items, 'the deployed app'))
+      expect(note).toContain('with `Authorization: Bearer …`')
+      expect(note).toContain('the token was sent and rejected')
+      expect(note).toContain('read the verify middleware this route reaches')
+      expect(note).not.toContain('with NO `Authorization` header')
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
+  it('never records a scheme-less Authorization value, and still reads the header as sent', () => {
+    const root = layout({ 'raw-auth-chromium': RAW_AUTH_VALUE })
+    try {
+      const printed = readTraces(root)
+      // A value pasted with no scheme is the credential itself: presence is kept, the value is not.
+      expect(printed).not.toContain('rawtokenvalue-not-a-scheme')
+      expect(printed).not.toContain('rawtokenvalue')
+      expect(printed).toContain('"sentAuthorization":true')
+      const items = parseTraceArtifacts(printed)
+      const refused = items[0]?.requests.find((request) => request.status === 401)
+      expect(refused?.sentAuthorization).toBe(true)
+      expect(refused?.authorization).toBeUndefined()
+
+      const note = String(failureTraceNote(items, 'the deployed app'))
+      expect(note).toContain('with an `Authorization` header')
+      expect(note).toContain('the token was sent and rejected')
+      expect(note).not.toContain('rawtokenvalue')
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
+  it('answers a 403 with the route’s permission check, not the handler', () => {
+    const note = fixtureNote(BEARER_403, 'bearer-403-chromium')
+    expect(note).toContain('the API answered 403')
+    expect(note).toContain('with `Authorization: Bearer …`')
+    expect(note).toContain('role/permission check')
+    expect(note).toContain('the token was accepted but this user may not do it')
+    expect(note).not.toContain('read the handler this route reaches')
+  })
+
+  it('names the browser’s cookies when a 401 carried them but no Authorization header', () => {
+    const note = String(
+      failureTraceNote(
+        [
+          {
+            spec: 'e2e/auth.spec.ts',
+            line: 4,
+            requests: [
+              { method: 'GET', path: '/api/user', status: 401, type: 'fetch', sentCookie: true },
+            ],
+            console: [],
+          },
+        ],
+        'the deployed app',
+      ),
+    )
+    expect(note).toContain('with NO `Authorization` header')
+    expect(note).toContain('did carry a `Cookie` header')
+  })
+
+  it('keeps the handler sentence for a 422 and for a mixed 401/422 run', () => {
+    const register = fixtureNote(REGISTER_422, 'register-chromium')
+    expect(register).toContain('read the handler this route reaches')
+    expect(register).not.toContain('with NO `Authorization` header')
+
+    const mixed = String(
+      failureTraceNote(
+        [
+          {
+            spec: 'e2e/auth.spec.ts',
+            line: 9,
+            requests: [
+              { method: 'POST', path: '/api/articles/x/favorite', status: 401, type: 'fetch' },
+              { method: 'POST', path: '/api/users', status: 422, type: 'fetch' },
+            ],
+            console: [],
+          },
+        ],
+        'the deployed app',
+      ),
+    )
+    // Both are true in a mixed run: the handler sentence stays, and the credential refusal is
+    // named beside it.
+    expect(mixed).toContain('read the handler this route reaches')
+    expect(mixed).toContain('with NO `Authorization` header')
   })
 })
 

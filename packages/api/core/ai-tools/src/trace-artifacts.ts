@@ -72,6 +72,28 @@ export interface TraceRequest {
    * fixture), in which case only recording order is available.
    */
   startedAt?: number
+  /**
+   * Whether the request carried an `Authorization` header at all. Its VALUE is never recorded.
+   *
+   * A 401 cannot be read without this: the API's own body said
+   * `{"errors":{"token":["is missing"]}}` while the note told the run to read the API handler,
+   * when the header's absence proved the CLIENT never attached the token
+   * (xr-molecule-flash-m148 +29:18). A header present moves the answer to the server: the API
+   * refused a token it was sent.
+   */
+  sentAuthorization?: boolean
+  /**
+   * The scheme WORD of an `Authorization` header (`Bearer`, `Token`), or undefined when there is
+   * no header or its first word does not parse as a scheme (a value pasted without one is a
+   * credential, and is never copied here).
+   */
+  authorization?: string
+  /**
+   * Whether the request carried a `Cookie` header — never the cookies themselves. An app that
+   * signs in with a session cookie has no `Authorization` header by design, so this tells a
+   * credential-less request from one whose credential is a cookie.
+   */
+  sentCookie?: boolean
 }
 
 /**
@@ -380,12 +402,34 @@ for (const one of found.slice(0, MAX_TRACES)) {
     const response = snapshot.response || {}
     const type = String(snapshot._resourceType || '')
     if (!origin) origin = type === 'document' ? originOf(String(request.url)) : ''
+    // What the request carried for CREDENTIALS — never the secret itself. A 401 on the app's own
+    // API cannot be read without this: m148's favorite POST answered 401 with no Authorization
+    // header at all, so the client never attached the token, and the note sent the run to the
+    // API handler instead (xr-molecule-flash-m148 +29:18). Presence is recorded as a boolean and
+    // only the scheme WORD (\`Bearer\`, \`Token\`) is kept; the value is a live credential and never
+    // leaves the trace. A first word that does not parse as a scheme (\`Authorization: <raw jwt>\`)
+    // is recorded as presence only, so a pasted token can never ride along as a "scheme".
+    const headerList = Array.isArray(request.headers) ? request.headers : []
+    const authHeader = headerList.find(function (h) {
+      return h && typeof h.name === 'string' && /^authorization$/i.test(h.name)
+    })
+    const authValue =
+      authHeader && typeof authHeader.value === 'string' ? String(authHeader.value).trim() : ''
+    const authSpace = authValue.search(/\\s/)
+    const authWord = authSpace > 0 ? authValue.slice(0, authSpace) : ''
+    const authScheme = /^[A-Za-z][A-Za-z0-9._~+/-]{0,23}$/.test(authWord) ? authWord : undefined
+    const sentCookie = headerList.some(function (h) {
+      return h && typeof h.name === 'string' && /^cookie$/i.test(h.name)
+    })
     requests.push({
       method: String(request.method).toUpperCase(),
       path: String(request.url).slice(0, MAX_URL),
       status: Number(response.status) || 0,
       failure: typeof response._failureText === 'string' ? response._failureText : undefined,
       type: type,
+      sentAuthorization: authHeader !== undefined,
+      authorization: authScheme,
+      sentCookie: sentCookie,
       // The HAR entry carries the monotonic clock the trace's action entries use, so a request
       // can be attributed to the action that caused it (see \`lastAction\` below).
       startedAt: typeof snapshot._monotonicTime === 'number' ? snapshot._monotonicTime : undefined,
@@ -567,6 +611,9 @@ for (const one of found.slice(0, MAX_TRACES)) {
       ...(r.sent ? { sent: r.sent } : {}),
       ...(r.got ? { got: r.got } : {}),
       type: r.type || undefined,
+      ...(r.sentAuthorization ? { sentAuthorization: true } : {}),
+      ...(r.authorization ? { authorization: r.authorization } : {}),
+      ...(r.sentCookie ? { sentCookie: true } : {}),
     }
   }
   // The main frame's URL, timed: what the page showed when the action ran, and where it ended up.
@@ -727,6 +774,12 @@ function parseTraceRequest(value: unknown): TraceRequest | null {
     ...(typeof r.got === 'string' && r.got ? { got: r.got } : {}),
     ...(typeof r.type === 'string' && r.type ? { type: r.type } : {}),
     ...(Number.isFinite(Number(r.startedAt)) ? { startedAt: Number(r.startedAt) } : {}),
+    // The scheme word only: a raw header value is a live credential and is never parsed in.
+    ...(r.sentAuthorization === true ? { sentAuthorization: true } : {}),
+    ...(typeof r.authorization === 'string' && r.authorization
+      ? { authorization: r.authorization }
+      : {}),
+    ...(r.sentCookie === true ? { sentCookie: true } : {}),
   }
 }
 
@@ -1211,6 +1264,97 @@ function sameOriginPath(request: TraceRequest): string | null {
 }
 
 /**
+ * The sentence a 401/403 on the app's own API gets: which half of the wire refused the request.
+ *
+ * A fixed "read the handler this route reaches" line is the wrong half for a credential refusal.
+ * The request's own `Authorization` header — recorded by the trace reader as its scheme WORD, never
+ * its value — decides: absent means the CLIENT never attached the token (a session store that the
+ * HTTP client does not read, a bare `fetch`, an auth bond the app replaced), while present means
+ * the SERVER refused a token it was sent (scheme or issuer). A 403 is a permission answer, not a
+ * credential one, and says so.
+ *
+ * xr-molecule-flash-m148 (+29:18): `POST /api/articles/…/favorite → 401 {"errors":{"token":["is
+ * missing"]}}` was answered with the handler sentence for six local walks, while the trace proved
+ * the request carried no `Authorization` header at all and the app's hand-rolled session store
+ * never handed its token to the shared client.
+ *
+ * The trace cannot name the file that made the call: a real HAR entry carries the request, response,
+ * `_resourceType`, `_monotonicTime` and a frame ref, but no initiator stack. So the sentence names
+ * the shared client and the auth bond instead of guessing a file.
+ *
+ * @param request - The refused request, a 401 or 403 on the app's own origin.
+ * @returns The sentence the note appends.
+ */
+function authRefusalSentence(request: TraceRequest): string {
+  const label = requestLabel(request)
+  // The header's scheme, when it parsed; presence alone is still the server's half of the wire.
+  const carried =
+    request.authorization !== undefined
+      ? `with \`Authorization: ${request.authorization} …\``
+      : 'with an `Authorization` header'
+  if (request.status === 403) {
+    return request.sentAuthorization === true
+      ? `The browser sent \`${label}\` ${carried} and the API answered 403 — the token was ` +
+          'accepted but this user may not do it: read the route’s role/permission check in your ' +
+          'own source, and the account the session belongs to.'
+      : `The browser sent \`${label}\` and the API answered 403 — the request carried no ` +
+          '`Authorization` header, so either the client did not attach the token (check that the ' +
+          'request goes through the app’s HTTP client that the auth bond configures, and that the ' +
+          'token is stored where the client reads it) or the route refuses this user: read the ' +
+          'route’s role/permission check in your own source.'
+  }
+  if (request.sentAuthorization === true) {
+    return (
+      `The browser sent \`${label}\` ${carried} and the API refused it: the token was sent and ` +
+      'rejected — the scheme (the client’s `authScheme`, e.g. `Token` vs `Bearer`) or the ' +
+      'token’s issuer differs from what the server verifies; read the verify middleware this ' +
+      'route reaches.'
+    )
+  }
+  return (
+    `The browser sent \`${label}\` with NO \`Authorization\` header — the client did not attach ` +
+    'the token: check that the request goes through the app’s HTTP client that the auth bond ' +
+    'configures (not a bare `fetch`), and that the token is stored where the client reads it. ' +
+    'The shared client carries it through `setAuthToken` — the auth bond ' +
+    '(`createDefaultAuthClientWithHttpSync` in `@molecule/app-bonds-default-react`) mirrors the ' +
+    'auth client’s token there, and a session store of your own has to call it too. ' +
+    (request.sentCookie
+      ? 'The request did carry a `Cookie` header, so if this app signs in with a session cookie ' +
+        'that is the credential the server did not accept. '
+      : '') +
+    'The API handler is not the problem.'
+  )
+}
+
+/**
+ * The note's credential-refusal advice, one sentence per distinct shape — at most two.
+ *
+ * The shapes are `(status, Authorization scheme, cookie present)`: m148's ten walks repeated one
+ * shape (`401`, no header) on every failing test, and repeating its sentence per row would bury
+ * the fact rather than state it.
+ *
+ * @param items - The traces the note is about.
+ * @returns The sentences to append (each led by a space), or '' when no same-origin 401/403 was
+ *   traced.
+ */
+function authRefusalAdvice(items: readonly TraceArtifact[]): string {
+  const sentences: string[] = []
+  const seen = new Set<string>()
+  for (const item of items) {
+    for (const request of item.requests) {
+      if (request.status !== 401 && request.status !== 403) continue
+      if (sameOriginPath(request) === null) continue
+      const key = `${request.status} ${request.sentAuthorization ? (request.authorization ?? 'header') : 'none'} ${request.sentCookie ? 'cookie' : ''}`
+      if (seen.has(key)) continue
+      seen.add(key)
+      sentences.push(authRefusalSentence(request))
+      if (sentences.length === 2) return ` ${sentences.join(' ')}`
+    }
+  }
+  return sentences.length === 0 ? '' : ` ${sentences.join(' ')}`
+}
+
+/**
  * The API path prefixes the traced requests themselves show.
  *
  * A request whose path ends with another traced request's path carries that other path's prefix
@@ -1346,6 +1490,15 @@ function missingApiPrefixSentence(request: MissingApiPrefixRequest): string {
  * request that never reached the API. The prefix is READ (the caller passes what the app's client
  * config names; the traces add what their own requests show) and never assumed to be `/api`.
  *
+ * A 401/403 on the app's own origin is answered from the request's own credential record instead
+ * ({@link authRefusalSentence}): no `Authorization` header means the CLIENT never attached the
+ * token (the shared HTTP client's `setAuthToken` is what the auth bond mirrors it into), while a
+ * header the API then refused moves the answer to the server. The handler sentence is kept for
+ * the rest — 404/422/500 — and dropped when every failure was a credential refusal, because a
+ * trace that proves the header was never sent cannot be explained by the handler.
+ * xr-molecule-flash-m148 (+29:18) hit this exactly: six local walks read
+ * `POST …/favorite → 401 {"errors":{"token":["is missing"]}}` as a handler bug.
+ *
  * @param items - The traces {@link parseTraceArtifacts} read.
  * @param target - Where the run went — the deployed host, as the note names it.
  * @param earlierFailures - The failing `file:line`s earlier walks of this suite left, so a repeat
@@ -1402,6 +1555,15 @@ export function failureTraceNote(
     missingPrefix.length > 0
       ? ` ${missingPrefix.slice(0, 2).map(missingApiPrefixSentence).join(' ')}`
       : ''
+  // A credential refusal (401/403 on the app's own API) is not the handler's answer: the trace's
+  // own `Authorization` record says whether the CLIENT attached the token at all (m148 +29:18).
+  const authRefusals = failedRequests.filter(
+    (request) =>
+      sameOriginPath(request) !== null && (request.status === 401 || request.status === 403),
+  )
+  const everyFailureAuth =
+    failedRequests.length > 0 && authRefusals.length === failedRequests.length
+  const authAdvice = authRefusalAdvice(traced)
   // The document subresources that never finished anywhere in this read — the assets a timed-out
   // navigation was waiting on, when there is no failed request to explain the timeout.
   const stalledAssets = [
@@ -1567,9 +1729,14 @@ export function failureTraceNote(
     (anyFailed
       ? everyFailureLacksPrefix
         ? ''
-        : 'A click that changed nothing is usually one of these requests failing, not the selector: ' +
-          'read the handler this route reaches in your own source, and stop `catch`-ing the request of a ' +
-          'user action silently — log it.'
+        : everyFailureAuth
+          ? // Every failure was a credential refusal: the handler is not the problem, and the
+            // auth advice already names what is (m148 was sent to the handler six walks running).
+            authAdvice
+          : 'A click that changed nothing is usually one of these requests failing, not the selector: ' +
+            'read the handler this route reaches in your own source, and stop `catch`-ing the request of a ' +
+            'user action silently — log it.' +
+            authAdvice
       : stalledAssets.length > 0
         ? 'No listed request failed — none got a 4xx/5xx or a network error — but the document did ' +
           'not finish loading because its own subresource never answered. Do not read this as a ' +
