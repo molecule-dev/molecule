@@ -1623,6 +1623,159 @@ describe('repeatingFailure', () => {
     })
   })
 
+  /**
+   * xr-molecule-flash-m141 (+15:35 → +21:07): the production walk ran the supplied suite against
+   * a BUILT app that rendered nothing — the bundle threw `No 'auth-client' provider bonded` as it
+   * loaded. Every spec failed at ITS OWN first locator (the register helper's `username` field,
+   * the navbar brand, the home `h1`, …), so no two failures shared a signature and
+   * {@link universalCause}'s one-signature test returned null: the note said "keep walking" and
+   * 139 tests failed at ~5.7 s each for ~13 minutes.
+   */
+  describe('the page renders nothing (m141)', () => {
+    /** One test's list line and the numbered failure block Playwright writes under it. */
+    const failure = (
+      n: number,
+      file: string,
+      line: number,
+      title: string,
+      locator: string,
+      body = `    TimeoutError: page.fill: Timeout 5000ms exceeded.\n    Call log:\n      - waiting for locator('${locator}')`,
+    ): string =>
+      [
+        list('✘', n, `${file}:${line}:3`, title, '5.7s'),
+        `  ${n}) [chromium] › fixtures/realworld/specs/e2e/${file}:${line}:3 › ${title} ────────`,
+        '',
+        body,
+      ].join('\n')
+
+    /** The locators m141's walk actually failed on, one per spec that reached the page. */
+    const LOCATORS = [
+      'input[name="username"]',
+      'input[name="email"]',
+      'a.navbar-brand',
+      'h1',
+      'a[href="/editor"]',
+      'img.avatar',
+    ]
+
+    /** 36 failures across four files, no pass anywhere — m141's log at +20:30. */
+    const m141Log = (extra = ''): string => {
+      const rows: string[] = []
+      const files = ['articles.spec.ts', 'auth.spec.ts', 'navigation.spec.ts', 'health.spec.ts']
+      let n = 0
+      for (const file of files) {
+        for (let i = 0; i < 9; i++) {
+          n++
+          rows.push(
+            failure(
+              n,
+              file,
+              20 + i * 20,
+              `RealWorld › ${file.split('.')[0]} test ${i + 1}`,
+              LOCATORS[(n + i) % LOCATORS.length]!,
+            ),
+          )
+        }
+      }
+      return ['Running 139 tests using 1 worker', ...rows, extra].filter(Boolean).join('\n\n')
+    }
+
+    it('is one cause: every failure is a first-locator wait and nothing has passed', () => {
+      const log = m141Log()
+      const universal = universalCause(log, repeatingFailure(log))!
+      expect(universal).not.toBeNull()
+      expect(universal.pageRendersNothing).toBe(true)
+      expect(universal.count).toBe(36)
+      expect(universal.files.map((f) => f.split('/').pop())).toEqual([
+        'articles.spec.ts',
+        'auth.spec.ts',
+        'navigation.spec.ts',
+        'health.spec.ts',
+      ])
+      // The reading does not need a repeated signature: the wait's own call passes null when no
+      // two failures share one (tools.ts), and the cause is still the run's.
+      expect(universalCause(log, null)?.pageRendersNothing).toBe(true)
+    })
+
+    it('stops the walk and says the page renders nothing, naming the page error', () => {
+      const log = m141Log(
+        "    [pageerror] Error: No 'auth-client' provider bonded. Bond one first using bond('auth-client', provider).",
+      )
+      const universal = universalCause(log, null)!
+      const note = repeatingFailureNote(
+        { count: universal.count, message: null, seconds: null, tests: universal.tests ?? [] },
+        {
+          taskId: 'mol-bg-mvd286j4-5juoqt',
+          log: '/tmp/mol-bg-mvd286j4-5juoqt.log',
+          stop: 'kill 412 419',
+          universal,
+        },
+      )
+      // The cause is the page, not one of the six locators the specs happened to wait for.
+      expect(note).toContain(
+        'Every test this run has walked so far has failed at its first locator',
+      )
+      expect(note).toContain('all 36 of them')
+      expect(note).toContain('across 4 files')
+      expect(note).toContain('the app is rendering NOTHING')
+      expect(note).toContain("The page itself threw: `Error: No 'auth-client' provider bonded.")
+      // …and it says to stop, with the command that stops it.
+      expect(note).toContain('Every remaining test will fail the same way too')
+      expect(note).toContain('Stop it and fix that cause first: `exec_command: kill 412 419`')
+      expect(note).not.toContain('Let the rest of the run finish')
+    })
+
+    it('does not stop a run where a test passed after the first failure', () => {
+      const log = `${m141Log()}\n\n${list('✓', 37, 'auth.spec.ts:99:3', 'Authentication › logs in', '0.9s')}`
+      expect(universalCause(log, null)).toBeNull()
+    })
+
+    it('does not stop a run that also failed for another reason', () => {
+      // A real assertion failure on a page that DID paint is a second cause; the run still has
+      // something to say about it.
+      const log = `${m141Log()}\n\n${failure(
+        37,
+        'articles.spec.ts',
+        400,
+        'Articles › rejects a bad payload',
+        'none',
+        '    Error: expect(received).toBe(expected)\n\n    Expected: 422\n    Received: 500',
+      )}`
+      expect(universalCause(log, null)).toBeNull()
+    })
+
+    it('needs the 15-test floor: a handful of missing elements is not a blank page', () => {
+      const log = ['Running 139 tests using 1 worker']
+      let n = 0
+      for (const file of ['articles.spec.ts', 'auth.spec.ts', 'health.spec.ts']) {
+        for (let i = 0; i < 4; i++) {
+          n++
+          log.push(failure(n, file, 20 + i, `RealWorld › ${file} test ${i}`, LOCATORS[i]!))
+        }
+      }
+      // 12 failures across three files — a page that renders can miss three elements too.
+      expect(universalCause(log.join('\n\n'), null)).toBeNull()
+    })
+
+    it('keeps the signature wording when one error covers every failure', () => {
+      // The same missing element on every spec is the signature cause the note already names;
+      // the page may render everything else.
+      const log = ['Running 139 tests with 1 worker']
+      let n = 0
+      for (const file of ['articles.spec.ts', 'auth.spec.ts', 'health.spec.ts']) {
+        for (let i = 0; i < 6; i++) {
+          n++
+          log.push(failure(n, file, 20 + i, `RealWorld › ${file} test ${i}`, 'a.navbar-brand'))
+        }
+      }
+      const text = log.join('\n\n')
+      const found = repeatingFailure(text)!
+      // One signature covers all 18 → the existing whole-run rule, not "renders nothing".
+      expect(universalCause(text, found)).not.toBeNull()
+      expect(universalCause(text, found)?.pageRendersNothing).toBeUndefined()
+    })
+  })
+
   describe('specFilesSelected', () => {
     it('counts the spec files a Playwright command names', () => {
       expect(

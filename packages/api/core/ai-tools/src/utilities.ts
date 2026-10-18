@@ -2346,6 +2346,102 @@ export interface UniversalCause {
   count: number
   /** The distinct spec files they live in, in the order the log named them. */
   files: string[]
+  /**
+   * The cause is that the page rendered NOTHING: every failure so far is a wait for an element
+   * the page never painted, whatever the selector asked for ({@link emptyPageCause}). One cause
+   * is failing every test even though no two failures share an error signature, so the note says
+   * so in the page's terms instead of naming one locator as the signature.
+   */
+  pageRendersNothing?: true
+  /** The page's own uncaught error, when the run printed one. */
+  pageError?: string
+  /**
+   * The distinct failures this cause covers, in log order — the rows a note lists for
+   * {@link pageRendersNothing}. Absent for a signature cause, whose rows are the repeating
+   * failure's own tests.
+   */
+  tests?: FailedTest[]
+}
+
+/**
+ * How many tests a run must have walked — with nothing passing since its first failure — before
+ * "the page renders nothing" can be its one cause. A handful of failures is a handful of bugs;
+ * a page that never painted fails every spec that reaches it, and m141's walk had 36 by +20:30.
+ */
+export const EMPTY_PAGE_CAUSE_TESTS = 15
+
+/**
+ * A failure body whose whole complaint is a wait for an element the page never rendered:
+ * Playwright's `waiting for locator(…)` call log, its `element(s) not found` line, or the
+ * assertion form's `toBeVisible() failed`. Anything else — a status code, a thrown error in the
+ * test's own code — is a different failure and leaves this reading nothing.
+ */
+const LOCATOR_WAIT = /waiting for locator\(|element\(s\) not found|toBeVisible\(\) failed/
+
+/** An uncaught page error, as a run that listens for `pageerror` prints it. */
+const PAGE_ERROR_LINE = /^\s*(?:\[pageerror\]|pageerror:)\s*(.+)$/m
+
+/** An uncaught page error, in the browser's own `Uncaught …` wording. */
+const UNCAUGHT_PAGE_ERROR_LINE = /^\s*Uncaught(?:\s+Error)?:\s*(.+)$/m
+
+/**
+ * The page's own uncaught error, when the log printed one — the fact that names WHY a build
+ * paints nothing (`No 'auth-client' provider bonded…`), rather than the locator it leaves behind.
+ *
+ * @param text - The log (ANSI already stripped).
+ * @returns The error's message, or null.
+ */
+function pageErrorInLog(text: string): string | null {
+  const m = PAGE_ERROR_LINE.exec(text) ?? UNCAUGHT_PAGE_ERROR_LINE.exec(text)
+  return m?.[1]?.trim() || null
+}
+
+/**
+ * The "nothing has passed and nothing renders" cause: every failure block the log has written is
+ * a locator wait, the run has walked at least {@link EMPTY_PAGE_CAUSE_TESTS} tests across the
+ * file threshold, and no test has passed since the first failure.
+ *
+ * This is ONE cause even though the signatures differ — each spec asks for its own first element
+ * (`input[name="username"]`, `a.navbar-brand`, `h1`), so {@link repeatingFailure} cannot group
+ * them and {@link universalCause}'s signature test cannot see the run is over. xr-molecule-flash-
+ * m141 (+20:30) walked a built app that rendered nothing: 36 tests had failed, every one at its
+ * first locator, and the note told the run to keep walking for another ~9 minutes.
+ *
+ * @param text - The log (ANSI already stripped).
+ * @param threshold - The spec-file threshold this run is judged against ({@link universalCause}).
+ * @param found - The repeating cause {@link repeatingFailure} found, when it found one.
+ * @returns The cause, or null when the log is not this shape.
+ */
+function emptyPageCause(
+  text: string,
+  threshold: number,
+  found: RepeatingFailure | null,
+): UniversalCause | null {
+  const marks = resultMarks(text)
+  const firstFailure = marks.indexOf('✘')
+  if (firstFailure === -1 || marks.slice(firstFailure).includes('✓')) return null
+  const blocks = failureBlocks(text)
+  if (blocks.length === 0 || !blocks.every((block) => LOCATOR_WAIT.test(block))) return null
+  // Both readings of the same failures: a `list` line carries the test and its duration, a
+  // numbered block carries its body. The larger is the count — a failure that has a block but
+  // whose result line the poll had not reached yet is still a failure.
+  const byList = distinctTests(failedTests(text))
+  const byBlock = distinctTests(failureBlockTests(text))
+  const tests = byBlock.length >= byList.length ? byBlock : byList
+  // One signature already covers every failure: that is the signature cause, and its wording
+  // (which names the repeated error) says more than "the page renders nothing" would.
+  if (found !== null && found.message !== null && found.count >= tests.length) return null
+  if (tests.length < EMPTY_PAGE_CAUSE_TESTS) return null
+  const files = [...new Set(tests.map((t) => specFile(t.where)).filter(Boolean))]
+  if (files.length < threshold) return null
+  const pageError = pageErrorInLog(text)
+  return {
+    count: tests.length,
+    files,
+    pageRendersNothing: true,
+    ...(pageError === null ? {} : { pageError }),
+    tests,
+  }
 }
 
 /**
@@ -2463,23 +2559,30 @@ export function specFilesSelected(command: string): number | null {
  * alongside the others.
  *
  * @param log - The log so far.
- * @param found - The repeating cause {@link repeatingFailure} found in it.
+ * @param found - The repeating cause {@link repeatingFailure} found in it, or null when no two
+ *   failures share a signature (a page that renders nothing fails each spec at its own first
+ *   locator — {@link emptyPageCause} still reads that run).
  * @param command - How the run was started, when the caller knows it: its spec-file selection
  *   scales the file threshold ({@link specFilesSelected}).
  * @returns The cause's count and files, or null when the run is not failing whole.
  */
 export function universalCause(
   log: string,
-  found: RepeatingFailure,
+  found: RepeatingFailure | null,
   command?: string | null,
 ): UniversalCause | null {
   const text = log.replace(ANSI_SGR, '')
-  const files = [...new Set(found.tests.map((t) => specFile(t.where)).filter(Boolean))]
   // The threshold is what THIS run selects, not the suite's total: a run narrowed to one file
   // can never span three of them, however whole its failure is.
   const selected = command ? specFilesSelected(command) : null
   const threshold =
     selected === null ? UNIVERSAL_CAUSE_FILES : Math.min(UNIVERSAL_CAUSE_FILES, selected)
+  // Nothing has passed and nothing renders: EVERY spec so far is waiting for its own first
+  // element, so the signatures differ while the cause does not (xr-molecule-flash-m141).
+  const emptyPage = emptyPageCause(text, threshold, found)
+  if (emptyPage) return emptyPage
+  if (!found) return null
+  const files = [...new Set(found.tests.map((t) => specFile(t.where)).filter(Boolean))]
   // The app never answered: three tests of that with nothing passing since is the whole of what
   // a whole-suite run would have said, whatever the file count (xr-molecule-flash-m119).
   const unreachable =
@@ -2530,16 +2633,20 @@ export function universalCause(
  * needs — is the run over as a measuring instrument — and it is THE one predicate behind both
  * that decision and the note's wording, so the two cannot come to different verdicts.
  *
- * @param found - What {@link repeatingFailure} found mid-run.
+ * @param found - What {@link repeatingFailure} found mid-run, or null when no signature repeats.
  * @param universal - What {@link universalCause} found for it, if anything.
  * @returns The cause to stop the run over, or null — in which case nothing may be stopped, the
  *   wait keeps going, and the finding rides the run's result as a note.
  */
 export function earlyReturnCause(
-  found: RepeatingFailure,
+  found: RepeatingFailure | null,
   universal: UniversalCause | null | undefined,
 ): UniversalCause | null {
-  if (found.message === null) return null
+  // "The page renders nothing" is a PROVEN cause without a repeated signature — the specs differ
+  // in the locator they wait for, not in the reason (xr-molecule-flash-m141) — so the duration
+  // guard below does not apply to it.
+  if (universal?.pageRendersNothing) return universal
+  if (!found || found.message === null) return null
   return universal ?? null
 }
 
@@ -3267,6 +3374,34 @@ export function repeatingFailureNote(
       files.length === 0
         ? ''
         : ` — across ${files.length} file${files.length === 1 ? '' : 's'} (${shown}${moreFiles})`
+    // The page renders NOTHING: the failures do not share an error signature — each spec is
+    // waiting for its own first element — so naming one locator as "the way they failed" would be
+    // wrong. The cause is the page, and the page's own error (when the run printed one) is what
+    // names it (xr-molecule-flash-m141).
+    if (stop.pageRendersNothing) {
+      const pageTests = (stop.tests ?? found.tests).slice(0, REPEATING_FAILURE_LISTED)
+      const pageRows = pageTests
+        .map(
+          (t) =>
+            `  ✘ ${[t.where, t.title].filter(Boolean).join(' › ')}` +
+            (t.seconds === null ? '' : ` (${t.seconds}s)`),
+        )
+        .join('\n')
+      const moreFailures =
+        stop.count > pageTests.length ? `\n  … and ${stop.count - pageTests.length} more` : ''
+      const pageError = stop.pageError ? ` The page itself threw: \`${stop.pageError}\`.` : ''
+      return (
+        `Every test this run has walked so far has failed at its first locator — all ` +
+        `${stop.count} of them${span}, with nothing passing since the first:\n` +
+        `${pageRows}${moreFailures}\n` +
+        `Each is waiting for an element the page never painted, so one cause explains all of ` +
+        `them: the app is rendering NOTHING — its bundle throws while it loads, or it never ` +
+        `mounts.${pageError} Every remaining test will fail the same way too, so walking the ` +
+        `rest of this run only repeats this one cause. Stop it and fix that cause first: ` +
+        `\`exec_command: ${o.stop}\`, then run the whole suite again. It is still going (${where}).` +
+        `${reproduce}`
+      )
+    }
     return (
       `Every test this run has walked so far has failed the same way — all ${found.count} of ` +
       `them, ${signature}${span}, with nothing ` +

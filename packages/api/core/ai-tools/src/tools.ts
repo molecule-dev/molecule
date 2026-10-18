@@ -450,6 +450,7 @@ import {
   READ_RESULT_ENVELOPE_CHARS,
   redactSecrets,
   redactSecretsInCode,
+  type RepeatingFailure,
   repeatingFailure,
   repeatingFailureNote,
   resolvePath,
@@ -2915,11 +2916,23 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           continue
         }
         const found = repeatingFailure(causeLog)
-        if (!found) continue
+        // The page-renders-nothing cause needs no repeated signature: every spec waits for its
+        // own first element, so the failures differ while the cause does not (m141).
+        const universal = universalCause(causeLog, found, started?.command)
+        if (!found && !universal) continue
         // The ONE predicate behind this decision and `repeatingFailureNote`'s wording, so the two
         // cannot come to different verdicts.
-        const stopCause = earlyReturnCause(found, universalCause(causeLog, found, started?.command))
+        const stopCause = earlyReturnCause(found, universal)
         if (stopCause) {
+          // The note's rows and re-run hint are about the failures the cause covers; an
+          // empty-page cause carries its own list, and a run with no repeated signature has no
+          // other one.
+          const noted: RepeatingFailure = found ?? {
+            count: stopCause.count,
+            message: null,
+            seconds: null,
+            tests: stopCause.tests ?? [],
+          }
           // …and only now is the pid walk paid for.
           repeatingCauseNoted.add(taskId)
           const earlyMs = Date.now() - startedAt
@@ -2928,7 +2941,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
             taskId,
             status: 'repeating_failure',
             waitedMs: earlyMs,
-            note: repeatingFailureNote(found, {
+            note: repeatingFailureNote(noted, {
               taskId,
               log,
               stop: await taskStopCommand(backend, taskId),
@@ -2941,6 +2954,9 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         // to keep waiting for the run's own result, so it must not be told one in the status. The
         // look keeps running for the same reason: an app that goes down mid-run turns a shared
         // duration into a proven whole-run cause, and that one is worth returning early for.
+        // Without a repeated signature there is no lead to note (the empty-page cause above is
+        // the only reading that needs none).
+        if (!found) continue
         if (!midRunLeadNoted.has(taskId)) {
           midRunLeadNoted.add(taskId)
           // A run against the sandbox's own app is changed by an edit while it walks — the two
