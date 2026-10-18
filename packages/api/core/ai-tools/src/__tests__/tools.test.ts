@@ -289,6 +289,24 @@ describe('buildTools', () => {
     expect(background.run).toHaveBeenCalled()
   })
 
+  it('exec_command refuses a foreground command that starts the suite twice (m170)', async () => {
+    // m170's +06:02 command verbatim: the supplied runner script bare through `tail -5`, then
+    // again with `HOST=http://localhost:4000`. Both walks ran; the platform's note judged the
+    // passing run by the first one's tally. Nothing may launch.
+    const backend = mockBackend()
+    const tools = buildTools(backend, { blockDangerousCommands: true })
+    const exec = tools.find((t) => t.name === 'exec_command')!
+    const result = (await exec.execute({
+      command:
+        'cd /workspace && bash fixtures/realworld/specs/api/run-api-tests-hurl.sh 2>&1 | tail -5; ' +
+        'HOST=http://localhost:4000 bash fixtures/realworld/specs/api/run-api-tests-hurl.sh ' +
+        '2>&1 | tail -40',
+    })) as { error?: string }
+    expect(result.error).toContain('runs the suite twice')
+    expect(result.error).toContain('run exactly one:')
+    expect(backend.run).not.toHaveBeenCalled()
+  })
+
   it('exec_command never crashes when no command arrives under any name', async () => {
     const tools = buildTools(mockBackend(), { blockDangerousCommands: true })
     const exec = tools.find((t) => t.name === 'exec_command')!

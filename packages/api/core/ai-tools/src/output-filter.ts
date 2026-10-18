@@ -52,16 +52,25 @@ export interface RunnerOutputFilter {
  * @param runs - Whether a segment is the runner this run is about (the caller knows its own kind:
  *   {@link CommandSegment.program} is the program, once wrapper words like `timeout 280` and
  *   `npx` are taken away).
+ * @param occurrence - Which runner invocation the output belongs to, 1-based. A command can run
+ *   the same runner more than once (xr-molecule-flash-m170: the suite bare, then with `HOST=…`),
+ *   and each invocation carries its OWN pipe; a reader judging the second walk must name the
+ *   second walk's cut, never the first's.
  * @returns The filter and the unfiltered command, or null.
  */
 export function outputFilterAfterRunner(
   command: string,
   runs: (segment: CommandSegment) => boolean,
+  occurrence = 1,
 ): RunnerOutputFilter | null {
   if (typeof command !== 'string' || command.trim() === '') return null
   const entries = locatedCommandSegments(command)
-  const runnerAt = entries.findIndex((entry) => entry.segment !== null && runs(entry.segment))
-  if (runnerAt < 0 || runnerAt + 1 >= entries.length) return null
+  const runners: number[] = []
+  entries.forEach((entry, index) => {
+    if (entry.segment !== null && runs(entry.segment)) runners.push(index)
+  })
+  const runnerAt = runners[occurrence - 1]
+  if (runnerAt === undefined || runnerAt + 1 >= entries.length) return null
   const runner = entries[runnerAt]
   const filter = entries[runnerAt + 1]
   // The stage must be fed by the runner's own pipe, and nothing may be piped out of the filter:

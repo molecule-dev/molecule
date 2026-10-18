@@ -516,28 +516,10 @@ export function streamingBackgroundCommand(command: string): {
   // of the same suite against the same app, only the last of them is rewritten, and the earlier
   // ones measure nothing the first did. X1 xr-molecule-flash-m157 (+14:02) chained two whole walks
   // of one 138-test suite with `;` (4.5 minutes each); the platform already refuses a second
-  // CONCURRENT run against one app, and this is the same hazard inside one command.
-  const suiteSteps = suiteRunStatements(out)
-  if (suiteSteps.length > 1) {
-    // The ONE run to send instead: the last step that runs the suite, rewritten exactly as this
-    // function rewrites a run (its own count is one — guarded, so this cannot recurse).
-    const lastSuitePart = [...parts]
-      .reverse()
-      .map((p) => p.trim())
-      .find((p) => isSuiteRunCommand(p))
-    const single =
-      lastSuitePart && suiteRunStatements(lastSuitePart).length === 1
-        ? streamingBackgroundCommand(lastSuitePart).command
-        : (lastSuitePart ?? '')
-    return {
-      command: out,
-      changes: [],
-      error:
-        `This command runs the suite ${suiteSteps.length === 2 ? 'twice' : `${suiteSteps.length} times`} ` +
-        `(${suiteSteps.map((s, i) => `step ${i + 1}: \`${s}\``).join(', ')}). One walk is the ` +
-        `measurement; run exactly one: \`${single}\``,
-    }
-  }
+  // CONCURRENT run against one app, and this is the same hazard inside one command. The reading is
+  // {@link repeatedSuiteRunError}'s, so a foreground `exec_command` refuses the same commands.
+  const repeated = repeatedSuiteRunError(out)
+  if (repeated) return { command: out, changes: [], error: repeated }
   // The last step runs Playwright — whether or not anything is piped from it. Keying this on
   // "nothing is piped out of the last step" withheld the reporter, the inline-failure switch and
   // `--retries=0` from exactly the runs whose output was filtered (xr-molecule-flash-m101
@@ -680,6 +662,15 @@ const SUITE_RUN_COMMANDS: ReadonlyArray<RegExp> = [
   /^vitest\b/,
   // `hurl --test …` or `hurl … x.hurl`.
   /^hurl\s+[^|\n]*(?:--test|\.hurl)/,
+  // The suite's own runner SCRIPT, whoever wrote it: the supplied trees ship
+  // `run-api-tests-hurl.sh` and `run-hurl-tests.sh`, and the command-position parser puts the
+  // script's own NAME where the program goes (`bash fixtures/…/run-api-tests-hurl.sh` →
+  // `run-api-tests-hurl.sh`). xr-molecule-flash-m170 (+06:02) chained two invocations of one such
+  // script in the FOREGROUND, which no launch site counted: the first walk's tally was the only
+  // evidence the note had, and it reported a passing run as 13 failures. A script named for the
+  // suite is a whole walk of it; `head -30 run-api-tests-hurl.sh` is not in command position and
+  // stays a read ({@link commandSegments}).
+  /^run-(?:api-)?(?:hurl-)?tests?[\w-]*\.sh\b/,
 ]
 
 /**
@@ -719,6 +710,45 @@ export function suiteRunStatements(command: string): string[] {
  */
 export function isSuiteRunCommand(command: string): boolean {
   return suiteRunStatements(command).length > 0
+}
+
+/**
+ * The refusal for a command that starts the suite MORE THAN ONCE — the ONE reading every launch
+ * site asks, foreground and background alike.
+ *
+ * Each statement is a whole walk of the same suite against the same app, and only the last of them
+ * is rewritten, so the earlier ones measure nothing the first did. X1 xr-molecule-flash-m157
+ * (+14:02) chained two whole walks of one 138-test suite with `;` (4.5 minutes each) and the
+ * background launcher refused it; X1 xr-molecule-flash-m170 (+06:02) chained two invocations of the
+ * suite's own runner script in the foreground, where nothing counted them, and the note reported
+ * the passing second walk as the first walk's 13 failures.
+ *
+ * The one run handed back is the LAST suite statement, rewritten exactly as
+ * {@link streamingBackgroundCommand} rewrites a run (a filter or `| tail` after the runner is
+ * dropped, and a Playwright run gets the reporter that prints failures). Its own count is one —
+ * guarded, so this cannot recurse.
+ *
+ * @param command - The shell command as the executor sent it.
+ * @returns The refusal sentence, or null when the command starts the suite zero or one time.
+ */
+export function repeatedSuiteRunError(command: string): string | null {
+  if (commandRunsNoTests(command)) return null
+  const suiteSteps = suiteRunStatements(command)
+  if (suiteSteps.length <= 1) return null
+  const lastSuitePart = command
+    .split(/&&|\|\||;/)
+    .reverse()
+    .map((p) => p.trim())
+    .find((p) => isSuiteRunCommand(p))
+  const single =
+    lastSuitePart && suiteRunStatements(lastSuitePart).length === 1
+      ? streamingBackgroundCommand(lastSuitePart).command
+      : (lastSuitePart ?? '')
+  return (
+    `This command runs the suite ${suiteSteps.length === 2 ? 'twice' : `${suiteSteps.length} times`} ` +
+    `(${suiteSteps.map((s, i) => `step ${i + 1}: \`${s}\``).join(', ')}). One walk is the ` +
+    `measurement; run exactly one: \`${single}\``
+  )
 }
 
 /**

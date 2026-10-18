@@ -20,6 +20,7 @@ import {
   outputRedirectTarget,
   redactSecrets,
   redactSecretsInCode,
+  repeatedSuiteRunError,
   type RepeatingFailure,
   repeatingFailure,
   repeatingFailureNote,
@@ -877,6 +878,46 @@ describe('streamingBackgroundCommand', () => {
     expect(
       streamingBackgroundCommand('npx playwright test --list && npx playwright test').error,
     ).toBeUndefined()
+  })
+})
+
+/**
+ * X1 xr-molecule-flash-m170 (+06:02): one FOREGROUND `exec_command` ran the supplied suite's own
+ * runner script bare, then again with `HOST=http://localhost:4000` — two whole walks of one suite,
+ * in a command no launch site counted. The platform's note then read the first walk's tally beside
+ * the second walk's host and reported a passing run as 13 failures.
+ */
+describe('the suite’s own runner script (m170)', () => {
+  const M170 =
+    'cd /workspace && bash fixtures/realworld/specs/api/run-api-tests-hurl.sh 2>&1 | tail -5; ' +
+    'HOST=http://localhost:4000 bash fixtures/realworld/specs/api/run-api-tests-hurl.sh ' +
+    '2>&1 | tail -40'
+
+  it('counts each invocation as one whole walk, in command position only', () => {
+    expect(suiteRunStatements(M170)).toHaveLength(2)
+    expect(
+      suiteRunStatements('bash fixtures/realworld/specs/api/run-api-tests-hurl.sh'),
+    ).toHaveLength(1)
+    // A read of the script runs nothing, and a script named for something else is not this one.
+    expect(suiteRunStatements('head -30 run-api-tests-hurl.sh')).toHaveLength(0)
+  })
+
+  it('refuses the two walks in the foreground too, naming both steps', () => {
+    const refusal = repeatedSuiteRunError(M170) ?? ''
+    expect(refusal).toContain('runs the suite twice')
+    expect(refusal).toContain('step 1: \`run-api-tests-hurl.sh 2>&1\`')
+    expect(refusal).toContain('step 2: \`run-api-tests-hurl.sh 2>&1\`')
+    // The one run handed back is the last walk, never the chain — and its `| tail` is dropped.
+    expect(refusal).toContain('run exactly one: \`')
+    expect(refusal).toContain('run-api-tests-hurl.sh 2>&1\`')
+    expect(refusal).not.toContain('tail -40')
+    // Work before one run is not a second walk.
+    expect(
+      repeatedSuiteRunError(
+        'cd /workspace && HOST=http://localhost:4000 bash ' +
+          'fixtures/realworld/specs/api/run-api-tests-hurl.sh 2>&1',
+      ),
+    ).toBeNull()
   })
 })
 

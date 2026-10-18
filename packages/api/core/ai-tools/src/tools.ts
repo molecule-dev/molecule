@@ -520,6 +520,7 @@ import {
   READ_RESULT_ENVELOPE_CHARS,
   redactSecrets,
   redactSecretsInCode,
+  repeatedSuiteRunError,
   type RepeatingFailure,
   repeatingFailure,
   repeatingFailureNote,
@@ -2567,6 +2568,15 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         const blocked = blockCommand(rawCommand, cwd)
         if (blocked) return { error: blocked }
       }
+
+      // A command that starts the suite more than once is refused BEFORE anything runs, in the
+      // foreground as well as in the background: each walk measures the same code, and only the
+      // last one is rewritten here. The background launcher already refused it; a foreground
+      // command ran both, and the platform's note read the first walk's tally beside the second
+      // walk's host (X1 xr-molecule-flash-m170 +06:02). ONE reading — {@link repeatedSuiteRunError}
+      // — so every launch site refuses the same commands.
+      const repeatedSuiteRun = repeatedSuiteRunError(rawCommand)
+      if (repeatedSuiteRun) return { error: repeatedSuiteRun }
 
       // A FOREGROUND command that starts a server never returns: it holds this tool for its whole
       // budget and — behind `| tail`, the way these probes are usually written — prints nothing
