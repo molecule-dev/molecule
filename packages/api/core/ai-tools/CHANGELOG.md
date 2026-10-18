@@ -1,5 +1,13 @@
 # @molecule/api-ai-tools
 
+## 1.9.13
+
+### Patch Changes
+
+- e7dcf0e: `wait_for_task` marks a finished result `status: 'completed'`, so a caller can tell the delivered result apart from a progress return when the run's exit code is withheld.
+- 260903a: `read_file` refuses a binary file (images, fonts, archives) by kind and size instead of returning its bytes as replacement characters.
+- 7214bd6: The trace note calls a pending asset the cause only when the runner reports the failing operation as that navigation.
+
 ## 1.9.12
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/app-http
 
+## 1.1.6
+
+### Patch Changes
+
+- 1a9b4dd: Document that waiting for the session restore does not attach the token: a client created beside the auth bond needs `createDefaultHttpClientWithAuthBearer` plus `setAuthGate`.
+
 ## 1.1.5
 
 ### Patch Changes

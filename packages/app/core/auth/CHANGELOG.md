@@ -1,5 +1,11 @@
 # @molecule/app-auth
 
+## 1.5.2
+
+### Patch Changes
+
+- 1a9b4dd: Document the token wiring a separately created HTTP client needs after the session restore: `createDefaultHttpClientWithAuthBearer` plus `setAuthGate(() => authClient.whenRestored())`.
+
 ## 1.5.1
 
 ### Patch Changes
