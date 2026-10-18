@@ -2682,8 +2682,13 @@ function pageErrorInLog(text: string): string | null {
 /**
  * The "nothing has passed and nothing renders" cause: the run's FIRST consecutive failures — from
  * its first failed test, with no pass since — are all locator waits, at least
- * {@link EMPTY_PAGE_CAUSE_TESTS} of them across the file threshold, and each waits for a
- * different spec's own first element.
+ * {@link EMPTY_PAGE_CAUSE_TESTS} of them across {@link UNIVERSAL_CAUSE_FILES} different spec
+ * files, and each waits for its own spec's first element.
+ *
+ * The file span stays at {@link UNIVERSAL_CAUSE_FILES} whatever the run selected: "the page
+ * renders nothing" is a claim about the APP, and one file's failures can be that file's own setup
+ * (a broken login helper fails every test of one spec at its first locator). A run narrowed to one
+ * or two files still has the signature and connection causes for a whole-run stop.
  *
  * Stops the walk as soon as that verdict is readable, not after a fixed floor of failures have
  * been burned: the page error arrives with the first test, so every further test only repeats it.
@@ -2697,15 +2702,10 @@ function pageErrorInLog(text: string): string | null {
  * `PAGEERROR No 'auth-client' provider bonded` was in the log from the first one.
  *
  * @param text - The log (ANSI already stripped).
- * @param threshold - The spec-file threshold this run is judged against ({@link universalCause}).
  * @param found - The repeating cause {@link repeatingFailure} found, when it found one.
  * @returns The cause, or null when the log is not this shape.
  */
-function emptyPageCause(
-  text: string,
-  threshold: number,
-  found: RepeatingFailure | null,
-): UniversalCause | null {
+function emptyPageCause(text: string, found: RepeatingFailure | null): UniversalCause | null {
   const marks = resultMarks(text)
   const firstFailure = marks.indexOf('✘')
   if (firstFailure === -1 || marks.slice(firstFailure).includes('✓')) return null
@@ -2725,7 +2725,9 @@ function emptyPageCause(
   // everything the rest of the walk can say (m177 paid 4.2 minutes learning that).
   if (tests.length < EMPTY_PAGE_CAUSE_TESTS) return null
   const files = [...new Set(tests.map((t) => specFile(t.where)).filter(Boolean))]
-  if (files.length < threshold) return null
+  // The blank-page claim is cross-file by construction (see the doc): a selected-file count
+  // below the span does not shrink it, it removes the claim.
+  if (files.length < UNIVERSAL_CAUSE_FILES) return null
   const pageError = pageErrorInLog(text)
   return {
     count: tests.length,
@@ -2871,7 +2873,7 @@ export function universalCause(
     selected === null ? UNIVERSAL_CAUSE_FILES : Math.min(UNIVERSAL_CAUSE_FILES, selected)
   // Nothing has passed and nothing renders: EVERY spec so far is waiting for its own first
   // element, so the signatures differ while the cause does not (xr-molecule-flash-m141).
-  const emptyPage = emptyPageCause(text, threshold, found)
+  const emptyPage = emptyPageCause(text, found)
   if (emptyPage) return emptyPage
   if (!found) return null
   const files = [...new Set(found.tests.map((t) => specFile(t.where)).filter(Boolean))]

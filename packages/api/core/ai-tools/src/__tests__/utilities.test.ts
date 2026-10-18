@@ -2075,6 +2075,18 @@ describe('repeatingFailure', () => {
       expect(universalCause(rows.join('\n\n'), null)).toBeNull()
     })
 
+    it('does not call a narrowed run a blank page from one file’s failures', () => {
+      // Three first-locator failures in the ONE file the command selects: a broken login helper
+      // in that spec fails every test of it the same way, and the page may render fine.
+      const rows: string[] = ['Running 3 tests using 1 worker']
+      for (let i = 1; i <= 3; i++) {
+        rows.push(failure(i, 'auth.spec.ts', 20 * i, `RealWorld › auth test ${i}`, LOCATORS[i]!))
+      }
+      expect(
+        universalCause(rows.join('\n\n'), null, 'npx playwright test e2e/auth.spec.ts'),
+      ).toBeNull()
+    })
+
     it('keeps the signature wording when one error covers every failure', () => {
       // The same missing element on every spec is the signature cause the note already names;
       // the page may render everything else.
