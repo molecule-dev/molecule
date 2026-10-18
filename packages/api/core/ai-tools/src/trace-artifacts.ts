@@ -1966,6 +1966,38 @@ function credentialExchangeBody(sent: string | undefined): boolean {
 }
 
 /**
+ * Whether a request PATH asks the app to mint a credential — a login, a registration, a token
+ * endpoint — as opposed to a protected resource that presents one.
+ *
+ * This is the path half of {@link isCredentialExchange}, exported so a caller holding only a
+ * `METHOD path` reads the same classification: a Hurl failing entry says
+ * `POST /api/users/login` and nothing about the body, and the whole-suite note must not explain
+ * a wrong-password login that answered 200 as a cookie-jar effect (xr-molecule-flash-m176).
+ *
+ * @param path - The request path (`/api/users/login`); a query or fragment is ignored.
+ * @param authEndpoints - The endpoints the app's auth config names (`/users/login`).
+ * @returns True when the path names a credential exchange.
+ */
+export function isCredentialExchangePath(
+  path: string,
+  authEndpoints: readonly string[] = [],
+): boolean {
+  const clean = (path.split(/[?#]/)[0] ?? '').replace(/\/+$/, '')
+  if (clean === '') return false
+  // The app's own config names it: matched as a path suffix, because an auth config writes the
+  // endpoint relative to its API base (`/users/login`) while the trace records the mounted path
+  // (`/api/users/login`).
+  if (
+    authEndpoints.some((endpoint) => {
+      const named = `/${String(endpoint).replace(/^\/+|\/+$/g, '')}`
+      return named.length > 1 && (clean === named || clean.endsWith(named))
+    })
+  )
+    return true
+  return CREDENTIAL_EXCHANGE_PATH.test(clean)
+}
+
+/**
  * Whether a refused request is a CREDENTIAL EXCHANGE: the app was asked to mint a token (a login,
  * a registration, a token endpoint), so it never needed one attached.
  *
@@ -1987,17 +2019,7 @@ function isCredentialExchange(request: TraceRequest, authEndpoints: readonly str
   if (request.method !== 'POST') return false
   const path = sameOriginPath(request)
   if (path === null) return false
-  // The app's own config names it: matched as a path suffix, because an auth config writes the
-  // endpoint relative to its API base (`/users/login`) while the trace records the mounted path
-  // (`/api/users/login`).
-  if (
-    authEndpoints.some((endpoint) => {
-      const named = `/${String(endpoint).replace(/^\/+|\/+$/g, '')}`
-      return named.length > 1 && (path === named || path.endsWith(named))
-    })
-  )
-    return true
-  if (CREDENTIAL_EXCHANGE_PATH.test(path)) return true
+  if (isCredentialExchangePath(path, authEndpoints)) return true
   return credentialExchangeBody(request.sent)
 }
 
