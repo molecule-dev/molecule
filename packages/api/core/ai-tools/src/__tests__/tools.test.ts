@@ -4763,6 +4763,36 @@ describe('parse check after a write', () => {
     )
   })
 
+  it('does not re-read the file it just wrote when no after-write hook can change it', async () => {
+    const backend = mockBackend()
+    const writeFile = buildTools(backend).find((t) => t.name === 'write_file')!
+    const result = (await writeFile.execute({
+      path: '/test/src/a.ts',
+      content: 'export const a = 1\n',
+    })) as { excerpt?: string; totalLines?: number }
+    // One read: the old text, for the diff. The excerpt and line count come from the content
+    // just written — a second read could only return that same text.
+    expect((backend.readFile as ReturnType<typeof vi.fn>).mock.calls).toHaveLength(1)
+    expect(result.totalLines).toBeGreaterThan(0)
+    expect(result.excerpt).toContain('export const a = 1')
+  })
+
+  it('still re-reads after a write when an after-write hook may have rewritten the file', async () => {
+    const backend = mockBackend()
+    ;(backend.readFile as ReturnType<typeof vi.fn>)
+      .mockResolvedValueOnce('const a = 1\n')
+      .mockResolvedValueOnce('const a = 2\n')
+    const writeFile = buildTools(backend, { onAfterWrite: async () => {} }).find(
+      (t) => t.name === 'write_file',
+    )!
+    const result = (await writeFile.execute({
+      path: '/test/src/a.ts',
+      content: 'const a = 2\n',
+    })) as { excerpt?: string }
+    expect((backend.readFile as ReturnType<typeof vi.fn>).mock.calls).toHaveLength(2)
+    expect(result.excerpt).toContain('const a = 2')
+  })
+
   it('a missing parser is not a syntax error, and a .md file is not checked at all', async () => {
     const backend = mockBackend()
     ;(backend.run as ReturnType<typeof vi.fn>).mockResolvedValue({

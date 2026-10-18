@@ -1981,7 +1981,14 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         await backend.writeFile(path, content)
         if (onAfterWrite) await onAfterWrite(path).catch(() => {})
 
-        const finalContent = await backend.readFile(path).catch(() => content)
+        // The text on disk is the text just written unless an after-write hook (a formatter)
+        // may have rewritten it. Without one, the re-read is a whole sandbox round trip per
+        // write that can only return what is already in hand — measured in the write path's
+        // own timings (x0 fast-file-writes: four sandbox calls per write, one of them this
+        // re-read, and the excerpt it feeds is identical either way).
+        const finalContent = onAfterWrite
+          ? await backend.readFile(path).catch(() => content)
+          : content
         const diff = computeDiff(oldContent, finalContent)
 
         if (onFileChange) onFileChange({ type: oldContent === null ? 'created' : 'modified', path })
