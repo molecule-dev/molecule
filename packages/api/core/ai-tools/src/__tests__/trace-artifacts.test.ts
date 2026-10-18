@@ -85,6 +85,21 @@ const RAW_AUTH_VALUE = fileURLToPath(
 /** How Playwright names the folder for the fixture's test. */
 const FOLDER = 'realworld-social-should-follow-a-user-chromium'
 
+/**
+ * A REAL two-browser-context trace — Playwright 1.63's own output for a test that creates its
+ * article through a helper context, then navigates the primary page to the profile it asserts on
+ * and fails a strict-mode `getByRole('button', { name: 'Follow' })` there (xr-molecule-flash-m160's
+ * `social.spec.ts:90`).
+ *
+ * Its members are re-ordered so the helper context's file FOLLOWS the primary page's in the
+ * archive, the order m160's own zip had and the order the old concatenation followed: the last
+ * user action of the concatenation was the helper's editor click, the last frame snapshot was
+ * `/editor`, and the note called that the failing page.
+ */
+const TWO_CONTEXT_M160 = fileURLToPath(
+  new URL('./fixtures/trace-two-context-m160.zip', import.meta.url),
+)
+
 /** A directory that looks like a run's: `<root>/test-results/<test>/trace.zip`. */
 const layout = (zips: Record<string, string>): string => {
   const root = mkdtempSync(join(tmpdir(), 'mol-traces-'))
@@ -131,6 +146,11 @@ describe('traceArtifactsScript — a real trace, read headlessly', () => {
         // The trace's monotonic clock rides with the request, so a pending asset can be told from
         // one that was already in flight before the navigation the runner reported (m153).
         startedAt: expect.any(Number),
+        // And the member and page ref it was recorded on: a request belongs to the page that
+        // made it, which is what keeps a two-context test's helper requests out of the failing
+        // page's row (m160).
+        context: expect.any(String),
+        pageId: expect.any(String),
       })
     } finally {
       rmSync(root, { recursive: true, force: true })
@@ -2208,6 +2228,126 @@ describe('traceArtifactsScript — a Vite HMR error frame (xr-molecule-flash-m15
       const note = String(failureTraceNote(items, 'http://localhost:5173'))
       expect(note).toContain('Cannot import non-asset file /styles.css')
       expect(note).toContain('which is inside /public')
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+})
+
+describe('traceArtifactsScript — the failing assertion’s page, not the archive’s last context (m160)', () => {
+  const FOLDER_M160 = 'social-should-view-another-user-profile-chromium'
+
+  it('names the profile page and the strict-mode failure, not the helper context’s /editor', () => {
+    const root = layout({ [FOLDER_M160]: TWO_CONTEXT_M160 })
+    try {
+      const items = parseTraceArtifacts(readTraces(root))
+      expect(items).toHaveLength(1)
+      const item = items[0]
+      // The runner's own failure location — the strict-mode assertion at :90 — not the afterEach's
+      // `context.close()` at :13, which the last spec stack used to win.
+      expect(item.spec).toBe('e2e/social.spec.ts')
+      expect(item.line).toBe(90)
+      // The failing page's own last action: the profile navigation. It is LATER on the trace's
+      // clock than the helper's editor click, although the helper's member comes later in the zip.
+      expect(item.lastAction?.api).toBe('Frame.goto')
+      expect(item.lastAction?.pageBefore).toBe('/')
+      expect(item.lastAction?.pageAfter).toBe('/profile/alice')
+      // The helper context's requests are not the failing action's effects, and its page is not
+      // the one the trace says the assertion ran on.
+      const stepPaths = (item.lastAction?.requests ?? []).map((request) => request.path)
+      expect(stepPaths).not.toContain('/api/articles')
+      const paths = item.requests.map((request) => request.path)
+      expect(paths).not.toContain('/api/articles')
+      expect(paths).not.toContain('/editor')
+      expect(paths).toContain('/api/profiles/alice')
+      // Every action the row reasons about belongs to the one page on the primary context.
+      expect(item.actions.every((action) => action.context === '1')).toBe(true)
+      expect(new Set(item.actions.map((action) => action.pageId)).size).toBe(1)
+      expect(item.actions.some((action) => action.api === 'Frame.click')).toBe(false)
+      // The helper context's evidence is kept, separated and labelled with its context id.
+      expect(item.otherContexts).toHaveLength(1)
+      expect(item.otherContexts?.[0]?.context).toBe('3')
+      expect(
+        item.otherContexts?.[0]?.requests.map((request) => `${request.method} ${request.path}`),
+      ).toContain('POST /api/articles')
+
+      const note = String(failureTraceNote(items, 'http://127.0.0.1:4173'))
+      expect(note).toContain('e2e/social.spec.ts:90')
+      expect(note).toContain('the page then navigated to /profile/alice')
+      expect(note).toContain('a second browser context')
+      expect(note).toContain('POST /api/articles')
+      // The old reading: the helper's click was the last action and /editor was where the page
+      // "stayed". Neither may be said about the failing page.
+      expect(note).not.toContain("the test's last action was Frame.click")
+      expect(note).not.toContain('the page stayed at /editor')
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
+  it('drops the page claim and every causal reading when two contexts leave no page to identify', () => {
+    // Two context members, no runner failure and no frame snapshots: nothing says which page the
+    // assertion ran on. The reader may not pick the archive's last action or URL, so it makes no
+    // causal claim at all — the requests stay as evidence, unattributed.
+    const ndjson = (rows: unknown[]): string => rows.map((row) => JSON.stringify(row)).join('\n')
+    const zip = storedZip({
+      '1-trace.trace': ndjson([
+        {
+          type: 'before',
+          class: 'Frame',
+          method: 'goto',
+          callId: 'c1',
+          startTime: 100,
+          stack: [{ file: 'e2e/x.spec.ts', line: 10 }],
+        },
+      ]),
+      '1-trace.network': ndjson([
+        {
+          type: 'resource-snapshot',
+          snapshot: {
+            _resourceType: 'fetch',
+            _monotonicTime: 120,
+            request: { url: 'http://app.test/api/a', method: 'GET' },
+            response: { status: 200 },
+          },
+        },
+      ]),
+      '2-trace.trace': ndjson([
+        {
+          type: 'before',
+          class: 'Frame',
+          method: 'click',
+          callId: 'c2',
+          startTime: 110,
+          stack: [{ file: 'e2e/x.spec.ts', line: 10 }],
+        },
+      ]),
+      '2-trace.network': ndjson([
+        {
+          type: 'resource-snapshot',
+          snapshot: {
+            _resourceType: 'fetch',
+            _monotonicTime: 130,
+            request: { url: 'http://app.test/api/b', method: 'POST' },
+            response: { status: 201 },
+          },
+        },
+      ]),
+    })
+    const root = stalledRun(zip)
+    try {
+      const item = parseTraceArtifacts(readTraces(root))[0]
+      expect(item).toBeDefined()
+      expect(item?.lastAction).toBeUndefined()
+      expect(item?.lead).toBeUndefined()
+      expect((item?.requests ?? []).map((request) => request.path).sort()).toEqual([
+        '/api/a',
+        '/api/b',
+      ])
+      const note = String(failureTraceNote(item === undefined ? [] : [item], 'http://app.test'))
+      expect(note).not.toContain('the page stayed')
+      expect(note).not.toContain("the test's last action")
+      expect(note).not.toContain('the failing step sent')
     } finally {
       rmSync(root, { recursive: true, force: true })
     }

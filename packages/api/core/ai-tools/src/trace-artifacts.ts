@@ -94,6 +94,14 @@ export interface TraceRequest {
    * credential-less request from one whose credential is a cookie.
    */
   sentCookie?: boolean
+  /**
+   * The trace member this request came from — the browser context Playwright numbered (`1`, `3`).
+   * A test that opens a second browser context writes one trace member per context, and a test's
+   * request is only evidence about the page it was made on (xr-molecule-flash-m160).
+   */
+  context?: string
+  /** The page the request was made on, as the HAR entry's `pageref` records it. */
+  pageId?: string
 }
 
 /**
@@ -132,6 +140,32 @@ export interface TraceAction {
   start: number
   /** When it finished, or null when the run ended before it did. */
   end: number | null
+  /** The browser context the action was recorded in (`1`, `3`), when the trace names one. */
+  context?: string
+  /** The page the action ran on, from the frame snapshot the trace paired with it. */
+  pageId?: string
+  /** The frame the action ran in, from the same snapshot. */
+  frameId?: string
+}
+
+/**
+ * What a browser context OTHER than the failing page's recorded — the second context a
+ * two-context test opens for its own setup.
+ *
+ * Its actions and requests belong to a different page: a request it sent is not the failing
+ * action's effect, and the URL it left the page on is not where the assertion's page went
+ * (xr-molecule-flash-m160: the helper context created an article in an editor page while the
+ * primary page moved to the profile the assertion then failed on, and the note called the
+ * editor page the failing page).
+ */
+export interface TraceContextEvidence {
+  /** The trace member's context id (`3`). */
+  context: string
+  /**
+   * The app requests that context made, bounded — failures first, then the answered ones — each
+   * labelled by the note as set-up work rather than the failing page's.
+   */
+  requests: TraceRequest[]
 }
 
 /** What one trace says: the test it belongs to, the requests it made, and its console lines. */
@@ -161,19 +195,44 @@ export interface TraceArtifact {
    */
   console: string[]
   /**
-   * The test's LAST user action before the failing assertion and the requests it caused — what the
-   * row leads with, when the trace carries the action times ({@link TraceLastAction}).
+   * The test's LAST user action before the failing assertion ON THE PAGE THE ASSERTION RAN ON, and
+   * the requests it caused — what the row leads with, when the trace carries the action times
+   * ({@link TraceLastAction}).
    *
-   * Absent on traces read before this field existed, and on traces whose network entries recorded
-   * no clock; the row then falls back to {@link lead}.
+   * A test that opens a second browser context writes one trace member per context, and the
+   * archive does not order them by time: the last action of the concatenation may belong to the
+   * helper's page while the assertion failed on another (xr-molecule-flash-m160). The action is
+   * therefore the failing page's own, and its `pageAfter` is that page's last frame snapshot.
+   *
+   * Absent on traces read before this field existed, on traces whose network entries recorded no
+   * clock, and on a trace with more than one used context whose failing page cannot be identified
+   * ({@link TraceArtifact.unattributed}) — the row then falls back to {@link lead}, or to no
+   * causal claim at all.
    */
   lastAction?: TraceLastAction
   /**
    * The page's own actions in the order the trace recorded them, bounded — what a test that ran
    * out of a per-test budget spends its time on. A test that repeats one action prints it once per
-   * repeat, so the gap between two starts is one repeat's measured cost.
+   * repeat, so the gap between two starts is one repeat's measured cost. Scoped to the page the
+   * failing assertion ran on; a second browser context's actions are not this test's page.
    */
   actions: TraceAction[]
+  /**
+   * True when the trace held more than one browser context and none of them could be tied to the
+   * failing assertion's page. The note then makes no causal claim — no "the test's last action",
+   * no "the page stayed at …" — rather than attributing one context's click and URL to another
+   * context's assertion (xr-molecule-flash-m160).
+   */
+  unattributed?: true
+  /**
+   * The browser contexts the test opened BESIDES the failing assertion's page, with the app
+   * requests each made. Kept apart so the note can name them as set-up work instead of printing
+   * their requests as the failing action's effects (xr-molecule-flash-m160).
+   *
+   * Absent when the trace recorded one context only, when every other context made no request,
+   * and on traces read before this field existed.
+   */
+  otherContexts?: TraceContextEvidence[]
 }
 
 /** How many traces one read reports, newest first. */
@@ -243,6 +302,13 @@ const TRACE_NOTE_FAILURE_CHARS = 120
  * over anything else when it is the page talking to the app (`fetch`/`xhr`/`document`): a failing
  * test's trace holds the whole page load. A request with no response and NO error text was aborted
  * or still in flight when the test ended; it is kept too, but as what it is, not as a failure.
+ *
+ * A trace.zip holds ONE trace member per browser context the test used (beside the runner's own
+ * `test.trace`), and the archive's member order is not the test's chronology. Each member is read
+ * as its own context: actions and requests keep their context id, requests and frame snapshots
+ * keep the pageId Playwright records, and the failing assertion's page — the page its own step id
+ * ran on — decides which actions, snapshots and requests become the test's row. What the test's
+ * other browser contexts recorded is reported apart, as `otherContexts` (xr-molecule-flash-m160).
  *
  * A request answered 4xx by the app's OWN API also keeps what the page SENT and the first of what
  * came back: Playwright stores either inline (`text`) or in a resource entry (`_file`), and both
@@ -436,26 +502,69 @@ const found = []
 walk(ROOT, 5, found)
 found.sort(function (a, b) { return b.mtime - a.mtime })
 
+// A trace.zip holds ONE trace member per browser context the test used (1-trace.trace,
+// 3-trace.trace, …) beside the test runner's own test.trace. The archive ORDER of those members
+// is not the test's chronology: xr-molecule-flash-m160's helper context was written after the
+// primary page's, so the concatenation's last user action was the helper's editor click and the
+// last frame snapshot was /editor, while the assertion had failed on the primary page at
+// /profile/:username. Each member is read as its own context, and everything below attributes a
+// request, an action and a frame snapshot to the page and context that recorded it.
+function traceContextOf(name) {
+  if (name === 'test.trace') return 'test'
+  if (name === 'trace.trace') return '0'
+  const m = /^(.+)-trace\\.trace$/.exec(name)
+  return m === null ? null : m[1]
+}
+function networkContextOf(name) {
+  if (name === 'trace.network') return '0'
+  const m = /^(.+)-trace\\.network$/.exec(name)
+  return m === null ? null : m[1]
+}
+
 for (const one of found.slice(0, MAX_TRACES)) {
   let buf
   try { buf = fs.readFileSync(one.file) } catch (e) { continue }
   let entries
   try { entries = zipEntries(buf) } catch (e) { continue }
-  const network = []
-  const trace = []
-  for (const entry of entries) {
-    if (/\\.network$/.test(entry.name)) network.push.apply(network, ndjson(zipData(buf, entry)))
-    else if (/\\.trace$/.test(entry.name)) trace.push.apply(trace, ndjson(zipData(buf, entry)))
+  const runner = []
+  const contexts = []
+  const contextById = {}
+  function contextFor(id) {
+    let ctx = contextById[id]
+    if (!ctx) {
+      ctx = { id: id, trace: [], network: [], requests: [], actions: [], frames: [] }
+      contextById[id] = ctx
+      contexts.push(ctx)
+    }
+    return ctx
   }
-  const requests = []
-  for (const line of network) {
-    if (!line || line.type !== 'resource-snapshot') continue
-    const snapshot = line.snapshot || {}
-    const request = snapshot.request || {}
-    if (!request.url || !request.method) continue
-    const response = snapshot.response || {}
-    const type = String(snapshot._resourceType || '')
-    if (!origin) origin = type === 'document' ? originOf(String(request.url)) : ''
+  for (const entry of entries) {
+    const traceContext = traceContextOf(entry.name)
+    if (traceContext === 'test') {
+      runner.push.apply(runner, ndjson(zipData(buf, entry)))
+      continue
+    }
+    if (traceContext !== null) {
+      const ctx = contextFor(traceContext)
+      ctx.trace.push.apply(ctx.trace, ndjson(zipData(buf, entry)))
+      continue
+    }
+    const networkContext = networkContextOf(entry.name)
+    if (networkContext !== null) {
+      const ctx = contextFor(networkContext)
+      ctx.network.push.apply(ctx.network, ndjson(zipData(buf, entry)))
+    }
+  }
+  const requestsAll = []
+  for (const ctx of contexts) {
+    for (const line of ctx.network) {
+      if (!line || line.type !== 'resource-snapshot') continue
+      const snapshot = line.snapshot || {}
+      const request = snapshot.request || {}
+      if (!request.url || !request.method) continue
+      const response = snapshot.response || {}
+      const type = String(snapshot._resourceType || '')
+      if (!origin) origin = type === 'document' ? originOf(String(request.url)) : ''
     // What the request carried for CREDENTIALS — never the secret itself. A 401 on the app's own
     // API cannot be read without this: m148's favorite POST answered 401 with no Authorization
     // header at all, so the client never attached the token, and the note sent the run to the
@@ -472,51 +581,206 @@ for (const one of found.slice(0, MAX_TRACES)) {
     const authSpace = authValue.search(/\\s/)
     const authWord = authSpace > 0 ? authValue.slice(0, authSpace) : ''
     const authScheme = /^[A-Za-z][A-Za-z0-9._~+/-]{0,23}$/.test(authWord) ? authWord : undefined
-    const sentCookie = headerList.some(function (h) {
-      return h && typeof h.name === 'string' && /^cookie$/i.test(h.name)
-    })
-    requests.push({
-      method: String(request.method).toUpperCase(),
-      path: String(request.url).slice(0, MAX_URL),
-      status: Number(response.status) || 0,
-      failure: typeof response._failureText === 'string' ? response._failureText : undefined,
-      type: type,
-      sentAuthorization: authHeader !== undefined,
-      authorization: authScheme,
-      sentCookie: sentCookie,
-      // The HAR entry carries the monotonic clock the trace's action entries use, so a request
-      // can be attributed to the action that caused it (see \`lastAction\` below).
-      startedAt: typeof snapshot._monotonicTime === 'number' ? snapshot._monotonicTime : undefined,
-      postData: request.postData,
-      content: response.content,
-    })
+      const sentCookie = headerList.some(function (h) {
+        return h && typeof h.name === 'string' && /^cookie$/i.test(h.name)
+      })
+      const parsed = {
+        method: String(request.method).toUpperCase(),
+        path: String(request.url).slice(0, MAX_URL),
+        status: Number(response.status) || 0,
+        failure: typeof response._failureText === 'string' ? response._failureText : undefined,
+        type: type,
+        sentAuthorization: authHeader !== undefined,
+        authorization: authScheme,
+        sentCookie: sentCookie,
+        // The HAR entry carries the monotonic clock the trace's action entries use, so a request
+        // can be attributed to the action that caused it (see \`lastAction\` below).
+        startedAt: typeof snapshot._monotonicTime === 'number' ? snapshot._monotonicTime : undefined,
+        // The context member and the page ref the HAR entry records: a request made by the test's
+        // helper context is not the failing page's, however late the archive wrote it (m160).
+        context: ctx.id,
+        pageId: typeof snapshot.pageref === 'string' ? snapshot.pageref : undefined,
+        postData: request.postData,
+        content: response.content,
+      }
+      ctx.requests.push(parsed)
+      requestsAll.push(parsed)
+    }
   }
   if (!origin) {
-    const first = requests.find(function (r) { return r.type === 'document' }) || requests[0]
+    const first = requestsAll.find(function (r) { return r.type === 'document' }) || requestsAll[0]
     origin = first ? originOf(first.path) : ''
   }
-  for (const r of requests) r.path = pathOf(r.path).slice(0, MAX_URL)
+  for (const r of requestsAll) r.path = pathOf(r.path).slice(0, MAX_URL)
   // The page's own actions, timed. before/after pair on the call id, and only the LIBRARY
   // traces carry a class and a method (Frame.goto, Locator.fill); the test runner's own
-  // trace times its hooks and fixtures with class Test, which is not a page action. Read BEFORE
-  // the request buckets: whether the navigation itself finished decides whether a subresource
-  // with no response is evidence (see \`navigationOpen\` below).
-  const ended = {}
-  for (const entry of trace) {
-    if (entry && entry.type === 'after' && typeof entry.callId === 'string' && typeof entry.endTime === 'number')
-      ended[entry.callId] = entry.endTime
+  // trace times its hooks and fixtures with class Test, which is not a page action. Each action
+  // keeps the context it came from and the page/frame its frame snapshot names, so the failing
+  // assertion's own page can be selected below (m160).
+  const actionsAll = []
+  const framesAll = []
+  for (const ctx of contexts) {
+    const ended = {}
+    for (const entry of ctx.trace) {
+      if (entry && entry.type === 'after' && typeof entry.callId === 'string' && typeof entry.endTime === 'number')
+        ended[entry.callId] = entry.endTime
+    }
+    const pageByCall = {}
+    for (const entry of ctx.trace) {
+      if (!entry || entry.type !== 'frame-snapshot') continue
+      const snap = entry.snapshot || {}
+      if (typeof snap.callId === 'string' && typeof snap.pageId === 'string' && pageByCall[snap.callId] === undefined)
+        pageByCall[snap.callId] = snap.pageId
+      if (snap.isMainFrame === false) continue
+      if (typeof snap.frameUrl !== 'string' || typeof snap.timestamp !== 'number') continue
+      ctx.frames.push({
+        url: pathOf(snap.frameUrl).slice(0, MAX_URL),
+        at: snap.timestamp,
+        context: ctx.id,
+        pageId: typeof snap.pageId === 'string' ? snap.pageId : undefined,
+        frameId: typeof snap.frameId === 'string' ? snap.frameId : undefined,
+      })
+    }
+    for (const entry of ctx.trace) {
+      if (!entry || entry.type !== 'before') continue
+      if (typeof entry.class !== 'string' || typeof entry.method !== 'string') continue
+      if (entry.class === 'Test' || typeof entry.startTime !== 'number') continue
+      const action = {
+        api: entry.class + '.' + entry.method,
+        start: entry.startTime,
+        end: typeof ended[entry.callId] === 'number' ? ended[entry.callId] : null,
+        context: ctx.id,
+        pageId: typeof entry.callId === 'string' ? pageByCall[entry.callId] : undefined,
+        frameId: undefined,
+        stepId: typeof entry.stepId === 'string' ? entry.stepId : undefined,
+      }
+      if (action.pageId !== undefined) {
+        for (const frame of ctx.frames) {
+          if (frame.pageId !== action.pageId) continue
+          action.frameId = frame.frameId
+          break
+        }
+      }
+      ctx.actions.push(action)
+    }
+    // Monotonic time, not archive order: two contexts interleave in the zip, and one context's
+    // own actions still have to be read in the order the page performed them.
+    ctx.actions.sort(function (a, b) { return a.start - b.start })
+    ctx.frames.sort(function (a, b) { return a.at - b.at })
+    for (const action of ctx.actions) actionsAll.push(action)
+    for (const frame of ctx.frames) framesAll.push(frame)
   }
-  const actions = []
-  for (const entry of trace) {
-    if (!entry || entry.type !== 'before') continue
-    if (typeof entry.class !== 'string' || typeof entry.method !== 'string') continue
-    if (entry.class === 'Test' || typeof entry.startTime !== 'number') continue
-    actions.push({
-      api: entry.class + '.' + entry.method,
-      start: entry.startTime,
-      end: typeof ended[entry.callId] === 'number' ? ended[entry.callId] : null,
-    })
+  // The step the runner itself reports as failed, and the location it names. The runner writes
+  // the error on the failed step's \`after\` entry; taking the LAST step with a spec stack instead
+  // named the afterEach's \`context.close()\` (m160's social.spec.ts:13) rather than the strict-mode
+  // assertion at :90. The first error is the test's own failure — an afterEach that also fails
+  // runs after it.
+  let failedStepId = null
+  let failedStep = null
+  let failedEnd = null
+  let failureSpec = null
+  let failureLine = 0
+  let lastSpec = null
+  let lastSpecLine = 0
+  for (const entry of runner) {
+    if (!entry) continue
+    if (entry.type === 'after' && entry.error && typeof entry.callId === 'string' && failedStepId === null) {
+      failedStepId = entry.callId
+      failedEnd = typeof entry.endTime === 'number' ? entry.endTime : null
+    }
   }
+  // The fallback location — the last step that names a spec — is read from every member, runner
+  // and library alike: a trace written without a test.trace (a synthetic fixture, an older
+  // Playwright) still names its spec on the library entries, and dropping that would leave the
+  // row placeless.
+  for (const traceEntries of [runner].concat(contexts.map(function (ctx) { return ctx.trace }))) {
+    for (const entry of traceEntries) {
+      if (!entry || entry.type !== 'before' || !Array.isArray(entry.stack)) continue
+      for (const frame of entry.stack) {
+        if (typeof frame.file !== 'string' || !/\\.(?:spec|test)\\.[cm]?[jt]sx?$/.test(frame.file)) continue
+        lastSpec = specPathOf(frame.file)
+        lastSpecLine = Number(frame.line) || 0
+        break
+      }
+    }
+  }
+  if (failedStepId !== null) {
+    for (const entry of runner) {
+      if (!entry || entry.type !== 'before' || entry.callId !== failedStepId) continue
+      failedStep = entry
+      if (!Array.isArray(entry.stack)) break
+      for (const frame of entry.stack) {
+        if (typeof frame.file !== 'string' || !/\\.(?:spec|test)\\.[cm]?[jt]sx?$/.test(frame.file)) continue
+        failureSpec = specPathOf(frame.file)
+        failureLine = Number(frame.line) || 0
+        break
+      }
+      break
+    }
+  }
+  const spec = failureSpec !== null ? failureSpec : lastSpec
+  const line = failureSpec !== null ? failureLine : lastSpecLine
+  // The page the failing step ran on. The library trace records the runner's step id on every
+  // action it performed for that step, and each action's frame snapshot carries its pageId — so
+  // the failing assertion's page is the step's own page, never the last page any context left
+  // behind (m160: the helper context's /editor won because its member came later in the zip).
+  let failedPageIds = []
+  if (failedStepId !== null) {
+    for (const action of actionsAll) {
+      if (action.stepId !== failedStepId || action.pageId === undefined) continue
+      if (failedPageIds.indexOf(action.pageId) === -1) failedPageIds.push(action.pageId)
+    }
+    // A step with no library action of its own (a plain \`page.waitForTimeout\`, a runner-only
+    // step) falls back to the actions that ran inside its own interval.
+    if (failedPageIds.length === 0 && failedStep !== null && typeof failedStep.startTime === 'number') {
+      for (const action of actionsAll) {
+        if (action.pageId === undefined) continue
+        if (action.start < failedStep.startTime - 1) continue
+        if (failedEnd !== null && action.start > failedEnd + 1) continue
+        if (failedPageIds.indexOf(action.pageId) === -1) failedPageIds.push(action.pageId)
+      }
+    }
+  }
+  let failedPage = failedPageIds.length === 1 ? failedPageIds[0] : null
+  // A member with no action, request or frame is not a context the test used: Playwright writes
+  // a trace entry for a context it opened and closed without a page, and counting that as a
+  // second context would make every ordinary trace unattributable.
+  const usedContexts = contexts.filter(function (ctx) {
+    return ctx.actions.length > 0 || ctx.requests.length > 0 || ctx.frames.length > 0
+  })
+  // One context, one page: nothing to attribute, and no second context to merge.
+  if (failedPage === null && usedContexts.length === 1) {
+    const pages = []
+    for (const frame of framesAll) {
+      if (frame.pageId !== undefined && pages.indexOf(frame.pageId) === -1) pages.push(frame.pageId)
+    }
+    if (pages.length === 1) failedPage = pages[0]
+  }
+  let failedContext = null
+  if (failedPage !== null) {
+    for (const frame of framesAll) {
+      if (frame.pageId !== failedPage) continue
+      failedContext = frame.context
+      break
+    }
+    if (failedContext === null) {
+      for (const action of actionsAll) {
+        if (action.pageId !== failedPage) continue
+        failedContext = action.context
+        break
+      }
+    }
+  }
+  // Two used contexts and no identified page: the note makes no causal claim rather than
+  // merging them (m160's rule). With one used context everything in it belongs to the test's page.
+  const unattributed = failedPage === null && usedContexts.length > 1
+  const actions = failedPage === null ? actionsAll : actionsAll.filter(function (a) { return a.pageId === failedPage })
+  const frames = failedPage === null ? (usedContexts.length === 1 ? framesAll : []) : framesAll.filter(function (f) { return f.pageId === failedPage })
+  let requests = failedPage === null ? requestsAll : requestsAll.filter(function (r) { return r.pageId === failedPage })
+  // A trace whose HAR entries carry no page ref: the failing context's own requests are still
+  // its page's, because a context in a test with one page has nowhere else to send them.
+  if (failedPage !== null && requests.length === 0 && failedContext !== null)
+    requests = requestsAll.filter(function (r) { return r.context === failedContext })
   // A \`page.goto\` that has no end time: the page never finished loading. When that is the
   // failure, a document subresource with no response is the reason — the navigation waits for
   // its stylesheets and scripts — and it is evidence, not the aborted noise a finished
@@ -606,7 +870,9 @@ for (const one of found.slice(0, MAX_TRACES)) {
   // then rendering signed-out) leads instead of the Home page's own fetch.
   const USER_ACTION = /\\.(?:click|dblclick|tap|fill|press|pressSequentially|selectOption|check|uncheck|setInputFiles|goto|type)$/
   const userActions = actions.filter(function (a) { return USER_ACTION.test(a.api) })
-  const lastAction = userActions.length > 0 ? userActions[userActions.length - 1] : null
+  // With two contexts and no identified page there is no causal claim to make: the last action
+  // of the concatenation could belong to the helper's page (m160).
+  const lastAction = unattributed || userActions.length === 0 ? null : userActions[userActions.length - 1]
   // A request the action caused started after it (a millisecond of clock slack) and before the
   // assertion — which is everything later in the trace. A request that started before it is the
   // page's own load, not the action's; the page shell's files are never the step's, except a
@@ -671,19 +937,13 @@ for (const one of found.slice(0, MAX_TRACES)) {
       ...(r.sentAuthorization ? { sentAuthorization: true } : {}),
       ...(r.authorization ? { authorization: r.authorization } : {}),
       ...(r.sentCookie ? { sentCookie: true } : {}),
+      ...(r.context ? { context: r.context } : {}),
+      ...(r.pageId ? { pageId: r.pageId } : {}),
     }
   }
-  // The main frame's URL, timed: what the page showed when the action ran, and where it ended up.
-  // The trace records these around every action, which is how the note can say what the page did
-  // after the request — a client-side redirect never appears in the network log as a document.
-  const frames = []
-  for (const entry of trace) {
-    if (!entry || entry.type !== 'frame-snapshot') continue
-    const snap = entry.snapshot || {}
-    if (snap.isMainFrame === false) continue
-    if (typeof snap.frameUrl !== 'string' || typeof snap.timestamp !== 'number') continue
-    frames.push({ url: pathOf(snap.frameUrl).slice(0, MAX_URL), at: snap.timestamp })
-  }
+  // The failing page's own frame snapshots, timed: what the page showed when the action ran, and
+  // where it ended up. They are the snapshots of the assertion's page only — another context's
+  // editor page is not where this page went (m160) — and they are ordered by the trace's clock.
   let last = null
   if (lastAction !== null) {
     let pageBefore
@@ -707,8 +967,9 @@ for (const one of found.slice(0, MAX_TRACES)) {
   }
   // The fallback lead stays for traces with no action clock. With an action, only a request it
   // caused is the lead; an action that sent none leaves the page's own load to the row's
-  // "also answered" bucket, not to a lead that would hide it.
-  if (lead === null && lastAction === null) {
+  // "also answered" bucket, not to a lead that would hide it. With two contexts and no identified
+  // page there is no causal lead at all (m160).
+  if (!unattributed && lead === null && lastAction === null) {
     let leadIndex = -1
     for (let i = requests.length - 1; i >= 0; i--) {
       const r = requests[i]
@@ -768,24 +1029,49 @@ for (const one of found.slice(0, MAX_TRACES)) {
   const consoleErrors = []
   const consoleSignals = []
   const consoleWarnings = []
-  let spec = null
-  let line = 0
-  for (const entry of trace) {
-    if (!entry) continue
-    if (entry.type === 'console' && typeof entry.text === 'string') {
-      if (entry.messageType === 'error') consoleErrors.push(entry.text)
-      else if (consoleSignal(entry.text)) consoleSignals.push(entry.text)
-      else if (entry.messageType === 'warning' || entry.messageType === 'warn')
-        consoleWarnings.push(entry.text)
-    } else if (entry.type === 'event' && entry.method === 'pageError') {
-      const message = messageOf(entry.params)
-      if (message) consoleErrors.push(message)
-    } else if (entry.type === 'before' && Array.isArray(entry.stack) && entry.stack.length) {
-      const frame = entry.stack[0] || {}
-      if (typeof frame.file === 'string' && /\\.(?:spec|test)\\.[cm]?[jt]sx?$/.test(frame.file)) {
-        spec = specPathOf(frame.file)
-        line = Number(frame.line) || 0
+  // The console lines of the page the assertion ran on; with no identified page, of every context.
+  const consoleTraces =
+    failedContext === null
+      ? contexts.map(function (ctx) { return ctx.trace })
+      : contexts.filter(function (ctx) { return ctx.id === failedContext }).map(function (ctx) { return ctx.trace })
+  for (const traceEntries of consoleTraces) {
+    for (const entry of traceEntries) {
+      if (!entry) continue
+      if (entry.type === 'console' && typeof entry.text === 'string') {
+        if (entry.messageType === 'error') consoleErrors.push(entry.text)
+        else if (consoleSignal(entry.text)) consoleSignals.push(entry.text)
+        else if (entry.messageType === 'warning' || entry.messageType === 'warn')
+          consoleWarnings.push(entry.text)
+      } else if (entry.type === 'event' && entry.method === 'pageError') {
+        const message = messageOf(entry.params)
+        if (message) consoleErrors.push(message)
       }
+    }
+  }
+  // Evidence from the OTHER browser contexts the test opened — kept apart from the failing page's
+  // requests and labelled as set-up work, never as the failing action's effect (m160).
+  const otherContexts = []
+  if (failedContext !== null) {
+    for (const ctx of usedContexts) {
+      if (ctx.id === failedContext) continue
+      const picked = []
+      for (const r of ctx.requests) {
+        if (shellRequest(r)) continue
+        const sent = bodyText(buf, entries, r.postData, MAX_BODY)
+        const got = gotText(buf, entries, r)
+        if (sent) r.sent = sent
+        if (got) r.got = got
+        picked.push(r)
+      }
+      if (picked.length === 0 && ctx.actions.length === 0) continue
+      // Failures first, then by the trace's clock: a 401 from the helper context is worth naming
+      // even when its later answered calls would fill the bound.
+      picked.sort(function (a, b) {
+        const left = failedRequest(a) ? 0 : 1
+        const right = failedRequest(b) ? 0 : 1
+        return left === right ? (a.startedAt || 0) - (b.startedAt || 0) : left - right
+      })
+      otherContexts.push({ context: ctx.id, requests: picked.slice(0, MAX_NOTE).map(wire) })
     }
   }
   // Chromium reports every failed request as a console error too; where the page logged something
@@ -809,6 +1095,8 @@ for (const one of found.slice(0, MAX_TRACES)) {
     requests: chosen.slice(0, MAX_REQUESTS),
     console: keptConsole.slice(0, MAX_CONSOLE).map(function (text) { return text.slice(0, 300) }),
     actions: actions.slice(-MAX_ACTIONS),
+    ...(unattributed ? { unattributed: true } : {}),
+    ...(otherContexts.length > 0 ? { otherContexts: otherContexts } : {}),
   }) + '\\n')
 }
 `
@@ -837,6 +1125,8 @@ function parseTraceRequest(value: unknown): TraceRequest | null {
       ? { authorization: r.authorization }
       : {}),
     ...(r.sentCookie === true ? { sentCookie: true } : {}),
+    ...(typeof r.context === 'string' && r.context ? { context: r.context } : {}),
+    ...(typeof r.pageId === 'string' && r.pageId ? { pageId: r.pageId } : {}),
   }
 }
 
@@ -883,6 +1173,17 @@ export function parseTraceArtifacts(stdout: string): TraceArtifact[] {
       const actions = Array.isArray(raw.actions) ? raw.actions : []
       const lead = parseTraceRequest(raw.lead)
       const lastAction = parseLastAction(raw.lastAction)
+      const otherContexts = Array.isArray(raw.otherContexts)
+        ? raw.otherContexts
+            .filter((c): c is Record<string, unknown> => typeof c === 'object' && c !== null)
+            .filter((c) => typeof c.context === 'string')
+            .map((c) => ({
+              context: String(c.context),
+              requests: (Array.isArray(c.requests) ? c.requests : [])
+                .map(parseTraceRequest)
+                .filter((request): request is TraceRequest => request !== null),
+            }))
+        : []
       out.push({
         spec: typeof raw.spec === 'string' ? raw.spec : null,
         line: typeof raw.line === 'number' ? raw.line : 0,
@@ -899,7 +1200,12 @@ export function parseTraceArtifacts(stdout: string): TraceArtifact[] {
             api: String(a.api),
             start: Number(a.start),
             end: a.end === null || a.end === undefined ? null : Number(a.end),
+            ...(typeof a.context === 'string' ? { context: a.context } : {}),
+            ...(typeof a.pageId === 'string' ? { pageId: a.pageId } : {}),
+            ...(typeof a.frameId === 'string' ? { frameId: a.frameId } : {}),
           })),
+        ...(otherContexts.length === 0 ? {} : { otherContexts }),
+        ...(raw.unattributed === true ? { unattributed: true as const } : {}),
       })
     } catch (_error) {
       continue
@@ -1739,6 +2045,14 @@ function missingApiPrefixSentence(request: MissingApiPrefixRequest): string {
  * (answered 201, the page still rendering signed-out) never appeared. With no action clock, the
  * row falls back to {@link TraceArtifact.lead}: the page's last answered fetch/xhr.
  *
+ * The action, the URL and the requests are the FAILING ASSERTION'S PAGE's ({@link
+ * TraceArtifact.lastAction}), never the archive's last context: a test that creates its data in a
+ * second browser context writes that context's click and `/editor` snapshot into the same zip, and
+ * reading the concatenation made them the failing page (xr-molecule-flash-m160). The other
+ * contexts' requests are named separately as set-up work. When the trace holds more than one used
+ * context and the assertion's page cannot be identified, the note lists the requests and makes NO
+ * causal claim — no "the test's last action", no "the page stayed at …" — instead of merging them.
+ *
  * WHICH rows it spends is evidence, not artifact order (xr-molecule-flash-m112 +53:46): a row
  * needs a recorded response, a real failure or a console line ({@link traceRowEvidence}), rows are
  * deduplicated by the test's location, and they are ordered real failure → repeated from an
@@ -2002,6 +2316,18 @@ export function failureTraceNote(
           .map((text) => text.replace(/\s+/g, ' ').trim().slice(0, 160))
           .join(' | ')}`,
       )
+    // A request from another browser context the test opened is not the failing action's effect:
+    // it is set-up work on a different page, and it is named as such rather than merged into the
+    // row (xr-molecule-flash-m160: the helper context's POST /api/articles was printed as the
+    // click's effect while the assertion had failed on the profile page).
+    const others = (item.otherContexts ?? []).filter((context) => context.requests.length > 0)
+    for (const [otherIndex, context] of others.slice(0, 2).entries()) {
+      const label =
+        otherIndex === 0
+          ? 'a second browser context, opened by the test for set-up and not the page the assertion ran on'
+          : 'another browser context the test opened'
+      parts.push(`${label}: ${context.requests.slice(0, 2).map(requestLine).join('; ')}`)
+    }
     rows.push(`  ${index + 1}. ${whereOf(item)} — ${parts.join(' — ')}`)
   }
   // Distinct locations the note did not name: the repeats collapse, so the count is what is left
@@ -2013,6 +2339,10 @@ export function failureTraceNote(
     distinct.size > traced.length
       ? `\n  … and ${distinct.size - traced.length} more traced failures`
       : ''
+  // Every row came from a trace with more than one browser context and no page to tie the
+  // assertion to: the note may list the requests, and may not say what action sent them or where
+  // "the page" went (m160).
+  const allUnattributed = traced.every((item) => item.unattributed === true)
   // A run whose pages never loaded has one cause, and it is not in the app: every traced failure is
   // a `page.goto` that timed out on a document the browser could not load. The transport error is
   // the first line the executor needs — m118 (+37:09) read 14 goto timeouts as app failures while
@@ -2062,9 +2392,13 @@ export function failureTraceNote(
     transportLead +
     stalledLead +
     `The platform read the failing tests' own Playwright traces from the run against ${target} ` +
-    `(what each page sent and got — first what the test's last action sent and where the page went ` +
-    `next, then the requests that failed, the ones that got no response, and its last answered ` +
-    `ones):\n` +
+    (allUnattributed
+      ? `(what each page sent and got — the requests their contexts recorded, with no claim about ` +
+        `which action caused them, then the ones that failed, the ones that got no response, and ` +
+        `the last answered ones):\n`
+      : `(what each page sent and got — first what the test's last action sent and where the page ` +
+        `went next, then the requests that failed, the ones that got no response, and its last ` +
+        `answered ones):\n`) +
     `${rows.join('\n')}${more}\n` +
     (anyFailed
       ? everyFailureLacksPrefix
@@ -2094,13 +2428,19 @@ export function failureTraceNote(
             'not finish loading because its own subresource never answered. Do not read this as a ' +
             'page-state bug: re-run these tests against the same URL first, and change the app only ' +
             'if the same navigation times out again with no stalled asset in the trace.'
-        : 'No listed request failed — none got a 4xx/5xx or a network error — so the cause is in the ' +
-          "page, not the API. Start with what the test's last action sent (the first line of each " +
-          'row) and what the page did next: a request that answered (2xx included) while the page ' +
-          'still did not show the state the assertion waited on is the fact to read — its status ' +
-          'and response body, not the selector. If the request is not the one the test meant — an ' +
-          'unfollow sent where the test clicked follow — the state the action read was stale ' +
-          'before it.') +
+        : allUnattributed
+          ? 'No listed request failed — none got a 4xx/5xx or a network error. The trace held more ' +
+            'than one browser context and nothing ties a page to the failing assertion, so no ' +
+            'action or URL is attributed here: read the requests above together with the runner’s ' +
+            'own failure text to tell which page the test asserted on, and read that page’s state, ' +
+            'not the selector.'
+          : 'No listed request failed — none got a 4xx/5xx or a network error — so the cause is in the ' +
+            "page, not the API. Start with what the test's last action sent (the first line of each " +
+            'row) and what the page did next: a request that answered (2xx included) while the page ' +
+            'still did not show the state the assertion waited on is the fact to read — its status ' +
+            'and response body, not the selector. If the request is not the one the test meant — an ' +
+            'unfollow sent where the test clicked follow — the state the action read was stale ' +
+            'before it.') +
     prefixAdvice +
     (wrapped
       ? ' The API received a body wrapped in `data`: app-http’s `post(url, data, config)` / ' +
