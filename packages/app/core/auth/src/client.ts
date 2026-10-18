@@ -151,11 +151,29 @@ export const createJWTAuthClient = <
     notify()
   }
 
+  /**
+   * Whether `err` is the client's own "nothing to refresh with" error thrown by
+   * `refresh()` when no refresh token is stored (and the cookie-restore fallback
+   * found no session).
+   */
+  const isNoRefreshTokenError = (err: unknown): boolean =>
+    err instanceof I18nError && err.i18nKey === 'auth.error.noRefreshToken'
+
   const scheduleRefresh = (): void => {
     if (!autoRefresh) return
 
     const token = tokenStorage.getAccessToken()
     if (!token) return
+
+    // No refresh token means NOTHING to refresh with: cookie-session APIs (the
+    // `@molecule/api-resource-user` model) issue only `{ accessToken, user }` and
+    // keep the durable session in an httpOnly cookie the SERVER refreshes. A
+    // timer here can only fail with `auth.error.noRefreshToken` — and it used to
+    // LOG THE USER OUT on that failure while their access token was still valid
+    // (a RealWorld-shaped app signed itself out right after register). Leave the
+    // session alone; the API's next 401 (see `validateSession`) or an explicit
+    // sign-out decides when it ends.
+    if (!tokenStorage.getRefreshToken()) return
 
     const expiresAt = getTokenExpiration(token)
     if (!expiresAt) return
@@ -169,6 +187,17 @@ export const createJWTAuthClient = <
 
     refreshTimer = setTimeout(() => {
       client.refresh().catch((err) => {
+        // The refresh token can disappear between scheduling and firing (a
+        // logout in another tab, a cleared store). That is not a failed refresh,
+        // so it must not sign the user out: keep the session and let the API
+        // reject the token if it really is dead.
+        if (isNoRefreshTokenError(err)) {
+          logger.debug(
+            'Token refresh skipped — no refresh token stored; keeping the session until the API rejects the token',
+            err,
+          )
+          return
+        }
         logger.warn('Token refresh failed, logging out', err)
         client.logout()
       })

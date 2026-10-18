@@ -582,7 +582,10 @@ export interface AuthClientConfig {
   shouldRestoreUser?: (user: UserProfile) => boolean
 
   /**
-   * Auto refresh tokens before expiry.
+   * Refresh the access token before it expires. A no-op unless the API issued a
+   * refresh token at login/register — with none stored, nothing is scheduled and
+   * the session is never ended by the refresh timer; an API that rejects the
+   * access token (401) or an explicit logout ends it instead. Defaults to `true`.
    */
   autoRefresh?: boolean
 

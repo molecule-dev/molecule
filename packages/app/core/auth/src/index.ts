@@ -46,6 +46,15 @@
  * plus its own listener set is a second session store, and it drifts from the
  * client's.
  *
+ * **`autoRefresh` does nothing without a refresh token — and must never log the
+ * user out.** The client schedules a refresh only when `refresh()` could actually
+ * succeed, i.e. when a refresh token is stored. An API that issues none (the
+ * `@molecule/api-resource-user` model: login/register return `{ accessToken,
+ * user }` and the durable session is an httpOnly cookie the SERVER refreshes)
+ * therefore schedules nothing: the session stays until the API answers 401
+ * (`validateSession()` clears it) or the user logs out. `autoRefresh: true`
+ * against such an API is harmless but pointless — leave it `false`.
+ *
  * **A token another tool reads at its own key is a CONFIG field, not a mirror.**
  * An e2e suite or host page that expects `localStorage.jwtToken` (the RealWorld
  * specs do) is satisfied by `tokenKey: 'jwtToken'` with

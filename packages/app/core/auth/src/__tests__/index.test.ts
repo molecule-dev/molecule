@@ -1753,6 +1753,90 @@ describe('JWT Auth Client', () => {
         expect.any(Object),
       )
     })
+
+    it('[m148] schedules nothing and never logs out when the API issued no refresh token', async () => {
+      const accessToken = createMockJWT({
+        sub: mockUser.id,
+        exp: Math.floor(Date.now() / 1000) + 120,
+      })
+      // Cookie-session APIs (the @molecule/api-resource-user model) answer
+      // login with `{ accessToken, user }` and NO refresh token.
+      mockFetch.mockImplementation(() => createMockResponse({ user: mockUser, accessToken }))
+
+      const client = createJWTAuthClient({ autoRefresh: true, refreshBuffer: 60 })
+      await client.login({ email: 'test@example.com', password: 'password' })
+      mockFetch.mockClear()
+
+      // Past the moment a refresh would have fired, and past the token's own
+      // expiry: no timer may fire, no request may go out, and the session must
+      // survive — logging out here is the m148 bug (an app signed itself out
+      // right after register while its access token was still valid).
+      await vi.advanceTimersByTimeAsync(200 * 1000)
+
+      expect(mockFetch).not.toHaveBeenCalled()
+      expect(client.isAuthenticated()).toBe(true)
+      expect(client.getAccessToken()).toBe(accessToken)
+
+      // Only an actual rejection ends the session.
+      mockFetch.mockImplementationOnce(() => createMockResponse({ error: 'Unauthorized' }, 401))
+      await client.validateSession()
+
+      expect(client.isAuthenticated()).toBe(false)
+      expect(client.getAccessToken()).toBeNull()
+    })
+
+    it('[m148] does not log out when a refresh token vanished before the timer fired', async () => {
+      const storage = createMockStorage()
+      const accessToken = createMockJWT({
+        sub: mockUser.id,
+        exp: Math.floor(Date.now() / 1000) + 120,
+      })
+      mockFetch.mockImplementation(() =>
+        createMockResponse({ user: mockUser, accessToken, refreshToken: 'refresh-token' }),
+      )
+
+      const client = createJWTAuthClient({
+        autoRefresh: true,
+        refreshBuffer: 60,
+        storage,
+      })
+      await client.login({ email: 'test@example.com', password: 'password' })
+      mockFetch.mockClear()
+
+      // The scheduler only decides once; the token can disappear afterwards
+      // (another tab logging out, a cleared store). The timer's failure is
+      // "nothing to refresh with", not a dead session.
+      storage.removeItem('molecule:auth:refreshToken')
+      await vi.advanceTimersByTimeAsync(120 * 1000)
+
+      expect(mockFetch).not.toHaveBeenCalled()
+      expect(client.isAuthenticated()).toBe(true)
+      expect(client.getAccessToken()).toBe(accessToken)
+    })
+
+    it('logs out when a refresh WITH a refresh token fails', async () => {
+      const accessToken = createMockJWT({
+        sub: mockUser.id,
+        exp: Math.floor(Date.now() / 1000) + 120,
+      })
+      mockFetch.mockImplementation(() =>
+        createMockResponse({ user: mockUser, accessToken, refreshToken: 'refresh-token' }),
+      )
+
+      const client = createJWTAuthClient({ autoRefresh: true, refreshBuffer: 60 })
+      await client.login({ email: 'test@example.com', password: 'password' })
+
+      // The refresh itself is refused — the server has revoked the token.
+      mockFetch.mockImplementation(() => createMockResponse({ error: 'Unauthorized' }, 401))
+      await vi.advanceTimersByTimeAsync(120 * 1000)
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/auth/refresh'),
+        expect.any(Object),
+      )
+      expect(client.isAuthenticated()).toBe(false)
+      expect(client.getAccessToken()).toBeNull()
+    })
   })
 })
 
