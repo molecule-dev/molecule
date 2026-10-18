@@ -18,20 +18,34 @@ const BOND_TYPE = 'auth-client'
  * Registers an auth client as the active singleton. Called by bond
  * packages during application startup.
  *
+ * @template T - The user profile the bonded client returns.
+ * @template TRegister - The app's own registration fields, at the top level
+ *   of `register()` (see `RegisterData`).
  * @param client - The auth client implementation to bond.
  */
-export const setClient = (client: AuthClient): void => {
+export const setClient = <
+  T = UserProfile,
+  TRegister extends Record<string, unknown> = Record<never, never>,
+>(
+  client: AuthClient<T, TRegister>,
+): void => {
   bond(BOND_TYPE, client)
 }
 
 /**
  * Retrieves the bonded auth client, throwing if none is configured.
  *
+ * @template T - The user profile the bonded client returns.
+ * @template TRegister - The app's own registration fields, at the top level
+ *   of `register()` (see `RegisterData`).
  * @returns The bonded auth client.
  * @throws {Error} If no auth client has been bonded.
  */
-export const getClient = <T extends UserProfile = UserProfile>(): AuthClient<T> => {
-  return bondRequire<AuthClient<T>>(BOND_TYPE)
+export const getClient = <
+  T extends UserProfile = UserProfile,
+  TRegister extends Record<string, unknown> = Record<never, never>,
+>(): AuthClient<T, TRegister> => {
+  return bondRequire<AuthClient<T, TRegister>>(BOND_TYPE)
 }
 
 /**

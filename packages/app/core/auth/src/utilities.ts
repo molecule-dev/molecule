@@ -40,7 +40,11 @@ export const logout = (): Promise<void> => getClient().logout()
 /**
  * Registers a new user account.
  *
- * @param data - Registration data (email, password, name, etc.).
+ * @template TExtra - The app's own registration fields, at the top level
+ *   (`{ username: string }` for a RealWorld-shaped API); defaults to none.
+ * @param data - Registration data (email, password, and any `TExtra` fields).
  * @returns The auth result containing tokens and user profile.
  */
-export const register = (data: RegisterData): Promise<AuthResult> => getClient().register(data)
+export const register = <TExtra extends Record<string, unknown> = Record<never, never>>(
+  data: RegisterData<TExtra>,
+): Promise<AuthResult> => getClient<UserProfile, TExtra>().register(data)

@@ -131,14 +131,21 @@ export function createDefaultHttpClientWithAuthBearer(opts: {
  * export const { authClient, setupAuthDefault } =
  *   createDefaultAuthClient(authConfig)
  * ```
+ *
+ * `TRegister` is the app's own registration fields (`{ username: string }` for a
+ * RealWorld-shaped API), passed on to `@molecule/app-auth`'s factory so
+ * `authClient.register({ username, email, password })` type-checks with no cast.
  */
-export function createDefaultAuthClient<TUser extends UserProfile = UserProfile>(
+export function createDefaultAuthClient<
+  TUser extends UserProfile = UserProfile,
+  TRegister extends Record<string, unknown> = Record<never, never>,
+>(
   authConfig: AuthClientConfig,
 ): {
-  authClient: AuthClient<TUser>
+  authClient: AuthClient<TUser, TRegister>
   setupAuthDefault: () => void
 } {
-  const authClient = createJWTAuthClient<TUser>(authConfig)
+  const authClient = createJWTAuthClient<TUser, TRegister>(authConfig)
   return {
     authClient,
     setupAuthDefault: () => setClient(authClient),
@@ -157,13 +164,16 @@ export function createDefaultAuthClient<TUser extends UserProfile = UserProfile>
  * requests until the session restore settles so a page effect that fetches
  * viewer-dependent data on mount cannot race it (see {@link registerAuthGate}).
  */
-export function createDefaultAuthClientWithHttpSync<TUser extends UserProfile = UserProfile>(
+export function createDefaultAuthClientWithHttpSync<
+  TUser extends UserProfile = UserProfile,
+  TRegister extends Record<string, unknown> = Record<never, never>,
+>(
   authConfig: AuthClientConfig,
 ): {
-  authClient: AuthClient<TUser>
+  authClient: AuthClient<TUser, TRegister>
   setupAuthDefault: () => void
 } {
-  const authClient = createJWTAuthClient<TUser>(authConfig)
+  const authClient = createJWTAuthClient<TUser, TRegister>(authConfig)
   return {
     authClient,
     setupAuthDefault: () => {
@@ -204,14 +214,17 @@ export function createDefaultAuthClientWithHttpSync<TUser extends UserProfile = 
  * {@link registerAuthGate}), so a page that fetches viewer-dependent data on
  * mount cannot race it and answer for an anonymous viewer.
  */
-export function createDefaultAuthClientWithFetchClient<TUser extends UserProfile = UserProfile>(
+export function createDefaultAuthClientWithFetchClient<
+  TUser extends UserProfile = UserProfile,
+  TRegister extends Record<string, unknown> = Record<never, never>,
+>(
   authConfig: AuthClientConfig,
   fetchClientOptions: { baseURL: string; withCredentials?: boolean },
 ): {
-  authClient: AuthClient<TUser>
+  authClient: AuthClient<TUser, TRegister>
   setupAuthDefault: () => void
 } {
-  const authClient = createJWTAuthClient<TUser>(authConfig)
+  const authClient = createJWTAuthClient<TUser, TRegister>(authConfig)
   return {
     authClient,
     setupAuthDefault: () => {

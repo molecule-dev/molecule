@@ -71,7 +71,11 @@
  *   `AuthClientConfig` the client is CONSTRUCTED with
  *   (`setClient(createJWTAuthClient({ authScheme: 'Token', … }))` in the auth bond), not
  *   properties of a client that already exists. Do not hand-write an auth client for a spec
- *   like RealWorld.
+ *   like RealWorld. **Registration fields the base payload lacks (`username`, …) are the
+ *   factory's second generic** — `createJWTAuthClient<UserProfile, { username: string }>(…)` —
+ *   so `register({ username, email, password })` type-checks and the body goes out as
+ *   `{ user: { username, email, password } }`. Do not pass them as `name`/`metadata` or
+ *   cast the payload.
  * - **Endpoint defaults must match your API's real routes** (`/auth/login`,
  *   `/auth/register`, `/auth/refresh`, `/users/logout`, `/users/me`, …).
  *   Align them via `createJWTAuthClient({ baseURL, ...endpoints })` — never by
@@ -91,6 +95,27 @@
  * import { getUser, isAuthenticated, login, logout } from '@molecule/app-auth'
  * await login({ email, password })
  * if (isAuthenticated()) console.log(getUser()?.email)
+ * ```
+ *
+ * An API that wraps the payload and registers extra fields (RealWorld): type those
+ * fields with the factory's second generic, and `requestBody` receives exactly what
+ * the form passed — `{ user: { username, email, password } }` goes out as-is.
+ *
+ * ```typescript
+ * import type { UserProfile } from '@molecule/app-auth'
+ * import { createJWTAuthClient } from '@molecule/app-auth'
+ *
+ * const realWorldAuth = createJWTAuthClient<UserProfile, { username: string }>({
+ *   baseURL: '/api',
+ *   authScheme: 'Token',
+ *   requestBody: (_kind, payload) => ({ user: payload }),
+ *   mapAuthResponse: (data) => {
+ *     const { user } = data as { user: { token: string; username: string; email: string } }
+ *     return { accessToken: user.token, user: { id: user.username, email: user.email } }
+ *   },
+ * })
+ *
+ * await realWorldAuth.register({ username: 'alice', email: 'alice@example.com', password: 's3cret' })
  * ```
  *
  * @e2e

@@ -68,9 +68,27 @@ export interface LoginCredentials {
 }
 
 /**
- * New user registration payload (email, password, optional name and metadata).
+ * New user registration payload: the email/password fields every API takes,
+ * plus `TExtra` — the app's OWN registration fields, at the top level.
+ *
+ * `TExtra` is what the app's sign-up form collects and its API expects
+ * (`username`, `fullName`, …). Give the client the same type and the typed call
+ * passes those fields straight through, so
+ * {@link AuthClientConfig.requestBody} receives exactly what the form passed —
+ * no cast, and no stuffing them into `name` or `metadata`:
+ *
+ * ```typescript
+ * const client = createJWTAuthClient<UserProfile, { username: string }>({ … })
+ * await client.register({ email, password, username }) // `username` is typed
+ * ```
+ *
+ * `TExtra` defaults to no extra fields, so an app that passes `name`/`metadata`
+ * (and a `requestBody` that reads them) keeps type-checking unchanged; only a
+ * client constructed with a second generic accepts (and types) more fields.
+ *
+ * @template TExtra - The app's own registration fields, at the top level.
  */
-export interface RegisterData {
+export type RegisterData<TExtra extends Record<string, unknown> = Record<never, never>> = {
   /**
    * Email address.
    */
@@ -90,7 +108,7 @@ export interface RegisterData {
    * Additional registration fields.
    */
   metadata?: Record<string, unknown>
-}
+} & TExtra
 
 /**
  * Successful authentication result containing the user, access/refresh tokens, and expiration.
@@ -220,8 +238,15 @@ export type AuthEventListener = (event: AuthEvent) => void
  * Auth client interface that all auth bond packages must implement.
  * Provides login/logout/register flows, token management, profile
  * updates, and auth state subscription.
+ *
+ * @template T - The user profile the API returns.
+ * @template TRegister - The app's own registration fields, at the top level
+ *   of {@link RegisterData} (default: none).
  */
-export interface AuthClient<T = UserProfile> {
+export interface AuthClient<
+  T = UserProfile,
+  TRegister extends Record<string, unknown> = Record<never, never>,
+> {
   /**
    * Returns the current authentication state snapshot.
    */
@@ -275,9 +300,10 @@ export interface AuthClient<T = UserProfile> {
   logout(): Promise<void>
 
   /**
-   * Registers a new user.
+   * Registers a new user. Accepts the base fields plus the app's own fields
+   * (`TRegister`) at the top level — see {@link RegisterData}.
    */
-  register(data: RegisterData): Promise<AuthResult<T>>
+  register(data: RegisterData<TRegister>): Promise<AuthResult<T>>
 
   /**
    * Refreshes the access token.
@@ -458,8 +484,26 @@ export interface AuthClientConfig {
 
   /**
    * Shape the login/register request body for an API that expects another
-   * envelope (default: the credentials as given). RealWorld, for example:
-   * `(kind, payload) => ({ user: payload })`.
+   * envelope (default: the payload as given). `register()` hands this callback
+   * exactly what the caller passed — including the app's own fields, typed
+   * through `createJWTAuthClient<UserProfile, { username: string }>` — so the
+   * body can be sent as-is under the envelope the API wants.
+   *
+   * RealWorld, for example, nests the payload under `user` and registers with
+   * `{ user: { username, email, password } }`:
+   *
+   * ```typescript
+   * const client = createJWTAuthClient<UserProfile, { username: string }>({
+   *   requestBody: (kind, payload) => ({ user: payload }),
+   *   // …
+   * })
+   * await client.register({ username, email, password })
+   * ```
+   *
+   * A caller that keeps the untyped payload can map the base fields instead:
+   * `(kind, p) => ({ user: { username: p.name, email: p.email, password: p.password } })`
+   * with `register({ email, password, name: username })`.
+   *
    * @param kind - Which request.
    * @param payload - The credentials or registration data.
    * @returns The JSON body to send.

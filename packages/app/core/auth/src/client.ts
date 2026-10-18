@@ -73,12 +73,18 @@ const clearSessionHintCookie = (): void => {
  * This is a basic implementation that can be extended or replaced
  * with more sophisticated auth providers.
  *
+ * @template T - The user profile the API returns.
+ * @template TRegister - The app's own registration fields, accepted at the top
+ *   level of `register()` (e.g. `{ username: string }` for a RealWorld-shaped API).
  * @param config - Auth client configuration including endpoints, storage, and refresh settings.
  * @returns A fully configured `AuthClient` instance.
  */
-export const createJWTAuthClient = <T extends UserProfile = UserProfile>(
+export const createJWTAuthClient = <
+  T extends UserProfile = UserProfile,
+  TRegister extends Record<string, unknown> = Record<never, never>,
+>(
   config: AuthClientConfig = {},
-): AuthClient<T> => {
+): AuthClient<T, TRegister> => {
   const {
     baseURL = '',
     loginEndpoint = '/auth/login',
@@ -310,7 +316,7 @@ export const createJWTAuthClient = <T extends UserProfile = UserProfile>(
     setState({ initialized: true })
   }
 
-  const client: AuthClient<T> = {
+  const client: AuthClient<T, TRegister> = {
     getState: () => state,
     isAuthenticated: () => state.authenticated,
 
@@ -415,7 +421,7 @@ export const createJWTAuthClient = <T extends UserProfile = UserProfile>(
       }
     },
 
-    async register(data: RegisterData): Promise<AuthResult<T>> {
+    async register(data: RegisterData<TRegister>): Promise<AuthResult<T>> {
       setState({ loading: true, error: null })
 
       try {
