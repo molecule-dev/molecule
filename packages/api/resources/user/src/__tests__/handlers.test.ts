@@ -1892,6 +1892,33 @@ describe('updatePassword handler — session invalidation', () => {
     expect(deleteByUserId).toHaveBeenCalledWith('user-id')
   })
 
+  it('keeps the caller’s own device and revokes every other one (the token in hand stays valid)', async () => {
+    // xr-flash-m167: a suite changes the password and then uses the SAME token on the
+    // next request. Deleting every device answered that request 401; the caller's
+    // device is the one session a password change must spare.
+    const deleteByUserId = vi.fn().mockResolvedValue(undefined)
+    const deleteOthersByUserId = vi.fn().mockResolvedValue(undefined)
+    mockFindById.mockResolvedValue({ id: 'user-id', passwordHash: 'old-hash' })
+    mockCompare.mockResolvedValue(true)
+    mockHash.mockResolvedValue('new-hash')
+    mockUpdateById.mockResolvedValue({ affected: 1 })
+    mockGet.mockReturnValue({ deleteByUserId, deleteOthersByUserId })
+
+    const req = makeReq({
+      params: { id: 'user-id' },
+      body: { currentPassword: 'oldPassword123', newPassword: 'newPassword456' },
+    })
+    const res = {
+      locals: { session: { userId: 'user-id', deviceId: 'current-device' } },
+    } as unknown as MoleculeResponse
+
+    const result = await handler(req as MoleculeRequest, res)
+
+    expect(result?.statusCode).toBe(200)
+    expect(deleteOthersByUserId).toHaveBeenCalledWith('user-id', 'current-device')
+    expect(deleteByUserId).not.toHaveBeenCalled()
+  })
+
   it('should still return 200 if session invalidation fails', async () => {
     const deleteByUserId = vi.fn().mockRejectedValue(new Error('Redis unavailable'))
     mockFindById.mockResolvedValue({ id: 'user-id', passwordHash: 'old-hash' })
@@ -2828,6 +2855,39 @@ describe('readSelf (GET /users/me — cookie session restore)', () => {
     const result = await readSelf(resource)(req, res)
 
     expect(result.statusCode).toBe(401)
+  })
+
+  it('echoes accessToken when the request authenticated with an Authorization header', async () => {
+    // A RealWorld-style client restores { user, token } from GET /user: it sent the
+    // token in the header, so handing it back exposes nothing it does not already hold.
+    mockFindById.mockImplementation((table: string) =>
+      table === 'users' ? { id: 'u1', email: 'me@example.com' } : null,
+    )
+    const req = { params: {} } as unknown as MoleculeRequest
+    const res = {
+      locals: {
+        session: { userId: 'u1' },
+        [authorization.AUTH_TOKEN_LOCALS_KEY]: 'header-token',
+      },
+    } as unknown as MoleculeResponse
+
+    const result = await readSelf(resource)(req, res)
+
+    expect(result.statusCode).toBe(200)
+    expect((result.body as { accessToken?: string }).accessToken).toBe('header-token')
+  })
+
+  it('does NOT echo a token for a cookie-resolved session (the httpOnly token stays unreadable to JS)', async () => {
+    mockFindById.mockImplementation((table: string) =>
+      table === 'users' ? { id: 'u1', email: 'me@example.com' } : null,
+    )
+    const req = { params: {} } as unknown as MoleculeRequest
+    const res = { locals: { session: { userId: 'u1' } } } as unknown as MoleculeResponse
+
+    const result = await readSelf(resource)(req, res)
+
+    expect(result.statusCode).toBe(200)
+    expect(result.body).not.toHaveProperty('accessToken')
   })
 })
 

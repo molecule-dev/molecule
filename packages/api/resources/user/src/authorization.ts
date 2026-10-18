@@ -161,6 +161,106 @@ const readAuthCookie = (cookies: Record<string, unknown> | undefined, base: stri
 }
 
 /**
+ * The `Authorization` scheme this resource uses when nothing configures another
+ * one — the scheme {@link set} writes into the response header.
+ */
+export const DEFAULT_AUTH_SCHEME = 'Bearer'
+
+/**
+ * `res.locals` key carrying the `Authorization` scheme THIS request's mount uses:
+ * `'Bearer'` by default, `'Token'` for a Django REST Framework / RealWorld-style
+ * API. {@link verifyMiddleware} records it from its `scheme` option (or the app's
+ * `AUTH_SCHEME`), and {@link set} reads it so a sign-in response labels its token
+ * with the SAME scheme the client will send back. A `set()` call outside a request
+ * (a handler invoked directly) falls back to `AUTH_SCHEME`, then to `Bearer`.
+ */
+export const AUTH_SCHEME_LOCALS_KEY = 'authScheme'
+
+/**
+ * `res.locals` key carrying the raw JWT that authenticated THIS request — written
+ * ONLY when the request sent it in the `Authorization` header, never when the
+ * session came from the httpOnly `token` cookie.
+ *
+ * That asymmetry is deliberate: echoing a cookie-resolved token into a JSON body
+ * would hand JavaScript the exact credential the cookie exists to keep unreadable
+ * (an XSS exfiltration path). A header token is already in the client's hands, so
+ * `GET /users/me` may return it as `accessToken` to a token-only client that
+ * restores its session from that response.
+ */
+export const AUTH_TOKEN_LOCALS_KEY = 'authToken'
+
+/** RFC 7235 `token` production — the only shape an `Authorization` scheme may take. */
+const AUTH_SCHEME_RE = /^[!#$%&'*+\-.^_`|~0-9A-Za-z]+$/
+
+/**
+ * Schemes {@link verifyMiddleware} always accepts, whatever the app configures:
+ * `Bearer` (the HTTP default) and `Token` (Django REST Framework / the RealWorld
+ * spec). The scheme is a label, not a credential — the JWT's signature is what
+ * authenticates the request — so accepting the historical pair never weakens auth
+ * and keeps a client working when the app starts advertising `Token`.
+ */
+const BASE_AUTH_SCHEMES = ['bearer', 'token'] as const
+
+/**
+ * Validate an `Authorization` scheme name, warning once about a bad value instead
+ * of emitting `Authorization: <garbage> <jwt>` (which every client would refuse)
+ * or letting a header-injecting value through.
+ *
+ * @param raw - The candidate scheme (`AUTH_SCHEME` or the mount's `scheme` option).
+ * @param source - What supplied it, for the warning text.
+ * @returns The scheme when it is a valid RFC 7235 token, else {@link DEFAULT_AUTH_SCHEME}.
+ */
+const normalizeAuthScheme = (raw: unknown, source: string): string => {
+  const scheme = typeof raw === 'string' ? raw.trim() : ''
+  if (!scheme) return DEFAULT_AUTH_SCHEME
+  if (!AUTH_SCHEME_RE.test(scheme)) {
+    logger.warn(
+      `${source} is set to ${JSON.stringify(scheme)}, which is not a valid Authorization scheme ` +
+        `(one RFC 7235 token, e.g. "Bearer" or "Token"). Falling back to "${DEFAULT_AUTH_SCHEME}".`,
+    )
+    return DEFAULT_AUTH_SCHEME
+  }
+  return scheme
+}
+
+/** Memo of the last `AUTH_SCHEME` value read, so a bad value warns once, not per request. */
+let cachedConfiguredScheme: { raw: string | undefined; scheme: string } | undefined
+
+/**
+ * The app's configured `Authorization` scheme: `AUTH_SCHEME` from the environment,
+ * defaulting to {@link DEFAULT_AUTH_SCHEME}.
+ *
+ * Read at call time (not module load) so a process — or a test — that changes the
+ * env sees the new value. A session-only app that never sets `AUTH_SCHEME` keeps
+ * emitting `Bearer`.
+ *
+ * @returns A validated scheme name.
+ */
+export const getConfiguredAuthScheme = (): string => {
+  const raw = process.env.AUTH_SCHEME
+  if (cachedConfiguredScheme !== undefined && cachedConfiguredScheme.raw === raw) {
+    return cachedConfiguredScheme.scheme
+  }
+  const scheme = normalizeAuthScheme(raw, 'AUTH_SCHEME')
+  cachedConfiguredScheme = { raw, scheme }
+  return scheme
+}
+
+/**
+ * The scheme for THIS response: what its mount recorded, else the app's configured
+ * scheme, else {@link DEFAULT_AUTH_SCHEME}.
+ *
+ * @param res - The response object.
+ * @returns A validated scheme name.
+ */
+const resolveAuthScheme = (res: MoleculeResponse): string => {
+  const recorded = res.locals?.[AUTH_SCHEME_LOCALS_KEY]
+  return typeof recorded === 'string' && AUTH_SCHEME_RE.test(recorded)
+    ? recorded
+    : getConfiguredAuthScheme()
+}
+
+/**
  * Short-TTL positive cache for "device still exists" lookups, to bound the
  * per-request DB cost of server-side session-revocation enforcement.
  *
@@ -339,13 +439,18 @@ const maySetSessionCookie = (res: MoleculeResponse): boolean =>
  * (`'unknown'`, `''`, the user's id) yields a token that every later request answers 401.
  *
  * To put a session token in a JSON response BODY — an API whose clients send
- * `Authorization: Token <jwt>` — call this and use its return value. Do NOT sign a
+ * `Authorization: Token <jwt>` — call this and use its return value; the shipped `logIn` and
+ * `create` handlers already return it as `accessToken`. Do NOT sign a
  * second token with another key or algorithm: `verifyMiddleware` verifies with the app's
  * bonded `@molecule/api-jwt` provider, so a self-signed one answers 401 on the very next
- * request. Mount `verifyMiddleware({ allowCookieSession: false })` in front of the routes
- * that sign users in and the client gets the token without any session cookie.
+ * request. Mount `verifyMiddleware({ allowCookieSession: false, scheme: 'Token' })` in front
+ * of the routes that sign users in and the client gets the token in that scheme with no
+ * session cookie. (`AUTH_SCHEME=Token` in the app's environment does the same for every
+ * mount — the scheme is configuration, not a second auth path.)
  *
- * Always sets the `Authorization` response header. Writes the session cookies (the httpOnly
+ * Always sets the `Authorization` response header — labelled with the request mount's scheme
+ * (`Bearer` by default, `Token` for a RealWorld-style API; see {@link AUTH_SCHEME_LOCALS_KEY}
+ * and `AUTH_SCHEME`). Writes the session cookies (the httpOnly
  * `token` and `sessionId`, plus the readable `mol_auth` presence hint) UNLESS the request's
  * cookie-session policy is off — see {@link ALLOW_COOKIE_SESSION_LOCALS_KEY}, written by
  * {@link verifyMiddleware}. A token-only API (`allowCookieSession: false`) gets the header
@@ -414,8 +519,10 @@ export const set = (
 
     if (token) {
       // The header is the credential a token-only API's clients read; it is set on
-      // every request that mints a token, cookies or not.
-      res.setHeader('Authorization', `Bearer ${token}`)
+      // every request that mints a token, cookies or not. The scheme is the mount's
+      // (`Bearer` by default, `Token` for a RealWorld-style API) so the client can
+      // send the token back exactly as it was labelled.
+      res.setHeader('Authorization', `${resolveAuthScheme(res)} ${token}`)
 
       // A request whose cookie policy is OFF gets the header and NOTHING else. The
       // cookie is not a convenience here — it is a second credential the client did
@@ -501,26 +608,47 @@ export interface VerifyMiddlewareOptions {
    * "no auth".
    */
   allowCookieSession?: boolean
+  /**
+   * The `Authorization` scheme this mount accepts and mints: `'Bearer'` (default), or
+   * `'Token'` for a Django REST Framework / RealWorld-style API. Defaults to the app's
+   * `AUTH_SCHEME` environment value.
+   *
+   * This is a LABEL, not a second auth mechanism: every route the mount covers accepts the
+   * same verifiable JWT, whether it arrives as `Bearer <jwt>` or `Token <jwt>` (both stay
+   * accepted). The option decides what {@link set} writes into the sign-in response header
+   * — and therefore what the client sends back and what its HTTP client must be configured
+   * with (`createFetchClient({ baseURL, authScheme: 'Token' })`).
+   */
+  scheme?: string
 }
 
 /**
  * Middleware that verifies the JWT token from the `Authorization` header and sets `res.locals.session`.
- * Falls back to cookie-based session for browser clients unless `allowCookieSession` is `false` — which also stops `set()` writing the session cookie for this request. Auto-refreshes tokens older than `JWT_REFRESH_TIME`.
- * @param options - {@link VerifyMiddlewareOptions} controlling the auto-refresh.
+ * Accepts `Bearer` and `Token` (Django REST / RealWorld) plus the configured scheme, on EVERY
+ * route the mount covers. Falls back to cookie-based session for browser clients unless
+ * `allowCookieSession` is `false` — which also stops `set()` writing the session cookie for this
+ * request. Records the scheme for `set()` and, when the token came from the header, records the
+ * raw token in `res.locals[AUTH_TOKEN_LOCALS_KEY]`. Auto-refreshes tokens older than `JWT_REFRESH_TIME`.
+ * @param options - {@link VerifyMiddlewareOptions} controlling the auto-refresh, cookie policy and scheme.
  * @returns An Express-compatible middleware function.
  */
 export const verifyMiddleware =
   (options?: VerifyMiddlewareOptions): MoleculeRequestHandler =>
   async (req, res, next) => {
     try {
-      // Record THIS mount's cookie policy for the rest of the request, before any
-      // early return: `set()` reads it (so a token-only API writes no cookie from the
-      // sign-in response on) and a later, stricter mount reads it to know it may
-      // strip a session an earlier one resolved out of the cookie. The sign-in
-      // request itself carries no token, so the write cannot sit behind the
-      // token lookup below.
+      // Record THIS mount's cookie policy and scheme for the rest of the request,
+      // before any early return: `set()` reads both (so a token-only API writes no
+      // cookie from the sign-in response on, and labels its token with this mount's
+      // scheme) and a later, stricter mount reads it to know it may strip a session
+      // an earlier one resolved out of the cookie. The sign-in request itself carries
+      // no token, so the write cannot sit behind the token lookup below.
       const allowCookieSession = options?.allowCookieSession !== false
       res.locals[ALLOW_COOKIE_SESSION_LOCALS_KEY] = allowCookieSession
+      const scheme = normalizeAuthScheme(
+        options?.scheme ?? getConfiguredAuthScheme(),
+        options?.scheme === undefined ? 'AUTH_SCHEME' : 'verifyMiddleware({ scheme })',
+      )
+      res.locals[AUTH_SCHEME_LOCALS_KEY] = scheme
 
       // Get token from Authorization header, falling back to the `token`
       // cookie that `set()` writes alongside the header. The JSDoc above
@@ -531,9 +659,13 @@ export const verifyMiddleware =
       // never trusted (no decode-fallback bypass).
       const rawAuth = req.headers.authorization
       const authHeader = Array.isArray(rawAuth) ? rawAuth[0] : rawAuth
-      // `Bearer <jwt>`, or `Token <jwt>` (the scheme Django REST Framework and
-      // the RealWorld spec use): the same JWT, verified the same way.
-      const headerToken = /^(?:Bearer|Token) (.+)$/.exec(authHeader ?? '')?.[1] ?? null
+      // `<scheme> <jwt>`: `Bearer`, `Token` (the scheme Django REST Framework and
+      // the RealWorld spec use), or whatever this app configured. The scheme only
+      // labels the credential — the same JWT is verified the same way.
+      const authMatch = /^([!#$%&'*+\-.^_`|~0-9A-Za-z]+) +(.+)$/.exec((authHeader ?? '').trim())
+      const acceptedSchemes = new Set<string>([...BASE_AUTH_SCHEMES, scheme.toLowerCase()])
+      const headerToken =
+        authMatch && acceptedSchemes.has(authMatch[1].toLowerCase()) ? authMatch[2].trim() : null
       const cookies = (req as unknown as { cookies?: Record<string, unknown> }).cookies
       const cookieToken = readAuthCookie(cookies, 'token')
       const token =
@@ -586,6 +718,12 @@ export const verifyMiddleware =
         // that one) — see {@link AUTH_SESSION_SOURCE_LOCALS_KEY}.
         const sessionSource: AuthSessionSource = headerToken ? 'header' : 'cookie'
         res.locals[AUTH_SESSION_SOURCE_LOCALS_KEY] = sessionSource
+        // Hand a header-authenticated client its own credential back (readSelf echoes
+        // it as `accessToken`). NEVER for a cookie-resolved session: that would expose
+        // the httpOnly token to JavaScript, which is the one thing the cookie prevents.
+        if (sessionSource === 'header' && headerToken) {
+          res.locals[AUTH_TOKEN_LOCALS_KEY] = headerToken
+        }
 
         // Auto-refresh the token if it's old enough.
         try {

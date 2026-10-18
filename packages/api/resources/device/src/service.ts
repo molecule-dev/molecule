@@ -90,6 +90,17 @@ export const deviceService: DeviceService = {
     }
   },
 
+  async deleteOthersByUserId(userId: string, keepDeviceId: string): Promise<void> {
+    try {
+      await deleteMany(tableName, [
+        { field: 'userId', operator: '=', value: userId },
+        { field: 'id', operator: '!=', value: keepDeviceId },
+      ])
+    } catch (error) {
+      logger.error(error)
+    }
+  },
+
   async getWithPushSubscription(
     userId: string,
   ): Promise<Array<{ id: string; pushPlatform: string; pushSubscription: unknown }>> {

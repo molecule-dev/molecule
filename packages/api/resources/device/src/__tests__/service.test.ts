@@ -158,6 +158,25 @@ describe('deleteByUserId', () => {
   })
 })
 
+describe('deleteOthersByUserId', () => {
+  it('deletes the user’s devices except the caller’s own (a password change keeps its session)', async () => {
+    mockDeleteMany.mockResolvedValue({ affected: 2 })
+    await deviceService.deleteOthersByUserId('user-1', 'current-device')
+    expect(mockDeleteMany).toHaveBeenCalledWith('devices', [
+      { field: 'userId', operator: '=', value: 'user-1' },
+      { field: 'id', operator: '!=', value: 'current-device' },
+    ])
+  })
+
+  it('swallows DB errors (logs only)', async () => {
+    mockDeleteMany.mockRejectedValue(new Error('db down'))
+    await expect(
+      deviceService.deleteOthersByUserId('user-1', 'current-device'),
+    ).resolves.toBeUndefined()
+    expect(mockLoggerError).toHaveBeenCalled()
+  })
+})
+
 describe('exists', () => {
   it('returns true when the device row is found', async () => {
     mockFindById.mockResolvedValue({ id: 'dev-1' })

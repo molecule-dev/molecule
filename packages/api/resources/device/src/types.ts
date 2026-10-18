@@ -35,6 +35,16 @@ export interface DeviceService {
   updateLastSeen(deviceId: string): Promise<void>
   deleteByUserId(userId: string): Promise<void>
   /**
+   * Delete every device row owned by `userId` EXCEPT `keepDeviceId` — the session
+   * making the current request. Used by a password change: every other device is
+   * revoked, while the token the caller is holding stays valid. Optional so a
+   * custom device service that predates this method keeps compiling; the caller
+   * falls back to {@link deleteByUserId} when it is absent.
+   * @param userId - The user whose other devices should be removed.
+   * @param keepDeviceId - The device id to keep (the caller's own session).
+   */
+  deleteOthersByUserId?(userId: string, keepDeviceId: string): Promise<void>
+  /**
    * Whether a device row still exists. Used by the user resource's session
    * authorization to enforce server-side revocation: a deleted device (logout,
    * remote device removal, password-reset invalidation) makes this return

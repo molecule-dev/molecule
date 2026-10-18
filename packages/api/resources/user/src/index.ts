@@ -8,22 +8,19 @@
  * - `usersSecrets` — {@link SecretProps}: `passwordHash`, `passwordResetToken` (and
  *   `passwordResetTokenAt`), `twoFactorSecret` / `pendingTwoFactorSecret`, `lastTwoFactorTimeStep`.
  *
- * **Table setup:** `src/__setup__/users.sql` + `src/__setup__/usersSecrets.sql`; an mlcl-scaffolded API replays `__setup__/*.sql` on migrate, anywhere else run them once.
+ * **Table setup:** `src/__setup__/users.sql` + `src/__setup__/usersSecrets.sql`; an mlcl-scaffolded API replays `__setup__/*.sql` on migrate.
  *
  * **`usersSecrets.id` IS the user's id — the value of `users.id`, never a fresh uuid.** The DDL
- * declares it `UNIQUE PRIMARY KEY` with no foreign key, so nothing enforces the pairing: a row
- * written under another id is never found again — login answers "invalid credentials" while
- * `GET /api/users/me` (which reads `users` only) still answers 200. A hand-written signup writes
- * both rows from one id:
+ * declares it `UNIQUE PRIMARY KEY` with no foreign key, so nothing enforces it: a row written
+ * under another id is never found again — login answers "invalid credentials" while
+ * `GET /api/users/me` still answers 200. A hand-written signup writes both rows:
  * `const id = uuid(); await create('users', { ...props, id }); await create('usersSecrets', { id, passwordHash: await hash(password) })`.
  *
- * Prefer not to hand-write any of that: the handlers this package ships already do it —
- * `handlers.create` (signup: writes both rows, hashes with `@molecule/api-password`, mints the
- * session device), `handlers.logIn` (login: reads `usersSecrets` by the user's id and compares the
- * hash), `handlers.updatePassword`, and `handlers.forgotPassword` / `handlers.resetPassword` (the
- * emailed-token reset). To read or write one secret yourself, use the abstract datastore on the
- * same key — `findById('usersSecrets', userId)`, or `${tableName}Secrets` when the resource
- * carries a custom `tableName` — never SQL.
+ * Prefer not to hand-write that — `handlers.create` (signup: both rows, hash via
+ * `@molecule/api-password`, session device), `handlers.logIn` (reads `usersSecrets` by the user's
+ * id), `handlers.updatePassword`, `handlers.forgotPassword` / `handlers.resetPassword`. To touch
+ * one secret yourself use the datastore on the same key — `findById('usersSecrets', userId)` (or
+ * `${tableName}Secrets` for a custom `tableName`) — never SQL.
  *
  * **Issuing a session yourself (the sequence is device, then session — two calls, and the first
  * RETURNS the id):** the middleware accepts both `Authorization: Bearer <jwt>` and
@@ -43,8 +40,14 @@
  * `get<DeviceService>('device')` is the typed accessor (never hand-type a
  * `get<{ createOrUpdate(): … }>('device')` generic: a wrong one still compiles and leaves the
  * field you invented — `device.id` — `undefined`), and `createOrUpdate` RESOLVES TO THE DEVICE ID
- * STRING, not to a row. `authorization.set()` throws when `deviceId` is missing rather than mint a
- * token every later request answers 401.
+ * STRING, not to a row. `set()` throws when `deviceId` is missing rather than mint a token every
+ * later request answers 401.
+ *
+ * **RealWorld-style token API (`Authorization: Token <jwt>`)? CONFIGURATION on this same auth
+ * path — never a credentials table of your own** (`usersSecrets.passwordHash` is the password
+ * store). Set `AUTH_SCHEME=Token` (or `verifyMiddleware({ scheme: 'Token' })`): every route
+ * accepts it, `logIn`/`create` return `accessToken`, `GET /users/me` echoes it, and a password
+ * change revokes every OTHER device but keeps the caller's own session.
  *
  * **`handlers.*` return `{ statusCode, headers?, body }` and never write to `res`** — not through
  * `res.json`, not through `res.send`, not through `res.end`. The mounted routes apply that object
@@ -100,6 +103,26 @@
  * `preApiRouter` runs before `App/router.ts` and covers all of `/api`), the last one it
  * passes sets the policy both halves read, and a laxer mount later in the chain cannot
  * re-admit the cookie. If the app mounts two, mount it once instead.
+ *
+ * **The RealWorld token recipe (detail).** The scheme is configuration, not a second auth
+ * layer: `AUTH_SCHEME=Token` in the API's env, or `verifyMiddleware({ scheme: 'Token',
+ * allowCookieSession: false })` at the mount, makes every covered route accept
+ * `Authorization: Token <jwt>` (`Bearer` stays accepted too) and labels the sign-in response
+ * header with that scheme. The token is already in the body — `handlers.logIn` and
+ * `handlers.create` return `{ props, accessToken, user }`, and `GET /users/me` adds
+ * `accessToken` when the request authenticated with the header (never for a cookie-resolved
+ * session: that token must stay unreadable to JavaScript).
+ *
+ * ```typescript
+ * // Token-only API that speaks RealWorld's scheme.
+ * router.use(verifyMiddleware({ scheme: 'Token', allowCookieSession: false }))
+ * // POST /users and POST /users/log-in answer { props, accessToken, user };
+ * // clients send `Authorization: Token <accessToken>` from then on.
+ * ```
+ *
+ * The CLIENT labels its header the same way: `authScheme: 'Token'` is an option of the HTTP
+ * client's CONSTRUCTOR (`createFetchClient({ baseURL, authScheme: 'Token' })`, or the axios
+ * provider's `createAxiosClient`), never a property of `getClient()`'s result.
  *
  * **Revoking a session yourself:** the middleware caches "this device exists" for 10 s per
  * process, so a hand-written logout that deletes the `devices` row keeps authorizing that

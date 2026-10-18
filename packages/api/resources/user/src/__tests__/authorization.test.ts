@@ -46,8 +46,12 @@ const {
   getAuthCookieOptions,
   invalidateDeviceExistsCache,
   invalidateAllDeviceExistsCache,
+  getConfiguredAuthScheme,
+  DEFAULT_AUTH_SCHEME,
   ALLOW_COOKIE_SESSION_LOCALS_KEY,
   AUTH_SESSION_SOURCE_LOCALS_KEY,
+  AUTH_SCHEME_LOCALS_KEY,
+  AUTH_TOKEN_LOCALS_KEY,
 } = await import('../authorization.js')
 
 /** Helper to build a mock request. */
@@ -1139,5 +1143,156 @@ describe('authorization', () => {
         expect(resB.locals.session).toBeUndefined()
       })
     })
+  })
+})
+
+describe('authorization — configurable Authorization scheme (RealWorld-style token API)', () => {
+  const session = { userId: 'u1', deviceId: 'd1' }
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+    // clearAllMocks keeps implementations, and the device-cache tests above leave
+    // `get('device')` returning an `exists` that refuses — reset every mock this
+    // block sets so no stale return value can reject the session.
+    mockGet.mockReset()
+    mockVerify.mockReset()
+    mockDecode.mockReset()
+    mockSign.mockReset()
+    delete process.env.AUTH_SCHEME
+  })
+
+  afterEach(() => {
+    delete process.env.AUTH_SCHEME
+  })
+
+  it('defaults to Bearer when nothing configures a scheme', () => {
+    expect(getConfiguredAuthScheme()).toBe(DEFAULT_AUTH_SCHEME)
+    expect(DEFAULT_AUTH_SCHEME).toBe('Bearer')
+  })
+
+  it('labels the sign-in Authorization header with the mount’s scheme', async () => {
+    mockSign.mockReturnValue('jwt-token-xyz')
+    const res = makeRes()
+
+    await verifyMiddleware({ scheme: 'Token', allowCookieSession: false })(
+      makeReq() as never,
+      res as never,
+      vi.fn(),
+    )
+    set(makeReq() as never, res as never, { userId: 'u1', deviceId: 'd1', id: 'sid' } as never)
+
+    expect(res.setHeader).toHaveBeenCalledWith('Authorization', 'Token jwt-token-xyz')
+  })
+
+  it('labels the header from AUTH_SCHEME for a set() call outside a mount', () => {
+    process.env.AUTH_SCHEME = 'Token'
+    mockSign.mockReturnValue('jwt-token-xyz')
+    const res = makeRes()
+
+    set(makeReq() as never, res as never, { userId: 'u1', deviceId: 'd1', id: 'sid' } as never)
+
+    expect(res.setHeader).toHaveBeenCalledWith('Authorization', 'Token jwt-token-xyz')
+  })
+
+  it('falls back to Bearer and warns when AUTH_SCHEME is not a valid scheme', () => {
+    // A header-injection-shaped value must never reach the response header.
+    process.env.AUTH_SCHEME = 'Bearer\r\nX-Injected: 1'
+    mockSign.mockReturnValue('jwt-token-xyz')
+    const res = makeRes()
+
+    set(makeReq() as never, res as never, { userId: 'u1', deviceId: 'd1', id: 'sid' } as never)
+
+    expect(res.setHeader).toHaveBeenCalledWith('Authorization', 'Bearer jwt-token-xyz')
+    expect(mockLogger.warn).toHaveBeenCalledWith(
+      expect.stringContaining('not a valid Authorization scheme'),
+    )
+  })
+
+  it('accepts the configured scheme on the request and records the raw token', async () => {
+    mockVerify.mockReturnValue(session)
+    mockDecode.mockReturnValue({ iat: Math.floor(Date.now() / 1000) })
+    const res = makeRes()
+
+    await verifyMiddleware({ scheme: 'Token' })(
+      makeReq({ headers: { authorization: 'Token header-token' } }) as never,
+      res as never,
+      vi.fn(),
+    )
+
+    expect(mockVerify).toHaveBeenCalledWith('header-token')
+    expect(res.locals.session).toBe(session)
+    expect(res.locals[AUTH_SCHEME_LOCALS_KEY]).toBe('Token')
+    expect(res.locals[AUTH_TOKEN_LOCALS_KEY]).toBe('header-token')
+  })
+
+  it('accepts a custom scheme name too, and still accepts Bearer', async () => {
+    mockVerify.mockReturnValue(session)
+    mockDecode.mockReturnValue({ iat: Math.floor(Date.now() / 1000) })
+    const custom = verifyMiddleware({ scheme: 'JWT' })
+
+    const customRes = makeRes()
+    await custom(
+      makeReq({ headers: { authorization: 'JWT abc' } }) as never,
+      customRes as never,
+      vi.fn(),
+    )
+    expect(mockVerify).toHaveBeenCalledWith('abc')
+    expect(customRes.locals.session).toBe(session)
+
+    const bearerRes = makeRes()
+    await custom(
+      makeReq({ headers: { authorization: 'Bearer abc' } }) as never,
+      bearerRes as never,
+      vi.fn(),
+    )
+    expect(mockVerify).toHaveBeenLastCalledWith('abc')
+    expect(bearerRes.locals.session).toBe(session)
+  })
+
+  it('AUTH_SCHEME makes every mount accept that scheme without an option', async () => {
+    process.env.AUTH_SCHEME = 'Token'
+    mockVerify.mockReturnValue(session)
+    mockDecode.mockReturnValue({ iat: Math.floor(Date.now() / 1000) })
+    const res = makeRes()
+
+    await verifyMiddleware()(
+      makeReq({ headers: { authorization: 'Token abc' } }) as never,
+      res as never,
+      vi.fn(),
+    )
+
+    expect(mockVerify).toHaveBeenCalledWith('abc')
+    expect(res.locals[AUTH_SCHEME_LOCALS_KEY]).toBe('Token')
+  })
+
+  it('does NOT record the token when the session came from the httpOnly cookie', async () => {
+    // readSelf echoes the token as `accessToken`; a cookie-resolved session must not
+    // hand JavaScript the token the httpOnly cookie exists to hide.
+    mockVerify.mockReturnValue(session)
+    mockDecode.mockReturnValue({ iat: Math.floor(Date.now() / 1000) })
+    const res = makeRes()
+
+    await verifyMiddleware()(
+      { ...makeReq({ headers: {} }), cookies: { token: 'cookie-token' } } as never,
+      res as never,
+      vi.fn(),
+    )
+
+    expect(res.locals.session).toBe(session)
+    expect(res.locals[AUTH_TOKEN_LOCALS_KEY]).toBeUndefined()
+  })
+
+  it('rejects a scheme this app neither configured nor accepts', async () => {
+    mockVerify.mockReturnValue(session)
+    const res = makeRes()
+
+    await verifyMiddleware({ scheme: 'Token' })(
+      makeReq({ headers: { authorization: 'Basic abc' } }) as never,
+      res as never,
+      vi.fn(),
+    )
+
+    expect(mockVerify).not.toHaveBeenCalled()
+    expect(res.locals.session).toBeUndefined()
   })
 })
