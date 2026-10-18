@@ -1,5 +1,12 @@
 # @molecule/api-ai-tools
 
+## 1.9.10
+
+### Patch Changes
+
+- 74d55fe: `list_files` answers a package catalog, or any listing larger than one tool result, with its entry count and the first names plus a pointer to `find_package`/`read_molecule_doc`, instead of thousands of names.
+- f912e37: The failure-trace note now leads each failing test's row with the requests the test's last action caused — API requests first, each with its response body — and excludes the page's static assets from those slots, exposed as `TraceArtifact.lastAction`.
+
 ## 1.9.9
 
 ### Patch Changes
