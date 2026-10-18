@@ -1,5 +1,11 @@
 # @molecule/app-bonds-default-react
 
+## 1.1.3
+
+### Patch Changes
+
+- 4f3b142: The default auth bonds resolve the HTTP client when it is bonded instead of at setup, so a session restored before the HTTP bond exists still sends `Authorization` on the first request.
+
 ## 1.1.2
 
 ### Patch Changes

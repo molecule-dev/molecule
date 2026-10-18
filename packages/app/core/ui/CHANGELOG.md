@@ -1,5 +1,11 @@
 # @molecule/app-ui
 
+## 1.3.7
+
+### Patch Changes
+
+- e7a285d: A request-supplied stylesheet is used by its own class names written directly in `className` — ClassMap governs molecule's utilities, not a supplied stylesheet's contract.
+
 ## 1.3.6
 
 ### Patch Changes

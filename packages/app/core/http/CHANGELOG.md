@@ -1,5 +1,11 @@
 # @molecule/app-http
 
+## 1.2.0
+
+### Minor Changes
+
+- 4f3b142: `setAuthTokenSource(source)` gives every HTTP client bonded after (or at) the call the current access token, and `getClient()` returns its no-baseURL fallback without bonding it, so a client bonded later is still what every call sees.
+
 ## 1.1.6
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # @molecule/api-ai-tools
 
+## 1.9.14
+
+### Patch Changes
+
+- 8cc2104: A local whole-suite Playwright run gets `--retries=0` (the deployed proof keeps the suite's retries), and a finished run's cause list no longer repeats a proven cause as a shared-duration group.
+- a86045c: A trace row whose failing click got a 4xx from the logout endpoint and left the page on the same URL says the auth client ignores that error and the page has to navigate itself after `logout()`.
+- 4f3b142: A 401 trace note whose page logged `no client is bonded` names the setup order that left the auth token on a replaced client.
+
 ## 1.9.13
 
 ### Patch Changes
