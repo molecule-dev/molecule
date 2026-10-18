@@ -510,6 +510,45 @@ describe('buildTools', () => {
     expect(r.taskId).toMatch(/^mol-bg-/)
   })
 
+  it('lifts the executor’s own `timeout` when the PLATFORM backgrounds the run (m143 +24:45)', async () => {
+    // The executor wrote `timeout 280` to fit the 290 s ceiling; the tool then moved the run to
+    // the background, where that ceiling no longer applies — and the prefix killed the 31-test
+    // walk at 280 s with no tally. The command handed to the background runner carries no bound.
+    const backend = mockBackend()
+    const exec = buildTools(backend, { commandBudgetMs: 290_000, overCeilingGraceMs: 0 }).find(
+      (t) => t.name === 'exec_command',
+    )!
+    const command =
+      'cd /workspace/my-app/app && rm -rf test-results && timeout 280 npx playwright test ' +
+      '--config e2e-suite.config.ts auth.spec.ts navigation.spec.ts 2>&1 | tail -40'
+    const r = (await exec.execute({ command })) as { taskId?: string; note?: string }
+    expect(r.taskId).toMatch(/^mol-bg-/)
+    expect(r.note).toContain('Dropped your `timeout 280`')
+    // The one reading that matters: the file the background runner executes.
+    const written = vi.mocked(backend.writeFile).mock.calls.at(-1)?.[1] as string
+    expect(written).not.toContain('timeout 280')
+    expect(written).toContain(
+      'npx playwright test --config e2e-suite.config.ts auth.spec.ts navigation.spec.ts',
+    )
+  })
+
+  it('keeps the bound on a run the EXECUTOR detached itself', async () => {
+    // `run_in_background: true` is the executor's own choice, and it wrote the bound knowing the
+    // run is detached — the platform rewrites nothing there.
+    const backend = mockBackend()
+    const exec = buildTools(backend, { commandBudgetMs: 290_000, overCeilingGraceMs: 0 }).find(
+      (t) => t.name === 'exec_command',
+    )!
+    const r = (await exec.execute({
+      command: 'timeout 280 npx playwright test',
+      run_in_background: true,
+    })) as { taskId?: string; note?: string }
+    expect(r.taskId).toMatch(/^mol-bg-/)
+    expect(r.note).not.toContain('Dropped your `timeout')
+    const written = vi.mocked(backend.writeFile).mock.calls.at(-1)?.[1] as string
+    expect(written).toContain('timeout 280 npx playwright test')
+  })
+
   it('reads the declared budget from the timeout PARAMETER too', async () => {
     const backend = mockBackend()
     const tools = buildTools(backend, { commandBudgetMs: 290_000, overCeilingGraceMs: 0 })

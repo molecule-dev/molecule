@@ -254,6 +254,14 @@ export interface CutRun {
   /** Whether this tool's budget stopped it or the `timeout` the command carried. */
   stoppedBy: CutBy
   /**
+   * Whether this was a detached background task, read with no budget of this tool's own
+   * ({@link commandCutRun}'s `budgetSeconds` is 0). A background run is bounded by what its own
+   * command carries — so a `command-timeout` cut there is that prefix killing the walk, and the
+   * executor must be told to drop the prefix, never to start the run in the background it is
+   * already in (X1 xr-molecule-flash-m143 +24:45).
+   */
+  background: boolean
+  /**
    * The exit code the run's own process reported, or null when the code in the result belongs to
    * the pipeline's filter (`… | tail`) rather than to the run — the case that read as success.
    */
@@ -386,6 +394,9 @@ export function commandCutRun(
   // tool budget at all (a reader re-reading a background run) the command's own bound is the only
   // one there is.
   const ownBoundStops = budgetSeconds === 0 || (declared !== null && declared < budgetSeconds)
+  // No budget of this tool's in force is what a background reader is: the task was detached, and
+  // nothing bounded it but what its own command carries.
+  const background = budgetSeconds === 0
   // `timeout`'s own 124 — the code the backend's wrapper returns when the TOOL's budget fires,
   // whatever the pipeline ended with (`backends/sandbox.ts`). Which of the two bounds fired is the
   // clock's to say: a run killed at the tool's budget reports at least the budget, and one killed
@@ -399,6 +410,7 @@ export function commandCutRun(
     return {
       seconds: ownFired ? declared : budgetSeconds,
       stoppedBy: ownFired ? 'command-timeout' : 'tool-budget',
+      background,
       exitCode,
       ...progress,
       doing,
@@ -408,6 +420,7 @@ export function commandCutRun(
     return {
       seconds: declared,
       stoppedBy: 'command-timeout',
+      background,
       // A code the filter produced is not the run's: `… | tail` handed back 0 forever (m93).
       exitCode: withheld || exitCode === 0 ? null : exitCode,
       ...progress,
@@ -420,6 +433,7 @@ export function commandCutRun(
     return {
       seconds: budgetSeconds,
       stoppedBy: 'tool-budget',
+      background,
       exitCode: exitCode === 0 ? null : exitCode,
       ...progress,
       doing,
@@ -435,6 +449,7 @@ export function commandCutRun(
     return {
       seconds: usedBudget ? budgetSeconds : Math.max(1, Math.round(elapsedMs / 1000)),
       stoppedBy: usedBudget ? 'tool-budget' : 'process-stop',
+      background,
       exitCode: withheld || exitCode === 0 ? null : exitCode,
       ...progress,
       doing,
@@ -465,6 +480,7 @@ export function cutRunFacts(result: unknown): CutRun | null {
   return {
     seconds: c.seconds,
     stoppedBy: c.stoppedBy,
+    background: c.background === true,
     exitCode: typeof c.exitCode === 'number' ? c.exitCode : null,
     ran: typeof c.ran === 'number' ? c.ran : null,
     total: typeof c.total === 'number' ? c.total : null,
@@ -491,9 +507,19 @@ export function cutRunSentence(run: CutRun): string {
     run.stoppedBy === 'tool-budget'
       ? "this tool's limit"
       : run.stoppedBy === 'command-timeout'
-        ? `its own \`timeout ${run.seconds}\``
+        ? run.background
+          ? `the command's own \`timeout ${run.seconds}\`, which killed it at ${run.seconds} s`
+          : `its own \`timeout ${run.seconds}\``
         : 'a process kill outside this tool (no `timeout` of its own and no limit of this tool had fired)'
-  const background = 'run it in the background (run_in_background + wait_for_task)'
+  // What the reader must do next. A run that was ALREADY a background task has nothing to gain
+  // from being sent to the background again — when its own `timeout` is what stopped it, that
+  // prefix is the thing to drop (X1 xr-molecule-flash-m143 +24:45: three cut sentences in one run
+  // told a background walk to "run it in the background", which is where it already was).
+  const background = run.background
+    ? run.stoppedBy === 'command-timeout'
+      ? `drop the \`timeout\` prefix and send it again — in the background a run is bounded by \`wait_for_task\` and the turn's deadline, not by this tool's ceiling, so the bound you wrote is what killed it`
+      : 'send it again when you are ready'
+    : 'run it in the background (run_in_background + wait_for_task)'
   const missing = run.ran !== null && run.total !== null ? run.total - run.ran : null
   const lead =
     missing !== null

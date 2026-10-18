@@ -165,6 +165,48 @@ describe('commandCutRun — the run m93 re-sent three times', () => {
     })
   })
 
+  it('names the background run’s own `timeout` as the killer, and never re-backgrounds it (m143)', () => {
+    // m143 +24:45, verbatim shape: a 31-test walk the platform backgrounded, killed at its own
+    // `timeout 280`, `exitCode: 124` — and the sentence told the executor to "run it in the
+    // background", where it already was. Three such sentences cost the run its tally each time.
+    const cut = commandCutRun(
+      'cd /workspace/my-app/app && timeout 280 npx playwright test --config e2e-suite.config.ts ' +
+        'auth.spec.ts navigation.spec.ts 2>&1 | tail -40',
+      {
+        stdout:
+          'Running 31 tests using 1 worker\n[12/31] specs/auth.spec.ts:10:5 › signs up\n  9 failed\n  3 passed (4.6m)\n',
+        stderr: '',
+        exitCode: 124,
+      },
+      281_000,
+      0,
+    )!
+    expect(cut).toMatchObject({
+      seconds: 280,
+      stoppedBy: 'command-timeout',
+      background: true,
+      ran: 12,
+      total: 31,
+      noun: 'tests',
+    })
+    const sentence = cutRunSentence(cut)
+    expect(sentence).toContain("the command's own `timeout 280`, which killed it at 280 s")
+    expect(sentence).toContain('drop the `timeout` prefix and send it again')
+    expect(sentence).not.toContain('run_in_background')
+    expect(sentence).not.toContain('run it in the background')
+  })
+
+  it('keeps the background advice for a foreground run the same prefix stopped', () => {
+    const cut = commandCutRun(
+      M93_COMMAND,
+      { stdout: M93_STDOUT, stderr: '', exitCode: 0 },
+      284_000,
+      290,
+    )!
+    expect(cut.background).toBe(false)
+    expect(cutRunSentence(cut)).toContain('run it in the background (run_in_background')
+  })
+
   it('reads a Playwright run stopped mid-suite from its own `[n/K]` progress', () => {
     const cut = commandCutRun(
       'timeout 90 npx playwright test | tail -20',

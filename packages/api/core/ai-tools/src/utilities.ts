@@ -12,6 +12,7 @@ import {
   commandSegments,
   locatedCommandSegments,
   statementArgumentEnd,
+  withoutTimeoutWrapper,
 } from './command-position.js'
 import { classifyRunFailure, type RunFailureKind } from './failure-kind.js'
 import { commandRunsNoTests } from './no-test-run.js'
@@ -654,6 +655,25 @@ export function isSuiteRunCommand(command: string): boolean {
   return commandSegments(command).some((segment) =>
     SUITE_RUN_COMMANDS.some((re) => re.test(segment.text)),
   )
+}
+
+/**
+ * The command with the `timeout <N>` wrapper lifted off the statement that runs the suite, and the
+ * bound that was lifted.
+ *
+ * Used where the platform moves a run to the background: the executor wrote the bound to fit this
+ * tool's foreground ceiling, and in the background that ceiling no longer applies — the task is
+ * bounded by `wait_for_task` and the turn's deadline — so the prefix only kills the walk
+ * ({@link withoutTimeoutWrapper}; X1 xr-molecule-flash-m143 +24:45).
+ *
+ * @param command - The shell command.
+ * @returns The rewritten command, and the largest lifted bound (null when nothing was lifted).
+ */
+export function withoutSuiteTimeout(command: string): {
+  command: string
+  seconds: number | null
+} {
+  return withoutTimeoutWrapper(command, (segment) => isSuiteRunCommand(segment.text))
 }
 
 /**

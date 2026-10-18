@@ -1201,6 +1201,83 @@ export function commandTimeoutSeconds(command: string): number | null {
 }
 
 /**
+ * The command with the `timeout <N>` wrapper lifted off the statements `which` selects, and the
+ * largest bound that was lifted.
+ *
+ * The platform moves a run to the background precisely because its own bound cannot fit this
+ * tool's ceiling, and a background task has no ceiling — its wait is bounded by `wait_for_task`
+ * and the turn's deadline. The `timeout N` an executor wrote to fit the ceiling therefore keeps
+ * killing the run at N in the background, where nothing needed it: X1 xr-molecule-flash-m143
+ * (+24:45) wrote `timeout 280` for a 31-test walk, the tool backgrounded it, and the prefix stopped
+ * the walk with no tally — then the cut sentence told the executor to "run it in the background",
+ * which is where it already was.
+ *
+ * The wrapper is found by the same parse every other command reader uses ({@link commandStart}):
+ * `timeout` in an argument bounds nothing, and the wrapper's own flags (`-k`/`--kill-after`,
+ * `-s`/`--signal`) are stepped over, so `timeout -k 5 280 …` is `280`.
+ *
+ * @param command - The shell command.
+ * @param which - The statements to lift the wrapper from (a suite run, for the background path).
+ * @returns The rewritten command, and the largest lifted bound (null when nothing was lifted).
+ */
+export function withoutTimeoutWrapper(
+  command: string,
+  which: (segment: CommandSegment) => boolean,
+): { command: string; seconds: number | null } {
+  if (typeof command !== 'string' || !command.trim()) return { command, seconds: null }
+  /** The spans to remove, as offsets in the command — applied back to front. */
+  const removals: Array<{ start: number; end: number }> = []
+  let seconds: number | null = null
+  for (const located of locatedSegmentsOf(command, 0)) {
+    const segment = located.segment
+    if (segment === null || segment.timeoutSeconds === null) continue
+    // A statement inside a nested `sh -c '…'` has no offsets here: its positions are positions in
+    // that string, so nothing may be spliced at them.
+    if (located.start === null || located.programOffset === null) continue
+    if (!which(segment)) continue
+    // Every word in front of the program: the assignments and the wrappers. The duration belongs
+    // to the wrapper, so the walk has to see the words, not just the parse's total bound.
+    const prefix = command.slice(located.start, located.programOffset)
+    const words: Array<{ text: string; start: number; end: number }> = []
+    const at = new RegExp(WORD.source, 'g')
+    for (let match = at.exec(prefix); match !== null; match = at.exec(prefix)) {
+      words.push({
+        text: match[0],
+        start: located.start + match.index,
+        end: located.start + match.index + match[0].length,
+      })
+    }
+    for (let i = 0; i < words.length; i += 1) {
+      const word = words[i]
+      if (word === undefined || programName(word.text) !== 'timeout') continue
+      // The wrapper's own flags, then the duration — the same walk {@link commandStart} makes.
+      const withValue = WRAPPER_VALUE_FLAGS.timeout ?? []
+      let next = i + 1
+      while (next < words.length && (words[next]?.text ?? '').startsWith('-')) {
+        const flag = unquoted(words[next]?.text ?? '')
+        next += !flag.includes('=') && withValue.includes(flag) ? 2 : 1
+      }
+      const duration = words[next]
+      const bound = duration === undefined ? null : durationSeconds(unquoted(duration.text))
+      if (duration === undefined || bound === null) continue
+      seconds = seconds === null ? bound : Math.max(seconds, bound)
+      // The whitespace between the duration and the program goes too, so the command does not
+      // carry a double space where the wrapper stood.
+      let end = duration.end
+      while (end < command.length && /\s/.test(command[end] ?? '')) end += 1
+      removals.push({ start: word.start, end })
+      i = next
+    }
+  }
+  if (removals.length === 0) return { command, seconds: null }
+  let out = command
+  for (const removal of removals.sort((a, b) => b.start - a.start)) {
+    out = out.slice(0, removal.start) + out.slice(removal.end)
+  }
+  return { command: out, seconds }
+}
+
+/**
  * Whether any segment of the command runs a program whose command-position text matches
  * `pattern` — the one question a runner-kind table asks.
  *

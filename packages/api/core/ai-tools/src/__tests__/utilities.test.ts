@@ -37,6 +37,7 @@ import {
   truncateMiddle,
   universalCause,
   whitespaceTolerantReplace,
+  withoutSuiteTimeout,
 } from '../utilities.js'
 
 describe('shellQuote', () => {
@@ -2541,6 +2542,49 @@ describe('suiteRunPriorityLaunch', () => {
       expect(isSuiteRunCommand(command), command).toBe(false)
       expect(suiteRunPriorityLaunch(command, LAUNCH), command).toEqual({ launch: LAUNCH, note: '' })
     }
+  })
+})
+
+describe('withoutSuiteTimeout — the bound that only fits the foreground ceiling', () => {
+  it('lifts the suite run’s own `timeout` and leaves everything else as sent (m143)', () => {
+    const command =
+      'cd /workspace/my-app/app && rm -rf test-results && timeout 280 npx playwright test ' +
+      '--config e2e-suite.config.ts auth.spec.ts navigation.spec.ts 2>&1 | tail -40'
+    const lifted = withoutSuiteTimeout(command)
+    expect(lifted.seconds).toBe(280)
+    expect(lifted.command).toBe(
+      'cd /workspace/my-app/app && rm -rf test-results && npx playwright test ' +
+        '--config e2e-suite.config.ts auth.spec.ts navigation.spec.ts 2>&1 | tail -40',
+    )
+  })
+
+  it('steps over the wrapper’s own flags for the duration, and reads units', () => {
+    expect(withoutSuiteTimeout('timeout -k 5 280 npx playwright test').command).toBe(
+      'npx playwright test',
+    )
+    expect(withoutSuiteTimeout('timeout --kill-after=10 4.5m npx playwright test').command).toBe(
+      'npx playwright test',
+    )
+    expect(withoutSuiteTimeout('timeout -s KILL 90 vitest run').seconds).toBe(90)
+    expect(withoutSuiteTimeout('timeout --foreground 1m hurl --test a.hurl').command).toBe(
+      'hurl --test a.hurl',
+    )
+  })
+
+  it('keeps an env assignment bound to the runner it was written for', () => {
+    expect(withoutSuiteTimeout('TEST_MODE=fullstack timeout 280 npx playwright test').command).toBe(
+      'TEST_MODE=fullstack npx playwright test',
+    )
+  })
+
+  it('leaves a command that is not a suite run, or carries no bound, exactly as sent', () => {
+    expect(withoutSuiteTimeout('timeout 60 npm run build').command).toBe('timeout 60 npm run build')
+    expect(withoutSuiteTimeout('npx playwright test').command).toBe('npx playwright test')
+    expect(withoutSuiteTimeout('timeout 60 npm run build').seconds).toBeNull()
+    // A `timeout` named as an argument bounds nothing and is not touched.
+    expect(withoutSuiteTimeout("grep -n 'timeout 280' notes.md").command).toBe(
+      "grep -n 'timeout 280' notes.md",
+    )
   })
 })
 
