@@ -1,5 +1,11 @@
 # @molecule/app-auth
 
+## 1.4.1
+
+### Patch Changes
+
+- 5bb648d: `AuthClientConfig.storage` states the trade-off plainly: in-memory is the secure default, and an app whose external contract requires the token at its own key opts in with `storage: createBrowserStorageAdapter()` plus `tokenKey: 'jwtToken'`.
+
 ## 1.4.0
 
 ### Minor Changes
