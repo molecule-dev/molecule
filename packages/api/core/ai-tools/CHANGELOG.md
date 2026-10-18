@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.9.9
+
+### Patch Changes
+
+- c5447fe: Read the output filter a run's own command piped through, so a failure whose detail the pipe cut is reported as that, with the command to re-run without it.
+
 ## 1.9.8
 
 ### Patch Changes
