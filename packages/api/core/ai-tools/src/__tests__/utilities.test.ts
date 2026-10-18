@@ -2039,17 +2039,40 @@ describe('repeatingFailure', () => {
       expect(universalCause(log, null)).toBeNull()
     })
 
-    it('needs the 15-test floor: a handful of missing elements is not a blank page', () => {
+    it('stops after THREE consecutive first-locator failures across three files (m177)', () => {
       const log = ['Running 139 tests using 1 worker']
       let n = 0
       for (const file of ['articles.spec.ts', 'auth.spec.ts', 'health.spec.ts']) {
-        for (let i = 0; i < 4; i++) {
-          n++
-          log.push(failure(n, file, 20 + i, `RealWorld › ${file} test ${i}`, LOCATORS[i]!))
-        }
+        n++
+        log.push(failure(n, file, 20 + n, `RealWorld › ${file} test ${n}`, LOCATORS[n]!))
       }
-      // 12 failures across three files — a page that renders can miss three elements too.
-      expect(universalCause(log.join('\n\n'), null)).toBeNull()
+      const text = log.join('\n\n')
+      const universal = universalCause(text, null)!
+      expect(universal.pageRendersNothing).toBe(true)
+      expect(universal.count).toBe(3)
+      // m177's walk had its page error from the first test: the early stop names it, not the
+      // locator it left behind.
+      const withError = `${text}\n\n    [pageerror] Error: No 'auth-client' provider bonded.`
+      expect(universalCause(withError, null)?.pageError).toBe(
+        "Error: No 'auth-client' provider bonded.",
+      )
+    })
+
+    it('does not stop before the third failure, or for failures confined to one file', () => {
+      const rows: string[] = ['Running 139 tests using 1 worker']
+      // Two failures across two different files: still a page that may have two bugs.
+      rows.push(
+        failure(1, 'articles.spec.ts', 20, 'RealWorld › articles test 1', LOCATORS[0]!),
+        failure(2, 'auth.spec.ts', 20, 'RealWorld › auth test 1', LOCATORS[1]!),
+      )
+      expect(universalCause(rows.join('\n\n'), null)).toBeNull()
+      // Three failures in ONE file: that file's own setup, not a blank page.
+      rows.push(
+        failure(3, 'articles.spec.ts', 40, 'RealWorld › articles test 2', LOCATORS[2]!),
+        failure(4, 'articles.spec.ts', 60, 'RealWorld › articles test 3', LOCATORS[3]!),
+        failure(5, 'articles.spec.ts', 80, 'RealWorld › articles test 4', LOCATORS[4]!),
+      )
+      expect(universalCause(rows.join('\n\n'), null)).toBeNull()
     })
 
     it('keeps the signature wording when one error covers every failure', () => {

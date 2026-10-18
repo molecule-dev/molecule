@@ -2637,10 +2637,21 @@ export interface UniversalCause {
 
 /**
  * How many tests a run must have walked — with nothing passing since its first failure — before
- * "the page renders nothing" can be its one cause. A handful of failures is a handful of bugs;
- * a page that never painted fails every spec that reaches it, and m141's walk had 36 by +20:30.
+ * "the page renders nothing" can be its one cause.
+ *
+ * THREE, and the number is the cost of the alternative. The old floor of 15 was chosen when the
+ * reading was only offered at a completed run; once it STOPS the walk, every test waited for is
+ * a test whose result is thrown away, and a blank page costs its per-test budget each time
+ * (m177: 18 tests, ~4.2 minutes, on a page whose thrown error was visible in the first
+ * `pageerror`). Three is the smallest count that is not one page's own bug: the cause additionally
+ * needs three DISTINCT spec files (`UNIVERSAL_CAUSE_FILES`, or the files a narrowed run selected),
+ * each spec waiting for its OWN first element, and no test passing after the first failure. A page
+ * that renders misses elements, but three unrelated specs in three files failing at three
+ * different first locators with nothing passing in between is the page, not three bugs. At the
+ * suite's own 5 s action timeout that verdict lands ~20 s into the walk, so the early stop costs
+ * about one test's worth of time instead of fifteen.
  */
-export const EMPTY_PAGE_CAUSE_TESTS = 15
+export const EMPTY_PAGE_CAUSE_TESTS = 3
 
 /**
  * A failure body whose whole complaint is a wait for an element the page never rendered:
@@ -2669,15 +2680,21 @@ function pageErrorInLog(text: string): string | null {
 }
 
 /**
- * The "nothing has passed and nothing renders" cause: every failure block the log has written is
- * a locator wait, the run has walked at least {@link EMPTY_PAGE_CAUSE_TESTS} tests across the
- * file threshold, and no test has passed since the first failure.
+ * The "nothing has passed and nothing renders" cause: the run's FIRST consecutive failures — from
+ * its first failed test, with no pass since — are all locator waits, at least
+ * {@link EMPTY_PAGE_CAUSE_TESTS} of them across the file threshold, and each waits for a
+ * different spec's own first element.
+ *
+ * Stops the walk as soon as that verdict is readable, not after a fixed floor of failures have
+ * been burned: the page error arrives with the first test, so every further test only repeats it.
  *
  * This is ONE cause even though the signatures differ — each spec asks for its own first element
  * (`input[name="username"]`, `a.navbar-brand`, `h1`), so {@link repeatingFailure} cannot group
  * them and {@link universalCause}'s signature test cannot see the run is over. xr-molecule-flash-
  * m141 (+20:30) walked a built app that rendered nothing: 36 tests had failed, every one at its
- * first locator, and the note told the run to keep walking for another ~9 minutes.
+ * first locator, and the note told the run to keep walking for another ~9 minutes. xr-molecule-
+ * flash-m177 (+08:38 → +12:52) repeated it: 18 tests, one whole walk, on a page whose
+ * `PAGEERROR No 'auth-client' provider bonded` was in the log from the first one.
  *
  * @param text - The log (ANSI already stripped).
  * @param threshold - The spec-file threshold this run is judged against ({@link universalCause}).
@@ -2703,6 +2720,9 @@ function emptyPageCause(
   // One signature already covers every failure: that is the signature cause, and its wording
   // (which names the repeated error) says more than "the page renders nothing" would.
   if (found !== null && found.message !== null && found.count >= tests.length) return null
+  // The cause is the FIRST consecutive failures: `tests` starts at the first ✘ and no ✓ follows
+  // it, so a page that has failed three tests in a row across three files has already said
+  // everything the rest of the walk can say (m177 paid 4.2 minutes learning that).
   if (tests.length < EMPTY_PAGE_CAUSE_TESTS) return null
   const files = [...new Set(tests.map((t) => specFile(t.where)).filter(Boolean))]
   if (files.length < threshold) return null
