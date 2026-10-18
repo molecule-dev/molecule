@@ -145,6 +145,17 @@ export interface TraceAction {
   pageId?: string
   /** The frame the action ran in, from the same snapshot. */
   frameId?: string
+  /**
+   * The selector a `fill`/`type`/`selectOption` acted on (`textarea[name="bio"]`), from the
+   * trace's own params. Kept so the note can compare what the test typed with what the page
+   * submitted (m173: the field it typed into was sent empty).
+   */
+  selector?: string
+  /**
+   * The value a `fill`/`type`/`selectOption` typed or chose, from the trace's own params —
+   * absent when the action carried none (a `selectOption` by label only).
+   */
+  value?: string
 }
 
 /**
@@ -448,6 +459,11 @@ function messageOf(value) {
   return null
 }
 
+// A fill/type/selectOption records what the test typed; the note compares it with the body the
+// page submitted (m173: the Settings form sent bio:"" although the test had just typed a value).
+// Only those actions keep it, so a click's selector does not ride every row.
+const FILLING_ACTION = /\\.(?:fill|type|pressSequentially|selectOption)$/
+
 // The text a failing assertion waited for, named by its own error: a \`has-text(…)\` CSS
 // pseudo-class, a \`getByText(…)\` locator, or a \`toContainText(…)\` expectation. A strict-mode
 // violation is not this shape — two elements DID match the text — and neither is a wait on a
@@ -697,14 +713,19 @@ for (const one of found.slice(0, MAX_TRACES)) {
       if (!entry || entry.type !== 'before') continue
       if (typeof entry.class !== 'string' || typeof entry.method !== 'string') continue
       if (entry.class === 'Test' || typeof entry.startTime !== 'number') continue
+      const api = entry.class + '.' + entry.method
+      const params = entry.params && typeof entry.params === 'object' ? entry.params : {}
+      const filling = FILLING_ACTION.test(api)
       const action = {
-        api: entry.class + '.' + entry.method,
+        api: api,
         start: entry.startTime,
         end: typeof ended[entry.callId] === 'number' ? ended[entry.callId] : null,
         context: ctx.id,
         pageId: typeof entry.callId === 'string' ? pageByCall[entry.callId] : undefined,
         frameId: undefined,
         stepId: typeof entry.stepId === 'string' ? entry.stepId : undefined,
+        ...(filling && typeof params.selector === 'string' ? { selector: params.selector } : {}),
+        ...(filling && typeof params.value === 'string' ? { value: params.value } : {}),
       }
       if (action.pageId !== undefined) {
         for (const frame of ctx.frames) {
@@ -1301,6 +1322,8 @@ export function parseTraceArtifacts(stdout: string): TraceArtifact[] {
             ...(typeof a.context === 'string' ? { context: a.context } : {}),
             ...(typeof a.pageId === 'string' ? { pageId: a.pageId } : {}),
             ...(typeof a.frameId === 'string' ? { frameId: a.frameId } : {}),
+            ...(typeof a.selector === 'string' && a.selector ? { selector: a.selector } : {}),
+            ...(typeof a.value === 'string' ? { value: a.value } : {}),
           })),
         ...(otherContexts.length === 0 ? {} : { otherContexts }),
         ...(raw.unattributed === true ? { unattributed: true as const } : {}),
@@ -2398,6 +2421,141 @@ function missingTextSentence(missing: TraceMissingText): string {
 }
 
 /**
+ * The `name` attribute a locator's selector reads (`textarea[name="bio"]` → `bio`), or null when
+ * the selector names no field.
+ *
+ * Matching the form field to the request body's key is the whole point: a body that carries
+ * `"bio": ""` says nothing unless the trace also says the test typed a bio.
+ *
+ * @param selector - The selector a `fill`/`type`/`selectOption` action carried.
+ * @returns The field name, or null.
+ */
+function fieldNameOf(selector: string): string | null {
+  const quoted = /\[\s*name\s*=\s*(["'])((?:(?!\1).)*)\1\s*\]/.exec(selector)
+  if (quoted !== null) return quoted[2] === '' ? null : quoted[2]
+  const bare = /\[\s*name\s*=\s*([^\s\]]+)\s*\]/.exec(selector)
+  return bare === null ? null : (bare[1] ?? null)
+}
+
+/**
+ * Whether a JSON request body carries `key` with an EMPTY value (`""` or null), looking inside the
+ * wrapper object an API nests its entity under (`user`, `data`, `props`).
+ *
+ * A body that does not parse, or carries the key with a real value, is not evidence: the note only
+ * claims the page sent a field empty when it did.
+ *
+ * @param sent - The body the page sent, as the trace recorded it.
+ * @param key - The field name from the filled input's `name` attribute.
+ * @returns True when the body carries that key empty.
+ */
+function bodyCarriesEmptyField(sent: string, key: string): boolean {
+  let parsed: unknown
+  try {
+    parsed = JSON.parse(sent)
+  } catch (_error) {
+    // A truncated body (the trace read bounds what it keeps) names no field confidently.
+    return false
+  }
+  const read = (value: unknown, level: number): boolean | null => {
+    if (level > 4 || value === null || typeof value !== 'object') return null
+    if (Array.isArray(value)) {
+      for (const item of value) {
+        const found = read(item, level + 1)
+        if (found !== null) return found
+      }
+      return null
+    }
+    const record = value as Record<string, unknown>
+    if (Object.prototype.hasOwnProperty.call(record, key)) {
+      return record[key] === '' || record[key] === null
+    }
+    for (const nested of Object.values(record)) {
+      const found = read(nested, level + 1)
+      if (found !== null) return found
+    }
+    return null
+  }
+  return read(parsed, 0) === true
+}
+
+/** What a form-reset reading needs: the field the test typed, and the submit that sent it empty. */
+interface FormResetEvidence {
+  /** The value the test typed (`Bio updated at 1792345026196`). */
+  value: string
+  /** The locator the test filled (`textarea[name="bio"]`). */
+  selector: string
+  /** The body key the submit carried empty (`bio`). */
+  field: string
+  /** The submit request whose body carried it. */
+  request: TraceRequest
+}
+
+/**
+ * The field a test typed into that the same page submitted empty, when the trace recorded both.
+ *
+ * This is the Settings race of xr-molecule-flash-m173: `page.fill('textarea[name="bio"]', newBio)`
+ * then `button[type=submit]`, and the `PUT /api/user` carried `"bio": ""`. The form's seeding
+ * effect re-ran between the fill and the submit — on the deployed URL the background session
+ * verification lands later than it does locally, and it handed the form a new user object. The
+ * reading only pairs facts the trace holds: the filled value (its `selector`/`value`), the field
+ * name the selector names, and the next call to the app's API on that page whose body carries
+ * that key empty.
+ *
+ * @param item - One traced failure.
+ * @returns The evidence, or null when no filled field was submitted empty.
+ */
+function formResetOf(item: TraceArtifact): FormResetEvidence | null {
+  const requests = [...(item.lastAction?.requests ?? []), ...item.requests]
+  // A trace read before `actions` existed (or a hand-built one) carries none: no claim.
+  for (const action of item.actions ?? []) {
+    if (action.selector === undefined || action.value === undefined || action.value === '') continue
+    const field = fieldNameOf(action.selector)
+    if (field === null) continue
+    let next: TraceRequest | null = null
+    for (const request of requests) {
+      if (!/^(?:POST|PUT|PATCH)$/.test(request.method) || request.sent === undefined) continue
+      // The submit follows the typing; a request that started before it cannot have sent it.
+      if (typeof request.startedAt === 'number' && request.startedAt < action.start) continue
+      // Same page only: another context's set-up call is not this form's submit.
+      if (
+        action.pageId !== undefined &&
+        request.pageId !== undefined &&
+        action.pageId !== request.pageId
+      )
+        continue
+      if (!bodyCarriesEmptyField(request.sent, field)) continue
+      const earlier =
+        next === null ||
+        (typeof request.startedAt === 'number' &&
+          (typeof next.startedAt !== 'number' || request.startedAt < next.startedAt))
+      if (earlier) next = request
+    }
+    if (next !== null)
+      return { value: action.value, selector: action.selector, field, request: next }
+  }
+  return null
+}
+
+/**
+ * The sentence for a submitted form field the test had just typed into, sent empty.
+ *
+ * It states the two recorded facts and the one inference they support — the form re-seeded after
+ * the typing — then the fix at the source: copy the loaded data into the form once, on its first
+ * load, instead of on every change of the data it was seeded from.
+ *
+ * @param reset - The filled field and the submit that carried it empty.
+ * @returns The sentence the note leads with.
+ */
+function formResetSentence(reset: FormResetEvidence): string {
+  return (
+    `The test typed "${reset.value}" into ${reset.selector}, but ` +
+    `${requestLabel(reset.request)} sent "${reset.field}": "" — the form's state was reset after ` +
+    `typing (an effect re-seeding the form from data that changed identity ran again after the ` +
+    `test typed). Seed the form once, not every time that data changes.`
+  )
+}
+
+/**
  * The note a failed suite run's result carries: what each failing test's page actually sent, and
  * what came back.
  *
@@ -2435,6 +2593,14 @@ function missingTextSentence(missing: TraceMissingText): string {
  * contexts' requests are named separately as set-up work. When the trace holds more than one used
  * context and the assertion's page cannot be identified, the note lists the requests and makes NO
  * causal claim — no "the test's last action", no "the page stayed at …" — instead of merging them.
+ *
+ * A field the test filled and the page submitted EMPTY ({@link formResetOf}) leads the note: the
+ * trace holds both facts — the value typed into `textarea[name="bio"]` and the `PUT /api/user`
+ * whose body carried `"bio": ""` — so the form's state was reset between the typing and the
+ * submit. The note names the effect that re-seeds a form from data whose identity changed and the
+ * fix at the source (seed the form once). xr-molecule-flash-m173 lost a deploy-and-walk cycle to
+ * this on the deployed URL only, where the background session verification lands later than it
+ * does locally.
  *
  * WHICH rows it spends is evidence, not artifact order (xr-molecule-flash-m112 +53:46): a row
  * needs a recorded response, a real failure or a console line ({@link traceRowEvidence}), rows are
@@ -2846,7 +3012,25 @@ export function failureTraceNote(
     missingTexts.length === 0
       ? ''
       : `${missingTexts.slice(0, 2).map(missingTextSentence).join(' ')}\n\n`
+  // A field the test typed and the page submitted empty: the form re-seeded itself after the
+  // typing (m173's Settings race — the deployed URL lands the background session verification
+  // later than a local run, and its new user object re-ran the form's seeding effect between the
+  // fill and the submit). It is a direct cause of the failing request, so it leads the note.
+  const formResets = [
+    ...new Map(
+      traced
+        .map(formResetOf)
+        .filter((reset): reset is FormResetEvidence => reset !== null)
+        .map(
+          (reset) =>
+            [`${reset.request.method} ${reset.request.path}\u0000${reset.field}`, reset] as const,
+        ),
+    ).values(),
+  ]
+  const formResetLead =
+    formResets.length === 0 ? '' : `${formResets.slice(0, 2).map(formResetSentence).join(' ')}\n\n`
   return (
+    formResetLead +
     missingTextLead +
     transportLead +
     setupOriginLead +

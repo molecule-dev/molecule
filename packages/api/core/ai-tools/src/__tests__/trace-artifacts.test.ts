@@ -2985,3 +2985,128 @@ describe('failureTraceNote — a tag the API returned and the sidebar cut away (
     expect(text).not.toContain('The API returned')
   })
 })
+
+/**
+ * A trace.zip reproducing xr-molecule-flash-m173's Settings race: the test filled
+ * `textarea[name="bio"]` with a value, clicked submit, and the page's `PUT /api/user` carried
+ * `"bio": ""` — the form's seeding effect had re-run after the typing (on the deployed URL the
+ * background session verification lands later than it does locally).
+ *
+ * The run's own transcript recorded the row
+ * (`settings.spec.ts:150 — the test's last action was Frame.click … PUT /api/user → 200 sent
+ * {"user":{…,"bio":"","image":""}}`); the trace.zip itself lived in the sandbox and was not
+ * downloaded, so this fixture rebuilds exactly those recorded facts.
+ *
+ * @param submittedBio - The value the submitted body carried for `bio` (`""` for the race).
+ * @returns The zip.
+ */
+function settingsFormResetZip(submittedBio: string): Buffer {
+  const origin = 'https://loopcheck-xr-m173.apps.mlcl.dev'
+  const user = { username: 'testuser1', email: 'test1@example.com' }
+  const network = [
+    {
+      type: 'resource-snapshot',
+      snapshot: {
+        _resourceType: 'document',
+        _monotonicTime: 50,
+        request: { url: `${origin}/settings`, method: 'GET' },
+        response: { status: 200 },
+      },
+    },
+    {
+      type: 'resource-snapshot',
+      snapshot: {
+        _resourceType: 'fetch',
+        _monotonicTime: 120,
+        request: { url: `${origin}/api/user`, method: 'GET', headers: [] },
+        response: {
+          status: 200,
+          content: { text: JSON.stringify({ user: { ...user, bio: null, image: null } }) },
+        },
+      },
+    },
+    {
+      type: 'resource-snapshot',
+      snapshot: {
+        _resourceType: 'fetch',
+        _monotonicTime: 220,
+        request: {
+          url: `${origin}/api/user`,
+          method: 'PUT',
+          headers: [],
+          postData: { text: JSON.stringify({ user: { ...user, bio: submittedBio, image: '' } }) },
+        },
+        response: {
+          status: 200,
+          content: { text: JSON.stringify({ user: { ...user, bio: null, image: null } }) },
+        },
+      },
+    },
+  ]
+  const stack = [{ file: 'e2e/settings.spec.ts', line: 150 }]
+  const trace = [
+    {
+      type: 'before',
+      class: 'Frame',
+      method: 'fill',
+      callId: 'call-fill',
+      startTime: 100,
+      params: { selector: 'textarea[name="bio"]', value: 'Bio updated at 1792345026196' },
+      stack,
+    },
+    { type: 'after', callId: 'call-fill', endTime: 140 },
+    {
+      type: 'before',
+      class: 'Frame',
+      method: 'click',
+      callId: 'call-click',
+      startTime: 200,
+      params: { selector: 'button[type="submit"]' },
+      stack,
+    },
+    { type: 'after', callId: 'call-click', endTime: 240 },
+  ]
+  const lines = (rows: unknown[]): string => rows.map((row) => JSON.stringify(row)).join('\n')
+  return storedZip({ 'trace.trace': lines(trace), 'trace.network': lines(network) })
+}
+
+/** The note for one synthetic trace, as the result would carry it. */
+function settingsFormResetNote(submittedBio: string): { note: string; items: TraceArtifact[] } {
+  const root = stalledRun(settingsFormResetZip(submittedBio))
+  try {
+    const stdout = readTraces(root)
+    const items = parseTraceArtifacts(stdout)
+    return {
+      items,
+      note: String(failureTraceNote(items, 'https://loopcheck-xr-m173.apps.mlcl.dev')),
+    }
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+}
+
+describe('traceArtifactsScript — a form field submitted empty after the test typed it (m173)', () => {
+  it('keeps the typed value and the selector on the fill action', () => {
+    const { items } = settingsFormResetNote('')
+    const fill = items[0]?.actions.find((action) => action.api === 'Frame.fill')
+    expect(fill).toMatchObject({
+      selector: 'textarea[name="bio"]',
+      value: 'Bio updated at 1792345026196',
+    })
+  })
+
+  it('leads with the typed value, the submit and the empty field', () => {
+    const { note } = settingsFormResetNote('')
+    expect(note.split('\n')[0]).toBe(
+      'The test typed "Bio updated at 1792345026196" into textarea[name="bio"], but PUT /api/user ' +
+        'sent "bio": "" — the form\'s state was reset after typing (an effect re-seeding the form ' +
+        'from data that changed identity ran again after the test typed). Seed the form once, not ' +
+        'every time that data changes.',
+    )
+  })
+
+  it('says nothing when the body carried the value the test typed', () => {
+    const { note } = settingsFormResetNote('Bio updated at 1792345026196')
+    expect(note).not.toContain("the form's state was reset after typing")
+  })
+})
