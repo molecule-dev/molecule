@@ -1,5 +1,11 @@
 # @molecule/app-auth
 
+## 1.5.1
+
+### Patch Changes
+
+- b2547ef: Auto-refresh schedules nothing when the API issued no refresh token — a cookie-session API no longer signs the user out while their access token is still valid; only an API 401 or an explicit logout ends the session.
+
 ## 1.5.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.9.11
+
+### Patch Changes
+
+- b2d963c: A failed test's trace note keeps console warnings — a package's own "logging out" line reaches the note instead of only the browser's resource error.
+
 ## 1.9.10
 
 ### Patch Changes
