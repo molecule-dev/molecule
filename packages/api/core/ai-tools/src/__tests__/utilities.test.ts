@@ -907,11 +907,11 @@ describe('the suite’s own runner script (m170)', () => {
   it('refuses the two walks in the foreground too, naming both steps', () => {
     const refusal = repeatedSuiteRunError(M170) ?? ''
     expect(refusal).toContain('runs the suite twice')
-    expect(refusal).toContain('step 1: \`run-api-tests-hurl.sh 2>&1\`')
-    expect(refusal).toContain('step 2: \`run-api-tests-hurl.sh 2>&1\`')
+    expect(refusal).toContain('step 1: `run-api-tests-hurl.sh 2>&1`')
+    expect(refusal).toContain('step 2: `run-api-tests-hurl.sh 2>&1`')
     // The one run handed back is the last walk, never the chain — and its `| tail` is dropped.
-    expect(refusal).toContain('run exactly one: \`')
-    expect(refusal).toContain('run-api-tests-hurl.sh 2>&1\`')
+    expect(refusal).toContain('run exactly one: `')
+    expect(refusal).toContain('run-api-tests-hurl.sh 2>&1`')
     expect(refusal).not.toContain('tail -40')
     // Work before one run is not a second walk.
     expect(
