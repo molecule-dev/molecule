@@ -64,12 +64,23 @@ vi.mock('@molecule/app-http', () => {
     status: number
     response: unknown
     config: unknown
-    constructor(message: string, status: number, response?: unknown, config?: unknown) {
+    errorKey?: string
+    aborted: boolean
+    constructor(
+      message: string,
+      status: number,
+      response?: unknown,
+      config?: unknown,
+      errorKey?: string,
+      aborted = false,
+    ) {
       super(message)
       this.name = 'HttpError'
       this.status = status
       this.response = response
       this.config = config
+      this.errorKey = errorKey
+      this.aborted = aborted
     }
   }
   return { HttpError, awaitAuthGate: mockAwaitAuthGate }
@@ -851,6 +862,54 @@ describe('@molecule/app-http-axios', () => {
       const result = await client.get('/test')
 
       expect(result.headers).toEqual({})
+    })
+  })
+
+  // ===================================================================
+  // Aborted requests
+  // ===================================================================
+
+  describe('aborted requests', () => {
+    /**
+     * Runs the response-error interceptor the provider installed and returns what it threw.
+     *
+     * @param axiosError - The AxiosError shape the interceptor receives.
+     * @returns The rejected `HttpError`.
+     */
+    const rejectThroughInterceptor = async (axiosError: unknown): Promise<unknown> => {
+      createAxiosClient()
+      const onError = mockInterceptorsResponse.use.mock.calls[0]?.[1] as (
+        error: unknown,
+      ) => Promise<unknown>
+      return onError(axiosError).catch((err: unknown) => err)
+    }
+
+    it('flags a cancelled request (ERR_CANCELED) with status 0 and the aborted errorKey', async () => {
+      const error = await rejectThroughInterceptor({
+        message: 'canceled',
+        code: 'ERR_CANCELED',
+        config: { method: 'get', url: '/test', headers: {}, data: undefined },
+      })
+
+      expect(error).toMatchObject({
+        status: 0,
+        aborted: true,
+        errorKey: 'http.error.aborted',
+      })
+    })
+
+    it('leaves a real network failure unflagged with the networkError key', async () => {
+      const error = await rejectThroughInterceptor({
+        message: 'Network Error',
+        code: 'ERR_NETWORK',
+        config: { method: 'get', url: '/test', headers: {}, data: undefined },
+      })
+
+      expect(error).toMatchObject({
+        status: 0,
+        aborted: false,
+        errorKey: 'http.error.networkError',
+      })
     })
   })
 })

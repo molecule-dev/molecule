@@ -19,6 +19,9 @@ import {
   get,
   getClient,
   HttpError,
+  isAborted,
+  isAuthFailure,
+  isNoResponse,
   patch,
   post,
   put,
@@ -700,6 +703,66 @@ describe('@molecule/app-http', () => {
       controller.abort()
 
       await expect(client.get('/test', { signal: controller.signal })).rejects.toThrow(HttpError)
+    })
+
+    it('flags an aborted request and gives it a distinct errorKey (not a network failure)', async () => {
+      const abortError = new DOMException('The operation was aborted', 'AbortError')
+      mockFetch.mockRejectedValue(abortError)
+      const client = createFetchClient()
+
+      const error = await client.get('/test').catch((err: unknown) => err)
+
+      expect(error).toBeInstanceOf(HttpError)
+      const httpError = error as HttpError
+      // No response arrived: 0 is not an HTTP status, and must never be read as
+      // "the user is signed out".
+      expect(httpError.status).toBe(0)
+      expect(httpError.aborted).toBe(true)
+      expect(httpError.errorKey).toBe('http.error.aborted')
+      expect(isNoResponse(httpError)).toBe(true)
+      expect(isAborted(httpError)).toBe(true)
+      expect(isAuthFailure(httpError)).toBe(false)
+    })
+
+    it('a real network failure stays unflagged and keeps the networkError key', async () => {
+      mockFetch.mockRejectedValue(new TypeError('Failed to fetch'))
+      const client = createFetchClient()
+
+      const error = (await client.get('/test').catch((err: unknown) => err)) as HttpError
+
+      expect(error.status).toBe(0)
+      expect(error.aborted).toBe(false)
+      expect(error.errorKey).toBe('http.error.networkError')
+      expect(isNoResponse(error)).toBe(true)
+      expect(isAuthFailure(error)).toBe(false)
+    })
+
+    it('a 401 is an auth failure; a 500 and a 404 are not', async () => {
+      mockFetch.mockImplementation(() => createMockResponse({}, 401))
+      const unauthorized = (await createFetchClient()
+        .get('/test')
+        .catch((err: unknown) => err)) as HttpError
+      mockFetch.mockImplementation(() => createMockResponse({}, 403))
+      const forbidden = (await createFetchClient()
+        .get('/test')
+        .catch((err: unknown) => err)) as HttpError
+      mockFetch.mockImplementation(() => createMockResponse({}, 500))
+      const serverFault = (await createFetchClient()
+        .get('/test')
+        .catch((err: unknown) => err)) as HttpError
+      mockFetch.mockImplementation(() => createMockResponse({}, 404))
+      const missing = (await createFetchClient()
+        .get('/test')
+        .catch((err: unknown) => err)) as HttpError
+
+      expect(isAuthFailure(unauthorized)).toBe(true)
+      expect(isAuthFailure(forbidden)).toBe(true)
+      expect(isAuthFailure(serverFault)).toBe(false)
+      expect(isAuthFailure(missing)).toBe(false)
+      expect(isNoResponse(unauthorized)).toBe(false)
+      // A plain Error/undefined is never classified as an HTTP failure.
+      expect(isAuthFailure(new Error('boom'))).toBe(false)
+      expect(isNoResponse(undefined)).toBe(false)
     })
 
     it('should not create signal if no timeout is configured', async () => {

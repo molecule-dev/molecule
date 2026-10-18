@@ -88,11 +88,23 @@
  * settles, and every request the gate holds stalls until it times out (3 s).
  * `@molecule/app-auth`'s own restore does not need it (it calls `fetch`, not this client).
  *
+ * **A failed request's `status` is `0` when NO response arrived — never read it as
+ * "signed out".** An aborted request (an `AbortController` signal, a component's
+ * effect cleanup, a route change tearing the fetch down) and a network outage both
+ * throw an `HttpError` with `status === 0`; the aborted ones also carry
+ * `aborted: true` and the `http.error.aborted` key, the rest `http.error.networkError`.
+ * Neither says anything about the session. To decide whether a session ended, use
+ * `isAuthFailure(err)` (401/403 only); `isNoResponse(err)` identifies the no-response
+ * case so a caller can stay silent instead of reporting an outage. **Do not write
+ * `err instanceof HttpError && err.status < 500` as a sign-out check** — it clears
+ * the session on every aborted navigation request.
+ *
  * @module
  */
 
 export * from './auth-gate.js'
 export * from './client.js'
+export * from './errors.js'
 export * from './interceptors.js'
 export * from './provider.js'
 export * from './types.js'

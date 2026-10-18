@@ -307,8 +307,20 @@ export const createJWTAuthClient = <
           )
           return
         }
-        logger.warn('Token refresh failed, logging out', err)
-        client.logout()
+        // ONLY the server rejecting the refresh token (401/403) ends the session.
+        // A network drop, an aborted request, or a 5xx says nothing about the
+        // credential — signing out here did exactly that on every flaky refresh.
+        // The API's next 401 (`validateSession`) or an explicit sign-out decides.
+        const httpStatus = (err as { status?: number }).status
+        if (httpStatus === 401 || httpStatus === 403) {
+          logger.warn('Token refresh was rejected, signing out', err)
+          void client.logout()
+          return
+        }
+        logger.warn(
+          'Token refresh failed; keeping the session until the API rejects the token',
+          err,
+        )
       })
     }, refreshTime)
   }

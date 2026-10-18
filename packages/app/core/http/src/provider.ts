@@ -307,14 +307,23 @@ export const createFetchClient = (config: HttpClientConfig = {}): HttpClient => 
         } else {
           logger.error('Network error', finalConfig.method, url, err)
         }
+        // An abort and a navigation cancellation are the SAME fact to a caller —
+        // the request was cancelled before any response — and neither is a network
+        // outage. Flag it (`aborted`) and give it its own errorKey so app code does
+        // not have to parse the message, and so a session-clearing check can tell
+        // it apart from a real failure without treating `status === 0` as a 4xx.
+        const aborted = isAbort || isNavCancel
         const error = new HttpError(
           err instanceof Error
             ? err.message
-            : t('http.error.networkError', undefined, { defaultValue: 'Network error' }),
+            : t(aborted ? 'http.error.aborted' : 'http.error.networkError', undefined, {
+                defaultValue: aborted ? 'Request aborted' : 'Network error',
+              }),
           0,
           undefined,
           finalConfig,
-          'http.error.networkError',
+          aborted ? 'http.error.aborted' : 'http.error.networkError',
+          aborted,
         )
 
         // Apply error interceptors

@@ -99,6 +99,28 @@ describe('AuthState.status', () => {
     expect(client.getAccessToken()).toBe(token)
   })
 
+  it('validateSession keeps the session when the request is ABORTED (status 0, not a 401)', async () => {
+    // A route change tearing the current-user request down arrives as an
+    // AbortError with no HTTP status. It is not the server rejecting the
+    // credential, so the session must survive it.
+    const storage = createMockStorage()
+    const token = createMockJWT()
+    const client = createJWTAuthClient({ storage })
+    client.setAccessToken(token)
+    client.setUser(user)
+    await client.initialize()
+    mockFetch.mockImplementationOnce(() =>
+      Promise.reject(new DOMException('The operation was aborted', 'AbortError')),
+    )
+
+    await client.validateSession()
+
+    expect(client.getState().status).toBe('unavailable')
+    expect(client.isAuthenticated()).toBe(true)
+    expect(client.getAccessToken()).toBe(token)
+    expect(client.getUser()).toEqual(user)
+  })
+
   it('validateSession keeps the session on a 5xx too', async () => {
     const client = createJWTAuthClient({ storage: createMockStorage() })
     client.setAccessToken(createMockJWT())

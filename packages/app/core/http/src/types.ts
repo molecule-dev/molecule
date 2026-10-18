@@ -161,14 +161,49 @@ export interface HttpResponse<T = unknown> {
 
 /**
  * HTTP error with response details.
+ *
+ * **`status` is an HTTP status when the server answered, and `0` when it did not.**
+ * A `0` means NO response exists: the request was aborted (an `AbortController`, a
+ * component's effect cleanup, a route change tearing the request down) or the
+ * network failed before anything came back. It is not an HTTP status at all, so it
+ * says nothing about the session — an app must never treat `status < 500` as
+ * "signed out", because every aborted request on a route change would clear the
+ * session. The correct check is {@link isAuthFailure} (`status === 401 || status === 403`);
+ * `isNoResponse` (`status === 0`) identifies this case.
+ *
+ * @example
+ * ```typescript
+ * try {
+ *   await http.get('/projects')
+ * } catch (err) {
+ *   if (isAuthFailure(err)) clearSession()      // 401/403: the server rejected the credential
+ *   else if (isNoResponse(err)) return           // aborted or offline — not a session decision
+ *   else showError(err)
+ * }
+ * ```
  */
 export class HttpError extends Error {
+  /**
+   * Builds a failed-request error.
+   *
+   * @param message - Human-readable message (already translated where a key exists).
+   * @param status - HTTP status, or `0` when no response was received (aborted / network failure).
+   * @param response - Parsed response when the server answered, otherwise undefined.
+   * @param config - The request config that failed.
+   * @param errorKey - Translation key for the failure (`http.error.aborted` for an
+   *   aborted request, `http.error.networkError` for a real network failure).
+   * @param aborted - Whether the request was aborted before a response: an
+   *   `AbortController` signal (component cleanup, a cancelled request) or the
+   *   browser tearing the fetch down during a navigation. Distinguishes an abort
+   *   from a network outage on the same `status === 0`, without parsing the message.
+   */
   constructor(
     message: string,
     public status: number,
     public response?: HttpResponse,
     public config?: FullRequestConfig,
     public errorKey?: string,
+    public aborted = false,
   ) {
     super(message)
     this.name = 'HttpError'

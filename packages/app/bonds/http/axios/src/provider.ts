@@ -208,6 +208,12 @@ export function createAxiosClient(config: AxiosHttpClientConfig = {}): HttpClien
         authErrorHandlers.forEach((handler) => handler())
       }
 
+      // A cancelled request (an AbortController signal) arrives with no response
+      // and Axios' `ERR_CANCELED` code. Flag it like the fetch provider does, so a
+      // caller can tell "aborted" from a real outage on the same `status === 0` and
+      // never reads either as an auth failure.
+      const aborted = error.code === 'ERR_CANCELED'
+
       // Run error interceptors
       const httpError = new HttpError(
         error.message,
@@ -228,6 +234,8 @@ export function createAxiosClient(config: AxiosHttpClientConfig = {}): HttpClien
               data: error.config.data,
             }
           : undefined,
+        aborted ? 'http.error.aborted' : 'http.error.networkError',
+        aborted,
       )
 
       for (const interceptor of errorInterceptors) {

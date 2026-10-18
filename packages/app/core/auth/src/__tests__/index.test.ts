@@ -1866,6 +1866,33 @@ describe('JWT Auth Client', () => {
       expect(client.isAuthenticated()).toBe(false)
       expect(client.getAccessToken()).toBeNull()
     })
+
+    it('a refresh that fails on the NETWORK keeps the session (no response is not a rejection)', async () => {
+      const accessToken = createMockJWT({
+        sub: mockUser.id,
+        exp: Math.floor(Date.now() / 1000) + 120,
+      })
+      mockFetch.mockImplementation(() =>
+        createMockResponse({ user: mockUser, accessToken, refreshToken: 'refresh-token' }),
+      )
+
+      const client = createJWTAuthClient({ autoRefresh: true, refreshBuffer: 60 })
+      await client.login({ email: 'test@example.com', password: 'password' })
+
+      // An aborted request or a dropped connection arrives as a rejecting fetch
+      // with no HTTP status at all — it says nothing about the credential, so it
+      // must not sign the user out (the m159 class).
+      mockFetch.mockRejectedValue(new TypeError('Failed to fetch'))
+      await vi.advanceTimersByTimeAsync(120 * 1000)
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/auth/refresh'),
+        expect.any(Object),
+      )
+      expect(client.isAuthenticated()).toBe(true)
+      expect(client.getAccessToken()).toBe(accessToken)
+      expect(client.getUser()).toEqual(mockUser)
+    })
   })
 })
 

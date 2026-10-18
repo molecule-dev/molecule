@@ -63,6 +63,17 @@
  * plus its own listener set is a second session store, and it drifts from the
  * client's.
  *
+ * **Only a 401/403 ENDS a session; no response at all never does.** Every path that
+ * clears the stored session (`validateSession`, the cookie restore, the initial
+ * refresh, the background refresh timer) keys on the server REJECTING the
+ * credential. An aborted request, a dropped connection, or a 5xx arrives with no
+ * HTTP status (or `status: 0` from `@molecule/app-http`) and says nothing about the
+ * session: the token and user are kept and the state becomes `'unavailable'` so a
+ * later load or retry can restore it. An app's own code must use the same test —
+ * `isAuthFailure(err)` from `@molecule/app-http` (401/403 only) — never
+ * `err.status < 500`, which is true for an aborted navigation request and signs the
+ * user out on a route change.
+ *
  * **`autoRefresh` does nothing without a refresh token — and must never log the
  * user out.** The client schedules a refresh only when `refresh()` could actually
  * succeed, i.e. when a refresh token is stored. An API that issues none (the
