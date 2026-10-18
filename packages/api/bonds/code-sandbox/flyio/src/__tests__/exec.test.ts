@@ -49,6 +49,35 @@ function makeExec(handler: (script: string, call: number) => FlyExecResponse) {
   return { exec, calls }
 }
 
+/**
+ * Serves a detached run's spool files the way the Machine does: the sizes
+ * first, then the requested byte range of each spool, base64-encoded.
+ * @param files - The spool contents.
+ * @param truncateChars - Simulates the transport cutting a response: any
+ *   base64 longer than this comes back short (with exit code 0, as Fly does).
+ * @returns A handler for {@link makeExec}, or null for scripts it does not serve.
+ */
+function spoolHandler(
+  files: { stdout: string; stderr: string },
+  truncateChars = Number.POSITIVE_INFINITY,
+): (script: string) => FlyExecResponse | null {
+  const spools = {
+    out: Buffer.from(files.stdout, 'utf8'),
+    err: Buffer.from(files.stderr, 'utf8'),
+  }
+  return (script) => {
+    if (script.includes('stat -c %s') && script.includes('|| echo 0')) {
+      return { stdout: `${spools.out.length}\n${spools.err.length}\n`, exit_code: 0 }
+    }
+    const read = /tail -c \+(\d+) (\S+) 2>\/dev\/null \| head -c (\d+) \| base64 -w0/.exec(script)
+    if (!read) return null
+    const offset = Number(read[1]) - 1
+    const spool = read[2].endsWith('.err') ? spools.err : spools.out
+    const base64 = spool.subarray(offset, offset + Number(read[3])).toString('base64')
+    return { stdout: base64.slice(0, truncateChars), exit_code: 0 }
+  }
+}
+
 beforeEach(() => {
   vi.clearAllMocks()
 })
@@ -164,17 +193,18 @@ describe('execCommand — detached path (past Fly’s 60s exec ceiling)', () => 
   }
 
   it('launches detached, polls the status file, collects output and cleans up', async () => {
+    const spool = spoolHandler({
+      stdout: 'installed 42 packages\n',
+      stderr: 'warn: deprecated',
+    })
     const { result, calls } = await runDetached((script) => {
       if (script.includes('nohup')) return { stdout: 'abc', exit_code: 0 }
       if (script.startsWith('cat ')) return { stdout: '0\n', exit_code: 0 }
-      if (script.includes('head -c')) {
-        return { stdout: 'installed 42 packages\n__MOL_STDERR__\nwarn: deprecated', exit_code: 0 }
-      }
-      return { exit_code: 0 }
+      return spool(script) ?? { exit_code: 0 }
     })
 
     expect(result.exitCode).toBe(0)
-    expect(result.stdout).toBe('installed 42 packages')
+    expect(result.stdout).toBe('installed 42 packages\n')
     expect(result.stderr).toBe('warn: deprecated')
 
     const scripts = calls.map((call) => call.script)
@@ -198,10 +228,11 @@ describe('execCommand — detached path (past Fly’s 60s exec ceiling)', () => 
   })
 
   it('never sends the user command as an argument — it is delivered base64-encoded', async () => {
+    const spool = spoolHandler({ stdout: '', stderr: '' })
     const { calls } = await runDetached((script) => {
       if (script.includes('nohup')) return { stdout: 'abc', exit_code: 0 }
       if (script.startsWith('cat ')) return { stdout: '0', exit_code: 0 }
-      return { stdout: '\n__MOL_STDERR__\n', exit_code: 0 }
+      return spool(script) ?? { exit_code: 0 }
     })
     // No exec carries the raw command text.
     expect(calls.every((c) => !c.script.includes('npm install'))).toBe(true)
@@ -214,37 +245,40 @@ describe('execCommand — detached path (past Fly’s 60s exec ceiling)', () => 
   })
 
   it('parses the exit status written by the detached process', async () => {
+    const spool = spoolHandler({ stdout: 'out\n', stderr: 'err' })
     const { result } = await runDetached((script) => {
       if (script.includes('nohup')) return { stdout: 'abc', exit_code: 0 }
       if (script.startsWith('cat ')) return { stdout: '137\n', exit_code: 0 }
-      return { stdout: 'out\n__MOL_STDERR__\nerr', exit_code: 0 }
+      return spool(script) ?? { exit_code: 0 }
     })
     expect(result.exitCode).toBe(137)
   })
 
   it('keeps polling while the status file is empty', async () => {
     let polls = 0
+    const spool = spoolHandler({ stdout: 'done\n', stderr: '' })
     const { result } = await runDetached((script) => {
       if (script.includes('nohup')) return { stdout: 'abc', exit_code: 0 }
       if (script.startsWith('cat ')) {
         polls++
         return { stdout: polls < 3 ? '' : '0', exit_code: 0 }
       }
-      return { stdout: 'done\n__MOL_STDERR__\n', exit_code: 0 }
+      return spool(script) ?? { exit_code: 0 }
     })
     expect(polls).toBe(3)
     expect(result.exitCode).toBe(0)
   })
 
   it('reports an indeterminate exit code when the command outlives the budget', async () => {
+    const spool = spoolHandler({ stdout: 'partial\n', stderr: '' })
     const { result } = await runDetached((script) => {
       if (script.includes('nohup')) return { stdout: 'abc', exit_code: 0 }
       if (script.startsWith('cat ')) return { stdout: '', exit_code: 0 }
-      return { stdout: 'partial\n__MOL_STDERR__\n', exit_code: 0 }
+      return spool(script) ?? { exit_code: 0 }
     }, 10_000 * 6)
 
     expect(result.exitCode).toBe(INDETERMINATE_EXIT_CODE)
-    expect(result.stdout).toBe('partial')
+    expect(result.stdout).toBe('partial\n')
     expect(mockLogger.warn).toHaveBeenCalledWith(
       expect.stringContaining('still running'),
       expect.anything(),
@@ -252,10 +286,11 @@ describe('execCommand — detached path (past Fly’s 60s exec ceiling)', () => 
   })
 
   it('does not remove the scratch files when the command is still running', async () => {
+    const spool = spoolHandler({ stdout: '', stderr: '' })
     const { calls } = await runDetached((script) => {
       if (script.includes('nohup')) return { stdout: 'abc', exit_code: 0 }
       if (script.startsWith('cat ')) return { stdout: '', exit_code: 0 }
-      return { stdout: '\n__MOL_STDERR__\n', exit_code: 0 }
+      return spool(script) ?? { exit_code: 0 }
     }, 60_000)
     expect(calls.some((call) => call.script.startsWith('rm -f'))).toBe(false)
   })
@@ -305,15 +340,64 @@ describe('execCommand — detached path (past Fly’s 60s exec ceiling)', () => 
 
   it('still succeeds when cleanup fails — the command already completed', async () => {
     vi.useFakeTimers()
+    const spool = spoolHandler({ stdout: 'ok\n', stderr: '' })
     const { exec } = makeExec((script) => {
       if (script.includes('nohup')) return { stdout: 'abc', exit_code: 0 }
       if (script.startsWith('cat ')) return { stdout: '0', exit_code: 0 }
       if (script.startsWith('rm -f')) throw new Error('exec transport down')
-      return { stdout: 'ok\n__MOL_STDERR__\n', exit_code: 0 }
+      return spool(script) ?? { exit_code: 0 }
     })
     const promise = execCommand(exec, 'npm install', { timeout: 600_000 }, '/workspace')
     await vi.advanceTimersByTimeAsync(10_000)
-    await expect(promise).resolves.toMatchObject({ exitCode: 0, stdout: 'ok' })
+    await expect(promise).resolves.toMatchObject({ exitCode: 0, stdout: 'ok\n' })
     expect(mockLogger.debug).toHaveBeenCalled()
+  })
+
+  it('collects a large stdout in verified chunks instead of trusting one raw read', async () => {
+    // Fly answers a large exec response with TRUNCATED stdout and exit_code 0
+    // (production, 2026-10-18: one 512 KiB slice of a database read vanished).
+    // Here the transport cuts every response to 100,000 base64 characters; the
+    // 128 KiB chunks it receives are too big at first, so the collector must
+    // shrink them and still return the exact bytes.
+    const out = 'line\n'.repeat(60_000) // 300,000 bytes
+    const spool = spoolHandler({ stdout: out, stderr: '' }, 100_000)
+    const { result, calls } = await runDetached((script) => {
+      if (script.includes('nohup')) return { stdout: 'abc', exit_code: 0 }
+      if (script.startsWith('cat ')) return { stdout: '0', exit_code: 0 }
+      return spool(script) ?? { exit_code: 0 }
+    })
+
+    expect(result.stdout).toBe(out)
+    const chunkReads = calls.filter((call) => call.script.includes('tail -c +'))
+    expect(chunkReads.length).toBeGreaterThan(1)
+    expect(mockLogger.warn).toHaveBeenCalledWith(
+      expect.stringContaining('short output read'),
+      expect.anything(),
+    )
+  })
+
+  it('fails with the exact shortfall instead of returning shortened output, and keeps the spool', async () => {
+    const out = 'x'.repeat(300_000)
+    // No chunk size survives this transport: every response arrives with 750
+    // decoded bytes, so the collection must refuse instead of returning them.
+    const spool = spoolHandler({ stdout: out, stderr: '' }, 1_000)
+    vi.useFakeTimers()
+    const { exec, calls } = makeExec((script) => {
+      if (script.includes('nohup')) return { stdout: 'abc', exit_code: 0 }
+      if (script.startsWith('cat ')) return { stdout: '0', exit_code: 0 }
+      return spool(script) ?? { exit_code: 0 }
+    })
+    const promise = execCommand(exec, 'npm install', { timeout: 600_000 }, '/workspace')
+    // Attach the rejection handler BEFORE the timers run: the collection throws
+    // as soon as the status file is read, and a handler attached afterwards
+    // would surface as an unhandled rejection.
+    const settled = expect(promise).rejects.toThrow(
+      /returned 750 of 16384 bytes at offset 0 of .*transport/i,
+    )
+    await vi.advanceTimersByTimeAsync(10_000)
+    await settled
+    // The spool is the only copy of the output: a failed collection must not
+    // delete what it could not read.
+    expect(calls.some((call) => call.script.startsWith('rm -f'))).toBe(false)
   })
 })

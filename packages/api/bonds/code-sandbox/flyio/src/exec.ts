@@ -62,6 +62,27 @@ const DEFAULT_TIMEOUT_MS = 600_000
 export const MAX_CAPTURED_OUTPUT_BYTES = 5 * 1024 * 1024
 
 /**
+ * Decoded bytes read per exec call when collecting a detached command's output.
+ *
+ * Fly documents NO output ceiling for the Machines API: the exec response's
+ * `flydv1.ExecResponse` schema types `stdout` and `stderr` as plain,
+ * unconstrained strings (https://docs.machines.dev/openapi.json). The live API
+ * still returns SHORT output with `exit_code: 0` once a response is large —
+ * measured 2026-10-18 in production (X1 flash-m175): one read of a
+ * 1,421,432-byte database file came back 897,144 bytes long, exactly one
+ * 512 KiB slice missing, with no error at all. So the collector asks for no
+ * more than this per response and checks every response's decoded length
+ * against what it asked for, shrinking the request when the transport cuts it.
+ */
+const COLLECT_CHUNK_BYTES = 128 * 1024
+
+/** Smallest chunk a shortened response is re-read with, before giving up. */
+const MIN_COLLECT_CHUNK_BYTES = 16 * 1024
+
+/** Read attempts per chunk before the collection is reported as truncated. */
+const COLLECT_ATTEMPTS = 4
+
+/**
  * Base64 chunk size for spilling a large script to a file, comfortably under
  * {@link FLY_EXEC_MAX_ARG_BYTES} once the `printf … | base64 -d` wrapper is added.
  */
@@ -236,6 +257,118 @@ export async function execCommand(
 }
 
 /**
+ * Sizes of a detached run's two output spool files, in bytes. A file the
+ * command never created reads as 0.
+ * @param rawExec - Transport callback issuing one Fly exec call.
+ * @param outPath - Absolute path of the stdout spool.
+ * @param errPath - Absolute path of the stderr spool.
+ * @returns Both byte counts.
+ * @throws {Error} When the sizes cannot be read at all.
+ */
+async function spoolSizes(
+  rawExec: RawExec,
+  outPath: string,
+  errPath: string,
+): Promise<{ stdout: number; stderr: number }> {
+  const sizes = toExecResult(
+    await rawExec(
+      [
+        'sh',
+        '-c',
+        `stat -c %s ${outPath} 2>/dev/null || echo 0; stat -c %s ${errPath} 2>/dev/null || echo 0`,
+      ],
+      CONTROL_EXEC_TIMEOUT_SECONDS,
+    ),
+  )
+  if (sizes.exitCode !== 0) {
+    throw new Error(
+      `Failed to inspect the detached command's output files: ${sizes.stderr || sizes.stdout}`,
+    )
+  }
+  const [out, err] = sizes.stdout
+    .trim()
+    .split('\n')
+    .map((value) => Number(value.trim()))
+  return {
+    stdout: Number.isFinite(out) ? out : 0,
+    stderr: Number.isFinite(err) ? err : 0,
+  }
+}
+
+/**
+ * Reads `size` bytes of a spool file back through exec in LENGTH-CHECKED
+ * chunks, shrinking the chunk whenever a response comes back short.
+ *
+ * One raw `head -c 5 MiB` of the spool is the shape that lost a whole slice of
+ * a database in production (see {@link COLLECT_CHUNK_BYTES}): Fly truncated
+ * the response and still reported success. Every chunk here is verified against
+ * the number of bytes asked for, retried at half the size when it is short (a
+ * truncating transport cuts at a response size, so a smaller request survives
+ * it), and a chunk that will not arrive whole fails the collection by name
+ * instead of returning silently shortened output.
+ *
+ * The bytes are base64-encoded on the Machine and decoded here as BYTES, so a
+ * chunk boundary falling inside a multi-byte UTF-8 character cannot corrupt it.
+ * @param rawExec - Transport callback issuing one Fly exec call.
+ * @param path - Absolute path of the spool file.
+ * @param size - Bytes to collect (already capped by the caller).
+ * @returns The collected text.
+ * @throws {Error} When a chunk cannot be read whole from the transport.
+ */
+async function collectSpool(rawExec: RawExec, path: string, size: number): Promise<string> {
+  const parts: Buffer[] = []
+  let chunkBytes = COLLECT_CHUNK_BYTES
+  for (let offset = 0; offset < size;) {
+    let received: Buffer | null = null
+    let want = 0
+    let receivedBytes = 0
+    for (let attempt = 1; attempt <= COLLECT_ATTEMPTS; attempt++) {
+      want = Math.min(chunkBytes, size - offset)
+      const read = toExecResult(
+        await rawExec(
+          ['sh', '-c', `tail -c +${offset + 1} ${path} 2>/dev/null | head -c ${want} | base64 -w0`],
+          CONTROL_EXEC_TIMEOUT_SECONDS,
+        ),
+      )
+      if (read.exitCode !== 0) {
+        throw new Error(
+          `Failed to read the detached command's output back: ${read.stderr || read.stdout}`,
+        )
+      }
+      const decoded = Buffer.from(read.stdout.trim(), 'base64')
+      receivedBytes = decoded.length
+      if (decoded.length === want) {
+        received = decoded
+        break
+      }
+      // Short: the transport cut this response. Ask for less, so the next
+      // attempt fits under whatever its ceiling turns out to be.
+      const nextChunkBytes = Math.max(MIN_COLLECT_CHUNK_BYTES, Math.floor(want / 2))
+      logger.warn('Fly returned a short output read; retrying in a smaller chunk', {
+        path,
+        offset,
+        want,
+        received: decoded.length,
+        nextChunkBytes,
+        attempt,
+      })
+      chunkBytes = nextChunkBytes
+    }
+    if (received === null) {
+      throw new Error(
+        `The detached command's output could not be collected: the Fly exec transport ` +
+          `returned ${receivedBytes} of ${want} bytes at offset ${offset} of ${path}, over ` +
+          `${COLLECT_ATTEMPTS} reads with the chunk shrunk to ${chunkBytes} bytes. The command ` +
+          'itself finished; this is an output-collection (transport) failure — run it again.',
+      )
+    }
+    parts.push(received)
+    offset += want
+  }
+  return Buffer.concat(parts).toString('utf8')
+}
+
+/**
  * Runs a script detached inside the Machine and polls for its completion.
  *
  * The script is delivered base64-encoded so that no amount of quoting in the
@@ -302,20 +435,20 @@ async function execDetached(
     }
   }
 
-  const collect = toExecResult(
-    await rawExec(
-      [
-        'sh',
-        '-c',
-        `head -c ${MAX_CAPTURED_OUTPUT_BYTES} ${outPath} 2>/dev/null; printf '\\n__MOL_STDERR__\\n'; head -c ${MAX_CAPTURED_OUTPUT_BYTES} ${errPath} 2>/dev/null`,
-      ],
-      CONTROL_EXEC_TIMEOUT_SECONDS,
-    ),
+  // Collect the spools in length-checked chunks BEFORE any cleanup: a single
+  // raw read of a large stdout is exactly what came back shortened (exit 0)
+  // in production, and the spool is the only copy there is.
+  const sizes = await spoolSizes(rawExec, outPath, errPath)
+  const stdout = await collectSpool(
+    rawExec,
+    outPath,
+    Math.min(sizes.stdout, MAX_CAPTURED_OUTPUT_BYTES),
   )
-  const separator = collect.stdout.indexOf('\n__MOL_STDERR__\n')
-  const stdout = separator === -1 ? collect.stdout : collect.stdout.slice(0, separator)
-  const stderr =
-    separator === -1 ? '' : collect.stdout.slice(separator + '\n__MOL_STDERR__\n'.length)
+  const stderr = await collectSpool(
+    rawExec,
+    errPath,
+    Math.min(sizes.stderr, MAX_CAPTURED_OUTPUT_BYTES),
+  )
 
   if (rc === null) {
     // Still running at the deadline. The bookkeeping files are deliberately NOT
