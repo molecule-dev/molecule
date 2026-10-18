@@ -3148,3 +3148,150 @@ describe('traceArtifactsScript — a form field submitted empty after the test t
     expect(note).not.toContain("the form's state was reset after typing")
   })
 })
+
+/**
+ * A trace.zip reproducing xr-molecule-flash-m181's follow test: the page sent
+ * `POST /api/profiles/<user>/follow` and the API answered `{"following":true}`, then the test
+ * navigated to the profile and the page's `GET /api/profiles/<user>` answered
+ * `{"following":false}`. The run read the pair as a client race and rewrote the profile
+ * component twice and the API client once; the write was fine and the read route never saw the
+ * viewer.
+ *
+ * The run's transcript recorded the probe's exact exchange (both bodies); the trace.zip itself
+ * lived in the sandbox and was not downloaded, so this fixture rebuilds those recorded facts.
+ *
+ * @param options - `readFollowing` is what the later GET answers; `readBeforeWrite` puts the GET
+ *   before the write (the state the test saw when it arrived on the page).
+ * @returns The zip.
+ */
+function followReadContradictionZip(options: {
+  readFollowing?: boolean
+  readBeforeWrite?: boolean
+  scenario?: 'follow' | 'favorite'
+}): Buffer {
+  const origin = 'https://loopcheck-xr-m181.apps.mlcl.dev'
+  const follow = options.scenario !== 'favorite'
+  const resource = follow ? '/api/profiles/user1792352215495' : '/api/articles/some-slug'
+  const writePath = follow ? `${resource}/follow` : `${resource}/favorite`
+  const entity = follow ? 'profile' : 'article'
+  const field = follow ? 'following' : 'favorited'
+  const body = (value: boolean): string =>
+    JSON.stringify({ [entity]: { slug: 'some-slug', [field]: value } })
+  const readAt = options.readBeforeWrite ? 130 : 430
+  const writeAt = 200
+  const network = [
+    {
+      type: 'resource-snapshot',
+      snapshot: {
+        _resourceType: 'document',
+        _monotonicTime: 50,
+        request: { url: `${origin}/profile/user1792352215495`, method: 'GET' },
+        response: { status: 200 },
+      },
+    },
+    {
+      type: 'resource-snapshot',
+      snapshot: {
+        _resourceType: 'fetch',
+        _monotonicTime: readAt,
+        request: { url: `${origin}${resource}`, method: 'GET', headers: [] },
+        response: { status: 200, content: { text: body(false) } },
+      },
+    },
+    {
+      type: 'resource-snapshot',
+      snapshot: {
+        _resourceType: 'fetch',
+        _monotonicTime: writeAt,
+        request: { url: `${origin}${writePath}`, method: 'POST', headers: [] },
+        response: { status: 200, content: { text: body(true) } },
+      },
+    },
+    // The page after the navigation: the same read the write contradicted.
+    ...(options.readBeforeWrite
+      ? []
+      : [
+          {
+            type: 'resource-snapshot',
+            snapshot: {
+              _resourceType: 'fetch',
+              _monotonicTime: 420,
+              request: { url: `${origin}${resource}`, method: 'GET', headers: [] },
+              response: {
+                status: 200,
+                content: { text: body(options.readFollowing === true) },
+              },
+            },
+          },
+        ]),
+  ]
+  const stack = [{ file: 'e2e/social.spec.ts', line: 22 }]
+  const trace = [
+    {
+      type: 'before',
+      class: 'Frame',
+      method: 'click',
+      callId: 'call-click',
+      startTime: 180,
+      stack,
+    },
+    { type: 'after', callId: 'call-click', endTime: 210 },
+    { type: 'before', class: 'Frame', method: 'goto', callId: 'call-goto', startTime: 400, stack },
+  ]
+  const lines = (rows: unknown[]): string => rows.map((row) => JSON.stringify(row)).join('\n')
+  return storedZip({ 'trace.trace': lines(trace), 'trace.network': lines(network) })
+}
+
+/** The note and parsed items for one synthetic read-contradiction trace. */
+function readContradictionNote(options: Parameters<typeof followReadContradictionZip>[0]): {
+  note: string
+  items: TraceArtifact[]
+} {
+  const root = stalledRun(followReadContradictionZip(options))
+  try {
+    const items = parseTraceArtifacts(readTraces(root))
+    return {
+      items,
+      note: String(failureTraceNote(items, 'https://loopcheck-xr-m181.apps.mlcl.dev')),
+    }
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+}
+
+describe('traceArtifactsScript — a read that contradicts the write (m181)', () => {
+  it('leads with the write’s answer and the later GET’s opposite one', () => {
+    const { note, items } = readContradictionNote({ readFollowing: false })
+    expect(items[0]?.readContradiction).toMatchObject({
+      field: 'following',
+      writeValue: true,
+      readValue: false,
+    })
+    expect(note.split('\n')[0]).toBe(
+      'The server answered `following`: true to POST /api/profiles/user1792352215495/follow ' +
+        'and `following`: false to GET /api/profiles/user1792352215495 — the read route does not ' +
+        'see the viewer (a missing auth/optional-auth middleware on that route, or a different ' +
+        "user); check the route's middleware, not the page.",
+    )
+  })
+
+  it('says nothing when the later GET agrees with the write', () => {
+    const { note, items } = readContradictionNote({ readFollowing: true })
+    expect(items[0]?.readContradiction).toBeUndefined()
+    expect(note).not.toContain('the read route does not see the viewer')
+  })
+
+  it('says nothing when the only GET of the resource came before the write', () => {
+    const { note, items } = readContradictionNote({ readFollowing: false, readBeforeWrite: true })
+    expect(items[0]?.readContradiction).toBeUndefined()
+    expect(note).not.toContain('the read route does not see the viewer')
+  })
+
+  it('reads any boolean field the two answers share (`favorited`)', () => {
+    const { note } = readContradictionNote({ scenario: 'favorite' })
+    expect(note.split('\n')[0]).toContain(
+      'The server answered `favorited`: true to POST /api/articles/some-slug/favorite and',
+    )
+    expect(note.split('\n')[0]).toContain('`favorited`: false to GET /api/articles/some-slug')
+  })
+})

@@ -199,6 +199,30 @@ export interface TraceMissingText {
   path: string
 }
 
+/**
+ * A write the trace recorded answering a boolean field, and a LATER GET of the same resource
+ * answering the opposite for that field.
+ *
+ * This is the pair that reads as a frontend race and is not one: xr-molecule-flash-m181's follow
+ * test sent `POST /api/profiles/:username/follow` and the API answered
+ * `{"profile":{…,"following":true}}`, then a `GET /api/profiles/:username` answered
+ * `{"profile":{…,"following":false}}` — the READ route never saw the viewer, so it hydrated
+ * `following` from nobody. The run rewrote the profile component twice, the API client once, and
+ * added optimistic state before anyone read the route's middleware; the write itself was fine.
+ */
+export interface TraceReadContradiction {
+  /** The boolean field both answered (`following`, `favorited`). */
+  field: string
+  /** What the write's response said it is. */
+  writeValue: boolean
+  /** What the later read's response said it is. */
+  readValue: boolean
+  /** The write that answered it (`POST /api/profiles/x/follow`). */
+  write: TraceRequest
+  /** The later GET of the same resource (`GET /api/profiles/x`). */
+  read: TraceRequest
+}
+
 /** What one trace says: the test it belongs to, the requests it made, and its console lines. */
 export interface TraceArtifact {
   /** The failure's spec file, relative to the run's directory, when the trace names one. */
@@ -275,6 +299,15 @@ export interface TraceArtifact {
    * read before this field existed.
    */
   missingText?: TraceMissingText
+  /**
+   * A write's answer a later GET of the same resource contradicted — the read route does not see
+   * the viewer (xr-molecule-flash-m181's `following`). The note leads with it and sends the run at
+   * the route's middleware, not the page's state handling.
+   *
+   * Absent when no write and later read in the trace answered the same boolean field differently,
+   * and on traces read before this field existed.
+   */
+  readContradiction?: TraceReadContradiction
 }
 
 /** How many traces one read reports, newest first. */
@@ -544,6 +577,40 @@ function gotText(buf, entries, r) {
   if (r.type !== 'websocket') return bodyText(buf, entries, r.content, MAX_BODY)
   const raw = bodyText(buf, entries, r.content, 8000)
   return (websocketText(raw) || raw).slice(0, MAX_WS)
+}
+
+// The boolean-valued fields a response body carries, however deeply its entity is wrapped
+// ({"profile":{…,"following":true}}) — what a read of the same field can contradict.
+// A body that does not parse (the trace read bounds what it keeps) names no field.
+function booleanFieldsOf(text) {
+  let parsed
+  try { parsed = JSON.parse(text) } catch (e) { return null }
+  const out = {}
+  function walk(value, depth) {
+    if (depth > 4 || value === null || typeof value !== 'object') return
+    if (Array.isArray(value)) {
+      for (let i = 0; i < value.length; i++) walk(value[i], depth + 1)
+      return
+    }
+    for (const key of Object.keys(value)) {
+      const item = value[key]
+      if (typeof item === 'boolean') {
+        if (!Object.prototype.hasOwnProperty.call(out, key)) out[key] = item
+      } else walk(item, depth + 1)
+    }
+  }
+  walk(parsed, 0)
+  return Object.keys(out).length > 0 ? out : null
+}
+
+// The resource a write acts on: its last path segment is the action (follow, favorite), so
+// /api/profiles/alice/follow is the resource a GET /api/profiles/alice reads.
+function resourceBaseOf(path) {
+  const clean = String(path).split(/[?#]/)[0]
+  const parts = clean.split('/').filter(function (segment) { return segment !== '' })
+  if (parts.length === 0) return clean
+  parts.pop()
+  return '/' + parts.join('/')
 }
 
 let origin = ''
@@ -1091,6 +1158,66 @@ for (const one of found.slice(0, MAX_TRACES)) {
       if (got) lead.got = got
     }
   }
+  // A write that answered a boolean field and a LATER GET of the same resource that answered the
+  // opposite — the read route never saw the viewer (m181's follow: the write answered
+  // {"following":true}, the next profile GET answered false). Both bodies are the trace's own
+  // facts; the note leads with them and sends the run to the route's middleware, not the page.
+  function readContradictionOf() {
+    const writes = []
+    for (let i = 0; i < requests.length; i++) {
+      const r = requests[i]
+      if (!/^(?:POST|PUT|PATCH|DELETE)$/.test(r.method)) continue
+      if (r.status < 200 || r.status >= 300) continue
+      if (r.type !== 'fetch' && r.type !== 'xhr') continue
+      writes.push({ index: i, request: r })
+    }
+    for (let w = 0; w < writes.length; w++) {
+      const write = writes[w].request
+      const writeGot = gotText(buf, entries, write)
+      const writeFields = writeGot ? booleanFieldsOf(writeGot) : null
+      if (!writeFields) continue
+      const base = resourceBaseOf(write.path)
+      let read = null
+      let readFields = null
+      for (let j = writes[w].index + 1; j < requests.length; j++) {
+        const candidate = requests[j]
+        if (candidate.method !== 'GET') continue
+        if (candidate.status < 200 || candidate.status >= 300) continue
+        if (candidate.type !== 'fetch' && candidate.type !== 'xhr') continue
+        // The same page only: another context's read is not this page's answer.
+        if (candidate.pageId !== undefined && write.pageId !== undefined &&
+          candidate.pageId !== write.pageId) continue
+        if (candidate.context !== undefined && write.context !== undefined &&
+          candidate.context !== write.context) continue
+        // LATER, on the trace's own clock when it recorded one.
+        if (typeof candidate.startedAt === 'number' && typeof write.startedAt === 'number' &&
+          candidate.startedAt <= write.startedAt) continue
+        if (String(candidate.path).split(/[?#]/)[0] !== base) continue
+        const got = gotText(buf, entries, candidate)
+        const fields = got ? booleanFieldsOf(got) : null
+        if (!fields) continue
+        read = candidate
+        readFields = fields
+        break
+      }
+      if (read === null || readFields === null) continue
+      for (const key of Object.keys(writeFields)) {
+        if (!Object.prototype.hasOwnProperty.call(readFields, key)) continue
+        if (readFields[key] === writeFields[key]) continue
+        write.got = writeGot
+        read.got = gotText(buf, entries, read)
+        return {
+          field: key,
+          writeValue: writeFields[key],
+          readValue: readFields[key],
+          write: wire(write),
+          read: wire(read),
+        }
+      }
+    }
+    return null
+  }
+  const readContradiction = readContradictionOf()
   const failing = []
   const api = []
   const pending = []
@@ -1196,6 +1323,7 @@ for (const one of found.slice(0, MAX_TRACES)) {
     // plus the answered ones (xr-molecule-flash-m112's note listed only -1s and 200s).
     requests: chosen.slice(0, MAX_REQUESTS),
     ...(missingText === null ? {} : { missingText: missingText }),
+    ...(readContradiction === null ? {} : { readContradiction: readContradiction }),
     console: keptConsole.slice(0, MAX_CONSOLE).map(function (text) { return text.slice(0, 300) }),
     actions: actions.slice(-MAX_ACTIONS),
     ...(unattributed ? { unattributed: true } : {}),
@@ -1249,6 +1377,26 @@ function parseMissingText(value: unknown): TraceMissingText | null {
 }
 
 /**
+ * One `readContradiction` out of a `TRACE` line's json, or null when the value is not one.
+ *
+ * Both requests must parse and the two values must be booleans: a partial fact never becomes a
+ * claim about the route.
+ *
+ * @param value - The line's `readContradiction`.
+ * @returns The write, the later read and the field they disagree on, or null.
+ */
+function parseReadContradiction(value: unknown): TraceReadContradiction | null {
+  if (typeof value !== 'object' || value === null) return null
+  const raw = value as Record<string, unknown>
+  if (typeof raw.field !== 'string' || raw.field === '') return null
+  if (typeof raw.writeValue !== 'boolean' || typeof raw.readValue !== 'boolean') return null
+  const write = parseTraceRequest(raw.write)
+  const read = parseTraceRequest(raw.read)
+  if (write === null || read === null) return null
+  return { field: raw.field, writeValue: raw.writeValue, readValue: raw.readValue, write, read }
+}
+
+/**
  * One `lastAction` out of a `TRACE` line's json, or null when the value is not one.
  *
  * @param value - The line's `lastAction`.
@@ -1292,6 +1440,7 @@ export function parseTraceArtifacts(stdout: string): TraceArtifact[] {
       const lead = parseTraceRequest(raw.lead)
       const lastAction = parseLastAction(raw.lastAction)
       const missingText = parseMissingText(raw.missingText)
+      const readContradiction = parseReadContradiction(raw.readContradiction)
       const otherContexts = Array.isArray(raw.otherContexts)
         ? raw.otherContexts
             .filter((c): c is Record<string, unknown> => typeof c === 'object' && c !== null)
@@ -1328,6 +1477,7 @@ export function parseTraceArtifacts(stdout: string): TraceArtifact[] {
         ...(otherContexts.length === 0 ? {} : { otherContexts }),
         ...(raw.unattributed === true ? { unattributed: true as const } : {}),
         ...(missingText === null ? {} : { missingText }),
+        ...(readContradiction === null ? {} : { readContradiction }),
       })
     } catch (_error) {
       continue
@@ -2578,6 +2728,27 @@ function formResetSentence(reset: FormResetEvidence): string {
 }
 
 /**
+ * The sentence for a write whose answer a later GET of the same resource contradicted.
+ *
+ * It states the two recorded facts and the one inference they support — the read route never saw
+ * the viewer — then the place to look: the route's middleware, not the page. It names both
+ * possibilities the trace cannot separate (a missing auth/optional-auth middleware on that route,
+ * or a different user), so the run checks the route instead of rewriting the component.
+ *
+ * @param contradiction - The write's answer and the later read's opposite one.
+ * @returns The sentence the note leads with.
+ */
+function readContradictionSentence(contradiction: TraceReadContradiction): string {
+  return (
+    `The server answered \`${contradiction.field}\`: ${contradiction.writeValue} to ` +
+    `${requestLabel(contradiction.write)} and \`${contradiction.field}\`: ` +
+    `${contradiction.readValue} to ${requestLabel(contradiction.read)} — the read route does not ` +
+    `see the viewer (a missing auth/optional-auth middleware on that route, or a different user); ` +
+    `check the route's middleware, not the page.`
+  )
+}
+
+/**
  * Chromium's webfont decode failure: the URL it fetched, and OTS's reason.
  *
  * A page that serves its SPA fallback for a missing `.woff` produces exactly this line — the
@@ -2677,6 +2848,12 @@ function consoleLine(text: string): string {
  * fix at the source (seed the form once). xr-molecule-flash-m173 lost a deploy-and-walk cycle to
  * this on the deployed URL only, where the background session verification lands later than it
  * does locally.
+ *
+ * A write whose response said a boolean field is true and a LATER GET of the same resource that
+ * said it is false leads the note first ({@link readContradictionSentence}): the read route never
+ * saw the viewer, so the fix is on that route's middleware, not in the page. xr-molecule-flash-m181
+ * spent ~8 minutes rewriting the profile component over exactly that pair — the write answered
+ * `{"following":true}` and the next profile GET answered `false`.
  *
  * WHICH rows it spends is evidence, not artifact order (xr-molecule-flash-m112 +53:46): a row
  * needs a recorded response, a real failure or a console line ({@link traceRowEvidence}), rows are
@@ -3088,6 +3265,27 @@ export function failureTraceNote(
     missingTexts.length === 0
       ? ''
       : `${missingTexts.slice(0, 2).map(missingTextSentence).join(' ')}\n\n`
+  // A write whose answer a later GET of the same resource contradicted: the read route does not
+  // see the viewer (m181's `following` — the write answered true, the next profile GET answered
+  // false). It reads as a frontend race and is not one, so it leads the note before any row and
+  // before the form-reset reading.
+  const readContradictions = [
+    ...new Map(
+      traced
+        .filter((item) => item.readContradiction !== undefined)
+        .map((item) => {
+          const contradiction = item.readContradiction as TraceReadContradiction
+          return [
+            `${contradiction.field}\u0000${contradiction.write.method} ${contradiction.write.path}`,
+            contradiction,
+          ] as const
+        }),
+    ).values(),
+  ]
+  const readContradictionLead =
+    readContradictions.length === 0
+      ? ''
+      : `${readContradictions.slice(0, 2).map(readContradictionSentence).join(' ')}\n\n`
   // A field the test typed and the page submitted empty: the form re-seeded itself after the
   // typing (m173's Settings race — the deployed URL lands the background session verification
   // later than a local run, and its new user object re-ran the form's seeding effect between the
@@ -3106,6 +3304,7 @@ export function failureTraceNote(
   const formResetLead =
     formResets.length === 0 ? '' : `${formResets.slice(0, 2).map(formResetSentence).join(' ')}\n\n`
   return (
+    readContradictionLead +
     formResetLead +
     missingTextLead +
     transportLead +
