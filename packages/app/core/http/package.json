@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-http",
-  "version": "1.2.1",
+  "version": "1.3.0",
   "description": "Client HTTP interface for molecule.dev",
   "type": "module",
   "main": "dist/index.js",

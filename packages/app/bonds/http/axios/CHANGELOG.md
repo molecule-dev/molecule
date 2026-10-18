@@ -1,5 +1,11 @@
 # @molecule/app-http-axios
 
+## 1.0.6
+
+### Patch Changes
+
+- 14b8cb5: A cancelled request (`ERR_CANCELED`) is flagged `aborted` with the `http.error.aborted` key, matching the fetch provider.
+
 ## 1.0.5
 
 ### Patch Changes

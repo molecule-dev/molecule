@@ -1,5 +1,12 @@
 # @molecule/api-ai-tools
 
+## 1.10.1
+
+### Patch Changes
+
+- c4f753d: `search_files` accepts one brace group of comma-separated alternatives in `include` (e.g. `*.{ts,tsx,yml,json,md}`), passing one `--include` per extension.
+- bb0914f: `write_file` no longer re-reads a file it just wrote unless an after-write hook may have rewritten it — one fewer sandbox round trip per write, with the same excerpt and line count.
+
 ## 1.10.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # @molecule/app-http
 
+## 1.3.0
+
+### Minor Changes
+
+- 14b8cb5: An aborted request is now distinguishable without parsing its message: `HttpError` carries `aborted`, uses the `http.error.aborted` key, and `isAuthFailure`/`isNoResponse` classify a failure correctly (a status of 0 is never an auth failure).
+
 ## 1.2.1
 
 ### Patch Changes
