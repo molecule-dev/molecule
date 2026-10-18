@@ -65,6 +65,41 @@ export interface TraceRequest {
    * `net::ERR_*`, nothing rendered and no selector or app request was measured.
    */
   type?: string
+  /**
+   * When the request started, on the trace's own monotonic clock (ms) — the same clock the
+   * {@link TraceAction}s carry, so a request can be attributed to the action that caused it.
+   * Absent on traces whose network entries recorded no clock (an older Playwright, a synthetic
+   * fixture), in which case only recording order is available.
+   */
+  startedAt?: number
+}
+
+/**
+ * The test's LAST user action before the failing assertion, and the requests it caused.
+ *
+ * An assertion after a navigation is not explained by the page's last call (`GET /api/tags` on
+ * whatever page the app redirected to); it is explained by what the action the test took sent and
+ * what came back (xr-molecule-flash-m148: 13 then 12 failing tests, every trace row leading with
+ * `GET /api/tags → 200`, while the register `POST /api/users` and its answer — the fact that
+ * explains the signed-out page — was never shown).
+ */
+export interface TraceLastAction {
+  /** The Playwright API the trace names: `Locator.click`, `Locator.fill`, `Frame.goto`. */
+  api: string
+  /** When the action started, on the trace's monotonic clock (ms). */
+  start: number
+  /** When it finished, or null when the run ended before it did. */
+  end: number | null
+  /**
+   * The requests the action caused — started after it and before the failing assertion, the app's
+   * own API calls first, static assets and the page shell's own files left out. Empty when the
+   * action sent none.
+   */
+  requests: TraceRequest[]
+  /** The main frame's URL when the action ran, when the trace recorded frame snapshots. */
+  pageBefore?: string
+  /** The last main-frame URL the trace recorded — where the page ended up. */
+  pageAfter?: string
 }
 
 /** One action the traced page performed, with the trace's own timing for it. */
@@ -86,17 +121,27 @@ export interface TraceArtifact {
   /** The requests the page made, the interesting ones first ({@link traceArtifactsScript}). */
   requests: TraceRequest[]
   /**
-   * The request the failing step itself sent: the trace's LAST `fetch`/`xhr` in recording order
-   * (a click's own call), else its document request. It leads the note's row, because a click that
-   * changed nothing is explained by the request the click sent and what came back — xr-molecule-
-   * flash-m135's Follow click sent `DELETE /api/profiles/x/follow → 200` (its `following` state was
-   * stale) and the note listed only the test's earlier, answered requests.
+   * The request the failing step itself sent: the first answered request the test's last user
+   * action caused ({@link TraceArtifact.lastAction}), else — on a trace with no action clock — the
+   * trace's LAST `fetch`/`xhr` in recording order, else its document. It leads the note's row when
+   * {@link lastAction} is absent, because a click that changed nothing is explained by the request
+   * the click sent and what came back — xr-molecule-flash-m135's Follow click sent
+   * `DELETE /api/profiles/x/follow → 200` (its `following` state was stale) and the note listed only
+   * the test's earlier, answered requests.
    *
    * Absent when the trace recorded neither, and on traces read before this field existed.
    */
   lead?: TraceRequest
   /** The console errors and page errors the page raised. */
   console: string[]
+  /**
+   * The test's LAST user action before the failing assertion and the requests it caused — what the
+   * row leads with, when the trace carries the action times ({@link TraceLastAction}).
+   *
+   * Absent on traces read before this field existed, and on traces whose network entries recorded
+   * no clock; the row then falls back to {@link lead}.
+   */
+  lastAction?: TraceLastAction
   /**
    * The page's own actions in the order the trace recorded them, bounded — what a test that ran
    * out of a per-test budget spends its time on. A test that repeats one action prints it once per
@@ -178,6 +223,7 @@ const zlib = require('node:zlib')
 const ROOT = process.argv[2] || '/workspace'
 const MAX_TRACES = ${MAX_TRACE_ARTIFACTS}
 const MAX_REQUESTS = ${MAX_TRACED_REQUESTS}
+const MAX_NOTE = ${MAX_TRACE_NOTE_REQUESTS}
 const MAX_CONSOLE = ${MAX_TRACED_CONSOLE}
 const MAX_ACTIONS = ${MAX_TRACED_ACTIONS}
 const MAX_BODY = ${MAX_TRACED_BODY_CHARS}
@@ -319,6 +365,9 @@ for (const one of found.slice(0, MAX_TRACES)) {
       status: Number(response.status) || 0,
       failure: typeof response._failureText === 'string' ? response._failureText : undefined,
       type: type,
+      // The HAR entry carries the monotonic clock the trace's action entries use, so a request
+      // can be attributed to the action that caused it (see \`lastAction\` below).
+      startedAt: typeof snapshot._monotonicTime === 'number' ? snapshot._monotonicTime : undefined,
       postData: request.postData,
       content: response.content,
     })
@@ -328,16 +377,6 @@ for (const one of found.slice(0, MAX_TRACES)) {
     origin = first ? originOf(first.path) : ''
   }
   for (const r of requests) r.path = pathOf(r.path).slice(0, MAX_URL)
-  // A 4xx from the app's own API is where a body SHAPE is diagnosed: keep what the page sent and
-  // what came back (bounded). A relative path here means the same origin as the traced document.
-  for (const r of requests) {
-    if (r.status < 400 || r.status >= 500) continue
-    if (/^https?:/i.test(r.path)) continue
-    const sent = bodyText(buf, entries, r.postData, MAX_BODY)
-    const got = bodyText(buf, entries, r.content, MAX_BODY)
-    if (sent) r.sent = sent
-    if (got) r.got = got
-  }
   // The page's own actions, timed. before/after pair on the call id, and only the LIBRARY
   // traces carry a class and a method (Frame.goto, Locator.fill); the test runner's own
   // trace times its hooks and fixtures with class Test, which is not a page action. Read BEFORE
@@ -371,20 +410,36 @@ for (const one of found.slice(0, MAX_TRACES)) {
   // model to write a caching service worker into the app). A document's OWN stylesheet or
   // script is not shell noise: the navigation blocks on it.
   const SHELL_TYPE = { font: 1, image: 1, stylesheet: 1, script: 1, manifest: 1 }
+  // The PWA worker's own hashed script (\`/workbox-d8ed3718.js\`), the manifest's touch icons
+  // (\`/icons/splash-*.svg\`), the favicons and fonts: the shell's files. They are typed \`other\` or
+  // \`fetch\` by the worker and the shell rather than \`script\`/\`image\`, so the type alone never
+  // caught them — on xr-molecule-flash-m148 they took three of the note's four slots on every
+  // failing test and pushed the register \`POST /api/users\` out.
   function shellPath(path) {
-    return /^\\/(?:sw|service-worker)\\.js(?:[?#]|$)|\\/manifest\\.webmanifest(?:[?#]|$)|\\/favicon[^/]*(?:[?#]|$)|\\/fonts?\\//.test(path) ||
-      /^\\/(?:assets|@vite|__mol)\\//.test(path)
+    var p = path
+    try { p = new URL(path, 'http://trace.local').pathname } catch (e) { p = String(path).split(/[?#]/)[0] }
+    return /^\\/(?:sw|service-worker)\\.js(?:[?#]|$)|\\/manifest\\.webmanifest(?:[?#]|$)|\\/favicon[^/]*(?:[?#]|$)|\\/fonts?\\//.test(p) ||
+      /^\\/(?:assets|@vite|__mol)\\//.test(p) ||
+      /^\\/workbox-[^/]*\\.js(?:[?#]|$)/.test(p) ||
+      /^\\/icons\\//.test(p) ||
+      /^\\/(?:apple-touch-icon|og-image|splash)[^/]*(?:[?#]|$)/.test(p)
   }
   function shellRequest(r) {
     if (r.type === 'document') return false
     return SHELL_TYPE[r.type] === 1 || shellPath(r.path)
   }
   // The shell requests that stay noise even when they never finished: the PWA worker, the
-  // manifest, a favicon, a font. A pending \`/assets/*.css\` is the document's dependency.
+  // manifest, a favicon, a font, the worker's own script and the manifest's icons. A pending
+  // \`/assets/*.css\` is NOT one of these — the navigation blocks on it (m135).
   function incidentalShell(r) {
     if (r.type === 'document') return false
-    return r.type === 'font' || r.type === 'manifest' ||
-      /^\\/(?:sw|service-worker)\\.js(?:[?#]|$)|\\/manifest\\.webmanifest(?:[?#]|$)|\\/favicon[^/]*(?:[?#]|$)|\\/fonts?\\//.test(r.path)
+    if (r.type === 'font' || r.type === 'manifest') return true
+    var p = r.path
+    try { p = new URL(r.path, 'http://trace.local').pathname } catch (e) { p = String(r.path).split(/[?#]/)[0] }
+    return /^\\/(?:sw|service-worker)\\.js(?:[?#]|$)|\\/manifest\\.webmanifest(?:[?#]|$)|\\/favicon[^/]*(?:[?#]|$)|\\/fonts?\\//.test(p) ||
+      /^\\/workbox-[^/]*\\.js(?:[?#]|$)/.test(p) ||
+      /^\\/icons\\//.test(p) ||
+      /^\\/(?:apple-touch-icon|og-image|splash)[^/]*(?:[?#]|$)/.test(p)
   }
   // A failed request: a 4xx/5xx, or no response at all WITH Playwright's error text (a refused
   // connection). No response and no text is an aborted/pending request, not a failure. A 404 on
@@ -417,29 +472,131 @@ for (const one of found.slice(0, MAX_TRACES)) {
     try { p = new URL(r.path, 'http://trace.local').pathname } catch (e) { p = String(r.path).split(/[?#]/)[0] }
     return !shellPath(p)
   }
-  let leadIndex = -1
-  for (let i = requests.length - 1; i >= 0; i--) {
-    const r = requests[i]
-    if ((r.type === 'fetch' || r.type === 'xhr') && leadCandidate(r)) { leadIndex = i; break }
-  }
-  if (leadIndex === -1) {
-    for (let i = requests.length - 1; i >= 0; i--) {
-      if (requests[i].type === 'document' && leadCandidate(requests[i])) { leadIndex = i; break }
+  // The test's LAST user action before the failing assertion, and the requests it caused.
+  //
+  // The old lead was "the page's LAST call to the app's own origin", which is right for a click
+  // that changed nothing (m135) and wrong for an assertion after a navigation: the last call
+  // belongs to the page the app landed on (xr-molecule-flash-m148's \`GET /api/tags\` on Home),
+  // not to the action the test took. The trace records both clocks — the action's \`startTime\`
+  // and each HAR entry's \`_monotonicTime\` — so the requests that started after the last action
+  // are exactly the ones it caused, and the register \`POST /api/users\` (answered 201, the page
+  // then rendering signed-out) leads instead of the Home page's own fetch.
+  const USER_ACTION = /\\.(?:click|dblclick|tap|fill|press|pressSequentially|selectOption|check|uncheck|setInputFiles|goto|type)$/
+  const userActions = actions.filter(function (a) { return USER_ACTION.test(a.api) })
+  const lastAction = userActions.length > 0 ? userActions[userActions.length - 1] : null
+  // A request the action caused started after it (a millisecond of clock slack) and before the
+  // assertion — which is everything later in the trace. A request that started before it is the
+  // page's own load, not the action's; the page shell's files are never the step's, except a
+  // document subresource the open navigation is waiting on (m135).
+  function causedIndexes(action) {
+    const out = []
+    for (let i = 0; i < requests.length; i++) {
+      const r = requests[i]
+      if (typeof r.startedAt !== 'number' || r.startedAt < action.start - 1) continue
+      if (shellRequest(r) && !(navigationOpen && neverFinished(r) && !incidentalShell(r))) continue
+      out.push(i)
     }
+    return out
   }
-  let lead = null
-  if (leadIndex !== -1) {
-    const r = requests[leadIndex]
+  // API requests first, then the navigation the page made; a stalled asset outranks both when the
+  // navigation it belongs to never finished (m135's goto timeout was waiting on the CSS).
+  function causedOrder(indexes) {
+    const stalled = []
+    const apiCalls = []
+    const documents = []
+    const other = []
+    for (const i of indexes) {
+      const r = requests[i]
+      if (r.type === 'document') documents.push(i)
+      else if (navigationOpen && neverFinished(r) && !incidentalShell(r)) stalled.push(i)
+      else if (r.type === 'fetch' || r.type === 'xhr') apiCalls.push(i)
+      else other.push(i)
+    }
+    return stalled.concat(apiCalls, documents, other)
+  }
+  const actionIndexes = lastAction === null ? [] : causedOrder(causedIndexes(lastAction))
+  // Both the action's own requests and a 4xx from the app's own API keep what the page sent and
+  // what came back. The action's requests keep the RESPONSE whatever its status — an answered
+  // \`POST /api/users → 201\` and its body is the fact that explains a signed-out page.
+  for (const i of actionIndexes) {
+    const r = requests[i]
     const sent = bodyText(buf, entries, r.postData, MAX_BODY)
     const got = bodyText(buf, entries, r.content, MAX_BODY)
-    lead = {
+    if (sent) r.sent = sent
+    if (got) r.got = got
+  }
+  for (const r of requests) {
+    if (r.status < 400 || r.status >= 500) continue
+    if (/^https?:/i.test(r.path)) continue
+    const sent = bodyText(buf, entries, r.postData, MAX_BODY)
+    const got = bodyText(buf, entries, r.content, MAX_BODY)
+    if (sent) r.sent = sent
+    if (got) r.got = got
+  }
+  function wire(r) {
+    return {
       method: r.method,
       path: r.path,
       status: r.status,
       failure: r.failure,
+      ...(r.sent ? { sent: r.sent } : {}),
+      ...(r.got ? { got: r.got } : {}),
       type: r.type || undefined,
-      ...(sent ? { sent: sent } : {}),
-      ...(got ? { got: got } : {}),
+    }
+  }
+  // The main frame's URL, timed: what the page showed when the action ran, and where it ended up.
+  // The trace records these around every action, which is how the note can say what the page did
+  // after the request — a client-side redirect never appears in the network log as a document.
+  const frames = []
+  for (const entry of trace) {
+    if (!entry || entry.type !== 'frame-snapshot') continue
+    const snap = entry.snapshot || {}
+    if (snap.isMainFrame === false) continue
+    if (typeof snap.frameUrl !== 'string' || typeof snap.timestamp !== 'number') continue
+    frames.push({ url: pathOf(snap.frameUrl).slice(0, MAX_URL), at: snap.timestamp })
+  }
+  let last = null
+  if (lastAction !== null) {
+    let pageBefore
+    for (const frame of frames) { if (frame.at <= lastAction.start) pageBefore = frame.url }
+    if (pageBefore === undefined && frames.length > 0) pageBefore = frames[0].url
+    const pageAfter = frames.length > 0 ? frames[frames.length - 1].url : undefined
+    last = {
+      api: lastAction.api,
+      start: lastAction.start,
+      end: lastAction.end,
+      requests: actionIndexes.slice(0, MAX_NOTE).map(function (i) { return wire(requests[i]) }),
+      ...(pageBefore === undefined ? {} : { pageBefore: pageBefore }),
+      ...(pageAfter === undefined ? {} : { pageAfter: pageAfter }),
+    }
+  }
+  // The lead stays for traces that carry no action clock: the last answered fetch/xhr, else the
+  // document. With an action, its first answered request is the lead.
+  let lead = null
+  for (const i of actionIndexes) {
+    if (leadCandidate(requests[i])) { lead = wire(requests[i]); break }
+  }
+  // The fallback lead stays for traces with no action clock. With an action, only a request it
+  // caused is the lead; an action that sent none leaves the page's own load to the row's
+  // "also answered" bucket, not to a lead that would hide it.
+  if (lead === null && lastAction === null) {
+    let leadIndex = -1
+    for (let i = requests.length - 1; i >= 0; i--) {
+      const r = requests[i]
+      if ((r.type === 'fetch' || r.type === 'xhr') && leadCandidate(r)) { leadIndex = i; break }
+    }
+    if (leadIndex === -1) {
+      for (let i = requests.length - 1; i >= 0; i--) {
+        if (requests[i].type === 'document' && leadCandidate(requests[i])) { leadIndex = i; break }
+      }
+    }
+    if (leadIndex !== -1) {
+      const r = requests[leadIndex]
+      const sent = bodyText(buf, entries, r.postData, MAX_BODY)
+      const got = bodyText(buf, entries, r.content, MAX_BODY)
+      lead = wire(r)
+      if (sent) lead.sent = sent
+      if (got) lead.got = got
     }
   }
   const failing = []
@@ -457,28 +614,27 @@ for (const one of found.slice(0, MAX_TRACES)) {
     else if (navigationOpen && neverFinished(r)) pending.push(i)
     else rest.push(i)
   }
-  const keep = failing.slice(-MAX_REQUESTS).concat(api.slice(-MAX_REQUESTS))
+  // The action's own requests are kept whatever the cap: they are the row's first line.
+  const actionSet = new Set(actionIndexes)
+  const keep = failing.slice(-MAX_REQUESTS).concat(actionIndexes.slice(0, MAX_NOTE))
+    .concat(api.slice(-MAX_REQUESTS))
     .concat(pending.slice(-MAX_REQUESTS)).concat(rest.slice(-2))
   const chosen = []
   const seen = new Set()
   for (const i of keep.sort(function (a, b) {
-    const wrong = failedRequest(requests[a]) ? 0 : 1
-    const other = failedRequest(requests[b]) ? 0 : 1
-    return wrong === other ? a - b : wrong - other
+    function rank(index) {
+      if (failedRequest(requests[index])) return 0
+      return actionSet.has(index) ? 1 : 2
+    }
+    const left = rank(a)
+    const right = rank(b)
+    return left === right ? a - b : left - right
   })) {
     const r = requests[i]
     const key = r.method + ' ' + r.path + ' ' + r.status
     if (seen.has(key)) continue
     seen.add(key)
-    chosen.push({
-      method: r.method,
-      path: r.path,
-      status: r.status,
-      failure: r.failure,
-      sent: r.sent,
-      got: r.got,
-      type: r.type || undefined,
-    })
+    chosen.push(wire(r))
   }
   const consoleErrors = []
   let spec = null
@@ -508,6 +664,7 @@ for (const one of found.slice(0, MAX_TRACES)) {
     spec: spec,
     line: line,
     lead: lead,
+    lastAction: last,
     // Failures first, per the sort above; the keep-window is the HEAD of that order. Taking the
     // tail here dropped every failed request as soon as a page made more than MAX_REQUESTS of them
     // plus the answered ones (xr-molecule-flash-m112's note listed only -1s and 200s).
@@ -535,6 +692,30 @@ function parseTraceRequest(value: unknown): TraceRequest | null {
     ...(typeof r.sent === 'string' && r.sent ? { sent: r.sent } : {}),
     ...(typeof r.got === 'string' && r.got ? { got: r.got } : {}),
     ...(typeof r.type === 'string' && r.type ? { type: r.type } : {}),
+    ...(Number.isFinite(Number(r.startedAt)) ? { startedAt: Number(r.startedAt) } : {}),
+  }
+}
+
+/**
+ * One `lastAction` out of a `TRACE` line's json, or null when the value is not one.
+ *
+ * @param value - The line's `lastAction`.
+ * @returns The action and its requests, or null.
+ */
+function parseLastAction(value: unknown): TraceLastAction | null {
+  if (typeof value !== 'object' || value === null) return null
+  const raw = value as Record<string, unknown>
+  if (typeof raw.api !== 'string' || !Number.isFinite(Number(raw.start))) return null
+  const requests = Array.isArray(raw.requests) ? raw.requests : []
+  return {
+    api: raw.api,
+    start: Number(raw.start),
+    end: raw.end === null || raw.end === undefined ? null : Number(raw.end),
+    requests: requests
+      .map(parseTraceRequest)
+      .filter((request): request is TraceRequest => request !== null),
+    ...(typeof raw.pageBefore === 'string' ? { pageBefore: raw.pageBefore } : {}),
+    ...(typeof raw.pageAfter === 'string' ? { pageAfter: raw.pageAfter } : {}),
   }
 }
 
@@ -557,6 +738,7 @@ export function parseTraceArtifacts(stdout: string): TraceArtifact[] {
       const consoleMessages = Array.isArray(raw.console) ? raw.console : []
       const actions = Array.isArray(raw.actions) ? raw.actions : []
       const lead = parseTraceRequest(raw.lead)
+      const lastAction = parseLastAction(raw.lastAction)
       out.push({
         spec: typeof raw.spec === 'string' ? raw.spec : null,
         line: typeof raw.line === 'number' ? raw.line : 0,
@@ -564,6 +746,7 @@ export function parseTraceArtifacts(stdout: string): TraceArtifact[] {
           .map(parseTraceRequest)
           .filter((request): request is TraceRequest => request !== null),
         ...(lead === null ? {} : { lead }),
+        ...(lastAction === null ? {} : { lastAction }),
         console: consoleMessages.map(String),
         actions: actions
           .filter((a): a is Record<string, unknown> => typeof a === 'object' && a !== null)
@@ -630,6 +813,28 @@ function requestLine(request: TraceRequest): string {
 }
 
 /**
+ * One request as the note writes it when the body matters as much as the status: the app's own
+ * answer, printed to `gotChars`.
+ *
+ * @param request - The request.
+ * @param gotChars - How much of the response body to print.
+ * @returns The request's clause.
+ */
+function requestWithBody(request: TraceRequest, gotChars: number): string {
+  const status =
+    request.status > 0
+      ? String(request.status)
+      : request.failure
+        ? `no response (${bodyLine(redactSecrets(request.failure), TRACE_NOTE_FAILURE_CHARS)})`
+        : 'no response'
+  const sent = request.sent
+    ? ` sent ${bodyLine(redactSecrets(request.sent), TRACE_NOTE_SENT_CHARS)}`
+    : ''
+  const got = request.got ? ` got ${bodyLine(redactSecrets(request.got), gotChars)}` : ''
+  return `${requestLabel(request)} → ${status}${sent}${got}`
+}
+
+/**
  * The failing step's own request as the note writes it first: `the failing step sent DELETE
  * /api/profiles/x/follow → 200 got {"profile":{…}}`.
  *
@@ -641,19 +846,29 @@ function requestLine(request: TraceRequest): string {
  * @returns The clause the test's row opens with.
  */
 function leadRequestLine(request: TraceRequest): string {
-  const status =
-    request.status > 0
-      ? String(request.status)
-      : request.failure
-        ? `no response (${bodyLine(redactSecrets(request.failure), TRACE_NOTE_FAILURE_CHARS)})`
-        : 'no response'
-  const sent = request.sent
-    ? ` sent ${bodyLine(redactSecrets(request.sent), TRACE_NOTE_SENT_CHARS)}`
-    : ''
-  const got = request.got
-    ? ` got ${bodyLine(redactSecrets(request.got), TRACE_NOTE_LEAD_GOT_CHARS)}`
-    : ''
-  return `the failing step sent ${requestLabel(request)} → ${status}${sent}${got}`
+  return `the failing step sent ${requestWithBody(request, TRACE_NOTE_LEAD_GOT_CHARS)}`
+}
+
+/** A request's identity in a trace: method, path and status. */
+function requestKey(request: TraceRequest): string {
+  return `${request.method} ${request.path} ${request.status}`
+}
+
+/**
+ * When an action ran, relative to the first action the trace recorded — `+2.9 s`.
+ *
+ * The trace's clock starts with the worker process, so the raw value is meaningless to a reader;
+ * a relative time keeps the trace's own ordering visible without inventing a wall-clock time.
+ *
+ * @param item - The trace.
+ * @param start - The action's start, on the trace's clock.
+ * @returns The time to print.
+ */
+function actionClock(item: TraceArtifact, start: number): string {
+  const first = item.actions?.[0]?.start
+  if (first === undefined || !Number.isFinite(first) || start < first)
+    return `${Math.round(start)} ms`
+  return `+${((start - first) / 1000).toFixed(1)} s`
 }
 
 /** Whether a sent body is an object whose only top-level key is `data` — the wrapped-body trap. */
@@ -688,6 +903,18 @@ function wrappedInData(text: string): boolean {
 const STATIC_ASSET_PATH =
   /^\/(?:sw|service-worker)\.js(?:[?#]|$)|\/manifest\.webmanifest(?:[?#]|$)|\/favicon[^/]*(?:[?#]|$)|\/fonts?\//i
 
+/**
+ * The PWA worker's own hashed script, the manifest's touch icons and the splash images.
+ *
+ * The worker and the shell type these `other`/`fetch`, not `script`/`image`, so
+ * {@link STATIC_ASSET_TYPES} alone never caught them: on xr-molecule-flash-m148 every failing
+ * test's row filled three of its four request slots with `GET /workbox-d8ed3718.js → 200` and
+ * `GET /icons/splash-1125x2436.svg → 200`, and the register `POST /api/users` that explains the
+ * signed-out page never appeared.
+ */
+const SHELL_FILE_PATH =
+  /^\/workbox-[^/]*\.js(?:[?#]|$)|^\/icons\/|^\/(?:apple-touch-icon|og-image|splash)[^/]*(?:[?#]|$)/i
+
 /** The build/dev output paths the page shell loads (Vite's bundle, the platform's own files). */
 const STATIC_ASSET_DIR = /^\/(?:assets|@vite|__mol)\//i
 
@@ -719,7 +946,7 @@ export function isStaticAssetRequest(request: TraceRequest): boolean {
   if (request.type === 'document') return false
   if (request.type !== undefined && STATIC_ASSET_TYPES.has(request.type)) return true
   const path = requestPath(request)
-  return STATIC_ASSET_PATH.test(path) || STATIC_ASSET_DIR.test(path)
+  return STATIC_ASSET_PATH.test(path) || STATIC_ASSET_DIR.test(path) || SHELL_FILE_PATH.test(path)
 }
 
 /**
@@ -1049,11 +1276,16 @@ function missingApiPrefixSentence(request: MissingApiPrefixRequest): string {
  * line rather than inferred from the status; when one of those bodies is an object whose only key
  * is `data`, the note names the call shape that produces it (xr-molecule-flash-m111 +11:36).
  *
- * Every row opens with the request the failing step ITSELF sent ({@link TraceArtifact.lead}) and
- * its response — whatever its status — because the question a `waiting for locator` failure asks
- * is what the click did: xr-molecule-flash-m135's Follow click sent `DELETE …/follow → 200` (an
- * unfollow, from a stale `following` state) and the run's result named only the test's earlier
- * answered requests, so the executor spent 14 minutes on its own browser probes.
+ * Every row opens with the test's LAST user action before the failing assertion and the requests
+ * that action caused ({@link TraceArtifact.lastAction}) — started after it, before the assertion,
+ * the app's own API calls first, each with its status and the first 200 characters of its response,
+ * then where the page went next. The trace's action clock and each request's `_monotonicTime` are
+ * the same clock, so "caused" is the trace's own fact rather than a guess from recording order.
+ * xr-molecule-flash-m148 failed 13 then 12 tests on one unnamed cause while every row led with
+ * `GET /api/tags → 200` — the Home page's own fetch after the redirect — and filled its answered
+ * slots with the PWA's `/workbox-*.js` and its `/icons/*.svg`; the register `POST /api/users`
+ * (answered 201, the page still rendering signed-out) never appeared. With no action clock, the
+ * row falls back to {@link TraceArtifact.lead}: the page's last answered fetch/xhr.
  *
  * WHICH rows it spends is evidence, not artifact order (xr-molecule-flash-m112 +53:46): a row
  * needs a recorded response, a real failure or a console error ({@link traceRowEvidence}), rows are
@@ -1148,19 +1380,24 @@ export function failureTraceNote(
   ]
   const rows: string[] = []
   for (const [index, item] of traced.entries()) {
-    // The request the failing step itself sent LEADS the row (m135): a click that changed nothing
-    // is answered by the request it sent and what came back, whether or not that request failed.
-    // It is not repeated in the buckets below.
+    // The test's LAST action before the failing assertion leads the row (m148): the requests it
+    // caused and what came back explain a page that never showed the signed-in state, while the
+    // page's own last call (a redirect target's `GET /api/tags`) and the shell's files do not.
     const lead = item.lead
+    const step = item.lastAction
+    // A navigation that never finished has one explanation — the stalled asset it was waiting on
+    // (m135) — and that leads the row instead of the action's own document request.
+    const stalledNav =
+      navigationNeverFinished(item) && item.requests.some(stalledDocumentSubresource)
+    const stepRequests = step !== undefined && !stalledNav ? step.requests : []
+    const stepKeys = new Set(stepRequests.map(requestKey))
     const isLead = (request: TraceRequest): boolean =>
-      lead !== undefined &&
-      request.method === lead.method &&
-      request.path === lead.path &&
-      request.status === lead.status
+      lead !== undefined && requestKey(request) === requestKey(lead)
     // The page shell's own requests take no row, in any bucket: an aborted `/sw.js` would
     // otherwise be printed as an "answered" request with no response (m125 +29:33).
     const requests = item.requests.filter(
-      (request) => !isStaticAssetRequest(request) && !isLead(request),
+      (request) =>
+        !isStaticAssetRequest(request) && !isLead(request) && !stepKeys.has(requestKey(request)),
     )
     const failed = requests.filter(failedRequest)
     const unanswered = requests.filter(unansweredRequest)
@@ -1174,7 +1411,29 @@ export function failureTraceNote(
       : []
     let room = MAX_TRACE_NOTE_REQUESTS
     const parts: string[] = []
-    if (lead !== undefined) {
+    if (step !== undefined && !stalledNav) {
+      const head = `the test's last action was ${step.api} at ${actionClock(item, step.start)}`
+      if (step.requests.length === 0) {
+        parts.push(`${head}, and it sent no request`)
+      } else {
+        const shown = step.requests.slice(0, room)
+        room -= shown.length
+        // The response body is the point (m148: the register `POST /api/users` answered 201 and
+        // the page rendered signed-out anyway) — printed whatever the status.
+        parts.push(
+          `${head}, and it sent ${shown.map((request) => requestWithBody(request, TRACE_NOTE_LEAD_GOT_CHARS)).join('; ')}`,
+        )
+      }
+      // What the page did next: a navigation shows in the main frame's URL even when the app moved
+      // client-side and the network log recorded no document request.
+      if (step.pageAfter !== undefined) {
+        parts.push(
+          step.pageBefore !== undefined && step.pageBefore !== step.pageAfter
+            ? `the page then navigated to ${step.pageAfter}`
+            : `the page stayed at ${step.pageAfter}`,
+        )
+      }
+    } else if (lead !== undefined) {
       parts.push(leadRequestLine(lead))
       room -= 1
     }
@@ -1200,7 +1459,13 @@ export function failureTraceNote(
       )
     }
     if (answered.length > 0 && room > 0) {
-      parts.push(`answered: ${answered.slice(0, room).map(requestLine).join('; ')}`)
+      // An action that sent nothing leaves the page's own load as the only requests there are:
+      // name them for what they are, not as the action's answer.
+      const label =
+        step !== undefined && !stalledNav && step.requests.length === 0
+          ? 'also answered (started before the action)'
+          : 'answered'
+      parts.push(`${label}: ${answered.slice(0, room).map(requestLine).join('; ')}`)
     }
     if (item.console.length > 0)
       parts.push(
@@ -1261,8 +1526,9 @@ export function failureTraceNote(
     transportLead +
     stalledLead +
     `The platform read the failing tests' own Playwright traces from the run against ${target} ` +
-    `(what each page sent and got — first the request the failing step itself sent, then the ` +
-    `requests that failed, the ones that got no response, and its last answered ones):\n` +
+    `(what each page sent and got — first what the test's last action sent and where the page went ` +
+    `next, then the requests that failed, the ones that got no response, and its last answered ` +
+    `ones):\n` +
     `${rows.join('\n')}${more}\n` +
     (anyFailed
       ? everyFailureLacksPrefix
@@ -1276,10 +1542,12 @@ export function failureTraceNote(
           'page-state bug: re-run these tests against the same URL first, and change the app only ' +
           'if the same navigation times out again with no stalled asset in the trace.'
         : 'No listed request failed — none got a 4xx/5xx or a network error — so the cause is in the ' +
-          'page, not the API. Start with the request the failing step sent (the first line of each ' +
-          'row): if it is not the request the test meant — an unfollow sent where the test clicked ' +
-          'follow — the state the click read was stale before it. Otherwise read the state the ' +
-          'failing test waited on.') +
+          "page, not the API. Start with what the test's last action sent (the first line of each " +
+          'row) and what the page did next: a request that answered (2xx included) while the page ' +
+          'still did not show the state the assertion waited on is the fact to read — its status ' +
+          'and response body, not the selector. If the request is not the one the test meant — an ' +
+          'unfollow sent where the test clicked follow — the state the action read was stale ' +
+          'before it.') +
     prefixAdvice +
     (wrapped
       ? ' The API received a body wrapped in `data`: app-http’s `post(url, data, config)` / ' +

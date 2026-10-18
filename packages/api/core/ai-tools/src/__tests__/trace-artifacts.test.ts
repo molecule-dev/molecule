@@ -174,7 +174,9 @@ describe('traceArtifactsScript — a real trace, read headlessly', () => {
       const row = String(failureTraceNote(items, 'https://app.apps.mlcl.dev'))
         .split('\n')
         .find((line) => /^\s+1\./.test(line))
-      expect(row).toContain('the failing step sent POST /api/articles/x/favorite → 401')
+      // The last action the trace recorded is the click, and the request it caused leads the row.
+      expect(row).toContain("the test's last action was Frame.click")
+      expect(row).toContain('POST /api/articles/x/favorite → 401')
       // It leads the row once; the buckets below do not repeat it.
       expect(String(row).match(/POST \/api\/articles\/x\/favorite/g)).toHaveLength(1)
     } finally {
@@ -207,7 +209,7 @@ describe('traceArtifactsScript — a real trace, read headlessly', () => {
     expect(row).toContain(
       'the failing step sent DELETE /api/profiles/probe2/follow → 200 got {"profile":{"username":"probe2","following":false}}',
     )
-    expect(note).toContain('the state the click read was stale')
+    expect(note).toContain('the state the action read was stale')
   })
 
   /**
@@ -385,7 +387,10 @@ describe('failureTraceNote — a request with no response is not a failed reques
       expect(items[0].requests.map((request) => request.path)).toContain('/api/fail')
       expect(items[0].requests.find((request) => request.path === '/api/fail')?.status).toBe(401)
       const note = String(failureTraceNote(items, 'the deployed app'))
-      expect(note).toContain('failed: GET /api/fail → 401')
+      // The last action caused the 401, so the row leads with the action's requests — the failed
+      // one included, once, with its status.
+      expect(note).toContain('GET /api/fail → 401')
+      expect(note.match(/GET \/api\/fail/g)).toHaveLength(1)
       expect(note).toContain(
         'A click that changed nothing is usually one of these requests failing',
       )
@@ -1132,6 +1137,7 @@ function stalledNavigationZip(options: { gotoFinished: boolean; withStylesheet: 
       type: 'resource-snapshot',
       snapshot: {
         _resourceType: 'document',
+        _monotonicTime: 150,
         request: { url: 'https://app.apps.mlcl.dev/jobs', method: 'GET' },
         response: { status: 200 },
       },
@@ -1142,6 +1148,7 @@ function stalledNavigationZip(options: { gotoFinished: boolean; withStylesheet: 
             type: 'resource-snapshot',
             snapshot: {
               _resourceType: 'stylesheet',
+              _monotonicTime: 160,
               request: { url: 'https://app.apps.mlcl.dev/assets/index-abc123.css', method: 'GET' },
               // No response at all: still in flight when the test's budget ran out.
               response: {},
@@ -1154,6 +1161,7 @@ function stalledNavigationZip(options: { gotoFinished: boolean; withStylesheet: 
       type: 'resource-snapshot',
       snapshot: {
         _resourceType: 'script',
+        _monotonicTime: 170,
         request: { url: 'https://app.apps.mlcl.dev/sw.js', method: 'GET' },
         response: {},
       },
@@ -1227,6 +1235,208 @@ describe('traceArtifactsScript — a document subresource that never finished (m
       const note = String(failureTraceNote(items, 'https://app.apps.mlcl.dev'))
       expect(note).not.toContain('never finished')
       expect(note).not.toContain('never got a response')
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
+  it('still leads with the stalled asset, never with the action that waited on it', () => {
+    // The goto is the test's last action and the document it requested started after it, but the
+    // navigation never finished because the CSS never answered: that asset is the row's first
+    // fact (deployed-asset-stall), not "the goto sent GET /jobs".
+    const root = stalledRun(stalledNavigationZip({ gotoFinished: false, withStylesheet: true }))
+    try {
+      const items = parseTraceArtifacts(readTraces(root))
+      const row = String(failureTraceNote(items, 'https://app.apps.mlcl.dev'))
+        .split('\n')
+        .find((line) => /^\s+1\./.test(line))
+      expect(row).toContain('never finished: GET /assets/index-abc123.css')
+      expect(row).not.toContain("the test's last action")
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+})
+
+/**
+ * xr-molecule-flash-m148 (+17:51 and +21:09): two local walks, 13 then 12 tests red on one cause —
+ * the app never showed a signed-in state after register. Every trace row led with the Home page's
+ * own `GET /api/tags → 200`, and the register `POST /api/users` (answered 201, with a token) was
+ * pushed out by the PWA's `/workbox-*.js` and its `/icons/*.svg`. The trace's own action clock says
+ * which requests the test's LAST action caused; those lead, with their response bodies.
+ */
+function registerWalkZip(options: { actionSendsRequest: boolean }): Buffer {
+  const network = [
+    {
+      type: 'resource-snapshot',
+      snapshot: {
+        _resourceType: 'document',
+        _monotonicTime: 1000,
+        request: { url: 'http://127.0.0.1:5173/register', method: 'GET' },
+        response: { status: 200 },
+      },
+    },
+    ...(options.actionSendsRequest
+      ? [
+          {
+            type: 'resource-snapshot',
+            snapshot: {
+              _resourceType: 'fetch',
+              _monotonicTime: 1250,
+              request: {
+                url: 'http://127.0.0.1:5173/api/users',
+                method: 'POST',
+                postData: { text: '{"user":{"username":"testuser","password":"secret-pw"}}' },
+              },
+              response: {
+                status: 201,
+                content: { text: '{"user":{"username":"testuser","token":"jwt-token-1"}}' },
+              },
+            },
+          },
+          {
+            // The page the app landed on fetches its own data — the request the old lead chose.
+            type: 'resource-snapshot',
+            snapshot: {
+              _resourceType: 'fetch',
+              _monotonicTime: 1300,
+              request: { url: 'http://127.0.0.1:5173/api/tags', method: 'GET' },
+              response: { status: 200, content: { text: '{"tags":["a","b"]}' } },
+            },
+          },
+        ]
+      : [
+          {
+            // The page's own load, BEFORE the action: not what the action caused.
+            type: 'resource-snapshot',
+            snapshot: {
+              _resourceType: 'fetch',
+              _monotonicTime: 900,
+              request: { url: 'http://127.0.0.1:5173/api/user', method: 'GET' },
+              response: { status: 200, content: { text: '{"user":null}' } },
+            },
+          },
+        ]),
+    {
+      // The PWA worker's own script and the manifest's splash icons: typed `other`/`fetch` by the
+      // shell, so only their paths identify them.
+      type: 'resource-snapshot',
+      snapshot: {
+        _resourceType: 'other',
+        _monotonicTime: 1310,
+        request: { url: 'http://127.0.0.1:5173/workbox-d8ed3718.js', method: 'GET' },
+        response: { status: 200 },
+      },
+    },
+    {
+      type: 'resource-snapshot',
+      snapshot: {
+        _resourceType: 'fetch',
+        _monotonicTime: 1320,
+        request: { url: 'http://127.0.0.1:5173/icons/splash-1125x2436.svg', method: 'GET' },
+        response: { status: 200 },
+      },
+    },
+  ]
+  const trace: unknown[] = [
+    // The page load the test did first; the relative clock is measured from it.
+    {
+      type: 'before',
+      class: 'Frame',
+      method: 'goto',
+      callId: 'goto-1',
+      startTime: 800,
+      stack: [{ file: 'e2e/auth.spec.ts', line: 40 }],
+    },
+    { type: 'after', callId: 'goto-1', endTime: 900 },
+    // The submit whose result the failing assertion waits on (auth.spec.ts:63).
+    {
+      type: 'before',
+      class: 'Locator',
+      method: 'click',
+      callId: 'click-1',
+      startTime: 1200,
+      stack: [{ file: 'e2e/auth.spec.ts', line: 63 }],
+    },
+    { type: 'after', callId: 'click-1', endTime: 1240 },
+    // The main frame around the action, and where the app ended up.
+    {
+      type: 'frame-snapshot',
+      snapshot: {
+        isMainFrame: true,
+        frameUrl: options.actionSendsRequest
+          ? 'http://127.0.0.1:5173/register'
+          : 'http://127.0.0.1:5173/settings',
+        timestamp: 1100,
+      },
+    },
+    {
+      type: 'frame-snapshot',
+      snapshot: {
+        isMainFrame: true,
+        frameUrl: options.actionSendsRequest
+          ? 'http://127.0.0.1:5173/'
+          : 'http://127.0.0.1:5173/settings',
+        timestamp: 1400,
+      },
+    },
+  ]
+  const ndjson = (rows: unknown[]): string => rows.map((row) => JSON.stringify(row)).join('\n')
+  return storedZip({ 'trace.trace': ndjson(trace), 'trace.network': ndjson(network) })
+}
+
+/** A run's directory holding the register walk's synthetic trace. */
+function registerRun(zip: Buffer): string {
+  return stalledRun(zip)
+}
+
+describe('traceArtifactsScript — the last action, not the page it landed on (m148)', () => {
+  it('leads with the register POST the click sent, not the Home page’s GET /api/tags', () => {
+    const root = registerRun(registerWalkZip({ actionSendsRequest: true }))
+    try {
+      const items = parseTraceArtifacts(readTraces(root))
+      expect(items[0].lastAction).toMatchObject({ api: 'Locator.click' })
+      expect(items[0].lastAction?.requests[0]).toMatchObject({
+        method: 'POST',
+        path: '/api/users',
+        status: 201,
+      })
+      expect(items[0].lastAction?.requests[0]?.got).toContain('"token":"jwt-token-1"')
+
+      const note = String(failureTraceNote(items, 'http://127.0.0.1:5173'))
+      const row = note.split('\n').find((line) => /^\s+1\./.test(line))
+      expect(row).toContain("the test's last action was Locator.click")
+      // The response body leads the row (the note is egress, so the token is masked).
+      expect(row).toContain(
+        'POST /api/users → 201 sent {"user":{"username":"testuser","password":"[REDACTED]"}} got {"user":{"username":"testuser","token":"[REDACTED]"}}',
+      )
+      expect(row).not.toContain('jwt-token-1')
+      expect(row).not.toContain('secret-pw')
+      // The Home page's own fetch is listed after it — and the action's request leads the row.
+      expect(row?.indexOf('POST /api/users')).toBeLessThan(row?.indexOf('GET /api/tags') ?? -1)
+      expect(row).toContain('GET /api/tags → 200')
+      // What the page did next, from the main frame the trace recorded.
+      expect(row).toContain('the page then navigated to /')
+      // The PWA's own files are not the step's, even though they answer 200.
+      expect(note).not.toContain('/workbox-')
+      expect(note).not.toContain('/icons/')
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
+  it('says an action that sent no request, then the page’s own state', () => {
+    const root = registerRun(registerWalkZip({ actionSendsRequest: false }))
+    try {
+      const items = parseTraceArtifacts(readTraces(root))
+      expect(items[0].lastAction?.requests).toEqual([])
+      const note = String(failureTraceNote(items, 'http://127.0.0.1:5173'))
+      const row = note.split('\n').find((line) => /^\s*1\./.test(line))
+      expect(row).toContain('and it sent no request')
+      expect(row).toContain('the page stayed at /settings')
+      // The page's own load, which started before the action, is named for what it is.
+      expect(row).toContain('also answered (started before the action)')
+      expect(row).toContain('GET /api/user → 200')
     } finally {
       rmSync(root, { recursive: true, force: true })
     }
