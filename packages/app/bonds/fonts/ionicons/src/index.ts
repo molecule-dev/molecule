@@ -16,14 +16,16 @@
  * setFont(icons)   // once, at app startup — before first paint
  * ```
  *
- * `setFont()` injects the `@font-face` (served from the app's `/fonts/`)
- * plus the full `.ion-*` glyph stylesheet, so plain markup like
+ * `setFont()` injects the `@font-face` — whose source is the package's own
+ * webfont URL, emitted as a hashed asset by the bundler — plus the full
+ * `.ion-*` glyph stylesheet, so plain markup like
  *
  * ```html
  * <i class="ion-heart"></i>
  * ```
  *
- * renders its glyph with nothing else to wire. To bond it:
+ * renders its glyph with nothing else to wire. There is no file to copy into
+ * `app/public/` and no app-side asset import. To bond it:
  *
  * ```bash
  * mlcl add @molecule/app-fonts-ionicons
@@ -41,16 +43,17 @@
  * - **Wiring it without `mlcl` (the sandbox):** the package is already
  *   installed under `node_modules` — add an `"@molecule/app-fonts-ionicons"`
  *   dependency to the app's `package.json` (pin the version already installed
- *   there), then in `app/src/bonds/index.ts` call `setFont(icons)`.
- *   Preferred: import the webfont as an asset so nothing is copied —
- *   `import woff from '@molecule/app-fonts-ionicons/fonts/ionicons.woff?url'` then
- *   `setFont({ ...icons, source: { type: 'local', faces: [{ file: woff,
- *   weight: 400 }] } })`. `setFont()` uses a `file` starting with
- *   `/`, `http` or `data:` as-is.
- *   Without an asset import, copy
- *   `node_modules/@molecule/app-fonts-ionicons/fonts/ionicons.woff` to
- *   `app/public/fonts/ionicons.woff` and call `setFont(icons)` — a
- *   plain filename is served from `<basePath>fonts/<file>`.
+ *   there), then in `app/src/bonds/index.ts` call `setFont(icons)`. That is
+ *   the whole wiring: the exported definition's face is
+ *   `new URL('../fonts/ionicons.woff', import.meta.url)`, which the bundler
+ *   resolves to the emitted asset in both dev and the production build.
+ *   Copying the file into `app/public/fonts/` is unnecessary; a missing file
+ *   there is not a configuration to add.
+ * - **A face URL that answers with HTML means the file is not there.** If the
+ *   browser reports `Failed to decode downloaded font: <url>` with
+ *   `OTS parsing error: invalid sfntVersion: 1008821359` (0x3C21646F), the URL served
+ *   the app's `index.html` (the SPA fallback), not a font — check how the
+ *   face's `file` resolved instead of replacing the `<i>` elements.
  *
  * @module
  */

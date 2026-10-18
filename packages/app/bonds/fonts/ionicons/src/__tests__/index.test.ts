@@ -1,3 +1,6 @@
+import { existsSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
+
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { resetFonts, setFont } from '@molecule/app-fonts'
@@ -15,7 +18,9 @@ describe('@molecule/app-fonts-ionicons', () => {
     expect(font.role).toBe('icon')
     expect(font.source.type).toBe('local')
     expect(font.source.faces).toHaveLength(1)
-    expect(font.source.faces?.[0]?.file).toBe('ionicons.woff')
+    // The default face is the package's own webfont URL, not a bare filename that would need
+    // a copy into `app/public/fonts/` (xr-molecule-flash-m186).
+    expect(font.source.faces?.[0]?.file).toMatch(/\/fonts\/ionicons\.woff$/)
   })
 
   it('should never load from an external CDN', () => {
@@ -53,6 +58,39 @@ describe('@molecule/app-fonts-ionicons', () => {
     // The same refusal mlcl's assertSafeFontMeta applies to registry metadata.
     expect(font.utilityCss).not.toContain('</style')
     expect(font.utilityCss).not.toContain('@font-face')
+  })
+})
+
+describe('setFont(font) alone delivers the webfont (xr-molecule-flash-m186)', () => {
+  afterEach(() => {
+    resetFonts()
+    vi.unstubAllGlobals()
+  })
+
+  it('injects the package webfont URL, not <basePath>fonts/ionicons.woff', () => {
+    const appended: Record<string, unknown>[] = []
+    vi.stubGlobal('document', {
+      documentElement: { style: { setProperty: vi.fn() } },
+      head: { appendChild: (el: Record<string, unknown>) => appended.push(el) },
+      querySelector: vi.fn().mockReturnValue(null),
+      getElementById: vi.fn().mockReturnValue(null),
+      createElement: vi.fn().mockImplementation(() => ({ tagName: 'style' })),
+    })
+
+    // The documented wiring is one import + setFont(font) — no app-side asset import and no
+    // copy into public/fonts/. The default face must already be a URL the bundler emits.
+    setFont(font, { basePath: '/blog/' })
+
+    const file = font.source.faces?.[0]?.file ?? ''
+    expect(file).toMatch(/\/fonts\/ionicons\.woff$/)
+    expect(appended[0].textContent).toContain(`src: url('${file}')`)
+    expect(appended[0].textContent).not.toContain('/blog/fonts/')
+  })
+
+  it('points at the font file the package ships', () => {
+    // A bare `new URL('../fonts/ionicons.woff', import.meta.url)` that does not land on the
+    // shipped file is the same silent 404 the run hit as an HTML response.
+    expect(existsSync(fileURLToPath(font.source.faces?.[0]?.file ?? ''))).toBe(true)
   })
 })
 
