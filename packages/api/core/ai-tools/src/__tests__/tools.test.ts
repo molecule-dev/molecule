@@ -3798,6 +3798,38 @@ describe('wait_for_task on a task that is still running', () => {
     expect(r.note).not.toContain('one more wait covers it')
   })
 
+  it('names the finished walk and the second one instead of "slow, not stuck" (m157 +14:02)', async () => {
+    // The log at the +18:50 wait: the first walk's closing tally, then the second walk's header
+    // and progress. The count keeps growing, which used to read as one slow run.
+    const slice = [
+      'Running 138 tests using 1 worker',
+      '  ✘   1 [chromium] › e2e/articles.spec.ts:123:3 › Unfavorite (9.2s)',
+      '  4 failed',
+      '  65 skipped',
+      '  70 passed (4.5m)',
+      '',
+      'Running 138 tests using 1 worker',
+      '  [4/138] [chromium] › e2e/articles.spec.ts:3:1 › lists articles',
+    ].join('\n')
+    const id = idStartedAgo(4 * 60_000)
+    const wait = buildTools(runningBackend(slice, 25_905)).find((t) => t.name === 'wait_for_task')!
+    const r = (await wait.execute({ taskId: id, timeout: 50 })) as {
+      status: string
+      note: string
+    }
+    expect(r.status).toBe('running')
+    expect(r.note).toContain('the first walk in this command has finished')
+    expect(r.note).toContain('(4 failed / 65 skipped / 70 passed (4.5m))')
+    expect(r.note).toContain('started a SECOND walk of the same suite')
+    // The growth is the second walk printing, not a slow first one — and its counter is not this
+    // run's progress.
+    expect(r.note).not.toContain('slow, not stuck')
+    expect(r.note).not.toContain('its log is at')
+    // The advice follows the finding: stop the duplicate walk, do not wait it out.
+    expect(r.note).not.toContain('Call wait_for_task again')
+    expect(r.note).toContain('Stop it (')
+  })
+
   it('carries the log slice on the "slow, not stuck" answer too, not just the plain one', async () => {
     process.env.MOL_AI_BG_STUCK_AFTER_MS = '100'
     try {

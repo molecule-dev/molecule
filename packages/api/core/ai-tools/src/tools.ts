@@ -226,6 +226,61 @@ function logProgress(log: string): { done: number; total: number } | null {
 }
 
 /**
+ * Playwright's start-of-walk line, `Running 138 tests using 1 worker` — the first thing a walk
+ * prints, so a second one in one log is a second walk.
+ */
+const WALK_START = /^[ \t]*Running \d+ tests?\b/gm
+
+/**
+ * One status line of a runner's closing tally — `  4 failed`, `  70 passed (4.5m)`,
+ * `  65 skipped`.
+ */
+const TALLY_STATUS =
+  /^[ \t]*(\d+)[ \t]+(passed|failed|flaky|skipped|interrupted|timed out|did not run)\b[^\n]*/gm
+
+/**
+ * A runner's CLOSING tally, the line that only prints once a walk has finished: Playwright's
+ * duration-bearing `70 passed (4.5m)`, a `1 flaky` summary, or Hurl's `Executed files:` count.
+ *
+ * The same reading as molecule-dev's `suite-proof.ts` `FINAL_TALLY_RE` (the platform's finished-run
+ * detector); this package cannot import it, so the shape is mirrored here and nowhere else.
+ */
+const FINISHED_TALLY =
+  /\b\d+[ \t]+(?:passed|failed)[ \t]+\(\d+(?:\.\d+)?(?:ms|s|m|h)\)|^[ \t]*\d+[ \t]+flaky\b|^[ \t]*Executed files:/m
+
+/**
+ * Whether a task's log holds a SECOND walk of the same suite — a finished tally followed by a
+ * fresh `Running N tests` header — and what the finished walk's tally said.
+ *
+ * A command that chained two suite runs starts the second walk the moment the first ends, and the
+ * wait used to read that log as one slow run ("slow, not stuck") for the whole second walk. X1
+ * xr-molecule-flash-m157 (+14:02) waited out 4.5 minutes of a duplicate walk that measured nothing:
+ * the first walk had already printed `4 failed / 65 skipped / 70 passed (4.5m)`.
+ *
+ * @param slice - The log slice this wait read.
+ * @returns The finished walk's tally lines, or null when the log shows one walk (or none).
+ */
+function secondSuiteWalk(slice: string): { tally: string } | null {
+  const header = [...slice.matchAll(WALK_START)].at(-1)
+  if (!header || header.index === undefined) return null
+  const finished = FINISHED_TALLY.exec(slice)
+  // One walk prints its header FIRST and its tally last, so a tally before the last header is
+  // another walk's. The slice repeats what it greps and then the log's own tail, so the same
+  // tally can appear twice; one line per status, taken at its last position, keeps it once.
+  if (!finished || finished.index === undefined || finished.index > header.index) return null
+  const seen = new Map<string, { at: number; text: string }>()
+  for (const match of slice.matchAll(TALLY_STATUS)) {
+    if (match.index === undefined || match.index >= header.index) continue
+    seen.set(match[2] ?? '', { at: match.index, text: match[0].trim().replace(/\s+/g, ' ') })
+  }
+  const tally = [...seen.values()]
+    .sort((a, b) => a.at - b.at)
+    .map((v) => v.text)
+    .join(' / ')
+  return { tally: tally || 'its closing tally' }
+}
+
+/**
  * What a wait knows about the command BESIDES "it has not exited": how long it
  * has been running, whether its output is still growing, how far its own log
  * says it has got, and how much longer that implies — one fact per clause, built
@@ -272,11 +327,19 @@ function waitProgressClauses(o: {
       ? `it has been running at least ${durationText(o.waitedMs)}`
       : `it has been running ${durationText(sinceStart)}`,
   ]
-  if (o.stillWriting)
+  // A log that already finished one walk and started another says so instead of "slow, not
+  // stuck": the growth is the SECOND walk printing, and its counter is not this run's progress.
+  const secondWalk = secondSuiteWalk(o.slice)
+  if (o.stillWriting && !secondWalk)
     clauses.push(`its output is still growing (${o.bytes} bytes) — slow, not stuck`)
-  else if (o.bytes !== null)
+  else if (o.bytes !== null && !secondWalk)
     clauses.push(`its log has not grown during this wait (${o.bytes} bytes)`)
-  const counter = logProgress(o.slice)
+  if (secondWalk)
+    clauses.push(
+      `the first walk in this command has finished (${secondWalk.tally}); the command started a ` +
+        'SECOND walk of the same suite — stop it (it measures nothing new) and read the first tally',
+    )
+  const counter = secondWalk ? null : logProgress(o.slice)
   if (counter) {
     clauses.push(`its log is at ${counter.done} of ${counter.total}`)
     // The rate is the task's own elapsed time, never this call's wait: with no
@@ -2597,6 +2660,10 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           // Keep the log growing while it runs (see streamingBackgroundCommand):
           // an empty log is what wait_for_task reads as stuck.
           const streaming = streamingBackgroundCommand(command)
+          // A command that starts the suite more than once is refused here, before anything is
+          // written or launched: each walk measures the same code, and only the last is rewritten
+          // (X1 xr-molecule-flash-m157 +14:02 — two whole walks chained with `;`).
+          if (streaming.error) return { error: streaming.error }
           // …and the trace flag this tool added (above), which the streaming rewrite never saw:
           // its changes are what this branch reports the run's own settings in.
           if (traced.change) streaming.changes.unshift(traced.change)
@@ -3198,6 +3265,14 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         // instruction — and not on a finished run's result, where `failureCausesNote` reads the
         // whole log instead of the 40 KB tail a mid-run look is given.
         const midRun = midRunNote ? ` ${midRunNote}` : ''
+        // A log that already finished one walk and started a second is not a run to keep waiting
+        // on: the first walk's tally is the measurement and the second only repeats it, so the
+        // advice below hands over the stop instead of "keep waiting" (m157 +14:02).
+        const secondWalk = secondSuiteWalk(soFar) !== null
+        const stopInstead = secondWalk
+          ? ` Stop it (\`exec_command: ${await taskStopCommand(backend, taskId)}\`) and read the ` +
+            `first walk's tally in ${log} — the second walk measures nothing new.`
+          : null
         if (stillWriting && waitedBefore + waitedMs >= stuckAfterMs()) {
           waitedByTask.set(taskId, 0)
           return {
@@ -3206,8 +3281,11 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
             waitedMs,
             ...sliceField,
             note:
-              `${progress} Call wait_for_task again to keep waiting — it returns the moment the ` +
-              `command ends and reports the failures as they appear.${midRun}`,
+              `${progress}` +
+              (stopInstead ??
+                ` Call wait_for_task again to keep waiting — it returns the moment the ` +
+                  `command ends and reports the failures as they appear.`) +
+              `${midRun}`,
           }
         }
         if (waitedBefore + waitedMs >= stuckAfterMs()) {
@@ -3231,24 +3309,26 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           // how long it has been running, and the lead said it a second time in
           // the other format (X1 flash-m87 §+47:20).
           note:
-            `${progress} Call wait_for_task again to ` +
-            `keep waiting — its result carries the log output. ` +
-            (soFar.trim()
-              ? `outputSoFar is the failure lines so far (up to ${RUNNING_FAILURE_LINES}) and then the end of ` +
-                `the log, not the whole run — \`grep -n '✘' ${log} | head -40\` lists every failure, ` +
-                `\`grep -n -A 20 '<test name>' ${log}\` reads one failure's error: this run writes ` +
-                `each failure's own report into the log as that test fails, right under its ✘ line, ` +
-                `not only in the summary at the end. `
-              : `Nothing has been printed yet — \`grep -n '✘' ${log} | head -40\` lists failures as they appear. `) +
-            // What an edit does to this run depends on what the run MEASURES: the sandbox's own
-            // app is re-served from app/src as it is edited, so the run's result stops counting; a
-            // run against the deployed build is untouched by a local edit, and the executor can
-            // spend the rest of the run fixing (xr-molecule-flash-m122 +19:00: a deployed run was
-            // told editing changes what it tests, then handed "Start fixing it now" in the same
-            // result — it waited out 1 min 11 s of free fixing time).
-            (started !== undefined && suiteCommandTarget(started.command) !== 'local'
-              ? `Meanwhile fix what it has already named: this run tests the deployed build, so editing app/src or api/src now does not change what it tests — fix the causes it has already named while it walks, run nothing against the app until it ends, then deploy once.`
-              : `Meanwhile do work that leaves the code under test alone (read the failures so far, plan the fixes): editing app/src or api/src now changes the code the run is testing, and its result no longer counts.`) +
+            `${progress}` +
+            (stopInstead ??
+              ` Call wait_for_task again to ` +
+                `keep waiting — its result carries the log output. ` +
+                (soFar.trim()
+                  ? `outputSoFar is the failure lines so far (up to ${RUNNING_FAILURE_LINES}) and then the end of ` +
+                    `the log, not the whole run — \`grep -n '✘' ${log} | head -40\` lists every failure, ` +
+                    `\`grep -n -A 20 '<test name>' ${log}\` reads one failure's error: this run writes ` +
+                    `each failure's own report into the log as that test fails, right under its ✘ line, ` +
+                    `not only in the summary at the end. `
+                  : `Nothing has been printed yet — \`grep -n '✘' ${log} | head -40\` lists failures as they appear. `) +
+                // What an edit does to this run depends on what the run MEASURES: the sandbox's own
+                // app is re-served from app/src as it is edited, so the run's result stops counting; a
+                // run against the deployed build is untouched by a local edit, and the executor can
+                // spend the rest of the run fixing (xr-molecule-flash-m122 +19:00: a deployed run was
+                // told editing changes what it tests, then handed "Start fixing it now" in the same
+                // result — it waited out 1 min 11 s of free fixing time).
+                (started !== undefined && suiteCommandTarget(started.command) !== 'local'
+                  ? `Meanwhile fix what it has already named: this run tests the deployed build, so editing app/src or api/src now does not change what it tests — fix the causes it has already named while it walks, run nothing against the app until it ends, then deploy once.`
+                  : `Meanwhile do work that leaves the code under test alone (read the failures so far, plan the fixes): editing app/src or api/src now changes the code the run is testing, and its result no longer counts.`)) +
             `${midRun}`,
         }
       }

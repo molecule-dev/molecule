@@ -23,6 +23,7 @@ import {
   type RepeatingFailure,
   repeatingFailure,
   repeatingFailureNote,
+  rerunOfRunningSuite,
   resolvePath,
   shellQuote,
   specFilesSelected,
@@ -32,6 +33,7 @@ import {
   suiteRunPipedAfterRunner,
   suiteRunPipelinePlacement,
   suiteRunPriorityLaunch,
+  suiteRunStatements,
   TOOL_RESULT_CHARS,
   truncate,
   truncateMiddle,
@@ -834,6 +836,76 @@ describe('streamingBackgroundCommand', () => {
         'Added `--retries=0`: a local run walks each failure once; the suite’s retries apply on the deployed proof run.',
       ],
     })
+  })
+  it('refuses a command that walks the suite twice, naming both steps (m157 +14:02)', () => {
+    // The +14:02 command verbatim: two whole walks of the 138-test suite chained with `;`, the
+    // second measuring what the first had just measured.
+    const m157 =
+      'cd /workspace && TEST_MODE=fullstack BASE_URL=http://localhost:5173 npx playwright test ' +
+      '--config playwright.realworld.config.ts spec 2>/dev/null; TEST_MODE=fullstack ' +
+      'BASE_URL=http://localhost:5173 npx playwright test --config playwright.realworld.config.ts ' +
+      "--retries=0 --reporter=list --grep-invert 'should require login to post comment'"
+    const r = streamingBackgroundCommand(m157)
+    expect(r.error).toContain('runs the suite twice')
+    expect(r.error).toContain(
+      'step 1: `playwright test --config playwright.realworld.config.ts spec 2>/dev/null`',
+    )
+    expect(r.error).toContain(
+      'step 2: `playwright test --config playwright.realworld.config.ts --retries=0 ' +
+        "--reporter=list --grep-invert 'should require login to post comment'`",
+    )
+    // The one run it hands back is the last suite step, rewritten like any background run.
+    expect(r.error).toContain(
+      'run exactly one: `' +
+        INLINE_HEAD +
+        'TEST_MODE=fullstack BASE_URL=http://localhost:5173 npx playwright test ' +
+        '--config playwright.realworld.config.ts --retries=0 --reporter=list ' +
+        "--grep-invert 'should require login to post comment'`",
+    )
+    expect(r.changes).toEqual([])
+  })
+
+  it('still launches one suite run behind other steps, and refuses two', () => {
+    // Work before the run is not a second walk.
+    expect(streamingBackgroundCommand('npm run build && npx playwright test').error).toBeUndefined()
+    // Two files, two walks: one measurement per command.
+    expect(
+      streamingBackgroundCommand('npx playwright test a.spec.ts; npx playwright test b.spec.ts')
+        .error,
+    ).toContain('runs the suite twice')
+    // A `--list` check walks nothing, so it leaves the single run beside it alone.
+    expect(
+      streamingBackgroundCommand('npx playwright test --list && npx playwright test').error,
+    ).toBeUndefined()
+  })
+})
+
+/**
+ * xr-molecule-flash-m157 (+14:02): the re-run the in-flight note composed kept the command's second
+ * whole walk, so obeying it would have measured the same unchanged code a second time.
+ */
+describe('re-runs composed from a chained command (m157)', () => {
+  const CHAIN =
+    'cd /workspace && TEST_MODE=fullstack BASE_URL=http://localhost:5173 npx playwright test ' +
+    '--config playwright.realworld.config.ts spec 2>/dev/null; TEST_MODE=fullstack ' +
+    'BASE_URL=http://localhost:5173 npx playwright test --config playwright.realworld.config.ts ' +
+    "--retries=0 --reporter=list --grep-invert 'should require login to post comment'"
+
+  it('counts the suite runs a chained command carries', () => {
+    expect(suiteRunStatements(CHAIN)).toHaveLength(2)
+    expect(suiteRunStatements('npm run build && npx playwright test')).toHaveLength(1)
+    expect(suiteRunStatements('npx playwright test --list && npx playwright test')).toHaveLength(1)
+  })
+
+  it('composes the re-run from one walk, never the whole chain', () => {
+    const rerun = rerunOfRunningSuite({ command: CHAIN, cwd: '/workspace' }, [
+      'specs/e2e/articles.spec.ts:123',
+    ])
+    expect(rerun).not.toBeNull()
+    expect(rerun?.match(/playwright test/g)).toHaveLength(1)
+    expect(rerun).toContain('specs/e2e/articles.spec.ts:123')
+    // The second walk's own flags are gone with it.
+    expect(rerun).not.toContain('--grep-invert')
   })
 })
 

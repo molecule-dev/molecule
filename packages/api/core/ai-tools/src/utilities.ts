@@ -440,12 +440,23 @@ export const PLAYWRIGHT_FAILURES_INLINE_ENV = 'PLAYWRIGHT_LIST_PRINT_FAILURES_IN
  * something: `npx playwright test --list` takes two seconds and writes nothing per test, so
  * neither reporter nor `--retries=0` is added to it ({@link isPlaywrightRunCommand}).
  *
+ * A command that starts the suite MORE THAN ONCE is not launched at all: every run it carries is
+ * a whole walk of the same suite against the same app, and only the last step is rewritten, so the
+ * earlier walks run unmeasured for nothing. X1 xr-molecule-flash-m157 (+14:02) chained two whole
+ * walks of one 138-test suite with `;` — 4.5 minutes each — and the second measured nothing the
+ * first had not. The platform already refuses a second CONCURRENT run against one app; this is the
+ * same hazard inside one command ({@link suiteRunStatements}). `error` then carries the refusal,
+ * naming each suite step and the ONE command to send instead (the last suite step, rewritten as
+ * this function rewrites a run), and nothing is launched.
+ *
  * @param command - The command as the executor sent it.
- * @returns The command to run and one sentence per change made (empty when none).
+ * @returns The command to run and one sentence per change made (empty when none), or `error` when
+ *   the command starts the suite more than once.
  */
 export function streamingBackgroundCommand(command: string): {
   command: string
   changes: string[]
+  error?: string
 } {
   // A command that runs no test is not a run to keep a growing log for: nothing about it is
   // rewritten (flash-m79's `--list` was read as a whole-suite run end to end, and got a ~4 KB
@@ -501,6 +512,32 @@ export function streamingBackgroundCommand(command: string): {
   // options are parsed and placed against this text, while the closer is kept in the command.
   const lastStep = rawLastStep.replace(/[\s)}]+$/, '')
   const stepStart = rawLastStep === '' ? out.length : Math.max(0, out.lastIndexOf(rawLastStep))
+  // A command that starts the suite more than once is not launched: each statement is a whole walk
+  // of the same suite against the same app, only the last of them is rewritten, and the earlier
+  // ones measure nothing the first did. X1 xr-molecule-flash-m157 (+14:02) chained two whole walks
+  // of one 138-test suite with `;` (4.5 minutes each); the platform already refuses a second
+  // CONCURRENT run against one app, and this is the same hazard inside one command.
+  const suiteSteps = suiteRunStatements(out)
+  if (suiteSteps.length > 1) {
+    // The ONE run to send instead: the last step that runs the suite, rewritten exactly as this
+    // function rewrites a run (its own count is one — guarded, so this cannot recurse).
+    const lastSuitePart = [...parts]
+      .reverse()
+      .map((p) => p.trim())
+      .find((p) => isSuiteRunCommand(p))
+    const single =
+      lastSuitePart && suiteRunStatements(lastSuitePart).length === 1
+        ? streamingBackgroundCommand(lastSuitePart).command
+        : (lastSuitePart ?? '')
+    return {
+      command: out,
+      changes: [],
+      error:
+        `This command runs the suite ${suiteSteps.length === 2 ? 'twice' : `${suiteSteps.length} times`} ` +
+        `(${suiteSteps.map((s, i) => `step ${i + 1}: \`${s}\``).join(', ')}). One walk is the ` +
+        `measurement; run exactly one: \`${single}\``,
+    }
+  }
   // The last step runs Playwright — whether or not anything is piped from it. Keying this on
   // "nothing is piped out of the last step" withheld the reporter, the inline-failure switch and
   // `--retries=0` from exactly the runs whose output was filtered (xr-molecule-flash-m101
@@ -646,21 +683,42 @@ const SUITE_RUN_COMMANDS: ReadonlyArray<RegExp> = [
 ]
 
 /**
- * Whether a command runs a whole test suite — a Playwright, Vitest or Hurl run
- * — rather than a build, an install or a one-off script.
+ * Every statement of a command that starts a whole test suite, in command order.
  *
- * A command that invokes a runner only to print is not one of these
+ * This is the ONE count of suite runs in a command: {@link isSuiteRunCommand} asks it,
+ * {@link streamingBackgroundCommand} refuses a command carrying more than one — each statement
+ * starts a whole walk of the same suite, and only the last of them is rewritten — and a re-run
+ * composed from a command ({@link ./suite-overlap.js} `scopedRerunCommand`) keeps only the first.
+ *
+ * A statement that invokes a runner only to print is not one of these
  * ({@link commandRunsNoTests}): `npx playwright test --list` prints the tests it would run and
  * exits, and `npx playwright install`, `vitest list` and `hurl --help` start no test either.
+ *
+ * @param command - The shell command.
+ * @returns One entry per suite-running statement, as the parser read it (empty when none).
+ */
+export function suiteRunStatements(command: string): string[] {
+  if (commandRunsNoTests(command)) return []
+  return commandSegments(command)
+    .filter(
+      (segment) =>
+        SUITE_RUN_COMMANDS.some((re) => re.test(segment.text)) &&
+        // A statement that only PRINTS (`playwright test --list`) is not a walk, so
+        // `npx playwright test --list && npx playwright test` is one run, not two.
+        !commandRunsNoTests(segment.text),
+    )
+    .map((segment) => segment.text)
+}
+
+/**
+ * Whether a command runs a whole test suite — a Playwright, Vitest or Hurl run
+ * — rather than a build, an install or a one-off script.
  *
  * @param command - The shell command.
  * @returns True when the command starts one of those runners.
  */
 export function isSuiteRunCommand(command: string): boolean {
-  if (commandRunsNoTests(command)) return false
-  return commandSegments(command).some((segment) =>
-    SUITE_RUN_COMMANDS.some((re) => re.test(segment.text)),
-  )
+  return suiteRunStatements(command).length > 0
 }
 
 /**

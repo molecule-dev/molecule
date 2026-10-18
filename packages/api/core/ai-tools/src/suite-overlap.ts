@@ -33,7 +33,7 @@ import { posix } from 'node:path'
 
 import { commandSegments, locatedCommandSegments } from './command-position.js'
 import { commandRunsNoTests } from './no-test-run.js'
-import { shellQuote } from './utilities.js'
+import { shellQuote, suiteRunStatements } from './utilities.js'
 
 /**
  * A command with its heredoc bodies removed: the runs, kills and hosts it names in a file it
@@ -197,7 +197,12 @@ export function scopedRerunCommand(
     .replace(/\s*--last-failed\b/g, '')
     .replace(/\s*--retries(?:[= ]\d+)?/g, '')
     .replace(/^(playwright\s+test)\b/, `$1 ${narrowed.join(' ')} --retries=0${carry}${invert}`)
-  return `${head}${scoped}${tail}`
+  // A command that starts the suite AGAIN after this statement is a chain of walks, not a re-run:
+  // everything from the next suite runner on is dropped, so the composed command carries ONE walk.
+  // X1 xr-molecule-flash-m157 (+14:02) was handed a re-run that still carried the chain's second
+  // whole walk — 4.5 minutes measuring code it had not changed.
+  const rerunTail = suiteRunStatements(tail).length > 0 ? '' : tail
+  return `${head}${scoped}${rerunTail}`
 }
 
 /** A directory a `cd` can name literally: no `~`, no variable, no glob. */
