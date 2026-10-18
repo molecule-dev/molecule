@@ -385,6 +385,46 @@ describe('useAuth', () => {
     expect(result.current.isAuthenticated).toBe(true)
     expect(result.current.user?.email).toBe('test@example.com')
   })
+
+  it('re-renders when only the status changes', () => {
+    // xr-molecule-flash-m173's cache: the snapshot compared the user and the flags but not
+    // `status`, so a session check that reported 'unavailable' with the SAME user kept rendering
+    // the old status — a state change the hook silently dropped.
+    let state: AuthState<{ id: string }> = {
+      status: 'loading',
+      initialized: true,
+      authenticated: false,
+      user: null,
+      loading: false,
+      error: null,
+    }
+    const listeners = new Set<() => void>()
+    const authClient = {
+      getState: () => state,
+      onAuthChange: (listener: () => void) => {
+        listeners.add(listener)
+        return () => listeners.delete(listener)
+      },
+      login: vi.fn(),
+      logout: vi.fn(),
+      register: vi.fn(),
+      refresh: vi.fn(),
+    } as unknown as AuthClient<{ id: string }>
+
+    const wrapper = ({ children }: { children: ReactNode }): React.JSX.Element => (
+      <AuthProvider client={authClient}>{children}</AuthProvider>
+    )
+
+    const { result } = renderHook(() => useAuth<{ id: string }>(), { wrapper })
+    expect(result.current.state.status).toBe('loading')
+
+    act(() => {
+      state = { ...state, status: 'unavailable' }
+      listeners.forEach((listener) => listener())
+    })
+
+    expect(result.current.state.status).toBe('unavailable')
+  })
 })
 
 describe('useTheme', () => {

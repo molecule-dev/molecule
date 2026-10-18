@@ -57,6 +57,7 @@ export function useAuth<T = unknown>(options?: UseAuthOptions): UseAuthResult<T>
     const prev = cachedStateRef.current
     if (
       prev !== null &&
+      prev.status === next.status &&
       prev.initialized === next.initialized &&
       prev.authenticated === next.authenticated &&
       prev.user === next.user &&
