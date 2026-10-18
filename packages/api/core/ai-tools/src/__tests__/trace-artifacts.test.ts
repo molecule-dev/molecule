@@ -778,6 +778,35 @@ describe('failureTraceNote — which half of the wire refused the request (m148 
     expect(mixed).toContain('read the handler this route reaches')
     expect(mixed).toContain('with NO `Authorization` header')
   })
+
+  it('names the setup order when the page logged no client is bonded (m156)', () => {
+    // xr-molecule-flash-m156 (+16:15): 14 of 15 failures were one 401 after a reload.
+    // The page's own console carried `@molecule/app-http: no client is bonded …` —
+    // `setupAuthDefault()` had read `getClient()` before `setupHttpDefault()` ran and
+    // mirrored the restored token into a client the scaffold then replaced. The 401
+    // sentence names that mechanism instead of leaving the run to re-derive it.
+    const traced: TraceArtifact = {
+      spec: 'e2e/social.spec.ts',
+      line: 12,
+      requests: [{ method: 'POST', path: '/api/articles', status: 401, type: 'fetch' }],
+      console: [
+        '@molecule/app-http: no client is bonded — requests go to the page origin with no "baseURL". Bond one: setClient(createFetchClient({ baseURL: \'/api\' })).',
+      ],
+      actions: [],
+    }
+
+    const note = String(failureTraceNote([traced], 'the deployed app'))
+    expect(note).toContain('with NO `Authorization` header')
+    expect(note).toContain('The page logged `no client is bonded`')
+    expect(note).toContain('call `setupHttpDefault()` before `setupAuthDefault()`')
+    expect(note).toContain('read the client per request instead of capturing it at setup')
+
+    // Without the console line the note does not guess at the ordering.
+    const withoutConsole = String(
+      failureTraceNote([{ ...traced, console: [] }], 'the deployed app'),
+    )
+    expect(withoutConsole).not.toContain('setupHttpDefault()')
+  })
 })
 
 /**

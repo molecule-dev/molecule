@@ -12,10 +12,12 @@
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { unbondSingleton } from '@molecule/app-bond'
 import {
   createFetchClient,
   getClient as getHttpClient,
   setAuthGate,
+  setAuthTokenSource,
   setClient as setHttpClient,
 } from '@molecule/app-http'
 
@@ -28,6 +30,7 @@ afterEach(() => {
   vi.unstubAllGlobals()
   delete (globalThis as { document?: unknown }).document
   setAuthGate(null)
+  setAuthTokenSource(null)
 })
 
 describe('createDefaultAuthClientWithHttpSync', () => {
@@ -85,6 +88,38 @@ describe('createDefaultAuthClientWithHttpSync', () => {
     await authClient.login({ email: 'user@example.com', password: 'pw' })
 
     expect(httpClient.getAuthToken()).toBe('fresh-token')
+  })
+
+  it('authorizes the first request when the HTTP client is bonded AFTER the auth setup', async () => {
+    // xr-molecule-flash-m156: the scaffold emits `setupAuthDefault()` before
+    // `setupHttpDefault()` (registry order), so the auth setup read an unbonded
+    // fallback and mirrored the restored token into it; the real client bonded
+    // afterwards carried nothing and every request after a reload 401'd
+    // `{"errors":{"token":["is missing"]}}`. Resolve the client per sync instead.
+    unbondSingleton('http-client')
+    const { authClient, setupAuthDefault } = createDefaultAuthClientWithHttpSync({
+      loginEndpoint: '/users/log-in',
+    })
+    // A reload restores the persisted token before any HTTP client exists.
+    authClient.setAccessToken('restored-token')
+    setupAuthDefault()
+
+    const mockFetch = vi.fn(
+      async () =>
+        new Response(JSON.stringify({}), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        }),
+    )
+    vi.stubGlobal('fetch', mockFetch)
+
+    const httpClient = createFetchClient({ baseURL: 'http://api.test' })
+    setHttpClient(httpClient)
+
+    expect(httpClient.getAuthToken()).toBe('restored-token')
+    await httpClient.get('/feed')
+    const headers = mockFetch.mock.calls[0]?.[1]?.headers as Record<string, string> | undefined
+    expect(headers?.Authorization).toBe('Bearer restored-token')
   })
 })
 

@@ -5,6 +5,7 @@ import {
   createFetchClient,
   getClient as getHttpClient,
   setAuthGate,
+  setAuthTokenSource as setHttpAuthTokenSource,
   setClient as setHttpClient,
 } from '@molecule/app-http'
 
@@ -163,6 +164,13 @@ export function createDefaultAuthClient<
  * on setup, then listens for auth events to keep them aligned, and holds
  * requests until the session restore settles so a page effect that fetches
  * viewer-dependent data on mount cannot race it (see {@link registerAuthGate}).
+ *
+ * The hydrated token is delivered through `@molecule/app-http`'s token source, not
+ * through a client read at setup: the scaffold wires auth BEFORE http, so a client
+ * read here is the unbonded fallback and the restored session's token would land on a
+ * client nothing sends through (xr-molecule-flash-m156 — a reload sent every request
+ * with no `Authorization` header). The source is applied to the client WHENEVER it is
+ * bonded, so setup order no longer decides whether the first request is authorized.
  */
 export function createDefaultAuthClientWithHttpSync<
   TUser extends UserProfile = UserProfile,
@@ -181,10 +189,11 @@ export function createDefaultAuthClientWithHttpSync<
       // Requests made while the session is still restoring wait for it, so a page
       // effect that fetches viewer-dependent data on mount cannot race the restore.
       registerAuthGate(authClient)
-      const initialToken = authClient.getAccessToken()
-      if (initialToken) {
-        getHttpClient().setAuthToken(initialToken)
-      }
+      // Resolve the HTTP client per sync, never once here. `setClient` runs this
+      // source, so the token reaches the client the scaffold bonds later as well as
+      // one already bonded; a client kept from this moment would be the throwaway
+      // fallback the later `setHttpDefault()` replaces.
+      setHttpAuthTokenSource(() => authClient.getAccessToken())
       authClient.addEventListener((event) => {
         if (event.type === 'login' || event.type === 'register' || event.type === 'refresh') {
           // Mirror the auth client's token EXACTLY — including null. Cookie-session
@@ -232,13 +241,13 @@ export function createDefaultAuthClientWithFetchClient<
         baseURL: fetchClientOptions.baseURL,
         withCredentials: fetchClientOptions.withCredentials ?? true,
       })
+      // Registered BEFORE the bond: `setHttpClient` applies the restored session's
+      // token, and the same source reaches any client an app bonds later instead of
+      // this one (xr-molecule-flash-m156 — a client captured at setup cannot).
+      setHttpAuthTokenSource(() => authClient.getAccessToken())
       setHttpClient(httpClient)
       setClient(authClient)
       registerAuthGate(authClient)
-      const initialToken = authClient.getAccessToken()
-      if (initialToken) {
-        httpClient.setAuthToken(initialToken)
-      }
       authClient.addEventListener((event) => {
         if (event.type === 'login' || event.type === 'register' || event.type === 'refresh') {
           // Mirror the token exactly, including null — see the identical note in

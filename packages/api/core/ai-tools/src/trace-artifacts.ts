@@ -1431,20 +1431,37 @@ function sameOriginPath(request: TraceRequest): string | null {
  * the request carried no `Authorization` header at all and the app's hand-rolled session store
  * never handed its token to the shared client.
  *
+ * xr-molecule-flash-m156 (+16:15): the same 401 shape after a reload, and the page's own console
+ * named the cause — `@molecule/app-http` logged `no client is bonded`. The auth setup ran before
+ * the HTTP setup and kept the fallback client, so the restored token landed on a client nothing
+ * sent through. When the trace carries that line, the no-header sentence names the ordering fix
+ * instead of leaving the run to re-derive it.
+ *
  * The trace cannot name the file that made the call: a real HAR entry carries the request, response,
  * `_resourceType`, `_monotonicTime` and a frame ref, but no initiator stack. So the sentence names
  * the shared client and the auth bond instead of guessing a file.
  *
  * @param request - The refused request, a 401 or 403 on the app's own origin.
+ * @param unbondedClient - Whether the traced page logged `no client is bonded`, which explains a
+ *   request that carried no `Authorization` header.
  * @returns The sentence the note appends.
  */
-function authRefusalSentence(request: TraceRequest): string {
+function authRefusalSentence(request: TraceRequest, unbondedClient = false): string {
   const label = requestLabel(request)
   // The header's scheme, when it parsed; presence alone is still the server's half of the wire.
   const carried =
     request.authorization !== undefined
       ? `with \`Authorization: ${request.authorization} …\``
       : 'with an `Authorization` header'
+  // The console line names the mechanism the no-header branch otherwise has to guess at:
+  // `getClient()` ran before `setupHttpDefault()` and the token was mirrored into the
+  // client that later setup replaced (xr-molecule-flash-m156).
+  const unbonded = unbondedClient
+    ? ' The page logged `no client is bonded` — something called `getClient()` from ' +
+      '`@molecule/app-http` before `setupHttpDefault()` ran and kept that fallback client; ' +
+      'in `app/src/bonds/index.ts` call `setupHttpDefault()` before `setupAuthDefault()`, ' +
+      'and read the client per request instead of capturing it at setup.'
+    : ''
   if (request.status === 403) {
     return request.sentAuthorization === true
       ? `The browser sent \`${label}\` ${carried} and the API answered 403 — the token was ` +
@@ -1454,7 +1471,8 @@ function authRefusalSentence(request: TraceRequest): string {
           '`Authorization` header, so either the client did not attach the token (check that the ' +
           'request goes through the app’s HTTP client that the auth bond configures, and that the ' +
           'token is stored where the client reads it) or the route refuses this user: read the ' +
-          'route’s role/permission check in your own source.'
+          'route’s role/permission check in your own source.' +
+          unbonded
   }
   if (request.sentAuthorization === true) {
     return (
@@ -1475,7 +1493,8 @@ function authRefusalSentence(request: TraceRequest): string {
       ? 'The request did carry a `Cookie` header, so if this app signs in with a session cookie ' +
         'that is the credential the server did not accept. '
       : '') +
-    'The API handler is not the problem.'
+    'The API handler is not the problem.' +
+    unbonded
   )
 }
 
@@ -1493,6 +1512,12 @@ function authRefusalSentence(request: TraceRequest): string {
 function authRefusalAdvice(items: readonly TraceArtifact[]): string {
   const sentences: string[] = []
   const seen = new Set<string>()
+  // A page that logged `no client is bonded` explains every request it sent without a
+  // token, so the advice names that mechanism once for the run
+  // (xr-molecule-flash-m156).
+  const unbondedClient = items.some((item) =>
+    item.console.some((line) => line.includes('no client is bonded')),
+  )
   for (const item of items) {
     for (const request of item.requests) {
       if (request.status !== 401 && request.status !== 403) continue
@@ -1500,7 +1525,7 @@ function authRefusalAdvice(items: readonly TraceArtifact[]): string {
       const key = `${request.status} ${request.sentAuthorization ? (request.authorization ?? 'header') : 'none'} ${request.sentCookie ? 'cookie' : ''}`
       if (seen.has(key)) continue
       seen.add(key)
-      sentences.push(authRefusalSentence(request))
+      sentences.push(authRefusalSentence(request, unbondedClient))
       if (sentences.length === 2) return ` ${sentences.join(' ')}`
     }
   }

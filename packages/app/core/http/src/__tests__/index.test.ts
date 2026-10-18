@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { unbondSingleton } from '@molecule/app-bond'
+import { isBonded, unbondSingleton } from '@molecule/app-bond'
 
 import type {
   ErrorInterceptor,
@@ -22,6 +22,7 @@ import {
   patch,
   post,
   put,
+  setAuthTokenSource,
   setClient,
 } from '../index.js'
 
@@ -32,6 +33,7 @@ describe('@molecule/app-http', () => {
     vi.stubGlobal('fetch', mockFetch)
     mockFetch.mockReset()
     // Reset the global client state by setting a new client
+    setAuthTokenSource(null)
     setClient(createFetchClient())
   })
 
@@ -139,6 +141,46 @@ describe('@molecule/app-http', () => {
 
       setClient(client2)
       expect(getClient().baseURL).toBe('https://two.com')
+    })
+
+    it('never bonds the fallback, so a client bonded later is what every call sees', () => {
+      // xr-molecule-flash-m156: a caller that ran before `setClient()` (the auth
+      // bond's token sync) used to BOND the no-baseURL fallback; the scaffold's
+      // real client then replaced the bond, but the caller's reference stayed on
+      // the orphan and every token it set was lost — 401 `token is missing`.
+      unbondSingleton('http-client')
+
+      const early = getClient()
+      expect(early.baseURL).toBe('')
+      expect(isBonded('http-client')).toBe(false)
+
+      const real = createFetchClient({ baseURL: 'https://api.test' })
+      setClient(real)
+
+      expect(getClient()).toBe(real)
+      expect(getClient()).not.toBe(early)
+    })
+
+    it('hydrates a client bonded after the token source was registered', () => {
+      // The scaffold wires auth BEFORE http, so the auth bond's restored token has
+      // no client to land on at setup. The source is what reaches the client bonded
+      // afterwards — reading a client reference at setup could not.
+      unbondSingleton('http-client')
+      setAuthTokenSource(() => 'restored-token')
+
+      const client = createFetchClient({ baseURL: 'https://api.test' })
+      setClient(client)
+
+      expect(client.getAuthToken()).toBe('restored-token')
+    })
+
+    it('hydrates the already-bonded client when the source is registered later', () => {
+      const client = createFetchClient({ baseURL: 'https://api.test' })
+      setClient(client)
+
+      setAuthTokenSource(() => 'restored-token')
+
+      expect(client.getAuthToken()).toBe('restored-token')
     })
   })
 

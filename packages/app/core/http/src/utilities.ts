@@ -1,9 +1,10 @@
 /**
  * HTTP bond accessor and convenience request functions.
  *
- * If no custom client is bonded, a fetch-based client is auto-created
- * on first access. Provides `get`, `post`, `put`, `patch`, and `del`
- * shorthand functions that delegate to the bonded client.
+ * If no custom client is bonded, a fetch-based client is returned — it is NOT
+ * bonded, so a client bonded later is what every subsequent call sees.
+ * Provides `get`, `post`, `put`, `patch`, and `del` shorthand functions that
+ * delegate to the bonded client.
  *
  * @module
  */
@@ -21,7 +22,55 @@ const BOND_TYPE = 'http-client'
 let warnedAboutFallback = false
 
 /**
+ * The client `getClient()` returns while nothing is bonded.
+ *
+ * Module-level and deliberately NEVER bonded: bonding it made the fallback the
+ * page's shared client, so a caller that read `getClient()` before
+ * `setClient()` captured a no-baseURL client that every later `setClient()`
+ * could not reach — the app's real client was bonded and the caller's token
+ * sync kept writing into the orphan, so every request went out bare
+ * (xr-molecule-flash-m156, 401 `token is missing` after a reload).
+ */
+let unbondedFallback: HttpClient | null = null
+
+/**
+ * The auth client whose token every HTTP client starts with, or null.
+ *
+ * `setClient` applies it at bond time, which is the only moment that can reach a
+ * client created AFTER the auth setup ran — the scaffold wires auth before http,
+ * so the auth bond's initial token had no client to land on
+ * (`createDefaultAuthClientWithHttpSync` in `@molecule/app-bonds-default-react`).
+ */
+let authTokenSource: (() => string | null | undefined) | null = null
+
+/**
+ * Registers the token source a newly bonded client is hydrated from, or clears
+ * it with `null`.
+ *
+ * The source is read once per bond: the client bonded AFTER this call (and the
+ * one bonded now, if any) receives `source()` through `setAuthToken`. That is
+ * what carries a restored session's token into a client the auth setup ran
+ * before — the setup does not need to hold a client reference at all.
+ *
+ * @param source - Returns the current access token (null when signed out), or `null` to clear.
+ *
+ * @example
+ * ```typescript
+ * setAuthTokenSource(() => authClient.getAccessToken())
+ * ```
+ */
+export const setAuthTokenSource = (source: (() => string | null | undefined) | null): void => {
+  authTokenSource = source
+  const bonded = bondGet<HttpClient>(BOND_TYPE)
+  if (bonded && source) bonded.setAuthToken(source() ?? null)
+}
+
+/**
  * Registers an HTTP client as the active singleton.
+ *
+ * A registered `setAuthTokenSource` token source is applied to the client
+ * here, so a client bonded after the auth setup still carries the restored
+ * session's token.
  *
  * @param client - The HTTP client implementation to bond.
  *
@@ -33,11 +82,12 @@ let warnedAboutFallback = false
  */
 export const setClient = (client: HttpClient): void => {
   bond(BOND_TYPE, client)
+  if (authTokenSource) client.setAuthToken(authTokenSource() ?? null)
 }
 
 /**
- * Retrieves the bonded HTTP client. If none is bonded, automatically
- * creates a default fetch-based client.
+ * Retrieves the bonded HTTP client. If none is bonded, returns a module-level
+ * fetch-based fallback — it is NOT bonded.
  *
  * The fallback has NO `baseURL` — a core cannot know an app's API prefix. A relative
  * call then resolves against the page origin, where a dev server answers its own HTML
@@ -45,13 +95,16 @@ export const setClient = (client: HttpClient): void => {
  * as a crash three components later; a scaffold bonds the shared client with its API
  * prefix, so the fallback only runs in an app that never bonded one.
  *
- * @returns The active HTTP client instance.
+ * Returning it WITHOUT bonding is what keeps a later `setClient()` authoritative: a
+ * caller that captured this fallback early does not make it the app's client, so the
+ * scaffold's client (and its token source) still takes effect for every later call.
+ *
+ * @returns The active HTTP client, or the unbonded fallback when none is bonded.
  */
 export const getClient = (): HttpClient => {
   const existing = bondGet<HttpClient>(BOND_TYPE)
   if (existing) return existing
-  const fallback = createFetchClient()
-  bond(BOND_TYPE, fallback)
+  if (!unbondedFallback) unbondedFallback = createFetchClient()
   if (!warnedAboutFallback) {
     warnedAboutFallback = true
     getLogger('http').warn(
@@ -59,7 +112,7 @@ export const getClient = (): HttpClient => {
         "Bond one: setClient(createFetchClient({ baseURL: '/api' })).",
     )
   }
-  return fallback
+  return unbondedFallback
 }
 
 /**
