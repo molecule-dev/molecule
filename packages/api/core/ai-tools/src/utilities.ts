@@ -445,7 +445,8 @@ export const PLAYWRIGHT_FAILURES_INLINE_ENV = 'PLAYWRIGHT_LIST_PRINT_FAILURES_IN
  * a whole walk of the same suite against the same app, and only the last step is rewritten, so the
  * earlier walks run unmeasured for nothing. X1 xr-molecule-flash-m157 (+14:02) chained two whole
  * walks of one 138-test suite with `;` — 4.5 minutes each — and the second measured nothing the
- * first had not. The platform already refuses a second CONCURRENT run against one app; this is the
+ * first had not. The platform refuses a second CONCURRENT run against one app and database by the
+ * ONE rule ({@link suiteRunInTheWay}) — for every pair, whatever uid a run mints — and this is the
  * same hazard inside one command ({@link suiteRunStatements}). `error` then carries the refusal,
  * naming each suite step and the ONE command to send instead (the last suite step, rewritten as
  * this function rewrites a run), and nothing is launched.
@@ -523,8 +524,9 @@ export function streamingBackgroundCommand(
   // A command that starts the suite more than once is not launched: each statement is a whole walk
   // of the same suite against the same app, only the last of them is rewritten, and the earlier
   // ones measure nothing the first did. X1 xr-molecule-flash-m157 (+14:02) chained two whole walks
-  // of one 138-test suite with `;` (4.5 minutes each); the platform already refuses a second
-  // CONCURRENT run against one app, and this is the same hazard inside one command. The reading is
+  // of one 138-test suite with `;` (4.5 minutes each); the platform refuses a second CONCURRENT
+  // run against one app and database by the ONE rule ({@link suiteRunInTheWay}) — for every pair,
+  // whatever uid a run mints — and this is the same hazard inside one command. The reading is
   // {@link repeatedSuiteRunError}'s, so a foreground `exec_command` refuses the same commands.
   const repeated = repeatedSuiteRunError(out)
   if (repeated) return { command: out, changes: [], error: repeated }
