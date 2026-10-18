@@ -1,5 +1,11 @@
 # @molecule/api-server-default-express
 
+## 1.0.4
+
+### Patch Changes
+
+- 99f6f19: The API server now keeps an idle keep-alive connection longer than a proxy's connection pool does, so a request is never reused onto a socket the server is closing.
+
 ## 1.0.3
 
 ### Patch Changes

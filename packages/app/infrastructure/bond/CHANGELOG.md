@@ -1,5 +1,11 @@
 # @molecule/app-bond
 
+## 1.0.3
+
+### Patch Changes
+
+- 1add3c1: Say whether a failed bond accessor ran before the app's bond setup or after it, and name the calling module.
+
 ## 1.0.1
 
 ### Patch Changes

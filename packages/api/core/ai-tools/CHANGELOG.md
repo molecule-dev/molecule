@@ -1,5 +1,14 @@
 # @molecule/api-ai-tools
 
+## 1.9.7
+
+### Patch Changes
+
+- cd5335c: A background command's redirected output is now the redirect of its own foreground statement — a backgrounded process's log or a group's redirect is not mistaken for the run's output — and a quoted target is resolved without its quotes.
+- b3147fb: A running browser suite whose every failure is a wait for an element the page never painted is now read as one cause — the page renders nothing — so the wait stops it and names the page's own error when the run printed one.
+- de2cea1: The failure-trace note now leads each failing test's row with the request the failing step itself sent and its response body, and the reader exposes that request as `TraceArtifact.lead`.
+- a57156e: The failure-trace note now names a document subresource that never finished loading, not only the app's API calls.
+
 ## 1.9.6
 
 ### Patch Changes
