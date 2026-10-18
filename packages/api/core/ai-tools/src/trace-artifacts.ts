@@ -923,6 +923,113 @@ function transportFailure(items: readonly TraceArtifact[]): TransportFailure | n
 }
 
 /**
+ * A failed 404 whose path carries none of the API prefixes the app's own calls name — the shape a
+ * dropped `setupProviders()` leaves: the shared HTTP client has no `baseURL`, so a call written as
+ * `/users` reaches the page origin without the `/api` the app's API is mounted under.
+ */
+interface MissingApiPrefixRequest {
+  /** The method as the trace recorded it (`POST`). */
+  method: string
+  /** The path the request went to (`/users`). */
+  path: string
+  /** The prefix the app's other API calls carry or its client config names (`/api`). */
+  prefix: string
+}
+
+/**
+ * A request's path when the trace recorded a same-origin path — `/users` — or null for an
+ * absolute URL (another origin's path is no evidence about this app's API).
+ *
+ * @param request - One request a trace recorded.
+ * @returns The path without a query or trailing slash, or null.
+ */
+function sameOriginPath(request: TraceRequest): string | null {
+  const raw = String(request.path ?? '').split(/[?#]/)[0] ?? ''
+  if (!raw.startsWith('/') || raw === '/') return null
+  return raw.replace(/\/+$/, '')
+}
+
+/**
+ * The API path prefixes the traced requests themselves show.
+ *
+ * A request whose path ends with another traced request's path carries that other path's prefix
+ * (`/api/users` beside `/users` → `/api`) — the trace's own evidence, with no literal in the code.
+ *
+ * @param items - The traces the note is about.
+ * @returns The one-segment prefixes (`/api`), sorted; empty when the traces show none.
+ */
+function tracedApiPrefixes(items: readonly TraceArtifact[]): string[] {
+  const paths = items.flatMap((item) =>
+    item.requests.map(sameOriginPath).filter((path): path is string => path !== null),
+  )
+  const prefixes = new Set<string>()
+  for (const longer of paths) {
+    for (const shorter of paths) {
+      if (longer === shorter || shorter.length < 2 || !longer.endsWith(shorter)) continue
+      const prefix = longer.slice(0, longer.length - shorter.length)
+      if (/^\/[^/]+$/.test(prefix)) prefixes.add(prefix)
+    }
+  }
+  return [...prefixes].sort()
+}
+
+/**
+ * The failed 404s whose path carries none of the known API prefixes.
+ *
+ * Only a run where the prefix is KNOWABLE diagnoses: the caller reads it from the app's client
+ * config, and the traces' own requests add what they show ({@link tracedApiPrefixes}). With no
+ * known prefix, an unprefixed path is just a path — assuming `/api` is how a correct request gets
+ * a wrong note.
+ *
+ * @param items - The traces the note is about.
+ * @param apiPrefixes - Prefixes the app's client config names (`['/api']`), never a literal.
+ * @returns One entry per distinct failed 404, in trace order.
+ */
+function missingApiPrefixRequests(
+  items: readonly TraceArtifact[],
+  apiPrefixes: readonly string[],
+): MissingApiPrefixRequest[] {
+  const prefixes = new Set(
+    [...apiPrefixes, ...tracedApiPrefixes(items)]
+      .map((prefix) => `/${String(prefix).replace(/^\/+|\/+$/g, '')}`)
+      .filter((prefix) => prefix !== '/'),
+  )
+  if (prefixes.size === 0) return []
+  const known = [...prefixes]
+  const out: MissingApiPrefixRequest[] = []
+  const seen = new Set<string>()
+  for (const item of items) {
+    for (const request of item.requests) {
+      // A document navigation is a page route, never an API call — a 404 on one says nothing
+      // about the client's base URL.
+      if (request.status !== 404 || request.type === 'document' || !failedRequest(request)) continue
+      const path = sameOriginPath(request)
+      if (path === null) continue
+      if (known.some((prefix) => path === prefix || path.startsWith(`${prefix}/`))) continue
+      const key = `${request.method} ${path}`
+      if (seen.has(key)) continue
+      seen.add(key)
+      out.push({ method: request.method, path, prefix: known[0] ?? '' })
+    }
+  }
+  return out
+}
+
+/**
+ * The sentence naming a request that reached the page origin without the app's API prefix.
+ *
+ * @param request - The failed request and the prefix its sibling calls carry.
+ * @returns The sentence the note appends.
+ */
+function missingApiPrefixSentence(request: MissingApiPrefixRequest): string {
+  return (
+    `\`${request.method} ${request.path}\` → 404: this request went to \`${request.path}\` ` +
+    `without the \`${request.prefix}\` prefix — the HTTP client's base URL is not set: is ` +
+    '`setupProviders()` (which runs the HTTP bond setup) called in `main.tsx`?'
+  )
+}
+
+/**
  * The note a failed suite run's result carries: what each failing test's page actually sent, and
  * what came back.
  *
@@ -966,10 +1073,20 @@ function transportFailure(items: readonly TraceArtifact[]): TransportFailure | n
  * fetch stalled for 27 s (xr-molecule-flash-m135 +34:10). The page shell's incidental requests
  * (`/sw.js`, the manifest, a favicon, a font) stay out, for m125's reason.
  *
+ * A 404 whose path lacks the API prefix the app's own calls carry is called out with that prefix
+ * ({@link missingApiPrefixRequests}): xr-molecule-flash-m145 posted `/users` to `vite preview`,
+ * whose 404 was answered by the static server because the HTTP client's `baseURL` was never set —
+ * and the note printed "read the handler this route reaches in your own source", which presumes a
+ * request that never reached the API. The prefix is READ (the caller passes what the app's client
+ * config names; the traces add what their own requests show) and never assumed to be `/api`.
+ *
  * @param items - The traces {@link parseTraceArtifacts} read.
  * @param target - Where the run went — the deployed host, as the note names it.
  * @param earlierFailures - The failing `file:line`s earlier walks of this suite left, so a repeat
  *   is ranked above a one-off. Empty when the caller knows of no earlier walk.
+ * @param apiPrefixes - The API path prefixes the app's client config names (`['/api']`), read from
+ *   the app by the caller. Empty when the caller could not read one; the traces' own requests may
+ *   still supply it. Never a hard-coded literal.
  * @returns The note, or null when no trace held a recorded response, a real failure or a console
  *   error.
  */
@@ -977,6 +1094,7 @@ export function failureTraceNote(
   items: readonly TraceArtifact[],
   target: string,
   earlierFailures: readonly string[] = [],
+  apiPrefixes: readonly string[] = [],
 ): string | null {
   const candidates = items.filter(traceRowEvidence)
   if (candidates.length === 0) return null
@@ -1000,6 +1118,24 @@ export function failureTraceNote(
   )
   // The "one of these requests failing" answer is only honest when a listed request really failed.
   const anyFailed = traced.some((item) => item.requests.some(failedRequest))
+  // m145's shape: the app's HTTP client lost its base URL, so every API call reached the page
+  // origin without the prefix the app mounts its routes under. The prefix is READ — the caller's
+  // client config plus what the traces show — never assumed to be `/api`.
+  const missingPrefix = missingApiPrefixRequests(traced, apiPrefixes)
+  const failedRequests = traced.flatMap((item) => item.requests.filter(failedRequest))
+  const missingKeys = new Set(missingPrefix.map((request) => `${request.method} ${request.path}`))
+  const everyFailureLacksPrefix =
+    failedRequests.length > 0 &&
+    failedRequests.every((request) => {
+      const path = sameOriginPath(request)
+      return path !== null && missingKeys.has(`${request.method} ${path}`)
+    })
+  // The route advice goes when every failure is one of these: a request that never reached the
+  // API has no handler to read (m145's note sent the run to the PWA and then to the handler).
+  const prefixAdvice =
+    missingPrefix.length > 0
+      ? ` ${missingPrefix.slice(0, 2).map(missingApiPrefixSentence).join(' ')}`
+      : ''
   // The document subresources that never finished anywhere in this read — the assets a timed-out
   // navigation was waiting on, when there is no failed request to explain the timeout.
   const stalledAssets = [
@@ -1129,9 +1265,11 @@ export function failureTraceNote(
     `requests that failed, the ones that got no response, and its last answered ones):\n` +
     `${rows.join('\n')}${more}\n` +
     (anyFailed
-      ? 'A click that changed nothing is usually one of these requests failing, not the selector: ' +
-        'read the handler this route reaches in your own source, and stop `catch`-ing the request of a ' +
-        'user action silently — log it.'
+      ? everyFailureLacksPrefix
+        ? ''
+        : 'A click that changed nothing is usually one of these requests failing, not the selector: ' +
+          'read the handler this route reaches in your own source, and stop `catch`-ing the request of a ' +
+          'user action silently — log it.'
       : stalledAssets.length > 0
         ? 'No listed request failed — none got a 4xx/5xx or a network error — but the document did ' +
           'not finish loading because its own subresource never answered. Do not read this as a ' +
@@ -1142,6 +1280,7 @@ export function failureTraceNote(
           'row): if it is not the request the test meant — an unfollow sent where the test clicked ' +
           'follow — the state the click read was stale before it. Otherwise read the state the ' +
           'failing test waited on.') +
+    prefixAdvice +
     (wrapped
       ? ' The API received a body wrapped in `data`: app-http’s `post(url, data, config)` / ' +
         '`put(url, data, config)` / `patch(url, data, config)` take the body as their SECOND ' +

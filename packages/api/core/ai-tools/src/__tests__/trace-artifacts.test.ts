@@ -1232,3 +1232,72 @@ describe('traceArtifactsScript — a document subresource that never finished (m
     }
   })
 })
+
+/**
+ * m145's walk (+21:18 → +31:08): `main.tsx` stopped calling `setupProviders()`, so the HTTP bond
+ * never ran, `getClient()` had no baseURL, and the browser posted `/users` to `vite preview` on
+ * `:4173` — which answered 404. The note printed the 404 and told the run to "read the handler
+ * this route reaches", which presumes the API saw a request that never reached it. These are that
+ * trace's rows.
+ */
+describe('failureTraceNote — a 404 that never reached the API prefix (m145)', () => {
+  const m145 = (path = '/users'): TraceArtifact[] => [
+    {
+      spec: 'e2e/auth.spec.ts',
+      line: 9,
+      requests: [
+        {
+          method: 'POST',
+          path,
+          status: 404,
+          type: 'fetch',
+          sent: '{"user":{"username":"testuser"}}',
+        },
+        { method: 'GET', path: '/workbox-d8ed3718.js', status: 200, type: 'script' },
+        { method: 'GET', path: '/icons/splash-1536x2048.svg', status: 200, type: 'image' },
+      ],
+      console: ['Failed to load resource: the server responded with a status of 404 (Not Found)'],
+      actions: [],
+    },
+  ]
+
+  it('names the missing prefix and the unset client base URL', () => {
+    const note = String(failureTraceNote(m145(), 'http://127.0.0.1:4173', [], ['/api']))
+    expect(note).toContain('POST /users → 404')
+    expect(note).toContain('this request went to `/users` without the `/api` prefix')
+    expect(note).toContain("the HTTP client's base URL is not set")
+    expect(note).toContain(
+      '`setupProviders()` (which runs the HTTP bond setup) called in `main.tsx`',
+    )
+    // The route advice goes: a request the API never saw has no handler to read.
+    expect(note).not.toContain('read the handler this route reaches')
+  })
+
+  it('learns the prefix from another request in the same trace, with no literal', () => {
+    const items = m145()
+    items[0]!.requests.push({ method: 'GET', path: '/api/users', status: 200, type: 'fetch' })
+    const note = String(failureTraceNote(items, 'http://127.0.0.1:4173'))
+    expect(note).toContain('this request went to `/users` without the `/api` prefix')
+  })
+
+  it('says nothing when the path already carries the prefix', () => {
+    const note = String(failureTraceNote(m145('/api/users'), 'http://127.0.0.1:4173', [], ['/api']))
+    expect(note).not.toContain('without the `/api` prefix')
+    // A 404 that DOES carry the prefix keeps the ordinary reading.
+    expect(note).toContain('read the handler this route reaches')
+  })
+
+  it('says nothing when no prefix is known', () => {
+    const note = String(failureTraceNote(m145(), 'http://127.0.0.1:4173'))
+    expect(note).not.toContain('without the')
+    // Not knowing the prefix leaves the ordinary reading in place — a wrong prefix is worse.
+    expect(note).toContain('read the handler this route reaches')
+  })
+
+  it('says nothing about a 404 on a document navigation', () => {
+    const items = m145('/articles')
+    items[0]!.requests[0]!.type = 'document'
+    const note = String(failureTraceNote(items, 'http://127.0.0.1:4173', [], ['/api']))
+    expect(note).not.toContain('without the `/api` prefix')
+  })
+})
