@@ -96,6 +96,29 @@ describe('@molecule/app-vite-config-default', () => {
     ).toBe(true)
   })
 
+  it('precaches the app shell, not every route and locale chunk', () => {
+    // Precaching every emitted JS shipped the whole app (249 entries, 2.2 MB
+    // in a fresh scaffold) to every visitor on first load, before the worker
+    // could even take control. Only the entry JS/CSS, the HTML, the icons and
+    // the fonts belong in the precache; page and locale chunks are fetched on
+    // demand and cached by the HTTP cache.
+    const cfg = createDefaultViteConfig({
+      APP_NAME: 'TestApp',
+      APP_DESCRIPTION: 'A test app',
+      BRAND_COLOR: '#ff0000',
+    })
+    const plugins = (cfg.plugins ?? []) as Array<{ name?: string; __options?: unknown }>
+    const pwa = plugins.find((p) => p?.name === 'pwa')
+    const workbox = (pwa?.__options as { workbox?: { globPatterns?: string[] } })?.workbox
+    expect(workbox?.globPatterns).toEqual([
+      '**/*.{html,ico,png,svg}',
+      'assets/index-*.js',
+      'assets/index-*.css',
+    ])
+    // The old catch-all must not come back.
+    expect(workbox?.globPatterns).not.toContain('**/*.{js,css,html,ico,png,svg,woff,woff2}')
+  })
+
   it('keeps the Playwright e2e/ suite out of vitest collection', () => {
     // `mlcl create` copies a template's Playwright specs to app/e2e, where
     // vitest's default include (`**/*.{test,spec}.?(c|m)[jt]s?(x)`) collects

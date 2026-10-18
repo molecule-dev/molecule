@@ -1,4 +1,7 @@
-import { describe, expect, it } from 'vitest'
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
+
+import { describe, expect, it, vi } from 'vitest'
 
 import { LANGUAGE_DEFINITIONS } from '../languages.js'
 import { setupI18nDefault } from '../setup.js'
@@ -195,5 +198,90 @@ describe('setupI18nDefault', () => {
     })
     await provider.setLocale('es-MX')
     expect(provider.t('common.close')).toBe('Cerrar')
+  })
+
+  describe('packageLocaleLoaders (lazy companion bonds)', () => {
+    it('loads a companion bond only when its locale is selected', async () => {
+      const calls: string[] = []
+      const authLoader = async (code: string) => {
+        calls.push(`auth:${code}`)
+        return code === 'es' ? { 'auth.signIn': 'Iniciar sesión' } : undefined
+      }
+      const provider = setupI18nDefault({
+        enUi: {},
+        lazyLoadUi: () => Promise.resolve({}),
+        supportedLocales: ['es'],
+        packageLocaleLoaders: [authLoader],
+      })
+      // English is the default locale, so its dictionaries are requested at
+      // setup (asynchronously) — but nothing for `es` is fetched until the
+      // user actually switches to it.
+      expect(calls).toEqual(['auth:en'])
+      await provider.setLocale('es')
+      expect(calls).toEqual(['auth:en', 'auth:es'])
+      expect(provider.t('auth.signIn')).toBe('Iniciar sesión')
+      // ...and switching back does not re-fetch that locale's dictionaries.
+      await provider.setLocale('en')
+      await provider.setLocale('es')
+      expect(calls).toEqual(['auth:en', 'auth:es'])
+    })
+
+    it('merges common bond < companion bonds < the app ui.ts, in that order', async () => {
+      const provider = setupI18nDefault({
+        enUi: {},
+        lazyLoadUi: () => Promise.resolve({ 'common.close': 'App close', 'app.key': 'ui' }),
+        supportedLocales: ['es'],
+        packageLocaleLoaders: [async () => ({ 'common.close': 'Bond close' })],
+      })
+      await provider.setLocale('es')
+      // The app's own translation wins; the companion bond beats the common
+      // dictionary for a key the app does not translate.
+      expect(provider.t('common.close')).toBe('App close')
+      expect(provider.t('app.key')).toBe('ui')
+    })
+
+    it('keeps the rest of a locale when one companion bond rejects', async () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      const provider = setupI18nDefault({
+        enUi: {},
+        lazyLoadUi: () => Promise.resolve({ 'app.key': 'value' }),
+        supportedLocales: ['es'],
+        packageLocaleLoaders: [
+          async (code) => {
+            if (code === 'es') throw new Error('bond chunk failed to load')
+            return undefined
+          },
+          async () => ({ 'auth.signIn': 'Iniciar sesión' }),
+        ],
+      })
+      await provider.setLocale('es')
+      expect(provider.t('auth.signIn')).toBe('Iniciar sesión')
+      expect(warn).toHaveBeenCalledTimes(1)
+      warn.mockRestore()
+    })
+
+    it('enriches English from the companion bonds after setup (default locale)', async () => {
+      const provider = setupI18nDefault({
+        enUi: { 'app.greeting': 'Hello' },
+        lazyLoadUi: () => Promise.resolve({}),
+        supportedLocales: [],
+        packageLocaleLoaders: [async () => ({ 'auth.signIn': 'Sign in', 'app.greeting': 'Bond' })],
+      })
+      // Loaded asynchronously so first paint never waits on the dictionaries.
+      for (let i = 0; i < 2; i++) await flushAsync()
+      expect(provider.t('auth.signIn')).toBe('Sign in')
+      // The app's own English still wins.
+      expect(provider.t('app.greeting')).toBe('Hello')
+    })
+  })
+
+  it('never star-imports the common locale bond (that pulls all 79 dictionaries)', () => {
+    // A star-import of `@molecule/app-locales-common` in this package shipped
+    // every language's common dictionary inside EVERY consuming app's entry
+    // chunk. Only the per-language loader entry may be imported here.
+    const source = readFileSync(join(import.meta.dirname, '..', 'setup.ts'), 'utf8')
+    expect(source).not.toMatch(/import \* as \w+ from '@molecule\/app-locales-common'/)
+    expect(source).toContain("from '@molecule/app-locales-common/loader.js'")
+    expect(source).toContain("from '@molecule/app-locales-common/en.js'")
   })
 })

@@ -16,6 +16,14 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./loader.js": {
+      "types": "./dist/loader.d.ts",
+      "import": "./dist/loader.js"
+    },
+    "./en.js": {
+      "types": "./dist/en.d.ts",
+      "import": "./dist/en.js"
     }
   },
   "files": [

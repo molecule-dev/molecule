@@ -212,7 +212,13 @@ export function createDefaultViteConfig(branding: DefaultViteConfigBranding): Us
       // generateSW ships no 'push' listener of its own, so without this a
       // delivered web-push displays nothing.
       importScripts: [PUSH_SW_FILENAME],
-      globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
+      // Precache the SHELL only: the HTML, the entry JS/CSS and the icons.
+      // Everything the router splits out (page and locale chunks) and the
+      // font files are fetched on demand and served from the HTTP cache;
+      // precaching them made a fresh install download the whole app (249
+      // entries, 2.2 MB, plus ~5 MB of fonts) before the worker could even
+      // take control.
+      globPatterns: ['**/*.{html,ico,png,svg}', 'assets/index-*.js', 'assets/index-*.css'],
       // No runtime API caching. The old rule matched every /api/ request with
       // NetworkFirst, which tried to cache SSE/streaming GETs (EventSource,
       // text/event-stream) and threw "Cache.put() encountered a network error",

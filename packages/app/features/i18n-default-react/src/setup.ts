@@ -1,20 +1,35 @@
 import type { I18nProvider } from '@molecule/app-i18n'
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
-import * as common from '@molecule/app-locales-common'
+import { en as commonEn } from '@molecule/app-locales-common/en.js'
+import { loadLocaleModule as loadCommonLocale } from '@molecule/app-locales-common/loader.js'
 
 import { LANGUAGE_DEFINITIONS } from './languages.js'
 
-const COMMON = common as unknown as Record<string, Record<string, string>>
+/**
+ * Common translations for `code`, loaded on demand. Regional codes fall back
+ * to their base language before English (`es-MX` → `es`), so a regional locale
+ * with no dedicated common export renders the base language rather than
+ * silently switching to English.
+ *
+ * The common bond is imported through its `/loader.js` entry, which pulls ONE
+ * language dictionary per call. Importing the bond itself (`import * as
+ * common`) ships all 79 of its dictionaries — and any caller that did the same
+ * for every companion bond put megabytes of translations in the app's entry
+ * chunk, which is exactly what made a scaffolded app's first full load
+ * download every language it might ever show.
+ */
+const commonFor = async (code: string): Promise<Record<string, string>> =>
+  (await loadCommonLocale(code)) ?? (await loadCommonLocale('en')) ?? {}
 
 /**
- * Common translations for `code`. Regional codes fall back to their base
- * language before English (`es-MX` → `esMX` export if present, else `es`,
- * else `en`) — previously a regional locale with no dedicated common export
- * silently got ENGLISH common strings while the rest of the page rendered
- * in the base language.
+ * One companion bond's lazy per-language loader — the `loadLocaleModule`
+ * export of `@molecule/app-locales-<name>/loader.js`.
+ *
+ * @param code - Locale code, e.g. `en`, `pt`, `zh-TW`.
+ * @returns That bond's translations for the locale, or `undefined` when the
+ * bond has none.
  */
-const commonFor = (code: string): Record<string, string> =>
-  COMMON[code.replace('-', '')] ?? COMMON[code.split('-')[0]] ?? COMMON.en
+export type PackageLocaleLoader = (code: string) => Promise<Record<string, string> | undefined>
 
 /**
  * Shape of a per-package locale bond passed via `packageLocales`.
@@ -76,6 +91,26 @@ export interface SetupI18nDefaultOptions {
    */
   packageLocales?: readonly PackageLocaleBond[]
   /**
+   * Per-package locale bonds registered LAZILY, one language at a time.
+   *
+   * Each entry is that bond's `loadLocaleModule` export, imported from
+   * `@molecule/app-locales-<name>/loader.js`. Nothing from these bonds is in
+   * the entry bundle: the loader is called with a locale code the first time
+   * that locale is selected, and only that language's dictionary is fetched.
+   *
+   * Prefer this over {@link packageLocales}: a star-import of the bond pulls
+   * every one of its ~79 dictionaries into the importing chunk (several
+   * megabytes across a typical app's dependencies).
+   *
+   * @example
+   * ```ts
+   * import { loadLocaleModule as authLocales } from '@molecule/app-locales-auth/loader.js'
+   *
+   * setupI18nDefault({ enUi: en, lazyLoadUi, packageLocaleLoaders: [authLocales] })
+   * ```
+   */
+  packageLocaleLoaders?: readonly PackageLocaleLoader[]
+  /**
    * Optional allowlist of locale codes the app actually supports.
    *
    * When provided, only these locales are registered with the i18n
@@ -131,8 +166,33 @@ export function setupI18nDefault({
   enUi,
   lazyLoadUi,
   packageLocales,
+  packageLocaleLoaders,
   supportedLocales,
 }: SetupI18nDefaultOptions): I18nProvider {
+  /**
+   * Translations contributed by the lazily-registered companion bonds for one
+   * locale. A bond that has no dictionary for the code resolves `undefined`;
+   * a bond whose loader rejects is reported and skipped, because one broken
+   * companion must not make every other locale unusable (the app's own `ui.ts`
+   * and the common bond still render).
+   */
+  const packageTranslations = async (code: string): Promise<Record<string, string>> => {
+    if (!packageLocaleLoaders || packageLocaleLoaders.length === 0) return {}
+    const loaded = await Promise.allSettled(packageLocaleLoaders.map((load) => load(code)))
+    const merged: Record<string, string> = {}
+    for (const result of loaded) {
+      if (result.status === 'fulfilled') {
+        if (result.value) Object.assign(merged, result.value)
+      } else {
+        console.warn(
+          `[molecule:i18n] a companion locale bond failed to load locale "${code}" — continuing without it`,
+          result.reason,
+        )
+      }
+    }
+    return merged
+  }
+
   const provider = createSimpleI18nProvider(
     'en',
     LANGUAGE_DEFINITIONS.map((lang) => {
@@ -141,18 +201,23 @@ export function setupI18nDefault({
           code: lang.code,
           name: lang.name,
           direction: lang.direction,
-          translations: { ...common.en, ...enUi },
+          translations: { ...commonEn, ...enUi },
         }
       }
       return {
         code: lang.code,
         name: lang.name,
         direction: lang.direction,
-        loader: () =>
-          lazyLoadUi(lang.code).then((ui) => ({
-            ...commonFor(lang.code),
-            ...ui,
-          })),
+        loader: async () => {
+          // Merge order is the documented precedence: common bond < companion
+          // bonds < the app's own ui.ts.
+          const [common, packages, ui] = await Promise.all([
+            commonFor(lang.code),
+            packageTranslations(lang.code),
+            lazyLoadUi(lang.code),
+          ])
+          return { ...common, ...packages, ...ui }
+        },
       }
     }),
   )
@@ -178,6 +243,18 @@ export function setupI18nDefault({
     // (Non-en locales already preserve the rule: their `lazyLoadUi` merge
     // happens after bond registration.)
     provider.addTranslations('en', enUi)
+  }
+
+  // English is the default locale, so its companion-bond dictionaries are
+  // fetched at startup rather than waiting for a locale switch. They arrive
+  // after the first render — `t()` falls back to each call's inline English
+  // defaultValue until then, so first paint never waits on them. `enUi` is
+  // re-applied afterwards so the app's own translations still win.
+  if (packageLocaleLoaders && packageLocaleLoaders.length > 0) {
+    void packageTranslations('en').then((translations) => {
+      provider.addTranslations('en', translations)
+      provider.addTranslations('en', enUi)
+    })
   }
 
   // Filter out locales whose app-specific `ui.ts` is empty so the
