@@ -17,6 +17,7 @@ import {
 import { classifyRunFailure, type RunFailureKind } from './failure-kind.js'
 import { commandRunsNoTests } from './no-test-run.js'
 import {
+  type DiagnosisRunContext,
   isDiagnosisRun,
   scopedRerunCommand,
   suiteCommandTarget,
@@ -450,10 +451,17 @@ export const PLAYWRIGHT_FAILURES_INLINE_ENV = 'PLAYWRIGHT_LIST_PRINT_FAILURES_IN
  * this function rewrites a run), and nothing is launched.
  *
  * @param command - The command as the executor sent it.
+ * @param context - What the caller knows beyond the command: the tests the person's request
+ *   excludes by name ({@link DiagnosisRunContext}). A `--grep-invert` of exactly those is the
+ *   request's own scope, not a diagnosis, so it keeps the suite's retries on a deployed proof
+ *   (xr-molecule-flash-m170 +33:16).
  * @returns The command to run and one sentence per change made (empty when none), or `error` when
  *   the command starts the suite more than once.
  */
-export function streamingBackgroundCommand(command: string): {
+export function streamingBackgroundCommand(
+  command: string,
+  context?: DiagnosisRunContext,
+): {
   command: string
   changes: string[]
   error?: string
@@ -565,7 +573,7 @@ export function streamingBackgroundCommand(command: string): {
   // {@link isDiagnosisRun}'s answer and nobody else's: the platform's notes ask the same
   // function, so a run cannot be a diagnosis to one of them and the whole suite to the other.
   // Which targets are local is {@link suiteCommandTarget}'s answer.
-  const diagnosis = isDiagnosisRun(lastStep)
+  const diagnosis = isDiagnosisRun(lastStep, context)
   const localTarget = suiteCommandTarget(lastStep) === 'local'
   // The last step's reporters: one printer, and it is `list`. Every branch below only ever moves
   // the command TO that shape — a reporter set is never left with two printers in it.
@@ -636,10 +644,13 @@ export function streamingBackgroundCommand(command: string): {
     )
   }
   if (finalPlaywrightRun && (diagnosis || localTarget) && !/--retries\b/.test(lastStep)) {
-    if (addToRun('--retries=0'))
-      changes.push(
-        'Added `--retries=0`: a local run walks each failure once; the suite’s retries apply on the deployed proof run.',
-      )
+    // The reason named is the one that fired: a narrowed diagnosis against a DEPLOYED URL is not a
+    // local run, and calling it one (xr-molecule-flash-m170's note did) reads as the platform having
+    // misread the target.
+    const why = diagnosis
+      ? 'a diagnosis or re-run walks each failure once; the suite’s retries apply on the deployed proof run'
+      : 'a local run walks each failure once; the suite’s retries apply on the deployed proof run'
+    if (addToRun('--retries=0')) changes.push(`Added \`--retries=0\`: ${why}.`)
   }
   return { command: out, changes }
 }

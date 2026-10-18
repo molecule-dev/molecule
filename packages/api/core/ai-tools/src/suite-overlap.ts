@@ -33,7 +33,7 @@ import { posix } from 'node:path'
 
 import { commandSegments, locatedCommandSegments } from './command-position.js'
 import { commandRunsNoTests } from './no-test-run.js'
-import { shellQuote, suiteRunStatements } from './utilities.js'
+import { matchingExcludedTitles, shellQuote, suiteRunStatements } from './utilities.js'
 
 /**
  * A command with its heredoc bodies removed: the runs, kills and hosts it names in a file it
@@ -378,6 +378,50 @@ const NARROWED_RUN =
   /\.(?:spec|test)\.[cm]?[jt]sx?\b|\.[cm]?[jt]sx?:\d+|(?:^|\s)(?:-g|--grep(?:-invert)?|--last-failed|--only-changed)\b/
 
 /**
+ * A `--grep-invert` (or its `-G` alias) with the pattern Playwright takes: quoted or bare, `=` or
+ * whitespace between flag and value, the last occurrence winning as it does on the runner's own
+ * command line. The flag's own name has to be followed by `=` or whitespace, so `--grep` never
+ * matches `--grep-invert`; and a value never crosses a shell separator, so a flag written last
+ * cannot eat the statement after it.
+ */
+const GREP_INVERT_VALUE =
+  /(?:^|[\s;&|(])(?:--grep-invert|-G)(?:=|\s+)(?:'([^']*)'|"([^"]*)"|([^\s;&|]+))/g
+
+/**
+ * The `--grep-invert` pattern a Playwright invocation carries, or null when it carries none.
+ *
+ * @param run - The Playwright invocation's command-position text.
+ * @returns The pattern as the command wrote it, or null.
+ */
+function grepInvertPattern(run: string): string | null {
+  const last = [...run.matchAll(GREP_INVERT_VALUE)].at(-1)
+  if (!last) return null
+  return last[1] ?? last[2] ?? last[3] ?? null
+}
+
+/**
+ * The invocation without its `--grep-invert` flags, so the OTHER narrowers can be read on their
+ * own: a run that greps AND names a file is still a diagnosis whatever its inversion excludes.
+ *
+ * @param run - The Playwright invocation's command-position text.
+ * @returns The same text with every `--grep-invert`/`-G` flag and value taken out.
+ */
+function withoutGrepInvert(run: string): string {
+  return run.replace(GREP_INVERT_VALUE, ' ')
+}
+
+/**
+ * What a caller knows about the run being judged beyond its command text.
+ */
+export interface DiagnosisRunContext {
+  /**
+   * The test titles the person's request excludes by name — the same reading molecule-dev's
+   * `excludedTestTitles` gives the rest of the platform.
+   */
+  approvedExclusions?: readonly string[]
+}
+
+/**
  * The Playwright invocation's text when the command starts one, or null.
  *
  * @param command - The command as the executor sent it.
@@ -437,15 +481,28 @@ function boundsFailures(command: string): boolean {
  * diagnosis. A command that starts no Playwright run is not one either (false): the question is
  * about a run already read as a Playwright suite.
  *
+ * A `--grep-invert` is only a narrowing when it excludes MORE than the request already excludes.
+ * When the caller passes those approved titles ({@link DiagnosisRunContext}) and the inverted
+ * pattern names one of them — the request's own "except …" scope written as the flag, which
+ * molecule-dev's `invertDecision` reads the same way — the run still walks the whole proof scope,
+ * and it is not a diagnosis. xr-molecule-flash-m170 (+33:16): the deployed proof carried exactly
+ * that exclusion, the rewriter added `--retries=0` to it, and the run lost the suite's retries on
+ * the one walk where a network blip is likeliest.
+ *
  * @param command - The command as the executor sent it.
+ * @param context - The request's approved exclusions, when the caller knows them.
  * @returns True when the run is a diagnosis or a re-run, not the whole suite.
  */
-export function isDiagnosisRun(command: string): boolean {
+export function isDiagnosisRun(command: string, context?: DiagnosisRunContext): boolean {
   if (boundsFailures(command)) return true
   const run = playwrightRun(command)
   if (run === null) return false
   // A run that only collects and prints (`playwright test --list`, `--version`) walks no part of
   // the suite either, and is not the whole-suite run the retries belong on.
   if (commandRunsNoTests(run)) return true
-  return NARROWED_RUN.test(run)
+  const inverted = grepInvertPattern(run)
+  if (inverted === null) return NARROWED_RUN.test(run)
+  // A file, a line, a `-g`, `--last-failed` … narrows the run whatever the inversion also drops.
+  if (NARROWED_RUN.test(withoutGrepInvert(run))) return true
+  return matchingExcludedTitles(inverted, context?.approvedExclusions ?? []).length === 0
 }

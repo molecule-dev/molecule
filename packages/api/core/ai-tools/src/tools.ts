@@ -2697,7 +2697,12 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           if (lifted.seconds !== null) command = lifted.command
           // Keep the log growing while it runs (see streamingBackgroundCommand):
           // an empty log is what wait_for_task reads as stuck.
-          const streaming = streamingBackgroundCommand(command)
+          // The request's own exclusions ride along: a `--grep-invert` that names one of them is
+          // the proof scope written as a flag, not a diagnosis, so it keeps the suite's retries
+          // (xr-molecule-flash-m170 +33:16). The getter is the host's, read here at launch time.
+          const streaming = streamingBackgroundCommand(command, {
+            approvedExclusions: excludedTestTitles?.() ?? [],
+          })
           // A command that starts the suite more than once is refused here, before anything is
           // written or launched: each walk measures the same code, and only the last is rewritten
           // (X1 xr-molecule-flash-m157 +14:02 — two whole walks chained with `;`).

@@ -601,7 +601,8 @@ describe('streamingBackgroundCommand', () => {
         'Added `--reporter=list` so each test result is written to the log as it finishes ' +
           '(the config reporter may print nothing until the end).',
         INLINE_CHANGE,
-        'Added `--retries=0`: a local run walks each failure once; the suite’s retries apply on the deployed proof run.',
+        // A named file is a diagnosis, and the note says so rather than calling it local (m170).
+        'Added `--retries=0`: a diagnosis or re-run walks each failure once; the suite’s retries apply on the deployed proof run.',
       ],
     })
   })
@@ -834,7 +835,8 @@ describe('streamingBackgroundCommand', () => {
       command: `${INLINE_HEAD}npx playwright test --max-failures=15 --reporter=list --retries=0`,
       changes: [
         INLINE_CHANGE,
-        'Added `--retries=0`: a local run walks each failure once; the suite’s retries apply on the deployed proof run.',
+        // A capped walk is a diagnosis, and the note says so rather than calling it local (m170).
+        'Added `--retries=0`: a diagnosis or re-run walks each failure once; the suite’s retries apply on the deployed proof run.',
       ],
     })
   })
@@ -1003,6 +1005,75 @@ describe('streamingBackgroundCommand — a local whole run walks each failure on
     expect(command).toContain('--retries=2')
     expect(command).not.toContain('--retries=0')
     expect(changes.join(' ')).not.toContain('--retries=0')
+  })
+})
+
+/**
+ * xr-molecule-flash-m170 (+33:16): the deployed proof named its URL and carried the request's own
+ * exclusion as `--grep-invert`, and the rewriter still added `--retries=0` — the one walk where a
+ * network blip is likeliest lost the suite's retries. The request's approved exclusion is the
+ * proof's own scope ({@link isDiagnosisRun}), not a diagnosis; a real grep still is one.
+ */
+describe('streamingBackgroundCommand — an approved exclusion keeps the proof’s retries (m170)', () => {
+  const APPROVED = ['should require login to post comment']
+  const deployed = (filter: string): string =>
+    'cd /workspace/fixtures/realworld/specs/e2e && BASE_URL=https://x.apps.mlcl.dev ' +
+    'npx playwright test --config playwright.run.config.ts --reporter=list ' +
+    filter
+
+  it('keeps the suite’s retries on a deployed run whose only filter is the approved exclusion', () => {
+    for (const flag of [
+      "--grep-invert 'should require login to post comment'",
+      '--grep-invert="should require login to post comment"',
+      "-G 'should require login to post comment'",
+    ]) {
+      const { command, changes } = streamingBackgroundCommand(deployed(flag), {
+        approvedExclusions: APPROVED,
+      })
+      expect(command, flag).not.toContain('--retries')
+      expect(changes.join(' '), flag).not.toContain('--retries=0')
+    }
+  })
+
+  it('still disables retries on a deployed run narrowed to a part of the suite', () => {
+    for (const filter of ['--grep "should create a new article"', 'articles.spec.ts:32']) {
+      const { command, changes } = streamingBackgroundCommand(deployed(filter), {
+        approvedExclusions: APPROVED,
+      })
+      expect(command, filter).toContain('--retries=0')
+      // The sentence names the diagnosis rather than calling a deployed run local.
+      expect(changes.join(' '), filter).toContain(
+        'a diagnosis or re-run walks each failure once; the suite’s retries apply on the deployed proof run',
+      )
+    }
+  })
+
+  it('still disables retries when the inversion drops more than the approved exclusions', () => {
+    const unapproved = streamingBackgroundCommand(
+      deployed("--grep-invert 'should show an error'"),
+      {
+        approvedExclusions: APPROVED,
+      },
+    )
+    expect(unapproved.command).toContain('--retries=0')
+    // No approved titles in hand: the inversion cannot be shown to be the request's scope.
+    const unknown = streamingBackgroundCommand(
+      deployed("--grep-invert 'should require login to post comment'"),
+    )
+    expect(unknown.command).toContain('--retries=0')
+  })
+
+  it('leaves the local whole run walking each failure once', () => {
+    const local =
+      'cd /workspace/my-app/app && TEST_MODE=fullstack npx playwright test ' +
+      '--config=e2e-suite.config.ts --reporter=list'
+    const { command, changes } = streamingBackgroundCommand(local, {
+      approvedExclusions: APPROVED,
+    })
+    expect(command).toContain('--retries=0')
+    expect(changes.join(' ')).toContain(
+      'a local run walks each failure once; the suite’s retries apply on the deployed proof run',
+    )
   })
 })
 

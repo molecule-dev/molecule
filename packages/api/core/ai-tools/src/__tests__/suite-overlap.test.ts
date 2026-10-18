@@ -14,6 +14,7 @@ import { describe, expect, it } from 'vitest'
 
 import { commandSegments } from '../command-position.js'
 import {
+  isDiagnosisRun,
   namesSuiteConfig,
   scopedRerunCommand,
   suiteCommandTarget,
@@ -328,5 +329,46 @@ describe('a composed re-run names its locations the way Playwright matches them 
       'cd /w && npx playwright test /workspace/fixtures/realworld/specs/e2e/a.spec.ts:1 ' +
         'fixtures/realworld/specs/e2e/b.spec.ts:2 --retries=0',
     )
+  })
+})
+
+/**
+ * xr-molecule-flash-m170 (+33:16): an inverted `--grep-invert` that only names the request's own
+ * excluded test is the proof's scope, not a diagnosis — the same reading molecule-dev's
+ * `invertDecision` takes. Any other narrowing still makes the run a diagnosis.
+ */
+describe('isDiagnosisRun — the request’s approved exclusion is not a narrowing (m170)', () => {
+  const APPROVED = ['should require login to post comment']
+
+  it('reads an inversion of the approved title as the whole proof scope', () => {
+    for (const flag of [
+      "--grep-invert 'should require login to post comment'",
+      '--grep-invert="SHOULD REQUIRE LOGIN TO POST COMMENT"',
+      "-G 'should require login to post comment'",
+    ])
+      expect(
+        isDiagnosisRun(`BASE_URL=${URL} npx playwright test ${flag}`, {
+          approvedExclusions: APPROVED,
+        }),
+      ).toBe(false)
+  })
+
+  it('keeps every other narrowing a diagnosis, inversion or not', () => {
+    const approved = { approvedExclusions: APPROVED }
+    expect(isDiagnosisRun('npx playwright test --grep "favorite"', approved)).toBe(true)
+    expect(isDiagnosisRun('npx playwright test articles.spec.ts:32', approved)).toBe(true)
+    expect(
+      isDiagnosisRun(
+        "npx playwright test --grep-invert 'should require login to post comment' --grep favorites",
+        approved,
+      ),
+    ).toBe(true)
+    expect(
+      isDiagnosisRun("npx playwright test --grep-invert 'should show an error'", approved),
+    ).toBe(true)
+  })
+
+  it('treats the same inversion as a diagnosis when no approved titles are given', () => {
+    expect(isDiagnosisRun("npx playwright test --grep-invert 'should require login'")).toBe(true)
   })
 })
