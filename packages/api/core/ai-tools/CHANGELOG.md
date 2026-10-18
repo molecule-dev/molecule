@@ -1,5 +1,16 @@
 # @molecule/api-ai-tools
 
+## 1.9.17
+
+### Patch Changes
+
+- a55e5e6: A `--grep-invert` that excludes only the tests a request excuses is the whole proof scope, so a deployed run carrying it keeps the suite's configured retries.
+- faa7bdb: A command that starts the suite more than once is refused in the foreground as well as in the background, and a suite's own runner script (`run-api-tests-hurl.sh`, `run-hurl-tests.sh`) counts as a suite run.
+- c4e72b9: Refuse a foreground `exec_command` that starts a server — including one named only inside a script it runs — with the background launch (or a probe of the running API) to use instead, and give an over-budget server run that advice rather than "run a smaller unit".
+- 4ec427f: Report a refused login, registration or token request as rejected credentials rather than a missing token, and name the run's set-up API origin when the trace shows it went somewhere other than this app.
+- a2f7379: Lead the failure-trace note with a same-page API response that carried the text a failing assertion waited for and the page never rendered, naming the response and the mapping step to read.
+- e47af8d: Add `--trace=retain-on-failure` to whole-suite Playwright runs whose config records no trace, so a failing proof run leaves a trace its failures can be read from.
+
 ## 1.9.16
 
 ### Patch Changes

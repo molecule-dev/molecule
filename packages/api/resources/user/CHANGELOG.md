@@ -1,5 +1,11 @@
 # @molecule/api-resource-user
 
+## 1.6.0
+
+### Minor Changes
+
+- 0e1561e: Add `AUTH_SCHEME` / `verifyMiddleware({ scheme })` and a `GET /users/me` `accessToken`, and keep the caller's own session when the password changes.
+
 ## 1.5.7
 
 ### Patch Changes

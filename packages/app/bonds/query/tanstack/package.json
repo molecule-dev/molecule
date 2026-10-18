@@ -40,7 +40,7 @@
     "@molecule/app-query": "^1.0.0"
   },
   "devDependencies": {
-    "@molecule/app-query": "1.0.1",
+    "@molecule/app-query": "1.0.2",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.11"
