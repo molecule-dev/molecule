@@ -4473,6 +4473,29 @@ describe('the running note knows what the run measures (xr-molecule-flash-m122)'
       delete process.env.MOL_AI_BG_CAUSE_LOOK_MS
     }
   })
+
+  it('points every grep at the file the run writes, not the empty task log (m173)', async () => {
+    process.env.MOL_AI_BG_CAUSE_LOOK_MS = '1'
+    try {
+      const r = await firstWait(
+        'npx playwright test --reporter=list > /tmp/pw-full.log 2>&1; echo EXIT $?',
+      )
+      expect(r.status).toBe('running')
+      // Both reads the note composes name the run's own file — the one outputSoFar was read from.
+      expect(r.note).toContain("grep -n '✘' /tmp/pw-full.log")
+      expect(r.note).toContain('grep -n -A 20')
+      expect(r.note).toMatch(/grep -n -A 20 '[^']*' \/tmp\/pw-full\.log/)
+      // The "(task …, log …)" trailer names the file that actually holds the output.
+      expect(r.note).toMatch(/task mol-bg-[a-z0-9]+-[a-z0-9]+, log \/tmp\/pw-full\.log/)
+      // Nothing points at the task's own wrapper log, which stays empty for this command.
+      expect(r.note).not.toMatch(/\/tmp\/mol-bg-[a-z0-9]+-[a-z0-9]+\.log/)
+      // …and the re-run the note hands over does not overwrite the full walk's log.
+      expect(r.note).toContain('> /tmp/pw-full.log.rerun.log')
+      expect(r.note).not.toContain('> /tmp/pw-full.log 2>&1')
+    } finally {
+      delete process.env.MOL_AI_BG_CAUSE_LOOK_MS
+    }
+  })
 })
 
 describe('parse check after a write', () => {

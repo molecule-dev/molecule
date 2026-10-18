@@ -130,10 +130,49 @@ export function withSuiteConfig(command: string, config: string | null | undefin
 }
 
 /**
+ * A redirect that names a FILE for a stream whose target a re-run would destroy: `> f`, `>> f`,
+ * `1> f`, `&> f`. `2>` is stderr and deliberately not matched; a descriptor duplication
+ * (`2>&1`, `>&2`) has no file target and does not match either, because `&` cannot start one.
+ */
+const FILE_REDIRECT = /(^|\s)(&>>?|1?>>?)(\s*)(?:'([^']+)'|"([^"]+)"|([^\s;&|]+))/g
+
+/** A target that is not a log anyone could lose: rewriting it would CREATE a file. */
+const DEVICE_TARGET = /^\/dev\//
+
+/**
+ * The command with every file redirect pointed at a fresh file beside its original target
+ * (`/tmp/pw-full.log` → `/tmp/pw-full.rerun.log`), and nothing else changed.
+ *
+ * A re-run composed from a run's own command keeps the run's redirect by construction, and the
+ * run wrote the walk's only report to that file: xr-molecule-flash-m173 handed over *"Send this
+ * once the run ends: … npx playwright test …/articles.spec.ts:32 --retries=0 … > /tmp/pw-full.log
+ * 2>&1"* — the ONE narrowed re-run that was about to check the fixes would have overwritten the
+ * full walk's log, destroying the other 11 failures' error reports. Following the platform's own
+ * advice must never destroy the evidence it was based on.
+ *
+ * @param command - A shell command.
+ * @returns The command whose file redirects write to a fresh target.
+ */
+function redirectToFreshFile(command: string): string {
+  return command.replace(FILE_REDIRECT, (whole, before, op, space, single, double, bare) => {
+    const target: string = single ?? double ?? bare ?? ''
+    // `/dev/null` and friends are not a report to preserve; leaving them keeps the re-run silent
+    // the way the run was, where rewriting them would create a file nobody asked for.
+    if (!target || DEVICE_TARGET.test(target)) return whole
+    const quote = single !== undefined ? "'" : double !== undefined ? '"' : ''
+    return `${before}${op}${space}${quote}${target}.rerun.log${quote}`
+  })
+}
+
+/**
  * The whole-suite command made scoped to the tests it should re-run instead: the same
  * invocation — same directory, same settings — with the named `file:line`s in place of the whole
  * suite, `--last-failed` dropped (it re-runs the tests that never ran too, X1 flash-m60) and
  * `--retries=0` set (a re-run of a known failure does not need to pay for retries).
+ *
+ * The re-run keeps the run's `> <file>` redirect only in the sense of keeping its OUTPUT there:
+ * the target is rewritten to a fresh sibling ({@link redirectToFreshFile}), so a re-run never
+ * overwrites the log the run itself is the evidence for (xr-molecule-flash-m173).
  *
  * `config` is the config the run was measured under ({@link withSuiteConfig}): the narrowed re-run
  * carries it whenever the command itself does not, so a run that dropped `--config` cannot be
@@ -202,7 +241,7 @@ export function scopedRerunCommand(
   // X1 xr-molecule-flash-m157 (+14:02) was handed a re-run that still carried the chain's second
   // whole walk — 4.5 minutes measuring code it had not changed.
   const rerunTail = suiteRunStatements(tail).length > 0 ? '' : tail
-  return `${head}${scoped}${rerunTail}`
+  return `${head}${redirectToFreshFile(scoped)}${redirectToFreshFile(rerunTail)}`
 }
 
 /** A directory a `cd` can name literally: no `~`, no variable, no glob. */

@@ -372,3 +372,34 @@ describe('isDiagnosisRun — the request’s approved exclusion is not a narrowi
     expect(isDiagnosisRun("npx playwright test --grep-invert 'should require login'")).toBe(true)
   })
 })
+
+/**
+ * xr-molecule-flash-m173 (+12:18): the narrowed re-run the mid-run note hands over kept the
+ * run's own `> /tmp/pw-full.log`, so following the platform's advice would have overwritten the
+ * full walk's log — and with it the other 11 failures' error reports the walk had already
+ * printed there.
+ */
+describe('a composed re-run never writes over the log it was built from (m173)', () => {
+  const M173 = 'npx playwright test --reporter=list > /tmp/pw-full.log 2>&1; echo EXIT $?'
+
+  it('moves the redirect to a fresh sibling and keeps 2>&1 untouched', () => {
+    const rerun = scopedRerunCommand(M173, ['e2e/settings.spec.ts:20:3'])
+    expect(rerun).toContain('> /tmp/pw-full.log.rerun.log 2>&1')
+    expect(rerun).not.toContain('> /tmp/pw-full.log 2>&1')
+    // Still a real re-run of the one test, and the chain that reports its exit code survives.
+    expect(rerun).toContain('playwright test e2e/settings.spec.ts:20:3 --retries=0')
+    expect(rerun).toContain('; echo EXIT $?')
+  })
+
+  it('touches no redirect aimed at a device, and no stderr-only redirect', () => {
+    expect(
+      scopedRerunCommand('npx playwright test > /dev/null 2> /tmp/err.log', ['a.spec.ts:1']),
+    ).toContain('> /dev/null 2> /tmp/err.log')
+  })
+
+  it('leaves a command that redirects nothing exactly as it rewrote it before', () => {
+    expect(scopedRerunCommand('npx playwright test --reporter=list', ['a.spec.ts:1'])).toBe(
+      'npx playwright test a.spec.ts:1 --retries=0 --reporter=list',
+    )
+  })
+})

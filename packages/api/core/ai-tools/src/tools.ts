@@ -3181,6 +3181,13 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         }
       }
       const log = `/tmp/${taskId}.log`
+      // The file every note below must point the executor at: the one its own reads and
+      // `outputSoFar` come from. A command that redirects its output (`> /tmp/pw-full.log`) leaves
+      // the task log holding a word, so a grep composed against THAT prints nothing — xr-molecule-
+      // flash-m173 (+17:07) obeyed the +12:18 note's `grep … /tmp/mol-bg-….log`, every grep
+      // printed empty, and the whole mid-run diagnosis window was lost. The task's own wrapper log
+      // stays `log` wherever something is read from both (the size probe and the slice do).
+      const readLog = outputFileByTask.get(taskId) ?? log
       const exitFile = `/tmp/${taskId}.exit`
       // Leave the outer tool ceiling a margin so this returns a result rather
       // than being killed by it.
@@ -3277,7 +3284,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
             waitedMs: earlyMs,
             note: repeatingFailureNote(noted, {
               taskId,
-              log,
+              log: readLog,
               stop: await taskStopCommand(backend, taskId),
               universal: stopCause,
               ...(started ? { run: started } : {}),
@@ -3301,7 +3308,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
             started === undefined || suiteCommandTarget(started.command) === 'local'
           midRunNote = repeatingFailureNote(found, {
             taskId,
-            log,
+            log: readLog,
             stop: '',
             universal: null,
             ...(started ? { run: started } : {}),
@@ -3364,7 +3371,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         const secondWalk = secondSuiteWalk(soFar) !== null
         const stopInstead = secondWalk
           ? ` Stop it (\`exec_command: ${await taskStopCommand(backend, taskId)}\`) and read the ` +
-            `first walk's tally in ${log} — the second walk measures nothing new.`
+            `first walk's tally in ${readLog} — the second walk measures nothing new.`
           : null
         if (stillWriting && waitedBefore + waitedMs >= stuckAfterMs()) {
           waitedByTask.set(taskId, 0)
@@ -3388,7 +3395,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
             waitedMs: waitedBefore + waitedMs,
             note:
               `${Math.round((waitedBefore + waitedMs) / 1000)}s of waiting and it has not exited — it is ` +
-              `stuck, not slow. See what it printed with exec_command (tail /tmp/${taskId}.log — ` +
+              `stuck, not slow. See what it printed with exec_command (tail ${readLog} — ` +
               `read_file cannot reach /tmp), kill it (\`exec_command: ` +
               `${await taskStopCommand(backend, taskId)}\`) and move on; do not wait on it again.`,
           }
@@ -3408,11 +3415,11 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
                 `keep waiting — its result carries the log output. ` +
                 (soFar.trim()
                   ? `outputSoFar is the failure lines so far (up to ${RUNNING_FAILURE_LINES}) and then the end of ` +
-                    `the log, not the whole run — \`grep -n '✘' ${log} | head -40\` lists every failure, ` +
-                    `\`grep -n -A 20 '<test name>' ${log}\` reads one failure's error: this run writes ` +
+                    `the log, not the whole run — \`grep -n '✘' ${readLog} | head -40\` lists every failure, ` +
+                    `\`grep -n -A 20 '<test name>' ${readLog}\` reads one failure's error: this run writes ` +
                     `each failure's own report into the log as that test fails, right under its ✘ line, ` +
                     `not only in the summary at the end. `
-                  : `Nothing has been printed yet — \`grep -n '✘' ${log} | head -40\` lists failures as they appear. `) +
+                  : `Nothing has been printed yet — \`grep -n '✘' ${readLog} | head -40\` lists failures as they appear. `) +
                 // What an edit does to this run depends on what the run MEASURES: the sandbox's own
                 // app is re-served from app/src as it is edited, so the run's result stops counting; a
                 // run against the deployed build is untouched by a local edit, and the executor can
