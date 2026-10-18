@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.9.18
+
+### Patch Changes
+
+- 6e92793: Put a supplied test suite's own timeout and worker settings back on an executor run whose runner config sets different values.
+
 ## 1.9.17
 
 ### Patch Changes
