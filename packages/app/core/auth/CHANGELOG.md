@@ -1,5 +1,11 @@
 # @molecule/app-auth
 
+## 1.5.0
+
+### Minor Changes
+
+- 437700a: `RegisterData<TExtra>` and `createJWTAuthClient<T, TRegister>` accept an app's own registration fields (`username`, …) at the top level, so `requestBody` receives exactly the payload the form passed instead of an app casting it.
+
 ## 1.4.1
 
 ### Patch Changes
