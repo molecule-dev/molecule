@@ -27,6 +27,11 @@ interface Entry<T> {
   gcMs: number
   gcTimer: ReturnType<typeof setTimeout> | null
   inflight: { promise: Promise<T>; controller: AbortController } | null
+  /**
+   * How many callers of `fetch()` are still awaiting the in-flight result. An aborted fetch is
+   * never committed, so a direct caller must keep one running after its last observer leaves.
+   */
+  demands: number
   listeners: Set<(state: QueryState<T>) => void>
 }
 
@@ -72,6 +77,7 @@ class MemoryQueryClient implements QueryClient {
         gcMs: gcMs ?? this.gcMs,
         gcTimer: null,
         inflight: null,
+        demands: 0,
         listeners: new Set(),
       }
       this.entries.set(hash, entry as Entry<unknown>)
@@ -119,6 +125,10 @@ class MemoryQueryClient implements QueryClient {
   /**
    * Starts (or joins) the entry's fetch.
    *
+   * The result is committed only while this call still owns the entry's `inflight` slot: a fetch
+   * abandoned by its last observer (see {@link abortUnwatched}) or dropped by {@link clear} is
+   * neither cached nor allowed to overwrite a newer fetch's state.
+   *
    * @param entry - The entry.
    * @param options - Key, fetch, freshness.
    * @returns The document.
@@ -132,9 +142,11 @@ class MemoryQueryClient implements QueryClient {
       status: entry.state.data === undefined ? 'loading' : entry.state.status,
     }
     this.emit(entry)
+    const owns = (): boolean => entry.inflight?.controller === controller
     const promise = options
       .fetch(controller.signal)
       .then((data) => {
+        if (!owns()) return data
         entry.inflight = null
         entry.stale = false
         entry.state = {
@@ -149,14 +161,39 @@ class MemoryQueryClient implements QueryClient {
         return data
       })
       .catch((error: unknown) => {
-        entry.inflight = null
-        entry.state = { ...entry.state, status: 'error', error, isFetching: false }
-        this.emit(entry)
-        this.scheduleGc(entry)
+        if (owns()) {
+          entry.inflight = null
+          entry.state = { ...entry.state, status: 'error', error, isFetching: false }
+          this.emit(entry)
+          this.scheduleGc(entry)
+        }
         throw error
       })
     entry.inflight = { promise, controller }
     return promise
+  }
+
+  /**
+   * Cancels the entry's in-flight fetch when nothing is waiting for it any more: the last
+   * observer unsubscribed (the component unmounted or its key changed) and no `fetch()` caller
+   * still awaits it. The fetch is dropped before `abort()` so the rejection it raises cannot
+   * leave the entry in an error state, and both the entry and its signal are released for the
+   * next observer to start over.
+   *
+   * @param entry - The entry.
+   */
+  private abortUnwatched<T>(entry: Entry<T>): void {
+    if (entry.listeners.size > 0 || entry.demands > 0 || entry.inflight === null) return
+    const { controller } = entry.inflight
+    entry.inflight = null
+    entry.state = {
+      ...entry.state,
+      status: entry.state.data === undefined ? 'idle' : entry.state.status,
+      error: entry.state.data === undefined ? undefined : entry.state.error,
+      isFetching: false,
+    }
+    controller.abort()
+    this.scheduleGc(entry)
   }
 
   /**
@@ -198,7 +235,17 @@ class MemoryQueryClient implements QueryClient {
     const entry = this.entry<T>(options.key, options.gcMs)
     if (this.isFresh(entry, options.staleMs ?? this.staleMs))
       return Promise.resolve(entry.state.data as T)
-    return this.start(entry, options)
+    // A direct caller keeps the fetch alive after the last observer leaves: it awaits this
+    // result, so aborting it would reject a call nobody asked to cancel.
+    entry.demands += 1
+    try {
+      return this.start(entry, options).finally(() => {
+        entry.demands -= 1
+      })
+    } catch (error) {
+      entry.demands -= 1
+      throw error
+    }
   }
 
   /**
@@ -267,14 +314,24 @@ class MemoryQueryClient implements QueryClient {
     }
     return () => {
       entry.listeners.delete(listener)
-      if (!entry.listeners.size) this.scheduleGc(entry)
+      if (!entry.listeners.size) {
+        // Nobody wants this document any more: the fetch that was started for it is cancelled
+        // (the signal the app's fetch receives), so a page that unmounts or switches key does
+        // not leave a request running whose answer nothing will render.
+        this.abortUnwatched(entry)
+        this.scheduleGc(entry)
+      }
     }
   }
 
   /** Drops every document and every in-flight fetch. */
   clear(): void {
     for (const entry of this.entries.values()) {
-      entry.inflight?.controller.abort()
+      const inflight = entry.inflight
+      // Detached first: the rejection the abort raises must not write an error state into an
+      // entry that no longer exists.
+      entry.inflight = null
+      inflight?.controller.abort()
       if (entry.gcTimer) clearTimeout(entry.gcTimer)
     }
     this.entries.clear()

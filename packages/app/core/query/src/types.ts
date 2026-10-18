@@ -23,7 +23,12 @@ export interface QueryOptions<T> {
   /** What identifies the document. */
   key: QueryKey
 
-  /** Loads the document. The signal aborts when nobody wants the result any more. */
+  /**
+   * Loads the document. The signal aborts when nobody wants the result any more: the last
+   * observer unsubscribed (the page unmounted or switched key) and no `fetch()` caller still
+   * awaits it, or the client was cleared. A bond must honour it — never ignore the signal in an
+   * `options.fetch` the app supplies, or the request keeps running for a page that is gone.
+   */
   fetch: (signal: AbortSignal) => Promise<T>
 
   /** How long a cached document is fresh (no refetch). Defaults to the client's, then 5 minutes. */

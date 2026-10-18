@@ -24,6 +24,14 @@ const IDLE: QueryState<never> = {
  * Pass `null` to observe nothing. A key change resets to that key's state;
  * the hook never hands a caller another key's document.
  *
+ * The request is stable across re-renders — a parent state change neither
+ * restarts it nor cancels it, so a response that arrives after one still
+ * lands. It is aborted only when the key changes or the component unmounts
+ * (the `signal` given to `options.fetch`). Use this instead of a hand-written
+ * `useEffect` + `fetch`: an effect whose cleanup sets a `cancelled` flag, and
+ * whose deps include a function rebuilt each render, cancels its own request
+ * on every re-render and then skips the refetch.
+ *
  * @param options - Key, fetch, freshness; or `null`.
  * @returns The document's state.
  */

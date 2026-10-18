@@ -97,6 +97,66 @@ describe('useQuery', () => {
     await flush()
     expect(h.value().data).toBeUndefined()
   })
+
+  it('lands a response that arrives after a re-render', async () => {
+    let resolve!: (value: string) => void
+    const fetch = vi.fn(
+      () =>
+        new Promise<string>((r) => {
+          resolve = r
+        }),
+    )
+    const h = renderHook(() => useQuery({ key: ['doc', 'late'], fetch }))
+    await flush()
+    expect(h.value().status).toBe('loading')
+    // The page re-renders (a parent state change) while the request is still in flight: the
+    // hook must not resubscribe or restart it, so the answer still paints.
+    h.rerender()
+    h.rerender()
+    expect(fetch).toHaveBeenCalledTimes(1)
+    await act(async () => {
+      resolve('arrived')
+      await Promise.resolve()
+    })
+    expect(h.value().data).toBe('arrived')
+    expect(h.value().status).toBe('success')
+  })
+
+  it('aborts the previous request when the key changes', async () => {
+    const signals: AbortSignal[] = []
+    const fetch = vi.fn((signal: AbortSignal) => {
+      signals.push(signal)
+      return new Promise<string>((_resolve, reject) => {
+        signal.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')))
+      })
+    })
+    let key = 'a'
+    const h = renderHook(() => useQuery({ key: ['doc', key], fetch }))
+    await flush()
+    expect(signals).toHaveLength(1)
+    expect(signals[0].aborted).toBe(false)
+    key = 'b'
+    h.rerender()
+    await flush()
+    expect(signals[0].aborted).toBe(true)
+    expect(signals).toHaveLength(2)
+  })
+
+  it('aborts the in-flight request on unmount', async () => {
+    const signals: AbortSignal[] = []
+    const fetch = vi.fn((signal: AbortSignal) => {
+      signals.push(signal)
+      return new Promise<string>((_resolve, reject) => {
+        signal.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')))
+      })
+    })
+    renderHook(() => useQuery({ key: ['doc', 'unmount'], fetch }))
+    await flush()
+    expect(signals).toHaveLength(1)
+    act(() => root!.unmount())
+    root = null
+    expect(signals[0].aborted).toBe(true)
+  })
 })
 
 describe('prefetch', () => {

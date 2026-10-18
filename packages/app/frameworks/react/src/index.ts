@@ -60,6 +60,13 @@
  *   `useTranslation()` (or `useT()`); it re-renders on `onLocaleChange` — even when
  *   `addTranslations()` only adds keys for the current locale. Calling the raw `t()` import from
  *   `@molecule/app-i18n` in render works once but leaves stale text after a locale switch.
+ * - **Load a page's data with `useQuery` from `@molecule/app-query-react`, never with `fetch` in a
+ *   `useEffect`.** A hand-written load effect that cancels on cleanup (a `cancelled` flag or an
+ *   `AbortController`) cancels its own request on every re-render when a dependency is rebuilt each
+ *   render (`const [.., setError] = useApiErrors()`), and its ref guard then skips the refetch: the
+ *   answer is dropped whenever it arrives after a re-render — always on a remote server, never on
+ *   localhost. `useQuery` keeps one request per key and aborts it only when the key changes or the
+ *   page unmounts (install `@molecule/app-query` + a bond such as `@molecule/app-query-memory`).
  * - **Exactly one React copy.** In workspace/symlinked dev setups a second React instance makes
  *   every hook fail ("Invalid hook call", or the provider errors above with the provider
  *   mounted). Scaffolded Vite configs ship

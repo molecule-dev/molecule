@@ -28,6 +28,12 @@
  * ```
  *
  * @remarks
+ * - **Page data goes through a query, not a hand-written `useEffect` + `fetch`.** In React, use
+ *   `useQuery` from `@molecule/app-query-react`: it keeps one request per key, stable across
+ *   re-renders, and aborts it only when the key changes or the page unmounts. An effect that
+ *   cancels its own request on cleanup (a `cancelled` flag or an `AbortController`) and whose deps
+ *   include a function rebuilt each render cancels its request on every re-render and then skips
+ *   the refetch — the response is dropped on a remote server and never on localhost.
  * - **This is a browser cache, not a store.** It holds what was fetched, for
  *   as long as it is useful; it is not where app state lives (see
  *   `@molecule/app-state`) and it never persists.
