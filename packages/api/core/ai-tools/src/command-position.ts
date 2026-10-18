@@ -37,7 +37,9 @@
 export interface CommandSegment {
   /**
    * The word in command position, its directory removed (`/usr/bin/hurl` → `hurl`): the program
-   * the shell would run once whatever wrappers stood in front of it are taken away.
+   * the shell would run once whatever wrappers stood in front of it are taken away. When a
+   * wrapper runs a tool's own CLI by file, this is the tool's name — `node
+   * <path>/node_modules/.bin/playwright test` is a `playwright` invocation, not a `node` one.
    */
   program: string
   /** The words after it, as written — quotes kept, so a quoted `"a|b"` is one word. */
@@ -94,6 +96,79 @@ const LAUNCHERS: ReadonlySet<string> = new Set([
 
 /** The shells whose `-c '<command>'` argument is a command of its own. */
 const SHELLS: ReadonlySet<string> = new Set(['ash', 'bash', 'dash', 'ksh', 'sh', 'zsh'])
+
+/**
+ * Node, which is a wrapper only when the script it runs IS a tool's own CLI — never in general:
+ * `node script.mjs` RUNS that script, so the parser's answer for it stays `node`.
+ *
+ * The Playwright runner is spelled this way whenever a project reaches it by file instead of by
+ * the `.bin` shim: xr-molecule-flash-m179 (+17:51) ran
+ * `node /workspace/node_modules/.bin/playwright test` after `npx playwright test` in every
+ * earlier call, and no reader recognised it — the run got no `--trace`, no suite-budget pin and
+ * no proof credit, and the platform spent the rest of the turn re-walking a suite it had already
+ * walked green.
+ */
+const NODE: ReadonlySet<string> = new Set(['node'])
+
+/**
+ * The Playwright CLI, as the path operand of a `node` invocation: the package's `.bin` shim, or
+ * the `cli.js` a package installs (`playwright/cli.js`, `@playwright/test/cli.js`).
+ */
+const PLAYWRIGHT_CLI =
+  /(?:^|\/)node_modules\/(?:\.bin\/playwright|(?:playwright|@playwright\/test)\/cli\.(?:js|mjs|cjs))$/
+
+/**
+ * The runner a `node` script operand IS, or null when the operand is any other script.
+ *
+ * @param word - The script operand, as written.
+ * @returns The runner's name (`playwright`), or null.
+ */
+function nodeScriptRunner(word: string): string | null {
+  return PLAYWRIGHT_CLI.test(unquoted(word)) ? 'playwright' : null
+}
+
+/**
+ * Node's own value-taking options: the ones that consume the word after them, so the script
+ * operand is not mistaken for a value (`node -r tsx/cli.js …`). Node also accepts `--flag=value`.
+ */
+const NODE_VALUE_FLAGS: ReadonlySet<string> = new Set([
+  '-e',
+  '--eval',
+  '-p',
+  '--print',
+  '-r',
+  '--require',
+  '--import',
+  '--loader',
+  '--experimental-loader',
+  '--input-type',
+  '--conditions',
+  '--title',
+])
+
+/**
+ * The word a `node` invocation runs as its script: the first operand after node's own options,
+ * with `--` ending the options. Null when node runs no file (`node --test`, `node -e '<code>'`).
+ *
+ * A wrong guess here is harmless: the operand is then checked against {@link PLAYWRIGHT_CLI}, so
+ * an ordinary script (`node probe.mjs`) is never read as a runner.
+ *
+ * @param words - The segment's words.
+ * @param from - The index just after `node`.
+ * @returns The script operand's index, or null.
+ */
+function nodeScriptIndex(words: readonly string[], from: number): number | null {
+  let at = from
+  for (let guard = 0; guard < MAX_WRAPPERS && at < words.length; guard++) {
+    const word = words[at] ?? ''
+    if (!word.startsWith('-')) return at
+    const flag = unquoted(word)
+    // `--` ends node's options; the script is the next word.
+    if (flag === '--') return at + 1 < words.length ? at + 1 : null
+    at += flag.includes('=') || !NODE_VALUE_FLAGS.has(flag) ? 1 : 2
+  }
+  return null
+}
 
 /** Package runners that run the program named after them (`npx playwright test`). */
 const PACKAGE_RUNNERS: ReadonlySet<string> = new Set(['bunx', 'npx', 'pnpx'])
@@ -388,11 +463,14 @@ function nestedCommand(words: readonly string[], from: number): string | null {
  * @returns The index of the word in command position (one past the end when the segment runs
  *   nothing), the command string of a `sh -c '<command>'` this segment turns out to be, and the
  *   seconds its own `timeout` wrapper allows that command (`timeout 280 hurl …` → 280) or null.
+ *   `program` names what runs when that is not the word itself's name — `node <path>/playwright`
+ *   is a `playwright` invocation, not a `node` one ({@link nodeScriptRunner}).
  */
 function commandStart(words: readonly string[]): {
   at: number
   nested: string | null
   timeoutSeconds: number | null
+  program: string | null
 } {
   let at = 0
   let timeoutSeconds: number | null = null
@@ -410,13 +488,14 @@ function commandStart(words: readonly string[]): {
     }
     if (SHELLS.has(name)) {
       const nested = nestedCommand(words, at + 1)
-      if (nested !== null) return { at, nested, timeoutSeconds }
+      if (nested !== null) return { at, nested, timeoutSeconds, program: null }
       at += 1 + flagWords(words, at + 1, name)
       continue
     }
     if (PACKAGE_RUNNERS.has(name)) {
       const runner = packageRunnerOptions(words, at + 1, name)
-      if (runner.nested !== null) return { at, nested: runner.nested, timeoutSeconds }
+      if (runner.nested !== null)
+        return { at, nested: runner.nested, timeoutSeconds, program: null }
       at += 1 + runner.count
       continue
     }
@@ -426,18 +505,35 @@ function commandStart(words: readonly string[]): {
     ) {
       const subcommand = unquoted(words[at + 1] ?? '')
       const runner = packageRunnerOptions(words, at + 2, `${name} ${subcommand}`)
-      if (runner.nested !== null) return { at, nested: runner.nested, timeoutSeconds }
+      if (runner.nested !== null)
+        return { at, nested: runner.nested, timeoutSeconds, program: null }
       at += 2 + runner.count
       continue
     }
-    if (!LAUNCHERS.has(name)) return { at, nested: null, timeoutSeconds }
+    if (name === 'yarn' && unquoted(words[at + 1] ?? '') === 'playwright') {
+      // Yarn classic runs the binary named after it (`yarn playwright test`); Yarn 2+ spells the
+      // same thing `yarn exec`/`yarn dlx` ({@link PACKAGE_RUNNER_SUBCOMMANDS}). Only the runner's
+      // own name is read through it — `yarn test` is the project's own script, not a binary.
+      at += 1
+      continue
+    }
+    if (NODE.has(name)) {
+      // `node <path>/playwright test` is a Playwright invocation; `node probe.mjs` runs the
+      // project's own script and stays a `node` statement (`program: null`).
+      const script = nodeScriptIndex(words, at + 1)
+      const runner = script === null ? null : nodeScriptRunner(words[script] ?? '')
+      return runner === null
+        ? { at, nested: null, timeoutSeconds, program: null }
+        : { at: script ?? at, nested: null, timeoutSeconds, program: runner }
+    }
+    if (!LAUNCHERS.has(name)) return { at, nested: null, timeoutSeconds, program: null }
     at += 1 + flagWords(words, at + 1, name)
     if (name === 'timeout' && DURATION.test(words[at] ?? '')) {
       timeoutSeconds = durationSeconds(words[at] ?? '')
       at += 1
     }
   }
-  return { at, nested: null, timeoutSeconds }
+  return { at, nested: null, timeoutSeconds, program: null }
 }
 
 /**
@@ -1116,7 +1212,10 @@ function locatedSegmentsOf(command: string, depth: number): LocatedCommandSegmen
       programOffset:
         words[start.at] === undefined ? null : part.start + (wordOffset(part.text, start.at) ?? 0),
     }
-    const program = words[start.at] === undefined ? '' : programName(words[start.at] ?? '')
+    // The runner the word RUNS names, when that is not the word's own name (`node <path>/playwright`
+    // is a `playwright` invocation, xr-molecule-flash-m179).
+    const program =
+      words[start.at] === undefined ? '' : (start.program ?? programName(words[start.at] ?? ''))
     const args = words.slice(start.at + 1)
     const redirectTarget = redirectTargetOf(part.text, part.depths, program, args)
     if (start.nested !== null) {

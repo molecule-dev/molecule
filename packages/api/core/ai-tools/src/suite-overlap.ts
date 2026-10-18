@@ -115,18 +115,13 @@ export function namesSuiteConfig(command: string): boolean {
  */
 export function withSuiteConfig(command: string, config: string | null | undefined): string {
   if (!config) return command
-  const at = command.search(/\bplaywright\s+test\b/)
-  if (at === -1) return command
-  const head = command.slice(0, at)
-  const rest = command.slice(at)
-  const end = rest.search(/&&|\|\||;|\|/)
-  const statement = end === -1 ? rest : rest.slice(0, end)
-  const tail = end === -1 ? '' : rest.slice(end)
-  if (namesSuiteConfig(statement)) return command
-  return `${head}${statement.replace(
-    /^(playwright\s+test)\b/,
-    `$1 --config ${shellQuote(config)}`,
-  )}${tail}`
+  const run = playwrightStatement(command)
+  if (run === null) return command
+  if (namesSuiteConfig(command.slice(run.start, run.end))) return command
+  // Right after the runner's own words (`playwright test <here>`), so a launcher in front of
+  // them — `npx --no-install`, `node <path>/playwright` — is untouched and the flag is the
+  // runner's own argument wherever it sits.
+  return `${command.slice(0, run.afterRunner)} --config ${shellQuote(config)}${command.slice(run.afterRunner)}`
 }
 
 /**
@@ -201,15 +196,16 @@ export function scopedRerunCommand(
   config?: string | null,
   cwd?: string | null,
 ): string {
-  const at = command.search(/\bplaywright\s+test\b/)
-  if (at === -1) return command
-  const head = command.slice(0, at)
-  const rest = command.slice(at)
+  const run = playwrightStatement(command)
+  if (run === null) return command
   // Only the first statement runs the suite; the rest (`| tail -50`, `&& echo done`)
   // is left exactly as it was.
-  const end = rest.search(/&&|\|\||;|\|/)
-  const statement = end === -1 ? rest : rest.slice(0, end)
-  const tail = end === -1 ? '' : rest.slice(end)
+  const statement = command.slice(run.start, run.end)
+  const tail = command.slice(run.end)
+  // The arguments after the runner's own words (`playwright test`), where the narrowed re-run
+  // writes its locations — the launcher in front of them (`npx --no-install`, `node
+  // <path>/playwright`) is not part of the arguments.
+  const args = command.slice(run.afterRunner, run.end)
   // One literal alternation, regex-escaped and shell-quoted: a title carries parentheses and
   // quotes (`should only allow comment author to delete`) that are regex and shell syntax alike.
   const invert =
@@ -232,16 +228,19 @@ export function scopedRerunCommand(
   // nothing — "No tests found" — so every location is rendered in a form Playwright can match
   // ({@link playwrightLocations}).
   const narrowed = playwrightLocations(locations, command, cwd)
-  const scoped = dropSupersededSpecFiles(statement, narrowed)
+  const dropped = dropSupersededSpecFiles(args, narrowed)
     .replace(/\s*--last-failed\b/g, '')
     .replace(/\s*--retries(?:[= ]\d+)?/g, '')
-    .replace(/^(playwright\s+test)\b/, `$1 ${narrowed.join(' ')} --retries=0${carry}${invert}`)
+  const scoped =
+    command.slice(0, run.afterRunner) +
+    ` ${narrowed.join(' ')} --retries=0${carry}${invert}` +
+    dropped
   // A command that starts the suite AGAIN after this statement is a chain of walks, not a re-run:
   // everything from the next suite runner on is dropped, so the composed command carries ONE walk.
   // X1 xr-molecule-flash-m157 (+14:02) was handed a re-run that still carried the chain's second
   // whole walk — 4.5 minutes measuring code it had not changed.
   const rerunTail = suiteRunStatements(tail).length > 0 ? '' : tail
-  return `${head}${redirectToFreshFile(scoped)}${redirectToFreshFile(rerunTail)}`
+  return `${redirectToFreshFile(scoped)}${redirectToFreshFile(rerunTail)}`
 }
 
 /** A directory a `cd` can name literally: no `~`, no variable, no glob. */
@@ -328,7 +327,8 @@ function playwrightLocations(
 const SPEC_FILE_ARGUMENT = /^(?!-)[^\s]*\.(?:spec|test)\.[cm]?[jt]sx?(?::\d+(?::\d+)?)?$/
 
 /**
- * The statement with every bare spec-file argument taken out once the re-run names failure locations.
+ * The runner's own arguments with every bare spec-file argument taken out once the re-run names
+ * failure locations.
  *
  * The re-run is "just these": Playwright matches each positional argument against every collected
  * file's path, so a bare file left beside the `file:line`s re-admits ALL of that file's tests.
@@ -337,21 +337,22 @@ const SPEC_FILE_ARGUMENT = /^(?!-)[^\s]*\.(?:spec|test)\.[cm]?[jt]sx?(?::\d+(?::
  * failures sat in two of them — 32 tests, ~3 min, instead of the 8 failures' ~30 s. A file with no
  * failure in it has nothing to re-run, so it goes too.
  *
- * @param statement - The Playwright statement, starting at its own `playwright test`.
+ * The launcher's words are not arguments and are not here: the caller passes what follows
+ * `playwright test` ({@link playwrightStatement}'s `afterRunner`), so `node <path>/playwright
+ * test` and `npx playwright test` lose the same spec files.
+ *
+ * @param args - The run's own arguments, after `playwright test`.
  * @param locations - The failing `file:line`s the re-run names.
- * @returns The statement without its bare spec-file arguments.
+ * @returns The arguments without their bare spec-file arguments.
  */
-function dropSupersededSpecFiles(statement: string, locations: readonly string[]): string {
-  if (locations.length === 0) return statement
-  const runner = /^(playwright\s+test)\b/.exec(statement)
-  if (runner === null) return statement
-  const head = runner[1]
-  const kept = statement
-    .slice(head.length)
-    .replace(/(^|\s+)([^\s]+)(?=\s|$)/g, (whole: string, _space: string, token: string) => {
+function dropSupersededSpecFiles(args: string, locations: readonly string[]): string {
+  if (locations.length === 0) return args
+  return args.replace(
+    /(^|\s+)([^\s]+)(?=\s|$)/g,
+    (whole: string, _space: string, token: string) => {
       return SPEC_FILE_ARGUMENT.test(token) ? '' : whole
-    })
-  return `${head}${kept}`
+    },
+  )
 }
 
 /**
@@ -408,6 +409,44 @@ export function suiteRunInTheWay<T extends SuiteRunInFlight>(
  * closing quote is that echo. A version-pinned `playwright@1.44.0 test` is the same run.
  */
 const PLAYWRIGHT_RUN = /^(?:@playwright\/test|playwright)(?:@\S+)?\s+test(?=\s|$)/
+
+/**
+ * The statement of a command that runs `playwright test`, and where its own arguments begin.
+ *
+ * Both rewrites that compose a command ({@link withSuiteConfig}, {@link scopedRerunCommand}) read
+ * the run through the shared shell parse — the same answer every classifier gets — instead of
+ * searching the text for `playwright test`. The search missed the runner reached by file (`node
+ * <path>/@playwright/test/cli.js test`, xr-molecule-flash-m179), so a narrowed re-run of that run
+ * silently stayed the whole suite.
+ *
+ * `afterRunner` is the offset just past the runner's own words (`playwright test`): the
+ * sub-command is the word after the program word, wherever the program word is (the script path
+ * behind `node`, the name itself otherwise), so an option written there is the run's own.
+ *
+ * @param command - The shell command.
+ * @returns The statement's span and its argument offset, or null when no statement runs the suite.
+ */
+function playwrightStatement(
+  command: string,
+): { start: number; end: number; afterRunner: number } | null {
+  for (const located of locatedCommandSegments(command)) {
+    const segment = located.segment
+    if (!segment || !PLAYWRIGHT_RUN.test(segment.text)) continue
+    // A statement inside a nested `sh -c '<command>'` has no offsets here: its positions are
+    // positions in that string, so nothing may be spliced at them.
+    if (located.start === null || located.end === null || located.programOffset === null)
+      return null
+    const words = [...command.slice(located.programOffset).matchAll(/\S+/g)]
+    const subcommand = words[1]
+    if (subcommand === undefined) return null
+    return {
+      start: located.start,
+      end: located.end,
+      afterRunner: located.programOffset + (subcommand.index ?? 0) + subcommand[0].length,
+    }
+  }
+  return null
+}
 
 /**
  * What narrows a Playwright run to a part of the suite: a named file or line, a title filter, or
