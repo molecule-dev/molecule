@@ -19,6 +19,7 @@ import { commandRunsNoTests } from './no-test-run.js'
 import {
   type DiagnosisRunContext,
   isDiagnosisRun,
+  type RunEnvSetting,
   scopedRerunCommand,
   suiteCommandTarget,
   suiteRunInTheWay,
@@ -3268,7 +3269,9 @@ function everyCauseIsNavigationTimeout(causes: readonly FailureCause[]): boolean
  */
 function noBaseUrlConfigNote(
   causes: readonly FailureCause[],
-  run: { command: string; cwd?: string; config?: string | null } | undefined,
+  run:
+    | { command: string; cwd?: string; config?: string | null; env?: readonly RunEnvSetting[] }
+    | undefined,
   excluded: readonly string[],
 ): string {
   const total = causes.reduce((n, c) => n + c.tests.length, 0)
@@ -3315,14 +3318,20 @@ function noBaseUrlConfigNote(
  * @param log - The finished run's output.
  * @param excluded - The test titles the request carves out, if the caller knows them.
  * @param run - How the run was started, when the caller knows it: the narrowed re-run is built
- *   from `command`/`cwd`/`config`, and `log` (the path the output was written to) is what the
- *   "left out" sentence greps when more causes exist than the result has room for.
+ *   from `command`/`cwd`/`config`/`env`, and `log` (the path the output was written to) is what
+ *   the "left out" sentence greps when more causes exist than the result has room for.
  * @returns The note, or null.
  */
 export function failureCausesNote(
   log: string,
   excluded: readonly string[] = [],
-  run?: { command: string; cwd?: string; log?: string; config?: string | null },
+  run?: {
+    command: string
+    cwd?: string
+    log?: string
+    config?: string | null
+    env?: readonly RunEnvSetting[]
+  },
   pageErrors: readonly CausePageErrors[] = [],
 ): string | null {
   const { causes, ignored, flaky } = groupFailures(log, excluded, pageErrors)
@@ -3492,7 +3501,15 @@ function failureCauseLine(cause: FailureCause, index: number): string {
  */
 function omittedCausesRecap(
   omitted: FailureCause[],
-  run: { command: string; cwd?: string; log?: string; config?: string | null } | undefined,
+  run:
+    | {
+        command: string
+        cwd?: string
+        log?: string
+        config?: string | null
+        env?: readonly RunEnvSetting[]
+      }
+    | undefined,
   excluded: readonly string[],
 ): string {
   if (omitted.length === 0) return ''
@@ -3541,14 +3558,16 @@ function omittedCausesRecap(
  * refused while the run walks ({@link suiteRunInTheWay}).
  *
  * @param run - The run in flight: the command it was started with, as it was run, the directory
- *   that command ran in, and the config it loaded when the caller knows it.
+ *   that command ran in, the config it loaded when the caller knows it, and the settings the
+ *   request required and the run left out (`env`) — the re-run carries them, so it never
+ *   reproduces the configuration the run was measured under by mistake (m182).
  * @param locations - The failing `file:line`s to re-run, as the run's log printed them.
  * @param excluded - The test titles the request carves out: the re-run inverts them out
  *   (`--grep-invert`) so it cannot report them again.
  * @returns The re-run command, or null when there is no suite to narrow.
  */
 export function rerunOfRunningSuite(
-  run: { command: string; cwd?: string; config?: string | null },
+  run: { command: string; cwd?: string; config?: string | null; env?: readonly RunEnvSetting[] },
   locations: readonly string[],
   excluded: readonly string[] = [],
 ): string | null {
@@ -3556,7 +3575,14 @@ export function rerunOfRunningSuite(
   // The run's own directory is the base a relative failure location resolves against: the
   // reporter prints it from where the runner started, and Playwright matches file arguments
   // against absolute paths (xr-molecule-flash-m118 +16:34, m124 +18:38).
-  const scoped = scopedRerunCommand(run.command, locations, excluded, run.config, run.cwd)
+  const scoped = scopedRerunCommand(
+    run.command,
+    locations,
+    excluded,
+    run.config,
+    run.cwd,
+    run.env ?? [],
+  )
   if (scoped === run.command) return null
   if (!run.cwd || commandSegments(withoutHeredocs(run.command)).some((s) => s.program === 'cd'))
     return scoped
@@ -3607,7 +3633,7 @@ export function repeatingFailureNote(
     log: string
     stop: string
     universal?: UniversalCause | null
-    run?: { command: string; cwd?: string }
+    run?: { command: string; cwd?: string; env?: readonly RunEnvSetting[] }
     editsInvalidateRun?: boolean
   },
 ): string {

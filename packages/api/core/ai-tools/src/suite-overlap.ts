@@ -187,6 +187,9 @@ function redirectToFreshFile(command: string): string {
  *   does not name one.
  * @param cwd - The directory `exec_command` was given, when it was; the base a location is
  *   resolved against when the command does not `cd` anywhere.
+ * @param env - The settings the REQUEST requires of the suite and this run left out
+ *   ({@link withRunEnv}): the re-run carries them, so a re-run of a run measured in the wrong
+ *   mode is not measured in that mode again (xr-molecule-flash-m182 +12:06).
  * @returns The scoped command, or the command unchanged when it runs no Playwright suite.
  */
 export function scopedRerunCommand(
@@ -195,6 +198,7 @@ export function scopedRerunCommand(
   excluded: readonly string[] = [],
   config?: string | null,
   cwd?: string | null,
+  env: readonly RunEnvSetting[] = [],
 ): string {
   const run = playwrightStatement(command)
   if (run === null) return command
@@ -240,7 +244,79 @@ export function scopedRerunCommand(
   // X1 xr-molecule-flash-m157 (+14:02) was handed a re-run that still carried the chain's second
   // whole walk — 4.5 minutes measuring code it had not changed.
   const rerunTail = suiteRunStatements(tail).length > 0 ? '' : tail
-  return `${redirectToFreshFile(scoped)}${redirectToFreshFile(rerunTail)}`
+  return withRunEnv(`${redirectToFreshFile(scoped)}${redirectToFreshFile(rerunTail)}`, env)
+}
+
+/** One `NAME=value` the request requires of a suite run. */
+export interface RunEnvSetting {
+  name: string
+  value: string
+}
+
+/** A `NAME=value` word in command position, optionally behind `export`/`env`. */
+const ENV_WORD =
+  /(^|[\s;&|(])(?:export[ \t]+|env[ \t]+)?([A-Za-z_][A-Za-z0-9_]*)=('[^']*'|"[^"]*"|[^\s;&|]+)/g
+
+/** The value a command gives a name, unquoted, or null when it sets none. */
+function envValueOf(command: string, name: string): string | null {
+  for (const m of command.matchAll(ENV_WORD)) {
+    if (m[2] !== name) continue
+    return (m[3] ?? '').replace(/^(['"])(.*)\1$/, '$2')
+  }
+  return null
+}
+
+/** The command with one `NAME=value` word taken out, whitespace and all. */
+function withoutEnvWord(command: string, name: string): string {
+  const pattern = new RegExp(
+    `(^|[\\s;&|(])(?:export[ \\t]+|env[ \\t]+)?${name}=('[^']*'|"[^"]*"|[^\\s;&|]+)`,
+  )
+  const m = pattern.exec(command)
+  if (!m) return command
+  const start = m.index + m[1].length
+  const end = m.index + m[0].length
+  const left = /[ \t]*$/.exec(command.slice(0, start))?.[0] ?? ''
+  const chain = /^[ \t]*(?:&&|\|\||;)[ \t]*/.exec(command.slice(end))
+  // A word between two chained statements takes the following operator with it, so the result is
+  // `a && b` and not `a && && b`.
+  if (chain && left.length > 0)
+    return command.slice(0, start) + command.slice(end + chain[0].length)
+  if (left.length > 0) return command.slice(0, start - left.length) + command.slice(end)
+  const right = /^[ \t]*/.exec(command.slice(end))?.[0] ?? ''
+  return command.slice(0, start) + command.slice(end + right.length)
+}
+
+/**
+ * The command with the request's required settings put in front of its RUN statement — the ONE
+ * place every composed re-run gets them (xr-molecule-flash-m182).
+ *
+ * The settings are written at the statement's own assignment offset, never in front of the whole
+ * command: a shell binds an assignment there to the statement's program, while one in front of the
+ * whole command is the environment of its FIRST statement alone (`APP_BASE=… cd app && npx
+ * playwright test` sets the variable for `cd`; xr-molecule-flash-m103 +28:08). A name the command
+ * gives a different value is replaced, and one it already gives the required value is left as
+ * written. When the parse cannot place the statement (a run inside a nested `sh -c '…'`), the
+ * settings become `export`s, which no statement boundary can swallow.
+ *
+ * @param command - The command to carry them.
+ * @param settings - The `NAME`/`value` pairs the request requires.
+ * @returns The command, or the command unchanged when it already carries every setting.
+ */
+export function withRunEnv(command: string, settings: readonly RunEnvSetting[] = []): string {
+  const added: string[] = []
+  let out = command
+  for (const setting of settings) {
+    if (envValueOf(out, setting.name) === setting.value) continue
+    out = withoutEnvWord(out, setting.name)
+    added.push(`${setting.name}=${setting.value}`)
+  }
+  if (added.length === 0) return command
+  const at =
+    locatedCommandSegments(out).find(
+      (entry) => entry.segment !== null && PLAYWRIGHT_RUN.test(entry.segment.text),
+    )?.assignmentOffset ?? null
+  const words = added.join(' ')
+  return at === null ? `export ${words} && ${out}` : `${out.slice(0, at)}${words} ${out.slice(at)}`
 }
 
 /** A directory a `cd` can name literally: no `~`, no variable, no glob. */

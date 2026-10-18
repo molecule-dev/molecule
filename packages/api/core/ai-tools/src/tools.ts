@@ -929,6 +929,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
     searchExcludedDirs,
     outlineLargeHtml,
     excludedTestTitles,
+    requiredSuiteEnv,
     onAfterWrite,
     onFileDiff,
     onFileChange,
@@ -3495,6 +3496,15 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       // failing tests instead of leaving the executor to re-run the whole suite (xr-molecule-
       // flash-m101 +12:13: 139 tests, ~4 minutes, to check two fixes).
       const run = runByTask.get(taskId)
+      // What the REQUEST requires of this suite and the run left out: the narrowed re-run below
+      // is composed from the run's own command, so without these it would measure the same wrong
+      // configuration again (m182: the request names `TEST_MODE=fullstack`, the run and its
+      // re-run both omitted it, and the walk measured the `spa` suite). The consumer's reading,
+      // asked once per finished run; a failure to read answers "nothing required".
+      const requiredEnv =
+        run && requiredSuiteEnv
+          ? ((await requiredSuiteEnv(run.command, run.cwd).catch(() => [])) ?? [])
+          : []
       // The tests the request excludes are not causes to fix, and the re-run below inverts them
       // out — a result must never ask the executor to fix a test it also says does not count.
       // The log's own path rides along so a recap that leaves causes out can hand over the ONE
@@ -3503,7 +3513,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       const causes = failureCausesNote(
         output,
         excludedTestTitles?.() ?? [],
-        run ? { ...run, log: ownFile ?? log } : undefined,
+        run ? { ...run, log: ownFile ?? log, env: requiredEnv } : undefined,
       )
       // A backgrounded run is under no tool budget, and the exit file hands back the PIPELINE's
       // code — so a suite killed at a `timeout 280` the command carried behind a `| tail` reports

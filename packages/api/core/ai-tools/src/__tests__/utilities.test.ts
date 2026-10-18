@@ -2289,6 +2289,37 @@ describe('repeatingFailure', () => {
       expect(failureCausesNote(m101, excluded)).not.toContain('Re-run just these')
     })
 
+    it('carries the request’s required setting into the re-run it hands over (m182)', () => {
+      // m182 +12:06: the request names `TEST_MODE=fullstack`, the run omitted it, and the
+      // narrowed re-run was composed from that run — so it measured the `spa` suite again.
+      const command =
+        'cd /workspace/my-app/app && APP_BASE=http://localhost:5173 ' +
+        'npx playwright test e2e/tmp-articles.spec.ts --retries=0 --reporter=list'
+      const note = failureCausesNote(m101, excluded, {
+        command,
+        env: [{ name: 'TEST_MODE', value: 'fullstack' }],
+      })!
+      // On the RUN's own statement, after its assignments — never in front of the `cd`, where the
+      // shell binds it to that statement alone (m103 +28:08).
+      expect(note).toContain(
+        'APP_BASE=http://localhost:5173 TEST_MODE=fullstack npx playwright test ',
+      )
+      expect(note).not.toContain('TEST_MODE=fullstack cd ')
+      // A run that already sets the setting is not given a second copy of it.
+      const already = failureCausesNote(m101, excluded, {
+        command: command.replace('npx playwright test', 'TEST_MODE=fullstack npx playwright test'),
+        env: [{ name: 'TEST_MODE', value: 'fullstack' }],
+      })!
+      expect(already.match(/TEST_MODE=fullstack/g)).toHaveLength(1)
+      // …and a value the run wrote differently is replaced, not duplicated.
+      const wrong = failureCausesNote(m101, excluded, {
+        command: command.replace('npx playwright test', 'TEST_MODE=spa npx playwright test'),
+        env: [{ name: 'TEST_MODE', value: 'fullstack' }],
+      })!
+      expect(wrong).toContain('TEST_MODE=fullstack npx playwright test')
+      expect(wrong).not.toContain('TEST_MODE=spa')
+    })
+
     it('matches an excluded title by containment, ignoring case and wrapped whitespace', () => {
       expect(matchingExcludedTitles('should require login to post comment', excluded)).toEqual(
         excluded,

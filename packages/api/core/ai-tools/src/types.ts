@@ -183,6 +183,26 @@ export interface ToolBuildConfig {
   excludedTestTitles?: () => readonly string[]
 
   /**
+   * The `NAME=value` settings the person's request REQUIRES of a suite run (molecule-dev's
+   * `requiredRunSettings` — its mode, say), asked when the cause note composes a narrowed re-run
+   * of a finished run's failures. A re-run composed from the executor's own command inherits what
+   * that command set — and nothing it left out, so a run that measured the suite in `spa` handed
+   * back a re-run that would measure `spa` again (xr-molecule-flash-m182 +12:06: the request names
+   * `TEST_MODE=fullstack`, the run and its re-run both omitted it).
+   *
+   * A getter, not an array: the request is read per turn while the tool set is built once, and
+   * what the suite's own files read is the consumer's reading. Unset answers "nothing required".
+   *
+   * @param command - The command the finished run was started with.
+   * @param cwd - The resolved working directory it ran in.
+   * @returns The settings to put on a re-run of that command.
+   */
+  requiredSuiteEnv?: (
+    command: string,
+    cwd: string,
+  ) => Promise<readonly { name: string; value: string }[] | null | undefined>
+
+  /**
    * The supplied suite's own budget, when the Playwright config a command would load sets
    * different settings, asked BEFORE the run executes. The consumer knows where the suite and its
    * base config live; this shared package does not, so the reading is the consumer's and the
