@@ -1586,6 +1586,34 @@ function runFailureOf(
   return undefined
 }
 
+/**
+ * Where the row names this failing test.
+ *
+ * The trace names the line of the step it recorded — the failing assertion when the runner wrote
+ * its error on that step, and the suite's `afterEach` (`context.close()`) when it did not. The
+ * runner's own summary names the test's DECLARATION line, and that is the location the result
+ * quotes and the line a re-run command takes, so it wins whenever the run reported one for this
+ * file: matched by the trace's own line inside the test body ({@link runFailureOf}), and otherwise
+ * by the file alone when that file has exactly ONE reported failure — an `afterEach` line sits
+ * BEFORE the declaration, so the line window cannot match it (xr-molecule-flash-m163's row said
+ * `navigation.spec.ts:12`, the suite's `afterEach`, for the test declared at `:200`).
+ *
+ * @param item - One traced failure.
+ * @param failures - The runner's report, one entry per failing test.
+ * @returns The `file:line` the row names.
+ */
+function failureWhereOf(item: TraceArtifact, failures: readonly TraceRunFailure[]): string {
+  const spec = item.spec
+  if (spec === null) return whereOf(item)
+  let reported = runFailureOf(item, failures)
+  if (reported === undefined) {
+    const sameFile = failures.filter((failure) => sameLocationFile(spec, failure.spec))
+    if (sameFile.length === 1) reported = sameFile[0]
+  }
+  if (reported === undefined) return whereOf(item)
+  return reported.line > 0 ? `${reported.spec}:${reported.line}` : reported.spec
+}
+
 /** A navigation the runner reported as the failure, with the pending assets its wait covered. */
 interface StalledNavigation {
   /** The call as the runner named it (`page.goto`, `page.waitForURL`). */
@@ -2120,6 +2148,7 @@ export function failureTraceNote(
   apiPrefixes: readonly string[] = [],
   report: TraceRunReport = {},
 ): string | null {
+  const failures = report.failures ?? []
   const candidates = items.filter((item) => traceRowEvidence(item, report))
   if (candidates.length === 0) return null
   // Ranked, then deduplicated BY LOCATION — in that order, so the row kept for a location is the
@@ -2131,7 +2160,7 @@ export function failureTraceNote(
   const seen = new Set<string>()
   for (const { item, index } of ranked) {
     // A trace that names no spec cannot be placed; it is never collapsed onto another one.
-    const where = item.spec === null ? `#${index}` : whereOf(item)
+    const where = item.spec === null ? `#${index}` : failureWhereOf(item, failures)
     if (seen.has(where)) continue
     seen.add(where)
     traced.push(item)
@@ -2192,6 +2221,9 @@ export function failureTraceNote(
   ]
   const anyStalled = stalls.some((stall) => stall !== null)
   const rows: string[] = []
+  // Rows whose failing action sent nothing and left the page on a new route: the page is still
+  // showing the previous route's data. Counted so the note can say it once for the whole run.
+  let staleRouteRows = 0
   for (const [index, item] of traced.entries()) {
     // The test's LAST action before the failing assertion leads the row (m148): the requests it
     // caused and what came back explain a page that never showed the signed-in state, while the
@@ -2238,7 +2270,28 @@ export function failureTraceNote(
     const parts: string[] = []
     if (step !== undefined && !stalledNav) {
       const head = `the test's last action was ${step.api} at ${actionClock(item, step.start)}`
-      if (stepRequests.length === 0) {
+      const pageBefore = step.pageBefore
+      const pageAfter = step.pageAfter
+      // The action asked the API for nothing and the page ended up on another route: the page is
+      // still showing the data it fetched for the route before, which is why the new route's list
+      // is wrong (xr-molecule-flash-m163 +10:00 — the note printed "it sent no request" beside
+      // "the page then navigated to …", then pointed at a response body that never existed, and
+      // the run spent six minutes on markup and CSS).
+      const staleRoute =
+        stepRequests.length === 0 &&
+        pageBefore !== undefined &&
+        pageAfter !== undefined &&
+        pageBefore !== pageAfter
+      if (staleRoute) {
+        staleRouteRows += 1
+        parts.push(
+          `${head}, and it sent no request — the page moved from ${pageBefore} to ${pageAfter}. ` +
+            `The page changed route but fetched nothing new, so it is still showing the previous ` +
+            `route's data: check how the page reads the route (a param the route does not define ` +
+            `is always undefined; a missing effect dependency on the route means the fetch never ` +
+            `re-runs), not the markup or the CSS`,
+        )
+      } else if (stepRequests.length === 0) {
         parts.push(`${head}, and it sent no request`)
       } else {
         const shown = stepRequests.slice(0, room)
@@ -2251,11 +2304,11 @@ export function failureTraceNote(
       }
       // What the page did next: a navigation shows in the main frame's URL even when the app moved
       // client-side and the network log recorded no document request.
-      if (step.pageAfter !== undefined) {
+      if (!staleRoute && pageAfter !== undefined) {
         parts.push(
-          step.pageBefore !== undefined && step.pageBefore !== step.pageAfter
-            ? `the page then navigated to ${step.pageAfter}`
-            : `the page stayed at ${step.pageAfter}`,
+          pageBefore !== undefined && pageBefore !== pageAfter
+            ? `the page then navigated to ${pageAfter}`
+            : `the page stayed at ${pageAfter}`,
         )
       }
       // A 4xx on the logout endpoint with the page unmoved is not a backend failure: the auth
@@ -2335,12 +2388,14 @@ export function failureTraceNote(
           : 'another browser context the test opened'
       parts.push(`${label}: ${context.requests.slice(0, 2).map(requestLine).join('; ')}`)
     }
-    rows.push(`  ${index + 1}. ${whereOf(item)} — ${parts.join(' — ')}`)
+    rows.push(`  ${index + 1}. ${failureWhereOf(item, failures)} — ${parts.join(' — ')}`)
   }
   // Distinct locations the note did not name: the repeats collapse, so the count is what is left
   // to look at, not how many zips Playwright wrote.
   const distinct = new Set(
-    candidates.map((item, index) => (item.spec === null ? `#${index}` : whereOf(item))),
+    candidates.map((item, index) =>
+      item.spec === null ? `#${index}` : failureWhereOf(item, failures),
+    ),
   )
   const more =
     distinct.size > traced.length
@@ -2395,9 +2450,27 @@ export function failureTraceNote(
             `and if the stall repeats measure that exact fetch ` +
             `(\`curl -o /dev/null -w '%{time_starttransfer} %{time_total}' <url>\`) before ` +
             `treating it as the app's.\n\n`)
+  // Every row is a route change that fetched nothing: the cause and the next read are the same
+  // for the whole run, and the generic "read the response body" paragraph would point at a
+  // response that never existed (xr-molecule-flash-m163 +10:00).
+  const everyStaleRoute =
+    staleRouteRows > 0 &&
+    staleRouteRows === traced.length &&
+    !anyFailed &&
+    !anyStalled &&
+    !allUnattributed &&
+    transport === null
+  const staleRouteLead = everyStaleRoute
+    ? `Every failure this run traced is the same shape: the failing action asked the API for ` +
+      `nothing and the page changed route, so the page is still showing the data it fetched for ` +
+      `the route before. Read how each page derives its query from the route — a param the route ` +
+      `does not define is always undefined, and a missing effect dependency on the route means ` +
+      `the fetch never re-runs — before touching the markup or the CSS.\n\n`
+    : ''
   return (
     transportLead +
     stalledLead +
+    staleRouteLead +
     `The platform read the failing tests' own Playwright traces from the run against ${target} ` +
     (allUnattributed
       ? `(what each page sent and got — the requests their contexts recorded, with no claim about ` +
@@ -2441,13 +2514,18 @@ export function failureTraceNote(
             'action or URL is attributed here: read the requests above together with the runner’s ' +
             'own failure text to tell which page the test asserted on, and read that page’s state, ' +
             'not the selector.'
-          : 'No listed request failed — none got a 4xx/5xx or a network error — so the cause is in the ' +
-            "page, not the API. Start with what the test's last action sent (the first line of each " +
-            'row) and what the page did next: a request that answered (2xx included) while the page ' +
-            'still did not show the state the assertion waited on is the fact to read — its status ' +
-            'and response body, not the selector. If the request is not the one the test meant — an ' +
-            'unfollow sent where the test clicked follow — the state the action read was stale ' +
-            'before it.') +
+          : everyStaleRoute
+            ? 'No listed request failed — none got a 4xx/5xx or a network error — and the failing ' +
+              'action sent no request at all, so there is no response to read. The page changed ' +
+              'route and fetched nothing, which is why it still shows the previous route’s data: ' +
+              'fix how the page reads the route, not the selector.'
+            : 'No listed request failed — none got a 4xx/5xx or a network error — so the cause is in the ' +
+              "page, not the API. Start with what the test's last action sent (the first line of each " +
+              'row) and what the page did next: a request that answered (2xx included) while the page ' +
+              'still did not show the state the assertion waited on is the fact to read — its status ' +
+              'and response body, not the selector. If the request is not the one the test meant — an ' +
+              'unfollow sent where the test clicked follow — the state the action read was stale ' +
+              'before it.') +
     prefixAdvice +
     (wrapped
       ? ' The API received a body wrapped in `data`: app-http’s `post(url, data, config)` / ' +

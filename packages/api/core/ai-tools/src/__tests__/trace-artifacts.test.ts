@@ -2353,3 +2353,214 @@ describe('traceArtifactsScript — the failing assertion’s page, not the archi
     }
   })
 })
+
+/**
+ * The shape of xr-molecule-flash-m163's failing trace: the profile page fetched its list with
+ * `?author=…`, the click on the "Favorited" tab moved the page to `/profile/<user>/favorites` and
+ * sent no request at all, and the assertion (`.article-preview`, expected 1, got 2) failed on the
+ * data the PREVIOUS route had fetched.
+ *
+ * `failingStepLine` is the line the runner's trace carries the error on. m163's row was placed by
+ * the suite's `afterEach` (`context.close()` at `:12`), so the `null` variant has no error entry:
+ * the fallback then lands on that hook. The runner's own summary always names the test's
+ * DECLARATION line (`:200`), and that is what the row must say.
+ */
+function staleRouteZip(options: { failingStepLine: number | null }): Buffer {
+  const spec = '/workspace/fixtures/realworld/specs/e2e/navigation.spec.ts'
+  const ndjson = (rows: unknown[]): string => rows.map((row) => JSON.stringify(row)).join('\n')
+  const request = (url: string, status: number, at: number): unknown => ({
+    type: 'resource-snapshot',
+    snapshot: {
+      _resourceType: 'fetch',
+      _monotonicTime: at,
+      pageref: 'page@1',
+      request: { url, method: 'GET' },
+      ...(status < 0 ? {} : { response: { status } }),
+    },
+  })
+  const runner: unknown[] = [
+    {
+      type: 'before',
+      callId: 'r2',
+      title: 'should show article count on profile tabs',
+      class: 'Test',
+      method: 'step',
+      startTime: 3,
+    },
+  ]
+  if (options.failingStepLine !== null) {
+    runner.push(
+      {
+        type: 'before',
+        callId: 'r3',
+        title: 'expect.toHaveCount',
+        class: 'Test',
+        method: 'step',
+        startTime: 110,
+        parentId: 'r2',
+        stack: [{ file: spec, line: options.failingStepLine }],
+      },
+      {
+        type: 'after',
+        callId: 'r3',
+        endTime: 120,
+        error: { message: 'expect(locator).toHaveCount(expected) failed' },
+      },
+    )
+  }
+  runner.push(
+    {
+      type: 'before',
+      callId: 'r4',
+      title: 'After Hooks',
+      class: 'Test',
+      method: 'step',
+      startTime: 122,
+    },
+    {
+      type: 'before',
+      callId: 'r5',
+      title: 'afterEach hook',
+      class: 'Test',
+      method: 'step',
+      startTime: 123,
+      parentId: 'r4',
+      stack: [{ file: spec, line: 12 }],
+    },
+    { type: 'after', callId: 'r5', endTime: 124 },
+  )
+  return storedZip({
+    'test.trace': ndjson(runner),
+    '1-trace.trace': ndjson([
+      {
+        type: 'before',
+        class: 'Frame',
+        method: 'goto',
+        callId: 'c0',
+        startTime: 5,
+        stack: [{ file: spec, line: 201 }],
+      },
+      { type: 'after', callId: 'c0', endTime: 20 },
+      {
+        type: 'frame-snapshot',
+        snapshot: {
+          callId: 'c0',
+          pageId: 'page@1',
+          frameId: 'frame@1',
+          frameUrl: 'http://127.0.0.1:4173/profile/testuser-1',
+          timestamp: 10,
+          isMainFrame: true,
+        },
+      },
+      {
+        type: 'before',
+        class: 'Locator',
+        method: 'click',
+        callId: 'c1',
+        startTime: 100,
+        stepId: 'r3',
+        stack: [{ file: spec, line: 218 }],
+      },
+      { type: 'after', callId: 'c1', endTime: 105 },
+      {
+        type: 'frame-snapshot',
+        snapshot: {
+          callId: 'c1',
+          pageId: 'page@1',
+          frameId: 'frame@1',
+          frameUrl: 'http://127.0.0.1:4173/profile/testuser-1/favorites',
+          timestamp: 130,
+          isMainFrame: true,
+        },
+      },
+      // The suite's `afterEach` `context.close()`, which the old location fallback named (m163).
+      {
+        type: 'before',
+        class: 'BrowserContext',
+        method: 'close',
+        callId: 'c2',
+        startTime: 200,
+        stack: [{ file: spec, line: 12 }],
+      },
+      { type: 'after', callId: 'c2', endTime: 201 },
+    ]),
+    '1-trace.network': ndjson([
+      request('http://127.0.0.1:4173/api/user', 200, 12),
+      request('http://127.0.0.1:4173/api/profiles/testuser-1', 200, 14),
+      request('http://127.0.0.1:4173/api/articles?author=testuser-1&offset=0', 200, 16),
+      // Still in flight when the test ended — m163's "no response recorded" line.
+      request('http://127.0.0.1:4173/api/articles/test-article-1/comments', -1, 30),
+    ]),
+  })
+}
+
+/** The runner's report for m163: the failing test is DECLARED at `navigation.spec.ts:200`. */
+const M163_REPORT = {
+  failures: [
+    {
+      spec: 'fixtures/realworld/specs/e2e/navigation.spec.ts',
+      line: 200,
+      operation: null,
+      budgetMs: null,
+    },
+  ],
+}
+
+describe('failureTraceNote — a route change that fetched nothing (xr-molecule-flash-m163)', () => {
+  const note = (zip: Buffer): string => {
+    const root = stalledRun(zip)
+    try {
+      const items = parseTraceArtifacts(readTraces(root))
+      return String(failureTraceNote(items, 'https://loopcheck.apps.mlcl.dev', [], [], M163_REPORT))
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  }
+
+  it('leads with the stale-data cause and drops the response-body paragraph', () => {
+    const text = note(staleRouteZip({ failingStepLine: 224 }))
+    // The cause, in plain words, before the request buckets.
+    expect(text).toContain(
+      'the page moved from /profile/testuser-1 to /profile/testuser-1/favorites',
+    )
+    expect(text).toContain(
+      'The page changed route but fetched nothing new, so it is still showing the previous ' +
+        "route's data: check how the page reads the route",
+    )
+    expect(text).toContain('a param the route does not define is always undefined')
+    expect(text).toContain('a missing effect dependency on the route means the fetch never re-runs')
+    expect(text).toContain('Every failure this run traced is the same shape')
+    // There is no response to read: the generic paragraph would point away from the cause.
+    expect(text).not.toContain('its status and response body')
+    expect(text).not.toContain('the page then navigated to')
+    // The page's own load is still named, for what it is.
+    expect(text).toContain('also answered (started before the action)')
+  })
+
+  it('names the failing test’s own line, never the afterEach', () => {
+    const text = note(staleRouteZip({ failingStepLine: 224 }))
+    expect(text).toContain('fixtures/realworld/specs/e2e/navigation.spec.ts:200')
+    expect(text).not.toContain('navigation.spec.ts:224')
+    expect(text).not.toContain('navigation.spec.ts:12')
+  })
+
+  it('names the declaration line even when the trace only placed the row on the afterEach', () => {
+    // No error entry in the runner's trace: the trace's own location is the `afterEach` at :12.
+    const root = stalledRun(staleRouteZip({ failingStepLine: null }))
+    try {
+      const items = parseTraceArtifacts(readTraces(root))
+      expect(items[0].spec).toBe('specs/e2e/navigation.spec.ts')
+      expect(items[0].line).toBe(12)
+      const text = String(
+        failureTraceNote(items, 'https://loopcheck.apps.mlcl.dev', [], [], M163_REPORT),
+      )
+      expect(text).toContain('fixtures/realworld/specs/e2e/navigation.spec.ts:200')
+      expect(text).not.toContain('navigation.spec.ts:12')
+      // Without the runner's report there is nothing to place it with but the trace's own line.
+      const unreported = String(failureTraceNote(items, 'https://loopcheck.apps.mlcl.dev'))
+      expect(unreported).toContain('specs/e2e/navigation.spec.ts:12')
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+})
