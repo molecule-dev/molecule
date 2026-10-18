@@ -112,7 +112,7 @@ export interface TraceAction {
   end: number | null
 }
 
-/** What one trace says: the test it belongs to, the requests it made, and its console errors. */
+/** What one trace says: the test it belongs to, the requests it made, and its console lines. */
 export interface TraceArtifact {
   /** The failure's spec file, relative to the run's directory, when the trace names one. */
   spec: string | null
@@ -132,7 +132,11 @@ export interface TraceArtifact {
    * Absent when the trace recorded neither, and on traces read before this field existed.
    */
   lead?: TraceRequest
-  /** The console errors and page errors the page raised. */
+  /**
+   * The console lines and page errors the page raised: its errors first, then a line that names a
+   * session decision or comes from a molecule package, then any other warning, then the browser's
+   * own resource error ({@link traceArtifactsScript}).
+   */
   console: string[]
   /**
    * The test's LAST user action before the failing assertion and the requests it caused — what the
@@ -156,7 +160,10 @@ export const MAX_TRACE_ARTIFACTS = 12
 /** How many requests one test's trace contributes. */
 export const MAX_TRACED_REQUESTS = 6
 
-/** How many console errors one test's trace contributes. */
+/**
+ * How many console lines one test's trace contributes: errors ahead of a session or molecule-package
+ * line, both ahead of a plain warning and of the browser's own resource error.
+ */
 export const MAX_TRACED_CONSOLE = 4
 
 /** How many of the page's own actions one test's trace contributes, the LAST ones. */
@@ -193,7 +200,13 @@ const TRACE_NOTE_FAILURE_CHARS = 120
 /**
  * The Node program the sandbox runs to read a failed run's traces: `node <script> <dir>` prints one
  * `TRACE <json>` line per `trace.zip` under `<dir>` (newest first, {@link MAX_TRACE_ARTIFACTS} of
- * them), each with the test it belongs to, the requests its page made and its console errors.
+ * them), each with the test it belongs to, the requests its page made and its console lines.
+ *
+ * The console lines are ranked, because the level alone is not enough: errors first, then a line
+ * that names a session decision or comes from a molecule package, then any other warning, then the
+ * browser's own resource error. `@molecule/app-auth`'s "Token refresh failed, logging out" is a
+ * WARNING, and keeping errors only dropped the one line that explained a whole signed-out run
+ * (xr-molecule-flash-m148 +38:21).
  *
  * It is a standalone program, not an import, for the reason `@molecule/api-code-sandbox` runs it:
  * Playwright's own zip reader is not reachable from a project's `node_modules`, and a dependency
@@ -228,6 +241,20 @@ const MAX_CONSOLE = ${MAX_TRACED_CONSOLE}
 const MAX_ACTIONS = ${MAX_TRACED_ACTIONS}
 const MAX_BODY = ${MAX_TRACED_BODY_CHARS}
 const MAX_URL = 200
+// A console line that is not an error but still has to reach the note (m148): one a molecule
+// package wrote — it names the package, the \`[molecule/…]\` prefix, or the \`[scope]\` prefix
+// molecule's own logger writes for a named module ([auth], [http], [i18n]) — or one that names a
+// session decision in the page's own words. \`@molecule/app-auth\` logged "Token refresh failed,
+// logging out" at WARNING level, and this reader kept error entries only, so every trace note
+// carried the browser's generic "Failed to load resource: 401" while the platform's own package was
+// saying, in words, that it had signed the user out.
+const MOLECULE_CONSOLE = /@molecule\\/|\\[molecule[:\\/][^\\]]*\\]|^\\s*\\[[a-z][a-z0-9-]*\\]/
+const SESSION_CONSOLE = /\\b(?:auth(?:entication|enticated|orization|orized)?|session|token|sign(?:ed|ing)?[\\s-]?out|log(?:ged|ging)?[\\s-]?out|refresh(?:ed|ing)?\\s+failed|no\\s+provider)\\b/i
+
+// Whether a console line belongs in the note even though it is not at error level.
+function consoleSignal(text) {
+  return MOLECULE_CONSOLE.test(text) || SESSION_CONSOLE.test(text)
+}
 
 function walk(dir, depth, out) {
   if (depth < 0) return
@@ -641,13 +668,18 @@ for (const one of found.slice(0, MAX_TRACES)) {
     chosen.push(wire(r))
   }
   const consoleErrors = []
+  const consoleSignals = []
+  const consoleWarnings = []
   let spec = null
   let line = 0
   for (const entry of trace) {
     if (!entry) continue
-    if (entry.type === 'console' && entry.messageType === 'error' && typeof entry.text === 'string')
-      consoleErrors.push(entry.text)
-    else if (entry.type === 'event' && entry.method === 'pageError') {
+    if (entry.type === 'console' && typeof entry.text === 'string') {
+      if (entry.messageType === 'error') consoleErrors.push(entry.text)
+      else if (consoleSignal(entry.text)) consoleSignals.push(entry.text)
+      else if (entry.messageType === 'warning' || entry.messageType === 'warn')
+        consoleWarnings.push(entry.text)
+    } else if (entry.type === 'event' && entry.method === 'pageError') {
       const message = messageOf(entry.params)
       if (message) consoleErrors.push(message)
     } else if (entry.type === 'before' && Array.isArray(entry.stack) && entry.stack.length) {
@@ -659,9 +691,13 @@ for (const one of found.slice(0, MAX_TRACES)) {
     }
   }
   // Chromium reports every failed request as a console error too; where the page logged something
-  // of its own about it, that is the line worth reading.
+  // of its own about it, that is the line worth reading. Errors lead, then the lines that name a
+  // session decision or come from a molecule package (m148), then any other warning — the browser's
+  // resource error is last, because it is evidence of a failed request, not of a cause, and the
+  // platform's own package saying "logging out" must not be ranked below it.
   const specific = consoleErrors.filter(function (text) { return !/^Failed to load resource/.test(text) })
-  const keptConsole = specific.length > 0 ? specific : consoleErrors
+  const keptConsole = specific.concat(consoleSignals, consoleWarnings)
+  if (specific.length === 0) keptConsole.push.apply(keptConsole, consoleErrors)
   if (chosen.length === 0 && keptConsole.length === 0 && actions.length === 0) continue
   process.stdout.write('TRACE ' + JSON.stringify({
     dir: path.relative(ROOT, path.dirname(one.file)),
@@ -1055,7 +1091,7 @@ function repeatsEarlierFailure(item: TraceArtifact, earlier: readonly string[]):
 
 /**
  * Whether a trace holds evidence the note can explain: a request that got a RECORDED response, a
- * real failure (4xx/5xx or a network error), or a console error. A request with no response is
+ * real failure (4xx/5xx or a network error), or a console line. A request with no response is
  * not evidence (m112 +53:46): four of the note's five rows were traces of one `afterEach` line
  * whose every request was `-1`, so the favorite cause — repeated in all three walks — stayed
  * hidden in "… and 7 more traced failures".
@@ -1066,7 +1102,7 @@ function repeatsEarlierFailure(item: TraceArtifact, earlier: readonly string[]):
  * `page.goto` timed out ({@link stalledDocumentSubresource}).
  *
  * @param item - One traced failure.
- * @returns True when the trace holds a request or console error worth a row.
+ * @returns True when the trace holds a request or console line worth a row.
  */
 function traceRowEvidence(item: TraceArtifact): boolean {
   return (
@@ -1292,7 +1328,7 @@ function missingApiPrefixSentence(request: MissingApiPrefixRequest): string {
  * row falls back to {@link TraceArtifact.lead}: the page's last answered fetch/xhr.
  *
  * WHICH rows it spends is evidence, not artifact order (xr-molecule-flash-m112 +53:46): a row
- * needs a recorded response, a real failure or a console error ({@link traceRowEvidence}), rows are
+ * needs a recorded response, a real failure or a console line ({@link traceRowEvidence}), rows are
  * deduplicated by the test's location, and they are ordered real failure → repeated from an
  * earlier walk → the rest ({@link traceRowTier}). Without that the note spent all five rows on four
  * traces of one `afterEach` line whose every request was `-1`, and left the favorite cause — the

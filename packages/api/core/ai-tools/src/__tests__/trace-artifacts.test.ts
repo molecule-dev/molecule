@@ -1390,6 +1390,124 @@ function registerRun(zip: Buffer): string {
   return stalledRun(zip)
 }
 
+/**
+ * xr-molecule-flash-m148 (+38:21): the app's register flow answered 201, then `@molecule/app-auth`'s
+ * refresh timer logged `Token refresh failed, logging out — No refresh token available` at WARNING
+ * level and signed the user out. The trace reader kept `error` console entries only, so the note
+ * carried the browser's own `Failed to load resource: 401` and never the line that explained it —
+ * walks 1–12 were spent on the symptom (a `POST …/favorite → 401`) while the cause sat in every
+ * trace's console. This trace is that shape: a real request/action clock and the warning itself.
+ */
+function consoleLinesZip(lines: { errors?: string[]; warnings?: string[] }): Buffer {
+  const network = [
+    {
+      type: 'resource-snapshot',
+      snapshot: {
+        _resourceType: 'document',
+        _monotonicTime: 1000,
+        request: { url: 'http://127.0.0.1:4173/register', method: 'GET' },
+        response: { status: 200 },
+      },
+    },
+    {
+      type: 'resource-snapshot',
+      snapshot: {
+        _resourceType: 'fetch',
+        _monotonicTime: 1250,
+        request: { url: 'http://127.0.0.1:4173/api/articles/x/favorite', method: 'POST' },
+        response: { status: 401, content: { text: '{"error":"unauthorized"}' } },
+      },
+    },
+  ]
+  const consoleLine = (messageType: 'error' | 'warning', text: string, index: number): unknown => ({
+    type: 'console',
+    messageType,
+    text,
+    args: [],
+    location: { url: 'http://127.0.0.1:4173/', lineNumber: 0, columnNumber: 0 },
+    time: 1210 + index,
+    pageId: 'page@1',
+  })
+  const trace: unknown[] = [
+    {
+      type: 'before',
+      class: 'Frame',
+      method: 'goto',
+      callId: 'goto-1',
+      startTime: 800,
+      stack: [{ file: 'e2e/auth.spec.ts', line: 40 }],
+    },
+    { type: 'after', callId: 'goto-1', endTime: 900 },
+    {
+      type: 'before',
+      class: 'Locator',
+      method: 'click',
+      callId: 'click-1',
+      startTime: 1200,
+      stack: [{ file: 'e2e/auth.spec.ts', line: 63 }],
+    },
+    { type: 'after', callId: 'click-1', endTime: 1240 },
+    ...(lines.errors ?? []).map((text, index) => consoleLine('error', text, index)),
+    ...(lines.warnings ?? []).map((text, index) =>
+      consoleLine('warning', text, (lines.errors ?? []).length + index),
+    ),
+  ]
+  const ndjson = (rows: unknown[]): string => rows.map((row) => JSON.stringify(row)).join('\n')
+  return storedZip({ 'trace.trace': ndjson(trace), 'trace.network': ndjson(network) })
+}
+
+describe('traceArtifactsScript — a console warning the level filter dropped (m148 +38:21)', () => {
+  /** The line `@molecule/app-auth` wrote through `logger.warn`, exactly as the page printed it. */
+  const LOGOUT =
+    'Token refresh failed, logging out I18nError: No refresh token available\n' +
+    '    at Object.refresh (http://127.0.0.1:4173/assets/index-Cz-weqOV.js:65:44491)'
+
+  it('keeps the app-auth logout warning, so the failing test’s note quotes it', () => {
+    const root = registerRun(consoleLinesZip({ warnings: [LOGOUT] }))
+    try {
+      const items = parseTraceArtifacts(readTraces(root))
+      expect(items).toHaveLength(1)
+      // The reader kept it at warning level, which it used to drop for not being an error.
+      expect(items[0].console[0]).toContain('Token refresh failed, logging out')
+      const note = String(failureTraceNote(items, 'http://127.0.0.1:4173'))
+      const consoleRow = note.split('\n').find((line) => line.includes('console:'))
+      expect(consoleRow).toContain('Token refresh failed, logging out')
+      expect(consoleRow).toContain('No refresh token available')
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
+  it('ranks errors, then the session line, then other warnings — bounded per test', () => {
+    const noisy = [
+      'Warning: Each child in a list should have a unique "key" prop.',
+      'The resource http://127.0.0.1:4173/assets/index.js was preloaded using link preload but not used within a few seconds.',
+      'Third-party cookie will be blocked.',
+      'Deprecated feature used.',
+      'Slow network is detected.',
+      // Last in the trace, so only the ranking can put it first among the warnings.
+      LOGOUT,
+    ]
+    const root = registerRun(consoleLinesZip({ errors: ['favorite failed 401'], warnings: noisy }))
+    try {
+      const items = parseTraceArtifacts(readTraces(root))
+      // The read's own bound (MAX_TRACED_CONSOLE), spent on what ranks highest.
+      expect(items[0].console).toHaveLength(4)
+      expect(items[0].console[0]).toBe('favorite failed 401')
+      expect(items[0].console[1]).toContain('Token refresh failed, logging out')
+      const note = String(failureTraceNote(items, 'http://127.0.0.1:4173'))
+      const consoleRow = String(note.split('\n').find((line) => line.includes('console:')))
+      // The note's existing per-test cap: two console lines, so one separator.
+      expect(consoleRow.split(' | ')).toHaveLength(2)
+      expect(consoleRow).toContain('favorite failed 401')
+      expect(consoleRow).toContain('Token refresh failed, logging out')
+      expect(consoleRow).not.toContain('preloaded using link preload')
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+})
+
 describe('traceArtifactsScript — the last action, not the page it landed on (m148)', () => {
   it('leads with the register POST the click sent, not the Home page’s GET /api/tags', () => {
     const root = registerRun(registerWalkZip({ actionSendsRequest: true }))
