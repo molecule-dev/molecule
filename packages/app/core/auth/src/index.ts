@@ -35,6 +35,13 @@
  * Gate the fetch on the auth state being settled (`state.initialized`), or let
  * the HTTP client do it: `@molecule/app-bonds-default-react` registers
  * `whenRestored()` as the gate so every request waits for the restore.
+ * Waiting for the restore does NOT attach its token: a separately created HTTP
+ * client needs
+ * `createDefaultHttpClientWithAuthBearer({ baseURL, getToken: () => authClient.getAccessToken(), authScheme })`
+ * from `@molecule/app-bonds-default-react` plus
+ * `setAuthGate(() => authClient.whenRestored())` from `@molecule/app-http` — or
+ * the auth client built with `createDefaultAuthClientWithHttpSync`, which
+ * mirrors the token into the bonded client.
  *
  * **`getState().status` is the session state to render, in one value.**
  * `'loading'` (no decision yet) → `'authenticated'` / `'unauthenticated'`, and

@@ -72,6 +72,11 @@
  * bond registers that wait with `setAuthGate`; apps that bond auth through
  * `@molecule/app-bonds-default-react` get it without doing anything. An app with its own session
  * module registers its own: `setAuthGate(() => session.whenRestored())`.
+ * Waiting for the restore does NOT attach the token: a client created beside the auth bond needs
+ * `createDefaultHttpClientWithAuthBearer({ baseURL, getToken: () => authClient.getAccessToken(),
+ * authScheme })` from `@molecule/app-bonds-default-react` (or an auth client built with
+ * `createDefaultAuthClientWithHttpSync`, which mirrors the token into the bonded client), because
+ * `setAuthGate` alone sends no `Authorization` header.
  *
  * **A request the gate itself depends on must opt out of it: pass `skipAuthGate: true`.** A gate
  * that waits for a session restore whose own request goes through this client waits on itself —

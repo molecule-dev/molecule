@@ -15,6 +15,13 @@
  * `@molecule/app-bonds-default-react`'s auth helpers register the gate for
  * apps that bond auth, so an app does not have to get it right itself.
  *
+ * Waiting for the restore does NOT attach its token: a separately created HTTP
+ * client needs `createDefaultHttpClientWithAuthBearer({ baseURL,
+ * getToken: () => authClient.getAccessToken(), authScheme })` from
+ * `@molecule/app-bonds-default-react` (or the auth client built with
+ * `createDefaultAuthClientWithHttpSync`, which mirrors the token into the
+ * bonded client) plus `setAuthGate(() => authClient.whenRestored())`.
+ *
  * The gate is module-level, not per client, on purpose: the client an app ends
  * up using is often created AFTER the auth bond ran (`setupAuthDefault()` then
  * `setupHttpDefault()`), and a gate installed on the throwaway client the auth

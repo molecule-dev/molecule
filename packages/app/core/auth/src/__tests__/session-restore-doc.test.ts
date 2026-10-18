@@ -86,3 +86,27 @@ describe('the scaffolded-app wiring in the module description (xr-molecule-flash
     expect(remarks).not.toContain('skipAuthGate')
   })
 })
+
+/**
+ * xr-molecule-flash-m152 (+11:36 → +13:34): the app waited for the restore (it believed the
+ * header's claim) but never attached the token a separately created HTTP client needs — signup
+ * succeeded, then `POST /api/articles` answered 401 `{"errors":{"token":["is missing"]}}`. The
+ * restore bullet has to say the gate does not supply the token and name the wiring that does.
+ */
+describe('the token wiring the restore does not provide (xr-molecule-flash-m152)', () => {
+  it('says so in the bullet an app reads before creating its HTTP client', () => {
+    const doc = docFor(read('src/index.ts'), 'Never fetch viewer-dependent data')
+    expect(doc).toContain('Waiting for the restore does NOT attach its token')
+    expect(doc).toContain('createDefaultHttpClientWithAuthBearer')
+    expect(doc).toContain('getToken: () => authClient.getAccessToken()')
+    expect(doc).toContain('setAuthGate(() => authClient.whenRestored())')
+    expect(doc).toContain('createDefaultAuthClientWithHttpSync')
+  })
+
+  it('carries it into the generated README the executor reads', () => {
+    const readme = read('README.md')
+    expect(readme).toContain('Waiting for the restore does NOT attach its token')
+    expect(readme).toContain('createDefaultHttpClientWithAuthBearer')
+    expect(readme).toContain('setAuthGate(() => authClient.whenRestored())')
+  })
+})
