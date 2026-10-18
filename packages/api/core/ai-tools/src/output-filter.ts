@@ -17,7 +17,11 @@
  * @module
  */
 
-import { type CommandSegment, locatedCommandSegments } from './command-position.js'
+import {
+  type CommandSegment,
+  type LocatedCommandSegment,
+  locatedCommandSegments,
+} from './command-position.js'
 
 /**
  * The programs whose job is to re-shape what an earlier stage printed and that can DROP lines —
@@ -28,9 +32,13 @@ const CUTTING_FILTERS: ReadonlySet<string> = new Set(['awk', 'cut', 'grep', 'hea
 
 /** A cutting stage that follows the runner, and the command with the whole pipe removed. */
 export interface RunnerOutputFilter {
-  /** The stage exactly as the runner's command wrote it — `tail -6`. */
+  /**
+   * The stage exactly as the runner's command wrote it — `tail -6`. When several cutting filters
+   * follow the runner, this is the whole trailing chain as written, pipes included:
+   * `grep -E "Failure|actual" | head -40`.
+   */
   stage: string
-  /** The pipe as a sentence names it — `| tail -6`. */
+  /** The pipe as a sentence names it — `| tail -6`, or the whole chain `| grep … | head -40`. */
   pipe: string
   /**
    * The command with the pipe and the stage removed — `hurl --variable uid=… --test /tmp/t.hurl
@@ -43,10 +51,13 @@ export interface RunnerOutputFilter {
 /**
  * The output filter that follows the runner in `command`, or null when there is none.
  *
- * Only a stage of the runner's OWN pipeline counts (its separator is `|`), and only when it is the
- * LAST stage of that pipeline: a `| grep … | wc -l` chain would leave a dangling pipe if the
- * middle stage were cut out, so a chain is not answered here at all. A filter before the runner
- * (`cat run.log | tail -20 && hurl …`) reads something else's output and is not this.
+ * Only stages of the runner's OWN pipeline count (their separator is `|`), and they are read as
+ * one trailing CHAIN: `| grep … | head -40` is two cuts, and removing only the first would leave
+ * the run piped into the second. Every stage after the runner must be a cutting filter and the
+ * chain must run to the pipeline's end — a pipeline that continues into `wc -l` is not answered
+ * here, because removing the cutting stages alone would still leave the failure hidden. A filter
+ * before the runner (`cat run.log | tail -20 && hurl …`) reads something else's output and is not
+ * this.
  *
  * @param command - The command as the executor sent it.
  * @param runs - Whether a segment is the runner this run is about (the caller knows its own kind:
@@ -70,18 +81,31 @@ export function outputFilterAfterRunner(
     if (entry.segment !== null && runs(entry.segment)) runners.push(index)
   })
   const runnerAt = runners[occurrence - 1]
-  if (runnerAt === undefined || runnerAt + 1 >= entries.length) return null
+  if (runnerAt === undefined) return null
   const runner = entries[runnerAt]
-  const filter = entries[runnerAt + 1]
-  // The stage must be fed by the runner's own pipe, and nothing may be piped out of the filter:
-  // those are the two positions where cutting it out leaves a command that still runs the run.
-  if (!runner || !filter || filter.separator.trim() !== '|') return null
-  if (!filter.segment || !CUTTING_FILTERS.has(filter.segment.program)) return null
-  if (filter.terminator.trim() === '|') return null
-  if (runner.end === null || filter.start === null || filter.end === null) return null
+  if (!runner || runner.end === null) return null
+  // The chain is every stage fed by the runner's own pipe, until the pipeline ends. Each one has
+  // to be a cutting filter: a stage that does not drop lines ends the chain, and the chain then
+  // stops before the pipeline's end — which is not answerable (`| grep … | wc -l` would still
+  // hide the assertion in a count).
+  const chain: LocatedCommandSegment[] = []
+  for (let index = runnerAt + 1; index < entries.length; index++) {
+    const entry = entries[index]
+    if (!entry || entry.separator.trim() !== '|') break
+    if (!entry.segment || !CUTTING_FILTERS.has(entry.segment.program)) break
+    chain.push(entry)
+    if (entry.terminator.trim() !== '|') break
+  }
+  const first = chain[0]
+  const last = chain[chain.length - 1]
+  if (!first || !last) return null
+  // A pipeline that continues past the chain means a non-cutting stage sits after it.
+  if (last.terminator.trim() === '|') return null
+  if (first.start === null || last.end === null) return null
+  const stage = command.slice(first.start, last.end)
   return {
-    stage: command.slice(filter.start, filter.end),
-    pipe: `| ${command.slice(filter.start, filter.end)}`,
-    command: `${command.slice(0, runner.end)}${command.slice(filter.end)}`,
+    stage,
+    pipe: `| ${stage}`,
+    command: `${command.slice(0, runner.end)}${command.slice(last.end)}`,
   }
 }
