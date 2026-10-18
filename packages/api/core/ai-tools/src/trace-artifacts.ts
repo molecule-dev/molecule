@@ -452,15 +452,19 @@ for (const one of found.slice(0, MAX_TRACES)) {
   function neverFinished(r) {
     return r.status <= 0 && typeof r.failure !== 'string'
   }
-  // The request the failing step itself sent: the page's LAST call to the app's own origin (a
-  // click's fetch/xhr), else the document load. It leads the test's line, because the request a
-  // click sent answers "why did nothing change?" — xr-molecule-flash-m135 clicked Follow and sent
-  // a DELETE (its \`following\` state was stale), and the trace held the whole exchange while the
-  // result listed only the test's earlier, answered requests.
+  // Whether a request can lead a row: it got an answer (or failed for its own recorded reason),
+  // and it is the app's own call — a fetch/xhr of the page, or its document — never the page
+  // shell's own probe (a refused \`/sw.js\` is not the step's request — m125 +29:33).
+  //
+  // It ranks the requests the test's last action caused (see \`lastAction\` below), and it is the
+  // whole rule on a trace with no action clock (the fallback lead: the page's LAST call to the
+  // app's own origin, else the document load). That fallback is right for a click that changed
+  // nothing — xr-molecule-flash-m135 clicked Follow and sent a DELETE (its \`following\` state was
+  // stale) — and wrong for an assertion after a navigation (m148), which is why the action's
+  // clock, when the trace has one, decides.
   //
   // Never a request that is still in flight (no response, no error text): it says nothing about
-  // what came back, and the note has its own honest row for it (m112 +30:45). Never the page
-  // shell's own probe (a refused \`/sw.js\` is not the step's request — m125 +29:33).
+  // what came back, and the note has its own honest row for it (m112 +30:45).
   function leadCandidate(r) {
     if (r.status <= 0 && typeof r.failure !== 'string') return false
     if (r.type === 'document') return true
