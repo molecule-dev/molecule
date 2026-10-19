@@ -15,6 +15,11 @@
  * a short budget ({@link INLINE_SCRIPT_BUDGET_MS}), and a cut says what happened: a runaway
  * transform, not slow work ({@link inlineScriptRunawaySentence}).
  *
+ * The short budget needs the WHOLE command to be that shape. xr-molecule-flash-m254 (+12:48)
+ * chained the m200 heredoc with `node …/smoke.mjs | tail -25` — a Playwright walk whose import
+ * lives inside the file — and the walk was stopped after 20 s while the result blamed the python
+ * transform. Every statement must be proven local ({@link LOCAL_UTILITY}) before the budget applies.
+ *
  * @module
  */
 
@@ -64,7 +69,37 @@ const HEREDOC = /^<<-?\s*['"]?[A-Za-z_]/
  * budget of a command that reaches outside the box.
  */
 const EXTERNAL_EFFECT =
-  /\b(?:curl|wget|aria2c|rsync|scp|sftp|ftp|ssh|urllib3?|httpx|aiohttp|axios|requests|fetch|XMLHttpRequest|socket|net\.connect|https?:\/\/|npm|npx|pnpm|yarn|bun|pip3?|conda|cargo|gem|composer|playwright|vitest|jest|hurl|vite|tsc|webpack|esbuild|rollup|docker|cmake|gradle|mvn|make|subprocess|Popen|child_process|execSync|spawnSync|git|psql|mysql|mongosh?|redis-cli|sqlite3)\b|\bos\.system\b|\b(?:http\.server|flask|fastapi|uvicorn|gunicorn)\b/i
+  /\b(?:curl|wget|aria2c|rsync|scp|sftp|ftp|ssh|urllib3?|httpx|aiohttp|axios|requests|fetch|XMLHttpRequest|socket|net\.connect|https?:\/\/|npm|npx|pnpm|yarn|bun|pip3?|conda|cargo|gem|composer|playwright|vitest|jest|hurl|vite|tsc|webpack|esbuild|rollup|docker|cmake|gradle|mvn|make|subprocess|Popen|child_process|execSync|spawnSync|git|psql|mysql|mongosh?|redis-cli|sqlite3)\b|\bos\.system\b|\b(?:http\.server|flask|fastapi|uvicorn|gunicorn)\b|\/dev\/(?:tcp|udp)/i
+
+/**
+ * The only OTHER programs a proven-local inline program may share its command with: plain file
+ * utilities (`cd app && python3 - <<'EOF' … EOF`, `… EOF | tail -25`).
+ *
+ * xr-molecule-flash-m254 (+12:48) ran `python3 - <<'EOF' … EOF` and then, in the same command,
+ * `node /workspace/.mol-scratch/smoke.mjs | tail -25` — the agent's Playwright UI walk. The
+ * heredoc alone is local, so the whole chain got the 20 s budget, the walk was stopped, and the
+ * result blamed the python transform. A script FILE can do anything (the `playwright` import is
+ * inside it, not in the command text), so a statement that runs one — or any program this set does
+ * not list — means the command is not proven local and keeps the full budget.
+ *
+ * Every program here reads and writes local files and nothing else.
+ */
+const LOCAL_UTILITY: ReadonlySet<string> = new Set([
+  'cat',
+  'cd',
+  'cp',
+  'echo',
+  'grep',
+  'head',
+  'ls',
+  'mkdir',
+  'mv',
+  'rm',
+  'sort',
+  'tail',
+  'test',
+  'wc',
+])
 
 /**
  * Whether one parsed statement runs an interpreter program written inline.
@@ -87,7 +122,12 @@ function inlineProgram(segment: { program: string; args: readonly string[] }): s
  * The interpreter of an INLINE program that only reads and writes local files — the shape that gets
  * {@link INLINE_SCRIPT_BUDGET_MS} instead of the tool's command budget.
  *
- * An inline program with any external effect keeps the full budget: no network, install, test
+ * EVERY statement of the command must be proven local, not just one of them: each is either an
+ * inline interpreter program or a plain file utility ({@link LOCAL_UTILITY}). A statement that runs
+ * a script FILE (`node smoke.mjs`, `python3 x.py`, `bash x.sh`) or names a program this module does
+ * not know can do anything at all, so the command keeps the full budget.
+ *
+ * An inline program with any external effect keeps the full budget too: no network, install, test
  * runner, build or server verb may appear anywhere in the command ({@link EXTERNAL_EFFECT}), and
  * the command must not be a suite run or a foreground server (the platform's own classifiers).
  *
@@ -98,11 +138,16 @@ export function inlineLocalScriptCommand(command: string): string | null {
   if (typeof command !== 'string' || !command.trim()) return null
   if (EXTERNAL_EFFECT.test(command)) return null
   if (isSuiteRunCommand(command) || startsServerProgram(command)) return null
+  let interpreter: string | null = null
   for (const segment of commandSegments(command)) {
-    const interpreter = inlineProgram(segment)
-    if (interpreter !== null) return interpreter
+    const inline = inlineProgram(segment)
+    if (inline !== null) {
+      interpreter ??= inline
+      continue
+    }
+    if (!LOCAL_UTILITY.has(segment.program)) return null
   }
-  return null
+  return interpreter
 }
 
 /**

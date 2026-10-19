@@ -2209,6 +2209,29 @@ describe('buildTools', () => {
       expect.objectContaining({ budgetMs: 290_000 }),
     )
   })
+
+  // xr-molecule-flash-m254 (+12:48, 2026-10-20): m200's heredoc was chained with the agent's own
+  // Playwright walk, `node /workspace/.mol-scratch/smoke.mjs | tail -25`. The walk's import lives
+  // inside the file, so the command text looked local, it got the 20 s transform budget, and the
+  // cut blamed the python. A script FILE is not proven local, so the whole chain keeps the budget.
+  it('keeps the full budget when an inline program is chained with a script file', async () => {
+    const command =
+      "cd /workspace && python3 - <<'EOF'\n" +
+      "s = open('index.html').read().replace('before', 'after')\n" +
+      "open('index.html', 'w').write(s)\n" +
+      'EOF\n' +
+      'cd /workspace/my-app && node /workspace/.mol-scratch/smoke.mjs 2>&1 | tail -25'
+    const backend = mockBackend()
+    const exec = buildTools(backend, { commandBudgetMs: 290_000, overCeilingGraceMs: 0 }).find(
+      (t) => t.name === 'exec_command',
+    )!
+    await exec.execute({ command })
+
+    expect(backend.run).toHaveBeenLastCalledWith(
+      command,
+      expect.objectContaining({ budgetMs: 290_000 }),
+    )
+  })
 })
 
 // ── buildAgentPrompt ────────────────────────────────────────────────────────
