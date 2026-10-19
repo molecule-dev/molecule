@@ -70,16 +70,27 @@ describe('AuthState.status', () => {
   })
 
   it('starts loading, then reports authenticated once the restore settles', async () => {
+    // Lazy initialization: the FIRST read starts the restore, so the `loading` window is
+    // the restore's own asynchronous part (a cookie probe), not "before anyone read".
+    ;(globalThis as { document?: { cookie: string } }).document = { cookie: 'mol_auth=1' }
+    let resolveFetch: ((value: unknown) => void) | undefined
+    mockFetch.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          resolveFetch = resolve
+        }),
+    )
     const client = createJWTAuthClient({ storage: createMockStorage() })
-    client.setAccessToken(createMockJWT())
-    client.setUser(user)
+    try {
+      expect(client.getState().status).toBe('loading')
 
-    expect(client.getState().status).toBe('loading')
+      resolveFetch?.(await createMockResponse({ user }))
+      await client.whenRestored()
 
-    await client.initialize()
-
-    expect(client.getState().status).toBe('authenticated')
-    expect(mockFetch).not.toHaveBeenCalled()
+      expect(client.getState().status).toBe('authenticated')
+    } finally {
+      delete (globalThis as { document?: unknown }).document
+    }
   })
 
   it('validateSession keeps the session and reports unavailable when the server cannot answer', async () => {

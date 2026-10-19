@@ -26,6 +26,15 @@
  * authenticated page renders signed-out, and its 401 signs the user out for
  * good.
  *
+ * **Calling `initialize()` is optional — initialization is lazy and idempotent.**
+ * The first read of the client (`getState()`, `subscribe()`/`onAuthChange()`, a
+ * `useAuth()` mount, `isAuthenticated()`, `getUser()`) starts the same one restore,
+ * and an explicit `initialize()` returns the same promise, so a second call asks the
+ * server nothing. Keep the template's explicit call (it makes the first render
+ * deterministic); an entry file that drops it still restores instead of reporting
+ * `'loading'` forever (xr-molecule-flash-m192: a `main.tsx` rewrite dropped the line
+ * and 18 tests timed out on pages that never left their loading branch).
+ *
  * **Never fetch viewer-dependent data before the restore settles.** A
  * component effect that runs on mount fires while `initialize()` is still
  * restoring, so its request leaves without the `Authorization` header and the

@@ -579,11 +579,61 @@ export const createJWTAuthClient = <
     setState({ initialized: true })
   }
 
-  const client: AuthClient<T, TRegister> = {
-    getState: () => state,
-    isAuthenticated: () => state.authenticated,
+  /**
+   * Starts the client's ONE session restore, or returns the one already running.
+   *
+   * A client that nobody called `initialize()` on used to stay `'loading'` for the
+   * life of the page: `createJWTAuthClient` starts at `status: 'loading'`, and only
+   * `initialize()` (or a sign-in) leaves it. The template calls `initialize()` on one
+   * line of `main.tsx`, so a rewrite that dropped that line made every `useAuth()`
+   * read `'loading'` forever and every signed-in page never rendered (xr-molecule-flash-m192:
+   * 18 tests timed out on a form the auth-gated page never produced). The first READ
+   * of the client's state now starts the restore instead — lazily, so an app that
+   * forgot the call still restores, and exactly once, so the explicit call and the
+   * reads share one request.
+   *
+   * The promise is recorded BEFORE the restore's synchronous part runs: that part
+   * restores a stored token and user (and notifies subscribers), so a subscriber that
+   * reads the state again mid-notification must get the running restore, not start a
+   * second one. An explicit `initialize()` after the restore has settled returns that
+   * same settled promise rather than asking the server again.
+   *
+   * @returns The restore in flight, or an already-resolved promise when the client is
+   *   initialized or has nothing to restore (a reused client keeps this as the
+   *   `whenRestored()` signal).
+   */
+  const startRestoreOnce = (): Promise<void> => {
+    if (restoreInFlight) return restoreInFlight
+    if (state.initialized) return Promise.resolve()
+    let resolve!: () => void
+    let reject!: (error: unknown) => void
+    const started = new Promise<void>((res, rej) => {
+      resolve = res
+      reject = rej
+    })
+    restoreInFlight = started
+    initializeSession().then(resolve, reject)
+    return started
+  }
 
-    getUser: () => state.user,
+  const client: AuthClient<T, TRegister> = {
+    getState: () => {
+      // A read is what every hook does first (`useAuth()`'s snapshot, a subscriber
+      // that renders from it), so a dropped `initialize()` must not leave this
+      // `'loading'`. The catch keeps a restore nobody awaited from becoming an
+      // unhandled rejection: the state is the answer a reader asked for.
+      void startRestoreOnce().catch(() => undefined)
+      return state
+    },
+    isAuthenticated: () => {
+      void startRestoreOnce().catch(() => undefined)
+      return state.authenticated
+    },
+
+    getUser: () => {
+      void startRestoreOnce().catch(() => undefined)
+      return state.user
+    },
 
     setUser: (user: T | null) => {
       tokenStorage.setUser(user)
@@ -828,12 +878,10 @@ export const createJWTAuthClient = <
     },
 
     async initialize(): Promise<void> {
-      // Record BEFORE awaiting, so a component effect that runs in the same tick as
-      // this call (bootstrapApp calls initialize() and then renders) already sees a
-      // restore in flight and holds its requests for it (see whenRestored below).
-      const inFlight = initializeSession()
-      restoreInFlight = inFlight
-      await inFlight
+      // Shared with every state read: the first of them starts the one restore, and a
+      // second `initialize()` (or one issued after a lazy read already restored)
+      // awaits the same promise instead of sending a second request.
+      await startRestoreOnce()
     },
 
     whenRestored(): Promise<void> {
@@ -922,11 +970,16 @@ export const createJWTAuthClient = <
     },
 
     subscribe(callback: (state: AuthState<T>) => void): () => void {
+      // Subscribing is a read of the state in all but name: a component that only
+      // subscribes (and renders from the callback) must get a decision, not a
+      // permanent `'loading'` (see `startRestoreOnce`).
+      void startRestoreOnce().catch(() => undefined)
       stateListeners.add(callback)
       return () => stateListeners.delete(callback)
     },
 
     onAuthChange(callback: (state: AuthState<T>) => void): () => void {
+      void startRestoreOnce().catch(() => undefined)
       stateListeners.add(callback)
       return () => stateListeners.delete(callback)
     },

@@ -265,6 +265,13 @@ export interface AuthClient<
 > {
   /**
    * Returns the current authentication state snapshot.
+   *
+   * READING the state starts the client's one session restore when nobody has called
+   * {@link initialize} yet — lazily and exactly once, sharing the promise an explicit
+   * `initialize()` returns. A hook (`useAuth()`), a subscriber, `isAuthenticated()` and
+   * `getUser()` are reads too, so a client whose entry file dropped the template's
+   * `authClient.initialize()` line still restores instead of reporting `'loading'`
+   * forever.
    */
   getState(): AuthState<T>
 
@@ -373,6 +380,12 @@ export interface AuthClient<
 
   /**
    * Initializes auth state (e.g., from stored tokens).
+   *
+   * LAZY and IDEMPOTENT: the first read of the state ({@link getState},
+   * {@link subscribe}, `useAuth()`) starts this same restore when nobody has called
+   * `initialize()`, and every later call shares the one promise instead of sending a
+   * second request. An app that keeps the template's explicit call behaves exactly as
+   * before; an app that loses that line still restores its session.
    *
    * With a stored token AND a stored user it marks the session `'authenticated'`
    * SYNCHRONOUSLY — before its first `await` — so the first render is the
