@@ -1,0 +1,59 @@
+{
+  "name": "@molecule/api-deploy-rollout-sandbox",
+  "version": "1.0.0",
+  "description": "Sandbox provider bond for @molecule/api-deploy-rollout: grow-then-shrink rolling deploys over any @molecule/api-code-sandbox provider (E2B, Docker, Fly).",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "keywords": [
+    "molecule",
+    "deploy",
+    "rollout",
+    "sandbox",
+    "e2b",
+    "docker"
+  ],
+  "author": "Molecule Dev, Inc. (https://molecule.dev)",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "peerDependencies": {
+    "@molecule/api-code-sandbox": "^1.0.0",
+    "@molecule/api-deploy-rollout": "^1.0.0"
+  },
+  "devDependencies": {
+    "@molecule/api-code-sandbox": "1.4.0",
+    "@molecule/api-deploy-rollout": "1.0.0",
+    "@types/node": "26.1.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.11"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/deploy-rollout/sandbox"
+  },
+  "homepage": "https://www.molecule.dev/packages/api-deploy-rollout-sandbox",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}

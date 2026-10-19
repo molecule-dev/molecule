@@ -1,0 +1,56 @@
+{
+  "name": "@molecule/api-upstream-balancer-default",
+  "version": "1.0.0",
+  "description": "Default upstream-balancer provider for molecule.dev: per-host round-robin with a passive failure cooldown, retry elsewhere and drain-awareness.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "keywords": [
+    "molecule",
+    "load balancing",
+    "upstream",
+    "round robin",
+    "edge"
+  ],
+  "author": "Molecule Dev, Inc. (https://molecule.dev)",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "peerDependencies": {
+    "@molecule/api-upstream-balancer": "^1.0.0"
+  },
+  "devDependencies": {
+    "@molecule/api-upstream-balancer": "1.0.0",
+    "@types/node": "26.1.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.11"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/upstream-balancer/default"
+  },
+  "homepage": "https://www.molecule.dev/packages/api-upstream-balancer-default",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}

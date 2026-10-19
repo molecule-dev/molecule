@@ -1,0 +1,140 @@
+/**
+ * Type definitions for the upstream-balancer core interface.
+ *
+ * A host resolves to a SET of upstreams (the instances of one deployment). This
+ * package decides which member of that set one request may go to — health-aware
+ * round-robin, a passive failure cooldown, a retry that must land on a different
+ * member, and a member the deploy has marked as draining. It does not proxy, open
+ * sockets, resolve DNS or terminate TLS; the edge that owns the socket asks it.
+ *
+ * The selection algorithm lives in a bond
+ * (`@molecule/api-upstream-balancer-default`); this package carries the contract
+ * only.
+ *
+ * @module
+ */
+
+/**
+ * One upstream an edge may dial.
+ *
+ * `host` and `port` are the member's identity: the balancer's round-robin cursor
+ * and its failure marks are keyed on `host:port`, so two members that differ only
+ * in metadata are the same member.
+ */
+export interface UpstreamMember {
+  /** Upstream hostname — a loopback address (Docker) or the provider's host. */
+  host: string
+  /** Upstream port. */
+  port: number
+  /**
+   * Set when the deploy/lifecycle marked this instance as draining: it must not
+   * receive NEW requests, while requests already in flight finish. Optional; a
+   * balancer also accepts the same mark through `markDraining()`.
+   */
+  draining?: boolean
+}
+
+/**
+ * How a balancer bounds itself.
+ */
+export interface UpstreamBalancerPolicy {
+  /**
+   * How long a member stays skipped after a failed attempt. The mark is a
+   * cooldown, not a verdict: after this long the member is eligible again even if
+   * nothing succeeded against it, so an instance that recovered without another
+   * request reaching it is not skipped forever.
+   *
+   * Defaults to 10 000 ms.
+   */
+  failureCooldownMs?: number
+}
+
+/**
+ * What an edge needs from an upstream balancer.
+ *
+ * Every selection method is scoped to ONE host: the round-robin cursor advances per
+ * public host, so two apps sharing an edge do not interleave each other's order.
+ */
+export interface UpstreamBalancerProvider {
+  /** A human-readable provider name, for diagnostics. */
+  readonly name: string
+
+  /**
+   * Choose the upstream for one request.
+   *
+   * Members marked suspect (a recent failure) or draining are skipped while any
+   * other member is eligible. When EVERY member is suspect or draining the cursor's
+   * own answer is returned anyway: a stale mark must not turn into "the whole app
+   * is down" while every address is merely suspect.
+   *
+   * @param host - The public host the request arrived for.
+   * @param members - The host's upstreams, primary first (never empty).
+   * @returns The member to dial.
+   */
+  pick<U extends UpstreamMember>(host: string, members: readonly U[]): U
+
+  /**
+   * Choose the upstream for a RETRY: a different member when one exists, preferring
+   * one that is not currently suspect.
+   *
+   * A retried idempotent request that lands on the same broken instance gains
+   * nothing. With a single member there is nothing to choose, and it is returned
+   * unchanged.
+   *
+   * @param host - The public host the request arrived for.
+   * @param avoid - The member the failed attempt addressed.
+   * @param members - The host's upstreams, primary first.
+   * @returns The member for the next attempt.
+   */
+  pickRetry<U extends UpstreamMember>(host: string, avoid: U, members: readonly U[]): U
+
+  /**
+   * Record that an attempt against this member failed, starting its cooldown.
+   *
+   * @param upstream - The member the attempt addressed.
+   */
+  noteFailure(upstream: UpstreamMember): void
+
+  /**
+   * Record that this member answered, clearing any failure mark.
+   *
+   * @param upstream - The member that answered.
+   */
+  noteSuccess(upstream: UpstreamMember): void
+
+  /**
+   * Whether a member was marked failed recently enough to skip.
+   *
+   * @param upstream - The candidate.
+   * @returns `true` while its failure mark is fresh.
+   */
+  isSuspect(upstream: UpstreamMember): boolean
+
+  /**
+   * Mark a member as draining by key (`host:port`), so new requests skip it.
+   *
+   * @param key - The member's `host:port`.
+   */
+  markDraining(key: string): void
+
+  /**
+   * Clear a draining mark.
+   *
+   * @param key - The member's `host:port`.
+   */
+  clearDraining(key: string): void
+
+  /**
+   * Whether a member is draining, from its own flag or from `markDraining()`.
+   *
+   * @param upstream - The candidate.
+   * @returns `true` while it must receive no new request.
+   */
+  isDraining(upstream: UpstreamMember): boolean
+
+  /**
+   * Drop every cursor and mark. For tests that exercise several edges in one
+   * process; application code never calls it.
+   */
+  reset(): void
+}

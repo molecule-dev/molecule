@@ -1,0 +1,57 @@
+{
+  "name": "@molecule/api-upstream-balancer",
+  "version": "1.0.0",
+  "description": "Upstream-balancer core interface for molecule.dev: choose which instance of a multi-instance deployment one request goes to — health-aware round-robin, failure cooldown, retry elsewhere, drain-aware.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "keywords": [
+    "molecule",
+    "load balancing",
+    "upstream",
+    "round robin",
+    "replicas",
+    "edge"
+  ],
+  "author": "Molecule Dev, Inc. (https://molecule.dev)",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "peerDependencies": {
+    "@molecule/api-bond": "^1.0.1"
+  },
+  "devDependencies": {
+    "@molecule/api-bond": "1.0.2",
+    "@types/node": "26.1.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.11"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/core/upstream-balancer"
+  },
+  "homepage": "https://www.molecule.dev/packages/api-upstream-balancer",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}

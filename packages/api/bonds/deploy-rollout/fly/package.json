@@ -1,0 +1,56 @@
+{
+  "name": "@molecule/api-deploy-rollout-fly",
+  "version": "1.0.0",
+  "description": "Fly Machines provider bond for @molecule/api-deploy-rollout: in-place restarts with a restore path and grow-then-shrink clones, over an injected flyctl runner.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "keywords": [
+    "molecule",
+    "deploy",
+    "rollout",
+    "fly",
+    "fly machines"
+  ],
+  "author": "Molecule Dev, Inc. (https://molecule.dev)",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "peerDependencies": {
+    "@molecule/api-deploy-rollout": "^1.0.0"
+  },
+  "devDependencies": {
+    "@molecule/api-deploy-rollout": "1.0.0",
+    "@types/node": "26.1.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.11"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/deploy-rollout/fly"
+  },
+  "homepage": "https://www.molecule.dev/packages/api-deploy-rollout-fly",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}
