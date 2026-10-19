@@ -3544,9 +3544,12 @@ function missingLandmarkFailures(text: string): MissingLandmarkFailure[] {
     const header = FAILURE_BLOCK_HEADER.exec(block.split('\n')[0] ?? '')
     const { where } = splitTitlePath(header?.[1] ?? '')
     const selectors: string[] = []
+    // The block's own words, without the code frame: a `12 | await page.locator('header')` line
+    // is the spec's SOURCE beside the failure, not the locator it waited for.
+    const words = failureBody(block).join('\n')
     for (const pattern of QUOTED_LOCATORS)
-      for (const match of block.matchAll(pattern)) selectors.push(match[1] as string)
-    for (const match of block.matchAll(QUOTED_ROLE)) selectors.push(`[role="${match[2]}"]`)
+      for (const match of words.matchAll(pattern)) selectors.push(match[1] as string)
+    for (const match of words.matchAll(QUOTED_ROLE)) selectors.push(`[role="${match[2]}"]`)
     const distinct = [...new Set(selectors)]
     const needing = distinct.filter((selector) => requiredLandmark(selector) !== null)
     if (needing.length === 0) continue
