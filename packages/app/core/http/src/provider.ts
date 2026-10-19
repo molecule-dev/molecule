@@ -12,8 +12,14 @@ import { getLogger } from '@molecule/app-logger'
 import { awaitAuthGate } from './auth-gate.js'
 import type { HttpClient, HttpClientConfig } from './client.js'
 import type { ErrorInterceptor, RequestInterceptor, ResponseInterceptor } from './interceptors.js'
+import { retryDelayMs, shouldRetryRequest } from './retry.js'
 import type { FullRequestConfig, HttpResponse, RequestConfig } from './types.js'
 import { HttpError } from './types.js'
+
+/** Wait for a retry backoff. */
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
 
 /** A response whose body is an HTML document, not JSON. */
 const HTML_CONTENT_TYPE = /^text\/html\b/i
@@ -140,108 +146,234 @@ export const createFetchClient = (config: HttpClientConfig = {}): HttpClient => 
       }
 
       // Create abort controller for timeout
-      let timeoutId: ReturnType<typeof setTimeout> | undefined
       const timeout = finalConfig.timeout ?? config.timeout
-      if (timeout && !finalConfig.signal) {
-        const controller = new AbortController()
-        fetchOptions.signal = controller.signal
-        timeoutId = setTimeout(() => controller.abort(), timeout)
-      }
+      const retryOptions = finalConfig.retry ?? config.retry
 
-      try {
-        const fetchResponse = await fetch(url, fetchOptions)
-
-        if (timeoutId) {
-          clearTimeout(timeoutId)
+      // Bounded retry of IDEMPOTENT requests only. A rolling deploy restarts
+      // one instance at a time, so a 502/503/504 or a reset connection can
+      // appear for a few seconds while the platform is healthy. A POST is
+      // repeated only when it carries an Idempotency-Key — never blind.
+      for (let attempt = 0; ; attempt++) {
+        // A timeout signal belongs to ONE attempt: reusing an aborted
+        // controller would abort every retry instantly.
+        let timeoutId: ReturnType<typeof setTimeout> | undefined
+        if (timeout && !finalConfig.signal) {
+          const controller = new AbortController()
+          fetchOptions.signal = controller.signal
+          timeoutId = setTimeout(() => controller.abort(), timeout)
         }
 
-        // Parse response headers
-        const responseHeaders: Record<string, string> = {}
-        fetchResponse.headers.forEach((value, key) => {
-          responseHeaders[key] = value
-        })
+        try {
+          const fetchResponse = await fetch(url, fetchOptions)
 
-        // Parse response body
-        let data: T
-        const responseType = finalConfig.responseType || 'json'
-
-        switch (responseType) {
-          case 'text':
-            data = (await fetchResponse.text()) as T
-            break
-          case 'blob':
-            data = (await fetchResponse.blob()) as T
-            break
-          case 'arraybuffer':
-            data = (await fetchResponse.arrayBuffer()) as T
-            break
-          case 'json':
-          default: {
-            const text = await fetchResponse.text()
-            try {
-              data = text ? JSON.parse(text) : null
-            } catch (_error) {
-              // Safe to ignore: the raw text is already captured above and used
-              // as the fallback value. Non-JSON responses (plain text, HTML errors)
-              // are a known valid case for some APIs.
-              //
-              // A 2xx HTML DOCUMENT is not one of those cases: it is the app's page
-              // server answering a request that expected JSON — the Vite dev server's
-              // SPA fallback when a relative URL had no API baseURL. Resolving with the
-              // HTML as `data` turns that into a `Cannot read properties of undefined`
-              // crash far from the call (xr-molecule-flash-m126: 6.5 minutes and 22
-              // probe scripts to discover `getClient().baseURL` was `''`).
-              const contentType = fetchResponse.headers.get('content-type') ?? ''
-              if (fetchResponse.ok && HTML_CONTENT_TYPE.test(contentType)) {
-                throw new HttpError(
-                  `${finalConfig.method} ${url} answered ${contentType.split(';')[0]} instead of ` +
-                    "JSON — the request reached the page server, not the API; check the client's " +
-                    'baseURL (a relative path with no baseURL resolves against the page origin)',
-                  fetchResponse.status,
-                  {
-                    data: text as T,
-                    status: fetchResponse.status,
-                    statusText: fetchResponse.statusText,
-                    headers: responseHeaders,
-                    config: finalConfig,
-                  },
-                  finalConfig,
-                  'http.error.requestFailed',
-                )
-              }
-              logger.debug('Response is not JSON, using raw text', url)
-              data = text as T
-            }
-            break
+          if (timeoutId) {
+            clearTimeout(timeoutId)
           }
-        }
 
-        let response: HttpResponse<T> = {
-          data,
-          status: fetchResponse.status,
-          statusText: fetchResponse.statusText,
-          headers: responseHeaders,
-          config: finalConfig,
-        }
+          // Parse response headers
+          const responseHeaders: Record<string, string> = {}
+          fetchResponse.headers.forEach((value, key) => {
+            responseHeaders[key] = value
+          })
 
-        // Handle error status codes
-        if (!fetchResponse.ok) {
-          logger.warn('HTTP error', finalConfig.method, url, fetchResponse.status)
-          const error = new HttpError(
-            t(
+          // Parse response body
+          let data: T
+          const responseType = finalConfig.responseType || 'json'
+
+          switch (responseType) {
+            case 'text':
+              data = (await fetchResponse.text()) as T
+              break
+            case 'blob':
+              data = (await fetchResponse.blob()) as T
+              break
+            case 'arraybuffer':
+              data = (await fetchResponse.arrayBuffer()) as T
+              break
+            case 'json':
+            default: {
+              const text = await fetchResponse.text()
+              try {
+                data = text ? JSON.parse(text) : null
+              } catch (_error) {
+                // Safe to ignore: the raw text is already captured above and used
+                // as the fallback value. Non-JSON responses (plain text, HTML errors)
+                // are a known valid case for some APIs.
+                //
+                // A 2xx HTML DOCUMENT is not one of those cases: it is the app's page
+                // server answering a request that expected JSON — the Vite dev server's
+                // SPA fallback when a relative URL had no API baseURL. Resolving with the
+                // HTML as `data` turns that into a `Cannot read properties of undefined`
+                // crash far from the call (xr-molecule-flash-m126: 6.5 minutes and 22
+                // probe scripts to discover `getClient().baseURL` was `''`).
+                const contentType = fetchResponse.headers.get('content-type') ?? ''
+                if (fetchResponse.ok && HTML_CONTENT_TYPE.test(contentType)) {
+                  throw new HttpError(
+                    `${finalConfig.method} ${url} answered ${contentType.split(';')[0]} instead of ` +
+                      "JSON — the request reached the page server, not the API; check the client's " +
+                      'baseURL (a relative path with no baseURL resolves against the page origin)',
+                    fetchResponse.status,
+                    {
+                      data: text as T,
+                      status: fetchResponse.status,
+                      statusText: fetchResponse.statusText,
+                      headers: responseHeaders,
+                      config: finalConfig,
+                    },
+                    finalConfig,
+                    'http.error.requestFailed',
+                  )
+                }
+                logger.debug('Response is not JSON, using raw text', url)
+                data = text as T
+              }
+              break
+            }
+          }
+
+          let response: HttpResponse<T> = {
+            data,
+            status: fetchResponse.status,
+            statusText: fetchResponse.statusText,
+            headers: responseHeaders,
+            config: finalConfig,
+          }
+
+          // Handle error status codes
+          if (!fetchResponse.ok) {
+            logger.warn('HTTP error', finalConfig.method, url, fetchResponse.status)
+            const error = new HttpError(
+              t(
+                'http.error.requestFailed',
+                { status: fetchResponse.status },
+                { defaultValue: `Request failed with status ${fetchResponse.status}` },
+              ),
+              fetchResponse.status,
+              response,
+              finalConfig,
               'http.error.requestFailed',
-              { status: fetchResponse.status },
-              { defaultValue: `Request failed with status ${fetchResponse.status}` },
-            ),
-            fetchResponse.status,
-            response,
+            )
+
+            // Handle auth errors
+            if (fetchResponse.status === 401) {
+              authErrorHandlers.forEach((handler) => handler())
+            }
+
+            if (
+              shouldRetryRequest({
+                method: finalConfig.method,
+                headers,
+                status: fetchResponse.status,
+                attempt,
+                errorMessage: error.message,
+                options: retryOptions,
+              })
+            ) {
+              await sleep(
+                retryDelayMs(
+                  fetchResponse.headers.get('retry-after') ?? undefined,
+                  attempt,
+                  retryOptions,
+                ),
+              )
+              continue
+            }
+
+            // Apply error interceptors
+            let finalError = error
+            for (const interceptor of errorInterceptors) {
+              finalError = await interceptor(finalError)
+            }
+
+            throw finalError
+          }
+
+          // Apply response interceptors
+          for (const interceptor of responseInterceptors) {
+            response = (await interceptor(response)) as HttpResponse<T>
+          }
+
+          return response
+        } catch (err) {
+          if (timeoutId) {
+            clearTimeout(timeoutId)
+          }
+
+          if (err instanceof HttpError) {
+            throw err
+          }
+
+          // Distinguish an explicit abort (AbortController, page unload
+          // wired up via signal) and SPA navigation-induced cancellation
+          // from a real network outage.
+          //
+          //  - AbortError → user-initiated cancel: silent
+          //  - "TypeError: Failed to fetch" while the browser tab is
+          //    hidden / unloading → SPA tore down a fetch as it left the
+          //    page. Demote to warn so it stays visible in the console
+          //    for debugging but doesn't fail strict console-error gates.
+          //  - Anything else (including "Failed to fetch" while the tab
+          //    is visible) → real outage: logger.error.
+          //
+          // Components that want zero navigation noise should still pass
+          // an AbortSignal from their useEffect cleanup.
+          const errMsg = err instanceof Error ? err.message : ''
+          const errName = err instanceof Error ? err.name : ''
+          const isAbort =
+            errName === 'AbortError' ||
+            (typeof DOMException !== 'undefined' &&
+              err instanceof DOMException &&
+              err.name === 'AbortError') ||
+            /the user aborted a request/i.test(errMsg)
+
+          const tabHidden =
+            typeof document !== 'undefined' &&
+            (document.visibilityState === 'hidden' || document.hidden === true)
+          const isNavCancel =
+            !isAbort &&
+            errName === 'TypeError' &&
+            /failed to fetch|network ?error|load failed/i.test(errMsg) &&
+            (tabHidden || navigationInProgress)
+
+          if (isAbort) {
+            // silent — not interesting
+          } else if (isNavCancel) {
+            logger.warn('Network request cancelled by navigation', finalConfig.method, url)
+          } else {
+            logger.error('Network error', finalConfig.method, url, err)
+          }
+          // An abort and a navigation cancellation are the SAME fact to a caller —
+          // the request was cancelled before any response — and neither is a network
+          // outage. Flag it (`aborted`) and give it its own errorKey so app code does
+          // not have to parse the message, and so a session-clearing check can tell
+          // it apart from a real failure without treating `status === 0` as a 4xx.
+          const aborted = isAbort || isNavCancel
+          const error = new HttpError(
+            err instanceof Error
+              ? err.message
+              : t(aborted ? 'http.error.aborted' : 'http.error.networkError', undefined, {
+                  defaultValue: aborted ? 'Request aborted' : 'Network error',
+                }),
+            0,
+            undefined,
             finalConfig,
-            'http.error.requestFailed',
+            aborted ? 'http.error.aborted' : 'http.error.networkError',
+            aborted,
           )
 
-          // Handle auth errors
-          if (fetchResponse.status === 401) {
-            authErrorHandlers.forEach((handler) => handler())
+          if (
+            shouldRetryRequest({
+              method: finalConfig.method,
+              headers,
+              status: 0,
+              attempt,
+              errorMessage: errMsg,
+              aborted,
+              options: retryOptions,
+            })
+          ) {
+            await sleep(retryDelayMs(undefined, attempt, retryOptions))
+            continue
           }
 
           // Apply error interceptors
@@ -252,87 +384,6 @@ export const createFetchClient = (config: HttpClientConfig = {}): HttpClient => 
 
           throw finalError
         }
-
-        // Apply response interceptors
-        for (const interceptor of responseInterceptors) {
-          response = (await interceptor(response)) as HttpResponse<T>
-        }
-
-        return response
-      } catch (err) {
-        if (timeoutId) {
-          clearTimeout(timeoutId)
-        }
-
-        if (err instanceof HttpError) {
-          throw err
-        }
-
-        // Distinguish an explicit abort (AbortController, page unload
-        // wired up via signal) and SPA navigation-induced cancellation
-        // from a real network outage.
-        //
-        //  - AbortError → user-initiated cancel: silent
-        //  - "TypeError: Failed to fetch" while the browser tab is
-        //    hidden / unloading → SPA tore down a fetch as it left the
-        //    page. Demote to warn so it stays visible in the console
-        //    for debugging but doesn't fail strict console-error gates.
-        //  - Anything else (including "Failed to fetch" while the tab
-        //    is visible) → real outage: logger.error.
-        //
-        // Components that want zero navigation noise should still pass
-        // an AbortSignal from their useEffect cleanup.
-        const errMsg = err instanceof Error ? err.message : ''
-        const errName = err instanceof Error ? err.name : ''
-        const isAbort =
-          errName === 'AbortError' ||
-          (typeof DOMException !== 'undefined' &&
-            err instanceof DOMException &&
-            err.name === 'AbortError') ||
-          /the user aborted a request/i.test(errMsg)
-
-        const tabHidden =
-          typeof document !== 'undefined' &&
-          (document.visibilityState === 'hidden' || document.hidden === true)
-        const isNavCancel =
-          !isAbort &&
-          errName === 'TypeError' &&
-          /failed to fetch|network ?error|load failed/i.test(errMsg) &&
-          (tabHidden || navigationInProgress)
-
-        if (isAbort) {
-          // silent — not interesting
-        } else if (isNavCancel) {
-          logger.warn('Network request cancelled by navigation', finalConfig.method, url)
-        } else {
-          logger.error('Network error', finalConfig.method, url, err)
-        }
-        // An abort and a navigation cancellation are the SAME fact to a caller —
-        // the request was cancelled before any response — and neither is a network
-        // outage. Flag it (`aborted`) and give it its own errorKey so app code does
-        // not have to parse the message, and so a session-clearing check can tell
-        // it apart from a real failure without treating `status === 0` as a 4xx.
-        const aborted = isAbort || isNavCancel
-        const error = new HttpError(
-          err instanceof Error
-            ? err.message
-            : t(aborted ? 'http.error.aborted' : 'http.error.networkError', undefined, {
-                defaultValue: aborted ? 'Request aborted' : 'Network error',
-              }),
-          0,
-          undefined,
-          finalConfig,
-          aborted ? 'http.error.aborted' : 'http.error.networkError',
-          aborted,
-        )
-
-        // Apply error interceptors
-        let finalError = error
-        for (const interceptor of errorInterceptors) {
-          finalError = await interceptor(finalError)
-        }
-
-        throw finalError
       }
     },
 

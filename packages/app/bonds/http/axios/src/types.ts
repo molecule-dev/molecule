@@ -6,6 +6,8 @@
 
 import type { AxiosInstance, AxiosRequestConfig } from 'axios'
 
+import type { RetryOptions } from '@molecule/app-http'
+
 // Re-export core types
 export type {
   ErrorInterceptor,
@@ -64,4 +66,13 @@ export interface AxiosHttpClientConfig {
    * Additional Axios-specific config.
    */
   axiosConfig?: AxiosRequestConfig
+
+  /**
+   * Default retry policy for every request this client makes, or `false` to
+   * disable retries. A request's own `retry` overrides it. The policy is the
+   * same one `@molecule/app-http`'s fetch client uses: idempotent requests
+   * only, on 502/503/504 or a reset/refused connection, with backoff and
+   * jitter, honoring `Retry-After`.
+   */
+  retry?: RetryOptions | false
 }

@@ -7,6 +7,7 @@
  */
 
 import type { ErrorInterceptor, RequestInterceptor, ResponseInterceptor } from './interceptors.js'
+import type { RetryOptions } from './retry.js'
 import type { FullRequestConfig, HttpResponse, RequestConfig } from './types.js'
 
 /**
@@ -129,4 +130,10 @@ export interface HttpClientConfig {
    * it returns.
    */
   authScheme?: string
+
+  /**
+   * Default retry policy for every request this client makes, or `false` to
+   * disable retries. A request's own `retry` overrides it.
+   */
+  retry?: RetryOptions | false
 }

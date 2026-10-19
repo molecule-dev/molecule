@@ -233,6 +233,13 @@ export interface ChatConfig {
   /** When true, resume the last interrupted assistant response without adding a user message. */
   resume?: boolean
   /**
+   * The last SSE event id the client received for this turn, sent as
+   * `Last-Event-ID` on a resume. A server that supports resumption continues
+   * from the event AFTER it instead of replaying the whole turn. Omit it and
+   * the provider uses the id it captured on this instance's own stream.
+   */
+  lastEventId?: string
+  /**
    * When true, this send is an internal driver (e.g. the post-boot build
    * kickoff): the server persists the user message as `hidden` so it never
    * appears in history, and the optimistic local bubble is suppressed. The text

@@ -515,6 +515,15 @@ function createConnectionInstance(
       return state === 'connected'
     },
 
+    /**
+     * Whether the last (re)connect was a recovered session, i.e. Socket.IO
+     * replayed the packets missed while disconnected. Connection State
+     * Recovery is enabled on the SERVER; the client only reports it.
+     */
+    wasRecovered(): boolean {
+      return socket.recovered === true
+    },
+
     getState(): ConnectionState {
       return state
     },

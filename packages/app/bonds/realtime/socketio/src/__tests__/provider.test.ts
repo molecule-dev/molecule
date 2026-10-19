@@ -25,6 +25,8 @@ interface EmittedEvent {
  */
 interface FakeSocket {
   connected: boolean
+  /** Socket.IO's Connection State Recovery flag for the last (re)connect. */
+  recovered: boolean
   disconnectCalls: number
   /** Every outgoing socket.emit(), in order. */
   emitted: EmittedEvent[]
@@ -68,6 +70,7 @@ const mock = vi.hoisted(() => {
 
     const socket: FakeSocket = {
       connected: false,
+      recovered: false,
       disconnectCalls: 0,
       emitted: [],
       io: {
@@ -296,6 +299,17 @@ describe('@molecule/app-realtime-socketio', () => {
       expect(conn.getState()).toBe('connected')
       expect(conn.isConnected()).toBe(true)
       expect(handler).toHaveBeenCalledWith('connected')
+    })
+
+    it('reports whether the last reconnect recovered the session', async () => {
+      const { conn, socket } = await createConnection()
+      socket.fireConnect()
+      expect(conn.wasRecovered()).toBe(false)
+
+      // The server has Connection State Recovery enabled and replayed the gap.
+      socket.recovered = true
+      socket.fireConnect()
+      expect(conn.wasRecovered()).toBe(true)
     })
 
     it("transitions to 'reconnecting' on a drop when autoReconnect is on (default)", async () => {

@@ -12,7 +12,7 @@ import axios, {
   type InternalAxiosRequestConfig,
 } from 'axios'
 
-import { awaitAuthGate } from '@molecule/app-http'
+import { awaitAuthGate, retryDelayMs, shouldRetryRequest } from '@molecule/app-http'
 
 import type {
   AxiosHttpClientConfig,
@@ -164,6 +164,56 @@ export function createAxiosClient(config: AxiosHttpClientConfig = {}): HttpClien
   let authToken: string | null = null
   const currentDefaultHeaders = { ...defaultHeaders }
 
+  /** Wait for a retry backoff. */
+  const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms))
+
+  /**
+   * Run one Axios call under the bounded retry policy.
+   *
+   * Only IDEMPOTENT requests are retried (a POST/PATCH joins them only when it
+   * carries an `Idempotency-Key`), only on 502/503/504 or a reset/refused
+   * connection, twice by default, honoring `Retry-After`. The policy itself
+   * lives in `@molecule/app-http` so both transports agree.
+   *
+   * @param method - The request method.
+   * @param run - One attempt.
+   * @param requestConfig - The caller's config (headers + per-request policy).
+   * @returns The successful Axios response.
+   */
+  const withRetry = async <T>(
+    method: FullRequestConfig['method'],
+    run: () => Promise<T>,
+    requestConfig?: RequestConfig,
+  ): Promise<T> => {
+    const retryOptions = requestConfig?.retry ?? config.retry
+    for (let attempt = 0; ; attempt++) {
+      try {
+        return await run()
+      } catch (error) {
+        const httpError = error instanceof HttpError ? error : undefined
+        const status = httpError?.status ?? (error as AxiosError).response?.status ?? 0
+        const aborted = httpError?.aborted ?? (error as AxiosError).code === 'ERR_CANCELED'
+        const retryAfter = httpError?.response?.headers['retry-after']
+        const message = error instanceof Error ? error.message : String(error)
+        if (
+          shouldRetryRequest({
+            method,
+            headers: requestConfig?.headers ?? {},
+            status,
+            attempt,
+            errorMessage: message,
+            aborted,
+            options: retryOptions,
+          })
+        ) {
+          await sleep(retryDelayMs(retryAfter, attempt, retryOptions))
+          continue
+        }
+        throw error
+      }
+    }
+  }
+
   // Add Axios request interceptor to run molecule interceptors
   axiosInstance.interceptors.request.use(async (axiosConfig: InternalAxiosRequestConfig) => {
     let config: FullRequestConfig = {
@@ -288,7 +338,11 @@ export function createAxiosClient(config: AxiosHttpClientConfig = {}): HttpClien
         ...toAxiosConfig(config),
       }
 
-      const response = await axiosInstance.request<T>(axiosConfig)
+      const response = await withRetry(
+        config.method,
+        () => axiosInstance.request<T>(axiosConfig),
+        config,
+      )
       return toHttpResponse(response, config)
     },
 
@@ -298,7 +352,11 @@ export function createAxiosClient(config: AxiosHttpClientConfig = {}): HttpClien
         url,
         ...config,
       }
-      const response = await axiosInstance.get<T>(url, toAxiosConfig(config ?? {}))
+      const response = await withRetry(
+        'GET',
+        () => axiosInstance.get<T>(url, toAxiosConfig(config ?? {})),
+        config,
+      )
       return toHttpResponse(response, fullConfig)
     },
 
@@ -313,7 +371,11 @@ export function createAxiosClient(config: AxiosHttpClientConfig = {}): HttpClien
         data,
         ...config,
       }
-      const response = await axiosInstance.post<T>(url, data, toAxiosConfig(config ?? {}))
+      const response = await withRetry(
+        'POST',
+        () => axiosInstance.post<T>(url, data, toAxiosConfig(config ?? {})),
+        config,
+      )
       return toHttpResponse(response, fullConfig)
     },
 
@@ -328,7 +390,11 @@ export function createAxiosClient(config: AxiosHttpClientConfig = {}): HttpClien
         data,
         ...config,
       }
-      const response = await axiosInstance.put<T>(url, data, toAxiosConfig(config ?? {}))
+      const response = await withRetry(
+        'PUT',
+        () => axiosInstance.put<T>(url, data, toAxiosConfig(config ?? {})),
+        config,
+      )
       return toHttpResponse(response, fullConfig)
     },
 
@@ -343,7 +409,11 @@ export function createAxiosClient(config: AxiosHttpClientConfig = {}): HttpClien
         data,
         ...config,
       }
-      const response = await axiosInstance.patch<T>(url, data, toAxiosConfig(config ?? {}))
+      const response = await withRetry(
+        'PATCH',
+        () => axiosInstance.patch<T>(url, data, toAxiosConfig(config ?? {})),
+        config,
+      )
       return toHttpResponse(response, fullConfig)
     },
 
@@ -353,7 +423,11 @@ export function createAxiosClient(config: AxiosHttpClientConfig = {}): HttpClien
         url,
         ...config,
       }
-      const response = await axiosInstance.delete<T>(url, toAxiosConfig(config ?? {}))
+      const response = await withRetry(
+        'DELETE',
+        () => axiosInstance.delete<T>(url, toAxiosConfig(config ?? {})),
+        config,
+      )
       return toHttpResponse(response, fullConfig)
     },
 

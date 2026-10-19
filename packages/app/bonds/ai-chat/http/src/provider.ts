@@ -52,8 +52,37 @@ export class HttpChatProvider implements ChatProvider {
   /** Base delay in ms between 409 retries (doubled each attempt). */
   private static readonly CONFLICT_BASE_DELAY = 500
 
+  /**
+   * The last SSE `id:` seen on this provider's stream. Sent as `Last-Event-ID`
+   * on a resume so a server that supports resumption can continue from the
+   * event after it instead of replaying the whole turn.
+   */
+  private lastEventId: string | null = null
+
+  /**
+   * Statuses treated as transient while RE-ATTACHING to a running turn. A
+   * fresh send is never retried: the POST may create a turn, and repeating it
+   * without a server-side idempotency key could start two.
+   */
+  private static readonly RESUME_RETRY_STATUSES = [502, 503, 504]
+
+  /** Maximum retries when re-attaching during a drain. */
+  private static readonly RESUME_MAX_RETRIES = 2
+
   constructor(config: HttpChatConfig = {}) {
     this.config = config
+  }
+
+  /**
+   * The last SSE event id seen on this provider's stream, or `null`.
+   *
+   * A caller that reconnects after a drop passes it as `lastEventId` on the
+   * resume so the server can continue from the next event.
+   *
+   * @returns The last event id.
+   */
+  getLastEventId(): string | null {
+    return this.lastEventId
   }
 
   /**
@@ -89,35 +118,46 @@ export class HttpChatProvider implements ChatProvider {
       // once, so the error path below reuses this instead of reading it again).
       let conflictText: string | undefined
       for (let attempt = 0; attempt <= HttpChatProvider.CONFLICT_MAX_RETRIES; attempt++) {
-        response = await fetch(url, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            // A resume re-POSTs a turn that may still be RUNNING server-side —
-            // asking for the event stream lets the server attach this request to
-            // that live turn (the `attached` frame) instead of 409ing. New sends
-            // must NOT ask: attaching never reads the body, so a new message has
-            // to keep the 409-retry path below to run after the current turn.
-            ...(config.resume ? { Accept: 'text/event-stream' } : {}),
-            ...this.config.headers,
+        response = await HttpChatProvider.fetchResumeAware(
+          url,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              // A resume re-POSTs a turn that may still be RUNNING server-side —
+              // asking for the event stream lets the server attach this request to
+              // that live turn (the `attached` frame) instead of 409ing. New sends
+              // must NOT ask: attaching never reads the body, so a new message has
+              // to keep the 409-retry path below to run after the current turn.
+              ...(config.resume ? { Accept: 'text/event-stream' } : {}),
+              // Continue from the last event this client received. A server that
+              // honors Last-Event-ID replays only what was missed — the standard
+              // SSE resume contract during a drain/restart.
+              ...((config.resume ? (config.lastEventId ?? this.lastEventId) : null)
+                ? { 'Last-Event-ID': (config.lastEventId ?? this.lastEventId) as string }
+                : {}),
+              ...this.config.headers,
+            },
+            body: JSON.stringify({
+              message,
+              model: config.model,
+              ...(attachments?.length ? { attachments } : {}),
+              ...(config.resume ? { resume: true } : {}),
+              // Per-send intent flags — the server tags the persisted user message
+              // so a suppressed driver message is hidden on read and an auto-sent
+              // message keeps its distinct style. Without forwarding these, a
+              // suppressed message would persist as an ordinary user message and
+              // reappear on refresh.
+              ...(config.suppressUserMessage ? { suppressUserMessage: true } : {}),
+              ...(config.automatic ? { automatic: true } : {}),
+              ...(config.userInitiated ? { userInitiated: true } : {}),
+              ...(config.viaDictation ? { viaDictation: true } : {}),
+            }),
+            signal,
           },
-          body: JSON.stringify({
-            message,
-            model: config.model,
-            ...(attachments?.length ? { attachments } : {}),
-            ...(config.resume ? { resume: true } : {}),
-            // Per-send intent flags — the server tags the persisted user message
-            // so a suppressed driver message is hidden on read and an auto-sent
-            // message keeps its distinct style. Without forwarding these, a
-            // suppressed message would persist as an ordinary user message and
-            // reappear on refresh.
-            ...(config.suppressUserMessage ? { suppressUserMessage: true } : {}),
-            ...(config.automatic ? { automatic: true } : {}),
-            ...(config.userInitiated ? { userInitiated: true } : {}),
-            ...(config.viaDictation ? { viaDictation: true } : {}),
-          }),
           signal,
-        })
+          Boolean(config.resume),
+        )
 
         if (response.status !== 409) break
 
@@ -214,7 +254,9 @@ export class HttpChatProvider implements ChatProvider {
         return
       }
 
-      await HttpChatProvider.pumpSse(response!.body, onEvent)
+      await HttpChatProvider.pumpSse(response!.body, onEvent, (id) => {
+        this.lastEventId = id
+      })
     } catch (err) {
       // AbortError can be a DOMException or a plain Error depending on the environment.
       // Silently return — this request was superseded by a newer one.
@@ -240,14 +282,71 @@ export class HttpChatProvider implements ChatProvider {
   }
 
   /**
+   * Fetch, with a bounded retry ONLY while re-attaching to a running turn.
+   *
+   * A resume POST is an attach request: repeating it cannot start a second
+   * turn (the server attaches to the one already running), so a 502/503/504
+   * during a rolling restart is safe to wait out. A FRESH send is not retried
+   * — it may create a turn, and there is no idempotency key to collapse a
+   * duplicate.
+   *
+   * `Retry-After` is honored (whole seconds); otherwise exponential backoff
+   * with jitter, capped at 5 s.
+   *
+   * @param url - The endpoint.
+   * @param init - The request init (a string body is reusable across attempts).
+   * @param signal - The caller's abort signal.
+   * @param enabled - Whether retrying is allowed (a resume).
+   * @returns The last response received.
+   */
+  private static async fetchResumeAware(
+    url: string,
+    init: RequestInit,
+    signal: AbortSignal,
+    enabled: boolean,
+  ): Promise<Response> {
+    for (let attempt = 0; ; attempt++) {
+      const response = await fetch(url, init)
+      const retryable = HttpChatProvider.RESUME_RETRY_STATUSES.includes(response.status)
+      if (
+        !enabled ||
+        !retryable ||
+        attempt >= HttpChatProvider.RESUME_MAX_RETRIES ||
+        signal.aborted
+      ) {
+        return response
+      }
+      const retryAfter = response.headers.get('retry-after')?.trim()
+      const fromHeader =
+        retryAfter && /^\d+$/.test(retryAfter) ? Number(retryAfter) * 1_000 : undefined
+      const base = 300 * 2 ** attempt
+      const delay = Math.min(fromHeader ?? base + Math.random() * base, 5_000)
+      await new Promise<void>((resolve) => {
+        const timer = setTimeout(resolve, delay)
+        // An abort during the wait resolves immediately; the next check returns.
+        signal.addEventListener(
+          'abort',
+          () => {
+            clearTimeout(timer)
+            resolve()
+          },
+          { once: true },
+        )
+      })
+    }
+  }
+
+  /**
    * Reads an SSE body and forwards each parsed `data:` event to the handler.
    * Shared by the main turn stream and the side-channel send.
    * @param body - The response body stream.
    * @param onEvent - Callback invoked per parsed event.
+   * @param onId - Callback invoked with each SSE `id:` (the stream's resume cursor).
    */
   private static async pumpSse(
     body: ReadableStream<Uint8Array>,
     onEvent: ChatEventHandler,
+    onId?: (id: string) => void,
   ): Promise<void> {
     const reader = body.getReader()
     const decoder = new TextDecoder()
@@ -262,6 +361,12 @@ export class HttpChatProvider implements ChatProvider {
       buffer = lines.pop() ?? ''
 
       for (const line of lines) {
+        // The SSE `id:` line is the resume cursor — remember the newest one so
+        // a reconnect can ask the server to continue after it.
+        if (line.startsWith('id: ')) {
+          onId?.(line.slice(4).trim())
+          continue
+        }
         if (!line.startsWith('data: ')) continue
         const data = line.slice(6).trim()
         if (!data) continue

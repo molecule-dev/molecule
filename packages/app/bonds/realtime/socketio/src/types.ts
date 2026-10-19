@@ -85,6 +85,22 @@ export interface BufferedEvent {
  */
 export interface SocketioConnection extends RealtimeConnection {
   /**
+   * Whether the last (re)connect was a RECOVERED session — Socket.IO replayed
+   * the packets this client missed while disconnected.
+   *
+   * Connection State Recovery is a SERVER setting
+   * (`@molecule/api-realtime-socketio` passes `serverOptions` through, so
+   * `connectionStateRecovery: { maxDisconnectionDuration }` enables it). The
+   * client needs no option; it re-joins its rooms on every reconnect and this
+   * flag says whether the gap's events were replayed (`true`) or the app must
+   * refetch (`false`). Tune the server's duration to cover a rolling deploy's
+   * drain window (the default is 2 minutes).
+   *
+   * @returns `true` when the last reconnect resumed the previous session.
+   */
+  wasRecovered(): boolean
+
+  /**
    * Returns the server URL used to establish this connection.
    *
    * @returns The connection URL string.

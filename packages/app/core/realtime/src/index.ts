@@ -45,6 +45,15 @@
  *   client-supplied ids or roles.
  * - Pass credentials via `ConnectionOptions.auth` at connect time, never in
  *   the URL query string (URLs leak into logs).
+ * - **A drop is expected, not exceptional.** A rolling API deploy drains one
+ *   instance at a time, so a live connection WILL be closed; the provider
+ *   reconnects with jittered backoff, re-joins every room the app joined, and
+ *   fires `onReconnect`. Use that hook to refetch anything that changed while
+ *   disconnected. Where the transport supports packet replay (Socket.IO
+ *   Connection State Recovery — a SERVER setting; the socket.io bond's
+ *   `wasRecovered()` reports whether the gap was replayed), events missed
+ *   during a short gap are delivered too; without it the app converges from a
+ *   refetch.
  *
  * @e2e
  * Integration checklist — drive the real UI (live preview, no mocks), adapt

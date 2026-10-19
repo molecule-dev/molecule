@@ -4,6 +4,8 @@
  * @module
  */
 
+import type { RetryOptions } from './retry.js'
+
 /**
  * HTTP request method.
  */
@@ -81,6 +83,17 @@ export interface RequestConfig {
    * Custom request options (implementation-specific).
    */
   options?: Record<string, unknown>
+
+  /**
+   * Retry policy for this request, or `false` to disable retries.
+   *
+   * The default policy retries only IDEMPOTENT requests (`GET`/`HEAD`/`PUT`/
+   * `DELETE`/`OPTIONS`, and `POST`/`PATCH` carrying an `Idempotency-Key`) on
+   * `502`/`503`/`504` or a reset/refused connection, twice, with exponential
+   * backoff and jitter, honoring `Retry-After`. See `@molecule/app-http`'s
+   * `shouldRetryRequest`.
+   */
+  retry?: RetryOptions | false
 }
 
 /**

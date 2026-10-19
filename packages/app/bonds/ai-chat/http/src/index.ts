@@ -52,6 +52,18 @@
  * `HttpChatProvider` beyond the core `ChatProvider` type. `loadHistory()`
  * returns `[]` on HTTP errors but REJECTS on network failure; wrap it.
  *
+ * **A dropped stream is resumable, and a rolling server restart is survivable.**
+ * The client remembers the newest SSE `id:` line it saw and sends it as
+ * `Last-Event-ID` on the next resume POST; a server that supports resumption
+ * continues from the event AFTER it instead of replaying the turn (one that
+ * does not simply ignores the header — the app still converges from persisted
+ * history). A resume POST answered "502/503/504" (an instance restarting during
+ * a drain) is retried twice with jittered backoff, honoring `Retry-After`; a
+ * FRESH send is never retried, because it may create a turn and there is no
+ * idempotency key to collapse a duplicate. A transport drop mid-stream is
+ * delivered as `{ type: 'error', transport: true }` so the caller resumes
+ * rather than showing a terminal error.
+ *
  * A non-ok response becomes an `error` event, and a JSON body's `error`,
  * `limitType`, `requiresSignup`, `billingAction` and `upgradeTier` are copied
  * onto it — so a limit refusal (402/429/403) reaches the UI with both the rule

@@ -83,7 +83,14 @@ vi.mock('@molecule/app-http', () => {
       this.aborted = aborted
     }
   }
-  return { HttpError, awaitAuthGate: mockAwaitAuthGate }
+  return {
+    HttpError,
+    awaitAuthGate: mockAwaitAuthGate,
+    // The retry policy has its own suite (retry.test.ts); here it only has to
+    // exist so a failing-request path does not throw a TypeError.
+    shouldRetryRequest: () => false,
+    retryDelayMs: () => 0,
+  }
 })
 
 import type { AxiosInstance } from 'axios'
