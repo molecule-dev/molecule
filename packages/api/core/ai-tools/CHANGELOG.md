@@ -1,5 +1,12 @@
 # @molecule/api-ai-tools
 
+## 1.10.3
+
+### Patch Changes
+
+- b86f605: A `toBeVisible` failure whose locator resolved now reports why the element's box is empty, read from the failing test's own trace snapshot.
+- 689cdd3: A command that runs a suite's own script counts as a test run even when a runner version or help probe sits beside it, and a program the reader cannot place no longer makes a command read as print-only.
+
 ## 1.10.2
 
 ### Patch Changes
