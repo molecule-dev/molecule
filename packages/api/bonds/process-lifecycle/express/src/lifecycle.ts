@@ -296,11 +296,11 @@ export function createProcessLifecycleProvider(
     },
 
     registerWarmupStep: (step: WarmupStep) => {
-      const unregister = warmupGate.registerStep(step)
-      // Steps registered after the port was bound still get their pass: a bond
-      // may register from an async setup that resolves after `markReady()`.
-      if (state !== 'starting') void warmupGate.run()
-      return unregister
+      // Register before the listener is ready: `markReady()` runs the pass, and
+      // the gate is one-shot by design, so a step added afterwards would not be
+      // observed. Setup code (a database bond, a module preload) registers from
+      // `setupBonds()` / before `listen`, which is early enough.
+      return warmupGate.registerStep(step)
     },
 
     runWarmup: (): Promise<WarmupReport> => warmupGate.run(),
