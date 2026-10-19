@@ -9,6 +9,28 @@ vi.mock('@huggingface/transformers', () => ({
   env: envMock,
 }))
 
+// Exercise provider configuration and the real extractor with a mocked runtime.
+// Native worker isolation, queueing, failure and cleanup are integration-tested
+// separately in worker-client.test.ts, including the actual worker entry point.
+vi.mock('../worker-client.js', async () => {
+  const { createExtractor } = await import('../extractor.js')
+  return {
+    createWorkerExtractor(config: Parameters<typeof createExtractor>[0]) {
+      let extractor: ReturnType<typeof createExtractor> | null = null
+      return {
+        async extract(texts: string[]) {
+          extractor ??= createExtractor(config).catch((error: unknown) => {
+            extractor = null
+            throw error
+          })
+          return (await extractor)(texts)
+        },
+        async close() {},
+      }
+    },
+  }
+})
+
 import { createProvider } from '../provider.js'
 
 /** A stub pipeline: returns a tensor whose tolist() gives one 384-dim vector per input text. */
@@ -26,6 +48,8 @@ describe('api-ai-embeddings-local', () => {
     delete process.env.MOL_EMBEDDINGS_LOCAL_MODEL_PATH
     delete process.env.MOL_EMBEDDINGS_LOCAL_CACHE_DIR
     delete process.env.MOL_EMBEDDINGS_LOCAL_BATCH_SIZE
+    delete process.env.MOL_EMBEDDINGS_LOCAL_THREADS
+    delete process.env.MOL_EMBEDDINGS_LOCAL_TIMEOUT_MS
   })
 
   it('embedDocuments returns one 384-length vector per text', async () => {
@@ -63,11 +87,28 @@ describe('api-ai-embeddings-local', () => {
   it('defaults to the bge-small model and honors a model override', async () => {
     pipelineMock.mockResolvedValue(makePipe())
     await createProvider().embedQuery('x')
-    expect(pipelineMock).toHaveBeenCalledWith('feature-extraction', 'Xenova/bge-small-en-v1.5')
+    expect(pipelineMock).toHaveBeenCalledWith('feature-extraction', 'Xenova/bge-small-en-v1.5', {
+      session_options: { intraOpNumThreads: 1, interOpNumThreads: 1 },
+    })
 
     pipelineMock.mockClear()
     await createProvider({ model: 'Xenova/all-MiniLM-L6-v2' }).embedQuery('x')
-    expect(pipelineMock).toHaveBeenCalledWith('feature-extraction', 'Xenova/all-MiniLM-L6-v2')
+    expect(pipelineMock).toHaveBeenCalledWith('feature-extraction', 'Xenova/all-MiniLM-L6-v2', {
+      session_options: { intraOpNumThreads: 1, interOpNumThreads: 1 },
+    })
+  })
+
+  it('bounds ONNX threads independently from the worker count', async () => {
+    pipelineMock.mockResolvedValue(makePipe())
+    await createProvider({ inferenceThreads: 2 }).embedQuery('x')
+    expect(pipelineMock).toHaveBeenLastCalledWith(expect.any(String), expect.any(String), {
+      session_options: { intraOpNumThreads: 2, interOpNumThreads: 1 },
+    })
+    process.env.MOL_EMBEDDINGS_LOCAL_THREADS = '0'
+    await createProvider().embedQuery('x')
+    expect(pipelineMock).toHaveBeenLastCalledWith(expect.any(String), expect.any(String), {
+      session_options: { intraOpNumThreads: 1, interOpNumThreads: 1 },
+    })
   })
 
   it('forwards custom pooling + normalize to the pipeline call', async () => {

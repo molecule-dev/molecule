@@ -3,6 +3,12 @@
  *
  * @module
  */
+import type { AIEmbeddingsProvider } from '@molecule/api-ai-embeddings'
+
+/** Local provider lifecycle: close releases its model worker and rejects pending calls. */
+export interface LocalEmbeddingsProvider extends AIEmbeddingsProvider {
+  close(): Promise<void>
+}
 
 /** Pooling strategy applied to the model's token embeddings to produce one vector per input. */
 export type LocalEmbeddingsPooling = 'cls' | 'mean' | 'none'
@@ -54,4 +60,16 @@ export interface LocalEmbeddingsConfig {
    * tighter memory ceiling. Values below 1 are clamped to 1.
    */
   batchSize?: number
+  /**
+   * ONNX threads per inference (or MOL_EMBEDDINGS_LOCAL_THREADS). Defaults to 1,
+   * leaving other cores available to the host API. One worker serializes all
+   * requests for this provider, including concurrent document/query calls.
+   */
+  inferenceThreads?: number
+  /**
+   * Maximum request lifetime including queue time (or MOL_EMBEDDINGS_LOCAL_TIMEOUT_MS).
+   * Defaults to 300000 ms. Expiry terminates the worker and rejects every pending
+   * call; the next call can start a fresh worker. Non-positive values use the default.
+   */
+  requestTimeoutMs?: number
 }
