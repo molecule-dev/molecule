@@ -38,6 +38,7 @@ describe('parseFlyMachineList', () => {
         state: 'started',
         imageRef: 'registry.fly.io/molecule-api:deployment-1',
         version: 'v1',
+        gracePeriodMs: 0,
       },
     ])
   })
@@ -60,6 +61,37 @@ describe('parseFlyMachineList', () => {
     )
     expect(parsed[0]?.imageRef).toBe('registry.fly.io/molecule-api@sha256:abc')
     expect(parsed[0]?.version).toBe('v2')
+  })
+
+  it('reads the longest service-check grace period', () => {
+    const parsed = parseFlyMachineList(
+      JSON.stringify([
+        machine('c'.repeat(14), {
+          config: {
+            image: { registry: 'registry.fly.io', repository: 'molecule-api', tag: 'd1' },
+            services: [
+              { checks: [{ grace_period: '5s' }, { grace_period: '1m0s' }] },
+              { checks: [{ grace_period: '500ms' }] },
+            ],
+          },
+        }),
+      ]),
+    )
+    expect(parsed[0]?.gracePeriodMs).toBe(60_000)
+  })
+
+  it('reads a top-level image_ref from older flyctl output', () => {
+    const parsed = parseFlyMachineList(
+      JSON.stringify([
+        {
+          id: 'e'.repeat(14),
+          state: 'started',
+          image_ref: { registry: 'registry.fly.io', repository: 'molecule-api', tag: 'd1' },
+          instance_id: 'v1',
+        },
+      ]),
+    )
+    expect(parsed[0]?.imageRef).toBe('registry.fly.io/molecule-api:d1')
   })
 
   it('refuses output that is not an array', () => {

@@ -33,6 +33,14 @@ export interface FlyMachine extends RolloutInstance {
   imageRef: string | null
   /** The Machine's configuration version (`instance_id`/`version`). */
   version: string | null
+  /**
+   * The longest service-check grace period the Machine declares, in milliseconds.
+   *
+   * Fly reports a check inside its grace window as PASSING and can route traffic
+   * to a Machine that has not booted; a rolling restart must know the number to
+   * refuse it. Zero when the Machine's checks have no grace.
+   */
+  gracePeriodMs: number
 }
 
 /** The result of one flyctl invocation. */
@@ -74,6 +82,45 @@ export const flyctlRunner = (options: { cwd?: string } = {}): FlyCommandRunner =
 }
 
 /**
+ * Parse a Fly duration (`500ms`, `5s`, `1m0s`, `1h30m`) into milliseconds.
+ *
+ * @param value - The configured value.
+ * @returns Milliseconds; 0 when absent or not a duration.
+ */
+export function parseFlyDurationMs(value: unknown): number {
+  if (typeof value !== 'string') return 0
+  let total = 0
+  let matched = false
+  for (const match of value.matchAll(/(\d+)(ms|s|m|h)/g)) {
+    matched = true
+    const scale = { ms: 1, s: 1_000, m: 60_000, h: 3_600_000 }[match[2] ?? ''] ?? 0
+    total += Number(match[1] ?? 0) * scale
+  }
+  return matched ? total : 0
+}
+
+/**
+ * The longest service-check grace period any of a Machine's checks declares.
+ *
+ * @param machine - One entry from `flyctl machine list --json`.
+ * @returns Milliseconds; 0 when the Machine's checks have no grace.
+ */
+export function serviceCheckGraceMs(machine: unknown): number {
+  let longest = 0
+  const services = (machine as { config?: { services?: unknown[] } })?.config?.services ?? []
+  for (const service of services) {
+    const checks = (service as { checks?: unknown[] })?.checks ?? []
+    for (const check of checks) {
+      longest = Math.max(
+        longest,
+        parseFlyDurationMs((check as { grace_period?: unknown })?.grace_period),
+      )
+    }
+  }
+  return longest
+}
+
+/**
  * Parse `flyctl machine list --app <app> --json` into the facts a rollout needs.
  *
  * @param json - The command's stdout.
@@ -92,7 +139,9 @@ export const parseFlyMachineList = (json: string): FlyMachine[] => {
   if (!Array.isArray(parsed)) throw new Error('flyctl machine list did not return an array')
   return parsed.map((machine: Record<string, unknown>) => {
     const config = machine?.config as Record<string, unknown> | undefined
-    const image = config?.image
+    // `config.image` is the live shape; `image_ref` is what older flyctl output
+    // (and the fixtures) carry at the top level.
+    const image = config?.image ?? machine?.image_ref
     let imageRef: string | null = null
     if (typeof image === 'string') imageRef = image
     else if (image && typeof (image as Record<string, unknown>).digest === 'string') {
@@ -115,6 +164,7 @@ export const parseFlyMachineList = (json: string): FlyMachine[] => {
       state: typeof machine?.state === 'string' ? machine.state : '',
       imageRef,
       version,
+      gracePeriodMs: serviceCheckGraceMs(machine),
     }
   })
 }
@@ -133,13 +183,15 @@ export const parseFlyMachineList = (json: string): FlyMachine[] => {
  */
 export const assertHomogeneousFlyMachines = (
   machines: readonly FlyMachine[],
+  options: { appName?: string } = {},
 ): { ids: string[]; imageRef: string; version: string } => {
-  if (machines.length === 0) throw new Error('the app has no Machines')
+  const app = options.appName ?? 'the app'
+  if (machines.length === 0) throw new Error(`${app} has no Machines`)
   const stopped = machines.filter((machine) => machine.state !== 'started')
   if (stopped.length > 0) {
     throw new Error(
-      `machine(s) ${stopped.map((m) => `${m.id} (${m.state})`).join(', ')} are not started — ` +
-        'start them before rolling so every Machine gets the change',
+      `${app} machine(s) ${stopped.map((m) => `${m.id} (${m.state})`).join(', ')} are not ` +
+        'started — start them before rolling so every Machine gets the change',
     )
   }
   for (const machine of machines) {
@@ -163,7 +215,7 @@ export const assertHomogeneousFlyMachines = (
   const versions = [...new Set(machines.map((machine) => machine.version))]
   if (imageRefs.length > 1 || versions.length > 1) {
     throw new Error(
-      'the Machines are running MIXED builds ' +
+      `${app} Machines are running MIXED builds ` +
         `(images: ${imageRefs.join(', ')}; versions: ${versions.join(', ')}) — a deploy is in ` +
         'flight or a Machine was started separately. Wait for it to settle, then re-run.',
     )
