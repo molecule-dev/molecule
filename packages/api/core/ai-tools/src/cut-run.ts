@@ -287,6 +287,13 @@ export interface CutRun {
    * is slow, so the sentence must not send it to the background (xr-molecule-flash-m200 +03:45).
    */
   inlineScript?: string | null
+  /**
+   * The variable a leaked standalone browser launch is bound to, when the command ran such a probe
+   * and the cut reader could only classify it after the run (xr-molecule-flash-m257). A leaked
+   * handle is not a slow workload: the background is the one place it must not be sent, so the
+   * sentence names the close instead.
+   */
+  browserProbe?: string | null
 }
 
 /** The last thing a run printed: its last non-blank line, as one line and short enough to quote. */
@@ -499,6 +506,7 @@ export function cutRunFacts(result: unknown): CutRun | null {
     noun: c.noun === 'tests' ? 'tests' : 'files',
     doing: typeof c.doing === 'string' && c.doing ? c.doing : null,
     inlineScript: typeof c.inlineScript === 'string' && c.inlineScript ? c.inlineScript : null,
+    browserProbe: typeof c.browserProbe === 'string' && c.browserProbe ? c.browserProbe : null,
   }
 }
 
@@ -534,11 +542,15 @@ export function cutRunSentence(run: CutRun): string {
     ? // An inline local-file program finished in milliseconds or is stuck; backgrounding it only
       // moves the hang (xr-molecule-flash-m200 +03:45). The full rewrite advice rides the error.
       'do not run it in the background — the transform is stuck, not slow'
-    : run.background
-      ? run.stoppedBy === 'command-timeout'
-        ? `drop the \`timeout\` prefix and send it again — in the background a run is bounded by \`wait_for_task\` and the turn's deadline, not by this tool's ceiling, so the bound you wrote is what killed it`
-        : 'send it again when you are ready'
-      : 'run it in the background (run_in_background + wait_for_task)'
+    : run.browserProbe
+      ? // A leaked browser is a live handle: the process never ends, and a background task has no
+        // exit to wait for either (xr-molecule-flash-m257 +15:34). The close is the fix.
+        `do not run it in the background — the browser (\`${run.browserProbe}\`) is never closed, so it would hang there too; close it in a \`finally\` block, or let the Playwright runner's browser fixture own it`
+      : run.background
+        ? run.stoppedBy === 'command-timeout'
+          ? `drop the \`timeout\` prefix and send it again — in the background a run is bounded by \`wait_for_task\` and the turn's deadline, not by this tool's ceiling, so the bound you wrote is what killed it`
+          : 'send it again when you are ready'
+        : 'run it in the background (run_in_background + wait_for_task)'
   const missing = run.ran !== null && run.total !== null ? run.total - run.ran : null
   const lead =
     missing !== null

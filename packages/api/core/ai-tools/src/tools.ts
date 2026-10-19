@@ -11,6 +11,7 @@ import { posix } from 'path'
 
 import type { AITool } from '@molecule/api-ai'
 
+import { browserProbeOverBudgetAdvice, browserProbeRefusal } from './browser-probe.js'
 import {
   commandCutRun,
   CUT_AT_BUDGET,
@@ -36,6 +37,7 @@ import { diffLineCount } from './line-diff.js'
 import { pipelineExitCodeNote } from './pipeline-exit-note.js'
 import { TOOL_SCHEMAS } from './schemas.js'
 import {
+  foregroundBrowserProbe,
   foregroundServerCommand,
   SERVER_OVER_BUDGET_ADVICE,
   serverCommandRefusal,
@@ -2930,6 +2932,26 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
             ),
           }
         }
+        // The same never-returns class, one handle lower: a standalone script that launches a
+        // browser and never closes it. X1 xr-molecule-flash-m257 (+10:44 → +15:34) ran a 30-line
+        // `fav-probe.mjs` whose `const browser = await chromium.launch()` had no `close()`; Chromium
+        // is a live handle, so Node never exited. Behind `| tail` it printed nothing, the tool
+        // waited its whole 290 s budget, and the over-budget message then advised "run it in the
+        // background" — which only moves the hang. The source reading is narrow and closed-world
+        // (browser-probe.ts): an alias, a helper, a context/page disposal or any other cleanup path
+        // is left alone.
+        const browserProbe = await foregroundBrowserProbe(rawCommand, (path) =>
+          backend.readFile(path),
+        )
+        if (browserProbe) {
+          return {
+            error: browserProbeRefusal(
+              browserProbe,
+              Math.max(1, Math.round((commandBudgetMs ?? 290_000) / 1000)),
+              /\|\s*(?:tail|head)\b/.test(rawCommand),
+            ),
+          }
+        }
       }
 
       // A Playwright run of a suite whose config records no trace gets one recorded anyway
@@ -3376,6 +3398,16 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           `${result.stdout}\n${result.stderr}`,
         )
         if (cut) {
+          // A probe that wrote its own script and then ran it is only readable NOW: the preflight
+          // read a file that did not exist yet (m257's `fav-probe.mjs` was written in an earlier
+          // turn, but a `cat > probe.mjs <<EOF … && node probe.mjs` is the same seam). Re-read it
+          // before falling back to "run a smaller unit", which is advice about the wrong axis —
+          // and would send a leaked handle to the background, where it hangs just the same.
+          const cutBrowserProbe =
+            inlineScript === null && !startsServerProgram(command) && !isSuiteRunCommand(command)
+              ? await foregroundBrowserProbe(command, (path) => backend.readFile(path))
+              : null
+          if (cutBrowserProbe !== null) cut.browserProbe = cutBrowserProbe.variable
           const cutLead = cutRunSentence(cut)
           return {
             stdout,
@@ -3402,9 +3434,11 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
                 ? inlineScriptRunawaySentence(inlineScript, cut.seconds)
                 : startsServerProgram(command)
                   ? SERVER_OVER_BUDGET_ADVICE
-                  : isSuiteRunCommand(command)
-                    ? SUITE_OVER_BUDGET_ADVICE
-                    : SPLIT_WORK_ADVICE),
+                  : cutBrowserProbe !== null
+                    ? browserProbeOverBudgetAdvice(cutBrowserProbe)
+                    : isSuiteRunCommand(command)
+                      ? SUITE_OVER_BUDGET_ADVICE
+                      : SPLIT_WORK_ADVICE),
           }
         }
         // A pipeline reports its LAST stage's code: `tsc | head` says 0 beside a printed type

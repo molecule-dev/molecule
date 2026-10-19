@@ -133,6 +133,7 @@
 export * from './backends/local.js'
 export * from './backends/sandbox.js'
 export * from './browser-guard.js'
+export * from './browser-probe.js'
 export * from './command-position.js'
 export * from './cut-run.js'
 export * from './failure-kind.js'

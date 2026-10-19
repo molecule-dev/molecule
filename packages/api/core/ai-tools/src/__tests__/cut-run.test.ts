@@ -13,6 +13,7 @@ import {
   commandRunState,
   commandTimeoutSeconds,
   CUT_AT_BUDGET,
+  cutRunFacts,
   cutRunSentence,
   suiteSummary,
   suiteTally,
@@ -583,6 +584,38 @@ describe('exec_command reports the stopped run', () => {
     expect(result.status).toBe(CUT_AT_BUDGET)
     expect(result.exitCode).toBeNull()
     expect(result.note).toContain('Ran 4 files in 350 s and was stopped by')
+  })
+})
+
+// xr-molecule-flash-m257 (+10:44 → +15:34, 2026-10-19): a directly executed probe launched a
+// browser, never closed it, and was stopped at the whole 290 s budget. The cut note must name the
+// close, because "run it in the background" only moves the hang.
+describe('commandCutRun — a leaked browser probe stopped by the tool budget (m257)', () => {
+  /** m257's command verbatim: a directly executed probe whose browser is never closed. */
+  const M257_COMMAND =
+    'cd /workspace/my-app/app && node /workspace/.mol-scratch/fav-probe.mjs 2>&1 | tail -5'
+  const STOPPED = { stdout: '', stderr: '', exitCode: 124 }
+
+  it('names the close and never sends the leak to the background', () => {
+    const cut = commandCutRun(M257_COMMAND, STOPPED, 290_000, 290)!
+    expect(cut).toMatchObject({ seconds: 290, stoppedBy: 'tool-budget' })
+    cut.browserProbe = 'browser'
+    const sentence = cutRunSentence(cut)
+    expect(sentence).toContain('the browser (`browser`) is never closed')
+    expect(sentence).toContain('do not run it in the background')
+    expect(sentence).not.toContain('run it in the background (run_in_background')
+  })
+
+  it('carries the binding through cutRunFacts', () => {
+    const cut = commandCutRun(M257_COMMAND, STOPPED, 290_000, 290)!
+    cut.browserProbe = 'browser'
+    const facts = cutRunFacts({ status: CUT_AT_BUDGET, cutRun: cut })
+    expect(facts?.browserProbe).toBe('browser')
+  })
+
+  it('leaves an unclassified run on the ordinary background advice', () => {
+    const cut = commandCutRun(M257_COMMAND, STOPPED, 290_000, 290)!
+    expect(cutRunSentence(cut)).toContain('run it in the background (run_in_background')
   })
 })
 

@@ -17,6 +17,7 @@
  * @module
  */
 
+import { type ForegroundBrowserProbe, standaloneBrowserLeak } from './browser-probe.js'
 import type { CommandSegment } from './command-position.js'
 import { commandSegments } from './command-position.js'
 import { withoutHeredocs } from './suite-overlap.js'
@@ -170,6 +171,42 @@ export async function foregroundServerCommand(
     if (SERVER_PROGRAM.test(source) || STARTS_LISTENING.test(source)) {
       return { program: `${segment.program} ${script}` }
     }
+  }
+  return null
+}
+
+/**
+ * A FOREGROUND command that directly runs a standalone script which launches a browser and never
+ * closes it — the same never-returns lifecycle class as {@link foregroundServerCommand}, read from
+ * the script's SOURCE by {@link standaloneBrowserLeak}.
+ *
+ * The boundaries are the server preflight's, so the two readers cannot disagree about what they are
+ * allowed to touch: a backgrounded launch, a test runner and a test file are left alone, and a
+ * script the backend will not answer for is a command this reading cannot classify, never a
+ * refusal. A Playwright suite is owned by its runner's browser fixture and is never read here.
+ *
+ * @param command - The command as the executor sent it.
+ * @param readScript - Reads a script file the command names (`backend.readFile`).
+ * @returns The leaked probe's variable and script path, or null when the command is not one.
+ */
+export async function foregroundBrowserProbe(
+  command: string,
+  readScript: (path: string) => Promise<string>,
+): Promise<ForegroundBrowserProbe | null> {
+  const text = withoutHeredocs(command)
+  if (BACKGROUNDED.test(text)) return null
+  for (const segment of commandSegments(text)) {
+    const script = scriptPath(segment)
+    if (script === null) continue
+    let source: string
+    try {
+      source = await readScript(script)
+    } catch (_error) {
+      // A script the backend cannot read is not classified: the refusal must never be a guess.
+      continue
+    }
+    const leak = standaloneBrowserLeak(source)
+    if (leak !== null) return { ...leak, script }
   }
   return null
 }

@@ -243,6 +243,100 @@ describe('buildTools', () => {
     expect(backend.run).not.toHaveBeenCalled()
   })
 
+  it('exec_command refuses a foreground browser probe that never closes its browser (m257)', async () => {
+    // m257's +10:44 command verbatim, and the shape of the 30-line script it ran: a real
+    // `const browser = await chromium.launch()`, real page work, and no close/disconnect/disposal/
+    // process.exit. Chromium is a live handle, so the command would consume the whole 290 s budget
+    // behind `| tail` and then be told to "run it in the background" — which only moves the hang.
+    const backend = mockBackend()
+    ;(backend.readFile as ReturnType<typeof vi.fn>).mockResolvedValue(
+      "import { chromium } from '@playwright/test'\n" +
+        'const browser = await chromium.launch()\n' +
+        'const page = await browser.newPage()\n' +
+        "console.log('preview favorite buttons:', await page.locator('button').count())\n",
+    )
+    const tools = buildTools(backend, { blockDangerousCommands: true })
+    const exec = tools.find((t) => t.name === 'exec_command')!
+    const result = (await exec.execute({
+      command:
+        'cd /workspace/my-app/app && node /workspace/.mol-scratch/fav-probe.mjs 2>&1 | tail -5',
+    })) as { error?: string }
+    expect(result.error).toContain('/workspace/.mol-scratch/fav-probe.mjs')
+    expect(result.error).toContain('`browser`')
+    expect(result.error).toContain(
+      'This probe launches a browser and never closes it, so Node will stay alive after its last statement.',
+    )
+    expect(result.error).toContain(
+      'Put the page work in try { … } finally { await browser.close() }, or use a Playwright test whose browser fixture is cleaned up by the runner.',
+    )
+    expect(result.error).toContain('`| tail` pipe would also withhold its output')
+    expect(result.error).not.toContain('run_in_background')
+    expect(result.error).not.toMatch(/run it in the background\b/)
+    expect(backend.run).not.toHaveBeenCalled()
+  })
+
+  it('exec_command runs the same probe once the browser is closed in a finally', async () => {
+    const backend = mockBackend()
+    ;(backend.readFile as ReturnType<typeof vi.fn>).mockResolvedValue(
+      "import { chromium } from '@playwright/test'\n" +
+        'const browser = await chromium.launch()\n' +
+        'try {\n' +
+        '  const page = await browser.newPage()\n' +
+        "  console.log('preview favorite buttons:', await page.locator('button').count())\n" +
+        '} finally {\n' +
+        '  await browser.close()\n' +
+        '}\n',
+    )
+    const tools = buildTools(backend, { blockDangerousCommands: true })
+    const exec = tools.find((t) => t.name === 'exec_command')!
+    const result = (await exec.execute({
+      command:
+        'cd /workspace/my-app/app && node /workspace/.mol-scratch/fav-probe.mjs 2>&1 | tail -5',
+    })) as { error?: string; exitCode?: number }
+    expect(result.error).toBeUndefined()
+    expect(backend.run).toHaveBeenCalledWith(
+      'cd /workspace/my-app/app && node /workspace/.mol-scratch/fav-probe.mjs 2>&1 | tail -5',
+      expect.anything(),
+    )
+  })
+
+  it('exec_command names the leak in the over-budget advice when only the cut-time read can see it (m257 +15:34)', async () => {
+    // A command that writes its own probe and then runs it: the preflight reads a file that does
+    // not exist yet, the probe leaks, and the tool's budget stops it. The result must NOT say
+    // "run it in the background" or "run a smaller unit" — it must name the close.
+    const backend = mockBackend()
+    ;(backend.readFile as ReturnType<typeof vi.fn>)
+      .mockResolvedValueOnce(
+        "import { chromium } from '@playwright/test'\n" +
+          'const browser = await chromium.launch()\n' +
+          'const page = await browser.newPage()\n',
+      )
+      .mockRejectedValueOnce(new Error('ENOENT: no such file yet'))
+      .mockResolvedValue(
+        "import { chromium } from '@playwright/test'\n" +
+          'const browser = await chromium.launch()\n' +
+          'const page = await browser.newPage()\n' +
+          "console.log('preview favorite buttons:', await page.locator('button').count())\n",
+      )
+    ;(backend.run as ReturnType<typeof vi.fn>).mockResolvedValue({
+      stdout: '',
+      stderr: '',
+      exitCode: 124,
+    })
+    const tools = buildTools(backend, { blockDangerousCommands: true, commandBudgetMs: 290_000 })
+    const exec = tools.find((t) => t.name === 'exec_command')!
+    const result = (await exec.execute({
+      command: 'node /workspace/.mol-scratch/fav-probe.mjs 2>&1 | tail -5',
+    })) as { error?: string; status?: string }
+    expect(result.status).toBe('cut_at_budget')
+    expect(result.error).toContain('the browser (`browser`) is never closed')
+    expect(result.error).toContain(
+      'Put the page work in try { … } finally { await browser.close() }, or use a Playwright test whose browser fixture is cleaned up by the runner.',
+    )
+    expect(result.error).not.toContain('run it in the background (run_in_background')
+    expect(result.error).not.toContain('Run a smaller unit per command')
+  })
+
   it('exec_command runs a one-shot script that starts no server', async () => {
     // The same shape (a script behind a pipe) without a server in it: it exits, so it runs.
     const backend = mockBackend()
