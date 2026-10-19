@@ -197,6 +197,16 @@ export interface TraceMissingText {
   method: string
   /** The path of the response that carried it (`/api/tags`). */
   path: string
+  /**
+   * Whether the trace PROVES the page dropped the text: the named response is a successful GET
+   * of the collection that started after the last navigation, and the text is absent from the
+   * page's own failure snapshot ({@link traceArtifactsScript}).
+   *
+   * Absent when the evidence is weaker — a creation POST carried the text (m194's button failure
+   * was not a missing article), the snapshot still showed it, or the trace recorded no clock —
+   * and the note then says only that a response contained the text.
+   */
+  dropped?: true
 }
 
 /**
@@ -498,22 +508,35 @@ function messageOf(value) {
 const FILLING_ACTION = /\\.(?:fill|type|pressSequentially|selectOption)$/
 
 // The text a failing assertion waited for, named by its own error: a \`has-text(…)\` CSS
-// pseudo-class, a \`getByText(…)\` locator, or a \`toContainText(…)\` expectation. A strict-mode
-// violation is not this shape — two elements DID match the text — and neither is a wait on a
-// selector with no text argument. The ANSI colouring Playwright leaves in the message is dropped
-// before the read, or the quotes it wraps around a locator would never parse.
+// pseudo-class, a \`getByText(…)\` locator, or a \`toContainText(…)\` expectation — and only when
+// the failure IS an absence of that text. A strict-mode violation is not this shape (two elements
+// DID match), and neither is a wait on a selector with no text argument.
+//
+// A locator that RESOLVED is not an absent element either: Playwright names the element it matched
+// and then says why the action could not run (m194's disabled button carried the very title the
+// note called missing). A disabled, invisible, unstable, detached or intercepted control is a
+// control problem, not a rendering one, so none of those shapes may produce a missing-text reading.
+// The ANSI colouring Playwright leaves in the message is dropped before the read, or the quotes it
+// wraps around a locator would never parse.
 function waitedTextOf(message) {
   if (!message) return null
   const text = String(message).replace(/\\u001b\\[[0-9;]*m/g, '')
   if (text.indexOf('strict mode violation') !== -1) return null
+  if (text.indexOf('locator resolved to') !== -1) return null
+  if (/element is not (?:enabled|visible|stable|attached)/.test(text)) return null
+  if (/intercepts? pointer events/.test(text)) return null
+  // Playwright's own not-found marker is what an absence assertion leaves behind; a text
+  // expectation that failed on an element it DID find is the other absence shape (its received
+  // text lacks the expected one).
+  const notFound = /element\\(s\\) not found|element is not found/.test(text)
   const quoted = function (pattern) {
     const m = pattern.exec(text)
     return m === null ? null : m[2]
   }
   const hasText = quoted(/has-text\\(\\s*(['"])((?:(?!\\1).)*)\\1/)
-  if (hasText !== null) return hasText
+  if (hasText !== null) return notFound ? hasText : null
   const byText = quoted(/getByText\\(\\s*(['"])((?:(?!\\1).)*)\\1/)
-  if (byText !== null) return byText
+  if (byText !== null) return notFound ? byText : null
   if (text.indexOf('toContainText') === -1) return null
   return quoted(/Expected(?: string)?:\\s*(["'])((?:(?!\\1).)*)\\1/)
 }
@@ -774,6 +797,11 @@ for (const one of found.slice(0, MAX_TRACES)) {
         context: ctx.id,
         pageId: typeof snap.pageId === 'string' ? snap.pageId : undefined,
         frameId: typeof snap.frameId === 'string' ? snap.frameId : undefined,
+        // The snapshot's own DOM tree, kept by reference (the trace line already holds it). The
+        // note reads its text only when it has to prove an awaited value was absent from the page
+        // (m194's false "dropped before rendering" lead). Playwright serializes text nodes as
+        // strings and elements as [tag, attrs, ...children].
+        snapshot: snap.html,
       })
     }
     for (const entry of ctx.trace) {
@@ -1071,25 +1099,103 @@ for (const one of found.slice(0, MAX_TRACES)) {
     if (sent) r.sent = sent
     if (got) r.got = got
   }
+  // The text a frame snapshot SHOWED, so a page that still carried the awaited value is never
+  // described as having dropped it. Playwright serializes the DOM as strings (text nodes) and
+  // [tag, attrs, ...children] elements, with a subtree reference ([[snapshotIndex, nodeIndex]]) to
+  // a node an earlier snapshot of the same frame carried. \`script\`/\`style\` bodies are skipped,
+  // as the trace viewer skips them: code is not what the page showed. Null when the snapshot is
+  // absent or a reference cannot be resolved — an unreadable snapshot proves nothing.
+  function snapshotShowed(frame) {
+    const tree = frame.snapshot
+    if (tree === undefined || tree === null) return null
+    const shown = framesAll.filter(function (f) {
+      return f.context === frame.context && f.pageId === frame.pageId
+    })
+    const nodesOf = function (value) {
+      const nodes = []
+      const collect = function (n) {
+        if (typeof n === 'string') { nodes.push(n); return }
+        if (!Array.isArray(n) || typeof n[0] !== 'string') return
+        for (let i = 2; i < n.length; i++) collect(n[i])
+        nodes.push(n)
+      }
+      collect(value)
+      return nodes
+    }
+    const out = []
+    let visited = 0
+    let readable = true
+    const visit = function (n) {
+      if (++visited > 400000) { readable = false; return }
+      if (typeof n === 'string') { out.push(n); return }
+      if (!Array.isArray(n)) return
+      if (Array.isArray(n[0])) {
+        const ref = n[0]
+        const at = Array.isArray(ref) && typeof ref[0] === 'number' ? ref[0] : -1
+        const node = Array.isArray(ref) && typeof ref[1] === 'number' ? ref[1] : -1
+        const earlier = at >= 0 && at < shown.length && shown[at].snapshot != null ? shown[at].snapshot : null
+        const nodes = earlier === null ? [] : nodesOf(earlier)
+        if (node < 0 || node >= nodes.length) { readable = false; return }
+        visit(nodes[node])
+        return
+      }
+      if (typeof n[0] !== 'string') return
+      const name = n[0].toUpperCase()
+      if (name === 'SCRIPT' || name === 'STYLE') return
+      for (let i = 2; i < n.length; i++) visit(n[i])
+    }
+    visit(tree)
+    return readable ? out.join('') : null
+  }
   // The text the failing assertion waited for, and a response the SAME page received that carried
   // it (m169). The assertion's own error names the text; the network log says whether it ever
   // reached the browser. Only an answered fetch/xhr can say the API returned it — a 4xx body is an
   // error message, not data. The most focused response wins (smallest body): an articles list also
   // carries tag names in its \`tagList\`, while the tags response is the collection whose membership
   // the assertion tests.
+  //
+  // The "page drops it before rendering" claim is made only when the trace PROVES it: a successful
+  // GET of the collection that STARTED AFTER the last navigation, and the awaited text absent from
+  // the page's own failure snapshot. A creation POST says nothing about what a collection render
+  // drops — m194's button failure was labelled missing while its title was on the page and the
+  // only carrier was \`POST /api/articles\` — and a snapshot that still shows the text says the
+  // opposite. Without that proof the note only says a response contained the text.
   const waitedText = waitedTextOf(failedError)
   let missingText = null
   if (waitedText !== null && !unattributed) {
+    let lastNavigation = null
+    for (const a of actions) {
+      if (!/\\.(?:goto|reload|goBack|goForward)$/.test(a.api)) continue
+      if (lastNavigation === null || a.start > lastNavigation) lastNavigation = a.start
+    }
     let best = null
+    let bestGet = null
     for (const r of requests) {
       if (r.type !== 'fetch' && r.type !== 'xhr') continue
       if (r.status < 200 || r.status >= 400) continue
       const got = gotText(buf, entries, r)
       if (!got || got.indexOf(waitedText) === -1) continue
       if (best === null || got.length < best.got.length) best = { request: r, got: got }
+      // The collection read the claim may rest on: a GET that started after the last navigation
+      // (a request that started before it belongs to the page load, not to the failure).
+      if (r.method !== 'GET') continue
+      if (lastNavigation === null || typeof r.startedAt !== 'number' || r.startedAt <= lastNavigation) continue
+      if (bestGet === null || got.length < bestGet.got.length) bestGet = { request: r, got: got }
     }
-    if (best !== null)
-      missingText = { text: waitedText, method: best.request.method, path: best.request.path }
+    if (best !== null) {
+      const named = bestGet === null ? best : bestGet
+      let dropped = false
+      if (bestGet !== null && frames.length > 0) {
+        const shown = snapshotShowed(frames[frames.length - 1])
+        dropped = shown !== null && shown.indexOf(waitedText) === -1
+      }
+      missingText = {
+        text: waitedText,
+        method: named.request.method,
+        path: named.request.path,
+        ...(dropped ? { dropped: true } : {}),
+      }
+    }
   }
   function wire(r) {
     return {
@@ -1373,7 +1479,12 @@ function parseMissingText(value: unknown): TraceMissingText | null {
   if (typeof raw.text !== 'string' || raw.text === '') return null
   if (typeof raw.method !== 'string' || raw.method === '') return null
   if (typeof raw.path !== 'string' || raw.path === '') return null
-  return { text: raw.text, method: raw.method, path: raw.path }
+  return {
+    text: raw.text,
+    method: raw.method,
+    path: raw.path,
+    ...(raw.dropped === true ? { dropped: true as const } : {}),
+  }
 }
 
 /**
@@ -2576,15 +2687,22 @@ function missingApiPrefixSentence(request: MissingApiPrefixRequest): string {
 /**
  * The sentence for a failing assertion whose awaited text a same-page API response carried.
  *
- * It names the response and the fact the trace proves — the value reached the browser and the page
- * did not render it — and stops there. Which cut drops it (a slice, a filter, a limit) is in the
- * component that maps the response, and the note cannot see that component; naming the mapping
- * step is the whole instruction (xr-molecule-flash-m169).
+ * With proof ({@link TraceMissingText.dropped}) it names the response and the fact the trace
+ * proves — the value reached the browser and the page did not render it — and stops there. Which
+ * cut drops it (a slice, a filter, a limit) is in the component that maps the response, and the
+ * note cannot see that component; naming the mapping step is the whole instruction
+ * (xr-molecule-flash-m169).
+ *
+ * Without that proof the sentence says only what the trace shows — a response contained the text —
+ * and makes no rendering claim: m194's awaited title was on the page, in a disabled button, while
+ * the only response carrying it was the creation POST (a button failure is not a missing article).
  *
  * @param missing - The awaited text and the response that carried it.
  * @returns The sentence the note leads with.
  */
 function missingTextSentence(missing: TraceMissingText): string {
+  if (missing.dropped !== true)
+    return `The response ${missing.method} ${missing.path} contained "${missing.text}".`
   return (
     `The API returned "${missing.text}" (in ${missing.method} ${missing.path}), but the page did ` +
     `not render it — the page drops it before rendering (a slice/filter/limit in the component ` +
@@ -3251,16 +3369,18 @@ export function failureTraceNote(
   // first, before any row, is that the value arrived and the page dropped it (m169's missing
   // "trending" came back from GET /api/tags while the sidebar rendered a cut list). Each distinct
   // response is named once; the note makes no claim about which cut did it.
-  const missingTexts = [
-    ...new Map(
-      traced
-        .filter((item) => item.missingText !== undefined)
-        .map((item) => {
-          const missing = item.missingText as TraceMissingText
-          return [`${missing.method} ${missing.path}\u0000${missing.text}`, missing] as const
-        }),
-    ).values(),
-  ]
+  // One sentence per response; a trace that PROVES the drop upgrades one that only saw the same
+  // response carry the text.
+  const missingByResponse = new Map<string, TraceMissingText>()
+  for (const item of traced) {
+    if (item.missingText === undefined) continue
+    const missing = item.missingText
+    const key = `${missing.method} ${missing.path}\u0000${missing.text}`
+    const seen = missingByResponse.get(key)
+    if (seen === undefined || (seen.dropped !== true && missing.dropped === true))
+      missingByResponse.set(key, missing)
+  }
+  const missingTexts = [...missingByResponse.values()]
   const missingTextLead =
     missingTexts.length === 0
       ? ''

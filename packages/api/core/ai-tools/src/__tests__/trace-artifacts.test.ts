@@ -2793,10 +2793,19 @@ function droppedTextZip(
   options: {
     assertion?: 'has-text' | 'getByText' | 'toContainText' | 'strict'
     withText?: boolean
+    /** The method of the response that carries the awaited text. */
+    responseMethod?: 'GET' | 'POST'
+    /** Whether the failure snapshot still shows the awaited text. */
+    snapshotHasText?: boolean
+    /** Whether the trace recorded a failure snapshot at all. */
+    withSnapshot?: boolean
   } = {},
 ): Buffer {
   const assertion = options.assertion ?? 'has-text'
   const withText = options.withText ?? true
+  const responseMethod = options.responseMethod ?? 'GET'
+  const snapshotHasText = options.snapshotHasText ?? false
+  const withSnapshot = options.withSnapshot ?? true
   const spec = '/workspace/fixtures/openapi/specs/e2e/navigation.spec.ts'
   const ndjson = (rows: unknown[]): string => rows.map((row) => JSON.stringify(row)).join('\n')
   const quoted = `'.sidebar .tag-list .tag-pill:has-text("trending")'`
@@ -2857,16 +2866,51 @@ function droppedTextZip(
     ],
     articlesCount: 1,
   }
-  const request = (url: string, at: number, type: string, text?: string): unknown => ({
+  const request = (
+    url: string,
+    at: number,
+    type: string,
+    text?: string,
+    method = 'GET',
+  ): unknown => ({
     type: 'resource-snapshot',
     snapshot: {
       _resourceType: type,
       _monotonicTime: at,
       pageref: 'page@1',
-      request: { url, method: 'GET' },
+      request: { url, method },
       response: { status: 200, ...(text === undefined ? {} : { content: { text } }) },
     },
   })
+  // Playwright's DOM snapshot tree: [tag, attrs, ...children], text nodes as strings.
+  const snapshot = (): unknown =>
+    withSnapshot
+      ? {
+          callId: 'c0',
+          pageId: 'page@1',
+          frameId: 'frame@1',
+          frameUrl: 'http://127.0.0.1:4173/',
+          timestamp: 130,
+          isMainFrame: true,
+          html: [
+            'body',
+            {},
+            [
+              'div',
+              { class: 'sidebar' },
+              ['div', { class: 'tag-list' }, ...tags.slice(0, 20).map((tag) => ['span', {}, tag])],
+            ],
+            ...(snapshotHasText ? [['div', {}, 'trending']] : []),
+          ],
+        }
+      : {
+          callId: 'c0',
+          pageId: 'page@1',
+          frameId: 'frame@1',
+          frameUrl: 'http://127.0.0.1:4173/',
+          timestamp: 130,
+          isMainFrame: true,
+        }
   return storedZip({
     'test.trace': ndjson([
       {
@@ -2930,17 +2974,7 @@ function droppedTextZip(
           isMainFrame: true,
         },
       },
-      {
-        type: 'frame-snapshot',
-        snapshot: {
-          callId: 'c0',
-          pageId: 'page@1',
-          frameId: 'frame@1',
-          frameUrl: 'http://127.0.0.1:4173/',
-          timestamp: 130,
-          isMainFrame: true,
-        },
-      },
+      { type: 'frame-snapshot', snapshot: snapshot() },
       {
         type: 'before',
         class: 'BrowserContext',
@@ -2963,8 +2997,15 @@ function droppedTextZip(
         12,
         'fetch',
         JSON.stringify(articles),
+        responseMethod,
       ),
-      request('http://127.0.0.1:4173/api/tags', 14, 'fetch', JSON.stringify({ tags })),
+      request(
+        'http://127.0.0.1:4173/api/tags',
+        14,
+        'fetch',
+        JSON.stringify({ tags }),
+        responseMethod,
+      ),
     ]),
   })
 }
@@ -2988,6 +3029,7 @@ describe('failureTraceNote — a tag the API returned and the sidebar cut away (
         text: 'trending',
         method: 'GET',
         path: '/api/tags',
+        dropped: true,
       })
     } finally {
       rmSync(root, { recursive: true, force: true })
@@ -3025,6 +3067,235 @@ describe('failureTraceNote — a tag the API returned and the sidebar cut away (
     const text = note(droppedTextZip({ assertion: 'strict' }))
     expect(text).not.toContain('The API returned')
   })
+
+  it('says only that a creation POST contained the text — never that the page dropped it', () => {
+    const root = stalledRun(droppedTextZip({ assertion: 'getByText', responseMethod: 'POST' }))
+    try {
+      const items = parseTraceArtifacts(readTraces(root))
+      // The fact is kept; the rendering claim is not, because a POST says nothing about a
+      // collection the page renders (m194's title was on the page in a disabled button).
+      expect(items[0].missingText).toEqual({
+        text: 'trending',
+        method: 'POST',
+        path: '/api/tags',
+      })
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+    const [lead] = note(droppedTextZip({ assertion: 'getByText', responseMethod: 'POST' })).split(
+      '\n',
+    )
+    expect(lead).toBe('The response POST /api/tags contained "trending".')
+  })
+
+  it('says only that a response contained the text when the snapshot still showed it', () => {
+    const [lead] = note(droppedTextZip({ assertion: 'getByText', snapshotHasText: true })).split(
+      '\n',
+    )
+    expect(lead).toBe('The response GET /api/tags contained "trending".')
+  })
+
+  it('says only that a response contained the text when the trace recorded no failure snapshot', () => {
+    const [lead] = note(droppedTextZip({ assertion: 'getByText', withSnapshot: false })).split('\n')
+    expect(lead).toBe('The response GET /api/tags contained "trending".')
+  })
+})
+
+describe('failureTraceNote — a disabled control is not a missing article (xr-molecule-flash-m194)', () => {
+  /**
+   * m194's navigation.spec.ts:200: the click's locator RESOLVED to the article's own favorite
+   * button and Playwright then waited for it to become enabled — while `POST /api/articles` (the
+   * creation that had just made the article) carried the very title the old note called missing.
+   */
+  function disabledControlZip(reason?: 'unstable' | 'intercepted'): Buffer {
+    const spec = '/workspace/fixtures/realworld/specs/e2e/navigation.spec.ts'
+    const ndjson = (rows: unknown[]): string => rows.map((row) => JSON.stringify(row)).join('\n')
+    const title = 'Test Article 1792371097470'
+    const quoted = `'.article-preview:has-text("${title}") button.btn-outline-primary'`
+    // m194's own error verbatim for the default; the other two are the same actionability family
+    // WITHOUT the "locator resolved to" line, so each suppression phrase is proven on its own.
+    const message =
+      reason === 'unstable'
+        ? `TimeoutError: page.click: Timeout 5000ms exceeded.\nCall log:\n` +
+          `  - waiting for locator(${quoted})\n` +
+          `    - element is not stable\n` +
+          `    - retrying click action\n`
+        : reason === 'intercepted'
+          ? `TimeoutError: page.click: Timeout 5000ms exceeded.\nCall log:\n` +
+            `  - waiting for locator(${quoted})\n` +
+            `    - <div class="overlay">…</div> from <div>…</div> subtree intercepts pointer events\n` +
+            `    - retrying click action\n`
+          : `TimeoutError: page.click: Timeout 5000ms exceeded.\nCall log:\n` +
+            `  - waiting for locator(${quoted})\n` +
+            `    - locator resolved to <button disabled type="button" class="btn btn-outline-primary ` +
+            `btn-sm pull-xs-right">…</button>\n` +
+            `  - attempting click action\n` +
+            `    2 × waiting for element to be visible, enabled and stable\n` +
+            `      - element is not enabled\n` +
+            `    - retrying click action\n`
+    const request = (
+      url: string,
+      at: number,
+      type: string,
+      method: string,
+      body?: string,
+    ): unknown => ({
+      type: 'resource-snapshot',
+      snapshot: {
+        _resourceType: type,
+        _monotonicTime: at,
+        pageref: 'page@1',
+        request: { url, method },
+        response: {
+          status: method === 'POST' ? 201 : 200,
+          ...(body === undefined ? {} : { content: { text: body } }),
+        },
+      },
+    })
+    return storedZip({
+      'test.trace': ndjson([
+        {
+          type: 'before',
+          callId: 'r2',
+          title: 'should show article count on profile tabs',
+          class: 'Test',
+          method: 'step',
+          startTime: 3,
+        },
+        {
+          type: 'before',
+          callId: 'r3',
+          title: 'click',
+          class: 'Test',
+          method: 'step',
+          startTime: 110,
+          parentId: 'r2',
+          stack: [{ file: spec, line: 200 }],
+        },
+        { type: 'after', callId: 'r3', endTime: 120, error: { message } },
+      ]),
+      '1-trace.trace': ndjson([
+        {
+          type: 'before',
+          class: 'Frame',
+          method: 'goto',
+          callId: 'c0',
+          startTime: 5,
+          stepId: 'r2',
+          stack: [{ file: spec, line: 200 }],
+        },
+        { type: 'after', callId: 'c0', endTime: 20 },
+        {
+          type: 'before',
+          class: 'Frame',
+          method: 'click',
+          callId: 'c1',
+          startTime: 110,
+          stepId: 'r3',
+          params: { selector: quoted.slice(1, -1) },
+          stack: [{ file: spec, line: 200 }],
+        },
+        { type: 'after', callId: 'c1', endTime: 120 },
+        {
+          type: 'frame-snapshot',
+          snapshot: {
+            callId: 'c1',
+            pageId: 'page@1',
+            frameId: 'frame@1',
+            frameUrl: 'http://127.0.0.1:4173/',
+            timestamp: 111,
+            isMainFrame: true,
+          },
+        },
+        {
+          type: 'frame-snapshot',
+          snapshot: {
+            callId: 'c0',
+            pageId: 'page@1',
+            frameId: 'frame@1',
+            frameUrl: 'http://127.0.0.1:4173/',
+            timestamp: 125,
+            isMainFrame: true,
+            // The title WAS on the page: the article preview rendered it inside the button's
+            // ancestor, which is exactly what made the locator resolve.
+            html: [
+              'body',
+              {},
+              [
+                'div',
+                { class: 'article-preview' },
+                ['div', { class: 'article-meta' }, ['a', { href: '/profile/u' }, 'u']],
+                ['h1', {}, title],
+                ['button', { class: 'btn btn-outline-primary', disabled: '' }, '0'],
+              ],
+            ],
+          },
+        },
+      ]),
+      '1-trace.network': ndjson([
+        request('http://127.0.0.1:4173/', 6, 'document', 'GET', '<html><body></body></html>'),
+        request(
+          'http://127.0.0.1:4173/api/articles',
+          30,
+          'fetch',
+          'POST',
+          JSON.stringify({ article: { title } }),
+        ),
+        request(
+          'http://127.0.0.1:4173/api/articles?limit=10&offset=0',
+          40,
+          'fetch',
+          'GET',
+          JSON.stringify({ articles: [{ title }], articlesCount: 1 }),
+        ),
+      ]),
+    })
+  }
+
+  const note = (zip: Buffer): string => {
+    const root = stalledRun(zip)
+    try {
+      const items = parseTraceArtifacts(readTraces(root))
+      return String(failureTraceNote(items, 'http://127.0.0.1:4173', [], ['/api']))
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  }
+
+  it('makes no missing-text reading from a resolved, disabled control', () => {
+    const root = stalledRun(disabledControlZip())
+    try {
+      const items = parseTraceArtifacts(readTraces(root))
+      expect(items[0].missingText).toBeUndefined()
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+    const text = note(disabledControlZip())
+    expect(text).not.toContain('The API returned')
+    expect(text).not.toContain('drops it before rendering')
+    expect(text).not.toContain('contained "Test Article 1792371097470"')
+  })
+
+  it('does not turn the failure into "a response contained the text" either', () => {
+    // The action log's own fact is the answer (the control was disabled); a request that happens
+    // to carry the title is not evidence about this failure.
+    const text = note(disabledControlZip())
+    expect(text).not.toContain('The response GET')
+    expect(text).not.toContain('The response POST')
+    expect(text).toContain('specs/e2e/navigation.spec.ts:200')
+  })
+
+  for (const reason of ['unstable', 'intercepted'] as const) {
+    it(`suppresses the reading for a ${reason} control without a resolved-locator line`, () => {
+      const root = stalledRun(disabledControlZip(reason))
+      try {
+        const items = parseTraceArtifacts(readTraces(root))
+        expect(items[0].missingText).toBeUndefined()
+      } finally {
+        rmSync(root, { recursive: true, force: true })
+      }
+    })
+  }
 })
 
 /**
