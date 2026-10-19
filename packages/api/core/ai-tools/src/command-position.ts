@@ -601,7 +601,23 @@ function commandStart(words: readonly string[]): {
  * One open nesting a shell word can be inside: a single-quoted string, a double-quoted string, or
  * a command substitution's parentheses (`$(`), which open a command of their own.
  */
-type Nesting = 'single' | 'double' | 'sub'
+type Nesting = 'single' | 'double' | 'sub' | 'parameter'
+
+/** Whether a shell metacharacter is escaped by an odd run of preceding backslashes. */
+function escapedAt(command: string, at: number): boolean {
+  let slashes = 0
+  while (at > 0 && command[--at] === '\\') slashes += 1
+  return slashes % 2 === 1
+}
+
+/** A hash opens a comment only at the start of a shell word (outside quotes/expansions). */
+function commentStartsAt(command: string, at: number): boolean {
+  if (command[at] !== '#') return false
+  let before = at - 1
+  // Backslash-newline is removed before tokenization: `word\\\n#suffix` is one word.
+  while (command[before] === '\n' && escapedAt(command, before)) before -= 2
+  return before < 0 || (/[ \t\n;&|()<>]/.test(command[before] ?? '') && !escapedAt(command, before))
+}
 
 /**
  * A command with every heredoc BODY blanked to spaces, so its length and every offset in it are
@@ -640,6 +656,10 @@ function blankHeredocBodies(command: string): string {
     let quote: string | null = null
     for (let i = lineStart; i < lineEnd; i++) {
       const char = command[i] ?? ''
+      if (char === '\\' && quote !== "'") {
+        i += 1
+        continue
+      }
       if (quote !== null) {
         if (char === quote) quote = null
         continue
@@ -649,7 +669,7 @@ function blankHeredocBodies(command: string): string {
         continue
       }
       // A `#` that starts a word opens a comment: the rest of the line is not shell words.
-      if (char === '#' && (i === lineStart || /\s/.test(command[i - 1] ?? ''))) break
+      if (commentStartsAt(command, i)) break
       if (char !== '<' || command[i + 1] !== '<') continue
       // `<<<` is a herestring: it opens no body.
       if (command[i + 2] === '<') {
@@ -781,11 +801,27 @@ function splitSegments(command: string): Array<{
       if (char === "'") stack.pop()
       continue
     }
+    // Comments are shell syntax only in a command context, including an unquoted `$(`.
+    // Blank their bytes so quotes/operators cannot affect this walk, while every later
+    // position and depth index stays aligned with the original command. Keep the newline.
+    if ((top === undefined || top === 'sub') && commentStartsAt(source, i)) {
+      const newline = source.indexOf('\n', i)
+      const end = newline < 0 ? source.length : newline
+      put(' '.repeat(end - i), -1)
+      i = end - 1
+      continue
+    }
     // A command substitution, wherever a shell opens one — inside double quotes too, and never
     // inside single quotes (handled above). The `(` is consumed here so the depth is counted once.
     if (char === '$' && next === '(') {
       stack.push('sub')
       put('$(', -1)
+      i += 1
+      continue
+    }
+    if (char === '$' && next === '{') {
+      stack.push('parameter')
+      put('${', -1)
       i += 1
       continue
     }
@@ -811,18 +847,24 @@ function splitSegments(command: string): Array<{
       put(char, -1)
       continue
     }
+    if (char === '\\' && next !== undefined) {
+      // An escaped character is literal, including inside an unquoted substitution.
+      put(char + next, -1)
+      i += 1
+      continue
+    }
+    // A parameter's `#` is expansion syntax or literal data, never a shell comment.
+    if (top === 'parameter') {
+      if (char === '}') stack.pop()
+      put(char, -1)
+      continue
+    }
     // Inside a substitution or a subshell of one: its own parentheses nest, its `|`/`;`/`&&`
     // belong to the nested command, and its newlines are that command's too.
     if (top === 'sub') {
       if (char === '(') stack.push('sub')
       else if (char === ')') stack.pop()
       put(char, -1)
-      continue
-    }
-    if (char === '\\' && next !== undefined) {
-      // An escaped character is a literal (`\>` writes no file).
-      put(char + next, -1)
-      i += 1
       continue
     }
     // Grouping belongs to the shell, not to a word: a statement written inside `( … )` or

@@ -27,6 +27,81 @@ const HURL_INVOCATION = /^hurl\s+[^|\n]*(?:--test|\.hurl)|^run-api-tests[\w-]*\.
 /** How molecule-dev's KIND_COMMANDS names the Playwright runner. */
 const PLAYWRIGHT_INVOCATION = /^playwright\s+test\b/
 
+/** m260's actual authored wrapper: the apostrophe is in a shell comment. */
+const M260_HURL_WRAPPER = `#!/usr/bin/env bash
+# Local smoke run of the supplied Hurl suite against this app's API.
+# HOST is the API origin; the .hurl files add /api themselves.
+set -euo pipefail
+HOST="\${HOST:-http://localhost:4000}" /workspace/fixtures/realworld/specs/api/run-api-tests-hurl.sh "$@"
+`
+
+describe('shell comments are not commands, quotes or heredoc openers (m260)', () => {
+  it('recognizes the real supplied runner after the wrapper’s apostrophe', () => {
+    expect(commandSegments(M260_HURL_WRAPPER).map((entry) => entry.program)).toEqual([
+      'set',
+      'run-api-tests-hurl.sh',
+    ])
+    expect(runsInCommandPosition(M260_HURL_WRAPPER, HURL_INVOCATION)).toBe(true)
+  })
+
+  it.each([
+    '# comment; hurl --test fake.hurl',
+    'echo ok;# comment; hurl --test fake.hurl',
+    'echo ok # \' " $( ( > ignored; hurl --test fake.hurl',
+  ])('never invents a runner from %s', (command) => {
+    expect(runsInCommandPosition(command, HURL_INVOCATION)).toBe(false)
+  })
+
+  it.each([
+    '# app\'s " $( ( <<FAKE\n',
+    'echo ok;# <<FAKE\n',
+    'echo "$(printf x # ) \' " $(\n)"\n',
+    "cat <<'DOC' # app's $( <<FAKE\nhurl --test fake.hurl\nDOC\n",
+  ])('keeps the next real runner visible after %s', (prefix) => {
+    const command = `${prefix}hurl --test real.hurl`
+    const runs = commandSegments(command).filter((entry) => entry.program === 'hurl')
+    expect(runs.map((entry) => entry.args)).toEqual([['--test', 'real.hurl']])
+    expect(parseComposed(command).ok).toBe(true)
+  })
+
+  it.each([
+    `echo '#'`,
+    `echo "#"`,
+    String.raw`echo \#literal`,
+    'echo https://example.test/#fragment',
+    String.raw`echo word\ #literal`,
+    String.raw`echo word\;#literal`,
+    'echo word\\\n#literal',
+    'echo ${value:- # literal}',
+    `echo "$(printf '%s' '#literal')"`,
+  ])('keeps a literal hash in %s', (prefix) => {
+    const command = `${prefix}; hurl --test real.hurl`
+    expect(runsInCommandPosition(command, HURL_INVOCATION)).toBe(true)
+    expect(parseComposed(command).ok).toBe(true)
+  })
+
+  it('preserves offsets, assignments and redirect depth despite comment punctuation', () => {
+    const command =
+      "# unmatched ) ( ' $( > fake\nHOST=x hurl --test real.hurl > real.log # > ignored\n"
+    const run = locatedCommandSegments(command).find((entry) => entry.segment?.program === 'hurl')
+    expect(run).toMatchObject({
+      start: command.indexOf('HOST=x'),
+      programOffset: command.indexOf('hurl --test'),
+      assignmentOffset: command.indexOf('hurl --test'),
+      end: command.indexOf(' # > ignored'),
+      assignments: ['HOST=x'],
+      redirectTarget: 'real.log',
+    })
+  })
+
+  it('places a flag outside a substitution whose comment contains fake openers', () => {
+    const command = `(hurl --test real.hurl "$(printf x # $(\n)")`
+    const composed = withOptionAtArgumentEnd(command, 'hurl', '--very-verbose')
+    expect(composed).toBe(command.slice(0, -1) + ' --very-verbose)')
+    expect(parseComposed(composed ?? '').ok).toBe(true)
+  })
+})
+
 /**
  * Every way a command READS a runner script or a runner's name: the program the shell runs is
  * the reader, and the runner is its argument. None of these measures anything.
