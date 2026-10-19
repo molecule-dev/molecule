@@ -6,7 +6,13 @@
 
 import { useCallback, useContext, useEffect, useRef, useSyncExternalStore } from 'react'
 
-import type { AuthClient, AuthState, LoginCredentials, RegisterData } from '@molecule/app-auth'
+import type {
+  AuthClient,
+  AuthSessionSeed,
+  AuthState,
+  LoginCredentials,
+  RegisterData,
+} from '@molecule/app-auth'
 import { t } from '@molecule/app-i18n'
 
 import { AuthContext } from '../contexts.js'
@@ -33,15 +39,25 @@ export function useAuthClient<T = unknown>(): AuthClient<T> {
 /**
  * Hook for authentication state and actions.
  *
+ * Pass the app's user type — the SAME type used for the auth client and its
+ * config (`createJWTAuthClient<MyUser>`, `AuthClientConfig<MyUser>`) — so
+ * `user` and `setSession`/`setUser` are typed for the pages:
+ * `useAuth<MyUser>()`.
+ *
+ * For a sign-in the app runs itself (an OAuth redirect, a custom endpoint that
+ * already issued the token), call `setSession({ accessToken, user })`: it
+ * adopts the token and profile atomically and every consumer of this hook sees
+ * `status: 'authenticated'` at once. `setUser` alone does not sign in.
+ *
  * @param options - Hook options
  * @returns Auth state and action methods
  *
  * @example
  * ```tsx
- * const { user, isAuthenticated, login, logout } = useAuth()
+ * const { user, isAuthenticated, login, logout } = useAuth<{ id: string; name?: string }>()
  *
  * if (isAuthenticated) {
- *   return <div>Welcome, {user.name}!</div>
+ *   return <div>Welcome, {user?.name}!</div>
  * }
  * ```
  */
@@ -99,6 +115,11 @@ export function useAuth<T = unknown>(options?: UseAuthOptions): UseAuthResult<T>
 
   const setUser = useCallback((user: T | null) => client.setUser(user), [client])
 
+  const setSession = useCallback(
+    (session: AuthSessionSeed<T>) => client.setSession(session),
+    [client],
+  )
+
   return {
     // The single value to render from. A stored token AND user make it
     // `'authenticated'` on the FIRST render (the client restores synchronously);
@@ -110,6 +131,7 @@ export function useAuth<T = unknown>(options?: UseAuthOptions): UseAuthResult<T>
     register,
     refresh,
     setUser,
+    setSession,
     isAuthenticated: state.authenticated,
     isLoading: state.loading,
     user: state.user,

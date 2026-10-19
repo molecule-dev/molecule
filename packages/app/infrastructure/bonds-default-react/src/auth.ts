@@ -136,12 +136,18 @@ export function createDefaultHttpClientWithAuthBearer(opts: {
  * `TRegister` is the app's own registration fields (`{ username: string }` for a
  * RealWorld-shaped API), passed on to `@molecule/app-auth`'s factory so
  * `authClient.register({ username, email, password })` type-checks with no cast.
+ *
+ * `TUser` is the profile the app's pages read. Type the config with the SAME
+ * type (`const authConfig: AuthClientConfig<MyUser> = { … }`) so its
+ * `mapAuthResponse` is checked against `MyUser`: a mapper that omits a required
+ * custom field then fails at the `createDefaultAuthClient<MyUser>(authConfig)`
+ * call instead of shipping a signed-in page that reads `undefined`.
  */
 export function createDefaultAuthClient<
   TUser extends UserProfile = UserProfile,
   TRegister extends Record<string, unknown> = Record<never, never>,
 >(
-  authConfig: AuthClientConfig,
+  authConfig: AuthClientConfig<TUser>,
 ): {
   authClient: AuthClient<TUser, TRegister>
   setupAuthDefault: () => void
@@ -176,7 +182,7 @@ export function createDefaultAuthClientWithHttpSync<
   TUser extends UserProfile = UserProfile,
   TRegister extends Record<string, unknown> = Record<never, never>,
 >(
-  authConfig: AuthClientConfig,
+  authConfig: AuthClientConfig<TUser>,
 ): {
   authClient: AuthClient<TUser, TRegister>
   setupAuthDefault: () => void
@@ -235,7 +241,7 @@ export function createDefaultAuthClientWithFetchClient<
   TUser extends UserProfile = UserProfile,
   TRegister extends Record<string, unknown> = Record<never, never>,
 >(
-  authConfig: AuthClientConfig,
+  authConfig: AuthClientConfig<TUser>,
   fetchClientOptions: { baseURL: string; withCredentials?: boolean },
 ): {
   authClient: AuthClient<TUser, TRegister>

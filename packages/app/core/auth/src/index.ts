@@ -101,6 +101,45 @@
  * out, xr-molecule-flash-m178). `setAccessToken()` and `setUser()` are field setters, not a
  * sign-in: neither sets `authenticated`.
  *
+ * **A custom user profile is typed once and used everywhere: `AuthClientConfig<MyUser>`,
+ * `createJWTAuthClient<MyUser>` and `useAuth<MyUser>()`.** The config's generic makes
+ * `mapAuthResponse` return `AuthResult<MyUser>`, so a mapper that omits a required custom
+ * field fails at the factory call instead of shipping a signed-in page whose navbar reads
+ * `undefined` (xr-molecule-flash-m255: the mapper kept `id`/`name`/`avatar` but dropped
+ * `username`, and the signed-in controls never rendered although login succeeded). Keep the
+ * wire user's fields and ADD the base identity fields; do not rebuild the profile field by
+ * field, and never hide a mismatch with `as unknown as MyUser`:
+ *
+ * ```typescript
+ * import type { AuthClientConfig, UserProfile } from '@molecule/app-auth'
+ * import { createJWTAuthClient } from '@molecule/app-auth'
+ *
+ * interface MyUser extends UserProfile {
+ *   username: string
+ *   image: string
+ * }
+ *
+ * const config: AuthClientConfig<MyUser> = {
+ *   mapAuthResponse: (data) => {
+ *     const { user: wire } = data as { user: { token: string } & Omit<MyUser, 'id'> }
+ *     return {
+ *       accessToken: wire.token,
+ *       user: {
+ *         // Every wire field the pages read (`username`, `image`, …) survives…
+ *         ...wire,
+ *         // …plus the base fields the client derives its identity from.
+ *         id: wire.username,
+ *         name: wire.name ?? wire.username,
+ *         avatar: wire.image,
+ *       },
+ *     }
+ *   },
+ * }
+ *
+ * const client = createJWTAuthClient<MyUser>(config)
+ * // React: `useAuth<MyUser>()` reads the same profile.
+ * ```
+ *
  * **A background verification that returns an unchanged user changes nothing.** When
  * `validateSession()` (or a reload's restore) answers with the same profile data the client
  * already holds, the client keeps the SAME user object and does not notify subscribers — so an

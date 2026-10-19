@@ -145,7 +145,9 @@ interface SessionCookieRestore<T> {
  * This is a basic implementation that can be extended or replaced
  * with more sophisticated auth providers.
  *
- * @template T - The user profile the API returns.
+ * @template T - The user profile the API returns. Pass it to the config too
+ *   (`AuthClientConfig<T>`), so `mapAuthResponse` is checked against the same
+ *   profile the client and the React hook hand to your pages.
  * @template TRegister - The app's own registration fields, accepted at the top
  *   level of `register()` (e.g. `{ username: string }` for a RealWorld-shaped API).
  * @param config - Auth client configuration including endpoints, storage, and refresh settings.
@@ -155,7 +157,7 @@ export const createJWTAuthClient = <
   T extends UserProfile = UserProfile,
   TRegister extends Record<string, unknown> = Record<never, never>,
 >(
-  config: AuthClientConfig = {},
+  config: AuthClientConfig<T> = {},
 ): AuthClient<T, TRegister> => {
   const {
     baseURL = '',
@@ -328,8 +330,17 @@ export const createJWTAuthClient = <
   // An API with its own auth envelope (config.requestBody / mapAuthResponse).
   const shapeBody = (kind: 'login' | 'register', payload: object): unknown =>
     config.requestBody ? config.requestBody(kind, payload as Record<string, unknown>) : payload
-  const mapResult = (data: unknown): AuthResult<T> =>
-    (config.mapAuthResponse ? config.mapAuthResponse(data) : data) as AuthResult<T>
+  const mapResult = (data: unknown): AuthResult<T> => {
+    // With `AuthClientConfig<T>` the mapper's answer is already `AuthResult<T>`:
+    // the compiler checks its user against the profile this client (and the
+    // hook) hands to pages, so no cast may re-label it as `T` after mapping
+    // (xr-molecule-flash-m255: the cast let a mapper drop required fields the
+    // navbar read).
+    if (config.mapAuthResponse) return config.mapAuthResponse(data)
+    // No mapper: the API already answers in the client's own shape. JSON is
+    // untyped, so this is the one place a shape must be asserted.
+    return data as AuthResult<T>
+  }
 
   /**
    * The user a current-user answer carries, passed through the SAME
@@ -352,7 +363,7 @@ export const createJWTAuthClient = <
     if (!config.mapAuthResponse) return fallback
     try {
       const mapped = config.mapAuthResponse(data)
-      return (mapped?.user as T | undefined) ?? fallback
+      return mapped?.user ?? fallback
     } catch (error) {
       logger.debug(
         'mapAuthResponse could not read the user in this answer; using it as given',

@@ -177,6 +177,17 @@ export interface UseAuthResult<T = unknown> {
   register: AuthClient<T>['register']
   refresh: AuthClient<T>['refresh']
   setUser: AuthClient<T>['setUser']
+  /**
+   * Adopt a session an exchange outside the client already established (an
+   * OAuth code→token redirect, the app's own sign-in endpoint) in ONE update:
+   * the token and user are stored and the hook's consumers see the client as
+   * `authenticated` immediately.
+   *
+   * `setUser` alone does NOT sign the client in, and `setAccessToken` changes
+   * storage only — using those two for a caller-issued session leaves every
+   * `authenticated` read signed out (xr-molecule-flash-m178).
+   */
+  setSession: AuthClient<T>['setSession']
   isAuthenticated: boolean
   isLoading: boolean
   user: T | null

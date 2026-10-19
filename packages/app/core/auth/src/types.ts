@@ -486,8 +486,21 @@ export interface StorageAdapter {
 /**
  * Configuration options for creating an auth client, including API
  * endpoints, storage strategy, token refresh, and OAuth providers.
+ *
+ * Type it with the app's user — `AuthClientConfig<MyUser>` — the same type
+ * `createJWTAuthClient<MyUser>` returns and `useAuth<MyUser>()` reads. That
+ * makes {@link mapAuthResponse} return `AuthResult<MyUser>`, so a mapper that
+ * omits a required custom field is a type error instead of a signed-in page
+ * reading `undefined` (xr-molecule-flash-m255). Keep every wire field the pages
+ * read (spread the wire user and add `id`/`name`/`avatar`); mapping a field to a
+ * different name does not preserve the original, and a `as unknown as MyUser`
+ * assertion hides the loss. See the module docs for the wire-preserving
+ * adapter.
+ *
+ * @template T - The user profile the API returns. The default,
+ *   {@link UserProfile}, keeps the untyped configuration working.
  */
-export interface AuthClientConfig {
+export interface AuthClientConfig<T extends UserProfile = UserProfile> {
   /**
    * API base URL.
    */
@@ -612,7 +625,7 @@ export interface AuthClientConfig {
    * @param data - The parsed response body.
    * @returns The auth result.
    */
-  mapAuthResponse?: (data: unknown) => AuthResult<UserProfile>
+  mapAuthResponse?: (data: unknown) => AuthResult<T>
 
   /**
    * Where the access/refresh token and the cached user are kept — the field that
@@ -672,10 +685,11 @@ export interface AuthClientConfig {
    * signed-in client-side — e.g. an anonymous/guest session whose user row
    * (`isAnonymous`) would otherwise hydrate as a logged-in user. Defaults to
    * accepting every restored user.
-   * @param user - The user returned by the restore probe.
+   * @param user - The user returned by the restore probe, in the profile shape
+   *   `T` names (already passed through {@link mapAuthResponse}).
    * @returns Whether to establish the client session from this user.
    */
-  shouldRestoreUser?: (user: UserProfile) => boolean
+  shouldRestoreUser?: (user: T) => boolean
 
   /**
    * Refresh the access token before it expires. A no-op unless the API issued a

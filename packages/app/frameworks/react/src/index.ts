@@ -56,6 +56,13 @@
  *   "useXProvider must be used within an XProvider" means the matching prop (or individual
  *   provider component) is missing ABOVE the component that calls the hook — fix the wiring,
  *   never wrap the hook in try/catch.
+ * - **`useAuth().setSession({ accessToken, user })` adopts a caller-issued session.** For a
+ *   custom sign-in exchange (an OAuth redirect, the app's own endpoint that already returned
+ *   the token and profile), this stores the token and user and flips the shared client to
+ *   `authenticated` in ONE update, so every component reading the hook sees the signed-in
+ *   state immediately. `setUser` alone does not sign in, and `setAccessToken` changes storage
+ *   only. Type the hook with the app's profile (`useAuth<MyUser>()`) as well as the client
+ *   and its config, so the session seed and `user` carry the app's own fields.
  * - **Locale-reactive text requires the hook.** Inside components always read `t` from
  *   `useTranslation()` (or `useT()`); it re-renders on `onLocaleChange` — even when
  *   `addTranslations()` only adds keys for the current locale. Calling the raw `t()` import from
