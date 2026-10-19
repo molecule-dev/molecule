@@ -4,20 +4,23 @@
  * API specs). The comment keeps its UUID; the number lives in
  * `comment_numbers` and is allocated once, at most one per comment.
  *
+ * **Numbering is the default create path:** `createComment()` writes the
+ * comment and its number together, so every comment this package creates is
+ * numbered, and a numbered API never has to remember a second call.
+ * `createNumberedComment()` is the same create, kept as the name that path
+ * reads best. `numberComment(id)` numbers a row that was inserted without it
+ * (a raw insert, or a row from before numbering was the default).
+ *
  * @module
  */
 
-import {
-  create as dbCreate,
-  findMany,
-  findOne,
-  getActiveTransaction,
-  withTransaction,
-} from '@molecule/api-database'
+import { findOne } from '@molecule/api-database'
 
+import { allocateCommentNumber, numbersForComments } from './numbering.js'
 import { createComment, getCommentById } from './service.js'
 import type { Comment, CreateCommentInput } from './types.js'
 
+/** The table the numbers live in. */
 const NUMBERS = 'comment_numbers'
 
 /** A comment together with its sequential number. */
@@ -32,67 +35,26 @@ interface CommentNumberRow {
   commentId: string
 }
 
-/** How many times the work is redone when a concurrent writer took the number first. */
-const MAX_ATTEMPTS = 5
-
-/**
- * Runs `work` in its own transaction, again when it fails: a concurrent
- * writer that took the same number fails the unique key, and the next
- * attempt allocates the next number. Inside a caller's transaction a failed
- * statement can poison it (Postgres), so there the work runs once and the
- * caller decides.
- *
- * @param what - What is being numbered, for the error.
- * @param work - The allocation.
- * @returns What `work` resolves to.
- */
-async function withNumberRetry<T>(what: string, work: () => Promise<T>): Promise<T> {
-  if (getActiveTransaction()) return work()
-  for (let attempt = 1; ; attempt++) {
-    try {
-      return await withTransaction(work)
-    } catch (error) {
-      if (attempt >= MAX_ATTEMPTS) throw new Error(`Could not number ${what}`, { cause: error })
-      // Rolled back; a concurrent writer most likely took the number (its
-      // unique key failed). The next attempt reads the new highest number.
-    }
-  }
-}
-
-/**
- * Allocates the next number for a comment that has none (no transaction of its own).
- *
- * @param commentId - The comment's UUID.
- * @returns Its number.
- */
-async function allocate(commentId: string): Promise<number> {
-  const existing = await findOne<CommentNumberRow>(NUMBERS, [
-    { field: 'commentId', operator: '=', value: commentId },
-  ])
-  if (existing) return Number(existing.number)
-  const [last] = await findMany<CommentNumberRow>(NUMBERS, {
-    orderBy: [{ field: 'number', direction: 'desc' }],
-    limit: 1,
-  })
-  const number = (last ? Number(last.number) : 0) + 1
-  await dbCreate(NUMBERS, { number, commentId })
-  return number
-}
-
 /**
  * The comment's number, allocating the next one when it has none. Numbers are
- * unique and increase.
+ * unique and increase. Use it for a comment that was inserted into `comments`
+ * without `createComment()` — every comment created through this package is
+ * numbered already.
  *
  * @param commentId - The comment's UUID.
  * @returns Its sequential number.
  * @throws {Error} When no number could be allocated after several attempts.
  */
 export async function numberComment(commentId: string): Promise<number> {
-  return withNumberRetry(`comment ${commentId}`, () => allocate(commentId))
+  return allocateCommentNumber(commentId)
 }
 
 /**
  * Creates a comment and its number together: both are written, or neither.
+ *
+ * This is `createComment()` under the name an integer-id API reads best — it
+ * takes the same arguments and returns the same `NumberedComment`. Address the
+ * result by `number` and read it back with `getCommentByNumber(number)`.
  *
  * @param resourceType - The type of resource being commented on.
  * @param resourceId - The ID of the resource being commented on.
@@ -106,14 +68,13 @@ export async function createNumberedComment(
   userId: string,
   data: CreateCommentInput,
 ): Promise<NumberedComment> {
-  return withNumberRetry('a new comment', async () => {
-    const comment = await createComment(resourceType, resourceId, userId, data)
-    return { ...comment, number: await allocate(comment.id) }
-  })
+  return createComment(resourceType, resourceId, userId, data)
 }
 
 /**
- * The comment a number belongs to.
+ * The comment a number belongs to — the lookup behind an integer-addressed
+ * route such as `DELETE /comments/:id`: find the comment here, then pass its
+ * `id` to `deleteComment()`/`updateComment()`.
  *
  * @param number - The comment's sequential number.
  * @returns The comment with its number, or `null` when no comment has it.
@@ -130,15 +91,15 @@ export async function getCommentByNumber(number: number): Promise<NumberedCommen
 
 /**
  * The numbers of the given comments, for listing them with their numbers.
- * Comments without a number are left out of the map.
+ *
+ * Every comment created through this package is numbered, so a comment missing
+ * from the map was inserted directly into `comments` (or predates numbering by
+ * default); give it one with `numberComment(id)`. Never read a missing entry as
+ * `0` — `0` is not a comment id, and an integer id of `0` cannot be found again.
  *
  * @param commentIds - The comments' UUIDs.
  * @returns Each numbered comment's UUID mapped to its number.
  */
 export async function commentNumbers(commentIds: readonly string[]): Promise<Map<string, number>> {
-  if (commentIds.length === 0) return new Map()
-  const rows = await findMany<CommentNumberRow>(NUMBERS, {
-    where: [{ field: 'commentId', operator: 'in', value: [...commentIds] }],
-  })
-  return new Map(rows.map((r) => [r.commentId, Number(r.number)]))
+  return numbersForComments(commentIds)
 }

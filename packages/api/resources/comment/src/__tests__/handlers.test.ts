@@ -1,20 +1,32 @@
-const { mockCreate, mockFindById, mockFindMany, mockCount, mockUpdateById, mockDeleteById } =
-  vi.hoisted(() => ({
-    mockCreate: vi.fn(),
-    mockFindById: vi.fn(),
-    mockFindMany: vi.fn(),
-    mockCount: vi.fn(),
-    mockUpdateById: vi.fn(),
-    mockDeleteById: vi.fn(),
-  }))
+const {
+  mockCreate,
+  mockFindById,
+  mockFindMany,
+  mockFindOne,
+  mockCount,
+  mockUpdateById,
+  mockDeleteById,
+  mockGetActiveTransaction,
+} = vi.hoisted(() => ({
+  mockCreate: vi.fn(),
+  mockFindById: vi.fn(),
+  mockFindMany: vi.fn(),
+  mockFindOne: vi.fn(),
+  mockCount: vi.fn(),
+  mockUpdateById: vi.fn(),
+  mockDeleteById: vi.fn(),
+  mockGetActiveTransaction: vi.fn(),
+}))
 
 vi.mock('@molecule/api-database', () => ({
   create: mockCreate,
   findById: mockFindById,
   findMany: mockFindMany,
+  findOne: mockFindOne,
   count: mockCount,
   updateById: mockUpdateById,
   deleteById: mockDeleteById,
+  getActiveTransaction: mockGetActiveTransaction,
 }))
 
 vi.mock('@molecule/api-i18n', () => ({
@@ -65,6 +77,11 @@ function mockRes(overrides: Record<string, unknown> = {}): any {
 describe('@molecule/api-resource-comment handlers', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    // The create handler's service call numbers the comment: no transaction,
+    // no existing number, no previous number row (so the first number is 1).
+    mockGetActiveTransaction.mockReturnValue(undefined)
+    mockFindOne.mockResolvedValue(null)
+    mockFindMany.mockResolvedValue([])
   })
 
   describe('create', () => {
@@ -124,7 +141,9 @@ describe('@molecule/api-resource-comment handlers', () => {
       await create(req, res)
 
       expect(res.status).toHaveBeenCalledWith(201)
-      expect(res.json).toHaveBeenCalledWith(comment)
+      // The POST response carries the sequential number the client addresses
+      // this comment by — a numbered API never has to render a fallback id.
+      expect(res.json).toHaveBeenCalledWith({ ...comment, number: 1 })
       expect(mockCreate).toHaveBeenCalledWith(
         'comments',
         expect.objectContaining({

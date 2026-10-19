@@ -1,6 +1,9 @@
 /**
  * Comment numbers against a real SQLite database through the real migrator:
- * the table SQL this package ships, the CRUD helpers, `withTransaction`.
+ * the table SQL this package ships, the CRUD helpers, and the default create
+ * path — `createComment()` must number every comment it writes, so a caller
+ * that lists with `commentNumbers()` and deletes by that number never sees a
+ * silent `0` (X0 m207).
  */
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
@@ -8,7 +11,13 @@ import { join } from 'node:path'
 
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
-import { type DatabasePool, setPool, setStore } from '@molecule/api-database'
+import {
+  create as dbCreate,
+  type DatabasePool,
+  deleteById,
+  setPool,
+  setStore,
+} from '@molecule/api-database'
 import { createMigrator, createPool, createStore } from '@molecule/api-database-sqlite'
 
 import {
@@ -17,7 +26,7 @@ import {
   getCommentByNumber,
   numberComment,
 } from '../numbers.js'
-import { createComment } from '../service.js'
+import { createComment, deleteComment, getCommentsByResource } from '../service.js'
 
 let dir: string
 let pool: DatabasePool
@@ -51,20 +60,54 @@ afterAll(async () => {
 })
 
 describe('comment numbers', () => {
-  it('numbers new comments 1, 2, 3 and finds each by its number', async () => {
-    const a = await createNumberedComment('article', RESOURCE, USER, { body: 'first' })
-    const b = await createNumberedComment('article', RESOURCE, USER, { body: 'second' })
-    expect([a.number, b.number]).toEqual([1, 2])
+  it('createComment numbers every comment, so list + commentNumbers gives 1..n', async () => {
+    const a = await createComment('article', RESOURCE, USER, { body: 'first' })
+    const b = await createComment('article', RESOURCE, USER, { body: 'second' })
+    const c = await createComment('article', RESOURCE, USER, { body: 'third' })
+    expect([a.number, b.number, c.number]).toEqual([1, 2, 3])
+
+    const listed = await getCommentsByResource('article', RESOURCE)
+    const numbers = await commentNumbers(listed.data.map((comment) => comment.id))
+    expect(listed.data.map((comment) => numbers.get(comment.id)).sort()).toEqual([1, 2, 3])
     expect((await getCommentByNumber(2))?.body).toBe('second')
     expect(await getCommentByNumber(99)).toBeNull()
   })
 
-  it('gives an existing comment one number, however often it is asked', async () => {
-    const c = await createComment('article', RESOURCE, USER, { body: 'later' })
-    const n = await numberComment(c.id)
-    expect(n).toBe(3)
-    expect(await numberComment(c.id)).toBe(3)
-    expect((await commentNumbers([c.id])).get(c.id)).toBe(3)
+  it('deletes by number: find it, then delete its UUID, and the number is gone', async () => {
+    const numbered = await getCommentByNumber(2)
+    expect(numbered?.body).toBe('second')
+
+    expect(await deleteComment(numbered!.id, USER)).toBe(true)
+
+    expect(await getCommentByNumber(2)).toBeNull()
+    const listed = await getCommentsByResource('article', RESOURCE)
+    expect(listed.total).toBe(2)
+    expect(listed.data.map((comment) => comment.body).sort()).toEqual(['first', 'third'])
+  })
+
+  it('createNumberedComment is the same default create, keeping its name', async () => {
+    const d = await createNumberedComment('article', RESOURCE, USER, { body: 'fourth' })
+    expect(d.number).toBe(4)
+  })
+
+  it('numbers a comment inserted straight into the table, once, and never as 0', async () => {
+    const inserted = await dbCreate<{ id: string }>('comments', {
+      resourceType: 'article',
+      resourceId: RESOURCE,
+      userId: USER,
+      parentId: null,
+      body: 'raw',
+      editedAt: null,
+    })
+    const id = inserted.data!.id
+
+    // A raw row is the one case with no number; it must read as ABSENT, not 0.
+    expect((await commentNumbers([id])).get(id)).toBeUndefined()
+    expect(await numberComment(id)).toBe(5)
+    expect(await numberComment(id)).toBe(5)
+    expect((await commentNumbers([id])).get(id)).toBe(5)
+
+    await deleteById('comments', id)
   })
 
   it('numbers concurrent creates uniquely', async () => {
@@ -73,7 +116,9 @@ describe('comment numbers', () => {
         createNumberedComment('article', RESOURCE, USER, { body: `c${i}` }),
       ),
     )
-    expect(new Set(made.map((m) => m.number)).size).toBe(5)
-    expect(Math.min(...made.map((m) => m.number))).toBe(4)
+    const numbers = made.map((m) => m.number)
+    expect(new Set(numbers).size).toBe(5)
+    // Deleted rows release their number, so just assert the sequence moved on.
+    expect(Math.min(...numbers)).toBeGreaterThan(4)
   })
 })

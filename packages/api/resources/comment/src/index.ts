@@ -7,7 +7,8 @@
  * **Tables this package owns: `comments` and `comment_numbers`.** A comment row is found by its
  * `comments.id` (a UUID); `comment_numbers` gives it the sequential integer many clients address it
  * by, and the join between the two is `comment_numbers.commentId` = `comments.id` (declared FK,
- * `ON DELETE CASCADE`) — one row per numbered comment, never a mapping table of your own.
+ * `ON DELETE CASCADE`) — one row per comment created through this package, never a mapping table
+ * of your own.
  *
  * @module
  * @example
@@ -33,13 +34,17 @@
  * - **A scaffold that lists this package already has these tables** — its `__setup__` SQL is
  *   copied into the app at create time and replayed on every boot, so do not copy it into
  *   `api/migrations/` yourself; only a package added after the scaffold needs that.
- *   `src/__setup__/comments.sql` ships with this package and must exist in the target
- *   database before use (scaffolded apps apply it automatically; existing apps must apply it
- *   first).
- * - **Integer comment ids (RealWorld's `comment.id`, most public API specs):** keep the
- *   UUID and give each comment a sequential number — `createNumberedComment()` creates both
- *   in one transaction, `getCommentByNumber(n)` finds it, `commentNumbers(ids)` maps a list.
- *   Apply `src/__setup__/comment_numbers.sql` too. Never build your own id-mapping table.
+ *   Both SQL files this package ships — `src/__setup__/comments.sql` and
+ *   `src/__setup__/comment_numbers.sql` — must exist in the target database before use
+ *   (scaffolded apps apply both automatically; existing apps must apply both first).
+ * - **Every comment is numbered — numbering is the default create path.** `createComment()`
+ *   writes the comment and its sequential `number` (1, 2, 3, …) together and returns both;
+ *   `createNumberedComment()` is the same create under the name an integer-id API reads best.
+ *   For an API whose clients address a comment by an integer (RealWorld's `comment.id`,
+ *   `DELETE /comments/:id`), return `number` as the id and read it back with
+ *   `getCommentByNumber(n)` — never hand-build an id from the UUID, and never read a missing
+ *   `commentNumbers(ids)` entry as `0` (a row inserted without `createComment()` has no number;
+ *   `numberComment(id)` gives it one). Never build your own id-mapping table.
  * - **Reads are PUBLIC by default.** `list`, `read`, `replies`, and `count` ship
  *   with no auth middleware (comment threads on public content). If the
  *   commented resources are private in your app, add an authorizer that checks

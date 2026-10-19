@@ -1,20 +1,32 @@
-const { mockCreate, mockFindById, mockFindMany, mockCount, mockUpdateById, mockDeleteById } =
-  vi.hoisted(() => ({
-    mockCreate: vi.fn(),
-    mockFindById: vi.fn(),
-    mockFindMany: vi.fn(),
-    mockCount: vi.fn(),
-    mockUpdateById: vi.fn(),
-    mockDeleteById: vi.fn(),
-  }))
+const {
+  mockCreate,
+  mockFindById,
+  mockFindMany,
+  mockFindOne,
+  mockCount,
+  mockUpdateById,
+  mockDeleteById,
+  mockGetActiveTransaction,
+} = vi.hoisted(() => ({
+  mockCreate: vi.fn(),
+  mockFindById: vi.fn(),
+  mockFindMany: vi.fn(),
+  mockFindOne: vi.fn(),
+  mockCount: vi.fn(),
+  mockUpdateById: vi.fn(),
+  mockDeleteById: vi.fn(),
+  mockGetActiveTransaction: vi.fn(),
+}))
 
 vi.mock('@molecule/api-database', () => ({
   create: mockCreate,
   findById: mockFindById,
   findMany: mockFindMany,
+  findOne: mockFindOne,
   count: mockCount,
   updateById: mockUpdateById,
   deleteById: mockDeleteById,
+  getActiveTransaction: mockGetActiveTransaction,
 }))
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -32,10 +44,15 @@ import {
 describe('@molecule/api-resource-comment service', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    // No active transaction, no existing number, no previous number row: the
+    // first comment gets number 1.
+    mockGetActiveTransaction.mockReturnValue(undefined)
+    mockFindOne.mockResolvedValue(null)
+    mockFindMany.mockResolvedValue([])
   })
 
   describe('createComment', () => {
-    it('should create a top-level comment', async () => {
+    it('creates a top-level comment WITH its sequential number', async () => {
       const comment = { id: 'c1', body: 'Hello', parentId: null }
       mockCreate.mockResolvedValue({ data: comment })
 
@@ -49,10 +66,11 @@ describe('@molecule/api-resource-comment service', () => {
         body: 'Hello',
         editedAt: null,
       })
-      expect(result).toEqual(comment)
+      expect(mockCreate).toHaveBeenCalledWith('comment_numbers', { number: 1, commentId: 'c1' })
+      expect(result).toEqual({ ...comment, number: 1 })
     })
 
-    it('should create a reply with parentId', async () => {
+    it('creates a reply with parentId, numbered like any other comment', async () => {
       const reply = { id: 'c2', body: 'Reply', parentId: 'c1' }
       mockCreate.mockResolvedValue({ data: reply })
 
@@ -65,7 +83,18 @@ describe('@molecule/api-resource-comment service', () => {
         'comments',
         expect.objectContaining({ parentId: 'c1' }),
       )
-      expect(result).toEqual(reply)
+      expect(result).toEqual({ ...reply, number: 1 })
+    })
+
+    it('removes the comment it just wrote when numbering fails', async () => {
+      mockCreate.mockResolvedValue({ data: { id: 'c1', body: 'Hello', parentId: null } })
+      mockFindOne.mockRejectedValue(new Error('no such table: comment_numbers'))
+      mockDeleteById.mockResolvedValue({ affected: 1 })
+
+      await expect(createComment('post', 'p1', 'user-1', { body: 'Hello' })).rejects.toThrow(
+        'Could not number comment c1',
+      )
+      expect(mockDeleteById).toHaveBeenCalledWith('comments', 'c1')
     })
   })
 

@@ -16,6 +16,8 @@ import {
   updateById,
 } from '@molecule/api-database'
 
+import { allocateCommentNumber } from './numbering.js'
+import type { NumberedComment } from './numbers.js'
 import type {
   Comment,
   CreateCommentInput,
@@ -27,20 +29,33 @@ import type {
 const TABLE = 'comments'
 
 /**
- * Creates a new comment on a resource.
+ * Creates a new comment on a resource, with its sequential number.
+ *
+ * The comment row and its `comment_numbers` row are written together: the
+ * returned comment carries `number` (1, 2, 3, …) beside its UUID `id`. An API
+ * whose clients address a comment by an integer (RealWorld's `comment.id`,
+ * `DELETE /comments/:id`) returns `number` as that id and reads it back with
+ * `getCommentByNumber(number)` — never hand-build an id from the UUID.
+ * `createNumberedComment()` is this same create under the name that path reads
+ * best; `numberComment(id)` numbers a row that was inserted without this
+ * function.
+ *
+ * Both `__setup__` SQL files are required (`comments`, `comment_numbers`).
  *
  * @param resourceType - The type of resource being commented on.
  * @param resourceId - The ID of the resource being commented on.
  * @param userId - The ID of the commenting user.
  * @param data - The comment creation input.
- * @returns The created comment.
+ * @returns The created comment with its sequential `number`.
+ * @throws {Error} When the comment could not be numbered; the comment row is
+ *   removed again so the caller is not told a create failed while it exists.
  */
 export async function createComment(
   resourceType: string,
   resourceId: string,
   userId: string,
   data: CreateCommentInput,
-): Promise<Comment> {
+): Promise<NumberedComment> {
   const result = await dbCreate<Comment>(TABLE, {
     resourceType,
     resourceId,
@@ -49,7 +64,22 @@ export async function createComment(
     body: data.body,
     editedAt: null,
   })
-  return result.data!
+  const comment = result.data!
+  try {
+    return { ...comment, number: await allocateCommentNumber(comment.id) }
+  } catch (error) {
+    // The caller is told the create failed, so the row must not stay behind.
+    try {
+      await deleteById(TABLE, comment.id)
+    } catch (cleanupError) {
+      throw new AggregateError(
+        [error, cleanupError],
+        `Could not number comment ${comment.id}, and could not remove the unnumbered row`,
+        { cause: cleanupError },
+      )
+    }
+    throw error
+  }
 }
 
 /**
@@ -129,7 +159,9 @@ export async function updateComment(
 /**
  * Deletes a comment. Only the comment owner can delete.
  *
- * @param commentId - The comment ID to delete.
+ * @param commentId - The comment's UUID. To delete by the integer number an
+ *   API like RealWorld exposes (`DELETE /comments/:id`), look the row up with
+ *   `getCommentByNumber(number)` and pass its `id`.
  * @param userId - The requesting user's ID (must match comment owner).
  * @returns `true` if deleted, `false` if not found or unauthorized.
  */
