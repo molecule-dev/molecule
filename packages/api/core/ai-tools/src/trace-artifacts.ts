@@ -233,6 +233,40 @@ export interface TraceReadContradiction {
   read: TraceRequest
 }
 
+/**
+ * A visibility failure whose locator RESOLVED: Playwright calls an element with a zero-size box
+ * "hidden" even when it is painted, so the useful fact is why the box is empty. The trace's own
+ * failure snapshot carries the element's children — read here, never guessed.
+ */
+export interface TraceHiddenBox {
+  /** The locator the assertion printed (`locator('a.navbar-brand')`), or the element it names. */
+  locator: string
+  /** The element's tag, lowercased (`a`). */
+  tag: string
+  /** The element's own inline style, when the snapshot carries one. */
+  style?: string
+  /**
+   * The `<img>` the element wraps when that image is its only element child and the element has
+   * no text of its own: the size the box would collapse to.
+   */
+  image?: {
+    /** The image's `src`, bounded. */
+    src?: string
+    /** Its `width` attribute. */
+    width?: string
+    /** Its `height` attribute. */
+    height?: string
+    /** Its inline `style`. */
+    style?: string
+    /** Its `class`. */
+    className?: string
+    /** Its `alt` text. */
+    alt?: string
+  }
+  /** True when the element has no text and no element children at all. */
+  empty?: true
+}
+
 /** What one trace says: the test it belongs to, the requests it made, and its console lines. */
 export interface TraceArtifact {
   /** The failure's spec file, relative to the run's directory, when the trace names one. */
@@ -318,6 +352,13 @@ export interface TraceArtifact {
    * and on traces read before this field existed.
    */
   readContradiction?: TraceReadContradiction
+  /**
+   * A visibility failure whose locator RESOLVED into an empty box — Playwright's "hidden" — with
+   * the element's children read from the failure snapshot ({@link TraceHiddenBox}). The note uses
+   * it to name why the box is empty (an `<img>` with no CSS size, a textless element) instead of
+   * leaving the run to probe computed styles (xr-molecule-flash-m197).
+   */
+  hiddenBox?: TraceHiddenBox
 }
 
 /** How many traces one read reports, newest first. */
@@ -539,6 +580,109 @@ function waitedTextOf(message) {
   if (byText !== null) return notFound ? byText : null
   if (text.indexOf('toContainText') === -1) return null
   return quoted(/Expected(?: string)?:\\s*(["'])((?:(?!\\1).)*)\\1/)
+}
+
+// The attributes of one serialized element's opening tag (\`class="a b" id="c"\`). The trace's
+// snapshots carry them as an object already; the ASSERTION's error prints the tag as text.
+function attrsOf(source) {
+  const out = {}
+  const pattern = /([A-Za-z_:][-A-Za-z0-9_:.]*)\\s*=\\s*("([^"]*)"|'([^']*)')/g
+  let match
+  while ((match = pattern.exec(String(source || ''))) !== null)
+    out[match[1].toLowerCase()] = match[3] !== undefined ? match[3] : match[4]
+  return out
+}
+
+// Whether a serialized subtree carries text of its own. A text node is a string; an element is
+// \`[tag, attrs, …children]\`. A reference to an earlier snapshot is not followed here: the caller
+// only makes a claim when every child is readable in place.
+function subtreeText(node) {
+  if (typeof node === 'string') return node.trim() !== ''
+  if (!Array.isArray(node) || Array.isArray(node[0]) || typeof node[0] !== 'string') return false
+  for (let i = 2; i < node.length; i++) if (subtreeText(node[i])) return true
+  return false
+}
+
+// The serialized element children of a node, in document order (references skipped).
+function elementChildren(node) {
+  const out = []
+  if (!Array.isArray(node)) return out
+  for (let i = 2; i < node.length; i++) {
+    const child = node[i]
+    if (typeof child === 'string' || !Array.isArray(child)) continue
+    if (Array.isArray(child[0]) || typeof child[0] !== 'string') continue
+    out.push(child)
+  }
+  return out
+}
+
+// The first element in a serialized DOM tree with this tag and (when given) id or first class.
+// Playwright's snapshot serializes elements as \`[tag, attrs, …children]\`.
+function findElement(node, tag, id, cls) {
+  if (typeof node === 'string' || !Array.isArray(node)) return null
+  if (Array.isArray(node[0]) || typeof node[0] !== 'string') return null
+  if (node[0].toLowerCase() === tag) {
+    const attrs = node[1] && typeof node[1] === 'object' ? node[1] : {}
+    const idMatch = id === '' || String(attrs.id || '') === id
+    const classes = String(attrs.class || attrs.className || '').split(/\\s+/)
+    const classMatch = id !== '' || cls === '' || classes.indexOf(cls) !== -1
+    if (idMatch && classMatch) return node
+  }
+  for (let i = 2; i < node.length; i++) {
+    const deeper = findElement(node[i], tag, id, cls)
+    if (deeper !== null) return deeper
+  }
+  return null
+}
+
+// A locator that RESOLVED whose box Playwright calls hidden. Playwright reports "hidden" for an
+// element with a zero-size box even when it is painted, so the interesting question is why the
+// box is empty — and the trace's own frame snapshot carries the element's children, the only
+// evidence the run would otherwise have to probe for (xr-molecule-flash-m197: \`a.navbar-brand\`
+// was 0x4 px because its only child was an <img> with no CSS size, and the note said only that
+// "the cause is in the page"; the run spent 4.5 minutes rasterising an SVG to PNG).
+// Only what the snapshot proves is reported: an inline display:none/visibility:hidden, a lone
+// <img> child, or a textless element with no children. Anything else says nothing.
+function hiddenBoxOf(message, frames) {
+  if (!message) return null
+  const text = String(message).replace(/\\u001b\\[[0-9;]*m/g, '')
+  if (text.indexOf('strict mode violation') !== -1) return null
+  if (!/Received:\\s*hidden/.test(text) && text.indexOf('element is not visible') === -1) return null
+  const resolved = /locator resolved to <([A-Za-z][\\w:-]*)((?:[^>"']|"[^"]*"|'[^']*')*)>/.exec(text)
+  if (resolved === null) return null
+  const tag = resolved[1].toLowerCase()
+  const attrs = attrsOf(resolved[2])
+  const id = attrs.id || ''
+  const cls = String(attrs.class || attrs.className || '').split(/\\s+/).filter(Boolean)[0] || ''
+  const named = /Locator:\\s*([^\\n]+)/.exec(text)
+  const reading = {
+    locator: named !== null ? named[1].trim() : cls ? tag + '.' + cls : tag,
+    tag: tag,
+  }
+  const snapshot = frames.length > 0 ? frames[frames.length - 1].snapshot : null
+  const node = snapshot === null || snapshot === undefined ? null : findElement(snapshot, tag, id, cls)
+  if (node === null) return null
+  const own = node[1] && typeof node[1] === 'object' ? node[1] : {}
+  if (typeof own.style === 'string' && own.style) reading.style = own.style.slice(0, 160)
+  if (!subtreeText(node)) {
+    const children = elementChildren(node)
+    if (children.length === 1 && children[0][0].toLowerCase() === 'img') {
+      const image = children[0][1] && typeof children[0][1] === 'object' ? children[0][1] : {}
+      reading.image = {}
+      for (const key of ['src', 'width', 'height', 'style', 'alt']) {
+        if (typeof image[key] === 'string' && image[key])
+          reading.image[key] = image[key].slice(0, 120)
+      }
+      if (typeof image.class === 'string' && image.class) reading.image.className = image.class.slice(0, 120)
+    } else if (children.length === 0) {
+      reading.empty = true
+    }
+  }
+  const hiddenStyle = /(?:^|;)\\s*display\\s*:\\s*none|(?:^|;)\\s*visibility\\s*:\\s*hidden/.test(
+    typeof own.style === 'string' ? own.style : '',
+  )
+  if (!reading.image && !reading.empty && !hiddenStyle) return null
+  return reading
 }
 
 // A request/response body exactly as Playwright stored it: inline on the value, or in a resource
@@ -1197,6 +1341,10 @@ for (const one of found.slice(0, MAX_TRACES)) {
       }
     }
   }
+  // A visibility failure whose element RESOLVED but has an empty box: the snapshot's own DOM says
+  // what the element is made of, so the note names the cause instead of sending the run at the
+  // selector (m197 — an <img> with no CSS size collapsed inside its link).
+  const hiddenBox = hiddenBoxOf(failedError, frames)
   function wire(r) {
     return {
       method: r.method,
@@ -1417,7 +1565,13 @@ for (const one of found.slice(0, MAX_TRACES)) {
   const specific = consoleErrors.filter(function (text) { return !/^Failed to load resource/.test(text) })
   const keptConsole = specific.concat(consoleSignals, consoleWarnings)
   if (specific.length === 0) keptConsole.push.apply(keptConsole, consoleErrors)
-  if (chosen.length === 0 && keptConsole.length === 0 && actions.length === 0) continue
+  if (
+    chosen.length === 0 &&
+    keptConsole.length === 0 &&
+    actions.length === 0 &&
+    hiddenBox === null
+  )
+    continue
   process.stdout.write('TRACE ' + JSON.stringify({
     dir: path.relative(ROOT, path.dirname(one.file)),
     spec: spec,
@@ -1430,6 +1584,7 @@ for (const one of found.slice(0, MAX_TRACES)) {
     requests: chosen.slice(0, MAX_REQUESTS),
     ...(missingText === null ? {} : { missingText: missingText }),
     ...(readContradiction === null ? {} : { readContradiction: readContradiction }),
+    ...(hiddenBox === null ? {} : { hiddenBox: hiddenBox }),
     console: keptConsole.slice(0, MAX_CONSOLE).map(function (text) { return text.slice(0, 300) }),
     actions: actions.slice(-MAX_ACTIONS),
     ...(unattributed ? { unattributed: true } : {}),
@@ -1508,6 +1663,43 @@ function parseReadContradiction(value: unknown): TraceReadContradiction | null {
 }
 
 /**
+ * One `hiddenBox` out of a `TRACE` line's json, or null when the value is not one.
+ *
+ * The locator and tag are required; the image/empty/style detail is optional evidence, kept only
+ * in the shape the script wrote it.
+ *
+ * @param value - The line's `hiddenBox`.
+ * @returns The element the failed locator resolved to, or null.
+ */
+function parseHiddenBox(value: unknown): TraceHiddenBox | null {
+  if (typeof value !== 'object' || value === null) return null
+  const raw = value as Record<string, unknown>
+  if (typeof raw.locator !== 'string' || raw.locator === '') return null
+  if (typeof raw.tag !== 'string' || raw.tag === '') return null
+  // An `image` that parses to no attributes is still the fact that the element wraps an <img>:
+  // its presence is the evidence, so an empty object stays.
+  const image =
+    typeof raw.image === 'object' && raw.image !== null
+      ? (() => {
+          const at = raw.image as Record<string, unknown>
+          const out: NonNullable<TraceHiddenBox['image']> = {}
+          for (const key of ['src', 'width', 'height', 'style', 'className', 'alt'] as const) {
+            const field = at[key]
+            if (typeof field === 'string' && field !== '') out[key] = field
+          }
+          return out
+        })()
+      : null
+  return {
+    locator: raw.locator,
+    tag: raw.tag,
+    ...(typeof raw.style === 'string' && raw.style ? { style: raw.style } : {}),
+    ...(image === null ? {} : { image }),
+    ...(raw.empty === true ? { empty: true as const } : {}),
+  }
+}
+
+/**
  * One `lastAction` out of a `TRACE` line's json, or null when the value is not one.
  *
  * @param value - The line's `lastAction`.
@@ -1552,6 +1744,7 @@ export function parseTraceArtifacts(stdout: string): TraceArtifact[] {
       const lastAction = parseLastAction(raw.lastAction)
       const missingText = parseMissingText(raw.missingText)
       const readContradiction = parseReadContradiction(raw.readContradiction)
+      const hiddenBox = parseHiddenBox(raw.hiddenBox)
       const otherContexts = Array.isArray(raw.otherContexts)
         ? raw.otherContexts
             .filter((c): c is Record<string, unknown> => typeof c === 'object' && c !== null)
@@ -1589,6 +1782,7 @@ export function parseTraceArtifacts(stdout: string): TraceArtifact[] {
         ...(raw.unattributed === true ? { unattributed: true as const } : {}),
         ...(missingText === null ? {} : { missingText }),
         ...(readContradiction === null ? {} : { readContradiction }),
+        ...(hiddenBox === null ? {} : { hiddenBox }),
       })
     } catch (_error) {
       continue
@@ -2920,6 +3114,82 @@ function consoleLine(text: string): string {
   )
 }
 
+/** An `<img>` as the failure snapshot recorded it, for the note's sentence. */
+function imageMarkup(image: NonNullable<TraceHiddenBox['image']>): string {
+  const attrs = [
+    image.src === undefined ? '' : `src="${image.src}"`,
+    image.alt === undefined ? '' : `alt="${image.alt}"`,
+    image.width === undefined ? '' : `width="${image.width}"`,
+    image.height === undefined ? '' : `height="${image.height}"`,
+    image.className === undefined ? '' : `class="${image.className}"`,
+    image.style === undefined ? '' : `style="${image.style}"`,
+  ].filter(Boolean)
+  return `<img${attrs.length > 0 ? ` ${attrs.join(' ')}` : ''}>`
+}
+
+/** Whether an image's CSS (its class or inline style) declares a width or height. */
+const IMAGE_SIZE_RULE = /(?:^|;)\s*(?:width|height|max-width|max-height)\s*:/
+const HIDING_RULE = /(?:^|;)\s*(?:display\s*:\s*none|visibility\s*:\s*hidden)/
+
+/**
+ * The sentence a "hidden" visibility failure earns when the trace proved WHY the box is empty.
+ *
+ * Playwright calls an element with a zero-size box hidden even when it is painted, so the answer
+ * is in the element's children. `a.navbar-brand` on xr-molecule-flash-m197 was 0×4 px because its
+ * only child was `<img src="/conduit-logo.svg" height="26">`: an SVG with a `viewBox` and no
+ * width/height has no intrinsic size, and the `height` attribute loses to Tailwind's preflight
+ * (`img { max-width: 100%; height: auto }`), which the scaffold's own `index.css` imports. The
+ * note said only "the cause is in the page", and the run spent over four minutes rasterising an
+ * SVG to PNG. Only what the snapshot shows is claimed ({@link TraceHiddenBox}).
+ *
+ * @param items - The traces {@link parseTraceArtifacts} read.
+ * @returns The sentence, or null when no failure carries a hidden-box reading.
+ */
+export function hiddenBoxNote(items: readonly TraceArtifact[]): string | null {
+  const box = items.find((item) => item.hiddenBox !== undefined)?.hiddenBox
+  if (box === undefined) return null
+  const element = `\`${box.locator}\``
+  if (box.image !== undefined) {
+    const image = box.image
+    const shown = imageMarkup(image)
+    const sized =
+      image.className !== undefined ||
+      (image.style !== undefined && IMAGE_SIZE_RULE.test(image.style))
+    if (sized) {
+      const rule = image.className === undefined ? 'its inline size' : `\`${image.className}\``
+      return (
+        `${element} resolved but Playwright calls it hidden: its box has no size, and its only ` +
+        `content is ${shown}. That image declares a size (${rule}), so the rule is not applying ` +
+        `on this page — check that the stylesheet defining it is actually loaded (a supplied ` +
+        `theme has to be linked in index.html, not only imported) and that the class name is ` +
+        `spelled the way the theme defines it.`
+      )
+    }
+    return (
+      `${element} resolved but Playwright calls it hidden: the element's box is empty, and its ` +
+      `only content is ${shown} — an image with no CSS size. An <img> takes its size from CSS or ` +
+      `from the file; an SVG that declares only a viewBox has no intrinsic size, and a ` +
+      `width/height ATTRIBUTE loses to any stylesheet rule (Tailwind's preflight, which the ` +
+      `scaffold's index.css imports, sets img { max-width: 100%; height: auto }). Give the image a ` +
+      `CSS width/height — a class the supplied theme already defines for it, or ` +
+      `style={{ height: … }} — rather than changing the SVG or rasterising it to PNG.`
+    )
+  }
+  if (box.style !== undefined && HIDING_RULE.test(box.style)) {
+    return (
+      `${element} resolved but Playwright calls it hidden: its own inline style sets ` +
+      `\`${box.style}\`. Remove that declaration (or the rule that sets it) so the element has a box.`
+    )
+  }
+  if (box.empty === true) {
+    return (
+      `${element} resolved but Playwright calls it hidden: the element has no text and no ` +
+      `children, so its box has zero size. Give it content or an explicit width/height.`
+    )
+  }
+  return null
+}
+
 /**
  * The note a failed suite run's result carries: what each failing test's page actually sent, and
  * what came back.
@@ -3063,6 +3333,10 @@ export function failureTraceNote(
   )
   // The "one of these requests failing" answer is only honest when a listed request really failed.
   const anyFailed = traced.some((item) => item.requests.some(failedRequest))
+  // A visibility failure the trace's own snapshot explains: said instead of the generic
+  // "the cause is in the page" sentence, which m197 read as "go look at the page" and then spent
+  // four minutes rasterising an SVG ({@link hiddenBoxNote}).
+  const hiddenBox = hiddenBoxNote(traced)
   // m145's shape: the app's HTTP client lost its base URL, so every API call reached the page
   // origin without the prefix the app mounts its routes under. The prefix is READ — the caller's
   // client config plus what the traces show — never assumed to be `/api`.
@@ -3479,13 +3753,17 @@ export function failureTraceNote(
               'action sent no request at all, so there is no response to read. The page changed ' +
               'route and fetched nothing, which is why it still shows the previous route’s data: ' +
               'fix how the page reads the route, not the selector.'
-            : 'No listed request failed — none got a 4xx/5xx or a network error — so the cause is in the ' +
-              "page, not the API. Start with what the test's last action sent (the first line of each " +
-              'row) and what the page did next: a request that answered (2xx included) while the page ' +
-              'still did not show the state the assertion waited on is the fact to read — its status ' +
-              'and response body, not the selector. If the request is not the one the test meant — an ' +
-              'unfollow sent where the test clicked follow — the state the action read was stale ' +
-              'before it.') +
+            : hiddenBox !== null
+              ? // The trace's own snapshot explains why the element Playwright resolved has no box:
+                // a fact about the element, so it replaces the "look at the page" advice (m197).
+                hiddenBox
+              : 'No listed request failed — none got a 4xx/5xx or a network error — so the cause is in the ' +
+                "page, not the API. Start with what the test's last action sent (the first line of each " +
+                'row) and what the page did next: a request that answered (2xx included) while the page ' +
+                'still did not show the state the assertion waited on is the fact to read — its status ' +
+                'and response body, not the selector. If the request is not the one the test meant — an ' +
+                'unfollow sent where the test clicked follow — the state the action read was stale ' +
+                'before it.') +
     prefixAdvice +
     (wrapped
       ? ' The API received a body wrapped in `data`: app-http’s `post(url, data, config)` / ' +

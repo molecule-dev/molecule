@@ -3569,3 +3569,183 @@ describe('traceArtifactsScript — a read that contradicts the write (m181)', ()
     expect(note.split('\n')[0]).toContain('`favorited`: false to GET /api/articles/some-slug')
   })
 })
+
+/**
+ * xr-molecule-flash-m197's `health.spec.ts:9` failure, exactly as Playwright printed it: the
+ * locator RESOLVED to `a.navbar-brand`, and `toBeVisible` called the element "hidden" because its
+ * box was 0×4 px. The platform's note said only "the cause is in the page", and the run spent
+ * 4.5 minutes proving its own markup before rasterising an SVG to PNG.
+ */
+const HIDDEN_BRAND_FAILURE = [
+  'Error: expect(locator).toBeVisible() failed',
+  '',
+  "Locator:  locator('a.navbar-brand')",
+  'Expected: visible',
+  'Received: hidden',
+  'Timeout:  10000ms',
+  '',
+  'Call log:',
+  '  - Expect "toBeVisible" locator(\'a.navbar-brand\') with timeout 10000ms',
+  "  - waiting for locator('a.navbar-brand')",
+  '    24 × locator resolved to <a href="/" class="navbar-brand" data-discover="true" data-mol-id="conduit-brand">…</a>',
+  '       - unexpected value "hidden"',
+].join('\n')
+
+/** The page's DOM at the moment m197's assertion failed, as Playwright's snapshot serializes it. */
+const BRAND_SNAPSHOT = [
+  'html',
+  {},
+  [
+    'body',
+    {},
+    [
+      'nav',
+      { class: 'navbar' },
+      [
+        'div',
+        { class: 'container' },
+        [
+          'a',
+          { href: '/', class: 'navbar-brand', 'data-mol-id': 'conduit-brand' },
+          ['img', { src: '/conduit-logo.svg', alt: 'Conduit', height: '26' }],
+        ],
+      ],
+    ],
+  ],
+]
+
+/**
+ * A trace.zip whose failing step is a `toBeVisible` assertion on `a.navbar-brand`, with the DOM
+ * snapshot Playwright recorded when it measured the box.
+ *
+ * @param message - The assertion's error text.
+ * @param html - The snapshot the trace carries for the failing page.
+ * @returns The zip.
+ */
+function hiddenLocatorZip(message: string, html: unknown = BRAND_SNAPSHOT): Buffer {
+  const origin = 'http://127.0.0.1:4173'
+  const runner = [
+    {
+      type: 'before',
+      class: 'Test',
+      method: 'step',
+      callId: 'step-assert',
+      startTime: 100,
+      title: 'expect.toBeVisible',
+    },
+    { type: 'after', callId: 'step-assert', endTime: 900, error: { message } },
+  ]
+  const trace = [
+    {
+      type: 'before',
+      class: 'Frame',
+      method: 'goto',
+      callId: 'call-goto',
+      stepId: 'step-assert',
+      startTime: 110,
+      stack: [{ file: 'e2e/health.spec.ts', line: 9 }],
+    },
+    { type: 'after', callId: 'call-goto', endTime: 300 },
+    {
+      type: 'frame-snapshot',
+      snapshot: {
+        callId: 'call-goto',
+        pageId: 'page@1',
+        frameId: 'frame@1',
+        frameUrl: `${origin}/`,
+        timestamp: 400,
+        isMainFrame: true,
+        html,
+      },
+    },
+  ]
+  const network = [
+    {
+      type: 'resource-snapshot',
+      snapshot: {
+        _resourceType: 'document',
+        _monotonicTime: 120,
+        pageref: 'page@1',
+        request: { url: `${origin}/`, method: 'GET' },
+        response: { status: 200 },
+      },
+    },
+    {
+      type: 'resource-snapshot',
+      snapshot: {
+        _resourceType: 'fetch',
+        _monotonicTime: 420,
+        pageref: 'page@1',
+        request: { url: `${origin}/api/tags`, method: 'GET', headers: [] },
+        response: { status: 200, content: { text: '{"tags":[]}' } },
+      },
+    },
+  ]
+  const lines = (rows: unknown[]): string => rows.map((row) => JSON.stringify(row)).join('\n')
+  return storedZip({
+    'test.trace': lines(runner),
+    'trace.trace': lines(trace),
+    'trace.network': lines(network),
+  })
+}
+
+/** The parsed traces and note for one hidden-locator trace. */
+function hiddenLocatorRead(zip: Buffer): { items: TraceArtifact[]; note: string } {
+  const root = stalledRun(zip)
+  try {
+    const items = parseTraceArtifacts(readTraces(root))
+    return { items, note: String(failureTraceNote(items, 'http://127.0.0.1:4173')) }
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+}
+
+describe('traceArtifactsScript — a resolved locator Playwright calls hidden (m197)', () => {
+  it('reads the element the locator resolved to and the image it wraps', () => {
+    const { items } = hiddenLocatorRead(hiddenLocatorZip(HIDDEN_BRAND_FAILURE))
+    expect(items[0]?.hiddenBox).toEqual({
+      locator: "locator('a.navbar-brand')",
+      tag: 'a',
+      image: { src: '/conduit-logo.svg', alt: 'Conduit', height: '26' },
+    })
+  })
+
+  it('says why the box is empty instead of "the cause is in the page"', () => {
+    const { note } = hiddenLocatorRead(hiddenLocatorZip(HIDDEN_BRAND_FAILURE))
+    expect(note).toContain("`locator('a.navbar-brand')` resolved but Playwright calls it hidden")
+    expect(note).toContain('<img src="/conduit-logo.svg" alt="Conduit" height="26">')
+    // The two facts that make the empty box non-obvious: no intrinsic size, and the attribute
+    // loses to Tailwind's preflight.
+    expect(note).toContain('only a viewBox has no intrinsic size')
+    expect(note).toContain('img { max-width: 100%; height: auto }')
+    expect(note).not.toContain('the cause is in the page, not the API')
+  })
+
+  it('does not read a toBeHidden failure (Expected: hidden, Received: visible)', () => {
+    const message = HIDDEN_BRAND_FAILURE.replace('toBeVisible', 'toBeHidden')
+      .replace('Expected: visible', 'Expected: hidden')
+      .replace('Received: hidden', 'Received: visible')
+    const { items } = hiddenLocatorRead(hiddenLocatorZip(message))
+    expect(items[0]?.hiddenBox).toBeUndefined()
+  })
+
+  it('names an inline display:none when the snapshot carries one', () => {
+    const message = HIDDEN_BRAND_FAILURE.replace(
+      'locator resolved to <a href="/" class="navbar-brand" data-discover="true" data-mol-id="conduit-brand">…</a>',
+      'locator resolved to <div class="gone">…</div>',
+    )
+    const { note } = hiddenLocatorRead(
+      hiddenLocatorZip(message, ['div', { class: 'gone', style: 'display: none' }, 'Conduit']),
+    )
+    expect(note).toContain('its own inline style sets `display: none`')
+  })
+
+  it('names an empty element with no text and no children', () => {
+    const message = HIDDEN_BRAND_FAILURE.replace(
+      'locator resolved to <a href="/" class="navbar-brand" data-discover="true" data-mol-id="conduit-brand">…</a>',
+      'locator resolved to <span class="badge">…</span>',
+    )
+    const { note } = hiddenLocatorRead(hiddenLocatorZip(message, ['span', { class: 'badge' }]))
+    expect(note).toContain('the element has no text and no children')
+  })
+})
