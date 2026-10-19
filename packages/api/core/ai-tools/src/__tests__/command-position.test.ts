@@ -334,6 +334,86 @@ describe('locatedCommandSegments — where an assignment for the RUNNER belongs 
 })
 
 /**
+ * X0 xr-molecule-flash-m204 (+38:15): an `env NAME=value … <cmd>` prefix binds a variable for the
+ * command exactly like a bare `NAME=value <cmd>`, but the parse reported the runner statement's
+ * assignments as EMPTY. Every reader built on it therefore disagreed with the command: `runTarget`
+ * saw `BASE_URL` written and not bound, answered `local`, and two green deployed walks were
+ * refused ("Not yet … your last Playwright run tested the local app") — 5.2 min of a 60-min cap.
+ */
+describe('locatedCommandSegments — an `env` prefix binds for the program it wraps (m204)', () => {
+  const runnerOf = (
+    command: string,
+  ): ReturnType<typeof locatedCommandSegments>[number] | undefined =>
+    locatedCommandSegments(command).find((entry) => entry.segment?.program === 'playwright')
+
+  it('reports the NAME=value words after env as the runner statement’s own', () => {
+    expect(
+      runnerOf('env BASE_URL=https://x.apps.mlcl.dev npx playwright test')?.assignments,
+    ).toEqual(['BASE_URL=https://x.apps.mlcl.dev'])
+  })
+
+  it('steps over env’s own options: -i, -u NAME, and their long forms', () => {
+    expect(
+      runnerOf('env -i PATH=$PATH BASE_URL=http://127.0.0.1:4173 npx playwright test')?.assignments,
+    ).toEqual(['PATH=$PATH', 'BASE_URL=http://127.0.0.1:4173'])
+    expect(
+      runnerOf(
+        'env -u BASE_URL -C /workspace --ignore-environment TEST_MODE=fullstack npx playwright test',
+      )?.assignments,
+    ).toEqual(['TEST_MODE=fullstack'])
+    expect(
+      runnerOf('env --unset=FOO --chdir=/workspace TEST_MODE=fullstack npx playwright test')
+        ?.assignments,
+    ).toEqual(['TEST_MODE=fullstack'])
+  })
+
+  it('finds the program through wrappers in any order and nesting', () => {
+    expect(
+      runnerOf(
+        'cd /workspace && timeout 600 env TEST_MODE=fullstack ' +
+          'BASE_URL=https://x.apps.mlcl.dev npx playwright test',
+      )?.assignments,
+    ).toEqual(['TEST_MODE=fullstack', 'BASE_URL=https://x.apps.mlcl.dev'])
+    expect(runnerOf('nice -n 5 env A=1 npx playwright test')?.assignments).toEqual(['A=1'])
+    expect(runnerOf('stdbuf -oL env A=1 npx playwright test')?.assignments).toEqual(['A=1'])
+    expect(runnerOf('nohup env A=1 npx playwright test')?.assignments).toEqual(['A=1'])
+    expect(runnerOf('time env A=1 npx playwright test')?.assignments).toEqual(['A=1'])
+  })
+
+  it('keeps leading assignments first, in the order the shell binds them', () => {
+    expect(runnerOf('A=1 env B=2 npx playwright test')?.assignments).toEqual(['A=1', 'B=2'])
+  })
+
+  it('drops what env -i clears, and keeps what it sets', () => {
+    // `env -i` replaces the environment: a word bound before it never reaches the program, so a
+    // reader must not attribute it to the run (the unsafe direction — it would accept a local run
+    // as the deployed proof).
+    expect(runnerOf('BASE_URL=https://outer.test env -i npx playwright test')?.assignments).toEqual(
+      [],
+    )
+    expect(
+      runnerOf('BASE_URL=https://outer.test env -i BASE_URL=https://x npx playwright test')
+        ?.assignments,
+    ).toEqual(['BASE_URL=https://x'])
+  })
+
+  it('passes an outer env prefix into a sh -c string', () => {
+    const located = locatedCommandSegments(
+      `env BASE_URL=https://x.apps.mlcl.dev sh -c 'npx playwright test'`,
+    )
+    expect(located.map((entry) => entry.segment?.program)).toEqual(['playwright'])
+    expect(located[0]?.assignments).toEqual(['BASE_URL=https://x.apps.mlcl.dev'])
+  })
+
+  it('places a setting written for the program AFTER env, where env -i cannot clear it', () => {
+    const command = 'cd app && env -i PATH=$PATH npx playwright test'
+    const at = runnerOf(command)?.assignmentOffset ?? -1
+    expect(command.slice(0, at)).toMatch(/env -i PATH=\$PATH $/)
+    expect(command.slice(at)).toMatch(/^npx playwright test\b/)
+  })
+})
+
+/**
  * X1 xr-molecule-flash-m105 (+08:12): a heredoc body read as shell. Its first line,
  * `import { defineConfig, devices } from '@playwright/test'`, joins back as
  * `import defineConfig, devices from '@playwright/test'` (grouping braces dropped), so locating a

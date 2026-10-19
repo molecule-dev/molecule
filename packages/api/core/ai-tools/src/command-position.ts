@@ -89,6 +89,7 @@ const LAUNCHERS: ReadonlySet<string> = new Set([
   'nice',
   'nohup',
   'setsid',
+  'stdbuf',
   'sudo',
   'time',
   'timeout',
@@ -308,6 +309,7 @@ const WRAPPER_VALUE_FLAGS: Readonly<Record<string, readonly string[]>> = {
   env: ['-S', '--split-string', '-u', '--unset', '-C', '--chdir'],
   ionice: ['-c', '--class', '-n', '--classdata', '-p', '--pid', '-P', '--pgid', '-u', '--uid'],
   nice: ['-n', '--adjustment'],
+  stdbuf: ['-e', '-i', '-o'],
   sudo: [
     '-C',
     '--chdir',
@@ -457,12 +459,23 @@ function nestedCommand(words: readonly string[], from: number): string | null {
 }
 
 /**
- * Where the program starts in one segment's words, and the bound the segment puts on itself.
+ * Where the program starts in one segment's words, the bound the segment puts on itself, and the
+ * environment it binds for the program it runs.
+ *
+ * `bound` is every `NAME=value` word the walk steps over between the segment's start and its
+ * program: the leading words, and the ones behind an `env` wrapper (`env -i PATH=$PATH
+ * BASE_URL=https://… npx playwright test`). A shell passes those to the program in exactly the
+ * same way — `env` is the POSIX form of the leading-word form — so a reader that only saw the
+ * leading ones called a deployed walk local (X0 xr-molecule-flash-m204 +38:15: two green deployed
+ * walks were refused, 5.2 min).
  *
  * @param words - The segment's words, quotes kept.
  * @returns The index of the word in command position (one past the end when the segment runs
- *   nothing), the command string of a `sh -c '<command>'` this segment turns out to be, and the
- *   seconds its own `timeout` wrapper allows that command (`timeout 280 hurl …` → 280) or null.
+ *   nothing), the command string of a `sh -c '<command>'` this segment turns out to be, the
+ *   seconds its own `timeout` wrapper allows that command (`timeout 280 hurl …` → 280) or null,
+ *   every `NAME=value` word bound for the program in the order the shell binds them, and the word
+ *   index an assignment for the program belongs at when an `env` wrapper sits in front of it
+ *   (`env -i … <here>npx`; a value written before `env -i` is cleared, so it must go after).
  *   `program` names what runs when that is not the word itself's name — `node <path>/playwright`
  *   is a `playwright` invocation, not a `node` one ({@link nodeScriptRunner}).
  */
@@ -471,13 +484,22 @@ function commandStart(words: readonly string[]): {
   nested: string | null
   timeoutSeconds: number | null
   program: string | null
+  bound: readonly string[]
+  envInsert: number | null
+  envReset: boolean
 } {
   let at = 0
   let timeoutSeconds: number | null = null
+  const bound: string[] = []
+  let envInsert: number | null = null
+  let envReset = false
   for (let guard = 0; guard < MAX_WRAPPERS && at < words.length; guard++) {
     const word = words[at] ?? ''
     if (ENV_ASSIGNMENT.test(word)) {
+      bound.push(word)
       at += 1
+      // Still the env wrapper's own region: an assignment for the program goes after it.
+      if (envInsert !== null) envInsert = at
       continue
     }
     const name = programName(word)
@@ -488,14 +510,23 @@ function commandStart(words: readonly string[]): {
     }
     if (SHELLS.has(name)) {
       const nested = nestedCommand(words, at + 1)
-      if (nested !== null) return { at, nested, timeoutSeconds, program: null }
+      if (nested !== null)
+        return { at, nested, timeoutSeconds, program: null, bound, envInsert, envReset }
       at += 1 + flagWords(words, at + 1, name)
       continue
     }
     if (PACKAGE_RUNNERS.has(name)) {
       const runner = packageRunnerOptions(words, at + 1, name)
       if (runner.nested !== null)
-        return { at, nested: runner.nested, timeoutSeconds, program: null }
+        return {
+          at,
+          nested: runner.nested,
+          timeoutSeconds,
+          program: null,
+          bound,
+          envInsert,
+          envReset,
+        }
       at += 1 + runner.count
       continue
     }
@@ -506,7 +537,15 @@ function commandStart(words: readonly string[]): {
       const subcommand = unquoted(words[at + 1] ?? '')
       const runner = packageRunnerOptions(words, at + 2, `${name} ${subcommand}`)
       if (runner.nested !== null)
-        return { at, nested: runner.nested, timeoutSeconds, program: null }
+        return {
+          at,
+          nested: runner.nested,
+          timeoutSeconds,
+          program: null,
+          bound,
+          envInsert,
+          envReset,
+        }
       at += 2 + runner.count
       continue
     }
@@ -523,17 +562,39 @@ function commandStart(words: readonly string[]): {
       const script = nodeScriptIndex(words, at + 1)
       const runner = script === null ? null : nodeScriptRunner(words[script] ?? '')
       return runner === null
-        ? { at, nested: null, timeoutSeconds, program: null }
-        : { at: script ?? at, nested: null, timeoutSeconds, program: runner }
+        ? { at, nested: null, timeoutSeconds, program: null, bound, envInsert, envReset }
+        : {
+            at: script ?? at,
+            nested: null,
+            timeoutSeconds,
+            program: runner,
+            bound,
+            envInsert,
+            envReset,
+          }
     }
-    if (!LAUNCHERS.has(name)) return { at, nested: null, timeoutSeconds, program: null }
+    if (!LAUNCHERS.has(name))
+      return { at, nested: null, timeoutSeconds, program: null, bound, envInsert, envReset }
+    const from = at
     at += 1 + flagWords(words, at + 1, name)
+    // Past `env` and its own options: an assignment for the program written here survives
+    // `env -i`, which clears everything before it.
+    if (name === 'env') {
+      envInsert = at
+      // `env -i` clears the environment it inherited: the words bound before it are NOT the
+      // environment the program runs in, so a reader must not attribute them to the run.
+      if (
+        words.slice(from + 1, at).some((flag) => flag === '-i' || flag === '--ignore-environment')
+      )
+        envReset = true
+    }
+    if (envReset) bound.length = 0
     if (name === 'timeout' && DURATION.test(words[at] ?? '')) {
       timeoutSeconds = durationSeconds(words[at] ?? '')
       at += 1
     }
   }
-  return { at, nested: null, timeoutSeconds, program: null }
+  return { at, nested: null, timeoutSeconds, program: null, bound, envInsert, envReset }
 }
 
 /**
@@ -1204,11 +1265,25 @@ function locatedSegmentsOf(command: string, depth: number): LocatedCommandSegmen
     const words = segmentWords(part.text)
     const start = commandStart(words)
     const leading = leadingAssignments(part.text)
+    // Every `NAME=value` bound for the program the statement runs: its leading words AND the ones
+    // an `env` wrapper carries (`env -i PATH=$PATH BASE_URL=… npx playwright test`). A shell binds
+    // both to the program the same way, so one list holds both — a reader that saw only the
+    // leading ones read a deployed walk as local (X0 xr-molecule-flash-m204 +38:15). `env -i`
+    // clears what it inherited, so after it the wrapper's own words are the whole environment.
+    const assignments = [
+      ...new Set(start.envReset ? start.bound : [...leading.words, ...start.bound]),
+    ]
     /** Every offset in this statement is an offset in the command it was written in. */
     const placed = {
       start: part.start,
       end: part.start + part.text.length,
-      assignmentOffset: part.start + leading.end,
+      // After the statement's own leading `NAME=value` words — or, when an `env` wrapper stands
+      // there, after that wrapper and its own options/assignments, because `env -i` clears what
+      // comes before it (`env -i … <here>npx playwright test`).
+      assignmentOffset:
+        start.envInsert === null
+          ? part.start + leading.end
+          : part.start + (wordOffset(part.text, start.envInsert) ?? leading.end),
       programOffset:
         words[start.at] === undefined ? null : part.start + (wordOffset(part.text, start.at) ?? 0),
     }
@@ -1225,6 +1300,9 @@ function locatedSegmentsOf(command: string, depth: number): LocatedCommandSegmen
         if (!entry) continue
         out.push({
           ...entry,
+          // The variables this statement bound before the shell reached it are the nested
+          // command's too: `env BASE_URL=… sh -c '… npx playwright test …'` passes them down.
+          assignments: [...new Set([...assignments, ...entry.assignments])],
           // A nested statement's positions are positions in the nested string, not in this
           // command. The FIRST one keeps this statement's own separator: the shell reads the
           // nested string where this statement stands.
@@ -1248,10 +1326,10 @@ function locatedSegmentsOf(command: string, depth: number): LocatedCommandSegmen
     if (word === undefined) {
       // Only wrappers and assignments: nothing this statement runs, but the variables it sets
       // persist in the shell the rest of the command runs in.
-      if (leading.words.length > 0)
+      if (assignments.length > 0)
         out.push({
           segment: null,
-          assignments: leading.words,
+          assignments,
           ...placed,
           programOffset: null,
           separator: part.before,
@@ -1267,7 +1345,7 @@ function locatedSegmentsOf(command: string, depth: number): LocatedCommandSegmen
         text: [program, ...args].join(' '),
         timeoutSeconds: start.timeoutSeconds,
       },
-      assignments: leading.words,
+      assignments,
       ...placed,
       separator: part.before,
       terminator: part.after,
