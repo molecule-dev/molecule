@@ -274,6 +274,28 @@ export interface TraceHiddenBox {
   empty?: true
 }
 
+/**
+ * One method+path a test's page sent many times — the trace of a render loop.
+ *
+ * Counted over EVERY network entry the failing page recorded, before the trace reader's per-trace
+ * cap and its method+path+status dedupe, because those two bounds are exactly what hid m215's
+ * 2,106-request loop: the note could only ever see four of them.
+ */
+interface TraceRequestRepeat {
+  /** The HTTP method (`GET`). */
+  method: string
+  /** The path, query and fragment dropped (`/api/articles/test-article-1`). */
+  path: string
+  /** How many times the page sent it in this test. */
+  count: number
+  /** The last response status recorded. */
+  status?: number
+  /** The browser's resource type (`fetch`, `xhr`, `document`). */
+  type?: string
+  /** How long the repeated requests spanned, on the trace's own clock (ms). */
+  ms?: number
+}
+
 /** What one trace says: the test it belongs to, the requests it made, and its console lines. */
 export interface TraceArtifact {
   /** The failure's spec file, relative to the run's directory, when the trace names one. */
@@ -366,6 +388,15 @@ export interface TraceArtifact {
    * leaving the run to probe computed styles (xr-molecule-flash-m197).
    */
   hiddenBox?: TraceHiddenBox
+  /**
+   * The method+path groups this test's page sent {@link TRACE_NOTE_LOOP_REPEATS} times or more,
+   * most-repeated first — a render loop the note leads with (xr-molecule-flash-m215: 2,106
+   * `GET /api/articles/<slug>` in one test, printed as four identical `→ 200` lines). Counted over
+   * every network entry of the failing page, not the capped {@link TraceArtifact.requests} list.
+   *
+   * Absent when no group reached the threshold, and on traces read before this field existed.
+   */
+  repeated?: TraceRequestRepeat[]
 }
 
 /** How many traces one read reports, newest first. */
@@ -399,6 +430,18 @@ export const MAX_TRACE_NOTE_TESTS = 5
 
 /** How many requests the note names per test. */
 export const MAX_TRACE_NOTE_REQUESTS = 4
+
+/**
+ * How many times ONE test may send the same method+path before the note calls it a render loop.
+ *
+ * xr-molecule-flash-m215 (+27:27 → +29:42): an Editor effect with `[seeded, slug, t]` in its
+ * dependency list re-fetched `GET /api/articles/<slug>` 2,106 times in one test. The trace reader
+ * caps and de-duplicates its request list, so the note printed four identical `→ 200` lines and
+ * the run patched the component's seeding, rebuilt and re-ran before unzipping the trace by hand.
+ * Twenty is far above the retries a correct page makes (a few on a flaky call) and far below any
+ * render loop.
+ */
+export const TRACE_NOTE_LOOP_REPEATS = 20
 
 /** How long a URL the note prints, before the middle is cut. */
 export const TRACE_NOTE_URL_CHARS = 96
@@ -464,6 +507,7 @@ const MAX_CONSOLE = ${MAX_TRACED_CONSOLE}
 const MAX_ACTIONS = ${MAX_TRACED_ACTIONS}
 const MAX_BODY = ${MAX_TRACED_BODY_CHARS}
 const MAX_WS = ${MAX_TRACED_WEBSOCKET_CHARS}
+const LOOP_REPEATS = ${TRACE_NOTE_LOOP_REPEATS}
 const MAX_URL = 200
 // A console line that is not an error but still has to reach the note (m148): one a molecule
 // package wrote — it names the package, the \`[molecule/…]\` prefix, or the \`[scope]\` prefix
@@ -1209,6 +1253,64 @@ for (const one of found.slice(0, MAX_TRACES)) {
       /^\\/icons\\//.test(p) ||
       /^\\/(?:apple-touch-icon|og-image|splash)[^/]*(?:[?#]|$)/.test(p)
   }
+  // The request's identity for the loop count and the action's own list: the path without its
+  // query, so 2,106 GETs of the same article are ONE group.
+  function requestPathOf(r) {
+    return String(r.path).split(/[?#]/)[0]
+  }
+  // Method+path repeated at least LOOP_REPEATS times by ONE page: a render loop, not a retry
+  // (m215). Counted over every network entry of the failing page, BEFORE the per-trace cap and
+  // dedupe, so the note can name the real number instead of the four copies the cap kept.
+  function repeatedOf(list) {
+    const groups = {}
+    const order = []
+    for (const r of list) {
+      if (shellRequest(r)) continue
+      const p = requestPathOf(r)
+      const key = r.method + ' ' + p
+      let group = groups[key]
+      if (group === undefined) {
+        group = { method: r.method, path: p, count: 0, status: r.status, type: r.type || undefined, first: undefined, last: undefined }
+        groups[key] = group
+        order.push(key)
+      }
+      group.count += 1
+      group.status = r.status
+      if (typeof r.startedAt === 'number') {
+        if (group.first === undefined || r.startedAt < group.first) group.first = r.startedAt
+        if (group.last === undefined || r.startedAt > group.last) group.last = r.startedAt
+      }
+    }
+    const out = []
+    for (const key of order) {
+      const group = groups[key]
+      if (group.count < LOOP_REPEATS) continue
+      out.push({
+        method: group.method,
+        path: group.path,
+        count: group.count,
+        ...(group.status > 0 ? { status: group.status } : {}),
+        ...(group.type ? { type: group.type } : {}),
+        ...(group.first !== undefined && group.last !== undefined
+          ? { ms: Math.max(0, Math.round(group.last - group.first)) }
+          : {}),
+      })
+    }
+    out.sort(function (a, b) { return b.count - a.count })
+    return out.slice(0, 3)
+  }
+  // One entry per method+path, in recording order: a loop's four copies are one line in the row.
+  function dedupeByPath(list) {
+    const seen = {}
+    const out = []
+    for (const r of list) {
+      const key = r.method + ' ' + requestPathOf(r)
+      if (seen[key] === true) continue
+      seen[key] = true
+      out.push(r)
+    }
+    return out
+  }
   // A failed request: a 4xx/5xx, or no response at all WITH Playwright's error text (a refused
   // connection). No response and no text is an aborted/pending request, not a failure. A 404 on
   // the page shell is excepted, for the reason above.
@@ -1447,7 +1549,7 @@ for (const one of found.slice(0, MAX_TRACES)) {
       api: lastAction.api,
       start: lastAction.start,
       end: lastAction.end,
-      requests: actionIndexes.slice(0, MAX_NOTE).map(function (i) { return wire(requests[i]) }),
+      requests: dedupeByPath(actionIndexes.map(function (i) { return requests[i] })).slice(0, MAX_NOTE).map(function (r) { return wire(r) }),
       ...(pageBefore === undefined ? {} : { pageBefore: pageBefore }),
       ...(pageAfter === undefined ? {} : { pageAfter: pageAfter }),
     }
@@ -1642,6 +1744,8 @@ for (const one of found.slice(0, MAX_TRACES)) {
     hiddenBox === null
   )
     continue
+  // Counted over the page's EVERY network entry, before the cap and dedupe above (m215).
+  const repeated = repeatedOf(requests)
   process.stdout.write('TRACE ' + JSON.stringify({
     dir: path.relative(ROOT, path.dirname(one.file)),
     spec: spec,
@@ -1652,6 +1756,7 @@ for (const one of found.slice(0, MAX_TRACES)) {
     // tail here dropped every failed request as soon as a page made more than MAX_REQUESTS of them
     // plus the answered ones (xr-molecule-flash-m112's note listed only -1s and 200s).
     requests: chosen.slice(0, MAX_REQUESTS),
+    ...(repeated.length === 0 ? {} : { repeated: repeated }),
     ...(missingText === null ? {} : { missingText: missingText }),
     ...(readContradiction === null ? {} : { readContradiction: readContradiction }),
     ...(hiddenBox === null ? {} : { hiddenBox: hiddenBox }),
@@ -1793,6 +1898,35 @@ function parseLastAction(value: unknown): TraceLastAction | null {
 }
 
 /**
+ * The repeated method+path groups out of a `TRACE` line's json.
+ *
+ * @param value - The line's `repeated`.
+ * @returns The groups, most-repeated first, as the reader printed them.
+ */
+function parseRepeated(value: unknown): TraceRequestRepeat[] {
+  if (!Array.isArray(value)) return []
+  const out: TraceRequestRepeat[] = []
+  for (const entry of value) {
+    if (typeof entry !== 'object' || entry === null) continue
+    const raw = entry as Record<string, unknown>
+    if (typeof raw.method !== 'string' || typeof raw.path !== 'string') continue
+    const count = Number(raw.count)
+    if (!Number.isFinite(count) || count < 2) continue
+    out.push({
+      method: raw.method,
+      path: raw.path,
+      count,
+      ...(Number.isFinite(Number(raw.status)) && Number(raw.status) > 0
+        ? { status: Number(raw.status) }
+        : {}),
+      ...(typeof raw.type === 'string' && raw.type ? { type: raw.type } : {}),
+      ...(Number.isFinite(Number(raw.ms)) && Number(raw.ms) >= 0 ? { ms: Number(raw.ms) } : {}),
+    })
+  }
+  return out
+}
+
+/**
  * The traces {@link traceArtifactsScript} printed, parsed.
  *
  * A line that is not a complete `TRACE <json>` (a truncated read, a program that died mid-write) is
@@ -1815,6 +1949,7 @@ export function parseTraceArtifacts(stdout: string): TraceArtifact[] {
       const missingText = parseMissingText(raw.missingText)
       const readContradiction = parseReadContradiction(raw.readContradiction)
       const hiddenBox = parseHiddenBox(raw.hiddenBox)
+      const repeated = parseRepeated(raw.repeated)
       const otherContexts = Array.isArray(raw.otherContexts)
         ? raw.otherContexts
             .filter((c): c is Record<string, unknown> => typeof c === 'object' && c !== null)
@@ -1853,6 +1988,7 @@ export function parseTraceArtifacts(stdout: string): TraceArtifact[] {
         ...(missingText === null ? {} : { missingText }),
         ...(readContradiction === null ? {} : { readContradiction }),
         ...(hiddenBox === null ? {} : { hiddenBox }),
+        ...(repeated.length === 0 ? {} : { repeated }),
       })
     } catch (_error) {
       continue
@@ -1929,6 +2065,134 @@ function requestWithBody(request: TraceRequest, gotChars: number): string {
     : ''
   const got = request.got ? ` got ${bodyLine(redactSecrets(request.got), gotChars)}` : ''
   return `${requestLabel(request)} → ${status}${sent}${got}`
+}
+
+/**
+ * Whether two request paths name the same route: equal, or a `:param` segment on either side
+ * matching the other's value (the app's code writes `/articles/:slug`, the trace records
+ * `/articles/test-article-1`).
+ *
+ * @param a - One path.
+ * @param b - The other.
+ * @returns True when they name the same route.
+ */
+function sameTracePath(a: string, b: string): boolean {
+  const A = a.split('/').filter(Boolean)
+  const B = b.split('/').filter(Boolean)
+  return (
+    A.length === B.length &&
+    A.every((segment, i) => segment === B[i] || segment.startsWith(':') || B[i]!.startsWith(':'))
+  )
+}
+
+/** A request the note prints, with how many times the test's page sent it. */
+interface NoteRequest {
+  /** The request itself. */
+  request: TraceRequest
+  /** How many times the page sent this method+path in the test. */
+  count: number
+  /** How long the repeats spanned, on the trace's clock (ms), when it recorded one. */
+  ms?: number
+}
+
+/**
+ * The requests of one trace, one entry per method+path, with the trace's own repeat count.
+ *
+ * A loop is why this exists: the reader keeps at most four copies of a method+path, so the row
+ * must print ONE line with the real number (m215's `×2106`) rather than four identical lines.
+ *
+ * @param requests - The requests to print, in the note's own order.
+ * @param repeated - The trace's repeated groups ({@link TraceArtifact.repeated}).
+ * @returns One entry per method+path, first occurrence first.
+ */
+function collapseRequests(
+  requests: readonly TraceRequest[],
+  repeated: readonly TraceRequestRepeat[] | undefined,
+): NoteRequest[] {
+  const counts = new Map<string, { count: number; ms?: number }>()
+  for (const group of repeated ?? [])
+    counts.set(`${group.method} ${group.path}`, {
+      count: group.count,
+      ...(group.ms === undefined ? {} : { ms: group.ms }),
+    })
+  const out: NoteRequest[] = []
+  const seen = new Map<string, NoteRequest>()
+  for (const request of requests) {
+    const key = `${request.method} ${request.path}`
+    const existing = seen.get(key)
+    if (existing !== undefined) {
+      existing.count += 1
+      continue
+    }
+    const traced = counts.get(key)
+    const entry: NoteRequest = {
+      request,
+      count: Math.max(traced?.count ?? 1, 1),
+      ...(traced?.ms === undefined ? {} : { ms: traced.ms }),
+    }
+    seen.set(key, entry)
+    out.push(entry)
+  }
+  return out
+}
+
+/**
+ * One collapsed request as the note writes it: `GET /api/articles/x → 200 ×2106 (in 4.1 s)`.
+ *
+ * The count is printed only when the page sent the request more than once, so an ordinary row
+ * reads exactly as before.
+ *
+ * @param shown - The request and its count.
+ * @param gotChars - How much of the response body to print, when the body matters.
+ * @returns The request's clause.
+ */
+function shownRequest(shown: NoteRequest, gotChars?: number): string {
+  const line =
+    gotChars === undefined ? requestLine(shown.request) : requestWithBody(shown.request, gotChars)
+  if (shown.count <= 1) return line
+  return `${line} ×${shown.count}${
+    shown.ms === undefined ? '' : ` (in ${(shown.ms / 1000).toFixed(1)} s)`
+  }`
+}
+
+/**
+ * The sentence a render loop leads the note with.
+ *
+ * The loop is not a flaky API: an effect whose dependency list holds a value that is new on every
+ * render re-fetches forever, and the fix is that dependency list, never the test or the handler.
+ * m215's model found this only by unzipping a trace by hand after a wasted fix and a re-run.
+ *
+ * @param group - The repeated group.
+ * @param file - The app source file whose code sends it, when the caller read one.
+ * @returns The sentence.
+ */
+function requestLoopSentence(group: TraceRequestRepeat, file: string | null): string {
+  return (
+    `\`${group.method} ${group.path}\` was sent ${group.count.toLocaleString('en-US')} times ` +
+    `in this test — a render loop: an effect whose dependency changes on every render (an ` +
+    `object/array/function created in render, or state the effect itself sets) re-fetches ` +
+    `forever; read ${file === null ? 'the component that fetches it.' : `\`${file}\`.`}`
+  )
+}
+
+/**
+ * The app file the caller read for a repeated request, exact path first then a parameter match.
+ *
+ * @param group - The repeated group.
+ * @param callSites - What the caller read from the app's source.
+ * @returns The file, or null when no call stated the path.
+ */
+function callSiteOf(
+  group: TraceRequestRepeat,
+  callSites: readonly { method: string; path: string; file: string }[] | undefined,
+): string | null {
+  const sites = callSites ?? []
+  const exact = sites.find((site) => site.method === group.method && site.path === group.path)
+  if (exact !== undefined) return exact.file
+  const matched = sites.find(
+    (site) => site.method === group.method && sameTracePath(site.path, group.path),
+  )
+  return matched?.file ?? null
 }
 
 /**
@@ -2190,6 +2454,13 @@ export interface TraceRunReport {
    * Empty when the caller could not read the app's config.
    */
   authEndpoints?: readonly string[]
+  /**
+   * The app source files whose code sends a repeated request, read by the caller from the
+   * project (`app/src/**`) before this note is written. A loop's sentence names the component to
+   * read instead of leaving the run to search for it (xr-molecule-flash-m215's `Editor.tsx`).
+   * Empty when the caller could not read the app or no file states the path.
+   */
+  callSites?: readonly { method: string; path: string; file: string }[]
 }
 
 /** The Playwright navigation calls whose wait a pending document subresource can explain. */
@@ -2461,6 +2732,131 @@ function sameOriginPath(request: TraceRequest): string | null {
   const raw = String(request.path ?? '').split(/[?#]/)[0] ?? ''
   if (!raw.startsWith('/') || raw === '/') return null
   return raw.replace(/\/+$/, '')
+}
+
+/** The API prefix a no-response request is judged by when the caller read none from the app. */
+const DEFAULT_API_PREFIX = '/api'
+
+/**
+ * Whether a same-origin path is on the app's own API.
+ *
+ * The caller reads the app's client config (`['/api']`); a trace with no such config is judged by
+ * the conventional `/api` mount. The boundary is explicit so `/apiary` is not a child of `/api`.
+ *
+ * @param path - A same-origin path, without a query or trailing slash.
+ * @param prefixes - The API prefixes the caller read, or empty.
+ * @returns True when the path is under one of them.
+ */
+function isApiPath(path: string, prefixes: readonly string[]): boolean {
+  const list = prefixes.length === 0 ? [DEFAULT_API_PREFIX] : prefixes
+  return list.some((prefix) => {
+    const base = prefix.endsWith('/') ? prefix.slice(0, -1) : prefix
+    return path === base || path.startsWith(`${base}/`)
+  })
+}
+
+/** One method+path the page sent and never got a response for. */
+interface UnansweredApiRequest {
+  /** The request method. */
+  method: string
+  /** The path, without a query. */
+  path: string
+  /** How many times the run sent it. */
+  count: number
+}
+
+/**
+ * The API requests a failing run's traces recorded with NO response, one entry per method+path.
+ *
+ * A request still in flight is not a server failure on its own ({@link unansweredRequest}), and
+ * the note says so. Several API paths left unanswered in one walk is a different fact: the server
+ * stopped answering while the tests ran, and the closing "the cause is in the page" reading is
+ * then false (xr-molecule-flash-m215 +36:28: three API paths got no response and two `page.goto`
+ * calls timed out across a platform restart, and the note sent the run at avatar components and
+ * token signing).
+ *
+ * @param items - The traces the note is about.
+ * @param apiPrefixes - The API prefixes the caller read, or empty.
+ * @returns One entry per distinct method+path, in the order the traces recorded them.
+ */
+function unansweredApiRequests(
+  items: readonly TraceArtifact[],
+  apiPrefixes: readonly string[],
+): UnansweredApiRequest[] {
+  const groups = new Map<string, UnansweredApiRequest>()
+  for (const item of items) {
+    // The step's own requests are also in `item.requests` on a modern trace, but an older reader
+    // put them only on the action: count each method+path once per trace, not once per list.
+    const seen = new Set<string>()
+    for (const request of [...item.requests, ...(item.lastAction?.requests ?? [])]) {
+      if (!unansweredRequest(request)) continue
+      const path = sameOriginPath(request)
+      if (path === null || !isApiPath(path, apiPrefixes)) continue
+      const key = `${request.method} ${path}`
+      if (seen.has(key)) continue
+      seen.add(key)
+      const known = groups.get(key)
+      if (known === undefined) groups.set(key, { method: request.method, path, count: 1 })
+      else known.count += 1
+    }
+  }
+  return [...groups.values()]
+}
+
+/**
+ * Whether the runner reported this traced test's failure as a navigation that ran out of budget.
+ *
+ * The runner's own error names the call (`page.goto`, `page.reload`), and that report is the only
+ * signal used: m153 showed a `Frame.goto` that never finished on a trace whose failure was a 15 s
+ * `page.waitForSelector` timeout (the test was cut off mid-navigation), so an unfinished frame
+ * action alone would call a selector failure a page-load failure.
+ *
+ * @param item - One traced failure.
+ * @param failures - The runner's report, one entry per failing test.
+ * @returns True when this failure is a navigation that never finished.
+ */
+function navigationTimedOut(item: TraceArtifact, failures: readonly TraceRunFailure[]): boolean {
+  const failure = runFailureOf(item, failures)
+  return failure !== undefined && navigationMethod(failure.operation) !== null
+}
+
+/**
+ * The reading a run gets when the server stopped answering: the API requests with no response and
+ * the page loads that never finished, named once so both the lead and the closing sentence carry
+ * the same fact.
+ *
+ * @param requests - The API requests the traces recorded with no response.
+ * @param navigations - How many traced failures were a navigation that never finished.
+ * @param capital - True to start a sentence, false to continue one.
+ * @returns The sentence, without a trailing period run or a next step.
+ */
+function serverSilentReading(
+  requests: readonly UnansweredApiRequest[],
+  navigations: number,
+  capital: boolean,
+): string {
+  const shown = requests
+    .slice(0, 3)
+    .map(
+      (request) =>
+        `${request.method} ${request.path}${request.count > 1 ? ` ×${request.count}` : ''}`,
+    )
+  const more = requests.length > shown.length ? ` and ${requests.length - shown.length} more` : ''
+  const asked =
+    requests.length === 0
+      ? ''
+      : `${requests.length} API ${requests.length === 1 ? 'request' : 'requests'} got no response` +
+        (shown.length === 0 ? '' : ` (${shown.join(', ')}${more})`)
+  const loads =
+    navigations === 0
+      ? ''
+      : `${navigations} page ${navigations === 1 ? 'load' : 'loads'} never finished`
+  const what = [asked, loads].filter((part) => part !== '').join(' and ')
+  return (
+    `${capital ? 'The' : 'the'} server did not answer: ${what}. That is the app — a restart, a ` +
+    'cold start, or a request the server never finishes — being unavailable while these tests ' +
+    'ran, not page state.'
+  )
 }
 
 /**
@@ -3688,6 +4084,19 @@ export function failureTraceNote(
     ...new Set(stalls.flatMap((stall) => (stall === null ? [] : [stall.reported]))),
   ]
   const anyStalled = stalls.some((stall) => stall !== null)
+  // The server stopped answering while the tests ran (m215): several API requests with no
+  // response, or a navigation that never finished. A single request still in flight is not this
+  // (m112), and the note must never close with "the cause is in the page" beside it — the run
+  // then rewrites the page while the API was the thing that never answered.
+  const silentApiRequests = unansweredApiRequests(traced, apiPrefixes)
+  const silentNavigations = traced.filter((item) => navigationTimedOut(item, failures)).length
+  const serverSilent = silentApiRequests.length >= 2 || silentNavigations > 0
+  // A single unanswered request stays what it always was (m112). Two or more distinct API paths
+  // are a fact about the server, and it leads the note before any row.
+  const serverSilentLead =
+    silentApiRequests.length < 2
+      ? ''
+      : `${serverSilentReading(silentApiRequests, silentNavigations, true)}\n\n`
   const rows: string[] = []
   // Rows whose failing action sent nothing and left the page on a new route: the page is still
   // showing the previous route's data. Counted so the note can say it once for the whole run.
@@ -3762,12 +4171,13 @@ export function failureTraceNote(
       } else if (stepRequests.length === 0) {
         parts.push(`${head}, and it sent no request`)
       } else {
-        const shown = stepRequests.slice(0, room)
+        const shown = collapseRequests(stepRequests, item.repeated).slice(0, room)
         room -= shown.length
         // The response body is the point (m148: the register `POST /api/users` answered 201 and
-        // the page rendered signed-out anyway) — printed whatever the status.
+        // the page rendered signed-out anyway) — printed whatever the status. A method+path the
+        // page sent many times prints ONCE with its count (m215's four identical `→ 200` lines).
         parts.push(
-          `${head}, and it sent ${shown.map((request) => requestWithBody(request, TRACE_NOTE_LEAD_GOT_CHARS)).join('; ')}`,
+          `${head}, and it sent ${shown.map((entry) => shownRequest(entry, TRACE_NOTE_LEAD_GOT_CHARS)).join('; ')}`,
         )
       }
       // What the page did next: a navigation shows in the main frame's URL even when the app moved
@@ -3795,13 +4205,18 @@ export function failureTraceNote(
       )
         parts.push(logoutIgnoredSentence(stepLast, step.pageAfter))
     } else if (lead !== undefined) {
-      parts.push(leadRequestLine(lead))
+      const [leadShown] = collapseRequests([lead], item.repeated)
+      parts.push(
+        leadShown === undefined
+          ? leadRequestLine(lead)
+          : `the failing step sent ${shownRequest(leadShown, TRACE_NOTE_LEAD_GOT_CHARS)}`,
+      )
       room -= 1
     }
     if (failed.length > 0) {
-      const shown = failed.slice(0, room)
+      const shown = collapseRequests(failed, item.repeated).slice(0, room)
       room -= shown.length
-      parts.push(`failed: ${shown.map(requestLine).join('; ')}`)
+      parts.push(`failed: ${shown.map((entry) => shownRequest(entry)).join('; ')}`)
     }
     if (stalled.length > 0 && room > 0) {
       const shown = stalled.slice(0, room)
@@ -3835,7 +4250,12 @@ export function failureTraceNote(
         step !== undefined && !stalledNav && stepRequests.length === 0
           ? 'also answered (started before the action)'
           : 'answered'
-      parts.push(`${label}: ${answered.slice(0, room).map(requestLine).join('; ')}`)
+      parts.push(
+        `${label}: ${collapseRequests(answered, item.repeated)
+          .slice(0, room)
+          .map((entry) => shownRequest(entry))
+          .join('; ')}`,
+      )
     }
     if (item.console.length > 0)
       parts.push(
@@ -3999,7 +4419,21 @@ export function failureTraceNote(
   ]
   const formResetLead =
     formResets.length === 0 ? '' : `${formResets.slice(0, 2).map(formResetSentence).join(' ')}\n\n`
+  // One method+path the page sent twenty times or more in a single test is a render loop, not a
+  // flaky API, and it LEADS the note (m215: 2,106 GETs printed as four identical `→ 200` lines
+  // sent the run at the wrong component; it found the loop only by unzipping the trace by hand).
+  // The most-repeated group wins when a run has more than one.
+  const loopGroup = traced
+    .flatMap((item) => item.repeated ?? [])
+    .filter((group) => group.count >= TRACE_NOTE_LOOP_REPEATS)
+    .sort((left, right) => right.count - left.count)[0]
+  const loopLead =
+    loopGroup === undefined
+      ? ''
+      : `${requestLoopSentence(loopGroup, callSiteOf(loopGroup, report.callSites))}\n\n`
   return (
+    serverSilentLead +
+    loopLead +
     readContradictionLead +
     formResetLead +
     missingTextLead +
@@ -4059,13 +4493,20 @@ export function failureTraceNote(
               ? // The trace's own snapshot explains why the element Playwright resolved has no box:
                 // a fact about the element, so it replaces the "look at the page" advice (m197).
                 hiddenBox
-              : 'No listed request failed — none got a 4xx/5xx or a network error — so the cause is in the ' +
-                "page, not the API. Start with what the test's last action sent (the first line of each " +
-                'row) and what the page did next: a request that answered (2xx included) while the page ' +
-                'still did not show the state the assertion waited on is the fact to read — its status ' +
-                'and response body, not the selector. If the request is not the one the test meant — an ' +
-                'unfollow sent where the test clicked follow — the state the action read was stale ' +
-                'before it.') +
+              : serverSilent
+                ? // The server did not answer (m215): a page-state reading would send the run at
+                  // the markup while nothing answered it. Same fact as the lead, and the one action.
+                  'No listed request failed — none got a 4xx/5xx or a network error — but ' +
+                  `${serverSilentReading(silentApiRequests, silentNavigations, false)} ` +
+                  `Re-run only these tests against ${target} (\`--last-failed\`) before changing ` +
+                  'any code; change the app only if they fail again with requests that answered.'
+                : 'No listed request failed — none got a 4xx/5xx or a network error — so the cause is in the ' +
+                  "page, not the API. Start with what the test's last action sent (the first line of each " +
+                  'row) and what the page did next: a request that answered (2xx included) while the page ' +
+                  'still did not show the state the assertion waited on is the fact to read — its status ' +
+                  'and response body, not the selector. If the request is not the one the test meant — an ' +
+                  'unfollow sent where the test clicked follow — the state the action read was stale ' +
+                  'before it.') +
     prefixAdvice +
     (wrapped
       ? ' The API received a body wrapped in `data`: app-http’s `post(url, data, config)` / ' +

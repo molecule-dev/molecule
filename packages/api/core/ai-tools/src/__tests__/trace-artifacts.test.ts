@@ -64,6 +64,17 @@ const MANY_REQUESTS_401 = fileURLToPath(
 )
 
 /**
+ * The m215 shape: a real trace whose page sent the SAME `GET /api/articles/<slug>` 300 times
+ * after the failing action. The trace reader caps one test's requests at four and de-duplicates
+ * them, so before the loop count the note printed four identical `→ 200` lines — and the run
+ * patched the wrong component, rebuilt and re-ran before unzipping the trace by hand.
+ */
+const REQUEST_LOOP = fileURLToPath(new URL('./fixtures/trace-request-loop.zip', import.meta.url))
+
+/** The path the loop fixture repeats, and the app call that sends it. */
+const LOOP_PATH = '/api/articles/test-article-1792400422492'
+
+/**
  * A real trace of a click whose `fetch` DID send `Authorization: Bearer …` and got a 401 back —
  * the other half of m148's wire: the client attached a token and the SERVER refused it. The
  * header's value in the fixture is a fake (`secret-token-abc123`) so a test can prove the reader
@@ -380,6 +391,105 @@ describe('failureTraceNote — a request with no response is not a failed reques
     } finally {
       rmSync(root, { recursive: true, force: true })
     }
+  })
+
+  /**
+   * xr-molecule-flash-m215 (+36:28): the first whole deployed walk left three failures whose traces
+   * held API requests with NO response and `page.goto` calls that never finished. The note's lead
+   * even said the navigation did not finish, and then closed with "No listed request failed … so the
+   * cause is in the page, not the API" — the run rewrote avatar components and the API's token
+   * signing for a server that had stopped answering across a platform restart.
+   */
+  describe('failureTraceNote — a server that did not answer is never "the cause is in the page" (m215)', () => {
+    const unanswered = (method: string, path: string) => ({ method, path, status: -1 })
+
+    it('leads with the API paths that got no response and drops the page-cause sentence', () => {
+      // The navigation.spec.ts:109 row, verbatim from the m215 walk: one answered request, three
+      // API paths with no response at all.
+      const navigation: TraceArtifact = {
+        spec: 'fixtures/realworld/specs/e2e/navigation.spec.ts',
+        line: 109,
+        actions: [],
+        requests: [
+          { method: 'GET', path: '/api/articles/test-article-1792400422492', status: 200 },
+          unanswered('GET', '/api/articles/test-article-1792400422492/comments'),
+          unanswered('GET', '/api/tags'),
+          unanswered('GET', '/api/articles?limit=10&offset=0'),
+        ],
+        console: [],
+      }
+      // The null-fields.spec.ts:53 row: a page.goto that timed out, its document never answered.
+      const goto: TraceArtifact = {
+        spec: 'fixtures/realworld/specs/e2e/null-fields.spec.ts',
+        line: 53,
+        actions: [{ api: 'Frame.goto', start: 120, end: null }],
+        requests: [{ method: 'GET', path: '/register', status: -1, type: 'document' }],
+        console: ['page.goto: Timeout 10000ms exceeded'],
+      }
+      const note = String(
+        failureTraceNote(
+          [navigation, goto],
+          'loopcheck-xr-molecule-flash-m215.apps.mlcl.dev',
+          [],
+          [],
+          {
+            failures: [
+              {
+                spec: navigation.spec ?? '',
+                line: 109,
+                operation: 'page.waitForSelector',
+                budgetMs: 15000,
+              },
+              { spec: goto.spec ?? '', line: 53, operation: 'page.goto', budgetMs: 10000 },
+            ],
+          },
+        ),
+      )
+      // The lead: what did not answer, named, before any trace row.
+      expect(note).toContain('The server did not answer: 3 API requests got no response')
+      expect(note).toContain('GET /api/articles/test-article-1792400422492/comments')
+      expect(note).toContain('GET /api/tags')
+      expect(note).toContain('GET /api/articles')
+      expect(note).toContain('1 page load never finished')
+      expect(note.indexOf('The server did not answer')).toBeLessThan(
+        note.indexOf('The platform read the failing tests'),
+      )
+      // And the closing sentence no longer contradicts it.
+      expect(note).not.toContain('so the cause is in the page')
+      expect(note).toContain('Re-run only these tests against ')
+      expect(note).toContain('before changing any code; change the app only if they fail again')
+    })
+
+    it('drops the page-cause sentence for a navigation timeout even with no API request pending', () => {
+      const goto: TraceArtifact = {
+        spec: 'fixtures/realworld/specs/e2e/null-fields.spec.ts',
+        line: 71,
+        actions: [{ api: 'Frame.goto', start: 90, end: null }],
+        requests: [{ method: 'GET', path: '/register', status: -1, type: 'document' }],
+        console: ['page.goto: Timeout 10000ms exceeded'],
+      }
+      const note = String(
+        failureTraceNote([goto], 'the deployed app', [], [], {
+          failures: [{ spec: goto.spec ?? '', line: 71, operation: 'page.goto', budgetMs: 10000 }],
+        }),
+      )
+      expect(note).not.toContain('so the cause is in the page')
+      expect(note).toContain('the server did not answer: 1 page load never finished')
+      expect(note).toContain('Re-run only these tests against the deployed app')
+    })
+
+    it('keeps the page-cause sentence for ONE unanswered request (the m112 guard)', () => {
+      const one: TraceArtifact = {
+        spec: 'e2e/social.spec.ts',
+        line: 22,
+        actions: [],
+        requests: [unanswered('GET', '/api/tags')],
+        console: ['favorite failed'],
+      }
+      const note = String(failureTraceNote([one], 'the deployed app'))
+      expect(note).not.toContain('The server did not answer')
+      expect(note).toContain('the cause is in the page')
+    })
   })
 
   it('reads a refused connection as a real failure, with Playwright’s own error text', () => {
@@ -4044,5 +4154,76 @@ describe('traceArtifactsScript — a resolved locator Playwright calls hidden (m
       hiddenLocatorZip(message, ['div', {}, ['span', { class: 'badge' }, [[0, 2]]]]),
     )
     expect(items[0]?.hiddenBox).toBeUndefined()
+  })
+})
+
+describe('failureTraceNote — one request sent hundreds of times (xr-molecule-flash-m215)', () => {
+  it('counts one method+path over every network entry, before the per-trace cap', () => {
+    const root = layout({ [FOLDER]: REQUEST_LOOP })
+    try {
+      const line = readTraces(root)
+        .split('\n')
+        .find((l) => l.startsWith('TRACE '))
+      const raw = JSON.parse(String(line).slice('TRACE '.length)) as {
+        requests: Array<{ method: string; path: string }>
+        repeated?: Array<{ method: string; path: string; count: number; ms?: number }>
+      }
+      // The row's own list is still bounded — the cap is what hid the loop — and its action
+      // list names the path once, not four times.
+      expect(raw.requests.length).toBeLessThanOrEqual(6)
+      expect(raw.repeated?.[0]).toMatchObject({
+        method: 'GET',
+        path: LOOP_PATH,
+        count: 300,
+      })
+      expect(Number(raw.repeated?.[0]?.ms)).toBeGreaterThan(0)
+      const items = parseTraceArtifacts(`${line}\n`)
+      const repeatedAction = (items[0]?.lastAction?.requests ?? []).filter(
+        (request) => request.path === LOOP_PATH,
+      )
+      expect(repeatedAction).toHaveLength(1)
+      expect(items[0]?.repeated?.[0]?.count).toBe(300)
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
+  it('leads the note with the render loop, names the app file, and collapses the lines', () => {
+    const root = layout({ [FOLDER]: REQUEST_LOOP })
+    try {
+      const items = parseTraceArtifacts(readTraces(root))
+      const note = failureTraceNote(items, 'https://app.apps.mlcl.dev', [], [], {
+        callSites: [
+          { method: 'GET', path: '/api/articles/:slug', file: 'app/src/pages/Editor.tsx' },
+        ],
+      })
+      expect(note).toContain(`\`GET ${LOOP_PATH}\` was sent 300 times in this test — a render loop`)
+      expect(note).toContain('re-fetches forever')
+      expect(note).toContain('read `app/src/pages/Editor.tsx`')
+      // The loop sentence leads, before the trace-read preamble.
+      expect(note?.indexOf('a render loop')).toBeLessThan(
+        Number(note?.indexOf('The platform read the failing tests')),
+      )
+      const row = String(note?.split('\n').find((line) => /^\s+1\./.test(line)))
+      expect(row).toContain('×300')
+      expect(row).toContain('(in ')
+      // One line for the request, however many copies the reader kept.
+      expect(row.match(/GET \/api\/articles\/test-article-1792400422492/g)).toHaveLength(1)
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
+  it('keeps the ordinary rows unchanged when nothing repeats', () => {
+    const root = layout({ [FOLDER]: FIXTURE })
+    try {
+      const items = parseTraceArtifacts(readTraces(root))
+      expect(items[0]?.repeated).toBeUndefined()
+      const note = failureTraceNote(items, 'https://app.apps.mlcl.dev')
+      expect(note).not.toContain('a render loop')
+      expect(note).not.toContain('×')
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
   })
 })
