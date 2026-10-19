@@ -64,7 +64,7 @@ const HEREDOC = /^<<-?\s*['"]?[A-Za-z_]/
  * budget of a command that reaches outside the box.
  */
 const EXTERNAL_EFFECT =
-  /\b(?:curl|wget|aria2c|rsync|scp|sftp|ftp|ssh|urllib3?|httpx|aiohttp|axios|requests|fetch|XMLHttpRequest|socket|net\.connect|https?:\/\/|npm|npx|pnpm|yarn|bun|pip3?|conda|cargo|gem|composer|playwright|vitest|jest|hurl|vite|tsc|webpack|esbuild|rollup|docker|cmake|gradle|mvn|make)\b|\bgit\s+(?:clone|pull|push|fetch|remote|ls-remote|submodule)\b|\b(?:http\.server|flask|fastapi|uvicorn|gunicorn)\b/i
+  /\b(?:curl|wget|aria2c|rsync|scp|sftp|ftp|ssh|urllib3?|httpx|aiohttp|axios|requests|fetch|XMLHttpRequest|socket|net\.connect|https?:\/\/|npm|npx|pnpm|yarn|bun|pip3?|conda|cargo|gem|composer|playwright|vitest|jest|hurl|vite|tsc|webpack|esbuild|rollup|docker|cmake|gradle|mvn|make|subprocess|Popen|child_process|execSync|spawnSync|git|psql|mysql|mongosh?|redis-cli|sqlite3)\b|\bos\.system\b|\b(?:http\.server|flask|fastapi|uvicorn|gunicorn)\b/i
 
 /**
  * Whether one parsed statement runs an interpreter program written inline.
