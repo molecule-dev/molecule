@@ -2281,6 +2281,10 @@ function stalledNavigation(item: TraceArtifact, report: TraceRunReport): Stalled
  */
 function traceRowEvidence(item: TraceArtifact, report: TraceRunReport): boolean {
   return (
+    // A hidden-locator reading is evidence of its own: a page that made no app request can still
+    // have resolved the locator into an empty box, and that is the whole cause (m197's shape on a
+    // static page).
+    item.hiddenBox !== undefined ||
     item.console.length > 0 ||
     item.requests.some(
       (request) => !isStaticAssetRequest(request) && !unansweredRequest(request),
@@ -3573,6 +3577,12 @@ export function failureTraceNote(
           : 'another browser context the test opened'
       parts.push(`${label}: ${context.requests.slice(0, 2).map(requestLine).join('; ')}`)
     }
+    // A trace whose only evidence is the hidden-box reading keeps a row that says so, rather than
+    // an em dash and nothing (a static page's assertion failure has no request to print).
+    if (parts.length === 0 && item.hiddenBox !== undefined)
+      parts.push(
+        'the failing assertion resolved its locator and Playwright calls the element hidden',
+      )
     rows.push(`  ${index + 1}. ${failureWhereOf(item, failures)} — ${parts.join(' — ')}`)
   }
   // Distinct locations the note did not name: the repeats collapse, so the count is what is left

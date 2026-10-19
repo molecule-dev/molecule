@@ -3622,7 +3622,11 @@ const BRAND_SNAPSHOT = [
  * @param html - The snapshot the trace carries for the failing page.
  * @returns The zip.
  */
-function hiddenLocatorZip(message: string, html: unknown = BRAND_SNAPSHOT): Buffer {
+function hiddenLocatorZip(
+  message: string,
+  html: unknown = BRAND_SNAPSHOT,
+  options: { appRequest?: boolean } = {},
+): Buffer {
   const origin = 'http://127.0.0.1:4173'
   const runner = [
     {
@@ -3670,16 +3674,20 @@ function hiddenLocatorZip(message: string, html: unknown = BRAND_SNAPSHOT): Buff
         response: { status: 200 },
       },
     },
-    {
-      type: 'resource-snapshot',
-      snapshot: {
-        _resourceType: 'fetch',
-        _monotonicTime: 420,
-        pageref: 'page@1',
-        request: { url: `${origin}/api/tags`, method: 'GET', headers: [] },
-        response: { status: 200, content: { text: '{"tags":[]}' } },
-      },
-    },
+    ...(options.appRequest === false
+      ? []
+      : [
+          {
+            type: 'resource-snapshot',
+            snapshot: {
+              _resourceType: 'fetch',
+              _monotonicTime: 420,
+              pageref: 'page@1',
+              request: { url: `${origin}/api/tags`, method: 'GET', headers: [] },
+              response: { status: 200, content: { text: '{"tags":[]}' } },
+            },
+          },
+        ]),
   ]
   const lines = (rows: unknown[]): string => rows.map((row) => JSON.stringify(row)).join('\n')
   return storedZip({
@@ -3747,6 +3755,15 @@ describe('traceArtifactsScript — a resolved locator Playwright calls hidden (m
     )
     const { note } = hiddenLocatorRead(hiddenLocatorZip(message, ['span', { class: 'badge' }]))
     expect(note).toContain('the element has no text and no children')
+  })
+
+  it('still answers when the page made no app request at all', () => {
+    const { items, note } = hiddenLocatorRead(
+      hiddenLocatorZip(HIDDEN_BRAND_FAILURE, BRAND_SNAPSHOT, { appRequest: false }),
+    )
+    expect(items[0]?.hiddenBox).toBeDefined()
+    expect(note).toContain('resolved but Playwright calls it hidden')
+    expect(note).toContain('the page stayed at /')
   })
 
   it('makes no claim when the element’s children are a reference to an earlier snapshot', () => {
