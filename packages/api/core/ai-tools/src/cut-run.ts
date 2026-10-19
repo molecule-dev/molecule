@@ -34,6 +34,7 @@
  */
 
 import { commandTimeoutSeconds } from './command-position.js'
+import { inlineLocalScriptCommand } from './inline-script.js'
 import { isSuiteRunCommand } from './utilities.js'
 
 /**
@@ -280,6 +281,12 @@ export interface CutRun {
   noun: 'files' | 'tests'
   /** The last thing the run printed — the line a reader looks at first. */
   doing: string | null
+  /**
+   * The interpreter of an inline program that only touches local files (`python3`, `node`, …), or
+   * null. Such a program is stopped by its short budget because it is stuck, never because the work
+   * is slow, so the sentence must not send it to the background (xr-molecule-flash-m200 +03:45).
+   */
+  inlineScript?: string | null
 }
 
 /** The last thing a run printed: its last non-blank line, as one line and short enough to quote. */
@@ -385,6 +392,7 @@ export function commandCutRun(
   // at all is not a finish — it is the case the bounds below exist for.
   if (summary?.finished) return null
   const suite = isSuiteRunCommand(command)
+  const inlineScript = inlineLocalScriptCommand(command)
   const withheld = /\|\s*(?:tail|head|grep|egrep|fgrep|sort|uniq|wc|jq)\b/.test(command)
   const progress = runProgress(detected, suite, summary)
   const doing = lastPrinted(text)
@@ -414,6 +422,7 @@ export function commandCutRun(
       exitCode,
       ...progress,
       doing,
+      inlineScript,
     }
   }
   if (declared !== null && ownBoundStops && elapsedMs >= atBoundMs(declared)) {
@@ -425,6 +434,7 @@ export function commandCutRun(
       exitCode: withheld || exitCode === 0 ? null : exitCode,
       ...progress,
       doing,
+      inlineScript,
     }
   }
   // The tool's budget with its code masked: the run used the whole budget and the pipeline left
@@ -437,6 +447,7 @@ export function commandCutRun(
       exitCode: exitCode === 0 ? null : exitCode,
       ...progress,
       doing,
+      inlineScript,
     }
   }
   // The runner printed a summary that does not account for the total it announced, and neither
@@ -453,6 +464,7 @@ export function commandCutRun(
       exitCode: withheld || exitCode === 0 ? null : exitCode,
       ...progress,
       doing,
+      inlineScript,
     }
   }
   return null
@@ -486,6 +498,7 @@ export function cutRunFacts(result: unknown): CutRun | null {
     total: typeof c.total === 'number' ? c.total : null,
     noun: c.noun === 'tests' ? 'tests' : 'files',
     doing: typeof c.doing === 'string' && c.doing ? c.doing : null,
+    inlineScript: typeof c.inlineScript === 'string' && c.inlineScript ? c.inlineScript : null,
   }
 }
 
@@ -497,7 +510,9 @@ export function cutRunFacts(result: unknown): CutRun | null {
  * the counts come from the runner's own output ({@link runProgress}), and a `total` the caller
  * read elsewhere (the suite's own file count) fills in the "of N" it can then state. The sentence
  * says how many tests the stop left unrun — a number a reader cannot round up to "the suite
- * passed" — and hands over the one move that survives a long run: run it in the background.
+ * passed" — and hands over the one move that survives a long run: run it in the background. An
+ * inline program that only touches local files is the exception ({@link CutRun.inlineScript}): it
+ * is not slow, it is stuck, and the background is the one place it must not be sent.
  *
  * @param run - The stopped run.
  * @returns The sentence.
@@ -515,11 +530,15 @@ export function cutRunSentence(run: CutRun): string {
   // from being sent to the background again — when its own `timeout` is what stopped it, that
   // prefix is the thing to drop (X1 xr-molecule-flash-m143 +24:45: three cut sentences in one run
   // told a background walk to "run it in the background", which is where it already was).
-  const background = run.background
-    ? run.stoppedBy === 'command-timeout'
-      ? `drop the \`timeout\` prefix and send it again — in the background a run is bounded by \`wait_for_task\` and the turn's deadline, not by this tool's ceiling, so the bound you wrote is what killed it`
-      : 'send it again when you are ready'
-    : 'run it in the background (run_in_background + wait_for_task)'
+  const background = run.inlineScript
+    ? // An inline local-file program finished in milliseconds or is stuck; backgrounding it only
+      // moves the hang (xr-molecule-flash-m200 +03:45). The full rewrite advice rides the error.
+      'do not run it in the background — the transform is stuck, not slow'
+    : run.background
+      ? run.stoppedBy === 'command-timeout'
+        ? `drop the \`timeout\` prefix and send it again — in the background a run is bounded by \`wait_for_task\` and the turn's deadline, not by this tool's ceiling, so the bound you wrote is what killed it`
+        : 'send it again when you are ready'
+      : 'run it in the background (run_in_background + wait_for_task)'
   const missing = run.ran !== null && run.total !== null ? run.total - run.ran : null
   const lead =
     missing !== null

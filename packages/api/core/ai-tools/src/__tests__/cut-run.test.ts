@@ -581,3 +581,38 @@ describe('exec_command reports the stopped run', () => {
     expect(result.note).toContain('Ran 4 files in 280 s and was stopped by')
   })
 })
+
+// xr-molecule-flash-m200 (+03:45, 2026-10-19): the cut note on an inline interpreter program said
+// "run it in the background", which turns a regex hang into a longer one. A stopped inline program
+// that only touches local files is stuck, not slow — the sentence must say so.
+describe('commandCutRun — an inline interpreter program stopped by its short budget', () => {
+  /** m200's command: a `python3` heredoc rewriting a minified CSS file. */
+  const M200_COMMAND =
+    "cd app/public && python3 - <<'EOF'\n" +
+    'import re\n' +
+    "s = open('vendor/ionicons.min.css').read()\n" +
+    'rules = re.findall(r\'([^{}]*:before[^{}]*)\\{content:"[^"]*"\\}\', s)\n' +
+    'EOF'
+
+  const STOPPED = { stdout: '', stderr: '', exitCode: 124 }
+
+  it('records the interpreter and tells the reader not to background it', () => {
+    const cut = commandCutRun(M200_COMMAND, STOPPED, 20_000, 20)!
+    expect(cut).toMatchObject({ seconds: 20, stoppedBy: 'tool-budget', inlineScript: 'python3' })
+    const sentence = cutRunSentence(cut)
+    expect(sentence).toContain('do not run it in the background')
+    expect(sentence).not.toContain('run it in the background (run_in_background')
+  })
+
+  it('leaves a build and a program that reaches the network on the long run', () => {
+    const build = commandCutRun('cd app && npm run build', STOPPED, 290_000, 290)!
+    expect(build.inlineScript).toBeNull()
+    expect(cutRunSentence(build)).toContain('run it in the background (run_in_background')
+
+    const network =
+      'node -e "fetch(\'http://localhost:4000/health\').then(r => r.text()).then(console.log)"'
+    const fetching = commandCutRun(network, STOPPED, 290_000, 290)!
+    expect(fetching.inlineScript).toBeNull()
+    expect(cutRunSentence(fetching)).toContain('run it in the background (run_in_background')
+  })
+})

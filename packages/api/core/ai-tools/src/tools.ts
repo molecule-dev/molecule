@@ -26,6 +26,11 @@ import {
   renderEditExcerpt,
   renderSmallFile,
 } from './edit-excerpt.js'
+import {
+  INLINE_SCRIPT_BUDGET_MS,
+  inlineLocalScriptCommand,
+  inlineScriptRunawaySentence,
+} from './inline-script.js'
 import { guardToolExecute, missingParamError, ToolInputError } from './input-normalizer.js'
 import { diffLineCount } from './line-diff.js'
 import { pipelineExitCodeNote } from './pipeline-exit-note.js'
@@ -3181,7 +3186,17 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         // overrun is stopped there, the whole process group, and everything
         // printed until then comes back with exit code 124 — instead of an outer
         // timeout discarding the run and its output together.
-        const budgetSeconds = commandBudgetMs ? Math.max(1, Math.round(commandBudgetMs / 1000)) : 0
+        // An inline interpreter program that only reads and writes local files (a `python3`
+        // heredoc, `node -e`) finishes in milliseconds or never ends — xr-molecule-flash-m200
+        // (+03:45) burned 291 s on a backtracking `re.findall` over a minified CSS file, then was
+        // told to "run it in the background", which only moves the hang. It gets a short budget
+        // instead of the build budget, and a cut says what it is (inline-script.ts).
+        const inlineScript = inlineLocalScriptCommand(command)
+        const toolCeilingMs =
+          inlineScript === null
+            ? commandBudgetMs
+            : Math.min(commandBudgetMs ?? INLINE_SCRIPT_BUDGET_MS, INLINE_SCRIPT_BUDGET_MS)
+        const budgetSeconds = toolCeilingMs ? Math.max(1, Math.round(toolCeilingMs / 1000)) : 0
 
         // A requested budget is honored DOWNWARD only. The model used to send
         // `timeout: 900000` for a test suite, the field was not declared so it
@@ -3191,11 +3206,14 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         // ceiling is reported the FIRST time a larger one is asked for.
         const requestedMs = Number(input.timeout)
         const wantsMore =
-          Number.isFinite(requestedMs) && requestedMs > 0 && requestedMs > (commandBudgetMs ?? 0)
+          inlineScript === null &&
+          Number.isFinite(requestedMs) &&
+          requestedMs > 0 &&
+          requestedMs > (toolCeilingMs ?? 0)
         const effectiveBudgetMs =
-          Number.isFinite(requestedMs) && requestedMs > 0 && commandBudgetMs
-            ? Math.min(requestedMs, commandBudgetMs)
-            : commandBudgetMs
+          Number.isFinite(requestedMs) && requestedMs > 0 && toolCeilingMs
+            ? Math.min(requestedMs, toolCeilingMs)
+            : toolCeilingMs
         const startedAt = Date.now()
         const result = await backend.run(command, {
           cwd,
@@ -3268,11 +3286,13 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
                       : ''
                   }. `
                 : '') +
-              (startsServerProgram(command)
-                ? SERVER_OVER_BUDGET_ADVICE
-                : isSuiteRunCommand(command)
-                  ? SUITE_OVER_BUDGET_ADVICE
-                  : SPLIT_WORK_ADVICE),
+              (inlineScript !== null
+                ? inlineScriptRunawaySentence(inlineScript, cut.seconds)
+                : startsServerProgram(command)
+                  ? SERVER_OVER_BUDGET_ADVICE
+                  : isSuiteRunCommand(command)
+                    ? SUITE_OVER_BUDGET_ADVICE
+                    : SPLIT_WORK_ADVICE),
           }
         }
         // A pipeline reports its LAST stage's code: `tsc | head` says 0 beside a printed type

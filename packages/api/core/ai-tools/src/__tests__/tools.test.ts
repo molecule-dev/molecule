@@ -2054,6 +2054,67 @@ describe('buildTools', () => {
     })) as { error?: string }
     expect(build.error).toContain(SPLIT_WORK_ADVICE)
   })
+
+  // xr-molecule-flash-m200 (+03:45, 2026-10-19): a `python3` heredoc rewriting a minified CSS file
+  // hung 291 s on a backtracking regex and was then told to "run it in the background" — advice that
+  // turns a hang into a longer hang. An inline program that only touches local files finishes in
+  // milliseconds or never ends, so it gets a short budget and a sentence that says it is stuck.
+  it('gives an inline local-file interpreter program a short budget and the runaway sentence', async () => {
+    // m200's command shape, verbatim.
+    const command =
+      "cd app/public && python3 - <<'EOF'\n" +
+      'import re\n' +
+      "s = open('vendor/ionicons.min.css').read()\n" +
+      'rules = re.findall(r\'([^{}]*:before[^{}]*)\\{content:"[^"]*"\\}\', s)\n' +
+      "open('vendor/ionicons.min.css', 'w').write(s)\n" +
+      'EOF'
+    const backend = mockBackend()
+    ;(backend.run as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      stdout: '',
+      stderr: '',
+      exitCode: 124,
+    })
+    const exec = buildTools(backend, { commandBudgetMs: 290_000, overCeilingGraceMs: 0 }).find(
+      (t) => t.name === 'exec_command',
+    )!
+    const result = (await exec.execute({ command })) as { error?: string; exitCode?: number }
+
+    expect(backend.run).toHaveBeenLastCalledWith(
+      command,
+      expect.objectContaining({ budgetMs: 20_000 }),
+    )
+    expect(result.exitCode).toBe(124)
+    expect(result.error).toContain(
+      'python3 ran 20 s without finishing on a local text transform — that is a runaway',
+    )
+    expect(result.error).toContain('do not move it to the background')
+    expect(result.error).toContain('a plain string split')
+    expect(result.error).not.toContain('run it in the background (run_in_background')
+    expect(result.error).not.toContain(SPLIT_WORK_ADVICE)
+  })
+
+  it('keeps the full budget for a build and for an inline program that reaches the network', async () => {
+    const backend = mockBackend()
+    const exec = buildTools(backend, { commandBudgetMs: 290_000, overCeilingGraceMs: 0 }).find(
+      (t) => t.name === 'exec_command',
+    )!
+
+    await exec.execute({ command: 'cd app && npm run build' })
+    expect(backend.run).toHaveBeenLastCalledWith(
+      'cd app && npm run build',
+      expect.objectContaining({ budgetMs: 290_000 }),
+    )
+
+    // `fetch(` is an external effect, so the program is not a local text transform and keeps the
+    // build's budget (and, on a cut, the build's advice).
+    const network =
+      'node -e "fetch(\'http://localhost:4000/health\').then(r => r.text()).then(console.log)"'
+    await exec.execute({ command: network })
+    expect(backend.run).toHaveBeenLastCalledWith(
+      network,
+      expect.objectContaining({ budgetMs: 290_000 }),
+    )
+  })
 })
 
 // ── buildAgentPrompt ────────────────────────────────────────────────────────
