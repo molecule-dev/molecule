@@ -603,6 +603,18 @@ function subtreeText(node) {
   return false
 }
 
+// Whether any child is a REFERENCE to an earlier snapshot (\`[[snapshotIndex, nodeIndex]]\`).
+// Playwright stores an unchanged subtree that way, so an element with a reference child has
+// content this reader cannot see — and no "no text, no children" claim may be made about it.
+function hasReferenceChild(node) {
+  if (!Array.isArray(node)) return false
+  for (let i = 2; i < node.length; i++) {
+    const child = node[i]
+    if (Array.isArray(child) && Array.isArray(child[0])) return true
+  }
+  return false
+}
+
 // The serialized element children of a node, in document order (references skipped).
 function elementChildren(node) {
   const out = []
@@ -664,7 +676,7 @@ function hiddenBoxOf(message, frames) {
   if (node === null) return null
   const own = node[1] && typeof node[1] === 'object' ? node[1] : {}
   if (typeof own.style === 'string' && own.style) reading.style = own.style.slice(0, 160)
-  if (!subtreeText(node)) {
+  if (!subtreeText(node) && !hasReferenceChild(node)) {
     const children = elementChildren(node)
     if (children.length === 1 && children[0][0].toLowerCase() === 'img') {
       const image = children[0][1] && typeof children[0][1] === 'object' ? children[0][1] : {}
@@ -3149,6 +3161,13 @@ export function hiddenBoxNote(items: readonly TraceArtifact[]): string | null {
   const box = items.find((item) => item.hiddenBox !== undefined)?.hiddenBox
   if (box === undefined) return null
   const element = `\`${box.locator}\``
+  // An inline hiding rule is the direct cause whatever the element contains.
+  if (box.style !== undefined && HIDING_RULE.test(box.style)) {
+    return (
+      `${element} resolved but Playwright calls it hidden: its own inline style sets ` +
+      `\`${box.style}\`. Remove that declaration (or the rule that sets it) so the element has a box.`
+    )
+  }
   if (box.image !== undefined) {
     const image = box.image
     const shown = imageMarkup(image)
@@ -3173,12 +3192,6 @@ export function hiddenBoxNote(items: readonly TraceArtifact[]): string | null {
       `scaffold's index.css imports, sets img { max-width: 100%; height: auto }). Give the image a ` +
       `CSS width/height — a class the supplied theme already defines for it, or ` +
       `style={{ height: … }} — rather than changing the SVG or rasterising it to PNG.`
-    )
-  }
-  if (box.style !== undefined && HIDING_RULE.test(box.style)) {
-    return (
-      `${element} resolved but Playwright calls it hidden: its own inline style sets ` +
-      `\`${box.style}\`. Remove that declaration (or the rule that sets it) so the element has a box.`
     )
   }
   if (box.empty === true) {

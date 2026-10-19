@@ -3748,4 +3748,17 @@ describe('traceArtifactsScript — a resolved locator Playwright calls hidden (m
     const { note } = hiddenLocatorRead(hiddenLocatorZip(message, ['span', { class: 'badge' }]))
     expect(note).toContain('the element has no text and no children')
   })
+
+  it('makes no claim when the element’s children are a reference to an earlier snapshot', () => {
+    const message = HIDDEN_BRAND_FAILURE.replace(
+      'locator resolved to <a href="/" class="navbar-brand" data-discover="true" data-mol-id="conduit-brand">…</a>',
+      'locator resolved to <span class="badge">…</span>',
+    )
+    // Playwright stores an unchanged subtree as `[[snapshotIndex, nodeIndex]]`: its content is
+    // there, just not in this snapshot — so "no text, no children" would be false.
+    const { items } = hiddenLocatorRead(
+      hiddenLocatorZip(message, ['div', {}, ['span', { class: 'badge' }, [[0, 2]]]]),
+    )
+    expect(items[0]?.hiddenBox).toBeUndefined()
+  })
 })
