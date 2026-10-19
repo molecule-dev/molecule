@@ -44,6 +44,9 @@ export const TOOL_SCHEMAS: Record<string, ToolSchema> = {
       'file before editing it. When you need more than one file — surveying a project, ' +
       'gathering the files behind one feature — pass them all as `paths` in ONE call rather ' +
       'than calling this tool once per file: same content, a fraction of the time. ' +
+      'Independent calls go in ONE response: read every file you need together (one `paths` ' +
+      'call, or several `read_file` calls in the same response) — they run at once. Only a call ' +
+      'that needs another call’s result waits for it. ' +
       'For a @molecule package\u2019s docs call read_molecule_doc instead — one call, the whole ' +
       'document. A file that fits one read result comes back whole; do not page through it with ' +
       'offset/limit.',
@@ -85,7 +88,7 @@ export const TOOL_SCHEMAS: Record<string, ToolSchema> = {
   write_file: {
     name: 'write_file',
     description:
-      "Create or overwrite a file with full content. Use edit_file for small targeted changes instead. The result gives the file's line count (and a small file's numbered lines).",
+      "Create or overwrite a file with full content. Use edit_file for small targeted changes instead. The result gives the file's line count (and a small file's numbered lines). Independent calls go in ONE response: write every file you already know the content of together — one write_file call per file, different paths, in the same response — instead of one file per round trip. Only a call that needs another call's result waits for it.",
     parameters: {
       type: 'object',
       properties: {
@@ -105,7 +108,7 @@ export const TOOL_SCHEMAS: Record<string, ToolSchema> = {
   edit_file: {
     name: 'edit_file',
     description:
-      'Make targeted search-and-replace edits to a file. Preferred over write_file for small changes. Each old_string must match exactly once in the file, unless that replacement sets replace_all to change every occurrence (a rename, a repeated call). The result shows each edited region as it now reads, with line numbers, so there is no need to re-read the file to check an edit.',
+      'Make targeted search-and-replace edits to a file. Preferred over write_file for small changes. Each old_string must match exactly once in the file, unless that replacement sets replace_all to change every occurrence (a rename, a repeated call). The result shows each edited region as it now reads, with line numbers, so there is no need to re-read the file to check an edit. Independent calls go in ONE response: edits to different files you already know how to make go together in the same response, one edit_file call per file. Only a call that needs another call’s result waits for it.',
     parameters: {
       type: 'object',
       properties: {
