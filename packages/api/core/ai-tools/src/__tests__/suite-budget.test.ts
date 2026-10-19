@@ -11,7 +11,7 @@ import { describe, expect, it, vi } from 'vitest'
 
 import { buildTools } from '../tools.js'
 import type { ExecutionBackend, SuiteBudgetPin } from '../types.js'
-import { suiteRunBudgetCommand } from '../utilities.js'
+import { suiteRunBudgetCommand, suiteRunConfigCommand } from '../utilities.js'
 
 describe('suiteRunBudgetCommand', () => {
   it('writes the suite’s own flags on the runner’s own arguments', () => {
@@ -57,6 +57,59 @@ describe('suiteRunBudgetCommand', () => {
     expect(out.command).toBe(nested)
     expect(out.placed).toEqual([])
     expect(out.unplaced).toEqual(['--timeout=15000'])
+  })
+})
+
+describe('suiteRunConfigCommand', () => {
+  it('rewrites the config the run already names, in either spelling', () => {
+    expect(
+      suiteRunConfigCommand(
+        'npx playwright test --config ./e2e.config.ts',
+        '/workspace/.mol/d.mjs',
+      ),
+    ).toEqual({
+      command: 'npx playwright test --config /workspace/.mol/d.mjs',
+      placed: true,
+    })
+    expect(
+      suiteRunConfigCommand('npx playwright test --config=./e2e.config.ts', '/workspace/.mol/d.mjs')
+        .command,
+    ).toBe('npx playwright test --config=/workspace/.mol/d.mjs')
+    expect(
+      suiteRunConfigCommand('npx playwright test -c ./e2e.config.ts', '/workspace/.mol/d.mjs')
+        .command,
+    ).toBe('npx playwright test -c /workspace/.mol/d.mjs')
+  })
+
+  it('quotes the value it replaces as it was written, and survives a quoted path', () => {
+    expect(
+      suiteRunConfigCommand(
+        'npx playwright test --config "../my app/pw.config.ts"',
+        '/w/.mol/d.mjs',
+      ).command,
+    ).toBe('npx playwright test --config "/w/.mol/d.mjs"')
+  })
+
+  it('adds the config when the run names none, before a pipe and never after it', () => {
+    expect(
+      suiteRunConfigCommand('npx playwright test 2>&1 | tail -5', '/w/.mol/d.mjs').command,
+    ).toBe('npx playwright test --config=/w/.mol/d.mjs 2>&1 | tail -5')
+  })
+
+  it('reports a runner it cannot place instead of claiming a config it did not write', () => {
+    const nested = "sh -c 'npx playwright test --config ./x.ts'"
+    expect(suiteRunConfigCommand(nested, '/w/.mol/d.mjs')).toEqual({
+      command: nested,
+      placed: false,
+    })
+  })
+
+  it('does not touch a config on a command after the suite run', () => {
+    const out = suiteRunConfigCommand(
+      'npx playwright test; npm run build --config x',
+      '/w/.mol/d.mjs',
+    )
+    expect(out.command).toBe('npx playwright test --config=/w/.mol/d.mjs; npm run build --config x')
   })
 })
 
@@ -114,6 +167,98 @@ describe('exec_command — suiteBudget', () => {
     expect(ran).not.toContain('--timeout=')
     expect(String(result.note ?? '')).not.toContain('uses the suite’s own budget')
     expect(result.suiteBudget).toBeUndefined()
+  })
+
+  it('points the run at the derived config and records every pinned value', async () => {
+    const backend = mockBackend()
+    const tools = buildTools(backend, {
+      suiteBudget: vi.fn().mockResolvedValue({
+        ...pin,
+        config: '/workspace/.mol/pw-derived.abc.config.mjs',
+        values: {
+          timeout: '15000',
+          'expect.timeout': '5000',
+          actionTimeout: '5000',
+          navigationTimeout: '10000',
+        },
+        drift: {
+          timeout: { used: '30_000', suite: '15_000' },
+          'expect.timeout': { used: '10_000', suite: '5_000' },
+        },
+      } satisfies SuiteBudgetPin),
+    })
+    const exec = tools.find((tool) => tool.name === 'exec_command')
+
+    const result = (await exec?.execute({
+      command:
+        'BASE_URL=http://localhost:5173 npx playwright test --config /workspace/e2e-conduit.config.ts',
+    })) as Record<string, unknown>
+
+    const ran = String((backend.run as ReturnType<typeof vi.fn>).mock.calls[0]?.[0])
+    expect(ran).toContain('--config /workspace/.mol/pw-derived.abc.config.mjs')
+    expect(ran).not.toContain('--config /workspace/e2e-conduit.config.ts')
+    expect(result.suiteBudget).toEqual({
+      pinned: ['--timeout=15000'],
+      config: '/workspace/.mol/pw-derived.abc.config.mjs',
+      values: {
+        timeout: '15000',
+        'expect.timeout': '5000',
+        actionTimeout: '5000',
+        navigationTimeout: '10000',
+      },
+    })
+  })
+
+  it('reports the settings it could NOT carry as residual drift', async () => {
+    const backend = mockBackend()
+    const tools = buildTools(backend, {
+      suiteBudget: vi.fn().mockResolvedValue({
+        ...pin,
+        config: '/workspace/.mol/pw-derived.abc.config.mjs',
+        values: { actionTimeout: '5000' },
+        drift: {
+          timeout: { used: '30_000', suite: '15_000' },
+          actionTimeout: { used: '10_000', suite: '5_000' },
+          navigationTimeout: { used: '20_000', suite: '10_000' },
+        },
+      } satisfies SuiteBudgetPin),
+    })
+    const exec = tools.find((tool) => tool.name === 'exec_command')
+
+    const result = (await exec?.execute({ command: 'npx playwright test' })) as Record<
+      string,
+      unknown
+    >
+
+    expect(result.suiteBudget).toMatchObject({
+      drift: { navigationTimeout: { used: '20_000', suite: '10_000' } },
+    })
+    // The pinned ones are not drift: this run carries the suite's values for them.
+    expect(
+      (result.suiteBudget as { drift: Record<string, unknown> }).drift?.timeout,
+    ).toBeUndefined()
+  })
+
+  it('leaves a derived config a nested runner cannot take as residual drift, with no values', async () => {
+    const backend = mockBackend()
+    const tools = buildTools(backend, {
+      suiteBudget: vi.fn().mockResolvedValue({
+        flags: [],
+        note: 'derived',
+        config: '/workspace/.mol/pw-derived.abc.config.mjs',
+        values: { actionTimeout: '5000' },
+        drift: { actionTimeout: { used: '10_000', suite: '5_000' } },
+      } satisfies SuiteBudgetPin),
+    })
+    const exec = tools.find((tool) => tool.name === 'exec_command')
+
+    const result = (await exec?.execute({
+      command: "sh -c 'npx playwright test'",
+    })) as Record<string, unknown>
+
+    expect(result.suiteBudget).toEqual({
+      drift: { actionTimeout: { used: '10_000', suite: '5_000' } },
+    })
   })
 
   it('leaves a non-Playwright command alone and never asks', async () => {

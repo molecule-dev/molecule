@@ -681,6 +681,7 @@ import {
   streamingBackgroundCommand,
   stripControlChars,
   suiteRunBudgetCommand,
+  suiteRunConfigCommand,
   type SuiteRunPipelinePlacement,
   suiteRunPipelinePlacement,
   suiteRunPriorityLaunch,
@@ -698,15 +699,47 @@ import {
 const OVER_CEILING_GRACE_MS = 45_000
 
 /**
- * The machine-readable mark on a result whose run carried the supplied suite's own settings
- * ({@link ToolBuildConfig.suiteBudget}) — the flags actually written, so a consumer's notes can
- * treat those settings as equal to the suite's instead of re-reading the config.
- *
- * @param pinned - The flags put on the command.
- * @returns The result field, or nothing when no flag was placed.
+ * What a run's {@link ToolBuildConfig.suiteBudget} hook actually put on it: the flags and the
+ * derived config placed on the runner, the settings the derived config carries, and every setting
+ * the run's config still makes different from the suite's.
  */
-function suiteBudgetField(pinned: readonly string[]): Record<string, unknown> {
-  return pinned.length === 0 ? {} : { suiteBudget: { pinned: [...pinned] } }
+interface SuiteBudgetOutcome {
+  /** The flags written on the runner (`--timeout=15000`). */
+  pinned: string[]
+  /** The derived config the run was pointed at, or null when none was placed. */
+  config: string | null
+  /** The settings the derived config pins, by the scan's key. */
+  values: Readonly<Record<string, string>>
+  /** Every differing setting the consumer's scan reported, pinned or not. */
+  drift: Readonly<Record<string, { used: string; suite: string }>>
+}
+
+/**
+ * The machine-readable mark on a result whose run carried the supplied suite's own settings
+ * ({@link ToolBuildConfig.suiteBudget}) — the flags and derived config actually written, every
+ * pinned value, and the RESIDUAL drift, so a consumer's notes can treat those settings as equal to
+ * the suite's instead of re-reading the config, and can see which ones this run still measures
+ * differently.
+ *
+ * @param outcome - What the placement put on the command.
+ * @returns The result field, or nothing when nothing was placed and nothing differs.
+ */
+function suiteBudgetField(outcome: SuiteBudgetOutcome): Record<string, unknown> {
+  const field: Record<string, unknown> = {}
+  if (outcome.pinned.length > 0) field.pinned = [...outcome.pinned]
+  if (outcome.config !== null) field.config = outcome.config
+  // A derived config that was NOT placed carries nothing: its values are then residual drift.
+  const values = outcome.config === null ? {} : { ...outcome.values }
+  if (Object.keys(values).length > 0) field.values = values
+  const carried = new Set([
+    ...outcome.pinned.map((flag) => flag.slice(2).split('=')[0] ?? ''),
+    ...Object.keys(values),
+  ])
+  const drift = Object.fromEntries(
+    Object.entries(outcome.drift).filter(([key]) => !carried.has(key)),
+  )
+  if (Object.keys(drift).length > 0) field.drift = drift
+  return Object.keys(field).length === 0 ? {} : { suiteBudget: field }
 }
 
 /**
@@ -2872,7 +2905,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       // its base live); this tool only writes the flags where they belong. Before the background
       // branch, so a task launch and a foreground run carry them alike.
       let budgetNote: string | null = null
-      let budgetPinned: string[] = []
+      const budget: SuiteBudgetOutcome = { pinned: [], config: null, values: {}, drift: {} }
       if (config?.suiteBudget !== undefined && isPlaywrightRunCommand(command)) {
         try {
           const pin = await config.suiteBudget(command, cwd)
@@ -2881,8 +2914,19 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
             if (pin.flags.length > 0) {
               const pinned = suiteRunBudgetCommand(command, pin.flags)
               command = pinned.command
-              budgetPinned = pinned.placed
+              budget.pinned = pinned.placed
             }
+            // The settings with no Playwright flag are carried by a config the consumer wrote
+            // outside the supplied suite: this run loads that one instead of the config it named.
+            if (pin.config !== undefined && pin.config !== '') {
+              const configured = suiteRunConfigCommand(command, pin.config)
+              if (configured.placed) {
+                command = configured.command
+                budget.config = pin.config
+              }
+            }
+            budget.values = pin.values ?? {}
+            budget.drift = pin.drift ?? {}
           }
         } catch (_error) {
           // A consumer's scan that fails changes nothing: the command runs exactly as asked.
@@ -3088,7 +3132,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
                   ...(pipeNote === null ? {} : { exitCodeNote: pipeNote }),
                   ...(output.length > MAX_OUTPUT_SIZE ? { truncated: true, fullOutput: log } : {}),
                   ...(notes.length ? { note: notes.join(' ') } : {}),
-                  ...suiteBudgetField(budgetPinned),
+                  ...suiteBudgetField(budget),
                 }
               }
               await new Promise((r) => setTimeout(r, 1_500))
@@ -3099,7 +3143,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
             log,
             exitFile,
             ...(peekedTask?.slice.trim() ? { outputSoFar: sanitizeOutput(peekedTask.slice) } : {}),
-            ...suiteBudgetField(budgetPinned),
+            ...suiteBudgetField(budget),
             note:
               (sleepNote ? `${sleepNote} ` : '') +
               (budgetNote ? `${budgetNote} ` : '') +
@@ -3246,7 +3290,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           exitCode: result.exitCode,
           ...(exitCodeNote === null ? {} : { exitCodeNote }),
           ...(peekedTask?.slice.trim() ? { outputSoFar: sanitizeOutput(peekedTask.slice) } : {}),
-          ...suiteBudgetField(budgetPinned),
+          ...suiteBudgetField(budget),
           ...(sleepNote || ceilingNote || traced.change || budgetNote
             ? {
                 note: [sleepNote, ceilingNote, traced.change, budgetNote].filter(Boolean).join(' '),

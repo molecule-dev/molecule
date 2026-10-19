@@ -905,6 +905,62 @@ export function suiteRunBudgetCommand(
   return { command: out, placed, unplaced }
 }
 
+/** The config flag and the separator before its value, as a run may write it. */
+const CONFIG_ARGUMENT = /(?:^|[\s;&|(])(?:--config|-c)(?:=|\s+)/g
+
+/**
+ * A command with the derived config put on the LAST suite runner's own arguments, replacing the
+ * config the run names or added when it names none.
+ *
+ * Some of the suite's settings have no Playwright flag (`expect.timeout`, `use.actionTimeout`,
+ * `use.navigationTimeout`), so a config the executor wrote cannot be corrected from the command
+ * line. The consumer writes a derived config OUTSIDE the supplied suite that re-imports the one
+ * the run selected and pins those settings ({@link SuiteBudgetPin.config}); pointing the runner at
+ * it is the one way to carry them, and it belongs on the runner itself for the same reasons
+ * {@link suiteRunBudgetCommand}'s flags do (last suite step, before a pipe or group closer).
+ *
+ * A command whose runner cannot be placed is returned exactly as written with `placed: false`, so
+ * the caller never claims a config it did not point the run at.
+ *
+ * @param command - The shell command about to run.
+ * @param config - The config to run, as the runner takes it (`--config <path>`).
+ * @returns The command to run and whether the config was placed.
+ */
+export function suiteRunConfigCommand(
+  command: string,
+  config: string,
+): { command: string; placed: boolean } {
+  const run = suiteRunnerArguments(command)
+  if (run === null) return { command, placed: false }
+  const text = command.slice(run.start, run.at)
+  CONFIG_ARGUMENT.lastIndex = 0
+  let last: { start: number; end: number } | null = null
+  for (let m = CONFIG_ARGUMENT.exec(text); m !== null; m = CONFIG_ARGUMENT.exec(text)) {
+    const start = m.index + m[0].length
+    const quote = text[start]
+    if (quote === '"' || quote === "'") {
+      const close = text.indexOf(quote, start + 1)
+      if (close === -1) continue
+      last = { start: start + 1, end: close }
+      // The value may not continue into a second quoted word: resume after the closer.
+      CONFIG_ARGUMENT.lastIndex = close + 1
+    } else {
+      const value = /^[^\s;&|)]*/.exec(text.slice(start))?.[0] ?? ''
+      if (value === '') continue
+      last = { start, end: start + value.length }
+    }
+  }
+  if (last === null) {
+    return {
+      command: `${command.slice(0, run.at)} --config=${config}${command.slice(run.at)}`,
+      placed: true,
+    }
+  }
+  const from = run.start + last.start
+  const to = run.start + last.end
+  return { command: `${command.slice(0, from)}${config}${command.slice(to)}`, placed: true }
+}
+
 /**
  * The command with the `timeout <N>` wrapper lifted off the statement that runs the suite, and the
  * bound that was lifted.

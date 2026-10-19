@@ -67,14 +67,31 @@ export interface SuiteBudgetPin {
   /**
    * The Playwright flags that carry the suite's own settings onto the command
    * (`--timeout=15000`, `--workers=1`), as the consumer's own scan reads them. Empty when the
-   * difference is in settings no flag carries — the pin is then the sentence alone.
+   * difference is in settings no flag carries.
    */
   flags: string[]
-  /**
-   * One sentence for the run's result: this run uses the suite's own budget, and which settings
-   * a config keeps because Playwright has no flag for them.
-   */
+  /** One sentence for the run's result: which of the suite's own settings this run uses. */
   note: string
+  /**
+   * A config file the consumer wrote OUTSIDE the supplied suite, which re-imports the config the
+   * run selected and pins the settings no Playwright flag can carry (`expect.timeout`,
+   * `use.actionTimeout`, `use.navigationTimeout`). When present, the run is launched with
+   * `--config <this path>` in place of the config it named, so those settings are the suite's own
+   * rather than the executor's. Absent when the consumer could not write one.
+   */
+  config?: string
+  /**
+   * Every setting the derived config ({@link config}) pins at the suite's own value, by the scan's
+   * key (`timeout`, `expect.timeout`, `actionTimeout`, `navigationTimeout`), in milliseconds as
+   * digits. Empty when no derived config was placed.
+   */
+  values?: Record<string, string>
+  /**
+   * Every setting the run's own config makes different from the suite's, as the consumer's scan
+   * read them: the value this run's config writes and the suite's own. The tool reports the ones
+   * its placement did NOT put back, so a result never claims a drift it carried.
+   */
+  drift?: Record<string, { used: string; suite: string }>
 }
 
 /**
@@ -207,7 +224,8 @@ export interface ToolBuildConfig {
    * different settings, asked BEFORE the run executes. The consumer knows where the suite and its
    * base config live; this shared package does not, so the reading is the consumer's and the
    * mechanics — putting the flags on the runner's own arguments, before the pipeline and outside
-   * any redirect or group closer — are this tool's.
+   * any redirect or group closer, and pointing `--config` at the derived config that carries the
+   * settings no flag can — are this tool's.
    *
    * Called for a Playwright suite command only, and only the LAST suite step is touched. A run
    * that already keeps the suite's settings, or a sandbox with no supplied suite, answers `null`.
@@ -215,7 +233,7 @@ export interface ToolBuildConfig {
    *
    * @param command - The shell command, as the model sent it.
    * @param cwd - The resolved working directory it will run in.
-   * @returns The flags and the sentence, or null when nothing is put back.
+   * @returns The flags, the derived config and the sentence, or null when nothing is put back.
    */
   suiteBudget?: (command: string, cwd: string) => Promise<SuiteBudgetPin | null | undefined>
 
