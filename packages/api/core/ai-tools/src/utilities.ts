@@ -3174,6 +3174,19 @@ export interface CausePageErrors {
   where: string
   /** The alert / error items the page showed at the moment it failed. */
   items: readonly string[]
+  /**
+   * The landmark roles the test's page snapshot printed (`navigation`, `banner`), read from the
+   * YAML block of its own `error-context.md`. Present ONLY when the caller has that test's
+   * snapshot; an empty array means the snapshot was read and showed no landmark, while an absent
+   * field means nothing was read and no claim may be made ({@link missingHeaderNote}).
+   */
+  landmarks?: readonly string[]
+  /**
+   * Whether the test's snapshot showed populated page content (headings, paragraphs, links,
+   * list items, buttons), the other half of the missing-header reading: a page that painted its
+   * main content but no navigation.
+   */
+  populated?: boolean
 }
 
 /**
@@ -3449,6 +3462,202 @@ function noBaseUrlConfigNote(
   )
 }
 
+/** A landmark role a failed selector requires: `<nav>`/`role=navigation`, `<header>`/`role=banner`. */
+export type RequiredLandmark = 'navigation' | 'banner'
+
+/**
+ * A selector that names the page's navigation landmark: the `nav` tag, a `navbar`/`nav-*` class,
+ * or `role=navigation`. `a.navbar-brand` names it through its class — the brand link is the
+ * navbar's own child in every theme this reader has seen.
+ */
+const NAVIGATION_SELECTOR =
+  /(?:^|[\s>+~,(])nav(?=$|[\s.#:[>+~,)])|\.navbar(?:-[a-z-]+)?(?![\w-])|\[role\s*=\s*['"]?navigation['"]?\]/i
+
+/** A selector that names the page's header landmark: the `header` tag or `role=banner`. */
+const HEADER_SELECTOR = /(?:^|[\s>+~,(])header(?=$|[\s.#:[>+~,)])|\[role\s*=\s*['"]?banner['"]?\]/i
+
+/**
+ * The quoted argument of each `locator(...)` call in a failure block. Both quote styles are
+ * matched separately: a selector routinely carries the OTHER quote inside it
+ * (`locator('nav a[href="/"]')`), which one shared backreferenced class would cut short.
+ */
+const QUOTED_LOCATORS: readonly RegExp[] = [/locator\(\s*'([^']*)'/g, /locator\(\s*"([^"]*)"/g]
+
+/** The role a `getByRole(...)` call names, when the role is a landmark this reader knows. */
+const QUOTED_ROLE = /getByRole\(\s*(['"])(navigation|banner)\1/gi
+
+/** The path an `[href="…"]` / `[to="…"]` filter names, when it is a root-relative route. */
+const HREF_FILTER = /\[(?:href|to)\s*=\s*(['"])([^'"]+)\1\]/g
+
+/**
+ * The landmark a selector requires as an ANCESTOR (or names as its own role), or null when it
+ * names no landmark at all (`h1`, `.article-preview`, `a[href="/profile/x"]`).
+ *
+ * @param selector - One CSS selector or `getByRole` role from a failure's call log.
+ * @returns The landmark, or null.
+ */
+export function requiredLandmark(selector: string): RequiredLandmark | null {
+  if (NAVIGATION_SELECTOR.test(selector)) return 'navigation'
+  if (HEADER_SELECTOR.test(selector)) return 'banner'
+  return null
+}
+
+/**
+ * The route a selector names through an `[href="…"]`/`[to="…"]` filter (`nav a[href="/"]` → `/`),
+ * or null when it names none. The query string and hash are dropped: the route is the path.
+ *
+ * @param selector - One CSS selector from a failure's call log.
+ * @returns The path, or null.
+ */
+function routeNamedBySelector(selector: string): string | null {
+  for (const match of selector.matchAll(HREF_FILTER)) {
+    const value = match[2] ?? ''
+    if (!value.startsWith('/') || value.startsWith('//')) continue
+    const path = value.split(/[?#]/)[0] ?? value
+    return path === '' ? '/' : path
+  }
+  return null
+}
+
+/** One failure that waits on an element only a navigation/header landmark can contain. */
+interface MissingLandmarkFailure {
+  /** The test's location as the log prints it. */
+  where: string
+  /** The landmark its selector requires. */
+  landmark: RequiredLandmark
+  /** The selectors that require it, as the call log wrote them. */
+  selectors: string[]
+  /** The route one of those selectors names (`/` from `nav a[href="/"]`), when any does. */
+  route: string | null
+}
+
+/**
+ * The failures whose own selector requires a landmark — the rows {@link missingHeaderNote}
+ * compares against their page snapshots.
+ *
+ * @param text - The run's output, ANSI already stripped.
+ * @returns The failures, in the order the run printed them.
+ */
+function missingLandmarkFailures(text: string): MissingLandmarkFailure[] {
+  const out: MissingLandmarkFailure[] = []
+  for (const block of failureBlocks(text)) {
+    const header = FAILURE_BLOCK_HEADER.exec(block.split('\n')[0] ?? '')
+    const { where } = splitTitlePath(header?.[1] ?? '')
+    const selectors: string[] = []
+    for (const pattern of QUOTED_LOCATORS)
+      for (const match of block.matchAll(pattern)) selectors.push(match[1] as string)
+    for (const match of block.matchAll(QUOTED_ROLE)) selectors.push(`[role="${match[2]}"]`)
+    const distinct = [...new Set(selectors)]
+    const needing = distinct.filter((selector) => requiredLandmark(selector) !== null)
+    if (needing.length === 0) continue
+    // Navigation outranks banner for a selector that names both (a `header nav …` chain): the
+    // finding's own sentence is about the missing navigation.
+    const landmark: RequiredLandmark = needing.some(
+      (selector) => requiredLandmark(selector) === 'navigation',
+    )
+      ? 'navigation'
+      : 'banner'
+    const route = needing.map(routeNamedBySelector).find((candidate) => candidate !== null) ?? null
+    out.push({ where, landmark, selectors: needing, route })
+  }
+  return out
+}
+
+/**
+ * The snapshot a failure's own `error-context.md` produced, keyed the way the log and the
+ * artifact both spell the test's location. The log writes the path relative to the command's
+ * cwd and the artifact read keys it the same way, but a caller that shortened one side is
+ * matched on its tail rather than losing the reading.
+ *
+ * @param where - The failure's location.
+ * @param pageErrors - The snapshots the caller read.
+ * @returns The entry, or undefined when this test has none.
+ */
+function pageSnapshotFor(
+  where: string,
+  pageErrors: readonly CausePageErrors[],
+): CausePageErrors | undefined {
+  const exact = pageErrors.find((entry) => entry.where === where)
+  if (exact !== undefined) return exact
+  return pageErrors.find(
+    (entry) =>
+      (where !== '' && entry.where.endsWith(`/${where}`)) ||
+      (entry.where !== '' && where.endsWith(`/${entry.where}`)),
+  )
+}
+
+/** How the sentence names the landmark: the finding's words, one per role. */
+const LANDMARK_WORD: Record<RequiredLandmark, string> = {
+  navigation: 'navigation',
+  banner: 'header',
+}
+
+/**
+ * The sentence for a run whose navigational elements are all missing from pages that otherwise
+ * painted — the missing shared header the executor must check BEFORE rewriting auth.
+ *
+ * xr-molecule-flash-m193 (+13:54 → +20:00): four failures on `/` — `a[href="/profile/…"]`,
+ * `a.navbar-brand`, `nav a[href="/"]`, `nav .user-pic` — while every `error-context.md` snapshot
+ * showed the feed, sidebar and footer with no navigation at all. `Home.tsx` imported and
+ * re-exported `Navbar` but never rendered it, and `App.tsx` mounted `<Home />` in a bare route.
+ * The cause list named four unrelated symptoms, so the run rewrote `Navbar`'s auth logic and then
+ * the HTTP bond across two whole walks (~6 minutes) instead of mounting the header.
+ *
+ * The reading is per FAILURE and per SNAPSHOT: each failure's own selector must require the
+ * landmark, its own snapshot must have been read AND show populated page content, and that
+ * snapshot must not contain the landmark. Two or more such failures on ONE route (the route a
+ * selector names, e.g. `nav a[href="/"]` → `/`; failures whose selector names none ride along)
+ * are the group. A page that shows the navigation and merely misses a signed-in link is not this
+ * shape — its snapshots contain the landmark, so nothing is said.
+ *
+ * This never stops the run and never claims the page is blank: it is one sentence prepended to
+ * the causes note ({@link failureCausesNote}).
+ *
+ * @param log - The run's output.
+ * @param pageErrors - The page snapshot facts the caller read per failing test.
+ * @returns The sentence, or null when the failures do not share a missing landmark.
+ */
+export function missingHeaderNote(
+  log: string,
+  pageErrors: readonly CausePageErrors[] = [],
+): string | null {
+  if (pageErrors.length === 0) return null
+  const failures = missingLandmarkFailures(log.replace(ANSI_SGR, ''))
+  for (const landmark of ['navigation', 'banner'] as const) {
+    const needing = failures.filter((failure) => failure.landmark === landmark)
+    if (needing.length < 2) continue
+    // One route is what the sentence can name; two named routes are two pages, not one group.
+    const routes = [...new Set(needing.map((failure) => failure.route).filter(Boolean))]
+    if (routes.length !== 1) continue
+    const route = routes[0] as string
+    const group = needing.filter((failure) => failure.route === null || failure.route === route)
+    if (group.length < 2) continue
+    // Every snapshot in the group must have been READ, and each must show populated content
+    // without the landmark. A snapshot that is missing, blank, or carries the landmark leaves
+    // the reading unproven.
+    const proven = group.every((failure) => {
+      const snapshot = pageSnapshotFor(failure.where, pageErrors)
+      if (snapshot === undefined || snapshot.landmarks === undefined) return false
+      if (snapshot.populated !== true) return false
+      return !snapshot.landmarks.includes(landmark)
+    })
+    if (!proven) continue
+    const selectors = [...new Set(group.flatMap((failure) => failure.selectors))]
+    const named = selectors.map((selector) => `\`${selector}\``)
+    const list =
+      named.length <= 1
+        ? (named[0] ?? '')
+        : `${named.slice(0, -1).join(', ')} and ${named[named.length - 1]}`
+    return (
+      `The \`${route}\` snapshots contain populated main content but no ` +
+      `${LANDMARK_WORD[landmark]} landmark. These ${list} failures share the missing header; ` +
+      `check whether the route actually renders its shared header before changing authentication ` +
+      `or the header component’s internals.`
+    )
+  }
+  return null
+}
+
 /**
  * The one-line-per-cause summary of a finished run's failures, or null when the run named fewer
  * than two of them.
@@ -3560,14 +3769,21 @@ export function failureCausesNote(
   // (2026-10-17). The root fix is to hand this function the whole log; this says so when a
   // caller cannot.
   const clipped = /^…\((\d+) earlier characters omitted\)/.exec(log)
+  // The missing-header reading leads the list: four unrelated locators failing while every
+  // snapshot shows the page painted and un-navigated is ONE fact about the route, and the list
+  // below would otherwise read as four separate defects (xr-molecule-flash-m193 rewrote the
+  // navbar's auth logic and then the HTTP bond across two walks, ~6 minutes, for a page that
+  // never rendered `<Navbar />`).
+  const missingHeader = missingHeaderNote(log, pageErrors)
   const header =
-    clipped !== null
+    (missingHeader === null ? '' : `${missingHeader}\n`) +
+    (clipped !== null
       ? `${total} failure${total === 1 ? '' : 's'} in the LAST part of this run’s log — its ` +
         `first ${clipped[1]} characters were clipped, so a cause that failed earlier is ` +
         `missing here. Fix every cause below${connections.length > 0 ? ' the app’s code can produce, and re-send the connection error once as it is' : ''}, ` +
         `and read the whole run log before concluding:\n`
       : `${total} failure${total === 1 ? '' : 's'} in this run, grouped by cause — fix every cause ` +
-        `below${connections.length > 0 ? ' the app’s code can produce, and re-send the connection error once as it is' : ' before the next deploy'}:\n`
+        `below${connections.length > 0 ? ' the app’s code can produce, and re-send the connection error once as it is' : ' before the next deploy'}:\n`)
   // The flaky sentence sits before the ignored one: the ignored sentence is the LAST thing the
   // note says, and callers assert on that ending.
   const tail =
