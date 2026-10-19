@@ -16,6 +16,7 @@ import {
   isEnvFilePath,
   isSuiteRunCommand,
   isValidGlob,
+  logShowsInlineFailureBodies,
   matchingExcludedTitles,
   outputRedirectTarget,
   redactSecrets,
@@ -558,8 +559,10 @@ describe('isValidGlob — scoped packages', () => {
 
 describe('streamingBackgroundCommand', () => {
   /**
-   * The head the rewrite puts on every background suite run: the `list` reporter prints each
-   * failure's own error as that test fails when Playwright's inline switch is set (flash-m99).
+   * The head every background command gets: the `list` reporter prints each failure's own error
+   * as that test fails when Playwright's inline switch is set (flash-m99). It is something the
+   * run's environment passes on to whatever it starts, so it is set without having to recognise
+   * the runner — a wrapper script gets it too (xr-molecule-flash-m191).
    */
   const INLINE_HEAD = 'export PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE=1; '
   /** The sentence that head is announced with. */
@@ -569,10 +572,15 @@ describe('streamingBackgroundCommand', () => {
     'and you need not wait for it to end to start on them.'
 
   it('drops a trailing tail, in both of its spellings', () => {
+    // The inline switch rides every background command that is not a no-test invocation — it is
+    // inert outside Playwright's `list` reporter, and a wrapper the reader cannot place still
+    // passes it on to the runner it spawns (m191).
     expect(streamingBackgroundCommand('npm run build 2>&1 | tail -40').command).toBe(
-      'npm run build 2>&1',
+      `${INLINE_HEAD}npm run build 2>&1`,
     )
-    expect(streamingBackgroundCommand('npm test | tail -n 100').command).toBe('npm test')
+    expect(streamingBackgroundCommand('npm test | tail -n 100').command).toBe(
+      `${INLINE_HEAD}npm test`,
+    )
   })
 
   it('drops a trailing head from a Playwright run, whose tally prints last (flash-m32)', () => {
@@ -774,9 +782,13 @@ describe('streamingBackgroundCommand', () => {
     // The redirect stays where it was, and the status echo still runs last.
     expect(r.command.endsWith('; echo EXIT $?')).toBe(true)
     // A redirect target that is not a file is still not readable, so the same tail with
-    // `/dev/null` leaves the run exactly as written.
+    // `/dev/null` gets no reporter and no `--retries=0` — only the env head every background
+    // command is given.
     const discard = 'npx playwright test > /dev/null 2>&1; echo EXIT $?'
-    expect(streamingBackgroundCommand(discard)).toEqual({ command: discard, changes: [] })
+    expect(streamingBackgroundCommand(discard)).toEqual({
+      command: `${INLINE_HEAD}${discard}`,
+      changes: [],
+    })
   })
 
   it('leaves playwright’s own reporter alone, and a run whose output cannot be read untouched', () => {
@@ -799,7 +811,7 @@ describe('streamingBackgroundCommand', () => {
       'npx playwright test --reporter=junit,html',
     ])
       expect(streamingBackgroundCommand(command)).toEqual({
-        command: `${command} --retries=0`,
+        command: `${INLINE_HEAD}${command} --retries=0`,
         changes: [
           'Added `--retries=0`: a local run walks each failure once; the suite’s retries apply on the deployed proof run.',
         ],
@@ -813,9 +825,13 @@ describe('streamingBackgroundCommand', () => {
     expect(streamingBackgroundCommand('npx playwright test && echo done').command).toBe(
       `${INLINE_HEAD}npx playwright test --reporter=list --retries=0 && echo done`,
     )
-    // Output sent to nowhere is not readable, so nothing is added to the run that discards it.
+    // Output sent to nowhere is not readable, so nothing is added to the run that discards it —
+    // only the env head every background command carries (inert here).
     for (const command of ['npx playwright test > /dev/null 2>&1', 'npm run build']) {
-      expect(streamingBackgroundCommand(command)).toEqual({ command, changes: [] })
+      expect(streamingBackgroundCommand(command)).toEqual({
+        command: `${INLINE_HEAD}${command}`,
+        changes: [],
+      })
     }
   })
 
@@ -1111,6 +1127,53 @@ describe('streamingBackgroundCommand — an approved exclusion keeps the proof�
  * same `TimeoutError: page.waitForURL` from one missing `navigate('/')`, and the executor learned
  * it only when the whole run was over. Lines below are that run's own log.
  */
+describe('logShowsInlineFailureBodies', () => {
+  /** One failed test's `list` row. */
+  const row = (n: number, where: string, title: string, seconds = '5.7s'): string =>
+    `  ✘  ${String(n).padStart(3)} [chromium] › e2e/${where} › ${title} (${seconds})`
+  /** The failure body Playwright prints under the row when the inline switch is on. */
+  const body = (n: number, where: string, title: string): string =>
+    [
+      '',
+      `  ${n}) [chromium] › e2e/${where} › ${title} `,
+      '',
+      '    TimeoutError: page.fill: Timeout 5000ms exceeded.',
+      '    Call log:',
+      '      - waiting for locator(\'input[name="username"]\')',
+      '',
+    ].join('\n')
+
+  it('is true when a ✘ row has its own failure body under it', () => {
+    const log = [
+      row(1, 'auth.spec.ts:9:3', 'Auth › signs in'),
+      body(1, 'auth.spec.ts:9:3', 'Auth › signs in'),
+    ].join('\n')
+    expect(logShowsInlineFailureBodies(log)).toBe(true)
+  })
+
+  it('is false for ✘ rows alone — the end-of-run summary is not in the log yet', () => {
+    // m191's log until the run ended: 65 ✘ rows and no body, so the wait must not promise one.
+    const log = [
+      row(1, 'auth.spec.ts:9:3', 'Auth › signs in'),
+      row(2, 'auth.spec.ts:20:3', 'Auth › signs out'),
+    ].join('\n')
+    expect(logShowsInlineFailureBodies(log)).toBe(false)
+  })
+
+  it('is false for a body whose test has no ✘ row in the log', () => {
+    // A block for a test the log never marked failed is not evidence the row is live.
+    const log = [row(1, 'a.spec.ts:1:1', 'A › one'), body(1, 'b.spec.ts:2:2', 'B › two')].join('\n')
+    expect(logShowsInlineFailureBodies(log)).toBe(false)
+  })
+
+  it('matches a retried failure, whose row carries "(retry #1)" and whose body does not', () => {
+    const retried = `  ✘  ${String(1).padStart(3)} [chromium] › e2e/auth.spec.ts:9:3 › Auth › signs in (retry #1) (5.7s)`
+    expect(
+      logShowsInlineFailureBodies(`${retried}\n${body(1, 'auth.spec.ts:9:3', 'Auth › signs in')}`),
+    ).toBe(true)
+  })
+})
+
 describe('repeatingFailure', () => {
   /** A `list`-reporter result line, as the log writes it. */
   const list = (mark: string, n: number, where: string, title: string, seconds: string): string =>

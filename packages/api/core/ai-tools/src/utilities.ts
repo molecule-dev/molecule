@@ -396,8 +396,9 @@ const PRINTING_REPORTERS = new Set(['list', 'line', 'dot', 'basic', 'spec'])
  * inline the end-of-run repeat is suppressed with it (`epilogue(!printFailuresInline)`), so one
  * reporter still prints each failure exactly once.
  *
- * A background suite is put on `list` (see {@link streamingBackgroundCommand}) and this with it, so
- * the log names its causes WHILE it walks. Without it the log's only failure lines are `✘` rows:
+ * Every background command is given this (see {@link streamingBackgroundCommand}), so a suite the
+ * executor starts through its own wrapper is covered too — the wrapper passes the environment on
+ * to the Playwright process it spawns. Without it the log's only failure lines are `✘` rows:
  * X1 xr-molecule-flash-m99 (+19:27 → +21:00, 2026-10-16) was told to `grep -n -A 20 '<test name>'`
  * the log, got nothing back through four greps, inferred causes from the spec prose instead, and
  * edited `app/src` while the run was still walking — which voids the run.
@@ -453,10 +454,12 @@ function isStatusOnlyStep(step: string): boolean {
  * `junit`) is the
  * executor's own and is left exactly as it is — so is any reporter this build does not know.
  *
- * A run put on `list` is also given {@link PLAYWRIGHT_FAILURES_INLINE_ENV}, so each failure's own
- * error is in the log as that test fails rather than only at the end: a suite that is still walking
- * is exactly when the executor reads the log, and without it a running log carries `✘` rows and
- * nothing else (xr-molecule-flash-m99 spent ~90 s on greps of one, then fixed what it guessed).
+ * Every background command that is not a no-test invocation is also given
+ * {@link PLAYWRIGHT_FAILURES_INLINE_ENV} (inert except for Playwright's `list` reporter), so each
+ * failure's own error is in the log as that test fails rather than only at the end: a suite that is
+ * still walking is exactly when the executor reads the log, and without it a running log carries
+ * `✘` rows and nothing else (xr-molecule-flash-m99 spent ~90 s on greps of one, then fixed what it
+ * guessed; m191's wrapper-launched run lost 6.5 minutes to the same shape).
  *
  * Only the step that runs the suite is touched, and only its reporter, and only when that step
  * runs something: `npx playwright test --list` takes two seconds and writes nothing per test, so
@@ -671,17 +674,27 @@ export function streamingBackgroundCommand(
         '(the config reporter may print nothing until the end).',
     )
   }
-  // The run's failures, in the log as they fail (see PLAYWRIGHT_FAILURES_INLINE_ENV). Only for a
-  // run that ends on `list` — a run whose only reporters are machine formats has no failure lines
-  // to make inline, and this is inert for one — and set as an `export` at the head of the whole
-  // command, never mid-command: the last step may be a wrapper (`timeout 280 npx playwright test`)
-  // or start a line of its own (a multi-line command's last line), and an assignment written in
-  // front of either would be read as the program to run.
+  // The run's failures, in the log as they fail (see PLAYWRIGHT_FAILURES_INLINE_ENV), on EVERY
+  // background command that is not a no-test invocation — not only the ones whose text this
+  // reader can place the runner in. The executor starts the suite through its own wrapper often
+  // (`node scripts/run-realworld-e2e.mjs`, `npm run e2e`), and the wrapper passes its environment
+  // on to the Playwright process it spawns; keying the switch on a recognized `playwright test`
+  // step withheld it from exactly those runs, whose logs then carried `✘` rows and nothing else
+  // while the executor waited (xr-molecule-flash-m191 +12:20 → +19:40: 65 failures and ONE cause,
+  // named at the last failure instead of at the third — 6.5 minutes lost). It is inert for
+  // anything but Playwright's `list` reporter, which is the only reader of it.
+  //
+  // Set as an `export` at the head of the whole command, never mid-command: the last step may be
+  // a wrapper (`timeout 280 npx playwright test`) or start a line of its own (a multi-line
+  // command's last line), and an assignment written in front of either would be read as the
+  // program to run.
+  out = `export ${PLAYWRIGHT_FAILURES_INLINE_ENV}=1; ${out}`
+  // The sentence is only true of a run this reader put on `list` — a command it cannot place (a
+  // wrapper, `npm run build`) gets the switch silently, and that is all it needs.
   const endsOnListReporter =
     finalPlaywrightRun &&
     (reporters === null || reporters.values.some((v) => PRINTING_REPORTERS.has(v)))
   if (endsOnListReporter) {
-    out = `export ${PLAYWRIGHT_FAILURES_INLINE_ENV}=1; ${out}`
     changes.push(
       'Each failure’s own error is now written into the log as that test fails, not only in the ' +
         'summary at the end — so a run that is still walking already says what its failures are, ' +
@@ -2506,6 +2519,38 @@ export function repeatingFailure(log: string): RepeatingFailure | null {
   if (best.length < REPEATING_FAILURE_MIN) return null
   const mean = best.reduce((sum, t) => sum + t.seconds, 0) / best.length
   return { count: best.length, message: null, seconds: Math.round(mean * 10) / 10, tests: best }
+}
+
+/**
+ * Whether the log read so far carries a failure's own body under a `✘` row — the evidence that a
+ * run prints each failure's error as that test fails ({@link PLAYWRIGHT_FAILURES_INLINE_ENV}).
+ *
+ * `wait_for_task` promises the executor that each failure's report sits right under its `✘` line
+ * only when the log proves it. The command's shape cannot answer: the launch sets the switch on
+ * every background command (the executor's wrapper script inherits it), so a wrapper this reader
+ * cannot place is exactly as covered as `npx playwright test` ({@link streamingBackgroundCommand}).
+ * The log is the evidence — a `1) [project] › spec › title ───` block whose test the log also
+ * printed with `✘` ({@link failureBlocks}).
+ *
+ * A block alone is not enough: a FINISHED run's end-of-run summary carries the same blocks, and a
+ * running wait must not be told "as it fails" about a log whose bodies only appear at the end.
+ * During a wait the run has not ended (the exit file is read first), so a block beside a `✘` row
+ * is one the reporter printed inline.
+ *
+ * @param log - A log, or the slice of one a wait reads.
+ * @returns True when a `✘` row's own test has a failure body under it.
+ */
+export function logShowsInlineFailureBodies(log: string): boolean {
+  const text = log.replace(ANSI_SGR, '')
+  const failed = new Set(distinctTests(failedTests(text)).map(retrylessTestKey))
+  if (failed.size === 0) return false
+  for (const block of failureBlocks(text)) {
+    const m = FAILURE_BLOCK_HEADER.exec(block.split('\n')[0] ?? '')
+    if (m === null) continue
+    const { where, title } = splitTitlePath(m[1] ?? '')
+    if (failed.has(retrylessTestKey({ where, title, seconds: null }))) return true
+  }
+  return false
 }
 
 /** How many of a repeating cause's failures the note lists before it says "and N more". */

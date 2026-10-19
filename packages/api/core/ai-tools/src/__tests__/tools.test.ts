@@ -2632,7 +2632,9 @@ describe('exec_command run_in_background', () => {
     }
     const written = (backend.writeFile as ReturnType<typeof vi.fn>).mock.calls[0]
     expect(written[0]).toBe(`/tmp/${r.taskId}.sh`)
-    expect(written[1]).toBe(`${gnarly}\n`)
+    // The command is written verbatim, quotes, heredoc and newlines included; the only thing in
+    // front of it is the env head every background command gets (m191).
+    expect(written[1]).toBe(`export PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE=1; ${gnarly}\n`)
   })
 
   it('detaches, and records the exit code where the executor can read it', async () => {
@@ -4565,7 +4567,7 @@ describe('the running note knows what the run measures (xr-molecule-flash-m122)'
    *
    * @returns The backend.
    */
-  function runningSuiteBackend(): ExecutionBackend {
+  function runningSuiteBackend(log = REPEATING): ExecutionBackend {
     return {
       projectRoot: '/test',
       readFile: vi.fn(async () => {
@@ -4575,21 +4577,30 @@ describe('the running note knows what the run measures (xr-molecule-flash-m122)'
       deleteFile: vi.fn(),
       readDir: vi.fn(),
       run: vi.fn(async (command: string) => ({
-        stdout: /wc -c/.test(command) ? '900' : REPEATING,
+        stdout: /wc -c/.test(command) ? '900' : log,
         stderr: '',
         exitCode: 0,
       })),
     }
   }
 
+  /** The same failures' `list` rows with no failure bodies under them — a summary-only log. */
+  const ROWS_ONLY = REPEATING.split('\n')
+    .filter((line) => /✘/.test(line))
+    .join('\n')
+
   /**
    * Start `command` in the background and take the first wait answer.
    *
    * @param command - The suite command the executor sent.
+   * @param log - The run's log, as every read of it returns.
    * @returns The wait's result.
    */
-  async function firstWait(command: string): Promise<{ status: string; note: string }> {
-    const tools = buildTools(runningSuiteBackend())
+  async function firstWait(
+    command: string,
+    log?: string,
+  ): Promise<{ status: string; note: string }> {
+    const tools = buildTools(runningSuiteBackend(log))
     const started = (await tools
       .find((t) => t.name === 'exec_command')!
       .execute({ command, run_in_background: true })) as { taskId: string }
@@ -4640,6 +4651,49 @@ describe('the running note knows what the run measures (xr-molecule-flash-m122)'
     }
   })
 
+  it('names the locator and the count at the third failure of a WRAPPER-launched run (m191)', async () => {
+    process.env.MOL_AI_BG_CAUSE_LOOK_MS = '1'
+    // m191's launch: the executor's own Node script spawns `npx playwright test` itself, so the
+    // command text never names the runner. The switch has to ride the launch anyway — the wrapper
+    // passes `process.env` on to the runner it spawns — and the log then carries the cause.
+    const wrapper = 'node scripts/run-realworld-e2e.mjs http://127.0.0.1:4173 2>&1'
+    expect(streamingBackgroundCommand(wrapper).command).toBe(
+      `export PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE=1; ${wrapper}`,
+    )
+    const row = (n: number, line: number, title: string): string =>
+      `  ✘  ${String(n).padStart(3)} [chromium] › ../../fixtures/realworld/specs/e2e/auth.spec.ts:${line}:3 › Auth › ${title} (5.7s)`
+    const body = (n: number, line: number, title: string): string =>
+      [
+        '',
+        `  ${n}) [chromium] › ../../fixtures/realworld/specs/e2e/auth.spec.ts:${line}:3 › Auth › ${title} ────────`,
+        '',
+        '    TimeoutError: page.fill: Timeout 5000ms exceeded.',
+        '    Call log:',
+        '      - waiting for locator(\'input[name="username"]\')',
+        '',
+      ].join('\n')
+    const log = [
+      'Running 65 tests using 1 worker',
+      row(1, 11, 'signs in'),
+      body(1, 11, 'signs in'),
+      row(2, 22, 'signs out'),
+      body(2, 22, 'signs out'),
+      row(3, 33, 'rejects a bad password'),
+      body(3, 33, 'rejects a bad password'),
+    ].join('\n')
+    try {
+      const r = await firstWait(wrapper, log)
+      expect(r.status).toBe('running')
+      // The cause, not a duration: the log's bodies are what the mid-run look reads.
+      expect(r.note).toContain('3 different tests in this run have already failed the same way')
+      expect(r.note).toContain('input[name="username"]')
+      // …and the wait may promise the bodies under the ✘ rows, because the log shows one.
+      expect(r.note).toContain('right under its ✘ line')
+    } finally {
+      delete process.env.MOL_AI_BG_CAUSE_LOOK_MS
+    }
+  })
+
   it('points every grep at the file the run writes, not the empty task log (m173)', async () => {
     process.env.MOL_AI_BG_CAUSE_LOOK_MS = '1'
     try {
@@ -4663,20 +4717,23 @@ describe('the running note knows what the run measures (xr-molecule-flash-m122)'
     }
   })
 
-  it('promises inline failure reports only when the launch set the switch (m173 +39:14)', async () => {
+  it('promises inline failure reports from the log, not from the command (m173, m191)', async () => {
     process.env.MOL_AI_BG_CAUSE_LOOK_MS = '1'
     try {
-      // m173's shape, which the launch rewrite now puts on the inline-failure switch: each
-      // failure's own error is written under its ✘ row as the test fails, so the note may say so.
+      // A log that carries each failure's own body under its ✘ row: the note may say so. The
+      // command here could not be rewritten (its last step is the `echo`), and it does not
+      // matter — the switch rides every background command and the log is the evidence.
       const inline = await firstWait(
         'cd app && npx playwright test --reporter=list > /tmp/pw-full.log 2>&1; echo EXIT $?',
       )
       expect(inline.status).toBe('running')
       expect(inline.note).toContain('right under its ✘ line')
-      // A machine reporter writes no per-test failure line, so the switch is not set. The note
-      // must not promise bodies under the ✘ rows: it says where they actually are.
+      // The same kind of run whose log carries ✘ rows and nothing else (a machine reporter, or a
+      // run that prints its bodies only in the end-of-run summary): the note must not promise
+      // bodies under the rows, and says where they actually are.
       const summaryOnly = await firstWait(
         'npx playwright test --reporter=html > /tmp/pw-full.log 2>&1; echo EXIT $?',
+        ROWS_ONLY,
       )
       expect(summaryOnly.status).toBe('running')
       expect(summaryOnly.note).not.toContain('right under its ✘ line')

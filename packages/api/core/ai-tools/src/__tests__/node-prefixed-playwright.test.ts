@@ -18,6 +18,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { commandSegments } from '../command-position.js'
+import { commandRunsNoTests } from '../no-test-run.js'
 import { scopedRerunCommand, withSuiteConfig } from '../suite-overlap.js'
 import { DIAGNOSIS_TRACE_FLAG, diagnosisTraceCommand } from '../trace-artifacts.js'
 import {
@@ -180,7 +181,15 @@ describe('a node invocation that is not the runner', () => {
   it.each(NOT_A_RUN)('is left exactly as written: %s', (command) => {
     expect(isPlaywrightRunCommand(command)).toBe(false)
     expect(isSuiteRunCommand(command)).toBe(false)
-    expect(streamingBackgroundCommand(command)).toEqual({ command, changes: [] })
+    // Nothing about the run is rewritten. The one thing a background command always gets is the
+    // inline-failure switch at its head — inert for a command that runs no Playwright `list`
+    // reporter, and how a wrapper the reader cannot place is covered (m191).
+    const inline = 'export PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE=1; '
+    expect(streamingBackgroundCommand(command)).toEqual({
+      // The no-test invocations (`playwright install`, `--version`, `test --list`) keep no head.
+      command: commandRunsNoTests(command) ? command : `${inline}${command}`,
+      changes: [],
+    })
     expect(suiteRunBudgetCommand(command, ['--timeout=15000'])).toEqual({
       command,
       placed: [],

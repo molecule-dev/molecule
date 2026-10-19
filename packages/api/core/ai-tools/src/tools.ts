@@ -57,16 +57,16 @@ const logBytesByTask = new Map<string, number>()
 const outputFileByTask = new Map<string, string>()
 
 /**
- * Task ids whose launch put the suite on {@link PLAYWRIGHT_FAILURES_INLINE_ENV} — the inline
- * failure switch, announced by the launch's own change list and written as an `export` at the
- * head of the command.
+ * Task ids whose log has SHOWN a failure's own body under a `✘` row — the inline failure switch's
+ * effect, read from the log itself ({@link logShowsInlineFailureBodies}).
  *
- * The wait note may promise that each failure's own error sits under its ✘ line only when the run
- * was actually given the switch: a run whose shape withheld the rewrite prints its failures only
- * in the end-of-run summary, and the note that promised inline reports sent the model grepping a
- * file they were not in (the m99 class, recurring at xr-molecule-flash-m173 +17:07, +39:14).
- * Process memory, like {@link outputFileByTask}: a task this process did not launch recovers it
- * from the script on disk, which carries the rewritten command.
+ * The wait note may promise that each failure's own error sits under its ✘ line only when the
+ * log actually carries one: a run printing its failures only in the end-of-run summary would send
+ * the model grepping a file they were not in (the m99 class, recurring at xr-molecule-flash-m173
+ * +17:07, +39:14). The command's shape cannot answer that question — every background launch is
+ * given the switch, and the executor's own wrapper passes it on — so the evidence is the log, read
+ * during the wait (xr-molecule-flash-m191: a wrapper-launched run's cause reached the model 7
+ * minutes late because nothing read the log for it).
  */
 const inlineFailuresByTask = new Set<string>()
 
@@ -645,6 +645,7 @@ import {
   isValidGlob,
   linesWithinSerialized,
   literalDirPrefix,
+  logShowsInlineFailureBodies,
   MAX_BATCH_READ_FILES,
   MAX_FIND_RESULTS,
   MAX_HTML_INLINE_CHARS,
@@ -660,7 +661,6 @@ import {
   parseCheckCommand,
   parseCheckProblem,
   pathArgError,
-  PLAYWRIGHT_FAILURES_INLINE_ENV,
   printsOnlySource,
   READ_RESULT_ENVELOPE_CHARS,
   redactSecrets,
@@ -2983,10 +2983,9 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           const ownTarget = outputRedirectTarget(streaming.command)
           const ownFile = ownTarget === null ? null : posix.resolve(cwd, ownTarget)
           if (ownFile) outputFileByTask.set(id, ownFile)
-          // Whether the run's failures print as they fail, so a wait can promise that only when
-          // it is true (see inlineFailuresByTask).
-          if (streaming.command.startsWith(`export ${PLAYWRIGHT_FAILURES_INLINE_ENV}=1; `))
-            inlineFailuresByTask.add(id)
+          // Nothing is recorded about the inline-failure switch here: every background launch is
+          // given it, so the command says nothing about what the log will carry. A wait reads the
+          // log itself (see inlineFailuresByTask).
           runByTask.set(id, { command: streaming.command, cwd })
           await backend.writeFile(script, `${streaming.command}\n`)
           // The clock the grace return below reports a stopped run against: the command is
@@ -3338,11 +3337,6 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           // command runs unless the caller passed one. An absolute target is
           // already resolved and stays as written.
           if (target) outputFileByTask.set(taskId, posix.resolve(root, target))
-          // The rewritten command is on disk with the `export` head it was given: a task this
-          // process did not launch still says whether its failures print as they fail
-          // (see inlineFailuresByTask).
-          if (script.startsWith(`export ${PLAYWRIGHT_FAILURES_INLINE_ENV}=1; `))
-            inlineFailuresByTask.add(taskId)
         } catch (_error) {
           // No script under that id: this process did not start the task, so
           // there is nothing to recover. The log stays the whole result.
@@ -3492,6 +3486,11 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           // No look at the log this tick; the next one asks again.
           continue
         }
+        // The log is the evidence for what the wait may promise about it: a failure's own body
+        // printed under a `✘` row means the run writes each failure's report as that test fails
+        // (see inlineFailuresByTask).
+        if (!inlineFailuresByTask.has(taskId) && logShowsInlineFailureBodies(causeLog))
+          inlineFailuresByTask.add(taskId)
         const found = repeatingFailure(causeLog)
         // The page-renders-nothing cause needs no repeated signature: every spec waits for its
         // own first element, so the failures differ while the cause does not (m141).
@@ -3581,6 +3580,12 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           // No slice: the notes still say how to peek, and the task id still
           // carries how long the command has been running.
         }
+        // The slice is the log's own text, so it answers what the note may promise: a body under
+        // a `✘` row means this run prints each failure's report as that test fails (see
+        // inlineFailuresByTask). Read here as well as in the cause look, because a wait shorter
+        // than the look's interval never takes one.
+        if (!inlineFailuresByTask.has(taskId) && logShowsInlineFailureBodies(soFar))
+          inlineFailuresByTask.add(taskId)
         // ONE sentence of facts, each said once, then what to do next: the lead
         // this branch used to write ("Still running after 342s of waiting, and its
         // output is still growing (71839 bytes) — slow, not stuck") restated the

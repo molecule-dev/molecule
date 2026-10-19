@@ -1369,8 +1369,11 @@ describe('diagnosisTraceCommand — the trace a run must record', () => {
     expect(traced.command.endsWith('; echo "exit=$?"; grep -c "" /tmp/pw-run1.log')).toBe(true)
     expect(traced.command.match(/--trace=/g)).toHaveLength(1)
     // Nothing in this command is a tail or a last-step Playwright run: the other rewrites make no
-    // change, so what bash runs is the spliced command itself.
-    expect(streamingBackgroundCommand(traced.command).command).toBe(traced.command)
+    // change, so what bash runs is the spliced command itself — with only the env head every
+    // background command is given in front of it (m191).
+    expect(streamingBackgroundCommand(traced.command).command).toBe(
+      `export PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE=1; ${traced.command}`,
+    )
   })
 
   /**
