@@ -705,6 +705,13 @@ import {
 const OVER_CEILING_GRACE_MS = 45_000
 
 /**
+ * How close to this tool's ceiling an executor-written bound has to be before it is read as the
+ * ceiling written down rather than a budget for the walk: `timeout 290` beside a 290 s ceiling.
+ * The slack covers the rounding an executor does (`timeout 300` for a 290 s budget).
+ */
+const CEILING_FITTED_SLACK_SECONDS = 30
+
+/**
  * What a run's {@link ToolBuildConfig.suiteBudget} hook actually put on it: the flags and the
  * derived config placed on the runner, the settings the derived config carries, and every setting
  * the run's config still makes different from the suite's.
@@ -1139,6 +1146,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
     outlineLargeHtml,
     excludedTestTitles,
     requiredSuiteEnv,
+    suiteRunMs,
     onAfterWrite,
     onFileDiff,
     onFileChange,
@@ -2979,11 +2987,42 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           // this tool's ceiling — and in the background the ceiling no longer applies, so the
           // `timeout N` the executor wrote to fit it is the only bound left, and it kills the
           // walk mid-run with no tally (X1 xr-molecule-flash-m143 +24:45). Lift it from the
-          // statement that runs the suite. A run the EXECUTOR detached keeps the bound it chose.
-          const lifted =
-            overCeiling && input.run_in_background !== true
-              ? withoutSuiteTimeout(command)
-              : { command, seconds: null }
+          // statement that runs the suite.
+          //
+          // A run the EXECUTOR detached itself is lifted too when its bound is not a bound for
+          // the walk: a number no larger than this tool's ceiling is the ceiling written down
+          // (`timeout 290` beside a 290 s ceiling), and a number shorter than the whole walk the
+          // consumer measured kills it just the same (xr-molecule-flash-m200: a deployed walk
+          // killed at test 103 of 138 by `timeout 290` beside a 290 s ceiling). A bound that is a
+          // real budget for the walk is kept (`timeout 900`).
+          let wholeRunMs: number | null = null
+          let lifted: { command: string; seconds: number | null } = { command, seconds: null }
+          if (overCeiling && input.run_in_background !== true) {
+            lifted = withoutSuiteTimeout(command)
+          } else if (input.run_in_background === true && isSuiteRunCommand(command)) {
+            const candidate = withoutSuiteTimeout(command)
+            if (candidate.seconds !== null && candidate.seconds > 0) {
+              let measured: number | null = null
+              try {
+                measured = (await suiteRunMs?.(command, cwd)) ?? null
+              } catch (_error) {
+                // A consumer's reading that fails changes nothing: the ceiling rule still runs.
+                measured = null
+              }
+              const fitsCeiling =
+                ceilingSeconds > 0 &&
+                candidate.seconds <= ceilingSeconds + CEILING_FITTED_SLACK_SECONDS
+              const shorterThanWalk =
+                measured !== null &&
+                Number.isFinite(measured) &&
+                measured > 0 &&
+                candidate.seconds * 1000 < measured
+              if (fitsCeiling || shorterThanWalk) {
+                lifted = candidate
+                wholeRunMs = measured
+              }
+            }
+          }
           if (lifted.seconds !== null) command = lifted.command
           // Keep the log growing while it runs (see streamingBackgroundCommand):
           // an empty log is what wait_for_task reads as stuck.
@@ -3003,9 +3042,13 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           // Said once, in the result that also hands back the task id or the run's output.
           if (lifted.seconds !== null) {
             streaming.changes.unshift(
-              `Dropped your \`timeout ${lifted.seconds}\` from the suite run: in the background it ` +
-                'is bounded by `wait_for_task` and the turn’s deadline, not by this tool’s ' +
-                'ceiling, so the bound you wrote would only have killed the walk.',
+              wholeRunMs !== null
+                ? `Dropped your \`timeout ${lifted.seconds}\` from the suite run: a whole walk takes ` +
+                    `~${durationText(wholeRunMs)} and runs in the background, where it is bounded by ` +
+                    '`wait_for_task` and the turn’s deadline — the bound would only have killed the walk.'
+                : `Dropped your \`timeout ${lifted.seconds}\` from the suite run: in the background it ` +
+                    'is bounded by `wait_for_task` and the turn’s deadline, not by this tool’s ' +
+                    'ceiling, so the bound you wrote would only have killed the walk.',
             )
           }
           // A whole-suite run starves the sandbox it shares with the app and with

@@ -564,12 +564,16 @@ describe('exec_command reports the stopped run', () => {
     const wait = tools.find((t) => t.name === 'wait_for_task')!
     let clock = 1_000_000
     const now = vi.spyOn(Date, 'now').mockImplementation(() => clock)
+    // The bound is a REAL budget for the run: a `timeout 280` beside the 290 s ceiling is the
+    // ceiling written down and is lifted before the launch now (m200), so it could never stop the
+    // run here. One above the ceiling survives the rewrite and is the only bound a detached run
+    // has — which is what this reader has to recognise.
     const started = (await exec.execute({
-      command: M93_COMMAND,
+      command: M93_COMMAND.replace('timeout 280', 'timeout 350'),
       run_in_background: true,
     })) as { taskId?: string }
     expect(started.taskId).toBeDefined()
-    clock += 284_000
+    clock += 354_000
     const result = (await wait.execute({ taskId: started.taskId })) as {
       status?: string
       exitCode?: number | null
@@ -578,7 +582,7 @@ describe('exec_command reports the stopped run', () => {
     now.mockRestore()
     expect(result.status).toBe(CUT_AT_BUDGET)
     expect(result.exitCode).toBeNull()
-    expect(result.note).toContain('Ran 4 files in 280 s and was stopped by')
+    expect(result.note).toContain('Ran 4 files in 350 s and was stopped by')
   })
 })
 

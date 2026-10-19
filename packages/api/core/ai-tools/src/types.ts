@@ -237,6 +237,27 @@ export interface ToolBuildConfig {
    */
   suiteBudget?: (command: string, cwd: string) => Promise<SuiteBudgetPin | null | undefined>
 
+  /**
+   * How long a whole walk of this command's suite takes, in milliseconds — the duration the
+   * consumer's own conversation measured for it (or its estimate of one), asked when the executor
+   * DETACHED a suite run that carries its own `timeout <N>`.
+   *
+   * In the background this tool's ceiling no longer applies — the task is bounded by
+   * `wait_for_task` and the turn's deadline — so an outer bound shorter than the walk serves
+   * nothing and only kills the run mid-walk with no tally (xr-molecule-flash-m200: a deployed
+   * whole walk killed at test 103 of 138 by `timeout 290`). The bound is lifted when it is shorter
+   * than this duration, and the result says so. A bound at least as long as the walk is kept.
+   *
+   * Unset (or a hook that answers null, or one that throws) still lifts a bound that is no longer
+   * than the tool's own ceiling: that number exists only because the ceiling did, so it is not a
+   * bound the executor chose for the walk.
+   *
+   * @param command - The shell command, as the model sent it.
+   * @param cwd - The resolved working directory it will run in.
+   * @returns The whole-run duration in ms, or null when the consumer measured none.
+   */
+  suiteRunMs?: (command: string, cwd: string) => Promise<number | null | undefined>
+
   /** Post-write hook (e.g. auto-format via Prettier/ESLint). Called after every write_file/edit_file. */
   onAfterWrite?: (path: string) => Promise<void>
 

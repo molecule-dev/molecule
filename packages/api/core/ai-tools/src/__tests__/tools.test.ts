@@ -626,21 +626,97 @@ describe('buildTools', () => {
     )
   })
 
-  it('keeps the bound on a run the EXECUTOR detached itself', async () => {
-    // `run_in_background: true` is the executor's own choice, and it wrote the bound knowing the
-    // run is detached — the platform rewrites nothing there.
+  it('lifts a ceiling-sized `timeout` on a suite run the EXECUTOR detached (m200)', async () => {
+    // m200 sent `timeout 290` beside the 290 s tool ceiling and detached the run itself. The
+    // platform rewrote the command (dropped the tail pipe, changed the reporter) but kept the
+    // bound — and it killed the deployed whole walk at test 103 of 138, so the walk had to be
+    // repeated (~5 min). A number no larger than the ceiling is the ceiling written down, not a
+    // budget for the walk.
     const backend = mockBackend()
     const exec = buildTools(backend, { commandBudgetMs: 290_000, overCeilingGraceMs: 0 }).find(
       (t) => t.name === 'exec_command',
     )!
     const r = (await exec.execute({
-      command: 'timeout 280 npx playwright test',
+      command:
+        'TEST_MODE=fullstack BASE_URL=https://loopcheck-x.apps.mlcl.dev timeout 290 npx playwright ' +
+        'test --config e2e-suite.config.ts --retries=0 --reporter=line --max-failures=15 2>&1 | tail -40',
+      run_in_background: true,
+    })) as { taskId?: string; note?: string }
+    expect(r.taskId).toMatch(/^mol-bg-/)
+    expect(r.note).toContain('Dropped your `timeout 290`')
+    const written = vi.mocked(backend.writeFile).mock.calls.at(-1)?.[1] as string
+    expect(written).not.toContain('timeout 290')
+    expect(written).toContain('npx playwright test --config e2e-suite.config.ts')
+  })
+
+  it('keeps a real walk budget on a run the EXECUTOR detached itself', async () => {
+    // `timeout 900` is longer than the walk and longer than the ceiling: it is a budget for the
+    // run, not the ceiling written down, so nothing about it is the platform's to rewrite.
+    const backend = mockBackend()
+    const exec = buildTools(backend, { commandBudgetMs: 290_000, overCeilingGraceMs: 0 }).find(
+      (t) => t.name === 'exec_command',
+    )!
+    const r = (await exec.execute({
+      command: 'timeout 900 npx playwright test',
       run_in_background: true,
     })) as { taskId?: string; note?: string }
     expect(r.taskId).toMatch(/^mol-bg-/)
     expect(r.note).not.toContain('Dropped your `timeout')
     const written = vi.mocked(backend.writeFile).mock.calls.at(-1)?.[1] as string
-    expect(written).toContain('timeout 280 npx playwright test')
+    expect(written).toContain('timeout 900 npx playwright test')
+  })
+
+  it('lifts a detached suite bound shorter than the walk the consumer measured (m200)', async () => {
+    // `timeout 360` is above the 290 s ceiling, so the ceiling rule alone keeps it — but the
+    // consumer measured a whole walk at 6 min 40 s, and the bound would kill it in the background.
+    const backend = mockBackend()
+    const exec = buildTools(backend, {
+      commandBudgetMs: 290_000,
+      overCeilingGraceMs: 0,
+      suiteRunMs: async () => 400_000,
+    }).find((t) => t.name === 'exec_command')!
+    const r = (await exec.execute({
+      command: 'timeout 360 npx playwright test',
+      run_in_background: true,
+    })) as { taskId?: string; note?: string }
+    expect(r.taskId).toMatch(/^mol-bg-/)
+    expect(r.note).toContain('Dropped your `timeout 360`')
+    expect(r.note).toContain('a whole walk takes ~6 min 40 s')
+    const written = vi.mocked(backend.writeFile).mock.calls.at(-1)?.[1] as string
+    expect(written).not.toContain('timeout 360')
+  })
+
+  it('keeps a detached suite bound at least as long as the measured walk', async () => {
+    const backend = mockBackend()
+    const exec = buildTools(backend, {
+      commandBudgetMs: 290_000,
+      overCeilingGraceMs: 0,
+      suiteRunMs: async () => 200_000,
+    }).find((t) => t.name === 'exec_command')!
+    const r = (await exec.execute({
+      command: 'timeout 360 npx playwright test',
+      run_in_background: true,
+    })) as { taskId?: string; note?: string }
+    expect(r.taskId).toMatch(/^mol-bg-/)
+    expect(r.note).not.toContain('Dropped your `timeout')
+    const written = vi.mocked(backend.writeFile).mock.calls.at(-1)?.[1] as string
+    expect(written).toContain('timeout 360 npx playwright test')
+  })
+
+  it('lifts a `timeout -k` wrapper sized to the ceiling too', async () => {
+    const backend = mockBackend()
+    const exec = buildTools(backend, { commandBudgetMs: 290_000, overCeilingGraceMs: 0 }).find(
+      (t) => t.name === 'exec_command',
+    )!
+    const r = (await exec.execute({
+      command: 'timeout -k 5 280 npx playwright test',
+      run_in_background: true,
+    })) as { taskId?: string; note?: string }
+    expect(r.taskId).toMatch(/^mol-bg-/)
+    expect(r.note).toContain('Dropped your `timeout 280`')
+    const written = vi.mocked(backend.writeFile).mock.calls.at(-1)?.[1] as string
+    expect(written).not.toContain('timeout -k')
+    expect(written).toContain('npx playwright test')
   })
 
   it('reads the declared budget from the timeout PARAMETER too', async () => {
