@@ -2123,6 +2123,11 @@ export const MODELS: readonly ModelDefinition[] = [
     // read 3% of input = $0.006 — roughly 2× this native off-peak card on
     // cache reads, so native stays the default and `us` is the fallback a
     // project picks when native is unavailable.
+    // Re-verified 2026-10-19 against the mapped id: UNCHANGED. DeepInfra now
+    // also serves the dated `DeepSeek-V4.1-Flash-1017` snapshot (the host does
+    // not upgrade weights in place) at IDENTICAL rates — 0.00002/0.00006
+    // cents, cache 3% — so bumping the us modelMap to it moves no price here;
+    // a weights decision, not a pricing one (same as V4-Pro's `-0813`).
     regions: ['cn', 'us'],
     regionPricing: {
       us: { inputPricePerMTok: 0.2, outputPricePerMTok: 0.6, cacheReadPricePerMTok: 0.006 },
