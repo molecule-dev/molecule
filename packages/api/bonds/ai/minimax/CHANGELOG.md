@@ -1,5 +1,11 @@
 # @molecule/api-ai-minimax
 
+## 1.2.0
+
+### Minor Changes
+
+- 06d7140: Supports MiniMax M3.1 Flash: its thinking cannot be disabled, so reasoning depth is sent as `reasoning_effort` instead.
+
 ## 1.1.4
 
 ### Patch Changes

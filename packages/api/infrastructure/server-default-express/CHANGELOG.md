@@ -1,5 +1,18 @@
 # @molecule/api-server-default-express
 
+## 1.1.0
+
+### Minor Changes
+
+- 74a0394: The default Express server now wires the process lifecycle automatically: `GET /health/live`, `GET /health/ready`, and SIGTERM/SIGINT graceful shutdown (drain bound `SHUTDOWN_TIMEOUT_MS`, ordered shutdown hooks, exit 0). Pass `lifecycle: { disabled: true }` to opt out.
+
+### Patch Changes
+
+- Updated dependencies [74a0394]
+- Updated dependencies [74a0394]
+  - @molecule/api-process-lifecycle@1.1.0
+  - @molecule/api-process-lifecycle-express@1.1.0
+
 ## 1.0.4
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/api-resource-ai-models
 
+## 1.17.0
+
+### Minor Changes
+
+- 06d7140: Adds MiniMax M3.1 Flash ($0.15/$0.60, 1M context, always-on thinking with tunable effort levels).
+
 ## 1.16.1
 
 ### Patch Changes
