@@ -21,6 +21,44 @@ import type {
 } from './types.js'
 
 /**
+ * Set `Connection: close` on a response while the process is draining.
+ *
+ * @param provider - The lifecycle provider that owns the drain state.
+ * @param res - The response being prepared.
+ */
+function applyDrainHeader(provider: ProcessLifecycleProvider, res: express.Response): void {
+  if (provider.isDraining()) res.setHeader('Connection', 'close')
+}
+
+/**
+ * Create middleware that only marks responses `Connection: close` from the
+ * first drain instant.
+ *
+ * An application that keeps its own request counting (a server that predates
+ * this package's middleware) mounts this instead of
+ * {@link createLifecycleMiddleware}: from the instant `startDraining()` is
+ * called every response tells the peer not to reuse the connection, so a proxy
+ * holding a keep-alive socket opens a new one and the load balancer routes it
+ * to a serving sibling. Mount it before every route.
+ *
+ * @param provider - The lifecycle provider that owns the drain state.
+ * @returns An Express request handler.
+ *
+ * @example
+ * ```typescript
+ * app.use(createDrainHeaderMiddleware(lifecycle))
+ * ```
+ */
+export function createDrainHeaderMiddleware(
+  provider: ProcessLifecycleProvider,
+): express.RequestHandler {
+  return (_req, res, next) => {
+    applyDrainHeader(provider, res)
+    next()
+  }
+}
+
+/**
  * Create the Express middleware that tracks in-flight requests.
  *
  * The middleware counts the request for the whole response lifetime
@@ -45,7 +83,7 @@ export function createLifecycleMiddleware(
     // report include its own request and could hold a drain open for a probe.
     const probePath = req.path === '/health/live' || req.path === '/health/ready'
     if (probePath) {
-      if (provider.isDraining()) res.setHeader('Connection', 'close')
+      applyDrainHeader(provider, res)
       next()
       return
     }
@@ -58,7 +96,7 @@ export function createLifecycleMiddleware(
     }
     res.once('finish', done)
     res.once('close', done)
-    if (provider.isDraining()) res.setHeader('Connection', 'close')
+    applyDrainHeader(provider, res)
     next()
   }
 }
@@ -69,9 +107,11 @@ export function createLifecycleMiddleware(
  * - `/health/live` answers 200 while the process is alive, including while
  *   draining — a liveness probe must not restart a process that is finishing
  *   its in-flight work.
- * - `/health/ready` answers 200 only when the process is ready and every
- *   critical check passes; 503 while draining (with `Connection: close`) or
- *   when a critical check fails.
+ * - `/health/ready` answers 200 only when the process is ready, the boot
+ *   warm-up has settled, consecutive probes have passed, and every critical
+ *   check passes; 503 while draining (with `Connection: close`), while the
+ *   warm-up runs, or when a critical check fails. The body's `warm` field says
+ *   whether the warm-up is what is holding the instance back.
  *
  * Both responses are `Cache-Control: no-store`.
  *
@@ -103,6 +143,7 @@ export function mountLifecycleRoutes(
     const body: ReadinessResponse = {
       status,
       state: report.state,
+      warm: report.warm,
       inFlightRequests: report.inFlightRequests,
       checks: report.checks,
     }

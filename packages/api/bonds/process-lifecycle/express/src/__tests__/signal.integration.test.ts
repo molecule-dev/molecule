@@ -79,6 +79,12 @@ describe('SIGTERM graceful shutdown (real child process)', () => {
     const port = await readPort(child)
     const base = `http://127.0.0.1:${port}`
 
+    // A fresh process is not routable on its FIRST passing probe: the gate
+    // requires two consecutive passes so a rolling deploy cannot hand it the
+    // whole deployment's traffic while the event loop is still busy.
+    const firstProbe = await fetch(`${base}/health/ready`)
+    expect(firstProbe.status).toBe(503)
+    expect(await firstProbe.json()).toMatchObject({ status: 'not_ready', warm: true })
     expect((await fetch(`${base}/health/ready`)).status).toBe(200)
 
     const slow = fetch(`${base}/slow`)

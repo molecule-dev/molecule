@@ -483,7 +483,13 @@ describe('process lifecycle wiring (default, no per-app code)', () => {
     expect(live.status).toBe(200)
     expect(await live.json()).toMatchObject({ status: 'live' })
 
-    const ready = await fetchWhenListening(`http://127.0.0.1:${port}/health/ready`)
+    // Readiness requires two consecutive passing probes (a rolling deploy must
+    // not hand a fresh instance all the traffic on its first check).
+    const warming = await fetchWhenListening(`http://127.0.0.1:${port}/health/ready`)
+    expect(warming.status).toBe(503)
+    expect(await warming.json()).toMatchObject({ status: 'not_ready', warm: true })
+
+    const ready = await fetch(`http://127.0.0.1:${port}/health/ready`)
     expect(ready.status).toBe(200)
     expect(await ready.json()).toMatchObject({ status: 'ready', state: 'ready' })
 

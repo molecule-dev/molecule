@@ -10,6 +10,8 @@
  */
 
 import type {
+  DrainHook,
+  DrainHookReport,
   LifecycleCheck,
   LifecycleCheckReport,
   LifecycleCheckResult,
@@ -20,9 +22,12 @@ import type {
   ShutdownHook,
   ShutdownHookReport,
   ShutdownReport,
+  WarmupReport,
+  WarmupStep,
 } from '@molecule/api-process-lifecycle'
 
 import type { LifecycleLogger, ProcessLifecycleOptions } from './types.js'
+import { createWarmupGate } from './warmup.js'
 
 /** Sentinel returned by {@link withTimeout} when the timeout wins the race. */
 const TIMED_OUT = Symbol('process-lifecycle.timeout')
@@ -124,11 +129,25 @@ export function createProcessLifecycleProvider(
   let drainReason: string | undefined
   let inFlight = 0
   let shutdownPromise: Promise<ShutdownReport> | null = null
+  let drainPromise: Promise<DrainHookReport[]> | null = null
 
   const readinessChecks = new Map<string, LifecycleCheck>()
   const livenessChecks = new Map<string, LifecycleCheck>()
   const shutdownHooks = new Map<string, { hook: ShutdownHook; sequence: number }>()
+  const drainHooks = new Map<string, { hook: DrainHook; sequence: number }>()
   let hookSequence = 0
+  let drainSequence = 0
+
+  /**
+   * The boot warm-up gate: readiness stays closed until this settles, then
+   * requires consecutive passing probes. See `./warmup.ts` for why.
+   */
+  const warmupGate = createWarmupGate({
+    timeoutMs: options.defaultWarmupStepTimeoutMs,
+    consecutivePasses: options.consecutiveReadyPasses,
+    now,
+    logger,
+  })
 
   /** Resolvers waiting for the in-flight count to reach zero. */
   const idleWaiters = new Set<(drained: boolean) => void>()
@@ -212,6 +231,9 @@ export function createProcessLifecycleProvider(
 
     markReady: () => {
       if (state === 'starting') state = 'ready'
+      // The listener owns the port, so the boot warm-up can run. Readiness
+      // stays closed until the pass settles and consecutive probes pass.
+      void warmupGate.run()
     },
 
     isDraining: () => state === 'draining' || state === 'stopped',
@@ -273,21 +295,88 @@ export function createProcessLifecycleProvider(
       }
     },
 
+    registerWarmupStep: (step: WarmupStep) => {
+      const unregister = warmupGate.registerStep(step)
+      // Steps registered after the port was bound still get their pass: a bond
+      // may register from an async setup that resolves after `markReady()`.
+      if (state !== 'starting') void warmupGate.run()
+      return unregister
+    },
+
+    runWarmup: (): Promise<WarmupReport> => warmupGate.run(),
+
+    isWarm: (): boolean => warmupGate.isSettled(),
+
+    registerDrainHook: (hook: DrainHook) => {
+      drainHooks.set(hook.name, { hook, sequence: drainSequence++ })
+      return () => {
+        const entry = drainHooks.get(hook.name)
+        if (entry?.hook === hook) drainHooks.delete(hook.name)
+      }
+    },
+
+    runDrainHooks: (reason?: string): Promise<DrainHookReport[]> => {
+      if (drainPromise) return drainPromise
+      drainPromise = (async () => {
+        const ordered = [...drainHooks.values()].sort(
+          (a, b) => (a.hook.order ?? 0) - (b.hook.order ?? 0) || a.sequence - b.sequence,
+        )
+        const reports: DrainHookReport[] = []
+        for (const { hook } of ordered) {
+          const hookStarted = now()
+          const timeoutMs = hook.timeoutMs ?? defaultHookTimeoutMs
+          try {
+            const outcome = await withTimeout(
+              Promise.resolve().then(() => hook.run(reason)),
+              timeoutMs,
+            )
+            if (outcome === TIMED_OUT) {
+              reports.push({
+                name: hook.name,
+                ok: false,
+                durationMs: now() - hookStarted,
+                error: `timed out after ${timeoutMs}ms`,
+                timedOut: true,
+              })
+              logger.error(`Drain hook '${hook.name}' timed out after ${timeoutMs}ms.`)
+              options.onHookError?.(hook.name, new Error(`timed out after ${timeoutMs}ms`))
+            } else {
+              reports.push({ name: hook.name, ok: true, durationMs: now() - hookStarted })
+            }
+          } catch (error) {
+            reports.push({
+              name: hook.name,
+              ok: false,
+              durationMs: now() - hookStarted,
+              error: errorMessage(error),
+            })
+            logger.error(`Drain hook '${hook.name}' failed.`, { error })
+            options.onHookError?.(hook.name, error)
+          }
+        }
+        return reports
+      })()
+      return drainPromise
+    },
+
     isReady: async (): Promise<ReadinessReport> => {
       if (state === 'draining' || state === 'stopped') {
         return {
           ready: false,
           state,
           draining: true,
+          warm: warmupGate.isSettled(),
           inFlightRequests: inFlight,
           checks: [],
         }
       }
       const checks = await runChecks(readinessChecks)
+      const passing = state === 'ready' && allCriticalPassed(checks)
       return {
-        ready: state === 'ready' && allCriticalPassed(checks),
+        ready: warmupGate.observe(passing),
         state,
         draining: false,
+        warm: warmupGate.isSettled(),
         inFlightRequests: inFlight,
         checks,
       }

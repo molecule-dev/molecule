@@ -4,7 +4,9 @@ import { createProcessLifecycleProvider, provider as defaultProvider } from '../
 
 describe('createProcessLifecycleProvider', () => {
   it('starts in starting and only reports ready after markReady', async () => {
-    const lifecycle = createProcessLifecycleProvider()
+    // One passing probe isolates this test from the consecutive-probe gate,
+    // which has its own tests below.
+    const lifecycle = createProcessLifecycleProvider({ consecutiveReadyPasses: 1 })
 
     expect(lifecycle.state()).toBe('starting')
     expect((await lifecycle.isReady()).ready).toBe(false)
@@ -159,7 +161,7 @@ describe('createProcessLifecycleProvider', () => {
   })
 
   it('removes checks and hooks through the returned unregister functions', async () => {
-    const lifecycle = createProcessLifecycleProvider()
+    const lifecycle = createProcessLifecycleProvider({ consecutiveReadyPasses: 1 })
     lifecycle.markReady()
     const unregisterCheck = lifecycle.registerReadinessCheck({ name: 'db', check: () => false })
     const unregisterHook = lifecycle.registerShutdownHook({ name: 'pool', run: () => {} })
@@ -169,6 +171,95 @@ describe('createProcessLifecycleProvider', () => {
 
     expect((await lifecycle.isReady()).ready).toBe(true)
     expect((await lifecycle.runShutdownHooks()).hooks).toEqual([])
+  })
+
+  it('keeps readiness closed until the boot warm-up settles, then requires two passing probes', async () => {
+    const lifecycle = createProcessLifecycleProvider()
+    let release: () => void = () => {}
+    const warmupWork = new Promise<void>((resolve) => {
+      release = resolve
+    })
+    lifecycle.registerWarmupStep({ name: 'module-graph', run: () => warmupWork })
+
+    lifecycle.markReady()
+
+    // The port is bound but the warm-up is still running: not ready, `warm` false.
+    const warming = await lifecycle.isReady()
+    expect(warming).toMatchObject({ ready: false, warm: false, state: 'ready' })
+
+    release()
+    await expect(lifecycle.runWarmup()).resolves.toMatchObject({
+      ok: true,
+      steps: [{ name: 'module-graph', ok: true }],
+    })
+    expect(lifecycle.isWarm()).toBe(true)
+
+    // Settled, but one probe is not enough: the first check after a restart
+    // can be a moment between two heavy imports.
+    expect((await lifecycle.isReady()).ready).toBe(false)
+    expect((await lifecycle.isReady()).ready).toBe(true)
+  })
+
+  it('settles the warm-up and reports a failing step instead of rejecting', async () => {
+    const lifecycle = createProcessLifecycleProvider({ consecutiveReadyPasses: 1 })
+    lifecycle.registerWarmupStep({
+      name: 'broken',
+      run: () => {
+        throw new Error('preload failed')
+      },
+    })
+    lifecycle.markReady()
+
+    await expect(lifecycle.runWarmup()).resolves.toMatchObject({
+      ok: false,
+      steps: [{ name: 'broken', ok: false, error: 'preload failed' }],
+    })
+    // A broken preload must not hold the instance out of rotation forever.
+    expect(lifecycle.isWarm()).toBe(true)
+    expect((await lifecycle.isReady()).ready).toBe(true)
+  })
+
+  it('runs drain hooks in order before the shutdown hooks and keeps going after a failure', async () => {
+    const lifecycle = createProcessLifecycleProvider({ defaultHookTimeoutMs: 1_000 })
+    const ran: string[] = []
+    lifecycle.registerDrainHook({ name: 'second', order: 20, run: () => void ran.push('drain-2') })
+
+    const report = await lifecycle.runDrainHooks('SIGTERM')
+    expect(report.map((hook) => [hook.name, hook.ok])).toEqual([['second', true]])
+
+    const failing = createProcessLifecycleProvider()
+    failing.registerDrainHook({ name: 'first', order: 10, run: () => void ran.push('drain-1') })
+    failing.registerDrainHook({
+      name: 'broken',
+      order: 15,
+      run: () => {
+        throw new Error('checkpoint failed')
+      },
+    })
+    failing.registerDrainHook({ name: 'third', order: 30, run: () => void ran.push('drain-3') })
+
+    const failingReport = await failing.runDrainHooks('SIGTERM')
+    expect(ran).toEqual(['drain-2', 'drain-1', 'drain-3'])
+    expect(failingReport.map((hook) => [hook.name, hook.ok])).toEqual([
+      ['first', true],
+      ['broken', false],
+      ['third', true],
+    ])
+    expect(failingReport[1].error).toBe('checkpoint failed')
+  })
+
+  it('runs drain hooks only once across repeated calls', async () => {
+    const lifecycle = createProcessLifecycleProvider()
+    let calls = 0
+    lifecycle.registerDrainHook({ name: 'checkpoint', run: () => void (calls += 1) })
+
+    const [first, second] = await Promise.all([
+      lifecycle.runDrainHooks('SIGTERM'),
+      lifecycle.runDrainHooks('SIGINT'),
+    ])
+
+    expect(calls).toBe(1)
+    expect(second).toBe(first)
   })
 
   it('exports a process-wide default provider', () => {

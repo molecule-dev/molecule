@@ -10,11 +10,16 @@ import {
   isDraining,
   isLive,
   isReady,
+  isWarm,
+  registerDrainHook,
   registerLivenessCheck,
   registerReadinessCheck,
   registerShutdownHook,
+  registerWarmupStep,
   resetRegistrationsForTests,
+  runDrainHooks,
   runShutdownHooks,
+  runWarmup,
   setProvider,
   startDraining,
 } from '../index.js'
@@ -26,6 +31,7 @@ function makeProvider(): ProcessLifecycleProvider {
     ready: true,
     state: 'ready',
     draining: false,
+    warm: true,
     inFlightRequests: 2,
     checks: [],
   }
@@ -40,6 +46,11 @@ function makeProvider(): ProcessLifecycleProvider {
     registerReadinessCheck: vi.fn(() => () => {}),
     registerLivenessCheck: vi.fn(() => () => {}),
     registerShutdownHook: vi.fn(() => () => {}),
+    registerWarmupStep: vi.fn(() => () => {}),
+    runWarmup: vi.fn(async () => ({ ok: true, durationMs: 1, steps: [] })),
+    isWarm: vi.fn(() => true),
+    registerDrainHook: vi.fn(() => () => {}),
+    runDrainHooks: vi.fn(async () => []),
     isReady: vi.fn(async () => readyReport),
     isLive: vi.fn(async () => ({ live: true, state: 'ready' as const, uptimeMs: 1, checks: [] })),
     runShutdownHooks: vi.fn(async () => ({
@@ -133,6 +144,38 @@ describe('@molecule/api-process-lifecycle provider accessors', () => {
     setProvider(provider)
 
     expect(provider.registerReadinessCheck).toHaveBeenCalledWith(check)
+  })
+
+  it('delegates warm-up steps and drain hooks to the bonded provider', async () => {
+    const provider = makeProvider()
+    setProvider(provider)
+
+    const step = { name: 'module-graph', run: () => {} }
+    const drain = { name: 'checkpoint', run: () => {} }
+    registerWarmupStep(step)
+    registerDrainHook(drain)
+    expect((await runWarmup()).ok).toBe(true)
+    expect(isWarm()).toBe(true)
+    expect(await runDrainHooks('SIGTERM')).toEqual([])
+
+    expect(provider.registerWarmupStep).toHaveBeenCalledWith(step)
+    expect(provider.registerDrainHook).toHaveBeenCalledWith(drain)
+    expect(provider.runWarmup).toHaveBeenCalled()
+    expect(provider.isWarm).toHaveBeenCalled()
+    expect(provider.runDrainHooks).toHaveBeenCalledWith('SIGTERM')
+  })
+
+  it('queues warm-up steps and drain hooks registered before any provider is bonded', () => {
+    const step = { name: 'module-graph', run: () => {} }
+    const drain = { name: 'checkpoint', run: () => {} }
+    registerWarmupStep(step)
+    registerDrainHook(drain)
+
+    const provider = makeProvider()
+    setProvider(provider)
+
+    expect(provider.registerWarmupStep).toHaveBeenCalledWith(step)
+    expect(provider.registerDrainHook).toHaveBeenCalledWith(drain)
   })
 
   it('queues liveness checks and shutdown hooks the same way', () => {

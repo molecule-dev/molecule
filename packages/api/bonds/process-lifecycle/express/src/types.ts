@@ -56,6 +56,18 @@ export interface ProcessLifecycleOptions {
   defaultCheckTimeoutMs?: number
   /** Timeout applied to a shutdown hook that declares no `timeoutMs`. Defaults to `10000`. */
   defaultHookTimeoutMs?: number
+  /**
+   * Timeout applied to a warm-up step that declares no `timeoutMs`.
+   * Defaults to `45000` — a safety valve, not an expectation: normal warm-ups
+   * settle in seconds.
+   */
+  defaultWarmupStepTimeoutMs?: number
+  /**
+   * Consecutive passing readiness probes required before readiness answers
+   * `true`. Defaults to `2`, so an instance is not handed traffic on the first
+   * check it manages to answer after a restart.
+   */
+  consecutiveReadyPasses?: number
   /** Clock used for durations. Defaults to `Date.now` (tests may inject a fake clock). */
   now?: () => number
   /** Called after a shutdown hook throws or times out, in addition to the error log. */
@@ -185,6 +197,8 @@ export interface ReadinessResponse {
   status: 'ready' | 'draining' | 'not_ready'
   /** The lifecycle phase the report was computed in. */
   state: string
+  /** `true` once the boot warm-up has settled. */
+  warm: boolean
   /** Number of requests being served when the report was computed. */
   inFlightRequests: number
   /** Per-check results. Empty while draining. */

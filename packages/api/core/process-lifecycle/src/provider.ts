@@ -12,12 +12,16 @@
 import { bond, isBonded, require as bondRequire } from '@molecule/api-bond'
 
 import type {
+  DrainHook,
+  DrainHookReport,
   LifecycleCheck,
   LivenessReport,
   ProcessLifecycleProvider,
   ReadinessReport,
   ShutdownHook,
   ShutdownReport,
+  WarmupReport,
+  WarmupStep,
 } from './types.js'
 
 const BOND_TYPE = 'process-lifecycle'
@@ -42,6 +46,8 @@ interface Registration<T> {
 const readinessRegistrations: Registration<LifecycleCheck>[] = []
 const livenessRegistrations: Registration<LifecycleCheck>[] = []
 const shutdownRegistrations: Registration<ShutdownHook>[] = []
+const warmupRegistrations: Registration<WarmupStep>[] = []
+const drainRegistrations: Registration<DrainHook>[] = []
 
 /**
  * Apply every live registration of one kind to `provider`.
@@ -107,6 +113,10 @@ export const setProvider = (provider: ProcessLifecycleProvider): void => {
   applyRegistrations(provider, shutdownRegistrations, (target, hook) =>
     target.registerShutdownHook(hook),
   )
+  applyRegistrations(provider, warmupRegistrations, (target, step) =>
+    target.registerWarmupStep(step),
+  )
+  applyRegistrations(provider, drainRegistrations, (target, hook) => target.registerDrainHook(hook))
 }
 
 /**
@@ -143,6 +153,8 @@ export const resetRegistrationsForTests = (): void => {
   readinessRegistrations.length = 0
   livenessRegistrations.length = 0
   shutdownRegistrations.length = 0
+  warmupRegistrations.length = 0
+  drainRegistrations.length = 0
 }
 
 /**
@@ -249,4 +261,58 @@ export const inFlightRequests = (): number => {
  */
 export const runShutdownHooks = (reason?: string): Promise<ShutdownReport> => {
   return getProvider().runShutdownHooks(reason)
+}
+
+/**
+ * Registers a named boot warm-up step. Queued until a provider is bonded, like
+ * {@link registerReadinessCheck}.
+ *
+ * @param step - The warm-up step to register.
+ * @returns A function that removes the step.
+ */
+export const registerWarmupStep = (step: WarmupStep): (() => void) => {
+  return addRegistration(warmupRegistrations, step, (provider, item) =>
+    provider.registerWarmupStep(item),
+  )
+}
+
+/**
+ * Runs every registered boot warm-up step on the bonded provider.
+ *
+ * @returns The per-step warm-up report.
+ */
+export const runWarmup = (): Promise<WarmupReport> => {
+  return getProvider().runWarmup()
+}
+
+/**
+ * Reports whether the boot warm-up has settled on the bonded provider.
+ *
+ * @returns `true` once the warm-up pass has finished.
+ */
+export const isWarm = (): boolean => {
+  return getProvider().isWarm()
+}
+
+/**
+ * Registers a drain hook. Queued until a provider is bonded, like
+ * {@link registerReadinessCheck}.
+ *
+ * @param hook - The drain hook to register.
+ * @returns A function that removes the hook.
+ */
+export const registerDrainHook = (hook: DrainHook): (() => void) => {
+  return addRegistration(drainRegistrations, hook, (provider, item) =>
+    provider.registerDrainHook(item),
+  )
+}
+
+/**
+ * Runs every drain hook on the bonded provider.
+ *
+ * @param reason - Optional reason (usually a signal name) recorded in the report.
+ * @returns The per-hook drain report.
+ */
+export const runDrainHooks = (reason?: string): Promise<DrainHookReport[]> => {
+  return getProvider().runDrainHooks(reason)
 }

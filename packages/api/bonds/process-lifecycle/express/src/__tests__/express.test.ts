@@ -5,7 +5,11 @@ import type { AddressInfo } from 'node:net'
 import express from 'express'
 import { afterEach, describe, expect, it } from 'vitest'
 
-import { installExpressLifecycle, mountLifecycleRoutes } from '../express.js'
+import {
+  createDrainHeaderMiddleware,
+  installExpressLifecycle,
+  mountLifecycleRoutes,
+} from '../express.js'
 import { createProcessLifecycleProvider } from '../lifecycle.js'
 
 /** Wait until `predicate` is true, polling briefly (avoids fixed sleeps). */
@@ -34,7 +38,8 @@ describe('lifecycle health routes', () => {
     const app = express()
     const lifecycle = installExpressLifecycle({
       app,
-      provider: createProcessLifecycleProvider(),
+      // One passing probe: the consecutive-probe gate is covered by its own test.
+      provider: createProcessLifecycleProvider({ consecutiveReadyPasses: 1 }),
       wireProvider: false,
       signals: [],
       exit: () => {},
@@ -116,9 +121,79 @@ describe('lifecycle health routes', () => {
     expect(connection).toBe('close')
   })
 
+  it('keeps /health/ready at 503 while the boot warm-up runs and reports warm: false', async () => {
+    const app = express()
+    let release: () => void = () => {}
+    const warmupWork = new Promise<void>((resolve) => {
+      release = resolve
+    })
+    const provider = createProcessLifecycleProvider()
+    provider.registerWarmupStep({ name: 'module-graph', run: () => warmupWork })
+    const lifecycle = installExpressLifecycle({
+      app,
+      provider,
+      wireProvider: false,
+      signals: [],
+      exit: () => {},
+    })
+
+    const server = app.listen(0)
+    openServers.push(server)
+    await once(server, 'listening')
+    lifecycle.markReady()
+
+    const base = `http://127.0.0.1:${portOf(server)}`
+    const warming = await fetch(`${base}/health/ready`)
+    expect(warming.status).toBe(503)
+    expect(await warming.json()).toMatchObject({ status: 'not_ready', warm: false })
+
+    release()
+    await provider.runWarmup()
+    // First passing probe after the warm-up: still 503.
+    expect((await fetch(`${base}/health/ready`)).status).toBe(503)
+    // Second consecutive pass: routable.
+    const ready = await fetch(`${base}/health/ready`)
+    expect(ready.status).toBe(200)
+    expect(await ready.json()).toMatchObject({ status: 'ready', warm: true })
+  })
+
+  it('createDrainHeaderMiddleware marks every response Connection: close while draining', async () => {
+    const provider = createProcessLifecycleProvider()
+    const app = express()
+    app.use(createDrainHeaderMiddleware(provider))
+    app.get('/api/ping', (_req, res) => res.json({ ok: true }))
+
+    const server = app.listen(0)
+    openServers.push(server)
+    await once(server, 'listening')
+    const port = portOf(server)
+
+    const serving = await new Promise<string | undefined>((resolve, reject) => {
+      http
+        .get({ host: '127.0.0.1', port, path: '/api/ping' }, (res) => {
+          res.resume()
+          resolve(res.headers.connection)
+        })
+        .on('error', reject)
+    })
+    expect(serving).not.toBe('close')
+
+    provider.startDraining('SIGTERM')
+
+    const draining = await new Promise<string | undefined>((resolve, reject) => {
+      http
+        .get({ host: '127.0.0.1', port, path: '/api/ping' }, (res) => {
+          res.resume()
+          resolve(res.headers.connection)
+        })
+        .on('error', reject)
+    })
+    expect(draining).toBe('close')
+  })
+
   it('mountLifecycleRoutes is callable on its own', async () => {
     const app = express()
-    const provider = createProcessLifecycleProvider()
+    const provider = createProcessLifecycleProvider({ consecutiveReadyPasses: 1 })
     provider.markReady()
     mountLifecycleRoutes(app, provider)
 
