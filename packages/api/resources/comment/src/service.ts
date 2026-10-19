@@ -86,6 +86,10 @@ export async function createComment(
  * Retrieves paginated comments for a resource, ordered by creation date descending.
  * Only returns top-level comments (no replies).
  *
+ * The rows carry each comment's UUID `id`; for an API that addresses comments by an
+ * integer, map a page's ids with `commentNumbers()` — every comment `createComment()`
+ * wrote is in that map, and a missing entry (a raw insert) is never `0`.
+ *
  * @param resourceType - The type of resource.
  * @param resourceId - The ID of the resource.
  * @param options - Pagination options.
@@ -121,7 +125,8 @@ export async function getCommentsByResource(
 /**
  * Retrieves a single comment by ID.
  *
- * @param commentId - The comment ID to look up.
+ * @param commentId - The comment's UUID. For the sequential integer an
+ *   integer-addressed API uses, call `getCommentByNumber(number)` instead.
  * @returns The comment or `null` if not found.
  */
 export async function getCommentById(commentId: string): Promise<Comment | null> {
@@ -131,7 +136,8 @@ export async function getCommentById(commentId: string): Promise<Comment | null>
 /**
  * Updates a comment. Only the comment owner can update.
  *
- * @param commentId - The comment ID to update.
+ * @param commentId - The comment's UUID. For an integer number, resolve it with
+ *   `getCommentByNumber(number)` first.
  * @param userId - The requesting user's ID (must match comment owner).
  * @param data - The update input.
  * @returns The updated comment or `null` if not found or unauthorized.
