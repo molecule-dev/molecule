@@ -1,5 +1,11 @@
 # @molecule/api-resource-comment
 
+## 1.2.0
+
+### Minor Changes
+
+- 648adeb: `createComment()` allocates the comment's sequential number as it creates the comment, so `commentNumbers()` and `getCommentByNumber()` see every comment this package writes; `createNumberedComment()` is the same create under its original name.
+
 ## 1.1.4
 
 ### Patch Changes

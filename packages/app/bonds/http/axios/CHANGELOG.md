@@ -1,5 +1,11 @@
 # @molecule/app-http-axios
 
+## 1.0.7
+
+### Patch Changes
+
+- 6ffcfaa: A request path that already starts with the client's `baseURL` is no longer prefixed twice.
+
 ## 1.0.6
 
 ### Patch Changes
