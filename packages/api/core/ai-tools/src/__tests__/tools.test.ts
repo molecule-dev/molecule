@@ -627,19 +627,20 @@ describe('buildTools', () => {
   })
 
   it('lifts a ceiling-sized `timeout` on a suite run the EXECUTOR detached (m200)', async () => {
-    // m200 sent `timeout 290` beside the 290 s tool ceiling and detached the run itself. The
-    // platform rewrote the command (dropped the tail pipe, changed the reporter) but kept the
-    // bound — and it killed the deployed whole walk at test 103 of 138, so the walk had to be
-    // repeated (~5 min). A number no larger than the ceiling is the ceiling written down, not a
-    // budget for the walk.
+    // m200's command, verbatim from the conversation (`conversation-xr-molecule-flash-m200.json`):
+    // `timeout 290` beside the 290 s tool ceiling, detached by the executor itself. The platform
+    // rewrote the command (dropped the tail pipe, changed the reporter) but kept the bound — and
+    // in the finding's deployed walk it killed the run at test 103 of 138, so the whole walk had
+    // to be repeated (~5 min). A number no larger than the ceiling is the ceiling written down,
+    // not a budget for the walk.
     const backend = mockBackend()
     const exec = buildTools(backend, { commandBudgetMs: 290_000, overCeilingGraceMs: 0 }).find(
       (t) => t.name === 'exec_command',
     )!
     const r = (await exec.execute({
       command:
-        'TEST_MODE=fullstack BASE_URL=https://loopcheck-x.apps.mlcl.dev timeout 290 npx playwright ' +
-        'test --config e2e-suite.config.ts --retries=0 --reporter=line --max-failures=15 2>&1 | tail -40',
+        'cd /workspace/my-app/app && TEST_MODE=fullstack BASE_URL=http://localhost:5173 timeout 290 ' +
+        'npx playwright test --config e2e-suite.config.ts --retries=0 --reporter=line 2>&1 | tail -60',
       run_in_background: true,
     })) as { taskId?: string; note?: string }
     expect(r.taskId).toMatch(/^mol-bg-/)
