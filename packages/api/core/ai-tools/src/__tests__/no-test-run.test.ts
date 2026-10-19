@@ -86,6 +86,22 @@ describe('a command that invokes a runner only to print (flash-m79)', () => {
     expect(commandRunsNoTests('npx playwright test --grep list')).toBe(false)
   })
 
+  /**
+   * X1 xr-molecule-flash-m197 (+05:18): the version probe in front of the suite's own script made
+   * the whole command read as "installs/prints and runs nothing" — a 13/13 Hurl pass was never
+   * counted as a run. A program this module cannot place is not "only printing": it may be the
+   * suite's own script, so the command is not a print-only command.
+   */
+  it('does not read a probe beside a program it cannot place as “only prints”', () => {
+    const command =
+      'cd /workspace/fixtures/realworld/specs/api && hurl --version | head -2 && ' +
+      'HOST=http://localhost:4000 ./run-api-tests-hurl.sh 2>&1 | tail -60'
+    expect(commandRunsNoTests(command)).toBe(false)
+    // The probe with nothing but output plumbing beside it still runs no test.
+    expect(commandRunsNoTests('hurl --version | head -2')).toBe(true)
+    expect(commandRunsNoTests('npx playwright test --list 2>&1 | tail -5')).toBe(true)
+  })
+
   it('answers for the empty and non-command input without claiming anything', () => {
     expect(commandRunsNoTests('')).toBe(false)
     expect(commandRunsNoTests('   ')).toBe(false)

@@ -85,6 +85,109 @@ const NO_RUN_FLAGS: Readonly<Record<Runner, readonly RegExp[]>> = {
 }
 
 /**
+ * The programs that start no test — the shell's own bookkeeping (`cd`, `export`, `echo`), and the
+ * readers, printers and file commands an executor uses to look at what is already there (`cat`,
+ * `ls`, `cp`, `tail`, …).
+ *
+ * A segment whose program is neither a runner nor one of these is a program this reader cannot
+ * account for: the suite's own script (`./run-api-tests-hurl.sh`), a wrapper the executor wrote,
+ * anything that may itself start a suite. {@link commandRunsNoTests} answers false for a command
+ * carrying one — "every invocation only prints" is not a claim an unknown step can support.
+ * X1 xr-molecule-flash-m197 (+05:18) sent
+ * `hurl --version | head -2 && HOST=http://localhost:4000 ./run-api-tests-hurl.sh 2>&1 | tail -60`,
+ * the suite passed 13/13, and the supplied script was the one segment nobody could place: the
+ * whole command read as a version probe, so every "has the suite run?" reader said no for the
+ * rest of the run and the early deploy was held to the end of the list.
+ */
+const NO_TEST_PROGRAMS: ReadonlySet<string> = new Set([
+  '[',
+  '[[',
+  ':',
+  'awk',
+  'base64',
+  'basename',
+  'case',
+  'cat',
+  'cd',
+  'chmod',
+  'chown',
+  'column',
+  'comm',
+  'cp',
+  'cut',
+  'date',
+  'df',
+  'diff',
+  'dirname',
+  'do',
+  'done',
+  'du',
+  'echo',
+  'egrep',
+  'else',
+  'env',
+  'esac',
+  'export',
+  'expr',
+  'false',
+  'fgrep',
+  'fi',
+  'file',
+  'fold',
+  'for',
+  'grep',
+  'head',
+  'hostname',
+  'id',
+  'if',
+  'jq',
+  'kill',
+  'less',
+  'ln',
+  'ls',
+  'md5sum',
+  'mkdir',
+  'mktemp',
+  'more',
+  'mv',
+  'nl',
+  'od',
+  'paste',
+  'printf',
+  'pwd',
+  'readlink',
+  'realpath',
+  'rev',
+  'rm',
+  'rmdir',
+  'seq',
+  'set',
+  'sha256sum',
+  'sleep',
+  'sort',
+  'stat',
+  'tac',
+  'tail',
+  'tee',
+  'test',
+  'then',
+  'touch',
+  'tr',
+  'true',
+  'type',
+  'uname',
+  'uniq',
+  'unset',
+  'until',
+  'wait',
+  'wc',
+  'which',
+  'while',
+  'whoami',
+  'xxd',
+])
+
+/**
  * A heredoc body is data a command writes, not what it runs: a `playwright test --list` inside
  * the config a command writes is not a run of this command either way. The pattern consumes the
  * writer's own line prefix, the same shape `outputRedirectTarget` reads.
@@ -122,7 +225,9 @@ function informational(runner: Runner, after: string): boolean {
  *
  * A command that also runs tests is false however it is spelled: `npx playwright install &&
  * npx playwright test` installs and runs, so a caller that sees `playwright test` in it is
- * reading a real run.
+ * reading a real run. So is a command carrying a segment this reader cannot place (a script it
+ * does not know, which may start a suite): only the runners and the {@link NO_TEST_PROGRAMS}
+ * table can be accounted for, and "only prints" is a claim about the WHOLE command.
  *
  * @param command - The shell command as the executor sent it.
  * @returns True when the command invokes a runner only to print.
@@ -131,8 +236,15 @@ export function commandRunsNoTests(command: string): boolean {
   if (typeof command !== 'string' || !command.trim()) return false
   let invocations = 0
   for (const segment of commandSegments(command.replace(HEREDOC, ' '))) {
-    const runner = RUNNERS[segment.program]
-    if (!runner) continue
+    // An own key only: `constructor` is a program name (`constructor --version`) and a
+    // prototype key is not a runner.
+    const runner = Object.hasOwn(RUNNERS, segment.program) ? RUNNERS[segment.program] : undefined
+    if (runner === undefined) {
+      // A program this reader cannot place may start a suite of its own; only a known
+      // non-test program lets the command keep reading as "prints only".
+      if (!NO_TEST_PROGRAMS.has(segment.program)) return false
+      continue
+    }
     invocations += 1
     if (!informational(runner, segment.args.join(' '))) return false
   }
