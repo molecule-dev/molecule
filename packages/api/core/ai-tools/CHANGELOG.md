@@ -1,5 +1,17 @@
 # @molecule/api-ai-tools
 
+## 1.10.4
+
+### Patch Changes
+
+- 1a76c0a: Background tasks are only visible to the project whose sandbox launched them.
+- 81b5e7c: A test run the executor detached itself now drops an outer `timeout <N>` that is shorter than the whole walk (the tool's own ceiling written down, or less than the run the consumer measured), and the result says so instead of letting the bound kill the run mid-walk.
+- 1a86efb: An `env NAME=value … <command>` prefix is reported as the command statement's own environment, so a reader that classifies a suite run sees the settings a leading `NAME=value` binds.
+- ba740dd: `find_files` accepts one brace group of comma-separated alternatives in `pattern` (up to 16), such as `*.{ts,tsx}`, instead of refusing it.
+- d120bd7: A trace whose only evidence is a resolved-but-hidden locator now produces a row, so a page that made no app request still gets the reading.
+- 4e672e7: A hidden-locator reading no longer calls an element empty when its children are stored as a reference into an earlier Playwright snapshot.
+- f7f69e7: An inline interpreter program that only touches local files (`python3 -c`, `python3 - <<EOF`, `node -e`) now gets a 20 s budget, and a cut tells the model the transform is stuck rather than telling it to run the command in the background.
+
 ## 1.10.3
 
 ### Patch Changes
