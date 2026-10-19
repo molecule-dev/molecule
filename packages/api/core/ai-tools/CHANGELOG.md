@@ -1,5 +1,14 @@
 # @molecule/api-ai-tools
 
+## 1.10.6
+
+### Patch Changes
+
+- 4c0a293: A failing test's trace note leads with a request the page sent 20 or more times as a render loop, prints it once with its count, and names the app file that sends it.
+- ad57e73: A failing run's trace note says the server did not answer when several API requests got no response or a page load timed out, instead of closing with "the cause is in the page, not the API".
+- ee98562: A 401 with no `Authorization` header is diagnosed as a missing client token only when the trace shows the same context had signed in; a signed-out route test now points at its redirect guard instead.
+- 8a8e795: A failing assertion's awaited text is read as returned only when a response holds it as a whole JSON value or as a word, so a one-character text no longer matches part of an unrelated identifier.
+
 ## 1.10.5
 
 ### Patch Changes
