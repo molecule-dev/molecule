@@ -52,7 +52,7 @@
     "release": "npm run build && node scripts/publish-paced.mjs",
     "release:changesets": "changeset publish",
     "sync:lockfile": "node scripts/sync-lockfile.js",
-    "test": "vitest run",
+    "test": "node scripts/vitest-with-tmp-root.mjs run",
     "test:all": "npm run test --workspaces --if-present",
     "trust:new": "node scripts/trust-new-packages.mjs",
     "version": "changeset version && npm install --package-lock-only --no-audit --no-fund"
