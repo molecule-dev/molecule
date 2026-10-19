@@ -178,14 +178,14 @@ export const TOOL_SCHEMAS: Record<string, ToolSchema> = {
   find_files: {
     name: 'find_files',
     description:
-      "Find files by name or glob pattern recursively. Excludes node_modules and .git. Use for discovering files by name (e.g. '*.tsx', 'Dashboard*', 'index.*'). A pattern containing '/' matches the path instead: 'e2e/*.spec.ts', 'src/**/App.tsx', '**/SELECTORS.md'.",
+      "Find files by name or glob pattern recursively. Excludes node_modules and .git. Use for discovering files by name (e.g. '*.tsx', 'Dashboard*', 'index.*'). A pattern containing '/' matches the path instead: 'e2e/*.spec.ts', 'src/**/App.tsx', '**/SELECTORS.md'. Several extensions go in one brace group: '*.{ts,tsx}'.",
     parameters: {
       type: 'object',
       properties: {
         pattern: {
           type: 'string',
           description:
-            "File name or glob pattern (e.g. '*.tsx', 'Dashboard*'). A pattern containing '/' is matched against the file's path, so 'src/**/App.tsx' and 'e2e/*.spec.ts' work.",
+            "File name or glob pattern (e.g. '*.tsx', 'Dashboard*'). A pattern containing '/' is matched against the file's path, so 'src/**/App.tsx' and 'e2e/*.spec.ts' work. Several extensions go in one brace group of comma-separated alternatives: '*.{ts,tsx,yml}' (up to 16).",
         },
         path: {
           type: 'string',

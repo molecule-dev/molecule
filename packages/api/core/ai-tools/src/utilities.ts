@@ -1450,6 +1450,62 @@ export function isValidGlob(pattern: string): boolean {
 }
 
 /**
+ * The most alternatives one brace group may expand to. The point is to accept
+ * the ordinary multi-extension form a model writes from habit
+ * (`*.{ts,tsx,yml,json,md}`), not to grow a glob engine: a group is bounded so
+ * a pattern cannot turn one search into hundreds.
+ */
+export const MAX_BRACE_GLOB_ALTERNATIVES = 16
+
+/**
+ * The accepted brace form, named in every refusal so a refusal teaches the
+ * syntax rather than only reporting that the value was wrong.
+ */
+export const BRACE_GLOB_HINT =
+  `or one brace group of up to ${MAX_BRACE_GLOB_ALTERNATIVES} comma-separated ` +
+  'alternatives such as *.{ts,tsx}.'
+
+/**
+ * Expand ONE level of brace alternatives in a glob pattern, validating every
+ * expanded pattern.
+ *
+ * Neither search tool expands braces itself: `grep --include` and `find` take
+ * the pattern as a single shell-quoted argument, so no shell ever sees it.
+ * `find_files {pattern:"*.{ts,tsx}"}` and `search_files {include:"*.{ts,tsx}"}`
+ * were both refused outright (xr-molecule-flash-m199 and m189), costing a round
+ * trip and pushing the agent to a narrower search. The group is expanded here
+ * instead — `search_files` passes one `--include` per alternative and
+ * `find_files` ORs one `-name`/`-path` predicate per alternative.
+ *
+ * Bounded on purpose: one level of braces, alternatives split on `,`, at most
+ * {@link MAX_BRACE_GLOB_ALTERNATIVES}, none empty, and each EXPANDED pattern
+ * must still pass {@link isValidGlob} — so a shell metacharacter in any
+ * alternative (`*.{ts,$(rm)}`) is refused exactly as a bare one is.
+ *
+ * @param pattern - The user-supplied glob.
+ * @returns Every pattern the value expands to, or null when it is not accepted
+ *   (the caller reports its tool's glob error).
+ */
+export function expandBraceGlob(pattern: string): string[] | null {
+  const open = pattern.indexOf('{')
+  if (open === -1) return isValidGlob(pattern) ? [pattern] : null
+  const close = pattern.indexOf('}', open + 1)
+  if (close === -1) return null
+  // One level only: a second `{` before the close or a second `}` after it is a
+  // nested/malformed group, not an alternative.
+  const nextOpen = pattern.indexOf('{', open + 1)
+  if (nextOpen !== -1 && nextOpen < close) return null
+  if (pattern.indexOf('}', close + 1) !== -1) return null
+  const alternatives = pattern.slice(open + 1, close).split(',')
+  if (alternatives.length > MAX_BRACE_GLOB_ALTERNATIVES) return null
+  if (alternatives.some((alt) => alt.length === 0)) return null
+  const expanded = alternatives.map(
+    (alt) => `${pattern.slice(0, open)}${alt}${pattern.slice(close + 1)}`,
+  )
+  return expanded.every((p) => isValidGlob(p)) ? expanded : null
+}
+
+/**
  * The `find` predicate for a `find_files` pattern.
  *
  * `find -name` compares a pattern against a file's BASENAME, so a pattern

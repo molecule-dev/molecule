@@ -631,12 +631,14 @@ import { suiteCommandTarget } from './suite-overlap.js'
 import { diagnosisTraceCommand } from './trace-artifacts.js'
 import type { ExecutionBackend, ToolBuildConfig } from './types.js'
 import {
+  BRACE_GLOB_HINT,
   checkBlockedCommand,
   declaredBudgetSeconds,
   DEFAULT_SEARCH_EXCLUDED_DIRS,
   directoryReadHint,
   earlyReturnCause,
   emptyCallError,
+  expandBraceGlob,
   failureCausesNote,
   findPathArgs,
   findPatternArgs,
@@ -647,7 +649,6 @@ import {
   isOutsideRoot,
   isPlaywrightRunCommand,
   isSuiteRunCommand,
-  isValidGlob,
   linesWithinSerialized,
   literalDirPrefix,
   logShowsInlineFailureBodies,
@@ -784,61 +785,45 @@ export const SUITE_OVER_BUDGET_ADVICE =
 const SEARCH_TIMEOUT_MS = 10_000
 
 /**
- * The most alternatives one brace group in a `search_files` include may expand
- * to. The point is to accept the ordinary multi-extension form a model writes
- * from habit (`*.{ts,tsx,yml,json,md}`), not to grow a glob engine: a group is
- * bounded so a pattern cannot turn one grep call into hundreds.
- */
-const MAX_INCLUDE_BRACE_ALTERNATIVES = 16
-
-/**
- * Expand ONE level of brace alternatives in a `search_files` include pattern,
- * validating every expanded pattern.
- *
- * `grep --include` has no brace expansion of its own (the shell that would do it
- * is never involved — the pattern is `shellQuote`d first), so the group has to
- * be expanded here and each alternative passed as its own `--include`. The
- * m189 run wrote the everyday `*.{ts,tsx,yml,json,md}` and the search was
- * refused outright, costing a round trip and pushing the agent to a narrower
- * search.
- *
- * Bounded on purpose: one level of braces, alternatives split on `,`, at most
- * {@link MAX_INCLUDE_BRACE_ALTERNATIVES}, none empty, and each EXPANDED
- * pattern must still pass {@link isValidGlob} — so a shell metacharacter in any
- * alternative (`*.{ts,$(rm)}`) is refused exactly as a bare one is.
- *
- * @param pattern - The user-supplied `include` value.
- * @returns Every pattern to pass to grep, or null when the value is not
- *   accepted (the caller reports the include-glob error).
- */
-function expandIncludeGlob(pattern: string): string[] | null {
-  const open = pattern.indexOf('{')
-  if (open === -1) return isValidGlob(pattern) ? [pattern] : null
-  const close = pattern.indexOf('}', open + 1)
-  if (close === -1) return null
-  // One level only: a second `{` before the close or a second `}` after it is a
-  // nested/malformed group, not an alternative.
-  const nextOpen = pattern.indexOf('{', open + 1)
-  if (nextOpen !== -1 && nextOpen < close) return null
-  if (pattern.indexOf('}', close + 1) !== -1) return null
-  const alternatives = pattern.slice(open + 1, close).split(',')
-  if (alternatives.length > MAX_INCLUDE_BRACE_ALTERNATIVES) return null
-  if (alternatives.some((alt) => alt.length === 0)) return null
-  const expanded = alternatives.map(
-    (alt) => `${pattern.slice(0, open)}${alt}${pattern.slice(close + 1)}`,
-  )
-  return expanded.every((p) => isValidGlob(p)) ? expanded : null
-}
-
-/**
  * The include-glob error. It keeps the original character-rule sentence and
  * names the accepted multi-extension form, so a refusal teaches the syntax
  * rather than only reporting that the value was wrong.
  */
 const INCLUDE_GLOB_ERROR =
   'Invalid include glob pattern. Allowed: alphanumeric and @ * ? . _ - / [ ] ( ), ' +
-  'or one brace group of up to 16 comma-separated alternatives such as *.{ts,tsx}.'
+  BRACE_GLOB_HINT
 
+/**
+ * The `find_files` pattern error. Same shape as {@link INCLUDE_GLOB_ERROR} —
+ * the brace sentence is shared, so a brace refusal reads the same in both
+ * search tools — with the route-directory note this tool has always carried.
+ */
+const FIND_PATTERN_ERROR =
+  'Invalid pattern. Allowed: alphanumeric and @ * ? . _ - / [ ] ( ) ' +
+  '(brackets/parens support Next.js route dirs like [id] or (group)), ' +
+  BRACE_GLOB_HINT
+
+/**
+ * The `find` predicate for one or more expanded patterns, ORed inside parens
+ * when a brace group expanded to more than one.
+ *
+ * @param patterns - Patterns, each already accepted by the glob character rule.
+ * @returns A predicate list for `find`.
+ */
+function findArgsForPatterns(patterns: string[]): string {
+  return joinFindArgs(patterns.map((p) => findPatternArgs(p)))
+}
+
+/**
+ * Join `find` predicates into one, parenthesising an OR when a brace group
+ * expanded to more than one alternative.
+ *
+ * @param args - One predicate expansion per alternative.
+ * @returns The predicate text.
+ */
+function joinFindArgs(args: string[]): string {
+  return args.length === 1 ? args[0] : `\\( ${args.join(' -o ')} \\)`
+}
 /**
  * The share of its budget a command must use before the "you asked for more than
  * this tool's ceiling" note is worth attaching. Below it the clamp changed nothing
@@ -2596,7 +2581,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
 
       // `--include` has no brace expansion inside the quoted grep argument, so
       // a brace group is expanded here and grep gets one --include per pattern.
-      const includes = include ? expandIncludeGlob(include) : []
+      const includes = include ? expandBraceGlob(include) : []
       if (includes === null) return { error: INCLUDE_GLOB_ERROR }
 
       const symlinkErr = await checkSymlink(path)
@@ -2684,12 +2669,11 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           error:
             'find_files requires a non-empty "pattern" argument (a filename or glob, e.g. "*.tsx" or "index.ts").',
         }
-      if (!isValidGlob(pattern))
-        return {
-          error:
-            'Invalid pattern. Allowed: alphanumeric and @ * ? . _ - / [ ] ( ) ' +
-            '(brackets/parens support Next.js route dirs like [id] or (group)).',
-        }
+      // `find` has no brace expansion either — the pattern is shell-quoted
+      // before it reaches it — so `*.{ts,tsx}` expands here into one predicate
+      // per alternative (xr-molecule-flash-m199).
+      const patterns = expandBraceGlob(pattern)
+      if (patterns === null) return { error: FIND_PATTERN_ERROR }
 
       const symlinkErr = await checkSymlink(path)
       if (symlinkErr) return { error: symlinkErr }
@@ -2701,9 +2685,12 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       // the model meant answered a `list_files` instantly (xr-molecule-flash-m94).
       // A bare first segment (`helpers/*`) is left alone on purpose: it means "any
       // `helpers/` below the root" (xr-molecule-flash-m77, see literalDirPrefix).
-      const prefixDir = literalDirPrefix(pattern)
+      // Brace alternatives may each name a directory (`{src/a,src/b}/*.ts`),
+      // so a narrowing prefix is used only when every expansion agrees on it.
+      const prefixes = patterns.map((p) => literalDirPrefix(p))
+      const prefixDir = prefixes.every((p) => p === prefixes[0]) ? prefixes[0] : null
       let findRoot = path
-      let findArgs = findPatternArgs(pattern)
+      let findArgs = findArgsForPatterns(patterns)
       let missingPrefix: string | undefined
       try {
         if (prefixDir) {
@@ -2715,7 +2702,11 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
             findRoot = candidate
             // The remainder keeps the `-path` form: `*` crosses `/`, so a `.d.ts`
             // in `dist/utilities/` is still found (see findPathArgs).
-            findArgs = findPathArgs(pattern.replace(/^(?:\.?\/)+/, '').slice(prefixDir.length + 1))
+            findArgs = joinFindArgs(
+              patterns.map((p) =>
+                findPathArgs(p.replace(/^(?:\.?\/)+/, '').slice(prefixDir.length + 1)),
+              ),
+            )
           } else {
             missingPrefix = `"${candidate}" does not exist; searched all of ${path}.`
           }
