@@ -167,6 +167,50 @@ describe('@molecule/app-http-axios', () => {
     })
   })
 
+  describe('the bonded base URL', () => {
+    // xr-molecule-flash-m206: the scaffolded app's HTTP client had no `/api` base at all, so
+    // `get('/tags')` asked the page origin and read the front's index.html. Once the bond passes
+    // `API_BASE_URL`, page code may call either shape — a route (`/tags`) or the absolute API
+    // path the platform's own examples use (`/api/tags`) — and both must reach `/api/tags`.
+    // Axios joins `baseURL` to any URL without a protocol, so the absolute shape is normalized
+    // here rather than becoming `/api/api/tags`.
+    const send = async (url: string): Promise<string> => {
+      // The auth-gate test above leaves a releasing implementation on this mock
+      // (`clearAllMocks` keeps implementations), which would hold every request here.
+      mockAwaitAuthGate.mockResolvedValue(undefined)
+      createAxiosClient({ baseURL: '/api' })
+      const interceptor = mockInterceptorsRequest.use.mock.calls[0]?.[0] as (
+        config: unknown,
+      ) => Promise<unknown>
+      const axiosConfig = { method: 'GET', url, headers: { set: vi.fn() } }
+      await interceptor(axiosConfig)
+      return axiosConfig.url
+    }
+
+    it('leaves a route for Axios to prefix with the bonded base', async () => {
+      expect(await send('/tags')).toBe('/tags')
+    })
+
+    it('does not prefix an absolute /api path a second time', async () => {
+      expect(await send('/api/tags')).toBe('/tags')
+    })
+
+    it('leaves a fully absolute URL as written', async () => {
+      expect(await send('https://other.test/api/tags')).toBe('https://other.test/api/tags')
+    })
+
+    it('leaves a route alone when no base is bonded', async () => {
+      mockAwaitAuthGate.mockResolvedValue(undefined)
+      createAxiosClient()
+      const interceptor = mockInterceptorsRequest.use.mock.calls[0]?.[0] as (
+        config: unknown,
+      ) => Promise<unknown>
+      const axiosConfig = { method: 'GET', url: '/api/tags', headers: { set: vi.fn() } }
+      await interceptor(axiosConfig)
+      expect(axiosConfig.url).toBe('/api/tags')
+    })
+  })
+
   // ===================================================================
   // createAxiosClient - basic creation
   // ===================================================================

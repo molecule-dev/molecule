@@ -40,6 +40,11 @@
  * - The exported `provider` constant is a pre-built default client (no baseURL,
  *   30 s timeout); prefer `createAxiosClient({...})` so baseURL/credentials are
  *   explicit.
+ * - A bonded `baseURL` applies to every relative path, and a path that already
+ *   starts with it is not prefixed twice: with `baseURL: '/api'`, both
+ *   `get('/articles')` and `get('/api/articles')` request `/api/articles`. Leave
+ *   the base URL off and both ask the PAGE origin, which answers its own
+ *   `index.html` with a 200.
  * - An API whose scheme is not `Bearer` (`Authorization: Token <jwt>`) passes
  *   `authScheme: 'Token'` to THIS package's constructor —
  *   `setClient(createAxiosClient({ baseURL, authScheme: 'Token' }))` — and the auth

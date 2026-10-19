@@ -86,6 +86,27 @@ function toHttpResponse<T>(response: AxiosResponse<T>, config: FullRequestConfig
 }
 
 /**
+ * Removes the bonded `baseURL` from a relative request URL, so Axios does not join it twice.
+ *
+ * Axios combines `baseURL` with every URL that carries no protocol, so `get('/api/articles')`
+ * under `baseURL: '/api'` would request `/api/api/articles`. Callers legitimately pass the
+ * absolute path — the scaffolded app's own examples call `/api/...` — and
+ * `@molecule/app-http`'s fetch client already leaves a URL that starts with the bonded base as
+ * written. This applies the same rule on the Axios path (xr-molecule-flash-m206: a client
+ * bonded with the `/api` base must serve both `get('/tags')` and `get('/api/tags')`).
+ *
+ * @param url - The URL the caller (or a request interceptor) supplied.
+ * @param baseURL - The client's bonded base URL.
+ * @returns The URL without the bonded prefix, unchanged for an absolute URL or no base.
+ */
+function stripBondedBaseURL(url: string, baseURL: string): string {
+  if (!baseURL || /^[a-z][a-z0-9+.-]*:\/\//i.test(url)) return url
+  const prefix = baseURL.endsWith('/') ? baseURL : `${baseURL}/`
+  if (url === baseURL) return ''
+  return url.startsWith(prefix) ? url.slice(baseURL.length) : url
+}
+
+/**
  * Creates an Axios-based HTTP client implementing the molecule `HttpClient` interface.
  * Supports request/response/error interceptors, auth token management, and 401 error handlers.
  *
@@ -168,8 +189,9 @@ export function createAxiosClient(config: AxiosHttpClientConfig = {}): HttpClien
       config = await interceptor(config)
     }
 
-    // Apply back to Axios config
-    axiosConfig.url = config.url
+    // Apply back to Axios config. A URL that already carries the bonded base is left as the
+    // caller wrote it — Axios would otherwise prefix it a second time.
+    axiosConfig.url = stripBondedBaseURL(config.url, baseURL)
     axiosConfig.method = config.method.toLowerCase()
     axiosConfig.headers.set(config.headers ?? {})
     axiosConfig.params = config.params
