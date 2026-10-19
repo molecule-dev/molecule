@@ -329,8 +329,19 @@ const CHINA_PUBLIC_HOLIDAYS = [
  *   labeled Kimi-K3 — so kimi-k2.7-code is native-only (regions ['cn']) and
  *   its US modelMap entry is gone. kimi-k3's US re-host is healthy, rates
  *   unchanged.)
- * - MiniMax: https://platform.minimax.io/docs/guides/pricing-paygo (unchanged;
- *   minimax-m3 $0.30/$1.20 is a "permanent 50% off" list rate)
+ * - MiniMax: https://platform.minimax.io/docs/guides/pricing-paygo
+ *   (unchanged; minimax-m3 $0.30/$1.20 is a "permanent 50% off" list rate)
+ *   (re-verified 2026-10-19 across platform.minimax.io — pricing-paygo,
+ *   models-intro, the text-generation guide, the text-chat-openai reference,
+ *   faq/models, the model release notes and the prompt-caching page: M3 rates
+ *   unchanged at $0.30/$1.20/cache-read $0.06; MiniMax-M3.1-Flash (released
+ *   2026-10-19) added at $0.15/$0.60/cache-read $0.015, 1M ctx, multimodal,
+ *   ALWAYS thinks (thinking.type "disabled" → 400) with depth via
+ *   reasoning_effort low|medium|high|xhigh|max (API default max); no
+ *   cache-write line item exists for ANY MiniMax model (billing components
+ *   are new input + cache hit + output only). M2.5/M2.7 closed to new users
+ *   2026-10-19 and retire 2026-11-18, with M2.x plan traffic auto-routed to
+ *   M3.1-Flash.)
  * - Alibaba: https://www.alibabacloud.com/help/en/model-studio/deep-thinking
  *   (qwen3.8-max GA'd 2026-08-03 on the pay-as-you-go international API and is
  *   IN the catalog — verified 2026-08-04: flat $2/$6 per MTok on
@@ -2335,12 +2346,55 @@ export const MODELS: readonly ModelDefinition[] = [
   // MiniMax
   // Verified: https://platform.minimax.io/docs/guides/models-intro
   //           https://platform.minimax.io/docs/guides/pricing-paygo.md
+  //           https://platform.minimax.io/docs/api-reference/text-chat-openai.md
   // minimax-m3 (2026-06-01) is the flagship: 1M context (≥512K guaranteed),
   // multimodal (text+image+video in), thinking adaptive|disabled (no budget /
   // effort levels). Run non-thinking like the DeepSeek executors — with
   // thinking on, reasoning must be carried through tool loops. m2.7 thinking
-  // CANNOT be disabled upstream.
+  // CANNOT be disabled upstream. m3.1-flash (2026-10-19) also cannot disable
+  // thinking, but TUNES depth via reasoning_effort (low…max) — it is the
+  // successor of the M2.x line (MiniMax routes retired M2.x plan traffic to
+  // it), not of M3, which MiniMax still lists as current.
   // ---------------------------------------------------------------------------
+  {
+    id: 'minimax-m3.1-flash',
+    provider: 'minimax',
+    label: 'MiniMax M3.1 Flash',
+    description: 'Fast multimodal MiniMax — always-on thinking, tunable effort',
+    contextWindow: 1_000_000,
+    // Upstream recommends 128K max_completion_tokens (hard max 512K), same as
+    // M3 (text-chat-openai reference).
+    maxOutputTokens: 131_072,
+    // ALWAYS thinks: thinking {type:"disabled"} → 400 "requires adaptive
+    // thinking", and reasoning_effort "none" is rejected too (docs + live
+    // probe 2026-10-19). Depth is tuned with reasoning_effort
+    // low|medium|high|xhigh|max — the bond sends adaptive + the resolved
+    // level and never a disabled flag.
+    supportsThinking: true,
+    thinkingBudgetTokens: 16_000,
+    thinkingConfigurable: true,
+    supportedEffortLevels: ['low', 'medium', 'high', 'xhigh', 'max'],
+    // API default is max; MiniMax's own latency guidance is to LOWER the
+    // effort level rather than wish thinking off — high is the balanced
+    // default, xhigh/max for capability-sensitive turns.
+    defaultEffortLevel: 'high',
+    supportsVision: true,
+    supportsPromptCaching: true,
+    supportsTools: true,
+    inputPricePerMTok: 0.15,
+    outputPricePerMTok: 0.6,
+    cacheReadPricePerMTok: 0.015,
+    // No cache-write line item exists for any MiniMax model (billing is new
+    // input + cache hit + output only — prompt-caching page, 2026-10-19), so
+    // cache writes bill at the input rate.
+    cacheWritePricePerMTok: 0.15,
+    // No US re-host exists yet (open weights released 2026-10-19; not on
+    // DeepInfra at verification time) — pinned to the native host like m2.5.
+    regions: ['cn'],
+    // Not published by MiniMax — M3's HF-template-verified cutoff carried
+    // forward as the floor (this model shipped 4 months after M3).
+    knowledgeCutoff: '2026-01-01',
+  },
   {
     id: 'minimax-m3',
     provider: 'minimax',
@@ -2409,9 +2463,12 @@ export const MODELS: readonly ModelDefinition[] = [
       us: { inputPricePerMTok: 0.25, outputPricePerMTok: 1, cacheReadPricePerMTok: 0.05 },
     },
     knowledgeCutoff: '2025-09-01',
-    // Superseded by minimax-m3 (same price, 1M ctx, multimodal) — kept priceable.
+    // Superseded by minimax-m3.1-flash — MiniMax's own successor for the M2.x
+    // line (M/Token plan traffic to M2.5/M2.7 is auto-routed there). Closed to
+    // new users 2026-10-19; retired upstream 2026-11-18. Kept priceable until
+    // calls stop answering.
     deprecatedAt: '2026-07-28',
-    supersededBy: 'minimax-m3',
+    supersededBy: 'minimax-m3.1-flash',
   },
   {
     id: 'minimax-m2.5',
@@ -2434,9 +2491,11 @@ export const MODELS: readonly ModelDefinition[] = [
     // No US re-host exists (not on DeepInfra) — pinned to native China.
     regions: ['cn'],
     knowledgeCutoff: '2025-01-01',
-    // Superseded by minimax-m3 (legacy upstream, still served) — kept priceable.
+    // Superseded by minimax-m3.1-flash (same hand-off as m2.7 — MiniMax routes
+    // retired M2.x plan traffic there; closed to new users 2026-10-19, retired
+    // upstream 2026-11-18). Kept priceable until calls stop answering.
     deprecatedAt: '2026-03-18',
-    supersededBy: 'minimax-m3',
+    supersededBy: 'minimax-m3.1-flash',
   },
 
   // ---------------------------------------------------------------------------

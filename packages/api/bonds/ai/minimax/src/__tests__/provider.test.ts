@@ -542,6 +542,47 @@ describe('chat()', () => {
     expect(body.reasoning_effort).toBeUndefined()
     expect(body.reasoning_split).toBe(true)
   })
+
+  it('M3.1-Flash: thinking requested → adaptive + reasoning_effort; omitted → adaptive, never disabled', async () => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    // Fresh Response per call — a Body can only be consumed once.
+    fetch.mockImplementation(() =>
+      jsonResponse(200, { choices: [{ message: { content: 'h' } }], usage: {} }),
+    )
+    const provider = createProvider({ apiKey: 'k' })
+    for await (const _ of provider.chat({
+      model: 'minimax-m3.1-flash',
+      messages: [{ role: 'user', content: 'h' }],
+      stream: false,
+      thinking: { type: 'enabled', budgetTokens: 16_000, effort: 'high' },
+    })) {
+      // drain
+    }
+    let body = JSON.parse((fetch.mock.calls[0][1] as RequestInit).body as string)
+    // M3.1-Flash always thinks; depth arrives via reasoning_effort, and the
+    // budgetTokens half of the thinking block is NOT a MiniMax param.
+    expect(body.thinking).toEqual({ type: 'adaptive' })
+    expect(body.reasoning_effort).toBe('high')
+    expect(body.reasoning_split).toBe(true)
+    // Never the re-host disable kwarg — enable_thinking:false would contradict
+    // a model whose thinking cannot be turned off.
+    expect(body.chat_template_kwargs).toBeUndefined()
+
+    // Thinking omitted (discovery/commit-message shapes): `disabled` is a 400
+    // on this model ("requires adaptive thinking"), so adaptive is sent even
+    // without a request, and the upstream effort default (max) applies.
+    for await (const _ of provider.chat({
+      model: 'minimax-m3.1-flash',
+      messages: [{ role: 'user', content: 'h' }],
+      stream: false,
+    })) {
+      // drain
+    }
+    body = JSON.parse((fetch.mock.calls[1][1] as RequestInit).body as string)
+    expect(body.thinking).toEqual({ type: 'adaptive' })
+    expect(body.reasoning_effort).toBeUndefined()
+    expect(body.chat_template_kwargs).toBeUndefined()
+  })
 })
 
 describe('secret registration', () => {

@@ -1160,6 +1160,14 @@ const INTENTIONAL_FAMILY_OVERLAPS: { older: string; newer: string; why: string }
     newer: 'gpt-6.1-sol',
     why: "OpenAI's cheap tier ($0.10/$0.50); GPT-6.1 so far ships only the Sol tier ($2/$10).",
   },
+  {
+    older: 'minimax-m3',
+    newer: 'minimax-m3.1-flash',
+    why:
+      'MiniMax keeps M3 current as the flagship ($0.30/$1.20, thinking can be disabled); ' +
+      'M3.1-Flash is the cheaper always-thinking tier ($0.15/$0.60) that retired M2.x ' +
+      'plan traffic routes to — not an M3 successor.',
+  },
 ]
 
 describe('model families', () => {
@@ -1272,8 +1280,8 @@ describe('supersededBy', () => {
       'grok-4.3': 'grok-4.7',
       'kimi-k2.6': 'kimi-k3',
       'kimi-k2.5': 'kimi-k3',
-      'minimax-m2.7': 'minimax-m3',
-      'minimax-m2.5': 'minimax-m3',
+      'minimax-m2.7': 'minimax-m3.1-flash',
+      'minimax-m2.5': 'minimax-m3.1-flash',
       'qwen3.7-max': 'qwen3.8-max',
       'glm-5.2': 'glm-5.3',
       'glm-5': 'glm-5.3',

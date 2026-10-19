@@ -51,12 +51,33 @@ interface MiniMaxStreamState {
  * Whether a model id is a MiniMax M3-family model. Only M3 accepts the
  * `thinking: {type: "adaptive" | "disabled"}` control — M2.x thinking is
  * always on and cannot be configured, and sending the param there is invalid.
+ * M3.1-Flash is also M3-family for multimodal gating, but see
+ * {@link isM31FlashFamily}: it REJECTS `disabled`.
  *
  * @param model - The model id (catalog `minimax-m3` or native `MiniMax-M3`).
  * @returns `true` for M3-family model ids.
  */
 function isM3Family(model: string): boolean {
   return /^minimax-m3/i.test(model)
+}
+
+/**
+ * Whether a model id is a MiniMax M3.1-Flash-family model. M3.1-Flash ALWAYS
+ * thinks: `thinking: {type: "disabled"}` is answered with a 400 ("requires
+ * adaptive thinking") and `reasoning_effort: "none"` is rejected too. Depth is
+ * tuned with `reasoning_effort` (`low|medium|high|xhigh|max`, API default
+ * `max`) — the only model family on this endpoint where that field does
+ * anything (others ignore it).
+ *
+ * Verified 2026-10-19 on platform.minimax.io (text-chat-openai reference +
+ * text-generation guide).
+ *
+ * @param model - The model id (catalog `minimax-m3.1-flash` or native
+ *   `MiniMax-M3.1-Flash`).
+ * @returns `true` for M3.1-Flash-family model ids.
+ */
+function isM31FlashFamily(model: string): boolean {
+  return /^minimax-m3\.1/i.test(model)
 }
 
 /**
@@ -154,7 +175,7 @@ class MiniMaxAIProvider implements AIProvider {
       }
     }
 
-    // MiniMax's native API has no reasoning_effort / thinking budget. M3 takes
+    // MiniMax's native API has no thinking budget. M3 takes
     // `thinking: {type: "adaptive" | "disabled"}` (the OpenAI-compatible
     // endpoint defaults to adaptive when omitted); M2.x thinking is always on
     // and takes no param. Synthase runs M3 as a non-thinking executor (like
@@ -163,13 +184,24 @@ class MiniMaxAIProvider implements AIProvider {
     // re-hosts (`MiniMaxAI/MiniMax-M3`), which the `minimax-m3` anchor never
     // matches — that omission left thinking defaulted ON for every US turn.
     if (isM3Family(canonicalModel)) {
-      body.thinking = { type: params.thinking ? 'adaptive' : 'disabled' }
-      if (!params.thinking) {
-        // Open-weights re-hosts (DeepInfra) IGNORE the native `thinking` param
-        // and default reasoning ON — only `chat_template_kwargs.enable_thinking`
-        // reaches the template there. The native host accepts both together
-        // (verified live 2026-08-28), so send both and each host honors its own.
-        body.chat_template_kwargs = { enable_thinking: false }
+      if (isM31FlashFamily(canonicalModel)) {
+        // M3.1-Flash ALWAYS thinks — `disabled` is a 400, so never send it
+        // (not even for tool-less calls that omit the thinking block). Depth
+        // via reasoning_effort when the caller resolved a level; omitted, the
+        // upstream default is `max`.
+        body.thinking = { type: 'adaptive' }
+        if (params.thinking?.effort) {
+          body.reasoning_effort = params.thinking.effort
+        }
+      } else {
+        body.thinking = { type: params.thinking ? 'adaptive' : 'disabled' }
+        if (!params.thinking) {
+          // Open-weights re-hosts (DeepInfra) IGNORE the native `thinking` param
+          // and default reasoning ON — only `chat_template_kwargs.enable_thinking`
+          // reaches the template there. The native host accepts both together
+          // (verified live 2026-08-28), so send both and each host honors its own.
+          body.chat_template_kwargs = { enable_thinking: false }
+        }
       }
     }
     // Keep thinking out of the visible message: with reasoning_split, thinking
