@@ -39,6 +39,11 @@
  * Both shapes are handled here so pages don't have to remember to call
  * `unwrapList(res.data)` vs `unwrapList(res)`.
  *
+ * A custom envelope such as `{ items: [...], count: 10 }` is not a `data`
+ * envelope and returns `[]`. Read its named array directly: `body.items` for
+ * raw JSON, or `response.data.items` for an `HttpResponse`. Passing that
+ * array to `unwrapList` is also valid; passing the enclosing object is not.
+ *
  * @param res - Raw response body OR an `HttpResponse` envelope from `@molecule/app-http`.
  * @returns A typed array `T[]`; never `null`/`undefined`.
  */

@@ -49,6 +49,10 @@ export function useAuthClient<T = unknown>(): AuthClient<T> {
  * adopts the token and profile atomically and every consumer of this hook sees
  * `status: 'authenticated'` at once. `setUser` alone does not sign in.
  *
+ * To create an account, use `const { register } = useAuth<MyUser>()` and
+ * `await register({ email, password, name })`. Registration returns the auth
+ * client's `AuthResult<MyUser>`; there is no separate `useRegister` hook.
+ *
  * @param options - Hook options
  * @returns Auth state and action methods
  *

@@ -24,6 +24,10 @@ export interface UseLoginReturn<T = unknown> {
 
 /**
  * Hook for login with async state tracking.
+ * Registration is available through `const { register } = useAuth()`;
+ * call `register({ email, password, name })` to create an account. There is
+ * no separate `useRegister` hook. Use `usePromise(register)` when the form
+ * needs the same pending/error tracking as this login hook.
  *
  * @returns Login state and action
  *
