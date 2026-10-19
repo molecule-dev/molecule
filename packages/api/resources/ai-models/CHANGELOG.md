@@ -1,5 +1,11 @@
 # @molecule/api-resource-ai-models
 
+## 1.16.1
+
+### Patch Changes
+
+- ae95889: Documents the re-verified DeepSeek V4.1 Flash US re-host rate card (unchanged: $0.20/$0.60 per MTok, cached input $0.006).
+
 ## 1.16.0
 
 ### Minor Changes
