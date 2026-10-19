@@ -2095,6 +2095,29 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       if (emptyErr) return { error: emptyErr }
       const argErr = pathArgError(input.path, 'edit_file')
       if (argErr) return { error: argErr }
+      // The batch and the single top-level pair are EXCLUSIVE forms. A call that
+      // carried a nonempty batch AND either top-level string used to apply the
+      // batch and silently discard the pair, so the executor believed both edits
+      // landed (xr-molecule-flash-m257 +06:08). Refuse BEFORE resolving, reading or
+      // writing the file: which form wins, and where the pair would sit in the
+      // batch order, cannot be inferred — and merging the two would silently apply
+      // an overlap the model never asked the tool to resolve.
+      const hasBatch = Array.isArray(input.replacements) && input.replacements.length > 0
+      const hasTopLevelEdit = input.old_string !== undefined || input.new_string !== undefined
+      if (hasBatch && hasTopLevelEdit) {
+        // Name the edit that would have vanished (its first line) so the model
+        // recognises it in the re-sent call.
+        const head =
+          typeof input.old_string === 'string'
+            ? input.old_string.split('\n')[0].trim().slice(0, 80)
+            : ''
+        return {
+          error:
+            'Nothing changed: edit_file received both edit formats' +
+            (head ? ` (the top-level edit starts "${head}")` : '') +
+            '. Put EVERY edit, including the top-level old_string/new_string pair, in replacements, in the intended order — or send only the top-level pair with no replacements array. Never mix the two.',
+        }
+      }
       const path = await resolveWrite(input.path as string)
       // Support both formats: { replacements: [...] } (batch) and { old_string, new_string } (single, backwards-compatible)
       let replacements = input.replacements as

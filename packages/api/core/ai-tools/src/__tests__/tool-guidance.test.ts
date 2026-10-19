@@ -22,4 +22,16 @@ describe('the file tools’ descriptions ask for one reply with the independent 
   it('write_file names the shape: one call per file, different paths', () => {
     expect(TOOL_SCHEMAS.write_file?.description).toContain('different paths')
   })
+
+  it('edit_file documents its two input forms as mutually exclusive (flash-m257)', () => {
+    const schema = TOOL_SCHEMAS.edit_file!
+    expect(schema.description).toMatch(/exactly ONE edit form/i)
+    expect(schema.description).toContain('never both')
+    const properties = schema.parameters.properties ?? {}
+    expect(properties.old_string).toBeDefined()
+    expect(properties.new_string).toBeDefined()
+    // `replacements` cannot stay required: the single top-level pair is a
+    // documented, supported form with no array at all.
+    expect(schema.parameters.required).toEqual(['path'])
+  })
 })

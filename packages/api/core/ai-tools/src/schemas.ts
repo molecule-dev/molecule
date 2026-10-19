@@ -108,7 +108,7 @@ export const TOOL_SCHEMAS: Record<string, ToolSchema> = {
   edit_file: {
     name: 'edit_file',
     description:
-      'Make targeted search-and-replace edits to a file. Preferred over write_file for small changes. Each old_string must match exactly once in the file, unless that replacement sets replace_all to change every occurrence (a rename, a repeated call). The result shows each edited region as it now reads, with line numbers, so there is no need to re-read the file to check an edit. Independent calls go in ONE response: edits to different files you already know how to make go together in the same response, one edit_file call per file. Only a call that needs another call’s result waits for it.',
+      'Make targeted search-and-replace edits to a file. Preferred over write_file for small changes. Send exactly ONE edit form: either a nonempty replacements array (every edit, in order) or a single top-level old_string/new_string pair — never both, and the two forms are not merged. Each old_string must match exactly once in the file, unless that replacement sets replace_all to change every occurrence (a rename, a repeated call). The result shows each edited region as it now reads, with line numbers, so there is no need to re-read the file to check an edit. Independent calls go in ONE response: edits to different files you already know how to make go together in the same response, one edit_file call per file. Only a call that needs another call’s result waits for it.',
     parameters: {
       type: 'object',
       properties: {
@@ -118,7 +118,8 @@ export const TOOL_SCHEMAS: Record<string, ToolSchema> = {
         },
         replacements: {
           type: 'array',
-          description: 'List of search-and-replace operations to apply sequentially.',
+          description:
+            'Batch edit form: search-and-replace operations applied sequentially. Use this OR the top-level old_string/new_string pair, never both.',
           items: {
             type: 'object',
             properties: {
@@ -139,8 +140,23 @@ export const TOOL_SCHEMAS: Record<string, ToolSchema> = {
             required: ['old_string', 'new_string'],
           },
         },
+        old_string: {
+          type: 'string',
+          description:
+            'Single-edit form: exact string to find. Must match exactly once in the file. Send with new_string, and without replacements.',
+        },
+        new_string: {
+          type: 'string',
+          description:
+            'Single-edit form: replacement for the top-level old_string. Send with old_string, and without replacements.',
+        },
+        replace_all: {
+          type: 'boolean',
+          description:
+            'Single-edit form: replace every occurrence of the top-level old_string instead of requiring exactly one (default false).',
+        },
       },
-      required: ['path', 'replacements'],
+      required: ['path'],
     },
   },
 

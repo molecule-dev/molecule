@@ -1580,6 +1580,83 @@ describe('buildTools', () => {
     expect(result.replacementsApplied).toBe(2)
   })
 
+  it('edit_file rejects a mixed batch + top-level pair before writing anything (flash-m257)', async () => {
+    // xr-molecule-flash-m257 +06:08: one call sent the substantive rewrite (the
+    // whole useFetch body) as top-level old_string/new_string AND a two-item
+    // replacements batch (the import and the signature). The batch applied and
+    // the top-level pair was silently discarded, so the file kept the old body
+    // that still called the useCallback import the batch had just removed.
+    // Both edit formats are valid on their own; together they are ambiguous and
+    // nothing may be written.
+    const backend = mockBackend()
+    const original =
+      "import { useCallback } from 'react'\n" +
+      '\n' +
+      'export function useFetch(url: string) {\n' +
+      '  const load = useCallback(async () => fetch(url), [url])\n' +
+      '  return { load }\n' +
+      '}\n'
+    ;(backend.readFile as ReturnType<typeof vi.fn>).mockResolvedValue(original)
+    let written: string | null = null
+    ;(backend.writeFile as ReturnType<typeof vi.fn>).mockImplementation(
+      async (_path: string, content: string) => {
+        written = content
+      },
+    )
+    const editFile = buildTools(backend).find((t) => t.name === 'edit_file')!
+    const result = (await editFile.execute({
+      path: '/test/app/src/lib/conduit-api.ts',
+      old_string:
+        'export function useFetch(url: string) {\n' +
+        '  const load = useCallback(async () => fetch(url), [url])\n' +
+        '  return { load }\n' +
+        '}',
+      new_string:
+        'export function useFetch(url: string) {\n' +
+        '  const loadRef = useRef(fetch)\n' +
+        '  return { load: loadRef.current }\n' +
+        '}',
+      replacements: [
+        {
+          old_string: "import { useCallback } from 'react'",
+          new_string: "import { useRef } from 'react'",
+        },
+        {
+          old_string: 'export function useFetch(url: string) {',
+          new_string: 'export function useFetch(url: string, init?: RequestInit) {',
+        },
+      ],
+    })) as Record<string, unknown>
+    expect(result.ok).toBeUndefined()
+    expect(result.replacementsApplied).toBeUndefined()
+    expect(written).toBeNull()
+    expect(backend.writeFile).not.toHaveBeenCalled()
+    const error = String(result.error)
+    expect(error).toContain('Nothing changed')
+    expect(error).toMatch(/Put EVERY edit.*in replacements, in the intended order/)
+    expect(error).toContain('export function useFetch(url: string) {')
+  })
+
+  it.each([
+    ['only old_string', { old_string: 'aaa' }],
+    ['only new_string', { new_string: 'xxx' }],
+    ['both top-level strings', { old_string: 'aaa', new_string: 'xxx' }],
+  ])('edit_file rejects every partial mix with a nonempty batch: %s', async (_label, extra) => {
+    const backend = mockBackend()
+    ;(backend.readFile as ReturnType<typeof vi.fn>).mockResolvedValue('aaa bbb ccc')
+    const editFile = buildTools(backend).find((t) => t.name === 'edit_file')!
+    const result = (await editFile.execute({
+      path: '/test/file.ts',
+      replacements: [{ old_string: 'bbb', new_string: 'yyy' }],
+      ...extra,
+    })) as Record<string, unknown>
+    expect(result.ok).toBeUndefined()
+    expect(String(result.error)).toContain('Nothing changed')
+    expect(backend.writeFile).not.toHaveBeenCalled()
+    // Nothing is read either: the refusal happens before resolveWrite/readFile.
+    expect(backend.readFile).not.toHaveBeenCalled()
+  })
+
   it('names EVERY failed replacement of a batch in one refusal, and writes nothing (flash-m98)', async () => {
     // m98's six-replacement batch carried two bad hunks. The refusal named the first,
     // the model fixed it and re-sent the whole batch, and only then heard about the
