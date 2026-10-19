@@ -7,6 +7,21 @@
 
 set -e
 
+# WHICH BASE THIS HOOK DIFFS.
+#
+# `scripts/lib/commit-staged-paths.mjs` runs this hook against a PRIVATE index that
+# is pinned to one speculative attempt's parent, and it passes that parent here.
+# The live HEAD may move while the hook runs (a peer session commits); diffing the
+# pinned index against the NEW HEAD then reads the peer's commit as staged
+# reversions of the peer's own paths. On 2026-10-19 that widened the README regen
+# to a peer's auth paths, and a failed attempt copied the generated docs over
+# newer peer content in the shared worktree. Diff the attempt's parent instead.
+# Unset for an ordinary commit, where the parent IS HEAD.
+DIFF_BASE=${MOL_PRECOMMIT_BASE:-}
+staged_diff() {
+  if [ -n "$DIFF_BASE" ]; then git diff --cached "$DIFF_BASE" "$@"; else git diff --cached "$@"; fi
+}
+
 # Fast secret scan — blocks a commit that introduces a high-confidence secret
 # (staged added lines only). Runs first so a leaked key fails before the slower
 # format/lint pass. Bypass a reviewed false positive with: git commit --no-verify
@@ -18,7 +33,7 @@ node scripts/precommit-secret-scan.mjs
 # exemptions were added here and nowhere else, so the other three kept blocking
 # `postgres://postgres:postgres@localhost` in docs. Fix the canonical, then sync.
 # Only checked when this copy is staged; skipped in a standalone clone.
-if git diff --cached --name-only --diff-filter=ACM |
+if staged_diff --name-only --diff-filter=ACM |
   grep -q '^scripts/precommit-secret-scan\.mjs$'; then
   if [ -f ../scripts/sync-secret-scanner.mjs ]; then
     (cd .. && node scripts/sync-secret-scanner.mjs --check)
@@ -31,7 +46,7 @@ fi
 # rule that fires in one repo but not the other is worse than no rule — the
 # design inconsistency simply migrates to the repo whose copy fell behind.
 # Only checked when a copy is staged; skipped in a standalone clone.
-if git diff --cached --name-only --diff-filter=ACM |
+if staged_diff --name-only --diff-filter=ACM |
   grep -q '^eslint-rules/.*\.mjs$'; then
   if [ -f ../scripts/sync-eslint-rules.mjs ]; then
     (cd .. && node scripts/sync-eslint-rules.mjs --check)
@@ -42,8 +57,8 @@ fi
 #
 # `git commit -- <paths>` (and `--only`) builds a TEMPORARY index from HEAD plus
 # the named paths, points GIT_INDEX_FILE at it, and runs this hook against that.
-# Measured on git 2.43: the hook's `git add` DOES reach the commit (it writes the
-# temp index, which is what gets committed) — but the REAL index is never
+# Measured on git 2.43: the hook's index write DOES reach the commit (it writes
+# the temp index, which is what gets committed) — but the REAL index is never
 # updated, and is LOCKED for the duration, so the hook cannot update it either.
 # The regenerated README.md files therefore land in the commit correctly and
 # then read as `MM` in `git status` forever after: a phantom diff between a
@@ -60,7 +75,7 @@ case "${GIT_INDEX_FILE:-}" in
 *next-index*) PATHSPEC_COMMIT=1 ;;
 esac
 
-STAGED=$(git diff --cached --name-only --diff-filter=AM)
+STAGED=$(staged_diff --name-only --diff-filter=AM)
 
 # mlcl is a workspace member of the parent checkout, so its bins hoist to the
 # workspace root; a standalone mlcl install keeps them local. Resolve once, as a
@@ -217,7 +232,7 @@ fi
 # prepareDocsCheckTree in ../scripts/lib/release-ci-gates.mjs). Uses its own
 # diff-filter (incl. D): a deleted src file changes the public API and thus the
 # doc, which --diff-filter=AM would miss.
-DOC_STAGED=$(git diff --cached --name-only --diff-filter=ACMRD |
+DOC_STAGED=$(staged_diff --name-only --diff-filter=ACMRD |
   grep -E '^packages/.+/(src/|package\.json$)' || true)
 if [ -n "$DOC_STAGED" ]; then
   if [ -n "$MLCL_TSX" ]; then
@@ -228,28 +243,41 @@ if [ -n "$DOC_STAGED" ]; then
     done | sort -u)
     index_tree
     REGENERATED=$( cd ../mlcl && MOLECULE_PACKAGES_DIR="$INDEX_TREE/packages" "$MLCL_TSX" scripts/regen-molecule-docs.mjs $DOC_DIRS )
-    # The regenerated docs were written into the export; carry each one into the
-    # worktree, where the prettier check and `git add` below read it.
-    echo "$REGENERATED" | while IFS= read -r md; do if [ -n "$md" ]; then cp "$INDEX_TREE/$md" "$md"; fi; done
     if [ -n "$REGENERATED" ]; then
-      # These are staged AFTER the prettier/eslint pass above, so they would
-      # otherwise enter the commit unchecked — which is how generated docs
-      # stayed off-standard for months. The generator now Prettier-formats its
-      # own output; this asserts that rather than trusting it.
-      echo "$REGENERATED" | xargs npx --no-install prettier --check
-      echo "$REGENERATED" | while IFS= read -r md; do git add "$md"; done
-      echo "✎ README.md + README.md regenerated + staged into this commit:"
+      # Each generated doc enters THIS index as a blob object — `git hash-object`
+      # + `update-index` honour a private index and a pathspec commit's temporary
+      # index — and the shared worktree is NOT written here. A private-index
+      # attempt may still fail a gate or lose its compare-and-swap, and publishing
+      # mid-hook is how a failed attempt overwrote newer peer README content on
+      # 2026-10-19. commit-staged-paths.mjs publishes after its CAS lands, each
+      # file gated on the destination still holding the attempt's parent.
+      DEFERRED_DOCS=""
+      # Word-split on purpose: the generator prints one package README path per
+      # line and such paths carry no whitespace. A here-string would need bash,
+      # and husky runs this hook with `sh -e`, not its bash shebang.
+      # shellcheck disable=SC2086
+      for md in $REGENERATED; do
+        [ -n "$md" ] || continue
+        sha=$(git hash-object -w -- "$INDEX_TREE/$md")
+        # These are staged AFTER the prettier/eslint pass above, so they would
+        # otherwise enter the commit unchecked — which is how generated docs
+        # stayed off-standard for months. The generator now Prettier-formats its
+        # own output; this asserts that rather than trusting it, reading the
+        # SNAPSHOT being committed — never a peer's worktree copy of the file.
+        git cat-file blob "$sha" | npx --no-install prettier --check --stdin-filepath "$md"
+        if [ -n "${MOL_PRECOMMIT_MANIFEST:-}" ]; then
+          # Speculative private-index attempt: stage it and record it; the caller
+          # publishes it to the shared worktree/index after the commit lands.
+          git update-index --add --cacheinfo "100644,$sha,$md"
+          printf '%s\t%s\n' "$sha" "$md" >> "$MOL_PRECOMMIT_MANIFEST"
+        else
+          # Direct commit: stage and publish at the END, once every gate passed.
+          DEFERRED_DOCS="${DEFERRED_DOCS}${sha} ${md}
+"
+        fi
+      done
+      echo "✎ README.md regenerated + staged into this commit:"
       echo "$REGENERATED" | while IFS= read -r md; do echo "    $md"; done
-      if [ "$PATHSPEC_COMMIT" = 1 ]; then
-        # They ARE in the commit (see the block at the top). What is stale is
-        # the real index, which this hook cannot reach — so name the one command
-        # that clears the phantom diff, rather than leaving it for whoever runs
-        # `git status` next and cannot tell whose changes these are.
-        echo "⚠ This commit used an explicit pathspec, so your real index still holds the"
-        echo "  OLD blobs for those docs and they will read as modified until you re-stage."
-        echo "  After this commit, run:"
-        echo "      git add $(echo "$REGENERATED" | tr '\n' ' ')"
-      fi
     fi
   else
     echo "ℹ README.md regen skipped: mlcl deps not installed — run 'npm ci' in mlcl, then 'cd mlcl && npm run sync-docs:changed'"
@@ -268,11 +296,60 @@ fi
 # adds/changes (a few probes, ~5-15s), so cron autofix commits are gated too.
 # Skips (does not block) when molecule-dev isn't a sibling; providers without
 # keys are skipped inside the gate, never failed.
-if git diff --cached --name-only --diff-filter=ACM |
+if staged_diff --name-only --diff-filter=ACM |
   grep -q '^packages/api/resources/ai-models/src/models\.ts$'; then
   if [ -f ../molecule-dev/scripts/verify-model-dispatch.mjs ]; then
     ( cd .. && node molecule-dev/scripts/verify-model-dispatch.mjs --staged-catalog molecule )
   else
     echo "ℹ model-dispatch gate skipped: molecule-dev not a sibling — run 'npm run verify:model-dispatch <changed-ids>' in molecule-dev before shipping catalog changes"
+  fi
+fi
+
+# Publish a DIRECT commit's generated docs — only now, after every gate has
+# passed, so a failed hook leaves the worktree and index exactly as it found
+# them. Each destination is written only while it still holds the blob of this
+# commit's parent: a peer's staged or unstaged edit to the same README (made
+# before or during the hook) wins and is never replaced by the generated doc.
+# A speculative private-index attempt publishes through commit-staged-paths.mjs
+# instead, after its compare-and-swap lands (see PATHSPEC/DIFF_BASE above).
+if [ -n "${DEFERRED_DOCS:-}" ]; then
+  PUBLISH_BASE=${DIFF_BASE:-HEAD}
+  # A pipe (not a here-string): husky runs this hook with `sh -e`. The loop's
+  # writes are git commands (side effects), so running it in a subshell is fine.
+  printf '%s\n' "$DEFERRED_DOCS" | while read -r sha md; do
+    [ -n "$md" ] || continue
+    want=$(git rev-parse -q --verify "$PUBLISH_BASE:$md" 2>/dev/null || true)
+    if [ -f "$md" ]; then cur=$(git hash-object -- "$md"); else cur=""; fi
+    entry_sha=""
+    if entry=$(git ls-files -s -- "$md"); then
+      # shellcheck disable=SC2086 # split "<mode> <sha> <stage>\t<path>" on purpose
+      set -- $entry
+      if [ "$#" = 4 ] && [ "$3" = "0" ]; then entry_sha=$2; fi
+    fi
+    index_safe=0
+    worktree_safe=0
+    if [ -n "$want" ]; then
+      if [ "$entry_sha" = "$want" ]; then index_safe=1; fi
+      if [ "$cur" = "$want" ]; then worktree_safe=1; fi
+    else
+      if [ -z "$entry_sha" ]; then index_safe=1; fi
+      if [ -z "$cur" ]; then worktree_safe=1; fi
+    fi
+    if [ "$index_safe" = 1 ]; then
+      git update-index --add --cacheinfo "100644,$sha,$md"
+    fi
+    if [ "$worktree_safe" = 1 ]; then
+      git cat-file blob "$sha" > "$md"
+    fi
+  done
+  if [ "$PATHSPEC_COMMIT" = 1 ]; then
+    # They ARE in the commit (see the block at the top). What is stale is the
+    # real index, which this hook cannot reach — so name the one command that
+    # clears the phantom diff, rather than leaving it for whoever runs
+    # `git status` next and cannot tell whose changes these are.
+    echo "⚠ This commit used an explicit pathspec, so your real index still holds the"
+    echo "  OLD blobs for those docs and they will read as modified until you re-stage."
+    echo "  After this commit, run:"
+    echo "      git add $(echo "$DEFERRED_DOCS" | while read -r sha md; do echo "$md"; done | tr '\n' ' ')"
   fi
 fi

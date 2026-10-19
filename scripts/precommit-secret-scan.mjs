@@ -10,7 +10,7 @@
  *
  * Bypass for a deliberate, reviewed case: `git commit --no-verify`.
  */
-import { execSync } from 'node:child_process'
+import { execFileSync } from 'node:child_process'
 import process from 'node:process'
 
 /** [label, regex] — high-confidence secret value shapes. Keep in sync with redact-secrets.ts. */
@@ -48,9 +48,25 @@ try {
   // --text: FORCE git to emit content even for files it heuristically flags as "binary"
   //   (e.g. a .env with stray NUL bytes) — without it git prints "Binary files differ" and
   //   the secret slips through unscanned. -U0: only changed hunks; --no-color: clean text.
-  staged = execSync('git diff --cached --text --no-color --unified=0 --diff-filter=ACM', {
-    maxBuffer: 64 * 1024 * 1024,
-  }).toString()
+  //
+  // MOL_PRECOMMIT_BASE: a private-index attempt (commit-staged-paths.mjs) pins the
+  // commit its index was built on. Live HEAD may move while that hook runs, and
+  // diffing the pinned index against the NEW HEAD adds back lines the peer just
+  // removed — a false positive on content this commit does not introduce.
+  const base = process.env.MOL_PRECOMMIT_BASE
+  staged = execFileSync(
+    'git',
+    [
+      'diff',
+      '--cached',
+      ...(base ? [base] : []),
+      '--text',
+      '--no-color',
+      '--unified=0',
+      '--diff-filter=ACM',
+    ],
+    { maxBuffer: 64 * 1024 * 1024 },
+  ).toString()
 } catch (_error) {
   // No staged changes / not a git repo / git unavailable — nothing to scan, allow.
   process.exit(0)
