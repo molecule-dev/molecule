@@ -192,8 +192,11 @@ describe('traceArtifactsScript — a real trace, read headlessly', () => {
       expect(note).toContain('e2e/realworld/social.spec.ts:')
       expect(note).toContain('https://app.apps.mlcl.dev')
       // m148 +29:18: the trace proves the request carried no Authorization header, so the note
-      // answers on the CLIENT side — the handler is not the problem.
-      expect(note).toContain('with NO `Authorization` header')
+      // answers on the CLIENT side — the handler is not the problem. With no session evidence in
+      // this trace the sentence stays observational (m221): it never asserts a lost token.
+      expect(note).toContain('carried no `Authorization` header')
+      expect(note).toContain('If this test is signed out, that refusal is expected')
+      expect(note).not.toContain('the client did not attach the token')
       expect(note).not.toContain('stop `catch`-ing')
     } finally {
       rmSync(root, { recursive: true, force: true })
@@ -437,9 +440,9 @@ describe('failureTraceNote — a request with no response is not a failed reques
       expect(note).toContain('GET /api/fail → 401')
       const row = String(note.split('\n').find((line) => /^\s+1\./.test(line)))
       expect(row.match(/GET \/api\/fail/g)).toHaveLength(1)
-      // Its only failure is a credential refusal, so the closing answer is the client's omission
-      // (m148 +29:18), not the handler sentence.
-      expect(note).toContain('with NO `Authorization` header')
+      // Its only failure is a credential refusal, so the closing answer is the client's side
+      // (m148 +29:18) — observational here, because the trace holds no session evidence (m221).
+      expect(note).toContain('carried no `Authorization` header')
     } finally {
       rmSync(root, { recursive: true, force: true })
     }
@@ -489,8 +492,9 @@ describe('failureTraceNote — a request with no response is not a failed reques
       ),
     )
     expect(withFailure).toContain('failed: GET /api/tags → 401')
-    // The one real failure is a credential refusal: the note answers on the client's side (m148).
-    expect(withFailure).toContain('with NO `Authorization` header')
+    // The one real failure is a credential refusal: the note answers on the client's side (m148),
+    // observationally when the trace holds no session evidence (m221).
+    expect(withFailure).toContain('carried no `Authorization` header')
     expect(withFailure).not.toContain('No listed request failed')
     expect(withFailure).toContain('no response recorded')
     expect(withFailure).not.toMatch(/→ -1/)
@@ -665,7 +669,7 @@ describe('failureTraceNote — which half of the wire refused the request (m148 
     }
   }
 
-  it('reads a 401 with NO Authorization header as the client not attaching the token', () => {
+  it('reads a 401 with NO Authorization header observationally when the trace holds no session evidence', () => {
     const root = layout({ [FOLDER]: FIXTURE })
     try {
       const printed = readTraces(root)
@@ -678,12 +682,17 @@ describe('failureTraceNote — which half of the wire refused the request (m148 
       expect(printed).not.toMatch(/"authorization":"(?!Bearer|Token|Basic)[^"]+"/i)
 
       const note = String(failureTraceNote(items, 'https://app.apps.mlcl.dev'))
-      expect(note).toContain('with NO `Authorization` header')
-      expect(note).toContain('the client did not attach the token')
-      expect(note).toContain('the app’s HTTP client that the auth bond configures')
-      expect(note).toContain('that the token is stored where the client reads it')
-      // The fix the once-only split-store note states, beside the request that proves it.
-      expect(note).toContain('setAuthToken')
+      // The fixture's only requests are the refused favorite POST and the page's own document:
+      // nothing proves this context ever signed in, so no lost token may be asserted and no
+      // HTTP-client rewiring prescribed (m221's ~28-minute induced regression).
+      expect(note).toContain('carried no `Authorization` header')
+      expect(note).toContain('If this test is signed out, that refusal is expected')
+      expect(note).toContain(
+        'Diagnose token attachment only if this same page/context had completed sign-in',
+      )
+      expect(note).not.toContain('the client did not attach the token')
+      expect(note).not.toContain('setAuthToken')
+      expect(note).not.toContain('the app’s HTTP client that the auth bond configures')
       // The categorical handler verdict is gone (m165): a route that demands a token where the
       // app allows anonymous access is the handler's own mistake, and the trace cannot exclude it.
       expect(note).not.toContain('The API handler is not the problem.')
@@ -770,7 +779,7 @@ describe('failureTraceNote — which half of the wire refused the request (m148 
         'the deployed app',
       ),
     )
-    expect(note).toContain('with NO `Authorization` header')
+    expect(note).toContain('carried no `Authorization` header')
     expect(note).toContain('did carry a `Cookie` header')
   })
 
@@ -798,7 +807,7 @@ describe('failureTraceNote — which half of the wire refused the request (m148 
     // Both are true in a mixed run: the handler sentence stays, and the credential refusal is
     // named beside it.
     expect(mixed).toContain('read the handler this route reaches')
-    expect(mixed).toContain('with NO `Authorization` header')
+    expect(mixed).toContain('carried no `Authorization` header')
   })
 
   it('names the setup order when the page logged no client is bonded (m156)', () => {
@@ -818,7 +827,7 @@ describe('failureTraceNote — which half of the wire refused the request (m148 
     }
 
     const note = String(failureTraceNote([traced], 'the deployed app'))
-    expect(note).toContain('with NO `Authorization` header')
+    expect(note).toContain('carried no `Authorization` header')
     expect(note).toContain('The page logged `no client is bonded`')
     expect(note).toContain('call `setupHttpDefault()` before `setupAuthDefault()`')
     expect(note).toContain('read the client per request instead of capturing it at setup')
@@ -946,7 +955,7 @@ describe('failureTraceNote — a rejected login is not a missing token (m165 +10
     const withoutConfig = String(
       failureTraceNote([traced], 'https://app.apps.mlcl.dev', [], ['/api']),
     )
-    expect(withoutConfig).toContain('with NO `Authorization` header')
+    expect(withoutConfig).toContain('carried no `Authorization` header')
 
     // A 403 from the same endpoint is still the credentials, not a permission verdict.
     const forbidden: TraceArtifact = {
@@ -983,7 +992,7 @@ describe('failureTraceNote — a rejected login is not a missing token (m165 +10
     expect(note).not.toContain('read the handler this route reaches')
   })
 
-  it('still reads a protected request with no token as the client’s omission', () => {
+  it('does not diagnose a missing token for a protected request with no session evidence', () => {
     const traced: TraceArtifact = {
       spec: 'e2e/social.spec.ts',
       line: 12,
@@ -991,10 +1000,11 @@ describe('failureTraceNote — a rejected login is not a missing token (m165 +10
       console: [],
     }
     const note = String(failureTraceNote([traced], 'https://app.apps.mlcl.dev', [], ['/api']))
-    expect(note).toContain('with NO `Authorization` header')
-    expect(note).toContain('the client did not attach the token')
-    expect(note).toContain('setAuthToken')
+    expect(note).toContain('carried no `Authorization` header')
+    expect(note).toContain('If this test is signed out, that refusal is expected')
     expect(note).not.toContain('credential exchange')
+    expect(note).not.toContain('the client did not attach the token')
+    expect(note).not.toContain('setAuthToken')
   })
 
   it('claims no foreign origin when the app’s own API prefix is unknown', () => {
@@ -1004,6 +1014,185 @@ describe('failureTraceNote — a rejected login is not a missing token (m165 +10
     expect(note).not.toContain('setup ran against')
     // The login is still a credential exchange from its own path.
     expect(note).toContain('the credentials were rejected')
+  })
+})
+
+/**
+ * X1 xr-molecule-flash-m221 (+20:13 → +48:10): `url-navigation.spec.ts:33` — "`/?feed=following`
+ * should redirect to `/login` when not authenticated" — failed on a `GET /api/articles/feed → 401`
+ * that carried no `Authorization` header BECAUSE the test is signed out. The note's categorical
+ * "the client did not attach the token … check the app's HTTP client" sent the model into replacing
+ * its working client, which then lost the session token: the regression stayed red for ~28 minutes.
+ * The trace held no evidence of a session at all — no login/registration response, no request that
+ * ever carried a token.
+ */
+describe('failureTraceNote — a signed-out refusal is not a lost token (m221)', () => {
+  /** The redirect test's trace: navigate to the protected feed, stay there, no session anywhere. */
+  const anonymousRedirect: TraceArtifact = {
+    spec: 'e2e/url-navigation.spec.ts',
+    line: 33,
+    requests: [
+      {
+        method: 'GET',
+        path: '/api/articles/feed',
+        status: 401,
+        type: 'fetch',
+        startedAt: 200,
+        context: '1',
+      },
+    ],
+    lastAction: {
+      api: 'Frame.goto',
+      start: 100,
+      end: 180,
+      requests: [
+        {
+          method: 'GET',
+          path: '/api/articles/feed',
+          status: 401,
+          type: 'fetch',
+          startedAt: 200,
+          context: '1',
+        },
+      ],
+      pageBefore: '/',
+      pageAfter: '/?feed=following',
+    },
+    console: [],
+    actions: [{ api: 'Frame.goto', start: 100, end: 180 }],
+  }
+
+  it('names the URL transition and the route guard instead of the HTTP client', () => {
+    const note = String(failureTraceNote([anonymousRedirect], 'https://app.apps.mlcl.dev'))
+    // The refusal is stated as a fact about the request, never as a lost token.
+    expect(note).toContain('carried no `Authorization` header')
+    expect(note).toContain('If this test is signed out, that refusal is expected')
+    expect(note).not.toContain('the client did not attach the token')
+    expect(note).not.toContain('the app’s HTTP client that the auth bond configures')
+    expect(note).not.toContain('setAuthToken')
+    expect(note).not.toContain('setAuthTokenSource')
+    // The failing test's identity and the transition the trace recorded lead the route reading.
+    expect(note).toContain(
+      'In `e2e/url-navigation.spec.ts:33` the last action was `Frame.goto` and the page moved from / to /?feed=following',
+    )
+    expect(note).toContain('the missing step is that route’s guard')
+    expect(note).toContain('not the HTTP client')
+  })
+
+  it('keeps the client diagnosis when the same context had already signed in', () => {
+    // The m148 shape WITH the evidence m221 lacked: a sign-in the trace answered 2xx, then a
+    // favorite POST that carried no token. Here the token exists and the client dropped it.
+    const signedIn: TraceArtifact = {
+      spec: 'e2e/social.spec.ts',
+      line: 42,
+      requests: [
+        {
+          method: 'POST',
+          path: '/api/users/login',
+          status: 200,
+          type: 'fetch',
+          startedAt: 100,
+          context: '1',
+        },
+        {
+          method: 'POST',
+          path: '/api/articles/x/favorite',
+          status: 401,
+          type: 'fetch',
+          startedAt: 300,
+          context: '1',
+        },
+      ],
+      lastAction: {
+        api: 'Frame.click',
+        start: 250,
+        end: 320,
+        requests: [
+          {
+            method: 'POST',
+            path: '/api/articles/x/favorite',
+            status: 401,
+            type: 'fetch',
+            startedAt: 300,
+            context: '1',
+          },
+        ],
+        pageBefore: '/',
+        pageAfter: '/',
+      },
+      console: [],
+    }
+    const note = String(failureTraceNote([signedIn], 'https://app.apps.mlcl.dev'))
+    expect(note).toContain('In `e2e/social.spec.ts:42`, the browser sent')
+    expect(note).toContain(
+      '`POST /api/users/login → 200` is a sign-in this browser context completed before this request',
+    )
+    expect(note).toContain('so the token exists and this request did not carry it')
+    expect(note).toContain('setAuthTokenSource')
+    expect(note).toContain('Do not initialize a second auth client')
+    expect(note).not.toContain('If this test is signed out')
+  })
+
+  it('treats a token the client already attached in the same context as session evidence', () => {
+    const signedIn: TraceArtifact = {
+      spec: 'e2e/social.spec.ts',
+      line: 43,
+      requests: [
+        {
+          method: 'GET',
+          path: '/api/user',
+          status: 200,
+          type: 'fetch',
+          startedAt: 100,
+          sentAuthorization: true,
+          authorization: 'Token',
+          context: '1',
+        },
+        {
+          method: 'POST',
+          path: '/api/articles/x/favorite',
+          status: 401,
+          type: 'fetch',
+          startedAt: 300,
+          context: '1',
+        },
+      ],
+      console: [],
+    }
+    const note = String(failureTraceNote([signedIn], 'https://app.apps.mlcl.dev'))
+    expect(note).toContain(
+      'the client attached an `Authorization` header to `GET /api/user` in this browser context before this request',
+    )
+    expect(note).toContain('setAuthTokenSource')
+  })
+
+  it('does not use another browser context’s sign-in as this context’s evidence', () => {
+    const mixedContexts: TraceArtifact = {
+      spec: 'e2e/social.spec.ts',
+      line: 44,
+      requests: [
+        {
+          method: 'POST',
+          path: '/api/users/login',
+          status: 200,
+          type: 'fetch',
+          startedAt: 100,
+          context: '3',
+        },
+        {
+          method: 'POST',
+          path: '/api/articles/x/favorite',
+          status: 401,
+          type: 'fetch',
+          startedAt: 300,
+          context: '1',
+        },
+      ],
+      console: [],
+    }
+    const note = String(failureTraceNote([mixedContexts], 'https://app.apps.mlcl.dev'))
+    expect(note).toContain('If this test is signed out, that refusal is expected')
+    expect(note).not.toContain('setAuthTokenSource')
   })
 })
 
@@ -2322,7 +2511,7 @@ describe('a 4xx on the logout endpoint with the page unmoved (xr-molecule-flash-
     item.lastAction!.requests[0]!.path = '/api/user'
     const note = String(failureTraceNote([item], 'https://app.apps.mlcl.dev'))
     expect(note).not.toContain('is ignored by the auth client')
-    expect(note).toContain('with NO `Authorization` header')
+    expect(note).toContain('carried no `Authorization` header')
   })
 })
 
@@ -2799,6 +2988,12 @@ function droppedTextZip(
     snapshotHasText?: boolean
     /** Whether the trace recorded a failure snapshot at all. */
     withSnapshot?: boolean
+    /** The text the assertion waits for (default `trending`). */
+    awaitedText?: string
+    /** The tag names the tags response returns (default the m169 list). */
+    tagNames?: string[]
+    /** The tag names the article list returns (default `['popular', 'trending']`). */
+    articleTags?: string[]
   } = {},
 ): Buffer {
   const assertion = options.assertion ?? 'has-text'
@@ -2806,16 +3001,18 @@ function droppedTextZip(
   const responseMethod = options.responseMethod ?? 'GET'
   const snapshotHasText = options.snapshotHasText ?? false
   const withSnapshot = options.withSnapshot ?? true
+  const awaitedText = options.awaitedText ?? 'trending'
+  const articleTags = options.articleTags ?? ['popular', 'trending']
   const spec = '/workspace/fixtures/openapi/specs/e2e/navigation.spec.ts'
   const ndjson = (rows: unknown[]): string => rows.map((row) => JSON.stringify(row)).join('\n')
-  const quoted = `'.sidebar .tag-list .tag-pill:has-text("trending")'`
+  const quoted = `'.sidebar .tag-list .tag-pill:has-text("${awaitedText}")'`
   const message =
     assertion === 'getByText'
-      ? `Error: expect(locator).toBeVisible() failed\n\nLocator: getByText('trending')\n` +
+      ? `Error: expect(locator).toBeVisible() failed\n\nLocator: getByText('${awaitedText}')\n` +
         `Expected: visible\nTimeout: 5000ms\nError: element(s) not found\n`
       : assertion === 'toContainText'
         ? `Error: expect(locator).toContainText(expected) failed\n\n` +
-          `Locator: locator('.sidebar .tag-list')\nExpected string: "trending"\n` +
+          `Locator: locator('.sidebar .tag-list')\nExpected string: "${awaitedText}"\n` +
           `Received string: "popular css design dragons html"\nTimeout: 5000ms\n`
         : assertion === 'strict'
           ? `Error: expect(locator).toBeVisible() failed\n\nLocator: locator(${quoted})\n` +
@@ -2825,7 +3022,7 @@ function droppedTextZip(
             `  - waiting for locator(${quoted})\n`
   // The API's list, cut by the app to its first 20 entries: "popular" is the 14th, "trending" the
   // 21st — exactly the sidebar m169's failure snapshot showed.
-  const tags = [
+  const tags = options.tagNames ?? [
     'api',
     'backend',
     'css',
@@ -2846,7 +3043,7 @@ function droppedTextZip(
     'typescript',
     'vite',
     'web',
-    ...(withText ? ['trending'] : []),
+    ...(withText ? [awaitedText] : []),
     'ux',
   ]
   // Longer than the tags body on purpose: the article list carries the tag names too, and the note
@@ -2860,7 +3057,7 @@ function droppedTextZip(
         body:
           'The full walkthrough, with the API and the frontend kept in one repository and every ' +
           'endpoint exercised by the e2e suite.',
-        tagList: ['popular', 'trending'],
+        tagList: articleTags,
         author: { username: 'testuser1792335312076' },
       },
     ],
@@ -2900,7 +3097,7 @@ function droppedTextZip(
               { class: 'sidebar' },
               ['div', { class: 'tag-list' }, ...tags.slice(0, 20).map((tag) => ['span', {}, tag])],
             ],
-            ...(snapshotHasText ? [['div', {}, 'trending']] : []),
+            ...(snapshotHasText ? [['div', {}, awaitedText]] : []),
           ],
         }
       : {
@@ -3098,6 +3295,76 @@ describe('failureTraceNote — a tag the API returned and the sidebar cut away (
   it('says only that a response contained the text when the trace recorded no failure snapshot', () => {
     const [lead] = note(droppedTextZip({ assertion: 'getByText', withSnapshot: false })).split('\n')
     expect(lead).toBe('The response GET /api/tags contained "trending".')
+  })
+})
+
+/**
+ * m208's walk: the pagination assertion waits for `.pagination .page-link:has-text("2")`, and with
+ * a page size of 20 against 14 articles there is no page 2. The tags response returned
+ * `["playwright","test","pag1792394785820",…]`, so the one-character awaited text occurred inside
+ * tag names; the old matcher took that substring hit and led the note with
+ * `The response GET /api/tags contained "2".` — a response the assertion never tested.
+ *
+ * The matcher now takes a text only as a whole JSON string/number value or a word bounded by
+ * non-alphanumerics, and a text of 2 characters or fewer (or digits only) must be a whole value:
+ * when no response holds it that way, nothing is said about responses and the next finding leads.
+ */
+describe('failureTraceNote — a one-character awaited text is not a substring hit (xr-molecule-flash-m208)', () => {
+  const m208 = (
+    tagNames: string[] = ['playwright', 'test', 'pag1792394785820', 'pag1792394800289'],
+    awaitedText = '2',
+  ): Buffer => droppedTextZip({ awaitedText, tagNames, articleTags: ['popular'] })
+  const read = (zip: Buffer): ReturnType<typeof parseTraceArtifacts> => {
+    const root = stalledRun(zip)
+    try {
+      return parseTraceArtifacts(readTraces(root))
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  }
+  const note = (zip: Buffer): string =>
+    String(failureTraceNote(read(zip), 'https://loopcheck.apps.mlcl.dev', [], ['/api']))
+  const lead = (zip: Buffer): string => note(zip).split('\n')[0] ?? ''
+
+  it('names no response when the text only occurs inside longer tag names', () => {
+    expect(read(m208())[0].missingText).toBeUndefined()
+  })
+
+  it('leads with the next finding instead of a response sentence', () => {
+    const first = lead(m208())
+    expect(first).not.toContain('contained "2"')
+    expect(first).not.toContain('/api/tags')
+    expect(first).toMatch(/^The platform read the failing tests' own Playwright traces/)
+  })
+
+  it('names the response when the text IS a whole JSON string value', () => {
+    const items = read(m208(['playwright', '2', 'pag1792394785820']))
+    expect(items[0].missingText).toEqual({ text: '2', method: 'GET', path: '/api/tags' })
+    expect(lead(m208(['playwright', '2', 'pag1792394785820']))).toBe(
+      'The response GET /api/tags contained "2".',
+    )
+  })
+
+  it('requires a whole value for an all-digit text, however long', () => {
+    // The tag name carries the awaited digits as a substring only.
+    expect(
+      read(m208(['playwright', 'pag1792394785820'], '1792394785820'))[0].missingText,
+    ).toBeUndefined()
+    // The same digits as the tag itself are a whole JSON value.
+    expect(read(m208(['playwright', '1792394785820'], '1792394785820'))[0].missingText).toEqual({
+      text: '1792394785820',
+      method: 'GET',
+      path: '/api/tags',
+    })
+  })
+
+  it('requires a word boundary for a long text', () => {
+    expect(read(m208(['popular', 'trendingnow'], 'trending'))[0].missingText).toBeUndefined()
+    expect(read(m208(['popular', 'trending'], 'trending'))[0].missingText).toEqual({
+      text: 'trending',
+      method: 'GET',
+      path: '/api/tags',
+    })
   })
 })
 

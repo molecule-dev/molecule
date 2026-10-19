@@ -189,6 +189,13 @@ export interface TraceContextEvidence {
  * selector. xr-molecule-flash-m169 (+13:09) spent its fix rounds on the wrong component and on a
  * markup detail while `GET /api/tags` was returning the missing "trending" and `PopularTags`
  * sliced the response to its first 20 entries (the m99 top-N class, in the frontend).
+ *
+ * The text must be a value the response held, never a substring of one: a whole JSON string or
+ * number value, or a word bounded by non-alphanumerics. A text of 2 characters or fewer, or one
+ * made of digits only, must be a whole JSON value. xr-molecule-flash-m208's pagination assertion
+ * waited for "2" and the raw substring hit `pag1792394785820` in a tags response, so the note led
+ * with a response that had nothing to do with the failure; when no response holds the text that
+ * way, the field is absent and the note leads with its next finding.
  */
 export interface TraceMissingText {
   /** The text the assertion waited for (`trending`). */
@@ -580,6 +587,51 @@ function waitedTextOf(message) {
   if (byText !== null) return notFound ? byText : null
   if (text.indexOf('toContainText') === -1) return null
   return quoted(/Expected(?: string)?:\\s*(["'])((?:(?!\\1).)*)\\1/)
+}
+
+// Whether a response body CARRIES an awaited text as a value of its own rather than as a substring.
+// m208's pagination assertion waited for the page-link text "2", and that one character occurs
+// inside every tag name the tags response returned (\`pag1792394785820\`): the note led with
+// "The response GET /api/tags contained \\"2\\".", a fact with no lead in it, and the trace row that
+// did explain the failure (a page size of 20 where the suite paginates 10) came after it. A
+// response counts only when the text is a whole JSON string (or number) value it returned, or a
+// word with a non-alphanumeric on both sides. A text of 2 characters or fewer, or one made of
+// digits only, is not a word — it must be a whole JSON value, or no response is named at all and
+// the note leads with its next finding.
+function responseCarriesText(body, text) {
+  if (!body || !text) return false
+  if (jsonValueEquals(body, text)) return true
+  if (text.length <= 2 || /^[0-9]+$/.test(text)) return false
+  const alnum = function (ch) { return ch !== '' && /[A-Za-z0-9]/.test(ch) }
+  let at = body.indexOf(text)
+  while (at !== -1) {
+    const before = at === 0 ? '' : body[at - 1]
+    const after = at + text.length >= body.length ? '' : body[at + text.length]
+    if (!alnum(before) && !alnum(after)) return true
+    at = body.indexOf(text, at + 1)
+  }
+  return false
+}
+
+// Whether the body is JSON that holds \`text\` as a whole string value, or as a number whose written
+// form is \`text\` (\`{"page":2}\` carries "2"). A body the trace read cut short does not parse and so
+// proves nothing: only the word-bounded reading above is left, and a short text gets no match.
+function jsonValueEquals(body, text) {
+  let parsed
+  try { parsed = JSON.parse(body) } catch (e) { return false }
+  const walk = function (value, depth) {
+    if (depth > 8 || value === null || value === undefined) return false
+    if (typeof value === 'string') return value === text
+    if (typeof value === 'number') return String(value) === text
+    if (Array.isArray(value)) {
+      for (let i = 0; i < value.length; i++) if (walk(value[i], depth + 1)) return true
+      return false
+    }
+    if (typeof value !== 'object') return false
+    for (const key of Object.keys(value)) if (walk(value[key], depth + 1)) return true
+    return false
+  }
+  return walk(parsed, 0)
 }
 
 // The attributes of one serialized element's opening tag (\`class="a b" id="c"\`). The trace's
@@ -1310,6 +1362,12 @@ for (const one of found.slice(0, MAX_TRACES)) {
   // carries tag names in its \`tagList\`, while the tags response is the collection whose membership
   // the assertion tests.
   //
+  // The text must be a VALUE the response held, not a substring of one (m208): a one-character
+  // awaited text ("2", the page link the pagination assertion waits for) occurs inside every
+  // \`pag…\` tag name, and the note led with "The response GET /api/tags contained \\"2\\"." while the
+  // row that explained the failure said the page size was 20. {@link responseCarriesText} decides,
+  // and when no response holds it that way no response is named.
+  //
   // The "page drops it before rendering" claim is made only when the trace PROVES it: a successful
   // GET of the collection that STARTED AFTER the last navigation, and the awaited text absent from
   // the page's own failure snapshot. A creation POST says nothing about what a collection render
@@ -1330,7 +1388,7 @@ for (const one of found.slice(0, MAX_TRACES)) {
       if (r.type !== 'fetch' && r.type !== 'xhr') continue
       if (r.status < 200 || r.status >= 400) continue
       const got = gotText(buf, entries, r)
-      if (!got || got.indexOf(waitedText) === -1) continue
+      if (!got || !responseCarriesText(got, waitedText)) continue
       if (best === null || got.length < best.got.length) best = { request: r, got: got }
       // The collection read the claim may rest on: a GET that started after the last navigation
       // (a request that started before it belongs to the page load, not to the failure).
@@ -2495,14 +2553,161 @@ function isCredentialExchange(request: TraceRequest, authEndpoints: readonly str
 }
 
 /**
+ * What a trace proves about the session the refused request's own browser context held.
+ *
+ * The m148 sentence — an absent `Authorization` header means the CLIENT never attached the token —
+ * is only true when a token was there to attach. xr-molecule-flash-m221 (+20:13) showed the other
+ * shape: `url-navigation.spec.ts` navigates to `/?feed=following` while SIGNED OUT and expects the
+ * `/login` redirect; its `GET /api/articles/feed → 401` carried no header exactly as designed, and
+ * the old sentence sent the model into replacing its working HTTP client — which then induced a
+ * real missing-token regression that stayed red for ~28 minutes. So the trace is asked for POSITIVE
+ * evidence first: a credential exchange it answered 2xx, or a request the client attached a token
+ * to, in the refused request's own browser context.
+ */
+interface TraceSignInEvidence {
+  /** The request that proves the context had a session. */
+  request: TraceRequest
+  /** A completed credential exchange, or a token the client attached. */
+  kind: 'exchange' | 'authorization'
+  /** Whether the trace's own clock proves it happened before the refused request. */
+  prior: boolean
+}
+
+/**
+ * Where one refused request sits: the failing test it belongs to, what the trace proves about that
+ * context's session, and where the test's last action left the page.
+ */
+interface AuthRefusalContext {
+  /** The failing test's `file:line`, or null when the trace names no spec. */
+  where: string | null
+  /** Positive same-context sign-in evidence, or null when the trace holds none. */
+  signIn: TraceSignInEvidence | null
+  /** The URL the last action ran from, when the trace recorded one. */
+  pageBefore?: string
+  /** The URL the last action left the page on, when the trace recorded one. */
+  pageAfter?: string
+  /** The Playwright call of the test's last action (`Frame.goto`). */
+  lastAction?: string
+}
+
+/** Whether two request records from one trace are the same entry (the action's copy and its own). */
+function sameRequestRecord(left: TraceRequest, right: TraceRequest): boolean {
+  return (
+    left.method === right.method &&
+    left.path === right.path &&
+    left.status === right.status &&
+    left.startedAt === right.startedAt
+  )
+}
+
+/**
+ * The positive sign-in evidence a trace holds for THIS refused request's browser context, or null.
+ *
+ * Two readings, strongest first in the sentence but either is proof a token existed: a credential
+ * exchange the trace answered 2xx (the test's own registration/login), or any request the client
+ * attached an `Authorization` header to. A request from another browser context is not evidence
+ * about this one (m160), and a candidate with a clock is only prior when it started before the
+ * refusal. On a trace without clocks (an older Playwright, a synthetic fixture) the trace-level
+ * fact still stands, and the sentence says what the trace recorded rather than "before".
+ *
+ * @param item - The failing test's trace.
+ * @param request - The refused request.
+ * @param authEndpoints - The endpoints the app's auth config names.
+ * @returns The evidence, or null when the trace proves nothing about a session.
+ */
+function signInEvidenceFor(
+  item: TraceArtifact,
+  request: TraceRequest,
+  authEndpoints: readonly string[],
+): TraceSignInEvidence | null {
+  // The action's own request list and the artifact's list overlap; dedupe by record identity.
+  const candidates = [...(item.lastAction?.requests ?? []), ...item.requests]
+  for (const candidate of candidates) {
+    if (sameRequestRecord(candidate, request)) continue
+    if (
+      request.context !== undefined &&
+      candidate.context !== undefined &&
+      candidate.context !== request.context
+    )
+      continue
+    if (typeof candidate.startedAt === 'number' && typeof request.startedAt === 'number') {
+      if (candidate.startedAt >= request.startedAt) continue
+      if (candidate.sentAuthorization === true)
+        return { request: candidate, kind: 'authorization', prior: true }
+      if (
+        candidate.status >= 200 &&
+        candidate.status < 300 &&
+        isCredentialExchange(candidate, authEndpoints)
+      )
+        return { request: candidate, kind: 'exchange', prior: true }
+      continue
+    }
+    // No clock to order by: the trace still proves the context had a session, never that it was
+    // before this request.
+    if (candidate.sentAuthorization === true)
+      return { request: candidate, kind: 'authorization', prior: false }
+    if (
+      candidate.status >= 200 &&
+      candidate.status < 300 &&
+      isCredentialExchange(candidate, authEndpoints)
+    )
+      return { request: candidate, kind: 'exchange', prior: false }
+  }
+  return null
+}
+
+/**
+ * How the signed-in sentence names its evidence: what the trace sent and got, and what that proves.
+ *
+ * @param evidence - The evidence {@link signInEvidenceFor} found.
+ * @returns The clause the sentence embeds.
+ */
+function signInEvidenceLine(evidence: TraceSignInEvidence): string {
+  const status = evidence.request.status > 0 ? ` → ${evidence.request.status}` : ''
+  const when = evidence.prior ? ' before this request' : ''
+  return evidence.kind === 'exchange'
+    ? `\`${requestLabel(evidence.request)}${status}\` is a sign-in this browser context completed${when}`
+    : `the client attached an \`Authorization\` header to \`${requestLabel(evidence.request)}\` in this browser context${when}`
+}
+
+/**
+ * The route-guard reading for a refused request with no session evidence behind it.
+ *
+ * xr-molecule-flash-m221's whole detour: the test navigates to a protected URL while signed out and
+ * asserts the redirect its route owes. Nothing about the client is wrong; the trace already shows
+ * the URL transition, so the sentence names it and the guard the test's assertion measures.
+ *
+ * @param context - Where the refused request sits ({@link AuthRefusalContext}).
+ * @returns The clause, or '' when the last action was not a navigation.
+ */
+function routeGuardSentence(context: AuthRefusalContext): string {
+  if (context.pageAfter === undefined) return ''
+  if (context.lastAction === undefined) return ''
+  if (!/\.(?:goto|reload|goBack|goForward)$/.test(context.lastAction)) return ''
+  const where =
+    context.where === null ? ' The test’s last action' : ` In \`${context.where}\` the last action`
+  const moved =
+    context.pageBefore !== undefined && context.pageBefore !== context.pageAfter
+      ? `moved from ${context.pageBefore} to ${context.pageAfter}`
+      : `stayed at ${context.pageAfter}`
+  return (
+    `${where} was \`${context.lastAction}\` and the page ${moved}. If the assertion waits for a ` +
+    'redirect (a `toHaveURL` after visiting a protected route), the missing step is that route’s ' +
+    'guard: read where the page or router redirects a visitor with no stored session for that ' +
+    'path, not the HTTP client.'
+  )
+}
+
+/**
  * The sentence a 401/403 on the app's own API gets: which half of the wire refused the request.
  *
  * A fixed "read the handler this route reaches" line is the wrong half for a credential refusal.
  * The request's own `Authorization` header — recorded by the trace reader as its scheme WORD, never
- * its value — decides: absent means the CLIENT never attached the token (a session store that the
- * HTTP client does not read, a bare `fetch`, an auth bond the app replaced), while present means
- * the SERVER refused a token it was sent (scheme or issuer). A 403 is a permission answer, not a
- * credential one, and says so.
+ * its value — decides half of it: present means the SERVER refused a token it was sent (scheme or
+ * issuer). Absent means no token reached the server, and the CAUSE is read from the trace's
+ * session evidence ({@link signInEvidenceFor}): only a context that had signed in can have lost a
+ * token on the client, and only then may the note prescribe HTTP-client rewiring. A 403 is a
+ * permission answer, not a credential one, and says so.
  *
  * xr-molecule-flash-m148 (+29:18): `POST /api/articles/…/favorite → 401 {"errors":{"token":["is
  * missing"]}}` was answered with the handler sentence for six local walks, while the trace proved
@@ -2524,6 +2729,17 @@ function isCredentialExchange(request: TraceRequest, authEndpoints: readonly str
  * categorical handler sentence is gone from the no-header branch too, because a route that
  * requires a token where the app allows anonymous access is the handler's own mistake.
  *
+ * xr-molecule-flash-m221 (+20:13): `url-navigation.spec.ts` navigates to `/?feed=following` while
+ * SIGNED OUT and asserts the `/login` redirect. Its `GET /api/articles/feed → 401` carried no
+ * header because the test never signed in, and the old categorical sentence — "the client did not
+ * attach the token" — sent the model into replacing a working HTTP client; the replacement lost the
+ * session token for ~28 minutes. So the no-header sentence is OBSERVATIONAL unless the trace holds
+ * positive evidence that this context had a session ({@link signInEvidenceFor}); only then may it
+ * prescribe the client wiring, and it names that evidence and the failing test. Without evidence it
+ * says the refusal is expected for a signed-out test, and for a navigation failure names the URL
+ * transition the trace recorded and the route guard the assertion measures
+ * ({@link routeGuardSentence}).
+ *
  * The trace cannot name the file that made the call: a real HAR entry carries the request, response,
  * `_resourceType`, `_monotonicTime` and a frame ref, but no initiator stack. So the sentence names
  * the shared client and the auth bond instead of guessing a file.
@@ -2533,14 +2749,19 @@ function isCredentialExchange(request: TraceRequest, authEndpoints: readonly str
  *   request that carried no `Authorization` header.
  * @param authEndpoints - The endpoints the app's auth config names, so a credential exchange is
  *   recognised even under a path the segment list does not.
+ * @param context - The failing test's identity, the positive session evidence the trace holds, and
+ *   where its last action left the page ({@link AuthRefusalContext}).
  * @returns The sentence the note appends.
  */
 function authRefusalSentence(
   request: TraceRequest,
   unbondedClient = false,
   authEndpoints: readonly string[] = [],
+  context: AuthRefusalContext = { where: null, signIn: null },
 ): string {
   const label = requestLabel(request)
+  const where = context.where === null ? '' : `In \`${context.where}\`, `
+  const evidence = context.signIn
   // The header's scheme, when it parsed; presence alone is still the server's half of the wire.
   const carried =
     request.authorization !== undefined
@@ -2572,16 +2793,31 @@ function authRefusalSentence(
       'and read the client per request instead of capturing it at setup.'
     : ''
   if (request.status === 403) {
-    return request.sentAuthorization === true
-      ? `The browser sent \`${label}\` ${carried} and the API answered 403 — the token was ` +
-          'accepted but this user may not do it: read the route’s role/permission check in your ' +
-          'own source, and the account the session belongs to.'
-      : `The browser sent \`${label}\` and the API answered 403 — the request carried no ` +
-          '`Authorization` header, so either the client did not attach the token (check that the ' +
-          'request goes through the app’s HTTP client that the auth bond configures, and that the ' +
-          'token is stored where the client reads it) or the route refuses this user: read the ' +
-          'route’s role/permission check in your own source.' +
-          unbonded
+    if (request.sentAuthorization === true)
+      return (
+        `The browser sent \`${label}\` ${carried} and the API answered 403 — the token was ` +
+        'accepted but this user may not do it: read the route’s role/permission check in your ' +
+        'own source, and the account the session belongs to.'
+      )
+    if (evidence !== null)
+      return (
+        `${where}the browser sent \`${label}\` with no \`Authorization\` header and this context ` +
+        `had already signed in — ${signInEvidenceLine(evidence)} — so a token existed and this ` +
+        'request did not carry it: check that the request goes through the app’s HTTP client ' +
+        'that the auth bond configures, and that the token is stored where the client reads it. ' +
+        'If the request did carry one, the route refuses this user: read the route’s ' +
+        'role/permission check in your own source.' +
+        unbonded
+      )
+    return (
+      `${where}the browser sent \`${label}\` and the API answered 403 — the request carried no ` +
+      '`Authorization` header, so the route refused it without a viewer. If this test is signed ' +
+      "out, that refusal is expected: inspect the page's redirect/guard instead. Diagnose token " +
+      'attachment only if this same page/context had completed sign-in or held a restored session ' +
+      'before this request; otherwise read the route’s role/permission check in your own source.' +
+      routeGuardSentence(context) +
+      unbonded
+    )
   }
   if (request.sentAuthorization === true) {
     return (
@@ -2591,15 +2827,37 @@ function authRefusalSentence(
       'route reaches.'
     )
   }
+  // The trace holds positive proof this context had a session: the token exists, this request
+  // did not carry it, and the fix is the client's connection to the app's own token source. The
+  // wording names the API the run needs (m221 +56:20: registering `setAuthTokenSource` is what
+  // finally made the induced regression's tests pass).
+  if (evidence !== null) {
+    return (
+      `${where}the browser sent \`${label}\` with no \`Authorization\` header, and this context ` +
+      `had already signed in — ${signInEvidenceLine(evidence)} — so the token exists and this ` +
+      'request did not carry it. In the HTTP bond, register ' +
+      '`setAuthTokenSource(() => <your existing synchronous in-memory token getter>)` before ' +
+      'requests run, and update that same source on sign-in, session restore and sign-out. Do ' +
+      'not initialize a second auth client to obtain another token: the getter must return the ' +
+      'real token synchronously (`null` when signed out), with the stored session restored before ' +
+      'protected requests.' +
+      (request.sentCookie
+        ? ' The request did carry a `Cookie` header, so if this app signs in with a session cookie ' +
+          'that is the credential the server did not accept. '
+        : '') +
+      unbonded
+    )
+  }
+  // No session evidence: the refusal may be exactly what the test set up. Observational, and the
+  // route guard is the next read when the failing action was a navigation (m221's whole detour).
   return (
-    `The browser sent \`${label}\` with NO \`Authorization\` header — the client did not attach ` +
-    'the token: check that the request goes through the app’s HTTP client that the auth bond ' +
-    'configures (not a bare `fetch`), and that the token is stored where the client reads it. ' +
-    'The shared client carries it through `setAuthToken` — the auth bond ' +
-    '(`createDefaultAuthClientWithHttpSync` in `@molecule/app-bonds-default-react`) mirrors the ' +
-    'auth client’s token there, and a session store of your own has to call it too. ' +
+    `This request carried no \`Authorization\` header and the API answered ${request.status}. ` +
+    "If this test is signed out, that refusal is expected: inspect the page's redirect/guard " +
+    'instead. Diagnose token attachment only if this same page/context had completed sign-in or ' +
+    'held a restored session before this request.' +
+    routeGuardSentence(context) +
     (request.sentCookie
-      ? 'The request did carry a `Cookie` header, so if this app signs in with a session cookie ' +
+      ? ' The request did carry a `Cookie` header, so if this app signs in with a session cookie ' +
         'that is the credential the server did not accept. '
       : '') +
     unbonded
@@ -2609,20 +2867,24 @@ function authRefusalSentence(
 /**
  * The note's credential-refusal advice, one sentence per distinct shape — at most two.
  *
- * The shapes are `(status, Authorization scheme, cookie present, credential exchange)`: m148's ten
- * walks repeated one shape (`401`, no header) on every failing test, and repeating its sentence per
- * row would bury the fact rather than state it. A login and a protected request that both carry no
- * header are DIFFERENT shapes — one is the credentials being checked, the other is a token that was
- * never attached (m165).
+ * The shapes are `(status, Authorization scheme, cookie present, credential exchange, session
+ * evidence)`: m148's ten walks repeated one shape (`401`, no header) on every failing test, and
+ * repeating its sentence per row would bury the fact rather than state it. A login and a protected
+ * request that both carry no header are DIFFERENT shapes — one is the credentials being checked,
+ * the other is a request that presented no token (m165). A protected request WITH session evidence
+ * and one without are different shapes too: only the first can say a token was lost on the client
+ * (m221), and collapsing them would prescribe the HTTP-client rewiring for a signed-out route test.
  *
  * @param items - The traces the note is about.
  * @param authEndpoints - The endpoints the app's auth config names.
+ * @param failures - The runner's report, so the sentence names the failing test it is about.
  * @returns The sentences to append (each led by a space), or '' when no same-origin 401/403 was
  *   traced.
  */
 function authRefusalAdvice(
   items: readonly TraceArtifact[],
   authEndpoints: readonly string[] = [],
+  failures: readonly TraceRunFailure[] = [],
 ): string {
   const sentences: string[] = []
   const seen = new Set<string>()
@@ -2640,10 +2902,23 @@ function authRefusalAdvice(
       // ignores it and clears the session, and the page owes the navigation (m156).
       if (isLogoutRequest(request)) continue
       const exchange = isCredentialExchange(request, authEndpoints)
-      const key = `${request.status} ${exchange ? 'exchange' : request.sentAuthorization ? (request.authorization ?? 'header') : 'none'} ${request.sentCookie ? 'cookie' : ''}`
+      const signIn = exchange
+        ? null
+        : request.sentAuthorization === true
+          ? null
+          : signInEvidenceFor(item, request, authEndpoints)
+      const key = `${request.status} ${exchange ? 'exchange' : request.sentAuthorization ? (request.authorization ?? 'header') : 'none'} ${request.sentCookie ? 'cookie' : ''} ${signIn === null ? 'unverified' : `signed-in:${signIn.kind}`}`
       if (seen.has(key)) continue
       seen.add(key)
-      sentences.push(authRefusalSentence(request, unbondedClient, authEndpoints))
+      sentences.push(
+        authRefusalSentence(request, unbondedClient, authEndpoints, {
+          where: item.spec === null ? null : failureWhereOf(item, failures),
+          signIn,
+          pageBefore: item.lastAction?.pageBefore,
+          pageAfter: item.lastAction?.pageAfter,
+          lastAction: item.lastAction?.api,
+        }),
+      )
       if (sentences.length === 2) return ` ${sentences.join(' ')}`
     }
   }
@@ -3290,12 +3565,16 @@ export function hiddenBoxNote(items: readonly TraceArtifact[]): string | null {
  * config names; the traces add what their own requests show) and never assumed to be `/api`.
  *
  * A 401/403 on the app's own origin is answered from the request's own credential record instead
- * ({@link authRefusalSentence}): no `Authorization` header means the CLIENT never attached the
- * token (the shared HTTP client's `setAuthToken` is what the auth bond mirrors it into), while a
- * header the API then refused moves the answer to the server. The handler sentence is kept for
- * the rest — 404/422/500 — and dropped when every failure was a credential refusal, because a
- * trace that proves the header was never sent cannot be explained by the handler.
- * xr-molecule-flash-m148 (+29:18) hit this exactly: six local walks read
+ * ({@link authRefusalSentence}): a header the API then refused moves the answer to the server. No
+ * header is read together with the trace's session evidence — the failing test's identity, a
+ * credential exchange it answered 2xx, a request the client already attached a token to — and only
+ * positive evidence may prescribe the client's token wiring; otherwise the sentence is
+ * observational and, for a navigation failure, names the URL transition and the route guard
+ * (xr-molecule-flash-m221: a signed-out redirect test's `GET /api/articles/feed → 401` sent the
+ * model into replacing a working HTTP client, which lost the session token for ~28 minutes). The
+ * handler sentence is kept for the rest — 404/422/500 — and dropped when every failure was a
+ * credential refusal, because a trace that proves the header was never sent cannot be explained by
+ * the handler. xr-molecule-flash-m148 (+29:18) hit this exactly: six local walks read
  * `POST …/favorite → 401 {"errors":{"token":["is missing"]}}` as a handler bug.
  *
  * A credential EXCHANGE (a login/registration/token endpoint, read from the app's auth config, the
@@ -3388,7 +3667,7 @@ export function failureTraceNote(
   // it, and neither the handler lead nor the credential reading applies (m156 +24:02).
   const onlyLogoutFailures =
     failedRequests.length > 0 && failedRequests.every((request) => isLogoutRequest(request))
-  const authAdvice = authRefusalAdvice(traced, report.authEndpoints ?? [])
+  const authAdvice = authRefusalAdvice(traced, report.authEndpoints ?? [], failures)
   // Set-up traffic the trace shows going to an origin other than the app's (m165): the rows it
   // creates are not in this app's database, so the note says it before any app-side reading.
   const foreignOrigins = foreignOriginApiRequests(traced, apiPrefixes)
