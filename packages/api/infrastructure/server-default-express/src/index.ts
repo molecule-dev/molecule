@@ -7,6 +7,12 @@
  * migrations, wires bonds, mounts router + middleware, and starts
  * an HTTP (or self-signed HTTPS for local dev) listener.
  *
+ * It also wires the process lifecycle by default: `GET /health/live` and
+ * `GET /health/ready`, in-flight request tracking with `Connection: close`
+ * while draining, and SIGTERM/SIGINT graceful shutdown (drain bound
+ * `SHUTDOWN_TIMEOUT_MS`, default 25 s) that runs ordered shutdown hooks and
+ * exits 0. Pass `lifecycle: { disabled: true }` to opt out.
+ *
  * @example
  * ```ts
  * import { createServerFactory } from '@molecule/api-server-default-express'

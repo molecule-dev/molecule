@@ -10,6 +10,13 @@ import { logger } from '@molecule/api-logger'
 import { bodyParser as bodyParserMiddleware } from '@molecule/api-middleware-body-parser'
 import { cookieParser as cookieParserMiddleware } from '@molecule/api-middleware-cookie-parser'
 import { cors as corsMiddleware } from '@molecule/api-middleware-cors'
+import type { ProcessLifecycleProvider } from '@molecule/api-process-lifecycle'
+import { setProvider as setLifecycleProvider } from '@molecule/api-process-lifecycle'
+import type { ExpressLifecycleHandle } from '@molecule/api-process-lifecycle-express'
+import {
+  installExpressLifecycle,
+  provider as sharedLifecycleProvider,
+} from '@molecule/api-process-lifecycle-express'
 import { buildConfigReport, logConfigReport } from '@molecule/api-secrets'
 
 /** A deliberately-tagged molecule error mapped to a real HTTP status by the API. */
@@ -166,7 +173,39 @@ export interface CreateServerOptions {
    * resource router.
    */
   preApiRouter?: (app: express.Express) => Promise<void> | void
+  /**
+   * Process-lifecycle tuning. Omitted, the canonical defaults apply: health
+   * routes at `/health/live` and `/health/ready`, a 25 s drain bound
+   * (`SHUTDOWN_TIMEOUT_MS`), a 5 s load-balancer flip wait in production
+   * (`SHUTDOWN_LB_FLIP_WAIT_MS`), and SIGTERM/SIGINT handlers that exit 0.
+   * Set `{ disabled: true }` to keep a legacy process with no lifecycle
+   * wiring (health routes and signal handlers are not installed).
+   */
+  lifecycle?: ServerLifecycleOptions
 }
+
+/**
+ * Options for the process-lifecycle wiring inside {@link createServerFactory}.
+ */
+export interface ServerLifecycleOptions {
+  /** Skip the lifecycle wiring entirely. Defaults to `false`. */
+  disabled?: boolean
+  /** Maximum time to drain in-flight requests. Defaults to `SHUTDOWN_TIMEOUT_MS` / 25 s. */
+  drainTimeoutMs?: number
+  /** Time to keep listening after draining starts. Defaults to `SHUTDOWN_LB_FLIP_WAIT_MS` / 5 s in production. */
+  flipWaitMs?: number
+  /** Exit function override (tests). Defaults to `process.exit`. */
+  exit?: (code: number) => void
+  /** Signals to handle. Defaults to `['SIGTERM', 'SIGINT']`. */
+  signals?: NodeJS.Signals[]
+}
+
+/**
+ * The lifecycle handle of the most recently created server in this process.
+ * Repeated `create()` calls (tests, embedded servers) replace it so signal
+ * handlers never stack.
+ */
+let activeLifecycle: ExpressLifecycleHandle | null = null
 
 /**
  * Generic server-lifecycle hooks invoked with the real HTTP(S) server once it
@@ -300,6 +339,22 @@ export function createServerFactory(
       })
     }
 
+    // Bond the lifecycle provider BEFORE the app's own setup runs, so a bond's
+    // setup (database, Redis, queue) can register readiness checks and shutdown
+    // hooks at the moment it knows what it owns.
+    const lifecycleOptions = opts.lifecycle
+    let lifecycleProvider: ProcessLifecycleProvider | null = null
+    if (!lifecycleOptions?.disabled) {
+      activeLifecycle?.uninstall()
+      activeLifecycle = null
+      // The provider is the bond package's process-wide singleton, so a
+      // generated `bonds/process-lifecycle-express.ts` (which calls
+      // `setProvider(provider)` during setupBonds) wires the SAME instance the
+      // health routes read and app code registers checks on.
+      lifecycleProvider = sharedLifecycleProvider
+      setLifecycleProvider(lifecycleProvider)
+    }
+
     await opts.runMigrations()
     await opts.setupBonds()
     if (opts.postBondsSetup) await opts.postBondsSetup()
@@ -316,6 +371,20 @@ export function createServerFactory(
     // /api, /health and error responses all carry them (mirrors the platform
     // server). Anti-clickjacking + nosniff + referrer baseline; HSTS in prod only.
     app.use(securityHeadersMiddleware)
+
+    // Process lifecycle: count every request (before any route), mount
+    // GET /health/live + /health/ready, and carry the drain state. The signal
+    // handlers are installed once the real HTTP server exists (below).
+    let lifecycle: ExpressLifecycleHandle | null = null
+    if (lifecycleProvider) {
+      lifecycle = installExpressLifecycle({
+        app,
+        provider: lifecycleProvider,
+        wireProvider: false,
+        ...(lifecycleOptions ?? {}),
+      })
+      activeLifecycle = lifecycle
+    }
 
     if (opts.preBodyParser) {
       // Custom-ordering path: mount cors+cookie before custom hooks
@@ -380,7 +449,13 @@ export function createServerFactory(
     httpServer.keepAliveTimeout = 65_000
     httpServer.headersTimeout = 66_000
     await runServerCreatedHooks(httpServer)
+    // Signal handlers are installed before the listener starts: a SIGTERM that
+    // arrives during boot must still drain rather than kill the process mid-boot.
+    lifecycle?.attachServer(httpServer)
     httpServer.listen(port, () => {
+      // The boot sequence is complete and the listener owns the port: from here
+      // /health/ready answers 200 (unless a critical check fails).
+      lifecycle?.markReady()
       logger.info(
         `Started ${process.env.NODE_ENV} ${process.env.HTTPS ? 'HTTPS' : 'HTTP'} server on port ${port}.`,
       )

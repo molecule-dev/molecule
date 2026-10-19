@@ -1,0 +1,72 @@
+{
+  "name": "@molecule/api-process-lifecycle-express",
+  "version": "1.0.0",
+  "description": "Express/Node provider for @molecule/api-process-lifecycle: GET /health/live and /health/ready, request tracking with Connection: close while draining, and SIGTERM/SIGINT graceful shutdown with ordered hooks.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "keywords": [
+    "molecule",
+    "lifecycle",
+    "express",
+    "health check",
+    "readiness",
+    "liveness",
+    "graceful shutdown"
+  ],
+  "author": "Molecule Dev, Inc. (https://molecule.dev)",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "peerDependencies": {
+    "@molecule/api-config": "^1.0.1",
+    "@molecule/api-process-lifecycle": "^1.0.0",
+    "express": "^4.0.0 || ^5.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@molecule/api-config": {
+      "optional": true
+    },
+    "express": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@molecule/api-config": "1.0.2",
+    "@molecule/api-config-env": "1.0.2",
+    "@molecule/api-process-lifecycle": "1.0.0",
+    "@types/express": "5.0.6",
+    "@types/node": "26.1.2",
+    "express": "5.2.1",
+    "typescript": "6.0.3",
+    "vitest": "4.1.11"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/process-lifecycle/express"
+  },
+  "homepage": "https://www.molecule.dev/packages/api-process-lifecycle-express",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}

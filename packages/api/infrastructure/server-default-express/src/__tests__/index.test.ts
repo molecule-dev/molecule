@@ -1,15 +1,20 @@
+import { once } from 'node:events'
 import http from 'node:http'
 import type * as NodeModule from 'node:module'
 import type { AddressInfo } from 'node:net'
+import net from 'node:net'
 
 import type express from 'express'
 import expressLib from 'express'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { getProvider } from '@molecule/api-process-lifecycle'
+
 import {
   classifyTaggedError,
   createServerFactory,
   errorMiddleware,
+  registerServerCreatedHook,
   securityHeadersMiddleware,
 } from '../index.js'
 
@@ -423,5 +428,73 @@ describe('errorMiddleware error tracking capture (untagged-only skip rules)', ()
       errorMiddleware(new Error('boom'), trackedReq, res as unknown as express.Response, vi.fn()),
     ).not.toThrow()
     expect(res.statusCode).toBe(500)
+  })
+})
+
+describe('process lifecycle wiring (default, no per-app code)', () => {
+  /** Ask the OS for a free port, then release it for the server under test. */
+  async function freePort(): Promise<number> {
+    const probe = net.createServer()
+    probe.listen(0)
+    await once(probe, 'listening')
+    const port = (probe.address() as AddressInfo).port
+    await new Promise<void>((resolve) => probe.close(() => resolve()))
+    return port
+  }
+
+  /** Poll a URL until it answers (the listener callback runs after create() resolves). */
+  async function fetchWhenListening(url: string): Promise<Response> {
+    const started = Date.now()
+    for (;;) {
+      try {
+        return await fetch(url)
+      } catch (error) {
+        if (Date.now() - started > 5_000) throw error
+        await new Promise((resolve) => setTimeout(resolve, 10))
+      }
+    }
+  }
+
+  afterEach(() => {
+    try {
+      getProvider().startDraining('test-teardown')
+    } catch (_error) {
+      // A test that failed before create() never bonded a lifecycle provider.
+    }
+  })
+
+  it('serves /health/live and /health/ready without any app wiring', async () => {
+    let captured: http.Server | undefined
+    registerServerCreatedHook((server) => {
+      captured = server as http.Server
+    })
+
+    const port = await freePort()
+    const create = createServerFactory({
+      setupBonds: async () => {},
+      runMigrations: async () => {},
+      getRouter: async () => ({ router: expressLib.Router() }),
+      lifecycle: { signals: [], flipWaitMs: 0 },
+    })
+
+    await create(port)
+
+    const live = await fetchWhenListening(`http://127.0.0.1:${port}/health/live`)
+    expect(live.status).toBe(200)
+    expect(await live.json()).toMatchObject({ status: 'live' })
+
+    const ready = await fetchWhenListening(`http://127.0.0.1:${port}/health/ready`)
+    expect(ready.status).toBe(200)
+    expect(await ready.json()).toMatchObject({ status: 'ready', state: 'ready' })
+
+    // Draining is reflected immediately on readiness, while liveness stays up.
+    getProvider().startDraining('test')
+    const draining = await fetch(`http://127.0.0.1:${port}/health/ready`)
+    expect(draining.status).toBe(503)
+    expect(await draining.json()).toMatchObject({ status: 'draining' })
+    expect((await fetch(`http://127.0.0.1:${port}/health/live`)).status).toBe(200)
+
+    captured?.closeAllConnections?.()
+    await new Promise<void>((resolve) => captured?.close(() => resolve()))
   })
 })

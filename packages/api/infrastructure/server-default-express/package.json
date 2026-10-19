@@ -28,6 +28,10 @@
     "express"
   ],
   "license": "Apache-2.0",
+  "dependencies": {
+    "@molecule/api-process-lifecycle": "1.0.0",
+    "@molecule/api-process-lifecycle-express": "1.0.0"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/molecule-dev/molecule.git",
