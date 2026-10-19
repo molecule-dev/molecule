@@ -1,5 +1,11 @@
 # @molecule/app-auth
 
+## 1.5.6
+
+### Patch Changes
+
+- 7a82fe9: A client that was never explicitly initialized restores its session on the first state read, and repeated `initialize()` calls share one request.
+
 ## 1.5.5
 
 ### Patch Changes

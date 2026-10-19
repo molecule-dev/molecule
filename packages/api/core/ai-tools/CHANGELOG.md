@@ -1,5 +1,16 @@
 # @molecule/api-ai-tools
 
+## 1.10.2
+
+### Patch Changes
+
+- ac2e540: A Playwright run can carry the suite's own `expect`, action and navigation timeouts by loading a consumer-supplied derived config, and the result records every pinned value and any remaining drift.
+- 00bb744: Every background command carries the inline Playwright failure switch, so a suite started through the executor's own wrapper script also reports each failure's error as it fails.
+- 4f87df7: A failing run whose locators all need a navigation or header landmark, while every failure snapshot shows the page painted without it, now names that shared missing header once instead of listing the symptoms separately.
+- c4635a2: A failure trace reports text as missing only when the assertion failed on an absent value, and claims the page dropped it only with a successful collection GET after the last navigation and the text absent from the failure snapshot.
+- 48a1dea: A narrowed test run that proves the page rendered is no longer reported as an empty page.
+- 8f0740b: A grouped-failure recap's narrowed re-run can name extra spec files the caller knows the edit broke, so a green re-run of the failure alone cannot certify them unmeasured.
+
 ## 1.10.1
 
 ### Patch Changes
