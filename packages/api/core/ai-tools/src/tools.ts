@@ -87,6 +87,51 @@ const inlineFailuresByTask = new Set<string>()
 const runByTask = new Map<string, { command: string; cwd: string }>()
 
 /**
+ * The background task ids each backend launched. Every map above is keyed by task id alone and is
+ * shared by every project this process serves, so a task is only ever read as THIS project's when
+ * this backend started it or its files are in this project's sandbox ({@link ownedTaskIds}).
+ * Without that, a sleep in one project was held for a walk running in another's sandbox, and its
+ * note carried that project's command (xr-molecule-flash-m208 +12:00, waiting on m207's walk).
+ */
+const launchedByBackend = new WeakMap<ExecutionBackend, Set<string>>()
+
+/** A task id this tool minted — the only shape a /tmp path is ever built from. */
+const TASK_ID = /^mol-bg-[a-z0-9]+-[a-z0-9]+$/
+
+/**
+ * Which of `ids` are this project's tasks: launched through this backend, or with the files a
+ * launch writes (`/tmp/<id>.sh`, `.log`, `.pid`) present in this backend's sandbox — the second
+ * answer survives an API restart, which empties process memory but not the sandbox.
+ *
+ * @param backend - The project's execution backend.
+ * @param ids - Candidate task ids.
+ * @returns The owned subset, or null when none is known to be owned and the sandbox could not answer.
+ */
+async function ownedTaskIds(backend: ExecutionBackend, ids: string[]): Promise<Set<string> | null> {
+  const launched = launchedByBackend.get(backend)
+  const owned = new Set(ids.filter((id) => launched?.has(id)))
+  const rest = [...new Set(ids)].filter((id) => !owned.has(id) && TASK_ID.test(id))
+  if (!rest.length) return owned
+  let stdout: string
+  try {
+    const r = await backend.run(
+      `for i in ${rest.join(' ')}; do ` +
+        `{ [ -e /tmp/$i.sh ] || [ -e /tmp/$i.log ] || [ -e /tmp/$i.pid ]; } && echo "MOL_OWN_TASK $i"; ` +
+        `done; echo MOL_OWN_TASKS_END`,
+      { timeout: 5_000 },
+    )
+    stdout = String(r.stdout ?? '')
+  } catch (_error) {
+    // The sandbox did not answer: only what this backend launched is known to be its own.
+    return owned.size ? owned : null
+  }
+  if (!stdout.includes('MOL_OWN_TASKS_END')) return owned.size ? owned : null
+  for (const m of stdout.matchAll(/^MOL_OWN_TASK (\S+)$/gm))
+    if (rest.includes(m[1]!)) owned.add(m[1]!)
+  return owned
+}
+
+/**
  * Why a finished suite run's result carries no exit code: the code a pipeline reports is its last
  * stage's, and a stage after the runner (or a code of 0 beside a failure in the tally) is not the
  * run's verdict. Said in the result so the missing field does not read as an omission.
@@ -540,8 +585,13 @@ async function backgroundTaskState(
   seconds: number,
   ceilingMs: number,
 ): Promise<{ note: string; slice: string } | null> {
-  const ids = [...runByTask.keys()]
-  if (!ids.length) return null
+  // Only this project's tasks: the registry holds every project's, newest last. Bounded, because
+  // each candidate is one test in the ownership probe.
+  const recent = [...runByTask.keys()].slice(-64)
+  if (!recent.length) return null
+  const owned = await ownedTaskIds(backend, recent)
+  if (!owned?.size) return null
+  const ids = recent.filter((id) => owned.has(id))
   const exitCodeOf = async (id: string): Promise<number | null> => {
     try {
       const raw = await backend.readFile(`/tmp/${id}.exit`)
@@ -3072,6 +3122,9 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           // given it, so the command says nothing about what the log will carry. A wait reads the
           // log itself (see inlineFailuresByTask).
           runByTask.set(id, { command: streaming.command, cwd })
+          const launched = launchedByBackend.get(backend) ?? new Set<string>()
+          launched.add(id)
+          launchedByBackend.set(backend, launched)
           await backend.writeFile(script, `${streaming.command}\n`)
           // The clock the grace return below reports a stopped run against: the command is
           // started here, and how long it ran is what a stop at its own bound is read from.
@@ -3413,6 +3466,27 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
     // server-side costs no round trip and no context.
     async wait_for_task(input) {
       const taskId = typeof input.taskId === 'string' ? input.taskId.trim() : ''
+      // An id another project launched is not this project's to wait on — its files are in that
+      // project's sandbox, so a wait here would poll for an exit file that never appears, and its
+      // wait time would count against that project's own stuck clock (xr-molecule-flash-m208
+      // +12:00 waited ~5 min on m207's walk). Answered at once, before any per-task state is read.
+      if (TASK_ID.test(taskId)) {
+        const owned = await ownedTaskIds(backend, [taskId])
+        if (owned && !owned.has(taskId)) {
+          const recent = [...runByTask.keys()].slice(-64)
+          const mine = (await ownedTaskIds(backend, recent)) ?? new Set<string>()
+          const list = recent.filter((id) => mine.has(id)).reverse()
+          return {
+            taskId,
+            status: 'unknown',
+            note:
+              `No background task \`${taskId}\` was started in this project — ` +
+              (list.length
+                ? `the ids this project launched are: ${list.map((id) => `\`${id}\``).join(', ')}.`
+                : 'this project has launched no background task.'),
+          }
+        }
+      }
       // Where a task writes its own output is process memory; the task is not.
       // An API process swapped mid-run (a release, a patch, a crash) leaves the
       // command running in the sandbox with nothing left that remembers the file

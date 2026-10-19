@@ -5415,3 +5415,79 @@ describe('a background suite’s exit code is the runner’s, never a filter’s
     expect(r.exitCode).toBe(1)
   })
 })
+
+// ── background tasks belong to the project that launched them ───────────────
+// X1 xr-molecule-flash-m208 (+12:00, 2026-10-19): the task registry is shared by every project
+// the API process serves, so m208's `sleep 90; …` was held for m207's deployed walk — a task in
+// another sandbox — and the wait that followed polled for an exit file m208's sandbox never had.
+describe('background tasks are scoped to their own project (m208)', () => {
+  /** A sandbox whose /tmp is its own: a launch writes the task's files there and nowhere else. */
+  function sandbox(): ExecutionBackend {
+    const tmp = new Set<string>()
+    return {
+      projectRoot: '/test',
+      readFile: vi.fn(async (path: string) => {
+        throw new Error(`ENOENT: ${path}`)
+      }),
+      writeFile: vi.fn(async (path: string) => {
+        tmp.add(path)
+      }),
+      deleteFile: vi.fn(),
+      readDir: vi.fn(),
+      run: vi.fn(async (command: string) => {
+        const pid = /echo \$! > (\/tmp\/\S+\.pid)/.exec(command)
+        if (pid) tmp.add(pid[1]!)
+        const probe = /^for i in ([^;]+); do .*MOL_OWN_TASK/.exec(command)
+        if (probe) {
+          const own = probe[1]!
+            .split(' ')
+            .filter((id) => ['sh', 'log', 'pid'].some((ext) => tmp.has(`/tmp/${id}.${ext}`)))
+          return {
+            stdout: [...own.map((id) => `MOL_OWN_TASK ${id}`), 'MOL_OWN_TASKS_END'].join('\n'),
+            stderr: '',
+            exitCode: 0,
+          }
+        }
+        return { stdout: '', stderr: '', exitCode: 0 }
+      }),
+    }
+  }
+  const tool = (backend: ExecutionBackend, name: string) =>
+    buildTools(backend, { commandBudgetMs: 290_000, overCeilingGraceMs: 0 }).find(
+      (t) => t.name === name,
+    )!
+
+  it("holds no sleep in project B for project A's task, and answers B's wait on it at once", async () => {
+    const a = sandbox()
+    const b = sandbox()
+    const launched = (await tool(a, 'exec_command').execute({
+      command: 'BASE_URL=https://a.example npx playwright test > /tmp/a-walk.log 2>&1',
+      run_in_background: true,
+    })) as { taskId: string }
+    const peek = (await tool(b, 'exec_command').execute({ command: 'sleep 1; ls' })) as {
+      status?: string
+      note?: string
+    }
+    expect(peek.status).not.toBe('task_state')
+    expect(JSON.stringify(peek)).not.toContain(launched.taskId)
+    expect(JSON.stringify(peek)).not.toContain('a.example')
+
+    const startedAt = Date.now()
+    const waited = (await tool(b, 'wait_for_task').execute({ taskId: launched.taskId })) as {
+      status: string
+      note: string
+    }
+    expect(Date.now() - startedAt).toBeLessThan(1000)
+    expect(waited.status).toBe('unknown')
+    expect(waited.note).toContain('No background task')
+    expect(waited.note).toContain('this project has launched no background task')
+
+    // A still answers for its own task.
+    const own = (await tool(a, 'exec_command').execute({ command: 'sleep 30' })) as {
+      status: string
+      note: string
+    }
+    expect(own.status).toBe('task_state')
+    expect(own.note).toContain(launched.taskId)
+  })
+})
