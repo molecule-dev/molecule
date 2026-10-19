@@ -7,6 +7,9 @@ import {
   standaloneBrowserLeak,
 } from '../index.js'
 
+/** The import every positive fixture needs: the engine must be real Playwright, not a stub. */
+const PW_IMPORT = "import { chromium } from '@playwright/test'\n"
+
 // ── The real fixture ─────────────────────────────────────────────────────────
 // X1 xr-molecule-flash-m257 (+10:44) wrote this 30-line file to
 // /workspace/.mol-scratch/fav-probe.mjs and ran it in the foreground behind `| tail -5`. It is
@@ -68,6 +71,7 @@ describe('standaloneBrowserLeak — the m257 leak', () => {
   it('diagnoses every launch engine and an arbitrary binding name', () => {
     for (const engine of ['chromium', 'firefox', 'webkit']) {
       const source =
+        `import { ${engine} } from '@playwright/test'\n` +
         `const probe = await ${engine}.launch()\n` +
         'const page = await probe.newPage()\n' +
         'console.log(await page.title())\n'
@@ -83,8 +87,25 @@ describe('standaloneBrowserLeak — the m257 leak', () => {
     expect(standaloneBrowserLeak(source)).toEqual({ variable: 'browser' })
   })
 
+  it('diagnoses a namespace import (import * as pw from playwright)', () => {
+    const source =
+      "import * as pw from 'playwright'\n" +
+      'const browser = await pw.chromium.launch()\n' +
+      'const page = await browser.newPage()\n'
+    expect(standaloneBrowserLeak(source)).toEqual({ variable: 'browser' })
+  })
+
+  it('diagnoses a destructured require from playwright', () => {
+    const source =
+      "const { chromium } = require('playwright')\n" +
+      'const browser = await chromium.launch()\n' +
+      'const page = await browser.newPage()\n'
+    expect(standaloneBrowserLeak(source)).toEqual({ variable: 'browser' })
+  })
+
   it('counts only direct non-closing browser methods as references', () => {
     const source =
+      PW_IMPORT +
       'const browser = await chromium.launch()\n' +
       'const context = await browser.newContext()\n' +
       'const page = await context.newPage()\n' +
@@ -95,15 +116,135 @@ describe('standaloneBrowserLeak — the m257 leak', () => {
   })
 })
 
-describe('standaloneBrowserLeak — false positives stay valid', () => {
+describe("standaloneBrowserLeak — the review's harmless scripts stay valid", () => {
+  it('leaves a locally bound engine stub alone (no Playwright provenance)', () => {
+    // The peer review's local-stub.mjs: `chromium` is a plain object, `launch()` returns `{}`.
+    const source =
+      'const chromium = { launch: async () => ({}) }\n' +
+      'const browser = await chromium.launch()\n'
+    expect(standaloneBrowserLeak(source)).toBeNull()
+  })
+
+  it('leaves a namespace-shaped local stub alone (no Playwright provenance)', () => {
+    const source =
+      'const pw = { chromium: { launch: async () => ({}) } }\n' +
+      'const browser = await pw.chromium.launch()\n'
+    expect(standaloneBrowserLeak(source)).toBeNull()
+  })
+
+  it('leaves a local binding that shadows a real import alone', () => {
+    const source =
+      PW_IMPORT +
+      'const chromium = { launch: async () => ({}) }\nconst browser = await chromium.launch()\n'
+    expect(standaloneBrowserLeak(source)).toBeNull()
+  })
+
+  it('leaves an engine imported from a non-Playwright module alone', () => {
+    const source =
+      "import { chromium } from './my-browser.js'\n" + 'const browser = await chromium.launch()\n'
+    expect(standaloneBrowserLeak(source)).toBeNull()
+  })
+
+  it('leaves the launch text in a string literal alone', () => {
+    // The peer review's string-literal.mjs.
+    const source = "console.log('usage: const browser = await chromium.launch() then do work')\n"
+    expect(standaloneBrowserLeak(source)).toBeNull()
+  })
+
+  it('leaves the launch text in a comment alone', () => {
+    // The peer review's comment-only.mjs.
+    const source =
+      '// Harmless: the launch text is only a comment.\n' +
+      '// const browser = await chromium.launch()\n' +
+      "console.log('comment-only script')\n"
+    expect(standaloneBrowserLeak(source)).toBeNull()
+  })
+
+  it('leaves a launch printed from a template literal alone', () => {
+    // The peer review's doc-example.mjs: the three lines are documentation, never executed.
+    const source =
+      'const example = `\n' +
+      'const browser = await chromium.launch()\n' +
+      'const page = await browser.newPage()\n' +
+      'console.log(await page.title())\n' +
+      '`\n' +
+      'console.log(example)\n'
+    expect(standaloneBrowserLeak(source)).toBeNull()
+  })
+
+  it('leaves a launch inside a regex literal after a condition alone', () => {
+    // The lexer reads the `/` after `)` as division, so this regex's text survives blanking; the
+    // line-start guard is what keeps it from being read as a launch.
+    const source =
+      PW_IMPORT +
+      "if (process.env.X) /const browser = await chromium.launch()/.test('x')\n" +
+      "console.log('done')\n"
+    expect(standaloneBrowserLeak(source)).toBeNull()
+  })
+
+  it('leaves a launch inside a function that is never called alone', () => {
+    // The peer review's uncalled-function.mjs: a launch in a function body is not proof it ran.
+    const source =
+      'async function probe() {\n' +
+      '  const browser = await chromium.launch()\n' +
+      '  console.log(await browser.newPage())\n' +
+      '}\n' +
+      "console.log('probe never called')\n"
+    expect(standaloneBrowserLeak(source)).toBeNull()
+  })
+
+  it('leaves a top-level throw alone (an uncaught exception ends Node)', () => {
+    // A top-level `throw` terminates Node in ~0.1 s even with a live browser handle.
+    const source =
+      PW_IMPORT +
+      'const browser = await chromium.launch()\n' +
+      'const page = await browser.newPage()\n' +
+      "throw new Error('stop here')\n"
+    expect(standaloneBrowserLeak(source)).toBeNull()
+  })
+
+  it('still diagnoses a top-level launch when the only throw is inside a function', () => {
+    // The throw at depth 1 is not an exit path for this run; the top-level browser still leaks.
+    const source =
+      PW_IMPORT +
+      'const browser = await chromium.launch()\n' +
+      "function fail() { throw new Error('later') }\n" +
+      'console.log(browser.version())\n'
+    expect(standaloneBrowserLeak(source)).toEqual({ variable: 'browser' })
+  })
+
+  it('does not let a close inside a string mask the leak', () => {
+    // A string is prose, not a cleanup path; the browser is still never closed.
+    const source =
+      PW_IMPORT +
+      'const browser = await chromium.launch()\n' +
+      'const page = await browser.newPage()\n' +
+      "console.log('call browser.close() when done')\n"
+    expect(standaloneBrowserLeak(source)).toEqual({ variable: 'browser' })
+  })
+
+  it('reads a close inside a template substitution as real cleanup', () => {
+    // `${…}` is code, not literal text: this close would end the browser, so leave it alone.
+    const source =
+      PW_IMPORT +
+      'const browser = await chromium.launch()\n' +
+      'const page = await browser.newPage()\n' +
+      'await page.goto(`http://x/${await browser.close()}`)\n'
+    expect(standaloneBrowserLeak(source)).toBeNull()
+  })
+})
+
+describe('standaloneBrowserLeak — other false positives stay valid', () => {
   it('leaves a helper-owned cleanup alone (imported close/teardown helper)', () => {
     const helperCall =
+      PW_IMPORT +
       "import { closeBrowser } from './helpers/cleanup.js'\n" +
       'const browser = await chromium.launch()\n' +
       'const page = await browser.newPage()\n' +
       'await page.goto(BASE)\n' +
       'await closeBrowser(browser)\n'
     const helperModule =
+      PW_IMPORT +
       "import { teardown } from './session-teardown.js'\n" +
       'const browser = await chromium.launch()\n' +
       'await teardown()\n'
@@ -113,6 +254,7 @@ describe('standaloneBrowserLeak — false positives stay valid', () => {
 
   it('leaves an alias alone (the browser escapes through another name)', () => {
     const source =
+      PW_IMPORT +
       'const browser = await chromium.launch()\n' +
       'const b = browser\n' +
       'const page = await b.newPage()\n'
@@ -131,6 +273,7 @@ describe('standaloneBrowserLeak — false positives stay valid', () => {
 
   it('leaves context/page disposal alone (a cleanup path the source reading cannot follow)', () => {
     const contextClose =
+      PW_IMPORT +
       'const browser = await chromium.launch()\n' +
       'const context = await browser.newContext()\n' +
       'const page = await context.newPage()\n' +
@@ -143,20 +286,25 @@ describe('standaloneBrowserLeak — false positives stay valid', () => {
 
   it('leaves a disposal scope alone', () => {
     const source =
-      'await using browser = await chromium.launch()\n' + 'const page = await browser.newPage()\n'
+      PW_IMPORT +
+      'await using browser = await chromium.launch()\n' +
+      'const page = await browser.newPage()\n'
     expect(standaloneBrowserLeak(source)).toBeNull()
   })
 
   it('leaves a persistent browser/server alone', () => {
     const launchServer =
+      PW_IMPORT +
       'const browser = await chromium.launch()\n' +
       'const server = await chromium.launchServer()\n' +
       'console.log(server.wsEndpoint())\n'
     const listener =
+      PW_IMPORT +
       'const browser = await chromium.launch()\n' +
       'const page = await browser.newPage()\n' +
       'http.createServer(() => {}).listen(3000)\n'
     const timer =
+      PW_IMPORT +
       'const browser = await chromium.launch()\n' +
       'setInterval(() => console.log(browser.version()), 1000)\n'
     expect(standaloneBrowserLeak(launchServer)).toBeNull()
@@ -166,6 +314,7 @@ describe('standaloneBrowserLeak — false positives stay valid', () => {
 
   it('leaves an explicit process exit alone', () => {
     const source =
+      PW_IMPORT +
       'const browser = await chromium.launch()\n' +
       'const page = await browser.newPage()\n' +
       'console.log(await page.title())\n' +
@@ -175,21 +324,24 @@ describe('standaloneBrowserLeak — false positives stay valid', () => {
 
   it('leaves a browser closed in a signal handler alone', () => {
     const source =
+      PW_IMPORT +
       'const browser = await chromium.launch()\n' +
       "process.on('SIGINT', async () => { await browser.close() })\n"
     expect(standaloneBrowserLeak(source)).toBeNull()
   })
 
-  it('leaves an unknown reference alone (a string mention is not a closed world)', () => {
+  it('leaves a bare reference alone (the browser escapes without a known method)', () => {
     const source =
+      PW_IMPORT +
       'const browser = await chromium.launch()\n' +
       'const page = await browser.newPage()\n' +
-      "console.log('browser ready')\n"
+      'console.log(browser)\n'
     expect(standaloneBrowserLeak(source)).toBeNull()
   })
 
   it('leaves indirect code alone (eval / dynamic import)', () => {
     const source =
+      PW_IMPORT +
       'const browser = await chromium.launch()\n' +
       'const page = await browser.newPage()\n' +
       "await import('./maybe-cleanup.js')\n"
