@@ -1,0 +1,63 @@
+{
+  "name": "@molecule/api-instance-leadership-postgresql",
+  "version": "1.0.0",
+  "description": "PostgreSQL provider for @molecule/api-instance-leadership: one leader across every API instance via a session advisory lock on a dedicated connection, with demotion when the connection is lost.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "keywords": [
+    "molecule",
+    "leadership",
+    "leader election",
+    "advisory lock",
+    "postgresql",
+    "multi-instance"
+  ],
+  "author": "Molecule Dev, Inc. (https://molecule.dev)",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "pg": "8.22.0"
+  },
+  "peerDependencies": {
+    "@molecule/api-bond": "^1.0.1",
+    "@molecule/api-instance-leadership": "^1.0.0"
+  },
+  "devDependencies": {
+    "@molecule/api-bond": "1.0.2",
+    "@molecule/api-instance-leadership": "1.0.0",
+    "@types/node": "26.1.2",
+    "@types/pg": "8.20.0",
+    "typescript": "6.0.3",
+    "vitest": "4.1.11"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/instance-leadership/postgresql"
+  },
+  "homepage": "https://www.molecule.dev/packages/api-instance-leadership-postgresql",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}

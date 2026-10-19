@@ -1,0 +1,57 @@
+{
+  "name": "@molecule/api-instance-leadership",
+  "version": "1.0.0",
+  "description": "Instance-leadership core interface for molecule.dev: elect one API instance to run platform-wide singleton work, with demotion and takeover when the holder's connection is lost.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "keywords": [
+    "molecule",
+    "leadership",
+    "leader election",
+    "singleton",
+    "distributed lock",
+    "multi-instance"
+  ],
+  "author": "Molecule Dev, Inc. (https://molecule.dev)",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "peerDependencies": {
+    "@molecule/api-bond": "^1.0.1"
+  },
+  "devDependencies": {
+    "@molecule/api-bond": "1.0.2",
+    "@types/node": "26.1.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.11"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/core/instance-leadership"
+  },
+  "homepage": "https://www.molecule.dev/packages/api-instance-leadership",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}
