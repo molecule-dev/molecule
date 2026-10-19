@@ -4227,3 +4227,20 @@ describe('failureTraceNote — one request sent hundreds of times (xr-molecule-f
     }
   })
 })
+
+describe('failureTraceNote — the repeated count is the trace’s own number', () => {
+  it('does not add the copies the reader kept to the count it was given', () => {
+    const line =
+      'TRACE {"dir":"test-results/articles-should-edit","spec":"e2e/articles.spec.ts","line":50,' +
+      '"requests":[' +
+      '{"method":"GET","path":"/api/articles/x","status":200,"type":"fetch"},' +
+      '{"method":"GET","path":"/api/articles/x","status":200,"type":"fetch"},' +
+      '{"method":"GET","path":"/api/articles/x","status":200,"type":"fetch"}],' +
+      '"repeated":[{"method":"GET","path":"/api/articles/x","count":2106,' +
+      '"status":200,"type":"fetch","ms":4100}],' +
+      '"console":[]}'
+    const note = failureTraceNote(parseTraceArtifacts(`${line}\n`), 'https://app.apps.mlcl.dev')
+    expect(note).toContain('×2106')
+    expect(note).not.toContain('×2108')
+  })
+})

@@ -2121,7 +2121,9 @@ function collapseRequests(
     const key = `${request.method} ${request.path}`
     const existing = seen.get(key)
     if (existing !== undefined) {
-      existing.count += 1
+      // The trace's own count already includes every copy; only a group the reader did not count
+      // is counted here from the copies it kept.
+      if (!counts.has(key)) existing.count += 1
       continue
     }
     const traced = counts.get(key)
