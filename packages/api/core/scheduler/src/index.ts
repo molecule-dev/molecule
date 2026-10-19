@@ -32,8 +32,10 @@
  *   calendar-time schedules compute the interval or use a cron-capable package.
  * - **The scheduler is in-process and unpersisted.** Every server instance runs its own copy
  *   of every task — N instances execute a task N times unless the handler itself dedupes
- *   (e.g. an atomic claim in the database). Schedules and run history are lost on restart;
- *   missed runs are not caught up.
+ *   (e.g. an atomic claim in the database) or the provider coordinates runs. With more than
+ *   one API instance, bond `@molecule/api-scheduler-postgresql` (a per-task advisory lock:
+ *   one run per tick across every instance) instead of `@molecule/api-scheduler-default`.
+ *   Schedules and run history are lost on restart; missed runs are not caught up.
  * - A tick that arrives while the previous execution is still running is SKIPPED — a handler
  *   slower than its `intervalMs` lowers its own frequency instead of overlapping.
  * - Handler errors are caught and recorded on {@link TaskStatus} (`lastError`,

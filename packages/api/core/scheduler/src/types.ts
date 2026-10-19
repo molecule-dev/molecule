@@ -18,6 +18,54 @@ export interface ScheduledTask {
 }
 
 /**
+ * Cross-instance coordination for one scheduled task run.
+ *
+ * The scheduler is in-process: every API instance runs its own timers, so with
+ * more than one instance a task runs once per instance unless the run itself is
+ * coordinated. A provider that needs "once across the platform" consults a
+ * `SchedulerTaskRunLock` before invoking the handler; the winning instance runs
+ * it, the others skip that tick.
+ *
+ * A provider bond implements this against a store every instance shares (e.g.
+ * a PostgreSQL session advisory lock in
+ * `@molecule/api-scheduler-postgresql`). The lock must be held for the
+ * DURATION of the run — and, when the provider passes `holdMs`, for the rest
+ * of that interval — so two instances ticking milliseconds apart cannot both
+ * run one window. Release happens on schedule or when the connection dies;
+ * never a blind TTL lease that could expire under a slow run.
+ */
+export interface SchedulerTaskRunLock {
+  /**
+   * Run `run` only when this instance wins the named lock.
+   *
+   * A provider that cannot reach the lock store must SKIP the run rather than
+   * run uncoordinated: a skipped sweep is retried on the next tick, whereas two
+   * concurrent runs can corrupt shared state.
+   *
+   * @param taskName - The stable task name (the same name on every instance).
+   * @param run - The handler to run while the lock is held.
+   * @param options - `holdMs` keeps the lock after the run finishes, so a
+   * sibling instance whose timer ticks a few milliseconds later does not run
+   * the SAME interval. Pass the task's `intervalMs`; the lock is released when
+   * the window ends, and the instances race again for the next one.
+   * @returns `true` when the handler ran on this instance, `false` when another
+   * instance held the lock or the store could not be reached.
+   */
+  runExclusive(
+    taskName: string,
+    run: () => Promise<void>,
+    options?: { holdMs?: number },
+  ): Promise<boolean>
+
+  /**
+   * Release any connection the lock holds open.
+   *
+   * @returns Resolves once the connection is closed.
+   */
+  close?(): Promise<void>
+}
+
+/**
  * Runtime status of a scheduled task.
  */
 export interface TaskStatus {

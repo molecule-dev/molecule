@@ -1,0 +1,22 @@
+/**
+ * Browser guard — `@molecule/api-scheduler-postgresql` is SERVER-ONLY.
+ *
+ * Evaluating a server package in a browser bundle is always an import-graph
+ * mistake (node APIs, secrets); without this guard it surfaces as a cryptic
+ * downstream crash far from the culprit. Throwing here names the package and
+ * the fix at the exact moment the client bundle evaluates it.
+ */
+const g = globalThis as {
+  window?: unknown
+  document?: unknown
+  process?: { versions?: { node?: string } }
+}
+if (g.window !== undefined && g.document !== undefined && !g.process?.versions?.node) {
+  throw new Error(
+    '@molecule/api-scheduler-postgresql is SERVER-ONLY: it was bundled into browser/client code. Import it only ' +
+      'from server code (a server route/function or your API), or dynamic-import it inside ' +
+      'the server handler — never from components or shared client modules, and never ' +
+      'polyfill Buffer/process to silence this.',
+  )
+}
+export {}
