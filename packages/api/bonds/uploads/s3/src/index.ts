@@ -139,6 +139,7 @@
  */
 
 export * from './browser-guard.js'
+export * from './lifecycle.js'
 export * from './provider.js'
 export * from './secrets.js'
 export * from './types.js'

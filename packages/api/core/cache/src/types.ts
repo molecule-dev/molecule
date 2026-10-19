@@ -96,6 +96,17 @@ export interface CacheProvider {
   close?(): Promise<void>
 
   /**
+   * Proves the cache backend is reachable with one cheap round trip (Redis
+   * `PING`, a Memcached read).
+   *
+   * Unlike the data methods, this MUST reject when the backend cannot be
+   * reached — `has()` and `get()` deliberately treat an outage as a cache miss,
+   * so neither can answer a readiness probe. Providers without an external
+   * backend (memory) need not implement it.
+   */
+  ping?(): Promise<void>
+
+  /**
    * Gets or sets a value using a factory function.
    *
    * @param key - Cache key

@@ -36,6 +36,7 @@ import './secrets.js'
 
 import { t } from '@molecule/api-i18n'
 
+import { registerLifecycleIntegration } from './lifecycle.js'
 import type { File, ObjectLockRetentionMode, S3UploadsConfig } from './types.js'
 
 /**
@@ -621,6 +622,15 @@ function buildProvider(config: S3UploadsConfig, envDriven: boolean): S3UploadPro
     get bucket() {
       return config.bucket
     },
+    async ping(): Promise<void> {
+      // A HEAD on the bucket: a real S3 round trip that proves the credentials
+      // and the store, unlike reading config which proves nothing.
+      await getClient().send(new HeadBucketCommand({ Bucket: config.bucket }))
+    },
+    async close(): Promise<void> {
+      client?.destroy()
+      client = null
+    },
     upload,
     abortUpload,
     deleteFile,
@@ -719,6 +729,36 @@ export const s3Client: S3Client = new Proxy({} as S3Client, {
 })
 
 /**
+ * Whether the default env-configured provider has been built.
+ *
+ * Readiness and shutdown wiring must not FORCE a client.
+ *
+ * @returns `true` once the default provider exists.
+ */
+export const defaultProviderCreated = (): boolean => _default !== null
+
+/**
+ * Close the default provider's SDK client, if one was created.
+ *
+ * @returns Resolves once the client's sockets are released.
+ */
+export const closeDefaultProvider = async (): Promise<void> => {
+  const current = _default
+  _default = null
+  await current?.close?.()
+}
+
+// Register the readiness probe and shutdown hook once, when this bond is
+// imported; the core queues them until a lifecycle provider is bonded.
+registerLifecycleIntegration({
+  ping: async () => {
+    await provider.ping?.()
+  },
+  close: closeDefaultProvider,
+  created: defaultProviderCreated,
+})
+
+/**
  * Streams a file upload to S3 (default provider) using the `@aws-sdk/lib-storage` multipart Upload utility.
  * Creates a UUID key in the configured S3 bucket and pipes the readable stream into it.
  * @param fieldname - The form field name this file was submitted under.
@@ -767,6 +807,12 @@ export const provider: S3UploadProvider = {
   },
   get bucket() {
     return getDefault().bucket
+  },
+  ping: async () => {
+    await getDefault().ping?.()
+  },
+  close: async () => {
+    await getDefault().close?.()
   },
   upload,
   abortUpload,

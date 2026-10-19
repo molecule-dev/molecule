@@ -23,13 +23,90 @@ import type {
 const BOND_TYPE = 'process-lifecycle'
 
 /**
+ * One registration made through the accessors below.
+ *
+ * Registrations are KEPT here rather than handed straight to a provider:
+ * a bond package (database, cache, queue) registers its readiness check when
+ * its module is imported, which happens before the application has bonded a
+ * lifecycle provider. Keeping the registration lets it be applied when a
+ * provider arrives — and re-applied to a replacement provider — instead of
+ * throwing during module evaluation.
+ */
+interface Registration<T> {
+  item: T
+  cancelled: boolean
+  /** Removes the item from the provider it was last applied to. */
+  unapply: (() => void) | null
+}
+
+const readinessRegistrations: Registration<LifecycleCheck>[] = []
+const livenessRegistrations: Registration<LifecycleCheck>[] = []
+const shutdownRegistrations: Registration<ShutdownHook>[] = []
+
+/**
+ * Apply every live registration of one kind to `provider`.
+ *
+ * @param provider - The provider to register on.
+ * @param registrations - The registration list for one kind.
+ * @param apply - The provider method that registers an item.
+ */
+function applyRegistrations<T>(
+  provider: ProcessLifecycleProvider,
+  registrations: Registration<T>[],
+  apply: (provider: ProcessLifecycleProvider, item: T) => () => void,
+): void {
+  for (const registration of registrations) {
+    if (registration.cancelled) continue
+    registration.unapply = apply(provider, registration.item)
+  }
+}
+
+/**
+ * Register one item, applying it now when a provider is bonded and keeping it
+ * queued until one is otherwise.
+ *
+ * @param registrations - The registration list for the kind.
+ * @param item - The check or hook.
+ * @param apply - The provider method that registers it.
+ * @returns A function that removes the registration.
+ */
+function addRegistration<T>(
+  registrations: Registration<T>[],
+  item: T,
+  apply: (provider: ProcessLifecycleProvider, item: T) => () => void,
+): () => void {
+  const registration: Registration<T> = { item, cancelled: false, unapply: null }
+  registrations.push(registration)
+  if (isBonded(BOND_TYPE)) {
+    registration.unapply = apply(getProvider(), item)
+  }
+  return () => {
+    registration.cancelled = true
+    registration.unapply?.()
+    registration.unapply = null
+  }
+}
+
+/**
  * Registers a process-lifecycle provider as the active singleton. Called by a
  * bond package during application startup.
+ *
+ * Any readiness check, liveness check or shutdown hook registered BEFORE a
+ * provider existed is applied now (and re-applied if a provider is replaced).
  *
  * @param provider - The provider implementation to bond.
  */
 export const setProvider = (provider: ProcessLifecycleProvider): void => {
   bond(BOND_TYPE, provider)
+  applyRegistrations(provider, readinessRegistrations, (target, check) =>
+    target.registerReadinessCheck(check),
+  )
+  applyRegistrations(provider, livenessRegistrations, (target, check) =>
+    target.registerLivenessCheck(check),
+  )
+  applyRegistrations(provider, shutdownRegistrations, (target, hook) =>
+    target.registerShutdownHook(hook),
+  )
 }
 
 /**
@@ -59,33 +136,55 @@ export const hasProvider = (): boolean => {
 }
 
 /**
- * Registers a named readiness check on the bonded provider.
+ * Drop every queued registration. For tests that exercise several apps in one
+ * process; application code never calls it.
+ */
+export const resetRegistrationsForTests = (): void => {
+  readinessRegistrations.length = 0
+  livenessRegistrations.length = 0
+  shutdownRegistrations.length = 0
+}
+
+/**
+ * Registers a named readiness check.
+ *
+ * When no provider is bonded yet — the normal case for a bond package
+ * registering a check while its module is imported — the check is queued and
+ * applied as soon as `setProvider()` runs.
  *
  * @param check - The check to register.
  * @returns A function that removes the check.
  */
 export const registerReadinessCheck = (check: LifecycleCheck): (() => void) => {
-  return getProvider().registerReadinessCheck(check)
+  return addRegistration(readinessRegistrations, check, (provider, item) =>
+    provider.registerReadinessCheck(item),
+  )
 }
 
 /**
- * Registers a named liveness check on the bonded provider.
+ * Registers a named liveness check. Queued until a provider is bonded, like
+ * {@link registerReadinessCheck}.
  *
  * @param check - The check to register.
  * @returns A function that removes the check.
  */
 export const registerLivenessCheck = (check: LifecycleCheck): (() => void) => {
-  return getProvider().registerLivenessCheck(check)
+  return addRegistration(livenessRegistrations, check, (provider, item) =>
+    provider.registerLivenessCheck(item),
+  )
 }
 
 /**
- * Registers an ordered shutdown hook on the bonded provider.
+ * Registers an ordered shutdown hook. Queued until a provider is bonded, like
+ * {@link registerReadinessCheck}.
  *
  * @param hook - The hook to register.
  * @returns A function that removes the hook.
  */
 export const registerShutdownHook = (hook: ShutdownHook): (() => void) => {
-  return getProvider().registerShutdownHook(hook)
+  return addRegistration(shutdownRegistrations, hook, (provider, item) =>
+    provider.registerShutdownHook(item),
+  )
 }
 
 /**

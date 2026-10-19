@@ -156,4 +156,17 @@ export interface UploadProvider {
    * Gets a file stream for reading.
    */
   getFile?: GetFileHandler
+
+  /**
+   * Proves the storage backend is reachable/writable with one cheap operation
+   * (an S3 `HeadBucket`, a filesystem writability check), and REJECTS when it
+   * is not. Optional providers (encrypted, mirror) delegate to the provider
+   * they wrap and need not implement it.
+   */
+  ping?(): Promise<void>
+
+  /**
+   * Releases any client/connection the provider holds (e.g. an SDK client).
+   */
+  close?(): Promise<void>
 }

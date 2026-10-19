@@ -38,6 +38,7 @@
  */
 
 export * from './browser-guard.js'
+export * from './lifecycle.js'
 export * from './migrator.js'
 export * from './provider.js'
 export * from './secrets.js'

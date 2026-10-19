@@ -30,6 +30,7 @@ import type {
 import { getActiveTransaction } from '@molecule/api-database'
 import { configNotConfiguredError } from '@molecule/api-secrets'
 
+import { registerLifecycleIntegration } from './lifecycle.js'
 import type { MysqlFieldMeta } from './utilities.js'
 import { coerceMysqlParam, convertPlaceholders, normalizeMysqlRows } from './utilities.js'
 
@@ -279,4 +280,34 @@ export const pool: DatabasePool = new Proxy({} as DatabasePool, {
   set(_, prop, value) {
     return Reflect.set(getPoolInstance(), prop, value)
   },
+})
+
+/**
+ * Whether the lazy default pool has been created.
+ *
+ * Readiness and shutdown wiring must not FORCE a connection.
+ *
+ * @returns `true` once the default pool exists.
+ */
+export const defaultPoolCreated = (): boolean => _pool !== null
+
+/**
+ * Close the lazy default pool, if it was created.
+ *
+ * @returns Resolves once the pool has ended.
+ */
+export const closeDefaultPool = async (): Promise<void> => {
+  const current = _pool
+  _pool = null
+  if (current) await current.end()
+}
+
+// Register the readiness probe and shutdown hook once, when this bond is
+// imported; the core queues them until a lifecycle provider is bonded.
+registerLifecycleIntegration({
+  ping: async () => {
+    await pool.query('SELECT 1')
+  },
+  close: closeDefaultPool,
+  created: defaultPoolCreated,
 })

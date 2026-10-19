@@ -15,6 +15,7 @@ import './secrets.js'
 
 import type { CacheOptions, CacheProvider } from '@molecule/api-cache'
 
+import { registerLifecycleIntegration } from './lifecycle.js'
 import type { RedisOptions } from './types.js'
 
 /**
@@ -281,6 +282,12 @@ export const createProvider = (options?: RedisOptions): CacheProvider => {
       await client.quit()
     },
 
+    async ping(): Promise<void> {
+      // A real round trip that REJECTS on outage, unlike has()/get(), which
+      // deliberately treat an unreachable backend as a cache miss.
+      await client.ping()
+    },
+
     async getOrSet<T = unknown>(
       key: string,
       factory: () => Promise<T>,
@@ -313,6 +320,36 @@ export const provider: CacheProvider = new Proxy({} as CacheProvider, {
     if (!_provider) _provider = createProvider()
     return Reflect.set(_provider, prop, value)
   },
+})
+
+/**
+ * Whether the lazy default provider has been created.
+ *
+ * Readiness and shutdown wiring must not FORCE a connection.
+ *
+ * @returns `true` once the default provider exists.
+ */
+export const defaultProviderCreated = (): boolean => _provider !== null
+
+/**
+ * Close the lazy default provider, if it was created.
+ *
+ * @returns Resolves once the Redis connection has quit.
+ */
+export const closeDefaultProvider = async (): Promise<void> => {
+  const current = _provider
+  _provider = null
+  if (current) await current.close?.()
+}
+
+// Register the readiness probe and shutdown hook once, when this bond is
+// imported; the core queues them until a lifecycle provider is bonded.
+registerLifecycleIntegration({
+  ping: async () => {
+    await provider.ping?.()
+  },
+  close: closeDefaultProvider,
+  created: defaultProviderCreated,
 })
 
 /**

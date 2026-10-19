@@ -19,6 +19,7 @@ import { UploadAbortedError } from '@molecule/api-uploads'
 const logger = getLogger()
 import { t } from '@molecule/api-i18n'
 
+import { registerLifecycleIntegration } from './lifecycle.js'
 import type { File } from './types.js'
 
 /** Warn if FILE_UPLOAD_PATH is not set. */
@@ -278,6 +279,11 @@ export const provider: UploadProvider = {
   upload,
   abortUpload,
   deleteFile,
+  async ping() {
+    // A writability check: the directory exists (created at import) but the
+    // disk can be full, remounted read-only, or removed after boot.
+    await fs.promises.access(uploadPath, fs.constants.W_OK)
+  },
   // Conform to the GetFileHandler contract: resolve `null` when the file does not
   // exist. `fs.createReadStream` on a missing path returns a stream that emits
   // ENOENT *asynchronously* — and `pipe()` does NOT forward 'error' events, so a
@@ -299,3 +305,11 @@ export const provider: UploadProvider = {
     return fs.createReadStream(resolved)
   },
 }
+
+// Register the readiness probe once, when this bond is imported; the core
+// queues it until a lifecycle provider is bonded.
+registerLifecycleIntegration({
+  ping: async () => {
+    await provider.ping?.()
+  },
+})

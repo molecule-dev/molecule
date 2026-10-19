@@ -71,6 +71,7 @@
  */
 
 export * from './browser-guard.js'
+export * from './lifecycle.js'
 export * from './migrator.js'
 export * from './pool.js'
 export * from './secrets.js'
@@ -80,6 +81,7 @@ export * from './utilities.js'
 
 import type { DatabasePool } from '@molecule/api-database'
 
+import { registerLifecycleIntegration } from './lifecycle.js'
 import { createPool } from './pool.js'
 import { createStore } from './store.js'
 
@@ -113,6 +115,26 @@ export const pool: DatabasePool = new Proxy({} as DatabasePool, {
 })
 
 /**
+ * Whether the lazy default pool has been created.
+ *
+ * Readiness and shutdown wiring must not FORCE a connection.
+ *
+ * @returns `true` once the default pool exists.
+ */
+export const defaultPoolCreated = (): boolean => _pool !== null
+
+/**
+ * Close the lazy default pool, if it was created.
+ *
+ * @returns Resolves once the pool has ended.
+ */
+export const closeDefaultPool = async (): Promise<void> => {
+  const current = _pool
+  _pool = null
+  if (current) await current.end()
+}
+
+/**
  * Default DataStore instance backed by the default pool.
  */
 let _store: ReturnType<typeof createStore> | null = null
@@ -130,4 +152,14 @@ export const store = new Proxy({} as ReturnType<typeof createStore>, {
     if (!_store) _store = createStore(getPoolInstance())
     return Reflect.set(_store, prop, value)
   },
+})
+
+// Register the readiness probe and shutdown hook once, when this bond is
+// imported; the core queues them until a lifecycle provider is bonded.
+registerLifecycleIntegration({
+  ping: async () => {
+    await pool.query('SELECT 1')
+  },
+  close: closeDefaultPool,
+  created: defaultPoolCreated,
 })

@@ -303,6 +303,32 @@ export const pool: DatabasePool = new Proxy({} as DatabasePool, {
 })
 
 /**
+ * Whether the lazy default pool has been created.
+ *
+ * Readiness and shutdown wiring must not FORCE a connection: a process that
+ * never touched the database should not open (or close) a pool just to probe
+ * or tear it down.
+ *
+ * @returns `true` once the default pool exists.
+ */
+export const defaultPoolCreated = (): boolean => _pool !== null
+
+/**
+ * Close the lazy default pool, if it was created.
+ *
+ * Registered as a shutdown hook by {@link registerLifecycleIntegration} so the
+ * database connection is released BEFORE the process exits (and so a rolling
+ * restart does not leave an idle connection for the server to reap).
+ *
+ * @returns Resolves once the pool has ended.
+ */
+export const closeDefaultPool = async (): Promise<void> => {
+  const current = _pool
+  _pool = null
+  if (current) await current.end()
+}
+
+/**
  * Creates a new pool with custom configuration.
  *
  * Use this when you need a pool with different settings than the default.
@@ -358,4 +384,19 @@ export const store = new Proxy({} as ReturnType<typeof createStore>, {
     if (!_store) _store = createStore(getPoolInstance())
     return Reflect.set(_store, prop, value)
   },
+})
+
+export * from './lifecycle.js'
+
+import { registerLifecycleIntegration } from './lifecycle.js'
+
+// Register the readiness probe and shutdown hook once, when this bond is
+// imported and a process-lifecycle provider exists later in the boot. The
+// integration queues itself in the core until the provider is bonded.
+registerLifecycleIntegration({
+  ping: async () => {
+    await pool.query('SELECT 1')
+  },
+  close: closeDefaultPool,
+  created: defaultPoolCreated,
 })

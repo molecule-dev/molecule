@@ -37,6 +37,8 @@
     "@molecule/api-secrets": "^1.0.1"
   },
   "devDependencies": {
+    "@molecule/api-process-lifecycle": "1.1.0",
+    "@molecule/api-process-lifecycle-express": "1.1.0",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.11"

@@ -179,6 +179,16 @@ export interface QueueProvider {
    * Closes all connections.
    */
   close?(): Promise<void>
+
+  /**
+   * Proves the queue backend is reachable with one cheap round trip.
+   *
+   * Unlike `listQueues()` (which both bundled providers answer from an
+   * in-memory map, with no network call), this MUST reject when the broker
+   * cannot be reached, so `/health/ready` reflects a real connection.
+   * Providers with no external broker (memory) need not implement it.
+   */
+  ping?(): Promise<void>
 }
 
 /**

@@ -13,6 +13,7 @@ import { Queue as BullQueue } from 'bullmq'
 
 import type { Queue, QueueCreateOptions, QueueProvider } from '@molecule/api-queue'
 
+import { registerLifecycleIntegration } from './lifecycle.js'
 import { createQueue } from './queue.js'
 import type { RedisQueueOptions } from './types.js'
 
@@ -74,6 +75,12 @@ export const createProvider = (options?: RedisQueueOptions): QueueProvider => {
     return q
   }
 
+  /**
+   * One long-lived BullMQ queue used ONLY for the readiness probe, so a probe
+   * opens no connection of its own and leaves no queue handle behind.
+   */
+  let probeQueue: BullQueue | null = null
+
   const provider: QueueProvider = {
     queue: getQueue,
 
@@ -124,6 +131,20 @@ export const createProvider = (options?: RedisQueueOptions): QueueProvider => {
       }
       cleanups.clear()
       queues.clear()
+      if (probeQueue) {
+        await probeQueue.close()
+        probeQueue = null
+      }
+    },
+
+    async ping(): Promise<void> {
+      // A real command against Redis. listQueues() answers from the in-memory
+      // map and would report healthy with Redis gone.
+      probeQueue ??= new BullQueue('__molecule_readiness__', {
+        connection: producerConnection,
+        prefix,
+      })
+      await probeQueue.getJobCounts()
     },
   }
 
@@ -146,4 +167,34 @@ export const provider: QueueProvider = new Proxy({} as QueueProvider, {
     if (!_provider) _provider = createProvider()
     return Reflect.set(_provider, prop, value)
   },
+})
+
+/**
+ * Whether the lazy default provider has been created.
+ *
+ * Readiness and shutdown wiring must not FORCE a connection.
+ *
+ * @returns `true` once the default provider exists.
+ */
+export const defaultProviderCreated = (): boolean => _provider !== null
+
+/**
+ * Close the lazy default provider, if it was created.
+ *
+ * @returns Resolves once every worker and queue connection has closed.
+ */
+export const closeDefaultProvider = async (): Promise<void> => {
+  const current = _provider
+  _provider = null
+  if (current) await current.close?.()
+}
+
+// Register the readiness probe and shutdown hook once, when this bond is
+// imported; the core queues them until a lifecycle provider is bonded.
+registerLifecycleIntegration({
+  ping: async () => {
+    await provider.ping?.()
+  },
+  close: closeDefaultProvider,
+  created: defaultProviderCreated,
 })

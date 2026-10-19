@@ -16,6 +16,7 @@ import './secrets.js'
 import { t } from '@molecule/api-i18n'
 import type { Queue, QueueCreateOptions, QueueProvider } from '@molecule/api-queue'
 
+import { registerLifecycleIntegration } from './lifecycle.js'
 import { createQueue, type RabbitMQQueue } from './queue.js'
 import type { RabbitMQOptions } from './types.js'
 
@@ -224,6 +225,16 @@ export const createProvider = async (options?: RabbitMQOptions): Promise<QueuePr
       await channel.close()
       await connection.close()
     },
+
+    async ping(): Promise<void> {
+      // listQueues() answers from the in-memory map and would report healthy
+      // with the broker gone. Asserting a short-lived, auto-deleting queue is
+      // a real AMQP round trip; the broker removes it once unused.
+      await channelProxy.assertQueue('molecule:readiness-probe', {
+        durable: false,
+        autoDelete: true,
+      })
+    },
   }
 
   return provider
@@ -360,5 +371,24 @@ export const provider: QueueProvider = (() => {
         connectPromise = null
       }
     },
+
+    async ping() {
+      const p = await ensureConnected()
+      await p.ping?.()
+    },
   }
 })()
+
+// Register the readiness probe and shutdown hook once, when this bond is
+// imported; the core queues them until a lifecycle provider is bonded.
+registerLifecycleIntegration({
+  ping: async () => {
+    await provider.ping?.()
+  },
+  close: async () => {
+    await provider.close?.()
+  },
+  // `close()` already no-ops when the broker was never connected, so no
+  // separate "created" flag can be observed from outside the default provider.
+  created: () => true,
+})

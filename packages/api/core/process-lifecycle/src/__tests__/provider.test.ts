@@ -10,8 +10,10 @@ import {
   isDraining,
   isLive,
   isReady,
+  registerLivenessCheck,
   registerReadinessCheck,
   registerShutdownHook,
+  resetRegistrationsForTests,
   runShutdownHooks,
   setProvider,
   startDraining,
@@ -52,6 +54,7 @@ function makeProvider(): ProcessLifecycleProvider {
 describe('@molecule/api-process-lifecycle provider accessors', () => {
   beforeEach(() => {
     clearProviders()
+    resetRegistrationsForTests()
   })
 
   it('reports no provider before one is bonded', () => {
@@ -70,12 +73,19 @@ describe('@molecule/api-process-lifecycle provider accessors', () => {
   it('delegates registerReadinessCheck to the bonded provider', () => {
     const provider = makeProvider()
     setProvider(provider)
-    const unregister = () => {}
+    const unregister = vi.fn()
     vi.mocked(provider.registerReadinessCheck).mockReturnValue(unregister)
 
     const check = { name: 'db', check: () => true }
-    expect(registerReadinessCheck(check)).toBe(unregister)
+    const remove = registerReadinessCheck(check)
     expect(provider.registerReadinessCheck).toHaveBeenCalledWith(check)
+
+    // The accessor returns its own remover, which cancels the registration and
+    // calls the provider's remover exactly once.
+    remove()
+    expect(unregister).toHaveBeenCalledTimes(1)
+    remove()
+    expect(unregister).toHaveBeenCalledTimes(1)
   })
 
   it('delegates registerShutdownHook to the bonded provider', () => {
@@ -112,5 +122,44 @@ describe('@molecule/api-process-lifecycle provider accessors', () => {
     expect(provider.beginRequest).toHaveBeenCalled()
     expect(provider.inFlightRequests).toHaveBeenCalled()
     expect(provider.runShutdownHooks).toHaveBeenCalledWith('SIGTERM')
+  })
+
+  it('queues a registration made before any provider is bonded, then applies it', () => {
+    const check = { name: 'database', check: () => true }
+    const unregister = registerReadinessCheck(check)
+    expect(typeof unregister).toBe('function')
+
+    const provider = makeProvider()
+    setProvider(provider)
+
+    expect(provider.registerReadinessCheck).toHaveBeenCalledWith(check)
+  })
+
+  it('queues liveness checks and shutdown hooks the same way', () => {
+    const liveness = { name: 'event-loop', check: () => true }
+    const hook = { name: 'database-pool', run: () => {} }
+    registerLivenessCheck(liveness)
+    registerShutdownHook(hook)
+
+    const provider = makeProvider()
+    setProvider(provider)
+
+    expect(provider.registerLivenessCheck).toHaveBeenCalledWith(liveness)
+    expect(provider.registerShutdownHook).toHaveBeenCalledWith(hook)
+  })
+
+  it('applies a queued registration to a provider bonded later and honors unregister', () => {
+    const hook = { name: 'database-pool', run: () => {} }
+    const unregister = registerShutdownHook(hook)
+
+    const first = makeProvider()
+    setProvider(first)
+    expect(first.registerShutdownHook).toHaveBeenCalledTimes(1)
+
+    unregister()
+    // A replacement provider never receives the cancelled registration.
+    const second = makeProvider()
+    setProvider(second)
+    expect(second.registerShutdownHook).not.toHaveBeenCalled()
   })
 })
