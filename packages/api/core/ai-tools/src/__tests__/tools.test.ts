@@ -686,6 +686,23 @@ describe('buildTools', () => {
     expect(written).not.toContain('timeout 360')
   })
 
+  it('names the walk duration only when it justifies the lift', async () => {
+    // A measured walk SHORTER than the bound says nothing about why a ceiling-sized bound goes:
+    // the ceiling is the reason, and the clause must not imply the walk needed the room.
+    const backend = mockBackend()
+    const exec = buildTools(backend, {
+      commandBudgetMs: 290_000,
+      overCeilingGraceMs: 0,
+      suiteRunMs: async () => 100_000,
+    }).find((t) => t.name === 'exec_command')!
+    const r = (await exec.execute({
+      command: 'timeout 290 npx playwright test',
+      run_in_background: true,
+    })) as { taskId?: string; note?: string }
+    expect(r.note).toContain('Dropped your `timeout 290`')
+    expect(r.note).not.toContain('a whole walk takes')
+  })
+
   it('keeps a detached suite bound at least as long as the measured walk', async () => {
     const backend = mockBackend()
     const exec = buildTools(backend, {

@@ -3019,7 +3019,9 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
                 candidate.seconds * 1000 < measured
               if (fitsCeiling || shorterThanWalk) {
                 lifted = candidate
-                wholeRunMs = measured
+                // The duration is named only when it is what justifies the lift: a measured walk
+                // shorter than the bound says nothing about why a ceiling-sized bound goes.
+                wholeRunMs = shorterThanWalk ? measured : null
               }
             }
           }
