@@ -328,6 +328,8 @@
   "@molecule/api-permissions",
   "@molecule/api-permissions-casbin",
   "@molecule/api-permissions-custom",
+  "@molecule/api-process-lifecycle",
+  "@molecule/api-process-lifecycle-express",
   "@molecule/api-project-archive",
   "@molecule/api-project-archive-external-state-d1",
   "@molecule/api-project-archive-external-state-mysql",
