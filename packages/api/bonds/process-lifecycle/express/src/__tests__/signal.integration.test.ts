@@ -25,6 +25,11 @@ async function readPort(child: ChildProcess): Promise<number> {
       () => reject(new Error(`fixture did not print PORT: ${buffer}`)),
       10_000,
     )
+    // The child's stderr rides the failure message: a child that cannot start (a missing loader, a bad
+    // import) says why there, and a CI failure with an empty message is undiagnosable.
+    child.stderr?.on('data', (chunk: Buffer) => {
+      buffer += chunk.toString()
+    })
     child.stdout?.on('data', (chunk: Buffer) => {
       buffer += chunk.toString()
       const match = buffer.match(/PORT (\d+)/)
