@@ -330,9 +330,9 @@ export const runGrowThenShrink = async <I extends RolloutInstance>(
   if (policy.resume && provider.list) {
     try {
       const listed = await provider.list()
-      if (listed.length >= policy.replicas && listed.every((instance) => instance.id.length > 0)) {
+      if (listed.length === policy.replicas && listed.every((instance) => instance.id.length > 0)) {
         let allServing = true
-        if (provider.isServing && listed.length === policy.replicas) {
+        if (provider.isServing) {
           for (const instance of listed) {
             if (!(await provider.isServing(instance))) {
               allServing = false

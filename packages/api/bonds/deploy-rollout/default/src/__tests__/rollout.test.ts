@@ -294,6 +294,20 @@ describe('runGrowThenShrink', () => {
     expect(fake.events).toEqual([])
   })
 
+  it('does not call a larger set complete: extra instances are still rolled', async () => {
+    const listed = [old('a'), old('b'), old('c')]
+    const fake = fakeProvider({ listed, initiallyServing: ['a', 'b', 'c'] })
+    const result = await runGrowThenShrink({
+      policy: { replicas: 2 },
+      current: [old('old-1')],
+      provider: { ...fake.provider, isServing: async () => true },
+    })
+    // Three instances is not the target two, so the roll runs instead of
+    // declaring itself complete; the old one is retired.
+    expect(fake.events).toContain('leave:old-1')
+    expect(result.upstreams.map((instance) => instance.id)).toEqual(['new-1'])
+  })
+
   it('rolls anyway when listing the current instances fails', async () => {
     const fake = fakeProvider()
     const provider: InstanceProvider<RolloutInstance> = {
