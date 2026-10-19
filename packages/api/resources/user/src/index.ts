@@ -63,6 +63,24 @@
  * Monkey-patching `res.json` to re-shape a handler's answer intercepts nothing the handler
  * produces, so the request it was meant to answer is left unanswered and hangs.
  *
+ * **Re-shaping a success answer (RealWorld's `{ user: { …, token } }`, say)? Read the token from
+ * `result.body.accessToken` — it is in the BODY.** The `Authorization` response header carries
+ * the same token prefixed with the mount's scheme (`Bearer <token>`), so it is not the raw value
+ * a client sends back. Type the result from the handler — do not cast `body` to `unknown`, which
+ * hides the success branch — and narrow on the body's own keys:
+ *
+ * ```typescript
+ * const result = await handlers.logIn(resource)(req, res)
+ * if (!('accessToken' in result.body)) {
+ *   // 400/403/500 `{ error, errorKey }`, or 206 `{ twoFactorRequired: true }` — send as built.
+ *   res.status(result.statusCode).send(result.body)
+ *   return
+ * }
+ * // `props` and `user` are the SAFE columns (secret columns stripped); accessToken is the token.
+ * const { props, accessToken } = result.body
+ * res.status(200).json({ user: { ...props, token: accessToken } })
+ * ```
+ *
  * **Constructing a handler: `schema` is optional.** Every factory accepts
  * `{ name, tableName, schema? }`. `schema` is a Zod object (anything exposing `safeParse`)
  * and only `handlers.create` / `handlers.logInOAuth` use it — both default to this package's

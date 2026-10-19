@@ -45,6 +45,9 @@ describe('the handler contract in @molecule/api-resource-user’s own docs (xr-f
     const readme = read('README.md')
     expect(readme).toContain('{ statusCode, headers?, body }')
     expect(readme).toContain('res.status(statusCode).send(body)')
+    // The response adaptation (m261) has to reach the same surface, not only the source JSDoc.
+    expect(readme).toContain("'accessToken' in result.body")
+    expect(readme).toContain('result.body.accessToken')
   })
 
   it('keeps it near the top, where a whole-doc read reaches it', () => {

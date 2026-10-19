@@ -3098,3 +3098,63 @@ describe('auth responses strip secret user columns', () => {
     for (const secret of Object.keys(SECRETS)) expect(payload).not.toHaveProperty(secret)
   })
 })
+
+// ===== 10. The module doc's response adaptation, against the real handler =====
+// m261 (+06:35 → +08:13) wrapped `handlers.create`/`logIn` to emit RealWorld's
+// `{ user: { …, token } }` and read the token from the `Authorization` RESPONSE header;
+// the answer was `token: null`, and it then read the package's compiled `dist` to discover
+// `body.accessToken`. The module doc now carries the adaptation, so these prove the two
+// promises it makes: the raw token is in the body (the header holds a scheme-prefixed copy),
+// and the body's user fields are the safe ones — an error body has no token key at all.
+describe('the documented handler-response adaptation (m261)', () => {
+  it('reads the raw token from body.accessToken, not the prefixed response header', async () => {
+    const handler = logIn(testResource)
+    mockFindOne.mockResolvedValue({
+      id: 'user-1',
+      username: 'testuser',
+      email: 'u@example.com',
+      emailVerified: false,
+      passwordResetToken: 'reset-me',
+    })
+    mockFindById.mockResolvedValue({ id: 'user-1', passwordHash: 'hash' })
+    mockCompare.mockResolvedValue(true)
+    mockGet.mockReturnValue({ createOrUpdate: vi.fn().mockResolvedValue('device-id') })
+    mockSign.mockReturnValue('mock-jwt-token')
+    const res = makeRes()
+
+    const result = await handler(
+      makeReq({ body: { username: 'testuser', password: 'correct-password' } }) as MoleculeRequest,
+      res as MoleculeResponse,
+    )
+
+    expect(result?.statusCode).toBe(200)
+    // The doc's guard: an error or 2FA body carries no `accessToken` key.
+    if (!result || !('accessToken' in result.body)) throw new Error('expected a success body')
+
+    // The body holds the raw token; the header holds the SAME token behind the mount's scheme,
+    // so a wrapper that forwards the header value forwards `Bearer …`, not the token.
+    expect(result.body.accessToken).toBe('mock-jwt-token')
+    expect(res.setHeader).toHaveBeenCalledWith('Authorization', 'Bearer mock-jwt-token')
+
+    const { props, user, accessToken } = result.body
+    expect(accessToken).toBe('mock-jwt-token')
+    expect(props).toMatchObject({ id: 'user-1', email: 'u@example.com' })
+    expect(user).toMatchObject({ id: 'user-1', email: 'u@example.com' })
+    expect(props).not.toHaveProperty('passwordResetToken')
+    expect(user).not.toHaveProperty('passwordResetToken')
+  })
+
+  it('sends a failed login’s error body unchanged, with no accessToken key', async () => {
+    const handler = logIn(testResource)
+    mockFindOne.mockResolvedValue(null)
+
+    const result = await handler(
+      makeReq({ body: { username: 'nobody', password: 'wrong-password' } }) as MoleculeRequest,
+      makeRes() as MoleculeResponse,
+    )
+
+    expect(result?.statusCode).toBe(403)
+    expect(result?.body).not.toHaveProperty('accessToken')
+    expect(result?.body).toHaveProperty('errorKey', 'user.error.invalidCredentials')
+  })
+})
