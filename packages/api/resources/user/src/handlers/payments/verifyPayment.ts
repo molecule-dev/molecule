@@ -28,10 +28,10 @@ const logger = getLogger()
  * @param resource - The user resource configuration (name, tableName, schema).
  * @param resource.name - The resource name.
  * @param resource.tableName - The database table name for users.
- * @param resource.schema - The validation schema for user properties.
+ * @param resource.schema - Optional. Ignored — plan fields are written directly after provider verification.
  * @returns A request handler for payment verification.
  */
-export const verifyPayment = ({ name, tableName, schema: _schema }: types.Resource) => {
+export const verifyPayment = ({ name, tableName, schema: _schema }: types.HandlerResource) => {
   return async (req: MoleculeRequest) => {
     const providerName = req.params.provider as string
 

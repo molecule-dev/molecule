@@ -27,10 +27,14 @@ export interface ForgotPasswordRequest extends MoleculeRequest {
  * @param resource - The user resource configuration (name, tableName, schema).
  * @param resource.name - The resource name.
  * @param resource.tableName - The database table name for users.
- * @param resource.schema - The validation schema for user properties.
+ * @param resource.schema - Optional. Ignored — the reset flow reads and writes secrets directly.
  * @returns A request handler that responds with `{ statusCode: 200, body: { success: true } }`.
  */
-export const forgotPassword = ({ name: _name, tableName, schema: _schema }: types.Resource) => {
+export const forgotPassword = ({
+  name: _name,
+  tableName,
+  schema: _schema,
+}: types.HandlerResource) => {
   return async (req: ForgotPasswordRequest) => {
     try {
       const { email } = req.body

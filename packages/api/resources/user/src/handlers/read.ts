@@ -16,10 +16,10 @@ const logger = getLogger()
  * @param resource - The user resource configuration (name, tableName, schema).
  * @param resource.name - The resource name.
  * @param resource.tableName - The database table name for users.
- * @param resource.schema - The validation schema for user properties.
+ * @param resource.schema - Optional. Ignored — reads do not validate props.
  * @returns A request handler that responds with `{ statusCode: 200, body: { props, plan?, twoFactorEnabled? } }`.
  */
-export const read = ({ name: _name, tableName, schema: _schema }: types.Resource) => {
+export const read = ({ name: _name, tableName, schema: _schema }: types.HandlerResource) => {
   return async (req: MoleculeRequest, res: MoleculeResponse) => {
     try {
       const { session } = res.locals

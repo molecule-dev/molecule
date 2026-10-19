@@ -9,6 +9,7 @@ import { create as resourceCreate } from '@molecule/api-resource'
 import type { DeviceService } from '@molecule/api-resource-device'
 
 import * as authorization from '../authorization.js'
+import { propsSchema } from '../schema.js'
 import type * as types from '../types.js'
 import { normalizeEmail } from '../utilities/normalizeEmail.js'
 import { stripSensitiveUserColumns } from '../utilities/stripSensitiveUserColumns.js'
@@ -29,13 +30,27 @@ export interface CreateRequest extends MoleculeRequest {
  * Creates a user with username and password. Validates username uniqueness and email format,
  * hashes the password into a separate secrets table, creates a session device via the bonded
  * DeviceService, and sets JWT authorization on the response.
- * @param resource - The user resource configuration (name, tableName, schema).
- * @param resource.name - The resource name.
+ *
+ * **`schema` is optional — omit it and this package's `propsSchema` validates the row.**
+ * It must be a Zod object (anything exposing `safeParse`): pass
+ * `createResource({ oauthServers, planKeys })` or your own extended schema only when the
+ * app constrains or extends user props. A stub such as `schema: {}` is not a schema — the
+ * FIRST request answers 400 `resource.error.unknownError` with
+ * `TypeError: schema.safeParse is not a function`, after no row has been written.
+ *
+ * Statuses: 201 `{ props, accessToken, user }`; 400 `user.error.usernameInvalid` /
+ * `user.error.bodyNestedUnderUser` / `user.error.passwordRequired` /
+ * `user.error.passwordTooLong` / `user.error.passwordTooShort` / `user.error.emailInvalid` /
+ * `user.error.badRequest`, or `resource.error.unknownError` when props fail the schema;
+ * 403 `user.error.usernameUnavailable` / `user.error.emailAlreadyRegistered`;
+ * 500 `user.error.failedToHashPassword` / `user.error.failedToCreateSession`.
+ * @param resource - The user resource configuration: `{ name, tableName, schema? }`.
+ * @param resource.name - The resource name used in error messages.
  * @param resource.tableName - The database table name for users.
- * @param resource.schema - The validation schema for user properties.
- * @returns A request handler that responds with `{ statusCode: 201, body: { props } }` on success.
+ * @param resource.schema - Optional Zod schema for the created user props. Defaults to `propsSchema`.
+ * @returns A request handler that responds with `{ statusCode: 201, body: { props, accessToken, user } }` on success.
  */
-export const create = ({ name, tableName, schema }: types.Resource) => {
+export const create = ({ name, tableName, schema = propsSchema }: types.HandlerResource) => {
   const createResource = resourceCreate({
     name,
     tableName,

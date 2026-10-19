@@ -35,10 +35,14 @@ export interface UpdatePasswordRequest extends MoleculeRequest {
  * @param resource - The user resource configuration (name, tableName, schema).
  * @param resource.name - The resource name.
  * @param resource.tableName - The database table name for users.
- * @param resource.schema - The validation schema for user properties.
+ * @param resource.schema - Optional. Ignored — this handler writes the password hash directly.
  * @returns A request handler that responds with `{ statusCode: 200, body: { success: true } }` on success.
  */
-export const updatePassword = ({ name: _name, tableName, schema: _schema }: types.Resource) => {
+export const updatePassword = ({
+  name: _name,
+  tableName,
+  schema: _schema,
+}: types.HandlerResource) => {
   return async (req: UpdatePasswordRequest, res?: MoleculeResponse) => {
     try {
       const id = req.params.id

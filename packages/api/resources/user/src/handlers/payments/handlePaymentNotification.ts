@@ -51,10 +51,14 @@ const webhookSubscriptionGrantsEntitlement = (
  * @param resource - The user resource configuration (name, tableName, schema).
  * @param resource.name - The resource name.
  * @param resource.tableName - The database table name for users.
- * @param resource.schema - The validation schema for user properties.
+ * @param resource.schema - Optional. Ignored — notifications validate with `updatePlanPropsSchema`.
  * @returns A request handler for payment provider notifications.
  */
-export const handlePaymentNotification = ({ name, tableName, schema: _schema }: types.Resource) => {
+export const handlePaymentNotification = ({
+  name,
+  tableName,
+  schema: _schema,
+}: types.HandlerResource) => {
   return async (req: MoleculeRequest) => {
     const okResponse = { statusCode: 200, body: 'OK' }
     const providerName = req.params.provider as string

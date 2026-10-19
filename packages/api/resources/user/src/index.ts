@@ -63,6 +63,46 @@
  * Monkey-patching `res.json` to re-shape a handler's answer intercepts nothing the handler
  * produces, so the request it was meant to answer is left unanswered and hangs.
  *
+ * **Constructing a handler: `schema` is optional.** Every factory accepts
+ * `{ name, tableName, schema? }`. `schema` is a Zod object (anything exposing `safeParse`)
+ * and only `handlers.create` / `handlers.logInOAuth` use it — both default to this package's
+ * `propsSchema`. `handlers.update` validates with its own update schema; login and the
+ * read/write handlers never validate props. The smallest correct wiring, with every import
+ * spelled out:
+ *
+ * ```typescript
+ * import { createRequestHandler } from '@molecule/api-resource'
+ * import { createResource, handlers } from '@molecule/api-resource-user'
+ *
+ * // Omit `schema`: create() validates new users with this package's propsSchema.
+ * const signUp = createRequestHandler(handlers.create({ name: 'User', tableName: 'users' }))
+ * const signIn = createRequestHandler(handlers.logIn({ name: 'User', tableName: 'users' }))
+ *
+ * // A constrained schema, when the app restricts oauthServer / planKey.
+ * const users = createResource({ oauthServers: ['google', 'github'] as const })
+ * const signUpConstrained = createRequestHandler(handlers.create(users))
+ * ```
+ *
+ * `schema: {}` (or any object without `safeParse`) is NOT a schema: the first request
+ * answers 400 `resource.error.unknownError` with
+ * `TypeError: schema.safeParse is not a function`, and no row is written. Omit `schema`
+ * instead of stubbing it.
+ *
+ * **Exact responses of the sign-up and sign-in handlers** (the body shapes the routes send;
+ * a handler returns `{ statusCode, body }` and the mount applies it):
+ * - `create` (`POST /api/users`, flat body): 201 `{ props, accessToken, user }` (`user` equals
+ *   `props`, secret columns stripped); 400 `user.error.usernameInvalid` /
+ *   `user.error.bodyNestedUnderUser` / `user.error.passwordRequired` /
+ *   `user.error.passwordTooLong` / `user.error.passwordTooShort` / `user.error.emailInvalid` /
+ *   `user.error.badRequest`, or `resource.error.unknownError` when props fail the schema;
+ *   403 `user.error.usernameUnavailable` / `user.error.emailAlreadyRegistered`;
+ *   500 `user.error.failedToHashPassword` / `user.error.failedToCreateSession`.
+ * - `logIn` (`POST /api/users/log-in`): 200 `{ props, accessToken, user }`; 206
+ *   `{ twoFactorRequired: true }`; 403 `user.error.invalidCredentials` /
+ *   `user.error.invalidTwoFactorToken`; 500 `user.error.failedToCreateSession` /
+ *   `user.error.twoFactorVerificationUnavailable` / `user.error.loginFailed`. Bad credentials
+ *   are 403, not 401 or 422.
+ *
  * @remarks
  * The user record is split across TWO schemas — pick the right one or you leak credentials:
  * - **{@link Props} (`propsSchema`)** — SAFE, client-facing fields (username, name, email,

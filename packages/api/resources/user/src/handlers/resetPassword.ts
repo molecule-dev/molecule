@@ -49,9 +49,14 @@ export interface ResetPasswordRequest extends MoleculeRequest {
  *
  * @param resource - The user resource configuration (name, tableName, schema).
  * @param resource.tableName - The database table name for users.
+ * @param resource.schema - Optional. Ignored — the reset flow writes the password hash directly.
  * @returns A request handler that responds with `{ statusCode: 200, body: { success: true } }` on success.
  */
-export const resetPassword = ({ name: _name, tableName, schema: _schema }: types.Resource) => {
+export const resetPassword = ({
+  name: _name,
+  tableName,
+  schema: _schema,
+}: types.HandlerResource) => {
   return async (req: ResetPasswordRequest) => {
     try {
       const { token, password } = req.body

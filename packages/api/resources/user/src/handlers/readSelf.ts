@@ -29,11 +29,11 @@ const logger = getLogger()
  * RealWorld-style client can restore `{ user, token }` from `GET /user` the same way
  * login and registration return it. A session resolved from the httpOnly cookie
  * NEVER gets this field: exposing that token to JavaScript would defeat the cookie.
- * @param resource - The user resource configuration (name, tableName, schema).
+ * @param resource - The user resource configuration: `{ name, tableName, schema? }` (`name` and `schema` are optional here).
  * @param resource.tableName - The database table name for users.
  * @returns A request handler responding `{ statusCode: 200, body: { props, plan?, twoFactorEnabled?, accessToken? } }`, or 401 when unauthenticated.
  */
-export const readSelf = ({ tableName }: types.Resource) => {
+export const readSelf = ({ tableName }: types.HandlerResource) => {
   return async (_req: MoleculeRequest, res: MoleculeResponse) => {
     try {
       const userId = (res.locals.session as { userId?: string } | undefined)?.userId

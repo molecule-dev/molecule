@@ -63,10 +63,10 @@ function normalizeQuantity(raw: unknown): number | undefined {
  * @param resource - The user resource configuration (name, tableName, schema).
  * @param resource.name - The resource name.
  * @param resource.tableName - The database table name for users.
- * @param resource.schema - The validation schema for user properties.
+ * @param resource.schema - Optional. Ignored — plan updates validate with `updatePlanPropsSchema`.
  * @returns A request handler for plan updates.
  */
-export const updatePlan = ({ name, tableName, schema: _schema }: types.Resource) => {
+export const updatePlan = ({ name, tableName, schema: _schema }: types.HandlerResource) => {
   const updateResource = resourceUpdate({
     name,
     tableName,

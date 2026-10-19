@@ -25,10 +25,14 @@ export interface VerifyTwoFactorRequest extends MoleculeRequest {
  * @param resource - The user resource configuration (name, tableName, schema).
  * @param resource.name - The resource name.
  * @param resource.tableName - The database table name for users.
- * @param resource.schema - The validation schema for user properties.
+ * @param resource.schema - Optional. Ignored — 2FA state is written to the secrets table directly.
  * @returns A request handler for two-factor authentication operations.
  */
-export const verifyTwoFactor = ({ name: _name, tableName, schema: _schema }: types.Resource) => {
+export const verifyTwoFactor = ({
+  name: _name,
+  tableName,
+  schema: _schema,
+}: types.HandlerResource) => {
   return async (req: VerifyTwoFactorRequest) => {
     try {
       const id = req.params.id as string

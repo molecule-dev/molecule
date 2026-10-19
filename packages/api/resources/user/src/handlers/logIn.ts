@@ -87,14 +87,21 @@ export interface LogInRequest extends MoleculeRequest {
  * authentication (1-hour expiry), and optional two-factor verification via `@molecule/api-two-factor`.
  * On success, creates/updates a device via the bonded DeviceService, sets JWT authorization,
  * and notifies other devices about the new login.
- * @param resource - The user resource configuration (name, tableName, schema).
- * @param resource.name - The resource name.
+ *
+ * `schema` is optional and NOT used here: login reads stored rows and compares credentials, so
+ * there are no props to validate. Statuses: 200 `{ props, accessToken, user }`; 206
+ * `{ twoFactorRequired: true }` when the account has 2FA enabled and no `twoFactorToken` was
+ * sent; 403 `user.error.invalidCredentials` (wrong password / unknown account / spent reset
+ * token) or `user.error.invalidTwoFactorToken`; 500 `user.error.failedToCreateSession` /
+ * `user.error.twoFactorVerificationUnavailable` / `user.error.loginFailed`.
+ * @param resource - The user resource configuration: `{ name, tableName, schema? }`.
+ * @param resource.name - The resource name (unused by this handler).
  * @param resource.tableName - The database table name for users.
- * @param resource.schema - The validation schema for user properties.
- * @returns A request handler that responds with `{ statusCode: 200, body: { props } }` on success,
- *   or `{ statusCode: 206, body: { twoFactorRequired: true } }` when 2FA is needed.
+ * @param resource.schema - Optional. Ignored — login validates credentials, not props.
+ * @returns A request handler that responds with `{ statusCode: 200, body: { props, accessToken, user } }`
+ *   on success, or `{ statusCode: 206, body: { twoFactorRequired: true } }` when 2FA is needed.
  */
-export const logIn = ({ name: _name, tableName, schema: _schema }: types.Resource) => {
+export const logIn = ({ tableName }: types.HandlerResource) => {
   return async (req: LogInRequest, res: MoleculeResponse) => {
     const { body } = req
 

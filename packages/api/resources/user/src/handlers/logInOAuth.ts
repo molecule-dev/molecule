@@ -11,7 +11,7 @@ import { create as resourceCreate } from '@molecule/api-resource'
 import type { DeviceService } from '@molecule/api-resource-device'
 
 import * as authorization from '../authorization.js'
-import { MAX_BIO_LENGTH } from '../schema.js'
+import { MAX_BIO_LENGTH, propsSchema } from '../schema.js'
 import type * as types from '../types.js'
 import { fetchAvatarDataUri } from '../utilities/fetchAvatarDataUri.js'
 import { normalizeEmail } from '../utilities/normalizeEmail.js'
@@ -54,13 +54,17 @@ export interface LogInOAuthRequest extends MoleculeRequest {
  * Logs in or creates a user via OAuth. Verifies the authorization code with the bonded OAuth
  * provider (`get('oauth', serverName)`), then either finds an existing user by oauthServer+oauthId
  * or creates a new one with a unique username. Sets JWT authorization and creates a session device.
- * @param resource - The user resource configuration (name, tableName, schema).
- * @param resource.name - The resource name.
+ *
+ * `schema` is optional and defaults to this package's `propsSchema`; supply one only when the
+ * app constrains or extends user props. It must expose `safeParse` — a stub fails the OAuth
+ * account-creation request with 400 `resource.error.unknownError`.
+ * @param resource - The user resource configuration: `{ name, tableName, schema? }`.
+ * @param resource.name - The resource name used in error messages.
  * @param resource.tableName - The database table name for users.
- * @param resource.schema - The validation schema for user properties.
+ * @param resource.schema - Optional Zod schema validated when a new OAuth account is created. Defaults to `propsSchema`.
  * @returns A request handler that responds with `{ statusCode: 200, body: { props } }` on success.
  */
-export const logInOAuth = ({ name, tableName, schema }: types.Resource) => {
+export const logInOAuth = ({ name, tableName, schema = propsSchema }: types.HandlerResource) => {
   const createResource = resourceCreate({
     name,
     tableName,

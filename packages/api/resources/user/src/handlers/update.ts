@@ -39,13 +39,19 @@ const extendedUpdatePropsSchema = updatePropsSchema.extend({
  * Updates a user's profile fields (username, name, email). Validates username format
  * (alphanumeric, max 255 chars), email format, and uniqueness of both fields against
  * other users before delegating to the resource update utility.
- * @param resource - The user resource configuration (name, tableName, schema).
- * @param resource.name - The resource name.
+ * `schema` is optional and NOT used here: this handler validates the partial update with the
+ * package's own `extendedUpdatePropsSchema` (username, name, email, avatar, bio, plus
+ * `oauthData`), so callers need not invent one. Statuses: 200 updated props; 400 for an invalid
+ * username/email, an oversized avatar/bio, a malformed `oauthData`, a missing `currentPassword`,
+ * or no updatable fields; 403 `user.error.usernameUnavailable` / `user.error.emailAlreadyRegistered`
+ * / `user.error.currentPasswordIncorrect`; 500 `user.error.failedToUpdateUser`.
+ * @param resource - The user resource configuration: `{ name, tableName, schema? }`.
+ * @param resource.name - The resource name used in error messages.
  * @param resource.tableName - The database table name for users.
- * @param resource.schema - The validation schema for user properties.
+ * @param resource.schema - Optional. Ignored — updates validate with this package's update schema.
  * @returns A request handler that responds with the updated user props on success.
  */
-export const update = ({ name, tableName, schema: _schema }: types.Resource) => {
+export const update = ({ name, tableName }: types.HandlerResource) => {
   const updateResource = resourceUpdate({
     name,
     tableName,
