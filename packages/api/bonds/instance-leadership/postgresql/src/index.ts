@@ -41,5 +41,6 @@
  * @module
  */
 
+export * from './browser-guard.js'
 export * from './lock.js'
 export * from './provider.js'

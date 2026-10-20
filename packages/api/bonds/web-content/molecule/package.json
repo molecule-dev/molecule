@@ -1,0 +1,52 @@
+{
+  "name": "@molecule/api-web-content-molecule",
+  "version": "1.0.0",
+  "description": "molecule.dev hosted web content — fetch a page or extract readable content, billed to your molecule project, no vendor account",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "molecule",
+    "web-content",
+    "reader",
+    "readability",
+    "markdown",
+    "hosted"
+  ],
+  "license": "Apache-2.0",
+  "peerDependencies": {
+    "@molecule/api-secrets": "^1.0.1",
+    "@molecule/api-web-content": ">=1.0.0"
+  },
+  "devDependencies": {
+    "@molecule/api-web-content": "1.0.0",
+    "@types/node": "26.1.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.11"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/web-content/molecule"
+  },
+  "homepage": "https://www.molecule.dev/packages/api-web-content-molecule",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}

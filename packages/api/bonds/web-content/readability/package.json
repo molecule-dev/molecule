@@ -1,0 +1,59 @@
+{
+  "name": "@molecule/api-web-content-readability",
+  "version": "1.0.0",
+  "description": "Mozilla Readability web content provider for molecule.dev — fetch a page or extract readable content in this process",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "molecule",
+    "web-content",
+    "readability",
+    "reader",
+    "markdown",
+    "self-hosted"
+  ],
+  "license": "Apache-2.0",
+  "peerDependencies": {
+    "@molecule/api-web-content": ">=1.0.0"
+  },
+  "dependencies": {
+    "@mozilla/readability": "0.6.0",
+    "jsdom": "30.0.1",
+    "turndown": "7.2.4",
+    "turndown-plugin-gfm": "1.0.2"
+  },
+  "devDependencies": {
+    "@molecule/api-web-content": "1.0.0",
+    "@types/jsdom": "30.0.0",
+    "@types/node": "26.1.2",
+    "@types/turndown": "5.0.6",
+    "typescript": "6.0.3",
+    "vitest": "4.1.11"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/web-content/readability"
+  },
+  "homepage": "https://www.molecule.dev/packages/api-web-content-readability",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}
