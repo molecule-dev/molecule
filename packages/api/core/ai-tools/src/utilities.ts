@@ -276,9 +276,8 @@ function sourcePrintFiles(program: string, args: readonly string[]): string[] | 
 /**
  * Whether a shell command only PRINTS source files (`cat a.tsx`, `sed -n '1,40p' x.ts`,
  * `head -50 b.hurl`): its output is file content and gets the code-safe redaction, like
- * read_file. Through the env-dump grade a printed `type AuthState = 'authenticated' | …`
- * came back as `'[REDACTED]'`, and the executor wrote the mask into a new file (X1
- * flash-m58). Literal echo/printf headings between reads do not change that grade (m309).
+ * read_file. This preserves fixture values, type literals and other ordinary source text.
+ * Literal echo/printf headings between reads do not change that grade.
  * Expansions, other commands, env files and labels without a source read keep the full grade.
  *
  * @param command - The shell command.
