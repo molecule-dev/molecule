@@ -18,8 +18,11 @@ const WEEKDAYS_UTC = [1, 2, 3, 4, 5]
 
 /**
  * DeepSeek's own sentence defining its peak windows, verbatim (pricing page,
- * re-read 2026-09-23). check-model-freshness warns when the page stops saying
- * exactly this — then the windows and CHINA_PUBLIC_HOLIDAYS need re-reading.
+ * re-read 2026-09-23 and 2026-10-20 — unchanged both times). The page stopped
+ * server-rendering around 2026-10-20 (its HTML is a Docusaurus app shell; the
+ * text lives in the per-route JS chunk), which check-model-freshness now
+ * resolves. It warns when the page stops saying exactly this — then the
+ * windows and CHINA_PUBLIC_HOLIDAYS need re-reading.
  */
 const DEEPSEEK_PEAK_RULE = {
   url: 'https://api-docs.deepseek.com/quick_start/pricing',
@@ -289,7 +292,19 @@ const CHINA_PUBLIC_HOLIDAYS = [
  *   https://www.12371.gov.cn/web/article/web/content_1451614684968525824.html
  *   (the State Council's 2026 notice; see CHINA_PUBLIC_HOLIDAYS)
  * - DeepSeek: https://api-docs.deepseek.com/quick_start/pricing +
- *   /updates/ (verified 2026-09-23 — the announced 2026-09-14 routing of
+ *   /updates/ (verified 2026-10-20 — the whole rate card RE-READ, unchanged:
+ *   pro 0.66/1.98/0.022 off-peak ×2 peak, flash 0.15/0.6/0.003, peak windows
+ *   and the Chinese-public-holidays exclusion verbatim as before. The page is
+ *   now a client-rendered SPA — its HTML is an app shell and the card text
+ *   lives in the route's JS chunk, which is where this read came from; the
+ *   freshness gate reads it there too. New on the card: footnote (1) now says
+ *   the retired flash ids' requests "are served by the DeepSeek-V4.1-Flash-1017
+ *   model and billed at the Flash price" — so -1017 is also the weights under
+ *   the native evergreen `deepseek-flash` id (a weights fact, not a pricing
+ *   one; the flash card itself did not move). The page also lists standalone
+ *   Search & Fetch APIs at $0.75 per 1k requests (harness tool-call billing
+ *   starts 2026-11-01 Beijing) — not a surface this catalog prices.
+ *   Earlier, verified 2026-09-23: the announced 2026-09-14 routing of
  *   `deepseek-v4-pro` to V4.1 Flash was WITHDRAWN: V4 Pro keeps its card
  *   0.66/1.98/0.022 off-peak, so its staged `scheduledPricing` was deleted.
  *   The card now also says peak hours exclude Chinese public holidays, which
