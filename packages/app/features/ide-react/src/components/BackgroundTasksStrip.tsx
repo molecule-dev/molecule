@@ -39,6 +39,7 @@ export function BackgroundTasksStrip({
   if (tasks.length === 0) return null
 
   const failed = tasks.filter((task) => task.status === 'failed')
+  const cancelled = tasks.filter((task) => task.status === 'cancelled')
   const summary =
     running.length > 0
       ? t(
@@ -52,14 +53,22 @@ export function BackgroundTasksStrip({
             { count: failed.length },
             { defaultValue: '{{count}} background task failed' },
           )
-        : t(
-            'ide.chat.backgroundDone',
-            { count: tasks.length },
-            { defaultValue: '{{count}} background task finished' },
-          )
+        : cancelled.length === tasks.length
+          ? t(
+              'ide.chat.backgroundCancelled',
+              { count: cancelled.length },
+              {
+                defaultValue: '{{count}} background task cancelled',
+              },
+            )
+          : t(
+              'ide.chat.backgroundDone',
+              { count: tasks.length },
+              { defaultValue: '{{count}} background task finished' },
+            )
 
   // Collapsed, name what the strip is about: the purpose of the task in flight.
-  const lead = running[0] ?? failed[0]
+  const lead = running[0] ?? failed[0] ?? cancelled[0]
 
   return (
     <DockStrip
@@ -69,7 +78,15 @@ export function BackgroundTasksStrip({
       onToggle={() => setExpanded((open) => !open)}
       icon={
         <StatusMark
-          state={running.length > 0 ? 'active' : failed.length > 0 ? 'failed' : 'done'}
+          state={
+            running.length > 0
+              ? 'active'
+              : failed.length > 0
+                ? 'failed'
+                : cancelled.length === tasks.length
+                  ? 'stopped'
+                  : 'done'
+          }
           size={14}
         />
       }
@@ -79,10 +96,24 @@ export function BackgroundTasksStrip({
           ? t('ide.work.running', { count: running.length }, { defaultValue: '{{count}} running' })
           : failed.length > 0
             ? t('ide.work.failed', { count: failed.length }, { defaultValue: '{{count}} failed' })
-            : t('ide.work.finished', { count: tasks.length }, { defaultValue: '{{count}} done' })
+            : cancelled.length === tasks.length
+              ? t(
+                  'ide.work.cancelled',
+                  { count: cancelled.length },
+                  { defaultValue: '{{count}} cancelled' },
+                )
+              : t(
+                  'ide.work.finishedCount',
+                  { count: tasks.length },
+                  { defaultValue: '{{count}} finished' },
+                )
       }
       chipTitle={lead ? purpose(lead) : undefined}
-      hint={!expanded && lead ? `· ${purpose(lead)}` : undefined}
+      hint={
+        !expanded && lead
+          ? `· ${purpose(lead)}${progress(lead) ? ` · ${progress(lead)}` : ''}`
+          : undefined
+      }
     >
       <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
         {tasks.map((task) => (
@@ -99,13 +130,16 @@ export function BackgroundTasksStrip({
                     ? 'active'
                     : task.status === 'failed'
                       ? 'failed'
-                      : 'done'
+                      : task.status === 'cancelled'
+                        ? 'stopped'
+                        : 'done'
                 }
                 size={14}
               />
             </span>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div>{purpose(task)}</div>
+              {progress(task) && <div className={cm.textMuted}>{progress(task)}</div>}
               {task.description ? (
                 <code
                   className={cm.textMuted}
@@ -144,5 +178,24 @@ function describe(task: BackgroundTaskState): string {
       { defaultValue: 'exit {{code}} · {{elapsed}}' },
     )
   }
+  if (task.status === 'cancelled') {
+    return t(
+      'ide.chat.backgroundCancelledElapsed',
+      { elapsed },
+      { defaultValue: 'cancelled · {{elapsed}}' },
+    )
+  }
   return t('ide.chat.backgroundOk', { elapsed }, { defaultValue: 'done · {{elapsed}}' })
+}
+
+/** A worker's observed output is useful progress without inventing a total or percentage. */
+function progress(task: BackgroundTaskState): string | null {
+  if (task.outputChars == null) return null
+  return t(
+    'ide.chat.backgroundOutput',
+    { count: task.outputChars.toLocaleString() },
+    {
+      defaultValue: '{{count}} characters produced',
+    },
+  )
 }

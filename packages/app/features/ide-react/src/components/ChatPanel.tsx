@@ -29,7 +29,13 @@ import {
   useState,
 } from 'react'
 
-import type { CardEvent, ChatMessage, ChatStreamEvent } from '@molecule/app-ai-chat'
+import type {
+  CardEvent,
+  ChatMessage,
+  ChatStreamEvent,
+  ContextCompaction,
+  ContextUsage,
+} from '@molecule/app-ai-chat'
 import type { AppModelDefinition } from '@molecule/app-ai-models'
 import {
   formatTokenCount,
@@ -177,6 +183,7 @@ import {
 } from './chat-tips-utilities.js'
 import { ChatItemBoundary } from './ChatItemBoundary.js'
 import { ChatTimestamp } from './ChatTimestamp.js'
+import { ContextUsageIndicator, mergeContextHistory } from './ContextUsageIndicator.js'
 import { DockStrip } from './DockStrip.js'
 import { HelpCard } from './HelpCard.js'
 import { Icon } from './Icon.js'
@@ -2925,10 +2932,9 @@ function ChatInner({
   const soundsConfigRef = useRef<SoundsConfig>({ ...DEFAULT_SOUNDS_CONFIG })
 
   // ── Context usage tracking (ring indicator) ─────────────────────────────
-  const [contextUsage, setContextUsage] = useState<{
-    inputTokens: number
-    contextWindow: number
-  } | null>(null)
+  const [contextUsage, setContextUsage] = useState<ContextUsage | null>(null)
+  const [contextHistory, setContextHistory] = useState<ContextUsage[]>([])
+  const [contextCompactions, setContextCompactions] = useState<ContextCompaction[]>([])
 
   // Restore context usage from the history endpoint on mount. Retries a few
   // times on failure: this used to be one-shot, so a single transient error at
@@ -2937,15 +2943,36 @@ function ChatInner({
   // turn's `done` event (observed live 2026-08-29: ring gone, server data fine,
   // reload fixed it).
   useEffect(() => {
+    setContextUsage(null)
+    setContextHistory([])
+    setContextCompactions([])
     if (!hasConversation) return
     let cancelled = false
     let attempt = 0
     const load = (): void => {
       http
-        .get<{ contextUsage?: { inputTokens: number; contextWindow: number } }>(endpoint)
+        .get<{
+          contextUsage?: ContextUsage
+          contextHistory?: ContextUsage[]
+          compactions?: ContextCompaction[]
+        }>(endpoint)
         .then((res) => {
           if (cancelled) return
-          if (res.data.contextUsage) setContextUsage(res.data.contextUsage)
+          const restored = res.data.contextUsage
+          if (restored)
+            setContextUsage((current) => {
+              if (!current) return restored
+              return mergeContextHistory([restored], [current]).at(-1) ?? current
+            })
+          setContextHistory((current) =>
+            mergeContextHistory(res.data.contextHistory ?? [], current),
+          )
+          setContextCompactions((current) => {
+            const entries = new Map(
+              [...(res.data.compactions ?? []), ...current].map((entry) => [entry.at, entry]),
+            )
+            return [...entries.values()].sort((a, b) => a.at.localeCompare(b.at)).slice(-32)
+          })
         })
         .catch((_error) => {
           // Transient failure — retry with backoff (bounded); after the budget,
@@ -3014,17 +3041,39 @@ function ChatInner({
   onLoadingChangeRef.current = onLoadingChange
 
   const handleStreamEvent = useCallback(
-    (event: {
-      type: string
-      usage?: { inputTokens?: number; contextWindow?: number }
-      [key: string]: unknown
-    }) => {
-      // Capture context usage from done events
-      if (event.type === 'done' && event.usage?.inputTokens && event.usage?.contextWindow) {
-        setContextUsage({
-          inputTokens: event.usage.inputTokens,
-          contextWindow: event.usage.contextWindow,
+    (event: { type: string; usage?: Partial<ContextUsage>; [key: string]: unknown }) => {
+      if (
+        (event.type === 'context_usage' || event.type === 'done') &&
+        typeof event.usage?.inputTokens === 'number' &&
+        typeof event.usage.contextWindow === 'number'
+      ) {
+        const usage = event.usage as ContextUsage
+        setContextUsage((previous) => {
+          if (!previous) return usage
+          if (usage.requestId || usage.at)
+            return mergeContextHistory([previous], [usage]).at(-1) ?? usage
+          return event.type === 'done' ? { ...previous, ...usage } : usage
         })
+        setContextHistory((previous) => mergeContextHistory(previous, [usage]))
+      }
+      if (
+        event.type === 'compaction' &&
+        typeof event.at === 'string' &&
+        typeof event.compactedCount === 'number' &&
+        typeof event.elapsedMs === 'number' &&
+        typeof event.beforeChars === 'number' &&
+        typeof event.afterChars === 'number'
+      ) {
+        const compaction: ContextCompaction = {
+          at: event.at,
+          compactedCount: event.compactedCount,
+          elapsedMs: event.elapsedMs,
+          beforeChars: event.beforeChars,
+          afterChars: event.afterChars,
+        }
+        setContextCompactions((previous) =>
+          [...previous.filter((item) => item.at !== compaction.at), compaction].slice(-32),
+        )
       }
       // Capture verification errors to trigger countdown after stream ends —
       // SENDER-ONLY: a pushed frame from a teammate's turn must not arm this
@@ -12082,124 +12131,13 @@ function ChatInner({
                   )}
                 </button>
               ))}
-            {/* Context usage ring — hidden for viewers (they spend no context) */}
-            {canEdit !== false &&
-              contextUsage &&
-              (() => {
-                // The ring represents usage toward the auto-compaction threshold,
-                // not the raw context window. 100% = compaction will trigger.
-                const RESERVE = 0.15
-                const COMPACT_THRESHOLD = 0.75
-                const budget = Math.floor(contextUsage.contextWindow * (1 - RESERVE))
-                const compactAt = Math.floor(budget * COMPACT_THRESHOLD)
-                const ratio = Math.min(contextUsage.inputTokens / compactAt, 1)
-                const thresholdRatio = COMPACT_THRESHOLD
-                const size = 18
-                const stroke = 2
-                const r = (size - stroke) / 2
-                const c = 2 * Math.PI * r
-                const dashOffset = c * (1 - ratio)
-                const color =
-                  ratio < 0.5
-                    ? isLight
-                      ? 'rgb(22,163,74)'
-                      : 'rgb(74,222,128)'
-                    : ratio < thresholdRatio
-                      ? isLight
-                        ? 'rgb(161,98,7)'
-                        : 'rgb(250,204,21)'
-                      : ratio < 0.9
-                        ? isLight
-                          ? 'rgb(194,65,12)'
-                          : 'rgb(251,146,60)'
-                        : isLight
-                          ? 'rgb(220,38,38)'
-                          : 'rgb(248,113,113)'
-                const pct = Math.round(ratio * 100)
-                const label = `${formatTokenCount(contextUsage.inputTokens)} / ${formatTokenCount(compactAt)} tokens (${pct}%) — auto-compacts at 100%`
-                return (
-                  <span
-                    title={label}
-                    style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '4px',
-                      marginLeft: 'auto',
-                      opacity: 0.7,
-                      cursor: 'default',
-                    }}
-                    // Hover-reveal is meaningless without hover: on coarse pointers
-                    // the % stays visible (rendered below), so no handlers to fight.
-                    onMouseEnter={
-                      isCoarse
-                        ? undefined
-                        : (e) => {
-                            const pctEl =
-                              e.currentTarget.querySelector<HTMLElement>('[data-ctx-pct]')
-                            if (pctEl) {
-                              pctEl.style.opacity = '1'
-                              pctEl.style.width = 'auto'
-                            }
-                          }
-                    }
-                    onMouseLeave={
-                      isCoarse
-                        ? undefined
-                        : (e) => {
-                            const pctEl =
-                              e.currentTarget.querySelector<HTMLElement>('[data-ctx-pct]')
-                            if (pctEl) {
-                              pctEl.style.opacity = '0'
-                              pctEl.style.width = '0'
-                            }
-                          }
-                    }
-                  >
-                    <span
-                      data-ctx-pct=""
-                      style={{
-                        color,
-                        fontSize: '10px',
-                        lineHeight: 1,
-                        opacity: isCoarse ? 1 : 0,
-                        width: isCoarse ? 'auto' : 0,
-                        overflow: 'hidden',
-                        whiteSpace: 'nowrap',
-                        transition: 'opacity 150ms',
-                      }}
-                    >
-                      {pct}%
-                    </span>
-                    <svg
-                      width={size}
-                      height={size}
-                      viewBox={`0 0 ${size} ${size}`}
-                      style={{ display: 'block', transform: 'rotate(-90deg)', flexShrink: 0 }}
-                    >
-                      <circle
-                        cx={size / 2}
-                        cy={size / 2}
-                        r={r}
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth={stroke}
-                        opacity={0.15}
-                      />
-                      <circle
-                        cx={size / 2}
-                        cy={size / 2}
-                        r={r}
-                        fill="none"
-                        stroke={color}
-                        strokeWidth={stroke}
-                        strokeDasharray={`${c}`}
-                        strokeDashoffset={`${dashOffset}`}
-                        strokeLinecap="round"
-                      />
-                    </svg>
-                  </span>
-                )
-              })()}
+            {canEdit !== false && contextUsage && (
+              <ContextUsageIndicator
+                usage={contextUsage}
+                history={contextHistory}
+                compactions={contextCompactions}
+              />
+            )}
             <div
               style={{
                 // 'auto' pins the stop/send cluster right; the context ring

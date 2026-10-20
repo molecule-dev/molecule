@@ -271,6 +271,8 @@ export interface UseChatOptions {
  * Options for {@link UseChatResult.sendMessage}.
  */
 export interface SendMessageOptions {
+  /** Reuse a queued message's UUID when delivering it after reconnecting. */
+  messageId?: string
   /**
    * Skip the optimistic local user-message bubble. The text is still sent to
    * the server. Used for ask_user responses: the answer is folded into the

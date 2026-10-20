@@ -39,6 +39,10 @@ type QueueEntry = {
   message: string
   attachments?: ChatAttachment[]
   userMsgId?: string
+  /** Accepted by a durable provider queue; keep until the delivered message arrives. */
+  durable?: boolean
+  /** Server acceptance confirmed; absent while a submission might still be in flight. */
+  accepted?: boolean
   suppressUserMessage?: boolean
   automatic?: boolean
   userInitiated?: boolean
@@ -208,6 +212,9 @@ function consumeStreamingFlag(projectId: string): boolean {
  */
 type MessageStore = {
   messages: ChatMessage[]
+  backgroundTasks: BackgroundTaskState[]
+  pending: { current: QueueEntry[] }
+  deliveredQueueIds: Set<string>
   streaming: boolean
   /**
    * True while a backend turn for this conversation streams WITHOUT this client
@@ -245,6 +252,7 @@ type MessageStore = {
 
 /** Stable empty array for the SSR/initial snapshot (useSyncExternalStore needs referential stability). */
 const EMPTY_MESSAGES: ChatMessage[] = []
+const EMPTY_TASKS: BackgroundTaskState[] = []
 
 const messageStores = new Map<string, MessageStore>()
 
@@ -258,6 +266,9 @@ function getMessageStore(key: string): MessageStore {
   if (!store) {
     store = {
       messages: [],
+      backgroundTasks: [],
+      pending: { current: [] },
+      deliveredQueueIds: new Set(),
       streaming: false,
       remoteStreaming: false,
       stoppedByUser: false,
@@ -292,6 +303,88 @@ function setStoreMessages(
   const store = getMessageStore(key)
   store.messages = typeof updater === 'function' ? updater(store.messages) : updater
   emitStore(key)
+}
+
+/** Update conversation-level work independently of any assistant message. */
+function mergeBackgroundTasks(key: string, tasks: BackgroundTaskState[]): void {
+  const store = getMessageStore(key)
+  const next = new Map(store.backgroundTasks.map((task) => [task.id, task]))
+  for (const task of tasks) {
+    const previous = next.get(task.id)
+    if (previous && previous.status !== 'running' && task.status === 'running') continue
+    next.set(task.id, {
+      ...task,
+      ...(previous?.outputChars != null
+        ? { outputChars: Math.max(previous.outputChars, task.outputChars ?? 0) }
+        : {}),
+    })
+  }
+  store.backgroundTasks = [...next.values()]
+  emitStore(key)
+}
+
+/** Recover durable queue handles; the server keeps full attachment payloads behind each UUID. */
+function restoreQueuedMessages(
+  key: string,
+  history: ChatMessage[],
+  acceptedBeforeLoad: Set<string> = new Set(),
+): ChatMessage[] {
+  const pending = getMessageStore(key).pending
+  const queuedIds = new Set(
+    history.filter((message) => message.queued).map((message) => message.id),
+  )
+  const removed = new Set([...acceptedBeforeLoad].filter((id) => !queuedIds.has(id)))
+  for (const id of removed) getMessageStore(key).deliveredQueueIds.add(id)
+  pending.current = pending.current.filter(
+    (entry) => !entry.userMsgId || !removed.has(entry.userMsgId),
+  )
+  if (removed.size > 0)
+    setStoreMessages(key, (messages) =>
+      messages.filter((message) => !message.queued || !removed.has(message.id)),
+    )
+  for (const message of history) {
+    if (message.role !== 'user') continue
+    const existing = pending.current.find((entry) => entry.userMsgId === message.id)
+    if (message.queued) {
+      if (getMessageStore(key).deliveredQueueIds.has(message.id)) continue
+      if (existing) existing.accepted = true
+      if (!existing)
+        pending.current.push({
+          message: message.content,
+          userMsgId: message.id,
+          durable: true,
+          accepted: true,
+          ...(message.automatic ? { automatic: true } : {}),
+          ...(message.viaDictation ? { viaDictation: true } : {}),
+        })
+    } else {
+      pending.current = pending.current.filter((entry) => entry.userMsgId !== message.id)
+    }
+  }
+  persistQueue(key, pending.current)
+  return history.filter(
+    (message) => !message.queued || !getMessageStore(key).deliveredQueueIds.has(message.id),
+  )
+}
+
+/** Only acceptance known before a history request can be authoritatively reconciled by it. */
+function acceptedQueueIds(key: string): Set<string> {
+  return new Set(
+    getMessageStore(key)
+      .pending.current.filter((entry) => entry.accepted && entry.userMsgId != null)
+      .map((entry) => entry.userMsgId!),
+  )
+}
+
+/** Remove a queue item in every mounted view and reject delayed acceptance snapshots. */
+function removeQueuedMessage(key: string, messageId: string): void {
+  const store = getMessageStore(key)
+  store.pending.current = store.pending.current.filter((entry) => entry.userMsgId !== messageId)
+  store.deliveredQueueIds.add(messageId)
+  persistQueue(key, store.pending.current)
+  setStoreMessages(key, (messages) =>
+    messages.filter((message) => message.id !== messageId || !message.queued),
+  )
 }
 
 /**
@@ -419,6 +512,8 @@ export function convergeHistory(prev: ChatMessage[], history: ChatMessage[]): Ch
   const merged = history.map((h) => {
     const local = prevById.get(h.id)
     if (!local) return h
+    if (local.queued) return h
+    if (h.queued) return local
     // Keep the live copy when it is at least as far along; carry its streaming
     // flag either way so an in-progress message keeps its spinner across merges.
     const winner = messageProgress(local) >= messageProgress(h) ? local : h
@@ -656,6 +751,11 @@ export function useChat(options: UseChatOptions): UseChatResult {
     () => getMessageStore(storageKey).remoteStreaming,
     () => false,
   )
+  const backgroundTasks = useSyncExternalStore(
+    subscribeStore,
+    () => getMessageStore(storageKey).backgroundTasks,
+    () => EMPTY_TASKS,
+  )
   // The store generation this instance last aligned with (stamped by the mount
   // effect and on each send/resume start). Null until first stamped — treated
   // as current. An UNMOUNTED instance's stream callbacks keep this ref frozen
@@ -701,9 +801,45 @@ export function useChat(options: UseChatOptions): UseChatResult {
   // it. A complete message is a finished item — no streaming/finalize.
   const appendCompleteMessage = useCallback(
     (message: ChatMessage) => {
-      setMessages((prev) => (prev.some((m) => m.id === message.id) ? prev : [...prev, message]))
+      const store = getMessageStore(storageKey)
+      const pending = store.pending
+      const existingMessage = store.messages.find((item) => item.id === message.id)
+      if (
+        message.queued &&
+        (store.deliveredQueueIds.has(message.id) || (existingMessage && !existingMessage.queued))
+      )
+        return
+      if (!message.queued) {
+        if (message.hidden || pending.current.some((entry) => entry.userMsgId === message.id))
+          store.deliveredQueueIds.add(message.id)
+        pending.current = pending.current.filter((entry) => entry.userMsgId !== message.id)
+      } else {
+        const entry = pending.current.find((item) => item.userMsgId === message.id)
+        if (entry) {
+          entry.accepted = true
+          entry.message = message.content
+        } else if (provider.queueMessage)
+          pending.current.push({
+            userMsgId: message.id,
+            message: message.content,
+            durable: true,
+            accepted: true,
+            ...(message.hidden ? { suppressUserMessage: true } : {}),
+            ...(message.automatic ? { automatic: true } : {}),
+            ...(message.viaDictation ? { viaDictation: true } : {}),
+          })
+      }
+      persistQueue(storageKey, pending.current)
+      if (message.hidden) return
+      setMessages((prev) => {
+        const existing = prev.find((item) => item.id === message.id)
+        if (!existing) return [...prev, message]
+        // A delayed acceptance response cannot re-queue a message already delivered.
+        if (!existing.queued) return prev
+        return prev.map((item) => (item.id === message.id ? message : item))
+      })
     },
-    [setMessages],
+    [provider, setMessages, storageKey],
   )
   const setIsLoading = useCallback(
     (streaming: boolean) => {
@@ -716,8 +852,14 @@ export function useChat(options: UseChatOptions): UseChatResult {
   // send is in flight — confirm against the server's streaming flag and track
   // the remote turn so the Stop control stays visible (see startRemoteStreamPoll).
   const noteRemoteStreamEvent = useCallback(() => {
+    const generation = getMessageStore(storageKey).generation
     startRemoteStreamPoll(storageKey, async () => {
-      const history = await provider.loadHistory({ endpoint, projectId })
+      const accepted = acceptedQueueIds(storageKey)
+      let history = await provider.loadHistory({ endpoint, projectId })
+      if (getMessageStore(storageKey).generation === generation) {
+        restoreBackgroundTasks()
+        if (provider.queueMessage) history = restoreQueuedMessages(storageKey, history, accepted)
+      }
       return {
         streaming: (provider as { isServerStreaming?: boolean }).isServerStreaming === true,
         history,
@@ -773,7 +915,11 @@ export function useChat(options: UseChatOptions): UseChatResult {
   // than per-message on purpose: one starts under one assistant message and
   // finishes minutes later under another, so a message-scoped block could only
   // ever show half of it.
-  const [backgroundTasks, setBackgroundTasks] = useState<BackgroundTaskState[]>([])
+  const restoreBackgroundTasks = (): void => {
+    const tasks = (provider as { lastMeta?: { backgroundTasks?: BackgroundTaskState[] } }).lastMeta
+      ?.backgroundTasks
+    if (Array.isArray(tasks)) mergeBackgroundTasks(storageKey, tasks)
+  }
   // Pace status labels. A small change's verification (type-check + lint over a
   // couple of files) finishes in well under a second, so its step labels were
   // emitted in a rapid burst — they flashed by unreadably, or React batched the
@@ -831,7 +977,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
   const loadOnMountRef = useRef(loadOnMount)
   // Queue for messages sent while a request is already in-flight
   const sendingRef = useRef(false)
-  const pendingRef = useRef<QueueEntry[]>([])
+  const pendingRef = useMemo(() => getMessageStore(storageKey).pending, [storageKey])
   // Set when the user clicks Stop, so the post-send reconcile does NOT overwrite
   // the locally-finalized streamed content with server history. The abort()
   // callback already finalizes the streaming message (keeping every streamed
@@ -986,8 +1132,13 @@ export function useChat(options: UseChatOptions): UseChatResult {
   // — a teammate's /teamsay note against a backgrounded tab or a slept laptop —
   // is otherwise lost until the next lifecycle event happens to fire.
   const reconcileHistory = useCallback(async (): Promise<void> => {
+    const generation = getMessageStore(storageKey).generation
+    const accepted = acceptedQueueIds(storageKey)
     try {
-      const history = await provider.loadHistory({ endpoint, projectId })
+      let history = await provider.loadHistory({ endpoint, projectId })
+      if (getMessageStore(storageKey).generation !== generation) return
+      restoreBackgroundTasks()
+      if (provider.queueMessage) history = restoreQueuedMessages(storageKey, history, accepted)
       if (!mountedRef.current || sendingRef.current) return
       applyServerMode()
       const store = getMessageStore(storageKey)
@@ -1199,13 +1350,16 @@ export function useChat(options: UseChatOptions): UseChatResult {
       resumeStreamRef.current(target.id, target.content)
       return
     }
-    // Re-send: drop the original optimistic bubble first so the re-send's own
-    // bubble doesn't duplicate it (same content, new id, re-stamped timestamp).
+    // Re-send under the original id: an acceptance whose response was lost must
+    // not create a second server message. Refresh the optimistic bubble in place.
     if (target.userMsgId) {
       const uid = target.userMsgId
       setMessages((prev) => prev.filter((m) => m.id !== uid))
     }
-    void sendMessageRef.current(target.message, target.attachments, target.options)
+    void sendMessageRef.current(target.message, target.attachments, {
+      ...target.options,
+      ...(target.userMsgId ? { messageId: target.userMsgId } : {}),
+    })
   }, [clearRetryTimers])
 
   /**
@@ -1351,19 +1505,34 @@ export function useChat(options: UseChatOptions): UseChatResult {
       stopRemoteStreamPoll(storageKey)
       setStoreStreaming(storageKey, false)
       setStoreMessages(storageKey, [])
+      syncStore.backgroundTasks = []
+      syncStore.pending.current = []
+      syncStore.deliveredQueueIds.clear()
+      persistQueue(storageKey, [])
+      emitStore(storageKey)
     }
     generationRef.current = syncStore.generation
+    const loadGeneration = syncStore.generation
 
     if (!loadOnMountRef.current) return
 
     // Read persisted state synchronously before the async history fetch
     const persistedQueue = loadPersistedQueue(storageKey)
     const interrupted = consumeStreamingFlag(storageKey)
+    const accepted = acceptedQueueIds(storageKey)
 
     provider
       .loadHistory(config)
       .then((history) => {
-        if (!mountedRef.current) return
+        if (!mountedRef.current || syncStore.generation !== loadGeneration) return
+        restoreBackgroundTasks()
+        if (provider.queueMessage) history = restoreQueuedMessages(storageKey, history, accepted)
+        // A server-accepted item absent from fresh history was consumed/deleted.
+        // Unacknowledged submissions still need their idempotent retry.
+        const queuedIds = new Set(history.filter((item) => item.queued).map((item) => item.id))
+        const restoreQueue = persistedQueue.filter(
+          (entry) => !entry.accepted || (entry.userMsgId != null && queuedIds.has(entry.userMsgId)),
+        )
 
         // Restore mode from server (persisted in conversation.aiContext.mode).
         // Idempotent + cheap, so do it regardless of store state. The http bond
@@ -1445,16 +1614,29 @@ export function useChat(options: UseChatOptions): UseChatResult {
             resumeTarget = { id: placeholderId, content: '' }
           }
 
-          pendingRef.current.push(...persistedQueue)
+          for (const entry of restoreQueue) {
+            if (
+              !entry.userMsgId ||
+              !pendingRef.current.some((item) => item.userMsgId === entry.userMsgId)
+            )
+              pendingRef.current.push(entry)
+          }
           const target = resumeTarget
           setTimeout(() => {
             if (mountedRef.current) {
               resumeStreamRef.current(target.id, target.content)
             }
           }, 0)
-        } else if (persistedQueue.length > 0) {
-          const [first, ...rest] = persistedQueue
-          pendingRef.current.push(...rest)
+        } else if (restoreQueue.length > 0 || pendingRef.current.length > 0) {
+          for (const entry of restoreQueue) {
+            if (
+              !entry.userMsgId ||
+              !pendingRef.current.some((item) => item.userMsgId === entry.userMsgId)
+            )
+              pendingRef.current.push(entry)
+          }
+          const first = pendingRef.current[0]
+          if (!first.durable) pendingRef.current.shift()
           setTimeout(() => {
             if (mountedRef.current) {
               // Re-send with the entry's own intent flags — a queue persisted
@@ -1462,6 +1644,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
               // fix stays automatic, a dictated message keeps its flag), not
               // degraded to a plain typed message.
               sendMessageRef.current(first.message, first.attachments, {
+                ...(first.userMsgId ? { messageId: first.userMsgId } : {}),
                 ...(first.suppressUserMessage ? { suppressUserMessage: true } : {}),
                 ...(first.automatic ? { automatic: true } : {}),
                 ...(first.userInitiated ? { userInitiated: true } : {}),
@@ -1600,15 +1783,6 @@ export function useChat(options: UseChatOptions): UseChatResult {
         })
         ctx.scheduleFlush(() => ({ blocks: [...ctx.blocks] }))
         break
-      case 'background_task': {
-        const incoming = event.task
-        setBackgroundTasks((prev) => {
-          const next = prev.filter((t) => t.id !== incoming.id)
-          next.push(incoming)
-          return next
-        })
-        break
-      }
       case 'resource_limit':
         ctx.blocks.push({
           type: 'resource_limit',
@@ -1786,6 +1960,14 @@ export function useChat(options: UseChatOptions): UseChatResult {
 
       // ── Structural / ctx-independent events ──
       switch (event.type) {
+        case 'queue_removed':
+          removeQueuedMessage(storageKey, event.messageId)
+          return
+        case 'background_task':
+          mergeBackgroundTasks(storageKey, [event.task])
+          return
+        case 'context_usage':
+          return
         case 'message_start':
           // A status line shown before this message (e.g. "The AI provider
           // dropped the reply, so Synthase is resuming it…") has done its job
@@ -1927,6 +2109,15 @@ export function useChat(options: UseChatOptions): UseChatResult {
 
   const applyRemoteEventImpl = (event: ChatStreamEvent): void => {
     const store = getMessageStore(storageKey)
+    if (event.type === 'queue_removed') {
+      removeQueuedMessage(storageKey, event.messageId)
+      return
+    }
+    if (event.type === 'background_task') {
+      mergeBackgroundTasks(storageKey, [event.task])
+      return
+    }
+    if (event.type === 'context_usage') return
     // Complete, id-deduped items apply even while a local stream runs: the
     // sender's own SSE copy wins the dedupe, and a teammate's team note (or a
     // shared setting card) must land mid-turn too.
@@ -1937,7 +2128,13 @@ export function useChat(options: UseChatOptions): UseChatResult {
     if (event.type === 'message') {
       // A broadcast user message: the sender's tab already shows its optimistic
       // bubble (different local id) — never double it while its send is live.
-      if (event.message.role === 'user' && store.streaming) return
+      if (
+        event.message.role === 'user' &&
+        store.streaming &&
+        !provider.queueMessage &&
+        !store.messages.some((message) => message.id === event.message.id && message.queued)
+      )
+        return
       appendCompleteMessage(event.message)
       return
     }
@@ -2177,7 +2374,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
       }
 
       const userMsg: ChatMessage = {
-        id: `user-${++idCounterRef.current}`,
+        id: options?.messageId ?? crypto.randomUUID(),
         role: 'user',
         content: message,
         timestamp: Date.now(),
@@ -2195,24 +2392,71 @@ export function useChat(options: UseChatOptions): UseChatResult {
       }
 
       // If a request is already in-flight, mark the message as queued and defer sending
-      if (sendingRef.current) {
+      if (!options?.messageId && (sendingRef.current || store.streaming || store.remoteStreaming)) {
         if (!suppressUserMessage) {
           userMsg.queued = true
           setMessages((prev) => [...prev, userMsg])
         }
-        pendingRef.current.push({
+        const queued: QueueEntry = {
           message,
           attachments,
           ...(automatic ? { automatic: true } : {}),
           ...(options?.userInitiated ? { userInitiated: true } : {}),
           ...(viaDictation ? { viaDictation: true } : {}),
-          ...(suppressUserMessage ? { suppressUserMessage } : { userMsgId: userMsg.id }),
-        })
+          userMsgId: userMsg.id,
+          ...(suppressUserMessage ? { suppressUserMessage } : {}),
+          ...(provider.queueMessage ? { durable: true } : {}),
+        }
+        pendingRef.current.push(queued)
         persistQueue(storageKey, pendingRef.current)
+        if (provider.queueMessage) {
+          const queueGeneration = store.generation
+          try {
+            await provider.queueMessage(
+              message,
+              {
+                ...config,
+                messageId: userMsg.id,
+                suppressUserMessage,
+                automatic,
+                userInitiated: options?.userInitiated,
+                viaDictation,
+              },
+              (event) => {
+                if (getMessageStore(storageKey).generation !== queueGeneration) return
+                if (event.type === 'message') {
+                  const latest = pendingRef.current.find(
+                    (entry) => entry.userMsgId === event.message.id,
+                  )
+                  // The initial acceptance can arrive after an acknowledged edit.
+                  const accepted =
+                    event.message.queued && latest?.accepted
+                      ? { ...event.message, content: latest.message }
+                      : event.message
+                  appendCompleteMessage(accepted)
+                } else if (event.type === 'error') setError(event.message)
+              },
+              attachments,
+              userMsg.id,
+            )
+          } catch (error) {
+            if (getMessageStore(storageKey).generation === queueGeneration)
+              setError(
+                error instanceof Error
+                  ? error.message
+                  : t('chat.error.sendFailed', undefined, {
+                      defaultValue: 'Failed to send message',
+                    }),
+              )
+          }
+        }
         return
       }
 
-      if (!suppressUserMessage) setMessages((prev) => [...prev, userMsg])
+      if (!suppressUserMessage)
+        setMessages((prev) =>
+          prev.some((item) => item.id === userMsg.id) ? prev : [...prev, userMsg],
+        )
 
       // A fresh user-initiated send clears any prior stop so the reconcile path
       // works normally for this turn.
@@ -2236,7 +2480,11 @@ export function useChat(options: UseChatOptions): UseChatResult {
         attachments,
         // Carry the optimistic bubble's id (queued entries already do) so a
         // never-started-turn auto-retry can replace it on re-send.
-        ...(suppressUserMessage ? { suppressUserMessage: true } : { userMsgId: userMsg.id }),
+        userMsgId: userMsg.id,
+        ...(suppressUserMessage ? { suppressUserMessage: true } : {}),
+        ...(pendingRef.current.find((entry) => entry.userMsgId === userMsg.id)?.durable
+          ? { durable: true }
+          : {}),
         ...(automatic ? { automatic: true } : {}),
         ...(options?.userInitiated ? { userInitiated: true } : {}),
         ...(viaDictation ? { viaDictation: true } : {}),
@@ -2248,6 +2496,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
       // finishes) instead of leaving the chat frozen mid-turn.
       let resumeAfterLoop: { id: string; content: string } | null = null
 
+      const sendGeneration = store.generation
       while (current) {
         if (!mountedRef.current) break
         resumeAfterLoop = null
@@ -2256,7 +2505,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
         // the actual send time: while queued it pinned to the transcript bottom (see
         // timelineSortKey), and its queue-time timestamp predates everything that
         // streamed in since — keeping it would jump the message back UP on send.
-        if (current.userMsgId) {
+        if (current.userMsgId && !current.durable) {
           const uid = current.userMsgId
           setMessages((prev) =>
             prev.map((m) => (m.id === uid ? { ...m, queued: false, timestamp: Date.now() } : m)),
@@ -2317,6 +2566,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
         // endpoint + projectId; spread the per-message flags on top.
         const sendConfig: ChatConfig = {
           ...config,
+          ...(current.userMsgId ? { messageId: current.userMsgId } : {}),
           ...(current.suppressUserMessage ? { suppressUserMessage: true } : {}),
           ...(current.automatic ? { automatic: true } : {}),
           ...(current.userInitiated ? { userInitiated: true } : {}),
@@ -2397,8 +2647,16 @@ export function useChat(options: UseChatOptions): UseChatResult {
           }
         }
 
-        // Drain the queue: send next pending message, clearing any prior error
-        current = pendingRef.current.shift()
+        if (getMessageStore(storageKey).generation !== sendGeneration) return
+        if (userAbortedRef.current) break
+        // A durable entry stays editable until delivery; failed sends keep it queued.
+        if (
+          current.durable &&
+          pendingRef.current.some((entry) => entry.userMsgId === current!.userMsgId)
+        )
+          break
+        current = pendingRef.current[0]
+        if (current && !current.durable) pendingRef.current.shift()
         if (current) {
           setError(null)
           setErrorMeta(null)
@@ -2412,7 +2670,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
       // code path. Skip clearing so the streaming flag survives for resume.
       if (!unloadingRef.current) {
         clearStreamingFlag(storageKey)
-        persistQueue(storageKey, [])
+        persistQueue(storageKey, pendingRef.current)
       }
 
       // Dropped-stream tail: the server was still streaming this turn when the
@@ -2461,6 +2719,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
       // A resume can only come from the LIVE instance — align with the store's
       // current generation so this turn's writes pass the stale-stream gate.
       generationRef.current = getMessageStore(storageKey).generation
+      const resumeGeneration = generationRef.current
 
       // Show the spinner on the last assistant message immediately
       setMessages((prev) => prev.map((m) => (m.id === resumeId ? { ...m, isStreaming: true } : m)))
@@ -2585,25 +2844,32 @@ export function useChat(options: UseChatOptions): UseChatResult {
         }
       }
 
-      // Drain any queued user messages
-      let current = pendingRef.current.shift()
-      while (current) {
-        if (!mountedRef.current) break
+      if (getMessageStore(storageKey).generation !== resumeGeneration) return
+      // The regular send path drains the remaining queue and retains durable IDs.
+      const current = pendingRef.current[0]
+      if (current && mountedRef.current && !userAbortedRef.current) {
+        if (!current.durable) pendingRef.current.shift()
         // A queued send takes over the conversation — don't also re-resume.
         resumeAgain = null
         setError(null)
         setErrorMeta(null)
         persistQueue(storageKey, pendingRef.current)
         sendingRef.current = false
-        await sendMessageRef.current(current.message, current.attachments)
-        current = pendingRef.current.shift()
+        setIsLoading(false)
+        await sendMessageRef.current(current.message, current.attachments, {
+          messageId: current.userMsgId,
+          suppressUserMessage: current.suppressUserMessage,
+          automatic: current.automatic,
+          userInitiated: current.userInitiated,
+          viaDictation: current.viaDictation,
+        })
       }
 
       sendingRef.current = false
       setIsLoading(false)
       if (!unloadingRef.current) {
         clearStreamingFlag(storageKey)
-        persistQueue(storageKey, [])
+        persistQueue(storageKey, pendingRef.current)
       }
 
       // Dropped again while the server still streams — schedule another resume
@@ -2677,10 +2943,10 @@ export function useChat(options: UseChatOptions): UseChatResult {
     }
     pendingFlushFnRef.current?.()
     pendingFlushFnRef.current = null
-    pendingRef.current.length = 0
+    pendingRef.current = pendingRef.current.filter((entry) => entry.durable)
     sendingRef.current = false
     clearStreamingFlag(storageKey)
-    persistQueue(storageKey, [])
+    persistQueue(storageKey, pendingRef.current)
     setIsLoading(false)
     setMessages((prev) =>
       prev.map((m) => (m.isStreaming ? { ...m, isStreaming: false, aborted: true } : m)),
@@ -2688,40 +2954,75 @@ export function useChat(options: UseChatOptions): UseChatResult {
   }, [provider, endpoint, projectId, storageKey])
 
   const clearHistory = useCallback(async () => {
+    const clearGeneration = getMessageStore(storageKey).generation
     pendingRef.current.length = 0
     // Drop any pending 5XX auto-retry — the conversation is being cleared.
     resetRetry()
     clearStreamingFlag(storageKey)
     persistQueue(storageKey, [])
     await provider.clearHistory(config)
-    if (mountedRef.current) {
+    if (mountedRef.current && getMessageStore(storageKey).generation === clearGeneration) {
       setMessages([])
+      getMessageStore(storageKey).backgroundTasks = []
+      getMessageStore(storageKey).deliveredQueueIds.clear()
+      emitStore(storageKey)
       setError(null)
       setErrorMeta(null)
     }
   }, [provider, endpoint])
 
   const editQueuedMessage = useCallback(
-    (msgId: string, newContent: string) => {
+    async (msgId: string, newContent: string) => {
       const entry = pendingRef.current.find((e) => e.userMsgId === msgId)
+      const generation = getMessageStore(storageKey).generation
+      if (entry?.durable) {
+        if (!provider.editQueuedMessage) return
+        try {
+          await provider.editQueuedMessage(msgId, newContent, config)
+        } catch (error) {
+          setError(
+            error instanceof Error
+              ? error.message
+              : t('chat.error.sendFailed', undefined, { defaultValue: 'Failed to send message' }),
+          )
+          return
+        }
+        if (getMessageStore(storageKey).generation !== generation) return
+        if (!pendingRef.current.some((item) => item.userMsgId === msgId)) return
+      }
       if (entry) {
         entry.message = newContent
+        if (entry.durable) entry.accepted = true
         persistQueue(storageKey, pendingRef.current)
       }
       setMessages((prev) =>
         prev.map((m) => (m.id === msgId && m.queued ? { ...m, content: newContent } : m)),
       )
     },
-    [storageKey],
+    [provider, endpoint, storageKey],
   )
 
   const deleteQueuedMessage = useCallback(
-    (msgId: string) => {
-      pendingRef.current = pendingRef.current.filter((e) => e.userMsgId !== msgId)
-      persistQueue(storageKey, pendingRef.current)
-      setMessages((prev) => prev.filter((m) => !(m.id === msgId && m.queued)))
+    async (msgId: string) => {
+      const entry = pendingRef.current.find((item) => item.userMsgId === msgId)
+      const generation = getMessageStore(storageKey).generation
+      if (entry?.durable) {
+        if (!provider.deleteQueuedMessage) return
+        try {
+          await provider.deleteQueuedMessage(msgId, config)
+        } catch (error) {
+          setError(
+            error instanceof Error
+              ? error.message
+              : t('chat.error.sendFailed', undefined, { defaultValue: 'Failed to send message' }),
+          )
+          return
+        }
+        if (getMessageStore(storageKey).generation !== generation) return
+      }
+      removeQueuedMessage(storageKey, msgId)
     },
-    [storageKey],
+    [provider, endpoint, storageKey],
   )
 
   /**
@@ -2736,12 +3037,9 @@ export function useChat(options: UseChatOptions): UseChatResult {
         (e) => e.message.startsWith(AUTOFIX_PREFIX) && e.message.includes(norm),
       )
       if (toRemove.length === 0) return
-      const removeIds = new Set(toRemove.map((e) => e.userMsgId))
-      pendingRef.current = pendingRef.current.filter((e) => !removeIds.has(e.userMsgId))
-      persistQueue(storageKey, pendingRef.current)
-      setMessages((prev) => prev.filter((m) => !(m.queued && removeIds.has(m.id))))
+      for (const entry of toRemove) if (entry.userMsgId) void deleteQueuedMessage(entry.userMsgId)
     },
-    [storageKey],
+    [deleteQueuedMessage],
   )
 
   // Sync clearQueuedForFile ref so stream event handlers can call the latest version

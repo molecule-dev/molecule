@@ -24,12 +24,79 @@ export interface BackgroundTaskState {
   command: string
   /** Why the executor started it, in its own words; absent when it gave none. */
   description?: string
-  status: 'running' | 'succeeded' | 'failed'
+  status: 'running' | 'succeeded' | 'failed' | 'cancelled'
+  /** Output produced so far, when the worker reports progress. Not a completion percentage. */
+  outputChars?: number
   /** Present once it has finished. */
   exitCode?: number
   /** Milliseconds, server clock. */
   startedAt: number
   finishedAt?: number
+}
+
+/** The parts of a provider-bound context request, without any message content. */
+export type ContextCategoryId =
+  | 'system'
+  | 'summary'
+  | 'toolDefinitions'
+  | 'serverTools'
+  | 'userText'
+  | 'assistantText'
+  | 'reasoning'
+  | 'toolCalls'
+  | 'toolResults'
+  | 'images'
+  | 'attachments'
+  | 'structuralOverhead'
+
+/** Size and estimated share of one context category. Media token costs can be unknown. */
+export interface ContextCategory {
+  id: ContextCategoryId
+  chars: number
+  bytes: number
+  items: number
+  unknownItems: number
+  estimatedTokens: number | null
+  percent: number | null
+  bytePercent: number
+}
+
+/** Aggregate measurements of compact core request JSON, not exact vendor wire encoding. */
+export interface ContextComposition {
+  version: 1
+  basis: 'core-provider-context-json'
+  percentBasis: 'estimated-known-tokens'
+  categories: ContextCategory[]
+  totalChars: number
+  totalBytes: number
+  estimatedChars: number
+  estimatedTokens: number
+  charsPerToken: number
+  /** Provider-reported input tokens, including cache reads/writes; separate from estimates. */
+  actualInputTokens: number | null
+  unknownTokenItems: number
+  serializationFailures: number
+}
+
+/** Current context size. Optional detail fields preserve compatibility with older providers. */
+export interface ContextUsage {
+  inputTokens: number
+  contextWindow: number
+  requestId?: string
+  at?: string
+  loop?: number
+  compactAtTokens?: number
+  backgroundCompactAtTokens?: number
+  composition?: ContextComposition
+}
+
+/** A completed context compaction, suitable for showing changes over time. */
+export interface ContextCompaction {
+  at: string
+  compactedCount: number
+  elapsedMs: number
+  beforeChars: number
+  afterChars: number
 }
 
 /** One ordered item of an assistant message: text, a tool-call reference, thinking, or a notice. */
@@ -124,7 +191,7 @@ export interface ChatMessage {
   isStreaming?: boolean
   /** Set when the user aborted the response mid-stream. */
   aborted?: boolean
-  /** Set on user messages that are queued waiting for the current stream to finish. */
+  /** Set on user messages waiting for delivery through a local or durable provider queue. */
   queued?: boolean
   /** Set when the agentic loop hit its iteration limit before finishing. */
   loopLimitReached?: number
@@ -224,6 +291,8 @@ export interface ToolCall {
 export interface ChatConfig {
   /** API endpoint for sending messages. */
   endpoint: string
+  /** Stable UUID for an idempotent user message, including queued-message delivery. */
+  messageId?: string
   /** Project ID for context. */
   projectId?: string
   /** System prompt override. */
@@ -351,7 +420,12 @@ export type ChatStreamEvent =
   // the card above/below the response. Optional + additive; consumers fall back to now.
   | { type: 'mode'; mode: 'plan' | 'execute'; timestamp?: number }
   | { type: 'loop_limit_reached'; maxLoops: number }
-  | { type: 'compaction'; compactedCount: number; remainingCount: number; summary: string }
+  | ({
+      type: 'compaction'
+      compactedCount: number
+      remainingCount: number
+      summary: string
+    } & Partial<Omit<ContextCompaction, 'compactedCount'>>)
   | {
       type: 'verification_result'
       status: 'ok' | 'error'
@@ -369,6 +443,8 @@ export type ChatStreamEvent =
   // it starts and again when it finishes, so the UI can show work that outlives
   // the tool call that started it — the tool returned a handle, not a result.
   | { type: 'background_task'; task: BackgroundTaskState }
+  /** A queued message was deleted before delivery; remove its pending UI and retry handle. */
+  | { type: 'queue_removed'; messageId: string }
   // Generic extension point for app-specific stream events the SHARED package knows
   // nothing about. A consuming app emits `{ type: 'custom', name, data }` and (for
   // the react IDE) registers a renderer via `registerCustomEventCard(name, …)` from
@@ -399,7 +475,14 @@ export type ChatStreamEvent =
   // app supplies the label text, so this core union stays free of any app-specific
   // phase vocabulary (same decoupling rule as the `custom` event above).
   | { type: 'status'; label: string | null }
-  | { type: 'done'; usage?: { inputTokens: number; outputTokens: number; contextWindow?: number } }
+  | { type: 'context_usage'; usage: ContextUsage }
+  | {
+      type: 'done'
+      usage?: Omit<ContextUsage, 'contextWindow'> & {
+        outputTokens: number
+        contextWindow?: number
+      }
+    }
   | {
       type: 'error'
       message: string
@@ -507,6 +590,28 @@ export interface ChatProvider {
    * the message behind an active turn.
    */
   sendSideMessage?(message: string, config: ChatConfig, onEvent: ChatEventHandler): Promise<void>
+
+  /**
+   * Accept a message for the next safe boundary of a running turn without
+   * replacing its stream. Resolving acknowledges acceptance, not delivery.
+   * Delivery is a complete `message` event with the same stable message ID.
+   */
+  queueMessage?(
+    message: string,
+    config: ChatConfig,
+    onEvent: ChatEventHandler,
+    attachments?: ChatAttachment[],
+    messageId?: string,
+  ): Promise<void>
+  /** Update a queued message before the server consumes it. */
+  editQueuedMessage?(
+    messageId: string,
+    message: string,
+    config: ChatConfig,
+    attachments?: ChatAttachment[],
+  ): Promise<void>
+  /** Delete a queued message before the server consumes it. */
+  deleteQueuedMessage?(messageId: string, config: ChatConfig): Promise<void>
 
   /** Clears the conversation history on the server. */
   clearHistory(config: ChatConfig): Promise<void>
