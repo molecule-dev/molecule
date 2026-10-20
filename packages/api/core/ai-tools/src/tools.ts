@@ -315,18 +315,24 @@ function exitCodeIn(raw: string): number | null {
  * exit code" while its code was on disk (xr-molecule-flash-m303: 13/13 Hurl files green,
  * `exitCode: null`, after a wait that returned on the tick the run ended).
  *
+ * The pid test runs BEFORE the exit file is read, and that order is the point: the launcher writes
+ * the code and then exits, and `kill -0` answers "gone" only once the process is reaped — so a
+ * "gone" answer means the write has already happened, and the read that follows cannot miss it.
+ * Read first, the same shell would still have a window between the two statements.
+ *
  * @param taskId - The task's `mol-bg-…` handle (format already checked by the caller).
  * @param own - The file the command redirects its own output to, when the launch could tell.
- * @returns The command; its first lines are `MOL_TASK_EXIT <n>` (only when the exit file holds a
- *   code) and `MOL_TASK_STATE <alive|gone|unknown>`, the rest the tail of the run's own output.
+ * @returns The command; its first lines are `MOL_TASK_STATE <alive|gone|unknown>` and
+ *   `MOL_TASK_EXIT <n>` (only when the exit file holds a code), the rest the tail of the run's
+ *   own output.
  */
 const taskStateCommand = (taskId: string, own?: string): string =>
-  `c=$(cat /tmp/${taskId}.exit 2>/dev/null); ` +
-  `case "$c" in ''|*[!0-9]*) ;; *) echo MOL_TASK_EXIT "$c";; esac; ` +
   `P=$(cat /tmp/${taskId}.pid 2>/dev/null); ` +
   `if [ -z "$P" ] || [ ! -f /tmp/${taskId}.sh ]; then echo MOL_TASK_STATE unknown; ` +
   `elif kill -0 "$P" 2>/dev/null; then echo MOL_TASK_STATE alive; ` +
   `else echo MOL_TASK_STATE gone; fi; ` +
+  `c=$(cat /tmp/${taskId}.exit 2>/dev/null); ` +
+  `case "$c" in ''|*[!0-9]*) ;; *) echo MOL_TASK_EXIT "$c";; esac; ` +
   (own ? `tail -c ${TASK_OUTPUT_END_BYTES} ${shellQuote(own)} 2>/dev/null` : 'true')
 
 /**

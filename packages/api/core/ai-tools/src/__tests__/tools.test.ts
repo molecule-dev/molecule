@@ -3903,6 +3903,15 @@ cd /workspace/.mol-scratch/realworld-e2e && npx playwright test --config playwri
       expect(r.status).toBe('completed')
       expect(r.exitCode).toBe(0)
       expect(r.note ?? '').not.toContain('without writing an exit code')
+      // The pid test must run BEFORE the file is read: a "gone" answer means the wrapper has
+      // already written its code, so the read after it cannot miss the write.
+      const probe = String(
+        (backend.run as ReturnType<typeof vi.fn>).mock.calls.find(([c]) =>
+          String(c).includes('MOL_TASK_STATE'),
+        )?.[0] ?? '',
+      )
+      expect(probe.indexOf('kill -0')).toBeGreaterThan(-1)
+      expect(probe.indexOf('kill -0')).toBeLessThan(probe.indexOf(`/tmp/${taskId}.exit`))
     } finally {
       for (const path of Object.keys(files)) rmSync(path, { force: true })
     }
