@@ -1,5 +1,11 @@
 # @molecule/api-database-sqlite
 
+## 1.3.1
+
+### Patch Changes
+
+- 2f50d9e: Keep SQL files in separate migration namespaces independent while preserving recorded legacy migrations.
+
 ## 1.3.0
 
 ### Minor Changes
