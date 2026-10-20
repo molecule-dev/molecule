@@ -419,6 +419,19 @@ const CHINA_PUBLIC_HOLIDAYS = [
  *   output $0.50, cache read 0.2× input); deployment not deprecated.
  *   'us' stays selectable at that same card, like deepseek-flash's cn-first
  *   default. glm-5.3 / glm-5.3-flashx unchanged, cn-only.)
+ *   (re-verified 2026-10-20: every GLM rate on the pricing page is UNCHANGED —
+ *   glm-5.3 / glm-5.2 $1.40/$4.40 (cached $0.26), glm-5.3-flashx $0.37/$1.25
+ *   (cached $0.075), glm-5.3-flash $0.15/$0.50 (cached $0.03), glm-5 $1/$3.20
+ *   (cached $0.20); the page states "All prices are in USD", cached-input
+ *   storage "Limited-time Free", no other promo footnote. The 2026-10-20 06:35
+ *   alert's 15 "price drifts" were FALSE: models.dev added/changed its
+ *   `zhipuai` entry — open.bigmodel.cn's CNY card converted to USD (glm-5.3
+ *   $1.19516/$4.18306 = ¥8/¥28 input/output, ¥2 cached, converted at ≈6.694;
+ *   same relation holds for every other GLM entry) — and check-model-freshness
+ *   compared this card against it. The zhipu bond bills z.ai
+ *   (https://api.z.ai/api/paas), whose models.dev mirror is `zai` and carries
+ *   this card exactly; PROVIDER_MAP in check-model-freshness.mjs now points
+ *   there. No catalog price changed.)
  *
  * Knowledge-cutoff dates on non-Anthropic entries are best-effort estimates
  * where the provider doesn't publish one; the provider sources above verify
