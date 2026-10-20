@@ -275,6 +275,73 @@ export interface TraceHiddenBox {
 }
 
 /**
+ * One element a failing locator count matched, read from the trace's own failure snapshot.
+ *
+ * A count assertion reports only `Expected: 3 / Received: 4`; the element that made it 4 is not
+ * in the error. Playwright's trace does hold it — either marked `__playwright_target__` in the
+ * failure snapshot (`expect(locator).toHaveCount(n)`), or recoverable by replaying the recorded
+ * plain-CSS selector against the snapshot's DOM (`locator.count()` then `expect(n).toBe(k)`) —
+ * so each match is named by what it is and where it sits, never by a guess.
+ */
+export interface TraceCountMatch {
+  /** The element's tag, lowercased (`div`). */
+  tag: string
+  /** Its `class` attribute, bounded (`card-block`). */
+  classes?: string
+  /** Its own text, whitespace-collapsed and bounded. */
+  text?: string
+  /** It and its ancestors, outermost first (`body > div.comment-form > div.card`), bounded. */
+  path?: string
+  /** True when a `<form>` is one of its ancestors — the m321 extra match's shape. */
+  inForm?: true
+}
+
+/**
+ * A failing assertion that compared a LOCATOR COUNT (`expect(await locator.count()).toBe(n)` or
+ * `expect(locator).toHaveCount(n)`), with the locator the trace recorded and, when the failure
+ * snapshot can supply them, the elements it matched.
+ *
+ * xr-molecule-flash-m321's `comments.spec.ts:86` sat on `Expected: 3 / Received: 4` for ~30
+ * minutes and three whole suite walks: the helper counted `.card:not(.comment-form) .card-block`,
+ * the app's comment form was a `.comment-form` wrapper around a plain `.card`, and the form's own
+ * `.card-block` made the fourth. The trace had the selector (its `Frame.queryCount` entry) and the
+ * four elements (its failure snapshot); the note printed neither. This reading prints both, and
+ * fails closed — a selector the snapshot cannot be replayed with, or a replay that disagrees with
+ * the recorded count, names no elements rather than inventing them.
+ */
+export interface TraceCountMismatch {
+  /** The locator as the trace or the assertion printed it (`locator('.card:not(…')`). */
+  locator: string
+  /** The plain-CSS selector inside that locator, when it has one. */
+  selector?: string
+  /** The number the assertion expected. */
+  expected: number
+  /** The number the page matched. */
+  received: number
+  /**
+   * Where the locator came from: the assertion's own message, or the `locator.count()` entry the
+   * trace recorded just before the failing assertion.
+   */
+  source: 'assertion' | 'locator-count'
+  /** The matched elements, bounded to {@link MAX_COUNT_MATCHES} in document order. */
+  matched?: TraceCountMatch[]
+  /** How many elements matched in total, before the display bound. */
+  matchedTotal?: number
+  /**
+   * How the elements were read: Playwright's own `__playwright_target__` marks in the failure
+   * snapshot, or the recorded selector replayed against that snapshot.
+   */
+  matchedFrom?: 'snapshot-targets' | 'selector-replay'
+  /**
+   * Why no elements are named, when they are not. `unsupported-selector` is a locator outside the
+   * replayable plain-CSS subset (a `getByRole`/`getByText` engine, `>>` chaining); `no-snapshot`
+   * is a trace with no readable DOM snapshot at the failure; `count-mismatch` is a replay that
+   * disagreed with the recorded count, so the snapshot is not evidence for this assertion.
+   */
+  unreadable?: 'unsupported-selector' | 'no-snapshot' | 'count-mismatch'
+}
+
+/**
  * One method+path a test's page sent many times — the trace of a render loop.
  *
  * Counted over EVERY network entry the failing page recorded, before the trace reader's per-trace
@@ -389,6 +456,13 @@ export interface TraceArtifact {
    */
   hiddenBox?: TraceHiddenBox
   /**
+   * A failing assertion that compared a locator count, with the locator the trace recorded and the
+   * elements its failure snapshot matched ({@link TraceCountMismatch}). The row prints them, so a
+   * count that is off by one names the extra element instead of leaving the run to probe for it
+   * (xr-molecule-flash-m321's 30-minute `Expected: 3 / Received: 4`).
+   */
+  countMismatch?: TraceCountMismatch
+  /**
    * The method+path groups this test's page sent {@link TRACE_NOTE_LOOP_REPEATS} times or more,
    * most-repeated first — a render loop the note leads with (xr-molecule-flash-m215: 2,106
    * `GET /api/articles/<slug>` in one test, printed as four identical `→ 200` lines). Counted over
@@ -427,6 +501,15 @@ const MAX_TRACED_WEBSOCKET_CHARS = 600
 
 /** How many tests the note in a run's result names. */
 export const MAX_TRACE_NOTE_TESTS = 5
+
+/** How many elements a count mismatch's row names, in document order. */
+const MAX_COUNT_MATCHES = 6
+
+/** How much of one matched element's text the trace read keeps. */
+const MAX_COUNT_TEXT_CHARS = 90
+
+/** How deep one matched element's ancestor chain is named (it and up to three ancestors). */
+const MAX_COUNT_PATH_DEPTH = 4
 
 /** How many requests the note names per test. */
 export const MAX_TRACE_NOTE_REQUESTS = 4
@@ -508,6 +591,13 @@ const MAX_ACTIONS = ${MAX_TRACED_ACTIONS}
 const MAX_BODY = ${MAX_TRACED_BODY_CHARS}
 const MAX_WS = ${MAX_TRACED_WEBSOCKET_CHARS}
 const LOOP_REPEATS = ${TRACE_NOTE_LOOP_REPEATS}
+const MAX_COUNT_MATCHES = ${MAX_COUNT_MATCHES}
+const MAX_COUNT_TEXT = ${MAX_COUNT_TEXT_CHARS}
+const MAX_COUNT_PATH_DEPTH = ${MAX_COUNT_PATH_DEPTH}
+// A locator.count() older than this before the failing assertion is not paired with it: the value
+// match in countMismatchOf() is the strong evidence, this only bounds a trace whose count recorded
+// no result.
+const COUNT_LOOKBACK_MS = 180000
 const MAX_URL = 200
 // A console line that is not an error but still has to reach the note (m148): one a molecule
 // package wrote — it names the package, the \`[molecule/…]\` prefix, or the \`[scope]\` prefix
@@ -793,6 +883,394 @@ function hiddenBoxOf(message, frames) {
   return reading
 }
 
+// --- count assertions (xr-molecule-flash-m321) -------------------------------
+// A count assertion reports only numbers ("Expected: 3 / Received: 4"). The trace holds the rest:
+// \`locator.count()\` is a Frame.queryCount entry carrying params.selector and the result value,
+// \`expect(locator).toHaveCount(n)\` is a Frame.expect entry carrying the selector and the expected
+// number, and the failure snapshot is the page's DOM at that moment. Two things name the matched
+// elements: the \`__playwright_target__\` marks Playwright leaves on an assertion's own matches, and
+// a replay of a plain-CSS selector against the snapshot. Everything else fails closed — a locator
+// outside the replayable subset, an unreadable snapshot, or a replay whose count disagrees with
+// the recorded one names no elements rather than inventing them.
+
+function stripAnsi(text) {
+  return String(text || '').replace(/\\u001b\\[[0-9;]*m/g, '')
+}
+
+// The two numbers a count assertion prints, when the failure is one. A string assertion's
+// \`Expected: "…"\` and a comparison's \`Expected: > 3\` both parse to null.
+function countNumbersOf(message) {
+  const text = stripAnsi(message)
+  const expected = /Expected:\\s*(\\d+)\\s*(?:\\n|$)/.exec(text)
+  const received = /Received:\\s*(\\d+)\\s*(?:\\n|$)/.exec(text)
+  if (expected === null || received === null) return null
+  return { expected: Number(expected[1]), received: Number(received[1]) }
+}
+
+// The locator a count assertion printed (\`Locator:  locator('.card…')\`), and its inner selector.
+function locatorInError(message) {
+  const text = stripAnsi(message)
+  const named = /Locator:\\s*(locator\\([^\\n]*?\\))\\s*(?:\\n|$)/.exec(text)
+  if (named === null) return null
+  const inner = /^locator\\(\\s*(['"\`])([\\s\\S]*)\\1\\s*\\)$/.exec(named[1])
+  if (inner === null) return { locator: named[1], selector: null }
+  return { locator: named[1], selector: inner[2] }
+}
+
+// The selector inside a recorded locator string (\`locator('.x')\`), or null.
+function selectorOfLocator(value) {
+  if (typeof value !== 'string') return null
+  const m = /^locator\\(\\s*(['"\`])([\\s\\S]*)\\1\\s*\\)$/.exec(value.trim())
+  return m === null ? null : m[2]
+}
+
+// A bounded plain-CSS selector parser. Supported: tag/\`*\`, \`#id\`, \`.class\`, \`[attr]\`,
+// \`[attr=value]\` (and ~= |= ^= $= *=), \`:not(<compound>)\`, and descendant (space) / child (\`>\`)
+// combinators. Everything else — Playwright engines (\`internal:role=…\`, \`text=…\`), \`>>\` chaining,
+// selector lists, sibling combinators, other pseudo-classes — returns null.
+function readCssIdent(s, at) {
+  const m = /^[-_A-Za-z][-_A-Za-z0-9]*/.exec(s.slice(at))
+  return m === null ? null : { name: m[0], end: at + m[0].length }
+}
+
+function parseCssCompound(s, at) {
+  const compound = { tag: null, ids: [], classes: [], attrs: [], nots: [] }
+  let i = at
+  if (s[i] === '*') { compound.tag = '*'; i += 1 }
+  else {
+    const tag = readCssIdent(s, i)
+    if (tag !== null) { compound.tag = tag.name.toLowerCase(); i = tag.end }
+  }
+  for (;;) {
+    const ch = s[i]
+    if (ch === '#') {
+      const id = readCssIdent(s, i + 1)
+      if (id === null) return null
+      compound.ids.push(id.name); i = id.end; continue
+    }
+    if (ch === '.') {
+      const cls = readCssIdent(s, i + 1)
+      if (cls === null) return null
+      compound.classes.push(cls.name); i = cls.end; continue
+    }
+    if (ch === '[') {
+      const close = s.indexOf(']', i + 1)
+      if (close === -1) return null
+      const body = s.slice(i + 1, close).trim()
+      const m = /^([-_A-Za-z][-_A-Za-z0-9:.]*)\\s*(?:([~|^$*]?=)\\s*(?:"([^"]*)"|'([^']*)'|([-_A-Za-z0-9./]+)))?$/.exec(body)
+      if (m === null) return null
+      compound.attrs.push({
+        name: m[1].toLowerCase(),
+        op: m[2] || null,
+        value: m[3] !== undefined ? m[3] : m[4] !== undefined ? m[4] : m[5] !== undefined ? m[5] : null,
+      })
+      i = close + 1; continue
+    }
+    if (ch === ':') {
+      if (s.slice(i, i + 5) !== ':not(') return null
+      const inner = parseCssCompound(s, i + 5)
+      if (inner === null || s[inner.end] !== ')') return null
+      const simple = inner.compound
+      if (simple.tag === null && simple.ids.length === 0 && simple.classes.length === 0 &&
+        simple.attrs.length === 0 && simple.nots.length === 0) return null
+      compound.nots.push(simple)
+      i = inner.end + 1; continue
+    }
+    break
+  }
+  return { compound: compound, end: i }
+}
+
+function parseCssSelector(text) {
+  if (typeof text !== 'string') return null
+  const s = text.trim()
+  if (s === '' || s.indexOf(',') !== -1 || s.indexOf('>>') !== -1) return null
+  const compounds = []
+  const combinators = []
+  let parsed = parseCssCompound(s, 0)
+  if (parsed === null || parsed.end === 0) return null
+  compounds.push(parsed.compound)
+  let i = parsed.end
+  while (i < s.length) {
+    let comb = null
+    if (/\\s/.test(s[i])) {
+      while (i < s.length && /\\s/.test(s[i])) i += 1
+      if (s[i] === '>') { comb = '>'; i += 1; while (i < s.length && /\\s/.test(s[i])) i += 1 }
+      else if (s[i] === '+' || s[i] === '~') return null
+      else comb = ' '
+    } else if (s[i] === '>') {
+      comb = '>'; i += 1
+      while (i < s.length && /\\s/.test(s[i])) i += 1
+    } else return null
+    parsed = parseCssCompound(s, i)
+    if (parsed === null || parsed.end === i) return null
+    compounds.push(parsed.compound); combinators.push(comb); i = parsed.end
+  }
+  return { compounds: compounds, combinators: combinators }
+}
+
+function cssClassesOf(node) {
+  return String(node.attrs.class || '').split(/\\s+/).filter(Boolean)
+}
+
+function cssMatchesCompound(node, compound) {
+  if (compound.tag !== null && compound.tag !== '*' && node.tag !== compound.tag) return false
+  for (const id of compound.ids) if (String(node.attrs.id || '') !== id) return false
+  const classes = cssClassesOf(node)
+  for (const cls of compound.classes) if (classes.indexOf(cls) === -1) return false
+  for (const attr of compound.attrs) {
+    if (!Object.prototype.hasOwnProperty.call(node.attrs, attr.name)) return false
+    if (attr.op === null) continue
+    const actual = String(node.attrs[attr.name])
+    const wanted = attr.value === null ? '' : attr.value
+    if (attr.op === '=' && actual !== wanted) return false
+    if (attr.op === '~=' && actual.split(/\\s+/).indexOf(wanted) === -1) return false
+    if (attr.op === '|=' && actual !== wanted && actual.indexOf(wanted + '-') !== 0) return false
+    if (attr.op === '^=' && (wanted === '' || actual.indexOf(wanted) !== 0)) return false
+    if (attr.op === '$=' && (wanted === '' || actual.slice(-wanted.length) !== wanted)) return false
+    if (attr.op === '*=' && (wanted === '' || actual.indexOf(wanted) === -1)) return false
+  }
+  for (const not of compound.nots) if (cssMatchesCompound(node, not)) return false
+  return true
+}
+
+function cssMatchesSelector(node, parsed, index) {
+  if (!cssMatchesCompound(node, parsed.compounds[index])) return false
+  if (index === 0) return true
+  const comb = parsed.combinators[index - 1]
+  if (comb === '>') return node.parent !== null && cssMatchesSelector(node.parent, parsed, index - 1)
+  let at = node.parent
+  while (at !== null) {
+    if (cssMatchesSelector(at, parsed, index - 1)) return true
+    at = at.parent
+  }
+  return false
+}
+
+// The post-order node list Playwright's own \`snapshotNodes\` builds: text nodes in place, each
+// element pushed after its children. A subtree reference is not a node and is not followed here.
+function snapshotNodesOf(value) {
+  const nodes = []
+  const visit = function (n) {
+    if (typeof n === 'string') { nodes.push(n); return }
+    if (!Array.isArray(n) || typeof n[0] !== 'string') return
+    for (let i = 2; i < n.length; i++) visit(n[i])
+    nodes.push(n)
+  }
+  visit(value)
+  return nodes
+}
+
+// The frame's own snapshots, in recording order — the list Playwright's subtree references index
+// into. Main frames only (the reader drops subframe snapshots), matched by frameId when present.
+function frameSnapshotsOf(frame, allFrames) {
+  if (typeof frame.frameId === 'string' && frame.frameId !== '') {
+    const same = allFrames.filter(function (f) { return f.frameId === frame.frameId })
+    if (same.length > 0) return same
+  }
+  return allFrames.filter(function (f) { return f.context === frame.context && f.pageId === frame.pageId })
+}
+
+// One snapshot's DOM as { tag, attrs, children, parent } nodes, with subtree references expanded
+// against the frame's earlier snapshots (reference \`[delta, nodeIndex]\` = the snapshot \`at - delta\`,
+// exactly as the trace viewer resolves it). Null when any reference cannot be resolved or the tree
+// is too large: an incomplete snapshot is not evidence about the page.
+function resolvedSnapshotTree(frame, allFrames) {
+  if (frame === undefined || frame === null) return null
+  const tree = frame.snapshot
+  if (tree === undefined || tree === null) return null
+  const shown = frameSnapshotsOf(frame, allFrames)
+  const index = shown.indexOf(frame)
+  if (index < 0) return null
+  let budget = 60000
+  let readable = true
+  const build = function (value, at, depth) {
+    if (!readable) return null
+    if (budget-- < 0 || depth > 80) { readable = false; return null }
+    if (typeof value === 'string') return { tag: null, text: value, attrs: {}, children: [], parent: null }
+    if (!Array.isArray(value)) { readable = false; return null }
+    if (Array.isArray(value[0])) {
+      const delta = typeof value[0][0] === 'number' ? value[0][0] : -1
+      const nodeIndex = typeof value[0][1] === 'number' ? value[0][1] : -1
+      const refAt = at - delta
+      if (delta < 0 || refAt < 0 || refAt >= shown.length || nodeIndex < 0) { readable = false; return null }
+      const earlier = shown[refAt].snapshot
+      const nodes = earlier === undefined || earlier === null ? [] : snapshotNodesOf(earlier)
+      if (nodeIndex >= nodes.length) { readable = false; return null }
+      return build(nodes[nodeIndex], refAt, depth + 1)
+    }
+    if (typeof value[0] !== 'string') { readable = false; return null }
+    const node = {
+      tag: String(value[0]).toLowerCase(),
+      attrs: value[1] && typeof value[1] === 'object' ? value[1] : {},
+      children: [],
+      parent: null,
+    }
+    for (let i = 2; i < value.length; i++) {
+      const child = build(value[i], at, depth + 1)
+      if (child === null) { readable = false; return null }
+      child.parent = node
+      node.children.push(child)
+    }
+    return node
+  }
+  const root = build(tree, index, 0)
+  return readable ? root : null
+}
+
+// An element's own text, whitespace-collapsed and bounded. Script and style bodies are skipped, as
+// the trace viewer skips them: code is not what the page showed.
+function elementTextOf(node) {
+  let out = ''
+  const visit = function (n) {
+    if (out.length > MAX_COUNT_TEXT) return
+    if (typeof n.text === 'string') { out += n.text; return }
+    if (n.tag === 'script' || n.tag === 'style') return
+    for (const child of n.children) visit(child)
+  }
+  visit(node)
+  return out.replace(/\\s+/g, ' ').trim().slice(0, MAX_COUNT_TEXT)
+}
+
+// The element's ancestors, outermost first, for the row's "where it sits" (\`body >
+// section.comments > div.card\`).
+function elementPathOf(node) {
+  const parts = []
+  let at = node.parent
+  while (at !== null && at.tag !== null && parts.length < MAX_COUNT_PATH_DEPTH) {
+    const classes = cssClassesOf(at)
+    parts.unshift(at.tag + (classes.length > 0 ? '.' + classes[0] : ''))
+    at = at.parent
+  }
+  return parts.join(' > ').slice(0, 160)
+}
+
+function elementInForm(node) {
+  let at = node.parent
+  while (at !== null) {
+    if (at.tag === 'form') return true
+    at = at.parent
+  }
+  return false
+}
+
+function countMatchOf(node) {
+  const match = { tag: node.tag }
+  const classes = String(node.attrs.class || '').trim()
+  if (classes) match.classes = classes.slice(0, 120)
+  const text = elementTextOf(node)
+  if (text) match.text = text
+  const path = elementPathOf(node)
+  if (path) match.path = path
+  if (elementInForm(node)) match.inForm = true
+  return match
+}
+
+// Every element carrying Playwright's own assertion-target mark, in document order.
+function targetElementsOf(root) {
+  const out = []
+  const visit = function (node) {
+    if (node.tag === null) return
+    if (Object.prototype.hasOwnProperty.call(node.attrs, '__playwright_target__')) out.push(node)
+    for (const child of node.children) visit(child)
+  }
+  visit(root)
+  return out
+}
+
+// Every element a parsed selector matches, in document order.
+function selectorElementsOf(root, parsed) {
+  const out = []
+  const visit = function (node) {
+    if (node.tag === null) return
+    if (cssMatchesSelector(node, parsed, parsed.compounds.length - 1)) out.push(node)
+    for (const child of node.children) visit(child)
+  }
+  visit(root)
+  return out
+}
+
+// The count assertion this failure is, with the locator the trace recorded and the elements its
+// failure snapshot matched. Null when the failure is not a count, when no locator can be attributed
+// to it, or when both numbers cannot be read.
+function countMismatchOf(failedError, frames, allFrames, queryCounts, frameExpects, failedStep) {
+  const numbers = countNumbersOf(failedError)
+  if (numbers === null) return null
+  const assertionStart =
+    failedStep && typeof failedStep.startTime === 'number' ? failedStep.startTime : null
+  const recent = function (entry) {
+    if (assertionStart === null) return true
+    return entry.start <= assertionStart + 1000 && assertionStart - entry.start <= COUNT_LOOKBACK_MS
+  }
+  const named = locatorInError(failedError)
+  let locator = null
+  let selector = null
+  let source = null
+  if (named !== null && named.selector !== null) {
+    locator = named.locator
+    selector = named.selector
+    source = 'assertion'
+  }
+  // expect(locator).toHaveCount(n): the trace records the selector and the expected number.
+  if (locator === null) {
+    const wanted = frameExpects
+      .filter(function (entry) { return entry.expected === numbers.expected && recent(entry) })
+      .sort(function (a, b) { return b.start - a.start })[0]
+    if (wanted !== undefined) {
+      locator = wanted.locator
+      selector = wanted.selector
+      source = 'assertion'
+    }
+  }
+  // locator.count() then expect(count).toBe(n): the value the trace recorded IS the received one.
+  if (locator === null) {
+    const wanted = queryCounts
+      .filter(function (entry) { return entry.value === numbers.received && recent(entry) })
+      .sort(function (a, b) { return b.start - a.start })[0]
+    if (wanted !== undefined) {
+      locator = wanted.locator
+      selector = wanted.selector
+      source = 'locator-count'
+    }
+  }
+  if (locator === null || source === null) return null
+  const reading = {
+    locator: locator.slice(0, 200),
+    ...(selector === null ? {} : { selector: selector.slice(0, 200) }),
+    expected: numbers.expected,
+    received: numbers.received,
+    source: source,
+  }
+  const tree = resolvedSnapshotTree(frames.length > 0 ? frames[frames.length - 1] : null, allFrames)
+  if (tree === null) {
+    reading.unreadable = 'no-snapshot'
+    return reading
+  }
+  // Playwright marks an assertion's own matches in the snapshot recorded with it. Only a mark set
+  // whose count IS the received count belongs to this assertion.
+  const targets = targetElementsOf(tree)
+  if (targets.length === numbers.received) {
+    reading.matched = targets.slice(0, MAX_COUNT_MATCHES).map(countMatchOf)
+    reading.matchedTotal = targets.length
+    reading.matchedFrom = 'snapshot-targets'
+    return reading
+  }
+  const parsed = selector === null ? null : parseCssSelector(selector)
+  if (parsed === null) {
+    reading.unreadable = 'unsupported-selector'
+    return reading
+  }
+  const elements = selectorElementsOf(tree, parsed)
+  if (elements.length !== numbers.received) {
+    reading.unreadable = 'count-mismatch'
+    return reading
+  }
+  reading.matched = elements.slice(0, MAX_COUNT_MATCHES).map(countMatchOf)
+  reading.matchedTotal = elements.length
+  reading.matchedFrom = 'selector-replay'
+  return reading
+}
+
 // A request/response body exactly as Playwright stored it: inline on the value, or in a resource
 // entry the value names. Bounded, and binary is dropped — a JSON body is what this is for, and a
 // multipart upload would print bytes.
@@ -1029,11 +1507,30 @@ for (const one of found.slice(0, MAX_TRACES)) {
   // assertion's own page can be selected below (m160).
   const actionsAll = []
   const framesAll = []
+  // The count entries a failing assertion can be paired with (m321): \`locator.count()\` and
+  // \`expect(locator).toHaveCount(n)\` are the two ways a test compares a selector's match count.
+  const queryCounts = []
+  const frameExpects = []
+  // The readable locator a runner step names (\`getByRole('button', { name: 'Post Comment' })\`),
+  // keyed by the step id the library trace repeats on the entry it recorded for that step.
+  const locatorByStep = {}
+  for (const entry of runner) {
+    if (!entry || entry.type !== 'before') continue
+    const params = entry.params && typeof entry.params === 'object' ? entry.params : {}
+    if (typeof entry.stepId === 'string' && typeof params.locator === 'string' && params.locator)
+      locatorByStep[entry.stepId] = params.locator
+  }
   for (const ctx of contexts) {
     const ended = {}
+    const callValues = {}
     for (const entry of ctx.trace) {
       if (entry && entry.type === 'after' && typeof entry.callId === 'string' && typeof entry.endTime === 'number')
         ended[entry.callId] = entry.endTime
+      // A count's own answer, on the trace's clock: the \`locator.count()\` entry records
+      // \`result.value\`, and that number is the "Received:" the failing assertion printed.
+      if (entry && entry.type === 'after' && typeof entry.callId === 'string' &&
+        entry.result && typeof entry.result.value === 'number')
+        callValues[entry.callId] = entry.result.value
     }
     const pageByCall = {}
     for (const entry of ctx.trace) {
@@ -1082,6 +1579,39 @@ for (const one of found.slice(0, MAX_TRACES)) {
         }
       }
       ctx.actions.push(action)
+      // The entries a count assertion can be attributed to (m321). A \`getByRole\`-style locator is
+      // readable only through the runner step's own \`params.locator\`; the library entry's
+      // \`params.selector\` is the internal engine string, kept for the CSS replay.
+      const locator =
+        (typeof entry.stepId === 'string' ? locatorByStep[entry.stepId] : undefined) ||
+        'locator(' + JSON.stringify(params.selector) + ')'
+      const end = typeof ended[entry.callId] === 'number' ? ended[entry.callId] : null
+      if (api === 'Frame.queryCount' && typeof params.selector === 'string') {
+        queryCounts.push({
+          start: entry.startTime,
+          end: end,
+          selector: params.selector,
+          value: typeof callValues[entry.callId] === 'number' ? callValues[entry.callId] : undefined,
+          locator: locator,
+          pageId: action.pageId,
+          stepId: action.stepId,
+        })
+      }
+      if (
+        api === 'Frame.expect' &&
+        /count/i.test(String(params.expression || '')) &&
+        typeof params.selector === 'string'
+      ) {
+        frameExpects.push({
+          start: entry.startTime,
+          end: end,
+          selector: params.selector,
+          expected: typeof params.expectedNumber === 'number' ? params.expectedNumber : undefined,
+          locator: locator,
+          pageId: action.pageId,
+          stepId: action.stepId,
+        })
+      }
     }
     // Monotonic time, not archive order: two contexts interleave in the zip, and one context's
     // own actions still have to be read in the order the page performed them.
@@ -1411,27 +1941,17 @@ for (const one of found.slice(0, MAX_TRACES)) {
   }
   // The text a frame snapshot SHOWED, so a page that still carried the awaited value is never
   // described as having dropped it. Playwright serializes the DOM as strings (text nodes) and
-  // [tag, attrs, ...children] elements, with a subtree reference ([[snapshotIndex, nodeIndex]]) to
-  // a node an earlier snapshot of the same frame carried. \`script\`/\`style\` bodies are skipped,
-  // as the trace viewer skips them: code is not what the page showed. Null when the snapshot is
-  // absent or a reference cannot be resolved — an unreadable snapshot proves nothing.
+  // [tag, attrs, ...children] elements, with a subtree reference ([delta, nodeIndex]) to a node an
+  // EARLIER snapshot of the same frame carried — the reference is relative to this snapshot's own
+  // index in the frame's list, which is how the trace viewer resolves it (\`snapshotIndex - delta\`).
+  // \`script\`/\`style\` bodies are skipped, as the trace viewer skips them: code is not what the page
+  // showed. Null when the snapshot is absent or a reference cannot be resolved — an unreadable
+  // snapshot proves nothing.
   function snapshotShowed(frame) {
     const tree = frame.snapshot
     if (tree === undefined || tree === null) return null
-    const shown = framesAll.filter(function (f) {
-      return f.context === frame.context && f.pageId === frame.pageId
-    })
-    const nodesOf = function (value) {
-      const nodes = []
-      const collect = function (n) {
-        if (typeof n === 'string') { nodes.push(n); return }
-        if (!Array.isArray(n) || typeof n[0] !== 'string') return
-        for (let i = 2; i < n.length; i++) collect(n[i])
-        nodes.push(n)
-      }
-      collect(value)
-      return nodes
-    }
+    const shown = frameSnapshotsOf(frame, framesAll)
+    const index = shown.indexOf(frame)
     const out = []
     let visited = 0
     let readable = true
@@ -1443,8 +1963,9 @@ for (const one of found.slice(0, MAX_TRACES)) {
         const ref = n[0]
         const at = Array.isArray(ref) && typeof ref[0] === 'number' ? ref[0] : -1
         const node = Array.isArray(ref) && typeof ref[1] === 'number' ? ref[1] : -1
-        const earlier = at >= 0 && at < shown.length && shown[at].snapshot != null ? shown[at].snapshot : null
-        const nodes = earlier === null ? [] : nodesOf(earlier)
+        const refAt = index - at
+        const earlier = at >= 0 && refAt >= 0 && refAt < shown.length && shown[refAt].snapshot != null ? shown[refAt].snapshot : null
+        const nodes = earlier === null ? [] : snapshotNodesOf(earlier)
         if (node < 0 || node >= nodes.length) { readable = false; return }
         visit(nodes[node])
         return
@@ -1517,6 +2038,9 @@ for (const one of found.slice(0, MAX_TRACES)) {
   // what the element is made of, so the note names the cause instead of sending the run at the
   // selector (m197 — an <img> with no CSS size collapsed inside its link).
   const hiddenBox = hiddenBoxOf(failedError, frames)
+  // A count assertion whose locator and matched elements the trace itself holds (m321): the
+  // locator from \`locator.count()\`/\`toHaveCount\`, the elements from the failure snapshot.
+  const countMismatch = countMismatchOf(failedError, frames, framesAll, queryCounts, frameExpects, failedStep)
   function wire(r) {
     return {
       method: r.method,
@@ -1741,7 +2265,8 @@ for (const one of found.slice(0, MAX_TRACES)) {
     chosen.length === 0 &&
     keptConsole.length === 0 &&
     actions.length === 0 &&
-    hiddenBox === null
+    hiddenBox === null &&
+    countMismatch === null
   )
     continue
   // Counted over the page's EVERY network entry, before the cap and dedupe above (m215).
@@ -1760,6 +2285,7 @@ for (const one of found.slice(0, MAX_TRACES)) {
     ...(missingText === null ? {} : { missingText: missingText }),
     ...(readContradiction === null ? {} : { readContradiction: readContradiction }),
     ...(hiddenBox === null ? {} : { hiddenBox: hiddenBox }),
+    ...(countMismatch === null ? {} : { countMismatch: countMismatch }),
     console: keptConsole.slice(0, MAX_CONSOLE).map(function (text) { return text.slice(0, 300) }),
     actions: actions.slice(-MAX_ACTIONS),
     ...(unattributed ? { unattributed: true } : {}),
@@ -1875,6 +2401,60 @@ function parseHiddenBox(value: unknown): TraceHiddenBox | null {
 }
 
 /**
+ * One `countMismatch` out of a `TRACE` line's json, or null when the value is not one.
+ *
+ * The locator and both numbers are required; the matched elements are kept only when the script
+ * wrote them, and each needs a tag. A reading whose `unreadable` reason is unknown is dropped —
+ * the note may not present a reason it cannot explain.
+ *
+ * @param value - The line's `countMismatch`.
+ * @returns The count assertion the trace read, or null.
+ */
+function parseCountMismatch(value: unknown): TraceCountMismatch | null {
+  if (typeof value !== 'object' || value === null) return null
+  const raw = value as Record<string, unknown>
+  if (typeof raw.locator !== 'string' || raw.locator === '') return null
+  if (typeof raw.expected !== 'number' || !Number.isFinite(raw.expected)) return null
+  if (typeof raw.received !== 'number' || !Number.isFinite(raw.received)) return null
+  if (raw.source !== 'assertion' && raw.source !== 'locator-count') return null
+  const matched = Array.isArray(raw.matched)
+    ? raw.matched
+        .filter(
+          (entry): entry is Record<string, unknown> => typeof entry === 'object' && entry !== null,
+        )
+        .filter((entry) => typeof entry.tag === 'string' && entry.tag !== '')
+        .map((entry) => ({
+          tag: String(entry.tag),
+          ...(typeof entry.classes === 'string' && entry.classes ? { classes: entry.classes } : {}),
+          ...(typeof entry.text === 'string' && entry.text ? { text: entry.text } : {}),
+          ...(typeof entry.path === 'string' && entry.path ? { path: entry.path } : {}),
+          ...(entry.inForm === true ? { inForm: true as const } : {}),
+        }))
+    : []
+  const unreadable =
+    raw.unreadable === 'unsupported-selector' ||
+    raw.unreadable === 'no-snapshot' ||
+    raw.unreadable === 'count-mismatch'
+      ? raw.unreadable
+      : null
+  return {
+    locator: raw.locator,
+    ...(typeof raw.selector === 'string' && raw.selector ? { selector: raw.selector } : {}),
+    expected: raw.expected,
+    received: raw.received,
+    source: raw.source,
+    ...(matched.length === 0 ? {} : { matched }),
+    ...(typeof raw.matchedTotal === 'number' && Number.isFinite(raw.matchedTotal)
+      ? { matchedTotal: raw.matchedTotal }
+      : {}),
+    ...(raw.matchedFrom === 'snapshot-targets' || raw.matchedFrom === 'selector-replay'
+      ? { matchedFrom: raw.matchedFrom }
+      : {}),
+    ...(unreadable === null ? {} : { unreadable }),
+  }
+}
+
+/**
  * One `lastAction` out of a `TRACE` line's json, or null when the value is not one.
  *
  * @param value - The line's `lastAction`.
@@ -1949,6 +2529,7 @@ export function parseTraceArtifacts(stdout: string): TraceArtifact[] {
       const missingText = parseMissingText(raw.missingText)
       const readContradiction = parseReadContradiction(raw.readContradiction)
       const hiddenBox = parseHiddenBox(raw.hiddenBox)
+      const countMismatch = parseCountMismatch(raw.countMismatch)
       const repeated = parseRepeated(raw.repeated)
       const otherContexts = Array.isArray(raw.otherContexts)
         ? raw.otherContexts
@@ -1988,6 +2569,7 @@ export function parseTraceArtifacts(stdout: string): TraceArtifact[] {
         ...(missingText === null ? {} : { missingText }),
         ...(readContradiction === null ? {} : { readContradiction }),
         ...(hiddenBox === null ? {} : { hiddenBox }),
+        ...(countMismatch === null ? {} : { countMismatch }),
         ...(repeated.length === 0 ? {} : { repeated }),
       })
     } catch (_error) {
@@ -2627,6 +3209,9 @@ function traceRowEvidence(item: TraceArtifact, report: TraceRunReport): boolean 
     // have resolved the locator into an empty box, and that is the whole cause (m197's shape on a
     // static page).
     item.hiddenBox !== undefined ||
+    // A count assertion's own reading is evidence too: the trace names the locator and the
+    // elements that made the count too large, even when every request answered (m321).
+    item.countMismatch !== undefined ||
     item.console.length > 0 ||
     item.requests.some(
       (request) => !isStaticAssetRequest(request) && !unansweredRequest(request),
@@ -3887,6 +4472,85 @@ export function hiddenBoxNote(items: readonly TraceArtifact[]): string | null {
   return null
 }
 
+/** One matched element as a count row writes it: tag.class, its own text, and where it sits. */
+function countMatchSentence(match: TraceCountMatch): string {
+  const classes =
+    match.classes === undefined ? '' : `.${match.classes.trim().split(/\s+/).join('.')}`
+  const text = match.text === undefined ? '' : ` "${match.text}"`
+  const where = [
+    match.path === undefined ? '' : `in \`${match.path}\``,
+    match.inForm === true ? 'inside a form' : '',
+  ]
+    .filter(Boolean)
+    .join(', ')
+  return `\`${match.tag}${classes}\`${text}${where === '' ? '' : ` (${where})`}`
+}
+
+/**
+ * The row's sentence for a failing count assertion: the locator, both numbers, and the elements
+ * the failure snapshot held.
+ *
+ * xr-molecule-flash-m321's `comments.spec.ts:86` printed only `Expected: 3 / Received: 4`. The
+ * helper counted `.card:not(.comment-form) .card-block`, and the app's comment form was a
+ * `.comment-form` wrapper around a plain `.card`, so the form's own `.card-block` was the fourth
+ * match. The trace held the selector and the four elements; the note held neither.
+ *
+ * @param mismatch - The trace's count reading ({@link TraceCountMismatch}).
+ * @returns The sentence.
+ */
+export function countMismatchSentence(mismatch: TraceCountMismatch): string {
+  const counted =
+    `the failing assertion counted \`${mismatch.locator}\`: ${mismatch.received} matched where ` +
+    `${mismatch.expected} ${mismatch.expected === 1 ? 'was' : 'were'} expected`
+  if (mismatch.matched !== undefined && mismatch.matchedTotal !== undefined) {
+    const shown = mismatch.matchedTotal - mismatch.matched.length
+    const how =
+      mismatch.matchedFrom === 'snapshot-targets'
+        ? `the trace's failure snapshot marks the assertion's ${mismatch.matchedTotal} ` +
+          `${mismatch.matchedTotal === 1 ? 'match' : 'matches'}`
+        : `the selector replayed against the trace's failure snapshot matched ` +
+          `${mismatch.matchedTotal}`
+    return (
+      `${counted}; ${how}: ${mismatch.matched.map(countMatchSentence).join('; ')}` +
+      (shown > 0 ? `; and ${shown} more` : '')
+    )
+  }
+  if (mismatch.unreadable === 'unsupported-selector')
+    return (
+      `${counted}. The trace records the locator and the count but not the elements it selected ` +
+      `(its selector is outside the plain-CSS subset the failure snapshot can be replayed with), ` +
+      `so read that helper's selector against the page yourself`
+    )
+  if (mismatch.unreadable === 'count-mismatch')
+    return (
+      `${counted}. The failure snapshot's DOM replayed to a different count, so it is not ` +
+      `evidence for this assertion and the matched elements are not named`
+    )
+  return (
+    `${counted}. The trace recorded no readable DOM snapshot at the failure, so the matched ` +
+    `elements are not named`
+  )
+}
+
+/**
+ * The sentence a count assertion earns when every traced failure is one — the next read before
+ * the API or the request is changed.
+ *
+ * @param items - The traces {@link parseTraceArtifacts} read.
+ * @returns The sentence, or null when not every traced failure is a count mismatch.
+ */
+export function countMismatchNote(items: readonly TraceArtifact[]): string | null {
+  if (items.length === 0) return null
+  if (!items.every((item) => item.countMismatch !== undefined)) return null
+  return (
+    'No listed request failed — none got a 4xx/5xx or a network error. Every failure here is a ' +
+    'COUNT over a locator, and each row names the locator the trace recorded and the elements ' +
+    'its failure snapshot held. Read the extra element and the selector before changing the ' +
+    'request or the API: a match that sits inside another element (a form, a wrapper) is the ' +
+    'selector reaching it, not the list rendering it.'
+  )
+}
+
 /**
  * The note a failed suite run's result carries: what each failing test's page actually sent, and
  * what came back.
@@ -4038,6 +4702,9 @@ export function failureTraceNote(
   // "the cause is in the page" sentence, which m197 read as "go look at the page" and then spent
   // four minutes rasterising an SVG ({@link hiddenBoxNote}).
   const hiddenBox = hiddenBoxNote(traced)
+  // Every traced failure a count assertion: the next read is the locator's matches, not a request
+  // or the page's state (m321's 30-minute `Expected: 3 / Received: 4`).
+  const everyCountMismatch = countMismatchNote(traced)
   // m145's shape: the app's HTTP client lost its base URL, so every API call reached the page
   // origin without the prefix the app mounts its routes under. The prefix is READ — the caller's
   // client config plus what the traces show — never assumed to be `/api`.
@@ -4154,6 +4821,9 @@ export function failureTraceNote(
     const budget = stall?.budgetMs ?? null
     let room = MAX_TRACE_NOTE_REQUESTS
     const parts: string[] = []
+    // The count reading leads the row: the locator and the extra element are the fact the run
+    // needs first (m321), the requests beside it explain nothing about a count.
+    if (item.countMismatch !== undefined) parts.push(countMismatchSentence(item.countMismatch))
     if (step !== undefined && !stalledNav) {
       const head = `the test's last action was ${step.api} at ${actionClock(item, step.start)}`
       const pageBefore = step.pageBefore
@@ -4509,17 +5179,21 @@ export function failureTraceNote(
                   `${serverSilentReading(silentApiRequests, silentNavigations, false)} ` +
                   `Re-run only these tests against ${target} (\`--last-failed\`) or inspect the app's ` +
                   'runtime log for the same window to distinguish the cause.'
-                : hasPendingRequests
-                  ? 'No listed request failed with a 4xx/5xx or a network error, but some requests have no ' +
-                    'recorded response. This does not establish whether the server stalled or the browser cancelled ' +
-                    'the request. Read the pending paths alongside the failed action and its timeout.'
-                  : 'No listed request failed with a 4xx/5xx or a network error. That does not establish ' +
-                    "that its response body or the page state was correct. Read what the test's last action sent (the first line of each " +
-                    'row) and what the page did next: a request that answered (2xx included) while the page ' +
-                    'still did not show the state the assertion waited on is the fact to read — its status ' +
-                    'and response body, not the selector. If the request is not the one the test meant — an ' +
-                    'unfollow sent where the test clicked follow — the state the action read was stale ' +
-                    'before it.') +
+                : everyCountMismatch !== null
+                  ? // A count assertion's own reading outranks the generic "read the response body"
+                    // advice, which sends the run at the request the count never depended on (m321).
+                    everyCountMismatch
+                  : hasPendingRequests
+                    ? 'No listed request failed with a 4xx/5xx or a network error, but some requests have no ' +
+                      'recorded response. This does not establish whether the server stalled or the browser cancelled ' +
+                      'the request. Read the pending paths alongside the failed action and its timeout.'
+                    : 'No listed request failed with a 4xx/5xx or a network error. That does not establish ' +
+                      "that its response body or the page state was correct. Read what the test's last action sent (the first line of each " +
+                      'row) and what the page did next: a request that answered (2xx included) while the page ' +
+                      'still did not show the state the assertion waited on is the fact to read — its status ' +
+                      'and response body, not the selector. If the request is not the one the test meant — an ' +
+                      'unfollow sent where the test clicked follow — the state the action read was stale ' +
+                      'before it.') +
     prefixAdvice +
     (wrapped
       ? ' The API received a body wrapped in `data`: app-http’s `post(url, data, config)` / ' +
