@@ -24,6 +24,7 @@ import { describe, expect, it } from 'vitest'
 import {
   DIAGNOSIS_TRACE_FLAG,
   diagnosisTraceCommand,
+  failedRequest,
   failureTraceNote,
   MAX_TRACE_NOTE_TESTS,
   MAX_TRACED_BODY_CHARS,
@@ -31,6 +32,8 @@ import {
   suiteRecordsTraces,
   type TraceArtifact,
   traceArtifactsScript,
+  type TraceRequest,
+  unansweredRequest,
 } from '../trace-artifacts.js'
 import { streamingBackgroundCommand } from '../utilities.js'
 
@@ -54,6 +57,99 @@ const PENDING_MINUS_ONE = fileURLToPath(
 
 /** A real trace of a request refused by the peer: status `-1` WITH `net::ERR_CONNECTION_REFUSED`. */
 const NETWORK_ERROR = fileURLToPath(new URL('./fixtures/trace-network-error.zip', import.meta.url))
+
+/** The m303/m305 row had two pending GETs and only earlier successful responses. */
+describe('failureTraceNote — pending requests do not prove server silence (m303/m305)', () => {
+  const row: TraceArtifact = {
+    spec: 'fixtures/realworld/specs/e2e/navigation.spec.ts',
+    line: 109,
+    actions: [{ api: 'Frame.click', start: 2000, end: null }],
+    lastAction: { api: 'Frame.click', start: 2000, end: null, requests: [] },
+    requests: [
+      { method: 'GET', path: '/', status: 200, startedAt: 100 },
+      { method: 'GET', path: '/api/user', status: 200, startedAt: 120 },
+      { method: 'GET', path: '/api/articles?limit=10&offset=0', status: -1, startedAt: 2050 },
+      {
+        method: 'GET',
+        path: '/api/articles/test-article-1792499522751/comments',
+        status: -1,
+        startedAt: 2055,
+      },
+    ],
+    console: [],
+  }
+
+  it('keeps the recorded shape inconclusive in both the row and the aggregate', () => {
+    const note = String(
+      failureTraceNote([row], 'the deployed app', [], [], {
+        failures: [{ spec: row.spec ?? '', line: 109, operation: 'page.click', budgetMs: 136000 }],
+      }),
+    )
+    expect(note).toContain('no response recorded')
+    expect(note).not.toContain('the server did not answer')
+    expect(note).not.toContain('The server did not answer')
+    expect(note).not.toContain('so not a server failure')
+    expect(note).not.toContain('so the cause is in the page')
+    expect(note).toContain('does not establish whether the server stalled or the browser cancelled')
+  })
+
+  it.each(['', '   ', 'net::ERR_ABORTED', 'NS_BINDING_ABORTED', 'AbortError', 'cancelled'])(
+    'does not promote cancellation or empty text (%s) into server failure',
+    (failure) => {
+      const request: TraceRequest = { method: 'GET', path: '/api/articles', status: -1, failure }
+      expect(failedRequest(request)).toBe(false)
+      expect(unansweredRequest(request)).toBe(true)
+      const note = String(
+        failureTraceNote(
+          [
+            {
+              ...row,
+              requests: row.requests.map((request) =>
+                request.status <= 0 ? { ...request, failure } : request,
+              ),
+            },
+          ],
+          'the deployed app',
+        ),
+      )
+      expect(note).not.toContain('The server did not answer')
+      expect(note).not.toContain('API requests failed without a response')
+      expect(note).not.toContain('so the cause is in the page')
+    },
+  )
+
+  it('retains endpoint transport failures when another endpoint answers later', () => {
+    const requests = row.requests.map((request) =>
+      request.status <= 0 ? { ...request, failure: 'net::ERR_CONNECTION_RESET' } : request,
+    )
+    requests.push({ method: 'GET', path: '/api/user', status: 200, startedAt: 3000 })
+    const note = String(failureTraceNote([{ ...row, requests }], 'the deployed app'))
+    expect(note).toContain('2 API requests failed without a response')
+    expect(note).toContain('net::ERR_CONNECTION_RESET')
+    expect(note).toContain('/api/articles/test-article-1792499522751/comments')
+  })
+
+  it('does not exonerate an API merely because its wrong response used status 200', () => {
+    const note = String(
+      failureTraceNote(
+        [
+          {
+            ...row,
+            requests: [
+              { method: 'GET', path: '/api/articles', status: 200, got: '{"articles":[]}' },
+            ],
+          },
+        ],
+        'the deployed app',
+      ),
+    )
+    expect(note).not.toContain('the cause is in the page')
+    expect(note).toContain(
+      'does not establish that its response body or the page state was correct',
+    )
+    expect(note).toContain('{"articles":[]}')
+  })
+})
 
 /**
  * A real trace of a page that made seven requests where the FIRST got a 401: the read keeps the
@@ -383,11 +479,14 @@ describe('failureTraceNote — a request with no response is not a failed reques
       // The request is named, under what it actually is.
       expect(note).toContain('/api/tags')
       expect(note).toContain('no response recorded')
-      expect(note).toContain('not a server failure')
+      expect(note).toContain('that alone does not establish the cause')
       // And the closing line sends the run to the page, not to the API.
       expect(note).not.toContain('usually one of these requests failing')
       expect(note).toContain('No listed request failed')
-      expect(note).toContain('the cause is in the page')
+      expect(note).not.toContain('so the cause is in the page')
+      expect(note).toContain(
+        'does not establish whether the server stalled or the browser cancelled',
+      )
     } finally {
       rmSync(root, { recursive: true, force: true })
     }
@@ -403,7 +502,7 @@ describe('failureTraceNote — a request with no response is not a failed reques
   describe('failureTraceNote — a server that did not answer is never "the cause is in the page" (m215)', () => {
     const unanswered = (method: string, path: string) => ({ method, path, status: -1 })
 
-    it('leads with the API paths that got no response and drops the page-cause sentence', () => {
+    it('keeps pending API paths inconclusive and retains the reported navigation timeout', () => {
       // The navigation.spec.ts:109 row, verbatim from the m215 walk: one answered request, three
       // API paths with no response at all.
       const navigation: TraceArtifact = {
@@ -446,18 +545,15 @@ describe('failureTraceNote — a request with no response is not a failed reques
         ),
       )
       // The lead: what did not answer, named, before any trace row.
-      expect(note).toContain('The server did not answer: 3 API requests got no response')
+      expect(note).not.toContain('3 API requests failed without a response')
       expect(note).toContain('GET /api/articles/test-article-1792400422492/comments')
       expect(note).toContain('GET /api/tags')
       expect(note).toContain('GET /api/articles')
       expect(note).toContain('1 page load never finished')
-      expect(note.indexOf('The server did not answer')).toBeLessThan(
-        note.indexOf('The platform read the failing tests'),
-      )
       // And the closing sentence no longer contradicts it.
       expect(note).not.toContain('so the cause is in the page')
       expect(note).toContain('Re-run only these tests against ')
-      expect(note).toContain('before changing any code; change the app only if they fail again')
+      expect(note).toContain('runtime log for the same window to distinguish the cause')
     })
 
     it('drops the page-cause sentence for a navigation timeout even with no API request pending', () => {
@@ -474,11 +570,13 @@ describe('failureTraceNote — a request with no response is not a failed reques
         }),
       )
       expect(note).not.toContain('so the cause is in the page')
-      expect(note).toContain('the server did not answer: 1 page load never finished')
+      expect(note).toContain(
+        'the trace recorded incomplete requests or page loads: 1 page load never finished',
+      )
       expect(note).toContain('Re-run only these tests against the deployed app')
     })
 
-    it('keeps the page-cause sentence for ONE unanswered request (the m112 guard)', () => {
+    it('keeps one unanswered request inconclusive too (the m112 guard)', () => {
       const one: TraceArtifact = {
         spec: 'e2e/social.spec.ts',
         line: 22,
@@ -488,7 +586,10 @@ describe('failureTraceNote — a request with no response is not a failed reques
       }
       const note = String(failureTraceNote([one], 'the deployed app'))
       expect(note).not.toContain('The server did not answer')
-      expect(note).toContain('the cause is in the page')
+      expect(note).not.toContain('so the cause is in the page')
+      expect(note).toContain(
+        'does not establish whether the server stalled or the browser cancelled',
+      )
     })
   })
 

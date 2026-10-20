@@ -39,14 +39,14 @@ export interface TraceRequest {
   /**
    * The response status as the trace recorded it. Playwright writes `-1` when a request was never
    * answered (its HAR entry starts at `-1` and only a response event overwrites it); `0` is the
-   * same absence when the snapshot carried no response at all. Neither is a server failure.
+   * same absence when the snapshot carried no response at all. Neither alone proves a server failure.
    */
   status: number
   /**
    * Playwright's own error text for a request that failed WITHOUT a response
    * (`net::ERR_CONNECTION_REFUSED`) — a real failure. A request that got no response and recorded
-   * no text was aborted or still in flight when the test ended (the page closed under it), so it
-   * says nothing about the server (xr-molecule-flash-m112 +30:45).
+   * no text may still have been in flight when recording ended. Missing text or an explicit
+   * cancellation cannot establish either a server failure or server health.
    */
   failure?: string
   /**
@@ -2313,31 +2313,42 @@ export function isStaticAssetRequest(request: TraceRequest): boolean {
 }
 
 /**
- * Whether a trace recorded a request the server actually failed: a 4xx/5xx, or a network error.
+ * Whether a trace recorded a failed response or a request error other than cancellation.
  *
  * A 404 on a static asset is excepted: `/sw.js` and `/fonts/*` 404 on an app that never shipped
  * them, and naming one as a failure sent m125 into writing the caching worker it had asked about.
- * A 5xx on an asset, or a network error, still counts — the server did fail.
+ * A 5xx on an asset, or a network error, still counts. A request error alone does not locate
+ * the cause in the server: the browser or network may have rejected the request.
  *
  * @param request - One request a trace recorded.
  * @returns True when the request failed in a way the note should name.
  */
 export function failedRequest(request: TraceRequest): boolean {
   if (isStaticAssetRequest(request) && request.status === 404) return false
-  return request.status >= 400 || (request.status <= 0 && request.failure !== undefined)
+  return request.status >= 400 || (request.status <= 0 && recordedRequestFailure(request))
+}
+
+/** A browser cancellation records no conclusion about the endpoint's availability. */
+const REQUEST_CANCELLED =
+  /\b(?:net::ERR_ABORTED|NS_BINDING_ABORTED|AbortError)\b|^(?:aborted|cancelled|canceled)$/i
+
+/** Whether the request carries a nonempty error that is not an explicit cancellation. */
+function recordedRequestFailure(request: TraceRequest): boolean {
+  const failure = request.failure?.trim()
+  return failure !== undefined && failure !== '' && !REQUEST_CANCELLED.test(failure)
 }
 
 /**
- * Whether a trace recorded NO response and no reason for it — a request that was aborted or still
- * in flight when the test ended. It is not evidence that the server failed (m112 +30:45), and one
- * the page shell made is not evidence about the step at all (m125 +29:33).
+ * Whether a trace recorded no response and no error other than cancellation. The request may
+ * have been pending or cancelled when recording ended; the trace does not establish whether
+ * the endpoint stalled. A shell request is not evidence about the step (m125 +29:33).
  *
  * @param request - One request a trace recorded.
- * @returns True when the request is still in flight and worth naming.
+ * @returns True when the request's missing response is inconclusive and worth naming.
  */
 export function unansweredRequest(request: TraceRequest): boolean {
   if (isStaticAssetRequest(request)) return false
-  return request.status <= 0 && request.failure === undefined
+  return request.status <= 0 && !recordedRequestFailure(request)
 }
 
 /**
@@ -2691,7 +2702,10 @@ function transportFailure(items: readonly TraceArtifact[]): TransportFailure | n
   for (const item of items) {
     const document = item.requests.find((request) => request.type === 'document')
     const failed = item.requests.find(
-      (request) => request.failure !== undefined && NETWORK_ERROR.test(request.failure),
+      (request) =>
+        recordedRequestFailure(request) &&
+        request.failure !== undefined &&
+        NETWORK_ERROR.test(request.failure),
     )
     if (failed !== undefined) {
       const error = NETWORK_ERROR.exec(failed.failure ?? '')?.[0] ?? failed.failure ?? ''
@@ -2699,7 +2713,7 @@ function transportFailure(items: readonly TraceArtifact[]): TransportFailure | n
     }
     for (const line of item.console) {
       const error = NETWORK_ERROR.exec(line)?.[0]
-      if (error !== undefined)
+      if (error !== undefined && !REQUEST_CANCELLED.test(error))
         return {
           error,
           where: document?.path ?? item.requests[0]?.path ?? 'the page',
@@ -2757,7 +2771,7 @@ function isApiPath(path: string, prefixes: readonly string[]): boolean {
   })
 }
 
-/** One method+path the page sent and never got a response for. */
+/** One method+path that recorded an error without a response. */
 interface UnansweredApiRequest {
   /** The request method. */
   method: string
@@ -2768,20 +2782,15 @@ interface UnansweredApiRequest {
 }
 
 /**
- * The API requests a failing run's traces recorded with NO response, one entry per method+path.
- *
- * A request still in flight is not a server failure on its own ({@link unansweredRequest}), and
- * the note says so. Several API paths left unanswered in one walk is a different fact: the server
- * stopped answering while the tests ran, and the closing "the cause is in the page" reading is
- * then false (xr-molecule-flash-m215 +36:28: three API paths got no response and two `page.goto`
- * calls timed out across a platform restart, and the note sent the run at avatar components and
- * token signing).
+ * The API requests that recorded an error without a response, one entry per method+path.
+ * Missing failure text stays inconclusive regardless of the number of pending requests
+ * (m303/m305). An answer from another endpoint cannot excuse a recorded failure here.
  *
  * @param items - The traces the note is about.
  * @param apiPrefixes - The API prefixes the caller read, or empty.
  * @returns One entry per distinct method+path, in the order the traces recorded them.
  */
-function unansweredApiRequests(
+function failedApiRequests(
   items: readonly TraceArtifact[],
   apiPrefixes: readonly string[],
 ): UnansweredApiRequest[] {
@@ -2791,7 +2800,7 @@ function unansweredApiRequests(
     // put them only on the action: count each method+path once per trace, not once per list.
     const seen = new Set<string>()
     for (const request of [...item.requests, ...(item.lastAction?.requests ?? [])]) {
-      if (!unansweredRequest(request)) continue
+      if (request.status > 0 || !failedRequest(request)) continue
       const path = sameOriginPath(request)
       if (path === null || !isApiPath(path, apiPrefixes)) continue
       const key = `${request.method} ${path}`
@@ -2823,11 +2832,10 @@ function navigationTimedOut(item: TraceArtifact, failures: readonly TraceRunFail
 }
 
 /**
- * The reading a run gets when the server stopped answering: the API requests with no response and
- * the page loads that never finished, named once so both the lead and the closing sentence carry
- * the same fact.
+ * Recorded API errors without responses and page loads that never finished. Both the lead and
+ * closing sentence name the evidence without assigning a server, network, or browser cause.
  *
- * @param requests - The API requests the traces recorded with no response.
+ * @param requests - The API requests that recorded errors without a response.
  * @param navigations - How many traced failures were a navigation that never finished.
  * @param capital - True to start a sentence, false to continue one.
  * @returns The sentence, without a trailing period run or a next step.
@@ -2847,7 +2855,7 @@ function serverSilentReading(
   const asked =
     requests.length === 0
       ? ''
-      : `${requests.length} API ${requests.length === 1 ? 'request' : 'requests'} got no response` +
+      : `${requests.length} API ${requests.length === 1 ? 'request' : 'requests'} failed without a response` +
         (shown.length === 0 ? '' : ` (${shown.join(', ')}${more})`)
   const loads =
     navigations === 0
@@ -2855,9 +2863,8 @@ function serverSilentReading(
       : `${navigations} page ${navigations === 1 ? 'load' : 'loads'} never finished`
   const what = [asked, loads].filter((part) => part !== '').join(' and ')
   return (
-    `${capital ? 'The' : 'the'} server did not answer: ${what}. That is the app — a restart, a ` +
-    'cold start, or a request the server never finishes — being unavailable while these tests ' +
-    'ran, not page state.'
+    `${capital ? 'The' : 'the'} trace recorded incomplete requests or page loads: ${what}. ` +
+    'This does not identify whether the cause is in the server, network, or browser.'
   )
 }
 
@@ -4086,15 +4093,15 @@ export function failureTraceNote(
     ...new Set(stalls.flatMap((stall) => (stall === null ? [] : [stall.reported]))),
   ]
   const anyStalled = stalls.some((stall) => stall !== null)
-  // The server stopped answering while the tests ran (m215): several API requests with no
-  // response, or a navigation that never finished. A single request still in flight is not this
-  // (m112), and the note must never close with "the cause is in the page" beside it — the run
-  // then rewrites the page while the API was the thing that never answered.
-  const silentApiRequests = unansweredApiRequests(traced, apiPrefixes)
+  // A recorded request error or navigation deadline is evidence of a failed attempt, not proof
+  // of its cause. Pending requests remain inconclusive at every count (m303/m305).
+  const silentApiRequests = failedApiRequests(traced, apiPrefixes)
+  const hasPendingRequests = traced.some((item) =>
+    [...item.requests, ...(item.lastAction?.requests ?? [])].some(unansweredRequest),
+  )
   const silentNavigations = traced.filter((item) => navigationTimedOut(item, failures)).length
   const serverSilent = silentApiRequests.length >= 2 || silentNavigations > 0
-  // A single unanswered request stays what it always was (m112). Two or more distinct API paths
-  // are a fact about the server, and it leads the note before any row.
+  // Multiple recorded API failures lead the note; no response alone cannot trigger this.
   const serverSilentLead =
     silentApiRequests.length < 2
       ? ''
@@ -4241,7 +4248,7 @@ export function failureTraceNote(
       const shown = unanswered.slice(0, room)
       room -= shown.length
       parts.push(
-        `no response recorded — still in flight when the test ended, so not a server failure; ` +
+        `no response recorded — possibly still in flight when the test ended or cancelled; ` +
           `that alone does not establish the cause: ${shown.map(requestLabel).join('; ')}`,
       )
     }
@@ -4496,19 +4503,23 @@ export function failureTraceNote(
                 // a fact about the element, so it replaces the "look at the page" advice (m197).
                 hiddenBox
               : serverSilent
-                ? // The server did not answer (m215): a page-state reading would send the run at
-                  // the markup while nothing answered it. Same fact as the lead, and the one action.
+                ? // A navigation deadline must not be presented as proof of page-state failure.
+                  // Name the incomplete load without claiming why it did not finish.
                   'No listed request failed — none got a 4xx/5xx or a network error — but ' +
                   `${serverSilentReading(silentApiRequests, silentNavigations, false)} ` +
-                  `Re-run only these tests against ${target} (\`--last-failed\`) before changing ` +
-                  'any code; change the app only if they fail again with requests that answered.'
-                : 'No listed request failed — none got a 4xx/5xx or a network error — so the cause is in the ' +
-                  "page, not the API. Start with what the test's last action sent (the first line of each " +
-                  'row) and what the page did next: a request that answered (2xx included) while the page ' +
-                  'still did not show the state the assertion waited on is the fact to read — its status ' +
-                  'and response body, not the selector. If the request is not the one the test meant — an ' +
-                  'unfollow sent where the test clicked follow — the state the action read was stale ' +
-                  'before it.') +
+                  `Re-run only these tests against ${target} (\`--last-failed\`) or inspect the app's ` +
+                  'runtime log for the same window to distinguish the cause.'
+                : hasPendingRequests
+                  ? 'No listed request failed with a 4xx/5xx or a network error, but some requests have no ' +
+                    'recorded response. This does not establish whether the server stalled or the browser cancelled ' +
+                    'the request. Read the pending paths alongside the failed action and its timeout.'
+                  : 'No listed request failed with a 4xx/5xx or a network error. That does not establish ' +
+                    "that its response body or the page state was correct. Read what the test's last action sent (the first line of each " +
+                    'row) and what the page did next: a request that answered (2xx included) while the page ' +
+                    'still did not show the state the assertion waited on is the fact to read — its status ' +
+                    'and response body, not the selector. If the request is not the one the test meant — an ' +
+                    'unfollow sent where the test clicked follow — the state the action read was stale ' +
+                    'before it.') +
     prefixAdvice +
     (wrapped
       ? ' The API received a body wrapped in `data`: app-http’s `post(url, data, config)` / ' +
