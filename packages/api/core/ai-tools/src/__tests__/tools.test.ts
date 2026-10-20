@@ -3918,6 +3918,71 @@ cd /workspace/.mol-scratch/realworld-e2e && npx playwright test --config playwri
   }, 20_000)
 
   /**
+   * The detached shape (m182) plus the wrapper's own code (m303): the command backgrounds its real
+   * work and appends `EXIT=<n>` to its own file, so the wrapper's code is the status of the
+   * backgrounding statement, not of the run. The run's own verdict must win.
+   */
+  it('prefers the run’s own EXIT marker to the wrapper’s code', async () => {
+    const own = `/tmp/m303-own-${Math.random().toString(36).slice(2, 8)}.log`
+    writeFileSync(own, '\n  139 passed (2.1m)\nEXIT=3\n')
+    let probed = false
+    const backend: ExecutionBackend = {
+      projectRoot: '/test',
+      readFile: vi.fn(async (path: string) => {
+        if (path === own) return '\n  139 passed (2.1m)\nEXIT=3\n'
+        if (path.endsWith('.exit')) {
+          // The tick's read landed before the wrapper wrote it.
+          if (!probed) throw new Error(`ENOENT: ${path}`)
+          return '0\n'
+        }
+        if (path.endsWith('.log')) return 'started\n'
+        throw new Error(`ENOENT: ${path}`)
+      }),
+      writeFile: vi.fn().mockResolvedValue(undefined),
+      deleteFile: vi.fn(),
+      readDir: vi.fn(),
+      run: vi.fn(async (command: string) => {
+        if (!command.includes('MOL_TASK_STATE')) return { stdout: '', stderr: '', exitCode: 0 }
+        const r = spawnSync('sh', ['-c', command], { encoding: 'utf8' })
+        probed = true
+        return { stdout: r.stdout ?? '', stderr: r.stderr ?? '', exitCode: r.status ?? 1 }
+      }),
+    }
+    const files: Record<string, string> = {}
+    try {
+      const tools = buildTools(backend)
+      const started = (await tools
+        .find((t) => t.name === 'exec_command')!
+        .execute({
+          command: `npx playwright test > ${own} 2>&1; echo EXIT=$? >> ${own}`,
+          run_in_background: true,
+        })) as { taskId: string }
+      const taskId = started.taskId
+      for (const [path, content] of Object.entries({
+        [`/tmp/${taskId}.sh`]: 'exit 0\n',
+        [`/tmp/${taskId}.pid`]: '99999999\n',
+        [`/tmp/${taskId}.exit`]: '0\n',
+      })) {
+        files[path] = content
+        writeFileSync(path, content)
+      }
+      const r = (await tools
+        .find((t) => t.name === 'wait_for_task')!
+        .execute({ taskId, timeout: 10_000 })) as {
+        status?: string
+        exitCode: number | null
+        note?: string
+      }
+      expect(r.status).toBe('completed')
+      expect(r.exitCode).toBe(3)
+      expect(r.note ?? '').not.toContain('without writing an exit code')
+    } finally {
+      rmSync(own, { force: true })
+      for (const path of Object.keys(files)) rmSync(path, { force: true })
+    }
+  }, 20_000)
+
+  /**
    * `echo $? > <exitFile>` opens the file and then writes the code. A wrapper killed inside that
    * instant leaves it empty — and an empty file is not a pass. It used to be read as 0, which
    * handed back success for a command nobody saw finish.

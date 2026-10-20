@@ -399,18 +399,19 @@ async function taskEndState(backend: ExecutionBackend, taskId: string): Promise<
     .filter((line) => !/^MOL_TASK_(?:STATE|EXIT) \S+$/.test(line))
     .join('\n')
   const state = /MOL_TASK_STATE (alive|gone|unknown)/.exec(stdout)?.[1] ?? 'unknown'
-  // A code in the exit file IS the verdict, whatever the pid test says: the launcher writes it
-  // after the command returns, and this probe read the file in the same shell as the pid test, so
-  // a wrapper that finished and wrote its code between a wait's own read of the file and this
-  // probe is still found here rather than reported as having written none (xr-molecule-flash-m303).
-  const reported = /^MOL_TASK_EXIT (\d+)$/m.exec(stdout)
-  if (reported) return { ended: true, exitCode: Number(reported[1]) }
   const ownEnding = outputEnding(tail)
   // The run's own output can end the task while its wrapper is still alive: the wrapper may be
   // waiting on the wrong thing (m182's was blocked) while the run it started is over. An explicit
-  // `EXIT=<n>` is that verdict; a bare tally is trusted only once the pid is gone, because the
-  // instant between a walk's tally and its next walk's header reads the same.
+  // `EXIT=<n>` is that verdict — more specific than the wrapper's own code, which in that shape is
+  // the status of the backgrounding statement, not of the run — and a bare tally is trusted only
+  // once the pid is gone, because the instant between a walk's tally and its next walk's header
+  // reads the same.
   if (ownEnding.ended && (ownEnding.exitCode !== null || state === 'gone')) return ownEnding
+  // The code the launcher wrote, read in the same shell as the pid test: a wrapper that finished
+  // and wrote it between a wait's own read of the file and this probe is found here rather than
+  // reported as having written none (xr-molecule-flash-m303).
+  const reported = /^MOL_TASK_EXIT (\d+)$/m.exec(stdout)
+  if (reported) return { ended: true, exitCode: Number(reported[1]) }
   // A pid this sandbox can account for and that is gone, with no exit file: the wrapper that
   // writes the exit code was killed or exited, so the task ended and has no verdict to invent.
   if (state === 'gone') return { ended: true, exitCode: null }
