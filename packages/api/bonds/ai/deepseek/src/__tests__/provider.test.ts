@@ -359,6 +359,40 @@ describe('chat() — streaming', () => {
     expect(events.some((e) => e.type === 'done')).toBe(false)
     expect(events[events.length - 1].type).toBe('error')
   })
+
+  it('a mid-stream insufficient-balance chunk → the balance message, never transient', async () => {
+    // A 200 SSE that turns into a billing error chunk: the account state must
+    // survive the stream boundary instead of collapsing into the generic text.
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockResolvedValue(
+      sseResponse([
+        'data: {"choices":[{"delta":{"content":"partial"}}]}',
+        'data: {"error":{"message":"Insufficient Balance (request_id: 5a5f2962)","type":"unknown_error","code":"invalid_request_error"}}',
+      ]),
+    )
+    const events = await drain(
+      createProvider({ apiKey: 'k' }).chat({ messages: [{ role: 'user', content: 'go' }] }),
+    )
+    const err = events.find((e) => e.type === 'error') as { message: string }
+    expect(err.message).toBe('AI service is unavailable — provider credit balance too low.')
+    expect(events.some((e) => e.type === 'done')).toBe(false)
+  })
+
+  it('a mid-stream 502 chunk → the overloaded message', async () => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockResolvedValue(
+      sseResponse([
+        'data: {"choices":[{"delta":{"content":"partial"}}]}',
+        'data: {"error":{"message":"502 Bad Gateway","code":"bad_gateway"}}',
+      ]),
+    )
+    const events = await drain(
+      createProvider({ apiKey: 'k' }).chat({ messages: [{ role: 'user', content: 'go' }] }),
+    )
+    const err = events.find((e) => e.type === 'error') as { message: string }
+    expect(err.message).toBe('AI service is temporarily overloaded. Please try again in a moment.')
+    expect(events.some((e) => e.type === 'done')).toBe(false)
+  })
 })
 
 describe('chat() — errors', () => {
@@ -385,6 +419,154 @@ describe('chat() — errors', () => {
     )
     const err = events.find((e) => e.type === 'error') as { message: string }
     expect(err.message).toBe('AI request was invalid — check the model and request parameters.')
+  })
+
+  it('a 402 (exhausted provider account) → the balance message, never the generic "try again"', async () => {
+    // The exact body a zero-balance DeepSeek account returns (2026-10-20): a
+    // fast 402 whose `code` says "invalid_request_error" but is a billing state,
+    // not a request problem — no retry can restore a negative balance.
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockResolvedValue(
+      jsonResponse(402, {
+        error: {
+          message: 'Insufficient Balance (request_id: 5a5f2962)',
+          type: 'unknown_error',
+          code: 'invalid_request_error',
+        },
+      }),
+    )
+    const events = await drain(
+      createProvider({ apiKey: 'k' }).chat({
+        messages: [{ role: 'user', content: 'hi' }],
+        stream: false,
+      }),
+    )
+    const err = events.find((e) => e.type === 'error') as { message: string }
+    expect(err.message).toBe('AI service is unavailable — provider credit balance too low.')
+  })
+
+  it('a 400 whose detail names an exhausted account → the balance message, not "invalid request"', async () => {
+    // Some OpenAI-compatible hosts report the same billing state on 400; the
+    // account condition must win over the invalid-request reading.
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockResolvedValue(
+      jsonResponse(400, { error: { message: 'Credit balance too low, top up your account' } }),
+    )
+    const events = await drain(
+      createProvider({ apiKey: 'k' }).chat({
+        messages: [{ role: 'user', content: 'hi' }],
+        stream: false,
+      }),
+    )
+    const err = events.find((e) => e.type === 'error') as { message: string }
+    expect(err.message).toBe('AI service is unavailable — provider credit balance too low.')
+  })
+
+  it.each([500, 502, 504])(
+    'a %d from the provider rides the transient overloaded message (not a dead-end generic)',
+    async (status) => {
+      const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+      fetch.mockResolvedValue(jsonResponse(status, { error: { message: 'upstream error' } }))
+      const events = await drain(
+        createProvider({ apiKey: 'k' }).chat({
+          messages: [{ role: 'user', content: 'hi' }],
+          stream: false,
+        }),
+      )
+      const err = events.find((e) => e.type === 'error') as { message: string }
+      expect(err.message).toBe(
+        'AI service is temporarily overloaded. Please try again in a moment.',
+      )
+    },
+  )
+
+  it('a 503 keeps the overloaded message after the bond exhausts its own retries (known-good control)', async () => {
+    vi.useFakeTimers()
+    try {
+      const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+      fetch.mockResolvedValue(jsonResponse(503, { error: { message: 'Service Unavailable' } }))
+      const eventsPromise = drain(
+        createProvider({ apiKey: 'k' }).chat({
+          messages: [{ role: 'user', content: 'hi' }],
+          stream: false,
+        }),
+      )
+      await vi.advanceTimersByTimeAsync(40_000)
+      const events = await eventsPromise
+      const err = events.find((e) => e.type === 'error') as { message: string }
+      expect(err.message).toBe(
+        'AI service is temporarily overloaded. Please try again in a moment.',
+      )
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('a 401 keeps the configuration message, carrying its status (known-good control)', async () => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockResolvedValue(jsonResponse(401, { error: { message: 'Authentication Fails' } }))
+    const events = await drain(
+      createProvider({ apiKey: 'k' }).chat({
+        messages: [{ role: 'user', content: 'hi' }],
+        stream: false,
+      }),
+    )
+    const err = events.find((e) => e.type === 'error') as { message: string }
+    expect(err.message).toBe(
+      'AI service configuration error (HTTP 401) — the API key was rejected.',
+    )
+  })
+
+  it('a 429 keeps the rate-limit message after the bond exhausts its own retries (known-good control)', async () => {
+    vi.useFakeTimers()
+    try {
+      const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+      fetch.mockResolvedValue(jsonResponse(429, { error: { message: 'rate limit reached' } }))
+      const eventsPromise = drain(
+        createProvider({ apiKey: 'k' }).chat({
+          messages: [{ role: 'user', content: 'hi' }],
+          stream: false,
+        }),
+      )
+      await vi.advanceTimersByTimeAsync(40_000)
+      const events = await eventsPromise
+      const err = events.find((e) => e.type === 'error') as { message: string }
+      expect(err.message).toBe('AI rate limit exceeded. Please try again shortly.')
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('a context-length 400 keeps the too-long message (known-good control)', async () => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockResolvedValue(
+      jsonResponse(400, { error: { message: 'This model supports at most 65536 context length' } }),
+    )
+    const events = await drain(
+      createProvider({ apiKey: 'k' }).chat({
+        messages: [{ role: 'user', content: 'hi' }],
+        stream: false,
+      }),
+    )
+    const err = events.find((e) => e.type === 'error') as { message: string }
+    expect(err.message).toBe(
+      "Conversation too long for the model's context window. Use /compact to free space, or start a new conversation.",
+    )
+  })
+
+  it('any other status carries its HTTP status instead of a bare "try again" (403 control)', async () => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockResolvedValue(
+      jsonResponse(403, { error: { message: 'key forbidden for this region' } }),
+    )
+    const events = await drain(
+      createProvider({ apiKey: 'k' }).chat({
+        messages: [{ role: 'user', content: 'hi' }],
+        stream: false,
+      }),
+    )
+    const err = events.find((e) => e.type === 'error') as { message: string }
+    expect(err.message).toBe('AI service error (HTTP 403). Please try again.')
   })
 
   it('an HTTP-date Retry-After falls back to exponential backoff instead of a ~0ms retry', async () => {

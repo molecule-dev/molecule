@@ -441,19 +441,47 @@ class DeepseekAIProviderImpl implements AIProvider {
             if (errorBody.length > 0 && errorBody.length < 200) detail = errorBody
           }
           logger.error('DeepSeek API error', { status: response.status, detail, errorBody })
+          // The status ladder decides what the CALLER can do, so every branch
+          // must stay distinguishable downstream: the turn classifier keys on
+          // these sentences, and an exhausted account must never read as
+          // "try again" (2026-10-20: a −$0.09 DeepSeek account answered 402 on
+          // every request and each one surfaced as the generic error — sixteen
+          // benchmark runs died at their first request, indistinguishable from
+          // an outage and each given a retry that could never succeed).
           const clientMessage =
             response.status === 429
               ? 'AI rate limit exceeded. Please try again shortly.'
               : response.status === 401
-                ? 'AI service configuration error.'
-                : response.status === 400 &&
-                    /prompt is too long|too many tokens|token.*limit|context.*length/i.test(detail)
-                  ? "Conversation too long for the model's context window. Use /compact to free space, or start a new conversation."
-                  : response.status === 400
-                    ? 'AI request was invalid — check the model and request parameters.'
-                    : response.status === 503
-                      ? 'AI service is temporarily overloaded. Please try again in a moment.'
-                      : 'AI service error. Please try again.'
+                ? // The status rides in the text: the turn classifier is
+                  // text-only, and an auth failure must classify `auth`
+                  // (never retried) — not the unknown bucket's pity retry.
+                  'AI service configuration error (HTTP 401) — the API key was rejected.'
+                : response.status === 402 ||
+                    /insufficient balance|credit balance|payment required/i.test(detail)
+                  ? // An exhausted account is a platform billing condition, not a
+                    // request problem and not a transient outage — no retry can
+                    // restore a negative balance.
+                    'AI service is unavailable — provider credit balance too low.'
+                  : response.status === 400 &&
+                      /prompt is too long|too many tokens|token.*limit|context.*length/i.test(
+                        detail,
+                      )
+                    ? "Conversation too long for the model's context window. Use /compact to free space, or start a new conversation."
+                    : response.status === 400
+                      ? 'AI request was invalid — check the model and request parameters.'
+                      : response.status === 500 ||
+                          response.status === 502 ||
+                          response.status === 503 ||
+                          response.status === 504 ||
+                          response.status === 529
+                        ? // The outage statuses the turn classifier reads as transient —
+                          // one shared sentence, so a provider shed rides the retry
+                          // ladder instead of killing the turn (was: 503 only).
+                          'AI service is temporarily overloaded. Please try again in a moment.'
+                        : // Anything else still names its status, so a never-before-seen
+                          // code is classifiable (and 5xx-shaped ones ride `http 5xx`
+                          // into the transient class) instead of a bare "try again".
+                          `AI service error (HTTP ${response.status}). Please try again.`
           yield { type: 'error', message: clientMessage, errorKey: 'ai.error.apiError' }
           return
         }
@@ -1009,11 +1037,26 @@ class DeepseekAIProviderImpl implements AIProvider {
             code: streamError.code,
             message: streamError.message,
           })
-          const clientMessage = /overload|capacity|503|529/i.test(detail)
-            ? 'AI service is temporarily overloaded. Please try again in a moment.'
-            : /rate.?limit|429|quota/i.test(detail)
-              ? 'AI rate limit exceeded. Please try again shortly.'
-              : 'AI service error. Please try again.'
+          // Same distinctions as the pre-flight ladder, in the same precedence
+          // the turn classifier applies (rate → auth → context → balance →
+          // transient): an exhausted account is a billing state (never
+          // transient, never "try again"), an auth failure stays `auth`, a
+          // context overflow stays recoverable. There is no HTTP status here —
+          // the stream answered 200 — so each class keys on the provider's own
+          // wording, plus numeric codes some hosts send as `code`.
+          const clientMessage = /rate.?limit|\b429\b|quota/i.test(detail)
+            ? 'AI rate limit exceeded. Please try again shortly.'
+            : /\b401\b|authentication|unauthorized/i.test(detail)
+              ? 'AI service authentication/configuration error — the API key was rejected.'
+              : /context.?length|context.?window|too long|too many tokens|token.?limit/i.test(
+                    detail,
+                  )
+                ? "Conversation too long for the model's context window. Use /compact to free space, or start a new conversation."
+                : /insufficient balance|credit balance|payment required|\b402\b/i.test(detail)
+                  ? 'AI service is unavailable — provider credit balance too low.'
+                  : /overload|capacity|\b(?:500|502|503|504|529)\b/i.test(detail)
+                    ? 'AI service is temporarily overloaded. Please try again in a moment.'
+                    : 'AI service error. Please try again.'
           yield { type: 'error', message: clientMessage, errorKey: 'ai.error.apiError' }
           continue
         }
