@@ -141,6 +141,7 @@ export class HttpChatProvider implements ChatProvider {
             body: JSON.stringify({
               message,
               model: config.model,
+              ...(config.messageId ? { messageId: config.messageId } : {}),
               ...(attachments?.length ? { attachments } : {}),
               ...(config.resume ? { resume: true } : {}),
               // Per-send intent flags — the server tags the persisted user message
@@ -472,6 +473,102 @@ export class HttpChatProvider implements ChatProvider {
     }
   }
 
+  /** Sends an independent queue request without interrupting the live SSE stream. */
+  private async requestQueue(
+    config: ChatConfig,
+    method: 'POST' | 'PATCH' | 'DELETE',
+    body: Record<string, unknown>,
+  ): Promise<{ message?: ChatMessage; sendImmediately?: boolean }> {
+    const endpoint = `${this.config.baseUrl ?? ''}${config.endpoint}`
+    const queryAt = endpoint.indexOf('?')
+    const url =
+      queryAt < 0
+        ? `${endpoint}-queue`
+        : `${endpoint.slice(0, queryAt)}-queue${endpoint.slice(queryAt)}`
+    const response = await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json', ...this.config.headers },
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(20_000),
+    })
+    const result = (await response.json()) as { message?: ChatMessage; error?: string }
+    if (!response.ok) {
+      throw new Error(
+        result.error ??
+          t('chat.error.sendFailed', undefined, {
+            defaultValue: 'Failed to send message',
+          }),
+      )
+    }
+    return result
+  }
+
+  /** Accept a message for the next safe tool boundary, preserving its stable id. */
+  async queueMessage(
+    message: string,
+    config: ChatConfig,
+    onEvent: ChatEventHandler,
+    attachments?: ChatAttachment[],
+    messageId?: string,
+  ): Promise<void> {
+    const id = messageId ?? config.messageId ?? crypto.randomUUID()
+    const result = await this.requestQueue(config, 'POST', {
+      id,
+      message,
+      ...(attachments?.length ? { attachments } : {}),
+      ...(config.suppressUserMessage ? { suppressUserMessage: true } : {}),
+      ...(config.automatic ? { automatic: true } : {}),
+      ...(config.userInitiated ? { userInitiated: true } : {}),
+      ...(config.viaDictation ? { viaDictation: true } : {}),
+    })
+    if (result.sendImmediately) {
+      // Reuse the independent command transport; it leaves the live SSE alone.
+      let failed: string | undefined
+      await this.sendSideMessage(message, config, (event) => {
+        if (event.type === 'error') failed = event.message
+        onEvent(event)
+      })
+      if (failed) throw new Error(failed)
+      onEvent({
+        type: 'message',
+        message: {
+          id,
+          role: 'user',
+          content: message,
+          timestamp: Date.now(),
+          queued: false,
+          hidden: true,
+        },
+      })
+      return
+    }
+    if (!result.message || result.message.id !== id || typeof result.message.queued !== 'boolean') {
+      throw new Error(
+        t('chat.error.sendFailed', undefined, { defaultValue: 'Failed to send message' }),
+      )
+    }
+    onEvent({ type: 'message', message: result.message })
+  }
+
+  /** Edit a pending message; a delivery race is reported instead of silently losing the edit. */
+  async editQueuedMessage(
+    messageId: string,
+    message: string,
+    config: ChatConfig,
+    attachments?: ChatAttachment[],
+  ): Promise<void> {
+    await this.requestQueue(config, 'PATCH', {
+      id: messageId,
+      message,
+      ...(attachments ? { attachments } : {}),
+    })
+  }
+
+  /** Cancel a message that has not yet been delivered. */
+  async deleteQueuedMessage(messageId: string, config: ChatConfig): Promise<void> {
+    await this.requestQueue(config, 'DELETE', { id: messageId })
+  }
+
   /** Aborts the current in-flight SSE stream, if any. */
   abort(): void {
     this.abortController?.abort()
@@ -530,7 +627,7 @@ export class HttpChatProvider implements ChatProvider {
   /**
    * Loads chat history from the server via GET request.
    * @param config - Chat configuration with the endpoint URL.
-   * @returns An array of chat messages, or an empty array if the request fails.
+   * @returns An array of chat messages. Rejects when history could not be read.
    */
   async loadHistory(config: ChatConfig): Promise<ChatMessage[]> {
     const url = `${this.config.baseUrl ?? ''}${config.endpoint}`
@@ -538,7 +635,7 @@ export class HttpChatProvider implements ChatProvider {
       headers: this.config.headers,
     })
 
-    if (!response.ok) return []
+    if (!response.ok) throw new Error(`Failed to load chat history: HTTP ${response.status}`)
 
     // Generic parse: `messages` + `streaming` are the only fields this shared
     // bond understands; every OTHER top-level field is app-specific and rides

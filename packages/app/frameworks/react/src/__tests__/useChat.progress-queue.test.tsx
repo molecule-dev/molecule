@@ -462,6 +462,156 @@ describe('durable queued messages', () => {
     expect(result.current.messages.filter((message) => message.queued)).toHaveLength(0)
   })
 
+  it('starts the legacy queued turn when a remotely owned turn finishes', async () => {
+    const f = fixture(false)
+    vi.mocked(f.provider.sendMessage).mockImplementation(async (_message, _config, onEvent) =>
+      onEvent({ type: 'done' }),
+    )
+    const { result } = renderHook(
+      () => useChat({ endpoint: '/chat', projectId: 'p', loadOnMount: false }),
+      { wrapper: f.wrapper },
+    )
+    act(() =>
+      result.current.applyRemoteEvent({ type: 'message_start', id: 'remote', timestamp: 1 }),
+    )
+    await act(async () => result.current.sendMessage('next'))
+    await act(async () => result.current.sendMessage('then'))
+    const queuedIds = result.current.messages
+      .filter((message) => message.queued)
+      .map((message) => message.id)
+    expect(f.provider.sendMessage).not.toHaveBeenCalled()
+    await act(async () => result.current.applyRemoteEvent({ type: 'done' }))
+    expect(
+      vi
+        .mocked(f.provider.sendMessage)
+        .mock.calls.map(([message, config]) => [message, config.messageId]),
+    ).toEqual([
+      ['next', queuedIds[0]],
+      ['then', queuedIds[1]],
+    ])
+    expect(result.current.messages.filter((message) => message.queued)).toHaveLength(0)
+  })
+
+  it.each(['error', 'stop'] as const)(
+    'does not start queued turns after remote %s',
+    async (ending) => {
+      const f = fixture()
+      const { result } = renderHook(
+        () => useChat({ endpoint: '/chat', projectId: 'p', loadOnMount: false }),
+        { wrapper: f.wrapper },
+      )
+      act(() =>
+        result.current.applyRemoteEvent({ type: 'message_start', id: 'remote', timestamp: 1 }),
+      )
+      await act(async () => result.current.sendMessage('next'))
+      if (ending === 'stop') {
+        act(() => result.current.abort())
+        act(() => result.current.applyRemoteEvent({ type: 'done' }))
+      } else {
+        act(() => result.current.applyRemoteEvent({ type: 'error', message: 'Remote failed' }))
+      }
+      expect(f.provider.sendMessage).not.toHaveBeenCalled()
+      expect(result.current.messages.filter((message) => message.queued)).toHaveLength(1)
+    },
+  )
+
+  it('restores Stop after refresh without sending retained messages and keeps them editable', async () => {
+    const f = fixture()
+    const first = renderHook(
+      () => useChat({ endpoint: '/chat', projectId: 'p', loadOnMount: false }),
+      { wrapper: f.wrapper },
+    )
+    act(() => {
+      void first.result.current.sendMessage('first')
+    })
+    await act(async () => first.result.current.sendMessage('retained'))
+    const queued = first.result.current.messages.find((message) => message.queued)!
+    await act(async () => first.result.current.abort())
+    first.unmount()
+    resetChatStoresForTests()
+    vi.mocked(f.provider.sendMessage).mockClear()
+    vi.mocked(f.provider.loadHistory).mockImplementation(async () => {
+      f.provider.lastMeta = { userStoppedAt: '2026-10-20T12:00:00.000Z' }
+      return [queued]
+    })
+    const second = renderHook(() => useChat({ endpoint: '/chat', projectId: 'p' }), {
+      wrapper: f.wrapper,
+    })
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0)
+    })
+    expect(f.provider.sendMessage).not.toHaveBeenCalled()
+    expect(second.result.current.messages).toEqual([queued])
+    await act(async () => second.result.current.editQueuedMessage(queued.id, 'edited'))
+    expect(f.provider.editQueuedMessage).toHaveBeenCalled()
+    expect(second.result.current.messages[0].content).toBe('edited')
+    await act(async () =>
+      second.result.current.sendMessage('autofix', undefined, { automatic: true }),
+    )
+    expect(f.provider.sendMessage).not.toHaveBeenCalled()
+    await act(async () => second.result.current.deleteQueuedMessage(queued.id))
+    expect(f.provider.deleteQueuedMessage).toHaveBeenCalled()
+    expect(second.result.current.messages).toEqual([])
+    act(() => {
+      void second.result.current.sendMessage('continue explicitly')
+    })
+    expect(f.provider.sendMessage).toHaveBeenCalledTimes(1)
+    await act(async () => f.finish())
+  })
+
+  it('does not restore stale Stop metadata after a newer explicit send', async () => {
+    const f = fixture()
+    let resolveHistory!: (history: ChatMessage[]) => void
+    vi.mocked(f.provider.loadHistory).mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          resolveHistory = resolve
+        }),
+    )
+    vi.mocked(f.provider.sendMessage).mockImplementation(async (_message, _config, onEvent) =>
+      onEvent({ type: 'done' }),
+    )
+    const { result } = renderHook(() => useChat({ endpoint: '/chat', projectId: 'p' }), {
+      wrapper: f.wrapper,
+    })
+    await act(async () => result.current.sendMessage('continue explicitly'))
+    await act(async () => {
+      f.provider.lastMeta = { userStoppedAt: '2026-10-20T12:00:00.000Z' }
+      resolveHistory([])
+    })
+    await act(async () => result.current.sendMessage('autofix', undefined, { automatic: true }))
+    expect(f.provider.sendMessage).toHaveBeenCalledTimes(2)
+  })
+
+  it('preserves an unacknowledged persisted queue when the history read fails', async () => {
+    const f = fixture()
+    const pending = [{ message: 'not acknowledged', userMsgId: crypto.randomUUID(), durable: true }]
+    sessionStorage.setItem('mol-chat-queue-p', JSON.stringify(pending))
+    vi.mocked(f.provider.loadHistory).mockRejectedValue(new Error('HTTP 503'))
+    const first = renderHook(() => useChat({ endpoint: '/chat', projectId: 'p' }), {
+      wrapper: f.wrapper,
+    })
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0)
+    })
+    expect(f.provider.sendMessage).not.toHaveBeenCalled()
+    expect(JSON.parse(sessionStorage.getItem('mol-chat-queue-p') ?? '[]')).toEqual(pending)
+    first.unmount()
+    resetChatStoresForTests()
+    vi.mocked(f.provider.loadHistory).mockResolvedValue([])
+    renderHook(() => useChat({ endpoint: '/chat', projectId: 'p' }), { wrapper: f.wrapper })
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0)
+    })
+    expect(f.provider.sendMessage).toHaveBeenCalledWith(
+      'not acknowledged',
+      expect.objectContaining({ messageId: pending[0].userMsgId }),
+      expect.any(Function),
+      undefined,
+    )
+    await act(async () => f.finish())
+  })
+
   it('does not resurrect an accepted queued message absent from fresh server history', async () => {
     const f = fixture()
     sessionStorage.setItem(

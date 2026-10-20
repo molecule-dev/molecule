@@ -138,7 +138,7 @@ function persistQueue(projectId: string, queue: QueueEntry[]): void {
 }
 
 /**
- * Load and clear the persisted queue for a project.
+ * Load the persisted queue for a project without discarding unacknowledged work.
  * @param projectId - The project identifier used as the storage key.
  * @returns The previously persisted queue entries, or an empty array if none found.
  */
@@ -146,7 +146,6 @@ function loadPersistedQueue(projectId: string): QueueEntry[] {
   try {
     const raw = sessionStorage.getItem(`${STORAGE_PREFIX}queue-${projectId}`)
     if (raw) {
-      sessionStorage.removeItem(`${STORAGE_PREFIX}queue-${projectId}`)
       return JSON.parse(raw) as QueueEntry[]
     }
   } catch (_error) {
@@ -231,6 +230,8 @@ type MessageStore = {
    * (any non-automatic send, or an automatic one flagged `userInitiated`).
    */
   stoppedByUser: boolean
+  /** Reject history metadata fetched before a newer local Stop or explicit send. */
+  userIntentRevision: number
   /** Handle of the active remote-stream reconcile poll, or null when none runs. */
   remotePollTimer: ReturnType<typeof setTimeout> | null
   listeners: Set<() => void>
@@ -272,6 +273,7 @@ function getMessageStore(key: string): MessageStore {
       streaming: false,
       remoteStreaming: false,
       stoppedByUser: false,
+      userIntentRevision: 0,
       remotePollTimer: null,
       listeners: new Set(),
       generation: 0,
@@ -830,7 +832,11 @@ export function useChat(options: UseChatOptions): UseChatResult {
           })
       }
       persistQueue(storageKey, pending.current)
-      if (message.hidden) return
+      if (message.hidden) {
+        if (!message.queued)
+          setMessages((prev) => prev.filter((item) => item.id !== message.id || !item.queued))
+        return
+      }
       setMessages((prev) => {
         const existing = prev.find((item) => item.id === message.id)
         if (!existing) return [...prev, message]
@@ -855,9 +861,11 @@ export function useChat(options: UseChatOptions): UseChatResult {
     const generation = getMessageStore(storageKey).generation
     startRemoteStreamPoll(storageKey, async () => {
       const accepted = acceptedQueueIds(storageKey)
+      const intentRevision = getMessageStore(storageKey).userIntentRevision
       let history = await provider.loadHistory({ endpoint, projectId })
       if (getMessageStore(storageKey).generation === generation) {
         restoreBackgroundTasks()
+        restoreUserStop(intentRevision)
         if (provider.queueMessage) history = restoreQueuedMessages(storageKey, history, accepted)
       }
       return {
@@ -919,6 +927,19 @@ export function useChat(options: UseChatOptions): UseChatResult {
     const tasks = (provider as { lastMeta?: { backgroundTasks?: BackgroundTaskState[] } }).lastMeta
       ?.backgroundTasks
     if (Array.isArray(tasks)) mergeBackgroundTasks(storageKey, tasks)
+  }
+  const restoreUserStop = (intentRevision: number): void => {
+    const store = getMessageStore(storageKey)
+    const stoppedAt = (provider as { lastMeta?: Record<string, unknown> }).lastMeta?.userStoppedAt
+    // Missing metadata must never clear a local Stop. A history request begun
+    // before the user's next send must likewise never reinstate an old Stop.
+    if (
+      store.userIntentRevision === intentRevision &&
+      !store.streaming &&
+      typeof stoppedAt === 'string' &&
+      stoppedAt.length > 0
+    )
+      store.stoppedByUser = true
   }
   // Pace status labels. A small change's verification (type-check + lint over a
   // couple of files) finishes in well under a second, so its step labels were
@@ -1133,11 +1154,13 @@ export function useChat(options: UseChatOptions): UseChatResult {
   // is otherwise lost until the next lifecycle event happens to fire.
   const reconcileHistory = useCallback(async (): Promise<void> => {
     const generation = getMessageStore(storageKey).generation
+    const intentRevision = getMessageStore(storageKey).userIntentRevision
     const accepted = acceptedQueueIds(storageKey)
     try {
       let history = await provider.loadHistory({ endpoint, projectId })
       if (getMessageStore(storageKey).generation !== generation) return
       restoreBackgroundTasks()
+      restoreUserStop(intentRevision)
       if (provider.queueMessage) history = restoreQueuedMessages(storageKey, history, accepted)
       if (!mountedRef.current || sendingRef.current) return
       applyServerMode()
@@ -1173,7 +1196,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
         noteRemoteStreamEvent()
         return
       }
-      if (serverStreaming && history.length > 0) {
+      if (serverStreaming && history.length > 0 && !store.stoppedByUser) {
         const last = history[history.length - 1]
         if (last.role === 'assistant') {
           void resumeStreamRef.current(last.id, last.content)
@@ -1513,6 +1536,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
     }
     generationRef.current = syncStore.generation
     const loadGeneration = syncStore.generation
+    const intentRevision = syncStore.userIntentRevision
 
     if (!loadOnMountRef.current) return
 
@@ -1526,6 +1550,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
       .then((history) => {
         if (!mountedRef.current || syncStore.generation !== loadGeneration) return
         restoreBackgroundTasks()
+        restoreUserStop(intentRevision)
         if (provider.queueMessage) history = restoreQueuedMessages(storageKey, history, accepted)
         // A server-accepted item absent from fresh history was consumed/deleted.
         // Unacknowledged submissions still need their idempotent retry.
@@ -1588,7 +1613,8 @@ export function useChat(options: UseChatOptions): UseChatResult {
           return
         }
 
-        const shouldResume = (interrupted || serverStreaming) && history.length > 0
+        const shouldResume =
+          !syncStore.stoppedByUser && (interrupted || serverStreaming) && history.length > 0
 
         if (shouldResume) {
           // Stream was interrupted — resume into the last assistant message,
@@ -1623,7 +1649,11 @@ export function useChat(options: UseChatOptions): UseChatResult {
           }
           const target = resumeTarget
           setTimeout(() => {
-            if (mountedRef.current) {
+            if (
+              mountedRef.current &&
+              syncStore.generation === loadGeneration &&
+              !syncStore.stoppedByUser
+            ) {
               resumeStreamRef.current(target.id, target.content)
             }
           }, 0)
@@ -1635,10 +1665,16 @@ export function useChat(options: UseChatOptions): UseChatResult {
             )
               pendingRef.current.push(entry)
           }
+          persistQueue(storageKey, pendingRef.current)
+          if (syncStore.stoppedByUser) return
           const first = pendingRef.current[0]
           if (!first.durable) pendingRef.current.shift()
           setTimeout(() => {
-            if (mountedRef.current) {
+            if (
+              mountedRef.current &&
+              syncStore.generation === loadGeneration &&
+              !syncStore.stoppedByUser
+            ) {
               // Re-send with the entry's own intent flags — a queue persisted
               // before a refresh must re-send as what it was (an auto-sent
               // fix stays automatic, a dictated message keeps its flag), not
@@ -2207,6 +2243,20 @@ export function useChat(options: UseChatOptions): UseChatResult {
         finalizeRemoteStreamRef.current()
         resetStatusQueue()
         setStoreRemoteStreaming(storageKey, false)
+        if (event.type === 'done' && mountedRef.current && !readOnly && !store.stoppedByUser) {
+          const next = pendingRef.current[0]
+          if (next) {
+            if (!next.durable) pendingRef.current.shift()
+            persistQueue(storageKey, pendingRef.current)
+            void sendMessageRef.current(next.message, next.attachments, {
+              messageId: next.userMsgId,
+              suppressUserMessage: next.suppressUserMessage,
+              automatic: next.automatic,
+              userInitiated: next.userInitiated,
+              viaDictation: next.viaDictation,
+            })
+          }
+        }
         return
       default:
         break
@@ -2344,6 +2394,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
         if (automatic && options?.userInitiated !== true) return
         store.stoppedByUser = false
       }
+      if (!automatic || options?.userInitiated) store.userIntentRevision++
 
       // Resolve the pending ask_user card IN THE STORE: set the most-recent unanswered
       // ask_user tool call's output to this answer. The chosen option's checked state is
@@ -2434,6 +2485,8 @@ export function useChat(options: UseChatOptions): UseChatResult {
                       ? { ...event.message, content: latest.message }
                       : event.message
                   appendCompleteMessage(accepted)
+                } else if (event.type === 'card') {
+                  appendCardMessage(event.id, event.timestamp, event.card)
                 } else if (event.type === 'error') setError(event.message)
               },
               attachments,
@@ -2648,7 +2701,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
         }
 
         if (getMessageStore(storageKey).generation !== sendGeneration) return
-        if (userAbortedRef.current) break
+        if (userAbortedRef.current || getMessageStore(storageKey).stoppedByUser) break
         // A durable entry stays editable until delivery; failed sends keep it queued.
         if (
           current.durable &&
@@ -2714,7 +2767,8 @@ export function useChat(options: UseChatOptions): UseChatResult {
     // partial message — the server streams its continuation as new message(s)); kept in
     // the signature for the callers + ref type.
     async (resumeId: string, _existingContent: string) => {
-      if (!mountedRef.current || sendingRef.current) return
+      if (!mountedRef.current || sendingRef.current || getMessageStore(storageKey).stoppedByUser)
+        return
 
       // A resume can only come from the LIVE instance — align with the store's
       // current generation so this turn's writes pass the stale-stream gate.
@@ -2847,7 +2901,12 @@ export function useChat(options: UseChatOptions): UseChatResult {
       if (getMessageStore(storageKey).generation !== resumeGeneration) return
       // The regular send path drains the remaining queue and retains durable IDs.
       const current = pendingRef.current[0]
-      if (current && mountedRef.current && !userAbortedRef.current) {
+      if (
+        current &&
+        mountedRef.current &&
+        !userAbortedRef.current &&
+        !getMessageStore(storageKey).stoppedByUser
+      ) {
         if (!current.durable) pendingRef.current.shift()
         // A queued send takes over the conversation — don't also re-resume.
         resumeAgain = null
@@ -2914,6 +2973,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
     // (see the sendMessage guard), and end any remote-turn tracking — the server
     // stream is being killed below, so the Stop control can retire immediately.
     getMessageStore(storageKey).stoppedByUser = true
+    getMessageStore(storageKey).userIntentRevision++
     stopRemoteStreamPoll(storageKey)
     // Drop any remote accumulator outright — the blanket un-stream map below
     // already marks its message aborted.

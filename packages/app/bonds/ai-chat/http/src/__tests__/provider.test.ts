@@ -608,16 +608,16 @@ describe('@molecule/app-ai-chat-http', () => {
       expect(messages[0].cardEvent).toBeUndefined()
     })
 
-    it('should return empty array for non-ok response', async () => {
+    it('rejects failed history reads without replacing the last authoritative metadata', async () => {
       mockFetch.mockResolvedValue({
         ok: false,
         status: 500,
       })
 
       const provider = new HttpChatProvider()
-      const messages = await provider.loadHistory(defaultConfig)
-
-      expect(messages).toEqual([])
+      provider.lastMeta = { userStoppedAt: 'stopped' }
+      await expect(provider.loadHistory(defaultConfig)).rejects.toThrow('HTTP 500')
+      expect(provider.lastMeta).toEqual({ userStoppedAt: 'stopped' })
     })
 
     it('should handle response with no messages key', async () => {
@@ -715,5 +715,142 @@ describe('@molecule/app-ai-chat-http', () => {
       const provider = createProvider({ baseUrl: 'http://localhost:5000' })
       expect(provider).toBeInstanceOf(HttpChatProvider)
     })
+  })
+})
+
+// Queue requests are independent from the live stream and use a stable id for
+// the retry that races the server delivering the message.
+describe('HTTP queued-message contract', () => {
+  const fetchMock = vi.fn()
+  const id = '8c04f58d-1708-4a0f-8f32-50c6a19d8d75'
+  const config = { endpoint: '/projects/p/chat?conversationId=c', model: 'test', messageId: id }
+  const ack = (queued = true) => ({
+    ok: true,
+    status: queued ? 202 : 200,
+    json: async () => ({ message: { id, role: 'user', content: 'next', timestamp: 123, queued } }),
+  })
+  beforeEach(() => {
+    fetchMock.mockReset()
+    vi.stubGlobal('fetch', fetchMock)
+  })
+  afterEach(() => vi.unstubAllGlobals())
+
+  it('uses the queue endpoint, auth headers, intent flags and explicit stable id', async () => {
+    fetchMock.mockResolvedValue(ack())
+    const onEvent = vi.fn()
+    const attachments = [{ filename: 'logo.png', mediaType: 'image/png', data: 'YWJj' }]
+    await new HttpChatProvider({
+      baseUrl: 'https://example.test',
+      headers: { Authorization: 'test' },
+    }).queueMessage(
+      'next',
+      { ...config, viaDictation: true, userInitiated: true },
+      onEvent,
+      attachments,
+      id,
+    )
+    const [url, request] = fetchMock.mock.calls[0]
+    expect(url).toBe('https://example.test/projects/p/chat-queue?conversationId=c')
+    expect(request.headers.Authorization).toBe('test')
+    expect(JSON.parse(request.body)).toEqual({
+      id,
+      message: 'next',
+      attachments,
+      viaDictation: true,
+      userInitiated: true,
+    })
+    expect(onEvent).toHaveBeenCalledWith({
+      type: 'message',
+      message: expect.objectContaining({ id, queued: true }),
+    })
+  })
+
+  it('reports an already-delivered retry as delivered without inventing a second message', async () => {
+    fetchMock.mockResolvedValue(ack(false))
+    const onEvent = vi.fn()
+    await new HttpChatProvider().queueMessage('next', config, onEvent)
+    expect(onEvent).toHaveBeenCalledWith({
+      type: 'message',
+      message: expect.objectContaining({ id, queued: false }),
+    })
+  })
+
+  it('rejects mismatched or missing acknowledgements', async () => {
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: async () => ({ message: { id: 'wrong', queued: true } }),
+    })
+    const onEvent = vi.fn()
+    await expect(new HttpChatProvider().queueMessage('next', config, onEvent)).rejects.toThrow()
+    expect(onEvent).not.toHaveBeenCalled()
+  })
+
+  it('leaves the live stream open while accepting, editing and deleting queued messages', async () => {
+    let close!: () => void
+    fetchMock
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        body: {
+          getReader: () => ({
+            read: () =>
+              new Promise((resolve) => {
+                close = () => resolve({ done: true })
+              }),
+          }),
+        },
+      })
+      .mockResolvedValue(ack())
+    const provider = new HttpChatProvider()
+    const running = provider.sendMessage('build', config, vi.fn())
+    await vi.waitFor(() => expect(close).toBeTypeOf('function'))
+    const liveSignal = fetchMock.mock.calls[0][1].signal as AbortSignal
+    await provider.queueMessage('next', config, vi.fn())
+    await provider.editQueuedMessage(id, 'edited', config)
+    await provider.deleteQueuedMessage(id, config)
+    expect(liveSignal.aborted).toBe(false)
+    expect(fetchMock.mock.calls.slice(1).map((c) => c[1].method)).toEqual([
+      'POST',
+      'PATCH',
+      'DELETE',
+    ])
+    expect(fetchMock.mock.calls.slice(1).every((c) => c[1].signal !== liveSignal)).toBe(true)
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body).messageId).toBe(id)
+    close()
+    await running
+  })
+
+  it('routes immediate server commands through the independent side channel and returns their cards', async () => {
+    fetchMock
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ sendImmediately: true }) })
+      .mockResolvedValueOnce(
+        createMockStreamResponse([
+          'data: {"type":"card","id":"hooks-card","timestamp":123,"card":{"kind":"custom","name":"hooks","data":{}}}',
+          '',
+          'data: {"type":"done"}',
+          '',
+        ]),
+      )
+    const events = vi.fn()
+    await new HttpChatProvider().queueMessage('/hooks', config, events)
+    expect(fetchMock.mock.calls[1][0]).toBe('/projects/p/chat?conversationId=c')
+    expect(JSON.parse(fetchMock.mock.calls[1][1].body).message).toBe('/hooks')
+    expect(events).toHaveBeenCalledWith(expect.objectContaining({ type: 'card', id: 'hooks-card' }))
+    expect(events).toHaveBeenCalledWith({
+      type: 'message',
+      message: expect.objectContaining({ id, queued: false, hidden: true }),
+    })
+  })
+
+  it('surfaces edit/delivery conflicts rather than reporting success', async () => {
+    fetchMock.mockResolvedValue({
+      ok: false,
+      status: 409,
+      json: async () => ({ error: 'Message has already left the queue' }),
+    })
+    const provider = new HttpChatProvider()
+    await expect(provider.editQueuedMessage(id, 'changed', config)).rejects.toThrow('already left')
+    await expect(provider.deleteQueuedMessage(id, config)).rejects.toThrow('already left')
+    expect(fetchMock).toHaveBeenCalledTimes(2)
   })
 })
