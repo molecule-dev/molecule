@@ -3321,7 +3321,7 @@ describe('exec_command does not sleep through a background task (m105)', () => {
       run: vi.fn(async (command: string) => ({
         // The wrapper is still alive (m182's was blocked); the run's own file is what ended.
         stdout: command.includes('MOL_TASK_STATE')
-          ? 'MOL_TASK_STATE alive\n  139 skipped (0.4s)\nEXIT=0'
+          ? 'MOL_TASK_STATE alive\nMOL_TASK_EXIT unknown\n  139 skipped (0.4s)\nEXIT=0'
           : '',
         stderr: '',
         exitCode: 0,
@@ -3778,7 +3778,7 @@ cd /workspace/.mol-scratch/realworld-e2e && npx playwright test --config playwri
       readDir: vi.fn(),
       run: vi.fn(async (command: string) => ({
         stdout: command.includes('MOL_TASK_STATE')
-          ? 'MOL_TASK_STATE alive\n  139 skipped (0.4s)\nEXIT=0'
+          ? 'MOL_TASK_STATE alive\nMOL_TASK_EXIT unknown\n  139 skipped (0.4s)\nEXIT=0'
           : '',
         stderr: '',
         exitCode: 0,
@@ -3913,6 +3913,325 @@ cd /workspace/.mol-scratch/realworld-e2e && npx playwright test --config playwri
       expect(probe.indexOf('kill -0')).toBeGreaterThan(-1)
       expect(probe.indexOf('kill -0')).toBeLessThan(probe.indexOf(`/tmp/${taskId}.exit`))
     } finally {
+      for (const path of Object.keys(files)) rmSync(path, { force: true })
+    }
+  }, 20_000)
+
+  /**
+   * The race control, exercised through the shell instead of asserted from the probe's text: the
+   * wrapper writes its code and exits DURING the pid test. A shell `kill` function stands in for
+   * the wrapper finishing inside that statement — it writes the exit file and then answers "gone".
+   * A read placed before the pid test sees no code (the m303 loss); a read after it hands back the
+   * code the run recorded.
+   */
+  it('reads the exit code after the pid test when the write lands inside it', async () => {
+    const taskId = `mol-bg-m303order-${Math.random().toString(36).slice(2, 8)}`
+    const files: Record<string, string> = {
+      [`/tmp/${taskId}.sh`]: 'exit 0\n',
+      [`/tmp/${taskId}.pid`]: '1\n', // any pid: the test's own `kill` answers for it
+      [`/tmp/${taskId}.log`]: 'done\n',
+    }
+    for (const [path, content] of Object.entries(files)) writeFileSync(path, content)
+    const backend: ExecutionBackend = {
+      projectRoot: '/test',
+      readFile: vi.fn(async (path: string) => {
+        if (!(path in files)) throw new Error(`ENOENT: ${path}`)
+        return files[path]
+      }),
+      writeFile: vi.fn().mockResolvedValue(undefined),
+      deleteFile: vi.fn(),
+      readDir: vi.fn(),
+      run: vi.fn(async (command: string) => {
+        if (!command.includes('MOL_TASK_STATE')) return { stdout: '', stderr: '', exitCode: 0 }
+        // Completion between the two observations: the code is written while the pid is asked.
+        const probe = `kill() { printf '0\\n' > /tmp/${taskId}.exit; return 1; }; ${command}`
+        const r = spawnSync('sh', ['-c', probe], { encoding: 'utf8' })
+        return { stdout: r.stdout ?? '', stderr: r.stderr ?? '', exitCode: r.status ?? 1 }
+      }),
+    }
+    try {
+      const r = (await buildTools(backend)
+        .find((t) => t.name === 'wait_for_task')!
+        .execute({ taskId, timeout: 10_000 })) as {
+        status?: string
+        exitCode: number | null
+        note?: string
+      }
+      expect(r.status).toBe('completed')
+      expect(r.exitCode).toBe(0)
+      expect(r.note ?? '').not.toContain('without writing an exit code')
+    } finally {
+      rmSync(`/tmp/${taskId}.exit`, { force: true })
+      for (const path of Object.keys(files)) rmSync(path, { force: true })
+    }
+  }, 20_000)
+
+  /**
+   * The probe's markers are its FIRST TWO LINES, and nothing a command printed is read as one. A
+   * run that logs `MOL_TASK_EXIT 0` — the launcher's own marker shape — with no exit file on disk
+   * ended; there is no verdict, and the log's line must not become a trusted zero.
+   */
+  it('never trusts a MOL_TASK_EXIT line the run printed itself', async () => {
+    const own = `/tmp/m303-spoof-${Math.random().toString(36).slice(2, 8)}.log`
+    writeFileSync(own, 'build started\nMOL_TASK_EXIT 0\n')
+    const files: Record<string, string> = {}
+    const backend: ExecutionBackend = {
+      projectRoot: '/test',
+      readFile: vi.fn(async (path: string) => {
+        if (path === own) return 'build started\nMOL_TASK_EXIT 0\n'
+        if (path.endsWith('.log')) return ''
+        throw new Error(`ENOENT: ${path}`)
+      }),
+      writeFile: vi.fn().mockResolvedValue(undefined),
+      deleteFile: vi.fn(),
+      readDir: vi.fn(),
+      run: vi.fn(async (command: string) => {
+        if (!command.includes('MOL_TASK_STATE')) return { stdout: '', stderr: '', exitCode: 0 }
+        const r = spawnSync('sh', ['-c', command], { encoding: 'utf8' })
+        return { stdout: r.stdout ?? '', stderr: r.stderr ?? '', exitCode: r.status ?? 1 }
+      }),
+    }
+    try {
+      const tools = buildTools(backend)
+      const started = (await tools
+        .find((t) => t.name === 'exec_command')!
+        .execute({
+          // No exit file ever appears for this task: the wrapper is gone and wrote none.
+          command: `echo "build started" > ${own}; echo MOL_TASK_EXIT 0 >> ${own}`,
+          run_in_background: true,
+        })) as { taskId: string }
+      for (const [path, content] of Object.entries({
+        [`/tmp/${started.taskId}.sh`]: 'exit 0\n',
+        [`/tmp/${started.taskId}.pid`]: '99999999\n', // no such process
+        [`/tmp/${started.taskId}.log`]: '',
+      })) {
+        files[path] = content
+        writeFileSync(path, content)
+      }
+      const r = (await tools
+        .find((t) => t.name === 'wait_for_task')!
+        .execute({ taskId: started.taskId, timeout: 10_000 })) as {
+        status?: string
+        exitCode: number | null
+        note?: string
+      }
+      expect(r.status).toBe('completed')
+      expect(r.exitCode).toBeNull()
+      expect(r.note).toContain('ended without writing an exit code')
+    } finally {
+      rmSync(own, { force: true })
+      for (const path of Object.keys(files)) rmSync(path, { force: true })
+    }
+  }, 20_000)
+
+  /**
+   * The same spoofed line while the task is still walking: the log's `MOL_TASK_EXIT 0` buys
+   * nothing, so the wait says running rather than handing back a zero nobody wrote.
+   */
+  it('keeps waiting when the run prints a marker line but is still alive', async () => {
+    const own = `/tmp/m303-spoof-alive-${Math.random().toString(36).slice(2, 8)}.log`
+    writeFileSync(own, 'build started\nMOL_TASK_EXIT 0\n')
+    const files: Record<string, string> = {}
+    const backend: ExecutionBackend = {
+      projectRoot: '/test',
+      readFile: vi.fn(async (path: string) => {
+        if (path === own) return 'build started\nMOL_TASK_EXIT 0\n'
+        if (path.endsWith('.log')) return ''
+        throw new Error(`ENOENT: ${path}`)
+      }),
+      writeFile: vi.fn().mockResolvedValue(undefined),
+      deleteFile: vi.fn(),
+      readDir: vi.fn(),
+      run: vi.fn(async (command: string) => {
+        if (!command.includes('MOL_TASK_STATE')) return { stdout: '', stderr: '', exitCode: 0 }
+        const r = spawnSync('sh', ['-c', command], { encoding: 'utf8' })
+        return { stdout: r.stdout ?? '', stderr: r.stderr ?? '', exitCode: r.status ?? 1 }
+      }),
+    }
+    try {
+      const tools = buildTools(backend)
+      const started = (await tools
+        .find((t) => t.name === 'exec_command')!
+        .execute({
+          command: `echo "build started" > ${own}; echo MOL_TASK_EXIT 0 >> ${own}`,
+          run_in_background: true,
+        })) as { taskId: string }
+      for (const [path, content] of Object.entries({
+        [`/tmp/${started.taskId}.sh`]: 'exit 0\n',
+        // A process that is really alive: the probe's `kill -0` must say so.
+        [`/tmp/${started.taskId}.pid`]: `${process.pid}\n`,
+        [`/tmp/${started.taskId}.log`]: '',
+      })) {
+        files[path] = content
+        writeFileSync(path, content)
+      }
+      const r = (await tools
+        .find((t) => t.name === 'wait_for_task')!
+        .execute({ taskId: started.taskId, timeout: 5_000 })) as {
+        status?: string
+        exitCode?: number | null
+      }
+      expect(r.status).toBe('running')
+      expect(r.exitCode).toBeUndefined()
+    } finally {
+      rmSync(own, { force: true })
+      for (const path of Object.keys(files)) rmSync(path, { force: true })
+    }
+  }, 20_000)
+
+  /**
+   * Precedence: the wrapper's code is not an ending while the wrapper's own process is still
+   * alive. The exit file exists but the pid answers "alive", so the wait keeps waiting.
+   */
+  it('does not end a task on the wrapper’s code while its process is alive', async () => {
+    const taskId = `mol-bg-m303alive-${Math.random().toString(36).slice(2, 8)}`
+    const files: Record<string, string> = {
+      [`/tmp/${taskId}.sh`]: 'exit 0\n',
+      [`/tmp/${taskId}.pid`]: `${process.pid}\n`,
+      [`/tmp/${taskId}.exit`]: '0\n',
+      [`/tmp/${taskId}.log`]: 'still walking\n',
+    }
+    for (const [path, content] of Object.entries(files)) writeFileSync(path, content)
+    const backend: ExecutionBackend = {
+      projectRoot: '/test',
+      readFile: vi.fn(async (path: string) => {
+        // The wait's own tick read never sees the code; the probe's shell does.
+        if (path.endsWith('.exit')) throw new Error(`ENOENT: ${path}`)
+        if (!(path in files)) throw new Error(`ENOENT: ${path}`)
+        return files[path]
+      }),
+      writeFile: vi.fn().mockResolvedValue(undefined),
+      deleteFile: vi.fn(),
+      readDir: vi.fn(),
+      run: vi.fn(async (command: string) => {
+        if (!command.includes('MOL_TASK_STATE')) return { stdout: '', stderr: '', exitCode: 0 }
+        const r = spawnSync('sh', ['-c', command], { encoding: 'utf8' })
+        return { stdout: r.stdout ?? '', stderr: r.stderr ?? '', exitCode: r.status ?? 1 }
+      }),
+    }
+    try {
+      const r = (await buildTools(backend)
+        .find((t) => t.name === 'wait_for_task')!
+        .execute({ taskId, timeout: 5_000 })) as {
+        status?: string
+        exitCode?: number | null
+      }
+      expect(r.status).toBe('running')
+      expect(r.exitCode).toBeUndefined()
+    } finally {
+      for (const path of Object.keys(files)) rmSync(path, { force: true })
+    }
+  }, 20_000)
+
+  /**
+   * A launch that ends in `&` returns the status of the backgrounding statement — the launch
+   * acknowledgement — immediately. That code is not the run's verdict: the run is still walking
+   * (the wrapper is expected to be gone), so the wait must not report it finished.
+   */
+  it('does not turn a backgrounded launch’s code into the run’s completion', async () => {
+    const own = `/tmp/m303-ack-${Math.random().toString(36).slice(2, 8)}.log`
+    const backend: ExecutionBackend = {
+      projectRoot: '/test',
+      readFile: vi.fn(async (path: string) => {
+        if (path === own) return 'first test passed\n'
+        if (path.endsWith('.log')) return ''
+        if (path.endsWith('.exit')) return '0\n'
+        throw new Error(`ENOENT: ${path}`)
+      }),
+      writeFile: vi.fn().mockResolvedValue(undefined),
+      deleteFile: vi.fn(),
+      readDir: vi.fn(),
+      run: vi.fn(async (command: string) => {
+        if (!command.includes('MOL_TASK_STATE')) return { stdout: '', stderr: '', exitCode: 0 }
+        const r = spawnSync('sh', ['-c', command], { encoding: 'utf8' })
+        return { stdout: r.stdout ?? '', stderr: r.stderr ?? '', exitCode: r.status ?? 1 }
+      }),
+    }
+    const files: Record<string, string> = {}
+    try {
+      const tools = buildTools(backend)
+      const started = (await tools
+        .find((t) => t.name === 'exec_command')!
+        .execute({
+          // The real work is backgrounded; the command itself returns at once.
+          command: `echo started > ${own}; ( sleep 30; echo EXIT=3 >> ${own} ) &`,
+          run_in_background: true,
+        })) as { taskId: string }
+      for (const [path, content] of Object.entries({
+        [`/tmp/${started.taskId}.sh`]: `echo started > ${own}; ( sleep 30; echo EXIT=3 >> ${own} ) &\n`,
+        [`/tmp/${started.taskId}.pid`]: '99999999\n', // the wrapper is gone: it launched in `&`
+        [`/tmp/${started.taskId}.exit`]: '0\n', // the launch acknowledgement
+        [`/tmp/${started.taskId}.log`]: '',
+      })) {
+        files[path] = content
+        writeFileSync(path, content)
+      }
+      const r = (await tools
+        .find((t) => t.name === 'wait_for_task')!
+        .execute({ taskId: started.taskId, timeout: 5_000 })) as {
+        status?: string
+        exitCode?: number | null
+      }
+      expect(r.status).toBe('running')
+      expect(r.exitCode).toBeUndefined()
+    } finally {
+      rmSync(own, { force: true })
+      for (const path of Object.keys(files)) rmSync(path, { force: true })
+    }
+  }, 20_000)
+
+  /**
+   * …and the same launch DOES finish once its own output records the run's verdict, which outranks
+   * the acknowledgement left in the exit file.
+   */
+  it('ends a backgrounded launch on the run’s own EXIT marker, not the launch’s code', async () => {
+    const own = `/tmp/m303-ack-done-${Math.random().toString(36).slice(2, 8)}.log`
+    writeFileSync(own, 'started\n  build finished\nEXIT=3\n')
+    const backend: ExecutionBackend = {
+      projectRoot: '/test',
+      readFile: vi.fn(async (path: string) => {
+        if (path === own) return 'started\n  build finished\nEXIT=3\n'
+        if (path.endsWith('.log')) return ''
+        if (path.endsWith('.exit')) return '0\n'
+        throw new Error(`ENOENT: ${path}`)
+      }),
+      writeFile: vi.fn().mockResolvedValue(undefined),
+      deleteFile: vi.fn(),
+      readDir: vi.fn(),
+      run: vi.fn(async (command: string) => {
+        if (!command.includes('MOL_TASK_STATE')) return { stdout: '', stderr: '', exitCode: 0 }
+        const r = spawnSync('sh', ['-c', command], { encoding: 'utf8' })
+        return { stdout: r.stdout ?? '', stderr: r.stderr ?? '', exitCode: r.status ?? 1 }
+      }),
+    }
+    const files: Record<string, string> = {}
+    try {
+      const tools = buildTools(backend)
+      const started = (await tools
+        .find((t) => t.name === 'exec_command')!
+        .execute({
+          command: `echo started > ${own}; ( echo EXIT=3 >> ${own} ) &`,
+          run_in_background: true,
+        })) as { taskId: string }
+      for (const [path, content] of Object.entries({
+        [`/tmp/${started.taskId}.sh`]: `echo started > ${own}; ( echo EXIT=3 >> ${own} ) &\n`,
+        [`/tmp/${started.taskId}.pid`]: '99999999\n',
+        [`/tmp/${started.taskId}.exit`]: '0\n',
+        [`/tmp/${started.taskId}.log`]: '',
+      })) {
+        files[path] = content
+        writeFileSync(path, content)
+      }
+      const r = (await tools
+        .find((t) => t.name === 'wait_for_task')!
+        .execute({ taskId: started.taskId, timeout: 10_000 })) as {
+        status?: string
+        exitCode: number | null
+      }
+      expect(r.status).toBe('completed')
+      expect(r.exitCode).toBe(3)
+    } finally {
+      rmSync(own, { force: true })
       for (const path of Object.keys(files)) rmSync(path, { force: true })
     }
   }, 20_000)

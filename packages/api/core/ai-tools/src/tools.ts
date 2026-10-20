@@ -12,6 +12,7 @@ import { posix } from 'path'
 import type { AITool } from '@molecule/api-ai'
 
 import { browserProbeOverBudgetAdvice, browserProbeRefusal } from './browser-probe.js'
+import { locatedCommandSegments } from './command-position.js'
 import {
   commandCutRun,
   CUT_AT_BUDGET,
@@ -62,6 +63,28 @@ const logBytesByTask = new Map<string, number>()
 
 /** The file a background command writes its own output to, when it redirects it. */
 const outputFileByTask = new Map<string, string>()
+
+/**
+ * Task ids whose command ENDS with a backgrounded statement (`… &`).
+ *
+ * Such a launch returns the status of the backgrounding operation itself — a launch
+ * acknowledgement — and its wrapper is expected to be gone while the run it started still walks, so
+ * neither the wrapper's code nor its death says the run ended ({@link taskEndState}). The run's own
+ * output is the only ending that counts. Read from the command's shell structure, the same parse the
+ * rest of this package uses ({@link endsInBackground}), never from anything the run printed.
+ */
+const detachedByTask = new Set<string>()
+
+/**
+ * Whether a command's LAST statement is backgrounded (`… &`), which makes the wrapper's exit code
+ * the launch's own status rather than the run's verdict.
+ *
+ * @param command - The shell command a background task runs.
+ * @returns True when the shell parse ends on a `&` terminator.
+ */
+function endsInBackground(command: string): boolean {
+  return locatedCommandSegments(command).at(-1)?.terminator === '&'
+}
 
 /**
  * Task ids whose log has SHOWN a failure's own body under a `✘` row — the inline failure switch's
@@ -320,19 +343,25 @@ function exitCodeIn(raw: string): number | null {
  * "gone" answer means the write has already happened, and the read that follows cannot miss it.
  * Read first, the same shell would still have a window between the two statements.
  *
+ * The first TWO lines are always the two headers, in this order, and the exit header is always
+ * there (`unknown` when the file holds no code yet). {@link taskEndState} reads those positions
+ * and nothing else, so a run whose own output prints `MOL_TASK_EXIT 0` cannot have that line
+ * mistaken for a written code — the bytes a command can produce start at the third line.
+ *
  * @param taskId - The task's `mol-bg-…` handle (format already checked by the caller).
  * @param own - The file the command redirects its own output to, when the launch could tell.
- * @returns The command; its first lines are `MOL_TASK_STATE <alive|gone|unknown>` and
- *   `MOL_TASK_EXIT <n>` (only when the exit file holds a code), the rest the tail of the run's
- *   own output.
+ * @returns The command; line 1 is `MOL_TASK_STATE <alive|gone|unknown>`, line 2
+ *   `MOL_TASK_EXIT <n|unknown>`, and the rest the tail of the run's own output.
  */
 const taskStateCommand = (taskId: string, own?: string): string =>
   `P=$(cat /tmp/${taskId}.pid 2>/dev/null); ` +
-  `if [ -z "$P" ] || [ ! -f /tmp/${taskId}.sh ]; then echo MOL_TASK_STATE unknown; ` +
-  `elif kill -0 "$P" 2>/dev/null; then echo MOL_TASK_STATE alive; ` +
-  `else echo MOL_TASK_STATE gone; fi; ` +
+  `if [ -z "$P" ] || [ ! -f /tmp/${taskId}.sh ]; then S=unknown; ` +
+  `elif kill -0 "$P" 2>/dev/null; then S=alive; ` +
+  `else S=gone; fi; ` +
   `c=$(cat /tmp/${taskId}.exit 2>/dev/null); ` +
-  `case "$c" in ''|*[!0-9]*) ;; *) echo MOL_TASK_EXIT "$c";; esac; ` +
+  `case "$c" in ''|*[!0-9]*) X=unknown;; *) X=$c;; esac; ` +
+  `echo MOL_TASK_STATE "$S"; ` +
+  `echo MOL_TASK_EXIT "$X"; ` +
   (own ? `tail -c ${TASK_OUTPUT_END_BYTES} ${shellQuote(own)} 2>/dev/null` : 'true')
 
 /**
@@ -383,6 +412,7 @@ function outputEnding(text: string): TaskEndState {
  */
 async function taskEndState(backend: ExecutionBackend, taskId: string): Promise<TaskEndState> {
   const own = outputFileByTask.get(taskId)
+  const detached = detachedByTask.has(taskId)
   let stdout: string
   try {
     const r = await backend.run(taskStateCommand(taskId, own), { timeout: 5_000 })
@@ -392,14 +422,13 @@ async function taskEndState(backend: ExecutionBackend, taskId: string): Promise<
     // the loud one (a result handed back for a run that is still walking).
     return { ended: false, exitCode: null }
   }
-  // The probe answers in markers — the exit code (when the file holds one) and the pid state —
-  // followed by the run's own output; the marker lines are not part of that tail.
-  const tail = stdout
-    .split('\n')
-    .filter((line) => !/^MOL_TASK_(?:STATE|EXIT) \S+$/.test(line))
-    .join('\n')
-  const state = /MOL_TASK_STATE (alive|gone|unknown)/.exec(stdout)?.[1] ?? 'unknown'
-  const ownEnding = outputEnding(tail)
+  // The headers are OURS, at fixed positions — a line the run's own output prints that is shaped
+  // like one cannot be read as one, and the bytes after line 2 are the run's tail regardless.
+  const lines = stdout.split('\n').map((line) => line.replace(/\r$/, ''))
+  const state = /^MOL_TASK_STATE (alive|gone|unknown)$/.exec(lines[0] ?? '')?.[1] ?? 'unknown'
+  const headerCode = /^MOL_TASK_EXIT (\d+)$/.exec(lines[1] ?? '')?.[1]
+  const reported = headerCode === undefined ? null : Number(headerCode)
+  const ownEnding = outputEnding(lines.slice(2).join('\n'))
   // The run's own output can end the task while its wrapper is still alive: the wrapper may be
   // waiting on the wrong thing (m182's was blocked) while the run it started is over. An explicit
   // `EXIT=<n>` is that verdict — more specific than the wrapper's own code, which in that shape is
@@ -407,14 +436,19 @@ async function taskEndState(backend: ExecutionBackend, taskId: string): Promise<
   // once the pid is gone, because the instant between a walk's tally and its next walk's header
   // reads the same.
   if (ownEnding.ended && (ownEnding.exitCode !== null || state === 'gone')) return ownEnding
+  // A launch whose LAST statement is backgrounded (`… &`) returned the status of the backgrounding
+  // operation — a launch acknowledgement — and its wrapper is expected to be gone while the run it
+  // started still walks. Neither that code nor the wrapper's death is the run's ending; only the
+  // run's own output is (see {@link detachedByTask}).
+  if (!detached && reported !== null && state === 'gone') return { ended: true, exitCode: reported }
   // The code the launcher wrote, read in the same shell as the pid test: a wrapper that finished
   // and wrote it between a wait's own read of the file and this probe is found here rather than
-  // reported as having written none (xr-molecule-flash-m303).
-  const reported = /^MOL_TASK_EXIT (\d+)$/m.exec(stdout)
-  if (reported) return { ended: true, exitCode: Number(reported[1]) }
+  // reported as having written none (xr-molecule-flash-m303). A wrapper still alive has not reached
+  // that write yet (or is a moment away from exiting), so the code is not an ending for it.
+  if (!detached && reported !== null && state === 'gone') return { ended: true, exitCode: reported }
   // A pid this sandbox can account for and that is gone, with no exit file: the wrapper that
   // writes the exit code was killed or exited, so the task ended and has no verdict to invent.
-  if (state === 'gone') return { ended: true, exitCode: null }
+  if (!detached && state === 'gone') return { ended: true, exitCode: null }
   return { ended: false, exitCode: null }
 }
 
@@ -659,7 +693,9 @@ async function backgroundTaskState(
   const stateOf = async (
     id: string,
   ): Promise<{ id: string; ended: boolean; exitCode: number | null }> => {
-    const exitCode = await exitCodeOf(id)
+    // A launch that ended in `&` writes its exit file at once with the launch's own status; that
+    // is an acknowledgement, and the task's end is read from its own output instead.
+    const exitCode = detachedByTask.has(id) ? null : await exitCodeOf(id)
     if (exitCode !== null) return { id, ended: true, exitCode }
     return { id, ...(await taskEndState(backend, id)) }
   }
@@ -3206,6 +3242,11 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           const ownTarget = outputRedirectTarget(streaming.command)
           const ownFile = ownTarget === null ? null : posix.resolve(cwd, ownTarget)
           if (ownFile) outputFileByTask.set(id, ownFile)
+          // A command that ends by backgrounding its own work returns instantly with the status of
+          // that backgrounding statement; the wrapper's code is the launch's acknowledgement, not
+          // the run's verdict (see {@link detachedByTask}).
+          const detached = endsInBackground(streaming.command)
+          if (detached) detachedByTask.add(id)
           // Nothing is recorded about the inline-failure switch here: every background launch is
           // given it, so the command says nothing about what the log will carry. A wait reads the
           // log itself (see inlineFailuresByTask).
@@ -3226,8 +3267,10 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           // seconds (a Hurl suite: 37 ms). Handing it back as a task cost a
           // wait_for_task round trip each time (X1 flash-m20, twice in ten
           // minutes), so wait a short grace first and return a finished command
-          // exactly as a foreground run returns.
-          if (overCeiling && input.run_in_background !== true) {
+          // exactly as a foreground run returns. A launch that ended in `&` is not one of these:
+          // its exit file appears at once with the launch's own status, and handing that back as
+          // the run's result would report an acknowledgement as a finished run.
+          if (overCeiling && input.run_in_background !== true && !detached) {
             const graceUntil = Date.now() + overCeilingGraceMs
             while (Date.now() < graceUntil) {
               let code: number | null = null
@@ -3609,6 +3652,9 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           // command runs unless the caller passed one. An absolute target is
           // already resolved and stays as written.
           if (target) outputFileByTask.set(taskId, posix.resolve(root, target))
+          // The launch's own shape outlives this process the same way its redirect target does:
+          // a command that ended in `&` is still a launch acknowledgement, not a finished run.
+          if (endsInBackground(script)) detachedByTask.add(taskId)
         } catch (_error) {
           // No script under that id: this process did not start the task, so
           // there is nothing to recover. The log stays the whole result.
@@ -3683,7 +3729,12 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       const budgetMs =
         Number.isFinite(requested) && requested > 0 ? Math.min(requested, ceiling) : ceiling
       const startedAt = Date.now()
+      // A task whose command ended in `&` writes its exit file the moment it launches, with the
+      // launch's own status: that code is an acknowledgement, never the run's verdict, and its end
+      // is read from its own output by {@link taskEndState} instead.
+      const detachedRun = detachedByTask.has(taskId)
       const readExit = async (): Promise<number | null> => {
+        if (detachedRun) return null
         try {
           // A file that is there but holds no number yet is the launcher's truncate-then-write
           // instant, not a verdict — the next tick reads the code (see {@link exitCodeIn}).
