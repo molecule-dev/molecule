@@ -1,5 +1,11 @@
 # @molecule/app-ai-chat-http
 
+## 1.4.0
+
+### Minor Changes
+
+- 4ae65a1: Sends Last-Event-ID on a resume and retries a resume answered 502/503/504 with backoff, so a dropped stream survives a rolling restart; a fresh send is never retried.
+
 ## 1.3.3
 
 ### Patch Changes

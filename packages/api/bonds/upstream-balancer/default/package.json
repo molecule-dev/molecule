@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-upstream-balancer-default",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Default upstream-balancer provider for molecule.dev: per-host round-robin with a passive failure cooldown, retry elsewhere and drain-awareness.",
   "type": "module",
   "main": "dist/index.js",
@@ -38,7 +38,7 @@
     "@molecule/api-upstream-balancer": "^1.0.0"
   },
   "devDependencies": {
-    "@molecule/api-upstream-balancer": "1.0.0",
+    "@molecule/api-upstream-balancer": "1.1.0",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.11"

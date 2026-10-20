@@ -1,5 +1,11 @@
 # @molecule/api-database-postgresql
 
+## 1.3.0
+
+### Minor Changes
+
+- 7b65737: Registers a critical database readiness probe and a pool-closing shutdown hook when @molecule/api-process-lifecycle is present.
+
 ## 1.2.2
 
 ### Patch Changes

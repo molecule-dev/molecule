@@ -1,5 +1,11 @@
 # @molecule/api-queue
 
+## 1.1.0
+
+### Minor Changes
+
+- 7b65737: Adds an optional ping() so a readiness probe can check the broker rather than an in-memory queue list.
+
 ## 1.0.1
 
 ### Patch Changes

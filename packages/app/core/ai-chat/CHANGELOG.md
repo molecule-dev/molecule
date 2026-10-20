@@ -1,5 +1,11 @@
 # @molecule/app-ai-chat
 
+## 1.6.0
+
+### Minor Changes
+
+- 4ae65a1: Adds ChatConfig.lastEventId so a resumed stream can continue from the last event the client saw.
+
 ## 1.5.2
 
 ### Patch Changes

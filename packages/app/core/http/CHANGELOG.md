@@ -1,5 +1,15 @@
 # @molecule/app-http
 
+## 1.4.0
+
+### Minor Changes
+
+- 4ae65a1: Retries idempotent requests twice on 502/503/504 or a reset connection, with jittered backoff and Retry-After; a POST/PATCH is repeated only with an Idempotency-Key.
+
+### Patch Changes
+
+- 8c20e8d: Clarify custom response envelope handling and account registration examples.
+
 ## 1.3.0
 
 ### Minor Changes

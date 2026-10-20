@@ -1,5 +1,14 @@
 # @molecule/api-ai-tools
 
+## 1.10.7
+
+### Patch Changes
+
+- 205ddd4: `exec_command` now refuses a directly executed standalone script that launches a browser and never closes it, instead of waiting the full budget and then advising the background; the timeout advice names a `try/finally` close or the Playwright runner's browser fixture. Ambiguous scripts (aliases, cleanup helpers, context/page disposal, `using` scopes, explicit exit, persistent browser/server intent, test runners and fixtures) are left alone.
+- 1f10ccc: `edit_file` now refuses a call that supplies both a `replacements` batch and the top-level `old_string`/`new_string` pair instead of applying the batch and silently discarding the pair; the tool schema documents the two forms as mutually exclusive.
+- 1bba5fd: `exec_command` keeps the full command budget when an inline interpreter program is chained with a statement that runs a script file or a program the local-transform allowlist does not cover, instead of applying the short local-transform budget to the whole command.
+- 8058b12: Ignore shell comments when identifying commands and heredoc openers while preserving command positions.
+
 ## 1.10.6
 
 ### Patch Changes

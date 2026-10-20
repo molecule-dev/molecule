@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-deploy-rollout-sandbox",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Sandbox provider bond for @molecule/api-deploy-rollout: grow-then-shrink rolling deploys over any @molecule/api-code-sandbox provider (E2B, Docker, Fly).",
   "type": "module",
   "main": "dist/index.js",
@@ -41,7 +41,7 @@
   },
   "devDependencies": {
     "@molecule/api-code-sandbox": "1.4.0",
-    "@molecule/api-deploy-rollout": "1.0.0",
+    "@molecule/api-deploy-rollout": "1.1.0",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.11"

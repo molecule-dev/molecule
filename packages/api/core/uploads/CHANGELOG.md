@@ -1,5 +1,11 @@
 # @molecule/api-uploads
 
+## 1.1.0
+
+### Minor Changes
+
+- 7b65737: Adds optional ping() and close() so a storage bond can report readiness and release its client at shutdown.
+
 ## 1.0.1
 
 ### Patch Changes

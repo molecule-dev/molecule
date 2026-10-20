@@ -1,5 +1,11 @@
 # @molecule/api-cache
 
+## 1.1.0
+
+### Minor Changes
+
+- 7b65737: Adds an optional ping() so a readiness probe can tell a cache outage from a cache miss.
+
 ## 1.0.1
 
 ### Patch Changes

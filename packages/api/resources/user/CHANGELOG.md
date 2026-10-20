@@ -1,5 +1,15 @@
 # @molecule/api-resource-user
 
+## 1.7.0
+
+### Minor Changes
+
+- 56e9245: Handler factories accept an optional `schema` and default it to the package's `propsSchema`; the package docs now show the supported construction and the exact sign-up/sign-in statuses.
+
+### Patch Changes
+
+- 26f22d7: Document how to reshape a handler's success body: the session token is `result.body.accessToken`, and `props`/`user` are the safe, secret-stripped user fields.
+
 ## 1.6.0
 
 ### Minor Changes

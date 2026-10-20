@@ -1,5 +1,12 @@
 # @molecule/app-react
 
+## 1.6.7
+
+### Patch Changes
+
+- 9883b58: `AuthClientConfig` accepts the app's user type, so `mapAuthResponse` is checked against the same profile `createJWTAuthClient` returns; `useAuth()` now exposes `setSession` for adopting a caller-issued session in one update.
+- 8c20e8d: Clarify custom response envelope handling and account registration examples.
+
 ## 1.6.6
 
 ### Patch Changes

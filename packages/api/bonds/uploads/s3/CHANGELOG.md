@@ -1,5 +1,11 @@
 # @molecule/api-uploads-s3
 
+## 1.2.0
+
+### Minor Changes
+
+- 7b65737: Adds ping()/close(), and registers a non-critical storage readiness probe and a client-destroying shutdown hook when @molecule/api-process-lifecycle is present.
+
 ## 1.1.1
 
 ### Patch Changes

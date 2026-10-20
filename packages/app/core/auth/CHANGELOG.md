@@ -1,5 +1,11 @@
 # @molecule/app-auth
 
+## 1.5.7
+
+### Patch Changes
+
+- 9883b58: `AuthClientConfig` accepts the app's user type, so `mapAuthResponse` is checked against the same profile `createJWTAuthClient` returns; `useAuth()` now exposes `setSession` for adopting a caller-issued session in one update.
+
 ## 1.5.6
 
 ### Patch Changes

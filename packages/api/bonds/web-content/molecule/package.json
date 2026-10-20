@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-web-content-molecule",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "molecule.dev hosted web content — fetch a page or extract readable content, billed to your molecule project, no vendor account",
   "type": "module",
   "main": "dist/index.js",
@@ -34,7 +34,7 @@
     "@molecule/api-web-content": ">=1.0.0"
   },
   "devDependencies": {
-    "@molecule/api-web-content": "1.0.0",
+    "@molecule/api-web-content": "1.1.0",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.11"

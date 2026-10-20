@@ -1,5 +1,11 @@
 # @molecule/app-realtime
 
+## 1.0.3
+
+### Patch Changes
+
+- 4ae65a1: Documents that a dropped connection reconnects, re-joins rooms and fires onReconnect, and how packet replay is reported.
+
 ## 1.0.1
 
 ### Patch Changes

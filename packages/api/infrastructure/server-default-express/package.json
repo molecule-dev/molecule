@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-server-default-express",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Default Express server factory: bonds setup, DB migrations, body/cookie/cors middleware, /api router mount, /health endpoint, 401 normalization, optional HTTPS via self-signed pem certs. Extracts 80-line server.ts shipped by 79 fleet apps.",
   "homepage": "https://www.molecule.dev/packages/api-server-default-express",
   "type": "module",
@@ -29,8 +29,8 @@
   ],
   "license": "Apache-2.0",
   "dependencies": {
-    "@molecule/api-process-lifecycle": "1.1.0",
-    "@molecule/api-process-lifecycle-express": "1.1.0"
+    "@molecule/api-process-lifecycle": "1.2.0",
+    "@molecule/api-process-lifecycle-express": "1.2.0"
   },
   "repository": {
     "type": "git",

@@ -1,5 +1,19 @@
 # @molecule/api-server-default-express
 
+## 1.2.0
+
+### Minor Changes
+
+- 61092fb: Readiness now answers 503 until the boot warm-up settles and two consecutive probes pass, so a rolling deploy does not route to a still-warming instance.
+
+### Patch Changes
+
+- Updated dependencies [7b65737]
+- Updated dependencies [61092fb]
+- Updated dependencies [61092fb]
+  - @molecule/api-process-lifecycle@1.2.0
+  - @molecule/api-process-lifecycle-express@1.2.0
+
 ## 1.1.0
 
 ### Minor Changes

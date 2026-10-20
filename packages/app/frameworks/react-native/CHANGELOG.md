@@ -1,5 +1,11 @@
 # @molecule/app-react-native
 
+## 1.0.3
+
+### Patch Changes
+
+- 8c20e8d: Clarify custom response envelope handling and account registration examples.
+
 ## 1.0.1
 
 ### Patch Changes

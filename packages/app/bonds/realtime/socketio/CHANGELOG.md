@@ -1,5 +1,11 @@
 # @molecule/app-realtime-socketio
 
+## 1.1.0
+
+### Minor Changes
+
+- 4ae65a1: Adds wasRecovered() so an app can tell whether a reconnect replayed missed packets or it must refetch.
+
 ## 1.0.1
 
 ### Patch Changes

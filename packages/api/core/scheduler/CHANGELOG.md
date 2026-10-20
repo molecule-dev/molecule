@@ -1,5 +1,11 @@
 # @molecule/api-scheduler
 
+## 1.1.0
+
+### Minor Changes
+
+- b3ddf3a: Adds SchedulerTaskRunLock so a provider can run a scheduled task once across instances, and documents that the default scheduler runs every task on every instance.
+
 ## 1.0.1
 
 ### Patch Changes

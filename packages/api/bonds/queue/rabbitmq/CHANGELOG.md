@@ -1,5 +1,11 @@
 # @molecule/api-queue-rabbitmq
 
+## 1.1.0
+
+### Minor Changes
+
+- 7b65737: Adds a ping(), and registers a non-critical queue readiness probe and a connection-closing shutdown hook when @molecule/api-process-lifecycle is present.
+
 ## 1.0.1
 
 ### Patch Changes

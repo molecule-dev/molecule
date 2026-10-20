@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-uploads",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "Uploads core interface for molecule.dev",
   "type": "module",
   "main": "dist/index.js",

@@ -1,5 +1,11 @@
 # @molecule/api-cache-memcached
 
+## 1.1.0
+
+### Minor Changes
+
+- 7b65737: Adds a ping(), and registers a non-critical cache readiness probe and a client-closing shutdown hook when @molecule/api-process-lifecycle is present.
+
 ## 1.0.3
 
 ### Patch Changes

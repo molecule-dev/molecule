@@ -1,5 +1,11 @@
 # @molecule/api-ai-embeddings-local
 
+## 1.0.3
+
+### Patch Changes
+
+- 423e454: Run local embeddings in a bounded worker thread so model loading and inference do not block server requests.
+
 ## 1.0.1
 
 ### Patch Changes

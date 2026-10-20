@@ -1,5 +1,11 @@
 # @molecule/app-http-axios
 
+## 1.1.0
+
+### Minor Changes
+
+- 4ae65a1: Retries idempotent requests twice on 502/503/504 or a reset connection, with jittered backoff and Retry-After; a POST/PATCH is repeated only with an Idempotency-Key.
+
 ## 1.0.7
 
 ### Patch Changes
