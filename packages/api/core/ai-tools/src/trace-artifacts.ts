@@ -290,7 +290,7 @@ export interface TraceCountMatch {
   classes?: string
   /** Its own text, whitespace-collapsed and bounded. */
   text?: string
-  /** It and its ancestors, outermost first (`body > div.comment-form > div.card`), bounded. */
+  /** Its ancestors, outermost first (`body > div.comment-form > div.card`), bounded. */
   path?: string
   /** True when a `<form>` is one of its ancestors — the m321 extra match's shape. */
   inForm?: true
