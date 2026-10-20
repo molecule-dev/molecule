@@ -436,15 +436,12 @@ async function taskEndState(backend: ExecutionBackend, taskId: string): Promise<
   // once the pid is gone, because the instant between a walk's tally and its next walk's header
   // reads the same.
   if (ownEnding.ended && (ownEnding.exitCode !== null || state === 'gone')) return ownEnding
-  // A launch whose LAST statement is backgrounded (`… &`) returned the status of the backgrounding
-  // operation — a launch acknowledgement — and its wrapper is expected to be gone while the run it
-  // started still walks. Neither that code nor the wrapper's death is the run's ending; only the
-  // run's own output is (see {@link detachedByTask}).
-  if (!detached && reported !== null && state === 'gone') return { ended: true, exitCode: reported }
-  // The code the launcher wrote, read in the same shell as the pid test: a wrapper that finished
-  // and wrote it between a wait's own read of the file and this probe is found here rather than
-  // reported as having written none (xr-molecule-flash-m303). A wrapper still alive has not reached
-  // that write yet (or is a moment away from exiting), so the code is not an ending for it.
+  // The code the launcher wrote, read in the same shell as the pid test. It is an ending only once
+  // the wrapper is GONE: a wrapper still alive has not reached that write yet (or is a moment away
+  // from exiting), so the code is not an ending for it — and a launch whose LAST statement is
+  // backgrounded (`… &`) returned the status of the backgrounding operation, a launch
+  // acknowledgement, that is never the run's verdict (see {@link detachedByTask}). Read after the
+  // pid test, it is found here rather than reported as never written (xr-molecule-flash-m303).
   if (!detached && reported !== null && state === 'gone') return { ended: true, exitCode: reported }
   // A pid this sandbox can account for and that is gone, with no exit file: the wrapper that
   // writes the exit code was killed or exited, so the task ended and has no verdict to invent.
