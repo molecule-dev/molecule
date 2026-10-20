@@ -43,6 +43,132 @@ describe('createMigrator (sqlite) — ledger', () => {
     }
   }
 
+  const legacyDatabase = (sql: string, files: string[]): void => {
+    const db = new Database(dbPath)
+    try {
+      db.exec(sql)
+      db.exec(
+        `CREATE TABLE "${MIGRATION_LEDGER}" ("file" TEXT PRIMARY KEY, "applied_at" TEXT NOT NULL)`,
+      )
+      for (const file of files) {
+        db.prepare(`INSERT INTO "${MIGRATION_LEDGER}" VALUES (?, ?)`).run(file, '2026-01-01')
+      }
+    } finally {
+      db.close()
+    }
+  }
+
+  it('runs equal basenames in separate namespaces exactly once', async () => {
+    const setupDir = join(workDir, '__setup__')
+    mkdirSync(setupDir)
+    writeFileSync(
+      join(migrationsDir, '001.sql'),
+      'CREATE TABLE users (id INTEGER); INSERT INTO users VALUES (1);',
+    )
+    writeFileSync(
+      join(setupDir, '001.sql'),
+      'CREATE TABLE tags (id INTEGER); INSERT INTO tags VALUES (2);',
+    )
+    for (let boot = 0; boot < 2; boot++) {
+      await createMigrator(migrationsDir, { legacyDirectories: [setupDir] })()
+      await createMigrator(setupDir, {
+        namespace: '__setup__',
+        legacyDirectories: [migrationsDir],
+      })()
+    }
+    expect(query('SELECT * FROM users')).toEqual([{ id: 1 }])
+    expect(query('SELECT * FROM tags')).toEqual([{ id: 2 }])
+    expect(query(`SELECT file FROM "${MIGRATION_LEDGER}" ORDER BY file`)).toEqual([
+      { file: '001.sql' },
+      { file: '__setup__/001.sql' },
+    ])
+  })
+
+  it('adopts uniquely attributable legacy setup history without replaying non-idempotent SQL', async () => {
+    const setupDir = join(workDir, '__setup__')
+    mkdirSync(setupDir)
+    writeFileSync(join(setupDir, 'seed.sql'), 'INSERT INTO tags VALUES (2);')
+    legacyDatabase('CREATE TABLE tags (id INTEGER); INSERT INTO tags VALUES (2);', ['seed.sql'])
+    const run = createMigrator(setupDir, {
+      namespace: '__setup__',
+      legacyDirectories: [migrationsDir],
+    })
+    await run()
+    await run()
+    expect(query('SELECT * FROM tags')).toEqual([{ id: 2 }])
+    expect(query(`SELECT file, applied_at FROM "${MIGRATION_LEDGER}"`)).toEqual([
+      { file: '__setup__/seed.sql', applied_at: '2026-01-01' },
+    ])
+    // A later app migration with the same basename is a different asset.
+    writeFileSync(join(migrationsDir, 'seed.sql'), 'INSERT INTO tags VALUES (3);')
+    await createMigrator(migrationsDir, { legacyDirectories: [setupDir] })()
+    expect(query('SELECT * FROM tags')).toEqual([{ id: 2 }, { id: 3 }])
+  })
+
+  it('preserves uniquely attributable legacy app history when setup gains a new file', async () => {
+    const setupDir = join(workDir, '__setup__')
+    mkdirSync(setupDir)
+    writeFileSync(join(migrationsDir, 'seed.sql'), 'INSERT INTO tags VALUES (2);')
+    legacyDatabase('CREATE TABLE tags (id INTEGER); INSERT INTO tags VALUES (2);', ['seed.sql'])
+    await createMigrator(migrationsDir, { legacyDirectories: [setupDir] })()
+    writeFileSync(join(setupDir, 'seed.sql'), 'INSERT INTO tags VALUES (3);')
+    await createMigrator(setupDir, {
+      namespace: '__setup__',
+      legacyDirectories: [migrationsDir],
+    })()
+    expect(query('SELECT * FROM tags')).toEqual([{ id: 2 }, { id: 3 }])
+  })
+
+  it('refuses ambiguous old basename history without replaying either file', async () => {
+    const setupDir = join(workDir, '__setup__')
+    mkdirSync(setupDir)
+    writeFileSync(join(migrationsDir, 'seed.sql'), 'INSERT INTO tags VALUES (2);')
+    writeFileSync(join(setupDir, 'seed.sql'), 'INSERT INTO tags VALUES (3);')
+    legacyDatabase('CREATE TABLE tags (id INTEGER); INSERT INTO tags VALUES (2);', ['seed.sql'])
+    await expect(
+      createMigrator(migrationsDir, { legacyDirectories: [setupDir] })(),
+    ).rejects.toThrow(/ambiguous.*seed\.sql/i)
+    await expect(
+      createMigrator(setupDir, {
+        namespace: '__setup__',
+        legacyDirectories: [migrationsDir],
+      })(),
+    ).rejects.toThrow(/ambiguous.*seed\.sql/i)
+    expect(query('SELECT * FROM tags')).toEqual([{ id: 2 }])
+    expect(query(`SELECT file, applied_at FROM "${MIGRATION_LEDGER}"`)).toEqual([
+      { file: 'seed.sql', applied_at: '2026-01-01' },
+    ])
+  })
+
+  it('requires legacy directory evidence before attributing a bare record to a namespace', async () => {
+    const setupDir = join(workDir, '__setup__')
+    mkdirSync(setupDir)
+    writeFileSync(join(setupDir, 'seed.sql'), 'INSERT INTO tags VALUES (3);')
+    legacyDatabase('CREATE TABLE tags (id INTEGER); INSERT INTO tags VALUES (2);', ['seed.sql'])
+    await expect(createMigrator(setupDir, { namespace: '__setup__' })()).rejects.toThrow(
+      /ambiguous.*seed\.sql/i,
+    )
+    expect(query('SELECT * FROM tags')).toEqual([{ id: 2 }])
+  })
+
+  it('a failed namespaced file remains retryable and does not affect the app record', async () => {
+    const setupDir = join(workDir, '__setup__')
+    mkdirSync(setupDir)
+    writeFileSync(join(migrationsDir, '001.sql'), 'CREATE TABLE users (id INTEGER);')
+    writeFileSync(
+      join(setupDir, '001.sql'),
+      'CREATE TABLE tags (id INTEGER); INSERT INTO missing VALUES (1);',
+    )
+    await createMigrator(migrationsDir)()
+    const run = createMigrator(setupDir, { namespace: '__setup__' })
+    await expect(run()).rejects.toThrow(/001\.sql/)
+    expect(query("SELECT name FROM sqlite_master WHERE name = 'tags'")).toEqual([])
+    expect(query(`SELECT file FROM "${MIGRATION_LEDGER}"`)).toEqual([{ file: '001.sql' }])
+    writeFileSync(join(setupDir, '001.sql'), 'CREATE TABLE tags (id INTEGER);')
+    await run()
+    expect(query("SELECT name FROM sqlite_master WHERE name = 'tags'")).toHaveLength(1)
+  })
+
   it('runs a file once: a DROP or seed in it does not repeat on the next boot', async () => {
     writeFileSync(
       join(migrationsDir, '0001_init.sql'),

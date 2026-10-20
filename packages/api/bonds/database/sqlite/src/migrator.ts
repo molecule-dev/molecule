@@ -372,9 +372,12 @@ export const MIGRATION_LEDGER = '_molecule_migrations'
  * record, so its files ran under the old every-boot rule).
  *
  * @param db - The open database.
- * @returns The applied file names and whether this boot adopts an existing database.
+ * @returns Applied file identities with their recorded namespace, and legacy adoption state.
  */
-function openLedger(db: Database.Database): { applied: Set<string>; adopting: boolean } {
+function openLedger(db: Database.Database): {
+  applied: Map<string, string | null>
+  adopting: boolean
+} {
   const had = db
     .prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = ?")
     .get(MIGRATION_LEDGER)
@@ -384,10 +387,20 @@ function openLedger(db: Database.Database): { applied: Set<string>; adopting: bo
     )
     .get() as { n: number } | undefined
   db.exec(
-    `CREATE TABLE IF NOT EXISTS "${MIGRATION_LEDGER}" ("file" TEXT PRIMARY KEY, "applied_at" TEXT NOT NULL)`,
+    `CREATE TABLE IF NOT EXISTS "${MIGRATION_LEDGER}" ("file" TEXT PRIMARY KEY, "applied_at" TEXT NOT NULL, "namespace" TEXT)`,
   )
-  const rows = db.prepare(`SELECT "file" FROM "${MIGRATION_LEDGER}"`).all() as { file: string }[]
-  return { applied: new Set(rows.map((r) => r.file)), adopting: !had && (others?.n ?? 0) > 0 }
+  const columns = db.prepare(`PRAGMA table_info("${MIGRATION_LEDGER}")`).all() as { name: string }[]
+  if (!columns.some((column) => column.name === 'namespace')) {
+    db.exec(`ALTER TABLE "${MIGRATION_LEDGER}" ADD COLUMN "namespace" TEXT`)
+  }
+  const rows = db.prepare(`SELECT "file", "namespace" FROM "${MIGRATION_LEDGER}"`).all() as {
+    file: string
+    namespace: string | null
+  }[]
+  return {
+    applied: new Map(rows.map((r) => [r.file, r.namespace])),
+    adopting: !had && (others?.n ?? 0) > 0,
+  }
 }
 
 /**
@@ -395,26 +408,87 @@ function openLedger(db: Database.Database): { applied: Set<string>; adopting: bo
  *
  * @param db - The open database.
  * @param file - The migration file name.
+ * @param namespace - The logical migration directory.
  */
-function record(db: Database.Database, file: string): void {
+function record(db: Database.Database, file: string, namespace: string): void {
   db.prepare(
-    `INSERT OR IGNORE INTO "${MIGRATION_LEDGER}" ("file", "applied_at") VALUES (?, ?)`,
-  ).run(file, new Date().toISOString())
+    `INSERT OR IGNORE INTO "${MIGRATION_LEDGER}" ("file", "applied_at", "namespace") VALUES (?, ?, ?)`,
+  ).run(file, new Date().toISOString(), namespace)
+}
+
+/** Stable identities for apps that apply SQL from more than one directory. */
+export interface MigrationOptions {
+  /** Prefix for ledger keys. Omit for the application's existing migration history. */
+  namespace?: string
+  /**
+   * Other directories that could own a legacy bare filename. Pass the complete
+   * list when upgrading old history; duplicate basenames are refused because
+   * the old ledger did not record which file ran. An empty list asserts that
+   * this is the only migration directory.
+   */
+  legacyDirectories?: readonly string[]
+}
+
+/**
+ * Attribute a legacy bare key only when the caller supplied enough directory
+ * evidence. New rows record their namespace, so equal basenames are independent.
+ *
+ * @param db - Open database.
+ * @param applied - Recorded migration identities.
+ * @param file - SQL basename.
+ * @param key - Current namespaced identity.
+ * @param namespace - Current logical directory.
+ * @param options - Legacy directory evidence.
+ */
+function adoptLegacyKey(
+  db: Database.Database,
+  applied: Map<string, string | null>,
+  file: string,
+  key: string,
+  namespace: string,
+  options: MigrationOptions,
+): void {
+  if (!applied.has(file) || applied.get(file) != null) return
+  // Existing single-directory callers retain their historical skip behavior.
+  // Do not invent ownership: a later namespaced caller may need to resolve it.
+  if (key === file && options.legacyDirectories === undefined) return
+  if (
+    options.legacyDirectories === undefined ||
+    options.legacyDirectories.some((directory) => existsSync(join(directory, file)))
+  ) {
+    throw new Error(
+      `Ambiguous legacy migration ${file}: the ledger has no source directory. ` +
+        'Confirm which SQL file was applied, then assign that row its matching file identity ' +
+        'and namespace before retrying. No SQL from this file was run.',
+    )
+  }
+  // Preserve the original application timestamp and never replay a backfill.
+  db.prepare(`UPDATE "${MIGRATION_LEDGER}" SET "file" = ?, "namespace" = ? WHERE "file" = ?`).run(
+    key,
+    namespace,
+    file,
+  )
+  applied.delete(file)
+  applied.set(key, namespace)
 }
 
 /**
  * Returns a `runMigrations()` bound to a migrations directory.
  *
  * @param migrationsDir - Absolute path to the directory of ordered `*.sql`
- *   migration files. Resolve via
- *   `join(new URL('.', import.meta.url).pathname, '../../migrations')` from the
- *   app's `scripts/migrate.ts`.
+ *   migration files, resolved from the API package directory.
+ * @param options - A stable namespace for a second SQL directory and evidence
+ *   for adopting legacy bare filenames without replaying their SQL.
  * @returns A no-arg `runMigrations()` that opens the SQLite file (creating it
  *   and its parent directory if missing) and applies every migration file in
  *   lexical order using multi-statement `exec()`. Reads the file path from the
  *   `SQLITE_PATH` env var (default `./data/app.db`), matching the pool.
  */
-export function createMigrator(migrationsDir: string): () => Promise<void> {
+export function createMigrator(
+  migrationsDir: string,
+  options: MigrationOptions = {},
+): () => Promise<void> {
+  const namespace = options.namespace ?? ''
   return async function runMigrations(): Promise<void> {
     const dbPath = process.env.SQLITE_PATH ?? './data/app.db'
 
@@ -448,6 +522,10 @@ export function createMigrator(migrationsDir: string): () => Promise<void> {
       let skipped = 0
 
       for (const file of sqlFiles) {
+        const key = namespace ? `${namespace}/${file}` : file
+        if (!applied.has(key) || key === file) {
+          adoptLegacyKey(db, applied, file, key, namespace, options)
+        }
         // Resource/template setup migrations are authored in Postgres dialect;
         // translate the few Postgres-only syntax constructs (gen_random_uuid(),
         // now(), ::casts, index USING <method>) so they apply on SQLite. No-op on
@@ -459,7 +537,7 @@ export function createMigrator(migrationsDir: string): () => Promise<void> {
         const sql = translateDdlToSqlite(
           dropSatisfiedAddColumns(db, dropSatisfiedDropColumns(db, sources.get(file) ?? '')),
         )
-        if (applied.has(file)) {
+        if (applied.has(key)) {
           // A recorded file never runs again (a DROP or a backfill in it would repeat
           // on every boot); columns its own CREATE TABLE declares are still added.
           skipped++
@@ -474,7 +552,7 @@ export function createMigrator(migrationsDir: string): () => Promise<void> {
           if (wrap) db.exec('BEGIN')
           // exec() (not prepare/run) so a file with multiple statements applies.
           db.exec(sql)
-          record(db, file)
+          record(db, key, namespace)
           if (wrap) db.exec('COMMIT')
           console.log(`✓ ${file}`)
           addMissingColumns(db, sql, file, owners)
@@ -484,7 +562,7 @@ export function createMigrator(migrationsDir: string): () => Promise<void> {
           if (isIdempotencyError(err)) {
             if (adopting) {
               // Ran on an earlier boot, before this database kept a record.
-              record(db, file)
+              record(db, key, namespace)
               console.warn(`⚠ ${file}: ${msg} (applied before; now recorded)`)
             } else {
               // The file rolled back (flash-m39 froze a backfill behind an ADD COLUMN
