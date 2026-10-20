@@ -284,19 +284,45 @@ interface TaskEndState {
 }
 
 /**
- * The shell probe behind {@link taskEndState}: the pid the launcher wrote, and the end of the
- * file the command redirects its own output to.
+ * The verdict an exit file holds, or null when it holds none.
+ *
+ * The launcher writes the file as `echo $? > <exitFile>`, which opens it and then writes the code
+ * — so a reader can catch it EMPTY in between, and a wrapper killed at that instant leaves it
+ * empty for good. Neither is a verdict. Reading it as 0 (what this used to do) hands back success
+ * for a command that may have failed — the same fabrication `molecule-dev/api/src/ai/
+ * background-tasks.ts` refuses when it treats such a read as "no exit file yet".
+ *
+ * @param raw - The exit file's content as read.
+ * @returns The exit code it records, or null when it records none.
+ */
+function exitCodeIn(raw: string): number | null {
+  const trimmed = raw.trim()
+  return /^\d+$/.test(trimmed) ? Number.parseInt(trimmed, 10) : null
+}
+
+/**
+ * The shell probe behind {@link taskEndState}: the code the launcher wrote, the pid it wrote, and
+ * the end of the file the command redirects its own output to.
  *
  * The pid test is the one `molecule-dev/api/src/ai/background-tasks.ts` applies in `liveness` —
  * a written exit code ends the task, a live pid keeps it running, and a handle the sandbox cannot
  * account for stays unknown — so this package and that one cannot disagree about whether a task
  * is still walking.
  *
+ * The exit file is read in THIS shell, beside the pid test, because the two are ONE observation.
+ * Read as two round trips — a wait's tick reading the file, then this probe asking the pid — a
+ * wrapper that finished and wrote its code between them was reported "ended without writing an
+ * exit code" while its code was on disk (xr-molecule-flash-m303: 13/13 Hurl files green,
+ * `exitCode: null`, after a wait that returned on the tick the run ended).
+ *
  * @param taskId - The task's `mol-bg-…` handle (format already checked by the caller).
  * @param own - The file the command redirects its own output to, when the launch could tell.
- * @returns The command; its first line is `MOL_TASK_STATE <alive|gone|unknown>`, the rest the tail.
+ * @returns The command; its first lines are `MOL_TASK_EXIT <n>` (only when the exit file holds a
+ *   code) and `MOL_TASK_STATE <alive|gone|unknown>`, the rest the tail of the run's own output.
  */
 const taskStateCommand = (taskId: string, own?: string): string =>
+  `c=$(cat /tmp/${taskId}.exit 2>/dev/null); ` +
+  `case "$c" in ''|*[!0-9]*) ;; *) echo MOL_TASK_EXIT "$c";; esac; ` +
   `P=$(cat /tmp/${taskId}.pid 2>/dev/null); ` +
   `if [ -z "$P" ] || [ ! -f /tmp/${taskId}.sh ]; then echo MOL_TASK_STATE unknown; ` +
   `elif kill -0 "$P" 2>/dev/null; then echo MOL_TASK_STATE alive; ` +
@@ -346,7 +372,8 @@ function outputEnding(text: string): TaskEndState {
  *
  * @param backend - The execution backend the task runs on.
  * @param taskId - The task's `mol-bg-…` handle.
- * @returns Whether it has ended, and the code its own output recorded when it recorded one.
+ * @returns Whether it has ended, and the code the exit file (or the run's own output) recorded,
+ *   or null when there is no verdict to report.
  */
 async function taskEndState(backend: ExecutionBackend, taskId: string): Promise<TaskEndState> {
   const own = outputFileByTask.get(taskId)
@@ -359,9 +386,20 @@ async function taskEndState(backend: ExecutionBackend, taskId: string): Promise<
     // the loud one (a result handed back for a run that is still walking).
     return { ended: false, exitCode: null }
   }
-  const [stateLine = '', ...rest] = stdout.split('\n')
-  const state = /MOL_TASK_STATE (alive|gone|unknown)/.exec(stateLine)?.[1] ?? 'unknown'
-  const ownEnding = outputEnding(rest.join('\n'))
+  // The probe answers in markers — the exit code (when the file holds one) and the pid state —
+  // followed by the run's own output; the marker lines are not part of that tail.
+  const tail = stdout
+    .split('\n')
+    .filter((line) => !/^MOL_TASK_(?:STATE|EXIT) \S+$/.test(line))
+    .join('\n')
+  const state = /MOL_TASK_STATE (alive|gone|unknown)/.exec(stdout)?.[1] ?? 'unknown'
+  // A code in the exit file IS the verdict, whatever the pid test says: the launcher writes it
+  // after the command returns, and this probe read the file in the same shell as the pid test, so
+  // a wrapper that finished and wrote its code between a wait's own read of the file and this
+  // probe is still found here rather than reported as having written none (xr-molecule-flash-m303).
+  const reported = /^MOL_TASK_EXIT (\d+)$/m.exec(stdout)
+  if (reported) return { ended: true, exitCode: Number(reported[1]) }
+  const ownEnding = outputEnding(tail)
   // The run's own output can end the task while its wrapper is still alive: the wrapper may be
   // waiting on the wrong thing (m182's was blocked) while the run it started is over. An explicit
   // `EXIT=<n>` is that verdict; a bare tally is trusted only once the pid is gone, because the
@@ -596,9 +634,7 @@ async function backgroundTaskState(
   const ids = recent.filter((id) => owned.has(id))
   const exitCodeOf = async (id: string): Promise<number | null> => {
     try {
-      const raw = await backend.readFile(`/tmp/${id}.exit`)
-      const code = Number.parseInt(raw.trim(), 10)
-      return Number.isFinite(code) ? code : 0
+      return exitCodeIn(await backend.readFile(`/tmp/${id}.exit`))
     } catch (_error) {
       // No exit file yet: the task is still running. Not an error.
       return null
@@ -3189,9 +3225,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
             while (Date.now() < graceUntil) {
               let code: number | null = null
               try {
-                const raw = await backend.readFile(exitFile)
-                const parsed = Number.parseInt(raw.trim(), 10)
-                code = Number.isFinite(parsed) ? parsed : 0
+                code = exitCodeIn(await backend.readFile(exitFile))
               } catch (_error) {
                 // No exit file yet: still running.
                 code = null
@@ -3644,9 +3678,9 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       const startedAt = Date.now()
       const readExit = async (): Promise<number | null> => {
         try {
-          const raw = await backend.readFile(exitFile)
-          const code = Number.parseInt(raw.trim(), 10)
-          return Number.isFinite(code) ? code : 0
+          // A file that is there but holds no number yet is the launcher's truncate-then-write
+          // instant, not a verdict — the next tick reads the code (see {@link exitCodeIn}).
+          return exitCodeIn(await backend.readFile(exitFile))
         } catch (_error) {
           // No exit file yet — the command is still running. Not an error.
           return null

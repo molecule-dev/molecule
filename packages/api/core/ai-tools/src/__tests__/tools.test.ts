@@ -3849,6 +3849,111 @@ cd /workspace/.mol-scratch/realworld-e2e && npx playwright test --config playwri
     expect(r.note).toContain('ended without writing an exit code')
   }, 20_000)
 
+  /**
+   * xr-molecule-flash-m303: the supplied Hurl suite finished 13/13 against the deployed URL and
+   * the wrapper wrote `0` to the exit file — but the wait's own tick read that file a moment
+   * BEFORE the write, and its end probe asked the pid in a SECOND round trip, by which time the
+   * wrapper was gone. The result said "ended without writing an exit code", `exitCode: null`,
+   * with the code sitting on disk.
+   *
+   * The probe now reads the exit file in the same shell as the pid test, so the two cannot
+   * disagree. `readFile` here stays stale for the whole call (the tick's read missed the write),
+   * which is what makes the verdict reachable only through the probe.
+   */
+  it('reports the code the wrapper wrote, though the tick’s read missed it (m303)', async () => {
+    const taskId = `mol-bg-m303race-${Math.random().toString(36).slice(2, 8)}`
+    const files: Record<string, string> = {
+      // The launcher's own files: the command, the pid it wrote, and the code it wrote on exit.
+      [`/tmp/${taskId}.sh`]: 'exit 0\n',
+      [`/tmp/${taskId}.pid`]: '99999999\n', // no such process — the wrapper has gone
+      [`/tmp/${taskId}.exit`]: '0\n',
+      [`/tmp/${taskId}.log`]: 'Executed files:    13\nFailed files:      0 (0.0%)\n',
+    }
+    // The probe runs in a real shell: the launcher's files are really there, and the mock's
+    // `readFile` is only the wait's own (stale) view of them.
+    for (const [path, content] of Object.entries(files)) writeFileSync(path, content)
+    let probed = false
+    const backend: ExecutionBackend = {
+      projectRoot: '/test',
+      readFile: vi.fn(async (path: string) => {
+        if (!(path in files)) throw new Error(`ENOENT: ${path}`)
+        // The tick's read of the exit file landed before the write and saw nothing.
+        if (path.endsWith('.exit') && !probed) throw new Error(`ENOENT: ${path}`)
+        return files[path]
+      }),
+      writeFile: vi.fn().mockResolvedValue(undefined),
+      deleteFile: vi.fn(),
+      readDir: vi.fn(),
+      run: vi.fn(async (command: string) => {
+        if (!command.includes('MOL_TASK_STATE')) return { stdout: '', stderr: '', exitCode: 0 }
+        // The sandbox's own view: the real files, read by the real shell.
+        const r = spawnSync('sh', ['-c', command], { encoding: 'utf8' })
+        probed = true
+        return { stdout: r.stdout ?? '', stderr: r.stderr ?? '', exitCode: r.status ?? 1 }
+      }),
+    }
+    try {
+      const r = (await buildTools(backend)
+        .find((t) => t.name === 'wait_for_task')!
+        .execute({ taskId, timeout: 10_000 })) as {
+        status?: string
+        exitCode: number | null
+        note?: string
+      }
+      expect(r.status).toBe('completed')
+      expect(r.exitCode).toBe(0)
+      expect(r.note ?? '').not.toContain('without writing an exit code')
+    } finally {
+      for (const path of Object.keys(files)) rmSync(path, { force: true })
+    }
+  }, 20_000)
+
+  /**
+   * `echo $? > <exitFile>` opens the file and then writes the code. A wrapper killed inside that
+   * instant leaves it empty — and an empty file is not a pass. It used to be read as 0, which
+   * handed back success for a command nobody saw finish.
+   */
+  it('does not read an empty exit file as success', async () => {
+    const taskId = `mol-bg-m303empty-${Math.random().toString(36).slice(2, 8)}`
+    const files: Record<string, string> = {
+      [`/tmp/${taskId}.sh`]: 'exit 0\n',
+      [`/tmp/${taskId}.pid`]: '99999999\n', // no such process — the wrapper has gone
+      [`/tmp/${taskId}.exit`]: '', // opened, never written
+      [`/tmp/${taskId}.log`]: '  build started\n',
+    }
+    // The probe runs in a real shell, against these real files.
+    for (const [path, content] of Object.entries(files)) writeFileSync(path, content)
+    const backend: ExecutionBackend = {
+      projectRoot: '/test',
+      readFile: vi.fn(async (path: string) => {
+        if (!(path in files)) throw new Error(`ENOENT: ${path}`)
+        return files[path]
+      }),
+      writeFile: vi.fn().mockResolvedValue(undefined),
+      deleteFile: vi.fn(),
+      readDir: vi.fn(),
+      run: vi.fn(async (command: string) => {
+        if (!command.includes('MOL_TASK_STATE')) return { stdout: '', stderr: '', exitCode: 0 }
+        const r = spawnSync('sh', ['-c', command], { encoding: 'utf8' })
+        return { stdout: r.stdout ?? '', stderr: r.stderr ?? '', exitCode: r.status ?? 1 }
+      }),
+    }
+    try {
+      const r = (await buildTools(backend)
+        .find((t) => t.name === 'wait_for_task')!
+        .execute({ taskId, timeout: 10_000 })) as {
+        status?: string
+        exitCode: number | null
+        note?: string
+      }
+      expect(r.status).toBe('completed')
+      expect(r.exitCode).toBeNull()
+      expect(r.note).toContain('ended without writing an exit code')
+    } finally {
+      for (const path of Object.keys(files)) rmSync(path, { force: true })
+    }
+  }, 20_000)
+
   it('still waits on a live long task (m182)', async () => {
     const backend: ExecutionBackend = {
       projectRoot: '/test',
