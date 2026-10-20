@@ -12,13 +12,22 @@
  * by `expect(count).toBe(3)`, {@link TO_HAVE} is `expect(locator).toHaveCount(3)`, and
  * {@link ROLE} is `getByRole(...).count()` — the locator a snapshot cannot be replayed with.
  *
+ * A `locator.count()` locator is replayed by the project's own installed Playwright: a
+ * javascript-disabled, offline, isolated context holds only the recorded snapshot and answers the
+ * selector with `document.querySelectorAll`. The positive control is a selector the old hand-written
+ * plain-CSS subset rejected (`:is()` and a selector list); another proves a snapshot `<script>` never
+ * runs and a snapshot `<img>` never reaches the network.
+ *
  * The negative controls REWRITE the real trace's own files: a snapshot whose DOM no longer holds
- * the fourth match, a trace with no snapshots, and a `locator.count()` whose recorded value is not
- * the assertion's `Received:` number. Each must name NO elements — a reading that guessed there
+ * the fourth match, a trace with no snapshots, an unresolvable snapshot reference, a
+ * `locator.count()` whose recorded value is not the assertion's `Received:` number, and a project
+ * where Playwright cannot be resolved. Each must name NO elements — a reading that guessed there
  * would be worse than the silence it replaces.
  */
 import { execFileSync } from 'node:child_process'
 import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { createServer } from 'node:http'
+import type { AddressInfo } from 'node:net'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -27,6 +36,7 @@ import { describe, expect, it } from 'vitest'
 
 import {
   countMismatchNote,
+  countMismatchSentence,
   failureTraceNote,
   parseTraceArtifacts,
   type TraceArtifact,
@@ -75,18 +85,29 @@ function layout(zip: string): string {
   return root
 }
 
+/** How the reader is run: from the project root, or from a directory with no Playwright. */
+interface ReadOptions {
+  cwd?: string
+  env?: NodeJS.ProcessEnv
+}
+
 /** What {@link traceArtifactsScript} prints for a tree, run the way the sandbox runs it. */
-function readTraces(root: string): string {
+function readTraces(root: string, options: ReadOptions = {}): string {
   const script = join(root, 'read-traces.cjs')
   writeFileSync(script, traceArtifactsScript())
-  return execFileSync('node', [script, root], { encoding: 'utf8', timeout: 30_000 })
+  return execFileSync('node', [script, root], {
+    encoding: 'utf8',
+    timeout: 60_000,
+    ...(options.cwd === undefined ? {} : { cwd: options.cwd }),
+    ...(options.env === undefined ? {} : { env: options.env }),
+  })
 }
 
 /** The first (only) reading a fixture produces. */
-function readOne(zip: string): TraceArtifact {
+function readOne(zip: string, options: ReadOptions = {}): TraceArtifact {
   const root = layout(zip)
   try {
-    const items = parseTraceArtifacts(readTraces(root))
+    const items = parseTraceArtifacts(readTraces(root, options))
     expect(items).toHaveLength(1)
     return items[0]
   } finally {
@@ -191,6 +212,113 @@ describe('expect(locator).toHaveCount — Playwright marks its own matches', () 
   })
 })
 
+describe('the selector is replayed by the browser’s own DOM', () => {
+  it('answers a standard selector the old plain-CSS subset rejected', () => {
+    // `:is()` and a selector list are standard CSS the previous hand-written parser refused. The
+    // same four elements are selected, and the browser's own querySelectorAll is what says so.
+    const selector = '.comments :is(.card) .card-block, .comment-form .card-block'
+    const zip = rewritten(M321, (files) => {
+      replaceInFiles(
+        files,
+        "locator('.card:not(.comment-form) .card-block')",
+        `locator('${selector}')`,
+      )
+      replaceInFiles(
+        files,
+        '"selector":".card:not(.comment-form) .card-block"',
+        `"selector":"${selector}"`,
+      )
+    })
+    const reading = readOne(zip).countMismatch
+    expect(reading).toMatchObject({
+      locator: `locator('${selector}')`,
+      selector,
+      expected: 3,
+      received: 4,
+      source: 'locator-count',
+      matchedFrom: 'selector-replay',
+      matchedTotal: 4,
+    })
+    expect(reading?.matched?.map((match) => match.text)).toEqual([
+      'comment one',
+      'comment two',
+      'comment three',
+      'Post Comment',
+    ])
+  })
+
+  it('never runs a snapshot script or fetches a snapshot resource', async () => {
+    const hits: string[] = []
+    const server = createServer((request, response) => {
+      hits.push(request.url ?? '')
+      response.end('x')
+    })
+    await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve))
+    try {
+      const port = (server.address() as AddressInfo).port
+      // The snapshot gains a script that would empty the page and an image that would be fetched.
+      // JavaScript is disabled and every request is aborted, so both stay inert and the replay
+      // still names the four recorded elements.
+      //
+      // The failure snapshot is the reference `[[2,36]]` into its frame's third-earlier snapshot:
+      // 36 is the post-order index of the `HTML` root there. The two inserted elements and the
+      // script's text node move that root to 39, so both references (and the 1063 one) are moved
+      // with it — an unchanged reference would point at a subtree and the control would prove
+      // nothing about scripts.
+      const zip = rewritten(M321, (files) => {
+        replaceInFiles(
+          files,
+          '["BODY",{},',
+          '["BODY",{},["IMG",{"src":"http://127.0.0.1:' +
+            port +
+            '/probe.png"}],["SCRIPT",{},"document.querySelectorAll(\'.card-block\')' +
+            ".forEach(function (e) { e.className = 'gone' });document.body.remove()\"],",
+        )
+        replaceInFiles(files, '[[1,36]]', '[[1,39]]')
+        replaceInFiles(files, '[[2,36]]', '[[2,39]]')
+      })
+      const reading = readOne(zip).countMismatch
+      expect(reading).toMatchObject({ matchedFrom: 'selector-replay', matchedTotal: 4 })
+      expect(reading?.matched?.map((match) => match.text)).toEqual([
+        'comment one',
+        'comment two',
+        'comment three',
+        'Post Comment',
+      ])
+      expect(hits).toEqual([])
+    } finally {
+      await new Promise<void>((resolve) => server.close(() => resolve()))
+    }
+  })
+
+  it('reports the elements unavailable when the project has no Playwright, still reading the rest', () => {
+    // No Playwright resolvable from the trace root or the working directory: the replay names no
+    // elements, says why, and every other fact (here the test's actions) still comes from plain
+    // Node. The `toHaveCount` reading is unaffected — its marks need no browser at all.
+    const empty = mkdtempSync(join(tmpdir(), 'mol-no-playwright-'))
+    const env = { ...process.env, NODE_PATH: '' }
+    try {
+      const item = readOne(M321, { cwd: empty, env })
+      expect(item.countMismatch).toMatchObject({
+        locator: "locator('.card:not(.comment-form) .card-block')",
+        selector: '.card:not(.comment-form) .card-block',
+        expected: 3,
+        received: 4,
+        source: 'locator-count',
+        unreadable: 'browser-unavailable',
+      })
+      expect(item.countMismatch?.matched).toBeUndefined()
+      expect(item.actions.length).toBeGreaterThan(0)
+      expect(countMismatchSentence(item.countMismatch!)).toContain('not available')
+
+      const marked = readOne(TO_HAVE, { cwd: empty, env }).countMismatch
+      expect(marked).toMatchObject({ matchedFrom: 'snapshot-targets', matchedTotal: 4 })
+    } finally {
+      rmSync(empty, { recursive: true, force: true })
+    }
+  })
+})
+
 describe('a locator the snapshot cannot replay fails closed', () => {
   it('names the readable locator and the count, and says the elements are not available', () => {
     const item = readOne(ROLE)
@@ -229,6 +357,19 @@ describe('a locator the snapshot cannot replay fails closed', () => {
       expected: 3,
       received: 4,
       unreadable: 'count-mismatch',
+    })
+  })
+
+  it('names no elements when the failure snapshot reference cannot be resolved', () => {
+    // The failure snapshot is a reference into an earlier frame snapshot. Point it past the
+    // frame's own list and the tree is incomplete: no element may be named from it.
+    const zip = rewritten(M321, (files) => {
+      replaceInFiles(files, '[[2,36]]', '[[9,36]]')
+    })
+    expect(readOne(zip).countMismatch).toMatchObject({
+      expected: 3,
+      received: 4,
+      unreadable: 'no-snapshot',
     })
   })
 
@@ -274,6 +415,23 @@ describe('the parsed reading is fail-closed too', () => {
     expect(
       readingOf({ locator: 'locator(.x)', expected: 3, received: 4, source: 'guess' }),
     ).toBeUndefined()
+  })
+
+  it('keeps the browser-unavailable reason the reader can explain', () => {
+    const [item] = parseTraceArtifacts(
+      line({
+        locator: "locator('.card')",
+        expected: 3,
+        received: 4,
+        source: 'locator-count',
+        unreadable: 'browser-unavailable',
+      }),
+    )
+    expect(item.countMismatch).toMatchObject({
+      locator: "locator('.card')",
+      unreadable: 'browser-unavailable',
+    })
+    expect(item.countMismatch?.matched).toBeUndefined()
   })
 
   it('keeps a valid reading and drops an unreadable reason it cannot explain', () => {

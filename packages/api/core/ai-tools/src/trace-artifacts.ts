@@ -18,11 +18,14 @@
  * 401`. So the platform reads it (bounded, per test) and puts it in the run's result
  * ({@link failureTraceNote}), instead of leaving the executor to build its own browser to find out.
  *
- * Everything here is text in, text out: the sandbox runs {@link traceArtifactsScript} (Node, no
- * dependencies — Playwright's zip reader is not importable from a project) and prints one
- * `TRACE <json>` line per trace; the platform parses those lines ({@link parseTraceArtifacts}) and
- * writes the note ({@link failureTraceNote}). Both halves are covered by a test that runs the
- * script against a `trace.zip` produced by a real Playwright run, in the sandbox's own shape.
+ * Everything here is text in, text out: the sandbox runs {@link traceArtifactsScript} (plain Node —
+ * the zip is read without a dependency) and prints one `TRACE <json>` line per trace; the platform
+ * parses those lines ({@link parseTraceArtifacts}) and writes the note ({@link failureTraceNote}).
+ * The one exception is the selector replay behind a `locator.count()` reading: it resolves the
+ * project's own installed Playwright, replays the recorded selector against the recorded snapshot
+ * in that browser's DOM, and reports `browser-unavailable` (naming no elements) when it cannot.
+ * Both halves are covered by a test that runs the script against a `trace.zip` produced by a real
+ * Playwright run, in the sandbox's own shape.
  *
  * @module
  */
@@ -280,7 +283,7 @@ export interface TraceHiddenBox {
  * A count assertion reports only `Expected: 3 / Received: 4`; the element that made it 4 is not
  * in the error. Playwright's trace does hold it — either marked `__playwright_target__` in the
  * failure snapshot (`expect(locator).toHaveCount(n)`), or recoverable by replaying the recorded
- * plain-CSS selector against the snapshot's DOM (`locator.count()` then `expect(n).toBe(k)`) —
+ * selector against the snapshot's DOM in a browser (`locator.count()` then `expect(n).toBe(k)`) —
  * so each match is named by what it is and where it sits, never by a guess.
  */
 export interface TraceCountMatch {
@@ -306,13 +309,13 @@ export interface TraceCountMatch {
  * the app's comment form was a `.comment-form` wrapper around a plain `.card`, and the form's own
  * `.card-block` made the fourth. The trace had the selector (its `Frame.queryCount` entry) and the
  * four elements (its failure snapshot); the note printed neither. This reading prints both, and
- * fails closed — a selector the snapshot cannot be replayed with, or a replay that disagrees with
- * the recorded count, names no elements rather than inventing them.
+ * fails closed — a selector outside the browser's own CSS support, a missing browser, or a replay
+ * that disagrees with the recorded count names no elements rather than inventing them.
  */
 export interface TraceCountMismatch {
   /** The locator as the trace or the assertion printed it (`locator('.card:not(…')`). */
   locator: string
-  /** The plain-CSS selector inside that locator, when it has one. */
+  /** The selector inside that locator, when the trace recorded one. */
   selector?: string
   /** The number the assertion expected. */
   expected: number
@@ -329,16 +332,18 @@ export interface TraceCountMismatch {
   matchedTotal?: number
   /**
    * How the elements were read: Playwright's own `__playwright_target__` marks in the failure
-   * snapshot, or the recorded selector replayed against that snapshot.
+   * snapshot, or the recorded selector replayed against that snapshot in a browser.
    */
   matchedFrom?: 'snapshot-targets' | 'selector-replay'
   /**
-   * Why no elements are named, when they are not. `unsupported-selector` is a locator outside the
-   * replayable plain-CSS subset (a `getByRole`/`getByText` engine, `>>` chaining); `no-snapshot`
-   * is a trace with no readable DOM snapshot at the failure; `count-mismatch` is a replay that
-   * disagreed with the recorded count, so the snapshot is not evidence for this assertion.
+   * Why no elements are named, when they are not. `unsupported-selector` is a selector the
+   * browser's `querySelectorAll` rejects (a `getByRole`/`getByText` engine, `>>` chaining);
+   * `no-snapshot` is a trace with no readable DOM snapshot at the failure; `count-mismatch` is a
+   * replay that disagreed with the recorded count, so the snapshot is not evidence for this
+   * assertion; `browser-unavailable` is a project whose Playwright module or recorded engine
+   * executable could not be resolved, so the selector could not be replayed at all.
    */
-  unreadable?: 'unsupported-selector' | 'no-snapshot' | 'count-mismatch'
+  unreadable?: 'unsupported-selector' | 'no-snapshot' | 'count-mismatch' | 'browser-unavailable'
 }
 
 /**
@@ -594,6 +599,9 @@ const LOOP_REPEATS = ${TRACE_NOTE_LOOP_REPEATS}
 const MAX_COUNT_MATCHES = ${MAX_COUNT_MATCHES}
 const MAX_COUNT_TEXT = ${MAX_COUNT_TEXT_CHARS}
 const MAX_COUNT_PATH_DEPTH = ${MAX_COUNT_PATH_DEPTH}
+// The serialized failure snapshot is capped: a page whose DOM exceeds this is not replayed, and the
+// reading reports no readable snapshot instead of a partial page.
+const MAX_SNAPSHOT_HTML = 4000000
 // A locator.count() older than this before the failing assertion is not paired with it: the value
 // match in countMismatchOf() is the strong evidence, this only bounds a trace whose count recorded
 // no result.
@@ -889,9 +897,10 @@ function hiddenBoxOf(message, frames) {
 // \`expect(locator).toHaveCount(n)\` is a Frame.expect entry carrying the selector and the expected
 // number, and the failure snapshot is the page's DOM at that moment. Two things name the matched
 // elements: the \`__playwright_target__\` marks Playwright leaves on an assertion's own matches, and
-// a replay of a plain-CSS selector against the snapshot. Everything else fails closed — a locator
-// outside the replayable subset, an unreadable snapshot, or a replay whose count disagrees with
-// the recorded one names no elements rather than inventing them.
+// a replay of the recorded selector in the browser's own DOM against the snapshot (resolved from
+// the project's Playwright; no hand-written CSS grammar). Everything else fails closed — a selector
+// the browser rejects, a missing browser, an unreadable snapshot, or a replay whose count disagrees
+// with the recorded one names no elements rather than inventing them.
 
 function stripAnsi(text) {
   return String(text || '').replace(/\\u001b\\[[0-9;]*m/g, '')
@@ -917,134 +926,8 @@ function locatorInError(message) {
   return { locator: named[1], selector: inner[2] }
 }
 
-// The selector inside a recorded locator string (\`locator('.x')\`), or null.
-function selectorOfLocator(value) {
-  if (typeof value !== 'string') return null
-  const m = /^locator\\(\\s*(['"\`])([\\s\\S]*)\\1\\s*\\)$/.exec(value.trim())
-  return m === null ? null : m[2]
-}
-
-// A bounded plain-CSS selector parser. Supported: tag/\`*\`, \`#id\`, \`.class\`, \`[attr]\`,
-// \`[attr=value]\` (and ~= |= ^= $= *=), \`:not(<compound>)\`, and descendant (space) / child (\`>\`)
-// combinators. Everything else — Playwright engines (\`internal:role=…\`, \`text=…\`), \`>>\` chaining,
-// selector lists, sibling combinators, other pseudo-classes — returns null.
-function readCssIdent(s, at) {
-  const m = /^[-_A-Za-z][-_A-Za-z0-9]*/.exec(s.slice(at))
-  return m === null ? null : { name: m[0], end: at + m[0].length }
-}
-
-function parseCssCompound(s, at) {
-  const compound = { tag: null, ids: [], classes: [], attrs: [], nots: [] }
-  let i = at
-  if (s[i] === '*') { compound.tag = '*'; i += 1 }
-  else {
-    const tag = readCssIdent(s, i)
-    if (tag !== null) { compound.tag = tag.name.toLowerCase(); i = tag.end }
-  }
-  for (;;) {
-    const ch = s[i]
-    if (ch === '#') {
-      const id = readCssIdent(s, i + 1)
-      if (id === null) return null
-      compound.ids.push(id.name); i = id.end; continue
-    }
-    if (ch === '.') {
-      const cls = readCssIdent(s, i + 1)
-      if (cls === null) return null
-      compound.classes.push(cls.name); i = cls.end; continue
-    }
-    if (ch === '[') {
-      const close = s.indexOf(']', i + 1)
-      if (close === -1) return null
-      const body = s.slice(i + 1, close).trim()
-      const m = /^([-_A-Za-z][-_A-Za-z0-9:.]*)\\s*(?:([~|^$*]?=)\\s*(?:"([^"]*)"|'([^']*)'|([-_A-Za-z0-9./]+)))?$/.exec(body)
-      if (m === null) return null
-      compound.attrs.push({
-        name: m[1].toLowerCase(),
-        op: m[2] || null,
-        value: m[3] !== undefined ? m[3] : m[4] !== undefined ? m[4] : m[5] !== undefined ? m[5] : null,
-      })
-      i = close + 1; continue
-    }
-    if (ch === ':') {
-      if (s.slice(i, i + 5) !== ':not(') return null
-      const inner = parseCssCompound(s, i + 5)
-      if (inner === null || s[inner.end] !== ')') return null
-      const simple = inner.compound
-      if (simple.tag === null && simple.ids.length === 0 && simple.classes.length === 0 &&
-        simple.attrs.length === 0 && simple.nots.length === 0) return null
-      compound.nots.push(simple)
-      i = inner.end + 1; continue
-    }
-    break
-  }
-  return { compound: compound, end: i }
-}
-
-function parseCssSelector(text) {
-  if (typeof text !== 'string') return null
-  const s = text.trim()
-  if (s === '' || s.indexOf(',') !== -1 || s.indexOf('>>') !== -1) return null
-  const compounds = []
-  const combinators = []
-  let parsed = parseCssCompound(s, 0)
-  if (parsed === null || parsed.end === 0) return null
-  compounds.push(parsed.compound)
-  let i = parsed.end
-  while (i < s.length) {
-    let comb = null
-    if (/\\s/.test(s[i])) {
-      while (i < s.length && /\\s/.test(s[i])) i += 1
-      if (s[i] === '>') { comb = '>'; i += 1; while (i < s.length && /\\s/.test(s[i])) i += 1 }
-      else if (s[i] === '+' || s[i] === '~') return null
-      else comb = ' '
-    } else if (s[i] === '>') {
-      comb = '>'; i += 1
-      while (i < s.length && /\\s/.test(s[i])) i += 1
-    } else return null
-    parsed = parseCssCompound(s, i)
-    if (parsed === null || parsed.end === i) return null
-    compounds.push(parsed.compound); combinators.push(comb); i = parsed.end
-  }
-  return { compounds: compounds, combinators: combinators }
-}
-
 function cssClassesOf(node) {
   return String(node.attrs.class || '').split(/\\s+/).filter(Boolean)
-}
-
-function cssMatchesCompound(node, compound) {
-  if (compound.tag !== null && compound.tag !== '*' && node.tag !== compound.tag) return false
-  for (const id of compound.ids) if (String(node.attrs.id || '') !== id) return false
-  const classes = cssClassesOf(node)
-  for (const cls of compound.classes) if (classes.indexOf(cls) === -1) return false
-  for (const attr of compound.attrs) {
-    if (!Object.prototype.hasOwnProperty.call(node.attrs, attr.name)) return false
-    if (attr.op === null) continue
-    const actual = String(node.attrs[attr.name])
-    const wanted = attr.value === null ? '' : attr.value
-    if (attr.op === '=' && actual !== wanted) return false
-    if (attr.op === '~=' && actual.split(/\\s+/).indexOf(wanted) === -1) return false
-    if (attr.op === '|=' && actual !== wanted && actual.indexOf(wanted + '-') !== 0) return false
-    if (attr.op === '^=' && (wanted === '' || actual.indexOf(wanted) !== 0)) return false
-    if (attr.op === '$=' && (wanted === '' || actual.slice(-wanted.length) !== wanted)) return false
-    if (attr.op === '*=' && (wanted === '' || actual.indexOf(wanted) === -1)) return false
-  }
-  for (const not of compound.nots) if (cssMatchesCompound(node, not)) return false
-  return true
-}
-
-function cssMatchesSelector(node, parsed, index) {
-  if (!cssMatchesCompound(node, parsed.compounds[index])) return false
-  if (index === 0) return true
-  const comb = parsed.combinators[index - 1]
-  if (comb === '>') return node.parent !== null && cssMatchesSelector(node.parent, parsed, index - 1)
-  let at = node.parent
-  while (at !== null) {
-    if (cssMatchesSelector(at, parsed, index - 1)) return true
-    at = at.parent
-  }
-  return false
 }
 
 // The post-order node list Playwright's own \`snapshotNodes\` builds: text nodes in place, each
@@ -1178,22 +1061,166 @@ function targetElementsOf(root) {
   return out
 }
 
-// Every element a parsed selector matches, in document order.
-function selectorElementsOf(root, parsed) {
-  const out = []
-  const visit = function (node) {
-    if (node.tag === null) return
-    if (cssMatchesSelector(node, parsed, parsed.compounds.length - 1)) out.push(node)
+// The failure snapshot as HTML, so a real browser can parse it and answer the selector with the
+// standard DOMParser/querySelectorAll instead of a hand-written grammar. Each element carries its
+// node index, so a match maps back to the RECORDED element (text, classes, ancestors) rather than a
+// re-derivation. Bounded, and every unsupported shape fails the serialization instead of producing
+// a partial page: an incomplete DOM is not evidence about the page.
+const SNAPSHOT_NODE_ATTR = 'data-mol-snapshot-node'
+const SNAPSHOT_TAG = /^[a-z][a-z0-9-]*$/i
+const SNAPSHOT_ATTR = /^[-_A-Za-z][-_A-Za-z0-9:.]*$/
+const SNAPSHOT_VOID = {
+  area: 1, base: 1, br: 1, col: 1, embed: 1, hr: 1, img: 1, input: 1, link: 1,
+  meta: 1, param: 1, source: 1, track: 1, wbr: 1
+}
+function snapshotHtmlOf(root) {
+  const nodes = []
+  let html = ''
+  let failed = false
+  function append(text) {
+    if (failed) return
+    if (html.length + text.length > MAX_SNAPSHOT_HTML) { failed = true; return }
+    html += text
+  }
+  function escapeText(text) {
+    return String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  }
+  function escapeAttr(text) {
+    return String(text).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;')
+  }
+  function visit(node) {
+    if (failed) return
+    if (node.tag === null) { append(escapeText(node.text === undefined ? '' : node.text)); return }
+    if (!SNAPSHOT_TAG.test(node.tag)) { failed = true; return }
+    const index = nodes.length
+    nodes.push(node)
+    append('<' + node.tag)
+    for (const name of Object.keys(node.attrs)) {
+      if (!SNAPSHOT_ATTR.test(name) || name.toLowerCase() === SNAPSHOT_NODE_ATTR) continue
+      const value = node.attrs[name]
+      if (typeof value !== 'string') continue
+      // A meta refresh is a navigation, not rendered content. The replay only needs the DOM the
+      // failure snapshot shows, so it is dropped and the isolated context stays inert.
+      if (node.tag === 'meta' && name.toLowerCase() === 'http-equiv' && /refresh/i.test(value)) continue
+      append(' ' + name + '="' + escapeAttr(value) + '"')
+    }
+    append(' ' + SNAPSHOT_NODE_ATTR + '="' + index + '">')
+    if (SNAPSHOT_VOID[node.tag]) {
+      if (node.children.length > 0) { failed = true; return }
+      return
+    }
     for (const child of node.children) visit(child)
+    append('</' + node.tag + '>')
   }
   visit(root)
-  return out
+  if (failed || html === '') return null
+  // A snapshot rooted at <html> IS the document; anything else is body content.
+  const documentHtml =
+    root.tag === 'html' ? '<!doctype html>' + html
+      : '<!doctype html><html><head></head><body>' + html + '</body></html>'
+  return { nodes: nodes, documentHtml: documentHtml }
+}
+
+// Playwright, resolved from the project whose traces these are (the sandbox installs it for the e2e
+// run the trace came from). The trace reader itself stays dependency-free: when the module or the
+// recorded browser's executable cannot be resolved, the replay says so and names no elements.
+let playwrightModulePromise = null
+function playwrightModule() {
+  if (playwrightModulePromise === null) {
+    playwrightModulePromise = Promise.resolve().then(function () {
+      const paths = []
+      if (ROOT) paths.push(ROOT)
+      paths.push(process.cwd())
+      for (const name of ['playwright', '@playwright/test']) {
+        try {
+          return require(require.resolve(name, { paths: paths }))
+        } catch (_error) {
+          // Not installed under this name at the project root: try the next module.
+        }
+      }
+      return null
+    })
+  }
+  return playwrightModulePromise
+}
+
+// One browser per recorded engine, launched on the first selector replay and reused. A resolution
+// or launch failure is cached as null, so a project without the browser does not pay for it once per
+// trace.
+const replayBrowsers = {}
+function replayBrowserFor(name) {
+  const engineName = name || 'chromium'
+  if (replayBrowsers[engineName] === undefined) {
+    replayBrowsers[engineName] = playwrightModule().then(function (pw) {
+      if (pw === null) return null
+      const engine = pw[engineName]
+      if (!engine || typeof engine.launch !== 'function') return null
+      try {
+        return engine.launch({ headless: true, timeout: 10000 }).catch(function (_error) {
+          // No executable for this engine: the replay reports unavailable, never a guess.
+          return null
+        })
+      } catch (_error) {
+        return null
+      }
+    })
+  }
+  return replayBrowsers[engineName]
+}
+function closeReplayBrowsers() {
+  return Promise.all(Object.keys(replayBrowsers).map(function (name) {
+    return replayBrowsers[name].then(function (browser) {
+      if (browser === null) return null
+      return browser.close().catch(function (_error) { return null })
+    })
+  }))
+}
+
+// Replay one selector against the recorded snapshot with the browser's own DOM. The context is
+// isolated and has JavaScript disabled (nothing in the snapshot can execute), is offline, and
+// aborts every request (nothing it references can be fetched). null = no browser available;
+// { unsupported: true } = the browser rejected the selector (a Playwright engine, chaining).
+async function replaySelector(selector, snapshot, browserName) {
+  const browser = await replayBrowserFor(browserName)
+  if (browser === null) return null
+  let context = null
+  try {
+    context = await browser.newContext({
+      javaScriptEnabled: false,
+      offline: true,
+      serviceWorkers: 'block',
+    })
+    await context.route('**/*', function (route) { return route.abort() })
+    const page = await context.newPage()
+    await page.setContent(snapshot.documentHtml, { waitUntil: 'domcontentloaded', timeout: 10000 })
+    const found = await page.evaluate(function (args) {
+      try {
+        const elements = document.querySelectorAll(args.selector)
+        const indices = []
+        for (let i = 0; i < elements.length; i++) {
+          indices.push(elements[i].getAttribute(args.marker))
+        }
+        return { ok: true, indices: indices }
+      } catch (_error) {
+        return { ok: false }
+      }
+    }, { selector: selector, marker: SNAPSHOT_NODE_ATTR })
+    if (found === null || found === undefined || found.ok !== true || !Array.isArray(found.indices))
+      return { unsupported: true }
+    return { indices: found.indices }
+  } catch (_error) {
+    // The context could not hold the snapshot (launch failure, a malformed serialization): the
+    // replay is unavailable for this assertion, and no element is named.
+    return null
+  } finally {
+    if (context !== null) await context.close().catch(function (_error) { return null })
+  }
 }
 
 // The count assertion this failure is, with the locator the trace recorded and the elements its
 // failure snapshot matched. Null when the failure is not a count, when no locator can be attributed
 // to it, or when both numbers cannot be read.
-function countMismatchOf(failedError, frames, allFrames, queryCounts, frameExpects, failedStep) {
+async function countMismatchOf(failedError, frames, allFrames, queryCounts, frameExpects, failedStep, browserName) {
   const numbers = countNumbersOf(failedError)
   if (numbers === null) return null
   const assertionStart =
@@ -1255,13 +1282,38 @@ function countMismatchOf(failedError, frames, allFrames, queryCounts, frameExpec
     reading.matchedFrom = 'snapshot-targets'
     return reading
   }
-  const parsed = selector === null ? null : parseCssSelector(selector)
-  if (parsed === null) {
+  if (selector === null) {
     reading.unreadable = 'unsupported-selector'
     return reading
   }
-  const elements = selectorElementsOf(tree, parsed)
-  if (elements.length !== numbers.received) {
+  // The recorded selector is replayed against the recorded snapshot by the browser's own DOM: no
+  // hand-written CSS grammar, and every standard selector the engine the test ran in supports.
+  const snapshot = snapshotHtmlOf(tree)
+  if (snapshot === null) {
+    reading.unreadable = 'no-snapshot'
+    return reading
+  }
+  const replay = await replaySelector(selector, snapshot, browserName)
+  if (replay === null) {
+    reading.unreadable = 'browser-unavailable'
+    return reading
+  }
+  if (replay.unsupported) {
+    reading.unreadable = 'unsupported-selector'
+    return reading
+  }
+  const elements = []
+  let broken = false
+  for (const index of replay.indices) {
+    const at = typeof index === 'string' ? Number(index) : NaN
+    const node =
+      Number.isInteger(at) && at >= 0 && at < snapshot.nodes.length ? snapshot.nodes[at] : null
+    if (node === null || node.tag === null) { broken = true; break }
+    elements.push(node)
+  }
+  // The replay is evidence only when it agrees, element for element, with the count the run
+  // recorded; a stale or partial snapshot names nothing.
+  if (broken || elements.length !== numbers.received) {
     reading.unreadable = 'count-mismatch'
     return reading
   }
@@ -1409,6 +1461,8 @@ function networkContextOf(name) {
   return m === null ? null : m[1]
 }
 
+// The reading is async only for the browser selector replay; every other fact is plain Node.
+async function main() {
 for (const one of found.slice(0, MAX_TRACES)) {
   let buf
   try { buf = fs.readFileSync(one.file) } catch (e) { continue }
@@ -1442,6 +1496,19 @@ for (const one of found.slice(0, MAX_TRACES)) {
       const ctx = contextFor(networkContext)
       ctx.network.push.apply(ctx.network, ndjson(zipData(buf, entry)))
     }
+  }
+  // The browser the test ran in, from the trace's own context-options: a selector replay uses the
+  // same engine's DOM rather than assuming one. A trace that records none defaults to chromium.
+  let browserName = ''
+  for (const ctx of contexts) {
+    for (const entry of ctx.trace) {
+      if (entry && entry.type === 'context-options' && typeof entry.browserName === 'string' &&
+        entry.browserName) {
+        browserName = entry.browserName
+        break
+      }
+    }
+    if (browserName) break
   }
   const requestsAll = []
   for (const ctx of contexts) {
@@ -2040,7 +2107,9 @@ for (const one of found.slice(0, MAX_TRACES)) {
   const hiddenBox = hiddenBoxOf(failedError, frames)
   // A count assertion whose locator and matched elements the trace itself holds (m321): the
   // locator from \`locator.count()\`/\`toHaveCount\`, the elements from the failure snapshot.
-  const countMismatch = countMismatchOf(failedError, frames, framesAll, queryCounts, frameExpects, failedStep)
+  const countMismatch = await countMismatchOf(
+    failedError, frames, framesAll, queryCounts, frameExpects, failedStep, browserName
+  )
   function wire(r) {
     return {
       method: r.method,
@@ -2292,6 +2361,12 @@ for (const one of found.slice(0, MAX_TRACES)) {
     ...(otherContexts.length > 0 ? { otherContexts: otherContexts } : {}),
   }) + '\\n')
 }
+}
+
+main().catch(function (error) {
+  process.stderr.write('trace read failed: ' +
+    String(error && error.message ? error.message : error) + '\\n')
+}).then(closeReplayBrowsers)
 `
 
 /**
@@ -2434,7 +2509,8 @@ function parseCountMismatch(value: unknown): TraceCountMismatch | null {
   const unreadable =
     raw.unreadable === 'unsupported-selector' ||
     raw.unreadable === 'no-snapshot' ||
-    raw.unreadable === 'count-mismatch'
+    raw.unreadable === 'count-mismatch' ||
+    raw.unreadable === 'browser-unavailable'
       ? raw.unreadable
       : null
   return {
@@ -4518,8 +4594,14 @@ export function countMismatchSentence(mismatch: TraceCountMismatch): string {
   if (mismatch.unreadable === 'unsupported-selector')
     return (
       `${counted}. The trace records the locator and the count but not the elements it selected ` +
-      `(its selector is outside the plain-CSS subset the failure snapshot can be replayed with), ` +
+      `(a browser's own CSS query cannot express that locator for the failure snapshot), ` +
       `so read that helper's selector against the page yourself`
+    )
+  if (mismatch.unreadable === 'browser-unavailable')
+    return (
+      `${counted}. The failure snapshot could not be replayed because the project's Playwright ` +
+      `module or the recorded browser's executable was not available, so the matched elements ` +
+      `are not named — read that helper's selector against the page yourself`
     )
   if (mismatch.unreadable === 'count-mismatch')
     return (
