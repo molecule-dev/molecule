@@ -1,5 +1,11 @@
 # @molecule/api-resource-ai-models
 
+## 1.17.1
+
+### Patch Changes
+
+- 26edb79: Re-verifies the GLM-5.x rate cards against Z.ai's pricing page; no prices changed.
+
 ## 1.17.0
 
 ### Minor Changes
