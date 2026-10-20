@@ -28,6 +28,7 @@ const moleculeLocal = {
     'require-catch-binding': {
       meta: {
         type: 'problem',
+        fixable: 'code',
         docs: {
           description:
             'Require a binding in catch clauses so the error can be logged or explicitly ignored',
@@ -41,7 +42,36 @@ const moleculeLocal = {
       create(context) {
         return {
           CatchClause(node) {
-            if (!node.param) context.report({ node, messageId: 'missing' })
+            if (node.param) return
+            context.report({
+              node,
+              messageId: 'missing',
+              fix(fixer) {
+                const source = context.sourceCode
+                const names = new Set(
+                  source.scopeManager.scopes.flatMap((scope) => [
+                    ...scope.variables.map((variable) => variable.name),
+                    ...scope.references.map((reference) => reference.identifier.name),
+                  ]),
+                )
+                // Scope names include escaped identifiers and references inside closures.
+                // Direct eval can read unknown names, so leave it for manual handling.
+                if (
+                  source.scopeManager.scopes.some((scope) =>
+                    scope.references.some(
+                      ({ identifier }) =>
+                        identifier.name === 'eval' &&
+                        identifier.range[0] >= node.body.range[0] &&
+                        identifier.range[1] <= node.body.range[1],
+                    ),
+                  )
+                )
+                  return null
+                let name = '_error'
+                for (let suffix = 1; names.has(name); suffix++) name = `_error${suffix}`
+                return fixer.insertTextAfter(source.getFirstToken(node), ` (${name})`)
+              },
+            })
           },
         }
       },
