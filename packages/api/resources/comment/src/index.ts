@@ -37,7 +37,7 @@
  *   Both SQL files this package ships — `src/__setup__/comments.sql` and
  *   `src/__setup__/comment_numbers.sql` — must exist in the target database before use
  *   (scaffolded apps apply both automatically; existing apps must apply both first).
- * - **Every comment is numbered — numbering is the default create path.** `createComment()`
+ * - **Integer comment ids — every comment is numbered by default.** `createComment()`
  *   writes the comment and its sequential `number` (1, 2, 3, …) together and returns both;
  *   `createNumberedComment()` is the same create under the name an integer-id API reads best.
  *   For an API whose clients address a comment by an integer (RealWorld's `comment.id`,
