@@ -4128,7 +4128,7 @@ cd /workspace/.mol-scratch/realworld-e2e && npx playwright test --config playwri
    * acknowledgement — immediately. That code is not the run's verdict: the run is still walking
    * (the wrapper is expected to be gone), so the wait must not report it finished.
    */
-  it('does not turn a backgrounded launch’s code into the run’s completion', async () => {
+  it('does not turn a recovered legacy background launch’s code into completion', async () => {
     const own = `/tmp/m303-ack-${Math.random().toString(36).slice(2, 8)}.log`
     const backend: ExecutionBackend = {
       projectRoot: '/test',
@@ -4136,6 +4136,7 @@ cd /workspace/.mol-scratch/realworld-e2e && npx playwright test --config playwri
         if (path === own) return 'first test passed\n'
         if (path.endsWith('.log')) return ''
         if (path.endsWith('.exit')) return '0\n'
+        if (path in files) return files[path]
         throw new Error(`ENOENT: ${path}`)
       }),
       writeFile: vi.fn().mockResolvedValue(undefined),
@@ -4150,13 +4151,8 @@ cd /workspace/.mol-scratch/realworld-e2e && npx playwright test --config playwri
     const files: Record<string, string> = {}
     try {
       const tools = buildTools(backend)
-      const started = (await tools
-        .find((t) => t.name === 'exec_command')!
-        .execute({
-          // The real work is backgrounded; the command itself returns at once.
-          command: `echo started > ${own}; ( sleep 30; echo EXIT=3 >> ${own} ) &`,
-          run_in_background: true,
-        })) as { taskId: string }
+      // A task written before the launcher appended a shell wait, recovered after restart.
+      const started = { taskId: `mol-bg-legacyack-${Math.random().toString(36).slice(2, 8)}` }
       for (const [path, content] of Object.entries({
         [`/tmp/${started.taskId}.sh`]: `echo started > ${own}; ( sleep 30; echo EXIT=3 >> ${own} ) &\n`,
         [`/tmp/${started.taskId}.pid`]: '99999999\n', // the wrapper is gone: it launched in `&`
@@ -4184,7 +4180,7 @@ cd /workspace/.mol-scratch/realworld-e2e && npx playwright test --config playwri
    * …and the same launch DOES finish once its own output records the run's verdict, which outranks
    * the acknowledgement left in the exit file.
    */
-  it('ends a backgrounded launch on the run’s own EXIT marker, not the launch’s code', async () => {
+  it('ends a recovered legacy background launch on its own EXIT marker', async () => {
     const own = `/tmp/m303-ack-done-${Math.random().toString(36).slice(2, 8)}.log`
     writeFileSync(own, 'started\n  build finished\nEXIT=3\n')
     const backend: ExecutionBackend = {
@@ -4193,6 +4189,7 @@ cd /workspace/.mol-scratch/realworld-e2e && npx playwright test --config playwri
         if (path === own) return 'started\n  build finished\nEXIT=3\n'
         if (path.endsWith('.log')) return ''
         if (path.endsWith('.exit')) return '0\n'
+        if (path in files) return files[path]
         throw new Error(`ENOENT: ${path}`)
       }),
       writeFile: vi.fn().mockResolvedValue(undefined),
@@ -4207,12 +4204,7 @@ cd /workspace/.mol-scratch/realworld-e2e && npx playwright test --config playwri
     const files: Record<string, string> = {}
     try {
       const tools = buildTools(backend)
-      const started = (await tools
-        .find((t) => t.name === 'exec_command')!
-        .execute({
-          command: `echo started > ${own}; ( echo EXIT=3 >> ${own} ) &`,
-          run_in_background: true,
-        })) as { taskId: string }
+      const started = { taskId: `mol-bg-legacydone-${Math.random().toString(36).slice(2, 8)}` }
       for (const [path, content] of Object.entries({
         [`/tmp/${started.taskId}.sh`]: `echo started > ${own}; ( echo EXIT=3 >> ${own} ) &\n`,
         [`/tmp/${started.taskId}.pid`]: '99999999\n',

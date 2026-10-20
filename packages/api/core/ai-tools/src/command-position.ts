@@ -928,6 +928,17 @@ function splitSegments(command: string): Array<{
   return out
 }
 
+/**
+ * Whether the outer shell's final statement starts a background job.
+ * Inner shell strings have their own job tables and do not count.
+ *
+ * @param command - The shell command.
+ * @returns Whether its final statement ends with the shell's `&` operator.
+ */
+export function endsInBackground(command: string): boolean {
+  return splitSegments(command).at(-1)?.after === '&'
+}
+
 /** A redirect's target word: a quoted one keeps its spaces (`tee 'out file.txt'`). */
 const REDIRECT_TARGET_WORD = String.raw`(?:'[^']*'|"[^"]*"|[^\s;&|]+)`
 

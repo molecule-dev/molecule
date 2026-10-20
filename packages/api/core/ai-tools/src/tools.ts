@@ -12,7 +12,7 @@ import { posix } from 'path'
 import type { AITool } from '@molecule/api-ai'
 
 import { browserProbeOverBudgetAdvice, browserProbeRefusal } from './browser-probe.js'
-import { locatedCommandSegments } from './command-position.js'
+import { endsInBackground } from './command-position.js'
 import {
   commandCutRun,
   CUT_AT_BUDGET,
@@ -65,26 +65,15 @@ const logBytesByTask = new Map<string, number>()
 const outputFileByTask = new Map<string, string>()
 
 /**
- * Task ids whose command ENDS with a backgrounded statement (`… &`).
+ * Recovered legacy task ids whose command ENDS with a backgrounded statement (`… &`).
  *
  * Such a launch returns the status of the backgrounding operation itself — a launch
  * acknowledgement — and its wrapper is expected to be gone while the run it started still walks, so
  * neither the wrapper's code nor its death says the run ended ({@link taskEndState}). The run's own
- * output is the only ending that counts. Read from the command's shell structure, the same parse the
- * rest of this package uses ({@link endsInBackground}), never from anything the run printed.
+ * output is the only ending that counts. New tasks append a shell `wait` and record the actual
+ * child's status; only scripts recovered from earlier versions need this compatibility path.
  */
 const detachedByTask = new Set<string>()
-
-/**
- * Whether a command's LAST statement is backgrounded (`… &`), which makes the wrapper's exit code
- * the launch's own status rather than the run's verdict.
- *
- * @param command - The shell command a background task runs.
- * @returns True when the shell parse ends on a `&` terminator.
- */
-function endsInBackground(command: string): boolean {
-  return locatedCommandSegments(command).at(-1)?.terminator === '&'
-}
 
 /**
  * Task ids whose log has SHOWN a failure's own body under a `✘` row — the inline failure switch's
@@ -3209,6 +3198,13 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           // written or launched: each walk measures the same code, and only the last is rewritten
           // (X1 xr-molecule-flash-m157 +14:02 — two whole walks chained with `;`).
           if (streaming.error) return { error: streaming.error }
+          // This tool already backgrounds the script. If its last statement also uses `&`,
+          // let the same shell wait for that child and preserve its exit code. Inferring its
+          // completion from output cannot work for silent commands such as `true &`.
+          // The parser reads the outer shell: an inner `sh -c '… &'` has its own job table.
+          if (endsInBackground(streaming.command)) {
+            streaming.command += '\nwait "$!"'
+          }
           // …and the trace flag this tool added (above), which the streaming rewrite never saw:
           // its changes are what this branch reports the run's own settings in.
           if (traced.change) streaming.changes.unshift(traced.change)
@@ -3239,11 +3235,6 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           const ownTarget = outputRedirectTarget(streaming.command)
           const ownFile = ownTarget === null ? null : posix.resolve(cwd, ownTarget)
           if (ownFile) outputFileByTask.set(id, ownFile)
-          // A command that ends by backgrounding its own work returns instantly with the status of
-          // that backgrounding statement; the wrapper's code is the launch's acknowledgement, not
-          // the run's verdict (see {@link detachedByTask}).
-          const detached = endsInBackground(streaming.command)
-          if (detached) detachedByTask.add(id)
           // Nothing is recorded about the inline-failure switch here: every background launch is
           // given it, so the command says nothing about what the log will carry. A wait reads the
           // log itself (see inlineFailuresByTask).
@@ -3264,10 +3255,9 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           // seconds (a Hurl suite: 37 ms). Handing it back as a task cost a
           // wait_for_task round trip each time (X1 flash-m20, twice in ten
           // minutes), so wait a short grace first and return a finished command
-          // exactly as a foreground run returns. A launch that ended in `&` is not one of these:
-          // its exit file appears at once with the launch's own status, and handing that back as
-          // the run's result would report an acknowledgement as a finished run.
-          if (overCeiling && input.run_in_background !== true && !detached) {
+          // exactly as a foreground run returns. A redundant final `&` is followed by `wait`
+          // above, so this file also carries the actual child status in that case.
+          if (overCeiling && input.run_in_background !== true) {
             const graceUntil = Date.now() + overCeilingGraceMs
             while (Date.now() < graceUntil) {
               let code: number | null = null
