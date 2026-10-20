@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.10.8
+
+### Patch Changes
+
+- 395cf4e: Preserve mixed shell commands and distinct test suites when detecting repeated test invocations.
+
 ## 1.10.7
 
 ### Patch Changes
