@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-deploy-rollout-fly",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "description": "Fly Machines provider bond for @molecule/api-deploy-rollout: in-place restarts with a restore path and grow-then-shrink clones, over an injected flyctl runner.",
   "type": "module",
   "main": "dist/index.js",

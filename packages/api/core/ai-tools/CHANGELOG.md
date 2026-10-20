@@ -1,5 +1,13 @@
 # @molecule/api-ai-tools
 
+## 1.10.9
+
+### Patch Changes
+
+- ec858e1: Read background completion from fixed headers and wait for a command's final background job before returning its exit code.
+- 0710534: A background task reports the exit code its wrapper wrote when the task ends, instead of "no exit code", and an empty exit file is never read as success.
+- 003ba4c: Keep pending and cancelled browser requests inconclusive while preserving recorded endpoint failures.
+
 ## 1.10.8
 
 ### Patch Changes
