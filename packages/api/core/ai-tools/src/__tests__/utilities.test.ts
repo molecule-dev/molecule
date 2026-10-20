@@ -1,5 +1,13 @@
-import { execFileSync } from 'node:child_process'
-import { chmodSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { execFileSync, spawnSync } from 'node:child_process'
+import {
+  chmodSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
@@ -885,7 +893,7 @@ describe('streamingBackgroundCommand', () => {
       ],
     })
   })
-  it('refuses a command that walks the suite twice, naming both steps (m157 +14:02)', () => {
+  it('allows mixed commands and distinct suite selections without replacing their prefix (m157)', () => {
     // The +14:02 command verbatim: two whole walks of the 138-test suite chained with `;`, the
     // second measuring what the first had just measured.
     const m157 =
@@ -894,33 +902,22 @@ describe('streamingBackgroundCommand', () => {
       'BASE_URL=http://localhost:5173 npx playwright test --config playwright.realworld.config.ts ' +
       "--retries=0 --reporter=list --grep-invert 'should require login to post comment'"
     const r = streamingBackgroundCommand(m157)
-    expect(r.error).toContain('runs the suite twice')
-    expect(r.error).toContain(
-      'step 1: `playwright test --config playwright.realworld.config.ts spec 2>/dev/null`',
-    )
-    expect(r.error).toContain(
-      'step 2: `playwright test --config playwright.realworld.config.ts --retries=0 ' +
-        "--reporter=list --grep-invert 'should require login to post comment'`",
-    )
-    // The one run it hands back is the last suite step, rewritten like any background run.
-    expect(r.error).toContain(
-      'run exactly one: `' +
-        INLINE_HEAD +
-        'TEST_MODE=fullstack BASE_URL=http://localhost:5173 npx playwright test ' +
-        '--config playwright.realworld.config.ts --retries=0 --reporter=list ' +
-        "--grep-invert 'should require login to post comment'`",
-    )
-    expect(r.changes).toEqual([])
+    expect(r.error).toBeUndefined()
+    expect(r.command).toContain('cd /workspace &&')
+    expect(suiteRunStatements(r.command)).toHaveLength(2)
   })
 
   it('still launches one suite run behind other steps, and refuses two', () => {
     // Work before the run is not a second walk.
     expect(streamingBackgroundCommand('npm run build && npx playwright test').error).toBeUndefined()
-    // Two files, two walks: one measurement per command.
+    // Identical invocations are known duplicates.
+    expect(streamingBackgroundCommand('npx playwright test; npx playwright test').error).toContain(
+      'runs the suite twice',
+    )
     expect(
       streamingBackgroundCommand('npx playwright test a.spec.ts; npx playwright test b.spec.ts')
         .error,
-    ).toContain('runs the suite twice')
+    ).toBeUndefined()
     // A `--list` check walks nothing, so it leaves the single run beside it alone.
     expect(
       streamingBackgroundCommand('npx playwright test --list && npx playwright test').error,
@@ -949,15 +946,14 @@ describe('the suite’s own runner script (m170)', () => {
     expect(suiteRunStatements('head -30 run-api-tests-hurl.sh')).toHaveLength(0)
   })
 
-  it('refuses the two walks in the foreground too, naming both steps', () => {
-    const refusal = repeatedSuiteRunError(M170) ?? ''
+  it('allows the original mixed command but refuses simple identical foreground walks', () => {
+    expect(repeatedSuiteRunError(M170)).toBeNull()
+    const refusal =
+      repeatedSuiteRunError('bash run-api-tests-hurl.sh; bash run-api-tests-hurl.sh') ?? ''
     expect(refusal).toContain('runs the suite twice')
-    expect(refusal).toContain('step 1: `run-api-tests-hurl.sh 2>&1`')
-    expect(refusal).toContain('step 2: `run-api-tests-hurl.sh 2>&1`')
-    // The one run handed back is the last walk, never the chain — and its `| tail` is dropped.
+    expect(refusal).toContain('step 1: `run-api-tests-hurl.sh`')
+    expect(refusal).toContain('step 2: `run-api-tests-hurl.sh`')
     expect(refusal).toContain('run exactly one: `')
-    expect(refusal).toContain('run-api-tests-hurl.sh 2>&1`')
-    expect(refusal).not.toContain('tail -40')
     // Work before one run is not a second walk.
     expect(
       repeatedSuiteRunError(
@@ -994,6 +990,90 @@ describe('re-runs composed from a chained command (m157)', () => {
     expect(rerun).toContain('specs/e2e/articles.spec.ts:123')
     // The second walk's own flags are gone with it.
     expect(rerun).not.toContain('--grep-invert')
+  })
+})
+
+describe('mixed suite commands preserve shell operations (m277)', () => {
+  /** Execute only local fixture scripts; no real suite, package manager or network is used. */
+  const execute = (
+    command: string,
+  ): { status: number | null; artifact: string | null; runs: number } => {
+    const dir = mkdtempSync(join(tmpdir(), 'suite-command-'))
+    try {
+      mkdirSync(join(dir, 'bin'))
+      mkdirSync(join(dir, 'app'))
+      const runner = join(dir, 'bin', 'npx')
+      writeFileSync(runner, '#!/bin/sh\nprintf "run\\n" >> "$TRACE"\n')
+      chmodSync(runner, 0o755)
+      const result = spawnSync('bash', ['-c', command], {
+        cwd: dir,
+        env: {
+          ...process.env,
+          PATH: `${join(dir, 'bin')}:${process.env.PATH}`,
+          TRACE: join(dir, 'trace'),
+        },
+        encoding: 'utf8',
+        timeout: 2000,
+      })
+      return {
+        status: result.status,
+        artifact: existsSync(join(dir, 'artifact'))
+          ? readFileSync(join(dir, 'artifact'), 'utf8')
+          : null,
+        runs: existsSync(join(dir, 'trace'))
+          ? readFileSync(join(dir, 'trace'), 'utf8').trim().split('\n').length
+          : 0,
+      }
+    } finally {
+      rmSync(dir, { recursive: true, force: true })
+    }
+  }
+
+  it.each([
+    [
+      'heredoc',
+      "cat > artifact <<'EOF'\nfixture body\nEOF\nnpx playwright test; npx playwright test",
+      'fixture body\n',
+      2,
+    ],
+    [
+      'failed && guard',
+      'false && printf bad > artifact && npx playwright test; npx playwright test',
+      null,
+      1,
+    ],
+    ['suffix write', 'npx playwright test; npx playwright test; printf tail > artifact', 'tail', 2],
+    [
+      'different api/app suites',
+      "cat > artifact <<'EOF'\nfixture body\nEOF\nnpx vitest run --root api | tail -8; cd app && npx vitest run | tail -8",
+      'fixture body\n',
+      2,
+    ],
+  ])(
+    'executes the original %s command without manufacturing a replacement',
+    (_name, command, artifact, runs) => {
+      expect(repeatedSuiteRunError(command as string)).toBeNull()
+      expect(execute(command as string)).toEqual({ status: 0, artifact, runs })
+    },
+  )
+
+  it('the pure duplicate prescription executes exactly one local walk', () => {
+    const refusal = repeatedSuiteRunError('npx playwright test; npx playwright test')
+    expect(refusal).toContain('runs the suite twice')
+    const recovery = refusal?.match(/run exactly one: `([\s\S]*)`$/)?.[1]
+    expect(recovery).toBeDefined()
+    expect(execute(recovery!)).toEqual({ status: 0, artifact: null, runs: 1 })
+  })
+
+  it.each([
+    'npx vitest run --root api; npx vitest run --root app',
+    'npx vitest run --config api.config.ts; npx vitest run --config app.config.ts',
+    'cd api && npx vitest run; cd ../app && npx vitest run',
+    'HOST=https://first.test npx playwright test; HOST=https://second.test npx playwright test',
+    'npx playwright test > first.log; npx playwright test > second.log',
+    'npm install && npx playwright test; npx playwright test',
+  ])('allows different selections or other work: %s', (command) => {
+    expect(repeatedSuiteRunError(command)).toBeNull()
   })
 })
 

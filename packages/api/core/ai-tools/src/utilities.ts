@@ -746,8 +746,7 @@ const SUITE_RUN_COMMANDS: ReadonlyArray<RegExp> = [
  * Every statement of a command that starts a whole test suite, in command order.
  *
  * This is the ONE count of suite runs in a command: {@link isSuiteRunCommand} asks it,
- * {@link streamingBackgroundCommand} refuses a command carrying more than one — each statement
- * starts a whole walk of the same suite, and only the last of them is rewritten — and a re-run
+ * {@link repeatedSuiteRunError} refuses only simple identical invocations, and a re-run
  * composed from a command ({@link ./suite-overlap.js} `scopedRerunCommand`) keeps only the first.
  *
  * A statement that invokes a runner only to print is not one of these
@@ -762,10 +761,7 @@ export function suiteRunStatements(command: string): string[] {
   return commandSegments(command)
     .filter(
       (segment) =>
-        SUITE_RUN_COMMANDS.some((re) => re.test(segment.text)) &&
-        // A statement that only PRINTS (`playwright test --list`) is not a walk, so
-        // `npx playwright test --list && npx playwright test` is one run, not two.
-        !commandRunsNoTests(segment.text),
+        SUITE_RUN_COMMANDS.some((re) => re.test(segment.text)) && !commandRunsNoTests(segment.text),
     )
     .map((segment) => segment.text)
 }
@@ -782,41 +778,45 @@ export function isSuiteRunCommand(command: string): boolean {
 }
 
 /**
- * The refusal for a command that starts the suite MORE THAN ONCE — the ONE reading every launch
- * site asks, foreground and background alike.
+ * Refuse only a command made entirely of identical suite invocations.
  *
- * Each statement is a whole walk of the same suite against the same app, and only the last of them
- * is rewritten, so the earlier ones measure nothing the first did. X1 xr-molecule-flash-m157
- * (+14:02) chained two whole walks of one 138-test suite with `;` (4.5 minutes each) and the
- * background launcher refused it; X1 xr-molecule-flash-m170 (+06:02) chained two invocations of the
- * suite's own runner script in the foreground, where nothing counted them, and the note reported
- * the passing second walk as the first walk's 13 failures.
- *
- * The one run handed back is the LAST suite statement, rewritten exactly as
- * {@link streamingBackgroundCommand} rewrites a run (a filter or `| tail` after the runner is
- * dropped, and a Playwright run gets the reporter that prints failures). Its own count is one —
- * guarded, so this cannot recurse.
+ * Mixed shell commands execute as written. Rebuilding their prefix or suffix can lose writes,
+ * break heredoc delimiters or turn an && guard into unconditional work (m277). Different args
+ * or environments may select different suites or targets; they are not known duplicates either.
+ * This is an optimization, so uncertainty always allows the original command.
  *
  * @param command - The shell command as the executor sent it.
- * @returns The refusal sentence, or null when the command starts the suite zero or one time.
+ * @returns The duplicate-only refusal, or null when the original command should run.
  */
 export function repeatedSuiteRunError(command: string): string | null {
   if (commandRunsNoTests(command)) return null
-  const suiteSteps = suiteRunStatements(command)
-  if (suiteSteps.length <= 1) return null
-  const lastSuitePart = command
-    .split(/&&|\|\||;/)
-    .reverse()
-    .map((p) => p.trim())
-    .find((p) => isSuiteRunCommand(p))
-  const single =
-    lastSuitePart && suiteRunStatements(lastSuitePart).length === 1
-      ? streamingBackgroundCommand(lastSuitePart).command
-      : (lastSuitePart ?? '')
+  const steps = locatedCommandSegments(command)
+  if (steps.length <= 1) return null
+  const first = steps[0]!
+  const segment = first.segment
+  if (segment === null) return null
+  if (
+    steps.some(
+      (step) =>
+        step.segment === null ||
+        step.start === null ||
+        step.end === null ||
+        step.redirectTarget !== null ||
+        step.separator === '|' ||
+        step.terminator === '|' ||
+        step.segment.args.some((arg) => /[<>]/.test(arg)) ||
+        !SUITE_RUN_COMMANDS.some((re) => re.test(step.segment!.text)) ||
+        step.segment.text !== segment.text ||
+        step.assignments.join('\0') !== first.assignments.join('\0'),
+    )
+  )
+    return null
+  const last = steps.at(-1)!
+  const single = streamingBackgroundCommand(command.slice(last.start!, last.end!)).command
   return (
-    `This command runs the suite ${suiteSteps.length === 2 ? 'twice' : `${suiteSteps.length} times`} ` +
-    `(${suiteSteps.map((s, i) => `step ${i + 1}: \`${s}\``).join(', ')}). One walk is the ` +
-    `measurement; run exactly one: \`${single}\``
+    `This command runs the suite ${steps.length === 2 ? 'twice' : `${steps.length} times`} ` +
+    `(${steps.map((step, i) => `step ${i + 1}: \`${step.segment!.text}\``).join(', ')}). ` +
+    `One walk is the measurement; run exactly one: \`${single}\``
   )
 }
 
