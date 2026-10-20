@@ -205,53 +205,157 @@ export function redactSecretsInCode(s: string): string {
 const SOURCE_FILE_RE = /\.(?:[cm]?[jt]sx?|css|scss|html|vue|svelte|md|sql|hurl)$/
 
 /**
+ * A literal argument, not a shell expansion. The shared parser owns statement boundaries;
+ * this deliberately small word grammar only decides whether an argument can read other data.
+ *
+ * @param word - One argument with its original quotes.
+ * @returns Its literal value, or null for syntax requiring shell interpretation.
+ */
+function sourceReadLiteral(word: string): string | null {
+  if (/[$`]/.test(word)) return null
+  if (/^'[^']*'$/.test(word)) return word.slice(1, -1)
+  if (/^"(?:[^"\\]|\\.)*"$/.test(word)) {
+    return word.slice(1, -1).replace(/\\(["\\])/g, '$1')
+  }
+  return /^[a-zA-Z0-9_./:@%+,=-]+$/.test(word) ? word : null
+}
+
+/** Read/format options only: no recursive traversal, program execution or auxiliary files. */
+const SOURCE_PRINT_OPTIONS: Record<string, { flags: RegExp; values: readonly string[] }> = {
+  cat: { flags: /^-[AbeEnstTv]+$/, values: [] },
+  head: { flags: /^(?:-\d+|-[qv]|-[nc]\d+|--(?:lines|bytes)=\d+)$/, values: ['-n', '-c'] },
+  tail: { flags: /^(?:-\d+|-[qv]|-[nc]\+?\d+|--(?:lines|bytes)=\+?\d+)$/, values: ['-n', '-c'] },
+  nl: { flags: /^-b[ant]$/, values: ['-b', '-d', '-f', '-h', '-i', '-l', '-n', '-s', '-v', '-w'] },
+  grep: { flags: /^(?:-[nEHhivwxFobcsq]+|-[ABC]\d+)$/, values: ['-A', '-B', '-C'] },
+  rg: { flags: /^(?:-[nHhivwxFocqs]+|-[ABC]\d+)$/, values: ['-A', '-B', '-C'] },
+  sort: { flags: /^-[bdfgimnruVz]+$/, values: ['-k', '-t'] },
+  uniq: { flags: /^-[cdui]+$/, values: ['-f', '-s', '-w'] },
+  wc: { flags: /^-[clmwL]+$/, values: [] },
+  cut: { flags: /^-s$/, values: ['-b', '-c', '-d', '-f'] },
+}
+
+/**
+ * Files read by a supported print/filter command. Options that could read another file or
+ * run a program are deliberately not recognized; an uncertain command keeps full redaction.
+ *
+ * @param program - The literal program name.
+ * @param args - Literal argument values.
+ * @returns File operands, or null for an unsupported form.
+ */
+function sourcePrintFiles(program: string, args: readonly string[]): string[] | null {
+  if (program === 'sed') {
+    return args[0] === '-n' && /^\d+(?:,\d+)?p$/.test(args[1] ?? '') ? args.slice(2) : null
+  }
+  const options = SOURCE_PRINT_OPTIONS[program]
+  if (!options) return null
+  const search = program === 'grep' || program === 'rg'
+  const files: string[] = []
+  // With -e anywhere, grep/rg treat every positional word as a file, even before that -e.
+  let pattern = search && args.includes('-e')
+  let optionsEnded = false
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i]!
+    if (!optionsEnded && arg === '--') {
+      optionsEnded = true
+    } else if (!optionsEnded && search && arg === '-e') {
+      if (args[++i] === undefined) return null
+      pattern = true
+    } else if (!optionsEnded && options.values.includes(arg)) {
+      if (args[++i] === undefined) return null
+    } else if (!optionsEnded && arg.startsWith('-')) {
+      if (!options.flags.test(arg)) return null
+    } else if (search && !pattern) {
+      pattern = true
+    } else {
+      files.push(arg)
+    }
+  }
+  return search && !pattern ? null : files
+}
+
+/**
  * Whether a shell command only PRINTS source files (`cat a.tsx`, `sed -n '1,40p' x.ts`,
  * `head -50 b.hurl`): its output is file content and gets the code-safe redaction, like
  * read_file. Through the env-dump grade a printed `type AuthState = 'authenticated' | …`
  * came back as `'[REDACTED]'`, and the executor wrote the mask into a new file (X1
- * flash-m58). Any segment that is not such a print, or any env file named, keeps the full grade.
+ * flash-m58). Literal echo/printf headings between reads do not change that grade (m309).
+ * Expansions, other commands, env files and labels without a source read keep the full grade.
  *
  * @param command - The shell command.
- * @returns True when every segment prints source files only.
+ * @returns True when the command prints source files, with only literal headings and filters.
  */
 export function printsOnlySource(command: string): boolean {
   if (/\.env\b/.test(command)) return false
-  const segments = command
-    .split(/\s*(?:&&|;|\n)\s*/)
-    .map((s) => s.trim())
-    .filter((s) => s && !/^cd\s/.test(s))
-  if (segments.length === 0) return false
-  return segments.every((seg) => {
-    // Words, quotes kept whole: a grep pattern like "sign\\|verify" is one word, not a pipe.
-    const words = seg.match(/"(?:\\.|[^"\\])*"|'[^']*'|\S+/g) ?? []
-    const stages: string[][] = [[]]
-    for (const w of words) {
-      if (w === '|') stages.push([])
-      else if (!/^\d?>&\d$|^2>\/dev\/null$/.test(w)) stages[stages.length - 1].push(w)
+  let readsSource = false
+  let previousEnd = 0
+  for (const located of locatedCommandSegments(command)) {
+    const { segment, start, end, programOffset, separator, terminator } = located
+    // The parser unwraps env/sh/timeout and groups for other consumers. Redaction must not
+    // grant their output source status just because the inner program happens to read code.
+    // It also omits a wrapper with no inner command (notably `env`, which dumps secrets).
+    // Require every intervening byte to be a separator, never an omitted command.
+    if (
+      !segment ||
+      start === null ||
+      end === null ||
+      programOffset === null ||
+      located.assignments.length > 0 ||
+      !/^[\s;&|]*$/.test(command.slice(previousEnd, start)) ||
+      command.slice(start, programOffset).trim() !== '' ||
+      command.slice(programOffset, programOffset + segment.program.length) !== segment.program ||
+      !['', ';', '&&', '\n', '|'].includes(separator) ||
+      terminator === '&'
+    ) {
+      return false
     }
-    const [first, ...rest] = stages
-    const head = first[0]
-    // A print of named source files: cat/head/tail/nl/sed -n, or a non-recursive grep/rg
-    // (X1 flash-m61 read a fixture's password masked through `grep -n … auth.hurl`).
-    let args = first.slice(1)
-    if (head === 'sed' && args[0] !== '-n') return false
-    if (head === 'grep' || head === 'rg') {
-      if (args.some((a) => /^-[a-zA-Z]*[rR]/.test(a) || a === '--recursive')) return false
-      const flags = args.filter((a) => a.startsWith('-'))
-      const rest2 = args.filter((a) => !a.startsWith('-'))
-      args = flags.includes('-e') ? rest2 : rest2.slice(1)
-    } else if (!/^(?:cat|head|tail|nl|sed)$/.test(head ?? '')) return false
-    const files = args.filter(
-      (t) => !t.startsWith('-') && !/^'[^']*'$|^"[^"]*"$|^\d+$|^\d+,\d+p$/.test(t),
-    )
-    if (files.length === 0 || !files.every((f) => SOURCE_FILE_RE.test(f))) return false
-    // After it, only text filters that read no file of their own.
-    return rest.every(
-      (stage) =>
-        /^(?:head|tail|sort|uniq|wc|cut|nl|grep)$/.test(stage[0] ?? '') &&
-        !stage.slice(1).some((a) => !a.startsWith('-') && /\.[a-z]+$/i.test(a) && !/^['"]/.test(a)),
-    )
-  })
+    previousEnd = end
+    const { program } = segment
+    const label = program === 'echo' || program === 'printf'
+    const args: string[] = []
+    for (const word of segment.args) {
+      // The existing source-read idiom discards diagnostics; labels may not redirect at all.
+      if (!label && word === '2>/dev/null') continue
+      const literal = sourceReadLiteral(word)
+      if (literal === null) return false
+      args.push(literal)
+    }
+    const piped = separator === '|' || terminator === '|'
+    if (program === 'cd') {
+      if (piped || args.length !== 1 || args[0]!.startsWith('-')) return false
+    } else if (label) {
+      if (piped || args.length === 0) return false
+      // printf's %n and -v assign variables; only literal formats and %s headings belong here.
+      if (
+        program === 'printf' &&
+        (args[0]!.startsWith('-') || args[0]!.replace(/%%|%s/g, '').includes('%'))
+      ) {
+        return false
+      }
+    } else {
+      const filter = separator === '|'
+      if (
+        !(
+          filter ? /^(?:head|tail|sort|uniq|wc|cut|nl|grep)$/ : /^(?:cat|head|tail|nl|sed|grep|rg)$/
+        ).test(program)
+      ) {
+        return false
+      }
+      const files = sourcePrintFiles(program, args)
+      if (files === null) return false
+      if (filter) {
+        if (files.length !== 0) return false
+      } else {
+        if (
+          files.length === 0 ||
+          !files.every((file) => !file.startsWith('-') && SOURCE_FILE_RE.test(file))
+        ) {
+          return false
+        }
+        readsSource = true
+      }
+    }
+  }
+  return readsSource && /^[\s;]*$/.test(command.slice(previousEnd))
 }
 
 /**
