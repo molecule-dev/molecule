@@ -27,8 +27,9 @@
  * - **`parseFlyMachineList` is the only JSON the adapter trusts.** A Machine list
  *   that is not an array is an error, never an empty set.
  * - **A mixed set is refused.** `assertHomogeneousFlyMachines` rejects Machines on
- *   different images or configuration versions: that is a deploy in flight, and
- *   changing half of it records a binding that is already stale on the other half.
+ *   different images. Each Machine has its own configuration version; the returned
+ *   `machineVersions` maps Machine ids to those versions. Bind each patch to its
+ *   target's version so a later image or configuration update retires it.
  * - **A restart that parks is started explicitly.** A Machine that comes back
  *   `stopped`/`suspended` after a restart is started, not left parked.
  *

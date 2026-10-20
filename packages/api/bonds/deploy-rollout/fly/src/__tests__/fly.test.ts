@@ -114,6 +114,29 @@ describe('assertHomogeneousFlyMachines', () => {
     expect(targets.imageRef).toBe('registry.fly.io/molecule-api:deployment-1')
   })
 
+  it('keeps each Machine instance version when the same image was rolled onto both', () => {
+    const machines = parseFlyMachineList(
+      JSON.stringify([
+        machine('d8d0794b009678', { instance_id: '01M5CEW79HBCRS7FX80Z56J0BX' }),
+        machine('829622f73e7198', { instance_id: '01M5CEYVM2SQHQBEKB9KVPZYHJ' }),
+      ]),
+    )
+    expect(assertHomogeneousFlyMachines(machines)).toEqual({
+      ids: ['d8d0794b009678', '829622f73e7198'],
+      imageRef: 'registry.fly.io/molecule-api:deployment-1',
+      machineVersions: {
+        d8d0794b009678: '01M5CEW79HBCRS7FX80Z56J0BX',
+        '829622f73e7198': '01M5CEYVM2SQHQBEKB9KVPZYHJ',
+      },
+    })
+  })
+
+  it('refuses a Machine with no version to bind a patch to', () => {
+    expect(() =>
+      assertHomogeneousFlyMachines(parsed(['a'.repeat(14)], { instance_id: undefined })),
+    ).toThrow(/no configuration version/)
+  })
+
   it('refuses a stopped Machine', () => {
     const machines = parseFlyMachineList(
       JSON.stringify([machine('a'.repeat(14)), machine('b'.repeat(14), { state: 'stopped' })]),

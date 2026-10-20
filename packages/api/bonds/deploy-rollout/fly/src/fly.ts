@@ -173,18 +173,19 @@ export const parseFlyMachineList = (json: string): FlyMachine[] => {
  * Validate a Machine list as a rollout target set and return what to act on.
  *
  * Every Machine must be started (a stopped one cannot be reached over SSH, and its
- * patch volume would keep an older build), and all must run the SAME image and
- * configuration version: a mixed set is a deploy in flight, and changing half of it
- * would record a binding that is already stale on the other half.
+ * patch volume would keep an older build), and all must run the SAME image.
+ * Configuration versions identify individual Machine instances, so a healthy
+ * rolling deployment has a different version on each Machine. Preserve those
+ * versions by id so callers can bind a patch to the Machine receiving it.
  *
  * @param machines - Parsed Machines.
- * @returns The target set's ids, image ref and configuration version.
+ * @returns The target set's ids, shared image ref and each Machine's version.
  * @throws {Error} A plain, operator-readable refusal.
  */
 export const assertHomogeneousFlyMachines = (
   machines: readonly FlyMachine[],
   options: { appName?: string } = {},
-): { ids: string[]; imageRef: string; version: string } => {
+): { ids: string[]; imageRef: string; machineVersions: Record<string, string> } => {
   const app = options.appName ?? 'the app'
   if (machines.length === 0) throw new Error(`${app} has no Machines`)
   const stopped = machines.filter((machine) => machine.state !== 'started')
@@ -212,18 +213,19 @@ export const assertHomogeneousFlyMachines = (
     }
   }
   const imageRefs = [...new Set(machines.map((machine) => machine.imageRef))]
-  const versions = [...new Set(machines.map((machine) => machine.version))]
-  if (imageRefs.length > 1 || versions.length > 1) {
+  if (imageRefs.length > 1) {
     throw new Error(
       `${app} Machines are running MIXED builds ` +
-        `(images: ${imageRefs.join(', ')}; versions: ${versions.join(', ')}) — a deploy is in ` +
+        `(images: ${imageRefs.join(', ')}) — a deploy is in ` +
         'flight or a Machine was started separately. Wait for it to settle, then re-run.',
     )
   }
   return {
     ids: machines.map((machine) => machine.id),
     imageRef: imageRefs[0] as string,
-    version: versions[0] as string,
+    machineVersions: Object.fromEntries(
+      machines.map((machine) => [machine.id, machine.version as string]),
+    ),
   }
 }
 
