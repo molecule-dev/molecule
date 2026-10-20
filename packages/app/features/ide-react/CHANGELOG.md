@@ -1,5 +1,11 @@
 # @molecule/app-ide-react
 
+## 1.22.0
+
+### Minor Changes
+
+- 0f4fb2f: Show context composition and background progress, and support durable editable messages queued during active turns.
+
 ## 1.21.2
 
 ### Patch Changes

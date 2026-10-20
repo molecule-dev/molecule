@@ -1,5 +1,11 @@
 # @molecule/app-locales-ide
 
+## 1.10.10
+
+### Patch Changes
+
+- 0f4fb2f: Show context composition and background progress, and support durable editable messages queued during active turns.
+
 ## 1.10.9
 
 ### Patch Changes

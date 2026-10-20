@@ -1,5 +1,11 @@
 # @molecule/app-ai-chat-http
 
+## 1.5.0
+
+### Minor Changes
+
+- 90906b0: Support durable queued messages with stable delivery acknowledgments, editing and cancellation during an active response.
+
 ## 1.4.0
 
 ### Minor Changes
