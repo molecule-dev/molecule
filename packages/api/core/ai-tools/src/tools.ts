@@ -3485,10 +3485,11 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         // truncateMiddle (not truncate): a failing build/test/migration puts its
         // error at the TAIL, so keep the head AND the tail — head-only truncation
         // strands the executor with passing progress and no failure reason.
-        // A command that only INSPECTS the workspace (source reads, `ls`/`find`/`wc`, a
-        // recursive `grep -rn … .`) returns code, not an env dump: the code-safe grade, as
-        // read_file uses (utilities.ts isReadOnlyInspection). Anything else (`.env` reads,
-        // `env`/`printenv`, an interpreter one-liner) keeps the full name-keyed grade.
+        // A command that only INSPECTS the workspace without printing arbitrary file content
+        // (a pure source read, `ls`/`find`/`wc`) returns code, not an env dump: the code-safe
+        // grade, as read_file uses (utilities.ts isReadOnlyInspection). A recursive search
+        // (`.env` and JSON secret dumps are in its match set), an `.env` read, `env`/`printenv`
+        // and an interpreter one-liner all keep the full name-keyed grade.
         const grade = isReadOnlyInspection(command)
           ? (s: string): string => sanitizeFileContent(s, 'printed.ts')
           : sanitizeOutput

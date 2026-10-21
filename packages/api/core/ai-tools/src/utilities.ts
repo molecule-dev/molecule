@@ -242,21 +242,6 @@ const INSPECTION_PROGRAMS: ReadonlySet<string> = new Set(['find', 'ls', 'wc'])
 const FIND_NOT_INSPECTION = /^-(?:exec|execdir|ok|okdir|delete|fls|fprint|fprint0|fprintf)/
 
 /**
- * Whether a file operand names a DIRECTORY rather than a file: a recursive search root
- * (`grep -rn x .`, `rg x src/`), whose output is matching lines, not one arbitrary file.
- *
- * @param word - One literal file operand.
- * @returns True when the operand has a directory shape.
- */
-function directoryOperand(word: string): boolean {
-  // A process's environment and the platform's secrets are never inspection targets.
-  if (/^\/(?:proc|etc\/mol)(?:\/|$)/.test(word)) return false
-  if (/(?:^|\/)\.{1,2}$/.test(word) || word.endsWith('/')) return true
-  const last = word.split('/').pop() ?? ''
-  return last !== '' && !last.includes('.')
-}
-
-/**
  * A literal argument, not a shell expansion. The shared parser owns statement boundaries;
  * this deliberately small word grammar only decides whether an argument can read other data.
  *
@@ -278,8 +263,8 @@ const SOURCE_PRINT_OPTIONS: Record<string, { flags: RegExp; values: readonly str
   head: { flags: /^(?:-\d+|-[qv]|-[nc]\d+|--(?:lines|bytes)=\d+)$/, values: ['-n', '-c'] },
   tail: { flags: /^(?:-\d+|-[qv]|-[nc]\+?\d+|--(?:lines|bytes)=\+?\d+)$/, values: ['-n', '-c'] },
   nl: { flags: /^-b[ant]$/, values: ['-b', '-d', '-f', '-h', '-i', '-l', '-n', '-s', '-v', '-w'] },
-  grep: { flags: /^(?:-[nEHhrRivwxFobcsq]+|-[ABC]\d+)$/, values: ['-A', '-B', '-C'] },
-  rg: { flags: /^(?:-[nHhrRivwxFocqs]+|-[ABC]\d+)$/, values: ['-A', '-B', '-C'] },
+  grep: { flags: /^(?:-[nEHhivwxFobcsq]+|-[ABC]\d+)$/, values: ['-A', '-B', '-C'] },
+  rg: { flags: /^(?:-[nHhivwxFocqs]+|-[ABC]\d+)$/, values: ['-A', '-B', '-C'] },
   sort: { flags: /^-[bdfgimnruVz]+$/, values: ['-k', '-t'] },
   uniq: { flags: /^-[cdui]+$/, values: ['-f', '-s', '-w'] },
   wc: { flags: /^-[clmwL]+$/, values: [] },
@@ -340,16 +325,23 @@ export function printsOnlySource(command: string): boolean {
 }
 
 /**
- * Whether a shell command only INSPECTS the workspace: it prints source files, lists names
- * (`ls`, `find`), counts lines (`wc`), or searches a directory recursively (`grep -rn x .`,
- * `rg x src/`) — joined by `;`, `&&` or `|`, with literal `echo`/`printf` headings and `cd`.
+ * Whether a shell command only INSPECTS the workspace WITHOUT printing a file's contents:
+ * it prints source files (a pure literal read, {@link printsOnlySource}), lists names
+ * (`ls`, `find`), or counts lines (`wc`) — joined by `;`, `&&` or `|`, with literal
+ * `echo`/`printf` headings and `cd`.
  *
- * Its output is code, not an env dump, so it gets the code-safe redaction ({@link
- * redactSecretsInCode}) instead of the name-keyed env-dump passes. Without this, ordinary
- * code values in a command's output — `authScheme: 'Token'`, `tokenKey: 'jwtToken'`,
- * `credentials: 'include'` — were masked as `'[REDACTED]'` whenever the command was not a
- * pure literal source read, and a builder that read them back wrote the mask into its own
- * `config.ts` (a 401 and ~15 minutes of misdiagnosis).
+ * Its output is code or names, not an env dump, so it gets the code-safe redaction
+ * ({@link redactSecretsInCode}) instead of the name-keyed env-dump passes. Without this,
+ * ordinary code values in a command's output — `authScheme: 'Token'`, `tokenKey:
+ * 'jwtToken'`, `credentials: 'include'` — were masked as `'[REDACTED]'` whenever the
+ * command was not a pure literal source read (for example a source read with a `ls | head`
+ * beside it), and a builder that read them back wrote the mask into its own `config.ts`
+ * (a 401 and ~15 minutes of misdiagnosis).
+ *
+ * A RECURSIVE SEARCH IS NOT INSPECTION (`grep -rn x .`, `rg x src/`): its output is the
+ * content of whichever files matched, including `.env` files and JSON secret dumps, so it
+ * keeps the full grade. A path with no extension is not evidence that it is a directory —
+ * `/dev/stdin` and an ordinary `secrets` file read the same way.
  *
  * Env dumps keep the full grade: `.env` anywhere in the command, `env`/`printenv`, a
  * non-literal or redirecting form, and an interpreter one-liner (`node -e`, `python -c`)
@@ -367,7 +359,7 @@ export function isReadOnlyInspection(command: string): boolean {
  * backgrounding, and every byte between segments a separator.
  *
  * @param command - The shell command.
- * @param inspection - Also accept name/count listing and recursive directory searches.
+ * @param inspection - Also accept name/count listing (`ls`, `find`, `wc`).
  * @returns True when every segment is allowed and at least one prints something.
  */
 function printsOnly(command: string, inspection: boolean): boolean {
@@ -438,12 +430,7 @@ function printsOnly(command: string, inspection: boolean): boolean {
       } else {
         if (
           files.length === 0 ||
-          !files.every(
-            (file) =>
-              !file.startsWith('-') &&
-              (SOURCE_FILE_RE.test(file) ||
-                (inspection && (program === 'grep' || program === 'rg') && directoryOperand(file))),
-          )
+          !files.every((file) => !file.startsWith('-') && SOURCE_FILE_RE.test(file))
         ) {
           return false
         }
