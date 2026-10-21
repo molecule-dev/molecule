@@ -88,7 +88,7 @@ describe('foregroundBrowserProbe', () => {
   })
 })
 
-describe('foregroundServerCommand — an inline program is read by its code (m391)', () => {
+describe('foregroundServerCommand — inline programs use bounded execution (m391)', () => {
   // xr-molecule-flash-m391 (+13:13): the executor checked that Vite could be imported in Node and
   // then curled the dev server that was already running. The refusal named `node` as a server
   // because the INLINE CODE spelled `…/node_modules/vite`; requiring a module starts nothing, and
@@ -119,13 +119,15 @@ describe('foregroundServerCommand — an inline program is read by its code (m39
       'node -e "console.log(`server.listen(3000)`)"',
       'node -e "import(\'/workspace/my-app/api/src/server.ts\')"',
       'node -e "const vite=\'/workspace/my-app/node_modules/vite\'"',
+      'node -e "console.log(/server.listen()/)"',
+      'python3 -c "# server.listen()"',
     ]) {
       expect(await foregroundServerCommand(command, vi.fn())).toBeNull()
       expect(startsServerProgram(command)).toBe(false)
     }
   })
 
-  it('still refuses an inline program that binds a listener', async () => {
+  it('leaves arbitrary inline programs to the normal bounded runner', async () => {
     const commands = [
       'node -e "require(\'http\').createServer().listen(3000)"',
       'node -e "const srv = require(\'http\').createServer(); srv.listen(0)"',
@@ -134,8 +136,8 @@ describe('foregroundServerCommand — an inline program is read by its code (m39
       'python3 -c "from http.server import HTTPServer; HTTPServer((\'\', 8000), H).serve_forever()"',
     ]
     for (const command of commands) {
-      expect(await foregroundServerCommand(command, vi.fn())).not.toBeNull()
-      expect(startsServerProgram(command)).toBe(true)
+      expect(await foregroundServerCommand(command, vi.fn())).toBeNull()
+      expect(startsServerProgram(command)).toBe(false)
     }
   })
 

@@ -359,7 +359,7 @@ describe('buildTools', () => {
     // xr-molecule-flash-m391 (+13:13) verbatim: a read-only check that Vite imports, followed by
     // curls of the dev server already running. The inline code names `…/node_modules/vite`, and
     // the refusal called that "`node` starts a server" — a turn lost, recovered 3 s later with a
-    // plain curl. Requiring a module binds nothing; only a listener bind does.
+    // plain curl. Inline source belongs to the bounded runner, not this filename preflight.
     const command =
       "cd /workspace/my-app/app && cat > /tmp/wm.ts <<'EOF'\n" +
       "import '@fontsource/lora/400.css'\n" +
@@ -375,6 +375,21 @@ describe('buildTools', () => {
     const result = (await exec.execute({ command })) as { error?: string; exitCode?: number }
     expect(result.error).toBeUndefined()
     expect(backend.run).toHaveBeenCalledWith(command, expect.anything())
+  })
+
+  it('exec_command leaves inline regexes and Python comments to bounded execution', async () => {
+    for (const command of [
+      'node -e "console.log(/server.listen()/)"',
+      'python3 -c "# server.listen()"',
+    ]) {
+      const backend = mockBackend()
+      const exec = buildTools(backend, { blockDangerousCommands: true }).find(
+        (tool) => tool.name === 'exec_command',
+      )!
+      const result = (await exec.execute({ command })) as { error?: string }
+      expect(result.error).toBeUndefined()
+      expect(backend.run).toHaveBeenCalledWith(command, expect.anything())
+    }
   })
 
   it('exec_command refuses a foreground `npm run dev`/`node server.js` and lets a background one run', async () => {
