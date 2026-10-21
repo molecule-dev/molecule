@@ -905,14 +905,21 @@ export const createJWTAuthClient = <
     },
 
     async updateProfile(data: Partial<T>): Promise<T> {
-      const result = await fetchAPI<T>(profileEndpoint, {
+      const answer = await fetchAPI<T>(profileEndpoint, {
         method: 'PATCH',
         body: JSON.stringify(data),
       })
 
-      // The profile route answers with the wire shape as well; map it like every
+      // The profile route answers in one of three shapes: a bare user, `{ user }`, or
+      // the resource envelope `{ props }` (which `fetchAPI` aliases onto `user`).
+      // The profile the app stores is the USER, never the envelope around it —
+      // caching the envelope meant every page reading `user.name` read `undefined`
+      // right after a successful save (the settings-edit class).
+      const unwrapped = answer as T & { user?: T }
+      const raw = unwrapped.user ?? answer
+      // The profile route answers the wire shape as well; map it like every
       // other answer that replaces the cached user.
-      const user = mapCurrentUser(result, result) ?? result
+      const user = mapCurrentUser(answer, raw) ?? raw
       tokenStorage.setUser(user)
       setState({ user })
 

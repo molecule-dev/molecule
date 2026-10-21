@@ -88,6 +88,11 @@ export interface LoginCredentials {
  * (and a `requestBody` that reads them) keeps type-checking unchanged; only a
  * client constructed with a second generic accepts (and types) more fields.
  *
+ * Declare `TExtra` as a type literal or a type alias
+ * (`type Extra = { username: string }`). An `interface` has no implicit index
+ * signature, so it does not satisfy the `Record<string, unknown>` constraint —
+ * the compiler reports "Index signature for type 'string' is missing".
+ *
  * @template TExtra - The app's own registration fields, at the top level.
  */
 export type RegisterData<TExtra extends Record<string, unknown> = Record<never, never>> = {
