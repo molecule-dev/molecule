@@ -19,9 +19,11 @@ import {
   MAX_REPORTED_FAILURES,
   PLAYWRIGHT_REPORT_ENV,
   playwrightReportPathFor,
+  type PlaywrightReportTest,
   type PlaywrightRunReport,
   reportCarriesIdentities,
   reportTestArtifactDir,
+  reportTestAttachmentPaths,
   summarizePlaywrightReport,
 } from '../playwright-report.js'
 import { installedPlaywright, runTinyPlaywright } from './fixtures/playwright-run.js'
@@ -99,6 +101,9 @@ describe('summarizePlaywrightReport, from a genuine runner report', () => {
         expect(failure).toBeDefined()
         if (failure === undefined) return
         expect(failure.title).toBe('subtracts')
+        // The title path is the test's own describe chain and title — the report's top-level entry
+        // is the FILE suite, whose title is the path `file` already carries.
+        expect(failure.titlePath).toEqual(['subtracts'])
         expect(failure.file).toBe('tiny.spec.js')
         expect(failure.line).toBeGreaterThan(0)
         // The runner retried it once and it failed both times: the record keeps the LAST failing
@@ -283,6 +288,59 @@ describe('the record is bounded and redacted', () => {
     expect(report.failures).toHaveLength(MAX_REPORTED_FAILURES)
     expect(report.omittedFailures).toBe(3)
     expect(report.failures[0]?.titlePath).toEqual(['group', 'test 0'])
+    // The bound is this module's cap, not a damaged tree: the stats name every failure the full
+    // list held, and the record still says complete with the rest counted explicitly.
+    expect(report.status).toBe('complete')
+  })
+
+  it('reconciles the runner’s tally with its own tree, never calling a short tree complete', () => {
+    const short = JSON.stringify({
+      stats: { expected: 0, skipped: 0, unexpected: 2, flaky: 0, duration: 1 },
+      suites: [
+        {
+          title: 'e2e/a.spec.ts',
+          specs: [
+            {
+              title: 'one',
+              ok: false,
+              file: 'e2e/a.spec.ts',
+              line: 1,
+              column: 1,
+              tests: [
+                {
+                  projectName: 'chromium',
+                  status: 'unexpected',
+                  results: [{ status: 'failed', retry: 0, duration: 1, attachments: [] }],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      errors: [],
+    })
+    const report = summarizePlaywrightReport(short, { path: '/tmp/x.json' })
+    expect(report.stats?.unexpected).toBe(2)
+    expect(report.failures).toHaveLength(1)
+    expect(report.status).toBe('partial')
+    expect(report.reason).toContain('lists 1')
+  })
+
+  it('stays total on a damaged record’s attachments, never throwing or inventing a path', () => {
+    // A record read back from a transcript can be damaged. The reader answers "no artifact" — the
+    // caller decides that damage means no ownership claim; nothing here may throw.
+    const damaged = [
+      null,
+      { attachments: null },
+      { attachments: [null] },
+      { attachments: [{ name: 'trace' }] },
+      { attachments: [{ path: '' }] },
+      { attachments: 'trace.zip' },
+    ] as unknown as PlaywrightReportTest[]
+    for (const test of damaged) {
+      expect(reportTestAttachmentPaths(test)).toEqual([])
+      expect(reportTestArtifactDir(test)).toBeNull()
+    }
   })
 
   it('keeps `trace` first on a test that saved several artifacts', () => {

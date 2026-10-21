@@ -211,13 +211,42 @@ export function reportCarriesIdentities(status: PlaywrightReportStatus): boolean
 }
 
 /**
- * The attachment paths the report recorded for one test's reported attempt, `trace` first.
+ * The attachments a stored record actually carries.
  *
- * @param test - One entry of {@link PlaywrightRunReport.failures}.
- * @returns Every saved path, in the record's own order.
+ * A record read back from a transcript is not guaranteed to be the shape this module wrote — a
+ * damaged, truncated or hand-edited one can carry a null entry, a non-array field or an attachment
+ * without a path. Every reader goes through here so a damaged record answers "no artifact", never a
+ * thrown error and never another test's trace.
+ *
+ * @param test - One entry of {@link PlaywrightRunReport.failures}, as stored.
+ * @returns Its well-shaped attachments, in the record's own order.
+ */
+function storedAttachments(test: PlaywrightReportTest): PlaywrightReportAttachment[] {
+  const raw: unknown = (test as { attachments?: unknown } | null)?.attachments
+  if (!Array.isArray(raw)) return []
+  const out: PlaywrightReportAttachment[] = []
+  for (const entry of raw) {
+    const attachment = asRecord(entry)
+    if (attachment === null) continue
+    const path = asString(attachment.path)
+    if (path === null) continue
+    out.push({
+      name: asString(attachment.name) ?? '',
+      contentType: asString(attachment.contentType),
+      path,
+    })
+  }
+  return out
+}
+
+/**
+ * The attachment paths a stored test record carries, `trace` first.
+ *
+ * @param test - One entry of {@link PlaywrightRunReport.failures}, as stored.
+ * @returns Every saved path the record can prove, in its own order.
  */
 export function reportTestAttachmentPaths(test: PlaywrightReportTest): string[] {
-  return test.attachments.map((attachment) => attachment.path)
+  return storedAttachments(test).map((attachment) => attachment.path)
 }
 
 /**
@@ -225,17 +254,15 @@ export function reportTestAttachmentPaths(test: PlaywrightReportTest): string[] 
  *
  * Playwright writes one directory per test attempt under the run's `outputDir`, and every artifact
  * of that attempt — `trace.zip` included — sits in it. The directory is therefore the exact
- * ownership mark for a trace: two tests' traces are never in one another's directory.
+ * ownership mark for a trace: two tests' traces are never in one another's directory. A damaged
+ * record whose attachment entries carry no path answers null, so nothing is claimed from it.
  *
- * @param test - One entry of {@link PlaywrightRunReport.failures}.
+ * @param test - One entry of {@link PlaywrightRunReport.failures}, as stored.
  * @returns The posix-normalized directory, or null.
  */
 export function reportTestArtifactDir(test: PlaywrightReportTest): string | null {
-  for (const attachment of test.attachments) {
-    if (attachment.path === '') continue
-    return posix.dirname(attachment.path)
-  }
-  return null
+  const attachment = storedAttachments(test).find((one) => one.path !== '')
+  return attachment === undefined ? null : posix.dirname(attachment.path)
 }
 
 /** The attachments of one attempt, `trace` first and bounded. */
@@ -313,13 +340,22 @@ function isFailingTest(status: string, results: readonly unknown[]): boolean {
   })
 }
 
-/** Every test entry under one suite, with the suite titles that lead to it. */
+/**
+ * Every test entry under one suite, with the suite titles that lead to it.
+ *
+ * @param suite - One suite of the report's tree.
+ * @param prefix - The titles of the suites above it.
+ * @param out - Where the entries collect.
+ * @param fileSuite - True for a top-level entry, whose title is the file path rather than a
+ *   `describe` block: it is not part of a test's title path.
+ */
 function specsIn(
   suite: Record<string, unknown>,
   prefix: readonly string[],
   out: Array<{ spec: Record<string, unknown>; titlePath: string[] }>,
+  fileSuite = false,
 ): void {
-  const title = asString(suite.title)
+  const title = fileSuite ? null : asString(suite.title)
   const titlePath = title === null ? [...prefix] : [...prefix, title]
   const specs = Array.isArray(suite.specs) ? suite.specs : []
   for (const entry of specs) {
@@ -397,11 +433,13 @@ export function summarizePlaywrightReport(
   if (suites === null)
     return unusable('partial', path, 'the report carries no suite tree (the run was cut short)')
 
-  // Every spec under every project, with the describe titles that lead to it.
+  // Every spec under every project, with the describe titles that lead to it. The report's
+  // top-level entries are FILE suites — their title is the file path the spec's own `file` already
+  // carries — so that level is not part of a test's title path.
   const specs: Array<{ spec: Record<string, unknown>; titlePath: string[] }> = []
   for (const entry of suites) {
     const suite = asRecord(entry)
-    if (suite !== null) specsIn(suite, [], specs)
+    if (suite !== null) specsIn(suite, [], specs, true)
   }
 
   const failures: PlaywrightReportTest[] = []
@@ -439,15 +477,24 @@ export function summarizePlaywrightReport(
   }
 
   const omittedFailures = Math.max(0, failures.length - MAX_REPORTED_FAILURES)
+  // The runner's tally and its own tree must agree. A record whose stats name more failures than
+  // the tree lists is not a whole record — a truncated write, a merged or hand-edited file — and
+  // must not be read as complete just because both fields parsed. The bound this module applies is
+  // counted in `omittedFailures`, so it is compared against the list BEFORE the cap.
+  const namedFailures = stats === null ? null : stats.unexpected + stats.flaky
+  const treeShort = namedFailures !== null && failures.length < namedFailures
   // Playwright's own global errors mean the run did not walk everything it planned to (a config
   // error, a worker crash): the per-test entries that did parse are still the runner's own.
-  const status: PlaywrightReportStatus = stats === null || errors > 0 ? 'partial' : 'complete'
+  const status: PlaywrightReportStatus =
+    stats === null || errors > 0 || treeShort ? 'partial' : 'complete'
   const reason =
     stats === null
       ? 'the report carries no run stats'
       : errors > 0
         ? `the run reported ${errors} error(s) of its own`
-        : undefined
+        : treeShort
+          ? `the run’s stats name ${namedFailures} failing test(s) but its tree lists ${failures.length}`
+          : undefined
   return {
     status,
     path,
