@@ -1,17 +1,14 @@
 import { get, getAnalytics, getLogger } from '@molecule/api-bond'
 import { findById } from '@molecule/api-database'
 import { t } from '@molecule/api-i18n'
-import {
-  isConfigNotConfiguredError,
-  type PaymentProvider,
-  type PlanService,
-} from '@molecule/api-payments'
+import type { PaymentProvider, PlanService } from '@molecule/api-payments'
 import type { MoleculeRequest } from '@molecule/api-resource'
 import { update as resourceUpdate } from '@molecule/api-resource'
 
 import { updatePlanPropsSchema } from '../schema.js'
 import type * as types from '../types.js'
 import { invalidateEntitlementsCacheSafe } from '../utilities/invalidateEntitlements.js'
+import { loadPayments } from '../utilities/payments.js'
 
 const analytics = getAnalytics()
 const logger = getLogger()
@@ -60,6 +57,10 @@ function normalizeQuantity(raw: unknown): number | undefined {
  * cross-platform subscription cancellation when switching providers. Returns a checkout URL
  * (status 201) for new subscriptions, or directly updates the user record for in-place changes
  * and free plan downgrades.
+ *
+ * `@molecule/api-payments` is an OPTIONAL peer: its `isConfigNotConfiguredError` helper is
+ * loaded lazily inside the catch, so an app that installs no payments package can still import
+ * (and boot) this resource — the free-plan path and every non-payment route keep working.
  * @param resource - The user resource configuration (name, tableName, schema).
  * @param resource.name - The resource name.
  * @param resource.tableName - The database table name for users.
@@ -322,7 +323,11 @@ export const updatePlan = ({ name, tableName, schema: _schema }: types.HandlerRe
       // its REAL statusCode/errorKey through instead of flattening it to a
       // generic 500. Otherwise a missing secret is indistinguishable from an
       // unexpected server error at the exact moment a user tries to upgrade.
-      if (isConfigNotConfiguredError(error)) {
+      // The payments core is an OPTIONAL peer — loaded here (never at module scope) so
+      // the package boots in an install that omits it. No payments package means the
+      // error is not a tagged config error, so it falls through to the generic 500 below.
+      const payments = await loadPayments()
+      if (payments && payments.isConfigNotConfiguredError(error)) {
         logger.warn(error.message, { errorKey: error.errorKey })
         return {
           statusCode: error.statusCode,

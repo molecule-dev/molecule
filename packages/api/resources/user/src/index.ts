@@ -121,6 +121,34 @@
  *   `user.error.twoFactorVerificationUnavailable` / `user.error.loginFailed`. Bad credentials
  *   are 403, not 401 or 422.
  *
+ * **A JWT you sign yourself is NOT a session.** `verifyMiddleware` accepts a token only when
+ * the bonded `@molecule/api-jwt` provider verifies it AND its `deviceId` names an ACTIVE row
+ * in `devices`; anything else — another secret or algorithm, or an invented/placeholder
+ * `deviceId` — is answered 401 on every request (a request with no credential at all answers
+ * `{"errors":{"token":["is missing"]}}`). Mint sessions with `authorization.set()` after
+ * `device.createOrUpdate()` (the sequence above) and mount `verifyMiddleware` once in front of
+ * the routes — never hand-roll auth middleware or a second token scheme.
+ *
+ * **Changing the EMAIL or the PASSWORD requires the CURRENT password — there is no opt-out.**
+ * `handlers.update` (`PATCH /users/:id`) takes profile fields; when the body changes (or
+ * clears) `email` on an account that has a password, the SAME flat body must also carry that
+ * account's `currentPassword`. Missing → 400 `user.error.currentPasswordRequired`; wrong → 403
+ * `user.error.currentPasswordIncorrect`. A real change resets `emailVerified` to `false`
+ * server-side (the new address is unproven), and `emailVerified` is NEVER read from the body.
+ * An OAuth-only account (no `passwordHash`) has no password to present, so its provider-backed
+ * session is the credential. `handlers.updatePassword` (`PATCH /users/:id/password`) requires
+ * `newPassword` (8–1024 characters) and, on a password account, `currentPassword` as well —
+ * same 400/403 codes; it answers 200 `{ success: true }`, clears any outstanding reset token,
+ * and revokes every OTHER device while the caller's own session keeps working.
+ *
+ * Do NOT work around either gate by storing, caching or replaying the user's password, by
+ * sending an invented `currentPassword`, or by writing `email` around the handler with the
+ * datastore: the password is the re-authentication factor that stops a hijacked session from
+ * moving the account-recovery address. If a wire format (e.g. RealWorld's token-only
+ * `PUT /user`) cannot collect the current password, that flow is simply unsupported as written
+ * — have the client ask for it in a re-authentication step, or route sign-in and account
+ * changes through the auth pages (`useAuth()`). There is no supported bypass to add.
+ *
  * @remarks
  * The user record is split across TWO schemas — pick the right one or you leak credentials:
  * - **{@link Props} (`propsSchema`)** — SAFE, client-facing fields (username, name, email,

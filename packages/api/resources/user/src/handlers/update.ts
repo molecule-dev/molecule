@@ -45,6 +45,15 @@ const extendedUpdatePropsSchema = updatePropsSchema.extend({
  * username/email, an oversized avatar/bio, a malformed `oauthData`, a missing `currentPassword`,
  * or no updatable fields; 403 `user.error.usernameUnavailable` / `user.error.emailAlreadyRegistered`
  * / `user.error.currentPasswordIncorrect`; 500 `user.error.failedToUpdateUser`.
+ *
+ * **A change to `email` is re-authenticated.** On an account that has a password, changing OR
+ * clearing the address requires that account's `currentPassword` in the same flat body — 400
+ * `user.error.currentPasswordRequired` when it is missing, 403
+ * `user.error.currentPasswordIncorrect` when it does not match. A real change sets
+ * `emailVerified` to `false` server-side (the new address is unproven; the flag is never read
+ * from the body). An OAuth-only account has no password hash, so its provider-backed session is
+ * the credential. Do NOT skip the gate by writing `email` through the datastore instead: return
+ * the 400 and let the client collect the current password (a re-authentication step).
  * @param resource - The user resource configuration: `{ name, tableName, schema? }`.
  * @param resource.name - The resource name used in error messages.
  * @param resource.tableName - The database table name for users.

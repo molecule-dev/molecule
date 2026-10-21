@@ -1,17 +1,13 @@
 import { get, getAnalytics, getLogger, require as bondRequire } from '@molecule/api-bond'
 import { t } from '@molecule/api-i18n'
-import {
-  isConfigNotConfiguredError,
-  type PaymentProvider,
-  type PaymentRecordService,
-  type PlanService,
-} from '@molecule/api-payments'
+import type { PaymentProvider, PaymentRecordService, PlanService } from '@molecule/api-payments'
 import type { MoleculeRequest } from '@molecule/api-resource'
 import { update as resourceUpdate } from '@molecule/api-resource'
 
 import { updatePlanPropsSchema } from '../../schema.js'
 import type * as types from '../../types.js'
 import { invalidateEntitlementsCacheSafe } from '../../utilities/invalidateEntitlements.js'
+import { loadPayments } from '../../utilities/payments.js'
 
 const analytics = getAnalytics()
 const logger = getLogger()
@@ -25,6 +21,9 @@ const logger = getLogger()
  *
  * On successful verification, updates the user's plan (planKey, planExpiresAt, planAutoRenews)
  * and stores the payment record via the bonded PaymentRecordService.
+ *
+ * `@molecule/api-payments` is an OPTIONAL peer: the config-error helper is loaded lazily in
+ * the catch, so importing this package never requires the payments core to be installed.
  * @param resource - The user resource configuration (name, tableName, schema).
  * @param resource.name - The resource name.
  * @param resource.tableName - The database table name for users.
@@ -422,7 +421,11 @@ export const verifyPayment = ({ name, tableName, schema: _schema }: types.Handle
       // verification returns — pass its REAL statusCode/errorKey through so the
       // actionable "which key, where to get it" message reaches the caller
       // instead of a generic 500 that reads identically to "bad receipt."
-      if (isConfigNotConfiguredError(error)) {
+      // OPTIONAL peer, loaded on the failure path only — the package must import (and
+      // boot) in an install that omits @molecule/api-payments. Absent → not a tagged
+      // config error → the generic 500 below, exactly as any other unexpected failure.
+      const payments = await loadPayments()
+      if (payments && payments.isConfigNotConfiguredError(error)) {
         logger.warn(error.message, { errorKey: error.errorKey, provider: providerName })
         return {
           statusCode: error.statusCode,

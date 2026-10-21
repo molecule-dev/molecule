@@ -24,6 +24,16 @@ export interface UpdatePasswordRequest extends MoleculeRequest {
  * must be provided and verified first. The new password is hashed via `@molecule/api-password`
  * and stored in the secrets table.
  *
+ * **Body and results.** The flat body needs `newPassword` (8–1024 characters) and, on an
+ * account that ALREADY has a password (the password-signup case), `currentPassword` too —
+ * there is no variant that changes a password account's password from `newPassword` alone.
+ * Missing current password → 400 `user.error.currentPasswordRequired`; wrong → 403
+ * `user.error.currentPasswordIncorrect`; an invalid new password is 400
+ * `user.error.newPasswordRequired` / `user.error.passwordTooShort` /
+ * `user.error.passwordTooLong`. Only an account with no password hash (OAuth-only) may omit
+ * `currentPassword`. Success is 200 `{ success: true }` and also clears any outstanding reset
+ * token. Never cache or replay the login password to satisfy this check.
+ *
  * **Every OTHER session is revoked; the caller's own is kept.** The device rows of all other
  * devices are deleted, so a stolen token on another device dies — but the device this request
  * arrived on stays, and the token that made the request (the `Authorization` header the client

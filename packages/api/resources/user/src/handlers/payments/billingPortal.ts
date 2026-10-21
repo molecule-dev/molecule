@@ -1,11 +1,9 @@
 import { getAnalytics, getLogger, require as bondRequire } from '@molecule/api-bond'
 import { t } from '@molecule/api-i18n'
-import {
-  isConfigNotConfiguredError,
-  type PaymentProvider,
-  resolveBillingPortalReturnUrl,
-} from '@molecule/api-payments'
+import type { PaymentProvider } from '@molecule/api-payments'
 import type { MoleculeRequest } from '@molecule/api-resource'
+
+import { loadPayments } from '../../utilities/payments.js'
 
 const analytics = getAnalytics()
 const logger = getLogger()
@@ -24,6 +22,9 @@ const logger = getLogger()
  * The user is returned to the APP origin on exit (never the API origin, whose
  * host holds no session cookie); an app-relative `returnPath` in the request
  * body sends them back to the exact page they opened the portal from.
+ *
+ * `@molecule/api-payments` is an OPTIONAL peer: its helpers are loaded lazily per
+ * request, so importing this package never requires the payments core to be installed.
  * @returns A request handler that responds `{ url, id }` with the portal session.
  */
 export const billingPortal = () => {
@@ -40,6 +41,11 @@ export const billingPortal = () => {
         },
       }
     }
+
+    // Optional peer — resolved per request, never at module scope (see
+    // utilities/payments.ts). No payments core means no bonded provider can serve
+    // this route, so the `bondRequire` below fails into the handler's error path.
+    const payments = await loadPayments()
 
     try {
       const provider = bondRequire<PaymentProvider>('payments', providerName)
@@ -60,7 +66,9 @@ export const billingPortal = () => {
 
       const session = await provider.createPortalSession({
         userId: id,
-        returnUrl: resolveBillingPortalReturnUrl(req.body?.returnPath as string | undefined),
+        returnUrl: payments?.resolveBillingPortalReturnUrl(
+          req.body?.returnPath as string | undefined,
+        ),
       })
 
       if (!session?.url) {
@@ -92,7 +100,7 @@ export const billingPortal = () => {
       // A missing provider secret is a config problem, not a billing problem —
       // pass its real 503 + errorKey through so the operator sees which key to
       // set (same contract as verifyPayment).
-      if (isConfigNotConfiguredError(error)) {
+      if (payments && payments.isConfigNotConfiguredError(error)) {
         logger.warn(error.message, { errorKey: error.errorKey, provider: providerName })
         return {
           statusCode: error.statusCode,
