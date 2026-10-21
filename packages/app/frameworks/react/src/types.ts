@@ -13,7 +13,7 @@ import type {
   ChatProvider,
   ChatStreamEvent,
 } from '@molecule/app-ai-chat'
-import type { AuthClient, AuthState } from '@molecule/app-auth'
+import type { AuthClient, AuthState, RegisterExtraShape } from '@molecule/app-auth'
 import type {
   DiffFile,
   EditorFile,
@@ -172,7 +172,7 @@ export interface UseAuthOptions {
  */
 export interface UseAuthResult<
   T = unknown,
-  TRegister extends Record<string, unknown> = Record<never, never>,
+  TRegister extends RegisterExtraShape<TRegister> = Record<never, never>,
 > {
   /**
    * The session state as one value — render from this instead of combining

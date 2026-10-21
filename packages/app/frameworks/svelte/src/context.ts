@@ -6,7 +6,7 @@
 
 import { getContext, setContext } from 'svelte'
 
-import type { AuthClient } from '@molecule/app-auth'
+import type { AuthClient, RegisterExtraShape } from '@molecule/app-auth'
 import type { HttpClient } from '@molecule/app-http'
 import type { I18nProvider } from '@molecule/app-i18n'
 import { t } from '@molecule/app-i18n'
@@ -150,7 +150,7 @@ export function getStateProvider(): StateProvider {
  */
 export function getAuthClient<
   T = unknown,
-  TRegister extends Record<string, unknown> = Record<never, never>,
+  TRegister extends RegisterExtraShape<TRegister> = Record<never, never>,
 >(): AuthClient<T, TRegister> {
   const client = getContext<AuthClient<T, TRegister>>(AUTH_KEY)
   if (!client)

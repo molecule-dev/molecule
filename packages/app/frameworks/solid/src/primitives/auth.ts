@@ -12,6 +12,7 @@ import type {
   AuthState,
   LoginCredentials,
   RegisterData,
+  RegisterExtraShape,
 } from '@molecule/app-auth'
 
 import { getAuthClient } from '../context.js'
@@ -49,7 +50,7 @@ import type { AuthPrimitives } from '../types.js'
  */
 export function createAuth<
   T = unknown,
-  TRegister extends Record<string, unknown> = Record<never, never>,
+  TRegister extends RegisterExtraShape<TRegister> = Record<never, never>,
 >(): AuthPrimitives<T, TRegister> {
   const client = getAuthClient<T, TRegister>()
 
@@ -130,7 +131,7 @@ export function createAuthGuard(redirectTo: string): Accessor<boolean> {
  */
 export function createAuthHelpers<
   T = unknown,
-  TRegister extends Record<string, unknown> = Record<never, never>,
+  TRegister extends RegisterExtraShape<TRegister> = Record<never, never>,
 >(): {
   login: (credentials: LoginCredentials) => Promise<AuthResult<T>>
   logout: () => Promise<void>
@@ -161,7 +162,7 @@ export function createAuthHelpers<
  */
 export function createAuthFromClient<
   T = unknown,
-  TRegister extends Record<string, unknown> = Record<never, never>,
+  TRegister extends RegisterExtraShape<TRegister> = Record<never, never>,
 >(client: AuthClient<T, TRegister>): AuthPrimitives<T, TRegister> {
   const [state, setState] = createSignal<AuthState<T>>(client.getState())
 

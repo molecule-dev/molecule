@@ -6,7 +6,7 @@
 
 import type { ComputedRef, Ref } from 'vue'
 
-import type { AuthClient, AuthState } from '@molecule/app-auth'
+import type { AuthClient, AuthState, RegisterExtraShape } from '@molecule/app-auth'
 import type { FormController, FormOptions } from '@molecule/app-forms'
 import type { HttpClient } from '@molecule/app-http'
 import type { I18nProvider } from '@molecule/app-i18n'
@@ -33,7 +33,7 @@ export interface UseStoreOptions<T, S> {
  */
 export interface UseAuthReturn<
   T = unknown,
-  TRegister extends Record<string, unknown> = Record<never, never>,
+  TRegister extends RegisterExtraShape<TRegister> = Record<never, never>,
 > {
   state: ComputedRef<AuthState<T>>
   user: ComputedRef<T | null>

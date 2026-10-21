@@ -6,7 +6,7 @@
 
 import type { Accessor, Setter } from 'solid-js'
 
-import type { AuthClient, AuthState } from '@molecule/app-auth'
+import type { AuthClient, AuthState, RegisterExtraShape } from '@molecule/app-auth'
 import type { FormController, FormOptions } from '@molecule/app-forms'
 import type { HttpClient } from '@molecule/app-http'
 import type { I18nProvider } from '@molecule/app-i18n'
@@ -58,7 +58,7 @@ export interface StorageValueState<T> {
  */
 export interface AuthPrimitives<
   T = unknown,
-  TRegister extends Record<string, unknown> = Record<never, never>,
+  TRegister extends RegisterExtraShape<TRegister> = Record<never, never>,
 > {
   state: Accessor<AuthState<T>>
   user: Accessor<T | null>

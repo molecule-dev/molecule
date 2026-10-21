@@ -10,7 +10,7 @@
 
 import { bond, isBonded, require as bondRequire } from '@molecule/app-bond'
 
-import type { AuthClient, UserProfile } from './types.js'
+import type { AuthClient, RegisterExtraShape, UserProfile } from './types.js'
 
 const BOND_TYPE = 'auth-client'
 
@@ -25,7 +25,7 @@ const BOND_TYPE = 'auth-client'
  */
 export const setClient = <
   T = UserProfile,
-  TRegister extends Record<string, unknown> = Record<never, never>,
+  TRegister extends RegisterExtraShape<TRegister> = Record<never, never>,
 >(
   client: AuthClient<T, TRegister>,
 ): void => {
@@ -43,7 +43,7 @@ export const setClient = <
  */
 export const getClient = <
   T extends UserProfile = UserProfile,
-  TRegister extends Record<string, unknown> = Record<never, never>,
+  TRegister extends RegisterExtraShape<TRegister> = Record<never, never>,
 >(): AuthClient<T, TRegister> => {
   return bondRequire<AuthClient<T, TRegister>>(BOND_TYPE)
 }

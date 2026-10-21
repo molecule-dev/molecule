@@ -55,7 +55,7 @@ interface AppUser {
   id: string
 }
 
-type AppRegisterFields = {
+interface AppRegisterFields {
   username: string
 }
 

@@ -69,7 +69,7 @@ interface AppUser {
   username?: string
 }
 
-type AppRegisterFields = {
+interface AppRegisterFields {
   username: string
 }
 
@@ -111,5 +111,31 @@ export function untyped() {
 `)
 
     expect(diagnostics.join('\n')).toContain('username')
+  })
+
+  it('takes a type alias for the same fields', () => {
+    const diagnostics = diagnosticsFor(`
+import { createJWTAuthClient } from '@molecule/app-auth'
+import { useAuth } from '../hooks/useAuth.js'
+
+interface AppUser {
+  id: string
+}
+
+type AppRegisterFields = {
+  username: string
+}
+
+const client = createJWTAuthClient<AppUser, AppRegisterFields>({ storage: 'memory' })
+
+export function viaUseAuth() {
+  const { register } = useAuth<AppUser, AppRegisterFields>()
+  return () => register({ email: 'reader@example.test', password: 'pw', username: 'reader' })
+}
+
+export const wiring = client
+`)
+
+    expect(diagnostics.join('\n')).toEqual('')
   })
 })

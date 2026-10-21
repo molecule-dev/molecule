@@ -1,4 +1,9 @@
-import type { AuthClient, AuthClientConfig, UserProfile } from '@molecule/app-auth'
+import type {
+  AuthClient,
+  AuthClientConfig,
+  RegisterExtraShape,
+  UserProfile,
+} from '@molecule/app-auth'
 import { createJWTAuthClient, setClient } from '@molecule/app-auth'
 import type { HttpClient } from '@molecule/app-http'
 import {
@@ -145,7 +150,7 @@ export function createDefaultHttpClientWithAuthBearer(opts: {
  */
 export function createDefaultAuthClient<
   TUser extends UserProfile = UserProfile,
-  TRegister extends Record<string, unknown> = Record<never, never>,
+  TRegister extends RegisterExtraShape<TRegister> = Record<never, never>,
 >(
   authConfig: AuthClientConfig<TUser>,
 ): {
@@ -180,7 +185,7 @@ export function createDefaultAuthClient<
  */
 export function createDefaultAuthClientWithHttpSync<
   TUser extends UserProfile = UserProfile,
-  TRegister extends Record<string, unknown> = Record<never, never>,
+  TRegister extends RegisterExtraShape<TRegister> = Record<never, never>,
 >(
   authConfig: AuthClientConfig<TUser>,
 ): {
@@ -239,7 +244,7 @@ export function createDefaultAuthClientWithHttpSync<
  */
 export function createDefaultAuthClientWithFetchClient<
   TUser extends UserProfile = UserProfile,
-  TRegister extends Record<string, unknown> = Record<never, never>,
+  TRegister extends RegisterExtraShape<TRegister> = Record<never, never>,
 >(
   authConfig: AuthClientConfig<TUser>,
   fetchClientOptions: { baseURL: string; withCredentials?: boolean },

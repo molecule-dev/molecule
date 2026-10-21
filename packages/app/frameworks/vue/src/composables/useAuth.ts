@@ -6,7 +6,7 @@
 
 import { computed, type ComputedRef, inject, onMounted, onUnmounted, shallowRef } from 'vue'
 
-import type { AuthClient, AuthState } from '@molecule/app-auth'
+import type { AuthClient, AuthState, RegisterExtraShape } from '@molecule/app-auth'
 
 import { AuthKey } from '../injection-keys.js'
 import type { UseAuthReturn } from '../types.js'
@@ -23,7 +23,7 @@ import type { UseAuthReturn } from '../types.js'
  */
 export function useAuthClient<
   T = unknown,
-  TRegister extends Record<string, unknown> = Record<never, never>,
+  TRegister extends RegisterExtraShape<TRegister> = Record<never, never>,
 >(): AuthClient<T, TRegister> {
   const client = inject(AuthKey)
   if (!client) {
@@ -62,7 +62,7 @@ export function useAuthClient<
  */
 export function useAuth<
   T = unknown,
-  TRegister extends Record<string, unknown> = Record<never, never>,
+  TRegister extends RegisterExtraShape<TRegister> = Record<never, never>,
 >(): UseAuthReturn<T, TRegister> {
   const client = useAuthClient<T, TRegister>()
 

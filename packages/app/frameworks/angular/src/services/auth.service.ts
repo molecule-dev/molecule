@@ -13,6 +13,7 @@ import type {
   AuthState,
   LoginCredentials,
   RegisterData,
+  RegisterExtraShape,
 } from '@molecule/app-auth'
 
 import { AUTH_CLIENT } from '../tokens.js'
@@ -50,7 +51,7 @@ import { AUTH_CLIENT } from '../tokens.js'
 })
 export class MoleculeAuthService<
   T = unknown,
-  TRegister extends Record<string, unknown> = Record<never, never>,
+  TRegister extends RegisterExtraShape<TRegister> = Record<never, never>,
 > implements OnDestroy {
   private stateSubject: BehaviorSubject<AuthState<T>>
   private unsubscribe: (() => void) | null = null

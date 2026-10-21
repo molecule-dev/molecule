@@ -12,6 +12,7 @@ import type {
   AuthState,
   LoginCredentials,
   RegisterData,
+  RegisterExtraShape,
 } from '@molecule/app-auth'
 
 import { getAuthClient } from '../context.js'
@@ -19,7 +20,7 @@ import { getAuthClient } from '../context.js'
 /**
  * Auth stores and actions.
  */
-interface AuthStores<T, TRegister extends Record<string, unknown> = Record<never, never>> {
+interface AuthStores<T, TRegister extends RegisterExtraShape<TRegister> = Record<never, never>> {
   state: Readable<AuthState<T>>
   user: Readable<T | null>
   isAuthenticated: Readable<boolean>
@@ -52,7 +53,7 @@ interface AuthStores<T, TRegister extends Record<string, unknown> = Record<never
  */
 export function createAuthStores<
   T = unknown,
-  TRegister extends Record<string, unknown> = Record<never, never>,
+  TRegister extends RegisterExtraShape<TRegister> = Record<never, never>,
 >(): AuthStores<T, TRegister> & {
   error: Readable<string | null>
 } {
@@ -114,7 +115,7 @@ export function createAuthStores<
  */
 export function createAuthStoresFromClient<
   T = unknown,
-  TRegister extends Record<string, unknown> = Record<never, never>,
+  TRegister extends RegisterExtraShape<TRegister> = Record<never, never>,
 >(client: AuthClient<T, TRegister>): AuthStores<T, TRegister> {
   const state: Readable<AuthState<T>> = readable(
     client.getState(),

@@ -7,7 +7,13 @@
  */
 
 import { getClient } from './provider.js'
-import type { AuthResult, LoginCredentials, RegisterData, UserProfile } from './types.js'
+import type {
+  AuthResult,
+  LoginCredentials,
+  RegisterData,
+  RegisterExtraShape,
+  UserProfile,
+} from './types.js'
 
 /**
  * Checks if the current user is authenticated.
@@ -45,6 +51,6 @@ export const logout = (): Promise<void> => getClient().logout()
  * @param data - Registration data (email, password, and any `TExtra` fields).
  * @returns The auth result containing tokens and user profile.
  */
-export const register = <TExtra extends Record<string, unknown> = Record<never, never>>(
+export const register = <TExtra extends RegisterExtraShape<TExtra> = Record<never, never>>(
   data: RegisterData<TExtra>,
 ): Promise<AuthResult> => getClient<UserProfile, TExtra>().register(data)

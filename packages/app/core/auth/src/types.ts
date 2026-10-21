@@ -70,6 +70,29 @@ export interface LoginCredentials {
 }
 
 /**
+ * The shape an app's own registration fields (`TRegister`) must satisfy.
+ *
+ * The app's fields pass through unchanged; a field that collides with a
+ * built-in one keeps the built-in type, so `{ username: string; email: number }`
+ * is rejected while `{ username: string }` is accepted. Both an ordinary
+ * `interface` and a type literal/alias satisfy it — unlike
+ * `Record<string, unknown>`, which a TypeScript interface never satisfies,
+ * because interfaces have no implicit index signature.
+ *
+ * @template T - The app's own registration fields, at the top level of
+ *   {@link RegisterData}.
+ */
+export type RegisterExtraShape<T> = {
+  [K in keyof T]: K extends 'email' | 'password'
+    ? string
+    : K extends 'name'
+      ? string | undefined
+      : K extends 'metadata'
+        ? Record<string, unknown> | undefined
+        : T[K]
+} & object
+
+/**
  * New user registration payload: the email/password fields every API takes,
  * plus `TExtra` — the app's OWN registration fields, at the top level.
  *
@@ -88,14 +111,22 @@ export interface LoginCredentials {
  * (and a `requestBody` that reads them) keeps type-checking unchanged; only a
  * client constructed with a second generic accepts (and types) more fields.
  *
- * Declare `TExtra` as a type literal or a type alias
- * (`type Extra = { username: string }`). An `interface` has no implicit index
- * signature, so it does not satisfy the `Record<string, unknown>` constraint —
- * the compiler reports "Index signature for type 'string' is missing".
+ * An ordinary `interface` works as well as a type literal or alias — the
+ * constraint is structural, so the app can name its own fields once and pass
+ * that type whole:
+ *
+ * ```typescript
+ * interface RealWorldRegister { username: string }
+ * const client = createJWTAuthClient<UserProfile, RealWorldRegister>({ … })
+ * ```
+ *
+ * A custom field may not change a built-in field's type: `email` and
+ * `password` stay `string`, `name` stays `string | undefined` and `metadata`
+ * stays `Record<string, unknown> | undefined` (see {@link RegisterExtraShape}).
  *
  * @template TExtra - The app's own registration fields, at the top level.
  */
-export type RegisterData<TExtra extends Record<string, unknown> = Record<never, never>> = {
+export type RegisterData<TExtra extends RegisterExtraShape<TExtra> = Record<never, never>> = {
   /**
    * Email address.
    */
@@ -312,7 +343,7 @@ export interface AuthSessionSeed<T = UserProfile> {
  */
 export interface AuthClient<
   T = UserProfile,
-  TRegister extends Record<string, unknown> = Record<never, never>,
+  TRegister extends RegisterExtraShape<TRegister> = Record<never, never>,
 > {
   /**
    * Returns the current authentication state snapshot.

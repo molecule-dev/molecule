@@ -12,6 +12,7 @@ import type {
   AuthState,
   LoginCredentials,
   RegisterData,
+  RegisterExtraShape,
 } from '@molecule/app-auth'
 import { t } from '@molecule/app-i18n'
 
@@ -30,7 +31,7 @@ import type { UseAuthOptions, UseAuthResult } from '../types.js'
  */
 export function useAuthClient<
   T = unknown,
-  TRegister extends Record<string, unknown> = Record<never, never>,
+  TRegister extends RegisterExtraShape<TRegister> = Record<never, never>,
 >(): AuthClient<T, TRegister> {
   const client = useContext(AuthContext)
   if (!client) {
@@ -82,7 +83,7 @@ export function useAuthClient<
  */
 export function useAuth<
   T = unknown,
-  TRegister extends Record<string, unknown> = Record<never, never>,
+  TRegister extends RegisterExtraShape<TRegister> = Record<never, never>,
 >(options?: UseAuthOptions): UseAuthResult<T, TRegister> {
   const client = useAuthClient<T, TRegister>()
   const { autoRefresh = false } = options ?? {}

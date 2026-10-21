@@ -24,6 +24,7 @@ import type {
   PasswordResetConfirm,
   PasswordResetRequest,
   RegisterData,
+  RegisterExtraShape,
   UserProfile,
 } from './types.js'
 
@@ -151,12 +152,13 @@ interface SessionCookieRestore<T> {
  *   profile the client and the React hook hand to your pages.
  * @template TRegister - The app's own registration fields, accepted at the top
  *   level of `register()` (e.g. `{ username: string }` for a RealWorld-shaped API).
+ *   An interface and a type alias are equally valid.
  * @param config - Auth client configuration including endpoints, storage, and refresh settings.
  * @returns A fully configured `AuthClient` instance.
  */
 export const createJWTAuthClient = <
   T extends UserProfile = UserProfile,
-  TRegister extends Record<string, unknown> = Record<never, never>,
+  TRegister extends RegisterExtraShape<TRegister> = Record<never, never>,
 >(
   config: AuthClientConfig<T> = {},
 ): AuthClient<T, TRegister> => {

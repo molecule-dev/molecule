@@ -5,4 +5,4 @@
 '@molecule/app-angular': patch
 ---
 
-Framework auth bindings accept the app's own registration fields (`useAuth<MyUser, { username: string }>()`, `createAuth<…>`, `createAuthStores<…>`, `MoleculeAuthService<…>`), typing `register()` like the auth client's.
+Framework auth bindings accept the app's own registration fields (`useAuth<MyUser, CustomRegister>()`, `createAuth<…>`, `createAuthStores<…>`, `MoleculeAuthService<…>` — a type alias or an interface), typing `register()` like the auth client's.

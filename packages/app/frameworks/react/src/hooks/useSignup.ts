@@ -6,7 +6,7 @@
 
 import { useCallback } from 'react'
 
-import type { AuthResult, RegisterData } from '@molecule/app-auth'
+import type { AuthResult, RegisterData, RegisterExtraShape } from '@molecule/app-auth'
 
 import { useAuthClient } from './useAuth.js'
 import { usePromise, type UsePromiseState } from './usePromise.js'
@@ -21,7 +21,7 @@ import { usePromise, type UsePromiseState } from './usePromise.js'
  */
 export interface UseSignupReturn<
   T = unknown,
-  TRegister extends Record<string, unknown> = Record<never, never>,
+  TRegister extends RegisterExtraShape<TRegister> = Record<never, never>,
 > {
   status: UsePromiseState<AuthResult<T>>['status']
   value: UsePromiseState<AuthResult<T>>['value']
@@ -48,7 +48,7 @@ export interface UseSignupReturn<
  */
 export function useSignup<
   T = unknown,
-  TRegister extends Record<string, unknown> = Record<never, never>,
+  TRegister extends RegisterExtraShape<TRegister> = Record<never, never>,
 >(): UseSignupReturn<T, TRegister> {
   const client = useAuthClient<T, TRegister>()
 
