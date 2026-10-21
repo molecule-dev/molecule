@@ -229,11 +229,8 @@ export const createJWTAuthClient = <
    * `'loading'` means "no decision yet", so it is derived from `initialized`
    * ALONE: an auth request in flight on an initialized client (`state.loading`)
    * keeps the status the client had already decided, and a route guard that
-   * unmounts while `'loading'` stays mounted for the whole request
-   * (xr-molecule-flash-m380: a signed-out client reported `'loading'` during a
-   * failed login, so the generated shell rendered a bare navbar, the Login page
-   * was unmounted mid-request, and its 401 error list was set on a page nobody
-   * could see).
+   * unmounts while `'loading'` stays mounted for the whole request, preserving
+   * form input and local validation errors when a sign-in is rejected.
    *
    * `'unavailable'` is sticky until something actually DECIDES the session: an
    * explicit status (a sign-in that succeeded, a sign-out, `validateSession`'s
@@ -428,14 +425,19 @@ export const createJWTAuthClient = <
       // `message` into the I18nError it throws, but every other field — a
       // RealWorld `{ errors: { credentials: ['is invalid'] } }` map, field
       // arrays, a top-level array — is preserved on `body` so the app can show
-      // the server's own messages (xr-molecule-flash-m380). A non-JSON body
+      // the server's own messages. A non-JSON body
       // (HTML error page, empty) parses to `{}`, exactly as before.
       const body: unknown = await response.json().catch(() => ({}))
-      // Only an object can carry the mapped fields; `null` or a scalar body
-      // would otherwise throw a TypeError instead of the contract's I18nError.
-      const fields = (body ?? {}) as { errorKey?: string; error?: string; message?: string }
-      const key = fields.errorKey ?? 'auth.error.requestFailed'
-      const fallback = fields.error ?? fields.message ?? 'Request failed'
+      const fields = (body ?? {}) as { errorKey?: unknown; error?: unknown; message?: unknown }
+      // JSON is untyped: structured validation errors belong on `body`, never
+      // in the translation key or its fallback text.
+      const key = typeof fields.errorKey === 'string' ? fields.errorKey : 'auth.error.requestFailed'
+      const fallback =
+        typeof fields.error === 'string'
+          ? fields.error
+          : typeof fields.message === 'string'
+            ? fields.message
+            : 'Request failed'
       const failure = new I18nError(key, undefined, fallback) as AuthError
       // The HTTP status, so a caller can tell "this token is dead" (401/403)
       // from "the server did not answer" (5xx, network) or "the route does not

@@ -119,6 +119,34 @@ describe('@molecule/app-auth keeps the API error body on a rejected call (xr-mol
     expect(bodyOf(error)).toStrictEqual(sent)
   })
 
+  it.each([null, 42, true, 'failure'])(
+    'preserves a scalar body (%j) with a safe default message',
+    async (sent) => {
+      const { error } = await rejectedLogin(response(sent, 400))
+
+      expect(error).toBeInstanceOf(I18nError)
+      expect(asI18n(error).i18nKey).toBe('auth.error.requestFailed')
+      expect(asI18n(error).message).toBe('Request failed')
+      expect((error as AuthError).status).toBe(400)
+      expect(bodyOf(error)).toStrictEqual(sent)
+    },
+  )
+
+  it('only maps string fields into a translation key or message', async () => {
+    const sent = { errorKey: { key: 'invalid' }, error: ['invalid'], message: 'Validation failed' }
+    const { error } = await rejectedLogin(response(sent, 422))
+
+    expect(asI18n(error).i18nKey).toBe('auth.error.requestFailed')
+    expect(asI18n(error).message).toBe('Validation failed')
+    expect(bodyOf(error)).toStrictEqual(sent)
+
+    const numericFields = { errorKey: 42, error: 0, message: false }
+    const second = await rejectedLogin(response(numericFields, 400))
+    expect(asI18n(second.error).i18nKey).toBe('auth.error.requestFailed')
+    expect(asI18n(second.error).message).toBe('Request failed')
+    expect(bodyOf(second.error)).toStrictEqual(numericFields)
+  })
+
   it('rejects a non-JSON body exactly as before: `{}`, default message, same status', async () => {
     const { error } = await rejectedLogin(
       new Response('<html>502 Bad Gateway</html>', {
