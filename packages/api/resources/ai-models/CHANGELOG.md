@@ -1,5 +1,11 @@
 # @molecule/api-resource-ai-models
 
+## 1.17.2
+
+### Patch Changes
+
+- 73602e1: Re-verifies the DeepSeek rate card and peak-hours rule against the provider's pricing page; prices unchanged.
+
 ## 1.17.1
 
 ### Patch Changes

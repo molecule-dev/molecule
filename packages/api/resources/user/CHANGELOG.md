@@ -1,5 +1,11 @@
 # @molecule/api-resource-user
 
+## 1.7.1
+
+### Patch Changes
+
+- 2050c5b: Boot without the optional payments peer installed: payment helpers load on use instead of at import, and the email/password re-authentication contracts are documented.
+
 ## 1.7.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # @molecule/api-database-pglite
 
+## 1.2.3
+
+### Patch Changes
+
+- 25d125a: Reject malformed `findMany`, `findOne`, `count`, `updateMany` and `deleteMany` arguments with an actionable `TypeError` before running a query, instead of silently dropping the filter and reading every row.
+
 ## 1.2.2
 
 ### Patch Changes

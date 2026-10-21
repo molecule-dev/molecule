@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.11.1
+
+### Patch Changes
+
+- 3026fab: The environment-dump guard reads command position, so a `|` inside a quoted grep pattern is no longer blocked as a pipe, and a command that reads a run's log is no longer reported as a suite stopped by a process kill.
+
 ## 1.11.0
 
 ### Minor Changes
