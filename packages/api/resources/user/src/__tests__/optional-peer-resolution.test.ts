@@ -38,17 +38,12 @@ import {
   rmSync,
   statSync,
   symlinkSync,
+  writeFileSync,
 } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join, relative } from 'node:path'
 
-import { afterAll, describe, expect, it, vi } from 'vitest'
-
-// Simulates the install this file's fixture models: the optional peer cannot be resolved. The
-// `loadPayments` check below is the in-process half of the same contract.
-vi.mock('@molecule/api-payments', () => {
-  throw new Error("Cannot find package '@molecule/api-payments'")
-})
+import { afterAll, describe, expect, it } from 'vitest'
 
 const PACKAGE = join(__dirname, '../..')
 
@@ -243,13 +238,34 @@ describe('importing @molecule/api-resource-user without its optional peers (xr-f
   })
 })
 
-describe('loadPayments when the payments core is not installed', () => {
-  it('answers null instead of throwing, and probes only once', async () => {
-    const { loadPayments } = await import('../utilities/payments.js')
+describe('loading the optional payments peer', () => {
+  const loader =
+    "const { loadPayments } = await import('./node_modules/@molecule/api-resource-user/dist/utilities/payments.js');"
 
-    // A failed import() must stay an ANSWER ("no payments here"), not an exception that
-    // would escape a handler's catch block and turn a 4xx into an unhandled rejection.
-    await expect(loadPayments()).resolves.toBeNull()
-    await expect(loadPayments()).resolves.toBeNull()
+  it('answers null for real absence and shares one import promise', () => {
+    assertDistIsCurrent()
+    const result = runInFixture(
+      makeProductionFixture(),
+      `${loader} const first = loadPayments(); if (first !== loadPayments()) throw new Error('not memoized'); console.log(await first)`,
+    )
+    expect(result.ok ? result.stdout : result.stderr).toBe('null')
+  })
+
+  it.each([
+    ["throw new Error('payments initialization failed')", 'payments initialization failed'],
+    ["import '@example/missing-payment-dependency'", '@example/missing-payment-dependency'],
+  ])('reports an installed but broken peer: %s', (source, message) => {
+    assertDistIsCurrent()
+    const fixture = makeProductionFixture()
+    const peer = join(fixture, 'node_modules', '@molecule', 'api-payments')
+    mkdirSync(peer, { recursive: true })
+    writeFileSync(
+      join(peer, 'package.json'),
+      JSON.stringify({ name: '@molecule/api-payments', type: 'module', exports: './index.js' }),
+    )
+    writeFileSync(join(peer, 'index.js'), source)
+    const result = runInFixture(fixture, `${loader} await loadPayments()`)
+    expect(result.ok).toBe(false)
+    if (!result.ok) expect(result.stderr).toContain(message)
   })
 })

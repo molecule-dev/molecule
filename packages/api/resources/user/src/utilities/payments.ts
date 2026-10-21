@@ -34,11 +34,19 @@ let paymentsModulePromise: Promise<typeof paymentsModule | null> | undefined
  * @returns The payments core module, or `null` when the app has not installed it.
  */
 export const loadPayments = (): Promise<typeof paymentsModule | null> => {
-  paymentsModulePromise ??= import('@molecule/api-payments').catch((_error: unknown) => {
-    // Optional peer, deliberately declared so: an app without payments has no helper to
-    // call and nothing to serve here, so absence is the documented no-op rather than a
-    // failure. A broken-but-present install surfaces through the bond that needs it.
-    return null
+  paymentsModulePromise ??= import('@molecule/api-payments').catch((error: unknown) => {
+    // Only absence of THIS optional peer is expected. A missing transitive import,
+    // invalid export or initialization failure in an installed package is a real
+    // failure and must reach the handler's normal error reporting.
+    const failure = error as { code?: unknown; message?: unknown } | null
+    if (
+      failure?.code === 'ERR_MODULE_NOT_FOUND' &&
+      typeof failure.message === 'string' &&
+      /^Cannot find package ['"]@molecule\/api-payments['"] imported from /.test(failure.message)
+    ) {
+      return null
+    }
+    throw error
   })
   return paymentsModulePromise
 }
