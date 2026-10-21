@@ -14,6 +14,7 @@ import { createTokenStorage, getTokenExpiration, isTokenExpired } from './token.
 import type {
   AuthClient,
   AuthClientConfig,
+  AuthError,
   AuthEvent,
   AuthEventListener,
   AuthResult,
@@ -398,14 +399,25 @@ export const createJWTAuthClient = <
     })
 
     if (!response.ok) {
-      const body = await response.json().catch(() => ({}))
-      const key = body.errorKey ?? 'auth.error.requestFailed'
-      const fallback = body.error ?? body.message ?? 'Request failed'
-      const failure = new I18nError(key, undefined, fallback) as I18nError & { status?: number }
+      // The parsed answer, kept WHOLE: the client maps `errorKey`/`error`/
+      // `message` into the I18nError it throws, but every other field — a
+      // RealWorld `{ errors: { credentials: ['is invalid'] } }` map, field
+      // arrays, a top-level array — is preserved on `body` so the app can show
+      // the server's own messages (xr-molecule-flash-m380). A non-JSON body
+      // (HTML error page, empty) parses to `{}`, exactly as before.
+      const body: unknown = await response.json().catch(() => ({}))
+      // Only an object can carry the mapped fields; `null` or a scalar body
+      // would otherwise throw a TypeError instead of the contract's I18nError.
+      const fields = (body ?? {}) as { errorKey?: string; error?: string; message?: string }
+      const key = fields.errorKey ?? 'auth.error.requestFailed'
+      const fallback = fields.error ?? fields.message ?? 'Request failed'
+      const failure = new I18nError(key, undefined, fallback) as AuthError
       // The HTTP status, so a caller can tell "this token is dead" (401/403)
       // from "the server did not answer" (5xx, network) or "the route does not
       // exist" (404) — `validateSession` clears the session only on the first.
       failure.status = response.status
+      // The response body, exactly as parsed — see {@link AuthError}.
+      failure.body = body
       throw failure
     }
 

@@ -4,6 +4,8 @@
  * @module
  */
 
+import type { I18nError } from '@molecule/app-i18n'
+
 /**
  * User profile information.
  */
@@ -233,6 +235,48 @@ export type AuthEvent =
  * Callback invoked when an authentication event occurs (login, logout, etc.).
  */
 export type AuthEventListener = (event: AuthEvent) => void
+
+/**
+ * The error an auth client rejects with when the API answers a non-ok HTTP
+ * response. It is the {@link I18nError} the client throws — same `i18nKey`,
+ * message, English fallback and rejection — plus the HTTP facts a caller needs
+ * to react to the server's own answer:
+ *
+ * - `status`: the HTTP status code (`401`, `422`, `500`, …). Use it to tell a
+ *   dead credential from a server or route problem; only 401/403 mean the
+ *   session is over.
+ * - `body`: the response body parsed from JSON exactly as the API sent it.
+ *   The client keeps the WHOLE parsed value, not only the `errorKey` / `error`
+ *   / `message` fields it maps into the message, so an app can render its own
+ *   validation payload — a nested `{ errors: { credentials: ['is invalid'] } }`
+ *   map, a field map with arrays, or a top-level array of messages — without
+ *   re-implementing the login call. A body that is not JSON (an HTML error
+ *   page, an empty body) arrives as `{}`.
+ *
+ * ```typescript
+ * import { I18nError } from '@molecule/app-i18n'
+ * import type { AuthError } from '@molecule/app-auth'
+ *
+ * try {
+ *   await client.login({ email, password })
+ * } catch (caught) {
+ *   if (caught instanceof I18nError) {
+ *     const { status, body } = caught as AuthError
+ *     // show the API's own messages, e.g. body.errors.credentials
+ *   }
+ * }
+ * ```
+ */
+export interface AuthError extends I18nError {
+  /** HTTP status code of the failed response (e.g. `401`). */
+  status: number
+
+  /**
+   * The response body parsed from JSON, exactly as the API sent it — nested
+   * maps and arrays included. `{}` when the body is not JSON.
+   */
+  body: unknown
+}
 
 /**
  * A complete session an exchange outside the client has already established — an OAuth

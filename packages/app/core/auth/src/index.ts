@@ -83,6 +83,16 @@
  * `err.status < 500`, which is true for an aborted navigation request and signs the
  * user out on a route change.
  *
+ * **A rejected call keeps the API's error body.** Every non-ok response rejects
+ * the promise with an {@link I18nError} whose `i18nKey` is the server's
+ * `errorKey` (or `auth.error.requestFailed`) — and the thrown error carries the
+ * HTTP `status` and the parsed response `body` (see {@link AuthError}). The
+ * whole parsed body is preserved, nested maps and arrays included, not just the
+ * `error`/`message` the message is built from, so a login form can render the
+ * API's own validation payload (`{ errors: { credentials: ['is invalid'] } }`)
+ * instead of re-implementing the call. A body that is not JSON arrives as `{}`;
+ * the key, message, fallback and rejection are unchanged.
+ *
  * **`autoRefresh` does nothing without a refresh token — and must never log the
  * user out.** The client schedules a refresh only when `refresh()` could actually
  * succeed, i.e. when a refresh token is stored. An API that issues none (the
