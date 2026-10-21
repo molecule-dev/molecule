@@ -84,6 +84,8 @@ export function TagInput({
    * @param e
    */
   function onKeyDown(e: KeyboardEvent<HTMLInputElement>): void {
+    // Enter can confirm an input-method composition before it is a tag delimiter.
+    if (e.nativeEvent.isComposing) return
     if (e.key === 'Enter') {
       e.preventDefault()
       if (draft.trim()) commit()

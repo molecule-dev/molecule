@@ -46,7 +46,8 @@ const { TagInput } = await import('../TagInput.js')
 function useImplicitSubmissionEmulation(formRef: { current: HTMLFormElement | null }): void {
   useEffect(() => {
     const listener = (event: KeyboardEvent): void => {
-      if (event.key === 'Enter' && !event.defaultPrevented) formRef.current?.requestSubmit()
+      if (event.key === 'Enter' && !event.isComposing && !event.defaultPrevented)
+        formRef.current?.requestSubmit()
     }
     document.addEventListener('keydown', listener)
     return () => document.removeEventListener('keydown', listener)
@@ -102,6 +103,19 @@ const tags = (): string => screen.getByTestId('tags').textContent ?? ''
 afterEach(cleanup)
 
 describe('TagInput inside a form', () => {
+  it('leaves composing Enter to the input method before committing the finished tag', () => {
+    const { input, onSubmit } = mount()
+    fireEvent.change(input, { target: { value: '日本' } })
+    expect(fireEvent.keyDown(input, { key: 'Enter', isComposing: true })).toBe(true)
+    expect(tags()).toBe('')
+    expect(input.value).toBe('日本')
+    expect(onSubmit).not.toHaveBeenCalled()
+
+    expect(fireEvent.keyDown(input, { key: 'Enter', isComposing: false })).toBe(false)
+    expect(tags()).toBe('日本')
+    expect(onSubmit).not.toHaveBeenCalled()
+  })
+
   it('does not submit the form on a blank Enter', () => {
     const { input, onSubmit } = mount()
     const notCanceled = fireEvent.keyDown(input, { key: 'Enter' })
