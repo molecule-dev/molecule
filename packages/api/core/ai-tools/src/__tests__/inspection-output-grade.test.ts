@@ -26,8 +26,10 @@ function backend(stdout: string): ExecutionBackend {
   }
 }
 
-function execTool(execution: ExecutionBackend) {
-  return buildTools(execution).find((tool) => tool.name === 'exec_command')!
+function execTool(execution: ExecutionBackend, blockDangerousCommands = false) {
+  return buildTools(execution, { blockDangerousCommands }).find(
+    (tool) => tool.name === 'exec_command',
+  )!
 }
 
 describe('isReadOnlyInspection', () => {
@@ -101,4 +103,17 @@ describe('exec_command output grade', () => {
     expect(result.stdout).not.toContain('devdb.internal')
     expect(result.stdout).not.toContain('synthetic-value')
   })
+
+  it.each(['grep -rn SECRET .', 'grep -n SECRET /dev/stdin'])(
+    'keeps a search result masked with danger blocking on: %s',
+    async (command) => {
+      // The disclosed repro shape, through the real handler and option set.
+      const result = (await execTool(backend(ENV_DUMP), true).execute({ command })) as {
+        stdout?: string
+      }
+      expect(result.stdout).toContain('[REDACTED]')
+      expect(result.stdout).not.toContain('devdb.internal')
+      expect(result.stdout).not.toContain('synthetic-value')
+    },
+  )
 })

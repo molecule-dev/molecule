@@ -70,6 +70,28 @@ describe('write_file refuses a mask the output filter produced', () => {
     expect(result.ok).toBe(true)
     expect(execution.writeFile).toHaveBeenCalledWith(PATH, existing)
   })
+
+  it('recovers: the refusal names read_file, and what read_file returns writes cleanly', async () => {
+    const real = "export const auth = { authScheme: 'Token' }\n"
+    const execution = backend(real)
+    const tools = buildTools(execution)
+    const writeFile = tools.find((tool) => tool.name === 'write_file')!
+    const readFile = tools.find((tool) => tool.name === 'read_file')!
+    const refused = (await writeFile.execute({
+      path: PATH,
+      content: "export const auth = { authScheme: '[REDACTED]' }\n",
+    })) as { error?: string }
+    expect(refused.error).toMatch(/read_file/)
+    expect(execution.writeFile).not.toHaveBeenCalled()
+    // The file itself reads at the code-safe grade, so the real value comes back verbatim.
+    const read = (await readFile.execute({ path: PATH })) as { content?: string }
+    expect(read.content).toContain("authScheme: 'Token'")
+    const written = (await writeFile.execute({ path: PATH, content: read.content })) as {
+      ok?: boolean
+    }
+    expect(written.ok).toBe(true)
+    expect(execution.writeFile).toHaveBeenCalledWith(PATH, real)
+  })
 })
 
 describe('edit_file refuses a replacement that adds a mask', () => {
