@@ -13,9 +13,19 @@ const TABLE = 'follows'
 /**
  * Creates a follow relationship. Idempotent — returns existing follow if already following.
  *
+ * `targetId` is stored exactly as supplied: the package does not resolve a
+ * username or display handle to an id, and does not require the target to
+ * exist. For `targetType` `'user'`, pass the target's user `id` — the same
+ * identity the rest of the app keys that user's rows by (an app using
+ * `@molecule/api-resource-article`'s feed stores that id in `articles.authorId`,
+ * which the feed matches against `targetId`); a route that receives a username
+ * resolves it first. For any other `targetType`, the canonical id is whatever
+ * the app's own reader of that resource uses. Pass the SAME value to
+ * `unfollow` and `isFollowing`, or those calls target a different follow.
+ *
  * @param followerId - The ID of the follower.
  * @param targetType - The type of target being followed.
- * @param targetId - The ID of the target being followed.
+ * @param targetId - The target's canonical id. For `'user'`, the user id, not a username or display handle.
  * @returns The created or existing follow.
  */
 export async function follow(

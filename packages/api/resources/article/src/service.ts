@@ -294,6 +294,14 @@ export async function listArticles(options: ListArticlesOptions = {}): Promise<P
 /**
  * Articles by the users `userId` follows, newest first.
  *
+ * Reads the reader's `follows` rows where `targetType` is `'user'` and matches
+ * each row's `targetId` against `articles.authorId`, so the two sides must use
+ * the SAME user identity: **`targetId` is the target user's `id` — the value
+ * `createArticle` stored in `article.authorId`** — never a username or display
+ * handle. A route or handler that receives a username resolves it to that id
+ * before calling `follow`; `@molecule/api-resource-follow` stores the identifier
+ * it is given unchanged, so a username-keyed follow contributes no articles.
+ *
  * @param userId - The reader.
  * @param options - Paging.
  * @returns A page of articles and the total.

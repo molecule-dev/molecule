@@ -125,8 +125,14 @@ describe('articles', () => {
     expect(await setFavorite('no-such-article', BOB, true)).toBeNull()
   })
 
-  it('feeds articles by followed authors only', async () => {
+  it('feeds articles by the followed user id — an edge keyed by a username feeds nothing', async () => {
     const { follow } = await import('@molecule/api-resource-follow')
+    expect((await getFeed(ALICE)).total).toBe(0)
+    // The identity contract the docs state: `getFeed` matches `follows.targetId`
+    // against `articles.authorId`, so `targetId` is the target user's id. A
+    // username is a different value — an app that receives one resolves it to the
+    // id before storing the edge (this package's `follow` stores it unchanged).
+    await follow(ALICE, 'user', 'carol')
     expect((await getFeed(ALICE)).total).toBe(0)
     await follow(ALICE, 'user', CAROL)
     const feed = await getFeed(ALICE)
