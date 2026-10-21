@@ -70,6 +70,11 @@
  *   as a broken tool and routes around, taking its verification with it. Use
  *   `guardAITool` to give tools built elsewhere the same treatment, passing
  *   `redactError` so a thrown message is masked by your own redactor.
+ * - **Defer occasional tools** with `createDeferredToolCatalog`: pass your current
+ *   permission-filtered tools and a small initial name set, offer `catalog.select()`
+ *   to the model, and execute `catalog.loader` like any other tool. Loading only
+ *   exposes schemas, never grants permission or runs a tool. Persist its loaded
+ *   names with `onLoad` to keep them available across turns and compaction.
  * - **Scope the tool set per agent** with `include`/`exclude` — a read-only agent
  *   should not receive `write_file`/`exec_command`.
  * - Outputs are size-capped (`MAX_READ_SIZE`, `MAX_OUTPUT_SIZE`, …) and searches
@@ -148,6 +153,7 @@ export * from './server-command.js'
 export * from './sleep-peek.js'
 export * from './suite-overlap.js'
 export * from './system-prompt.js'
+export * from './tool-catalog.js'
 export * from './tools.js'
 export * from './trace-artifacts.js'
 export * from './types.js'
