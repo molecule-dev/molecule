@@ -286,7 +286,7 @@ class DeepseekAIProviderImpl implements AIProvider {
     const model = this.modelMap[canonicalModel] ?? canonicalModel
     const maxTokens = params.maxTokens ?? this.maxTokens
 
-    const messages = this.formatMessages(params.messages, params.system)
+    const messages = this.formatMessages(params.messages, params.system, Boolean(params.thinking))
 
     // Stop sequences, capped at the API's own limit. Verified honoured by the
     // native endpoint on 2026-10-17: with `stop: ['<analysis>']` a reply that
@@ -348,11 +348,14 @@ class DeepseekAIProviderImpl implements AIProvider {
       }
     }
 
-    // DeepSeek V4 defaults `thinking` to ENABLED. Thinking mode requires the
-    // assistant's reasoning_content to be echoed back on every subsequent turn
-    // (a 400 otherwise) and is awkward to combine with the tool-calling loop, so
-    // we run non-thinking unless a thinking budget is explicitly requested. The
-    // chat handler gates that on the model's `supportsThinking` flag.
+    // DeepSeek V4 defaults `thinking` to ENABLED. Per DeepSeek's thinking-mode
+    // guide (https://api-docs.deepseek.com/guides/thinking_mode/), a
+    // thinking-mode request that carries tools must send every retained
+    // assistant turn's `reasoning_content` back — including a turn where the
+    // model made no tool call — or the API answers 400. `formatMessages` replays
+    // `ChatMessage.reasoning` for exactly that reason; the catalog still gates
+    // thinking on the model's `supportsThinking` flag, so this path runs
+    // non-thinking unless a thinking budget is explicitly requested.
     if (params.thinking) {
       body.thinking = { type: 'enabled' }
       // Prefer a caller-resolved native value ('high' | 'max') from the model
@@ -675,11 +678,27 @@ class DeepseekAIProviderImpl implements AIProvider {
    * Converts internal `ChatMessage` objects to the OpenAI-compatible message format.
    * System prompt is prepended as a system role message.
    *
+   * Thinking mode has one wire obligation that non-thinking mode does not:
+   * DeepSeek's thinking-mode guide requires the `reasoning_content` of every
+   * retained assistant turn to be sent back on a later request carrying `tools`,
+   * including turns where the model made no tool call — omitting it is a 400.
+   * So when `replayReasoning` is set (the caller passed a `thinking` block), each
+   * assistant turn carries `ChatMessage.reasoning` verbatim. That reasoning is
+   * never synthesized: a turn with no recorded reasoning sends `''`, which is
+   * the only representation of "this turn ran without thinking" the wire has.
+   * A non-thinking request keeps the historical shape (no `reasoning_content`);
+   * the guide says a non-thinking request ignores the field anyway.
+   *
    * @param messages - The chat messages to format.
    * @param system - Optional system prompt to prepend.
+   * @param replayReasoning - Whether thinking mode is on for this request.
    * @returns The formatted messages array for the DeepSeek API.
    */
-  private formatMessages(messages: ChatMessage[], system?: string): Array<Record<string, unknown>> {
+  private formatMessages(
+    messages: ChatMessage[],
+    system?: string,
+    replayReasoning = false,
+  ): Array<Record<string, unknown>> {
     const formatted: Array<Record<string, unknown>> = []
 
     if (system) {
@@ -689,8 +708,16 @@ class DeepseekAIProviderImpl implements AIProvider {
     for (const m of messages) {
       if (m.role === 'system') continue // handled above
 
+      // Only assistant turns have a reasoning channel. `reasoning_content: ''`
+      // is deliberate for a retained turn with no recorded reasoning (a
+      // non-thinking turn inside a thinking-mode history): the vendor requires
+      // the field on every retained assistant turn, and an empty string is the
+      // only way to say "nothing was recorded" without inventing content.
+      const reasoningField =
+        replayReasoning && m.role === 'assistant' ? { reasoning_content: m.reasoning ?? '' } : {}
+
       if (typeof m.content === 'string') {
-        formatted.push({ role: m.role, content: m.content })
+        formatted.push({ role: m.role, content: m.content, ...reasoningField })
         continue
       }
 
@@ -740,18 +767,20 @@ class DeepseekAIProviderImpl implements AIProvider {
         // Non-tool parts of the SAME message (an image riding a tool result — the
         // screenshot tool) must not be dropped: Chat Completions accepts a user
         // message after the tool messages, so emit them instead of losing them.
-        if (parts.length > 0) formatted.push({ role: m.role, content: parts })
+        if (parts.length > 0) formatted.push({ role: m.role, content: parts, ...reasoningField })
       } else if (toolCalls.length > 0) {
         // Assistant message with tool calls
         formatted.push({
           role: 'assistant',
           content: parts.length > 0 ? parts : null,
+          ...reasoningField,
           tool_calls: toolCalls,
         })
       } else {
         formatted.push({
           role: m.role,
           content: parts.length === 1 && parts[0].type === 'text' ? parts[0].text : parts,
+          ...reasoningField,
         })
       }
     }

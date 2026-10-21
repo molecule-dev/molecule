@@ -1,19 +1,21 @@
 /**
  * The thinking / reasoning-replay WIRE SEAM of the native DeepSeek bond.
  *
- * DeepSeek's thinking-mode guide (2026-10-22) requires an assistant turn's
- * `reasoning_content` to be sent back on every later request that carries
- * `tools`, including turns where the model made no tool call; omitting it is a
- * 400. `ChatMessage.reasoning` is the generic slot Synthase fills from its
- * persisted `thinking` blocks. These cases pin what this bond actually puts on
- * the wire today, so a change in either direction is deliberate and visible:
+ * DeepSeek's thinking-mode guide (https://api-docs.deepseek.com/guides/thinking_mode/)
+ * requires every retained assistant turn's `reasoning_content` to be sent back
+ * on a later request that carries `tools` — including a turn where the model
+ * made no tool call — and 400s a request that omits one.
+ * `ChatMessage.reasoning` is the generic slot Synthase fills from its persisted
+ * `thinking` blocks. These cases pin what this bond actually puts on the wire:
  *
  * - `thinking` enabled/disabled and the native `reasoning_effort` value;
  * - the forced-tool-choice relaxation thinking mode requires;
- * - whether `ChatMessage.reasoning` is replayed (`reasoning_content`) on tool
- *   calls and on plain assistant turns, and how absent vs empty reasoning is
- *   handled (the investigation behind `x1-native-thinking-replay-capability-v1`,
- *   `.experiments/x0/live/main-deepseek-thinking-capability.findings.md`).
+ * - replaying `ChatMessage.reasoning` as `reasoning_content` on every retained
+ *   assistant turn while thinking is on (tool-call and plain), the explicit
+ *   empty string for a retained turn that recorded none (mixed mode), and the
+ *   unchanged non-thinking wire (the experiment behind
+ *   `x1-native-thinking-replay-repaired-v1`,
+ *   `.experiments/x0/live/main-thinking-replay-repair.findings.md`).
  */
 
 vi.mock('@molecule/api-i18n', () => ({
@@ -168,7 +170,13 @@ describe('thinking block wire shape', () => {
 })
 
 describe('reasoning replay seam (ChatMessage.reasoning → reasoning_content)', () => {
-  it('does not replay reasoning on an assistant tool-call turn', async () => {
+  const THINKING = { type: 'enabled' as const, budgetTokens: 8_000, effort: 'high' }
+
+  /** The assistant messages of an outbound body, in order. */
+  const assistants = (body: Record<string, unknown>) =>
+    (body.messages as Array<Record<string, unknown>>).filter((m) => m.role === 'assistant')
+
+  it('replays reasoning on an assistant tool-call turn while thinking is on', async () => {
     const { body } = await capture({
       messages: [
         { role: 'user', content: 'call the tool' },
@@ -179,37 +187,101 @@ describe('reasoning replay seam (ChatMessage.reasoning → reasoning_content)', 
         } as ChatMessage,
         { role: 'user', content: [{ type: 'tool_result', tool_use_id: 'call_1', content: 'ok' }] },
       ],
+      tools: [ECHO_TOOL],
+      thinking: THINKING,
     })
     const messages = body.messages as Array<Record<string, unknown>>
-    const assistant = messages.find((m) => m.role === 'assistant')
-    expect(assistant).toBeDefined()
+    const assistant = assistants(body)[0]
     expect(assistant?.tool_calls).toBeDefined()
-    // The gap this experiment measures: the generic reasoning slot is dropped.
-    expect(assistant && 'reasoning_content' in assistant).toBe(false)
-    // The tool-result pairing still rides the same call id.
-    const toolMessage = messages.find((m) => m.role === 'tool')
-    expect(toolMessage?.tool_call_id).toBe('call_1')
+    expect(assistant?.reasoning_content).toBe('private chain of thought')
+    // The tool-result pairing still rides the same call id, in order.
+    const toolIndex = messages.findIndex((m) => m.role === 'tool')
+    expect(toolIndex).toBeGreaterThan(messages.indexOf(assistant!))
+    expect(messages[toolIndex]?.tool_call_id).toBe('call_1')
   })
 
-  it('does not replay reasoning on a plain assistant turn (no tool call)', async () => {
+  it('replays reasoning on a plain assistant turn (string content) while thinking is on', async () => {
     const { body } = await capture({
       messages: [
         { role: 'user', content: 'think' },
         { role: 'assistant', content: 'answer', reasoning: 'private chain of thought' },
         { role: 'user', content: 'continue' },
       ],
+      tools: [ECHO_TOOL],
+      thinking: THINKING,
     })
-    const messages = body.messages as Array<Record<string, unknown>>
-    const assistant = messages.find((m) => m.role === 'assistant')
-    expect(assistant && 'reasoning_content' in assistant).toBe(false)
+    const assistant = assistants(body)[0]
+    expect(assistant?.content).toBe('answer')
+    expect(assistant?.reasoning_content).toBe('private chain of thought')
   })
 
-  it('serializes absent and empty reasoning identically (no empty replay)', async () => {
+  it('replays reasoning on a plain assistant turn built from content blocks', async () => {
+    const { body } = await capture({
+      messages: [
+        { role: 'user', content: 'think' },
+        {
+          role: 'assistant',
+          content: [{ type: 'text', text: 'block answer' }],
+          reasoning: 'block reasoning',
+        },
+        { role: 'user', content: 'continue' },
+      ],
+      tools: [ECHO_TOOL],
+      thinking: THINKING,
+    })
+    const assistant = assistants(body)[0]
+    expect(assistant?.content).toBe('block answer')
+    expect(assistant?.reasoning_content).toBe('block reasoning')
+  })
+
+  it('replays every retained assistant turn with its own reasoning, in order', async () => {
+    const { body } = await capture({
+      messages: [
+        { role: 'user', content: 'turn one' },
+        {
+          role: 'assistant',
+          content: [{ type: 'tool_use', id: 'call_1', name: 'echo', input: { text: 'ping' } }],
+          reasoning: 'first reasoning',
+        } as ChatMessage,
+        { role: 'user', content: [{ type: 'tool_result', tool_use_id: 'call_1', content: 'ok' }] },
+        { role: 'assistant', content: 'plain answer', reasoning: 'second reasoning' },
+        { role: 'user', content: 'continue' },
+      ],
+      tools: [ECHO_TOOL],
+      thinking: THINKING,
+    })
+    expect(assistants(body).map((m) => m.reasoning_content)).toEqual([
+      'first reasoning',
+      'second reasoning',
+    ])
+  })
+
+  it('sends an explicit empty reasoning_content for a retained turn that recorded none', async () => {
+    const { body } = await capture({
+      messages: [
+        { role: 'user', content: 'call the tool' },
+        {
+          role: 'assistant',
+          content: [{ type: 'tool_use', id: 'call_1', name: 'echo', input: { text: 'ping' } }],
+        } as ChatMessage,
+        { role: 'user', content: [{ type: 'tool_result', tool_use_id: 'call_1', content: 'ok' }] },
+      ],
+      tools: [ECHO_TOOL],
+      thinking: THINKING,
+    })
+    // Mixed-mode compatibility: the vendor requires the field on every retained
+    // assistant turn, and nothing was recorded for this (non-thinking) turn.
+    expect(assistants(body)[0]?.reasoning_content).toBe('')
+  })
+
+  it('sends the same empty string for empty reasoning (absent and empty converge)', async () => {
     const withEmpty = await capture({
       messages: [
         { role: 'user', content: 'think' },
         { role: 'assistant', content: 'answer', reasoning: '' },
       ],
+      tools: [ECHO_TOOL],
+      thinking: THINKING,
     })
     vi.unstubAllGlobals()
     vi.stubGlobal('fetch', vi.fn())
@@ -218,18 +290,65 @@ describe('reasoning replay seam (ChatMessage.reasoning → reasoning_content)', 
         { role: 'user', content: 'think' },
         { role: 'assistant', content: 'answer' },
       ],
+      tools: [ECHO_TOOL],
+      thinking: THINKING,
     })
-    const pick = (body: Record<string, unknown>) =>
-      (body.messages as Array<Record<string, unknown>>).find((m) => m.role === 'assistant')
-    expect(pick(withEmpty.body)).toEqual(pick(withoutReasoning.body))
-    expect(pick(withEmpty.body) && 'reasoning_content' in pick(withEmpty.body)!).toBe(false)
+    expect(assistants(withEmpty.body)[0]?.reasoning_content).toBe('')
+    expect(assistants(withoutReasoning.body)[0]?.reasoning_content).toBe('')
+  })
+
+  it('never puts reasoning_content on user or system turns and keeps text intact', async () => {
+    const { body } = await capture({
+      messages: [
+        { role: 'system', content: 'system text' },
+        { role: 'user', content: 'user text' },
+        { role: 'assistant', content: 'answer', reasoning: 'private chain of thought' },
+      ],
+      system: 'prepended system',
+      tools: [ECHO_TOOL],
+      thinking: THINKING,
+    })
+    const messages = body.messages as Array<Record<string, unknown>>
+    for (const message of messages.filter((m) => m.role !== 'assistant')) {
+      expect(message && 'reasoning_content' in message).toBe(false)
+    }
+    const assistant = assistants(body)[0]
+    // The reasoning is replayed in its own field, never leaked into the answer.
+    expect(assistant?.content).toBe('answer')
+    expect(assistant?.reasoning_content).toBe('private chain of thought')
+    expect(messages.map((m) => m.content)).toEqual(['prepended system', 'user text', 'answer'])
+  })
+
+  it('leaves the non-thinking wire unchanged (no reasoning_content anywhere)', async () => {
+    const { body } = await capture({
+      messages: [
+        { role: 'user', content: 'call the tool' },
+        {
+          role: 'assistant',
+          content: [{ type: 'tool_use', id: 'call_1', name: 'echo', input: { text: 'ping' } }],
+          reasoning: 'private chain of thought',
+        } as ChatMessage,
+        { role: 'user', content: [{ type: 'tool_result', tool_use_id: 'call_1', content: 'ok' }] },
+        { role: 'assistant', content: 'plain answer', reasoning: 'more reasoning' },
+      ],
+      tools: [ECHO_TOOL],
+      toolChoice: 'required',
+      temperature: 0.2,
+    })
+    expect(body.thinking).toEqual({ type: 'disabled' })
+    expect(body.temperature).toBe(0.2)
+    // Forced choice is only relaxed FOR thinking mode; this request keeps it.
+    expect(body.tool_choice).toBe('required')
+    for (const message of body.messages as Array<Record<string, unknown>>) {
+      expect(message && 'reasoning_content' in message).toBe(false)
+    }
   })
 
   it('captures reasoning from the response stream (the capture half of the loop)', async () => {
     const { events, body } = await capture({
       messages: [{ role: 'user', content: 'call the tool' }],
       tools: [ECHO_TOOL],
-      thinking: { type: 'enabled', budgetTokens: 8_000, effort: 'high' },
+      thinking: THINKING,
     })
     const thinking = events.filter((e) => e.type === 'thinking')
     expect(thinking.map((e) => (e as { content: string }).content).join('')).toBe('internal plan')
