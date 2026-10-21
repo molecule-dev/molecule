@@ -13,12 +13,20 @@ import { usePromise, type UsePromiseState } from './usePromise.js'
 
 /**
  * Return type for useSignup hook.
+ *
+ * @template T - The user profile the API returns.
+ * @template TRegister - The app's own registration fields (the second generic
+ *   of `createJWTAuthClient<T, TRegister>`), so `signup()` is typed like the
+ *   client's `register()`.
  */
-export interface UseSignupReturn<T = unknown> {
+export interface UseSignupReturn<
+  T = unknown,
+  TRegister extends Record<string, unknown> = Record<never, never>,
+> {
   status: UsePromiseState<AuthResult<T>>['status']
   value: UsePromiseState<AuthResult<T>>['value']
   error: UsePromiseState<AuthResult<T>>['error']
-  signup: (data: RegisterData) => Promise<AuthResult<T>>
+  signup: (data: RegisterData<TRegister>) => Promise<AuthResult<T>>
   reset: () => void
 }
 
@@ -38,10 +46,13 @@ export interface UseSignupReturn<T = unknown> {
  * )
  * ```
  */
-export function useSignup<T = unknown>(): UseSignupReturn<T> {
-  const client = useAuthClient<T>()
+export function useSignup<
+  T = unknown,
+  TRegister extends Record<string, unknown> = Record<never, never>,
+>(): UseSignupReturn<T, TRegister> {
+  const client = useAuthClient<T, TRegister>()
 
-  const registerFn = useCallback((data: RegisterData) => client.register(data), [client])
+  const registerFn = useCallback((data: RegisterData<TRegister>) => client.register(data), [client])
 
   const [state, call] = usePromise(registerFn)
 

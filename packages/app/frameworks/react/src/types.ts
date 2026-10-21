@@ -162,8 +162,18 @@ export interface UseAuthOptions {
 
 /**
  * Hook result for useAuth.
+ *
+ * @template T - The user profile the API returns (the same type passed to
+ *   `createJWTAuthClient<T>` and `AuthClientConfig<T>`).
+ * @template TRegister - The app's own registration fields, at the top level of
+ *   `register()` — the second generic of `createJWTAuthClient<T, TRegister>`,
+ *   so `useAuth<T, TRegister>().register({ email, password, username })` is
+ *   typed exactly like the client call.
  */
-export interface UseAuthResult<T = unknown> {
+export interface UseAuthResult<
+  T = unknown,
+  TRegister extends Record<string, unknown> = Record<never, never>,
+> {
   /**
    * The session state as one value — render from this instead of combining
    * `initialized`/`authenticated`/`loading`. A stored token AND user make it
@@ -174,7 +184,7 @@ export interface UseAuthResult<T = unknown> {
   state: AuthState<T>
   login: AuthClient<T>['login']
   logout: AuthClient<T>['logout']
-  register: AuthClient<T>['register']
+  register: AuthClient<T, TRegister>['register']
   refresh: AuthClient<T>['refresh']
   setUser: AuthClient<T>['setUser']
   /**

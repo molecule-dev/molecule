@@ -21,10 +21,17 @@ import type { UseAuthOptions, UseAuthResult } from '../types.js'
 /**
  * Hook to access the auth client from context.
  *
+ * Pass the same generics the client was created with —
+ * `useAuthClient<MyUser, { username: string }>()` — so `register()` accepts
+ * the app's own fields.
+ *
  * @returns The auth client from context
  * @throws {Error} Error if used outside of AuthProvider
  */
-export function useAuthClient<T = unknown>(): AuthClient<T> {
+export function useAuthClient<
+  T = unknown,
+  TRegister extends Record<string, unknown> = Record<never, never>,
+>(): AuthClient<T, TRegister> {
   const client = useContext(AuthContext)
   if (!client) {
     throw new Error(
@@ -33,7 +40,7 @@ export function useAuthClient<T = unknown>(): AuthClient<T> {
       }),
     )
   }
-  return client as AuthClient<T>
+  return client as AuthClient<T, TRegister>
 }
 
 /**
@@ -53,20 +60,31 @@ export function useAuthClient<T = unknown>(): AuthClient<T> {
  * `await register({ email, password, name })`. Registration returns the auth
  * client's `AuthResult<MyUser>`; there is no separate `useRegister` hook.
  *
+ * An app whose API takes its OWN registration fields passes the client's
+ * second generic here too — `useAuth<MyUser, { username: string }>()` — so
+ * `register({ email, password, username })` is typed exactly like the client
+ * call (and `requestBody` receives the same payload). Without it, `register`
+ * accepts only the base fields.
+ *
  * @param options - Hook options
  * @returns Auth state and action methods
  *
  * @example
  * ```tsx
  * const { user, isAuthenticated, login, logout } = useAuth<{ id: string; name?: string }>()
+ * const { register } = useAuth<MyUser, { username: string }>()
+ * await register({ email, password, username }) // `username` is typed
  *
  * if (isAuthenticated) {
  *   return <div>Welcome, {user?.name}!</div>
  * }
  * ```
  */
-export function useAuth<T = unknown>(options?: UseAuthOptions): UseAuthResult<T> {
-  const client = useAuthClient<T>()
+export function useAuth<
+  T = unknown,
+  TRegister extends Record<string, unknown> = Record<never, never>,
+>(options?: UseAuthOptions): UseAuthResult<T, TRegister> {
+  const client = useAuthClient<T, TRegister>()
   const { autoRefresh = false } = options ?? {}
 
   // Subscribe to auth state changes with cached snapshot
@@ -113,7 +131,7 @@ export function useAuth<T = unknown>(options?: UseAuthOptions): UseAuthResult<T>
 
   const logout = useCallback(() => client.logout(), [client])
 
-  const register = useCallback((data: RegisterData) => client.register(data), [client])
+  const register = useCallback((data: RegisterData<TRegister>) => client.register(data), [client])
 
   const refresh = useCallback(() => client.refresh(), [client])
 
