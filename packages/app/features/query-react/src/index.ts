@@ -41,6 +41,55 @@
  * }
  * ```
  *
+ * @example
+ * A mutation or a failed load has to change a page that is ALREADY mounted, and
+ * the cache never starts that request by itself: `set()` paints a mutation's own
+ * response, `invalidate()` marks what it affects for the next mount, and an
+ * explicit `fetch()` retries into the mounted page.
+ *
+ * ```tsx
+ * import { getQueryClient } from '@molecule/app-query'
+ *
+ * // The key names what the document actually depends on — here the signed-in
+ * // principal, the filter and the page. Another principal's feed is a
+ * // different document, so an invalidation scoped to this one leaves it alone.
+ * const feedKey = (principal: string, filter: string, page: number) =>
+ *   ['feed', principal, filter, page] as const
+ *
+ * const feedOptions = (principal: string, filter: string, page: number) => ({
+ *   key: feedKey(principal, filter, page),
+ *   fetch: (signal: AbortSignal) =>
+ *     fetch(`/api/feeds/${filter}?page=${page}`, { signal }).then((r) => r.json()),
+ * })
+ *
+ * async function setFollowing(principal: string, authorId: string, follow: boolean) {
+ *   const client = getQueryClient()
+ *   const res = await fetch(`/api/follows/${authorId}`, { method: follow ? 'POST' : 'DELETE' })
+ *   const body = await res.json()
+ *   // The response IS the document: paint it now, with no second round trip.
+ *   // (If it were only a count or a flag, skip set() and invalidate() instead.)
+ *   client.set(feedKey(principal, 'following', 1), body.feed)
+ *   // Future reads of every feed this principal owns are stale.
+ *   client.invalidate(['feed', principal])
+ * }
+ *
+ * function Retry({ principal }: { principal: string }) {
+ *   return (
+ *     <button
+ *       onClick={() => {
+ *         // invalidate() alone would leave the mounted page on its error;
+ *         // an explicit fetch retries into it. useQuery shows the outcome.
+ *         void getQueryClient()
+ *           .fetch(feedOptions(principal, 'following', 1))
+ *           .catch(() => {})
+ *       }}
+ *     >
+ *       Retry
+ *     </button>
+ *   )
+ * }
+ * ```
+ *
  * @remarks
  * - **`useQuery` reads the cache synchronously on the first render.** A
  *   document prefetched from a hovered link, or seeded with `client.set()`
@@ -55,8 +104,14 @@
  *   connections (`shouldPrefetch()` in the core) — do not bypass that for
  *   "important" links; the person can still click.
  * - Errors are not thrown from the hook; read `status === 'error'` and
- *   `error`. A refetch after an error is one more subscription (a re-mount
- *   or a key change) or a `client.invalidate()`.
+ *   `error`. `client.invalidate()` does NOT refetch a mounted page — it only
+ *   marks documents stale, so the page keeps its error (or its old document)
+ *   until the app retries with `client.fetch(options)` or the page subscribes
+ *   again (a key change or a re-mount).
+ * - After a mutation, `client.set(key, response)` paints the server's own
+ *   answer at once, and `client.invalidate(prefix)` marks the affected reads
+ *   stale for their next mount. Which key and which scope is the app's
+ *   decision: the cache does not infer it from auth or form state.
  *
  * @module
  */

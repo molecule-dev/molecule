@@ -101,7 +101,11 @@ export interface QueryClient {
   prefetch<T>(options: QueryOptions<T>): void
 
   /**
-   * Seeds the cache, for example from a JSON island the server rendered.
+   * Seeds the cache, for example from a JSON island the server rendered, or
+   * with the server's own answer to a mutation.
+   *
+   * Subscribed observers receive the document at once, and the next `fetch`
+   * or `subscribe` treats it as fresh (no refetch) until it goes stale.
    *
    * @param key - The document's key.
    * @param data - The document.
@@ -111,6 +115,12 @@ export interface QueryClient {
   /**
    * Marks the document, and every document whose key starts with this key,
    * as stale: the next `fetch` or `subscribe` refetches it.
+   *
+   * An observer that is already subscribed keeps what it has — the cached
+   * document, or the error — and is NOT refetched. To retry into a mounted
+   * page, call {@link fetch} with the same options, or subscribe again (a
+   * key change or a re-mount). {@link set} shows a mutation's own response
+   * without a round trip.
    *
    * @param key - A key or a key prefix.
    */
