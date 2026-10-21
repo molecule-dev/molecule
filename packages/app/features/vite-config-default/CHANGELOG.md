@@ -1,5 +1,11 @@
 # @molecule/app-vite-config-default
 
+## 1.1.7
+
+### Patch Changes
+
+- 0f857ae: Peer dependency ranges now accept `vite` 8 and `@vitejs/plugin-react` 6, the versions this package is built and tested with.
+
 ## 1.1.6
 
 ### Patch Changes

@@ -37,7 +37,7 @@
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.11",
-    "@molecule/app-auth": "1.5.7",
+    "@molecule/app-auth": "1.5.8",
     "@molecule/app-react": "1.7.0",
     "@molecule/app-ui": "1.3.7",
     "@molecule/app-ui-react": "1.3.5",

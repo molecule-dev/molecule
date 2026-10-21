@@ -1,5 +1,12 @@
 # @molecule/app-auth
 
+## 1.5.8
+
+### Patch Changes
+
+- b343ba1: `status` now reports `'loading'` only while there is no decision yet, so a login or register request in flight no longer unmounts a page that guards on `'loading'`; progress stays on `state.loading`.
+- 7cd56de: A rejected auth call's error now keeps the response's parsed `body` (nested maps, arrays and all) and HTTP `status`, so an app can show the API's own validation messages.
+
 ## 1.5.7
 
 ### Patch Changes
