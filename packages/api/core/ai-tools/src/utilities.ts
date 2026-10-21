@@ -202,8 +202,59 @@ export function redactSecretsInCode(s: string): string {
   return s.replace(SECRET_ENV_ASSIGNMENT, '$1=[REDACTED]')
 }
 
+/**
+ * The placeholder the output filter substitutes for a value it hid. A model that read a
+ * command's REDACTED output has written this token back into a project file as if it were
+ * the value — the executor's own `config.ts` got `tokenKey: '[REDACTED]'` and every request
+ * 401'd — so a write that ADDS one is refused ({@link addedRedactionMask}).
+ *
+ * Only the shapes a value can take count: quoted (`'[REDACTED]'`, `"[REDACTED]"`) or
+ * assigned (`=[REDACTED]`). Prose that mentions the token is ordinary text.
+ */
+const REDACTION_MASK = /'\[REDACTED\]'|"\[REDACTED\]"|=[ \t]*\[REDACTED\]/g
+
+/**
+ * The redaction mask `next` adds over `previous`, or null when it adds none.
+ *
+ * `previous` is the file's previous content for `write_file`, and the replacement's own
+ * `old_string` for `edit_file` — an edit that carries an existing mask through (a file that
+ * already had one, read back and rewritten) is legitimate and passes; only NEW mask
+ * occurrences are refused.
+ *
+ * @param next - The content about to be written (or the replacement's `new_string`).
+ * @param previous - The content it replaces, already on disk (or the `old_string`).
+ * @returns The added mask as written (`'[REDACTED]'`, `"[REDACTED]"`, `=[REDACTED]`), or null.
+ */
+export function addedRedactionMask(next: string, previous: string): string | null {
+  const before = previous.match(REDACTION_MASK)?.length ?? 0
+  const after = next.match(REDACTION_MASK) ?? []
+  if (after.length <= before) return null
+  return after[before] ?? after[0] ?? '[REDACTED]'
+}
+
 /** Source-file extensions a printing command's output is read as code for. */
 const SOURCE_FILE_RE = /\.(?:[cm]?[jt]sx?|css|scss|html|vue|svelte|md|sql|hurl)$/
+
+/** Programs whose output is file NAMES or counts, never another file's content. */
+const INSPECTION_PROGRAMS: ReadonlySet<string> = new Set(['find', 'ls', 'wc'])
+
+/** `find` options that run a program or write a file — not read-only inspection. */
+const FIND_NOT_INSPECTION = /^-(?:exec|execdir|ok|okdir|delete|fls|fprint|fprint0|fprintf)/
+
+/**
+ * Whether a file operand names a DIRECTORY rather than a file: a recursive search root
+ * (`grep -rn x .`, `rg x src/`), whose output is matching lines, not one arbitrary file.
+ *
+ * @param word - One literal file operand.
+ * @returns True when the operand has a directory shape.
+ */
+function directoryOperand(word: string): boolean {
+  // A process's environment and the platform's secrets are never inspection targets.
+  if (/^\/(?:proc|etc\/mol)(?:\/|$)/.test(word)) return false
+  if (/(?:^|\/)\.{1,2}$/.test(word) || word.endsWith('/')) return true
+  const last = word.split('/').pop() ?? ''
+  return last !== '' && !last.includes('.')
+}
 
 /**
  * A literal argument, not a shell expansion. The shared parser owns statement boundaries;
@@ -227,8 +278,8 @@ const SOURCE_PRINT_OPTIONS: Record<string, { flags: RegExp; values: readonly str
   head: { flags: /^(?:-\d+|-[qv]|-[nc]\d+|--(?:lines|bytes)=\d+)$/, values: ['-n', '-c'] },
   tail: { flags: /^(?:-\d+|-[qv]|-[nc]\+?\d+|--(?:lines|bytes)=\+?\d+)$/, values: ['-n', '-c'] },
   nl: { flags: /^-b[ant]$/, values: ['-b', '-d', '-f', '-h', '-i', '-l', '-n', '-s', '-v', '-w'] },
-  grep: { flags: /^(?:-[nEHhivwxFobcsq]+|-[ABC]\d+)$/, values: ['-A', '-B', '-C'] },
-  rg: { flags: /^(?:-[nHhivwxFocqs]+|-[ABC]\d+)$/, values: ['-A', '-B', '-C'] },
+  grep: { flags: /^(?:-[nEHhrRivwxFobcsq]+|-[ABC]\d+)$/, values: ['-A', '-B', '-C'] },
+  rg: { flags: /^(?:-[nHhrRivwxFocqs]+|-[ABC]\d+)$/, values: ['-A', '-B', '-C'] },
   sort: { flags: /^-[bdfgimnruVz]+$/, values: ['-k', '-t'] },
   uniq: { flags: /^-[cdui]+$/, values: ['-f', '-s', '-w'] },
   wc: { flags: /^-[clmwL]+$/, values: [] },
@@ -285,8 +336,43 @@ function sourcePrintFiles(program: string, args: readonly string[]): string[] | 
  * @returns True when the command prints source files, with only literal headings and filters.
  */
 export function printsOnlySource(command: string): boolean {
+  return printsOnly(command, false)
+}
+
+/**
+ * Whether a shell command only INSPECTS the workspace: it prints source files, lists names
+ * (`ls`, `find`), counts lines (`wc`), or searches a directory recursively (`grep -rn x .`,
+ * `rg x src/`) — joined by `;`, `&&` or `|`, with literal `echo`/`printf` headings and `cd`.
+ *
+ * Its output is code, not an env dump, so it gets the code-safe redaction ({@link
+ * redactSecretsInCode}) instead of the name-keyed env-dump passes. Without this, ordinary
+ * code values in a command's output — `authScheme: 'Token'`, `tokenKey: 'jwtToken'`,
+ * `credentials: 'include'` — were masked as `'[REDACTED]'` whenever the command was not a
+ * pure literal source read, and a builder that read them back wrote the mask into its own
+ * `config.ts` (a 401 and ~15 minutes of misdiagnosis).
+ *
+ * Env dumps keep the full grade: `.env` anywhere in the command, `env`/`printenv`, a
+ * non-literal or redirecting form, and an interpreter one-liner (`node -e`, `python -c`)
+ * all return false.
+ *
+ * @param command - The shell command.
+ * @returns True when the command only reads or lists workspace content.
+ */
+export function isReadOnlyInspection(command: string): boolean {
+  return printsOnly(command, true)
+}
+
+/**
+ * The one segment grammar both grades share: literal words only, no wrapper or group, no
+ * backgrounding, and every byte between segments a separator.
+ *
+ * @param command - The shell command.
+ * @param inspection - Also accept name/count listing and recursive directory searches.
+ * @returns True when every segment is allowed and at least one prints something.
+ */
+function printsOnly(command: string, inspection: boolean): boolean {
   if (/\.env\b/.test(command)) return false
-  let readsSource = false
+  let prints = false
   let previousEnd = 0
   for (const located of locatedCommandSegments(command)) {
     const { segment, start, end, programOffset, separator, terminator } = located
@@ -331,6 +417,11 @@ export function printsOnlySource(command: string): boolean {
       ) {
         return false
       }
+    } else if (inspection && INSPECTION_PROGRAMS.has(program) && separator !== '|') {
+      // Names and counts only — nothing here can be another file's content. `find` is the
+      // exception that can run a program or write a file.
+      if (program === 'find' && args.some((arg) => FIND_NOT_INSPECTION.test(arg))) return false
+      prints = true
     } else {
       const filter = separator === '|'
       if (
@@ -347,15 +438,20 @@ export function printsOnlySource(command: string): boolean {
       } else {
         if (
           files.length === 0 ||
-          !files.every((file) => !file.startsWith('-') && SOURCE_FILE_RE.test(file))
+          !files.every(
+            (file) =>
+              !file.startsWith('-') &&
+              (SOURCE_FILE_RE.test(file) ||
+                (inspection && (program === 'grep' || program === 'rg') && directoryOperand(file))),
+          )
         ) {
           return false
         }
-        readsSource = true
+        prints = true
       }
     }
   }
-  return readsSource && /^[\s;]*$/.test(command.slice(previousEnd))
+  return prints && /^[\s;]*$/.test(command.slice(previousEnd))
 }
 
 /**

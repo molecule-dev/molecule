@@ -748,6 +748,7 @@ import { suiteCommandTarget } from './suite-overlap.js'
 import { diagnosisTraceCommand } from './trace-artifacts.js'
 import type { ExecutionBackend, ToolBuildConfig } from './types.js'
 import {
+  addedRedactionMask,
   BRACE_GLOB_HINT,
   checkBlockedCommand,
   declaredBudgetSeconds,
@@ -765,6 +766,7 @@ import {
   isEnvFilePath,
   isOutsideRoot,
   isPlaywrightRunCommand,
+  isReadOnlyInspection,
   isSuiteRunCommand,
   linesWithinSerialized,
   literalDirPrefix,
@@ -784,7 +786,6 @@ import {
   parseCheckCommand,
   parseCheckProblem,
   pathArgError,
-  printsOnlySource,
   READ_RESULT_ENVELOPE_CHARS,
   redactSecrets,
   redactSecretsInCode,
@@ -1496,6 +1497,26 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
     return result
   }
 
+  /**
+   * The refusal for a write that would put the output filter's placeholder into a file.
+   *
+   * A run that read a redacted command output believed `'[REDACTED]'` was the value and wrote
+   * it into its own `config.ts`; every request then 401'd and the run spent ~15 minutes on it.
+   * The file's content is shown at the code-safe grade, so a re-read gives the real value.
+   *
+   * @param path - The file the write targets.
+   * @param mask - The added mask, exactly as the content writes it.
+   * @returns The error message shown to the model.
+   */
+  function redactionMaskError(path: string, mask: string): string {
+    return (
+      `Refused: the new content adds ${mask} — the tool output filter's placeholder for a value ` +
+      'it masked, not the value itself. It appeared only because a command’s output was redacted. ' +
+      `Re-read the real value with read_file (${path} itself, or the file the value belongs in) ` +
+      'and write what is actually there; never copy [REDACTED] into source.'
+    )
+  }
+
   // ── Binary reads ───────────────────────────────────────────────
 
   /** Extensions whose files are never text: a `read_file` on one is refused by name. */
@@ -2123,6 +2144,12 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         } catch (_error) {
           /* file doesn't exist yet — oldContent stays null */
         }
+        // A mask the output filter produced is not a value: refuse writing a NEW one into the
+        // project, while allowing a file that already carries one to be rewritten unchanged.
+        if (doRedact) {
+          const mask = addedRedactionMask(content, oldContent ?? '')
+          if (mask !== null) return { error: redactionMaskError(path, mask) }
+        }
 
         if (onFileDiff) onFileDiff({ path, oldContent, newContent: content })
 
@@ -2285,6 +2312,19 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
               message: `each replacement needs a non-empty string old_string and a string new_string (got old_string: ${oldString === '' ? 'empty' : typeof oldString}, new_string: ${typeof newString}). To delete text, pass new_string: "".`,
             })
             continue
+          }
+          // Same guard as write_file, judged per replacement against its own old_string: an
+          // edit that carries an existing mask through is fine, one that ADDS a mask is refused.
+          if (doRedact) {
+            const mask = addedRedactionMask(newString, oldString)
+            if (mask !== null) {
+              failures.push({
+                index: index + 1,
+                start: startOf(oldString),
+                message: redactionMaskError(path, mask),
+              })
+              continue
+            }
           }
           const count = content.split(oldString).length - 1
           // The edit is ALREADY in the file: old_string is gone and a distinctive
@@ -3445,9 +3485,11 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         // truncateMiddle (not truncate): a failing build/test/migration puts its
         // error at the TAIL, so keep the head AND the tail — head-only truncation
         // strands the executor with passing progress and no failure reason.
-        // A command that only prints source files returns file content: the code-safe grade,
-        // as read_file uses (utilities.ts printsOnlySource).
-        const grade = printsOnlySource(command)
+        // A command that only INSPECTS the workspace (source reads, `ls`/`find`/`wc`, a
+        // recursive `grep -rn … .`) returns code, not an env dump: the code-safe grade, as
+        // read_file uses (utilities.ts isReadOnlyInspection). Anything else (`.env` reads,
+        // `env`/`printenv`, an interpreter one-liner) keeps the full name-keyed grade.
+        const grade = isReadOnlyInspection(command)
           ? (s: string): string => sanitizeFileContent(s, 'printed.ts')
           : sanitizeOutput
         const stdout = grade(truncateMiddle(result.stdout, MAX_OUTPUT_SIZE))
