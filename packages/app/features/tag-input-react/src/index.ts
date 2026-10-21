@@ -5,7 +5,7 @@
  * - `<TagChip>` — standalone labeled chip with optional remove button.
  * - `<TagInput>` — controlled tokenizer: Enter, comma, or Tab adds the
  *   draft; blur commits a non-empty draft; Backspace on an empty field
- *   removes the last token.
+ *   removes the last token. Enter never submits an enclosing form.
  *
  * @example
  * ```tsx
@@ -29,6 +29,9 @@
  *   wired (`useTranslation()` / `getClassMap()` throw otherwise).
  * - Committing happens on Enter/comma/Tab AND on blur — clicking away
  *   with a non-empty draft adds a tag; keep that in mind in forms.
+ * - Enter inside the field is always swallowed: a blank, rejected, or
+ *   over-`maxTags` draft does nothing and never submits an enclosing
+ *   form. An empty Tab keeps normal browser focus traversal.
  * - Default `normalize` trims whitespace and rejects empties +
  *   duplicates; pass your own to lowercase, validate, or map values
  *   (return `null` to reject).

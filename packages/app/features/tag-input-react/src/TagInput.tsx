@@ -42,6 +42,10 @@ function defaultNormalize(raw: string, current: string[]): string | null {
  * comma, or Tab AND on blur (clicking away with a non-empty draft adds
  * a tag); Backspace on an empty field removes the last token.
  *
+ * Enter never submits an enclosing form: its default action is canceled
+ * even when the draft is blank, whitespace-only, rejected, or past
+ * `maxTags`. An empty Tab keeps normal browser focus traversal.
+ *
  * Controlled component — callers own the `value` array.
  * @param props - Component props (see {@link TagInputProps}).
  */
@@ -72,10 +76,18 @@ export function TagInput({
 
   /**
    * Handles Enter/comma/Tab to commit a tag, and Backspace to remove the last tag.
+   *
+   * Enter's default is ALWAYS canceled, even when the draft is empty, whitespace,
+   * rejected, or past `maxTags`. Otherwise the browser's implicit form submission
+   * fires on Enter and submits the enclosing form (e.g. an editor's Publish
+   * action) while the user is only trying to leave the tag field.
    * @param e
    */
   function onKeyDown(e: KeyboardEvent<HTMLInputElement>): void {
-    if (e.key === 'Enter' || e.key === ',' || e.key === 'Tab') {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      if (draft.trim()) commit()
+    } else if (e.key === ',' || e.key === 'Tab') {
       if (draft.trim()) {
         e.preventDefault()
         commit()
