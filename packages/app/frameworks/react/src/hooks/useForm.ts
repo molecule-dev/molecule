@@ -4,7 +4,7 @@
  * @module
  */
 
-import { useCallback, useRef, useSyncExternalStore } from 'react'
+import { useCallback, useMemo, useRef, useSyncExternalStore } from 'react'
 
 import type {
   FieldRegistration,
@@ -14,6 +14,38 @@ import type {
   FormState,
   RegisterOptions,
 } from '@molecule/app-forms'
+
+/**
+ * Adapt controller notifications to React's stable snapshot contract. Providers
+ * may return fresh objects from their getters; reads between notifications must
+ * still return the same snapshot to useSyncExternalStore.
+ *
+ * @param form - Controller that owns the subscription.
+ * @param read - Reads the form state or a selected field.
+ * @returns The current subscribed snapshot.
+ */
+function useFormSnapshot<T extends Record<string, unknown>, S>(
+  form: FormController<T>,
+  read: () => S,
+): S {
+  const store = useMemo(() => {
+    let snapshot = read()
+    return {
+      getSnapshot: () => snapshot,
+      subscribe: (onChange: () => void) => {
+        const refresh = (): void => {
+          snapshot = read()
+          onChange()
+        }
+        const unsubscribe = form.subscribe(refresh)
+        // A controller can change after render but before React subscribes.
+        refresh()
+        return unsubscribe
+      },
+    }
+  }, [form, read])
+  return useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot)
+}
 
 /**
  * Options for useForm hook.
@@ -36,7 +68,10 @@ export interface UseFormResult<T extends Record<string, unknown>> {
   isSubmitting: boolean
 
   // Field methods
-  register: (name: keyof T, options?: RegisterOptions) => FieldRegistration
+  register: (
+    name: keyof T,
+    options?: Omit<RegisterOptions, 'name'> & { name?: string },
+  ) => FieldRegistration
   getValue: <K extends keyof T>(name: K) => T[K]
   setValue: <K extends keyof T>(name: K, value: T[K]) => void
   getError: (name: keyof T) => string | undefined
@@ -97,29 +132,12 @@ export function useForm<T extends Record<string, unknown>>(
   }
   const form = formRef.current
 
-  // Subscribe to form state changes
-  const getSnapshot = useCallback(() => form.getState(), [form])
-
-  const subscribe = useCallback(
-    (onChange: () => void) => {
-      // The form controller should have a subscribe method
-      // If not available, we'll use a polling approach
-      if ('subscribe' in form && typeof form.subscribe === 'function') {
-        return (form as unknown as { subscribe: (fn: () => void) => () => void }).subscribe(
-          onChange,
-        )
-      }
-      // Fallback: no-op unsubscribe (state won't auto-update)
-      return () => {}
-    },
-    [form],
-  )
-
-  const formState = useSyncExternalStore(subscribe, getSnapshot, getSnapshot)
+  const readState = useCallback(() => form.getState(), [form])
+  const formState = useFormSnapshot(form, readState)
 
   // Memoized methods
   const register = useCallback(
-    (name: keyof T, registerOptions?: RegisterOptions) => {
+    (name: keyof T, registerOptions?: Omit<RegisterOptions, 'name'> & { name?: string }) => {
       return form.register({ ...registerOptions, name: name as string } as RegisterOptions)
     },
     [form],
@@ -189,21 +207,8 @@ export function useWatch<T extends Record<string, unknown>, K extends keyof T>(
   form: FormController<T>,
   name: K,
 ): T[K] {
-  const getSnapshot = useCallback(() => form.getValue(name), [form, name])
-
-  const subscribe = useCallback(
-    (onChange: () => void) => {
-      if ('subscribe' in form && typeof form.subscribe === 'function') {
-        return (form as unknown as { subscribe: (fn: () => void) => () => void }).subscribe(
-          onChange,
-        )
-      }
-      return () => {}
-    },
-    [form],
-  )
-
-  return useSyncExternalStore(subscribe, getSnapshot, getSnapshot)
+  const readValue = useCallback(() => form.getValue(name), [form, name])
+  return useFormSnapshot(form, readValue)
 }
 
 /**
@@ -217,29 +222,6 @@ export function useFieldState<T extends Record<string, unknown>>(
   form: FormController<T>,
   name: keyof T,
 ): FieldState<T[keyof T]> {
-  const getSnapshot = useCallback(() => {
-    const state = form.getState()
-    return {
-      value: state.values[name],
-      error: state.errors[name] as string | undefined,
-      touched: state.touched[name] ?? false,
-      dirty: state.values[name] !== undefined,
-      valid: !state.errors[name],
-      validating: false,
-    }
-  }, [form, name])
-
-  const subscribe = useCallback(
-    (onChange: () => void) => {
-      if ('subscribe' in form && typeof form.subscribe === 'function') {
-        return (form as unknown as { subscribe: (fn: () => void) => () => void }).subscribe(
-          onChange,
-        )
-      }
-      return () => {}
-    },
-    [form],
-  )
-
-  return useSyncExternalStore(subscribe, getSnapshot, getSnapshot)
+  const readField = useCallback(() => form.getFieldState(name), [form, name])
+  return useFormSnapshot(form, readField)
 }
