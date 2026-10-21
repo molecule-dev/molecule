@@ -228,6 +228,19 @@ const readTraces = (root: string): string => {
 }
 
 describe('traceArtifactsScript — a real trace, read headlessly', () => {
+  it('prints the directory the trace was read from — one test attempt’s own artifacts', () => {
+    // Playwright saves one directory per test attempt under the run's outputDir. The run's own
+    // machine report names that directory for each failing test (its attachment path), so this
+    // relative directory is the exact mark binding an artifact to its test — no spec-line join.
+    const root = layout({ [FOLDER]: FIXTURE })
+    try {
+      const [artifact] = parseTraceArtifacts(readTraces(root))
+      expect(artifact?.dir).toBe(`test-results/${FOLDER}`)
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
   it('prints the failing request and its status', () => {
     const root = layout({ [FOLDER]: FIXTURE })
     try {

@@ -36,6 +36,13 @@ import {
 import { guardToolExecute, missingParamError, ToolInputError } from './input-normalizer.js'
 import { diffLineCount } from './line-diff.js'
 import { pipelineExitCodeNote } from './pipeline-exit-note.js'
+import {
+  commandWritesReportTo,
+  PLAYWRIGHT_REPORT_SUFFIX,
+  playwrightReportPathFor,
+  type PlaywrightRunReport,
+  summarizePlaywrightReport,
+} from './playwright-report.js'
 import { TOOL_SCHEMAS } from './schemas.js'
 import {
   foregroundBrowserProbe,
@@ -63,6 +70,51 @@ const logBytesByTask = new Map<string, number>()
 
 /** The file a background command writes its own output to, when it redirects it. */
 const outputFileByTask = new Map<string, string>()
+
+/**
+ * The standard Playwright machine report each background task was launched with, when the launch
+ * could carry one ({@link streamingBackgroundCommand}'s `reportPath`).
+ *
+ * The path is derived from the task id (`playwright-report.ts`), so a process that restarted
+ * mid-run still finds it — nothing here is the only record of where the file is.
+ */
+const reportByTask = new Map<string, string>()
+
+/**
+ * One report file's bounded facts, or the honest reason there are none.
+ *
+ * A report that is not there is NOT "the run failed nothing": `summarizePlaywrightReport` answers
+ * `missing`, and every reader treats that as no machine data rather than as a clean run.
+ *
+ * @param backend - The project's execution backend.
+ * @param path - The report file's absolute path (`/tmp/…`).
+ * @param sanitize - The consumer's redactor for the error text the record carries.
+ * @returns The bounded record; never a verdict.
+ */
+async function readPlaywrightRunReport(
+  backend: ExecutionBackend,
+  path: string,
+  sanitize: (text: string) => string,
+): Promise<PlaywrightRunReport> {
+  let text: string
+  try {
+    text = await backend.readFile(path)
+  } catch (error) {
+    // No file under this path: the run left no report (killed before it ended, or it was launched
+    // before this sideband existed). Absence is said, never read as a clean run.
+    return {
+      status: 'missing',
+      path,
+      reason:
+        'the run left no report at this path' +
+        (error instanceof Error && error.message ? ` (${error.message})` : ''),
+      stats: null,
+      failures: [],
+      omittedFailures: 0,
+    }
+  }
+  return summarizePlaywrightReport(text, { path, sanitize })
+}
 
 /**
  * Recovered legacy task ids whose command ENDS with a backgrounded statement (`… &`).
@@ -814,6 +866,7 @@ import {
   universalCause,
   whitespaceTolerantReplace,
   withoutSuiteTimeout,
+  withPlaywrightRunReport,
 } from './utilities.js'
 
 /**
@@ -3231,13 +3284,21 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           // The request's own exclusions ride along: a `--grep-invert` that names one of them is
           // the proof scope written as a flag, not a diagnosis, so it keeps the suite's retries
           // (xr-molecule-flash-m170 +33:16). The getter is the host's, read here at launch time.
-          const streaming = streamingBackgroundCommand(command, {
-            approvedExclusions: excludedTestTitles?.() ?? [],
-          })
+          // The standard Playwright machine report this run may carry, at a path derived from the
+          // task's own id: unique per launch, and still findable from the id after a process
+          // restart (see reportByTask). A run whose reporter set is not this tool's to place — or
+          // one that already writes a report of its own — comes back with no report path and is
+          // launched exactly as before.
+          const streaming = streamingBackgroundCommand(
+            command,
+            { approvedExclusions: excludedTestTitles?.() ?? [] },
+            playwrightReportPathFor(id),
+          )
           // A command that starts the suite more than once is refused here, before anything is
           // written or launched: each walk measures the same code, and only the last is rewritten
           // (X1 xr-molecule-flash-m157 +14:02 — two whole walks chained with `;`).
           if (streaming.error) return { error: streaming.error }
+          if (streaming.reportPath !== undefined) reportByTask.set(id, streaming.reportPath)
           // This tool already backgrounds the script. If its last statement also uses `&`,
           // let the same shell wait for that child and preserve its exit code. Inferring its
           // completion from output cannot work for silent commands such as `true &`.
@@ -3329,6 +3390,12 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
                   0,
                   output,
                 )
+                // The machine report is read here exactly as a wait reads it: a grace return is the
+                // same finished run, handed back without a task id.
+                const graceReport =
+                  streaming.reportPath === undefined
+                    ? null
+                    : await readPlaywrightRunReport(backend, streaming.reportPath, sanitizeOutput)
                 if (cut) {
                   return {
                     stdout,
@@ -3353,6 +3420,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
                               ? SUITE_OVER_BUDGET_ADVICE
                               : SPLIT_WORK_ADVICE
                           }`),
+                    ...(graceReport === null ? {} : { runReport: graceReport }),
                   }
                 }
                 // The exit file holds the PIPELINE's code: when a stage this rewrite could not
@@ -3383,6 +3451,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
                   ...(output.length > MAX_OUTPUT_SIZE ? { truncated: true, fullOutput: log } : {}),
                   ...(notes.length ? { note: notes.join(' ') } : {}),
                   ...suiteBudgetField(budget),
+                  ...(graceReport === null ? {} : { runReport: graceReport }),
                 }
               }
               await new Promise((r) => setTimeout(r, 1_500))
@@ -3460,12 +3529,26 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
             ? Math.min(requestedMs, toolCeilingMs)
             : toolCeilingMs
         const startedAt = Date.now()
-        const result = await backend.run(command, {
+        // The standard Playwright machine report, when this run names its own reporters
+        // (`withPlaywrightRunReport`): `json` joins that set and its output goes to a file of this
+        // call's own. A run that names no reporter is left exactly as written — its reporters are
+        // the suite config's, and replacing them would stop writing what the executor configured.
+        const reported = withPlaywrightRunReport(
+          command,
+          `/tmp/mol-pw-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}${PLAYWRIGHT_REPORT_SUFFIX}`,
+        )
+        const result = await backend.run(reported.command, {
           cwd,
           timeout: execTimeoutMs,
           ...(effectiveBudgetMs ? { budgetMs: effectiveBudgetMs } : {}),
         })
         const elapsedMs = Date.now() - startedAt
+        // Read once, after the run: the runner's own per-test identities and attachment paths, or
+        // the honest absence of a report. Never a verdict — pass/fail stays the caller's reading.
+        const runReport =
+          reported.reportPath === null
+            ? null
+            : await readPlaywrightRunReport(backend, reported.reportPath, sanitizeOutput)
         // The clamped ask is only worth a line when the clamp was felt: a command
         // that asked for 600 s and finished in 25 s says nothing about splitting
         // work, and the note read as a warning about a run that had already
@@ -3553,6 +3636,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
                     : isSuiteRunCommand(command)
                       ? SUITE_OVER_BUDGET_ADVICE
                       : SPLIT_WORK_ADVICE),
+            ...(runReport === null ? {} : { runReport }),
           }
         }
         // A pipeline reports its LAST stage's code: `tsc | head` says 0 beside a printed type
@@ -3576,6 +3660,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
                 note: [sleepNote, ceilingNote, traced.change, budgetNote].filter(Boolean).join(' '),
               }
             : {}),
+          ...(runReport === null ? {} : { runReport }),
         }
       } catch (e: unknown) {
         return { error: `Command failed: ${(e as Error).message}` }
@@ -3685,6 +3770,12 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           // The launch's own shape outlives this process the same way its redirect target does:
           // a command that ended in `&` is still a launch acknowledgement, not a finished run.
           if (endsInBackground(script)) detachedByTask.add(taskId)
+          // …and so does the machine report the launch wired (`playwright-report.ts`): its path is
+          // the task's own id derived, and only a script that sets it to exactly that path is this
+          // platform's own — a `PLAYWRIGHT_JSON_OUTPUT_FILE` the executor chose is theirs.
+          const expectedReport = playwrightReportPathFor(taskId)
+          if (!reportByTask.has(taskId) && commandWritesReportTo(script, expectedReport))
+            reportByTask.set(taskId, expectedReport)
         } catch (_error) {
           // No script under that id: this process did not start the task, so
           // there is nothing to recover. The log stays the whole result.
@@ -4067,6 +4158,16 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       // failing tests instead of leaving the executor to re-run the whole suite (xr-molecule-
       // flash-m101 +12:13: 139 tests, ~4 minutes, to check two fixes).
       const run = runByTask.get(taskId)
+      // The standard machine report this launch wired, when it did (`reportByTask`). Read once per
+      // finished wait: it is the runner's own record of each failing test's identity and of the
+      // artifacts saved for that test, so a diagnosis can stop reconstructing them from the log.
+      // A launch that carried no report path attaches nothing here — there is nothing honest to
+      // say about a run that was never asked to write one.
+      const reportPath = reportByTask.get(taskId)
+      const runReport =
+        reportPath === undefined
+          ? null
+          : await readPlaywrightRunReport(backend, reportPath, sanitizeOutput)
       // What the REQUEST requires of this suite and the run left out: the narrowed re-run below
       // is composed from the run's own command, so without these it would measure the same wrong
       // configuration again (m182: the request names `TEST_MODE=fullstack`, the run and its
@@ -4114,6 +4215,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           note: [cutRunSentence(cut), causes].filter((n): n is string => Boolean(n)).join(' '),
           stdout: sanitizeOutput(truncateMiddle(output, MAX_OUTPUT_SIZE)),
           ...(output.length > MAX_OUTPUT_SIZE ? { truncated: true, fullOutput: log } : {}),
+          ...(runReport === null ? {} : { runReport }),
         }
       }
       // Same shaping as a foreground exec result, so the executor reads both
@@ -4153,6 +4255,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           : {}),
         stdout: sanitizeOutput(truncateMiddle(output, MAX_OUTPUT_SIZE)),
         ...(output.length > MAX_OUTPUT_SIZE ? { truncated: true, fullOutput: log } : {}),
+        ...(runReport === null ? {} : { runReport }),
       }
     },
 

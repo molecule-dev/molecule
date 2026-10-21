@@ -3076,10 +3076,12 @@ describe('exec_command run_in_background', () => {
           `echo $? > /tmp/${r.taskId}.exit`,
       )} > /dev/null 2>&1 & echo $! > /tmp/${r.taskId}.pid`,
     )
-    // The command itself only carries the reporter and the inline-failure switch; lowering
-    // priority is the launcher's.
+    // The command itself carries the reporter, the machine report's file option and the
+    // inline-failure switch; lowering priority is the launcher's.
     expect((backend.writeFile as ReturnType<typeof vi.fn>).mock.calls[0][1]).toBe(
-      'export PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE=1; npx playwright test --retries=1 --trace=retain-on-failure --reporter=list\n',
+      'export PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE=1; ' +
+        `export PLAYWRIGHT_JSON_OUTPUT_FILE='/tmp/${r.taskId}.playwright.json'; ` +
+        'npx playwright test --retries=1 --trace=retain-on-failure --reporter=list,json\n',
     )
     expect(r.note).toContain('lower CPU and IO priority')
   })
@@ -3114,10 +3116,12 @@ describe('exec_command run_in_background', () => {
     const r = (await exec.execute({
       command: 'cd e2e && npx playwright test 2>&1 | tail -70',
       run_in_background: true,
-    })) as { note: string }
+    })) as { note: string; taskId: string }
     const written = (backend.writeFile as ReturnType<typeof vi.fn>).mock.calls[0][1]
     expect(written).toBe(
-      'export PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE=1; cd e2e && npx playwright test --trace=retain-on-failure --reporter=list --retries=0 2>&1\n',
+      'export PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE=1; ' +
+        `export PLAYWRIGHT_JSON_OUTPUT_FILE='/tmp/${r.taskId}.playwright.json'; ` +
+        'cd e2e && npx playwright test --trace=retain-on-failure --reporter=list,json --retries=0 2>&1\n',
     )
     expect(r.note).toContain('Dropped the trailing `| tail -70`')
     expect(r.note).toContain('--reporter=list')
@@ -3137,10 +3141,12 @@ describe('exec_command run_in_background', () => {
     const r = (await exec.execute({
       command: 'cd spec/run && npx playwright test --retries=0 --reporter=line',
       run_in_background: true,
-    })) as { note: string }
+    })) as { note: string; taskId: string }
     const written = (backend.writeFile as ReturnType<typeof vi.fn>).mock.calls[0][1]
     expect(written).toBe(
-      'export PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE=1; cd spec/run && npx playwright test --retries=0 --reporter=list --trace=retain-on-failure\n',
+      'export PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE=1; ' +
+        `export PLAYWRIGHT_JSON_OUTPUT_FILE='/tmp/${r.taskId}.playwright.json'; ` +
+        'cd spec/run && npx playwright test --retries=0 --reporter=list,json --trace=retain-on-failure\n',
     )
     expect(r.note).toContain('Switched the test reporters to `--reporter=list`')
   })
@@ -3225,9 +3231,14 @@ describe('exec_command run_in_background', () => {
     const tools = buildTools(backend)
     const exec = tools.find((t) => t.name === 'exec_command')!
     const command = 'npx playwright test --reporter=list > out.txt'
-    const r = (await exec.execute({ command, run_in_background: true })) as { note: string }
+    const r = (await exec.execute({ command, run_in_background: true })) as {
+      note: string
+      taskId: string
+    }
     expect((backend.writeFile as ReturnType<typeof vi.fn>).mock.calls[0][1]).toBe(
-      'export PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE=1; npx playwright test --reporter=list ' +
+      'export PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE=1; ' +
+        `export PLAYWRIGHT_JSON_OUTPUT_FILE='/tmp/${r.taskId}.playwright.json'; ` +
+        'npx playwright test --reporter=list,json ' +
         '--trace=retain-on-failure --retries=0 > out.txt\n',
     )
     expect(r.note).not.toContain('Dropped')

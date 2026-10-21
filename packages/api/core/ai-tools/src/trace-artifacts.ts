@@ -476,6 +476,18 @@ export interface TraceArtifact {
    * Absent when no group reached the threshold, and on traces read before this field existed.
    */
   repeated?: TraceRequestRepeat[]
+  /**
+   * The directory the trace was read from, relative to the root the reader was given.
+   *
+   * Playwright saves one directory per test attempt under the run's `outputDir`, and every artifact
+   * of that attempt — `trace.zip` included — sits in it. The run's own machine report records each
+   * test that wrote a trace with its attachment path, so this relative directory is the exact mark
+   * binding THIS artifact to the test that wrote it, with no join by spec line needed
+   * ({@link ./playwright-report.js}).
+   *
+   * Absent on traces read before this field existed.
+   */
+  dir?: string
 }
 
 /** How many traces one read reports, newest first. */
@@ -2621,6 +2633,7 @@ export function parseTraceArtifacts(stdout: string): TraceArtifact[] {
       out.push({
         spec: typeof raw.spec === 'string' ? raw.spec : null,
         line: typeof raw.line === 'number' ? raw.line : 0,
+        ...(typeof raw.dir === 'string' && raw.dir !== '' ? { dir: raw.dir } : {}),
         requests: requests
           .map(parseTraceRequest)
           .filter((request): request is TraceRequest => request !== null),

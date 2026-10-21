@@ -17,6 +17,7 @@ import {
 } from './command-position.js'
 import { classifyRunFailure, type RunFailureKind } from './failure-kind.js'
 import { commandRunsNoTests } from './no-test-run.js'
+import { PLAYWRIGHT_REPORT_ENV } from './playwright-report.js'
 import {
   type DiagnosisRunContext,
   isDiagnosisRun,
@@ -667,15 +668,24 @@ function isStatusOnlyStep(step: string): boolean {
  *   excludes by name ({@link DiagnosisRunContext}). A `--grep-invert` of exactly those is the
  *   request's own scope, not a diagnosis, so it keeps the suite's retries on a deployed proof
  *   (xr-molecule-flash-m170 +33:16).
- * @returns The command to run and one sentence per change made (empty when none), or `error` when
- *   the command starts the suite more than once.
+ * @param reportPath - Where this run should write Playwright's standard `json` report, when the
+ *   caller keeps one ({@link ./playwright-report.js}). The reporter is added to the run's own
+ *   reporter set, never in place of one, and its output goes to that file through
+ *   `PLAYWRIGHT_JSON_OUTPUT_FILE` — so the log, the executors' own reporters and every verdict
+ *   stay exactly as they are. Omitted, or a run whose reporter set is not this function's to place
+ *   (already names `json`, sets the variable itself, or whose runner cannot be located), leaves
+ *   the command untouched and the result's `reportPath` unset.
+ * @returns The command to run, one sentence per change made (empty when none), and the report path
+ *   when one was actually wired — or `error` when the command starts the suite more than once.
  */
 export function streamingBackgroundCommand(
   command: string,
   context?: DiagnosisRunContext,
+  reportPath?: string,
 ): {
   command: string
   changes: string[]
+  reportPath?: string
   error?: string
 } {
   // A command that runs no test is not a run to keep a growing log for: nothing about it is
@@ -810,14 +820,27 @@ export function streamingBackgroundCommand(
   // The last step's reporters: one printer, and it is `list`. Every branch below only ever moves
   // the command TO that shape — a reporter set is never left with two printers in it.
   const reporters = finalPlaywrightRun ? lastReporterFlag(lastStep) : null
+  // The standard machine report this run may carry (`playwright-report.ts`). It is never taken from
+  // the executor: a reporter set already naming `json`, or a command that sets
+  // `PLAYWRIGHT_JSON_OUTPUT_FILE` itself, is the executor's own artifact and is left untouched.
+  const reportWanted =
+    reportPath !== undefined &&
+    finalPlaywrightRun &&
+    !/(?:^|[\s;])PLAYWRIGHT_JSON_OUTPUT_FILE=/.test(out) &&
+    !(reporters?.values.includes('json') ?? false)
+  let report: string | null = null
   if (reporters) {
     const printing = reporters.values.filter((v) => PRINTING_REPORTERS.has(v))
     // Already exactly `list`: the shape, and nothing printing beside it. Left verbatim — the
     // executor's own spelling of the command is not rewritten for nothing.
-    if (printing.length > 0 && !(printing.length === 1 && printing[0] === 'list')) {
+    const printerRewrite = printing.length > 0 && !(printing.length === 1 && printing[0] === 'list')
+    const addReport = reportWanted && !reporters.values.includes('json')
+    if (printerRewrite || addReport) {
       // The printing reporters become ONE `list`, in the place of the first of them; every other
       // reporter (a `json`/`html`/`junit` file the executor asked for, or one this build does not
-      // know) is left where it was.
+      // know) is left where it was. The machine report, when this run carries one, is appended to
+      // the same set: it writes the runner's own per-test identities and attachment paths to a
+      // file and prints nothing into the log.
       let placed = false
       const kept = reporters.values
         .map((v) => {
@@ -827,6 +850,10 @@ export function streamingBackgroundCommand(
           return 'list'
         })
         .filter((v): v is string => v !== null)
+      // The sentence below is about the reporTERS this run prints with, so it reads the set as it
+      // was rewritten — the machine report is written to a file and is no part of that sentence.
+      const printers = kept.join(',')
+      if (addReport) kept.push('json')
       // Only the last step is rewritten, and its offsets are the parse's own. The punctuation
       // after the step (`; }`, or the `)` attached to it) is kept verbatim.
       out =
@@ -836,27 +863,40 @@ export function streamingBackgroundCommand(
         lastStep.slice(reporters.end) +
         rawLastStep.slice(lastStep.length) +
         out.slice(stepStart + rawLastStep.length)
-      changes.push(
-        // `list` was already there and a second printer sat beside it: that one is dropped. When
-        // no `list` was named at all, the printer is SWITCHED to it (flash-m62's `line`).
-        printing.includes('list')
-          ? `Dropped \`${printing
-              .filter((v) => v !== 'list')
-              .join(',')}\` from your \`--reporter=${reporters.values.join(',')}\`: ` +
-              'two reporters that both print each failure write every test result into the log ' +
-              'twice — the whole log doubled for nothing (X1 flash-m83) — so this run keeps ' +
-              '`list` alone.'
-          : `Switched the test reporters to \`--reporter${reporters.separator}${kept.join(',')}\`: ` +
-              '`list` writes each test result as it finishes and is the shape the platform reads ' +
-              'back from a background run, and it is the only printing reporter — two of them ' +
-              'write every result into the log twice (X1 flash-m83).',
-      )
+      if (printerRewrite) {
+        changes.push(
+          // `list` was already there and a second printer sat beside it: that one is dropped. When
+          // no `list` was named at all, the printer is SWITCHED to it (flash-m62's `line`).
+          printing.includes('list')
+            ? `Dropped \`${printing
+                .filter((v) => v !== 'list')
+                .join(',')}\` from your \`--reporter=${reporters.values.join(',')}\`: ` +
+                'two reporters that both print each failure write every test result into the log ' +
+                'twice — the whole log doubled for nothing (X1 flash-m83) — so this run keeps ' +
+                '`list` alone.'
+            : `Switched the test reporters to \`--reporter${reporters.separator}${printers}\`: ` +
+                '`list` writes each test result as it finishes and is the shape the platform reads ' +
+                'back from a background run, and it is the only printing reporter — two of them ' +
+                'write every result into the log twice (X1 flash-m83).',
+        )
+      }
+      if (addReport) report = reportPath
     }
-  } else if (finalPlaywrightRun && addToRun('--reporter=list')) {
+  } else if (
+    finalPlaywrightRun &&
+    addToRun(reportWanted ? '--reporter=list,json' : '--reporter=list')
+  ) {
+    if (reportWanted) report = reportPath
     changes.push(
       'Added `--reporter=list` so each test result is written to the log as it finishes ' +
         '(the config reporter may print nothing until the end).',
     )
+  }
+  // The report's own file option, set once at the head of the whole command — the json reporter
+  // reads it from the environment, resolved against the runner's directory, so an absolute path is
+  // used and the file lands beside the task's own log whatever `cd` the run opens with.
+  if (report !== null) {
+    out = `export ${PLAYWRIGHT_REPORT_ENV}=${shellQuote(report)}; ${out}`
   }
   // The run's failures, in the log as they fail (see PLAYWRIGHT_FAILURES_INLINE_ENV), on EVERY
   // background command that is not a no-test invocation — not only the ones whose text this
@@ -894,7 +934,57 @@ export function streamingBackgroundCommand(
       : 'a local run walks each failure once; the suite’s retries apply on the deployed proof run'
     if (addToRun('--retries=0')) changes.push(`Added \`--retries=0\`: ${why}.`)
   }
-  return { command: out, changes }
+  return { command: out, changes, ...(report === null ? {} : { reportPath: report }) }
+}
+
+/**
+ * Put Playwright's standard `json` report on a FOREGROUND run that already names its own reporters.
+ *
+ * A background run is rewritten onto the platform's reporter anyway ({@link
+ * streamingBackgroundCommand}), so adding the machine report there costs nothing. A foreground run
+ * is not: its reporters are either the command's own flags or the suite's config, and replacing a
+ * config reporter would stop writing the artifact the executor configured. So this only ever
+ * APPENDS `json` to a `--reporter` set the command already wrote — the log keeps every printing
+ * reporter it had, the executor's file reporters keep their place, and the standard report goes to
+ * {@link PLAYWRIGHT_REPORT_ENV}'s file.
+ *
+ * A command that names no reporter at all is left exactly as written: its reporters are the suite
+ * config's, and this tool does not rewrite those. A command that already names `json`, or sets
+ * `PLAYWRIGHT_JSON_OUTPUT_FILE` itself, already has a report of its own — a path the executor chose
+ * is never overwritten.
+ *
+ * @param command - The command the executor sent, after every other rewrite.
+ * @param reportPath - The file this run's machine report should be written to.
+ * @returns The command to run and the report path when one was wired; `reportPath` is null when the
+ *   run was left untouched and no report may be expected.
+ */
+export function withPlaywrightRunReport(
+  command: string,
+  reportPath: string,
+): { command: string; reportPath: string | null } {
+  const unchanged = { command, reportPath: null }
+  if (reportPath === '') return unchanged
+  if (!isPlaywrightRunCommand(command)) return unchanged
+  if (/(?:^|[\s;])PLAYWRIGHT_JSON_OUTPUT_FILE=/.test(command)) return unchanged
+  const run = lastSuiteRun(command)
+  const runner = run ? run.located[run.at] : undefined
+  if (!runner || runner.start === null || runner.end === null) return unchanged
+  const at = statementArgumentEnd(command, runner.start, runner.end)
+  if (at === null) return unchanged
+  // The reporter flag the RUN's own statement names — not one an argument of another program
+  // carries (`grep --reporter x file`): the slice starts at the runner's own program word.
+  const flag = lastReporterFlag(command.slice(runner.start, at))
+  if (flag === null || flag.values.includes('json')) return unchanged
+  const start = runner.start + flag.start
+  const end = runner.start + flag.end
+  const rewritten =
+    command.slice(0, start) +
+    `--reporter${flag.separator}${[...flag.values, 'json'].join(',')}` +
+    command.slice(end)
+  return {
+    command: `export ${PLAYWRIGHT_REPORT_ENV}=${shellQuote(reportPath)}; ${rewritten}`,
+    reportPath,
+  }
 }
 
 /**
