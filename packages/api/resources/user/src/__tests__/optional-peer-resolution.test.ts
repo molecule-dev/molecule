@@ -222,7 +222,8 @@ describe('importing @molecule/api-resource-user without its optional peers (xr-f
       "await import('@molecule/api-resource-user'); console.log('imported')",
     )
 
-    expect(result.ok ? result.stdout : result.stderr).toBe('imported')
+    expect(result.ok, result.ok ? undefined : result.stderr).toBe(true)
+    if (result.ok) expect(result.stdout.split('\n').at(-1)).toBe('imported')
   })
 
   it('has genuinely absent optional peers in that fixture', () => {
