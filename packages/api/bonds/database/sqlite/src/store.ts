@@ -16,6 +16,11 @@ import type {
   MutationResult,
   WhereCondition,
 } from '@molecule/api-database'
+import {
+  assertFindManyOptions,
+  assertOptionalWhereConditions,
+  assertWhereConditions,
+} from '@molecule/api-database/query-guards.js'
 
 /**
  * Validates that an identifier (table/column name) is safe for SQL interpolation.
@@ -254,6 +259,7 @@ export function createStore(pool: DatabasePool): DataStore {
       where: WhereCondition[],
     ): Promise<T | null> {
       assertSafeIdentifier(table)
+      assertWhereConditions(where, 'findOne')
       const { clause, values } = buildWhere(where)
       const result = await queryOn<T>(table, `SELECT * FROM "${table}" ${clause} LIMIT 1`, values)
       return result.rows[0] ?? null
@@ -264,6 +270,7 @@ export function createStore(pool: DatabasePool): DataStore {
       options?: FindManyOptions,
     ): Promise<T[]> {
       assertSafeIdentifier(table)
+      assertFindManyOptions(options)
       const { clause, values } = buildWhere(options?.where ?? [])
       const selectFields =
         options?.select
@@ -294,6 +301,7 @@ export function createStore(pool: DatabasePool): DataStore {
 
     async count(table: string, where?: WhereCondition[]): Promise<number> {
       assertSafeIdentifier(table)
+      assertOptionalWhereConditions(where)
       const { clause, values } = buildWhere(where ?? [])
       const result = await queryOn<{ count: number }>(
         table,
@@ -370,6 +378,7 @@ export function createStore(pool: DatabasePool): DataStore {
       where: WhereCondition[],
       data: Record<string, unknown>,
     ): Promise<MutationResult> {
+      assertWhereConditions(where, 'updateMany')
       // [M7-3] Refuse an empty WHERE — parity with the postgres bond. buildWhere([]) emits an
       // empty clause, so without this an empty `where` becomes an UNSCOPED full-table UPDATE.
       if (where.length === 0) {
@@ -397,6 +406,7 @@ export function createStore(pool: DatabasePool): DataStore {
     },
 
     async deleteMany(table: string, where: WhereCondition[]): Promise<MutationResult> {
+      assertWhereConditions(where, 'deleteMany')
       // [M7-3] Refuse an empty WHERE — parity with the postgres bond (else an empty `where`
       // becomes an UNSCOPED full-table DELETE).
       if (where.length === 0) {

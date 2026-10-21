@@ -88,7 +88,9 @@
  * // ISOLATION IS YOUR JOB: this bond only tracks the active tenant. In your
  * // data layer, scope every query by getTenant() — e.g.:
  * //   import { getTenant } from '@molecule/api-multi-tenancy'
- * //   store.findMany('records', { where: { tenantId: getTenant() } })
+ * //   store.findMany('records', {
+ * //     where: [{ field: 'tenantId', operator: '=', value: getTenant() }],
+ * //   })
  * ```
  */
 

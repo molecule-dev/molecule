@@ -16,6 +16,11 @@ import type {
   MutationResult,
   WhereCondition,
 } from '@molecule/api-database'
+import {
+  assertFindManyOptions,
+  assertOptionalWhereConditions,
+  assertWhereConditions,
+} from '@molecule/api-database/query-guards.js'
 
 /**
  * Builds a SQL WHERE clause from WhereCondition[].
@@ -262,6 +267,7 @@ export function createStore(pool: DatabasePool): DataStore {
       where: WhereCondition[],
     ): Promise<T | null> {
       assertSafeIdentifier(table)
+      assertWhereConditions(where, 'findOne')
       const { clause, values } = buildWhere(where)
       const result = await pool.query<T>(`SELECT * FROM "${table}" ${clause} LIMIT 1`, values)
       return result.rows[0] ?? null
@@ -272,6 +278,7 @@ export function createStore(pool: DatabasePool): DataStore {
       options?: FindManyOptions,
     ): Promise<T[]> {
       assertSafeIdentifier(table)
+      assertFindManyOptions(options)
       const { clause, values } = buildWhere(options?.where ?? [])
       const selectFields =
         options?.select
@@ -302,6 +309,7 @@ export function createStore(pool: DatabasePool): DataStore {
 
     async count(table: string, where?: WhereCondition[]): Promise<number> {
       assertSafeIdentifier(table)
+      assertOptionalWhereConditions(where)
       const { clause, values } = buildWhere(where ?? [])
       const result = await pool.query<{ count: string | number }>(
         `SELECT COUNT(*) AS "count" FROM "${table}" ${clause}`,
@@ -373,6 +381,7 @@ export function createStore(pool: DatabasePool): DataStore {
       where: WhereCondition[],
       data: Record<string, unknown>,
     ): Promise<MutationResult> {
+      assertWhereConditions(where, 'updateMany')
       if (where.length === 0) {
         throw new Error(
           'updateMany requires at least one WHERE condition to prevent accidental full-table updates',
@@ -399,6 +408,7 @@ export function createStore(pool: DatabasePool): DataStore {
     },
 
     async deleteMany(table: string, where: WhereCondition[]): Promise<MutationResult> {
+      assertWhereConditions(where, 'deleteMany')
       if (where.length === 0) {
         throw new Error(
           'deleteMany requires at least one WHERE condition to prevent accidental full-table deletes',

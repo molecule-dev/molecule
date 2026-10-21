@@ -11,6 +11,11 @@
 import { bond, expectBond, isBonded, require as bondRequire } from '@molecule/api-bond'
 import { t } from '@molecule/api-i18n'
 
+import {
+  assertFindManyOptions,
+  assertOptionalWhereConditions,
+  assertWhereConditions,
+} from './query-guards.js'
 import type { DataStore, FindManyOptions, MutationResult, WhereCondition } from './store.js'
 
 const BOND_TYPE = 'datastore'
@@ -77,15 +82,21 @@ export const findById = async <T = Record<string, unknown>>(
  * Finds a single record matching the given filter conditions. Returns the
  * first match if multiple rows satisfy the conditions.
  *
+ * The `where` argument is the condition ARRAY itself — `findOne(table,
+ * [{ field, operator, value }])` — unlike {@link findMany}, which takes
+ * `{ where: [...] }` options.
+ *
  * @param table - The database table name.
  * @param where - Array of filter conditions to match against.
  * @returns The matching record cast to `T`, or `null` if none found.
+ * @throws {TypeError} If `where` is not an array of condition objects.
  * @throws {Error} If no DataStore has been bonded.
  */
 export const findOne = async <T = Record<string, unknown>>(
   table: string,
   where: WhereCondition[],
 ): Promise<T | null> => {
+  assertWhereConditions(where, 'findOne')
   return getStore().findOne<T>(table, where)
 }
 
@@ -102,16 +113,23 @@ export const findOne = async <T = Record<string, unknown>>(
  * asserts an index of (`tagList[0]`, `items[0]`), a join table whose insertion
  * order is the client's data. See {@link DataStore.findMany} for the full note.
  *
+ * The options are an OBJECT — `findMany(table, { where: [...] })` — unlike
+ * {@link findOne} and {@link count}, which take the condition array itself. A
+ * bare condition array, a single condition object, or a key map here throws a
+ * `TypeError` instead of being read as "no filter" and returning every row.
+ *
  * @param table - The database table name.
  * @param options - Query options including `where`, `orderBy`, `limit`, `offset`, and `select`.
  * @returns Array of matching records cast to `T`, in the order `options.orderBy` asks for
  *   (an unspecified order when it is omitted).
+ * @throws {TypeError} If `options` or one of its values is malformed.
  * @throws {Error} If no DataStore has been bonded.
  */
 export const findMany = async <T = Record<string, unknown>>(
   table: string,
   options?: FindManyOptions,
 ): Promise<T[]> => {
+  assertFindManyOptions(options)
   return getStore().findMany<T>(table, options)
 }
 
@@ -119,12 +137,17 @@ export const findMany = async <T = Record<string, unknown>>(
  * Counts records matching the given filter conditions, or all records
  * if no conditions are specified.
  *
+ * The `where` argument is the condition ARRAY itself (or omitted) — not
+ * `{ where: [...] }`, which is the {@link findMany} options shape.
+ *
  * @param table - The database table name.
  * @param where - Optional filter conditions.
  * @returns The number of matching records.
+ * @throws {TypeError} If `where` is present and is not an array of condition objects.
  * @throws {Error} If no DataStore has been bonded.
  */
 export const count = async (table: string, where?: WhereCondition[]): Promise<number> => {
+  assertOptionalWhereConditions(where)
   return getStore().count(table, where)
 }
 
@@ -165,10 +188,14 @@ export const updateById = async <T = Record<string, unknown>>(
 /**
  * Updates all records matching the given filter conditions.
  *
+ * The `where` argument is the condition ARRAY itself. A malformed value throws
+ * before any query runs, so it can never become an unscoped full-table update.
+ *
  * @param table - The database table name.
  * @param where - Filter conditions to select records to update.
  * @param data - The column values to update as key-value pairs.
  * @returns A `MutationResult` with the affected count.
+ * @throws {TypeError} If `where` is not an array of condition objects.
  * @throws {Error} If no DataStore has been bonded.
  */
 export const updateMany = async (
@@ -176,6 +203,7 @@ export const updateMany = async (
   where: WhereCondition[],
   data: Record<string, unknown>,
 ): Promise<MutationResult> => {
+  assertWhereConditions(where, 'updateMany')
   return getStore().updateMany(table, where, data)
 }
 
@@ -194,14 +222,19 @@ export const deleteById = async (table: string, id: string | number): Promise<Mu
 /**
  * Deletes all records matching the given filter conditions.
  *
+ * The `where` argument is the condition ARRAY itself. A malformed value throws
+ * before any query runs, so it can never become an unscoped full-table delete.
+ *
  * @param table - The database table name.
  * @param where - Filter conditions to select records to delete.
  * @returns A `MutationResult` with the number of deleted rows.
+ * @throws {TypeError} If `where` is not an array of condition objects.
  * @throws {Error} If no DataStore has been bonded.
  */
 export const deleteMany = async (
   table: string,
   where: WhereCondition[],
 ): Promise<MutationResult> => {
+  assertWhereConditions(where, 'deleteMany')
   return getStore().deleteMany(table, where)
 }

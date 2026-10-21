@@ -39,10 +39,18 @@
  *   `auth` skill.
  * - **CRUD goes through the exported data functions** (`findById`, `findOne`,
  *   `findMany`, `count`, `create`, `updateById`, `deleteById`). Filter with a
- *   `where` ARRAY of `{ field, operator, value }`:
- *   `findMany('plants', { where: [{ field: 'speciesId', operator: '=', value: id }], limit: 50 })`.
- *   A bare key object — `findMany('plants', { speciesId: id })` — is NOT a valid
- *   `FindManyOptions` and will not filter.
+ *   `where` ARRAY of `{ field, operator, value }` — and mind which shape each
+ *   function takes:
+ *   - `findMany` takes an options OBJECT:
+ *     `findMany('plants', { where: [{ field: 'speciesId', operator: '=', value: id }], limit: 50 })`.
+ *   - `findOne`, `count`, `updateMany` and `deleteMany` take the condition ARRAY
+ *     itself: `findOne('plants', [{ field: 'speciesId', operator: '=', value: id }])`,
+ *     `count('plants', [{ field: 'active', operator: '=', value: true }])`.
+ *
+ *   A wrong shape throws a `TypeError` before any query runs — a bare array given
+ *   to `findMany`, a `{ where: [...] }` object given to `findOne`/`count`, or a
+ *   key map (`findMany('plants', { speciesId: id })`). None of them silently
+ *   returns every row.
  * - **A list's order is unspecified unless you pass `orderBy`.** `findMany` returns rows in
  *   whatever order the database's plan produces: a `where` on an INDEXED column (an
  *   `articleId`, an `orderId`, a `userId`) is answered from that index, so the rows come back

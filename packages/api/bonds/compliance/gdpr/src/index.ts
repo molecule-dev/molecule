@@ -36,7 +36,8 @@
  *   dataCollectors: [
  *     {
  *       category: 'profile',
- *       collect: async (userId) => findOne('users', { id: userId }),
+ *       collect: async (userId) =>
+ *         findOne('users', [{ field: 'id', operator: '=', value: userId }]),
  *       delete: async (userId) => { await deleteById('users', userId) },
  *     },
  *   ],
