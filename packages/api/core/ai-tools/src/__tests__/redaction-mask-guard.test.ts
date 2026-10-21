@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 
+import { TOOL_SCHEMAS } from '../schemas.js'
 import { buildTools } from '../tools.js'
 import type { ExecutionBackend } from '../types.js'
 import { addedRedactionMask } from '../utilities.js'
@@ -120,5 +121,72 @@ describe('edit_file refuses a replacement that adds a mask', () => {
     })) as { error?: string; ok?: boolean }
     expect(result.error).toBeUndefined()
     expect(result.ok).toBe(true)
+  })
+})
+
+describe('intentional redaction placeholders have an explicit per-call path', () => {
+  const original = 'export const redact = (text: string) => text\n'
+  const redactor =
+    "export const redact = (text: string) => text.replace(/private/g, '[REDACTED]')\n"
+
+  it('declares an optional boolean on both actual tool schemas', () => {
+    for (const name of ['write_file', 'edit_file'] as const) {
+      expect(TOOL_SCHEMAS[name].parameters.properties).toHaveProperty(
+        'intentional_redaction_placeholder.type',
+        'boolean',
+      )
+      expect(TOOL_SCHEMAS[name].parameters.required).not.toContain(
+        'intentional_redaction_placeholder',
+      )
+    }
+  })
+
+  it.each(['write_file', 'edit_file'])(
+    '%s accepts intentional source only with an exact true flag',
+    async (name) => {
+      const execution = backend(name === 'write_file' ? null : original)
+      const tool = buildTools(execution).find((entry) => entry.name === name)!
+      const input =
+        name === 'write_file'
+          ? { path: PATH, content: redactor }
+          : { path: PATH, old_string: original, new_string: redactor }
+      const refused = (await tool.execute(input)) as { error?: string }
+      expect(refused.error).toBeTruthy()
+      expect(execution.writeFile).not.toHaveBeenCalled()
+      const result = (await tool.execute({
+        ...input,
+        intentional_redaction_placeholder: true,
+      })) as { ok?: boolean; error?: string }
+      expect(result.error).toBeUndefined()
+      expect(result.ok).toBe(true)
+      expect(execution.writeFile).toHaveBeenCalledWith(PATH, redactor)
+    },
+  )
+
+  it.each([false, 'true', 'false', 1, {}, null])(
+    'does not treat %j as explicit intent',
+    async (flag) => {
+      for (const name of ['write_file', 'edit_file']) {
+        const execution = backend(name === 'write_file' ? null : original)
+        const tool = buildTools(execution).find((entry) => entry.name === name)!
+        const input =
+          name === 'write_file'
+            ? { path: PATH, content: redactor }
+            : { path: PATH, old_string: original, new_string: redactor }
+        const result = (await tool.execute({
+          ...input,
+          intentional_redaction_placeholder: flag,
+        })) as { error?: string }
+        expect(result.error).toBeTruthy()
+        expect(execution.writeFile).not.toHaveBeenCalled()
+      }
+    },
+  )
+
+  it('keeps ordinary new writes available without intent', async () => {
+    const execution = backend(null)
+    const tool = buildTools(execution).find((entry) => entry.name === 'write_file')!
+    expect(await tool.execute({ path: PATH, content: original })).toMatchObject({ ok: true })
+    expect(execution.writeFile).toHaveBeenCalledWith(PATH, original)
   })
 })

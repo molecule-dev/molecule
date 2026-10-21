@@ -203,10 +203,10 @@ export function redactSecretsInCode(s: string): string {
 }
 
 /**
- * The placeholder the output filter substitutes for a value it hid. A model that read a
- * command's REDACTED output has written this token back into a project file as if it were
- * the value — the executor's own `config.ts` got `tokenKey: '[REDACTED]'` and every request
- * 401'd — so a write that ADDS one is refused ({@link addedRedactionMask}).
+ * The placeholder the output filter substitutes for a hidden value. Copying it into
+ * application configuration changes the value rather than recovering it. The write
+ * tools check for added occurrences ({@link addedRedactionMask}); intentional literals
+ * require the caller's explicit per-call declaration.
  *
  * Only the shapes a value can take count: quoted (`'[REDACTED]'`, `"[REDACTED]"`) or
  * assigned (`=[REDACTED]`). Prose that mentions the token is ordinary text.
@@ -218,8 +218,8 @@ const REDACTION_MASK = /'\[REDACTED\]'|"\[REDACTED\]"|=[ \t]*\[REDACTED\]/g
  *
  * `previous` is the file's previous content for `write_file`, and the replacement's own
  * `old_string` for `edit_file` — an edit that carries an existing mask through (a file that
- * already had one, read back and rewritten) is legitimate and passes; only NEW mask
- * occurrences are refused.
+ * already had one, read back and rewritten) adds no occurrence. A new occurrence may
+ * be copied output or intentional source; the caller declares the latter explicitly.
  *
  * @param next - The content about to be written (or the replacement's `new_string`).
  * @param previous - The content it replaces, already on disk (or the `old_string`).
@@ -332,11 +332,8 @@ export function printsOnlySource(command: string): boolean {
  *
  * Its output is code or names, not an env dump, so it gets the code-safe redaction
  * ({@link redactSecretsInCode}) instead of the name-keyed env-dump passes. Without this,
- * ordinary code values in a command's output — `authScheme: 'Token'`, `tokenKey:
- * 'jwtToken'`, `credentials: 'include'` — were masked as `'[REDACTED]'` whenever the
- * command was not a pure literal source read (for example a source read with a `ls | head`
- * beside it), and a builder that read them back wrote the mask into its own `config.ts`
- * (a 401 and ~15 minutes of misdiagnosis).
+ * ordinary code values such as `tokenKey: 'jwtToken'` in a mixed source read and
+ * `ls | head` command would be masked by the environment-dump rules.
  *
  * A RECURSIVE SEARCH IS NOT INSPECTION (`grep -rn x .`, `rg x src/`): its output is the
  * content of whichever files matched, including `.env` files and JSON secret dumps, so it

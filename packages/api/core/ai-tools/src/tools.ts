@@ -1500,9 +1500,9 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
   /**
    * The refusal for a write that would put the output filter's placeholder into a file.
    *
-   * A run that read a redacted command output believed `'[REDACTED]'` was the value and wrote
-   * it into its own `config.ts`; every request then 401'd and the run spent ~15 minutes on it.
-   * The file's content is shown at the code-safe grade, so a re-read gives the real value.
+   * A placeholder may have been copied from filtered output or intentionally authored.
+   * Ask the caller to recover the source value or explicitly declare intentional use;
+   * the guard cannot infer the literal's origin from its bytes.
    *
    * @param path - The file the write targets.
    * @param mask - The added mask, exactly as the content writes it.
@@ -1510,10 +1510,10 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
    */
   function redactionMaskError(path: string, mask: string): string {
     return (
-      `Refused: the new content adds ${mask} — the tool output filter's placeholder for a value ` +
-      'it masked, not the value itself. It appeared only because a command’s output was redacted. ' +
-      `Re-read the real value with read_file (${path} itself, or the file the value belongs in) ` +
-      'and write what is actually there; never copy [REDACTED] into source.'
+      `Refused: the new content adds ${mask}, which may be the tool output filter's placeholder ` +
+      `rather than the original value. Use read_file (${path} itself, or the source of the value) ` +
+      'to recover the original. If the application intentionally defines this redaction literal, ' +
+      'retry with intentional_redaction_placeholder: true.'
     )
   }
 
@@ -2146,7 +2146,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         }
         // A mask the output filter produced is not a value: refuse writing a NEW one into the
         // project, while allowing a file that already carries one to be rewritten unchanged.
-        if (doRedact) {
+        if (doRedact && input.intentional_redaction_placeholder !== true) {
           const mask = addedRedactionMask(content, oldContent ?? '')
           if (mask !== null) return { error: redactionMaskError(path, mask) }
         }
@@ -2315,7 +2315,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           }
           // Same guard as write_file, judged per replacement against its own old_string: an
           // edit that carries an existing mask through is fine, one that ADDS a mask is refused.
-          if (doRedact) {
+          if (doRedact && input.intentional_redaction_placeholder !== true) {
             const mask = addedRedactionMask(newString, oldString)
             if (mask !== null) {
               failures.push({

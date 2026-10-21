@@ -92,6 +92,11 @@ export const TOOL_SCHEMAS: Record<string, ToolSchema> = {
     parameters: {
       type: 'object',
       properties: {
+        intentional_redaction_placeholder: {
+          type: 'boolean',
+          description:
+            'Set true only when intentionally authoring a literal [REDACTED] placeholder. Default false: newly copied output placeholders are refused. This never disables secret-output masking.',
+        },
         path: {
           type: 'string',
           description: 'Path to the file to write.',
@@ -112,6 +117,11 @@ export const TOOL_SCHEMAS: Record<string, ToolSchema> = {
     parameters: {
       type: 'object',
       properties: {
+        intentional_redaction_placeholder: {
+          type: 'boolean',
+          description:
+            'Set true only when intentionally authoring a literal [REDACTED] placeholder. Default false: newly copied output placeholders are refused. This never disables secret-output masking.',
+        },
         path: {
           type: 'string',
           description: 'Path to the file to edit.',
