@@ -451,10 +451,7 @@ export interface AuthClient<
   confirmPasswordReset(data: PasswordResetConfirm): Promise<void>
 
   /**
-   * Updates the current user's profile. The request route, method and body
-   * envelope are `profileEndpoint`, `profileUpdateMethod` and
-   * `profileRequestBody` — a `PUT /api/user` + `{ user }` API is a config, not a
-   * hand-written client. The answer is mapped, stored and published as before.
+   * Updates the current user's profile.
    */
   updateProfile(data: Partial<T>): Promise<T>
 
@@ -616,20 +613,10 @@ export interface AuthClientConfig<T extends UserProfile = UserProfile> {
    */
   profileEndpoint?: string
 
-  /**
-   * The HTTP method `updateProfile()` sends to {@link profileEndpoint}
-   * (default `'PATCH'`). Set `'PUT'` for a `PUT /api/user` profile route.
-   */
+  /** HTTP method for `updateProfile()` (default `'PATCH'`; `'PUT'` for a `PUT /api/user` route). */
   profileUpdateMethod?: 'PATCH' | 'PUT' | 'POST'
 
-  /**
-   * Shape the `updateProfile()` request body (default: the `Partial<T>` as given,
-   * sent as bare JSON) — e.g. `(data) => ({ user: data })` for the standard
-   * `PUT /api/user` envelope. See the module docs for the full configuration.
-   *
-   * @param data - The partial profile passed to `updateProfile()`.
-   * @returns The JSON body to send.
-   */
+  /** Request-body adapter for `updateProfile()` — default the `Partial<T>` as given, e.g. `(data) => ({ user: data })`; see the module docs. */
   profileRequestBody?: (data: Partial<T>) => unknown
 
   /**
