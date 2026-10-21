@@ -19,7 +19,7 @@ import { getAuthClient } from '../context.js'
 /**
  * Auth stores and actions.
  */
-interface AuthStores<T> {
+interface AuthStores<T, TRegister extends Record<string, unknown> = Record<never, never>> {
   state: Readable<AuthState<T>>
   user: Readable<T | null>
   isAuthenticated: Readable<boolean>
@@ -27,7 +27,7 @@ interface AuthStores<T> {
   error?: Readable<string | null>
   login: (credentials: LoginCredentials) => Promise<AuthResult<T>>
   logout: () => Promise<void>
-  register: (data: RegisterData) => Promise<AuthResult<T>>
+  register: (data: RegisterData<TRegister>) => Promise<AuthResult<T>>
   refresh: () => Promise<AuthResult<T>>
 }
 
@@ -50,10 +50,13 @@ interface AuthStores<T> {
  * {/if}
  * ```
  */
-export function createAuthStores<T = unknown>(): AuthStores<T> & {
+export function createAuthStores<
+  T = unknown,
+  TRegister extends Record<string, unknown> = Record<never, never>,
+>(): AuthStores<T, TRegister> & {
   error: Readable<string | null>
 } {
-  const client = getAuthClient<T>()
+  const client = getAuthClient<T, TRegister>()
 
   // Main state store
   const state: Readable<AuthState<T>> = readable(
@@ -80,7 +83,7 @@ export function createAuthStores<T = unknown>(): AuthStores<T> & {
     return client.logout()
   }
 
-  const register = (data: RegisterData): Promise<AuthResult<T>> => {
+  const register = (data: RegisterData<TRegister>): Promise<AuthResult<T>> => {
     return client.register(data)
   }
 
@@ -109,7 +112,10 @@ export function createAuthStores<T = unknown>(): AuthStores<T> & {
  * @param client - Auth client
  * @returns Auth stores and actions
  */
-export function createAuthStoresFromClient<T = unknown>(client: AuthClient<T>): AuthStores<T> {
+export function createAuthStoresFromClient<
+  T = unknown,
+  TRegister extends Record<string, unknown> = Record<never, never>,
+>(client: AuthClient<T, TRegister>): AuthStores<T, TRegister> {
   const state: Readable<AuthState<T>> = readable(
     client.getState(),
     (set: (value: AuthState<T>) => void) => {
@@ -130,7 +136,7 @@ export function createAuthStoresFromClient<T = unknown>(client: AuthClient<T>): 
     isLoading,
     login: (credentials: LoginCredentials) => client.login(credentials),
     logout: () => client.logout(),
-    register: (data: RegisterData) => client.register(data),
+    register: (data: RegisterData<TRegister>) => client.register(data),
     refresh: () => client.refresh(),
   }
 }

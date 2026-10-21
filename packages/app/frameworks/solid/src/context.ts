@@ -50,10 +50,17 @@ export function getStateProvider(): StateProvider {
 /**
  * Get the auth client from context.
  *
+ * Pass the same generics the client was created with —
+ * `getAuthClient<MyUser, { username: string }>()` — so `register()` accepts
+ * the app's own fields.
+ *
  * @returns The auth client instance.
  * @throws {Error} If used outside MoleculeProvider.
  */
-export function getAuthClient<T = unknown>(): AuthClient<T> {
+export function getAuthClient<
+  T = unknown,
+  TRegister extends Record<string, unknown> = Record<never, never>,
+>(): AuthClient<T, TRegister> {
   const ctx = useContext(AuthContext)
   if (!ctx) {
     throw new Error(
@@ -62,7 +69,7 @@ export function getAuthClient<T = unknown>(): AuthClient<T> {
       }),
     )
   }
-  return ctx as AuthClient<T>
+  return ctx as AuthClient<T, TRegister>
 }
 
 /**

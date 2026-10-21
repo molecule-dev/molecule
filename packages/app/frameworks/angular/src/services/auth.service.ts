@@ -48,7 +48,10 @@ import { AUTH_CLIENT } from '../tokens.js'
 @Injectable({
   providedIn: 'root',
 })
-export class MoleculeAuthService<T = unknown> implements OnDestroy {
+export class MoleculeAuthService<
+  T = unknown,
+  TRegister extends Record<string, unknown> = Record<never, never>,
+> implements OnDestroy {
   private stateSubject: BehaviorSubject<AuthState<T>>
   private unsubscribe: (() => void) | null = null
 
@@ -72,7 +75,7 @@ export class MoleculeAuthService<T = unknown> implements OnDestroy {
    */
   isLoading$: Observable<boolean>
 
-  constructor(@Inject(AUTH_CLIENT) private client: AuthClient<T>) {
+  constructor(@Inject(AUTH_CLIENT) private client: AuthClient<T, TRegister>) {
     this.stateSubject = new BehaviorSubject<AuthState<T>>(client.getState())
 
     this.unsubscribe = client.onAuthChange(() => {
@@ -145,7 +148,7 @@ export class MoleculeAuthService<T = unknown> implements OnDestroy {
    * @param data - The registration payload including email, password, and profile fields.
    * @returns A promise that resolves to the authentication result for the newly registered user.
    */
-  register(data: RegisterData): Promise<AuthResult<T>> {
+  register(data: RegisterData<TRegister>): Promise<AuthResult<T>> {
     return this.client.register(data)
   }
 

@@ -14,15 +14,22 @@ import type { UseAuthReturn } from '../types.js'
 /**
  * Composable to access the auth client from injection.
  *
+ * Pass the same generics the client was created with —
+ * `useAuthClient<MyUser, { username: string }>()` — so `register()` accepts
+ * the app's own fields.
+ *
  * @returns The auth client
  * @throws {Error} Error if used without providing auth
  */
-export function useAuthClient<T = unknown>(): AuthClient<T> {
+export function useAuthClient<
+  T = unknown,
+  TRegister extends Record<string, unknown> = Record<never, never>,
+>(): AuthClient<T, TRegister> {
   const client = inject(AuthKey)
   if (!client) {
     throw new Error('useAuthClient requires AuthProvider to be provided')
   }
-  return client as AuthClient<T>
+  return client as AuthClient<T, TRegister>
 }
 
 /**
@@ -53,8 +60,11 @@ export function useAuthClient<T = unknown>(): AuthClient<T> {
  * </template>
  * ```
  */
-export function useAuth<T = unknown>(): UseAuthReturn<T> {
-  const client = useAuthClient<T>()
+export function useAuth<
+  T = unknown,
+  TRegister extends Record<string, unknown> = Record<never, never>,
+>(): UseAuthReturn<T, TRegister> {
+  const client = useAuthClient<T, TRegister>()
 
   // Reactive state (shallowRef avoids Vue's UnwrapRef issues with generic AuthState<T>)
   const authState = shallowRef<AuthState<T>>(client.getState())
@@ -81,7 +91,7 @@ export function useAuth<T = unknown>(): UseAuthReturn<T> {
   // Action wrappers
   const login: AuthClient<T>['login'] = (credentials) => client.login(credentials)
   const logout: AuthClient<T>['logout'] = () => client.logout()
-  const register: AuthClient<T>['register'] = (data) => client.register(data)
+  const register: AuthClient<T, TRegister>['register'] = (data) => client.register(data)
   const refresh: AuthClient<T>['refresh'] = () => client.refresh()
 
   return {

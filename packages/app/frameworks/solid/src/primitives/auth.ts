@@ -47,8 +47,11 @@ import type { AuthPrimitives } from '../types.js'
  * }
  * ```
  */
-export function createAuth<T = unknown>(): AuthPrimitives<T> {
-  const client = getAuthClient<T>()
+export function createAuth<
+  T = unknown,
+  TRegister extends Record<string, unknown> = Record<never, never>,
+>(): AuthPrimitives<T, TRegister> {
+  const client = getAuthClient<T, TRegister>()
 
   const [state, setState] = createSignal<AuthState<T>>(client.getState())
 
@@ -125,21 +128,24 @@ export function createAuthGuard(redirectTo: string): Accessor<boolean> {
  * Creates a auth helpers.
  * @returns The created result.
  */
-export function createAuthHelpers<T = unknown>(): {
+export function createAuthHelpers<
+  T = unknown,
+  TRegister extends Record<string, unknown> = Record<never, never>,
+>(): {
   login: (credentials: LoginCredentials) => Promise<AuthResult<T>>
   logout: () => Promise<void>
-  register: (data: RegisterData) => Promise<AuthResult<T>>
+  register: (data: RegisterData<TRegister>) => Promise<AuthResult<T>>
   refresh: () => Promise<AuthResult<T>>
   getUser: () => T | null
   getToken: () => string | null
   isAuthenticated: () => boolean
 } {
-  const client = getAuthClient<T>()
+  const client = getAuthClient<T, TRegister>()
 
   return {
     login: (credentials: LoginCredentials) => client.login(credentials),
     logout: () => client.logout(),
-    register: (data: RegisterData) => client.register(data),
+    register: (data: RegisterData<TRegister>) => client.register(data),
     refresh: () => client.refresh(),
     getUser: () => client.getUser(),
     getToken: () => client.getToken?.() ?? null,
@@ -153,7 +159,10 @@ export function createAuthHelpers<T = unknown>(): {
  * @param client - Auth client
  * @returns Auth primitives
  */
-export function createAuthFromClient<T = unknown>(client: AuthClient<T>): AuthPrimitives<T> {
+export function createAuthFromClient<
+  T = unknown,
+  TRegister extends Record<string, unknown> = Record<never, never>,
+>(client: AuthClient<T, TRegister>): AuthPrimitives<T, TRegister> {
   const [state, setState] = createSignal<AuthState<T>>(client.getState())
 
   createEffect(() => {

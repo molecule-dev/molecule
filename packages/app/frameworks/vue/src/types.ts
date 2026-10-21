@@ -25,15 +25,23 @@ export interface UseStoreOptions<T, S> {
 
 /**
  * Return type for useAuth composable.
+ *
+ * @template T - The user profile the API returns.
+ * @template TRegister - The app's own registration fields (the second generic
+ *   of `createJWTAuthClient<T, TRegister>`), so `register()` is typed like the
+ *   client's.
  */
-export interface UseAuthReturn<T = unknown> {
+export interface UseAuthReturn<
+  T = unknown,
+  TRegister extends Record<string, unknown> = Record<never, never>,
+> {
   state: ComputedRef<AuthState<T>>
   user: ComputedRef<T | null>
   isAuthenticated: ComputedRef<boolean>
   isLoading: ComputedRef<boolean>
   login: AuthClient<T>['login']
   logout: AuthClient<T>['logout']
-  register: AuthClient<T>['register']
+  register: AuthClient<T, TRegister>['register']
   refresh: AuthClient<T>['refresh']
 }
 

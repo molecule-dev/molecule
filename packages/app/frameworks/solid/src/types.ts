@@ -50,15 +50,23 @@ export interface StorageValueState<T> {
 
 /**
  * Auth primitives return type.
+ *
+ * @template T - The user profile the API returns.
+ * @template TRegister - The app's own registration fields (the second generic
+ *   of `createJWTAuthClient<T, TRegister>`), so `register()` is typed like the
+ *   client's.
  */
-export interface AuthPrimitives<T = unknown> {
+export interface AuthPrimitives<
+  T = unknown,
+  TRegister extends Record<string, unknown> = Record<never, never>,
+> {
   state: Accessor<AuthState<T>>
   user: Accessor<T | null>
   isAuthenticated: Accessor<boolean>
   isLoading: Accessor<boolean>
   login: AuthClient<T>['login']
   logout: AuthClient<T>['logout']
-  register: AuthClient<T>['register']
+  register: AuthClient<T, TRegister>['register']
   refresh: AuthClient<T>['refresh']
 }
 

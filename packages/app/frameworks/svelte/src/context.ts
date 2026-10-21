@@ -148,8 +148,11 @@ export function getStateProvider(): StateProvider {
  * @returns The auth client instance.
  * @throws {Error} If no auth client has been set in context.
  */
-export function getAuthClient<T = unknown>(): AuthClient<T> {
-  const client = getContext<AuthClient<T>>(AUTH_KEY)
+export function getAuthClient<
+  T = unknown,
+  TRegister extends Record<string, unknown> = Record<never, never>,
+>(): AuthClient<T, TRegister> {
+  const client = getContext<AuthClient<T, TRegister>>(AUTH_KEY)
   if (!client)
     throw new Error(
       t('svelte.error.noAuthClient', undefined, {
