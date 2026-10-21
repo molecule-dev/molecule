@@ -32,7 +32,10 @@ export const BACKGROUNDED = /(?:^|[^&>])&(?!&|>)|\b(?:nohup|setsid)\b/
  * A program that SERVES: the scaffold's entry (`server.ts`/`server.js`), a package manager's
  * `start`/`dev`/`serve`/`preview` script, a Vite dev or preview server, `next start|dev`, or a
  * Python WSGI server. Matched against a command segment's own text, and against a script's SOURCE
- * when the command only names the script file.
+ * when the command only names the script file — but NEVER against an inline program's code
+ * (`node -e …`, `python3 -c …`), where this text is the user's program rather than a file being
+ * run: `require('…/node_modules/vite')` imports a module, it does not start a dev server
+ * (xr-molecule-flash-m391 +13:13, refused as "node starts a server" for exactly that line).
  */
 export const SERVER_PROGRAM =
   /\bserver\.[cm]?[jt]s\b|\b(?:npm|pnpm|yarn|bun)\s+(?:run\s+)?(?:start|dev|serve|preview)\b|\bvite\s+(?:preview|dev|serve)\b|\bvite(?![.\w-])(?!\s+(?:build|optimize)\b)|\bnext\s+(?:start|dev)\b|\b(?:uvicorn|gunicorn)\b|\bflask\s+run\b|\bpython\d?\s+-m\s+http\.server\b/
@@ -79,6 +82,110 @@ const TEST_RUNNERS = /^(?:hurl|jest|mocha|playwright|vitest)$/
 /** A script's SOURCE that binds a listener even when it does not name a server file. */
 const STARTS_LISTENING = /\b(?:server|app)\.listen\s*\(/
 
+/** `python`, `python3`, `python3.12` — the interpreters whose inline flag is `-c`. */
+const PYTHON_PROGRAM = /^python(?:3(?:\.\d+)?)?$/
+
+/**
+ * A flag that puts a Node-family runner's program on the COMMAND LINE instead of in a file:
+ * `node -e`, `node -p`, `node -pe`, `--eval=`, `--print=`.
+ */
+const NODE_INLINE_FLAG = /^(?:-[A-Za-z]*[ep]|--(?:eval|print)(?:=|$))/
+
+/** Python's inline flag: `python3 -c '…'` (a combination such as `-Bc` included). */
+const PYTHON_INLINE_FLAG = /^-[A-Za-z]*c$/
+
+/** A program read from stdin (`node -`, `python3 -`), whose heredoc body the command no longer carries. */
+const STDIN_PROGRAM = '-'
+
+/** The value attached to an inline interpreter flag (`--eval=code`). */
+const ATTACHED_INLINE_FLAG = /^--(?:eval|print)=(.*)$/s
+
+/**
+ * What actually starts a server inside an INLINE program: a listener bind (`.listen(`, Python's
+ * `.serve_forever(`), or a Python server runner invoked (`.run(`). Matched against the code with
+ * comments and string/template literals blanked, so a path, an import specifier or a comment that
+ * merely mentions one is text.
+ */
+const INLINE_SERVER_START =
+  /\.listen\s*\(|\.serve_forever\s*\(|\b(?:app|uvicorn|gunicorn)\.run\s*\(/
+
+/**
+ * The code an INLINE program carries, when the statement runs one.
+ *
+ * @param segment - One statement of the command.
+ * @returns The program's code (empty for stdin), or null when the statement names no inline program.
+ */
+function inlineProgram(segment: CommandSegment): string | null {
+  if (!SERVER_PROGRAMS.has(segment.program)) return null
+  const args = segment.args.map(bare)
+  const flag = PYTHON_PROGRAM.test(segment.program) ? PYTHON_INLINE_FLAG : NODE_INLINE_FLAG
+  for (let index = 0; index < args.length; index += 1) {
+    const arg = args[index] ?? ''
+    if (arg === STDIN_PROGRAM) return ''
+    const attached = ATTACHED_INLINE_FLAG.exec(arg)
+    if (attached !== null) return attached[1] ?? ''
+    if (flag.test(arg)) return args[index + 1] ?? ''
+  }
+  return null
+}
+
+/**
+ * Source with comments and string/template literals blanked to spaces, so a `.listen(` written
+ * inside one never reads as a call. A small lexer, not a parser, and one-directional on purpose:
+ * its only possible mistake is to DROP a signal, which leaves the command on its normal bounded
+ * execution — never to invent one, which would refuse a command that starts nothing.
+ *
+ * @param source - An inline program's own code.
+ * @returns The same code with comments and literals blanked.
+ */
+function withoutCommentsAndStrings(source: string): string {
+  let out = ''
+  let index = 0
+  while (index < source.length) {
+    const char = source[index] ?? ''
+    const next = source[index + 1] ?? ''
+    if (char === '/' && (next === '/' || next === '*')) {
+      const block = next === '*'
+      out += '  '
+      index += 2
+      while (
+        index < source.length &&
+        (block ? !(source[index] === '*' && source[index + 1] === '/') : source[index] !== '\n')
+      ) {
+        out += ' '
+        index += 1
+      }
+      if (block && index < source.length) {
+        out += '  '
+        index += 2
+      }
+      continue
+    }
+    if (char === "'" || char === '"' || char === '`') {
+      const quote = char
+      out += ' '
+      index += 1
+      while (index < source.length) {
+        const inner = source[index] ?? ''
+        out += ' '
+        index += 1
+        if (inner === '\\') {
+          if (index < source.length) {
+            out += ' '
+            index += 1
+          }
+          continue
+        }
+        if (inner === quote) break
+      }
+      continue
+    }
+    out += char
+    index += 1
+  }
+  return out
+}
+
 /** A word with its shell quotes taken off (`'src/server.ts'` → `src/server.ts`). */
 function bare(word: string): string {
   const match = /^(['"])(.*)\1$/s.exec(word)
@@ -88,6 +195,11 @@ function bare(word: string): string {
 /**
  * Whether one parsed statement starts a server: a package manager's serving script, or a program
  * that IS a server, named in command position (so `cat server.ts` is a read, not a launch).
+ *
+ * An inline program is read by its CODE, not by its text: the argument is the program, so a module
+ * path or an import specifier that happens to spell `vite` or `server.ts` starts nothing, while a
+ * listener bind in that code still does. Anything ambiguous — an import of a module that might
+ * listen at load — stays on normal bounded execution rather than being refused on a guess.
  *
  * @param segment - One statement of the command.
  * @returns True when the statement starts a server that does not exit.
@@ -99,7 +211,10 @@ function runsServerProgram(segment: CommandSegment): boolean {
     const script = words[0] === 'run' ? words[1] : words[0]
     if (script !== undefined && SERVE_SCRIPTS.test(script)) return true
   }
-  return SERVER_PROGRAMS.has(segment.program) && SERVER_PROGRAM.test(segment.text)
+  if (!SERVER_PROGRAMS.has(segment.program)) return false
+  const inline = inlineProgram(segment)
+  if (inline !== null) return INLINE_SERVER_START.test(withoutCommentsAndStrings(inline))
+  return SERVER_PROGRAM.test(segment.text)
 }
 
 /**
@@ -110,6 +225,8 @@ function runsServerProgram(segment: CommandSegment): boolean {
  */
 function scriptPath(segment: CommandSegment): string | null {
   if (!SCRIPT_RUNNERS.has(segment.program)) return null
+  // An inline program (`node -e …`) is code, not a file to read.
+  if (inlineProgram(segment) !== null) return null
   for (const arg of segment.args) {
     const word = bare(arg)
     if (word.startsWith('-')) continue
@@ -122,7 +239,8 @@ function scriptPath(segment: CommandSegment): string | null {
  * Whether a command, read from its TEXT alone, starts a server that stays up in the foreground.
  *
  * The over-budget reader's shape: at that point the command has already run, and only its text is
- * left to say whether "run a smaller unit" was ever the right advice.
+ * left to say whether "run a smaller unit" was ever the right advice. An inline program is read
+ * from the code it carries, so a string or comment that mentions a server is not a launch.
  *
  * @param command - The command as the executor sent it.
  * @returns True when a foreground statement of the command starts a server.
@@ -141,7 +259,9 @@ export interface ForegroundServer {
 
 /**
  * A FOREGROUND command that starts a server, including one that only names a script whose SOURCE
- * imports the app's server and calls its `create()`/`listen()`.
+ * imports the app's server and calls its `create()`/`listen()` — and, for an inline program
+ * (`node -e …`, `python3 -c …`), only when that code itself binds a listener. An inline import or
+ * a path that merely names a server program starts nothing and runs.
  *
  * The script read is best-effort: a path the backend will not answer for is a command this reading
  * cannot classify, never a refusal. A backgrounded launch, a test runner and a test file are all

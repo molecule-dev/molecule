@@ -355,6 +355,28 @@ describe('buildTools', () => {
     )
   })
 
+  it('exec_command runs the m391 inline Vite require (a path in code is not a launch)', async () => {
+    // xr-molecule-flash-m391 (+13:13) verbatim: a read-only check that Vite imports, followed by
+    // curls of the dev server already running. The inline code names `…/node_modules/vite`, and
+    // the refusal called that "`node` starts a server" — a turn lost, recovered 3 s later with a
+    // plain curl. Requiring a module binds nothing; only a listener bind does.
+    const command =
+      "cd /workspace/my-app/app && cat > /tmp/wm.ts <<'EOF'\n" +
+      "import '@fontsource/lora/400.css'\n" +
+      "console.log('ok')\n" +
+      'EOF\n' +
+      'cp /tmp/wm.ts src/__wm_check.ts && node -e "\n' +
+      "const {createServer}=require('/workspace/my-app/node_modules/vite');\" 2>/dev/null; " +
+      'curl -s "http://localhost:5173/src/main.tsx" | head -8; echo; ' +
+      'curl -s "http://localhost:5173/styles.css" | head -3'
+    const backend = mockBackend()
+    const tools = buildTools(backend, { blockDangerousCommands: true })
+    const exec = tools.find((t) => t.name === 'exec_command')!
+    const result = (await exec.execute({ command })) as { error?: string; exitCode?: number }
+    expect(result.error).toBeUndefined()
+    expect(backend.run).toHaveBeenCalledWith(command, expect.anything())
+  })
+
   it('exec_command refuses a foreground `npm run dev`/`node server.js` and lets a background one run', async () => {
     const tools = buildTools(mockBackend(), { blockDangerousCommands: true })
     const exec = tools.find((t) => t.name === 'exec_command')!

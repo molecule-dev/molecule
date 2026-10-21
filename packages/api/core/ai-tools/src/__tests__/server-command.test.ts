@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 
-import { foregroundBrowserProbe, foregroundServerCommand } from '../index.js'
+import { foregroundBrowserProbe, foregroundServerCommand, startsServerProgram } from '../index.js'
 
 /** The m257 probe's one binding, enough for the command-level reader. */
 const LEAKY =
@@ -85,5 +85,64 @@ describe('foregroundBrowserProbe', () => {
       await foregroundServerCommand('npx tsx /tmp/probe.mts 2>&1 | tail -15', readScript),
     ).toEqual({ program: 'tsx /tmp/probe.mts' })
     expect(await foregroundBrowserProbe('npx tsx /tmp/probe.mts', readScript)).toBeNull()
+  })
+})
+
+describe('foregroundServerCommand — an inline program is read by its code (m391)', () => {
+  // xr-molecule-flash-m391 (+13:13): the executor checked that Vite could be imported in Node and
+  // then curled the dev server that was already running. The refusal named `node` as a server
+  // because the INLINE CODE spelled `…/node_modules/vite`; requiring a module starts nothing, and
+  // the tool's refusal cost a turn that a plain curl finished 3 s later.
+  const M391_COMMAND =
+    "cd /workspace/my-app/app && cat > /tmp/wm.ts <<'EOF'\n" +
+    "import '@fontsource/lora/400.css'\n" +
+    "console.log('ok')\n" +
+    'EOF\n' +
+    'cp /tmp/wm.ts src/__wm_check.ts && node -e "\n' +
+    "const {createServer}=require('/workspace/my-app/node_modules/vite');\" 2>/dev/null; " +
+    'curl -s "http://localhost:5173/src/main.tsx" | head -8; echo; ' +
+    'curl -s "http://localhost:5173/styles.css" | head -3'
+
+  it('runs the exact m391 command: requiring Vite starts nothing', async () => {
+    const readScript = vi.fn()
+    expect(await foregroundServerCommand(M391_COMMAND, readScript)).toBeNull()
+    expect(startsServerProgram(M391_COMMAND)).toBe(false)
+    // An inline program is code, not a script file to read.
+    expect(readScript).not.toHaveBeenCalled()
+  })
+
+  it('reads a mention in a string, template or comment as text, not a launch', async () => {
+    for (const command of [
+      'node -e "console.log(\'server.listen(3000)\')"',
+      'node -e "// server.listen(3000)"',
+      'node -e "/* app.listen(4000) */ console.log(\'ok\')"',
+      'node -e "console.log(`server.listen(3000)`)"',
+      'node -e "import(\'/workspace/my-app/api/src/server.ts\')"',
+      'node -e "const vite=\'/workspace/my-app/node_modules/vite\'"',
+    ]) {
+      expect(await foregroundServerCommand(command, vi.fn())).toBeNull()
+      expect(startsServerProgram(command)).toBe(false)
+    }
+  })
+
+  it('still refuses an inline program that binds a listener', async () => {
+    const commands = [
+      'node -e "require(\'http\').createServer().listen(3000)"',
+      'node -e "const srv = require(\'http\').createServer(); srv.listen(0)"',
+      'node --eval "require(\'node:net\').createServer().listen(9000)"',
+      'python3 -c "import uvicorn; uvicorn.run(app)"',
+      'python3 -c "from http.server import HTTPServer; HTTPServer((\'\', 8000), H).serve_forever()"',
+    ]
+    for (const command of commands) {
+      expect(await foregroundServerCommand(command, vi.fn())).not.toBeNull()
+      expect(startsServerProgram(command)).toBe(true)
+    }
+  })
+
+  it('keeps the script-file and package-script readings', async () => {
+    const readScript = vi.fn().mockResolvedValue("import './handler.js'\nserver.listen(3000)\n")
+    expect(await foregroundServerCommand('node server.js', readScript)).toEqual({ program: 'node' })
+    expect(await foregroundServerCommand('npm run dev', readScript)).toEqual({ program: 'npm' })
+    expect(await foregroundServerCommand('npx tsx /tmp/probe.mts', readScript)).not.toBeNull()
   })
 })
