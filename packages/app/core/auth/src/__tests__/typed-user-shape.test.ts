@@ -217,47 +217,50 @@ describe('a typed client preserves the app user fields through every path', () =
 })
 
 /**
+ * Compiles `source` as if it were a file in this package, and returns the
+ * diagnostics TypeScript reports for it.
+ *
+ * Shared by every type-level check in this file (the mapper's user shape and the
+ * profile-update transport config).
+ *
+ * @param source - The TypeScript source to check.
+ * @returns The flattened diagnostic messages.
+ */
+const diagnosticsFor = (source: string): string[] => {
+  const virtualFile = join(__dirname, '__typed-probe__.ts')
+  const options: ts.CompilerOptions = {
+    strict: true,
+    skipLibCheck: true,
+    noEmit: true,
+    target: ts.ScriptTarget.ES2022,
+    module: ts.ModuleKind.NodeNext,
+    moduleResolution: ts.ModuleResolutionKind.NodeNext,
+    types: [],
+    lib: ['lib.es2022.d.ts', 'lib.dom.d.ts'],
+  }
+  const host = ts.createCompilerHost(options)
+  const getSourceFile = host.getSourceFile.bind(host)
+  const fileExists = host.fileExists.bind(host)
+  const readFile = host.readFile.bind(host)
+  host.getSourceFile = (fileName, languageVersion, onError, shouldCreateNewSourceFile) =>
+    fileName === virtualFile
+      ? ts.createSourceFile(fileName, source, languageVersion, true, ts.ScriptKind.TS)
+      : getSourceFile(fileName, languageVersion, onError, shouldCreateNewSourceFile)
+  host.fileExists = (fileName) => fileName === virtualFile || fileExists(fileName)
+  host.readFile = (fileName) => (fileName === virtualFile ? source : readFile(fileName))
+  const program = ts.createProgram([virtualFile], options, host)
+  return ts
+    .getPreEmitDiagnostics(program)
+    .map((diagnostic) => ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'))
+}
+
+/**
  * Type-level verification: the config's mapper is checked against the SAME
  * user type the factory returns. The bad source compiled cleanly before
  * `AuthClientConfig` was generic (the cast inside `mapResult` re-labelled the
  * mapper's `UserProfile` as `T`), so this test fails without the change.
  */
 describe('a mapper missing a required custom field fails type checking', () => {
-  /**
-   * Compiles `source` as if it were a file in this package, and returns the
-   * diagnostics TypeScript reports for it.
-   *
-   * @param source - The TypeScript source to check.
-   * @returns The flattened diagnostic messages.
-   */
-  const diagnosticsFor = (source: string): string[] => {
-    const virtualFile = join(__dirname, '__typed-probe__.ts')
-    const options: ts.CompilerOptions = {
-      strict: true,
-      skipLibCheck: true,
-      noEmit: true,
-      target: ts.ScriptTarget.ES2022,
-      module: ts.ModuleKind.NodeNext,
-      moduleResolution: ts.ModuleResolutionKind.NodeNext,
-      types: [],
-      lib: ['lib.es2022.d.ts', 'lib.dom.d.ts'],
-    }
-    const host = ts.createCompilerHost(options)
-    const getSourceFile = host.getSourceFile.bind(host)
-    const fileExists = host.fileExists.bind(host)
-    const readFile = host.readFile.bind(host)
-    host.getSourceFile = (fileName, languageVersion, onError, shouldCreateNewSourceFile) =>
-      fileName === virtualFile
-        ? ts.createSourceFile(fileName, source, languageVersion, true, ts.ScriptKind.TS)
-        : getSourceFile(fileName, languageVersion, onError, shouldCreateNewSourceFile)
-    host.fileExists = (fileName) => fileName === virtualFile || fileExists(fileName)
-    host.readFile = (fileName) => (fileName === virtualFile ? source : readFile(fileName))
-    const program = ts.createProgram([virtualFile], options, host)
-    return ts
-      .getPreEmitDiagnostics(program)
-      .map((diagnostic) => ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'))
-  }
-
   const source = (mapperUser: string): string => `
 import { createJWTAuthClient } from '../index.js'
 import type { UserProfile } from '../types.js'
@@ -290,5 +293,50 @@ export const client = createJWTAuthClient<AppUser>({
         ),
       ),
     ).toEqual([])
+  })
+})
+
+/**
+ * Type-level verification of the profile-update transport config
+ * (main-auth-2246): the body adapter receives the client's own user type, and
+ * the method choice is the standard profile-update set. Both sources fail to
+ * compile without the config fields, so this is the typed half of the fix that
+ * lets a `PUT /api/user` + `{ user }` app keep the shared client.
+ */
+describe('the profile-update transport config is typed by the client user', () => {
+  const source = (fields: string): string => `
+import { createJWTAuthClient } from '../index.js'
+import type { UserProfile } from '../types.js'
+
+interface AppUser extends UserProfile {
+  username: string
+  image: string
+}
+
+export const client = createJWTAuthClient<AppUser>({ ${fields} })
+`
+
+  it('accepts a body adapter typed by the custom profile', () => {
+    expect(
+      diagnosticsFor(
+        source(
+          "profileUpdateMethod: 'PUT', profileRequestBody: (data) => ({ user: { username: data.username, image: data.image } })",
+        ),
+      ),
+    ).toEqual([])
+  })
+
+  it('rejects a body adapter that reads a field the profile does not have', () => {
+    const diagnostics = diagnosticsFor(
+      source('profileRequestBody: (data) => ({ user: { nope: data.nope } })'),
+    )
+
+    expect(diagnostics.join('\n')).toContain("'nope'")
+  })
+
+  it('rejects a method outside the standard profile-update set', () => {
+    const diagnostics = diagnosticsFor(source("profileUpdateMethod: 'DELETE'"))
+
+    expect(diagnostics.join('\n')).toContain('DELETE')
   })
 })

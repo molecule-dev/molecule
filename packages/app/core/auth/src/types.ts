@@ -452,6 +452,14 @@ export interface AuthClient<
 
   /**
    * Updates the current user's profile.
+   *
+   * It stores the user the API answers with (mapped through
+   * {@link AuthClientConfig.mapAuthResponse}) and notifies subscribers with it.
+   * The request route, method and body envelope are
+   * {@link AuthClientConfig.profileEndpoint},
+   * {@link AuthClientConfig.profileUpdateMethod} and
+   * {@link AuthClientConfig.profileRequestBody} — a `PUT /api/user` API taking
+   * `{ user: … }` is a configuration, not a hand-written client.
    */
   updateProfile(data: Partial<T>): Promise<T>
 
@@ -612,6 +620,42 @@ export interface AuthClientConfig<T extends UserProfile = UserProfile> {
    * User profile endpoint.
    */
   profileEndpoint?: string
+
+  /**
+   * The HTTP method `updateProfile()` sends to {@link profileEndpoint}
+   * (default `'PATCH'`). Set `'PUT'` for an API whose profile route is
+   * `PUT /api/user`.
+   *
+   * This selects the REQUEST transport only: response mapping
+   * ({@link mapAuthResponse}), token/user storage, subscriber notifications and
+   * the reload restore are the same for every method.
+   */
+  profileUpdateMethod?: 'PATCH' | 'PUT' | 'POST'
+
+  /**
+   * Shape the `updateProfile()` request body (default: the `Partial<T>` the
+   * caller passed, sent as bare JSON). An API that reads the payload under a
+   * `user` key — the standard `PUT /api/user` contract — is a config field, not
+   * a reason to hand-write an `AuthClient`:
+   *
+   * ```typescript
+   * const client = createJWTAuthClient({
+   *   profileEndpoint: '/api/user',
+   *   profileUpdateMethod: 'PUT',
+   *   profileRequestBody: (data) => ({ user: data }),
+   * })
+   * ```
+   *
+   * The callback receives exactly what `updateProfile(data)` was given, typed as
+   * `Partial<T>`; pass the client's user generic to type it
+   * (`AuthClientConfig<MyUser>`, `createJWTAuthClient<MyUser>`). It adapts the
+   * REQUEST only — the answer still goes through {@link mapAuthResponse} and is
+   * stored and published through the same session state as before.
+   *
+   * @param data - The partial profile passed to `updateProfile()`.
+   * @returns The JSON body to send.
+   */
+  profileRequestBody?: (data: Partial<T>) => unknown
 
   /**
    * The API route that returns the signed-in user (default `/users/me`). Called

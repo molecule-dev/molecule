@@ -152,6 +152,24 @@
  * // React: `useAuth<MyUser>()` reads the same profile.
  * ```
  *
+ * **A profile-update transport that is not `PATCH` with bare JSON is a CONFIG field, not a
+ * hand-written client.** `updateProfile()` sends to `profileEndpoint` with `PATCH` and the
+ * `Partial<T>` as the body by default; an API whose profile route is the standard
+ * `PUT /api/user` reading `{ user: … }` needs only the request fields:
+ *
+ * ```typescript
+ * const client = createJWTAuthClient({
+ *   profileEndpoint: '/api/user',
+ *   profileUpdateMethod: 'PUT',
+ *   profileRequestBody: (data) => ({ user: data }),
+ * })
+ * ```
+ *
+ * That adapts the REQUEST only. Response mapping (`mapAuthResponse`), token and user storage,
+ * subscriber notifications and the reload restore are the client's existing behavior — replacing
+ * the client to change a method or an envelope also replaces the lifecycle that keeps a session
+ * coherent, and hand-written adapters have had to repair those callbacks repeatedly.
+ *
  * **A background verification that returns an unchanged user changes nothing.** When
  * `validateSession()` (or a reload's restore) answers with the same profile data the client
  * already holds, the client keeps the SAME user object and does not notify subscribers — so an

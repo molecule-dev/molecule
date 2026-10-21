@@ -169,6 +169,8 @@ export const createJWTAuthClient = <
     registerEndpoint = '/auth/register',
     refreshEndpoint = '/auth/refresh',
     profileEndpoint = '/auth/profile',
+    profileUpdateMethod = 'PATCH',
+    profileRequestBody,
     forgotPasswordEndpoint = '/auth/password/reset',
     resetPasswordEndpoint = '/auth/password/reset/confirm',
     changePasswordEndpoint = '/auth/password/change',
@@ -907,9 +909,15 @@ export const createJWTAuthClient = <
     },
 
     async updateProfile(data: Partial<T>): Promise<T> {
+      // The REQUEST transport is configurable (`profileUpdateMethod` /
+      // `profileRequestBody`); everything below — mapping the answer, storing
+      // the user, notifying subscribers — is the same session state for every
+      // transport, so a PUT/enveloped API does not need a hand-written client.
+      // Defaults keep the resource-style PATCH with bare data.
+      const body = profileRequestBody ? profileRequestBody(data) : data
       const answer = await fetchAPI<T>(profileEndpoint, {
-        method: 'PATCH',
-        body: JSON.stringify(data),
+        method: profileUpdateMethod,
+        body: JSON.stringify(body),
       })
 
       // The profile route answers in one of three shapes: a bare user, `{ user }`, or
