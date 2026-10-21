@@ -236,6 +236,39 @@ describe('checkBlockedCommand', () => {
     expect(checkBlockedCommand('bash -c "env"')).not.toBeNull()
   })
 
+  // X0 xr-molecule-flash-m331 (frozen P6, +37:00): two exec_command calls — a Playwright debug
+  // spec piped to `grep -E "USER CALLS|ENV|BUTTON|passed|failed"` — came back "dumping
+  // environment variables is not allowed. Nothing in this command ran". The command printed log
+  // lines; `ENV` was a label inside the grep alternation, and the `|` around it read as a pipe.
+  it('allows a quoted grep alternation that names ENV, and blocks only what actually runs (m331)', () => {
+    expect(
+      checkBlockedCommand('grep -E "USER CALLS|ENV|BUTTON|passed|failed" /tmp/pw-debug.log'),
+    ).toBeNull()
+    expect(checkBlockedCommand('grep -E "a|env" f')).toBeNull()
+    expect(checkBlockedCommand('rg -e "FOO|ENV|BAR" src')).toBeNull()
+    expect(checkBlockedCommand('awk "/ENV|printenv/" app.log')).toBeNull()
+    expect(checkBlockedCommand('echo "a | env"')).toBeNull()
+    expect(checkBlockedCommand('echo "a ; env"')).toBeNull()
+    // A quoted substitution is literal — the shell runs nothing there.
+    expect(checkBlockedCommand("printf '%s\\n' '$(env)'")).toBeNull()
+    // A file path quoted inside a pattern is data the comparison reads, not a file it opens.
+    expect(checkBlockedCommand('grep -rn "cat /proc/self/environ" src')).toBeNull()
+  })
+
+  it('still blocks every shape that really dumps, including substitutions and nested shells (m331)', () => {
+    expect(checkBlockedCommand('sudo env')).not.toBeNull()
+    expect(checkBlockedCommand('env -u KEY')).not.toBeNull()
+    expect(checkBlockedCommand('bash -c "ls; env"')).not.toBeNull()
+    expect(checkBlockedCommand("bash -c 'echo hi | printenv'")).not.toBeNull()
+    expect(checkBlockedCommand('echo "$(printenv)"')).not.toBeNull()
+    expect(checkBlockedCommand('echo `env`')).not.toBeNull()
+    expect(checkBlockedCommand('echo "$(cat /etc/environment)"')).not.toBeNull()
+    expect(checkBlockedCommand("bash -c 'cat /proc/1/environ'")).not.toBeNull()
+    // A quoted path still names the file the reader opens.
+    expect(checkBlockedCommand('cat "/etc/environment"')).not.toBeNull()
+    expect(checkBlockedCommand('cat -n /proc/self/environ')).not.toBeNull()
+  })
+
   it('says a blocked command ran none of its parts (X1 m53 lost a chained mkdir)', () => {
     expect(checkBlockedCommand('mkdir -p /workspace/x && env | grep URL')).toMatch(
       /Nothing in this command ran — none of its other parts either/,

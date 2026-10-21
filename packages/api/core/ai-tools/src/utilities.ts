@@ -10,6 +10,7 @@ import { posix } from 'path'
 import {
   type CommandSegment,
   commandSegments,
+  executedCommands,
   locatedCommandSegments,
   statementArgumentEnd,
   withoutTimeoutWrapper,
@@ -1429,32 +1430,138 @@ export function suiteRunPriorityLaunch(
 
 // ── Command blocking ──────────────────────────────────────────────────────────
 
+/** A word with one layer of matching shell quotes removed (`"/proc/self/environ"` → `/proc/self/environ`). */
+function shellWord(word: string): string {
+  return word.replace(/^(['"])(.*)\1$/, '$2')
+}
+
+/** `/proc/<pid>/environ` and `/proc/self/environ` — a process's environment, as the kernel exposes it. */
+const PROC_ENVIRON = /^\/proc\/(?:\d+|self)\/environ(?:\/|$)/
+
+/** Anything under `/proc`: a process's environment is one of the files there. */
+const PROC_PATH = /^\/proc(?:\/|$)/
+
+/** The molecule platform's secrets dir — `/etc/mol/env` carries the vault + platform secrets. */
+const MOL_SECRETS = /^\/etc\/mol(?:\/|$)/
+
 /**
- * Commands that dump environment variables — blocked to prevent secret leakage.
- * Also covers reads of `/etc/mol/…` (the molecule platform's secrets dir —
- * `/etc/mol/env` carries the vault + platform secrets inside a sandbox),
- * which is an env-dump by another door.
+ * Whether one executed command reads a file that would print a process's environment or the
+ * platform's secrets.
  *
- * `env` counts only when it DUMPS: bare, or with the `-0` / `--null` output
- * flags, followed by the end of the command or a separator / pipe / redirect.
- * `env -u KEY cmd`, `env KEY=value cmd` and `env -i cmd` run a command with a
- * changed environment and print nothing; an executor reaches for them to prove
- * a keyless build still succeeds, and blocking those sent it looking for
- * workarounds (X0 rehearsal 14).
+ * This is asked of the commands the shell RUNS ({@link executedCommands}), never of the command
+ * text: a file path quoted inside a grep pattern (`grep -E "ENV|/etc/mol" src`) is data a
+ * comparison reads, not a file this command opens. The shapes below are the ones that print:
+ * `cat` and its siblings of a `/proc/<pid>/environ`, a redirect's path handed to a reader
+ * (`xxd < /proc/self/environ`), and reads of `/etc/mol`, which is an env-dump by another door.
+ *
+ * @param program - The command's program, directory removed.
+ * @param args - Its arguments, as written.
+ * @returns True when the command reads one of those files.
  */
-// `(?<!\\)`: a backslash-escaped `\|` is a literal in the shell (grep "a\|env"), not a pipe (X1 flash-m58).
-const BLOCKED_COMMANDS =
-  /(?<!\\)(?:^|[;&|`]\s*|(?:sh|bash|zsh|dash)\s+-c\s+['"]?\s*)(?:\/usr\/bin\/)?(?:\benv(?:\s+(?:-0|--null|--))?\s*(?:$|[;&|>)`'"])|\bprintenv\b|\bexport\s*$|\bset\s*$|\bdeclare\s+-x|cat\s+\/etc\/environment|cat\s+\/root\/\.bashrc|cat\s+\/proc\/\d+\/environ|cat\s+\/proc\/self\/environ|strings\s+\/proc|xargs[^;&|\n]*\/proc\/[^;&|\n]*environ|less\s+\/proc|head\s+\/proc|tail\s+\/proc|xxd\s+\/proc|od\s+\/proc|base64\s+\/proc|dd\s[^\n]*\/proc|sed\s[^\n]*\/proc\/[^\n]*environ|awk\s[^\n]*\/proc\/[^\n]*environ|cp\s[^\n]*\/proc\/[^\n]*environ|(?:cat|less|head|tail|xxd|od|base64|strings|dd|cp|sed|awk)\s[^\n;&|]*\/etc\/mol(?:\/|\b))/i
+function readsSecretFile(program: string, args: readonly string[]): boolean {
+  const words = args.map(shellWord)
+  const first = words[0] ?? ''
+  switch (program) {
+    case 'cat':
+      return words.some(
+        (word) =>
+          /^\/etc\/environment(?:\/|\.|$)/.test(word) ||
+          word.startsWith('/root/.bashrc') ||
+          PROC_ENVIRON.test(word) ||
+          MOL_SECRETS.test(word),
+      )
+    case 'sed':
+    case 'awk':
+    case 'cp':
+      return words.some((word) => PROC_ENVIRON.test(word) || MOL_SECRETS.test(word))
+    case 'xargs':
+      return words.some((word) => PROC_ENVIRON.test(word))
+    case 'dd':
+      // `dd if=/proc/1/environ` carries the path inside its own argument.
+      return words.some((word) => /\/proc(?:\/|$)/.test(word) || MOL_SECRETS.test(word))
+    case 'base64':
+    case 'head':
+    case 'less':
+    case 'od':
+    case 'strings':
+    case 'tail':
+    case 'xxd':
+      return PROC_PATH.test(first) || words.some((word) => MOL_SECRETS.test(word))
+    default:
+      return false
+  }
+}
+
+/**
+ * Whether one executed command prints the environment instead of running something in it.
+ *
+ * `env` counts only when it DUMPS: {@link executedCommands} reports it as the program only when
+ * nothing follows it, because `env -u KEY cmd`, `env KEY=value cmd` and `env -i cmd` run `cmd`
+ * with a changed environment and print nothing — an executor reaches for them to prove a keyless
+ * build still succeeds, and blocking those sent it looking for workarounds (X0 rehearsal 14).
+ * `export` / `set` / `declare` print every variable they carry when given nothing to set.
+ *
+ * @param program - The command's program, directory removed.
+ * @param args - Its arguments, as written.
+ * @returns True when the command prints the environment.
+ */
+function dumpsEnvironment(program: string, args: readonly string[]): boolean {
+  const words = args.map(shellWord)
+  if (program === 'env') return true
+  if (program === 'printenv') return true
+  if (program === 'export') return words.every((word) => word === '-p' || word === '--print')
+  if (program === 'set') return words.length === 0
+  if (program === 'declare')
+    return (
+      words.length === 0 ||
+      (words.every((word) => word.startsWith('-')) &&
+        words.some((word) => /^-[A-Za-z]*[px]/.test(word)))
+    )
+  return false
+}
+
+/** Interpreters an env-dumping one-liner is written in (python, node, ruby, perl). */
+const INTERPRETER_PROGRAMS: ReadonlySet<string> = new Set([
+  'node',
+  'perl',
+  'python',
+  'python2',
+  'python3',
+  'ruby',
+])
+
+/** An inline program (`-e` / `-c`) that reads the environment and prints it. */
+const INTERPRETER_ENV_DUMP =
+  /(?:^|\s)(?:-e|-c)\s[^\n]*(?:os\.environ|process\.env|ENV\[|%ENV|ENVIRON)/i
+
+/**
+ * Whether one executed command dumps the environment from an inline interpreter program
+ * (`node -e 'console.log(process.env)'`).
+ *
+ * @param program - The command's program, directory removed.
+ * @param text - The program and its arguments as one line.
+ * @returns True when the inline program reads the environment.
+ */
+function dumpsEnvironmentFromInterpreter(program: string, text: string): boolean {
+  return INTERPRETER_PROGRAMS.has(program) && INTERPRETER_ENV_DUMP.test(text)
+}
+
 /** Block shell redirects from /proc environ. */
 const BLOCKED_PROC_REDIRECT = /(?:<\s*\/proc\/(?:\d+|self)\/environ)/i
 /** Block shell redirects from the molecule platform secrets dir (`/etc/mol`). */
 const BLOCKED_MOL_REDIRECT = /(?:<\s*\/etc\/mol)/i
-/** Interpreter-based env dumping (python, node, ruby, perl). */
-const BLOCKED_INTERPRETER_ENV =
-  /(?:python[23]?|node|ruby|perl)\s+(?:-e|-c)\s+[^\n]*(?:os\.environ|process\.env|ENV\[|%ENV|ENVIRON)/i
 
 /**
  * Check if a command is blocked for security reasons. Returns error message or null if allowed.
+ *
+ * The first check reads the commands the shell actually RUNS — the statements, a `sh -c`
+ * string's body, and every command substitution ({@link executedCommands}) — so a `|` inside a
+ * quoted grep alternation is data, not a pipeline: `grep -E "USER CALLS|ENV|BUTTON|passed|failed"
+ * app.log` prints log lines, and the `ENV` in its pattern started nothing (X0
+ * xr-molecule-flash-m331 blocked exactly that call as an environment dump, twice). What the
+ * shell DOES run stays visible through the same walk: `ls | env`, `bash -c 'env'`,
+ * `echo "$(printenv)"` and a nested `sh -c 'x; env'` are all commands, and so is `env` itself
+ * when nothing follows it.
  *
  * @param command - Shell command string proposed for execution.
  * @returns A human-readable block reason, or `null` when the command is allowed.
@@ -1473,13 +1580,18 @@ export function checkBlockedCommand(command: string): string | null {
     "check the project's provisioned env file to see WHICH services exist. Printing them only " +
     'leaks secrets into the transcript. To check whether ONE variable is set without printing ' +
     'it: `test -n "$NAME" && echo set || echo missing`.'
-  if (BLOCKED_COMMANDS.test(command))
+  const statements = executedCommands(command)
+  if (
+    statements.some(
+      (s) => dumpsEnvironment(s.program, s.args) || readsSecretFile(s.program, s.args),
+    )
+  )
     return `Command blocked: dumping environment variables is not allowed.${envDumpSteer}`
   if (BLOCKED_PROC_REDIRECT.test(command))
     return 'Command blocked: /proc/environ access is not allowed.' + envDumpSteer
   if (BLOCKED_MOL_REDIRECT.test(command))
     return 'Command blocked: /etc/mol (platform secrets) access is not allowed.' + envDumpSteer
-  if (BLOCKED_INTERPRETER_ENV.test(command))
+  if (statements.some((s) => dumpsEnvironmentFromInterpreter(s.program, s.text)))
     return `Command blocked: dumping the environment from an interpreter is not allowed.${envDumpSteer}`
   return null
 }

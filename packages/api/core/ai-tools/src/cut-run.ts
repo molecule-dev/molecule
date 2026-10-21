@@ -457,12 +457,16 @@ export function commandCutRun(
       inlineScript,
     }
   }
-  // The runner printed a summary that does not account for the total it announced, and neither
-  // bound above fired: the process was stopped from outside the run. A run that used the whole
-  // budget is the backend's deadline (which sits just past it); anything else is a stop this tool
-  // does not own. Either way the summary counts are all that ran, and a pipeline's 0 is not the
-  // run's code — the run never reached its own verdict.
-  if (summary !== null && summary.announced !== null) {
+  // A runner's summary that does not account for the total it announced, in a command that
+  // actually RUNS that runner, and neither bound above fired: the process was stopped from
+  // outside the run. The command must run the runner — a reader of a LIVE run's log prints the
+  // same announcement and partial tally as text it copies, and reporting that as a stopped run
+  // told the executor a suite it had only grepped had been killed (X0 xr-molecule-flash-m345,
+  // +50:00: `grep -B2 -A12 … /tmp/mol-bg-….log | head -40` came back `stoppedBy: process-stop`
+  // after 1 s). A run that used the whole budget is the backend's deadline (which sits just past
+  // it); anything else is a stop this tool does not own. Either way the summary counts are all
+  // that ran, and a pipeline's 0 is not the run's code — the run never reached its own verdict.
+  if (suite && summary !== null && summary.announced !== null) {
     const usedBudget = budgetSeconds > 0 && elapsedMs >= atBoundMs(budgetSeconds)
     return {
       seconds: usedBudget ? budgetSeconds : Math.max(1, Math.round(elapsedMs / 1000)),

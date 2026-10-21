@@ -227,6 +227,73 @@ describe('commandCutRun — the run m93 re-sent three times', () => {
   })
 })
 
+// X0 xr-molecule-flash-m345 (frozen P6, +50:00): `grep -B2 -A12 "Failed file\|Failure\|error"
+// /tmp/mol-bg-….log | head -40` — a 1 s reader of a live background run's log — came back as
+// "Ran 1 of 15 tests in 1 s and was stopped by a process kill outside this tool", with
+// `background: false`. Nothing was killed: the grep copied the runner's own announcement and
+// partial tally out of the log. A command that READS a run's output is not the run.
+describe('a log reader quoting a live run’s progress is not a stopped run (m345)', () => {
+  /** The observed command, verbatim, with its second grep as the executor sent it. */
+  const LOG_READ_COMMAND =
+    'grep -B2 -A12 "Failed file\\|Failure\\|error" /tmp/mol-bg-mvhj3eqe-g0eypd.log | head -40; ' +
+    'grep -E "Success|Failure" /tmp/mol-bg-mvhj3eqe-g0eypd.log | head -20'
+
+  /** What the log held while the run was still walking: its announcement and a partial tally. */
+  const LIVE_LOG =
+    'Running 15 tests using 1 worker\n' + '[1/15] specs/a.spec.ts:1:1 › a\n' + '  1 passed (1.0s)\n'
+
+  it('leaves a grep / tail of a background log alone', () => {
+    expect(
+      commandCutRun(
+        LOG_READ_COMMAND,
+        { stdout: LIVE_LOG, stderr: '', exitCode: 0 },
+        1_000,
+        290,
+        LIVE_LOG,
+      ),
+    ).toBeNull()
+    expect(
+      commandCutRun(
+        'tail -n 40 /tmp/mol-bg-mvhj3eqe-g0eypd.log',
+        { stdout: LIVE_LOG, stderr: '', exitCode: 0 },
+        1_000,
+        290,
+        LIVE_LOG,
+      ),
+    ).toBeNull()
+    expect(
+      commandCutRun(
+        'cat /tmp/mol-bg-mvhj3eqe-g0eypd.log | grep -E "Running|passed"',
+        { stdout: LIVE_LOG, stderr: '', exitCode: 0 },
+        1_000,
+        290,
+        LIVE_LOG,
+      ),
+    ).toBeNull()
+  })
+
+  it('still diagnoses a real run a process killed, through a shell wrapper', () => {
+    const cut = commandCutRun(
+      "bash -c 'npx playwright test'",
+      { stdout: LIVE_LOG, stderr: '', exitCode: 0 },
+      60_000,
+      290,
+    )
+    expect(cut).toMatchObject({ stoppedBy: 'process-stop', ran: 1, total: 15, noun: 'tests' })
+    expect(cutRunSentence(cut!)).toContain('was stopped by a process kill outside this tool')
+  })
+
+  it('still diagnoses the m101 foreground run it was written for', () => {
+    const cut = commandCutRun(
+      'npx playwright test',
+      { stdout: LIVE_LOG, stderr: '', exitCode: 0 },
+      60_000,
+      290,
+    )
+    expect(cut).toMatchObject({ stoppedBy: 'process-stop', ran: 1, total: 15 })
+  })
+})
+
 describe('commandRunState — the one reader every verdict goes through', () => {
   it('reads the state off a stopped run', () => {
     expect(commandRunState({ status: CUT_AT_BUDGET, exitCode: null })).toBe(CUT_AT_BUDGET)

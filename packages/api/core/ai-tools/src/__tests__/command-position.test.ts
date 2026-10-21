@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest'
 
 import {
   commandSegments,
+  executedCommands,
   locatedCommandSegments,
   runsInCommandPosition,
   statementArgumentEnd,
@@ -668,5 +669,38 @@ describe('statementArgumentEnd — an option belongs inside the runner’s own a
   it('answers null when the statement was never placed in this command', () => {
     expect(statementArgumentEnd('npx playwright test', null, 18)).toBeNull()
     expect(statementArgumentEnd('npx playwright test', 0, null)).toBeNull()
+  })
+})
+
+describe('executedCommands — the commands a shell actually runs (m331)', () => {
+  const programs = (command: string): string[] =>
+    executedCommands(command).map((entry) => entry.program)
+
+  it('reads a pipe inside a quoted pattern as data, not as a separator', () => {
+    expect(programs('grep -E "USER CALLS|ENV|BUTTON|passed|failed" app.log')).toEqual(['grep'])
+    expect(programs("awk '/ENV|printenv/' app.log")).toEqual(['awk'])
+  })
+
+  it('reports a launcher that runs alone, which commandSegments leaves out', () => {
+    expect(programs('ls | env')).toEqual(['ls', 'env'])
+    expect(programs('env')).toEqual(['env'])
+    expect(programs('sudo env -0')).toEqual(['env'])
+  })
+
+  it('opens a `sh -c` body, a command substitution and a backtick substitution', () => {
+    expect(programs("bash -c 'ls; printenv'")).toEqual(['ls', 'printenv'])
+    expect(programs('echo "$(printenv | head -1)"')).toEqual(['echo', 'printenv', 'head'])
+    expect(programs('echo `env`')).toEqual(['echo', 'env'])
+  })
+
+  it('keeps a quoted or escaped substitution literal, and a redirect out of command position', () => {
+    expect(programs("printf '%s\\n' '$(env)'")).toEqual(['printf'])
+    expect(programs('echo \\$(env)')).toEqual(['echo'])
+    expect(programs('env > out.txt')).toEqual(['env'])
+  })
+
+  it('unwraps launchers and assignments to the program they run', () => {
+    expect(programs('cd app && env -u KEY npx playwright test')).toEqual(['cd', 'playwright'])
+    expect(programs("env -i PATH=/usr/bin sh -c 'npm test'")).toEqual(['npm'])
   })
 })

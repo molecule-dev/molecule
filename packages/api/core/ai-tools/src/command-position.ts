@@ -598,10 +598,11 @@ function commandStart(words: readonly string[]): {
 }
 
 /**
- * One open nesting a shell word can be inside: a single-quoted string, a double-quoted string, or
- * a command substitution's parentheses (`$(`), which open a command of their own.
+ * One open nesting a shell word can be inside: a single-quoted string, a double-quoted string, a
+ * command substitution's parentheses (`$(`) or backticks (`` `…` ``), which open a command of
+ * their own, or a parameter expansion (`${…}`).
  */
-type Nesting = 'single' | 'double' | 'sub' | 'parameter'
+type Nesting = 'single' | 'double' | 'sub' | 'parameter' | 'tick'
 
 /** Whether a shell metacharacter is escaped by an odd run of preceding backslashes. */
 function escapedAt(command: string, at: number): boolean {
@@ -747,24 +748,37 @@ function blankHeredocBodies(command: string): string {
  * `molecule-dev/api/src/ai/supplied-tree-guard.ts` — so a script that does not classify records
  * no runner, and every run of it reads as nothing).
  *
+ * The walk also RECORDS the command substitutions it enters (`$(…)` and backticks), because the
+ * shell runs those too: a reader that only saw the outer statements could not tell that
+ * `echo "$(printenv)"` prints the environment ({@link executedCommands}).
+ *
  * @param command - The shell command.
  * @returns Each statement's text, the offset its first character sits at, and the separator that
  *   ended it (`|`, `&&`, `;`, a newline, … — '' after the last one), in order, with empty ones
- *   dropped.
+ *   dropped — and the bodies of the command substitutions this level enters, as offsets.
  */
-function splitSegments(command: string): Array<{
-  text: string
-  start: number
-  after: string
-  before: string
-  /**
-   * The group depth before each character of `text`, aligned with it, and -1 for a character
-   * inside a quote or a command substitution — neither writes to the command's own stdout.
-   */
-  depths: readonly number[]
-}> {
+function splitCommand(command: string): {
+  parts: Array<{
+    text: string
+    start: number
+    after: string
+    before: string
+    /**
+     * The group depth before each character of `text`, aligned with it, and -1 for a character
+     * inside a quote or a command substitution — neither writes to the command's own stdout.
+     */
+    depths: readonly number[]
+  }>
+  /** Each command substitution's body, as a start/end offset pair in `command`. */
+  substitutions: Array<{ start: number; end: number }>
+} {
   const source = blankHeredocBodies(command)
   const parts: Array<{ text: string; start: number; after: string; depths: number[] }> = []
+  const substitutions: Array<{ start: number; end: number }> = []
+  /** Where each open `$(` body starts; -1 for a bare `(` opened inside one. */
+  const subOpens: number[] = []
+  /** Where each open backtick body starts. */
+  const tickOpens: number[] = []
   let buffer = ''
   /** The offset in the command of the current buffer's first character. */
   let bufferStart = 0
@@ -801,6 +815,31 @@ function splitSegments(command: string): Array<{
       if (char === "'") stack.pop()
       continue
     }
+    // Backticks open a command substitution wherever one runs — outside quotes, inside double
+    // quotes, and inside another substitution or a parameter expansion — but never inside single
+    // quotes (handled above). Its body is a command of its own: nothing in it splits THIS command,
+    // and a `'` or `"` in it is the nested command's, not this one's.
+    if (top !== 'tick' && char === '`') {
+      stack.push('tick')
+      tickOpens.push(i + 1)
+      put(char, -1)
+      continue
+    }
+    if (top === 'tick') {
+      if (char === '\\' && next !== undefined) {
+        // An escaped character is literal: `\`` does not close the substitution.
+        put(char + next, -1)
+        i += 1
+        continue
+      }
+      if (char === '`') {
+        stack.pop()
+        const opened = tickOpens.pop()
+        if (opened !== undefined) substitutions.push({ start: opened, end: i })
+      }
+      put(char, -1)
+      continue
+    }
     // Comments are shell syntax only in a command context, including an unquoted `$(`.
     // Blank their bytes so quotes/operators cannot affect this walk, while every later
     // position and depth index stays aligned with the original command. Keep the newline.
@@ -815,6 +854,7 @@ function splitSegments(command: string): Array<{
     // inside single quotes (handled above). The `(` is consumed here so the depth is counted once.
     if (char === '$' && next === '(') {
       stack.push('sub')
+      subOpens.push(i + 2)
       put('$(', -1)
       i += 1
       continue
@@ -862,8 +902,14 @@ function splitSegments(command: string): Array<{
     // Inside a substitution or a subshell of one: its own parentheses nest, its `|`/`;`/`&&`
     // belong to the nested command, and its newlines are that command's too.
     if (top === 'sub') {
-      if (char === '(') stack.push('sub')
-      else if (char === ')') stack.pop()
+      if (char === '(') {
+        stack.push('sub')
+        subOpens.push(-1)
+      } else if (char === ')') {
+        stack.pop()
+        const opened = subOpens.pop()
+        if (opened !== undefined && opened >= 0) substitutions.push({ start: opened, end: i })
+      }
       put(char, -1)
       continue
     }
@@ -925,7 +971,17 @@ function splitSegments(command: string): Array<{
     })
     lastAfter = part.after
   }
-  return out
+  return { parts: out, substitutions }
+}
+
+/**
+ * A command's statements and pipeline stages — {@link splitCommand}'s parts on their own.
+ *
+ * @param command - The shell command.
+ * @returns Each statement, in order, with empty ones dropped.
+ */
+function splitSegments(command: string): ReturnType<typeof splitCommand>['parts'] {
+  return splitCommand(command).parts
 }
 
 /**
@@ -1058,6 +1114,129 @@ export function commandSegments(command: string): CommandSegment[] {
   return locatedSegmentsOf(command, 0).flatMap((located) =>
     located.segment === null ? [] : [located.segment],
   )
+}
+
+/** One command a shell command actually executes, wherever the shell runs it. */
+export interface ExecutedCommand {
+  /**
+   * The word in command position, its directory removed (`/usr/bin/printenv` → `printenv`) — or
+   * the launcher itself when it runs alone and nothing follows it (`x | env` → `env`).
+   */
+  program: string
+  /**
+   * Its arguments, as written with quotes kept — the statement's own words AFTER the program,
+   * including an input redirect's path (`< /proc/self/environ`), so a reader of secret files sees
+   * the file it reads.
+   */
+  args: readonly string[]
+  /** The program and its arguments as one line, what a pattern anchored at the program matches. */
+  text: string
+}
+
+/**
+ * A statement's words with its redirections taken out, so the walk that finds the program does
+ * not read a redirect's target as the program: `env > out.txt` RUNS `env`, and `cat > f` runs
+ * `cat` with no file argument. Each word kept carries its index in `words`, because a caller
+ * reading the statement's ARGUMENTS wants it as written — an input redirect's path is one.
+ *
+ * @param words - One statement's words, quotes kept.
+ * @returns The words that are not redirections, and each one's index in `words`.
+ */
+function withoutRedirects(words: readonly string[]): { words: string[]; index: number[] } {
+  const kept: string[] = []
+  const index: number[] = []
+  for (let i = 0; i < words.length; i += 1) {
+    const word = words[i] ?? ''
+    // An operator written on its own owns the word after it (`> out.txt`, `< /proc/self/environ`).
+    if (REDIRECT_OPERATOR.test(word)) {
+      i += 1
+      continue
+    }
+    // An operator with its target attached (`2>&1`, `>out.txt`, `&>log`) is one word.
+    if (REDIRECT_WORD.test(word)) continue
+    kept.push(word)
+    index.push(i)
+  }
+  return { words: kept, index }
+}
+
+/**
+ * The index of the last launcher a statement names (`x | env`, `sudo nice`), or null when it
+ * names none.
+ *
+ * A statement that only NAMES a launcher runs that launcher: `x | env` pipes x's output into
+ * `env`, which prints the environment, and the walk that reports what a command runs has to say
+ * so ({@link executedCommands}).
+ *
+ * @param words - The statement's words, redirections already taken out.
+ * @returns The launcher's index, or null.
+ */
+function lastLauncherIndex(words: readonly string[]): number | null {
+  for (let i = words.length - 1; i >= 0; i -= 1) {
+    if (LAUNCHERS.has(programName(words[i] ?? ''))) return i
+  }
+  return null
+}
+
+/**
+ * {@link executedCommands}'s recursion: a statement's own `sh -c '<command>'`, and every command
+ * substitution it carries, is a command of its own.
+ *
+ * @param command - The shell command, or one nested command string.
+ * @param depth - How many nested command strings this one already sits inside.
+ * @returns Each command the shell executes, in order.
+ */
+function executedCommandsOf(command: string, depth: number): ExecutedCommand[] {
+  if (typeof command !== 'string' || depth > MAX_NESTING) return []
+  const out: ExecutedCommand[] = []
+  const { parts, substitutions } = splitCommand(command)
+  for (const part of parts) {
+    const words = segmentWords(part.text)
+    const placed = withoutRedirects(words)
+    const start = commandStart(placed.words)
+    // A shell's `-c '<command>'` is the command: what the shell itself does is run it.
+    if (start.nested !== null) {
+      out.push(...executedCommandsOf(start.nested, depth + 1))
+      continue
+    }
+    const at = placed.words[start.at] === undefined ? lastLauncherIndex(placed.words) : start.at
+    if (at === null) continue
+    const program = start.program ?? programName(placed.words[at] ?? '')
+    if (!program) continue
+    // Arguments from the statement as written, from the word after the program: `cat < /proc/…`
+    // reads that file, and a reader of secret files has to see it.
+    const args = words.slice((placed.index[at] ?? 0) + 1)
+    out.push({ program, args, text: [program, ...args].join(' ') })
+  }
+  for (const substitution of substitutions) {
+    out.push(...executedCommandsOf(command.slice(substitution.start, substitution.end), depth + 1))
+  }
+  return out
+}
+
+/**
+ * Every command a shell command actually executes, at any depth — the statements themselves, the
+ * body of a `sh -c '<command>'`, and the body of every command substitution (`$(…)`, backticks).
+ *
+ * This is the reading a policy that asks "does this command run X" needs, and it is deliberately
+ * not a text match. The command-position parser already knows what runs and what is only quoted
+ * data ({@link commandSegments}), so a pattern never reads a `|` inside a quoted grep alternation
+ * as a pipeline: `grep -E "USER CALLS|ENV|BUTTON" app.log` prints log lines, and the `ENV` in
+ * its pattern started nothing (X0 xr-molecule-flash-m331 blocked exactly that call as an
+ * environment dump). What the shell DOES run stays visible through the same walk: a bare
+ * launcher (`ls | env`), a shell string (`bash -c 'env'`), a substitution
+ * (`echo "$(printenv)"`) and a nested one (`sh -c 'x; env'`) are all commands here.
+ *
+ * `commandSegments` answers what a pipeline stage runs for a caller matching a runner; this
+ * answers with the launcher left standing when it runs alone, since that is what the shell
+ * executes then.
+ *
+ * @param command - The shell command.
+ * @returns Each command the shell executes, in the order the shell reaches them.
+ */
+export function executedCommands(command: string): ExecutedCommand[] {
+  if (typeof command !== 'string' || !command.trim()) return []
+  return executedCommandsOf(command, 0)
 }
 
 /**
