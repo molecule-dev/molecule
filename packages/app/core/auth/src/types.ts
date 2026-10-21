@@ -451,15 +451,10 @@ export interface AuthClient<
   confirmPasswordReset(data: PasswordResetConfirm): Promise<void>
 
   /**
-   * Updates the current user's profile.
-   *
-   * It stores the user the API answers with (mapped through
-   * {@link AuthClientConfig.mapAuthResponse}) and notifies subscribers with it.
-   * The request route, method and body envelope are
-   * {@link AuthClientConfig.profileEndpoint},
-   * {@link AuthClientConfig.profileUpdateMethod} and
-   * {@link AuthClientConfig.profileRequestBody} — a `PUT /api/user` API taking
-   * `{ user: … }` is a configuration, not a hand-written client.
+   * Updates the current user's profile. The request route, method and body
+   * envelope are `profileEndpoint`, `profileUpdateMethod` and
+   * `profileRequestBody` — a `PUT /api/user` + `{ user }` API is a config, not a
+   * hand-written client. The answer is mapped, stored and published as before.
    */
   updateProfile(data: Partial<T>): Promise<T>
 
@@ -623,34 +618,14 @@ export interface AuthClientConfig<T extends UserProfile = UserProfile> {
 
   /**
    * The HTTP method `updateProfile()` sends to {@link profileEndpoint}
-   * (default `'PATCH'`). Set `'PUT'` for an API whose profile route is
-   * `PUT /api/user`.
-   *
-   * This selects the REQUEST transport only: response mapping
-   * ({@link mapAuthResponse}), token/user storage, subscriber notifications and
-   * the reload restore are the same for every method.
+   * (default `'PATCH'`). Set `'PUT'` for a `PUT /api/user` profile route.
    */
   profileUpdateMethod?: 'PATCH' | 'PUT' | 'POST'
 
   /**
-   * Shape the `updateProfile()` request body (default: the `Partial<T>` the
-   * caller passed, sent as bare JSON). An API that reads the payload under a
-   * `user` key — the standard `PUT /api/user` contract — is a config field, not
-   * a reason to hand-write an `AuthClient`:
-   *
-   * ```typescript
-   * const client = createJWTAuthClient({
-   *   profileEndpoint: '/api/user',
-   *   profileUpdateMethod: 'PUT',
-   *   profileRequestBody: (data) => ({ user: data }),
-   * })
-   * ```
-   *
-   * The callback receives exactly what `updateProfile(data)` was given, typed as
-   * `Partial<T>`; pass the client's user generic to type it
-   * (`AuthClientConfig<MyUser>`, `createJWTAuthClient<MyUser>`). It adapts the
-   * REQUEST only — the answer still goes through {@link mapAuthResponse} and is
-   * stored and published through the same session state as before.
+   * Shape the `updateProfile()` request body (default: the `Partial<T>` as given,
+   * sent as bare JSON) — e.g. `(data) => ({ user: data })` for the standard
+   * `PUT /api/user` envelope. See the module docs for the full configuration.
    *
    * @param data - The partial profile passed to `updateProfile()`.
    * @returns The JSON body to send.
