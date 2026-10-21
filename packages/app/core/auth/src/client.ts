@@ -224,16 +224,41 @@ export const createJWTAuthClient = <
   }
 
   /**
-   * The status an update implies. `'unavailable'` is sticky until something
-   * actually decides the session (a login/logout, a successful validation, or a
-   * 401/403 that cleared the token): a later `setState({ error })` must not turn
-   * "the server did not answer" into "nobody is signed in".
+   * The status an update implies.
+   *
+   * `'loading'` means "no decision yet", so it is derived from `initialized`
+   * ALONE: an auth request in flight on an initialized client (`state.loading`)
+   * keeps the status the client had already decided, and a route guard that
+   * unmounts while `'loading'` stays mounted for the whole request
+   * (xr-molecule-flash-m380: a signed-out client reported `'loading'` during a
+   * failed login, so the generated shell rendered a bare navbar, the Login page
+   * was unmounted mid-request, and its 401 error list was set on a page nobody
+   * could see).
+   *
+   * `'unavailable'` is sticky until something actually DECIDES the session: an
+   * explicit status (a sign-in that succeeded, a sign-out, `validateSession`'s
+   * answer) or a sign-in that newly authenticated this client. A failed login, a
+   * progress update, or a profile update must not turn "the server did not
+   * answer" into "nobody is signed in" — nor into "signed in" when the stored
+   * token was never confirmed.
    */
   const deriveStatus = (next: AuthState<T>, explicit: AuthStatus | undefined): AuthStatus => {
     if (explicit) return explicit
+    if (!next.initialized) return 'loading'
+    // Progress is not a decision: a login/register/refresh/logout in flight keeps
+    // the status the client already settled on.
+    if (next.loading) return state.status
+    // An unconfirmed session stays unconfirmed unless this update decided it —
+    // `authenticated` changing is that decision (an explicit status short-circuits
+    // above for every other one).
+    if (
+      state.status === 'unavailable' &&
+      tokenStorage.getAccessToken() &&
+      next.authenticated === state.authenticated
+    ) {
+      return 'unavailable'
+    }
     if (next.authenticated) return 'authenticated'
-    if (next.loading || !next.initialized) return 'loading'
-    if (state.status === 'unavailable' && tokenStorage.getAccessToken()) return 'unavailable'
     return 'unauthenticated'
   }
 
@@ -471,7 +496,7 @@ export const createJWTAuthClient = <
       }
       if (restoredUser) {
         tokenStorage.setUser(restoredUser)
-        setState({ authenticated: true, user: restoredUser })
+        setState({ status: 'authenticated', authenticated: true, user: restoredUser })
         return { user: restoredUser, attempted: true, rejected: false }
       }
       return { user: null, attempted: true, rejected: false }
@@ -720,6 +745,7 @@ export const createJWTAuthClient = <
         tokenStorage.setUser(result.user)
 
         setState({
+          status: 'authenticated',
           loading: false,
           authenticated: true,
           user: result.user,
@@ -798,6 +824,7 @@ export const createJWTAuthClient = <
         tokenStorage.setUser(result.user)
 
         setState({
+          status: 'authenticated',
           loading: false,
           authenticated: true,
           user: result.user,
@@ -850,6 +877,7 @@ export const createJWTAuthClient = <
       if (user) tokenStorage.setUser(user)
 
       setState({
+        status: 'authenticated',
         authenticated: true,
         user,
       })

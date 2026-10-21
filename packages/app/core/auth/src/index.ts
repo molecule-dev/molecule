@@ -62,7 +62,9 @@
  * an API round trip on every navigation (xr-molecule-flash-m177: ~30 full page
  * loads in one pagination spec; its four tests sat at 15.0–15.9 s of a 15 s
  * budget and the grader timed two out). Route guards read this same `status`:
- * wait only while it is `'loading'`.
+ * wait only while it is `'loading'` — that status means "no decision yet", so an
+ * auth request in flight (`state.loading`) keeps the decided status and does not
+ * unmount a Login/Register page mid-request (xr-molecule-flash-m380).
  * `validateSession()` is the background re-check that produces the last two: call
  * it after the first render — a 401 or 403 clears the token (`'unauthenticated'`),
  * while a network failure, a 5xx, or a 404 from a wrong `currentUserEndpoint`

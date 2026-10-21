@@ -175,8 +175,10 @@ export interface PasswordResetConfirm {
  * UI needs, derived from {@link AuthState} so no caller has to combine
  * `initialized`/`authenticated`/`loading`/`error` itself.
  *
- * - `'loading'`: no decision yet (before `initialize()` settles, or an auth
- *   operation is in flight).
+ * - `'loading'`: no decision yet (before `initialize()` settles). An auth
+ *   operation in flight is {@link AuthState.loading} and KEEPS the decided
+ *   status, so a page guarded on `'loading'` stays mounted while a Login or
+ *   Register request runs.
  * - `'authenticated'`: a session exists.
  * - `'unauthenticated'`: the client settled the question and nobody is signed in.
  * - `'unavailable'`: a stored session exists but the server could not confirm it
