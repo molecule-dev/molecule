@@ -1,5 +1,11 @@
 # @molecule/app-ui-solid
 
+## 1.0.3
+
+### Patch Changes
+
+- 7857fd8: Dependencies updated: both bindings are now tested against solid-js 1.9.17, which resolves the patched seroval 1.6.x.
+
 ## 1.0.1
 
 ### Patch Changes
