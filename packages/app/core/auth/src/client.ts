@@ -357,13 +357,37 @@ export const createJWTAuthClient = <
   // An API with its own auth envelope (config.requestBody / mapAuthResponse).
   const shapeBody = (kind: 'login' | 'register', payload: object): unknown =>
     config.requestBody ? config.requestBody(kind, payload as Record<string, unknown>) : payload
+  let misplacedTokenReported = false
   const mapResult = (data: unknown): AuthResult<T> => {
     // With `AuthClientConfig<T>` the mapper's answer is already `AuthResult<T>`:
     // the compiler checks its user against the profile this client (and the
     // hook) hands to pages, so no cast may re-label it as `T` after mapping
     // (xr-molecule-flash-m255: the cast let a mapper drop required fields the
     // navbar read).
-    if (config.mapAuthResponse) return config.mapAuthResponse(data)
+    if (config.mapAuthResponse) {
+      const mapped = config.mapAuthResponse(data)
+      try {
+        if (
+          !misplacedTokenReported &&
+          mapped &&
+          typeof mapped === 'object' &&
+          'token' in mapped &&
+          typeof mapped.token === 'string' &&
+          mapped.token.length > 0 &&
+          !mapped.accessToken
+        ) {
+          misplacedTokenReported = true
+          logger.warn(
+            '[auth] mapAuthResponse returned `token` without `accessToken`. ' +
+              'The client does not store `token` as its credential. Map the credential to ' +
+              '`accessToken`; cookie-auth mappings may omit it.',
+          )
+        }
+      } catch (_error) {
+        // Neither diagnostic inspection nor logging may change the auth operation's result.
+      }
+      return mapped
+    }
     // No mapper: the API already answers in the client's own shape. JSON is
     // untyped, so this is the one place a shape must be asserted.
     return data as AuthResult<T>
