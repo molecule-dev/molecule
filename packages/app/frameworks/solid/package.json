@@ -41,7 +41,8 @@
   "devDependencies": {
     "@molecule/app-utilities": "1.0.4",
     "@types/node": "26.1.2",
-    "solid-js": "1.9.14",
+    "seroval": "1.6.11",
+    "solid-js": "1.9.17",
     "typescript": "6.0.3",
     "vitest": "4.1.11"
   },
