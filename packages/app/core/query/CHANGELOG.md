@@ -1,5 +1,11 @@
 # @molecule/app-query
 
+## 1.0.3
+
+### Patch Changes
+
+- 51aa3f9: Clarify invalidation, mutation updates, and retries for mounted query consumers.
+
 ## 1.0.2
 
 ### Patch Changes

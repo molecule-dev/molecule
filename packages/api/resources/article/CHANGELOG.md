@@ -1,5 +1,11 @@
 # @molecule/api-resource-article
 
+## 1.1.3
+
+### Patch Changes
+
+- a9b4bc1: Document the user identity the followed-authors feed and `follow` share: for `targetType` `'user'`, `follows.targetId` is the target's user id (the value `articles.authorId` holds), so a username or display handle must be resolved first.
+
 ## 1.1.2
 
 ### Patch Changes

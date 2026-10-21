@@ -1,5 +1,12 @@
 # @molecule/app-react
 
+## 1.7.1
+
+### Patch Changes
+
+- 3af014f: Stabilize form subscriptions, preserve provider field state, and make field registration names optional when supplied separately.
+- e0f81b6: `useAuth()` and `useSignup()` accept the app's own registration fields (`useAuth<MyUser, CustomRegister>()`, a type alias or an interface), typing `register()`/`signup()` like the auth client's `register()`.
+
 ## 1.7.0
 
 ### Minor Changes

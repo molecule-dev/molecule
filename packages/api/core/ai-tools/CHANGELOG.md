@@ -1,5 +1,18 @@
 # @molecule/api-ai-tools
 
+## 1.12.0
+
+### Minor Changes
+
+- dd9763d: Add deferred tool discovery with stable schema ordering and caller-controlled permissions.
+
+### Patch Changes
+
+- 0ac4a8f: Keep running test advice consistent with the task's early-stop decision.
+- 718737e: Allow inline programs to use normal bounded command execution without inferring server launches from program text.
+- ff962e9: Allow intentionally authored redaction placeholders through an explicit write/edit option while preserving output masking and copied-placeholder protection.
+- 8e94478: A read-only inspection command's output keeps ordinary code values, and a write that adds the output filter's `[REDACTED]` placeholder to a file is refused.
+
 ## 1.11.1
 
 ### Patch Changes

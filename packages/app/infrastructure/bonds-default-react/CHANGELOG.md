@@ -1,5 +1,11 @@
 # @molecule/app-bonds-default-react
 
+## 1.1.5
+
+### Patch Changes
+
+- 37c8311: Accept an ordinary interface for an app's custom registration fields: `createJWTAuthClient<User, CustomRegister>()` and the default-auth factories no longer require the fields be declared as a type alias.
+
 ## 1.1.4
 
 ### Patch Changes

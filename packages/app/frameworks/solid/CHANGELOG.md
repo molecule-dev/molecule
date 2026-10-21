@@ -1,5 +1,11 @@
 # @molecule/app-solid
 
+## 1.0.4
+
+### Patch Changes
+
+- b8dd395: Framework auth bindings accept the app's own registration fields (`useAuth<MyUser, CustomRegister>()`, `createAuth<…>`, `createAuthStores<…>`, `MoleculeAuthService<…>` — a type alias or an interface), typing `register()` like the auth client's.
+
 ## 1.0.3
 
 ### Patch Changes

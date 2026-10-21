@@ -1,5 +1,12 @@
 # @molecule/app-auth
 
+## 1.5.9
+
+### Patch Changes
+
+- 37c8311: Accept an ordinary interface for an app's custom registration fields: `createJWTAuthClient<User, CustomRegister>()` and the default-auth factories no longer require the fields be declared as a type alias.
+- af86f93: `updateProfile()` caches the user from a `{ props }` or `{ user }` profile answer instead of the response envelope.
+
 ## 1.5.8
 
 ### Patch Changes
