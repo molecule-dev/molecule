@@ -1857,6 +1857,60 @@ describe('repeatingFailure', () => {
     expect(universalCause(oneFileInsideArticles, found)).toBeNull()
   })
 
+  it.each([false, true])(
+    'keeps partial-run advice consistent with its stop verdict (local edits invalidate: %s)',
+    (editsInvalidateRun) => {
+      // Recorded result shape: three registration/login tests share one locator,
+      // while an access-control test fails its URL assertion. This is a recurring
+      // symptom within the run, not evidence that every test has the same cause.
+      const log = [
+        ...[
+          [7, 'should register a new user'],
+          [19, 'should login with existing user'],
+          [42, 'should fail login with wrong password'],
+        ].map(([line, title], i) =>
+          [
+            `  ✘ ${i + 1} [chromium] › auth.spec.ts:${line}:7 › Authentication › ${title} (5.4s)`,
+            `  ${i + 1}) [chromium] › auth.spec.ts:${line}:7 › Authentication › ${title} ────────`,
+            '    TimeoutError: page.fill: Timeout 5000ms exceeded.',
+            `    waiting for locator('input[name="username"]')`,
+          ].join('\n'),
+        ),
+        '  ✘ 6 [chromium] › auth.spec.ts:72:7 › Authentication › should prevent accessing editor when not logged in (5.4s)',
+        '  6) [chromium] › auth.spec.ts:72:7 › Authentication › should prevent accessing editor when not logged in ────────',
+        '    Error: expect(page).not.toHaveURL(expected) failed',
+      ].join('\n')
+      const found = repeatingFailure(log)!
+      expect(found.count).toBe(3)
+      expect(found.message).toBe(
+        `TimeoutError: page.fill: Timeout <n> exceeded. — waiting for locator('input[name="username"]')`,
+      )
+      const command =
+        'cd /tmp/e2e && BASE_URL=http://127.0.0.1:4173 npx playwright test auth.spec.ts health.spec.ts navigation.spec.ts --retries=0'
+      const universal = universalCause(log, found, command)
+      expect(earlyReturnCause(found, universal)).toBeNull()
+      const note = repeatingFailureNote(found, {
+        taskId: 'recorded-task',
+        log: '/tmp/recorded-task.log',
+        stop: 'kill 412 419',
+        universal,
+        run: { command },
+        editsInvalidateRun,
+      })
+      expect(note).toContain('3 different tests in this run have already failed the same way')
+      expect(note).toContain('Let the rest of the run finish')
+      expect(note).toContain('Send this once the run ends')
+      expect(note).toContain('Read `auth.spec.ts:7`')
+      expect(note).not.toContain('Stop it')
+      expect(note).not.toContain('kill 412 419')
+      if (editsInvalidateRun) {
+        expect(note).toContain('apply it when the run ends, not while it walks')
+      } else {
+        expect(note).toContain('Start fixing it now, while the run keeps walking')
+      }
+    },
+  )
+
   it('reads every test of four files failing on one connection error as the whole run', () => {
     const found = repeatingFailure(refusedEverywhere)!
     // The port is normalized: which port the app was not listening on is a fact about the run's
@@ -1883,6 +1937,7 @@ describe('repeatingFailure', () => {
     // Why: the rest of the walk can only repeat this one cause.
     expect(note).toContain('Every remaining test will fail the same way too')
     expect(note).toContain('exec_command: kill 412 419')
+    expect(note).not.toContain('Let the rest of the run finish')
   })
 
   it('does not call a run broken when a test passed after the first failure', () => {

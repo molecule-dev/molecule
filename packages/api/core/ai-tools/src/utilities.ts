@@ -4454,11 +4454,8 @@ export function repeatingFailureNote(
       `then run the whole suite again. It is still going (${where}).${reproduce}`
     )
   }
-  // Everything else is a note on a run the wait is still waiting for, and both its shapes end the
-  // same way: the run finishes, because it is the only thing that names the causes this finding is
-  // not. What it does NOT carry is the "Stop it if every test fails this way" clause — that one
-  // belongs to a PROVEN cause the run is still walking (the sentence below), never to a lead:
-  // xr-molecule-flash-m99's executor read it on a shared duration and voided the run.
+  // The same predicate controls both an early return and stop advice. Without
+  // that verdict, neither a repeated error nor a shared duration asks for a stop.
   const keepGoing =
     `Let the rest of the run finish — it is the only thing that will name the causes that are NOT ` +
     `this one, and a run stopped at its first repeating cause costs a second whole run to find ` +
@@ -4468,10 +4465,9 @@ export function repeatingFailureNote(
       `${found.count} different tests in this run have already failed the same way — ${signature} — ` +
       `so one cause is repeating:\n${rows}${more}\n` +
       (o.editsInvalidateRun
-        ? `Work out the fix now: apply it when the run ends, not while it walks. Stop it only if every test it walks `
-        : `Start fixing it now, while the run keeps walking. Stop it only if every test it walks `) +
-      `fails this same way (the app unreachable, a 5xx on every request, the same selector timing ` +
-      `out on every test of every file so far).${reproduce} ${keepGoing}${thenRun}`
+        ? `Work out the fix now: apply it when the run ends, not while it walks.`
+        : `Start fixing it now, while the run keeps walking.`) +
+      `${reproduce} ${keepGoing}${thenRun}`
     )
   return (
     `${found.count} different tests in this run each failed after ~${found.seconds}s — the same ` +
