@@ -577,6 +577,160 @@ describe('the composed command runs with its setup intact (m429)', () => {
 })
 
 /**
+ * xr-molecule-flash-o03 (+23:03; the stale-READ arm m248 filed at +25:55): the composed re-run
+ * moved the runner's `> /tmp/e2e-local.log` to a fresh sibling but left `tail -80
+ * /tmp/e2e-local.log` chained after it. The platform's own recipe therefore wrote the narrowed
+ * run's report to `…log.rerun.log` and displayed the walk it was narrowed FROM — the builder
+ * followed that recipe at +19:16 and read the previous walk's failures as the re-run's result.
+ *
+ * Only a `tail`/`head`/`cat`/`grep` chained AFTER the run that reads the EXACT file the run wrote
+ * moves with it. The walk's own report stays where it is, the setup in front of the run keeps
+ * every byte (m429), and a read of any other file is untouched.
+ */
+describe('a composed re-run displays the fresh log it writes (o03)', () => {
+  /** The measured shape the +15:35 wait_for_task handed over: cd, env, config, redirect, echo, tail. */
+  const MEASURED =
+    'cd /workspace/fixtures/realworld && BASE_URL=http://localhost:5173 ' +
+    'npx --no-install playwright test --config playwright.config.ts specs/e2e ' +
+    '--max-failures=15 --reporter=list > /tmp/e2e-local.log 2>&1; ' +
+    'echo EXIT=$?; tail -80 /tmp/e2e-local.log'
+
+  it('points the trailing tail at the fresh report and keeps the walk’s own file untouched', () => {
+    const rerun = scopedRerunCommand(MEASURED, ['specs/e2e/auth.spec.ts:19'])
+    expect(rerun).toContain('> /tmp/e2e-local.log.rerun.log 2>&1')
+    expect(rerun).toContain('echo EXIT=$?; tail -80 /tmp/e2e-local.log.rerun.log')
+    // No display reads the walk's original log any more.
+    expect(rerun).not.toMatch(/tail[^;]*\/tmp\/e2e-local\.log(?!\.rerun\.log)/)
+    // The run itself keeps its directory, env, config, narrowers and its narrowed selection.
+    expect(rerun).toContain('cd /workspace/fixtures/realworld && BASE_URL=http://localhost:5173')
+    expect(rerun).toContain('--config playwright.config.ts')
+    expect(rerun).toContain('specs/e2e/auth.spec.ts:19 --retries=0')
+    expect(rerun).toContain('--max-failures=15 --reporter=list')
+  })
+
+  it('points a grep tally at the fresh report and leaves the pattern alone', () => {
+    // m248’s own emitted shape: the writer moved, the tally did not.
+    const rerun = scopedRerunCommand(
+      'npx playwright test specs/auth.spec.ts > /tmp/rerun.log 2>&1; echo exit=$?; ' +
+        'grep -E "✓|✘|failed|passed" /tmp/rerun.log',
+      ['specs/auth.spec.ts:3'],
+    )
+    expect(rerun).toContain('grep -E "✓|✘|failed|passed" /tmp/rerun.log.rerun.log')
+    expect(rerun).toContain('> /tmp/rerun.log.rerun.log 2>&1')
+  })
+
+  it('reads every one of the run’s own reports, and only the exact file it wrote', () => {
+    const rerun = scopedRerunCommand(
+      'npx playwright test > /tmp/full.log 2>&1 | cat /tmp/other.log; ' +
+        'head -20 /tmp/full.log; cat /tmp/full.log /tmp/other.log; ' +
+        'grep -c failed /tmp/full.log',
+      ['a.spec.ts:1'],
+    )
+    expect(rerun).toBe(
+      'npx playwright test a.spec.ts:1 --retries=0 > /tmp/full.log.rerun.log 2>&1 | ' +
+        'cat /tmp/other.log; head -20 /tmp/full.log.rerun.log; ' +
+        'cat /tmp/full.log.rerun.log /tmp/other.log; ' +
+        'grep -c failed /tmp/full.log.rerun.log',
+    )
+  })
+
+  it('leaves reads of other files and postlude writes exactly as they were', () => {
+    const command =
+      'npx playwright test > /tmp/full.log 2>&1; tail -5 /tmp/other.log; ' +
+      'cat /tmp/notes.txt; grep FAIL /tmp/other.log; echo done > /tmp/full.exit'
+    expect(scopedRerunCommand(command, ['a.spec.ts:1'])).toBe(
+      'npx playwright test a.spec.ts:1 --retries=0 > /tmp/full.log.rerun.log 2>&1; ' +
+        'tail -5 /tmp/other.log; cat /tmp/notes.txt; grep FAIL /tmp/other.log; ' +
+        'echo done > /tmp/full.exit',
+    )
+  })
+
+  it('leaves a quoted mention of the old path alone, and only rewrites the file operand', () => {
+    const rerun = scopedRerunCommand(
+      'npx playwright test > /tmp/full.log 2>&1; ' +
+        `echo "the walk's log is /tmp/full.log"; grep 'see /tmp/full.log' /tmp/notes.txt; ` +
+        'grep -e /tmp/full.log /tmp/full.log',
+      ['a.spec.ts:1'],
+    )
+    expect(rerun).toContain(`echo "the walk's log is /tmp/full.log"`)
+    expect(rerun).toContain(`grep 'see /tmp/full.log' /tmp/notes.txt`)
+    // A `-e` value is the pattern; the operand after it is the file to display.
+    expect(rerun).toContain('grep -e /tmp/full.log /tmp/full.log.rerun.log')
+    expect(rerun).toContain('> /tmp/full.log.rerun.log 2>&1')
+  })
+
+  it('keeps a quoted log path with spaces quoted on both sides of the pair', () => {
+    const rerun = scopedRerunCommand(
+      'npx playwright test > "/tmp/my walk.log" 2>&1; tail -5 "/tmp/my walk.log"',
+      ['a.spec.ts:1'],
+    )
+    expect(rerun).toContain('> "/tmp/my walk.log.rerun.log" 2>&1')
+    expect(rerun).toContain('tail -5 "/tmp/my walk.log.rerun.log"')
+  })
+
+  it('keeps device streams and a pipeline’s tee stage as written', () => {
+    expect(
+      scopedRerunCommand('npx playwright test > /dev/null 2>&1; tail -5 /dev/null', [
+        'a.spec.ts:1',
+      ]),
+    ).toBe('npx playwright test a.spec.ts:1 --retries=0 > /dev/null 2>&1; tail -5 /dev/null')
+    expect(
+      scopedRerunCommand('npx playwright test 2>&1 | tee -a /tmp/full.log | tail -5', [
+        'a.spec.ts:1',
+      ]),
+    ).toContain('| tee -a /tmp/full.log.rerun.log | tail -5')
+  })
+
+  it('leaves a command with no recognised runner exactly as it came', () => {
+    const command = 'echo start; tail -5 /tmp/full.log; grep FAIL /tmp/full.log'
+    expect(scopedRerunCommand(command, ['a.spec.ts:1'])).toBe(command)
+  })
+})
+
+/**
+ * The property o03 is about, proved by RUNNING the composed command: a disposable tree, a fake
+ * `npx` that prints the fresh run's outcome, the previous walk's report already in place, and the
+ * chain the platform actually emits. The narrowed re-run must print NEW_PASS and leave
+ * OLD_FAILURE where the walk wrote it.
+ */
+describe('the composed re-run shows the run it performed (o03, executed)', () => {
+  let tree = ''
+
+  beforeAll(() => {
+    tree = mkdtempSync(join(tmpdir(), 'rerun-reader-'))
+    mkdirSync(join(tree, 'bin'), { recursive: true })
+    writeFileSync(join(tree, 'bin', 'npx'), '#!/bin/sh\necho NEW_PASS\nexit 0\n', { mode: 0o755 })
+  })
+
+  afterAll(() => {
+    if (tree) rmSync(tree, { recursive: true, force: true })
+  })
+
+  it('prints the fresh run through the trailing tail and keeps the original failure report', () => {
+    const log = join(tree, 'walk.log')
+    writeFileSync(log, 'OLD_FAILURE\n')
+    const command = `npx playwright test specs/auth.spec.ts > ${log} 2>&1; echo EXIT=$?; tail -5 ${log}`
+    const rerun = scopedRerunCommand(command, ['specs/auth.spec.ts:3'], [], null, tree)
+    expect(rerun).toContain(`> ${log}.rerun.log 2>&1`)
+    expect(rerun).toContain(`tail -5 ${log}.rerun.log`)
+
+    const result = spawnSync('bash', ['-c', rerun], {
+      cwd: tree,
+      encoding: 'utf8',
+      env: { ...process.env, PATH: `${join(tree, 'bin')}:${process.env.PATH ?? ''}` },
+    })
+    expect(result.status).toBe(0)
+    // Displayed evidence is the run that just happened, not the walk it was narrowed from.
+    expect(result.stdout).toContain('EXIT=0')
+    expect(result.stdout).toContain('NEW_PASS')
+    expect(result.stdout).not.toContain('OLD_FAILURE')
+    // The fresh report holds the fresh output, and the walk's report is byte-for-byte.
+    expect(readFileSync(`${log}.rerun.log`, 'utf8')).toContain('NEW_PASS')
+    expect(readFileSync(log, 'utf8')).toBe('OLD_FAILURE\n')
+  })
+})
+
+/**
  * xr-molecule-flash-m428 (+31:03): the suggested "Re-run just these" named fourteen failing
  * `file:line`s and still carried the original positional `/workspace/fixtures/realworld/specs/e2e`
  * after `--config playwright.config.ts`. Playwright OR-s positional arguments into one selection,

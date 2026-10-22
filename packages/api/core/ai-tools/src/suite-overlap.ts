@@ -210,12 +210,14 @@ function applyTextEdits(command: string, edits: readonly TextEdit[]): string {
  * @param statement - The statement's text.
  * @param offset - The statement's offset in the command.
  * @param words - The command's word spans.
+ * @param fresh - The exact old file → fresh file mapping the edits make, filled in here.
  * @returns The edits, in statement order.
  */
 function freshRedirectEdits(
   statement: string,
   offset: number,
   words: readonly CommandSpan[],
+  fresh: Map<string, string>,
 ): TextEdit[] {
   const edits: TextEdit[] = []
   for (const match of statement.matchAll(FILE_REDIRECT)) {
@@ -234,7 +236,9 @@ function freshRedirectEdits(
     if (target.startsWith('&') || target.startsWith('(') || /^\d+$/.test(target)) continue
     const quote = single !== undefined || double !== undefined ? 1 : 0
     const start = offset + (match.index ?? 0) + before.length + op.length + space.length + quote
-    edits.push({ start, end: start + target.length, text: `${target}.rerun.log` })
+    const rewritten = `${target}.rerun.log`
+    fresh.set(target, rewritten)
+    edits.push({ start, end: start + target.length, text: rewritten })
   }
   return edits
 }
@@ -249,9 +253,10 @@ function freshRedirectEdits(
  *
  * @param statement - The stage's text.
  * @param offset - The stage's offset in the command.
+ * @param fresh - The exact old file → fresh file mapping the edits make, filled in here.
  * @returns The edits, in stage order.
  */
-function freshTeeEdits(statement: string, offset: number): TextEdit[] {
+function freshTeeEdits(statement: string, offset: number, fresh: Map<string, string>): TextEdit[] {
   const words = [...statement.matchAll(ARGUMENT_WORD)].map((match) => ({
     text: match[0],
     start: offset + (match.index ?? 0),
@@ -265,10 +270,12 @@ function freshTeeEdits(statement: string, offset: number): TextEdit[] {
     const bare = unquoted(word.text)
     if (!bare || bare.startsWith('-') || DEVICE_TARGET.test(bare)) continue
     const quote = /^['"]/.test(word.text) ? 1 : 0
+    const rewritten = `${bare}.rerun.log`
+    fresh.set(bare, rewritten)
     edits.push({
       start: word.start + quote,
       end: word.start + word.text.length - quote,
-      text: `${bare}.rerun.log`,
+      text: rewritten,
     })
   }
   return edits
@@ -321,6 +328,111 @@ function runnerOutputStatements(command: string): RunnerOutputStatement[] | null
 }
 
 /**
+ * Readers whose non-flag operands are ALL files: a display of the run's own report. Every one of
+ * them is read-only, so moving its operand with the file it reads cannot change what it does.
+ */
+const FILE_READERS: ReadonlySet<string> = new Set(['cat', 'head', 'tail'])
+
+/**
+ * grep-family readers: their first non-flag operand is the pattern, and the words after it are the
+ * files they display — unless a `-e`/`-f` flag named the pattern already.
+ */
+const GREP_READERS: ReadonlySet<string> = new Set(['egrep', 'fgrep', 'grep'])
+
+/** grep's pattern flags: the word after one is a pattern (or a pattern file), never a file. */
+const GREP_PATTERN_FLAGS: ReadonlySet<string> = new Set(['-e', '--regexp', '-f', '--file'])
+
+/**
+ * The postlude statements that DISPLAY the run's own report, with the exact file that run wrote
+ * pointed at the fresh sibling the re-run writes instead.
+ *
+ * xr-molecule-flash-o03 (2026-10-22; the stale-READ arm m248 filed at +25:55): the recipe the
+ * platform handed the executor ended `> /tmp/e2e-local.log.rerun.log 2>&1; echo EXIT=$?; tail -80
+ * /tmp/e2e-local.log`. The writer moved to the fresh sibling and the trailing tail did not, so the
+ * narrowed re-run displayed the walk it was narrowed FROM — the builder followed that recipe at
+ * +19:16 and read the previous walk's failures as the result of the run it had just done.
+ *
+ * Only the EXACT file a runner statement (or its `tee`) wrote moves, and only in a statement AFTER
+ * the run: the setup in front of it keeps every byte (m429), and a read of any other file is left
+ * alone. The value is compared whole — `/tmp/full.log` never matches `/tmp/full.log.bak` — and
+ * inside shell quotes the operand's own quoting survives (`"/tmp/my walk.log"` stays quoted).
+ *
+ * The bound is deliberate: a display this reader set does not recognise (a `wc`, a path held in a
+ * variable, a path the command builds) is left exactly as written rather than guessed at. Those
+ * shapes are not the ones the platform emits, and rewriting a word by resemblance is how m429's
+ * setup redirect was corrupted.
+ *
+ * @param command - The composed command.
+ * @param statements - The statements carrying the run's own output.
+ * @param fresh - The exact old file → fresh file mapping the redirect edits made.
+ * @returns The edits, in statement order.
+ */
+function freshReportReadEdits(
+  command: string,
+  statements: readonly RunnerOutputStatement[],
+  fresh: ReadonlyMap<string, string>,
+): TextEdit[] {
+  if (fresh.size === 0) return []
+  const after = Math.max(...statements.map((statement) => statement.end))
+  const edits: TextEdit[] = []
+  for (const entry of locatedCommandSegments(command)) {
+    const segment = entry.segment
+    const start = entry.start
+    const end = entry.end
+    const programOffset = entry.programOffset
+    // Only a statement the parse placed and that runs AFTER the walk can display its report.
+    if (segment === null || start === null || end === null) continue
+    if (start < after || programOffset === null) continue
+    const allFiles = FILE_READERS.has(segment.program)
+    const grep = GREP_READERS.has(segment.program)
+    if (!allFiles && !grep) continue
+    const text = command.slice(start, end)
+    const words = [...text.matchAll(ARGUMENT_WORD)].map((match) => ({
+      text: match[0],
+      start: start + (match.index ?? 0),
+    }))
+    // The program word's own span, so the walk starts exactly where the parse says it does.
+    const program = words.findIndex((word) => word.start === programOffset)
+    if (program < 0) continue
+    /** grep still owes its pattern: the first bare operand is that pattern, not a file. */
+    let patternPending = grep
+    for (let i = program + 1; i < words.length; i += 1) {
+      const word = words[i]
+      if (word === undefined) break
+      if (ARGUMENT_REDIRECT_OPERATOR.test(word.text)) {
+        // The operator's target is where the display WRITES, not a file it reads.
+        i += 1
+        continue
+      }
+      if (ARGUMENT_REDIRECT.test(word.text)) continue
+      const flag = unquoted(word.text)
+      if (flag.startsWith('-') && flag !== '-') {
+        if (grep) {
+          if (GREP_PATTERN_FLAGS.has(flag)) {
+            patternPending = false
+            i += 1
+          } else if (/^(?:--(?:regexp|file)=|-[ef].)/.test(flag)) patternPending = false
+        }
+        continue
+      }
+      if (patternPending) {
+        patternPending = false
+        continue
+      }
+      const to = fresh.get(unquoted(word.text))
+      if (to === undefined) continue
+      const quote = /^['"]/.test(word.text) ? 1 : 0
+      edits.push({
+        start: word.start + quote,
+        end: word.start + word.text.length - quote,
+        text: to,
+      })
+    }
+  }
+  return edits
+}
+
+/**
  * The command with the SUITE RUN's own log files pointed at fresh siblings, and nothing else
  * changed.
  *
@@ -339,6 +451,12 @@ function runnerOutputStatements(command: string): RunnerOutputStatement[] | null
  * source asset it lays down are the same shape: their targets stay byte-for-byte, and so does
  * every statement chained after the run (`; echo EXIT $? > /tmp/done`).
  *
+ * Every statement chained after the run (`; echo EXIT $? > /tmp/done`) is postlude and keeps its
+ * own writes, but the DISPLAY of the run's report is part of the same run: a `tail`, `head`, `cat`
+ * or `grep` after the run that reads the exact file it wrote is pointed at the fresh sibling too
+ * ({@link freshReportReadEdits}), so a re-run shows its own output instead of the walk's
+ * (xr-molecule-flash-o03).
+ *
  * @param command - The composed command.
  * @returns The command whose suite-run redirects write to a fresh target.
  */
@@ -347,11 +465,13 @@ function redirectRunnerOutputsToFreshFiles(command: string): string {
   if (statements === null) return command
   const words = wordSpans(command)
   const edits: TextEdit[] = []
+  const fresh = new Map<string, string>()
   for (const statement of statements) {
     const text = command.slice(statement.start, statement.end)
-    edits.push(...freshRedirectEdits(text, statement.start, words))
-    if (statement.tee) edits.push(...freshTeeEdits(text, statement.start))
+    edits.push(...freshRedirectEdits(text, statement.start, words, fresh))
+    if (statement.tee) edits.push(...freshTeeEdits(text, statement.start, fresh))
   }
+  edits.push(...freshReportReadEdits(command, statements, fresh))
   return applyTextEdits(command, edits)
 }
 
@@ -365,7 +485,9 @@ function redirectRunnerOutputsToFreshFiles(command: string): string {
  * The re-run keeps the run's `> <file>` redirect only in the sense of keeping its OUTPUT there:
  * the target is rewritten to a fresh sibling ({@link redirectRunnerOutputsToFreshFiles}), so a
  * re-run never overwrites the log the run itself is the evidence for (xr-molecule-flash-m173) —
- * and the setup around the run keeps its own file writes untouched (xr-molecule-flash-m429).
+ * and the setup around the run keeps its own file writes untouched (xr-molecule-flash-m429). A
+ * `tail`/`head`/`cat`/`grep` chained after the run that reads that exact log is shown the fresh
+ * sibling instead, so the re-run displays the run it performed (xr-molecule-flash-o03).
  *
  * `config` is the config the run was measured under ({@link withSuiteConfig}): the narrowed re-run
  * carries it whenever the command itself does not, so a run that dropped `--config` cannot be
