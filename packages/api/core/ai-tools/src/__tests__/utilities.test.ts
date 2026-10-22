@@ -27,6 +27,7 @@ import {
   logShowsInlineFailureBodies,
   matchingExcludedTitles,
   outputRedirectTarget,
+  parseRunningLogRead,
   redactSecrets,
   redactSecretsInCode,
   repeatedSuiteRunError,
@@ -35,6 +36,8 @@ import {
   repeatingFailureNote,
   rerunOfRunningSuite,
   resolvePath,
+  RUNNING_LOG_READ_BYTES,
+  runningLogReadCommand,
   shellQuote,
   specFilesSelected,
   streamingBackgroundCommand,
@@ -51,6 +54,43 @@ import {
   whitespaceTolerantReplace,
   withoutSuiteTimeout,
 } from '../utilities.js'
+
+describe('runningLogReadCommand', () => {
+  it('reads the log’s size and one contiguous tail, never a stitched display', () => {
+    const command = runningLogReadCommand('/tmp/mol-bg-abc-1.log')
+    expect(command).toContain('cat /tmp/mol-bg-abc-1.log 2>/dev/null | wc -c')
+    expect(command).toContain(`tail -c ${RUNNING_LOG_READ_BYTES}`)
+    // One `tail -c`: the whole window is the log's own end.
+    expect(command.match(/tail -c/g)).toHaveLength(1)
+    expect(command).not.toContain('head -')
+    expect(command).not.toContain('grep')
+  })
+
+  it('includes the launch’s redirect target, quoted, when the launch recorded one', () => {
+    const command = runningLogReadCommand('/tmp/mol-bg-abc-1.log', "/tmp/it's.log")
+    expect(command).toContain(`'/tmp/it'\\''s.log'`)
+    // Both the size and the window read the same files.
+    expect(command.match(/mol-bg-abc-1\.log/g)).toHaveLength(2)
+  })
+})
+
+describe('parseRunningLogRead', () => {
+  it('splits the byte size from the window', () => {
+    expect(parseRunningLogRead('120000\n  ✘  9 › a.spec.ts:1 › fails (1.2s)\n')).toEqual({
+      text: '  ✘  9 › a.spec.ts:1 › fails (1.2s)\n',
+      bytes: 120000,
+    })
+  })
+
+  it('reads an empty log as an empty window, not as missing evidence', () => {
+    expect(parseRunningLogRead('0\n')).toEqual({ text: '', bytes: 0 })
+  })
+
+  it('is null when no size line came back, so no log is diagnosed', () => {
+    expect(parseRunningLogRead('  ✘  9 › a.spec.ts:1 › fails (1.2s)\n')).toBeNull()
+    expect(parseRunningLogRead('')).toBeNull()
+  })
+})
 
 describe('shellQuote', () => {
   it('wraps plain strings in single quotes', () => {
@@ -2726,6 +2766,29 @@ describe('repeatingFailure', () => {
       ])
       expect(causes[1].message).toBe('Expected class "active" but got ""')
       expect(causes[1].tests[0].title).toBe('shows the pill')
+    })
+
+    it('never reads a following SKIPPED row as a bodyless failure’s cause (l07)', () => {
+      // One genuine body, then a block the reporter printed with nothing under it, immediately
+      // followed by skipped tests. Without the skip-row filter the second failure's "cause" is the
+      // skipped row, so the note names a skipped test the request never asked to fix.
+      const bodyless = [
+        'Running 43 tests using 1 worker',
+        '  1) [chromium] › social.spec.ts:22:3 › should follow and unfollow a user ─────',
+        '',
+        '    TimeoutError: page.click: Timeout 5000ms exceeded.',
+        '',
+        '  2) [chromium] › social.spec.ts:153:3 › should display followed users articles in feed ─────',
+        '',
+        '  -  41 [chromium] › user-fetch-errors.spec.ts:88:3 › should show an error when the profile call fails',
+        '  40 skipped',
+        '  2 failed',
+      ].join('\n')
+      const causes = failuresByCause(bodyless)
+      expect(causes.map((c) => c.message)).toEqual([
+        'TimeoutError: page.click: Timeout <n> exceeded.',
+      ])
+      expect(failureCausesNote(bodyless)).toBeNull()
     })
 
     it('summarizes a finished run as one line per cause, so one round fixes them all', () => {

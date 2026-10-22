@@ -11,6 +11,7 @@ import {
   discoverSkills,
   isValidGlob,
   redactSecrets,
+  registeredTaskLogCommand,
   resolvePath,
   runningOutputSliceCommand,
   shellQuote,
@@ -60,6 +61,21 @@ describe('resolvePath', () => {
 
   it('blocks traversal outside root', () => {
     expect(resolvePath('../../etc/passwd', '/workspace')).toBe('/workspace')
+  })
+})
+
+describe('registeredTaskLogCommand', () => {
+  it('reads the log the launch wrote for exactly that task id', () => {
+    const command = registeredTaskLogCommand('mol-bg-l07-1')
+    expect(command).toContain('/tmp/mol-bg-l07-1.log')
+    expect(command).toContain('wc -c')
+    expect(command).toContain('tail -c')
+  })
+
+  it('refuses anything this platform did not mint, so no /tmp path is built from it', () => {
+    expect(registeredTaskLogCommand('../../etc/passwd')).toBeNull()
+    expect(registeredTaskLogCommand('mol-bg-l07-1; rm -rf /')).toBeNull()
+    expect(registeredTaskLogCommand('')).toBeNull()
   })
 })
 

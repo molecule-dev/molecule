@@ -848,6 +848,7 @@ import {
   resolvePath,
   RUNNING_FAILURE_LINES,
   runningCauseCommand,
+  runningLogReadCommand,
   runningOutputSliceCommand,
   searchTimeoutError,
   serializedChars,
@@ -1033,6 +1034,25 @@ export function moleculeDistReadNote(path: string): string | null {
       ? ' The declarations above are generated from it.'
       : ' For one signature, read the matching .d.ts file.')
   )
+}
+
+/**
+ * The command that reads a REGISTERED background task's own log as one bounded contiguous window
+ * ({@link runningLogReadCommand}), with the file its launch redirects to when the launch recorded
+ * one.
+ *
+ * The task id is the ownership: it is the handle `wait_for_task` returned, `/tmp/${taskId}.log` is
+ * the log this platform's launcher writes for it, and the redirect target is the file this
+ * process's own launch registered for that id — never a path parsed out of a command by the
+ * caller. A diagnosis that reads a running walk must not build a `/tmp` path of its own
+ * (xr-molecule-flash-l07: the wait's DISPLAY was diagnosed as if it were the log).
+ *
+ * @param taskId - The `mol-bg-…` handle the wait returned.
+ * @returns The read command, or null when the handle is not a task id this platform minted.
+ */
+export function registeredTaskLogCommand(taskId: string): string | null {
+  if (!TASK_ID.test(taskId)) return null
+  return runningLogReadCommand(`/tmp/${taskId}.log`, outputFileByTask.get(taskId))
 }
 
 /**

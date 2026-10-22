@@ -2657,6 +2657,53 @@ export function runningCauseCommand(log: string, own?: string): string {
   return `${read} | tail -c ${REPEATING_CAUSE_TAIL_BYTES}`
 }
 
+/** Bytes of a running log a diagnostic note reads back: one {@link REPEATING_CAUSE_TAIL_BYTES} window. */
+export const RUNNING_LOG_READ_BYTES = REPEATING_CAUSE_TAIL_BYTES
+
+/** A bounded, contiguous read of a running task's own log. */
+export interface RunningLogRead {
+  /** The log's last {@link RUNNING_LOG_READ_BYTES} bytes, contiguous, as one string. */
+  text: string
+  /** How many bytes the WHOLE log holds, or null when the read did not answer its size. */
+  bytes: number | null
+}
+
+/**
+ * The shell command whose stdout is a bounded CONTIGUOUS read of a running task's own log: the
+ * log's byte size, then its last {@link RUNNING_LOG_READ_BYTES} bytes.
+ *
+ * {@link runningOutputSliceCommand} is the wrong read for a diagnosis, and l07 is the finding: it
+ * stitches the first 40 grep-selected failure lines to the last 1 000 bytes with a blank line
+ * between, so the tail is DISJOINT from the headers above it. Read as one log, the last numbered
+ * header absorbs whatever the tail starts with — a clipped skipped-test title became the cause of
+ * a genuine failure (xr-molecule-flash-l07). A contiguous window can only ever hold real
+ * neighbouring lines of one log.
+ *
+ * The size rides along so a caller can say when the window is only the log's end
+ * ({@link parseRunningLogRead}); without it a tail reads as the whole run.
+ *
+ * @param log - The task log path.
+ * @param own - A file the command redirects its own output to, if any.
+ * @returns The shell command, safe to hand to the execution backend as-is.
+ */
+export function runningLogReadCommand(log: string, own?: string): string {
+  const read = `cat ${log}${own ? ` ${shellQuote(own)}` : ''} 2>/dev/null`
+  return `{ ${read} | wc -c; ${read} | tail -c ${RUNNING_LOG_READ_BYTES}; }`
+}
+
+/**
+ * The two parts of {@link runningLogReadCommand}'s answer.
+ *
+ * @param stdout - The command's stdout.
+ * @returns The window and the whole log's byte size, or null when the size line is absent (the
+ *   read did not run, so nothing may be said about the log).
+ */
+export function parseRunningLogRead(stdout: string): RunningLogRead | null {
+  const sized = /^\s*(\d+)\s*\n/.exec(stdout)
+  if (sized === null) return null
+  return { text: stdout.slice(sized[0].length), bytes: Number(sized[1]) }
+}
+
 /**
  * DISTINCT tests that must share one signature before a running suite's repeating cause is named.
  * A test the log prints twice, or a test that failed twice, is still one test.
@@ -2781,6 +2828,12 @@ function failureBody(block: string): string[] {
       (l) =>
         l &&
         !LIST_RESULT_LINE.test(l) &&
+        // A SKIPPED test's own row (`  -  41 [chromium] › user-fetch-errors.spec.ts:88:3 › …`) is
+        // a progress line, never a failure's body: a block with no body of its own is followed by
+        // whatever the reporter printed next, and that row became the failure's "cause" when the
+        // wait's stitched display was read as one log (xr-molecule-flash-l07). A `- waiting for`
+        // call-log line stays — it names the locator, and the dash carries no index.
+        !/^\s*-\s+\d+\s+/.test(l) &&
         !/^(?:at\s|\d+ \||>\s*\d+ \||\|)/.test(l) &&
         !/^Error Context:/.test(l),
     )
