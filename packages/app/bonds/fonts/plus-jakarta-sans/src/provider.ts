@@ -13,6 +13,12 @@ export const font: FontDefinition = {
   fallbacks: ['system-ui', '-apple-system', 'sans-serif'],
   source: {
     type: 'local',
-    faces: [{ file: 'PlusJakartaSans-VariableFont.ttf', weight: '200 800', variable: true }],
+    faces: [
+      {
+        file: new URL('../fonts/PlusJakartaSans-VariableFont.ttf', import.meta.url).href,
+        weight: '200 800',
+        variable: true,
+      },
+    ],
   },
 }

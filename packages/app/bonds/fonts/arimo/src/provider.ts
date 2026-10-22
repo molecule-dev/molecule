@@ -14,9 +14,13 @@ export const font: FontDefinition = {
   source: {
     type: 'local',
     faces: [
-      { file: 'Arimo-Regular.ttf', weight: 400 },
-      { file: 'Arimo-Bold.ttf', weight: 700 },
-      { file: 'Arimo-VariableFont_wght.ttf', weight: '100 1000', variable: true },
+      { file: new URL('../fonts/Arimo-Regular.ttf', import.meta.url).href, weight: 400 },
+      { file: new URL('../fonts/Arimo-Bold.ttf', import.meta.url).href, weight: 700 },
+      {
+        file: new URL('../fonts/Arimo-VariableFont_wght.ttf', import.meta.url).href,
+        weight: '100 1000',
+        variable: true,
+      },
     ],
   },
 }

@@ -10,19 +10,12 @@
  * ```
  *
  * @remarks
- * - **Wiring it without `mlcl` (the sandbox):** the package is already
- *   installed under `node_modules` — add an `"@molecule/app-fonts-merriweather"`
- *   dependency to the app's `package.json` (pin the version already installed
- *   there), then in `app/src/bonds/index.ts` call `setFont(serif)`.
- *   Preferred: import the webfont as an asset so nothing is copied —
- *   `import woff from '@molecule/app-fonts-merriweather/fonts/Merriweather-VariableFont.ttf?url'` then
- *   `setFont({ ...serif, source: { type: 'local', faces: [{ file: woff,
- *   weight: '300 900' }] } })`. `setFont()` uses a `file` starting with
- *   `/`, `http` or `data:` as-is.
- *   Without an asset import, copy
- *   `node_modules/@molecule/app-fonts-merriweather/fonts/Merriweather-VariableFont.ttf` to
- *   `app/public/fonts/Merriweather-VariableFont.ttf` and call `setFont(serif)` — a
- *   plain filename is served from `<basePath>fonts/<file>`.
+ * - **Browser wiring:** import `font` from this package and call `setFont(font)`
+ *   at startup. The packaged faces resolve relative to this module; the browser
+ *   bundler emits the complete files as fingerprinted assets, including its
+ *   configured public base path. No manual copy or app-side asset import is needed.
+ * - The registry retains filenames for `mlcl` static font copying. A custom
+ *   face may still use a plain filename with `setFont`'s `basePath` option.
  *
  * @module
  */

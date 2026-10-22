@@ -13,6 +13,12 @@ export const font: FontDefinition = {
   fallbacks: ['system-ui', '-apple-system', 'sans-serif'],
   source: {
     type: 'local',
-    faces: [{ file: 'SpaceGrotesk-VariableFont.ttf', weight: '300 700', variable: true }],
+    faces: [
+      {
+        file: new URL('../fonts/SpaceGrotesk-VariableFont.ttf', import.meta.url).href,
+        weight: '300 700',
+        variable: true,
+      },
+    ],
   },
 }

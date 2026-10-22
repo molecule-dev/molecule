@@ -13,6 +13,12 @@ export const font: FontDefinition = {
   fallbacks: ['system-ui', '-apple-system', 'sans-serif'],
   source: {
     type: 'local',
-    faces: [{ file: 'DMSans-VariableFont.ttf', weight: '100 1000', variable: true }],
+    faces: [
+      {
+        file: new URL('../fonts/DMSans-VariableFont.ttf', import.meta.url).href,
+        weight: '100 1000',
+        variable: true,
+      },
+    ],
   },
 }

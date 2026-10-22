@@ -13,6 +13,12 @@ export const font: FontDefinition = {
   fallbacks: ['Georgia', 'Cambria', '"Times New Roman"', 'serif'],
   source: {
     type: 'local',
-    faces: [{ file: 'Newsreader-VariableFont.ttf', weight: '200 800', variable: true }],
+    faces: [
+      {
+        file: new URL('../fonts/Newsreader-VariableFont.ttf', import.meta.url).href,
+        weight: '200 800',
+        variable: true,
+      },
+    ],
   },
 }

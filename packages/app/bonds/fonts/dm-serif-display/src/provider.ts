@@ -13,6 +13,8 @@ export const font: FontDefinition = {
   fallbacks: ['Georgia', 'Cambria', '"Times New Roman"', 'serif'],
   source: {
     type: 'local',
-    faces: [{ file: 'DMSerifDisplay-Regular.ttf', weight: 400 }],
+    faces: [
+      { file: new URL('../fonts/DMSerifDisplay-Regular.ttf', import.meta.url).href, weight: 400 },
+    ],
   },
 }

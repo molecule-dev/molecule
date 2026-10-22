@@ -14,9 +14,13 @@ export const font: FontDefinition = {
   source: {
     type: 'local',
     faces: [
-      { file: 'JetBrainsMono-Regular.ttf', weight: 400 },
-      { file: 'JetBrainsMono-Bold.ttf', weight: 700 },
-      { file: 'JetBrainsMono-VariableFont_wght.ttf', weight: '100 800', variable: true },
+      { file: new URL('../fonts/JetBrainsMono-Regular.ttf', import.meta.url).href, weight: 400 },
+      { file: new URL('../fonts/JetBrainsMono-Bold.ttf', import.meta.url).href, weight: 700 },
+      {
+        file: new URL('../fonts/JetBrainsMono-VariableFont_wght.ttf', import.meta.url).href,
+        weight: '100 800',
+        variable: true,
+      },
     ],
   },
 }

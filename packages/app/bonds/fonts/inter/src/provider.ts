@@ -14,9 +14,13 @@ export const font: FontDefinition = {
   source: {
     type: 'local',
     faces: [
-      { file: 'Inter-Regular.ttf', weight: 400 },
-      { file: 'Inter-Bold.ttf', weight: 700 },
-      { file: 'Inter-VariableFont_opsz,wght.ttf', weight: '100 900', variable: true },
+      { file: new URL('../fonts/Inter-Regular.ttf', import.meta.url).href, weight: 400 },
+      { file: new URL('../fonts/Inter-Bold.ttf', import.meta.url).href, weight: 700 },
+      {
+        file: new URL('../fonts/Inter-VariableFont_opsz,wght.ttf', import.meta.url).href,
+        weight: '100 900',
+        variable: true,
+      },
     ],
   },
 }

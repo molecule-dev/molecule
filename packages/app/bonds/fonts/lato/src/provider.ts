@@ -14,8 +14,8 @@ export const font: FontDefinition = {
   source: {
     type: 'local',
     faces: [
-      { file: 'Lato-Regular.ttf', weight: 400 },
-      { file: 'Lato-Bold.ttf', weight: 700 },
+      { file: new URL('../fonts/Lato-Regular.ttf', import.meta.url).href, weight: 400 },
+      { file: new URL('../fonts/Lato-Bold.ttf', import.meta.url).href, weight: 700 },
     ],
   },
 }

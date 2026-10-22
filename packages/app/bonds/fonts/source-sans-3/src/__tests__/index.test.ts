@@ -37,7 +37,9 @@ describe('@molecule/app-fonts-source-sans-3', () => {
 
   it('should ship the font file its faces declare', () => {
     for (const face of font.source.faces ?? []) {
-      expect(existsSync(join(packageDir, 'fonts', face.file))).toBe(true)
+      const path = fileURLToPath(face.file)
+      expect(dirname(path)).toBe(join(packageDir, 'fonts'))
+      expect(existsSync(path)).toBe(true)
     }
   })
 })

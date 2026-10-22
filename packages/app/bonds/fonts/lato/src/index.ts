@@ -10,20 +10,12 @@
  * ```
  *
  * @remarks
- * - **Wiring it without `mlcl` (the sandbox):** the package is already
- *   installed under `node_modules` — add an `"@molecule/app-fonts-lato"`
- *   dependency to the app's `package.json` (pin the version already installed
- *   there), then in `app/src/bonds/index.ts` call `setFont(font)`.
- *   Preferred: import each face as an asset so nothing is copied (one
- *   import per entry of `font.source.faces`) —
- *   `import face0 from '@molecule/app-fonts-lato/fonts/Lato-Regular.ttf?url'` then
- *   `setFont({ ...font, source: { type: 'local', faces: [{ file: face0,
- *   weight: 400 }] } })`, one entry per import. `setFont()` uses a
- *   `file` starting with `/`, `http` or `data:` as-is.
- *   Without asset imports, copy
- *   `node_modules/@molecule/app-fonts-lato/fonts/*` to `app/public/fonts/` and call
- *   `setFont(font)` — plain filenames are served from
- *   `<basePath>fonts/<file>`.
+ * - **Browser wiring:** import `font` from this package and call `setFont(font)`
+ *   at startup. The packaged faces resolve relative to this module; the browser
+ *   bundler emits the complete files as fingerprinted assets, including its
+ *   configured public base path. No manual copy or app-side asset import is needed.
+ * - The registry retains filenames for `mlcl` static font copying. A custom
+ *   face may still use a plain filename with `setFont`'s `basePath` option.
  *
  * @module
  */

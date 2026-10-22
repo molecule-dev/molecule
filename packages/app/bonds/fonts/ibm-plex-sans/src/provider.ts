@@ -13,6 +13,12 @@ export const font: FontDefinition = {
   fallbacks: ['system-ui', '-apple-system', 'sans-serif'],
   source: {
     type: 'local',
-    faces: [{ file: 'IBMPlexSans-VariableFont.ttf', weight: '100 700', variable: true }],
+    faces: [
+      {
+        file: new URL('../fonts/IBMPlexSans-VariableFont.ttf', import.meta.url).href,
+        weight: '100 700',
+        variable: true,
+      },
+    ],
   },
 }

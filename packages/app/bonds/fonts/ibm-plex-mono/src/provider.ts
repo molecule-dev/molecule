@@ -14,8 +14,8 @@ export const font: FontDefinition = {
   source: {
     type: 'local',
     faces: [
-      { file: 'IBMPlexMono-Regular.ttf', weight: 400 },
-      { file: 'IBMPlexMono-Bold.ttf', weight: 700 },
+      { file: new URL('../fonts/IBMPlexMono-Regular.ttf', import.meta.url).href, weight: 400 },
+      { file: new URL('../fonts/IBMPlexMono-Bold.ttf', import.meta.url).href, weight: 700 },
     ],
   },
 }

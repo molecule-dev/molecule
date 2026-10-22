@@ -19,6 +19,12 @@ export const font: FontDefinition = {
   fallbacks: ['system-ui', '-apple-system', 'sans-serif'],
   source: {
     type: 'local',
-    faces: [{ file: 'SourceSans3-VariableFont.ttf', weight: '200 900', variable: true }],
+    faces: [
+      {
+        file: new URL('../fonts/SourceSans3-VariableFont.ttf', import.meta.url).href,
+        weight: '200 900',
+        variable: true,
+      },
+    ],
   },
 }

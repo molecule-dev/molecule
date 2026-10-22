@@ -13,6 +13,12 @@ export const font: FontDefinition = {
   fallbacks: ['Georgia', 'Cambria', '"Times New Roman"', 'serif'],
   source: {
     type: 'local',
-    faces: [{ file: 'Merriweather-VariableFont.ttf', weight: '300 900', variable: true }],
+    faces: [
+      {
+        file: new URL('../fonts/Merriweather-VariableFont.ttf', import.meta.url).href,
+        weight: '300 900',
+        variable: true,
+      },
+    ],
   },
 }
