@@ -44,7 +44,9 @@ export type AIProviderID =
  * thinking-budget label like `'16K'` on budget-configurable models). Each model
  * declares its own ordered {@link ModelDefinition.supportedEffortLevels}; a
  * value that isn't in the active model's set degrades to the nearest one (see
- * `model-selection.ts`). Mirrored by the client-side `EffortLevel` in
+ * `model-selection.ts`). `'off'` is the one exception: it is a LOCAL toggle
+ * (send no thinking block) that is never sent to a provider as an effort value.
+ * Mirrored by the client-side `EffortLevel` in
  * `@molecule/app-ai-models`; keep the two in sync. Re-declared (rather than
  * imported) by the ide-react and molecule-dev consumers per the cross-stack
  * rule, but this catalog is the canonical home.
@@ -91,8 +93,16 @@ export interface ModelDefinition {
    *   level names — e.g. Claude Haiku 4.5, Qwen3.7) list scaled-budget LABELS,
    *   e.g. `['4K', '8K', '16K', '32K']`, with {@link effortBudgetTokens} mapping
    *   each label to the actual token budget sent.
-   * - **Fixed-reasoning models** (DeepSeek executors, Kimi, …) omit this field
-   *   entirely — reasoning depth can't be tuned, so there is nothing to pick.
+   * - **Opt-in reasoning models** put the LOCAL `'off'` toggle first, e.g.
+   *   `['off', 'low', 'high', 'max']` on DeepSeek V4.1 Flash, with
+   *   `defaultEffortLevel: 'off'`. `'off'` is never sent to the provider: the
+   *   resolved level produces no thinking block, which turns the vendor's
+   *   reasoning off. A persisted value the model does not offer resolves to
+   *   `'off'` rather than degrading upward, so an old setting can never switch
+   *   reasoning on by accident.
+   * - **Fixed-reasoning models** (DeepSeek V4 Pro / V4 Flash, Kimi, …) omit this
+   *   field entirely — reasoning depth can't be tuned, so there is nothing to
+   *   pick.
    *
    * A persisted value outside the active model's set degrades to the nearest one
    * (`model-selection.ts` `resolveEffortForModel`). Absent → no effort choice.

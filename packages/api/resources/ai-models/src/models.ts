@@ -2131,20 +2131,41 @@ export const MODELS: readonly ModelDefinition[] = [
     description: 'Newest ultra-cheap & fast flash — vision-capable agentic coding',
     contextWindow: 1_000_000,
     maxOutputTokens: 384_000,
-    // Non-thinking (see section note) — same bond treatment as the family:
-    // the executor tool loop does not replay reasoning_content.
-    supportsThinking: false,
-    thinkingBudgetTokens: 0,
-    thinkingConfigurable: false,
+    // Thinking is OPT-IN, and OFF is the default. DeepSeek V4 enables thinking
+    // upstream by default, but every platform surface (planner, executor,
+    // free tier, compaction, commit messages) has always run this model
+    // non-thinking, so the catalog keeps that historical behavior: `off` is a
+    // LOCAL toggle, never sent to the vendor as a reasoning_effort value. A
+    // project that asks for `low`/`high`/`max` sends that native effort and the
+    // bond replays every retained assistant reasoning_content through the tool
+    // loop (DeepSeek 400s a thinking-mode request with tools that omits one),
+    // which is what makes thinking mode usable on this surface at all.
+    //
+    // Verified against DeepSeek's own pages (2026-10-22):
+    // https://api-docs.deepseek.com/guides/thinking_mode/ (replay obligation)
+    // and https://api-docs.deepseek.com/api/create-chat-completion/
+    // (thinking.type, reasoning_effort low|high|max; forced tool_choice is
+    // rejected in thinking mode — the bond relaxes it). Both serving hosts also
+    // ENFORCE the local-toggle split live: a dispatch probe that sent the level
+    // verbatim rejected `off` on the native CN endpoint AND on the DeepInfra
+    // re-host, listing low/high/max among their accepted variants. The US
+    // re-host rides the SAME bond (molecule-dev/api/src/bonds/ai-deepseek.ts),
+    // so both regions get this shape unchanged.
+    supportsThinking: true,
+    thinkingBudgetTokens: 8_000,
+    thinkingConfigurable: true,
+    supportedEffortLevels: ['off', 'low', 'high', 'max'],
+    defaultEffortLevel: 'off',
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
     // Free-tier default (moved from deepseek-v4-flash 2026-09-10): the
-    // cheapest capable executor on the go-forward id — fast, non-thinking,
-    // tool-calling, and now vision-capable. Serving cost is ~2× the retired
-    // US leg on output-heavy turns (CN 0.6/1.2 output vs DeepInfra's flat
-    // 0.18) — tiers.ts's free-turn budget math derives from this entry.
-    // Exactly one model in this catalog may carry freeTier (lookup.test.ts).
+    // cheapest capable executor on the go-forward id — fast, tool-calling,
+    // vision-capable, and non-thinking unless a project opts in. Serving cost
+    // is ~2× the retired US leg on output-heavy turns (CN 0.6/1.2 output vs
+    // DeepInfra's flat 0.18) — tiers.ts's free-turn budget math derives from
+    // this entry. Exactly one model in this catalog may carry freeTier
+    // (lookup.test.ts).
     freeTier: true,
     // Off-peak V4.1 Flash card; peak is `peakPricing.multiplier` × these.
     inputPricePerMTok: 0.15,

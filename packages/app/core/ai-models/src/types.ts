@@ -35,8 +35,10 @@ export type AIProviderID =
 /**
  * A reasoning-effort value — a model's OWN native effort level (e.g. `'high'`,
  * `'xhigh'`, `'max'`, or a budget label like `'16K'`). There is no abstract
- * cross-model scale; the stored value is the model's real level. Mirrors the
- * server-side `EffortLevel` in `@molecule/api-resource-ai-models`; keep in sync.
+ * cross-model scale; the stored value is the model's real level. `'off'` is a
+ * LOCAL toggle some models expose first (send no thinking block); it is never
+ * sent to a provider as an effort value. Mirrors the server-side `EffortLevel`
+ * in `@molecule/api-resource-ai-models`; keep in sync.
  */
 export type EffortLevel = string
 
@@ -67,8 +69,11 @@ export interface AppModelDefinition {
    * The model's OWN effort levels, ordered ascending — the exact values the
    * `/effort` command offers and that get persisted. Native-effort models list
    * their provider values (`['low', 'high', 'xhigh', 'max']`); budget models
-   * list scaled-budget labels (`['4K', '8K', '16K', '32K']`); fixed-reasoning
-   * models omit it. A persisted value outside the set degrades to the nearest.
+   * list scaled-budget labels (`['4K', '8K', '16K', '32K']`); opt-in reasoning
+   * models put the local `'off'` toggle first (`['off', 'low', 'high', 'max']`,
+   * default `'off'`); fixed-reasoning models omit it. A persisted value outside
+   * the set degrades to the nearest — except on an off-default model, where it
+   * resolves to `'off'` so stale settings cannot enable reasoning.
    * Mirrors the server-side `ModelDefinition` field.
    */
   supportedEffortLevels?: EffortLevel[]

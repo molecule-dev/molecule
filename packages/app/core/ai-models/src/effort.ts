@@ -12,7 +12,9 @@
  * - Budget-configurable models (a raw thinking-token budget, no level names —
  *   Claude Haiku 4.5, Qwen3.7) expose scaled-budget labels
  *   (`4K | 8K | 16K | 32K`), pre-computed in the catalog.
- * - Fixed-reasoning models (DeepSeek executors, Kimi, …) expose nothing —
+ * - Opt-in reasoning models expose a local `off` first (`off | low | high |
+ *   max` on DeepSeek V4.1 Flash); `off` is a toggle, never a vendor effort.
+ * - Fixed-reasoning models (DeepSeek V4 Pro/V4 Flash, Kimi, …) expose nothing —
  *   reasoning depth can't be tuned.
  *
  * These mirror the server-side resolution in molecule-dev `model-selection.ts`;
@@ -79,10 +81,11 @@ export function defaultEffortForModel(model: AppModelDefinition | undefined): st
 /**
  * Resolve a persisted effort value to the one the model will actually use — its
  * exact value, a legacy `S|M|L|XL` mapped by position, the nearest native level
- * by rank, or the model's default. `null` when the model has no effort levels
- * (fixed reasoning — callers show their own "fixed" copy). Mirrors the
- * server-side `resolveEffortForModel` so the display always matches what the
- * backend sends.
+ * by rank, or the model's default. An off-default (opt-in) model resolves every
+ * value it does not offer to `off`, so reasoning stays off unless explicitly
+ * chosen. `null` when the model has no effort levels (fixed reasoning — callers
+ * show their own "fixed" copy). Mirrors the server-side `resolveEffortForModel`
+ * so the display always matches what the backend sends.
  *
  * @param model - The active model (or `undefined`).
  * @param value - The persisted effort value (or `undefined`).
@@ -97,6 +100,10 @@ export function nativeEffortName(
   const fallback = model?.defaultEffortLevel ?? levels[Math.floor((levels.length - 1) / 2)]
   if (!value) return fallback
   if (levels.includes(value)) return value
+  // An off-default model treats every level as an explicit opt-in: a stale or
+  // legacy value resolves to `off` instead of degrading upward, so switching
+  // models can never turn reasoning on by accident. Mirrors the server.
+  if (fallback === 'off') return fallback
   const legacyIdx = LEGACY_ABSTRACT_LEVELS.indexOf(value)
   if (legacyIdx !== -1) {
     const pos = Math.round((legacyIdx / (LEGACY_ABSTRACT_LEVELS.length - 1)) * (levels.length - 1))

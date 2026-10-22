@@ -55,6 +55,16 @@ const haiku = model({
   defaultEffortLevel: '8K',
   effortBudgetTokens: { '4K': 4000, '8K': 8000, '16K': 16000, '32K': 32000 },
 })
+// An opt-in reasoning model (DeepSeek V4.1 Flash shape): `off` is the local
+// default and every other level is an explicit opt-in.
+const optIn = model({
+  provider: 'deepseek',
+  supportsThinking: true,
+  thinkingBudgetTokens: 8_000,
+  thinkingConfigurable: true,
+  supportedEffortLevels: ['off', 'low', 'high', 'max'],
+  defaultEffortLevel: 'off',
+})
 
 describe('effortOptionsForModel', () => {
   it("surfaces the model's own native values", () => {
@@ -74,12 +84,17 @@ describe('effortOptionsForModel', () => {
     expect(effortOptionsForModel(model({}))).toEqual([])
     expect(effortOptionsForModel(undefined)).toEqual([])
   })
+
+  it('offers the local off toggle of an opt-in model', () => {
+    expect(effortOptionsForModel(optIn).map((o) => o.value)).toEqual(['off', 'low', 'high', 'max'])
+  })
 })
 
 describe('defaultEffortForModel', () => {
   it("returns the model's declared default", () => {
     expect(defaultEffortForModel(claude)).toBe('high')
     expect(defaultEffortForModel(haiku)).toBe('8K')
+    expect(defaultEffortForModel(optIn)).toBe('off')
   })
 
   it('returns null for a fixed / unknown model', () => {
@@ -118,5 +133,18 @@ describe('nativeEffortName', () => {
 
   it('returns null for fixed-reasoning models', () => {
     expect(nativeEffortName(model({}), 'high')).toBeNull()
+  })
+
+  it('resolves only real levels on an off-default model — everything else stays off', () => {
+    // Mirrors the server: a persisted level from another model (or a legacy
+    // letter / budget label) must never enable reasoning the user did not pick.
+    expect(nativeEffortName(optIn, undefined)).toBe('off')
+    expect(nativeEffortName(optIn, '')).toBe('off')
+    for (const value of ['medium', 'minimal', 'none', 'xhigh', 'M', 'XL', '16K', 'bogus']) {
+      expect(nativeEffortName(optIn, value), value).toBe('off')
+    }
+    for (const value of ['off', 'low', 'high', 'max']) {
+      expect(nativeEffortName(optIn, value), value).toBe(value)
+    }
   })
 })

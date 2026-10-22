@@ -123,9 +123,11 @@ interface StreamStallDetail {
 }
 
 /**
- * Map thinking budget tokens to a DeepSeek reasoning_effort level. DeepSeek V4
- * accepts only `'high'` or `'max'` for `reasoning_effort`, so larger budgets map
- * to `'max'` and everything else to `'high'`.
+ * Map thinking budget tokens to a DeepSeek reasoning_effort level, used ONLY as
+ * a fallback when the caller supplies a budget without a resolved native level.
+ * The native API accepts `low`/`high`/`max`; a caller that resolved one of them
+ * (the catalog's `supportedEffortLevels`) sends it verbatim and never reaches
+ * this function, so the fallback stays the two coarse buckets.
  *
  * @param budgetTokens - Requested thinking budget in tokens.
  * @returns `'high'` or `'max'` for the upstream effort hint.
@@ -328,10 +330,11 @@ class DeepseekAIProviderImpl implements AIProvider {
       // weaker nudge still produces a turn, and the agent loop has its own
       // prose-only backstops, whereas a 400 produces nothing at all.
       //
-      // Latent rather than live at the time of writing — no DeepSeek model in
-      // the catalog sets supportsThinking — but the model-health cron adds
-      // models to that catalog unattended, and the one place forceToolUse fires
-      // is discovery mode, i.e. the FIRST turn of every new conversation.
+      // LIVE for an entry that exposes opt-in reasoning (deepseek-flash, whose
+      // effort levels include the local `off` default): a project that picks
+      // low/high/max gets thinking mode on a discovery turn, and the forced
+      // nudge is degraded here instead of 400ing the first turn of the
+      // conversation.
       const forcedChoice =
         params.toolChoice === 'required' ||
         (typeof params.toolChoice === 'object' && params.toolChoice?.type === 'tool')
@@ -353,13 +356,14 @@ class DeepseekAIProviderImpl implements AIProvider {
     // thinking-mode request that carries tools must send every retained
     // assistant turn's `reasoning_content` back — including a turn where the
     // model made no tool call — or the API answers 400. `formatMessages` replays
-    // `ChatMessage.reasoning` for exactly that reason; the catalog still gates
-    // thinking on the model's `supportsThinking` flag, so this path runs
-    // non-thinking unless a thinking budget is explicitly requested.
+    // `ChatMessage.reasoning` for exactly that reason. The catalog decides
+    // whether a turn carries a thinking block: deepseek-flash defaults to the
+    // local `off` level (no block → reasoning explicitly disabled below), and
+    // only a project that opts into low/high/max sends one.
     if (params.thinking) {
       body.thinking = { type: 'enabled' }
-      // Prefer a caller-resolved native value ('high' | 'max') from the model
-      // catalog; fall back to the budget threshold.
+      // Prefer a caller-resolved native value (`low` | `high` | `max`) from the
+      // model catalog; fall back to the budget threshold.
       body.reasoning_effort = params.thinking.effort ?? budgetToEffort(params.thinking.budgetTokens)
     } else {
       body.thinking = { type: 'disabled' }
