@@ -162,10 +162,9 @@ function redirectToFreshFile(command: string): string {
 /**
  * The whole-suite command made scoped to the tests it should re-run instead: the same
  * invocation — same launcher, same settings — with the named `file:line`s in place of every
- * positional selection the run carried (a spec file, a suite directory, a regex filter:
- * {@link dropSupersededSelections}), `--last-failed` dropped (it re-runs the tests that never ran
- * too, X1 flash-m60) and `--retries=0` set (a re-run of a known failure does not need to pay for
- * retries).
+ * positional selection the run carried (a spec file, a suite directory or a regex filter),
+ * `--last-failed` dropped (it re-runs the tests that never ran too, X1 flash-m60) and
+ * `--retries=0` set (a re-run of a known failure does not need to pay for retries).
  *
  * The re-run keeps the run's `> <file>` redirect only in the sense of keeping its OUTPUT there:
  * the target is rewritten to a fresh sibling ({@link redirectToFreshFile}), so a re-run never
