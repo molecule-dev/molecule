@@ -36,7 +36,7 @@
   "devDependencies": {
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
-    "vitest": "4.1.11",
+    "vitest": "4.1.12",
     "workbox-core": "7.4.1",
     "workbox-expiration": "7.4.1",
     "workbox-precaching": "7.4.1",

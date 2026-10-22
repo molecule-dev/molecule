@@ -81,7 +81,7 @@
     "sharp": "0.35.5",
     "typescript": "6.0.3",
     "typescript-eslint": "8.65.0",
-    "vitest": "4.1.11",
+    "vitest": "4.1.12",
     "zod": "4.4.3"
   },
   "overrides": {

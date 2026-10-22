@@ -44,7 +44,7 @@
     "@molecule/api-resource-property": "1.0.5",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
-    "vitest": "4.1.11"
+    "vitest": "4.1.12"
   },
   "peerDependencies": {
     "@molecule/api-database": "^1.0.1",

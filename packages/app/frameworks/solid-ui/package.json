@@ -37,7 +37,7 @@
     "@types/node": "26.1.2",
     "solid-js": "1.9.17",
     "typescript": "6.0.3",
-    "vitest": "4.1.11"
+    "vitest": "4.1.12"
   },
   "homepage": "https://www.molecule.dev/packages/app-ui-solid",
   "bugs": "https://github.com/molecule-dev/molecule/issues",

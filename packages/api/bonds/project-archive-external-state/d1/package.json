@@ -39,7 +39,7 @@
     "@molecule/api-project-archive": "1.0.2",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
-    "vitest": "4.1.11"
+    "vitest": "4.1.12"
   },
   "peerDependencies": {
     "@molecule/api-project-archive": "^1.0.1"
