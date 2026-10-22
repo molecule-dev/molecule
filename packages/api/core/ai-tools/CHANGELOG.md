@@ -1,5 +1,16 @@
 # @molecule/api-ai-tools
 
+## 1.13.0
+
+### Minor Changes
+
+- ad8b7bd: `exec_command` marks a stdout it had to shorten in the middle with `stdoutTruncated: true`, so a reader can tell a whole file from one whose text was clipped out of the output it received.
+- 5cc099d: Playwright runs can keep Playwright's own JSON report: `exec_command` and `wait_for_task` results carry a bounded `runReport` with each failing test's identity and the artifacts saved for it, and trace reads include the directory a trace came from, so a diagnosis can attribute evidence by the runner's record instead of the printed log.
+
+### Patch Changes
+
+- e146cf2: Keep a shell group's closing punctuation when a background suite command's trailing output filters are dropped, so the rewritten command still parses.
+
 ## 1.12.0
 
 ### Minor Changes

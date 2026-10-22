@@ -1,5 +1,12 @@
 # @molecule/app-tag-input-react
 
+## 1.0.3
+
+### Patch Changes
+
+- 97dca1c: Preserve composing text until the input method confirms it.
+- f02651e: Keep Enter in the tag field from submitting an enclosing form when the draft is blank, whitespace-only, rejected, or past `maxTags`.
+
 ## 1.0.1
 
 ### Patch Changes

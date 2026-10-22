@@ -1,5 +1,11 @@
 # @molecule/api-ai-deepseek
 
+## 1.0.12
+
+### Patch Changes
+
+- ef9ab20: Replay each retained assistant turn's reasoning as `reasoning_content` when thinking mode is enabled, including turns without a tool call.
+
 ## 1.0.11
 
 ### Patch Changes
