@@ -4745,9 +4745,20 @@ export function whitespaceTolerantReplace(
 export const PARSE_CHECKABLE = /\.(m?js|cjs|jsx|ts|tsx|mts|cts|json)$/
 
 /**
+ * Basenames TypeScript reads as JSONC: `tsconfig.json`, `tsconfig.*.json` and
+ * the `jsconfig` counterparts. Comments and trailing commas are legal there —
+ * `tsc` accepts them — so a strict `JSON.parse` reports a valid project config
+ * as broken (X0 flash-m436: a commented `tsconfig.conduit-suite.json` was
+ * answered with "every build and test fails until it does").
+ */
+const TYPESCRIPT_CONFIG = /^(?:ts|js)config(?:\.[^/\\]+)?\.json$/
+
+/**
  * The shell command that parses one file and exits non-zero with the error
  * when it does not parse: `node --check` for JavaScript, `JSON.parse` for
- * JSON, esbuild's transform (present wherever Vite is) for TypeScript.
+ * ordinary JSON, TypeScript's config parser for `tsconfig`/`jsconfig` files
+ * (which are JSONC), esbuild's transform (present wherever Vite is) for
+ * TypeScript.
  *
  * @param path - The file's absolute path.
  * @returns The command, or null when the file type has no cheap parser.
@@ -4756,6 +4767,21 @@ export function parseCheckCommand(path: string): string | null {
   if (!PARSE_CHECKABLE.test(path)) return null
   const q = shellQuote(path)
   if (/\.(m?js|cjs)$/.test(path)) return `node --check ${q}`
+  if (TYPESCRIPT_CONFIG.test(path.slice(path.lastIndexOf('/') + 1)))
+    // Parsing only: `parseConfigFileTextToJson` reads the text as JSONC and
+    // does not resolve `extends` or inspect the files a config points at, so a
+    // missing input file is not a syntax error here. A missing `typescript`
+    // package reports `Cannot find module`, which parseCheckProblem treats as
+    // "no parser", never as broken syntax.
+    return (
+      `node -e "const p=process.argv[1];const src=require('fs').readFileSync(p,'utf8');` +
+      `const ts=require('typescript');const r=ts.parseConfigFileTextToJson(p,src);` +
+      `if(r.error){const d=r.error;const at=d.start||0;const before=src.slice(0,at);` +
+      `const nl=String.fromCharCode(10);const lines=src.split(nl);` +
+      `const line=before.split(nl).length;const col=at-before.lastIndexOf(nl);` +
+      `const shown=(lines[line-1]||'').slice(0,240);` +
+      `console.error(line+':'+col+': '+ts.flattenDiagnosticMessageText(d.messageText,' ')+nl+shown+nl+' '.repeat(Math.min(col-1,240))+'^');process.exit(1)}" ${q}`
+    )
   if (/\.json$/.test(path))
     return `node -e "JSON.parse(require('fs').readFileSync(process.argv[1],'utf8'))" ${q}`
   // On failure print `line:column: message`, the offending source line and a

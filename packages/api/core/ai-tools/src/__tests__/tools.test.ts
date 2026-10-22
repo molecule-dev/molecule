@@ -1,9 +1,9 @@
 import { spawnSync } from 'node:child_process'
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-import { describe, expect, it, vi } from 'vitest'
+import { afterAll, describe, expect, it, vi } from 'vitest'
 
 import {
   buildAgentPrompt,
@@ -5762,6 +5762,131 @@ describe('parse check after a write', () => {
     }
     expect(md.syntaxError).toBeUndefined()
     expect(backend.run).toHaveBeenCalledTimes(1)
+  })
+
+  it('write_file of a commented tsconfig.<name>.json returns no syntaxError (flash-m436)', async () => {
+    const backend = mockBackend()
+    const writeFile = buildTools(backend).find((t) => t.name === 'write_file')!
+    const result = (await writeFile.execute({
+      path: '/test/app/tsconfig.conduit-suite.json',
+      content:
+        '/** Conduit suite */\n{\n  // strict\n  "compilerOptions": { "strict": true, },\n}\n',
+    })) as { ok?: boolean; syntaxError?: string }
+    expect(result.ok).toBe(true)
+    expect(result.syntaxError).toBeUndefined()
+    // TypeScript's JSONC config parser, not strict JSON.parse.
+    expect(backend.run).toHaveBeenCalledWith(
+      expect.stringContaining('parseConfigFileTextToJson'),
+      expect.objectContaining({ cwd: '/test/app' }),
+    )
+    expect(backend.run).not.toHaveBeenCalledWith(
+      expect.stringContaining('JSON.parse'),
+      expect.anything(),
+    )
+  })
+
+  it('a missing typescript parser is not a syntax error for a config', async () => {
+    const backend = mockBackend()
+    ;(backend.run as ReturnType<typeof vi.fn>).mockResolvedValue({
+      stdout: '',
+      stderr: "Error: Cannot find module 'typescript'",
+      exitCode: 1,
+    })
+    const writeFile = buildTools(backend).find((t) => t.name === 'write_file')!
+    const result = (await writeFile.execute({
+      path: '/test/tsconfig.json',
+      content: '{ /* x */ }\n',
+    })) as { syntaxError?: string }
+    expect(result.syntaxError).toBeUndefined()
+  })
+
+  it('keeps strict JSON for package.json — a trailing comma still fails', async () => {
+    const backend = mockBackend()
+    ;(backend.run as ReturnType<typeof vi.fn>).mockResolvedValue({
+      stdout: '',
+      stderr: "SyntaxError: Unexpected token '}', ... is not valid JSON",
+      exitCode: 1,
+    })
+    const writeFile = buildTools(backend).find((t) => t.name === 'write_file')!
+    const result = (await writeFile.execute({
+      path: '/test/package.json',
+      content: '{ "name": "app", }',
+    })) as { syntaxError?: string }
+    expect(result.syntaxError).toMatch(/no longer parses/)
+    expect(backend.run).toHaveBeenCalledWith(
+      expect.stringContaining('JSON.parse'),
+      expect.anything(),
+    )
+    expect(backend.run).not.toHaveBeenCalledWith(
+      expect.stringContaining('parseConfigFileTextToJson'),
+      expect.anything(),
+    )
+  })
+})
+
+/**
+ * The after-write check run for real against a temporary project, for the
+ * shapes X0 flash-m436 hit: a commented, trailing-comma config (valid to `tsc`,
+ * so no syntaxError) and a malformed one (a real diagnostic).
+ */
+describe('parse check after a write — TypeScript config files, executed', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'write-config-'))
+  afterAll(() => {
+    rmSync(dir, { recursive: true, force: true })
+  })
+
+  function realBackend(): ExecutionBackend {
+    return {
+      projectRoot: dir,
+      readFile: vi.fn(async (p: string) => readFileSync(p, 'utf8')),
+      writeFile: vi.fn(async (p: string, c: string) => writeFileSync(p, c)),
+      deleteFile: vi.fn(async (p: string) => rmSync(p, { force: true })),
+      readDir: vi.fn(async () => []),
+      // Run the command as the tool does, but from this package so
+      // require('typescript') resolves its devDependency (parse-check.test.ts
+      // does the same for esbuild).
+      run: vi.fn(async (command: string) => {
+        const r = spawnSync('sh', ['-c', command], { encoding: 'utf8', cwd: process.cwd() })
+        return { stdout: r.stdout, stderr: r.stderr, exitCode: r.status ?? 1 }
+      }),
+    } as unknown as ExecutionBackend
+  }
+
+  it('write_file of the observed commented config returns no syntaxError', async () => {
+    const backend = realBackend()
+    const writeFile = buildTools(backend).find((t) => t.name === 'write_file')!
+    const result = (await writeFile.execute({
+      path: join(dir, 'tsconfig.conduit-suite.json'),
+      content:
+        '/**\n * Conduit suite config (merged with the base config).\n */\n{\n  "compilerOptions": {\n    "strict": true, // suite-wide\n    "types": ["node"],\n  },\n}\n',
+    })) as { ok?: boolean; syntaxError?: string }
+    expect(result.ok).toBe(true)
+    expect(result.syntaxError).toBeUndefined()
+  })
+
+  it('write_file of a malformed config reports the TypeScript diagnostic', async () => {
+    const backend = realBackend()
+    const writeFile = buildTools(backend).find((t) => t.name === 'write_file')!
+    const result = (await writeFile.execute({
+      path: join(dir, 'tsconfig.broken.json'),
+      content: '{ "compilerOptions": { "strict": } }\n',
+    })) as { syntaxError?: string }
+    expect(result.syntaxError).toMatch(/no longer parses/)
+    expect(result.syntaxError).toMatch(/Expression expected/)
+  })
+
+  it('edit_file of a valid commented config returns no syntaxError', async () => {
+    const file = join(dir, 'tsconfig.edit.json')
+    writeFileSync(file, '{ "compilerOptions": {} }\n')
+    const backend = realBackend()
+    const editFile = buildTools(backend).find((t) => t.name === 'edit_file')!
+    const result = (await editFile.execute({
+      path: file,
+      old_string: '"compilerOptions": {}',
+      new_string: '"compilerOptions": { /* keep */ "strict": true, }',
+    })) as { ok?: boolean; syntaxError?: string }
+    expect(result.ok).toBe(true)
+    expect(result.syntaxError).toBeUndefined()
   })
 })
 
