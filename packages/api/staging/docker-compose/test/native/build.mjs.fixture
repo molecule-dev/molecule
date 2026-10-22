@@ -1,0 +1,4 @@
+import { cpSync, mkdirSync } from 'node:fs'
+mkdirSync('app/dist', { recursive: true })
+cpSync('app/index.html', 'app/dist/index.html')
+cpSync('api/src', 'api/dist', { recursive: true })

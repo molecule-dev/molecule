@@ -13,7 +13,32 @@
  * setProvider(provider)
  * ```
  *
+ * @example
+ * ```typescript
+ * import { generateApiDeploymentArtifacts } from '@molecule/api-staging-docker-compose'
+ *
+ * const files = generateApiDeploymentArtifacts({
+ *   runtimeDirectory: 'api',
+ *   runtimePaths: ['api', 'app/dist'],
+ *   runtimeCommand: ['node', 'dist/server.js'],
+ * })
+ * // Ordinary Dockerfile/dockerignore/build script; caller owns file writes and hosting.
+ * ```
+ *
  * @remarks
+ * - Node artifacts use a patched Node 22 Debian base and build native modules
+ *   with Python/make/C++. Install lifecycle scripts run with project source
+ *   present; dev dependencies are pruned before built modules move into the
+ *   matching, nonroot runtime. No second production install recompiles native
+ *   modules without tools. Use the generated dockerignore to exclude host
+ *   node_modules and local secrets. For a workspace root, explicitly carry its
+ *   server workspace (including manifests/nested dependencies) and frontend
+ *   output. Extra system libraries and alternative apt-based images are caller
+ *   configuration; native compatibility must be verified on the target platform.
+ * - Artifact generation is pure: it starts no container, infers no database or
+ *   route and overwrites no project file. The Compose provider uses these files
+ *   for its existing separate API/App contexts; other deployment callers can
+ *   use the same generator without adopting Compose's service topology.
  * - Requires Docker Compose v2.24+ and BuildKit: the generated compose file
  *   uses long-syntax `env_file` (`required: false` — a project without `.env`
  *   or `.env.staging` must still stage) and a named `additional_contexts`
@@ -54,6 +79,7 @@
 export * from './browser-guard.js'
 export * from './compose-generator.js'
 export * from './dockerfile-generator.js'
+export * from './types.js'
 
 // Provider exports
 export * from './provider.js'
