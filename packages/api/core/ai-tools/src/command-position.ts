@@ -53,11 +53,251 @@ export interface CommandSegment {
   timeoutSeconds: number | null
 }
 
-/** A command's words, quotes kept whole — the same reading a printed-source check uses. */
-const WORD = /"(?:\\.|[^"\\])*"|'[^']*'|\S+/g
+/** One shell word: its text as written (quotes kept) and the offset it starts at. */
+interface ShellWord {
+  text: string
+  start: number
+}
 
 /** Shell words that stand alone: grouping, never an argument. */
 const GROUPING = new Set(['(', ')', '{', '}'])
+
+/** The index just past a single-quoted string that starts at `at` (its opening quote). */
+function singleQuotedEnd(text: string, at: number): number {
+  const close = text.indexOf("'", at + 1)
+  return close === -1 ? text.length : close + 1
+}
+
+/**
+ * The index just past a double-quoted string that starts at `at`. A command substitution or a
+ * backtick inside it is skipped as a unit, because a `"` inside one belongs to the nested command,
+ * not to this string (`DIR="$(cd "$(dirname "$0")" && pwd)"`).
+ */
+function doubleQuotedEnd(text: string, at: number): number {
+  let i = at + 1
+  while (i < text.length) {
+    const char = text[i] ?? ''
+    if (char === '\\') {
+      i += 2
+      continue
+    }
+    if (char === '"') return i + 1
+    if (char === '`') {
+      i = backtickEnd(text, i)
+      continue
+    }
+    if (char === '$' && text[i + 1] === '(') {
+      i = substitutionEnd(text, i + 2)
+      continue
+    }
+    if (char === '$' && text[i + 1] === '{') {
+      i = parameterEnd(text, i + 2)
+      continue
+    }
+    i += 1
+  }
+  return text.length
+}
+
+/** The index just past a backtick substitution that starts at `at` (`\`` is literal, not a close). */
+function backtickEnd(text: string, at: number): number {
+  let i = at + 1
+  while (i < text.length) {
+    if (text[i] === '\\') {
+      i += 2
+      continue
+    }
+    if (text[i] === '`') return i + 1
+    i += 1
+  }
+  return text.length
+}
+
+/**
+ * The index just past a `$( … )` command substitution whose body starts at `at`. The body is NOT
+ * evaluated and its whitespace splits nothing: only its closing `)` is looked for, through quotes,
+ * escapes and nested substitutions. An unclosed substitution runs to the end of the text.
+ */
+function substitutionEnd(text: string, at: number): number {
+  let depth = 1
+  let i = at
+  while (i < text.length) {
+    const char = text[i] ?? ''
+    // A `#` in the nested command starts a comment, so a `$(` or `)` inside it is data — the same
+    // reading `splitCommand` makes (`$(printf x # $(` opens nothing).
+    if (char === '#' && commentStartsAt(text, i)) {
+      const newline = text.indexOf('\n', i)
+      i = newline === -1 ? text.length : newline
+      continue
+    }
+    if (char === '\\') {
+      i += 2
+      continue
+    }
+    if (char === "'") {
+      i = singleQuotedEnd(text, i)
+      continue
+    }
+    if (char === '"') {
+      i = doubleQuotedEnd(text, i)
+      continue
+    }
+    if (char === '`') {
+      i = backtickEnd(text, i)
+      continue
+    }
+    if (char === '$' && text[i + 1] === '(') {
+      i = substitutionEnd(text, i + 2)
+      continue
+    }
+    if (char === '$' && text[i + 1] === '{') {
+      i = parameterEnd(text, i + 2)
+      continue
+    }
+    if (char === '(') depth += 1
+    else if (char === ')') {
+      depth -= 1
+      if (depth === 0) return i + 1
+    }
+    i += 1
+  }
+  return text.length
+}
+
+/** The index just past a `${ … }` parameter expansion whose body starts at `at`. */
+function parameterEnd(text: string, at: number): number {
+  let depth = 1
+  let i = at
+  while (i < text.length) {
+    const char = text[i] ?? ''
+    if (char === '\\') {
+      i += 2
+      continue
+    }
+    if (char === "'") {
+      i = singleQuotedEnd(text, i)
+      continue
+    }
+    if (char === '"') {
+      i = doubleQuotedEnd(text, i)
+      continue
+    }
+    if (char === '`') {
+      i = backtickEnd(text, i)
+      continue
+    }
+    if (char === '$' && text[i + 1] === '(') {
+      i = substitutionEnd(text, i + 2)
+      continue
+    }
+    if (char === '$' && text[i + 1] === '{') {
+      depth += 1
+      i += 2
+      continue
+    }
+    if (char === '}') {
+      depth -= 1
+      if (depth === 0) return i + 1
+    }
+    i += 1
+  }
+  return text.length
+}
+
+/**
+ * The index just past the shell word that starts at `at` (a non-whitespace character): a word ends
+ * at unquoted whitespace, and every quoted part, command substitution (`$( … )`, backticks),
+ * parameter expansion (`${ … }`) and process substitution (`<( … )`) inside it is skipped as a
+ * unit — so the spaces in `UID_VAL=h$(date +%s)` belong to that one word.
+ *
+ * Nothing is evaluated or expanded: this finds word BOUNDARIES only, and returns the text as
+ * written. A backslash-newline is a line continuation, so it ends the word and is skipped.
+ */
+function shellWordEnd(text: string, at: number): number {
+  let i = at
+  while (i < text.length) {
+    const char = text[i] ?? ''
+    if (/\s/.test(char)) break
+    // Grouping punctuation is a shell operator, never part of the word beside it (`tail -25)`,
+    // `(npx …`), so a caller can step over the closer the way it always has.
+    if (GROUPING.has(char)) break
+    if (char === '\\') {
+      if (text[i + 1] === '\n') break
+      i += 2
+      continue
+    }
+    if (char === "'") {
+      i = singleQuotedEnd(text, i)
+      continue
+    }
+    if (char === '"') {
+      i = doubleQuotedEnd(text, i)
+      continue
+    }
+    if (char === '`') {
+      i = backtickEnd(text, i)
+      continue
+    }
+    if (char === '$' && text[i + 1] === '(') {
+      i = substitutionEnd(text, i + 2)
+      continue
+    }
+    if (char === '$' && text[i + 1] === '{') {
+      i = parameterEnd(text, i + 2)
+      continue
+    }
+    if ((char === '<' || char === '>') && text[i + 1] === '(') {
+      i = substitutionEnd(text, i + 2)
+      continue
+    }
+    i += 1
+  }
+  return i
+}
+
+/** One text's shell words, quotes kept, grouping punctuation still its own word. */
+function shellWordSpans(text: string): ShellWord[] {
+  const words: ShellWord[] = []
+  let i = 0
+  while (i < text.length) {
+    const char = text[i] ?? ''
+    if (char === '\\' && text[i + 1] === '\n') {
+      i += 2
+      continue
+    }
+    if (/\s/.test(char)) {
+      i += 1
+      continue
+    }
+    if (GROUPING.has(char)) {
+      words.push({ text: char, start: i })
+      i += 1
+      continue
+    }
+    const end = shellWordEnd(text, i)
+    words.push({ text: text.slice(i, end), start: i })
+    i = end
+  }
+  return words
+}
+
+/**
+ * The words {@link segmentWords} keeps, with the offset each was written at: quotes kept whole,
+ * grouping words dropped, and a leading `(`/`{` taken off the first word. One walk answers both
+ * readings, so a caller splicing text at a word's offset and a caller matching that word can
+ * never disagree.
+ */
+function segmentWordSpans(text: string): ShellWord[] {
+  const words = shellWordSpans(text).filter((word) => !GROUPING.has(word.text))
+  const first = words[0]
+  if (first !== undefined) {
+    const bare = first.text.replace(/^[({]+/, '')
+    if (bare === '') words.shift()
+    else if (bare !== first.text)
+      words[0] = { text: bare, start: first.start + (first.text.length - bare.length) }
+  }
+  return words
+}
 
 /**
  * A redirection written as ONE word, its target attached: `2>&1`, `>out.log`, `&>/dev/null`,
@@ -1060,19 +1300,8 @@ function redirectTargetOf(
  * @returns The words.
  */
 function segmentWords(text: string): string[] {
-  const words = text.match(WORD) ?? []
-  const cleaned = words.filter((word) => !GROUPING.has(word))
-  const first = cleaned[0]
-  if (first !== undefined) {
-    const bare = first.replace(/^[({]+/, '')
-    if (bare === '') cleaned.shift()
-    else cleaned[0] = bare
-  }
-  return cleaned
+  return segmentWordSpans(text).map((word) => word.text)
 }
-
-/** {@link WORD} anchored at an offset, for walking a statement's raw words. */
-const WORD_AT = new RegExp(WORD.source, 'y')
 
 /**
  * A statement's own leading `NAME=value` words, and where they end.
@@ -1088,17 +1317,23 @@ function leadingAssignments(text: string): { words: string[]; end: number } {
   const words: string[] = []
   let at = 0
   for (let guard = 0; guard < MAX_WRAPPERS; guard++) {
-    while (at < text.length && /\s/.test(text[at] ?? '')) at += 1
+    while (at < text.length) {
+      if (text[at] === '\\' && text[at + 1] === '\n') {
+        at += 2
+        continue
+      }
+      if (!/\s/.test(text[at] ?? '')) break
+      at += 1
+    }
     // Grouping in front of the statement (`(npx …)`, `{ …`): not a word the shell assigns with.
     if (text[at] === '(' || text[at] === '{') {
       at += 1
       continue
     }
-    WORD_AT.lastIndex = at
-    const match = WORD_AT.exec(text)
-    if (!match || !ENV_ASSIGNMENT.test(match[0])) return { words, end: at }
-    words.push(match[0])
-    at += match[0].length
+    const word = text.slice(at, shellWordEnd(text, at))
+    if (!ENV_ASSIGNMENT.test(word)) return { words, end: at }
+    words.push(word)
+    at += word.length
   }
   return { words, end: at }
 }
@@ -1251,25 +1486,7 @@ export function executedCommands(command: string): ExecutedCommand[] {
  * @returns The word's offset in `text`, or null when there is no such word.
  */
 function wordOffset(text: string, index: number): number | null {
-  const placement = new RegExp(WORD.source, 'g')
-  let kept = 0
-  let first = true
-  for (let match = placement.exec(text); match !== null; match = placement.exec(text)) {
-    if (GROUPING.has(match[0])) continue
-    if (first) {
-      first = false
-      const bare = match[0].replace(/^[({]+/, '')
-      // `segmentWords` shifts a first word that was nothing but grouping away, so the NEXT word
-      // is not stripped and is counted from zero.
-      if (bare === '') continue
-      if (kept === index) return match.index + (match[0].length - bare.length)
-      kept += 1
-      continue
-    }
-    if (kept === index) return match.index
-    kept += 1
-  }
-  return null
+  return segmentWordSpans(text)[index]?.start ?? null
 }
 
 /**
@@ -1446,9 +1663,9 @@ export function statementArgumentEnd(
     }
     at = cursor - 1
   }
-  const words = [...command.slice(start, at).matchAll(new RegExp(WORD.source, 'g'))].map((m) => ({
-    text: m[0],
-    index: start + (m.index ?? 0),
+  const words = shellWordSpans(command.slice(start, at)).map((word) => ({
+    text: word.text,
+    index: start + word.start,
   }))
   // A trailing redirection belongs to the statement but is not an argument of its program. An
   // option written after it would still parse, but the option belongs with the program's own
@@ -1710,16 +1927,13 @@ export function withoutTimeoutWrapper(
     if (!which(segment)) continue
     // Every word in front of the program: the assignments and the wrappers. The duration belongs
     // to the wrapper, so the walk has to see the words, not just the parse's total bound.
-    const prefix = command.slice(located.start, located.programOffset)
-    const words: Array<{ text: string; start: number; end: number }> = []
-    const at = new RegExp(WORD.source, 'g')
-    for (let match = at.exec(prefix); match !== null; match = at.exec(prefix)) {
-      words.push({
-        text: match[0],
-        start: located.start + match.index,
-        end: located.start + match.index + match[0].length,
-      })
-    }
+    const start = located.start
+    const prefix = command.slice(start, located.programOffset)
+    const words = shellWordSpans(prefix).map((word) => ({
+      text: word.text,
+      start: start + word.start,
+      end: start + word.start + word.text.length,
+    }))
     for (let i = 0; i < words.length; i += 1) {
       const word = words[i]
       if (word === undefined || programName(word.text) !== 'timeout') continue

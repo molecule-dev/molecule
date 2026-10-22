@@ -171,10 +171,12 @@ describe('a `"$( … )"` nests, and the line after it still splits (flash-m89)',
     expect(
       commandSegments('cd "$(dirname "$0")" && hurl --test hurl/*.hurl').map((s) => s.program),
     ).toEqual(['cd', 'hurl'])
-    // The `&&` inside `$( … )` belongs to the substitution, not to this command.
+    // The `&&` inside `$( … )` belongs to the substitution, not to this command — and the
+    // assignment it feeds sets a variable rather than running anything, so only `hurl` is a
+    // statement here (the substitution's own words were once read as a command of their own).
     const withSubstitution = commandSegments('BASE="$(cd a && pwd)" && hurl --test x.hurl')
-    expect(withSubstitution).toHaveLength(2)
-    expect(withSubstitution.at(-1)?.program).toBe('hurl')
+    expect(withSubstitution).toHaveLength(1)
+    expect(withSubstitution[0]?.program).toBe('hurl')
   })
 
   it('opens no substitution inside single quotes, where nothing expands', () => {
@@ -775,5 +777,128 @@ describe('executedCommands — the commands a shell actually runs (m331)', () =>
   it('unwraps launchers and assignments to the program they run', () => {
     expect(programs('cd app && env -u KEY npx playwright test')).toEqual(['cd', 'playwright'])
     expect(programs("env -i PATH=/usr/bin sh -c 'npm test'")).toEqual(['npm'])
+  })
+})
+
+/**
+ * X1 xr-molecule-flash-l07 (+16:27): the assignment `UID_VAL=h$(date +%s)` was read as TWO words
+ * because the word reader stopped at the space inside a command substitution. `+%s)` then stood
+ * in command position, the supplied Hurl runner behind it was invisible, and a completed 13-file
+ * /154-request run read as "Hurl has never run" — the first deploy was refused over it.
+ *
+ * The words below are the shell's own words: a substitution, its whitespace and its nesting are
+ * part of the word that carries them. Nothing here is evaluated; the scanner only finds where a
+ * word ends.
+ */
+describe('a command substitution inside a word keeps that word whole (flash-l07)', () => {
+  const ACTUAL =
+    'cd /workspace/fixtures/realworld/specs/api && HOST=http://localhost:4000 ' +
+    'UID_VAL=h$(date +%s) ./run-api-tests-hurl.sh 2>&1 | tail -60'
+  const RUNNER = './run-api-tests-hurl.sh'
+
+  it('reads the supplied runner in command position, assignment attached', () => {
+    expect(commandSegments(ACTUAL).map((segment) => segment.program)).toEqual([
+      'cd',
+      'run-api-tests-hurl.sh',
+      'tail',
+    ])
+    const run = locatedCommandSegments(ACTUAL).find(
+      (entry) => entry.segment?.program === 'run-api-tests-hurl.sh',
+    )
+    // The program is its basename; the offsets below still name the word as written.
+    expect(run?.segment?.text).toBe('run-api-tests-hurl.sh 2>&1')
+    expect(run?.assignments).toEqual(['HOST=http://localhost:4000', 'UID_VAL=h$(date +%s)'])
+  })
+
+  it('places programOffset and assignmentOffset on the words it reports', () => {
+    const run = locatedCommandSegments(ACTUAL).find(
+      (entry) => entry.segment?.program === 'run-api-tests-hurl.sh',
+    )
+    const programOffset = run?.programOffset ?? -1
+    const assignmentOffset = run?.assignmentOffset ?? -1
+    // Both offsets land exactly where their word starts in the command.
+    expect(ACTUAL.slice(programOffset, programOffset + RUNNER.length)).toBe(RUNNER)
+    expect(assignmentOffset).toBe(ACTUAL.indexOf(RUNNER))
+    expect(ACTUAL.slice(run?.start ?? 0, assignmentOffset)).toBe(
+      'HOST=http://localhost:4000 UID_VAL=h$(date +%s) ',
+    )
+    // …and the statement ends where the shell's own words end.
+    expect(ACTUAL.slice(assignmentOffset, run?.end ?? 0)).toBe('./run-api-tests-hurl.sh 2>&1')
+  })
+
+  it.each([
+    'UID_VAL=h$(date +%s)',
+    'UID_VAL="h$(date +%s)"',
+    "UID_VAL='h$(date +%s)'",
+    'UID_VAL=h"$(date +%s)"',
+    'UID_VAL=h$(date +%s)$(date +%N)',
+    'UID_VAL=h$(date $(printf +%s))',
+    'UID_VAL=h`date +%s`',
+    'UID_VAL="${UID_VAL:-$(date +%s)$$}"',
+  ])('keeps %s one word, whatever its quoting and nesting', (assignment) => {
+    const command = `cd specs && ${assignment} ./run-api-tests-hurl.sh 2>&1 | tail -5`
+    expect(commandSegments(command).map((segment) => segment.program)).toEqual([
+      'cd',
+      'run-api-tests-hurl.sh',
+      'tail',
+    ])
+    const run = locatedCommandSegments(command).find(
+      (entry) => entry.segment?.program === 'run-api-tests-hurl.sh',
+    )
+    expect(run?.assignments).toContain(assignment)
+    expect(command.slice(run?.programOffset ?? 0)).toMatch(/^\.\/run-api-tests-hurl\.sh/)
+  })
+
+  it('keeps each assignment whole behind an `env` wrapper too', () => {
+    const command = 'env HOST=x UID_VAL=h$(date +%s) ./run-api-tests-hurl.sh 2>&1'
+    const run = locatedCommandSegments(command).find(
+      (entry) => entry.segment?.program === 'run-api-tests-hurl.sh',
+    )
+    expect(run?.assignments).toEqual(['HOST=x', 'UID_VAL=h$(date +%s)'])
+    expect(command.slice(run?.programOffset ?? 0)).toBe('./run-api-tests-hurl.sh 2>&1')
+  })
+
+  it('keeps the word whole inside a nested `sh -c` string', () => {
+    const command = "bash -c 'UID_VAL=h$(date +%s) ./run-api-tests-hurl.sh 2>&1'"
+    expect(commandSegments(command).map((segment) => segment.program)).toEqual([
+      'run-api-tests-hurl.sh',
+    ])
+    // A nested statement's positions are positions in the nested string, not in this command.
+    expect(locatedCommandSegments(command)[0]?.programOffset).toBeNull()
+  })
+
+  it('runs the substitution as its own command without inventing an outer run', () => {
+    expect(executedCommands(ACTUAL).map((entry) => entry.program)).toEqual([
+      'cd',
+      'run-api-tests-hurl.sh',
+      'tail',
+      'date',
+    ])
+    expect(executedCommands('echo "$(date +%s)"').map((entry) => entry.program)).toEqual([
+      'echo',
+      'date',
+    ])
+  })
+
+  it('still runs nothing when the runner is only read, printed or mentioned', () => {
+    for (const command of [
+      'head -30 run-api-tests-hurl.sh',
+      'cat run-api-tests-hurl.sh',
+      'grep -n "UID_VAL=h$(date +%s)" run-api-tests-hurl.sh',
+      'echo "UID_VAL=h$(date +%s) ./run-api-tests-hurl.sh"',
+      "printf '%s\\n' 'UID_VAL=h$(date +%s) ./run-api-tests-hurl.sh'",
+      "cat <<'EOF'\nUID_VAL=h$(date +%s) ./run-api-tests-hurl.sh\nEOF",
+    ]) {
+      expect(commandSegments(command).map((segment) => segment.program)).not.toContain(
+        'run-api-tests-hurl.sh',
+      )
+    }
+  })
+
+  it('keeps the literal control unchanged', () => {
+    const command = 'HOST=http://localhost:4000 UID_VAL=h123 ./run-api-tests-hurl.sh 2>&1'
+    expect(commandSegments(command).map((segment) => segment.program)).toEqual([
+      'run-api-tests-hurl.sh',
+    ])
   })
 })
