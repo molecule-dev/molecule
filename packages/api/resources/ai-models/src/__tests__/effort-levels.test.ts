@@ -90,20 +90,19 @@ describe('supportedEffortLevels catalog data', () => {
     }
   })
 
-  it("declares the local 'off' toggle only as the default of an opt-in model", () => {
+  it("declares the local 'off' toggle only for configurable reasoning", () => {
     // `'off'` is a platform switch (send no thinking block), never a vendor
-    // effort value — so it is only meaningful when it IS the default: a model
-    // that cannot turn reasoning off must not offer it.
+    // effort value. A model that cannot turn reasoning off must not offer it;
+    // the default may still select a supported reasoning level.
     for (const model of MODELS) {
       if (!model.supportedEffortLevels?.includes('off')) continue
-      expect(model.defaultEffortLevel, model.id).toBe('off')
       expect(model.supportedEffortLevels[0], `${model.id} must list off first`).toBe('off')
       expect(model.supportsThinking, model.id).toBe(true)
       expect(model.thinkingConfigurable, model.id).toBe(true)
     }
-    // The opt-in model this rule exists for (DeepSeek V4.1 Flash).
+    // DeepSeek offers an explicit off switch while defaulting to low.
     const flash = MODELS.find((m) => m.id === 'deepseek-flash')
     expect(flash?.supportedEffortLevels).toEqual(['off', 'low', 'high', 'max'])
-    expect(flash?.defaultEffortLevel).toBe('off')
+    expect(flash?.defaultEffortLevel).toBe('low')
   })
 })

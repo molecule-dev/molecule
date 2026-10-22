@@ -55,8 +55,7 @@ const haiku = model({
   defaultEffortLevel: '8K',
   effortBudgetTokens: { '4K': 4000, '8K': 8000, '16K': 16000, '32K': 32000 },
 })
-// An opt-in reasoning model (DeepSeek V4.1 Flash shape): `off` is the local
-// default and every other level is an explicit opt-in.
+// An optional reasoning model with an off default.
 const optIn = model({
   provider: 'deepseek',
   supportsThinking: true,
@@ -145,6 +144,17 @@ describe('nativeEffortName', () => {
     }
     for (const value of ['off', 'low', 'high', 'max']) {
       expect(nativeEffortName(optIn, value), value).toBe(value)
+    }
+  })
+
+  it('uses a low default without changing explicit optional-reasoning selections', () => {
+    const lowDefault = { ...optIn, defaultEffortLevel: 'low' }
+    expect(defaultEffortForModel(lowDefault)).toBe('low')
+    for (const value of [undefined, '', 'medium', 'xhigh', 'M', 'XL', '16K', 'bogus']) {
+      expect(nativeEffortName(lowDefault, value), String(value)).toBe('low')
+    }
+    for (const value of ['off', 'low', 'high', 'max']) {
+      expect(nativeEffortName(lowDefault, value), value).toBe(value)
     }
   })
 })

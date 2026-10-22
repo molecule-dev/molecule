@@ -340,7 +340,7 @@ class DeepseekAIProviderImpl implements AIProvider {
       // prose-only backstops, whereas a 400 produces nothing at all.
       //
       // LIVE for an entry that exposes opt-in reasoning (deepseek-flash, whose
-      // effort levels include the local `off` default): a project that picks
+      // effort levels include a local `off` switch): a project that uses
       // low/high/max gets thinking mode on a discovery turn, and the forced
       // nudge is degraded here instead of 400ing the first turn of the
       // conversation.
@@ -366,9 +366,8 @@ class DeepseekAIProviderImpl implements AIProvider {
     // assistant turn's `reasoning_content` back — including a turn where the
     // model made no tool call — or the API answers 400. `formatMessages` replays
     // `ChatMessage.reasoning` for exactly that reason. The catalog decides
-    // whether a turn carries a thinking block: deepseek-flash defaults to the
-    // local `off` level (no block → reasoning explicitly disabled below), and
-    // only a project that opts into low/high/max sends one.
+    // whether a turn carries a thinking block. No block explicitly disables
+    // reasoning below; a low/high/max block enables that native effort.
     if (params.thinking) {
       body.thinking = { type: 'enabled' }
       // Prefer a caller-resolved native value (`low` | `high` | `max`) from the

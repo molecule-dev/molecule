@@ -2131,12 +2131,9 @@ export const MODELS: readonly ModelDefinition[] = [
     description: 'Newest ultra-cheap & fast flash — vision-capable agentic coding',
     contextWindow: 1_000_000,
     maxOutputTokens: 384_000,
-    // Thinking is OPT-IN, and OFF is the default. DeepSeek V4 enables thinking
-    // upstream by default, but every platform surface (planner, executor,
-    // free tier, compaction, commit messages) has always run this model
-    // non-thinking, so the catalog keeps that historical behavior: `off` is a
-    // LOCAL toggle, never sent to the vendor as a reasoning_effort value. A
-    // project that asks for `low`/`high`/`max` sends that native effort and the
+    // Low is the default configurable effort. The explicit `off` selection is
+    // a LOCAL toggle, never sent to the vendor as a reasoning_effort value. A
+    // project using `low`/`high`/`max` sends that native effort and the
     // bond replays every retained assistant reasoning_content through the tool
     // loop (DeepSeek 400s a thinking-mode request with tools that omits one),
     // which is what makes thinking mode usable on this surface at all.
@@ -2155,13 +2152,13 @@ export const MODELS: readonly ModelDefinition[] = [
     thinkingBudgetTokens: 8_000,
     thinkingConfigurable: true,
     supportedEffortLevels: ['off', 'low', 'high', 'max'],
-    defaultEffortLevel: 'off',
+    defaultEffortLevel: 'low',
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
     // Free-tier default (moved from deepseek-v4-flash 2026-09-10): the
     // cheapest capable executor on the go-forward id — fast, tool-calling,
-    // vision-capable, and non-thinking unless a project opts in. Serving cost
+    // vision-capable, with low default effort for configurable chat. Serving cost
     // is ~2× the retired US leg on output-heavy turns (CN 0.6/1.2 output vs
     // DeepInfra's flat 0.18) — tiers.ts's free-turn budget math derives from
     // this entry. Exactly one model in this catalog may carry freeTier

@@ -93,13 +93,12 @@ export interface ModelDefinition {
    *   level names — e.g. Claude Haiku 4.5, Qwen3.7) list scaled-budget LABELS,
    *   e.g. `['4K', '8K', '16K', '32K']`, with {@link effortBudgetTokens} mapping
    *   each label to the actual token budget sent.
-   * - **Opt-in reasoning models** put the LOCAL `'off'` toggle first, e.g.
-   *   `['off', 'low', 'high', 'max']` on DeepSeek V4.1 Flash, with
-   *   `defaultEffortLevel: 'off'`. `'off'` is never sent to the provider: the
+   * - **Optional reasoning models** put the LOCAL `'off'` toggle first, e.g.
+   *   `['off', 'low', 'high', 'max']` on DeepSeek V4.1 Flash. Their declared
+   *   default may select reasoning. `'off'` is never sent to the provider: the
    *   resolved level produces no thinking block, which turns the vendor's
    *   reasoning off. A persisted value the model does not offer resolves to
-   *   `'off'` rather than degrading upward, so an old setting can never switch
-   *   reasoning on by accident.
+   *   its declared default rather than escalating through a cross-model rank.
    * - **Fixed-reasoning models** (DeepSeek V4 Pro / V4 Flash, Kimi, …) omit this
    *   field entirely — reasoning depth can't be tuned, so there is nothing to
    *   pick.
