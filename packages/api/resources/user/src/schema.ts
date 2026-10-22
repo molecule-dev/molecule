@@ -301,7 +301,7 @@ export const sessionSchema = z.object({
 })
 
 /**
- * User session data (userId, email, role, permissions, metadata) inferred from sessionSchema.
+ * JWT session payload inferred from sessionSchema: required userId and deviceId; optional id, oauthServer and oauthId. See sessionSchema for the field schema.
  */
 export type Session = z.infer<typeof sessionSchema>
 

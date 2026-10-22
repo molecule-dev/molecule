@@ -70,3 +70,48 @@ describe('the two-table contract in @molecule/api-resource-user’s own docs (fl
     expect(readme).toContain("findById('usersSecrets', userId)")
   })
 })
+
+/**
+ * X0 flash-m426 (+03:16): `read_molecule_doc({ name: '@molecule/api-resource-user',
+ * section: 'Session' })` described the payload as `userId, email, role, permissions,
+ * metadata` while `sessionSchema` requires `userId`/`deviceId` and optionally accepts
+ * `id`/`oauthServer`/`oauthId` — none of the four claimed extras exist on the schema.
+ * The doc the executor reads must name the fields the schema actually declares.
+ */
+describe('the Session payload description matches sessionSchema (flash-m426)', () => {
+  const SESSION_DOC =
+    'JWT session payload inferred from sessionSchema: required userId and deviceId; optional id, oauthServer and oauthId. See sessionSchema for the field schema.'
+
+  /** The README block under a heading, up to the next heading of any depth. */
+  function readmeSection(readme: string, heading: string): string {
+    const at = readme.indexOf(heading)
+    if (at < 0) throw new Error(`no \`${heading}\` in the README`)
+    const next = readme.indexOf('\n#', at + heading.length)
+    return next < 0 ? readme.slice(at) : readme.slice(at, next)
+  }
+
+  it('the Session JSDoc names the real required and optional fields', () => {
+    const doc = docFor(read('src/schema.ts'), 'export type Session')
+    expect(doc).toContain(SESSION_DOC)
+    // The fields the stale text claimed the schema has, and does not.
+    for (const field of ['email', 'role', 'permissions', 'metadata']) {
+      expect(doc).not.toContain(field)
+    }
+  })
+
+  it('the generated README Session entries carry the same description', () => {
+    const readme = read('README.md')
+    for (const heading of ['#### `Session`', '##### `types.Session`']) {
+      const section = readmeSection(readme, heading)
+      expect(section).toContain(SESSION_DOC)
+      expect(section).toContain('type Session = z.infer<typeof sessionSchema>')
+      for (const field of ['email', 'role', 'permissions', 'metadata']) {
+        expect(section).not.toContain(field)
+      }
+    }
+  })
+
+  it('the runtime declaration is still inferred from sessionSchema', () => {
+    expect(read('src/schema.ts')).toContain('export type Session = z.infer<typeof sessionSchema>')
+  })
+})
