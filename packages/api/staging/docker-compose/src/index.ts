@@ -26,7 +26,7 @@
  * ```
  *
  * @remarks
- * - Node artifacts use a patched Node 22 Debian base and build native modules
+ * - API artifacts use a patched Node 22 Debian base and build native modules
  *   with Python/make/C++. Install lifecycle scripts run with project source
  *   present; dev dependencies are pruned before built modules move into the
  *   matching, nonroot runtime. No second production install recompiles native

@@ -6,6 +6,7 @@ import { createHash } from 'node:crypto'
 import {
   closeSync,
   cpSync,
+  existsSync,
   mkdirSync,
   openSync,
   readFileSync,
@@ -56,15 +57,6 @@ for (const name of [
 ]) {
   renameSync(join(context, name + '.fixture'), join(context, name))
 }
-const files = generateApiDeploymentArtifacts({
-  runtimeDirectory: 'api',
-  runtimePaths: ['api', 'app/dist'],
-  runtimeCommand: ['node', 'dist/server.mjs'],
-})
-for (const [name, content] of Object.entries(files)) {
-  mkdirSync(resolve(context, name, '..'), { recursive: true })
-  writeFileSync(join(context, name), content, { flag: 'wx' })
-}
 mkdirSync(join(context, 'api/node_modules'), { recursive: true })
 writeFileSync(join(context, 'api/node_modules/host-poison'), 'host modules must not ship')
 writeFileSync(join(context, 'api/.env.private'), 'harmless exclusion control')
@@ -74,19 +66,6 @@ assert.equal((legacy.match(/node:20-alpine/g) ?? []).length, 2)
 // Hold the patched Node/libc input constant: only replace the two old FROM
 // references. The old install/copy/runtime recipe remains exactly as recorded
 // at b103bb76; its source-dependent prepare cannot run before source is copied.
-writeFileSync(
-  join(context, 'Dockerfile.legacy'),
-  legacy.replaceAll('node:20-alpine', NODE_DEPLOYMENT_IMAGE),
-)
-writeFileSync(
-  join(context, 'Dockerfile.no-tools'),
-  `FROM ${NODE_DEPLOYMENT_IMAGE}
-WORKDIR /app
-COPY . .
-RUN npm ci --ignore-scripts --no-audit --no-fund
-RUN npm_config_build_from_source=true npm_config_jobs=1 MAKEFLAGS=-j1 npm rebuild bcrypt
-`,
-)
 const suffix = `${process.env.GITHUB_RUN_ID}-${process.env.GITHUB_RUN_ATTEMPT}-${process.pid}`
 const image = `molecule-native-proof:${suffix}`
 const container = `molecule-native-proof-${suffix}`
@@ -146,6 +125,50 @@ try {
     encoding: 'utf8',
   }).trim()
   assert.match(receipt.daemonArch, /^(x86_64|amd64)$/)
+  // BuildKit may cache a FROM image without loading its tag into Docker's
+  // image store. Pull/inspect it explicitly, then hold its digest constant
+  // across every old/new build instead of inspecting an unrelated later tag.
+  docker('base-image', ['pull', '--platform=linux/amd64', NODE_DEPLOYMENT_IMAGE])
+  receipt.base = JSON.parse(
+    execFileSync(
+      'docker',
+      [
+        'image',
+        'inspect',
+        NODE_DEPLOYMENT_IMAGE,
+        '--format',
+        '{"id":{{json .Id}},"architecture":{{json .Architecture}},"repoDigests":{{json .RepoDigests}}}',
+      ],
+      { encoding: 'utf8' },
+    ),
+  )
+  assert.equal(receipt.base.architecture, 'amd64')
+  const digest = receipt.base.repoDigests?.[0]?.split('@')[1]
+  assert.match(digest ?? '', /^sha256:[a-f0-9]{64}$/)
+  receipt.resolvedNodeImage = NODE_DEPLOYMENT_IMAGE + '@' + digest
+  const files = generateApiDeploymentArtifacts({
+    nodeImage: receipt.resolvedNodeImage,
+    runtimeDirectory: 'api',
+    runtimePaths: ['api', 'app/dist'],
+    runtimeCommand: ['node', 'dist/server.mjs'],
+  })
+  for (const [name, content] of Object.entries(files)) {
+    mkdirSync(resolve(context, name, '..'), { recursive: true })
+    writeFileSync(join(context, name), content, { flag: 'wx' })
+  }
+  writeFileSync(
+    join(context, 'Dockerfile.legacy'),
+    legacy.replaceAll('node:20-alpine', receipt.resolvedNodeImage),
+  )
+  writeFileSync(
+    join(context, 'Dockerfile.no-tools'),
+    `FROM ${receipt.resolvedNodeImage}
+WORKDIR /app
+COPY . .
+RUN npm ci --ignore-scripts --no-audit --no-fund
+RUN npm_config_build_from_source=true npm_config_jobs=1 MAKEFLAGS=-j1 npm rebuild bcrypt
+`,
+  )
   docker(
     'legacy-recipe',
     ['build', '--platform=linux/amd64', '--progress=plain', '-f', 'Dockerfile.legacy', '.'],
@@ -187,20 +210,6 @@ try {
   receipt.image = inspected
   assert.equal(inspected.architecture, 'amd64')
   assert.equal(inspected.user, 'node')
-  receipt.base = JSON.parse(
-    execFileSync(
-      'docker',
-      [
-        'image',
-        'inspect',
-        NODE_DEPLOYMENT_IMAGE,
-        '--format',
-        '{"id":{{json .Id}},"architecture":{{json .Architecture}},"repoDigests":{{json .RepoDigests}}}',
-      ],
-      { encoding: 'utf8' },
-    ),
-  )
-  assert.equal(receipt.base.architecture, 'amd64')
   docker('fresh-runtime', [
     'run',
     '--rm',
@@ -221,6 +230,7 @@ try {
   ])
   receipt.passed = true
 } catch (error) {
+  receipt.passed = false
   receipt.error = error.message
   throw error
 } finally {
@@ -232,11 +242,18 @@ try {
       '.dockerignore',
       'Dockerfile.legacy',
       'Dockerfile.no-tools',
+      '.molecule/deploy/build.sh',
+      'prepare.mjs',
+      'build.mjs',
+      'api/src/server.mjs',
+      'api/src/smoke.mjs',
     ].map((name) => [
       name,
-      createHash('sha256')
-        .update(readFileSync(join(context, name)))
-        .digest('hex'),
+      existsSync(join(context, name))
+        ? createHash('sha256')
+            .update(readFileSync(join(context, name)))
+            .digest('hex')
+        : null,
     ]),
   )
   // Only this run's unique objects; no prune, builder deletion or shared network changes.
