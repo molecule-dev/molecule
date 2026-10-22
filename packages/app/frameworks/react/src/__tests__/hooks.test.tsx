@@ -592,6 +592,71 @@ describe('useRouter', () => {
 })
 
 describe('useHttp', () => {
+  it('publishes committed options before a child layout effect calls the action', async () => {
+    const httpClient = createMockHttpClient()
+    function Child({
+      execute,
+      token,
+    }: {
+      execute: () => Promise<unknown>
+      token: string
+    }): React.JSX.Element {
+      React.useLayoutEffect(() => {
+        void execute()
+      }, [execute, token])
+      return <span>{token}</span>
+    }
+    function Parent({ token }: { token: string }): React.JSX.Element {
+      const { execute } = useHttp('GET', '/api/test', { headers: { 'X-Selection': token } })
+      return <Child execute={execute} token={token} />
+    }
+    const { rerender } = render(
+      <HttpProvider client={httpClient}>
+        <Parent token="first" />
+      </HttpProvider>,
+    )
+    await act(async () => {})
+    vi.mocked(httpClient.get).mockClear()
+    rerender(
+      <HttpProvider client={httpClient}>
+        <Parent token="second" />
+      </HttpProvider>,
+    )
+    await act(async () => {})
+    expect(httpClient.get).toHaveBeenCalledOnce()
+    expect(httpClient.get).toHaveBeenCalledWith('/api/test', {
+      headers: { 'X-Selection': 'second' },
+    })
+  })
+
+  it('keeps a committed action on committed options while a new render suspends', async () => {
+    const httpClient = createMockHttpClient()
+    const pending = new Promise<void>(() => {})
+    const wrapper = ({ children }: { children: ReactNode }): React.JSX.Element => (
+      <HttpProvider client={httpClient}>
+        <React.Suspense fallback={null}>{children}</React.Suspense>
+      </HttpProvider>
+    )
+    const { result, rerender } = renderHook(
+      ({ token, suspend }) => {
+        const request = useHttp('GET', '/api/test', { headers: { 'X-Selection': token } })
+        if (suspend) throw pending
+        return request
+      },
+      { initialProps: { token: 'committed', suspend: false }, wrapper },
+    )
+    const execute = result.current.execute
+    act(() => {
+      React.startTransition(() => rerender({ token: 'pending', suspend: true }))
+    })
+    await act(async () => {
+      await execute()
+    })
+    expect(httpClient.get).toHaveBeenCalledWith('/api/test', {
+      headers: { 'X-Selection': 'committed' },
+    })
+  })
+
   it('keeps execute stable across ordinary rerenders', () => {
     const httpClient = createMockHttpClient()
     const wrapper = ({ children }: { children: ReactNode }): React.JSX.Element => (

@@ -4,7 +4,7 @@
  * @module
  */
 
-import { useCallback, useContext, useEffect, useRef, useState } from 'react'
+import { useCallback, useContext, useEffect, useInsertionEffect, useRef, useState } from 'react'
 
 import type { HttpClient, HttpResponse, RequestConfig } from '@molecule/app-http'
 import { t } from '@molecule/app-i18n'
@@ -47,7 +47,7 @@ export interface UseHttpResult<T> extends UseHttpState<T> {
    *
    * This function is IDENTITY-STABLE for as long as `method`, `url` and the HTTP
    * client do not change, so it is safe in a `useEffect` dependency array. Its
-   * request options are read when it is CALLED, from the latest render.
+   * request options are read when it is CALLED, from the latest committed render.
    */
   execute: () => Promise<T | null>
   reset: () => void
@@ -84,7 +84,7 @@ export interface UseHttpOptions<T> extends RequestConfig {
  * options or callbacks — so `useEffect(() => { void execute() }, [execute])`
  * runs once per request target instead of looping. The current headers, body,
  * `signal` and callbacks are read when `execute` is called, so a later manual
- * call always sends what the latest render passed. Changing `method`, `url` or
+ * call always sends what the latest committed render passed. Changing `method`, `url` or
  * the client does replace `execute` (it selects a different request) and
  * re-runs such an effect.
  *
@@ -129,13 +129,13 @@ export function useHttp<T>(
     }
   }, [])
 
-  // The options of the LATEST render, read when execute is called. Assigning
-  // during render (rather than in an effect) means a call from an effect, a
-  // layout effect or an event handler of the same commit already sees them, and
-  // it keeps server rendering warning-free. A discarded render can only leave
-  // newer options here than the caller committed, never staler ones.
+  // Publish options during commit, before consumers' layout effects. A render
+  // that suspends or is discarded must not change a mounted action's request.
+  // This only updates our own ref: no DOM access or state update is involved.
   const optionsRef = useRef(options)
-  optionsRef.current = options
+  useInsertionEffect(() => {
+    optionsRef.current = options
+  }, [options])
 
   const execute = useCallback(async (): Promise<T | null> => {
     if (!mountedRef.current) return null
