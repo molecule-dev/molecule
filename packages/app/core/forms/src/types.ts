@@ -287,7 +287,13 @@ export interface FormController<T extends Record<string, unknown> = Record<strin
   validate(): Promise<boolean>
 
   /**
-   * Resets the form to initial values.
+   * Resets the form and clears errors, touched fields and submission state.
+   *
+   * With no argument it restores the current baseline — the initial
+   * `defaultValues`, or the values a previous `reset(values)` established.
+   * Passing `values` merges them over the current baseline and makes the
+   * result the new baseline, so a form reset to freshly loaded or saved data
+   * reads clean (`isDirty === false`).
    */
   reset(values?: Partial<T>): void
 
@@ -332,7 +338,8 @@ export interface FormProvider {
  */
 export interface FormOptions<T extends Record<string, unknown>> {
   /**
-   * Default values.
+   * Default values, captured as the form's clean baseline when the controller
+   * is created. Mutating this object afterwards does not change the baseline.
    */
   defaultValues?: Partial<T>
 

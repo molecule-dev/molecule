@@ -14,6 +14,7 @@ import type {
   FormState,
   RegisterOptions,
 } from '@molecule/app-forms'
+import { createForm as createBondedForm } from '@molecule/app-forms'
 
 /**
  * Adapt controller notifications to React's stable snapshot contract. Providers
@@ -49,12 +50,18 @@ function useFormSnapshot<T extends Record<string, unknown>, S>(
 
 /**
  * Options for useForm hook.
+ *
+ * Every `FormOptions` field is supported. `createForm` is only an override —
+ * omit it and the hook creates the controller through the bonded forms
+ * provider (`createForm` from `@molecule/app-forms`), which uses the built-in
+ * native provider until the app bonds its own.
  */
 export interface UseFormOptions<T extends Record<string, unknown>> extends FormOptions<T> {
   /**
-   * Form provider's createForm function.
+   * Explicit form factory for this one form. Defaults to the bonded forms
+   * provider; pass it only to pin a specific provider instance.
    */
-  createForm: (options: FormOptions<T>) => FormController<T>
+  createForm?: (options: FormOptions<T>) => FormController<T>
 }
 
 /**
@@ -87,16 +94,21 @@ export interface UseFormResult<T extends Record<string, unknown>> {
 /**
  * Hook for form state management.
  *
- * @param options - Form options including createForm from a forms provider
+ * Creates its controller through the bonded forms provider, so a React app
+ * wires a form library once (`setProvider` from `@molecule/app-forms`) and
+ * every form picks it up. Passing `createForm` overrides that for one form.
+ *
+ * @param options - Form options. `defaultValues`, `mode` and the form-level
+ * `validate` are forwarded to the provider; omit the options entirely for a
+ * form whose fields are registered with their own defaults.
  * @returns Form state and methods
  *
  * @example
  * ```tsx
- * import { createForm } from '@molecule/app-forms'
+ * import { useForm } from '@molecule/app-react'
  *
  * function LoginForm() {
  *   const { register, handleSubmit, formState, isSubmitting } = useForm({
- *     createForm,
  *     defaultValues: { email: '', password: '' },
  *   })
  *
@@ -121,9 +133,9 @@ export interface UseFormResult<T extends Record<string, unknown>> {
  * ```
  */
 export function useForm<T extends Record<string, unknown>>(
-  options: UseFormOptions<T>,
+  options: UseFormOptions<T> = {},
 ): UseFormResult<T> {
-  const { createForm, ...formOptions } = options
+  const { createForm = createBondedForm, ...formOptions } = options
 
   // Create form controller once
   const formRef = useRef<FormController<T> | null>(null)

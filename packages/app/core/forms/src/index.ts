@@ -7,7 +7,8 @@
  * @example
  * ```typescript
  * import { createForm } from '@molecule/app-forms'
- * // (React apps: prefer the `useForm` hook from `@molecule/app-react` — same options.)
+ * // (React apps: use `useForm` from `@molecule/app-react` — it takes these same
+ * // options and creates the controller through the bonded forms provider.)
  *
  * const form = createForm<{ email: string; password: string }>({
  *   defaultValues: { email: '', password: '' },

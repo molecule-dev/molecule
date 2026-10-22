@@ -476,6 +476,101 @@ describe('@molecule/app-forms', () => {
         expect(controller.getValue('name')).toBe('Jane')
       })
 
+      it('treats values passed to reset as the new clean baseline', () => {
+        controller.setValue('name', 'Edited')
+        expect(controller.getState().isDirty).toBe(true)
+
+        controller.reset({ name: 'Loaded profile' })
+
+        expect(controller.getValue('name')).toBe('Loaded profile')
+        expect(controller.getState().isDirty).toBe(false)
+        expect(controller.getFieldState('name').dirty).toBe(false)
+      })
+
+      it('restores the reset baseline after a later edit and no-argument reset', () => {
+        controller.reset({ name: 'Loaded profile' })
+
+        controller.setValue('name', 'Edited again')
+        expect(controller.getFieldState('name').dirty).toBe(true)
+        expect(controller.getState().isDirty).toBe(true)
+
+        controller.reset()
+
+        expect(controller.getValue('name')).toBe('Loaded profile')
+        expect(controller.getValues()).toEqual({ name: 'Loaded profile', email: '' })
+        expect(controller.getState().isDirty).toBe(false)
+      })
+
+      it('merges a partial reset over the baseline and clears errors, touched and submission state', async () => {
+        controller.register({ name: 'name', required: true })
+        controller.setValue('email', 'dirty@example.test')
+        controller.setError('name', 'Name is required')
+        await controller.handleSubmit(() => {})({ preventDefault: vi.fn() })
+        expect(controller.getState().submitCount).toBe(1)
+
+        controller.reset({ email: 'loaded@example.test' })
+
+        expect(controller.getValues()).toEqual({ name: '', email: 'loaded@example.test' })
+        expect(controller.getError('name')).toBeUndefined()
+        expect(controller.getState().touched).toEqual({})
+        expect(controller.getState().submitCount).toBe(0)
+        expect(controller.getState().isDirty).toBe(false)
+      })
+
+      it('restores the initial baseline for a no-argument reset', () => {
+        controller.setValue('name', 'Edited')
+        controller.setValue('email', 'edited@example.test')
+
+        controller.reset()
+
+        expect(controller.getValues()).toEqual({ name: '', email: '' })
+        expect(controller.getState().isDirty).toBe(false)
+      })
+
+      it('notifies subscribers with the new baseline on reset', () => {
+        const callback = vi.fn()
+        controller.subscribe(callback)
+
+        controller.reset({ name: 'Loaded profile' })
+
+        expect(callback).toHaveBeenCalledTimes(1)
+        expect(callback.mock.calls[0]?.[0]).toMatchObject({
+          values: { name: 'Loaded profile', email: '' },
+          isDirty: false,
+        })
+      })
+
+      it('is not affected by later mutation of the caller defaultValues object', () => {
+        const defaults = { name: 'initial' }
+        const form = nativeProvider.createForm({ defaultValues: defaults })
+
+        defaults.name = 'mutated by caller'
+
+        expect(form.getValue('name')).toBe('initial')
+        expect(form.getState().isDirty).toBe(false)
+
+        form.setValue('name', 'edited')
+        expect(form.getState().isDirty).toBe(true)
+
+        form.reset()
+        expect(form.getValue('name')).toBe('initial')
+        expect(form.getState().isDirty).toBe(false)
+      })
+
+      it('is not affected by later mutation of the object passed to reset', () => {
+        const loaded = { name: 'loaded' }
+        controller.reset(loaded)
+
+        loaded.name = 'mutated by caller'
+
+        expect(controller.getValue('name')).toBe('loaded')
+        expect(controller.getState().isDirty).toBe(false)
+
+        controller.reset()
+        expect(controller.getValue('name')).toBe('loaded')
+        expect(controller.getState().isDirty).toBe(false)
+      })
+
       it('should handle form submission', async () => {
         const onSubmit = vi.fn()
         controller.setValue('name', 'John')

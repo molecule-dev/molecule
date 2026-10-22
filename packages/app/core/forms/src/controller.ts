@@ -26,9 +26,13 @@ import { validateValue } from './validation.js'
 export const createNativeFormProvider = (): FormProvider => {
   return {
     createForm<T extends Record<string, unknown>>(options: FormOptions<T>): FormController<T> {
-      const defaultValues = (options.defaultValues || {}) as T
       const mode = options.mode || 'onSubmit'
 
+      // The baseline is a snapshot of the caller's object: mutating that object
+      // after creation must not change what "clean" means. `reset` can replace
+      // the snapshot. The copy is shallow on purpose — object field values keep
+      // their identity, so an untouched field still compares clean.
+      let defaultValues = { ...(options.defaultValues || {}) } as T
       let values = { ...defaultValues }
       let errors: Partial<Record<keyof T, string>> = {}
       let touched: Partial<Record<keyof T, boolean>> = {}
@@ -243,7 +247,14 @@ export const createNativeFormProvider = (): FormProvider => {
         },
 
         reset(newValues?: Partial<T>): void {
-          values = { ...defaultValues, ...newValues } as T
+          // A reset establishes a clean baseline: with no argument it restores
+          // the current baseline; with values it merges them over that baseline
+          // and makes the result the new one, so freshly loaded or saved values
+          // read clean afterwards.
+          if (newValues !== undefined) {
+            defaultValues = { ...defaultValues, ...newValues } as T
+          }
+          values = { ...defaultValues }
           errors = {}
           touched = {}
           submitCount = 0

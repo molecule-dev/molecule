@@ -5,7 +5,7 @@ import { StrictMode, useLayoutEffect } from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import type { FormController, FormOptions, FormProvider } from '@molecule/app-forms'
-import { createNativeFormProvider } from '@molecule/app-forms'
+import { createNativeFormProvider, setProvider } from '@molecule/app-forms'
 
 import { useFieldState, useForm, useWatch } from '../hooks/useForm.js'
 
@@ -153,6 +153,100 @@ describe.each([
     })
     expect(result.current.isSubmitting).toBe(false)
     expect(result.current.formState.submitCount).toBe(1)
+  })
+})
+
+describe('useForm bonded provider default', () => {
+  it('creates the controller from the bonded forms provider without forwarding the factory', () => {
+    const native = createNativeFormProvider()
+    let bondedCalls = 0
+    let receivedKeys: string[] = []
+    setProvider({
+      createForm<T extends Record<string, unknown>>(options: FormOptions<T>): FormController<T> {
+        bondedCalls++
+        receivedKeys = Object.keys(options)
+        return native.createForm(options)
+      },
+    })
+    try {
+      const { result } = renderHook(() =>
+        useForm({ defaultValues: { email: 'reader@example.test' } }),
+      )
+
+      expect(bondedCalls).toBe(1)
+      expect(receivedKeys).toEqual(['defaultValues'])
+      expect(result.current.getValue('email')).toBe('reader@example.test')
+    } finally {
+      setProvider(createNativeFormProvider())
+    }
+  })
+
+  it('prefers an explicit createForm override over the bonded provider', () => {
+    let bondedCalls = 0
+    setProvider({
+      createForm<T extends Record<string, unknown>>(options: FormOptions<T>): FormController<T> {
+        bondedCalls++
+        return createNativeFormProvider().createForm(options)
+      },
+    })
+    try {
+      const native = createNativeFormProvider()
+      let overrideCalls = 0
+      const override = <T extends Record<string, unknown>>(
+        options: FormOptions<T>,
+      ): FormController<T> => {
+        overrideCalls++
+        return native.createForm(options)
+      }
+      const { result } = renderHook(() =>
+        useForm({ createForm: override, defaultValues: { email: 'override@example.test' } }),
+      )
+
+      expect(overrideCalls).toBe(1)
+      expect(bondedCalls).toBe(0)
+      expect(result.current.getValue('email')).toBe('override@example.test')
+    } finally {
+      setProvider(createNativeFormProvider())
+    }
+  })
+
+  it('mounts, validates and submits through the bonded default', async () => {
+    setProvider(createNativeFormProvider())
+    try {
+      const submit = vi.fn()
+      function ProfileForm(): React.ReactElement {
+        const form = useForm({ defaultValues: { name: '' } })
+        const field = form.register('name', { required: 'Name required' })
+        return (
+          <form aria-label="Profile" onSubmit={form.handleSubmit(submit)}>
+            <input aria-label="Name" {...field} value={field.value as string} />
+            <p role="status">{form.isDirty ? 'Dirty' : 'Clean'}</p>
+          </form>
+        )
+      }
+      render(<ProfileForm />)
+      const input = screen.getByRole('textbox', { name: 'Name' }) as HTMLInputElement
+      const form = screen.getByRole('form', { name: 'Profile' })
+
+      expect(input.value).toBe('')
+      expect(screen.getByRole('status').textContent).toBe('Clean')
+
+      await act(async () => {
+        fireEvent.submit(form)
+      })
+      expect(submit).not.toHaveBeenCalled()
+      expect(document.activeElement).toBe(input)
+
+      await act(async () => {
+        fireEvent.change(input, { target: { value: 'Ada' } })
+        expect(screen.getByRole('status').textContent).toBe('Dirty')
+        fireEvent.submit(form)
+      })
+      expect(submit).toHaveBeenCalledExactlyOnceWith({ name: 'Ada' })
+      expect(input.value).toBe('Ada')
+    } finally {
+      setProvider(createNativeFormProvider())
+    }
   })
 })
 
