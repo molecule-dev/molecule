@@ -3377,6 +3377,14 @@ describe('failureCausesNote — a clipped log says it is clipped (xr-molecule-fl
     const whole = clipped.slice(clipped.indexOf('\n') + 1)
     expect(failureCausesNote(whole)).toContain('2 failures in this run, grouped by cause')
   })
+
+  it('keeps a byte-bounded UTF-8 tail incomplete without relabelling bytes as characters', () => {
+    const note = failureCausesNote(clipped.replace('characters omitted', 'bytes omitted'))!
+    expect(note).toContain('LAST part of this run’s log')
+    expect(note).toContain('its first 33772 bytes were clipped')
+    expect(note).not.toContain('in this run, grouped by cause')
+    expect(note).toContain('2 tests')
+  })
 })
 
 /**

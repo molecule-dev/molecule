@@ -4376,14 +4376,14 @@ export function failureCausesNote(
     )
   }
   // A text that is the TAIL of a longer log says so in its first line (`…(N earlier characters
-  // omitted)`, the shape `background-tasks` writes when a log is capped): what it holds is not
+  // omitted)`, or bytes for a byte-bounded read): what it holds is not
   // the run's list of failures, only the part that survived the cut. Saying "N failures in this
   // run" over it reads as complete, and did: xr-molecule-flash-m123's collected 42 KB diagnosis
   // log was clipped to its last 8 KB, and this note grouped 2 of the run's 14 failures under
   // "fix every cause below" while the 11 that shared the run's one real cause were gone
   // (2026-10-17). The root fix is to hand this function the whole log; this says so when a
   // caller cannot.
-  const clipped = /^…\((\d+) earlier characters omitted\)/.exec(log)
+  const clipped = /^…\((\d+) earlier (characters|bytes) omitted\)/.exec(log)
   // The missing-header reading leads the list: four unrelated locators failing while every
   // snapshot shows the page painted and un-navigated is ONE fact about the route, and the list
   // below would otherwise read as four separate defects (xr-molecule-flash-m193 rewrote the
@@ -4394,7 +4394,7 @@ export function failureCausesNote(
     (missingHeader === null ? '' : `${missingHeader}\n`) +
     (clipped !== null
       ? `${total} failure${total === 1 ? '' : 's'} in the LAST part of this run’s log — its ` +
-        `first ${clipped[1]} characters were clipped, so a cause that failed earlier is ` +
+        `first ${clipped[1]} ${clipped[2]} were clipped, so a cause that failed earlier is ` +
         `missing here. Fix every cause below${connections.length > 0 ? ' the app’s code can produce, and re-send the connection error once as it is' : ''}, ` +
         `and read the whole run log before concluding:\n`
       : `${total} failure${total === 1 ? '' : 's'} in this run, grouped by cause — fix every cause ` +
