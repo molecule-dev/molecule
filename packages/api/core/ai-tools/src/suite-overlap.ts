@@ -161,9 +161,11 @@ function redirectToFreshFile(command: string): string {
 
 /**
  * The whole-suite command made scoped to the tests it should re-run instead: the same
- * invocation — same directory, same settings — with the named `file:line`s in place of the whole
- * suite, `--last-failed` dropped (it re-runs the tests that never ran too, X1 flash-m60) and
- * `--retries=0` set (a re-run of a known failure does not need to pay for retries).
+ * invocation — same launcher, same settings — with the named `file:line`s in place of every
+ * positional selection the run carried (a spec file, a suite directory, a regex filter:
+ * {@link dropSupersededSelections}), `--last-failed` dropped (it re-runs the tests that never ran
+ * too, X1 flash-m60) and `--retries=0` set (a re-run of a known failure does not need to pay for
+ * retries).
  *
  * The re-run keeps the run's `> <file>` redirect only in the sense of keeping its OUTPUT there:
  * the target is rewritten to a fresh sibling ({@link redirectToFreshFile}), so a re-run never
@@ -232,8 +234,10 @@ export function scopedRerunCommand(
   // nothing — "No tests found" — so every location is rendered in a form Playwright can match
   // ({@link playwrightLocations}).
   const narrowed = playwrightLocations(locations, command, cwd)
-  const dropped = dropSupersededSpecFiles(args, narrowed)
-    .replace(/\s*--last-failed\b/g, '')
+  const dropped = dropSupersededSelections(args, narrowed)
+    // `--last-failed` re-runs the tests that never ran too (flash-m60); its `--last-failed-file`
+    // sibling only moves the file it reads and is a real option of the re-run.
+    .replace(/\s*--last-failed(?!-)/g, '')
     .replace(/\s*--retries(?:[= ]\d+)?/g, '')
   const scoped =
     command.slice(0, run.afterRunner) +
@@ -399,36 +403,162 @@ function playwrightLocations(
   })
 }
 
-/** A spec-file argument Playwright accepts as its positional filter — never a flag. */
-const SPEC_FILE_ARGUMENT = /^(?!-)[^\s]*\.(?:spec|test)\.[cm]?[jt]sx?(?::\d+(?::\d+)?)?$/
+/**
+ * Every Playwright `test` option that takes its value from the NEXT word, read from the runner's
+ * own option table (`playwright test --help`, Playwright 1.63 as the sandbox image ships it).
+ *
+ * A value here is never a positional selection however much it looks like a path:
+ * `--config playwright.config.ts` names the config the run was measured under, and dropping it
+ * because it ends in `.ts` would re-create m113 exactly (a re-run with no base URL).
+ */
+const SUITE_VALUE_FLAGS: ReadonlySet<string> = new Set([
+  '--add-reporter',
+  '--browser',
+  '-c',
+  '--config',
+  '--global-timeout',
+  '-g',
+  '--grep',
+  '-G',
+  '--grep-invert',
+  '--last-failed-file',
+  '--max-failures',
+  '--output',
+  '--repeat-each',
+  '--reporter',
+  '--retries',
+  '--run-agents',
+  '--shard',
+  '--test-list',
+  '--test-list-invert',
+  '--timeout',
+  '--trace',
+  '--tsconfig',
+  '--ui-host',
+  '--ui-port',
+  '--update-source-method',
+  '-j',
+  '--workers',
+])
 
 /**
- * The runner's own arguments with every bare spec-file argument taken out once the re-run names
+ * Options whose value is optional (`--debug [mode]`, `--only-changed [ref]`): the next word is
+ * theirs unless it is another flag — the reading the runner's own command line takes.
+ */
+const SUITE_OPTIONAL_VALUE_FLAGS: ReadonlySet<string> = new Set([
+  '--debug',
+  '--only-changed',
+  '-u',
+  '--update-snapshots',
+])
+
+/**
+ * `--project <project-name...>` takes every word up to the next flag, as the runner's own command
+ * line does; a project name is a selection of projects, never a positional test filter.
+ */
+const SUITE_VARIADIC_VALUE_FLAGS: ReadonlySet<string> = new Set(['--project'])
+
+/** A redirect written as one word (`2>&1`, `>/tmp/out.log`): not a selection. */
+const ARGUMENT_REDIRECT = /^(?:\d*|&)(?:<<<|<<-?|>>?\|?|<>|>&|<&)(?:&?\d+|-|[^\s;&|()<>]*)?$/
+
+/** A redirect operator whose target is the word after it (`> /tmp/out.log`). */
+const ARGUMENT_REDIRECT_OPERATOR = /^(?:\d*|&)(?:<<<|<<-?|>>?\|?|<>|>&|<&)$/
+
+/**
+ * One word of the runner's raw arguments, with where it was written.
+ */
+interface ArgumentWord {
+  text: string
+  start: number
+}
+
+/**
+ * The runner's arguments as words, tokenized exactly as the command-position parser tokenizes a
+ * statement (quotes kept whole, a quoted filter one word) — the same reading
+ * {@link playwrightStatement} finds the statement with, so the two can never disagree about
+ * which word is which.
+ */
+const ARGUMENT_WORD = /"(?:\\.|[^"\\])*"|'[^']*'|\S+/g
+
+/**
+ * The runner's own arguments with every positional selection taken out once the re-run names
  * failure locations.
  *
- * The re-run is "just these": Playwright matches each positional argument against every collected
- * file's path, so a bare file left beside the `file:line`s re-admits ALL of that file's tests.
- * xr-molecule-flash-m118 (+45:24) kept the one file its 14 failures were in ("~297s" for a file and
- * fourteen duplicates); xr-molecule-flash-m134 (+20:0x) kept all four files of a run whose 8
- * failures sat in two of them — 32 tests, ~3 min, instead of the 8 failures' ~30 s. A file with no
- * failure in it has nothing to re-run, so it goes too.
+ * The re-run is "just these", and Playwright OR-s every positional argument into one selection:
+ * ANY leftover positional re-admits tests the re-run is supposed to skip. A bare spec file
+ * re-admits all of that file's tests (xr-molecule-flash-m118 (+45:24) ~297 s for one file and
+ * fourteen duplicates; xr-molecule-flash-m134 (+20:0x) 32 tests instead of 8). A suite DIRECTORY
+ * is the same argument and re-admits the WHOLE walk even beside fourteen exact `file:line`s —
+ * xr-molecule-flash-m428's suggested "Re-run just these" kept
+ * `/workspace/fixtures/realworld/specs/e2e` after `--config playwright.config.ts`, so the command
+ * said 14 locations and selected every spec again. A regex positional filter selects files the
+ * same way and goes too.
  *
- * The launcher's words are not arguments and are not here: the caller passes what follows
- * `playwright test` ({@link playwrightStatement}'s `afterRunner`), so `node <path>/playwright
- * test` and `npx playwright test` lose the same spec files.
+ * What is NOT a selection survives byte-for-byte: every option and its value — whatever it looks
+ * like (`--config playwright.config.ts`, `--output test-results`, `--grep 'a|b'`, a `--project`
+ * list) — and every redirect. Quoting and spacing survive because the result is a span splice on
+ * the raw text, never a rebuild from words.
+ *
+ * An empty `locations` list keeps the original selection untouched:
+ * {@link scopedRerunCommand} is not narrowing anything then.
  *
  * @param args - The run's own arguments, after `playwright test`.
  * @param locations - The failing `file:line`s the re-run names.
- * @returns The arguments without their bare spec-file arguments.
+ * @returns The arguments without their positional selections.
  */
-function dropSupersededSpecFiles(args: string, locations: readonly string[]): string {
+function dropSupersededSelections(args: string, locations: readonly string[]): string {
   if (locations.length === 0) return args
-  return args.replace(
-    /(^|\s+)([^\s]+)(?=\s|$)/g,
-    (whole: string, _space: string, token: string) => {
-      return SPEC_FILE_ARGUMENT.test(token) ? '' : whole
-    },
-  )
+  const words: ArgumentWord[] = []
+  for (const match of args.matchAll(ARGUMENT_WORD))
+    words.push({ text: match[0], start: match.index ?? 0 })
+  const dropped = new Array<boolean>(words.length).fill(false)
+  let at = 0
+  while (at < words.length) {
+    const word = words[at]?.text ?? ''
+    if (ARGUMENT_REDIRECT_OPERATOR.test(word)) {
+      // The operator and the target after it are one redirect, not two words to judge.
+      at += 2
+      continue
+    }
+    if (ARGUMENT_REDIRECT.test(word)) {
+      at += 1
+      continue
+    }
+    if (word.startsWith('-') && word !== '-') {
+      // `--flag=value` carries its value inside the same word; only the flag's own name is read.
+      if (word.includes('=')) {
+        at += 1
+        continue
+      }
+      if (SUITE_OPTIONAL_VALUE_FLAGS.has(word)) {
+        const next = words[at + 1]?.text
+        at += next !== undefined && !next.startsWith('-') ? 2 : 1
+        continue
+      }
+      if (SUITE_VARIADIC_VALUE_FLAGS.has(word)) {
+        at += 1
+        while (at < words.length && !(words[at]?.text ?? '').startsWith('-')) at += 1
+        continue
+      }
+      at += SUITE_VALUE_FLAGS.has(word) ? 2 : 1
+      continue
+    }
+    // A bare word — a spec file, a directory or a regex filter — is a positional selection.
+    dropped[at] = true
+    at += 1
+  }
+  let out = ''
+  let cursor = 0
+  for (let i = 0; i < words.length; i += 1) {
+    const word = words[i]
+    if (word === undefined || !dropped[i]) continue
+    // The whitespace in front of the word goes with it, so the result is not left double-spaced.
+    let start = word.start
+    while (start > cursor && /\s/.test(args[start - 1] ?? '')) start -= 1
+    out += args.slice(cursor, start)
+    cursor = word.start + word.text.length
+  }
+  return out + args.slice(cursor)
 }
 
 /**

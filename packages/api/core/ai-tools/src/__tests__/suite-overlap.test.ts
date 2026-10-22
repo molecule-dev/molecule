@@ -10,6 +10,11 @@
  * app a command measures with the same {@link suiteCommandTarget} — so neither can promise a run
  * the other refuses.
  */
+import { spawnSync } from 'node:child_process'
+import { createRequire } from 'node:module'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
+
 import { describe, expect, it } from 'vitest'
 
 import { commandSegments } from '../command-position.js'
@@ -402,4 +407,139 @@ describe('a composed re-run never writes over the log it was built from (m173)',
       'npx playwright test a.spec.ts:1 --retries=0 --reporter=list',
     )
   })
+})
+
+/**
+ * xr-molecule-flash-m428 (+31:03): the suggested "Re-run just these" named fourteen failing
+ * `file:line`s and still carried the original positional `/workspace/fixtures/realworld/specs/e2e`
+ * after `--config playwright.config.ts`. Playwright OR-s positional arguments into one selection,
+ * so the directory re-admitted every spec the re-run was supposed to skip. The composed command now
+ * replaces every positional selection — file, directory or regex filter — and keeps every option
+ * and its value.
+ */
+describe('a composed re-run replaces every positional selection (m428)', () => {
+  const M428 =
+    'npx playwright test --config playwright.config.ts /workspace/fixtures/realworld/specs/e2e ' +
+    '--max-failures=15 --reporter=list'
+  const LOCATIONS = [
+    '/workspace/fixtures/realworld/specs/e2e/auth.spec.ts:19',
+    '/workspace/fixtures/realworld/specs/e2e/articles.spec.ts:50',
+  ]
+
+  it('drops the suite directory and keeps the config and the flags', () => {
+    expect(scopedRerunCommand(M428, LOCATIONS)).toBe(
+      'npx playwright test /workspace/fixtures/realworld/specs/e2e/auth.spec.ts:19 ' +
+        '/workspace/fixtures/realworld/specs/e2e/articles.spec.ts:50 --retries=0 ' +
+        '--config playwright.config.ts --max-failures=15 --reporter=list',
+    )
+  })
+
+  it('drops a quoted directory, a regex filter and every other original selection', () => {
+    expect(
+      scopedRerunCommand(
+        "npx playwright test --config playwright.config.ts '/workspace/fixtures/realworld/specs/e2e' --reporter=list",
+        ['/workspace/fixtures/realworld/specs/e2e/auth.spec.ts:7'],
+      ),
+    ).toBe(
+      'npx playwright test /workspace/fixtures/realworld/specs/e2e/auth.spec.ts:7 --retries=0 ' +
+        '--config playwright.config.ts --reporter=list',
+    )
+    expect(
+      scopedRerunCommand("npx playwright test specs/ auth.spec.ts 'settings|social' --workers=1", [
+        'specs/e2e/auth.spec.ts:2',
+      ]),
+    ).toBe('npx playwright test specs/e2e/auth.spec.ts:2 --retries=0 --workers=1')
+  })
+
+  it('replaces the selection whichever launcher runs the suite', () => {
+    expect(
+      scopedRerunCommand(
+        'node /workspace/node_modules/.bin/playwright test --config playwright.config.ts ' +
+          './specs/e2e --reporter=list',
+        ['specs/e2e/auth.spec.ts:2'],
+      ),
+    ).toBe(
+      'node /workspace/node_modules/.bin/playwright test specs/e2e/auth.spec.ts:2 --retries=0 ' +
+        '--config playwright.config.ts --reporter=list',
+    )
+    expect(
+      scopedRerunCommand(
+        'npx --no-install playwright test -c playwright.config.ts ./specs/e2e --reporter=list',
+        ['specs/e2e/auth.spec.ts:2'],
+      ),
+    ).toBe(
+      'npx --no-install playwright test specs/e2e/auth.spec.ts:2 --retries=0 ' +
+        '-c playwright.config.ts --reporter=list',
+    )
+  })
+
+  it('keeps every option value, however much it looks like a selection', () => {
+    const whole =
+      'npx --no-install playwright test --config playwright.config.ts --project chromium ' +
+      "--project firefox --output test-results --grep 'auth flow' " +
+      '--last-failed-file /tmp/last-run.json ./specs/e2e --reporter=list'
+    expect(scopedRerunCommand(whole, ['specs/e2e/auth.spec.ts:2'])).toBe(
+      'npx --no-install playwright test specs/e2e/auth.spec.ts:2 --retries=0 ' +
+        '--config playwright.config.ts --project chromium --project firefox ' +
+        "--output test-results --grep 'auth flow' --last-failed-file /tmp/last-run.json " +
+        '--reporter=list',
+    )
+  })
+
+  it('preserves the original selection with no locations, and other runners unchanged', () => {
+    const untouched = scopedRerunCommand(M428, [])
+    expect(untouched).toContain('/workspace/fixtures/realworld/specs/e2e')
+    expect(untouched).toContain('--config playwright.config.ts')
+    expect(scopedRerunCommand('npx vitest run specs/e2e', ['a.test.ts:9'])).toBe(
+      'npx vitest run specs/e2e',
+    )
+  })
+})
+
+/**
+ * The matcher itself, not a text reading of it: Playwright's own CLI collects the fixture's four
+ * tests. The original positional directory selects all four (the m428 hazard); the composed
+ * command selects only the failed line.
+ */
+describe('the composed selection is what Playwright matches (m428)', () => {
+  const fixture = join(dirname(fileURLToPath(import.meta.url)), 'fixtures', 'playwright-selection')
+  const playwrightCli = join(
+    dirname(createRequire(import.meta.url).resolve('playwright/package.json')),
+    'cli.js',
+  )
+  const list = (argv: readonly string[]): string => {
+    const result = spawnSync(process.execPath, [playwrightCli, ...argv, '--list'], {
+      cwd: fixture,
+      encoding: 'utf8',
+    })
+    return `${result.stdout ?? ''}${result.stderr ?? ''}`
+  }
+  const unquote = (word: string): string => word.replace(/^(['"])(.*)\1$/, '$2')
+
+  it('runs the composed command and lists only the failed test', () => {
+    const whole =
+      'npx playwright test --config playwright.config.ts ./specs/e2e --max-failures=15 --reporter=list'
+    // Control: the original positional directory on its own admits the whole suite.
+    expect(
+      list([
+        'test',
+        '--config',
+        'playwright.config.ts',
+        './specs/e2e',
+        '--max-failures=15',
+        '--reporter=list',
+      ]),
+    ).toContain('Total: 4 tests in 3 files')
+    const composed = scopedRerunCommand(whole, ['./specs/e2e/auth.pw.ts:2'], [], null, fixture)
+    expect(composed).not.toContain(' ./specs/e2e ')
+    const words = commandSegments(composed).find(
+      (segment) => segment.program === 'playwright',
+    )?.args
+    expect(words).toBeDefined()
+    const narrowed = list((words ?? []).map(unquote))
+    expect(narrowed).toContain('auth one')
+    expect(narrowed).toContain('Total: 1 test in 1 file')
+    expect(narrowed).not.toContain('comments one')
+    expect(narrowed).not.toContain('settings one')
+  }, 30_000)
 })
