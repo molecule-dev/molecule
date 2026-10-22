@@ -31,7 +31,12 @@
 
 import { posix } from 'node:path'
 
-import { commandSegments, locatedCommandSegments } from './command-position.js'
+import {
+  commandSegments,
+  type LocatedCommandSegment,
+  locatedCommandSegments,
+  statementBoundary,
+} from './command-position.js'
 import { commandRunsNoTests } from './no-test-run.js'
 import { matchingExcludedTitles, shellQuote, suiteRunStatements } from './utilities.js'
 
@@ -135,8 +140,189 @@ const FILE_REDIRECT = /(^|\s)(&>>?|1?>>?)(\s*)(?:'([^']+)'|"([^"]+)"|([^\s;&|]+)
 const DEVICE_TARGET = /^\/dev\//
 
 /**
- * The command with every file redirect pointed at a fresh file beside its original target
- * (`/tmp/pw-full.log` → `/tmp/pw-full.rerun.log`), and nothing else changed.
+ * The command's words, quotes kept whole and with the offsets they were written at — the reading
+ * {@link dropSupersededSelections} tokenizes the runner's arguments with AND the one a redirect
+ * reader may not look inside: a quoted `--grep 'a > b'` is one word, and its `>` is the filter's
+ * text, not a redirect.
+ */
+const ARGUMENT_WORD = /"(?:\\.|[^"\\])*"|'[^']*'|\S+/g
+
+/** A span of the command. */
+interface CommandSpan {
+  start: number
+  end: number
+}
+
+/**
+ * The command's words as spans, in the order they were written.
+ *
+ * @param command - The shell command.
+ * @returns Each word's span in the command.
+ */
+function wordSpans(command: string): CommandSpan[] {
+  return [...command.matchAll(ARGUMENT_WORD)].map((match) => ({
+    start: match.index ?? 0,
+    end: (match.index ?? 0) + match[0].length,
+  }))
+}
+
+/**
+ * Whether an offset sits strictly INSIDE one of the command's words rather than between them —
+ * the quoted data a redirect reader must leave alone.
+ *
+ * @param at - The offset being read.
+ * @param words - The command's word spans.
+ * @returns True when the offset is inside a word.
+ */
+function insideWord(at: number, words: readonly CommandSpan[]): boolean {
+  return words.some((word) => at > word.start && at < word.end)
+}
+
+/** One replacement of a span of the command. */
+interface TextEdit {
+  start: number
+  end: number
+  text: string
+}
+
+/**
+ * The command with the edits applied — right to left, so every edit's offsets are still the ones
+ * its reader reported.
+ *
+ * @param command - The command the edits were read from.
+ * @param edits - The replacements, as offsets in that command.
+ * @returns The command with each span replaced.
+ */
+function applyTextEdits(command: string, edits: readonly TextEdit[]): string {
+  let out = command
+  for (const edit of [...edits].sort((a, b) => b.start - a.start))
+    out = out.slice(0, edit.start) + edit.text + out.slice(edit.end)
+  return out
+}
+
+/**
+ * The output redirects of ONE statement's text that name a file, as edits that point them at a
+ * fresh sibling of the file they wrote (`/tmp/pw-full.log` → `/tmp/pw-full.rerun.log`).
+ *
+ * A redirect whose operator sits inside a quoted word is that word's text, not a redirect of the
+ * statement: `npx playwright test --grep 'a > b' > /tmp/full.log` carries exactly one redirect.
+ *
+ * @param statement - The statement's text.
+ * @param offset - The statement's offset in the command.
+ * @param words - The command's word spans.
+ * @returns The edits, in statement order.
+ */
+function freshRedirectEdits(
+  statement: string,
+  offset: number,
+  words: readonly CommandSpan[],
+): TextEdit[] {
+  const edits: TextEdit[] = []
+  for (const match of statement.matchAll(FILE_REDIRECT)) {
+    const before = match[1] ?? ''
+    const op = match[2] ?? ''
+    const space = match[3] ?? ''
+    const single = match[4]
+    const double = match[5]
+    const target = single ?? double ?? match[6] ?? ''
+    // A `>` written inside a quoted value is that value's own text.
+    if (insideWord(offset + (match.index ?? 0) + before.length, words)) continue
+    // `/dev/null` and friends are not a report to preserve; leaving them keeps the re-run silent
+    // the way the run was, where rewriting them would create a file nobody asked for.
+    if (!target || DEVICE_TARGET.test(target)) continue
+    // A descriptor (`>&2`) or a process substitution (`> >(tee …)`) is no file either.
+    if (target.startsWith('&') || target.startsWith('(') || /^\d+$/.test(target)) continue
+    const quote = single !== undefined || double !== undefined ? 1 : 0
+    const start = offset + (match.index ?? 0) + before.length + op.length + space.length + quote
+    edits.push({ start, end: start + target.length, text: `${target}.rerun.log` })
+  }
+  return edits
+}
+
+/**
+ * The file arguments of a `tee` stage, as edits that point them at a fresh sibling.
+ *
+ * A pipeline the suite feeds (`… 2>&1 | tee /tmp/full.log`) writes the run's own stream to the
+ * files `tee` names, so a re-run through the same pipeline would overwrite the walk's report
+ * exactly the way its own `> <file>` redirect would ({@link freshRedirectEdits}). A stage that
+ * names no file, reads a device or carries flags keeps those words as written.
+ *
+ * @param statement - The stage's text.
+ * @param offset - The stage's offset in the command.
+ * @returns The edits, in stage order.
+ */
+function freshTeeEdits(statement: string, offset: number): TextEdit[] {
+  const words = [...statement.matchAll(ARGUMENT_WORD)].map((match) => ({
+    text: match[0],
+    start: offset + (match.index ?? 0),
+  }))
+  const program = words.findIndex(
+    (word) => unquoted(word.text).replace(/\/+$/, '').split('/').at(-1) === 'tee',
+  )
+  if (program < 0) return []
+  const edits: TextEdit[] = []
+  for (const word of words.slice(program + 1)) {
+    const bare = unquoted(word.text)
+    if (!bare || bare.startsWith('-') || DEVICE_TARGET.test(bare)) continue
+    const quote = /^['"]/.test(word.text) ? 1 : 0
+    edits.push({
+      start: word.start + quote,
+      end: word.start + word.text.length - quote,
+      text: `${bare}.rerun.log`,
+    })
+  }
+  return edits
+}
+
+/** One statement whose output is the suite run's own, and whether it is a `tee` stage. */
+interface RunnerOutputStatement extends CommandSpan {
+  /** Whether the statement's program is `tee`: the files it names hold the run's stream. */
+  tee: boolean
+}
+
+/**
+ * The statements that carry the suite run's OWN output: the Playwright statement, and every stage
+ * of the pipeline it feeds (`| tee /tmp/full.log | tail -5`).
+ *
+ * The parse's own spans answer this, so the setup and the tail around the run are never read as
+ * its output: `printf … > app/public/_redirects` writes a file BEFORE any suite starts, and
+ * `; echo done > /tmp/done` runs after it, whatever their redirects look like. Only a `|` joins a
+ * stage to the run's stream; a `;`, `&&` or newline starts a statement of its own whose output is
+ * not the run's ({@link redirectRunnerOutputsToFreshFiles}).
+ *
+ * @param command - The composed command.
+ * @returns The statements, or null when the command starts no Playwright run that can be placed.
+ */
+function runnerOutputStatements(command: string): RunnerOutputStatement[] | null {
+  const located = locatedCommandSegments(command)
+  const at = located.findIndex(
+    (entry) => entry.segment !== null && PLAYWRIGHT_RUN.test(entry.segment.text),
+  )
+  if (at < 0) return null
+  const place = (entry: LocatedCommandSegment, tee: boolean): RunnerOutputStatement | null => {
+    if (entry.start === null || entry.end === null) return null
+    // A statement can end on an enclosing group's closer (`( … 2>&1)`); the closer is the
+    // shell's, not the statement's, so it is not part of what a redirect reader may rewrite.
+    const end = statementBoundary(command, entry.start, entry.end)?.textEnd ?? entry.end
+    return { start: entry.start, end, tee }
+  }
+  const runner = located[at]
+  const first = runner === undefined ? null : place(runner, false)
+  if (first === null) return null
+  const statements = [first]
+  for (let i = at + 1; i < located.length; i += 1) {
+    const entry = located[i]
+    // Only a stage of the SAME pipeline carries the run's output; anything else is the tail.
+    if (entry === undefined || entry.separator !== '|') break
+    const stage = place(entry, entry.segment?.program === 'tee')
+    if (stage !== null) statements.push(stage)
+  }
+  return statements
+}
+
+/**
+ * The command with the SUITE RUN's own log files pointed at fresh siblings, and nothing else
+ * changed.
  *
  * A re-run composed from a run's own command keeps the run's redirect by construction, and the
  * run wrote the walk's only report to that file: xr-molecule-flash-m173 handed over *"Send this
@@ -145,18 +331,28 @@ const DEVICE_TARGET = /^\/dev\//
  * full walk's log, destroying the other 11 failures' error reports. Following the platform's own
  * advice must never destroy the evidence it was based on.
  *
- * @param command - A shell command.
- * @returns The command whose file redirects write to a fresh target.
+ * Only the run's OWN stream moves. What surrounds it is SETUP and POSTLUDE, and those writes are
+ * the command's meaning, not a report: xr-molecule-flash-m429 (2026-10-22) composed
+ * `printf '/index.html 200' > app/public/_redirects && npx playwright test specs/auth.spec.ts
+ * > /tmp/full.log 2>&1` with its SPA fallback written to `_redirects.rerun.log`, so the re-run
+ * measured an app with no fallback at all. A heredoc config, a `.env` the command writes and a
+ * source asset it lays down are the same shape: their targets stay byte-for-byte, and so does
+ * every statement chained after the run (`; echo EXIT $? > /tmp/done`).
+ *
+ * @param command - The composed command.
+ * @returns The command whose suite-run redirects write to a fresh target.
  */
-function redirectToFreshFile(command: string): string {
-  return command.replace(FILE_REDIRECT, (whole, before, op, space, single, double, bare) => {
-    const target: string = single ?? double ?? bare ?? ''
-    // `/dev/null` and friends are not a report to preserve; leaving them keeps the re-run silent
-    // the way the run was, where rewriting them would create a file nobody asked for.
-    if (!target || DEVICE_TARGET.test(target)) return whole
-    const quote = single !== undefined ? "'" : double !== undefined ? '"' : ''
-    return `${before}${op}${space}${quote}${target}.rerun.log${quote}`
-  })
+function redirectRunnerOutputsToFreshFiles(command: string): string {
+  const statements = runnerOutputStatements(command)
+  if (statements === null) return command
+  const words = wordSpans(command)
+  const edits: TextEdit[] = []
+  for (const statement of statements) {
+    const text = command.slice(statement.start, statement.end)
+    edits.push(...freshRedirectEdits(text, statement.start, words))
+    if (statement.tee) edits.push(...freshTeeEdits(text, statement.start))
+  }
+  return applyTextEdits(command, edits)
 }
 
 /**
@@ -167,8 +363,9 @@ function redirectToFreshFile(command: string): string {
  * `--retries=0` set (a re-run of a known failure does not need to pay for retries).
  *
  * The re-run keeps the run's `> <file>` redirect only in the sense of keeping its OUTPUT there:
- * the target is rewritten to a fresh sibling ({@link redirectToFreshFile}), so a re-run never
- * overwrites the log the run itself is the evidence for (xr-molecule-flash-m173).
+ * the target is rewritten to a fresh sibling ({@link redirectRunnerOutputsToFreshFiles}), so a
+ * re-run never overwrites the log the run itself is the evidence for (xr-molecule-flash-m173) —
+ * and the setup around the run keeps its own file writes untouched (xr-molecule-flash-m429).
  *
  * `config` is the config the run was measured under ({@link withSuiteConfig}): the narrowed re-run
  * carries it whenever the command itself does not, so a run that dropped `--config` cannot be
@@ -247,7 +444,7 @@ export function scopedRerunCommand(
   // X1 xr-molecule-flash-m157 (+14:02) was handed a re-run that still carried the chain's second
   // whole walk — 4.5 minutes measuring code it had not changed.
   const rerunTail = suiteRunStatements(tail).length > 0 ? '' : tail
-  return withRunEnv(`${redirectToFreshFile(scoped)}${redirectToFreshFile(rerunTail)}`, env)
+  return withRunEnv(redirectRunnerOutputsToFreshFiles(`${scoped}${rerunTail}`), env)
 }
 
 /** One `NAME=value` the request requires of a suite run. */
@@ -470,14 +667,6 @@ interface ArgumentWord {
   text: string
   start: number
 }
-
-/**
- * The runner's arguments as words, tokenized exactly as the command-position parser tokenizes a
- * statement (quotes kept whole, a quoted filter one word) — the same reading
- * {@link playwrightStatement} finds the statement with, so the two can never disagree about
- * which word is which.
- */
-const ARGUMENT_WORD = /"(?:\\.|[^"\\])*"|'[^']*'|\S+/g
 
 /**
  * The runner's own arguments with every positional selection taken out once the re-run names

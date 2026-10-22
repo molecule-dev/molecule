@@ -11,11 +11,22 @@
  * the other refuses.
  */
 import { spawnSync } from 'node:child_process'
+import {
+  cpSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  symlinkSync,
+  writeFileSync,
+} from 'node:fs'
 import { createRequire } from 'node:module'
+import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 import { commandSegments } from '../command-position.js'
 import {
@@ -407,6 +418,162 @@ describe('a composed re-run never writes over the log it was built from (m173)',
       'npx playwright test a.spec.ts:1 --retries=0 --reporter=list',
     )
   })
+})
+
+/**
+ * xr-molecule-flash-m429 (+25:20, the recurrence of m219/m248): the rewriter that preserves the
+ * run's log moved EVERY file redirect in the command, so the SETUP in front of the suite was
+ * rewritten too. `printf '/index.html 200' > app/public/_redirects && npx playwright test
+ * specs/auth.spec.ts > /tmp/full.log 2>&1` came back writing the SPA fallback to
+ * `_redirects.rerun.log` — the narrowed walk then measured an app with no fallback at all, and the
+ * file the command asked for was never written. Only the runner's OWN stream may move (m173's
+ * rule); the setup it carries and the tail chained after it keep every byte.
+ */
+describe('a composed re-run moves only the runner’s own log (m429)', () => {
+  const M429 =
+    "printf '/index.html 200' > app/public/_redirects && npx playwright test specs/auth.spec.ts " +
+    '> /tmp/full.log 2>&1'
+
+  it('keeps the setup’s redirect and moves only the run’s own log', () => {
+    expect(scopedRerunCommand(M429, ['specs/auth.spec.ts:3'])).toBe(
+      "printf '/index.html 200' > app/public/_redirects && npx playwright test " +
+        'specs/auth.spec.ts:3 --retries=0 > /tmp/full.log.rerun.log 2>&1',
+    )
+  })
+
+  it('keeps a heredoc config byte-for-byte, redirect-looking lines and all', () => {
+    const command =
+      "cat > playwright.config.ts <<'EOF'\n" +
+      "export default { use: { baseURL: 'http://localhost:5173' } }\n" +
+      '// echo setup > /tmp/heredoc-evidence\n' +
+      'EOF\n' +
+      'npx playwright test specs/auth.spec.ts > /tmp/full.log 2>&1'
+    const rerun = scopedRerunCommand(command, ['specs/auth.spec.ts:3'])
+    // The heredoc body is data the command WRITES, never the run's own output.
+    expect(rerun).toContain('// echo setup > /tmp/heredoc-evidence')
+    expect(rerun).not.toContain('heredoc-evidence.rerun.log')
+    expect(rerun).toContain('> /tmp/full.log.rerun.log 2>&1')
+  })
+
+  it('keeps the synthetic env and source assets the command lays down first', () => {
+    const command =
+      "printf 'API_URL=http://localhost:5173\\n' > .env && " +
+      'cp fixtures/logo.svg app/public/logo.svg && printf x > app/public/robots.txt && ' +
+      'npx playwright test > /tmp/full.log 2>&1'
+    const rerun = scopedRerunCommand(command, ['a.spec.ts:1'])
+    expect(rerun).toContain('> .env ')
+    expect(rerun).toContain('> app/public/robots.txt ')
+    expect(rerun).not.toContain('.env.rerun.log')
+    expect(rerun).not.toContain('robots.txt.rerun.log')
+    expect(rerun).toContain('> /tmp/full.log.rerun.log 2>&1')
+  })
+
+  it('keeps a redirect in the tail chained after the run', () => {
+    expect(
+      scopedRerunCommand(
+        'npx playwright test > /tmp/full.log 2>&1; echo EXIT $? > /tmp/full.exit',
+        ['a.spec.ts:1'],
+      ),
+    ).toBe(
+      'npx playwright test a.spec.ts:1 --retries=0 > /tmp/full.log.rerun.log 2>&1; ' +
+        'echo EXIT $? > /tmp/full.exit',
+    )
+  })
+
+  it('leaves a `>` written inside a quoted argument alone', () => {
+    const rerun = scopedRerunCommand("npx playwright test --grep 'a > b' > /tmp/full.log 2>&1", [
+      'a.spec.ts:1',
+    ])
+    expect(rerun).toContain("--grep 'a > b'")
+    expect(rerun).not.toContain('b.rerun.log')
+    expect(rerun).toContain('> /tmp/full.log.rerun.log 2>&1')
+  })
+
+  it('moves the file a pipeline stage writes the run’s stream to', () => {
+    // `| tee <file>` holds the run's own stdout, so the evidence-loss rule is the same one.
+    expect(
+      scopedRerunCommand('npx playwright test 2>&1 | tee /tmp/full.log', ['a.spec.ts:1']),
+    ).toContain('| tee /tmp/full.log.rerun.log')
+    expect(
+      scopedRerunCommand('npx playwright test 2>&1 | tee -a /tmp/full.log | tail -5', [
+        'a.spec.ts:1',
+      ]),
+    ).toContain('| tee -a /tmp/full.log.rerun.log | tail -5')
+    // A statement the pipe does not feed is the tail, not the run's output.
+    expect(
+      scopedRerunCommand(
+        'npx playwright test > /tmp/full.log 2>&1 && node summarize.mjs > /tmp/summary.txt',
+        ['a.spec.ts:1'],
+      ),
+    ).toContain('&& node summarize.mjs > /tmp/summary.txt')
+  })
+})
+
+/**
+ * The property proved by RUNNING it: a disposable tree with the real composed command, the setup
+ * file the command writes, and the full walk's log already in place. The `--list` flag keeps the
+ * runs to Playwright's collection (no browser is launched), and the fixture's four tests are the
+ * m428 control: the original positional directory selects 4, the composed command selects 1.
+ */
+describe('the composed command runs with its setup intact (m429)', () => {
+  const fixture = join(dirname(fileURLToPath(import.meta.url)), 'fixtures', 'playwright-selection')
+  const playwrightCli = join(
+    dirname(createRequire(import.meta.url).resolve('playwright/package.json')),
+    'cli.js',
+  )
+  /** The `node_modules` that holds both `playwright` and `@playwright/test`, for the copied tree. */
+  const nodeModules = dirname(dirname(playwrightCli))
+  /** The full walk's report, already written when the re-run starts. */
+  const EVIDENCE = 'FULL WALK EVIDENCE: the other failures\n'
+  let tree = ''
+
+  beforeAll(() => {
+    tree = mkdtempSync(join(tmpdir(), 'rerun-setup-'))
+    cpSync(fixture, tree, { recursive: true })
+    symlinkSync(nodeModules, join(tree, 'node_modules'), 'dir')
+    mkdirSync(join(tree, 'app', 'public'), { recursive: true })
+  })
+
+  afterAll(() => {
+    if (tree) rmSync(tree, { recursive: true, force: true })
+  })
+
+  it('writes the setup at its own name and keeps the full log, reporting into a fresh file', () => {
+    const full = join(tree, 'full.log')
+    const postlude = join(tree, 'postlude.log')
+    const command =
+      `cd ${tree} && printf '/index.html 200' > app/public/_redirects && ` +
+      `node ${playwrightCli} test --config playwright.config.ts ./specs/e2e ` +
+      `--max-failures=15 --reporter=list --list > ${full} 2>&1; echo postlude > ${postlude}`
+    // Control: the original positional directory walks the whole fixture (the m428 hazard).
+    const whole = spawnSync('bash', ['-c', command], { cwd: tree, encoding: 'utf8' })
+    expect(whole.status).toBe(0)
+    expect(readFileSync(full, 'utf8')).toContain('Total: 4 tests in 3 files')
+
+    // Now the narrow re-run, composed from the same command, with the walk's log in place.
+    writeFileSync(full, EVIDENCE)
+    rmSync(postlude, { force: true })
+    const rerun = scopedRerunCommand(command, ['./specs/e2e/auth.pw.ts:2'], [], null, tree)
+    expect(rerun).toContain('> app/public/_redirects ')
+    expect(rerun).not.toContain('_redirects.rerun.log')
+    expect(rerun).toContain(`${full}.rerun.log 2>&1`)
+    expect(rerun).toContain(`; echo postlude > ${postlude}`)
+
+    const result = spawnSync('bash', ['-c', rerun], { cwd: tree, encoding: 'utf8' })
+    expect(result.status).toBe(0)
+    // The setup file exists where the command asked, with the content it asked for.
+    expect(readFileSync(join(tree, 'app', 'public', '_redirects'), 'utf8')).toBe('/index.html 200')
+    expect(existsSync(join(tree, 'app', 'public', '_redirects.rerun.log'))).toBe(false)
+    // The walk's own report is untouched; the re-run reported into a fresh sibling.
+    expect(readFileSync(full, 'utf8')).toBe(EVIDENCE)
+    const report = readFileSync(`${full}.rerun.log`, 'utf8')
+    expect(report).toContain('Total: 1 test in 1 file')
+    expect(report).toContain('auth one')
+    expect(report).not.toContain('comments one')
+    expect(report).not.toContain('settings one')
+    // The unrelated postlude still ran, and still wrote where it was told.
+    expect(readFileSync(postlude, 'utf8')).toBe('postlude\n')
+  }, 60_000)
 })
 
 /**
