@@ -8,6 +8,7 @@ import {
   locatedCommandSegments,
   runsInCommandPosition,
   statementArgumentEnd,
+  statementBoundary,
 } from '../command-position.js'
 import { commandRunsNoTests } from '../no-test-run.js'
 import { isPlaywrightRunCommand, isSuiteRunCommand } from '../utilities.js'
@@ -669,6 +670,78 @@ describe('statementArgumentEnd — an option belongs inside the runner’s own a
   it('answers null when the statement was never placed in this command', () => {
     expect(statementArgumentEnd('npx playwright test', null, 18)).toBeNull()
     expect(statementArgumentEnd('npx playwright test', 0, null)).toBeNull()
+  })
+})
+
+/**
+ * X1 xr-molecule-flash-m418 (+23:31): a heredoc config followed by a parenthesized Playwright
+ * pipeline ending `2>&1 | tail -25)`. The tokenizer attaches a group's closer to the stage's last
+ * word, so the parse's own statement end sat past the `)`: a caller cutting that stage out of the
+ * command deleted the subshell's closer, and the background runner refused the rewritten command
+ * with `end of file unexpected (expecting ")")`.
+ */
+describe('statementBoundary — where a stage’s own text ends, and the group it leaves', () => {
+  /** The boundary {@link statementBoundary} answers for the statement running `program`. */
+  const boundaryFor = (command: string, program: string) => {
+    const located = locatedCommandSegments(command).find(
+      (entry) => entry.segment?.program === program,
+    )
+    return statementBoundary(command, located?.start ?? null, located?.end ?? null)
+  }
+
+  it('stops a stage before the `)` of the subshell it sits in (m418)', () => {
+    const command = '(npx playwright test 2>&1 | tail -25)'
+    const tail = locatedCommandSegments(command).find((entry) => entry.segment?.program === 'tail')
+    // The parse's own sentence takes the closer: this is why {@link statementArgumentEnd} had to
+    // step over it, and why the cut needs the same answer.
+    expect(command.slice(tail?.start ?? 0, tail?.end ?? 0)).toBe('tail -25)')
+    const boundary = boundaryFor(command, 'tail')
+    expect(boundary).not.toBeNull()
+    expect(command.slice(0, boundary?.textEnd)).toBe('(npx playwright test 2>&1 | tail -25')
+    expect(boundary?.leavesGroupOpen).toBe(false)
+    // The shell's own reading keeps both closers of a nested subshell.
+    const nested = '((npx playwright test 2>&1 | tail -25))'
+    expect(nested.slice(0, boundaryFor(nested, 'tail')?.textEnd)).toBe(
+      '((npx playwright test 2>&1 | tail -25',
+    )
+    // Whitespace before the closer is not part of the last word either.
+    const spaced = '(npx playwright test 2>&1 | tail -25 )'
+    expect(spaced.slice(0, boundaryFor(spaced, 'tail')?.textEnd)).toBe(
+      '(npx playwright test 2>&1 | tail -25',
+    )
+  })
+
+  it('keeps a `)` that is quoted text or a substitution’s argument', () => {
+    const quoted = "(npx playwright test --grep 'a)b' 2>&1 | tail -5)"
+    expect(quoted.slice(0, boundaryFor(quoted, 'tail')?.textEnd)).toBe(
+      "(npx playwright test --grep 'a)b' 2>&1 | tail -5",
+    )
+    const substitution = '(npx playwright test --grep "$(cat x)" 2>&1 | tail -5)'
+    expect(substitution.slice(0, boundaryFor(substitution, 'tail')?.textEnd)).toBe(
+      '(npx playwright test --grep "$(cat x)" 2>&1 | tail -5',
+    )
+    // A subshell the STAGE opens is the stage's own text, closer included.
+    const own = 'npx playwright test 2>&1 | (tail -5)'
+    const ownTail = locatedCommandSegments(own).find((entry) => entry.segment?.program === 'tail')
+    expect(boundaryFor(own, 'tail')).toEqual({
+      textEnd: ownTail?.end ?? -1,
+      leavesGroupOpen: false,
+    })
+  })
+
+  it('names a stage that opens a group it does not close', () => {
+    // The `}` follows a `;`, so it is a later statement — outside this stage's own text.
+    const command = 'npx playwright test 2>&1 | { cat; }'
+    expect(boundaryFor(command, 'cat')?.leavesGroupOpen).toBe(true)
+    expect(boundaryFor('npx playwright test 2>&1 | (tail -5)', 'tail')?.leavesGroupOpen).toBe(false)
+  })
+
+  it('answers null for a statement with no offsets in this command', () => {
+    expect(statementBoundary('npx playwright test', null, 18)).toBeNull()
+    expect(statementBoundary('npx playwright test', 0, null)).toBeNull()
+    // A statement inside a nested `sh -c` string sits at offsets of THAT string.
+    const nested = "sh -c 'npx playwright test 2>&1 | tail -5)'"
+    expect(boundaryFor(nested, 'tail')).toBeNull()
   })
 })
 

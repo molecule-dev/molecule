@@ -3757,6 +3757,190 @@ describe('a suite’s pipeline is not the suite’s result (xr-molecule-flash-m1
 })
 
 /**
+ * X1 xr-molecule-flash-m418 (+23:31): the executor wrote a Playwright wrapper config in a heredoc
+ * and then ran the suite inside a subshell, ending the pipeline `… 2>&1 | tail -25)`. Stripping
+ * the filter took the subshell's closer with it (the tokenizer attaches a group's `)` to the
+ * stage's last word), and the background runner refused the rewrite with `end of file unexpected
+ * (expecting ")")` — a valid command turned into an invalid one by the platform itself.
+ */
+describe('stripping a suite filter keeps the shell structure it was written in (xr-molecule-flash-m418 +23:31)', () => {
+  /** m418's own shape: the heredoc config followed by a parenthesized Playwright pipeline. */
+  const M418 = `cat > e2e-suite.config.ts <<'EOF'
+export default { defineConfig: { reporter: [['list']] } }
+EOF
+(TEST_MODE=fullstack baseURL=http://localhost:5173 npx playwright test --config e2e-suite.config.ts --retries=0 health.spec.ts auth.spec.ts 2>&1 | tail -25)`
+
+  /** Whether a real shell accepts the command — the answer the background launch depends on. */
+  const parses = (command: string): { ok: boolean; status: number | null } => {
+    const result = spawnSync('bash', ['-n', '-c', command], { encoding: 'utf8' })
+    return { ok: result.status === 0, status: result.status }
+  }
+
+  it('keeps the punctuation of the group the pipeline sits in', () => {
+    expect(stripTrailingSuiteFilters('(npx playwright test 2>&1 | tail -25)')).toEqual({
+      command: '(npx playwright test 2>&1)',
+      dropped: '| tail -25',
+    })
+    // Nested groups keep every closer the shell opened before the pipeline.
+    expect(stripTrailingSuiteFilters('((npx playwright test 2>&1 | tail -25))')).toEqual({
+      command: '((npx playwright test 2>&1))',
+      dropped: '| tail -25',
+    })
+    // A closer written after a space keeps its own spacing.
+    expect(stripTrailingSuiteFilters('(npx playwright test 2>&1 | tail -25 )')).toEqual({
+      command: '(npx playwright test 2>&1 )',
+      dropped: '| tail -25',
+    })
+    // Brace groups, a following statement and `&&` keep their own punctuation (m121).
+    expect(stripTrailingSuiteFilters('{ npx playwright test 2>&1 | tail -25; }')).toEqual({
+      command: '{ npx playwright test 2>&1; }',
+      dropped: '| tail -25',
+    })
+    expect(stripTrailingSuiteFilters('(npx playwright test 2>&1 | tail -25); echo done')).toEqual({
+      command: '(npx playwright test 2>&1); echo done',
+      dropped: '| tail -25',
+    })
+    expect(stripTrailingSuiteFilters('(npx playwright test 2>&1 | tail -25) && echo ok')).toEqual({
+      command: '(npx playwright test 2>&1) && echo ok',
+      dropped: '| tail -25',
+    })
+    // The exact command m418 sent: the heredoc is untouched and the subshell keeps its closer.
+    expect(stripTrailingSuiteFilters(M418)).toEqual({
+      command: M418.replace(' 2>&1 | tail -25)', ' 2>&1)'),
+      dropped: '| tail -25',
+    })
+    // A plain, ungrouped pipeline drops exactly what it always did.
+    expect(stripTrailingSuiteFilters('npx playwright test 2>&1 | grep ✘ | tail -5')).toEqual({
+      command: 'npx playwright test 2>&1',
+      dropped: '| grep ✘ | tail -5',
+    })
+  })
+
+  it('leaves quoted punctuation literal, and a group the stage opens alone', () => {
+    expect(stripTrailingSuiteFilters("(npx playwright test --grep 'a)b' 2>&1 | tail -5)")).toEqual({
+      command: "(npx playwright test --grep 'a)b' 2>&1)",
+      dropped: '| tail -5',
+    })
+    expect(
+      stripTrailingSuiteFilters('(npx playwright test --grep "$(cat x)" 2>&1 | tail -5)'),
+    ).toEqual({
+      command: '(npx playwright test --grep "$(cat x)" 2>&1)',
+      dropped: '| tail -5',
+    })
+    // A `|` inside a quoted pattern is data, not a stage separator.
+    expect(stripTrailingSuiteFilters('npx playwright test --grep "a|b" 2>&1 | tail -5')).toEqual({
+      command: 'npx playwright test --grep "a|b" 2>&1',
+      dropped: '| tail -5',
+    })
+    // A subshell the FILTER opens is the stage's own text, closer included.
+    expect(stripTrailingSuiteFilters('npx playwright test 2>&1 | (tail -5)')).toEqual({
+      command: 'npx playwright test 2>&1',
+      dropped: '| (tail -5)',
+    })
+    // A group opener inside the dropped stages leaves its `}` after a `;`: nothing can be cut
+    // without stranding it, so the command is left exactly as written.
+    expect(stripTrailingSuiteFilters('npx playwright test 2>&1 | { cat; }')).toEqual({
+      command: 'npx playwright test 2>&1 | { cat; }',
+      dropped: '',
+    })
+    // A pipeline crossing out of a group (`( … | tail -5) | cat`) would need its `)` kept from
+    // inside the dropped slice: refused for the same reason.
+    expect(stripTrailingSuiteFilters('(npx playwright test 2>&1 | tail -5) | cat')).toEqual({
+      command: '(npx playwright test 2>&1 | tail -5) | cat',
+      dropped: '',
+    })
+  })
+
+  it('keeps tee, xargs, in-place and redirect-bearing filters', () => {
+    const untouched = (command: string, kept: string): void => {
+      expect(stripTrailingSuiteFilters(command)).toEqual({ command, dropped: '' })
+      // The composed background command keeps the stage too — a rewritable run may still get its
+      // reporter and retries, but the pipe is the executor's own.
+      expect(streamingBackgroundCommand(command).command).toContain(kept)
+    }
+    untouched('npx playwright test 2>&1 | tee run.log', '| tee run.log')
+    untouched('npx playwright test 2>&1 | xargs echo', '| xargs echo')
+    untouched("npx playwright test 2>&1 | sed -i 's/a/b/'", "| sed -i 's/a/b/'")
+    untouched('npx playwright test 2>&1 | tail -5 > out.txt', '| tail -5 > out.txt')
+    untouched('npx playwright test; echo done', '; echo done')
+    untouched('npx playwright test --list 2>&1 | tail -5', '| tail -5')
+  })
+
+  it('answers a command the shell accepts, composed or not', () => {
+    const shapes = [
+      M418,
+      '(npx playwright test 2>&1 | tail -25)',
+      '((npx playwright test 2>&1 | tail -25))',
+      '(npx playwright test 2>&1 | tail -25 )',
+      '(npx playwright test 2>&1 | tail -25; echo x)',
+      '(npx playwright test 2>&1 | tail -25); echo done',
+      '(npx playwright test 2>&1 | tail -25) && echo ok',
+      '{ npx playwright test 2>&1 | tail -25; }',
+      '(cd e2e && npx playwright test 2>&1 | tail -5)',
+      "npx playwright test --grep 'a|b' 2>&1 | tail -5",
+      'npx playwright test 2>&1 | grep ✘ | tail -5; echo done',
+      'npx playwright test 2>&1 | tail -5 > out.txt',
+      'npx playwright test 2>&1 | tee run.log',
+      'npx playwright test 2>&1 | xargs echo',
+      "(npx playwright test 2>&1 | sed -i 's/a/b/')",
+      '(npx playwright test 2>&1 | tail -5) | cat',
+      'npx playwright test 2>&1 | { cat; }',
+      'npx playwright test; echo done',
+    ]
+    for (const command of shapes) {
+      expect(parses(command).ok, `input: ${command}`).toBe(true)
+      const stripped = stripTrailingSuiteFilters(command).command
+      expect(parses(stripped).ok, `stripped: ${stripped}`).toBe(true)
+      const composed = streamingBackgroundCommand(command).command
+      expect(parses(composed).ok, `composed: ${composed}`).toBe(true)
+    }
+  })
+
+  it('runs the composed m418 command once, with its own arguments, environment, log and status', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'mol-suite-structure-'))
+    const cwd = join(dir, 'my-app')
+    mkdirSync(cwd)
+    const log = join(dir, 'argv.log')
+    /** Recording stubs: the runner prints two lines and fails; a tail would print its own mark. */
+    for (const name of ['npx', 'tail']) {
+      writeFileSync(
+        join(dir, name),
+        '#!/bin/sh\n' +
+          `printf '%s' '${name}' >> "$ARGV_LOG"\n` +
+          `for a in "$@"; do printf ' <%s>' "$a" >> "$ARGV_LOG"; done\n` +
+          `printf ' TEST_MODE=<%s> baseURL=<%s>\\n' "$TEST_MODE" "$baseURL" >> "$ARGV_LOG"\n` +
+          (name === 'npx' ? 'echo "failure one"\necho "failure two"\nexit 1\n' : 'echo TAIL-RAN\n'),
+      )
+      chmodSync(join(dir, name), 0o755)
+    }
+    try {
+      const composed = streamingBackgroundCommand(M418).command
+      const run = spawnSync('sh', ['-c', composed], {
+        cwd,
+        env: { ...process.env, PATH: `${dir}:${process.env.PATH ?? ''}`, ARGV_LOG: log },
+        encoding: 'utf8',
+      })
+      // The runner's own status, not a filter's: the pipeline's last stage used to decide it.
+      expect(run.status).toBe(1)
+      // The full log, not a tail of it — and the tail never ran at all.
+      expect(run.stdout).toBe('failure one\nfailure two\n')
+      // The heredoc prelude still wrote its config file.
+      expect(readFileSync(join(cwd, 'e2e-suite.config.ts'), 'utf8')).toContain('reporter')
+      // Exactly one invocation, with the run's own words and the environment it was given.
+      const invocations = readFileSync(log, 'utf8')
+        .split('\n')
+        .filter((line) => line !== '')
+      expect(invocations).toEqual([
+        'npx <playwright> <test> <--config> <e2e-suite.config.ts> <--retries=0> ' +
+          '<health.spec.ts> <auth.spec.ts> TEST_MODE=<fullstack> baseURL=<http://localhost:5173>',
+      ])
+    } finally {
+      rmSync(dir, { recursive: true, force: true })
+    }
+  })
+})
+
+/**
  * X1 xr-molecule-flash-m105 (+08:12): the executor wrote its wrapper Playwright config in the SAME
  * `exec_command` as the run, via a heredoc, then launched the suite `2>&1 | tail -60`. The body's
  * `import { defineConfig, devices } from '@playwright/test'` put braces in the text, the stage

@@ -13,6 +13,7 @@ import {
   executedCommands,
   locatedCommandSegments,
   statementArgumentEnd,
+  statementBoundary,
   withoutTimeoutWrapper,
 } from './command-position.js'
 import { classifyRunFailure, type RunFailureKind } from './failure-kind.js'
@@ -1451,6 +1452,10 @@ export interface SuiteFilterStrip {
  * tail, and a 95-second walk's log held only the tally while the platform's own hold had handed
  * that command back).
  *
+ * The command around the dropped stages is left as written: a group they sit in keeps its closer
+ * (`( … | tail -25)` → `( … )`, never `( …` — xr-molecule-flash-m418 +23:31), and a stage the cut
+ * would leave a closer dangling inside is not dropped at all.
+ *
  * @param command - The shell command.
  * @returns The rewritten command and the stages dropped.
  */
@@ -1479,14 +1484,35 @@ export function stripTrailingSuiteFilters(command: string): SuiteFilterStrip {
   // A stage inside a nested `sh -c` string has no offsets in this command: nothing can be cut.
   if (previous.end === null || stage.start === null || lastDropped.end === null)
     return { command, dropped: '' }
+  // Every stage dropped must be provably whole inside the command's own structure. A group
+  // closer attached to one of them closes a group the pipeline below still runs in
+  // (`( … | tail -5) | cat`), and a stage that OPENS a group it does not close (`| { cat; }`) has
+  // its closer in a later statement — either cut would leave the punctuation dangling. Only the
+  // last stage may end on an enclosing closer, and it is kept ({@link statementBoundary}).
+  const boundaries: Array<{ textEnd: number; leavesGroupOpen: boolean }> = []
+  for (let i = first; i <= end; i += 1) {
+    const droppedStage = located[i]
+    if (!droppedStage || droppedStage.end === null) return { command, dropped: '' }
+    const boundary = statementBoundary(command, droppedStage.start, droppedStage.end)
+    if (boundary === null || boundary.leavesGroupOpen) return { command, dropped: '' }
+    if (i < end && boundary.textEnd !== droppedStage.end) return { command, dropped: '' }
+    boundaries.push(boundary)
+  }
+  const lastBoundary = boundaries[boundaries.length - 1]
+  if (lastBoundary === undefined) return { command, dropped: '' }
+  // Where the dropped stages' own text ends. The tokenizer attaches the closer of an enclosing
+  // group to the stage's last word (`tail -25)`), so cutting at {@link LocatedSegment.end} deleted
+  // the `)` and left `( … 2>&1` — a command no shell parses, which the background runner rejected
+  // with `end of file unexpected` (xr-molecule-flash-m418 +23:31).
+  const dropEnd = lastBoundary.textEnd
   const pipe = stage.between.indexOf('|')
   if (pipe < 0) return { command, dropped: '' }
   const cut = previous.end + pipe
   // The stages dropped are a middle slice when a statement follows, so the text after them is
-  // kept — `; echo done` still runs.
+  // kept — `; echo done` still runs, and so does the punctuation closing the group they sat in.
   return {
-    command: `${command.slice(0, cut).trimEnd()}${command.slice(lastDropped.end)}`,
-    dropped: command.slice(cut, lastDropped.end).trim(),
+    command: `${command.slice(0, cut).trimEnd()}${command.slice(dropEnd)}`,
+    dropped: command.slice(cut, dropEnd).trim(),
   }
 }
 

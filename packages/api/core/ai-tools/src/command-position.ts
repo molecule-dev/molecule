@@ -1482,6 +1482,70 @@ export function statementArgumentEnd(
 }
 
 /**
+ * Where a statement's own text ends, and whether it leaves a group open.
+ *
+ * A statement can be written inside a subshell or a brace group, and the tokenizer attaches an
+ * adjacent closer to its last word because no separator comes between them: `( … | tail -25)`
+ * parses its last stage as `tail` with the argument `-25)`. {@link LocatedCommandSegment.end}
+ * therefore says one past the `)`, and a caller cutting that stage out of the command takes the
+ * group's closer with it — the rewritten command is then `( … 2>&1`, which no shell parses
+ * (xr-molecule-flash-m418 +23:31: a heredoc config plus a parenthesized Playwright pipeline came
+ * back as `end of file unexpected` from the background runner).
+ *
+ * The parse's own group depths answer which closers belong to an enclosing group: the depth a
+ * statement was written at is its first character's depth (an opener is recorded at the depth
+ * BEFORE it opens), and every character of that statement's own words is at that depth or deeper.
+ * A closer at a LOWER depth closes a group opened before the statement, so it is not the
+ * statement's text. A character inside a quote (`-1`) is literal text and stops the walk: `grep
+ * 'a)b'` ends on its own quote, not on a closer.
+ *
+ * The same depths answer the other dangerous cut: a stage that OPENS a group it does not close
+ * (`| { cat` when the `}` follows a `;`) has its closer outside the stage, so dropping the stage
+ * alone leaves that closer dangling.
+ *
+ * @param command - The shell command.
+ * @param start - The statement's first character ({@link LocatedCommandSegment.start}).
+ * @param end - One past the statement's last character ({@link LocatedCommandSegment.end}).
+ * @returns The offset of the first character that is not the statement's own text, and whether
+ *   the statement leaves a group it opened still open; null when it cannot be placed in this
+ *   command.
+ */
+export function statementBoundary(
+  command: string,
+  start: number | null,
+  end: number | null,
+): { textEnd: number; leavesGroupOpen: boolean } | null {
+  if (typeof command !== 'string') return null
+  if (start === null || end === null) return null
+  if (!Number.isInteger(start) || !Number.isInteger(end)) return null
+  if (start < 0 || end > command.length || end < start) return null
+  const part = splitSegments(command).find(
+    (candidate) => candidate.start === start && candidate.start + candidate.text.length === end,
+  )
+  const enclosing = part?.depths[0]
+  if (part === undefined || enclosing === undefined) return null
+  let at = part.text.length
+  while (at > 0) {
+    const depth = part.depths[at - 1]
+    if (depth === undefined || depth < 0 || depth >= enclosing) break
+    at -= 1
+  }
+  // Whitespace before the closer is not part of the statement's last word either.
+  while (at > 0 && /\s/.test(part.text[at - 1] ?? '')) at -= 1
+  // The group state where the statement's own text stops: a group opened here and never closed
+  // puts its closer after the statement, in a later stage or statement.
+  let trailing = enclosing
+  let deepest = enclosing
+  for (let i = 0; i < at; i += 1) {
+    const depth = part.depths[i]
+    if (depth === undefined || depth < 0) continue
+    trailing = depth
+    if (depth > deepest) deepest = depth
+  }
+  return { textEnd: start + at, leavesGroupOpen: deepest > enclosing && trailing > enclosing }
+}
+
+/**
  * {@link locatedCommandSegments}'s recursion, so a `sh -c '<command>'` is opened as far as
  * {@link MAX_NESTING} allows. A nested statement's offsets are cleared: they are positions in
  * the nested string, not in the command this walk started from.
