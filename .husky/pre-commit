@@ -370,18 +370,9 @@ if [ -n "${DEFERRED_DOCS:-}" ]; then
       set -- $entry
       if [ "$#" = 4 ] && [ "$3" = "0" ]; then entry_sha=$2; fi
     fi
-    # A README this commit staged ITSELF (it is in DOC_SRC) is the commit's own
-    # content: a hand edit or stale doc must be replaced by the generated one.
-    # A doc reached only through cross-doc expansion keeps the peer-edit rule
-    # below, so another session's copy of the same README is never overwritten.
-    owned=0
-    if printf '%s\n' "$DOC_SRC" | grep -Fxq -- "$md"; then owned=1; fi
     index_safe=0
     worktree_safe=0
-    if [ "$owned" = 1 ]; then
-      index_safe=1
-      if [ -n "$entry_sha" ] && [ "$cur" = "$entry_sha" ]; then worktree_safe=1; fi
-    elif [ -n "$want" ]; then
+    if [ -n "$want" ]; then
       if [ "$entry_sha" = "$want" ]; then index_safe=1; fi
       if [ "$cur" = "$want" ]; then worktree_safe=1; fi
     else
