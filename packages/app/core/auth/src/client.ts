@@ -511,11 +511,18 @@ export const createJWTAuthClient = <
     const hasSessionHint =
       typeof document !== 'undefined' && /(?:^|;\s*)mol_auth=1(?:;|$)/.test(document.cookie)
     if (!hasSessionHint) return { user: null, attempted: false, rejected: false }
+    const revision = sessionRevision
+    const token = tokenStorage.getAccessToken()
+    const isCurrent = (): boolean =>
+      revision === sessionRevision && token === tokenStorage.getAccessToken()
     try {
       const result = await fetchAPI<{ user?: T }>(currentUserEndpoint, {
         method: 'GET',
         credentials: 'include',
       })
+      // A sign-out or account switch while this GET was pending owns the new
+      // state. Neither an old profile nor an old rejection may replace it.
+      if (!isCurrent()) return { user: null, attempted: false, rejected: false }
       const rawUser = (result?.user ?? null) as T | null
       // The same adapter a sign-in's answer goes through — this answer is the
       // wire shape too, and storing it raw dropped the adapted identity.
@@ -536,6 +543,7 @@ export const createJWTAuthClient = <
       }
       return { user: null, attempted: true, rejected: false }
     } catch (error) {
+      if (!isCurrent()) return { user: null, attempted: false, rejected: false }
       const httpStatus = (error as { status?: number }).status
       // Only a REJECTED cookie (401/403) proves the hint stale: the session
       // expired server-side, or the database was reset. Drop the hint then, so
@@ -575,6 +583,7 @@ export const createJWTAuthClient = <
   // promise SYNCHRONOUSLY (see `restoreInFlight`): a caller that awaits `initialize()`
   // still sees a rejection, while `whenRestored()` hands out a promise that resolves.
   const initializeSession = async (): Promise<void> => {
+    const revision = sessionRevision
     const token = tokenStorage.getAccessToken()
     const user = tokenStorage.getUser<T>()
 
@@ -605,9 +614,11 @@ export const createJWTAuthClient = <
       if (refreshToken) {
         try {
           await client.refresh()
+          if (revision !== sessionRevision) return
           setState({ initialized: true })
           return
         } catch (error) {
+          if (revision !== sessionRevision) return
           const httpStatus = (error as { status?: number }).status
           // Only the server REJECTING the refresh token proves the session dead.
           // A network drop or a 5xx is not about the credential, and it used to
@@ -633,6 +644,7 @@ export const createJWTAuthClient = <
       // [M1-1] Cookie-restore — this is what keeps a refresh / deep-link logged
       // in under the in-memory-token model. See restoreFromSessionCookie above.
       const outcome = await restoreFromSessionCookie()
+      if (revision !== sessionRevision) return
       if (outcome.rejected) {
         // The only other proof of this session was rejected by the server.
         tokenStorage.clear()
@@ -659,6 +671,7 @@ export const createJWTAuthClient = <
     // No stored user: there is no session to paint, so this load stays `'loading'`
     // until the cookie-restore decides it.
     await restoreFromSessionCookie()
+    if (revision !== sessionRevision) return
     setState({ initialized: true })
   }
 
@@ -837,6 +850,7 @@ export const createJWTAuthClient = <
         // logout call didn't complete (the server clears it too, on success).
         clearSessionHintCookie()
         setState({
+          initialized: true,
           loading: false,
           authenticated: false,
           user: null,
@@ -1013,11 +1027,15 @@ export const createJWTAuthClient = <
         })
         return
       }
+      const revision = sessionRevision
+      const isCurrent = (): boolean =>
+        revision === sessionRevision && token === tokenStorage.getAccessToken()
       try {
         // `fetchAPI` sends the stored token, so this asks the server "is this
         // session still valid?" — the background check `initialize()` does not do
         // (it restores from storage without a request by design).
         const result = await fetchAPI<{ user?: T }>(currentUserEndpoint, { method: 'GET' })
+        if (!isCurrent()) return
         // The answer is the wire user, not the app's adapted profile: pass it
         // through the same `mapAuthResponse` a sign-in uses before storing it
         // (xr-molecule-flash-m184 — a reload replaced the adapted user with the
@@ -1042,6 +1060,7 @@ export const createJWTAuthClient = <
           })
         }
       } catch (error) {
+        if (!isCurrent()) return
         const httpStatus = (error as { status?: number }).status
         // ONLY 401 and 403 are the server rejecting this token (revoked, expired,
         // a reset database): drop the session rather than keep sending a header
