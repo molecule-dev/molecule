@@ -592,8 +592,26 @@ const PRINTING_REPORTERS = new Set(['list', 'line', 'dot', 'basic', 'spec'])
 export const PLAYWRIGHT_FAILURES_INLINE_ENV = 'PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE'
 
 /**
+ * A step that stores the status of the step before it in a variable: `__proof_slow=$?`.
+ *
+ * The variable name is the shell's own (`[A-Za-z_][A-Za-z0-9_]*`) and the value is EXACTLY the
+ * special parameter, bare or double-quoted, so nothing else can be running here. A capture whose
+ * value is anything else — `x=$(rebuild)`, `x=$?; rm -rf …` (a separate statement anyway) — is a
+ * program, not a status, and is not one of these.
+ */
+const STATUS_CAPTURE_STEP = /^[A-Za-z_][A-Za-z0-9_]*=(?:\$\?|"\$\?"|\$\{\?\})$/
+
+/**
+ * The arithmetic body `exit $((…))` may carry and still run nothing: variable names, numbers and
+ * arithmetic operators only. No `$`, backtick, `;` or comma is allowed, so no command substitution
+ * and no expansion of a variable into something that runs can hide in it.
+ */
+const STATUS_EXIT_ARITHMETIC = /^[A-Za-z0-9_|&+\-*/%^<>=!~() \t]*$/
+
+/**
  * Whether a command step only reports or discards the status of the steps before it: `echo EXIT
- * $?`, `echo $?`, `printf …`, `true`, `exit 0`.
+ * $?`, `echo $?`, `printf …`, `true`, `exit 0`, a status capture (`__proof_slow=$?`), or an
+ * `exit $((a | b))` over statuses already captured.
  *
  * The shape models and the platform's own re-run notes send routinely ends on one of these —
  * `npx playwright test … > /tmp/pw.log 2>&1; echo EXIT $?` — and reading the split's last part as
@@ -603,12 +621,30 @@ export const PLAYWRIGHT_FAILURES_INLINE_ENV = 'PLAYWRIGHT_LIST_PRINT_FAILURES_IN
  * punctuation are not part of the step; {@link streamingBackgroundCommand} strips those before
  * asking, and strips them here too for the split it is given.
  *
+ * A status CAPTURE is the same kind of step, and the platform's own chained proof walks end on a
+ * run of them: `… <browser run>; __proof_slow=$?; echo __PROOF_EXIT__ …; exit $((__proof_fast |
+ * __proof_slow))` (`chainedProofCommand`, molecule-dev `post-deploy-proof-run.ts`). Reading the
+ * browser half as a status step is what lets the run keep its reporter, its machine report and the
+ * inline-failure switch — without it, every platform proof ran its browser suite on the request's
+ * own `line` reporter, which writes no ✓/✘ mark and no per-failure error into the log the wait
+ * reads (xr-molecule-flash-x03 +27:44).
+ *
+ * Only the two shapes whose whole value is the shell's own status are read this way; anything that
+ * could run — a command substitution, a backticked word, a suffix after the status — stays a step.
+ *
  * @param step - One statement of the command, as the `&&`/`||`/`;` split left it.
  * @returns True when the step runs nothing but a status report.
  */
 function isStatusOnlyStep(step: string): boolean {
-  const text = step.replace(/[\s)}]+$/, '').trim()
-  return /^(?:echo|printf)\b/.test(text) || /^true$/.test(text) || /^exit(?:\s+\S+)?$/.test(text)
+  const text = step.trim()
+  // An enclosing group's closer is punctuation, not part of the step — but the `))` that closes an
+  // arithmetic expansion is part of the statement, so that shape is read off the text as written.
+  const withoutCloser = text.replace(/[\s)}]+$/, '')
+  if (/^(?:echo|printf)\b/.test(withoutCloser) || /^true$/.test(withoutCloser)) return true
+  if (/^exit(?:\s+\S+)?$/.test(withoutCloser)) return true
+  if (STATUS_CAPTURE_STEP.test(withoutCloser)) return true
+  const arithmetic = /^exit\s+\$\(\((.*)\)\)$/.exec(text)
+  return arithmetic !== null && STATUS_EXIT_ARITHMETIC.test(arithmetic[1] ?? '')
 }
 
 /**

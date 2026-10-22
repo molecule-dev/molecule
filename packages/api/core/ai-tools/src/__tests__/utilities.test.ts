@@ -832,6 +832,132 @@ describe('streamingBackgroundCommand', () => {
     })
   })
 
+  /**
+   * The platform's own chained proof walk (`chainedProofCommand`, molecule-dev
+   * `api/src/ai/post-deploy-proof-run.ts`): the fast suite, then the browser walk, each half's
+   * status captured, a marker line naming both, and one `exit` over the two codes.
+   */
+  const CHAIN_FAST =
+    'cd /workspace/specs/api && HOST=https://loopcheck.apps.mlcl.dev hurl --test --jobs 1 *.hurl'
+  const chained = (browser: string): string =>
+    `${CHAIN_FAST}; __proof_fast=$?; ${browser}; __proof_slow=$?; ` +
+    'echo "__PROOF_EXIT__ hurl=$__proof_fast playwright=$__proof_slow"; ' +
+    'exit $((__proof_fast | __proof_slow))'
+  /** The browser half of the walk x03 +27:44 ran, as the derived run handed it over. */
+  const CHAIN_BROWSER =
+    'cd /workspace/fixtures/realworld/specs/e2e && TEST_MODE=fullstack ' +
+    'BASE_URL=https://loopcheck.apps.mlcl.dev npx playwright test --reporter=line 2>&1 | tail -30'
+
+  it('keeps the browser half’s reporters in the platform’s chained proof walk (x03 +27:44)', () => {
+    // The chain closes each half with `__proof_fast=$?` / `__proof_slow=$?` and an `exit
+    // $((…))`, so the split's last parts are status steps, not the run. They were not read as
+    // such: the browser walk stayed on the request's own `line` reporter, which writes no ✓/✘
+    // mark and no per-failure error, and the JSON report the wait reads back was never wired.
+    const report = '/tmp/proof-report.json'
+    const r = streamingBackgroundCommand(chained(CHAIN_BROWSER), undefined, report)
+    expect(r.command).toBe(
+      `${INLINE_HEAD}export PLAYWRIGHT_JSON_OUTPUT_FILE='${report}'; ` +
+        `${CHAIN_FAST}; __proof_fast=$?; ` +
+        'cd /workspace/fixtures/realworld/specs/e2e && TEST_MODE=fullstack ' +
+        'BASE_URL=https://loopcheck.apps.mlcl.dev npx playwright test --reporter=list,json 2>&1; ' +
+        '__proof_slow=$?; echo "__PROOF_EXIT__ hurl=$__proof_fast playwright=$__proof_slow"; ' +
+        'exit $((__proof_fast | __proof_slow))',
+    )
+    expect(r.reportPath).toBe(report)
+    // ONE printing reporter, and it is `list` — the shape fail-fast and the Tests bar read.
+    expect(r.command.match(/--reporter/g)).toHaveLength(1)
+    expect(r.changes).toContain(INLINE_CHANGE)
+    expect(r.changes).toContain(
+      'Switched the test reporters to `--reporter=list`: `list` writes each test result as it ' +
+        'finishes and is the shape the platform reads back from a background run, and it is the ' +
+        'only printing reporter — two of them write every result into the log twice (X1 flash-m83).',
+    )
+    // The fast half is untouched, and both halves' codes still reach the marker and the exit.
+    expect(r.command).toContain(`${CHAIN_FAST}; __proof_fast=$?;`)
+    expect(r.command.endsWith('exit $((__proof_fast | __proof_slow))')).toBe(true)
+  })
+
+  it('keeps a chained browser run on exactly the reporters the same run gets alone', () => {
+    const report = '/tmp/proof-report.json'
+    /** The browser statement a rewrite leaves behind: the env head and report export taken off. */
+    const browserRun = (command: string): string =>
+      command
+        .slice(INLINE_HEAD.length)
+        .replace(/^export PLAYWRIGHT_JSON_OUTPUT_FILE=[^;]+; /, '')
+        .trim()
+    // Every shape the browser half can arrive in — including the executor's own file reporters,
+    // a reporter this build does not know, and a command that sets the report variable itself.
+    // A chain must decide all of them the way the SAME command decides them alone; joining the
+    // platform's chain is not a reason to leave a run on `line`, nor to add a second printer.
+    for (const browser of [
+      CHAIN_BROWSER,
+      'npx playwright test',
+      'npx playwright test --reporter=list',
+      'npx playwright test --reporter=html',
+      'npx playwright test --reporter=json',
+      'npx playwright test --reporter=my-own',
+      'PLAYWRIGHT_JSON_OUTPUT_FILE=/tmp/mine.json npx playwright test --reporter=list',
+    ]) {
+      const plain = streamingBackgroundCommand(browser, undefined, report)
+      const chainedRun = streamingBackgroundCommand(chained(browser), undefined, report)
+      expect(chainedRun.reportPath, browser).toBe(plain.reportPath)
+      expect(chainedRun.command, browser).toContain(browserRun(plain.command))
+      // A reporter set the platform does not place — the executor's `json`, a reporter it does
+      // not know — is left exactly as written, in the chain too.
+      if (browser.includes('--reporter=json') || browser.startsWith('PLAYWRIGHT_JSON_OUTPUT_FILE='))
+        expect(chainedRun.command, browser).toContain(browser)
+    }
+  })
+
+  it('reads only a status as a status step, never a command that could run', () => {
+    // A capture whose value is anything but `$?` is a program, and so is an `exit` whose
+    // arithmetic could expand into one. None of these chains is a run to rewrite; the browser
+    // half keeps the reporter, the inline switch and `--retries=0` exactly as written.
+    for (const browser of [
+      // A command substitution on the right of the capture.
+      'npx playwright test --reporter=line; rc=$(rebuild)',
+      // A command substitution inside the exit arithmetic.
+      'npx playwright test --reporter=line; rc=$?; exit $((rc | $(rebuild)))',
+      // A backticked word inside it.
+      'npx playwright test --reporter=line; rc=$?; exit $((rc | `rebuild`))',
+      // An executable statement after the tail: the last step runs something else.
+      'npx playwright test --reporter=line; rc=$?; exit $((rc)); rebuild',
+      // An arithmetic exit is only harmless when it names statuses; a `;` inside it is not one.
+      'npx playwright test --reporter=line; rc=$?; exit $((rc;rebuild))',
+    ])
+      expect(streamingBackgroundCommand(browser), browser).toEqual({
+        command: `${INLINE_HEAD}${browser}`,
+        changes: [],
+      })
+  })
+
+  it('still refuses a command made entirely of identical suite walks', () => {
+    // The status steps are what let a chained browser half be found; they must not weaken the
+    // one refusal this reader owns (xr-molecule-flash-m157). A command that is nothing but the
+    // same walk twice is still refused, untouched.
+    const twice = 'npx playwright test --reporter=line; npx playwright test --reporter=line'
+    const r = streamingBackgroundCommand(twice)
+    expect(r.error).toBeTruthy()
+    expect(r.command).toBe(twice)
+    expect(r.command).not.toContain('--reporter=list')
+  })
+
+  it('leaves a chained no-test invocation alone, reporters and all', () => {
+    // `--list`, `--help` and `show-report` walk no test, and a chain around one is still no run:
+    // no reporter is added, no machine report is wired, no `--retries` is touched. Only the
+    // inline switch rides along, exactly as it does for any background command this reader
+    // cannot prove is a no-test invocation (it is inert outside Playwright's `list` reporter).
+    for (const command of [
+      'npx playwright test --list; __rc=$?; exit $((__rc))',
+      'npx playwright test --help; __rc=$?; exit $((__rc))',
+      'npx playwright show-report; __rc=$?; exit $((__rc))',
+    ])
+      expect(streamingBackgroundCommand(command, undefined, '/tmp/proof-report.json')).toEqual({
+        command: `${INLINE_HEAD}${command}`,
+        changes: [],
+      })
+  })
+
   it('leaves playwright’s own reporter alone, and a run whose output cannot be read untouched', () => {
     // `--reporter=list` is the shape the platform reads back: its reporter is left exactly as the
     // executor spelled it, and only the inline switch is set on it (flash-m99) — plus the
