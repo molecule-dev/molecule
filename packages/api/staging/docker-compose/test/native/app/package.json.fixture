@@ -1,0 +1,5 @@
+{
+  "name": "native-artifact-app",
+  "private": true,
+  "type": "module"
+}

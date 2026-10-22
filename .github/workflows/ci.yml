@@ -133,6 +133,30 @@ jobs:
       # versioned, and the Release workflow refuses to run while one exists.
       - run: npm run check:changesets-consumed
       - run: npm run build
+      # Native deployment is an actual target-platform consumer check, not a
+      # string snapshot or an arm64 workstation standing in for amd64. Use the
+      # existing build job and its affected-package decision; no deploy/publish.
+      - name: Prove native Node deployment on amd64
+        timeout-minutes: 15
+        run: |
+          FILTER="$(node scripts/affected-projects.mjs)"
+          if [ -z "$FILTER" ] || printf '%s\n' "$FILTER" | grep -Fq 'packages/api/staging/docker-compose'; then
+            node scripts/verify-native-node-artifact.mjs
+          fi
+        env:
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GITHUB_EVENT_BEFORE: ${{ github.event.before }}
+          GITHUB_BASE_REF: ${{ github.base_ref }}
+      - name: Retain native deployment proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-node-deployment-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/node-deployment-artifact-proof/*.log
+            ${{ runner.temp }}/node-deployment-artifact-proof/receipt.json
+          if-no-files-found: ignore
+
       # Record what each package's sources hashed to, so the NEXT run can reuse
       # this dist per-package instead of rebuilding the fleet. Written after the
       # build so it always describes output that actually exists.

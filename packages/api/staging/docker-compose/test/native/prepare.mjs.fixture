@@ -1,0 +1,17 @@
+import { execFileSync } from 'node:child_process'
+import { readFileSync, writeFileSync } from 'node:fs'
+import isNumber from 'is-number'
+
+// prepare must see both workspace source and dev dependencies. Force bcrypt's
+// compiler path instead of silently accepting its packaged native prebuild.
+readFileSync('api/src/server.mjs')
+writeFileSync('api/src/prepared.txt', String(isNumber(1)))
+execFileSync('npm', ['rebuild', 'bcrypt'], {
+  stdio: 'inherit',
+  env: {
+    ...process.env,
+    npm_config_build_from_source: 'true',
+    npm_config_jobs: '1',
+    MAKEFLAGS: '-j1',
+  },
+})

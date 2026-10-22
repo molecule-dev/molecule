@@ -24,7 +24,7 @@ import type {
 
 import { generateComposeFile } from './compose-generator.js'
 import {
-  generateApiDockerfile,
+  generateApiDeploymentArtifacts,
   generateAppDockerfile,
   generateNginxConf,
 } from './dockerfile-generator.js'
@@ -285,11 +285,15 @@ export const provider: StagingDriver = {
     const dbPort = (env.driverMeta?.dbPort as number) ?? fallbackPort(5433, env.slug)
 
     // Generate Dockerfiles and nginx config in .molecule/staging/
-    await writeFile(join(stagingDir, 'Dockerfile.api'), generateApiDockerfile())
+    const apiArtifacts = generateApiDeploymentArtifacts()
+    await writeFile(join(stagingDir, 'Dockerfile.api'), apiArtifacts.Dockerfile)
+    const ignore = apiArtifacts['.dockerignore']
+    await writeFile(join(stagingDir, 'Dockerfile.api.dockerignore'), ignore)
     await writeFile(
       join(stagingDir, 'Dockerfile.app'),
       generateAppDockerfile({ VITE_API_URL: `http://localhost:${apiPort}/api` }),
     )
+    await writeFile(join(stagingDir, 'Dockerfile.app.dockerignore'), ignore)
     await writeFile(join(stagingDir, 'nginx.conf'), generateNginxConf())
 
     // Generate compose file (references the generated Dockerfiles)
@@ -365,7 +369,9 @@ export const provider: StagingDriver = {
     if (composeFilesLeft.length === 0) {
       filesToRemove.push(
         join(stagingDir, 'Dockerfile.api'),
+        join(stagingDir, 'Dockerfile.api.dockerignore'),
         join(stagingDir, 'Dockerfile.app'),
+        join(stagingDir, 'Dockerfile.app.dockerignore'),
         join(stagingDir, 'nginx.conf'),
       )
     }
