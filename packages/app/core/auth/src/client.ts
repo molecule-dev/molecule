@@ -209,6 +209,10 @@ export const createJWTAuthClient = <
   // running in the same tick (bootstrapApp calls initialize() and then renders)
   // already sees the restore and its HTTP requests wait for it (`whenRestored`).
   let restoreInFlight: Promise<void> | null = null
+  // A profile response belongs to the session that sent it. An explicit new
+  // sign-in/sign-out invalidates older profile writes, even if token strings
+  // happen to match. Background profile reads do not replace the session.
+  let sessionRevision = 0
 
   let state: AuthState<T> = {
     status: 'loading',
@@ -266,6 +270,7 @@ export const createJWTAuthClient = <
   const setState = (updates: Partial<AuthState<T>>): void => {
     const previous = state
     const next = { ...previous, ...updates }
+    if (previous.authenticated && !next.authenticated) sessionRevision++
     // A user REFERENCE changes only when its data changes. A background verification
     // (`validateSession`, a reload's cookie restore) answers with a freshly parsed object that
     // usually carries exactly the data already in state; handing that new reference to every
@@ -714,6 +719,7 @@ export const createJWTAuthClient = <
     },
 
     setUser: (user: T | null) => {
+      if (user === null) sessionRevision++
       tokenStorage.setUser(user)
       setState({ user })
     },
@@ -721,10 +727,12 @@ export const createJWTAuthClient = <
     getAccessToken: () => tokenStorage.getAccessToken(),
 
     setAccessToken: (token: string | null) => {
+      if (token !== tokenStorage.getAccessToken()) sessionRevision++
       tokenStorage.setAccessToken(token)
     },
 
     setSession: (session) => {
+      sessionRevision++
       // NOT passed through `mapAuthResponse`: a seed is not an API answer, it is
       // the profile the caller already built in this client's shape. Mapping it
       // would adapt an adapted profile a second time.
@@ -770,6 +778,7 @@ export const createJWTAuthClient = <
           return result
         }
 
+        sessionRevision++
         tokenStorage.setAccessToken(result.accessToken || null)
         tokenStorage.setRefreshToken(result.refreshToken || null)
         tokenStorage.setUser(result.user)
@@ -795,6 +804,7 @@ export const createJWTAuthClient = <
     },
 
     async logout(): Promise<void> {
+      sessionRevision++
       setState({ loading: true })
 
       try {
@@ -849,6 +859,7 @@ export const createJWTAuthClient = <
           }),
         )
 
+        sessionRevision++
         tokenStorage.setAccessToken(result.accessToken || null)
         tokenStorage.setRefreshToken(result.refreshToken || null)
         tokenStorage.setUser(result.user)
@@ -933,6 +944,7 @@ export const createJWTAuthClient = <
     },
 
     async updateProfile(data: Partial<T>): Promise<T> {
+      const revision = sessionRevision
       // The REQUEST transport is configurable (`profileUpdateMethod` /
       // `profileRequestBody`); everything below — mapping the answer, storing
       // the user, notifying subscribers — is the same session state for every
@@ -954,6 +966,11 @@ export const createJWTAuthClient = <
       // The profile route answers the wire shape as well; map it like every
       // other answer that replaces the cached user.
       const user = mapCurrentUser(answer, raw) ?? raw
+      // The server may have accepted the old account's update, but that answer
+      // must never replace a signed-out or newly signed-in account's cached
+      // user. Return the request's result while leaving the current session
+      // (storage and subscribers) untouched.
+      if (revision !== sessionRevision) return user
       tokenStorage.setUser(user)
       setState({ user })
 

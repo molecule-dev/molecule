@@ -169,12 +169,18 @@
  * subscriber notifications and the reload restore are the client's existing behavior — replacing
  * the client to change a method or an envelope also replaces the lifecycle that keeps a session
  * coherent, and hand-written adapters have had to repair those callbacks repeatedly.
+ * A pending profile response is published only to the session that sent it:
+ * signing out or explicitly adopting/signing in another session prevents the old
+ * response from replacing the active user's stored profile.
  *
  * **A background verification that returns an unchanged user changes nothing.** When
  * `validateSession()` (or a reload's restore) answers with the same profile data the client
  * already holds, the client keeps the SAME user object and does not notify subscribers — so an
  * effect seeded from `user` does not re-run, and a form it fills keeps what has been typed.
- * Seed such a form once (on its first load), never on every `user` identity.
+ * In React, `useProfileForm` from `@molecule/app-react` also preserves dirty
+ * fields when a background read contains changed user data, and owns partial
+ * submission, the saved baseline and cache propagation. Use that composition
+ * for editable account forms instead of resetting every field on `user` changes.
  *
  * **A token another tool reads at its own key is a CONFIG field, not a mirror.**
  * An e2e suite or host page that expects `localStorage.jwtToken` (the RealWorld

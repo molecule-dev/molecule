@@ -452,6 +452,9 @@ export interface AuthClient<
 
   /**
    * Updates the current user's profile.
+   * Returns the saved response. If the session is explicitly replaced or ended
+   * while the request is pending, that response does not replace the current
+   * session's user or persisted cache.
    */
   updateProfile(data: Partial<T>): Promise<T>
 

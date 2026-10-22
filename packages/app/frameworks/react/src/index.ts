@@ -6,6 +6,33 @@
  * chat, workspace, editor, preview), so framework-agnostic providers plug
  * into React idioms.
  *
+ * **Editable account/profile forms:** `useProfileForm` composes the bonded form
+ * and auth clients. It hydrates asynchronous user data without erasing dirty
+ * fields, snapshots controlled values on native form submission, submits only
+ * changed fields through an app-supplied adapter, and persists/publishes the
+ * server's saved user. Use its `onSaved` callback to update other query caches
+ * from that response before navigating. Configure the endpoint, method and JSON
+ * envelope once in `AuthClientConfig`; no page-local session store is needed.
+ *
+ * @example
+ * ```tsx
+ * const profile = useProfileForm<User, { name: string; email: string }>({
+ *   defaultValues: { name: '', email: '' },
+ *   getIdentity: (user) => user.id,
+ *   toValues: (user) => ({ name: user.name ?? '', email: user.email ?? '' }),
+ *   toPatch: (changes) => changes,
+ *   onSaved: async (user) => {
+ *     // Set/invalidate the app's profile query keys using the saved response.
+ *     // Navigate only after those writes complete.
+ *   },
+ * })
+ * <form {...profile.formProps}>
+ *   <input {...profile.register('name')} />
+ *   <input {...profile.register('email', { email: true })} type="email" />
+ *   <button type="submit" disabled={!profile.ready || profile.isSubmitting}>Save</button>
+ * </form>
+ * ```
+ *
  * @example
  * ```tsx
  * import { MoleculeProvider, useAuth, useTheme, useTranslation } from '@molecule/app-react'
@@ -48,6 +75,20 @@
  * ```
  *
  * @remarks
+ * - `useProfileForm` needs `AuthProvider` (or `MoleculeProvider auth={client}`)
+ *   and uses the bonded forms provider, just like `useForm`. `defaultValues`
+ *   and `toValues` must cover every registered control; map nullable text to
+ *   `''` there. Add optional write-only controls such as `password: ''` to both,
+ *   then omit a blank password in `toPatch`: `({ password, ...changes }) =>
+ *   ({ ...changes, ...(password?.trim() ? { password } : {}) })`. `changes`
+ *   contains only edited fields, so do not fill omitted fields with null or
+ *   copy every property of the auth user into the request. `reset()` discards
+ *   edits to the newest baseline. A changed `getIdentity(user)` clears the old
+ *   account's edits. Field comparisons are shallow, matching form providers.
+ *   The hook captures save failures in `error`; render that error with the
+ *   app's normal API-error presentation. Use native `<form>` submit semantics,
+ *   and pass the typed `register()` props through custom controls to their
+ *   actual input/textarea elements.
  * - **Every hook throws when its provider is not mounted.** `MoleculeProvider` wires ONLY the
  *   services you pass as props — it is a convenience wrapper, not a default registry. The map:
  *   `useAuth`→`auth`, `useTranslation`/`useT`→`i18n`, `useTheme`→`theme`, `useRouter`→`router`,
@@ -105,5 +146,6 @@
 export * from './agent-identity.js'
 export * from './contexts.js'
 export * from './hooks/index.js'
+export * from './hooks/useProfileForm.js'
 export * from './providers.js'
 export * from './types.js'
