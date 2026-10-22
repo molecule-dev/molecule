@@ -7,7 +7,7 @@ import { renderToString } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
 
 import type { AuthClient, AuthState } from '@molecule/app-auth'
-import type { HttpClient } from '@molecule/app-http'
+import type { HttpClient, HttpResponse } from '@molecule/app-http'
 import type { Logger, LoggerProvider as LoggerProviderType } from '@molecule/app-logger'
 import type { RouteLocation, Router } from '@molecule/app-routing'
 import type { StateProvider as StateProviderType, Store } from '@molecule/app-state'
@@ -17,6 +17,7 @@ import type { Theme, ThemeProvider as ThemeProviderType } from '@molecule/app-th
 import {
   useAuth,
   useHttp,
+  type UseHttpResult,
   useLogger,
   useRouter,
   useStateProvider,
@@ -591,6 +592,299 @@ describe('useRouter', () => {
 })
 
 describe('useHttp', () => {
+  it('keeps execute stable across ordinary rerenders', () => {
+    const httpClient = createMockHttpClient()
+    const wrapper = ({ children }: { children: ReactNode }): React.JSX.Element => (
+      <HttpProvider client={httpClient}>{children}</HttpProvider>
+    )
+    const { result, rerender } = renderHook(() => useHttp('GET', '/api/test'), { wrapper })
+    const execute = result.current.execute
+    rerender()
+    expect(result.current.execute).toBe(execute)
+  })
+
+  it('keeps execute stable through its own state updates and inline options', async () => {
+    const httpClient = createMockHttpClient()
+
+    const wrapper = ({ children }: { children: ReactNode }): React.JSX.Element => (
+      <HttpProvider client={httpClient}>{children}</HttpProvider>
+    )
+
+    const { result, rerender } = renderHook(
+      ({ nonce }: { nonce: number }) =>
+        useHttp<{ id: number }>('GET', '/api/test', {
+          // Rebuilt on every render, like an inline config in a component.
+          headers: { 'X-Nonce': String(nonce) },
+          onSuccess: () => {},
+        }),
+      { wrapper, initialProps: { nonce: 0 } },
+    )
+
+    const execute = result.current.execute
+
+    // The hook's own loading → data updates rerender it.
+    await act(async () => {
+      await result.current.execute()
+    })
+    expect(result.current.data).toEqual({ id: 1 })
+    expect(result.current.execute).toBe(execute)
+
+    // An ordinary parent rerender must not replace the action either.
+    rerender({ nonce: 1 })
+    expect(result.current.execute).toBe(execute)
+  })
+
+  it('runs exactly one request from an effect that depends on execute', async () => {
+    const httpClient = createMockHttpClient()
+    const successes: string[] = []
+
+    function Consumer(): React.JSX.Element {
+      const attempts = React.useRef(0)
+      const { data, loading, execute } = useHttp<{ id: number }>('GET', '/api/test', {
+        onSuccess: () => {
+          successes.push('success')
+        },
+      })
+
+      React.useEffect(() => {
+        // Bounded fixture: an effect that re-fires because `execute` changed must
+        // FAIL the call-count assertion, never spin the runner.
+        if (attempts.current >= 3) return
+        attempts.current += 1
+        void execute()
+      }, [execute])
+
+      return <p>{loading ? 'loading' : `id:${data?.id ?? 'none'}`}</p>
+    }
+
+    const { container, rerender } = render(
+      <HttpProvider client={httpClient}>
+        <Consumer />
+      </HttpProvider>,
+    )
+
+    await waitFor(() => expect(container.textContent).toBe('id:1'))
+
+    // A parent rerender after the request settled must not re-run the effect.
+    rerender(
+      <HttpProvider client={httpClient}>
+        <Consumer />
+      </HttpProvider>,
+    )
+    // Let any pending effect→request→state chain reach its bound before asserting.
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0))
+    })
+
+    expect(httpClient.get).toHaveBeenCalledTimes(1)
+    expect(successes).toEqual(['success'])
+    expect(container.textContent).toBe('id:1')
+  })
+
+  it('sends the current options and callback on a later manual call', async () => {
+    const httpClient = createMockHttpClient()
+    const firstSuccess = vi.fn()
+    const secondSuccess = vi.fn()
+
+    const wrapper = ({ children }: { children: ReactNode }): React.JSX.Element => (
+      <HttpProvider client={httpClient}>{children}</HttpProvider>
+    )
+
+    const { result, rerender } = renderHook(
+      ({ version, onSuccess }: { version: string; onSuccess: (data: { id: number }) => void }) =>
+        useHttp<{ id: number }>('POST', '/api/items', {
+          headers: { 'X-Version': version },
+          data: { name: 'widget' },
+          onSuccess,
+        }),
+      { wrapper, initialProps: { version: 'one', onSuccess: firstSuccess } },
+    )
+
+    const execute = result.current.execute
+
+    rerender({ version: 'two', onSuccess: secondSuccess })
+    // Options do not churn the action; the call below still sends the latest ones.
+    expect(result.current.execute).toBe(execute)
+
+    await act(async () => {
+      await result.current.execute()
+    })
+
+    expect(httpClient.post).toHaveBeenCalledTimes(1)
+    expect(httpClient.post).toHaveBeenCalledWith(
+      '/api/items',
+      { name: 'widget' },
+      expect.objectContaining({ headers: { 'X-Version': 'two' } }),
+    )
+    expect(firstSuccess).not.toHaveBeenCalled()
+    expect(secondSuccess).toHaveBeenCalledWith({ id: 1 })
+  })
+
+  it('selects the new URL, method and client when they change', async () => {
+    const firstClient = createMockHttpClient()
+    const secondClient = createMockHttpClient()
+    const seen: { current: UseHttpResult<{ id: number }> | null } = { current: null }
+
+    function Probe({
+      method,
+      url,
+    }: {
+      method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
+      url: string
+    }): null {
+      seen.current = useHttp<{ id: number }>(method, url)
+      return null
+    }
+
+    const { rerender } = render(
+      <HttpProvider client={firstClient}>
+        <Probe method="GET" url="/api/one" />
+      </HttpProvider>,
+    )
+
+    await act(async () => {
+      await seen.current?.execute()
+    })
+    expect(firstClient.get).toHaveBeenCalledWith('/api/one', expect.any(Object))
+
+    rerender(
+      <HttpProvider client={secondClient}>
+        <Probe method="DELETE" url="/api/two" />
+      </HttpProvider>,
+    )
+
+    await act(async () => {
+      await seen.current?.execute()
+    })
+    expect(secondClient.delete).toHaveBeenCalledWith('/api/two', expect.any(Object))
+    expect(secondClient.get).not.toHaveBeenCalled()
+    expect(firstClient.get).toHaveBeenCalledTimes(1)
+    expect(firstClient.delete).not.toHaveBeenCalled()
+  })
+
+  it('reports a failure through state and onError', async () => {
+    const httpClient = createMockHttpClient()
+    vi.mocked(httpClient.get).mockRejectedValueOnce(new Error('nope'))
+    const onError = vi.fn()
+
+    const wrapper = ({ children }: { children: ReactNode }): React.JSX.Element => (
+      <HttpProvider client={httpClient}>{children}</HttpProvider>
+    )
+
+    const { result } = renderHook(() => useHttp('GET', '/api/test', { onError }), { wrapper })
+
+    await act(async () => {
+      await result.current.execute()
+    })
+
+    expect(result.current.data).toBeNull()
+    expect(result.current.loading).toBe(false)
+    expect(result.current.error?.message).toBe('nope')
+    expect(onError).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not deliver a response to an unmounted hook', async () => {
+    const httpClient = createMockHttpClient()
+    const onSuccess = vi.fn()
+    let resolveRequest: ((response: HttpResponse<{ id: number }>) => void) | undefined
+    vi.mocked(httpClient.get).mockReturnValueOnce(
+      new Promise<HttpResponse<{ id: number }>>((resolve) => {
+        resolveRequest = resolve
+      }),
+    )
+
+    const wrapper = ({ children }: { children: ReactNode }): React.JSX.Element => (
+      <HttpProvider client={httpClient}>{children}</HttpProvider>
+    )
+
+    const { result, unmount } = renderHook(
+      () => useHttp<{ id: number }>('GET', '/api/test', { onSuccess }),
+      { wrapper },
+    )
+
+    let pending: Promise<{ id: number } | null> | undefined
+    act(() => {
+      pending = result.current.execute()
+    })
+    unmount()
+
+    await act(async () => {
+      resolveRequest?.({
+        data: { id: 7 },
+        status: 200,
+        statusText: 'OK',
+        headers: {},
+        config: { method: 'GET', url: '/api/test' },
+      })
+      await pending
+    })
+
+    expect(onSuccess).not.toHaveBeenCalled()
+  })
+
+  it('resets state without replacing execute', async () => {
+    const httpClient = createMockHttpClient()
+
+    const wrapper = ({ children }: { children: ReactNode }): React.JSX.Element => (
+      <HttpProvider client={httpClient}>{children}</HttpProvider>
+    )
+
+    const { result } = renderHook(() => useHttp<{ id: number }>('GET', '/api/test'), { wrapper })
+    const execute = result.current.execute
+
+    await act(async () => {
+      await result.current.execute()
+    })
+    expect(result.current.data).toEqual({ id: 1 })
+
+    act(() => {
+      result.current.reset()
+    })
+
+    expect(result.current.data).toBeNull()
+    expect(result.current.loading).toBe(false)
+    expect(result.current.error).toBeNull()
+    expect(result.current.execute).toBe(execute)
+  })
+
+  it('stays finite when StrictMode runs the consumer effect twice', async () => {
+    const httpClient = createMockHttpClient()
+
+    function Consumer(): React.JSX.Element {
+      const attempts = React.useRef(0)
+      const { data, execute } = useHttp<{ id: number }>('GET', '/api/test')
+
+      React.useEffect(() => {
+        // StrictMode runs a mount effect twice; a THIRD run means execute was
+        // replaced. The cap keeps that regression a failed assertion, not a spin.
+        if (attempts.current >= 3) return
+        attempts.current += 1
+        void execute()
+      }, [execute])
+
+      return <p>{data ? `id:${data.id}` : 'id:none'}</p>
+    }
+
+    const { container } = render(
+      <React.StrictMode>
+        <HttpProvider client={httpClient}>
+          <Consumer />
+        </HttpProvider>
+      </React.StrictMode>,
+    )
+
+    await waitFor(() => expect(container.textContent).toBe('id:1'))
+
+    // Let any pending effect→request→state chain reach its bound before asserting.
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0))
+    })
+
+    // Two mount effects in StrictMode, never a chain of them.
+    expect(vi.mocked(httpClient.get).mock.calls.length).toBeGreaterThanOrEqual(1)
+    expect(vi.mocked(httpClient.get).mock.calls.length).toBeLessThanOrEqual(2)
+  })
+
   it('should make GET request', async () => {
     const httpClient = createMockHttpClient()
 

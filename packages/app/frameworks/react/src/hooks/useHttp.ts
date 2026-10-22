@@ -42,12 +42,24 @@ export interface UseHttpState<T> {
  * Result of useHttp hook.
  */
 export interface UseHttpResult<T> extends UseHttpState<T> {
+  /**
+   * Runs the request and resolves with its data, or `null` on failure.
+   *
+   * This function is IDENTITY-STABLE for as long as `method`, `url` and the HTTP
+   * client do not change, so it is safe in a `useEffect` dependency array. Its
+   * request options are read when it is CALLED, from the latest render.
+   */
   execute: () => Promise<T | null>
   reset: () => void
 }
 
 /**
  * Options for useHttp hook.
+ *
+ * Every request option — headers, params, body `data`, `signal`, `onSuccess`,
+ * `onError` — is read at the moment `execute` runs, not when the hook rendered,
+ * so an inline object or callback needs no memoizing. Only `immediate` is read
+ * on mount.
  */
 export interface UseHttpOptions<T> extends RequestConfig {
   /**
@@ -67,9 +79,18 @@ export interface UseHttpOptions<T> extends RequestConfig {
 /**
  * Hook for making HTTP requests with state management.
  *
+ * `execute` keeps one identity while `method`, `url` and the HTTP client stay the
+ * same — across the hook's own loading/data updates, parent rerenders, and inline
+ * options or callbacks — so `useEffect(() => { void execute() }, [execute])`
+ * runs once per request target instead of looping. The current headers, body,
+ * `signal` and callbacks are read when `execute` is called, so a later manual
+ * call always sends what the latest render passed. Changing `method`, `url` or
+ * the client does replace `execute` (it selects a different request) and
+ * re-runs such an effect.
+ *
  * @param method - HTTP method
  * @param url - Request URL
- * @param options - Request options
+ * @param options - Request options, read at call time
  * @returns Request state and execute function
  *
  * @example
@@ -77,8 +98,8 @@ export interface UseHttpOptions<T> extends RequestConfig {
  * const { data, loading, error, execute } = useHttp<User[]>('GET', '/api/users')
  *
  * useEffect(() => {
- *   execute()
- * }, [])
+ *   void execute()
+ * }, [execute])
  *
  * if (loading) return <Spinner />
  * if (error) return <Error message={error.message} />
@@ -91,13 +112,13 @@ export function useHttp<T>(
   options?: UseHttpOptions<T>,
 ): UseHttpResult<T> {
   const client = useHttpClient()
-  const { immediate = false, onSuccess, onError, ...requestConfig } = options ?? {}
+  const immediate = options?.immediate ?? false
 
-  const [state, setState] = useState<UseHttpState<T>>({
+  const [state, setState] = useState<UseHttpState<T>>(() => ({
     data: null,
     loading: immediate,
     error: null,
-  })
+  }))
 
   // Track mounted state to avoid state updates after unmount
   const mountedRef = useRef(true)
@@ -108,8 +129,21 @@ export function useHttp<T>(
     }
   }, [])
 
+  // The options of the LATEST render, read when execute is called. Assigning
+  // during render (rather than in an effect) means a call from an effect, a
+  // layout effect or an event handler of the same commit already sees them, and
+  // it keeps server rendering warning-free. A discarded render can only leave
+  // newer options here than the caller committed, never staler ones.
+  const optionsRef = useRef(options)
+  optionsRef.current = options
+
   const execute = useCallback(async (): Promise<T | null> => {
     if (!mountedRef.current) return null
+
+    // Deliberately NOT a dependency of this callback: options describe the
+    // request being sent, while method/url/client decide WHICH request execute
+    // performs. Reading them here keeps this action stable for effect deps.
+    const { immediate: _immediate, onSuccess, onError, ...requestConfig } = optionsRef.current ?? {}
 
     setState((prev) => ({ ...prev, loading: true, error: null }))
 
@@ -156,13 +190,16 @@ export function useHttp<T>(
       }
       return null
     }
-  }, [client, method, url, requestConfig, onSuccess, onError])
+  }, [client, method, url])
 
   const reset = useCallback(() => {
     setState({ data: null, loading: false, error: null })
   }, [])
 
-  // Execute immediately if requested
+  // Execute immediately if requested — mount only, as it has always been.
+  // `immediate` and `execute` are deliberately not dependencies: re-running this
+  // would turn a state update into a second request, which is the historical
+  // contract of this option (and every useGet(url, { immediate: true })'s).
   useEffect(() => {
     if (immediate) {
       execute()
