@@ -3,7 +3,7 @@
  *
  * Uses the DeepSeek API (OpenAI-compatible) for streaming chat completions with
  * tool use and reasoning. DeepSeek's Chat Completions endpoint mirrors OpenAI's
- * wire format (tool_calls, reasoning_content, prompt_tokens_details.cached_tokens),
+ * wire format (tool_calls, reasoning_content, native and nested cache usage),
  * so this provider shares its shape with the xAI provider.
  *
  * @module
@@ -21,6 +21,7 @@ import type {
   ChatParams,
   ContentBlock,
   ProviderResponseMeta,
+  TokenUsage,
 } from '@molecule/api-ai'
 import { getLogger } from '@molecule/api-bond'
 import { t } from '@molecule/api-i18n'
@@ -52,15 +53,21 @@ interface DeepseekCallContext {
   readonly endUserId?: string
 }
 
-/** Mutable token usage counters shared across SSE line-processing calls. */
+/** Native usage fields, with the nested OpenAI-compatible cache fallback. */
+interface DeepseekUsage {
+  prompt_tokens?: number
+  completion_tokens?: number
+  prompt_cache_hit_tokens?: number
+  prompt_cache_miss_tokens?: number
+  prompt_tokens_details?: { cached_tokens?: number }
+}
+
+/** Mutable state shared across SSE line-processing calls. */
 interface DeepseekStreamState {
   /** Explicit upstream completion; an EOF or `[DONE]` is not a finish reason. */
   finishReason: 'stop' | 'tool_calls' | null
-  /** Total prompt tokens (cached + uncached), as reported by the API. */
-  inputTokens: number
-  outputTokens: number
-  /** Cached prompt tokens (subset of inputTokens), from prompt_tokens_details. */
-  cachedTokens: number
+  /** Latest reported usage snapshots; explicit zero values remain meaningful. */
+  usage: DeepseekUsage
   /**
    * Liveness frames received — data arrived that carried no content. A stream
    * that has produced NONE of these went completely silent; a high count is an
@@ -503,9 +510,7 @@ class DeepseekAIProviderImpl implements AIProvider {
 
         const state: DeepseekStreamState = {
           finishReason: null,
-          inputTokens: 0,
-          outputTokens: 0,
-          cachedTokens: 0,
+          usage: {},
           keepAlives: 0,
           streamedChars: 0,
           contentSeen: false,
@@ -891,23 +896,27 @@ class DeepseekAIProviderImpl implements AIProvider {
       yield* completedTools
     }
 
-    const usage = data.usage as
-      | {
-          prompt_tokens?: number
-          completion_tokens?: number
-          prompt_tokens_details?: { cached_tokens?: number }
-        }
-      | undefined
-    const cached = usage?.prompt_tokens_details?.cached_tokens ?? 0
     yield {
       type: 'done',
-      usage: {
-        // Report uncached input + cached separately (Anthropic semantics) so the
-        // consumer's context/cost math doesn't double-count the cached subset.
-        inputTokens: Math.max(0, (usage?.prompt_tokens ?? 0) - cached),
-        outputTokens: usage?.completion_tokens ?? 0,
-        cacheReadInputTokens: cached,
-      },
+      usage: this.parseUsage((data.usage ?? {}) as DeepseekUsage),
+    }
+  }
+
+  /**
+   * Normalize native usage once for streaming and JSON responses. Native flat
+   * counters take precedence, including zero; other compatible hosts may expose
+   * only the nested count. `inputTokens` excludes cache hits in the core contract.
+   *
+   * @param usage - The latest upstream counters.
+   * @returns Uncached input, output and cached input without double-counting.
+   */
+  private parseUsage(usage: DeepseekUsage): TokenUsage {
+    const cached = usage.prompt_cache_hit_tokens ?? usage.prompt_tokens_details?.cached_tokens ?? 0
+    return {
+      inputTokens:
+        usage.prompt_cache_miss_tokens ?? Math.max(0, (usage.prompt_tokens ?? 0) - cached),
+      outputTokens: usage.completion_tokens ?? 0,
+      cacheReadInputTokens: cached,
     }
   }
 
@@ -1026,11 +1035,7 @@ class DeepseekAIProviderImpl implements AIProvider {
 
     yield {
       type: 'done',
-      usage: {
-        inputTokens: Math.max(0, state.inputTokens - state.cachedTokens),
-        outputTokens: state.outputTokens,
-        cacheReadInputTokens: state.cachedTokens,
-      },
+      usage: this.parseUsage(state.usage),
       provider: call.meta,
     }
   }
@@ -1140,18 +1145,18 @@ class DeepseekAIProviderImpl implements AIProvider {
         }
 
         // Usage info (may appear in the final chunk)
-        const usage = event.usage as
-          | {
-              prompt_tokens?: number
-              completion_tokens?: number
-              prompt_tokens_details?: { cached_tokens?: number }
-            }
-          | undefined
+        const usage = event.usage as DeepseekUsage | undefined
         if (usage) {
-          if (usage.prompt_tokens) state.inputTokens = usage.prompt_tokens
-          if (usage.completion_tokens) state.outputTokens = usage.completion_tokens
-          if (usage.prompt_tokens_details?.cached_tokens)
-            state.cachedTokens = usage.prompt_tokens_details.cached_tokens
+          // These are snapshots, never increments. Preserve partial counters
+          // across frames while allowing a later explicit zero to reset them.
+          state.usage = {
+            ...state.usage,
+            ...usage,
+            prompt_tokens_details: {
+              ...state.usage.prompt_tokens_details,
+              ...usage.prompt_tokens_details,
+            },
+          }
         }
 
         const choices = event.choices as Array<Record<string, unknown>> | undefined

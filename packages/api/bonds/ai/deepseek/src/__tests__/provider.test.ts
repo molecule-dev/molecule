@@ -1264,3 +1264,166 @@ describe('chat() — explicit nonstream completion', () => {
     expect(events.some((e) => e.type === 'error')).toBe(false)
   })
 })
+
+describe('chat() — native cache usage', () => {
+  // Usage-only data retained from an actual native DeepSeek response. The exact
+  // response already decoded correctly; optional-field projections below expose
+  // the separate compatibility gap without claiming those observations failed.
+  const recorded = {
+    prompt_tokens: 44306,
+    completion_tokens: 255,
+    total_tokens: 44561,
+    prompt_tokens_details: { cached_tokens: 44160 },
+    prompt_cache_hit_tokens: 44160,
+    prompt_cache_miss_tokens: 146,
+  }
+  const cases: Array<[string, Record<string, unknown>, number, number]> = [
+    ['exact recorded usage', recorded, 146, 44160],
+    [
+      'native required fields with optional nested count omitted',
+      { ...recorded, prompt_tokens_details: {} },
+      146,
+      44160,
+    ],
+    [
+      'native fields take precedence over nested fallback',
+      {
+        prompt_tokens: 100,
+        prompt_cache_hit_tokens: 40,
+        prompt_cache_miss_tokens: 60,
+        prompt_tokens_details: { cached_tokens: 90 },
+      },
+      60,
+      40,
+    ],
+    [
+      'native explicit zero takes precedence',
+      {
+        prompt_tokens: 100,
+        prompt_cache_hit_tokens: 0,
+        prompt_cache_miss_tokens: 100,
+        prompt_tokens_details: { cached_tokens: 40 },
+      },
+      100,
+      0,
+    ],
+    [
+      'legacy nested fallback',
+      { prompt_tokens: 100, prompt_tokens_details: { cached_tokens: 40 } },
+      60,
+      40,
+    ],
+    [
+      'legacy explicit zero',
+      { prompt_tokens: 100, prompt_tokens_details: { cached_tokens: 0 } },
+      100,
+      0,
+    ],
+    [
+      'native pair without a total',
+      { prompt_cache_hit_tokens: 40, prompt_cache_miss_tokens: 60 },
+      60,
+      40,
+    ],
+    ['native hit with derived miss', { prompt_tokens: 100, prompt_cache_hit_tokens: 40 }, 60, 40],
+    [
+      'native explicit miss zero',
+      { prompt_tokens: 100, prompt_cache_hit_tokens: 40, prompt_cache_miss_tokens: 0 },
+      0,
+      40,
+    ],
+    ['uncached legacy usage', { prompt_tokens: 100 }, 100, 0],
+    ['empty usage preserves defaults', {}, 0, 0],
+  ]
+  for (const stream of [true, false]) {
+    it.each(cases)(
+      String(stream) + ': decodes %s without double-counting',
+      async (_name, raw, inputTokens, cacheReadInputTokens) => {
+        const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+        const usage = { completion_tokens: 20, ...raw }
+        fetch.mockResolvedValue(
+          stream
+            ? sseResponse([
+                'data: ' +
+                  JSON.stringify({
+                    choices: [{ delta: { content: 'ok' }, finish_reason: 'stop' }],
+                  }),
+                'data: ' + JSON.stringify({ choices: [], usage }),
+                'data: [DONE]',
+              ])
+            : jsonResponse(200, {
+                choices: [{ message: { content: 'ok' }, finish_reason: 'stop' }],
+                usage,
+              }),
+        )
+        const events = await drain(
+          createProvider({ apiKey: 'k' }).chat({
+            messages: [{ role: 'user', content: 'hi' }],
+            stream,
+          }),
+        )
+        expect(events.find((e) => e.type === 'done')).toMatchObject({
+          usage: { inputTokens, cacheReadInputTokens, outputTokens: usage.completion_tokens },
+        })
+        expect(events.some((e) => e.type === 'error')).toBe(false)
+        expect(fetch).toHaveBeenCalledTimes(1)
+      },
+    )
+  }
+
+  it.each(['native', 'legacy'])(
+    'resets explicit zero counters in later %s usage snapshots',
+    async (style) => {
+      const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+      const first =
+        style === 'native'
+          ? recorded
+          : {
+              prompt_tokens: 100,
+              completion_tokens: 20,
+              prompt_tokens_details: { cached_tokens: 40 },
+            }
+      const zero =
+        style === 'native'
+          ? {
+              prompt_tokens: 0,
+              completion_tokens: 0,
+              prompt_cache_hit_tokens: 0,
+              prompt_cache_miss_tokens: 0,
+            }
+          : { prompt_tokens: 0, completion_tokens: 0, prompt_tokens_details: { cached_tokens: 0 } }
+      fetch.mockResolvedValue(
+        sseResponse([
+          'data: ' +
+            JSON.stringify({ choices: [{ delta: { content: 'ok' }, finish_reason: 'stop' }] }),
+          ...[first, zero].map((usage) => 'data: ' + JSON.stringify({ choices: [], usage })),
+          'data: [DONE]',
+        ]),
+      )
+      const events = await drain(
+        createProvider({ apiKey: 'k' }).chat({ messages: [{ role: 'user', content: 'hi' }] }),
+      )
+      expect(events.find((e) => e.type === 'done')).toMatchObject({
+        usage: { inputTokens: 0, cacheReadInputTokens: 0, outputTokens: 0 },
+      })
+    },
+  )
+
+  it('treats repeated native usage frames as snapshots, not additions', async () => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockResolvedValue(
+      sseResponse([
+        'data: ' +
+          JSON.stringify({ choices: [{ delta: { content: 'ok' }, finish_reason: 'stop' }] }),
+        ...[recorded, recorded].map((usage) => 'data: ' + JSON.stringify({ choices: [], usage })),
+        'data: [DONE]',
+      ]),
+    )
+    const events = await drain(
+      createProvider({ apiKey: 'k' }).chat({ messages: [{ role: 'user', content: 'hi' }] }),
+    )
+    expect(events.find((e) => e.type === 'done')).toMatchObject({
+      usage: { inputTokens: 146, cacheReadInputTokens: 44160, outputTokens: 255 },
+    })
+  })
+})
