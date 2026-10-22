@@ -210,7 +210,7 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - run: npm ci
+      # npm audit reads the committed lockfile; this job needs no installed tree.
       # Fail on a moderate-or-higher dependency advisory. Mirrors mlcl's gate —
       # do NOT relax below `moderate` to dodge findings (that hides real debt).
       #

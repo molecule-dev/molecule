@@ -55,7 +55,24 @@ try {
   report = JSON.parse(error.stdout)
 }
 
-const vulns = report.vulnerabilities ?? {}
+// An npm error document is not a scan with zero findings. Keep an unavailable
+// or incomplete report red, including in --list mode.
+if (
+  report === null ||
+  typeof report !== 'object' ||
+  report.error ||
+  report.vulnerabilities === null ||
+  typeof report.vulnerabilities !== 'object' ||
+  Array.isArray(report.vulnerabilities) ||
+  report.metadata === null ||
+  typeof report.metadata !== 'object' ||
+  Array.isArray(report.metadata)
+) {
+  console.error('audit-gate: npm did not return a complete vulnerability report')
+  process.exit(2)
+}
+
+const vulns = report.vulnerabilities
 
 /**
  * Advisory ids a package is vulnerable through, following transitive causes.
