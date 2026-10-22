@@ -54,6 +54,8 @@ interface DeepseekCallContext {
 
 /** Mutable token usage counters shared across SSE line-processing calls. */
 interface DeepseekStreamState {
+  /** Explicit upstream completion; an EOF or `[DONE]` is not a finish reason. */
+  finishReason: 'stop' | 'tool_calls' | null
   /** Total prompt tokens (cached + uncached), as reported by the API. */
   inputTokens: number
   outputTokens: number
@@ -500,6 +502,7 @@ class DeepseekAIProviderImpl implements AIProvider {
         }
 
         const state: DeepseekStreamState = {
+          finishReason: null,
           inputTokens: 0,
           outputTokens: 0,
           cachedTokens: 0,
@@ -817,37 +820,75 @@ class DeepseekAIProviderImpl implements AIProvider {
    */
   private *parseNonStreamingResponse(data: Record<string, unknown>): Iterable<ChatEvent> {
     const choices = data.choices as Array<Record<string, unknown>> | undefined
-    if (choices?.length) {
-      const message = choices[0].message as Record<string, unknown>
-      if (message) {
-        // Reasoning/thinking content
-        if (message.reasoning_content && typeof message.reasoning_content === 'string') {
-          yield { type: 'thinking', content: message.reasoning_content }
-        }
+    const choice = choices?.[0]
+    const message = choice?.message as Record<string, unknown> | undefined
+    if (!message) {
+      logger.warn('DeepSeek response has no assistant message')
+      yield { type: 'error', message: t('ai.error.apiError'), errorKey: 'ai.error.apiError' }
+      return
+    }
+    // Reasoning/thinking content
+    if (message.reasoning_content && typeof message.reasoning_content === 'string') {
+      yield { type: 'thinking', content: message.reasoning_content }
+    }
 
-        if (message.content && typeof message.content === 'string') {
-          yield { type: 'text', content: message.content }
-        }
+    if (message.content && typeof message.content === 'string') {
+      yield { type: 'text', content: message.content }
+    }
 
-        const toolCalls = message.tool_calls as Array<Record<string, unknown>> | undefined
-        if (toolCalls) {
-          for (const tc of toolCalls) {
-            const fn = tc.function as Record<string, unknown>
-            let input: unknown = {}
-            try {
-              input = JSON.parse(fn.arguments as string)
-            } catch (_error) {
-              // JSON.parse failed — fall back to empty object; malformed args are non-fatal.
-            }
-            yield {
-              type: 'tool_use',
-              id: tc.id as string,
-              name: fn.name as string,
-              input,
-            }
-          }
-        }
+    const finishReason = choice?.finish_reason
+    if (finishReason !== 'stop' && finishReason !== 'tool_calls') {
+      logger.warn('DeepSeek response did not complete', { finishReason })
+      yield {
+        type: 'error',
+        message: t('ai.error.apiError', undefined, {
+          defaultValue:
+            finishReason === 'length'
+              ? 'AI response reached the output token limit before completion.'
+              : 'AI response ended before completion. Please try again.',
+        }),
+        errorKey: 'ai.error.apiError',
       }
+      return
+    }
+
+    const toolCalls = message.tool_calls as Array<Record<string, unknown>> | undefined
+    if (finishReason === 'tool_calls' && !toolCalls?.length) {
+      logger.warn('DeepSeek finished tool use without a tool call')
+      yield { type: 'error', message: t('ai.error.apiError'), errorKey: 'ai.error.apiError' }
+      return
+    }
+    if (toolCalls) {
+      const completedTools: ChatEvent[] = []
+      for (const tc of toolCalls) {
+        const fn = tc.function as Record<string, unknown>
+        let input: unknown
+        try {
+          input = JSON.parse(fn.arguments as string)
+          if (
+            typeof tc.id !== 'string' ||
+            !tc.id ||
+            typeof fn.name !== 'string' ||
+            !fn.name ||
+            !input ||
+            typeof input !== 'object' ||
+            Array.isArray(input)
+          ) {
+            throw new Error('Tool call must have an identity and JSON object arguments')
+          }
+        } catch (error) {
+          logger.warn('DeepSeek completed a tool call with invalid arguments', { error })
+          yield { type: 'error', message: t('ai.error.apiError'), errorKey: 'ai.error.apiError' }
+          return
+        }
+        completedTools.push({
+          type: 'tool_use',
+          id: tc.id as string,
+          name: fn.name as string,
+          input,
+        })
+      }
+      yield* completedTools
     }
 
     const usage = data.usage as
@@ -962,18 +1003,22 @@ class DeepseekAIProviderImpl implements AIProvider {
         }
       }
 
-      // Emit any tool calls still pending after stream ends (safety net for missing finish_reason)
-      if (pendingTools.size > 0) {
-        for (const [, pending] of pendingTools) {
-          let input: unknown = {}
-          try {
-            input = JSON.parse(pending.args)
-          } catch (_error) {
-            // JSON.parse failed — fall back to empty object; malformed args are non-fatal.
-          }
-          yield { type: 'tool_use', id: pending.id, name: pending.name, input }
+      // A clean socket EOF can still cut off a response or tool arguments. Never
+      // turn that into executable `{}` arguments or a successful completion.
+      if (!state.finishReason || pendingTools.size > 0) {
+        logger.warn('DeepSeek stream ended before an explicit completion', {
+          finishReason: state.finishReason,
+          pendingTools: pendingTools.size,
+          requestId: call.meta.requestId,
+        })
+        yield {
+          type: 'error',
+          message: t('ai.error.apiError', undefined, {
+            defaultValue: 'AI response ended before completion. Please try again.',
+          }),
+          errorKey: 'ai.error.apiError',
         }
-        pendingTools.clear()
+        return
       }
     } finally {
       reader.releaseLock()
@@ -1113,8 +1158,7 @@ class DeepseekAIProviderImpl implements AIProvider {
         if (!choices?.length) continue
 
         const choice = choices[0]
-        const delta = choice.delta as Record<string, unknown> | undefined
-        if (!delta) continue
+        const delta = (choice.delta ?? {}) as Record<string, unknown>
 
         // Reasoning/thinking content
         if (delta.reasoning_content && typeof delta.reasoning_content === 'string') {
@@ -1162,28 +1206,75 @@ class DeepseekAIProviderImpl implements AIProvider {
           }
         }
 
-        // finish_reason signals completion
-        const finishReason = choice.finish_reason as string | null
-        if (finishReason === 'tool_calls' || finishReason === 'stop') {
-          // Emit any accumulated tool calls
+        // Only these upstream reasons denote a completed response. `length`
+        // is the output-token cap; filters/resource failures/aborts also retain
+        // partial text but must not release pending tools or emit `done`.
+        const finishReason = choice.finish_reason
+        if (finishReason !== undefined && finishReason !== null) {
+          if (finishReason !== 'tool_calls' && finishReason !== 'stop') {
+            logger.warn('DeepSeek response did not complete', {
+              finishReason,
+              requestId: call.meta.requestId,
+            })
+            yield {
+              type: 'error',
+              message: t('ai.error.apiError', undefined, {
+                defaultValue:
+                  finishReason === 'length'
+                    ? 'AI response reached the output token limit before completion.'
+                    : 'AI response was interrupted before completion. Please try again.',
+              }),
+              errorKey: 'ai.error.apiError',
+            }
+            return
+          }
+          // Validate ALL calls before releasing any: a malformed parallel call
+          // must not execute alongside an apparently successful partial batch.
+          if (finishReason === 'tool_calls' && pendingTools.size === 0) {
+            logger.warn('DeepSeek finished tool use without a tool call')
+            yield { type: 'error', message: t('ai.error.apiError'), errorKey: 'ai.error.apiError' }
+            return
+          }
+          const completedTools: ChatEvent[] = []
           for (const [, pending] of pendingTools) {
-            let input: unknown = {}
+            let input: unknown
             try {
               input = JSON.parse(pending.args)
-            } catch (_error) {
-              // JSON.parse failed — fall back to empty object; malformed args are non-fatal.
+              if (
+                typeof pending.id !== 'string' ||
+                !pending.id ||
+                typeof pending.name !== 'string' ||
+                !pending.name ||
+                !input ||
+                typeof input !== 'object' ||
+                Array.isArray(input)
+              ) {
+                throw new Error('Tool call must have an identity and JSON object arguments')
+              }
+            } catch (error) {
+              logger.warn('DeepSeek completed a tool call with invalid arguments', { error })
+              yield {
+                type: 'error',
+                message: t('ai.error.apiError'),
+                errorKey: 'ai.error.apiError',
+              }
+              return
             }
-            yield {
+            completedTools.push({
               type: 'tool_use',
               id: pending.id,
               name: pending.name,
               input,
-            }
+            })
           }
           pendingTools.clear()
+          state.finishReason = finishReason
+          yield* completedTools
         }
       } catch (error) {
-        logger.debug('Skipping malformed SSE JSON line', { json, error })
+        logger.warn('DeepSeek returned malformed SSE JSON', { error })
+        yield { type: 'error', message: t('ai.error.apiError'), errorKey: 'ai.error.apiError' }
+        return
       }
     }
   }

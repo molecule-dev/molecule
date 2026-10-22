@@ -89,7 +89,9 @@ describe('createProvider', () => {
 describe('chat() — request shape', () => {
   it('POSTs to baseUrl + /v1/chat/completions with Bearer auth', async () => {
     const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
-    fetch.mockResolvedValue(jsonResponse(200, { choices: [{ message: { content: 'hi' } }] }))
+    fetch.mockResolvedValue(
+      jsonResponse(200, { choices: [{ message: { content: 'hi' }, finish_reason: 'stop' }] }),
+    )
     const provider = createProvider({ apiKey: 'ds-key', baseUrl: 'https://ds.test' })
     await drain(provider.chat({ messages: [{ role: 'user', content: 'hello' }], stream: false }))
     expect(fetch).toHaveBeenCalledTimes(1)
@@ -108,7 +110,9 @@ describe('chat() — request shape', () => {
 
   it('defaults baseUrl to https://api.deepseek.com', async () => {
     const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
-    fetch.mockResolvedValue(jsonResponse(200, { choices: [{ message: { content: 'x' } }] }))
+    fetch.mockResolvedValue(
+      jsonResponse(200, { choices: [{ message: { content: 'x' }, finish_reason: 'stop' }] }),
+    )
     await drain(
       createProvider({ apiKey: 'k' }).chat({
         messages: [{ role: 'user', content: 'hi' }],
@@ -123,7 +127,9 @@ describe('chat() — request shape', () => {
     process.env.DEEPSEEK_BASE_URL = 'https://gateway.broker'
     try {
       const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
-      fetch.mockResolvedValue(jsonResponse(200, { choices: [{ message: { content: 'x' } }] }))
+      fetch.mockResolvedValue(
+        jsonResponse(200, { choices: [{ message: { content: 'x' }, finish_reason: 'stop' }] }),
+      )
       await drain(
         createProvider({ apiKey: 'k' }).chat({
           messages: [{ role: 'user', content: 'hi' }],
@@ -139,7 +145,9 @@ describe('chat() — request shape', () => {
 
   it('sends tools in OpenAI function format and enables thinking with reasoning_effort max for a large budget', async () => {
     const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
-    fetch.mockResolvedValue(jsonResponse(200, { choices: [{ message: { content: 'x' } }] }))
+    fetch.mockResolvedValue(
+      jsonResponse(200, { choices: [{ message: { content: 'x' }, finish_reason: 'stop' }] }),
+    )
     await drain(
       createProvider({ apiKey: 'k' }).chat({
         messages: [{ role: 'user', content: 'hi' }],
@@ -159,7 +167,9 @@ describe('chat() — request shape', () => {
 
   const stopBody = async (stop?: string[]) => {
     const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
-    fetch.mockResolvedValue(jsonResponse(200, { choices: [{ message: { content: 'x' } }] }))
+    fetch.mockResolvedValue(
+      jsonResponse(200, { choices: [{ message: { content: 'x' }, finish_reason: 'stop' }] }),
+    )
     await drain(
       createProvider({ apiKey: 'k' }).chat({
         messages: [{ role: 'user', content: 'hi' }],
@@ -187,7 +197,9 @@ describe('chat() — request shape', () => {
 
   it('maps a small thinking budget to reasoning_effort high', async () => {
     const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
-    fetch.mockResolvedValue(jsonResponse(200, { choices: [{ message: { content: 'x' } }] }))
+    fetch.mockResolvedValue(
+      jsonResponse(200, { choices: [{ message: { content: 'x' }, finish_reason: 'stop' }] }),
+    )
     await drain(
       createProvider({ apiKey: 'k' }).chat({
         messages: [{ role: 'user', content: 'hi' }],
@@ -204,7 +216,9 @@ describe('chat() — request shape', () => {
   // of it and the only lever they have is the key everyone shares.
   const endUserBody = async (endUserId?: string) => {
     const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
-    fetch.mockResolvedValue(jsonResponse(200, { choices: [{ message: { content: 'x' } }] }))
+    fetch.mockResolvedValue(
+      jsonResponse(200, { choices: [{ message: { content: 'x' }, finish_reason: 'stop' }] }),
+    )
     await drain(
       createProvider({ apiKey: 'k' }).chat({
         messages: [{ role: 'user', content: 'hi' }],
@@ -227,7 +241,9 @@ describe('chat() — request shape', () => {
     toolChoice?: 'auto' | 'required' | { type: 'tool'; name: string },
   ) => {
     const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
-    fetch.mockResolvedValue(jsonResponse(200, { choices: [{ message: { content: 'x' } }] }))
+    fetch.mockResolvedValue(
+      jsonResponse(200, { choices: [{ message: { content: 'x' }, finish_reason: 'stop' }] }),
+    )
     await drain(
       createProvider({ apiKey: 'k' }).chat({
         messages: [{ role: 'user', content: 'hi' }],
@@ -265,7 +281,9 @@ describe('chat() — request shape', () => {
     toolChoice: 'required' | { type: 'tool'; name: string },
   ) => {
     const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
-    fetch.mockResolvedValue(jsonResponse(200, { choices: [{ message: { content: 'x' } }] }))
+    fetch.mockResolvedValue(
+      jsonResponse(200, { choices: [{ message: { content: 'x' }, finish_reason: 'stop' }] }),
+    )
     await drain(
       createProvider({ apiKey: 'k' }).chat({
         messages: [{ role: 'user', content: 'hi' }],
@@ -585,7 +603,9 @@ describe('chat() — errors', () => {
             ),
           )
         }
-        return Promise.resolve(jsonResponse(200, { choices: [{ message: { content: 'ok' } }] }))
+        return Promise.resolve(
+          jsonResponse(200, { choices: [{ message: { content: 'ok' }, finish_reason: 'stop' }] }),
+        )
       })
 
       const eventsPromise = drain(
@@ -633,8 +653,8 @@ function stallingSseResponse(signal: AbortSignal, lines: string[] = []): Respons
 }
 
 /** One OpenAI-shaped content chunk. */
-function sseText(content: string): string {
-  return `data: ${JSON.stringify({ choices: [{ delta: { content } }] })}`
+function sseText(content: string, completed = true): string {
+  return `data: ${JSON.stringify({ choices: [{ delta: { content }, finish_reason: completed ? 'stop' : null }] })}`
 }
 
 describe('chat() — first-token stall', () => {
@@ -697,7 +717,7 @@ describe('chat() — first-token stall', () => {
               // production shape a byte-level idle timeout cannot see.
               stallingSseResponse(init.signal as AbortSignal, [
                 ': keep-alive',
-                'data: {choices:[]}',
+                'data: {"choices":[]}',
               ])
             : sseResponse([sseText('ok')]),
         )
@@ -726,7 +746,9 @@ describe('chat() — first-token stall', () => {
       const stalls: { phase: string; streamedChars: number; willRetry: boolean }[] = []
       const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
       fetch.mockImplementation((_url: string, init: RequestInit) =>
-        Promise.resolve(stallingSseResponse(init.signal as AbortSignal, [sseText('half a rep')])),
+        Promise.resolve(
+          stallingSseResponse(init.signal as AbortSignal, [sseText('half a rep', false)]),
+        ),
       )
       const provider = createProvider({
         apiKey: 'k',
@@ -888,7 +910,9 @@ describe('chat() — first-token stall', () => {
 describe('chat() — mixed tool-result + image message', () => {
   it('emits non-tool parts (a screenshot riding a tool result) instead of dropping them', async () => {
     const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
-    fetch.mockResolvedValue(jsonResponse(200, { choices: [{ message: { content: 'ok' } }] }))
+    fetch.mockResolvedValue(
+      jsonResponse(200, { choices: [{ message: { content: 'ok' }, finish_reason: 'stop' }] }),
+    )
     const provider = createProvider({ apiKey: 'k' })
     await drain(
       provider.chat({
@@ -950,7 +974,7 @@ function chunk(fields: Record<string, unknown> = {}): string {
     id: 'cmpl-abc',
     object: 'chat.completion.chunk',
     model: 'deepseek-flash',
-    choices: [{ index: 0, delta: { content: 'hi' } }],
+    choices: [{ index: 0, delta: { content: 'hi' }, finish_reason: 'stop' }],
     usage: null,
     ...fields,
   })}`
@@ -1049,5 +1073,194 @@ describe('chat() — per-call correlation', () => {
     )
     expect(events.some((e) => e.type === 'error')).toBe(false)
     expect(events.some((e) => e.type === 'text')).toBe(true)
+  })
+})
+
+describe('chat() — explicit stream completion', () => {
+  const toolChunk = (args: string) =>
+    'data: ' +
+    JSON.stringify({
+      choices: [
+        {
+          delta: {
+            tool_calls: [{ index: 0, id: 't1', function: { name: 'write_file', arguments: args } }],
+          },
+        },
+      ],
+    })
+  const finish = (reason: string) =>
+    'data: ' + JSON.stringify({ choices: [{ delta: {}, finish_reason: reason }] })
+
+  it.each([
+    ['empty EOF', []],
+    ['partial text EOF', ['data: {"choices":[{"delta":{"content":"partial"}}]}']],
+    ['DONE without a finish reason', ['data: [DONE]']],
+    ['partial tool EOF', [toolChunk('{"path":"src/example.ts","content":"incomplete')]],
+    ['valid tool JSON without a finish reason', [toolChunk('{"path":"a.ts"}')]],
+    ['malformed SSE JSON', ['data: {broken', finish('stop')]],
+    ['malformed tool JSON at tool_calls', [toolChunk('{"path":'), finish('tool_calls')]],
+    ['non-object tool JSON', [toolChunk('null'), finish('tool_calls')]],
+    [
+      'mixed valid and malformed parallel tools',
+      [
+        toolChunk('{"path":"a.ts"}'),
+        'data: ' +
+          JSON.stringify({
+            choices: [
+              {
+                delta: {
+                  tool_calls: [
+                    { index: 1, id: 't2', function: { name: 'write_file', arguments: '{bad' } },
+                  ],
+                },
+              },
+            ],
+          }),
+        finish('tool_calls'),
+      ],
+    ],
+    ['tool finish without a tool', [finish('tool_calls')]],
+    ['output token cap', [toolChunk('{"path":"a.ts"}'), finish('length'), 'data: [DONE]']],
+    ['content filter', [finish('content_filter')]],
+    ['resource interruption', [finish('insufficient_system_resource')]],
+    ['upstream abort', [finish('aborted')]],
+  ])('rejects %s without completing or dispatching a pending tool', async (_name, lines) => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockResolvedValue(sseResponse(lines))
+    const events = await drain(
+      createProvider({ apiKey: 'k' }).chat({ messages: [{ role: 'user', content: 'go' }] }),
+    )
+    expect(events.filter((e) => e.type === 'error')).toHaveLength(1)
+    expect(events.some((e) => e.type === 'done')).toBe(false)
+    expect(events.some((e) => e.type === 'tool_use')).toBe(false)
+    expect(fetch).toHaveBeenCalledTimes(1)
+    if (_name === 'partial text EOF')
+      expect(events).toContainEqual({ type: 'text', content: 'partial' })
+  })
+
+  it.each(['stop', 'tool_calls'])(
+    'completes valid tools with explicit %s, without needing DONE',
+    async (reason) => {
+      const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+      fetch.mockResolvedValue(sseResponse([toolChunk('{"path":"a.ts"}'), finish(reason)]))
+      const events = await drain(
+        createProvider({ apiKey: 'k' }).chat({ messages: [{ role: 'user', content: 'go' }] }),
+      )
+      expect(events).toContainEqual({
+        type: 'tool_use',
+        id: 't1',
+        name: 'write_file',
+        input: { path: 'a.ts' },
+      })
+      expect(events.filter((e) => e.type === 'done')).toHaveLength(1)
+      expect(events.some((e) => e.type === 'error')).toBe(false)
+    },
+  )
+
+  it('retains partial text on a token cap, and completes normal text only with stop', async () => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    for (const reason of ['length', 'stop']) {
+      fetch.mockResolvedValue(
+        sseResponse(['data: {"choices":[{"delta":{"content":"answer"}}]}', finish(reason)]),
+      )
+      const events = await drain(
+        createProvider({ apiKey: 'k' }).chat({ messages: [{ role: 'user', content: 'go' }] }),
+      )
+      expect(events).toContainEqual({ type: 'text', content: 'answer' })
+      expect(events.some((e) => e.type === 'done')).toBe(reason === 'stop')
+      expect(events.some((e) => e.type === 'error')).toBe(reason === 'length')
+    }
+  })
+
+  it('accepts an explicit stop chunk with no delta and a final usage-only chunk', async () => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockResolvedValue(
+      sseResponse([
+        'data: {"choices":[{"delta":{"content":"answer"}}]}',
+        'data: {"choices":[{"finish_reason":"stop"}]}',
+        'data: {"choices":[],"usage":{"prompt_tokens":5,"completion_tokens":2}}',
+      ]),
+    )
+    const events = await drain(
+      createProvider({ apiKey: 'k' }).chat({ messages: [{ role: 'user', content: 'go' }] }),
+    )
+    expect(events.find((e) => e.type === 'done')).toMatchObject({
+      usage: { inputTokens: 5, outputTokens: 2 },
+    })
+    expect(events.some((e) => e.type === 'error')).toBe(false)
+  })
+})
+
+describe('chat() — explicit nonstream completion', () => {
+  const tool = (argumentsText: string) => ({
+    id: 't1',
+    function: { name: 'write_file', arguments: argumentsText },
+  })
+  it.each([
+    ['missing choice', { choices: [] }],
+    ['tool finish without a tool', { choices: [{ finish_reason: 'tool_calls', message: {} }] }],
+    ['missing finish reason', { choices: [{ message: { content: 'partial' } }] }],
+    [
+      'output token cap',
+      {
+        choices: [
+          {
+            finish_reason: 'length',
+            message: { content: 'partial', tool_calls: [tool('{"path":"a.ts"}')] },
+          },
+        ],
+      },
+    ],
+    [
+      'malformed tool JSON',
+      { choices: [{ finish_reason: 'tool_calls', message: { tool_calls: [tool('{"path":')] } }] },
+    ],
+    [
+      'non-object tool JSON',
+      { choices: [{ finish_reason: 'tool_calls', message: { tool_calls: [tool('[]')] } }] },
+    ],
+  ])('rejects %s without completing or dispatching a tool', async (_name, body) => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockResolvedValue(jsonResponse(200, body))
+    const events = await drain(
+      createProvider({ apiKey: 'k' }).chat({
+        messages: [{ role: 'user', content: 'go' }],
+        stream: false,
+      }),
+    )
+    expect(events.filter((e) => e.type === 'error')).toHaveLength(1)
+    expect(events.some((e) => e.type === 'done')).toBe(false)
+    expect(events.some((e) => e.type === 'tool_use')).toBe(false)
+    if (_name === 'output token cap')
+      expect(events).toContainEqual({ type: 'text', content: 'partial' })
+    expect(fetch).toHaveBeenCalledTimes(1)
+  })
+
+  it('completes an explicitly finished JSON tool call and preserves usage', async () => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockResolvedValue(
+      jsonResponse(200, {
+        choices: [
+          { finish_reason: 'tool_calls', message: { tool_calls: [tool('{"path":"a.ts"}')] } },
+        ],
+        usage: { prompt_tokens: 4, completion_tokens: 2 },
+      }),
+    )
+    const events = await drain(
+      createProvider({ apiKey: 'k' }).chat({
+        messages: [{ role: 'user', content: 'go' }],
+        stream: false,
+      }),
+    )
+    expect(events).toContainEqual({
+      type: 'tool_use',
+      id: 't1',
+      name: 'write_file',
+      input: { path: 'a.ts' },
+    })
+    expect(events.find((e) => e.type === 'done')).toMatchObject({
+      usage: { inputTokens: 4, outputTokens: 2 },
+    })
+    expect(events.some((e) => e.type === 'error')).toBe(false)
   })
 })
