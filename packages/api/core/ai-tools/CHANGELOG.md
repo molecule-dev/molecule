@@ -1,5 +1,13 @@
 # @molecule/api-ai-tools
 
+## 1.13.1
+
+### Patch Changes
+
+- 6d5aa55: Keep a suite command's setup — its file writes, heredocs and environment files — byte-for-byte in a composed re-run, and point only the Playwright run's own log at a fresh file.
+- 9d52bd0: Scope a suggested re-run to its failing locations by replacing every positional test selection, including suite directories and regex filters.
+- 216b1bd: Treat `tsconfig.json`, `tsconfig.*.json` and their `jsconfig` counterparts as JSONC in the parse check that runs after a write, so the comments and trailing commas TypeScript accepts no longer report a syntax error.
+
 ## 1.13.0
 
 ### Minor Changes

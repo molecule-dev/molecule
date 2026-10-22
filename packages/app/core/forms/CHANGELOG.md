@@ -1,5 +1,11 @@
 # @molecule/app-forms
 
+## 1.0.3
+
+### Patch Changes
+
+- c78c76f: Make `reset(values)` establish the resulting values as the new clean baseline, so a form reset to freshly loaded or saved data reads clean.
+
 ## 1.0.1
 
 ### Patch Changes

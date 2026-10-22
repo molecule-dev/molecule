@@ -1,5 +1,15 @@
 # @molecule/app-react
 
+## 1.8.0
+
+### Minor Changes
+
+- c78c76f: Create form controllers through the bonded forms provider by default, so `useForm({ defaultValues })` works without passing `createForm`; an explicit factory still overrides it.
+
+### Patch Changes
+
+- c71c009: Keep `useHttp`'s `execute` stable across rerenders and inline options so it can be listed in a `useEffect` dependency array without repeating its request; headers, body, signal and callbacks are read from the latest committed render when it runs.
+
 ## 1.7.1
 
 ### Patch Changes

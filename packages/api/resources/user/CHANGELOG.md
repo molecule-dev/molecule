@@ -1,5 +1,11 @@
 # @molecule/api-resource-user
 
+## 1.7.2
+
+### Patch Changes
+
+- 19ba848: Correct the session payload field documentation.
+
 ## 1.7.1
 
 ### Patch Changes
