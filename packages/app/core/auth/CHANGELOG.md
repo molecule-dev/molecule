@@ -1,5 +1,11 @@
 # @molecule/app-auth
 
+## 1.6.1
+
+### Patch Changes
+
+- dece7ff: Add a bonded profile form hook that preserves edits during hydration and publishes saved user state.
+
 ## 1.6.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # @molecule/app-routing-react-router
 
+## 1.1.0
+
+### Minor Changes
+
+- a7283cb: Add URL-backed list pagination, filters, route selections and authentication readiness.
+
 ## 1.0.1
 
 ### Patch Changes

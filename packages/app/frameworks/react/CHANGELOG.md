@@ -1,5 +1,15 @@
 # @molecule/app-react
 
+## 1.9.0
+
+### Minor Changes
+
+- dece7ff: Add a bonded profile form hook that preserves edits during hydration and publishes saved user state.
+
+### Patch Changes
+
+- 4bd4b39: Discard profile submissions when form ownership changes during asynchronous validation.
+
 ## 1.8.0
 
 ### Minor Changes
