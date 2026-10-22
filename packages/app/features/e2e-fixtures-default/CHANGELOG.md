@@ -1,5 +1,11 @@
 # @molecule/app-e2e-fixtures-default
 
+## 1.2.3
+
+### Patch Changes
+
+- 41be3f3: Correct code fences in generated browser fixture documentation.
+
 ## 1.2.2
 
 ### Patch Changes

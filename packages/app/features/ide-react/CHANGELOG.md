@@ -1,5 +1,11 @@
 # @molecule/app-ide-react
 
+## 1.22.1
+
+### Patch Changes
+
+- 5baacda: Document the disabled-reasoning option in model-specific effort controls.
+
 ## 1.22.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # @molecule/api-resource-ai-models
 
+## 1.17.3
+
+### Patch Changes
+
+- 32a31b1: DeepSeek V4.1 Flash now exposes opt-in reasoning effort (`off` by default, with `low`/`high`/`max`), and stays non-thinking unless a level is chosen.
+
 ## 1.17.2
 
 ### Patch Changes
