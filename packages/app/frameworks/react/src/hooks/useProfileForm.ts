@@ -96,6 +96,7 @@ export function useProfileForm<TUser, TValues extends Record<string, unknown>>(
   const [error, setError] = useState<unknown>()
   const [isSaving, setIsSaving] = useState(false)
   const optionsRef = useRef(options)
+  const committedClient = useRef(client)
   const baseline = useRef({ ...defaultValues })
   const owner = useRef<{ client: typeof client; identity: string } | null>(null)
   const activeSave = useRef<Promise<TUser | undefined> | null>(null)
@@ -105,7 +106,8 @@ export function useProfileForm<TUser, TValues extends Record<string, unknown>>(
   // Actions use committed configuration, never an abandoned concurrent render.
   useInsertionEffect(() => {
     optionsRef.current = options
-  }, [options])
+    committedClient.current = client
+  }, [options, client])
   useLayoutEffect(() => {
     mounted.current = true
     return () => {
@@ -148,7 +150,9 @@ export function useProfileForm<TUser, TValues extends Record<string, unknown>>(
     const previous = owner.current
     const sameAccount = !previous || (previous.client === client && previous.identity === identity)
     const previousBaseline = baseline.current
-    owner.current = { client, identity }
+    // Keep this token across same-account hydration, but replace it when the
+    // account/client changes. A pending validation belongs to that exact owner.
+    if (!previous || !sameAccount) owner.current = { client, identity }
     rebase(config.toValues(user), sameAccount ? previousBaseline : undefined)
     if (!sameAccount) {
       pendingPropagation.current = undefined
@@ -162,6 +166,17 @@ export function useProfileForm<TUser, TValues extends Record<string, unknown>>(
     if (!mounted.current || !currentUser) return Promise.resolve(undefined)
     const config = optionsRef.current
     const identity = config.getIdentity(currentUser)
+    const submissionOwner = owner.current
+    const ownsProfile = (): boolean => {
+      const current = client.getUser()
+      return (
+        mounted.current &&
+        committedClient.current === client &&
+        owner.current === submissionOwner &&
+        current !== null &&
+        config.getIdentity(current) === identity
+      )
+    }
     const snapshot = readValues()
     const before = { ...baseline.current }
     const changes: Partial<TValues> = {}
@@ -174,11 +189,15 @@ export function useProfileForm<TUser, TValues extends Record<string, unknown>>(
     const run = async (): Promise<TUser | undefined> => {
       try {
         await form.handleSubmit(async () => {
+          // Validation can await arbitrary app work. Check BEFORE toPatch and
+          // again immediately before the mutation: its credentials are read by
+          // updateProfile now, not when the reader originally clicked Save.
+          if (!ownsProfile()) return
           const patch = config.toPatch(changes, snapshot)
           if (Object.keys(patch).length > 0) {
+            if (!ownsProfile()) return
             saved = await client.updateProfile(patch)
-            const current = client.getUser()
-            if (!current || config.getIdentity(current) !== identity) {
+            if (!ownsProfile()) {
               saved = undefined
               return
             }
@@ -186,6 +205,10 @@ export function useProfileForm<TUser, TValues extends Record<string, unknown>>(
             pendingPropagation.current = saved
           }
           if (pendingPropagation.current !== undefined) {
+            if (!ownsProfile()) {
+              saved = undefined
+              return
+            }
             const propagated = pendingPropagation.current
             await config.onSaved?.(propagated)
             pendingPropagation.current = undefined

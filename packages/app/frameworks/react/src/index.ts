@@ -85,6 +85,9 @@
  *   copy every property of the auth user into the request. `reset()` discards
  *   edits to the newest baseline. A changed `getIdentity(user)` clears the old
  *   account's edits. Field comparisons are shallow, matching form providers.
+ *   A submission whose account or auth client changes, or whose form unmounts,
+ *   during asynchronous validation is discarded before any mutation or saved
+ *   callback. Same-account background hydration does not discard the submit.
  *   The hook captures save failures in `error`; render that error with the
  *   app's normal API-error presentation. Use native `<form>` submit semantics,
  *   and pass the typed `register()` props through custom controls to their

@@ -4,7 +4,7 @@ import { createServer, type Server } from 'node:http'
 
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { useEffect, useState } from 'react'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import {
   type AuthClient,
@@ -108,6 +108,7 @@ async function accountApi(): Promise<{
 const servers: Server[] = []
 afterEach(async () => {
   cleanup()
+  vi.restoreAllMocks()
   await Promise.all(
     servers.splice(0).map(
       (server) =>
@@ -143,8 +144,10 @@ function ProfileSummary(): React.ReactElement {
 
 function ProfileForm({
   onSaved,
+  validate,
 }: {
   onSaved?: (user: Reader) => void | Promise<void>
+  validate?: (values: Fields) => Promise<Partial<Record<keyof Fields, string>>>
 }): React.ReactElement {
   const form = useProfileForm<Reader, Fields>({
     defaultValues: defaults,
@@ -157,6 +160,7 @@ function ProfileForm({
       ...(password?.trim() ? { password } : {}),
     }),
     onSaved,
+    validate,
   })
   return (
     <>
@@ -466,5 +470,99 @@ describe('shared profile form: rendered controls → real HTTP → persisted pro
     expect(control('Bio').value).toBe('Account B unsaved biography')
     expect(propagated).toEqual([])
     expect((await persistedUser(api.baseURL)).bio).toBe('Account A submitted biography')
+  })
+
+  it.each(['account switch', 'unmount', 'client replacement'] as const)(
+    'does not start a mutation after %s while asynchronous validation is pending',
+    async (transition) => {
+      const { api, client } = await setup()
+      const mutation = vi.spyOn(client, 'updateProfile')
+      const replacement = transition === 'client replacement' ? await setup() : undefined
+      let finishValidation!: () => void
+      const pending = new Promise<void>((resolve) => {
+        finishValidation = resolve
+      })
+      let validationStarted = false
+      const validate = async (): Promise<Partial<Record<keyof Fields, string>>> => {
+        validationStarted = true
+        await pending
+        return {}
+      }
+      const propagated: Reader[] = []
+      const form = (
+        <ProfileForm
+          validate={validate}
+          onSaved={(user) => {
+            propagated.push(user)
+          }}
+        />
+      )
+      const view = render(<AuthProvider client={client}>{form}</AuthProvider>)
+      edit('Bio', 'Account A unsaved biography')
+      submit()
+      await waitFor(() => expect(validationStarted).toBe(true))
+      expect(api.writes).toEqual([])
+      if (transition === 'account switch') {
+        act(() =>
+          client.setSession({
+            accessToken: token,
+            user: { ...initial, id: 'other', bio: 'Account B biography' },
+          }),
+        )
+      } else if (transition === 'unmount') {
+        view.unmount()
+      } else {
+        view.rerender(<AuthProvider client={replacement!.client}>{form}</AuthProvider>)
+      }
+      await act(async () => finishValidation())
+      if (transition !== 'unmount') {
+        await waitFor(() =>
+          expect((screen.getByRole('button', { name: 'Save' }) as HTMLButtonElement).disabled).toBe(
+            false,
+          ),
+        )
+      }
+      expect(api.writes).toEqual([])
+      expect(replacement?.api.writes ?? []).toEqual([])
+      expect(mutation).not.toHaveBeenCalled()
+      expect(propagated).toEqual([])
+      expect(await persistedUser(api.baseURL)).toEqual(initial)
+      if (transition === 'account switch') {
+        expect(client.getUser()?.id).toBe('other')
+        expect(control('Bio').value).toBe('Account B biography')
+      }
+    },
+  )
+
+  it('keeps a validated submit when only the same account background data changes', async () => {
+    const { api, client } = await setup()
+    let finishValidation!: () => void
+    const pending = new Promise<void>((resolve) => {
+      finishValidation = resolve
+    })
+    let validationStarted = false
+    const validate = async (): Promise<Partial<Record<keyof Fields, string>>> => {
+      validationStarted = true
+      await pending
+      return {}
+    }
+    render(
+      <AuthProvider client={client}>
+        <ProfileForm validate={validate} />
+      </AuthProvider>,
+    )
+    edit('Bio', 'Account A submitted biography')
+    submit()
+    await waitFor(() => expect(validationStarted).toBe(true))
+    act(() => client.setUser({ ...initial, name: 'Background refresh' }))
+    await act(async () => finishValidation())
+    await waitFor(() =>
+      expect((screen.getByRole('button', { name: 'Save' }) as HTMLButtonElement).disabled).toBe(
+        false,
+      ),
+    )
+    expect(api.writes).toEqual([{ bio: 'Account A submitted biography' }])
+    expect((await persistedUser(api.baseURL)).bio).toBe('Account A submitted biography')
+    expect(client.getUser()?.bio).toBe('Account A submitted biography')
   })
 })
