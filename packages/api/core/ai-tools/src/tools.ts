@@ -3578,6 +3578,12 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           : sanitizeOutput
         const stdout = grade(truncateMiddle(result.stdout, MAX_OUTPUT_SIZE))
         const stderr = sanitizeOutput(truncateMiddle(result.stderr, MAX_OUTPUT_SIZE))
+        // Whether the stdout above is a middle cut of what the command printed. Said on the
+        // result because a reader that records what this call DELIVERED cannot otherwise tell
+        // a whole file from a holed one, and must not point at a holed output as "already
+        // above" (xr-molecule-flash-m420: a clipped multi-file `cat` armed both a shell and a
+        // read_file re-read hold on a helper whose middle never arrived).
+        const stdoutTruncated = result.stdout.length > MAX_OUTPUT_SIZE
         // A run a budget stopped is NOT a run that ended: it reports `status: 'cut_at_budget'`,
         // never a 0 the pipeline produced, and names how far it got. Read from the command, the
         // output and the clock in one place (cut-run.ts) so every reader of a run's verdict reads
@@ -3637,6 +3643,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
                       ? SUITE_OVER_BUDGET_ADVICE
                       : SPLIT_WORK_ADVICE),
             ...(runReport === null ? {} : { runReport }),
+            ...(stdoutTruncated ? { stdoutTruncated: true } : {}),
           }
         }
         // A pipeline reports its LAST stage's code: `tsc | head` says 0 beside a printed type
@@ -3661,6 +3668,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
               }
             : {}),
           ...(runReport === null ? {} : { runReport }),
+          ...(stdoutTruncated ? { stdoutTruncated: true } : {}),
         }
       } catch (e: unknown) {
         return { error: `Command failed: ${(e as Error).message}` }
