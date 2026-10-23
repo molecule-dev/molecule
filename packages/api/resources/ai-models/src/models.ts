@@ -2218,12 +2218,20 @@ export const MODELS: readonly ModelDefinition[] = [
 
   // ---------------------------------------------------------------------------
   // Moonshot (Kimi)
-  // Verified: https://platform.kimi.ai/docs/models +
-  //           /docs/guide/use-kimi-k2-thinking-model (2026-07-28).
+  // Verified: https://platform.kimi.ai/docs/pricing/chat +
+  //           /docs/api/models-overview + /docs/guide/kimi-k3-1-pro-quickstart
+  //           (2026-10-23, kimi-k3.1-pro add: exact id; $2/$10, cache read
+  //           $0.20, cache write $2 (5m, default TTL) / $4 (1h); 1M context;
+  //           max_completion_tokens default 131072 / settable 1048576;
+  //           text+image+video input; reasoning_effort low|high|max default
+  //           max; temperature fixed 1.0; tool_choice 'required' supported;
+  //           DeepInfra live-checked — no K3.1 re-host). Earlier:
+  //           /docs/models + /docs/guide/use-kimi-k2-thinking-model
+  //           (2026-07-28).
   // 2026-10-23: K3.1 series released (kimi-k3.1-pro + the -highspeed speed
-  // tier, same intelligence at 2-3× the speed). Only the highspeed variant is
-  // cataloged (owner ✅): the provider's Model Parameter Reference states the
-  // k3.1 pair has the SAME constraints as kimi-k3 — reasoning_effort
+  // tier, same intelligence at 2-3× the speed). Both variants are cataloged
+  // (owner ✅, one card each): the provider's Model Parameter Reference states
+  // the k3.1 pair has the SAME constraints as kimi-k3 — reasoning_effort
   // low|high|max (default max), temperature/top_p/n/penalties fixed, and
   // tool_choice 'required' supported. Native-only for now (no DeepInfra
   // re-host yet).
@@ -2241,6 +2249,57 @@ export const MODELS: readonly ModelDefinition[] = [
   // region-re-host coverage check fails on exactly that (a us-region moonshot
   // model missing from the bond's modelMap).
   // ---------------------------------------------------------------------------
+  {
+    id: 'kimi-k3.1-pro',
+    provider: 'moonshot',
+    // Same parameter constraints as kimi-k3 (provider's own Model Parameter
+    // Reference, api/models-overview, names the k3.1 pair): temperature is
+    // fixed at 1.0 upstream — "passing any other value returns an error" — so
+    // callers omit it. tool_choice 'required' IS supported (their FAQ names
+    // kimi-k3.1-pro, kimi-k3.1-pro-highspeed and kimi-k3 as supporting it),
+    // so no rejectsForcedToolChoice.
+    rejectsTemperature: true,
+    label: 'Kimi K3.1 Pro',
+    description:
+      "Moonshot's most capable flagship — same intelligence as the highspeed tier at half the price",
+    contextWindow: 1_000_000,
+    // Docs (guide/kimi-k3-1-pro-quickstart): max_completion_tokens defaults to
+    // 131072 and is settable up to 1048576 (the full window). Cap at the
+    // documented default so a request never reserves the whole window for
+    // output and leaves room for a real prompt.
+    maxOutputTokens: 131_072,
+    supportsThinking: true,
+    thinkingBudgetTokens: 8_000,
+    // Thinking is FORCED ON (K3 family); depth rides reasoning_effort
+    // low|high|max, upstream default max — we default to high like kimi-k3 so
+    // agentic loops aren't pinned to the slowest/most expensive tier.
+    thinkingConfigurable: true,
+    supportedEffortLevels: ['low', 'high', 'max'],
+    defaultEffortLevel: 'high',
+    // Text + image (base64 / ms:// file id) + video input — the quickstart's
+    // vision section; the highspeed tier shares this API surface.
+    supportsVision: true,
+    supportsPromptCaching: true,
+    supportsTools: true,
+    // Verified 2026-10-23 on platform.kimi.ai/docs/pricing/chat (K3 series
+    // table): $2/$10, cached input $0.20. Cache writes are billed by TTL —
+    // $2 (5m, the default tier when no TTL is set) / $4 (1h);
+    // cacheWritePricePerMTok carries the default 5m tier, matching the
+    // kimi-k3 / kimi-k3.1-pro-highspeed entries' convention.
+    inputPricePerMTok: 2,
+    outputPricePerMTok: 10,
+    cacheReadPricePerMTok: 0.2,
+    cacheWritePricePerMTok: 2,
+    // Native-only: released 2026-10-23 and DeepInfra (live
+    // api.deepinfra.com/v1/openai/models, checked same day) still lists only
+    // Kimi-K3 and Kimi-K2.6 — no K3.1 re-host, so no regionPricing and no
+    // bond modelMap entry (a us-region moonshot model missing from the map
+    // would 404 at dispatch).
+    regions: ['cn'],
+    // Not published — best-effort estimate (mirrors the highspeed entry: same
+    // weights generation, same intelligence).
+    knowledgeCutoff: '2026-05-01',
+  },
   {
     id: 'kimi-k3.1-pro-highspeed',
     provider: 'moonshot',
@@ -2339,13 +2398,14 @@ export const MODELS: readonly ModelDefinition[] = [
     },
     // Not published — best-effort estimate.
     knowledgeCutoff: '2026-01-01',
-    // Superseded by kimi-k3.1-pro-highspeed (2026-10-23): the K3.1 series is
-    // the new flagship generation — the provider's own models page calls
-    // kimi-k3 the "prior flagship" and kimi-k3.1-pro "Kimi's most capable
-    // flagship to date"; the highspeed tier is the only K3.1 variant we
-    // carry. Kept priceable and dispatchable on both regions.
+    // Superseded by kimi-k3.1-pro (2026-10-23): the K3.1 series is the new
+    // flagship generation — the provider's own models page calls kimi-k3 the
+    // "prior flagship" and kimi-k3.1-pro "Kimi's most capable flagship to
+    // date" (same intelligence as the highspeed tier at half the price, so the
+    // base tier is the true successor of the old flagship). Kept priceable
+    // and dispatchable on both regions.
     deprecatedAt: '2026-10-23',
-    supersededBy: 'kimi-k3.1-pro-highspeed',
+    supersededBy: 'kimi-k3.1-pro',
   },
   {
     id: 'kimi-k2.7-code',
@@ -2428,7 +2488,7 @@ export const MODELS: readonly ModelDefinition[] = [
     knowledgeCutoff: '2025-04-01',
     // Superseded by the current selectable Kimi flagship — kept priceable.
     deprecatedAt: '2026-07-28',
-    supersededBy: 'kimi-k3.1-pro-highspeed',
+    supersededBy: 'kimi-k3.1-pro',
   },
   {
     id: 'kimi-k2.5',
@@ -2466,7 +2526,7 @@ export const MODELS: readonly ModelDefinition[] = [
     // selections still resolve forward.
     deprecatedAt: '2026-04-01',
     disabled: true,
-    supersededBy: 'kimi-k3.1-pro-highspeed',
+    supersededBy: 'kimi-k3.1-pro',
   },
 
   // ---------------------------------------------------------------------------
