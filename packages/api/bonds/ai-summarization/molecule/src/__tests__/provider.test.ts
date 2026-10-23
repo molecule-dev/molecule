@@ -124,4 +124,57 @@ describe('api-ai-summarization-molecule', () => {
       'http://127.0.0.1:4310/api/v1/services/summarization/summarize',
     )
   })
+  it.each([null, {}, [], { summary: 42 }].map((body) => ({ body })))(
+    'rejects a malformed successful response $body',
+    async ({ body }) => {
+      stubFetch(200, body)
+      await expect(
+        createProvider({ apiKey: 'local-fixture-key' }).summarize({ text: 'x' }),
+      ).rejects.toMatchObject({
+        name: 'MoleculeServiceError',
+        status: 200,
+      })
+    },
+  )
+
+  it.each([null, '', [], { error: 42, errorKey: { malformed: true } }].map((body) => ({ body })))(
+    'keeps a typed HTTP refusal for body $body',
+    async ({ body }) => {
+      stubFetch(503, body)
+      await expect(
+        createProvider({ apiKey: 'local-fixture-key' }).summarize({ text: 'x' }),
+      ).rejects.toMatchObject({
+        name: 'MoleculeServiceError',
+        status: 503,
+        errorKey: undefined,
+      })
+    },
+  )
+
+  it('preserves the original network error', async () => {
+    const error = new TypeError('fixture network failure')
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(error))
+    await expect(
+      createProvider({ apiKey: 'local-fixture-key' }).summarize({ text: 'x' }),
+    ).rejects.toBe(error)
+  })
+
+  it('forwards cancellation and preserves the original abort error', async () => {
+    const controller = new AbortController()
+    const error = new DOMException('fixture canceled', 'AbortError')
+    const fetchMock = vi.fn(async (_url: unknown, init: RequestInit | undefined) => {
+      const signal = init?.signal
+      return await new Promise<Response>((_resolve, reject) => {
+        signal?.addEventListener('abort', () => reject(error), { once: true })
+      })
+    })
+    vi.stubGlobal('fetch', fetchMock)
+    const request = createProvider({ apiKey: 'local-fixture-key' }).summarize({
+      text: 'x',
+      signal: controller.signal,
+    })
+    controller.abort()
+    await expect(request).rejects.toBe(error)
+    expect((fetchMock.mock.calls[0]?.[1] as RequestInit).signal?.aborted).toBe(true)
+  })
 })

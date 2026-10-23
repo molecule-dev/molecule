@@ -9,7 +9,7 @@
  *
  * @example
  * ```typescript
- * import { setProvider } from '@molecule/api-ai-summarization'
+ * import { requireProvider, setProvider } from '@molecule/api-ai-summarization'
  * import { provider as summarization } from '@molecule/api-ai-summarization-molecule'
  *
  * setProvider(summarization) // reads MOLECULE_API_KEY from the environment
@@ -39,9 +39,10 @@
  *   from). A capped summary may take several model round trips (the service
  *   re-asks when an attempt runs long) — all of them are part of the one
  *   billed request.
- * - Errors are `MoleculeServiceError` with `status` and `errorKey` (401 bad key,
+ * - HTTP refusals and malformed responses throw `MoleculeServiceError` with
+ *   `status` and `errorKey` (401 bad key,
  *   402 allowance used up, 413 over limits, 429 / 503 retry later). Nothing is
- *   retried.
+ *   retried. Network and cancellation errors propagate unchanged.
  */
 export * from './browser-guard.js'
 export * from './provider.js'

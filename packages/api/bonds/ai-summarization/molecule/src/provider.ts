@@ -258,12 +258,27 @@ export class MoleculeSummarizationProvider implements AISummarizationProvider {
       )
     }
     if (!response.ok) {
-      const err = data as { error?: string; errorKey?: string }
+      const err = (typeof data === 'object' && data !== null ? data : {}) as {
+        error?: unknown
+        errorKey?: unknown
+      }
       const hint = HINTS[response.status]
+      const message = typeof err.error === 'string' ? err.error : 'error'
       throw new MoleculeServiceError(
-        `molecule.dev summarization/summarize failed (${response.status}): ${err.error ?? 'error'}${hint ? ` ${hint}` : ''}`,
+        `molecule.dev summarization/summarize failed (${response.status}): ${message}${hint ? ` ${hint}` : ''}`,
         response.status,
-        err.errorKey,
+        typeof err.errorKey === 'string' ? err.errorKey : undefined,
+      )
+    }
+    if (
+      typeof data !== 'object' ||
+      data === null ||
+      typeof (data as { summary?: unknown }).summary !== 'string'
+    ) {
+      throw new MoleculeServiceError(
+        'molecule.dev returned a summarization response without a summary string.',
+        response.status,
+        'hostedServices.error.invalidResponse',
       )
     }
     return data as SummarizeResult
