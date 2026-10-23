@@ -133,20 +133,27 @@ jobs:
       # versioned, and the Release workflow refuses to run while one exists.
       - run: npm run check:changesets-consumed
       - run: npm run build
+      - name: Compute affected test scope
+        id: test-scope
+        shell: bash
+        run: |
+          FILTER="$(node scripts/affected-projects.mjs)"
+          printf 'filter=%s\n' "$FILTER" >> "$GITHUB_OUTPUT"
+        env:
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GITHUB_EVENT_BEFORE: ${{ github.event.before }}
+          GITHUB_BASE_REF: ${{ github.base_ref }}
       # Native deployment is an actual target-platform consumer check, not a
       # string snapshot or an arm64 workstation standing in for amd64. Use the
       # existing build job and its affected-package decision; no deploy/publish.
       - name: Prove native Node deployment on amd64
         timeout-minutes: 15
         run: |
-          FILTER="$(node scripts/affected-projects.mjs)"
           if [ -z "$FILTER" ] || printf '%s\n' "$FILTER" | grep -Fq 'packages/api/staging/docker-compose'; then
             node scripts/verify-native-node-artifact.mjs
           fi
         env:
-          GITHUB_EVENT_NAME: ${{ github.event_name }}
-          GITHUB_EVENT_BEFORE: ${{ github.event.before }}
-          GITHUB_BASE_REF: ${{ github.base_ref }}
+          FILTER: ${{ steps.test-scope.outputs.filter }}
       - name: Retain native deployment proof
         if: always()
         uses: actions/upload-artifact@v4
@@ -169,24 +176,34 @@ jobs:
       # package but no browser binary, so the test failed here while passing
       # locally. Install the browser rather than skip the test: skipping would
       # mean that guard only ever runs on a developer's machine.
-      # Pin to the repo's @playwright/test version. Bare `npx --yes playwright`
-      # (no version) pulls npm-latest, which drifted to 1.62.1 whose
-      # `--with-deps` apt step hangs the runner for ~an hour (unpinned-dep drift;
-      # keep this in sync with the @playwright/test pin). timeout-minutes so a
-      # hung install fails fast instead of blocking every release for 60 min.
-      - run: npx --yes playwright@1.63.0 install --with-deps chromium
+      # The preview and Playwright bonds also launch Chromium in integration tests.
+      # Reuse the exact test scope: empty/unknown means full, otherwise only these
+      # actual browser consumers need a binary (ai-tools has source-string fixtures).
+      # Pin the browser to @playwright/test. ubuntu-latest already has browser
+      # runtime libraries; do not upgrade apt packages here. Launch once so
+      # missing libraries fail even for bonds with optional local-browser tests.
+      # The selected real browser integration tests still run unchanged below.
+      - name: Install Chromium for affected browser tests
+        shell: bash
+        run: |
+          if [ -z "$FILTER" ] || printf '%s\n' "$FILTER" | grep -Eq '(^|[[:space:]])packages/app/(features/e2e-fixtures-default|bonds/e2e/(preview|playwright))([[:space:]]|$)'; then
+            npx --yes playwright@1.63.0 install chromium
+            node --input-type=module -e "import { chromium } from '@playwright/test'; const browser = await chromium.launch(); await browser.close();"
+          fi
         timeout-minutes: 10
         working-directory: packages/app/features/e2e-fixtures-default
+        env:
+          FILTER: ${{ steps.test-scope.outputs.filter }}
       # Scope tests to the packages this push/PR affects (changed + their
       # transitive dependents) instead of the whole ~914-package, 47k-test fleet.
       # Prints EMPTY → a full `vitest run` whenever the scope can't be trusted (a
       # global build/test file changed, unknown diff base, a core moved) — see
       # scripts/affected-projects.mjs. The scheduled full run below is the backstop.
-      - run: npm test -- $(node scripts/affected-projects.mjs)
+      - name: Test affected packages
+        shell: bash
+        run: npm test -- $FILTER
         env:
-          GITHUB_EVENT_NAME: ${{ github.event_name }}
-          GITHUB_EVENT_BEFORE: ${{ github.event.before }}
-          GITHUB_BASE_REF: ${{ github.base_ref }}
+          FILTER: ${{ steps.test-scope.outputs.filter }}
 
   lint:
     runs-on: ubuntu-latest
