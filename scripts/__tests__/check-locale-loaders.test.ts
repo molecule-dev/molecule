@@ -45,8 +45,10 @@ function realLocalePackageNames(): Set<string> {
   return names
 }
 
-/** Recursively collect `.ts`/`.tsx` source, skipping build output, tests, and
- * the locale bonds themselves (data, not loaders). */
+/**
+ * Recursively collect `.ts`/`.tsx` source, skipping build output, tests, and
+ * the locale bonds themselves (data, not loaders).
+ */
 function collectSourceFiles(dir: string, out: string[] = []): string[] {
   let entries
   try {

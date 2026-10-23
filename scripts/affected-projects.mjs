@@ -10,6 +10,8 @@
  *   - STDOUT: a space-separated list of package dirs to pass to `vitest run`, OR
  *     EMPTY. Empty means "run everything" — `vitest run` with no filter does
  *     exactly that, so empty is the safe default the fallbacks below fall into.
+ *   - A proven trust-ledger-only diff selects scripts/__tests__, retaining repository
+ *     tooling guards without rerunning unchanged package tests.
  *   - STDERR: a one-line human summary of the decision (full vs scoped + count).
  *
  * FAIL SAFE — this gate must never become one that cannot fail (AGENTS.md Rule
@@ -101,6 +103,13 @@ try {
 }
 if (!changed.length) full('empty diff')
 if (changed.some((f) => GLOBAL.some((re) => re.test(f)))) full('a global build/test file changed')
+
+// Trust publication metadata does not change package/runtime/test source. Keep repo-meta guards.
+if (changed.every((file) => file === '.trust-state.json')) {
+  console.error('affected: META — trust ledger only; repository tooling tests')
+  process.stdout.write('scripts/__tests__')
+  process.exit(0)
+}
 
 const changedDirs = [...new Set(changed.map(packageDirOf).filter(Boolean))]
 // Changes exist but none is a package source (root README, LICENSE, a bare
