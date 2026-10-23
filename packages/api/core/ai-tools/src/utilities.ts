@@ -657,13 +657,16 @@ function isStatusOnlyStep(step: string): boolean {
  *   It is dropped: `wait_for_task` already returns the end of the log.
  * - any output-only filter piped after a SUITE runner (`| grep … | tail -20`), which hides the
  *   failing test's own error and leaves the pipeline's exit status — the filter's — as the run's.
- *   Every such stage is dropped ({@link stripTrailingSuiteFilters}); `wait_for_task` already
- *   returns the end of the full log, and a run whose tally shows a failure must never report 0
- *   (xr-molecule-flash-m101 +25:54).
+ *   Every such stage is dropped from EVERY suite run in the command, not only the last
+ *   ({@link stripTrailingSuiteFilters}); `wait_for_task` already returns the end of the full log,
+ *   and a run whose tally shows a failure must never report 0 (xr-molecule-flash-m101 +25:54).
  * - `playwright test` with no `--reporter`, which runs the config's reporter —
  *   often `html`, which prints nothing per test. `--reporter=list` is added
  *   when the playwright run is the command's last step, piped or not: it writes each result as
- *   it finishes, and it is the shape the platform reads a background suite back in.
+ *   it finishes, and it is the shape the platform reads a background suite back in. Every EARLIER
+ *   Playwright invocation is put on the same reporter, so its log is readable while it walks
+ *   ({@link earlierPlaywrightReporters}) — the machine `json` report still belongs to the last
+ *   invocation alone.
  *
  * The run ends up with exactly ONE reporter that prints each failure — `list`. A run that names
  * any other printing reporter has it REPLACED, never joined: two of them write every test result
@@ -734,22 +737,24 @@ export function streamingBackgroundCommand(
   // A filter after the suite runner is not output the platform can read: it hides the failing
   // test's own error, and its exit status replaces the run's with the filter's — m101's
   // `… | grep -E "✘|passed|failed|skipped" | tail -20` reported `exitCode: 0` for a run with a
-  // failure in it. Every stage the parse proves is output-only is dropped; the end of the FULL
-  // log comes back anyway.
-  const filtered = stripTrailingSuiteFilters(out)
-  if (filtered.dropped) {
+  // failure in it. Every stage the parse proves is output-only is dropped from EVERY run, earlier
+  // walks included; the end of the FULL log comes back anyway.
+  const filtered = suiteFilterDrops(out)
+  if (filtered.drops.length > 0) {
     out = filtered.command
-    // A lone trailing `| tail -N` keeps its own sentence: the reason it goes is that it holds all
-    // output back until the command ends, not that a filter cannot be read back.
-    const tailOnly = TRAILING_TAIL.exec(filtered.dropped)
-    changes.push(
-      tailOnly && tailOnly[0].trim() === filtered.dropped
-        ? `Dropped the trailing \`${filtered.dropped}\`: it holds all output back until the command ends, ` +
-            'and wait_for_task returns the end of the log anyway.'
-        : `Dropped \`${filtered.dropped}\` from after the test runner: a filtered log cannot be ` +
-            'diagnosed — the failing test’s own error is not in it — and wait_for_task returns the ' +
-            'end of the full log anyway.',
-    )
+    for (const dropped of filtered.drops) {
+      // A lone trailing `| tail -N` keeps its own sentence: the reason it goes is that it holds all
+      // output back until the command ends, not that a filter cannot be read back.
+      const tailOnly = TRAILING_TAIL.exec(dropped)
+      changes.push(
+        tailOnly && tailOnly[0].trim() === dropped
+          ? `Dropped the trailing \`${dropped}\`: it holds all output back until the command ends, ` +
+              'and wait_for_task returns the end of the log anyway.'
+          : `Dropped \`${dropped}\` from after the test runner: a filtered log cannot be ` +
+              'diagnosed — the failing test’s own error is not in it — and wait_for_task returns the ' +
+              'end of the full log anyway.',
+      )
+    }
   }
   const tail = TRAILING_TAIL.exec(out)
   if (tail) {
@@ -971,7 +976,123 @@ export function streamingBackgroundCommand(
       : 'a local run walks each failure once; the suite’s retries apply on the deployed proof run'
     if (addToRun('--retries=0')) changes.push(`Added \`--retries=0\`: ${why}.`)
   }
+  // Every EARLIER Playwright invocation writes the same log, so it is put on the progressive
+  // reporter too — not only the invocation this launcher measures (see
+  // {@link earlierPlaywrightReporters}).
+  const earlier = earlierPlaywrightReporters(out)
+  if (earlier.changes.length > 0) {
+    out = earlier.command
+    changes.push(...earlier.changes)
+  }
   return { command: out, changes, ...(report === null ? {} : { reportPath: report }) }
+}
+
+/** One earlier Playwright invocation whose reporter set was rewritten. */
+interface EarlierReporterRewrite {
+  /** `switched` replaced a printing reporter, `dropped` removed a second printer, `added` wrote one. */
+  kind: 'added' | 'dropped' | 'switched'
+  /** The `--reporter` value the run named, as written (`line`, `list,line`), or '' when it named none. */
+  from: string
+}
+
+/**
+ * Put every Playwright invocation BEFORE the command's last one on the progressive `list`
+ * reporter.
+ *
+ * A compound command's earlier walk is not a preview: it writes the same log the executor reads,
+ * and on X1 xr-molecule-flash-l21 (+21:27) the first 3.6-minute walk kept its own
+ * `--reporter=line`, which prints `[n/N] <title>` rows with no ✓/✘ mark and no per-failure error.
+ * What came back was `72 passed` and two failure NAMES; the error bodies existed only in the walk's
+ * discarded log, and diagnosing them needed another run.
+ *
+ * Only the reporter SET is touched, and only printing reporters in it ({@link PRINTING_REPORTERS})
+ * are replaced by ONE `list` — the same rule the last invocation gets. A run that names no
+ * reporter has the config reporter, which may print nothing until the end, so `--reporter=list` is
+ * added where the parse can place it. Every other flag (`--grep`, `--project`, `--config`,
+ * `--workers`, `--timeout`, selections, exclusions, retries) and every non-printing reporter
+ * (`json`, `html`, `junit`, or one this build does not know) is left exactly as written.
+ *
+ * The LAST invocation is deliberately not this function's: {@link streamingBackgroundCommand}
+ * already decides its reporters, and it alone owns the machine `json` report, which must never be
+ * claimed for an earlier walk. A statement the parse cannot place (inside a nested `sh -c` string)
+ * is left as written — there is no offset in this command to splice at.
+ *
+ * @param command - The command after every other rewrite.
+ * @returns The rewritten command, and one sentence per reporter change made.
+ */
+function earlierPlaywrightReporters(command: string): { command: string; changes: string[] } {
+  const located = locatedSegments(command)
+  const runs: number[] = []
+  for (let i = 0; i < located.length; i += 1) {
+    const segment = located[i]?.segment
+    if (segment && SUITE_RUN_COMMANDS.some((re) => re.test(segment.text))) runs.push(i)
+  }
+  const rewrites: EarlierReporterRewrite[] = []
+  let out = command
+  // Right to left, so each site's offsets still describe the text they were measured on.
+  for (const at of runs.slice(0, -1).reverse()) {
+    const site = located[at]
+    if (!site || site.start === null || site.end === null) continue
+    const raw = out.slice(site.start, site.end)
+    // A statement that only lists or prints tests is not a run (`--list`, `--help`).
+    if (!isPlaywrightRunCommand(raw)) continue
+    const reporters = lastReporterFlag(raw)
+    if (reporters === null) {
+      const insertAt = statementArgumentEnd(out, site.start, site.end)
+      if (insertAt === null) continue
+      out = `${out.slice(0, insertAt)} --reporter=list${out.slice(insertAt)}`
+      rewrites.push({ kind: 'added', from: '' })
+      continue
+    }
+    const printing = reporters.values.filter((value) => PRINTING_REPORTERS.has(value))
+    // A set with no printing reporter is the executor's own artifact (`json`, `html`, `junit`, or
+    // a reporter this build does not know) and is left exactly as it was.
+    if (printing.length === 0) continue
+    if (printing.length === 1 && printing[0] === 'list') continue
+    let placed = false
+    const kept = reporters.values
+      .map((value) => {
+        if (!PRINTING_REPORTERS.has(value)) return value
+        if (placed) return null
+        placed = true
+        return 'list'
+      })
+      .filter((value): value is string => value !== null)
+    out =
+      out.slice(0, site.start + reporters.start) +
+      `--reporter${reporters.separator}${kept.join(',')}` +
+      out.slice(site.start + reporters.end)
+    rewrites.push({
+      kind: printing.includes('list') ? 'dropped' : 'switched',
+      from: reporters.values.join(','),
+    })
+  }
+  const changes: string[] = []
+  const count = (kind: EarlierReporterRewrite['kind']): number =>
+    rewrites.filter((rewrite) => rewrite.kind === kind).length
+  if (count('added') > 0)
+    changes.push(
+      `Added \`--reporter=list\` to ${count('added') === 1 ? 'the earlier test run' : 'each earlier test run'} ` +
+        'so each test result is written to the log as it finishes (a config reporter may print ' +
+        'nothing until the end).',
+    )
+  const switched = rewrites.find((rewrite) => rewrite.kind === 'switched')
+  if (switched)
+    changes.push(
+      `Switched ${count('switched') === 1 ? 'the earlier test run’s' : 'each earlier test run’s'} ` +
+        `reporters to \`--reporter=list\`: \`list\` writes each test result as it finishes and is ` +
+        'the shape the platform reads back, and it is the only printing reporter — two of them ' +
+        'write every result into the log twice (X1 flash-m83).',
+    )
+  const dropped = rewrites.find((rewrite) => rewrite.kind === 'dropped')
+  if (dropped)
+    changes.push(
+      `Dropped a second printing reporter from ` +
+        `${count('dropped') === 1 ? 'the earlier test run’s' : 'each earlier test run’s'} ` +
+        `\`--reporter=${dropped.from}\`: two reporters that both print each failure write every ` +
+        'test result into the log twice, so this run keeps `list` alone.',
+    )
+  return { command: out, changes }
 }
 
 /**
@@ -1450,32 +1571,138 @@ function lastSuitePipeline(command: string): { located: LocatedSegment[]; at: nu
  * @returns The located segments and the last suite stage's index among them, or null.
  */
 function lastSuiteRun(command: string): { located: LocatedSegment[]; at: number } | null {
-  if (commandRunsNoTests(command)) return null
+  return suiteRunSites(command).at(-1) ?? null
+}
+
+/**
+ * Every suite-run statement of a command, in command order, each with the parse's segments.
+ *
+ * A command may start the suite more than once — a whole-directory walk followed by a single
+ * spec, or a Hurl run followed by a browser walk — and every one of them writes the log the
+ * executor reads. Reading only the last one left the earlier walk's failing test's own error
+ * behind a `| tail -5` while the LAST invocation was rewritten normally
+ * (xr-molecule-flash-l21 +21:27: a 3.6-minute walk returned `72 passed` with no error body when
+ * the driver ran `… specs 2>&1 | tail -5; echo START; … auth.spec.ts`).
+ *
+ * A command that runs no test at all is not a set of runs ({@link commandRunsNoTests}); nor is a
+ * statement that only lists tests, which the reporter pass asks about per statement
+ * ({@link isPlaywrightRunCommand}).
+ *
+ * @param command - The shell command.
+ * @returns One entry per suite-running statement, all sharing the parse's segments.
+ */
+function suiteRunSites(command: string): { located: LocatedSegment[]; at: number }[] {
+  if (commandRunsNoTests(command)) return []
   const located = locatedSegments(command)
-  let at = -1
+  const sites: { located: LocatedSegment[]; at: number }[] = []
   for (let i = 0; i < located.length; i += 1) {
     const segment = located[i]?.segment
-    if (segment && SUITE_RUN_COMMANDS.some((re) => re.test(segment.text))) at = i
+    if (segment && SUITE_RUN_COMMANDS.some((re) => re.test(segment.text)))
+      sites.push({ located, at: i })
   }
-  return at < 0 ? null : { located, at }
+  return sites
 }
 
 /** A command with the output filters after its suite runner removed. */
 export interface SuiteFilterStrip {
   /** The command to run. */
   command: string
-  /** The pipeline stages dropped, as written (`| grep … | tail -20`), or '' when none were. */
+  /**
+   * The pipeline stages dropped, as written (`| grep … | tail -20`), or '' when none were. A
+   * command with several suite runs lists one group per run, joined by a space.
+   */
   dropped: string
 }
 
 /**
- * Drop the output-only filters piped after the command's suite runner.
+ * One suite runner's output-only pipeline suffix, as offsets in the command.
  *
- * A filter after the runner is not "the end of the log" the executor asked for: it hides the
+ * @see stripTrailingSuiteFilters
+ */
+interface SuiteFilterCut {
+  /** Where the text before the dropped stages ends, inside the `|` that joined them. */
+  cut: number
+  /** Where the dropped stages' own text ends. */
+  dropEnd: number
+  /** The dropped stages, as written and trimmed (`| grep … | tail -20`). */
+  dropped: string
+}
+
+/**
+ * The output-only filters piped after ONE suite runner, as a slice to remove — or null when this
+ * runner has none this reader can prove output-only.
+ *
+ * @param command - The shell command.
+ * @param located - The parse's located segments ({@link locatedSegments}).
+ * @param at - The runner's index among them.
+ * @returns The slice to drop, or null.
+ */
+function suiteFilterCut(
+  command: string,
+  located: LocatedSegment[],
+  at: number,
+): SuiteFilterCut | null {
+  // Where this suite's own pipeline ends: the first stage after the runner that is not joined to
+  // its predecessor by a single `|`. Everything from there on is another statement, kept as it is.
+  let end = at
+  for (let i = at + 1; i < located.length; i += 1) {
+    if ((located[i]?.between ?? '').trim() !== '|') break
+    end = i
+  }
+  let first = end + 1
+  for (let i = end; i > at; i -= 1) {
+    const stage = located[i]
+    if (!stage || !isOutputOnlyFilter(stage.segment)) break
+    first = i
+  }
+  if (first === end + 1) return null
+  const previous = located[first - 1]
+  const stage = located[first]
+  const lastDropped = located[end]
+  if (!previous || !stage || !lastDropped) return null
+  // A stage inside a nested `sh -c` string has no offsets in this command: nothing can be cut.
+  if (previous.end === null || stage.start === null || lastDropped.end === null) return null
+  // Every stage dropped must be provably whole inside the command's own structure. A group
+  // closer attached to one of them closes a group the pipeline below still runs in
+  // (`( … | tail -5) | cat`), and a stage that OPENS a group it does not close (`| { cat; }`) has
+  // its closer in a later statement — either cut would leave the punctuation dangling. Only the
+  // last stage may end on an enclosing closer, and it is kept ({@link statementBoundary}).
+  const boundaries: Array<{ textEnd: number; leavesGroupOpen: boolean }> = []
+  for (let i = first; i <= end; i += 1) {
+    const droppedStage = located[i]
+    if (!droppedStage || droppedStage.end === null) return null
+    const boundary = statementBoundary(command, droppedStage.start, droppedStage.end)
+    if (boundary === null || boundary.leavesGroupOpen) return null
+    if (i < end && boundary.textEnd !== droppedStage.end) return null
+    boundaries.push(boundary)
+  }
+  const lastBoundary = boundaries[boundaries.length - 1]
+  if (lastBoundary === undefined) return null
+  // Where the dropped stages' own text ends. The tokenizer attaches the closer of an enclosing
+  // group to the stage's last word (`tail -25)`), so cutting at {@link LocatedSegment.end} deleted
+  // the `)` and left `( … 2>&1` — a command no shell parses, which the background runner rejected
+  // with `end of file unexpected` (xr-molecule-flash-m418 +23:31).
+  const dropEnd = lastBoundary.textEnd
+  const pipe = stage.between.indexOf('|')
+  if (pipe < 0) return null
+  const cut = previous.end + pipe
+  return { cut, dropEnd, dropped: command.slice(cut, dropEnd).trim() }
+}
+
+/**
+ * Drop the output-only filters piped after EVERY suite runner in the command.
+ *
+ * A filter after a runner is not "the end of the log" the executor asked for: it hides the
  * failing test's own error (it usually matches none of `✘|passed|failed`), and the pipeline's exit
  * status becomes the FILTER's, so `… 2>&1 | grep -E "✘|passed|failed|skipped" | tail -20` came back
  * `exitCode: 0` for a run with a failure in it (xr-molecule-flash-m101 +25:54). The tool returns
  * the end of the full log anyway, so the filter only costs diagnosability.
+ *
+ * EVERY run is stripped, not only the command's last: a compound command's earlier walk writes
+ * the same log, and its `| tail -5` threw away the error body of a 3.6-minute Playwright walk
+ * whose two failure names were all the executor got back (xr-molecule-flash-l21 +21:27). Only a
+ * run the parse places is touched, and only its own pipeline — a later statement's filters belong
+ * to it.
  *
  * Only a contiguous suffix of the stages after the runner is cut, and only stages the parse proves
  * are output-only ({@link isOutputOnlyFilter}): a `| tee` or `| xargs` keeps its place, and a
@@ -1493,63 +1720,35 @@ export interface SuiteFilterStrip {
  * would leave a closer dangling inside is not dropped at all.
  *
  * @param command - The shell command.
- * @returns The rewritten command and the stages dropped.
+ * @returns The rewritten command and the stages dropped, one entry per suite run, in command order.
+ */
+function suiteFilterDrops(command: string): { command: string; drops: string[] } {
+  const cuts: SuiteFilterCut[] = []
+  for (const site of suiteRunSites(command)) {
+    const cut = suiteFilterCut(command, site.located, site.at)
+    if (cut !== null) cuts.push(cut)
+  }
+  if (cuts.length === 0) return { command, drops: [] }
+  // Right to left, so every cut's offsets still describe the text it was measured on.
+  let out = command
+  for (const cut of [...cuts].sort((a, b) => b.cut - a.cut)) {
+    // The stages dropped are a middle slice when a statement follows, so the text after them is
+    // kept — `; echo done` still runs, and so does the punctuation closing the group they sat in.
+    out = `${out.slice(0, cut.cut).trimEnd()}${out.slice(cut.dropEnd)}`
+  }
+  return { command: out, drops: cuts.map((cut) => cut.dropped) }
+}
+
+/**
+ * Drop the output-only filters piped after the command's suite runners
+ * ({@link suiteFilterDrops}).
+ *
+ * @param command - The shell command.
+ * @returns The rewritten command, and the stages dropped in command order (`''` when none were).
  */
 export function stripTrailingSuiteFilters(command: string): SuiteFilterStrip {
-  const run = lastSuiteRun(command)
-  if (run === null) return { command, dropped: '' }
-  const { located, at } = run
-  // Where the suite's own pipeline ends: the first stage after the runner that is not joined to
-  // its predecessor by a single `|`. Everything from there on is another statement, kept as it is.
-  let end = at
-  for (let i = at + 1; i < located.length; i += 1) {
-    if ((located[i]?.between ?? '').trim() !== '|') break
-    end = i
-  }
-  let first = end + 1
-  for (let i = end; i > at; i -= 1) {
-    const stage = located[i]
-    if (!stage || !isOutputOnlyFilter(stage.segment)) break
-    first = i
-  }
-  if (first === end + 1) return { command, dropped: '' }
-  const previous = located[first - 1]
-  const stage = located[first]
-  const lastDropped = located[end]
-  if (!previous || !stage || !lastDropped) return { command, dropped: '' }
-  // A stage inside a nested `sh -c` string has no offsets in this command: nothing can be cut.
-  if (previous.end === null || stage.start === null || lastDropped.end === null)
-    return { command, dropped: '' }
-  // Every stage dropped must be provably whole inside the command's own structure. A group
-  // closer attached to one of them closes a group the pipeline below still runs in
-  // (`( … | tail -5) | cat`), and a stage that OPENS a group it does not close (`| { cat; }`) has
-  // its closer in a later statement — either cut would leave the punctuation dangling. Only the
-  // last stage may end on an enclosing closer, and it is kept ({@link statementBoundary}).
-  const boundaries: Array<{ textEnd: number; leavesGroupOpen: boolean }> = []
-  for (let i = first; i <= end; i += 1) {
-    const droppedStage = located[i]
-    if (!droppedStage || droppedStage.end === null) return { command, dropped: '' }
-    const boundary = statementBoundary(command, droppedStage.start, droppedStage.end)
-    if (boundary === null || boundary.leavesGroupOpen) return { command, dropped: '' }
-    if (i < end && boundary.textEnd !== droppedStage.end) return { command, dropped: '' }
-    boundaries.push(boundary)
-  }
-  const lastBoundary = boundaries[boundaries.length - 1]
-  if (lastBoundary === undefined) return { command, dropped: '' }
-  // Where the dropped stages' own text ends. The tokenizer attaches the closer of an enclosing
-  // group to the stage's last word (`tail -25)`), so cutting at {@link LocatedSegment.end} deleted
-  // the `)` and left `( … 2>&1` — a command no shell parses, which the background runner rejected
-  // with `end of file unexpected` (xr-molecule-flash-m418 +23:31).
-  const dropEnd = lastBoundary.textEnd
-  const pipe = stage.between.indexOf('|')
-  if (pipe < 0) return { command, dropped: '' }
-  const cut = previous.end + pipe
-  // The stages dropped are a middle slice when a statement follows, so the text after them is
-  // kept — `; echo done` still runs, and so does the punctuation closing the group they sat in.
-  return {
-    command: `${command.slice(0, cut).trimEnd()}${command.slice(dropEnd)}`,
-    dropped: command.slice(cut, dropEnd).trim(),
-  }
+  const { command: out, drops } = suiteFilterDrops(command)
+  return { command: out, dropped: drops.join(' ') }
 }
 
 /** Whether a finished run's exit code belongs to a stage after the suite runner. */
