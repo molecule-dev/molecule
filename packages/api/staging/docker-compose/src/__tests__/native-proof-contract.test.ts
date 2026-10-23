@@ -93,11 +93,23 @@ it.each([
       resolve(import.meta.dirname, '../../../../../../.github/workflows/ci.yml'),
       'utf8',
     ),
-  ) as { jobs: { build: { steps: Array<{ name?: string; run?: string }> } } }
+  ) as {
+    jobs: {
+      build: {
+        steps: Array<{ name?: string; id?: string; run?: string; env?: Record<string, string> }>
+      }
+    }
+  }
+  const scopeStep = workflow.jobs.build.steps.find(
+    (step) => step.name === 'Compute affected test scope',
+  )
   const step = workflow.jobs.build.steps.find(
     (step) => step.name === 'Prove native Node deployment on amd64',
   )
+  expect(scopeStep?.run).toBeDefined()
+  expect(scopeStep?.id).toBe('test-scope')
   expect(step?.run).toBeDefined()
+  expect(step?.env?.FILTER).toBe('${{ steps.test-scope.outputs.filter }}')
   const scratch = mkdtempSync(join(tmpdir(), 'native-proof-scope-'))
   try {
     const marker = join(scratch, 'proof-called')
@@ -106,13 +118,28 @@ it.each([
       '#!/bin/sh\ncase "$1" in\nscripts/affected-projects.mjs) printf "%s" "$PROOF_SCOPE";;\nscripts/verify-native-node-artifact.mjs) touch "$NATIVE_PROOF_TRIPWIRE";;\n*) exit 99;;\nesac\n',
       { mode: 0o755 },
     )
-    const result = spawnSync('sh', ['-c', step!.run!], {
+    const output = join(scratch, 'scope-output')
+    const env = {
+      ...process.env,
+      PROOF_SCOPE: scope,
+      NATIVE_PROOF_TRIPWIRE: marker,
+      GITHUB_OUTPUT: output,
+      PATH: scratch + ':' + process.env.PATH,
+    }
+    const computed = spawnSync('bash', ['-e', '-o', 'pipefail', '-c', scopeStep!.run!], {
+      encoding: 'utf8',
+      env,
+    })
+    expect(computed.status).toBe(0)
+    const filter = readFileSync(output, 'utf8')
+      .replace(/^filter=/, '')
+      .trimEnd()
+    expect(filter).toBe(scope)
+    const result = spawnSync('bash', ['-e', '-o', 'pipefail', '-c', step!.run!], {
       encoding: 'utf8',
       env: {
-        ...process.env,
-        PROOF_SCOPE: scope,
-        NATIVE_PROOF_TRIPWIRE: marker,
-        PATH: scratch + ':' + process.env.PATH,
+        ...env,
+        FILTER: filter,
       },
     })
     expect(result.status).toBe(0)
