@@ -6627,7 +6627,9 @@ describe('opt-in first diagnostic progress from a deployed task', () => {
     const second = buildTools(backend, enabled)
       .find((tool) => tool.name === 'wait_for_task')!
       .execute({ taskId: id, timeout: 30000 })
-    await vi.advanceTimersByTimeAsync(31000)
+    // The exit probes also schedule a timer. Drain both bounded waits instead of
+    // leaving a probe scheduled just after an arbitrary clock cutoff under load.
+    await vi.runAllTimersAsync()
     const results = (await Promise.all([first, second])) as Array<Record<string, unknown>>
     expect(
       results.filter((result) => String(result.note).includes('not a completed result')),
