@@ -1,5 +1,11 @@
 # @molecule/api-process-lifecycle-express
 
+## 1.3.0
+
+### Minor Changes
+
+- Support deployment handoff headers on refused draining-readiness responses.
+
 ## 1.2.0
 
 ### Minor Changes

@@ -124,7 +124,7 @@
     "@molecule/api-search-postgres": "1.0.2",
     "@molecule/api-secrets": "1.0.2",
     "@molecule/api-secrets-env": "1.0.2",
-    "@molecule/api-server-default-express": "1.2.0",
+    "@molecule/api-server-default-express": "1.2.1",
     "@molecule/api-two-factor": "1.0.2",
     "@molecule/api-two-factor-otplib": "1.0.3",
     "@molecule/api-uploads": "1.1.0",
