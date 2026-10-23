@@ -187,7 +187,7 @@ jobs:
         shell: bash
         run: |
           if [ -z "$FILTER" ] || printf '%s\n' "$FILTER" | grep -Eq '(^|[[:space:]])packages/app/(features/e2e-fixtures-default|bonds/e2e/(preview|playwright))([[:space:]]|$)'; then
-            npx --yes playwright@1.63.0 install chromium
+            npx --yes playwright@1.64.1 install chromium
             node --input-type=module -e "import { chromium } from '@playwright/test'; const browser = await chromium.launch(); await browser.close();"
           fi
         timeout-minutes: 10
