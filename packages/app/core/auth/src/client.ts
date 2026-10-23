@@ -668,8 +668,14 @@ export const createJWTAuthClient = <
       return
     }
 
-    // No stored user: there is no session to paint, so this load stays `'loading'`
-    // until the cookie-restore decides it.
+    // A stored token without a cached profile needs the configured current-user read.
+    // Reuse its mapping, failure classification and session ownership guards.
+    if (token) {
+      await client.validateSession!()
+      if (revision !== sessionRevision) return
+      setState({ initialized: true })
+      return
+    }
     await restoreFromSessionCookie()
     if (revision !== sessionRevision) return
     setState({ initialized: true })

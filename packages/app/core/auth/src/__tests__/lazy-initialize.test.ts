@@ -120,6 +120,104 @@ describe('lazy initialization — a dropped initialize() is no longer fatal', ()
     })
   })
 
+  it('loads and maps a token-only session once through the configured current-user route', async () => {
+    const storage = createMockStorage()
+    storage.setItem('jwtToken', 'legacy-token')
+    ;(globalThis as { document?: { cookie: string } }).document = { cookie: '' }
+    const wire = { username: 'reader', bio: null, token: 'legacy-token' }
+    const mapped = { ...wire, id: wire.username }
+    mockFetch.mockImplementation(() => createMockResponse({ user: wire }))
+    const client = createJWTAuthClient<typeof mapped>({
+      storage,
+      autoRefresh: false,
+      tokenKey: 'jwtToken',
+      authScheme: 'Token',
+      baseURL: 'https://fixture.test',
+      currentUserEndpoint: '/api/user',
+      mapAuthResponse: (data) => {
+        const { user } = data as { user: typeof wire }
+        return { accessToken: user.token, user: { ...user, id: user.username } }
+      },
+    })
+
+    expect(client.getState().status).toBe('loading')
+    await Promise.all([client.initialize(), client.whenRestored()])
+
+    expect(mockFetch).toHaveBeenCalledTimes(1)
+    expect(mockFetch).toHaveBeenCalledWith(
+      'https://fixture.test/api/user',
+      expect.objectContaining({
+        headers: expect.objectContaining({ Authorization: 'Token legacy-token' }),
+      }),
+    )
+    expect(client.getState()).toMatchObject({
+      status: 'authenticated',
+      initialized: true,
+      user: mapped,
+    })
+    expect(JSON.parse(storage.getItem('molecule:auth:user')!)).toEqual(mapped)
+    client.getState()
+    await client.initialize()
+    expect(mockFetch).toHaveBeenCalledTimes(1)
+    client.destroy()
+  })
+
+  it.each([401, 503])(
+    'classifies a token-only startup response %s without leaving loading',
+    async (status) => {
+      const storage = createMockStorage()
+      storage.setItem('molecule:auth:accessToken', 'legacy-token')
+      ;(globalThis as { document?: { cookie: string } }).document = { cookie: '' }
+      mockFetch.mockImplementation(() =>
+        createMockResponse({ error: 'Current user unavailable' }, status),
+      )
+      const client = createJWTAuthClient({ storage, autoRefresh: false })
+
+      await client.initialize()
+
+      expect(mockFetch).toHaveBeenCalledTimes(1)
+      expect(client.getState()).toMatchObject({
+        status: status === 401 ? 'unauthenticated' : 'unavailable',
+        initialized: true,
+        authenticated: false,
+        user: null,
+      })
+      expect(client.getAccessToken()).toBe(status === 401 ? null : 'legacy-token')
+      client.destroy()
+    },
+  )
+
+  it('does not publish a token-only restore after same-token same-user session replacement', async () => {
+    const storage = createMockStorage()
+    storage.setItem('molecule:auth:accessToken', 'same-token')
+    ;(globalThis as { document?: { cookie: string } }).document = { cookie: '' }
+    let complete!: (response: Response) => void
+    mockFetch.mockImplementation(
+      () =>
+        new Promise<Response>((resolve) => {
+          complete = resolve
+        }),
+    )
+    const client = createJWTAuthClient({ storage, autoRefresh: false })
+    const pending = client.initialize()
+    expect(mockFetch).toHaveBeenCalledTimes(1)
+    client.setSession({ accessToken: 'same-token', user: { ...user, name: 'Replacement session' } })
+    const before = client.getState()
+    const persisted = storage.getItem('molecule:auth:user')
+    const changed = vi.fn()
+    const unsubscribe = client.onAuthChange(changed)
+
+    complete(Response.json({ user: { ...user, name: 'Old response' } }))
+    await pending
+
+    expect(client.getState()).toBe(before)
+    expect(storage.getItem('molecule:auth:user')).toBe(persisted)
+    expect(client.getAccessToken()).toBe('same-token')
+    expect(changed).not.toHaveBeenCalled()
+    unsubscribe()
+    client.destroy()
+  })
+
   it('starts the same restore from subscribe()/onAuthChange()', async () => {
     const storage = createMockStorage()
     storage.setItem('molecule:auth:accessToken', createJWT(3600))

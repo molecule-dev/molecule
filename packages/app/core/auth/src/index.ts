@@ -20,7 +20,10 @@
  * hand-rolled token store may replace it.** With the token AND user in the
  * store the restore is synchronous and costs no request; with an httpOnly
  * session cookie the API sets at login it restores through
- * `currentUserEndpoint` (default `/users/me`). `AuthClientConfig.storage` is
+ * `currentUserEndpoint` (default `/users/me`). With only an access token,
+ * it loads and maps the profile from that endpoint once before deciding the
+ * session: 401/403 clears the token; network/5xx failures retain it as
+ * `unavailable`. `AuthClientConfig.storage` is
  * the config field that decides which route a reload takes. A store written
  * beside the client answers requests before its own restore settles: the first
  * authenticated page renders signed-out, and its 401 signs the user out for
