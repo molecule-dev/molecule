@@ -19,15 +19,6 @@
       "reason": "Infinite-loop DoS in image-size's ICNS/JXL/HEIF parsers, reached via @molecule/api-export-pptx -> pptxgenjs 4.0.1. Re-checked 2026-09-14: image-size 2.0.3 is outside the advisory range (<=2.0.2), but pptxgenjs 4.0.1 — its LATEST — still declares image-size ^1.2.1 and uses the v1 default export, so neither a bump nor an overrides pin to 2.x resolves it without breaking pptxgenjs, and npm's suggested fix is still a three-major downgrade. MITIGATED BY REACHABILITY, not merely accepted: src/imageSafety.ts refuses those three formats at the package boundary before pptxgenjs is called, sniffing magic numbers for buffers and data URIs so a declared image/png cannot smuggle HEIF past it (covered by src/__tests__/imageSafety.test.ts). Residual risk: an src URL/path is checked by extension only, since the bytes are fetched inside pptxgenjs. Re-checked 2026-10-15: still no patched 1.x (GitHub lists both advisories as fixed only in 2.0.3), and pptxgenjs 4.0.1 (last published 2025-06-26) still requires image-size ^1.2.1, so the reachability mitigation stands. Re-check at expiry for a pptxgenjs release that accepts image-size 2, or replace pptxgenjs."
     },
     {
-      "package": "csv-parse (via casbin)",
-      "advisories": [
-        "GHSA-8cw4-87c7-c6xx"
-      ],
-      "severity": "moderate",
-      "expires": "2026-10-23",
-      "reason": "Prototype replacement in csv-parse when BOTH columns:true AND group_columns_by_name:true are set and a duplicated __proto__ header appears in the input (advisory published 2026-09-08T18:01Z — it went red mid-release). Reached only via @molecule/api-permissions-casbin -> casbin 5.51.1 -> csv-parse 5.6.0. NO upstream fix exists at or above the pinned versions: casbin 5.51.1 is the LATEST release and npm's fixAvailable is a DOWNGRADE to casbin 5.4.1; csv-parse is patched only in 7.0.2, and forcing csv-parse 7 under casbin is a blind major bump of an indirect. MITIGATED BY REACHABILITY: casbin invokes csv-parse/sync parse(line, {delimiter, skip_empty_lines, trim, relax_quotes}) with NEITHER vulnerable option set (verified in casbin 5.51.1 lib/cjs/persist/helper.js — it parses policy lines into token ARRAYS, never objects with column mapping), so the __proto__ setter branch cannot execute through this path. Residual risk: a future casbin release that adds column mapping would re-expose it — the gate goes red again at expiry. Re-checked 2026-09-23: casbin latest is still 5.51.1 and still declares csv-parse ^5.5.6, so no upstream fix; the patched csv-parse 7.0.2 could only be forced by a root `overrides`, which does not reach a consumer installing @molecule/api-permissions-casbin, so the reachability mitigation stands. Re-check for a casbin release accepting csv-parse 7 (or shipping the fix) at expiry, and drop this entry then."
-    },
-    {
       "package": "node-forge (via @molecule/api-wallet-pass)",
       "advisories": [
         "GHSA-86w9-cpqp-85rv"
@@ -44,6 +35,15 @@
       "severity": "high",
       "expires": "2027-01-03",
       "reason": "Stack-exhaustion DoS in braces when compiling a deeply-nested glob pattern (advisory published 2026-09-18T18:31Z — CI went red on it before the 2026-10-03 app-ide-react release). NO upstream fix exists: the advisory range is braces <= 3.0.3 with first_patched_version null — every released version is vulnerable, and npm audit reports the only remediation as a DOWNGRADE of @changesets/cli 2.31.1 to 2.25.2 (2022), which is arborist picking an older tree that happens to lack micromatch, not a patched chain. Dev-only by reachability: the chain lives entirely in the repo-root devDependencies that run versioning/docs tooling locally and in CI; the --omit=dev audit does not contain braces, micromatch, globby, fast-glob or any @changesets package, and no @molecule package declares any of them, so nothing shipped or scaffolded carries the code. The DoS also requires feeding a crafted nested glob to the matcher — here the patterns are our own workspace globs, not attacker input. Residual risk: a future tooling change that passes external input as a glob would re-expose it; the gate goes red again at expiry so the decision gets remade. Re-check at expiry for a patched braces release or a changesets/micromatch chain without it, bump, and drop this entry."
+    },
+    {
+      "package": "zod 3.25.76 (via @jimp/plugin-* -> jimp 1.6.1)",
+      "advisories": [
+        "GHSA-mrhx-c7xc-m3w5"
+      ],
+      "severity": "high",
+      "expires": "2026-11-20",
+      "reason": "Uncontrolled resource consumption in zod array validation (advisory published 2026-10 — it went red mid-release on the 2026-10-23 dependency wave). NO fix on the installed line: the advisory range is zod <4.6.6 with the fix in 4.6.6+, and jimp 1.6.1 (latest) declares zod ^3.23.8 in every @jimp/plugin-* package — zod 3.25.76 is the newest 3.x and has no patched release, so npm's only remediation is a jimp downgrade to 0.22.12 (2023). MITIGATED BY REACHABILITY: every @jimp plugin uses zod ONLY for developer-supplied OPTIONS schemas (verified in @jimp/plugin-crop dist/esm/index.js: CropOptionsSchema z.object({x,y,w,h numbers}, tolerance 0..1, booleans)) — zod never touches image bytes or anything an end user controls, and the DoS requires a huge unconstrained ARRAY inside the validated object, which only the calling app could construct. Our own direct zod pin is 4.6.7 (patched). Residual risk: a future jimp release validating image-derived data with zod would re-expose it; the gate goes red again at expiry so the decision gets remade. Re-check at expiry for a jimp release on zod 4 (or a patched zod 3.x backport), bump, and drop this entry."
     }
   ]
 }

@@ -97,12 +97,15 @@
     "image-size": "2.0.4",
     "js-yaml": "4.3.2",
     "svgo": "4.1.0",
-    "devalue": "5.9.2",
+    "devalue": "5.9.4",
     "proxy-addr": "2.0.8",
     "fast-copy": "4.1.2",
     "postcss-selector-parser": "7.1.6",
     "source-map-js": "1.2.2",
     "@types/retry": "0.12.5"
   },
-  "license": "Apache-2.0"
+  "license": "Apache-2.0",
+  "dependencies": {
+    "devalue": "5.9.4"
+  }
 }
