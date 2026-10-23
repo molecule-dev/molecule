@@ -6611,6 +6611,31 @@ describe('opt-in first diagnostic progress from a deployed task', () => {
     expect((await wait({ ...backend }, id, enabled)).waitedMs).toBe(30000)
   })
 
+  it('yields only once when two waits read the same running task concurrently', async () => {
+    const { backend } = fixture()
+    const id = await launch(backend)
+    const read = backend.readFile
+    // Real sandbox reads can overlap. Delay exit reads so both waits observe the
+    // diagnostic before either post-log exit probe resolves.
+    backend.readFile = async (path) => {
+      if (path.endsWith('.exit')) await new Promise((resolve) => setTimeout(resolve, 1))
+      return read(path)
+    }
+    const first = buildTools(backend, enabled)
+      .find((tool) => tool.name === 'wait_for_task')!
+      .execute({ taskId: id, timeout: 30000 })
+    const second = buildTools(backend, enabled)
+      .find((tool) => tool.name === 'wait_for_task')!
+      .execute({ taskId: id, timeout: 30000 })
+    await vi.advanceTimersByTimeAsync(31000)
+    const results = (await Promise.all([first, second])) as Array<Record<string, unknown>>
+    expect(
+      results.filter((result) => String(result.note).includes('not a completed result')),
+    ).toHaveLength(1)
+    expect(results.filter((result) => Number(result.waitedMs) >= 30000)).toHaveLength(1)
+    expect(results.every((result) => result.status === 'running')).toBe(true)
+  })
+
   it.each([
     'default',
     'local',

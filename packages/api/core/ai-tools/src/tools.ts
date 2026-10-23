@@ -4035,6 +4035,8 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           // Completion during the log read still wins over a progress return.
           exitCode = await readExit()
           if (exitCode !== null) break
+          // Another wait can yield while this sandbox read is pending.
+          if (taskRecord.diagnosticYielded) continue
           taskRecord.diagnosticYielded = true
           const earlyMs = Date.now() - startedAt
           waitedByTask.set(taskId, waitedBefore + earlyMs)
