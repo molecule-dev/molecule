@@ -1450,6 +1450,30 @@ function executedCommandsOf(command: string, depth: number): ExecutedCommand[] {
 }
 
 /**
+ * The direct executable command-substitution bodies in shell text, in source order.
+ *
+ * Uses the same quote, comment and heredoc boundaries as {@link executedCommands}.
+ * Single-quoted and escaped text is inert. Nested substitutions stay inside their
+ * parent's body so a caller can recurse with a separate working-directory scope
+ * for each body; a `cd` inside one must not affect its sibling or the outer shell.
+ *
+ * @param command - The shell text to read, including any leading assignments.
+ * @returns Each direct `$(…)` or backtick body, without its delimiters.
+ */
+export function commandSubstitutions(command: string): string[] {
+  if (typeof command !== 'string' || !command.trim()) return []
+  const { substitutions } = splitCommand(command)
+  const bodies: string[] = []
+  let parentEnd = -1
+  for (const { start, end } of substitutions.sort((a, b) => a.start - b.start || b.end - a.end)) {
+    if (start < parentEnd) continue
+    bodies.push(command.slice(start, end))
+    parentEnd = end
+  }
+  return bodies
+}
+
+/**
  * Every command a shell command actually executes, at any depth — the statements themselves, the
  * body of a `sh -c '<command>'`, and the body of every command substitution (`$(…)`, backticks).
  *

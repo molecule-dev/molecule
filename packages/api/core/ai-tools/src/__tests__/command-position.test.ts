@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest'
 
 import {
   commandSegments,
+  commandSubstitutions,
   executedCommands,
   locatedCommandSegments,
   runsInCommandPosition,
@@ -900,5 +901,36 @@ describe('a command substitution inside a word keeps that word whole (flash-l07)
     expect(commandSegments(command).map((segment) => segment.program)).toEqual([
       'run-api-tests-hurl.sh',
     ])
+  })
+})
+
+describe('commandSubstitutions exposes existing parse scopes', () => {
+  it('keeps a quoted closing parenthesis inside the executable body', () => {
+    expect(commandSubstitutions('echo "$(printf ")"; rm -f file)"')).toEqual([
+      'printf ")"; rm -f file',
+    ])
+  })
+
+  it('includes assignment-only and prefixed-assignment substitutions', () => {
+    expect(commandSubstitutions('A=$(rm -f a)')).toEqual(['rm -f a'])
+    expect(commandSubstitutions('A=$(rm -f a) true')).toEqual(['rm -f a'])
+  })
+
+  it('keeps sibling bodies separate and nested bodies inside their parent', () => {
+    const command = 'echo "$(cd app; echo "$(rm -f nested)")$(rm -f sibling)"'
+    const bodies = commandSubstitutions(command)
+    expect(bodies).toEqual(['cd app; echo "$(rm -f nested)"', 'rm -f sibling'])
+    expect(commandSubstitutions(bodies[0]!)).toEqual(['rm -f nested'])
+  })
+
+  it('reads executable backticks and ignores inert or escaped substitutions', () => {
+    expect(commandSubstitutions('echo `rm -f file`')).toEqual(['rm -f file'])
+    expect(commandSubstitutions("echo '$(rm -f file)' '`rm -f file`'")).toEqual([])
+    expect(commandSubstitutions(String.raw`echo \$(rm -f file) \`rm -f file\``)).toEqual([])
+  })
+
+  it('ignores substitutions written in comments or quoted heredoc data', () => {
+    expect(commandSubstitutions('# $(rm -f file)\necho ok')).toEqual([])
+    expect(commandSubstitutions("cat <<'EOF'\n$(rm -f file)\nEOF")).toEqual([])
   })
 })
