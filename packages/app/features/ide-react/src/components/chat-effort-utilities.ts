@@ -125,8 +125,7 @@ export function modelsSupportingEffort(
  * model — the model's own native values, ascending (e.g.
  * `['low', 'high', 'xhigh', 'max']`, or `['off', 'low', 'high', 'max']` on an
  * opt-in reasoning model where `off` is the local toggle). Empty for a
- * fixed-reasoning model (`grok-code-fast-1`, DeepSeek V4 Pro/V4 Flash) or an
- * unknown model, which expose no effort choice.
+ * model with no selectable effort levels, or an unknown model.
  *
  * @param model - The active model to read levels from, or `undefined`.
  * @returns The model's effort levels in ascending order (empty when it has none).
