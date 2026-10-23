@@ -1,5 +1,11 @@
 # @molecule/app-react
 
+## 1.10.0
+
+### Minor Changes
+
+- Keep profile saves and form completion in the same session when editable account fields change.
+
 ## 1.9.0
 
 ### Minor Changes

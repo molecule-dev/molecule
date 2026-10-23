@@ -1,5 +1,11 @@
 # @molecule/app-auth
 
+## 1.8.0
+
+### Minor Changes
+
+- Keep profile saves and form completion in the same session when editable account fields change.
+
 ## 1.7.0
 
 ### Minor Changes
