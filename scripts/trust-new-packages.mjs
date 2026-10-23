@@ -553,8 +553,10 @@ if (!CI) {
     added: [...ledger].filter((name) => !ledgerBefore.has(name)).sort(),
   })
   if (outcome.committed) console.log(`Committed .trust-state.json (${outcome.sha}); not pushed.`)
-  else if (outcome.reason && !outcome.reason.startsWith('nothing was added'))
-    console.error(`Did not commit .trust-state.json: ${outcome.reason}`)
+  if (outcome.reason && !outcome.reason.startsWith('nothing was added'))
+    console.error(
+      `${outcome.committed ? 'Trust ledger commit warning' : 'Did not commit .trust-state.json'}: ${outcome.reason}`,
+    )
 }
 
 if (failed.length) {
