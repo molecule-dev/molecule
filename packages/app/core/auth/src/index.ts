@@ -165,6 +165,20 @@
  * })
  * ```
  *
+ * The profile write route is independent of `currentUserEndpoint` (which is a GET).
+ * Configure all request fields for the API you own; changing the method/body does
+ * not change the endpoint. A resource with an account-id route uses the same config:
+ *
+ * ```typescript
+ * const client = createJWTAuthClient({
+ *   currentUserEndpoint: '/accounts/current',
+ *   profileEndpoint: (user) => `/accounts/${encodeURIComponent(user.id)}`,
+ * })
+ * ```
+ *
+ * The resolver receives the signed-in user before applying the submitted patch.
+ * It requires a loaded user and never derives a write URL from the GET endpoint.
+ *
  * That adapts the REQUEST only. Response mapping (`mapAuthResponse`), token and user storage,
  * subscriber notifications and the reload restore are the client's existing behavior — replacing
  * the client to change a method or an envelope also replaces the lifecycle that keeps a session

@@ -340,3 +340,36 @@ export const client = createJWTAuthClient<AppUser>({ ${fields} })
     expect(diagnostics.join('\n')).toContain('DELETE')
   })
 })
+
+describe('profile endpoint resolver has the signed-in profile type', () => {
+  const source = (field: string): string => `
+import { createJWTAuthClient } from '../index.js'
+import type { AuthClientConfig, UserProfile } from '../types.js'
+interface Account extends UserProfile { slug: string }
+const config: AuthClientConfig<Account> = { ${field} }
+export const client = createJWTAuthClient<Account>(config)
+`
+  it('accepts a current-user keyed write route independently of the read route', () => {
+    expect(
+      diagnosticsFor(
+        source(
+          "currentUserEndpoint: '/viewer', profileEndpoint: (user) => '/members/' + encodeURIComponent(user.id)",
+        ),
+      ),
+    ).toEqual([])
+  })
+  it('rejects an unknown profile property in the route resolver', () => {
+    expect(diagnosticsFor(source('profileEndpoint: (user) => user.missing')).join('\n')).toContain(
+      'missing',
+    )
+  })
+  it('keeps explicitly different read and write string routes compatible', () => {
+    expect(
+      diagnosticsFor(
+        source(
+          "currentUserEndpoint: '/viewer', profileEndpoint: '/preferences', profileUpdateMethod: 'PUT'",
+        ),
+      ),
+    ).toEqual([])
+  })
+})

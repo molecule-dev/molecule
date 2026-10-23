@@ -964,10 +964,33 @@ export const createJWTAuthClient = <
       // the user, notifying subscribers — is the same session state for every
       // transport, so a PUT/enveloped API does not need a hand-written client.
       // Defaults keep the resource-style PATCH with bare data.
+      const profileUser = state.user
+      if (typeof profileEndpoint === 'function' && !profileUser)
+        throw new I18nError(
+          'auth.error.unauthorized',
+          undefined,
+          'Sign in before updating a profile',
+        )
+      const endpoint =
+        typeof profileEndpoint === 'function' ? profileEndpoint(profileUser!) : profileEndpoint
+      if (
+        typeof profileEndpoint === 'function' &&
+        (typeof endpoint !== 'string' || !endpoint.trim())
+      )
+        throw new TypeError('profileEndpoint must resolve to a nonempty route')
       const body = profileRequestBody ? profileRequestBody(data) : data
-      const answer = await fetchAPI<T>(profileEndpoint, {
+      // Body adapters may return custom serializers; finish caller code before
+      // checking which session will authorize the request.
+      const serializedBody = JSON.stringify(body)
+      if (revision !== sessionRevision)
+        throw new I18nError(
+          'auth.error.unauthorized',
+          undefined,
+          'The profile session changed before submission',
+        )
+      const answer = await fetchAPI<T>(endpoint, {
         method: profileUpdateMethod,
-        body: JSON.stringify(body),
+        body: serializedBody,
       })
 
       // The profile route answers in one of three shapes: a bare user, `{ user }`, or

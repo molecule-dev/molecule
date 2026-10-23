@@ -612,9 +612,12 @@ export interface AuthClientConfig<T extends UserProfile = UserProfile> {
   refreshEndpoint?: string
 
   /**
-   * User profile endpoint.
+   * The write route used by `updateProfile`, independently of `currentUserEndpoint`.
+   * Defaults to `/auth/profile`. A resource route with an account id can resolve
+   * from the signed-in user, e.g. `(user) => '/accounts/' + encodeURIComponent(user.id)`.
+   * The resolver sees the current user before the patch, never caller-submitted identity.
    */
-  profileEndpoint?: string
+  profileEndpoint?: string | ((user: Readonly<T>) => string)
 
   /** HTTP method for `updateProfile()` (default `'PATCH'`; `'PUT'` for a `PUT /api/user` route). */
   profileUpdateMethod?: 'PATCH' | 'PUT' | 'POST'
