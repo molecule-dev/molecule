@@ -93,6 +93,8 @@
     "ip-address": "10.7.4",
     "vite": "8.1.6",
     "follow-redirects": "1.16.1",
+    "csv-parse": "7.0.3",
+    "image-size": "2.0.4",
     "js-yaml": "4.3.2",
     "svgo": "4.1.0",
     "devalue": "5.9.2",
