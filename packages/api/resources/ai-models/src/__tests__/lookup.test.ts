@@ -1135,8 +1135,8 @@ const INTENTIONAL_FAMILY_OVERLAPS: { older: string; newer: string; why: string }
   },
   {
     older: 'kimi-k2.7-code',
-    newer: 'kimi-k3',
-    why: 'Coding specialist and the only cheap Moonshot tier ($0.95/$4 vs $3/$15).',
+    newer: 'kimi-k3.1-pro-highspeed',
+    why: 'Coding specialist and the only cheap Moonshot tier ($0.95/$4 vs $4/$20).',
   },
   {
     older: 'qwen3-coder-plus',
@@ -1278,8 +1278,9 @@ describe('supersededBy', () => {
       'grok-4.6': 'grok-4.7',
       'grok-4.5': 'grok-4.7',
       'grok-4.3': 'grok-4.7',
-      'kimi-k2.6': 'kimi-k3',
-      'kimi-k2.5': 'kimi-k3',
+      'kimi-k3': 'kimi-k3.1-pro-highspeed',
+      'kimi-k2.6': 'kimi-k3.1-pro-highspeed',
+      'kimi-k2.5': 'kimi-k3.1-pro-highspeed',
       'minimax-m2.7': 'minimax-m3.1-flash',
       'minimax-m2.5': 'minimax-m3.1-flash',
       'qwen3.7-max': 'qwen3.8-max',

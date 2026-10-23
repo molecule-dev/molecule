@@ -229,7 +229,7 @@ describe('chat() — request shape', () => {
     }
   })
 
-  it('defaults model to kimi-k3', async () => {
+  it('defaults model to kimi-k3.1-pro-highspeed', async () => {
     const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
     fetch.mockResolvedValue(
       jsonResponse(200, { choices: [{ message: { content: 'h' } }], usage: {} }),
@@ -242,7 +242,7 @@ describe('chat() — request shape', () => {
       // drain
     }
     const body = JSON.parse((fetch.mock.calls[0][1] as RequestInit).body as string)
-    expect(body.model).toBe('kimi-k3')
+    expect(body.model).toBe('kimi-k3.1-pro-highspeed')
   })
 
   it('uses max_completion_tokens (not max_tokens)', async () => {
@@ -393,8 +393,9 @@ describe('chat() — request shape', () => {
   })
 
   // These pin a K2.x model explicitly: the env-var path only applies to the
-  // K2.x family — the default model is now kimi-k3, whose depth rides
-  // params.thinking.effort and deliberately ignores KIMI_REASONING_EFFORT.
+  // K2.x family — the default model is now kimi-k3.1-pro-highspeed, whose
+  // depth rides params.thinking.effort and deliberately ignores
+  // KIMI_REASONING_EFFORT.
   describe('KIMI_REASONING_EFFORT env-var paths (when no thinking specified)', () => {
     const original = process.env.KIMI_REASONING_EFFORT
     afterEach(() => {

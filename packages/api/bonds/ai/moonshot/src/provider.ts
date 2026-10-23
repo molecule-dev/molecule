@@ -74,7 +74,7 @@ class MoonshotAIProvider implements AIProvider {
 
   constructor(config: MoonshotConfig = {}) {
     this.apiKey = config.apiKey ?? process.env.MOONSHOT_API_KEY ?? ''
-    this.defaultModel = config.defaultModel ?? 'kimi-k3'
+    this.defaultModel = config.defaultModel ?? 'kimi-k3.1-pro-highspeed'
     this.maxTokens = config.maxTokens ?? 4096
     this.baseUrl = config.baseUrl ?? process.env.MOONSHOT_BASE_URL ?? 'https://api.moonshot.ai'
     this.completionsPath =

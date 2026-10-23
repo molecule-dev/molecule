@@ -76,6 +76,10 @@ export const DEFAULT_MODEL_MAP: Readonly<Record<string, string>> = {
   'deepseek-v4-pro': 'deepseek/deepseek-v4-pro',
   'deepseek-flash': 'deepseek/deepseek-flash',
   'kimi-k3': 'moonshotai/kimi-k3',
+  // Released after pi 1.0.0's bundled catalog; a passthrough row — the
+  // moonshotai provider resolves on api.moonshot.ai, where this native id
+  // is served (verified on Moonshot's own models page 2026-10-23).
+  'kimi-k3.1-pro-highspeed': 'moonshotai/kimi-k3.1-pro-highspeed',
   'kimi-k2.7-code': 'moonshotai/kimi-k2.7-code',
   'kimi-k2.6': 'moonshotai/kimi-k2.6',
   'minimax-m3': 'minimax/MiniMax-M3',
