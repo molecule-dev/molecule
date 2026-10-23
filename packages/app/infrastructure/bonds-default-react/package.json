@@ -38,7 +38,7 @@
     "directory": "packages/app/infrastructure/bonds-default-react"
   },
   "devDependencies": {
-    "@molecule/app-auth": "1.6.1",
+    "@molecule/app-auth": "1.6.2",
     "@molecule/app-charts-chartjs": "1.0.2",
     "@molecule/app-client-search": "1.0.2",
     "@molecule/app-client-search-minisearch": "1.0.3",
@@ -49,7 +49,7 @@
     "@molecule/app-drag-drop": "1.0.2",
     "@molecule/app-drag-drop-dndkit": "1.0.2",
     "@molecule/app-fonts": "1.2.1",
-    "@molecule/app-fonts-arimo": "1.0.3",
+    "@molecule/app-fonts-arimo": "1.0.4",
     "@molecule/app-http": "1.4.0",
     "@molecule/app-icons": "1.0.2",
     "@molecule/app-icons-molecule": "1.0.2",

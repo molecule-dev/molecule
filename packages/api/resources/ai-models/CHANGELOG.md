@@ -1,5 +1,11 @@
 # @molecule/api-resource-ai-models
 
+## 1.17.4
+
+### Patch Changes
+
+- 7dad990: Default DeepSeek Flash to low reasoning effort while preserving explicit effort selections.
+
 ## 1.17.3
 
 ### Patch Changes

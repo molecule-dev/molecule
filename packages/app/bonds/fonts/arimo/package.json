@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-fonts-arimo",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Arimo font provider for molecule.dev",
   "type": "module",
   "main": "dist/index.js",

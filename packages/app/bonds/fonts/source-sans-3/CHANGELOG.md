@@ -1,5 +1,11 @@
 # @molecule/app-fonts-source-sans-3
 
+## 1.1.3
+
+### Patch Changes
+
+- ebf1f02: Resolve self-hosted font files through browser builds and require a font core that supports asset URLs.
+
 ## 1.1.2
 
 ### Patch Changes

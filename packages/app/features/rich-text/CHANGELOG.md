@@ -1,5 +1,11 @@
 # @molecule/app-rich-text
 
+## 1.0.5
+
+### Patch Changes
+
+- 2dada4b: Update HTML sanitization to DOMPurify 3.4.17.
+
 ## 1.0.3
 
 ### Patch Changes

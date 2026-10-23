@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-fonts-ibm-plex-mono",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "IBM Plex Mono font provider for molecule.dev",
   "type": "module",
   "main": "dist/index.js",

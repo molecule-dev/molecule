@@ -1,5 +1,11 @@
 # @molecule/app-fonts-arimo
 
+## 1.0.4
+
+### Patch Changes
+
+- ebf1f02: Resolve self-hosted font files through browser builds and require a font core that supports asset URLs.
+
 ## 1.0.3
 
 ### Patch Changes

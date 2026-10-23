@@ -1,5 +1,20 @@
 # @molecule/api-ai-tools
 
+## 1.14.0
+
+### Minor Changes
+
+- 5aefa29: Expose executable shell substitution bodies while preserving their separate directory scopes.
+- 0ffa30b: Expose shell directory scope ancestry for parenthesized groups and nested command strings.
+
+### Patch Changes
+
+- 1eedf56: A background Playwright run wrapped in a status-capture chain (`…; rc=$?; echo …; exit $((…))`) now keeps the platform's progressive `list` reporter, the inline-failure switch and the machine JSON report, instead of running on the reporter the command happened to name.
+- 1714f87: Preserve byte counts when reporting incomplete task logs.
+- e8c293e: A composed scoped re-run's `tail`/`head`/`cat`/`grep` of the log it writes now displays the fresh report instead of the previous run's log.
+- 23dad62: `runningLogReadCommand` (and the `registeredTaskLogCommand` handle it resolves) read a running task's log as one contiguous, size-marked window, so a diagnostic note is never built from the stitched `outputSoFar` display.
+- 67f8386: Keep a shell word whole when it contains a command substitution, so a runner behind `UID_VAL=h$(date +%s) ./run-tests.sh` is still read in command position.
+
 ## 1.13.1
 
 ### Patch Changes

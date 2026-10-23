@@ -1,5 +1,11 @@
 # @molecule/app-ide-react
 
+## 1.22.2
+
+### Patch Changes
+
+- 3566742: Clarify that effort choices follow each model's declared reasoning settings.
+
 ## 1.22.1
 
 ### Patch Changes

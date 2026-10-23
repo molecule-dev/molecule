@@ -1,5 +1,11 @@
 # @molecule/app-auth
 
+## 1.6.2
+
+### Patch Changes
+
+- e5f9c9f: Ignore stale session-validation and cookie-restore responses after sign-out or a session change.
+
 ## 1.6.1
 
 ### Patch Changes

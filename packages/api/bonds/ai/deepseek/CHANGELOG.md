@@ -1,5 +1,12 @@
 # @molecule/api-ai-deepseek
 
+## 1.0.13
+
+### Patch Changes
+
+- b4175f6: Read native cache hit and miss counters with legacy fallback and preserve explicit zero usage.
+- bc96887: Reject interrupted streams and malformed tool calls without reporting a completed response.
+
 ## 1.0.12
 
 ### Patch Changes
