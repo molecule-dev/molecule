@@ -69,11 +69,11 @@ export interface AppModelDefinition {
    * The model's OWN effort levels, ordered ascending — the exact values the
    * `/effort` command offers and that get persisted. Native-effort models list
    * their provider values (`['low', 'high', 'xhigh', 'max']`); budget models
-   * list scaled-budget labels (`['4K', '8K', '16K', '32K']`); opt-in reasoning
+   * list scaled-budget labels (`['4K', '8K', '16K', '32K']`); optional reasoning
    * models put the local `'off'` toggle first (`['off', 'low', 'high', 'max']`,
-   * default `'off'`); fixed-reasoning models omit it. A persisted value outside
-   * the set degrades to the nearest — except on an off-default model, where it
-   * resolves to `'off'` so stale settings cannot enable reasoning.
+   * with the default declared by the model); fixed-reasoning models omit it.
+   * A persisted value outside the set degrades to the nearest, except on a
+   * model offering `'off'`, where it resolves to the declared default.
    * Mirrors the server-side `ModelDefinition` field.
    */
   supportedEffortLevels?: EffortLevel[]
