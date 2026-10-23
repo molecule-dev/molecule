@@ -12,6 +12,7 @@
  * (identity, tool listing, project docs, discovered skills).
  *
  * @remarks
+ * - **`yieldOnFirstFailureFor`** can yield one still-running deployed task's concrete diagnostic; callers opt out after a prior wait result or unknown history.
  * - **This package only defines the tools — it runs no model loop.** Hand them to
  *   the bonded AI provider (`chat({ tools, … })`) or to an
  *   `@molecule/api-ai-agents` run.

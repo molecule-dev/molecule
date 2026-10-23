@@ -154,6 +154,14 @@ export interface ToolBuildConfig {
   commandBudgetMs?: number
 
   /**
+   * Opt in to one partial diagnostic return for a task driving this known deployed URL.
+   * Return null when the task already returned a wait result or its history is unknown.
+   * Only a real suite command with a complete inline failure report can yield; it remains
+   * running, with no exit code or completed proof. Absent leaves ordinary waits unchanged.
+   */
+  yieldOnFirstFailureFor?: (taskId: string) => string | null
+
+  /**
    * How long (ms) exec_command waits for a command it backgrounded only because the
    * command asked for more than {@link commandBudgetMs}, before handing back a task
    * id; one that finishes inside it returns like a foreground run. Default 45000.

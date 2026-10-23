@@ -3,7 +3,7 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-import { afterAll, describe, expect, it, vi } from 'vitest'
+import { afterAll, afterEach, describe, expect, it, vi } from 'vitest'
 
 import {
   buildAgentPrompt,
@@ -20,7 +20,7 @@ import {
   SUITE_OVER_BUDGET_ADVICE,
   TOOL_SCHEMAS,
 } from '../index.js'
-import type { ExecutionBackend } from '../types.js'
+import type { ExecutionBackend, ToolBuildConfig } from '../types.js'
 import {
   MAX_READ_CALL_CHARS,
   MAX_READ_RETURN_CHARS,
@@ -6497,4 +6497,196 @@ describe('background tasks are scoped to their own project (m208)', () => {
     expect(own.status).toBe('task_state')
     expect(own.note).toContain(launched.taskId)
   })
+})
+
+describe('opt-in first diagnostic progress from a deployed task', () => {
+  const url = 'https://deployed.example'
+  const command = `BASE_URL=${url} npx playwright test --reporter=line`
+  const pass =
+    'Running 3 tests using 1 worker\n  ✓  1 [chromium] › auth.spec.ts:1:1 › login works (1s)\n'
+  const row = '  ✘  2 [chromium] › articles.spec.ts:123:3 › favorite (7.5s)'
+  const body = [
+    row,
+    '  1) [chromium] › articles.spec.ts:123:3 › favorite ─────────',
+    '',
+    '    TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.',
+    '    Call log:',
+    '      - waiting for locator(\'button.btn-primary:has-text("Unfavorite")\') to be visible',
+    '',
+    '       at articles.spec.ts:123:3',
+  ].join('\n')
+  interface State {
+    files: Map<string, string>
+    text: string
+    finishAt: number
+    finishCode: number
+    finishOnLook: boolean
+  }
+  afterEach(() => vi.useRealTimers())
+  function fixture(): { backend: ExecutionBackend; state: State } {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-10-23T00:00:00Z'))
+    const t0 = Date.now()
+    const state: State = {
+      files: new Map(),
+      text: body,
+      finishAt: Infinity,
+      finishCode: 0,
+      finishOnLook: false,
+    }
+    const log = (): string => pass + (Date.now() - t0 >= 4000 ? state.text : '')
+    const backend: ExecutionBackend = {
+      projectRoot: '/test',
+      readFile: vi.fn(async (path) => {
+        if (path.endsWith('.exit') && Date.now() >= state.finishAt) return String(state.finishCode)
+        if (state.files.has(path)) return state.files.get(path)!
+        if (path.endsWith('.log')) return log()
+        if (path.endsWith('.pid')) return '4242'
+        throw Error('ENOENT')
+      }),
+      writeFile: vi.fn(async (path, text) => {
+        state.files.set(path, text)
+      }),
+      deleteFile: vi.fn(),
+      readDir: vi.fn(async () => []),
+      run: vi.fn(async (cmd) => {
+        let stdout = ''
+        if (cmd.includes('MOL_OWN_TASKS_END')) {
+          const ids = [...cmd.matchAll(/\bmol-bg-[a-z0-9]+-[a-z0-9]+\b/g)].map((m) => m[0])
+          stdout =
+            ids
+              .filter((id) => state.files.has(`/tmp/${id}.sh`))
+              .map((id) => `MOL_OWN_TASK ${id}\n`)
+              .join('') + 'MOL_OWN_TASKS_END'
+        } else if (cmd.includes('MOL_TASK_STATE')) {
+          stdout = `MOL_TASK_STATE ${Date.now() >= state.finishAt ? 'gone' : 'alive'}\nMOL_TASK_EXIT\n${log()}`
+        } else if (cmd.includes('tail -c')) {
+          stdout = (cmd.includes('wc -c') ? `${log().length}\n` : '') + log()
+          if (state.finishOnLook && Date.now() - t0 >= 4000) state.finishAt = Date.now()
+        } else if (cmd.includes('wc -c')) stdout = String(log().length)
+        return { stdout, stderr: '', exitCode: 0 }
+      }),
+    }
+    return { backend, state }
+  }
+  async function launch(backend: ExecutionBackend, text = command): Promise<string> {
+    const exec = buildTools(backend).find((t) => t.name === 'exec_command')!
+    const result = (await exec.execute({ command: text, run_in_background: true })) as {
+      taskId: string
+    }
+    expect(result.taskId).toMatch(/^mol-bg-/)
+    return result.taskId
+  }
+  async function wait(
+    backend: ExecutionBackend,
+    taskId: string,
+    config?: ToolBuildConfig,
+  ): Promise<Record<string, unknown>> {
+    const pending = buildTools(backend, config)
+      .find((t) => t.name === 'wait_for_task')!
+      .execute({ taskId, timeout: 30000 })
+    await vi.advanceTimersByTimeAsync(30000)
+    return (await pending) as Record<string, unknown>
+  }
+  const enabled = { yieldOnFirstFailureFor: () => url }
+
+  it('yields the actual inline diagnostic at the existing look, without ending the task', async () => {
+    const { backend, state } = fixture()
+    const id = await launch(backend)
+    const result = await wait(backend, id, enabled)
+    expect(result).toMatchObject({ status: 'running', waitedMs: 12000 })
+    expect(result.outputSoFar).toContain('TimeoutError: page.waitForSelector')
+    expect(result.note).toContain('not a completed result')
+    expect(result.note).not.toContain('kill')
+    expect(result).not.toHaveProperty('exitCode')
+    expect(result).not.toHaveProperty('runReport')
+    expect(state.finishAt).toBe(Infinity)
+  })
+
+  it('yields at most once across repeated waits and newly built tools/backends for the same owned task', async () => {
+    const { backend } = fixture()
+    const id = await launch(backend)
+    expect((await wait(backend, id, enabled)).waitedMs).toBe(12000)
+    expect((await wait(backend, id, enabled)).waitedMs).toBe(30000)
+    expect((await wait({ ...backend }, id, enabled)).waitedMs).toBe(30000)
+  })
+
+  it.each([
+    'default',
+    'local',
+    'unknown-target',
+    'different-target',
+    'quoted-command',
+    'quoted-log',
+    'callback-error',
+    'list-only',
+    'passing',
+  ])('preserves ordinary waiting for %s', async (kind) => {
+    const { backend, state } = fixture()
+    const text =
+      kind === 'local'
+        ? 'BASE_URL=http://localhost:5173 npx playwright test'
+        : kind === 'quoted-command'
+          ? `printf '%s' '${command}'`
+          : command
+    if (kind === 'quoted-log') state.text = JSON.stringify(body)
+    if (kind === 'list-only') state.text = row
+    if (kind === 'passing')
+      state.text = '  ✓  2 [chromium] › articles.spec.ts:1:1 › favorite (1s)\n'
+    const config =
+      kind === 'default'
+        ? undefined
+        : {
+            yieldOnFirstFailureFor: () => {
+              if (kind === 'callback-error') throw Error('history unavailable')
+              return kind === 'unknown-target'
+                ? null
+                : kind === 'different-target'
+                  ? 'https://other.example'
+                  : url
+            },
+          }
+    const result = await wait(backend, await launch(backend, text), config)
+    expect(result).toMatchObject({ status: 'running', waitedMs: 30000 })
+  })
+
+  it('recovers a valid owned Hurl→Playwright task script without inventing an original cwd', async () => {
+    const { backend, state } = fixture()
+    const id = 'mol-bg-recovered-proof'
+    state.files.set(
+      `/tmp/${id}.sh`,
+      `cd /workspace/specs/api && HOST=${url} ./run-api-tests-hurl.sh; __proof_fast=$?; ` +
+        `cd /workspace && BASE_URL=${url} npx playwright test --config e2e-suite.config.ts; ` +
+        '__proof_slow=$?; echo "__PROOF_EXIT__ hurl=$__proof_fast playwright=$__proof_slow"; exit $((__proof_fast | __proof_slow))',
+    )
+    const result = await wait(backend, id, enabled)
+    expect(result).toMatchObject({ status: 'running', waitedMs: 12000 })
+    expect(result).not.toHaveProperty('exitCode')
+    expect((await wait(backend, id, enabled)).waitedMs).toBe(30000)
+  })
+
+  it('refuses invalid and foreign handles before any diagnostic yield', async () => {
+    const { backend } = fixture()
+    const tool = buildTools(backend, enabled).find((t) => t.name === 'wait_for_task')!
+    expect(await tool.execute({ taskId: 'mol-bg-invalid', timeout: 30000 })).toHaveProperty('error')
+    expect(backend.readFile).not.toHaveBeenCalled()
+    const unknown = await tool.execute({ taskId: 'mol-bg-foreign-proof', timeout: 30000 })
+    expect(unknown).toMatchObject({ status: 'unknown' })
+    expect(backend.readFile).not.toHaveBeenCalled()
+  })
+
+  it.each([false, true])(
+    'prefers completion/cancel over diagnostic progress (cancel=%s)',
+    async (cancel) => {
+      const { backend, state } = fixture()
+      const id = await launch(backend)
+      if (cancel) {
+        state.finishAt = Date.now() + 6000
+        state.finishCode = 143
+      } else state.finishOnLook = true
+      const result = await wait(backend, id, enabled)
+      expect(result.status).toBe('completed')
+      expect(result.note ?? '').not.toContain('not a completed result')
+    },
+  )
 })

@@ -150,7 +150,7 @@ const inlineFailuresByTask = new Set<string>()
  * what the executor must not be handed for now, and a re-run narrowed for the wrong directory
  * resolves the failing test's `file:line` against the wrong suite.
  */
-const runByTask = new Map<string, { command: string; cwd: string }>()
+const runByTask = new Map<string, { command: string; cwd?: string; diagnosticYielded?: boolean }>()
 
 /**
  * The background task ids each backend launched. Every map above is keyed by task id alone and is
@@ -3753,6 +3753,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
     // server-side costs no round trip and no context.
     async wait_for_task(input) {
       const taskId = typeof input.taskId === 'string' ? input.taskId.trim() : ''
+      let recoveredCommand: string | undefined
       // An id another project launched is not this project's to wait on — its files are in that
       // project's sandbox, so a wait here would poll for an exit file that never appears, and its
       // wait time would count against that project's own stuck clock (xr-molecule-flash-m208
@@ -3792,6 +3793,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         outputFileProbed.add(taskId)
         try {
           const script = await backend.readFile(`/tmp/${taskId}.sh`)
+          recoveredCommand = script
           const target = outputRedirectTarget(script)
           // A relative target was written against the command's own cwd, which
           // the handle does not carry; the project root is where a background
@@ -3921,7 +3923,31 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       // and its overlap hold refused that exact run 23 s later) — and so a run narrowed to a
       // file or two is judged against what it selected (xr-molecule-flash-m119 +42:08). Read
       // BEFORE the loop: the running answers below are built after it closes and still need it.
-      const started = runByTask.get(taskId)
+      let taskRecord = runByTask.get(taskId)
+      // Recovery knows the script, not the original cwd. Keep existing rerun hints unknown.
+      const started =
+        taskRecord?.cwd === undefined
+          ? undefined
+          : { command: taskRecord.command, cwd: taskRecord.cwd }
+      let yieldDiagnostic = false
+      try {
+        const target = config?.yieldOnFirstFailureFor?.(taskId)
+        const command = taskRecord?.command ?? recoveredCommand
+        if (target && command && isSuiteRunCommand(command)) {
+          const url = new URL(target)
+          const runTarget = suiteCommandTarget(command)
+          yieldDiagnostic =
+            (url.protocol === 'https:' || url.protocol === 'http:') &&
+            runTarget !== 'local' &&
+            runTarget === url.host.toLowerCase()
+          if (yieldDiagnostic && !taskRecord) {
+            taskRecord = { command }
+            runByTask.set(taskId, taskRecord)
+          }
+        }
+      } catch (_error) {
+        // Unknown consumer history/target does not change an ordinary wait.
+      }
       let midRunNote: string | null = null
       let lastCauseLookAt = startedAt - repeatingCauseLookMs()
       let lastEndLookAt = startedAt - TASK_END_LOOK_MS
@@ -3970,7 +3996,6 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         // The page-renders-nothing cause needs no repeated signature: every spec waits for its
         // own first element, so the failures differ while the cause does not (m141).
         const universal = universalCause(causeLog, found, started?.command)
-        if (!found && !universal) continue
         // The ONE predicate behind this decision and `repeatingFailureNote`'s wording, so the two
         // cannot come to different verdicts.
         const stopCause = earlyReturnCause(found, universal)
@@ -3999,6 +4024,29 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
               universal: stopCause,
               ...(started ? { run: started } : {}),
             }),
+          }
+        }
+        if (
+          yieldDiagnostic &&
+          taskRecord &&
+          !taskRecord.diagnosticYielded &&
+          logShowsInlineFailureBodies(causeLog)
+        ) {
+          // Completion during the log read still wins over a progress return.
+          exitCode = await readExit()
+          if (exitCode !== null) break
+          taskRecord.diagnosticYielded = true
+          const earlyMs = Date.now() - startedAt
+          waitedByTask.set(taskId, waitedBefore + earlyMs)
+          return {
+            taskId,
+            status: 'running',
+            waitedMs: earlyMs,
+            outputSoFar: sanitizeOutput(truncateMiddle(causeLog, MAX_OUTPUT_SIZE)),
+            note:
+              'A failure report is available, but this task is still running. This is partial ' +
+              'log output, not a completed result. Local edits do not change this deployed ' +
+              'build; leave the task running and collect its final result.',
           }
         }
         // A lead: this wait goes on, and the finding rides its result as a note — the executor has
@@ -4188,7 +4236,9 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       // How this run was started, so the note can hand over the narrowed re-run of exactly its
       // failing tests instead of leaving the executor to re-run the whole suite (xr-molecule-
       // flash-m101 +12:13: 139 tests, ~4 minutes, to check two fixes).
-      const run = runByTask.get(taskId)
+      const record = runByTask.get(taskId)
+      const run =
+        record?.cwd === undefined ? undefined : { command: record.command, cwd: record.cwd }
       // The standard machine report this launch wired, when it did (`reportByTask`). Read once per
       // finished wait: it is the runner's own record of each failing test's identity and of the
       // artifacts saved for that test, so a diagnosis can stop reconstructing them from the log.
