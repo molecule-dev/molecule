@@ -143,6 +143,20 @@ export interface ExpressLifecycleOptions extends Omit<
   /** Mount `GET /health/live` and `GET /health/ready`. Defaults to `true`. */
   mountRoutes?: boolean
   /**
+   * Deployment-specific headers on a readiness response that is already 503
+   * because the process is draining. Never called for boot/check failures or
+   * liveness. A proxy may hand this refused request to a serving instance.
+   *
+   * The caller owns request eligibility and platform routing semantics. No
+   * application handler has executed at this point; defaults to no handoff.
+   *
+   * @param request - The refused readiness request.
+   * @returns Trusted response headers, or undefined to preserve ordinary 503.
+   */
+  drainingResponseHeaders?: (
+    request: express.Request,
+  ) => Readonly<Record<string, string>> | undefined
+  /**
    * Bond the provider through `setProvider()` so `@molecule/api-process-lifecycle`
    * accessors resolve to it. Defaults to `true`.
    */

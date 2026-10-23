@@ -23,23 +23,32 @@ import type {
 /**
  * Set `Connection: close` on a response while the process is draining.
  *
+ * Use handoff headers only on a response that refuses the request before any
+ * application operation runs. A routing proxy may execute that request elsewhere.
+ * This function never changes the HTTP status, body or readiness verdict.
+ *
  * @param provider - The lifecycle provider that owns the drain state.
  * @param res - The response being prepared.
+ * @param headers - Optional deployment-specific response headers for a refused request.
  */
-function applyDrainHeader(provider: ProcessLifecycleProvider, res: express.Response): void {
-  if (provider.isDraining()) res.setHeader('Connection', 'close')
+export function applyDrainingResponseHeaders(
+  provider: ProcessLifecycleProvider,
+  res: express.Response,
+  headers?: Readonly<Record<string, string>>,
+): void {
+  if (!provider.isDraining()) return
+  for (const [name, value] of Object.entries(headers ?? {})) res.setHeader(name, value)
+  res.setHeader('Connection', 'close')
 }
 
 /**
- * Create middleware that only marks responses `Connection: close` from the
- * first drain instant.
+ * Mark responses to requests arriving while draining `Connection: close`.
  *
  * An application that keeps its own request counting (a server that predates
  * this package's middleware) mounts this instead of
- * {@link createLifecycleMiddleware}: from the instant `startDraining()` is
- * called every response tells the peer not to reuse the connection, so a proxy
- * holding a keep-alive socket opens a new one and the load balancer routes it
- * to a serving sibling. Mount it before every route.
+ * {@link createLifecycleMiddleware}. State is checked at request entry. The
+ * header tells the peer not to reuse this connection; routing withdrawal is
+ * the load balancer's responsibility. Mount this before every route.
  *
  * @param provider - The lifecycle provider that owns the drain state.
  * @returns An Express request handler.
@@ -53,7 +62,7 @@ export function createDrainHeaderMiddleware(
   provider: ProcessLifecycleProvider,
 ): express.RequestHandler {
   return (_req, res, next) => {
-    applyDrainHeader(provider, res)
+    applyDrainingResponseHeaders(provider, res)
     next()
   }
 }
@@ -63,7 +72,7 @@ export function createDrainHeaderMiddleware(
  *
  * The middleware counts the request for the whole response lifetime
  * (`finish`/`close`), so a slow handler or an SSE stream is visible to the
- * drain. While draining it sets `Connection: close` on the response, telling
+ * drain. Requests arriving while draining get `Connection: close`, telling
  * the client (and any proxy reusing a keep-alive socket) not to send another
  * request on this connection.
  *
@@ -83,7 +92,7 @@ export function createLifecycleMiddleware(
     // report include its own request and could hold a drain open for a probe.
     const probePath = req.path === '/health/live' || req.path === '/health/ready'
     if (probePath) {
-      applyDrainHeader(provider, res)
+      applyDrainingResponseHeaders(provider, res)
       next()
       return
     }
@@ -96,7 +105,7 @@ export function createLifecycleMiddleware(
     }
     res.once('finish', done)
     res.once('close', done)
-    applyDrainHeader(provider, res)
+    applyDrainingResponseHeaders(provider, res)
     next()
   }
 }
@@ -117,10 +126,12 @@ export function createLifecycleMiddleware(
  *
  * @param app - The Express app to mount the routes on.
  * @param provider - The lifecycle provider that computes the reports.
+ * @param options - Optional headers for readiness responses while draining.
  */
 export function mountLifecycleRoutes(
   app: express.Express,
   provider: ProcessLifecycleProvider,
+  options: Pick<ExpressLifecycleOptions, 'drainingResponseHeaders'> = {},
 ): void {
   app.get('/health/live', async (_req, res) => {
     const report = await provider.isLive()
@@ -148,7 +159,9 @@ export function mountLifecycleRoutes(
       checks: report.checks,
     }
     res.setHeader('Cache-Control', 'no-store')
-    if (report.draining) res.setHeader('Connection', 'close')
+    if (report.draining) {
+      applyDrainingResponseHeaders(provider, res, options.drainingResponseHeaders?.(_req))
+    }
     res.status(report.ready ? 200 : 503).json(body)
   })
 }
@@ -180,7 +193,7 @@ export function installExpressLifecycle(options: ExpressLifecycleOptions): Expre
 
   const middleware = createLifecycleMiddleware(provider)
   options.app.use(middleware)
-  if (options.mountRoutes !== false) mountLifecycleRoutes(options.app, provider)
+  if (options.mountRoutes !== false) mountLifecycleRoutes(options.app, provider, options)
 
   let shutdown: ReturnType<typeof installGracefulShutdown> | null = null
 

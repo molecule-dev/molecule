@@ -33,6 +33,13 @@
  * - Readiness and liveness are deliberately different: liveness stays 200 while
  *   draining, so a supervisor does not restart a process that is finishing
  *   in-flight work.
+ * - A deployment may supply `drainingResponseHeaders` to hand a refused
+ *   readiness request to its routing proxy. For example, Fly's documented
+ *   `Fly-Replay: elsewhere=true` excludes the responding Machine. Direct
+ *   probes still receive 503; this does not mark an unready process ready.
+ *   Only configure replay for requests the platform supports, before any
+ *   application operation executes. A custom readiness handler can call
+ *   `applyDrainingResponseHeaders` on its existing refused response.
  * - A second signal during a drain exits immediately with code 1; the handlers
  *   never throw.
  *
