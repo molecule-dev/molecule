@@ -70,6 +70,7 @@
   "@molecule/api-ai-speech-whistle",
   "@molecule/api-ai-summarization",
   "@molecule/api-ai-summarization-llm",
+  "@molecule/api-ai-summarization-molecule",
   "@molecule/api-ai-tools",
   "@molecule/api-ai-translation",
   "@molecule/api-ai-translation-bergamot",
