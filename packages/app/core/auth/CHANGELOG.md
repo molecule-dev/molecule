@@ -1,5 +1,11 @@
 # @molecule/app-auth
 
+## 1.7.0
+
+### Minor Changes
+
+- Allow profile update endpoints to resolve from the signed-in user while preserving independent read and write configuration.
+
 ## 1.6.2
 
 ### Patch Changes

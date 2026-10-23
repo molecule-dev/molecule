@@ -1,5 +1,13 @@
 # @molecule/api-ai-tools
 
+## 1.14.1
+
+### Patch Changes
+
+- Allow consumers to yield once on concrete diagnostics from a still-running deployed test task.
+- Report a dropped line break beside a parse diagnostic without claiming it caused the error.
+- Keep every test run in a compound browser command on the progressive `list` reporter and drop each run's own output-only pipeline filters, so an earlier run's failure details reach the log.
+
 ## 1.14.0
 
 ### Minor Changes

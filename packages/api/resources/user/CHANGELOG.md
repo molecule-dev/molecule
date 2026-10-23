@@ -1,5 +1,11 @@
 # @molecule/api-resource-user
 
+## 1.7.3
+
+### Patch Changes
+
+- Clarify reuse of signup and login handlers for custom API envelopes.
+
 ## 1.7.2
 
 ### Patch Changes

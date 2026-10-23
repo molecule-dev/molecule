@@ -1,5 +1,11 @@
 # @molecule/api-staging-docker-compose
 
+## 1.1.0
+
+### Minor Changes
+
+- Generate Node deployment artifacts that build native dependencies once and reuse production modules in a compatible nonroot runtime.
+
 ## 1.0.3
 
 ### Patch Changes
