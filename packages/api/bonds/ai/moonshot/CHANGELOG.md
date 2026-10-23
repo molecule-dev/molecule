@@ -1,5 +1,11 @@
 # @molecule/api-ai-moonshot
 
+## 1.1.6
+
+### Patch Changes
+
+- Defaults the provider to kimi-k3.1-pro-highspeed when no model is passed.
+
 ## 1.1.4
 
 ### Patch Changes

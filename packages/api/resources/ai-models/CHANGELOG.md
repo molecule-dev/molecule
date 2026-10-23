@@ -1,5 +1,12 @@
 # @molecule/api-resource-ai-models
 
+## 1.18.0
+
+### Minor Changes
+
+- Adds kimi-k3.1-pro, Moonshot's flagship ($2/$10, 1M context); older Kimi generations supersede to it.
+- Adds kimi-k3.1-pro-highspeed, Moonshot's K3.1 Pro speed tier ($4/$20, 1M context); kimi-k3 is superseded by it.
+
 ## 1.17.4
 
 ### Patch Changes
