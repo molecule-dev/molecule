@@ -31,7 +31,7 @@
   "devDependencies": {
     "@molecule/api-bond": "1.0.2",
     "@molecule/api-code-sandbox": "1.4.0",
-    "@types/node": "26.1.2",
+    "@types/node": "26.6.5",
     "typescript": "6.0.3",
     "vitest": "4.1.12"
   },
@@ -56,7 +56,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@bufbuild/protobuf": "2.13.0",
-    "e2b": "2.51.0"
+    "@bufbuild/protobuf": "2.16.0",
+    "e2b": "2.59.0"
   }
 }

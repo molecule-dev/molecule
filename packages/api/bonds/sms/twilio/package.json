@@ -33,7 +33,7 @@
     "directory": "packages/api/bonds/sms/twilio"
   },
   "dependencies": {
-    "twilio": "6.0.2"
+    "twilio": "6.2.0"
   },
   "peerDependencies": {
     "@molecule/api-logger": "^1.0.1",
@@ -43,7 +43,7 @@
   "devDependencies": {
     "@molecule/api-logger": "1.0.2",
     "@molecule/api-sms": "1.0.3",
-    "@types/node": "26.1.2",
+    "@types/node": "26.6.5",
     "typescript": "6.0.3",
     "vitest": "4.1.12"
   }

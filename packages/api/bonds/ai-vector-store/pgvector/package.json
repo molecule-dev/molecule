@@ -36,7 +36,7 @@
     "directory": "packages/api/bonds/ai-vector-store/pgvector"
   },
   "dependencies": {
-    "pg": "8.22.0",
+    "pg": "8.23.1",
     "pgvector": "0.3.0"
   },
   "peerDependencies": {
@@ -44,8 +44,8 @@
   },
   "devDependencies": {
     "@molecule/api-ai-vector-store": "1.0.2",
-    "@types/node": "26.1.2",
-    "@types/pg": "8.20.0",
+    "@types/node": "26.6.5",
+    "@types/pg": "8.23.1",
     "typescript": "6.0.3",
     "vitest": "4.1.12"
   }

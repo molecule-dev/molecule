@@ -41,7 +41,7 @@
     "proxy-from-env": "2.1.0"
   },
   "devDependencies": {
-    "@types/node": "26.1.2",
+    "@types/node": "26.6.5",
     "@types/proxy-from-env": "1.0.4",
     "typescript": "6.0.3",
     "vitest": "4.1.12"

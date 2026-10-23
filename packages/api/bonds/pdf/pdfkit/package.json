@@ -37,8 +37,8 @@
   },
   "devDependencies": {
     "@molecule/api-pdf": "1.0.2",
-    "@types/node": "26.1.2",
-    "@types/pdfkit": "0.17.6",
+    "@types/node": "26.6.5",
+    "@types/pdfkit": "0.17.7",
     "typescript": "6.0.3",
     "vitest": "4.1.12"
   },

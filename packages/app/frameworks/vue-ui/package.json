@@ -34,12 +34,12 @@
   "devDependencies": {
     "@molecule/app-i18n": "1.0.3",
     "@molecule/app-icons": "1.0.2",
-    "@types/node": "26.1.2",
+    "@types/node": "26.6.5",
     "typescript": "6.0.3",
-    "vite": "8.1.6",
+    "vite": "8.3.5",
     "vitest": "4.1.12",
-    "vue": "3.5.43",
-    "vue-tsc": "3.3.8"
+    "vue": "3.5.44",
+    "vue-tsc": "3.3.13"
   },
   "homepage": "https://www.molecule.dev/packages/app-ui-vue",
   "bugs": "https://github.com/molecule-dev/molecule/issues",

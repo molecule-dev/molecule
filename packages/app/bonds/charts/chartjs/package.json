@@ -38,11 +38,11 @@
   },
   "devDependencies": {
     "@molecule/app-charts": "1.0.2",
-    "@types/node": "26.1.2",
+    "@types/node": "26.6.5",
     "typescript": "6.0.3",
     "vitest": "4.1.12"
   },
   "dependencies": {
-    "chart.js": "4.5.1"
+    "chart.js": "4.6.1"
   }
 }

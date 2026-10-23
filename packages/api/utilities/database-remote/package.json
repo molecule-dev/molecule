@@ -37,11 +37,11 @@
   },
   "devDependencies": {
     "@types/better-sqlite3": "7.6.13",
-    "@types/node": "26.1.2",
-    "@types/pg": "8.20.0",
-    "better-sqlite3": "13.0.2",
-    "mysql2": "3.23.2",
-    "pg": "8.22.0",
+    "@types/node": "26.6.5",
+    "@types/pg": "8.23.1",
+    "better-sqlite3": "13.0.3",
+    "mysql2": "3.24.6",
+    "pg": "8.23.1",
     "typescript": "6.0.3",
     "vitest": "4.1.12"
   },

@@ -28,10 +28,10 @@
   ],
   "license": "Apache-2.0",
   "dependencies": {
-    "zustand": "5.0.14"
+    "zustand": "5.0.16"
   },
   "devDependencies": {
-    "@types/node": "26.1.2",
+    "@types/node": "26.6.5",
     "typescript": "6.0.3",
     "vitest": "4.1.12"
   },

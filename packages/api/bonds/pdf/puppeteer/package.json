@@ -30,14 +30,14 @@
   "license": "Apache-2.0",
   "dependencies": {
     "pdf-lib": "1.17.1",
-    "puppeteer": "25.4.0"
+    "puppeteer": "25.16.0"
   },
   "peerDependencies": {
     "@molecule/api-pdf": "^1.0.1"
   },
   "devDependencies": {
     "@molecule/api-pdf": "1.0.2",
-    "@types/node": "26.1.2",
+    "@types/node": "26.6.5",
     "typescript": "6.0.3",
     "vitest": "4.1.12"
   },

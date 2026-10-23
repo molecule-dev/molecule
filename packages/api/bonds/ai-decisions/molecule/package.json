@@ -38,7 +38,7 @@
   },
   "devDependencies": {
     "@molecule/api-ai-decisions": "1.1.1",
-    "@types/node": "26.1.2",
+    "@types/node": "26.6.5",
     "typescript": "6.0.3",
     "vitest": "4.1.12"
   },

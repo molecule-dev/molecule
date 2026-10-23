@@ -41,7 +41,7 @@
     "@molecule/api-i18n": "1.0.3",
     "@molecule/api-logger": "1.0.2",
     "@molecule/api-resource": "1.0.5",
-    "@types/node": "26.1.2",
+    "@types/node": "26.6.5",
     "typescript": "6.0.3",
     "vitest": "4.1.12"
   },

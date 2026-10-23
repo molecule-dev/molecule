@@ -31,8 +31,8 @@
   },
   "devDependencies": {
     "@molecule/app-icons": "1.0.2",
-    "@primer/octicons": "19.32.0",
-    "@types/node": "26.1.2",
+    "@primer/octicons": "19.42.0",
+    "@types/node": "26.6.5",
     "typescript": "6.0.3",
     "vitest": "4.1.12"
   },

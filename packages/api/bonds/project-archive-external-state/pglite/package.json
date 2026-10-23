@@ -49,13 +49,13 @@
     "@molecule/api-project-archive": "^1.0.1"
   },
   "devDependencies": {
-    "@electric-sql/pglite": "0.5.8",
+    "@electric-sql/pglite": "0.5.11",
     "@molecule/api-bond": "1.0.2",
     "@molecule/api-database": "1.1.4",
     "@molecule/api-database-pglite": "1.2.3",
     "@molecule/api-project-archive": "1.0.2",
     "@molecule/api-secrets": "1.0.2",
-    "@types/node": "26.1.2",
+    "@types/node": "26.6.5",
     "typescript": "6.0.3",
     "vitest": "4.1.12"
   }

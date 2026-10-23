@@ -37,10 +37,10 @@
     "directory": "packages/api/utilities/feed-rss-parser"
   },
   "dependencies": {
-    "fast-xml-parser": "5.10.1"
+    "fast-xml-parser": "5.11.2"
   },
   "devDependencies": {
-    "@types/node": "26.1.2",
+    "@types/node": "26.6.5",
     "typescript": "6.0.3",
     "vitest": "4.1.12"
   }

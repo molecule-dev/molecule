@@ -40,8 +40,8 @@
   },
   "devDependencies": {
     "@molecule/app-utilities": "1.0.4",
-    "@types/node": "26.1.2",
-    "seroval": "1.6.11",
+    "@types/node": "26.6.5",
+    "seroval": "1.7.1",
     "solid-js": "1.9.17",
     "typescript": "6.0.3",
     "vitest": "4.1.12"

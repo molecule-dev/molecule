@@ -31,14 +31,14 @@
   "license": "Apache-2.0",
   "dependencies": {
     "y-protocols": "1.0.7",
-    "yjs": "13.6.31"
+    "yjs": "13.6.33"
   },
   "peerDependencies": {
     "@molecule/api-realtime": "^1.0.1"
   },
   "devDependencies": {
     "@molecule/api-realtime": "1.0.3",
-    "@types/node": "26.1.2",
+    "@types/node": "26.6.5",
     "typescript": "6.0.3",
     "vitest": "4.1.12"
   },

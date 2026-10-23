@@ -33,7 +33,7 @@
     "directory": "packages/api/bonds/sms/vonage"
   },
   "dependencies": {
-    "@vonage/server-sdk": "3.29.0"
+    "@vonage/server-sdk": "3.30.1"
   },
   "peerDependencies": {
     "@molecule/api-secrets": "^1.0.1",
@@ -41,7 +41,7 @@
   },
   "devDependencies": {
     "@molecule/api-sms": "1.0.3",
-    "@types/node": "26.1.2",
+    "@types/node": "26.6.5",
     "typescript": "6.0.3",
     "vitest": "4.1.12"
   }

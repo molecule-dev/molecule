@@ -29,7 +29,7 @@
   ],
   "license": "Apache-2.0",
   "dependencies": {
-    "ws": "8.21.1"
+    "ws": "8.22.0"
   },
   "peerDependencies": {
     "@molecule/api-bond": "^1.0.1",
@@ -37,8 +37,8 @@
   },
   "devDependencies": {
     "@molecule/api-realtime": "1.0.3",
-    "@types/node": "26.1.2",
-    "@types/ws": "8.18.1",
+    "@types/node": "26.6.5",
+    "@types/ws": "8.18.2",
     "typescript": "6.0.3",
     "vitest": "4.1.12"
   },

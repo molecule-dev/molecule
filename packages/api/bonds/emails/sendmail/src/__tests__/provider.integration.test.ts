@@ -20,7 +20,7 @@ import { chmodSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { EmailMessage, EmailSendResult } from '@molecule/api-emails'
 
@@ -64,10 +64,24 @@ const importProviderWithBinary = async (
 }
 
 describe('@molecule/api-emails-sendmail × REAL nodemailer', () => {
-  const originalEnv = process.env
+  // Env isolation WITHOUT replacing process.env: since Node 26.12.1 (the
+  // 2026-10-21 security release) a plain-object clone assigned over
+  // process.env is NOT what child processes inherit — spawn resolves the
+  // real environ — and the stub binary reads $SENDMAIL_STUB_OUT, so the
+  // clone idiom silently starved it (the `.args`/`.eml` captures vanished).
+  // Save/restore the specific keys on the real env instead.
+  const ENV_KEYS = ['SENDMAIL_PATH', 'SENDMAIL_STUB_OUT'] as const
+  const savedEnv = new Map(ENV_KEYS.map((key) => [key, process.env[key]]))
 
   beforeEach(() => {
-    process.env = { ...originalEnv }
+    for (const key of ENV_KEYS) delete process.env[key]
+  })
+
+  afterEach(() => {
+    for (const [key, value] of savedEnv) {
+      if (value === undefined) delete process.env[key]
+      else process.env[key] = value
+    }
   })
 
   it('CONSUMER PROPERTY: a realistic message round-trips and the caller sees its recipients accepted', async () => {

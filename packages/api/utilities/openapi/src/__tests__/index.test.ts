@@ -96,8 +96,15 @@ describe('zodToJsonSchema', () => {
       items: { type: 'number' },
     })
     expect(zodToJsonSchema(z.enum(['a', 'b', 'c']))).toMatchObject({ enum: ['a', 'b', 'c'] })
+    // zod ≥4.6 collapses a union of primitives to a JSON-Schema type array
+    // (`{"type":["string","number"]}`) instead of `anyOf` — equivalent and
+    // valid OpenAPI 3.1; assert the semantics, not the pre-4.6 shape.
     const union = zodToJsonSchema(z.union([z.string(), z.number()]))
-    expect(union.anyOf?.length).toBe(2)
+    expect(JSON.stringify(union)).toBe('{"type":["string","number"]}')
+    const complex = zodToJsonSchema(
+      z.union([z.object({ a: z.string() }), z.object({ b: z.number() })]),
+    )
+    expect(complex.anyOf?.length).toBe(2)
   })
 
   it('passes through pre-built JSON Schemas unchanged', () => {

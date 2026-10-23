@@ -31,13 +31,13 @@
   ],
   "license": "Apache-2.0",
   "dependencies": {
-    "mailparser": "3.9.28"
+    "mailparser": "3.12.4"
   },
   "devDependencies": {
     "@molecule/api-emails": "1.0.2",
     "@molecule/api-emails-inbound": "1.0.3",
-    "@types/mailparser": "3.4.6",
-    "@types/node": "26.1.2",
+    "@types/mailparser": "3.9.0",
+    "@types/node": "26.6.5",
     "typescript": "6.0.3",
     "vitest": "4.1.12"
   },

@@ -40,11 +40,11 @@
   },
   "devDependencies": {
     "@molecule/app-utilities": "1.0.4",
-    "@types/node": "26.1.2",
-    "@vue/test-utils": "2.4.11",
+    "@types/node": "26.6.5",
+    "@vue/test-utils": "2.5.1",
     "typescript": "6.0.3",
     "vitest": "4.1.12",
-    "vue": "3.5.43"
+    "vue": "3.5.44"
   },
   "repository": {
     "type": "git",

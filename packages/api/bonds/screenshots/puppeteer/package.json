@@ -32,11 +32,11 @@
     "@molecule/api-screenshots": "^1.0.0"
   },
   "dependencies": {
-    "puppeteer": "25.4.0"
+    "puppeteer": "25.16.0"
   },
   "devDependencies": {
     "@molecule/api-screenshots": "1.1.1",
-    "@types/node": "26.1.2",
+    "@types/node": "26.6.5",
     "typescript": "6.0.3",
     "vitest": "4.1.12"
   },

@@ -28,7 +28,7 @@
   ],
   "license": "Apache-2.0",
   "dependencies": {
-    "@elastic/elasticsearch": "9.4.2",
+    "@elastic/elasticsearch": "9.5.1",
     "@molecule/api-proxy-agent": "1.1.1"
   },
   "peerDependencies": {
@@ -36,7 +36,7 @@
   },
   "devDependencies": {
     "@molecule/api-search": "1.0.3",
-    "@types/node": "26.1.2",
+    "@types/node": "26.6.5",
     "typescript": "6.0.3",
     "vitest": "4.1.12"
   },

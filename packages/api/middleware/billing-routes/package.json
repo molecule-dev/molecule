@@ -46,8 +46,8 @@
     "@molecule/api-logger": "1.0.2",
     "@molecule/api-payments": "1.2.1",
     "@types/express": "5.0.6",
-    "@types/node": "26.1.2",
-    "express": "5.2.1",
+    "@types/node": "26.6.5",
+    "express": "5.3.0",
     "typescript": "6.0.3",
     "vitest": "4.1.12"
   },

@@ -30,7 +30,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "dompurify": "3.4.17",
-    "quill": "2.0.2",
+    "quill": "2.0.3",
     "quill-delta": "5.1.0"
   },
   "molecule": {
@@ -40,7 +40,7 @@
     ]
   },
   "devDependencies": {
-    "@types/node": "26.1.2",
+    "@types/node": "26.6.5",
     "typescript": "6.0.3",
     "vitest": "4.1.12"
   },

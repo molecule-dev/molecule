@@ -27,14 +27,14 @@
   ],
   "license": "Apache-2.0",
   "dependencies": {
-    "mixpanel-browser": "2.81.0"
+    "mixpanel-browser": "2.84.0"
   },
   "peerDependencies": {
     "@molecule/app-analytics": "^1.0.1"
   },
   "devDependencies": {
     "@molecule/app-analytics": "1.0.2",
-    "@types/node": "26.1.2",
+    "@types/node": "26.6.5",
     "typescript": "6.0.3",
     "vitest": "4.1.12"
   },

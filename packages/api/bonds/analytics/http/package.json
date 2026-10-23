@@ -41,7 +41,7 @@
     "@molecule/api-analytics": "1.1.0"
   },
   "devDependencies": {
-    "@types/node": "26.1.2",
+    "@types/node": "26.6.5",
     "typescript": "6.0.3",
     "vitest": "4.1.12"
   }

@@ -38,11 +38,11 @@
   "devDependencies": {
     "@molecule/api-slug": "1.0.1",
     "@types/express": "5.0.6",
-    "@types/node": "26.1.2",
-    "express": "5.2.1",
+    "@types/node": "26.6.5",
+    "express": "5.3.0",
     "typescript": "6.0.3",
     "vitest": "4.1.12",
-    "zod": "4.4.3"
+    "zod": "4.6.7"
   },
   "peerDependencies": {
     "@molecule/api-bonds-default-express": "^1.0.1",

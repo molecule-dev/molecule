@@ -29,12 +29,12 @@
   ],
   "license": "Apache-2.0",
   "dependencies": {
-    "zod": "4.4.3"
+    "zod": "4.6.7"
   },
   "devDependencies": {
     "@molecule/api-bond": "1.0.2",
     "@molecule/api-permissions": "1.0.3",
-    "@types/node": "26.1.2",
+    "@types/node": "26.6.5",
     "typescript": "6.0.3",
     "vitest": "4.1.12",
     "@molecule/api-locales-status-page": "1.0.2"

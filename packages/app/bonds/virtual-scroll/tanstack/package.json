@@ -34,14 +34,14 @@
     "directory": "packages/app/bonds/virtual-scroll/tanstack"
   },
   "dependencies": {
-    "@tanstack/virtual-core": "3.17.7"
+    "@tanstack/virtual-core": "3.19.7"
   },
   "peerDependencies": {
     "@molecule/app-virtual-scroll": ">=1.0.1"
   },
   "devDependencies": {
     "@molecule/app-virtual-scroll": "1.0.2",
-    "@types/node": "26.1.2",
+    "@types/node": "26.6.5",
     "typescript": "6.0.3",
     "vitest": "4.1.12"
   },

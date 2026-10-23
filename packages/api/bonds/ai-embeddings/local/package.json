@@ -37,14 +37,14 @@
     "directory": "packages/api/bonds/ai-embeddings/local"
   },
   "dependencies": {
-    "@huggingface/transformers": "4.3.0"
+    "@huggingface/transformers": "4.3.1"
   },
   "peerDependencies": {
     "@molecule/api-ai-embeddings": ">=1.0.1"
   },
   "devDependencies": {
     "@molecule/api-ai-embeddings": "1.1.0",
-    "@types/node": "26.1.2",
+    "@types/node": "26.6.5",
     "typescript": "6.0.3",
     "vitest": "4.1.12"
   }

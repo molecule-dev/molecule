@@ -4,7 +4,7 @@
   "description": "Default API bond setup for Express-based apps. Provides setup functions for the 10 byte-identical bond wirings shared across the molecule fleet — config-env, database-postgresql, jwt-jsonwebtoken, middleware-{body-parser,cookie-parser,cors}-express, password-bcrypt, secrets-env, service-device, two-factor-otplib.",
   "homepage": "https://www.molecule.dev/packages/api-bonds-default-express",
   "dependencies": {
-    "zod": "4.4.3"
+    "zod": "4.6.7"
   },
   "type": "module",
   "main": "dist/index.js",
@@ -135,8 +135,8 @@
     "@molecule/api-workflow": "1.0.3",
     "@molecule/api-workflow-database": "1.0.3",
     "@types/express": "5.0.6",
-    "@types/node": "26.1.2",
-    "express": "5.2.1",
+    "@types/node": "26.6.5",
+    "express": "5.3.0",
     "typescript": "6.0.3",
     "vitest": "4.1.12"
   },

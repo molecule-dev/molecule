@@ -27,14 +27,14 @@
   ],
   "license": "Apache-2.0",
   "dependencies": {
-    "posthog-js": "1.408.1"
+    "posthog-js": "1.438.21"
   },
   "peerDependencies": {
     "@molecule/app-analytics": "^1.0.1"
   },
   "devDependencies": {
     "@molecule/app-analytics": "1.0.2",
-    "@types/node": "26.1.2",
+    "@types/node": "26.6.5",
     "typescript": "6.0.3",
     "vitest": "4.1.12"
   },
