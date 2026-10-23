@@ -934,3 +934,45 @@ describe('commandSubstitutions exposes existing parse scopes', () => {
     expect(commandSubstitutions("cat <<'EOF'\n$(rm -f file)\nEOF")).toEqual([])
   })
 })
+
+describe('located shell working-directory scopes', () => {
+  it('locates parenthesized commands separately from the parent shell', () => {
+    const entries = locatedCommandSegments('(cd nested; rm inside); rm after')
+    expect(entries.map((entry) => entry.shellScope ?? [])).toEqual([['group:1'], ['group:1'], []])
+  })
+
+  it('keeps sibling and nested groups distinct while braces stay in the current shell', () => {
+    const entries = locatedCommandSegments('(cd a; (cd b; rm x); rm y); (rm z); { cd c; rm q; }')
+    const scopes = entries.map((entry) => entry.shellScope ?? [])
+    expect(scopes[0]).toEqual(scopes[3])
+    expect(scopes[1]!.slice(0, 1)).toEqual(scopes[0])
+    expect(scopes[1]).toHaveLength(2)
+    expect(scopes[4]).not.toEqual(scopes[0])
+    expect(scopes.slice(5)).toEqual([[], []])
+  })
+
+  it('uses the known sh-c boundary and preserves its nested group ancestry', () => {
+    const entries = locatedCommandSegments(`sh -c 'cd a; (cd b; rm x); rm y'; rm z`)
+    expect(entries[0]!.shellScope).toEqual(['shell:0'])
+    expect(entries[1]!.shellScope).toEqual(['shell:0', 'group:7'])
+    expect(entries[3]!.shellScope).toEqual(['shell:0'])
+    expect(entries[4]!.shellScope).toBeUndefined()
+  })
+
+  it('does not add scope metadata for quoted or escaped parentheses and ordinary commands', () => {
+    for (const entry of locatedCommandSegments(
+      String.raw`echo '(not a group)' \(literal\); cd app; rm x`,
+    ))
+      expect(entry).not.toHaveProperty('shellScope')
+  })
+})
+
+it('distinguishes inherited environment bindings from source assignment expansion', () => {
+  const entries = locatedCommandSegments(
+    `A=$(rm -f parent) sh -c 'cd nested; B=$(rm -f child) echo ok'`,
+  )
+  expect(entries[0]!.assignments).toContain('A=$(rm -f parent)')
+  expect(entries[1]!.assignments).toContain('A=$(rm -f parent)')
+  expect(entries[0]!.sourceAssignments).toEqual(['A=$(rm -f parent)'])
+  expect(entries[1]!.sourceAssignments).toEqual(['B=$(rm -f child)'])
+})

@@ -1011,10 +1011,14 @@ function splitCommand(command: string): {
   }>
   /** Each command substitution's body, as a start/end offset pair in `command`. */
   substitutions: Array<{ start: number; end: number }>
+  /** Parenthesized shell bodies; brace groups share their parent's directory scope. */
+  subshells: Array<{ start: number; end: number }>
 } {
   const source = blankHeredocBodies(command)
   const parts: Array<{ text: string; start: number; after: string; depths: number[] }> = []
   const substitutions: Array<{ start: number; end: number }> = []
+  const subshells: Array<{ start: number; end: number }> = []
+  const subshellOpens: number[] = []
   /** Where each open `$(` body starts; -1 for a bare `(` opened inside one. */
   const subOpens: number[] = []
   /** Where each open backtick body starts. */
@@ -1157,11 +1161,16 @@ function splitCommand(command: string): {
     // `{ … }` writes through that group, so the depth travels with every character a caller
     // reading a redirect may ask about.
     if (char === '(' || char === '{') {
+      if (char === '(') subshellOpens.push(i + 1)
       put(char)
       groupDepth += 1
       continue
     }
     if (char === ')' || char === '}') {
+      if (char === ')') {
+        const start = subshellOpens.pop()
+        if (start !== undefined) subshells.push({ start, end: i })
+      }
       groupDepth = Math.max(0, groupDepth - 1)
       put(char)
       continue
@@ -1211,7 +1220,8 @@ function splitCommand(command: string): {
     })
     lastAfter = part.after
   }
-  return { parts: out, substitutions }
+  for (const start of subshellOpens) subshells.push({ start, end: source.length })
+  return { parts: out, substitutions, subshells }
 }
 
 /**
@@ -1525,6 +1535,13 @@ function wordOffset(text: string, index: number): number | null {
  */
 export interface LocatedCommandSegment {
   /**
+   * Directory-scope ancestry supplied by the existing shell parse, outermost first.
+   * Parenthesized groups and nested `sh -c` strings have their own shell directory;
+   * braces share their parent's. Identities are opaque and local to this invocation.
+   * Absent for ordinary statements in the outer shell, preserving their existing shape.
+   */
+  shellScope?: readonly string[]
+  /**
    * What the statement runs, or null when it only sets variables (`BASE=http://…` on its own):
    * that shape persists in the shell, so a caller following assignments across `;`/`&&` has to
    * see it.
@@ -1532,6 +1549,13 @@ export interface LocatedCommandSegment {
   segment: CommandSegment | null
   /** The statement's own leading `NAME=value` words, as written (`TEST_MODE=fullstack`). */
   assignments: readonly string[]
+  /**
+   * Assignments whose values expand at this source statement, when different from
+   * inherited environment bindings. A nested `sh -c` carries outer bindings into
+   * every entry, but expands its caller's assignment values only before its first
+   * command. Absent when the ordinary `assignments` list is also the source list.
+   */
+  sourceAssignments?: readonly string[]
   /**
    * The offset in the command of the statement's first word, or null for a segment inside a
    * nested `sh -c '<command>'` string — its positions are offsets in THAT string, not in this
@@ -1798,7 +1822,8 @@ export function statementBoundary(
 function locatedSegmentsOf(command: string, depth: number): LocatedCommandSegment[] {
   if (typeof command !== 'string' || depth > MAX_NESTING) return []
   const out: LocatedCommandSegment[] = []
-  for (const part of splitSegments(command)) {
+  const { parts, subshells } = splitCommand(command)
+  for (const part of parts) {
     const words = segmentWords(part.text)
     const start = commandStart(words)
     const leading = leadingAssignments(part.text)
@@ -1824,6 +1849,12 @@ function locatedSegmentsOf(command: string, depth: number): LocatedCommandSegmen
       programOffset:
         words[start.at] === undefined ? null : part.start + (wordOffset(part.text, start.at) ?? 0),
     }
+    const scopeAt = placed.programOffset ?? part.start + (wordOffset(part.text, 0) ?? 0)
+    const shellScope = subshells
+      .filter(({ start, end }) => start <= scopeAt && scopeAt < end)
+      .sort((a, b) => a.start - b.start)
+      .map(({ start }) => `group:${start}`)
+    const scoped = shellScope.length === 0 ? {} : { shellScope }
     // The runner the word RUNS names, when that is not the word's own name (`node <path>/playwright`
     // is a `playwright` invocation, xr-molecule-flash-m179).
     const program =
@@ -1837,9 +1868,14 @@ function locatedSegmentsOf(command: string, depth: number): LocatedCommandSegmen
         if (!entry) continue
         out.push({
           ...entry,
+          shellScope: [...shellScope, `shell:${part.start}`, ...(entry.shellScope ?? [])],
           // The variables this statement bound before the shell reached it are the nested
           // command's too: `env BASE_URL=… sh -c '… npx playwright test …'` passes them down.
           assignments: [...new Set([...assignments, ...entry.assignments])],
+          sourceAssignments: [
+            ...(i === 0 ? assignments : []),
+            ...(entry.sourceAssignments ?? entry.assignments),
+          ],
           // A nested statement's positions are positions in the nested string, not in this
           // command. The FIRST one keeps this statement's own separator: the shell reads the
           // nested string where this statement stands.
@@ -1866,6 +1902,7 @@ function locatedSegmentsOf(command: string, depth: number): LocatedCommandSegmen
       if (assignments.length > 0)
         out.push({
           segment: null,
+          ...scoped,
           assignments,
           ...placed,
           programOffset: null,
@@ -1876,6 +1913,7 @@ function locatedSegmentsOf(command: string, depth: number): LocatedCommandSegmen
       continue
     }
     out.push({
+      ...scoped,
       segment: {
         program,
         args,
