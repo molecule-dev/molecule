@@ -2763,12 +2763,14 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
               !r.new_string.endsWith('\n'),
           )
         const syntax = await syntaxErrorAfterWrite(path)
-        // Those two facts are ONE accident, and reported apart the model repairs the
-        // wrong one: flash-m55 dropped the boundary on two consecutive edit_file calls,
-        // both left `handlers/conduit.ts` unparseable, and it fixed the fused LINE's
-        // text — which re-fused the next line in the same batch. When the parse error
-        // follows a dropped newline, name the fused line and the single edit that
-        // undoes it, instead of a style note beside an unrelated-looking parse error.
+        // A parse error and a dropped line break are two OBSERVATIONS, not one
+        // accident. A join only sometimes breaks the syntax (same-line JSX siblings
+        // parse), and the diagnostic usually comes from something else in the same
+        // edit — flash-l20 +17:26 dropped the boundary while inserting an opening
+        // fragment it never closed; the advisory blamed the join, and restoring only
+        // the newline returned the same unmatched-fragment error. So show where the
+        // lines joined and hand over the parser's own diagnostic, and ask whether the
+        // join was intended instead of prescribing a newline-only repair.
         const which =
           dropped.length === 1
             ? `replacement ${dropped[0].position}`
@@ -2782,18 +2784,19 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         const shownFused = fused
           .map((l) => `  ${l.line}: ${l.text.length > 200 ? `${l.text.slice(0, 200)}…` : l.text}`)
           .join('\n')
+        // Only claim a join the final file proves (`located`), never one inferred from
+        // the replacements alone: a replacement can drop a newline that ended a line
+        // with a BLANK line after it, in which case nothing joined (flash-m62).
         const fusedNote =
-          syntax.syntaxError && dropped.length > 0
-            ? 'The file no longer parses after this change, and ' +
-              `${which} removed the line break that followed the replaced text — so the next line ` +
-              'now continues on the line before it, and that fused line is what the parser rejects:\n' +
-              (shownFused || `  (not located as the file now reads — read_file ${path})`) +
+          syntax.syntaxError && located.length > 0
+            ? 'A replacement removed a line break. Check whether the join was intended; the ' +
+              'parser diagnostic below may have another cause.\n' +
+              `Joined by ${which}:\n` +
+              shownFused +
               (fusedOmitted > 0
-                ? `\n  (${fusedOmitted} more fused line(s) — read_file ${path})`
+                ? `\n  (${fusedOmitted} more joined line(s) — read_file ${path})`
                 : '') +
-              `\nRe-send ${which} with the trailing newline restored on new_string (change nothing ` +
-              "else about it). Editing the FUSED LINE's text instead fuses the next line the same " +
-              `way (flash-m55: three edits in a row).\n${syntax.syntaxError}`
+              `\n${syntax.syntaxError}`
             : null
 
         return {

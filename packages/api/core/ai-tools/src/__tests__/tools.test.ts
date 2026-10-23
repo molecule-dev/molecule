@@ -5904,6 +5904,124 @@ describe('parse check after a write — TypeScript config files, executed', () =
     expect(result.ok).toBe(true)
     expect(result.syntaxError).toBeUndefined()
   })
+
+  // X1 flash-l20 +17:26: the edit opened a conditional and a fragment without closing
+  // them AND dropped the boundary newline, so `<form>` and `<fieldset>` also landed on
+  // one line. The advisory blamed that joined line, and restoring only the newline
+  // returned the SAME unmatched-fragment error. The real esbuild parse runs here, so
+  // each step is the parser's own verdict rather than a faked string.
+  const SETTINGS_TSX = [
+    'export function Settings() {',
+    '  return (',
+    '    <div className="settings">',
+    '      <ErrorMessages errors={errors} />',
+    '',
+    '      <form onSubmit={handleSubmit}>',
+    '        <fieldset>',
+    '          <legend>Account</legend>',
+    '        </fieldset>',
+    '      </form>',
+    '    </div>',
+    '  )',
+    '}',
+    '',
+  ].join('\n')
+
+  it('reports a dropped line break beside an unrelated JSX parse error without blaming it (flash-l20)', async () => {
+    const file = join(dir, 'Settings.tsx')
+    writeFileSync(file, SETTINGS_TSX)
+    const edit = buildTools(realBackend()).find((t) => t.name === 'edit_file')!
+    const joined = (await edit.execute({
+      path: file,
+      old_string:
+        '      <ErrorMessages errors={errors} />\n\n      <form onSubmit={handleSubmit}>\n',
+      new_string:
+        '      <ErrorMessages errors={errors} />\n\n      {user ? (\n        <>\n' +
+        '          <form onSubmit={handleSubmit}>',
+    })) as { syntaxError?: string; newlineNote?: string }
+    // The joined line is located, and the parser's own diagnostic is preserved.
+    expect(joined.syntaxError).toContain('replacement 1')
+    expect(joined.syntaxError).toContain('Joined by replacement 1:')
+    expect(joined.syntaxError).toContain('<form onSubmit={handleSubmit}>        <fieldset>')
+    expect(joined.syntaxError).toContain(
+      'Unexpected closing "div" tag does not match opening fragment tag',
+    )
+    // The join is something to check, not the proven cause, and no repair is prescribed.
+    expect(joined.syntaxError).toContain(
+      'A replacement removed a line break. Check whether the join was intended; the parser ' +
+        'diagnostic below may have another cause.',
+    )
+    expect(joined.syntaxError).not.toContain('what the parser rejects')
+    expect(joined.syntaxError).not.toContain('so the next line now continues')
+    expect(joined.syntaxError).not.toContain('restored on new_string')
+    expect(joined.syntaxError).not.toContain('change nothing else')
+    expect(joined.newlineNote).toBeUndefined()
+
+    // Restoring only the newline does NOT fix the diagnostic the edit really caused.
+    const restored = (await edit.execute({
+      path: file,
+      old_string: '<form onSubmit={handleSubmit}>        <fieldset>',
+      new_string: '<form onSubmit={handleSubmit}>\n        <fieldset>',
+    })) as { syntaxError?: string; newlineNote?: string }
+    expect(restored.syntaxError).toContain(
+      'Unexpected closing "div" tag does not match opening fragment tag',
+    )
+    expect(restored.syntaxError).not.toContain('A replacement removed a line break')
+    expect(restored.newlineNote).toBeUndefined()
+
+    // Supplying the missing fragment/conditional close is what parses.
+    const closed = (await edit.execute({
+      path: file,
+      old_string: '      </form>\n    </div>',
+      new_string: '      </form>\n        </>\n      ) : null}\n    </div>',
+    })) as { syntaxError?: string }
+    expect(closed.syntaxError).toBeUndefined()
+  })
+
+  it('does not turn a valid same-line JSX edit into a syntax failure (flash-l20 control)', async () => {
+    const file = join(dir, 'SettingsSameLine.tsx')
+    writeFileSync(file, SETTINGS_TSX)
+    const edit = buildTools(realBackend()).find((t) => t.name === 'edit_file')!
+    const result = (await edit.execute({
+      path: file,
+      // A real change plus the dropped boundary: the form and fieldset land on one
+      // line, which is valid JSX, so the note must report a join and no parse error.
+      old_string: '      <form onSubmit={handleSubmit}>\n',
+      new_string: '      <form className="settings-form" onSubmit={handleSubmit}>',
+    })) as { ok?: boolean; syntaxError?: string; newlineNote?: string }
+    expect(result.ok).toBe(true)
+    // The join really happened, so it is said — and the file still parses.
+    expect(result.newlineNote).toContain('removed the line break')
+    expect(result.syntaxError).toBeUndefined()
+  })
+
+  it('says nothing about a join when the final file does not prove one', async () => {
+    let file = 'const a = 1\n'
+    const backend = {
+      projectRoot: '/test',
+      readFile: vi.fn(async () => file),
+      writeFile: vi.fn(async (_p: string, c: string) => {
+        file = c
+      }),
+      deleteFile: vi.fn(),
+      readDir: vi.fn(),
+      run: vi.fn().mockResolvedValue({
+        stdout: '',
+        stderr: '1:13: Expected ";" but found "const"\nconst a = 2const b\n             ^',
+        exitCode: 1,
+      }),
+    }
+    const edit = buildTools(backend).find((t) => t.name === 'edit_file')!
+    // The newline was dropped at EOF, where nothing follows, so no lines joined.
+    const r = (await edit.execute({
+      path: 'a.ts',
+      old_string: 'const a = 1\n',
+      new_string: 'const a = 2',
+    })) as { newlineNote?: string; syntaxError?: string }
+    expect(r.syntaxError).toContain('Expected ";" but found "const"')
+    expect(r.syntaxError).not.toContain('A replacement removed a line break')
+    expect(r.newlineNote).toBeUndefined()
+  })
 })
 
 describe('edit_file — a dropped line break is said', () => {
@@ -5934,7 +6052,7 @@ describe('edit_file — a dropped line break is said', () => {
     expect(ok.newlineNote).toBeUndefined()
   })
 
-  it('folds the dropped newline and the parse error it caused into one message naming the fused line (flash-m55)', async () => {
+  it('reports the joined line beside the parse error without claiming the join caused it (flash-m55)', async () => {
     let file = 'const a = 1\nconst b = 2\nconst c = 3\n'
     const backend = {
       projectRoot: '/test',
@@ -5966,9 +6084,17 @@ describe('edit_file — a dropped line break is said', () => {
     })) as { newlineNote?: string; syntaxError?: string }
     expect(r.syntaxError).toMatch(/no longer parses/)
     expect(r.syntaxError).toContain('replacement 1')
-    // The two joined lines shown as the one line they now are, with its number.
+    // The joined lines shown as the one line they now are, with its number.
     expect(r.syntaxError).toContain('2: const b = 22const c = 33')
-    expect(r.syntaxError).toMatch(/restored on new_string/)
+    // The join is an observation to check, not the proven cause of the parse error.
+    expect(r.syntaxError).toContain(
+      'A replacement removed a line break. Check whether the join was intended; the parser ' +
+        'diagnostic below may have another cause.',
+    )
+    expect(r.syntaxError).toContain('Expected ";" but found "const"')
+    expect(r.syntaxError).not.toContain('what the parser rejects')
+    expect(r.syntaxError).not.toContain('restored on new_string')
+    expect(r.syntaxError).not.toContain('change nothing else')
     // One message, not a hint beside an unrelated-looking parse error.
     expect(r.newlineNote).toBeUndefined()
   })
