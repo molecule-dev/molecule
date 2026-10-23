@@ -34,6 +34,7 @@ describe('@molecule/api-queue-memory', () => {
     for (const providerInstance of providers.splice(0)) {
       await providerInstance.close?.()
     }
+    vi.useRealTimers()
     vi.restoreAllMocks()
   })
 
@@ -346,6 +347,8 @@ describe('@molecule/api-queue-memory', () => {
     })
 
     it('gives an uncaught handler failure a real retry window instead of burning all attempts within milliseconds (default hostile-default fix)', async () => {
+      vi.useFakeTimers()
+      vi.setSystemTime(0)
       vi.spyOn(console, 'warn').mockImplementation(() => {})
       // maxReceiveCount: 2 so the SECOND (final) attempt's delivery time is
       // directly observable — under the old redeliveryDelaySeconds=0 default
@@ -358,14 +361,11 @@ describe('@molecule/api-queue-memory', () => {
         throw new Error('always failing')
       })
 
-      const sentAt = Date.now()
       await queue.send({ body: 'poison' })
-      await waitFor(() => deliveryTimestamps.length === 2, 4000)
-
-      const gapMs = deliveryTimestamps[1] - sentAt
-      // Comfortably below the 1s default would mean the fix regressed to a
-      // hot loop; comfortably above proves a real window existed.
-      expect(gapMs).toBeGreaterThanOrEqual(900)
+      await vi.advanceTimersByTimeAsync(999)
+      expect(deliveryTimestamps).toEqual([0])
+      await vi.advanceTimersByTimeAsync(1)
+      expect(deliveryTimestamps).toEqual([0, 1000])
       unsubscribe()
     })
 
