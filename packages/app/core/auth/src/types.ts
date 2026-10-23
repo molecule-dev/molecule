@@ -368,6 +368,16 @@ export interface AuthClient<
   getUser(): T | null
 
   /**
+   * Optional ownership marker for the current session. Compare values only within
+   * this client: replacing or ending a session changes it, including re-adopting
+   * the same token and user. Profile updates and same-session refreshes keep it.
+   * Consumers can use it to discard stale async work without treating editable
+   * user fields as an immutable account identifier. Providers without this
+   * capability require the consumer's own stable identity check.
+   */
+  getSessionRevision?(): number
+
+  /**
    * Updates the cached user object (state + persistent storage) without
    * hitting the network. Intended for local refreshes after a per-app
    * mutation (e.g., the user just PATCHed their own profile and the

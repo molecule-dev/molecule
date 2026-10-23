@@ -731,6 +731,8 @@ export const createJWTAuthClient = <
       return state.user
     },
 
+    getSessionRevision: () => sessionRevision,
+
     setUser: (user: T | null) => {
       if (user === null) sessionRevision++
       tokenStorage.setUser(user)

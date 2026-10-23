@@ -152,6 +152,12 @@
  * // React: `useAuth<MyUser>()` reads the same profile.
  * ```
  *
+ * A username-derived `id` can change during a profile save. It is not an immutable
+ * session identifier: `getSessionRevision()` tracks session ownership independently
+ * of profile fields, remains unchanged for profile updates and same-session
+ * refreshes, and changes when a session is replaced or ended. Compare revisions
+ * only within one client. React's `useProfileForm` uses this capability by default.
+ *
  * **A profile-update transport that is not `PATCH` with bare JSON is a CONFIG field, not a
  * hand-written client.** `updateProfile()` sends to `profileEndpoint` with `PATCH` and the
  * `Partial<T>` as the body by default; an API whose profile route is the standard

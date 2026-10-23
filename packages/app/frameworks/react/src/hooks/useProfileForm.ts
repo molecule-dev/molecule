@@ -18,8 +18,13 @@ export interface UseProfileFormOptions<TUser, TValues extends Record<string, unk
 > {
   /** Complete controlled-field defaults, including blank write-only fields. */
   defaultValues: TValues
-  /** Stable account identity; changing accounts discards the previous account's edits. */
-  getIdentity: (user: TUser) => string
+  /**
+   * Optional additional account identity check; changing it discards prior edits.
+   * By default ownership follows the auth client's session revision, so editable
+   * fields can change during a save. Providers without getSessionRevision must
+   * supply this callback with an identity that remains stable across profile edits.
+   */
+  getIdentity?: (user: TUser) => string
   /** Maps the current/saved user into controlled values, e.g. nullable text to ''. */
   toValues: (user: TUser) => TValues
   /**
@@ -70,7 +75,9 @@ export interface UseProfileFormResult<TUser, TValues extends Record<string, unkn
  * Owns load → edit → submit → publish for the signed-in user's profile.
  *
  * Same-account background updates refresh untouched fields but preserve dirty
- * controls. Submission snapshots the registered values before asynchronous
+ * controls. Session ownership comes from the auth client, independently of mutable
+ * profile fields; an explicit getIdentity adds the caller's identity check.
+ * Submission snapshots the registered values before asynchronous
  * validation, sends only changed fields through `toPatch`, and uses the auth
  * client's configured updateProfile transport. The saved server response becomes
  * the clean baseline; edits made while saving remain dirty. No request is made
@@ -98,7 +105,11 @@ export function useProfileForm<TUser, TValues extends Record<string, unknown>>(
   const optionsRef = useRef(options)
   const committedClient = useRef(client)
   const baseline = useRef({ ...defaultValues })
-  const owner = useRef<{ client: typeof client; identity: string } | null>(null)
+  const owner = useRef<{
+    client: typeof client
+    revision: number | undefined
+    identity: string | undefined
+  } | null>(null)
   const activeSave = useRef<Promise<TUser | undefined> | null>(null)
   const pendingPropagation = useRef<TUser | undefined>(undefined)
   const mounted = useRef(false)
@@ -146,13 +157,23 @@ export function useProfileForm<TUser, TValues extends Record<string, unknown>>(
       }
       return
     }
-    const identity = config.getIdentity(user)
+    const revision = client.getSessionRevision?.()
+    const identity = config.getIdentity?.(user)
+    if (revision === undefined && !config.getIdentity) {
+      throw new Error(
+        'useProfileForm: provide getIdentity when the auth client has no session revision',
+      )
+    }
     const previous = owner.current
-    const sameAccount = !previous || (previous.client === client && previous.identity === identity)
+    const sameAccount =
+      !previous ||
+      (previous.client === client &&
+        previous.revision === revision &&
+        previous.identity === identity)
     const previousBaseline = baseline.current
     // Keep this token across same-account hydration, but replace it when the
     // account/client changes. A pending validation belongs to that exact owner.
-    if (!previous || !sameAccount) owner.current = { client, identity }
+    if (!previous || !sameAccount) owner.current = { client, revision, identity }
     rebase(config.toValues(user), sameAccount ? previousBaseline : undefined)
     if (!sameAccount) {
       pendingPropagation.current = undefined
@@ -165,7 +186,8 @@ export function useProfileForm<TUser, TValues extends Record<string, unknown>>(
     const currentUser = client.getUser()
     if (!mounted.current || !currentUser) return Promise.resolve(undefined)
     const config = optionsRef.current
-    const identity = config.getIdentity(currentUser)
+    const revision = client.getSessionRevision?.()
+    const identity = config.getIdentity?.(currentUser)
     const submissionOwner = owner.current
     const ownsProfile = (): boolean => {
       const current = client.getUser()
@@ -174,7 +196,8 @@ export function useProfileForm<TUser, TValues extends Record<string, unknown>>(
         committedClient.current === client &&
         owner.current === submissionOwner &&
         current !== null &&
-        config.getIdentity(current) === identity
+        client.getSessionRevision?.() === revision &&
+        config.getIdentity?.(current) === identity
       )
     }
     const snapshot = readValues()

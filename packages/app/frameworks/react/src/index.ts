@@ -8,7 +8,8 @@
  *
  * **Editable account/profile forms:** `useProfileForm` composes the bonded form
  * and auth clients. It hydrates asynchronous user data without erasing dirty
- * fields, snapshots controlled values on native form submission, submits only
+ * fields, uses session ownership independently of editable profile identity,
+ * snapshots controlled values on native form submission, submits only
  * changed fields through an app-supplied adapter, and persists/publishes the
  * server's saved user. Use its `onSaved` callback to update other query caches
  * from that response before navigating. Configure the endpoint, method and JSON
@@ -18,7 +19,6 @@
  * ```tsx
  * const profile = useProfileForm<User, { name: string; email: string }>({
  *   defaultValues: { name: '', email: '' },
- *   getIdentity: (user) => user.id,
  *   toValues: (user) => ({ name: user.name ?? '', email: user.email ?? '' }),
  *   toPatch: (changes) => changes,
  *   onSaved: async (user) => {
@@ -83,8 +83,11 @@
  *   ({ ...changes, ...(password?.trim() ? { password } : {}) })`. `changes`
  *   contains only edited fields, so do not fill omitted fields with null or
  *   copy every property of the auth user into the request. `reset()` discards
- *   edits to the newest baseline. A changed `getIdentity(user)` clears the old
- *   account's edits. Field comparisons are shallow, matching form providers.
+ *   edits to the newest baseline. Auth clients with `getSessionRevision()` own
+ *   the form by session, so changing a username-derived id does not discard a
+ *   successful save. An optional `getIdentity(user)` adds an identity check and
+ *   clears edits when it changes; use a stable value. Providers without session
+ *   revisions must supply that callback. Field comparisons are shallow, matching form providers.
  *   A submission whose account or auth client changes, or whose form unmounts,
  *   during asynchronous validation is discarded before any mutation or saved
  *   callback. Same-account background hydration does not discard the submit.

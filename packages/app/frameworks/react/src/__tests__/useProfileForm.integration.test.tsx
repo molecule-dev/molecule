@@ -405,6 +405,35 @@ describe('shared profile form: rendered controls → real HTTP → persisted pro
     expect(control('Password').value).toBe('')
   })
 
+  it('preserves explicit identity checks even without a session revision change', async () => {
+    const { client } = await setup()
+    render(
+      <AuthProvider client={client}>
+        <ProfileForm />
+      </AuthProvider>,
+    )
+    edit('Bio', 'Private unsaved edit')
+    const revision = client.getSessionRevision!()
+    act(() => client.setUser({ ...initial, id: 'other', bio: 'Other profile' }))
+    expect(client.getSessionRevision!()).toBe(revision)
+    expect(control('Bio').value).toBe('Other profile')
+  })
+
+  it('keeps identity-based saves for custom clients without session revisions', async () => {
+    const { client, api } = await setup()
+    delete client.getSessionRevision
+    const saved = vi.fn()
+    render(
+      <AuthProvider client={client}>
+        <ProfileForm onSaved={saved} />
+      </AuthProvider>,
+    )
+    edit('Bio', 'Legacy provider biography')
+    submit()
+    await waitFor(() => expect(saved).toHaveBeenCalledTimes(1))
+    expect((await persistedUser(api.baseURL)).bio).toBe('Legacy provider biography')
+  })
+
   it('keeps saving true until propagation finishes and retries failed propagation without another request', async () => {
     const { api, client } = await setup()
     let finish!: () => void
