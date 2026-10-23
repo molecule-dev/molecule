@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-deploy-target-s3",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Static-site deploy target for molecule.dev on any S3-compatible bucket (Tigris, Cloudflare R2, AWS S3, MinIO)",
   "type": "module",
   "main": "dist/index.js",
@@ -32,10 +32,10 @@
   "author": "Molecule Dev, Inc. (https://molecule.dev)",
   "dependencies": {
     "@aws-sdk/client-s3": "3.1156.0",
-    "@molecule/api-proxy-agent": "1.1.1"
+    "@molecule/api-proxy-agent": "1.1.2"
   },
   "devDependencies": {
-    "@molecule/api-deploy-target": "1.1.0",
+    "@molecule/api-deploy-target": "1.1.1",
     "@types/node": "26.6.5",
     "typescript": "6.0.3",
     "vitest": "4.1.12"

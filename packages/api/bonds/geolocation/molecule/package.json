@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-geolocation-molecule",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "molecule.dev hosted geocoding provider — address lookups billed to your molecule project, no vendor account",
   "homepage": "https://www.molecule.dev/packages/api-geolocation-molecule",
   "type": "module",
@@ -38,7 +38,7 @@
     "@molecule/api-secrets": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/api-geolocation": "1.0.3",
+    "@molecule/api-geolocation": "1.0.4",
     "@types/node": "26.6.5",
     "typescript": "6.0.3",
     "vitest": "4.1.12"

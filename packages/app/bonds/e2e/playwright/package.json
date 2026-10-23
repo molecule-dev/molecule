@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-e2e-playwright",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "E2E bond that opens real Playwright browsers — the same specs that drive the live preview inside a molecule sandbox run here on your machine and in CI, with screenshots, traces and network interception.",
   "type": "module",
   "main": "dist/index.js",
@@ -46,7 +46,7 @@
   },
   "devDependencies": {
     "@molecule/app-bond": "1.0.3",
-    "@molecule/app-e2e": "1.2.2",
+    "@molecule/app-e2e": "1.2.3",
     "@playwright/test": "1.64.1",
     "@types/node": "26.6.5",
     "typescript": "6.0.3",

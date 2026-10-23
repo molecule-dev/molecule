@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-data-table",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Data table core interface for molecule.dev — sorting, filtering, pagination, selection",
   "homepage": "https://www.molecule.dev/packages/app-data-table",
   "type": "module",

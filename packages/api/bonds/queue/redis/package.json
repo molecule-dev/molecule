@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-queue-redis",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Redis/BullMQ queue provider for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
@@ -37,8 +37,8 @@
     "@molecule/api-secrets": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/api-process-lifecycle": "1.2.0",
-    "@molecule/api-process-lifecycle-express": "1.3.0",
+    "@molecule/api-process-lifecycle": "1.2.1",
+    "@molecule/api-process-lifecycle-express": "1.3.1",
     "@types/node": "26.6.5",
     "typescript": "6.0.3",
     "vitest": "4.1.12"

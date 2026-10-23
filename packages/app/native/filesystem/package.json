@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-filesystem",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Device filesystem access interface for molecule.dev",
   "type": "module",
   "main": "dist/index.js",

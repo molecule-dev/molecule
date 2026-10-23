@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-clipboard-web",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Web clipboard provider for molecule.dev — the browser's async Clipboard API, with a selection-and-copy fallback for older contexts",
   "homepage": "https://www.molecule.dev/packages/app-clipboard-web",
   "type": "module",
@@ -37,7 +37,7 @@
     "@molecule/app-clipboard": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/app-clipboard": "1.0.2",
+    "@molecule/app-clipboard": "1.0.3",
     "@types/node": "26.6.5",
     "jsdom": "30.1.3",
     "typescript": "6.0.3",

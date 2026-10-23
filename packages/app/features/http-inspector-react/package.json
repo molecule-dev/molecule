@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-http-inspector-react",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "HTTP method + URL builder + headers/params/body tabs + response status/timing display",
   "homepage": "https://www.molecule.dev/packages/app-http-inspector-react",
   "type": "module",
@@ -39,9 +39,9 @@
     "react": "^18.0.0 || ^19.0.0"
   },
   "devDependencies": {
-    "@molecule/app-react": "1.10.0",
-    "@molecule/app-ui": "1.3.7",
-    "@molecule/app-ui-react": "1.3.5",
+    "@molecule/app-react": "1.10.1",
+    "@molecule/app-ui": "1.3.8",
+    "@molecule/app-ui-react": "1.3.6",
     "@types/node": "26.6.5",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",

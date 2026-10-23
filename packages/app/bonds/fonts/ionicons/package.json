@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-fonts-ionicons",
-  "version": "1.1.3",
+  "version": "1.1.4",
   "description": "Ionicons 2.0 icon font provider for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
@@ -34,7 +34,7 @@
     "@molecule/app-fonts": "^1.2.0"
   },
   "devDependencies": {
-    "@molecule/app-fonts": "1.2.1",
+    "@molecule/app-fonts": "1.2.2",
     "@types/node": "26.6.5",
     "typescript": "6.0.3",
     "vitest": "4.1.12"

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-web-content-readability",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Mozilla Readability web content provider for molecule.dev — fetch a page or extract readable content in this process",
   "type": "module",
   "main": "dist/index.js",
@@ -39,7 +39,7 @@
     "turndown-plugin-gfm": "1.0.2"
   },
   "devDependencies": {
-    "@molecule/api-web-content": "1.1.0",
+    "@molecule/api-web-content": "1.1.1",
     "@types/jsdom": "30.0.0",
     "@types/node": "26.6.5",
     "@types/turndown": "5.0.6",

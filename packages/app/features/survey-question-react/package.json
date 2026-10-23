@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-survey-question-react",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Multi-type survey-question renderer (11 kinds: multi-choice, true-false, short/long text, numeric, rating-scale, NPS, date, file-upload, matrix)",
   "homepage": "https://www.molecule.dev/packages/app-survey-question-react",
   "type": "module",
@@ -41,11 +41,11 @@
     "react": "^18.0.0 || ^19.0.0"
   },
   "devDependencies": {
-    "@molecule/app-file-dropzone-react": "1.0.3",
-    "@molecule/app-i18n": "1.0.3",
-    "@molecule/app-react": "1.10.0",
-    "@molecule/app-ui": "1.3.7",
-    "@molecule/app-ui-react": "1.3.5",
+    "@molecule/app-file-dropzone-react": "1.0.4",
+    "@molecule/app-i18n": "1.0.4",
+    "@molecule/app-react": "1.10.1",
+    "@molecule/app-ui": "1.3.8",
+    "@molecule/app-ui-react": "1.3.6",
     "@testing-library/react": "16.3.3",
     "@types/node": "26.6.5",
     "@types/react": "19.3.0",

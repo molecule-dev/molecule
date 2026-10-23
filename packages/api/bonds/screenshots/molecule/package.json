@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-screenshots-molecule",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "molecule.dev hosted screenshot capture — URL or HTML to image, billed to your molecule project, no vendor account",
   "type": "module",
   "main": "dist/index.js",
@@ -33,7 +33,7 @@
     "@molecule/api-screenshots": ">=1.0.0"
   },
   "devDependencies": {
-    "@molecule/api-screenshots": "1.1.1",
+    "@molecule/api-screenshots": "1.1.2",
     "@types/node": "26.6.5",
     "typescript": "6.0.3",
     "vitest": "4.1.12"

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-process-lifecycle",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Process lifecycle core interface for molecule.dev: named readiness and liveness checks with timeouts and criticality, a drain state, in-flight request tracking, and ordered shutdown hooks.",
   "type": "module",
   "main": "dist/index.js",
@@ -33,7 +33,7 @@
     "@molecule/api-bond": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/api-bond": "1.0.2",
+    "@molecule/api-bond": "1.0.3",
     "@types/node": "26.6.5",
     "typescript": "6.0.3",
     "vitest": "4.1.12"

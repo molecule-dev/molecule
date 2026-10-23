@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-bluetooth",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Bluetooth access interface for molecule.dev",
   "type": "module",
   "main": "dist/index.js",

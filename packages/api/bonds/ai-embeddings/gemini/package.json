@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-ai-embeddings-gemini",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Gemini API ai-embeddings provider for molecule.dev — hosted gemini-embedding-2: text, images, audio and video in one vector space (REST via fetch, zero dependencies)",
   "homepage": "https://www.molecule.dev/packages/api-ai-embeddings-gemini",
   "type": "module",
@@ -41,7 +41,7 @@
     "@molecule/api-secrets": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/api-ai-embeddings": "1.1.0",
+    "@molecule/api-ai-embeddings": "1.1.1",
     "@types/node": "26.6.5",
     "typescript": "6.0.3",
     "vitest": "4.1.12"

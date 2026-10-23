@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-file-upload-filepond",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "FilePond-style file upload provider for @molecule/app-file-upload",
   "homepage": "https://www.molecule.dev/packages/app-file-upload-filepond",
   "type": "module",
@@ -38,8 +38,8 @@
     "@molecule/app-i18n": ">=1.0.1"
   },
   "devDependencies": {
-    "@molecule/app-file-upload": "1.0.2",
-    "@molecule/app-i18n": "1.0.3",
+    "@molecule/app-file-upload": "1.0.3",
+    "@molecule/app-i18n": "1.0.4",
     "@types/node": "26.6.5",
     "typescript": "6.0.3",
     "vitest": "4.1.12"

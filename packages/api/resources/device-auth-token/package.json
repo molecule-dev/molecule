@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-resource-device-auth-token",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Per-device long-lived bearer tokens — hashed at rest, scoped, revocable, with last-used tracking. Distinct from human user session tokens.",
   "type": "module",
   "main": "dist/index.js",
@@ -31,7 +31,7 @@
   ],
   "license": "Apache-2.0",
   "devDependencies": {
-    "@molecule/api-database": "1.1.4",
+    "@molecule/api-database": "1.1.5",
     "@types/node": "26.6.5",
     "typescript": "6.0.3",
     "vitest": "4.1.12"

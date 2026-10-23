@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-resource-payment-method",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Saved payment-method resource for Stripe SetupIntent flow (saved cards, default card, detach).",
   "type": "module",
   "main": "dist/index.js",
@@ -31,12 +31,12 @@
   ],
   "license": "Apache-2.0",
   "devDependencies": {
-    "@molecule/api-bond": "1.0.2",
-    "@molecule/api-database": "1.1.4",
-    "@molecule/api-i18n": "1.0.3",
-    "@molecule/api-logger": "1.0.2",
-    "@molecule/api-payments": "1.2.1",
-    "@molecule/api-resource": "1.0.5",
+    "@molecule/api-bond": "1.0.3",
+    "@molecule/api-database": "1.1.5",
+    "@molecule/api-i18n": "1.0.4",
+    "@molecule/api-logger": "1.0.3",
+    "@molecule/api-payments": "1.2.2",
+    "@molecule/api-resource": "1.0.6",
     "@types/node": "26.6.5",
     "typescript": "6.0.3",
     "vitest": "4.1.12"

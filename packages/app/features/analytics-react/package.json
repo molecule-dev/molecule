@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-analytics-react",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "React bindings for @molecule/app-analytics (route listener, hooks)",
   "homepage": "https://www.molecule.dev/packages/app-analytics-react",
   "type": "module",
@@ -38,7 +38,7 @@
     "react-router": "^7.0.0 || ^8.0.0"
   },
   "devDependencies": {
-    "@molecule/app-analytics": "1.0.2",
+    "@molecule/app-analytics": "1.0.3",
     "@types/node": "26.6.5",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-health",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Health and fitness data interface for molecule.dev",
   "type": "module",
   "main": "dist/index.js",

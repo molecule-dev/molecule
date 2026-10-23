@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-ai-translation-molecule",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "description": "molecule.dev hosted translation provider — translate through molecule.dev with a project API key, no translation-vendor account",
   "homepage": "https://www.molecule.dev/packages/api-ai-translation-molecule",
   "type": "module",
@@ -39,7 +39,7 @@
     "@molecule/api-secrets": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/api-ai-translation": "1.1.0",
+    "@molecule/api-ai-translation": "1.1.1",
     "@types/node": "26.6.5",
     "typescript": "6.0.3",
     "vitest": "4.1.12"

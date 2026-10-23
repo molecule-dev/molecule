@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-resource-tag",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Tag/category resource handlers with polymorphic resource tagging",
   "type": "module",
   "main": "dist/index.js",
@@ -29,8 +29,8 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "@molecule/api-locales-tag": "1.0.2",
-    "@molecule/api-permissions": "1.0.3",
-    "@molecule/api-slug": "1.0.1",
+    "@molecule/api-permissions": "1.0.4",
+    "@molecule/api-slug": "1.0.2",
     "@types/node": "26.6.5",
     "typescript": "6.0.3",
     "vitest": "4.1.12"

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-image-molecule",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "molecule.dev hosted image transformation — resize/crop/rotate/optimize/convert billed to your molecule project, no vendor account",
   "homepage": "https://www.molecule.dev/packages/api-image-molecule",
   "type": "module",
@@ -37,7 +37,7 @@
     "@molecule/api-secrets": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/api-image": "1.0.2",
+    "@molecule/api-image": "1.0.3",
     "@types/node": "26.6.5",
     "typescript": "6.0.3",
     "vitest": "4.1.12"

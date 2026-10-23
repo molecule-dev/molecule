@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-react",
-  "version": "1.10.0",
+  "version": "1.10.1",
   "description": "React framework bindings for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
@@ -58,9 +58,9 @@
     }
   },
   "devDependencies": {
-    "@molecule/app-ai-models": "1.4.2",
-    "@molecule/app-bonds-default-react": "1.1.5",
-    "@molecule/app-i18n": "1.0.3",
+    "@molecule/app-ai-models": "1.4.3",
+    "@molecule/app-bonds-default-react": "1.1.6",
+    "@molecule/app-i18n": "1.0.4",
     "@testing-library/dom": "10.4.2",
     "@testing-library/react": "16.3.3",
     "@types/node": "26.6.5",

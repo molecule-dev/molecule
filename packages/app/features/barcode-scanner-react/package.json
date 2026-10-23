@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-feature-barcode-scanner-react",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Browser barcode scanner React component using BarcodeDetector with @zxing/library fallback — for warehouse, inventory, and grocery apps",
   "homepage": "https://www.molecule.dev/packages/app-feature-barcode-scanner-react",
   "type": "module",
@@ -45,9 +45,9 @@
     "react": "^18.0.0 || ^19.0.0"
   },
   "devDependencies": {
-    "@molecule/app-i18n": "1.0.3",
-    "@molecule/app-react": "1.10.0",
-    "@molecule/app-ui": "1.3.7",
+    "@molecule/app-i18n": "1.0.4",
+    "@molecule/app-react": "1.10.1",
+    "@molecule/app-ui": "1.3.8",
     "@testing-library/react": "16.3.3",
     "@types/node": "26.6.5",
     "@types/react": "19.3.0",

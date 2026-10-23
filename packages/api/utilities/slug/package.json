@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-slug",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "URL slugs from titles and names: accent-folding slugify, and unique slugs checked against your store (a table column or any lookup).",
   "homepage": "https://www.molecule.dev/packages/api-slug",
   "type": "module",

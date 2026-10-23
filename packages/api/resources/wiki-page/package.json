@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-resource-wiki-page",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Wiki page CRUD with slug/breadcrumbs/parent, version-history via api-resource-version-history, optional search bond indexing.",
   "homepage": "https://www.molecule.dev/packages/api-resource-wiki-page",
   "type": "module",
@@ -36,7 +36,7 @@
     "directory": "packages/api/resources/wiki-page"
   },
   "devDependencies": {
-    "@molecule/api-slug": "1.0.1",
+    "@molecule/api-slug": "1.0.2",
     "@types/express": "5.0.6",
     "@types/node": "26.6.5",
     "express": "5.3.0",

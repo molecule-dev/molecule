@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-realtime",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Realtime client core interface for molecule.dev — WebSocket/SSE connections with rooms, presence, events, and auto-reconnection",
   "homepage": "https://www.molecule.dev/packages/app-realtime",
   "type": "module",

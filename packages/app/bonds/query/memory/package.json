@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-query-memory",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Dependency-free in-memory bond for @molecule/app-query — a Map of documents with freshness, in-flight sharing and observers",
   "homepage": "https://www.molecule.dev/packages/app-query-memory",
   "type": "module",
@@ -37,7 +37,7 @@
     "@molecule/app-query": "^1.0.0"
   },
   "devDependencies": {
-    "@molecule/app-query": "1.0.3",
+    "@molecule/app-query": "1.0.4",
     "@types/node": "26.6.5",
     "typescript": "6.0.3",
     "vitest": "4.1.12"

@@ -35,7 +35,7 @@
   },
   "devDependencies": {
     "@molecule/api-activity": "1.0.2",
-    "@molecule/api-logger": "1.0.2",
+    "@molecule/api-logger": "1.0.3",
     "typescript": "6.0.3"
   },
   "repository": {

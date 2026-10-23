@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-channel-messenger",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Facebook Messenger channel bond — implements @molecule/api-channel for sendMessage via the Send API, X-Hub-Signature-256 webhook verification, and inbound entry/messaging parsing.",
   "homepage": "https://www.molecule.dev/packages/api-channel-messenger",
   "type": "module",
@@ -33,7 +33,7 @@
     "directory": "packages/api/bonds/channel/messenger"
   },
   "devDependencies": {
-    "@molecule/api-channel": "1.0.2",
+    "@molecule/api-channel": "1.0.3",
     "@types/node": "26.6.5",
     "typescript": "6.0.3",
     "vitest": "4.1.12"

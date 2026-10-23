@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-ai-embeddings-embeddinggemma",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "EmbeddingGemma 2 ai-embeddings provider for molecule.dev — Google's open (Apache-2.0) multimodal embedding model run in-process via Transformers.js (ONNX): text, images and audio in one 768-d space, task prefixes applied for you, Matryoshka 512/256/128",
   "homepage": "https://www.molecule.dev/packages/api-ai-embeddings-embeddinggemma",
   "type": "module",
@@ -47,7 +47,7 @@
     "@molecule/api-ai-embeddings": ">=1.1.0"
   },
   "devDependencies": {
-    "@molecule/api-ai-embeddings": "1.1.0",
+    "@molecule/api-ai-embeddings": "1.1.1",
     "@types/node": "26.6.5",
     "typescript": "6.0.3",
     "vitest": "4.1.12"

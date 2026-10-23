@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-resource-address",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "User-owned shipping/billing addresses with default flag",
   "type": "module",
   "main": "dist/index.js",
