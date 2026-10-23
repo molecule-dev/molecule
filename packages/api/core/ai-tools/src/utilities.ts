@@ -664,9 +664,8 @@ function isStatusOnlyStep(step: string): boolean {
  *   often `html`, which prints nothing per test. `--reporter=list` is added
  *   when the playwright run is the command's last step, piped or not: it writes each result as
  *   it finishes, and it is the shape the platform reads a background suite back in. Every EARLIER
- *   Playwright invocation is put on the same reporter, so its log is readable while it walks
- *   ({@link earlierPlaywrightReporters}) — the machine `json` report still belongs to the last
- *   invocation alone.
+ *   Playwright invocation gets the same reporter, so its log is readable while it walks; the
+ *   machine `json` report stays on the last invocation.
  *
  * The run ends up with exactly ONE reporter that prints each failure — `list`. A run that names
  * any other printing reporter has it REPLACED, never joined: two of them write every test result
