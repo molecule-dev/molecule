@@ -89,7 +89,9 @@
  * throws at `summarize()` time, not at import). Pass `provider` on the input to
  * target a specific named `ai` provider. Because it is just prompt orchestration
  * over the bonded LLM, swapping the `ai` provider swaps the model behind every
- * summary without touching call sites.
+ * summary without touching call sites. `createProvider({ aiProvider, model })`
+ * builds the same provider over an explicitly injected `ai` provider (how
+ * molecule.dev's hosted summarization service runs it) with a default model.
  *
  * @module
  */

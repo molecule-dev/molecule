@@ -86,6 +86,76 @@ function buildSystemPrompt(input: SummarizeInput): string {
 }
 
 /**
+ * Configuration for {@link createProvider}.
+ */
+export interface LlmSummarizationConfig {
+  /**
+   * The `ai` provider this provider composes: an already-resolved provider
+   * instance, or the name of one to resolve at call time. Defaults to the
+   * bonded singleton of `@molecule/api-ai`.
+   */
+  aiProvider?: AIProvider | string
+  /** Default model for every summarize call. A call's own `model` wins. */
+  model?: string
+}
+
+/**
+ * Creates an LLM summarization provider.
+ *
+ * Composes the `ai` chat provider (`@molecule/api-ai`) — an AI provider MUST be
+ * bonded first (`bond('ai', <provider>)`), or `summarize()` throws, unless
+ * `config.aiProvider` supplies one directly (how a hosted handler injects its
+ * own provider). The module-level `provider` is this factory with no config.
+ *
+ * @param config - Optional `ai` provider and default model.
+ * @returns An `AISummarizationProvider` composed over the `ai` bond.
+ */
+export function createProvider(config: LlmSummarizationConfig = {}): AISummarizationProvider {
+  return {
+    name: 'llm',
+    async summarize(input: SummarizeInput): Promise<SummarizeResult> {
+      let ai: AIProvider | null
+      if (config.aiProvider && typeof config.aiProvider === 'object') {
+        ai = config.aiProvider
+      } else {
+        const named =
+          input.provider ?? (typeof config.aiProvider === 'string' ? config.aiProvider : undefined)
+        ai = named ? getAIProviderByName(named) : requireAIProvider()
+      }
+      if (!ai) {
+        throw new Error(
+          t(
+            'ai-summarization.error.aiProviderMissing',
+            {
+              provider:
+                input.provider ?? (typeof config.aiProvider === 'string' ? config.aiProvider : ''),
+            },
+            {
+              defaultValue: 'AI provider "{{provider}}" is not bonded. Bond it before summarizing.',
+            },
+          ),
+        )
+      }
+
+      const resolved = { ...input, model: input.model ?? config.model }
+      const sentences = resolved.sentences ?? (resolved.format === 'tldr' ? 1 : undefined)
+      if (!resolved.maxWords && !sentences) {
+        const params: ChatParams = {
+          messages: [{ role: 'user', content: resolved.text }],
+          system: buildSystemPrompt(resolved),
+          model: resolved.model,
+          stream: false,
+          signal: resolved.signal,
+        }
+        const { text, usage } = await complete(ai, params)
+        return { summary: text.trim(), usage }
+      }
+      return summarizeCapped(ai, resolved, sentences ?? 1)
+    },
+  }
+}
+
+/**
  * Default AI summarization provider.
  *
  * Composes the bonded `ai` chat provider (`@molecule/api-ai`) — an AI provider
@@ -93,37 +163,7 @@ function buildSystemPrompt(input: SummarizeInput): string {
  * it with `bond('ai-summarization', provider)`; swap in a custom
  * `AISummarizationProvider` to replace it without touching call sites.
  */
-export const provider: AISummarizationProvider = {
-  name: 'llm',
-  async summarize(input: SummarizeInput): Promise<SummarizeResult> {
-    const ai = input.provider ? getAIProviderByName(input.provider) : requireAIProvider()
-    if (!ai) {
-      throw new Error(
-        t(
-          'ai-summarization.error.aiProviderMissing',
-          { provider: input.provider ?? '' },
-          {
-            defaultValue: 'AI provider "{{provider}}" is not bonded. Bond it before summarizing.',
-          },
-        ),
-      )
-    }
-
-    const sentences = input.sentences ?? (input.format === 'tldr' ? 1 : undefined)
-    if (!input.maxWords && !sentences) {
-      const params: ChatParams = {
-        messages: [{ role: 'user', content: input.text }],
-        system: buildSystemPrompt(input),
-        model: input.model,
-        stream: false,
-        signal: input.signal,
-      }
-      const { text, usage } = await complete(ai, params)
-      return { summary: text.trim(), usage }
-    }
-    return summarizeCapped(ai, input, sentences ?? 1)
-  },
-}
+export const provider: AISummarizationProvider = createProvider()
 
 /** Words that never end a finished sentence — a summary ending on one was cut. */
 const FUNCTION_WORDS = new Set(

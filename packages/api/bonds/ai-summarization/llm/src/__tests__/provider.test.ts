@@ -8,7 +8,14 @@ import {
 } from '@molecule/api-ai-summarization'
 import { configure, reset } from '@molecule/api-bond'
 
-import { cleanSummary, countWords, firstSentences, meetsCap, provider } from '../provider.js'
+import {
+  cleanSummary,
+  countWords,
+  createProvider,
+  firstSentences,
+  meetsCap,
+  provider,
+} from '../provider.js'
 
 // ---------------------------------------------------------------------------
 // Fake AI provider — records the params it received so we can assert the prompt.
@@ -221,5 +228,22 @@ describe('ai-summarization-llm provider', () => {
 
     const result = await requireSummarizer().summarize({ text: 'x' })
     expect(result.summary).toBe('bonded summary')
+  })
+
+  it('createProvider injects an ai provider and a default model without bonding', async () => {
+    const captured: { params?: ChatParams } = {}
+    const injected: AIProvider = {
+      name: 'injected',
+      async *chat(params: ChatParams) {
+        captured.params = params
+        yield { type: 'text' as const, content: 'injected summary.' }
+        yield { type: 'done' as const, usage: { inputTokens: 3, outputTokens: 2 } }
+      },
+    }
+    const instance = createProvider({ aiProvider: injected, model: 'summarizer-model' })
+
+    const result = await instance.summarize({ text: 'x' })
+    expect(result.summary).toBe('injected summary.')
+    expect(captured.params?.model).toBe('summarizer-model')
   })
 })
