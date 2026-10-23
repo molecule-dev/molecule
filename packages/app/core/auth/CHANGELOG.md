@@ -1,5 +1,11 @@
 # @molecule/app-auth
 
+## 1.8.1
+
+### Patch Changes
+
+- Restore token-only sessions by loading the current user during initialization.
+
 ## 1.8.0
 
 ### Minor Changes
