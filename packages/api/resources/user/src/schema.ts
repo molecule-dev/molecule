@@ -171,7 +171,12 @@ export const createPropsSchema = propsSchema.pick({
 })
 
 /**
- * Create Props type.
+ * User fields accepted at signup. The password is a request field of
+ * `handlers.create(resource)`, not a column in these props: that handler validates and hashes it,
+ * writes the user and its same-id secrets row, and creates the session. Use the handler for
+ * signup rather than inserting these props and assembling credential rows yourself. For a
+ * different JSON envelope, adapt the handler's returned `{ statusCode, headers?, body }`;
+ * `body.props` and `body.accessToken` are its success fields.
  */
 export type CreateProps = z.infer<typeof createPropsSchema>
 

@@ -17,6 +17,14 @@ type RequestHandlerCreator = typeof CreateRequestHandler
  * accept the map (e.g. `mountDefaultUserAuthRoutes`, `mountDefaultUserCrudRoutes`)
  * can type their parameter precisely instead of widening to
  * `Record<string, MoleculeRequestHandler>`.
+ *
+ * `create` and `logIn` here are wrapped HTTP middleware: they send the response. To adapt a
+ * request or response envelope, use this package's raw `handlers.create(resource)` or
+ * `handlers.logIn(resource)` instead. They return `{ statusCode, headers?, body }`; apply or
+ * adapt that result with `createRequestHandler` from `@molecule/api-resource`, preserving
+ * non-success results. Signup already owns validation, hashing, same-id user/secrets rows and
+ * session creation; the JSON envelope is the app's part.
+ * Keep each route's authorization and rate-limit middleware around that adapter.
  */
 export interface UserRequestHandlerMap {
   auth: MoleculeRequestHandler
@@ -49,6 +57,9 @@ export interface UserRequestHandlerMap {
  * based on bonded providers.
  *
  * Handler names match the route definitions in routes.ts.
+ * The map's `create` / `logIn` send HTTP responses. For a custom JSON envelope, compose the raw
+ * `handlers.create(resource)` / `handlers.logIn(resource)` with `createRequestHandler` and adapt
+ * their `{ statusCode, headers?, body }` result instead of reimplementing credential storage.
  * @param createRequestHandler - Factory from `@molecule/api-resource` that wraps handler configs into Express middleware.
  * @returns A `UserRequestHandlerMap` of handler names to Express middleware.
  */
