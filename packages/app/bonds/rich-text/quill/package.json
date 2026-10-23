@@ -29,7 +29,7 @@
   ],
   "license": "Apache-2.0",
   "dependencies": {
-    "dompurify": "3.4.13",
+    "dompurify": "3.4.17",
     "quill": "2.0.2",
     "quill-delta": "5.1.0"
   },
