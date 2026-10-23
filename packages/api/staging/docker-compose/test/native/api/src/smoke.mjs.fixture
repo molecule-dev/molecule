@@ -1,0 +1,81 @@
+import assert from 'node:assert/strict'
+import { spawnSync } from 'node:child_process'
+import { readFile, rm, writeFile } from 'node:fs/promises'
+import { createRequire } from 'node:module'
+
+import { createApp } from './server.mjs'
+
+assert.equal(process.version, 'v22.23.4')
+assert.equal(process.arch, 'x64')
+assert.equal(process.platform, 'linux')
+assert.notEqual(process.getuid(), 0)
+for (const tool of ['python3', 'make', 'g++']) {
+  assert.equal(spawnSync(tool, ['--version']).error?.code, 'ENOENT')
+}
+await assert.rejects(writeFile('/app/api/read-only-probe', 'should refuse'), { code: 'EROFS' })
+await assert.rejects(readFile('/app/api/.env.private'), { code: 'ENOENT' })
+await assert.rejects(readFile('/app/api/node_modules/host-poison'), { code: 'ENOENT' })
+const path = '/tmp/node-artifact-smoke.sqlite'
+await rm(path, { force: true })
+const app = await createApp(path)
+await new Promise((resolve) => app.server.listen(0, '127.0.0.1', resolve))
+const origin = `http://127.0.0.1:${app.server.address().port}`
+try {
+  assert.match(await (await fetch(origin)).text(), /Deployment works/)
+  assert.equal(await readFile(new URL('./prepared.txt', import.meta.url), 'utf8'), 'true')
+  const post = async (route, password) => {
+    const res = await fetch(`${origin}${route}`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ name: 'sample', password }),
+    })
+    assert.equal(res.status, 200)
+    return res.json()
+  }
+  assert.deepEqual(await post('/records', 'test-password'), { created: 'sample' })
+  assert.deepEqual(await post('/verify', 'test-password'), { valid: true })
+  assert.deepEqual(await post('/verify', 'incorrect'), { valid: false })
+  assert.deepEqual(await (await fetch(`${origin}/records`)).json(), [{ name: 'sample' }])
+  assert.throws(() => import.meta.resolve('is-number'), /Cannot find package/)
+} finally {
+  await new Promise((resolve) => app.server.close(resolve))
+  await app.pool.end()
+}
+const reopened = await createApp(path)
+assert.deepEqual((await reopened.pool.query('SELECT name FROM records')).rows, [{ name: 'sample' }])
+await reopened.pool.end()
+await rm(path, { force: true })
+const nativeObjects = Object.keys(createRequire(import.meta.url).cache).filter((path) =>
+  path.endsWith('.node'),
+)
+assert.ok(nativeObjects.some((path) => path.endsWith('/bcrypt/build/Release/bcrypt_lib.node')))
+assert.ok(nativeObjects.some((path) => path.endsWith('/better-sqlite3/prebuilds/linux-x64.node')))
+for (const path of nativeObjects) {
+  const binary = await readFile(path)
+  assert.equal(binary.readUInt32BE(0), 0x7f454c46)
+  assert.equal(binary.readUInt16LE(18), 62, 'ELF target must be x86-64, not host arm64')
+}
+console.log(
+  JSON.stringify({
+    passed: true,
+    checks: [
+      'frontend',
+      'install-prepare-with-dev-dependency',
+      'sqlite-insert',
+      'native-bcrypt-hash-compare',
+      'wrong-password',
+      'list',
+      'dev-dependency-pruned',
+      'sqlite-reopen',
+      'amd64-native-ELF',
+      'nonroot-readonly-runtime',
+      'no-runtime-build-toolchain',
+      'dockerignore-excludes-host-modules-and-secrets',
+    ],
+    node: process.version,
+    platform: process.platform,
+    arch: process.arch,
+    nativeObjects,
+    glibc: process.report.getReport().header.glibcVersionRuntime,
+  }),
+)

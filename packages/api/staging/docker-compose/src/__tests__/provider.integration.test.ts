@@ -30,6 +30,7 @@ import type { StagingEnvironment } from '@molecule/api-staging'
 
 import { generateComposeFile } from '../compose-generator.js'
 import {
+  generateApiDeploymentArtifacts,
   generateApiDockerfile,
   generateAppDockerfile,
   generateNginxConf,
@@ -65,10 +66,13 @@ async function scaffoldEnvironment(
   const stagingDir = join(projectPath, STAGING_DIR)
   await mkdir(stagingDir, { recursive: true })
   await writeFile(join(stagingDir, 'Dockerfile.api'), generateApiDockerfile())
+  const ignore = generateApiDeploymentArtifacts()['.dockerignore']
+  await writeFile(join(stagingDir, 'Dockerfile.api.dockerignore'), ignore)
   await writeFile(
     join(stagingDir, 'Dockerfile.app'),
     generateAppDockerfile({ VITE_API_URL: `http://localhost:${ports.apiPort}/api` }),
   )
+  await writeFile(join(stagingDir, 'Dockerfile.app.dockerignore'), ignore)
   await writeFile(join(stagingDir, 'nginx.conf'), generateNginxConf())
   const composeFile = join(stagingDir, `docker-compose.staging-${env.slug}.yml`)
   await writeFile(composeFile, generateComposeFile(env, { ...ports, dockerfilePath: stagingDir }))
@@ -219,6 +223,7 @@ describe('@molecule/api-staging-docker-compose × REAL fs + REAL yaml', () => {
     // …B's environment AND the shared build inputs survive.
     expect(await exists(join(stagingDir, 'docker-compose.staging-feat-b.yml'))).toBe(true)
     expect(await exists(join(stagingDir, 'Dockerfile.api'))).toBe(true)
+    expect(await exists(join(stagingDir, 'Dockerfile.api.dockerignore'))).toBe(true)
     expect(await exists(join(stagingDir, 'Dockerfile.app'))).toBe(true)
     expect(await exists(join(stagingDir, 'nginx.conf'))).toBe(true)
     expect((await provider.list(config)).map((e) => e.slug)).toEqual(['feat-b'])
@@ -226,6 +231,8 @@ describe('@molecule/api-staging-docker-compose × REAL fs + REAL yaml', () => {
     // Tearing down the LAST environment sweeps the shared files too.
     await provider.down(envB, config)
     expect(await exists(join(stagingDir, 'Dockerfile.api'))).toBe(false)
+    expect(await exists(join(stagingDir, 'Dockerfile.api.dockerignore'))).toBe(false)
+    expect(await exists(join(stagingDir, 'Dockerfile.app.dockerignore'))).toBe(false)
     expect(await exists(join(stagingDir, 'Dockerfile.app'))).toBe(false)
     expect(await exists(join(stagingDir, 'nginx.conf'))).toBe(false)
     expect(await provider.list(config)).toEqual([])
@@ -324,7 +331,7 @@ describe('generateComposeFile() × REAL yaml parser — api/app healthchecks', (
       services: { api: { healthcheck?: { test: string[] } } }
     }
     expect(doc.services.api.healthcheck).toBeDefined()
-    expect(doc.services.api.healthcheck?.test.join(' ')).toMatch(/localhost:4000\/health/)
+    expect(doc.services.api.healthcheck?.test.join(' ')).toMatch(/127\.0\.0\.1:4000\/health/)
   })
 
   it('defines a healthcheck for the app service hitting its Nginx port', () => {

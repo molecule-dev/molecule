@@ -1,0 +1,48 @@
+import { createServer } from 'node:http'
+import { readFile } from 'node:fs/promises'
+
+import { createPool } from '@molecule/api-database-sqlite'
+import bcrypt from 'bcrypt'
+
+export async function createApp(path) {
+  const pool = createPool({ path })
+  await pool.query('CREATE TABLE IF NOT EXISTS records (name TEXT PRIMARY KEY, hash TEXT NOT NULL)')
+  const server = createServer(async (req, res) => {
+    try {
+      if (req.url === '/') {
+        res.setHeader('content-type', 'text/html')
+        res.end(await readFile(new URL('../../app/dist/index.html', import.meta.url)))
+        return
+      }
+      let body = ''
+      for await (const chunk of req) body += chunk
+      const values = body ? JSON.parse(body) : {}
+      res.setHeader('content-type', 'application/json')
+      if (req.method === 'POST' && req.url === '/records') {
+        const hash = await bcrypt.hash(values.password, 4)
+        await pool.query('INSERT INTO records (name,hash) VALUES ($1,$2)', [values.name, hash])
+        res.end(JSON.stringify({ created: values.name }))
+      } else if (req.method === 'POST' && req.url === '/verify') {
+        const result = await pool.query('SELECT hash FROM records WHERE name=$1', [values.name])
+        res.end(
+          JSON.stringify({
+            valid:
+              result.rows.length > 0 &&
+              (await bcrypt.compare(values.password, result.rows[0].hash)),
+          }),
+        )
+      } else {
+        res.end(JSON.stringify((await pool.query('SELECT name FROM records ORDER BY name')).rows))
+      }
+    } catch (error) {
+      res.statusCode = 500
+      res.end(JSON.stringify({ error: error.message }))
+    }
+  })
+  return { pool, server }
+}
+
+if (process.argv[1] === new URL(import.meta.url).pathname) {
+  const app = await createApp(process.env.SQLITE_PATH ?? './data/app.db')
+  app.server.listen(Number(process.env.PORT ?? 4000), '0.0.0.0')
+}

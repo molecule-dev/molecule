@@ -1,0 +1,16 @@
+{
+  "name": "native-artifact-fixture",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "api",
+    "app"
+  ],
+  "scripts": {
+    "build": "node build.mjs",
+    "prepare": "node prepare.mjs"
+  },
+  "devDependencies": {
+    "is-number": "7.0.0"
+  }
+}

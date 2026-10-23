@@ -129,7 +129,7 @@ describe('generateComposeFile', () => {
     const appSection = result.split('  app:')[1].split('  db:')[0]
 
     expect(apiSection).toContain('healthcheck:')
-    expect(apiSection).toContain('wget -qO- http://localhost:4000/health')
+    expect(apiSection).toContain("fetch('http://127.0.0.1:4000/health')")
     expect(appSection).toContain('healthcheck:')
     expect(appSection).toContain('wget -qO- http://localhost:80/')
   })
