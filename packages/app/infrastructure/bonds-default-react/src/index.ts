@@ -24,7 +24,10 @@
  * - Auth/http factories — `createDefaultAuthClient(authConfig)` returns
  *   `{ authClient, setupAuthDefault }`; the `...WithHttpSync` /
  *   `...WithFetchClient` variants also keep the bonded http client's bearer
- *   token in sync with auth events.
+ *   token in sync with auth events. All three accept ANY object profile
+ *   (`createDefaultAuthClient<SessionUser>(config)` for an API whose user has no
+ *   `id`) and fall back to `UserProfile` — with its `id: string` — when no type
+ *   argument is given.
  *
  * @example
  * ```tsx

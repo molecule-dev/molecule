@@ -128,6 +128,22 @@ export function createDefaultHttpClientWithAuthBearer(opts: {
  * apps shipped byte-identically. Apps pass their own `authConfig`
  * (which lives in `src/config.ts`).
  *
+ * `TUser` is the profile the app's pages read, and may be any object type —
+ * including a profile with NO `id` (`{ username, email, bio, image }`), exactly
+ * like the factory beneath this wrapper. Never add a synthetic `id` to satisfy a
+ * type: nothing in the client reads it, and the fabricated value then travels into
+ * storage, `getUser()` and every page. Omit the type parameter and the default is
+ * `UserProfile`, whose `id: string` stays required.
+ *
+ * Type the config with the SAME type (`const authConfig: AuthClientConfig<MyUser> = { … }`)
+ * so its `mapAuthResponse` is checked against `MyUser`: a mapper that omits a
+ * required custom field then fails at the `createDefaultAuthClient<MyUser>(authConfig)`
+ * call instead of shipping a signed-in page that reads `undefined`.
+ *
+ * `TRegister` is the app's own registration fields (`{ username: string }` for a
+ * RealWorld-shaped API), passed on to `@molecule/app-auth`'s factory so
+ * `authClient.register({ username, email, password })` type-checks with no cast.
+ *
  * @example
  * ```ts
  * // bonds/auth-default.ts
@@ -137,19 +153,9 @@ export function createDefaultHttpClientWithAuthBearer(opts: {
  * export const { authClient, setupAuthDefault } =
  *   createDefaultAuthClient(authConfig)
  * ```
- *
- * `TRegister` is the app's own registration fields (`{ username: string }` for a
- * RealWorld-shaped API), passed on to `@molecule/app-auth`'s factory so
- * `authClient.register({ username, email, password })` type-checks with no cast.
- *
- * `TUser` is the profile the app's pages read. Type the config with the SAME
- * type (`const authConfig: AuthClientConfig<MyUser> = { … }`) so its
- * `mapAuthResponse` is checked against `MyUser`: a mapper that omits a required
- * custom field then fails at the `createDefaultAuthClient<MyUser>(authConfig)`
- * call instead of shipping a signed-in page that reads `undefined`.
  */
 export function createDefaultAuthClient<
-  TUser extends UserProfile = UserProfile,
+  TUser extends object = UserProfile,
   TRegister extends RegisterExtraShape<TRegister> = Record<never, never>,
 >(
   authConfig: AuthClientConfig<TUser>,
@@ -171,6 +177,9 @@ export function createDefaultAuthClient<
  * client must carry the JWT on every request — without this wiring,
  * authed endpoints return 401 after page reloads or token refresh.
  *
+ * The profile type is `createDefaultAuthClient`'s: any object type, including an app
+ * profile with no `id`.
+ *
  * Hydrates the HTTP client's token from the persisted auth state
  * on setup, then listens for auth events to keep them aligned, and holds
  * requests until the session restore settles so a page effect that fetches
@@ -184,7 +193,7 @@ export function createDefaultAuthClient<
  * bonded, so setup order no longer decides whether the first request is authorized.
  */
 export function createDefaultAuthClientWithHttpSync<
-  TUser extends UserProfile = UserProfile,
+  TUser extends object = UserProfile,
   TRegister extends RegisterExtraShape<TRegister> = Record<never, never>,
 >(
   authConfig: AuthClientConfig<TUser>,
@@ -241,9 +250,12 @@ export function createDefaultAuthClientWithHttpSync<
  * Requests are also held until the session restore settles (see
  * {@link registerAuthGate}), so a page that fetches viewer-dependent data on
  * mount cannot race it and answer for an anonymous viewer.
+ *
+ * The profile type is `createDefaultAuthClient`'s: any object type, including an app
+ * profile with no `id`.
  */
 export function createDefaultAuthClientWithFetchClient<
-  TUser extends UserProfile = UserProfile,
+  TUser extends object = UserProfile,
   TRegister extends RegisterExtraShape<TRegister> = Record<never, never>,
 >(
   authConfig: AuthClientConfig<TUser>,
