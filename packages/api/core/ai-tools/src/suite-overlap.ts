@@ -1047,7 +1047,7 @@ export interface DiagnosisRunContext {
    * re-runs (`file:line`, and the specs they live in), so it reads as a narrowed run. That
    * selection is the proof's own scope, so the graded run keeps the suite's retries instead of
    * walking each failure once the way a diagnosis does. Only the selection is excused — a failed
-   * cap, a title filter, a last-failed set and a local target stay diagnoses whatever the caller
+   * cap, a title filter, a last-failed set and a local targeted selection stay diagnoses whatever the caller
    * says here — and only a command the PLATFORM composes and launches is ever the proof.
    *
    * Host code marks the launch input with {@link PLATFORM_PROOF} rather than a JSON key: tool
@@ -1153,7 +1153,7 @@ function boundsFailures(command: string): boolean {
  * A command the PLATFORM composed and launched AS the graded proof keeps the suite's retries for
  * the SELECTION it composed — the failures a redeploy re-runs, named as files and `file:line`
  * ({@link DiagnosisRunContext} `platformProof`). Only that selection is excused: a cap, a title
- * filter, a last-failed set and a local target stay diagnoses, so the mark cannot turn a walk of
+ * filter, a last-failed set and a local targeted selection stay diagnoses, so the mark cannot turn a walk of
  * part of the suite into the graded measurement. Which targets are local is
  * {@link suiteCommandTarget}'s answer, and the launch rewrite asks it on the same reading
  * ({@link ./utilities.js} `streamingBackgroundCommand`).
@@ -1161,7 +1161,10 @@ function boundsFailures(command: string): boolean {
  * @param command - The command as the executor sent it.
  * @param context - The request's approved exclusions and whether this command IS the graded
  *   proof, when the caller knows them.
- * @returns True when the run is a diagnosis or a re-run, not the whole suite.
+ * A whole local walk still covers the whole suite; the launcher's separate local-target policy
+ * disables its retries. This predicate classifies narrowed selections and their proof purpose.
+ *
+ * @returns True when the run is a diagnosis or a re-run, not the whole suite or a deployed proof selection.
  */
 export function isDiagnosisRun(command: string, context?: DiagnosisRunContext): boolean {
   // A cap bounds the walk whatever launched it. `--max-failures=0` is Playwright's own "no cap"
@@ -1179,7 +1182,12 @@ export function isDiagnosisRun(command: string, context?: DiagnosisRunContext): 
     // The platform's own proof keeps the suite's retries for the failures it re-runs — the one
     // selection a redeploy composes. Every other narrower is still a diagnosis: a filter or a
     // last-failed set measures a part of the suite, capped or not.
-    if (context?.platformProof === true && namesOnlySelection(selection)) return false
+    if (
+      context?.platformProof === true &&
+      namesOnlySelection(selection) &&
+      suiteCommandTarget(command) !== 'local'
+    )
+      return false
     return true
   }
   if (inverted === null) return false

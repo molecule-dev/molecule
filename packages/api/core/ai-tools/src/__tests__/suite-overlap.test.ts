@@ -465,6 +465,17 @@ describe('isDiagnosisRun — the platform’s own proof keeps its retries (l48)'
    */
   const marked = { approvedExclusions: EXCLUDED, platformProof: true }
 
+  it.each([
+    '',
+    'BASE_URL=http://localhost:5173 ',
+    'BASE_URL=http://127.0.0.1:4173 ',
+    'BASE_URL=http://[::1]:5173 ',
+  ])('keeps local targeted runs a diagnosis even with the host mark: %s', (target) => {
+    const command = `${target}npx playwright test /workspace/e2e/articles.spec.ts:15 --reporter=list`
+    expect(isDiagnosisRun(command), command).toBe(true)
+    expect(isDiagnosisRun(command, marked), command).toBe(true)
+  })
+
   it('scopes the host mark to the named selection: capped, filtered and last-failed runs stay diagnoses', () => {
     for (const command of [
       `npx playwright test articles.spec.ts:32 --max-failures=5`,
@@ -485,7 +496,7 @@ describe('isDiagnosisRun — the platform’s own proof keeps its retries (l48)'
       'npx playwright test /workspace/e2e/url-navigation.spec.ts:33 e2e/articles.spec.ts',
       "npx playwright test /workspace/e2e/url-navigation.spec.ts:33 --grep-invert 'should require login to post comment'",
     ])
-      expect(isDiagnosisRun(command, marked), command).toBe(false)
+      expect(isDiagnosisRun(`BASE_URL=${L48_URL} ${command}`, marked), command).toBe(false)
   })
 })
 

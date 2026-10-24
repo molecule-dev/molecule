@@ -1450,6 +1450,16 @@ describe('streamingBackgroundCommand — the platform’s own proof keeps the su
     `cd /workspace/my-app/app && TEST_MODE=fullstack BASE_URL=${L48_URL} ` +
     `API_BASE=${L48_URL}/api npx playwright test --config e2e-suite.config.ts`
 
+  it('gives the same local explanation with or without the host proof mark', () => {
+    const command =
+      'BASE_URL=http://localhost:5173 npx playwright test articles.spec.ts:15 --reporter=list'
+    const unmarked = streamingBackgroundCommand(command)
+    const marked = streamingBackgroundCommand(command, { platformProof: true })
+    expect(marked.command).toContain('--retries=0')
+    expect(marked.command).toBe(unmarked.command)
+    expect(marked.changes).toEqual(unmarked.changes)
+  })
+
   it('adds no --retries=0 to the platform’s composed targeted proof', () => {
     const { command, changes } = streamingBackgroundCommand(PROOF_2, {
       approvedExclusions: APPROVED,
@@ -1512,7 +1522,7 @@ describe('streamingBackgroundCommand — the host proof mark is scoped (l48 foll
       'specs/e2e/articles.spec.ts:32 --config e2e-suite.config.ts'
     const { command, changes } = streamingBackgroundCommand(local, { platformProof: true })
     expect(command).toContain('--retries=0')
-    expect(changes.join(' ')).toContain('a local run walks each failure once')
+    expect(changes.join(' ')).toContain('a diagnosis or re-run walks each failure once')
   })
 
   it('keeps the retries a marked proof names itself, verbatim', () => {
