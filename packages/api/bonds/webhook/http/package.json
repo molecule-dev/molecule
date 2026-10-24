@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-webhook-http",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "HTTP webhook provider for molecule.dev",
   "homepage": "https://www.molecule.dev/packages/api-webhook-http",
   "type": "module",
@@ -33,7 +33,7 @@
     "directory": "packages/api/bonds/webhook/http"
   },
   "dependencies": {
-    "undici": "7.30.0"
+    "undici": "7.30.1"
   },
   "peerDependencies": {
     "@molecule/api-logger": "^1.0.1",

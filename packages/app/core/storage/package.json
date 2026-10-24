@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-storage",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Client storage interface for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
@@ -35,7 +35,7 @@
     "@molecule/app-bond": "1.0.3",
     "@molecule/app-i18n": "1.0.4",
     "@types/node": "26.6.5",
-    "happy-dom": "20.11.1",
+    "happy-dom": "21.0.4",
     "typescript": "6.0.3",
     "vitest": "4.1.12"
   },

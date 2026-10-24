@@ -59,7 +59,7 @@
   },
   "devDependencies": {
     "@molecule/app-ai-models": "1.4.3",
-    "@molecule/app-bonds-default-react": "1.1.6",
+    "@molecule/app-bonds-default-react": "1.1.7",
     "@molecule/app-i18n": "1.0.4",
     "@testing-library/dom": "10.4.2",
     "@testing-library/react": "16.3.3",

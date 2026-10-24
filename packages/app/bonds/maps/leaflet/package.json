@@ -37,7 +37,7 @@
     "@molecule/app-maps": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/app-maps": "1.0.3",
+    "@molecule/app-maps": "1.0.4",
     "@types/leaflet": "1.9.22",
     "@types/node": "26.6.5",
     "typescript": "6.0.3",
