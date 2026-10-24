@@ -5,6 +5,7 @@ import {
   convertPlaceholders,
   normalizeMysqlRows,
   translateDdlToMysql,
+  UnsupportedSqlFeatureError,
 } from '../utilities.js'
 
 describe('convertPlaceholders', () => {
@@ -192,6 +193,97 @@ describe('translateDdlToMysql', () => {
     const sql =
       'CREATE TABLE "resource-shares" (\n  "id" UUID PRIMARY KEY,\n  "rt" VARCHAR(255)\n);\nCREATE INDEX "i" ON "resource-shares" ("rt");'
     expect(translateDdlToMysql(sql)).toContain('"rt"(191)')
+  })
+})
+
+describe('translateDdlToMysql — UNIQUE partial indexes are refused, not widened', () => {
+  const paymentMethods = `CREATE TABLE IF NOT EXISTS "payment_methods" (
+  "id" UUID PRIMARY KEY,
+  "userId" UUID NOT NULL,
+  "isDefault" BOOLEAN NOT NULL DEFAULT false
+);
+CREATE UNIQUE INDEX IF NOT EXISTS "payment_methods_userId_default_idx"
+  ON "payment_methods" ("userId") WHERE "isDefault" = true;`
+
+  it('throws instead of applying the index to every row', () => {
+    // The old rewrite rebuilt CREATE INDEX from the column list and dropped
+    // WHERE, so one default per USER became one payment method per user.
+    expect(() => translateDdlToMysql(paymentMethods, { source: 'payment_methods.sql' })).toThrow(
+      /MySQL cannot apply WHERE "isDefault" = true in payment_methods\.sql/,
+    )
+  })
+
+  it('the error is tagged and carries the construct, the file and the provider note', () => {
+    let caught: unknown
+    try {
+      translateDdlToMysql(paymentMethods, { source: 'payment_methods.sql' })
+    } catch (error) {
+      caught = error
+    }
+    expect(caught).toBeInstanceOf(UnsupportedSqlFeatureError)
+    const error = caught as UnsupportedSqlFeatureError
+    expect(error.name).toBe('UnsupportedSqlFeatureError')
+    expect(error.feature).toBe('unique-partial-index')
+    expect(error.detail).toBe('WHERE "isDefault" = true')
+    expect(error.source).toBe('payment_methods.sql')
+    expect(error.message).toContain('MySQL has no partial indexes')
+  })
+
+  it('refuses a multi-column UNIQUE partial index, keeping the whole predicate in the detail', () => {
+    const sql = `CREATE UNIQUE INDEX "courses_org_slug_idx"
+  ON "courses" ("org_id", "slug")
+  WHERE "slug" IS NOT NULL;`
+    expect(() => translateDdlToMysql(sql)).toThrowError(UnsupportedSqlFeatureError)
+    expect(() => translateDdlToMysql(sql)).toThrow(/WHERE "slug" IS NOT NULL/)
+  })
+
+  it('refuses mixed-case SQL, comments and quoted identifiers included', () => {
+    const sql = `-- setup for courses
+create unique index if not exists "courses_org_slug_idx"
+  on "courses" ("org_id", "slug") where "slug" is not null;`
+    expect(() => translateDdlToMysql(sql)).toThrowError(/WHERE "slug" is not null/)
+  })
+
+  it('refuses when the partial index is one of several statements, before rewriting any', () => {
+    const sql = `CREATE INDEX "a" ON "t" ("c");
+CREATE UNIQUE INDEX "b" ON "t" ("c") WHERE "c" IS NOT NULL;
+CREATE INDEX "d" ON "t" ("c") WHERE "c" IS NOT NULL;`
+    expect(() => translateDdlToMysql(sql)).toThrowError(/unique|UNIQUE/)
+  })
+
+  it('does NOT refuse the construct inside a comment or a string literal', () => {
+    const sql = [
+      '-- CREATE UNIQUE INDEX "i" ON "t" ("c") WHERE "c" IS NOT NULL;',
+      `INSERT INTO "notes" ("body") VALUES ('CREATE UNIQUE INDEX "i" ON "t" ("c") WHERE "c" IS NOT NULL;');`,
+      'CREATE INDEX "plain" ON "t" ("c");',
+    ].join('\n')
+    const out = translateDdlToMysql(sql)
+    expect(out).toContain('CREATE INDEX "plain" ON "t" ("c");')
+  })
+
+  it('still translates a NON-unique partial index to a full index (results unchanged)', () => {
+    const out = translateDdlToMysql('CREATE INDEX "i" ON "t" ("c") WHERE "deletedAt" IS NULL;')
+    expect(out).toBe('CREATE INDEX "i" ON "t" ("c");')
+  })
+
+  it('leaves a UNIQUE index with no predicate alone', () => {
+    expect(translateDdlToMysql('CREATE UNIQUE INDEX "i" ON "t" ("c");')).toBe(
+      'CREATE UNIQUE INDEX "i" ON "t" ("c");',
+    )
+  })
+
+  it('the supported resource setup SQL still translates (no regression)', () => {
+    const address = `CREATE TABLE IF NOT EXISTS "addresses" (
+  "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  "userId" UUID NOT NULL,
+  "isDefaultShipping" BOOLEAN NOT NULL DEFAULT FALSE
+);
+CREATE INDEX IF NOT EXISTS "idx_addresses_user_default_shipping"
+  ON "addresses" ("userId") WHERE "isDefaultShipping" = TRUE;`
+    const out = translateDdlToMysql(address)
+    expect(out).toContain('CREATE INDEX "idx_addresses_user_default_shipping" ON "addresses"')
+    expect(out).not.toMatch(/WHERE "isDefaultShipping"/)
+    expect(out).toContain('CHAR(36)')
   })
 })
 

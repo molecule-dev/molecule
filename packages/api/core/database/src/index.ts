@@ -111,6 +111,9 @@ export * from './types.js'
 // Provider exports (raw query access)
 export * from './provider.js'
 
+// SQL-feature compatibility contract (database providers + app generators)
+export * from './sql-compatibility.js'
+
 // DataStore exports (abstract CRUD)
 export * from './store.js'
 export * from './store-provider.js'

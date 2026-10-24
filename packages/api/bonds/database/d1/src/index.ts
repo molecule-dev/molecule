@@ -50,6 +50,7 @@
  */
 
 export * from './browser-guard.js'
+export * from './capabilities.js'
 export * from './pool.js'
 export * from './provider.js'
 export * from './types.js'

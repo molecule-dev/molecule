@@ -8,6 +8,11 @@
  * multi-statement `*.sql` file applies in one `query()` (the pool's `query()`
  * disables multi-statements for safety).
  *
+ * Each file is translated before it runs. A construct MySQL cannot reproduce
+ * without changing what the database enforces (a UNIQUE partial index) is
+ * refused at that point: the error names the file and the construct, and none of
+ * that file's statements execute.
+ *
  * @module
  */
 
@@ -258,13 +263,13 @@ export function createMigrator(migrationsDir: string): () => Promise<void> {
         const { body, statements: addColumns } = splitAddColumnIfNotExists(
           readFileSync(join(migrationsDir, file), 'utf-8'),
         )
-        const sql = translateDdlToMysql(body)
+        const sql = translateDdlToMysql(body, { source: file })
         try {
           // A file that is only such statements has an empty body.
           if (sql.trim()) await connection.query(sql)
           for (const statement of addColumns) {
             try {
-              await connection.query(translateDdlToMysql(statement))
+              await connection.query(translateDdlToMysql(statement, { source: file }))
             } catch (err) {
               // What the clause means: the column is already in place. Anything
               // else is a real failure — the outer catch classifies it.

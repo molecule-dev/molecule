@@ -92,6 +92,7 @@
  */
 
 export * from './browser-guard.js'
+export * from './capabilities.js'
 export * from './defaults.js'
 export * from './instances.js'
 export * from './migrator.js'

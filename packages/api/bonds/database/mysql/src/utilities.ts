@@ -4,6 +4,42 @@
  * @module
  */
 
+import type { SqlCompatibilityIssue, SqlFeature } from '@molecule/api-database/sql-compatibility.js'
+
+import { sqlCapabilities } from './capabilities.js'
+import { findUniquePartialIndex } from './sql-dialect.js'
+
+/**
+ * The error this bond's translator throws when a migration needs a construct
+ * MySQL cannot honour. Named and typed so a caller can tell a genuine dialect
+ * limit apart from malformed SQL, and report it without a migration run.
+ *
+ * The diagnostic itself is described by the core TYPE contract
+ * ({@link SqlCompatibilityIssue}); this class is the bond's own error
+ * construction, next to the translation that raises it.
+ */
+export class UnsupportedSqlFeatureError extends Error {
+  /** The construct's feature. */
+  readonly feature: SqlFeature
+  /** The exact construct found in the migration. */
+  readonly detail: string
+  /** Where the statement came from, when known. */
+  readonly source?: string
+
+  /**
+   * Build the error from a compatibility diagnostic, copying its message and fields.
+   *
+   * @param issue - The diagnostic being refused.
+   */
+  constructor(issue: SqlCompatibilityIssue) {
+    super(issue.message)
+    this.name = 'UnsupportedSqlFeatureError'
+    this.feature = issue.feature
+    this.detail = issue.detail
+    this.source = issue.source
+  }
+}
+
 /** The `$N` placeholders a statement names, as numbers, in the order they appear. */
 const namedPlaceholderIndexes = (text: string): number[] =>
   [...text.matchAll(/\$(\d+)/g)].map((match) => parseInt(match[1], 10))
@@ -106,6 +142,14 @@ const prefixColRef = (ref: string, types: Record<string, string>): string => {
 }
 
 /**
+ * Options for {@link translateDdlToMysql}.
+ */
+export interface TranslateDdlOptions {
+  /** File name the SQL came from; copied into a refused-construct error. */
+  source?: string
+}
+
+/**
  * Translate PostgreSQL-dialect DDL to MySQL-compatible DDL at migration time.
  *
  * Resource/template setup migrations are authored in PostgreSQL dialect and the
@@ -113,8 +157,9 @@ const prefixColRef = (ref: string, types: Record<string, string>): string => {
  * it rejects Postgres types, functions, partial/functional/JSON indexes, and
  * over-long index keys. Run alongside `SET sql_mode='...,ANSI_QUOTES'` (so
  * `"identifiers"` parse) and `SET FOREIGN_KEY_CHECKS=0` (cross-table FKs created
- * out of order). Verified: all 56 resource setup migrations + the base tables
- * execute on MySQL 8 after this. Transforms:
+ * out of order). The supported transforms below were exercised on MySQL 8.4;
+ * a setup file that needs a UNIQUE partial index is refused instead of
+ * translated (last bullet). Transforms:
  * - types: `uuid`→`CHAR(36)`, `timestamptz`→`TIMESTAMP`, `jsonb`→`JSON`.
  * - functions/casts: `DEFAULT gen_random_uuid()`→`DEFAULT (UUID())` (so bare
  *   create() inserts without an id still get one), strip `::type` casts, index
@@ -125,6 +170,15 @@ const prefixColRef = (ref: string, types: Record<string, string>): string => {
  *   drop indexes on JSON columns and functional/expression indexes (unsupported
  *   without generated columns) — the resource layer's uniqueness still holds at
  *   the app level.
+ * - a UNIQUE index with a `WHERE` clause is REFUSED, not rewritten. MySQL has no
+ *   partial indexes, so the rewrite this translator uses for plain indexes (keep
+ *   the columns, drop the `WHERE`) would apply uniqueness to EVERY row — a user's
+ *   second non-default payment method becomes an error, and the boot reports
+ *   success with changed semantics. The bond's own masked scanner classifies the
+ *   construct (ignoring comments and string literals) and the refusal is thrown
+ *   before the statement is rewritten or any connection is used. A NON-unique
+ *   partial index still translates to a full index: its predicate only narrows
+ *   index coverage, never results.
  * - `ALTER TABLE … ADD COLUMN IF NOT EXISTS …`: MySQL 8 has no such clause and
  *   rejects the file outright (a syntax error, which fails the whole run). The
  *   migrator honors the clause itself — it applies those statements separately and
@@ -132,9 +186,34 @@ const prefixColRef = (ref: string, types: Record<string, string>): string => {
  *   this rewrite is what keeps the statement parseable.
  *
  * @param sql - Raw migration SQL, possibly in Postgres dialect.
+ * @param options - The source file name used in a refused-construct error.
  * @returns MySQL-compatible SQL.
+ * @throws {UnsupportedSqlFeatureError} When the SQL contains a UNIQUE partial
+ *   index (or any other construct MySQL cannot reproduce without changing what
+ *   it enforces), naming the construct and the file it came from.
  */
-export const translateDdlToMysql = (sql: string): string => {
+export const translateDdlToMysql = (sql: string, options: TranslateDdlOptions = {}): string => {
+  // Refuse BEFORE any rewrite: dropping the WHERE of a UNIQUE partial index
+  // silently widens what the database enforces (see sqlCapabilities). The mask
+  // in `findUniquePartialIndex` ignores comments and string literals, so only a
+  // real statement is refused.
+  const capability = sqlCapabilities['unique-partial-index']
+  if (!capability || capability.support === 'unsupported') {
+    const refused = findUniquePartialIndex(sql)
+    if (refused) {
+      throw new UnsupportedSqlFeatureError({
+        kind: 'unsupported',
+        feature: 'unique-partial-index',
+        detail: refused.detail,
+        statement: refused.statement,
+        source: options.source,
+        message:
+          `MySQL cannot apply ${refused.detail}${options.source ? ` in ${options.source}` : ''}` +
+          `${capability?.note ? ` — ${capability.note}` : '.'}`,
+      })
+    }
+  }
+
   let s = sql
     .replace(/::[a-z_]+/gi, '')
     .replace(/\bADD\s+COLUMN\s+IF\s+NOT\s+EXISTS\b/gi, 'ADD COLUMN')

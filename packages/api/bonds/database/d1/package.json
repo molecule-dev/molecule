@@ -40,7 +40,7 @@
     "vitest": "4.1.12"
   },
   "peerDependencies": {
-    "@molecule/api-database": "^1.0.1"
+    "@molecule/api-database": "^1.2.0"
   },
   "dependencies": {
     "@molecule/api-database-sqlite": "1.3.3"

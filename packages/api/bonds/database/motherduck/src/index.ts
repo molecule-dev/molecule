@@ -45,8 +45,12 @@
  *   bond's caveat — DuckDB's `JSON` type is VARCHAR underneath); the
  *   DataStore CRUD helpers parse JSON-typed columns for you.
  * - Migrations: the duckdb bond's runner on this pool — same ledger
- *   (`_molecule_migrations`), same Postgres-dialect translation
- *   (`jsonb` → `json`, index `USING <method>` dropped).
+ *   (`_molecule_migrations`), same Postgres-dialect translation and the same
+ *   limits: partial indexes are translated without changing behaviour, while
+ *   an `ON DELETE`/`ON UPDATE` referential action throws
+ *   `UnsupportedSqlFeatureError` (DuckDB cannot reproduce it, so the
+ *   generator's compatibility preflight refuses that resource/database pair —
+ *   see {@link sqlCapabilities}).
  * - `pool.end()` closes this pool's connection. The cached instance stays
  *   alive for the process (MotherDuck's `dbinstance_inactivity_ttl`, default
  *   15 minutes, retires idle instances server-side).
@@ -55,6 +59,7 @@
  */
 
 export * from './browser-guard.js'
+export * from './capabilities.js'
 export * from './migrator.js'
 export * from './pool.js'
 export * from './secrets.js'

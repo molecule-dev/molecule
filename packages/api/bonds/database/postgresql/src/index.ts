@@ -78,6 +78,7 @@ import { getActiveTransaction } from '@molecule/api-database'
 import { configNotConfiguredError } from '@molecule/api-secrets'
 
 export * from './browser-guard.js'
+export * from './capabilities.js'
 export * from './migrator.js'
 export * from './secrets.js'
 export * as setup from './setup/index.js'

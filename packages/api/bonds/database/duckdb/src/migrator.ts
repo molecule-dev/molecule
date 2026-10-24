@@ -10,9 +10,11 @@
  *
  * DuckDB natively supports `ADD COLUMN IF NOT EXISTS`, `DROP COLUMN IF
  * EXISTS`, `gen_random_uuid()`, `now()` and `CREATE TABLE IF NOT EXISTS`, so
- * the sqlite bond's column-reconciliation machinery is not needed here — only
- * `jsonb` → `json` and index `USING <method>` are translated (see
- * `translateDdlToDuckdb`).
+ * the sqlite bond's column-reconciliation machinery is not needed here. What the
+ * translation does — and refuses — is documented on `translateDdlToDuckdb`:
+ * `jsonb`, index `USING <method>` and partial indexes are translated without
+ * changing behaviour, while an `ON DELETE`/`ON UPDATE` referential action throws
+ * `UnsupportedSqlFeatureError` (DuckDB cannot reproduce it).
  *
  * @module
  */
@@ -110,10 +112,14 @@ export async function applyMigrations(
 
   for (const file of sqlFiles) {
     const key = namespace ? `${namespace}/${file}` : file
-    // Resource/template setup migrations are authored in Postgres dialect;
-    // translate the few DuckDB-incompatible constructs (jsonb, index USING).
-    // No-op on already-DuckDB DDL.
-    const sql = translateDdlToDuckdb(readFileSync(join(migrationsDir, file), 'utf-8'))
+    // Resource/template setup migrations are authored in Postgres dialect.
+    // translateDdlToDuckdb rewrites jsonb, index USING and partial indexes, and
+    // throws for a referential action DuckDB cannot reproduce (naming this file
+    // via options.source, so one boot log points at the resource). No-op on
+    // already-DuckDB DDL.
+    const sql = translateDdlToDuckdb(readFileSync(join(migrationsDir, file), 'utf-8'), {
+      source: file,
+    })
     if (applied.has(key)) {
       // A recorded file never runs again (a DROP or a backfill in it would
       // repeat on every boot).

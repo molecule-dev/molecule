@@ -9,6 +9,11 @@
  * slices — not for a high-write-rate OLTP app (that is the postgresql bond's
  * job).
  *
+ * DuckDB cannot reproduce a foreign key's `ON DELETE`/`ON UPDATE` `CASCADE`,
+ * `SET NULL` or `SET DEFAULT` action, and this bond refuses to silently drop
+ * it: a resource whose setup SQL needs one is refused by the generator's
+ * compatibility preflight ({@link sqlCapabilities}) before an app is built.
+ *
  * @example
  * ```typescript
  * import { setPool, setStore } from '@molecule/api-database'
@@ -56,10 +61,13 @@
  *   matching node-postgres.
  * - **Schema changes are `*.sql` files in the app's `api/migrations/`**,
  *   applied in lexical order on startup by `createMigrator`. Postgres-dialect
- *   DDL applies after a light translation (`jsonb` → `json`, index
- *   `USING <method>` dropped); `gen_random_uuid()`, `now()`,
- *   `ADD/DROP COLUMN IF [NOT] EXISTS`, `::` casts and `uuid`/`timestamptz`/
- *   `bytea`/`text[]` types are native. Each file runs once (recorded in
+ *   DDL applies after a translation that keeps behaviour: `jsonb` → `json`,
+ *   index `USING <method>` dropped, and a partial index applied as a full index
+ *   or (UNIQUE) as a `CASE WHEN` expression index. `gen_random_uuid()`,
+ *   `now()`, `ADD/DROP COLUMN IF [NOT] EXISTS`, `::` casts and `uuid`/
+ *   `timestamptz`/`bytea`/`text[]` types are native. An `ON DELETE`/
+ *   `ON UPDATE` referential action throws `UnsupportedSqlFeatureError` —
+ *   DuckDB cannot reproduce it; each file runs once (recorded in
  *   `_molecule_migrations`) and in one transaction.
  * - **2.0 file format is a one-way break:** versions before DuckDB 2.0 cannot
  *   read files this bond creates (2.0 still reads 1.x files). The engine is
@@ -72,6 +80,7 @@
  */
 
 export * from './browser-guard.js'
+export * from './capabilities.js'
 export * from './instances.js'
 export * from './lifecycle.js'
 export * from './migrator.js'

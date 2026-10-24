@@ -71,6 +71,7 @@
  */
 
 export * from './browser-guard.js'
+export * from './capabilities.js'
 export * from './lifecycle.js'
 export * from './migrator.js'
 export * from './pool.js'

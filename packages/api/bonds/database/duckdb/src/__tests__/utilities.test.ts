@@ -3,11 +3,13 @@
  */
 import { describe, expect, it } from 'vitest'
 
+import { sqlCapabilities } from '../capabilities.js'
 import {
   coerceDuckdbParam,
   normalizeDuckdbRows,
   parseJsonColumns,
   translateDdlToDuckdb,
+  UnsupportedSqlFeatureError,
 } from '../utilities.js'
 
 describe('translateDdlToDuckdb', () => {
@@ -35,6 +37,65 @@ describe('translateDdlToDuckdb', () => {
       ALTER TABLE keep ADD COLUMN IF NOT EXISTS extra VARCHAR;
       ALTER TABLE keep DROP COLUMN IF EXISTS ghost;`
     expect(translateDdlToDuckdb(sql)).toBe(sql)
+  })
+
+  it('turns a non-unique partial index into an equivalent full index', () => {
+    const sql =
+      'CREATE INDEX IF NOT EXISTS "idx" ON "addresses" ("userId") WHERE "isDefaultShipping" = TRUE;'
+    expect(translateDdlToDuckdb(sql)).toBe(
+      'CREATE INDEX IF NOT EXISTS "idx" ON "addresses" ("userId");',
+    )
+  })
+
+  it('turns a UNIQUE partial index into a CASE expression index, never dropping its WHERE', () => {
+    const sql =
+      'CREATE UNIQUE INDEX IF NOT EXISTS "payment_methods_userId_default_idx"\n' +
+      '  ON "payment_methods" ("userId") WHERE "isDefault" = true;'
+    const translated = translateDdlToDuckdb(sql)
+    expect(translated).toBe(
+      'CREATE UNIQUE INDEX IF NOT EXISTS "payment_methods_userId_default_idx"\n' +
+        '  ON "payment_methods" ((CASE WHEN ("isDefault" = true) THEN ("userId") END));',
+    )
+    // The known-bad shortcut — keeping the index UNIQUE but dropping WHERE —
+    // would allow exactly one row per user at all. The CASE form must not do that.
+    expect(translated).toContain('CASE WHEN')
+  })
+
+  it('parenthesizes every column of a multi-column UNIQUE partial index', () => {
+    const sql =
+      'CREATE UNIQUE INDEX "courses_org_slug_idx" ON "courses" ("org_id", "slug") ' +
+      'WHERE "slug" IS NOT NULL;'
+    expect(translateDdlToDuckdb(sql)).toContain(
+      '((CASE WHEN ("slug" IS NOT NULL) THEN ("org_id") END), (CASE WHEN ("slug" IS NOT NULL) THEN ("slug") END))',
+    )
+  })
+
+  it('refuses a referential action instead of silently dropping it', () => {
+    const sql =
+      'CREATE TABLE "comments" ("parentId" UUID REFERENCES "comments"("id") ON DELETE CASCADE);'
+    expect(() => translateDdlToDuckdb(sql, { source: 'comments.sql' })).toThrow(
+      UnsupportedSqlFeatureError,
+    )
+    try {
+      translateDdlToDuckdb(sql, { source: 'comments.sql' })
+    } catch (error) {
+      const refused = error as UnsupportedSqlFeatureError
+      expect(refused.feature).toBe('fk-referential-action')
+      expect(refused.detail).toBe('ON DELETE CASCADE')
+      expect(refused.source).toBe('comments.sql')
+      expect(refused.message).toContain('DuckDB cannot apply ON DELETE CASCADE in comments.sql')
+    }
+  })
+
+  it('leaves the referential actions DuckDB does support alone', () => {
+    const sql = 'CREATE TABLE b (a UUID REFERENCES a(id) ON DELETE NO ACTION ON UPDATE RESTRICT);'
+    expect(translateDdlToDuckdb(sql)).toBe(sql)
+  })
+
+  it('declares every SQL feature the contract knows', () => {
+    expect(sqlCapabilities['fk-referential-action']?.support).toBe('unsupported')
+    expect(sqlCapabilities['partial-index']?.support).toBe('translated')
+    expect(sqlCapabilities['unique-partial-index']?.support).toBe('translated')
   })
 })
 

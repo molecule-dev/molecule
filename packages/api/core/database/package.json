@@ -18,6 +18,10 @@
     "./query-guards.js": {
       "types": "./dist/query-guards.d.ts",
       "import": "./dist/query-guards.js"
+    },
+    "./sql-compatibility.js": {
+      "types": "./dist/sql-compatibility.d.ts",
+      "import": "./dist/sql-compatibility.js"
     }
   },
   "files": [

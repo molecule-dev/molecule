@@ -24,6 +24,11 @@
  * - **A migration file with a genuine error** (not an idempotent "already exists")
  *   now FAILS the boot with every broken file named, instead of warn-logging and
  *   booting with a partial schema.
+ * - **A UNIQUE index with a `WHERE` clause is refused.** MySQL has no partial
+ *   indexes, so applying it as a full UNIQUE index would forbid rows PostgreSQL
+ *   allows (a user's second non-default payment method). The migrator throws
+ *   `UnsupportedSqlFeatureError`, naming the file and construct, before any of
+ *   that file's statements run — see {@link sqlCapabilities}.
  *
  * @example
  * ```typescript
@@ -38,6 +43,7 @@
  */
 
 export * from './browser-guard.js'
+export * from './capabilities.js'
 export * from './lifecycle.js'
 export * from './migrator.js'
 export * from './provider.js'

@@ -42,6 +42,10 @@
     "./utilities.js": {
       "types": "./dist/utilities.d.ts",
       "import": "./dist/utilities.js"
+    },
+    "./capabilities.js": {
+      "types": "./dist/capabilities.d.ts",
+      "import": "./dist/capabilities.js"
     }
   },
   "keywords": [
@@ -69,7 +73,7 @@
   },
   "peerDependencies": {
     "@molecule/api-bond": "^1.0.1",
-    "@molecule/api-database": "^1.1.4",
+    "@molecule/api-database": "^1.2.0",
     "@molecule/api-secrets": "^1.0.1"
   },
   "repository": {
