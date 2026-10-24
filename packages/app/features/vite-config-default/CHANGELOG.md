@@ -1,5 +1,11 @@
 # @molecule/app-vite-config-default
 
+## 1.2.0
+
+### Minor Changes
+
+- Builds now write release-notes.json and a build-time stamp so the update banner can summarize what a new version brings.
+
 ## 1.1.7
 
 ### Patch Changes

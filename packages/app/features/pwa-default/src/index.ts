@@ -24,6 +24,11 @@
  * variables. Banner labels use the `pwa.update`, `pwa.updateAvailable`, and
  * `pwa.updating` keys from `@molecule/app-locales-common` — load that bond's
  * translations before the banner can appear, or the raw keys are shown.
+ * Beside the headline the banner shows one line on what the update brings
+ * (`getUpdateSummary()` from `@molecule/app-version`: the change itself when there
+ * is one, else counts such as "3 new features and 2 bugs fixed"). It needs the
+ * build's `release-notes.json`, which `@molecule/app-vite-config-default` writes;
+ * without it the banner shows the headline alone.
  * Call `registerPWA()` exactly once at app startup; it is a no-op during SSR.
  *
  * @module

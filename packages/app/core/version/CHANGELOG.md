@@ -1,5 +1,11 @@
 # @molecule/app-version
 
+## 1.1.0
+
+### Minor Changes
+
+- getUpdateSummary() returns a one-line summary of what a waiting update brings, and @molecule/app-version/build adds the Vite plugin that writes the release notes it reads.
+
 ## 1.0.2
 
 ### Patch Changes

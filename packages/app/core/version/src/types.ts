@@ -206,3 +206,36 @@ export interface VersionProvider {
    */
   destroy(): void
 }
+
+/**
+ * Kind of a user-visible change: a new feature, a bug fix, a performance
+ * improvement, or anything else that ships to users (refactors, dependency
+ * updates).
+ */
+export type ReleaseNoteType = 'feat' | 'fix' | 'perf' | 'other'
+
+/** One change listed in `release-notes.json`. */
+export interface ReleaseNoteEntry {
+  /** Kind of change. */
+  type: ReleaseNoteType
+  /** Commit time (ISO 8601). */
+  time: string
+  /** Short user-facing description, when the change has one. */
+  text?: string
+}
+
+/** Shape of `release-notes.json`. */
+export interface ReleaseNotes {
+  /** Commit time of the build that wrote the file (ISO 8601). */
+  builtAt?: string
+  /** Recent changes, newest first. */
+  entries: ReleaseNoteEntry[]
+}
+
+/** What a waiting update brings, as one line for the update banner. */
+export interface UpdateSummary {
+  /** The full line — "3 new features, 2 bugs fixed, and performance improvements". */
+  text: string
+  /** The line for narrow screens — "3 features, 2 fixes, faster". */
+  compact: string
+}

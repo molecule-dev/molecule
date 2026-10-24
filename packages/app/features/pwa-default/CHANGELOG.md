@@ -1,5 +1,11 @@
 # @molecule/app-pwa-default
 
+## 1.1.0
+
+### Minor Changes
+
+- The update banner now shows a one-line summary of what the update brings.
+
 ## 1.0.5
 
 ### Patch Changes

@@ -10,6 +10,8 @@ import react from '@vitejs/plugin-react'
 import type { UserConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
+import { releaseNotesPlugin } from '@molecule/app-version/build'
+
 import { moleculePushServiceWorkerPlugin, PUSH_SW_FILENAME } from './push-sw.js'
 
 /** Branding strings used in the PWA manifest. */
@@ -313,7 +315,15 @@ export function createDefaultViteConfig(branding: DefaultViteConfigBranding): Us
   }
 
   return {
-    plugins: [react(), tailwindcss(), VitePWA(pwaOptions), moleculePushServiceWorkerPlugin()],
+    plugins: [
+      react(),
+      tailwindcss(),
+      VitePWA(pwaOptions),
+      moleculePushServiceWorkerPlugin(),
+      // release-notes.json + the build-time stamp behind the update banner's
+      // one-line summary of what a waiting update brings.
+      releaseNotesPlugin(),
+    ],
     // Vite's default cacheDir (node_modules/.vite) resolves THROUGH a
     // workspace-symlinked node_modules to a cache shared by every app on the
     // machine — concurrent dev servers with different optimizeDeps configs

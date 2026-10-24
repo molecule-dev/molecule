@@ -39,6 +39,19 @@
  * - **`applyUpdate()` reloads the page** (activating a waiting service worker
  *   first when present). Surface the `update-available` event in UI and let the
  *   user opt in — never call it unprompted; unsaved state is lost on reload.
+ * - **"What's new" line for the banner.** `getUpdateSummary()` returns one short
+ *   line for the waiting update — the change's own description when there is
+ *   one change, else counts ("3 new features, 2 bugs fixed, and performance
+ *   improvements") — as `{ text, compact }` (`compact`: "3 features, 2 fixes,
+ *   faster", for when `text` does not fit), or `null`. It needs the build plugin:
+ *   `import { releaseNotesPlugin } from '@molecule/app-version/build'` in
+ *   `vite.config.ts` (`@molecule/app-vite-config-default` already includes it).
+ *   The plugin reads the app directory's conventional commits (`feat:`, `fix:`,
+ *   `perf:`; `test`/`ci`/`docs`/`style`/`build` are skipped) into
+ *   `release-notes.json` and stamps the build's commit time into `index.html`.
+ *   A `Release-Note: <text>` commit trailer replaces the description shown;
+ *   `Release-Note: none` leaves the commit out. Labels use the `version.summary.*`
+ *   keys from `@molecule/app-locales-version`.
  * - `service-worker-template.ts` generates service-worker SOURCE at scaffold time
  *   (precache + push handlers); it is not a runtime service worker itself.
  *
@@ -47,6 +60,7 @@
 
 export * from './checker.js'
 export * from './provider.js'
+export * from './release-notes.js'
 export * from './service-worker.js'
 export * from './service-worker-template.js'
 export * from './types.js'

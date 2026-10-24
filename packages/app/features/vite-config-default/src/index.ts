@@ -74,6 +74,11 @@
  * vite's `mergeConfig(createDefaultViteConfig(branding), overrides)`.
  * The PWA build emits `push-sw.js` and importScripts it into the Workbox
  * generateSW worker so delivered web-push notifications actually display.
+ * It also writes `release-notes.json` and stamps the build's commit time into
+ * `index.html` (`releaseNotesPlugin` from `@molecule/app-version/build`), which the
+ * update banner reads to say in one line what a waiting update brings. The
+ * notes come from the app directory's conventional commits (`feat:`, `fix:`,
+ * `perf:`), so a build outside a git checkout simply ships no summary.
  *
  * The config also carries vitest's `test.exclude`, keeping the Playwright
  * suite under `e2e/` out of `npm test` (`vitest run`): Playwright specs are

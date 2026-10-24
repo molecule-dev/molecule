@@ -129,5 +129,30 @@ describe('@molecule/app-pwa-default', () => {
       const button = document.getElementById('pwa-update-btn')
       expect(button!.textContent).toContain('"><script>alert(2)</script>')
     })
+
+    it('shows a one-line summary of what the update brings, as text', async () => {
+      document.head.innerHTML = '<meta name="molecule-build-time" content="2026-10-01T00:00:00Z">'
+      const fetchMock = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          entries: [{ type: 'fix', time: '2026-10-02T00:00:00Z', text: '<b>Faster</b> saves' }],
+        }),
+      })
+      vi.stubGlobal('fetch', fetchMock)
+      try {
+        registerPWA()
+        swCallbacks.onNeedRefresh?.()
+        const summary = document.getElementById('pwa-update-summary')!
+        // The banner shows at once; the summary fills in when the notes arrive.
+        expect(summary.hidden).toBe(true)
+        await vi.waitFor(() => expect(summary.hidden).toBe(false))
+        expect(summary.textContent).toBe('<b>Faster</b> saves')
+        expect(summary.querySelector('b')).toBeNull()
+        expect(summary.title).toBe('<b>Faster</b> saves')
+        expect(String(fetchMock.mock.calls[0][0])).toMatch(/^\/release-notes\.json\?t=\d+$/)
+      } finally {
+        vi.unstubAllGlobals()
+      }
+    })
   })
 })

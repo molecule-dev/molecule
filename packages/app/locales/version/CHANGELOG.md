@@ -1,5 +1,11 @@
 # @molecule/app-locales-version
 
+## 1.1.0
+
+### Minor Changes
+
+- Add the update summary strings (new features, bugs fixed, performance and minor improvements) in every language.
+
 ## 1.0.3
 
 ### Patch Changes
