@@ -129,14 +129,155 @@ export const bio: string | undefined = fetched.authClient.getUser()?.bio
     ).toEqual('')
   })
 
-  it('infers the profile from a config the caller annotated', () => {
-    expect(
-      diagnosticsFor(
-        customProfileSource(`
+  it('does not infer the profile from a config the caller annotated', () => {
+    // The annotation types the config; it does NOT supply the wrapper's type
+    // argument. Naming the profile at the call is the one rule across all three
+    // wrappers (1.8 inferred it from the config — the documented caller break).
+    const diagnostics = diagnosticsFor(
+      customProfileSource(`
 export const { authClient } = createDefaultAuthClient(config)
 export const username: string | undefined = authClient.getUser()?.username
 `),
+    )
+
+    expect(diagnostics.join('\n')).toContain('AuthClientConfigOptions<UserProfile>')
+
+    expect(
+      diagnosticsFor(
+        customProfileSource(`
+export const { authClient } = createDefaultAuthClient<SessionUser>(config)
+export const username: string | undefined = authClient.getUser()?.username
+`),
       ).join('\n'),
+    ).toEqual('')
+  })
+
+  it('does not infer an id-bearing profile from an annotated config (old-red)', () => {
+    // The 1.8 wrapper inferred an id-bearing custom profile from the config
+    // annotation; naming it at the call is the documented migration.
+    const diagnostics = diagnosticsFor(`
+import type { AuthClientConfig, UserProfile } from '@molecule/app-auth'
+
+import { createDefaultAuthClient } from '../index.js'
+
+interface ExistingUser extends UserProfile {
+  username: string
+}
+
+const config: AuthClientConfig<ExistingUser> = {}
+export const { authClient } = createDefaultAuthClient(config)
+export const name: string | undefined = authClient.getUser()?.username
+`)
+
+    expect(diagnostics.join('\n')).toContain('AuthClientConfigOptions<UserProfile>')
+
+    expect(
+      diagnosticsFor(`
+import type { AuthClientConfig, UserProfile } from '@molecule/app-auth'
+
+import { createDefaultAuthClient } from '../index.js'
+
+interface ExistingUser extends UserProfile {
+  username: string
+}
+
+const config: AuthClientConfig<ExistingUser> = {}
+export const { authClient } = createDefaultAuthClient<ExistingUser>(config)
+export const name: string | undefined = authClient.getUser()?.username
+`).join('\n'),
+    ).toEqual('')
+  })
+
+  for (const [member, entry] of [
+    ['shouldRestoreUser', `shouldRestoreUser: (user: SessionUser) => user.username !== 'guest'`],
+    [
+      'profileEndpoint',
+      `profileEndpoint: (user: Readonly<SessionUser>) => '/people/' + encodeURIComponent(user.username)`,
+    ],
+    ['profileRequestBody', `profileRequestBody: (data: Partial<SessionUser>) => ({ user: data })`],
+  ] as Array<[string, string]>) {
+    it(`keeps UserProfile for an untyped ${member} callback in every wrapper (old-red)`, () => {
+      // On the previous source each wrapper inferred SessionUser from the
+      // callback parameter and silently dropped the default `id: string`.
+      const diagnostics = diagnosticsFor(`
+import {
+  createDefaultAuthClient,
+  createDefaultAuthClientWithFetchClient,
+  createDefaultAuthClientWithHttpSync,
+} from '../index.js'
+
+interface SessionUser {
+  username: string
+  email: string
+}
+
+const plain = createDefaultAuthClient({ ${entry} })
+const synced = createDefaultAuthClientWithHttpSync({ ${entry} })
+const fetched = createDefaultAuthClientWithFetchClient({ ${entry} }, { baseURL: '/api' })
+
+export const usernames: Array<string | undefined> = [
+  plain.authClient.getUser()?.username,
+  synced.authClient.getUser()?.username,
+  fetched.authClient.getUser()?.username,
+]
+`)
+
+      expect(diagnostics.join('\n'), member).toContain('UserProfile')
+      expect(diagnostics.join('\n'), member).toContain('username')
+    })
+
+    it(`accepts the ${member} callback when the profile is named`, () => {
+      expect(
+        diagnosticsFor(`
+import {
+  createDefaultAuthClient,
+  createDefaultAuthClientWithFetchClient,
+  createDefaultAuthClientWithHttpSync,
+} from '../index.js'
+
+interface SessionUser {
+  username: string
+  email: string
+}
+
+export const plain = createDefaultAuthClient<SessionUser>({ ${entry} })
+export const synced = createDefaultAuthClientWithHttpSync<SessionUser>({ ${entry} })
+export const fetched = createDefaultAuthClientWithFetchClient<SessionUser>(
+  { ${entry} },
+  { baseURL: '/api' },
+)
+`).join('\n'),
+      ).toEqual('')
+    })
+  }
+
+  it('accepts any in every wrapper', () => {
+    expect(
+      diagnosticsFor(`
+import {
+  createDefaultAuthClient,
+  createDefaultAuthClientWithFetchClient,
+  createDefaultAuthClientWithHttpSync,
+} from '../index.js'
+
+export const plain = createDefaultAuthClient<any>({})
+export const synced = createDefaultAuthClientWithHttpSync<any>({})
+export const fetched = createDefaultAuthClientWithFetchClient<any>({}, { baseURL: '/api' })
+`).join('\n'),
+    ).toEqual('')
+  })
+
+  it('accepts generic forwarding that copies AuthProfileConstraint', () => {
+    expect(
+      diagnosticsFor(`
+import type { AuthClientConfig, AuthProfileConstraint } from '@molecule/app-auth'
+
+import { createDefaultAuthClient } from '../index.js'
+
+export function make<T extends AuthProfileConstraint<T>>(config: AuthClientConfig<T>) {
+  return createDefaultAuthClient<T>(config)
+}
+`).join('\n'),
     ).toEqual('')
   })
 

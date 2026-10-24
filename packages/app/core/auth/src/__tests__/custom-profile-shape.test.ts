@@ -123,7 +123,35 @@ export const username: string | undefined = getUser<SessionUser>()?.username
     ).toEqual('')
   })
 
-  it('infers the profile from a config the caller annotated', () => {
+  it('does not infer the profile from a config the caller annotated', () => {
+    // The annotation types the config; it does NOT supply the factory's type
+    // argument. Naming the profile at the call is the one rule (1.8 inferred it
+    // from the config, which is the caller break this major documents).
+    const diagnostics = diagnosticsFor(`
+import { createJWTAuthClient } from '../client.js'
+import type { AuthClientConfig } from '../types.js'
+
+interface SessionUser {
+  username: string
+  email: string
+  bio: string
+  image: string
+}
+
+const config: AuthClientConfig<SessionUser> = {
+  mapAuthResponse: (data) => {
+    const { user: wire } = data as { user: { token: string } & SessionUser }
+    const { token, ...profile } = wire
+    return { accessToken: token, user: profile }
+  },
+}
+
+// No type argument: the caller's own annotation does not supply the profile.
+export const client = createJWTAuthClient(config)
+`)
+
+    expect(diagnostics.join('\n')).toContain('AuthClientConfigOptions<UserProfile>')
+
     expect(
       diagnosticsFor(`
 import { createJWTAuthClient } from '../client.js'
@@ -144,8 +172,7 @@ const config: AuthClientConfig<SessionUser> = {
   },
 }
 
-// No type argument: the caller's own annotation supplies the profile.
-export const client = createJWTAuthClient(config)
+export const client = createJWTAuthClient<SessionUser>(config)
 export const username: string | undefined = client.getUser()?.username
 `).join('\n'),
     ).toEqual('')
@@ -258,6 +285,194 @@ export const client = createJWTAuthClient<SessionUser>({
 `)
 
     expect(diagnostics.join('\n')).toContain("Property 'id' does not exist")
+  })
+})
+
+describe('the profile is named at the call, never inferred from the config', () => {
+  const sessionUser = `interface SessionUser {
+  username: string
+  email: string
+}
+`
+
+  /**
+   * One callback position on the factory, with the same shape the templates
+   * write: an annotated callback in an otherwise untyped config.
+   */
+  const callbackConfigs: Array<[string, string]> = [
+    ['shouldRestoreUser', `shouldRestoreUser: (user: SessionUser) => user.username !== 'guest'`],
+    [
+      'profileEndpoint',
+      `profileEndpoint: (user: Readonly<SessionUser>) => '/people/' + encodeURIComponent(user.username)`,
+    ],
+    ['profileRequestBody', `profileRequestBody: (data: Partial<SessionUser>) => ({ user: data })`],
+  ]
+
+  for (const [member, entry] of callbackConfigs) {
+    it(`keeps UserProfile for an untyped ${member} callback (old-red)`, () => {
+      // On the previous source the profile was inferred from the callback
+      // parameter, so an untyped client silently became SessionUser and
+      // `getUser()?.username` compiled. It must now stay UserProfile, whose
+      // default contract is `id: string` and which has no `username`.
+      const diagnostics = diagnosticsFor(`
+import { createJWTAuthClient } from '../client.js'
+
+${sessionUser}
+const client = createJWTAuthClient({ ${entry} })
+export const username: string | undefined = client.getUser()?.username
+`)
+
+      expect(diagnostics.join('\n'), member).toContain('UserProfile')
+      expect(diagnostics.join('\n'), member).toContain('username')
+    })
+
+    it(`accepts the ${member} callback when the profile is named`, () => {
+      expect(
+        diagnosticsFor(`
+import { createJWTAuthClient } from '../client.js'
+
+${sessionUser}
+export const client = createJWTAuthClient<SessionUser>({ ${entry} })
+export const username: string | undefined = client.getUser()?.username
+`).join('\n'),
+      ).toEqual('')
+    })
+  }
+
+  it('keeps the default id: string readable when a Partial request body is untyped', () => {
+    // `Partial<T>` makes this callback assignable under the default profile, so
+    // the error must surface at the USE site, not at the config: the client is
+    // UserProfile and `id` is a string.
+    expect(
+      diagnosticsFor(`
+import { createJWTAuthClient } from '../client.js'
+
+${sessionUser}
+const client = createJWTAuthClient({
+  profileRequestBody: (data: Partial<SessionUser>) => ({ user: data }),
+})
+export const id: string = client.getUser()?.id ?? ''
+`).join('\n'),
+    ).toEqual('')
+  })
+
+  it('does not infer an id-bearing profile from an annotated config (old-red)', () => {
+    // This is the 1.8 shape the major changes: an id-bearing custom profile was
+    // inferred from `AuthClientConfig<ExistingUser>`. It now needs the type
+    // argument, which is the documented one-line migration.
+    const diagnostics = diagnosticsFor(`
+import { createJWTAuthClient } from '../client.js'
+import type { AuthClientConfig, UserProfile } from '../types.js'
+
+interface ExistingUser extends UserProfile {
+  username: string
+}
+
+const config: AuthClientConfig<ExistingUser> = {}
+export const client = createJWTAuthClient(config)
+export const name: string | undefined = client.getUser()?.username
+`)
+
+    expect(diagnostics.join('\n')).toContain('AuthClientConfigOptions<UserProfile>')
+
+    expect(
+      diagnosticsFor(`
+import { createJWTAuthClient } from '../client.js'
+import type { AuthClientConfig, UserProfile } from '../types.js'
+
+interface ExistingUser extends UserProfile {
+  username: string
+}
+
+const config: AuthClientConfig<ExistingUser> = {}
+export const client = createJWTAuthClient<ExistingUser>(config)
+export const name: string | undefined = client.getUser()?.username
+`).join('\n'),
+    ).toEqual('')
+  })
+
+  it('does not infer an id-bearing profile from a typed mapper (old-red)', () => {
+    // 1.8 compiled this and typed the client ExistingUser. The default-profile
+    // contract now wins; the mapper is written against the profile named at the
+    // call, so the one-line migration is createJWTAuthClient<ExistingUser>(…).
+    const diagnostics = diagnosticsFor(`
+import { createJWTAuthClient, type AuthResult, type UserProfile } from '../index.js'
+
+interface ExistingUser extends UserProfile {
+  username: string
+}
+
+const client = createJWTAuthClient({
+  mapAuthResponse: (data: unknown): AuthResult<ExistingUser> => data as AuthResult<ExistingUser>,
+})
+
+export const name: string | undefined = client.getUser()?.username
+`)
+
+    expect(diagnostics.join('\n')).toContain('UserProfile')
+    expect(diagnostics.join('\n')).toContain('username')
+  })
+
+  it('accepts any as the explicit opt-out at every entrypoint', () => {
+    expect(
+      diagnosticsFor(`
+import {
+  createJWTAuthClient,
+  getClient,
+  getUser,
+  login,
+  register,
+  type AuthClientConfig,
+} from '../index.js'
+
+export const factory = createJWTAuthClient<any>()
+export const client = getClient<any>()
+export const user = getUser<any>()
+export const config: AuthClientConfig<any> = {}
+export async function go() {
+  const signedIn = await login<any>({ email: 'a@b.test', password: 'pw' })
+  const registered = await register<{}, any>({ email: 'a@b.test', password: 'pw' })
+  return [factory, client, user, signedIn, registered, config]
+}
+`).join('\n'),
+    ).toEqual('')
+  })
+
+  it('accepts generic forwarding that copies AuthProfileConstraint', () => {
+    expect(
+      diagnosticsFor(`
+import {
+  createJWTAuthClient,
+  getUser,
+  type AuthClientConfig,
+  type AuthProfileConstraint,
+} from '../index.js'
+
+export function makeAuth<T extends AuthProfileConstraint<T>>(config: AuthClientConfig<T>) {
+  return createJWTAuthClient<T>(config)
+}
+
+export function current<T extends AuthProfileConstraint<T>>(): T | null {
+  return getUser<T>()
+}
+`).join('\n'),
+    ).toEqual('')
+  })
+
+  it('rejects generic forwarding constrained only to object', () => {
+    const diagnostics = diagnosticsFor(`
+import { createJWTAuthClient, getUser, type AuthClientConfig } from '../index.js'
+
+export function makeAuth<T extends object>(config: AuthClientConfig<T>) {
+  return createJWTAuthClient<T>(config)
+}
+
+export function current<T extends object>(): T | null {
+  return getUser<T>()
+}
+`)
+
+    expect(diagnostics.join('\n')).toContain('does not satisfy the constraint')
   })
 })
 

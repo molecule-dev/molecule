@@ -158,16 +158,29 @@ interface PushClientLike {
  * with no extra wiring. An app whose profile has no `id` (e.g.
  * `{ username, email, bio }`) passes an `identifyUser` extractor; it is
  * REQUIRED for such a profile, so a client cannot be wired into tracking with
- * no identity at all and `userId: undefined` never reaches a provider.
+ * no identity at all and `userId: undefined` never reaches a provider. That
+ * requirement is applied by {@link setupAutoTracking}'s parameter (see
+ * {@link IdentityRequirement}), not by this interface, so the options bag stays
+ * declaration-mergeable:
+ *
+ * ```typescript
+ * declare module '@molecule/app-analytics' {
+ *   interface AutoTrackingOptions {
+ *     label?: string
+ *   }
+ * }
+ * ```
  *
  * @template TUser - The auth client's profile shape.
  */
-export type AutoTrackingOptions<TUser extends object = AnalyticsAuthUser> = {
+export interface AutoTrackingOptions<TUser extends object = AnalyticsAuthUser> {
   /** Auth client for login/logout/register/error events. */
   authClient?: AuthClientLike<TUser>
   /**
    * Which field of the profile identifies the user in analytics — required when
    * the profile has no `id: string`. The default reads `id`, `email` and `name`.
+   * Return `null` when the session has no stable identity: the sign-in is still
+   * tracked, without an `identify` call or a `userId`.
    */
   identifyUser?: IdentifyUser<TUser>
   /** Router for page view tracking. */
@@ -178,9 +191,19 @@ export type AutoTrackingOptions<TUser extends object = AnalyticsAuthUser> = {
   lifecycleClient?: LifecycleClientLike
   /** Push client for notification received/tapped tracking. */
   pushClient?: PushClientLike
-} & ([TUser] extends [{ id: string }]
+}
+
+/**
+ * The identity rule for one profile: a profile with `id: string` may omit
+ * `identifyUser`, a profile without one must pass it. Applied to
+ * {@link setupAutoTracking}'s parameter so {@link AutoTrackingOptions} stays an
+ * interface that apps can augment.
+ *
+ * @template TUser - The auth client's profile shape.
+ */
+export type IdentityRequirement<TUser extends object> = [TUser] extends [{ id: string }]
   ? { identifyUser?: IdentifyUser<TUser> }
-  : { identifyUser: IdentifyUser<TUser> })
+  : { identifyUser: IdentifyUser<TUser> }
 
 /**
  * Sets up automatic analytics tracking for auth events, route changes,
@@ -192,6 +215,12 @@ export type AutoTrackingOptions<TUser extends object = AnalyticsAuthUser> = {
  * The analytics provider is resolved at EVENT time, not at setup time — so
  * `setupAutoTracking()` may safely run before the analytics bond is set
  * (events fired before bonding no-op; events fired after are tracked).
+ *
+ * The default-profile call takes an inline `getClient()`: it is typed as the
+ * default {@link AnalyticsAuthUser}, so `identifyUser` stays optional exactly
+ * as before. An app whose client carries its own profile names that profile —
+ * either on the auth client and an `identifyUser` extractor, or as the setup's
+ * type argument — and a profile with no `id: string` must pass `identifyUser`.
  *
  * @example
  * ```typescript
@@ -224,9 +253,21 @@ export type AutoTrackingOptions<TUser extends object = AnalyticsAuthUser> = {
  * @param options - Sources to auto-track.
  * @returns A cleanup function that removes all event subscriptions.
  */
-export const setupAutoTracking = <TUser extends object = AnalyticsAuthUser>(
+export function setupAutoTracking(options: AutoTrackingOptions<AnalyticsAuthUser>): () => void
+/**
+ * Sets up automatic analytics tracking for an app whose auth client carries its
+ * own profile. `identifyUser` is required when that profile has no `id: string`.
+ *
+ * @template TUser - The auth client's profile shape.
+ * @param options - Sources to auto-track.
+ * @returns A cleanup function that removes all event subscriptions.
+ */
+export function setupAutoTracking<TUser extends object>(
+  options: AutoTrackingOptions<TUser> & IdentityRequirement<TUser>,
+): () => void
+export function setupAutoTracking<TUser extends object = AnalyticsAuthUser>(
   options: AutoTrackingOptions<TUser>,
-): (() => void) => {
+): () => void {
   const cleanups: (() => void)[] = []
   // Resolve the provider per event — capturing getProvider() once at setup
   // permanently baked in the no-op provider whenever setupAutoTracking() ran
@@ -253,20 +294,31 @@ export const setupAutoTracking = <TUser extends object = AnalyticsAuthUser>(
   /**
    * Identifies the signed-in user and tracks the sign-in event.
    *
+   * When there is no identity ({@link IdentifyUser} returned `null`, or the
+   * profile carries no readable `id`), the `identify` call is skipped and the
+   * sign-in is STILL tracked — without a `userId` — so `auth.login` and
+   * `auth.register` counts are not silently lost for anonymous sessions.
+   *
    * @param name - `auth.login` or `auth.register`.
    * @param user - The profile the event carried.
    */
   const trackSignIn = (name: 'auth.login' | 'auth.register', user: TUser | undefined): void => {
     if (!user) return
     const identity = identityOf(user)
+    if (identity) {
+      analytics()
+        .identify(identity)
+        .catch(() => {})
+      analytics()
+        .track({ name, properties: { userId: identity.userId } })
+        .catch(() => {})
+      return
+    }
     // No identity means the app said this session has none (or the profile has
-    // no id and no extractor reached this client); never send `userId: undefined`.
-    if (!identity) return
+    // no id and no extractor reached this client): never send `userId:
+    // undefined`, but do not drop the sign-in event either.
     analytics()
-      .identify(identity)
-      .catch(() => {})
-    analytics()
-      .track({ name, properties: { userId: identity.userId } })
+      .track({ name })
       .catch(() => {})
   }
 

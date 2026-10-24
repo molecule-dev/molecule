@@ -86,6 +86,40 @@ export type AuthProfileGuard<T> =
     : Record<never, never>
 
 /**
+ * The constraint every entrypoint puts on a profile type: a JSON object type of
+ * named fields ({@link AuthProfileShape}), and `object` for `any`.
+ *
+ * `any` is the caller's explicit opt-out of profile typing, not an invalid JSON
+ * shape: `createJWTAuthClient<any>()`, `getClient<any>()` and
+ * `AuthClientConfig<any>` name it deliberately. `AuthProfileShape<any>`
+ * distributes to `AuthProfileRejection | object`, which is not the rejection
+ * itself, so `any` satisfies this constraint; the previous form
+ * (`… extends object ? object : never`) matched that union against `object` and
+ * produced `never`, rejecting `any` with the opaque "type 'any' does not
+ * satisfy the constraint 'never'".
+ *
+ * Forwarding a profile through your own generic copies this constraint, so the
+ * profile keeps being checked:
+ *
+ * ```typescript
+ * import type { AuthClientConfig, AuthProfileConstraint } from '@molecule/app-auth'
+ * import { createJWTAuthClient } from '@molecule/app-auth'
+ *
+ * export function makeAuth<T extends AuthProfileConstraint<T>>(config: AuthClientConfig<T>) {
+ *   return createJWTAuthClient<T>(config)
+ * }
+ * ```
+ *
+ * `T extends object` is not enough: the factory rejects arrays, functions and
+ * `Date` at its own constraint, so a forwarder written that way does not
+ * compile. Copy this type instead.
+ *
+ * @template T - The candidate profile type.
+ */
+export type AuthProfileConstraint<T> =
+  AuthProfileShape<T> extends AuthProfileRejection ? never : object
+
+/**
  * Email/password login credentials with optional "remember me" flag.
  */
 export interface LoginCredentials {
@@ -635,12 +669,16 @@ export interface AuthClient<
    * The listener is typed by this client's profile: one signature,
    * `AuthEventListener<T>`, so an inline arrow is contextually typed and `event`
    * is never implicitly `any`. A client whose profile extends
-   * {@link UserProfile} also accepts a default {@link AuthEventListener} — a
-   * narrower `AuthEvent<UserProfile>` parameter is assignable to
-   * `AuthEvent<T>` because these events carry every `UserProfile` field — so a
-   * listener written before listeners became profile-typed keeps compiling. A
-   * profile that does not extend `UserProfile` (no `id`) rejects the default
-   * listener: no event is typed with an `id` the runtime user does not have.
+   * {@link UserProfile} also accepts a default {@link AuthEventListener}: when
+   * `T` extends `UserProfile`, `AuthEvent<T>` is assignable to
+   * `AuthEvent<UserProfile>`, so a listener that takes the wider default event
+   * accepts every event this client emits and keeps compiling. (`UserProfile`
+   * is the wider type here — it has fewer required fields — and the assignable
+   * direction runs from the client's `AuthEvent<T>` to the listener's
+   * `AuthEvent<UserProfile>`.) A profile that does not extend `UserProfile`
+   * (no `id`) rejects the default listener: an `AuthEvent<UserProfile>` would
+   * promise an `id` the runtime user does not have, and the narrower-typed
+   * event is not assignable to it.
    */
   addEventListener(listener: AuthEventListener<T>): () => void
 
@@ -682,11 +720,31 @@ export interface StorageAdapter {
  * `null`, an array, a function or a `Date` is rejected — see
  * {@link AuthProfileShape} for the persistence contract behind that list.
  *
- * The type argument is NOT inferred from `mapAuthResponse`: an untyped
- * `createJWTAuthClient({ mapAuthResponse })` stays typed `UserProfile`, so the
+ * The type argument is NEVER inferred from the config: not from
+ * `mapAuthResponse`, `profileEndpoint`, `profileRequestBody` or
+ * `shouldRestoreUser`, and not from a config variable the caller annotated as
+ * `AuthClientConfig<MyUser>`. An untyped call stays typed `UserProfile`, so the
  * default configuration keeps requiring `id: string`. Name the profile at the
- * factory (`createJWTAuthClient<MyUser>(config)`) — which also checks this
- * config against `MyUser`.
+ * call (`createJWTAuthClient<MyUser>(config)`) — which also checks this config
+ * against `MyUser`.
+ *
+ * **Callers upgrading from 1.8 — three shapes now need the profile at the call.**
+ * Each was accepted by 1.8 and is a type error here; each has a one-line fix:
+ *
+ * 1. A mapper that supplied the profile
+ *    (`createJWTAuthClient({ mapAuthResponse: (d): AuthResult<MyUser> => … })`)
+ *    is now typed `UserProfile`. Name it on the factory:
+ *    `createJWTAuthClient<MyUser>({ mapAuthResponse })`.
+ * 2. A config variable annotated `AuthClientConfig<MyUser>` with a profile that
+ *    extends `UserProfile` used to supply the type argument. Pass it:
+ *    `createJWTAuthClient<MyUser>(config)`. (A no-id profile was already
+ *    rejected by 1.8's `T extends UserProfile`.)
+ * 3. Generic forwarding written `function make<T extends UserProfile>(config: AuthClientConfig<T>)`
+ *    no longer satisfies the factory's constraint. Copy the named constraint:
+ *    `function make<T extends AuthProfileConstraint<T>>(config: AuthClientConfig<T>)`.
+ *
+ * `any` is accepted at every entrypoint (`createJWTAuthClient<any>()`,
+ * `getClient<any>()`), so a caller that deliberately opted out keeps compiling.
  *
  * @template T - The user profile the API returns: a JSON object type of named
  *   fields. The default, {@link UserProfile}, keeps the untyped configuration
@@ -821,7 +879,16 @@ export interface AuthClientConfigOptions<T extends object = UserProfile> {
   /**
    * Turn an answer that carries a user into the client's
    * `{ accessToken, refreshToken?, user }` (default: the answer as given).
-   * RealWorld, for example: `(data) => ({ accessToken: data.user.token, user: data.user })`.
+   * RealWorld, for example — keep the wire bearer OUT of the profile, because
+   * the client caches `user` in Web Storage where a token copy is readable by
+   * any script on the origin:
+   *
+   * ```typescript
+   * (data) => {
+   *   const { token, ...user } = data.user
+   *   return { accessToken: token, user }
+   * }
+   * ```
    *
    * It is the ONE user-shape adapter, and the client applies it on EVERY path
    * that adopts a user from an API answer — `login()`, `register()`,
@@ -839,9 +906,11 @@ export interface AuthClientConfigOptions<T extends object = UserProfile> {
    * The return type does NOT infer the profile: an untyped
    * `createJWTAuthClient({ mapAuthResponse })` stays `UserProfile`, so a mapper
    * that returns a no-id profile fails to compile there instead of silently
-   * replacing the default with whatever the mapper happened to return. Name the
-   * profile on the factory (`createJWTAuthClient<MyUser>({ mapAuthResponse })`)
-   * to use a custom one.
+   * replacing the default with whatever the mapper happened to return. The same
+   * rule holds for every config member below (`profileEndpoint`,
+   * `profileRequestBody`, `shouldRestoreUser`): none of them supplies the
+   * profile. Name the profile at the call
+   * (`createJWTAuthClient<MyUser>({ mapAuthResponse })`) to use a custom one.
    *
    * @param data - The parsed response body.
    * @returns The auth result.

@@ -17,7 +17,7 @@ import type {
   AuthError,
   AuthEvent,
   AuthEventListener,
-  AuthProfileShape,
+  AuthProfileConstraint,
   AuthResult,
   AuthState,
   AuthStatus,
@@ -150,17 +150,23 @@ interface SessionCookieRestore<T> {
  *
  * `T` is the profile the API returns. The default, `UserProfile`, requires
  * `id: string`, and an untyped call — `createJWTAuthClient({ mapAuthResponse })`
- * — KEEPS that default: the profile is never inferred from the mapper, so a
- * mapper that returns a user without `id` fails to compile instead of quietly
- * becoming the client's profile. To use the app's own profile, name it here,
+ * — KEEPS that default: the profile is never inferred from the config (no
+ * member of it, and not from an annotated config variable), so a mapper that
+ * returns a user without `id` fails to compile instead of quietly becoming the
+ * client's profile. To use the app's own profile, name it here,
  * `createJWTAuthClient<SessionUser>(config)`; a profile with no `id`
  * (`{ username, email, bio, image }`) is then used as-is. Pass the same type to
  * the config (`AuthClientConfig<SessionUser>`), so `mapAuthResponse` and the
  * write transport are checked against the profile the client and the React
  * hooks hand to your pages.
  *
+ * `any` is accepted (`createJWTAuthClient<any>()`) as the caller's explicit
+ * opt-out; array, function and `Date` profiles are rejected. A wrapper that
+ * forwards a profile type copies `AuthProfileConstraint` (see
+ * {@link AuthClientConfig}'s migration note).
+ *
  * @template T - The user profile the API returns: a JSON object type of named
- *   fields (see {@link AuthProfileShape}), including a profile with no `id`.
+ *   fields (see {@link AuthProfileConstraint}), including a profile with no `id`.
  *   The default, `UserProfile`, requires `id: string`.
  * @template TRegister - The app's own registration fields, accepted at the top
  *   level of `register()` (e.g. `{ username: string }` for a RealWorld-shaped API).
@@ -169,10 +175,10 @@ interface SessionCookieRestore<T> {
  * @returns A fully configured `AuthClient` instance.
  */
 export const createJWTAuthClient = <
-  T extends (AuthProfileShape<T> extends object ? object : never) = UserProfile,
+  T extends AuthProfileConstraint<T> = UserProfile,
   TRegister extends RegisterExtraShape<TRegister> = Record<never, never>,
 >(
-  config: AuthClientConfigOptions<T> = {},
+  config: NoInfer<AuthClientConfigOptions<T>> = {},
 ): AuthClient<T, TRegister> => {
   const {
     baseURL = '',

@@ -22,7 +22,7 @@
   },
   "peerDependencies": {
     "@angular/core": "22.0.0",
-    "@molecule/app-auth": "^1.0.1",
+    "@molecule/app-auth": "^1.0.1 || ^2.0.0",
     "@molecule/app-device": "^1.0.1",
     "@molecule/app-forms": "^1.0.1",
     "@molecule/app-http": "^1.0.1",

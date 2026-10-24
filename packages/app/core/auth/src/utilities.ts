@@ -15,7 +15,7 @@
 
 import { getClient } from './provider.js'
 import type {
-  AuthProfileShape,
+  AuthProfileConstraint,
   AuthResult,
   LoginCredentials,
   RegisterData,
@@ -34,13 +34,12 @@ export const isAuthenticated = (): boolean => getClient().isAuthenticated()
  * Returns the current user profile, or `null` if not authenticated.
  *
  * @template T - The user profile the bonded client returns: a JSON object type
- *   of named fields (see {@link AuthProfileShape}), including an app profile
- *   with no `id`. Defaults to {@link UserProfile}.
+ *   of named fields (see {@link AuthProfileConstraint}), including an app
+ *   profile with no `id`. Defaults to {@link UserProfile}; name it at the call.
  * @returns The user profile, or `null` if not authenticated.
  */
-export const getUser = <
-  T extends (AuthProfileShape<T> extends object ? object : never) = UserProfile,
->(): T | null => getClient<T>().getUser()
+export const getUser = <T extends AuthProfileConstraint<T> = UserProfile>(): T | null =>
+  getClient<T>().getUser()
 
 /**
  * Logs in with the given credentials (email/username + password).
@@ -52,9 +51,7 @@ export const getUser = <
  * @param credentials - Email/username and password.
  * @returns The auth result containing tokens and user profile.
  */
-export const login = async <
-  T extends (AuthProfileShape<T> extends object ? object : never) = UserProfile,
->(
+export const login = async <T extends AuthProfileConstraint<T> = UserProfile>(
   credentials: LoginCredentials,
 ): Promise<AuthResult<T>> => getClient<T>().login(credentials)
 
@@ -81,7 +78,7 @@ export const logout = (): Promise<void> => getClient().logout()
  */
 export const register = async <
   TExtra extends RegisterExtraShape<TExtra> = Record<never, never>,
-  T extends (AuthProfileShape<T> extends object ? object : never) = UserProfile,
+  T extends AuthProfileConstraint<T> = UserProfile,
 >(
   data: RegisterData<TExtra>,
 ): Promise<AuthResult<T>> => getClient<T, TExtra>().register(data)

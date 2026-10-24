@@ -142,7 +142,9 @@ describe('a profile with no id is identified through the app’s own field', () 
     })
   })
 
-  it('tracks nothing for a session the extractor cannot identify', () => {
+  it('tracks the sign-in without identify when the extractor returns null', () => {
+    // The public contract: `null` means "no identity", not "drop the event".
+    // auth.login/auth.register are counted without an invented `userId`.
     const { client, emit } = createAuthClient()
     setupAutoTracking<SessionUser>({
       authClient: client,
@@ -152,7 +154,18 @@ describe('a profile with no id is identified through the app’s own field', () 
     emit({ type: 'login', user: { username: 'ann', email: 'ann@example.com', bio: '' } })
 
     expect(mockIdentify).not.toHaveBeenCalled()
-    expect(mockTrack).not.toHaveBeenCalled()
+    expect(mockTrack).toHaveBeenCalledWith({ name: 'auth.login' })
+    expect(mockTrack).not.toHaveBeenCalledWith(
+      expect.objectContaining({
+        properties: expect.objectContaining({ userId: expect.anything() }),
+      }),
+    )
+
+    vi.clearAllMocks()
+    emit({ type: 'register', user: { username: 'bo', email: 'bo@example.com', bio: '' } })
+
+    expect(mockIdentify).not.toHaveBeenCalled()
+    expect(mockTrack).toHaveBeenCalledWith({ name: 'auth.register' })
   })
 
   it('keeps logout and error tracking unchanged', () => {
@@ -245,6 +258,138 @@ describe('a real custom-profile auth client drives the auth analytics', () => {
 
     cleanup()
     vi.unstubAllGlobals()
+  })
+})
+
+describe('the real client keeps its sign-in events when the extractor returns null', () => {
+  it('tracks login and register without identify, and still resets on logout', async () => {
+    // A real client (not a double) and a recording provider: the public
+    // contract for `identifyUser: () => null` is "skip identify, still track".
+    const fetchMock = vi.fn(async (url: string) => {
+      const user = url.includes('register')
+        ? { username: 'bo', email: 'bo@example.com', bio: '' }
+        : { username: 'ann', email: 'ann@example.com', bio: 'writes' }
+      return new Response(JSON.stringify({ user }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      })
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    const authClient = createJWTAuthClient<SessionUser>({
+      storage: 'memory',
+      autoRefresh: false,
+      mapAuthResponse: (data) => {
+        const answer = data as { user: SessionUser }
+        return { accessToken: 'token', user: answer.user }
+      },
+    })
+    const cleanup = setupAutoTracking<SessionUser>({
+      authClient,
+      identifyUser: () => null,
+    })
+
+    await authClient.login({ email: 'ann@example.com', password: 'pw' })
+    expect(mockIdentify).not.toHaveBeenCalled()
+    expect(mockTrack).toHaveBeenCalledWith({ name: 'auth.login' })
+
+    vi.clearAllMocks()
+    await authClient.register({ email: 'bo@example.com', password: 'pw' })
+    expect(mockIdentify).not.toHaveBeenCalled()
+    expect(mockTrack).toHaveBeenCalledWith({ name: 'auth.register' })
+
+    vi.clearAllMocks()
+    await authClient.logout()
+    expect(mockTrack).toHaveBeenCalledWith({ name: 'auth.logout' })
+    expect(mockReset).toHaveBeenCalled()
+
+    // The cleanup still unsubscribes every listener.
+    cleanup()
+    vi.clearAllMocks()
+    await authClient.login({ email: 'ann@example.com', password: 'pw' })
+    expect(mockTrack).not.toHaveBeenCalled()
+    expect(mockIdentify).not.toHaveBeenCalled()
+
+    vi.unstubAllGlobals()
+  })
+})
+
+describe('the documented inline composition compiles against the real auth client', () => {
+  const stubs = `
+declare const getRouter: () => { subscribe(listener: (location: { pathname: string; search: string; hash: string }, action: string) => void): () => void }
+declare const getHttp: () => { addErrorInterceptor(interceptor: (error: { message: string; status: number }) => { message: string; status: number }): () => void }
+`
+
+  it('accepts the verbatim Web-app example — an inline getClient()', () => {
+    // Old-red: on the previous analytics this failed with
+    // "Property 'identifyUser' is missing" because the inline call inferred
+    // AuthClient<object>. The default overload pins AnalyticsAuthUser.
+    expect(
+      diagnosticsFor(`
+import { getClient } from '@molecule/app-auth'
+
+import { setupAutoTracking } from '../auto-tracking.js'
+${stubs}
+export const cleanup = setupAutoTracking({
+  authClient: getClient(),
+  router: getRouter(),
+  httpClient: getHttp(),
+})
+`).join('\n'),
+    ).toEqual('')
+  })
+
+  it('accepts an inline createJWTAuthClient()', () => {
+    expect(
+      diagnosticsFor(`
+import { createJWTAuthClient } from '@molecule/app-auth'
+
+import { setupAutoTracking } from '../auto-tracking.js'
+
+export const cleanup = setupAutoTracking({ authClient: createJWTAuthClient() })
+`).join('\n'),
+    ).toEqual('')
+  })
+
+  it('keeps the variable form and the explicit profile argument working', () => {
+    expect(
+      diagnosticsFor(`
+import { createJWTAuthClient, getClient, type UserProfile } from '@molecule/app-auth'
+
+import { setupAutoTracking } from '../auto-tracking.js'
+
+const authClient = getClient()
+export const first = setupAutoTracking({ authClient })
+export const second = setupAutoTracking({ authClient: getClient<UserProfile>() })
+export const third = setupAutoTracking<UserProfile>({ authClient: createJWTAuthClient() })
+`).join('\n'),
+    ).toEqual('')
+  })
+})
+
+describe('AutoTrackingOptions stays a mergeable interface', () => {
+  it('accepts declaration augmentation and interface extension', () => {
+    // Old-red: on the previous source this was a type alias, so augmenting it
+    // failed with "Duplicate identifier 'AutoTrackingOptions'".
+    expect(
+      diagnosticsFor(`
+import type { AutoTrackingOptions } from '../auto-tracking.js'
+
+declare module '../auto-tracking.js' {
+  interface AutoTrackingOptions {
+    label?: string
+  }
+}
+
+export const options: AutoTrackingOptions = { label: 'x' }
+
+interface MyOptions extends AutoTrackingOptions {
+  extra?: number
+}
+
+export const mine: MyOptions = { label: 'x', extra: 1 }
+`).join('\n'),
+    ).toEqual('')
   })
 })
 

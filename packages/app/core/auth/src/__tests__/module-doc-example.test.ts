@@ -1,15 +1,21 @@
 /**
- * The module docs' custom-profile example is compiled and RUN.
+ * Every public mapper example in the auth docs is compiled and RUN.
  *
- * The example is the first thing an app author copies, and it used to return the
- * whole wire user — `token` included — as the cached profile (`return { accessToken:
- * user.token, user }`), while the committed test stripped the token. The client
- * persists `user` in Web Storage, so that example put a bearer token where any
- * script on the origin can read it.
+ * The module docs (`src/index.ts`) and the `mapAuthResponse` member docs
+ * (`src/types.ts`) are the first things an app author or an executor copies.
+ * They used to return the whole wire user — `token` included — as the cached
+ * profile (`return { accessToken: user.token, user }`), while the client
+ * persists `user` in Web Storage, so the bearer landed where any script on the
+ * origin can read it. The `SessionUser` block alone was compiled; the id-bearing
+ * `MyUser` block (the path most apps take) and the two mapper fragments were
+ * not.
  *
- * This test extracts the example from `src/index.ts` (the source of truth — the
- * README is generated from it), compiles it against the real modules, and runs its
- * `mapAuthResponse` on a wire answer to prove the token stays out of the profile.
+ * This suite:
+ * - compiles every complete mapper example against the real modules;
+ * - runs EVERY mapper example — the three module configs and both documented
+ *   fragments — through a real `createJWTAuthClient` with a Map storage adapter
+ *   and a wire answer that carries `token`, and proves the bearer reaches
+ *   neither `getUser()` nor the stored user.
  */
 
 import { randomUUID } from 'node:crypto'
@@ -19,28 +25,42 @@ import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
 import ts from 'typescript'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
+
+import { createJWTAuthClient } from '../client.js'
+import type { StorageAdapter } from '../types.js'
+
+/** Reads one auth source file. */
+function readSource(name: 'index.ts' | 'types.ts'): string {
+  return readFileSync(join(__dirname, '..', name), 'utf8')
+}
 
 /**
- * Reads the custom-profile `typescript` code block out of the module docs.
+ * Extracts every fenced `typescript` block from a source file, stripping the
+ * JSDoc ` * ` line prefix so the text is what an app author copies.
  *
- * The block lives inside a JSDoc comment, so every line arrives with the
- * ` * ` comment prefix — strip it to get back the code an app author copies.
- *
- * @returns The example source.
+ * @param source - The source file.
+ * @returns The code blocks.
  */
-function readExample(): string {
-  const source = readFileSync(join(__dirname, '..', 'index.ts'), 'utf8')
-  const blocks = [...source.matchAll(/```typescript\n([\s\S]*?)```/g)].map((match) =>
+function codeBlocks(source: string): string[] {
+  return [...source.matchAll(/```typescript\n([\s\S]*?)```/g)].map((match) =>
     match[1]
       .split('\n')
       .map((line) => line.replace(/^\s*\* ?/, ''))
-      .join('\n'),
+      .join('\n')
+      .trim(),
   )
-  const example = blocks.find(
-    (block) => block.includes('interface SessionUser') && block.includes('mapAuthResponse'),
-  )
-  if (!example) throw new Error('the custom-profile example is gone from src/index.ts')
+}
+
+/**
+ * Finds the module-doc example containing `marker`.
+ *
+ * @param marker - Text unique to the example.
+ * @returns The example source.
+ */
+function readIndexExample(marker: string): string {
+  const example = codeBlocks(readSource('index.ts')).find((block) => block.includes(marker))
+  if (!example) throw new Error(`the module-doc example with '${marker}' is gone from src/index.ts`)
   return example
 }
 
@@ -77,7 +97,22 @@ function compileProbe(source: string): string[] {
     .map((diagnostic) => ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'))
 }
 
-/** The wire answer the example's mapper receives. */
+/**
+ * Rewrites the example's package imports to this package's source modules.
+ *
+ * @param example - The documented example.
+ * @returns The compilable probe source.
+ */
+function toSourceImports(example: string): string {
+  return example
+    .replace(
+      /import type \{([^}]+)\} from '@molecule\/app-auth'/g,
+      "import type {$1} from '../types.js'",
+    )
+    .replace(/import \{([^}]+)\} from '@molecule\/app-auth'/g, "import {$1} from '../client.js'")
+}
+
+/** The wire answer every example's mapper receives, bearer included. */
 const wireUser = {
   token: 'header.payload.signature',
   username: 'ann',
@@ -86,54 +121,159 @@ const wireUser = {
   image: 'https://example.com/ann.png',
 }
 
-describe('the module docs custom-profile example', () => {
-  it('compiles against the real source and types getUser() as the custom profile', () => {
-    const example = readExample().replaceAll("from '@molecule/app-auth'", "from '../client.js'")
-    // The example's type-only import must keep resolving to this package.
-    const source = `${example.replace(
-      "import type { AuthClientConfig } from '../client.js'",
-      "import type { AuthClientConfig } from '../types.js'",
-    )}
-export const username: string | undefined = client.getUser()?.username
-`
-    expect(compileProbe(source).join('\n')).toEqual('')
+/** The bearer value that must never reach the profile or storage. */
+const wireToken = wireUser.token
+
+/** The mapper every example is reduced to for the runtime pass. */
+type ExampleMapper = (data: unknown) => {
+  accessToken: string
+  user: Record<string, unknown>
+}
+
+/**
+ * Imports a transpiled fragment as a module.
+ *
+ * @param source - The JavaScript source.
+ * @returns The module namespace.
+ */
+async function importTranspiled(source: string): Promise<Record<string, unknown>> {
+  const js = ts.transpileModule(source, {
+    compilerOptions: { module: ts.ModuleKind.ES2022, target: ts.ScriptTarget.ES2022 },
+  }).outputText
+  const file = join(tmpdir(), `mol-auth-doc-example-${randomUUID()}.mjs`)
+  writeFileSync(file, js)
+  try {
+    return (await import(pathToFileURL(file).href)) as Record<string, unknown>
+  } finally {
+    rmSync(file, { force: true })
+  }
+}
+
+/**
+ * Turns a module-doc example into a module exporting its config.
+ *
+ * The example created its client at module scope; the runtime pass needs the
+ * `mapAuthResponse` it documented, applied by a real client over Map storage.
+ *
+ * @param example - The documented module example.
+ * @returns A module source exporting `config`.
+ */
+function configModuleSource(example: string): string {
+  let source = example.replace(/^import .*$/gm, '')
+  if (/const config: AuthClientConfig<[^>]+> =/.test(source)) {
+    source = source
+      .replace(/const config: AuthClientConfig<[^>]+> =/, 'export const config =')
+      .replace(/const client = createJWTAuthClient<[^>]+>\(config\)/, '')
+  } else {
+    source = source
+      .replace(/const \w+ = createJWTAuthClient(<[^(]*>)?\(\{/, 'export const config = ({')
+      .replace(/^await \w+\.register\(.*\)$/gm, '')
+  }
+  return source
+}
+
+/**
+ * Runs one documented mapper through a REAL client with a Map storage adapter.
+ *
+ * @param mapper - The example's `mapAuthResponse`.
+ * @returns The restored profile and the stored user JSON.
+ */
+async function runMapper(mapper: ExampleMapper): Promise<{
+  user: Record<string, unknown> | null
+  stored: string | null
+}> {
+  const store = new Map<string, string>()
+  const storage: StorageAdapter = {
+    getItem: (key) => store.get(key) ?? null,
+    setItem: (key, value) => {
+      store.set(key, value)
+    },
+    removeItem: (key) => {
+      store.delete(key)
+    },
+  }
+  const client = createJWTAuthClient<Record<string, unknown>>({
+    storage,
+    autoRefresh: false,
+    mapAuthResponse: mapper,
+  })
+  const fetchMock = vi.fn(
+    async () =>
+      new Response(JSON.stringify({ user: wireUser }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      }),
+  )
+  vi.stubGlobal('fetch', fetchMock)
+  try {
+    await client.login({ email: 'ann@example.com', password: 'pw' })
+    const user = client.getUser()
+    const stored = [...store.entries()].find(([key]) => key.endsWith(':user'))?.[1] ?? null
+    return { user, stored }
+  } finally {
+    vi.unstubAllGlobals()
+  }
+}
+
+/** The three complete mapper configs in the module docs. */
+const moduleExamples = [
+  ['MyUser', 'interface MyUser'],
+  ['SessionUser', 'interface SessionUser'],
+  ['RealWorld', 'realWorldAuth'],
+] as const
+
+describe('every module-doc mapper example', () => {
+  for (const [name, marker] of moduleExamples) {
+    it(`compiles against the real source — ${name}`, () => {
+      const example = toSourceImports(readIndexExample(marker))
+      expect(compileProbe(example).join('\n'), name).toEqual('')
+    })
+
+    it(`keeps the bearer out of the cached profile — ${name}`, async () => {
+      const source = configModuleSource(readIndexExample(marker))
+      const module = (await importTranspiled(source)) as {
+        config: { mapAuthResponse: ExampleMapper }
+      }
+      const { user, stored } = await runMapper(module.config.mapAuthResponse)
+
+      expect(user, name).not.toBeNull()
+      expect(user, name).not.toHaveProperty('token')
+      expect(stored, name).not.toBeNull()
+      expect(stored ?? '', name).not.toContain(wireToken)
+    })
+  }
+
+  it('runs every documented mapper fragment through a real client', async () => {
+    const fragments = [...codeBlocks(readSource('index.ts')), ...codeBlocks(readSource('types.ts'))]
+      .filter((block) => /^\s*\((?:d|data)\)\s*=>/.test(block) && block.includes('accessToken'))
+      .map((block) => block.trim())
+
+    // One fragment in the module @remarks, one in the mapAuthResponse member JSDoc.
+    expect(fragments).toHaveLength(2)
+
+    for (const fragment of fragments) {
+      const module = (await importTranspiled(
+        `export const config = { mapAuthResponse: ${fragment} }`,
+      )) as {
+        config: { mapAuthResponse: ExampleMapper }
+      }
+      const { user, stored } = await runMapper(module.config.mapAuthResponse)
+
+      expect(user).not.toBeNull()
+      expect(user).not.toHaveProperty('token')
+      expect(stored ?? '').not.toContain(wireToken)
+    }
   })
 
-  it('maps the wire user without carrying the bearer token into the profile', async () => {
-    // Execute the documented mapper itself: strip the imports, stub the factory
-    // so the example's config is reachable, and import the transpiled module.
-    const runnable = readExample()
-      .replace(/^import .*$/gm, '')
-      .replace('const client = createJWTAuthClient<SessionUser>(config)', 'export { config }')
-    const js = ts.transpileModule(`const createJWTAuthClient = (config) => config\n${runnable}`, {
-      compilerOptions: {
-        module: ts.ModuleKind.ES2022,
-        target: ts.ScriptTarget.ES2022,
-      },
-    }).outputText
-    const file = join(tmpdir(), `mol-auth-doc-example-${randomUUID()}.mjs`)
-    writeFileSync(file, js)
-    try {
-      const module = (await import(pathToFileURL(file).href)) as {
-        config: {
-          mapAuthResponse: (data: unknown) => {
-            accessToken?: string
-            user: Record<string, unknown>
-          }
-        }
-      }
-      const mapped = module.config.mapAuthResponse({ user: wireUser })
-
-      expect(mapped.accessToken).toBe(wireUser.token)
-      expect(mapped.user).toEqual({
-        username: wireUser.username,
-        email: wireUser.email,
-        bio: wireUser.bio,
-        image: wireUser.image,
-      })
-      expect(mapped.user).not.toHaveProperty('token')
-    } finally {
-      rmSync(file, { force: true })
+  it('documents no mapper example as prose the runtime pass cannot run', () => {
+    // Guards against a new mapper example being added as a backticked
+    // one-liner (the shape that leaked before): every mapper a reader copies
+    // must live in a fenced block, which the fragment pass above executes.
+    for (const name of ['index.ts', 'types.ts'] as const) {
+      const prose = readSource(name)
+        .split('\n')
+        .filter((line) => /`[^`]*=>[^`]*accessToken[^`]*`/.test(line))
+      expect(prose, name).toEqual([])
     }
   })
 })

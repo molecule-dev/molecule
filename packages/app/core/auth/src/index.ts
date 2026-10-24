@@ -137,15 +137,18 @@
  * const config: AuthClientConfig<MyUser> = {
  *   mapAuthResponse: (data) => {
  *     const { user: wire } = data as { user: { token: string } & Omit<MyUser, 'id'> }
+ *     // The bearer stays OUT of the profile: the client caches `user` in Web
+ *     // Storage, where a token copy is readable by any script on the origin.
+ *     const { token, ...profile } = wire
  *     return {
- *       accessToken: wire.token,
+ *       accessToken: token,
  *       user: {
  *         // Every wire field the pages read (`username`, `image`, …) survives…
- *         ...wire,
+ *         ...profile,
  *         // …plus the base fields the client derives its identity from.
- *         id: wire.username,
- *         name: wire.name ?? wire.username,
- *         avatar: wire.image,
+ *         id: profile.username,
+ *         name: profile.name ?? profile.username,
+ *         avatar: profile.image,
  *       },
  *     }
  *   },
@@ -265,7 +268,8 @@
  * @remarks
  * - **An API with its own auth envelope keeps this client.** `requestBody` wraps the
  *   login/register payload (`(kind, p) => ({ user: p })`), `mapAuthResponse` reads the
- *   token and user out of the answer (`(d) => ({ accessToken: d.user.token, user: d.user })`),
+ *   token and user out of the answer — keeping the wire bearer OUT of the profile,
+ *   because the client caches `user` in Web Storage (see the mapper example below) —
  *   and `authScheme: 'Token'` sends `Authorization: Token <jwt>`. `mapAuthResponse` is the
  *   ONE user-shape adapter: the client applies it to every answer that carries a user (login,
  *   register, `validateSession()`, the cookie restore, a token refresh, `updateProfile()`), so
@@ -285,6 +289,16 @@
  *   hand-editing fetch calls in components.
  * - Client-side auth state is UX only — the server enforces authorization on
  *   every request; hiding a screen is not protection.
+ *
+ * The mapper for such an envelope, with the wire token kept out of the cached
+ * profile (`d` is the parsed answer):
+ *
+ * ```typescript
+ * (d) => {
+ *   const { token, ...user } = d.user
+ *   return { accessToken: token, user }
+ * }
+ * ```
  *
  * @example
  * ```typescript

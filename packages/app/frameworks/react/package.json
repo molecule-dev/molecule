@@ -21,7 +21,7 @@
     "node": ">=20"
   },
   "peerDependencies": {
-    "@molecule/app-auth": "^1.0.1",
+    "@molecule/app-auth": "^1.0.1 || ^2.0.0",
     "@molecule/app-ai-models": "^1.0.1",
     "@molecule/app-forms": "^1.0.1",
     "@molecule/app-utilities": "^1.0.1",

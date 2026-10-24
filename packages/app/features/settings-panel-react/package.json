@@ -46,7 +46,7 @@
     "react-router": "8.5.0"
   },
   "peerDependencies": {
-    "@molecule/app-auth": "^1.0.1",
+    "@molecule/app-auth": "^1.0.1 || ^2.0.0",
     "@molecule/app-react": "^1.0.1",
     "@molecule/app-ui": "^1.0.1",
     "@molecule/app-ui-react": "^1.0.1",

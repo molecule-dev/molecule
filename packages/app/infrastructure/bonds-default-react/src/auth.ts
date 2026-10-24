@@ -2,7 +2,7 @@ import type {
   AuthClient,
   AuthClientConfigOptions,
   AuthEvent,
-  AuthProfileShape,
+  AuthProfileConstraint,
   RegisterExtraShape,
   UserProfile,
 } from '@molecule/app-auth'
@@ -136,12 +136,16 @@ export function createDefaultHttpClientWithAuthBearer(opts: {
  * type: nothing in the client reads it, and the fabricated value then travels into
  * storage, `getUser()` and every page. Omit the type parameter and the default is
  * `UserProfile`, whose `id: string` stays required — the profile is never inferred
- * from `authConfig`, so an untyped wrapper call keeps the default contract.
+ * from `authConfig` (no member of it, and not from an annotated config variable),
+ * so an untyped wrapper call keeps the default contract.
  *
  * Type the config with the SAME type (`const authConfig: AuthClientConfig<MyUser> = { … }`)
- * so its `mapAuthResponse` is checked against `MyUser`: a mapper that omits a
- * required custom field then fails at the `createDefaultAuthClient<MyUser>(authConfig)`
- * call instead of shipping a signed-in page that reads `undefined`.
+ * so its `mapAuthResponse` is checked against `MyUser`, and name that type at the
+ * call (`createDefaultAuthClient<MyUser>(authConfig)`): a mapper that omits a
+ * required custom field then fails at that call instead of shipping a signed-in
+ * page that reads `undefined`. An annotated config alone does not supply the type
+ * argument — that is a 1.8 caller shape this major changes (see
+ * `AuthClientConfig`'s migration note in `@molecule/app-auth`).
  *
  * `TRegister` is the app's own registration fields (`{ username: string }` for a
  * RealWorld-shaped API), passed on to `@molecule/app-auth`'s factory so
@@ -158,10 +162,10 @@ export function createDefaultHttpClientWithAuthBearer(opts: {
  * ```
  */
 export function createDefaultAuthClient<
-  TUser extends (AuthProfileShape<TUser> extends object ? object : never) = UserProfile,
+  TUser extends AuthProfileConstraint<TUser> = UserProfile,
   TRegister extends RegisterExtraShape<TRegister> = Record<never, never>,
 >(
-  authConfig: AuthClientConfigOptions<TUser>,
+  authConfig: NoInfer<AuthClientConfigOptions<TUser>>,
 ): {
   authClient: AuthClient<TUser, TRegister>
   setupAuthDefault: () => void
@@ -196,10 +200,10 @@ export function createDefaultAuthClient<
  * bonded, so setup order no longer decides whether the first request is authorized.
  */
 export function createDefaultAuthClientWithHttpSync<
-  TUser extends (AuthProfileShape<TUser> extends object ? object : never) = UserProfile,
+  TUser extends AuthProfileConstraint<TUser> = UserProfile,
   TRegister extends RegisterExtraShape<TRegister> = Record<never, never>,
 >(
-  authConfig: AuthClientConfigOptions<TUser>,
+  authConfig: NoInfer<AuthClientConfigOptions<TUser>>,
 ): {
   authClient: AuthClient<TUser, TRegister>
   setupAuthDefault: () => void
@@ -258,10 +262,10 @@ export function createDefaultAuthClientWithHttpSync<
  * fields (see `AuthProfileShape`), including an app profile with no `id`.
  */
 export function createDefaultAuthClientWithFetchClient<
-  TUser extends (AuthProfileShape<TUser> extends object ? object : never) = UserProfile,
+  TUser extends AuthProfileConstraint<TUser> = UserProfile,
   TRegister extends RegisterExtraShape<TRegister> = Record<never, never>,
 >(
-  authConfig: AuthClientConfigOptions<TUser>,
+  authConfig: NoInfer<AuthClientConfigOptions<TUser>>,
   fetchClientOptions: { baseURL: string; withCredentials?: boolean },
 ): {
   authClient: AuthClient<TUser, TRegister>

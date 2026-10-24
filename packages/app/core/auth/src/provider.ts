@@ -10,7 +10,7 @@
 
 import { bond, isBonded, require as bondRequire } from '@molecule/app-bond'
 
-import type { AuthClient, AuthProfileShape, RegisterExtraShape, UserProfile } from './types.js'
+import type { AuthClient, AuthProfileConstraint, RegisterExtraShape, UserProfile } from './types.js'
 
 const BOND_TYPE = 'auth-client'
 
@@ -36,15 +36,16 @@ export const setClient = <
  * Retrieves the bonded auth client, throwing if none is configured.
  *
  * @template T - The user profile the bonded client returns: a JSON object type
- *   of named fields (see {@link AuthProfileShape}), including an app profile
- *   with no `id`.
+ *   of named fields (see {@link AuthProfileConstraint}), including an app
+ *   profile with no `id`. Name it at the call (`getClient<SessionUser>()`); it
+ *   is never inferred from a config.
  * @template TRegister - The app's own registration fields, at the top level
  *   of `register()` (see `RegisterData`).
  * @returns The bonded auth client.
  * @throws {Error} If no auth client has been bonded.
  */
 export const getClient = <
-  T extends (AuthProfileShape<T> extends object ? object : never) = UserProfile,
+  T extends AuthProfileConstraint<T> = UserProfile,
   TRegister extends RegisterExtraShape<TRegister> = Record<never, never>,
 >(): AuthClient<T, TRegister> => {
   return bondRequire<AuthClient<T, TRegister>>(BOND_TYPE)
