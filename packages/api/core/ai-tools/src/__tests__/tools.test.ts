@@ -6658,7 +6658,7 @@ describe('opt-in first diagnostic progress from a deployed task', () => {
     state.text = excludedBody
     const id = await launch(backend)
     // The excluded test's own body is in the log from the 12 s look on, and it stays there for
-    // the whole wait: the direct answer is not a diagnostic, so the wait runs its budget out.
+    // the whole wait: an excluded body is not a diagnostic, so the wait runs its budget out.
     const excludedOnly = await wait(backend, id, withExcluded)
     expect(excludedOnly).toMatchObject({ status: 'running', waitedMs: 30000 })
     expect(excludedOnly.note ?? '').not.toContain('not a completed result')
