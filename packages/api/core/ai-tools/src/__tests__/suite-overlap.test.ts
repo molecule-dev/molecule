@@ -621,6 +621,46 @@ describe('a composed re-run moves only the runner’s own log (m429)', () => {
 })
 
 /**
+ * X1 xr-molecule-flash-h15 (+46:53 → +49:30): the deployed proof's re-run is a stricter measurement
+ * than the graded one when the platform pins `--retries=0` and records a trace of every action —
+ * the same build timed out 3/3 traced (17.6–17.9 s of a 15 s budget) and passed 14/14 untraced.
+ * A deployed re-run keeps the suite's own retries and tracing; a local diagnosis keeps today's.
+ */
+describe('a deployed run’s re-run keeps the suite’s own retries and tracing (h15)', () => {
+  const DEPLOYED =
+    'cd /workspace/my-app/app && TEST_MODE=fullstack APP_BASE=https://my-app.apps.mlcl.dev ' +
+    'npx playwright test --config e2e/realworld.config.ts --retries=0 --trace=retain-on-failure ' +
+    '--reporter=list'
+
+  it('drops the diagnosis retries and the platform’s recording flag', () => {
+    const rerun = scopedRerunCommand(
+      DEPLOYED,
+      ['e2e/url-navigation.spec.ts:111'],
+      [],
+      null,
+      null,
+      [],
+      {
+        suiteSettings: true,
+      },
+    )
+    expect(rerun).toContain('e2e/url-navigation.spec.ts:111')
+    expect(rerun).not.toContain('--retries')
+    expect(rerun).not.toContain('--trace')
+    // The run's own settings and identity are otherwise untouched.
+    expect(rerun).toContain('--config e2e/realworld.config.ts')
+    expect(rerun).toContain('--reporter=list')
+    expect(rerun).toContain('APP_BASE=https://my-app.apps.mlcl.dev')
+  })
+
+  it('keeps today’s diagnosis flags when the caller does not ask for the suite’s settings', () => {
+    const rerun = scopedRerunCommand(DEPLOYED, ['e2e/url-navigation.spec.ts:111'])
+    expect(rerun).toContain('--retries=0')
+    expect(rerun).toContain('--trace=retain-on-failure')
+  })
+})
+
+/**
  * The property proved by RUNNING it: a disposable tree with the real composed command, the setup
  * file the command writes, and the full walk's log already in place. The `--list` flag keeps the
  * runs to Playwright's collection (no browser is launched), and the fixture's four tests are the

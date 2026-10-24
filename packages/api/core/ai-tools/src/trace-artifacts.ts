@@ -31,6 +31,7 @@
  */
 
 import { locatedCommandSegments, statementArgumentEnd } from './command-position.js'
+import { suiteCommandTarget } from './suite-overlap.js'
 import { isPlaywrightRunCommand, redactSecrets } from './utilities.js'
 
 /** One request a traced page made, as `*.network` records it. */
@@ -5327,6 +5328,40 @@ export function suiteRecordsTraces(configText: string): boolean {
   return [...text.matchAll(TRACE_SETTING)].some((m) => RECORDING_TRACE_MODES.includes(m[1] ?? ''))
 }
 
+/** The trace modes that record only when a test is RETRIED (`on-first-retry`, `on-all-retries`). */
+const RETRY_TRACE_MODES: readonly string[] = ['on-first-retry', 'on-all-retries']
+
+/**
+ * The trace mode a config records a RETRY with (`on-first-retry`, `on-all-retries`), or null.
+ *
+ * These modes are not "no trace": a test that fails and is retried leaves the trace of its retry
+ * (`…-chromium-retry1/trace.zip`), which is exactly the artifact a failure's cause is read from.
+ * They record nothing only when the run allows no retry at all — and that is the run this platform
+ * completes with a flag, never the run whose settings are the graded measurement.
+ *
+ * @param configText - The config's source, or '' when none could be read.
+ * @returns The mode as the config spells it, or null when it records no retry trace.
+ */
+function suiteTracesOnRetry(configText: string): string | null {
+  const text = configText.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:])\/\/[^\n]*/g, '$1')
+  for (const m of text.matchAll(TRACE_SETTING)) {
+    const mode = m[1] ?? ''
+    if (RETRY_TRACE_MODES.includes(mode)) return mode
+  }
+  return null
+}
+
+/**
+ * Whether the run itself pins `--retries=0` (either spelling): a run that cannot retry records no
+ * retry trace, so it still needs one recorded for it.
+ *
+ * @param command - The shell command.
+ * @returns True when the run allows no retry.
+ */
+function namesNoRetries(command: string): boolean {
+  return /(?:^|[\s;&|(])--retries(?:=|\s+)['"]?0(?![\d.])/.test(command)
+}
+
 /** The `--trace` flag this platform adds, and the only value it adds it with. */
 export const DIAGNOSIS_TRACE_FLAG = '--trace=retain-on-failure'
 
@@ -5442,20 +5477,30 @@ export interface DiagnosisTraceRewrite {
 
 /**
  * The command a Playwright run needs to leave a readable trace behind, when the suite's config
- * would record none.
+ * would record none — except a run that can serve as proof, whose own settings are left alone.
  *
  * The failing tests' requests are only readable if the run wrote them down (see the module doc),
  * and the config is where the decision about that lives — the platform does not edit the suite's
- * config, so it passes the flag instead, on every Playwright run that starts tests and does not
- * already decide its own `--trace`. That includes the whole-suite proof run, which an earlier
- * version of this function skipped on the reasoning that its flags are graded: the flag changes
- * what is RETAINED, not what passes. `retain-on-failure` keeps the trace only of a test that
- * fails — Playwright records it and deletes it when the test passes (playwright's
- * `_shouldAbandonTrace` unlinks the temporary trace files of a passing test) — so a green proof
- * run keeps nothing extra. A failing one keeps the network log its failures need.
- * xr-molecule-flash-m163 (+24:58) is why the proof run is no longer skipped: its one deployed
- * failure left only an `error-context.md`, the executor spent the next calls hunting a `trace.zip`
- * that could not exist, and then shipped a guessed fix.
+ * config, so it passes the flag instead, on a Playwright run that starts tests, does not already
+ * decide its own `--trace`, and whose config keeps no trace for its failures.
+ *
+ * A run that can serve as PROOF is the exception: the graded measurement is the suite's own
+ * settings, so it keeps its own tracing and retries. That was measured, not assumed — on one
+ * sandbox in X1 xr-molecule-flash-h15 (+46:53 → +49:30) the same build ran a three-test deployed
+ * subset 3/3 timed out under this flag (17.6–17.9 s against a 15 s per-test budget) and the whole
+ * file passed 14/14 without it (10.9–12.1 s). `retain-on-failure` RETAINS only a failing test's
+ * trace (Playwright's `_shouldAbandonTrace` unlinks a passing test's), but it RECORDS every
+ * action of every test, and for a test near its per-test budget that recording is the difference
+ * between passing and timing out. m163 (+24:58) is the failure this flag was added for: its
+ * deployed proof run left only an `error-context.md` because the suite traces
+ * `on-first-retry` and the run had no retries. That need is met without the flag — the graded
+ * deployed run keeps the suite's own retries, so a failing test leaves its retry's trace — and
+ * the platform's re-run note carries `--trace=on` for a run that did leave none.
+ *
+ * Which runs are proof-capable is {@link suiteCommandTarget}'s answer: a run against a deployed
+ * URL. A LOCAL run is never left to its config, because the launcher gives every local run
+ * `--retries=0` (`@molecule/api-ai-tools` `streamingBackgroundCommand`), so its retry trace would
+ * never happen. A run that pins `--retries=0` itself is in the same position, whatever its target.
  *
  * @param args - The command, the directory it starts in, and the backend's file read.
  * @returns The command to run and the sentence to report, or the command unchanged.
@@ -5471,6 +5516,15 @@ export async function diagnosisTraceCommand(args: {
   if (!isPlaywrightRunCommand(args.command)) return unchanged
   const config = await readRunConfig(args.command, args.cwd, args.readFile)
   if (suiteRecordsTraces(config)) return unchanged
+  // A proof-capable run keeps the suite's own tracing and retries: its retry trace is the artifact
+  // a failure is read from, and recording every action would change what the measurement says.
+  const retryTrace = suiteTracesOnRetry(config)
+  if (
+    retryTrace !== null &&
+    suiteCommandTarget(args.command) !== 'local' &&
+    !namesNoRetries(args.command)
+  )
+    return unchanged
   // The flag goes into the Playwright step's own argument list, at the end of it — an option of
   // the run itself, whatever the command opens with, whatever pipes or redirects its output, and
   // before the `)` that may close a subshell around it. Appended at the end of the whole command
@@ -5485,9 +5539,12 @@ export async function diagnosisTraceCommand(args: {
   return {
     command: `${args.command.slice(0, at)} ${DIAGNOSIS_TRACE_FLAG}${args.command.slice(at)}`,
     change:
-      `Added \`${DIAGNOSIS_TRACE_FLAG}\`: the suite's config records no trace for a failure` +
-      `${/trace:/.test(config) ? '' : ' (it sets none)'}, and a failing test's own network log is ` +
-      'what the platform reads the cause from. It keeps a trace only for a test that fails, so a ' +
-      'green run retains nothing.',
+      `Added \`${DIAGNOSIS_TRACE_FLAG}\`: ` +
+      (retryTrace === null
+        ? `the suite's config records no trace for a failure${/trace:/.test(config) ? '' : ' (it sets none)'}`
+        : `the suite records traces only on a retry (\`${retryTrace}\`), and this run allows none`) +
+      ", and a failing test's own network log is what the platform reads the cause from. It keeps " +
+      'a trace only for a test that fails; the recording still runs for every action of every test ' +
+      'and slows each one, so measure a timing budget once with `--trace=off` before changing the app.',
   }
 }

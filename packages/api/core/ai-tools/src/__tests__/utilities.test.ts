@@ -1192,6 +1192,41 @@ describe('re-runs composed from a chained command (m157)', () => {
   })
 })
 
+/**
+ * "Re-run just these" (`failureCausesNote`) is the one note builder that hands the executor a
+ * command back. X1 xr-molecule-flash-h15 (+46:53 → +49:30): the note's deployed re-run carried
+ * the platform's `--retries=0` and its recording `--trace=retain-on-failure`, so obeying it
+ * measured a stricter run than the deploy was graded on — 3/3 timeouts traced, 14/14 passing
+ * untraced, same build.
+ */
+describe('a deployed run is re-run with the suite’s own settings (h15)', () => {
+  const DEPLOYED =
+    'cd /workspace/my-app/app && TEST_MODE=fullstack APP_BASE=https://my-app.apps.mlcl.dev ' +
+    'npx playwright test --config e2e/realworld.config.ts --retries=0 --trace=retain-on-failure ' +
+    '--reporter=list'
+  /** The same run, still local: the diagnosis flags belong on its re-run. */
+  const LOCAL =
+    'cd /workspace/my-app/app && TEST_MODE=fullstack npx playwright test ' +
+    '--config e2e/realworld.config.ts --reporter=list'
+
+  it('carries neither the diagnosis retries nor the platform’s recording flag', () => {
+    const rerun = rerunOfRunningSuite({ command: DEPLOYED, cwd: '/workspace' }, [
+      'specs/e2e/url-navigation.spec.ts:111',
+    ])
+    expect(rerun).not.toBeNull()
+    expect(rerun).toContain('specs/e2e/url-navigation.spec.ts:111')
+    expect(rerun).not.toContain('--retries')
+    expect(rerun).not.toContain('--trace')
+  })
+
+  it('keeps the diagnosis settings on a local run’s re-run', () => {
+    const rerun = rerunOfRunningSuite({ command: LOCAL, cwd: '/workspace' }, [
+      'specs/e2e/url-navigation.spec.ts:111',
+    ])
+    expect(rerun).toContain('--retries=0')
+  })
+})
+
 describe('mixed suite commands preserve shell operations (m277)', () => {
   /** Execute only local fixture scripts; no real suite, package manager or network is used. */
   const execute = (

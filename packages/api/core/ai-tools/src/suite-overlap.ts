@@ -480,7 +480,9 @@ function redirectRunnerOutputsToFreshFiles(command: string): string {
  * invocation — same launcher, same settings — with the named `file:line`s in place of every
  * positional selection the run carried (a spec file, a suite directory or a regex filter),
  * `--last-failed` dropped (it re-runs the tests that never ran too, X1 flash-m60) and
- * `--retries=0` set (a re-run of a known failure does not need to pay for retries).
+ * `--retries=0` set (a re-run of a known failure does not need to pay for retries) — except the
+ * re-run of a run against a DEPLOYED URL, which keeps the suite's own retries and tracing
+ * (`options.suiteSettings`).
  *
  * The re-run keeps the run's `> <file>` redirect only in the sense of keeping its OUTPUT there:
  * the target is rewritten to a fresh sibling ({@link redirectRunnerOutputsToFreshFiles}), so a
@@ -510,6 +512,12 @@ function redirectRunnerOutputsToFreshFiles(command: string): string {
  * @param env - The settings the REQUEST requires of the suite and this run left out
  *   ({@link withRunEnv}): the re-run carries them, so a re-run of a run measured in the wrong
  *   mode is not measured in that mode again (xr-molecule-flash-m182 +12:06).
+ * @param options - `suiteSettings` for the re-run of a run against a DEPLOYED URL: it keeps the
+ *   suite's own retries and tracing instead of the diagnosis ones. The graded measurement is the
+ *   suite's own settings, and a retry is what leaves a failing test's trace there; the platform's
+ *   `--retries=0` and its `--trace=retain-on-failure` are both a stricter measurement than the
+ *   one that was graded, and on X1 xr-molecule-flash-h15 the recording alone turned three
+ *   budget-bound deployed tests into timeouts.
  * @returns The scoped command, or the command unchanged when it runs no Playwright suite.
  */
 export function scopedRerunCommand(
@@ -519,6 +527,7 @@ export function scopedRerunCommand(
   config?: string | null,
   cwd?: string | null,
   env: readonly RunEnvSetting[] = [],
+  options: { suiteSettings?: boolean } = {},
 ): string {
   const run = playwrightStatement(command)
   if (run === null) return command
@@ -552,14 +561,25 @@ export function scopedRerunCommand(
   // nothing — "No tests found" — so every location is rendered in a form Playwright can match
   // ({@link playwrightLocations}).
   const narrowed = playwrightLocations(locations, command, cwd)
-  const dropped = dropSupersededSelections(args, narrowed)
+  // The recording flag the platform adds to a run whose config keeps no trace
+  // (`trace-artifacts.ts` `DIAGNOSIS_TRACE_FLAG`). It costs every test its recording, so a re-run
+  // measured with the suite's settings does not carry it.
+  const platformRecordingTrace = /\s*--trace=retain-on-failure(?![\w-])/g
+  const keptSettings = options.suiteSettings === true
+  const dropped = (
+    keptSettings
+      ? dropSupersededSelections(args, narrowed).replace(platformRecordingTrace, '')
+      : dropSupersededSelections(args, narrowed)
+  )
     // `--last-failed` re-runs the tests that never ran too (flash-m60); its `--last-failed-file`
     // sibling only moves the file it reads and is a real option of the re-run.
     .replace(/\s*--last-failed(?!-)/g, '')
     .replace(/\s*--retries(?:[= ]\d+)?/g, '')
+  // A re-run of a deployed run measures what the suite measures: its own retries (which is what
+  // leaves a failing test's retry trace), never the diagnosis `--retries=0`.
   const scoped =
     command.slice(0, run.afterRunner) +
-    ` ${narrowed.join(' ')} --retries=0${carry}${invert}` +
+    ` ${narrowed.join(' ')}${keptSettings ? '' : ' --retries=0'}${carry}${invert}` +
     dropped
   // A command that starts the suite AGAIN after this statement is a chain of walks, not a re-run:
   // everything from the next suite runner on is dropped, so the composed command carries ONE walk.

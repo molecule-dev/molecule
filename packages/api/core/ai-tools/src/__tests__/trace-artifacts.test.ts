@@ -1733,6 +1733,92 @@ describe('diagnosisTraceCommand — the trace a run must record', () => {
   })
 
   /**
+   * xr-molecule-flash-h15 (+46:53 → +49:30): the graded deployed run's own settings ARE the
+   * measurement. On the same build, minutes apart, a traced three-test deployed subset timed out
+   * 3/3 (17.6–17.9 s against a 15 s budget) and the untraced whole file passed 14/14
+   * (10.9–12.1 s). A suite that traces `on-first-retry` keeps its retry trace, and the retry is
+   * the run's own (the graded run keeps the suite's retries).
+   */
+  describe('a run that can serve as proof keeps the suite’s own tracing (h15)', () => {
+    /** The suite's own config: it traces the RETRY, and its retries are 1 (2 under CI). */
+    const RETRY_TRACED = [
+      "import { defineConfig } from '@playwright/test'",
+      'export default defineConfig({',
+      '  retries: process.env.CI ? 2 : 1,',
+      "  use: { trace: 'on-first-retry' },",
+      '})',
+    ].join('\n')
+    const DEPLOYED_WHOLE =
+      'cd /workspace/my-app/app && TEST_MODE=fullstack APP_BASE=https://my-app.apps.mlcl.dev ' +
+      'npx playwright test --max-failures=0 --config e2e/realworld.config.ts --reporter=list'
+    const DEPLOYED_TARGETED =
+      'cd /workspace/my-app/app && TEST_MODE=fullstack APP_BASE=https://my-app.apps.mlcl.dev ' +
+      'npx playwright test --config e2e/realworld.config.ts e2e/url-navigation.spec.ts:111 ' +
+      'e2e/url-navigation.spec.ts:182 --reporter=list'
+
+    it('leaves a whole deployed walk to the suite, whose retry leaves the failing test’s trace', async () => {
+      const out = await diagnosisTraceCommand({
+        command: DEPLOYED_WHOLE,
+        cwd: '/workspace/my-app/app',
+        readFile: config(RETRY_TRACED),
+      })
+      expect(out.command).toBe(DEPLOYED_WHOLE)
+      expect(out.change).toBeNull()
+    })
+
+    it('leaves a targeted deployed re-run to the suite too', async () => {
+      const out = await diagnosisTraceCommand({
+        command: DEPLOYED_TARGETED,
+        cwd: '/workspace/my-app/app',
+        readFile: config(RETRY_TRACED),
+      })
+      expect(out.command).toBe(DEPLOYED_TARGETED)
+      expect(out.change).toBeNull()
+    })
+
+    it('still records a trace for a deployed run that pins no retries — nothing would be kept', async () => {
+      const pinned = `${DEPLOYED_WHOLE} --retries=0`
+      const out = await diagnosisTraceCommand({
+        command: pinned,
+        cwd: '/workspace/my-app/app',
+        readFile: config(RETRY_TRACED),
+      })
+      expect(out.command).toBe(`${pinned} ${DIAGNOSIS_TRACE_FLAG}`)
+      expect(out.change).toContain('the suite records traces only on a retry (`on-first-retry`)')
+      expect(out.change).toContain('and this run allows none')
+    })
+
+    it('still records a trace on a LOCAL diagnosis run, and says what the recording costs', async () => {
+      const out = await diagnosisTraceCommand({
+        command: DIAGNOSIS,
+        cwd: '/workspace/my-app/app',
+        readFile: config(RETRY_TRACED),
+      })
+      expect(out.command).toBe(`${DIAGNOSIS} ${DIAGNOSIS_TRACE_FLAG}`)
+      // m163's wording is corrected: the suite does not set "none", it traces the retry this
+      // diagnosis run does not allow.
+      expect(out.change).toContain('the suite records traces only on a retry (`on-first-retry`)')
+      expect(out.change).not.toContain('(it sets none)')
+      // h15's cost is stated, with the one measurement that separates it from the app's speed.
+      expect(out.change).toContain('slows each one')
+      expect(out.change).toContain('measure a timing budget once with `--trace=off`')
+    })
+
+    it('still records a trace for a deployed run whose config sets no trace, or `off`', async () => {
+      for (const text of ["use: { trace: 'off' }", 'use: {}', '']) {
+        const out = await diagnosisTraceCommand({
+          command: DEPLOYED_WHOLE,
+          cwd: '/workspace/my-app/app',
+          readFile: config(text),
+        })
+        expect(out.command).toBe(`${DEPLOYED_WHOLE} ${DIAGNOSIS_TRACE_FLAG}`)
+        expect(out.change).toContain("the suite's config records no trace for a failure")
+        expect(out.change.includes('(it sets none)')).toBe(!/trace:/.test(text))
+      }
+    })
+  })
+
+  /**
    * m102's two commands, verbatim — the shapes Flash sends for almost every background run: one
    * whose output is cut by `| tail -60`, one that redirects to a log and appends `echo`/`grep`.
    * The flag went to the END of the whole string, so `tail`/`grep` received it and Playwright

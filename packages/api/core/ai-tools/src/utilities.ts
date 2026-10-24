@@ -4768,6 +4768,10 @@ function omittedCausesRecap(
  * invocation, in the same directory, narrowed to those tests — or null when the running command
  * is not a Playwright run this can narrow.
  *
+ * A run against a DEPLOYED URL keeps the suite's own retries and tracing in its re-run
+ * ({@link scopedRerunCommand} `suiteSettings`): the deployed measurement is the one the deploy is
+ * graded on, and neither the platform's `--retries=0` nor its recording `--trace` belongs on it.
+ *
  * The `locations` are the paths the run's own log printed, which are relative to the directory
  * that run started in, so the composer resolves them there ({@link scopedRerunCommand}): the
  * command names that directory unless it already changes into one of its own, because the
@@ -4800,6 +4804,11 @@ export function rerunOfRunningSuite(
     run.config,
     run.cwd,
     run.env ?? [],
+    // A run against a DEPLOYED URL is re-run with the suite's own retries and tracing: that is
+    // the measurement the deploy is graded on, and the platform's `--retries=0` plus its
+    // `--trace=retain-on-failure` made it a stricter one — on X1 xr-molecule-flash-h15 the
+    // recording alone turned three budget-bound deployed tests into timeouts.
+    { suiteSettings: suiteCommandTarget(run.command) !== 'local' },
   )
   if (scoped === run.command) return null
   if (!run.cwd || commandSegments(withoutHeredocs(run.command)).some((s) => s.program === 'cd'))
