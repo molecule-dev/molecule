@@ -11,7 +11,7 @@ const ROOT = path.resolve(import.meta.dirname, '../..')
 const workflow = load(fs.readFileSync(path.join(ROOT, '.github/workflows/ci.yml'), 'utf8'))
 const steps = workflow.jobs.build.steps
 const scope = steps.find((step) => step.id === 'test-scope')
-const install = steps.find((step) => step.run?.includes('playwright@1.63.0 install'))
+const install = steps.find((step) => step.run?.includes('playwright@1.64.1 install'))
 const tests = steps.find((step) => step.run?.startsWith('npm test --'))
 const native = steps.find((step) => step.name === 'Prove native Node deployment on amd64')
 const fixtures = []
@@ -85,7 +85,7 @@ describe('CI Chromium follows the affected test scope', () => {
   ])('installs the pinned browser and runs the unchanged selection: %s', (filter) => {
     const result = execute(filter)
     expect(result.status).toBe(0)
-    expect(result.installed).toEqual(['--yes', 'playwright@1.63.0', 'install', 'chromium'])
+    expect(result.installed).toEqual(['--yes', 'playwright@1.64.1', 'install', 'chromium'])
     expect(result.browser[0]).toBe('--input-type=module')
     expect(result.browser[2]).toContain('await chromium.launch()')
     expect(result.browser[2]).toContain('await browser.close()')
@@ -107,7 +107,7 @@ describe('CI Chromium follows the affected test scope', () => {
   it('recognizes a browser package among multiple affected packages', () => {
     expect(execute('packages/api/core/ai-tools packages/app/bonds/e2e/preview').installed).toEqual([
       '--yes',
-      'playwright@1.63.0',
+      'playwright@1.64.1',
       'install',
       'chromium',
     ])
