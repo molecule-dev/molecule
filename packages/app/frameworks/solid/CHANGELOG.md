@@ -1,5 +1,12 @@
 # @molecule/app-solid
 
+## 1.0.6
+
+### Patch Changes
+
+- Accept `@molecule/app-auth` 2.x alongside 1.x. The auth types this package reads are
+  unchanged across both majors.
+
 ## 1.0.4
 
 ### Patch Changes

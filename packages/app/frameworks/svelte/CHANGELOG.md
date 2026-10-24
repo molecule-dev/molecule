@@ -1,5 +1,12 @@
 # @molecule/app-svelte
 
+## 1.0.5
+
+### Patch Changes
+
+- Accept `@molecule/app-auth` 2.x alongside 1.x. The auth types this package reads are
+  unchanged across both majors.
+
 ## 1.0.3
 
 ### Patch Changes

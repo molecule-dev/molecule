@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-database-motherduck",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "MotherDuck hosted DuckDB database provider for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
@@ -37,12 +37,12 @@
   },
   "dependencies": {
     "@duckdb/node-api": "2.0.0-r.1",
-    "@molecule/api-database-duckdb": "1.0.0"
+    "@molecule/api-database-duckdb": "1.1.0"
   },
   "devDependencies": {
     "@molecule/api-bond": "1.0.3",
     "@molecule/api-database": "1.1.5",
-    "@molecule/api-database-duckdb": "1.0.0",
+    "@molecule/api-database-duckdb": "1.1.0",
     "@molecule/api-secrets": "1.0.2",
     "@types/node": "26.6.5",
     "typescript": "6.0.3",

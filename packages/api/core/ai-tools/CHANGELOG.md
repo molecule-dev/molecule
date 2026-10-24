@@ -1,5 +1,15 @@
 # @molecule/api-ai-tools
 
+## 1.14.3
+
+### Patch Changes
+
+- `wait_for_task` no longer returns its one early failure report for a test the request excludes; the wait keeps running and spends it on the first failure that counts.
+- Leave a run against a deployed URL to its suite's own tracing and retries: a proof run is no longer given `--trace=retain-on-failure`, and a re-run composed from a deployed run carries neither that flag nor `--retries=0`.
+- Keep the suite's own retries on a background Playwright run the platform launches as its graded proof, and read that launch fact from a host-only symbol (`PLATFORM_PROOF`) so model tool input cannot claim it.
+
+  Keep local targeted Playwright selections diagnostic even when marked as a platform proof.
+
 ## 1.14.1
 
 ### Patch Changes
