@@ -8,13 +8,19 @@
  * shared client as typed: the app had to fabricate an `id` from a mutable
  * username, or hand-write a client and profile store beside this one.
  *
- * The probes compile against the REAL source with the TypeScript API. The
- * known-bad control proves the old `extends UserProfile` constraint rejects
- * that profile; the other probes prove the fixed constraint accepts it and
- * still rejects primitive profiles, wrong mapper shapes and unknown profile
- * patch fields. The runtime cases prove the complete custom object survives
- * login, session restoration and a profile save unchanged — no field added,
- * dropped or renamed.
+ * The probes compile against the REAL source with the TypeScript API. Each
+ * acceptance probe is a POSITIVE control: it fails on the pre-fix source, where
+ * `T` was constrained to `UserProfile` (verified against 82845d6c1 — see the
+ * task report; a re-declaration of the old signature would prove nothing about
+ * this source). The negative probes prove the default configuration still
+ * requires `id: string`, that the profile is not inferred from the mapper, that
+ * array/function/`Date` profiles are rejected, and that the listener contract
+ * keeps the default `AuthEventListener` implementable.
+ *
+ * The runtime cases prove the complete custom object survives login, session
+ * restoration and a profile save unchanged — no field added, dropped or renamed
+ * — and that the bonded `login`/`register` utilities hand back that same real
+ * profile, typed, with no synthetic id.
  */
 
 import { join } from 'node:path'
@@ -22,8 +28,12 @@ import { join } from 'node:path'
 import ts from 'typescript'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { unbondSingleton } from '@molecule/app-bond'
+
 import { createJWTAuthClient } from '../index.js'
-import type { AuthClientConfig, AuthResult } from '../types.js'
+import { getClient, setClient } from '../provider.js'
+import type { AuthClientConfig, AuthResult, StorageAdapter } from '../types.js'
+import { login, register } from '../utilities.js'
 
 /**
  * Compiles `source` as a file of this package and returns its diagnostics.
@@ -78,11 +88,9 @@ interface SessionUser {
 
 const config: AuthClientConfig<SessionUser> = {
   mapAuthResponse: (data) => {
-    const { user } = data as { user: { token: string } & SessionUser }
-    return {
-      accessToken: user.token,
-      user: { username: user.username, email: user.email, bio: user.bio, image: user.image },
-    }
+    const { user: wire } = data as { user: { token: string } & SessionUser }
+    const { token, ...profile } = wire
+    return { accessToken: token, user: profile }
   },
 }
 
@@ -94,25 +102,6 @@ ${body}
 describe('a custom object profile without id is a supported type', () => {
   it('accepts the no-id interface in createJWTAuthClient and AuthClientConfig', () => {
     expect(diagnosticsFor(customProfileSource()).join('\n')).toEqual('')
-  })
-
-  it('known-bad control: the old extends UserProfile constraint rejects it', () => {
-    const diagnostics = diagnosticsFor(`
-import type { UserProfile } from '../types.js'
-
-interface SessionUser {
-  username: string
-  email: string
-  bio: string
-  image: string
-}
-
-declare function legacyClient<T extends UserProfile = UserProfile>(): T
-
-export const legacy = legacyClient<SessionUser>()
-`)
-
-    expect(diagnostics.join('\n')).toContain("Property 'id' is missing")
   })
 
   it('accepts the no-id interface through the bonded client accessors', () => {
@@ -132,9 +121,13 @@ export const client = getClient<SessionUser>()
 export const username: string | undefined = getUser<SessionUser>()?.username
 `).join('\n'),
     ).toEqual('')
+  })
 
-    const diagnostics = diagnosticsFor(`
-import type { AuthClient, UserProfile } from '../types.js'
+  it('infers the profile from a config the caller annotated', () => {
+    expect(
+      diagnosticsFor(`
+import { createJWTAuthClient } from '../client.js'
+import type { AuthClientConfig } from '../types.js'
 
 interface SessionUser {
   username: string
@@ -143,12 +136,19 @@ interface SessionUser {
   image: string
 }
 
-declare function legacyGetClient<T extends UserProfile = UserProfile>(): AuthClient<T>
+const config: AuthClientConfig<SessionUser> = {
+  mapAuthResponse: (data) => {
+    const { user: wire } = data as { user: { token: string } & SessionUser }
+    const { token, ...profile } = wire
+    return { accessToken: token, user: profile }
+  },
+}
 
-export const client = legacyGetClient<SessionUser>()
-`)
-
-    expect(diagnostics.join('\n')).toContain("Property 'id' is missing")
+// No type argument: the caller's own annotation supplies the profile.
+export const client = createJWTAuthClient(config)
+export const username: string | undefined = client.getUser()?.username
+`).join('\n'),
+    ).toEqual('')
   })
 
   it('rejects a mapper that omits a required custom field', () => {
@@ -170,7 +170,7 @@ export const client = createJWTAuthClient<SessionUser>({
 })
 `)
 
-    expect(diagnostics.join('\n')).toContain('AuthResult<SessionUser>')
+    expect(diagnostics.join('\n')).toContain('AuthResult<NoInfer<SessionUser>>')
     expect(diagnostics.join('\n')).toContain('bio')
   })
 
@@ -284,6 +284,22 @@ export const wrong: number = client.getUser()!.id
     ).toContain('number')
   })
 
+  it('does NOT take the profile from an untyped mapper', () => {
+    // Before the profile was accepted at all, this failed on the constraint.
+    // It must STILL fail: an untyped call keeps the default `UserProfile`, whose
+    // `id: string` is the contract of the default configuration.
+    const diagnostics = diagnosticsFor(`
+import { createJWTAuthClient } from '../client.js'
+
+export const client = createJWTAuthClient({
+  mapAuthResponse: () => ({ accessToken: 'token', user: { username: 'ann' } }),
+})
+`)
+
+    expect(diagnostics.join('\n')).toContain('AuthResult<NoInfer<UserProfile>>')
+    expect(diagnostics.join('\n')).toContain('id')
+  })
+
   it('rejects primitive and null profiles in the factory and the config', () => {
     for (const profile of ['string', 'number', 'null']) {
       const factory = diagnosticsFor(`
@@ -300,6 +316,234 @@ export const config: AuthClientConfig<${profile}> = {}
 `)
       expect(config.join('\n'), profile).not.toEqual('')
     }
+  })
+
+  it('rejects array, function and Date profiles at every entrypoint', () => {
+    for (const profile of ['string[]', 'readonly string[]', '() => void', 'Date']) {
+      const factory = diagnosticsFor(`
+import { createJWTAuthClient } from '../client.js'
+
+export const client = createJWTAuthClient<${profile}>({})
+`)
+      expect(factory.join('\n'), profile).toContain(`Type '${profile}' does not satisfy`)
+
+      const noArgument = diagnosticsFor(`
+import { createJWTAuthClient } from '../client.js'
+
+export const client = createJWTAuthClient<${profile}>()
+`)
+      expect(noArgument.join('\n'), profile).not.toEqual('')
+
+      const config = diagnosticsFor(`
+import type { AuthClientConfig } from '../types.js'
+
+export const config: AuthClientConfig<${profile}> = {}
+`)
+      expect(config.join('\n'), profile).toContain('must be a JSON object type of named fields')
+
+      const accessor = diagnosticsFor(`
+import { getClient } from '../provider.js'
+import { getUser, login } from '../utilities.js'
+
+export const typed = getUser<${profile}>()
+export const client = getClient<${profile}>()
+export const signedIn = login<${profile}>({ email: 'a@b.test', password: 'pw' })
+`)
+      expect(accessor.join('\n'), profile).toContain(`Type '${profile}' does not satisfy`)
+    }
+  })
+
+  it('keeps named interfaces, type aliases and the empty object type accepted', () => {
+    expect(
+      diagnosticsFor(`
+import { createJWTAuthClient } from '../client.js'
+import type { AuthClientConfig } from '../types.js'
+
+interface NamedInterface {
+  username: string
+}
+
+type TypeAlias = {
+  accountNumber: number
+}
+
+interface Composite extends NamedInterface {
+  email?: string
+}
+
+export const named = createJWTAuthClient<NamedInterface>({})
+export const aliased = createJWTAuthClient<TypeAlias>({})
+export const composite = createJWTAuthClient<Composite>({})
+export const empty = createJWTAuthClient<{}>({})
+
+export const namedConfig: AuthClientConfig<NamedInterface> = {}
+export const aliasConfig: AuthClientConfig<TypeAlias> = {}
+export const emptyConfig: AuthClientConfig<{}> = {}
+`).join('\n'),
+    ).toEqual('')
+  })
+})
+
+describe('the listener contract', () => {
+  it('reads the custom profile in a listener on a custom-profile client', () => {
+    expect(
+      diagnosticsFor(`
+import { createJWTAuthClient } from '../client.js'
+import type { AuthEvent } from '../types.js'
+
+interface SessionUser {
+  username: string
+  email: string
+}
+
+const client = createJWTAuthClient<SessionUser>({})
+
+client.addEventListener((event: AuthEvent<SessionUser>) => {
+  if (event.type === 'login') {
+    const username: string = event.user.username
+    void username
+  }
+})
+`).join('\n'),
+    ).toEqual('')
+  })
+
+  it('keeps a client whose profile extends UserProfile implementable with the default listener', () => {
+    expect(
+      diagnosticsFor(`
+import type { AuthClient, AuthEventListener, AuthState, UserProfile } from '../types.js'
+
+interface MyUser extends UserProfile {
+  username: string
+}
+
+// The shape an external bond package shipped before listeners were typed by the
+// profile: a default (UserProfile) listener. It stays implementable.
+export declare class LegacyClient implements AuthClient<MyUser> {
+  addEventListener(listener: AuthEventListener): () => void
+  getState(): AuthState<MyUser>
+  isAuthenticated(): boolean
+  getUser(): MyUser | null
+  setUser(user: MyUser | null): void
+  getAccessToken(): string | null
+  setAccessToken(token: string | null): void
+  setSession(session: { accessToken: string; user: MyUser }): void
+  getRefreshToken(): string | null
+  login(): Promise<{ user: MyUser }>
+  logout(): Promise<void>
+  register(): Promise<{ user: MyUser }>
+  refresh(): Promise<{ user: MyUser }>
+  requestPasswordReset(): Promise<void>
+  confirmPasswordReset(): Promise<void>
+  updateProfile(): Promise<MyUser>
+  changePassword(): Promise<void>
+  initialize(): Promise<void>
+  subscribe(callback: (state: AuthState<MyUser>) => void): () => void
+  onAuthChange(callback: (state: AuthState<MyUser>) => void): () => void
+  destroy(): void
+}
+
+const listener: AuthEventListener = () => undefined
+export const registration = (client: LegacyClient) => client.addEventListener(listener)
+`).join('\n'),
+    ).toEqual('')
+  })
+
+  it('rejects the default listener on a client whose profile has no id', () => {
+    const diagnostics = diagnosticsFor(`
+import type { AuthClient, AuthEventListener, AuthState } from '../types.js'
+
+interface SessionUser {
+  username: string
+  email: string
+}
+
+// The default listener would claim an id these events do not carry.
+export declare class LegacyClient implements AuthClient<SessionUser> {
+  addEventListener(listener: AuthEventListener): () => void
+  getState(): AuthState<SessionUser>
+  isAuthenticated(): boolean
+  getUser(): SessionUser | null
+  setUser(user: SessionUser | null): void
+  getAccessToken(): string | null
+  setAccessToken(token: string | null): void
+  setSession(session: { accessToken: string; user: SessionUser }): void
+  getRefreshToken(): string | null
+  login(): Promise<{ user: SessionUser }>
+  logout(): Promise<void>
+  register(): Promise<{ user: SessionUser }>
+  refresh(): Promise<{ user: SessionUser }>
+  requestPasswordReset(): Promise<void>
+  confirmPasswordReset(): Promise<void>
+  updateProfile(): Promise<SessionUser>
+  changePassword(): Promise<void>
+  initialize(): Promise<void>
+  subscribe(callback: (state: AuthState<SessionUser>) => void): () => void
+  onAuthChange(callback: (state: AuthState<SessionUser>) => void): () => void
+  destroy(): void
+}
+`)
+
+    expect(diagnostics.join('\n')).toContain('addEventListener')
+  })
+})
+
+describe('the bonded utilities type the custom profile', () => {
+  it('offers the profile as a type argument on login() and register()', () => {
+    expect(
+      diagnosticsFor(`
+import { getClient, setClient } from '../provider.js'
+import { login, register } from '../utilities.js'
+import { createJWTAuthClient } from '../client.js'
+import type { AuthResult } from '../types.js'
+
+interface SessionUser {
+  username: string
+  email: string
+  bio: string
+  image: string
+}
+
+setClient(createJWTAuthClient<SessionUser>({}))
+
+export const client = getClient<SessionUser>()
+export const signedIn: AuthResult<SessionUser> = await login<SessionUser>({
+  email: 'ann@example.com',
+  password: 'pw',
+})
+export const signedUp: AuthResult<SessionUser> = await register<
+  { username: string },
+  SessionUser
+>({ email: 'ann@example.com', password: 'pw', username: 'ann' })
+// The registration-extra fields stay the FIRST type argument.
+export const legacyRegister = await register<{ username: string }>({
+  email: 'ann@example.com',
+  password: 'pw',
+  username: 'ann',
+})
+`).join('\n'),
+    ).toEqual('')
+  })
+
+  it('keeps the untyped utilities on the default profile', () => {
+    expect(
+      diagnosticsFor(`
+import { login } from '../utilities.js'
+
+export const signedIn = await login({ email: 'ann@example.com', password: 'pw' })
+export const id: string = signedIn.user.id
+`).join('\n'),
+    ).toEqual('')
+
+    const diagnostics = diagnosticsFor(`
+import { login } from '../utilities.js'
+
+export const signedIn = await login({ email: 'ann@example.com', password: 'pw' })
+// The untyped call is still typed UserProfile: a custom field it does not
+// declare is not readable without naming the profile.
+export const username: string = signedIn.user.username
+`)
+    expect(diagnostics.join('\n')).toContain('username')
   })
 })
 
@@ -342,7 +586,8 @@ const sessionUser: SessionUser = {
 }
 
 /**
- * The wire-preserving adapter: keep every field the API answered with.
+ * The wire-preserving adapter: keep every field the API answered with, and keep
+ * the bearer token out of the cached profile.
  *
  * @param data - The parsed API answer.
  * @returns The adapted auth result.
@@ -358,12 +603,7 @@ const mapAuthResponse = (data: unknown): AuthResult<SessionUser> => {
  *
  * @returns The adapter plus the backing store.
  */
-const createMockStorage = (): {
-  getItem: (key: string) => string | null
-  setItem: (key: string, value: string) => void
-  removeItem: (key: string) => void
-  store: Record<string, string>
-} => {
+const createMockStorage = (): StorageAdapter & { store: Record<string, string> } => {
   const store: Record<string, string> = {}
   return {
     getItem: (key: string) => store[key] ?? null,
@@ -399,6 +639,7 @@ const profileKeys = ['bio', 'email', 'image', 'username']
 describe('the complete custom profile survives the client lifecycle', () => {
   afterEach(() => {
     vi.unstubAllGlobals()
+    unbondSingleton('auth-client')
   })
 
   it('login stores the complete custom object without adding id or aliasing username', async () => {
@@ -464,5 +705,49 @@ describe('the complete custom profile survives the client lifecycle', () => {
       method: 'PUT',
       body: JSON.stringify({ user: { bio: 'updated bio' } }),
     })
+  })
+
+  it('the bonded login/register utilities hand back the real custom profile', async () => {
+    // A REAL bonded client (the same instance `getClient()` resolves), not a
+    // mock: the utilities are typed for the app's profile and return the profile
+    // the API answered with — no `id` invented anywhere.
+    const fetchMock = vi.fn(() => createMockResponse({ user: wireUser }))
+    vi.stubGlobal('fetch', fetchMock)
+    const storage = createMockStorage()
+    setClient(createJWTAuthClient<SessionUser>({ storage, mapAuthResponse }))
+
+    const signedIn: AuthResult<SessionUser> = await login<SessionUser>({
+      email: 'ann@example.com',
+      password: 'pw',
+    })
+    expect(signedIn.user).toEqual(sessionUser)
+    expect(signedIn.user).not.toHaveProperty('id')
+    expect(getClient<SessionUser>().getUser()).toEqual(sessionUser)
+
+    const signedUp: AuthResult<SessionUser> = await register<{ username: string }, SessionUser>({
+      email: 'bo@example.com',
+      password: 'pw',
+      username: 'bo',
+    })
+    expect(signedUp.user.username).toBe('ann')
+    expect(signedUp.user).not.toHaveProperty('id')
+    expect(fetchMock.mock.calls.map((call) => call[1]?.body)).toContain(
+      JSON.stringify({ email: 'bo@example.com', password: 'pw', username: 'bo' }),
+    )
+  })
+
+  it('an empty object profile is a JSON object that round-trips unchanged', async () => {
+    // Why `{}` stays accepted: it is not an invalid form — it is a JSON object
+    // with no fields, persisted and restored faithfully. Rejecting it would also
+    // reject a structurally empty named interface, which the contract keeps.
+    const storage = createMockStorage()
+    const first = createJWTAuthClient<Record<never, never>>({ storage })
+    first.setSession({ accessToken: createJWT(3600), user: {} })
+
+    const restored = createJWTAuthClient<Record<never, never>>({ storage })
+    await restored.initialize()
+
+    expect(restored.isAuthenticated()).toBe(true)
+    expect(restored.getUser()).toEqual({})
   })
 })

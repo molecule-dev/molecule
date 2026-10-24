@@ -175,8 +175,11 @@
  *
  * const config: AuthClientConfig<SessionUser> = {
  *   mapAuthResponse: (data) => {
- *     const { user } = data as { user: { token: string } & SessionUser }
- *     return { accessToken: user.token, user }
+ *     const { user: wire } = data as { user: { token: string } & SessionUser }
+ *     // The bearer stays OUT of the profile: the client caches `user` in Web
+ *     // Storage, where a token copy is readable by any script on the origin.
+ *     const { token, ...profile } = wire
+ *     return { accessToken: token, user: profile }
  *   },
  *   profileEndpoint: (user) => '/people/' + encodeURIComponent(user.username),
  * }
@@ -184,6 +187,11 @@
  * const client = createJWTAuthClient<SessionUser>(config)
  * // `client.getUser()` has `bio`/`image`; there is no `id` to fabricate.
  * ```
+ *
+ * The profile is named at the factory, never inferred from the mapper: an untyped
+ * `createJWTAuthClient({ mapAuthResponse })` stays `UserProfile`, whose required
+ * `id: string` is the default configuration's contract. An array, a function or a
+ * `Date` is not a profile the client can persist — see `AuthProfileShape`.
  *
  * A username-derived `id` can change during a profile save. It is not an immutable
  * session identifier: `getSessionRevision()` tracks session ownership independently

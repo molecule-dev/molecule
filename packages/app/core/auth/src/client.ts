@@ -13,10 +13,11 @@ import { createBrowserStorageAdapter } from './browser-storage.js'
 import { createTokenStorage, getTokenExpiration, isTokenExpired } from './token.js'
 import type {
   AuthClient,
-  AuthClientConfig,
+  AuthClientConfigOptions,
   AuthError,
   AuthEvent,
   AuthEventListener,
+  AuthProfileShape,
   AuthResult,
   AuthState,
   AuthStatus,
@@ -147,10 +148,19 @@ interface SessionCookieRestore<T> {
  * This is a basic implementation that can be extended or replaced
  * with more sophisticated auth providers.
  *
- * @template T - The user profile the API returns: any object type, so a profile
- *   with no `id` (e.g. `{ username, email, bio, image }`) is used as-is. Pass it
- *   to the config too (`AuthClientConfig<T>`), so `mapAuthResponse` is checked
- *   against the same profile the client and the React hook hand to your pages.
+ * `T` is the profile the API returns. The default, `UserProfile`, requires
+ * `id: string`, and an untyped call — `createJWTAuthClient({ mapAuthResponse })`
+ * — KEEPS that default: the profile is never inferred from the mapper, so a
+ * mapper that returns a user without `id` fails to compile instead of quietly
+ * becoming the client's profile. To use the app's own profile, name it here,
+ * `createJWTAuthClient<SessionUser>(config)`; a profile with no `id`
+ * (`{ username, email, bio, image }`) is then used as-is. Pass the same type to
+ * the config (`AuthClientConfig<SessionUser>`), so `mapAuthResponse` and the
+ * write transport are checked against the profile the client and the React
+ * hooks hand to your pages.
+ *
+ * @template T - The user profile the API returns: a JSON object type of named
+ *   fields (see {@link AuthProfileShape}), including a profile with no `id`.
  *   The default, `UserProfile`, requires `id: string`.
  * @template TRegister - The app's own registration fields, accepted at the top
  *   level of `register()` (e.g. `{ username: string }` for a RealWorld-shaped API).
@@ -159,10 +169,10 @@ interface SessionCookieRestore<T> {
  * @returns A fully configured `AuthClient` instance.
  */
 export const createJWTAuthClient = <
-  T extends object = UserProfile,
+  T extends (AuthProfileShape<T> extends object ? object : never) = UserProfile,
   TRegister extends RegisterExtraShape<TRegister> = Record<never, never>,
 >(
-  config: AuthClientConfig<T> = {},
+  config: AuthClientConfigOptions<T> = {},
 ): AuthClient<T, TRegister> => {
   const {
     baseURL = '',
@@ -1152,6 +1162,11 @@ export const createJWTAuthClient = <
     },
 
     addEventListener(listener: AuthEventListener<T>): () => void {
+      // The public signature (on `AuthClient`) also accepts a default
+      // `AuthEventListener` when `T` extends `UserProfile`; its events carry
+      // every `UserProfile` field, so storing it as `AuthEventListener<T>` is
+      // sound. A profile that does not extend `UserProfile` only accepts
+      // `AuthEventListener<T>` — no event claims an `id` the user lacks.
       eventListeners.add(listener)
       return () => eventListeners.delete(listener)
     },

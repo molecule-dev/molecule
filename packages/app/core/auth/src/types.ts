@@ -42,6 +42,50 @@ export interface UserProfile {
 }
 
 /**
+ * The sentence every invalid profile type is rejected with.
+ */
+type AuthProfileRejection =
+  'An auth profile must be a JSON object type of named fields, not an array, a function or a Date'
+
+/**
+ * The profile shapes the auth client accepts: a JSON object type of named
+ * fields, and nothing else.
+ *
+ * The client does not read a field of the profile, but it does persist it:
+ * `tokenStorage.setUser` writes it with `JSON.stringify` and `getUser` restores
+ * it with `JSON.parse`, and `updateProfile(data: Partial<T>)` patches it
+ * field-wise. An array has no named fields to read or patch, `JSON.stringify`
+ * drops a function entirely, and a `Date` comes back from `JSON.parse` as a
+ * string while still typed as a `Date` — so those three types are rejected on
+ * every entrypoint that takes a profile type (`createJWTAuthClient`,
+ * the default-auth factories, `AuthClientConfig`).
+ *
+ * The check is on the TOP-LEVEL shape only: a class instance, or a `Date` in a
+ * nested field, is the app's own persistence contract, not this validator's.
+ * A named `interface`, a type literal, an intersection and the empty object
+ * type all satisfy it — `{}` compiles because it is a JSON object that
+ * round-trips unchanged, not an invalid form.
+ *
+ * @template T - The candidate profile type.
+ */
+export type AuthProfileShape<T> = T extends
+  readonly unknown[] | ((...args: never[]) => unknown) | Date
+  ? AuthProfileRejection
+  : object
+
+/**
+ * Requires a profile type to satisfy {@link AuthProfileShape}: an invalid
+ * profile makes {@link AuthClientConfig} impossible to populate, so the
+ * annotation itself is the error.
+ *
+ * @template T - The candidate profile type.
+ */
+export type AuthProfileGuard<T> =
+  AuthProfileShape<T> extends AuthProfileRejection
+    ? { readonly [K in AuthProfileRejection]: never }
+    : Record<never, never>
+
+/**
  * Email/password login credentials with optional "remember me" flag.
  */
 export interface LoginCredentials {
@@ -277,6 +321,15 @@ export type AuthEvent<T = UserProfile> =
 
 /**
  * Callback invoked when an authentication event occurs (login, logout, etc.).
+ *
+ * A listener is typed by the client's profile: `AuthEventListener<MyUser>`
+ * receives `AuthEvent<MyUser>`, so a sign-in event's `user` is the app's own
+ * shape. On a client whose profile extends {@link UserProfile}, a listener
+ * written against the default `AuthEventListener` is still accepted (those
+ * events carry every `UserProfile` field). A client whose profile does NOT
+ * extend `UserProfile` — an API user with no `id` — must type its listener with
+ * that profile: the default listener would read an `id` the runtime user does
+ * not have.
  *
  * @template T - The user profile the API returns.
  */
@@ -567,8 +620,20 @@ export interface AuthClient<
 
   /**
    * Adds an auth event listener.
+   *
+   * The listener is typed by this client's profile. A client whose profile
+   * extends {@link UserProfile} also accepts a default
+   * {@link AuthEventListener} — those events carry every `UserProfile` field, so
+   * a listener written before listeners became profile-typed keeps compiling.
+   * A profile that does not extend `UserProfile` (no `id`) requires
+   * `AuthEventListener<T>`: no event is typed with an `id` the runtime user
+   * does not have.
    */
-  addEventListener(listener: AuthEventListener<T>): () => void
+  addEventListener(
+    listener: [T] extends [UserProfile]
+      ? AuthEventListener<T> | AuthEventListener<UserProfile>
+      : AuthEventListener<T>,
+  ): () => void
 
   /**
    * Destroys the auth client.
@@ -592,25 +657,44 @@ export interface StorageAdapter {
  *
  * Type it with the app's user — `AuthClientConfig<MyUser>` — the same type
  * `createJWTAuthClient<MyUser>` returns and `useAuth<MyUser>()` reads. That
- * makes {@link mapAuthResponse} return `AuthResult<MyUser>`, so a mapper that
- * omits a required custom field is a type error instead of a signed-in page
- * reading `undefined` (xr-molecule-flash-m255). Keep every wire field the pages
- * read (spread the wire user and add `id`/`name`/`avatar`); mapping a field to a
- * different name does not preserve the original, and a `as unknown as MyUser`
- * assertion hides the loss. See the module docs for the wire-preserving
- * adapter.
+ * makes {@link AuthClientConfigOptions.mapAuthResponse} return
+ * `AuthResult<MyUser>`, so a mapper that omits a required custom field is a type
+ * error instead of a signed-in page reading `undefined`
+ * (xr-molecule-flash-m255). Keep every wire field the pages read (spread the
+ * wire user and add `id`/`name`/`avatar`); mapping a field to a different name
+ * does not preserve the original, and a `as unknown as MyUser` assertion hides
+ * the loss. See the module docs for the wire-preserving adapter.
  *
  * `T` is the app's OWN profile shape and need not extend {@link UserProfile}:
  * the client stores and returns the object it is given and reads no field of
  * it, so an API whose user has no `id` — `{ username, email, bio, image }` —
  * is typed by its own `interface` directly, with no fabricated `id`. The
- * default, {@link UserProfile}, still requires `id: string`; a primitive or
- * `null` profile is rejected.
+ * default, {@link UserProfile}, still requires `id: string`. A primitive,
+ * `null`, an array, a function or a `Date` is rejected — see
+ * {@link AuthProfileShape} for the persistence contract behind that list.
  *
- * @template T - The user profile the API returns: any object type. The default,
- *   {@link UserProfile}, keeps the untyped configuration working.
+ * The type argument is NOT inferred from `mapAuthResponse`: an untyped
+ * `createJWTAuthClient({ mapAuthResponse })` stays typed `UserProfile`, so the
+ * default configuration keeps requiring `id: string`. Name the profile at the
+ * factory (`createJWTAuthClient<MyUser>(config)`) — which also checks this
+ * config against `MyUser`.
+ *
+ * @template T - The user profile the API returns: a JSON object type of named
+ *   fields. The default, {@link UserProfile}, keeps the untyped configuration
+ *   working.
  */
-export interface AuthClientConfig<T extends object = UserProfile> {
+export type AuthClientConfig<T extends object = UserProfile> = AuthClientConfigOptions<T> &
+  AuthProfileGuard<T>
+
+/**
+ * Every option {@link AuthClientConfig} accepts, typed by the profile.
+ *
+ * Use `AuthClientConfig<T>` rather than this type: it adds the profile-shape
+ * check. This interface exists so each member's documentation is addressable.
+ *
+ * @template T - The user profile the API returns.
+ */
+export interface AuthClientConfigOptions<T extends object = UserProfile> {
   /**
    * API base URL.
    */
@@ -743,10 +827,17 @@ export interface AuthClientConfig<T extends object = UserProfile> {
    * It is NOT applied to `setSession()` or `setUser()`: those receive a profile
    * the caller already built in this client's shape, not a wire answer.
    *
+   * The return type does NOT infer the profile: an untyped
+   * `createJWTAuthClient({ mapAuthResponse })` stays `UserProfile`, so a mapper
+   * that returns a no-id profile fails to compile there instead of silently
+   * replacing the default with whatever the mapper happened to return. Name the
+   * profile on the factory (`createJWTAuthClient<MyUser>({ mapAuthResponse })`)
+   * to use a custom one.
+   *
    * @param data - The parsed response body.
    * @returns The auth result.
    */
-  mapAuthResponse?: (data: unknown) => AuthResult<T>
+  mapAuthResponse?: (data: unknown) => AuthResult<NoInfer<T>>
 
   /**
    * Where the access/refresh token and the cached user are kept — the field that

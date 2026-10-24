@@ -280,7 +280,7 @@ export const client = createJWTAuthClient<AppUser>({
       source("{ id: 'ann', email: 'ann@example.com', name: 'ann' }"),
     )
 
-    expect(diagnostics.join('\n')).toContain('AuthResult<AppUser>')
+    expect(diagnostics.join('\n')).toContain('AuthResult<NoInfer<AppUser>>')
     expect(diagnostics.join('\n')).toContain('username')
     expect(diagnostics.join('\n')).toContain('image')
   })
