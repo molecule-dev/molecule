@@ -9,25 +9,54 @@
  */
 
 import { getProvider } from './provider.js'
+import type { AnalyticsUserProps } from './types.js'
 
 // ============================================================================
 // Minimal interfaces — web
 // ============================================================================
 
 /**
- * Minimal auth event shape (mirrors `@molecule/app-auth` AuthEvent).
+ * The default auth profile: an immutable `id` plus the traits analytics records.
+ *
+ * An app whose auth client carries its OWN profile (no `id`) still auto-tracks
+ * auth events — it passes `identifyUser` to say which field identifies the user
+ * (see {@link AutoTrackingOptions}).
  */
-interface AuthEvent {
+export interface AnalyticsAuthUser {
+  /** Unique user identifier. */
+  id: string
+  /** User email address. */
+  email?: string
+  /** User display name. */
+  name?: string
+}
+
+/**
+ * Maps a signed-in profile to the identity analytics records for it.
+ *
+ * Return `null` when this session has no stable identity to record (an
+ * anonymous or throwaway session): the sign-in is then tracked without an
+ * `identify` call instead of sending an undefined `userId`.
+ *
+ * @template TUser - The app's own profile shape.
+ */
+export type IdentifyUser<TUser> = (user: TUser) => AnalyticsUserProps | null
+
+/**
+ * Minimal auth event shape (mirrors `@molecule/app-auth` AuthEvent), typed by
+ * the app's profile.
+ */
+interface AuthEventLike<TUser> {
   type: 'login' | 'logout' | 'register' | 'refresh' | 'error'
-  user?: { id: string; email?: string; name?: string }
+  user?: TUser
   error?: string
 }
 
 /**
  * Minimal auth client interface for auto-tracking.
  */
-interface AuthClientLike {
-  addEventListener(listener: (event: AuthEvent) => void): () => void
+interface AuthClientLike<TUser> {
+  addEventListener(listener: (event: AuthEventLike<TUser>) => void): () => void
 }
 
 /**
@@ -120,12 +149,27 @@ interface PushClientLike {
 // ============================================================================
 
 /**
- * Auto-tracking options. Pass any combination of sources — only provided
- * sources are tracked. Works for both web and mobile apps.
+ * Auto-tracking sources and the identity adapter. Pass any combination of
+ * sources — only provided sources are tracked. Works for both web and mobile
+ * apps.
+ *
+ * `TUser` is the profile the auth client hands to its listeners. The default,
+ * {@link AnalyticsAuthUser}, has an `id`, and it is identified by that field
+ * with no extra wiring. An app whose profile has no `id` (e.g.
+ * `{ username, email, bio }`) passes an `identifyUser` extractor; it is
+ * REQUIRED for such a profile, so a client cannot be wired into tracking with
+ * no identity at all and `userId: undefined` never reaches a provider.
+ *
+ * @template TUser - The auth client's profile shape.
  */
-export interface AutoTrackingOptions {
+export type AutoTrackingOptions<TUser extends object = AnalyticsAuthUser> = {
   /** Auth client for login/logout/register/error events. */
-  authClient?: AuthClientLike
+  authClient?: AuthClientLike<TUser>
+  /**
+   * Which field of the profile identifies the user in analytics — required when
+   * the profile has no `id: string`. The default reads `id`, `email` and `name`.
+   */
+  identifyUser?: IdentifyUser<TUser>
   /** Router for page view tracking. */
   router?: RouterLike
   /** HTTP client for error tracking. */
@@ -134,7 +178,9 @@ export interface AutoTrackingOptions {
   lifecycleClient?: LifecycleClientLike
   /** Push client for notification received/tapped tracking. */
   pushClient?: PushClientLike
-}
+} & ([TUser] extends [{ id: string }]
+  ? { identifyUser?: IdentifyUser<TUser> }
+  : { identifyUser: IdentifyUser<TUser> })
 
 /**
  * Sets up automatic analytics tracking for auth events, route changes,
@@ -156,6 +202,12 @@ export interface AutoTrackingOptions {
  *   httpClient: getHttp(),
  * })
  *
+ * // An app whose profile has no `id` says which field identifies the user:
+ * const cleanup = setupAutoTracking({
+ *   authClient: authClient, // createJWTAuthClient<SessionUser>(…)
+ *   identifyUser: (user) => ({ userId: user.username, email: user.email }),
+ * })
+ *
  * // Mobile app (React Native) — add lifecycle and push
  * const cleanup = setupAutoTracking({
  *   authClient: getClient(),
@@ -172,44 +224,61 @@ export interface AutoTrackingOptions {
  * @param options - Sources to auto-track.
  * @returns A cleanup function that removes all event subscriptions.
  */
-export const setupAutoTracking = (options: AutoTrackingOptions): (() => void) => {
+export const setupAutoTracking = <TUser extends object = AnalyticsAuthUser>(
+  options: AutoTrackingOptions<TUser>,
+): (() => void) => {
   const cleanups: (() => void)[] = []
   // Resolve the provider per event — capturing getProvider() once at setup
   // permanently baked in the no-op provider whenever setupAutoTracking() ran
   // before the analytics bond was set, silently dropping every event forever.
   const analytics = (): ReturnType<typeof getProvider> => getProvider()
 
+  /**
+   * The identity to record for a profile: the app's own extractor when given,
+   * otherwise the default `id`/`email`/`name` fields. `null` means this session
+   * has no identity to record — no `identify`, and no `userId` on the event.
+   *
+   * @param user - The profile a sign-in event carried.
+   * @returns The identity, or `null` when none can be read.
+   */
+  const identityOf = (user: TUser): AnalyticsUserProps | null => {
+    if (options.identifyUser) return options.identifyUser(user)
+    if (!('id' in user) || typeof user.id !== 'string' || user.id === '') return null
+    const identity: AnalyticsUserProps = { userId: user.id }
+    if ('email' in user && typeof user.email === 'string') identity.email = user.email
+    if ('name' in user && typeof user.name === 'string') identity.name = user.name
+    return identity
+  }
+
+  /**
+   * Identifies the signed-in user and tracks the sign-in event.
+   *
+   * @param name - `auth.login` or `auth.register`.
+   * @param user - The profile the event carried.
+   */
+  const trackSignIn = (name: 'auth.login' | 'auth.register', user: TUser | undefined): void => {
+    if (!user) return
+    const identity = identityOf(user)
+    // No identity means the app said this session has none (or the profile has
+    // no id and no extractor reached this client); never send `userId: undefined`.
+    if (!identity) return
+    analytics()
+      .identify(identity)
+      .catch(() => {})
+    analytics()
+      .track({ name, properties: { userId: identity.userId } })
+      .catch(() => {})
+  }
+
   // Auth events
   if (options.authClient) {
     const removeListener = options.authClient.addEventListener((event) => {
       switch (event.type) {
         case 'login':
-          if (event.user) {
-            analytics()
-              .identify({
-                userId: event.user.id,
-                email: event.user.email,
-                name: event.user.name,
-              })
-              .catch(() => {})
-            analytics()
-              .track({ name: 'auth.login', properties: { userId: event.user.id } })
-              .catch(() => {})
-          }
+          trackSignIn('auth.login', event.user)
           break
         case 'register':
-          if (event.user) {
-            analytics()
-              .identify({
-                userId: event.user.id,
-                email: event.user.email,
-                name: event.user.name,
-              })
-              .catch(() => {})
-            analytics()
-              .track({ name: 'auth.register', properties: { userId: event.user.id } })
-              .catch(() => {})
-          }
+          trackSignIn('auth.register', event.user)
           break
         case 'logout':
           analytics()
