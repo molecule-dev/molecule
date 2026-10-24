@@ -45,10 +45,10 @@ jobs:
       # the push before-sha / PR merge-base, which a shallow clone would not
       # contain. Without the history it falls back to a full run (safe, just
       # slow), so this is what actually lets the scoping engage.
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '22.23.4'
           cache: npm
@@ -75,7 +75,7 @@ jobs:
       # Without this, one changed file busts a single fleet-wide hash and all
       # ~914 packages rebuild — which is what the 5-file "version packages"
       # commit did. Now it rebuilds 5.
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         id: build-cache
         with:
           path: |
@@ -156,7 +156,7 @@ jobs:
           FILTER: ${{ steps.test-scope.outputs.filter }}
       - name: Retain native deployment proof
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: native-node-deployment-${{ github.sha }}
           path: |
@@ -211,10 +211,10 @@ jobs:
     steps:
       # fetch-depth: 0 so affected-projects.mjs can diff the base — same reason
       # as the build job.
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '22.23.4'
           cache: npm
@@ -247,8 +247,8 @@ jobs:
   security:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: '22.23.4'
           cache: npm
