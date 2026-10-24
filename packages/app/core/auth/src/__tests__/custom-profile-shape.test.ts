@@ -533,6 +533,8 @@ export const config: AuthClientConfig<${profile}> = {}
     }
   })
 
+  // Four profiles × four entrypoints is sixteen full TypeScript programs; under a
+  // loaded machine that is CPU-bound, not a hang.
   it('rejects array, function and Date profiles at every entrypoint', () => {
     for (const profile of ['string[]', 'readonly string[]', '() => void', 'Date']) {
       const factory = diagnosticsFor(`
@@ -566,7 +568,7 @@ export const signedIn = login<${profile}>({ email: 'a@b.test', password: 'pw' })
 `)
       expect(accessor.join('\n'), profile).toContain(`Type '${profile}' does not satisfy`)
     }
-  })
+  }, 30_000)
 
   it('keeps named interfaces, type aliases and the empty object type accepted', () => {
     expect(
