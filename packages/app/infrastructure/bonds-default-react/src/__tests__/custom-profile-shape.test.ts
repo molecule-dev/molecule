@@ -8,8 +8,10 @@
  * scaffolded app wires in `bonds/auth-default.ts` still rejected the profile the
  * factory beneath them accepts. Every probe here compiles through the PUBLIC
  * entrypoint (`@molecule/app-bonds-default-react`) and the three factories it
- * exports, and the known-bad control reproduces the old constraint so a revert
- * fails this suite.
+ * exports. The acceptance probes are POSITIVE controls: they fail on the pre-fix
+ * wrappers (verified against 4363aa74c's parent), so a revert fails this suite.
+ * The negative probes keep the untyped default (`UserProfile`, `id: string`) and
+ * reject array/function/`Date` profiles.
  *
  * The runtime cases prove the complete custom object survives login, session
  * restoration and a profile save through the REAL default wiring (bonded client,
@@ -108,6 +110,8 @@ ${body}
 
 describe('a no-id custom profile reaches every default wrapper', () => {
   it('accepts the no-id interface in all three public factories', () => {
+    // POSITIVE control: these compile only on the fixed wrappers — against the
+    // pre-fix `TUser extends UserProfile` they fail on the missing `id`.
     expect(
       diagnosticsFor(
         customProfileSource(`
@@ -125,31 +129,47 @@ export const bio: string | undefined = fetched.authClient.getUser()?.bio
     ).toEqual('')
   })
 
-  it('known-bad control: the old extends UserProfile wrappers reject it', () => {
-    // The exact parameter list the three wrappers shipped with before the fix.
+  it('infers the profile from a config the caller annotated', () => {
+    expect(
+      diagnosticsFor(
+        customProfileSource(`
+export const { authClient } = createDefaultAuthClient(config)
+export const username: string | undefined = authClient.getUser()?.username
+`),
+      ).join('\n'),
+    ).toEqual('')
+  })
+
+  it('does NOT take the profile from an untyped mapper', () => {
+    // The wrappers keep the factory's strict default: an untyped call is
+    // `UserProfile`, whose required `id: string` a no-id mapper does not satisfy.
     const diagnostics = diagnosticsFor(`
-import type { AuthClient, AuthClientConfig, RegisterExtraShape, UserProfile } from '@molecule/app-auth'
+import { createDefaultAuthClient } from '../index.js'
 
-interface SessionUser {
-  username: string
-  email: string
-  bio: string
-  image: string
-}
-
-declare function legacyDefaultAuthClient<
-  TUser extends UserProfile = UserProfile,
-  TRegister extends RegisterExtraShape<TRegister> = Record<never, never>,
->(authConfig: AuthClientConfig<TUser>): { authClient: AuthClient<TUser, TRegister> }
-
-const config: AuthClientConfig<SessionUser> = {}
-
-export const explicit = legacyDefaultAuthClient<SessionUser>(config)
-export const inferred = legacyDefaultAuthClient(config)
+export const { authClient } = createDefaultAuthClient({
+  mapAuthResponse: () => ({ accessToken: 'token', user: { username: 'ann' } }),
+})
 `)
 
-    expect(diagnostics.join('\n')).toContain("Property 'id' is missing")
-    expect(diagnostics.length).toBeGreaterThanOrEqual(2)
+    expect(diagnostics.join('\n')).toContain('AuthResult<NoInfer<UserProfile>>')
+    expect(diagnostics.join('\n')).toContain('id')
+  })
+
+  it('rejects array, function and Date profiles in every wrapper', () => {
+    for (const profile of ['string[]', '() => void', 'Date']) {
+      const diagnostics = diagnosticsFor(`
+import {
+  createDefaultAuthClient,
+  createDefaultAuthClientWithFetchClient,
+  createDefaultAuthClientWithHttpSync,
+} from '../index.js'
+
+export const plain = createDefaultAuthClient<${profile}>({})
+export const synced = createDefaultAuthClientWithHttpSync<${profile}>({})
+export const fetched = createDefaultAuthClientWithFetchClient<${profile}>({}, { baseURL: '/api' })
+`)
+      expect(diagnostics.join('\n'), profile).toContain(`Type '${profile}' does not satisfy`)
+    }
   })
 
   it('keeps a custom identity field at its declared type', () => {
@@ -236,7 +256,7 @@ export const { authClient } = createDefaultAuthClient<SessionUser>({
 })
 `)
 
-    expect(diagnostics.join('\n')).toContain('AuthResult<SessionUser>')
+    expect(diagnostics.join('\n')).toContain('AuthResult<NoInfer<SessionUser>>')
     expect(diagnostics.join('\n')).toContain('bio')
   })
 

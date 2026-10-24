@@ -1,6 +1,8 @@
 import type {
   AuthClient,
-  AuthClientConfig,
+  AuthClientConfigOptions,
+  AuthEvent,
+  AuthProfileShape,
   RegisterExtraShape,
   UserProfile,
 } from '@molecule/app-auth'
@@ -128,12 +130,13 @@ export function createDefaultHttpClientWithAuthBearer(opts: {
  * apps shipped byte-identically. Apps pass their own `authConfig`
  * (which lives in `src/config.ts`).
  *
- * `TUser` is the profile the app's pages read, and may be any object type —
+ * `TUser` is the profile the app's pages read, and may be any JSON object type —
  * including a profile with NO `id` (`{ username, email, bio, image }`), exactly
  * like the factory beneath this wrapper. Never add a synthetic `id` to satisfy a
  * type: nothing in the client reads it, and the fabricated value then travels into
  * storage, `getUser()` and every page. Omit the type parameter and the default is
- * `UserProfile`, whose `id: string` stays required.
+ * `UserProfile`, whose `id: string` stays required — the profile is never inferred
+ * from `authConfig`, so an untyped wrapper call keeps the default contract.
  *
  * Type the config with the SAME type (`const authConfig: AuthClientConfig<MyUser> = { … }`)
  * so its `mapAuthResponse` is checked against `MyUser`: a mapper that omits a
@@ -155,10 +158,10 @@ export function createDefaultHttpClientWithAuthBearer(opts: {
  * ```
  */
 export function createDefaultAuthClient<
-  TUser extends object = UserProfile,
+  TUser extends (AuthProfileShape<TUser> extends object ? object : never) = UserProfile,
   TRegister extends RegisterExtraShape<TRegister> = Record<never, never>,
 >(
-  authConfig: AuthClientConfig<TUser>,
+  authConfig: AuthClientConfigOptions<TUser>,
 ): {
   authClient: AuthClient<TUser, TRegister>
   setupAuthDefault: () => void
@@ -177,8 +180,8 @@ export function createDefaultAuthClient<
  * client must carry the JWT on every request — without this wiring,
  * authed endpoints return 401 after page reloads or token refresh.
  *
- * The profile type is `createDefaultAuthClient`'s: any object type, including an app
- * profile with no `id`.
+ * The profile type is `createDefaultAuthClient`'s: a JSON object type of named
+ * fields (see `AuthProfileShape`), including an app profile with no `id`.
  *
  * Hydrates the HTTP client's token from the persisted auth state
  * on setup, then listens for auth events to keep them aligned, and holds
@@ -193,10 +196,10 @@ export function createDefaultAuthClient<
  * bonded, so setup order no longer decides whether the first request is authorized.
  */
 export function createDefaultAuthClientWithHttpSync<
-  TUser extends object = UserProfile,
+  TUser extends (AuthProfileShape<TUser> extends object ? object : never) = UserProfile,
   TRegister extends RegisterExtraShape<TRegister> = Record<never, never>,
 >(
-  authConfig: AuthClientConfig<TUser>,
+  authConfig: AuthClientConfigOptions<TUser>,
 ): {
   authClient: AuthClient<TUser, TRegister>
   setupAuthDefault: () => void
@@ -214,7 +217,7 @@ export function createDefaultAuthClientWithHttpSync<
       // one already bonded; a client kept from this moment would be the throwaway
       // fallback the later `setHttpDefault()` replaces.
       setHttpAuthTokenSource(() => authClient.getAccessToken())
-      authClient.addEventListener((event) => {
+      authClient.addEventListener((event: AuthEvent<TUser>) => {
         if (event.type === 'login' || event.type === 'register' || event.type === 'refresh') {
           // Mirror the auth client's token EXACTLY — including null. Cookie-session
           // APIs issue no body token (the credential is the httpOnly cookie), and
@@ -251,14 +254,14 @@ export function createDefaultAuthClientWithHttpSync<
  * {@link registerAuthGate}), so a page that fetches viewer-dependent data on
  * mount cannot race it and answer for an anonymous viewer.
  *
- * The profile type is `createDefaultAuthClient`'s: any object type, including an app
- * profile with no `id`.
+ * The profile type is `createDefaultAuthClient`'s: a JSON object type of named
+ * fields (see `AuthProfileShape`), including an app profile with no `id`.
  */
 export function createDefaultAuthClientWithFetchClient<
-  TUser extends object = UserProfile,
+  TUser extends (AuthProfileShape<TUser> extends object ? object : never) = UserProfile,
   TRegister extends RegisterExtraShape<TRegister> = Record<never, never>,
 >(
-  authConfig: AuthClientConfig<TUser>,
+  authConfig: AuthClientConfigOptions<TUser>,
   fetchClientOptions: { baseURL: string; withCredentials?: boolean },
 ): {
   authClient: AuthClient<TUser, TRegister>
@@ -279,7 +282,7 @@ export function createDefaultAuthClientWithFetchClient<
       setHttpClient(httpClient)
       setClient(authClient)
       registerAuthGate(authClient)
-      authClient.addEventListener((event) => {
+      authClient.addEventListener((event: AuthEvent<TUser>) => {
         if (event.type === 'login' || event.type === 'register' || event.type === 'refresh') {
           // Mirror the token exactly, including null — see the identical note in
           // createDefaultAuthClientWithHttpSync (stale bearer = stuck prior session).
