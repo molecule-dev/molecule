@@ -50,7 +50,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: '22.23.4'
           cache: npm
       # Shared with release.yml via an IDENTICAL key, so whichever workflow runs
       # first builds and the other restores — one build per commit, not two.
@@ -216,7 +216,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: '22.23.4'
           cache: npm
       - run: npm ci
       # eslint is per-file, so linting only the affected package dirs (changed +
@@ -250,7 +250,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: '22.23.4'
           cache: npm
       # npm audit reads the committed lockfile; this job needs no installed tree.
       # Fail on a moderate-or-higher dependency advisory. Mirrors mlcl's gate —
