@@ -265,6 +265,15 @@ export function setupAutoTracking(options: AutoTrackingOptions<AnalyticsAuthUser
 export function setupAutoTracking<TUser extends object>(
   options: AutoTrackingOptions<TUser> & IdentityRequirement<TUser>,
 ): () => void
+/**
+ * Keeps derived options (`Parameters<typeof setupAutoTracking>[0]`) on the default profile.
+ * The first default overload also supplies contextual typing for nested untyped client calls;
+ * the custom-profile overload between them requires an identity extractor where needed.
+ *
+ * @param options - Sources to auto-track with the default profile.
+ * @returns A cleanup function that removes all event subscriptions.
+ */
+export function setupAutoTracking(options: AutoTrackingOptions<AnalyticsAuthUser>): () => void
 export function setupAutoTracking<TUser extends object = AnalyticsAuthUser>(
   options: AutoTrackingOptions<TUser>,
 ): () => void {

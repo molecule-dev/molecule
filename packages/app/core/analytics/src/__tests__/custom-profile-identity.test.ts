@@ -441,6 +441,25 @@ export const cleanup = setupAutoTracking({ authClient })
     ).toEqual('')
   })
 
+  it('keeps the derived default options bag and forwarding wrapper compatible', () => {
+    expect(
+      diagnosticsFor(`
+import { createJWTAuthClient, getClient } from '@molecule/app-auth'
+
+import { setupAutoTracking } from '../auto-tracking.js'
+
+type DefaultOptions = Parameters<typeof setupAutoTracking>[0]
+const options: DefaultOptions = { authClient: createJWTAuthClient({}) }
+export const cleanup = setupAutoTracking(options)
+
+export function startTracking(options: DefaultOptions): () => void {
+  return setupAutoTracking(options)
+}
+startTracking({ authClient: getClient() })
+`).join('\n'),
+    ).toEqual('')
+  })
+
   it('rejects an extractor that invents an id the profile does not have', () => {
     const diagnostics = diagnosticsFor(`${customClient}
 export const cleanup = setupAutoTracking({
