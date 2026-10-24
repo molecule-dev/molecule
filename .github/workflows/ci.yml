@@ -178,7 +178,8 @@ jobs:
       # mean that guard only ever runs on a developer's machine.
       # The preview and Playwright bonds also launch Chromium in integration tests.
       # Reuse the exact test scope: empty/unknown means full, otherwise only these
-      # actual browser consumers need a binary (ai-tools has source-string fixtures).
+      # actual browser consumers need a binary. ai-tools also replays recorded
+      # trace snapshots in Chromium; its real DOM checks need the browser too.
       # Pin the browser to @playwright/test. ubuntu-latest already has browser
       # runtime libraries; do not upgrade apt packages here. Launch once so
       # missing libraries fail even for bonds with optional local-browser tests.
@@ -186,7 +187,7 @@ jobs:
       - name: Install Chromium for affected browser tests
         shell: bash
         run: |
-          if [ -z "$FILTER" ] || printf '%s\n' "$FILTER" | grep -Eq '(^|[[:space:]])packages/app/(features/e2e-fixtures-default|bonds/e2e/(preview|playwright))([[:space:]]|$)'; then
+          if [ -z "$FILTER" ] || printf '%s\n' "$FILTER" | grep -Eq '(^|[[:space:]])packages/(api/core/ai-tools|app/(features/e2e-fixtures-default|bonds/e2e/(preview|playwright)))([[:space:]]|$)'; then
             npx --yes playwright@1.64.1 install chromium
             node --input-type=module -e "import { chromium } from '@playwright/test'; const browser = await chromium.launch(); await browser.close();"
           fi

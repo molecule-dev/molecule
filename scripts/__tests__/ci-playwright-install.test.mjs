@@ -78,6 +78,7 @@ function execute(filter, { installExit = 0, scopeExit = 0, browserExit = 0 } = {
 
 describe('CI Chromium follows the affected test scope', () => {
   it.each([
+    'packages/api/core/ai-tools', // Trace-count replay executes a real browser.
     'packages/app/features/e2e-fixtures-default',
     'packages/app/bonds/e2e/preview',
     'packages/app/bonds/e2e/playwright',
@@ -93,7 +94,7 @@ describe('CI Chromium follows the affected test scope', () => {
   })
 
   it.each([
-    'packages/api/core/ai-tools', // Browser source strings are parser fixtures.
+    'packages/api/core/ai-tools-extra', // Exact package token, not prefix.
     'scripts/__tests__',
     'packages/app/bonds/e2e/preview-extra', // Exact package token, not prefix.
   ])('skips the browser download for a nonbrowser selection: %s', (filter) => {
