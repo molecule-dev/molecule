@@ -515,6 +515,8 @@ export const client = createJWTAuthClient({
     expect(diagnostics.join('\n')).toContain('id')
   })
 
+  // Three profiles × two entrypoints is six full TypeScript programs — the CPU-bound
+  // shape the neighbouring tests budget 30 s for (CI timed out here at 5 s, 2026-10-24).
   it('rejects primitive and null profiles in the factory and the config', () => {
     for (const profile of ['string', 'number', 'null']) {
       const factory = diagnosticsFor(`
@@ -531,7 +533,7 @@ export const config: AuthClientConfig<${profile}> = {}
 `)
       expect(config.join('\n'), profile).not.toEqual('')
     }
-  })
+  }, 30_000)
 
   // Four profiles × four entrypoints is sixteen full TypeScript programs; under a
   // loaded machine that is CPU-bound, not a hang.
