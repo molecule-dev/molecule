@@ -965,25 +965,25 @@ function playwrightStatement(
 }
 
 /**
- * What narrows a Playwright run to a part of the suite: a named file or line, a title filter, or
- * the tests the run before it printed (`--last-failed`, `--only-changed`).
- */
-const NARROWED_RUN =
-  /\.(?:spec|test)\.[cm]?[jt]sx?\b|\.[cm]?[jt]sx?:\d+|(?:^|\s)(?:-g|--grep(?:-invert)?|--last-failed|--only-changed)\b/
-
-/**
- * The part of {@link NARROWED_RUN} a redeploy's targeted proof is composed from: spec files and
- * `file:line` locations. The graded proof re-runs what the last walk left, so these are its own
- * scope.
+ * What narrows a Playwright run to a part of the suite by naming the failures themselves: spec
+ * files and `file:line` locations. These are the selections a redeploy's targeted proof is
+ * composed from.
  */
 const NAMED_SELECTION = /\.(?:spec|test)\.[cm]?[jt]sx?\b|\.[cm]?[jt]sx?:\d+/
 
 /**
- * The narrowers that are a diagnosis however they were launched: a title filter, or the failures
- * the run before it printed. A cap is a diagnosis too, but {@link boundsFailures} reads it before
- * this point because its own "no cap" spelling (`--max-failures=0`) has to be told apart.
+ * What narrows a Playwright run by a title filter, or by the failures the run before it printed.
+ * These are diagnoses however the run was launched. A cap is a diagnosis too, but
+ * {@link boundsFailures} reads it before this point because its own "no cap" spelling
+ * (`--max-failures=0`) has to be told apart.
  */
 const FILTERED_SELECTION = /(?:^|\s)(?:-g|--grep|--grep-invert|-G|--last-failed|--only-changed)\b/
+
+/**
+ * What narrows a Playwright run to a part of the suite: either of the two above. Built from their
+ * own sources so the two readings cannot drift apart.
+ */
+const NARROWED_RUN = new RegExp(`(?:${NAMED_SELECTION.source})|(?:${FILTERED_SELECTION.source})`)
 
 /**
  * Whether a narrowed invocation is narrowed ONLY by the failures it names — the selection the
