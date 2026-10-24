@@ -492,4 +492,52 @@ describe('the complete custom profile survives the real default wiring', () => {
       body: JSON.stringify({ user: { bio: 'updated bio' } }),
     })
   })
+
+  it('a save in flight cannot overwrite a session that replaced it, without an id', async () => {
+    // Session ownership is keyed on the session revision, never on a profile field — so a
+    // profile with no `id` must not lose the guarantee: a save that resolves after the
+    // session was replaced answers with the saved profile but must not publish it.
+    const otherUser: SessionUser = {
+      username: 'bo',
+      email: 'bo@example.com',
+      bio: 'other user',
+      image: 'https://example.com/bo.png',
+    }
+    let release!: () => void
+    const held = new Promise<void>((resolve) => {
+      release = resolve
+    })
+    const fetchMock = vi.fn(async () => {
+      await held
+      return new Response(JSON.stringify({ user: { ...wireUser, bio: 'stale save' } }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    const storage = createMockStorage()
+    const config: AuthClientConfig<SessionUser> = {
+      storage,
+      mapAuthResponse,
+      profileEndpoint: (user) => '/people/' + encodeURIComponent(user.username),
+      profileRequestBody: (data) => ({ user: data }),
+    }
+    const { authClient, setupAuthDefault } = createDefaultAuthClient<SessionUser>(config)
+    setupAuthDefault()
+    authClient.setSession({ accessToken: createJWT(3600), user: sessionUser })
+
+    const saving = authClient.updateProfile({ bio: 'stale save' })
+    await Promise.resolve()
+    const otherToken = createJWT(7200)
+    authClient.setSession({ accessToken: otherToken, user: otherUser })
+    release()
+
+    const answered = await saving
+
+    expect(answered).toEqual({ ...sessionUser, bio: 'stale save' })
+    expect(authClient.getUser()).toEqual(otherUser)
+    expect(authClient.getAccessToken()).toBe(otherToken)
+    expect(JSON.parse(storage.store['molecule:auth:user'] ?? 'null')).toEqual(otherUser)
+  })
 })
