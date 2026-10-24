@@ -9,14 +9,18 @@
  * the profile through `identifyUser`, and a profile with no `id` cannot be
  * wired without one — so `userId: undefined` never reaches a provider.
  *
- * The runtime cases drive the real listener the setup registers; the compile
- * probes go through the public `@molecule/app-auth` client type.
+ * The runtime cases drive the real listener the setup registers; one of them
+ * drives a REAL `@molecule/app-auth` client through login, register and logout,
+ * so the events come from the client an app actually bonds. The compile probes
+ * go through the public `@molecule/app-auth` client type.
  */
 
 import { join } from 'node:path'
 
 import ts from 'typescript'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+
+import { createJWTAuthClient } from '@molecule/app-auth'
 
 import { setupAutoTracking } from '../auto-tracking.js'
 import { setProvider } from '../provider.js'
@@ -194,6 +198,53 @@ describe('a profile with no id is identified through the app’s own field', () 
       name: 'auth.login',
       properties: { userId: 'acct_1' },
     })
+  })
+})
+
+describe('a real custom-profile auth client drives the auth analytics', () => {
+  it('identifies and tracks login, register and logout from the bonded client', async () => {
+    // The REAL client (not a double): its own events are what the analytics
+    // wiring listens to, so a missing `id` has to be handled end to end.
+    const fetchMock = vi.fn(async (url: string) => {
+      const user = url.includes('register')
+        ? { username: 'bo', email: 'bo@example.com', bio: '' }
+        : { username: 'ann', email: 'ann@example.com', bio: 'writes' }
+      return new Response(JSON.stringify({ user }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      })
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    const authClient = createJWTAuthClient<SessionUser>({
+      storage: 'memory',
+      autoRefresh: false,
+      mapAuthResponse: (data) => {
+        const answer = data as { user: SessionUser }
+        return { accessToken: 'token', user: answer.user }
+      },
+    })
+    const cleanup = setupAutoTracking<SessionUser>({
+      authClient,
+      identifyUser: (user) => ({ userId: user.username, email: user.email }),
+    })
+
+    await authClient.login({ email: 'ann@example.com', password: 'pw' })
+    expect(mockIdentify).toHaveBeenCalledWith({ userId: 'ann', email: 'ann@example.com' })
+    expect(mockTrack).toHaveBeenCalledWith({ name: 'auth.login', properties: { userId: 'ann' } })
+
+    vi.clearAllMocks()
+    await authClient.register({ email: 'bo@example.com', password: 'pw' })
+    expect(mockIdentify).toHaveBeenCalledWith({ userId: 'bo', email: 'bo@example.com' })
+    expect(mockTrack).toHaveBeenCalledWith({ name: 'auth.register', properties: { userId: 'bo' } })
+
+    vi.clearAllMocks()
+    await authClient.logout()
+    expect(mockTrack).toHaveBeenCalledWith({ name: 'auth.logout' })
+    expect(mockReset).toHaveBeenCalled()
+
+    cleanup()
+    vi.unstubAllGlobals()
   })
 })
 
