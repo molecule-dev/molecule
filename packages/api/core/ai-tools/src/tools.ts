@@ -3312,9 +3312,18 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           // restart (see reportByTask). A run whose reporter set is not this tool's to place — or
           // one that already writes a report of its own — comes back with no report path and is
           // launched exactly as before.
+          //
+          // `platform_proof` is a launch-side flag of the PLATFORM's own, not a parameter of this
+          // tool: molecule-dev's `runProofCommand` sets it on the input it hands this handler when
+          // the command it starts IS the graded proof, so the rewrite keeps the suite's retries on
+          // a redeploy's targeted proof (xr-molecule-flash-l48 +26:35). No model call carries it —
+          // it is absent from the schema — and a run without it is read exactly as before.
           const streaming = streamingBackgroundCommand(
             command,
-            { approvedExclusions: excludedTestTitles?.() ?? [] },
+            {
+              approvedExclusions: excludedTestTitles?.() ?? [],
+              platformProof: input.platform_proof === true,
+            },
             playwrightReportPathFor(id),
           )
           // A command that starts the suite more than once is refused here, before anything is

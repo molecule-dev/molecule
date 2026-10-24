@@ -3260,6 +3260,34 @@ describe('exec_command run_in_background', () => {
     expect(r.note).not.toContain('Dropped')
   })
 
+  it('keeps the suite’s retries on a launch the platform marks as its own proof (l48)', async () => {
+    // molecule-dev's `runProofCommand` starts the platform's composed proof through this very
+    // tool, marking the launch with `platform_proof` — an input key this tool's schema never
+    // advertises, so no model call carries it. A redeploy's proof names the failures it re-runs,
+    // so without the mark the rewrite reads the command as a diagnosis and splices `--retries=0`
+    // back on, after the composer had taken the executor's overrides off (xr-molecule-flash-l48).
+    const proof =
+      'cd /workspace/my-app/app && BASE_URL=https://x.apps.mlcl.dev TEST_MODE=fullstack ' +
+      'npx playwright test specs/e2e/url-navigation.spec.ts:33 ' +
+      'specs/e2e/url-navigation.spec.ts:90 ' +
+      "--grep-invert 'should require login to post comment' --config e2e-suite.config.ts"
+    /** The script this tool writes (i.e. the command it will run) for one launch. */
+    const launched = async (extra: Record<string, unknown>): Promise<string> => {
+      const backend = bgBackend()
+      const exec = buildTools(backend).find((t) => t.name === 'exec_command')!
+      const r = (await exec.execute({
+        command: proof,
+        run_in_background: true,
+        ...extra,
+      })) as { taskId?: string }
+      expect(r.taskId).toBeDefined()
+      return String((backend.writeFile as ReturnType<typeof vi.fn>).mock.calls[0][1])
+    }
+    expect(await launched({ platform_proof: true })).not.toContain('--retries')
+    // The identical command sent as the executor's own call is still a diagnosis.
+    expect(await launched({})).toContain('--retries=0')
+  })
+
   it('reports a failure to start rather than throwing', async () => {
     const backend = bgBackend()
     backend.writeFile = vi.fn().mockRejectedValue(new Error('read-only filesystem'))

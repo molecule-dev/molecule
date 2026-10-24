@@ -1402,6 +1402,86 @@ describe('streamingBackgroundCommand — an approved exclusion keeps the proof�
 })
 
 /**
+ * xr-molecule-flash-l48 (+26:35): the platform's redeploy proof is the TARGETED set the last walk
+ * left, composed from that walk's own command, so it always names its failures — and the launch
+ * rewrite read that as a diagnosis and spliced `--retries=0` back onto it, after the composer had
+ * taken the executor's overrides off. Proof #2 then walked `url-navigation.spec.ts:234` once
+ * (`"retry":0,"attempts":1`) and its single-attempt failure forced another fix round, while proof
+ * #1's whole walk had retried each failure (`"retry":1,"attempts":2`).
+ *
+ * The platform's own launch says so ({@link DiagnosisRunContext} `platformProof`); the identical
+ * command sent by the executor is still a diagnosis.
+ */
+describe('streamingBackgroundCommand — the platform’s own proof keeps the suite’s retries (l48)', () => {
+  const APPROVED = ['should require login to post comment']
+  const L48_URL = 'https://loopcheck-xr-molecule-flash-l48.apps.mlcl.dev'
+  const SPECS = [
+    'articles.spec.ts',
+    'auth.spec.ts',
+    'comments.spec.ts',
+    'error-handling.spec.ts',
+    'health.spec.ts',
+    'navigation.spec.ts',
+    'null-fields.spec.ts',
+    'settings.spec.ts',
+    'social.spec.ts',
+    'url-navigation.spec.ts',
+    'user-fetch-errors.spec.ts',
+    'xss-security.spec.ts',
+  ]
+    .map((name) => `/workspace/fixtures/realworld/specs/e2e/${name}`)
+    .join(' ')
+  /** Proof #2's Playwright step, exactly as the platform composed it. */
+  const TARGETED =
+    `cd /workspace/my-app/app && TEST_MODE=fullstack BASE_URL=${L48_URL} ` +
+    `API_BASE=${L48_URL}/api npx playwright test ` +
+    `/workspace/fixtures/realworld/specs/e2e/url-navigation.spec.ts:33 ` +
+    `/workspace/fixtures/realworld/specs/e2e/url-navigation.spec.ts:90 ${SPECS} ` +
+    "--grep-invert 'should require login to post comment' --config e2e-suite.config.ts"
+  /** Proof #2 as the platform launched it: the fast suite, then the targeted browser set. */
+  const PROOF_2 =
+    `cd /workspace/fixtures/realworld/specs/api && HOST=${L48_URL} ` +
+    './run-api-tests-hurl.sh 2>&1 | tail -60; ' +
+    `__proof_fast=$?; ${TARGETED}; __proof_slow=$?; ` +
+    'echo "__PROOF_EXIT__ hurl=$__proof_fast playwright=$__proof_slow"; ' +
+    'exit $((__proof_fast | __proof_slow))'
+  /** Proof #1's whole walk — the first deploy's proof, which never lost its retries. */
+  const PROOF_1 =
+    `cd /workspace/my-app/app && TEST_MODE=fullstack BASE_URL=${L48_URL} ` +
+    `API_BASE=${L48_URL}/api npx playwright test --config e2e-suite.config.ts`
+
+  it('adds no --retries=0 to the platform’s composed targeted proof', () => {
+    const { command, changes } = streamingBackgroundCommand(PROOF_2, {
+      approvedExclusions: APPROVED,
+      platformProof: true,
+    })
+    expect(command).not.toContain('--retries')
+    expect(changes.join(' ')).not.toContain('--retries=0')
+    // Everything else the launch does is unchanged: the fast half, the status steps and the exit
+    // code are still there, and the browser set still names its locations.
+    expect(command).toContain('./run-api-tests-hurl.sh')
+    expect(command).toContain('url-navigation.spec.ts:33')
+    expect(command).toContain('__PROOF_EXIT__ hurl=$__proof_fast playwright=$__proof_slow')
+  })
+
+  it('still adds it to the identical command sent as the executor’s own', () => {
+    const { command, changes } = streamingBackgroundCommand(PROOF_2, {
+      approvedExclusions: APPROVED,
+    })
+    expect(command).toContain('--retries=0')
+    expect(changes.join(' ')).toContain(
+      'a diagnosis or re-run walks each failure once; the suite’s retries apply on the deployed proof run',
+    )
+  })
+
+  it('leaves the first deploy’s whole proof exactly as it was', () => {
+    const proof = streamingBackgroundCommand(PROOF_1, { platformProof: true })
+    expect(proof).toEqual(streamingBackgroundCommand(PROOF_1))
+    expect(proof.command).not.toContain('--retries')
+  })
+})
+
+/**
  * X1 flash-m76: a capped diagnosis run walked 17 tests in 4.0 minutes; all 15 failures were the
  * same `TimeoutError: page.waitForURL` from one missing `navigate('/')`, and the executor learned
  * it only when the whole run was over. Lines below are that run's own log.

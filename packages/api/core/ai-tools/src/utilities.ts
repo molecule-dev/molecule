@@ -704,9 +704,11 @@ function isStatusOnlyStep(step: string): boolean {
  *
  * @param command - The command as the executor sent it.
  * @param context - What the caller knows beyond the command: the tests the person's request
- *   excludes by name ({@link DiagnosisRunContext}). A `--grep-invert` of exactly those is the
+ *   excludes by name, and whether this command IS the platform's graded proof
+ *   ({@link DiagnosisRunContext}). A `--grep-invert` of exactly those exclusions is the
  *   request's own scope, not a diagnosis, so it keeps the suite's retries on a deployed proof
- *   (xr-molecule-flash-m170 +33:16).
+ *   (xr-molecule-flash-m170 +33:16) — and a proof the platform itself composed and launched
+ *   keeps them whatever its scope, targeted set included (xr-molecule-flash-l48 +26:35).
  * @param reportPath - Where this run should write Playwright's standard `json` report, when the
  *   caller keeps one ({@link ./playwright-report.js}). The reporter is added to the run's own
  *   reporter set, never in place of one, and its output goes to that file through
@@ -856,6 +858,13 @@ export function streamingBackgroundCommand(
   // {@link isDiagnosisRun}'s answer and nobody else's: the platform's notes ask the same
   // function, so a run cannot be a diagnosis to one of them and the whole suite to the other.
   // Which targets are local is {@link suiteCommandTarget}'s answer.
+  //
+  // A run the PLATFORM composed and launched as the graded proof keeps the suite's retries
+  // whatever its scope and whatever it names: a redeploy's proof re-runs the failures the last
+  // walk left, so it always names files and `file:line` locations, and the diagnosis reading took
+  // its retries away at launch — one flake then failed it once (`"retry":0,"attempts":1`) while
+  // the graded run retries every failure (xr-molecule-flash-l48 +26:35).
+  const gradedProof = context?.platformProof === true
   const diagnosis = isDiagnosisRun(lastStep, context)
   const localTarget = suiteCommandTarget(lastStep) === 'local'
   // The last step's reporters: one printer, and it is `list`. Every branch below only ever moves
@@ -966,7 +975,12 @@ export function streamingBackgroundCommand(
         'and you need not wait for it to end to start on them.',
     )
   }
-  if (finalPlaywrightRun && (diagnosis || localTarget) && !/--retries\b/.test(lastStep)) {
+  if (
+    finalPlaywrightRun &&
+    !gradedProof &&
+    (diagnosis || localTarget) &&
+    !/--retries\b/.test(lastStep)
+  ) {
     // The reason named is the one that fired: a narrowed diagnosis against a DEPLOYED URL is not a
     // local run, and calling it one (xr-molecule-flash-m170's note did) reads as the platform having
     // misread the target.

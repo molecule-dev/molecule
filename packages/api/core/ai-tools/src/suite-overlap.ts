@@ -1013,6 +1013,21 @@ export interface DiagnosisRunContext {
    * `excludedTestTitles` gives the rest of the platform.
    */
   approvedExclusions?: readonly string[]
+  /**
+   * Whether the caller is STARTING this command as the graded proof itself — the run the app is
+   * judged by, composed and launched by the platform — rather than the executor's own diagnosis.
+   *
+   * A redeploy's proof is the TARGETED set the last walk left, and its command is composed from
+   * that walk's own command, so it always names its failures (`file:line`, and the specs they
+   * live in). Read as a diagnosis, that command loses the suite's retries at launch: xr-molecule-
+   * flash-l48 (+26:35) started proof #2 with `--retries=0` spliced onto it and a single network
+   * flake at `url-navigation.spec.ts:234` was walked once (`"retry":0,"attempts":1`), while proof
+   * #1's whole walk had retried each failure once (`"retry":1,"attempts":2`) under the suite's own
+   * `retries: process.env.CI ? 2 : 1`. The graded run keeps its retries, so the proof must run
+   * with them; the SCOPE of the proof does not change that. Set this only for a command the
+   * PLATFORM composes and launches — an executor's own run is never the proof, whatever it names.
+   */
+  platformProof?: boolean
 }
 
 /**
@@ -1083,11 +1098,19 @@ function boundsFailures(command: string): boolean {
  * that exclusion, the rewriter added `--retries=0` to it, and the run lost the suite's retries on
  * the one walk where a network blip is likeliest.
  *
+ * A run the PLATFORM composed and launched AS the graded proof is never a diagnosis, whatever it
+ * names ({@link DiagnosisRunContext} `platformProof`): a redeploy's proof names the failures it
+ * re-runs, and its retries are the graded run's own (xr-molecule-flash-l48 +26:35).
+ *
  * @param command - The command as the executor sent it.
- * @param context - The request's approved exclusions, when the caller knows them.
+ * @param context - The request's approved exclusions and whether this command IS the graded
+ *   proof, when the caller knows them.
  * @returns True when the run is a diagnosis or a re-run, not the whole suite.
  */
 export function isDiagnosisRun(command: string, context?: DiagnosisRunContext): boolean {
+  // The platform's own proof IS the graded measurement: its scope (a redeploy's targeted set) says
+  // what it covers, not that it is a diagnosis, and the suite's retries belong on it (l48).
+  if (context?.platformProof === true) return false
   if (boundsFailures(command)) return true
   const run = playwrightRun(command)
   if (run === null) return false

@@ -390,6 +390,72 @@ describe('isDiagnosisRun — the request’s approved exclusion is not a narrowi
 })
 
 /**
+ * xr-molecule-flash-l48 (+26:35): a redeploy's proof is composed from the last walk's own command
+ * and names every failure it re-runs, so it always reads as a narrowed run — and the launch
+ * rewrite then added `--retries=0`, walking one network flake a single time (`"retry":0,
+ * "attempts":1`) while the graded run retries every failure. The platform's own proof is the
+ * graded measurement whatever its scope; the executor's own narrowings stay diagnoses.
+ */
+describe('isDiagnosisRun — the platform’s own proof is never a diagnosis (l48)', () => {
+  const EXCLUDED = ['should require login to post comment']
+  const L48_URL = 'https://loopcheck-xr-molecule-flash-l48.apps.mlcl.dev'
+  /** The 12 spec files the composed targeted set names beside its two `file:line` locations. */
+  const SPECS = [
+    'articles.spec.ts',
+    'auth.spec.ts',
+    'comments.spec.ts',
+    'error-handling.spec.ts',
+    'health.spec.ts',
+    'navigation.spec.ts',
+    'null-fields.spec.ts',
+    'settings.spec.ts',
+    'social.spec.ts',
+    'url-navigation.spec.ts',
+    'user-fetch-errors.spec.ts',
+    'xss-security.spec.ts',
+  ]
+    .map((name) => `/workspace/fixtures/realworld/specs/e2e/${name}`)
+    .join(' ')
+  /** Proof #2's Playwright step, exactly as the platform composed it (the l48 reproduction). */
+  const PROOF_2 =
+    `cd /workspace/my-app/app && TEST_MODE=fullstack BASE_URL=${L48_URL} API_BASE=${L48_URL}/api ` +
+    'npx playwright test ' +
+    `/workspace/fixtures/realworld/specs/e2e/url-navigation.spec.ts:33 ` +
+    `/workspace/fixtures/realworld/specs/e2e/url-navigation.spec.ts:90 ${SPECS} ` +
+    "--grep-invert 'should require login to post comment' --config e2e-suite.config.ts"
+  /** Proof #1's whole walk — the first deploy, which never lost its retries. */
+  const PROOF_1 =
+    `cd /workspace/my-app/app && TEST_MODE=fullstack BASE_URL=${L48_URL} ` +
+    `API_BASE=${L48_URL}/api npx playwright test --config e2e-suite.config.ts`
+
+  it('reads a composed targeted proof as the proof once the launcher says it is', () => {
+    // Without the launch fact the command is a narrowed run, exactly as before (the executor's
+    // own `exec_command` reading) …
+    expect(isDiagnosisRun(PROOF_2, { approvedExclusions: EXCLUDED })).toBe(true)
+    // … and the platform's own proof is the graded measurement, whatever it names.
+    expect(isDiagnosisRun(PROOF_2, { approvedExclusions: EXCLUDED, platformProof: true })).toBe(
+      false,
+    )
+  })
+
+  it('answers the same for the first deploy’s whole walk, either way', () => {
+    expect(isDiagnosisRun(PROOF_1, { platformProof: true })).toBe(false)
+    expect(isDiagnosisRun(PROOF_1)).toBe(false)
+  })
+
+  it('leaves every executor-written narrowing a diagnosis', () => {
+    for (const command of [
+      'npx playwright test articles.spec.ts:32',
+      'npx playwright test --last-failed',
+      "npx playwright test -g 'favorite'",
+      'npx playwright test --max-failures=5',
+      'npx playwright test --list',
+    ])
+      expect(isDiagnosisRun(command), command).toBe(true)
+  })
+})
+
+/**
  * xr-molecule-flash-m173 (+12:18): the narrowed re-run the mid-run note hands over kept the
  * run's own `> /tmp/pw-full.log`, so following the platform's advice would have overwritten the
  * full walk's log — and with it the other 11 failures' error reports the walk had already
