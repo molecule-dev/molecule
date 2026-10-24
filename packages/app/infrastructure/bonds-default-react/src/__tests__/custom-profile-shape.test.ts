@@ -313,6 +313,62 @@ export const fetched = createDefaultAuthClientWithFetchClient<${profile}>({}, { 
     }
   })
 
+  it('rejects a union that contains an invalid member in every wrapper', () => {
+    const unions = [
+      'SessionUser | SessionUser[]',
+      'UserProfile | Date',
+      'UserProfile | (() => void)',
+    ]
+
+    for (const profile of unions) {
+      const diagnostics = diagnosticsFor(`
+import type { UserProfile } from '@molecule/app-auth'
+
+import {
+  createDefaultAuthClient,
+  createDefaultAuthClientWithFetchClient,
+  createDefaultAuthClientWithHttpSync,
+} from '../index.js'
+
+interface SessionUser {
+  username: string
+  email: string
+}
+
+export const plain = createDefaultAuthClient<${profile}>({})
+export const synced = createDefaultAuthClientWithHttpSync<${profile}>({})
+export const fetched = createDefaultAuthClientWithFetchClient<${profile}>({}, { baseURL: '/api' })
+`)
+      expect(diagnostics.join('\n'), profile).not.toEqual('')
+    }
+  }, 30_000)
+
+  it('accepts a union of object profiles in every wrapper', () => {
+    expect(
+      diagnosticsFor(`
+import {
+  createDefaultAuthClient,
+  createDefaultAuthClientWithFetchClient,
+  createDefaultAuthClientWithHttpSync,
+} from '../index.js'
+
+interface Account {
+  accountNumber: number
+}
+
+interface Contact {
+  email: string
+}
+
+type Profile = Account | Contact
+
+export const plain = createDefaultAuthClient<Profile>({})
+export const synced = createDefaultAuthClientWithHttpSync<Profile>({})
+export const fetched = createDefaultAuthClientWithFetchClient<Profile>({}, { baseURL: '/api' })
+`).join('\n'),
+    ).toEqual('')
+  }, 30_000)
+
   it('keeps a custom identity field at its declared type', () => {
     expect(
       diagnosticsFor(`

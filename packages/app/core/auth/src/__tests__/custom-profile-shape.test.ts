@@ -570,6 +570,88 @@ export const signedIn = login<${profile}>({ email: 'a@b.test', password: 'pw' })
     }
   }, 30_000)
 
+  // The constraint must reject a UNION that contains an invalid member, not
+  // just a bare invalid profile: `AuthProfileShape<T>` distributes, so the
+  // un-tuple'd `… extends AuthProfileRejection` test read `object | rejection`
+  // as valid and widened every entrypoint (R3-1).
+  it('rejects a union that contains an array, a function or a Date at every entrypoint', () => {
+    const unions = [
+      'ExistingUser | ExistingUser[]',
+      'UserProfile | Date',
+      'UserProfile | (() => void)',
+    ]
+
+    for (const profile of unions) {
+      const factory = diagnosticsFor(`
+import { createJWTAuthClient, type UserProfile } from '../index.js'
+
+interface ExistingUser extends UserProfile {
+  username: string
+}
+
+export const client = createJWTAuthClient<${profile}>()
+`)
+      expect(factory.join('\n'), profile).not.toEqual('')
+
+      const accessors = diagnosticsFor(`
+import { getClient, getUser, login, register, type UserProfile } from '../index.js'
+
+interface ExistingUser extends UserProfile {
+  username: string
+}
+
+export const client = getClient<${profile}>()
+export const user = getUser<${profile}>()
+export const signedIn = login<${profile}>({ email: 'a@b.test', password: 'pw' })
+export const registered = register<{}, ${profile}>({ email: 'a@b.test', password: 'pw' })
+`)
+      expect(accessors.join('\n'), profile).not.toEqual('')
+
+      const config = diagnosticsFor(`
+import type { AuthClientConfig, UserProfile } from '../index.js'
+
+interface ExistingUser extends UserProfile {
+  username: string
+}
+
+export const config: AuthClientConfig<${profile}> = {}
+`)
+      expect(config.join('\n'), profile).toContain('must be a JSON object type of named fields')
+    }
+  }, 30_000)
+
+  it('accepts a union of object profiles at every entrypoint', () => {
+    expect(
+      diagnosticsFor(`
+import {
+  createJWTAuthClient,
+  getClient,
+  getUser,
+  login,
+  register,
+  type AuthClientConfig,
+} from '../index.js'
+
+interface Account {
+  accountNumber: number
+}
+
+interface Contact {
+  email: string
+}
+
+type Profile = Account | Contact
+
+export const client = createJWTAuthClient<Profile>({})
+export const bonded = getClient<Profile>()
+export const user = getUser<Profile>()
+export const signedIn = login<Profile>({ email: 'a@b.test', password: 'pw' })
+export const registered = register<{}, Profile>({ email: 'a@b.test', password: 'pw' })
+export const config: AuthClientConfig<Profile> = {}
+`).join('\n'),
+    ).toEqual('')
+  }, 30_000)
+
   it('keeps named interfaces, type aliases and the empty object type accepted', () => {
     expect(
       diagnosticsFor(`

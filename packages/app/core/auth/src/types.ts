@@ -66,6 +66,12 @@ type AuthProfileRejection =
  * type all satisfy it — `{}` compiles because it is a JSON object that
  * round-trips unchanged, not an invalid form.
  *
+ * A union is checked member by member: `ExistingUser | ExistingUser[]` contains
+ * an array, so it is not an object-only profile either, and the shared
+ * rejection test (`AuthProfileIsRejected`, used by
+ * {@link AuthProfileConstraint} and {@link AuthProfileGuard}) rejects it as a
+ * whole.
+ *
  * @template T - The candidate profile type.
  */
 export type AuthProfileShape<T> = T extends
@@ -74,14 +80,58 @@ export type AuthProfileShape<T> = T extends
   : object
 
 /**
+ * Whether `T` is, or is a union containing, a shape the client cannot persist —
+ * an array, a function or a `Date` ({@link AuthProfileShape}).
+ *
+ * This is the ONE decision {@link AuthProfileConstraint} and
+ * {@link AuthProfileGuard} share, so the entrypoints and `AuthClientConfig`
+ * cannot drift apart.
+ *
+ * Three TypeScript behaviors shape it:
+ *
+ * - **No distribution.** `AuthProfileShape<T>` already distributes, so a union
+ *   `Good | Bad` yields `object | AuthProfileRejection`. Wrapping BOTH sides of
+ *   the test in tuples compares those unions as a whole, so one invalid member
+ *   rejects the whole union. The plain `AuthProfileShape<T> extends
+ *   AuthProfileRejection` form instead asks whether the ENTIRE union is the
+ *   rejection, which a valid sibling makes false — that is the union hole this
+ *   closes.
+ * - **`any` is checked first.** `any` is the caller's explicit opt-out of
+ *   profile typing, not an invalid member, but `AuthProfileShape<any>` resolves
+ *   to `AuthProfileRejection | object`, which the tuple test reads as "contains
+ *   a rejection". `0 extends 1 & T` detects `any` (and only `any` — `never`,
+ *   `unknown` and `object` are all false) and takes the accepted branch.
+ * - **Deferred at the outer edge.** `[T] extends [unknown]` keeps the whole
+ *   check deferred while `T` is an unresolved type parameter (it is always true
+ *   for a concrete type, and does not distribute over a union). Without it,
+ *   TypeScript resolves the inner `0 extends 1 & T` while checking a forwarder's
+ *   constraint `T extends AuthProfileConstraint<T>` and reports TS2313 ("Type
+ *   parameter 'T' has a circular constraint"); with it, the constraint checks at
+ *   the call site.
+ *
+ * `never`, `unknown` and the primitives are not this helper's job: each
+ * entrypoint's `extends object` requirement rejects them, unchanged.
+ *
+ * @template T - The candidate profile type.
+ */
+type AuthProfileIsRejected<T> = [T] extends [unknown]
+  ? 0 extends 1 & T
+    ? false
+    : [AuthProfileRejection] extends [AuthProfileShape<T>]
+      ? true
+      : false
+  : never
+
+/**
  * Requires a profile type to satisfy {@link AuthProfileShape}: an invalid
  * profile makes {@link AuthClientConfig} impossible to populate, so the
- * annotation itself is the error.
+ * annotation itself is the error. It shares the entrypoints' rejection test,
+ * so a union with an invalid member is rejected here too.
  *
  * @template T - The candidate profile type.
  */
 export type AuthProfileGuard<T> =
-  AuthProfileShape<T> extends AuthProfileRejection
+  AuthProfileIsRejected<T> extends true
     ? { readonly [K in AuthProfileRejection]: never }
     : Record<never, never>
 
@@ -91,12 +141,12 @@ export type AuthProfileGuard<T> =
  *
  * `any` is the caller's explicit opt-out of profile typing, not an invalid JSON
  * shape: `createJWTAuthClient<any>()`, `getClient<any>()` and
- * `AuthClientConfig<any>` name it deliberately. `AuthProfileShape<any>`
- * distributes to `AuthProfileRejection | object`, which is not the rejection
- * itself, so `any` satisfies this constraint; the previous form
- * (`… extends object ? object : never`) matched that union against `object` and
- * produced `never`, rejecting `any` with the opaque "type 'any' does not
- * satisfy the constraint 'never'".
+ * `AuthClientConfig<any>` name it deliberately. It is detected explicitly
+ * (`0 extends 1 & T`) and accepted. Every other type is measured against
+ * {@link AuthProfileShape}, member by member when it is a union: a union that
+ * holds an array, a function or a `Date` is rejected as a whole, so
+ * `createJWTAuthClient<ExistingUser | ExistingUser[]>()` is the same type error
+ * as `createJWTAuthClient<ExistingUser[]>()`.
  *
  * Forwarding a profile through your own generic copies this constraint, so the
  * profile keeps being checked:
@@ -116,8 +166,7 @@ export type AuthProfileGuard<T> =
  *
  * @template T - The candidate profile type.
  */
-export type AuthProfileConstraint<T> =
-  AuthProfileShape<T> extends AuthProfileRejection ? never : object
+export type AuthProfileConstraint<T> = AuthProfileIsRejected<T> extends true ? never : object
 
 /**
  * Email/password login credentials with optional "remember me" flag.
@@ -717,8 +766,9 @@ export interface StorageAdapter {
  * it, so an API whose user has no `id` — `{ username, email, bio, image }` —
  * is typed by its own `interface` directly, with no fabricated `id`. The
  * default, {@link UserProfile}, still requires `id: string`. A primitive,
- * `null`, an array, a function or a `Date` is rejected — see
- * {@link AuthProfileShape} for the persistence contract behind that list.
+ * `null`, an array, a function or a `Date` — or a union containing one — is
+ * rejected; see {@link AuthProfileShape} for the persistence contract behind
+ * that list.
  *
  * The type argument is NEVER inferred from the config: not from
  * `mapAuthResponse`, `profileEndpoint`, `profileRequestBody` or
