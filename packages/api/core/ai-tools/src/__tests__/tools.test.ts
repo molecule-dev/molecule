@@ -6624,6 +6624,21 @@ describe('opt-in first diagnostic progress from a deployed task', () => {
     return (await pending) as Record<string, unknown>
   }
   const enabled = { yieldOnFirstFailureFor: () => url }
+  const excludedTitle = 'should require login to post comment'
+  const withExcluded = { ...enabled, excludedTestTitles: () => [excludedTitle] }
+  /**
+   * The one failure body h13's proof log carried (+19:06, 06:06:58.7Z): the request excludes this
+   * test, and the wait handed its 5.2 s row and body back as the diagnostic after 80 s.
+   */
+  const excludedBody = [
+    `  ✘  3 [chromium] › comments.spec.ts:102:3 › Comments › ${excludedTitle} (5.2s)`,
+    `  1) [chromium] › comments.spec.ts:102:3 › Comments › ${excludedTitle} ───────`,
+    '',
+    '    Error: expect(locator).toBeVisible() failed',
+    '',
+    '    Error: strict mode violation: locator(\'a[href="/login"]\') resolved to 2 elements:',
+    '',
+  ].join('\n')
 
   it('yields the actual inline diagnostic at the existing look, without ending the task', async () => {
     const { backend, state } = fixture()
@@ -6636,6 +6651,43 @@ describe('opt-in first diagnostic progress from a deployed task', () => {
     expect(result).not.toHaveProperty('exitCode')
     expect(result).not.toHaveProperty('runReport')
     expect(state.finishAt).toBe(Infinity)
+  })
+
+  it('keeps waiting on a failure body the request excludes, then spends the one yield on a real one (h13)', async () => {
+    const { backend, state } = fixture()
+    state.text = excludedBody
+    const id = await launch(backend)
+    // The excluded test's own body is in the log from the 12 s look on, and it stays there for
+    // the whole wait: the direct answer is not a diagnostic, so the wait runs its budget out.
+    const excludedOnly = await wait(backend, id, withExcluded)
+    expect(excludedOnly).toMatchObject({ status: 'running', waitedMs: 30000 })
+    expect(excludedOnly.note ?? '').not.toContain('not a completed result')
+    // A failure the request COUNTS arrives later in the same task. The yield was not spent above,
+    // so it is still available — and it is spent exactly once.
+    state.text = `${excludedBody}\n${body}`
+    const real = await wait(backend, id, withExcluded)
+    expect(real).toMatchObject({ status: 'running', waitedMs: 2000 })
+    expect(real.note).toContain('not a completed result')
+    expect(real.outputSoFar).toContain('page.waitForSelector')
+    expect((await wait(backend, id, withExcluded)).waitedMs).toBe(30000)
+  })
+
+  it('still yields on a failure the request counts, beside an excluded one', async () => {
+    const { backend, state } = fixture()
+    state.text = `${excludedBody}\n${body}`
+    const result = await wait(backend, await launch(backend), withExcluded)
+    expect(result).toMatchObject({ status: 'running', waitedMs: 12000 })
+    expect(result.note).toContain('not a completed result')
+    expect(result.outputSoFar).toContain('page.waitForSelector')
+  })
+
+  it('yields on that body when the request configured no exclusions — the control for h13', async () => {
+    const { backend, state } = fixture()
+    state.text = excludedBody
+    const result = await wait(backend, await launch(backend), enabled)
+    expect(result).toMatchObject({ status: 'running', waitedMs: 12000 })
+    expect(result.note).toContain('not a completed result')
+    expect(result.outputSoFar).toContain('strict mode violation')
   })
 
   it('yields at most once across repeated waits and newly built tools/backends for the same owned task', async () => {

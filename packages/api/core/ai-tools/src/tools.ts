@@ -4039,7 +4039,10 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           yieldDiagnostic &&
           taskRecord &&
           !taskRecord.diagnosticYielded &&
-          logShowsInlineFailureBodies(causeLog)
+          // A failure the request excludes by name is not a diagnostic to hand back — the same
+          // matcher the finished run's causes note drops it with, so the wait keeps running and
+          // the one yield stays available for a failure that counts (xr-molecule-flash-h13).
+          logShowsInlineFailureBodies(causeLog, excludedTestTitles?.() ?? [])
         ) {
           // Completion during the log read still wins over a progress return.
           exitCode = await readExit()

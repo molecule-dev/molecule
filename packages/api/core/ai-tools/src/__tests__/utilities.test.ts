@@ -1586,6 +1586,25 @@ describe('logShowsInlineFailureBodies', () => {
       logShowsInlineFailureBodies(`${retried}\n${body(1, 'auth.spec.ts:9:3', 'Auth › signs in')}`),
     ).toBe(true)
   })
+
+  it('ignores the body of a test the request excludes (xr-molecule-flash-h13)', () => {
+    const excludedTitle = 'should require login to post comment'
+    const excludedLog = [
+      row(1, 'comments.spec.ts:102:3', `Comments › ${excludedTitle}`),
+      body(1, 'comments.spec.ts:102:3', `Comments › ${excludedTitle}`),
+    ].join('\n')
+    // Control: with no exclusions configured the body is evidence, exactly as before.
+    expect(logShowsInlineFailureBodies(excludedLog)).toBe(true)
+    // h13's proof log: the only bodies in it were this excluded test's, and its retry's.
+    expect(logShowsInlineFailureBodies(excludedLog, [excludedTitle])).toBe(false)
+    // A failure the request counts, beside it, is still evidence.
+    const withReal = [
+      excludedLog,
+      row(2, 'auth.spec.ts:9:3', 'Auth › signs in'),
+      body(2, 'auth.spec.ts:9:3', 'Auth › signs in'),
+    ].join('\n')
+    expect(logShowsInlineFailureBodies(withReal, [excludedTitle])).toBe(true)
+  })
 })
 
 describe('repeatingFailure', () => {

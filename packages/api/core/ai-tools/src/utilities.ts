@@ -3356,10 +3356,21 @@ export function repeatingFailure(log: string): RepeatingFailure | null {
  * During a wait the run has not ended (the exit file is read first), so a block beside a `✘` row
  * is one the reporter printed inline.
  *
+ * A body for a test the request EXCLUDES is not that evidence: its failure does not count for
+ * this request ({@link matchingExcludedTitles}), so a wait that handed it over as the diagnostic
+ * spent a model round trip and 8 k of partial log on a test the same result says to ignore —
+ * exactly what xr-molecule-flash-h13 (+19:06) did twice while the platform's proof was still
+ * walking.
+ *
  * @param log - A log, or the slice of one a wait reads.
- * @returns True when a `✘` row's own test has a failure body under it.
+ * @param excluded - The test titles the request carves out, if the caller knows them.
+ * @returns True when a `✘` row's own test, outside the request's exclusions, has a failure body
+ *   under it.
  */
-export function logShowsInlineFailureBodies(log: string): boolean {
+export function logShowsInlineFailureBodies(
+  log: string,
+  excluded: readonly string[] = [],
+): boolean {
   const text = log.replace(ANSI_SGR, '')
   const failed = new Set(distinctTests(failedTests(text)).map(retrylessTestKey))
   if (failed.size === 0) return false
@@ -3367,6 +3378,8 @@ export function logShowsInlineFailureBodies(log: string): boolean {
     const m = FAILURE_BLOCK_HEADER.exec(block.split('\n')[0] ?? '')
     if (m === null) continue
     const { where, title } = splitTitlePath(m[1] ?? '')
+    const heading = where === '' ? title : `${where} › ${title}`
+    if (matchingExcludedTitles(heading, excluded).length > 0) continue
     if (failed.has(retrylessTestKey({ where, title, seconds: null }))) return true
   }
   return false
