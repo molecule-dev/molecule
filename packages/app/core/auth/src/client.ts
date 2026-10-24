@@ -147,9 +147,11 @@ interface SessionCookieRestore<T> {
  * This is a basic implementation that can be extended or replaced
  * with more sophisticated auth providers.
  *
- * @template T - The user profile the API returns. Pass it to the config too
- *   (`AuthClientConfig<T>`), so `mapAuthResponse` is checked against the same
- *   profile the client and the React hook hand to your pages.
+ * @template T - The user profile the API returns: any object type, so a profile
+ *   with no `id` (e.g. `{ username, email, bio, image }`) is used as-is. Pass it
+ *   to the config too (`AuthClientConfig<T>`), so `mapAuthResponse` is checked
+ *   against the same profile the client and the React hook hand to your pages.
+ *   The default, `UserProfile`, requires `id: string`.
  * @template TRegister - The app's own registration fields, accepted at the top
  *   level of `register()` (e.g. `{ username: string }` for a RealWorld-shaped API).
  *   An interface and a type alias are equally valid.
@@ -157,7 +159,7 @@ interface SessionCookieRestore<T> {
  * @returns A fully configured `AuthClient` instance.
  */
 export const createJWTAuthClient = <
-  T extends UserProfile = UserProfile,
+  T extends object = UserProfile,
   TRegister extends RegisterExtraShape<TRegister> = Record<never, never>,
 >(
   config: AuthClientConfig<T> = {},
@@ -202,7 +204,7 @@ export const createJWTAuthClient = <
 
   const tokenStorage = createTokenStorage(storage, storagePrefix, config.tokenKey)
   const stateListeners = new Set<(state: AuthState<T>) => void>()
-  const eventListeners = new Set<AuthEventListener>()
+  const eventListeners = new Set<AuthEventListener<T>>()
   let refreshTimer: ReturnType<typeof setTimeout> | null = null
   // [m95] The session restore `initialize()` started, or null when none is running.
   // Assigned SYNCHRONOUSLY, before that call's first await, so a component effect
@@ -227,7 +229,7 @@ export const createJWTAuthClient = <
     stateListeners.forEach((callback) => callback(state))
   }
 
-  const emitEvent = (event: AuthEvent): void => {
+  const emitEvent = (event: AuthEvent<T>): void => {
     eventListeners.forEach((listener) => listener(event))
   }
 
@@ -1149,7 +1151,7 @@ export const createJWTAuthClient = <
       return tokenStorage.getAccessToken()
     },
 
-    addEventListener(listener: AuthEventListener): () => void {
+    addEventListener(listener: AuthEventListener<T>): () => void {
       eventListeners.add(listener)
       return () => eventListeners.delete(listener)
     },

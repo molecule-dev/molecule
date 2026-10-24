@@ -24,9 +24,12 @@ export const isAuthenticated = (): boolean => getClient().isAuthenticated()
 
 /**
  * Returns the current user profile, or `null` if not authenticated.
+ *
+ * @template T - The user profile the bonded client returns: any object type,
+ *   including an app profile with no `id`.
  * @returns The user profile, or `null` if not authenticated.
  */
-export const getUser = <T extends UserProfile = UserProfile>(): T | null => getClient<T>().getUser()
+export const getUser = <T extends object = UserProfile>(): T | null => getClient<T>().getUser()
 
 /**
  * Logs in with the given credentials (email/username + password).

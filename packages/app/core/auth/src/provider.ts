@@ -35,14 +35,15 @@ export const setClient = <
 /**
  * Retrieves the bonded auth client, throwing if none is configured.
  *
- * @template T - The user profile the bonded client returns.
+ * @template T - The user profile the bonded client returns: any object type,
+ *   including an app profile with no `id`.
  * @template TRegister - The app's own registration fields, at the top level
  *   of `register()` (see `RegisterData`).
  * @returns The bonded auth client.
  * @throws {Error} If no auth client has been bonded.
  */
 export const getClient = <
-  T extends UserProfile = UserProfile,
+  T extends object = UserProfile,
   TRegister extends RegisterExtraShape<TRegister> = Record<never, never>,
 >(): AuthClient<T, TRegister> => {
   return bondRequire<AuthClient<T, TRegister>>(BOND_TYPE)

@@ -261,18 +261,26 @@ export interface AuthState<T = UserProfile> {
 
 /**
  * Auth event types.
+ *
+ * A sign-in event carries the client's own profile type, so a listener on a
+ * client typed with the app's profile reads that profile — including one that
+ * does not extend {@link UserProfile}. The default is {@link UserProfile}.
+ *
+ * @template T - The user profile the API returns.
  */
-export type AuthEvent =
-  | { type: 'login'; user: UserProfile }
+export type AuthEvent<T = UserProfile> =
+  | { type: 'login'; user: T }
   | { type: 'logout' }
-  | { type: 'register'; user: UserProfile }
+  | { type: 'register'; user: T }
   | { type: 'refresh' }
   | { type: 'error'; error: string }
 
 /**
  * Callback invoked when an authentication event occurs (login, logout, etc.).
+ *
+ * @template T - The user profile the API returns.
  */
-export type AuthEventListener = (event: AuthEvent) => void
+export type AuthEventListener<T = UserProfile> = (event: AuthEvent<T>) => void
 
 /**
  * The error an auth client rejects with when the API answers a non-ok HTTP
@@ -560,7 +568,7 @@ export interface AuthClient<
   /**
    * Adds an auth event listener.
    */
-  addEventListener(listener: AuthEventListener): () => void
+  addEventListener(listener: AuthEventListener<T>): () => void
 
   /**
    * Destroys the auth client.
@@ -592,10 +600,17 @@ export interface StorageAdapter {
  * assertion hides the loss. See the module docs for the wire-preserving
  * adapter.
  *
- * @template T - The user profile the API returns. The default,
+ * `T` is the app's OWN profile shape and need not extend {@link UserProfile}:
+ * the client stores and returns the object it is given and reads no field of
+ * it, so an API whose user has no `id` — `{ username, email, bio, image }` —
+ * is typed by its own `interface` directly, with no fabricated `id`. The
+ * default, {@link UserProfile}, still requires `id: string`; a primitive or
+ * `null` profile is rejected.
+ *
+ * @template T - The user profile the API returns: any object type. The default,
  *   {@link UserProfile}, keeps the untyped configuration working.
  */
-export interface AuthClientConfig<T extends UserProfile = UserProfile> {
+export interface AuthClientConfig<T extends object = UserProfile> {
   /**
    * API base URL.
    */
@@ -625,6 +640,8 @@ export interface AuthClientConfig<T extends UserProfile = UserProfile> {
    * The write route used by `updateProfile`, independently of `currentUserEndpoint`.
    * Defaults to `/auth/profile`. A resource route with an account id can resolve
    * from the signed-in user, e.g. `(user) => '/accounts/' + encodeURIComponent(user.id)`.
+   * A profile with no `id` resolves from a field it does have, e.g.
+   * `(user) => '/people/' + encodeURIComponent(user.username)`.
    * The resolver sees the current user before the patch, never caller-submitted identity.
    */
   profileEndpoint?: string | ((user: Readonly<T>) => string)

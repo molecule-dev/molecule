@@ -155,6 +155,36 @@
  * // React: `useAuth<MyUser>()` reads the same profile.
  * ```
  *
+ * A profile does not have to extend `UserProfile` and does not need an `id`: the client
+ * stores and returns the object it is given and reads no field of it. Name the API's own
+ * shape, pass it to the factory and the config, and have the mapper return it complete —
+ * every configuration adapter is typed by the same `T` (`mapAuthResponse`, the
+ * `profileEndpoint`/`profileUpdateMethod`/`profileRequestBody` write transport,
+ * `shouldRestoreUser`, and `setSession`):
+ *
+ * ```typescript
+ * import type { AuthClientConfig } from '@molecule/app-auth'
+ * import { createJWTAuthClient } from '@molecule/app-auth'
+ *
+ * interface SessionUser {
+ *   username: string
+ *   email: string
+ *   bio: string
+ *   image: string
+ * }
+ *
+ * const config: AuthClientConfig<SessionUser> = {
+ *   mapAuthResponse: (data) => {
+ *     const { user } = data as { user: { token: string } & SessionUser }
+ *     return { accessToken: user.token, user }
+ *   },
+ *   profileEndpoint: (user) => '/people/' + encodeURIComponent(user.username),
+ * }
+ *
+ * const client = createJWTAuthClient<SessionUser>(config)
+ * // `client.getUser()` has `bio`/`image`; there is no `id` to fabricate.
+ * ```
+ *
  * A username-derived `id` can change during a profile save. It is not an immutable
  * session identifier: `getSessionRevision()` tracks session ownership independently
  * of profile fields, remains unchanged for profile updates and same-session
