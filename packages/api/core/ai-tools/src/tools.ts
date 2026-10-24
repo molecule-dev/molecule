@@ -796,7 +796,7 @@ async function backgroundTaskState(
     slice,
   }
 }
-import { suiteCommandTarget } from './suite-overlap.js'
+import { isPlatformProofLaunch, suiteCommandTarget } from './suite-overlap.js'
 import { diagnosisTraceCommand } from './trace-artifacts.js'
 import type { ExecutionBackend, ToolBuildConfig } from './types.js'
 import {
@@ -3313,16 +3313,16 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           // one that already writes a report of its own — comes back with no report path and is
           // launched exactly as before.
           //
-          // `platform_proof` is a launch-side flag of the PLATFORM's own, not a parameter of this
-          // tool: molecule-dev's `runProofCommand` sets it on the input it hands this handler when
-          // the command it starts IS the graded proof, so the rewrite keeps the suite's retries on
-          // a redeploy's targeted proof (xr-molecule-flash-l48 +26:35). No model call carries it —
-          // it is absent from the schema — and a run without it is read exactly as before.
+          // Whether this launch IS the platform's graded proof is a HOST fact, read off the symbol
+          // `PLATFORM_PROOF` that only host code can set on the input object — not from a JSON key
+          // in the model's arguments, which the model would control (a `platform_proof` key it
+          // writes is an unknown input key and is ignored). A launch without the mark is read
+          // exactly as before.
           const streaming = streamingBackgroundCommand(
             command,
             {
               approvedExclusions: excludedTestTitles?.() ?? [],
-              platformProof: input.platform_proof === true,
+              platformProof: isPlatformProofLaunch(input),
             },
             playwrightReportPathFor(id),
           )

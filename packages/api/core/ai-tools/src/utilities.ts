@@ -859,12 +859,12 @@ export function streamingBackgroundCommand(
   // function, so a run cannot be a diagnosis to one of them and the whole suite to the other.
   // Which targets are local is {@link suiteCommandTarget}'s answer.
   //
-  // A run the PLATFORM composed and launched as the graded proof keeps the suite's retries
-  // whatever its scope and whatever it names: a redeploy's proof re-runs the failures the last
-  // walk left, so it always names files and `file:line` locations, and the diagnosis reading took
-  // its retries away at launch — one flake then failed it once (`"retry":0,"attempts":1`) while
-  // the graded run retries every failure (xr-molecule-flash-l48 +26:35).
-  const gradedProof = context?.platformProof === true
+  // A run the PLATFORM composed and launched as the graded proof keeps the suite's retries for
+  // the selection it composed — the failures a redeploy re-runs, named as files and `file:line`
+  // ({@link isDiagnosisRun} reads the host mark). It does NOT excuse a cap, a title filter or a
+  // last-failed set: those read as a diagnosis on that same reading, so the mark cannot turn a
+  // walk of part of the suite into the graded measurement. A LOCAL target is never the graded
+  // deployed run either, whatever launched it.
   const diagnosis = isDiagnosisRun(lastStep, context)
   const localTarget = suiteCommandTarget(lastStep) === 'local'
   // The last step's reporters: one printer, and it is `list`. Every branch below only ever moves
@@ -975,12 +975,7 @@ export function streamingBackgroundCommand(
         'and you need not wait for it to end to start on them.',
     )
   }
-  if (
-    finalPlaywrightRun &&
-    !gradedProof &&
-    (diagnosis || localTarget) &&
-    !/--retries\b/.test(lastStep)
-  ) {
+  if (finalPlaywrightRun && (diagnosis || localTarget) && !/--retries\b/.test(lastStep)) {
     // The reason named is the one that fired: a narrowed diagnosis against a DEPLOYED URL is not a
     // local run, and calling it one (xr-molecule-flash-m170's note did) reads as the platform having
     // misread the target.

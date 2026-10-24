@@ -1,5 +1,6 @@
 import { spawnSync } from 'node:child_process'
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 
 import { describe, expect, it, vi } from 'vitest'
@@ -36,11 +37,12 @@ function backend(stdout: string): ExecutionBackend {
 
 describe('source reads with literal labels (m309)', () => {
   it('preserves the fixture from the recorded command through the real exec output redactor', async () => {
-    const scratch = resolve(
-      import.meta.dirname,
-      '../../../../../../../.experiments/source-read-labels',
-    )
-    mkdirSync(scratch, { recursive: true })
+    // A controlled temp root, NOT a path worked out from this file's depth in the tree: the old
+    // seven-level `../` landed inside the workspace from the monorepo and OUTSIDE the repo in a
+    // standalone clone, so a test run there wrote into a directory it did not own. The OS temp
+    // root resolves the same in both layouts, and the tree is removed below.
+    const scratch = mkdtempSync(join(tmpdir(), 'mol-source-read-labels-'))
+    expect(resolve(scratch).startsWith(resolve(tmpdir()))).toBe(true)
     const directory = mkdtempSync(join(scratch, 'case-'))
     try {
       mkdirSync(join(directory, 'e2e/reference/helpers'), { recursive: true })
@@ -78,7 +80,7 @@ describe('source reads with literal labels (m309)', () => {
       expect(result.stdout).toContain('API_SECRET=[REDACTED]')
       expect(result.stdout).not.toContain('synthetic-env-value')
     } finally {
-      rmSync(directory, { recursive: true, force: true })
+      rmSync(scratch, { recursive: true, force: true })
     }
   })
 

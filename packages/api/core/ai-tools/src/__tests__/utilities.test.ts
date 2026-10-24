@@ -1482,6 +1482,51 @@ describe('streamingBackgroundCommand — the platform’s own proof keeps the su
 })
 
 /**
+ * The host mark says WHICH RUN this is, not that every diagnosis rule is waived. Only the
+ * selection a redeploy's proof is composed from keeps the suite's retries; a cap, a title filter,
+ * a last-failed set and a local target still walk each failure once — and an explicit
+ * `--retries=N` the composer wrote is never rewritten either way.
+ */
+describe('streamingBackgroundCommand — the host proof mark is scoped (l48 follow-up)', () => {
+  const APPROVED = ['should require login to post comment']
+  const deployed = (tail: string): string =>
+    'cd /workspace/my-app/app && BASE_URL=https://x.apps.mlcl.dev TEST_MODE=fullstack ' +
+    `npx playwright test specs/e2e/articles.spec.ts:32 ${tail} --config e2e-suite.config.ts`
+
+  it.each([
+    ['a cap', '--max-failures=5'],
+    ['a title filter', "-g 'favorite'"],
+    ['a last-failed set', '--last-failed'],
+  ])('keeps the diagnosis reading for a marked run with %s', (_what, tail) => {
+    const { command, changes } = streamingBackgroundCommand(deployed(tail), {
+      approvedExclusions: APPROVED,
+      platformProof: true,
+    })
+    expect(command).toContain('--retries=0')
+    expect(changes.join(' ')).toContain('a diagnosis or re-run walks each failure once')
+  })
+
+  it('keeps the diagnosis reading for a marked LOCAL run', () => {
+    const local =
+      'cd /workspace/my-app/app && TEST_MODE=fullstack npx playwright test ' +
+      'specs/e2e/articles.spec.ts:32 --config e2e-suite.config.ts'
+    const { command, changes } = streamingBackgroundCommand(local, { platformProof: true })
+    expect(command).toContain('--retries=0')
+    expect(changes.join(' ')).toContain('a local run walks each failure once')
+  })
+
+  it('keeps the retries a marked proof names itself, verbatim', () => {
+    const { command, changes } = streamingBackgroundCommand(`${deployed('')} --retries=2`, {
+      approvedExclusions: APPROVED,
+      platformProof: true,
+    })
+    expect(command).not.toContain('--retries=0')
+    expect(command).toContain('--retries=2')
+    expect(changes.join(' ')).not.toContain('--retries=0')
+  })
+})
+
+/**
  * X1 flash-m76: a capped diagnosis run walked 17 tests in 4.0 minutes; all 15 failures were the
  * same `TimeoutError: page.waitForURL` from one missing `navigate('/')`, and the executor learned
  * it only when the whole run was over. Lines below are that run's own log.

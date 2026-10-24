@@ -972,6 +972,32 @@ const NARROWED_RUN =
   /\.(?:spec|test)\.[cm]?[jt]sx?\b|\.[cm]?[jt]sx?:\d+|(?:^|\s)(?:-g|--grep(?:-invert)?|--last-failed|--only-changed)\b/
 
 /**
+ * The part of {@link NARROWED_RUN} a redeploy's targeted proof is composed from: spec files and
+ * `file:line` locations. The graded proof re-runs what the last walk left, so these are its own
+ * scope.
+ */
+const NAMED_SELECTION = /\.(?:spec|test)\.[cm]?[jt]sx?\b|\.[cm]?[jt]sx?:\d+/
+
+/**
+ * The narrowers that are a diagnosis however they were launched: a title filter, or the failures
+ * the run before it printed. A cap is a diagnosis too, but {@link boundsFailures} reads it before
+ * this point because its own "no cap" spelling (`--max-failures=0`) has to be told apart.
+ */
+const FILTERED_SELECTION = /(?:^|\s)(?:-g|--grep|--grep-invert|-G|--last-failed|--only-changed)\b/
+
+/**
+ * Whether a narrowed invocation is narrowed ONLY by the failures it names — the selection the
+ * platform composes a redeploy's proof from ({@link NAMED_SELECTION}) — rather than by a title
+ * filter or a last-failed set ({@link FILTERED_SELECTION}).
+ *
+ * @param run - The Playwright invocation's command-position text, without a `--grep-invert`.
+ * @returns True when files/lines are the only narrowing.
+ */
+function namesOnlySelection(run: string): boolean {
+  return NAMED_SELECTION.test(run) && !FILTERED_SELECTION.test(run)
+}
+
+/**
  * A `--grep-invert` (or its `-G` alias) with the pattern Playwright takes: quoted or bare, `=` or
  * whitespace between flag and value, the last occurrence winning as it does on the runner's own
  * command line. The flag's own name has to be followed by `=` or whitespace, so `--grep` never
@@ -1017,17 +1043,43 @@ export interface DiagnosisRunContext {
    * Whether the caller is STARTING this command as the graded proof itself — the run the app is
    * judged by, composed and launched by the platform — rather than the executor's own diagnosis.
    *
-   * A redeploy's proof is the TARGETED set the last walk left, and its command is composed from
-   * that walk's own command, so it always names its failures (`file:line`, and the specs they
-   * live in). Read as a diagnosis, that command loses the suite's retries at launch: xr-molecule-
-   * flash-l48 (+26:35) started proof #2 with `--retries=0` spliced onto it and a single network
-   * flake at `url-navigation.spec.ts:234` was walked once (`"retry":0,"attempts":1`), while proof
-   * #1's whole walk had retried each failure once (`"retry":1,"attempts":2`) under the suite's own
-   * `retries: process.env.CI ? 2 : 1`. The graded run keeps its retries, so the proof must run
-   * with them; the SCOPE of the proof does not change that. Set this only for a command the
-   * PLATFORM composes and launches — an executor's own run is never the proof, whatever it names.
+   * A redeploy's proof is the targeted set the last walk left: its command names the failures it
+   * re-runs (`file:line`, and the specs they live in), so it reads as a narrowed run. That
+   * selection is the proof's own scope, so the graded run keeps the suite's retries instead of
+   * walking each failure once the way a diagnosis does. Only the selection is excused — a failed
+   * cap, a title filter, a last-failed set and a local target stay diagnoses whatever the caller
+   * says here — and only a command the PLATFORM composes and launches is ever the proof.
+   *
+   * Host code marks the launch input with {@link PLATFORM_PROOF} rather than a JSON key: tool
+   * input a model sends is JSON, and JSON has no symbol keys, so no model call can claim this.
    */
   platformProof?: boolean
+}
+
+/**
+ * The key host code sets on an `exec_command` input object to mark the launch as the platform's
+ * own graded proof ({@link DiagnosisRunContext} `platformProof`).
+ *
+ * A SYMBOL, deliberately: a model's tool input is JSON, and JSON cannot carry a symbol key, so a
+ * model can never forge this mark — a `platform_proof` key it writes into its own JSON is just an
+ * unknown input key, and the handler ignores it. Object spreads through a consumer's wrappers, and
+ * this package's own input normalization, keep symbol-keyed properties, so the host's intent
+ * survives the real launch path.
+ */
+export const PLATFORM_PROOF: unique symbol = Symbol.for('@molecule/api-ai-tools/platform-proof')
+
+/**
+ * Whether an `exec_command` input object carries the host's {@link PLATFORM_PROOF} mark.
+ *
+ * @param input - The tool input as the handler received it.
+ * @returns True only for a launch host code marked; false for anything a model sent.
+ */
+export function isPlatformProofLaunch(input: unknown): boolean {
+  return (
+    typeof input === 'object' &&
+    input !== null &&
+    (input as { [PLATFORM_PROOF]?: unknown })[PLATFORM_PROOF] === true
+  )
 }
 
 /**
@@ -1098,9 +1150,13 @@ function boundsFailures(command: string): boolean {
  * that exclusion, the rewriter added `--retries=0` to it, and the run lost the suite's retries on
  * the one walk where a network blip is likeliest.
  *
- * A run the PLATFORM composed and launched AS the graded proof is never a diagnosis, whatever it
- * names ({@link DiagnosisRunContext} `platformProof`): a redeploy's proof names the failures it
- * re-runs, and its retries are the graded run's own (xr-molecule-flash-l48 +26:35).
+ * A command the PLATFORM composed and launched AS the graded proof keeps the suite's retries for
+ * the SELECTION it composed — the failures a redeploy re-runs, named as files and `file:line`
+ * ({@link DiagnosisRunContext} `platformProof`). Only that selection is excused: a cap, a title
+ * filter, a last-failed set and a local target stay diagnoses, so the mark cannot turn a walk of
+ * part of the suite into the graded measurement. Which targets are local is
+ * {@link suiteCommandTarget}'s answer, and the launch rewrite asks it on the same reading
+ * ({@link ./utilities.js} `streamingBackgroundCommand`).
  *
  * @param command - The command as the executor sent it.
  * @param context - The request's approved exclusions and whether this command IS the graded
@@ -1108,9 +1164,8 @@ function boundsFailures(command: string): boolean {
  * @returns True when the run is a diagnosis or a re-run, not the whole suite.
  */
 export function isDiagnosisRun(command: string, context?: DiagnosisRunContext): boolean {
-  // The platform's own proof IS the graded measurement: its scope (a redeploy's targeted set) says
-  // what it covers, not that it is a diagnosis, and the suite's retries belong on it (l48).
-  if (context?.platformProof === true) return false
+  // A cap bounds the walk whatever launched it. `--max-failures=0` is Playwright's own "no cap"
+  // ({@link boundsFailures}), so the uncapped spelling is not read as a diagnosis here.
   if (boundsFailures(command)) return true
   const run = playwrightRun(command)
   if (run === null) return false
@@ -1118,8 +1173,16 @@ export function isDiagnosisRun(command: string, context?: DiagnosisRunContext): 
   // the suite either, and is not the whole-suite run the retries belong on.
   if (commandRunsNoTests(run)) return true
   const inverted = grepInvertPattern(run)
-  if (inverted === null) return NARROWED_RUN.test(run)
   // A file, a line, a `-g`, `--last-failed` … narrows the run whatever the inversion also drops.
-  if (NARROWED_RUN.test(withoutGrepInvert(run))) return true
+  const selection = inverted === null ? run : withoutGrepInvert(run)
+  if (NARROWED_RUN.test(selection)) {
+    // The platform's own proof keeps the suite's retries for the failures it re-runs — the one
+    // selection a redeploy composes. Every other narrower is still a diagnosis: a filter or a
+    // last-failed set measures a part of the suite, capped or not.
+    if (context?.platformProof === true && namesOnlySelection(selection)) return false
+    return true
+  }
+  if (inverted === null) return false
+  // No selector or filter narrows the run: only the inversion's own scope can make it a diagnosis.
   return matchingExcludedTitles(inverted, context?.approvedExclusions ?? []).length === 0
 }

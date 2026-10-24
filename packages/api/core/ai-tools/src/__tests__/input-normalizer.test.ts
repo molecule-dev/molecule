@@ -7,6 +7,7 @@ import {
   normalizeToolInput,
 } from '../input-normalizer.js'
 import { TOOL_SCHEMAS } from '../schemas.js'
+import { isPlatformProofLaunch, PLATFORM_PROOF } from '../suite-overlap.js'
 
 const exec = TOOL_SCHEMAS.exec_command as NormalizableSchema
 const write = TOOL_SCHEMAS.write_file as NormalizableSchema
@@ -175,6 +176,35 @@ describe('secret safety', () => {
     const result = (await guarded({ command: 'x' })) as { error: string }
     expect(result.error).toContain('[REDACTED]')
     expect(result.error).not.toContain('abcdefghijklmnop')
+  })
+})
+
+/**
+ * The host-only launch purpose ({@link PLATFORM_PROOF}) must survive the execute boundary while
+ * staying unreachable from model input: `normalizeToolInput` copies the input object, and a copy
+ * keeps symbol-keyed properties, while JSON parsing — how every model tool call arrives — cannot
+ * produce one.
+ */
+describe('normalizeToolInput — the host proof mark', () => {
+  it('carries the symbol through normalization and into the handler', async () => {
+    const { input } = normalizeToolInput(exec, { command: 'ls', [PLATFORM_PROOF]: true })
+    expect(isPlatformProofLaunch(input)).toBe(true)
+    const seen: unknown[] = []
+    const guarded = guardToolExecute(exec, async (received) => {
+      seen.push(received)
+      return { ok: true }
+    })
+    await guarded({ command: 'ls', [PLATFORM_PROOF]: true })
+    expect(isPlatformProofLaunch(seen[0])).toBe(true)
+  })
+
+  it('cannot be forged through JSON, and a JSON `platform_proof` key does not claim it', () => {
+    const forged = JSON.parse('{"command":"ls","platform_proof":true}') as Record<string, unknown>
+    expect(isPlatformProofLaunch(forged)).toBe(false)
+    const { input } = normalizeToolInput(exec, forged)
+    expect(isPlatformProofLaunch(input)).toBe(false)
+    // The unknown key is kept verbatim (handlers ignore it) — so nothing may read it as the mark.
+    expect(input.platform_proof).toBe(true)
   })
 })
 

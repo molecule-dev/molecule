@@ -394,9 +394,10 @@ describe('isDiagnosisRun — the request’s approved exclusion is not a narrowi
  * and names every failure it re-runs, so it always reads as a narrowed run — and the launch
  * rewrite then added `--retries=0`, walking one network flake a single time (`"retry":0,
  * "attempts":1`) while the graded run retries every failure. The platform's own proof is the
- * graded measurement whatever its scope; the executor's own narrowings stay diagnoses.
+ * graded measurement for the SELECTION it composed; the executor's own narrowings, and a capped
+ * or filtered run however it was launched, stay diagnoses.
  */
-describe('isDiagnosisRun — the platform’s own proof is never a diagnosis (l48)', () => {
+describe('isDiagnosisRun — the platform’s own proof keeps its retries (l48)', () => {
   const EXCLUDED = ['should require login to post comment']
   const L48_URL = 'https://loopcheck-xr-molecule-flash-l48.apps.mlcl.dev'
   /** The 12 spec files the composed targeted set names beside its two `file:line` locations. */
@@ -432,7 +433,7 @@ describe('isDiagnosisRun — the platform’s own proof is never a diagnosis (l4
     // Without the launch fact the command is a narrowed run, exactly as before (the executor's
     // own `exec_command` reading) …
     expect(isDiagnosisRun(PROOF_2, { approvedExclusions: EXCLUDED })).toBe(true)
-    // … and the platform's own proof is the graded measurement, whatever it names.
+    // … and the platform's own proof keeps the suite's retries for the failures it names.
     expect(isDiagnosisRun(PROOF_2, { approvedExclusions: EXCLUDED, platformProof: true })).toBe(
       false,
     )
@@ -441,6 +442,8 @@ describe('isDiagnosisRun — the platform’s own proof is never a diagnosis (l4
   it('answers the same for the first deploy’s whole walk, either way', () => {
     expect(isDiagnosisRun(PROOF_1, { platformProof: true })).toBe(false)
     expect(isDiagnosisRun(PROOF_1)).toBe(false)
+    // The uncapped spelling of a whole run is not a cap either, marked or not.
+    expect(isDiagnosisRun(`${PROOF_1} --max-failures=0`, { platformProof: true })).toBe(false)
   })
 
   it('leaves every executor-written narrowing a diagnosis', () => {
@@ -452,6 +455,37 @@ describe('isDiagnosisRun — the platform’s own proof is never a diagnosis (l4
       'npx playwright test --list',
     ])
       expect(isDiagnosisRun(command), command).toBe(true)
+  })
+
+  /**
+   * The host mark says WHICH RUN this is, not that every rule is waived: only the selection a
+   * redeploy's proof is composed from (files and `file:line`) keeps the suite's retries. A cap, a
+   * title filter, a last-failed set and a part-selecting invert stay diagnoses, because each of
+   * them measures part of the suite rather than the proof scope.
+   */
+  const marked = { approvedExclusions: EXCLUDED, platformProof: true }
+
+  it('scopes the host mark to the named selection: capped, filtered and last-failed runs stay diagnoses', () => {
+    for (const command of [
+      `npx playwright test articles.spec.ts:32 --max-failures=5`,
+      `npx playwright test articles.spec.ts:32 --max-failures 5`,
+      `npx playwright test articles.spec.ts:32 -g 'favorite'`,
+      `npx playwright test articles.spec.ts:32 --grep 'favorite'`,
+      `npx playwright test articles.spec.ts:32 --last-failed`,
+      `npx playwright test articles.spec.ts:32 --only-changed`,
+      `npx playwright test --grep-invert 'should show an error'`,
+      `npx playwright test --list`,
+    ])
+      expect(isDiagnosisRun(command, marked), command).toBe(true)
+  })
+
+  it('keeps the retries on a marked file:line selection, with or without the approved invert', () => {
+    for (const command of [
+      'npx playwright test /workspace/e2e/url-navigation.spec.ts:33',
+      'npx playwright test /workspace/e2e/url-navigation.spec.ts:33 e2e/articles.spec.ts',
+      "npx playwright test /workspace/e2e/url-navigation.spec.ts:33 --grep-invert 'should require login to post comment'",
+    ])
+      expect(isDiagnosisRun(command, marked), command).toBe(false)
   })
 })
 
