@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-database-mysql",
-  "version": "1.3.2",
+  "version": "1.4.0",
   "description": "MySQL database provider for molecule.dev",
   "type": "module",
   "main": "dist/index.js",

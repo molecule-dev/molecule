@@ -1,5 +1,16 @@
 # @molecule/api-database-d1
 
+## 1.1.0
+
+### Minor Changes
+
+- Declare each database provider's SQL feature capabilities from its own source, and refuse a MySQL UNIQUE partial index before applying it instead of silently widening the constraint to every row.
+
+### Patch Changes
+
+- Updated dependencies
+  - @molecule/api-database-sqlite@1.4.0
+
 ## 1.0.20
 
 ### Patch Changes

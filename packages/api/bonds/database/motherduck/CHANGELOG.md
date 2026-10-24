@@ -1,5 +1,13 @@
 # @molecule/api-database-motherduck
 
+## 1.1.1
+
+### Patch Changes
+
+- Add the SQL-compatibility type contract (a provider's declared capabilities, a requirement and a diagnostic) to the database core, and translate partial indexes for DuckDB without changing their semantics. The bond refuses a foreign-key referential action it cannot reproduce instead of dropping it.
+- Updated dependencies
+  - @molecule/api-database-duckdb@1.1.1
+
 ## 1.1.0
 
 ### Minor Changes

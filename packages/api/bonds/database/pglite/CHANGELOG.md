@@ -1,5 +1,11 @@
 # @molecule/api-database-pglite
 
+## 1.3.0
+
+### Minor Changes
+
+- Declare each database provider's SQL feature capabilities from its own source, and refuse a MySQL UNIQUE partial index before applying it instead of silently widening the constraint to every row.
+
 ## 1.2.3
 
 ### Patch Changes
