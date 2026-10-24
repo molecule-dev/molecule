@@ -1,0 +1,51 @@
+{
+  "name": "@molecule/api-project-archive-external-state-duckdb",
+  "version": "1.0.0",
+  "description": "DuckDB external-state capture for project archives — copies a project's configured .duckdb database files (and their .wal siblings) into the archive and writes them back on restore.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "molecule",
+    "project",
+    "archive",
+    "duckdb",
+    "backup"
+  ],
+  "author": "Molecule Dev, Inc. (https://molecule.dev)",
+  "license": "Apache-2.0",
+  "peerDependencies": {
+    "@molecule/api-project-archive": "^1.0.1"
+  },
+  "devDependencies": {
+    "@molecule/api-project-archive": "1.0.3",
+    "@types/node": "26.6.5",
+    "typescript": "6.0.3",
+    "vitest": "4.1.12"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/project-archive-external-state/duckdb"
+  },
+  "homepage": "https://www.molecule.dev/packages/api-project-archive-external-state-duckdb",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}

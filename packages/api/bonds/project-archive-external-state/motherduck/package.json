@@ -1,0 +1,55 @@
+{
+  "name": "@molecule/api-project-archive-external-state-motherduck",
+  "version": "1.0.0",
+  "description": "MotherDuck external-state capture for project archives — exports a project's configured MotherDuck databases (DuckDB EXPORT DATABASE, parquet) into the archive and imports them back on restore.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "molecule",
+    "project",
+    "archive",
+    "motherduck",
+    "duckdb",
+    "backup"
+  ],
+  "author": "Molecule Dev, Inc. (https://molecule.dev)",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@duckdb/node-api": "2.0.0-r.1"
+  },
+  "peerDependencies": {
+    "@molecule/api-project-archive": "^1.0.1"
+  },
+  "devDependencies": {
+    "@molecule/api-project-archive": "1.0.3",
+    "@types/node": "26.6.5",
+    "typescript": "6.0.3",
+    "vitest": "4.1.12"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/project-archive-external-state/motherduck"
+  },
+  "homepage": "https://www.molecule.dev/packages/api-project-archive-external-state-motherduck",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}
