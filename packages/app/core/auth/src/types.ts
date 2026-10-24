@@ -324,12 +324,23 @@ export type AuthEvent<T = UserProfile> =
  *
  * A listener is typed by the client's profile: `AuthEventListener<MyUser>`
  * receives `AuthEvent<MyUser>`, so a sign-in event's `user` is the app's own
- * shape. On a client whose profile extends {@link UserProfile}, a listener
- * written against the default `AuthEventListener` is still accepted (those
- * events carry every `UserProfile` field). A client whose profile does NOT
- * extend `UserProfile` — an API user with no `id` — must type its listener with
- * that profile: the default listener would read an `id` the runtime user does
- * not have.
+ * shape — including a profile that does not extend {@link UserProfile}. The
+ * default is {@link UserProfile}.
+ *
+ * An inline arrow is contextually typed, so its `event` parameter needs no
+ * annotation. Because listener parameters are contravariant, a client whose
+ * profile extends {@link UserProfile} also accepts a listener written against
+ * the default `AuthEventListener` (those events carry every `UserProfile`
+ * field). A client whose profile does NOT extend `UserProfile` — an API user
+ * with no `id` — accepts only `AuthEventListener<T>`: a default listener would
+ * read an `id` the runtime user does not have.
+ *
+ * **Migration to 2.0.** External providers that implement {@link AuthClient}
+ * declare their listener parameter as `AuthEventListener<T>`
+ * (`addEventListener(listener: AuthEventListener<T>): () => void`). The
+ * previous `addEventListener(listener: AuthEventListener)` declaration, which
+ * claimed every client's events carry a `UserProfile`, is no longer assignable
+ * once the client's profile is a custom one.
  *
  * @template T - The user profile the API returns.
  */
@@ -621,19 +632,17 @@ export interface AuthClient<
   /**
    * Adds an auth event listener.
    *
-   * The listener is typed by this client's profile. A client whose profile
-   * extends {@link UserProfile} also accepts a default
-   * {@link AuthEventListener} — those events carry every `UserProfile` field, so
-   * a listener written before listeners became profile-typed keeps compiling.
-   * A profile that does not extend `UserProfile` (no `id`) requires
-   * `AuthEventListener<T>`: no event is typed with an `id` the runtime user
-   * does not have.
+   * The listener is typed by this client's profile: one signature,
+   * `AuthEventListener<T>`, so an inline arrow is contextually typed and `event`
+   * is never implicitly `any`. A client whose profile extends
+   * {@link UserProfile} also accepts a default {@link AuthEventListener} — a
+   * narrower `AuthEvent<UserProfile>` parameter is assignable to
+   * `AuthEvent<T>` because these events carry every `UserProfile` field — so a
+   * listener written before listeners became profile-typed keeps compiling. A
+   * profile that does not extend `UserProfile` (no `id`) rejects the default
+   * listener: no event is typed with an `id` the runtime user does not have.
    */
-  addEventListener(
-    listener: [T] extends [UserProfile]
-      ? AuthEventListener<T> | AuthEventListener<UserProfile>
-      : AuthEventListener<T>,
-  ): () => void
+  addEventListener(listener: AuthEventListener<T>): () => void
 
   /**
    * Destroys the auth client.

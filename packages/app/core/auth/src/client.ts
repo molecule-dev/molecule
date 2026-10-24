@@ -1162,11 +1162,12 @@ export const createJWTAuthClient = <
     },
 
     addEventListener(listener: AuthEventListener<T>): () => void {
-      // The public signature (on `AuthClient`) also accepts a default
-      // `AuthEventListener` when `T` extends `UserProfile`; its events carry
-      // every `UserProfile` field, so storing it as `AuthEventListener<T>` is
-      // sound. A profile that does not extend `UserProfile` only accepts
-      // `AuthEventListener<T>` — no event claims an `id` the user lacks.
+      // One listener signature, typed by the profile. A default
+      // `AuthEventListener` is still accepted when `T` extends `UserProfile`
+      // (contravariance: those events carry every `UserProfile` field, so
+      // storing it as `AuthEventListener<T>` is sound). A profile that does not
+      // extend `UserProfile` only accepts `AuthEventListener<T>` — no event
+      // claims an `id` the user lacks.
       eventListeners.add(listener)
       return () => eventListeners.delete(listener)
     },

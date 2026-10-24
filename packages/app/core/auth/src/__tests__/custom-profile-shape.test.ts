@@ -408,7 +408,32 @@ client.addEventListener((event: AuthEvent<SessionUser>) => {
     ).toEqual('')
   })
 
-  it('keeps a client whose profile extends UserProfile implementable with the default listener', () => {
+  it('contextually types an unannotated inline listener on a custom-profile client', () => {
+    // The public consumer shape: an id-bearing custom profile and a listener
+    // written without an annotation. `event` must be inferred, never `any`.
+    expect(
+      diagnosticsFor(`
+import { createJWTAuthClient, type UserProfile } from '../index.js'
+
+interface ExistingUser extends UserProfile {
+  username: string
+}
+
+const client = createJWTAuthClient<ExistingUser>()
+
+client.addEventListener((event) => {
+  if (event.type === 'login') {
+    const id: string = event.user.id
+    const username: string = event.user.username
+    void id
+    void username
+  }
+})
+`).join('\n'),
+    ).toEqual('')
+  })
+
+  it('implements the interface with the profile-typed listener', () => {
     expect(
       diagnosticsFor(`
 import type { AuthClient, AuthEventListener, AuthState, UserProfile } from '../types.js'
@@ -417,8 +442,49 @@ interface MyUser extends UserProfile {
   username: string
 }
 
-// The shape an external bond package shipped before listeners were typed by the
-// profile: a default (UserProfile) listener. It stays implementable.
+// The declaration an external provider writes after 2.0: the listener is typed
+// by the client's profile, so it is assignable for every profile.
+export declare class ProfileClient implements AuthClient<MyUser> {
+  addEventListener(listener: AuthEventListener<MyUser>): () => void
+  getState(): AuthState<MyUser>
+  isAuthenticated(): boolean
+  getUser(): MyUser | null
+  setUser(user: MyUser | null): void
+  getAccessToken(): string | null
+  setAccessToken(token: string | null): void
+  setSession(session: { accessToken: string; user: MyUser }): void
+  getRefreshToken(): string | null
+  login(): Promise<{ user: MyUser }>
+  logout(): Promise<void>
+  register(): Promise<{ user: MyUser }>
+  refresh(): Promise<{ user: MyUser }>
+  requestPasswordReset(): Promise<void>
+  confirmPasswordReset(): Promise<void>
+  updateProfile(): Promise<MyUser>
+  changePassword(): Promise<void>
+  initialize(): Promise<void>
+  subscribe(callback: (state: AuthState<MyUser>) => void): () => void
+  onAuthChange(callback: (state: AuthState<MyUser>) => void): () => void
+  destroy(): void
+}
+
+const listener: AuthEventListener<MyUser> = () => undefined
+export const registration = (client: ProfileClient) => client.addEventListener(listener)
+`).join('\n'),
+    ).toEqual('')
+  })
+
+  it('rejects the pre-2.0 default-listener declaration on a custom profile', () => {
+    // The documented breaking change: `AuthEventListener` (default profile)
+    // claims an `id` on every event, which a custom profile need not carry. The
+    // migration is `AuthEventListener<T>` — see the changeset.
+    const diagnostics = diagnosticsFor(`
+import type { AuthClient, AuthEventListener, AuthState, UserProfile } from '../types.js'
+
+interface MyUser extends UserProfile {
+  username: string
+}
+
 export declare class LegacyClient implements AuthClient<MyUser> {
   addEventListener(listener: AuthEventListener): () => void
   getState(): AuthState<MyUser>
@@ -442,11 +508,9 @@ export declare class LegacyClient implements AuthClient<MyUser> {
   onAuthChange(callback: (state: AuthState<MyUser>) => void): () => void
   destroy(): void
 }
+`)
 
-const listener: AuthEventListener = () => undefined
-export const registration = (client: LegacyClient) => client.addEventListener(listener)
-`).join('\n'),
-    ).toEqual('')
+    expect(diagnostics.join('\n')).toContain('addEventListener')
   })
 
   it('rejects the default listener on a client whose profile has no id', () => {
