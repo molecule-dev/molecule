@@ -1,5 +1,11 @@
 # @molecule/api-code-sandbox-flyio
 
+## 1.3.3
+
+### Patch Changes
+
+- `importFiles` now compresses the archive on the thread pool, so a server hosting this provider keeps answering requests while a large archive is imported.
+
 ## 1.3.1
 
 ### Patch Changes

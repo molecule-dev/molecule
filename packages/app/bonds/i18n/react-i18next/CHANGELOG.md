@@ -1,5 +1,12 @@
 # @molecule/app-i18n-react-i18next
 
+## 1.0.4
+
+### Patch Changes
+
+- Updated dependencies
+  - @molecule/app-i18n-i18next@1.0.4
+
 ## 1.0.1
 
 ### Patch Changes

@@ -1,5 +1,15 @@
 # @molecule/app-i18n
 
+## 1.1.0
+
+### Minor Changes
+
+- Add an optional provider revision that lets `useT` and `useTranslation` observe translation changes announced before their listener exists, including from a child's layout effect or while a hidden `<Activity>` tree has its effects unmounted.
+
+### Patch Changes
+
+- `createSimpleI18nProvider`'s `addTranslations()` notifies `onLocaleChange` subscribers when it changes text for the active locale or for English (the fallback), and stays quiet when nothing changed.
+
 ## 1.0.3
 
 ### Patch Changes

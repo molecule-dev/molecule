@@ -42,9 +42,9 @@
     "react-router": "^7.0.0 || ^8.0.0"
   },
   "devDependencies": {
-    "@molecule/app-i18n": "1.0.4",
+    "@molecule/app-i18n": "1.1.0",
     "@molecule/app-icons": "1.0.3",
-    "@molecule/app-react": "1.10.2",
+    "@molecule/app-react": "1.11.0",
     "@testing-library/react": "16.3.3",
     "@types/node": "26.6.5",
     "@types/react": "19.3.0",

@@ -47,9 +47,9 @@
   },
   "devDependencies": {
     "@molecule/app-auth-shell-react": "1.0.5",
-    "@molecule/app-i18n": "1.0.4",
+    "@molecule/app-i18n": "1.1.0",
     "@molecule/app-oauth-buttons-react": "1.0.4",
-    "@molecule/app-react": "1.10.2",
+    "@molecule/app-react": "1.11.0",
     "@molecule/app-ui": "1.3.8",
     "@molecule/app-ui-react": "1.3.6",
     "@testing-library/react": "16.3.3",

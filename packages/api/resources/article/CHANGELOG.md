@@ -1,5 +1,11 @@
 # @molecule/api-resource-article
 
+## 1.1.5
+
+### Patch Changes
+
+- Document that `createArticle` stamps `createdAt`/`updatedAt` strictly increasing per process and `updateArticle` always moves `updatedAt` past the stored value — an app never writes those columns itself.
+
 ## 1.1.3
 
 ### Patch Changes

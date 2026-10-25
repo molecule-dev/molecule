@@ -1,5 +1,12 @@
 # @molecule/api-ai-tools
 
+## 1.14.4
+
+### Patch Changes
+
+- `find_files` roots the search at `<path>/@scope` when the pattern starts with an npm scope under a `node_modules` directory, so `@molecule/<pkg>/package.json` lookups answer at once instead of walking the whole dependency tree into the 10 s timeout.
+- `wait_for_task`'s one-time failure diagnostic now yields only for a failure the run has finished with, so a first attempt whose retry is still pending no longer reads as a failure.
+
 ## 1.14.3
 
 ### Patch Changes

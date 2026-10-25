@@ -36,7 +36,7 @@
   },
   "devDependencies": {
     "@molecule/app-ai-image-generator": "1.0.3",
-    "@molecule/app-i18n": "1.0.4",
+    "@molecule/app-i18n": "1.1.0",
     "@types/node": "26.6.5",
     "typescript": "6.0.3",
     "vitest": "4.1.12"

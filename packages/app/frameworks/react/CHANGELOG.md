@@ -1,5 +1,15 @@
 # @molecule/app-react
 
+## 1.11.0
+
+### Minor Changes
+
+- `useT()` re-renders on locale changes while keeping one stable function identity, and accepts an inline fallback as its second argument (`t('key', 'English text')`); `useT()` and `useTranslation()` no longer miss a locale switch or new translations from another component's mount effect.
+
+### Patch Changes
+
+- Add an optional provider revision that lets `useT` and `useTranslation` observe translation changes announced before their listener exists, including from a child's layout effect or while a hidden `<Activity>` tree has its effects unmounted.
+
 ## 1.10.2
 
 ### Patch Changes
