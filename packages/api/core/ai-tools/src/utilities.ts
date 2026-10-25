@@ -2230,11 +2230,24 @@ export function findPathArgs(pattern: string): string {
  * more segments (`@molecule/api-resource-user/dist`), which is the shape that
  * is a directory rather than a directory name.
  *
+ * An npm SCOPE as the first segment, under a `node_modules` root, is the one
+ * exception that parameter `root` enables: npm installs a scope only directly
+ * inside a `node_modules` directory, and the walk already prunes every nested
+ * `node_modules` (see `findPruneArgs`), so the whole-tree form can only ever
+ * match `<root>/@molecule/…` — the scope directory IS the directory the pattern
+ * names. Left un-narrowed, a scoped-package pattern walked the sandbox's entire
+ * dependency tree and hit the 10 s deadline with no result at all
+ * (xr-molecule-flash-l65). A bare NAME stays a directory name at any depth:
+ * `helpers/*` is unchanged even under a `node_modules` root.
+ *
  * @param pattern - A pattern already accepted by {@link isValidGlob}.
+ * @param root - The resolved search root, when one is already known; a
+ *   scope-first prefix is returned only when this ends in a `node_modules`
+ *   segment (and the pattern has more path after the scope).
  * @returns The literal directory prefix, without a trailing slash, or null when
  *   the pattern has no glob character, no `/`, or only a bare name before one.
  */
-export function literalDirPrefix(pattern: string): string | null {
+export function literalDirPrefix(pattern: string, root?: string): string | null {
   const stripped = pattern.replace(/^(?:\.?\/)+/, '')
   const firstGlob = stripped.search(/[?*[]/)
   // No glob at all: the pattern IS a path, and the whole-tree form already
@@ -2243,7 +2256,12 @@ export function literalDirPrefix(pattern: string): string | null {
   const at = stripped.slice(0, firstGlob).lastIndexOf('/')
   if (at <= 0) return null
   const prefix = stripped.slice(0, at)
-  return prefix.includes('/') ? prefix : null
+  if (prefix.includes('/')) return prefix
+  // One segment: a bare directory NAME ("any depth", flash-m77) — except an npm
+  // scope directly inside the node_modules root, which is one directory (above).
+  if (root === undefined || !/^@[^/*?[]+$/.test(prefix)) return null
+  const rootName = root.replace(/\/+$/, '').split('/').pop()
+  return rootName === 'node_modules' ? prefix : null
 }
 
 /**

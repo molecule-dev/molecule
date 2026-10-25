@@ -141,6 +141,54 @@ describe('find_files — the pattern’s own directory is the search root (flash
   })
 })
 
+describe('find_files — an npm-scope prefix under `node_modules` is one directory (flash-l65)', () => {
+  it('searches `<path>/@scope`, not the whole dependency tree', async () => {
+    const dir = '/workspace/node_modules/@molecule'
+    const { backend, commands } = spyBackend([dir], () => ({
+      stdout: `${dir}/app-markdown-marked/package.json\n${dir}/app-markdown-react-markdown/package.json\n`,
+      stderr: '',
+      exitCode: 0,
+    }))
+    const out = (await findTool(backend).execute({
+      path: '/workspace/node_modules',
+      pattern: '@molecule/app-markdown*/package.json',
+    })) as { files?: string[]; note?: string; error?: string }
+
+    expect(commands[0]).toBe(`test -d '${dir}'`)
+    const find = commands.find((c) => c.startsWith('find ')) ?? ''
+    expect(find.startsWith(`find '${dir}' `)).toBe(true)
+    // The remainder keeps the `-path` form, so `*` still crosses `/`.
+    expect(find).toContain("-path '*/app-markdown*/package.json'")
+    expect(find).not.toContain("find '/workspace/node_modules'")
+    expect(out.files).toEqual([
+      `${dir}/app-markdown-marked/package.json`,
+      `${dir}/app-markdown-react-markdown/package.json`,
+    ])
+    expect(out.note).toBeUndefined()
+  })
+
+  it('falls back to all of `path`, and says so, when the scope directory does not exist', async () => {
+    const { backend, commands } = spyBackend([], () => ({ stdout: '', stderr: '', exitCode: 0 }))
+    const out = (await findTool(backend).execute({
+      path: '/workspace/node_modules',
+      pattern: '@molecule/app-markdown*/package.json',
+    })) as { note?: string }
+
+    expect(commands.some((c) => c.startsWith("find '/workspace/node_modules' "))).toBe(true)
+    expect(out.note).toContain(
+      '"/workspace/node_modules/@molecule" does not exist; searched all of /workspace/node_modules.',
+    )
+  })
+
+  it('leaves a scope prefix alone when the root is not a node_modules directory', async () => {
+    const { backend, commands } = spyBackend([], () => ({ stdout: '', stderr: '', exitCode: 0 }))
+    await findTool(backend).execute({ path: '.', pattern: '@molecule/*' })
+
+    expect(commands.some((c) => c.startsWith('test -d '))).toBe(false)
+    expect(commands.find((c) => c.startsWith('find '))?.startsWith("find '/workspace' ")).toBe(true)
+  })
+})
+
 describe('literalDirPrefix', () => {
   it('names the path a glob pattern spells out, and leaves a bare name alone', () => {
     expect(literalDirPrefix('@molecule/api-resource-user/dist/*.d.ts')).toBe(
@@ -158,6 +206,23 @@ describe('literalDirPrefix', () => {
     expect(literalDirPrefix('api/src/handlers/conduit.ts')).toBeNull()
     expect(literalDirPrefix('*.d.ts')).toBeNull()
     expect(literalDirPrefix('**/SELECTORS.md')).toBeNull()
+  })
+
+  it('narrows an npm scope only under a node_modules root (flash-l65)', () => {
+    expect(
+      literalDirPrefix('@molecule/app-markdown*/package.json', '/workspace/node_modules'),
+    ).toBe('@molecule')
+    expect(literalDirPrefix('@molecule/*', '/workspace/node_modules/')).toBe('@molecule')
+    // A root that is not node_modules keeps the bare-name meaning ("any depth").
+    expect(literalDirPrefix('@molecule/app-markdown*/package.json', '/workspace')).toBeNull()
+    expect(literalDirPrefix('@molecule/app-markdown*/package.json')).toBeNull()
+    // A bare NAME is never a scope, even under node_modules (flash-m77).
+    expect(literalDirPrefix('helpers/*', '/workspace/node_modules')).toBeNull()
+    expect(literalDirPrefix('e2e/*.spec.ts', '/workspace/node_modules')).toBeNull()
+    // A multi-segment prefix names a directory whatever the root is (flash-m94).
+    expect(literalDirPrefix('@molecule/api-resource-user/dist/*.d.ts', '/workspace')).toBe(
+      '@molecule/api-resource-user/dist',
+    )
   })
 })
 
@@ -184,6 +249,14 @@ beforeAll(() => {
   write('node_modules/@molecule/api-resource-user/dist/handlers/create.d.ts', 'export\n')
   write('node_modules/@molecule/api-resource-user/dist/index.js', 'module.exports\n')
   write('node_modules/@molecule/api-resource-comment/dist/index.d.ts', 'export\n')
+  // The l65 shape: a scope prefix with a wildcard INSIDE its second segment, so
+  // the literal prefix is the one-segment scope (`@molecule`). The non-matching
+  // sibling and the nested install prove the answer is the same set the whole
+  // walk would have produced (nested `node_modules` is pruned).
+  write('node_modules/@molecule/app-markdown-marked/package.json', '{}\n')
+  write('node_modules/@molecule/app-markdown-react-markdown/package.json', '{}\n')
+  write('node_modules/@molecule/app-fonts-ionicons/package.json', '{}\n')
+  write('node_modules/plain-pkg/node_modules/@molecule/app-markdown-shadow/package.json', '{}\n')
   // The m77 shape: a `helpers/` at the root AND one nested, where only the root
   // copy is what a naive narrowing would return.
   write('helpers/top.ts', 'top\n')
@@ -220,5 +293,17 @@ describe('find_files against a real tree', () => {
   it('still finds a bare-name directory at any depth (`helpers/*`)', async () => {
     const out = await findFiles({ path: '.', pattern: 'helpers/*' })
     expect(base(out.files)).toEqual(['/helpers/top.ts', '/my-app/src/helpers/deep.ts'])
+  })
+
+  it('finds every scoped package matching an npm-scope prefix (flash-l65)', async () => {
+    const out = await findFiles({
+      path: 'node_modules',
+      pattern: '@molecule/app-markdown*/package.json',
+    })
+    expect(base(out.files)).toEqual([
+      '/node_modules/@molecule/app-markdown-marked/package.json',
+      '/node_modules/@molecule/app-markdown-react-markdown/package.json',
+    ])
+    expect(out.note).toBeUndefined()
   })
 })

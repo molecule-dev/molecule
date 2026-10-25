@@ -2949,9 +2949,13 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       // the model meant answered a `list_files` instantly (xr-molecule-flash-m94).
       // A bare first segment (`helpers/*`) is left alone on purpose: it means "any
       // `helpers/` below the root" (xr-molecule-flash-m77, see literalDirPrefix).
+      // An npm scope under a `node_modules` root is the exception the root enables:
+      // `@molecule/app-markdown*/package.json` names `<root>/@molecule` and nothing
+      // else, and un-narrowed it walked the whole dependency tree into the deadline
+      // (xr-molecule-flash-l65).
       // Brace alternatives may each name a directory (`{src/a,src/b}/*.ts`),
       // so a narrowing prefix is used only when every expansion agrees on it.
-      const prefixes = patterns.map((p) => literalDirPrefix(p))
+      const prefixes = patterns.map((p) => literalDirPrefix(p, path))
       const prefixDir = prefixes.every((p) => p === prefixes[0]) ? prefixes[0] : null
       let findRoot = path
       let findArgs = findArgsForPatterns(patterns)
