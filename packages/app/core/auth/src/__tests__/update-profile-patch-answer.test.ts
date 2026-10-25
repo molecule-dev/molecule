@@ -5,10 +5,10 @@
  * `@molecule/api-resource` answers an update with the props it wrote (`{ props: { bio,
  * updatedAt } }`), not the whole user. Stored as the session user, that answer dropped every
  * field the save did not touch — from every `useAuth()` reader, from the stored session and
- * from the next save's route (`/users/undefined`). An answer that names no `id` while the
- * signed-in user has one is applied onto that user: each field it carries replaces the current
- * value, every field it does not carry is kept. An answer that names its user, or any answer
- * for a profile type without an `id`, is the whole profile and replaces it, as before.
+ * from the next save's route (`/users/undefined`). Every answer is applied onto the signed-in
+ * user field by field: each field it carries replaces the current value, every field it does
+ * not carry is kept. An `id` in the answer is a field like any other, and a whole-profile
+ * answer — with or without an `id`, in any envelope — keeps a field it leaves out.
  */
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
@@ -176,23 +176,30 @@ describe('updateProfile applies a changed-fields answer onto the signed-in user'
     expect(client.getUser()).toEqual({ ...member, bio: 'New bio', name: 'Ada L.' })
   })
 
-  it('never takes the user’s identity from an answer that does not name it', async () => {
-    const { client } = setup({ '/users/u1': () => Response.json({ id: null, bio: 'New bio' }) })
+  it('applies an answer that names the user and carries only the changed fields', async () => {
+    // A REST or GraphQL mutation that echoes the id beside the changed fields: the id says
+    // which user was saved, not that the answer is the whole profile.
+    const { client, items } = setup({
+      '/users/u1': () => Response.json({ id: 'u1', bio: 'New bio', updatedAt: 'T1' }),
+    })
 
-    await client.updateProfile({ bio: 'New bio' })
+    const saved = await client.updateProfile({ bio: 'New bio' })
 
-    expect(client.getUser()).toEqual({ ...member, bio: 'New bio' })
+    expect(saved).toEqual({ ...member, bio: 'New bio', updatedAt: 'T1' })
+    expect(client.getUser()).toEqual(saved)
+    expect(stored(items)).toEqual(saved)
   })
 })
 
-describe('updateProfile replaces the user with an answer that is the whole profile', () => {
+describe('updateProfile applies a whole-profile answer field by field', () => {
   it.each([
     ['a bare user', (user: Member) => user],
     ['{ user }', (user: Member) => ({ user })],
     ['{ props }', (user: Member) => ({ props: user })],
   ])(
-    'an answer that names its user (%s) replaces it, dropping a field it omits',
+    'a whole-profile answer (%s) sets every field it carries and keeps one it leaves out',
     async (_, wrap) => {
+      // The answer leaves `avatar` out: leaving a field out never clears it.
       const whole: Member = {
         id: 'u1',
         name: 'Ada',
@@ -201,16 +208,17 @@ describe('updateProfile replaces the user with an answer that is the whole profi
         bio: 'New',
       }
       const { client, items } = setup({ '/users/u1': () => Response.json(wrap(whole)) })
+      const saved = { ...whole, avatar: member.avatar }
 
-      expect(await client.updateProfile({ bio: 'New' })).toEqual(whole)
-      expect(client.getUser()).toEqual(whole)
-      expect(stored(items)).toEqual(whole)
+      expect(await client.updateProfile({ bio: 'New' })).toEqual(saved)
+      expect(client.getUser()).toEqual(saved)
+      expect(stored(items)).toEqual(saved)
     },
   )
 
-  it('an answer for a profile type without an id replaces the user, as before', async () => {
-    // RealWorld-shaped: the profile has no id, so the client cannot tell a whole profile from a
-    // patch, and keeps the published behavior — the answer is the profile.
+  it('an answer for a profile type without an id is applied onto the stored user', async () => {
+    // RealWorld-shaped: the profile has no id. Its answer is applied like any other — `image`,
+    // which the answer leaves out, is kept.
     type SessionUser = { username: string; email: string; bio: string | null; image?: string }
     const items = new Map<string, string>()
     vi.stubGlobal(
@@ -240,7 +248,12 @@ describe('updateProfile replaces the user with an answer that is the whole profi
 
     await client.updateProfile({ bio: 'New' })
 
-    expect(client.getUser()).toEqual({ username: 'ada', email: 'a@x.test', bio: 'New' })
+    expect(client.getUser()).toEqual({
+      username: 'ada',
+      email: 'a@x.test',
+      bio: 'New',
+      image: 'old.png',
+    })
   })
 })
 

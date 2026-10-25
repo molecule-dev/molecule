@@ -147,27 +147,30 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value)
 
 /**
- * The profile a successful profile save leaves the session with.
+ * The profile a successful profile save leaves the session with: the answer applied field by
+ * field onto the profile the save was sent for.
  *
- * `@molecule/api-resource-user` answers a save with the CHANGED fields only
- * (`{ props: { bio, updatedAt } }`). When the profile names its user (`id`) and the answer
- * does not, the answer is a patch of that profile: each field it carries replaces the current
- * value, and every field it does not carry is kept — including one a mapper read as
- * `undefined` from the partial wire user, and the profile's own `id`. An answer that names its
- * user is the whole profile, and so is any answer for a profile type without an `id`, which
- * cannot tell a patch from a profile.
+ * `updateProfile()` sends a partial update. An API may answer it with the CHANGED fields only —
+ * `@molecule/api-resource-user` answers `{ props: { bio, updatedAt } }`, an account API
+ * `{ account: { displayName } }`, a mutation `{ id, displayName }` — or with the whole profile,
+ * and no field tells the two apart: an `id` can come with a partial answer, and a mapper may
+ * derive one from a changed field. So each field the answer carries replaces the current value
+ * (an explicit `null` clears it, `id` included), and each field it does not carry is kept —
+ * including one a field-by-field mapper read as `undefined` from a partial wire user. A whole
+ * answer therefore gives its own values, and keeps a field it leaves out: an API that clears a
+ * field by omitting it must answer (or map) that field as `null`. Nothing reads a profile field,
+ * so a profile type with or without an `id` is applied the same way.
+ *
+ * An answer that is not a JSON object, or a save with no profile to apply it to, is returned as
+ * it came.
  *
  * @param profile - The profile the save was applied to.
  * @param answer - The mapped profile answer.
  * @returns The saved profile.
  */
 const applyProfileAnswer = <T>(profile: T | null, answer: T): T => {
-  if (!isRecord(profile) || !isRecord(answer) || profile.id == null || answer.id != null) {
-    return answer
-  }
-  const carried = Object.entries(answer).filter(
-    ([key, value]) => key !== 'id' && value !== undefined,
-  )
+  if (!isRecord(profile) || !isRecord(answer)) return answer
+  const carried = Object.entries(answer).filter(([, value]) => value !== undefined)
   return { ...profile, ...Object.fromEntries(carried) }
 }
 

@@ -155,7 +155,7 @@
  * `getUser()` and every page as if the server had said it.
  *
  * A profile does not have to extend `UserProfile` and does not need an `id`: the client
- * stores and returns the object it is given and reads no field of it. Name the API's own
+ * stores and patches the object it is given and reads no field of it. Name the API's own
  * shape, pass it to the factory and the config, and have the mapper return it complete —
  * every configuration adapter is typed by the same `T` (`mapAuthResponse`, the
  * `profileEndpoint`/`profileUpdateMethod`/`profileRequestBody` write transport,
@@ -232,7 +232,11 @@
  * coherent, and hand-written adapters have had to repair those callbacks repeatedly.
  * A pending profile response is published only to the session that sent it:
  * signing out or explicitly adopting/signing in another session prevents the old
- * response from replacing the active user's stored profile.
+ * response from changing the active user's stored profile. The answer is applied onto the
+ * stored profile field by field: a field it carries replaces the stored value (`null` clears
+ * it) and one it leaves out — or that `mapAuthResponse` leaves `undefined` — is kept, so a
+ * field the API clears by leaving it out must reach the client as `null`, answered by the API
+ * or mapped by `mapAuthResponse`.
  *
  * **A background verification that returns an unchanged user changes nothing.** When
  * `validateSession()` (or a reload's restore) answers with the same profile data the client

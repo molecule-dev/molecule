@@ -617,12 +617,12 @@ export interface AuthClient<
 
   /**
    * Updates the current user's profile.
-   * Returns the saved profile: the answer's user, or — when the answer names no
-   * `id` while the signed-in user has one (a changed-fields answer such as
-   * `{ props: { bio } }`) — the signed-in user with the fields the answer
-   * carries applied. If the session is explicitly replaced or ended while the
-   * request is pending, that response does not replace the current session's
-   * user or persisted cache.
+   * Returns the saved profile: the answer applied onto the signed-in user field
+   * by field, with or without an `id` — a field it carries replaces the value
+   * (`null` clears it), one it omits or leaves `undefined` is kept, so a field
+   * cleared by omission must arrive as `null`. A non-object answer is returned
+   * as it came. An answer for a replaced or ended session leaves the current one
+   * untouched.
    */
   updateProfile(data: Partial<T>): Promise<T>
 
@@ -767,7 +767,7 @@ export interface StorageAdapter {
  * wire-preserving adapter.
  *
  * `T` is the app's OWN profile shape and need not extend {@link UserProfile}:
- * the client stores and returns the object it is given and reads no field of
+ * the client stores and patches the object it is given and reads no field of
  * it, so an API whose user has no `id` — `{ username, email, bio, image }` —
  * is typed by its own `interface` directly, with no fabricated `id`. The
  * default, {@link UserProfile}, still requires `id: string`. A primitive,
