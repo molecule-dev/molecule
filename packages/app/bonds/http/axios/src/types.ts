@@ -27,7 +27,9 @@ export { HttpError } from '@molecule/app-http'
  */
 export interface AxiosHttpClientConfig {
   /**
-   * Base URL for all requests.
+   * Base URL for all requests — also when `instance` is given: a path (`/api`) or an absolute
+   * URL (`https://api.example.com/api`). A request path that already starts with the base's
+   * path (`/api/users`) is requested as written, never prefixed again.
    */
   baseURL?: string
 

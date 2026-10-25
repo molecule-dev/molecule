@@ -142,6 +142,35 @@ interface SessionCookieRestore<T> {
   error?: string
 }
 
+/** A JSON object of named fields — the only shape a profile or a profile answer can patch. */
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value)
+
+/**
+ * The profile a successful profile save leaves the session with.
+ *
+ * `@molecule/api-resource-user` answers a save with the CHANGED fields only
+ * (`{ props: { bio, updatedAt } }`). When the profile names its user (`id`) and the answer
+ * does not, the answer is a patch of that profile: each field it carries replaces the current
+ * value, and every field it does not carry is kept — including one a mapper read as
+ * `undefined` from the partial wire user, and the profile's own `id`. An answer that names its
+ * user is the whole profile, and so is any answer for a profile type without an `id`, which
+ * cannot tell a patch from a profile.
+ *
+ * @param profile - The profile the save was applied to.
+ * @param answer - The mapped profile answer.
+ * @returns The saved profile.
+ */
+const applyProfileAnswer = <T>(profile: T | null, answer: T): T => {
+  if (!isRecord(profile) || !isRecord(answer) || profile.id == null || answer.id != null) {
+    return answer
+  }
+  const carried = Object.entries(answer).filter(
+    ([key, value]) => key !== 'id' && value !== undefined,
+  )
+  return { ...profile, ...Object.fromEntries(carried) }
+}
+
 /**
  * Creates a simple JWT-based auth client.
  *
@@ -1028,12 +1057,18 @@ export const createJWTAuthClient = <
       const raw = unwrapped.user ?? answer
       // The profile route answers the wire shape as well; map it like every
       // other answer that replaces the cached user.
-      const user = mapCurrentUser(answer, raw) ?? raw
+      const mapped = mapCurrentUser(answer, raw) ?? raw
       // The server may have accepted the old account's update, but that answer
       // must never replace a signed-out or newly signed-in account's cached
-      // user. Return the request's result while leaving the current session
-      // (storage and subscribers) untouched.
-      if (revision !== sessionRevision) return user
+      // user. Return the request's result, applied to the profile it was sent
+      // for, while leaving the current session (storage and subscribers) untouched.
+      if (revision !== sessionRevision) return applyProfileAnswer(profileUser, mapped)
+      // A changed-fields answer stored as the user dropped every field the save did not
+      // touch from every `useAuth()` reader, the stored session and the next save's route
+      // (`/users/undefined`). Apply it to the session's CURRENT user — a same-session
+      // refresh that landed during the save is kept — and store and publish the result
+      // once, so no reader ever sees the partial answer.
+      const user = applyProfileAnswer(state.user, mapped)
       tokenStorage.setUser(user)
       setState({ user })
 

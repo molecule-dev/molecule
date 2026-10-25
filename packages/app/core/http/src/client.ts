@@ -102,7 +102,10 @@ export interface HttpClient {
  */
 export interface HttpClientConfig {
   /**
-   * Base URL for all requests.
+   * Base URL for all requests: a path (`/api`) or an absolute URL
+   * (`https://api.example.com/api`). A request path that already starts with the base's
+   * path (`/api/users`) is not prefixed again, and a URL with its own host (`https://…`,
+   * `//cdn…`) is requested as written.
    */
   baseURL?: string
 

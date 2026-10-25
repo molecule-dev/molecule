@@ -21,7 +21,7 @@
     "node": ">=20"
   },
   "peerDependencies": {
-    "@molecule/app-http": "^1.0.1",
+    "@molecule/app-http": "^1.4.0",
     "axios": "^1.6.0"
   },
   "devDependencies": {

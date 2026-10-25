@@ -24,6 +24,36 @@ function sleep(ms: number): Promise<void> {
 /** A response whose body is an HTML document, not JSON. */
 const HTML_CONTENT_TYPE = /^text\/html\b/i
 
+/** A URL that names its own host: a scheme (`https://`) or protocol-relative (`//cdn…`). */
+const ABSOLUTE_URL = /^([a-z][a-z\d+\-.]*:)?\/\//i
+
+/** The scheme and host of an absolute baseURL (`https://host:8443`); nothing for a path. */
+const BASE_AUTHORITY = /^([a-z][a-z\d+\-.]*:)?\/\/[^/?#]*/i
+
+/**
+ * The URL a request goes to under the client's baseURL.
+ *
+ * A URL that names its own host is used as written. Callers (e.g.
+ * `@molecule/app-billing-react` hooks) pass absolute `/api/...` paths whether or not a
+ * baseURL is bonded, so a path that already starts with the baseURL's path — `/api/users`
+ * under `/api` or under `https://host/api` — is the full path and is not prefixed a second
+ * time. Any other URL is joined onto the baseURL with exactly one `/`, as Axios joins them.
+ *
+ * @param baseURL - The client's baseURL.
+ * @param url - The request URL.
+ * @returns The URL to fetch.
+ */
+function joinBaseURL(baseURL: string, url: string): string {
+  if (!baseURL || ABSOLUTE_URL.test(url)) return url
+  const base = baseURL.replace(/\/+$/, '')
+  const authority = BASE_AUTHORITY.exec(base)?.[0] ?? ''
+  const basePath = base.slice(authority.length)
+  if (basePath && url.startsWith(basePath) && /^(?:$|[/?#])/.test(url.slice(basePath.length))) {
+    return authority + url
+  }
+  return url ? `${base}/${url.replace(/^\/+/, '')}` : baseURL
+}
+
 /**
  * Creates a fetch-based HTTP client using the native Fetch API.
  *
@@ -82,16 +112,7 @@ export const createFetchClient = (config: HttpClientConfig = {}): HttpClient => 
       }
 
       // Build URL
-      let url = finalConfig.url
-      if (client.baseURL && !url.startsWith('http://') && !url.startsWith('https://')) {
-        // Guard against double-prefixing: callers (e.g. @molecule/app-billing-react
-        // hooks) pass absolute `/api/...` paths whether or not a baseURL is bonded.
-        // If the URL already starts with the bonded baseURL, leave it alone.
-        const prefix = client.baseURL.endsWith('/') ? client.baseURL : client.baseURL + '/'
-        if (!url.startsWith(prefix) && url !== client.baseURL) {
-          url = client.baseURL + url
-        }
-      }
+      let url = joinBaseURL(client.baseURL, finalConfig.url)
 
       // Add query params
       if (finalConfig.params) {

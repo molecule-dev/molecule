@@ -85,25 +85,40 @@ function toHttpResponse<T>(response: AxiosResponse<T>, config: FullRequestConfig
   }
 }
 
+/** A URL that names its own host: a scheme (`https://`) or protocol-relative (`//cdn…`). */
+const ABSOLUTE_URL = /^([a-z][a-z\d+\-.]*:)?\/\//i
+
+/** The scheme and host of an absolute base URL (`https://host:8443`); nothing for a path. */
+const BASE_AUTHORITY = /^([a-z][a-z\d+\-.]*:)?\/\/[^/?#]*/i
+
 /**
- * Removes the bonded `baseURL` from a relative request URL, so Axios does not join it twice.
+ * The base and URL to hand Axios for one request under the bonded base URL, so it requests
+ * the URL `@molecule/app-http`'s fetch client requests.
  *
- * Axios combines `baseURL` with every URL that carries no protocol, so `get('/api/articles')`
- * under `baseURL: '/api'` would request `/api/api/articles`. Callers legitimately pass the
- * absolute path — the scaffolded app's own examples call `/api/...` — and
- * `@molecule/app-http`'s fetch client already leaves a URL that starts with the bonded base as
- * written. This applies the same rule on the Axios path (xr-molecule-flash-m206: a client
- * bonded with the `/api` base must serve both `get('/tags')` and `get('/api/tags')`).
+ * Axios joins `baseURL` to every URL that names no host, with one `/` between them, so
+ * `get('/api/articles')` under `baseURL: '/api'` — or `'https://host/api'` — would request
+ * `…/api/api/articles`. Callers legitimately pass the full path — the scaffolded app's own
+ * examples call `/api/...` (xr-molecule-flash-m206: a client bonded with the `/api` base must
+ * serve both `get('/tags')` and `get('/api/tags')`) — so a path that already starts with the
+ * base's path, in whole segments (`/api`, `/api/…`, `/api?…`, `/api#…`; never `/apiary`), is
+ * requested as written: Axios gets it with only the base's scheme and host. Every other URL is
+ * joined to the bonded base by Axios as usual, so a URL with its own host follows Axios's own
+ * rules (`allowAbsoluteUrls` included).
  *
  * @param url - The URL the caller (or a request interceptor) supplied.
  * @param baseURL - The client's bonded base URL.
- * @returns The URL without the bonded prefix, unchanged for an absolute URL or no base.
+ * @returns The base and URL for Axios to join.
  */
-function stripBondedBaseURL(url: string, baseURL: string): string {
-  if (!baseURL || /^[a-z][a-z0-9+.-]*:\/\//i.test(url)) return url
-  const prefix = baseURL.endsWith('/') ? baseURL : `${baseURL}/`
-  if (url === baseURL) return ''
-  return url.startsWith(prefix) ? url.slice(baseURL.length) : url
+function bondedRequest(url: string, baseURL: string): { baseURL: string; url: string } {
+  const base = baseURL.replace(/\/+$/, '')
+  const authority = BASE_AUTHORITY.exec(base)?.[0] ?? ''
+  const basePath = base.slice(authority.length)
+  const underBasePath =
+    basePath !== '' &&
+    !ABSOLUTE_URL.test(url) &&
+    url.startsWith(basePath) &&
+    /^(?:$|[/?#])/.test(url.slice(basePath.length))
+  return underBasePath ? { baseURL: authority, url } : { baseURL, url }
 }
 
 /**
@@ -239,9 +254,16 @@ export function createAxiosClient(config: AxiosHttpClientConfig = {}): HttpClien
       config = await interceptor(config)
     }
 
-    // Apply back to Axios config. A URL that already carries the bonded base is left as the
-    // caller wrote it — Axios would otherwise prefix it a second time.
-    axiosConfig.url = stripBondedBaseURL(config.url, baseURL)
+    // Apply back to Axios config. The bonded base is the base of every request, also on an
+    // existing instance; a URL that already carries its path is requested as written — Axios
+    // would otherwise prefix it a second time.
+    if (baseURL) {
+      const request = bondedRequest(config.url, baseURL)
+      axiosConfig.baseURL = request.baseURL
+      axiosConfig.url = request.url
+    } else {
+      axiosConfig.url = config.url
+    }
     axiosConfig.method = config.method.toLowerCase()
     axiosConfig.headers.set(config.headers ?? {})
     axiosConfig.params = config.params

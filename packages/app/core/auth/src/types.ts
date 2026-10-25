@@ -617,9 +617,12 @@ export interface AuthClient<
 
   /**
    * Updates the current user's profile.
-   * Returns the saved response. If the session is explicitly replaced or ended
-   * while the request is pending, that response does not replace the current
-   * session's user or persisted cache.
+   * Returns the saved profile: the answer's user, or — when the answer names no
+   * `id` while the signed-in user has one (a changed-fields answer such as
+   * `{ props: { bio } }`) — the signed-in user with the fields the answer
+   * carries applied. If the session is explicitly replaced or ended while the
+   * request is pending, that response does not replace the current session's
+   * user or persisted cache.
    */
   updateProfile(data: Partial<T>): Promise<T>
 

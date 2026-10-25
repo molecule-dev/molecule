@@ -179,9 +179,9 @@ describe('@molecule/app-http-axios', () => {
     // `get('/tags')` asked the page origin and read the front's index.html. Once the bond passes
     // `API_BASE_URL`, page code may call either shape — a route (`/tags`) or the absolute API
     // path the platform's own examples use (`/api/tags`) — and both must reach `/api/tags`.
-    // Axios joins `baseURL` to any URL without a protocol, so the absolute shape is normalized
-    // here rather than becoming `/api/api/tags`.
-    const send = async (url: string): Promise<string> => {
+    // Axios joins `baseURL` to any URL without a protocol, so the absolute shape is handed to
+    // Axios without the base's path rather than becoming `/api/api/tags`.
+    const send = async (url: string): Promise<{ baseURL?: string; url: string }> => {
       // The auth-gate test above leaves a releasing implementation on this mock
       // (`clearAllMocks` keeps implementations), which would hold every request here.
       mockAwaitAuthGate.mockResolvedValue(undefined)
@@ -189,21 +189,28 @@ describe('@molecule/app-http-axios', () => {
       const interceptor = mockInterceptorsRequest.use.mock.calls[0]?.[0] as (
         config: unknown,
       ) => Promise<unknown>
-      const axiosConfig = { method: 'GET', url, headers: { set: vi.fn() } }
+      const axiosConfig: { method: string; url: string; baseURL?: string; headers: unknown } = {
+        method: 'GET',
+        url,
+        headers: { set: vi.fn() },
+      }
       await interceptor(axiosConfig)
-      return axiosConfig.url
+      return { baseURL: axiosConfig.baseURL, url: axiosConfig.url }
     }
 
     it('leaves a route for Axios to prefix with the bonded base', async () => {
-      expect(await send('/tags')).toBe('/tags')
+      expect(await send('/tags')).toEqual({ baseURL: '/api', url: '/tags' })
     })
 
     it('does not prefix an absolute /api path a second time', async () => {
-      expect(await send('/api/tags')).toBe('/tags')
+      expect(await send('/api/tags')).toEqual({ baseURL: '', url: '/api/tags' })
     })
 
     it('leaves a fully absolute URL as written', async () => {
-      expect(await send('https://other.test/api/tags')).toBe('https://other.test/api/tags')
+      expect(await send('https://other.test/api/tags')).toEqual({
+        baseURL: '/api',
+        url: 'https://other.test/api/tags',
+      })
     })
 
     it('leaves a route alone when no base is bonded', async () => {
@@ -212,9 +219,14 @@ describe('@molecule/app-http-axios', () => {
       const interceptor = mockInterceptorsRequest.use.mock.calls[0]?.[0] as (
         config: unknown,
       ) => Promise<unknown>
-      const axiosConfig = { method: 'GET', url: '/api/tags', headers: { set: vi.fn() } }
+      const axiosConfig: { method: string; url: string; baseURL?: string; headers: unknown } = {
+        method: 'GET',
+        url: '/api/tags',
+        headers: { set: vi.fn() },
+      }
       await interceptor(axiosConfig)
-      expect(axiosConfig.url).toBe('/api/tags')
+      expect(axiosConfig).toMatchObject({ url: '/api/tags' })
+      expect(axiosConfig).not.toHaveProperty('baseURL')
     })
   })
 

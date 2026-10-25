@@ -198,6 +198,97 @@ describe('HTTP Provider', () => {
 
       expect(mockFetch).toHaveBeenCalledWith('https://other.com/data', expect.any(Object))
     })
+
+    it('should not prefix a URL that already starts with a relative baseURL', async () => {
+      mockFetch.mockImplementation(() => createMockResponse({}))
+      const client = createFetchClient({ baseURL: '/api' })
+
+      await client.get('/api/users')
+      await client.get('/users')
+
+      expect(mockFetch.mock.calls.map(([url]) => url)).toEqual(['/api/users', '/api/users'])
+    })
+
+    it('should not prefix a URL that already starts with the path of an absolute baseURL', async () => {
+      mockFetch.mockImplementation(() => createMockResponse({}))
+      const client = createFetchClient({ baseURL: 'https://api.example.com/api' })
+
+      await client.get('/api/users')
+      await client.get('/api')
+      await client.get('/users')
+      await client.get('/apiary')
+
+      expect(mockFetch.mock.calls.map(([url]) => url)).toEqual([
+        'https://api.example.com/api/users',
+        'https://api.example.com/api',
+        'https://api.example.com/api/users',
+        'https://api.example.com/api/apiary',
+      ])
+    })
+
+    it('should not prefix a URL that already starts with the path of an absolute baseURL ending in a slash', async () => {
+      mockFetch.mockImplementation(() => createMockResponse({}))
+      const client = createFetchClient({ baseURL: 'https://api.example.com/api/' })
+
+      await client.get('/api/users')
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        'https://api.example.com/api/users',
+        expect.any(Object),
+      )
+    })
+
+    it.each([
+      // The full path under a base ending in `/`.
+      ['https://api.example.com/api/', '/api', 'https://api.example.com/api'],
+      ['/api/', '/api?page=2', '/api?page=2'],
+      // A URL with its own host is requested as written, under any base.
+      ['/api', '//cdn.example.com/app.js', '//cdn.example.com/app.js'],
+      ['https://api.example.com/api', '//cdn.example.com/app.js', '//cdn.example.com/app.js'],
+      ['https://api.example.com/api', 'HTTPS://other.example/data', 'HTTPS://other.example/data'],
+      // Exactly one `/` between the base and the path.
+      ['https://api.example.com/', '/users', 'https://api.example.com/users'],
+      ['/api/', '/users', '/api/users'],
+      ['/api', 'users', '/api/users'],
+      ['/api', '', '/api'],
+      // Whatever the base's path is: nothing about `/api` is special.
+      ['/backend', '/backend/items', '/backend/items'],
+      ['/backend', '/items', '/backend/items'],
+      ['https://api.example.com/api/v2', '/api/v2/items', 'https://api.example.com/api/v2/items'],
+      ['https://api.example.com/api/v2', '/api/items', 'https://api.example.com/api/v2/api/items'],
+      ['http://localhost:4000/api', '/api/users/1', 'http://localhost:4000/api/users/1'],
+      // A base without a path prefixes every path.
+      ['https://api.example.com', '/api/users', 'https://api.example.com/api/users'],
+      // The base's path matches whole segments only.
+      ['/api', '/apiary', '/api/apiary'],
+      ['https://api.example.com/api', '/api-docs', 'https://api.example.com/api/api-docs'],
+      // A query or fragment right after the base's path still makes it the full path.
+      ['/api', '/api?page=2', '/api?page=2'],
+      ['https://api.example.com/api', '/api#top', 'https://api.example.com/api#top'],
+      [
+        'https://api.example.com/api',
+        '/api/users?page=2#top',
+        'https://api.example.com/api/users?page=2#top',
+      ],
+    ])('joins baseURL %s and %s as %s', async (baseURL, url, expected) => {
+      mockFetch.mockImplementation(() => createMockResponse({}))
+
+      await createFetchClient({ baseURL }).get(url)
+
+      expect(mockFetch).toHaveBeenCalledWith(expected, expect.any(Object))
+    })
+
+    it('appends query params after the joined path', async () => {
+      mockFetch.mockImplementation(() => createMockResponse({}))
+      const client = createFetchClient({ baseURL: 'https://api.example.com/api' })
+
+      await client.get('/api/users', { params: { q: 'ada' } })
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        'https://api.example.com/api/users?q=ada',
+        expect.any(Object),
+      )
+    })
   })
 
   describe('auth token', () => {
