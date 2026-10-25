@@ -2,13 +2,13 @@
  * A command that a budget stopped before it finished, and the state its result carries so no
  * reader can mistake it for a run that ended.
  *
- * X1 xr-molecule-flash-m93 (2026-10-16, +12:37) sent the supplied RealWorld suite as
- * `timeout 280 hurl --test --continue-on-error --jobs 1 … hurl/*.hurl 2>&1 | tail -60` and got
+ * A command such as
+ * `timeout 280 hurl --test --continue-on-error --jobs 1 … hurl/*.hurl 2>&1 | tail -60` came
  * back `exitCode: 0`, four finished files' lines and nothing else. Two lies in one result: the
  * `timeout 280` killed the run at 280 s, and the `| tail` made the pipeline's status the status —
  * so the executor read a suite that stopped at its fifth file as a suite that ran and nearly
- * passed, fixed one message, and immediately sent the same 280-second command again (the run's
- * third, ~14 minutes of a 60-minute cap across three of them).
+ * passed, fixed one message, and immediately sent the same 280-second command again (~14 minutes
+ * of a 60-minute cap across three of them).
  *
  * So the tool never reports a stopped run as `exitCode: 0`. Such a result carries
  * `status: 'cut_at_budget'` and an exit code that is `null` whenever the number the pipeline
@@ -19,7 +19,7 @@
  *
  * 1. **Its own bound** — a `timeout <N>` the command carries ({@link commandTimeoutSeconds}). The
  *    run used it, so the run was killed at it; with no closing tally in the output, the run did
- *    not finish. This is m93's shape.
+ *    not finish. This is the first shape.
  * 2. **This tool's budget** — the backend runs the command under `timeout` (see
  *    `backends/sandbox.ts`), which reports 124 whatever the pipeline did, and returns everything
  *    printed until then. The budget is the tool's own, so its number belongs to the tool.
@@ -214,7 +214,7 @@ const FAILED_TALLY = /\b[1-9]\d*\s+failed\b/
  * The code in a background result is the code of the command's LAST pipeline stage. When a stage
  * after the suite runner still consumes its output (`| tee run.log`, or a filter the platform could
  * not prove output-only), that stage produced the code, not the run — and `… | grep … | tail -20`
- * exited 0 for a run with a failure in it (xr-molecule-flash-m101 +25:54). No code is reported
+ * can exit 0 for a run with a failure in it. No code is reported
  * then: the log's own tally decides.
  *
  * The same reading covers a code of 0 beside a tally that names a failure: whatever ended the
@@ -259,7 +259,7 @@ export interface CutRun {
    * ({@link commandCutRun}'s `budgetSeconds` is 0). A background run is bounded by what its own
    * command carries — so a `command-timeout` cut there is that prefix killing the walk, and the
    * executor must be told to drop the prefix, never to start the run in the background it is
-   * already in (X1 xr-molecule-flash-m143 +24:45).
+   * already in.
    */
   background: boolean
   /**
@@ -284,12 +284,12 @@ export interface CutRun {
   /**
    * The interpreter of an inline program that only touches local files (`python3`, `node`, …), or
    * null. Such a program is stopped by its short budget because it is stuck, never because the work
-   * is slow, so the sentence must not send it to the background (xr-molecule-flash-m200 +03:45).
+   * is slow, so the sentence must not send it to the background.
    */
   inlineScript?: string | null
   /**
    * The variable a leaked standalone browser launch is bound to, when the command ran such a probe
-   * and the cut reader could only classify it after the run (xr-molecule-flash-m257). A leaked
+   * and the cut reader could only classify it after the run. A leaked
    * handle is not a slow workload: the background is the one place it must not be sent, so the
    * sentence names the close instead.
    */

@@ -144,7 +144,7 @@ const SQLITE_ISO_NOW = `(strftime('%Y-%m-%dT%H:%M:%fZ','now'))`
  *   a column that genuinely exists and whose removal SQLite parses. SQLite has no
  *   `DROP COLUMN IF EXISTS` at all (`near "EXISTS": syntax error`), and a migration
  *   an agent wrote to repair its DEV database fails on the FRESH production one
- *   without this (X1 flash-m103).
+ *   without this.
  *
  * These are no-ops on already-SQLite DDL (the executor's own migrations don't use
  * them), so it is safe to run on every migration file.

@@ -29,7 +29,7 @@ let warnedAboutFallback = false
  * `setClient()` captured a no-baseURL client that every later `setClient()`
  * could not reach — the app's real client was bonded and the caller's token
  * sync kept writing into the orphan, so every request went out bare
- * (xr-molecule-flash-m156, 401 `token is missing` after a reload).
+ * (a 401 `token is missing` after a reload).
  */
 let unbondedFallback: HttpClient | null = null
 

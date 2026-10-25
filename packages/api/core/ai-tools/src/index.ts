@@ -31,7 +31,7 @@
  *   ceiling the request side puts on a single tool result: whole files are
  *   returned up to it and every path past that is named in `note` and listed as
  *   `not returned`, so a file is never handed back in part — the shape that lost
- *   the middle of a ten-file batch to the request-side cut (X0 flash-m81). Each
+ *   the middle of a ten-file batch to the request-side cut. Each
  *   entry carries its own content or its own error, so one bad path never fails
  *   the batch.
  * - **`edit_file` shows the result, so the model need not re-read.** A
@@ -57,7 +57,7 @@
  *   added or removed and nothing else, the edit can only move text across lines —
  *   joining the next line onto the replaced text, or pushing the rest of the line
  *   down — which is what a weak model does by accident when it repeats a line it
- *   means to keep (flash-m28, m55, m62, m89, five times in the m89 run alone). The
+ *   means to keep. The
  *   replacement is skipped, the rest of the batch is applied, and the result
  *   carries `skippedNote`: one line naming the replacement, what applying it would
  *   have done, and how to say it on purpose (include the next line in `old_string`).

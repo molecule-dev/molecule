@@ -7,8 +7,8 @@
  * answers for an anonymous viewer — `following: false` on a user you follow.
  * It is invisible on localhost, where the restore wins the race against the
  * first effect, and appears over the network as soon as the restore takes one
- * round trip: X1 xr-molecule-flash-m95 spent ~25 min chasing this as "database
- * leftovers" on the deployed URL.
+ * round trip: on a deployed URL it reads as stale server data rather than as a
+ * request that left without its header.
  *
  * So the auth bond registers a gate here (`setAuthGate`) and every request
  * waits for it (`awaitAuthGate`) — the race is impossible to write by hand.
@@ -31,11 +31,10 @@
  *
  * `awaitAuthGate` holds every request while the gate is pending — except the ones the gate's
  * settle function issues itself. Those are part of the restore it is waiting for; holding them
- * makes the gate wait on itself, and nothing but the timeout releases anything (X1
- * xr-molecule-flash-m97 and xr-molecule-flash-m173 both lost minutes to this: an app
+ * makes the gate wait on itself, and nothing but the timeout releases anything: an app
  * registering `setAuthGate(() => restoreSession())` over a restore that fetched through the
- * same client, every page held for the full bound, and 917 `GET /api/user` requests named by
- * one console line). So `setAuthGate(() => restoreSession())` works as written when
+ * same client holds every page for the full bound, and one console line can name hundreds of
+ * `GET /api/user` requests. So `setAuthGate(() => restoreSession())` works as written when
  * `restoreSession` calls the gated client.
  *
  * "Issued by the gate" means issued while the settle function is running: this package's
@@ -44,7 +43,7 @@
  * read, a `Promise.resolve()`) and only then calls the client issues its request from a later
  * continuation, which nothing can attribute to the gate — browsers ship no async-context API
  * (`AsyncContext`/`AsyncLocalStorage`) to ask, and releasing requests merely because the gate is
- * pending would drop exactly the first-paint requests the gate exists to hold (m95). A provider
+ * pending would drop exactly the first-paint requests the gate exists to hold. A provider
  * whose request pipeline awaits the gate in a scheduled interceptor (the Axios bond) reaches it
  * a microtask after the settle function returns, outside the window, for the same reason. Such a
  * request must pass `skipAuthGate: true` (`RequestConfig.skipAuthGate`), and a timeout with
@@ -83,7 +82,7 @@ let reportedStall: (() => Promise<void>) | null = null
  * that arrives while the gate is pending.
  *
  * Without it each held request re-invokes the gate, and a gate that issues a request on every
- * call floods the network: the m97 shape measured 855 `fetch` calls for one page (`task-auth-
+ * call floods the network: the shape measured 855 `fetch` calls for one page (`task-auth-
  * gate-deadlock.report.md`). `null` when no invocation is in flight; `setAuthGate` clears it
  * so a re-registered gate is never shared with the old one's waiters.
  */
@@ -175,7 +174,7 @@ const describeRequest = (request?: AuthGateRequest): string =>
  * The report is console output, and every reader of it truncates: molecule-dev's route walk
  * keeps the first 200 characters of a console error, so the sentence naming the fix has to
  * come first — and the request list is capped so the message stays readable when a deadlocked
- * gate has held hundreds of requests (xr-molecule-flash-m173: 917 `GET /api/user`).
+ * gate has held hundreds of requests (one deadlocked gate named 917 `GET /api/user` calls).
  */
 const MAX_NAMED_HELD_REQUESTS = 5
 
@@ -185,8 +184,8 @@ const MAX_NAMED_HELD_REQUESTS = 5
  * deployed URL reads as "the site is slow", which is what the gate itself was added for.
  *
  * Leads with the cause and the fix, then names at most `MAX_NAMED_HELD_REQUESTS` distinct
- * requests and counts the rest: an unbounded join buried the fix clause behind 900 names in
- * xr-molecule-flash-m173, and no reader of the line ever reached it.
+ * requests and counts the rest: an unbounded join buries the fix clause behind 900 names,
+ * and no reader of the line ever reaches it.
  */
 const reportStalledGate = (stuck: () => Promise<void>): void => {
   if (reportedStall === stuck) return

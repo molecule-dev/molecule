@@ -197,8 +197,8 @@ export interface ToolBuildConfig {
    * The test titles the person's request EXCLUDES by name (molecule-dev's `excludedTestTitles`),
    * asked when a finished suite run's cause note is built. Their failures are not causes to fix:
    * the note drops them, says so at the end, and inverts them out of the narrowed re-run it hands
-   * over — a result must never name a test beside "it does not count" (xr-molecule-flash-m101
-   * +12:00, where the executor spent a turn and an edit on the excluded test).
+   * over — a result must never name a test beside "it does not count" (an executor once spent a
+   * turn and an edit on the excluded test).
    *
    * A getter, not an array, because the request is read per turn while the tool set is built
    * once. Unset means no test is excluded.
@@ -212,8 +212,8 @@ export interface ToolBuildConfig {
    * `requiredRunSettings` — its mode, say), asked when the cause note composes a narrowed re-run
    * of a finished run's failures. A re-run composed from the executor's own command inherits what
    * that command set — and nothing it left out, so a run that measured the suite in `spa` handed
-   * back a re-run that would measure `spa` again (xr-molecule-flash-m182 +12:06: the request names
-   * `TEST_MODE=fullstack`, the run and its re-run both omitted it).
+   * back a re-run that would measure `spa` again (the request names `TEST_MODE=fullstack`, and
+   * both the run and its re-run omitted it).
    *
    * A getter, not an array: the request is read per turn while the tool set is built once, and
    * what the suite's own files read is the consumer's reading. Unset answers "nothing required".
@@ -247,7 +247,7 @@ export interface ToolBuildConfig {
 
   /**
    * A whole walk's duration in ms, as the consumer measured it. A suite run the executor detached
-   * whose own `timeout` is shorter than this is lifted (m200); unset lifts only a bound no longer
+   * whose own `timeout` is shorter than this is lifted; unset lifts only a bound no longer
    * than this tool's ceiling.
    *
    * @param command - The suite command.

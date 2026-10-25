@@ -4,7 +4,7 @@
  * (`molecule-dev/api/src/ai/own-server-note.ts` imports {@link SERVER_PROGRAM} and
  * {@link BACKGROUNDED} from here), so every surface that names a server names the same commands.
  *
- * X1 xr-molecule-flash-m167 (+19:16 → +24:04) wrote `/tmp/probe.mts` whose body imports the app's
+ * A probe wrote `/tmp/probe.mts` whose body imports the app's
  * `api/src/server.ts` and calls its `create(0)`, then ran it in the FOREGROUND:
  * `npx tsx --env-file=.env /tmp/probe.mts 2>&1 | tail -15`. The scaffold's `create()` calls
  * `server.listen(port)` and returns the server, so the process never exits — and behind `| tail`
@@ -35,7 +35,7 @@ export const BACKGROUNDED = /(?:^|[^&>])&(?!&|>)|\b(?:nohup|setsid)\b/
  * when the command only names the script file — but NEVER against an inline program's code
  * (`node -e …`, `python3 -c …`), where this text is the user's program rather than a file being
  * run: `require('…/node_modules/vite')` imports a module, it does not start a dev server
- * (xr-molecule-flash-m391 +13:13, refused as "node starts a server" for exactly that line).
+ * (refused as "node starts a server" for exactly that line).
  */
 export const SERVER_PROGRAM =
   /\bserver\.[cm]?[jt]s\b|\b(?:npm|pnpm|yarn|bun)\s+(?:run\s+)?(?:start|dev|serve|preview)\b|\bvite\s+(?:preview|dev|serve)\b|\bvite(?![.\w-])(?!\s+(?:build|optimize)\b)|\bnext\s+(?:start|dev)\b|\b(?:uvicorn|gunicorn)\b|\bflask\s+run\b|\bpython\d?\s+-m\s+http\.server\b/

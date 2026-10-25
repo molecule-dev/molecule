@@ -4,7 +4,7 @@
  *
  * `npx tsc --noEmit 2>&1 | head -40` reports `head`'s 0 while the output above it carries a type
  * error, and `… | head -40 && tail -30 missing.log` reports `tail`'s 1 while the checker was clean —
- * both measured in xr-molecule-flash-m117 (+04:06, +08:05). A model that trusts the code concludes
+ * both are the same reading. A model that trusts the code concludes
  * "clean" and ships a build that does not compile, or hunts an error that is not there. This module
  * says which stage produced the code, and what the output actually carries, in one sentence beside
  * `exitCode`.

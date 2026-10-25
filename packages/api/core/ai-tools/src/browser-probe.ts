@@ -2,7 +2,7 @@
  * A standalone Playwright probe that launches a browser and never closes it — the
  * resource-lifecycle hang `exec_command` did not yet classify.
  *
- * X1 xr-molecule-flash-m257 (+10:44 → +15:34) ran
+ * A real probe ran
  * `cd /workspace/my-app/app && node /workspace/.mol-scratch/fav-probe.mjs 2>&1 | tail -5`. The
  * 30-line script binds `const browser = await chromium.launch()`, walks a real page, reaches its
  * last `console.log`, and ends without `browser.close()`, `disconnect()`, a disposal scope or
@@ -28,8 +28,8 @@
  *   `import`), or a persistent-process intent (`launchServer`, `connect`, a server `.listen`, a
  *   timer or signal handler).
  *
- * Anything ambiguous is left alone. A wrong refusal costs a valid probe — the review that found
- * the m257 leak also proved five harmless scripts a raw substring match would refuse (a local
+ * Anything ambiguous is left alone. A wrong refusal costs a valid probe — a raw substring match
+ * would also refuse five harmless scripts (a local
  * engine stub, the launch text in a string, in a comment, in a template literal, and inside a
  * function that is never called) — and a missed leak costs the same budget the tool already had.
  * This is a lifecycle diagnostic, never an egress or security gate.
@@ -39,7 +39,7 @@
 
 /** A browser launch bound to a variable, proven to have no cleanup path. */
 export interface BrowserProbeLeak {
-  /** The variable the launched browser is bound to (`browser` in the m257 probe). */
+  /** The variable the launched browser is bound to (`browser` in the probe above). */
   readonly variable: string
 }
 
@@ -112,7 +112,7 @@ const REGEX_AFTER = new Set([
  * A source with every comment and every string, template and regex literal blanked to spaces,
  * preserving offsets and newlines so a match's position still indexes the original source.
  *
- * A launch mentioned in prose is not a launch: the m257 review proved scripts that only PRINT
+ * A launch mentioned in prose is not a launch: a review proved scripts that only PRINT
  * `const browser = await chromium.launch()` — in a string, a comment and a template literal — and
  * a raw substring match refused all of them. Template `${…}` substitutions stay code (a `close()`
  * written there is a real cleanup path), nested braces are tracked so the substitution's end is
@@ -329,7 +329,7 @@ function topLevelThrow(code: string): boolean {
  * This is the conservative guard for the one shape the lexer cannot read: a regex literal whose
  * opening `/` follows a `)` (`if (x) /…/.test(s)`) reads as division, so the launch text inside it
  * survives blanking. A mid-line top-level launch is a deliberate false negative; every positive
- * shape (the m257 probe, `import * as pw` + `pw.chromium.launch`, a destructured require) declares
+ * shape (the probe above, `import * as pw` + `pw.chromium.launch`, a destructured require) declares
  * at line start.
  *
  * @param code - The {@link codeOnly} text.

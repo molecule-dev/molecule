@@ -496,7 +496,7 @@ export function outputIsWithheldUntilExit(command: string): boolean {
  * The file a command sends its own output to, when it redirects it (`> out.txt`,
  * `>> log`, `&> run.log`, `| tee [-a] file`), or null. A background command that does
  * this leaves its task log empty, so the log is the wrong place to look and an empty
- * log proves nothing (X1 flash-m29).
+ * log proves nothing.
  *
  * Which redirect counts is decided by the command's own shell structure, from the same
  * parse every other command reader uses: a redirect written in a BACKGROUNDED statement
@@ -504,7 +504,7 @@ export function outputIsWithheldUntilExit(command: string): boolean {
  * the command's. The platform's own preview launch is exactly that — the preview server is
  * started with `>/tmp/mol-preview-4173.log 2>&1 &` inside the build/serve prelude, and the
  * suite's foreground command follows it — so a reader that took the last `>` in the whole
- * text told a run its output went to the PREVIEW's log (X1 flash-m136 +18:31).
+ * text tells a run its output went to the PREVIEW's log.
  *
  * The target comes back without its shell quotes: `> '/tmp/x.log'` is `/tmp/x.log`, and
  * the callers resolve a relative one against the command's cwd.
@@ -585,8 +585,8 @@ const PRINTING_REPORTERS = new Set(['list', 'line', 'dot', 'basic', 'spec'])
  * Every background command is given this (see {@link streamingBackgroundCommand}), so a suite the
  * executor starts through its own wrapper is covered too — the wrapper passes the environment on
  * to the Playwright process it spawns. Without it the log's only failure lines are `✘` rows:
- * X1 xr-molecule-flash-m99 (+19:27 → +21:00, 2026-10-16) was told to `grep -n -A 20 '<test name>'`
- * the log, got nothing back through four greps, inferred causes from the spec prose instead, and
+ * A run told to `grep -n -A 20 '<test name>'` the log got nothing back through four greps,
+ * inferred causes from the spec prose instead, and
  * edited `app/src` while the run was still walking — which voids the run.
  */
 export const PLAYWRIGHT_FAILURES_INLINE_ENV = 'PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE'
@@ -617,7 +617,7 @@ const STATUS_EXIT_ARITHMETIC = /^[A-Za-z0-9_|&+\-*/%^<>=!~() \t]*$/
  * `npx playwright test … > /tmp/pw.log 2>&1; echo EXIT $?` — and reading the split's last part as
  * the run withheld the reporter, the inline-failure switch and `--retries=0` from every one of
  * them: the log then carried `✘` rows and nothing else while the wait note promised each failure's
- * error under them (xr-molecule-flash-m173 +17:07, +39:14). Whitespace and a group's closing
+ * error under them. Whitespace and a group's closing
  * punctuation are not part of the step; {@link streamingBackgroundCommand} strips those before
  * asking, and strips them here too for the split it is given.
  *
@@ -627,7 +627,7 @@ const STATUS_EXIT_ARITHMETIC = /^[A-Za-z0-9_|&+\-*/%^<>=!~() \t]*$/
  * browser half as a status step is what lets the run keep its reporter, its machine report and the
  * inline-failure switch — without it, every platform proof ran its browser suite on the request's
  * own `line` reporter, which writes no ✓/✘ mark and no per-failure error into the log the wait
- * reads (xr-molecule-flash-x03 +27:44).
+ * reads.
  *
  * Only the two shapes whose whole value is the shell's own status are read this way; anything that
  * could run — a command substitution, a backticked word, a suffix after the status — stays a step.
@@ -651,7 +651,7 @@ function isStatusOnlyStep(step: string): boolean {
  * Rewrite a command about to run in the background so its log grows while it
  * runs. Two shapes left the log empty until exit, and an empty log is what
  * `wait_for_task` reads as "stuck", so working suites were reported stuck and
- * killed (X1 run flash-m15 lost 20 of its 60 minutes this way, 2026-10-15):
+ * killed (one run lost 20 of its 60 minutes this way):
  *
  * - a trailing `| tail -N`, which holds everything back until the command ends.
  *   It is dropped: `wait_for_task` already returns the end of the log.
@@ -659,7 +659,7 @@ function isStatusOnlyStep(step: string): boolean {
  *   failing test's own error and leaves the pipeline's exit status — the filter's — as the run's.
  *   Every such stage is dropped from EVERY suite run in the command, not only the last
  *   ({@link stripTrailingSuiteFilters}); `wait_for_task` already returns the end of the full log,
- *   and a run whose tally shows a failure must never report 0 (xr-molecule-flash-m101 +25:54).
+ *   and a run whose tally shows a failure must never report 0.
  * - `playwright test` with no `--reporter`, which runs the config's reporter —
  *   often `html`, which prints nothing per test. `--reporter=list` is added
  *   when the playwright run is the command's last step, piped or not: it writes each result as
@@ -669,11 +669,11 @@ function isStatusOnlyStep(step: string): boolean {
  *
  * The run ends up with exactly ONE reporter that prints each failure — `list`. A run that names
  * any other printing reporter has it REPLACED, never joined: two of them write every test result
- * into the log twice, which on X1 flash-m83 (2026-10-16) made a `--reporter=list,line` run (its
+ * into the log twice, which made a `--reporter=list,line` run (its
  * `line` added by this function one run earlier) report two distinct failures as "4 of this run's
  * tests have already failed the same way", and the executor stopped a 139-test walk at test 21
  * with a single cause in hand. `line` alone is no use either: it writes `[n/N] <title>` with no
- * ✓/✘ mark and no duration, so on X1 flash-m62 an 8.3-minute walk of one suite could never trip
+ * ✓/✘ mark and no duration, so an 8.3-minute walk of one suite could never trip
  * the fail-fast note. A reporter set that writes a machine format to a file (`json`, `html`,
  * `junit`) is the
  * executor's own and is left exactly as it is — so is any reporter this build does not know.
@@ -682,8 +682,8 @@ function isStatusOnlyStep(step: string): boolean {
  * {@link PLAYWRIGHT_FAILURES_INLINE_ENV} (inert except for Playwright's `list` reporter), so each
  * failure's own error is in the log as that test fails rather than only at the end: a suite that is
  * still walking is exactly when the executor reads the log, and without it a running log carries
- * `✘` rows and nothing else (xr-molecule-flash-m99 spent ~90 s on greps of one, then fixed what it
- * guessed; m191's wrapper-launched run lost 6.5 minutes to the same shape).
+ * `✘` rows and nothing else (~90 s went to greps of one, then to fixing what was
+ * guessed; a wrapper-launched run lost 6.5 minutes to the same shape).
  *
  * Only the step that runs the suite is touched, and only its reporter, and only when that step
  * runs something: `npx playwright test --list` takes two seconds and writes nothing per test, so
@@ -694,9 +694,8 @@ function isStatusOnlyStep(step: string): boolean {
  *
  * A command that starts the suite MORE THAN ONCE is not launched at all: every run it carries is
  * a whole walk of the same suite against the same app, and only the last step is rewritten, so the
- * earlier walks run unmeasured for nothing. X1 xr-molecule-flash-m157 (+14:02) chained two whole
- * walks of one 138-test suite with `;` — 4.5 minutes each — and the second measured nothing the
- * first had not. The platform refuses a second CONCURRENT run against one app and database by the
+ * earlier walks run unmeasured for nothing. Two whole walks of one 138-test suite chained with
+ * `;` — 4.5 minutes each — measured nothing the first had not. The platform refuses a second CONCURRENT run against one app and database by the
  * ONE rule ({@link suiteRunInTheWay}) — for every pair, whatever uid a run mints — and this is the
  * same hazard inside one command ({@link suiteRunStatements}). `error` then carries the refusal,
  * naming each suite step and the ONE command to send instead (the last suite step, rewritten as
@@ -707,8 +706,8 @@ function isStatusOnlyStep(step: string): boolean {
  *   excludes by name, and whether this command IS the platform's graded proof
  *   ({@link DiagnosisRunContext}). A `--grep-invert` of exactly those exclusions is the
  *   request's own scope, not a diagnosis, so it keeps the suite's retries on a deployed proof
- *   (xr-molecule-flash-m170 +33:16) — and a proof the platform itself composed and launched
- *   keeps them whatever its scope, targeted set included (xr-molecule-flash-l48 +26:35).
+ *   — and a proof the platform itself composed and launched
+ *   keeps them whatever its scope, targeted set included.
  * @param reportPath - Where this run should write Playwright's standard `json` report, when the
  *   caller keeps one ({@link ./playwright-report.js}). The reporter is added to the run's own
  *   reporter set, never in place of one, and its output goes to that file through
@@ -826,8 +825,8 @@ export function streamingBackgroundCommand(
    * (`| tee run.log`), and a statement can end on a group closer (`( … )`, `{ …; }`) or a
    * redirection (`… 2>&1`). Appending after the `)` of a subshell was a shell syntax error that
    * killed the run at once (`sh: Syntax error: word unexpected`) and pushed the model off the
-   * platform's runner shape (xr-molecule-flash-m129 +34:29); appending after a pipe hands the
-   * word to the filter (m102's dangling `--trace` flag, in the same shape).
+   * platform's runner shape; appending after a pipe hands the word to the filter (a dangling
+   * `--trace` flag, in the same shape).
    *
    * The suite's own segment is found wherever it sits ({@link lastSuiteRun}), because a trailing
    * status step is not another command's output: in `… > /tmp/pw.log 2>&1; echo EXIT $?` the run
@@ -1008,7 +1007,7 @@ interface EarlierReporterRewrite {
  * reporter.
  *
  * A compound command's earlier walk is not a preview: it writes the same log the executor reads,
- * and on X1 xr-molecule-flash-l21 (+21:27) the first 3.6-minute walk kept its own
+ * and there the first 3.6-minute walk keeps its own
  * `--reporter=line`, which prints `[n/N] <title>` rows with no ✓/✘ mark and no per-failure error.
  * What came back was `72 passed` and two failure NAMES; the error bodies existed only in the walk's
  * discarded log, and diagnosing them needed another run.
@@ -1221,7 +1220,7 @@ export function isSuiteRunCommand(command: string): boolean {
  * Refuse only a command made entirely of identical suite invocations.
  *
  * Mixed shell commands execute as written. Rebuilding their prefix or suffix can lose writes,
- * break heredoc delimiters or turn an && guard into unconditional work (m277). Different args
+ * break heredoc delimiters or turn an && guard into unconditional work. Different args
  * or environments may select different suites or targets; they are not known duplicates either.
  * This is an optimization, so uncertainty always allows the original command.
  *
@@ -1286,8 +1285,8 @@ function suiteRunnerArguments(command: string): { start: number; end: number; at
  * flags, and the flags that could not be placed.
  *
  * The grader walks the suite under its OWN budget, so a run whose runner config sets a different
- * timeout or worker count measures a run the grader never sees (xr-molecule-flash-m169: a 60 s
- * wrapper config produced a green local proof the official 15 s grader then failed). Playwright
+ * timeout or worker count measures a run the grader never sees (a 60 s wrapper config produced
+ * a green local proof the official 15 s grader then failed). Playwright
  * lets a command-line flag win over every config file, so the suite's values are put on the
  * runner's own arguments — written where {@link statementArgumentEnd} places them, never after a
  * pipe, redirect or group closer. Only the command's LAST suite step is touched: that is the run
@@ -1408,7 +1407,7 @@ export function suiteRunConfigCommand(
  * Used where the platform moves a run to the background: the executor wrote the bound to fit this
  * tool's foreground ceiling, and in the background that ceiling no longer applies — the task is
  * bounded by `wait_for_task` and the turn's deadline — so the prefix only kills the walk
- * ({@link withoutTimeoutWrapper}; X1 xr-molecule-flash-m143 +24:45).
+ * ({@link withoutTimeoutWrapper}).
  *
  * @param command - The shell command.
  * @returns The rewritten command, and the largest lifted bound (null when nothing was lifted).
@@ -1425,7 +1424,7 @@ export function withoutSuiteTimeout(command: string): {
  * that runs something.
  *
  * `npx playwright test --list` matched every `\bplaywright\s+test\b` test in the platform and was
- * then treated as a run: held (flash-m79's config check), backgrounded for a run that outlasts
+ * then treated as a run: held (a config check), backgrounded for a run that outlasts
  * the tool's ceiling, and rewritten with `--reporter`. A list takes two seconds, prints its lines
  * and exits, so it is none of those; {@link commandRunsNoTests} is what decides.
  *
@@ -1494,8 +1493,7 @@ interface LocatedSegment {
  * searching the command for the re-joined text: the words are joined back with single spaces for
  * matching, so `command.indexOf(segment.text)` comes up empty on irregular spacing, on a grouping
  * brace, or on anything a heredoc body shifts — and the caller then cut at a guess or refused to
- * cut at all (xr-molecule-flash-m105 +08:12, where a heredoc body turned a finished run into
- * "piped" for the rest of the session).
+ * cut at all (a heredoc body turned a finished run into "piped" for the rest of the session).
  *
  * A statement inside a nested `sh -c '<command>'` string is listed with null offsets: its
  * positions are positions in THAT string, so nothing may be spliced at them — but its separator
@@ -1571,7 +1569,7 @@ function lastSuitePipeline(command: string): { located: LocatedSegment[]; at: nu
  * the command exits with is then the following statement's. That is the right answer to "whose
  * exit code is this", and the wrong one to "which stages filter this run's output": a
  * `… --reporter=list 2>&1 | tail -5; echo done` still pipes its log through a tail, and the tail
- * still throws away every failure line the run printed (xr-molecule-flash-m121 +09:14, where the
+ * still throws away every failure line the run printed (where the
  * platform's own hold handed that shape back and the first 95-second walk's log held only the
  * tally).
  *
@@ -1589,8 +1587,8 @@ function lastSuiteRun(command: string): { located: LocatedSegment[]; at: number 
  * spec, or a Hurl run followed by a browser walk — and every one of them writes the log the
  * executor reads. Reading only the last one left the earlier walk's failing test's own error
  * behind a `| tail -5` while the LAST invocation was rewritten normally
- * (xr-molecule-flash-l21 +21:27: a 3.6-minute walk returned `72 passed` with no error body when
- * the driver ran `… specs 2>&1 | tail -5; echo START; … auth.spec.ts`).
+ * (a 3.6-minute walk returned `72 passed` with no error body when the driver ran
+ * `… specs 2>&1 | tail -5; echo START; … auth.spec.ts`).
  *
  * A command that runs no test at all is not a set of runs ({@link commandRunsNoTests}); nor is a
  * statement that only lists tests, which the reporter pass asks about per statement
@@ -1702,13 +1700,13 @@ function suiteFilterCut(
  *
  * A filter after a runner is not "the end of the log" the executor asked for: it hides the
  * failing test's own error (it usually matches none of `✘|passed|failed`), and the pipeline's exit
- * status becomes the FILTER's, so `… 2>&1 | grep -E "✘|passed|failed|skipped" | tail -20` came back
- * `exitCode: 0` for a run with a failure in it (xr-molecule-flash-m101 +25:54). The tool returns
+ * status becomes the FILTER's, so `… 2>&1 | grep -E "✘|passed|failed|skipped" | tail -20` comes
+ * back `exitCode: 0` for a run with a failure in it. The tool returns
  * the end of the full log anyway, so the filter only costs diagnosability.
  *
  * EVERY run is stripped, not only the command's last: a compound command's earlier walk writes
  * the same log, and its `| tail -5` threw away the error body of a 3.6-minute Playwright walk
- * whose two failure names were all the executor got back (xr-molecule-flash-l21 +21:27). Only a
+ * whose two failure names were all the executor got back. Only a
  * run the parse places is touched, and only its own pipeline — a later statement's filters belong
  * to it.
  *
@@ -1719,12 +1717,12 @@ function suiteFilterCut(
  *
  * A statement after the run's own pipeline (`; echo done`, `&& echo ok`) does not protect the
  * filters before it: the filter is thrown away and the trailing statement is kept, so the log the
- * run writes still holds every failure (xr-molecule-flash-m121 — a `| tail -5; echo done` kept its
+ * run writes still holds every failure (a `| tail -5; echo done` keeps its
  * tail, and a 95-second walk's log held only the tally while the platform's own hold had handed
  * that command back).
  *
  * The command around the dropped stages is left as written: a group they sit in keeps its closer
- * (`( … | tail -25)` → `( … )`, never `( …` — xr-molecule-flash-m418 +23:31), and a stage the cut
+ * (`( … | tail -25)` → `( … )`, never `( …`), and a stage the cut
  * would leave a closer dangling inside is not dropped at all.
  *
  * @param command - The shell command.
@@ -1782,8 +1780,8 @@ export interface SuiteRunPipelinePlacement {
  * code a finished run reports is its LAST pipeline stage's, so a stage after the runner makes the
  * code the stage's — but only when such a stage EXISTS. The platform used to report "piped" for
  * any run whose statements it could not place in the text, which one heredoc body was enough to
- * cause: on X1 xr-molecule-flash-m105 (+08:12) a config written in the same `exec_command` made
- * the run come back with no exit code at all, and the note under it claimed a stage after the
+ * cause: a config written in the same `exec_command` made the run come back with no exit code
+ * at all, and the note under it claimed a stage after the
  * runner that was not there. The parse now places every statement (`locatedCommandSegments`), so
  * "unplaced" is the rare, named case rather than a guess dressed as an answer.
  *
@@ -1827,10 +1825,9 @@ export function suiteRunPipedAfterRunner(command: string): boolean {
  * shares with everything else stays responsive to what the executor does next.
  *
  * A whole-suite Playwright run saturates the one container the app's Vite
- * server, its API process and every other command also live in: on X1 flash-m75
- * the model backgrounded a 139-test run at +36:23 and the two-word shell
- * command it sent next — tick its plan file — returned nothing for 2 min 40 s,
- * measured on the chat payload and on the live-stream follower independently.
+ * server, its API process and every other command also live in: a backgrounded 139-test run
+ * has left the two-word shell command sent next — tick its plan file — returning nothing for
+ * 2 min 40 s, measured on the chat payload and on the live-stream follower independently.
  * The backgrounding note is right that the executor should go do other work;
  * what it cannot promise is that the sandbox will let it.
  *
@@ -1996,8 +1993,8 @@ const BLOCKED_MOL_REDIRECT = /(?:<\s*\/etc\/mol)/i
  * The first check reads the commands the shell actually RUNS — the statements, a `sh -c`
  * string's body, and every command substitution ({@link executedCommands}) — so a `|` inside a
  * quoted grep alternation is data, not a pipeline: `grep -E "USER CALLS|ENV|BUTTON|passed|failed"
- * app.log` prints log lines, and the `ENV` in its pattern started nothing (X0
- * xr-molecule-flash-m331 blocked exactly that call as an environment dump, twice). What the
+ * app.log` prints log lines, and the `ENV` in its pattern starts nothing — a text
+ * match would block exactly that call as an environment dump, twice over. What the
  * shell DOES run stays visible through the same walk: `ls | env`, `bash -c 'env'`,
  * `echo "$(printenv)"` and a nested `sh -c 'x; env'` are all commands, and so is `env` itself
  * when nothing follows it.
@@ -2072,8 +2069,7 @@ function rootedPath(path: string, projectRoot: string): string {
  * absolute path elsewhere, or a `..` that climbs out). {@link resolvePath}
  * clamps such a path to the root; a file tool must refuse it instead of
  * answering about the root — a `list_files /tmp/x` used to return the
- * workspace listing as if it were `/tmp/x` (X1 runs sonnet-m17 and sol-m05,
- * 2026-10-14).
+ * workspace listing as if it were `/tmp/x`.
  *
  * @param path - The path the tool was given.
  * @param projectRoot - The project root.
@@ -2092,9 +2088,8 @@ export function isOutsideRoot(path: string, projectRoot: string): boolean {
  * the caller to drop `cwd` and start the command with `cd <path> && `. When the
  * command ALREADY starts that way the advice describes what was just sent, so
  * the command runs as written with the backend's working directory at the root
- * instead (X1 xr-molecule-flash-l97 +05:14: `{cwd: "/tmp", command: "cd /tmp && …"}`
- * was refused with "start the command with `cd /tmp && `"; the model resent the
- * same command with `cwd: "/workspace"` four seconds later and it passed).
+ * instead (`{cwd: "/tmp", command: "cd /tmp && …"}` was refused with "start the command with
+ * `cd /tmp && `"; the same command resent with `cwd: "/workspace"` then passes).
  *
  * Only the leading statement counts, only when the shell's own parse puts it in
  * the caller's shell — a `( cd … )` group or a `sh -c '…'` runs in its own
@@ -2189,8 +2184,8 @@ export const BRACE_GLOB_HINT =
  * Neither search tool expands braces itself: `grep --include` and `find` take
  * the pattern as a single shell-quoted argument, so no shell ever sees it.
  * `find_files {pattern:"*.{ts,tsx}"}` and `search_files {include:"*.{ts,tsx}"}`
- * were both refused outright (xr-molecule-flash-m199 and m189), costing a round
- * trip and pushing the agent to a narrower search. The group is expanded here
+ * were both refused outright, costing a round trip and pushing the agent to a narrower
+ * search. The group is expanded here
  * instead — `search_files` passes one `--include` per alternative and
  * `find_files` ORs one `-name`/`-path` predicate per alternative.
  *
@@ -2227,8 +2222,8 @@ export function expandBraceGlob(pattern: string): string[] | null {
  *
  * `find -name` compares a pattern against a file's BASENAME, so a pattern
  * containing a slash (`helpers/*`, `e2e/*.spec.ts`, `src` + `**` + `/App.tsx`)
- * can never match and the tool answers `[]` (xr-molecule-flash-m77, on two
- * calls in one run). Such a pattern is matched with `-path` instead: an fnmatch
+ * can never match and the tool answers `[]` (twice in one run). Such a pattern is matched
+ * with `-path` instead: an fnmatch
  * glob over the whole printed path, whose `*` crosses `/` — the rule
  * `.gitignore` uses, and the reason a bare `helpers/*` means "a `helpers/`
  * directory anywhere below the root". The pattern is anchored with a leading
@@ -2279,14 +2274,14 @@ export function findPathArgs(pattern: string): string {
  * search root. Handed `/workspace/node_modules` and
  * `@molecule/api-resource-user/dist/*.d.ts` — a directory named outright —
  * `find` walked the sandbox's entire dependency tree and hit the tool's 10 s
- * deadline without printing a result (xr-molecule-flash-m94: the one directory
- * the model meant answered a `list_files` in 0 s). The literal prefix is that
+ * deadline without printing a result (the one directory the model meant answered a `list_files`
+ * in 0 s). The literal prefix is that
  * directory, and rooting the search at it is what keeps the call instant.
  *
  * A BARE first segment (`helpers/*`, `bonds/*`, `e2e/*.spec.ts`) is NOT one:
  * `helpers/*` means "a `helpers/` directory anywhere below the root", which the
- * tool documents and a live run relied on (xr-molecule-flash-m77 — a path
- * pattern is not anchored to one depth). Rooting those at
+ * tool documents and a live run relied on (a path pattern is not anchored to one depth).
+ * Rooting those at
  * `<root>/helpers` would answer with a SUBSET, silently: the nested
  * `api/src/helpers/` matches would disappear, and a missing file reads as
  * "no such file". So a prefix is returned only when it names a path of two or
@@ -2299,8 +2294,8 @@ export function findPathArgs(pattern: string): string {
  * `node_modules` (see `findPruneArgs`), so the whole-tree form can only ever
  * match `<root>/@molecule/…` — the scope directory IS the directory the pattern
  * names. Left un-narrowed, a scoped-package pattern walked the sandbox's entire
- * dependency tree and hit the 10 s deadline with no result at all
- * (xr-molecule-flash-l65). A bare NAME stays a directory name at any depth:
+ * dependency tree and hit the 10 s deadline with no result at all. A bare NAME stays a
+ * directory name at any depth:
  * `helpers/*` is unchanged even under a `node_modules` root.
  *
  * @param pattern - A pattern already accepted by {@link isValidGlob}.
@@ -2334,7 +2329,7 @@ export function literalDirPrefix(pattern: string, root?: string): string | null 
  * `[deadline_exceeded] the operation timed out: … It can be modified by passing
  * 'timeoutMs' when making the request. Use '0' to disable the timeout.` — which
  * names an option the executor cannot set and says nothing about the search
- * that died. Handing that sentence to the model is what xr-molecule-flash-m94
+ * that died. Handing that sentence to the model is what a run
  * read after `find_files` spent 10 s walking `node_modules`; the tool answers
  * the deadline in its own words instead (see {@link searchTimeoutError}).
  *
@@ -2427,8 +2422,8 @@ export function pathArgError(path: unknown, tool: string): string | null {
  *
  * The path message is the wrong reading of it: "requires a non-empty path
  * argument" says the call was understood and the path was left out, so the model
- * retries the call it just made instead of sending the whole call again (x0
- * flash-m83 +29:32: `edit_file {}`, one round lost). An empty object and a
+ * retries the call it just made instead of sending the whole call again (`edit_file {}` loses
+ * one round). An empty object and a
  * missing `path` are different failures and deserve different sentences.
  *
  * @param input - The raw tool input.
@@ -2583,9 +2578,8 @@ export const MAX_BATCH_READ_FILES = 25
  * MIDDLE — the cut lands between two `"content"` values, so whole files fell
  * out and the note in their place said only "N characters cut here" — while
  * this tool's own note had promised each of those files that it "fits in one
- * call, so it is not paged": X0 flash-m81 (2026-10-16) read ten e2e specs in
- * one call (121,467 chars), lost the middle six, and bought them again in six
- * further calls (52,908 chars).
+ * call, so it is not paged": one batched read of ten e2e specs (121,467 chars) lost the
+ * middle six and bought them again in six further calls (52,908 chars).
  *
  * So the CALL gets the ceiling the request gives it. Whole files are returned
  * up to it; the paths that did not fit are named in `note` and listed in
@@ -2623,7 +2617,7 @@ export const MAX_READ_RETURN_CHARS = MAX_READ_CALL_CHARS - READ_RESULT_ENVELOPE_
 /**
  * A file this small is returned whole on a second window of it (paging it costs a call each).
  * The same bound as {@link MAX_READ_RETURN_CHARS}: the windowed-read note promises that a
- * file under it "fits in ONE call", and a smaller bound here broke that promise (X1 flash-m67).
+ * file under it "fits in ONE call", and a smaller bound here breaks that promise.
  */
 export const SMALL_FILE_WHOLE_CHARS = MAX_READ_RETURN_CHARS
 
@@ -2635,11 +2629,11 @@ export const SMALL_FILE_WHOLE_CHARS = MAX_READ_RETURN_CHARS
  * An entry document is boilerplate the reader rarely needs in full: meta tags,
  * stylesheet and preload links, a `<style>` block, and a handful of `<script>`
  * tags. The parts an executor acts on — the body's structure, where a script is
- * loaded — are all visible in an outline of one line per tag. X0 flash-m77 paid
- * 63,735 chars for one such read: ~60 KB of it was the IDE's own preview bridges,
+ * loaded — are all visible in an outline of one line per tag. One such read paid
+ * 63,735 chars: ~60 KB of it was the IDE's own preview bridges,
  * and the read pushed the transcript past its context cap, so the e2e specs the
  * executor had just read were trimmed to summaries and it read the whole suite
- * again — twice (findings, +01:23 and +02:56). The scaffold now keeps those
+ * again — twice. The scaffold now keeps those
  * bridges in separate files, but a template's own head is still ~5-12 KB, and a
  * static-site or SSR entry can be far more.
  *
@@ -2783,7 +2777,7 @@ export function truncateMiddle(s: string, maxLength: number): string {
 /**
  * A test run's tally lines (`  3 failed`, `  71 passed (4.6m)`) the cut text lost, put back at
  * its end: Playwright lists every failed test after its "N failed" line, so a long list pushed
- * the line itself into the cut middle and the run read as having no failures (X1 flash-m60).
+ * the line itself into the cut middle and the run reads as having no failures.
  *
  * @param original - The whole output.
  * @param cut - The truncated output.
@@ -2905,9 +2899,8 @@ export const RUNNING_FAILURE_LINE_RE =
  * the failure lines so far (capped at {@link RUNNING_FAILURE_LINES}), then the end of the log.
  *
  * A Playwright `list` run prints one line per test as it finishes, so the LAST bytes of a running
- * log are its least informative part — in X1 flash-m61 the last 3 000 bytes of a 139-test walk
- * were the skip list, and all 61 failures were above them, which cost the run the grep it had to
- * make anyway. A background run also carries each failure's own error as it fails
+ * log are its least informative part — the last 3 000 bytes of a 139-test walk are the skip
+ * list, and all 61 failures were above them, which costs the run the grep it has to make anyway. A background run also carries each failure's own error as it fails
  * ({@link PLAYWRIGHT_FAILURES_INLINE_ENV}), and {@link RUNNING_FAILURE_LINE_RE} already matches
  * those blocks' headers and their `Error:` lines, so this slice shows the causes too.
  *
@@ -2960,11 +2953,11 @@ export interface RunningLogRead {
  * The shell command whose stdout is a bounded CONTIGUOUS read of a running task's own log: the
  * log's byte size, then its last {@link RUNNING_LOG_READ_BYTES} bytes.
  *
- * {@link runningOutputSliceCommand} is the wrong read for a diagnosis, and l07 is the finding: it
+ * {@link runningOutputSliceCommand} is the wrong read for a diagnosis: it
  * stitches the first 40 grep-selected failure lines to the last 1 000 bytes with a blank line
  * between, so the tail is DISJOINT from the headers above it. Read as one log, the last numbered
- * header absorbs whatever the tail starts with — a clipped skipped-test title became the cause of
- * a genuine failure (xr-molecule-flash-l07). A contiguous window can only ever hold real
+ * header absorbs whatever the tail starts with — a clipped skipped-test title becomes the cause
+ * of a genuine failure. A contiguous window can only ever hold real
  * neighbouring lines of one log.
  *
  * The size rides along so a caller can say when the window is only the log's end
@@ -3133,8 +3126,8 @@ function failureBody(block: string): string[] {
  * pair of a failed assertion.
  *
  * Without this, every `TimeoutError: page.press: Timeout 5000ms exceeded.` in a log is one
- * message, because that line names the ACTION (`page.press`) and never its subject. X1 flash-m84
- * (2026-10-16) had four such failures in one run — one waiting on
+ * message, because that line names the ACTION (`page.press`) and never its subject. Four such
+ * failures in one run — one waiting on
  * `button:has-text("Publish Article")`, one on `.article-preview h1`, one on
  * `.article-preview').first().locator('.author')`, one on a generated `h1:has-text("Test
  * Article …")` — and the run's summary called them two causes while its mid-run note called them
@@ -3172,8 +3165,8 @@ const FAILURE_EVIDENCE_CHARS = 200
  * `Expected: <n>`, and a signature built from a `waiting for` line never carries the assertion
  * values at all. Those values are what a fix round needs, and the run's stdout they came from is
  * cut in the MIDDLE by the tool-result cap, so a listed cause that does not carry them sends the
- * executor back to the log — xr-molecule-flash-m102 (+12:43) made four `grep -A` round trips
- * (~25 s) for the bodies of causes the note had already listed.
+ * executor back to the log — four `grep -A` round trips (~25 s) for the bodies of causes the
+ * note had already listed.
  *
  * @param body - The block's lines, from {@link failureBody}.
  * @param message - The cause's signature: a line it already carries is not repeated.
@@ -3215,7 +3208,7 @@ function failureEvidence(body: string[], message: string | null): string[] {
  * The duration is the one that matters. A suite that sets `actionTimeout: 5_000` — the X1
  * realworld suite does — spends `5 s` plus teardown on every "the locator never appeared"
  * failure, so `~7 s` is a property of the CONFIG, not of the cause, and four different missing
- * elements print the same number (X1 flash-m84, 2026-10-16). Two tests waiting on the same
+ * elements print the same number. Two tests waiting on the same
  * locator for 5 s and for 10 s wait for the same thing; two waiting on different locators do not
  * become one cause by timing out together.
  *
@@ -3253,7 +3246,7 @@ function failureBudgetMs(block: string): number | null {
  * The cause signature with the budget it normalized away put back: `Test timeout of <n> exceeded`
  * becomes `Test timeout of 15000ms exceeded`. Every other `<n>` stays — those are the values that
  * differ between tests of one cause, while the budget is the one that does not, and it is what
- * turns "a timeout" into "15 creates in 15 s" (xr-molecule-flash-m110 +20:44).
+ * turns "a timeout" into "15 creates in 15 s".
  *
  * @param message - The normalized signature.
  * @param budgetMs - The budget the cause's first block printed.
@@ -3317,9 +3310,8 @@ function testKey(t: FailedTest): string {
  * A retried failure prints twice in a `list` log — its first attempt, then the same test with
  * `(retry #1)` after the title — while its failure block names it without the marker. Keyed
  * literally, the retry row is a test no cause claims, so it fell through to the duration arm and
- * was listed as a "shared duration" cause beside the proven cause it repeated: on
- * xr-molecule-flash-m155 (+21:50) every retry row of the run became one of six extra causes
- * duplicating the causes above them.
+ * was listed as a "shared duration" cause beside the proven cause it repeated: every retry row
+ * of a run became one of six extra causes duplicating the causes above them.
  *
  * @param t - A failed test, as a result line or a failure block spelled it.
  * @returns The key a test's retry row shares with its failure block.
@@ -3360,13 +3352,13 @@ function distinctTests(tests: FailedTest[]): FailedTest[] {
  *
  * Either way the point is the same: a suite whose failures repeat one cause spends its whole
  * runtime proving that one cause, and the executor watching it can be told so at the third
- * failure instead of at the last. X1 flash-m76 walked 15 tests in 4.0 minutes where 15.6 s
+ * failure instead of at the last. Fifteen tests walked in 4.0 minutes where 15.6 s
  * each was the test timeout and one missing `navigate('/')` was the cause of all of them.
  *
  * The quorum is of DISTINCT tests — {@link REPEATING_FAILURE_MIN} of them — because a log that
- * prints each failure twice (a second reporter, a retry) had X1 flash-m83 told that four of its
- * tests had failed the same way when two had, so the executor stopped a 139-test walk at test 21
- * with one cause in hand (2026-10-16).
+ * prints each failure twice (a second reporter, a retry) has told a run that four of its
+ * tests failed the same way when two had, so the executor stopped a 139-test walk at test 21
+ * with one cause in hand.
  *
  * @param log - The log so far.
  * @returns The repeating cause, or null when no signature has {@link REPEATING_FAILURE_MIN}
@@ -3440,8 +3432,7 @@ export function repeatingFailure(log: string): RepeatingFailure | null {
  * A body for a test the request EXCLUDES is not that evidence: its failure does not count for
  * this request ({@link matchingExcludedTitles}), so a wait that handed it over as the diagnostic
  * spent a model round trip and 8 k of partial log on a test the same result says to ignore —
- * exactly what xr-molecule-flash-h13 (+19:06) did twice while the platform's proof was still
- * walking.
+ * which a run has done twice while the platform's proof was still walking.
  *
  * With `finalOnly`, only a failure the run has FINISHED with counts; a pending retry waits.
  *
@@ -3538,10 +3529,9 @@ function failureBlockKey(block: string): string | null {
  * retry may not have printed yet — so it waits; a command that pins `--retries=0` proves there is
  * no retry to wait for.
  *
- * X1 xr-molecule-flash-l69 (+28:26): the deployed proof's yield handed back a first attempt
- * (no `Retry #` separator) that then passed on its retry, and the edit it prompted cost a
- * redeploy plus a whole walk. The fix is not to stop yielding — the retry-failed shape (l69's
- * first walk, null-fields:71) paid off — but to yield only on this one.
+ * A deployed proof's yield handed back a first attempt (no `Retry #` separator) that then
+ * passed on its retry, and the edit it prompted cost a redeploy plus a whole walk. The fix is
+ * not to stop yielding — the retry-failed shape paid off — but to yield only on this one.
  *
  * @param args - The log's rows and blocks, the failing test's key, and whether the command
  *   proves the run cannot retry.
@@ -3581,8 +3571,8 @@ export const REPEATING_FAILURE_LISTED = 5
 export const TOOL_RESULT_CHARS = 8000
 
 /**
- * The characters a finished run's cause list may use of {@link TOOL_RESULT_CHARS}. The recap
- * measured by xr-molecule-flash-m102 (+12:43) was `12 failures, 8 causes`: one cause line is
+ * The characters a finished run's cause list may use of {@link TOOL_RESULT_CHARS}. A measured
+ * recap was `12 failures, 8 causes`: one cause line is
  * ~200 chars and ~80 more with its two body lines, so 8 causes is ~2.3 k against the 8 k cap —
  * the old 5-cause cap withheld 3 causes that the same result had room for.
  *
@@ -3610,8 +3600,8 @@ export const FAILURE_CAUSE_TESTS_LISTED = 6
  *
  * Used only where a COUNT of files is what the sentence needs; every note that names a
  * test to the executor prints the path the log wrote, because that is the path its own
- * re-run hint names and the one the executor can paste back into a command (flash-m82
- * read a shortened `e2e/auth.spec.ts:19` as a file the app owned, and rewrote its config
+ * re-run hint names and the one the executor can paste back into a command (a shortened
+ * `e2e/auth.spec.ts:19` reads as a file the app owned, and rewrites its config
  * over a suite path that was already right).
  *
  * @param file - A path as {@link specFile} returns it.
@@ -3704,7 +3694,7 @@ export interface UniversalCause {
  * THREE, and the number is the cost of the alternative. The old floor of 15 was chosen when the
  * reading was only offered at a completed run; once it STOPS the walk, every test waited for is
  * a test whose result is thrown away, and a blank page costs its per-test budget each time
- * (m177: 18 tests, ~4.2 minutes, on a page whose thrown error was visible in the first
+ * (18 tests, ~4.2 minutes, on a page whose thrown error was visible in the first
  * `pageerror`). Three is the smallest count that is not one page's own bug: the cause additionally
  * needs three DISTINCT spec files (`UNIVERSAL_CAUSE_FILES`, or the files a narrowed run selected),
  * no failure showing a locator RESOLVING ({@link ELEMENT_FOUND} — a blank page cannot resolve
@@ -3731,8 +3721,8 @@ const LOCATOR_WAIT = /waiting for locator\(|element\(s\) not found|toBeVisible\(
  * of the viewport`). A blank page cannot resolve a locator, so one of these anywhere in a run
  * disproves {@link emptyPageCause}.
  *
- * xr-molecule-flash-m187 (+15:39 and +18:54) narrowed two re-runs to the tests that had just
- * failed, and both were stopped as "the app is rendering NOTHING" while every block in the log
+ * Two re-runs narrowed to the tests that had just failed were stopped as "the app is rendering
+ * NOTHING" while every block in the log
  * carried `locator resolved to <i class="ion-close-circled"></i>` followed by `element is not
  * visible` — the page was drawn, and only an icon had no box.
  */
@@ -3784,10 +3774,10 @@ function pageErrorInLog(text: string): string | null {
  *
  * This is ONE cause even though the signatures differ — each spec asks for its own first element
  * (`input[name="username"]`, `a.navbar-brand`, `h1`), so {@link repeatingFailure} cannot group
- * them and {@link universalCause}'s signature test cannot see the run is over. xr-molecule-flash-
- * m141 (+20:30) walked a built app that rendered nothing: 36 tests had failed, every one at its
- * first locator, and the note told the run to keep walking for another ~9 minutes. xr-molecule-
- * flash-m177 (+08:38 → +12:52) repeated it: 18 tests, one whole walk, on a page whose
+ * them and {@link universalCause}'s signature test cannot see the run is over. One run
+ * walked a built app that rendered nothing: 36 tests had failed, every one at its
+ * first locator, and the note told the run to keep walking for another ~9 minutes. Another
+ * repeated it: 18 tests, one whole walk, on a page whose
  * `PAGEERROR No 'auth-client' provider bonded` was in the log from the first one.
  *
  * @param text - The log (ANSI already stripped).
@@ -3896,8 +3886,8 @@ const PLAYWRIGHT_VALUE_FLAGS: ReadonlySet<string> = new Set([
  * whole suite (or its selection cannot be read).
  *
  * {@link universalCause}'s file threshold is written for a whole-suite run, which a narrowed run
- * can never reach. xr-molecule-flash-m119 (+42:08) re-ran ONE spec file against a hand-started
- * `vite preview` the browser could not reach, and every test in it failed `page.goto: Timeout` —
+ * can never reach. A run that re-ran ONE spec file against a hand-started `vite preview` the
+ * browser could not reach had every test in it fail `page.goto: Timeout` —
  * but one file is below {@link UNIVERSAL_CAUSE_FILES}, so the wait sat out its entire 280 s
  * budget on a run that had already measured all it could.
  *
@@ -3952,7 +3942,7 @@ interface SelectedTestRef {
  *
  * A command that names `file:line` tests is a re-run of tests that already failed — the shape
  * {@link emptyPageCause} must not read as "the page renders nothing", because the executor is
- * verifying fixes and the stop throws that verdict away (xr-molecule-flash-m187, twice).
+ * verifying fixes and the stop throws that verdict away (twice).
  *
  * @param command - The run's command.
  * @returns The selected test references, or null when the selection is not per-test.
@@ -4009,7 +3999,7 @@ function sameTestRef(ref: SelectedTestRef, where: string): boolean {
  * threshold, and nothing has passed since its first failure. The threshold is
  * {@link UNIVERSAL_CAUSE_FILES} for a whole-suite run but the number of files the command
  * SELECTED for a narrowed one ({@link specFilesSelected}): a one-file run can never span three,
- * and xr-molecule-flash-m119 (+42:08) waited out its whole budget on exactly that shape. An app
+ * and a run can wait out its whole budget on exactly that shape. An app
  * that is not up, a 5xx on every request, or a selector that is missing on every page all look
  * like that, and every remaining test will fail the same way — so the run's remaining minutes
  * measure nothing. A CONNECTION-class cause ({@link CONNECTION_CAUSE}) needs no file span at all:
@@ -4018,8 +4008,8 @@ function sameTestRef(ref: SelectedTestRef, where: string): boolean {
  *
  * Anything less is NOT this: a cause that stops at one file of a multi-file run, or that leaves
  * other tests passing, or that shares the run with failures of another shape, leaves the run with
- * something to say, and the run is the only thing that will say it. X1 flash-m83 (2026-10-16)
- * stopped eight local runs at their first repeating cause over 14.5 minutes and never finished
+ * something to say, and the run is the only thing that will say it. Stopping runs at their first
+ * repeating cause has burned eight local runs over 14.5 minutes without finishing
  * one; three of its deploys each fixed a single cause that a finished run would have listed
  * alongside the others.
  *
@@ -4080,14 +4070,14 @@ export function universalCause(
  *   spec-file threshold — {@link UNIVERSAL_CAUSE_FILES}, or the files a narrowed run's own
  *   command selects, or {@link CONNECTION_CAUSE_TESTS} tests of an app that never answered — with
  *   nothing passing since the first. That is the
- *   dont-stop-runs rule. X1 flash-m83 (2026-10-16) stopped eight local runs at their first
- *   repeating cause in 14.5 minutes and never finished one, and a run that still has other causes
+ *   dont-stop-runs rule. Stopping runs at their first repeating cause has burned eight local
+ *   runs in 14.5 minutes without finishing one, and a run that still has other causes
  *   left to name is the only thing that will name them.
  * - **A PROVEN cause** is an error repeated VERBATIM. A shared DURATION is a LEAD, never a cause:
  *   a suite whose config sets a timeout spends that timeout on every failure that waits for
  *   anything, so three unrelated tests timing out together look exactly like one broken run
- *   (`~7 s` is a property of the CONFIG, not of the cause — {@link normalizedSignature}). X1
- *   xr-molecule-flash-m99 (2026-10-16) was told `status: 'repeating_failure'` twice on that
+ *   (`~7 s` is a property of the CONFIG, not of the cause — {@link normalizedSignature}). A run
+ *   told `status: 'repeating_failure'` twice on that
  *   shape — three `url-navigation.spec.ts` tests at ~16.2 s, one `timeout: 15_000` plus teardown
  *   — read the early return as "stop waiting, edit now", and voided a run that was still walking;
  *   the second cost a 224 s wait that ended with no result at all.
@@ -4123,12 +4113,11 @@ export function earlyReturnCause(
  * extracted by molecule-dev's `excludedTestTitles`) while a run's heading carries more of it
  * (`comments.spec.ts › Comments › should require login to post comment`), so containment is the
  * comparison. Whitespace is normalised and case is ignored: a brief may wrap the title across a
- * line (`xr-molecule-flash-m44`), and the reporter's own casing never has to match the brief's.
+ * line, and the reporter's own casing never has to match the brief's.
  *
  * Two readers used to answer this separately — the causes note (which therefore asked the
  * executor to fix a test the same result said not to) and molecule-dev's exclusion notes — and
- * xr-molecule-flash-m101 paid for the gap (+12:00: a turn and an edit spent on the excluded
- * test).
+ * a run paid for the gap (a turn and an edit spent on the excluded test).
  *
  * @param heading - The text to match against: a test's title, its whole `file › describe › title`
  *   path, or (for a note that only has the run's output) the run's text.
@@ -4163,21 +4152,21 @@ export interface FailureCause {
    * The suite's own per-test budget in ms, when the cause is the test-budget kill
    * (`Test timeout of 15000ms exceeded`). The signature normalizes the number away
    * ({@link normalizedSignature}) so equal causes group, and that number is the one fact that
-   * predicts a test spending its budget on a repeated action (xr-molecule-flash-m110 +20:44).
+   * predicts a test spending its budget on a repeated action.
    */
   budgetMs?: number
   /**
    * The layer the failure came from ({@link classifyRunFailure}). A `connection` cause never
    * reached the app, so it is NOT a cause the app's code can fix: the note says to re-run it
    * once and read the app's log on a repeat, instead of sending a fix at a handler
-   * (xr-molecule-flash-m110 +18:42 rewrote a CORS middleware for a 20 s connection timeout).
+   * (a CORS middleware was rewritten for a 20 s connection timeout).
    */
   kind: RunFailureKind
   /**
    * What the page itself showed at the moment of the failure, when the caller read it from
    * Playwright's `error-context.md` (the alert / error list). The failure's own error line names
-   * the symptom — `waitForURL` timed out — and never what the page was saying: xr-molecule-flash-
-   * m122 +23:39 grouped eight `waitForURL` timeouts under one line while the page snapshots named
+   * the symptom — `waitForURL` timed out — and never what the page was saying: eight
+   * `waitForURL` timeouts were grouped under one line while the page snapshots named
    * the cause (`email can't be blank`, `username can't be blank` — the settings form submitted
    * before its values had loaded). Attached to the cause so the fix needs no `cat` of the file.
    */
@@ -4211,7 +4200,7 @@ export interface CausePageErrors {
  *
  * The point is that ONE run yields EVERY cause. A Playwright report prints its failures one
  * after another with no statement of which of them share a cause, so a run of 19 failures is 19
- * bodies to read; X1 flash-m83 (2026-10-16) spent three deploys (6.7 minutes) each fixing a
+ * bodies to read; three deploys (6.7 minutes) each fixed a
  * single cause, two of them found by runs stopped before they walked the rest.
  *
  * The signature is the cause itself where the log carries the failures' bodies (a finished run, a
@@ -4223,8 +4212,8 @@ export interface CausePageErrors {
  * A test the request EXCLUDES by name is not a cause to fix: its failure does not count for
  * this request ({@link matchingExcludedTitles}), so it is dropped here rather than handed to the
  * executor as work — a result that names it beside "it does not count" is the contradiction
- * xr-molecule-flash-m101 filed (+12:00: the model spent a turn and an edit on the excluded test,
- * on a page that was passing).
+ * a run filed (the model spent a turn and an edit on the excluded test, on a page that was
+ * passing).
  *
  * @param log - The log of a finished or running run.
  * @param excluded - The test titles the request carves out, if the caller knows them.
@@ -4246,8 +4235,8 @@ const FLAKY_TALLY_LINE = /^\s*[1-9]\d*\s+flaky\b/
  *
  * Playwright prints a numbered failure block for the FIRST attempt of a test that then passes on
  * its retry, and also declares the test under `N flaky` — so a reader that only looks at the
- * blocks counts a flake as a cause to fix. xr-molecule-flash-m105's proof run against the deployed
- * URL reported ten `waitForURL` timing flakes as "causes" of a red run (+24:54), and the executor
+ * blocks counts a flake as a cause to fix. A proof run against the deployed URL reported ten
+ * `waitForURL` timing flakes as "causes" of a red run, and the executor
  * spent its next minutes re-running them one by one until three passed untouched. The
  * declaration under the count is the runner's own answer, and its heading carries the same words
  * as the failure block's ({@link splitTitlePath} reads both the same way).
@@ -4410,7 +4399,7 @@ function groupFailures(
 /**
  * The error every test of a Playwright run reports when the run loaded no base URL: `page.goto('/')`
  * has nothing to resolve against, so the browser refuses the navigation before any page loads.
- * xr-molecule-flash-m113 (+20:34) got ten of these and a list that called them ten causes.
+ * One run got ten of these and a list that called them ten causes.
  */
 const NO_BASE_URL_ERROR = /Cannot navigate to invalid URL/i
 
@@ -4443,7 +4432,7 @@ function everyCauseIsNavigationTimeout(causes: readonly FailureCause[]): boolean
  * command loaded no base URL. The line names the config the run should have loaded (the caller
  * passes the one the platform recorded for this suite) and hands over the exact narrowed command
  * with it, so the next run measures the app instead of spending another six minutes on the same
- * configuration mistake (xr-molecule-flash-m113 ran four such runs, 07:06:17 → 07:12:03).
+ * configuration mistake (one run sent four such runs in six minutes).
  *
  * @param causes - The run's failures, all carrying the same error.
  * @param run - How the run was started, when the caller knows it.
@@ -4615,7 +4604,7 @@ const LANDMARK_WORD: Record<RequiredLandmark, string> = {
  * The sentence for a run whose navigational elements are all missing from pages that otherwise
  * painted — the missing shared header the executor must check BEFORE rewriting auth.
  *
- * xr-molecule-flash-m193 (+13:54 → +20:00): four failures on `/` — `a[href="/profile/…"]`,
+ * A run had four failures on `/` — `a[href="/profile/…"]`,
  * `a.navbar-brand`, `nav a[href="/"]`, `nav .user-pic` — while every `error-context.md` snapshot
  * showed the feed, sidebar and footer with no navigation at all. `Home.tsx` imported and
  * re-exported `Navbar` but never rendered it, and `App.tsx` mounted `<Home />` in a bare route.
@@ -4719,7 +4708,7 @@ export function failureCausesNote(
    * Spec files whose selector-contract rows an edit broke since the last whole walk, when the
    * caller knows them: the narrowed re-run names them beside the failing tests. A green re-run of
    * the failure alone would certify a tree it never measured, and the specs selecting the
-   * element the edit removed were never walked (xr-molecule-flash-m187 shipped that).
+   * element the edit removed were never walked (a real tree shipped that).
    */
   regressedSpecs: readonly string[] = [],
 ): string | null {
@@ -4843,9 +4832,9 @@ export function failureCausesNote(
  * failure's two most useful body lines underneath.
  *
  * The path is the one the log itself wrote, never a shortened one: it is relative to the
- * command's own cwd, so it is the form the executor can paste back (X1 flash-m82 read a shortened
- * `e2e/auth.spec.ts:19` as the suite's own stale starter spec, rewrote its Playwright config over
- * it and deleted the app's tests — 4 minutes of a 60-minute run on a working config).
+ * command's own cwd, so it is the form the executor can paste back (a shortened
+ * `e2e/auth.spec.ts:19` read as the suite's own stale starter spec, and a Playwright config
+ * rewritten over it deleted the app's tests — 4 minutes of a 60-minute run on a working config).
  *
  * @param cause - The cause to write.
  * @param index - Its position in the recap (0-based; printed 1-based).
@@ -4892,8 +4881,8 @@ function failureCauseLine(cause: FailureCause, index: number): string {
  * found at, and the ONE command that prints their bodies.
  *
  * Without it the old note said "… and 3 more causes" and left the executor to find them in a
- * stdout whose middle the tool-result cut had already removed — xr-molecule-flash-m102 (+12:43)
- * spent four `grep -A` round trips (~25 s) naming three causes the platform had withheld, and a
+ * stdout whose middle the tool-result cut had already removed — four `grep -A` round trips
+ * (~25 s) naming three causes the platform had withheld, and a
  * weaker turn reads the listed ones and skips the rest.
  *
  * @param omitted - The causes past the recap's budget.
@@ -4966,7 +4955,7 @@ function omittedCausesRecap(
  * @param run - The run in flight: the command it was started with, as it was run, the directory
  *   that command ran in, the config it loaded when the caller knows it, and the settings the
  *   request required and the run left out (`env`) — the re-run carries them, so it never
- *   reproduces the configuration the run was measured under by mistake (m182).
+ *   reproduces the configuration the run was measured under by mistake.
  * @param locations - The failing `file:line`s to re-run, as the run's log printed them.
  * @param excluded - The test titles the request carves out: the re-run inverts them out
  *   (`--grep-invert`) so it cannot report them again.
@@ -5010,18 +4999,18 @@ export function rerunOfRunningSuite(
  * The note names the cause early so the executor can START FIXING while the run keeps walking,
  * and it hands a stop command over only when {@link earlyReturnCause} says so — the SAME
  * predicate the wait uses to decide whether to return early, so a finding the wait keeps waiting
- * on is a finding this note never asks to stop for. X1 flash-m76 (2026-10-16) spent 4.0 minutes
+ * on is a finding this note never asks to stop for. One run spent 4.0 minutes
  * walking 15 tests whose one cause was certain at the third, 47 s in, and the note answers
- * exactly that; X1 flash-m83 then stopped eight runs at their first repeating cause in 14.5
+ * exactly that; another stopped eight runs at their first repeating cause in 14.5
  * minutes and never finished one, so the note must not say to stop when the run still has other
- * causes to name. X1 xr-molecule-flash-m99 (2026-10-16) is the third shape: a shared duration is
+ * causes to name. The third shape: a shared duration is
  * not a cause at all, so a lead reaches the executor as a note on a result it is still waiting
  * for — never as a verdict with a stop command in it.
  *
  * The run is STILL WALKING while this note is written — both callers produce it mid-run — so a
  * re-run of one of its tests is a second run against the same app and database, and the platform
  * refuses that ({@link suiteRunInTheWay}, the same rule its overlap hold answers with):
- * xr-molecule-flash-m89 (2026-10-16) read *"Start on them now, while the run keeps walking.
+ * an executor read *"Start on them now, while the run keeps walking.
  * `null-fields.spec.ts:53` alone reproduces the first one."* and sent exactly that re-run 23 s
  * later, where the hold answered *"A playwright suite is already running against this app and
  * database … Wait for it."* The note therefore hands over the read-and-fix to do NOW and the
@@ -5250,7 +5239,7 @@ export const PARSE_CHECKABLE = /\.(m?js|cjs|jsx|ts|tsx|mts|cts|json)$/
  * Basenames TypeScript reads as JSONC: `tsconfig.json`, `tsconfig.*.json` and
  * the `jsconfig` counterparts. Comments and trailing commas are legal there —
  * `tsc` accepts them — so a strict `JSON.parse` reports a valid project config
- * as broken (X0 flash-m436: a commented `tsconfig.conduit-suite.json` was
+ * as broken (a commented `tsconfig.conduit-suite.json` was
  * answered with "every build and test fails until it does").
  */
 const TYPESCRIPT_CONFIG = /^(?:ts|js)config(?:\.[^/\\]+)?\.json$/

@@ -2,7 +2,7 @@
  * A leading `sleep` in an executor's command: the seconds it would have waited, and the command
  * that follows it.
  *
- * X1 xr-molecule-flash-m105 (+08:49 → +10:53, 2026-10-17) spent 225 s of its 60-minute clock
+ * One run spent 225 s of its 60-minute clock
  * inside `exec_command` calls of the shape `sleep N; tail <task log>`. The platform's own launch
  * note said "peek with exec_command: tail <log>" beside "never sleep", and the only concrete
  * instruction was the peek, so the executor built the poll by hand. Two of its three sleeps were

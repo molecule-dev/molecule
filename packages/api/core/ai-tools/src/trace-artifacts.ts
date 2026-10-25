@@ -2,7 +2,7 @@
  * What a failed Playwright run's own trace files say about the requests its page made — read
  * headlessly, in the sandbox, from the `trace.zip` files the run left behind.
  *
- * X1 xr-molecule-flash-m100 (+51:19 → +53:00, 2026-10-16) ended with three failures against the
+ * A run ended with three failures against the
  * deployed URL — `social.spec.ts:22` and `:153` waited for a "Unfollow" button that never appeared
  * after the click, and `url-navigation.spec.ts:234` was bounced to `/login` mid-test — and nothing
  * in the run's result said why. The app's own `toggleFollow` swallowed the error of its request
@@ -57,7 +57,7 @@ export interface TraceRequest {
    * What the page SENT, for a 4xx answered by the app's own API — bounded (see
    * {@link MAX_TRACED_BODY_CHARS}). A body wrapped as `{"data":{…}}` is visible here in one line:
    * app-http's verbs take the body as their second argument, so a helper that passes
-   * `{ data: body }` there ships the wrapper (xr-molecule-flash-m111 +11:36).
+   * `{ data: body }` there ships the wrapper.
    */
   sent?: string
   /** What came back for that 4xx, bounded the same way — the API's own error body. */
@@ -81,7 +81,7 @@ export interface TraceRequest {
    * A 401 cannot be read without this: the API's own body said
    * `{"errors":{"token":["is missing"]}}` while the note told the run to read the API handler,
    * when the header's absence proved the CLIENT never attached the token
-   * (xr-molecule-flash-m148 +29:18). A header present moves the answer to the server: the API
+   * A header present moves the answer to the server: the API
    * refused a token it was sent.
    */
   sentAuthorization?: boolean
@@ -100,7 +100,7 @@ export interface TraceRequest {
   /**
    * The trace member this request came from — the browser context Playwright numbered (`1`, `3`).
    * A test that opens a second browser context writes one trace member per context, and a test's
-   * request is only evidence about the page it was made on (xr-molecule-flash-m160).
+   * request is only evidence about the page it was made on.
    */
   context?: string
   /** The page the request was made on, as the HAR entry's `pageref` records it. */
@@ -112,7 +112,7 @@ export interface TraceRequest {
  *
  * An assertion after a navigation is not explained by the page's last call (`GET /api/tags` on
  * whatever page the app redirected to); it is explained by what the action the test took sent and
- * what came back (xr-molecule-flash-m148: 13 then 12 failing tests, every trace row leading with
+ * what came back (13 then 12 failing tests, every trace row leading with
  * `GET /api/tags → 200`, while the register `POST /api/users` and its answer — the fact that
  * explains the signed-out page — was never shown).
  */
@@ -152,7 +152,7 @@ export interface TraceAction {
   /**
    * The selector a `fill`/`type`/`selectOption` acted on (`textarea[name="bio"]`), from the
    * trace's own params. Kept so the note can compare what the test typed with what the page
-   * submitted (m173: the field it typed into was sent empty).
+   * submitted (a field typed into and sent empty).
    */
   selector?: string
   /**
@@ -168,7 +168,7 @@ export interface TraceAction {
  *
  * Its actions and requests belong to a different page: a request it sent is not the failing
  * action's effect, and the URL it left the page on is not where the assertion's page went
- * (xr-molecule-flash-m160: the helper context created an article in an editor page while the
+ * (the helper context created an article in an editor page while the
  * primary page moved to the profile the assertion then failed on, and the note called the
  * editor page the failing page).
  */
@@ -190,13 +190,13 @@ export interface TraceContextEvidence {
  * argument), and the trace's network log holds the response that contained it. That pair is the
  * whole diagnosis: the API returned the value and the page dropped it before rendering, so the cut
  * is in the component that maps the response onto the list — not in the API, the route or the
- * selector. xr-molecule-flash-m169 (+13:09) spent its fix rounds on the wrong component and on a
+ * selector. One run spent its fix rounds on the wrong component and on a
  * markup detail while `GET /api/tags` was returning the missing "trending" and `PopularTags`
- * sliced the response to its first 20 entries (the m99 top-N class, in the frontend).
+ * sliced the response to its first 20 entries (a top-N cut, in the frontend).
  *
  * The text must be a value the response held, never a substring of one: a whole JSON string or
  * number value, or a word bounded by non-alphanumerics. A text of 2 characters or fewer, or one
- * made of digits only, must be a whole JSON value. xr-molecule-flash-m208's pagination assertion
+ * made of digits only, must be a whole JSON value. A pagination assertion
  * waited for "2" and the raw substring hit `pag1792394785820` in a tags response, so the note led
  * with a response that had nothing to do with the failure; when no response holds the text that
  * way, the field is absent and the note leads with its next finding.
@@ -213,7 +213,7 @@ export interface TraceMissingText {
    * of the collection that started after the last navigation, and the text is absent from the
    * page's own failure snapshot ({@link traceArtifactsScript}).
    *
-   * Absent when the evidence is weaker — a creation POST carried the text (m194's button failure
+   * Absent when the evidence is weaker — a creation POST carried the text (a button failure
    * was not a missing article), the snapshot still showed it, or the trace recorded no clock —
    * and the note then says only that a response contained the text.
    */
@@ -224,7 +224,7 @@ export interface TraceMissingText {
  * A write the trace recorded answering a boolean field, and a LATER GET of the same resource
  * answering the opposite for that field.
  *
- * This is the pair that reads as a frontend race and is not one: xr-molecule-flash-m181's follow
+ * This is the pair that reads as a frontend race and is not one: a follow
  * test sent `POST /api/profiles/:username/follow` and the API answered
  * `{"profile":{…,"following":true}}`, then a `GET /api/profiles/:username` answered
  * `{"profile":{…,"following":false}}` — the READ route never saw the viewer, so it hydrated
@@ -296,7 +296,7 @@ export interface TraceCountMatch {
   text?: string
   /** Its ancestors, outermost first (`body > div.comment-form > div.card`), bounded. */
   path?: string
-  /** True when a `<form>` is one of its ancestors — the m321 extra match's shape. */
+  /** True when a `<form>` is one of its ancestors — the shape of an extra form-internal match. */
   inForm?: true
 }
 
@@ -305,7 +305,7 @@ export interface TraceCountMatch {
  * `expect(locator).toHaveCount(n)`), with the locator the trace recorded and, when the failure
  * snapshot can supply them, the elements it matched.
  *
- * xr-molecule-flash-m321's `comments.spec.ts:86` sat on `Expected: 3 / Received: 4` for ~30
+ * A `comments.spec.ts:86` assertion sat on `Expected: 3 / Received: 4` for ~30
  * minutes and three whole suite walks: the helper counted `.card:not(.comment-form) .card-block`,
  * the app's comment form was a `.comment-form` wrapper around a plain `.card`, and the form's own
  * `.card-block` made the fourth. The trace had the selector (its `Frame.queryCount` entry) and the
@@ -351,7 +351,7 @@ export interface TraceCountMismatch {
  * One method+path a test's page sent many times — the trace of a render loop.
  *
  * Counted over EVERY network entry the failing page recorded, before the trace reader's per-trace
- * cap and its method+path+status dedupe, because those two bounds are exactly what hid m215's
+ * cap and its method+path+status dedupe, because those two bounds are exactly what hid a
  * 2,106-request loop: the note could only ever see four of them.
  */
 interface TraceRequestRepeat {
@@ -382,7 +382,7 @@ export interface TraceArtifact {
    * action caused ({@link TraceArtifact.lastAction}), else — on a trace with no action clock — the
    * trace's LAST `fetch`/`xhr` in recording order, else its document. It leads the note's row when
    * {@link lastAction} is absent, because a click that changed nothing is explained by the request
-   * the click sent and what came back — xr-molecule-flash-m135's Follow click sent
+   * the click sent and what came back — a Follow click sent
    * `DELETE /api/profiles/x/follow → 200` (its `following` state was stale) and the note listed only
    * the test's earlier, answered requests.
    *
@@ -402,7 +402,7 @@ export interface TraceArtifact {
    *
    * A test that opens a second browser context writes one trace member per context, and the
    * archive does not order them by time: the last action of the concatenation may belong to the
-   * helper's page while the assertion failed on another (xr-molecule-flash-m160). The action is
+   * helper's page while the assertion failed on another. The action is
    * therefore the failing page's own, and its `pageAfter` is that page's last frame snapshot.
    *
    * Absent on traces read before this field existed, on traces whose network entries recorded no
@@ -422,13 +422,13 @@ export interface TraceArtifact {
    * True when the trace held more than one browser context and none of them could be tied to the
    * failing assertion's page. The note then makes no causal claim — no "the test's last action",
    * no "the page stayed at …" — rather than attributing one context's click and URL to another
-   * context's assertion (xr-molecule-flash-m160).
+   * context's assertion.
    */
   unattributed?: true
   /**
    * The browser contexts the test opened BESIDES the failing assertion's page, with the app
    * requests each made. Kept apart so the note can name them as set-up work instead of printing
-   * their requests as the failing action's effects (xr-molecule-flash-m160).
+   * their requests as the failing action's effects.
    *
    * Absent when the trace recorded one context only, when every other context made no request,
    * and on traces read before this field existed.
@@ -437,8 +437,7 @@ export interface TraceArtifact {
   /**
    * The text the failing assertion waited for and a same-page API response carried, when the trace
    * recorded both. The note leads with it: the value reached the browser and the page did not
-   * render it, so the next read is where that response is mapped — never the API or the selector
-   * (xr-molecule-flash-m169).
+   * render it, so the next read is where that response is mapped — never the API or the selector.
    *
    * Absent when the assertion waited for no text (a text-free selector, a strict-mode violation),
    * when no page-scoped `fetch`/`xhr` answered 2xx/3xx with the text in its body, and on traces
@@ -447,7 +446,8 @@ export interface TraceArtifact {
   missingText?: TraceMissingText
   /**
    * A write's answer a later GET of the same resource contradicted — the read route does not see
-   * the viewer (xr-molecule-flash-m181's `following`). The note leads with it and sends the run at
+   * the viewer (a `following` flag that reads as `false`). The note leads with it and sends the
+   * run at
    * the route's middleware, not the page's state handling.
    *
    * Absent when no write and later read in the trace answered the same boolean field differently,
@@ -458,19 +458,19 @@ export interface TraceArtifact {
    * A visibility failure whose locator RESOLVED into an empty box — Playwright's "hidden" — with
    * the element's children read from the failure snapshot ({@link TraceHiddenBox}). The note uses
    * it to name why the box is empty (an `<img>` with no CSS size, a textless element) instead of
-   * leaving the run to probe computed styles (xr-molecule-flash-m197).
+   * leaving the run to probe computed styles.
    */
   hiddenBox?: TraceHiddenBox
   /**
    * A failing assertion that compared a locator count, with the locator the trace recorded and the
    * elements its failure snapshot matched ({@link TraceCountMismatch}). The row prints them, so a
    * count that is off by one names the extra element instead of leaving the run to probe for it
-   * (xr-molecule-flash-m321's 30-minute `Expected: 3 / Received: 4`).
+   * (a 30-minute `Expected: 3 / Received: 4` hunt).
    */
   countMismatch?: TraceCountMismatch
   /**
    * The method+path groups this test's page sent {@link TRACE_NOTE_LOOP_REPEATS} times or more,
-   * most-repeated first — a render loop the note leads with (xr-molecule-flash-m215: 2,106
+   * most-repeated first — a render loop the note leads with (2,106
    * `GET /api/articles/<slug>` in one test, printed as four identical `→ 200` lines). Counted over
    * every network entry of the failing page, not the capped {@link TraceArtifact.requests} list.
    *
@@ -513,7 +513,7 @@ export const MAX_TRACED_BODY_CHARS = 300
  * How much of a websocket's frames the trace read keeps. Longer than {@link MAX_TRACED_BODY_CHARS}
  * because a frame read back to its own message still has the message, the module id and the
  * location to carry — Vite's transform error alone is a sentence longer than the plain body cap,
- * and the note prints its first 120–200 characters anyway (xr-molecule-flash-m157).
+ * and the note prints its first 120–200 characters anyway.
  */
 const MAX_TRACED_WEBSOCKET_CHARS = 600
 
@@ -535,7 +535,7 @@ export const MAX_TRACE_NOTE_REQUESTS = 4
 /**
  * How many times ONE test may send the same method+path before the note calls it a render loop.
  *
- * xr-molecule-flash-m215 (+27:27 → +29:42): an Editor effect with `[seeded, slug, t]` in its
+ * An Editor effect with `[seeded, slug, t]` in its
  * dependency list re-fetched `GET /api/articles/<slug>` 2,106 times in one test. The trace reader
  * caps and de-duplicates its request list, so the note printed four identical `→ 200` lines and
  * the run patched the component's seeding, rebuilt and re-ran before unzipping the trace by hand.
@@ -585,11 +585,11 @@ const TRACE_NOTE_FAILURE_CHARS = 120
  * as its own context: actions and requests keep their context id, requests and frame snapshots
  * keep the pageId Playwright records, and the failing assertion's page — the page its own step id
  * ran on — decides which actions, snapshots and requests become the test's row. What the test's
- * other browser contexts recorded is reported apart, as `otherContexts` (xr-molecule-flash-m160).
+ * other browser contexts recorded is reported apart, as `otherContexts`.
  *
  * A request answered 4xx by the app's OWN API also keeps what the page SENT and the first of what
  * came back: Playwright stores either inline (`text`) or in a resource entry (`_file`), and both
- * are read. That is where a wrapped body shows: xr-molecule-flash-m111's helper passed
+ * are read. That is where a wrapped body shows: a helper passed
  * `{ data: body }` as app-http's second argument, so every POST/PUT was `{"data":{…}}` and the API
  * validated `{}`. Status alone said only "422".
  *
@@ -2771,7 +2771,7 @@ interface NoteRequest {
  * The requests of one trace, one entry per method+path, with the trace's own repeat count.
  *
  * A loop is why this exists: the reader keeps at most four copies of a method+path, so the row
- * must print ONE line with the real number (m215's `×2106`) rather than four identical lines.
+ * must print ONE line with the real number (`×2106`) rather than four identical lines.
  *
  * @param requests - The requests to print, in the note's own order.
  * @param repeated - The trace's repeated groups ({@link TraceArtifact.repeated}).
@@ -2834,7 +2834,7 @@ function shownRequest(shown: NoteRequest, gotChars?: number): string {
  *
  * The loop is not a flaky API: an effect whose dependency list holds a value that is new on every
  * render re-fetches forever, and the fix is that dependency list, never the test or the handler.
- * m215's model found this only by unzipping a trace by hand after a wasted fix and a re-run.
+ * This was found only by unzipping a trace by hand after a wasted fix and a re-run.
  *
  * @param group - The repeated group.
  * @param file - The app source file whose code sends it, when the caller read one.
@@ -2873,7 +2873,7 @@ function callSiteOf(
  * The failing step's own request as the note writes it first: `the failing step sent DELETE
  * /api/profiles/x/follow → 200 got {"profile":{…}}`.
  *
- * It prints the response body whatever the status — an ANSWERED request is the point: m135's
+ * It prints the response body whatever the status — an ANSWERED request is the point: a
  * Follow click sent the DELETE an unfollow sends, got a 200 and a profile with `following: false`,
  * and nothing in the result said which verb the click used.
  *
@@ -2930,7 +2930,7 @@ function wrappedInData(text: string): boolean {
  * 404), the manifest, a favicon, the fonts a stylesheet pulls, and Vite's/dev's own asset paths.
  *
  * These are not the failing step's dependencies, so neither a missing response nor a 404 on one is
- * a cause. xr-molecule-flash-m125 (+29:33) was handed "no response recorded — still in flight when
+ * a cause. A run was handed "no response recorded — still in flight when
  * the test ended … GET /sw.js; GET /fonts/ionicons.woff" and answered it by writing a CACHING
  * service worker into the app — in front of `/assets/*`, exactly what makes a redeployed fix
  * invisible to the next proof run. The note is about the test's own API calls.
@@ -2942,7 +2942,7 @@ const STATIC_ASSET_PATH =
  * The PWA worker's own hashed script, the manifest's touch icons and the splash images.
  *
  * The worker and the shell type these `other`/`fetch`, not `script`/`image`, so
- * {@link STATIC_ASSET_TYPES} alone never caught them: on xr-molecule-flash-m148 every failing
+ * {@link STATIC_ASSET_TYPES} alone never caught them: every failing
  * test's row filled three of its four request slots with `GET /workbox-d8ed3718.js → 200` and
  * `GET /icons/splash-1125x2436.svg → 200`, and the register `POST /api/users` that explains the
  * signed-out page never appeared.
@@ -2988,7 +2988,7 @@ export function isStaticAssetRequest(request: TraceRequest): boolean {
  * Whether a trace recorded a failed response or a request error other than cancellation.
  *
  * A 404 on a static asset is excepted: `/sw.js` and `/fonts/*` 404 on an app that never shipped
- * them, and naming one as a failure sent m125 into writing the caching worker it had asked about.
+ * them, and naming one as a failure sent a run into writing the caching worker it had asked about.
  * A 5xx on an asset, or a network error, still counts. A request error alone does not locate
  * the cause in the server: the browser or network may have rejected the request.
  *
@@ -3013,7 +3013,7 @@ function recordedRequestFailure(request: TraceRequest): boolean {
 /**
  * Whether a trace recorded no response and no error other than cancellation. The request may
  * have been pending or cancelled when recording ended; the trace does not establish whether
- * the endpoint stalled. A shell request is not evidence about the step (m125 +29:33).
+ * the endpoint stalled. A shell request is not evidence about the step.
  *
  * @param request - One request a trace recorded.
  * @returns True when the request's missing response is inconclusive and worth naming.
@@ -3029,12 +3029,12 @@ export function unansweredRequest(request: TraceRequest): boolean {
  * the navigation timed out.
  *
  * The page shell's own incidental requests (`/sw.js`, the manifest, a favicon, a font) are
- * excepted for the reason {@link isStaticAssetRequest} documents: m125's run was sent to write a
- * caching service worker by an aborted `/sw.js`. A pending `/assets/*.css` is different — the
- * navigation blocks on it, so it is the reason `page.goto` ran out of time rather than one of the
- * app's API calls (xr-molecule-flash-m135 +34:10: three deployed `page.goto` timeouts on tests that
- * pass locally, one 88 KB stylesheet fetch measured at 27 s, and the failing tests' traces each
- * held the never-answered CSS while the note said "the cause is in the page").
+ * excepted for the reason {@link isStaticAssetRequest} documents: an aborted `/sw.js` once sent a
+ * run to write a caching service worker. A pending `/assets/*.css` is different — the navigation
+ * blocks on it, so it is the reason `page.goto` ran out of time rather than one of the app's API
+ * calls (three deployed `page.goto` timeouts on tests that pass locally, one 88 KB stylesheet
+ * fetch measured at 27 s, and the failing tests' traces each holding the never-answered CSS while
+ * the note said "the cause is in the page").
  *
  * @param request - One request a trace recorded.
  * @returns True when the request is a document subresource that never finished.
@@ -3051,7 +3051,7 @@ export function stalledDocumentSubresource(request: TraceRequest): boolean {
  * How far a trace's last recorded step can sit after an earlier walk's failing test and still be
  * that test. The trace names the LINE of the last step it recorded (the click, the wait), while the
  * run's own summary names the test's DECLARATION line, so a row that repeats a failure sits a few
- * lines below the declaration it repeats: m112's favorite test is declared at
+ * lines below the declaration it repeats: the favorite test is declared at
  * `articles.spec.ts:123` and its last step, the click that changed nothing, was on `:133`.
  */
 const RECURRENCE_LINE_WINDOW = 40
@@ -3075,7 +3075,7 @@ function sameLocationFile(left: string, right: string): boolean {
  * The earlier walk's locations come from the run's own summary — the test's DECLARATION line —
  * while the trace names the last step's line, so a repeat is the same file with its step inside
  * {@link RECURRENCE_LINE_WINDOW} lines after the NEAREST earlier declaration before it (the test
- * body it belongs to). A line BEFORE the declaration is a hook, not the test: m112's
+ * body it belongs to). A line BEFORE the declaration is a hook, not the test:
  * `url-navigation.spec.ts:107` is the Pagination suite's `afterEach`, which four different tests
  * share. A trace that names no spec cannot be placed at all.
  *
@@ -3099,8 +3099,8 @@ function repeatsEarlierFailure(item: TraceArtifact, earlier: readonly string[]):
  * What the runner's own report says about ONE failing test: where the test is declared, which
  * Playwright call its failure names, and the per-test deadline the failure measured against.
  *
- * A trace cannot tell a navigation that ran out of budget from a selector wait that did. On
- * xr-molecule-flash-m153 a 15 s `page.waitForSelector` timeout left a trace whose `Frame.goto`
+ * A trace cannot tell a navigation that ran out of budget from a selector wait that did. A 15 s
+ * `page.waitForSelector` timeout can leave a trace whose `Frame.goto`
  * never finished (the test was cut off mid-navigation) with a `/src/components/*.tsx` module still
  * pending when the context closed — and the note read that as an asset hang, then sent the run to
  * re-run the same tests unchanged against the same dev server while the same result's
@@ -3142,7 +3142,7 @@ export interface TraceRunReport {
   /**
    * The app source files whose code sends a repeated request, read by the caller from the
    * project (`app/src/**`) before this note is written. A loop's sentence names the component to
-   * read instead of leaving the run to search for it (xr-molecule-flash-m215's `Editor.tsx`).
+   * read instead of leaving the run to search for it (the component's own file).
    * Empty when the caller could not read the app or no file states the path.
    */
   callSites?: readonly { method: string; path: string; file: string }[]
@@ -3169,7 +3169,7 @@ function navigationMethod(operation: string | null): string | null {
  *
  * The trace names the line of its LAST recorded step; the runner's summary names the test's
  * DECLARATION line, and the step sits inside the body just after it ({@link
- * RECURRENCE_LINE_WINDOW}). A line BEFORE the declaration is a hook — m153's teardown trace sits
+ * RECURRENCE_LINE_WINDOW}). A line BEFORE the declaration is a hook — a teardown trace sits
  * at `url-navigation.spec.ts:107`, the Pagination suite's `afterEach`, while the failing test is
  * declared at `:206` — and a hook is not the failing test's operation.
  *
@@ -3199,7 +3199,7 @@ function runFailureOf(
  * quotes and the line a re-run command takes, so it wins whenever the run reported one for this
  * file: matched by the trace's own line inside the test body ({@link runFailureOf}), and otherwise
  * by the file alone when that file has exactly ONE reported failure — an `afterEach` line sits
- * BEFORE the declaration, so the line window cannot match it (xr-molecule-flash-m163's row said
+ * BEFORE the declaration, so the line window cannot match it (a row said
  * `navigation.spec.ts:12`, the suite's `afterEach`, for the test declared at `:200`).
  *
  * @param item - One traced failure.
@@ -3252,7 +3252,7 @@ function requestCoversWait(request: TraceRequest, wait: TraceAction): boolean {
  * navigation ({@link NAVIGATION_OPERATIONS}); the trace's record of that call never finished; and
  * a document subresource still pending at the end started inside that wait
  * ({@link requestCoversWait}). An asset merely unfinished when the test was cancelled, or one a
- * teardown/`afterEach` trace holds, meets none of these and is not a cause (m153).
+ * teardown/`afterEach` trace holds, meets none of these and is not a cause.
  *
  * @param item - One traced failure.
  * @param report - The runner's report and the run's next step.
@@ -3280,11 +3280,11 @@ function stalledNavigation(item: TraceArtifact, report: TraceRunReport): Stalled
 /**
  * Whether a trace holds evidence the note can explain: a request that got a RECORDED response, a
  * real failure (4xx/5xx or a network error), or a console line. A request with no response is
- * not evidence (m112 +53:46): four of the note's five rows were traces of one `afterEach` line
+ * not evidence: four of the note's five rows were traces of one `afterEach` line
  * whose every request was `-1`, so the favorite cause — repeated in all three walks — stayed
  * hidden in "… and 7 more traced failures".
  *
- * A request the page shell made (m125 +29:33: `/sw.js`, a font) is not evidence about the step
+ * A request the page shell made (`/sw.js`, a font) is not evidence about the step
  * either, answered or not. The exception is a document subresource that never finished while the
  * navigation the RUNNER reports failing was still open: that navigation waits on it, so it is the
  * reason the `page.goto` timed out ({@link stalledNavigation}).
@@ -3315,7 +3315,7 @@ function traceRowEvidence(item: TraceArtifact, report: TraceRunReport): boolean 
 /**
  * The note's row order: a row with a REAL failure first, then a row whose failure an earlier walk
  * also had, then the rest. A recurrence is the only evidence a row carries when its requests were
- * all answered (m112's favorite cause: the click's own request answered, the button never
+ * all answered (the favorite cause: the click's own request answered, the button never
  * changed).
  *
  * @param item - One traced failure.
@@ -3345,7 +3345,7 @@ const NETWORK_ERROR = /\bnet::ERR_[A-Z0-9_]+\b/
  *
  * A page that never loaded is not a set of app failures: a `page.goto` timeout on a document that
  * ended in a `net::ERR_*` is the one line that explains every test that timed out on it, and it is
- * what m118's preview walk never saw (`net::ERR_CONTENT_DECODING_FAILED` on a gzipped HTML body).
+ * what a preview walk never saw (`net::ERR_CONTENT_DECODING_FAILED` on a gzipped HTML body).
  *
  * @param item - One traced failure.
  * @returns True when the page's navigation started and never ended.
@@ -3459,7 +3459,7 @@ interface UnansweredApiRequest {
 /**
  * The API requests that recorded an error without a response, one entry per method+path.
  * Missing failure text stays inconclusive regardless of the number of pending requests
- * (m303/m305). An answer from another endpoint cannot excuse a recorded failure here.
+ * An answer from another endpoint cannot excuse a recorded failure here.
  *
  * @param items - The traces the note is about.
  * @param apiPrefixes - The API prefixes the caller read, or empty.
@@ -3493,7 +3493,7 @@ function failedApiRequests(
  * Whether the runner reported this traced test's failure as a navigation that ran out of budget.
  *
  * The runner's own error names the call (`page.goto`, `page.reload`), and that report is the only
- * signal used: m153 showed a `Frame.goto` that never finished on a trace whose failure was a 15 s
+ * signal used: a `Frame.goto` can stay unfinished on a trace whose failure was a 15 s
  * `page.waitForSelector` timeout (the test was cut off mid-navigation), so an unfinished frame
  * action alone would call a selector failure a page-load failure.
  *
@@ -3581,7 +3581,7 @@ function credentialExchangeBody(sent: string | undefined): boolean {
  * This is the path half of {@link isCredentialExchange}, exported so a caller holding only a
  * `METHOD path` reads the same classification: a Hurl failing entry says
  * `POST /api/users/login` and nothing about the body, and the whole-suite note must not explain
- * a wrong-password login that answered 200 as a cookie-jar effect (xr-molecule-flash-m176).
+ * a wrong-password login that answered 200 as a cookie-jar effect.
  *
  * @param path - The request path (`/api/users/login`); a query or fragment is ignored.
  * @param authEndpoints - The endpoints the app's auth config names (`/users/login`).
@@ -3614,7 +3614,7 @@ export function isCredentialExchangePath(
  * `/session` or `/auth/signin`), the path's own last segments name it (`/users/login`), or the
  * body is a credential payload (`{"user":{"email":…,"password":…}}` sends a registration).
  *
- * xr-molecule-flash-m165 (+10:22): `POST /api/users/login → 401
+ * A `POST /api/users/login → 401
  * {"errors":{"credentials":["invalid"]}}` was answered with the missing-token sentence — "the
  * client did not attach the token … The API handler is not the problem" — for a request whose
  * whole purpose is to obtain a token. The model read helpers and configs for 40 minutes instead of
@@ -3635,8 +3635,9 @@ function isCredentialExchange(request: TraceRequest, authEndpoints: readonly str
 /**
  * What a trace proves about the session the refused request's own browser context held.
  *
- * The m148 sentence — an absent `Authorization` header means the CLIENT never attached the token —
- * is only true when a token was there to attach. xr-molecule-flash-m221 (+20:13) showed the other
+ * The "no header" sentence — an absent `Authorization` header means the CLIENT never attached
+ * the token —
+ * is only true when a token was there to attach. The other
  * shape: `url-navigation.spec.ts` navigates to `/?feed=following` while SIGNED OUT and expects the
  * `/login` redirect; its `GET /api/articles/feed → 401` carried no header exactly as designed, and
  * the old sentence sent the model into replacing its working HTTP client — which then induced a
@@ -3686,7 +3687,7 @@ function sameRequestRecord(left: TraceRequest, right: TraceRequest): boolean {
  * Two readings, strongest first in the sentence but either is proof a token existed: a credential
  * exchange the trace answered 2xx (the test's own registration/login), or any request the client
  * attached an `Authorization` header to. A request from another browser context is not evidence
- * about this one (m160), and a candidate with a clock is only prior when it started before the
+ * about this one, and a candidate with a clock is only prior when it started before the
  * refusal. On a trace without clocks (an older Playwright, a synthetic fixture) the trace-level
  * fact still stands, and the sentence says what the trace recorded rather than "before".
  *
@@ -3753,7 +3754,7 @@ function signInEvidenceLine(evidence: TraceSignInEvidence): string {
 /**
  * The route-guard reading for a refused request with no session evidence behind it.
  *
- * xr-molecule-flash-m221's whole detour: the test navigates to a protected URL while signed out and
+ * The whole detour: the test navigates to a protected URL while signed out and
  * asserts the redirect its route owes. Nothing about the client is wrong; the trace already shows
  * the URL transition, so the sentence names it and the guard the test's assertion measures.
  *
@@ -3789,18 +3790,18 @@ function routeGuardSentence(context: AuthRefusalContext): string {
  * token on the client, and only then may the note prescribe HTTP-client rewiring. A 403 is a
  * permission answer, not a credential one, and says so.
  *
- * xr-molecule-flash-m148 (+29:18): `POST /api/articles/…/favorite → 401 {"errors":{"token":["is
+ * A `POST /api/articles/…/favorite → 401 {"errors":{"token":["is
  * missing"]}}` was answered with the handler sentence for six local walks, while the trace proved
  * the request carried no `Authorization` header at all and the app's hand-rolled session store
  * never handed its token to the shared client.
  *
- * xr-molecule-flash-m156 (+16:15): the same 401 shape after a reload, and the page's own console
+ * The same 401 shape after a reload: the page's own console
  * named the cause — `@molecule/app-http` logged `no client is bonded`. The auth setup ran before
  * the HTTP setup and kept the fallback client, so the restored token landed on a client nothing
  * sent through. When the trace carries that line, the no-header sentence names the ordering fix
  * instead of leaving the run to re-derive it.
  *
- * xr-molecule-flash-m165 (+10:22): a `POST /api/users/login → 401
+ * A `POST /api/users/login → 401
  * {"errors":{"credentials":["invalid"]}}` is a CREDENTIAL EXCHANGE — the request is how a token is
  * obtained, so an absent `Authorization` header is the request being what it is, not a client bug.
  * The note said "the client did not attach the token … The API handler is not the problem" and the
@@ -3809,7 +3810,7 @@ function routeGuardSentence(context: AuthRefusalContext): string {
  * categorical handler sentence is gone from the no-header branch too, because a route that
  * requires a token where the app allows anonymous access is the handler's own mistake.
  *
- * xr-molecule-flash-m221 (+20:13): `url-navigation.spec.ts` navigates to `/?feed=following` while
+ * `url-navigation.spec.ts` navigates to `/?feed=following` while
  * SIGNED OUT and asserts the `/login` redirect. Its `GET /api/articles/feed → 401` carried no
  * header because the test never signed in, and the old categorical sentence — "the client did not
  * attach the token" — sent the model into replacing a working HTTP client; the replacement lost the
@@ -3948,12 +3949,12 @@ function authRefusalSentence(
  * The note's credential-refusal advice, one sentence per distinct shape — at most two.
  *
  * The shapes are `(status, Authorization scheme, cookie present, credential exchange, session
- * evidence)`: m148's ten walks repeated one shape (`401`, no header) on every failing test, and
+ * evidence)`: ten walks repeated one shape (`401`, no header) on every failing test, and
  * repeating its sentence per row would bury the fact rather than state it. A login and a protected
  * request that both carry no header are DIFFERENT shapes — one is the credentials being checked,
- * the other is a request that presented no token (m165). A protected request WITH session evidence
+ * the other is a request that presented no token. A protected request WITH session evidence
  * and one without are different shapes too: only the first can say a token was lost on the client
- * (m221), and collapsing them would prescribe the HTTP-client rewiring for a signed-out route test.
+ * and collapsing them would prescribe the HTTP-client rewiring for a signed-out route test.
  *
  * @param items - The traces the note is about.
  * @param authEndpoints - The endpoints the app's auth config names.
@@ -4024,7 +4025,7 @@ function isLogoutRequest(request: TraceRequest): boolean {
  * `@molecule/app-auth`'s `logout()` calls the endpoint inside a `.catch` and clears the session in
  * `finally` (`packages/app/core/auth/src/client.ts`): a 401 there is EXPECTED on a sign-out and is
  * not the failure. What the test waits for is the URL moving, which the page has to do itself.
- * xr-molecule-flash-m156 (+24:02 → +33:52) read `POST /api/users/logout → 401` as a broken
+ * A run read `POST /api/users/logout → 401` as a broken
  * endpoint, added a backend logout route, and paid a re-run and a redeploy — while the real cause
  * was the `navigate('/')` the refactor had dropped.
  *
@@ -4111,7 +4112,7 @@ interface ForeignOriginRequest {
  * knownApiPrefixes}) — a CDN font or a third-party script has no `/api` under it, and with no
  * known prefix nothing is claimed.
  *
- * xr-molecule-flash-m165 (+10:22): the suite's helper defaulted `API_BASE` to
+ * The suite's helper defaulted `API_BASE` to
  * `https://api.realworld.show/api` and its set-up seeded rows there, while the browser drove this
  * app — whose own `/api` answers a login for none of those users. The trace's absolute-URL rows
  * were the evidence, and the note said nothing about them.
@@ -4177,7 +4178,7 @@ function appOriginOfTarget(target: string): string | null {
  *
  * It leads the note because it is the cheapest possible wrong result: every row the suite creates
  * lands in a database this app never reads, so the failure says nothing about the app's code.
- * xr-molecule-flash-m165 spent the walk after its failed login reading helpers and configs for a
+ * The walk after a failed login was spent reading helpers and configs for a
  * missing token, when the command's `BASE_URL`/`API_BASE` disagreement was the cause.
  *
  * @param found - The foreign-origin request the trace holds.
@@ -4255,11 +4256,10 @@ function missingApiPrefixSentence(request: MissingApiPrefixRequest): string {
  * With proof ({@link TraceMissingText.dropped}) it names the response and the fact the trace
  * proves — the value reached the browser and the page did not render it — and stops there. Which
  * cut drops it (a slice, a filter, a limit) is in the component that maps the response, and the
- * note cannot see that component; naming the mapping step is the whole instruction
- * (xr-molecule-flash-m169).
+ * note cannot see that component; naming the mapping step is the whole instruction.
  *
  * Without that proof the sentence says only what the trace shows — a response contained the text —
- * and makes no rendering claim: m194's awaited title was on the page, in a disabled button, while
+ * and makes no rendering claim: an awaited title was on the page, in a disabled button, while
  * the only response carrying it was the creation POST (a button failure is not a missing article).
  *
  * @param missing - The awaited text and the response that carried it.
@@ -4348,7 +4348,7 @@ interface FormResetEvidence {
 /**
  * The field a test typed into that the same page submitted empty, when the trace recorded both.
  *
- * This is the Settings race of xr-molecule-flash-m173: `page.fill('textarea[name="bio"]', newBio)`
+ * This is the Settings race: `page.fill('textarea[name="bio"]', newBio)`
  * then `button[type=submit]`, and the `PUT /api/user` carried `"bio": ""`. The form's seeding
  * effect re-ran between the fill and the submit — on the deployed URL the background session
  * verification lands later than it does locally, and it handed the form a new user object. The
@@ -4466,7 +4466,7 @@ function sfntVersionIsHtml(reason: string): boolean {
  *
  * `Failed to decode downloaded font: <url> | OTS parsing error: invalid sfntVersion: 1008821359`
  * is not a font to debug: the URL answered HTML (the app's `index.html`, the SPA fallback), so
- * the file the `@font-face` names is not there. xr-molecule-flash-m186's page fetched
+ * the file the `@font-face` names is not there. One page fetched
  * `/fonts/ionicons.woff`, got the index document, and the note printed the raw decode error
  * while the model went looking elsewhere.
  *
@@ -4506,7 +4506,7 @@ const HIDING_RULE = /(?:^|;)\s*(?:display\s*:\s*none|visibility\s*:\s*hidden)/
  * The sentence a "hidden" visibility failure earns when the trace proved WHY the box is empty.
  *
  * Playwright calls an element with a zero-size box hidden even when it is painted, so the answer
- * is in the element's children. `a.navbar-brand` on xr-molecule-flash-m197 was 0×4 px because its
+ * is in the element's children. An `a.navbar-brand` was 0×4 px because its
  * only child was `<img src="/conduit-logo.svg" height="26">`: an SVG with a `viewBox` and no
  * width/height has no intrinsic size, and the `height` attribute loses to Tailwind's preflight
  * (`img { max-width: 100%; height: auto }`), which the scaffold's own `index.css` imports. The
@@ -4580,7 +4580,7 @@ function countMatchSentence(match: TraceCountMatch): string {
  * The row's sentence for a failing count assertion: the locator, both numbers, and the elements
  * the failure snapshot held.
  *
- * xr-molecule-flash-m321's `comments.spec.ts:86` printed only `Expected: 3 / Received: 4`. The
+ * A `comments.spec.ts:86` row printed only `Expected: 3 / Received: 4`. The
  * helper counted `.card:not(.comment-form) .card-block`, and the app's comment form was a
  * `.comment-form` wrapper around a plain `.card`, so the form's own `.card-block` was the fourth
  * match. The trace held the selector and the four elements; the note held neither.
@@ -4661,18 +4661,18 @@ export function countMismatchNote(items: readonly TraceArtifact[]): string | nul
  * a network error with Playwright's own text) is a cause. A request with NO RESPONSE RECORDED —
  * Playwright's `-1`, no error text — was still in flight when the test ended (the page closed under
  * it); listing it as a failure sent a run hunting an API that never answered anything wrong
- * (xr-molecule-flash-m112 +30:45). The rest are the page's last answered requests.
+ * The rest are the page's last answered requests.
  *
  * A 4xx request carries what the page SENT beside its status, so a wrapped body is visible in one
  * line rather than inferred from the status; when one of those bodies is an object whose only key
- * is `data`, the note names the call shape that produces it (xr-molecule-flash-m111 +11:36).
+ * is `data`, the note names the call shape that produces it.
  *
  * Every row opens with the test's LAST user action before the failing assertion and the requests
  * that action caused ({@link TraceArtifact.lastAction}) — started after it, before the assertion,
  * the app's own API calls first, each with its status and the first 200 characters of its response,
  * then where the page went next. The trace's action clock and each request's `_monotonicTime` are
  * the same clock, so "caused" is the trace's own fact rather than a guess from recording order.
- * xr-molecule-flash-m148 failed 13 then 12 tests on one unnamed cause while every row led with
+ * A run failed 13 then 12 tests on one unnamed cause while every row led with
  * `GET /api/tags → 200` — the Home page's own fetch after the redirect — and filled its answered
  * slots with the PWA's `/workbox-*.js` and its `/icons/*.svg`; the register `POST /api/users`
  * (answered 201, the page still rendering signed-out) never appeared. With no action clock, the
@@ -4681,7 +4681,7 @@ export function countMismatchNote(items: readonly TraceArtifact[]): string | nul
  * The action, the URL and the requests are the FAILING ASSERTION'S PAGE's ({@link
  * TraceArtifact.lastAction}), never the archive's last context: a test that creates its data in a
  * second browser context writes that context's click and `/editor` snapshot into the same zip, and
- * reading the concatenation made them the failing page (xr-molecule-flash-m160). The other
+ * reading the concatenation made them the failing page. The other
  * contexts' requests are named separately as set-up work. When the trace holds more than one used
  * context and the assertion's page cannot be identified, the note lists the requests and makes NO
  * causal claim — no "the test's last action", no "the page stayed at …" — instead of merging them.
@@ -4690,17 +4690,16 @@ export function countMismatchNote(items: readonly TraceArtifact[]): string | nul
  * trace holds both facts — the value typed into `textarea[name="bio"]` and the `PUT /api/user`
  * whose body carried `"bio": ""` — so the form's state was reset between the typing and the
  * submit. The note names the effect that re-seeds a form from data whose identity changed and the
- * fix at the source (seed the form once). xr-molecule-flash-m173 lost a deploy-and-walk cycle to
- * this on the deployed URL only, where the background session verification lands later than it
- * does locally.
+ * fix at the source (seed the form once). A deploy-and-walk cycle is lost to this on the
+ * deployed URL only, where the background session verification lands later than it does locally.
  *
  * A write whose response said a boolean field is true and a LATER GET of the same resource that
  * said it is false leads the note first ({@link readContradictionSentence}): the read route never
- * saw the viewer, so the fix is on that route's middleware, not in the page. xr-molecule-flash-m181
- * spent ~8 minutes rewriting the profile component over exactly that pair — the write answered
+ * saw the viewer, so the fix is on that route's middleware, not in the page. Rewriting the
+ * profile component over exactly that pair costs ~8 minutes — the write answered
  * `{"following":true}` and the next profile GET answered `false`.
  *
- * WHICH rows it spends is evidence, not artifact order (xr-molecule-flash-m112 +53:46): a row
+ * WHICH rows it spends is evidence, not artifact order: a row
  * needs a recorded response, a real failure or a console line ({@link traceRowEvidence}), rows are
  * deduplicated by the test's location, and they are ordered real failure → repeated from an
  * earlier walk → the rest ({@link traceRowTier}). Without that the note spent all five rows on four
@@ -4709,21 +4708,21 @@ export function countMismatchNote(items: readonly TraceArtifact[]): string | nul
  *
  * A run whose every traced page never finished its navigation leads with the browser's own
  * transport error (`net::ERR_CONTENT_DECODING_FAILED` and friends) and the document it hit: nothing
- * rendered, so no row below is app evidence (xr-molecule-flash-m118 +37:09).
+ * rendered, so no row below is app evidence.
  *
  * When a navigation the runner reports as the failure never finished and one of the document's
  * own subresources (a stylesheet, a script, an asset under `/assets/`) never got a response either
  * — having started inside that wait — the request takes a row and the note says the page was
  * waiting on it. It is not an API call, but on a `page.goto` timeout it is the only request that
  * can explain the timeout — the deployed app was serving the page while one fetch stalled for 27 s
- * (xr-molecule-flash-m135 +34:10). The page shell's incidental requests (`/sw.js`, the manifest, a
- * favicon, a font) stay out, for m125's reason. An asset merely unfinished when a selector wait
+ * The page shell's incidental requests (`/sw.js`, the manifest, a favicon, a font) stay out, for
+ * the reason above. An asset merely unfinished when a selector wait
  * ran out the test budget, or one a teardown/`afterEach` trace holds, is not a cause: the note
- * says it "had no recorded response when the test ended; that alone does not establish the cause"
- * (xr-molecule-flash-m153 +13:43).
+ * says it "had no recorded response when the test ended; that alone does not establish the
+ * cause".
  *
  * A 404 whose path lacks the API prefix the app's own calls carry is called out with that prefix
- * ({@link missingApiPrefixRequests}): xr-molecule-flash-m145 posted `/users` to `vite preview`,
+ * ({@link missingApiPrefixRequests}): a page posted `/users` to `vite preview`,
  * whose 404 was answered by the static server because the HTTP client's `baseURL` was never set —
  * and the note printed "read the handler this route reaches in your own source", which presumes a
  * request that never reached the API. The prefix is READ (the caller passes what the app's client
@@ -4735,16 +4734,16 @@ export function countMismatchNote(items: readonly TraceArtifact[]): string | nul
  * credential exchange it answered 2xx, a request the client already attached a token to — and only
  * positive evidence may prescribe the client's token wiring; otherwise the sentence is
  * observational and, for a navigation failure, names the URL transition and the route guard
- * (xr-molecule-flash-m221: a signed-out redirect test's `GET /api/articles/feed → 401` sent the
- * model into replacing a working HTTP client, which lost the session token for ~28 minutes). The
+ * (a signed-out redirect test's `GET /api/articles/feed → 401` sent the model into replacing a
+ * working HTTP client, which lost the session token for ~28 minutes). The
  * handler sentence is kept for the rest — 404/422/500 — and dropped when every failure was a
  * credential refusal, because a trace that proves the header was never sent cannot be explained by
- * the handler. xr-molecule-flash-m148 (+29:18) hit this exactly: six local walks read
+ * the handler. Six local walks read
  * `POST …/favorite → 401 {"errors":{"token":["is missing"]}}` as a handler bug.
  *
  * A credential EXCHANGE (a login/registration/token endpoint, read from the app's auth config, the
  * path or the body) is never that shape: the request's purpose is to obtain a token, so an absent
- * header is not a client omission ({@link isCredentialExchange}). xr-molecule-flash-m165's login
+ * header is not a client omission ({@link isCredentialExchange}). A login
  * 401 was answered as one for 40 minutes; the trace also showed the suite's SET-UP traffic going
  * to `https://api.realworld.show/api` instead of this app, which is what the note leads with
  * ({@link foreignOriginApiRequests}).
@@ -5315,7 +5314,7 @@ const TRACE_SETTING =
  *
  * Only `on` and `retain-on-failure` keep a `trace.zip` for a failure whatever the retries do: the
  * two retry modes need a retry to happen at all, and a diagnosis run is given `--retries=0`
- * (`streamingBackgroundCommand`), so on X1 xr-molecule-flash-m100 the run's own
+ * (`streamingBackgroundCommand`), so a run's own
  * `trace: 'on-first-retry'` recorded nothing — which is what left the failing tests' network log
  * unreadable. A config that sets no `trace:` at all records nothing either (Playwright's default
  * is off); so does one that cannot be read.
@@ -5382,10 +5381,10 @@ function namesTraceMode(command: string): boolean {
  * end of the whole command: a run Flash sends almost every time ends `… 2>&1 | tail -60` or
  * `… > log 2>&1; echo "exit=$?"; grep -c "" log`, and a flag appended after those is an operand of
  * `tail`/`grep` — GNU `tail` refuses it outright (`tail: option used in invalid context -- 6`) and
- * Playwright never sees it (xr-molecule-flash-m102 +07:40 → +07:53). A step inside a subshell
+ * Playwright never sees it. A step inside a subshell
  * (`( … playwright test … 2>&1)`) is the same rule the other way: a flag written after the `)`
  * closes the group before the shell has read the flag at all
- * (`sh: Syntax error: word unexpected`, xr-molecule-flash-m129 +34:29).
+ * (`sh: Syntax error: word unexpected`).
  *
  * The step and the offset are the package's own shell parse's answers
  * ({@link locatedCommandSegments}, {@link statementArgumentEnd}): the parse says which STATEMENT
@@ -5487,12 +5486,12 @@ export interface DiagnosisTraceRewrite {
  *
  * A run that can serve as PROOF is the exception: the graded measurement is the suite's own
  * settings, so it keeps its own tracing and retries. That was measured, not assumed — on one
- * sandbox in X1 xr-molecule-flash-h15 (+46:53 → +49:30) the same build ran a three-test deployed
+ * sandbox the same build ran a three-test deployed
  * subset 3/3 timed out under this flag (17.6–17.9 s against a 15 s per-test budget) and the whole
  * file passed 14/14 without it (10.9–12.1 s). `retain-on-failure` RETAINS only a failing test's
  * trace (Playwright's `_shouldAbandonTrace` unlinks a passing test's), but it RECORDS every
  * action of every test, and for a test near its per-test budget that recording is the difference
- * between passing and timing out. m163 (+24:58) is the failure this flag was added for: its
+ * between passing and timing out. This flag was added for exactly that failure: its
  * deployed proof run left only an `error-context.md` because the suite traces
  * `on-first-retry` and the run had no retries. That need is met without the flag — the graded
  * deployed run keeps the suite's own retries, so a failing test leaves its retry's trace — and

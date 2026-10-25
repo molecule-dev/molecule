@@ -117,7 +117,7 @@ export interface FlyioConfig {
    * `SandboxProvider.defaultIdleAction`. A caller can override it for one sandbox
    * with `SandboxConfig.idleAction` and restore this value afterwards with
    * `Sandbox.setIdleAction` — which is what a production deploy does so its
-   * destination cannot suspend mid-copy (m103, 2026-10-17).
+   * destination cannot suspend mid-copy.
    */
   autostop?: 'off' | 'stop' | 'suspend'
   /**

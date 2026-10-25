@@ -104,7 +104,7 @@ describe('createDefaultAuthClientWithHttpSync', () => {
     authClient.setAccessToken('restored-token')
     setupAuthDefault()
 
-    const mockFetch = vi.fn(
+    const mockFetch = vi.fn<typeof fetch>(
       async () =>
         new Response(JSON.stringify({}), {
           status: 200,
@@ -118,8 +118,9 @@ describe('createDefaultAuthClientWithHttpSync', () => {
 
     expect(httpClient.getAuthToken()).toBe('restored-token')
     await httpClient.get('/feed')
-    const headers = mockFetch.mock.calls[0]?.[1]?.headers as Record<string, string> | undefined
-    expect(headers?.Authorization).toBe('Bearer restored-token')
+    // The call's own RequestInit, read as it is typed — no cast.
+    const init = mockFetch.mock.calls[0]?.[1]
+    expect(init?.headers).toMatchObject({ Authorization: 'Bearer restored-token' })
   })
 })
 
@@ -239,7 +240,9 @@ describe('the default auth bonds hold requests until the session restore settles
     // gate that NEVER settles cannot hold it. (A store that restores through the client has to
     // exempt its own request with `skipAuthGate: true` — see `RequestConfig.skipAuthGate`.)
     ;(globalThis as { document?: unknown }).document = { cookie: 'mol_auth=1' }
-    const mockFetch = vi.fn(async () => jsonResponse({ user: { id: 'u1', username: 'alice' } }))
+    const mockFetch = vi.fn<typeof fetch>(async () =>
+      jsonResponse({ user: { id: 'u1', username: 'alice' } }),
+    )
     vi.stubGlobal('fetch', mockFetch)
 
     const { authClient, setupAuthDefault } = createDefaultAuthClientWithHttpSync({

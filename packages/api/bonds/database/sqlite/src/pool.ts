@@ -35,9 +35,9 @@ const STATEMENT_IN_MESSAGE_CAP = 200
  * Runs `statement` and, when better-sqlite3 throws, names the statement that failed.
  *
  * better-sqlite3's errors carry a code (`SQLITE_MISMATCH`, `SQLITE_CONSTRAINT_NOTNULL`) but
- * no SQL. X0 flash-m89's seed hit `SqliteError: datatype mismatch` with a stack into this
- * file and nothing else, and the model spent 38 s grepping every `create(` call to find
- * which table the insert was aimed at before finding the statement itself. Postgres' driver
+ * no SQL. A `SqliteError: datatype mismatch` arrives with a stack into this file and
+ * nothing else, so finding the statement means grepping every `create(` call to see which
+ * table the insert was aimed at. Postgres' driver
  * hands back `table` and `column` on the same class of failure; SQLite's hands back nothing.
  *
  * The error keeps its class and its `code` (it is mutated, not replaced): its message gains

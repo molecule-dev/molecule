@@ -758,8 +758,8 @@ export interface StorageAdapter {
  * `createJWTAuthClient<MyUser>` returns and `useAuth<MyUser>()` reads. That
  * makes {@link AuthClientConfigOptions.mapAuthResponse} return
  * `AuthResult<MyUser>`, so a mapper that omits a required custom field is a type
- * error instead of a signed-in page reading `undefined`
- * (xr-molecule-flash-m255). Keep every wire field the pages read by spreading the
+ * error instead of a signed-in page reading `undefined`. Keep every wire field the pages
+ * read by spreading the
  * wire user — the base fields (`id`, `name`, `avatar`) come from the server like
  * any other, never re-derived from a mutable display field such as a username;
  * mapping a field to a different name does not preserve the original, and an
@@ -951,7 +951,7 @@ export interface AuthClientConfigOptions<T extends object = UserProfile> {
    * token-refresh answer, and `updateProfile()`. Those answers carry the raw wire
    * user (a current-user route typically answers a bare `{ user }`), so applying
    * the same mapping is what keeps the adapted profile after a reload instead of
-   * replacing it with the unadapted one (xr-molecule-flash-m184). A mapper that
+   * replacing it with the unadapted one. A mapper that
    * cannot read a given answer (it throws, or returns no `user`) leaves that
    * answer's user as it came.
    *

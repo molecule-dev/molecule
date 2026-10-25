@@ -35,8 +35,8 @@
  * and an explicit `initialize()` returns the same promise, so a second call asks the
  * server nothing. Keep the template's explicit call (it makes the first render
  * deterministic); an entry file that drops it still restores instead of reporting
- * `'loading'` forever (xr-molecule-flash-m192: a `main.tsx` rewrite dropped the line
- * and 18 tests timed out on pages that never left their loading branch).
+ * `'loading'` forever (a `main.tsx` rewrite can drop the line, and every page
+ * then stays on its loading branch).
  *
  * **Never fetch viewer-dependent data before the restore settles.** A
  * component effect that runs on mount fires while `initialize()` is still
@@ -62,12 +62,12 @@
  * `initialize()` sets that state synchronously, before any request, and every
  * verification settles behind that render. Never hold the first paint on
  * `validateSession()` or a `/me` request of your own — a protected page then pays
- * an API round trip on every navigation (xr-molecule-flash-m177: ~30 full page
- * loads in one pagination spec; its four tests sat at 15.0–15.9 s of a 15 s
- * budget and the grader timed two out). Route guards read this same `status`:
- * wait only while it is `'loading'` — that status means "no decision yet", so an
- * auth request in flight (`state.loading`) keeps the decided status and does not
- * unmount a Login/Register page mid-request (xr-molecule-flash-m380).
+ * an API round trip on every navigation (~30 full page loads in one pagination
+ * spec put four tests at 15.0–15.9 s of a 15 s budget, and two timed out). Route
+ * guards read this same `status`: wait only while it is `'loading'` — that
+ * status means "no decision yet", so an auth request in flight
+ * (`state.loading`) keeps the decided status and does not unmount a
+ * Login/Register page mid-request.
  * `validateSession()` is the background re-check that produces the last two: call
  * it after the first render — a 401 or 403 clears the token (`'unauthenticated'`),
  * while a network failure, a 5xx, or a 404 from a wrong `currentUserEndpoint`
@@ -112,16 +112,16 @@
  * user, `setSession({ accessToken, user })` stores both and flips the client to
  * `authenticated` in one update, so every hook reading the shared client is signed in at once
  * (a form's own sign-in code wrote the token and the user with `setAccessToken`/`setUser`,
- * which change their field only — the UI stayed signed out and nine browser assertions timed
- * out, xr-molecule-flash-m178). `setAccessToken()` and `setUser()` are field setters, not a
+ * which change their field only — the UI stays signed out and the browser assertions that
+ * expect it time out). `setAccessToken()` and `setUser()` are field setters, not a
  * sign-in: neither sets `authenticated`.
  *
  * **A custom user profile is typed once and used everywhere: `AuthClientConfig<MyUser>`,
  * `createJWTAuthClient<MyUser>` and `useAuth<MyUser>()`.** The config's generic makes
  * `mapAuthResponse` return `AuthResult<MyUser>`, so a mapper that omits a required custom
  * field fails at the factory call instead of shipping a signed-in page whose navbar reads
- * `undefined` (xr-molecule-flash-m255: the mapper kept `id`/`name`/`avatar` but dropped
- * `username`, and the signed-in controls never rendered although login succeeded). The
+ * `undefined` — a mapper that keeps `id`/`name`/`avatar` but drops `username` leaves the
+ * signed-in controls unrendered although login succeeded. The
  * wire user carries the base fields too, `id` included — spread it, do not rebuild it
  * field by field, and never hide a mismatch with `as unknown as MyUser`:
  *

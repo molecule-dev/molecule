@@ -26,7 +26,7 @@ export interface DefaultViteConfigBranding {
  * inside the app gives it its own React beside the workspace's, the
  * `@molecule/*` packages still resolve the workspace's, and the preview went
  * blank with "Invalid hook call" until an alias like this one was written by
- * hand (X1 run sol-m09, 2026-10-15). `dedupe` alone did not prevent it.
+ * hand. `dedupe` alone did not prevent it.
  *
  * @param appRoot - The app directory (where its package.json is).
  * @returns Alias entries for the copies that resolve; none when React is absent.

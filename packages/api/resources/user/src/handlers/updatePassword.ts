@@ -39,7 +39,7 @@ export interface UpdatePasswordRequest extends MoleculeRequest {
  * arrived on stays, and the token that made the request (the `Authorization` header the client
  * is holding) keeps working. A RealWorld-style suite changes the password and then keeps using
  * the same token for the next request; revoking the caller too is what answered its second
- * `PUT /user` with 401 (xr-flash-m167, ~2 min lost). Do not fold a per-user secret into the
+ * `PUT /user` with 401. Do not fold a per-user secret into the
  * JWT: the device row is the revocation lever. A caller with no session (a handler invoked
  * outside a request) falls back to revoking every device.
  * @param resource - The user resource configuration (name, tableName, schema).

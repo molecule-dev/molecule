@@ -5,11 +5,11 @@
  * Nothing on the page says what those two scripts are. An app that fetches its
  * own preview HTML sees `<script src="/__mol/e2e-client.js">` and
  * `<script src="/__mol/e2e-runtime.js">` pointing at 60 KB of compiled
- * machinery, and the only way to find out whether it matters is to read it: X1
- * flash-m67 spent 10 calls over 61 KB of the runtime bundle — `toBeVisible`,
- * `toBeDisabled`, the dispatch — learning nothing about its own app, because
- * the platform's statement of the app's browser contract (the supplied suite's
- * `SELECTORS.md` and its `specs/e2e/helpers/*.ts`) is somewhere else entirely.
+ * machinery, and the only way to find out whether it matters is to read it —
+ * ten calls over 61 KB of the runtime bundle (`toBeVisible`, `toBeDisabled`,
+ * the dispatch) say nothing about the app itself, because the platform's
+ * statement of the app's browser contract (the supplied suite's `SELECTORS.md`
+ * and its `specs/e2e/helpers/*.ts`) is somewhere else entirely.
  *
  * So the first thing in each served script says what it is, that the app must
  * not depend on it, and where the contract it was mistaken for actually lives.

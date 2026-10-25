@@ -99,8 +99,8 @@ const BASE_AUTHORITY = /^([a-z][a-z\d+\-.]*:)?\/\/[^/?#]*/i
  * Axios joins `baseURL` to every URL that names no host, with one `/` between them, so
  * `get('/api/articles')` under `baseURL: '/api'` — or `'https://host/api'` — would request
  * `…/api/api/articles`. Callers legitimately pass the full path — the scaffolded app's own
- * examples call `/api/...` (xr-molecule-flash-m206: a client bonded with the `/api` base must
- * serve both `get('/tags')` and `get('/api/tags')`) — so a path that already starts with the
+ * examples call `/api/...` (a client bonded with the `/api` base must serve both
+ * `get('/tags')` and `get('/api/tags')`) — so a path that already starts with the
  * base's path, in whole segments (`/api`, `/api/…`, `/api?…`, `/api#…`; never `/apiary`), is
  * requested as written: Axios gets it with only the base's scheme and host. Every other URL is
  * joined to the bonded base by Axios as usual, so a URL with its own host follows Axios's own

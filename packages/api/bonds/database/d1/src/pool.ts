@@ -22,9 +22,9 @@ const STATEMENT_IN_MESSAGE_CAP = 200
 /**
  * Runs `statement` and, when D1 throws, names the statement that failed.
  *
- * SQLite's errors carry a code and nothing else: X0 flash-m89's seed hit
- * `SqliteError: datatype mismatch` and the executor spent 38 s grepping the app for which table
- * the insert was aimed at. D1's errors are the same shape (they come from the same engine), so
+ * SQLite's errors carry a code and nothing else: a `SqliteError: datatype mismatch` from a
+ * seed names neither the table nor the statement, so there is nothing in it to grep for.
+ * D1's errors are the same shape (they come from the same engine), so
  * the pool states the statement itself — the same rule the sqlite bond's own pool applies to
  * better-sqlite3 (`@molecule/api-database-sqlite`, `pool.ts`).
  *

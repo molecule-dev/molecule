@@ -454,8 +454,8 @@ export const createJWTAuthClient = <
    * shape. Session validation and the cookie restore adopt a user too, and their
    * answer is the raw wire user — storing it as-is replaced the adapted profile a
    * sign-in had cached, so after a reload the app was authenticated without the
-   * `id`/`name` it derives from the adapter (xr-molecule-flash-m184: the username
-   * and profile link disappeared although `GET /user` answered 200).
+   * `id`/`name` it derives from the adapter: the username and profile link
+   * disappear although `GET /user` answered 200.
    *
    * A mapper written for a login envelope may not be able to read a bare
    * current-user answer; when it throws or yields no user, the answer is used as
@@ -738,8 +738,8 @@ export const createJWTAuthClient = <
    * life of the page: `createJWTAuthClient` starts at `status: 'loading'`, and only
    * `initialize()` (or a sign-in) leaves it. The template calls `initialize()` on one
    * line of `main.tsx`, so a rewrite that dropped that line made every `useAuth()`
-   * read `'loading'` forever and every signed-in page never rendered (xr-molecule-flash-m192:
-   * 18 tests timed out on a form the auth-gated page never produced). The first READ
+   * read `'loading'` forever and every signed-in page never rendered — every
+   * auth-gated form times out instead. The first READ
    * of the client's state now starts the restore instead — lazily, so an app that
    * forgot the call still restores, and exactly once, so the explicit call and the
    * reads share one request.

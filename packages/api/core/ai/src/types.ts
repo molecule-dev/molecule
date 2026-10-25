@@ -205,10 +205,9 @@ export type AiRateLimitCallback = (event: AiRateLimitEvent) => void
  * signal the platform has — a 200 with no content looks like a healthy request
  * until the bytes stop — so without this callback a multi-minute pause cannot
  * be told apart from a long think, a platform hold, or a retry backoff after
- * the fact (X0 xr-molecule-flash-m71, 2026-10-16: a 3 min 15 s gap that
- * production could not classify with any record it had — this callback is
- * what makes the provider side of that question answerable, one way or the
- * other).
+ * the fact: no record production keeps can classify a 3 min 15 s gap, which is
+ * the question this callback makes answerable from the provider side, one way or
+ * the other.
  */
 export interface AiStreamStallEvent {
   /** Provider name (e.g. 'deepseek'). */

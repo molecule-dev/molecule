@@ -24,8 +24,8 @@ export const DEFAULT_TEST_TIMEOUT_MS = 60_000
 
 /**
  * Workers inside a sandbox with a real browser. `'50%'` of a 2-vCPU sandbox is ONE
- * worker, so a 139-test suite ran one test at a time (4.5 minutes per full run, X1
- * flash-m16/m20/m22); a browser test mostly waits on the app, so two keep both cores busy.
+ * worker, so a 139-test suite runs one test at a time (4.5 minutes per full run);
+ * a browser test mostly waits on the app, so two keep both cores busy.
  */
 export const SANDBOX_WORKERS = 2
 

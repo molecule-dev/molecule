@@ -2,7 +2,7 @@
  * An inline interpreter program (`python3 -c`, `python3 - <<EOF`, `node -e`) that only touches local
  * files — work that takes milliseconds or never ends, never minutes of honest progress.
  *
- * xr-molecule-flash-m200 (+03:45, 2026-10-19) spent 291 s of a 60-minute cap on
+ * One such step spent 291 s of a 60-minute cap on
  * `python3 - <<'EOF' … re.findall(r'([^{}]*:before[^{}]*)\{content:"[^"]*"\}', s) … EOF` rewriting a
  * minified CSS file whose first rule is one ~25 KB selector list: the pattern's two unbounded
  * `[^{}]*` around a literal backtrack cubically, printed nothing, and was stopped by the tool's
@@ -15,10 +15,10 @@
  * a short budget ({@link INLINE_SCRIPT_BUDGET_MS}), and a cut says what happened: a runaway
  * transform, not slow work ({@link inlineScriptRunawaySentence}).
  *
- * The short budget needs the WHOLE command to be that shape. xr-molecule-flash-m254 (+12:48)
- * chained the m200 heredoc with `node …/smoke.mjs | tail -25` — a Playwright walk whose import
- * lives inside the file — and the walk was stopped after 20 s while the result blamed the python
- * transform. Every statement must be proven local ({@link LOCAL_UTILITY}) before the budget applies.
+ * The short budget needs the WHOLE command to be that shape. A command that chained such a
+ * heredoc with `node …/smoke.mjs | tail -25` — a Playwright walk whose import lives inside the
+ * file — had the walk stopped after 20 s while the result blamed the python transform. Every
+ * statement must be proven local ({@link LOCAL_UTILITY}) before the budget applies.
  *
  * @module
  */
@@ -75,7 +75,7 @@ const EXTERNAL_EFFECT =
  * The only OTHER programs a proven-local inline program may share its command with: plain file
  * utilities (`cd app && python3 - <<'EOF' … EOF`, `… EOF | tail -25`).
  *
- * xr-molecule-flash-m254 (+12:48) ran `python3 - <<'EOF' … EOF` and then, in the same command,
+ * A command ran `python3 - <<'EOF' … EOF` and then, in the same command,
  * `node /workspace/.mol-scratch/smoke.mjs | tail -25` — the agent's Playwright UI walk. The
  * heredoc alone is local, so the whole chain got the 20 s budget, the walk was stopped, and the
  * result blamed the python transform. A script FILE can do anything (the `playwright` import is

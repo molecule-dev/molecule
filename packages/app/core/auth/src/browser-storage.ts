@@ -54,8 +54,8 @@ const warn = (message: string, error?: unknown): void => {
  * token AND the user in the store, `initialize()` restores the authenticated state synchronously
  * (`whenRestored()` is already resolved on the first render); render from it, and validate the
  * token as a background request — never in front of the first render. A page that waits on its
- * own `/me` call pays a round trip on EVERY navigation (xr-molecule-flash-m122: a 1–5 s restore
- * window, eight `waitForURL` timeouts).
+ * own `/me` call pays a round trip on EVERY navigation: a 1–5 s restore window is enough to
+ * time out a navigation that expects the signed-in UI.
  *
  * In a browser this IS the auth client's default `AuthClientConfig.storage`, so a scaffolded
  * app keeps its session across a page reload with no extra wiring. Outside a browser (SSR, a Node

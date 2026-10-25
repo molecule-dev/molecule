@@ -5,7 +5,7 @@
  * preserves a file reporter the executor named ({@link ./utilities.js} `withPlaywrightRunReport`,
  * `streamingBackgroundCommand`). That log is text: which failure a trace, a route or a locator
  * belongs to has to be reconstructed from printed headings, and a mis-join reads one failing
- * test's evidence as another's (xr-molecule-flash-m411). Playwright already writes the answer down
+ * test's evidence as another's. Playwright already writes the answer down
  * itself — its built-in `json` reporter records every test's own identity (project, file, line,
  * column, title path, status, retries) and every attachment the runner saved for THAT test, path
  * included.

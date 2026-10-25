@@ -81,7 +81,7 @@ export function setupAppRoutingReactRouter(): void {
  * `@molecule/app-state: No provider set. Call setProvider() first` — nothing
  * else in a scaffolded app wires the `state` bond, so the documented
  * `createStore()` + `useStore()` pattern failed at the first render and every
- * page came up blank while `tsc` passed (X1 flash-m65).
+ * page came up blank while `tsc` passed.
  */
 export function setupAppStateSimple(): void {
   setState(defaultStateProvider)

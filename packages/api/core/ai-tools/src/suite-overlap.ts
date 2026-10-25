@@ -5,12 +5,12 @@
  * Two sites ask "may a second run start now?" about the same pair of runs — the mid-run note that
  * tells the executor what to do next while the suite it is waiting on is still going
  * ({@link ./utilities.js} `repeatingFailureNote`), and the hold that refuses the run when it
- * arrives (molecule-dev's `suite-overlap-hold.ts`) — and until xr-molecule-flash-m89 they answered
- * it separately. That run's +19:59 `wait_for_task` handed over a repeating cause with "the test
- * alone reproduces the first one … start on them now, while the run keeps walking"; 23 s later the
- * executor sent exactly that re-run, and the overlap hold refused it — "A playwright suite is
- * already running against this app and database … Wait for it." Two orders, one run, and the round
- * trip between them was the whole cost.
+ * arrives (molecule-dev's `suite-overlap-hold.ts`) — and they used to answer it separately.
+ * A `wait_for_task` handed over a repeating cause with "the test alone reproduces the first one …
+ * start on them now, while the run keeps walking"; the executor sent exactly that re-run, and the
+ * overlap hold refused it — "A playwright suite is already running against this app and
+ * database … Wait for it." Two orders, one run, and the round trip between them was the whole
+ * cost.
  *
  * So the rule lives here ({@link suiteRunInTheWay}) and both of them call it: a run may start only
  * when nothing in flight is already measuring the same app and database. What "the same app and
@@ -23,7 +23,7 @@
  * WHOLE suite or a part of it. The rewriter that decides whether a background Playwright run gets
  * `--retries=0` ({@link ./utilities.js} `streamingBackgroundCommand`) and the platform's own notes
  * (molecule-dev's `suite-cli-override.ts`) asked it separately — a regex there, a predicate here —
- * until xr-molecule-flash-m89 showed the two answers were never the same question
+ * until a run showed the two answers were never the same question
  * ({@link isDiagnosisRun}).
  *
  * @module
@@ -107,7 +107,7 @@ export function namesSuiteConfig(command: string): boolean {
  * The flag rides the same statement the runner does: a `cd`, an env prefix and a `timeout` before
  * it are left exactly as they were, and so is everything chained after the run (`| tail -50`).
  *
- * xr-molecule-flash-m113 (+19:09): the model's fix-round re-run dropped the
+ * A fix-round re-run dropped the
  * `--config playwright.conduit.config.ts` both earlier runs had carried, so Playwright started with
  * NO base URL and all 10 failures were `page.goto: Cannot navigate to invalid URL` — a failure list
  * that says nothing about the app. The platform composes commands back to the executor too (the
@@ -346,21 +346,21 @@ const GREP_PATTERN_FLAGS: ReadonlySet<string> = new Set(['-e', '--regexp', '-f',
  * The postlude statements that DISPLAY the run's own report, with the exact file that run wrote
  * pointed at the fresh sibling the re-run writes instead.
  *
- * xr-molecule-flash-o03 (2026-10-22; the stale-READ arm m248 filed at +25:55): the recipe the
- * platform handed the executor ended `> /tmp/e2e-local.log.rerun.log 2>&1; echo EXIT=$?; tail -80
- * /tmp/e2e-local.log`. The writer moved to the fresh sibling and the trailing tail did not, so the
- * narrowed re-run displayed the walk it was narrowed FROM — the builder followed that recipe at
- * +19:16 and read the previous walk's failures as the result of the run it had just done.
+ * A recipe the platform handed the executor ended
+ * `> /tmp/e2e-local.log.rerun.log 2>&1; echo EXIT=$?; tail -80 /tmp/e2e-local.log`. The writer
+ * moved to the fresh sibling and the trailing tail did not, so the narrowed re-run displayed the
+ * walk it was narrowed FROM — and a builder following that recipe read the previous walk's
+ * failures as the result of the run it had just done.
  *
  * Only the EXACT file a runner statement (or its `tee`) wrote moves, and only in a statement AFTER
- * the run: the setup in front of it keeps every byte (m429), and a read of any other file is left
+ * the run: the setup in front of it keeps every byte, and a read of any other file is left
  * alone. The value is compared whole — `/tmp/full.log` never matches `/tmp/full.log.bak` — and
  * inside shell quotes the operand's own quoting survives (`"/tmp/my walk.log"` stays quoted).
  *
  * The bound is deliberate: a display this reader set does not recognise (a `wc`, a path held in a
  * variable, a path the command builds) is left exactly as written rather than guessed at. Those
- * shapes are not the ones the platform emits, and rewriting a word by resemblance is how m429's
- * setup redirect was corrupted.
+ * shapes are not the ones the platform emits, and rewriting a word by resemblance is how a setup
+ * redirect was corrupted.
  *
  * @param command - The composed command.
  * @param statements - The statements carrying the run's own output.
@@ -437,14 +437,14 @@ function freshReportReadEdits(
  * changed.
  *
  * A re-run composed from a run's own command keeps the run's redirect by construction, and the
- * run wrote the walk's only report to that file: xr-molecule-flash-m173 handed over *"Send this
+ * run wrote the walk's only report to that file: the platform handed over *"Send this
  * once the run ends: … npx playwright test …/articles.spec.ts:32 --retries=0 … > /tmp/pw-full.log
  * 2>&1"* — the ONE narrowed re-run that was about to check the fixes would have overwritten the
  * full walk's log, destroying the other 11 failures' error reports. Following the platform's own
  * advice must never destroy the evidence it was based on.
  *
  * Only the run's OWN stream moves. What surrounds it is SETUP and POSTLUDE, and those writes are
- * the command's meaning, not a report: xr-molecule-flash-m429 (2026-10-22) composed
+ * the command's meaning, not a report: a composed command was
  * `printf '/index.html 200' > app/public/_redirects && npx playwright test specs/auth.spec.ts
  * > /tmp/full.log 2>&1` with its SPA fallback written to `_redirects.rerun.log`, so the re-run
  * measured an app with no fallback at all. A heredoc config, a `.env` the command writes and a
@@ -454,8 +454,7 @@ function freshReportReadEdits(
  * Every statement chained after the run (`; echo EXIT $? > /tmp/done`) is postlude and keeps its
  * own writes, but the DISPLAY of the run's report is part of the same run: a `tail`, `head`, `cat`
  * or `grep` after the run that reads the exact file it wrote is pointed at the fresh sibling too
- * ({@link freshReportReadEdits}), so a re-run shows its own output instead of the walk's
- * (xr-molecule-flash-o03).
+ * ({@link freshReportReadEdits}), so a re-run shows its own output instead of the walk's.
  *
  * @param command - The composed command.
  * @returns The command whose suite-run redirects write to a fresh target.
@@ -479,21 +478,21 @@ function redirectRunnerOutputsToFreshFiles(command: string): string {
  * The whole-suite command made scoped to the tests it should re-run instead: the same
  * invocation — same launcher, same settings — with the named `file:line`s in place of every
  * positional selection the run carried (a spec file, a suite directory or a regex filter),
- * `--last-failed` dropped (it re-runs the tests that never ran too, X1 flash-m60) and
+ * `--last-failed` dropped (it re-runs the tests that never ran too) and
  * `--retries=0` set (a re-run of a known failure does not need to pay for retries) — except the
  * re-run of a run against a DEPLOYED URL, which keeps the suite's own retries and tracing
  * (`options.suiteSettings`).
  *
  * The re-run keeps the run's `> <file>` redirect only in the sense of keeping its OUTPUT there:
  * the target is rewritten to a fresh sibling ({@link redirectRunnerOutputsToFreshFiles}), so a
- * re-run never overwrites the log the run itself is the evidence for (xr-molecule-flash-m173) —
- * and the setup around the run keeps its own file writes untouched (xr-molecule-flash-m429). A
+ * re-run never overwrites the log the run itself is the evidence for —
+ * and the setup around the run keeps its own file writes untouched. A
  * `tail`/`head`/`cat`/`grep` chained after the run that reads that exact log is shown the fresh
- * sibling instead, so the re-run displays the run it performed (xr-molecule-flash-o03).
+ * sibling instead, so the re-run displays the run it performed.
  *
  * `config` is the config the run was measured under ({@link withSuiteConfig}): the narrowed re-run
  * carries it whenever the command itself does not, so a run that dropped `--config` cannot be
- * handed back a command with the same defect (xr-molecule-flash-m113: every failing test was
+ * handed back a command with the same defect (every failing test was
  * `Cannot navigate to invalid URL` because the re-run loaded no base URL).
  *
  * @param command - The whole-suite run's command.
@@ -503,7 +502,7 @@ function redirectRunnerOutputsToFreshFiles(command: string): string {
  *   command this returns is one Playwright can match.
  * @param excluded - The test titles the request carves out. They are inverted out
  *   (`--grep-invert`) so a re-run of the failing locations cannot report one of them again —
- *   xr-molecule-flash-m101 re-ran the whole 139-test suite and spent ~4 minutes to be told about
+ *   a re-run of the whole 139-test suite spends ~4 minutes to be told about
  *   a test the request had already said does not count.
  * @param config - The config the run loaded, when the caller knows it; added when the command
  *   does not name one.
@@ -511,13 +510,13 @@ function redirectRunnerOutputsToFreshFiles(command: string): string {
  *   resolved against when the command does not `cd` anywhere.
  * @param env - The settings the REQUEST requires of the suite and this run left out
  *   ({@link withRunEnv}): the re-run carries them, so a re-run of a run measured in the wrong
- *   mode is not measured in that mode again (xr-molecule-flash-m182 +12:06).
+ *   mode is not measured in that mode again.
  * @param options - `suiteSettings` for the re-run of a run against a DEPLOYED URL: it keeps the
  *   suite's own retries and tracing instead of the diagnosis ones. The graded measurement is the
  *   suite's own settings, and a retry is what leaves a failing test's trace there; the platform's
  *   `--retries=0` and its `--trace=retain-on-failure` are both a stricter measurement than the
- *   one that was graded, and on X1 xr-molecule-flash-h15 the recording alone turned three
- *   budget-bound deployed tests into timeouts.
+ *   one that was graded, and the recording alone turned three budget-bound deployed tests into
+ *   timeouts.
  * @returns The scoped command, or the command unchanged when it runs no Playwright suite.
  */
 export function scopedRerunCommand(
@@ -630,12 +629,12 @@ function withoutEnvWord(command: string, name: string): string {
 
 /**
  * The command with the request's required settings put in front of its RUN statement — the ONE
- * place every composed re-run gets them (xr-molecule-flash-m182).
+ * place every composed re-run gets them.
  *
  * The settings are written at the statement's own assignment offset, never in front of the whole
  * command: a shell binds an assignment there to the statement's program, while one in front of the
  * whole command is the environment of its FIRST statement alone (`APP_BASE=… cd app && npx
- * playwright test` sets the variable for `cd`; xr-molecule-flash-m103 +28:08). A name the command
+ * playwright test` sets the variable for `cd`). A name the command
  * gives a different value is replaced, and one it already gives the required value is left as
  * written. When the parse cannot place the statement (a run inside a nested `sh -c '…'`), the
  * settings become `export`s, which no statement boundary can swallow.
@@ -718,9 +717,8 @@ const LOCATION_LINE = /^(.*?)(:\d+(?::\d+)?)$/
  * suffix the absolute path still contains (`fixtures/…/articles.spec.ts:3` matches).
  *
  * A location without a leading dot is left alone: it is either absolute or already a suffix of the
- * absolute path, and rewriting it against a mis-guessed base could only break it
- * (xr-molecule-flash-m118 +16:34 "No tests found"; m124 +18:38 the platform's own "Re-run just
- * these" command).
+ * absolute path, and rewriting it against a mis-guessed base could only break it ("No tests
+ * found", and the platform's own "Re-run just these" command).
  *
  * @param locations - The failing `file:line`s as the run's log printed them.
  * @param command - The run's command, for its own `cd`s.
@@ -747,7 +745,7 @@ function playwrightLocations(
  *
  * A value here is never a positional selection however much it looks like a path:
  * `--config playwright.config.ts` names the config the run was measured under, and dropping it
- * because it ends in `.ts` would re-create m113 exactly (a re-run with no base URL).
+ * because it ends in `.ts` would re-create the defect exactly (a re-run with no base URL).
  */
 const SUITE_VALUE_FLAGS: ReadonlySet<string> = new Set([
   '--add-reporter',
@@ -816,10 +814,10 @@ interface ArgumentWord {
  *
  * The re-run is "just these", and Playwright OR-s every positional argument into one selection:
  * ANY leftover positional re-admits tests the re-run is supposed to skip. A bare spec file
- * re-admits all of that file's tests (xr-molecule-flash-m118 (+45:24) ~297 s for one file and
- * fourteen duplicates; xr-molecule-flash-m134 (+20:0x) 32 tests instead of 8). A suite DIRECTORY
+ * re-admits all of that file's tests (~297 s for one file and fourteen duplicates; 32 tests
+ * instead of 8). A suite DIRECTORY
  * is the same argument and re-admits the WHOLE walk even beside fourteen exact `file:line`s —
- * xr-molecule-flash-m428's suggested "Re-run just these" kept
+ * A suggested "Re-run just these" kept
  * `/workspace/fixtures/realworld/specs/e2e` after `--config playwright.config.ts`, so the command
  * said 14 locations and selected every spec again. A regex positional filter selects files the
  * same way and goes too.
@@ -905,8 +903,7 @@ export interface SuiteRunInFlight {
   target: string
   /**
    * Whether the command being judged STOPS this run before starting its own — a kill comes first,
-   * so a run the command itself stops is not in the way (xr-molecule-flash-m87's
-   * `kill 19408 … ; npx playwright test …`).
+   * so a run the command itself stops is not in the way (`kill 19408 … ; npx playwright test …`).
    */
   stoppedByCommand?: boolean
 }
@@ -952,7 +949,7 @@ const PLAYWRIGHT_RUN = /^(?:@playwright\/test|playwright)(?:@\S+)?\s+test(?=\s|$
  * Both rewrites that compose a command ({@link withSuiteConfig}, {@link scopedRerunCommand}) read
  * the run through the shared shell parse — the same answer every classifier gets — instead of
  * searching the text for `playwright test`. The search missed the runner reached by file (`node
- * <path>/@playwright/test/cli.js test`, xr-molecule-flash-m179), so a narrowed re-run of that run
+ * <path>/@playwright/test/cli.js test`), so a narrowed re-run of that run
  * silently stayed the whole suite.
  *
  * `afterRunner` is the offset just past the runner's own words (`playwright test`): the
@@ -1147,10 +1144,10 @@ function boundsFailures(command: string): boolean {
  *   ({@link ./utilities.js} `streamingBackgroundCommand`) — a diagnosis walks each failure once,
  *   while the run the suite is judged by keeps the suite's own retries; and
  * - the platform's own notes (molecule-dev's `suite-cli-override.ts`), which must not tell the
- *   executor to drop the `--retries=0` the platform itself has just added — the contradiction X1
- *   flash-m74 and m75 filed, and m76 filed a third time.
+ *   executor to drop the `--retries=0` the platform itself has just added — a contradiction
+ *   filed three times.
  *
- * Until xr-molecule-flash-m89 they were a regex and a predicate that only LOOKED alike, and the
+ * Until then they were a regex and a predicate that only LOOKED alike, and the
  * gap was exactly the run the platform had asked for: its `testRunNote` says "run the whole suite
  * once with `--max-failures=0`", and the rewriter read that cap flag as a capped diagnosis and
  * stripped the suite's retries from the uncapped proof run that follows a deploy — the one run the
@@ -1166,7 +1163,7 @@ function boundsFailures(command: string): boolean {
  * When the caller passes those approved titles ({@link DiagnosisRunContext}) and the inverted
  * pattern names one of them — the request's own "except …" scope written as the flag, which
  * molecule-dev's `invertDecision` reads the same way — the run still walks the whole proof scope,
- * and it is not a diagnosis. xr-molecule-flash-m170 (+33:16): the deployed proof carried exactly
+ * and it is not a diagnosis. The deployed proof carried exactly
  * that exclusion, the rewriter added `--retries=0` to it, and the run lost the suite's retries on
  * the one walk where a network blip is likeliest.
  *

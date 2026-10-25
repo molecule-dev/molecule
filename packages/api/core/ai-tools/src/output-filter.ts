@@ -2,7 +2,7 @@
  * A run whose own command piped its output through `tail`/`head`/`grep`/`sed`/`awk`/`cut`, so the
  * failure the runner printed is not in what came back.
  *
- * xr-molecule-flash-m147 (+10:12) sent `hurl --variable uid=… --test /tmp/t.hurl 2>&1 | tail -6`.
+ * A command sent `hurl --variable uid=… --test /tmp/t.hurl 2>&1 | tail -6`.
  * The six lines that survived are Hurl's closing tally; the failed assertion was above the cut.
  * The platform, seeing a red run with no assertion block, said the cause was "the transport or the
  * run itself" — a sentence that sends the reader at the network for a status assertion it never
@@ -64,7 +64,7 @@ export interface RunnerOutputFilter {
  *   {@link CommandSegment.program} is the program, once wrapper words like `timeout 280` and
  *   `npx` are taken away).
  * @param occurrence - Which runner invocation the output belongs to, 1-based. A command can run
- *   the same runner more than once (xr-molecule-flash-m170: the suite bare, then with `HOST=…`),
+ *   the same runner more than once (the suite bare, then with `HOST=…`),
  *   and each invocation carries its OWN pipe; a reader judging the second walk must name the
  *   second walk's cut, never the first's.
  * @returns The filter and the unfiltered command, or null.

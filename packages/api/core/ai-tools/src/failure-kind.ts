@@ -10,12 +10,12 @@
  * - **status** — a response arrived and the HTTP status disagreed with what the suite asserts.
  * - **assertion** — a response arrived and an assertion over its body failed.
  *
- * X0 xr-molecule-flash-m110 (+18:42 → +20:09) is the case this exists for: one Hurl file on the
- * freshly deployed URL failed with `(28) Operation timed out … 0 bytes received` while the other
- * twelve passed and 138 requests executed, and every note on the result read it as an assertion.
- * The executor rewrote a CORS middleware, bisected a second server and latency-compared the two,
- * then re-ran the same file — which passed in 3 s. A single re-run was the whole fix, and the one
- * fact that would have said so is the failure's LAYER.
+ * The case this exists for: one Hurl file on the freshly deployed URL failed with
+ * `(28) Operation timed out … 0 bytes received` while the other twelve passed and 138 requests
+ * executed, and every note on the result read it as an assertion. The executor rewrote a CORS
+ * middleware, bisected a second server and latency-compared the two, then re-ran the same file —
+ * which passed in 3 s. A single re-run was the whole fix, and the one fact that would have said
+ * so is the failure's LAYER.
  *
  * ONE classifier, used by the causes note ({@link ./utilities.ts} `failureCausesNote`) and by the
  * platform's own proof result (`molecule-dev` `suite-proof.ts`), so the two can never disagree

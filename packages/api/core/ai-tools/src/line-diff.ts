@@ -4,9 +4,8 @@
  * The count is a diff, not an arithmetic delta: replacing one line with another
  * leaves the line count unchanged, so `new.length - old.length` is 0 for the
  * edit that changed the file — a result that reads to the model as "your write
- * did nothing" (X0 xr-molecule-flash-m141 +09:56: `write_file` rewrote
- * `ArticlePreview.tsx`'s favorite label and reported
- * `"linesAdded":0,"linesRemoved":0`). The lines an edit actually changed are
+ * did nothing" — `write_file` rewrote `ArticlePreview.tsx`'s favorite label and reported
+ * `"linesAdded":0,"linesRemoved":0`. The lines an edit actually changed are
  * found with the same longest-common-subsequence line diff the IDE's tool cards
  * use (`@molecule/app-ide-react`'s `diffLineCount`); it is mirrored here because
  * the API and App halves of the workspace cannot import each other (AGENTS.md

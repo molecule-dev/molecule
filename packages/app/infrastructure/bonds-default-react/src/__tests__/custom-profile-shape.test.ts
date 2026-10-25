@@ -592,7 +592,7 @@ const createMockStorage = (): StorageAdapter & { store: Record<string, string> }
  * @returns The stub.
  */
 const stubJsonFetch = (body: unknown) => {
-  const fetchMock = vi.fn(
+  const fetchMock = vi.fn<typeof fetch>(
     async () =>
       new Response(JSON.stringify(body), {
         status: 200,

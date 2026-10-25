@@ -23,9 +23,8 @@ import {
  * flag, a feed, a `favorited` state) sends its request before `initialize()` has
  * restored the session, so it leaves with no `Authorization` header and the server
  * answers for an anonymous viewer. Localhost usually hides it — the restore wins
- * the race against the first effect there — and the deployed URL exposes it, which
- * is how X1 xr-molecule-flash-m95 spent ~25 min treating a "Follow" button on a
- * followed user as database leftovers.
+ * the race against the first effect there — and the deployed URL exposes it, where a
+ * "Follow" button on a followed user reads as stale database state.
  *
  * `whenRestored()` resolves immediately when no restore is in flight, so a request
  * made after boot never waits at all; it holds only while the restore is actually
@@ -187,8 +186,8 @@ export function createDefaultAuthClient<
  *
  * The sync is a LIVE read: `@molecule/app-http`'s `setAuthTokenSource` registers the auth
  * client's token, and every client the app bonds — one bonded after this setup too (the
- * scaffold wires auth BEFORE http; xr-molecule-flash-m156: a token copied into the client
- * present at setup was never sent) — reads it on each request. A session adopted with no
+ * scaffold wires auth BEFORE http, so a token copied into the client present at setup was
+ * never sent) — reads it on each request. A session adopted with no
  * auth event (`useAuth().setSession()`, an OAuth callback's `setAccessToken()`, the same
  * profile under a new token) is therefore sent by the next request, not the previous
  * account's bearer. A transport without `setAuthTokenResolver` is followed through a request
@@ -262,8 +261,7 @@ export function createDefaultAuthClientWithHttpSync<
  * yours) on a current-user request. This bond registers `whenRestored()` as the
  * HTTP gate, so requests still wait for the background restore/verification to
  * settle; only `useAuth().status === 'loading'` means "no decision yet"
- * (xr-molecule-flash-m177: a page that waited on its own `/me` paid a round trip
- * on every navigation).
+ * (a page that waits on its own `/me` pays a round trip on every navigation).
  *
  * Used by apps where molecule packages render pricing / billing /
  * other authed JSON-fetching screens that need both behaviors.

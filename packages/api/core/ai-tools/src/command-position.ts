@@ -3,12 +3,11 @@
  * arguments to something else.
  *
  * Every classifier that read a command as "this runs the suite" matched the runner's NAME
- * anywhere in the text, so a runner named in an argument was read as an invocation: X1
- * xr-molecule-flash-m81 (+20:03) sent
+ * anywhere in the text, so a runner named in an argument was read as an invocation:
  * `cd /workspace/fixtures/realworld/specs/api && ls && head -30 run-api-tests-hurl.sh` — two
  * reads of a file that was already there — and the suite-overlap hold answered "a Playwright
- * suite is already running against this app and database … wait for it", costing a minute of
- * forced idling on a command that writes nothing and runs nothing. `cat`, `grep`, `sed -n`,
+ * suite is already running against this app and database … wait for it", idling a command that
+ * writes nothing and runs nothing. `cat`, `grep`, `sed -n`,
  * `wc`, `ls` and `git show` of a runner script are the same shape.
  *
  * So this parser answers it in one place, for every caller: split the command at its pipeline
@@ -28,7 +27,7 @@
  * `end`, `programOffset` and `assignmentOffset` are the offsets a caller splices at. They are
  * token positions from this walk, never a search for re-joined text — the words are joined back
  * with single spaces for matching, so `command.indexOf(segment.text)` fails on irregular spacing,
- * on grouping braces, and on anything a heredoc body shifts (xr-molecule-flash-m105 +08:12).
+ * on grouping braces, and on anything a heredoc body shifts.
  *
  * @module
  */
@@ -343,11 +342,11 @@ const SHELLS: ReadonlySet<string> = new Set(['ash', 'bash', 'dash', 'ksh', 'sh',
  * `node script.mjs` RUNS that script, so the parser's answer for it stays `node`.
  *
  * The Playwright runner is spelled this way whenever a project reaches it by file instead of by
- * the `.bin` shim: xr-molecule-flash-m179 (+17:51) ran
+ * the `.bin` shim: a run that sent
  * `node /workspace/node_modules/.bin/playwright test` after `npx playwright test` in every
- * earlier call, and no reader recognised it — the run got no `--trace`, no suite-budget pin and
- * no proof credit, and the platform spent the rest of the turn re-walking a suite it had already
- * walked green.
+ * earlier call got no `--trace`, no suite-budget pin and no proof credit, because no reader
+ * recognised it — and the platform then spent the rest of the turn re-walking a suite it had
+ * already walked green.
  */
 const NODE: ReadonlySet<string> = new Set(['node'])
 
@@ -706,8 +705,7 @@ function nestedCommand(words: readonly string[], from: number): string | null {
  * program: the leading words, and the ones behind an `env` wrapper (`env -i PATH=$PATH
  * BASE_URL=https://… npx playwright test`). A shell passes those to the program in exactly the
  * same way — `env` is the POSIX form of the leading-word form — so a reader that only saw the
- * leading ones called a deployed walk local (X0 xr-molecule-flash-m204 +38:15: two green deployed
- * walks were refused, 5.2 min).
+ * leading ones called a deployed walk local (two green deployed walks were refused, 5.2 min).
  *
  * @param words - The segment's words, quotes kept.
  * @returns The index of the word in command position (one past the end when the segment runs
@@ -868,8 +866,8 @@ function commentStartsAt(command: string, at: number): boolean {
  * <<'EOF' … import { defineConfig, devices } from '@playwright/test' … EOF` writes a file and runs
  * `cat`. Read as shell, though, every line of the body is a statement — and the words joined back
  * for matching are not the words written, so a caller that placed a statement by searching for
- * them found nothing, in a command whose real statements sat all along. On X1
- * xr-molecule-flash-m105 (+08:12) the body's `import { defineConfig, devices } …` alone made
+ * them found nothing, in a command whose real statements sat all along. A heredoc body's
+ * `import { defineConfig, devices } …` alone made
  * `suiteRunPipedAfterRunner` answer "piped" for a run with no pipe left, and the run's exit code
  * was dropped for the rest of the session.
  *
@@ -983,7 +981,7 @@ function blankHeredocBodies(command: string): string {
  * A flat walk read that first inner `"` as the CLOSE of the outer one, so the `)` that ends the
  * outer substitution landed inside a quote that was never opened, the depth was left standing at
  * 1, and every newline in the rest of the script was swallowed: the script's own `hurl --test`
- * never reached command position, and X1 xr-molecule-flash-m89 saw seven passing Hurl runs the
+ * never reached command position, and seven passing Hurl runs were invisible to the
  * platform could not see (the runner is read from the tree's own script TEXT —
  * `molecule-dev/api/src/ai/supplied-tree-guard.ts` — so a script that does not classify records
  * no runner, and every run of it reads as nothing).
@@ -1491,8 +1489,8 @@ export function commandSubstitutions(command: string): string[] {
  * not a text match. The command-position parser already knows what runs and what is only quoted
  * data ({@link commandSegments}), so a pattern never reads a `|` inside a quoted grep alternation
  * as a pipeline: `grep -E "USER CALLS|ENV|BUTTON" app.log` prints log lines, and the `ENV` in
- * its pattern started nothing (X0 xr-molecule-flash-m331 blocked exactly that call as an
- * environment dump). What the shell DOES run stays visible through the same walk: a bare
+ * its pattern starts nothing — a text match would block exactly that call as an environment
+ * dump. What the shell DOES run stays visible through the same walk: a bare
  * launcher (`ls | env`), a shell string (`bash -c 'env'`), a substitution
  * (`echo "$(printenv)"`) and a nested one (`sh -c 'x; env'`) are all commands here.
  *
@@ -1531,7 +1529,7 @@ function wordOffset(text: string, index: number): number | null {
  * executor's own command in more than one place, and a value written for the runner belongs in
  * the runner's own statement: `APP_BASE=https://… cd app && npx playwright test` sets the variable
  * for `cd` alone, so the Playwright config falls back to the local app while the command line
- * still names the deployed host (xr-molecule-flash-m103 +28:08).
+ * still names the deployed host.
  */
 export interface LocatedCommandSegment {
   /**
@@ -1596,7 +1594,7 @@ export interface LocatedCommandSegment {
    * The file this statement sends its own output to (`> out.log`, `>> log`, `&> run.log`,
    * `| tee file`), or null. Only a redirect written at the command's own level counts: one
    * inside a `( … )` / `{ … }` group writes through that group, and one that feeds a heredoc's
-   * file (`cat > cfg.ts <<'EOF'`) is writing a config (X1 flash-m44, flash-m136).
+   * file (`cat > cfg.ts <<'EOF'`) is writing a config.
    */
   redirectTarget: string | null
 }
@@ -1669,8 +1667,8 @@ function substitutionDepth(text: string): { parens: number; braces: number } {
  * redirection (`… 2>&1`), and a statement can sit inside a group whose closer belongs to the
  * shell, not to the words (`( … )`, `{ …; }`). Appending after that closer is a different shell
  * word that the group has already closed — `… --config=x 2>&1) --reporter=list` is
- * `sh: Syntax error: word unexpected`, which killed a backgrounded walk at once and pushed the
- * model off the platform's runner shape (xr-molecule-flash-m129 +34:29). Write the option where
+ * `sh: Syntax error: word unexpected`, which kills a backgrounded walk at once and pushes the
+ * model off the platform's runner shape. Write the option where
  * the program's own arguments end and the rest of the statement still parses:
  * `… --config=x --reporter=list 2>&1)`.
  *
@@ -1754,8 +1752,8 @@ export function statementArgumentEnd(
  * parses its last stage as `tail` with the argument `-25)`. {@link LocatedCommandSegment.end}
  * therefore says one past the `)`, and a caller cutting that stage out of the command takes the
  * group's closer with it — the rewritten command is then `( … 2>&1`, which no shell parses
- * (xr-molecule-flash-m418 +23:31: a heredoc config plus a parenthesized Playwright pipeline came
- * back as `end of file unexpected` from the background runner).
+ * (a heredoc config plus a parenthesized Playwright pipeline came back as `end of file
+ * unexpected` from the background runner).
  *
  * The parse's own group depths answer which closers belong to an enclosing group: the depth a
  * statement was written at is its first character's depth (an opener is recorded at the depth
@@ -1959,9 +1957,9 @@ export function commandTimeoutSeconds(command: string): number | null {
  * The platform moves a run to the background precisely because its own bound cannot fit this
  * tool's ceiling, and a background task has no ceiling — its wait is bounded by `wait_for_task`
  * and the turn's deadline. The `timeout N` an executor wrote to fit the ceiling therefore keeps
- * killing the run at N in the background, where nothing needed it: X1 xr-molecule-flash-m143
- * (+24:45) wrote `timeout 280` for a 31-test walk, the tool backgrounded it, and the prefix stopped
- * the walk with no tally — then the cut sentence told the executor to "run it in the background",
+ * killing the run at N in the background, where nothing needed it: an executor wrote
+ * `timeout 280` for a 31-test walk, the tool backgrounded it, and the prefix stopped the walk
+ * with no tally — then the cut sentence told the executor to "run it in the background",
  * which is where it already was.
  *
  * The wrapper is found by the same parse every other command reader uses ({@link commandStart}):

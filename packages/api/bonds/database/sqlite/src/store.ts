@@ -210,7 +210,7 @@ export function createStore(pool: DatabasePool): DataStore {
 
   /**
    * Run a statement for `table`, naming the table in a column or table error: SQLite's
-   * "no such column: x" says neither, and X1 flash-m56 rewrote the wrong table on it. The
+   * "no such column: x" says neither, which is how the wrong table gets rewritten. The
    * error itself is kept (its class and code), only its message gains the table.
    *
    * The pool appends the failing statement to the same message (` — in: <statement>`), and a

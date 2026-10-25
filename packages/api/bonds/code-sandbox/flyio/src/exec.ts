@@ -67,10 +67,9 @@ export const MAX_CAPTURED_OUTPUT_BYTES = 5 * 1024 * 1024
  * Fly documents NO output ceiling for the Machines API: the exec response's
  * `flydv1.ExecResponse` schema types `stdout` and `stderr` as plain,
  * unconstrained strings (https://docs.machines.dev/openapi.json). The live API
- * still returns SHORT output with `exit_code: 0` once a response is large —
- * measured 2026-10-18 in production (X1 flash-m175): one read of a
- * 1,421,432-byte database file came back 897,144 bytes long, exactly one
- * 512 KiB slice missing, with no error at all. So the collector asks for no
+ * still returns SHORT output with `exit_code: 0` once a response is large: one
+ * read of a 1,421,432-byte database file came back 897,144 bytes long, exactly
+ * one 512 KiB slice missing, with no error at all. So the collector asks for no
  * more than this per response and checks every response's decoded length
  * against what it asked for, shrinking the request when the transport cuts it.
  */

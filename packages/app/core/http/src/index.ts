@@ -49,7 +49,7 @@
  * - **`getClient()` itself knows no baseURL.** The fallback client it mints when nothing is
  *   bonded has `baseURL: ''`, so `getClient().get('/articles')` requests the PAGE origin — in
  *   dev the Vite server answers its own `index.html` with a 200, and the HTML arrives as
- *   `data` (xr-molecule-flash-m126 lost 6.5 minutes to that). A scaffold bonds
+ *   `data`, and the API then validates none of the fields it was sent. A scaffold bonds
  *   `'/api'`; an app that builds its own client must pass `{ baseURL }`.
  * - **The client is PUBLIC — never put a secret in it.** Anything the browser sends (an API
  *   key, a service-role / `sk_…` key, a signing secret) is visible to every user. Secrets

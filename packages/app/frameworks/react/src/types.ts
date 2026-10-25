@@ -195,7 +195,7 @@ export interface UseAuthResult<
    *
    * `setUser` alone does NOT sign the client in, and `setAccessToken` changes
    * storage only — using those two for a caller-issued session leaves every
-   * `authenticated` read signed out (xr-molecule-flash-m178).
+   * `authenticated` read signed out.
    */
   setSession: AuthClient<T>['setSession']
   isAuthenticated: boolean

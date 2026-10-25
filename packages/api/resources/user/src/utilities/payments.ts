@@ -9,7 +9,7 @@
  * the package barrel exports every handler, so Node evaluates the import while loading
  * `@molecule/api-resource-user` itself, and a production install (which installs no optional
  * peer) dies at BOOT with `ERR_MODULE_NOT_FOUND … imported from
- * …/dist/handlers/updatePlan.js` — xr-flash-m354, two failed deploys on 2026-10-21.
+ * …/dist/handlers/updatePlan.js` — a boot failure, so every deploy of that app fails.
  *
  * A dynamic `import()` is evaluated only when a payments feature is actually used, and its
  * absence means "this app has no payments", never a crash.

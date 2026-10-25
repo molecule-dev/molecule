@@ -63,8 +63,7 @@ const waitedByTask = new Map<string, number>()
 /**
  * Each waited task's log size at the end of its last wait. A command whose log
  * keeps growing is slow, not stuck: a serial 139-test suite was called stuck at
- * 560 s and the executor was told to kill it while its log still grew (X1 run
- * m21, 2026-10-15).
+ * 560 s and the executor was told to kill it while its log still grew.
  */
 const logBytesByTask = new Map<string, number>()
 
@@ -133,11 +132,11 @@ const detachedByTask = new Set<string>()
  *
  * The wait note may promise that each failure's own error sits under its ✘ line only when the
  * log actually carries one: a run printing its failures only in the end-of-run summary would send
- * the model grepping a file they were not in (the m99 class, recurring at xr-molecule-flash-m173
- * +17:07, +39:14). The command's shape cannot answer that question — every background launch is
+ * the model grepping a file they were not in (a recurring class). The command's shape cannot
+ * answer that question — every background launch is
  * given the switch, and the executor's own wrapper passes it on — so the evidence is the log, read
- * during the wait (xr-molecule-flash-m191: a wrapper-launched run's cause reached the model 7
- * minutes late because nothing read the log for it).
+ * during the wait: nothing else notices a wrapper-launched run's cause, which otherwise reaches
+ * the model minutes late.
  */
 const inlineFailuresByTask = new Set<string>()
 
@@ -157,7 +156,7 @@ const runByTask = new Map<string, { command: string; cwd?: string; diagnosticYie
  * shared by every project this process serves, so a task is only ever read as THIS project's when
  * this backend started it or its files are in this project's sandbox ({@link ownedTaskIds}).
  * Without that, a sleep in one project was held for a walk running in another's sandbox, and its
- * note carried that project's command (xr-molecule-flash-m208 +12:00, waiting on m207's walk).
+ * note carried that project's command.
  */
 const launchedByBackend = new WeakMap<ExecutionBackend, Set<string>>()
 
@@ -302,11 +301,10 @@ const taskPidsCommand = (taskId: string): string =>
  *
  * THE one builder for it, so every note that hands the executor a way to stop a run hands over the
  * same pid-only form: a `pkill -f <something>` matches the shell running it (its argv IS the
- * command), and `molecule-dev/api/src/ai/pattern-kill-guard.ts` holds exactly that — X1
- * xr-molecule-flash-m87's stuck note suggested `kill $(cat /tmp/<id>.pid) 2>/dev/null; pkill -f
- * <id>.sh`, which the platform's own guard then refused, and the same shape cost a refused call at
- * +21:57. The pid tree is the whole of what the pattern was for: the detached shell and every
- * process under it.
+ * command), and `molecule-dev/api/src/ai/pattern-kill-guard.ts` holds exactly that — a stuck note
+ * that suggested `kill $(cat /tmp/<id>.pid) 2>/dev/null; pkill -f <id>.sh` was refused by the
+ * platform's own guard, and the same shape costs a refused call every time. The pid tree is the
+ * whole of what the pattern was for: the detached shell and every process under it.
  *
  * @param backend - The execution backend.
  * @param taskId - The task's `mol-bg-…` handle.
@@ -332,7 +330,8 @@ export async function taskStopCommand(backend: ExecutionBackend, taskId: string)
 /**
  * How often a wait re-asks whether a task whose exit file has not appeared has ended. The exit
  * file is read every tick; this probe is a process test plus the task's own output, and 3 s is
- * close enough that a run which ended is never waited out (m182: 281 s on a walk that ended in 20).
+ * close enough that a run which ended is never waited out (281 s were once spent on a walk that
+ * ended in 20).
  */
 const TASK_END_LOOK_MS = 3_000
 
@@ -376,8 +375,8 @@ function exitCodeIn(raw: string): number | null {
  * The exit file is read in THIS shell, beside the pid test, because the two are ONE observation.
  * Read as two round trips — a wait's tick reading the file, then this probe asking the pid — a
  * wrapper that finished and wrote its code between them was reported "ended without writing an
- * exit code" while its code was on disk (xr-molecule-flash-m303: 13/13 Hurl files green,
- * `exitCode: null`, after a wait that returned on the tick the run ended).
+ * exit code" while its code was on disk (13/13 Hurl files green, `exitCode: null`, after a wait
+ * that returned on the tick the run ended).
  *
  * The pid test runs BEFORE the exit file is read, and that order is the point: the launcher writes
  * the code and then exits, and `kill -0` answers "gone" only once the process is reaped — so a
@@ -440,8 +439,8 @@ function outputEnding(text: string): TaskEndState {
  *
  * A missing exit file alone is not "running": the launcher writes that file from the wrapper it
  * started, and a command that backgrounds its real work leaves the file missing after the run is
- * over. X1 xr-molecule-flash-m182 (+30:25) waited 281 s — its whole remaining ceiling — on a walk
- * that had ended in 20 s, and a `sleep 240; tail` on the same handle was answered "is live". The
+ * over. A wait can spend its whole remaining ceiling (281 s in one case) on a walk that had ended
+ * in 20 s, and a `sleep 240; tail` on the same handle is answered "is live". The
  * end is read the way `molecule-dev/api/src/ai/background-tasks.ts` reads it — exit file, then
  * the pid — plus the one signal this package has and that tracker does not: the task's own output
  * file already holding its ending.
@@ -556,9 +555,9 @@ const FINISHED_TALLY =
  * fresh `Running N tests` header — and what the finished walk's tally said.
  *
  * A command that chained two suite runs starts the second walk the moment the first ends, and the
- * wait used to read that log as one slow run ("slow, not stuck") for the whole second walk. X1
- * xr-molecule-flash-m157 (+14:02) waited out 4.5 minutes of a duplicate walk that measured nothing:
- * the first walk had already printed `4 failed / 65 skipped / 70 passed (4.5m)`.
+ * wait used to read that log as one slow run ("slow, not stuck") for the whole second walk — 4.5
+ * minutes of a duplicate walk that measured nothing, while the first walk had already printed
+ * `4 failed / 65 skipped / 70 passed (4.5m)`.
  *
  * @param slice - The log slice this wait read.
  * @returns The finished walk's tally lines, or null when the log shows one walk (or none).
@@ -589,18 +588,18 @@ function secondSuiteWalk(slice: string): { tally: string } | null {
  * says it has got, and how much longer that implies — one fact per clause, built
  * here so the note carrying them cannot state one of them twice.
  *
- * X1 flash-m62 (2026-10-16) spent three 290 s waits on one 8.3-minute suite and
- * every answer read only "Still running after 280s": the run could not tell a
- * suite with 30 s left from one with 6 minutes left, so the wait cadence — not
- * the suite — set the pace, and the run learned nothing for its 14 minutes of
- * waiting. The elapsed time comes from the task id, the progress from the log
- * this wait already read, and the time left is the rate so far, said as such.
+ * Three 290 s waits on one 8.3-minute suite can each answer only "Still running
+ * after 280s": the run cannot tell a suite with 30 s left from one with 6 minutes
+ * left, so the wait cadence — not the suite — sets the pace, and fourteen minutes
+ * of waiting learn nothing. The elapsed time comes from the task id, the progress
+ * from the log this wait already read, and the time left is the rate so far, said
+ * as such.
  *
- * X1 flash-m87 §+47:20 (2026-10-16): that suite's answer read "Still running
- * after 342s of waiting, and its output is still growing (71839 bytes) — slow,
- * not stuck." and then this sentence, which opens with the same growth clause
- * and gives the same elapsed time in its other format — one answer, two facts,
- * each said twice. The clauses ARE the facts, and {@link runningNote} is the
+ * One such answer read "Still running after 342s of waiting, and its output is
+ * still growing (71839 bytes) — slow, not stuck." and then this sentence, which
+ * opens with the same growth clause and gives the same elapsed time in its other
+ * format — one answer, two facts, each said twice. The clauses ARE the facts, and
+ * {@link runningNote} is the
  * only place they become a sentence, so a lead the caller writes itself cannot
  * repeat one (the way `deployOwedNote` returns one sentence rather than a join).
  *
@@ -677,7 +676,7 @@ function runningNote(clauses: string[]): string {
  * command has no task of this process's to report, in which case the sleep runs as written (the
  * tool's own budget bounds it, as before).
  *
- * X1 xr-molecule-flash-m105 (+08:49 → +10:53, 2026-10-17) hand-polled with `sleep N; tail …`
+ * One run hand-polled with `sleep N; tail …`
  * three times. The state the executor wanted was always one the platform already held: two tasks
  * had ended 0.1 s in (exit 127, and `Error: No tests found`) and the third was live at 72 of 139
  * with failures the log already carried. So a command that opens with a long sleep is answered
@@ -941,14 +940,13 @@ export const SPLIT_WORK_ADVICE =
  * (Playwright, Vitest, a `hurl` run — {@link isSuiteRunCommand}): its files are not
  * a bigger unit to break up.
  *
- * X1 flash-m36 asked for this half and the message kept saying "run a smaller unit"
- * for two months. It is the wrong direction for a suite, and measurably: a run
- * stopped here reports NO tally, so nothing in the result says which test or request
- * hung — the run has to be sent again in the background (off this budget, its output
- * written to a log that can be read mid-run) or, when a consumer knows the runner's
- * per-request limit, with each request bounded. xr-molecule-flash-m93 (+06:22,
- * 2026-10-16) lost 4.8 minutes to a Hurl run whose ONE unanswered request had hurl's
- * 300 s default per request holding the file, ten seconds past this tool's budget.
+ * The wrong advice here is "run a smaller unit": it is the wrong direction for a
+ * suite, and measurably so — a run stopped here reports NO tally, so nothing in
+ * the result says which test or request hung. The run has to be sent again in the
+ * background (off this budget, its output written to a log that can be read
+ * mid-run) or, when a consumer knows the runner's per-request limit, with each
+ * request bounded. One Hurl run lost 4.8 minutes to a single unanswered request
+ * held by hurl's 300 s default per request, ten seconds past this tool's budget.
  */
 export const SUITE_OVER_BUDGET_ADVICE =
   'A test suite is not a bigger unit to split: stopped here it reports no tally at all, so nothing ' +
@@ -1007,9 +1005,8 @@ function joinFindArgs(args: string[]): string {
 /**
  * The share of its budget a command must use before the "you asked for more than
  * this tool's ceiling" note is worth attaching. Below it the clamp changed nothing
- * about the run, and the line read as a warning about work that had already
- * finished (xr-molecule-flash-m83 +53:11: a Hurl run of 25 s against a 290 s
- * ceiling carried the note).
+ * about the run, and the line reads as a warning about work that had already
+ * finished (a Hurl run of 25 s against a 290 s ceiling carried the note).
  */
 const CEILING_NOTE_MIN_USED = 0.5
 
@@ -1017,8 +1014,8 @@ const CEILING_NOTE_MIN_USED = 0.5
  * The steer attached to a SUCCESSFUL read of a package's built output. The ENOENT
  * redirect below fires only when the read FAILS, so a model that knows the hoisted
  * layout reads `node_modules/@molecule/<pkg>/dist/*.js` happily and never learns the
- * documented API is one call away (X0 flash-m70: 24 such reads in 57 s, no note on
- * any of them). Carried as `distNote` rather than merged into `note` so a host that
+ * documented API is one call away (24 such reads in 57 s, with no note on any of
+ * them). Carried as `distNote` rather than merged into `note` so a host that
  * has read_molecule_doc (molecule-dev's cadence note, which also names the functions)
  * can supersede it without string-matching.
  *
@@ -1046,7 +1043,7 @@ export function moleculeDistReadNote(path: string): string | null {
  * the log this platform's launcher writes for it, and the redirect target is the file this
  * process's own launch registered for that id — never a path parsed out of a command by the
  * caller. A diagnosis that reads a running walk must not build a `/tmp` path of its own
- * (xr-molecule-flash-l07: the wait's DISPLAY was diagnosed as if it were the log).
+ * (a wait's DISPLAY gets diagnosed as if it were the log).
  *
  * @param taskId - The `mol-bg-…` handle the wait returned.
  * @returns The read command, or null when the handle is not a task id this platform minted.
@@ -1063,11 +1060,11 @@ export function registeredTaskLogCommand(taskId: string): string | null {
  * @remarks
  * A path that reads `node_modules` is not necessarily an install: a run links
  * `node_modules` beside its e2e copy to borrow the hoisted tree, and that link
- * is its own. X0 xr-molecule-flash-m106 (+07:58) made exactly that link, found
- * it dangling (everything was hoisted to `/workspace/node_modules`), and was
- * refused three times for trying to remove it — 40 s and a "3rd time this turn
- * … ask the user" escalation, in an unattended run, over a broken symlink in
- * the run's own scratch directory. So the guard asks what is there.
+ * is its own. A run that made exactly that link found it dangling (everything was
+ * hoisted to `/workspace/node_modules`) and was refused three times for trying to
+ * remove it — 40 s and a "3rd time this turn … ask the user" escalation, in an
+ * unattended run, over a broken symlink in the run's own scratch directory. So the
+ * guard asks what is there.
  */
 export interface InstalledPackageFacts {
   /** Whether the `node_modules` entry the path goes through is a symbolic link. */
@@ -1140,17 +1137,17 @@ export function shellInstalledPackageProbe(
  *
  * `node_modules` is not the project's code: nothing written there survives the
  * next install, no deploy carries it, and a sandbox whose dependency tree is
- * shared (the pre-installed superset) breaks every other run through it. X0
- * xr-molecule-flash-m91 (+04:43) called `write_file` on
- * `node_modules/@molecule/api-resource-comment/dist/numbers.d.ts` while reading
- * the package's declarations and clobbered its runtime module a call later
+ * shared (the pre-installed superset) breaks every other run through it. A
+ * `write_file` on
+ * `node_modules/@molecule/api-resource-comment/dist/numbers.d.ts`, made while
+ * reading the package's declarations, clobbered its runtime module a call later
  * (`module.exports = {}` over the ESM handler its own code imports) — the write
  * answered `ok: true`, and 18 s went to noticing, `npm pack`-ing the package and
  * putting the file back. Reading these files stays allowed (that is how the
  * declarations above are read at all).
  *
  * What is protected is the INSTALL, not the spelling: the decision comes from
- * {@link InstalledPackageFacts}, never from the path alone (m106 above). Three
+ * {@link InstalledPackageFacts}, never from the path alone (see the symlink case above). Three
  * things are the run's own to remove or replace —
  *
  * - a `node_modules` that is a SYMLINK: `rm`/`unlink` removes the link, never the
@@ -1165,8 +1162,8 @@ export function shellInstalledPackageProbe(
  * The restore route is named because the model that has ALREADY clobbered a file
  * (this refusal is too late for it) is the one who needs it, and because the
  * obvious repair — `npm install <pkg>` — is itself refused in the pre-installed
- * sandbox. `npm pack` + a `tar` extraction over the package directory is what
- * m91 used, and what both guards leave alone.
+ * sandbox. `npm pack` + a `tar` extraction over the package directory is the
+ * repair both guards leave alone.
  *
  * @param path - An absolute path a tool is about to write.
  * @param probe - Looks at the filesystem where the path lives.
@@ -1221,8 +1218,8 @@ const MAX_REPORTED_REPLACEMENT_FAILURES = 5
  * A batch is applied all-or-nothing, so one bad `old_string` means none of the
  * others were applied either: they are not "the rest, which worked", they are
  * unchecked work the model will otherwise re-send as-is. Naming one per round trip
- * cost flash-m98 two full re-sends of a six-replacement batch — the second bad
- * hunk was not reported until the first was fixed, 7 s later.
+ * costs two full re-sends of a six-replacement batch — the second bad hunk is not
+ * reported until the first is fixed, 7 s later.
  *
  * @param path - The file the batch targets (nothing was written to it).
  * @param total - How many replacements the batch carried.
@@ -1260,7 +1257,7 @@ function batchFailureError(
  * Delays between retries of the symlink guard while a sandbox's command channel is
  * still attaching: four attempts over roughly 2.6 s (plus the commands' own time),
  * which covers the span a freshly claimed E2B sandbox answers `SandboxNotFoundError`
- * before its exec channel is usable (xr-molecule-flash-m120 +00:29). A plain slow
+ * before its exec channel is usable. A plain slow
  * answer keeps the single 300 ms retry instead — a sandbox that is gone does not
  * come back inside five seconds.
  */
@@ -1303,8 +1300,8 @@ const MOLECULE_CATALOG_POINTER =
 
 /**
  * Which package catalog a `list_files` path is, when it is one: the `@molecule` scope (1,032
- * package directories, ~53 KB of names in one plan-phase call — X0 xr-molecule-flash-m151 at
- * +01:54) or the `node_modules` root above it.
+ * package directories, ~53 KB of names in one plan-phase call) or the `node_modules` root
+ * above it.
  *
  * @param path - A resolved (absolute, normalized) directory path.
  * @returns `'molecule'` for the `@molecule` scope, `'packages'` for a `node_modules` root, or null.
@@ -1377,7 +1374,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
    * The excluded dirs for a search rooted at `path`. Inside an installed
    * package the build output IS the code: excluding `dist` there returned
    * nothing for `IconName` in `node_modules/@molecule/app-icons` (it lives in
-   * `dist/types.d.ts`; X1 run sol-m04).
+   * `dist/types.d.ts`).
    *
    * @param path - The resolved search root.
    * @returns The dir names to skip below it.
@@ -1457,8 +1454,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
    * A `cwd` outside the workspace is refused — unless the command itself
    * already opens with `cd <that same directory>`, in which case the command
    * needs no `cwd` and runs from the root exactly as the refusal would have
-   * advised (X1 xr-molecule-flash-l97 +05:14 was told to start a command with a
-   * `cd` its command already started with).
+   * advised (an executor told to start a command with a `cd` its command already started with).
    *
    * @param requested - The `cwd` the tool input carried.
    * @param command - The command the tool input carried.
@@ -1654,7 +1650,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
    * `read_file` asks the backend for a string, so a PNG comes back as UTF-8
    * replacement characters and used to be handed to the model whole — 21,191
    * chars of unreadable bytes it cannot look at, ~12k tokens per read, asked for
-   * twice in one run (xr-molecule-flash-m155 +09:58). A known binary extension is
+   * twice in one run. A known binary extension is
    * refused by name; a file without one is caught from the bytes themselves, by
    * a NUL byte or by the density of replacement characters in its first
    * {@link BINARY_SAMPLE_CHARS} chars.
@@ -1784,8 +1780,8 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
    * The counts are a real line diff ({@link diffLineCount}), not the change in
    * line count: replacing one line with another leaves the file the same
    * length, and a length delta reported that edit as `0/0` — reading to the
-   * model as "your write changed nothing" (xr-molecule-flash-m141 +09:56, a
-   * one-line rewrite of `ArticlePreview.tsx`). A write that leaves the content
+   * model as "your write changed nothing" (a one-line rewrite of `ArticlePreview.tsx`).
+   * A write that leaves the content
    * identical is `unchanged` rather than a `modified` with `0/0`, so the two
    * are distinguishable.
    *

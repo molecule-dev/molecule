@@ -9,13 +9,13 @@
  * prints with `--help`/`--version`, the same way.
  *
  * Every check in the platform read such a command as a whole-suite run, because each one
- * matched the runner's NAME. X1 xr-molecule-flash-m79's first Playwright command was a config
+ * matched the runner's NAME. A first Playwright command that was a config
  * check — a config written to `/tmp`, `cp`'d beside the suite and used with `--list` — and it
  * came back HELD, `status: not_run`, with a ~4 KB `suiteNote` telling it to send the same
  * command with `--max-failures=15` ("uncapped it walks every test … 8–13 minutes"), beside an
  * environment block saying the run "ran on their defaults" and an import note about a path the
  * `cp` had already fixed. Nothing ran. The model gave up on the approach, wrote a second
- * config, and its next command was held again (flash-m74's "same command three times" shape):
+ * config, and its next command was held again ("same command three times" shape):
  * two holds, zero tests, and the config check it asked for never answered.
  *
  * So the classifiers live here, in one place, and callers ask them instead of their own
@@ -27,8 +27,8 @@
  * What counts as an invocation is COMMAND POSITION, read by `@molecule/api-ai-tools`'
  * `commandSegments`: `npx playwright test --list`, `hurl --help` and `bash run.sh` invoke the
  * runner, while a runner named as an argument (`grep -n playwright e2e/README.md`,
- * `head -30 run-api-tests-hurl.sh`) invokes nothing at all. X1 xr-molecule-flash-m81 (+20:03)
- * read a runner script with `head -30` and the suite-overlap hold answered "a Playwright suite is
+ * `head -30 run-api-tests-hurl.sh`) invokes nothing at all. Reading a runner script with
+ * `head -30` has had the suite-overlap hold answer "a Playwright suite is
  * already running … wait for it", for a command that runs nothing.
  *
  * @module
@@ -93,9 +93,10 @@ const NO_RUN_FLAGS: Readonly<Record<Runner, readonly RegExp[]>> = {
  * account for: the suite's own script (`./run-api-tests-hurl.sh`), a wrapper the executor wrote,
  * anything that may itself start a suite. {@link commandRunsNoTests} answers false for a command
  * carrying one — "every invocation only prints" is not a claim an unknown step can support.
- * X1 xr-molecule-flash-m197 (+05:18) sent
- * `hurl --version | head -2 && HOST=http://localhost:4000 ./run-api-tests-hurl.sh 2>&1 | tail -60`,
- * the suite passed 13/13, and the supplied script was the one segment nobody could place: the
+ * A command like
+ * `hurl --version | head -2 && HOST=http://localhost:4000 ./run-api-tests-hurl.sh 2>&1 | tail -60`
+ * ran a suite that passed 13/13, and the supplied script was the one segment nobody could place:
+ * the
  * whole command read as a version probe, so every "has the suite run?" reader said no for the
  * rest of the run and the early deploy was held to the end of the list.
  */
@@ -217,7 +218,7 @@ function informational(runner: Runner, after: string): boolean {
  * position of a segment, after its wrapper prefixes. A runner named in an argument is not an
  * invocation — `head -30 run-api-tests-hurl.sh` and `grep -n playwright e2e/README.md` name a
  * file to read, and a `--list` written inside a file the command writes is not a flag anyone runs
- * with (flash-m81).
+ * with.
  *
  * A command that invokes no runner is NOT one of these (false): "the command runs no test" is
  * then true for `ls`, which is not the question any caller is asking. The question is whether

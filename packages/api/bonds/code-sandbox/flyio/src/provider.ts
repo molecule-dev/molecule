@@ -309,10 +309,9 @@ const EXEC_BODY_MACHINE_NOT_RUNNING = /machine not running/i
  * Attempts for one exec when Fly answers a transient 412 — either body of
  * {@link isTransientExecPrecondition}. Four attempts over the three backoffs
  * below is under 12 s of waiting, against the ~75 s each fresh production
- * deploy costs when this is left to a caller: X1 run flash-m85 (2026-10-16)
- * lost three consecutive deploys, and the run, to the dropped connection;
- * flash-m94 (2026-10-16) lost 65 s and a whole redeploy to the same budget not
- * covering `machine not running` on a Machine Fly reported `started`.
+ * deploy costs when this is left to a caller: a dropped connection has cost
+ * three consecutive deploys, and a budget that did not cover `machine not
+ * running` on a Machine Fly reported `started` has cost a whole redeploy.
  */
 const EXEC_PRECONDITION_ATTEMPTS = 4
 

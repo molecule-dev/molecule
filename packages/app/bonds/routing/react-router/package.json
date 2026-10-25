@@ -13,7 +13,8 @@
     "build": "tsc",
     "dev": "tsc --watch",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "typecheck:tests": "tsc -p tsconfig.tests.json"
   },
   "author": "Molecule Dev, Inc. (https://molecule.dev)",
   "license": "Apache-2.0",

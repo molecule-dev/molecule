@@ -218,7 +218,7 @@ function dropColumnSpans(
  * `ALTER TABLE "usersSecrets" DROP COLUMN IF EXISTS "userId";`. In dev the column
  * existed and the drop was the fix; on the FRESH production database it never
  * existed, and SQLite rejects the clause outright (`near "EXISTS": syntax error`),
- * so the deploy crashed with `Migrations failed` (X1 flash-m103, 2026-10-17).
+ * so the deploy crashes with `Migrations failed`.
  *
  * A statement for a table that does not exist is KEPT: Postgres refuses that too
  * (`relation … does not exist`), so a migration naming a table no file creates
@@ -298,10 +298,10 @@ function addableColumn(definition: string): boolean {
  * lacks — but only for tables THIS file creates. Every migration file is re-read on
  * every boot, and on a table that already exists `IF NOT EXISTS` is a silent no-op:
  * a column added to the file that created the table later never reached the database,
- * nothing said so, and the app failed on it (X1 runs flash-m19, m20 hand-altered the
- * live database). A table another file creates is NOT reconciled: that made a
+ * nothing said so, and the app failed on it (the live database had been hand-altered).
+ * A table another file creates is NOT reconciled: that made a
  * rewritten, since-deleted old migration add `userId NOT NULL` to a package's table
- * (X1 m103), and every insert the package's own service made failed. Additive only;
+ * and every insert the package's own service made failed. Additive only;
  * a column SQLite cannot add in place (a `NOT NULL` with no default, PRIMARY KEY,
  * UNIQUE) is reported, not forced.
  *

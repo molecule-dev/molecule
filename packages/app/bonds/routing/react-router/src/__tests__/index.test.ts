@@ -20,6 +20,8 @@ vi.mock('react', () => ({
   useEffect: vi.fn(),
 }))
 
+import type { NavigateOptions, To } from 'react-router'
+
 import { I18nError } from '@molecule/app-i18n'
 
 import type { RouteDefinition, RouteLocation } from '../index.js'
@@ -34,6 +36,17 @@ import {
   stringifyQuery,
 } from '../index.js'
 
+/**
+ * React Router's `navigate` as the ONE signature a mock can carry.
+ *
+ * `NavigateFunction` is two overloads — `(to, options?)` and `(delta)` — and `vi.fn<T>` types a
+ * mock by a single signature, so a mock typed as `NavigateFunction` is not assignable back to
+ * it (and an untyped `vi.fn()` is `Mock<Procedure | Constructable>`, whose `mock.calls` carries
+ * no argument types). One signature taking the union of both first parameters satisfies both
+ * overloads and keeps the calls typed.
+ */
+type NavigateMock = (to: To | number, options?: NavigateOptions) => void
+
 // Flush microtasks so async navigate() calls complete
 const flush = (): Promise<unknown> => new Promise((resolve) => setTimeout(resolve, 0))
 
@@ -41,8 +54,9 @@ const flush = (): Promise<unknown> => new Promise((resolve) => setTimeout(resolv
 const originalWindow = globalThis.window
 
 describe('@molecule/app-routing-react-router', () => {
-  // Helper to create a mock React Router navigate function
-  const createMockNavigateFn = (): ReturnType<typeof vi.fn> => vi.fn()
+  // Helper to create a mock React Router navigate function, typed by the option it stands in
+  // for (see `NavigateMock`).
+  const createMockNavigateFn = () => vi.fn<NavigateMock>()
 
   // Helper to create a mock location object
   const createMockLocation = (
@@ -149,7 +163,7 @@ describe('@molecule/app-routing-react-router', () => {
       })
 
       it('should return typed params', () => {
-        interface ProductParams {
+        type ProductParams = {
           id: string
           category: string
         }
