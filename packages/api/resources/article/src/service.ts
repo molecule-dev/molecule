@@ -179,6 +179,10 @@ const writeTags = async (articleId: string, tags: string[]): Promise<void> => {
 /**
  * Create an article with a unique slug derived from its title.
  *
+ * `createdAt` and `updatedAt` are stamped by this call and strictly increase
+ * within the process, so two articles created in the same millisecond still
+ * list newest first — callers never write these columns.
+ *
  * @param authorId - The writing user.
  * @param input - Title, body, optional description and tags.
  * @returns The created article.
@@ -339,6 +343,10 @@ export type AuthorChange<T> =
 
 /**
  * Update an article. Only its author may; a changed title gives it a new slug.
+ *
+ * `updatedAt` always moves strictly past the stored value — even an edit in the
+ * same millisecond as the create shows a changed `updatedAt` — so callers never
+ * set it themselves.
  *
  * @param slug - The article slug.
  * @param userId - The requesting user.

@@ -85,8 +85,10 @@
  *   asked for the N most-used. The package's own `GET /articles/tags` route does
  *   exactly this: no `?limit=` is the whole list.
  * - **Lists are newest first and paginated** — `{ data, total, limit, offset }`,
- *   at most 100 per page. `createdAt` is written with milliseconds, so two
- *   articles from the same second still come back in order on SQLite.
+ *   at most 100 per page. `createArticle` stamps `createdAt` strictly increasing
+ *   and `updateArticle` always moves `updatedAt` forward, so newest-first order
+ *   and a changed `updatedAt` hold even within one millisecond — an app never
+ *   re-stamps these columns itself.
  * - **Slugs are unique and stable.** The first "Hello World" is `hello-world`,
  *   the next `hello-world-2`; `feed` and `tags` are never used (they are routes).
  *   Changing the title changes the slug — link with the slug the response returns.
