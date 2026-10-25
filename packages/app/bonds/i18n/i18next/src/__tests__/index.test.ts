@@ -12,11 +12,15 @@ vi.mock('i18next', () => {
 
   const mockI18n = {
     language: currentLanguage,
+    // The resolution chain `t()` reads. This mock's `t` looks up the current
+    // language only, so the chain is just that language.
+    languages: [currentLanguage],
     createInstance: vi.fn(() => mockI18n),
     use: vi.fn(() => mockI18n),
     init: vi.fn(async (options: { lng?: string; resources?: Record<string, unknown> }) => {
       currentLanguage = options.lng || 'en'
       mockI18n.language = currentLanguage
+      mockI18n.languages = [currentLanguage]
       if (options.resources) {
         Object.assign(resources, options.resources)
       }
@@ -25,6 +29,7 @@ vi.mock('i18next', () => {
     changeLanguage: vi.fn(async (lng: string) => {
       currentLanguage = lng
       mockI18n.language = lng
+      mockI18n.languages = [lng]
       const languageListeners = listeners.get('languageChanged')
       if (languageListeners) {
         languageListeners.forEach((listener) => listener(lng))
@@ -63,6 +68,7 @@ vi.mock('i18next', () => {
       }
       listeners.get(event)!.add(listener)
     }),
+    getResourceBundle: vi.fn((lng: string, ns: string) => resources[lng]?.[ns]),
     addResourceBundle: vi.fn(
       (lng: string, ns: string, translations: unknown, deep?: boolean, overwrite?: boolean) => {
         if (!resources[lng]) {
@@ -694,9 +700,22 @@ describe('@molecule/app-i18n-i18next', () => {
     })
 
     describe('registerContent', () => {
+      /**
+       * Registers a content loader on the provider under test. `registerContent`
+       * is optional on `I18nProvider`; this bond implements it.
+       *
+       * @param module - Content module name.
+       * @param loader - Loader called with each locale on `setLocale`.
+       */
+      const registerContent = (module: string, loader: (locale: string) => Promise<void>): void => {
+        if (!testProvider.registerContent)
+          throw new Error('the i18next provider implements registerContent')
+        testProvider.registerContent(module, loader)
+      }
+
       it('should call registered content loaders during setLocale', async () => {
         const loader = vi.fn().mockResolvedValue(undefined)
-        testProvider.registerContent('privacyPolicy', loader)
+        registerContent('privacyPolicy', loader)
 
         await testProvider.setLocale('fr')
         expect(loader).toHaveBeenCalledWith('fr')
@@ -705,8 +724,8 @@ describe('@molecule/app-i18n-i18next', () => {
       it('should call all registered content loaders', async () => {
         const loader1 = vi.fn().mockResolvedValue(undefined)
         const loader2 = vi.fn().mockResolvedValue(undefined)
-        testProvider.registerContent('privacyPolicy', loader1)
-        testProvider.registerContent('termsOfService', loader2)
+        registerContent('privacyPolicy', loader1)
+        registerContent('termsOfService', loader2)
 
         await testProvider.setLocale('fr')
         expect(loader1).toHaveBeenCalledWith('fr')
@@ -716,8 +735,8 @@ describe('@molecule/app-i18n-i18next', () => {
       it('should be idempotent — second registration with same module is ignored', async () => {
         const loader1 = vi.fn().mockResolvedValue(undefined)
         const loader2 = vi.fn().mockResolvedValue(undefined)
-        testProvider.registerContent('privacyPolicy', loader1)
-        testProvider.registerContent('privacyPolicy', loader2)
+        registerContent('privacyPolicy', loader1)
+        registerContent('privacyPolicy', loader2)
 
         await testProvider.setLocale('fr')
         expect(loader1).toHaveBeenCalledWith('fr')
@@ -726,7 +745,7 @@ describe('@molecule/app-i18n-i18next', () => {
 
       it('should reload content on every setLocale call', async () => {
         const loader = vi.fn().mockResolvedValue(undefined)
-        testProvider.registerContent('privacyPolicy', loader)
+        registerContent('privacyPolicy', loader)
 
         await testProvider.setLocale('fr')
         await testProvider.setLocale('en')
@@ -747,7 +766,7 @@ describe('@molecule/app-i18n-i18next', () => {
         const loader = vi.fn().mockImplementation(async () => {
           callOrder.push('content')
         })
-        testProvider.registerContent('privacyPolicy', loader)
+        registerContent('privacyPolicy', loader)
 
         await testProvider.setLocale('fr')
         // Content must be loaded before any listener fires

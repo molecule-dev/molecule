@@ -114,6 +114,15 @@
  *   `useTranslation()` (or `useT()`); it re-renders on `onLocaleChange` — even when
  *   `addTranslations()` only adds keys for the current locale. Calling the raw `t()` import from
  *   `@molecule/app-i18n` in render works once but leaves stale text after a locale switch.
+ *   `useT()` returns a function with a STABLE identity (safe as an effect dependency) that also
+ *   takes an inline fallback as its second argument: `t('cart.empty', 'Your cart is empty')` is
+ *   shorthand for `t('cart.empty', undefined, { defaultValue: 'Your cart is empty' })`.
+ *   Prefer it over a hand-written local wrapper (`const t = (key, fallback) => …`), whose new
+ *   identity every render re-runs any effect that depends on `t`. The identity also survives a
+ *   locale switch, so text memoized on `[t]` alone (`useMemo`, or a `React.memo` child given `t`)
+ *   keeps the old language — add `useLocale()` to those dependencies. Register translations at
+ *   module scope or in a `useEffect`, never while rendering: the notification would update
+ *   other components mid-render.
  * - **Load a page's data with `useQuery` from `@molecule/app-query-react`, never with `fetch` in a
  *   `useEffect`.** A hand-written load effect that cancels on cleanup (a `cancelled` flag or an
  *   `AbortController`) cancels its own request on every re-render when a dependency is rebuilt each

@@ -40,6 +40,26 @@ const UNIT_MS: Record<string, number> = {
 }
 
 /**
+ * Whether merging `source` into `target` (as i18next's deep merge does) changes
+ * any translated string.
+ *
+ * @param target - Translations already in the store.
+ * @param source - Translations being added.
+ * @returns `true` when at least one value would change.
+ */
+const changesText = (target: Translations, source: Translations): boolean =>
+  Object.keys(source).some((key) => {
+    const next = source[key]
+    const current = target[key]
+    return typeof next === 'object' &&
+      next !== null &&
+      typeof current === 'object' &&
+      current !== null
+      ? changesText(current, next)
+      : current !== next
+  })
+
+/**
  * Creates a framework-agnostic i18n provider backed by i18next. Supports eager and lazy-loaded
  * locale translations, browser language detection, custom plugins, and Intl-based number/date/list formatting.
  * @param config - i18next provider configuration including `defaultLocale`, `locales` (with optional `loader` for lazy loading), `detection` flag, `debug`, `plugins`, and raw `i18nextOptions`.
@@ -149,6 +169,35 @@ export const createI18nextProvider = (
   // Locale change listeners
   const listeners = new Set<(locale: string) => void>()
 
+  // Monotonic count of every change announced to listeners. It lives outside
+  // the listener set so a consumer that subscribes AFTER the change — a child's
+  // or an earlier sibling's layout effect, or a React Activity tree whose
+  // effects were unmounted while hidden — can still see that it happened. The
+  // React hooks include it in their `useSyncExternalStore` snapshot.
+  let revision = 0
+
+  /**
+   * Announces one change: moves the revision and tells every listener.
+   *
+   * @param locale - The locale to report, defaulting to the active one (what
+   *   `getLocale()` returns).
+   */
+  const notify = (locale: string = i18n.language || defaultLocale): void => {
+    revision += 1
+    listeners.forEach((listener) => listener(locale))
+  }
+
+  /**
+   * Whether `t()` currently reads text registered for `locale`. i18next
+   * resolves every key along `i18n.languages`: the active code, its base
+   * language (`pt-BR` → `pt`) and each configured fallback, whether it came
+   * from `fallbackLocale` or from `i18nextOptions.fallbackLng`.
+   *
+   * @param locale - The locale whose text changed.
+   * @returns `true` when that text can be on screen.
+   */
+  const readsLocale = (locale: string): boolean => (i18n.languages ?? []).includes(locale)
+
   const doInitialize = async (): Promise<void> => {
     const initOptions: InitOptions = {
       // When detection is enabled, `lng` MUST stay unset: i18next only consults
@@ -220,7 +269,7 @@ export const createI18nextProvider = (
     // Listen for language changes
     i18n.on('languageChanged', (lng: string) => {
       applyDocumentLocale(lng)
-      listeners.forEach((listener) => listener(lng))
+      notify(lng)
     })
 
     initialized = true
@@ -239,7 +288,12 @@ export const createI18nextProvider = (
 
   const initialize = (): Promise<void> => {
     if (!initPromise) {
-      initPromise = doInitialize()
+      // Settling init is itself a change no listener has heard: the language an
+      // asynchronous detector settled on (its `languageChanged` fired before the
+      // listener above existed), a lazily loaded locale and the replayed startup
+      // bundles all land here, after a first render may have shown fallback
+      // text. Announce it once, whether init succeeded or failed.
+      initPromise = doInitialize().finally(() => notify())
     }
     return initPromise
   }
@@ -307,7 +361,7 @@ export const createI18nextProvider = (
         })
       }
       i18n.addResourceBundle(config.code, 'translation', config.translations ?? {}, true, true)
-      listeners.forEach((listener) => listener(i18n.language))
+      notify()
     },
 
     removeLocale(code: string): boolean {
@@ -320,7 +374,7 @@ export const createI18nextProvider = (
           if (pendingBundles[i].lng === code) pendingBundles.splice(i, 1)
         }
         i18n.removeResourceBundle(code, 'translation')
-        listeners.forEach((listener) => listener(i18n.language))
+        notify()
       }
       return removed
     },
@@ -329,6 +383,13 @@ export const createI18nextProvider = (
       if (!initialized) {
         pendingBundles.push({ lng: locale, ns: namespace, translations })
       }
+      // Read the store BEFORE merging: i18next deep-merges into the bundle it
+      // returns here, so afterwards "was anything different?" is unanswerable.
+      // The store exists from creation on (`init()` starts synchronously), so
+      // this also holds while init is still settling.
+      const stored = (i18n.getResourceBundle(locale, namespace) ?? {}) as Translations
+      const changed = changesText(stored, translations)
+
       i18n.addResourceBundle(locale, namespace, translations, true, true)
 
       // Auto-register the locale's metadata entry if it doesn't exist yet —
@@ -339,8 +400,10 @@ export const createI18nextProvider = (
       // never satisfies setLocale()'s "is this locale registered?" check,
       // and getLocales() silently omits it too.
       let existing = localeConfigs.get(locale)
+      let createdLocale = false
       if (!existing) {
         existing = { code: locale, name: locale, translations: {} }
+        createdLocale = true
         localeConfigs.set(locale, existing)
         registerSupportedLng(locale)
       }
@@ -349,11 +412,17 @@ export const createI18nextProvider = (
         ...translations,
       }
 
-      // Notify listeners when translations are added for the active locale
-      // so that UI components re-render with the new content.
-      if (locale === i18n.language) {
-        listeners.forEach((listener) => listener(locale))
-      }
+      // Notify AFTER the merge: subscribers must read the new keys.
+      // - a brand-new locale is announced so language pickers show it;
+      // - changed text that `t()` reads (`readsLocale`: the active locale, its
+      //   base language and the fallbacks) is announced so mounted components
+      //   re-render instead of showing the previous string;
+      // - re-registering text that is already there changes nothing on screen,
+      //   so it stays quiet — re-rendering every subscriber for it would make a
+      //   component that registers its own text while rendering loop forever.
+      // This holds before init settles too; the end of init is announced once
+      // more for whatever it delivered (see `initialize`).
+      if (createdLocale || (changed && readsLocale(locale))) notify()
     },
 
     t(
@@ -458,6 +527,10 @@ export const createI18nextProvider = (
     onLocaleChange(listener: (locale: string) => void): () => void {
       listeners.add(listener)
       return () => listeners.delete(listener)
+    },
+
+    getRevision(): number {
+      return revision
     },
 
     getDirection(): 'ltr' | 'rtl' {

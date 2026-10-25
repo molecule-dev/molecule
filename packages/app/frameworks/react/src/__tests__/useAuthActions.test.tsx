@@ -27,6 +27,7 @@ function createMockAuthClient(): AuthClient<{ id: string; email: string }> {
   const listeners = new Set<() => void>()
 
   const getState = (): AuthState<User> => ({
+    status: authenticated ? 'authenticated' : 'unauthenticated',
     initialized: true,
     authenticated,
     user: currentUser,
@@ -40,6 +41,11 @@ function createMockAuthClient(): AuthClient<{ id: string; email: string }> {
     getUser: () => currentUser,
     getAccessToken: () => (authenticated ? 'mock-access-token' : null),
     setAccessToken: vi.fn(),
+    setSession: vi.fn().mockImplementation((session: { user: User | null }) => {
+      currentUser = session.user
+      authenticated = session.user !== null
+      listeners.forEach((l) => l())
+    }),
     setUser: vi.fn().mockImplementation((user: User | null) => {
       currentUser = user
     }),

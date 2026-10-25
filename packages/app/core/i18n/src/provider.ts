@@ -35,6 +35,26 @@ const UNIT_MS: Record<string, number> = {
 }
 
 /**
+ * Whether merging `source` into `target` (as `deepMerge` does) changes any
+ * translated string.
+ *
+ * @param target - Translations already registered.
+ * @param source - Translations being added.
+ * @returns `true` when at least one value would change.
+ */
+const changesText = (target: Translations, source: Translations): boolean =>
+  Object.keys(source).some((key) => {
+    const next = source[key]
+    const current = target[key]
+    return typeof next === 'object' &&
+      next !== null &&
+      typeof current === 'object' &&
+      current !== null
+      ? changesText(current, next)
+      : current !== next
+  })
+
+/**
  * Creates an in-memory i18n provider with translation lookup, interpolation,
  * pluralization, `Intl`-based formatting, lazy locale loading, and
  * locale change subscription.
@@ -71,7 +91,13 @@ export const createSimpleI18nProvider = (
     })
   }
 
+  // Monotonic count of every change announced to listeners. It lives outside
+  // the listener set so a consumer that subscribes AFTER the change — a child's
+  // or an earlier sibling's layout effect, or a React Activity tree whose
+  // effects were unmounted while hidden — can still see that it happened.
+  let revision = 0
   const notify = (): void => {
+    revision += 1
     listeners.forEach((listener) => listener(currentLocale))
   }
 
@@ -131,12 +157,21 @@ export const createSimpleI18nProvider = (
       // and crashed on the first one not already configured), leaving the
       // provider partially mutated.
       let config = locales.get(locale)
+      let createdLocale = false
       if (!config) {
         config = { code: locale, name: locale, translations: {} }
         locales.set(locale, config)
-        notify()
+        createdLocale = true
       }
       if (!config.translations) config.translations = {}
+
+      const target = namespace
+        ? (config.translations[namespace] as Translations) || {}
+        : config.translations
+      // Checked before the merge: registering text that is already there (a
+      // module registered twice, `enUi` re-applied after the companion bonds)
+      // changes nothing on screen, so it must not re-render every subscriber.
+      const changed = changesText(target, translations)
 
       // Deep-merge (not a shallow spread) so two modules registering under the
       // same top-level namespace key merge their subtrees instead of the
@@ -144,13 +179,21 @@ export const createSimpleI18nProvider = (
       // matches the contract documented on `I18nProvider.addTranslations` and
       // the api-i18n-simple bond's identical fix.
       if (namespace) {
-        config.translations[namespace] = deepMerge(
-          (config.translations[namespace] as Translations) || {},
-          translations,
-        )
+        config.translations[namespace] = deepMerge(target, translations)
       } else {
         config.translations = deepMerge(config.translations, translations)
       }
+
+      // Notify AFTER the merge: subscribers (and the React hooks built on
+      // `onLocaleChange`) must read the new keys. A new locale must be
+      // announced so language pickers show it. Changed text that `t()` reads
+      // must be announced so mounted components re-render instead of showing
+      // the previous text or an inline fallback until an unrelated state
+      // change: the ACTIVE locale's, and English's, which `t()` falls back to
+      // for a key the active locale lacks. The i18next app bond also notifies
+      // when translations arrive for the active language. Any other locale
+      // changes nothing currently rendered, so it stays quiet.
+      if (createdLocale || (changed && (locale === currentLocale || locale === 'en'))) notify()
     },
 
     t(
@@ -311,6 +354,10 @@ export const createSimpleI18nProvider = (
     onLocaleChange(listener: (locale: string) => void): () => void {
       listeners.add(listener)
       return () => listeners.delete(listener)
+    },
+
+    getRevision(): number {
+      return revision
     },
 
     getDirection(): 'ltr' | 'rtl' {

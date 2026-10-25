@@ -133,6 +133,11 @@ jobs:
       # versioned, and the Release workflow refuses to run while one exists.
       - run: npm run check:changesets-consumed
       - run: npm run build
+      # Type-check test files. Package builds exclude src/**/__tests__ and
+      # Vitest strips types without checking them, so a mock that drifts from
+      # the contract it stands in for still passes. A package opts in with a
+      # `typecheck:tests` script, which reads the dist the build just wrote.
+      - run: npm run typecheck:tests --workspaces --if-present
       - name: Compute affected test scope
         id: test-scope
         shell: bash

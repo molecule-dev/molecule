@@ -8,7 +8,8 @@
  */
 
 import { createHash } from 'node:crypto'
-import { gzipSync } from 'node:zlib'
+import { promisify } from 'node:util'
+import { gzip } from 'node:zlib'
 
 import { getLogger } from '@molecule/api-bond'
 import type {
@@ -355,6 +356,14 @@ const IMPORT_WRITE_CHUNK_BASE64 = 12_000
  * the single download happen back-to-back.
  */
 const IMPORT_PRESIGN_EXPIRY_SECONDS = 3600
+
+/**
+ * zlib's gzip on the libuv thread pool. {@link Sandbox.importFiles} compresses
+ * a whole deploy archive (hundreds of MB), and the synchronous form ran on the
+ * caller's event loop for its full duration — seconds in which a server process
+ * hosting this provider answered no request at all.
+ */
+const gzipAsync = promisify(gzip)
 
 /** Extra seconds allowed for the probe exec beyond its connection budget. */
 const PROBE_EXEC_HEADROOM_SECONDS = 10
@@ -2754,7 +2763,8 @@ class FlyioSandboxProvider implements SandboxProvider {
        *
        * The Fly Machines exec endpoint is a single request/response with no
        * stdin, so the archive cannot be piped to `tar` directly. It is buffered,
-       * gzipped (fewer bytes = fewer exec round trips over the base64 channel),
+       * gzipped on the thread pool, never on the caller's event loop (fewer
+       * bytes = fewer exec round trips over the base64 channel),
        * written to a temp file in `WRITE_CHUNK_BASE64`-sized pieces the same way
        * `writeFile` does, then extracted.
        *
@@ -2768,7 +2778,10 @@ class FlyioSandboxProvider implements SandboxProvider {
       async importFiles(path: string, archive: AsyncIterable<Uint8Array>): Promise<void> {
         const parts: Buffer[] = []
         for await (const chunk of archive) parts.push(Buffer.from(chunk))
-        const gz = gzipSync(Buffer.concat(parts))
+        // Off the event loop: the archive is a whole deploy artifact, and
+        // compressing it synchronously stalled every other request this process
+        // was serving for as long as the compression took.
+        const gz = await gzipAsync(Buffer.concat(parts))
         const quotedPath = shellQuote(path)
         const failIfError = (result: ExecResult, step: string): void => {
           if (result.exitCode !== 0) {

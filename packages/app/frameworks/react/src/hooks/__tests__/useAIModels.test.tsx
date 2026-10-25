@@ -33,6 +33,8 @@ function fixtureModel(overrides: Partial<AppModelDefinition> = {}): AppModelDefi
     supportsTools: true,
     inputPricePerMTok: 1,
     outputPricePerMTok: 5,
+    cacheReadPricePerMTok: 0.1,
+    cacheWritePricePerMTok: 1.25,
     knowledgeCutoff: '2025-01-01',
     ...overrides,
   }
@@ -53,6 +55,7 @@ function makeClient(models: AppModelDefinition[]): {
     status: 200,
     statusText: 'OK',
     headers: {},
+    config: { method: 'GET', url: '/ai/models' },
   }))
   const client = {
     baseURL: '',

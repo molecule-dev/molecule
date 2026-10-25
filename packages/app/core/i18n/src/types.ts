@@ -272,6 +272,28 @@ export interface I18nProvider {
   onLocaleChange(listener: (locale: string) => void): () => void
 
   /**
+   * Gets a counter that advances for every change `onLocaleChange` announces:
+   * a locale switch, a locale-list change, or translations added for a locale
+   * `t()` reads (the active locale and the locales it falls back to — English
+   * for `createSimpleI18nProvider`). It does NOT advance for a re-registration
+   * that leaves every rendered string identical.
+   *
+   * **Optional — read it only when present.** A consumer that observes the
+   * provider through `useSyncExternalStore` (the React hooks do) compares this
+   * value across renders, so it also sees a change that happened before its
+   * listener existed: a notification fired from a child's or an earlier
+   * sibling's layout effect, or while React kept the tree hidden with its
+   * effects unmounted. Providers written before this method existed keep the
+   * listener-only behaviour; consumers must fall back to counting
+   * notifications.
+   *
+   * Reads must be side-effect free, and the value must never decrease.
+   *
+   * @returns The provider's current revision.
+   */
+  getRevision?(): number
+
+  /**
    * Gets the text direction for the current locale.
    *
    * @returns `'ltr'` or `'rtl'`.

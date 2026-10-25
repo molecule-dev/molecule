@@ -25,6 +25,7 @@ function makeAuthClient(options: { initialized?: boolean; user?: User | null } =
 } {
   const { initialized = true, user = { id: 'user_1', email: 'buyer@example.com' } } = options
   const state: AuthState<User> = {
+    status: initialized ? (user ? 'authenticated' : 'unauthenticated') : 'loading',
     initialized,
     authenticated: !!user,
     user: user ?? null,

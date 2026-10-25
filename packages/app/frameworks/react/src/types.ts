@@ -23,7 +23,7 @@ import type {
 } from '@molecule/app-code-editor'
 import type { FormController, FormOptions } from '@molecule/app-forms'
 import type { HttpClient } from '@molecule/app-http'
-import type { I18nProvider } from '@molecule/app-i18n'
+import type { I18nProvider, TranslateOptions } from '@molecule/app-i18n'
 import type { PanelId, WorkspaceLayout, WorkspaceProvider } from '@molecule/app-ide'
 import type { DeviceFrame, PreviewProvider, PreviewState } from '@molecule/app-live-preview'
 import type { LoggerProvider } from '@molecule/app-logger'
@@ -239,6 +239,27 @@ export interface UseTranslationResult {
   formatNumber: I18nProvider['formatNumber']
   formatDate: I18nProvider['formatDate']
   direction: 'ltr' | 'rtl'
+}
+
+/**
+ * Options for the shorthand form of {@link UseTFunction}: the fallback text is
+ * passed positionally, so only `count` remains here.
+ */
+export type UseTShorthandOptions = Omit<TranslateOptions, 'defaultValue'>
+
+/**
+ * Translation function returned by `useT()`.
+ *
+ * Two compatible call forms:
+ * - `t(key, values?, options?)` — the {@link I18nProvider.t} signature.
+ * - `t(key, fallback, options?)` — a string second argument is the inline
+ *   English `defaultValue`, with optional `count` for pluralization.
+ *
+ * Its identity is stable while the i18n provider instance is unchanged, so it
+ * can be used directly as an effect dependency.
+ */
+export type UseTFunction = I18nProvider['t'] & {
+  (key: string, fallback: string, options?: UseTShorthandOptions): string
 }
 
 /**

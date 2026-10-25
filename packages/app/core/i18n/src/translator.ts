@@ -156,9 +156,11 @@ export const formatRelativeTime = (
 ): string => getProvider().formatRelativeTime(value, options)
 
 /**
- * Subscribes to locale changes. The listener fires whenever `setLocale()` is called.
+ * Subscribes to locale notifications. The listener fires after `setLocale()` switches the
+ * locale, when the registered locales change, and when `addTranslations()` changes text the
+ * active locale renders — so it can fire without a locale switch.
  *
- * @param listener - Callback invoked with the new locale code.
+ * @param listener - Callback invoked with the active locale code.
  * @returns An unsubscribe function.
  */
 export const onLocaleChange = (listener: (locale: string) => void): (() => void) =>

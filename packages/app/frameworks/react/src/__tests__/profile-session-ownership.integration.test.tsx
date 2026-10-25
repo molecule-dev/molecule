@@ -161,7 +161,9 @@ it('saves a mutable username and biography through the configured wire API witho
   expect(await read()).toMatchObject({ username: 'after', bio: 'Persisted biography' })
   const restored = createJWTAuthClient<Profile>(config)
   await restored.initialize()
-  await restored.validateSession()
+  const validateSession = restored.validateSession
+  if (!validateSession) throw new Error('the JWT auth client must expose validateSession')
+  await validateSession()
   expect(restored.getUser()).toMatchObject({
     username: 'after',
     id: 'after',

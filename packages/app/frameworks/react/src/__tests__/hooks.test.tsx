@@ -9,10 +9,15 @@ import { describe, expect, it, vi } from 'vitest'
 import type { AuthClient, AuthState } from '@molecule/app-auth'
 import type { HttpClient, HttpResponse } from '@molecule/app-http'
 import type { Logger, LoggerProvider as LoggerProviderType } from '@molecule/app-logger'
-import type { RouteLocation, Router } from '@molecule/app-routing'
-import type { StateProvider as StateProviderType, Store } from '@molecule/app-state'
+import type { RouteChangeListener, RouteLocation, RouteParams, Router } from '@molecule/app-routing'
+import type { StateListener, StateProvider as StateProviderType, Store } from '@molecule/app-state'
 import type { StorageProvider as StorageProviderType } from '@molecule/app-storage'
-import type { Theme, ThemeProvider as ThemeProviderType } from '@molecule/app-theme'
+import {
+  darkTheme,
+  lightTheme,
+  type Theme,
+  type ThemeProvider as ThemeProviderType,
+} from '@molecule/app-theme'
 
 import {
   useAuth,
@@ -43,14 +48,15 @@ import {
  */
 function createMockStore<T>(initial: T): Store<T> {
   let state = initial
-  const listeners = new Set<() => void>()
+  const listeners = new Set<StateListener<T>>()
 
   return {
     getState: () => state,
     setState: (partial) => {
+      const previous = state
       const newState = typeof partial === 'function' ? partial(state) : partial
       state = { ...state, ...newState }
-      listeners.forEach((l) => l())
+      listeners.forEach((l) => l(state, previous))
     },
     subscribe: (listener) => {
       listeners.add(listener)
@@ -80,7 +86,7 @@ function createMockStateProvider(): StateProviderType {
 function createMockAuthClient<T>(user: T | null = null): AuthClient<T> {
   let currentUser = user
   let authenticated = user !== null
-  const listeners = new Set<() => void>()
+  const listeners = new Set<(state: AuthState<T>) => void>()
 
   const getState = (): AuthState<T> => ({
     status: authenticated ? 'authenticated' : 'unauthenticated',
@@ -93,10 +99,23 @@ function createMockAuthClient<T>(user: T | null = null): AuthClient<T> {
 
   return {
     getState,
+    isAuthenticated: () => authenticated,
+    getUser: () => currentUser,
+    setUser: vi.fn().mockImplementation((next: T | null) => {
+      currentUser = next
+    }),
+    getAccessToken: () => (authenticated ? 'mock-access-token' : null),
+    setAccessToken: vi.fn(),
+    setSession: vi.fn().mockImplementation((session: { user: T | null }) => {
+      currentUser = session.user
+      authenticated = session.user !== null
+      listeners.forEach((l) => l(getState()))
+    }),
+    getRefreshToken: () => (authenticated ? 'mock-refresh-token' : null),
     login: vi.fn().mockImplementation(async () => {
       currentUser = { id: '1', email: 'test@example.com' } as unknown as T
       authenticated = true
-      listeners.forEach((l) => l())
+      listeners.forEach((l) => l(getState()))
       return {
         user: currentUser,
         tokens: { accessToken: 'token' },
@@ -106,16 +125,26 @@ function createMockAuthClient<T>(user: T | null = null): AuthClient<T> {
     logout: vi.fn().mockImplementation(async () => {
       currentUser = null
       authenticated = false
-      listeners.forEach((l) => l())
+      listeners.forEach((l) => l(getState()))
     }),
     register: vi.fn(),
     refresh: vi.fn(),
+    requestPasswordReset: vi.fn().mockResolvedValue(undefined),
+    confirmPasswordReset: vi.fn().mockResolvedValue(undefined),
+    updateProfile: vi.fn(),
+    changePassword: vi.fn().mockResolvedValue(undefined),
+    initialize: vi.fn().mockResolvedValue(undefined),
+    subscribe: (listener) => {
+      listeners.add(listener)
+      return () => listeners.delete(listener)
+    },
     onAuthChange: (listener) => {
       listeners.add(listener)
       return () => listeners.delete(listener)
     },
-    getTokens: () => null,
-    isTokenExpired: () => false,
+    addEventListener: vi.fn().mockReturnValue(() => {}),
+    destroy: vi.fn(),
+    getToken: () => null,
   }
 }
 
@@ -125,54 +154,24 @@ function createMockAuthClient<T>(user: T | null = null): AuthClient<T> {
  * @returns A mock theme provider instance.
  */
 function createMockThemeProvider(): ThemeProviderType {
-  let currentTheme = 'light'
-  const listeners = new Set<() => void>()
-
-  const lightTheme: Theme = {
-    name: 'light',
-    mode: 'light',
-    colors: {
-      background: { primary: '#ffffff' },
-      text: { primary: '#000000' },
-      brand: { primary: '#0066cc' },
-      semantic: { success: '#00cc00' },
-      borders: { default: '#cccccc' },
-      overlay: { default: 'rgba(0,0,0,0.5)' },
-      shadow: { default: 'rgba(0,0,0,0.1)' },
-    },
-    breakpoints: {
-      mobileS: '320px',
-      mobileM: '375px',
-      mobileL: '425px',
-      tablet: '768px',
-      laptop: '1024px',
-      laptopL: '1440px',
-      desktop: '2560px',
-    },
-    spacing: {},
-    typography: { fontFamily: {}, fontSize: {}, fontWeight: {}, lineHeight: {} },
-    borderRadius: {},
-    shadows: {},
-    transitions: {},
-    zIndex: {},
-  }
+  let currentTheme: Theme = lightTheme
+  const listeners = new Set<(theme: Theme) => void>()
 
   return {
-    getTheme: () => lightTheme,
-    getThemeName: () => currentTheme,
-    getThemes: () => ['light', 'dark'],
-    setTheme: (name) => {
-      currentTheme = name
-      listeners.forEach((l) => l())
+    getTheme: () => currentTheme,
+    setTheme: (theme) => {
+      currentTheme = typeof theme === 'string' ? (theme === 'dark' ? darkTheme : lightTheme) : theme
+      listeners.forEach((l) => l(currentTheme))
     },
     toggleMode: () => {
-      currentTheme = currentTheme === 'light' ? 'dark' : 'light'
-      listeners.forEach((l) => l())
+      currentTheme = currentTheme.mode === 'light' ? darkTheme : lightTheme
+      listeners.forEach((l) => l(currentTheme))
     },
-    onThemeChange: (listener) => {
+    subscribe: (listener) => {
       listeners.add(listener)
       return () => listeners.delete(listener)
     },
+    getThemes: () => [lightTheme, darkTheme],
   }
 }
 
@@ -189,15 +188,22 @@ function createMockRouter(): Router {
     state: null,
     key: 'default',
   }
-  const listeners = new Set<() => void>()
+  const params: RouteParams = {}
+  const query: Record<string, string> = {}
+  const listeners = new Set<RouteChangeListener>()
+  const notify = (action: 'push' | 'replace' | 'pop'): void => {
+    listeners.forEach((listener) => listener(location, action))
+  }
 
   return {
     getLocation: () => location,
-    getParams: () => ({}),
-    getQuery: () => ({}),
-    navigate: vi.fn().mockImplementation((path) => {
+    getParams: <T extends RouteParams = RouteParams>(): T => params as T,
+    getQuery: () => query,
+    getQueryParam: (key) => query[key],
+    getHash: () => location.hash,
+    navigate: vi.fn().mockImplementation((path: string) => {
       location = { ...location, pathname: path }
-      listeners.forEach((l) => l())
+      notify('push')
     }),
     navigateTo: vi.fn(),
     back: vi.fn(),
@@ -227,6 +233,8 @@ function createMockRouter(): Router {
  */
 function createMockHttpClient(): HttpClient {
   return {
+    baseURL: '',
+    defaultHeaders: {},
     get: vi.fn().mockResolvedValue({
       data: { id: 1 },
       status: 200,
@@ -250,6 +258,7 @@ function createMockHttpClient(): HttpClient {
     onAuthError: () => () => {},
     addRequestInterceptor: () => () => {},
     addResponseInterceptor: () => () => {},
+    addErrorInterceptor: () => () => {},
   }
 }
 
@@ -262,7 +271,7 @@ function createMockStorageProvider(): StorageProviderType {
   const storage = new Map<string, unknown>()
 
   return {
-    get: async <T,>(key: string) => storage.get(key) as T | undefined,
+    get: async <T,>(key: string) => (storage.get(key) as T | undefined) ?? null,
     set: async <T,>(key: string, value: T) => {
       storage.set(key, value)
     },
