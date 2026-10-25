@@ -2048,12 +2048,23 @@ export function checkBlockedCommand(command: string): string | null {
  */
 export function resolvePath(path: string, projectRoot: string): string {
   if (path === '' || path === '/') return projectRoot
-  const clean = path.replace(/\0/g, '')
-  const resolved = clean.startsWith('/')
-    ? posix.normalize(clean)
-    : posix.normalize(`${projectRoot}/${clean}`)
+  const resolved = rootedPath(path, projectRoot)
   if (resolved !== projectRoot && !resolved.startsWith(projectRoot + '/')) return projectRoot
   return resolved
+}
+
+/**
+ * A tool path as an absolute posix path: an absolute path normalized, a relative
+ * one resolved against the project root — the one rule {@link resolvePath},
+ * {@link isOutsideRoot} and {@link commandStartsWithCdInto} all compare against.
+ *
+ * @param path - The path the tool was given.
+ * @param projectRoot - The project root.
+ * @returns The normalized absolute path.
+ */
+function rootedPath(path: string, projectRoot: string): string {
+  const clean = path.replace(/\0/g, '')
+  return clean.startsWith('/') ? posix.normalize(clean) : posix.normalize(`${projectRoot}/${clean}`)
 }
 
 /**
@@ -2070,11 +2081,63 @@ export function resolvePath(path: string, projectRoot: string): string {
  */
 export function isOutsideRoot(path: string, projectRoot: string): boolean {
   if (path === '' || path === '/') return false
-  const clean = path.replace(/\0/g, '')
-  const resolved = clean.startsWith('/')
-    ? posix.normalize(clean)
-    : posix.normalize(`${projectRoot}/${clean}`)
+  const resolved = rootedPath(path, projectRoot)
   return resolved !== projectRoot && !resolved.startsWith(projectRoot + '/')
+}
+
+/**
+ * Whether a command's FIRST statement already changes into `directory`.
+ *
+ * `exec_command` refuses a `cwd` outside the workspace, and that refusal tells
+ * the caller to drop `cwd` and start the command with `cd <path> && `. When the
+ * command ALREADY starts that way the advice describes what was just sent, so
+ * the command runs as written with the backend's working directory at the root
+ * instead (X1 xr-molecule-flash-l97 +05:14: `{cwd: "/tmp", command: "cd /tmp && …"}`
+ * was refused with "start the command with `cd /tmp && `"; the model resent the
+ * same command with `cwd: "/workspace"` four seconds later and it passed).
+ *
+ * Only the leading statement counts, only when the shell's own parse puts it in
+ * the caller's shell — a `( cd … )` group or a `sh -c '…'` runs in its own
+ * directory and moves nothing — and only when it ends the way a following
+ * command needs (`&&`, `;`, a newline, or nothing after it). `cd … | cat` is a
+ * pipeline, so its `cd` runs in a subshell, and `&` backgrounds it: neither
+ * leaves the caller's directory changed.
+ *
+ * @param command - The shell command as the tool received it.
+ * @param directory - The `cwd` the caller asked for.
+ * @param projectRoot - The project root a relative path is resolved against.
+ * @returns True when the command's first statement `cd`s into `directory`.
+ */
+export function commandStartsWithCdInto(
+  command: string,
+  directory: string,
+  projectRoot: string,
+): boolean {
+  const first = locatedCommandSegments(command)[0]
+  if (!first || first.segment === null || first.segment.program !== 'cd') return false
+  if ((first.shellScope?.length ?? 0) > 0) return false
+  const terminator = first.terminator
+  if (terminator !== '&&' && terminator !== ';' && terminator !== '\n' && terminator !== '') {
+    return false
+  }
+  if (first.segment.args.length !== 1) return false
+  const target = withoutQuotes(first.segment.args[0] ?? '')
+  return rootedPath(target, projectRoot) === rootedPath(directory, projectRoot)
+}
+
+/**
+ * A shell word with one surrounding quote pair removed (`'/tmp'` → `/tmp`,
+ * `"/tmp"` → `/tmp`). A word without a matching pair is returned as written.
+ *
+ * @param word - One word of a parsed statement, as written.
+ * @returns The word's text.
+ */
+function withoutQuotes(word: string): string {
+  const quote = word[0]
+  if ((quote === "'" || quote === '"') && word.length >= 2 && word.endsWith(quote)) {
+    return word.slice(1, -1)
+  }
+  return word
 }
 
 /**

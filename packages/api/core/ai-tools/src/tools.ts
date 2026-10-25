@@ -803,6 +803,7 @@ import {
   addedRedactionMask,
   BRACE_GLOB_HINT,
   checkBlockedCommand,
+  commandStartsWithCdInto,
   declaredBudgetSeconds,
   DEFAULT_SEARCH_EXCLUDED_DIRS,
   directoryReadHint,
@@ -1434,19 +1435,46 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
    * Resolve a workspace-relative path using optional path guards.
    *
    * @param path - Relative or absolute path requested by the tool input.
+   * @param use - Whether the path is a file target or the command's working directory.
    * @returns A normalized path honoring `pathGuards` and the backend root.
    */
   function resolve(path: string, use: 'file' | 'cwd' = 'file'): string {
     if (pathGuards && typeof path === 'string' && isOutsideRoot(path, root)) {
       throw new ToolInputError(
         use === 'cwd'
-          ? `${path} is outside the workspace (${root}), so it cannot be the working directory — ` +
-              `start the command with \`cd ${path} && \` instead.`
+          ? `\`cwd\` must be inside the workspace (${root}); ${path} is outside it — ` +
+              `leave \`cwd\` unset and start the command with \`cd ${path} && \`.`
           : `${path} is outside the workspace (${root}). The file tools only reach files inside it — ` +
               `read or list anything else with exec_command (e.g. \`cat ${path}\` or \`ls ${path}\`).`,
       )
     }
     return pathGuards ? resolvePath(path, root) : path
+  }
+
+  /**
+   * The working directory an `exec_command` runs in, from its optional `cwd`.
+   *
+   * A `cwd` outside the workspace is refused — unless the command itself
+   * already opens with `cd <that same directory>`, in which case the command
+   * needs no `cwd` and runs from the root exactly as the refusal would have
+   * advised (X1 xr-molecule-flash-l97 +05:14 was told to start a command with a
+   * `cd` its command already started with).
+   *
+   * @param requested - The `cwd` the tool input carried.
+   * @param command - The command the tool input carried.
+   * @returns The directory to run in.
+   */
+  function resolveExecCwd(requested: string, command: unknown): string {
+    if (
+      pathGuards &&
+      typeof requested === 'string' &&
+      isOutsideRoot(requested, root) &&
+      typeof command === 'string' &&
+      commandStartsWithCdInto(command, requested, root)
+    ) {
+      return root
+    }
+    return resolve(requested, 'cwd')
   }
 
   /**
@@ -3064,7 +3092,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
 
     async exec_command(input) {
       const rawCommand = input.command as string
-      const cwd = input.cwd ? resolve(input.cwd as string, 'cwd') : root
+      const cwd = input.cwd ? resolveExecCwd(input.cwd as string, rawCommand) : root
 
       // A model that sent the command under another name (`cmd`, `script`, …)
       // has already been normalized by guardToolExecute; reaching here with

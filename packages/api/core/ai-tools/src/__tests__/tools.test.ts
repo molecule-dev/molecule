@@ -1233,6 +1233,100 @@ describe('buildTools', () => {
     expect(backend.readFile).not.toHaveBeenCalled()
   })
 
+  describe('exec_command and a cwd outside the workspace', () => {
+    const execTool = (backend: ExecutionBackend) =>
+      buildTools(backend).find((t) => t.name === 'exec_command')!
+
+    const runArgs = (backend: ExecutionBackend, call = 0) =>
+      (backend.run as ReturnType<typeof vi.fn>).mock.calls[call]
+
+    it('runs a command that already starts by cd-ing into the requested cwd', async () => {
+      // {cwd: "/tmp", command: "cd /tmp && …"} was refused with "start the command
+      // with `cd /tmp && `" — advice the command had already followed; the model
+      // resent it four seconds later with cwd "/workspace" and it passed
+      // (xr-molecule-flash-l97 +05:14).
+      for (const command of [
+        'cd /tmp && U=curl_1 && curl https://example.test',
+        "cd '/tmp' && ls",
+        'cd "/tmp" && ls',
+        'cd /tmp; ls',
+        'cd /tmp\nls',
+        'cd /tmp',
+      ]) {
+        const backend = mockBackend()
+        const result = (await execTool(backend).execute({ cwd: '/tmp', command })) as {
+          error?: string
+        }
+        expect(result.error).toBeUndefined()
+        // The command runs as sent — unchanged — from the workspace root.
+        expect(runArgs(backend)[0]).toBe(command)
+        expect(runArgs(backend)[1]).toMatchObject({ cwd: '/test' })
+      }
+    })
+
+    it('refuses every other outside cwd, naming `cwd` as the thing to drop', async () => {
+      for (const command of [
+        'ls /tmp',
+        'cd /tmp/other && ls',
+        'echo cd /tmp',
+        'cd /tmp | cat',
+        'cd /tmp & ls',
+        '(cd /tmp && ls)',
+        "sh -c 'cd /tmp && ls'",
+      ]) {
+        const backend = mockBackend()
+        const result = (await execTool(backend).execute({ cwd: '/tmp', command })) as {
+          error?: string
+        }
+        expect(result.error).toMatch(/`cwd` must be inside the workspace \(\/test\)/)
+        expect(result.error).toMatch(/leave `cwd` unset and start the command with `cd \/tmp && `/)
+        expect(backend.run).not.toHaveBeenCalled()
+      }
+    })
+
+    it('follows a cwd that climbs out only when the command cd-s into that same directory', async () => {
+      const allowed = mockBackend()
+      const ran = (await execTool(allowed).execute({
+        cwd: '../../tmp',
+        command: 'cd /tmp && ls',
+      })) as { error?: string }
+      expect(ran.error).toBeUndefined()
+      expect(runArgs(allowed)[1]).toMatchObject({ cwd: '/test' })
+
+      const refused = mockBackend()
+      const blocked = (await execTool(refused).execute({ cwd: '../../tmp', command: 'ls' })) as {
+        error?: string
+      }
+      expect(blocked.error).toMatch(/leave `cwd` unset/)
+      expect(refused.run).not.toHaveBeenCalled()
+    })
+
+    it('leaves a cwd inside the workspace alone', async () => {
+      const cases: Array<[string, string]> = [
+        ['/test/app', '/test/app'],
+        ['app', '/test/app'],
+      ]
+      for (const [cwd, expected] of cases) {
+        const backend = mockBackend()
+        const result = (await execTool(backend).execute({ cwd, command: 'echo ok' })) as {
+          error?: string
+        }
+        expect(result.error).toBeUndefined()
+        expect(runArgs(backend)[1]).toMatchObject({ cwd: expected })
+      }
+    })
+
+    it('still runs an outside cwd as sent when path guards are off', async () => {
+      const backend = mockBackend()
+      const exec = buildTools(backend, { pathGuards: false }).find(
+        (t) => t.name === 'exec_command',
+      )!
+      const result = (await exec.execute({ cwd: '/tmp', command: 'ls' })) as { error?: string }
+      expect(result.error).toBeUndefined()
+      expect(runArgs(backend)[1]).toMatchObject({ cwd: '/tmp' })
+    })
+  })
+
   it('read_file on a MISSING file lists the parent directory instead of a bare error', async () => {
     // A weak model guesses paths from framework priors — 65 of 89 reads in one imported-app
     // build were misses on files that never existed, each answered with a doubly-wrapped
