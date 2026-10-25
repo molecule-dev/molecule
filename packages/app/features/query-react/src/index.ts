@@ -22,6 +22,7 @@
  *
  * @example
  * ```tsx
+ * import { Link } from 'react-router'
  * import { intentPrefetchProps, useQuery } from '@molecule/app-query-react'
  *
  * const packageQuery = (name: string) => ({
@@ -38,6 +39,80 @@
  *   const { data, status } = useQuery(packageQuery(name))
  *   if (!data) return status === 'error' ? <NotFound /> : <Skeleton />
  *   return <Article doc={data} />
+ * }
+ * ```
+ *
+ * @example
+ * A list whose page and filter live in the URL: derive the key from the route and pass
+ * `keepPreviousData` with a `principal`, so a page/filter change keeps the rows already on screen
+ * until the next page answers. The app's HTTP client sends the session, so the viewer is part of
+ * what the answer depends on: key on it and pass the same value as `principal` — an account
+ * switch then drops the previous account's rows at once. Pass `null` while the session is still
+ * being restored (`status === 'loading'`; the HTTP client holds the request until then anyway),
+ * so restoring a session never swaps a key that already rendered rows.
+ *
+ * ```tsx
+ * import { Link } from 'react-router'
+ * import { unwrapList } from '@molecule/app-http'
+ * import { useQuery } from '@molecule/app-query-react'
+ * import { useAuth, useHttpClient, useTranslation } from '@molecule/app-react'
+ * import { useListRoute } from '@molecule/app-routing-react-router'
+ *
+ * interface Invoice {
+ *   id: string
+ *   number: string
+ * }
+ *
+ * function InvoiceList() {
+ *   const http = useHttpClient()
+ *   const { t } = useTranslation()
+ *   const { status, user } = useAuth<{ id: string }>()
+ *   const list = useListRoute({ pageSize: 20, filters: { status: {} } })
+ *   const viewer = user ? String(user.id) : 'anonymous'
+ *   const query = useQuery(
+ *     status === 'loading' || !list.canLoad
+ *       ? null
+ *       : {
+ *           key: ['invoices', viewer, list.filters, list.page],
+ *           principal: viewer,
+ *           keepPreviousData: true,
+ *           fetch: async (signal: AbortSignal) =>
+ *             unwrapList<Invoice>(
+ *               await http.get('/api/invoices', {
+ *                 signal,
+ *                 params: { ...list.filters, limit: list.pageSize, offset: list.offset },
+ *               }),
+ *             ),
+ *         },
+ *   )
+ *
+ *   // Status renders outside the item list (it is not an item), and the empty state
+ *   // describes only the key on screen, never a retained previous page.
+ *   return (
+ *     <section>
+ *       {status === 'loading' || query.isFetching ? (
+ *         <p role="status">{t('common.loading', undefined, { defaultValue: 'Loading…' })}</p>
+ *       ) : null}
+ *       {query.status === 'error' ? (
+ *         <p role="alert">
+ *           {t('invoices.loadFailed', undefined, { defaultValue: 'Unable to load invoices.' })}
+ *         </p>
+ *       ) : null}
+ *       <ul>
+ *         {query.data?.map((invoice) => (
+ *           <li key={invoice.id}>
+ *             <Link to={`/invoices/${invoice.id}`}>{invoice.number}</Link>
+ *           </li>
+ *         ))}
+ *       </ul>
+ *       {!query.isPreviousData && query.data?.length === 0 ? (
+ *         <p>{t('invoices.empty', undefined, { defaultValue: 'No invoices yet.' })}</p>
+ *       ) : null}
+ *       <Link to={list.href({ page: list.page + 1 })}>
+ *         {t('common.next', undefined, { defaultValue: 'Next page' })}
+ *       </Link>
+ *     </section>
+ *   )
  * }
  * ```
  *
@@ -98,6 +173,32 @@
  * - **The key is the identity.** Building `options` inline is fine; the
  *   hook resubscribes only when the key's value changes, not when the
  *   `fetch` closure does.
+ * - **A key change normally resets to the new key's state.** For a list's own
+ *   page/filter/view change, opt into `keepPreviousData` with a `principal`;
+ *   `isPreviousData` tells you the rows on screen belong to the key you just
+ *   left. A completed response (including an empty list) replaces them, and a
+ *   changed principal drops them, so an account switch never shows the previous
+ *   account's rows. Do not emulate this with a local `useState` mirror of the
+ *   query data — that mirror is what serves stale rows under a new page, or
+ *   blanks the list on a re-render.
+ * - **The key names the viewer whenever the answer can depend on it.** The
+ *   app's HTTP client sends the session, so the server may filter or
+ *   personalize even a list that guests can see (a `favorited` or `following`
+ *   flag), and the cache serves a key's document to whoever observes it,
+ *   across sign-in and sign-out. Key such a list on the viewer
+ *   (`user ? String(user.id) : 'anonymous'`), pass the same value as
+ *   `principal`, and pass `null` while the session is still being restored
+ *   (`status === 'loading'`; the HTTP client holds the request until then
+ *   anyway), so restoring a session never swaps a key that already rendered
+ *   rows. A viewer-free key with `principal: 'public'` is only for an endpoint
+ *   that answers every viewer the same. A protected `useListRoute` view also
+ *   passes `null` while `canLoad` is false.
+ * - **Render loading, empty and error status outside the item list**, and never
+ *   give a placeholder the item's own class or element shape: a list read by
+ *   the item class (or by `:first-child`) must contain only real items. An
+ *   empty array is a loaded empty state, not a missing response; render it
+ *   only when `isPreviousData` is not set, because a retained document belongs
+ *   to the key you just left.
  * - `intentPrefetchProps` spreads three handlers onto a link. It is a plain
  *   function (not a hook), so it works inside `.map()` too.
  * - Prefetching respects the browser's data-saver setting and skips 2G
