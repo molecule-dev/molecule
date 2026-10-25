@@ -5515,6 +5515,16 @@ describe('wait_for_task on a suite repeating one failure', () => {
       expect(r.note).toContain('Every remaining test will fail the same way too')
       // Every pid the task owns, from the sandbox's own pid file — never a pattern.
       expect(r.note).toContain('`exec_command: kill 412 419`')
+      // Byte-identical to the note captured before the hl01 reword of the diagnostic yield's note
+      // (`stop.json`, 2026-10-25): this early return keeps its own wording.
+      expect(r.note).toBe(
+        `Every test this run has walked so far has failed the same way — all 4 of them, every one with \`Error: connect ECONNREFUSED 127.0.0.1:<n>\` — across 4 files (e2e/articles.spec.ts, e2e/auth.spec.ts, e2e/comments.spec.ts, e2e/tags.spec.ts), with nothing passing since the first:
+  ✘ ../../fixtures/realworld/specs/e2e/articles.spec.ts:32 › should create a new article
+  ✘ ../../fixtures/realworld/specs/e2e/auth.spec.ts:12 › should log in
+  ✘ ../../fixtures/realworld/specs/e2e/comments.spec.ts:60 › should delete a comment
+  ✘ ../../fixtures/realworld/specs/e2e/tags.spec.ts:12 › shows the pill
+Every remaining test will fail the same way too, so walking the rest of this run only repeats this one cause. Stop it and fix that cause first: \`exec_command: kill 412 419\`, then run the whole suite again. It is still going (task mol-bg-m83ref-abc127, log /tmp/mol-bg-m83ref-abc127.log). Read \`../../fixtures/realworld/specs/e2e/articles.spec.ts:32\` and the code it drives now, and fix it: nothing may run against this app while the run walks — a second run against the same app and database is refused — so run it alone once the run has ended.`,
+      )
     } finally {
       delete process.env.MOL_AI_BG_CAUSE_LOOK_MS
     }
@@ -5663,6 +5673,22 @@ describe('the running note knows what the run measures (xr-molecule-flash-m122)'
       expect(r.note).toContain('Start fixing it now, while the run keeps walking')
       expect(r.note).not.toContain('its result no longer counts')
       expect(r.note).not.toContain('apply it when the run ends')
+      // Byte-identical to the note captured before the hl01 reword of the diagnostic yield's note
+      // (`lead.json`, 2026-10-25) — modulo the task id this launch mints and the elapsed seconds
+      // it prints, neither of which is wording.
+      expect(
+        r.note
+          .replace(/mol-bg-[a-z0-9]+-[a-z0-9]+/g, 'TASK')
+          .replace(/It has been running \d+ s/, 'It has been running N s'),
+      ).toBe(
+        `It has been running N s; its output is still growing (900 bytes) — slow, not stuck. Call wait_for_task again to keep waiting — its result carries the log output. outputSoFar is the failure lines so far (up to 40) and then the end of the log, not the whole run — \`grep -n '✘' /tmp/TASK.log | head -40\` lists every failure, \`grep -n -A 20 '<test name>' /tmp/TASK.log\` reads one failure's error: this run writes each failure's own report into the log as that test fails, right under its ✘ line, not only in the summary at the end. Meanwhile fix what it has already named: this run tests the deployed build, so editing app/src or api/src now does not change what it tests — fix the causes it has already named while it walks, run nothing against the app until it ends, then deploy once. 3 different tests in this run have already failed the same way — every one with \`TimeoutError: page.waitForURL: Timeout <n> exceeded. — waiting for navigation until "load"\` — so one cause is repeating:
+  ✘ ../../specs/specs/e2e/null-fields.spec.ts:71 › a
+  ✘ ../../specs/specs/e2e/null-fields.spec.ts:88 › b
+  ✘ ../../specs/specs/e2e/null-fields.spec.ts:117 › c
+Start fixing it now, while the run keeps walking. Read \`../../specs/specs/e2e/null-fields.spec.ts:71\` and the code it drives now, and fix it: nothing may run against this app while the run walks — a second run against the same app and database is refused — so run it alone once the run has ended. Let the rest of the run finish — it is the only thing that will name the causes that are NOT this one, and a run stopped at its first repeating cause costs a second whole run to find them. It is still going (task TASK, log /tmp/TASK.log).
+Send this once the run ends:
+  export PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE=1; export PLAYWRIGHT_JSON_OUTPUT_FILE='/tmp/TASK.playwright.json'; cd /workspace/.mol-scratch/rw-e2e && TEST_MODE=fullstack BASE_URL=https://loopcheck-xr-molecule-flash-m122.apps.mlcl.dev npx playwright test /workspace/specs/specs/e2e/null-fields.spec.ts:71 --config ./playwright.config.ts --reporter=list,json`,
+      )
     } finally {
       delete process.env.MOL_AI_BG_CAUSE_LOOK_MS
     }
@@ -6840,6 +6866,73 @@ describe('opt-in first diagnostic progress from a deployed task', () => {
     const result = await wait(backend, id, enabled)
     expect(result).toMatchObject({ status: 'running', waitedMs: 12000 })
     expect(result.note).toContain('not a completed result')
+  })
+
+  /**
+   * xr-molecule-flash-hl01 (+21:24): since l69 the yield fires only on a FINAL failure, so the
+   * deployed run it belongs to can no longer pass and an edit cannot void a green proof. Its note
+   * still asked only for patience — "leave the task running and collect its final result" — and
+   * that builder spent 4 min 45 s on an already-red run before touching the spec, while another
+   * walk acted at the same yield and fixed ≈4.5 min before its run ended. The note has to say the
+   * run is lost, so the fix starts while the walk continues.
+   */
+  function expectFinalFailureNote(note: unknown): void {
+    const text = String(note)
+    // (1) The failure is final, so this deployed run will not pass.
+    expect(text).toContain('has failed on its final attempt')
+    expect(text).toContain('will not pass')
+    // The partial-result framing callers already read stays.
+    expect(text).toContain('not a completed result')
+    // (2) Leave it running: its end names the other failures.
+    expect(text).toContain('leave the task running')
+    expect(text).toContain("its end names the run's other failures")
+    // (3) A local edit cannot change this build, so the fix starts now, during the walk.
+    expect(text).toContain('Local edits do not change this deployed build')
+    expect(text).toContain('start on this failure now')
+    expect(text).toContain('read the failing spec and the code it drives')
+    expect(text).toContain('while the run keeps walking')
+    // (4) Nothing new against the app until the run ends.
+    expect(text).toContain('Send nothing against this app until the run ends')
+    expect(text).toContain('collect its final result with `wait_for_task`')
+    // The wait owns the decision to end the task; the note never asks for it.
+    expect(text).not.toContain('kill')
+    expect(text.toLowerCase()).not.toContain('stop')
+  }
+
+  it('says a spent retry will not pass, and to start fixing it while the run walks (hl01)', async () => {
+    const { backend, state } = fixture()
+    // Both attempts of one test failed — the final shape the yield was widened for.
+    state.text = `${failure}\n${retryFailure}`
+    const result = await wait(backend, await launch(backend), enabled)
+    expect(result).toMatchObject({ status: 'running', waitedMs: 12000 })
+    expectFinalFailureNote(result.note)
+    expect(result).not.toHaveProperty('exitCode')
+    expect(result).not.toHaveProperty('runReport')
+  })
+
+  it('says it on a --retries=0 run, whose first failure is already final (hl01)', async () => {
+    const { backend, state } = fixture()
+    state.text = failure
+    const result = await wait(backend, await launch(backend, `${command} --retries=0`), enabled)
+    expect(result).toMatchObject({ status: 'running', waitedMs: 12000 })
+    expectFinalFailureNote(result.note)
+  })
+
+  /**
+   * Applicability: the note is the platform's, not one app's — it names no app, no spec and no
+   * route. A deployed run of a different product gets the same wording.
+   */
+  it('says it on a deployed invoicing run too — the note names no app (hl01)', async () => {
+    const { backend, state } = fixture()
+    state.text = failure
+    const invoices = 'https://invoices.example.app'
+    const result = await wait(
+      backend,
+      await launch(backend, `BASE_URL=${invoices} npx playwright test --retries=0`),
+      { yieldOnFirstFailureFor: () => invoices },
+    )
+    expect(result).toMatchObject({ status: 'running', waitedMs: 12000 })
+    expectFinalFailureNote(result.note)
   })
 
   it('keeps waiting on a failure body the request excludes, then spends the one yield on a real one (h13)', async () => {

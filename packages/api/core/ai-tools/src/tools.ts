@@ -4098,10 +4098,19 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
             status: 'running',
             waitedMs: earlyMs,
             outputSoFar: sanitizeOutput(truncateMiddle(causeLog, MAX_OUTPUT_SIZE)),
+            // This yield fires only on a FINAL failure (the `finalOnly` read above), so the
+            // deployed run it belongs to can no longer pass and a local edit cannot void a green
+            // proof. The note therefore spends its words on what to do with that: start the fix
+            // while the walk continues, and only talk to the app once the run has ended. Wording it
+            // as patience alone cost 4 min 45 s of idle on an already-red run (xr-molecule-flash-
+            // hl01), against ≈4.5 min saved when the same yield was acted on (l69).
             note:
-              'A failure report is available, but this task is still running. This is partial ' +
-              'log output, not a completed result. Local edits do not change this deployed ' +
-              'build; leave the task running and collect its final result.',
+              'A test in this run has failed on its final attempt, so this deployed run will not ' +
+              'pass. This is partial log output, not a completed result: leave the task running — ' +
+              "its end names the run's other failures. Local edits do not change this deployed " +
+              'build, so start on this failure now: read the failing spec and the code it drives, ' +
+              'and fix it while the run keeps walking. Send nothing against this app until the run ' +
+              'ends, then collect its final result with `wait_for_task`.',
           }
         }
         // A lead: this wait goes on, and the finding rides its result as a note — the executor has
