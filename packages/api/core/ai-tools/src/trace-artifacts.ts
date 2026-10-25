@@ -5353,12 +5353,13 @@ function suiteTracesOnRetry(configText: string): string | null {
 
 /**
  * Whether the run itself pins `--retries=0` (either spelling): a run that cannot retry records no
- * retry trace, so it still needs one recorded for it.
+ * retry trace, so it still needs one recorded for it. A running wait reads the same proof to know
+ * a first failure's body is already final (`wait_for_task`'s diagnostic yield).
  *
  * @param command - The shell command.
  * @returns True when the run allows no retry.
  */
-function namesNoRetries(command: string): boolean {
+export function namesNoRetries(command: string): boolean {
   return /(?:^|[\s;&|(])--retries(?:=|\s+)['"]?0(?![\d.])/.test(command)
 }
 

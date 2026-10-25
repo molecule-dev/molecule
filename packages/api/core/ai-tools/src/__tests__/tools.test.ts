@@ -6540,7 +6540,7 @@ describe('opt-in first diagnostic progress from a deployed task', () => {
   const pass =
     'Running 3 tests using 1 worker\n  ✓  1 [chromium] › auth.spec.ts:1:1 › login works (1s)\n'
   const row = '  ✘  2 [chromium] › articles.spec.ts:123:3 › favorite (7.5s)'
-  const body = [
+  const failure = [
     row,
     '  1) [chromium] › articles.spec.ts:123:3 › favorite ─────────',
     '',
@@ -6550,6 +6550,14 @@ describe('opt-in first diagnostic progress from a deployed task', () => {
     '',
     '       at articles.spec.ts:123:3',
   ].join('\n')
+  /**
+   * The runner moved on to another test after the failure. With the suite's retries a failed test
+   * is retried at once, so a different test's row is the log's way of saying no retry ran — the
+   * failure is final (xr-molecule-flash-l69 reads a first attempt whose retry has not printed as
+   * not-yet-final, so the fixture's failures must be the shape the yield now waits for).
+   */
+  const nextTest = '  ✓  3 [chromium] › auth.spec.ts:30:3 › logout works (1.1s)'
+  const body = `${failure}\n${nextTest}`
   interface State {
     files: Map<string, string>
     text: string
@@ -6653,6 +6661,93 @@ describe('opt-in first diagnostic progress from a deployed task', () => {
     expect(state.finishAt).toBe(Infinity)
   })
 
+  /**
+   * xr-molecule-flash-l69 (+28:26): the platform's deployed proof keeps the suite's `retries: 1`,
+   * and the one yield handed back a FIRST attempt — `✘ 63 … should paginate articles (11.6s)` plus
+   * that attempt's body, no `Retry #` separator. The test passed on its retry (69 passed, 1 flaky,
+   * 0 failed); the edit the yield prompted made that green result stale and cost a redeploy plus a
+   * whole walk (≈6 min). The l69 code shape, from
+   * `.experiments/x0/live/l69-review/yield/targeted-walk-first-attempt-yield.outputSoFar.txt`.
+   */
+  const retryFailure = [
+    '  ✘  4 [chromium] › articles.spec.ts:123:3 › favorite (retry #1) (7.7s)',
+    '  1) [chromium] › articles.spec.ts:123:3 › favorite ─────────',
+    '',
+    '    Retry #1 ───────────────────────────────────────────────────',
+    '',
+    '    TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.',
+    '',
+  ].join('\n')
+
+  it('keeps waiting on a first attempt whose retry has not printed, then yields on that retry’s failure (l69)', async () => {
+    const { backend, state } = fixture()
+    state.text = failure
+    const id = await launch(backend)
+    // Attempt 1 is the log's last row: the retry may still come, so there is nothing final to
+    // hand back and the wait runs its budget out.
+    expect((await wait(backend, id, enabled)).waitedMs).toBe(30000)
+    // The retry prints and fails: the failure is final now, and the yield was never spent above.
+    state.text = `${failure}\n${retryFailure}`
+    const retry = await wait(backend, id, enabled)
+    expect(retry).toMatchObject({ status: 'running', waitedMs: 2000 })
+    expect(retry.note).toContain('not a completed result')
+    expect(retry.outputSoFar).toContain('Retry #1')
+    // …and only once.
+    expect((await wait(backend, id, enabled)).waitedMs).toBe(30000)
+  })
+
+  it('waits out a first attempt whose retry passes, and returns the run’s own completion (l69)', async () => {
+    const { backend, state } = fixture()
+    state.text = [
+      failure,
+      '  ✓  4 [chromium] › articles.spec.ts:123:3 › favorite (retry #1) (1.2s)',
+      nextTest,
+    ].join('\n')
+    // The run ends 20 s in: the 12 s look must not yield on the flake, so the wait returns the
+    // run's own result instead of a partial one.
+    state.finishAt = Date.now() + 20000
+    const result = await wait(backend, await launch(backend), enabled)
+    expect(result.status).toBe('completed')
+    expect(result.note ?? '').not.toContain('not a completed result')
+  })
+
+  it('spends the one yield on a later final failure, not on the flake before it', async () => {
+    const { backend, state } = fixture()
+    const flake = `${failure}\n  ✓  4 [chromium] › articles.spec.ts:123:3 › favorite (retry #1) (1.2s)`
+    state.text = flake
+    const id = await launch(backend)
+    expect((await wait(backend, id, enabled)).waitedMs).toBe(30000)
+    // A later test fails BOTH of its attempts, in the same task.
+    state.text = [
+      flake,
+      '  ✘  5 [chromium] › auth.spec.ts:7:3 › signs up (9.4s)',
+      '  1) [chromium] › auth.spec.ts:7:3 › signs up ─────────',
+      '',
+      '    Error: expected 200, got 500',
+      '',
+      '  ✘  6 [chromium] › auth.spec.ts:7:3 › signs up (retry #1) (8.1s)',
+      '  1) [chromium] › auth.spec.ts:7:3 › signs up ─────────',
+      '',
+      '    Retry #1 ───────────────────────────────────────────────────',
+      '',
+      '    Error: expected 200, got 500',
+      '',
+    ].join('\n')
+    const later = await wait(backend, id, enabled)
+    expect(later).toMatchObject({ status: 'running', waitedMs: 2000 })
+    expect(later.note).toContain('not a completed result')
+    expect(later.outputSoFar).toContain('signs up')
+  })
+
+  it('yields on a first attempt when the command proves the run cannot retry (--retries=0)', async () => {
+    const { backend, state } = fixture()
+    state.text = failure
+    const id = await launch(backend, `${command} --retries=0`)
+    const result = await wait(backend, id, enabled)
+    expect(result).toMatchObject({ status: 'running', waitedMs: 12000 })
+    expect(result.note).toContain('not a completed result')
+  })
+
   it('keeps waiting on a failure body the request excludes, then spends the one yield on a real one (h13)', async () => {
     const { backend, state } = fixture()
     state.text = excludedBody
@@ -6683,7 +6778,9 @@ describe('opt-in first diagnostic progress from a deployed task', () => {
 
   it('yields on that body when the request configured no exclusions — the control for h13', async () => {
     const { backend, state } = fixture()
-    state.text = excludedBody
+    // A final failure (the runner moved on) so the only thing keeping the yield back in the h13
+    // tests above is the request's exclusion.
+    state.text = `${excludedBody}\n${nextTest}`
     const result = await wait(backend, await launch(backend), enabled)
     expect(result).toMatchObject({ status: 'running', waitedMs: 12000 })
     expect(result.note).toContain('not a completed result')

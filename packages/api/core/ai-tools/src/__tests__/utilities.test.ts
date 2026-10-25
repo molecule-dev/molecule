@@ -1640,6 +1640,102 @@ describe('logShowsInlineFailureBodies', () => {
     ].join('\n')
     expect(logShowsInlineFailureBodies(withReal, [excludedTitle])).toBe(true)
   })
+
+  /**
+   * Playwright 1.64.1 prints a retry attempt's row with ` (retry #N)` (`_retrySuffix`) and its
+   * failure body under a `Retry #N` separator (`formatFailure`). The `finalOnly` reading uses
+   * those, plus the next row, to tell a failure the run is done with from one whose retry is
+   * still to come — the shape that voided xr-molecule-flash-l69's green proof.
+   */
+  describe('finalOnly', () => {
+    /** A passing row, as the runner prints it after moving on to another test. */
+    const passing = (n: number, where: string, title: string): string =>
+      `  ✓  ${String(n).padStart(3)} [chromium] › e2e/${where} › ${title} (1.1s)`
+    /** A retry attempt's own row. */
+    const retryRow = (n: number, where: string, title: string, mark = '✘'): string =>
+      `  ${mark}  ${String(n).padStart(3)} [chromium] › e2e/${where} › ${title} (retry #1) (5.7s)`
+    /** The failure body a retry attempt prints, with the runner's own separator. */
+    const retryBody = (n: number, where: string, title: string): string =>
+      body(n, where, title).replace(
+        '    TimeoutError:',
+        '    Retry #1 ───────────────────────────────────────\n\n    TimeoutError:',
+      )
+    const final = (log: string): boolean =>
+      logShowsInlineFailureBodies(log, [], { finalOnly: true })
+
+    it('is false for a first attempt that is the last row read — its retry has not printed', () => {
+      // l69's targeted deployed walk: `✘ 63 … should paginate articles (11.6s)` plus that
+      // attempt's body, and nothing after it. It passed on its retry.
+      const log = [
+        row(63, 'navigation.spec.ts:160:3', 'Navigation › paginates'),
+        body(63, 'navigation.spec.ts:160:3', 'Navigation › paginates'),
+      ].join('\n')
+      expect(final(log)).toBe(false)
+      // The same log without the stricter reading: still a failure body, as before.
+      expect(logShowsInlineFailureBodies(log)).toBe(true)
+    })
+
+    it('is false for a first attempt whose retry passed — a flake the run absorbed', () => {
+      const log = [
+        row(1, 'auth.spec.ts:9:3', 'Auth › signs in'),
+        body(1, 'auth.spec.ts:9:3', 'Auth › signs in'),
+        retryRow(2, 'auth.spec.ts:9:3', 'Auth › signs in', '✓'),
+        passing(3, 'auth.spec.ts:30:3', 'Auth › signs out'),
+      ].join('\n')
+      expect(final(log)).toBe(false)
+    })
+
+    it('is true for a first attempt the runner moved on from — no retry ran', () => {
+      const log = [
+        row(1, 'auth.spec.ts:9:3', 'Auth › signs in'),
+        body(1, 'auth.spec.ts:9:3', 'Auth › signs in'),
+        passing(2, 'auth.spec.ts:30:3', 'Auth › signs out'),
+      ].join('\n')
+      expect(final(log)).toBe(true)
+    })
+
+    it('is true for a retried failure, from the retry row or from its body alone', () => {
+      const first = [
+        row(1, 'auth.spec.ts:9:3', 'Auth › signs in'),
+        body(1, 'auth.spec.ts:9:3', 'Auth › signs in'),
+      ].join('\n')
+      expect(
+        final(
+          [
+            first,
+            retryRow(2, 'auth.spec.ts:9:3', 'Auth › signs in'),
+            retryBody(1, 'auth.spec.ts:9:3', 'Auth › signs in'),
+          ].join('\n'),
+        ),
+      ).toBe(true)
+      // Whole-walk shape: the `Retry #1` separator alone is the runner's record of a failed
+      // retry, even when the retry's own row was cut off the log's tail.
+      expect(final([first, retryBody(1, 'auth.spec.ts:9:3', 'Auth › signs in')].join('\n'))).toBe(
+        true,
+      )
+    })
+
+    it('is true for a first attempt when the command pins --retries=0', () => {
+      const log = [
+        row(1, 'auth.spec.ts:9:3', 'Auth › signs in'),
+        body(1, 'auth.spec.ts:9:3', 'Auth › signs in'),
+      ].join('\n')
+      expect(logShowsInlineFailureBodies(log, [], { finalOnly: true, noRetries: true })).toBe(true)
+      expect(final(log)).toBe(false)
+    })
+
+    it('keeps an excluded final failure out of the final reading (h13)', () => {
+      const excludedTitle = 'should require login to post comment'
+      const log = [
+        row(1, 'comments.spec.ts:102:3', `Comments › ${excludedTitle}`),
+        body(1, 'comments.spec.ts:102:3', `Comments › ${excludedTitle}`),
+        passing(2, 'auth.spec.ts:9:3', 'Auth › signs in'),
+      ].join('\n')
+      // Final in the log, but the request excludes it: not a diagnostic to hand back.
+      expect(final(log)).toBe(true)
+      expect(logShowsInlineFailureBodies(log, [excludedTitle], { finalOnly: true })).toBe(false)
+    })
+  })
 })
 
 describe('repeatingFailure', () => {

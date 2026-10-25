@@ -3380,27 +3380,130 @@ export function repeatingFailure(log: string): RepeatingFailure | null {
  * exactly what xr-molecule-flash-h13 (+19:06) did twice while the platform's proof was still
  * walking.
  *
+ * With `finalOnly`, only a failure the run has FINISHED with counts; a pending retry waits.
+ *
  * @param log - A log, or the slice of one a wait reads.
  * @param excluded - The test titles the request carves out, if the caller knows them.
+ * @param options - `finalOnly` reads only a failure the run has finished with; `noRetries` says
+ *   the command proves the run cannot retry (`--retries=0`), so its first failure is final.
  * @returns True when a `✘` row's own test, outside the request's exclusions, has a failure body
- *   under it.
+ *   under it — and, with `finalOnly`, that failure is final in the log read so far.
  */
 export function logShowsInlineFailureBodies(
   log: string,
   excluded: readonly string[] = [],
+  options: { finalOnly?: boolean; noRetries?: boolean } = {},
 ): boolean {
   const text = log.replace(ANSI_SGR, '')
   const failed = new Set(distinctTests(failedTests(text)).map(retrylessTestKey))
   if (failed.size === 0) return false
-  for (const block of failureBlocks(text)) {
+  const blocks = failureBlocks(text)
+  const rows = options.finalOnly ? resultRows(text) : []
+  for (const block of blocks) {
     const m = FAILURE_BLOCK_HEADER.exec(block.split('\n')[0] ?? '')
     if (m === null) continue
     const { where, title } = splitTitlePath(m[1] ?? '')
     const heading = where === '' ? title : `${where} › ${title}`
     if (matchingExcludedTitles(heading, excluded).length > 0) continue
-    if (failed.has(retrylessTestKey({ where, title, seconds: null }))) return true
+    const key = retrylessTestKey({ where, title, seconds: null })
+    if (!failed.has(key)) continue
+    if (!options.finalOnly) return true
+    if (failureIsFinal({ rows, blocks, key, noRetries: options.noRetries === true })) return true
   }
   return false
+}
+
+/** The runner's retry marker on a `list`-reporter row (` (retry #1)`, `_retrySuffix`). */
+const RETRY_ROW_SUFFIX = /\s*\(retry #\d+\)$/
+
+/** The separator a retried failure's body opens its own attempt with (`formatFailure`). */
+const RETRY_BODY_SEPARATOR = /^\s*Retry #\d+\b/m
+
+/** A `list`-reporter result row, as a running log prints it. */
+interface ResultRow extends FailedTest {
+  /** The mark the runner printed for the attempt. */
+  mark: string
+  /** True when the runner printed the row for a retry attempt rather than the first one. */
+  retry: boolean
+}
+
+/**
+ * Every result row a log carries, in the order the runner printed them.
+ *
+ * @param log - The log (ANSI already stripped).
+ * @returns The rows, each with where it sits, what it is called, and which attempt it is.
+ */
+function resultRows(log: string): ResultRow[] {
+  const rows: ResultRow[] = []
+  for (const line of log.split('\n')) {
+    const m = LIST_RESULT_LINE.exec(line)
+    if (!m) continue
+    const { where, title } = splitTitlePath(m[2])
+    rows.push({
+      mark: m[1],
+      where,
+      title,
+      seconds: durationSeconds(m[3], m[4]),
+      retry: RETRY_ROW_SUFFIX.test(title),
+    })
+  }
+  return rows
+}
+
+/**
+ * A failure block's test identity, keyed the way a result row is.
+ *
+ * @param block - One block from {@link failureBlocks}.
+ * @returns The test key, or null when the block's header names no test.
+ */
+function failureBlockKey(block: string): string | null {
+  const m = FAILURE_BLOCK_HEADER.exec(block.split('\n')[0] ?? '')
+  if (m === null) return null
+  const { where, title } = splitTitlePath(m[1] ?? '')
+  return retrylessTestKey({ where, title, seconds: null })
+}
+
+/**
+ * Whether a test's failure is FINAL in the log read so far — one the run is done with, not a
+ * first attempt whose retry is still to come.
+ *
+ * A `list` run retries a failed test immediately, so the test's own next row says which attempt
+ * the log has printed last: the same test's ` (retry #N)` row (final when that retry failed; a
+ * flake the run absorbed when it passed), or a different test's row (no retry ran, so the failure
+ * was final). A `Retry #N` separator in the test's body is the runner's own record that a retry
+ * attempt ran and failed. A first attempt followed by nothing is only the last row READ — its
+ * retry may not have printed yet — so it waits; a command that pins `--retries=0` proves there is
+ * no retry to wait for.
+ *
+ * X1 xr-molecule-flash-l69 (+28:26): the deployed proof's yield handed back a first attempt
+ * (no `Retry #` separator) that then passed on its retry, and the edit it prompted cost a
+ * redeploy plus a whole walk. The fix is not to stop yielding — the retry-failed shape (l69's
+ * first walk, null-fields:71) paid off — but to yield only on this one.
+ *
+ * @param args - The log's rows and blocks, the failing test's key, and whether the command
+ *   proves the run cannot retry.
+ * @returns True when that test's failure is final in the log read so far.
+ */
+function failureIsFinal(args: {
+  rows: readonly ResultRow[]
+  blocks: readonly string[]
+  key: string
+  noRetries: boolean
+}): boolean {
+  if (args.noRetries) return true
+  // The runner's own record that an attempt after the first ran and failed.
+  if (
+    args.blocks.some(
+      (block) => failureBlockKey(block) === args.key && RETRY_BODY_SEPARATOR.test(block),
+    )
+  )
+    return true
+  const own = args.rows.filter((row) => retrylessTestKey(row) === args.key)
+  const last = own.at(-1)
+  if (last === undefined) return false
+  if (last.retry) return last.mark === '✘'
+  const at = args.rows.indexOf(last)
+  return args.rows.slice(at + 1).some((row) => retrylessTestKey(row) !== args.key)
 }
 
 /** How many of a repeating cause's failures the note lists before it says "and N more". */
