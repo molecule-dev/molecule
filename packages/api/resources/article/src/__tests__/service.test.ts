@@ -8,7 +8,7 @@ import { copyFileSync, mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 
 import { findMany, setStore } from '@molecule/api-database'
 import { createMigrator, createPool, createStore } from '@molecule/api-database-sqlite'
@@ -142,13 +142,29 @@ describe('articles', () => {
 
   it('moves updatedAt forward on every update, even within the same millisecond', async () => {
     const before = await getArticleBySlug('hello-world')
-    const first = await updateArticle('hello-world', ALICE, { body: 'one' })
-    const second = await updateArticle('hello-world', ALICE, { body: 'two' })
-    if (!before || first.status !== 'ok' || second.status !== 'ok') throw new Error('update failed')
-    expect(Date.parse(first.article.updatedAt)).toBeGreaterThan(Date.parse(before.updatedAt))
-    expect(Date.parse(second.article.updatedAt)).toBeGreaterThan(
-      Date.parse(first.article.updatedAt),
-    )
+    if (!before) throw new Error('hello-world is missing')
+    // Freeze the wall clock at this article's own create millisecond, so both
+    // updates and the create land in the SAME millisecond. A stamp read from the
+    // clock then cannot move `updatedAt` at all; only the stored-value bump can.
+    // Without the freeze the clock is free to advance between the two updates —
+    // in the full package run it usually does — which let a plain
+    // `new Date().toISOString()` pass here while failing the isolated run.
+    // Only Date is faked: timers and promises stay real for the database calls.
+    vi.useFakeTimers({ toFake: ['Date'], now: Date.parse(before.updatedAt) })
+    try {
+      const first = await updateArticle('hello-world', ALICE, { body: 'one' })
+      const second = await updateArticle('hello-world', ALICE, { body: 'two' })
+      if (first.status !== 'ok' || second.status !== 'ok') throw new Error('update failed')
+      expect(Date.parse(first.article.updatedAt)).toBeGreaterThan(Date.parse(before.updatedAt))
+      expect(Date.parse(second.article.updatedAt)).toBeGreaterThan(
+        Date.parse(first.article.updatedAt),
+      )
+      // The guarantee is on the stored row, not just on what the call returns.
+      const stored = await getArticleBySlug('hello-world')
+      expect(stored?.updatedAt).toBe(second.article.updatedAt)
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('lets only the author update and delete, and re-slugs on a new title', async () => {
