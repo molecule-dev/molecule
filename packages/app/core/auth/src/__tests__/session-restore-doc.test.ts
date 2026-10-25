@@ -36,15 +36,15 @@ describe('the restore-cost contract in @molecule/app-auth’s own docs (xr-molec
     // re-fetching the profile on every navigation.
     expect(doc).toContain('background request')
     expect(doc).toContain('never in front of the first render')
-    // The measured failure, so the trade is concrete rather than advice.
-    expect(doc).toContain('xr-molecule-flash-m122')
+    // Published guidance describes the contract without internal run identifiers.
+    expect(doc).not.toContain('xr-molecule-flash-')
   })
 
   it('carries the same sentences in the generated README the executor reads', () => {
     const readme = read('README.md')
     expect(readme).toContain('The restore it enables costs NO request')
     expect(readme).toContain('never in front of the first render')
-    expect(readme).toContain('xr-molecule-flash-m122')
+    expect(readme).not.toContain('xr-molecule-flash-')
   })
 })
 
