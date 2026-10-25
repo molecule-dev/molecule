@@ -759,10 +759,12 @@ export interface StorageAdapter {
  * makes {@link AuthClientConfigOptions.mapAuthResponse} return
  * `AuthResult<MyUser>`, so a mapper that omits a required custom field is a type
  * error instead of a signed-in page reading `undefined`
- * (xr-molecule-flash-m255). Keep every wire field the pages read (spread the
- * wire user and add `id`/`name`/`avatar`); mapping a field to a different name
- * does not preserve the original, and a `as unknown as MyUser` assertion hides
- * the loss. See the module docs for the wire-preserving adapter.
+ * (xr-molecule-flash-m255). Keep every wire field the pages read by spreading the
+ * wire user — the base fields (`id`, `name`, `avatar`) come from the server like
+ * any other, never re-derived from a mutable display field such as a username;
+ * mapping a field to a different name does not preserve the original, and an
+ * `as unknown as MyUser` assertion hides the loss. See the module docs for the
+ * wire-preserving adapter.
  *
  * `T` is the app's OWN profile shape and need not extend {@link UserProfile}:
  * the client stores and returns the object it is given and reads no field of

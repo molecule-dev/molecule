@@ -121,9 +121,9 @@
  * `mapAuthResponse` return `AuthResult<MyUser>`, so a mapper that omits a required custom
  * field fails at the factory call instead of shipping a signed-in page whose navbar reads
  * `undefined` (xr-molecule-flash-m255: the mapper kept `id`/`name`/`avatar` but dropped
- * `username`, and the signed-in controls never rendered although login succeeded). Keep the
- * wire user's fields and ADD the base identity fields; do not rebuild the profile field by
- * field, and never hide a mismatch with `as unknown as MyUser`:
+ * `username`, and the signed-in controls never rendered although login succeeded). The
+ * wire user carries the base fields too, `id` included — spread it, do not rebuild it
+ * field by field, and never hide a mismatch with `as unknown as MyUser`:
  *
  * ```typescript
  * import type { AuthClientConfig, UserProfile } from '@molecule/app-auth'
@@ -136,27 +136,23 @@
  *
  * const config: AuthClientConfig<MyUser> = {
  *   mapAuthResponse: (data) => {
- *     const { user: wire } = data as { user: { token: string } & Omit<MyUser, 'id'> }
+ *     // The wire is the app's profile plus the bearer; `id` is the server's.
+ *     const { user: wire } = data as { user: { token: string } & MyUser }
  *     // The bearer stays OUT of the profile: the client caches `user` in Web
  *     // Storage, where a token copy is readable by any script on the origin.
  *     const { token, ...profile } = wire
- *     return {
- *       accessToken: token,
- *       user: {
- *         // Every wire field the pages read (`username`, `image`, …) survives…
- *         ...profile,
- *         // …plus the base fields the client derives its identity from.
- *         id: profile.username,
- *         name: profile.name ?? profile.username,
- *         avatar: profile.image,
- *       },
- *     }
+ *     return { accessToken: token, user: profile }
  *   },
  * }
  *
  * const client = createJWTAuthClient<MyUser>(config)
  * // React: `useAuth<MyUser>()` reads the same profile.
  * ```
+ *
+ * That `id` is the API's account identifier. Do not derive one from a display field
+ * (`id: wire.username`) to borrow `UserProfile` for an API that has no id: the field
+ * changes, the fabricated id changes with it, and the value then reaches storage,
+ * `getUser()` and every page as if the server had said it.
  *
  * A profile does not have to extend `UserProfile` and does not need an `id`: the client
  * stores and returns the object it is given and reads no field of it. Name the API's own
@@ -196,11 +192,12 @@
  * `id: string` is the default configuration's contract. An array, a function or a
  * `Date` is not a profile the client can persist — see `AuthProfileShape`.
  *
- * A username-derived `id` can change during a profile save. It is not an immutable
- * session identifier: `getSessionRevision()` tracks session ownership independently
- * of profile fields, remains unchanged for profile updates and same-session
- * refreshes, and changes when a session is replaced or ended. Compare revisions
- * only within one client. React's `useProfileForm` uses this capability by default.
+ * A profile field can change during a profile save — a handle, or a username an app
+ * once derived an `id` from. It is not an immutable session identifier:
+ * `getSessionRevision()` tracks session ownership independently of profile fields,
+ * remains unchanged for profile updates and same-session refreshes, and changes when
+ * a session is replaced or ended. Compare revisions only within one client. React's
+ * `useProfileForm` uses this capability by default.
  *
  * **A profile-update transport that is not `PATCH` with bare JSON is a CONFIG field, not a
  * hand-written client.** `updateProfile()` sends to `profileEndpoint` with `PATCH` and the
@@ -319,16 +316,26 @@
  * the form passed — `{ user: { username, email, password } }` goes out as-is.
  *
  * ```typescript
- * import type { UserProfile } from '@molecule/app-auth'
  * import { createJWTAuthClient } from '@molecule/app-auth'
  *
- * const realWorldAuth = createJWTAuthClient<UserProfile, { username: string }>({
+ * // RealWorld's user has no `id`. Name the shape the wire actually sends; the
+ * // client reads no field of it, so nothing has to be invented for a base profile.
+ * interface RealWorldUser {
+ *   username: string
+ *   email: string
+ *   bio: string
+ *   image: string
+ * }
+ *
+ * const realWorldAuth = createJWTAuthClient<RealWorldUser, { username: string }>({
  *   baseURL: '/api',
  *   authScheme: 'Token',
  *   requestBody: (_kind, payload) => ({ user: payload }),
  *   mapAuthResponse: (data) => {
- *     const { user } = data as { user: { token: string; username: string; email: string } }
- *     return { accessToken: user.token, user: { id: user.username, email: user.email } }
+ *     const { user: wire } = data as { user: { token: string } & RealWorldUser }
+ *     // Keep every wire field; the bearer stays out of the cached profile.
+ *     const { token, ...profile } = wire
+ *     return { accessToken: token, user: profile }
  *   },
  * })
  *
