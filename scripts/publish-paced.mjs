@@ -44,6 +44,7 @@ import { fileURLToPath } from 'node:url'
 
 import { assertPackComplete } from './lib/assert-pack-complete.mjs'
 import { dependencyOrder, exactMoleculeDeps, missingDependency } from './lib/publish-order.mjs'
+import { envPublishDelaySeconds } from './lib/publish-pacing.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const args = process.argv.slice(2)
@@ -62,7 +63,7 @@ const flag = (name, fallback) => {
 // a shell: it treats the first token as the command and passes the rest as args to
 // it, so `node script.mjs --limit 1` becomes npm's flags and fails EUNKNOWNCONFIG.
 // Env vars survive that intact.
-const DELAY_S = flag('delay', Number(process.env.MOL_PUBLISH_DELAY) || 20)
+const DELAY_S = flag('delay', envPublishDelaySeconds(process.env.MOL_PUBLISH_DELAY))
 const LIMIT = flag('limit', Number(process.env.MOL_PUBLISH_LIMIT) || Infinity)
 const DRY = args.includes('--dry-run')
 // Packages the release holds because npm refused them (MOL_PUBLISH_HOLD, the
