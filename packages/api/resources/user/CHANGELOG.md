@@ -1,5 +1,11 @@
 # @molecule/api-resource-user
 
+## 1.7.5
+
+### Patch Changes
+
+- Clarify public API usage and configuration.
+
 ## 1.7.3
 
 ### Patch Changes

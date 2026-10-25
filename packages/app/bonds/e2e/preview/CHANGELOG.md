@@ -1,5 +1,11 @@
 # @molecule/app-e2e-preview
 
+## 1.0.12
+
+### Patch Changes
+
+- Clarify public API usage and configuration.
+
 ## 1.0.10
 
 ### Patch Changes

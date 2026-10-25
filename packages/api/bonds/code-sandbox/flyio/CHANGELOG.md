@@ -1,5 +1,11 @@
 # @molecule/api-code-sandbox-flyio
 
+## 1.3.4
+
+### Patch Changes
+
+- Clarify public API usage and configuration.
+
 ## 1.3.3
 
 ### Patch Changes

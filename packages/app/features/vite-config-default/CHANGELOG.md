@@ -1,5 +1,11 @@
 # @molecule/app-vite-config-default
 
+## 1.2.1
+
+### Patch Changes
+
+- Clarify public API usage and configuration.
+
 ## 1.2.0
 
 ### Minor Changes

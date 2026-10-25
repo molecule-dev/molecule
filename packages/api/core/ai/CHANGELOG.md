@@ -1,5 +1,11 @@
 # @molecule/api-ai
 
+## 1.3.6
+
+### Patch Changes
+
+- Clarify public API usage and configuration.
+
 ## 1.3.4
 
 ### Patch Changes

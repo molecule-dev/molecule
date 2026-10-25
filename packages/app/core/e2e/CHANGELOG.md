@@ -1,5 +1,11 @@
 # @molecule/app-e2e
 
+## 1.2.4
+
+### Patch Changes
+
+- Clarify public API usage and configuration.
+
 ## 1.2.2
 
 ### Patch Changes
