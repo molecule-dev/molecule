@@ -75,8 +75,11 @@
  * Waiting for the restore does NOT attach the token: a client created beside the auth bond needs
  * `createDefaultHttpClientWithAuthBearer({ baseURL, getToken: () => authClient.getAccessToken(),
  * authScheme })` from `@molecule/app-bonds-default-react` (or an auth client built with
- * `createDefaultAuthClientWithHttpSync`, which mirrors the token into the bonded client), because
- * `setAuthGate` alone sends no `Authorization` header.
+ * `createDefaultAuthClientWithHttpSync`, which registers the auth client's token source with
+ * `setAuthTokenSource`: the client reads it on each request, so a session adopted mid-page by
+ * `setSession()` or an OAuth callback's `setAccessToken()` is sent instead of the previous
+ * account's token — `setAuthTokenSource` says which request first carries it on a transport
+ * without `setAuthTokenResolver`), because `setAuthGate` alone sends no `Authorization` header.
  *
  * **The gate never holds its own restore's request.** A request the settle function issues
  * while it runs (its call reaches this client before the function awaits anything) is part of

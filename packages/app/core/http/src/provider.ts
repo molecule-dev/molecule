@@ -10,7 +10,7 @@ import { t } from '@molecule/app-i18n'
 import { getLogger } from '@molecule/app-logger'
 
 import { awaitAuthGate } from './auth-gate.js'
-import type { HttpClient, HttpClientConfig } from './client.js'
+import type { AuthTokenResolver, HttpClient, HttpClientConfig } from './client.js'
 import type { ErrorInterceptor, RequestInterceptor, ResponseInterceptor } from './interceptors.js'
 import { retryDelayMs, shouldRetryRequest } from './retry.js'
 import type { FullRequestConfig, HttpResponse, RequestConfig } from './types.js'
@@ -67,10 +67,20 @@ function joinBaseURL(baseURL: string, url: string): string {
 export const createFetchClient = (config: HttpClientConfig = {}): HttpClient => {
   const logger = getLogger('http')
   let authToken: string | null = null
+  // The app's live session token, installed by `setAuthTokenSource()` through `setClient()`.
+  // It is read per request, never stored: a session adopted without an auth event
+  // (`setSession`, the OAuth callback's `setAccessToken`) changes the token with no event and,
+  // when the profile data is unchanged, no state notification either — a stored copy would keep
+  // sending the previous account's bearer.
+  let authTokenResolver: AuthTokenResolver | null = null
   const requestInterceptors: RequestInterceptor[] = []
   const responseInterceptors: ResponseInterceptor[] = []
   const errorInterceptors: ErrorInterceptor[] = []
   const authErrorHandlers = new Set<() => void>()
+
+  /** The bearer this request carries: the resolver's answer, else the static token. */
+  const resolveAuthToken = (): string | null =>
+    authTokenResolver ? (authTokenResolver() ?? null) : authToken
 
   // Track whether the document is currently navigating / unloading.
   // Browser tears down in-flight fetch()es on navigation as
@@ -134,9 +144,11 @@ export const createFetchClient = (config: HttpClientConfig = {}): HttpClient => 
         ...finalConfig.headers,
       }
 
-      // Add auth token
-      if (authToken) {
-        headers['Authorization'] = `${config.authScheme ?? 'Bearer'} ${authToken}`
+      // Add auth token. Resolved HERE, after the gate: the session this request belongs to is
+      // the one the restore settled on, and it cannot have changed since a copy was taken.
+      const token = resolveAuthToken()
+      if (token) {
+        headers['Authorization'] = `${config.authScheme ?? 'Bearer'} ${token}`
       }
 
       // Add content-type for JSON
@@ -474,8 +486,12 @@ export const createFetchClient = (config: HttpClientConfig = {}): HttpClient => 
       authToken = token
     },
 
+    setAuthTokenResolver(resolver: AuthTokenResolver | null): void {
+      authTokenResolver = resolver
+    },
+
     getAuthToken(): string | null {
-      return authToken
+      return resolveAuthToken()
     },
 
     onAuthError(handler: () => void): () => void {

@@ -83,7 +83,9 @@ export function createDefaultHttpClient(baseURL: string): {
  * when the API reads another scheme than `Bearer`: it is an option of THIS
  * constructor (`createDefaultHttpClientWithAuthBearer({ authScheme: 'Token', … })`,
  * or `createFetchClient({ baseURL, authScheme: 'Token' })` directly), never a
- * property of the client it returns.
+ * property of the client it returns. The client is built with the same scheme, so
+ * a token the client also holds — the one a default auth bond's token sync gives
+ * it — is sent with that scheme too, not as `Bearer`.
  */
 export function createDefaultHttpClientWithAuthBearer(opts: {
   baseURL: string
@@ -106,6 +108,9 @@ export function createDefaultHttpClientWithAuthBearer(opts: {
   const httpClient = createFetchClient({
     baseURL: opts.baseURL,
     withCredentials: opts.withCredentials,
+    // The client's own token (a default auth bond's token sync) overrides the interceptor's
+    // header, so it must carry the same scheme.
+    authScheme,
   })
   httpClient.addRequestInterceptor((config) => {
     if (opts.stripApiPrefix && typeof config.url === 'string' && config.url.startsWith('/api/')) {
@@ -125,19 +130,16 @@ export function createDefaultHttpClientWithAuthBearer(opts: {
 
 /**
  * Builds the default JWT auth client + wires it into `@molecule/app-auth`.
- *
- * Replaces the 16-line per-app `bonds/auth-default.ts` that 93 fleet
- * apps shipped byte-identically. Apps pass their own `authConfig`
- * (which lives in `src/config.ts`).
+ * Apps pass their own `authConfig` (which lives in `src/config.ts`).
  *
  * `TUser` is the profile the app's pages read, and may be any JSON object type —
- * including a profile with NO `id` (`{ username, email, bio, image }`), exactly
- * like the factory beneath this wrapper. Never add a synthetic `id` to satisfy a
- * type: nothing in the client reads it, and the fabricated value then travels into
- * storage, `getUser()` and every page. Omit the type parameter and the default is
- * `UserProfile`, whose `id: string` stays required — the profile is never inferred
- * from `authConfig` (no member of it, and not from an annotated config variable),
- * so an untyped wrapper call keeps the default contract.
+ * including a profile with NO `id` (`{ username, email, bio, image }`), as in the
+ * factory it wraps. Never add a synthetic `id` to satisfy a type: nothing in the
+ * client reads it, and the fabricated value then travels into storage, `getUser()`
+ * and every page. Omit the type parameter and the default is `UserProfile`, whose
+ * `id: string` stays required — the profile is never inferred from `authConfig`
+ * (not even from an annotated config variable), so an untyped wrapper call keeps
+ * the default contract.
  *
  * Type the config with the SAME type (`const authConfig: AuthClientConfig<MyUser> = { … }`)
  * so its `mapAuthResponse` is checked against `MyUser`, and name that type at the
@@ -179,25 +181,27 @@ export function createDefaultAuthClient<
 
 /**
  * Variant of `createDefaultAuthClient` that also keeps the bonded
- * `@molecule/app-http` client's bearer token in sync with auth events
- * (login / register / refresh / logout). Required by apps whose http
- * client must carry the JWT on every request — without this wiring,
- * authed endpoints return 401 after page reloads or token refresh.
+ * `@molecule/app-http` client's bearer token in sync with the auth client's session.
+ * Required by apps whose http client must carry the JWT on every request — without
+ * this wiring, authed endpoints return 401 after page reloads or token refresh.
+ *
+ * The sync is a LIVE read: `@molecule/app-http`'s `setAuthTokenSource` registers the auth
+ * client's token, and every client the app bonds — one bonded after this setup too (the
+ * scaffold wires auth BEFORE http; xr-molecule-flash-m156: a token copied into the client
+ * present at setup was never sent) — reads it on each request. A session adopted with no
+ * auth event (`useAuth().setSession()`, an OAuth callback's `setAccessToken()`, the same
+ * profile under a new token) is therefore sent by the next request, not the previous
+ * account's bearer. A transport without `setAuthTokenResolver` is followed through a request
+ * interceptor (see `setAuthTokenSource` for which request first carries the change), and
+ * auth events still push the token to it.
+ *
+ * A cookie session (no body token) resolves to `null`, so the request carries NO
+ * `Authorization` header — a kept bearer would answer as the PRIOR session.
+ * Requests also wait for the session restore, so a page that fetches viewer data on mount
+ * cannot race it (see {@link registerAuthGate}).
  *
  * The profile type is `createDefaultAuthClient`'s: a JSON object type of named
  * fields (see `AuthProfileShape`), including an app profile with no `id`.
- *
- * Hydrates the HTTP client's token from the persisted auth state
- * on setup, then listens for auth events to keep them aligned, and holds
- * requests until the session restore settles so a page effect that fetches
- * viewer-dependent data on mount cannot race it (see {@link registerAuthGate}).
- *
- * The hydrated token is delivered through `@molecule/app-http`'s token source, not
- * through a client read at setup: the scaffold wires auth BEFORE http, so a client
- * read here is the unbonded fallback and the restored session's token would land on a
- * client nothing sends through (xr-molecule-flash-m156 — a reload sent every request
- * with no `Authorization` header). The source is applied to the client WHENEVER it is
- * bonded, so setup order no longer decides whether the first request is authorized.
  */
 export function createDefaultAuthClientWithHttpSync<
   TUser extends AuthProfileConstraint<TUser> = UserProfile,
@@ -219,7 +223,9 @@ export function createDefaultAuthClientWithHttpSync<
       // Resolve the HTTP client per sync, never once here. `setClient` runs this
       // source, so the token reaches the client the scaffold bonds later as well as
       // one already bonded; a client kept from this moment would be the throwaway
-      // fallback the later `setHttpDefault()` replaces.
+      // fallback the later `setHttpDefault()` replaces. The client reads the source
+      // itself on every request, so a session adopted by `setSession()` (no auth
+      // event) or re-adopted for the same profile (no state change) is sent at once.
       setHttpAuthTokenSource(() => authClient.getAccessToken())
       authClient.addEventListener((event: AuthEvent<TUser>) => {
         if (event.type === 'login' || event.type === 'register' || event.type === 'refresh') {
@@ -228,6 +234,10 @@ export function createDefaultAuthClientWithHttpSync<
           // keeping a previously-set bearer here would pin the http client to the
           // PRIOR session (e.g. a guest's) — the server prefers the Authorization
           // header over the fresh cookie, so every request 401s as the old user.
+          //
+          // A client that implements `setAuthTokenResolver` already resolves the source
+          // per request; this push is what carries the same change to a transport that
+          // does not (and keeps `getAuthToken()` current there).
           getHttpClient().setAuthToken(authClient.getAccessToken())
         } else if (event.type === 'logout') {
           getHttpClient().setAuthToken(null)
@@ -241,7 +251,11 @@ export function createDefaultAuthClientWithHttpSync<
  * Most aggressive variant — bonds a fetch-based HTTP client with the
  * given `baseURL` (so molecule pkg `useGet('/path')` calls hit
  * `${baseURL}/path` instead of the SPA's catch-all route), AND keeps
- * its bearer token in sync with auth events.
+ * its bearer token in sync with the auth client's session, read on every
+ * request: a session adopted with no auth event (`setSession()`,
+ * `setAccessToken()`) is sent by the next request. The token uses the auth
+ * config's `authScheme` (default `Bearer`); a client bonded after this setup
+ * gets the same source and auth events.
  *
  * The auth client restores a stored token AND user SYNCHRONOUSLY, so the first
  * render is the signed-in UI — do not gate a protected page (or a provider of
@@ -278,21 +292,29 @@ export function createDefaultAuthClientWithFetchClient<
       const httpClient = createFetchClient({
         baseURL: fetchClientOptions.baseURL,
         withCredentials: fetchClientOptions.withCredentials ?? true,
+        // The scheme the auth config names for this token (`Authorization: Token <jwt>`).
+        authScheme: authConfig.authScheme,
       })
       // Registered BEFORE the bond: `setHttpClient` applies the restored session's
       // token, and the same source reaches any client an app bonds later instead of
-      // this one (xr-molecule-flash-m156 — a client captured at setup cannot).
+      // this one (xr-molecule-flash-m156 — a client captured at setup cannot). The
+      // client resolves the source on every request, so a session adopted by
+      // `setSession()` or `setAccessToken()` after this point is sent immediately.
       setHttpAuthTokenSource(() => authClient.getAccessToken())
       setHttpClient(httpClient)
       setClient(authClient)
       registerAuthGate(authClient)
       authClient.addEventListener((event: AuthEvent<TUser>) => {
+        // The client bonded NOW, resolved per event: an app that bonds its own client after
+        // this setup sends through that one, never through the client created above.
         if (event.type === 'login' || event.type === 'register' || event.type === 'refresh') {
           // Mirror the token exactly, including null — see the identical note in
           // createDefaultAuthClientWithHttpSync (stale bearer = stuck prior session).
-          httpClient.setAuthToken(authClient.getAccessToken())
+          // The per-request read of the source above is the guarantee; this push keeps
+          // `getAuthToken()` current on a transport without `setAuthTokenResolver`.
+          getHttpClient().setAuthToken(authClient.getAccessToken())
         } else if (event.type === 'logout') {
-          httpClient.setAuthToken(null)
+          getHttpClient().setAuthToken(null)
         }
       })
     },

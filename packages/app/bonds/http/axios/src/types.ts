@@ -10,6 +10,7 @@ import type { RetryOptions } from '@molecule/app-http'
 
 // Re-export core types
 export type {
+  AuthTokenResolver,
   ErrorInterceptor,
   FullRequestConfig,
   HttpClient,

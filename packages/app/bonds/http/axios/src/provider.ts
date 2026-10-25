@@ -15,6 +15,7 @@ import axios, {
 import { awaitAuthGate, retryDelayMs, shouldRetryRequest } from '@molecule/app-http'
 
 import type {
+  AuthTokenResolver,
   AxiosHttpClientConfig,
   ErrorInterceptor,
   FullRequestConfig,
@@ -177,7 +178,16 @@ export function createAxiosClient(config: AxiosHttpClientConfig = {}): HttpClien
   const authErrorHandlers: Set<() => void> = new Set()
 
   let authToken: string | null = null
+  // The app's live session token, installed by `setAuthTokenSource()` through `setClient()`.
+  // Read per request in the interceptor below, never stored: a session adopted without an auth
+  // event (`setSession`, an OAuth callback's `setAccessToken`) changes the token with no event
+  // and, when the profile data is unchanged, no state notification either.
+  let authTokenResolver: AuthTokenResolver | null = null
   const currentDefaultHeaders = { ...defaultHeaders }
+
+  /** The bearer this request carries: the resolver's answer, else the static token. */
+  const resolveAuthToken = (): string | null =>
+    authTokenResolver ? (authTokenResolver() ?? null) : authToken
 
   /** Wait for a retry backoff. */
   const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms))
@@ -248,6 +258,26 @@ export function createAxiosClient(config: AxiosHttpClientConfig = {}): HttpClien
     // it so a request the gate itself depends on can opt out (`skipAuthGate`) and a stalled
     // gate can name what it held.
     await awaitAuthGate(config)
+
+    // Apply the live session token HERE, after the gate (the restore has settled) and BEFORE
+    // the molecule interceptors, so one of them can still override the header in `config`.
+    // Axios merged the instance defaults into `axiosConfig.headers` before this interceptor
+    // ran, so a `setAuthToken` written during the request would only reach the NEXT request —
+    // the header has to be set (or removed) on this request's own headers. Only the header
+    // this client owns is replaced: none at all, or its static token (the instance's
+    // `defaults.headers.common`). An `Authorization` passed per request or in `defaultHeaders`
+    // keeps the precedence Axios gives it over that static token.
+    if (authTokenResolver) {
+      const sessionToken = authTokenResolver() ?? null
+      const current = axiosConfig.headers.get('Authorization')
+      if (current == null || current === axiosInstance.defaults.headers.common['Authorization']) {
+        if (sessionToken) {
+          axiosConfig.headers.set('Authorization', `${authScheme} ${sessionToken}`)
+        } else {
+          axiosConfig.headers.delete('Authorization')
+        }
+      }
+    }
 
     // Run request interceptors
     for (const interceptor of requestInterceptors) {
@@ -494,8 +524,12 @@ export function createAxiosClient(config: AxiosHttpClientConfig = {}): HttpClien
       }
     },
 
+    setAuthTokenResolver(resolver: AuthTokenResolver | null): void {
+      authTokenResolver = resolver
+    },
+
     getAuthToken(): string | null {
-      return authToken
+      return resolveAuthToken()
     },
 
     onAuthError(handler: () => void): () => void {

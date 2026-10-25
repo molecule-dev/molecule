@@ -35,7 +35,9 @@
  * @example
  * A list with query-selected views. The public URL remains public after login;
  * a protected view waits for session restoration. Include the signed-in principal
- * in the data key so one user's cached response cannot appear for another user.
+ * in the data key so one user's cached response cannot appear for another user, and
+ * pass `null` while the session is still restoring (`status === 'loading'`) — the
+ * auth gate holds the request until then anyway, so waiting for it costs nothing.
  *
  * ```tsx
  * import { Link } from 'react-router'
@@ -59,7 +61,7 @@
  *     },
  *     auth: { status, redirectTo: '/sign-in' },
  *   })
- *   const entries = useQuery(list.canLoad ? {
+ *   const entries = useQuery(list.canLoad && status !== 'loading' ? {
  *     key: ['activity', user?.id ?? 'anonymous', list.selection, list.filters, list.page],
  *     fetch: async (signal) => unwrapList<Entry>(await http.get('/api/activity', {
  *       signal,
@@ -116,8 +118,9 @@
  *   Do not mirror selection/page in local state or rewrite an explicit public view
  *   when auth changes. Auth redirects replace the protected history entry only after
  *   a confirmed `unauthenticated` status; `loading` and `unavailable` remain in place.
- * - Pass `null` to `useQuery` when `list.canLoad` is false. Public views stay ready;
- *   protected views do not fall back to a public request while auth is unresolved.
+ * - Pass `null` to `useQuery` when `list.canLoad` is false **or** while the session
+ *   is still restoring (`status === 'loading'`). Public views stay ready; protected
+ *   views do not fall back to a public request while auth is unresolved.
  * - A selection's `query` owns only its configured keys. `undefined` means absent;
  *   unrelated query values and the hash survive pagination and selection changes.
  *   Filter/selection changes reset page one atomically, unless `page` is explicit.
