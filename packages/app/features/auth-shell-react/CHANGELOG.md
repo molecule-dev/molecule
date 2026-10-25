@@ -1,5 +1,11 @@
 # @molecule/app-auth-shell-react
 
+## 2.0.0
+
+### Patch Changes
+
+- @molecule/app-react@2.0.0
+
 ## 1.0.4
 
 ### Patch Changes

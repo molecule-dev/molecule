@@ -1,5 +1,11 @@
 # @molecule/app-query-react
 
+## 1.1.0
+
+### Minor Changes
+
+- A list keeps its previous page's document while a same-principal page or filter loads, and drops it as soon as the principal changes: `useQuery` accepts `principal` with `keepPreviousData` and reports `isPreviousData`.
+
 ## 1.0.3
 
 ### Patch Changes

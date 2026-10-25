@@ -1,5 +1,13 @@
 # @molecule/app-solid
 
+## 2.0.0
+
+### Patch Changes
+
+- Updated dependencies
+- Updated dependencies
+  - @molecule/app-auth@3.0.0
+
 ## 1.0.6
 
 ### Patch Changes

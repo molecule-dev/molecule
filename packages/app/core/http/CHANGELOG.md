@@ -1,5 +1,15 @@
 # @molecule/app-http
 
+## 1.5.0
+
+### Minor Changes
+
+- `setAuthTokenSource()` makes the bonded client — and the fallback `getClient()` returns while no client is bonded — read the source on each request, through the new optional `HttpClient.setAuthTokenResolver()` (the fetch client implements it) or, for a client without it, a request interceptor; so a session adopted with no auth event (`setSession()`, `setAccessToken()`) is sent instead of the previous account's token, a source with no token sends no `Authorization` header, and removing the source keeps the token it last returned.
+
+### Patch Changes
+
+- The fetch client no longer repeats an absolute `baseURL`'s path (`https://host/api` + `/api/users`), joins a base and a path with exactly one `/`, and requests protocol-relative URLs (`//cdn…`) as written.
+
 ## 1.4.0
 
 ### Minor Changes

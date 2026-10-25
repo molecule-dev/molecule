@@ -1,5 +1,12 @@
 # @molecule/api-ai-tools
 
+## 1.14.5
+
+### Patch Changes
+
+- `exec_command` runs a command whose `cwd` is outside the workspace when the command already starts with `cd` into that same directory, and an outside `cwd` that is still refused is told to leave the `cwd` parameter unset.
+- `wait_for_task`'s one-time diagnostic return for a deployed run now says the failing test is on its final attempt, so the run will not pass, and to start reading the failing spec and fixing it while the run keeps walking — nothing is sent against the app until the run ends, and its final result is still collected with `wait_for_task`.
+
 ## 1.14.4
 
 ### Patch Changes

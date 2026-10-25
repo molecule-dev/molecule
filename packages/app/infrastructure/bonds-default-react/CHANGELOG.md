@@ -1,5 +1,14 @@
 # @molecule/app-bonds-default-react
 
+## 3.0.0
+
+### Patch Changes
+
+- `createDefaultAuthClientWithFetchClient` sends the auth config's `authScheme` and mirrors auth events into the client the app bonds last, and `createDefaultHttpClientWithAuthBearer` sends a synced token with its own `authScheme`; with `@molecule/app-http` 1.5.0 both auth bonds follow a session adopted by `setSession()` or an OAuth callback.
+- Updated dependencies
+- Updated dependencies
+  - @molecule/app-auth@3.0.0
+
 ## 2.0.0
 
 ### Major Changes

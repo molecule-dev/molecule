@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-react",
-  "version": "1.11.0",
+  "version": "2.0.0",
   "description": "React framework bindings for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
@@ -23,7 +23,7 @@
     "node": ">=20"
   },
   "peerDependencies": {
-    "@molecule/app-auth": "^1.0.1 || ^2.0.0",
+    "@molecule/app-auth": "^3.0.0",
     "@molecule/app-ai-models": "^1.0.1",
     "@molecule/app-forms": "^1.0.1",
     "@molecule/app-utilities": "^1.0.1",
@@ -61,7 +61,7 @@
   },
   "devDependencies": {
     "@molecule/app-ai-models": "1.4.3",
-    "@molecule/app-bonds-default-react": "2.0.0",
+    "@molecule/app-bonds-default-react": "3.0.0",
     "@molecule/app-i18n": "1.1.0",
     "@testing-library/dom": "10.4.2",
     "@testing-library/react": "16.3.3",

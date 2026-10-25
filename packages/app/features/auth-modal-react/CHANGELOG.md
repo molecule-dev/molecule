@@ -1,5 +1,14 @@
 # @molecule/app-auth-modal-react
 
+## 2.0.0
+
+### Patch Changes
+
+- @molecule/app-react@2.0.0
+- @molecule/app-auth-shell-react@2.0.0
+- @molecule/app-oauth-buttons-react@2.0.0
+- @molecule/app-ui-react@2.0.0
+
 ## 1.1.0
 
 ### Minor Changes

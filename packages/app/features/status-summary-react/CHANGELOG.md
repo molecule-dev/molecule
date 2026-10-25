@@ -1,5 +1,12 @@
 # @molecule/app-status-summary-react
 
+## 2.0.0
+
+### Patch Changes
+
+- @molecule/app-react@2.0.0
+- @molecule/app-ui-react@2.0.0
+
 ## 1.0.1
 
 ### Patch Changes

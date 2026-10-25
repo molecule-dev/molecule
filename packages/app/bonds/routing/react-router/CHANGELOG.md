@@ -1,5 +1,11 @@
 # @molecule/app-routing-react-router
 
+## 1.1.2
+
+### Patch Changes
+
+- Document list routes that wait for restored account state before starting a viewer-specific request.
+
 ## 1.1.0
 
 ### Minor Changes

@@ -1,5 +1,16 @@
 # @molecule/app-http-axios
 
+## 1.2.0
+
+### Minor Changes
+
+- Implements `setAuthTokenResolver()` from `@molecule/app-http` 1.5.0: the registered token source is applied to each request after the auth gate, while an `Authorization` header passed per request or in `defaultHeaders` keeps its precedence.
+
+### Patch Changes
+
+- A path that already starts with `baseURL`'s path (`https://host/api` + `/api/users`, `/api?page=2`) is requested as written, the URL `@molecule/app-http`'s fetch client requests, and an existing `instance` is joined to the bonded `baseURL` too.
+- The `@molecule/app-http` peer range starts at 1.4.0, the first version that exports the retry helpers this package imports.
+
 ## 1.1.0
 
 ### Minor Changes

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-svelte",
-  "version": "1.0.5",
+  "version": "2.0.0",
   "description": "Svelte framework bindings for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
@@ -22,7 +22,7 @@
     "node": ">=20"
   },
   "peerDependencies": {
-    "@molecule/app-auth": "^1.0.1 || ^2.0.0",
+    "@molecule/app-auth": "^3.0.0",
     "@molecule/app-device": "^1.0.1",
     "@molecule/app-forms": "^1.0.1",
     "@molecule/app-http": "^1.0.1",

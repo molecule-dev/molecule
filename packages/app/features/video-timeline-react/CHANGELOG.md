@@ -1,5 +1,12 @@
 # @molecule/app-feature-video-timeline-react
 
+## 2.0.0
+
+### Patch Changes
+
+- @molecule/app-react@2.0.0
+- @molecule/app-feature-track-lane-react@2.0.0
+
 ## 1.0.1
 
 ### Patch Changes

@@ -1,5 +1,15 @@
 # @molecule/app-settings-panel-react
 
+## 2.0.0
+
+### Patch Changes
+
+- Updated dependencies
+- Updated dependencies
+  - @molecule/app-auth@3.0.0
+  - @molecule/app-react@2.0.0
+  - @molecule/app-ui-react@2.0.0
+
 ## 1.0.7
 
 ### Patch Changes
