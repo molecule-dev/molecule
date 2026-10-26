@@ -23,6 +23,19 @@ export const MAX_BIO_LENGTH = 1000
 export const MAX_AVATAR_LENGTH = 256 * 1024
 
 /**
+ * Shortest password the package accepts, for signup (`handlers.create`), password changes and
+ * programmatic provisioning alike — one policy, checked by every write path.
+ */
+export const MIN_PASSWORD_LENGTH = 8
+
+/**
+ * Longest password the package accepts (in characters), for signup (`handlers.create`),
+ * password changes and programmatic provisioning alike. bcrypt reads only the first 72 BYTES,
+ * so this cap is a request-size bound rather than a strength claim.
+ */
+export const MAX_PASSWORD_LENGTH = 1024
+
+/**
  * Creates a full schema for user props.
  *
  * OAuth servers and plan keys can be constrained by passing them as options.

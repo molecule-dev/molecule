@@ -9,7 +9,7 @@ import { create as resourceCreate } from '@molecule/api-resource'
 import type { DeviceService } from '@molecule/api-resource-device'
 
 import * as authorization from '../authorization.js'
-import { propsSchema } from '../schema.js'
+import { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH, propsSchema } from '../schema.js'
 import type * as types from '../types.js'
 import { normalizeEmail } from '../utilities/normalizeEmail.js'
 import { stripSensitiveUserColumns } from '../utilities/stripSensitiveUserColumns.js'
@@ -122,24 +122,24 @@ export const create = ({ name, tableName, schema = propsSchema }: types.HandlerR
         }
       }
 
-      if (body.password.length > 1024) {
+      if (body.password.length > MAX_PASSWORD_LENGTH) {
         return {
           statusCode: 400,
           body: {
             error: t('user.error.passwordTooLong', undefined, {
-              defaultValue: 'Password must be at most 1024 characters',
+              defaultValue: `Password must be at most ${MAX_PASSWORD_LENGTH} characters`,
             }),
             errorKey: 'user.error.passwordTooLong',
           },
         }
       }
 
-      if (body.password.length < 8) {
+      if (body.password.length < MIN_PASSWORD_LENGTH) {
         return {
           statusCode: 400,
           body: {
             error: t('user.error.passwordTooShort', undefined, {
-              defaultValue: 'Password must be at least 8 characters',
+              defaultValue: `Password must be at least ${MIN_PASSWORD_LENGTH} characters`,
             }),
             errorKey: 'user.error.passwordTooShort',
           },

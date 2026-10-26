@@ -13,35 +13,26 @@
  * **`usersSecrets.id` IS the user's id — the value of `users.id`, never a fresh uuid.** The DDL
  * declares it `UNIQUE PRIMARY KEY` with no foreign key, so nothing enforces it: a row written
  * under another id is never found again — login answers "invalid credentials" while
- * `GET /api/users/me` still answers 200. A hand-written signup writes both rows:
- * `const id = uuid(); await create('users', { ...props, id }); await create('usersSecrets', { id, passwordHash: await hash(password) })`.
+ * `GET /api/users/me` still answers 200.
  *
- * Prefer not to hand-write that — `handlers.create` (signup: both rows, hash via
- * `@molecule/api-password`, session device), `handlers.logIn` (reads `usersSecrets` by the user's
- * id), `handlers.updatePassword`, `handlers.forgotPassword` / `handlers.resetPassword`. To touch
- * one secret yourself use the datastore on the same key — `findById('usersSecrets', userId)` (or
- * `${tableName}Secrets` for a custom `tableName`) — never SQL.
+ * **Server code that creates accounts — a seed, a migration, a content author, a service
+ * account — uses `provisionUser`, never hand-written rows.** `provisionUser({ name, tableName },
+ * { props, password? })` validates the props with the resource schema (once, before the identity
+ * lookup, so a schema `transform` decides the stored username/email), writes the `users` row and
+ * its same-id `usersSecrets` row through the bonded providers — in one transaction where the
+ * database supports one — and returns `{ status: 'created' | 'completed' | 'existing', id, props,
+ * hasPassword }` with NO device, JWT or session. Omit `password` for a content-only author that
+ * cannot log in (no `passwordHash` is written). It is idempotent by `username`/`email` and never
+ * changes an existing account's credentials. Where the bond has no transactions (Cloudflare D1) a
+ * credential-row failure leaves the user row and answers `{ status: 'partial', id, recovery }`;
+ * finish it with `provisionUser(..., { props, completeId: id })` — a retry without `completeId`
+ * answers `existing` and repairs nothing. **TRUSTED SERVER CALLERS ONLY:** it takes props
+ * directly, so a public endpoint built on it is a mass-assignment hole.
  *
- * **Issuing a session yourself (the sequence is device, then session — two calls, and the first
- * RETURNS the id):** the middleware accepts both `Authorization: Bearer <jwt>` and
- * `Authorization: Token <jwt>` (RealWorld's scheme), but only for a token whose `deviceId` names
- * an ACTIVE row in `devices` — a JWT you `sign()` with an invented `deviceId` is answered 401 on
- * every route.
- *
- * ```typescript
- * import { get } from '@molecule/api-bond'
- * import { authorization } from '@molecule/api-resource-user'
- * import type { DeviceService } from '@molecule/api-resource-device'
- *
- * const deviceId = await get<DeviceService>('device')?.createOrUpdate(userId, deviceName)
- * const token = authorization.set(req, res, { userId, deviceId })
- * ```
- *
- * `get<DeviceService>('device')` is the typed accessor (never hand-type a
- * `get<{ createOrUpdate(): … }>('device')` generic: a wrong one still compiles and leaves the
- * field you invented — `device.id` — `undefined`), and `createOrUpdate` RESOLVES TO THE DEVICE ID
- * STRING, not to a row. `set()` throws when `deviceId` is missing rather than mint a token every
- * later request answers 401.
+ * For the HTTP path use `handlers.create` (signup), `handlers.logIn`, `handlers.updatePassword`,
+ * `handlers.forgotPassword` / `handlers.resetPassword`. To touch one secret yourself use the
+ * datastore on the same key — `findById('usersSecrets', userId)` (or `${tableName}Secrets` for a
+ * custom `tableName`) — never SQL.
  *
  * **RealWorld-style token API (`Authorization: Token <jwt>`)? CONFIGURATION on this same auth
  * path — never a credentials table of your own** (`usersSecrets.passwordHash` is the password
@@ -105,6 +96,27 @@
  * answers 400 `resource.error.unknownError` with
  * `TypeError: schema.safeParse is not a function`, and no row is written. Omit `schema`
  * instead of stubbing it.
+ *
+ * **Issuing a session yourself (the sequence is device, then session — two calls, and the first
+ * RETURNS the id):** the middleware accepts both `Authorization: Bearer <jwt>` and
+ * `Authorization: Token <jwt>` (RealWorld's scheme), but only for a token whose `deviceId` names
+ * an ACTIVE row in `devices` — a JWT you `sign()` with an invented `deviceId` is answered 401 on
+ * every route.
+ *
+ * ```typescript
+ * import { get } from '@molecule/api-bond'
+ * import { authorization } from '@molecule/api-resource-user'
+ * import type { DeviceService } from '@molecule/api-resource-device'
+ *
+ * const deviceId = await get<DeviceService>('device')?.createOrUpdate(userId, deviceName)
+ * const token = authorization.set(req, res, { userId, deviceId })
+ * ```
+ *
+ * `get<DeviceService>('device')` is the typed accessor (never hand-type a
+ * `get<{ createOrUpdate(): … }>('device')` generic: a wrong one still compiles and leaves the
+ * field you invented — `device.id` — `undefined`), and `createOrUpdate` RESOLVES TO THE DEVICE ID
+ * STRING, not to a row. `set()` throws when `deviceId` is missing rather than mint a token every
+ * later request answers 401.
  *
  * **Exact responses of the sign-up and sign-in handlers** (the body shapes the routes send;
  * a handler returns `{ statusCode, body }` and the mount applies it):
@@ -286,6 +298,7 @@ export * as authorizers from './authorizers/index.js'
 export * from './browser-guard.js'
 export * as handlers from './handlers/index.js'
 export * from './i18n.js'
+export * from './provisioning.js'
 export * from './requestHandlerMap.js'
 export * from './resource.js'
 export * from './routes.js'
