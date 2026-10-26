@@ -55,7 +55,7 @@ jobs:
       # Shared with release.yml via an IDENTICAL key, so whichever workflow runs
       # first builds and the other restores — one build per commit, not two.
       #
-      # The key prefix is VERSIONED (mol-dist-v2-). Bumping it is what let the
+      # The key prefix is VERSIONED (mol-dist-v3-). Bumping it is what let the
       # manifest exist at all: actions/cache does not save on a primary-key HIT,
       # so a cache saved before the manifest was introduced kept hitting, kept
       # rebuilding everything for want of a manifest, and kept refusing to save
@@ -68,9 +68,9 @@ jobs:
       # touch is gone.
       #
       # scripts/dist-cache-manifest.mjs records what each package's sources
-      # hashed to when its dist was built, and on restore marks fresh ONLY the
-      # packages whose sources still hash identically. Everything else keeps a
-      # stale-looking dist and gets rebuilt. Content check, not mtime guess.
+      # hashed to when its dist was built, including compiler/config/install
+      # identity and output hashes. Only verified packages and their unchanged
+      # dependencies are reused; incompatible restored dist is removed and rebuilt.
       #
       # Without this, one changed file busts a single fleet-wide hash and all
       # ~914 packages rebuild — which is what the 5-file "version packages"
@@ -81,14 +81,15 @@ jobs:
           path: |
             packages/**/dist
             .dist-manifest.json
-          key: mol-dist-v2-${{ runner.os }}-${{ hashFiles('packages/**/src/**', 'packages/**/package.json', 'packages/**/tsconfig.json') }}
-          restore-keys: mol-dist-v2-${{ runner.os }}-
+          key: mol-dist-v3-${{ runner.os }}-${{ runner.arch }}-${{ github.sha }}-${{ hashFiles('.github/workflows/ci.yml', '.github/workflows/release.yml', 'package.json', 'package-lock.json', '.npmrc', 'tsconfig*.json', 'scripts/**', 'packages/**/src/**', 'packages/**/package.json', 'packages/**/tsconfig.json') }}
+          restore-keys: mol-dist-v3-${{ runner.os }}-${{ runner.arch }}-
       # Always runs: a prefix restore sets cache-hit to false while still having
       # restored files, and the script is fail-safe — no manifest marks nothing
-      # fresh, i.e. the old full-rebuild behaviour.
+      # fresh; missing proofs remove restored output and force the build.
+      # Install first: the manifest verifies the actual compiler bytes.
+      - run: npm ci
       - name: Reuse dist for packages whose sources are unchanged
         run: node scripts/dist-cache-manifest.mjs --apply
-      - run: npm ci
       - run: npm run check:lockfile
       - run: npm run check:peer-deps
       # Guard the SEC3 security gates below from silent removal/weakening (e.g.

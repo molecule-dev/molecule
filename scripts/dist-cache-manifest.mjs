@@ -1,189 +1,246 @@
 #!/usr/bin/env node
-/* global console, process, URL */
-
+/* global console, process */
 /**
- * Make the CI dist cache INCREMENTAL without ever declaring stale output fresh.
+ * Reuse verified dist from CI. npm ci must run BEFORE --apply: the actual build
+ * tools are part of the identity. Missing/incompatible proofs remove restored
+ * output, so build.js cannot mistake a newer but unverified file for a build.
  *
- * The cache was all-or-nothing: one key hashing every package's `src`,
- * `package.json` and `tsconfig.json`, with `restore-keys` deliberately absent.
- * So a five-file commit — the changesets "version packages" commit is exactly
- * that — missed the cache completely and rebuilt all ~914 packages. A one-line
- * JSDoc edit cost the same.
- *
- * A prefix restore alone is NOT safe, and the workflow comment was right to say
- * so: it brings back dist built from a DIFFERENT commit, and the blanket
- * `find … -exec touch` that followed would then stamp every one of those as
- * fresh, so `scripts/build.js` (which skips a package when its dist mtime beats
- * its src) would ship stale output for packages that actually changed.
- *
- * The fix is not to give up incrementality — it is to stop blanket-touching.
- * This records WHAT each package's sources hashed to when its dist was built,
- * and on restore marks fresh only the packages whose sources still hash the
- * same. Everything else keeps a stale-looking dist and gets rebuilt. That is a
- * content check, not an mtime guess, so a restored dist is trusted only when it
- * provably corresponds to the current sources.
- *
- * Fail-safe by construction: a missing, unreadable or partial manifest marks
- * NOTHING fresh, which rebuilds everything — the old behaviour. It can never
- * fail open.
- *
- * Usage:
- *   node scripts/dist-cache-manifest.mjs --write   # after a successful build
- *   node scripts/dist-cache-manifest.mjs --apply   # after a cache restore
+ * npm's lock already distinguishes workspace records from installed packages.
+ * Workspace changes invalidate their declared build dependents; any change to
+ * the external install graph invalidates the fleet. No dependency resolution is
+ * implemented here. TypeScript itself reads inherited build configuration.
  */
-
 import { createHash } from 'node:crypto'
-import { existsSync, readdirSync, readFileSync, utimesSync, writeFileSync } from 'node:fs'
-import { join, relative } from 'node:path'
+import {
+  lstatSync,
+  readdirSync,
+  readFileSync,
+  realpathSync,
+  rmSync,
+  utimesSync,
+  writeFileSync,
+} from 'node:fs'
+import { createRequire } from 'node:module'
+import { basename, join, relative, resolve } from 'node:path'
+import { fileURLToPath, URL } from 'node:url'
 
-const ROOT = new URL('..', import.meta.url).pathname.replace(/\/$/, '')
-const PACKAGES = join(ROOT, 'packages')
-const MANIFEST = join(ROOT, '.dist-manifest.json')
+const FORMAT = 3
+const ROOT = resolve(fileURLToPath(new URL('..', import.meta.url)))
+const canonical = (value) =>
+  JSON.stringify(value, (_key, item) =>
+    item && !Array.isArray(item) && typeof item === 'object'
+      ? Object.fromEntries(Object.entries(item).sort(([a], [b]) => a.localeCompare(b)))
+      : item,
+  )
+const hash = (value) => createHash('sha256').update(canonical(value)).digest('hex')
+const bytesHash = (file) => createHash('sha256').update(readFileSync(file)).digest('hex')
 
-const MODE = process.argv.includes('--write')
-  ? 'write'
-  : process.argv.includes('--apply')
-    ? 'apply'
-    : null
-
-if (!MODE) {
-  console.error('Usage: dist-cache-manifest.mjs --write | --apply')
-  process.exit(2)
-}
-
-/** Every package directory that has a package.json and a src/. */
-function findPackages(dir, depth = 0, out = []) {
-  if (depth > 6) return out
-  let entries
-  try {
-    entries = readdirSync(dir, { withFileTypes: true })
-  } catch (_error) {
-    // Unreadable directory: nothing to hash here, and an over-rebuild is safe.
-    return out
-  }
-  if (entries.some((e) => e.name === 'package.json') && existsSync(join(dir, 'src'))) {
-    out.push(dir)
-    return out
-  }
-  for (const entry of entries) {
-    if (!entry.isDirectory()) continue
-    if (entry.name === 'node_modules' || entry.name === 'dist') continue
-    findPackages(join(dir, entry.name), depth + 1, out)
-  }
-  return out
-}
-
-/** Collect file paths under `dir`, excluding build output and tests. */
-function filesIn(dir, out = []) {
-  let entries
-  try {
-    entries = readdirSync(dir, { withFileTypes: true })
-  } catch (_error) {
-    return out
-  }
-  for (const entry of entries.sort((a, b) => a.name.localeCompare(b.name))) {
-    if (entry.name === 'node_modules' || entry.name === 'dist') continue
-    const full = join(dir, entry.name)
-    if (entry.isDirectory()) filesIn(full, out)
-    else out.push(full)
+/** Regular-file inventory; unexpected links or unreadable bytes cannot prove a cache. */
+function inventory(dir, skip = new Set(), prefix = '', out = {}, excluded = new Set()) {
+  for (const entry of readdirSync(dir, { withFileTypes: true }).sort((a, b) =>
+    a.name.localeCompare(b.name),
+  )) {
+    if (skip.has(entry.name) || excluded.has(join(dir, entry.name))) continue
+    const name = prefix ? `${prefix}/${entry.name}` : entry.name
+    const path = join(dir, entry.name)
+    if (entry.isDirectory()) inventory(path, skip, name, out, excluded)
+    else if (entry.isFile()) out[name] = [bytesHash(path), lstatSync(path).mode & 0o777]
+    else throw new Error(`unsupported cache input: ${path}`)
   }
   return out
 }
 
-/**
- * Content hash of everything that can change a package's build output.
- *
- * Paths are included alongside contents so a rename cannot hash identically to
- * the original, and `__tests__` is included because it is part of src and a
- * cheap hash is worth more than a precise one here — over-rebuilding is safe.
- *
- * @param pkgDir - The package directory.
- * @returns A hex digest, or null when the package has nothing to hash.
- */
-function hashPackage(pkgDir) {
-  const inputs = [
-    ...filesIn(join(pkgDir, 'src')),
-    join(pkgDir, 'package.json'),
-    join(pkgDir, 'tsconfig.json'),
+/** Same package traversal and declared dependency fields as build.js (plus optional deps). */
+function packagesAt(root) {
+  const packages = new Map()
+  /** Walk packages with the same depth bound as build.js. */
+  function visit(dir, depth = 0) {
+    if (depth > 6) return
+    const entries = readdirSync(dir, { withFileTypes: true })
+    if (entries.some((entry) => entry.name === 'package.json')) {
+      const manifest = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
+      if (manifest.name?.startsWith('@molecule/') && manifest.scripts?.build) {
+        packages.set(manifest.name, { path: relative(root, dir), manifest })
+      }
+    }
+    for (const entry of entries) {
+      if (
+        entry.isDirectory() &&
+        !entry.name.startsWith('.') &&
+        !['node_modules', 'dist'].includes(entry.name)
+      ) {
+        visit(join(dir, entry.name), depth + 1)
+      }
+    }
+  }
+  visit(join(root, 'packages'))
+  return packages
+}
+
+/** Read actual build inputs only; exported for the scoped mutation control. */
+export function readCacheInputs(root) {
+  const packages = packagesAt(root)
+  const paths = new Set([...packages.values()].map((pkg) => pkg.path))
+  const outputs = new Set([...paths].map((path) => join(root, path, 'dist')))
+  const lock = JSON.parse(readFileSync(join(root, 'package-lock.json'), 'utf8'))
+  if (lock.lockfileVersion !== 3 || !lock.packages) throw new Error('expected npm lockfile v3')
+  const external = Object.fromEntries(
+    Object.entries(lock.packages).filter(([path]) => !paths.has(path)),
+  )
+  const commands = new Set([...packages.values()].map((pkg) => pkg.manifest.scripts.build))
+  const tools = {}
+  const covered = new Set()
+  for (const [path, entry] of Object.entries(external)) {
+    const bins = typeof entry.bin === 'string' ? [basename(path)] : Object.keys(entry.bin ?? {})
+    if (!bins.some((name) => commands.has(name))) continue
+    const dir = realpathSync(join(root, path))
+    const installed = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
+    if (installed.version !== entry.version)
+      throw new Error(`installed build tool differs from lock: ${path}`)
+    const nodeModules = path.slice(0, path.lastIndexOf('node_modules/') + 'node_modules/'.length)
+    for (const name of bins.filter((bin) => commands.has(bin))) {
+      const target = typeof entry.bin === 'string' ? entry.bin : entry.bin[name]
+      if (realpathSync(join(root, nodeModules, '.bin', name)) !== realpathSync(join(dir, target))) {
+        throw new Error(`installed build command differs from lock: ${name}`)
+      }
+    }
+    tools[path] = inventory(dir, new Set(['node_modules']))
+    bins.forEach((name) => covered.add(name))
+  }
+  for (const command of commands) {
+    if (!covered.has(command)) throw new Error(`unverified build command: ${command}`)
+  }
+  const require = createRequire(join(root, 'package.json'))
+  const ts = require('typescript')
+  const rootFiles = [
+    'package.json',
+    '.npmrc',
+    ...readdirSync(root).filter((name) => /^tsconfig.*\.json$/.test(name)),
   ]
-  const hash = createHash('sha256')
-  let counted = 0
-  for (const file of inputs) {
-    let content
+  const context = hash({
+    format: FORMAT,
+    node: process.version,
+    platform: process.platform,
+    arch: process.arch,
+    root: Object.fromEntries(rootFiles.map((name) => [name, bytesHash(join(root, name))])),
+    lock: { ...lock, packages: external },
+    tools,
+    scripts: inventory(join(root, 'scripts'), new Set(['node_modules', '.git'])),
+  })
+  for (const pkg of packages.values()) {
+    if (!lock.packages[pkg.path]) throw new Error(`workspace absent from lock: ${pkg.path}`)
+    const files = {}
+    let configError = false
+    const parsed = ts.getParsedCommandLineOfConfigFile(
+      join(root, pkg.path, 'tsconfig.json'),
+      {},
+      {
+        ...ts.sys,
+        readFile(file) {
+          const text = ts.sys.readFile(file)
+          if (text !== undefined)
+            files[relative(root, file)] = createHash('sha256').update(text).digest('hex')
+          return text
+        },
+        onUnRecoverableConfigFileDiagnostic() {
+          configError = true
+        },
+      },
+    )
+    if (!parsed || configError || parsed.errors.length)
+      throw new Error(`unreadable build config: ${pkg.path}`)
+    for (const file of parsed.fileNames) files[relative(root, file)] = bytesHash(file)
+    const own = inventory(join(root, pkg.path), new Set(['node_modules', '.git']), '', {}, outputs)
+    pkg.input = hash({ files, own, lock: lock.packages[pkg.path] })
+    const declared = {
+      ...pkg.manifest.dependencies,
+      ...pkg.manifest.devDependencies,
+      ...pkg.manifest.peerDependencies,
+      ...pkg.manifest.optionalDependencies,
+    }
+    pkg.dependencies = Object.keys(declared).filter((name) => packages.has(name))
+  }
+  for (const [name, pkg] of packages) {
+    const seen = new Set()
+    /** Include every declared internal dependency once, including cycles. */
+    function visit(current) {
+      if (seen.has(current)) return
+      seen.add(current)
+      packages.get(current).dependencies.forEach(visit)
+    }
+    visit(name)
+    pkg.closure = [...seen].map((dep) => packages.get(dep).path).sort()
+  }
+  return { context, packages }
+}
+
+/** Apply or record one proof; malformed/old manifests are cache misses, never authority. */
+export function distCache(root, mode) {
+  const manifestPath = join(root, '.dist-manifest.json')
+  let inputs
+  try {
+    inputs = readCacheInputs(root)
+  } catch (error) {
+    if (mode === 'write') throw error
+    const packages = packagesAt(root)
+    for (const pkg of packages.values())
+      rmSync(join(root, pkg.path, 'dist'), { recursive: true, force: true })
+    return { fresh: 0, rebuild: packages.size, reason: String(error.message) }
+  }
+  const current = {}
+  for (const pkg of inputs.packages.values()) {
     try {
-      content = readFileSync(file)
+      const output = inventory(join(root, pkg.path, 'dist'))
+      if (Object.keys(output).length) current[pkg.path] = { input: pkg.input, output }
     } catch (_error) {
+      /* Missing or unsupported output is uncacheable. */
+    }
+  }
+  if (mode === 'write') {
+    writeFileSync(
+      manifestPath,
+      `${JSON.stringify({ format: FORMAT, context: inputs.context, packages: current })}\n`,
+    )
+    return { written: Object.keys(current).length }
+  }
+  let previous
+  try {
+    previous = JSON.parse(readFileSync(manifestPath, 'utf8'))
+  } catch (_error) {
+    /* Cache miss. */
+  }
+  const compatible = previous?.format === FORMAT && previous.context === inputs.context
+  const valid = new Set()
+  if (compatible) {
+    for (const [path, entry] of Object.entries(current)) {
+      if (canonical(previous.packages?.[path]) === canonical(entry)) valid.add(path)
+    }
+  }
+  let fresh = 0
+  const now = new Date()
+  for (const pkg of inputs.packages.values()) {
+    const dist = join(root, pkg.path, 'dist')
+    if (!pkg.closure.every((path) => valid.has(path))) {
+      rmSync(dist, { recursive: true, force: true })
       continue
     }
-    hash.update(relative(ROOT, file))
-    hash.update(content)
-    counted++
+    for (const file of Object.keys(current[pkg.path].output)) utimesSync(join(dist, file), now, now)
+    fresh++
   }
-  return counted > 0 ? hash.digest('hex') : null
+  return { fresh, rebuild: inputs.packages.size - fresh }
 }
 
-const packages = findPackages(PACKAGES)
-
-if (MODE === 'write') {
-  const manifest = {}
-  for (const pkgDir of packages) {
-    const digest = hashPackage(pkgDir)
-    if (digest) manifest[relative(ROOT, pkgDir)] = digest
-  }
-  writeFileSync(MANIFEST, `${JSON.stringify(manifest, null, 0)}\n`)
-  console.log(`dist manifest written: ${Object.keys(manifest).length} package(s)`)
-  process.exit(0)
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  const mode = process.argv.includes('--write')
+    ? 'write'
+    : process.argv.includes('--apply')
+      ? 'apply'
+      : null
+  if (!mode) throw new Error('Usage: dist-cache-manifest.mjs --write | --apply')
+  const result = distCache(ROOT, mode)
+  console.log(
+    mode === 'write'
+      ? `dist manifest written: ${result.written} package(s)`
+      : `dist cache applied: ${result.fresh} package(s) reused, ${result.rebuild} to rebuild.${result.reason ? ` ${result.reason}` : ''}`,
+  )
 }
-
-// --apply
-if (!existsSync(MANIFEST)) {
-  console.log('no dist manifest in the restored cache — rebuilding everything (fail-safe).')
-  process.exit(0)
-}
-
-let manifest
-try {
-  manifest = JSON.parse(readFileSync(MANIFEST, 'utf8'))
-} catch (error) {
-  console.log(`dist manifest unreadable (${error.message}) — rebuilding everything (fail-safe).`)
-  process.exit(0)
-}
-
-const now = new Date()
-let fresh = 0
-let rebuild = 0
-
-for (const pkgDir of packages) {
-  const key = relative(ROOT, pkgDir)
-  const recorded = manifest[key]
-  const current = hashPackage(pkgDir)
-  const dist = join(pkgDir, 'dist')
-
-  if (!recorded || !current || recorded !== current || !existsSync(dist)) {
-    // Leave dist alone. Its mtime is the checkout time at newest, and src was
-    // just checked out too — build.js re-checks and rebuilds. Never touch here:
-    // touching is precisely how stale output would be declared fresh.
-    rebuild++
-    continue
-  }
-
-  // Sources are byte-identical to what produced this dist, so it is genuinely
-  // current. Stamp it newer than src so build.js skips the package.
-  for (const file of filesIn(dist)) {
-    try {
-      utimesSync(file, now, now)
-    } catch (_error) {
-      /* a file we cannot stamp simply gets rebuilt */
-    }
-  }
-  try {
-    utimesSync(dist, now, now)
-  } catch (_error) {
-    /* directory stamp is best-effort; the files above are what build.js reads */
-  }
-  fresh++
-}
-
-console.log(
-  `dist cache applied: ${fresh} package(s) reused (sources unchanged), ${rebuild} to rebuild.`,
-)

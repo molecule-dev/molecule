@@ -110,10 +110,10 @@ jobs:
       # git checkout stamps sources with the checkout time, so src always looks
       # newer than a restored dist and everything rebuilds regardless.
       #
-      # Hashing every source into the KEY is what makes the post-restore touch
-      # safe: a hit proves the sources are identical to when dist was built, so
-      # declaring dist up-to-date is correct rather than a gamble. Any source
-      # change misses the key and produces a genuine full rebuild.
+      # A key hit locates a candidate, not authority to publish it. The manifest
+      # verifies build/install inputs and every dist file before build.js may skip
+      # it; incompatible output is removed and rebuilt. Prefix restores use the
+      # same check, so ordinary internal version bumps remain incremental.
       #
       # RESTORE-ONLY, deliberately. Only CI (the job that actually builds every
       # push) may WRITE this cache: a save from here once wrote an EMPTY
@@ -125,16 +125,17 @@ jobs:
           path: |
             packages/**/dist
             .dist-manifest.json
-          key: mol-dist-v2-${{ runner.os }}-${{ hashFiles('packages/**/src/**', 'packages/**/package.json', 'packages/**/tsconfig.json') }}
+          key: mol-dist-v3-${{ runner.os }}-${{ runner.arch }}-${{ github.sha }}-${{ hashFiles('.github/workflows/ci.yml', '.github/workflows/release.yml', 'package.json', 'package-lock.json', '.npmrc', 'tsconfig*.json', 'scripts/**', 'packages/**/src/**', 'packages/**/package.json', 'packages/**/tsconfig.json') }}
           # Must stay IDENTICAL to ci.yml — the two share this cache so whichever
           # workflow runs first builds and the other restores.
-          restore-keys: mol-dist-v2-${{ runner.os }}-
+          restore-keys: mol-dist-v3-${{ runner.os }}-${{ runner.arch }}-
       # Content check, not a blanket touch: only packages whose sources still
       # hash to what produced the restored dist are marked fresh. See
       # scripts/dist-cache-manifest.mjs and the fuller note in ci.yml.
+      # Install first: the manifest verifies the actual compiler bytes.
+      - run: npm ci
       - name: Reuse dist for packages whose sources are unchanged
         run: node scripts/dist-cache-manifest.mjs --apply
-      - run: npm ci
 
       # ---- 1. Trust any brand-new package, so this same run publishes it ----
       # npm has no OIDC path for trust config — measured, not assumed: in this
