@@ -1,5 +1,11 @@
 # @molecule/api-resource-user
 
+## 1.8.0
+
+### Minor Changes
+
+- Add idempotent server-side account provisioning with credential-preserving recovery.
+
 ## 1.7.5
 
 ### Patch Changes

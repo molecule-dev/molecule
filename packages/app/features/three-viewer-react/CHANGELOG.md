@@ -1,5 +1,11 @@
 # @molecule/app-three-viewer-react
 
+## 2.0.1
+
+### Patch Changes
+
+- Refresh the documented query peer range and Three.js disposal signature.
+
 ## 2.0.0
 
 ### Patch Changes

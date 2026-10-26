@@ -1,5 +1,11 @@
 # @molecule/api-ai
 
+## 1.4.0
+
+### Minor Changes
+
+- Add provider-specific image token estimates with documented DeepSeek vision support.
+
 ## 1.3.6
 
 ### Patch Changes

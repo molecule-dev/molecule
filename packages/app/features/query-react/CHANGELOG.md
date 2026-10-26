@@ -1,5 +1,11 @@
 # @molecule/app-query-react
 
+## 1.1.1
+
+### Patch Changes
+
+- Refresh the documented query peer range and Three.js disposal signature.
+
 ## 1.1.0
 
 ### Minor Changes
