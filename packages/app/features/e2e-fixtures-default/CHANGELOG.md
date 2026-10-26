@@ -1,5 +1,11 @@
 # @molecule/app-e2e-fixtures-default
 
+## 1.2.5
+
+### Patch Changes
+
+- Preserve authored TypeScript declarations in generated API documentation.
+
 ## 1.2.3
 
 ### Patch Changes

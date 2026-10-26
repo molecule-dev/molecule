@@ -1,5 +1,11 @@
 # @molecule/api-resource-user
 
+## 1.8.1
+
+### Patch Changes
+
+- Preserve authored TypeScript declarations in generated API documentation.
+
 ## 1.8.0
 
 ### Minor Changes

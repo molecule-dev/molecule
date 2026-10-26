@@ -36,11 +36,11 @@
     "directory": "packages/api/resources/booking"
   },
   "devDependencies": {
-    "@molecule/api-bond": "1.0.3",
-    "@molecule/api-database": "1.2.0",
-    "@molecule/api-i18n": "1.0.4",
+    "@molecule/api-bond": "1.0.4",
+    "@molecule/api-database": "1.2.1",
+    "@molecule/api-i18n": "1.0.5",
     "@molecule/api-logger": "1.0.3",
-    "@molecule/api-resource": "1.0.6",
+    "@molecule/api-resource": "1.0.7",
     "@types/node": "26.6.5",
     "typescript": "6.0.3",
     "vitest": "4.1.12"

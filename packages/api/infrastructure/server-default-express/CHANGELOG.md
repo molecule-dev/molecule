@@ -1,5 +1,12 @@
 # @molecule/api-server-default-express
 
+## 1.2.3
+
+### Patch Changes
+
+- Updated dependencies
+  - @molecule/api-process-lifecycle-express@1.3.2
+
 ## 1.2.1
 
 ### Patch Changes

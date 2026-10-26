@@ -1,5 +1,12 @@
 # @molecule/api-agent-transcript-autodetect
 
+## 1.2.5
+
+### Patch Changes
+
+- Updated dependencies
+  - @molecule/api-agent-transcript-cline@1.0.3
+
 ## 1.2.3
 
 ### Patch Changes

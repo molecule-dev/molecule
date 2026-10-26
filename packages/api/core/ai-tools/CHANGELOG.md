@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.14.6
+
+### Patch Changes
+
+- Preserve authored TypeScript declarations in generated API documentation.
+
 ## 1.14.5
 
 ### Patch Changes

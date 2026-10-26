@@ -1,5 +1,11 @@
 # @molecule/api-jwt
 
+## 1.0.9
+
+### Patch Changes
+
+- Preserve authored TypeScript declarations in generated API documentation.
+
 ## 1.0.7
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/api-process-lifecycle-express
 
+## 1.3.2
+
+### Patch Changes
+
+- Preserve authored TypeScript declarations in generated API documentation.
+
 ## 1.3.0
 
 ### Minor Changes

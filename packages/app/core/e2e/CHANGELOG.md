@@ -1,5 +1,11 @@
 # @molecule/app-e2e
 
+## 1.2.5
+
+### Patch Changes
+
+- Preserve authored TypeScript declarations in generated API documentation.
+
 ## 1.2.4
 
 ### Patch Changes

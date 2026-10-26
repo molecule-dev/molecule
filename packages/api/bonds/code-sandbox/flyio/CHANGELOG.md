@@ -1,5 +1,11 @@
 # @molecule/api-code-sandbox-flyio
 
+## 1.3.5
+
+### Patch Changes
+
+- Preserve authored TypeScript declarations in generated API documentation.
+
 ## 1.3.4
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-http-relay",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Egress relay HTTP client for molecule.dev — outbound HTTP through the platform relay for runtimes that cannot dial out",
   "type": "module",
   "main": "dist/index.js",
@@ -35,7 +35,7 @@
     "@molecule/api-secrets": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/api-http": "1.0.3",
+    "@molecule/api-http": "1.0.4",
     "@molecule/api-secrets": "1.0.2",
     "@types/node": "26.6.5",
     "typescript": "6.0.3",

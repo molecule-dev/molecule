@@ -1,5 +1,11 @@
 # @molecule/api-payments-stripe
 
+## 1.2.8
+
+### Patch Changes
+
+- Preserve authored TypeScript declarations in generated API documentation.
+
 ## 1.2.6
 
 ### Patch Changes

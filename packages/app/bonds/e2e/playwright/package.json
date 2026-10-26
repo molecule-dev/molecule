@@ -45,8 +45,8 @@
     "@playwright/test": "^1.40.0"
   },
   "devDependencies": {
-    "@molecule/app-bond": "1.0.3",
-    "@molecule/app-e2e": "1.2.4",
+    "@molecule/app-bond": "1.0.4",
+    "@molecule/app-e2e": "1.2.5",
     "@playwright/test": "1.64.1",
     "@types/node": "26.6.5",
     "typescript": "6.0.3",

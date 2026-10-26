@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-http",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "Client HTTP interface for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
@@ -33,8 +33,8 @@
     "@molecule/app-logger": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/app-bond": "1.0.3",
-    "@molecule/app-i18n": "1.1.0",
+    "@molecule/app-bond": "1.0.4",
+    "@molecule/app-i18n": "1.1.1",
     "@molecule/app-logger": "1.0.3",
     "@types/node": "26.6.5",
     "typescript": "6.0.3",

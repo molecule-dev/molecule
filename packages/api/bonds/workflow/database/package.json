@@ -40,8 +40,8 @@
     "@molecule/api-workflow": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/api-database": "1.2.0",
-    "@molecule/api-i18n": "1.0.4",
+    "@molecule/api-database": "1.2.1",
+    "@molecule/api-i18n": "1.0.5",
     "@molecule/api-workflow": "1.0.4",
     "@types/node": "26.6.5",
     "typescript": "6.0.3",

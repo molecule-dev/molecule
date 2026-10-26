@@ -42,8 +42,8 @@
   "devDependencies": {
     "@molecule/api-ai": "1.4.0",
     "@molecule/api-ai-rag": "1.0.3",
-    "@molecule/api-bond": "1.0.3",
-    "@molecule/api-i18n": "1.0.4",
+    "@molecule/api-bond": "1.0.4",
+    "@molecule/api-i18n": "1.0.5",
     "@molecule/api-semantic-search": "1.0.3",
     "@types/node": "26.6.5",
     "typescript": "6.0.3",

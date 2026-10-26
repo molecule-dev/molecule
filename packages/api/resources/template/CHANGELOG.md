@@ -1,5 +1,11 @@
 # @molecule/api-resource-template
 
+## 1.0.7
+
+### Patch Changes
+
+- Preserve authored TypeScript declarations in generated API documentation.
+
 ## 1.0.5
 
 ### Patch Changes

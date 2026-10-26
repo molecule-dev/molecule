@@ -1,5 +1,11 @@
 # @molecule/api-billing-routes
 
+## 1.1.4
+
+### Patch Changes
+
+- Preserve authored TypeScript declarations in generated API documentation.
+
 ## 1.1.2
 
 ### Patch Changes

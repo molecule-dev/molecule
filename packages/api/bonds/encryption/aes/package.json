@@ -34,7 +34,7 @@
     "@molecule/api-secrets": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/api-encryption": "1.1.2",
+    "@molecule/api-encryption": "1.1.3",
     "@types/node": "26.6.5",
     "typescript": "6.0.3",
     "vitest": "4.1.12"

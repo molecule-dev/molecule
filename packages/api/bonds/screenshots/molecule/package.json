@@ -33,7 +33,7 @@
     "@molecule/api-screenshots": ">=1.0.0"
   },
   "devDependencies": {
-    "@molecule/api-screenshots": "1.1.2",
+    "@molecule/api-screenshots": "1.1.3",
     "@types/node": "26.6.5",
     "typescript": "6.0.3",
     "vitest": "4.1.12"

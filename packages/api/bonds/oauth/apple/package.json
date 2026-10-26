@@ -32,8 +32,8 @@
     "jsonwebtoken": "9.0.3"
   },
   "devDependencies": {
-    "@molecule/api-bond": "1.0.3",
-    "@molecule/api-http": "1.0.3",
+    "@molecule/api-bond": "1.0.4",
+    "@molecule/api-http": "1.0.4",
     "@molecule/api-oauth": "1.1.2",
     "@types/jsonwebtoken": "9.0.10",
     "@types/node": "26.6.5",

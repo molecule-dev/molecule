@@ -33,8 +33,8 @@
     "directory": "packages/app/bonds/native/clipboard/react-native"
   },
   "devDependencies": {
-    "@molecule/app-clipboard": "1.0.3",
-    "@molecule/app-i18n": "1.1.0",
+    "@molecule/app-clipboard": "1.0.4",
+    "@molecule/app-i18n": "1.1.1",
     "@molecule/app-logger": "1.0.3",
     "@types/node": "26.6.5",
     "typescript": "6.0.3",

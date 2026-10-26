@@ -1,5 +1,11 @@
 # @molecule/api-resource-ai-models
 
+## 1.18.2
+
+### Patch Changes
+
+- Preserve authored TypeScript declarations in generated API documentation.
+
 ## 1.18.0
 
 ### Minor Changes

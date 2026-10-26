@@ -1,5 +1,11 @@
 # @molecule/api-database-sqlite
 
+## 1.4.2
+
+### Patch Changes
+
+- Preserve authored TypeScript declarations in generated API documentation.
+
 ## 1.4.1
 
 ### Patch Changes

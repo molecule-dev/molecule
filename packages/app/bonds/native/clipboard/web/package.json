@@ -37,7 +37,7 @@
     "@molecule/app-clipboard": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/app-clipboard": "1.0.3",
+    "@molecule/app-clipboard": "1.0.4",
     "@types/node": "26.6.5",
     "jsdom": "30.1.3",
     "typescript": "6.0.3",

@@ -1,5 +1,11 @@
 # @molecule/api-database
 
+## 1.2.1
+
+### Patch Changes
+
+- Preserve authored TypeScript declarations in generated API documentation.
+
 ## 1.2.0
 
 ### Minor Changes

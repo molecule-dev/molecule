@@ -1,5 +1,11 @@
 # @molecule/api-video-render
 
+## 2.0.3
+
+### Patch Changes
+
+- Preserve authored TypeScript declarations in generated API documentation.
+
 ## 2.0.1
 
 ### Patch Changes

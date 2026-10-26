@@ -34,7 +34,7 @@
     "@molecule/api-i18n": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/api-i18n": "1.0.4",
+    "@molecule/api-i18n": "1.0.5",
     "typescript": "6.0.3"
   },
   "repository": {

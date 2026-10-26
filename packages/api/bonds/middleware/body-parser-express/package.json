@@ -30,8 +30,8 @@
     "connect-busboy": "1.0.0"
   },
   "devDependencies": {
-    "@molecule/api-bond": "1.0.3",
-    "@molecule/api-i18n": "1.0.4",
+    "@molecule/api-bond": "1.0.4",
+    "@molecule/api-i18n": "1.0.5",
     "@molecule/api-middleware-body-parser": "1.0.3",
     "@types/busboy": "1.5.5",
     "@types/connect-busboy": "1.0.3",

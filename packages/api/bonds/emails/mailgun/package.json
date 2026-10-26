@@ -33,7 +33,7 @@
     "nodemailer-mailgun-transport": "2.1.5"
   },
   "devDependencies": {
-    "@molecule/api-bond": "1.0.3",
+    "@molecule/api-bond": "1.0.4",
     "@types/node": "26.6.5",
     "@types/nodemailer": "8.0.2",
     "@types/nodemailer-mailgun-transport": "1.4.6",

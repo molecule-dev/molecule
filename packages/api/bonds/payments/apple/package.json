@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-payments-apple",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Apple In-App Purchase provider for molecule.dev.",
   "type": "module",
   "main": "dist/index.js",
@@ -29,8 +29,8 @@
   ],
   "license": "Apache-2.0",
   "devDependencies": {
-    "@molecule/api-config": "1.0.3",
-    "@molecule/api-http": "1.0.3",
+    "@molecule/api-config": "1.0.4",
+    "@molecule/api-http": "1.0.4",
     "@types/node": "26.6.5",
     "typescript": "6.0.3",
     "vitest": "4.1.12"

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-routing-react-router",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "description": "React Router v7 provider for @molecule/app-routing",
   "type": "module",
   "main": "dist/index.js",
@@ -28,7 +28,7 @@
     "react-router": "^7.0.0 || ^8.0.0"
   },
   "devDependencies": {
-    "@molecule/app-i18n": "1.1.0",
+    "@molecule/app-i18n": "1.1.1",
     "@types/node": "26.6.5",
     "@types/react": "19.3.0",
     "react": "19.3.1",
