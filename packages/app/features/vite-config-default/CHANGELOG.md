@@ -1,5 +1,11 @@
 # @molecule/app-vite-config-default
 
+## 1.2.2
+
+### Patch Changes
+
+- 1fa47c2: Keep service-worker registration under the app's runtime registrar.
+
 ## 1.2.1
 
 ### Patch Changes

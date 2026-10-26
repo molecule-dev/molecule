@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-react-native",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "React Native framework bindings for molecule.dev",
   "homepage": "https://www.molecule.dev/packages/app-react-native",
   "type": "module",
@@ -33,7 +33,7 @@
     "directory": "packages/app/frameworks/react-native"
   },
   "devDependencies": {
-    "@molecule/app-react": "2.0.0",
+    "@molecule/app-react": "2.0.1",
     "@types/node": "26.6.5",
     "react": "19.3.1",
     "typescript": "6.0.3",

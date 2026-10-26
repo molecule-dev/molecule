@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-auth",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Client-side authentication interface for molecule.dev",
   "type": "module",
   "main": "dist/index.js",

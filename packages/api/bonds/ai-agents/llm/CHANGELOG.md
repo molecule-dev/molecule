@@ -1,5 +1,11 @@
 # @molecule/api-ai-agents-llm
 
+## 1.0.4
+
+### Patch Changes
+
+- Preserve thinking settings and assistant reasoning across agent tool calls.
+
 ## 1.0.1
 
 ### Patch Changes

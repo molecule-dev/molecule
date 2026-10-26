@@ -1,5 +1,11 @@
 # @molecule/app-solid
 
+## 2.0.1
+
+### Patch Changes
+
+- 2a74d83: Preserve generic type parameters and explicit types in API documentation.
+
 ## 2.0.0
 
 ### Patch Changes
