@@ -1,5 +1,11 @@
 # @molecule/api-instance-leadership-postgresql
 
+## 1.1.2
+
+### Patch Changes
+
+- Expire silent leadership sessions and demote holders when their database heartbeat fails.
+
 ## 1.1.0
 
 ### Minor Changes
