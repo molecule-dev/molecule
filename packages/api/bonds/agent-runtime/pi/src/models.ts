@@ -53,6 +53,9 @@ export const DEFAULT_MODEL_MAP: Readonly<Record<string, string>> = {
   'claude-haiku-4-5-20251001': 'anthropic/claude-haiku-4-5-20251001',
   'gpt-6-astra': 'openai/gpt-6-astra',
   'gpt-6.1-sol': 'openai/gpt-6.1-sol',
+  // Released after pi 1.0.0's bundled catalog; passthrough row (see
+  // claude-haiku-5-5 above).
+  'gpt-6.1-terra': 'openai/gpt-6.1-terra',
   'gpt-6-sol': 'openai/gpt-6-sol',
   'gpt-6-luna': 'openai/gpt-6-luna',
   'gpt-5.6-sol': 'openai/gpt-5.6-sol',

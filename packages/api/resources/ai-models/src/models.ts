@@ -236,6 +236,15 @@ const CHINA_PUBLIC_HOLIDAYS = [
  *   It supersedes gpt-6-sol. Every other GPT-6 and 5.6 price on the page is
  *   unchanged and the 5.6-sol promo footnote still reads "at least through
  *   November 21, 2026".)
+ *   (verified 2026-10-27 on the gpt-6.1-terra model page, re-hosted at
+ *   developers.openai.com/api/docs/models/gpt-6.1-terra: ADDED gpt-6.1-terra
+ *   ($1/$5, cached $0.05 — 5% of input — cache writes $1.25; >272K band
+ *   $2/$7.50, cached $0.10, writes $2.50 not modeled; 1.05M ctx / 128K out;
+ *   image input; knowledge cutoff Jun 1 2026; effort
+ *   none|low|medium|high|xhigh|max, default medium; "Tool calling requires
+ *   the Responses API" — the same shape as gpt-6.1-sol, served by the bond's
+ *   /v1/responses calls. Supersedes gpt-5.6-terra, same tier at $2/$12,
+ *   repointed from gpt-6.1-sol.)
  * - Google: https://ai.google.dev/gemini-api/docs/pricing (gemini-3.6-flash GA
  *   2026-07-21 $1.50/$7.50 supersedes 3.5-flash as the agentic flagship;
  *   gemini-3.1-pro-preview still the pro tier — "3.5 Pro" has NOT shipped as
@@ -1040,6 +1049,13 @@ export const MODELS: readonly ModelDefinition[] = [
   // /v1/responses on OpenAI's own endpoint, so, like astra, it needs no
   // `toolsRequireReasoningOff` pin. Same list price as gpt-6-sol with half the
   // cached-input rate, so it supersedes gpt-6-sol.
+  //
+  // gpt-6.1-terra (added 2026-10-27) is sol's 6.1 sibling and 5.6-terra's tier:
+  // its model page lists a 'none' effort, and "Tool calling requires the
+  // Responses API" — the same constraint as sol, served by the bond's
+  // /v1/responses calls, so it too needs no `toolsRequireReasoningOff` pin.
+  // At $1/$5 it is 5.6-terra's tier at half the price, so 5.6-terra repoints
+  // to it.
   // ---------------------------------------------------------------------------
   {
     id: 'gpt-6-astra',
@@ -1104,6 +1120,38 @@ export const MODELS: readonly ModelDefinition[] = [
     cacheReadPricePerMTok: 0.1,
     cacheWritePricePerMTok: 2.5,
     knowledgeCutoff: '2026-04-30',
+  },
+  {
+    id: 'gpt-6.1-terra',
+    provider: 'openai',
+    label: 'GPT-6.1 Terra',
+    description: 'Balanced OpenAI — everyday coding & tool use',
+    // Documented as 1.05M; floored to 1M like the other OpenAI entries.
+    contextWindow: 1_000_000,
+    maxOutputTokens: 128_000,
+    supportsThinking: true,
+    thinkingBudgetTokens: 16_000,
+    thinkingConfigurable: true,
+    // Unlike gpt-6.1-sol, the model page lists a 'none' effort (verified
+    // 2026-10-27) — tool-less utility calls run with reasoning off.
+    supportedEffortLevels: ['none', 'low', 'medium', 'high', 'xhigh', 'max'],
+    defaultEffortLevel: 'medium',
+    // Omitted like the rest of the 6.1 family; the pre-commit dispatch probe
+    // sends the temperature-0 shape.
+    rejectsTemperature: true,
+    supportsVision: true,
+    supportsPromptCaching: true,
+    supportsTools: true,
+    webSearchToolType: 'web_search',
+    webSearchPricePer1k: 10,
+    codeExecutionToolType: 'code_interpreter',
+    // Standard tier. Cached input is 5% of input like gpt-6.1-sol; >272K band
+    // ($2/$7.50, cached $0.10, writes $2.50) not modeled.
+    inputPricePerMTok: 1,
+    outputPricePerMTok: 5,
+    cacheReadPricePerMTok: 0.05,
+    cacheWritePricePerMTok: 1.25,
+    knowledgeCutoff: '2026-06-01',
   },
   {
     id: 'gpt-6-sol',
@@ -1252,11 +1300,11 @@ export const MODELS: readonly ModelDefinition[] = [
     cacheWritePricePerMTok: 2.5,
     // Not published — best-effort estimate.
     knowledgeCutoff: '2026-03-01',
-    // Superseded by gpt-6-sol: GPT-6 has no Terra tier, and sol sits at this
-    // tier's price ($2/$10 vs $2/$12). Points one hop to gpt-6.1-sol since
-    // 2026-09-30.
+    // Superseded by gpt-6.1-terra — the same tier returns at $1/$5. (Pointed
+    // at gpt-6.1-sol since 2026-09-30 while GPT-6.x had no Terra id.) Still
+    // served and priceable — just not offered in the picker.
     deprecatedAt: '2026-09-23',
-    supersededBy: 'gpt-6.1-sol',
+    supersededBy: 'gpt-6.1-terra',
   },
   {
     id: 'gpt-5.6-luna',

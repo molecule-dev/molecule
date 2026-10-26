@@ -1158,12 +1158,26 @@ const INTENTIONAL_FAMILY_OVERLAPS: { older: string; newer: string; why: string }
   {
     older: 'gpt-6-astra',
     newer: 'gpt-6.1-sol',
-    why: "OpenAI's flagship tier ($10/$50); GPT-6.1 so far ships only the Sol tier ($2/$10).",
+    why: "OpenAI's flagship tier ($10/$50); GPT-6.1 ships no astra-tier id.",
+  },
+  {
+    older: 'gpt-6-astra',
+    newer: 'gpt-6.1-terra',
+    why:
+      "OpenAI's flagship tier ($10/$50); GPT-6.1 ships no astra-tier id — " +
+      'terra is the balanced tier ($1/$5).',
   },
   {
     older: 'gpt-6-luna',
     newer: 'gpt-6.1-sol',
-    why: "OpenAI's cheap tier ($0.10/$0.50); GPT-6.1 so far ships only the Sol tier ($2/$10).",
+    why: "OpenAI's cheap tier ($0.10/$0.50); GPT-6.1 ships no luna-tier id.",
+  },
+  {
+    older: 'gpt-6-luna',
+    newer: 'gpt-6.1-terra',
+    why:
+      "OpenAI's cheap tier ($0.10/$0.50); GPT-6.1 ships no luna-tier id — " +
+      'terra is the balanced tier ($1/$5).',
   },
   {
     older: 'minimax-m3',
@@ -1272,7 +1286,7 @@ describe('supersededBy', () => {
       'claude-haiku-4-5-20251001': 'claude-haiku-5-5',
       'gpt-6-sol': 'gpt-6.1-sol',
       'gpt-5.6-sol': 'gpt-6.1-sol',
-      'gpt-5.6-terra': 'gpt-6.1-sol',
+      'gpt-5.6-terra': 'gpt-6.1-terra',
       'gpt-5.6-luna': 'gpt-6-luna',
       'gpt-5.5': 'gpt-6.1-sol',
       'gpt-5.4': 'gpt-6.1-sol',
