@@ -55,6 +55,7 @@ async function accountApi(): Promise<{
   server: Server
   writes: Record<string, unknown>[]
   reject: boolean
+  partialAnswer: boolean
   hold: Promise<void> | null
 }> {
   let persisted = { ...initial }
@@ -63,6 +64,7 @@ async function accountApi(): Promise<{
     server: undefined as unknown as Server,
     writes: [] as Record<string, unknown>[],
     reject: false,
+    partialAnswer: false,
     hold: null as Promise<void> | null,
   }
   api.server = createServer(async (request, response) => {
@@ -96,7 +98,7 @@ async function accountApi(): Promise<{
     for (const key of ['name', 'email', 'bio', 'image'] as const) {
       if (Object.hasOwn(patch, key)) persisted = { ...persisted, [key]: patch[key] }
     }
-    response.end(JSON.stringify({ user: persisted }))
+    response.end(JSON.stringify(api.partialAnswer ? { props: patch } : { user: persisted }))
   })
   await new Promise<void>((resolve) => api.server.listen(0, '127.0.0.1', resolve))
   const address = api.server.address()
@@ -287,6 +289,49 @@ describe('shared profile form: rendered controls → real HTTP → persisted pro
     )
     expect(control('Bio').value).toBe(stored.bio)
     expect(control('Image').value).toBe(stored.image)
+  })
+
+  it('passes the merged JWT profile to onSaved for a changed-fields HTTP answer', async () => {
+    const { api, client, store } = await setup()
+    api.partialAnswer = true
+    const saved = vi.fn()
+    render(
+      <AuthProvider client={client}>
+        <ProfileForm onSaved={saved} />
+      </AuthProvider>,
+    )
+    edit('Bio', 'Only the biography changed')
+    submit()
+    await waitFor(() => expect(saved).toHaveBeenCalledTimes(1))
+    const persisted = await persistedUser(api.baseURL)
+    expect(api.writes).toEqual([{ bio: 'Only the biography changed' }])
+    expect(saved.mock.calls[0]![0]).toEqual(persisted)
+    expect(client.getUser()).toEqual(persisted)
+    expect(JSON.parse(screen.getByLabelText('Shared profile').textContent!)).toEqual(persisted)
+    expect(control('Name').value).toBe(initial.name)
+    const reloaded = createJWTAuthClient<Reader>({ storage: store })
+    await reloaded.initialize()
+    expect(reloaded.getUser()).toEqual(persisted)
+  })
+
+  it('forwards a custom provider return without inventing a profile merge in the hook', async () => {
+    const { client } = await setup()
+    // A deliberately raw custom provider: this violates the saved-profile contract.
+    // It proves that a page callback cannot assume the hook normalized the answer.
+    const raw = { bio: 'Raw custom answer' } as Reader
+    vi.spyOn(client, 'updateProfile').mockResolvedValue(raw)
+    const saved = vi.fn()
+    render(
+      <AuthProvider client={client}>
+        <ProfileForm onSaved={saved} />
+      </AuthProvider>,
+    )
+    edit('Bio', 'Submitted biography')
+    submit()
+    await waitFor(() => expect(saved).toHaveBeenCalledTimes(1))
+    expect(saved.mock.calls[0]![0]).toBe(raw)
+    expect(saved.mock.calls[0]![0]).not.toHaveProperty('id')
+    expect(client.getUser()).toEqual(initial)
   })
 
   it('hydrates asynchronous user data, keeps earlier edits, resets to the newest baseline, and sends no empty patch', async () => {
