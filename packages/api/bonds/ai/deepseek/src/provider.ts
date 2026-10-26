@@ -10,6 +10,7 @@
  */
 
 import { randomUUID } from 'node:crypto'
+import { URL } from 'node:url'
 
 import type {
   AIProvider,
@@ -20,6 +21,8 @@ import type {
   ChatMessage,
   ChatParams,
   ContentBlock,
+  ImageInputSize,
+  ImageInputTokenEstimate,
   ProviderResponseMeta,
   TokenUsage,
 } from '@molecule/api-ai'
@@ -160,6 +163,101 @@ const MAX_TIMER_MS = 2_147_483_647
  * A longer list is sent truncated rather than refused by the API.
  */
 const MAX_STOP_SEQUENCES = 16
+
+/**
+ * Model ids DeepSeek documents as accepting image input (vision guide, read
+ * 2026-10-25): `deepseek-flash` takes images alongside text, and the retired
+ * `deepseek-v4-flash-vision-exp` id is still accepted and served by the latest
+ * Flash model. Any other id — including one this bond's own `modelMap` sends to
+ * a different host — has no documented image rule, so it answers unknown.
+ *
+ * A documented id is necessary but not sufficient: the ceiling is a fact about
+ * DeepSeek's OWN backend, so it is applied only when the request is going to
+ * DeepSeek's own documented endpoint (see {@link isNativeDeepseekEndpoint}).
+ */
+const VISION_MODEL_IDS: readonly string[] = ['deepseek-flash', 'deepseek-v4-flash-vision-exp']
+
+/**
+ * The image formats the vision guide lists as supported: JPEG, PNG, GIF and
+ * WebP. A payload of any other type is not covered by the token rule.
+ */
+const VISION_MEDIA_TYPES: readonly string[] = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
+
+/**
+ * DeepSeek's documented ceiling for ONE image, in input tokens: the guide states
+ * "there is an upper bound of 1024 tokens per image", each image "counted
+ * independently under the same rule" with no separate multi-image calculation.
+ * Images below roughly 544×544 are scaled up and larger ones down to roughly
+ * 1300×1300, so the bound holds whatever the source dimensions are — including
+ * `detail: 'low'` (downscaled to 512×512) and `'original'`/`'auto'`.
+ *
+ * The request-level limits around it (32 MiB per base64 image, 8192 px per side,
+ * images in `user` messages only) reject an unusable request rather than change
+ * the price, so this bond prices the image alone and leaves message placement to
+ * the caller that knows it.
+ */
+const VISION_TOKENS_PER_IMAGE_UPPER_BOUND = 1024
+
+/**
+ * The host DeepSeek documents as its own API endpoint. The per-image ceiling is
+ * a fact about THIS backend's accounting; the same model ids served by a
+ * gateway, a proxy or another OpenAI-compatible host are billed by that host's
+ * rule, which this bond cannot point at documentation for.
+ */
+const NATIVE_ENDPOINT_HOST = 'api.deepseek.com'
+
+/**
+ * The chat-completions path DeepSeek documents, in both of its published base
+ * URL forms: `https://api.deepseek.com` + `/chat/completions`, and
+ * `https://api.deepseek.com/v1` + `/chat/completions` (this bond's default is
+ * the root base with `/v1/chat/completions`).
+ */
+const NATIVE_COMPLETIONS_PATHS: readonly string[] = ['/v1/chat/completions', '/chat/completions']
+
+/**
+ * Whether the endpoint this bond will actually POST to is DeepSeek's own
+ * documented HTTPS endpoint.
+ *
+ * The documented per-image ceiling belongs to DeepSeek's backend, and a
+ * `baseUrl`, `DEEPSEEK_BASE_URL` or `completionsPath` can point this bond at a
+ * gateway, a proxy or another provider's OpenAI-compatible host. Model alias
+ * resolution alone cannot catch that: a custom endpoint may keep the native
+ * model names, so the wire still says `deepseek-flash` while another backend
+ * does the billing. Only the RESOLVED endpoint can say which backend it is.
+ *
+ * Parsed with the WHATWG URL parser, so the answer is about the endpoint as the
+ * request will be sent: https only, the exact hostname, no explicit
+ * non-default port (an explicit `:443` normalizes away, being the same
+ * endpoint), no credentials, no query or fragment, and a pathname equal to one
+ * of the two documented completions paths. Neither the parser nor the request
+ * normalizes duplicate or trailing slashes, so a base URL carrying one composes
+ * to a different path — `/v1/chat/completions/` or `//v1/chat/completions` —
+ * which is not native; anything else (another host, a port, a query, a
+ * fragment, an unparsable or relative URL) is not native either.
+ *
+ * Returns a boolean only: no part of the URL is logged, and nothing here reads,
+ * echoes or reports a credential.
+ *
+ * @param endpoint - The resolved request URL, `baseUrl + completionsPath`.
+ * @returns True only for DeepSeek's own documented endpoint.
+ */
+function isNativeDeepseekEndpoint(endpoint: string): boolean {
+  let url: URL
+  try {
+    url = new URL(endpoint)
+  } catch (_error) {
+    // Not a URL this bond can reason about, so the documented rule does not
+    // apply. The caller answers unknown, which needs neither a log line nor an
+    // echo of the value that failed to parse.
+    return false
+  }
+  if (url.protocol !== 'https:') return false
+  if (url.hostname !== NATIVE_ENDPOINT_HOST) return false
+  if (url.port !== '') return false
+  if (url.username !== '' || url.password !== '') return false
+  if (url.search !== '' || url.hash !== '') return false
+  return NATIVE_COMPLETIONS_PATHS.includes(url.pathname)
+}
 
 /**
  * Resolve a stream bound from the config, then the environment, then the
@@ -564,6 +662,33 @@ class DeepseekAIProviderImpl implements AIProvider {
         params.signal?.removeEventListener('abort', forwardAbort)
       }
     }
+  }
+
+  /**
+   * DeepSeek's own documented price for one image, in input tokens.
+   *
+   * Priced only when BOTH conditions hold: the request is going to DeepSeek's
+   * own documented endpoint ({@link isNativeDeepseekEndpoint}), and the model
+   * the wire will carry is a documented DeepSeek vision id. The alias is
+   * resolved exactly the way {@link chat} resolves it — the bond's `modelMap`
+   * first, a miss passing through unchanged — so a host that renames the model
+   * on the wire (a US re-host) is priced under the id it actually serves, and a
+   * custom endpoint that keeps the native names is still unknown because
+   * another backend does the billing. Anything else — another model, another
+   * format, another endpoint — is an explicit unknown rather than DeepSeek's
+   * ceiling.
+   *
+   * @param image - The selected catalog model id and the image's media type.
+   * @returns 1024 tokens per image for a documented vision model and a
+   *   supported format on DeepSeek's own endpoint, otherwise an explicit
+   *   unknown.
+   */
+  estimateImageInputTokens(image: ImageInputSize): ImageInputTokenEstimate {
+    if (!isNativeDeepseekEndpoint(`${this.baseUrl}${this.completionsPath}`)) return { known: false }
+    const upstream = this.modelMap[image.model] ?? image.model
+    if (!VISION_MODEL_IDS.includes(upstream)) return { known: false }
+    if (!VISION_MEDIA_TYPES.includes(image.mediaType.toLowerCase())) return { known: false }
+    return { known: true, upperBoundTokens: VISION_TOKENS_PER_IMAGE_UPPER_BOUND }
   }
 
   /**

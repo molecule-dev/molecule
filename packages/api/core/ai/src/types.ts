@@ -410,6 +410,50 @@ export interface ChatParams {
 }
 
 /**
+ * One image as the caller already knows it when a request is being sized.
+ *
+ * Deliberately carries no payload: a provider that prices images from its own
+ * documented rule never needs to decode the pixels, and a caller that has only
+ * the encoded bytes has nothing a rule could be derived from. Providers whose
+ * rule depends on the image itself return unknown rather than guess.
+ */
+export interface ImageInputSize {
+  /**
+   * Canonical catalog model id the caller selected for this request, BEFORE any
+   * provider alias mapping — the same id callers pass in `ChatParams.model`.
+   */
+  model: string
+  /** Media (MIME) type of the encoded payload, e.g. `image/png`. */
+  mediaType: string
+}
+
+/**
+ * A provider's own answer about what ONE image costs in input tokens.
+ *
+ * A discriminated union rather than a nullable number: `known: false` is a
+ * statement ("this provider cannot price this image"), and a caller must keep
+ * its existing fallback rather than read the absence as a conservative bound.
+ */
+export type ImageInputTokenEstimate =
+  | {
+      /** The provider priced this image from a rule it documents for this model. */
+      known: true
+      /**
+       * A CEILING on the input tokens this image occupies. A bound, not an exact
+       * count — the provider's own usage report is the only exact figure — and
+       * documented for one provider/model, never a cross-provider assumption.
+       */
+      upperBoundTokens: number
+    }
+  | {
+      /**
+       * The provider cannot price this image: an unsupported model or media
+       * type, or a host whose backend the documented rule does not cover.
+       */
+      known: false
+    }
+
+/**
  * AI provider interface.
  *
  * Each bond package (Anthropic, OpenAI, Gemini, etc.) implements
@@ -426,6 +470,27 @@ export interface AIProvider {
    * @returns An async iterable that yields `ChatEvent` objects (text chunks, tool calls, done, or error).
    */
   chat(params: ChatParams): AsyncIterable<ChatEvent>
+
+  /**
+   * Price ONE image in input tokens, from this provider's own documented rule.
+   *
+   * OPTIONAL, and the only supported way to size image input: a caller that has
+   * no answer keeps whatever fallback it already used. An implementation must
+   * return `{ known: false }` — never a guess — for a model, media type or host
+   * the rule does not cover, and must not report a bound it cannot point at
+   * documentation for. The bound is per image and independent of how many
+   * images a request carries only when the provider's own docs say so.
+   *
+   * SYNCHRONOUS AND LOCAL BY CONTRACT: no network request (no counting endpoint,
+   * no tokenizer download), no image decoding, no dependency on credentials.
+   *
+   * Adding it to a bond is a capability, not an obligation: providers that omit
+   * it stay valid implementations and are treated as unable to price images.
+   *
+   * @param image - The model the caller selected and the image's media type.
+   * @returns A documented ceiling for that image, or an explicit unknown.
+   */
+  estimateImageInputTokens?(image: ImageInputSize): ImageInputTokenEstimate
 }
 
 /**

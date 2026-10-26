@@ -18,7 +18,7 @@ import {
 } from '@molecule/api-bond'
 import { t } from '@molecule/api-i18n'
 
-import type { AIProvider } from './types.js'
+import type { AIProvider, ImageInputSize, ImageInputTokenEstimate } from './types.js'
 
 const BOND_TYPE = 'ai'
 expectBond(BOND_TYPE)
@@ -198,4 +198,37 @@ export function requireProvider(): AIProvider {
       defaultValue: 'AI provider not configured. Bond an AI provider first.',
     }),
   )
+}
+
+/**
+ * Ask the provider that will serve a request what ONE image costs in input
+ * tokens.
+ *
+ * This is the accessor consumers should use instead of reaching for the
+ * optional method themselves, so every caller applies the same three rules:
+ * a provider that does not implement the capability answers unknown, a bond
+ * that returns something that is not a usable ceiling (missing, negative, NaN,
+ * Infinity) is treated as unknown rather than trusted, and a missing provider
+ * is unknown rather than an exception. Unknown means "this provider cannot
+ * price the image" — it is NOT a conservative bound, so callers keep whatever
+ * fallback they already had and must not present it as one.
+ *
+ * @param provider - The provider selected for this request, or null when none was.
+ * @param image - The selected model id and the image's media type.
+ * @returns The provider's documented ceiling, or an explicit unknown.
+ */
+export function estimateImageInputTokens(
+  provider: AIProvider | null | undefined,
+  image: ImageInputSize,
+): ImageInputTokenEstimate {
+  const estimate = provider?.estimateImageInputTokens?.(image)
+  if (
+    !estimate ||
+    estimate.known !== true ||
+    !Number.isFinite(estimate.upperBoundTokens) ||
+    estimate.upperBoundTokens < 0
+  ) {
+    return { known: false }
+  }
+  return estimate
 }
