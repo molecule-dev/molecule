@@ -178,6 +178,9 @@ export function createDefaultViteConfig(branding: DefaultViteConfigBranding): Us
 
   const pwaOptions = {
     registerType: 'prompt' as const,
+    // The app's registerPWA() call owns registration. Removing that call must
+    // not activate VitePWA's separate automatic registrar during the build.
+    injectRegister: false as const,
     includeAssets: ['icons/*.svg', 'favicon.svg', 'og-image.svg'],
     manifest: {
       name: branding.APP_NAME,

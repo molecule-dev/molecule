@@ -88,6 +88,7 @@ describe('@molecule/app-vite-config-default', () => {
     const plugins = (cfg.plugins ?? []) as Array<{ name?: string; __options?: unknown }>
     const pwa = plugins.find((p) => p?.name === 'pwa')
     expect(pwa, 'VitePWA plugin present').toBeDefined()
+    expect(pwa?.__options).toMatchObject({ injectRegister: false, registerType: 'prompt' })
     const workbox = (pwa?.__options as { workbox?: { importScripts?: string[] } })?.workbox
     expect(workbox?.importScripts).toContain(PUSH_SW_FILENAME)
     expect(

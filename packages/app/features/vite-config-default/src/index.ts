@@ -25,6 +25,12 @@
  * ```
  *
  * @remarks
+ * Service-worker registration belongs to the app's startup call to
+ * `registerPWA()` from `@molecule/app-pwa-default` (or its chosen registrar).
+ * This factory emits the worker and manifest, but never injects a second
+ * registrar into HTML. Omitting the runtime call leaves registration disabled;
+ * it does not unregister a worker an earlier build already installed.
+ *
  * **`vite preview` proxies the API too.** `npm run build && npx vite preview` serves the
  * production bundle (`dist/`, port 4173) with the same `/api`, `/health` and `/socket.io`
  * routes as the dev server, so the e2e suite can run against the bundle that ships — a bug
