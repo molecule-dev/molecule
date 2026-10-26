@@ -1,3 +1,4 @@
+import { execFileSync } from 'node:child_process'
 import {
   existsSync,
   mkdirSync,
@@ -10,6 +11,8 @@ import {
 import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
+import process from 'node:process'
+import { URL } from 'node:url'
 
 import { afterEach, describe, expect, it } from 'vitest'
 
@@ -106,4 +109,98 @@ describe('CI dist proof', () => {
     expect(distCache(root, 'apply')).toEqual({ fresh: 0, rebuild: 3 })
     expect(existsSync(join(root, 'packages/client/dist'))).toBe(false)
   })
+
+  it.each([
+    'packages/leaf/README.md',
+    'packages/leaf/CHANGELOG.md',
+    'scripts/__tests__/unrelated.test.mjs',
+    'scripts/generate-readmes.mjs',
+  ])('reuses unchanged compiler outputs after only %s changes', (file) => {
+    const { root, write } = fixture()
+    mkdirSync(dirname(join(root, file)), { recursive: true })
+    write(file, '// New documentation or independent meta tooling\n')
+    expect(distCache(root, 'apply')).toEqual({ fresh: 3, rebuild: 0 })
+  })
+
+  it.each(['src/README.md', 'template.html'])(
+    'keeps source-tree documentation and arbitrary package assets (%s) in the proof',
+    (file) => {
+      const { root, write } = fixture()
+      write(`packages/leaf/${file}`, 'Changed source asset\n')
+      expect(distCache(root, 'apply')).toEqual({ fresh: 1, rebuild: 2 })
+    },
+  )
+
+  it.each([
+    "import './build-helper.mjs'\n",
+    "const helper = './build-helper.mjs'; import(helper)\n",
+    "import { createRequire } from 'node:module'; const load = createRequire(import.meta.url); load('./build-helper.mjs')\n",
+  ])('refuses changed required builder helpers (%s)', (builder) => {
+    const { root, write } = fixture()
+    write('scripts/build.js', builder)
+    write('scripts/build-helper.mjs', 'export const target = "ES2022"\n')
+    expect(distCache(root, 'write')).toEqual({ written: 3 })
+    write('scripts/build-helper.mjs', 'export const target = "ES2023"\n')
+    expect(distCache(root, 'apply')).toEqual({ fresh: 0, rebuild: 3 })
+  })
+
+  it('retains helper-owned assets even when declarations shadow runtime JavaScript', () => {
+    const { root, write } = fixture()
+    write('scripts/build.js', "import './build-helper.js'\n")
+    write(
+      'scripts/build-helper.js',
+      "import { readFileSync } from 'node:fs'; readFileSync(new URL('./build-data.json', import.meta.url))\n",
+    )
+    write('scripts/build-helper.d.ts', 'export {}\n')
+    write('scripts/build-data.json', '{"target":"ES2022"}')
+    expect(distCache(root, 'write')).toEqual({ written: 3 })
+    write('scripts/build-data.json', '{"target":"ES2023"}')
+    expect(distCache(root, 'apply')).toEqual({ fresh: 0, rebuild: 3 })
+  })
+
+  it('the actual builder skips docs-only edits and recompiles a source change and its consumer', () => {
+    const { root, write } = fixture()
+    write('scripts/build.js', readFileSync(new URL('../build.js', import.meta.url), 'utf8'))
+    write(
+      'tsconfig.json',
+      JSON.stringify({
+        compilerOptions: {
+          target: 'ES2022',
+          module: 'NodeNext',
+          moduleResolution: 'NodeNext',
+          types: [],
+          declaration: true,
+          skipLibCheck: true,
+        },
+      }),
+    )
+    for (const name of ['leaf', 'client', 'unrelated']) {
+      write(
+        `packages/${name}/tsconfig.json`,
+        JSON.stringify({
+          extends: '../../tsconfig.json',
+          compilerOptions: { rootDir: 'src', outDir: 'dist' },
+          include: ['src/**/*.ts'],
+        }),
+      )
+      rmSync(join(root, `packages/${name}/dist`), { recursive: true })
+    }
+    const build = () =>
+      execFileSync(process.execPath, ['scripts/build.js'], {
+        cwd: root,
+        encoding: 'utf8',
+        timeout: 30000,
+        env: { ...process.env, npm_config_offline: 'true', npm_config_yes: 'false' },
+      })
+    expect(build()).toContain('Done. 3 built, 0 skipped')
+    expect(distCache(root, 'write')).toEqual({ written: 3 })
+    write('packages/leaf/README.md', '# Updated booking API documentation\n')
+    write('scripts/doc-check.mjs', 'console.log("Independent docs check")\n')
+    expect(distCache(root, 'apply')).toEqual({ fresh: 3, rebuild: 0 })
+    expect(build()).toContain('Done. 0 built, 3 skipped')
+    write('packages/leaf/src/index.ts', 'export const value = 2\n')
+    expect(distCache(root, 'apply')).toEqual({ fresh: 1, rebuild: 2 })
+    expect(build()).toContain('Done. 2 built, 1 skipped')
+    expect(readFileSync(join(root, 'packages/leaf/dist/index.js'), 'utf8')).toContain('value = 2')
+  }, 30000)
 })

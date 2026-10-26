@@ -20,7 +20,7 @@ import {
   utimesSync,
   writeFileSync,
 } from 'node:fs'
-import { createRequire } from 'node:module'
+import { createRequire, isBuiltin } from 'node:module'
 import { basename, join, relative, resolve } from 'node:path'
 import { fileURLToPath, URL } from 'node:url'
 
@@ -77,6 +77,38 @@ function packagesAt(root) {
   return packages
 }
 
+/** Keep helper-owning builders conservative; the current builder uses only Node builtins. */
+function builderInputs(root, ts) {
+  const file = join(root, 'scripts/build.js')
+  const text = readFileSync(file, 'utf8')
+  const imports = ts.preProcessFile(text, true, true).importedFiles
+  const source = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS)
+  let dynamic = false
+  /** Dynamic loaders have no statically provable helper inventory. */
+  function visit(node) {
+    if (
+      ts.isCallExpression(node) &&
+      (node.expression.kind === ts.SyntaxKind.ImportKeyword ||
+        (ts.isIdentifier(node.expression) && node.expression.text === 'require'))
+    )
+      dynamic = true
+    ts.forEachChild(node, visit)
+  }
+  visit(source)
+  // Do not invent a runtime resolver: TS can prefer .d.ts over the JS Node
+  // executes, and helpers may read their own assets. Keep the prior complete
+  // scripts proof for any helper or createRequire-capable builder.
+  if (
+    dynamic ||
+    imports.some(
+      ({ fileName }) => !isBuiltin(fileName) || ['module', 'node:module'].includes(fileName),
+    )
+  ) {
+    return inventory(join(root, 'scripts'), new Set(['node_modules', '.git']))
+  }
+  return { 'build.js': [bytesHash(file), lstatSync(file).mode & 0o777] }
+}
+
 /** Read actual build inputs only; exported for the scoped mutation control. */
 export function readCacheInputs(root) {
   const packages = packagesAt(root)
@@ -125,8 +157,17 @@ export function readCacheInputs(root) {
     root: Object.fromEntries(rootFiles.map((name) => [name, bytesHash(join(root, name))])),
     lock: { ...lock, packages: external },
     tools,
-    scripts: inventory(join(root, 'scripts'), new Set(['node_modules', '.git'])),
+    builder: builderInputs(root, ts),
+    cache: bytesHash(fileURLToPath(import.meta.url)),
   })
+  // tsc does not consume package-root release/docs bodies. Parsed compiler
+  // inputs below still win if a config explicitly names one. Other compilers
+  // may use arbitrary template assets, so keep their whole-package inventory.
+  const excluded = new Set(outputs)
+  for (const pkg of packages.values()) {
+    if (pkg.manifest.scripts.build !== 'tsc') continue
+    for (const name of ['README.md', 'CHANGELOG.md']) excluded.add(join(root, pkg.path, name))
+  }
   for (const pkg of packages.values()) {
     if (!lock.packages[pkg.path]) throw new Error(`workspace absent from lock: ${pkg.path}`)
     const files = {}
@@ -150,7 +191,7 @@ export function readCacheInputs(root) {
     if (!parsed || configError || parsed.errors.length)
       throw new Error(`unreadable build config: ${pkg.path}`)
     for (const file of parsed.fileNames) files[relative(root, file)] = bytesHash(file)
-    const own = inventory(join(root, pkg.path), new Set(['node_modules', '.git']), '', {}, outputs)
+    const own = inventory(join(root, pkg.path), new Set(['node_modules', '.git']), '', {}, excluded)
     pkg.input = hash({ files, own, lock: lock.packages[pkg.path] })
     const declared = {
       ...pkg.manifest.dependencies,
