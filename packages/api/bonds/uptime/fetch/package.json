@@ -1,0 +1,51 @@
+{
+  "name": "@molecule/api-uptime-fetch",
+  "version": "1.0.0",
+  "description": "In-process uptime provider for molecule.dev — probe an http(s) URL with verified public dialing, status assertions and TLS inspection",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "molecule",
+    "uptime",
+    "monitoring",
+    "health",
+    "probe",
+    "availability"
+  ],
+  "license": "Apache-2.0",
+  "peerDependencies": {
+    "@molecule/api-uptime": ">=1.0.0"
+  },
+  "devDependencies": {
+    "@molecule/api-uptime": "1.0.0",
+    "@types/node": "26.6.5",
+    "typescript": "6.0.3",
+    "vitest": "4.1.12"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/uptime/fetch"
+  },
+  "homepage": "https://www.molecule.dev/packages/api-uptime-fetch",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}
