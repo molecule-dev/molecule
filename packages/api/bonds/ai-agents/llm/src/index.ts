@@ -62,6 +62,11 @@
  * INCREMENTAL live hook while streaming — with `stream: false` it fires once
  * per turn with the whole response.
  *
+ * `input.thinking` forwards the core chat contract's native thinking settings
+ * on every turn. Streamed reasoning is retained in `ChatMessage.reasoning`
+ * across tool calls, separately from assistant text and tool arguments.
+ * Omitting the option does not enable thinking or manufacture reasoning.
+ *
  * Failure semantics (how to tell failure modes apart):
  * - **Tool failure** (throwing `execute()`, unknown tool name) — NON-fatal:
  *   recorded on the step with `isError: true` and fed back to the model.

@@ -12,9 +12,8 @@
  * @module
  */
 
-// Side-effect import: registers the `stream`/`cacheControl` module
-// augmentation on `AgentRunInput` (see types.ts) so `input.stream` and
-// `input.cacheControl` below are typed, not `any`.
+// Side-effect import: augments AgentRunInput with this bond's typed request
+// options (see types.ts).
 import './types.js'
 
 import type { ChatEvent, ContentBlock, TokenUsage } from '@molecule/api-ai'
@@ -33,9 +32,10 @@ import { t } from '@molecule/api-i18n'
 
 import { AgentRunError } from './errors.js'
 
-/** One drained chat stream: accumulated text, tool calls, and token usage. */
+/** One drained chat stream: accumulated text, reasoning, tools, and usage. */
 interface DrainedStream {
   text: string
+  reasoning?: string
   toolUses: Array<{ id: string; name: string; input: unknown }>
   usage: TokenUsage
   /**
@@ -99,6 +99,7 @@ async function drainStream(
   onEvent?: (event: ChatEvent) => void,
 ): Promise<DrainedStream> {
   let text = ''
+  let reasoning: string | undefined
   const toolUses: Array<{ id: string; name: string; input: unknown }> = []
   const usage: TokenUsage = { inputTokens: 0, outputTokens: 0 }
   let errorMessage: string | undefined
@@ -110,6 +111,9 @@ async function drainStream(
     switch (event.type) {
       case 'text':
         text += event.content
+        break
+      case 'thinking':
+        reasoning = (reasoning ?? '') + event.content
         break
       case 'tool_use':
         toolUses.push({ id: event.id, name: event.name, input: event.input })
@@ -139,7 +143,7 @@ async function drainStream(
     addUsage(usage, lastSnapshot)
   }
 
-  return { text, toolUses, usage, errorMessage }
+  return { text, reasoning, toolUses, usage, errorMessage }
 }
 
 /**
@@ -212,6 +216,8 @@ export const provider: AIAgentsProvider = {
             model: input.model,
             maxTokens: input.maxTokens,
             temperature: input.temperature,
+            // Keep the caller's native thinking settings on every tool turn.
+            ...(input.thinking === undefined ? {} : { thinking: input.thinking }),
             // Defaults to streaming (see the `stream` augmentation in
             // types.ts): onEvent is a LIVE hook, and non-streaming requests
             // with large outputs (a big tool input at a raised maxTokens) are
@@ -257,7 +263,11 @@ export const provider: AIAgentsProvider = {
         for (const tu of turn.toolUses) {
           assistantContent.push({ type: 'tool_use', id: tu.id, name: tu.name, input: tu.input })
         }
-        messages.push({ role: 'assistant', content: assistantContent })
+        messages.push({
+          role: 'assistant',
+          content: assistantContent,
+          ...(turn.reasoning === undefined ? {} : { reasoning: turn.reasoning }),
+        })
 
         if (turn.toolUses.length === 0) {
           // No tools requested — the model is done.

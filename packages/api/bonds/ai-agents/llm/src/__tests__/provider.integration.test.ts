@@ -323,4 +323,108 @@ describe('@molecule/api-ai-agents-llm × REAL api-bond + api-ai wiring', () => {
 
     expect(calls[0].stream).toBe(false)
   })
+
+  it('retains native thinking and separate assistant reasoning across booking tool continuations', async () => {
+    const thinking: NonNullable<ChatParams['thinking']> = {
+      type: 'enabled',
+      budgetTokens: 8000,
+      effort: 'low',
+    }
+    const { provider: ai, calls } = scriptedAi([
+      [
+        { type: 'thinking', content: 'Check the ' },
+        { type: 'thinking', content: 'reservation first.' },
+        { type: 'text', content: 'Checking availability.' },
+        { type: 'tool_use', id: 'booking-1', name: 'lookup', input: { key: 'reservation' } },
+        { type: 'tool_use', id: 'booking-2', name: 'lookup', input: { key: 'missing' } },
+        { type: 'done', usage: { inputTokens: 10, outputTokens: 5 } },
+      ],
+      [
+        { type: 'thinking', content: 'Check another time.' },
+        { type: 'tool_use', id: 'booking-3', name: 'lookup', input: { key: 'alternate' } },
+        { type: 'done', usage: { inputTokens: 20, outputTokens: 5 } },
+      ],
+      [
+        { type: 'text', content: 'An alternate time is available.' },
+        { type: 'done', usage: { inputTokens: 30, outputTokens: 5 } },
+      ],
+    ])
+    setAiProvider(ai)
+    setAgentsProvider(agents)
+    const result = await requireProvider().run({
+      task: 'Check my booking',
+      tools: [lookupTool],
+      thinking,
+    })
+
+    expect(calls.map((call) => call.thinking)).toEqual([thinking, thinking, thinking])
+    expect(calls[1].messages.at(-2)).toEqual({
+      role: 'assistant',
+      reasoning: 'Check the reservation first.',
+      content: [
+        { type: 'text', text: 'Checking availability.' },
+        { type: 'tool_use', id: 'booking-1', name: 'lookup', input: { key: 'reservation' } },
+        { type: 'tool_use', id: 'booking-2', name: 'lookup', input: { key: 'missing' } },
+      ],
+    })
+    expect(
+      calls[2].messages
+        .filter((message) => message.role === 'assistant')
+        .map((message) => message.reasoning),
+    ).toEqual(['Check the reservation first.', 'Check another time.'])
+    expect(calls[1].messages.at(-1)).toEqual({
+      role: 'user',
+      content: [
+        {
+          type: 'tool_result',
+          tool_use_id: 'booking-1',
+          content: JSON.stringify({ key: 'reservation', value: 'reservation-value' }),
+        },
+        { type: 'tool_result', tool_use_id: 'booking-2', content: 'Error: no such key: missing' },
+      ],
+    })
+    expect(result.output).toBe('An alternate time is available.')
+    expect(result.steps[0].text).toBe('Checking availability.')
+    expect(result.usage).toEqual({ inputTokens: 60, outputTokens: 15 })
+  })
+
+  it('does not enable thinking or create reasoning for an ordinary provider', async () => {
+    const { provider: ai, calls } = scriptedAi([
+      [
+        { type: 'tool_use', id: 'plain-1', name: 'lookup', input: { key: 'reservation' } },
+        { type: 'done', usage: { inputTokens: 1, outputTokens: 1 } },
+      ],
+      [
+        { type: 'text', content: 'Found.' },
+        { type: 'done', usage: { inputTokens: 1, outputTokens: 1 } },
+      ],
+    ])
+    setAiProvider(ai)
+    await agents.run({ task: 'Find my booking', tools: [lookupTool] })
+    expect(calls.every((call) => !Object.hasOwn(call, 'thinking'))).toBe(true)
+    expect(calls[1].messages.at(-2)).toEqual({
+      role: 'assistant',
+      content: [{ type: 'tool_use', id: 'plain-1', name: 'lookup', input: { key: 'reservation' } }],
+    })
+  })
+
+  it('preserves reasoning emitted by another provider without inventing a thinking setting', async () => {
+    const { provider: ai, calls } = scriptedAi([
+      [
+        { type: 'thinking', content: 'Provider-native reasoning.' },
+        { type: 'tool_use', id: 'native-1', name: 'lookup', input: { key: 'reservation' } },
+        { type: 'done', usage: { inputTokens: 1, outputTokens: 1 } },
+      ],
+      [
+        { type: 'text', content: 'Found.' },
+        { type: 'done', usage: { inputTokens: 1, outputTokens: 1 } },
+      ],
+    ])
+    setAiProvider(ai)
+    const result = await agents.run({ task: 'Find my booking', tools: [lookupTool] })
+    expect(calls.every((call) => !Object.hasOwn(call, 'thinking'))).toBe(true)
+    expect(calls[1].messages.at(-2)?.reasoning).toBe('Provider-native reasoning.')
+    expect(result.output).toBe('Found.')
+    expect(result.steps[0].text).toBeUndefined()
+  })
 })

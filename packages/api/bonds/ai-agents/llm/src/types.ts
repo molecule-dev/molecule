@@ -1,15 +1,15 @@
 /**
  * Module augmentation: extends the core `@molecule/api-ai-agents` contract's
- * `AgentRunInput` with two options this bond's `run()` honors.
+ * `AgentRunInput` with options this bond's `run()` honors.
  *
  * @remarks
- * Both fields are ADDITIVE ONLY — they never widen or erase an existing
+ * These fields are ADDITIVE ONLY — they never widen or erase an existing
  * `AgentRunInput` field — and are consumed exclusively by this bond's `run()`
  * implementation; a different `AIAgentsProvider` bond is free to ignore them.
  * Any file that imports `@molecule/api-ai-agents-llm` (directly, or
  * transitively by bonding its `provider`) sees the merged `AgentRunInput`
  * type, matching the shape `@molecule/api-ai`'s `ChatParams` already accepts
- * for `stream` and `cacheControl`.
+ * for `stream`, `cacheControl`, and `thinking`.
  *
  * @module
  */
@@ -18,8 +18,17 @@
 // `@molecule/api-ai-agents` rather than a standalone global script.
 import '@molecule/api-ai-agents'
 
+import type { ChatParams } from '@molecule/api-ai'
+
 declare module '@molecule/api-ai-agents' {
   interface AgentRunInput {
+    /**
+     * Native thinking settings forwarded unchanged on every model turn.
+     * Streamed thinking is retained as `ChatMessage.reasoning` when a tool
+     * call continues, so providers that replay reasoning receive it intact.
+     * Omitting this option does not enable thinking.
+     */
+    thinking?: ChatParams['thinking']
     /**
      * Whether each model turn streams its response (default `true`).
      *
