@@ -55,6 +55,39 @@ export interface PostgresLeaderLockOptions {
 export class PgLeaderLockSession implements LeaderLockSession {
   private lostHandler: (() => void) | null = null
   private lost = false
+  private configured = false
+  private heartbeat: ReturnType<typeof setInterval> | null = null
+  private heartbeatInFlight = false
+
+  /** Bound every lock-session query, including follower retries and shutdown. */
+  private async query<R extends pg.QueryResultRow = pg.QueryResultRow>(
+    text: string,
+    values?: unknown[],
+  ): Promise<pg.QueryResult<R>> {
+    // node-postgres supports this on individual queries; @types/pg currently
+    // lists it only on ClientConfig.
+    const config: pg.QueryConfig & { query_timeout: number } = {
+      text,
+      values,
+      query_timeout: 5_000,
+    }
+    try {
+      return await this.client.query<R>(config)
+    } catch (error) {
+      this.markLost()
+      void this.client.end().catch(() => undefined)
+      throw error
+    }
+  }
+
+  /** Demote immediately on a failed heartbeat; PostgreSQL expires a silent holder independently. */
+  private markLost = (): void => {
+    if (this.lost) return
+    this.lost = true
+    if (this.heartbeat) clearInterval(this.heartbeat)
+    this.heartbeat = null
+    this.lostHandler?.()
+  }
 
   /**
    * Track the connection's lifecycle so a lost session demotes the leader.
@@ -66,35 +99,55 @@ export class PgLeaderLockSession implements LeaderLockSession {
     private readonly client: pg.Client,
     private readonly lockId: number,
   ) {
-    const lost = (): void => {
-      if (this.lost) return
-      this.lost = true
-      this.lostHandler?.()
-    }
     // `error` covers a socket/network failure; `end` covers the backend ending
     // the session (a server restart, an idle-session kill). Either way the lock
     // is gone.
     this.client.on('error', (error) => {
       getLogger().warn('Leadership lock connection error', { error })
-      lost()
+      this.markLost()
     })
-    this.client.on('end', lost)
+    this.client.on('end', this.markLost)
   }
 
   /** {@inheritDoc LeaderLockSession.tryLock} */
   async tryLock(): Promise<boolean> {
-    const { rows } = await this.client.query<{ locked: boolean }>(
+    if (this.lost) return false
+    // TCP may stay half-open for hours after a VM freezes. PostgreSQL's own
+    // idle-session timeout releases that orphan's lock even when its process
+    // cannot run cleanup. A live holder keeps this dedicated session active.
+    if (!this.configured) {
+      await this.query("SET idle_session_timeout = '15s'")
+      this.configured = true
+    }
+    const { rows } = await this.query<{ locked: boolean }>(
       'SELECT pg_try_advisory_lock($1) AS locked',
       [this.lockId],
     )
-    return rows[0]?.locked === true
+    const acquired = !this.lost && rows[0]?.locked === true
+    if (acquired && !this.heartbeat) {
+      this.heartbeat = setInterval(() => {
+        if (this.lost || this.heartbeatInFlight) return
+        this.heartbeatInFlight = true
+        void this.query('SELECT 1')
+          .catch((error: unknown) => {
+            getLogger().warn('Leadership heartbeat failed', { error })
+          })
+          .finally(() => {
+            this.heartbeatInFlight = false
+          })
+      }, 5_000)
+      this.heartbeat.unref?.()
+    }
+    return acquired
   }
 
   /** {@inheritDoc LeaderLockSession.release} */
   async release(): Promise<void> {
+    if (this.heartbeat) clearInterval(this.heartbeat)
+    this.heartbeat = null
     if (!this.lost) {
       try {
-        await this.client.query('SELECT pg_advisory_unlock($1)', [this.lockId])
+        await this.query('SELECT pg_advisory_unlock($1)', [this.lockId])
       } catch (error) {
         // The session is ending either way, and a session lock is released by
         // the backend when it ends — an unlock failure changes nothing.
@@ -113,6 +166,7 @@ export class PgLeaderLockSession implements LeaderLockSession {
   /** {@inheritDoc LeaderLockSession.onLost} */
   onLost(handler: () => void): void {
     this.lostHandler = handler
+    if (this.lost) handler()
   }
 }
 

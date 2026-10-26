@@ -20,9 +20,12 @@
  * recorders — runs once per Machine instead of once per platform.
  *
  * @remarks
- * - **A session lock dies with its connection.** The holder's process exiting,
- *   crashing, or losing the network ends the backend session and PostgreSQL
- *   releases the lock — no TTL to tune, no lock row left stale.
+ * - **Silent holders expire on the database.** PostgreSQL 14+ is required.
+ *   The dedicated session has a 15-second `idle_session_timeout`; a leader
+ *   sends a bounded heartbeat every five seconds. A frozen VM or half-open
+ *   connection therefore cannot retain leadership for hours. Heartbeat failure
+ *   demotes the holder and closes its connection. Singleton work must stop
+ *   promptly in `onLost` and remain safe to retry after an interruption.
  * - **A leader that loses its connection demotes itself.** The provider stops
  *   treating itself as leader and calls `onLost`; a follower retries every
  *   `retryMs` (default 2 s) and takes over within seconds.

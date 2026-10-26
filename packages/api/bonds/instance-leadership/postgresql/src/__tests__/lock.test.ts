@@ -1,7 +1,17 @@
 import type pg from 'pg'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { createPostgresLockFactory } from '../lock.js'
+import { createPostgresLockFactory, PgLeaderLockSession } from '../lock.js'
+
+const clients: FakeClient[] = []
+
+afterEach(async () => {
+  for (const client of clients.splice(0)) {
+    client.emitLost()
+    await client.end()
+  }
+  vi.useRealTimers()
+})
 
 /**
  * The slice of `pg.Client` a leadership session uses.
@@ -21,8 +31,9 @@ interface FakeClient {
  */
 function makeClient(locked: boolean): FakeClient {
   let lost: (() => void) | null = null
-  const query = vi.fn(async (sql: string) => {
-    if (sql.includes('pg_try_advisory_lock')) return { rows: [{ locked }] }
+  const query = vi.fn(async (sql: string | pg.QueryConfig) => {
+    if ((typeof sql === 'string' ? sql : sql.text).includes('pg_try_advisory_lock'))
+      return { rows: [{ locked }] }
     return { rows: [] }
   })
   const client: FakeClient = {
@@ -33,10 +44,70 @@ function makeClient(locked: boolean): FakeClient {
     }),
     emitLost: () => lost?.(),
   }
+  clients.push(client)
   return client
 }
 
 describe('createPostgresLockFactory', () => {
+  it('bounds orphaned holders on PostgreSQL and keeps a healthy holder active', async () => {
+    vi.useFakeTimers()
+    const client = makeClient(true)
+    const session = new PgLeaderLockSession(client as unknown as pg.Client, 42)
+    await session.tryLock()
+    expect(client.query).toHaveBeenCalledWith({
+      text: "SET idle_session_timeout = '15s'",
+      values: undefined,
+      query_timeout: 5_000,
+    })
+    await vi.advanceTimersByTimeAsync(20_000)
+    expect(
+      client.query.mock.calls.filter(([sql]) => typeof sql === 'object' && sql.text === 'SELECT 1'),
+    ).toHaveLength(4)
+    await session.release()
+    const calls = client.query.mock.calls.length
+    await vi.advanceTimersByTimeAsync(20_000)
+    expect(client.query).toHaveBeenCalledTimes(calls)
+  })
+
+  it('demotes and closes a leader when its bounded heartbeat fails', async () => {
+    vi.useFakeTimers()
+    const client = makeClient(true)
+    const session = new PgLeaderLockSession(client as unknown as pg.Client, 42)
+    const onLost = vi.fn()
+    session.onLost(onLost)
+    await session.tryLock()
+    client.query.mockRejectedValueOnce(new Error('socket timed out'))
+    await vi.advanceTimersByTimeAsync(5_000)
+    expect(onLost).toHaveBeenCalledTimes(1)
+    expect(client.query).toHaveBeenLastCalledWith({
+      text: 'SELECT 1',
+      values: undefined,
+      query_timeout: 5_000,
+    })
+    expect(client.end).toHaveBeenCalledTimes(1)
+    await expect(session.tryLock()).resolves.toBe(false)
+    await vi.advanceTimersByTimeAsync(20_000)
+    expect(onLost).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not heartbeat or stack advisory locks while following', async () => {
+    vi.useFakeTimers()
+    const client = makeClient(false)
+    const session = new PgLeaderLockSession(client as unknown as pg.Client, 42)
+    await expect(session.tryLock()).resolves.toBe(false)
+    await expect(session.tryLock()).resolves.toBe(false)
+    await vi.advanceTimersByTimeAsync(20_000)
+    expect(
+      client.query.mock.calls.filter(([sql]) => typeof sql === 'object' && sql.text === 'SELECT 1'),
+    ).toHaveLength(0)
+    expect(
+      client.query.mock.calls.filter(
+        ([sql]) => typeof sql === 'object' && sql.text === "SET idle_session_timeout = '15s'",
+      ),
+    ).toHaveLength(1)
+    await session.release()
+  })
+
   it('fails with an actionable message when no connection string is configured', async () => {
     const previous = process.env.DATABASE_URL
     delete process.env.DATABASE_URL
@@ -62,10 +133,11 @@ describe('createPostgresLockFactory', () => {
     await expect(session.tryLock()).resolves.toBe(true)
 
     expect(connect).toHaveBeenCalledWith('postgres://example/db', undefined)
-    expect(client.query).toHaveBeenCalledWith(
-      'SELECT pg_try_advisory_lock($1) AS locked',
-      [8675310],
-    )
+    expect(client.query).toHaveBeenCalledWith({
+      text: 'SELECT pg_try_advisory_lock($1) AS locked',
+      values: [8675310],
+      query_timeout: 5_000,
+    })
   })
 
   it('reports a lock held by another session as false', async () => {
@@ -92,7 +164,11 @@ describe('createPostgresLockFactory', () => {
     await session.tryLock()
     await session.release()
 
-    expect(client.query).toHaveBeenCalledWith('SELECT pg_advisory_unlock($1)', [7])
+    expect(client.query).toHaveBeenCalledWith({
+      text: 'SELECT pg_advisory_unlock($1)',
+      values: [7],
+      query_timeout: 5_000,
+    })
     expect(client.end).toHaveBeenCalledTimes(1)
   })
 
@@ -109,7 +185,9 @@ describe('createPostgresLockFactory', () => {
     client.emitLost()
     await session.release()
 
-    expect(client.query).not.toHaveBeenCalledWith('SELECT pg_advisory_unlock($1)', [7])
+    expect(client.query).not.toHaveBeenCalledWith(
+      expect.objectContaining({ text: 'SELECT pg_advisory_unlock($1)' }),
+    )
     expect(client.end).toHaveBeenCalledTimes(1)
   })
 
