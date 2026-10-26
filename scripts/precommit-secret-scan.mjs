@@ -15,6 +15,10 @@ import process from 'node:process'
 
 /** [label, regex] — high-confidence secret value shapes. Keep in sync with redact-secrets.ts. */
 const RULES = [
+  [
+    'Fly API token',
+    /\bFlyV1[ \t]+fm[0-9]+_[A-Za-z0-9_+/=-]{16,}(?:,[ \t]*fm[0-9]+_[A-Za-z0-9_+/=-]{16,})*/,
+  ],
   ['Anthropic API key', /\bsk-ant-[A-Za-z0-9_-]{16,}/],
   ['OpenAI API key', /\bsk-(?!ant-)(?:proj-|svcacct-)?[A-Za-z0-9_-]{32,}/],
   ['AWS access key id', /\bAKIA[0-9A-Z]{16}\b/],
