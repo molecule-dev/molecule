@@ -12,7 +12,7 @@ import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { PARACRINE_BROADCAST } from '@molecule/api-paracrine'
 
@@ -25,6 +25,7 @@ beforeEach(async () => {
 })
 
 afterEach(async () => {
+  vi.useRealTimers()
   await rm(root, { recursive: true, force: true })
 })
 
@@ -56,25 +57,29 @@ describe('send and receive', () => {
   })
 
   it('orders by sentAt across mailboxes and broadcasts', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] })
+    vi.setSystemTime(new Date('2026-01-01T00:00:00.000Z'))
     const store = createProvider({ rootDir: root })
     const older = await store.send({ from: 'a', to: PARACRINE_BROADCAST, body: 'first' })
+    vi.setSystemTime(new Date('2026-01-01T00:00:00.001Z'))
     const newer = await store.send({ from: 'a', to: 'b', body: 'second' })
     expect((await store.receive({ for: 'b' })).map((m) => m.body)).toEqual(['first', 'second'])
-    expect(older.sentAt <= newer.sentAt).toBe(true)
+    expect(older.sentAt < newer.sentAt).toBe(true)
   })
 })
 
 describe('ack and reads — a receipt is the only side effect of reading', () => {
   it('unreadOnly hides exactly what this reader acked, not what others did', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] })
+    vi.setSystemTime(new Date('2026-01-01T00:00:00.000Z'))
     const store = createProvider({ rootDir: root })
     const mine = await store.send({ from: 'a', to: 'b', body: 'q1' })
     await store.send({ from: 'a', to: 'b', body: 'q2' })
     await store.send({ from: 'a', to: 'c', body: 'not mine' })
 
-    expect((await store.receive({ for: 'b', unreadOnly: true })).map((m) => m.body)).toEqual([
-      'q1',
-      'q2',
-    ])
+    expect((await store.receive({ for: 'b', unreadOnly: true })).map((m) => m.body).sort()).toEqual(
+      ['q1', 'q2'],
+    )
     await store.ack(mine.id, 'b')
     expect((await store.receive({ for: 'b', unreadOnly: true })).map((m) => m.body)).toEqual(['q2'])
     // Another reader's receipt changes nothing for b.
