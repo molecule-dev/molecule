@@ -4,7 +4,12 @@ import { act, cleanup, fireEvent, render, renderHook, screen } from '@testing-li
 import { StrictMode, useLayoutEffect } from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import type { FormController, FormOptions, FormProvider } from '@molecule/app-forms'
+import type {
+  FormController,
+  FormOptions,
+  FormProvider,
+  FormValuesConstraint,
+} from '@molecule/app-forms'
 import { createNativeFormProvider, setProvider } from '@molecule/app-forms'
 
 import { useFieldState, useForm, useWatch } from '../hooks/useForm.js'
@@ -13,7 +18,7 @@ import { useFieldState, useForm, useWatch } from '../hooks/useForm.js'
 function providerWithClonedSnapshots(): FormProvider {
   const native = createNativeFormProvider()
   return {
-    createForm<T extends Record<string, unknown>>(options: FormOptions<T>): FormController<T> {
+    createForm<T extends FormValuesConstraint<T>>(options: FormOptions<T>): FormController<T> {
       const form = native.createForm(options)
       return {
         ...form,
@@ -162,7 +167,7 @@ describe('useForm bonded provider default', () => {
     let bondedCalls = 0
     let receivedKeys: string[] = []
     setProvider({
-      createForm<T extends Record<string, unknown>>(options: FormOptions<T>): FormController<T> {
+      createForm<T extends FormValuesConstraint<T>>(options: FormOptions<T>): FormController<T> {
         bondedCalls++
         receivedKeys = Object.keys(options)
         return native.createForm(options)
@@ -184,7 +189,7 @@ describe('useForm bonded provider default', () => {
   it('prefers an explicit createForm override over the bonded provider', () => {
     let bondedCalls = 0
     setProvider({
-      createForm<T extends Record<string, unknown>>(options: FormOptions<T>): FormController<T> {
+      createForm<T extends FormValuesConstraint<T>>(options: FormOptions<T>): FormController<T> {
         bondedCalls++
         return createNativeFormProvider().createForm(options)
       },
@@ -192,7 +197,7 @@ describe('useForm bonded provider default', () => {
     try {
       const native = createNativeFormProvider()
       let overrideCalls = 0
-      const override = <T extends Record<string, unknown>>(
+      const override = <T extends FormValuesConstraint<T>>(
         options: FormOptions<T>,
       ): FormController<T> => {
         overrideCalls++
