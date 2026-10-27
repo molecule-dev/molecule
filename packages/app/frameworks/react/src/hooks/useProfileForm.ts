@@ -6,16 +6,35 @@
 
 import { useCallback, useInsertionEffect, useLayoutEffect, useRef, useState } from 'react'
 
-import type { FieldRegistration } from '@molecule/app-forms'
+import type { FieldRegistration, FormValuesConstraint } from '@molecule/app-forms'
 
 import { useAuth, useAuthClient } from './useAuth.js'
 import { useForm, type UseFormOptions, type UseFormResult } from './useForm.js'
 
-/** Configuration for a profile form; transport stays in the auth bond. */
-export interface UseProfileFormOptions<TUser, TValues extends Record<string, unknown>> extends Omit<
-  UseFormOptions<TValues>,
-  'defaultValues'
-> {
+/**
+ * Copies the shallow value snapshot the hook keeps as its baseline.
+ *
+ * Form values are a plain string-keyed object at runtime; the caller's values
+ * TYPE may be an `interface`, which has no index signature to spread from, so
+ * the copy goes through the record view and comes back as `TValues`.
+ *
+ * @param values - The values object to snapshot.
+ * @returns A new object with the same own fields.
+ */
+function copyValues<T extends FormValuesConstraint<T>>(values: T): T {
+  return { ...(values as Record<string, unknown>) } as T
+}
+
+/**
+ * Configuration for a profile form; transport stays in the auth bond.
+ *
+ * `TValues` is the page's own controlled-values type, named once as an
+ * `interface` or a type alias — both satisfy the shared form-values constraint.
+ */
+export interface UseProfileFormOptions<
+  TUser,
+  TValues extends FormValuesConstraint<TValues>,
+> extends Omit<UseFormOptions<TValues>, 'defaultValues'> {
   /** Complete controlled-field defaults, including blank write-only fields. */
   defaultValues: TValues
   /**
@@ -42,10 +61,10 @@ export interface UseProfileFormOptions<TUser, TValues extends Record<string, unk
 }
 
 /** Controlled profile form state and native form bindings. */
-export interface UseProfileFormResult<TUser, TValues extends Record<string, unknown>> extends Omit<
-  UseFormResult<TValues>,
-  'register' | 'handleSubmit' | 'reset'
-> {
+export interface UseProfileFormResult<
+  TUser,
+  TValues extends FormValuesConstraint<TValues>,
+> extends Omit<UseFormResult<TValues>, 'register' | 'handleSubmit' | 'reset'> {
   /** The shared auth user's current profile. */
   user: TUser | null
   /** A user has been loaded; disable submission until this is true. */
@@ -86,7 +105,7 @@ export interface UseProfileFormResult<TUser, TValues extends Record<string, unkn
  * @param options - Controlled defaults, identity and wire adapters, optional cache/navigation callback.
  * @returns Form state, typed control bindings, native submit binding and save error.
  */
-export function useProfileForm<TUser, TValues extends Record<string, unknown>>(
+export function useProfileForm<TUser, TValues extends FormValuesConstraint<TValues>>(
   options: UseProfileFormOptions<TUser, TValues>,
 ): UseProfileFormResult<TUser, TValues> {
   const {
@@ -104,7 +123,7 @@ export function useProfileForm<TUser, TValues extends Record<string, unknown>>(
   const [isSaving, setIsSaving] = useState(false)
   const optionsRef = useRef(options)
   const committedClient = useRef(client)
-  const baseline = useRef({ ...defaultValues })
+  const baseline = useRef(copyValues(defaultValues))
   const owner = useRef<{
     client: typeof client
     revision: number | undefined
@@ -127,7 +146,7 @@ export function useProfileForm<TUser, TValues extends Record<string, unknown>>(
   }, [])
 
   const readValues = useCallback((): TValues => {
-    const values = { ...baseline.current }
+    const values = copyValues(baseline.current)
     for (const key of Object.keys(values) as (keyof TValues)[]) values[key] = form.getValue(key)
     return values
   }, [form.getValue])
@@ -135,7 +154,7 @@ export function useProfileForm<TUser, TValues extends Record<string, unknown>>(
   const rebase = useCallback(
     (next: TValues, preserveAgainst?: TValues): void => {
       const current = readValues()
-      baseline.current = { ...next }
+      baseline.current = copyValues(next)
       form.reset(next)
       if (preserveAgainst) {
         for (const key of Object.keys(current) as (keyof TValues)[]) {
@@ -152,7 +171,7 @@ export function useProfileForm<TUser, TValues extends Record<string, unknown>>(
       if (owner.current) {
         owner.current = null
         pendingPropagation.current = undefined
-        rebase({ ...config.defaultValues })
+        rebase(copyValues(config.defaultValues))
         setError(undefined)
       }
       return
@@ -201,7 +220,7 @@ export function useProfileForm<TUser, TValues extends Record<string, unknown>>(
       )
     }
     const snapshot = readValues()
-    const before = { ...baseline.current }
+    const before = copyValues(baseline.current)
     const changes: Partial<TValues> = {}
     for (const key of Object.keys(snapshot) as (keyof TValues)[]) {
       if (!Object.is(snapshot[key], before[key])) changes[key] = snapshot[key]

@@ -13,6 +13,7 @@ import type {
   FormOptions,
   FormProvider,
   FormState,
+  FormValuesConstraint,
   RegisterOptions,
 } from '@molecule/app-forms'
 
@@ -64,7 +65,7 @@ import type {
  * }
  * ```
  */
-export class MoleculeFormInstance<T extends Record<string, unknown>> {
+export class MoleculeFormInstance<T extends FormValuesConstraint<T>> {
   private stateSubject: BehaviorSubject<FormState<T>>
   private unsubscribe: (() => void) | null = null
 
@@ -326,7 +327,7 @@ export class MoleculeFormsService implements OnDestroy {
    * @param options - Form configuration including default values and validation mode.
    * @returns A new form instance with RxJS observables for reactive state tracking.
    */
-  createForm<T extends Record<string, unknown>>(
+  createForm<T extends FormValuesConstraint<T>>(
     provider: FormProvider,
     options: FormOptions<T>,
   ): MoleculeFormInstance<T> {

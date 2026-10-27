@@ -111,9 +111,110 @@ export interface FieldState<T = unknown> {
 }
 
 /**
+ * The sentence a non-object form-values type is rejected with.
+ */
+type FormValuesRejection =
+  'Form values must be an object type of named fields, not an array, a function or a Date'
+
+/**
+ * The value shapes a form can manage: an object type of named fields, and
+ * nothing else.
+ *
+ * An ordinary `interface`, a type literal, a type alias, an intersection and
+ * the empty object type all qualify — the check is structural, so it does not
+ * demand an index signature the way `Record<string, unknown>` does (a
+ * TypeScript interface never has an implicit one). An array, a function or a
+ * `Date` is rejected as a whole, because none of them has named fields to
+ * register, patch or compare.
+ *
+ * @template T - The candidate form-values type.
+ */
+type FormValuesShape<T> = T extends readonly unknown[] | ((...args: never[]) => unknown) | Date
+  ? FormValuesRejection
+  : object
+
+/**
+ * Whether `T` is, or is a union containing, a shape a form cannot manage
+ * ({@link FormValuesShape}).
+ *
+ * This is the ONE decision {@link FormValuesConstraint} makes, so every
+ * entrypoint that takes a values type rejects the same types.
+ *
+ * Three TypeScript behaviors shape it:
+ *
+ * - **No distribution.** `FormValuesShape<T>` already distributes, so a union
+ *   `Good | Bad` yields `object | FormValuesRejection`. Wrapping BOTH sides of
+ *   the test in tuples compares those unions as a whole, so one invalid member
+ *   rejects the whole union.
+ * - **`any` is checked first.** `any` is the caller's explicit opt-out of
+ *   values typing, not an invalid member, but `FormValuesShape<any>` resolves
+ *   to `FormValuesRejection | object`, which the tuple test reads as "contains
+ *   a rejection". `0 extends 1 & T` detects `any` (and only `any` — `never`,
+ *   `unknown` and `object` are all false) and takes the accepted branch.
+ * - **Deferred at the outer edge.** `[T] extends [unknown]` keeps the whole
+ *   check deferred while `T` is an unresolved type parameter. Without it,
+ *   TypeScript resolves the inner `0 extends 1 & T` while checking a
+ *   forwarder's constraint `T extends FormValuesConstraint<T>` and reports
+ *   TS2313 ("Type parameter 'T' has a circular constraint"); with it, the
+ *   constraint checks at the call site.
+ *
+ * `never`, `unknown` and the primitives are not this helper's job: the
+ * constraint's `object` branch rejects them.
+ *
+ * @template T - The candidate form-values type.
+ */
+type FormValuesIsRejected<T> = [T] extends [unknown]
+  ? 0 extends 1 & T
+    ? false
+    : [FormValuesRejection] extends [FormValuesShape<T>]
+      ? true
+      : false
+  : never
+
+/**
+ * The constraint every form entrypoint puts on a values type: an object type of
+ * named fields ({@link FormValuesShape}), and `object` for `any`.
+ *
+ * It exists so an app can name its form fields once, as an ordinary interface,
+ * and pass that type whole — `interface Fields { name: string; bio: string }`
+ * compiles the same as the type literal it replaces, while a primitive, an
+ * array, a function and a `Date` are still rejected, and `keyof T` still types
+ * register/get/set per field.
+ *
+ * ```typescript
+ * import type { FormOptions } from '@molecule/app-forms'
+ *
+ * interface Fields {
+ *   name: string
+ *   bio: string
+ * }
+ * const options: FormOptions<Fields> = { defaultValues: { name: '', bio: '' } }
+ * ```
+ *
+ * Forwarding a values type through your own generic copies this constraint, so
+ * the values keep being checked:
+ *
+ * ```typescript
+ * import type { FormOptions, FormValuesConstraint } from '@molecule/app-forms'
+ *
+ * export function makeOptions<T extends FormValuesConstraint<T>>(o: FormOptions<T>) {
+ *   return o
+ * }
+ * ```
+ *
+ * `T extends object` is not enough: the entrypoints also reject arrays,
+ * functions and `Date`, so a forwarder written that way does not compile. Copy
+ * this type instead.
+ *
+ * @template T - The candidate form-values type.
+ */
+export type FormValuesConstraint<T> =
+  FormValuesIsRejected<T> extends true ? FormValuesRejection : object
+
+/**
  * Aggregate state of an entire form (all field values, errors, and submission status).
  */
-export interface FormState<T extends Record<string, unknown> = Record<string, unknown>> {
+export interface FormState<T extends FormValuesConstraint<T> = Record<string, unknown>> {
   /**
    * Form values.
    */
@@ -210,7 +311,7 @@ export interface FieldRegistration {
  *
  * All form providers must implement this interface.
  */
-export interface FormController<T extends Record<string, unknown> = Record<string, unknown>> {
+export interface FormController<T extends FormValuesConstraint<T> = Record<string, unknown>> {
   /**
    * Gets the current form state.
    */
@@ -330,13 +431,13 @@ export interface FormProvider {
   /**
    * Creates a new form controller.
    */
-  createForm<T extends Record<string, unknown>>(options: FormOptions<T>): FormController<T>
+  createForm<T extends FormValuesConstraint<T>>(options: FormOptions<T>): FormController<T>
 }
 
 /**
  * Form creation options.
  */
-export interface FormOptions<T extends Record<string, unknown>> {
+export interface FormOptions<T extends FormValuesConstraint<T>> {
   /**
    * Default values, captured as the form's clean baseline when the controller
    * is created. Mutating this object afterwards does not change the baseline.

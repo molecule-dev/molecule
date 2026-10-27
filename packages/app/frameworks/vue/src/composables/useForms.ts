@@ -19,13 +19,14 @@ import type {
   FormController,
   FormOptions,
   FormState,
+  FormValuesConstraint,
   RegisterOptions,
 } from '@molecule/app-forms'
 
 /**
  * Options for useForm composable.
  */
-export interface UseFormOptions<T extends Record<string, unknown>> extends FormOptions<T> {
+export interface UseFormOptions<T extends FormValuesConstraint<T>> extends FormOptions<T> {
   /**
    * Form provider's createForm function.
    */
@@ -35,7 +36,7 @@ export interface UseFormOptions<T extends Record<string, unknown>> extends FormO
 /**
  * Return type for useForm composable.
  */
-export interface UseFormReturn<T extends Record<string, unknown>> {
+export interface UseFormReturn<T extends FormValuesConstraint<T>> {
   // State
   formState: ComputedRef<FormState<T>>
   isValid: ComputedRef<boolean>
@@ -104,7 +105,7 @@ export interface UseFormReturn<T extends Record<string, unknown>> {
  * </template>
  * ```
  */
-export function useForm<T extends Record<string, unknown>>(
+export function useForm<T extends FormValuesConstraint<T>>(
   options: UseFormOptions<T>,
 ): UseFormReturn<T> {
   const { createForm, ...formOptions } = options
@@ -213,7 +214,7 @@ export function useForm<T extends Record<string, unknown>>(
  * </script>
  * ```
  */
-export function useWatch<T extends Record<string, unknown>, K extends keyof T>(
+export function useWatch<T extends FormValuesConstraint<T>, K extends keyof T>(
   form: FormController<T>,
   name: K,
 ): ComputedRef<T[K]> {
@@ -256,7 +257,7 @@ export function useWatch<T extends Record<string, unknown>, K extends keyof T>(
  * </script>
  * ```
  */
-export function useFieldState<T extends Record<string, unknown>>(
+export function useFieldState<T extends FormValuesConstraint<T>>(
   form: FormController<T>,
   name: keyof T,
 ): ComputedRef<FieldState<T[keyof T]>> {

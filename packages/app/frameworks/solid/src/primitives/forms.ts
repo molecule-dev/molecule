@@ -13,13 +13,14 @@ import type {
   FormOptions,
   FormProvider,
   FormState,
+  FormValuesConstraint,
   RegisterOptions,
 } from '@molecule/app-forms'
 
 /**
  * Result of createForm primitive.
  */
-export interface CreateFormResult<T extends Record<string, unknown>> {
+export interface CreateFormResult<T extends FormValuesConstraint<T>> {
   /** Reactive form state accessor. */
   formState: Accessor<FormState<T>>
 
@@ -111,7 +112,7 @@ export interface CreateFormResult<T extends Record<string, unknown>> {
  * }
  * ```
  */
-export function createForm<T extends Record<string, unknown>>(
+export function createForm<T extends FormValuesConstraint<T>>(
   provider: FormProvider,
   options: FormOptions<T>,
 ): CreateFormResult<T> {
@@ -227,7 +228,7 @@ export function createForm<T extends Record<string, unknown>>(
  * }
  * ```
  */
-export function createFieldSignal<T extends Record<string, unknown>>(
+export function createFieldSignal<T extends FormValuesConstraint<T>>(
   controller: FormController<T>,
   name: keyof T,
 ): Accessor<FieldState<T[keyof T]>> {
@@ -269,7 +270,7 @@ export function createFieldSignal<T extends Record<string, unknown>>(
  * }
  * ```
  */
-export function createWatchSignal<T extends Record<string, unknown>, K extends keyof T>(
+export function createWatchSignal<T extends FormValuesConstraint<T>, K extends keyof T>(
   controller: FormController<T>,
   name: K,
 ): Accessor<T[K]> {
@@ -318,10 +319,10 @@ export function createWatchSignal<T extends Record<string, unknown>, K extends k
  * @returns The created result.
  */
 export function createFormHelpers(provider: FormProvider): {
-  createForm: <T extends Record<string, unknown>>(options: FormOptions<T>) => CreateFormResult<T>
+  createForm: <T extends FormValuesConstraint<T>>(options: FormOptions<T>) => CreateFormResult<T>
 } {
   return {
-    createForm: <T extends Record<string, unknown>>(options: FormOptions<T>): CreateFormResult<T> =>
+    createForm: <T extends FormValuesConstraint<T>>(options: FormOptions<T>): CreateFormResult<T> =>
       createForm(provider, options),
   }
 }
@@ -345,7 +346,7 @@ export function createFormHelpers(provider: FormProvider): {
  * }
  * ```
  */
-export function createFormFromController<T extends Record<string, unknown>>(
+export function createFormFromController<T extends FormValuesConstraint<T>>(
   controller: FormController<T>,
 ): CreateFormResult<T> {
   const [formState, setFormState] = createSignal<FormState<T>>(controller.getState())

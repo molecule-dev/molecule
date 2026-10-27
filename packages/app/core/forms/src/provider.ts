@@ -11,7 +11,7 @@
 import { bond, get as bondGet, isBonded } from '@molecule/app-bond'
 
 import { createNativeFormProvider } from './controller.js'
-import type { FormController, FormOptions, FormProvider } from './types.js'
+import type { FormController, FormOptions, FormProvider, FormValuesConstraint } from './types.js'
 
 const BOND_TYPE = 'forms'
 
@@ -54,7 +54,7 @@ export const hasProvider = (): boolean => {
  * @param options - Form configuration including initial values, validation rules, and submit handler.
  * @returns A form controller instance for managing the form lifecycle.
  */
-export const createForm = <T extends Record<string, unknown>>(
+export const createForm = <T extends FormValuesConstraint<T>>(
   options: FormOptions<T>,
 ): FormController<T> => {
   return getProvider().createForm(options)

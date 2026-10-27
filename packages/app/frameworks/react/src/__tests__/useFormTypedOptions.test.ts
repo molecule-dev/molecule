@@ -83,12 +83,12 @@ export function Dynamic() {
 
   it('still takes an explicit createForm override', () => {
     const diagnostics = diagnosticsFor(`
-import type { FormController, FormOptions } from '@molecule/app-forms'
+import type { FormController, FormOptions, FormValuesConstraint } from '@molecule/app-forms'
 import { createNativeFormProvider } from '@molecule/app-forms'
 import { useForm } from '../hooks/useForm.js'
 
 const native = createNativeFormProvider()
-const factory = <T extends Record<string, unknown>>(options: FormOptions<T>): FormController<T> =>
+const factory = <T extends FormValuesConstraint<T>>(options: FormOptions<T>): FormController<T> =>
   native.createForm(options)
 
 export function Pinned() {

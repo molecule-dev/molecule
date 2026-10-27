@@ -11,6 +11,7 @@ import type {
   FormOptions,
   FormProvider,
   FormState,
+  FormValuesConstraint,
   RegisterOptions,
   ValidationSchema,
 } from './types.js'
@@ -25,15 +26,21 @@ import { validateValue } from './validation.js'
  */
 export const createNativeFormProvider = (): FormProvider => {
   return {
-    createForm<T extends Record<string, unknown>>(options: FormOptions<T>): FormController<T> {
+    createForm<T extends FormValuesConstraint<T>>(options: FormOptions<T>): FormController<T> {
       const mode = options.mode || 'onSubmit'
 
       // The baseline is a snapshot of the caller's object: mutating that object
       // after creation must not change what "clean" means. `reset` can replace
       // the snapshot. The copy is shallow on purpose — object field values keep
       // their identity, so an untouched field still compares clean.
-      let defaultValues = { ...(options.defaultValues || {}) } as T
-      let values = { ...defaultValues }
+      // Runtime form values are always a plain string-keyed object; the
+      // caller's values TYPE may be an interface without an index signature, so
+      // the implementation holds the widened record view and casts back to `T`
+      // only where it hands values out.
+      let defaultValues: Record<string, unknown> = {
+        ...((options.defaultValues ?? {}) as Record<string, unknown>),
+      }
+      let values: Record<string, unknown> = { ...defaultValues }
       let errors: Partial<Record<keyof T, string>> = {}
       let touched: Partial<Record<keyof T, boolean>> = {}
       let submitCount = 0
@@ -59,7 +66,7 @@ export const createNativeFormProvider = (): FormProvider => {
       const controller: FormController<T> = {
         getState(): FormState<T> {
           return {
-            values,
+            values: values as T,
             errors,
             touched,
             isValid: Object.keys(errors).length === 0,
@@ -69,34 +76,34 @@ export const createNativeFormProvider = (): FormProvider => {
           }
         },
 
-        getValue<K extends keyof T>(name: K): T[K] {
+        getValue(name: string): unknown {
           return values[name]
         },
 
         getValues(): T {
-          return { ...values }
+          return { ...values } as T
         },
 
-        setValue<K extends keyof T>(
-          name: K,
-          value: T[K],
+        setValue(
+          name: string,
+          value: unknown,
           opts: { shouldValidate?: boolean; shouldDirty?: boolean; shouldTouch?: boolean } = {},
         ): void {
           values = { ...values, [name]: value }
 
           if (opts.shouldTouch !== false) {
-            touched = { ...touched, [name]: true }
+            touched = { ...touched, [name as keyof T]: true }
           }
 
           if (opts.shouldValidate && shouldValidate('change')) {
-            this.validateField(name)
+            this.validateField(name as keyof T)
           }
 
           notify()
         },
 
         setValues(newValues: Partial<T>, opts: { shouldValidate?: boolean } = {}): void {
-          values = { ...values, ...newValues }
+          values = { ...values, ...(newValues as Record<string, unknown>) }
 
           if (opts.shouldValidate) {
             this.validate()
@@ -105,12 +112,12 @@ export const createNativeFormProvider = (): FormProvider => {
           notify()
         },
 
-        getError<K extends keyof T>(name: K): string | undefined {
-          return errors[name]
+        getError(name: string): string | undefined {
+          return errors[name as keyof T]
         },
 
-        setError<K extends keyof T>(name: K, error: string): void {
-          errors = { ...errors, [name]: error }
+        setError(name: string, error: string): void {
+          errors = { ...errors, [name as keyof T]: error }
           notify()
         },
 
@@ -128,10 +135,10 @@ export const createNativeFormProvider = (): FormProvider => {
 
         getFieldState<K extends keyof T>(name: K): FieldState<T[K]> {
           return {
-            value: values[name],
+            value: values[name as string] as T[K],
             error: errors[name],
             touched: touched[name] || false,
-            dirty: values[name] !== defaultValues[name],
+            dirty: values[name as string] !== defaultValues[name as string],
             valid: !errors[name],
             validating: false,
           }
@@ -144,13 +151,13 @@ export const createNativeFormProvider = (): FormProvider => {
           fieldSchemas.set(name, schema)
 
           // Set default value if not already set
-          if (defaultValue !== undefined && values[name as keyof T] === undefined) {
-            values = { ...values, [name]: defaultValue } as T
+          if (defaultValue !== undefined && values[name] === undefined) {
+            values = { ...values, [name]: defaultValue }
           }
 
           return {
             name,
-            value: values[name as keyof T],
+            value: values[name],
             onChange: (event: { target: { value: unknown; name: string } } | unknown) => {
               let newValue: unknown
               if (event && typeof event === 'object' && 'target' in event) {
@@ -189,7 +196,7 @@ export const createNativeFormProvider = (): FormProvider => {
           fieldSchemas.delete(name)
           fieldRefs.delete(name)
           const newValues = { ...values }
-          delete newValues[name as keyof T]
+          delete newValues[name]
           values = newValues
           const newErrors = { ...errors }
           delete newErrors[name as keyof T]
@@ -204,7 +211,7 @@ export const createNativeFormProvider = (): FormProvider => {
           const schema = fieldSchemas.get(name as string)
           if (!schema) return true
 
-          const error = await validateValue(values[name], schema)
+          const error = await validateValue(values[name as string], schema)
           if (error) {
             errors = { ...errors, [name]: error }
             notify()
@@ -223,7 +230,7 @@ export const createNativeFormProvider = (): FormProvider => {
           const newErrors: Partial<Record<keyof T, string>> = {}
 
           for (const [name, schema] of fieldSchemas) {
-            const error = await validateValue(values[name as keyof T], schema)
+            const error = await validateValue(values[name], schema)
             if (error) {
               newErrors[name as keyof T] = error
               isValid = false
@@ -232,7 +239,7 @@ export const createNativeFormProvider = (): FormProvider => {
 
           // Form-level validation
           if (options.validate) {
-            const formErrors = await options.validate(values)
+            const formErrors = await options.validate(values as T)
             for (const [key, error] of Object.entries(formErrors)) {
               if (error) {
                 newErrors[key as keyof T] = error as string
@@ -252,7 +259,7 @@ export const createNativeFormProvider = (): FormProvider => {
           // and makes the result the new one, so freshly loaded or saved values
           // read clean afterwards.
           if (newValues !== undefined) {
-            defaultValues = { ...defaultValues, ...newValues } as T
+            defaultValues = { ...defaultValues, ...(newValues as Record<string, unknown>) }
           }
           values = { ...defaultValues }
           errors = {}
@@ -278,7 +285,7 @@ export const createNativeFormProvider = (): FormProvider => {
             try {
               const isValid = await this.validate()
               if (isValid) {
-                await onSubmit(values)
+                await onSubmit(values as T)
               } else {
                 if (onError) {
                   onError(errors)

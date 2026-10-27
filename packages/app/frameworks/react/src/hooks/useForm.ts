@@ -12,6 +12,7 @@ import type {
   FormController,
   FormOptions,
   FormState,
+  FormValuesConstraint,
   RegisterOptions,
 } from '@molecule/app-forms'
 import { createForm as createBondedForm } from '@molecule/app-forms'
@@ -25,7 +26,7 @@ import { createForm as createBondedForm } from '@molecule/app-forms'
  * @param read - Reads the form state or a selected field.
  * @returns The current subscribed snapshot.
  */
-function useFormSnapshot<T extends Record<string, unknown>, S>(
+function useFormSnapshot<T extends FormValuesConstraint<T>, S>(
   form: FormController<T>,
   read: () => S,
 ): S {
@@ -56,7 +57,7 @@ function useFormSnapshot<T extends Record<string, unknown>, S>(
  * provider (`createForm` from `@molecule/app-forms`), which uses the built-in
  * native provider until the app bonds its own.
  */
-export interface UseFormOptions<T extends Record<string, unknown>> extends FormOptions<T> {
+export interface UseFormOptions<T extends FormValuesConstraint<T>> extends FormOptions<T> {
   /**
    * Explicit form factory for this one form. Defaults to the bonded forms
    * provider; pass it only to pin a specific provider instance.
@@ -67,7 +68,7 @@ export interface UseFormOptions<T extends Record<string, unknown>> extends FormO
 /**
  * Result of useForm hook.
  */
-export interface UseFormResult<T extends Record<string, unknown>> {
+export interface UseFormResult<T extends FormValuesConstraint<T>> {
   // State
   formState: FormState<T>
   isValid: boolean
@@ -132,7 +133,7 @@ export interface UseFormResult<T extends Record<string, unknown>> {
  * }
  * ```
  */
-export function useForm<T extends Record<string, unknown>>(
+export function useForm<T extends FormValuesConstraint<T> = Record<string, unknown>>(
   options: UseFormOptions<T> = {},
 ): UseFormResult<T> {
   const { createForm = createBondedForm, ...formOptions } = options
@@ -215,7 +216,7 @@ export function useForm<T extends Record<string, unknown>>(
  * @param name - Field name to watch
  * @returns Current field value
  */
-export function useWatch<T extends Record<string, unknown>, K extends keyof T>(
+export function useWatch<T extends FormValuesConstraint<T>, K extends keyof T>(
   form: FormController<T>,
   name: K,
 ): T[K] {
@@ -230,7 +231,7 @@ export function useWatch<T extends Record<string, unknown>, K extends keyof T>(
  * @param name - Field name
  * @returns Field state (value, error, touched, dirty, valid)
  */
-export function useFieldState<T extends Record<string, unknown>>(
+export function useFieldState<T extends FormValuesConstraint<T>>(
   form: FormController<T>,
   name: keyof T,
 ): FieldState<T[keyof T]> {

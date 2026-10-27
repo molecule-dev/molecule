@@ -13,13 +13,14 @@ import type {
   FormOptions,
   FormProvider,
   FormState,
+  FormValuesConstraint,
   RegisterOptions,
 } from '@molecule/app-forms'
 
 /**
  * Form stores and actions return type.
  */
-interface FormStores<T extends Record<string, unknown>> {
+interface FormStores<T extends FormValuesConstraint<T>> {
   formState: Readable<FormState<T>>
   isValid: Readable<boolean>
   isDirty: Readable<boolean>
@@ -85,7 +86,7 @@ interface FormStores<T extends Record<string, unknown>> {
  * </form>
  * ```
  */
-export function createFormStores<T extends Record<string, unknown>>(
+export function createFormStores<T extends FormValuesConstraint<T>>(
   provider: FormProvider,
   options: FormOptions<T>,
 ): FormStores<T> {
@@ -210,7 +211,7 @@ export function createFormStores<T extends Record<string, unknown>>(
  * <p>Touched: {$emailField.touched}</p>
  * ```
  */
-export function createFieldStore<T extends Record<string, unknown>, K extends keyof T>(
+export function createFieldStore<T extends FormValuesConstraint<T>, K extends keyof T>(
   controller: FormController<T>,
   name: K,
 ): Readable<FieldState<T[K]>> {
@@ -242,7 +243,7 @@ export function createFieldStore<T extends Record<string, unknown>, K extends ke
  * {/if}
  * ```
  */
-export function createWatchStore<T extends Record<string, unknown>, K extends keyof T>(
+export function createWatchStore<T extends FormValuesConstraint<T>, K extends keyof T>(
   controller: FormController<T>,
   name: K,
 ): Readable<T[K]> {
