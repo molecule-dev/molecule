@@ -158,8 +158,8 @@ type FormValuesShape<T> = T extends readonly unknown[] | ((...args: never[]) => 
  *   TS2313 ("Type parameter 'T' has a circular constraint"); with it, the
  *   constraint checks at the call site.
  *
- * `never`, `unknown` and the primitives are not this helper's job: the
- * constraint's `object` branch rejects them.
+ * The constraint's `object` branch rejects `unknown` and primitives. `never`
+ * remains assignable, as it was under the previous record constraint.
  *
  * @template T - The candidate form-values type.
  */
