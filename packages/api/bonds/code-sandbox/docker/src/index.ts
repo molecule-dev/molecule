@@ -21,6 +21,9 @@
  * (not explicit config) and `NODE_ENV=production`, the provider REFUSES to
  * connect — exec payloads would cross the network unencrypted — unless
  * `MOL_DOCKER_ALLOW_PLAIN_TCP=1` is set, which is honored with a loud warning.
+ * Published ports bind loopback by default; a remote daemon used for hosting
+ * names a routable interface with `config.publishHostIp` / `DOCKER_PUBLISH_HOST_IP`
+ * (wildcard binds need `MOL_DOCKER_ALLOW_PUBLIC_BINDS=1` in production).
  * Caller-supplied container ids are shape-validated (`[A-Za-z0-9][A-Za-z0-9_.:-]*`,
  * so Docker hex ids, names, and fly-style `app:machine` ids pass) before they are
  * interpolated into Docker API paths. The provider never pulls images, so `create()` fails with a no-such-image

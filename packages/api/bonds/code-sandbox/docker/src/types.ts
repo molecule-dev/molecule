@@ -44,6 +44,26 @@ export interface DockerConfig {
   /** Preview URL template. Use {port} placeholder. */
   previewUrlTemplate?: string
   /**
+   * The interface published sandbox ports bind to on the daemon's host.
+   * Defaults to `127.0.0.1` (loopback — nothing outside the host reaches a
+   * sandbox port), or the `DOCKER_PUBLISH_HOST_IP` env var.
+   *
+   * The one knob that makes a REMOTE daemon (`host`/`DOCKER_HOST`) usable for
+   * hosting: the control plane's front proxies to the address `describe()`
+   * reports, and that address is this bind. A specific routable IP (the box's
+   * address on a network the front can reach) is the scoped choice; the
+   * wildcards `0.0.0.0`/`::` bind EVERY interface and expose every published
+   * port of every sandbox on that daemon to every network it touches, so in
+   * `NODE_ENV=production` they are refused unless `MOL_DOCKER_ALLOW_PUBLIC_BINDS=1`
+   * is set (honored with a loud warning). A wildcard bind on a remote daemon is
+   * reported as the daemon's own host.
+   *
+   * Exposure is the operator's contract either way: whatever address this
+   * names must be reachable by the front and FIREWALLED against everything
+   * else — binding a port is a deliberate exposure decision, not a default.
+   */
+  publishHostIp?: string
+  /**
    * Docker repository holding sandbox TEMPLATES — one tag per template id.
    * Defaults to `molecule-sandbox-template` (or `SANDBOX_TEMPLATE_REPOSITORY`).
    *
@@ -88,6 +108,8 @@ export interface ProcessEnv {
   DOCKER_HOST?: string
   /** Docker network sandbox containers attach to (default `molecule-sandbox`, ICC-off). Overridden by `config.network`. [C1-1] */
   SANDBOX_DOCKER_NETWORK?: string
+  /** Interface published ports bind to on the daemon's host (default `127.0.0.1`, loopback-only). Overridden by `config.publishHostIp`. */
+  DOCKER_PUBLISH_HOST_IP?: string
   /** Docker repository holding sandbox templates (default `molecule-sandbox-template`). Overridden by `config.templateRepository`. */
   SANDBOX_TEMPLATE_REPOSITORY?: string
   /** Registry host for sharing templates across hosts. Overridden by `config.templateRegistry`. */

@@ -19,6 +19,7 @@ import type {
   HibernationOutcome,
   ListTemplatesOptions,
   ListVolumesOptions,
+  ProductionHostingCapabilities,
   Sandbox,
   SandboxConfig,
   SandboxDescriptor,
@@ -1162,6 +1163,19 @@ class E2BSandbox implements Sandbox {
  */
 export class E2BSandboxProvider implements SandboxProvider {
   readonly name = 'e2b'
+
+  /**
+   * Deliberately declared UNFIT for long-lived public hosting, at the source:
+   * an E2B sandbox has a bounded lifetime (it is reaped on its own timeout
+   * schedule) and no address a front can route a visitor to. Both are why it
+   * is a fine DEV-sandbox provider and exactly the wrong production-hosting
+   * one — a platform wiring this provider into a hosting role should refuse
+   * at boot, which is what reading this declaration gives it.
+   */
+  readonly hostingCapabilities: Readonly<ProductionHostingCapabilities> = {
+    longLived: false,
+    routable: false,
+  }
 
   private readonly config: Required<Omit<E2BConfig, 'apiKey'>> & { apiKey: string }
   private clientPromise: Promise<E2BSandboxClientLike> | null = null

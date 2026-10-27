@@ -20,6 +20,7 @@ import type {
   ExecResult,
   FileChangeEvent,
   ListTemplatesOptions,
+  ProductionHostingCapabilities,
   Sandbox,
   SandboxConfig,
   SandboxDescriptor,
@@ -386,6 +387,17 @@ const PROBE_EXEC_HEADROOM_SECONDS = 10
  */
 class FlyioSandboxProvider implements SandboxProvider {
   readonly name = 'flyio'
+
+  /**
+   * Machines this provider runs live until destroyed and each app is reachable
+   * at its own routable URL (`https://<app>.fly.dev`, plus the shared private
+   * network for the platform's front) — the two things a long-lived hosting
+   * role needs, which is why this provider is selectable for it.
+   */
+  readonly hostingCapabilities: Readonly<ProductionHostingCapabilities> = {
+    longLived: true,
+    routable: true,
+  }
 
   /**
    * The idle policy a sandbox gets when its own create does not name one — this

@@ -9,6 +9,7 @@
 
 import { readFile, statfs } from 'fs/promises'
 import http from 'http'
+import net from 'net'
 import { freemem } from 'os'
 import { Readable } from 'stream'
 
@@ -23,6 +24,7 @@ import type {
   HibernationOutcome,
   ListTemplatesOptions,
   ListVolumesOptions,
+  ProductionHostingCapabilities,
   Sandbox,
   SandboxCapacity,
   SandboxConfig,
@@ -392,6 +394,22 @@ export async function withTransientRetry<T>(
  */
 class DockerSandboxProvider implements SandboxProvider {
   readonly name = 'docker'
+
+  /**
+   * Containers this provider runs live until they are destroyed (optionally
+   * surviving crashes via `SandboxConfig.restartPolicy`) and every published
+   * port is host-mapped at an address `describe()` reports — the two things a
+   * long-lived hosting role needs, which is why this provider is selectable
+   * for it. A LOCAL daemon's default loopback bind is routable only from the
+   * control plane's own host, which is exactly what a co-located front needs;
+   * a remote daemon needs `publishHostIp` to name an address the front can
+   * reach.
+   */
+  readonly hostingCapabilities: Readonly<ProductionHostingCapabilities> = {
+    longLived: true,
+    routable: true,
+  }
+
   /** Resolved daemon endpoint (unix socket or TCP host:port); see {@link resolveDockerEndpoint}. */
   private endpoint: DockerEndpoint
   private baseImage: string
@@ -427,6 +445,10 @@ class DockerSandboxProvider implements SandboxProvider {
   private endpointSafetyChecked = false
   /** Whether the plain-TCP override warning has fired (once per provider). */
   private plainTcpOverrideWarned = false
+  /** Explicit publish bind from `config.publishHostIp`, if any; env is consulted at create time. */
+  private configPublishHostIp?: string
+  /** Whether the wildcard-bind warning has fired (once per provider). */
+  private publicBindOverrideWarned = false
 
   constructor(config: DockerConfig = {}) {
     const resolved = resolveDockerEndpoint(config)
@@ -438,6 +460,7 @@ class DockerSandboxProvider implements SandboxProvider {
     this.defaultCpu = config.defaultCpu ?? 1
     this.defaultMemoryMB = config.defaultMemoryMB ?? 1024
     this.configNetwork = config.network
+    this.configPublishHostIp = config.publishHostIp
     this.configTemplateRepository = config.templateRepository
     this.configTemplateRegistry = config.templateRegistry
     this.configTemplateRegistryAuth = config.templateRegistryAuth
@@ -485,7 +508,56 @@ class DockerSandboxProvider implements SandboxProvider {
       labelPrefix: this.labelPrefix,
       warn: (message, meta) => logger.warn(message, meta),
       debug: (message, meta) => logger.debug(message, meta),
+      // A wildcard port bind on a REMOTE daemon is reachable at the daemon's
+      // own host, not at the control plane's loopback — that is the address a
+      // front needs. A local daemon leaves this unset, so a wildcard there
+      // still reports loopback.
+      advertisedHost: 'host' in this.endpoint ? this.endpoint.host : undefined,
     }
+  }
+
+  /**
+   * Resolve the interface published ports bind to on the daemon's host.
+   * Precedence: `config.publishHostIp` (captured at construction) →
+   * `DOCKER_PUBLISH_HOST_IP` env (read here, at create time) → loopback.
+   *
+   * @returns the bind address for `HostConfig.PortBindings`.
+   * @throws {Error} when the value is not an IP address, or is a wildcard
+   *   (`0.0.0.0`/`::`) while `NODE_ENV=production` without
+   *   `MOL_DOCKER_ALLOW_PUBLIC_BINDS=1` — a wildcard publishes every port of
+   *   every sandbox on that daemon to every network it touches, and that is an
+   *   exposure someone must accept by name, never inherit by default.
+   */
+  private resolvePublishHostIp(): string {
+    const raw = this.configPublishHostIp ?? process.env.DOCKER_PUBLISH_HOST_IP ?? '127.0.0.1'
+    const value = raw.trim()
+    if (net.isIP(value) === 0) {
+      throw new Error(
+        `DOCKER_PUBLISH_HOST_IP/publishHostIp must be an IP address (got ${JSON.stringify(raw)}); ` +
+          'a hostname would need Docker to resolve it at bind time, when it may answer differently.',
+      )
+    }
+    const wildcard = value === '0.0.0.0' || value === '::'
+    if (wildcard && process.env.NODE_ENV === 'production') {
+      const override = process.env.MOL_DOCKER_ALLOW_PUBLIC_BINDS
+      if (override !== '1' && override !== 'true') {
+        throw new Error(
+          'Publishing sandbox ports on every interface (0.0.0.0/::) while NODE_ENV=production — ' +
+            'refusing. Bind a specific IP the front can reach, or set ' +
+            'MOL_DOCKER_ALLOW_PUBLIC_BINDS=1 to explicitly accept exposing every published port ' +
+            'of every sandbox on this daemon.',
+        )
+      }
+      if (!this.publicBindOverrideWarned) {
+        this.publicBindOverrideWarned = true
+        logger.warn(
+          'Sandbox ports bind EVERY interface (MOL_DOCKER_ALLOW_PUBLIC_BINDS accepted) — ' +
+            'every published port of every sandbox on this daemon is reachable from every network ' +
+            'it touches. Firewall the host so only the front can dial them.',
+        )
+      }
+    }
+    return value
   }
 
   /**
@@ -583,6 +655,7 @@ class DockerSandboxProvider implements SandboxProvider {
     }
 
     const publishPorts = resolvePublishPorts(config.publishPorts)
+    const publishHostIp = this.resolvePublishHostIp()
 
     const env = Object.entries(config.env ?? {}).map(([k, v]) => `${k}=${v}`)
 
@@ -620,11 +693,14 @@ class DockerSandboxProvider implements SandboxProvider {
       // bridge. Egress filtering must be enforced host-side, not in a tenant-rooted
       // container.
       CapAdd: ['CHOWN', 'SETGID', 'SETUID'],
-      // Bind ports to localhost only — prevents external access. Which ports is
-      // the caller's business (`config.publishPorts`); the historical
-      // API + Vite pair is the default so existing callers are unaffected.
+      // Bind published ports to a chosen interface — loopback by default, so
+      // nothing outside the host reaches a sandbox port. Which ports is the
+      // caller's business (`config.publishPorts`); the historical API + Vite
+      // pair is the default so existing callers are unaffected. The interface
+      // is `resolvePublishHostIp()`'s: loopback until an operator names an
+      // address their front can reach (a remote-hosting daemon).
       PortBindings: Object.fromEntries(
-        publishPorts.map((port) => [`${port}/tcp`, [{ HostIp: '127.0.0.1', HostPort: '' }]]),
+        publishPorts.map((port) => [`${port}/tcp`, [{ HostIp: publishHostIp, HostPort: '' }]]),
       ),
       Tmpfs: { '/tmp': 'rw,noexec,nosuid,size=256m' },
       ReadonlyPaths: [

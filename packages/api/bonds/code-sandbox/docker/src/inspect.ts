@@ -40,6 +40,13 @@ export interface InspectContext {
   labelPrefix: string
   warn?: (message: string, meta?: Record<string, unknown>) => void
   debug?: (message: string, meta?: Record<string, unknown>) => void
+  /**
+   * Where a port bound to EVERY interface is actually reachable, when that is
+   * somewhere other than this process's loopback — the host of a remote
+   * (`tcp://`) daemon. Unset for a local daemon, whose wildcard binds answer
+   * on loopback and nowhere the caller can name.
+   */
+  advertisedHost?: string
 }
 
 /**
@@ -87,7 +94,15 @@ export function toDescriptor(ctx: InspectContext, info: ContainerInspect): Sandb
     for (const binding of bindings ?? []) {
       const port = Number.parseInt(binding.HostPort ?? '', 10)
       if (!Number.isInteger(port) || port <= 0) continue
-      ports.push({ sandboxPort, host: binding.HostIp || '127.0.0.1', port })
+      // A bind on every interface has no single address of its own: it is
+      // reachable wherever the daemon's host is reachable, which the context
+      // names for a remote daemon and which is loopback for a local one.
+      const bindAll = !binding.HostIp || binding.HostIp === '0.0.0.0' || binding.HostIp === '::'
+      ports.push({
+        sandboxPort,
+        host: bindAll ? (ctx.advertisedHost ?? '127.0.0.1') : binding.HostIp,
+        port,
+      })
     }
   }
 

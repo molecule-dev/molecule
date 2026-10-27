@@ -851,6 +851,98 @@ describe('DockerSandboxProvider', () => {
     })
   })
 
+  // ─── Published-port bind address (publishHostIp) ──────────────────────
+
+  describe('published-port bind address', () => {
+    async function createBodyWith(config: Parameters<typeof createProvider>[0] = {}) {
+      const { createProvider } = await import('../provider.js')
+      const provider = createProvider({ socketPath: '/test.sock', ...config })
+      enqueueNetworkCreate()
+      enqueueJson(201, { Id: 'container-bind' })
+      await provider.create({ projectId: 'test-bind' })
+      return JSON.parse(containerCreateCall().body!) as {
+        HostConfig: { PortBindings: Record<string, Array<{ HostIp: string }>> }
+      }
+    }
+
+    it('binds published ports to loopback by default (nothing outside the host)', async () => {
+      const body = await createBodyWith()
+      for (const bindings of Object.values(body.HostConfig.PortBindings)) {
+        expect(bindings).toEqual([{ HostIp: '127.0.0.1', HostPort: '' }])
+      }
+    })
+
+    it('binds to a specific routable interface when publishHostIp names one', async () => {
+      const body = await createBodyWith({ publishHostIp: '192.0.2.10' })
+      for (const bindings of Object.values(body.HostConfig.PortBindings)) {
+        expect(bindings).toEqual([{ HostIp: '192.0.2.10', HostPort: '' }])
+      }
+    })
+
+    it('honors DOCKER_PUBLISH_HOST_IP when config is unset', async () => {
+      const prev = process.env.DOCKER_PUBLISH_HOST_IP
+      process.env.DOCKER_PUBLISH_HOST_IP = '192.0.2.11'
+      try {
+        const body = await createBodyWith()
+        expect(Object.values(body.HostConfig.PortBindings)[0]).toEqual([
+          { HostIp: '192.0.2.11', HostPort: '' },
+        ])
+      } finally {
+        if (prev === undefined) delete process.env.DOCKER_PUBLISH_HOST_IP
+        else process.env.DOCKER_PUBLISH_HOST_IP = prev
+      }
+    })
+
+    it('refuses a non-IP bind address rather than letting Docker resolve it later', async () => {
+      const { createProvider } = await import('../provider.js')
+      const provider = createProvider({ socketPath: '/test.sock', publishHostIp: 'box.example' })
+      await expect(provider.create({ projectId: 'test-bind' })).rejects.toThrow(
+        /must be an IP address/,
+      )
+    })
+
+    it('refuses a wildcard bind in production without the explicit opt-in', async () => {
+      const { createProvider } = await import('../provider.js')
+      const provider = createProvider({ socketPath: '/test.sock', publishHostIp: '0.0.0.0' })
+      const prevEnv = process.env.NODE_ENV
+      const prevOverride = process.env.MOL_DOCKER_ALLOW_PUBLIC_BINDS
+      delete process.env.MOL_DOCKER_ALLOW_PUBLIC_BINDS
+      process.env.NODE_ENV = 'production'
+      try {
+        await expect(provider.create({ projectId: 'test-bind' })).rejects.toThrow(
+          /MOL_DOCKER_ALLOW_PUBLIC_BINDS/,
+        )
+      } finally {
+        process.env.NODE_ENV = prevEnv
+        if (prevOverride === undefined) delete process.env.MOL_DOCKER_ALLOW_PUBLIC_BINDS
+        else process.env.MOL_DOCKER_ALLOW_PUBLIC_BINDS = prevOverride
+      }
+    })
+
+    it('accepts a wildcard bind in production WITH the explicit opt-in', async () => {
+      const prevEnv = process.env.NODE_ENV
+      const prevOverride = process.env.MOL_DOCKER_ALLOW_PUBLIC_BINDS
+      process.env.NODE_ENV = 'production'
+      process.env.MOL_DOCKER_ALLOW_PUBLIC_BINDS = '1'
+      try {
+        const body = await createBodyWith({ publishHostIp: '0.0.0.0' })
+        expect(Object.values(body.HostConfig.PortBindings)[0]).toEqual([
+          { HostIp: '0.0.0.0', HostPort: '' },
+        ])
+      } finally {
+        process.env.NODE_ENV = prevEnv
+        if (prevOverride === undefined) delete process.env.MOL_DOCKER_ALLOW_PUBLIC_BINDS
+        else process.env.MOL_DOCKER_ALLOW_PUBLIC_BINDS = prevOverride
+      }
+    })
+
+    it('declares itself fit for long-lived, routable production hosting', async () => {
+      const { createProvider } = await import('../provider.js')
+      const provider = createProvider({ socketPath: '/test.sock' })
+      expect(provider.hostingCapabilities).toEqual({ longLived: true, routable: true })
+    })
+  })
+
   // ─── Custom labels (additive, backward-compatible) ────────────────────
 
   describe('custom labels', () => {

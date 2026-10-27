@@ -56,6 +56,38 @@ describe('toDescriptor', () => {
     expect(descriptor.volumeName).toBe('mol-project-1')
   })
 
+  it('reports a wildcard bind on a REMOTE daemon at the daemon host, not loopback', () => {
+    // A wildcard bind on a remote daemon is reachable at the daemon's host;
+    // reporting 127.0.0.1 would send a front to the control plane's own
+    // loopback, where nothing listens.
+    const ctx: InspectContext = { ...context(vi.fn()), advertisedHost: '192.0.2.10' }
+    const payload = inspectPayload({
+      NetworkSettings: { Ports: { '4000/tcp': [{ HostIp: '0.0.0.0', HostPort: '4000' }] } },
+    })
+    expect(toDescriptor(ctx, payload).ports).toEqual([
+      { sandboxPort: 4000, host: '192.0.2.10', port: 4000 },
+    ])
+  })
+
+  it('keeps a wildcard bind on a LOCAL daemon at loopback', () => {
+    const payload = inspectPayload({
+      NetworkSettings: { Ports: { '4000/tcp': [{ HostIp: '0.0.0.0', HostPort: '4000' }] } },
+    })
+    expect(toDescriptor(context(vi.fn()), payload).ports).toEqual([
+      { sandboxPort: 4000, host: '127.0.0.1', port: 4000 },
+    ])
+  })
+
+  it('reports a specifically-bound interface as-is, even with an advertised host', () => {
+    const ctx: InspectContext = { ...context(vi.fn()), advertisedHost: '192.0.2.10' }
+    const payload = inspectPayload({
+      NetworkSettings: { Ports: { '4000/tcp': [{ HostIp: '192.0.2.20', HostPort: '4000' }] } },
+    })
+    expect(toDescriptor(ctx, payload).ports).toEqual([
+      { sandboxPort: 4000, host: '192.0.2.20', port: 4000 },
+    ])
+  })
+
   it('reports startedAt null for a container that has NEVER been started', () => {
     // This is the shape of an interrupted creation: it holds its storage forever
     // and will never run. Nothing in `status` distinguishes it from a sandbox

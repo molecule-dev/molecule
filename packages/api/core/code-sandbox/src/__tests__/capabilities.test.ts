@@ -54,6 +54,28 @@ describe('optional capabilities', () => {
     expect(minimal.find).toBeUndefined()
     expect(minimal.listVolumes).toBeUndefined()
     expect(minimal.capacity).toBeUndefined()
+    expect(minimal.hostingCapabilities).toBeUndefined()
+  })
+
+  it('reads an absent hosting declaration as "cannot", never assumes', () => {
+    // The convention the production wiring gate depends on: undeclared is not
+    // "probably fine" — a provider fit for hosting says so, so silence is "no".
+    const undeclared: SandboxProvider = minimal
+    const hostable: SandboxProvider = {
+      ...minimal,
+      hostingCapabilities: { longLived: true, routable: true },
+    }
+    const fitForHosting = (provider: SandboxProvider): boolean =>
+      provider.hostingCapabilities?.longLived === true &&
+      provider.hostingCapabilities?.routable === true
+
+    expect(fitForHosting(undeclared)).toBe(false)
+    expect(fitForHosting(hostable)).toBe(true)
+    // A partial declaration is a partial no: a provider that is long-lived but
+    // not routable (a dev-pool provider) must not pass a gate that needs both.
+    expect(
+      fitForHosting({ ...minimal, hostingCapabilities: { longLived: true, routable: false } }),
+    ).toBe(false)
   })
 
   it('lets a sandbox handle omit every capability beyond the original contract', () => {

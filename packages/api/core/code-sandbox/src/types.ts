@@ -727,6 +727,38 @@ export interface SandboxCapacity {
 }
 
 /**
+ * Whether a provider can fill a LONG-LIVED PUBLIC HOSTING role — running a
+ * deployed app that the public reaches, not an ephemeral dev sandbox.
+ *
+ * The `code-sandbox` category serves both roles with one interface, and the
+ * interface alone cannot tell them apart: a provider can implement every
+ * method and still be unfit to host (sandboxes with a bounded lifetime, or no
+ * address a front can route to). Before this type, that mismatch surfaced only
+ * at the health gate of a real deploy — the failure class this declaration
+ * exists to move to boot, where wiring it is still a choice someone can read.
+ *
+ * ABSENT MEANS NOT DECLARED, and an absent declaration MUST be read as
+ * "cannot" — the same convention as the optional methods below. A platform
+ * filling a hosting role refuses an undeclared provider rather than assuming
+ * fitness; a provider that is fit SAYS SO.
+ */
+export interface ProductionHostingCapabilities {
+  /**
+   * Instances live until they are destroyed — the provider never reaps one on
+   * a schedule or a lifetime bound of its own. A platform's own idle parking
+   * (`idleAction`) does not count against this: parking is reversible and
+   * caller-driven, a bounded lifetime is not.
+   */
+  longLived: boolean
+  /**
+   * A running instance is reachable at an address the provider itself reports
+   * (`describe()`'s port mapping or `getPreviewUrl()`), from wherever the
+   * platform's front runs — not only from inside the provider's own network.
+   */
+  routable: boolean
+}
+
+/**
  * Sandbox provider interface.
  *
  * Each bond package (Docker, Firecracker, etc.) implements
@@ -743,6 +775,18 @@ export interface SandboxCapacity {
  */
 export interface SandboxProvider {
   readonly name: string
+
+  /**
+   * Whether this provider can host long-lived, publicly routable instances
+   * (deployed apps). See {@link ProductionHostingCapabilities} for the
+   * convention: absent means "not declared", which a caller filling that role
+   * reads as "cannot" — never assumes.
+   *
+   * Optional, and deliberately a declaration rather than a probe: fitness for
+   * hosting is a property of the provider's infrastructure, not something a
+   * caller can discover by trying.
+   */
+  readonly hostingCapabilities?: Readonly<ProductionHostingCapabilities>
 
   /**
    * The idle policy this provider applies to a sandbox the caller does not
