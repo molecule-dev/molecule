@@ -23,12 +23,29 @@
  * @example
  * ```tsx
  * import { Link } from 'react-router'
+ * import { getClient, isHttpError } from '@molecule/app-http'
+ * import { t } from '@molecule/app-i18n'
  * import { intentPrefetchProps, useQuery } from '@molecule/app-query-react'
+ *
+ * interface PackageDocument {
+ *   name: string
+ *   description: string
+ * }
  *
  * const packageQuery = (name: string) => ({
  *   key: ['package', name],
- *   fetch: (signal: AbortSignal) =>
- *     fetch(`/data/packages/${name}.json`, { signal }).then((r) => r.json()),
+ *   fetch: async (signal: AbortSignal): Promise<PackageDocument | null> => {
+ *     try {
+ *       const response = await getClient().get<PackageDocument | null>(
+ *         `/data/packages/${encodeURIComponent(name)}.json`,
+ *         { signal },
+ *       )
+ *       return response.data
+ *     } catch (error) {
+ *       if (isHttpError(error) && error.status === 404) return null
+ *       throw error
+ *     }
+ *   },
  * })
  *
  * function PackageLink({ name }: { name: string }) {
@@ -37,8 +54,16 @@
  *
  * function PackagePage({ name }: { name: string }) {
  *   const { data, status } = useQuery(packageQuery(name))
- *   if (!data) return status === 'error' ? <NotFound /> : <Skeleton />
- *   return <Article doc={data} />
+ *   if (status === 'error') {
+ *     return <p role="alert">{t('packages.loadFailed', undefined, { defaultValue: 'Unable to load package.' })}</p>
+ *   }
+ *   if (status === 'idle' || status === 'loading') {
+ *     return <p role="status">{t('common.loading', undefined, { defaultValue: 'Loading…' })}</p>
+ *   }
+ *   if (data == null) {
+ *     return <p>{t('packages.notFound', undefined, { defaultValue: 'Package not found.' })}</p>
+ *   }
+ *   return <article><h1>{data.name}</h1><p>{data.description}</p></article>
  * }
  * ```
  *
@@ -123,6 +148,8 @@
  * explicit `fetch()` retries into the mounted page.
  *
  * ```tsx
+ * import { getClient } from '@molecule/app-http'
+ * import { t } from '@molecule/app-i18n'
  * import { getQueryClient } from '@molecule/app-query'
  *
  * // The key names what the document actually depends on — here the signed-in
@@ -133,14 +160,16 @@
  *
  * const feedOptions = (principal: string, filter: string, page: number) => ({
  *   key: feedKey(principal, filter, page),
- *   fetch: (signal: AbortSignal) =>
- *     fetch(`/api/feeds/${filter}?page=${page}`, { signal }).then((r) => r.json()),
+ *   fetch: async (signal: AbortSignal) =>
+ *     (await getClient().get(`/api/feeds/${filter}`, { signal, params: { page } })).data,
  * })
  *
  * async function setFollowing(principal: string, authorId: string, follow: boolean) {
  *   const client = getQueryClient()
- *   const res = await fetch(`/api/follows/${authorId}`, { method: follow ? 'POST' : 'DELETE' })
- *   const body = await res.json()
+ *   const http = getClient()
+ *   const { data: body } = follow
+ *     ? await http.post<{ feed: unknown }>(`/api/follows/${authorId}`)
+ *     : await http.delete<{ feed: unknown }>(`/api/follows/${authorId}`)
  *   // The response IS the document: paint it now, with no second round trip.
  *   // (If it were only a count or a flag, skip set() and invalidate() instead.)
  *   client.set(feedKey(principal, 'following', 1), body.feed)
@@ -156,10 +185,11 @@
  *         // an explicit fetch retries into it. useQuery shows the outcome.
  *         void getQueryClient()
  *           .fetch(feedOptions(principal, 'following', 1))
- *           .catch(() => {})
+ *           // The mounted useQuery observer presents this failure via status/error.
+ *           .catch((_error) => {})
  *       }}
  *     >
- *       Retry
+ *       {t('common.retry', undefined, { defaultValue: 'Retry' })}
  *     </button>
  *   )
  * }
@@ -169,7 +199,12 @@
  * - **`useQuery` reads the cache synchronously on the first render.** A
  *   document prefetched from a hovered link, or seeded with `client.set()`
  *   from a server-rendered JSON island, renders at once — no spinner, no
- *   layout shift. Render a loading state only when `data` is `undefined`.
+ *   layout shift. Render loading from `status === 'idle' || status === 'loading'`;
+ *   `undefined` data can also accompany a completed error. A completed `null`
+ *   response is missing, not pending. The detail example treats only HTTP 404
+ *   or a successful null response as missing; other errors stay load failures.
+ *   The app's bonded HTTP client rejects non-2xx responses. Native `fetch`
+ *   resolves them, so a custom fetcher must check `response.ok` before JSON.
  * - **The key is the identity.** Building `options` inline is fine; the
  *   hook resubscribes only when the key's value changes, not when the
  *   `fetch` closure does.

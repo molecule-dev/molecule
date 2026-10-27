@@ -9,6 +9,7 @@
  *
  * @example
  * ```typescript
+ * import { getClient } from '@molecule/app-http'
  * import { getQueryClient, setProvider } from '@molecule/app-query'
  * import { provider } from '@molecule/app-query-tanstack'
  *
@@ -16,8 +17,8 @@
  *
  * const packageQuery = (name: string) => ({
  *   key: ['package', name],
- *   fetch: (signal: AbortSignal) =>
- *     fetch(`/data/packages/${name}.json`, { signal }).then((r) => r.json()),
+ *   fetch: async (signal: AbortSignal) =>
+ *     (await getClient().get(`/data/packages/${encodeURIComponent(name)}.json`, { signal })).data,
  * })
  *
  * const client = getQueryClient()
@@ -45,6 +46,9 @@
  *   Check `updatedAt` if freshness matters for a display.
  * - **A failed fetch is never cached**, so retrying is one more `fetch()`.
  *   `prefetch()` swallows failures on purpose: the real navigation reports them.
+ *   The bonded HTTP client rejects non-2xx responses. Native `fetch` resolves
+ *   them, so a custom fetcher must check `response.ok` before reading JSON;
+ *   otherwise an error response becomes a successfully cached document.
  * - Prefetch with intent (pointer enter, focus, touch start) and while idle,
  *   and only when `shouldPrefetch()` allows: a person on a metered or 2G
  *   connection did not ask for the page they hovered.
