@@ -13,11 +13,15 @@ vi.mock('@molecule/api-bond', () => ({
   }),
 }))
 
+import { createServer, type ServerResponse } from 'node:http'
+
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { ChatEvent } from '@molecule/api-ai'
 
 import { createProvider } from '../provider.js'
+
+const nativeFetch = globalThis.fetch
 
 function jsonResponse(
   status: number,
@@ -1426,4 +1430,144 @@ describe('chat() — native cache usage', () => {
       usage: { inputTokens: 146, cacheReadInputTokens: 44160, outputTokens: 255 },
     })
   })
+})
+
+describe('chat() — native dispatch deadline', () => {
+  beforeEach(() => {
+    vi.useRealTimers()
+    vi.stubGlobal('fetch', nativeFetch)
+  })
+
+  async function withNativeHttp(
+    serve: (response: ServerResponse) => void,
+    run: (baseUrl: string) => Promise<void>,
+  ): Promise<void> {
+    const server = createServer((request, response) => {
+      request.resume()
+      serve(response)
+    })
+    await new Promise<void>((resolve, reject) => {
+      server.once('error', reject)
+      server.listen(0, '127.0.0.1', resolve)
+    })
+    try {
+      const address = server.address()
+      if (!address || typeof address === 'string') throw new Error('Missing native HTTP address')
+      await run('http://127.0.0.1:' + address.port)
+    } finally {
+      server.closeAllConnections()
+      await new Promise<void>((resolve) => server.close(() => resolve()))
+    }
+  }
+
+  it.each([false, true])(
+    'shares one send-to-content window (within budget: %s)',
+    async (within) => {
+      let requests = 0
+      const stalls: Array<{ phase: string; stallMs: number; willRetry: boolean }> = []
+      await withNativeHttp(
+        (response) => {
+          requests++
+          if (requests > 1) {
+            response.writeHead(200, { 'content-type': 'text/event-stream' })
+            response.end(sseText('recovered') + '\n\ndata: [DONE]\n\n')
+            return
+          }
+          const timers: Array<ReturnType<typeof setTimeout>> = []
+          response.once('close', () => timers.forEach(clearTimeout))
+          timers.push(
+            setTimeout(
+              () => {
+                response.writeHead(200, { 'content-type': 'text/event-stream' })
+                response.flushHeaders()
+                timers.push(
+                  setTimeout(
+                    () =>
+                      response.end(
+                        sseText(within ? 'inventory ready' : 'too late') + '\n\ndata: [DONE]\n\n',
+                      ),
+                    within ? 200 : 350,
+                  ),
+                )
+              },
+              within ? 250 : 350,
+            ),
+          )
+        },
+        async (baseUrl) => {
+          const events = await drain(
+            createProvider({
+              apiKey: 'k',
+              baseUrl,
+              firstTokenTimeoutMs: 600,
+              onStreamStall: (event) => stalls.push(event),
+            }).chat({ messages: [{ role: 'user', content: 'Inventory status' }] }),
+          )
+          expect(
+            events
+              .filter((event) => event.type === 'text')
+              .map((event) => (event as { content: string }).content),
+          ).toEqual([within ? 'inventory ready' : 'recovered'])
+          expect(requests).toBe(within ? 1 : 2)
+          if (within) expect(stalls).toEqual([])
+          else {
+            expect(stalls).toHaveLength(1)
+            expect(stalls[0]).toMatchObject({ phase: 'before_content', willRetry: true })
+            expect(stalls[0]?.stallMs).toBeGreaterThanOrEqual(600)
+          }
+        },
+      )
+    },
+  )
+
+  it.each([false, true])(
+    'honors cancellation around Retry-After (during wait: %s)',
+    async (duringWait) => {
+      const parent = new AbortController()
+      let requests = 0,
+        cancelledAt = 0
+      let timer: ReturnType<typeof setTimeout> | undefined
+      const stalls: unknown[] = []
+      try {
+        await withNativeHttp(
+          (response) => {
+            requests++
+            response.writeHead(429, { 'content-type': 'application/json', 'retry-after': '1' })
+            response.end(JSON.stringify({ error: { message: 'rate limited' } }))
+          },
+          async (baseUrl) => {
+            const provider = createProvider({
+              apiKey: 'k',
+              baseUrl,
+              firstTokenTimeoutMs: 600,
+              onRateLimit: () => {
+                const cancel = (): void => {
+                  cancelledAt = Date.now()
+                  parent.abort()
+                }
+                if (duringWait) timer = setTimeout(cancel, 30)
+                else cancel()
+              },
+              onStreamStall: (event) => stalls.push(event),
+            })
+            const error = await drain(
+              provider.chat({
+                messages: [{ role: 'user', content: 'Inventory status' }],
+                signal: parent.signal,
+              }),
+            ).then(
+              () => null,
+              (error) => error as Error,
+            )
+            expect(error?.name).toBe('AbortError')
+            expect(Date.now() - cancelledAt).toBeLessThan(800)
+            expect(requests).toBe(1)
+            expect(stalls).toEqual([])
+          },
+        )
+      } finally {
+        if (timer) clearTimeout(timer)
+      }
+    },
+  )
 })

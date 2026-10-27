@@ -341,6 +341,21 @@ function isContentEvent(event: ChatEvent): boolean {
 }
 
 /**
+ * The first-token window expired before response HEADERS arrived.
+ *
+ * Module-private: the only consumer is this provider's own stall loop, which
+ * reports it in the existing `before_content` shape and asks once more. It is
+ * never thrown for a caller cancellation — a caller abort (or the whole-attempt
+ * ceiling) outranks the window and is re-thrown untouched.
+ */
+class FirstTokenHeaderTimeoutError extends Error {
+  constructor(readonly boundMs: number) {
+    super(`DeepSeek sent no response headers within ${boundMs} ms`)
+    this.name = 'FirstTokenHeaderTimeoutError'
+  }
+}
+
+/**
  * DeepSeek AI provider that implements the `AIProvider` interface using
  * DeepSeek's OpenAI-compatible Chat Completions API with support for streaming,
  * tool use, and reasoning.
@@ -522,15 +537,46 @@ class DeepseekAIProviderImpl implements AIProvider {
       // present, still wins over it (both abort this one controller).
       const ceiling = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT_MS)
       ceiling.unref?.()
-      const signal = controller.signal
 
       try {
-        const response = await this.requestWithRateLimitRetries({
-          body,
-          headers,
-          model,
-          signal,
-        })
+        let response: Response
+        let requestSentAt = 0
+        try {
+          const dispatched = await this.requestWithRateLimitRetries({
+            body,
+            headers,
+            model,
+            controller,
+            // The first-token window covers an attempt that never receives
+            // response HEADERS too, not only one that receives them and then
+            // sends no content: a window that started at the headers left the
+            // whole pre-header phase to the five-minute attempt ceiling alone.
+            // Passing it only while streaming keeps the non-streaming path —
+            // which has no first token to wait for — on that ceiling.
+            ...(params.stream === false ? {} : { firstTokenTimeoutMs }),
+          })
+          response = dispatched.response
+          requestSentAt = dispatched.sentAt
+        } catch (error) {
+          if (!(error instanceof FirstTokenHeaderTimeoutError) || params.signal?.aborted)
+            throw error
+          // Nothing reached the consumer, so the same once-only re-ask a
+          // post-header stall gets is safe here too — reported in the
+          // established `before_content` shape, so hosts and analytics see one
+          // kind of stall either way.
+          const willRetry = stalledAttempt < MAX_STALL_RETRIES
+          this.reportStreamStall(model, {
+            stallMs: error.boundMs,
+            attempt: stalledAttempt + 1,
+            willRetry,
+            streamedChars: 0,
+            keepAlives: 0,
+            phase: 'before_content',
+          })
+          if (willRetry) continue
+          yield { type: 'error', message: t('ai.error.apiError'), errorKey: 'ai.error.apiError' }
+          return
+        }
 
         // Whatever the transport exposes about this call. DeepSeek's edge
         // answers with `x-ds-trace-id`; other OpenAI-compatible hosts use
@@ -625,7 +671,10 @@ class DeepseekAIProviderImpl implements AIProvider {
             controller.abort()
           }, ms)
         }
-        armBound(firstTokenTimeoutMs, 'before_content')
+        // Headers and content share this dispatch's existing first-token window.
+        // A 429/503 retry has its own send time; deliberate backoff is excluded.
+        armBound(Math.max(0, firstTokenTimeoutMs - (Date.now() - requestSentAt)), 'before_content')
+        bounds.windowStartedAt = requestSentAt
         try {
           yield* this.parseStreamingResponse(
             response,
@@ -636,7 +685,7 @@ class DeepseekAIProviderImpl implements AIProvider {
         } catch (error) {
           // Only a bound expiry is this provider's to absorb — anything else
           // (the caller aborting, a socket failure) belongs to the caller.
-          if (!bounds.expired) throw error
+          if (!bounds.expired || params.signal?.aborted) throw error
           const stall = {
             stallMs: Date.now() - bounds.windowStartedAt,
             attempt: stalledAttempt + 1,
@@ -699,25 +748,59 @@ class DeepseekAIProviderImpl implements AIProvider {
    * them in one loop made each one's attempt count depend on the other's.
    *
    * @param args - The request body, headers, upstream model and abort signal.
-   * @returns The upstream response (possibly a 429/503 that exhausted retries).
+   * @returns The response and the final dispatch send time (deliberate backoff excluded).
    */
   private async requestWithRateLimitRetries(args: {
     body: Record<string, unknown>
     headers: Record<string, string>
     model: string
-    signal: AbortSignal
-  }): Promise<Response> {
-    const { body, headers, model, signal } = args
+    /**
+     * This ATTEMPT's controller — the same one the caller's abort and the
+     * whole-attempt ceiling abort. The pre-header window aborts it too, with
+     * the window's own reason, so cancellation has one path and the reason is
+     * what tells a stall apart from a caller cancel.
+     */
+    controller: AbortController
+    /**
+     * The first-token window, when the caller is streaming. Armed the moment
+     * each network attempt is dispatched and cleared the moment that attempt's
+     * response HEADERS arrive; the SSE reader carries its remaining time until
+     * first content. Deliberately NOT armed across a 429/503
+     * backoff sleep: that wait is this provider's own, and no upstream can
+     * stall it, so the window must not spend itself there.
+     */
+    firstTokenTimeoutMs?: number
+  }): Promise<{ response: Response; sentAt: number }> {
+    const { body, headers, model, controller, firstTokenTimeoutMs } = args
+    const signal = controller.signal
     // Retry with exponential backoff for rate limits (429) and overloaded (503)
     const MAX_RETRIES = 3
     let response: Response | null = null
+    let sentAt = 0
     for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
-      response = await fetch(`${this.baseUrl}${this.completionsPath}`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(body),
-        signal,
-      })
+      // Bound THIS dispatch, not the retry loop: a deliberate backoff sleep is
+      // this provider's own wait, so no window is running while it is spent.
+      let headerDeadline: ReturnType<typeof setTimeout> | null = null
+      sentAt = Date.now()
+      if (firstTokenTimeoutMs !== undefined) {
+        headerDeadline = setTimeout(
+          () => controller.abort(new FirstTokenHeaderTimeoutError(firstTokenTimeoutMs)),
+          firstTokenTimeoutMs,
+        )
+        headerDeadline.unref?.()
+      }
+      try {
+        response = await fetch(`${this.baseUrl}${this.completionsPath}`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(body),
+          signal,
+        })
+      } finally {
+        // Release the header timer when fetch settles. The successful SSE reader
+        // uses the remaining window; a rate-limit retry starts a new dispatch.
+        if (headerDeadline) clearTimeout(headerDeadline)
+      }
 
       if (response.status === 429 || response.status === 503) {
         const willRetry = attempt < MAX_RETRIES
@@ -755,24 +838,24 @@ class DeepseekAIProviderImpl implements AIProvider {
             attempt: attempt + 1,
             delayMs,
           })
+          // A host may cancel inside onRateLimit, before a backoff listener exists.
+          signal.throwIfAborted()
           await new Promise<void>((resolve) => {
-            const timer = setTimeout(resolve, delayMs)
-            signal.addEventListener(
-              'abort',
-              () => {
-                clearTimeout(timer)
-                resolve()
-              },
-              { once: true },
-            )
+            const finish = (): void => {
+              clearTimeout(timer)
+              signal.removeEventListener('abort', finish)
+              resolve()
+            }
+            const timer = setTimeout(finish, delayMs)
+            signal.addEventListener('abort', finish, { once: true })
           })
-          if (signal.aborted) break
+          signal.throwIfAborted()
           continue
         }
       }
       break
     }
-    return response!
+    return { response: response!, sentAt }
   }
 
   /**

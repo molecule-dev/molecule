@@ -14,7 +14,9 @@
  * per-run file with the reporter's own `PLAYWRIGHT_JSON_OUTPUT_FILE` option, and this module turns
  * that file into a small, bounded record on the tool result ({@link PlaywrightRunReport}). The
  * whole file stays where it was written, so full evidence has a path; the record carries only what
- * a diagnosis needs.
+ * a diagnosis needs. Before publication, execution tools retain bounded attachment copies beside
+ * the call's report. Later native runs may clean their output without invalidating these paths;
+ * `artifactRetention` reports omitted or unavailable copies honestly.
  *
  * Honesty rules, which every reader below follows:
  *
@@ -92,7 +94,7 @@ export interface PlaywrightReportAttachment {
   name: string
   /** Its media type, when the runner recorded one. */
   contentType: string | null
-  /** Where the runner saved it, as the report wrote the path. */
+  /** This attempt's published artifact path; a per-call copy when retention succeeded. */
   path: string
 }
 
@@ -151,6 +153,14 @@ export interface PlaywrightReportStats {
  * A reader that needs evidence this record does not carry reads {@link path} in the sandbox.
  */
 export interface PlaywrightRunReport {
+  /** Whether the published attachment paths were retained outside the runner's mutable output. */
+  artifactRetention?: {
+    status: 'retained' | 'partial' | 'unavailable'
+    omittedAttachments: number
+    bytes: number
+    /** The per-call snapshot root for readers of the retained trace tree. */
+    directory?: string
+  }
   /** How much of the report was read — see {@link PlaywrightReportStatus}. */
   status: PlaywrightReportStatus
   /** Where the report file is, for the full evidence. Always the runner's own file. */

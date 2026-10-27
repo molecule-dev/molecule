@@ -34,8 +34,10 @@
  * **A stream that opens and then produces nothing is bounded, not waited on.** DeepSeek answers
  * 200 and then keeps a stalled prefill alive with `: keep-alive` comments, so no HTTP status is
  * ever wrong and a byte-level idle timeout never sees the stall. `chat()` therefore bounds the
- * wait for the first CONTENT event (45 s, `MOL_DEEPSEEK_FIRST_TOKEN_TIMEOUT_MS`) and asks once
- * more with a fresh stream; after the reply has started it bounds the silence between chunks
+ * wait for the first CONTENT event (45 s, `MOL_DEEPSEEK_FIRST_TOKEN_TIMEOUT_MS`) — a window that
+ * starts when the request is sent, so it also bounds an attempt whose response HEADERS never
+ * arrive — and asks once more with a fresh stream; after the reply has started it bounds the
+ * silence between chunks
  * instead (60 s, `MOL_DEEPSEEK_STREAM_SILENCE_TIMEOUT_MS`) and surfaces an error event, keeping
  * the partial reply. Hosts observe both through the `onStreamStall` callback.
  *

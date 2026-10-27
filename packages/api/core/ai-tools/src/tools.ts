@@ -43,6 +43,7 @@ import {
   type PlaywrightRunReport,
   summarizePlaywrightReport,
 } from './playwright-report.js'
+import { retainPlaywrightArtifacts } from './report-attachment-retention.js'
 import { TOOL_SCHEMAS } from './schemas.js'
 import {
   foregroundBrowserProbe,
@@ -80,7 +81,7 @@ const outputFileByTask = new Map<string, string>()
 const reportByTask = new Map<string, string>()
 
 /**
- * One report file's bounded facts, or the honest reason there are none.
+ * One report file's bounded facts and retained native attachments, or honest omissions.
  *
  * A report that is not there is NOT "the run failed nothing": `summarizePlaywrightReport` answers
  * `missing`, and every reader treats that as no machine data rather than as a clean run.
@@ -88,10 +89,10 @@ const reportByTask = new Map<string, string>()
  * @param backend - The project's execution backend.
  * @param path - The report file's absolute path (`/tmp/…`).
  * @param sanitize - The consumer's redactor for the error text the record carries.
- * @returns The bounded record; never a verdict.
+ * @returns The bounded record with per-call attachment copies; never a verdict.
  */
-async function readPlaywrightRunReport(
-  backend: ExecutionBackend,
+export async function readPlaywrightRunReport(
+  backend: Pick<ExecutionBackend, 'readFile' | 'run'>,
   path: string,
   sanitize: (text: string) => string,
 ): Promise<PlaywrightRunReport> {
@@ -112,7 +113,7 @@ async function readPlaywrightRunReport(
       omittedFailures: 0,
     }
   }
-  return summarizePlaywrightReport(text, { path, sanitize })
+  return retainPlaywrightArtifacts(backend, summarizePlaywrightReport(text, { path, sanitize }))
 }
 
 /**
