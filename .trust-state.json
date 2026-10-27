@@ -320,6 +320,8 @@
   "@molecule/api-ocr-tesseract",
   "@molecule/api-oembed",
   "@molecule/api-openapi",
+  "@molecule/api-paracrine",
+  "@molecule/api-paracrine-file",
   "@molecule/api-password",
   "@molecule/api-password-bcrypt",
   "@molecule/api-payments",
