@@ -132,6 +132,38 @@ afterAll(async () => {
 })
 
 describe('Molecule module identity across install paths', () => {
+  it('discovers the consuming app packages even when this config is installed elsewhere', async () => {
+    writePackage('@molecule/inventory-identity-control', {
+      'package.json': packageJson('@molecule/inventory-identity-control', {
+        '.': {
+          browser: './dist/browser.js',
+          import: './dist/index.js',
+        },
+      }),
+      'dist/index.js': 'export const environment = "node"\n',
+      'dist/browser.js': 'export const environment = "browser"\n',
+    })
+    const cwd = vi.spyOn(process, 'cwd').mockReturnValue(appRoot)
+    try {
+      const config = createDefaultViteConfig({
+        APP_NAME: 'Inventory',
+        APP_DESCRIPTION: 'consumer install identity',
+        BRAND_COLOR: '#000000',
+      })
+      expect(config.resolve?.dedupe).toContain('@molecule/inventory-identity-control')
+      expect(config.optimizeDeps?.exclude).toContain('@molecule/inventory-identity-control')
+      const server = await startServer(config.resolve?.dedupe as string[])
+      expect(await resolveWith(server, '@molecule/inventory-identity-control')).toBe(
+        join(appRoot, 'node_modules/@molecule/inventory-identity-control/dist/browser.js'),
+      )
+      expect(
+        await resolveWith(server, '@molecule/absent-inventory-identity-control'),
+      ).toBeUndefined()
+    } finally {
+      cwd.mockRestore()
+    }
+  })
+
   it('duplicates the package through a node_modules self-link without dedupe (the recorded failure)', async () => {
     const server = await startServer(REACT_ONLY_DEDUPE)
     expect(await resolveWith(server, '@molecule/app-query')).toBe(
