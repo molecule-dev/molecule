@@ -15,11 +15,9 @@
  * key, and Apple's WWDR intermediate as an additional certificate in the
  * CMS structure (Apple Wallet validates the chain on-device).
  *
- * node-forge is at 1.4.0 (latest; GHSA-86w9-cpqp-85rv has no fixed release
- * as of 2026-10-23). That advisory is in signature VERIFICATION; this module
- * only parses operator-supplied PEMs and CREATES signatures, so the
- * vulnerable path is never invoked — do not add verification use here
- * without re-assessing.
+ * node-forge 1.4.1 fixes CVE-2026-85393 (GHSA-2g46-22mc-6gwp), previously
+ * tracked as GHSA-86w9-cpqp-85rv. This module parses operator-supplied PEMs
+ * and CREATES signatures; it does not verify signatures from callers.
  *
  * @module
  */

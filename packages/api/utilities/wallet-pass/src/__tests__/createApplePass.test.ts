@@ -2,15 +2,17 @@
  * Apple Wallet `.pkpass` integration tests.
  *
  * Generates a real RSA keypair + self-signed cert chain at test time, signs
- * a small `pass.json` payload, and then re-verifies the CMS detached
- * signature with `node-forge` (no real Apple WWDR cert involved). This
- * proves the manifest hashes are computed correctly and the CMS structure
- * is parseable by the same library iOS uses internally.
+ * a small `pass.json` payload, and checks the detached CMS structure with
+ * node-forge (no real Apple WWDR cert involved). Node crypto independently
+ * verifies the signature over its authenticated attributes, whose digest
+ * must match the manifest bytes.
  *
  * @module
  */
 
-import { createHash } from 'node:crypto'
+import { createHash, verify } from 'node:crypto'
+import { readFileSync } from 'node:fs'
+import { createRequire } from 'node:module'
 
 import forge from 'node-forge'
 import { describe, expect, test } from 'vitest'
@@ -92,6 +94,20 @@ const samplePass: ApplePassData = {
 }
 
 describe('createApplePass', () => {
+  test('uses the patched Forge release on the actual signing resolution path', () => {
+    // The old 1.4.0 resolution must fail even when the source manifest was bumped.
+    // CVE-2026-85393 is fixed in 1.4.1; production here signs rather than verifies.
+    const declared = JSON.parse(
+      readFileSync(new URL('../../package.json', import.meta.url), 'utf8'),
+    )
+    const require = createRequire(import.meta.url)
+    const resolved = require.resolve('node-forge/package.json')
+    const installed = JSON.parse(readFileSync(resolved, 'utf8'))
+    expect(declared.dependencies['node-forge']).toBe('1.4.1')
+    expect(installed.version).toBe(declared.dependencies['node-forge'])
+    expect(forge).toBe(require('node-forge'))
+  })
+
   test('produces a zip with pass.json, manifest.json, signature', async () => {
     const certs = buildTestCertBundle()
     const buf = await createApplePass(samplePass, certs)
@@ -144,6 +160,44 @@ describe('createApplePass', () => {
 
     // Detached signature ⇒ no inline content bytes.
     expect(p7.rawCapture?.content).toBeUndefined()
+  })
+
+  test('Node crypto verifies the real detached signature and its manifest digest', async () => {
+    const certs = buildTestCertBundle()
+    const entries = readZipBuffer(await createApplePass(samplePass, certs))
+    const manifest = entries.find((entry) => entry.name === 'manifest.json')!.data
+    const signature = entries.find((entry) => entry.name === 'signature')!.data
+    const parsed = forge.pkcs7.messageFromAsn1(
+      forge.asn1.fromDer(forge.util.createBuffer(signature.toString('binary'))),
+    )
+    const capture = parsed.rawCapture as {
+      authenticatedAttributes: forge.asn1.Asn1[]
+      signature: string
+    }
+    const attributes = capture.authenticatedAttributes
+    const digestAttribute = attributes.find((attribute) => {
+      const oid = (attribute.value as forge.asn1.Asn1[])[0].value as string
+      return forge.asn1.derToOid(oid) === forge.pki.oids.messageDigest
+    })!
+    const digestSet = (digestAttribute.value as forge.asn1.Asn1[])[1].value as forge.asn1.Asn1[]
+    const digest = Buffer.from(digestSet[0].value as string, 'binary')
+    expect(digest).toEqual(createHash('sha256').update(manifest).digest())
+    expect(digest).not.toEqual(
+      createHash('sha256')
+        .update(Buffer.concat([manifest, Buffer.from('x')]))
+        .digest(),
+    )
+
+    const signed = Buffer.from(
+      forge.asn1
+        .toDer(forge.asn1.create(forge.asn1.Class.UNIVERSAL, forge.asn1.Type.SET, true, attributes))
+        .getBytes(),
+      'binary',
+    )
+    const bytes = Buffer.from(capture.signature, 'binary')
+    expect(verify('sha256', signed, certs.signerCertPem, bytes)).toBe(true)
+    bytes[bytes.length - 1] ^= 1
+    expect(verify('sha256', signed, certs.signerCertPem, bytes)).toBe(false)
   })
 
   test('rejects malformed signer certificate without leaking key material', async () => {

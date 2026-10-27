@@ -19,15 +19,6 @@
       "reason": "Infinite-loop DoS in image-size's ICNS/JXL/HEIF parsers, reached via @molecule/api-export-pptx -> pptxgenjs 4.0.1. Re-checked 2026-09-14: image-size 2.0.3 is outside the advisory range (<=2.0.2), but pptxgenjs 4.0.1 — its LATEST — still declares image-size ^1.2.1 and uses the v1 default export, so neither a bump nor an overrides pin to 2.x resolves it without breaking pptxgenjs, and npm's suggested fix is still a three-major downgrade. MITIGATED BY REACHABILITY, not merely accepted: src/imageSafety.ts refuses those three formats at the package boundary before pptxgenjs is called, sniffing magic numbers for buffers and data URIs so a declared image/png cannot smuggle HEIF past it (covered by src/__tests__/imageSafety.test.ts). Residual risk: an src URL/path is checked by extension only, since the bytes are fetched inside pptxgenjs. Re-checked 2026-10-15: still no patched 1.x (GitHub lists both advisories as fixed only in 2.0.3), and pptxgenjs 4.0.1 (last published 2025-06-26) still requires image-size ^1.2.1, so the reachability mitigation stands. Re-check at expiry for a pptxgenjs release that accepts image-size 2, or replace pptxgenjs."
     },
     {
-      "package": "node-forge (via @molecule/api-wallet-pass)",
-      "advisories": [
-        "GHSA-86w9-cpqp-85rv"
-      ],
-      "severity": "high",
-      "expires": "2026-11-01",
-      "reason": "RSA PKCS#1 v1.5 signature VERIFICATION accepts extra nested DigestAlgorithm elements (advisory published 2026-10-01/02 — it went red mid-release on the version-packages commit). NO upstream fix exists: node-forge 1.4.0 is the LATEST published version and the advisory range is `*`; npm audit reports fixAvailable: false. node-forge is a direct dependency of @molecule/api-wallet-pass only, which uses it to SIGN Apple Wallet passes locally with developer-provided certificates — it never runs signature VERIFICATION on untrusted input, so the vulnerable code path (verification) is not reachable from the package's API surface. Residual risk: a future refactor that feeds untrusted signatures into node-forge would re-expose it; the gate goes red again at expiry so the decision gets remade. Re-check for a node-forge release (or a maintained fork) at expiry, and drop this entry then."
-    },
-    {
       "package": "braces (via micromatch -> @changesets/*, @manypkg, globby, fast-glob)",
       "advisories": [
         "GHSA-vfj7-8cjw-p6xm"
