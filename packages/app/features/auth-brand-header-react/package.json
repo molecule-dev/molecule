@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-auth-brand-header-react",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "Brand header for auth pages — gradient material-symbol chip + large wordmark + tagline. Replaces 41 byte-unique fleet copies.",
   "homepage": "https://www.molecule.dev/packages/app-auth-brand-header-react",
   "type": "module",
@@ -35,12 +35,12 @@
     "directory": "packages/app/features/auth-brand-header-react"
   },
   "peerDependencies": {
-    "@molecule/app-react": "^2.0.0",
+    "@molecule/app-react": "^3.0.0",
     "@molecule/app-ui": "^1.0.1",
     "react": "^18.0.0 || ^19.0.0"
   },
   "devDependencies": {
-    "@molecule/app-react": "2.1.0",
+    "@molecule/app-react": "3.0.0",
     "@molecule/app-ui": "1.3.8",
     "@testing-library/react": "16.3.3",
     "@types/node": "26.6.5",

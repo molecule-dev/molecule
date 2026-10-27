@@ -1,5 +1,12 @@
 # @molecule/app-sidebar-layout-react
 
+## 3.0.0
+
+### Patch Changes
+
+- Updated dependencies
+  - @molecule/app-react@3.0.0
+
 ## 2.0.0
 
 ### Patch Changes

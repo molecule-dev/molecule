@@ -1,5 +1,11 @@
 # @molecule/app-forms
 
+## 2.0.0
+
+### Major Changes
+
+- Accept an ordinary `interface` as a form's values type: every form entrypoint now constrains it to the exported `FormValuesConstraint<T>` instead of `Record<string, unknown>`, while primitives, arrays, functions and `Date` stay rejected. Generic forwarders that name `Record<string, unknown>` or `object` must copy that constraint.
+
 ## 1.0.5
 
 ### Patch Changes

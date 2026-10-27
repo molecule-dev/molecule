@@ -1,5 +1,13 @@
 # @molecule/app-notifications-page-react
 
+## 3.0.0
+
+### Patch Changes
+
+- Updated dependencies
+  - @molecule/app-react@3.0.0
+  - @molecule/app-notification-feed-react@3.0.0
+
 ## 2.0.0
 
 ### Patch Changes

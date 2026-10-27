@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-gradebook-react",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "Gradebook UI — table of grades (course / assignment / letter / numeric / weight / contribution-to-GPA) plus optional GpaCard hero",
   "homepage": "https://www.molecule.dev/packages/app-gradebook-react",
   "type": "module",
@@ -36,16 +36,16 @@
     "directory": "packages/app/features/gradebook-react"
   },
   "peerDependencies": {
-    "@molecule/app-react": "^2.0.0",
+    "@molecule/app-react": "^3.0.0",
     "@molecule/app-ui": "^1.0.1",
-    "@molecule/app-ui-react": "^2.0.0",
+    "@molecule/app-ui-react": "^3.0.0",
     "react": "^18.0.0 || ^19.0.0"
   },
   "devDependencies": {
     "@molecule/app-i18n": "1.1.1",
-    "@molecule/app-react": "2.1.0",
+    "@molecule/app-react": "3.0.0",
     "@molecule/app-ui": "1.3.8",
-    "@molecule/app-ui-react": "2.0.0",
+    "@molecule/app-ui-react": "3.0.0",
     "@testing-library/react": "16.3.3",
     "@types/node": "26.6.5",
     "@types/react": "19.3.0",

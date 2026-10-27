@@ -1,5 +1,14 @@
 # @molecule/app-survey-question-react
 
+## 3.0.0
+
+### Patch Changes
+
+- Updated dependencies
+  - @molecule/app-react@3.0.0
+  - @molecule/app-file-dropzone-react@3.0.0
+  - @molecule/app-ui-react@3.0.0
+
 ## 2.0.0
 
 ### Patch Changes
