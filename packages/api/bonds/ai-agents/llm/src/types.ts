@@ -53,5 +53,57 @@ declare module '@molecule/api-ai-agents' {
      * (e.g. `@molecule/api-ai-anthropic`) act on it; others ignore it.
      */
     cacheControl?: { type: 'ephemeral' }
+    /**
+     * Caps how many characters of a serialized tool result are placed in the
+     * model-facing conversation (default: unbounded).
+     *
+     * A tool that returns a whole file, log, or search dump can consume most
+     * of the context window in one step and crowd out the instruction that
+     * asked for it, so a bounded run can "forget" what it was doing and answer
+     * from the dump instead. When set, each `tool_result` block sent to the
+     * model carries at most this many characters of the serialized result,
+     * followed by an explicit note stating that the value was truncated and
+     * how to recover (re-run the tool with a narrower range or scope). The
+     * step record's `AgentToolCall.result` keeps the COMPLETE value — only the
+     * copy the model sees is bounded, so a caller reading the steps (a report,
+     * a diff, an assertion) still gets everything the tool returned.
+     *
+     * The limit applies to the result body; the truncation note is appended
+     * after it and is not counted against the budget. Results at or under the
+     * limit — including the loop's own error strings — pass through unchanged.
+     * A cut never splits a surrogate pair. Must be a finite number of at least
+     * 1 character (fractional values are floored); any other value rejects the
+     * run before a model call is made. Omit it for the previous unbounded
+     * behavior.
+     */
+    maxToolResultChars?: number
+    /**
+     * After the `maxSteps` budget is exhausted while the model was still
+     * calling tools, spend ONE final synthesis turn with NO tools and return
+     * its text as `output` (default `false`).
+     *
+     * Without it, a run that ends on a tool invocation has no final assistant
+     * text: `output` falls back to the "step budget exhausted" note and any
+     * report the model was about to write is lost, even though the work that
+     * filled the budget succeeded. Opting in buys the model one tool-free turn
+     * to answer from what it has already seen.
+     *
+     * The synthesis turn preserves everything the loop was using: the full
+     * message history (including retained reasoning), `system`, `model`,
+     * `maxTokens`, `temperature`, `thinking`, `stream`, `cacheControl`,
+     * `provider`, and `signal`. Its events reach `onEvent` and its usage is
+     * added to `result.usage`, so live monitoring and metering see the extra
+     * call. It offers no tools and never executes a tool call (a tool request
+     * on that turn is ignored), so it cannot extend the loop, and the recorded
+     * `steps` stay exactly the tool-invoking rounds — `steps.length >=
+     * maxSteps` still means "budget exhausted".
+     *
+     * The response is returned as-is (not trimmed); an empty response is NOT
+     * papered over with the exhausted-budget note: `run()` rejects with an
+     * `AgentRunError` carrying the accumulated `usage`/`steps` instead, and a
+     * provider error on that turn rejects the same way. Only the literal
+     * `true` enables this; omit it for the previous behavior and cost.
+     */
+    finalSynthesisOnBudgetExhaustion?: boolean
   }
 }

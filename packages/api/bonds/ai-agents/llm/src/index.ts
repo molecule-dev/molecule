@@ -67,6 +67,20 @@
  * across tool calls, separately from assistant text and tool arguments.
  * Omitting the option does not enable thinking or manufacture reasoning.
  *
+ * Two further options are OPT-IN and change nothing when omitted:
+ *
+ * - `input.maxToolResultChars` bounds the `tool_result` copy sent to the model
+ *   (a whole-file or log dump otherwise crowds out the instruction that asked
+ *   for it) and appends an explicit truncation note telling the model the value
+ *   was cut and how to recover. The step record keeps the complete tool result.
+ * - `input.finalSynthesisOnBudgetExhaustion` spends ONE tool-free turn after
+ *   the `maxSteps` budget is exhausted, so a run that ended on a tool
+ *   invocation still returns a final answer instead of the budget note. That
+ *   turn carries the same history, system, model, thinking, cache, streaming
+ *   and signal settings; its events reach `onEvent`, its usage is metered, and
+ *   it cannot call tools. If it produces no answer, `run()` rejects with
+ *   `AgentRunError` rather than returning the budget note as the output.
+ *
  * Failure semantics (how to tell failure modes apart):
  * - **Tool failure** (throwing `execute()`, unknown tool name) — NON-fatal:
  *   recorded on the step with `isError: true` and fed back to the model.
@@ -80,7 +94,10 @@
  *   `result.output` means the model genuinely produced no text, not that the
  *   API failed.
  * - **Step budget exhausted** — resolves normally; `output` is the last
- *   assistant text or an explicit "step budget exhausted" note.
+ *   assistant text or an explicit "step budget exhausted" note. With
+ *   `input.finalSynthesisOnBudgetExhaustion` the output is instead the answer
+ *   from one final tool-free turn, and a synthesis that produced no answer
+ *   rejects (as an `AgentRunError`) rather than resolving with the note.
  *
  * Swappable like any bond: replace this LLM agent with your own
  * `AIAgentsProvider` via `bond('ai-agents', myProvider)` — nothing else changes.

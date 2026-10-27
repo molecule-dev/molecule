@@ -87,6 +87,39 @@ function stringifyResult(result: unknown): string {
 }
 
 /**
+ * Bounds a serialized tool result for the MODEL-FACING conversation and, when
+ * it has to cut, appends an explicit truncation + recovery note.
+ *
+ * @remarks
+ * Only the copy sent to the model is bounded: the step record keeps the
+ * complete value (see `AgentToolCall.result`). The note is appended after the
+ * budget, so it is not counted against it, and the cut never splits a
+ * surrogate pair (an unpaired half is not valid text).
+ *
+ * @param serialized - The complete serialized tool result.
+ * @param maxChars - The character budget, or `undefined` for unbounded.
+ * @returns The content for the `tool_result` block.
+ */
+function boundToolResult(serialized: string, maxChars: number | undefined): string {
+  if (maxChars === undefined || serialized.length <= maxChars) return serialized
+  let end = maxChars
+  const lastCode = serialized.charCodeAt(end - 1)
+  // Drop a split surrogate pair rather than send half a code point.
+  if (lastCode >= 0xd800 && lastCode <= 0xdbff) end -= 1
+  return (
+    serialized.slice(0, end) +
+    t(
+      'ai-agents.toolResultTruncated',
+      { shown: end, total: serialized.length },
+      {
+        defaultValue:
+          '\n\n[Truncated: {{shown}} of {{total}} characters shown. The complete result is retained outside this conversation; call the tool again with a narrower range or smaller scope to read the rest.]',
+      },
+    )
+  )
+}
+
+/**
  * Drains a single chat stream, accumulating text and tool calls, forwarding
  * every event to `onEvent`, and summing `done.usage`.
  *
@@ -177,6 +210,26 @@ export const provider: AIAgentsProvider = {
       )
     }
 
+    // Validate the opt-in tool-result budget up front: a bad number would
+    // otherwise surface mid-loop as a truncation bug instead of a caller error.
+    const toolResultLimit =
+      input.maxToolResultChars === undefined ? undefined : Math.floor(input.maxToolResultChars)
+    if (
+      toolResultLimit !== undefined &&
+      (!Number.isFinite(toolResultLimit) || toolResultLimit < 1)
+    ) {
+      throw new Error(
+        t(
+          'ai-agents.error.invalidMaxToolResultChars',
+          { value: String(input.maxToolResultChars) },
+          {
+            defaultValue:
+              '`maxToolResultChars` must be a finite number of at least 1 character (received {{value}}; fractional values are floored).',
+          },
+        ),
+      )
+    }
+
     const ai = input.provider ? getAiProviderByName(input.provider) : requireAiProvider()
     if (!ai) {
       throw new Error(
@@ -197,6 +250,64 @@ export const provider: AIAgentsProvider = {
     const usage: TokenUsage = { inputTokens: 0, outputTokens: 0 }
     let lastText = ''
 
+    /**
+     * Sends ONE model turn over the bonded chat provider, forwarding every
+     * event to `onEvent`, booking its usage, and rejecting on an in-band
+     * provider error (so "the API failed" never looks like an empty answer).
+     *
+     * @param offerTools - When `false` the request carries NO `tools` field,
+     *   so the provider cannot ask for a tool call (the final synthesis turn).
+     * @returns The drained turn.
+     */
+    const modelTurn = async (offerTools: boolean): Promise<DrainedStream> => {
+      const turn = await drainStream(
+        ai.chat({
+          messages,
+          system: input.system,
+          ...(offerTools ? { tools: input.tools } : {}),
+          model: input.model,
+          maxTokens: input.maxTokens,
+          temperature: input.temperature,
+          // Keep the caller's native thinking settings on every tool turn.
+          ...(input.thinking === undefined ? {} : { thinking: input.thinking }),
+          // Defaults to streaming (see the `stream` augmentation in
+          // types.ts): onEvent is a LIVE hook, and non-streaming requests
+          // with large outputs (a big tool input at a raised maxTokens) are
+          // exactly what provider docs warn will time out over HTTP.
+          // drainStream already folds streamed events correctly, so there
+          // is no extra cost to defaulting streaming on. Set
+          // `input.stream: false` to force non-streaming.
+          stream: input.stream !== false,
+          // Prompt-cache breakpoint hint: the system+tools prefix is
+          // identical across turns, so passing this through avoids
+          // re-billing the full (growing) prompt on every one of up to
+          // maxSteps turns. Providers without cache support ignore it.
+          cacheControl: input.cacheControl,
+          signal: input.signal,
+        }),
+        input.onEvent,
+      )
+      addUsage(usage, turn.usage)
+
+      // A provider API failure (rate limit, auth, overload, network) arrives
+      // as an in-band `error` ChatEvent — the stream ends without text or
+      // tools. Rejecting here disambiguates "the AI provider failed" from
+      // "the model legitimately answered nothing": the old fall-through
+      // returned { output: '', steps, usage } as if the run succeeded, and
+      // callers debugging the empty output had no signal that the API ever
+      // errored.
+      if (turn.errorMessage !== undefined) {
+        throw new Error(
+          t(
+            'ai-agents.error.providerError',
+            { message: turn.errorMessage },
+            { defaultValue: `AI provider error during agent run: ${turn.errorMessage}` },
+          ),
+        )
+      }
+      return turn
+    }
+
     // Everything below can fail partway through a multi-turn run (a provider
     // API error, an abort, or an unexpected throw from ai.chat() itself —
     // e.g. a signal-aborted fetch). A plain rejection would silently drop
@@ -208,51 +319,7 @@ export const provider: AIAgentsProvider = {
     // `instanceof AgentRunError`.
     try {
       for (let step = 0; step < maxSteps; step++) {
-        const turn = await drainStream(
-          ai.chat({
-            messages,
-            system: input.system,
-            tools: input.tools,
-            model: input.model,
-            maxTokens: input.maxTokens,
-            temperature: input.temperature,
-            // Keep the caller's native thinking settings on every tool turn.
-            ...(input.thinking === undefined ? {} : { thinking: input.thinking }),
-            // Defaults to streaming (see the `stream` augmentation in
-            // types.ts): onEvent is a LIVE hook, and non-streaming requests
-            // with large outputs (a big tool input at a raised maxTokens) are
-            // exactly what provider docs warn will time out over HTTP.
-            // drainStream already folds streamed events correctly, so there
-            // is no extra cost to defaulting streaming on. Set
-            // `input.stream: false` to force non-streaming.
-            stream: input.stream !== false,
-            // Prompt-cache breakpoint hint: the system+tools prefix is
-            // identical across turns, so passing this through avoids
-            // re-billing the full (growing) prompt on every one of up to
-            // maxSteps turns. Providers without cache support ignore it.
-            cacheControl: input.cacheControl,
-            signal: input.signal,
-          }),
-          input.onEvent,
-        )
-        addUsage(usage, turn.usage)
-
-        // A provider API failure (rate limit, auth, overload, network) arrives
-        // as an in-band `error` ChatEvent — the stream ends without text or
-        // tools. Rejecting here disambiguates "the AI provider failed" from
-        // "the model legitimately answered nothing": the old fall-through
-        // returned { output: '', steps, usage } as if the run succeeded, and
-        // callers debugging the empty output had no signal that the API ever
-        // errored.
-        if (turn.errorMessage !== undefined) {
-          throw new Error(
-            t(
-              'ai-agents.error.providerError',
-              { message: turn.errorMessage },
-              { defaultValue: `AI provider error during agent run: ${turn.errorMessage}` },
-            ),
-          )
-        }
+        const turn = await modelTurn(true)
 
         if (turn.text) lastText = turn.text
 
@@ -303,11 +370,13 @@ export const provider: AIAgentsProvider = {
             }
           }
 
+          // `result` (above) is retained COMPLETE on the step record; only the
+          // copy the model reads is bounded when `maxToolResultChars` is set.
           toolCalls.push({ id: tu.id, name: tu.name, input: tu.input, result, isError })
           resultBlocks.push({
             type: 'tool_result',
             tool_use_id: tu.id,
-            content: stringifyResult(result),
+            content: boundToolResult(stringifyResult(result), toolResultLimit),
           })
         }
 
@@ -315,7 +384,25 @@ export const provider: AIAgentsProvider = {
         steps.push({ text: turn.text || undefined, toolCalls })
       }
 
-      // Step budget exhausted while the model was still calling tools.
+      // Step budget exhausted while the model was still calling tools. With
+      // `finalSynthesisOnBudgetExhaustion`, buy exactly ONE tool-free turn to
+      // answer from what the run already saw — the loop ended on a tool
+      // invocation, so there is no final assistant text to return otherwise.
+      if (input.finalSynthesisOnBudgetExhaustion === true) {
+        const finalTurn = await modelTurn(false)
+        // Never pass the budget note off as an answer: a tool-free turn that
+        // produced no text means the model gave no final response.
+        if (!finalTurn.text.trim()) {
+          throw new Error(
+            t('ai-agents.error.finalSynthesisEmpty', undefined, {
+              defaultValue:
+                'Agent step budget exhausted and the final synthesis turn produced no answer.',
+            }),
+          )
+        }
+        return { output: finalTurn.text, steps, usage }
+      }
+
       const output =
         lastText ||
         t('ai-agents.stepBudgetExhausted', undefined, {
