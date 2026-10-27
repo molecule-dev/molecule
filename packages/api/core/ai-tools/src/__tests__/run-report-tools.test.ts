@@ -11,8 +11,13 @@
  * `json` reporter on the launched command. Without the wiring, each test below fails at its first
  * claim.
  */
+import { execFileSync } from 'node:child_process'
+import { readdirSync, readFileSync, rmSync } from 'node:fs'
+import { basename, dirname, join } from 'node:path'
+
 import { afterAll, describe, expect, it, vi } from 'vitest'
 
+import { summarizePlaywrightReport } from '../playwright-report.js'
 import { buildTools } from '../tools.js'
 import type { ExecutionBackend } from '../types.js'
 import {
@@ -40,7 +45,17 @@ function genuineRun(): GenuineRun | null {
   if (cached === undefined) cached = runTinyPlaywright(TWO_FAILURES)
   return cached
 }
-afterAll(() => cached?.cleanup())
+const retainedReportPaths: string[] = []
+afterAll(() => {
+  cached?.cleanup()
+  for (const reportPath of retainedReportPaths) {
+    // Each random task ID belongs to this test; remove its copied evidence/cache too.
+    for (const name of readdirSync(dirname(reportPath))) {
+      if (name.startsWith(basename(reportPath) + '.attachments-'))
+        rmSync(join(dirname(reportPath), name), { recursive: true, force: true })
+    }
+  }
+})
 
 /**
  * A backend whose files are a map, whose commands are recorded, and whose report file answers the
@@ -203,6 +218,18 @@ describe('a background suite hands its report back on wait_for_task', () => {
       files[`/tmp/${taskId}.exit`] = '1'
       files[`/tmp/${taskId}.log`] = '2 failed\n'
       files[`/tmp/${taskId}.playwright.json`] = genuine.report
+      retainedReportPaths.push(`/tmp/${taskId}.playwright.json`)
+      // The launch remains fake; collection executes the real attachment-copy
+      // command against the genuine runner's files. A constant "2 failed" fake
+      // cannot represent that later successful backend operation.
+      backend.run = vi.fn(async (command: string) => ({
+        stdout: execFileSync('bash', ['-c', command], {
+          encoding: 'utf8',
+          timeout: 10_000,
+        }),
+        stderr: '',
+        exitCode: 0,
+      }))
       const waited = await tool(backend, 'wait_for_task').execute({ taskId })
       expect(waited.status).toBe('completed')
       const report = waited.runReport as {
@@ -212,9 +239,14 @@ describe('a background suite hands its report back on wait_for_task', () => {
       expect(report.status).toBe('complete')
       expect(report.failures).toHaveLength(2)
       // Attachment ownership rides with the identity it belongs to, not with the run.
+      const native = summarizePlaywrightReport(genuine.report, { path: genuine.reportPath })
       for (const failure of report.failures) {
         expect(failure.attachments[0]?.name).toBe('error-context')
-        expect(failure.attachments[0]?.path).toContain(failure.title.replaceAll(' ', '-'))
+        const original = native.failures.find((test) => test.title === failure.title)
+          ?.attachments[0]
+        expect(original).toBeDefined()
+        expect(failure.attachments[0]?.path).not.toBe(original?.path)
+        expect(readFileSync(failure.attachments[0]!.path)).toEqual(readFileSync(original!.path))
       }
     },
     60_000,
