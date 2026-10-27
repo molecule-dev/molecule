@@ -99,3 +99,30 @@ describe('current-user reads belong to the session that requested them', () => {
     }
   })
 })
+
+it('cookie restore applies the configured account envelope without requiring a raw user property', async () => {
+  const account = { handle: 'inventory-operator', email: 'operator@example.test' }
+  const answer = { account }
+  const mapAuthResponse = vi.fn((value: unknown) => ({
+    user: (value as typeof answer).account,
+  }))
+  vi.stubGlobal('document', { cookie: 'mol_auth=1' })
+  const fetch = vi.fn(async () => Response.json(answer))
+  vi.stubGlobal('fetch', fetch)
+  const client = createJWTAuthClient<typeof account>({
+    storage: 'memory',
+    autoRefresh: false,
+    currentUserEndpoint: '/session/account',
+    mapAuthResponse,
+  })
+  try {
+    await client.initialize()
+    expect(fetch).toHaveBeenCalledOnce()
+    expect(mapAuthResponse).toHaveBeenCalledWith(answer)
+    expect(client.getState().status).toBe('authenticated')
+    expect(client.getUser()).toEqual(account)
+    expect(client.getAccessToken()).toBeNull()
+  } finally {
+    client.destroy()
+  }
+})

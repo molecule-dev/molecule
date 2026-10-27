@@ -576,7 +576,7 @@ export const createJWTAuthClient = <
       const rawUser = (result?.user ?? null) as T | null
       // The same adapter a sign-in's answer goes through — this answer is the
       // wire shape too, and storing it raw dropped the adapted identity.
-      const restoredUser = rawUser ? mapCurrentUser(result, rawUser) : null
+      const restoredUser = mapCurrentUser(result, rawUser)
       if (restoredUser && shouldRestoreUser && !shouldRestoreUser(restoredUser)) {
         // The server DOES have a session (e.g. an anonymous/guest one), but the
         // app says it must not count as a signed-in client. Stay logged out and
