@@ -334,7 +334,20 @@ export function createDefaultViteConfig(branding: DefaultViteConfigBranding): Us
     ...(process.env.VITE_CACHE_DIR ? { cacheDir: process.env.VITE_CACHE_DIR } : {}),
     resolve: {
       preserveSymlinks: true,
-      dedupe: ['react', 'react-dom', 'react-router', 'react-router-dom'],
+      // One module identity per @molecule package. `preserveSymlinks` keeps the
+      // path each importer used, so the same install reached two ways — a
+      // `node_modules/node_modules` self-link, a nested copy, a bind-mounted
+      // workspace — becomes TWO module instances, and bond state is per module:
+      // `setProvider()` in the app's copy is invisible to `getQueryClient()` in
+      // the other ("No provider bonded" right after a setup that ran), and React
+      // contexts duplicate the same way. Dedupe resolves every listed package
+      // from the project root through Vite's ordinary package resolution, so
+      // `exports` maps, conditions and subpaths still apply (unlike an alias
+      // that rewrites the specifier to a directory). Every installed @molecule
+      // package is listed, not a hand-picked few: which one an app's bond
+      // packages import varies per app. React keeps an absolute alias below —
+      // dedupe alone did not stop an app-local React copy.
+      dedupe: ['react', 'react-dom', 'react-router', 'react-router-dom', ...moleculePackages],
       alias: singleReactAliases(process.cwd()),
     },
     optimizeDeps: {
