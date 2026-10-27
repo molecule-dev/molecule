@@ -158,6 +158,18 @@ describe('CI dist proof', () => {
     expect(distCache(root, 'apply')).toEqual({ fresh: 0, rebuild: 3 })
   })
 
+  it('retains the whole script proof for the actual createRequire-capable builder', () => {
+    const { root, write } = fixture()
+    write('scripts/build.js', readFileSync(new URL('../build.js', import.meta.url), 'utf8'))
+    expect(distCache(root, 'write')).toEqual({ written: 3 })
+    write('packages/leaf/README.md', '# Updated booking API documentation\n')
+    expect(distCache(root, 'apply')).toEqual({ fresh: 3, rebuild: 0 })
+    // An unrestricted module loader can consume other scripts/assets. The
+    // generic cache deliberately cannot certify this new file as independent.
+    write('scripts/doc-check.mjs', 'console.log("Unclassified script input")\n')
+    expect(distCache(root, 'apply')).toEqual({ fresh: 0, rebuild: 3 })
+  })
+
   it('the actual builder skips docs-only edits and recompiles a source change and its consumer', () => {
     const { root, write } = fixture()
     write('scripts/build.js', readFileSync(new URL('../build.js', import.meta.url), 'utf8'))
@@ -195,7 +207,6 @@ describe('CI dist proof', () => {
     expect(build()).toContain('Done. 3 built, 0 skipped')
     expect(distCache(root, 'write')).toEqual({ written: 3 })
     write('packages/leaf/README.md', '# Updated booking API documentation\n')
-    write('scripts/doc-check.mjs', 'console.log("Independent docs check")\n')
     expect(distCache(root, 'apply')).toEqual({ fresh: 3, rebuild: 0 })
     expect(build()).toContain('Done. 0 built, 3 skipped')
     write('packages/leaf/src/index.ts', 'export const value = 2\n')
