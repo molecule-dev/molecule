@@ -113,6 +113,21 @@ export function createLocalStorageProvider(config: LocalStorageConfig = {}): Sto
       }
     },
 
+    getSync<T = unknown>(key: string): T | null {
+      try {
+        const value = getStorage().getItem(getKey(key))
+
+        if (value === null) {
+          return null
+        }
+
+        return deserialize(value) as T
+      } catch (err) {
+        logger.warn('Failed to deserialize stored value', key, err)
+        return null
+      }
+    },
+
     async set<T = unknown>(key: string, value: T): Promise<void> {
       try {
         const store = getStorage()
@@ -136,6 +151,38 @@ export function createLocalStorageProvider(config: LocalStorageConfig = {}): Sto
     async remove(key: string): Promise<void> {
       const store = getStorage()
       store.removeItem(getKey(key))
+    },
+
+    subscribe(key: string, listener: (value: unknown) => void): () => void {
+      // Only a real browser can report another tab's write, and only through
+      // the `storage` event (it never fires in the tab that made the change).
+      if (typeof window === 'undefined' || typeof window.addEventListener !== 'function') {
+        return () => {}
+      }
+
+      const prefixedKey = getKey(key)
+      const onStorage = (event: StorageEvent): void => {
+        // A different backend (sessionStorage) writing the same key is not our
+        // change. `storageArea` is absent on a synthetic event — nothing to compare.
+        if (event.storageArea && storage && event.storageArea !== storage) return
+        // `key === null` is another tab's `clear()`, which removed every key.
+        if (event.key !== null && event.key !== prefixedKey) return
+        if (event.newValue === null) {
+          listener(null)
+          return
+        }
+        try {
+          listener(deserialize(event.newValue))
+        } catch (err) {
+          // Another tab wrote a value this provider cannot read: it is absent
+          // for us, the same contract as `get()`.
+          logger.warn('Failed to deserialize stored value', key, err)
+          listener(null)
+        }
+      }
+
+      window.addEventListener('storage', onStorage)
+      return () => window.removeEventListener('storage', onStorage)
     },
 
     async clear(): Promise<void> {

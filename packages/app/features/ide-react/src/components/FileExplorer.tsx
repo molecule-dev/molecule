@@ -16,6 +16,7 @@ import { useCoarsePointer } from '../hooks/useViewport.js'
 import type { FileExplorerProps, FileNode } from '../types.js'
 import type { ContextMenuAction } from './FileExplorerContextMenu.js'
 import { FileExplorerContextMenu } from './FileExplorerContextMenu.js'
+import { type ExpandState, loadExpandState, saveExpandState } from './fileExplorerPersistence.js'
 
 // Git status → filename color — dark/light variants for readability
 const DARK_GIT_COLORS: Record<string, string> = {
@@ -68,54 +69,15 @@ function getDirColor(
 }
 
 // ---------------------------------------------------------------------------
-// Expand state — persisted to localStorage
+// Expand state — persisted to the bonded storage provider
 // ---------------------------------------------------------------------------
-
-interface ExpandState {
-  expanded: Set<string>
-  collapsed: Set<string>
-}
-
-/**
- * Loads persisted expand/collapse state from localStorage.
- * @param persistKey - The localStorage key to read from.
- * @returns The deserialized expand state, or a fresh empty state if none found.
- */
-function loadExpandState(persistKey: string): ExpandState {
-  try {
-    const raw = localStorage.getItem(persistKey)
-    if (raw) {
-      const parsed = JSON.parse(raw) as { expanded: string[]; collapsed: string[] }
-      return { expanded: new Set(parsed.expanded), collapsed: new Set(parsed.collapsed) }
-    }
-  } catch (_error) {
-    // Safe to ignore: corrupt/unparseable localStorage data — fall back to empty state
-  }
-  return { expanded: new Set(), collapsed: new Set() }
-}
-
-/**
- * Persists expand/collapse state to localStorage.
- * @param persistKey - The localStorage key to write to.
- * @param state - The expand state to serialize and store.
- */
-function saveExpandState(persistKey: string, state: ExpandState): void {
-  try {
-    localStorage.setItem(
-      persistKey,
-      JSON.stringify({ expanded: [...state.expanded], collapsed: [...state.collapsed] }),
-    )
-  } catch (_error) {
-    // Safe to ignore: localStorage write can fail (quota exceeded, private browsing) — expand state simply won't persist
-  }
-}
 
 /**
  * Determines whether a directory path should be expanded based on persisted state.
  * @param state - The current expand/collapse state.
  * @param path - The directory path to check.
  * @param depth - The nesting depth (directories at depth 0 default to expanded).
- * @returns True if the directory should be shown expanded.
+ * @returns True when the directory should be shown expanded.
  */
 function isExpandedFromState(state: ExpandState, path: string, depth: number): boolean {
   if (state.expanded.has(path)) return true

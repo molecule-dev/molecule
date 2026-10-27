@@ -39,6 +39,9 @@
  *   corrupted entries look like missing keys.
  * - Tab-scoped variant: `createSessionStorageProvider()` / the `sessionProvider`
  *   const use `sessionStorage` with identical semantics.
+ * - `getSync()` (a synchronous read) and `subscribe()` (another tab's write, via
+ *   the `storage` event) make this backend usable by `getPreferenceStore()` in
+ *   `@molecule/app-storage` — call THAT for render-time preferences, not these.
  */
 
 export * from './provider.js'

@@ -852,7 +852,7 @@ export interface FileExplorerProps {
   /** Called when the user chooses "Collapse All" from the context menu. */
   onCollapseAll?: () => void
   className?: string
-  /** localStorage key for persisting expand/collapse state across reloads. */
+  /** Storage key for persisting expand/collapse state across reloads (through `@molecule/app-storage`). */
   persistKey?: string
   /** Path of the currently active file — highlighted in the tree. */
   activeFile?: string | null
