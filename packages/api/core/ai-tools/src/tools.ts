@@ -1342,7 +1342,9 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
     onFileChange,
   } = config ?? {}
 
-  const root = backend.projectRoot
+  // Directory URLs and backend callers can supply trailing slashes or dot
+  // segments. Compare every lexical and realpath guard against the same root.
+  const root = posix.resolve(backend.projectRoot)
 
   // A host-filesystem backend with escape guards off is the combination the
   // audit flagged: `pathGuards` off lets `..` paths out of the workspace,
@@ -1527,7 +1529,11 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           { timeout: 5000 },
         )
         const realPath = result.stdout.trim()
-        if (realPath && realPath !== root && !realPath.startsWith(root + '/')) {
+        if (
+          realPath &&
+          realPath !== root &&
+          !realPath.startsWith(root === '/' ? '/' : root + '/')
+        ) {
           return 'Access denied: path resolves outside the project workspace'
         }
         return null

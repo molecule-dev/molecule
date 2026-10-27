@@ -2035,7 +2035,7 @@ export function checkBlockedCommand(command: string): string | null {
 // ── Path resolution ───────────────────────────────────────────────────────────
 
 /**
- * Normalize a path to be absolute within the project root.
+ * Normalize the project root and resolve a path absolutely within it.
  * Empty string and '/' both resolve to projectRoot.
  * Rejects paths that escape via traversal or absolute paths outside root.
  *
@@ -2044,9 +2044,10 @@ export function checkBlockedCommand(command: string): string | null {
  * @returns A normalized absolute path confined to `projectRoot`.
  */
 export function resolvePath(path: string, projectRoot: string): string {
-  if (path === '' || path === '/') return projectRoot
-  const resolved = rootedPath(path, projectRoot)
-  if (resolved !== projectRoot && !resolved.startsWith(projectRoot + '/')) return projectRoot
+  const root = posix.resolve(projectRoot)
+  if (path === '' || path === '/') return root
+  const resolved = rootedPath(path, root)
+  if (resolved !== root && !resolved.startsWith(root === '/' ? '/' : root + '/')) return root
   return resolved
 }
 
@@ -2065,7 +2066,7 @@ function rootedPath(path: string, projectRoot: string): string {
 }
 
 /**
- * Whether a tool path points outside the project root once normalized (an
+ * Whether a tool path points outside the normalized project root (an
  * absolute path elsewhere, or a `..` that climbs out). {@link resolvePath}
  * clamps such a path to the root; a file tool must refuse it instead of
  * answering about the root — a `list_files /tmp/x` used to return the
@@ -2077,8 +2078,9 @@ function rootedPath(path: string, projectRoot: string): string {
  */
 export function isOutsideRoot(path: string, projectRoot: string): boolean {
   if (path === '' || path === '/') return false
-  const resolved = rootedPath(path, projectRoot)
-  return resolved !== projectRoot && !resolved.startsWith(projectRoot + '/')
+  const root = posix.resolve(projectRoot)
+  const resolved = rootedPath(path, root)
+  return resolved !== root && !resolved.startsWith(root === '/' ? '/' : root + '/')
 }
 
 /**
