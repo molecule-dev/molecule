@@ -1,5 +1,11 @@
 # @molecule/api-code-sandbox-flyio
 
+## 1.3.6
+
+### Patch Changes
+
+- Declare `hostingCapabilities` (long-lived, routable) so the provider can be selected for production hosting under a capability-gated wiring.
+
 ## 1.3.5
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/api-ai-deepseek
 
+## 1.1.1
+
+### Patch Changes
+
+- Bound first-content waits across response headers and honor cancellation during retry delays.
+
 ## 1.1.0
 
 ### Minor Changes

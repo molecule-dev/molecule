@@ -40,7 +40,7 @@
     "@molecule/api-deploy-rollout": "^1.0.0"
   },
   "devDependencies": {
-    "@molecule/api-code-sandbox": "1.4.1",
+    "@molecule/api-code-sandbox": "1.5.0",
     "@molecule/api-deploy-rollout": "1.1.2",
     "@types/node": "26.6.5",
     "typescript": "6.0.3",

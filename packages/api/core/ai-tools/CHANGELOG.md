@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.14.7
+
+### Patch Changes
+
+- Preserve completed Playwright attachment references across later test runs.
+
 ## 1.14.6
 
 ### Patch Changes

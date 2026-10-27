@@ -1,5 +1,11 @@
 # @molecule/api-code-sandbox-e2b
 
+## 1.2.16
+
+### Patch Changes
+
+- Declare `hostingCapabilities` as unfit for long-lived public hosting (sandboxes have bounded lifetimes and no routable address) so capability-gated wiring refuses the role by default.
+
 ## 1.2.14
 
 ### Patch Changes
