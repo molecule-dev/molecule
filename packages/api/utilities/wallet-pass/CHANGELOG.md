@@ -1,5 +1,11 @@
 # @molecule/api-wallet-pass
 
+## 1.0.5
+
+### Patch Changes
+
+- Update node-forge to the patched security release.
+
 ## 1.0.4
 
 ### Patch Changes

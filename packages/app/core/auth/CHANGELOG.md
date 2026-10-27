@@ -1,5 +1,11 @@
 # @molecule/app-auth
 
+## 3.0.2
+
+### Patch Changes
+
+- Apply configured account mapping when restoring cookie sessions.
+
 ## 3.0.1
 
 ### Patch Changes
