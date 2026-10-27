@@ -97,10 +97,11 @@ export function toDescriptor(ctx: InspectContext, info: ContainerInspect): Sandb
       // A bind on every interface has no single address of its own: it is
       // reachable wherever the daemon's host is reachable, which the context
       // names for a remote daemon and which is loopback for a local one.
-      const bindAll = !binding.HostIp || binding.HostIp === '0.0.0.0' || binding.HostIp === '::'
+      const hostIp = binding.HostIp
+      const bindAll = !hostIp || hostIp === '0.0.0.0' || hostIp === '::'
       ports.push({
         sandboxPort,
-        host: bindAll ? (ctx.advertisedHost ?? '127.0.0.1') : binding.HostIp,
+        host: bindAll ? (ctx.advertisedHost ?? '127.0.0.1') : hostIp,
         port,
       })
     }
