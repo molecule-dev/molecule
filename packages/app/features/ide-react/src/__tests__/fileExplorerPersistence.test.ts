@@ -13,7 +13,12 @@ import { describe, expect, it, vi } from 'vitest'
 
 import { setProvider, type StorageProvider } from '@molecule/app-storage'
 
-import { loadExpandState, saveExpandState } from '../components/fileExplorerPersistence.js'
+import {
+  type ExpandState,
+  loadExpandState,
+  saveExpandState,
+  watchExpandState,
+} from '../components/fileExplorerPersistence.js'
 
 /**
  * A synchronous in-memory provider — the shape a browser `localStorage`
@@ -126,5 +131,119 @@ describe('file-explorer expand state', () => {
 
     expect(() => saveExpandState(KEY, { expanded: new Set(), collapsed: new Set() })).not.toThrow()
     expect(loadExpandState(KEY).expanded.size).toBe(0)
+  })
+})
+
+/**
+ * The live half of the persistence contract: a mounted explorer follows the
+ * bonded provider after the first read. An asynchronous provider hydrates into
+ * the SAME mounted tree, and a stale hydration that loses to a user action is
+ * discarded rather than re-collapsing directories the user just opened.
+ */
+describe('watchExpandState', () => {
+  /** An async provider whose hydration and external changes a test drives. */
+  function liveProvider(): {
+    provider: StorageProvider
+    values: Map<string, unknown>
+    remoteListeners: Map<string, (value: unknown) => void>
+    resolveHydration: (values: Map<string, unknown | null>) => void
+  } {
+    const values = new Map<string, unknown>()
+    const batches: Array<(values: Map<string, unknown | null>) => void> = []
+    const remoteListeners = new Map<string, (value: unknown) => void>()
+    const provider: StorageProvider = {
+      async get<T = unknown>(key: string): Promise<T | null> {
+        return values.has(key) ? (values.get(key) as T) : null
+      },
+      async set<T = unknown>(key: string, value: T): Promise<void> {
+        values.set(key, value)
+      },
+      async remove(key: string): Promise<void> {
+        values.delete(key)
+      },
+      async clear(): Promise<void> {
+        values.clear()
+      },
+      async keys(): Promise<string[]> {
+        return [...values.keys()]
+      },
+      getMany<T = unknown>(_keys: string[]): Promise<Map<string, T | null>> {
+        return new Promise<Map<string, T | null>>((resolve) => {
+          batches.push((result) => resolve(result as Map<string, T | null>))
+        })
+      },
+      subscribe(key: string, listener: (value: unknown) => void): () => void {
+        remoteListeners.set(key, listener)
+        return () => remoteListeners.delete(key)
+      },
+    }
+    return {
+      provider,
+      values,
+      remoteListeners,
+      resolveHydration: (result) => batches.shift()?.(result),
+    }
+  }
+
+  const flush = (): Promise<void> => new Promise((resolve) => setTimeout(resolve, 0))
+
+  it('applies an asynchronous hydration to the mounted state', async () => {
+    const backend = liveProvider()
+    setProvider(backend.provider)
+    const applied: ExpandState[] = []
+
+    const stop = watchExpandState(KEY, (state) => applied.push(state))
+    backend.resolveHydration(
+      new Map<string, unknown | null>([
+        [KEY, { expanded: ['/workspace/src'], collapsed: ['/workspace/node_modules'] }],
+      ]),
+    )
+    await flush()
+
+    expect([...applied.at(-1)!.expanded]).toEqual(['/workspace/src'])
+    expect([...applied.at(-1)!.collapsed]).toEqual(['/workspace/node_modules'])
+    stop()
+  })
+
+  it('applies a later change from another tab', () => {
+    const backend = liveProvider()
+    setProvider(backend.provider)
+    const applied: ExpandState[] = []
+    const stop = watchExpandState(KEY, (state) => applied.push(state))
+
+    backend.remoteListeners.get(KEY)?.({ expanded: ['/workspace/lib'], collapsed: [] })
+
+    expect([...applied.at(-1)!.expanded]).toEqual(['/workspace/lib'])
+    stop()
+  })
+
+  it('discards a hydration that lost to a user toggle', async () => {
+    const backend = liveProvider()
+    setProvider(backend.provider)
+    const applied: ExpandState[] = []
+    const stop = watchExpandState(KEY, (state) => applied.push(state))
+
+    // The user opens a directory before the slow backend answers.
+    saveExpandState(KEY, { expanded: new Set(['/workspace/mine']), collapsed: new Set() })
+
+    backend.resolveHydration(
+      new Map<string, unknown | null>([[KEY, { expanded: ['/workspace/stale'], collapsed: [] }]]),
+    )
+    await flush()
+
+    expect([...applied.at(-1)!.expanded]).toEqual(['/workspace/mine'])
+    stop()
+  })
+
+  it('stops following the key after unsubscribe', () => {
+    const backend = liveProvider()
+    setProvider(backend.provider)
+    const apply = vi.fn()
+    const stop = watchExpandState(KEY, apply)
+
+    stop()
+    backend.remoteListeners.get(KEY)?.({ expanded: [], collapsed: [] })
+
+    expect(apply).not.toHaveBeenCalled()
   })
 })

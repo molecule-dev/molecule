@@ -15,6 +15,13 @@
  * those preferences for every consumer, including ones that render
  * synchronously.
  *
+ * Reads and writes are ordered against each other. Every write, remove and
+ * externally observed change bumps that key's generation, and every read
+ * records the generation it started at; a read that finishes after the
+ * generation moved is discarded, so a slow provider can never write an older
+ * value over a newer one. A provider swap bumps a store-wide epoch, so a read
+ * still in flight against the previous provider is discarded too.
+ *
  * @module
  */
 
@@ -59,10 +66,25 @@ export function createPreferenceStore(
   const remoteStops = new Map<string, () => void>()
   /** In-flight asynchronous reads, so concurrent renders share one read. */
   const pending = new Map<string, Promise<void>>()
+  /**
+   * Per-key change counter. Every write, remove or externally observed change
+   * bumps it; a read that started at an older generation is stale on arrival.
+   */
+  const generations = new Map<string, number>()
   /** The provider the cache and remote subscriptions belong to. */
   let current: StorageProvider | null = null
+  /** Bumped on every provider swap; a read from another epoch is stale. */
+  let providerEpoch = 0
   /** False until the resolver has answered once. */
   let initialized = false
+
+  /** The key's current generation (0 before its first change). */
+  const generationOf = (key: string): number => generations.get(key) ?? 0
+
+  /** Marks the key's snapshot as superseded by a newer change. */
+  const bump = (key: string): void => {
+    generations.set(key, generationOf(key) + 1)
+  }
 
   const resolveSafely = (): StorageProvider | null => {
     try {
@@ -93,6 +115,9 @@ export function createPreferenceStore(
       remoteStops.set(
         key,
         provider.subscribe(key, (value) => {
+          // An observed external change is newer than any read that started
+          // before it: bump FIRST so that read cannot overwrite this value.
+          bump(key)
           cache.set(key, value)
           notify(key, value)
         }),
@@ -111,9 +136,12 @@ export function createPreferenceStore(
     if (initialized) {
       // The cache belongs to the backend it was filled from: a different one
       // (including a change to or from "no provider") is the truth now, so
-      // every cached value is stale by definition.
+      // every cached value is stale by definition — and so is every read that
+      // started against the old provider.
+      providerEpoch += 1
       cache.clear()
       pending.clear()
+      generations.clear()
     }
     initialized = true
     for (const stop of remoteStops.values()) stop()
@@ -122,9 +150,23 @@ export function createPreferenceStore(
     return next
   }
 
+  /**
+   * Applies a read result unless the provider or the key moved while it was in
+   * flight.
+   * @returns `true` when the value was applied.
+   */
+  const applyRead = (key: string, value: unknown, epoch: number, generation: number): boolean => {
+    if (epoch !== providerEpoch || generation !== generationOf(key)) return false
+    cache.set(key, value)
+    notify(key, value)
+    return true
+  }
+
   const load = (provider: StorageProvider, key: string): Promise<void> => {
     const inFlight = pending.get(key)
     if (inFlight) return inFlight
+    const epoch = providerEpoch
+    const generation = generationOf(key)
     const task = (async () => {
       let value: unknown
       try {
@@ -134,11 +176,15 @@ export function createPreferenceStore(
         // the synchronous helpers this adapter replaces.
         value = null
       }
-      cache.set(key, value)
-      notify(key, value)
+      applyRead(key, value, epoch, generation)
     })()
     pending.set(key, task)
-    void task.finally(() => pending.delete(key))
+    void task.finally(() => {
+      // Only retire THIS read's entry: a provider swap clears `pending`, and a
+      // replacement read may already own the key. Deleting blindly would drop
+      // that newer read's dedupe entry and start a second backend read.
+      if (pending.get(key) === task) pending.delete(key)
+    })
     return task
   }
 
@@ -181,6 +227,8 @@ export function createPreferenceStore(
     // Resolve first: a swap must invalidate the old snapshot BEFORE this write
     // lands, or the fresh value would be cleared with it.
     const provider = ensure()
+    // This write supersedes every read that started before it.
+    bump(key)
     cache.set(key, value)
     notify(key, value)
     if (!provider) return
@@ -189,6 +237,7 @@ export function createPreferenceStore(
 
   const remove = (key: string): void => {
     const provider = ensure()
+    bump(key)
     cache.set(key, null)
     notify(key, null)
     if (!provider) return
@@ -218,31 +267,90 @@ export function createPreferenceStore(
   const hydrate = async (keys: readonly string[]): Promise<void> => {
     const provider = ensure()
     if (!provider) return
+    // Hydration FILLS the snapshot; it is not a refresh. A key that already has
+    // a value (written here, or hydrated earlier) is left alone, so a periodic
+    // caller never pays for a backend read it does not need. `refresh()` is the
+    // path for re-reading a key whose value changed behind this store.
+    const wanted = keys.filter((key) => !cache.has(key))
+    if (wanted.length === 0) return
     if (provider.getSync) {
-      for (const key of keys) read(key)
+      for (const key of wanted) read(key)
       return
     }
-    if (provider.getMany) {
-      let values: Map<string, unknown> | null
+    const epoch = providerEpoch
+    // One backend round trip for the whole batch when the provider offers it;
+    // a failure (or no `getMany`) falls back to per-key reads, whose failures
+    // also read as absent.
+    const batch = (async (): Promise<Map<string, unknown | null> | null> => {
+      if (!provider.getMany) return null
       try {
-        values = await provider.getMany([...keys])
+        return await provider.getMany<unknown>([...wanted])
       } catch (_error) {
-        // Fall through to per-key reads, whose failures also read as absent.
-        values = null
+        return null
       }
-      if (values) {
-        for (const key of keys) {
-          const value = values.get(key) ?? null
-          cache.set(key, value)
-          notify(key, value)
+    })()
+    const tasks = wanted.map((key) => {
+      const inFlight = pending.get(key)
+      if (inFlight) return inFlight
+      // Capture the generation BEFORE awaiting: a write, remove or external
+      // change that lands while the batch is in flight wins over this snapshot.
+      const generation = generationOf(key)
+      const task = (async () => {
+        let value: unknown
+        const values = await batch
+        if (values) {
+          value = values.get(key) ?? null
+        } else {
+          try {
+            value = await provider.get(key)
+          } catch (_error) {
+            value = null
+          }
         }
-        return
-      }
-    }
-    await Promise.all(keys.map((key) => load(provider, key)))
+        applyRead(key, value, epoch, generation)
+      })()
+      pending.set(key, task)
+      void task.finally(() => {
+        if (pending.get(key) === task) pending.delete(key)
+      })
+      return task
+    })
+    await Promise.all(tasks)
   }
 
-  return { get: read, set: write, remove, subscribe: listen, hydrate }
+  const refresh = async (keys?: string | readonly string[]): Promise<void> => {
+    const provider = ensure()
+    const targets =
+      keys === undefined ? [...cache.keys()] : typeof keys === 'string' ? [keys] : [...keys]
+    if (!provider) {
+      // No backend: the in-memory snapshot is the only truth, nothing to re-read.
+      return
+    }
+    for (const key of targets) {
+      // Discard the snapshot AND every read that started before this point, so
+      // a slower older read cannot land on top of the re-read below.
+      bump(key)
+      cache.delete(key)
+      pending.delete(key)
+    }
+    if (provider.getSync) {
+      for (const key of targets) {
+        let value: unknown
+        try {
+          value = provider.getSync<unknown>(key)
+        } catch (_error) {
+          // Unreadable now: absent for this refresh, retried on the next read.
+          value = null
+        }
+        cache.set(key, value)
+        notify(key, value)
+      }
+      return
+    }
+    await Promise.all(targets.map((key) => load(provider, key)))
+  }
+
+  return { get: read, set: write, remove, subscribe: listen, hydrate, refresh }
 }
 
 let singleton: PreferenceStore | null = null

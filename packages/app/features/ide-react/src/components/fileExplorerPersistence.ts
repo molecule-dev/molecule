@@ -52,3 +52,26 @@ export function saveExpandState(persistKey: string, state: ExpandState): void {
     collapsed: [...state.collapsed],
   })
 }
+
+/**
+ * Keeps a mounted explorer's state live for one storage key.
+ *
+ * A synchronous provider is already reflected in the initial `loadExpandState`
+ * read; an asynchronous one hydrates later, and this subscription applies that
+ * value to the SAME mounted tree (no remount, no permanent empty tree). Later
+ * changes — another tab, another writer — arrive the same way. A read that
+ * started BEFORE a user toggle is discarded by the preference store, so a slow
+ * hydration can never re-collapse directories the user just opened.
+ * @param persistKey - The storage key to follow.
+ * @param apply - Called with the current state after the key changes.
+ * @returns A function that stops following the key.
+ */
+export function watchExpandState(
+  persistKey: string,
+  apply: (state: ExpandState) => void,
+): () => void {
+  const store = getPreferenceStore()
+  const stop = store.subscribe(persistKey, () => apply(loadExpandState(persistKey)))
+  void store.hydrate([persistKey])
+  return stop
+}

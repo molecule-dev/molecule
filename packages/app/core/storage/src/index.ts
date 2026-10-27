@@ -43,6 +43,7 @@
  * @module
  */
 
+export * from './codecs.js'
 export * from './memory-provider.js'
 export * from './preferences.js'
 export * from './provider.js'

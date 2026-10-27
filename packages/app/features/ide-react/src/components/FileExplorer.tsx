@@ -16,7 +16,12 @@ import { useCoarsePointer } from '../hooks/useViewport.js'
 import type { FileExplorerProps, FileNode } from '../types.js'
 import type { ContextMenuAction } from './FileExplorerContextMenu.js'
 import { FileExplorerContextMenu } from './FileExplorerContextMenu.js'
-import { type ExpandState, loadExpandState, saveExpandState } from './fileExplorerPersistence.js'
+import {
+  type ExpandState,
+  loadExpandState,
+  saveExpandState,
+  watchExpandState,
+} from './fileExplorerPersistence.js'
 
 // Git status → filename color — dark/light variants for readability
 const DARK_GIT_COLORS: Record<string, string> = {
@@ -739,6 +744,15 @@ export function FileExplorer({
   const [expandState, setExpandState] = useState<ExpandState>(() =>
     persistKey ? loadExpandState(persistKey) : { expanded: new Set(), collapsed: new Set() },
   )
+
+  // Follow the bonded provider for this key. A synchronous provider's value is
+  // already in `expandState`; an asynchronous one hydrates later and updates
+  // this SAME tree (never a remount), as does a change from another tab.
+  useEffect(() => {
+    if (!persistKey) return
+    setExpandState(loadExpandState(persistKey))
+    return watchExpandState(persistKey, setExpandState)
+  }, [persistKey])
 
   // ---------------------------------------------------------------------------
   // Selection state

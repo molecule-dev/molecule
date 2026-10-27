@@ -79,6 +79,45 @@ export interface StorageProvider {
 }
 
 /**
+ * Chooses how ONE key's value becomes the raw string a synchronous backend
+ * holds, and how that string becomes a value again.
+ *
+ * A provider applies a codec to `get`, `getSync`, `set` and the change
+ * subscription for every key the codec {@link StorageCodec.matches | matches},
+ * before the provider's own default `serialize`/`deserialize` pair. That is how
+ * a typed preference and a value written by an OLDER raw-string helper can share
+ * one key without either one being reset: an app declares a raw-string codec for
+ * the keys its previous storage layer wrote verbatim (a prompt, a conversation
+ * id) and leaves everything else on the JSON codec.
+ *
+ * Implementations live with the provider bond (a browser bond needs strings; a
+ * native bond may not serialize at all), not in consumer code.
+ */
+export interface StorageCodec {
+  /**
+   * Whether this codec owns the key.
+   * @param key - The UNPREFIXED storage key the caller used.
+   * @returns `true` when this codec encodes and decodes that key.
+   */
+  matches(key: string): boolean
+
+  /**
+   * Encodes a value to the raw string the backend stores.
+   * @param value - The value the caller wrote.
+   * @returns The raw string to store.
+   */
+  encode(value: unknown): string
+
+  /**
+   * Decodes a raw string read from the backend.
+   * @param raw - The raw string as stored.
+   * @returns The value the caller reads. Throwing is allowed: the provider
+   *   treats a thrown decode as absent, the same contract as a corrupt entry.
+   */
+  decode(raw: string): unknown
+}
+
+/**
  * Called when the value a preference key holds changes.
  *
  * Receives the new value, or `null` when the key was removed or became
@@ -100,6 +139,12 @@ export type PreferenceListener = (value: unknown) => void
  * Writes are optimistic and best-effort: the cache and subscribers update
  * immediately, and persistence failures (quota, a locked/absent store) are
  * ignored exactly like the browser-global helpers this replaces.
+ *
+ * Coherence: every write, remove and externally observed change makes the
+ * reads that started before it stale, and those reads are dropped instead of
+ * applied. A provider swap likewise retires every read that started against the
+ * old provider. So "last write wins" holds across slow hydration, and a stale
+ * asynchronous read can never resurrect an older value.
  */
 export interface PreferenceStore {
   /**
@@ -137,8 +182,31 @@ export interface PreferenceStore {
    * Call once at boot for every key a synchronous reader may ask about. A
    * provider with a synchronous read fills the cache immediately; an
    * asynchronous one resolves later and notifies subscribers.
+   *
+   * A read that resolves AFTER a newer write, remove or external change to the
+   * same key is discarded, and so is a read that started against a provider
+   * that has since been swapped out — a slow hydration can never replace the
+   * newer value (or another provider's value) with an older snapshot.
+   *
+   * Keys already in the snapshot are NOT re-read: hydration fills what is
+   * unknown, `refresh()` re-reads what changed behind this store.
    * @param keys - The keys to load.
    * @returns A promise that resolves once every key has been loaded.
    */
   hydrate(keys: readonly string[]): Promise<void>
+
+  /**
+   * Re-reads keys from the CURRENT provider and notifies subscribers.
+   *
+   * This is the explicit contract for a write that does not go through this
+   * store — a caller using the provider's own `set`/`remove`, or a backend
+   * change the provider cannot observe through `subscribe`. Without it the
+   * snapshot keeps serving the value it cached before that write. Any read
+   * still in flight for those keys is discarded first, so a slower older read
+   * cannot land on top of the re-read.
+   * @param keys - The keys to re-read; omitted means every key this store
+   *   currently holds a snapshot for (the `clear()` shape).
+   * @returns A promise that resolves once the re-read has been applied.
+   */
+  refresh(keys?: string | readonly string[]): Promise<void>
 }

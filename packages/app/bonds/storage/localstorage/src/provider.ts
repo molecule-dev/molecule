@@ -6,7 +6,7 @@
 
 import { I18nError } from '@molecule/app-i18n'
 import { getLogger } from '@molecule/app-logger'
-import type { StorageProvider } from '@molecule/app-storage'
+import type { StorageCodec, StorageProvider } from '@molecule/app-storage'
 
 import type { LocalStorageConfig } from './types.js'
 
@@ -39,11 +39,30 @@ export function createLocalStorageProvider(config: LocalStorageConfig = {}): Sto
     prefix = '',
     serialize = JSON.stringify,
     deserialize = JSON.parse,
+    codecs = [],
     storage = typeof window !== 'undefined' ? window.localStorage : undefined,
   } = config
 
   // Helper to get prefixed key
   const getKey = (key: string): string => `${prefix}${key}`
+
+  // The codec that owns this key, if one was configured. Keys are matched
+  // UNPREFIXED — the same string the caller passes — so app config never has to
+  // repeat the prefix.
+  const codecFor = (key: string): StorageCodec | undefined =>
+    codecs.find((codec) => codec.matches(key))
+
+  /** Encodes a value the way this key's codec (or the default pair) says. */
+  const encode = (key: string, value: unknown): string => {
+    const codec = codecFor(key)
+    return codec ? codec.encode(value) : serialize(value)
+  }
+
+  /** Decodes a stored string the way this key's codec (or the default pair) says. */
+  const decode = (key: string, raw: string): unknown => {
+    const codec = codecFor(key)
+    return codec ? codec.decode(raw) : deserialize(raw)
+  }
 
   // Helper to strip prefix from key
   const stripPrefix = (key: string): string => {
@@ -106,7 +125,7 @@ export function createLocalStorageProvider(config: LocalStorageConfig = {}): Sto
           return null
         }
 
-        return deserialize(value) as T
+        return decode(key, value) as T
       } catch (err) {
         logger.warn('Failed to deserialize stored value', key, err)
         return null
@@ -121,7 +140,7 @@ export function createLocalStorageProvider(config: LocalStorageConfig = {}): Sto
           return null
         }
 
-        return deserialize(value) as T
+        return decode(key, value) as T
       } catch (err) {
         logger.warn('Failed to deserialize stored value', key, err)
         return null
@@ -131,7 +150,7 @@ export function createLocalStorageProvider(config: LocalStorageConfig = {}): Sto
     async set<T = unknown>(key: string, value: T): Promise<void> {
       try {
         const store = getStorage()
-        const serialized = serialize(value)
+        const serialized = encode(key, value)
         store.setItem(getKey(key), serialized)
       } catch (error) {
         // Handle quota exceeded errors
@@ -172,7 +191,7 @@ export function createLocalStorageProvider(config: LocalStorageConfig = {}): Sto
           return
         }
         try {
-          listener(deserialize(event.newValue))
+          listener(decode(key, event.newValue))
         } catch (err) {
           // Another tab wrote a value this provider cannot read: it is absent
           // for us, the same contract as `get()`.
