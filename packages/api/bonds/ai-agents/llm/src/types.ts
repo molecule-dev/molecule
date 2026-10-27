@@ -91,18 +91,30 @@ declare module '@molecule/api-ai-agents' {
      * The synthesis turn preserves everything the loop was using: the full
      * message history (including retained reasoning), `system`, `model`,
      * `maxTokens`, `temperature`, `thinking`, `stream`, `cacheControl`,
-     * `provider`, and `signal`. Its events reach `onEvent` and its usage is
-     * added to `result.usage`, so live monitoring and metering see the extra
-     * call. It offers no tools and never executes a tool call (a tool request
-     * on that turn is ignored), so it cannot extend the loop, and the recorded
-     * `steps` stay exactly the tool-invoking rounds — `steps.length >=
-     * maxSteps` still means "budget exhausted".
+     * `provider`, and `signal`. It also carries ONE short, generic instruction
+     * (a user message appended after the history, for that request only)
+     * stating that the step budget is exhausted, that no further tool calls
+     * are allowed, and to answer now from the evidence already gathered.
+     * Without it a tool-free turn is just the same conversation with no tools,
+     * and a model mid-investigation can keep planning instead of answering.
+     * Its events reach `onEvent` and its usage is added to `result.usage`, so
+     * live monitoring and metering see the extra call. The instruction is
+     * never sent on any other turn, so normal runs are byte- and
+     * cost-identical.
      *
-     * The response is returned as-is (not trimmed); an empty response is NOT
-     * papered over with the exhausted-budget note: `run()` rejects with an
-     * `AgentRunError` carrying the accumulated `usage`/`steps` instead, and a
-     * provider error on that turn rejects the same way. Only the literal
-     * `true` enables this; omit it for the previous behavior and cost.
+     * It offers no tools and never executes a tool call: a tool request on that
+     * turn cannot be executed and is NOT accepted as a final answer (even when
+     * the turn also emitted text), because it is a plan to keep going rather
+     * than an answer. The recorded `steps` stay exactly the tool-invoking
+     * rounds — `steps.length >= maxSteps` still means "budget exhausted".
+     *
+     * The response is returned as-is (not trimmed). A turn that produces no
+     * answer text is NOT papered over with the exhausted-budget note: `run()`
+     * rejects with an `AgentRunError` carrying the accumulated `usage`/`steps`,
+     * and the message distinguishes a content-free turn (including one that
+     * returned only reasoning) from a turn that requested another tool. A
+     * provider error on that turn rejects the same way. Only the literal `true`
+     * enables this; omit it for the previous behavior and cost.
      */
     finalSynthesisOnBudgetExhaustion?: boolean
   }

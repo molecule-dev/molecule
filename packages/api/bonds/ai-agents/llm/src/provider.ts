@@ -16,7 +16,7 @@
 // options (see types.ts).
 import './types.js'
 
-import type { ChatEvent, ContentBlock, TokenUsage } from '@molecule/api-ai'
+import type { ChatEvent, ChatMessage, ContentBlock, TokenUsage } from '@molecule/api-ai'
 import {
   getProviderByName as getAiProviderByName,
   requireProvider as requireAiProvider,
@@ -117,6 +117,32 @@ function boundToolResult(serialized: string, maxChars: number | undefined): stri
       },
     )
   )
+}
+
+/**
+ * The model-facing instruction appended to the ONE tool-free synthesis turn
+ * after the step budget is exhausted.
+ *
+ * @remarks
+ * A final turn carrying only the loop's own history is indistinguishable from
+ * any other turn — same system prompt, same conversation, no tools — so a model
+ * that was mid-investigation can keep planning (or emit reasoning alone)
+ * instead of answering. A real bounded review hit exactly that: the whole step
+ * budget was spent, the tool-free turn produced no answer text, and the run
+ * failed with nothing to show for the evidence it had gathered.
+ *
+ * The note is deliberately short and generic — it never names a reviewer,
+ * benchmark, project or route — and is a USER message appended AFTER the
+ * recorded history for that one request, so every earlier message (including
+ * retained native `reasoning`) is still sent unchanged.
+ *
+ * @returns The instruction text for the synthesis turn.
+ */
+function finalSynthesisInstruction(): string {
+  return t('ai-agents.finalSynthesisInstruction', undefined, {
+    defaultValue:
+      'The step budget is exhausted and no further tool calls are allowed. Do not request more tools. Answer now, using only the evidence already gathered in this conversation, and briefly state anything you had to leave unchecked.',
+  })
 }
 
 /**
@@ -257,12 +283,20 @@ export const provider: AIAgentsProvider = {
      *
      * @param offerTools - When `false` the request carries NO `tools` field,
      *   so the provider cannot ask for a tool call (the final synthesis turn).
+     * @param trailingMessages - Messages appended AFTER the loop's history for
+     *   this ONE request only; the loop's own `messages` array is untouched, so
+     *   every other turn sends it exactly as before.
      * @returns The drained turn.
      */
-    const modelTurn = async (offerTools: boolean): Promise<DrainedStream> => {
+    const modelTurn = async (
+      offerTools: boolean,
+      trailingMessages: readonly ChatMessage[] = [],
+    ): Promise<DrainedStream> => {
+      const requestMessages =
+        trailingMessages.length > 0 ? [...messages, ...trailingMessages] : messages
       const turn = await drainStream(
         ai.chat({
-          messages,
+          messages: requestMessages,
           system: input.system,
           ...(offerTools ? { tools: input.tools } : {}),
           model: input.model,
@@ -388,15 +422,42 @@ export const provider: AIAgentsProvider = {
       // `finalSynthesisOnBudgetExhaustion`, buy exactly ONE tool-free turn to
       // answer from what the run already saw — the loop ended on a tool
       // invocation, so there is no final assistant text to return otherwise.
+      // The request also carries one short generic instruction saying the
+      // budget is spent and to answer now: without it the turn is just the same
+      // conversation with no tools, and a model mid-investigation can keep
+      // planning (a real bounded review produced no answer text at exactly that
+      // turn). The instruction is appended for this request only; the loop's
+      // history, system prompt, model settings and cache/usage/error contracts
+      // are all unchanged.
       if (input.finalSynthesisOnBudgetExhaustion === true) {
-        const finalTurn = await modelTurn(false)
-        // Never pass the budget note off as an answer: a tool-free turn that
-        // produced no text means the model gave no final response.
+        const finalTurn = await modelTurn(false, [
+          { role: 'user', content: finalSynthesisInstruction() },
+        ])
+        // A renewed tool request is NOT an answer. That turn offered no tools,
+        // so nothing it asks for can be executed, and a plan to keep going must
+        // not be passed off as the final output — whether or not the turn also
+        // emitted text. Report this cause distinctly from a content-free turn.
+        if (finalTurn.toolUses.length > 0) {
+          throw new Error(
+            t('ai-agents.error.finalSynthesisToolRequest', undefined, {
+              defaultValue:
+                'Agent step budget exhausted and the final synthesis turn requested another tool instead of answering; no further tool calls are allowed.',
+            }),
+          )
+        }
+        // Content-free is its own cause: a turn that emitted only reasoning (or
+        // nothing at all) produced no answer, and the message says which, so a
+        // caller can tell "the model kept thinking" from "the model tried to
+        // call a tool".
         if (!finalTurn.text.trim()) {
+          const reasoningOnly = finalTurn.reasoning?.trim()
+            ? ' It returned only reasoning text and no answer.'
+            : ''
           throw new Error(
             t('ai-agents.error.finalSynthesisEmpty', undefined, {
               defaultValue:
-                'Agent step budget exhausted and the final synthesis turn produced no answer.',
+                'Agent step budget exhausted and the final synthesis turn produced no answer.' +
+                reasoningOnly,
             }),
           )
         }

@@ -278,14 +278,30 @@ const echoTool: AITool = {
   execute: async () => bigPayload,
 }
 
-/** The content string of the tool_result block in the last message of a call. */
+/** The content string of the LAST tool_result block anywhere in a request. */
 function toolResultContent(params: ChatParams): string {
-  const last = params.messages[params.messages.length - 1]
-  const blocks = typeof last.content === 'string' ? [] : last.content
-  for (const block of blocks) {
-    if (block.type === 'tool_result') return String(block.content)
+  for (let index = params.messages.length - 1; index >= 0; index -= 1) {
+    const last = params.messages[index]
+    const blocks = typeof last.content === 'string' ? [] : last.content
+    for (const block of blocks) {
+      if (block.type === 'tool_result') return String(block.content)
+    }
   }
-  throw new Error('no tool_result block in the last message')
+  throw new Error('no tool_result block in the request')
+}
+
+/**
+ * The trailing budget instruction a synthesis request must carry, or
+ * `undefined` when the request has no such message.
+ */
+function instructionMessage(params: ChatParams): string | undefined {
+  for (let index = params.messages.length - 1; index >= 0; index -= 1) {
+    const content = params.messages[index].content
+    if (typeof content === 'string' && content.includes('no further tool calls are allowed')) {
+      return content
+    }
+  }
+  return undefined
 }
 
 /** Awaits a run that must reject with the provider's typed partial-run error. */
@@ -297,6 +313,51 @@ async function agentFailure(run: Promise<unknown>): Promise<AgentRunError> {
     throw error
   }
   throw new Error('expected the agent run to reject')
+}
+
+/**
+ * Deterministic stand-in for a native chat provider shaped by the recorded
+ * review failure: after `toolRounds` tool-calling turns, its final tool-free
+ * turn ONLY answers when the caller's real budget instruction is present in
+ * the request. Without it the fake keeps investigating — reasoning plus a
+ * renewed tool request, and no answer text — so a change that merely opens a
+ * tool-free turn (the previous behavior) cannot pass the corrected test.
+ */
+function instructionGatedNativeAi(toolRounds: number): {
+  provider: AIProvider
+  calls: ChatParams[]
+  answeredOnInstruction: boolean[]
+} {
+  const calls: ChatParams[] = []
+  const answeredOnInstruction: boolean[] = []
+  let call = 0
+  const provider: AIProvider = {
+    name: 'native-fake',
+    async *chat(params: ChatParams): AsyncIterable<ChatEvent> {
+      const request = { ...params, messages: [...params.messages] }
+      calls.push(request)
+      const index = call
+      call += 1
+      if (index < toolRounds) {
+        yield { type: 'thinking', content: `inspecting batch ${index + 1}` }
+        yield { type: 'tool_use', id: `t${index + 1}`, name: 'add', input: { a: index, b: 1 } }
+        yield { type: 'done', usage: { inputTokens: 10, outputTokens: 2 } }
+        return
+      }
+      const instructed = instructionMessage(request) !== undefined
+      answeredOnInstruction.push(instructed)
+      if (!instructed) {
+        // The recorded shape: the model keeps going and never answers.
+        yield { type: 'thinking', content: 'I should inspect another batch first' }
+        yield { type: 'tool_use', id: 'renewed', name: 'add', input: { a: 99, b: 1 } }
+        yield { type: 'done', usage: { inputTokens: 12, outputTokens: 3 } }
+        return
+      }
+      yield { type: 'text', content: 'FINAL REPORT FROM EVIDENCE' }
+      yield { type: 'done', usage: { inputTokens: 12, outputTokens: 9 } }
+    },
+  }
+  return { provider, calls, answeredOnInstruction }
 }
 
 describe('ai-agents llm provider opt-in budget options', () => {
@@ -475,9 +536,15 @@ describe('ai-agents llm provider opt-in budget options', () => {
     expect(calls[1].thinking).toEqual({ type: 'enabled', budgetTokens: 1000 })
     expect(calls[1].cacheControl).toEqual({ type: 'ephemeral' })
     expect(calls[1].stream).toBe(true)
-    expect(calls[1].messages).toHaveLength(3)
+    // The recorded history is intact, plus exactly ONE appended instruction.
+    expect(calls[1].messages).toHaveLength(4)
     expect(calls[1].messages[1].reasoning).toBe('consider the sum')
     expect(toolResultContent(calls[1])).toBe('3')
+    const instruction = instructionMessage(calls[1])
+    expect(instruction).toBeDefined()
+    expect(instruction).toContain('step budget is exhausted')
+    expect(instruction).toContain('Answer now')
+    expect(calls[1].messages[3]).toEqual({ role: 'user', content: instruction })
 
     // The synthesis text is the output; the tool round stays the only step.
     expect(result.output).toBe('FINAL REPORT')
@@ -513,7 +580,104 @@ describe('ai-agents llm provider opt-in budget options', () => {
     expect(seen).toContain('text')
   })
 
-  it('ignores a tool request on the synthesis turn and never extends the loop', async () => {
+  it('records the known-bad shape: a tool-free turn with no instruction never answers', async () => {
+    // The recorded review spent its whole step budget, then got a tool-free turn
+    // carrying only the loop's history — and produced no answer text. Reproduce
+    // that request shape directly against the same deterministic fake the
+    // corrected test uses.
+    const { provider: ai } = instructionGatedNativeAi(0)
+    const events: ChatEvent[] = []
+    for await (const event of ai.chat({
+      messages: [{ role: 'user', content: 'review the assigned evidence' }],
+    })) {
+      events.push(event)
+    }
+
+    expect(events.some((event) => event.type === 'tool_use')).toBe(true)
+    expect(events.some((event) => event.type === 'text')).toBe(false)
+  })
+
+  it('answers the exhausted budget because the real instruction is sent', async () => {
+    // Same native fake as the known-bad case: its final turn ONLY answers when
+    // the caller's budget instruction is actually in the request. This fails on
+    // the previous behavior (a tool-free turn with no instruction) — the fake
+    // then renews its tool request and produces no text.
+    const { provider: ai, calls, answeredOnInstruction } = instructionGatedNativeAi(10)
+    setAiProvider(ai)
+
+    const result = await agents.run({
+      task: 'review the assigned evidence',
+      tools: [addTool],
+      maxSteps: 10,
+      finalSynthesisOnBudgetExhaustion: true,
+    })
+
+    // Ten tool rounds plus exactly ONE tool-free synthesis turn.
+    expect(calls).toHaveLength(11)
+    expect(answeredOnInstruction).toEqual([true])
+    expect(result.output).toBe('FINAL REPORT FROM EVIDENCE')
+    expect(result.steps).toHaveLength(10)
+    expect(result.usage).toEqual({ inputTokens: 112, outputTokens: 29 })
+
+    // The synthesis request keeps the entire native history (assistant
+    // reasoning and every tool_result) and adds exactly one instruction.
+    const finalMessages = calls[10].messages
+    expect(finalMessages).toHaveLength(22) // 1 task + 10 × (assistant + result) + 1
+    expect(finalMessages[1].reasoning).toBe('inspecting batch 1')
+    expect(finalMessages.filter((message) => message.role === 'assistant')).toHaveLength(10)
+    const finalText = instructionMessage(calls[10])
+    expect(finalText).toBeDefined()
+    expect(finalMessages[finalMessages.length - 1]).toEqual({
+      role: 'user',
+      content: finalText,
+    })
+    // Earlier requests never carried the instruction.
+    for (const request of calls.slice(0, 10)) {
+      expect(instructionMessage(request)).toBeUndefined()
+    }
+  })
+
+  it('does not add the instruction when the model answers before the budget', async () => {
+    // Opting in changes ONLY the exhausted-budget path; a normal answer turn is
+    // byte- and cost-identical (one call, no appended message).
+    const { provider: ai, calls } = scriptedAi([
+      [
+        { type: 'text', content: 'early answer' },
+        { type: 'done', usage: { inputTokens: 1, outputTokens: 1 } },
+      ],
+    ])
+    setAiProvider(ai)
+
+    const result = await agents.run({
+      task: 'go',
+      tools: [addTool],
+      maxSteps: 3,
+      finalSynthesisOnBudgetExhaustion: true,
+    })
+
+    expect(result.output).toBe('early answer')
+    expect(calls).toHaveLength(1)
+    expect(instructionMessage(calls[0])).toBeUndefined()
+  })
+
+  it('does not add the instruction when the option is unset', async () => {
+    // The default path keeps the old request bytes and cost exactly.
+    const { provider: ai, calls } = scriptedAi([
+      [
+        { type: 'tool_use', id: 'loop', name: 'add', input: { a: 1, b: 1 } },
+        { type: 'done', usage: { inputTokens: 4, outputTokens: 2 } },
+      ],
+    ])
+    setAiProvider(ai)
+
+    const result = await agents.run({ task: 'go', tools: [addTool], maxSteps: 1 })
+
+    expect(calls).toHaveLength(1)
+    expect(instructionMessage(calls[0])).toBeUndefined()
+    expect(result.output).toMatch(/step budget exhausted/)
+  })
+
+  it('rejects a renewed tool request instead of passing it off as the answer', async () => {
     let executions = 0
     const countingTool: AITool = {
       name: 'add',
@@ -531,23 +695,58 @@ describe('ai-agents llm provider opt-in budget options', () => {
       ],
       [
         { type: 'tool_use', id: 'rogue', name: 'add', input: { a: 1, b: 1 } },
-        { type: 'text', content: 'answer' },
-        { type: 'done', usage: { inputTokens: 1, outputTokens: 1 } },
+        { type: 'text', content: 'I will read one more batch first' },
+        { type: 'done', usage: { inputTokens: 2, outputTokens: 3 } },
       ],
     ])
     setAiProvider(ai)
 
-    const result = await agents.run({
-      task: 'go',
-      tools: [countingTool],
-      maxSteps: 1,
-      finalSynthesisOnBudgetExhaustion: true,
-    })
+    const failure = await agentFailure(
+      agents.run({
+        task: 'go',
+        tools: [countingTool],
+        maxSteps: 1,
+        finalSynthesisOnBudgetExhaustion: true,
+      }),
+    )
 
+    // Exactly one synthesis call; the renewed request is never executed, and
+    // its accompanying text is not accepted as the final answer.
     expect(calls).toHaveLength(2)
     expect(executions).toBe(1)
-    expect(result.output).toBe('answer')
-    expect(result.steps).toHaveLength(1)
+    expect(failure).toBeInstanceOf(AgentRunError)
+    expect(failure.message).toMatch(/requested another tool instead of answering/)
+    expect(failure.message).not.toMatch(/produced no answer/)
+    // Metering still covers both billed turns.
+    expect(failure.usage).toEqual({ inputTokens: 3, outputTokens: 4 })
+    expect(failure.steps).toHaveLength(1)
+  })
+
+  it('rejects a renewed tool request that produced no text as a tool request, not silence', async () => {
+    const { provider: ai } = scriptedAi([
+      [
+        { type: 'tool_use', id: 't1', name: 'add', input: { a: 1, b: 1 } },
+        { type: 'done', usage: { inputTokens: 4, outputTokens: 2 } },
+      ],
+      [
+        { type: 'tool_use', id: 'rogue', name: 'add', input: { a: 2, b: 2 } },
+        { type: 'done', usage: { inputTokens: 5, outputTokens: 3 } },
+      ],
+    ])
+    setAiProvider(ai)
+
+    const failure = await agentFailure(
+      agents.run({
+        task: 'go',
+        tools: [addTool],
+        maxSteps: 1,
+        finalSynthesisOnBudgetExhaustion: true,
+      }),
+    )
+
+    expect(failure.message).toMatch(/requested another tool instead of answering/)
+    expect(failure.message).not.toMatch(/produced no answer/)
+    expect(failure.usage).toEqual({ inputTokens: 9, outputTokens: 5 })
   })
 
   it('rejects honestly when the synthesis produces no answer', async () => {
@@ -574,8 +773,39 @@ describe('ai-agents llm provider opt-in budget options', () => {
 
     expect(failure).toBeInstanceOf(AgentRunError)
     expect(failure.message).toMatch(/final synthesis turn produced no answer/)
+    expect(failure.message).not.toMatch(/requested another tool/)
     // Partial metering and steps survive the failure.
     expect(failure.usage).toEqual({ inputTokens: 7, outputTokens: 3 })
+    expect(failure.steps).toHaveLength(1)
+  })
+
+  it('says when the content-free synthesis turn returned only reasoning', async () => {
+    const { provider: ai } = scriptedAi([
+      [
+        { type: 'tool_use', id: 't1', name: 'add', input: { a: 1, b: 1 } },
+        { type: 'done', usage: { inputTokens: 4, outputTokens: 2 } },
+      ],
+      [
+        { type: 'thinking', content: 'still weighing the evidence' },
+        { type: 'done', usage: { inputTokens: 3, outputTokens: 6 } },
+      ],
+    ])
+    setAiProvider(ai)
+
+    const failure = await agentFailure(
+      agents.run({
+        task: 'go',
+        tools: [addTool],
+        maxSteps: 1,
+        finalSynthesisOnBudgetExhaustion: true,
+      }),
+    )
+
+    // The cause is content-free output, stated specifically — not a tool
+    // request the model never made.
+    expect(failure.message).toMatch(/only reasoning text and no answer/)
+    expect(failure.message).not.toMatch(/requested another tool/)
+    expect(failure.usage).toEqual({ inputTokens: 7, outputTokens: 8 })
     expect(failure.steps).toHaveLength(1)
   })
 

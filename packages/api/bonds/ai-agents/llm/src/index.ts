@@ -77,9 +77,14 @@
  *   the `maxSteps` budget is exhausted, so a run that ended on a tool
  *   invocation still returns a final answer instead of the budget note. That
  *   turn carries the same history, system, model, thinking, cache, streaming
- *   and signal settings; its events reach `onEvent`, its usage is metered, and
- *   it cannot call tools. If it produces no answer, `run()` rejects with
- *   `AgentRunError` rather than returning the budget note as the output.
+ *   and signal settings plus one short generic instruction to answer now from
+ *   the evidence already gathered (without it a model mid-investigation can
+ *   keep planning). Its events reach `onEvent`, its usage is metered, and it
+ *   cannot call tools: a tool request on that turn is never executed and is not
+ *   accepted as a final answer. If the turn produces no answer text, `run()`
+ *   rejects with `AgentRunError` instead of returning the budget note, and the
+ *   message says whether the turn requested another tool or returned no
+ *   content (e.g. only reasoning).
  *
  * Failure semantics (how to tell failure modes apart):
  * - **Tool failure** (throwing `execute()`, unknown tool name) — NON-fatal:
