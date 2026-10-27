@@ -10,9 +10,18 @@
  */
 
 import { spawn } from 'node:child_process'
-import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
+import {
+  existsSync,
+  lstatSync,
+  readdirSync,
+  readFileSync,
+  realpathSync,
+  rmSync,
+  statSync,
+} from 'node:fs'
+import { createRequire } from 'node:module'
 import { availableParallelism } from 'node:os'
-import { join } from 'node:path'
+import { dirname, join, relative, resolve } from 'node:path'
 
 const MAX_CONCURRENCY = availableParallelism()
 
@@ -134,6 +143,118 @@ function buildOne(name, pkgDir) {
       }
     })
   })
+}
+
+/** Standard TS6 build mode amortizes compiler startup; never reuse incremental state. */
+let batchCompiler
+/** Read a same-compiler plan, retaining ordinary builds for unknown inputs. */
+function tscPlan(pkgDir) {
+  try {
+    const root = process.cwd()
+    const manifest = JSON.parse(readFileSync(join(pkgDir, 'package.json'), 'utf8'))
+    if (manifest.scripts?.build !== 'tsc') return null
+    // A package/intermediate shadow bin may select another compiler via npx.
+    for (let dir = resolve(pkgDir); dir !== root; dir = dirname(dir)) {
+      if (existsSync(join(dir, 'node_modules/.bin/tsc'))) return null
+      if (dirname(dir) === dir) return null
+    }
+    if (!batchCompiler) {
+      const require = createRequire(join(root, 'package.json'))
+      const file = require.resolve('typescript/package.json')
+      const compiler = JSON.parse(readFileSync(file, 'utf8'))
+      if (compiler.version !== '6.0.3') return null
+      const bin = realpathSync(join(dirname(file), compiler.bin.tsc))
+      if (realpathSync(join(root, 'node_modules/.bin/tsc')) !== bin) return null
+      batchCompiler = { ts: require('typescript'), bin }
+    }
+    const { ts, bin } = batchCompiler
+    const config = resolve(pkgDir, 'tsconfig.json')
+    const parsed = ts.getParsedCommandLineOfConfigFile(
+      config,
+      {},
+      {
+        ...ts.sys,
+        onUnRecoverableConfigFileDiagnostic() {},
+      },
+    )
+    if (
+      !parsed ||
+      parsed.errors.length ||
+      parsed.projectReferences?.length ||
+      parsed.options.incremental ||
+      parsed.options.composite ||
+      parsed.options.tsBuildInfoFile
+    )
+      return null
+    // Build mode writes this auxiliary file even with incremental=false. Only
+    // newly-owned, package-local metadata may be removed after the compiler.
+    const info = ts.getTsBuildInfoEmitOutputFilePath({ ...parsed.options, incremental: true })
+    const rel = relative(resolve(pkgDir), info)
+    if (rel.startsWith('..') || lstatSync(info, { throwIfNoEntry: false })) return null
+    return { config, info, bin }
+  } catch (_error) {
+    // Unknown compiler/config retains the original per-package command.
+    return null
+  }
+}
+
+/** Run forced compiler emission and remove only newly-owned auxiliary state. */
+function buildTscBatch(names, plans) {
+  return new Promise((resolveBatch, reject) => {
+    const child = spawn(
+      process.execPath,
+      [plans[0].bin, '-b', '--force', '--incremental', 'false', ...plans.map((p) => p.config)],
+      { cwd: process.cwd(), stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env } },
+    )
+    let output = ''
+    child.stdout.on('data', (chunk) => {
+      output += chunk
+    })
+    child.stderr.on('data', (chunk) => {
+      output += chunk
+    })
+    child.on('error', reject)
+    child.on('close', (code) => {
+      try {
+        for (const plan of plans) rmSync(plan.info, { force: true })
+        if (code === 0) resolveBatch()
+        else reject(new Error(names.join(', ') + ' failed:\n' + output))
+      } catch (error) {
+        reject(error)
+      }
+    })
+  })
+}
+
+/** Keep the existing level order/worker bound and original one-package/ngc path. */
+function levelTasks(names) {
+  if (names.length === 1) return [() => buildOne(names[0], packages.get(names[0]).path)]
+  const tasks = []
+  let pending = [],
+    plans = []
+  const flush = () => {
+    if (!pending.length) return
+    const group = pending,
+      info = plans
+    tasks.push(
+      group.length === 1
+        ? () => buildOne(group[0], packages.get(group[0]).path)
+        : () => buildTscBatch(group, info),
+    )
+    pending = []
+    plans = []
+  }
+  for (const name of names) {
+    const plan = tscPlan(packages.get(name).path)
+    if (!plan) tasks.push(() => buildOne(name, packages.get(name).path))
+    else {
+      pending.push(name)
+      plans.push(plan)
+      if (pending.length === 8) flush()
+    }
+  }
+  flush()
+  return tasks
 }
 
 /**
@@ -259,13 +380,7 @@ for (const depth of sortedDepths) {
   if (toBuild.length === 0) continue
 
   try {
-    await runWithConcurrency(
-      toBuild.map((name) => () => {
-        const info = packages.get(name)
-        return buildOne(name, info.path)
-      }),
-      MAX_CONCURRENCY,
-    )
+    await runWithConcurrency(levelTasks(toBuild), MAX_CONCURRENCY)
   } catch (err) {
     console.error(`\n${err.message}`)
     process.exit(1)
