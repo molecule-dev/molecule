@@ -86,7 +86,7 @@ export interface StorageProvider {
  * subscription for every key the codec {@link StorageCodec.matches | matches},
  * before the provider's own default `serialize`/`deserialize` pair. That is how
  * a typed preference and a value written by an OLDER raw-string helper can share
- * one key without either one being reset: an app declares a raw-string codec for
+ * one key without either one being reset: an app declares a string codec for
  * the keys its previous storage layer wrote verbatim (a prompt, a conversation
  * id) and leaves everything else on the JSON codec.
  *
