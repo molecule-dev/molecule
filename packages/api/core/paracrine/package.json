@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-paracrine",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Paracrine core interface — messages between the AI agents sharing one machine: send, receive, ack, reads, purge over a bonded store.",
   "type": "module",
   "main": "dist/index.js",

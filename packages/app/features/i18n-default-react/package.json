@@ -39,7 +39,7 @@
     "vitest": "4.1.12",
     "@molecule/app-i18n": "1.1.1",
     "@molecule/app-locales-common": "1.0.5",
-    "@molecule/app-storage": "1.0.5"
+    "@molecule/app-storage": "1.1.0"
   },
   "peerDependencies": {
     "@molecule/app-i18n": "^1.0.1",

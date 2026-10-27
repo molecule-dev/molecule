@@ -42,7 +42,7 @@
   },
   "devDependencies": {
     "@molecule/app-i18n": "1.1.1",
-    "@molecule/app-react": "2.0.1",
+    "@molecule/app-react": "2.1.0",
     "@testing-library/react": "16.3.3",
     "@types/node": "26.6.5",
     "@types/react": "19.3.0",

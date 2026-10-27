@@ -1,5 +1,12 @@
 # @molecule/app-ide-react
 
+## 2.0.1
+
+### Patch Changes
+
+- The file explorer follows storage changes after mount, so an asynchronous provider's persisted expand/collapse state hydrates the mounted tree instead of leaving it at the defaults.
+- Persist the file explorer's expand/collapse state through the bonded `@molecule/app-storage` provider instead of `localStorage`.
+
 ## 2.0.0
 
 ### Patch Changes

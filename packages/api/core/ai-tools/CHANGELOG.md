@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.14.8
+
+### Patch Changes
+
+- Normalize workspace roots before resolving guarded file and command paths.
+
 ## 1.14.7
 
 ### Patch Changes

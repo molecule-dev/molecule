@@ -1,5 +1,11 @@
 # @molecule/api-ai-agents-llm
 
+## 1.1.0
+
+### Minor Changes
+
+- Add opt-in `maxToolResultChars` and `finalSynthesisOnBudgetExhaustion` run options for bounded tool results and a final tool-free answer turn.
+
 ## 1.0.4
 
 ### Patch Changes

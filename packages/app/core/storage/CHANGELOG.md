@@ -1,5 +1,12 @@
 # @molecule/app-storage
 
+## 1.1.0
+
+### Minor Changes
+
+- Reads that lose to a newer write, remove, external change or provider swap are now discarded, and `refresh()` keeps the render-time snapshot coherent after a direct provider write. The localStorage bond accepts per-key codecs, so values an earlier raw-string helper persisted stay readable.
+- Add a synchronous preference store (`getPreferenceStore()`) over the bonded storage provider, and synchronous read plus external-change subscription support in the localStorage provider.
+
 ## 1.0.5
 
 ### Patch Changes
