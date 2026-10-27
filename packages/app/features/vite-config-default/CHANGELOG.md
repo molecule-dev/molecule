@@ -1,5 +1,11 @@
 # @molecule/app-vite-config-default
 
+## 1.2.3
+
+### Patch Changes
+
+- Resolves every installed `@molecule/*` package to one module identity, so a provider bonded during startup stays visible to imports that reach the same package through a different install path.
+
 ## 1.2.2
 
 ### Patch Changes

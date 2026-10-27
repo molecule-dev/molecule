@@ -1,5 +1,11 @@
 # @molecule/api-resource-ai-models
 
+## 1.19.0
+
+### Minor Changes
+
+- Adds gpt-6.1-terra ($1/$5) and supersedes gpt-5.6-terra with it.
+
 ## 1.18.2
 
 ### Patch Changes

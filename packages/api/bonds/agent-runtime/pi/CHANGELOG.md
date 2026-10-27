@@ -1,5 +1,11 @@
 # @molecule/api-agent-runtime-pi
 
+## 1.0.7
+
+### Patch Changes
+
+- Routes the gpt-6.1-terra catalog id through the Pi runtime model map.
+
 ## 1.0.5
 
 ### Patch Changes
