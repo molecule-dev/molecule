@@ -1,5 +1,11 @@
 # @molecule/app-query-react
 
+## 1.1.3
+
+### Patch Changes
+
+- Correct query examples to distinguish loading, missing documents and HTTP failures.
+
 ## 1.1.2
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/app-state-jotai
 
+## 1.0.5
+
+### Patch Changes
+
+- Update the logger and state adapter API references.
+
 ## 1.0.4
 
 ### Patch Changes

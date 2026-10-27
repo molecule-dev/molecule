@@ -1,5 +1,11 @@
 # @molecule/app-query
 
+## 1.1.1
+
+### Patch Changes
+
+- Correct query examples to distinguish loading, missing documents and HTTP failures.
+
 ## 1.1.0
 
 ### Minor Changes
