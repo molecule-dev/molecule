@@ -1,5 +1,11 @@
 # @molecule/app-react-native
 
+## 3.0.1
+
+### Patch Changes
+
+- Clarify pending button interactions and asynchronous action status.
+
 ## 3.0.0
 
 ### Major Changes
