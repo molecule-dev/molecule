@@ -43,7 +43,13 @@ import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
 import { assertPackComplete } from './lib/assert-pack-complete.mjs'
-import { dependencyOrder, exactMoleculeDeps, missingDependency } from './lib/publish-order.mjs'
+import {
+  dependencyOrder,
+  exactMoleculeDeps,
+  missingDependency,
+  requiredMoleculePeers,
+  requiredPeerCycles,
+} from './lib/publish-order.mjs'
 import { envPublishDelaySeconds } from './lib/publish-pacing.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
@@ -93,9 +99,16 @@ function discover() {
       try {
         const pkg = JSON.parse(readFileSync(manifest, 'utf8'))
         if (pkg.name?.startsWith('@molecule/') && !pkg.private) {
-          // The exact @molecule versions it installs: a package must not reach npm
-          // before them (see the dependency check in the publish loop).
-          found.push({ name: pkg.name, dir, version: pkg.version, deps: exactMoleculeDeps(pkg) })
+          // The exact @molecule versions it installs, and the required peers npm
+          // 7+ installs for it: a package must not reach npm before either (see
+          // the dependency check in the publish loop).
+          found.push({
+            name: pkg.name,
+            dir,
+            version: pkg.version,
+            deps: exactMoleculeDeps(pkg),
+            peers: requiredMoleculePeers(pkg),
+          })
           // Deliberately NOT `return`: a package directory can contain more
           // packages. `packages/api/testing/` is @molecule/api-testing AND the
           // parent of @molecule/api-mock-server, so returning here excluded
@@ -139,13 +152,24 @@ function existsOnRegistry(pkg) {
 }
 
 /**
- * Whether this exact name@version is already on the registry.
+ * Every version the registry serves, per package name, as this run read it.
+ *
+ * The scan already fetches each packument to answer "is this version there?", and
+ * its version list is kept because a required peer is a RANGE: "is any published
+ * version satisfying?" cannot be answered from one name@version. A name missing
+ * from this map was never read; a name mapped to `null` could not be read and is
+ * unknown — never "missing".
+ */
+const packuments = new Map()
+
+/**
+ * Read a package's packument, once per run.
  *
  * @param name - Package name.
- * @param version - Version to check.
- * @returns True when already published.
+ * @returns `{ versions }`, or null when the registry could not be read.
  */
-async function isPublished(name, version) {
+async function packument(name) {
+  if (packuments.has(name)) return packuments.get(name)
   // A TIMEOUT IS MANDATORY HERE. Without one, `fetch` can hang a socket
   // indefinitely — and it did: a run spent 45 minutes wedged in the registry
   // sweep, printing nothing, until it was killed. The registry throttles reads
@@ -161,18 +185,114 @@ async function isPublished(name, version) {
         // publisher — npm's trust endpoint 404s on it — so its auth failure is
         // local to it and must not abort the fleet. See the ENEEDAUTH branch.
         neverPublished.add(name)
-        return false
+        const absent = { versions: [] }
+        packuments.set(name, absent)
+        return absent
       }
-      if (!res.ok) return null // unknown — caller decides, never assume "missing"
+      if (!res.ok) {
+        // A non-OK answer that is not 404 is UNKNOWN, not missing, and it is
+        // TERMINAL for this run: cache it like an exhausted failure so a fleet
+        // of dependents does not each pay a fresh request to learn the same
+        // state. Callers decide what unknown means; nothing here assumes absent.
+        packuments.set(name, null)
+        return null
+      }
       const body = await res.json()
-      return Boolean(body.versions?.[version])
+      const entry = { versions: Object.keys(body.versions ?? {}) }
+      packuments.set(name, entry)
+      return entry
     } catch (_error) {
       // Timeout or network blip: one quick retry, then give up as UNKNOWN.
-      // Returning false here would be worse than useless — it would claim a
-      // published package is missing and trigger a needless publish.
+      // An empty version list here would be worse than useless — it would claim
+      // a published package is missing and trigger a needless publish.
     }
   }
+  // Cache the failure: reads are not rate-limited, but a fleet of dependents
+  // re-paying two 15s timeouts each to learn the same "unknown" is a stalled run.
+  packuments.set(name, null)
   return null
+}
+
+/**
+ * Whether this exact name@version is already on the registry.
+ *
+ * @param name - Package name.
+ * @param version - Version to check.
+ * @returns True when already published, null when the registry could not be read.
+ */
+async function isPublished(name, version) {
+  const entry = await packument(name)
+  return entry === null ? null : entry.versions.includes(version)
+}
+
+/**
+ * The published versions this run has read, per package name, in the shape the
+ * ordering and gate rules in lib/publish-order.mjs take.
+ *
+ * @returns Map of name to versions, or to null for a package that could not be read.
+ */
+function knownVersions() {
+  return new Map(
+    [...packuments].map(([name, entry]) => [name, entry === null ? null : entry.versions]),
+  )
+}
+
+/**
+ * Why a required peer blocked a package, as one clause for the failure line.
+ *
+ * @param missing - The peer the gate returned missing.
+ * @returns The clause.
+ */
+function peerBlockReason(missing) {
+  if (missing.why === 'not-published-yet') {
+    return `whose queued ${missing.version} has not been published yet`
+  }
+  if (missing.why === 'no-satisfying-version') return 'and no version on npm satisfies it'
+  if (missing.why === 'registry-unknown') return 'and its registry state could not be read'
+  return 'which is not a valid semver range'
+}
+
+/**
+ * The `.publish-failures.json` entry for a package the gate refused.
+ *
+ * `reason` is the machine-readable half of the classification the release driver
+ * reads BEFORE this entry's prose: `requirement-hold` means the gate knows the
+ * requirement is not on npm (so the package is held with it), and
+ * `registry-unknown` means the registry could not say. "Could not look" is never
+ * "nothing missing": an unreadable requirement must FAIL the release instead of
+ * completing as a hold-and-ship wave, which is how a read outage would otherwise
+ * be mistaken for an absent requirement (the 2026-08-27 inference that lost a
+ * version behind a run reporting `failures: 0`).
+ *
+ * @param pkg - The package the gate refused.
+ * @param missing - The requirement `missingDependency` named missing.
+ * @param details - `error` of the failure that already named this requirement,
+ *   the required-peer `cycle` this queued version belongs to (if any), and
+ *   `unknown` — the scan's inconclusive name@version set, so an exact dependency
+ *   whose read failed is not reported as a known absence.
+ * @returns The failure entry: `{ name, error, reason }`.
+ */
+function blockedFailure(pkg, missing, { error, cycle, unknown }) {
+  const readFailed =
+    missing.kind === 'peer'
+      ? missing.why === 'registry-unknown'
+      : unknown.has(`${missing.name}@${missing.version}`)
+  const need =
+    missing.kind === 'peer'
+      ? `requires peer ${missing.name}@${missing.range}, ${peerBlockReason(missing)}`
+      : readFailed
+        ? `depends on ${missing.name}@${missing.version}, whose registry state could not be read`
+        : `depends on ${missing.name}@${missing.version}, which is not on npm`
+  const text =
+    `blocked: ${need}${error ? ` (${error.slice(0, 160)})` : ''}` +
+    (cycle
+      ? ` | required-peer cycle: ${cycle} — publish one side with a range an already-published version satisfies, or drop one requirement`
+      : '')
+  return {
+    name: pkg.name,
+    error: text,
+    reason: readFailed ? 'registry-unknown' : 'requirement-hold',
+  }
 }
 
 const all = discover()
@@ -240,6 +360,9 @@ const todo = []
 // reported "4/4 | failures: 0" while 1.6.0 never shipped (the downstream npm
 // verify caught it). A re-dispatch resumes and picks the skipped package up.
 const inconclusive = []
+// The required-peer cycle each queued package belongs to, so the block that
+// stops it can say re-dispatching will not help.
+const cycleNotes = new Map()
 {
   const want = LIMIT === Infinity ? all.length : LIMIT
   let cursor = 0
@@ -262,9 +385,21 @@ const inconclusive = []
     }
   }
   await Promise.all(Array.from({ length: 8 }, worker))
-  // Dependencies first (lib/publish-order.mjs says why).
+  // Dependencies and required peers first (lib/publish-order.mjs says why).
   // Held packages after everything else (their dependents follow them anyway).
-  todo.splice(0, todo.length, ...dependencyOrder(todo, { last: HOLD }))
+  todo.splice(0, todo.length, ...dependencyOrder(todo, { last: HOLD, registry: knownVersions() }))
+  // Required peers can wait on each other, and then NO order of this queue makes
+  // both installable. Name the cycle once per member, so a re-dispatch is not
+  // mistaken for the answer; the gate below still refuses each member itself.
+  const cycles = requiredPeerCycles(todo, { registry: knownVersions() })
+  for (const cycle of cycles) {
+    const members = cycle.join(' + ')
+    for (const name of cycle) cycleNotes.set(name, members)
+    process.stderr.write(
+      `  ⚠ required-peer cycle among queued versions: ${members} — no order of this queue` +
+        ` makes both installable as they stand\n`,
+    )
+  }
   process.stderr.write(
     `scanned ${scanned}/${all.length} | queued to publish: ${todo.length}` +
       (inconclusive.length ? ` | inconclusive (skipped): ${inconclusive.length}` : '') +
@@ -284,21 +419,35 @@ for (const pkg of todo) {
   // 2026-08-05 it attempted four and failed all four, which is precisely the
   // blast radius a probe exists to avoid.
   if (attempted >= LIMIT) break
-  // Never publish a package whose exact @molecule dependency is not on npm: it
-  // would install nowhere. A dependency queued in this run must have gone
-  // through first (the queue is dependency-ordered); one the scan could not read
-  // is not assumed present. The failure names the dependency so the release
-  // holds this package together with it.
+  // Never publish a package whose install-time requirement is not on npm: it
+  // would install nowhere. An exact dependency queued in this run must have gone
+  // through first (the queue is ordered for both kinds); one the scan could not
+  // read is not assumed present. Required peers are ranges, so their registry
+  // state is read here when the scan did not reach them. The failure names the
+  // requirement AND carries whether it was known absent or unreadable, so the
+  // release holds this package with a missing requirement but fails loudly on a
+  // registry read it could not make.
+  const peerRegistry = new Map()
+  for (const peer of pkg.peers ?? []) {
+    if (peerRegistry.has(peer.name)) continue
+    const entry = await packument(peer.name)
+    peerRegistry.set(peer.name, entry === null ? null : entry.versions)
+  }
+  const unknown = new Set(inconclusive)
   const missingDep = missingDependency(pkg, {
     queued: queuedVersions,
     published: publishedThisRun,
-    unknown: new Set(inconclusive),
+    unknown,
+    registry: peerRegistry,
   })
   if (missingDep) {
-    const why = failed.find((f) => f.name === missingDep.name)?.error
-    const error = `blocked: depends on ${missingDep.name}@${missingDep.version}, which is not on npm${why ? ` (${why.slice(0, 160)})` : ''}`
-    failed.push({ name: pkg.name, error })
-    process.stderr.write(`  ⚠ ${pkg.name}: ${error}\n`)
+    const entry = blockedFailure(pkg, missingDep, {
+      error: failed.find((f) => f.name === missingDep.name)?.error,
+      cycle: cycleNotes.get(pkg.name),
+      unknown,
+    })
+    failed.push(entry)
+    process.stderr.write(`  ⚠ ${pkg.name}: ${entry.error}\n`)
     continue
   }
   attempted++
