@@ -29,6 +29,14 @@
  *    which otherwise burns ~70s per failure and re-triggers the limiter unseen.
  *  - BATCHABLE. `--limit` publishes N and stops, which is what npm support asks
  *    for after a cooldown: small batches, single-threaded, generous spacing.
+ *  - CONFIRMED, NOT MERELY ACKNOWLEDGED. `npm publish` answers the PUT before the
+ *    registry serves the version, so an ACK alone must never let a dependent
+ *    require it. `publishedThisRun` holds only versions a registry read has seen
+ *    served; an acknowledged version the registry does not serve yet is kept in
+ *    `awaitingPublication` and blocks its dependents with `publication-pending`
+ *    (not a requirement hold). The refresh is one bounded read per acknowledged
+ *    name, never a wait per upload; the release's bounded propagation check owns
+ *    the eventual-served verdict.
  *
  * Usage:
  *   node scripts/publish-paced.mjs --limit 1              # first probe after a cooldown
@@ -238,6 +246,72 @@ function knownVersions() {
 }
 
 /**
+ * `name@version` this run uploaded and npm ACKNOWLEDGED, mapped to what its
+ * last confirming read said: `'pending'` (the registry answered and does not
+ * serve it yet) or `'unknown'` (the read itself did not complete).
+ *
+ * An ACK is a write receipt, not availability. `npm publish` returns before the
+ * packument serves the version — mlcl Release 40614006613 got a 201 for 2.1.19
+ * at 01:23:10Z and the registry still answered 404 for it ten minutes later
+ * (2026-10-28). Treating the ACK as published put a version on npm that its
+ * dependents were then allowed to require, so their installs failed ETARGET.
+ */
+const awaitingPublication = new Map()
+
+/**
+ * Re-read a package's packument because this run's own upload made the cached
+ * copy stale.
+ *
+ * ONLY an acknowledged name is refreshed. Every other name keeps the one-read
+ * cache `packument` maintains, including a read that failed — a fleet of
+ * dependents must not each pay two 15 s timeouts to learn the same unanswered
+ * state.
+ *
+ * @param name - Package name whose metadata this run's upload invalidated.
+ * @returns `{ versions }`, or null when the registry could not be read.
+ */
+async function refreshPackument(name) {
+  packuments.delete(name)
+  // A 404 from BEFORE the upload ("never published") is exactly the stale
+  // verdict being refreshed: leaving it would let existsOnRegistry keep
+  // treating a brand-new package as absent after npm accepted it.
+  neverPublished.delete(name)
+  return packument(name)
+}
+
+/**
+ * Confirm one acknowledged upload against the registry and record the result.
+ *
+ * The confirmation is bounded by `packument`'s own contract — one cached read,
+ * two 15 s attempts at most — and happens once here and at most once more when
+ * a dependent is gated, never as a per-upload wait. A version that is already
+ * confirmed costs nothing; a name whose read already failed is terminal for
+ * this run, so an outage is paid once instead of once per dependent.
+ *
+ * @param name - Package name.
+ * @param version - The version this run uploaded.
+ * @returns `'served'` when npm now lists the version, `'pending'` when it
+ *   answered without it, `'unknown'` when it could not be read.
+ */
+async function confirmPublication(name, version) {
+  const id = `${name}@${version}`
+  if (publishedThisRun.has(id)) return 'served'
+  if (packuments.get(name) === null) {
+    awaitingPublication.set(id, 'unknown')
+    return 'unknown'
+  }
+  const entry = await refreshPackument(name)
+  const state = entry === null ? 'unknown' : entry.versions.includes(version) ? 'served' : 'pending'
+  if (state === 'served') {
+    publishedThisRun.add(id)
+    awaitingPublication.delete(id)
+  } else {
+    awaitingPublication.set(id, state)
+  }
+  return state
+}
+
+/**
  * Why a required peer blocked a package, as one clause for the failure line.
  *
  * @param missing - The peer the gate returned missing.
@@ -246,6 +320,9 @@ function knownVersions() {
 function peerBlockReason(missing) {
   if (missing.why === 'not-published-yet') {
     return `whose queued ${missing.version} has not been published yet`
+  }
+  if (missing.why === 'not-served-yet') {
+    return 'which npm acknowledged but the registry is not serving yet'
   }
   if (missing.why === 'no-satisfying-version') return 'and no version on npm satisfies it'
   if (missing.why === 'registry-unknown') return 'and its registry state could not be read'
@@ -257,12 +334,15 @@ function peerBlockReason(missing) {
  *
  * `reason` is the machine-readable half of the classification the release driver
  * reads BEFORE this entry's prose: `requirement-hold` means the gate knows the
- * requirement is not on npm (so the package is held with it), and
- * `registry-unknown` means the registry could not say. "Could not look" is never
- * "nothing missing": an unreadable requirement must FAIL the release instead of
- * completing as a hold-and-ship wave, which is how a read outage would otherwise
- * be mistaken for an absent requirement (the 2026-08-27 inference that lost a
- * version behind a run reporting `failures: 0`).
+ * requirement is not on npm (so the package is held with it),
+ * `registry-unknown` means the registry could not say, and
+ * `publication-pending` means the requirement WAS written and acknowledged but
+ * the registry is not serving it yet. Only a known absence is a hold: a read
+ * that failed and a version npm accepted but does not serve yet must both FAIL
+ * the release, because holding them completes a wave that silently omits the
+ * dependent and reports the wrong remediation (2026-08-27 lost a version behind
+ * `failures: 0`; 2026-10-28 acknowledged 2.1.19 that the registry 404'd for
+ * ten minutes).
  *
  * @param pkg - The package the gate refused.
  * @param missing - The requirement `missingDependency` named missing.
@@ -274,15 +354,17 @@ function peerBlockReason(missing) {
  */
 function blockedFailure(pkg, missing, { error, cycle, unknown }) {
   const readFailed =
-    missing.kind === 'peer'
-      ? missing.why === 'registry-unknown'
-      : unknown.has(`${missing.name}@${missing.version}`)
+    missing.why === 'registry-unknown' ||
+    (missing.kind !== 'peer' && unknown.has(`${missing.name}@${missing.version}`))
+  const notServed = missing.why === 'not-served-yet'
   const need =
     missing.kind === 'peer'
       ? `requires peer ${missing.name}@${missing.range}, ${peerBlockReason(missing)}`
       : readFailed
         ? `depends on ${missing.name}@${missing.version}, whose registry state could not be read`
-        : `depends on ${missing.name}@${missing.version}, which is not on npm`
+        : notServed
+          ? `depends on ${missing.name}@${missing.version}, which npm acknowledged but the registry is not serving yet`
+          : `depends on ${missing.name}@${missing.version}, which is not on npm`
   const text =
     `blocked: ${need}${error ? ` (${error.slice(0, 160)})` : ''}` +
     (cycle
@@ -291,7 +373,11 @@ function blockedFailure(pkg, missing, { error, cycle, unknown }) {
   return {
     name: pkg.name,
     error: text,
-    reason: readFailed ? 'registry-unknown' : 'requirement-hold',
+    reason: readFailed
+      ? 'registry-unknown'
+      : notServed
+        ? 'publication-pending'
+        : 'requirement-hold',
   }
 }
 
@@ -408,7 +494,9 @@ const cycleNotes = new Map()
 }
 
 let attempted = 0
-// name@version this run put on the registry (or found already there).
+// name@version the registry has CONFIRMED it serves after this run's upload (or
+// already served before it). An upload ACK is not enough to put an id here: the
+// gate may let a dependent require only a version npm actually serves.
 const publishedThisRun = new Set()
 const queuedVersions = new Set(todo.map((p) => `${p.name}@${p.version}`))
 
@@ -424,22 +512,47 @@ for (const pkg of todo) {
   // through first (the queue is ordered for both kinds); one the scan could not
   // read is not assumed present. Required peers are ranges, so their registry
   // state is read here when the scan did not reach them. The failure names the
-  // requirement AND carries whether it was known absent or unreadable, so the
-  // release holds this package with a missing requirement but fails loudly on a
-  // registry read it could not make.
-  const peerRegistry = new Map()
-  for (const peer of pkg.peers ?? []) {
-    if (peerRegistry.has(peer.name)) continue
-    const entry = await packument(peer.name)
-    peerRegistry.set(peer.name, entry === null ? null : entry.versions)
-  }
+  // requirement AND carries whether it was known absent, unreadable, or
+  // acknowledged-but-not-yet-served, so the release holds this package only for
+  // a requirement it KNOWS is missing.
   const unknown = new Set(inconclusive)
-  const missingDep = missingDependency(pkg, {
-    queued: queuedVersions,
-    published: publishedThisRun,
-    unknown,
-    registry: peerRegistry,
-  })
+  /**
+   * Evaluate the owning gate against this run's state.
+   *
+   * `packument` is async and cached, so the requirement reads are awaited here
+   * rather than duplicated at the callsite.
+   *
+   * @returns The missing requirement, or null.
+   */
+  const evaluate = async () => {
+    const requirementRegistry = new Map()
+    for (const peer of [...(pkg.peers ?? []), ...(pkg.deps ?? [])]) {
+      if (requirementRegistry.has(peer.name)) continue
+      const entry = await packument(peer.name)
+      requirementRegistry.set(peer.name, entry === null ? null : entry.versions)
+    }
+    return missingDependency(pkg, {
+      queued: queuedVersions,
+      published: publishedThisRun,
+      unknown,
+      registry: requirementRegistry,
+      awaiting: awaitingPublication,
+    })
+  }
+  let missingDep = await evaluate()
+  // A requirement this run uploaded and npm acknowledged is re-confirmed here,
+  // once per requirement name, before the package is refused: the registry may
+  // simply have caught up since the ACK. Only an acknowledged name is refreshed
+  // — every other packument keeps its one-read cache, including a failed read
+  // (confirmPublication does not pay a terminal failure twice).
+  const reconfirmed = new Set()
+  while (missingDep?.why === 'not-served-yet') {
+    const id = `${missingDep.name}@${missingDep.version}`
+    if (reconfirmed.has(id) || !awaitingPublication.has(id)) break
+    reconfirmed.add(id)
+    await confirmPublication(missingDep.name, missingDep.version)
+    missingDep = await evaluate()
+  }
   if (missingDep) {
     const entry = blockedFailure(pkg, missingDep, {
       error: failed.find((f) => f.name === missingDep.name)?.error,
@@ -731,13 +844,29 @@ for (const pkg of todo) {
 
   if (published) {
     done++
-    publishedThisRun.add(`${pkg.name}@${pkg.version}`)
+    // npm ACCEPTED the upload. That is a receipt for the write, not proof the
+    // registry serves the version — and only a served version may be required
+    // by a dependent. Confirm BEFORE any later package is gated, and expose the
+    // version only when this read lists it. A slow registry is not a failure of
+    // this package: the release's own bounded propagation wait owns that verdict
+    // (scripts/release.mjs → awaitPropagation), so the run records the pending
+    // publication and keeps going. A dependent that needs it is blocked by the
+    // gate with `publication-pending`. A later dispatch skips this version once
+    // its scan sees it served. While metadata still lags, another dispatch may
+    // attempt the upload and receive a conflict; this is not durable ACK recovery.
+    const availability = await confirmPublication(pkg.name, pkg.version)
     // One line PER package, as it happens. The summary alone ("6/6 published")
     // cannot say WHICH packages landed or how — on 2026-09-02 a run reported 6/6
     // while npm never served @molecule/app-ide-react@1.10.0, and nothing in the
     // CI log could distinguish a real upload from a conflict-counted-as-success
     // or say whether that package was even reached.
-    process.stderr.write(`  \u2713 ${pkg.name}@${pkg.version} ${how} (${done}/${todo.length})\n`)
+    process.stderr.write(
+      `  \u2713 ${pkg.name}@${pkg.version} ${how}` +
+        (availability === 'served'
+          ? ''
+          : ` \u2014 npm acknowledged it; the registry is not serving it yet (${availability})`) +
+        ` (${done}/${todo.length})\n`,
+    )
     await sleep(DELAY_S * 1000)
   } else if (!failed.some((f) => f.name === pkg.name)) {
     failed.push({ name: pkg.name, error: `stopped: ${abortReason}` })
@@ -747,8 +876,25 @@ for (const pkg of todo) {
 process.stderr.write(
   `\nDONE. published this run: ${done}/${todo.length} queued | fleet: ${all.length} | failures: ${failed.length}` +
     (inconclusive.length ? ` | inconclusive (NOT published): ${inconclusive.length}` : '') +
+    (awaitingPublication.size
+      ? ` | acknowledged, not yet served: ${awaitingPublication.size}`
+      : '') +
     `\n`,
 )
+if (awaitingPublication.size) {
+  // Not a failure of THIS run: the release waits, bounded, for npm to serve
+  // every target and fails there if it never does. Naming them is what keeps a
+  // "published" that npm never served from looking like success — the 2026-09-02
+  // shape, where `6/6` hid a version npm never listed.
+  process.stderr.write(
+    `acknowledged but not yet served by the registry:\n` +
+      [...awaitingPublication]
+        .slice(0, 10)
+        .map(([id, state]) => `  ${id} (${state})\n`)
+        .join('') +
+      `  dependents are blocked (publication-pending) until the registry serves them; a re-dispatch resumes\n`,
+  )
+}
 if (failed.length) {
   writeFileSync(join(ROOT, '.publish-failures.json'), JSON.stringify(failed, null, 2))
   failed.slice(0, 10).forEach((f) => process.stderr.write(`  ${f.name}: ${f.error}\n`))

@@ -9,13 +9,23 @@ import { missingDependency } from '../lib/publish-order.mjs'
 
 const source = readFileSync(new URL('../publish-paced.mjs', import.meta.url), 'utf8')
 const file = ts.createSourceFile('publish-paced.mjs', source, ts.ScriptTarget.Latest, true)
-const functions = ['packument', 'peerBlockReason', 'blockedFailure']
+/**
+ * One top-level function declaration, when the source has it.
+ *
+ * @param name - Declared name.
+ * @returns Its source text, or null.
+ */
+const declaration = (name: string) =>
+  file.statements.find((s) => ts.isFunctionDeclaration(s) && s.name?.text === name) ?? null
+const functions = ['packument', 'peerBlockReason', 'blockedFailure', 'confirmPublication']
   .map((name) => {
-    const declaration = file.statements.find(
-      (s) => ts.isFunctionDeclaration(s) && s.name?.text === name,
-    )
-    if (!declaration) throw new Error(`Missing publisher function: ${name}`)
-    return declaration.getText(file)
+    const found = declaration(name)
+    // `confirmPublication` exists only in the source that records an upload ACK
+    // as unconfirmed until the registry serves it; the gate here never calls it
+    // because no run state below marks a requirement as acknowledged.
+    if (!found && name === 'confirmPublication') return ''
+    if (!found) throw new Error(`Missing publisher function: ${name}`)
+    return found.getText(file)
   })
   .join('\n')
 const loop = file.statements.find(
@@ -63,6 +73,10 @@ async function runGate(status: number, versions: string[] = [], unknown: string[
     inconclusive: unknown,
     queuedVersions: new Set(),
     publishedThisRun: new Set(),
+    // Nothing below is acknowledged-but-unserved: this file covers the gate's
+    // existing classifications, and publish-availability-caller.test.ts covers
+    // the confirmation state that fills this map.
+    awaitingPublication: new Map(),
     cycleNotes: new Map(),
     failed,
     missingDependency,

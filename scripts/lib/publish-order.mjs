@@ -22,6 +22,16 @@
  *     run, so an old compatible peer must never be held behind — or blocked by
  *     — an unrelated new major that is failing.
  *
+ * AN UPLOAD ACK IS NOT AVAILABILITY. `npm publish` answers the PUT before the
+ * registry serves the version: mlcl Release 40614006613 acknowledged 2.1.19 at
+ * 01:23:10Z while its packument still 404'd it ten minutes later (2026-10-28).
+ * The publisher therefore records a queued version as published only once the
+ * registry confirms it, and reports the versions it acknowledged but has not
+ * seen served separately — {@link missingDependency}'s `awaiting` map. Such a
+ * requirement is neither satisfied (it cannot be installed) nor knowably
+ * absent (it was written), so it blocks its dependents with its own reason
+ * instead of becoming an ordinary requirement hold.
+ *
  * @module
  */
 import semver from 'semver'
@@ -257,22 +267,54 @@ export function requiredPeerCycles(queue, { registry = new Map() } = {}) {
  * queued-but-unpublished version would satisfy blocks until that publish lands,
  * and a range nothing known satisfies blocks with the reason it could determine.
  *
+ * A requirement the registry now SERVES counts as satisfied even before this
+ * run has recorded its confirmation — the install-time question is what npm
+ * serves, not what the run's bookkeeping has caught up with. A requirement
+ * `awaiting` (uploaded and acknowledged, but never yet seen served) blocks with
+ * its own reason: it is not installable, and it is not absent either, so it
+ * must never be reported as a known missing requirement.
+ *
  * @param pkg - The package about to publish (`deps` from
  *   {@link exactMoleculeDeps}, `peers` from {@link requiredMoleculePeers}).
  * @param known - `queued` (name@version this run will publish), `published`
- *   (name@version this run has published), `unknown` (name@version the registry
- *   scan could not read) and `registry` (published versions per name; `null`
- *   when that package's registry entry could not be read).
+ *   (name@version the registry has CONFIRMED this run published), `unknown`
+ *   (name@version the registry scan could not read), `registry` (published
+ *   versions per name; `null` when that package's registry entry could not be
+ *   read) and `awaiting` (name@version this run uploaded and npm acknowledged,
+ *   mapped to the availability state its last confirming read returned —
+ *   `'pending'` or `'unknown'`).
  * @returns The missing requirement — `{ name, version }` for a dependency,
- *   `{ name, range, kind, why }` for a peer — or null when every requirement is
- *   satisfiable on npm.
+ *   `{ name, range, kind, why }` for a peer (with `why` added to the dependency
+ *   shape when the version it names was acknowledged but is not served yet) —
+ *   or null when every requirement is satisfiable on npm.
  */
-export function missingDependency(pkg, { queued, published, unknown, registry = new Map() }) {
+export function missingDependency(
+  pkg,
+  { queued, published, unknown, registry = new Map(), awaiting = new Map() },
+) {
+  /**
+   * Whether npm currently serves this exact version.
+   *
+   * @param dep - `{ name, version }`.
+   * @returns True when the registry's answer for that name includes it.
+   */
+  const servesExact = (dep) => {
+    const versions = registry.get(dep.name)
+    return Array.isArray(versions) && versions.includes(dep.version)
+  }
   const missingExact = (pkg.deps ?? []).find((dep) => {
+    if (servesExact(dep)) return false
     const id = `${dep.name}@${dep.version}`
     return queued.has(id) ? !published.has(id) : unknown.has(id)
   })
-  if (missingExact) return missingExact
+  if (missingExact) {
+    // An acknowledged version that no read has seen served is not a known
+    // absence: report the availability state instead of an ordinary block.
+    const state = awaiting.get(`${missingExact.name}@${missingExact.version}`)
+    if (state === 'unknown') return { ...missingExact, why: 'registry-unknown' }
+    if (state === 'pending') return { ...missingExact, why: 'not-served-yet' }
+    return missingExact
+  }
   for (const peer of pkg.peers ?? []) {
     if (semver.validRange(peer.range) === null) {
       return { kind: 'peer', name: peer.name, range: peer.range, why: 'invalid-range' }
@@ -284,11 +326,17 @@ export function missingDependency(pkg, { queued, published, unknown, registry = 
     if (anySatisfies(registry.get(peer.name), peer.range)) continue
     const pending = satisfyingVersion(queued, peer.name, peer.range)
     if (pending !== null) {
+      const state = awaiting.get(`${peer.name}@${pending}`)
       return {
         kind: 'peer',
         name: peer.name,
         range: peer.range,
-        why: 'not-published-yet',
+        why:
+          state === 'unknown'
+            ? 'registry-unknown'
+            : state === 'pending'
+              ? 'not-served-yet'
+              : 'not-published-yet',
         version: pending,
       }
     }
