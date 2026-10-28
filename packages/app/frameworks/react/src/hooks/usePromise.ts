@@ -23,6 +23,17 @@ export interface UsePromiseState<T> {
 /**
  * Hook that wraps an async function with state tracking.
  *
+ * For one UI action, pass `state.status === 'pending'` to `Button loading`
+ * from `@molecule/app-ui-react` (or to a native control's `disabled` prop).
+ * The control then refuses input while the request is pending and re-enables
+ * when the tracked call settles. Handle the returned promise's rejection;
+ * the hook also records the failure in `state.error`.
+ *
+ * This hook tracks the latest call: it does not serialize invocations or
+ * cancel their network requests. An explicit reset/cancel changes the tracked
+ * state, so it is not proof that an outstanding request has stopped. Use an
+ * app-owned queue when every click must be accepted in order.
+ *
  * @param asyncFn - The async function to wrap
  * @returns Tuple of [state, wrappedFunction]
  *

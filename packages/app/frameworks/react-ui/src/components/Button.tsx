@@ -13,6 +13,12 @@ import { Spinner } from './Spinner.js'
 
 /**
  * Button component.
+ *
+ * While `loading` is true, the native button is disabled and marked busy.
+ * Drive it from the request's pending state so an unavailable interaction is
+ * visible and the next click is accepted after the request settles. Loading
+ * does not queue clicks; an app that must preserve every intent needs its own
+ * serial action queue.
  */
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
