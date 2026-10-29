@@ -148,3 +148,68 @@ describe('foregroundServerCommand — inline programs use bounded execution (m39
     expect(await foregroundServerCommand('npx tsx /tmp/probe.mts', readScript)).not.toBeNull()
   })
 })
+
+describe('foreground command preflight — Node syntax-only checks', () => {
+  const SERVING = "import './server.js'\nserver.listen(3000)\n"
+
+  it.each(['node --check scripts/release.mjs', 'node -c scripts/release.mjs'])(
+    'does not read or refuse the syntax-only diagnostic: %s',
+    async (command) => {
+      const readScript = vi.fn().mockResolvedValue(SERVING)
+      expect(await foregroundServerCommand(command, readScript)).toBeNull()
+      expect(startsServerProgram(command)).toBe(false)
+      expect(readScript).not.toHaveBeenCalled()
+    },
+  )
+
+  it.each(['node --check scripts/release.mjs', 'node -c scripts/release.mjs'])(
+    'does not inspect a checked script for browser leaks: %s',
+    async (command) => {
+      const readScript = vi.fn().mockResolvedValue(LEAKY)
+      expect(await foregroundBrowserProbe(command, readScript)).toBeNull()
+      expect(readScript).not.toHaveBeenCalled()
+    },
+  )
+
+  it('honours an option terminator after the check flag', async () => {
+    const readScript = vi.fn().mockResolvedValue(SERVING)
+    expect(
+      await foregroundServerCommand('node --check -- scripts/release.mjs', readScript),
+    ).toBeNull()
+    expect(readScript).not.toHaveBeenCalled()
+  })
+
+  it.each([
+    'node scripts/release.mjs',
+    'node scripts/release.mjs --check',
+    'node -- scripts/release.mjs --check',
+    'node -- --check scripts/release.mjs',
+    'tsx --check scripts/release.mjs',
+  ])('preserves execution and otherProgram classification: %s', async (command) => {
+    const readScript = vi.fn().mockResolvedValue(SERVING)
+    expect(await foregroundServerCommand(command, readScript)).not.toBeNull()
+  })
+
+  it.each([
+    'node --check --require ./preload.cjs scripts/release.mjs',
+    'node --require ./preload.cjs --check scripts/release.mjs',
+    'node --check -r ./preload.cjs scripts/release.mjs',
+    'node --check --import ./preload.mjs scripts/release.mjs',
+    'node --check --import=./preload.mjs scripts/release.mjs',
+    'node --check --experimental-loader ./loader.mjs scripts/release.mjs',
+  ])('preserves preload/loader execution classification: %s', async (command) => {
+    const readScript = vi.fn().mockResolvedValue(SERVING)
+    expect(await foregroundServerCommand(command, readScript)).not.toBeNull()
+  })
+
+  it('still finds an actual server launch after a separate syntax check', async () => {
+    const readScript = vi.fn().mockResolvedValue(SERVING)
+    expect(
+      await foregroundServerCommand(
+        'node --check scripts/release.mjs && node scripts/release.mjs',
+        readScript,
+      ),
+    ).toEqual({ program: 'node scripts/release.mjs' })
+    expect(readScript).toHaveBeenCalledOnce()
+  })
+})

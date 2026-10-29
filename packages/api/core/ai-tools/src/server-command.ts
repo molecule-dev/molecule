@@ -86,6 +86,11 @@ const STARTS_LISTENING = /\b(?:server|app)\.listen\s*\(/
 const NODE_INLINE_FLAG = /^(?:-[A-Za-z]*[ep]|--(?:eval|print)(?:=|$))/
 /** Python inline programs use -c, including combined interpreter flags. */
 const PYTHON_INLINE_FLAG = /^-[A-Za-z]*c$/
+/** Node's syntax-only flags, valid only in the interpreter's option prefix. */
+const NODE_CHECK_FLAG = /^(?:-c|--check)$/
+/** Node flags whose preload/loader code still executes during a syntax check. */
+const NODE_EXECUTION_FLAG =
+  /^(?:-r(?:.|$)|--require(?:=|$)|--import(?:=|$)|--experimental-loader(?:=|$)|--loader(?:=|$))/
 /**
  * Inline/stdin programs have no server filename to classify. Their source is arbitrary
  * code; the normal bounded command runner, rather than another partial JS/Python
@@ -110,6 +115,22 @@ function bare(word: string): string {
 }
 
 /**
+ * Whether Node only checks a script's syntax. The check flag must precede the script and `--`;
+ * preloads and loaders still execute under `--check`, so they retain normal classification.
+ */
+function isNodeSyntaxCheck(segment: CommandSegment): boolean {
+  if (!/^node(?:js)?$/.test(segment.program)) return false
+  let check = false
+  for (const arg of segment.args) {
+    const word = bare(arg)
+    if (word === '--' || !word.startsWith('-')) return check
+    if (NODE_EXECUTION_FLAG.test(word)) return false
+    if (NODE_CHECK_FLAG.test(word)) check = true
+  }
+  return false
+}
+
+/**
  * Whether one parsed statement starts a server: a package manager's serving script, or a program
  * that IS a server, named in command position (so `cat server.ts` is a read, not a launch).
  *
@@ -126,7 +147,7 @@ function runsServerProgram(segment: CommandSegment): boolean {
     if (script !== undefined && SERVE_SCRIPTS.test(script)) return true
   }
   if (!SERVER_PROGRAMS.has(segment.program)) return false
-  if (isInlineProgram(segment)) return false
+  if (isInlineProgram(segment) || isNodeSyntaxCheck(segment)) return false
   return SERVER_PROGRAM.test(segment.text)
 }
 
@@ -138,8 +159,8 @@ function runsServerProgram(segment: CommandSegment): boolean {
  */
 function scriptPath(segment: CommandSegment): string | null {
   if (!SCRIPT_RUNNERS.has(segment.program)) return null
-  // An inline program (`node -e …`) is code, not a file to read.
-  if (isInlineProgram(segment)) return null
+  // Inline programs and syntax-only checks execute no script source to classify.
+  if (isInlineProgram(segment) || isNodeSyntaxCheck(segment)) return null
   for (const arg of segment.args) {
     const word = bare(arg)
     if (word.startsWith('-')) continue

@@ -75,8 +75,8 @@ function failureErrorOf(zip: string): string {
 }
 
 /** A directory that looks like a run's: `<root>/test-results/<test>/trace.zip`. */
-function layout(zip: string): string {
-  const root = mkdtempSync(join(tmpdir(), 'mol-count-traces-'))
+function layout(zip: string, parent = tmpdir()): string {
+  const root = mkdtempSync(join(parent, 'mol-count-traces-'))
   const dir = join(root, 'test-results', FOLDER)
   mkdirSync(dir, { recursive: true })
   writeFileSync(join(dir, 'trace.zip'), execFileSync('cat', [zip]))
@@ -89,6 +89,8 @@ function layout(zip: string): string {
 interface ReadOptions {
   cwd?: string
   env?: NodeJS.ProcessEnv
+  /** Parent for the trace project when the host's temp directory itself belongs to a project. */
+  rootParent?: string
 }
 
 /** What {@link traceArtifactsScript} prints for a tree, run the way the sandbox runs it. */
@@ -105,7 +107,7 @@ function readTraces(root: string, options: ReadOptions = {}): string {
 
 /** The first (only) reading a fixture produces. */
 function readOne(zip: string, options: ReadOptions = {}): TraceArtifact {
-  const root = layout(zip)
+  const root = layout(zip, options.rootParent)
   try {
     const items = parseTraceArtifacts(readTraces(root, options))
     expect(items).toHaveLength(1)
@@ -295,10 +297,13 @@ describe('the selector is replayed by the browser’s own DOM', () => {
     // No Playwright resolvable from the trace root or the working directory: the replay names no
     // elements, says why, and every other fact (here the test's actions) still comes from plain
     // Node. The `toHaveCount` reading is unaffected — its marks need no browser at all.
-    const empty = mkdtempSync(join(tmpdir(), 'mol-no-playwright-'))
+    // A host may redirect tmpdir() into its workspace (the native runner does). Keep both the
+    // trace project and cwd outside that workspace, or their ancestor node_modules is real input.
+    const isolated = mkdtempSync('/tmp/mol-no-playwright-')
+    const empty = mkdtempSync(join(isolated, 'cwd-'))
     const env = { ...process.env, NODE_PATH: '' }
     try {
-      const item = readOne(M321, { cwd: empty, env })
+      const item = readOne(M321, { cwd: empty, env, rootParent: isolated })
       expect(item.countMismatch).toMatchObject({
         locator: "locator('.card:not(.comment-form) .card-block')",
         selector: '.card:not(.comment-form) .card-block',
@@ -311,10 +316,10 @@ describe('the selector is replayed by the browser’s own DOM', () => {
       expect(item.actions.length).toBeGreaterThan(0)
       expect(countMismatchSentence(item.countMismatch!)).toContain('not available')
 
-      const marked = readOne(TO_HAVE, { cwd: empty, env }).countMismatch
+      const marked = readOne(TO_HAVE, { cwd: empty, env, rootParent: isolated }).countMismatch
       expect(marked).toMatchObject({ matchedFrom: 'snapshot-targets', matchedTotal: 4 })
     } finally {
-      rmSync(empty, { recursive: true, force: true })
+      rmSync(isolated, { recursive: true, force: true })
     }
   })
 })

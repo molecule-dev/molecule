@@ -17,7 +17,6 @@
  */
 import { execFileSync } from 'node:child_process'
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
-import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -88,7 +87,9 @@ export function runTinyPlaywright(
 ): GenuineRun | null {
   const playwright = installedPlaywright()
   if (playwright === null) return null
-  const dir = mkdtempSync(join(tmpdir(), 'mol-pw-report-'))
+  // The native runner redirects tmpdir() into the workspace. An external directory keeps an
+  // ancestor Playwright config from giving concurrent genuine runs one shared output directory.
+  const dir = mkdtempSync('/tmp/mol-pw-report-')
   writeFileSync(
     join(dir, 'tiny.spec.js'),
     `const { test, expect } = require(${JSON.stringify(playwright.testPackage)})\n\n${spec}\n`,
