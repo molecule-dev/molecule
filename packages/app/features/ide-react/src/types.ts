@@ -384,6 +384,14 @@ export interface ChatPanelProps {
    */
   canEdit?: boolean
   /**
+   * Whether this viewer may send team-only side-channel messages. Defaults to
+   * `true` for existing member viewers. Pass `false` with `canEdit={false}`
+   * for a public transcript: hides the composer and team-message guidance.
+   * Side-channel commands are unavailable when false; assistant access still
+   * follows `canEdit`.
+   */
+  canSendTeamMessages?: boolean
+  /**
    * Whether the current user may MANAGE public share links — the `/share`
    * command, the header share button, and the ShareModal's create/revoke
    * controls. Distinct from {@link canEdit} because hosts commonly gate share

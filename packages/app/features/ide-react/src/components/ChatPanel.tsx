@@ -2733,6 +2733,8 @@ export interface ChatInnerProps {
   isAnonymous?: boolean
   /** Whether the user may write shared project state — see {@link ChatPanelProps.canEdit}. */
   canEdit?: boolean
+  /** Whether team messages are allowed — see {@link ChatPanelProps.canSendTeamMessages}. */
+  canSendTeamMessages?: boolean
   /** Whether the user may manage public share links — see {@link ChatPanelProps.canShare}. */
   canShare?: boolean
   /** Whether the share dialog shows its links — see {@link ChatPanelProps.shareLinksAllowed}. */
@@ -2842,6 +2844,7 @@ function ChatInner({
   isPro,
   isAnonymous,
   canEdit,
+  canSendTeamMessages = true,
   canShare,
   shareLinksAllowed,
   shareLinksRefreshSignal,
@@ -2902,6 +2905,7 @@ function ChatInner({
   // Share-link management may be gated ABOVE canEdit by the host (molecule.dev
   // mints/lists/revokes at admin+) — every /share surface below uses this, so
   // an editor without the capability gets no dead modal.
+  const transcriptOnly = canEdit === false && canSendTeamMessages === false
   const shareAllowed = canShare ?? canEdit !== false
   const themeMode = useThemeMode()
   const isLight = themeMode === 'light'
@@ -4134,6 +4138,29 @@ function ChatInner({
     }
   }, [])
 
+  // Check the unfiltered definitions at the send boundary. Removing a disabled
+  // command from the menu must not reinterpret its raw text as an assistant send:
+  // a host backend may still intercept that command or any of its aliases.
+  const blockDisabledTeamMessage = useCallback(
+    (message: string): boolean => {
+      if (
+        canSendTeamMessages !== false ||
+        !matchesSideChannelCommand(
+          extraCommands?.length ? [...COMMANDS, ...extraCommands] : COMMANDS,
+          message,
+        )
+      )
+        return false
+      addSystemCard(
+        t('ide.chat.teamMessagesUnavailable', undefined, {
+          defaultValue: 'Team messaging is unavailable in this workspace.',
+        }),
+      )
+      return true
+    },
+    [canSendTeamMessages, extraCommands, addSystemCard, t],
+  )
+
   // Apply a chat event broadcast by another project member (the chat push channel). The
   // originating member's SERVER already persisted everything; this client renders the
   // broadcast live and gets the durable copy on reload. EVERY frame of a remote turn
@@ -4328,7 +4355,7 @@ function ChatInner({
   // any tip and never reappears for this conversation. Resuming an existing
   // conversation (conversationId set) is NOT a fresh start, so no entry tip there.
   useEffect(() => {
-    if (entryTipShownRef.current) return
+    if (transcriptOnly || entryTipShownRef.current) return
     // No onboarding tip during the initial discovery phase (mvp B1) — discovery is
     // its own guided Q&A; a blue tip there is noise.
     if (discovery) return
@@ -4337,7 +4364,7 @@ function ChatInner({
     shownTipIdsRef.current = [...shownTipIdsRef.current, ENTRY_TIP.id]
     const text = t(`ide.chat.tip.${ENTRY_TIP.id}`, { agentName }, { defaultValue: ENTRY_TIP.text })
     setTipCards((prev) => [...prev, { id: crypto.randomUUID(), text, timestamp: Date.now() }])
-  }, [conversationId, messages.length, agentName, discovery])
+  }, [conversationId, messages.length, agentName, discovery, transcriptOnly])
 
   // Viewer orientation tip: a read-only member's explainer — GOLD like the
   // team-only messages and led by the same `people` icon it explains, so the
@@ -4347,7 +4374,7 @@ function ChatInner({
   // hosts that don't do roles never see it.
   const viewerTipShownRef = useRef(false)
   useEffect(() => {
-    if (canEdit !== false || discovery || viewerTipShownRef.current) return
+    if (transcriptOnly || canEdit !== false || discovery || viewerTipShownRef.current) return
     viewerTipShownRef.current = true
     const text = t(
       'ide.chat.tip.viewerTeamOnly',
@@ -4367,7 +4394,7 @@ function ChatInner({
         icon: 'people',
       },
     ])
-  }, [canEdit, discovery, agentName])
+  }, [canEdit, discovery, agentName, transcriptOnly])
 
   // Surface an occasional idle tip. This effect re-runs on every message change, so
   // the idle timer is continually reset by activity; it only fires once the
@@ -4375,6 +4402,8 @@ function ChatInner({
   // cooldown + random roll allow, and never before TIP_MIN_MESSAGES (so never on the
   // first prompt). Skipped entirely while a message is streaming.
   useEffect(() => {
+    // Public transcript viewers have no actionable composer onboarding.
+    if (transcriptOnly) return
     // No idle tips during the initial discovery phase (mvp B1).
     if (discovery) return
     if (messages.some((m) => m.isStreaming) || messages.length < TIP_MIN_MESSAGES) return
@@ -4398,7 +4427,7 @@ function ChatInner({
       setTipCards((prev) => [...prev, { id: crypto.randomUUID(), text, timestamp: Date.now() }])
     }, TIP_IDLE_MS)
     return () => clearTimeout(timer)
-  }, [messages, discovery])
+  }, [messages, discovery, transcriptOnly])
 
   // ── Sounds picker (shown when /sounds is executed) ────────────────────────
   const [soundsPicker, setSoundsPicker] = useState<SoundsPicker | null>(null)
@@ -5245,10 +5274,16 @@ function ChatInner({
       // 403s, surfacing a spurious red error on mount. Consume the ref (above)
       // so it is never retried either.
       if (canEdit === false) return
-      const sideChannel = matchesSideChannelCommand(
-        extraCommands?.length ? [...COMMANDS, ...extraCommands] : COMMANDS,
-        initialMessage,
-      )
+      if (blockDisabledTeamMessage(initialMessage)) {
+        onInitialMessageSent?.()
+        return
+      }
+      const sideChannel =
+        canSendTeamMessages !== false &&
+        matchesSideChannelCommand(
+          extraCommands?.length ? [...COMMANDS, ...extraCommands] : COMMANDS,
+          initialMessage,
+        )
       sendMessage(
         initialMessage,
         undefined,
@@ -5256,7 +5291,16 @@ function ChatInner({
       )
       onInitialMessageSent?.()
     }
-  }, [initialMessage, hasConversation, sendMessage, onInitialMessageSent, extraCommands, canEdit])
+  }, [
+    initialMessage,
+    hasConversation,
+    sendMessage,
+    onInitialMessageSent,
+    extraCommands,
+    canEdit,
+    canSendTeamMessages,
+    blockDisabledTeamMessage,
+  ])
 
   // ── Auto-send pending message (e.g. "Fix with AI", preview errors) ──────
   // Defers sending while the AI is streaming to avoid queueing up auto-fix
@@ -5275,7 +5319,7 @@ function ChatInner({
       // kickoffs, auto-fixes, preview-failure reports): the server 403s them
       // and the denial used to surface as a red error in the viewer's chat.
       // Consume the key (above) so the same message isn't retried.
-      if (canEdit === false) return
+      if (canEdit === false || blockDisabledTeamMessage(pendingMessage)) return
       // A pending message is ALWAYS system-composed (an auto-fix prompt, a preview-failure
       // report, a "Fix with AI" request) — never text the user typed. So it must NEVER
       // render as a normal user bubble: either it's suppressed entirely (hidden build
@@ -5309,6 +5353,7 @@ function ChatInner({
     sendMessage,
     isLoading,
     canEdit,
+    blockDisabledTeamMessage,
   ])
 
   // When streaming ends, send any deferred message. (A user Stop also ends
@@ -5325,7 +5370,7 @@ function ChatInner({
       deferredPendingUserInitiatedRef.current = false
       // A viewer never dispatches platform-composed sends (same as the
       // immediate path above) — the refs are already drained, so it just drops.
-      if (canEdit === false) return
+      if (canEdit === false || blockDisabledTeamMessage(msg)) return
       // Same rule as the immediate path: a deferred pending message is system-composed —
       // always `automatic` (suppressed or visible), never a plain user bubble.
       sendMessage(msg, undefined, {
@@ -5334,7 +5379,7 @@ function ChatInner({
         ...(userInitiated ? { userInitiated: true } : {}),
       })
     }
-  }, [isLoading, sendMessage, canEdit])
+  }, [isLoading, sendMessage, canEdit, blockDisabledTeamMessage])
 
   // ── Auto-delete queued autofix messages when user edits a relevant file ────
   const lastUserEditKeyRef = useRef(userEditedFileKey)
@@ -6028,10 +6073,10 @@ function ChatInner({
   // message). Once per mount, and never over text the user already has.
   const viewerPrefillDoneRef = useRef(false)
   useEffect(() => {
-    if (canEdit !== false || viewerPrefillDoneRef.current) return
+    if (transcriptOnly || canEdit !== false || viewerPrefillDoneRef.current) return
     viewerPrefillDoneRef.current = true
     if (!(inputRef.current as string).trim()) setInputAndCursorEnd('/teamsay ')
-  }, [canEdit, setInputAndCursorEnd, conversationId])
+  }, [canEdit, setInputAndCursorEnd, conversationId, transcriptOnly])
 
   /**
    * Select and apply a model by ID. When `mode` is given the choice persists to
@@ -6165,13 +6210,19 @@ function ChatInner({
   // must then list it once, with the host's label and description. Declared
   // before executeCommand since it lives in that callback's dependency list.
   const allCommands = useMemo<readonly CommandDef[]>(() => {
-    if (!extraCommands?.length) return COMMANDS
-    const overridden = new Set(extraCommands.map((c) => c.id))
-    return [...COMMANDS.filter((c) => !overridden.has(c.id)), ...extraCommands]
-  }, [extraCommands])
+    const overridden = new Set((extraCommands ?? []).map((c) => c.id))
+    return [...COMMANDS.filter((c) => !overridden.has(c.id)), ...(extraCommands ?? [])].filter(
+      (command) => canSendTeamMessages !== false || !command.sideChannel,
+    )
+  }, [extraCommands, canSendTeamMessages])
   const extraCommandIds = useMemo(
-    () => new Set((extraCommands ?? []).map((c) => c.id)),
-    [extraCommands],
+    () =>
+      new Set(
+        (extraCommands ?? [])
+          .filter((command) => canSendTeamMessages !== false || !command.sideChannel)
+          .map((c) => c.id),
+      ),
+    [extraCommands, canSendTeamMessages],
   )
 
   const executeCommand = useCallback(
@@ -6702,8 +6753,10 @@ function ChatInner({
       recognitionRef.current?.stop()
     }
 
+    if (transcriptOnly) return
     const trimmed = (inputRef.current as string).trim()
     if (!trimmed && attachedFiles.length === 0) return
+    if (blockDisabledTeamMessage(trimmed)) return
 
     // Read-only VIEWER guard. A viewer cannot run the assistant (the server 403s
     // the chat route) or any project-mutating command, so block a plain message
@@ -7282,6 +7335,8 @@ function ChatInner({
     )
   }, [
     applyTimestampsVisible,
+    transcriptOnly,
+    blockDisabledTeamMessage,
     attachedFiles,
     http,
     projectId,
@@ -8461,7 +8516,8 @@ function ChatInner({
             wait (the activity slot's own conditions), and no error banner — so it can
             never coexist with content. Height reserves the 28px always-in-layout
             activity slot below, so an empty conversation never grows a scrollbar. */}
-        {timeline.length === 0 &&
+        {!transcriptOnly &&
+          timeline.length === 0 &&
           !isLoading &&
           !isRemoteStreaming &&
           !awaitingSandboxBoot &&
@@ -11684,6 +11740,8 @@ function ChatInner({
             this attribute — the inline border below only serves ring-less hosts. */}
         <div
           className={cm.surfaceSecondary}
+          hidden={transcriptOnly}
+          data-mol-id="chat-composer"
           {...(canEdit === false ? { 'data-mol-viewer': '' } : {})}
           style={{
             // Round the TOP corners only (8px) so the composer reads as a self-contained
@@ -12340,6 +12398,7 @@ export function ChatPanel({
   isPro,
   isAnonymous,
   canEdit = true,
+  canSendTeamMessages = true,
   canShare,
   shareLinksAllowed,
   shareLinksRefreshSignal,
@@ -12771,6 +12830,7 @@ export function ChatPanel({
         isPro={isPro}
         isAnonymous={isAnonymous}
         canEdit={canEdit}
+        canSendTeamMessages={canSendTeamMessages}
         canShare={shareAllowed}
         shareLinksAllowed={shareLinksAllowed}
         shareLinksRefreshSignal={shareLinksRefreshSignal}

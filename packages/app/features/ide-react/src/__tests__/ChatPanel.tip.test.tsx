@@ -19,9 +19,9 @@
  * @module
  */
 
-import { render, waitFor } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, waitFor } from '@testing-library/react'
 import type { ReactElement, ReactNode } from 'react'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { ChatConfig, ChatMessage, ChatProvider } from '@molecule/app-ai-chat'
 import type { HttpClient } from '@molecule/app-http'
@@ -38,16 +38,38 @@ import type { Theme, ThemeProvider as ThemeProviderType } from '@molecule/app-th
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 
+import { TIP_IDLE_MS, TIP_MIN_MESSAGES } from '../components/chat-tips-utilities.js'
 import { ChatPanel } from '../components/ChatPanel.js'
+import type { ChatPanelProps } from '../types.js'
 
 /** A chat provider whose history resolves empty → a fresh, deterministic mount. */
-function buildChatProvider(): ChatProvider {
+const sent: { message: string; sideChannel: boolean }[] = []
+let holdNextSend = false
+let finishHeldSend: (() => void) | undefined
+
+function buildChatProvider(history: ChatMessage[] = []): ChatProvider {
   return {
     name: 'stub',
-    sendMessage: async (): Promise<void> => {},
+    sendMessage: async (message, _config, onEvent): Promise<void> => {
+      sent.push({ message, sideChannel: false })
+      if (holdNextSend) {
+        holdNextSend = false
+        await new Promise<void>((resolve) => {
+          finishHeldSend = () => {
+            finishHeldSend = undefined
+            onEvent({ type: 'done' })
+            resolve()
+          }
+        })
+      } else onEvent({ type: 'done' })
+    },
+    sendSideMessage: async (message, _config, onEvent): Promise<void> => {
+      sent.push({ message, sideChannel: true })
+      onEvent({ type: 'done' })
+    },
     abort: (): void => {},
     clearHistory: async (): Promise<void> => {},
-    loadHistory: async (_config: ChatConfig): Promise<ChatMessage[]> => [],
+    loadHistory: async (_config: ChatConfig): Promise<ChatMessage[]> => history,
   }
 }
 
@@ -139,12 +161,25 @@ function buildThemeProvider(): ThemeProviderType {
 }
 
 /** Renders {@link ChatPanel} inside the contexts it needs, on a fresh conversation. */
-function renderFreshChatPanel(extraProps: { canEdit?: boolean } = {}): ReactElement {
+function renderFreshChatPanel(
+  extraProps: Pick<
+    ChatPanelProps,
+    | 'canEdit'
+    | 'canSendTeamMessages'
+    | 'extraCommands'
+    | 'initialMessage'
+    | 'pendingMessage'
+    | 'pendingMessageKey'
+  > = {},
+  history: ChatMessage[] = [],
+): ReactElement {
   const wrap = (children: ReactNode): ReactElement => (
     <I18nProvider provider={createSimpleI18nProvider('en')}>
       <ThemeProvider provider={buildThemeProvider()}>
         <HttpProvider client={buildHttpClient()}>
-          <ChatContextProvider provider={buildChatProvider()}>{children}</ChatContextProvider>
+          <ChatContextProvider provider={buildChatProvider(history)}>
+            {children}
+          </ChatContextProvider>
         </HttpProvider>
       </ThemeProvider>
     </I18nProvider>
@@ -153,6 +188,9 @@ function renderFreshChatPanel(extraProps: { canEdit?: boolean } = {}): ReactElem
 }
 
 beforeEach(() => {
+  sent.length = 0
+  holdNextSend = false
+  finishHeldSend = undefined
   setClassMap(classMap)
   setIconSet(new Proxy({}, { get: () => ({ paths: [], viewBox: '0 0 16 16' }) }))
   resetChatStoresForTests()
@@ -170,7 +208,10 @@ beforeEach(() => {
 })
 
 afterEach(() => {
-  document.body.innerHTML = ''
+  finishHeldSend?.()
+  cleanup()
+  vi.useRealTimers()
+  vi.restoreAllMocks()
 })
 
 describe('ChatPanel auto-tips (SYN12 — entry tip on a fresh conversation)', () => {
@@ -231,5 +272,166 @@ describe('ChatPanel viewer tip (read-only member orientation)', () => {
     })
     const els = Array.from(container.querySelectorAll('[data-mol-id="chat-tip-card"]'))
     expect(els.some((e) => /View-only access/.test(e.textContent ?? ''))).toBe(false)
+  })
+})
+
+const TEAM_COMMAND = {
+  id: 'teamsay',
+  label: '/teamsay',
+  description: 'Send a team note',
+  category: 'collaborate' as const,
+  aliases: ['t'],
+  sideChannel: true,
+  viewerSafe: true,
+}
+
+describe('ChatPanel team-message permission', () => {
+  it('renders a public transcript without composer, team prefill or actionable onboarding and refuses programmatic sends', async () => {
+    const { container, queryByRole } = render(
+      renderFreshChatPanel({
+        canEdit: false,
+        canSendTeamMessages: false,
+        extraCommands: [TEAM_COMMAND],
+      }),
+    )
+    await waitFor(() =>
+      expect(container.querySelector('[data-mol-id="chat-composer"]')?.hasAttribute('hidden')).toBe(
+        true,
+      ),
+    )
+    expect(queryByRole('textbox', { name: 'Write a message' })).toBeNull()
+    expect(container.querySelector('[data-mol-id="chat-tip-card"]')).toBeNull()
+    expect(container.querySelector('[data-mol-id="chat-empty-hint"]')).toBeNull()
+    expect(container.textContent).not.toContain('View-only access')
+    expect(container.textContent).not.toContain('/teamsay')
+    const textarea = container.querySelector<HTMLTextAreaElement>('[data-mol-chat-input]')!
+    expect(textarea.value).toBe('')
+    // Hidden controls are not reachable to a user. Calling their event directly
+    // still cannot bypass the capability when another integration triggers it.
+    fireEvent.change(textarea, { target: { value: '/t private team note' } })
+    fireEvent.click(container.querySelector('[data-mol-id="chat-send-button"]')!)
+    await act(async () => {
+      await Promise.resolve()
+    })
+    expect(sent).toEqual([])
+  })
+
+  it('keeps the existing private viewer team composer and side-channel dispatch by default', async () => {
+    const { container } = render(
+      renderFreshChatPanel({ canEdit: false, extraCommands: [TEAM_COMMAND] }),
+    )
+    const textarea = container.querySelector<HTMLTextAreaElement>('[data-mol-chat-input]')!
+    await waitFor(() => expect(textarea.value).toBe('/teamsay '))
+    expect(container.querySelector('[data-mol-id="chat-composer"]')?.hasAttribute('hidden')).toBe(
+      false,
+    )
+    expect(container.textContent).toContain('View-only access')
+    fireEvent.change(textarea, { target: { value: '/t hello team' } })
+    fireEvent.click(container.querySelector('[data-mol-id="chat-send-button"]')!)
+    await waitFor(() =>
+      expect(sent).toContainEqual({ message: '/t hello team', sideChannel: true }),
+    )
+  })
+
+  it('preserves assistant sending for editors while omitting disabled side-channel commands', async () => {
+    const { container } = render(
+      renderFreshChatPanel({
+        canEdit: true,
+        canSendTeamMessages: false,
+        extraCommands: [TEAM_COMMAND],
+      }),
+    )
+    const textarea = container.querySelector<HTMLTextAreaElement>('[data-mol-chat-input]')!
+    expect(container.querySelector('[data-mol-id="chat-composer"]')?.hasAttribute('hidden')).toBe(
+      false,
+    )
+    fireEvent.change(textarea, { target: { value: '/t' } })
+    expect(container.textContent).not.toContain('/teamsay')
+    fireEvent.change(textarea, { target: { value: '/t Do not send this team note' } })
+    fireEvent.click(container.querySelector('[data-mol-id="chat-send-button"]')!)
+    await waitFor(() => expect(container.textContent).toContain('Team messaging is unavailable'))
+    expect(sent).toEqual([])
+    fireEvent.change(textarea, { target: { value: 'Summarize this cookbook' } })
+    fireEvent.click(container.querySelector('[data-mol-id="chat-send-button"]')!)
+    await waitFor(() =>
+      expect(sent).toContainEqual({ message: 'Summarize this cookbook', sideChannel: false }),
+    )
+  })
+
+  it.each(['/teamsay Keep this out of chat', '/t Keep this out of chat'])(
+    'refuses disabled raw side-channel initial messages: %s',
+    async (initialMessage) => {
+      const { container } = render(
+        renderFreshChatPanel({
+          canEdit: true,
+          canSendTeamMessages: false,
+          extraCommands: [TEAM_COMMAND],
+          initialMessage,
+        }),
+      )
+      await waitFor(() => expect(container.textContent).toContain('Team messaging is unavailable'))
+      expect(sent).toEqual([])
+    },
+  )
+
+  it('refuses disabled side-channel programmatic pending messages', async () => {
+    const props = {
+      canEdit: true,
+      canSendTeamMessages: false,
+      extraCommands: [TEAM_COMMAND],
+      pendingMessage: '/t Do not dispatch this',
+      pendingMessageKey: 0,
+    }
+    const { container, rerender } = render(renderFreshChatPanel(props))
+    rerender(renderFreshChatPanel({ ...props, pendingMessageKey: 1 }))
+    await waitFor(() => expect(container.textContent).toContain('Team messaging is unavailable'))
+    expect(sent).toEqual([])
+  })
+
+  it('rechecks the permission before dispatching an already-deferred programmatic team message', async () => {
+    holdNextSend = true
+    const props = {
+      canEdit: true,
+      canSendTeamMessages: true,
+      extraCommands: [TEAM_COMMAND],
+      pendingMessage: '/t deferred team note',
+      pendingMessageKey: 0,
+    }
+    const { container, rerender } = render(renderFreshChatPanel(props))
+    const textarea = container.querySelector<HTMLTextAreaElement>('[data-mol-chat-input]')!
+    fireEvent.change(textarea, { target: { value: 'Summarize the cookbook' } })
+    fireEvent.click(container.querySelector('[data-mol-id="chat-send-button"]')!)
+    await waitFor(() => expect(sent).toHaveLength(1))
+    rerender(renderFreshChatPanel({ ...props, pendingMessageKey: 1 }))
+    rerender(renderFreshChatPanel({ ...props, pendingMessageKey: 1, canSendTeamMessages: false }))
+    await act(async () => {
+      finishHeldSend?.()
+      await Promise.resolve()
+    })
+    await waitFor(() => expect(container.textContent).toContain('Team messaging is unavailable'))
+    expect(sent).toEqual([{ message: 'Summarize the cookbook', sideChannel: false }])
+  })
+
+  it('never schedules actionable idle tips for a read-only public conversation', async () => {
+    vi.useFakeTimers()
+    vi.spyOn(Math, 'random').mockReturnValue(0)
+    const history: ChatMessage[] = Array.from({ length: TIP_MIN_MESSAGES }, (_, i) => ({
+      id: `public-${i}`,
+      role: i % 2 ? 'assistant' : 'user',
+      content: `Published message ${i}`,
+      timestamp: i + 1,
+    }))
+    let container: HTMLElement | undefined
+    await act(async () => {
+      container = render(
+        renderFreshChatPanel({ canEdit: false, canSendTeamMessages: false }, history),
+      ).container
+      await vi.advanceTimersByTimeAsync(10)
+    })
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(TIP_IDLE_MS + 1000)
+    })
+    expect(container?.querySelector('[data-mol-id="chat-tip-card"]')).toBeNull()
+    expect(container?.textContent).toContain('Published message')
   })
 })
