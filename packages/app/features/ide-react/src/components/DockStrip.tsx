@@ -164,10 +164,14 @@ export interface DockStripProps {
   expanded: boolean
   /** Toggle the detail. */
   onToggle: () => void
+  /** Open a full view directly instead of disclosing inline detail. */
+  onActivate?: () => void
   /** Leading icon, before the label. */
   icon?: ReactNode
   /** The strip's one-line summary. */
   label: ReactNode
+  /** Use an icon-only disclosure when the adjacent action already carries the summary. */
+  hideLabel?: boolean
   /** A shorter label for the tray chip (defaults to `label`). */
   chipLabel?: ReactNode
   /** Hover text for the tray chip. */
@@ -194,8 +198,10 @@ export function DockStrip({
   toggleMolId,
   expanded,
   onToggle,
+  onActivate,
   icon,
   label,
+  hideLabel = false,
   chipLabel,
   chipTitle,
   hint,
@@ -208,7 +214,7 @@ export function DockStrip({
   const tray = useContext(WorkTrayContext)
   if (tray) {
     if (!tray.headerEl) return null
-    const open = tray.openId === molId
+    const open = !onActivate && tray.openId === molId
     return (
       <>
         {createPortal(
@@ -221,13 +227,21 @@ export function DockStrip({
               role="button"
               tabIndex={0}
               data-mol-id={toggleMolId}
-              aria-expanded={open}
-              title={chipTitle}
-              onClick={() => tray.toggle(molId)}
+              aria-expanded={onActivate ? undefined : open}
+              aria-label={hideLabel && typeof label === 'string' ? label : undefined}
+              title={chipTitle ?? (hideLabel && typeof label === 'string' ? label : undefined)}
+              className={cm.cn(
+                cm.button({ variant: 'ghost', color: 'secondary', size: 'xs' }),
+                cm.touchTargetCompact,
+              )}
+              data-state={open ? 'open' : 'closed'}
+              onClick={() => (onActivate ? onActivate() : tray.toggle(molId))}
               onKeyDown={(e) => {
+                if (e.target !== e.currentTarget) return
                 if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault()
-                  tray.toggle(molId)
+                  if (onActivate) onActivate()
+                  else tray.toggle(molId)
                 }
               }}
               /* mol-bespoke-button: a work-tray CHIP — status icon and short label that
@@ -237,19 +251,27 @@ export function DockStrip({
                 alignItems: 'center',
                 gap: 6,
                 minWidth: 0,
-                padding: '2px 8px',
-                borderRadius: 6,
-                cursor: 'pointer',
-                background: open ? 'rgba(128,128,128,0.18)' : 'rgba(128,128,128,0.08)',
+                ...(open ? { boxShadow: 'inset 0 0 0 1px currentColor' } : {}),
               }}
             >
               {icon}
-              <span
-                className={cm.cn(cm.textMuted, cm.textSize('xs'))}
-                style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
-              >
-                {chipLabel ?? label}
-              </span>
+              {hideLabel ? (
+                <svg aria-hidden width="12" height="12" viewBox="0 0 16 16">
+                  <path
+                    d={open ? 'M4 10l4-4 4 4' : 'M4 6l4 4 4-4'}
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                  />
+                </svg>
+              ) : (
+                <span
+                  className={cm.cn(cm.textMuted, cm.textSize('xs'))}
+                  style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+                >
+                  {chipLabel ?? label}
+                </span>
+              )}
             </div>
             {actions}
           </div>,
@@ -281,12 +303,19 @@ export function DockStrip({
         role="button"
         tabIndex={0}
         data-mol-id={toggleMolId}
-        aria-expanded={expanded}
-        onClick={onToggle}
+        aria-expanded={onActivate ? undefined : expanded}
+        aria-label={hideLabel && typeof label === 'string' ? label : undefined}
+        className={cm.cn(
+          cm.button({ variant: 'ghost', color: 'secondary', size: 'xs' }),
+          cm.touchTargetCompact,
+        )}
+        onClick={onActivate ?? onToggle}
         onKeyDown={(e) => {
+          if (e.target !== e.currentTarget) return
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault()
-            onToggle()
+            if (onActivate) onActivate()
+            else onToggle()
           }
         }}
         /* mol-bespoke-button: the strip's HEADER ROW — chevron, label and
@@ -300,35 +329,39 @@ export function DockStrip({
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 16 16"
-            width="12"
-            height="12"
-            aria-hidden
-            style={{
-              transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)',
-              transition: 'transform 120ms',
-              opacity: 0.5,
-              flexShrink: 0,
-            }}
-          >
-            <path
-              d="M6 4l4 4-4 4"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+          {!onActivate && (
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 16 16"
+              width="12"
+              height="12"
+              aria-hidden
+              style={{
+                transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)',
+                transition: 'transform 120ms',
+                opacity: 0.5,
+                flexShrink: 0,
+              }}
+            >
+              <path
+                d="M6 4l4 4-4 4"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          )}
           {icon}
-          <span
-            className={cm.cn(cm.textMuted, cm.textSize('xs'))}
-            style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
-          >
-            {label}
-          </span>
+          {!hideLabel && (
+            <span
+              className={cm.cn(cm.textMuted, cm.textSize('xs'))}
+              style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+            >
+              {label}
+            </span>
+          )}
           {hint ? (
             <span
               className={cm.cn(cm.textMuted, cm.textSize('xs'))}
@@ -351,7 +384,7 @@ export function DockStrip({
           </div>
         ) : null}
       </div>
-      {expanded && children ? (
+      {!onActivate && expanded && children ? (
         <div style={{ marginTop: 6, paddingLeft: 18 }}>{children}</div>
       ) : null}
     </div>

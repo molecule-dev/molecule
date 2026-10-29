@@ -9,16 +9,11 @@
  *
  * It deliberately borrows the commit bar's chrome — same hairline top border,
  * same `8px 8px 8px 10px` padding, same 12px chevron rotating 90° on expand,
- * same muted `xs` label — so the two read as one family of strips stacked above
- * the composer rather than two unrelated widgets. Collapsed is the resting
- * state; expanded adds the per-outcome counts and the running file.
+ * same muted `xs` label. The summary opens the tests browser directly; there
+ * is no intermediate disclosure or second navigation button.
  *
- * Colour is carried by the count figures only, never by the whole strip: a bar
- * that turns red across its full width reads as an error in the chat itself.
- * Once anything has a result, the collapsed row shows a coloured
- * `passed / failed / skipped` readout (green / red / yellow) so the state reads
- * at a glance without expanding. Every colour comes from a theme token with a fallback, per
- * DESIGN.md's semantic colours — no hardcoded palette.
+ * The status mark carries the run's tone; the short label summarises the result.
+ * The tests browser contains the full counts, current file and run output.
  *
  * @module
  */
@@ -33,16 +28,6 @@ import { DockStrip, StatusMark, type StatusMarkState } from './DockStrip.js'
 import type { TestsBarSummary, TestsBarTone } from './tests-bar-utilities.js'
 import { summariseTestsBar } from './tests-bar-utilities.js'
 import type { TestsRunState } from './tests-card-utilities.js'
-
-/** The theme token each tone paints its dot and figures with. */
-const TONE_COLOR: Record<TestsBarTone, string> = {
-  idle: 'var(--mol-color-text-muted, #6b7280)',
-  running: 'var(--mol-color-info, #2563eb)',
-  passing: 'var(--mol-color-success, #16a34a)',
-  failing: 'var(--mol-color-error, #dc2626)',
-  stopped: 'var(--mol-color-warning, #d97706)',
-  error: 'var(--mol-color-error, #dc2626)',
-}
 
 /**
  * The one-line summary the collapsed bar shows.
@@ -105,8 +90,7 @@ const TONE_MARK: Record<TestsBarTone, StatusMarkState> = {
 }
 
 /**
- * The short label the tray chip wears: one figure, not the sentence — the counts
- * and the running file are in the opened detail.
+ * The short label the tray chip wears; full details live in the tests browser.
  *
  * @param summary - The derived run summary.
  * @returns The label.
@@ -128,10 +112,16 @@ export interface TestStatusBarProps {
   run: TestsRunState
   /** The discovered tests, for naming the file that is running. */
   tests: TestItem[]
-  /** Whether this strip is expanded. */
-  expanded: boolean
-  /** Toggle the expansion. */
-  onToggle: () => void
+  /**
+   * Legacy expansion state.
+   * @deprecated The summary opens the tests browser directly.
+   */
+  expanded?: boolean
+  /**
+   * Legacy disclosure callback.
+   * @deprecated The summary opens the tests browser directly.
+   */
+  onToggle?: () => void
   /** Open the tests browser (the `/test` card) — the place runs are started. */
   onOpen: () => void
   /** Stop the run in flight, when one is running. */
@@ -144,14 +134,7 @@ export interface TestStatusBarProps {
  * @param props - See {@link TestStatusBarProps}.
  * @returns The bar.
  */
-export function TestStatusBar({
-  run,
-  tests,
-  expanded,
-  onToggle,
-  onOpen,
-  onStop,
-}: TestStatusBarProps): JSX.Element {
+export function TestStatusBar({ run, tests, onOpen, onStop }: TestStatusBarProps): JSX.Element {
   const cm = getClassMap()
   const summary = summariseTestsBar(run, tests)
   const label = testsBarLabel(summary)
@@ -161,8 +144,9 @@ export function TestStatusBar({
       molId="tests-bar"
       toggleMolId="tests-bar-toggle"
       rootProps={{ 'data-tests-tone': summary.tone }}
-      expanded={expanded}
-      onToggle={onToggle}
+      expanded={false}
+      onToggle={onOpen}
+      onActivate={onOpen}
       label={<span data-mol-id="tests-bar-label">{label}</span>}
       hint={
         summary.tone === 'running' && (summary.currentTest ?? summary.currentFile) ? (
@@ -187,70 +171,8 @@ export function TestStatusBar({
           </button>
         ) : undefined
       }
-      detailActions={
-        run.running && onStop ? undefined : (
-          <button
-            type="button"
-            data-mol-id="tests-bar-open"
-            className={cm.cn(
-              cm.button({ variant: 'solid', color: 'primary', size: 'xs' }),
-              cm.touchTargetCompact,
-            )}
-            onClick={(e) => {
-              e.stopPropagation()
-              onOpen()
-            }}
-          >
-            {t('ide.testsBar.open', undefined, { defaultValue: 'Tests' })}
-          </button>
-        )
-      }
       icon={<StatusMark state={TONE_MARK[summary.tone]} size={14} />}
       chipLabel={testsChipLabel(summary)}
-    >
-      <div
-        data-mol-id="tests-bar-detail"
-        className={cm.cn(cm.textMuted, cm.textSize('xs'))}
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 2,
-        }}
-      >
-        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-          <span data-mol-id="tests-bar-passed">
-            <span style={{ color: TONE_COLOR.passing, fontWeight: 600 }}>{summary.passed}</span>{' '}
-            {t('ide.testsBar.passedLabel', undefined, { defaultValue: 'passing' })}
-          </span>
-          <span data-mol-id="tests-bar-failed">
-            <span style={{ color: TONE_COLOR.failing, fontWeight: 600 }}>{summary.failed}</span>{' '}
-            {t('ide.testsBar.failedLabel', undefined, { defaultValue: 'failing' })}
-          </span>
-          <span data-mol-id="tests-bar-skipped">
-            <span style={{ color: TONE_COLOR.stopped, fontWeight: 600 }}>{summary.skipped}</span>{' '}
-            {t('ide.testsBar.skippedLabel', undefined, { defaultValue: 'skipped' })}
-          </span>
-          {summary.tone === 'running' ? (
-            <span data-mol-id="tests-bar-remaining">
-              <span style={{ color: TONE_COLOR.running, fontWeight: 600 }}>
-                {summary.remaining}
-              </span>{' '}
-              {t('ide.testsBar.remainingLabel', undefined, { defaultValue: 'to go' })}
-            </span>
-          ) : null}
-        </div>
-        {summary.currentFile ? (
-          <div data-mol-id="tests-bar-current-file">
-            {t(
-              'ide.testsBar.currentFile',
-              { file: summary.currentFile },
-              { defaultValue: 'Running {{file}}' },
-            )}
-            {summary.currentTest ? ` › ${summary.currentTest}` : ''}
-          </div>
-        ) : null}
-        {run.error ? <div data-mol-id="tests-bar-error">{run.error}</div> : null}
-      </div>
-    </DockStrip>
+    />
   )
 }

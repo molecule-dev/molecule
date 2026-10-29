@@ -46,6 +46,42 @@ const badgeOf = (container: HTMLElement): HTMLElement | null =>
   container.querySelector('[data-mol-id="chat-autocommit-badge"]')
 
 describe('AutoCommitBadge — green commit button while enabled', () => {
+  it('keeps file count and automatic countdown in the same clickable button', () => {
+    const onCommitNow = vi.fn()
+    const { container, rerender } = render(
+      <AutoCommitBadge
+        state={{ intervalSeconds: 30, remaining: 12 }}
+        label="Commit 2 files"
+        onCommitNow={onCommitNow}
+      />,
+    )
+    expect(container.textContent).toBe('Commit 2 files')
+    rerender(
+      <AutoCommitBadge
+        state={{ intervalSeconds: 30, remaining: 2 }}
+        label="Commit 2 files"
+        onCommitNow={onCommitNow}
+      />,
+    )
+    expect(container.textContent).toBe('Commit 2 files in 2s')
+    expect(badgeOf(container)?.getAttribute('aria-label')).toBe('Commit 2 files in 2s')
+    expect(badgeOf(container)?.getAttribute('title')).toBeNull()
+    expect(container.querySelectorAll('button')).toHaveLength(1)
+    fireEvent.click(badgeOf(container)!)
+    expect(onCommitNow).toHaveBeenCalledTimes(1)
+    rerender(
+      <AutoCommitBadge
+        state={{ intervalSeconds: 30, remaining: 2 }}
+        label="Commit 2 files"
+        onCommitNow={onCommitNow}
+        disabled
+      />,
+    )
+    expect(container.textContent).toBe('Commit 2 files')
+    fireEvent.click(badgeOf(container)!)
+    expect(onCommitNow).toHaveBeenCalledTimes(1)
+  })
+
   it('renders nothing when auto-commit is disabled', () => {
     const { container } = render(
       <AutoCommitBadge state={{ intervalSeconds: 0, remaining: null }} onCommitNow={() => {}} />,

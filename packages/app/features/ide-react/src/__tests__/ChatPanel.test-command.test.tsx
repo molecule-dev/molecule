@@ -107,6 +107,7 @@ function buildHttpClient(): HttpClient {
 function buildAuthClient(): AuthClient<UserProfile> {
   const user = { id: 'me', email: 'me@example.com' } as UserProfile
   const state: AuthState<UserProfile> = {
+    status: 'authenticated',
     initialized: true,
     authenticated: true,
     user,
@@ -242,6 +243,24 @@ beforeEach(() => {
 })
 
 describe('the /test command', () => {
+  it('opens the tests browser with one click on the not-run summary', async () => {
+    const listTests = vi.fn(async () => LIST)
+    const runTests = vi.fn(() => ({ cancel: () => {} }))
+    const { container } = render(renderPanel({ listTests, runTests }))
+    const summary = await waitFor(() => {
+      const button = molId(container, 'tests-bar-toggle')
+      expect(button?.textContent).toContain('not run yet')
+      return button!
+    })
+    expect(molId(container, 'tests-card')).toBeNull()
+    fireEvent.click(summary)
+    await waitFor(() => expect(molId(container, 'tests-card')).not.toBeNull())
+    expect(molId(container, 'tests-bar-open')).toBeNull()
+    expect(molId(container, 'tests-bar-detail')).toBeNull()
+    expect(runTests).not.toHaveBeenCalled()
+    expect(sent).toEqual([])
+  })
+
   it('is registered once, with its alias and the browser usage', () => {
     const defs = COMMANDS.filter((c) => c.id === 'test')
     expect(defs, 'exactly one /test command').toHaveLength(1)

@@ -64,22 +64,25 @@ export function AutoCommitBadge({
   onCommitNow,
   disabled = false,
   inline = false,
+  label,
 }: {
   state: AutoCommitState
   onCommitNow: () => void
   disabled?: boolean
   inline?: boolean
+  /** Combined action/info label, e.g. "Commit 2 files". */
+  label?: string
 }): JSX.Element | null {
   const cm = getClassMap()
   if (!isAutoCommitEnabled(state)) return null
   // A held countdown is paused, not imminent — never show the countdown label
   // while disabled, only the plain "Commit".
   const showCountdown = !disabled && isAutoCommitCountdownVisible(state)
-  const commitLabel = t('ide.chat.commit', undefined, { defaultValue: 'Commit' })
+  const commitLabel = label ?? t('ide.chat.commit', undefined, { defaultValue: 'Commit' })
   const countdownLabel = t(
-    'ide.chat.autoCommit.badge',
-    { countdown: formatAutoCommitBadge(state) },
-    { defaultValue: 'Auto-commit in {{countdown}}' },
+    label ? 'ide.chat.autoCommit.countedBadge' : 'ide.chat.autoCommit.badge',
+    { commit: commitLabel, countdown: formatAutoCommitBadge(state) },
+    { defaultValue: label ? '{{commit}} in {{countdown}}' : 'Auto-commit in {{countdown}}' },
   )
   return (
     <button
@@ -104,8 +107,14 @@ export function AutoCommitBadge({
         if (disabled) return
         onCommitNow()
       }}
-      aria-label={showCountdown ? `${countdownLabel} — ${commitLabel}` : commitLabel}
-      title={showCountdown ? commitLabel : undefined}
+      aria-label={
+        showCountdown
+          ? label
+            ? countdownLabel
+            : `${countdownLabel} — ${commitLabel}`
+          : commitLabel
+      }
+      title={showCountdown && !label ? commitLabel : undefined}
       // ONLY what the ClassMap cannot express: where the button sits, and the
       // tabular figures that stop the countdown label jittering as it ticks.
       style={{

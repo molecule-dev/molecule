@@ -15,7 +15,7 @@
  * @module
  */
 
-import { fireEvent, render, waitFor } from '@testing-library/react'
+import { cleanup, fireEvent, render, waitFor } from '@testing-library/react'
 import type { ReactElement, ReactNode } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -30,7 +30,7 @@ import {
   resetChatStoresForTests,
   ThemeProvider,
 } from '@molecule/app-react'
-import type { Theme, ThemeProvider as ThemeProviderType } from '@molecule/app-theme'
+import { lightTheme, type ThemeProvider as ThemeProviderType } from '@molecule/app-theme'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 
@@ -42,6 +42,9 @@ const HASH = 'abc1234'
 
 /** Whether the server has persisted the commit record yet. */
 let committed = false
+let pendingPaths = ['src/Login.tsx']
+let autoCommitSeconds = 0
+const commitRequest = vi.fn()
 
 /** A provider whose history gains the persisted commit record once the commit lands. */
 function buildChatProvider(loadHistory: () => void): ChatProvider {
@@ -71,12 +74,18 @@ function buildChatProvider(loadHistory: () => void): ChatProvider {
 /** An HTTP client that serves git-status + commit and rejects everything else. */
 function buildHttpClient(): HttpClient {
   const reject = (): Promise<never> => Promise.reject(new Error('http disabled in test'))
-  const get = ((url: string) =>
-    url.endsWith('/git-status')
-      ? Promise.resolve({ data: { files: [{ path: 'src/Login.tsx' }] } })
-      : reject()) as HttpClient['get']
+  const get = ((url: string) => {
+    if (url.endsWith('/git-status'))
+      return Promise.resolve({
+        data: { files: committed ? [] : pendingPaths.map((path) => ({ path, status: 'M' })) },
+      })
+    if (url === '/projects/proj-commit')
+      return Promise.resolve({ data: { settings: { autoCommitSeconds } } })
+    return reject()
+  }) as HttpClient['get']
   const post = ((url: string) => {
     if (!url.endsWith('/commit')) return reject()
+    commitRequest(url)
     committed = true
     return Promise.resolve({
       data: {
@@ -123,41 +132,12 @@ function makeStorage(): Storage {
 
 /** A minimal light theme so `useThemeMode` resolves. */
 function buildThemeProvider(): ThemeProviderType {
-  const theme: Theme = {
-    name: 'light',
-    mode: 'light',
-    colors: {
-      background: { primary: '#ffffff' },
-      text: { primary: '#000000' },
-      brand: { primary: '#0066cc' },
-      semantic: { success: '#00cc00' },
-      borders: { default: '#cccccc' },
-      overlay: { default: 'rgba(0,0,0,0.5)' },
-      shadow: { default: 'rgba(0,0,0,0.1)' },
-    },
-    breakpoints: {
-      mobileS: '320px',
-      mobileM: '375px',
-      mobileL: '425px',
-      tablet: '768px',
-      laptop: '1024px',
-      laptopL: '1440px',
-      desktop: '2560px',
-    },
-    spacing: {},
-    typography: { fontFamily: {}, fontSize: {}, fontWeight: {}, lineHeight: {} },
-    borderRadius: {},
-    shadows: {},
-    transitions: {},
-    zIndex: {},
-  }
   return {
-    getTheme: () => theme,
-    getThemeName: () => 'light',
-    getThemes: () => ['light', 'dark'],
+    getTheme: () => lightTheme,
+    getThemes: () => [lightTheme],
     setTheme: () => {},
     toggleMode: () => {},
-    onThemeChange: () => () => {},
+    subscribe: () => () => {},
   }
 }
 
@@ -168,6 +148,9 @@ function commitCards(container: HTMLElement): Element[] {
 
 beforeEach(() => {
   committed = false
+  pendingPaths = ['src/Login.tsx']
+  autoCommitSeconds = 0
+  commitRequest.mockClear()
   setClassMap(classMap)
   setIconSet(new Proxy({}, { get: () => ({ paths: [], viewBox: '0 0 16 16' }) }))
   resetChatStoresForTests()
@@ -185,7 +168,88 @@ beforeEach(() => {
 })
 
 afterEach(() => {
+  cleanup()
   document.body.innerHTML = ''
+})
+
+/** The real panel, including its portalled work tray and existing commit handler. */
+function panel(props: Partial<Parameters<typeof ChatPanel>[0]> = {}): ReactElement {
+  return (
+    <I18nProvider provider={createSimpleI18nProvider('en')}>
+      <ThemeProvider provider={buildThemeProvider()}>
+        <HttpProvider client={buildHttpClient()}>
+          <ChatContextProvider provider={buildChatProvider(() => {})}>
+            <ChatPanel projectId="proj-commit" {...props} />
+          </ChatContextProvider>
+        </HttpProvider>
+      </ThemeProvider>
+    </I18nProvider>
+  )
+}
+
+describe('ChatPanel combined commit action', () => {
+  it.each([
+    [0, ['src/Login.tsx'], 'Commit 1 file'],
+    [0, ['src/Login.tsx', 'src/Profile.tsx'], 'Commit 2 files'],
+    [30, ['src/Login.tsx'], 'Commit 1 file'],
+    [30, ['src/Login.tsx', 'src/Profile.tsx'], 'Commit 2 files'],
+  ] as const)(
+    'combines count and action with cadence %s and files %s',
+    async (cadence, paths, label) => {
+      autoCommitSeconds = cadence
+      pendingPaths = [...paths]
+      const onFileDiff = vi.fn()
+      const { container } = render(panel({ onFileDiff }))
+      const action = await waitFor(() => {
+        const button = container.querySelector<HTMLButtonElement>(
+          `[data-mol-id="${cadence ? 'chat-autocommit-badge' : 'chat-commit-button'}"]`,
+        )
+        expect(button?.textContent).toBe(label)
+        return button!
+      })
+      const bar = container.querySelector('[data-mol-id="chat-commit-bar"]')!
+      expect(bar.textContent).toBe(label)
+      expect(bar.textContent).not.toContain('uncommitted')
+      const disclosure = bar.querySelector('[data-mol-id="chat-commit-toggle"]')!
+      expect(disclosure.getAttribute('aria-label')).toBe('Show changed files')
+      expect(disclosure.getAttribute('title')).toBe('Show changed files')
+      fireEvent.click(disclosure)
+      fireEvent.click(container.querySelector('[data-mol-id="chat-commit-bar-detail"] button')!)
+      expect(onFileDiff).toHaveBeenCalledWith(paths[0])
+      expect(commitRequest).not.toHaveBeenCalled()
+      fireEvent.click(action)
+      await waitFor(() => expect(commitRequest).toHaveBeenCalledTimes(1))
+      expect(commitRequest).toHaveBeenCalledWith('/projects/proj-commit/commit')
+    },
+  )
+
+  it.each(['clean', 'viewer'] as const)(
+    'hides the combined action for a %s tree or role',
+    async (state) => {
+      if (state === 'clean') pendingPaths = []
+      const { container } = render(panel({ canEdit: state !== 'viewer' }))
+      await waitFor(() => expect(container.textContent).toContain('hi'))
+      expect(container.querySelector('[data-mol-id="chat-commit-bar"]')).toBeNull()
+    },
+  )
+
+  it('puts the live auto-commit countdown in the counted action', async () => {
+    autoCommitSeconds = 3
+    pendingPaths = ['src/Login.tsx', 'src/Profile.tsx']
+    const { container, rerender } = render(panel({ gitStatusTick: 0 }))
+    await waitFor(() => {
+      expect(container.querySelector('[data-mol-id="chat-autocommit-badge"]')?.textContent).toBe(
+        'Commit 2 files',
+      )
+    })
+    rerender(panel({ gitStatusTick: 1 }))
+    await waitFor(() => {
+      const bar = container.querySelector('[data-mol-id="chat-commit-bar"]')!
+      expect(bar.textContent).toMatch(/^Commit 2 files in [123]s$/)
+    })
+    fireEvent.click(container.querySelector('[data-mol-id="chat-autocommit-badge"]')!)
+    await waitFor(() => expect(commitRequest).toHaveBeenCalledTimes(1))
+  })
 })
 
 describe('ChatPanel commit-card dedupe', () => {

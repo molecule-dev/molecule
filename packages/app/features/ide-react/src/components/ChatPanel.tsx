@@ -3412,8 +3412,6 @@ function ChatInner({
     { path: string; status: string; additions?: number; deletions?: number }[] | null
   >(null)
   const [commitBarExpanded, setCommitBarExpanded] = useState(false)
-  // The tests strip sits above the commit bar and starts collapsed, like it.
-  const [testsBarExpanded, setTestsBarExpanded] = useState(false)
   const [commitCards, setCommitCards] = useState<CommitCard[]>([])
   /**
    * Number of timeline items rendered in the DOM. Starts at the most recent
@@ -11510,8 +11508,6 @@ function ChatInner({
               <TestStatusBar
                 run={testsRun}
                 tests={testsList}
-                expanded={testsBarExpanded}
-                onToggle={() => setTestsBarExpanded((v) => !v)}
                 onOpen={() => openTestsBrowser('')}
                 onStop={testsRun.running ? cancelTestsRun : undefined}
               />
@@ -11525,17 +11521,10 @@ function ChatInner({
                 toggleMolId="chat-commit-toggle"
                 expanded={commitBarExpanded}
                 onToggle={() => setCommitBarExpanded((v) => !v)}
-                label={
-                  commitState?.status === 'committed'
-                    ? stripCommitCoauthorTrailer(commitState.message ?? '')
-                    : commitState?.status === 'error'
-                      ? t('ide.chat.commitFailed')
-                      : t(
-                          'ide.chat.uncommittedFileCount',
-                          { count: pendingFiles.length },
-                          { defaultValue: '{{count}} uncommitted files' },
-                        )
-                }
+                hideLabel
+                label={t('ide.chat.showChangedFiles', undefined, {
+                  defaultValue: 'Show changed files',
+                })}
                 actions={
                   <>
                     {/* When auto-commit is enabled, the GREEN commit button occupies this
@@ -11552,6 +11541,17 @@ function ChatInner({
                     commitState?.status !== 'committed' ? (
                       <AutoCommitBadge
                         state={autoCommit}
+                        label={t(
+                          'ide.chat.commitFileCount',
+                          { count: pendingFiles.length },
+                          {
+                            count: pendingFiles.length,
+                            defaultValue:
+                              pendingFiles.length === 1
+                                ? 'Commit {{count}} file'
+                                : 'Commit {{count}} files',
+                          },
+                        )}
                         disabled={autoCommitHeld}
                         onCommitNow={() => {
                           // Pause the countdown before committing so a due auto-fire
@@ -11593,7 +11593,19 @@ function ChatInner({
                           >
                             {commitState?.status === 'committing'
                               ? t('ide.chat.committing')
-                              : t('ide.chat.commit')}
+                              : commitState?.status === 'committed'
+                                ? t('ide.chat.committed')
+                                : t(
+                                    'ide.chat.commitFileCount',
+                                    { count: pendingFiles.length },
+                                    {
+                                      count: pendingFiles.length,
+                                      defaultValue:
+                                        pendingFiles.length === 1
+                                          ? 'Commit {{count}} file'
+                                          : 'Commit {{count}} files',
+                                    },
+                                  )}
                           </button>
                         )
                       })()
@@ -12194,6 +12206,9 @@ function ChatInner({
                 usage={contextUsage}
                 history={contextHistory}
                 compactions={contextCompactions}
+                projectId={projectId}
+                conversationId={conversationId}
+                onOpenSettings={() => openPanelOverlay('settings')}
               />
             )}
             <div
