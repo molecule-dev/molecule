@@ -1,5 +1,11 @@
 # @molecule/app-ide-react
 
+## 3.0.3
+
+### Patch Changes
+
+- Keep test discovery and run results responsive when React reconnects the chat panel.
+
 ## 3.0.2
 
 ### Patch Changes

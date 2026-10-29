@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.14.10
+
+### Patch Changes
+
+- Allow Node.js syntax checks without classifying the checked script as a running server.
+
 ## 1.14.9
 
 ### Patch Changes

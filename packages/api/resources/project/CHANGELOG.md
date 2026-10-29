@@ -1,5 +1,11 @@
 # @molecule/api-resource-project
 
+## 1.0.9
+
+### Patch Changes
+
+- Validate supported project types before creating a project.
+
 ## 1.0.7
 
 ### Patch Changes
