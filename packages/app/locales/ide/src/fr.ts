@@ -3,9 +3,9 @@ import type { IdeTranslations } from './types.js'
 /** Ide translations for fr. */
 export const fr: Partial<IdeTranslations> = {
   'ide.chat.showChangedFiles': 'Afficher les fichiers modifiés',
-  'ide.chat.commitFileCount_one': 'Fichier de validation {{count}}',
-  'ide.chat.commitFileCount_other': 'Commit {{count}} fichiers',
-  'ide.chat.autoCommit.countedBadge': '{{commit}} sur {{countdown}}',
+  'ide.chat.commitFileCount_one': 'Valider {{count}} fichier',
+  'ide.chat.commitFileCount_other': 'Valider {{count}} fichiers',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} dans {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -768,8 +768,8 @@ export const fr: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
-  'ide.chat.context.atTarget': 'Objectif de compactage',
-  'ide.chat.context.nearTarget': 'Contexte presque complet',
+  'ide.chat.context.atTarget': 'Seuil de compactage atteint',
+  'ide.chat.context.nearTarget': 'Contexte presque plein',
   'ide.chat.context.healthy': 'Le contexte a de la place',
   'ide.chat.context.headroom': '{{tokens}} jetons de marge de manœuvre',
   'ide.chat.context.openDetails': "Cliquez pour afficher le détail, l'historique et les paramètres",
