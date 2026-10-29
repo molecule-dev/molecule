@@ -415,7 +415,6 @@ describe('Tests card i18n resolves through the locale bond (cross-cutting-i18n)'
       'ide.tests.kind.e2e',
       'ide.tests.kind.unit',
       'ide.tests.workspace.root',
-      'ide.tests.e2eHint',
       'ide.tests.cancelled',
       'ide.tests.listError',
       'ide.tests.runError',
@@ -440,7 +439,6 @@ describe('Tests card i18n resolves through the locale bond (cross-cutting-i18n)'
       'ide.tests.running',
       'ide.tests.statusPassed',
       'ide.tests.kind.e2e',
-      'ide.tests.e2eHint',
       'ide.tests.listError',
       'ide.tests.viewerCannotRun',
       'ide.tests.needsSandbox',
@@ -471,9 +469,9 @@ describe('Tests card i18n resolves through the locale bond (cross-cutting-i18n)'
     expect(
       container.querySelector('[data-mol-id="tests-card-group-e2e-my-app/app"]')?.textContent,
     ).toContain(fr['ide.tests.kind.e2e'])
-    expect(container.querySelector('[data-mol-id="tests-card-e2e-hint"]')?.textContent).toBe(
-      fr['ide.tests.e2eHint'],
-    )
+    // Old locale tables can still contain the preview-only instruction. The
+    // card must not bring that requirement back when translations are loaded.
+    expect(container.querySelector('[data-mol-id="tests-card-e2e-hint"]')).toBeNull()
   })
 
   it('renders the viewer’s reason from the bonded locale', () => {

@@ -27,6 +27,7 @@ import {
   type TestsRunState,
 } from '../components/tests-card-utilities.js'
 import { TestsCard } from '../components/TestsCard.js'
+import * as barrel from '../index.js'
 import type { TestItem, TestRunEvent, TestSelection } from '../types.js'
 
 const TESTS: TestItem[] = [
@@ -440,8 +441,7 @@ describe('TestsCard — chrome', () => {
 })
 
 describe('TestsCard — module surface', () => {
-  it('is exported from the package barrel', async () => {
-    const barrel = await import('../index.js')
+  it('is exported from the package barrel', () => {
     expect(typeof (barrel as { TestsCard?: unknown }).TestsCard).toBe('function')
     expect(vi.isMockFunction((barrel as { TestsCard?: unknown }).TestsCard)).toBe(false)
   })
