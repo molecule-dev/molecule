@@ -40,9 +40,12 @@
  * - Limits mirrored locally: a 2,048-character URL, `timeoutMs` 1,000–30,000
  *   (default 10,000), `expectText` 1–256 characters (GET only) — bad calls
  *   are refused locally and never leave the process.
- * - This is a point-in-time probe, not a monitor: nothing is scheduled and
- *   no history is kept. Drive it on your own cadence (the app's cron, an
- *   agent loop, a status-page renderer).
+ * - Beyond the point-in-time `probe()`, the provider schedules RECURRING
+ *   monitors: `scheduleMonitor()` (interval 60–86,400 s, at most 10 per
+ *   project, optional web-push alert subscription),
+ *   `listMonitors()` / `monitorHistory(id, limit)` (checks kept 30 days) /
+ *   `removeMonitor(id)`. The platform executes due probes on molecule.dev and
+ *   meters each one exactly like a manual probe.
  * - Metered per probe and billed to the project; the upstream is molecule's
  *   own infrastructure, so the real cost is 0 — probes still count against
  *   the project's rate limit and free-tier allowance.

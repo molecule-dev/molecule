@@ -154,3 +154,129 @@ describe('molecule uptime provider requests', () => {
     await expect(provider.probe({ url: 'https://example.com' })).rejects.toThrow('no probe verdict')
   })
 })
+
+describe('molecule uptime provider scheduled monitors', () => {
+  const MONITOR = {
+    id: 'm1',
+    url: 'https://example.com/health',
+    spec: { url: 'https://example.com/health', method: 'GET', timeoutMs: 10_000 },
+    intervalSeconds: 60,
+    alerting: true,
+    paused: false,
+    lastStatus: 'operational',
+    lastCheckedAt: '2026-10-29T00:00:00.000Z',
+    nextRunAt: '2026-10-29T00:01:00.000Z',
+    consecutiveFails: 0,
+    lastAlertAt: null,
+    createdAt: '2026-10-28T00:00:00.000Z',
+  }
+
+  it('schedules a monitor with the normalized spec and the alert subscription', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ monitor: MONITOR }))
+    vi.stubGlobal('fetch', fetchMock)
+    const provider = createProvider({ apiKey: 'mk_test' })
+    const monitor = await provider.scheduleMonitor({
+      url: 'https://example.com/health',
+      intervalSeconds: 300,
+      alertPush: {
+        endpoint: 'https://fcm.googleapis.com/fcm/send/abc',
+        keys: { p256dh: 'k', auth: 'a' },
+      },
+    })
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit]
+    expect(url).toBe('https://api.molecule.dev/api/v1/services/uptime/schedule')
+    expect(JSON.parse(init.body as string)).toEqual({
+      url: 'https://example.com/health',
+      method: 'GET',
+      timeoutMs: 10_000,
+      degradedLatencyMs: 2000,
+      intervalSeconds: 300,
+      alertPush: {
+        endpoint: 'https://fcm.googleapis.com/fcm/send/abc',
+        keys: { p256dh: 'k', auth: 'a' },
+      },
+    })
+    expect(monitor.id).toBe('m1')
+    expect(monitor.alerting).toBe(true)
+  })
+
+  it('mirrors the schedule bounds locally without any request', async () => {
+    const fetchMock = vi.fn()
+    vi.stubGlobal('fetch', fetchMock)
+    const provider = createProvider({ apiKey: 'mk_test' })
+    for (const intervalSeconds of [0, 30, 59, 86_401, 1.5, '300' as never]) {
+      await expect(
+        provider.scheduleMonitor({ url: 'https://example.com', intervalSeconds }),
+      ).rejects.toThrow(/intervalSeconds/)
+    }
+    await expect(
+      provider.scheduleMonitor({ url: 'ftp://example.com', intervalSeconds: 60 }),
+    ).rejects.toThrow(/http\(s\)/)
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+
+  it('lists monitors, reads history and removes', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(jsonResponse({ monitors: [MONITOR] }))
+      .mockResolvedValueOnce(
+        jsonResponse({
+          monitor: MONITOR,
+          checks: [
+            {
+              checkedAt: '2026-10-29T00:01:00.000Z',
+              status: 'operational',
+              latencyMs: 40,
+              httpStatus: 200,
+              message: null,
+            },
+          ],
+          summary: { total: 1, operational: 1, degraded: 0, down: 0, uptimePercent: 100 },
+        }),
+      )
+      .mockResolvedValueOnce(jsonResponse({ removed: true, id: 'm1' }))
+    vi.stubGlobal('fetch', fetchMock)
+    const provider = createProvider({ apiKey: 'mk_test' })
+    expect((await provider.listMonitors()).map((m) => m.id)).toEqual(['m1'])
+    const history = await provider.monitorHistory('m1', 100)
+    expect(history.summary.uptimePercent).toBe(100)
+    expect(
+      (JSON.parse(fetchMock.mock.calls[1][1].body as string) as { monitorId: string }).monitorId,
+    ).toBe('m1')
+    expect(await provider.removeMonitor('m1')).toEqual({ removed: true, id: 'm1' })
+  })
+
+  it('mirrors the history bounds and the id requirements locally', async () => {
+    const fetchMock = vi.fn()
+    vi.stubGlobal('fetch', fetchMock)
+    const provider = createProvider({ apiKey: 'mk_test' })
+    for (const limit of [0, -1, 1.5, 501]) {
+      await expect(provider.monitorHistory('m1', limit)).rejects.toThrow(/limit/)
+    }
+    await expect(provider.monitorHistory('')).rejects.toThrow('monitorId')
+    await expect(provider.removeMonitor('')).rejects.toThrow('id')
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+
+  it('a foreign monitor id reads as 404 with the hint', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(
+        jsonResponse(
+          { error: 'No such monitor', errorKey: 'hostedServices.error.monitorNotFound' },
+          404,
+        ),
+      )
+    vi.stubGlobal('fetch', fetchMock)
+    const provider = createProvider({ apiKey: 'mk_test' })
+    try {
+      await provider.monitorHistory('other')
+      expect.fail('should have thrown')
+    } catch (error) {
+      const e = error as { status: number; errorKey?: string; message: string }
+      expect(e.status).toBe(404)
+      expect(e.errorKey).toBe('hostedServices.error.monitorNotFound')
+      expect(e.message).toContain('list your monitors')
+    }
+  })
+})

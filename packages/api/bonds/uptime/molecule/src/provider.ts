@@ -13,7 +13,12 @@
 import type { UptimeProbeResult, UptimeProbeSpec, UptimeProvider } from '@molecule/api-uptime'
 import { validateProbeSpec } from '@molecule/api-uptime'
 
-import type { MoleculeUptimeConfig } from './types.js'
+import type {
+  MoleculeUptimeConfig,
+  ScheduleMonitorInput,
+  UptimeCheckView,
+  UptimeMonitorView,
+} from './types.js'
 
 /** Default hosted services base URL. */
 export const DEFAULT_SERVICES_URL = 'https://api.molecule.dev/api/v1/services'
@@ -75,6 +80,13 @@ function isPrivateHttpHost(host: string): boolean {
   return false
 }
 
+/** The schedule bounds the service enforces, mirrored locally. */
+export const MONITOR_LIMITS = {
+  minIntervalSeconds: 60,
+  maxIntervalSeconds: 86_400,
+  maxHistoryLimit: 500,
+} as const
+
 /** Error thrown for a refused or failed hosted-service call. */
 export class MoleculeServiceError extends Error {
   /** HTTP status from molecule.dev. */
@@ -101,6 +113,7 @@ export class MoleculeServiceError extends Error {
 /** What to tell the developer for each refusal the service can return. */
 const HINTS: Record<number, string> = {
   401: 'Check MOLECULE_API_KEY: it must be a molecule project API key with the "broker" or "broker:uptime" scope, and not revoked.',
+  404: 'No such monitor for this project — list your monitors and use their ids.',
   402: "The molecule project's owner has used the included allowance. Enable usage billing on molecule.dev, or bond your own provider (e.g. @molecule/api-uptime-fetch).",
   413: 'The URL is limited to 2,048 characters and the probe budget (timeoutMs) to 30,000.',
   429: 'Too many requests for this project right now. Slow down and retry.',
@@ -153,8 +166,105 @@ export class MoleculeUptimeProvider implements UptimeProvider {
     return this.request('uptime/probe', checked.spec)
   }
 
+  /**
+   * Schedules (or updates) a recurring uptime monitor: the platform runs the
+   * probe on your interval from molecule.dev and stores every verdict — read
+   * them back with {@link monitorHistory}. At most 10 monitors per project.
+   *
+   * @param input - The probe spec, the interval and the optional alert subscription.
+   * @returns The stored monitor.
+   */
+  async scheduleMonitor(input: ScheduleMonitorInput): Promise<UptimeMonitorView> {
+    if (
+      typeof input.intervalSeconds !== 'number' ||
+      !Number.isInteger(input.intervalSeconds) ||
+      input.intervalSeconds < MONITOR_LIMITS.minIntervalSeconds ||
+      input.intervalSeconds > MONITOR_LIMITS.maxIntervalSeconds
+    ) {
+      throw new MoleculeServiceError(
+        `"intervalSeconds" must be a whole number between ${MONITOR_LIMITS.minIntervalSeconds} and ${MONITOR_LIMITS.maxIntervalSeconds}.`,
+        400,
+        'hostedServices.error.invalidInput',
+      )
+    }
+    // The core validator IS the service contract; run it here so a bad spec
+    // never leaves the process.
+    const checked = validateProbeSpec(input)
+    if (!checked.ok) {
+      throw new MoleculeServiceError(checked.message, 400, 'hostedServices.error.invalidInput')
+    }
+    const body: Record<string, unknown> = {
+      ...checked.spec,
+      intervalSeconds: input.intervalSeconds,
+    }
+    if (input.id !== undefined) body.id = input.id
+    if (input.alertPush !== undefined) body.alertPush = input.alertPush
+    if (input.paused !== undefined) body.paused = input.paused
+    const out = await this.request<{ monitor?: UptimeMonitorView }>('uptime/schedule', body)
+    if (!out.monitor?.id) {
+      throw new MoleculeServiceError(
+        'molecule.dev returned no monitor.',
+        502,
+        'hostedServices.error.upstreamFailed',
+      )
+    }
+    return out.monitor
+  }
+
+  /** Lists this project's scheduled monitors with their latest verdicts. */
+  async listMonitors(): Promise<UptimeMonitorView[]> {
+    const out = await this.request<{ monitors?: UptimeMonitorView[] }>('uptime/monitors', {})
+    return out.monitors ?? []
+  }
+
+  /**
+   * Reads one monitor's stored checks (newest first) with an uptime summary
+   * over the returned window. Checks are kept 30 days.
+   *
+   * @param monitorId - The monitor's id (from {@link listMonitors}).
+   * @param limit - At most 500 checks; default 100.
+   */
+  async monitorHistory(
+    monitorId: string,
+    limit = 100,
+  ): Promise<{
+    monitor: UptimeMonitorView
+    checks: UptimeCheckView[]
+    summary: {
+      total: number
+      operational: number
+      degraded: number
+      down: number
+      uptimePercent: number | null
+    }
+  }> {
+    if (!monitorId) {
+      throw new MoleculeServiceError(
+        '"monitorId" is required.',
+        400,
+        'hostedServices.error.invalidInput',
+      )
+    }
+    if (!Number.isInteger(limit) || limit < 1 || limit > MONITOR_LIMITS.maxHistoryLimit) {
+      throw new MoleculeServiceError(
+        `"limit" must be a whole number between 1 and ${MONITOR_LIMITS.maxHistoryLimit}.`,
+        400,
+        'hostedServices.error.invalidInput',
+      )
+    }
+    return this.request('uptime/history', { monitorId, limit })
+  }
+
+  /** Deletes a scheduled monitor and its stored checks. */
+  async removeMonitor(id: string): Promise<{ removed: boolean; id: string }> {
+    if (!id) {
+      throw new MoleculeServiceError('"id" is required.', 400, 'hostedServices.error.invalidInput')
+    }
+    return this.request('uptime/remove', { id })
+  }
+
   /** One POST to the hosted service. */
-  private async request(path: string, body: Record<string, unknown>): Promise<UptimeProbeResult> {
+  private async request<T>(path: string, body: Record<string, unknown>): Promise<T> {
     if (!this.apiKey) {
       throw new MoleculeServiceError(
         'MOLECULE_API_KEY is not set. Create a project API key on molecule.dev (or with `mlcl apikey create`) and put it in the API .env.',
@@ -189,13 +299,16 @@ export class MoleculeUptimeProvider implements UptimeProvider {
         err.errorKey,
       )
     }
-    const result = data as UptimeProbeResult
-    if (typeof result.status !== 'string' || typeof result.checkedAt !== 'string') {
-      throw new MoleculeServiceError(
-        'molecule.dev returned no probe verdict.',
-        502,
-        'hostedServices.error.upstreamFailed',
-      )
+    const result = data as T
+    if (path === 'uptime/probe') {
+      const probeResult = data as UptimeProbeResult
+      if (typeof probeResult.status !== 'string' || typeof probeResult.checkedAt !== 'string') {
+        throw new MoleculeServiceError(
+          'molecule.dev returned no probe verdict.',
+          502,
+          'hostedServices.error.upstreamFailed',
+        )
+      }
     }
     return result
   }
