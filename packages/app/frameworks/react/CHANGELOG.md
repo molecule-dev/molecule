@@ -1,5 +1,11 @@
 # @molecule/app-react
 
+## 3.0.2
+
+### Patch Changes
+
+- Expose the promise returned by `useForm().handleSubmit` handlers.
+
 ## 3.0.1
 
 ### Patch Changes
