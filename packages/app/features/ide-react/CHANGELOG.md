@@ -1,5 +1,11 @@
 # @molecule/app-ide-react
 
+## 3.0.1
+
+### Patch Changes
+
+- Add a team-message permission for read-only public conversation viewers.
+
 ## 3.0.0
 
 ### Patch Changes

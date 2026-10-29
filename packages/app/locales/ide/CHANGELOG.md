@@ -1,5 +1,11 @@
 # @molecule/app-locales-ide
 
+## 1.10.11
+
+### Patch Changes
+
+- Add a team-message permission for read-only public conversation viewers.
+
 ## 1.10.10
 
 ### Patch Changes
