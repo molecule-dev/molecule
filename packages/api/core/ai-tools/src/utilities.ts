@@ -22,6 +22,7 @@ import { PLAYWRIGHT_REPORT_ENV } from './playwright-report.js'
 import {
   type DiagnosisRunContext,
   isDiagnosisRun,
+  resolvePlaywrightSelectionPaths,
   type RunEnvSetting,
   scopedRerunCommand,
   suiteCommandTarget,
@@ -733,7 +734,13 @@ export function streamingBackgroundCommand(
   // refusal to send itself again with `--max-failures=15`).
   if (commandRunsNoTests(command)) return { command, changes: [] }
   const changes: string[] = []
-  let out = command
+  let out = resolvePlaywrightSelectionPaths(command)
+  if (out !== command) {
+    changes.push(
+      'Resolved dot-relative Playwright file selections to absolute paths against the runner’s ' +
+        'working directory: Playwright matches positional selections against absolute test-file paths.',
+    )
+  }
   // A filter after the suite runner is not output the platform can read: it hides the failing
   // test's own error, and its exit status replaces the run's with the filter's — m101's
   // `… | grep -E "✘|passed|failed|skipped" | tail -20` reported `exitCode: 0` for a run with a

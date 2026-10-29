@@ -809,8 +809,7 @@ interface ArgumentWord {
 }
 
 /**
- * The runner's own arguments with every positional selection taken out once the re-run names
- * failure locations.
+ * Rewrite positional test selections while preserving the other runner arguments.
  *
  * The re-run is "just these", and Playwright OR-s every positional argument into one selection:
  * ANY leftover positional re-admits tests the re-run is supposed to skip. A bare spec file
@@ -827,19 +826,20 @@ interface ArgumentWord {
  * list) — and every redirect. Quoting and spacing survive because the result is a span splice on
  * the raw text, never a rebuild from words.
  *
- * An empty `locations` list keeps the original selection untouched:
- * {@link scopedRerunCommand} is not narrowing anything then.
+ * The caller can replace each selection or return null to remove it.
  *
  * @param args - The run's own arguments, after `playwright test`.
- * @param locations - The failing `file:line`s the re-run names.
- * @returns The arguments without their positional selections.
+ * @param rewrite - Return a replacement for a positional word, or null to remove it.
+ * @returns The rewritten runner arguments.
  */
-function dropSupersededSelections(args: string, locations: readonly string[]): string {
-  if (locations.length === 0) return args
+function rewritePositionalSelections(
+  args: string,
+  rewrite: (word: string) => string | null,
+): string {
   const words: ArgumentWord[] = []
   for (const match of args.matchAll(ARGUMENT_WORD))
     words.push({ text: match[0], start: match.index ?? 0 })
-  const dropped = new Array<boolean>(words.length).fill(false)
+  const edits = new Map<number, string | null>()
   let at = 0
   while (at < words.length) {
     const word = words[at]?.text ?? ''
@@ -872,21 +872,71 @@ function dropSupersededSelections(args: string, locations: readonly string[]): s
       continue
     }
     // A bare word — a spec file, a directory or a regex filter — is a positional selection.
-    dropped[at] = true
+    edits.set(at, rewrite(word))
     at += 1
   }
   let out = ''
   let cursor = 0
   for (let i = 0; i < words.length; i += 1) {
     const word = words[i]
-    if (word === undefined || !dropped[i]) continue
-    // The whitespace in front of the word goes with it, so the result is not left double-spaced.
+    if (word === undefined || !edits.has(i)) continue
+    const replacement = edits.get(i) ?? null
     let start = word.start
-    while (start > cursor && /\s/.test(args[start - 1] ?? '')) start -= 1
+    // A dropped word takes the whitespace in front of it, so the result is not left double-spaced.
+    if (replacement === null) while (start > cursor && /\s/.test(args[start - 1] ?? '')) start -= 1
     out += args.slice(cursor, start)
+    if (replacement !== null) out += replacement
     cursor = word.start + word.text.length
   }
   return out + args.slice(cursor)
+}
+
+/**
+ * Remove positional selections when explicit failure locations replace them.
+ *
+ * @param args - The runner's arguments.
+ * @param locations - The replacement failure locations.
+ * @returns The arguments without superseded positional selections.
+ */
+function dropSupersededSelections(args: string, locations: readonly string[]): string {
+  if (locations.length === 0) return args
+  return rewritePositionalSelections(args, () => null)
+}
+
+/** A dot-relative literal path, not a regular-expression selection or a dynamic shell word. */
+const DOT_RELATIVE_SELECTION = /^(?:\.\.?\/)+[A-Za-z0-9_./+@-]*$/
+
+/** A filesystem-literal path in the regular-expression dialect Playwright uses for selections. */
+const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+
+/**
+ * Resolve literal `./`/`../` Playwright file selections against the runner's own directory.
+ *
+ * Playwright treats every positional selection as a regular expression matched against each
+ * collected test's ABSOLUTE path. A location copied from its reporter (`../checks/smoke.spec.ts:9`)
+ * therefore collects nothing even though that path exists relative to the shell. Resolving a
+ * literal path also escapes its regex metacharacters and shell-quotes the result: `+` and `.`
+ * must match themselves, and the shell must pass the whole filter as one argument. Option values,
+ * redirects, regex selections, absolute paths, and commands whose directory cannot be known stay
+ * byte-for-byte unchanged.
+ *
+ * @param command - The command that invokes Playwright.
+ * @param cwd - The tool's working directory, used when the command has no absolute `cd`.
+ * @returns The command with only its literal dot-relative positional selections resolved.
+ */
+export function resolvePlaywrightSelectionPaths(command: string, cwd?: string | null): string {
+  const run = playwrightStatement(command)
+  if (run === null) return command
+  const base = suiteRunDirectory(command, cwd)
+  if (base === null) return command
+  const args = command.slice(run.afterRunner, run.end)
+  const resolved = rewritePositionalSelections(args, (word) => {
+    const raw = unquoted(word)
+    const [, file = raw, suffix = ''] = LOCATION_LINE.exec(raw) ?? []
+    if (!DOT_RELATIVE_SELECTION.test(file)) return word
+    return shellQuote(`${escapeRegExp(posix.resolve(base, file))}${suffix}`)
+  })
+  return command.slice(0, run.afterRunner) + resolved + command.slice(run.end)
 }
 
 /**

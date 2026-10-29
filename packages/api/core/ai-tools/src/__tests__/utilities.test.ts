@@ -8,6 +8,7 @@ import {
   rmSync,
   writeFileSync,
 } from 'node:fs'
+import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
@@ -651,6 +652,99 @@ describe('streamingBackgroundCommand', () => {
     'Each failure’s own error is now written into the log as that test fails, not only in the ' +
     'summary at the end — so a run that is still walking already says what its failures are, ' +
     'and you need not wait for it to end to start on them.'
+
+  it('resolves the actual caller’s dot-relative Playwright locations against its run directory', () => {
+    // The actual m451 +10:12 call: the file exists at this path from the app directory, but
+    // Playwright matches the positional filter against absolute collected paths and finds none.
+    const command =
+      'cd /workspace/my-app/app && TEST_MODE=fullstack BASE_URL=http://localhost:5173 ' +
+      'API_BASE=http://localhost:5173/api npx playwright test --config e2e-suite.config.ts ' +
+      '--retries=0 ../../fixtures/realworld/specs/e2e/auth.spec.ts 2>&1 | tail -40'
+    const rewritten = streamingBackgroundCommand(command)
+    expect(rewritten.command).toContain(
+      "'/workspace/fixtures/realworld/specs/e2e/auth\\.spec\\.ts'",
+    )
+    expect(rewritten.command).not.toContain('../../fixtures/realworld')
+    expect(rewritten.changes.join('\n')).toContain('absolute paths')
+    // Its actual +10:33 basename correction was already matchable and stays a basename.
+    const corrected = streamingBackgroundCommand(
+      'cd /workspace/my-app/app && npx playwright test auth.spec.ts --reporter=list',
+    )
+    expect(corrected.command).toContain(' test auth.spec.ts ')
+  })
+
+  it('resolves a generic non-X1 selection without rewriting option values or regex filters', () => {
+    const command =
+      'cd /repo/site && npx playwright test ../checks/smoke.spec.ts:9 ' +
+      "--config ../playwright.config.ts '../shots/.*\\.spec\\.ts' " +
+      "'../checks/smoke.+\\.spec\\.ts' --reporter=list"
+    const rewritten = streamingBackgroundCommand(command).command
+    expect(rewritten).toContain("'/repo/checks/smoke\\.spec\\.ts:9'")
+    expect(rewritten).toContain('--config ../playwright.config.ts')
+    expect(rewritten).toContain("'../shots/.*\\.spec\\.ts'")
+    expect(rewritten).toContain("'../checks/smoke.+\\.spec\\.ts'")
+  })
+
+  it('escapes plus, at-sign and dot filesystem literals without losing the location suffix', () => {
+    const command =
+      'cd /repo/site+kit && npx playwright test ./@checks/smoke.spec.ts:9:4 --reporter=list'
+    expect(streamingBackgroundCommand(command).command).toContain(
+      "'/repo/site\\+kit/@checks/smoke\\.spec\\.ts:9:4'",
+    )
+  })
+
+  it('keeps a quoted selection containing spaces unchanged', () => {
+    const command =
+      "cd /repo/site && npx playwright test '../checks/smoke test.spec.ts' --reporter=list"
+    expect(streamingBackgroundCommand(command).command).toContain("'../checks/smoke test.spec.ts'")
+  })
+
+  it('collects a literal plus path through the real Playwright CLI after normalization', () => {
+    const fixture = mkdtempSync(join(process.cwd(), '.tmp-playwright-selection-'))
+    try {
+      const app = join(fixture, 'site+kit')
+      mkdirSync(join(app, 'checks'), { recursive: true })
+      mkdirSync(join(fixture, 'bin'))
+      writeFileSync(join(app, 'playwright.config.mjs'), "export default { testDir: './checks' };\n")
+      writeFileSync(
+        join(app, 'checks', 'smoke.spec.ts'),
+        "import { test } from '@playwright/test';\ntest('generic smoke', () => {});\n",
+      )
+      // Resolve the installed CLI, never npx's network fallback. The shim only preserves the
+      // caller's real `npx playwright test` shape while executing that local CLI directly.
+      const cli = createRequire(import.meta.url).resolve('@playwright/test/cli')
+      const npx = join(fixture, 'bin', 'npx')
+      writeFileSync(
+        npx,
+        `#!/bin/sh\n[ "$1" = playwright ] || exit 64\nshift\nexec ${shellQuote(process.execPath)} ${shellQuote(cli)} "$@"\n`,
+      )
+      chmodSync(npx, 0o755)
+      const input = `cd ${app} && npx playwright test --config playwright.config.mjs ./checks/smoke.spec.ts`
+      const list = (command: string) =>
+        spawnSync('bash', ['-c', `${command} --list`], {
+          cwd: fixture,
+          env: { ...process.env, PATH: `${join(fixture, 'bin')}:${process.env.PATH}` },
+          encoding: 'utf8',
+          timeout: 15_000,
+        })
+      const original = list(input)
+      expect(original.status, original.stdout + original.stderr).toBe(0)
+      expect(original.stdout).toContain('generic smoke')
+      const rewritten = list(streamingBackgroundCommand(input).command)
+      expect(rewritten.status, rewritten.stdout + rewritten.stderr).toBe(0)
+      expect(rewritten.stdout).toContain('generic smoke')
+    } finally {
+      rmSync(fixture, { recursive: true, force: true })
+    }
+  })
+
+  it('keeps absolute selections and an unknowable run directory unchanged', () => {
+    const absolute =
+      'cd /repo/site && npx playwright test /repo/checks/smoke.spec.ts:9 --reporter=list'
+    expect(streamingBackgroundCommand(absolute).command).toContain('/repo/checks/smoke.spec.ts:9')
+    const dynamic = 'cd $ROOT && npx playwright test ../checks/smoke.spec.ts:9 --reporter=list'
+    expect(streamingBackgroundCommand(dynamic).command).toContain('../checks/smoke.spec.ts:9')
+  })
 
   it('drops a trailing tail, in both of its spellings', () => {
     // The inline switch rides every background command that is not a no-test invocation — it is
