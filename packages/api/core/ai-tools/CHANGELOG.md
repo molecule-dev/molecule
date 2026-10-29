@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.14.9
+
+### Patch Changes
+
+- Normalize relative Playwright file selections before running browser tests.
+
 ## 1.14.8
 
 ### Patch Changes
