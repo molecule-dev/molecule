@@ -23,6 +23,24 @@ export interface BrandingSpec {
   source: 'user' | 'random'
 }
 
+/** Project types accepted by both project creation and `mlcl create --type`. */
+export const PROJECT_TYPES = [
+  'api',
+  'app',
+  'full-stack',
+  'static',
+  'status-page',
+  'status-page-edge',
+] as const
+
+/** A supported project type. */
+export type ProjectType = (typeof PROJECT_TYPES)[number]
+
+/** Runtime counterpart to the compile-time project-type contract. */
+export function isProjectType(value: unknown): value is ProjectType {
+  return typeof value === 'string' && (PROJECT_TYPES as readonly string[]).includes(value)
+}
+
 /**
  * A user project record (name, type, framework, packages, sandbox state, settings).
  */
@@ -31,7 +49,7 @@ export interface Project {
   userId: string
   name: string
   slug: string
-  projectType: 'api' | 'app' | 'full-stack' | 'status-page'
+  projectType: ProjectType
   framework: string | null
   packages: string[]
   /** Flagship template slug the project was scaffolded from, if any. */

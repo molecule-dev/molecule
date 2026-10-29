@@ -8,6 +8,7 @@ import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 import { uniqueSlugInTable } from '@molecule/api-slug'
 
 import type { CreateProjectInput, Project } from '../types.js'
+import { isProjectType } from '../types.js'
 
 /**
  * Creates a new project with a unique slug derived from the project name. Requires `name` and
@@ -32,6 +33,15 @@ export async function create(req: MoleculeRequest, res: MoleculeResponse): Promi
     res.status(400).json({
       error: t('project.error.nameAndTypeRequired'),
       errorKey: 'project.error.nameAndTypeRequired',
+    })
+    return
+  }
+  if (!isProjectType(input.projectType)) {
+    res.status(400).json({
+      error: t('project.error.invalidType', undefined, {
+        defaultValue: `Unsupported projectType; expected one of: api, app, full-stack, static, status-page, status-page-edge`,
+      }),
+      errorKey: 'project.error.invalidType',
     })
     return
   }

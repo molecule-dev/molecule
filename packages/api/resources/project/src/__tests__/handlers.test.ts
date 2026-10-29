@@ -40,11 +40,15 @@ vi.mock('@molecule/api-bond', () => ({
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { authUser } from '../authorizers/authUser.js'
-import { create } from '../handlers/create.js'
 import { del } from '../handlers/del.js'
 import { list } from '../handlers/list.js'
 import { read } from '../handlers/read.js'
 import { update } from '../handlers/update.js'
+import { requestHandlerMap } from '../requestHandlerMap.js'
+import { PROJECT_TYPES } from '../types.js'
+
+// Exercise the same exported handler the application's POST /projects route calls.
+const create = requestHandlerMap.create
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function mockReq(overrides: Record<string, unknown> = {}): any {
@@ -93,6 +97,46 @@ describe('@molecule/api-resource-project handlers', () => {
       await create(req, res)
 
       expect(res.status).toHaveBeenCalledWith(400)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'project.error.nameAndTypeRequired' }),
+      )
+      expect(mockFindOne).not.toHaveBeenCalled()
+      expect(mockCreate).not.toHaveBeenCalled()
+    })
+
+    it.each(['frontend', 'fullstack', 'API', ' full-stack ', 'template', 42, true, {}, []])(
+      'should reject unsupported projectType %j before any database work',
+      async (projectType) => {
+        const req = mockReq({ body: { name: 'Test', projectType } })
+        const res = mockRes()
+
+        await create(req, res)
+
+        expect(res.status).toHaveBeenCalledWith(400)
+        expect(res.json).toHaveBeenCalledWith(
+          expect.objectContaining({ errorKey: 'project.error.invalidType' }),
+        )
+        expect(mockFindOne).not.toHaveBeenCalled()
+        expect(mockCreate).not.toHaveBeenCalled()
+      },
+    )
+
+    it.each(PROJECT_TYPES)('should create a supported %s project', async (projectType) => {
+      mockFindOne.mockResolvedValue(null)
+      mockCreate.mockResolvedValue({ data: { id: projectType, projectType } })
+      const req = mockReq({
+        body: {
+          name: `Test ${projectType}`,
+          projectType,
+          template: projectType === 'static' ? 'static-site' : undefined,
+        },
+      })
+      const res = mockRes()
+
+      await create(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(201)
+      expect(mockCreate).toHaveBeenCalledWith('projects', expect.objectContaining({ projectType }))
     })
 
     it('should create project with slugified name', async () => {
