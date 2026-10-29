@@ -176,9 +176,9 @@ describe('TestsCard — listing', () => {
     expect(molId(container, 'tests-card-row-my-app/app:e2e/home.spec.ts')).not.toBeNull()
   })
 
-  it('tells e2e readers the specs drive the live preview', () => {
+  it('does not require a live preview for browser tests', () => {
     const { container } = renderCard()
-    expect(molId(container, 'tests-card-e2e-hint')?.textContent).toContain('live preview')
+    expect(molId(container, 'tests-card-e2e-hint')).toBeNull()
   })
 
   it('filters on the search box, matching file, title, or directory', () => {

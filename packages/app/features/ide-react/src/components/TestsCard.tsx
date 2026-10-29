@@ -12,12 +12,9 @@
  * last), because a run is invoked from that directory and a person reading two
  * `home.spec.ts` rows needs to know which app each belongs to.
  *
- * The end-to-end specs are the point: the host runs them through the
- * `@molecule/app-e2e-preview` bond chain every scaffolded app carries, so each
- * spec drives the LIVE PREVIEW the person is looking at — no browser binary in
- * the sandbox. That also means **the preview has to be open**: with no page
- * connected the driver waits and then fails saying so, which the card states
- * next to the end-to-end group rather than leaving it a mystery.
+ * The host runs each project's configured test runner. Browser specs normally
+ * use sandbox Chromium; a project can explicitly choose the live preview.
+ * The card lists and runs both without assuming a preview page is attached.
  *
  * A run of end-to-end specs takes minutes, so a running row NAMES the test on
  * screen — the runner's own group and title, from the stream's `case` events —
@@ -657,13 +654,6 @@ function TestsCardGroup({
           {t('ide.tests.runGroup', undefined, { defaultValue: 'Run group' })}
         </button>
       </div>
-      {group.kind === 'e2e' && (
-        <div data-mol-id="tests-card-e2e-hint" className={cm.textMuted} style={{ lineHeight: 1.4 }}>
-          {t('ide.tests.e2eHint', undefined, {
-            defaultValue: 'These run against the live preview, so keep the preview open.',
-          })}
-        </div>
-      )}
       {group.items.map((item) => (
         <TestsCardRow
           key={item.id}

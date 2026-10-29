@@ -2,10 +2,8 @@
  * The tests status bar — a collapsed strip above the commit bar saying how the
  * project's tests stand, and what is running right now.
  *
- * It exists because a run DRIVES THE PREVIEW: the e2e specs navigate the live
- * preview as they go, so without this the preview moves on its own with nothing
- * on screen to account for it. The bar is that account, and it is shown by
- * default for exactly that reason.
+ * The summary stays visible while the tests browser is closed, so the person
+ * can follow a run and reopen its results from the composer.
  *
  * It deliberately borrows the commit bar's chrome — same hairline top border,
  * same `8px 8px 8px 10px` padding, same 12px chevron rotating 90° on expand,

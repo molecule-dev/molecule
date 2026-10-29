@@ -12,8 +12,9 @@
  * @module
  */
 
-import { fireEvent, render, waitFor } from '@testing-library/react'
+import { act, fireEvent, render, waitFor } from '@testing-library/react'
 import type { ReactElement, ReactNode } from 'react'
+import { StrictMode } from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { ChatConfig, ChatEventHandler, ChatProvider } from '@molecule/app-ai-chat'
@@ -243,6 +244,49 @@ beforeEach(() => {
 })
 
 describe('the /test command', () => {
+  it('lists tests and accepts run events after effects reconnect', async () => {
+    let emit: (event: TestRunEvent) => void = () => {}
+    const cancel = vi.fn()
+    const listTests = vi.fn(async () => LIST)
+    const runTests = vi.fn((_selection: TestSelection, onEvent: typeof emit) => {
+      emit = onEvent
+      return { cancel }
+    })
+    const { container, unmount } = render(
+      <StrictMode>{renderPanel({ listTests, runTests })}</StrictMode>,
+    )
+    submit(container, '/test')
+    await waitFor(() => expect(listTests).toHaveBeenCalled())
+    expect(molId(container, 'tests-card')).not.toBeNull()
+    const run = await waitFor(() => {
+      const button = molId(container, 'tests-card-run-my-app/app:e2e/home.spec.ts')
+      expect(button).not.toBeNull()
+      return button!
+    })
+    fireEvent.click(run)
+    expect(runTests).toHaveBeenCalledWith(
+      { ids: ['my-app/app:e2e/home.spec.ts'] },
+      expect.any(Function),
+    )
+    act(() => {
+      emit({ type: 'start', runId: 'manual-run', ids: ['my-app/app:e2e/home.spec.ts'] })
+      emit({
+        type: 'result',
+        id: 'my-app/app:e2e/home.spec.ts',
+        status: 'passed',
+        passed: 1,
+        failed: 0,
+        skipped: 0,
+      })
+      emit({ type: 'done', outcome: 'completed', passed: 1, failed: 0, skipped: 0 })
+    })
+    await waitFor(() => expect(molId(container, 'tests-card-running')).toBeNull())
+    expect(molId(container, 'tests-card-summary')?.textContent).toContain('1 passed')
+    fireEvent.click(molId(container, 'tests-card-run-my-app/app:e2e/home.spec.ts')!)
+    unmount()
+    expect(cancel).toHaveBeenCalledTimes(1)
+  })
+
   it('opens the tests browser with one click on the not-run summary', async () => {
     const listTests = vi.fn(async () => LIST)
     const runTests = vi.fn(() => ({ cancel: () => {} }))

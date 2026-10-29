@@ -4499,7 +4499,7 @@ function ChatInner({
   // ── /test (the tests browser) ───────────────────────────────────────────────
   // The list and the in-flight run live HERE, not inside TestsCard, for one
   // reason: the card is an overlay the user closes. A run that is streaming
-  // (a preview-driven spec takes a minute) must survive that close and still be
+  // (a browser spec can take a minute) must survive that close and still be
   // there when they re-open it, and re-running /test must re-list without
   // killing it. So the card is presentational and this owns the state.
   const [testsList, setTestsList] = useState<TestItem[]>([])
@@ -4517,13 +4517,15 @@ function ChatInner({
   // Live for the async callbacks, so a list resolving after an unmount, or a
   // run event arriving then, never sets state on a dead tree.
   const testsMountedRef = useRef(true)
-  useEffect(
-    () => () => {
+  useEffect(() => {
+    // React can reconnect effects on the same tree (StrictMode/Suspense).
+    // Cleanup must not permanently silence discovery and run events.
+    testsMountedRef.current = true
+    return () => {
       testsMountedRef.current = false
       testsRunHandleRef.current?.cancel()
-    },
-    [],
-  )
+    }
+  }, [])
 
   const refreshTests = useCallback(async (): Promise<void> => {
     // A host that wires no discovery has no tests to show. Say so rather than
@@ -11490,8 +11492,7 @@ function ChatInner({
 
         {/* Tests status strip — sits directly ABOVE the commit bar and wears its
             chrome, so the two read as one stack over the composer. Shown by
-            default (a run drives the preview, and an unexplained moving preview
-            is what this removes); hidden with `/test off`. Unlike the commit bar
+            default so a run's status stays visible; hidden with `/test off`. Unlike the commit bar
             it renders for a VIEWER too: watching is not editing, and a viewer
             watching the preview move deserves the same explanation.
 

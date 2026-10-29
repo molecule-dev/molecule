@@ -94,7 +94,7 @@ export interface TestsRunState {
 /** Live output lines retained — enough to read, bounded so a chatty run cannot grow forever. */
 export const MAX_OUTPUT_LINES = 400
 
-/** Display order of the kinds: the preview-driven specs lead, unit tests follow. */
+/** Display order of the kinds: browser specs lead, unit tests follow. */
 const KIND_ORDER: readonly TestKind[] = ['e2e', 'unit']
 
 /**
