@@ -1,5 +1,11 @@
 # @molecule/app-ui-react
 
+## 3.0.3
+
+### Patch Changes
+
+- Show one tooltip at a time while preserving hover access to tooltip content.
+
 ## 3.0.2
 
 ### Patch Changes
