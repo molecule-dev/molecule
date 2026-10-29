@@ -1,5 +1,11 @@
 # @molecule/api-ai-moonshot
 
+## 1.2.0
+
+### Minor Changes
+
+- Support cancellable retries of temporary upstream overloads while preserving request state.
+
 ## 1.1.6
 
 ### Patch Changes
