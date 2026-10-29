@@ -23,6 +23,79 @@ afterEach(() => {
 })
 
 describe('tooltip hover interactions', () => {
+  it('hands off immediately across toolbar buttons without leaving a tooltip trail', () => {
+    render(
+      <>
+        {['Share', 'Report', 'Settings'].map((label) => (
+          <Tooltip key={label} content={`${label} help`}>
+            <button type="button">{label}</button>
+          </Tooltip>
+        ))}
+      </>,
+    )
+    for (const label of ['Share', 'Report', 'Settings']) {
+      const button = screen.getByRole('button', { name: label })
+      fireEvent.mouseEnter(button)
+      expect(screen.getAllByRole('tooltip')).toHaveLength(1)
+      expect(screen.getByRole('tooltip').textContent).toBe(`${label} help`)
+      fireEvent.mouseLeave(button)
+      act(() => vi.advanceTimersByTime(25))
+    }
+    act(() => vi.advanceTimersByTime(150))
+    expect(screen.queryByRole('tooltip')).toBeNull()
+  })
+
+  it('cancels another trigger’s pending show and replaces visible help even when the new tooltip is delayed', () => {
+    render(
+      <>
+        <Tooltip content="Share help">
+          <button type="button">Share</button>
+        </Tooltip>
+        <Tooltip content="Delayed settings" delay={300}>
+          <button type="button">Settings</button>
+        </Tooltip>
+        <Tooltip content="Report help">
+          <button type="button">Report</button>
+        </Tooltip>
+      </>,
+    )
+    fireEvent.mouseEnter(screen.getByRole('button', { name: 'Share' }))
+    expect(screen.getByRole('tooltip').textContent).toBe('Share help')
+    fireEvent.mouseEnter(screen.getByRole('button', { name: 'Settings' }))
+    expect(screen.queryByRole('tooltip')).toBeNull()
+    act(() => vi.advanceTimersByTime(100))
+    fireEvent.mouseEnter(screen.getByRole('button', { name: 'Report' }))
+    act(() => vi.advanceTimersByTime(500))
+    expect(screen.getAllByRole('tooltip')).toHaveLength(1)
+    expect(screen.getByRole('tooltip').textContent).toBe('Report help')
+  })
+
+  it('preserves the current owner when an older replaced tooltip unmounts', () => {
+    const view = (first: boolean) => (
+      <>
+        {first && (
+          <Tooltip content="Old help">
+            <button type="button">Old</button>
+          </Tooltip>
+        )}
+        <Tooltip content="Current help">
+          <button type="button">Current</button>
+        </Tooltip>
+        <Tooltip content="Next help">
+          <button type="button">Next</button>
+        </Tooltip>
+      </>
+    )
+    const { rerender } = render(view(true))
+    fireEvent.mouseEnter(screen.getByRole('button', { name: 'Old' }))
+    fireEvent.mouseEnter(screen.getByRole('button', { name: 'Current' }))
+    rerender(view(false))
+    expect(screen.getByRole('tooltip').textContent).toBe('Current help')
+    fireEvent.mouseEnter(screen.getByRole('button', { name: 'Next' }))
+    expect(screen.getAllByRole('tooltip')).toHaveLength(1)
+    expect(screen.getByRole('tooltip').textContent).toBe('Next help')
+  })
+
   it('dismisses pointer-only hover with Escape while focus stays in another control', () => {
     render(
       <>

@@ -26,6 +26,10 @@ interface Position {
 /** Arrow square size (px) before the 45° rotation that turns it into a diamond. */
 const ARROW_SIZE = 8
 
+// Coordinate hover and delayed shows across all tooltip instances in a page.
+// A document key avoids sharing an active control between distinct documents.
+const activeTooltips = new WeakMap<Document, () => void>()
+
 /**
  * Returns the arrow's inline position style for a given placement. The arrow
  * has no dedicated ClassMap resolver (`tooltip()` takes no options), so its
@@ -142,7 +146,8 @@ function calculatePosition(
  * A non-element `children` (plain text, a fragment, multiple nodes) still
  * shows the tooltip visually on hover/focus, but without that association.
  * `hasArrow` renders a small themed pointer at the resolved `placement`
- * edge.
+ * edge. Entering another tooltip trigger immediately dismisses the previous
+ * tooltip, including any pending delayed show.
  */
 export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
   (
@@ -194,7 +199,24 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
       }
     }, [placement])
 
+    const hide = useCallback((): void => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+      }
+      clearTimeout(hideTimeoutRef.current)
+      if (typeof document !== 'undefined' && activeTooltips.get(document) === hide) {
+        activeTooltips.delete(document)
+      }
+      setIsVisible(false)
+    }, [])
+
     const show = useCallback(() => {
+      if (typeof document !== 'undefined') {
+        const previous = activeTooltips.get(document)
+        if (previous !== hide) previous?.()
+        // Claim before scheduling so another trigger also cancels pending shows.
+        activeTooltips.set(document, hide)
+      }
       clearTimeout(hideTimeoutRef.current)
       clearTimeout(timeoutRef.current)
       if (delay > 0) {
@@ -204,15 +226,7 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
       } else {
         setIsVisible(true)
       }
-    }, [delay])
-
-    const hide = useCallback(() => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current)
-      }
-      clearTimeout(hideTimeoutRef.current)
-      setIsVisible(false)
-    }, [])
+    }, [delay, hide])
 
     // Allow the pointer to cross the placement gap into the tooltip itself.
     const scheduleHide = useCallback(() => {
@@ -268,8 +282,11 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
           clearTimeout(timeoutRef.current)
         }
         clearTimeout(hideTimeoutRef.current)
+        if (typeof document !== 'undefined' && activeTooltips.get(document) === hide) {
+          activeTooltips.delete(document)
+        }
       }
-    }, [])
+    }, [hide])
 
     // Outer positioned wrapper carries the top/left/zIndex placement; the
     // arrow renders as its SIBLING (not nested inside the visible box),
