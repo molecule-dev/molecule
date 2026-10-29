@@ -87,7 +87,9 @@ export interface UseFormResult<T extends FormValuesConstraint<T>> {
   clearErrors: () => void
 
   // Form methods
-  handleSubmit: (onSubmit: (values: T) => void | Promise<void>) => (event?: React.FormEvent) => void
+  handleSubmit: (
+    onSubmit: (values: T) => void | Promise<void>,
+  ) => (event?: React.FormEvent) => Promise<void>
   reset: (values?: Partial<T>) => void
   validate: () => Promise<boolean>
 }
