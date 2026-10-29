@@ -1,4 +1,4 @@
-import { type JSX, useState } from 'react'
+import { type JSX, useEffect, useState } from 'react'
 
 import type { ContextCategoryId, ContextCompaction, ContextUsage } from '@molecule/app-ai-chat'
 import { formatTokenCount } from '@molecule/app-ai-models'
@@ -51,7 +51,7 @@ interface ContextUsageIndicatorProps {
   history?: ContextUsage[]
   compactions?: ContextCompaction[]
   projectId?: string
-  conversationId?: string
+  conversationId?: string | null
   onOpenSettings?: () => void
 }
 
@@ -75,6 +75,14 @@ function ContextUsageView({
   const cm = getClassMap()
   const [open, setOpen] = useState(false)
   const [preview, setPreview] = useState(false)
+  useEffect(() => {
+    if (!preview) return
+    const dismiss = (event: KeyboardEvent): void => {
+      if (event.key === 'Escape') setPreview(false)
+    }
+    document.addEventListener('keydown', dismiss)
+    return () => document.removeEventListener('keydown', dismiss)
+  }, [preview])
   const session = useContextSessionUsage(projectId, conversationId, open || preview)
   const target = usage.backgroundCompactAtTokens ?? usage.compactAtTokens
   const limit = Math.max(1, target ?? usage.contextWindow)
@@ -112,7 +120,8 @@ function ContextUsageView({
       </div>
       <Progress value={percent} color={tone} size="sm" label={targetLabel} />
       <div className={cm.cn(cm.textMuted, cm.textSize('xs'))}>
-        {label}
+        {formatTokenCount(usage.inputTokens)} / {formatTokenCount(limit)}{' '}
+        {t('ide.chat.context.tokenUnit', undefined, { defaultValue: 'tokens' })}
         <div>
           {t(
             'ide.chat.context.headroom',
@@ -142,7 +151,7 @@ function ContextUsageView({
         style={{ marginLeft: 'auto' }}
         onMouseEnter={() => setPreview(true)}
         onMouseLeave={() => setPreview(false)}
-        onFocus={() => setPreview(true)}
+        onFocus={(event) => setPreview(event.target.matches(':focus-visible'))}
         onBlur={() => setPreview(false)}
         onKeyDown={(event) => {
           if (event.key === 'Escape') setPreview(false)
@@ -152,7 +161,12 @@ function ContextUsageView({
           placement="top-end"
           style={{ width: 320, maxWidth: 'calc(100vw - 32px)', whiteSpace: 'normal' }}
           content={
-            <div className={cm.flex({ direction: 'col', gap: 'md' })} style={{ padding: '8px 0' }}>
+            <div
+              className={cm.flex({ direction: 'col', gap: 'md' })}
+              style={{ padding: '8px 0' }}
+              onMouseEnter={() => setPreview(true)}
+              onMouseLeave={() => setPreview(false)}
+            >
               {contextSummary}
               <div className={cm.borderT} style={{ paddingTop: 12 }}>
                 <ContextSessionUsage {...session} />

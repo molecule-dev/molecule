@@ -20,7 +20,7 @@
  * @module
  */
 
-import { cleanup, fireEvent, render } from '@testing-library/react'
+import { cleanup, fireEvent, render, waitFor } from '@testing-library/react'
 import type { ReactElement, ReactNode } from 'react'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
@@ -29,7 +29,8 @@ import { setIconSet } from '@molecule/app-icons'
 import type { DeviceFrame, PreviewProvider, PreviewState } from '@molecule/app-live-preview'
 import * as ideLocales from '@molecule/app-locales-ide'
 import { PreviewProvider as PreviewContextProvider } from '@molecule/app-react'
-import { setClassMap, type UIClassMap } from '@molecule/app-ui'
+import { setClassMap } from '@molecule/app-ui'
+import { classMap } from '@molecule/app-ui-tailwind'
 
 import { AutoCommitBadge } from '../components/AutoCommitBadge.js'
 import type { AutoCommitState } from '../components/chat-autocommit-utilities.js'
@@ -43,39 +44,6 @@ import type { TestList } from '../types.js'
 
 const fr = ideLocales.fr as Record<string, string>
 const en = ideLocales.en as Record<string, string>
-
-/**
- * A ClassMap stub whose every member resolves to its key as a class token
- *  (so layout helpers/`cn()` don't depend on a concrete styling bond).
- */
-function buildStubClassMap(): UIClassMap {
-  const token =
-    (name: string) =>
-    (..._args: unknown[]): string =>
-      name
-  const cn = (...classes: unknown[]): string => {
-    const out: string[] = []
-    const walk = (c: unknown): void => {
-      if (Array.isArray(c)) c.forEach(walk)
-      else if (typeof c === 'string' && c) out.push(c)
-      else if (typeof c === 'function') {
-        const s = String(c)
-        if (s) out.push(s)
-      }
-    }
-    classes.forEach(walk)
-    return out.join(' ')
-  }
-  return new Proxy(
-    {},
-    {
-      get(_t, prop): unknown {
-        if (prop === 'cn') return cn
-        return token(String(prop))
-      },
-    },
-  ) as unknown as UIClassMap
-}
 
 /**
  * A no-active-preview {@link PreviewProvider} so PreviewPanel renders only its
@@ -127,7 +95,7 @@ function Wrap({ children }: { children: ReactNode }): ReactElement {
 }
 
 beforeEach(async () => {
-  setClassMap(buildStubClassMap())
+  setClassMap(classMap)
   // Any glyph resolves to an empty path set — Icon only needs a defined entry.
   setIconSet(new Proxy({}, { get: () => ({ paths: [] }) }))
   // The module-level `t()` resolves against the bonded provider (NOT React
@@ -160,7 +128,7 @@ describe('IDE-shell i18n resolves through the locale bond (cross-cutting-i18n)',
     }
   })
 
-  it('renders the preview toolbar back/forward tooltips from the bond, not the English default', () => {
+  it('renders the preview toolbar back/forward tooltips from the bond, not the English default', async () => {
     const { container } = render(
       <Wrap>
         <PreviewPanel />
@@ -180,6 +148,7 @@ describe('IDE-shell i18n resolves through the locale bond (cross-cutting-i18n)',
     // The pre-fix bug: with the key absent, the default English "Back" rendered.
     expect(document.body.querySelector('[role="tooltip"]')?.textContent).not.toBe('Back')
     fireEvent.mouseLeave(back.parentElement as HTMLElement)
+    await waitFor(() => expect(document.body.querySelector('[role="tooltip"]')).toBeNull())
 
     fireEvent.mouseEnter(forward.parentElement as HTMLElement)
     expect(document.body.querySelector('[role="tooltip"]')?.textContent).toBe(

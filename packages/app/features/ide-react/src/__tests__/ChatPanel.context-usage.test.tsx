@@ -67,6 +67,16 @@ it('renders pre-dispatch usage and live compaction before an assistant message, 
   let push: ((conversationId: string, event: ChatStreamEvent) => void) | null = null
   let resolveHistory!: (value: unknown) => void
   const get = vi.fn(async (url: string) => {
+    if (url === '/projects/context-test/chat-usage?conversationId=one')
+      return {
+        data: {
+          inputTokens: 1000,
+          outputTokens: 2000,
+          cacheReadInputTokens: 5000,
+          allowancePercent: 40,
+          allowanceWindow: 'billing-period',
+        },
+      }
     if (url.includes('/chat?conversationId=one'))
       return new Promise((resolve) => {
         resolveHistory = resolve
@@ -152,6 +162,9 @@ it('renders pre-dispatch usage and live compaction before an assistant message, 
   )
   fireEvent.click(screen.getByRole('button', { name: /Context usage/ }))
   expect(screen.getByText(/50,000 → 5,000 characters · 3s/)).toBeTruthy()
+  await screen.findByText('~60% remaining')
+  expect(screen.getByText('8.0K tokens')).toBeTruthy()
+  expect(screen.getByRole('button', { name: 'Chat settings' })).toBeTruthy()
   fireEvent.keyDown(document, { key: 'Escape' })
   await act(async () => rerender(panel('two')))
   expect(screen.queryByRole('button', { name: /Context usage/ })).toBeNull()

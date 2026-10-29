@@ -1247,6 +1247,7 @@ describe('Tooltip — hasArrow and programmatic content association', () => {
   })
 
   it('CONSUMER PROPERTY: the visible tooltip is programmatically associated with the focused trigger', () => {
+    vi.useFakeTimers()
     render(
       <Tooltip content="Help text">
         <button type="button">Trigger</button>
@@ -1261,6 +1262,7 @@ describe('Tooltip — hasArrow and programmatic content association', () => {
     // not the wrapper div, which is never itself the focused element.
     expect(trigger.getAttribute('aria-describedby')).toBe(tooltipId)
     fireEvent.mouseOut(trigger.parentElement as HTMLElement)
+    act(() => vi.advanceTimersByTime(150))
     expect(trigger.getAttribute('aria-describedby')).toBeNull()
   })
 })

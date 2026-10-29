@@ -154,6 +154,7 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
     const triggerRef = useRef<HTMLDivElement>(null)
     const tooltipRef = useRef<HTMLDivElement>(null)
     const timeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined)
+    const hideTimeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined)
     // Programmatically associates the tooltip with its trigger. A previous
     // version relied on the WRAPPER div's hover/focus — but the wrapper is
     // not itself the focused element, so its `aria-describedby` would never
@@ -194,6 +195,8 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
     }, [placement])
 
     const show = useCallback(() => {
+      clearTimeout(hideTimeoutRef.current)
+      clearTimeout(timeoutRef.current)
       if (delay > 0) {
         timeoutRef.current = setTimeout(() => {
           setIsVisible(true)
@@ -207,8 +210,30 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current)
       }
+      clearTimeout(hideTimeoutRef.current)
       setIsVisible(false)
     }, [])
+
+    // Allow the pointer to cross the placement gap into the tooltip itself.
+    const scheduleHide = useCallback(() => {
+      clearTimeout(timeoutRef.current)
+      clearTimeout(hideTimeoutRef.current)
+      hideTimeoutRef.current = setTimeout(hide, 150)
+    }, [hide])
+
+    const keepVisible = useCallback(() => {
+      clearTimeout(hideTimeoutRef.current)
+    }, [])
+
+    useEffect(() => {
+      if (!isVisible) return
+      // Hovered content must dismiss while focus stays in the editor/composer.
+      const onEscape = (event: KeyboardEvent): void => {
+        if (event.key === 'Escape') hide()
+      }
+      document.addEventListener('keydown', onEscape)
+      return () => document.removeEventListener('keydown', onEscape)
+    }, [isVisible, hide])
 
     // Show on focus ONLY for keyboard focus (:focus-visible). A mouse click or a
     // programmatic .focus() — e.g. a dropdown/menu returning focus to its trigger
@@ -235,13 +260,14 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
       if (isVisible) {
         updatePosition()
       }
-    }, [isVisible, updatePosition])
+    }, [isVisible, updatePosition, content])
 
     useEffect(() => {
       return () => {
         if (timeoutRef.current) {
           clearTimeout(timeoutRef.current)
         }
+        clearTimeout(hideTimeoutRef.current)
       }
     }, [])
 
@@ -251,7 +277,11 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
     // poke past the box's own edge would be clipped invisible if it were a
     // descendant of that element instead.
     const tooltipElement = isVisible && (
-      <div style={{ position: 'absolute', top: position.top, left: position.left, zIndex: 9999 }}>
+      <div
+        style={{ position: 'absolute', top: position.top, left: position.left, zIndex: 9999 }}
+        onMouseEnter={keepVisible}
+        onMouseLeave={scheduleHide}
+      >
         <div
           ref={tooltipRef}
           id={tooltipId}
@@ -288,7 +318,7 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
         <div
           ref={triggerRef}
           onMouseEnter={show}
-          onMouseLeave={hide}
+          onMouseLeave={scheduleHide}
           onFocus={handleFocus}
           onBlur={hide}
           // WCAG 1.4.13: hover/focus-triggered content must be dismissable

@@ -17,7 +17,7 @@ interface SessionUsage extends ChatUsageTokens {
 /** Load the existing conversation totals only while their summary is visible. */
 export function useContextSessionUsage(
   projectId: string | undefined,
-  conversationId: string | undefined,
+  conversationId: string | null | undefined,
   active: boolean,
 ): {
   data: SessionUsage | null

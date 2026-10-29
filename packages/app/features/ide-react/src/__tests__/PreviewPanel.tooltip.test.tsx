@@ -26,7 +26,7 @@
  * @module
  */
 
-import { cleanup, fireEvent, render } from '@testing-library/react'
+import { cleanup, fireEvent, render, waitFor } from '@testing-library/react'
 import type { ReactElement, ReactNode } from 'react'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
@@ -140,7 +140,7 @@ describe('PreviewPanel tooltips (IDE1 — real styled Tooltip, not native title)
     }
   })
 
-  it('renders the framework Tooltip component on hover for every control', () => {
+  it('renders the framework Tooltip component on hover for every control', async () => {
     const { container } = render(
       <Wrap>
         <PreviewPanel />
@@ -157,6 +157,7 @@ describe('PreviewPanel tooltips (IDE1 — real styled Tooltip, not native title)
       expect(tooltip, `${id} must render the styled Tooltip on hover`).not.toBeNull()
       expect(tooltip?.textContent, `${id} tooltip text comes through i18n t()`).toBe(tip)
       fireEvent.mouseLeave(trigger)
+      await waitFor(() => expect(document.body.querySelector('[role="tooltip"]')).toBeNull())
     }
   })
 

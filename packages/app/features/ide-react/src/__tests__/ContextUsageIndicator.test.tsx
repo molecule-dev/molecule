@@ -181,14 +181,18 @@ describe('context usage details', () => {
     expect(within(tooltip).getByText('8.0K input (incl. cache) · 2.0K output')).toBeTruthy()
     expect(within(tooltip).getByText(/Daily allowance/)).toBeTruthy()
     fireEvent.mouseLeave(button)
-    expect(screen.queryByRole('tooltip')).toBeNull()
+    await waitFor(() => expect(screen.queryByRole('tooltip')).toBeNull())
     expect(button.querySelector<HTMLElement>('[data-ctx-pct]')?.style.opacity).toBe('0')
   })
 
   it('supports keyboard focus, Escape and click without leaving the tooltip above the modal', () => {
     render(<ContextUsageIndicator usage={usage} />)
     const button = screen.getByRole('button', { name: /Context usage/ })
-    fireEvent.focus(button)
+    const matches = button.matches.bind(button)
+    vi.spyOn(button, 'matches').mockImplementation(
+      (selector) => selector === ':focus-visible' || matches(selector),
+    )
+    act(() => button.focus())
     expect(button.querySelector<HTMLElement>('[data-ctx-pct]')?.style.opacity).toBe('1')
     fireEvent.keyDown(button, { key: 'Escape' })
     expect(screen.queryByRole('tooltip')).toBeNull()
@@ -197,6 +201,37 @@ describe('context usage details', () => {
     fireEvent.click(button)
     expect(screen.queryByRole('tooltip')).toBeNull()
     expect(screen.getByRole('dialog')).toBeTruthy()
+  })
+
+  it('does not reveal the percentage or fetch on mouse-driven focus restoration', () => {
+    render(<ContextUsageIndicator usage={usage} projectId="p" />)
+    const button = screen.getByRole('button', { name: /Context usage/ })
+    const matches = button.matches.bind(button)
+    vi.spyOn(button, 'matches').mockImplementation(
+      (selector) => selector !== ':focus-visible' && matches(selector),
+    )
+    fireEvent.focus(button)
+    expect(button.querySelector<HTMLElement>('[data-ctx-pct]')?.style.opacity).toBe('0')
+    expect(get).not.toHaveBeenCalled()
+  })
+
+  it('dismisses pointer-only context help with Escape from the composer', async () => {
+    render(
+      <>
+        <input aria-label="Composer" />
+        <ContextUsageIndicator usage={usage} projectId="p" />
+      </>,
+    )
+    const composer = screen.getByRole('textbox')
+    act(() => composer.focus())
+    const button = screen.getByRole('button', { name: /Context usage/ })
+    fireEvent.mouseEnter(button)
+    await screen.findByText('~75% remaining')
+    fireEvent.keyDown(composer, { key: 'Escape' })
+    expect(screen.queryByRole('tooltip')).toBeNull()
+    expect(button.querySelector<HTMLElement>('[data-ctx-pct]')?.style.opacity).toBe('0')
+    expect(document.activeElement).toBe(composer)
+    expect(get.mock.calls[0][1].signal.aborted).toBe(true)
   })
 
   it.each([
@@ -213,7 +248,13 @@ describe('context usage details', () => {
     get.mockResolvedValue({
       data: { ...totals, allowancePercent: 125, allowanceWindow: 'billing-period' },
     })
-    render(<ContextUsageIndicator usage={{ ...usage, inputTokens: 11000 }} projectId="p" />)
+    render(
+      <ContextUsageIndicator
+        usage={{ ...usage, inputTokens: 11000 }}
+        projectId="p"
+        conversationId={null}
+      />,
+    )
     fireEvent.click(screen.getByRole('button', { name: /Context usage/ }))
     await screen.findByText('~0% remaining')
     expect(screen.getByText('At compaction target')).toBeTruthy()
