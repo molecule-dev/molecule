@@ -1,5 +1,11 @@
 # @molecule/app-ui-react
 
+## 3.0.2
+
+### Patch Changes
+
+- Restore the colored context ring with context and allowance summaries, detailed usage controls, localized labels, and persistent, dismissible tooltips.
+
 ## 3.0.1
 
 ### Patch Changes

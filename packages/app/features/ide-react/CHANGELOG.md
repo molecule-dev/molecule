@@ -1,5 +1,12 @@
 # @molecule/app-ide-react
 
+## 3.0.2
+
+### Patch Changes
+
+- Combine commit file counts and auto-commit countdowns in one action, and add hover feedback to work-tray controls.
+- Restore the colored context ring with context and allowance summaries, detailed usage controls, localized labels, and persistent, dismissible tooltips.
+
 ## 3.0.1
 
 ### Patch Changes
