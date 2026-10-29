@@ -22,6 +22,9 @@
  *
  * @remarks
  * Config: `MOONSHOT_API_KEY` (SERVER-side only) plus an optional default model id/base URL.
+ * `createProvider({ rateLimitRetries: 'until-aborted' })` keeps retrying temporary
+ * HTTP 429/503 responses with the same request. Each call must supply its own
+ * cancellation signal. The default remains three retries; permanent errors are not retried.
  *
  * **Missing `MOONSHOT_API_KEY` fails fast**: the provider throws naming the exact env var on
  * first use (the exported `provider` is a lazy proxy, so this fires on the first `chat()` call,

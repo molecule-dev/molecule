@@ -6,6 +6,9 @@
 
 import type { AiRateLimitCallback } from '@molecule/api-ai'
 
+/** Retry policy for transient HTTP 429/503 responses. A number counts retries after the first POST. */
+export type MoonshotRateLimitRetries = number | 'until-aborted'
+
 /**
  * Configuration for Moonshot.
  */
@@ -16,7 +19,7 @@ export interface MoonshotConfig {
   defaultModel?: string
   /** Maximum tokens for completions. */
   maxTokens?: number
-  /** Base URL override (for proxies). Defaults to 'https://api.moonshot.cn'. */
+  /** Base URL override (for proxies). Defaults to 'https://api.moonshot.ai'. */
   baseUrl?: string
   /**
    * Chat-completions path appended to {@link baseUrl}. Defaults to
@@ -36,6 +39,12 @@ export interface MoonshotConfig {
   modelMap?: Record<string, string>
   /** Called on each rate-limited/overloaded upstream response, before any retry sleep. */
   onRateLimit?: AiRateLimitCallback
+  /**
+   * Transient 429/503 retries after the initial request. Defaults to the historical three.
+   * `'until-aborted'` keeps replaying the identical request and requires every chat call to
+   * supply its own cancellation signal; permanent failures such as HTTP 400/401 are never retried.
+   */
+  rateLimitRetries?: MoonshotRateLimitRetries
 }
 
 /**

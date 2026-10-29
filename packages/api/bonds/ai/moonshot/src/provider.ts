@@ -58,6 +58,29 @@ function budgetToEffort(budgetTokens: number): string {
 }
 
 /**
+ * Wait before replaying a rejected request without leaving a timer or abort
+ * listener behind. Caller cancellation rejects immediately, so no later POST
+ * can escape after the caller has abandoned the conversation.
+ */
+async function waitForRetry(delayMs: number, signal: AbortSignal): Promise<void> {
+  if (signal.aborted) throw signal.reason
+  await new Promise<void>((resolve, reject) => {
+    const onAbort = (): void => {
+      clearTimeout(timer)
+      signal.removeEventListener('abort', onAbort)
+      reject(signal.reason)
+    }
+    const timer = setTimeout(() => {
+      signal.removeEventListener('abort', onAbort)
+      resolve()
+    }, delayMs)
+    signal.addEventListener('abort', onAbort, { once: true })
+    // Cover cancellation between the first check and listener registration.
+    if (signal.aborted) onAbort()
+  })
+}
+
+/**
  * Moonshot (Kimi) AI provider that implements the `AIProvider` interface
  * using Moonshot's OpenAI-compatible Chat Completions API with support
  * for streaming, tool use, and reasoning.
@@ -71,6 +94,7 @@ class MoonshotAIProvider implements AIProvider {
   private completionsPath: string
   private modelMap: Record<string, string>
   private onRateLimit?: AiRateLimitCallback
+  private rateLimitRetries: number | 'until-aborted'
 
   constructor(config: MoonshotConfig = {}) {
     this.apiKey = config.apiKey ?? process.env.MOONSHOT_API_KEY ?? ''
@@ -81,6 +105,19 @@ class MoonshotAIProvider implements AIProvider {
       config.completionsPath ?? process.env.MOONSHOT_COMPLETIONS_PATH ?? '/v1/chat/completions'
     this.modelMap = config.modelMap ?? {}
     this.onRateLimit = config.onRateLimit
+    const rateLimitRetries = config.rateLimitRetries ?? 3
+    if (
+      rateLimitRetries !== 'until-aborted' &&
+      (typeof rateLimitRetries !== 'number' ||
+        !Number.isFinite(rateLimitRetries) ||
+        !Number.isInteger(rateLimitRetries) ||
+        rateLimitRetries < 0)
+    ) {
+      throw new TypeError(
+        "Moonshot rateLimitRetries must be a nonnegative finite integer or 'until-aborted'.",
+      )
+    }
+    this.rateLimitRetries = rateLimitRetries
 
     // Fail fast with an actionable local error rather than a cryptic 401 on the
     // first request. The default `provider` export constructs lazily on first
@@ -100,6 +137,11 @@ class MoonshotAIProvider implements AIProvider {
    * @yields {ChatEvent} Chat events including text chunks, tool use requests, done signals, and errors.
    */
   async *chat(params: ChatParams): AsyncIterable<ChatEvent> {
+    if (this.rateLimitRetries === 'until-aborted' && !params.signal) {
+      throw new TypeError(
+        "Moonshot rateLimitRetries 'until-aborted' requires params.signal for caller cancellation.",
+      )
+    }
     // Canonical catalog id (used everywhere else); translate to the upstream's
     // id only for the outbound request body via `modelMap`.
     const canonicalModel = params.model ?? this.defaultModel
@@ -206,19 +248,26 @@ class MoonshotAIProvider implements AIProvider {
     const DEFAULT_TIMEOUT_MS = 15 * 60 * 1000
     const signal = params.signal ?? AbortSignal.timeout(DEFAULT_TIMEOUT_MS)
 
-    // Retry with exponential backoff for rate limits (429) and overloaded (503)
-    const MAX_RETRIES = 3
+    // Retry the SAME serialized request with capped, jittered exponential
+    // backoff for rate limits (429) and overloaded (503) responses.
+    const serializedBody = JSON.stringify(body)
     let response: Response | null = null
-    for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    for (
+      let attempt = 0;
+      this.rateLimitRetries === 'until-aborted' || attempt <= this.rateLimitRetries;
+      attempt++
+    ) {
+      signal.throwIfAborted()
       response = await fetch(`${this.baseUrl}${this.completionsPath}`, {
         method: 'POST',
         headers,
-        body: JSON.stringify(body),
+        body: serializedBody,
         signal,
       })
 
       if (response.status === 429 || response.status === 503) {
-        const willRetry = attempt < MAX_RETRIES
+        const willRetry =
+          this.rateLimitRetries === 'until-aborted' || attempt < this.rateLimitRetries
         // Retry-After is equally-valid as delta-seconds or an HTTP-date;
         // parseInt on the date form yields NaN, degrading the backoff to a
         // ~0ms retry against an already rate-limiting API. Guard it.
@@ -253,18 +302,7 @@ class MoonshotAIProvider implements AIProvider {
             attempt: attempt + 1,
             delayMs,
           })
-          await new Promise<void>((resolve) => {
-            const timer = setTimeout(resolve, delayMs)
-            signal.addEventListener(
-              'abort',
-              () => {
-                clearTimeout(timer)
-                resolve()
-              },
-              { once: true },
-            )
-          })
-          if (signal.aborted) break
+          await waitForRetry(delayMs, signal)
           continue
         }
       }
