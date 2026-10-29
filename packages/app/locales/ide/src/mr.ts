@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for mr. */
 export const mr: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'बदललेल्या फाइल्स दाखवा',
+  'ide.chat.commitFileCount_one': 'कमिट {{count}} फाईल',
+  'ide.chat.commitFileCount_other': '{{count}} फाईल्स कमिट करा',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} मध्ये {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -741,4 +745,27 @@ export const mr: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'संकोचन लक्ष्यावर',
+  'ide.chat.context.nearTarget': 'संदर्भ जवळजवळ पूर्ण झाला आहे.',
+  'ide.chat.context.healthy': 'संदर्भाला वाव आहे',
+  'ide.chat.context.headroom': '{{tokens}} टोकन हेडरुम',
+  'ide.chat.context.openDetails': 'तपशील, इतिहास आणि सेटिंग्जसाठी क्लिक करा',
+  'ide.chat.context.refresh': 'वापर रिफ्रेश करा',
+  'ide.chat.context.settings': 'चॅट सेटिंग्ज',
+  'ide.chat.context.windowSize': 'मॉडेल संदर्भ विंडो: {{tokens}} टोकन.',
+  'ide.chat.context.unavailable': 'अनुपलब्ध',
+  'ide.chat.context.loading': 'लोडिंग…',
+  'ide.chat.context.session': 'चालू सत्र',
+  'ide.chat.context.sessionTotal': '{{tokens}} टोकन',
+  'ide.chat.context.sessionDetail': '{{input}} इनपुट (कॅशेसह) · {{output}} आउटपुट',
+  'ide.chat.context.live': 'थेट',
+  'ide.chat.context.allowance': 'एकूण एआय भत्ता',
+  'ide.chat.context.remainingPercent': '~ {{percent}} % शिल्लक',
+  'ide.chat.context.unmetered': 'अमर्याद',
+  'ide.chat.context.usageError':
+    'वापर रिफ्रेश करता आला नाही. पुन्हा प्रयत्न करण्यासाठी तपशील उघडा.',
+  'ide.chat.context.ownerAllowance': 'प्रकल्प मालकाच्या सर्व प्रकल्पांमध्ये सामायिक केलेले.',
+  'ide.chat.context.monthly': 'मासिक भत्ता.',
+  'ide.chat.context.daily': 'दैनिक भत्ता.',
+  'ide.chat.context.resets': 'रीसेट {{at}} .',
 }

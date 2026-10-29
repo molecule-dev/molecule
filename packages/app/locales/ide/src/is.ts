@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for is. */
 export const is: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'Sýna breyttar skrár',
+  'ide.chat.commitFileCount_one': 'Skrá {{count}}',
+  'ide.chat.commitFileCount_other': 'Skrifa {{count}} skrár',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} í {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -743,4 +747,27 @@ export const is: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'Við þjöppunarmarkmið',
+  'ide.chat.context.nearTarget': 'Samhengið næstum fullt',
+  'ide.chat.context.healthy': 'Samhengið hefur pláss',
+  'ide.chat.context.headroom': '{{tokens}} tákn fyrir lofthæð',
+  'ide.chat.context.openDetails': 'Smelltu til að sjá sundurliðun, sögu og stillingar',
+  'ide.chat.context.refresh': 'Endurnýja notkun',
+  'ide.chat.context.settings': 'Stillingar fyrir spjall',
+  'ide.chat.context.windowSize': 'Samhengisgluggi líkans: {{tokens}} tákn.',
+  'ide.chat.context.unavailable': 'Ekki tiltækt',
+  'ide.chat.context.loading': 'Hleður…',
+  'ide.chat.context.session': 'Núverandi lota',
+  'ide.chat.context.sessionTotal': '{{tokens}} tákn',
+  'ide.chat.context.sessionDetail': '{{input}} inntak (þ.m.t. skyndiminni) · {{output}} úttak',
+  'ide.chat.context.live': 'Lifandi',
+  'ide.chat.context.allowance': 'Heildarúthlutun gervigreindar',
+  'ide.chat.context.remainingPercent': '~ {{percent}} % eftir',
+  'ide.chat.context.unmetered': 'Ómælt',
+  'ide.chat.context.usageError':
+    'Ekki var hægt að endurnýja notkunina. Opnaðu upplýsingar til að reyna aftur.',
+  'ide.chat.context.ownerAllowance': 'Deilt á milli verkefna verkefniseiganda.',
+  'ide.chat.context.monthly': 'Mánaðarleg greiðsla.',
+  'ide.chat.context.daily': 'Dagpeningur.',
+  'ide.chat.context.resets': 'Endurstillir {{at}} .',
 }

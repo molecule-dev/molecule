@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for az. */
 export const az: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'Dəyişdirilmiş faylları göstər',
+  'ide.chat.commitFileCount_one': '{{count}} faylı commit edin',
+  'ide.chat.commitFileCount_other': '{{count}} faylı ötürün',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} -da {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -742,4 +746,27 @@ export const az: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'Sıxılma hədəfində',
+  'ide.chat.context.nearTarget': 'Kontekst demək olar ki, doludur',
+  'ide.chat.context.healthy': 'Kontekstdə yer var',
+  'ide.chat.context.headroom': '{{tokens}} baş boşluğu jetonu',
+  'ide.chat.context.openDetails': 'Bölmə, tarixçə və parametrlər üçün klikləyin',
+  'ide.chat.context.refresh': 'İstifadəni yeniləyin',
+  'ide.chat.context.settings': 'Çat ayarları',
+  'ide.chat.context.windowSize': 'Model kontekst pəncərəsi: {{tokens}} token.',
+  'ide.chat.context.unavailable': 'Əlçatan deyil',
+  'ide.chat.context.loading': 'Yüklənir…',
+  'ide.chat.context.session': 'Cari sessiya',
+  'ide.chat.context.sessionTotal': '{{tokens}} token',
+  'ide.chat.context.sessionDetail': '{{input}} giriş (keş daxil olmaqla) · {{output}} çıxış',
+  'ide.chat.context.live': 'Canlı',
+  'ide.chat.context.allowance': 'Ümumi süni intellekt müavinəti',
+  'ide.chat.context.remainingPercent': '~ {{percent}} % qalıb',
+  'ide.chat.context.unmetered': 'Ölçülməmiş',
+  'ide.chat.context.usageError':
+    'İstifadə yenilənə bilmədi. Təkrar cəhd etmək üçün detalları açın.',
+  'ide.chat.context.ownerAllowance': 'Layihə sahibinin layihələri arasında paylaşılır.',
+  'ide.chat.context.monthly': 'Aylıq müavinət.',
+  'ide.chat.context.daily': 'Gündəlik müavinət.',
+  'ide.chat.context.resets': '{{at}} sıfırlayır.',
 }

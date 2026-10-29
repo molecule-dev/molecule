@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for pl. */
 export const pl: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'Pokaż zmienione pliki',
+  'ide.chat.commitFileCount_one': 'Zatwierdź plik {{count}}',
+  'ide.chat.commitFileCount_other': 'Zatwierdź {{count}} plików',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} w {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -758,4 +762,28 @@ export const pl: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'Przy docelowym zagęszczeniu',
+  'ide.chat.context.nearTarget': 'Kontekst prawie pełny',
+  'ide.chat.context.healthy': 'Kontekst ma miejsce',
+  'ide.chat.context.headroom': '{{tokens}} tokenów wolnej przestrzeni',
+  'ide.chat.context.openDetails': 'Kliknij, aby zobaczyć podział, historię i ustawienia',
+  'ide.chat.context.refresh': 'Odśwież użycie',
+  'ide.chat.context.settings': 'Ustawienia czatu',
+  'ide.chat.context.windowSize': 'Okno kontekstu modelu: {{tokens}} tokenów.',
+  'ide.chat.context.unavailable': 'Nie płynny',
+  'ide.chat.context.loading': 'Załadunek…',
+  'ide.chat.context.session': 'Aktualna sesja',
+  'ide.chat.context.sessionTotal': '{{tokens}} tokenów',
+  'ide.chat.context.sessionDetail':
+    '{{input}} wejść (wliczając pamięć podręczną) · {{output}} wyjście',
+  'ide.chat.context.live': 'Na żywo',
+  'ide.chat.context.allowance': 'Całkowity limit AI',
+  'ide.chat.context.remainingPercent': '~ pozostało {{percent}} %',
+  'ide.chat.context.unmetered': 'Niezmierzone',
+  'ide.chat.context.usageError':
+    'Nie udało się odświeżyć danych o użyciu. Otwórz szczegóły, aby spróbować ponownie.',
+  'ide.chat.context.ownerAllowance': 'Współdzielone między projektami właściciela projektu.',
+  'ide.chat.context.monthly': 'Kwota miesięczna.',
+  'ide.chat.context.daily': 'Dzienna dieta.',
+  'ide.chat.context.resets': 'Resetuje {{at}} .',
 }

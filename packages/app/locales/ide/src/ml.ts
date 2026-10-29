@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for ml. */
 export const ml: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'മാറ്റിയ ഫയലുകൾ കാണിക്കുക',
+  'ide.chat.commitFileCount_one': '{{count}} ഫയൽ കമ്മിറ്റ് ചെയ്യുക',
+  'ide.chat.commitFileCount_other': '{{count}} ഫയലുകൾ കമ്മിറ്റ് ചെയ്യുക',
+  'ide.chat.autoCommit.countedBadge': '{{countdown}} ൽ {{commit}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -748,4 +752,28 @@ export const ml: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'കോംപാക്ഷൻ ലക്ഷ്യത്തിൽ',
+  'ide.chat.context.nearTarget': 'സന്ദർഭം ഏതാണ്ട് നിറഞ്ഞു',
+  'ide.chat.context.healthy': 'സന്ദർഭത്തിന് ഇടമുണ്ട്',
+  'ide.chat.context.headroom': 'ഹെഡ്‌റൂമിന്റെ {{tokens}} ടോക്കണുകൾ',
+  'ide.chat.context.openDetails':
+    'ബ്രേക്ക്ഡൗൺ, ചരിത്രം, ക്രമീകരണങ്ങൾ എന്നിവയ്ക്കായി ക്ലിക്ക് ചെയ്യുക.',
+  'ide.chat.context.refresh': 'ഉപയോഗം പുതുക്കുക',
+  'ide.chat.context.settings': 'ചാറ്റ് ക്രമീകരണങ്ങൾ',
+  'ide.chat.context.windowSize': 'മോഡൽ കോൺടെക്സ്റ്റ് വിൻഡോ: {{tokens}} ടോക്കണുകൾ.',
+  'ide.chat.context.unavailable': 'ലഭ്യമല്ല',
+  'ide.chat.context.loading': 'ലോഡ് ചെയ്യുന്നു...',
+  'ide.chat.context.session': 'നിലവിലെ സെഷൻ',
+  'ide.chat.context.sessionTotal': '{{tokens}} ടോക്കണുകൾ',
+  'ide.chat.context.sessionDetail': '{{input}} ഇൻപുട്ട് (കാഷെ ഉൾപ്പെടെ) · {{output}} ഔട്ട്പുട്ട്',
+  'ide.chat.context.live': 'തത്സമയം',
+  'ide.chat.context.allowance': 'മൊത്തത്തിലുള്ള AI അലവൻസ്',
+  'ide.chat.context.remainingPercent': '~ {{percent}} % ശേഷിക്കുന്നു',
+  'ide.chat.context.unmetered': 'മീറ്റർ ചെയ്യാത്തത്',
+  'ide.chat.context.usageError':
+    'ഉപയോഗം പുതുക്കാൻ കഴിഞ്ഞില്ല. വീണ്ടും ശ്രമിക്കാൻ വിശദാംശങ്ങൾ തുറക്കുക.',
+  'ide.chat.context.ownerAllowance': 'പ്രോജക്റ്റ് ഉടമയുടെ പ്രോജക്റ്റുകളിലുടനീളം പങ്കിട്ടു.',
+  'ide.chat.context.monthly': 'പ്രതിമാസ അലവൻസ്.',
+  'ide.chat.context.daily': 'പ്രതിദിന അലവൻസ്.',
+  'ide.chat.context.resets': '{{at}} പുനഃസജ്ജമാക്കുന്നു.',
 }

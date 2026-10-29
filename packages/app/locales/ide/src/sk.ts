@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for sk. */
 export const sk: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'Zobraziť zmenené súbory',
+  'ide.chat.commitFileCount_one': 'Súbor Commit {{count}}',
+  'ide.chat.commitFileCount_other': 'Zaviesť {{count}} súborov',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} v {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -754,4 +758,28 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'Pri cieľovom zhutnení',
+  'ide.chat.context.nearTarget': 'Kontext je takmer plný',
+  'ide.chat.context.healthy': 'Kontext má priestor',
+  'ide.chat.context.headroom': '{{tokens}} žetónov priestoru pre hlavu',
+  'ide.chat.context.openDetails': 'Kliknite pre rozdelenie, históriu a nastavenia',
+  'ide.chat.context.refresh': 'Obnoviť spotrebu',
+  'ide.chat.context.settings': 'Nastavenia chatu',
+  'ide.chat.context.windowSize': 'Kontextové okno modelu: {{tokens}} tokenov.',
+  'ide.chat.context.unavailable': 'Nedostupné',
+  'ide.chat.context.loading': 'Načítava sa…',
+  'ide.chat.context.session': 'Aktuálna relácia',
+  'ide.chat.context.sessionTotal': '{{tokens}} žetónov',
+  'ide.chat.context.sessionDetail':
+    '{{input}} vstupov (vrátane vyrovnávacej pamäte) · {{output}} výstup',
+  'ide.chat.context.live': 'Naživo',
+  'ide.chat.context.allowance': 'Celkový príspevok na AI',
+  'ide.chat.context.remainingPercent': 'Zostáva ~ {{percent}} %',
+  'ide.chat.context.unmetered': 'Neobmedzené',
+  'ide.chat.context.usageError':
+    'Používanie sa nepodarilo obnoviť. Otvorte podrobnosti a skúste to znova.',
+  'ide.chat.context.ownerAllowance': 'Zdieľané medzi projektmi vlastníka projektu.',
+  'ide.chat.context.monthly': 'Mesačný príspevok.',
+  'ide.chat.context.daily': 'Denný príspevok.',
+  'ide.chat.context.resets': 'Resetuje {{at}} .',
 }

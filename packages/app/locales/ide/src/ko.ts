@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for ko. */
 export const ko: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': '변경된 파일 표시',
+  'ide.chat.commitFileCount_one': '{{count}} 개 파일 커밋',
+  'ide.chat.commitFileCount_other': '{{count}} 개 파일 커밋',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} in {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -744,4 +748,27 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': '압축 목표에서',
+  'ide.chat.context.nearTarget': '컨텍스트가 거의 가득 찼습니다.',
+  'ide.chat.context.healthy': '맥락에는 여지가 있습니다',
+  'ide.chat.context.headroom': '여유 공간 {{tokens}} 토큰',
+  'ide.chat.context.openDetails': '자세한 내용, 내역 및 설정을 보려면 클릭하세요.',
+  'ide.chat.context.refresh': '사용량 새로 고침',
+  'ide.chat.context.settings': '채팅 설정',
+  'ide.chat.context.windowSize': '모델 컨텍스트 창: {{tokens}} 토큰.',
+  'ide.chat.context.unavailable': '없는',
+  'ide.chat.context.loading': '로딩 중…',
+  'ide.chat.context.session': '현재 세션',
+  'ide.chat.context.sessionTotal': '{{tokens}} 토큰',
+  'ide.chat.context.sessionDetail': '입력 {{input}} (캐시 포함) · 출력 {{output}}',
+  'ide.chat.context.live': '살다',
+  'ide.chat.context.allowance': '전체 AI 허용량',
+  'ide.chat.context.remainingPercent': '~ {{percent}} % 남음',
+  'ide.chat.context.unmetered': '무제한',
+  'ide.chat.context.usageError':
+    '사용 내역을 새로 고칠 수 없습니다. 세부 정보를 열어 다시 시도하세요.',
+  'ide.chat.context.ownerAllowance': '프로젝트 소유자의 모든 프로젝트에서 공유됩니다.',
+  'ide.chat.context.monthly': '월별 용돈.',
+  'ide.chat.context.daily': '일일 용돈.',
+  'ide.chat.context.resets': '{{at}} 재설정합니다.',
 }

@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for ka. */
 export const ka: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'შეცვლილი ფაილების ჩვენება',
+  'ide.chat.commitFileCount_one': '{{count}} ფაილის დაფიქსირება',
+  'ide.chat.commitFileCount_other': '{{count}} ფაილის დაფიქსირება',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} {{countdown}} -ში',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -744,4 +748,27 @@ export const ka: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'დატკეპნის სამიზნეზე',
+  'ide.chat.context.nearTarget': 'კონტექსტი თითქმის სავსეა',
+  'ide.chat.context.healthy': 'კონტექსტს აქვს ადგილი',
+  'ide.chat.context.headroom': '{{tokens}} ტოკენი თავისუფალ სივრცეში',
+  'ide.chat.context.openDetails': 'დააწკაპუნეთ დეტალების, ისტორიისა და პარამეტრების სანახავად',
+  'ide.chat.context.refresh': 'გამოყენების განახლება',
+  'ide.chat.context.settings': 'ჩატის პარამეტრები',
+  'ide.chat.context.windowSize': 'მოდელის კონტექსტური ფანჯარა: {{tokens}} ტოკენი.',
+  'ide.chat.context.unavailable': 'მიუწვდომელია',
+  'ide.chat.context.loading': 'იტვირთება…',
+  'ide.chat.context.session': 'მიმდინარე სესია',
+  'ide.chat.context.sessionTotal': '{{tokens}} ჟეტონი',
+  'ide.chat.context.sessionDetail': '{{input}} შეყვანა (ქეშის ჩათვლით) · {{output}} გამომავალი',
+  'ide.chat.context.live': 'პირდაპირი ეთერი',
+  'ide.chat.context.allowance': 'ხელოვნური ინტელექტის საერთო დანამატი',
+  'ide.chat.context.remainingPercent': '~ {{percent}} % დარჩენილია',
+  'ide.chat.context.unmetered': 'შეუზღუდავი',
+  'ide.chat.context.usageError':
+    'გამოყენების განახლება ვერ მოხერხდა. გახსენით დეტალები ხელახლა საცდელად.',
+  'ide.chat.context.ownerAllowance': 'გაზიარებულია პროექტის მფლობელის ყველა პროექტში.',
+  'ide.chat.context.monthly': 'ყოველთვიური შემწეობა.',
+  'ide.chat.context.daily': 'დღიური შემწეობა.',
+  'ide.chat.context.resets': 'გადატვირთავს {{at}} .',
 }

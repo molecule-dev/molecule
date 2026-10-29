@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for et. */
 export const et: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'Kuva muudetud failid',
+  'ide.chat.commitFileCount_one': 'Kinnita {{count}} faili',
+  'ide.chat.commitFileCount_other': 'Kinnita {{count}} faili',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -750,4 +754,27 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'Tihenduspunkti saavutamisel',
+  'ide.chat.context.nearTarget': 'Kontekst peaaegu täis',
+  'ide.chat.context.healthy': 'Kontekstil on ruumi',
+  'ide.chat.context.headroom': '{{tokens}} žetooni pearuumi',
+  'ide.chat.context.openDetails': 'Klõpsake jaotise, ajaloo ja sätete kuvamiseks',
+  'ide.chat.context.refresh': 'Värskenda kasutamist',
+  'ide.chat.context.settings': 'Vestluse seaded',
+  'ide.chat.context.windowSize': 'Mudeli kontekstiaken: {{tokens}} märki.',
+  'ide.chat.context.unavailable': 'Pole saadaval',
+  'ide.chat.context.loading': 'Laadimine…',
+  'ide.chat.context.session': 'Praegune seanss',
+  'ide.chat.context.sessionTotal': '{{tokens}} žetooni',
+  'ide.chat.context.sessionDetail': '{{input}} sisendit (sh vahemälu) · {{output}} väljund',
+  'ide.chat.context.live': 'Otseülekanne',
+  'ide.chat.context.allowance': 'Tehisintellekti üldtoetus',
+  'ide.chat.context.remainingPercent': '~ {{percent}} % jäänud',
+  'ide.chat.context.unmetered': 'Mõõtmata',
+  'ide.chat.context.usageError':
+    'Kasutust ei saanud värskendada. Uuesti proovimiseks avage üksikasjad.',
+  'ide.chat.context.ownerAllowance': 'Jagatud projekti omaniku projektides.',
+  'ide.chat.context.monthly': 'Kuutoetus.',
+  'ide.chat.context.daily': 'Päevaraha.',
+  'ide.chat.context.resets': 'Lähtestab {{at}} .',
 }

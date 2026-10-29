@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for da. */
 export const da: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'Vis ændrede filer',
+  'ide.chat.commitFileCount_one': 'Commit {{count}} fil',
+  'ide.chat.commitFileCount_other': 'Bekræft {{count}} filer',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} i {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -749,4 +753,26 @@ export const da: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'Ved komprimeringsmålet',
+  'ide.chat.context.nearTarget': 'Kontekst næsten fuld',
+  'ide.chat.context.healthy': 'Kontekst har plads',
+  'ide.chat.context.headroom': '{{tokens}} tokens af headroom',
+  'ide.chat.context.openDetails': 'Klik for oversigt, historik og indstillinger',
+  'ide.chat.context.refresh': 'Opdater brug',
+  'ide.chat.context.settings': 'Chatindstillinger',
+  'ide.chat.context.windowSize': 'Modelkontekstvindue: {{tokens}} tokens.',
+  'ide.chat.context.unavailable': 'Ikke tilgængelig',
+  'ide.chat.context.loading': 'Indlæser…',
+  'ide.chat.context.session': 'Aktuel session',
+  'ide.chat.context.sessionTotal': '{{tokens}} tokens',
+  'ide.chat.context.sessionDetail': '{{input}} input (inkl. cache) · {{output}} output',
+  'ide.chat.context.live': 'Levende',
+  'ide.chat.context.allowance': 'Samlet AI-tillæg',
+  'ide.chat.context.remainingPercent': '~ {{percent}} % tilbage',
+  'ide.chat.context.unmetered': 'Umålt',
+  'ide.chat.context.usageError': 'Brugen kunne ikke opdateres. Åbn detaljerne for at prøve igen.',
+  'ide.chat.context.ownerAllowance': 'Delt på tværs af projektejerens projekter.',
+  'ide.chat.context.monthly': 'Månedlig godtgørelse.',
+  'ide.chat.context.daily': 'Dagpenge.',
+  'ide.chat.context.resets': 'Nulstiller {{at}} .',
 }

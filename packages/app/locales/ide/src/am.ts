@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for am. */
 export const am: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'የተቀየሩ ፋይሎችን አሳይ',
+  'ide.chat.commitFileCount_one': 'ቃል መግባት {{count}} ፋይል',
+  'ide.chat.commitFileCount_other': '{{count}} ፋይሎች ይዋጁ',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} በ {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -732,4 +736,26 @@ export const am: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'በኮምፓክት ኢላማ ላይ',
+  'ide.chat.context.nearTarget': 'አውዱ ሊሞላ ተቃርቧል',
+  'ide.chat.context.healthy': 'አውዱ ቦታ አለው',
+  'ide.chat.context.headroom': '{{tokens}} የጭንቅላት ክፍል ምልክቶች',
+  'ide.chat.context.openDetails': 'ለዝርዝር፣ ታሪክ እና ቅንብሮች ጠቅ ያድርጉ',
+  'ide.chat.context.refresh': 'አጠቃቀምን አድስ',
+  'ide.chat.context.settings': 'የውይይት ቅንብሮች',
+  'ide.chat.context.windowSize': 'የሞዴል አውድ መስኮት {{tokens}} ቶከኖች።',
+  'ide.chat.context.unavailable': 'አይገኝም',
+  'ide.chat.context.loading': 'በመጫን ላይ…',
+  'ide.chat.context.session': 'የአሁኑ ክፍለ ጊዜ',
+  'ide.chat.context.sessionTotal': '{{tokens}} ቶከኖች',
+  'ide.chat.context.sessionDetail': '{{input}} ግብዓት (መሸጎጫ ጨምሮ) · {{output}} ውጤት',
+  'ide.chat.context.live': 'በቀጥታ ስርጭት',
+  'ide.chat.context.allowance': 'አጠቃላይ የ AI አበል',
+  'ide.chat.context.remainingPercent': '~ {{percent}} % ይቀራል',
+  'ide.chat.context.unmetered': 'ያልተለካ',
+  'ide.chat.context.usageError': 'አጠቃቀም ሊታደስ አልቻለም። እንደገና ለመሞከር ዝርዝሮችን ይክፈቱ።',
+  'ide.chat.context.ownerAllowance': 'በፕሮጀክቱ ባለቤት ፕሮጀክቶች ላይ ተጋርቷል።',
+  'ide.chat.context.monthly': 'ወርሃዊ አበል።',
+  'ide.chat.context.daily': 'ዕለታዊ አበል።',
+  'ide.chat.context.resets': 'ዳግም ያስጀምራል {{at}} .',
 }

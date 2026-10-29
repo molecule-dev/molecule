@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for el. */
 export const el: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'Εμφάνιση αλλαγμένων αρχείων',
+  'ide.chat.commitFileCount_one': 'Αρχείο Commit {{count}}',
+  'ide.chat.commitFileCount_other': 'Υποβολή {{count}} αρχείων',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} σε {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -765,4 +769,28 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'Στον στόχο συμπύκνωσης',
+  'ide.chat.context.nearTarget': 'Σχεδόν πλήρες περιεχόμενο',
+  'ide.chat.context.healthy': 'Το πλαίσιο έχει χώρο',
+  'ide.chat.context.headroom': '{{tokens}} μάρκες ελεύθερου χώρου',
+  'ide.chat.context.openDetails': 'Κάντε κλικ για ανάλυση, ιστορικό και ρυθμίσεις',
+  'ide.chat.context.refresh': 'Ανανέωση χρήσης',
+  'ide.chat.context.settings': 'Ρυθμίσεις συνομιλίας',
+  'ide.chat.context.windowSize': 'Παράθυρο περιβάλλοντος μοντέλου: {{tokens}} διακριτικά.',
+  'ide.chat.context.unavailable': 'Δυσεύρετος',
+  'ide.chat.context.loading': 'Φόρτωση…',
+  'ide.chat.context.session': 'Τρέχουσα συνεδρία',
+  'ide.chat.context.sessionTotal': '{{tokens}} διακριτικά',
+  'ide.chat.context.sessionDetail':
+    '{{input}} είσοδος (συμπεριλαμβανομένης της προσωρινής μνήμης) · {{output}} έξοδος',
+  'ide.chat.context.live': 'Ζω',
+  'ide.chat.context.allowance': 'Συνολικό επίδομα τεχνητής νοημοσύνης',
+  'ide.chat.context.remainingPercent': '~ {{percent}} % υπόλοιπο',
+  'ide.chat.context.unmetered': 'Χωρίς περιορισμούς',
+  'ide.chat.context.usageError':
+    'Δεν ήταν δυνατή η ανανέωση της χρήσης. Ανοίξτε τις λεπτομέρειες για να προσπαθήσετε ξανά.',
+  'ide.chat.context.ownerAllowance': 'Κοινόχρηστο σε όλα τα έργα του κατόχου του έργου.',
+  'ide.chat.context.monthly': 'Μηνιαίο επίδομα.',
+  'ide.chat.context.daily': 'Ημερήσια αποζημίωση.',
+  'ide.chat.context.resets': 'Επαναφέρει {{at}} .',
 }

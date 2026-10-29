@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for ha. */
 export const ha: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'Nuna fayilolin da aka canza',
+  'ide.chat.commitFileCount_one': 'Yi alƙawarin fayil {{count}}',
+  'ide.chat.commitFileCount_other': 'Yi aiki fayiloli {{count}}',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} cikin {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -746,4 +750,27 @@ export const ha: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'A kan maƙasudin matsewa',
+  'ide.chat.context.nearTarget': 'Mahallin ya kusan cika',
+  'ide.chat.context.healthy': 'Mahalli yana da daki',
+  'ide.chat.context.headroom': '{{tokens}} Alamun headroom',
+  'ide.chat.context.openDetails': 'Danna don bayani, tarihi da saituna',
+  'ide.chat.context.refresh': 'Sabunta amfani',
+  'ide.chat.context.settings': 'Saitunan Hira',
+  'ide.chat.context.windowSize': 'Tagar mahallin samfurin: Alamu {{tokens}} .',
+  'ide.chat.context.unavailable': 'Ba a samu ba',
+  'ide.chat.context.loading': 'Ana lodawa…',
+  'ide.chat.context.session': 'Zaman da ake ciki yanzu',
+  'ide.chat.context.sessionTotal': 'Alamu {{tokens}}',
+  'ide.chat.context.sessionDetail': 'Shigarwa {{input}} (har da cache) · Fitarwa {{output}}',
+  'ide.chat.context.live': 'Kai tsaye',
+  'ide.chat.context.allowance': 'Jimlar izinin AI',
+  'ide.chat.context.remainingPercent': '~ {{percent}} % ya rage',
+  'ide.chat.context.unmetered': 'Ba a auna ba',
+  'ide.chat.context.usageError':
+    'Ba za a iya sabunta amfani ba. Buɗe cikakkun bayanai don sake gwadawa.',
+  'ide.chat.context.ownerAllowance': 'An raba shi a cikin ayyukan mai aikin.',
+  'ide.chat.context.monthly': 'Izinin wata-wata.',
+  'ide.chat.context.daily': 'Kudin yau da kullun.',
+  'ide.chat.context.resets': 'Sake saitawa {{at}} .',
 }

@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for bs. */
 export const bs: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'Prikaži promijenjene datoteke',
+  'ide.chat.commitFileCount_one': 'Commit {{count}} datoteka',
+  'ide.chat.commitFileCount_other': 'Potvrdi {{count}} datoteka',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -744,4 +748,27 @@ export const bs: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'Na cilju zbijanja',
+  'ide.chat.context.nearTarget': 'Kontekst je gotovo pun',
+  'ide.chat.context.healthy': 'Kontekst ima prostora',
+  'ide.chat.context.headroom': '{{tokens}} žetona prostora za glavu',
+  'ide.chat.context.openDetails': 'Kliknite za detaljan pregled, historiju i postavke',
+  'ide.chat.context.refresh': 'Osvježi korištenje',
+  'ide.chat.context.settings': 'Postavke chata',
+  'ide.chat.context.windowSize': 'Kontekstualni prozor modela: {{tokens}} tokena.',
+  'ide.chat.context.unavailable': 'Nije dostupno',
+  'ide.chat.context.loading': 'Učitavanje…',
+  'ide.chat.context.session': 'Trenutna sesija',
+  'ide.chat.context.sessionTotal': '{{tokens}} tokena',
+  'ide.chat.context.sessionDetail': '{{input}} ulaza (uklj. keš memoriju) · {{output}} izlaz',
+  'ide.chat.context.live': 'Uživo',
+  'ide.chat.context.allowance': 'Ukupni dodatak za AI',
+  'ide.chat.context.remainingPercent': 'Preostalo ~ {{percent}} %',
+  'ide.chat.context.unmetered': 'Bez ograničenja',
+  'ide.chat.context.usageError':
+    'Osvježavanje korištenja nije uspjelo. Otvorite detalje za ponovni pokušaj.',
+  'ide.chat.context.ownerAllowance': 'Dijeli se između projekata vlasnika projekta.',
+  'ide.chat.context.monthly': 'Mjesečni dodatak.',
+  'ide.chat.context.daily': 'Dnevni dodatak.',
+  'ide.chat.context.resets': 'Resetuje {{at}} .',
 }

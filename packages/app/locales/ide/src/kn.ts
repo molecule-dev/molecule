@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for kn. */
 export const kn: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'ಬದಲಾದ ಫೈಲ್‌ಗಳನ್ನು ತೋರಿಸಿ',
+  'ide.chat.commitFileCount_one': '{{count}} ಫೈಲ್ ಅನ್ನು ಕಮಿಟ್ ಮಾಡಿ',
+  'ide.chat.commitFileCount_other': '{{count}} ಫೈಲ್‌ಗಳನ್ನು ಕಮಿಟ್ ಮಾಡಿ',
+  'ide.chat.autoCommit.countedBadge': '{{countdown}} ರಲ್ಲಿ {{commit}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -745,4 +749,27 @@ export const kn: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'ಸಂಕುಚಿತ ಗುರಿಯಲ್ಲಿ',
+  'ide.chat.context.nearTarget': 'ಸನ್ನಿವೇಶ ಬಹುತೇಕ ತುಂಬಿದೆ',
+  'ide.chat.context.healthy': 'ಸಂದರ್ಭಕ್ಕೆ ಸ್ಥಳವಿದೆ',
+  'ide.chat.context.headroom': 'ಹೆಡ್‌ರೂಮ್‌ನ {{tokens}} ಟೋಕನ್‌ಗಳು',
+  'ide.chat.context.openDetails': 'ವಿವರ, ಇತಿಹಾಸ ಮತ್ತು ಸೆಟ್ಟಿಂಗ್‌ಗಳಿಗಾಗಿ ಕ್ಲಿಕ್ ಮಾಡಿ',
+  'ide.chat.context.refresh': 'ಬಳಕೆಯನ್ನು ರಿಫ್ರೆಶ್ ಮಾಡಿ',
+  'ide.chat.context.settings': 'ಚಾಟ್ ಸೆಟ್ಟಿಂಗ್‌ಗಳು',
+  'ide.chat.context.windowSize': 'ಮಾದರಿ ಸಂದರ್ಭ ವಿಂಡೋ: {{tokens}} ಟೋಕನ್‌ಗಳು.',
+  'ide.chat.context.unavailable': 'ಲಭ್ಯವಿಲ್ಲ',
+  'ide.chat.context.loading': 'ಲೋಡ್ ಆಗುತ್ತಿದೆ...',
+  'ide.chat.context.session': 'ಪ್ರಸ್ತುತ ಅಧಿವೇಶನ',
+  'ide.chat.context.sessionTotal': '{{tokens}} ಟೋಕನ್‌ಗಳು',
+  'ide.chat.context.sessionDetail': '{{input}} ಇನ್‌ಪುಟ್ (ಕ್ಯಾಶ್ ಸೇರಿದಂತೆ) · {{output}} ಔಟ್‌ಪುಟ್',
+  'ide.chat.context.live': 'ಲೈವ್',
+  'ide.chat.context.allowance': 'ಒಟ್ಟಾರೆ AI ಭತ್ಯೆ',
+  'ide.chat.context.remainingPercent': '~ {{percent}} % ಉಳಿದಿದೆ',
+  'ide.chat.context.unmetered': 'ಅಳತೆ ಮಾಡದಿರುವುದು',
+  'ide.chat.context.usageError':
+    'ಬಳಕೆಯನ್ನು ರಿಫ್ರೆಶ್ ಮಾಡಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ. ಮರುಪ್ರಯತ್ನಿಸಲು ವಿವರಗಳನ್ನು ತೆರೆಯಿರಿ.',
+  'ide.chat.context.ownerAllowance': 'ಯೋಜನಾ ಮಾಲೀಕರ ಯೋಜನೆಗಳಲ್ಲಿ ಹಂಚಿಕೊಳ್ಳಲಾಗಿದೆ.',
+  'ide.chat.context.monthly': 'ಮಾಸಿಕ ಭತ್ಯೆ.',
+  'ide.chat.context.daily': 'ದೈನಂದಿನ ಭತ್ಯೆ.',
+  'ide.chat.context.resets': '{{at}} ಅನ್ನು ಮರುಹೊಂದಿಸುತ್ತದೆ.',
 }

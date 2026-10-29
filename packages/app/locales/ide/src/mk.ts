@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for mk. */
 export const mk: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'Прикажи променети датотеки',
+  'ide.chat.commitFileCount_one': 'Изврши {{count}} датотека',
+  'ide.chat.commitFileCount_other': 'Изврши {{count}} датотеки',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} во {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -745,4 +749,27 @@ export const mk: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'На целта на набивање',
+  'ide.chat.context.nearTarget': 'Контекстот е речиси полн',
+  'ide.chat.context.healthy': 'Контекстот има простор',
+  'ide.chat.context.headroom': '{{tokens}} токени за слободен простор',
+  'ide.chat.context.openDetails': 'Кликнете за анализа, историја и поставки',
+  'ide.chat.context.refresh': 'Освежи ја употребата',
+  'ide.chat.context.settings': 'Поставки за разговор',
+  'ide.chat.context.windowSize': 'Контекст на прозорецот на моделот: {{tokens}} токени.',
+  'ide.chat.context.unavailable': 'Недостапно',
+  'ide.chat.context.loading': 'Се вчитува…',
+  'ide.chat.context.session': 'Тековна сесија',
+  'ide.chat.context.sessionTotal': '{{tokens}} токени',
+  'ide.chat.context.sessionDetail': '{{input}} влез (вкл. кеш) · {{output}} излез',
+  'ide.chat.context.live': 'Во живо',
+  'ide.chat.context.allowance': 'Вкупен додаток за вештачка интелигенција',
+  'ide.chat.context.remainingPercent': 'Преостануваат ~ {{percent}} %',
+  'ide.chat.context.unmetered': 'Неограничено',
+  'ide.chat.context.usageError':
+    'Употребата не може да се освежи. Отворете ги деталите за да се обидете повторно.',
+  'ide.chat.context.ownerAllowance': 'Споделено низ сите проекти на сопственикот на проектот.',
+  'ide.chat.context.monthly': 'Месечен надоместок.',
+  'ide.chat.context.daily': 'Дневен додаток.',
+  'ide.chat.context.resets': 'Ресетира {{at}} .',
 }

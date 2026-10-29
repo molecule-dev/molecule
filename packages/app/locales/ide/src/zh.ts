@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for zh. */
 export const zh: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': '显示已更改的文件',
+  'ide.chat.commitFileCount_one': '提交{{count}}文件',
+  'ide.chat.commitFileCount_other': '提交{{count}}文件',
+  'ide.chat.autoCommit.countedBadge': '{{commit}}比{{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -728,4 +732,26 @@ export const zh: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': '在压实目标处',
+  'ide.chat.context.nearTarget': '上下文几乎完整',
+  'ide.chat.context.healthy': '上下文留有余地',
+  'ide.chat.context.headroom': '{{tokens}}代币的缓冲空间',
+  'ide.chat.context.openDetails': '点击查看详细信息、历史记录和设置',
+  'ide.chat.context.refresh': '刷新使用情况',
+  'ide.chat.context.settings': '聊天设置',
+  'ide.chat.context.windowSize': '模型上下文窗口： {{tokens}}标记。',
+  'ide.chat.context.unavailable': '不可用',
+  'ide.chat.context.loading': '加载中…',
+  'ide.chat.context.session': '当前会话',
+  'ide.chat.context.sessionTotal': '{{tokens}}代币',
+  'ide.chat.context.sessionDetail': '{{input}}输入（含缓存）· {{output}}输出',
+  'ide.chat.context.live': '居住',
+  'ide.chat.context.allowance': '总体人工智能津贴',
+  'ide.chat.context.remainingPercent': '剩余约{{percent}} %',
+  'ide.chat.context.unmetered': '不计量',
+  'ide.chat.context.usageError': '使用情况刷新失败。请打开详情重试。',
+  'ide.chat.context.ownerAllowance': '在项目所有者的各个项目中共享。',
+  'ide.chat.context.monthly': '每月津贴。',
+  'ide.chat.context.daily': '每日津贴。',
+  'ide.chat.context.resets': '重置{{at}} 。',
 }

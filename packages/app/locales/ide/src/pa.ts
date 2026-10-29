@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for pa. */
 export const pa: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'ਬਦਲੀਆਂ ਹੋਈਆਂ ਫਾਈਲਾਂ ਦਿਖਾਓ',
+  'ide.chat.commitFileCount_one': '{{count}} ਫਾਈਲ ਕਮਿਟ ਕਰੋ',
+  'ide.chat.commitFileCount_other': '{{count}} ਫਾਈਲਾਂ ਕਮਿਟ ਕਰੋ',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} ਵਿੱਚ {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -742,4 +746,27 @@ export const pa: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': "ਕੰਪੈਕਸ਼ਨ ਟੀਚੇ 'ਤੇ",
+  'ide.chat.context.nearTarget': 'ਸੰਦਰਭ ਲਗਭਗ ਪੂਰਾ ਹੈ',
+  'ide.chat.context.healthy': 'ਸੰਦਰਭ ਵਿੱਚ ਜਗ੍ਹਾ ਹੈ',
+  'ide.chat.context.headroom': 'ਹੈੱਡਰੂਮ ਦੇ {{tokens}} ਟੋਕਨ',
+  'ide.chat.context.openDetails': 'ਬ੍ਰੇਕਡਾਊਨ, ਇਤਿਹਾਸ ਅਤੇ ਸੈਟਿੰਗਾਂ ਲਈ ਕਲਿੱਕ ਕਰੋ',
+  'ide.chat.context.refresh': 'ਵਰਤੋਂ ਰਿਫ੍ਰੈਸ਼ ਕਰੋ',
+  'ide.chat.context.settings': 'ਚੈਟ ਸੈਟਿੰਗਾਂ',
+  'ide.chat.context.windowSize': 'ਮਾਡਲ ਸੰਦਰਭ ਵਿੰਡੋ: {{tokens}} ਟੋਕਨ।',
+  'ide.chat.context.unavailable': 'ਅਣਉਪਲਬਧ',
+  'ide.chat.context.loading': 'ਲੋਡ ਹੋ ਰਿਹਾ ਹੈ...',
+  'ide.chat.context.session': 'ਮੌਜੂਦਾ ਸੈਸ਼ਨ',
+  'ide.chat.context.sessionTotal': '{{tokens}} ਟੋਕਨ',
+  'ide.chat.context.sessionDetail': '{{input}} ਇਨਪੁੱਟ (ਕੈਸ਼ ਸਮੇਤ) · {{output}} ਆਉਟਪੁੱਟ',
+  'ide.chat.context.live': 'ਲਾਈਵ',
+  'ide.chat.context.allowance': 'ਕੁੱਲ ਏਆਈ ਭੱਤਾ',
+  'ide.chat.context.remainingPercent': '~ {{percent}} % ਬਾਕੀ',
+  'ide.chat.context.unmetered': 'ਮੀਟਰ ਰਹਿਤ',
+  'ide.chat.context.usageError':
+    'ਵਰਤੋਂ ਨੂੰ ਤਾਜ਼ਾ ਨਹੀਂ ਕੀਤਾ ਜਾ ਸਕਿਆ। ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰਨ ਲਈ ਵੇਰਵੇ ਖੋਲ੍ਹੋ।',
+  'ide.chat.context.ownerAllowance': 'ਪ੍ਰੋਜੈਕਟ ਮਾਲਕ ਦੇ ਪ੍ਰੋਜੈਕਟਾਂ ਵਿੱਚ ਸਾਂਝਾ ਕੀਤਾ ਗਿਆ।',
+  'ide.chat.context.monthly': 'ਮਹੀਨਾਵਾਰ ਭੱਤਾ।',
+  'ide.chat.context.daily': 'ਰੋਜ਼ਾਨਾ ਭੱਤਾ।',
+  'ide.chat.context.resets': '{{at}} ਨੂੰ ਰੀਸੈਟ ਕਰਦਾ ਹੈ।',
 }

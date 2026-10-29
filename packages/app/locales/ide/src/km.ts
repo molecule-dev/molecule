@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for km. */
 export const km: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'បង្ហាញឯកសារដែលបានផ្លាស់ប្តូរ',
+  'ide.chat.commitFileCount_one': 'ឯកសារប្តេជ្ញាចិត្ត {{count}}',
+  'ide.chat.commitFileCount_other': 'ប្តេជ្ញាចិត្តឯកសារ {{count}}',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} ក្នុង {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -746,4 +750,27 @@ export const km: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'នៅគោលដៅបង្រួម',
+  'ide.chat.context.nearTarget': 'បរិបទស្ទើរតែពេញហើយ',
+  'ide.chat.context.healthy': 'បរិបទមានកន្លែង',
+  'ide.chat.context.headroom': '{{tokens}} សញ្ញាសម្គាល់នៃកន្លែងទំនេរសម្រាប់ក្បាល',
+  'ide.chat.context.openDetails': 'ចុចដើម្បីមើលការវិភាគ ប្រវត្តិ និងការកំណត់',
+  'ide.chat.context.refresh': 'ការប្រើប្រាស់​ផ្ទុកឡើងវិញ',
+  'ide.chat.context.settings': 'ការកំណត់ការជជែក',
+  'ide.chat.context.windowSize': 'បង្អួចបរិបទគំរូ៖ {{tokens}} ថូខឹន។',
+  'ide.chat.context.unavailable': 'មិនអាចប្រើបាន',
+  'ide.chat.context.loading': 'កំពុងផ្ទុក…',
+  'ide.chat.context.session': 'វគ្គបច្ចុប្បន្ន',
+  'ide.chat.context.sessionTotal': '{{tokens}} ថូខឹន',
+  'ide.chat.context.sessionDetail': '{{input}} ធាតុចូល (រួមទាំងឃ្លាំងសម្ងាត់) · {{output}} ទិន្នផល',
+  'ide.chat.context.live': 'ផ្សាយផ្ទាល់',
+  'ide.chat.context.allowance': 'ប្រាក់ឧបត្ថម្ភ AI សរុប',
+  'ide.chat.context.remainingPercent': 'នៅសល់ ~ {{percent}} %',
+  'ide.chat.context.unmetered': 'មិន​មាន​ការ​វាស់​វែង',
+  'ide.chat.context.usageError':
+    'មិនអាចធ្វើឱ្យការប្រើប្រាស់ស្រស់បានទេ។ សូមបើកព័ត៌មានលម្អិតដើម្បីសាកល្បងម្តងទៀត។',
+  'ide.chat.context.ownerAllowance': 'ចែករំលែកនៅទូទាំងគម្រោងរបស់ម្ចាស់គម្រោង។',
+  'ide.chat.context.monthly': 'ប្រាក់ឧបត្ថម្ភប្រចាំខែ។',
+  'ide.chat.context.daily': 'ប្រាក់ឧបត្ថម្ភប្រចាំថ្ងៃ។',
+  'ide.chat.context.resets': 'កំណត់ឡើងវិញ {{at}} ។',
 }

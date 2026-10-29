@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for ne. */
 export const ne: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'परिवर्तन गरिएका फाइलहरू देखाउनुहोस्',
+  'ide.chat.commitFileCount_one': '{{count}} फाइल कमिट गर्नुहोस्',
+  'ide.chat.commitFileCount_other': '{{count}} फाइलहरू कमिट गर्नुहोस्',
+  'ide.chat.autoCommit.countedBadge': '{{countdown}} मा {{commit}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -740,4 +744,27 @@ export const ne: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'कम्प्याक्सन लक्ष्यमा',
+  'ide.chat.context.nearTarget': 'सन्दर्भ लगभग पूरा भयो',
+  'ide.chat.context.healthy': 'सन्दर्भमा ठाउँ छ',
+  'ide.chat.context.headroom': 'हेडरूमको {{tokens}} टोकन',
+  'ide.chat.context.openDetails': 'ब्रेकडाउन, इतिहास र सेटिङहरूको लागि क्लिक गर्नुहोस्',
+  'ide.chat.context.refresh': 'प्रयोग पुनः ताजा गर्नुहोस्',
+  'ide.chat.context.settings': 'च्याट सेटिङहरू',
+  'ide.chat.context.windowSize': 'मोडेल सन्दर्भ विन्डो: {{tokens}} टोकन।',
+  'ide.chat.context.unavailable': 'उपलब्ध छैन',
+  'ide.chat.context.loading': 'लोड हुँदै...',
+  'ide.chat.context.session': 'हालको सत्र',
+  'ide.chat.context.sessionTotal': '{{tokens}} टोकनहरू',
+  'ide.chat.context.sessionDetail': '{{input}} इनपुट (क्यास सहित) · {{output}} आउटपुट',
+  'ide.chat.context.live': 'लाइभ',
+  'ide.chat.context.allowance': 'कुल एआई भत्ता',
+  'ide.chat.context.remainingPercent': '~ {{percent}} % बाँकी',
+  'ide.chat.context.unmetered': 'मिटर नगरिएको',
+  'ide.chat.context.usageError':
+    'प्रयोगलाई पुनःताजा गर्न सकिएन। पुन: प्रयास गर्न विवरणहरू खोल्नुहोस्।',
+  'ide.chat.context.ownerAllowance': 'परियोजना मालिकको परियोजनाहरूमा साझा गरिएको।',
+  'ide.chat.context.monthly': 'मासिक भत्ता।',
+  'ide.chat.context.daily': 'दैनिक भत्ता।',
+  'ide.chat.context.resets': '{{at}} रिसेट गर्छ।',
 }

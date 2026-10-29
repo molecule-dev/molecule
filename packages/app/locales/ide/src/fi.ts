@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for fi. */
 export const fi: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'Näytä muuttuneet tiedostot',
+  'ide.chat.commitFileCount_one': 'Commit {{count}} -tiedosto',
+  'ide.chat.commitFileCount_other': 'Vahvista {{count}} tiedostoa',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -754,4 +758,27 @@ export const fi: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'Tiivistystavoitteessa',
+  'ide.chat.context.nearTarget': 'Konteksti lähes täynnä',
+  'ide.chat.context.healthy': 'Kontekstissa on tilaa',
+  'ide.chat.context.headroom': '{{tokens}} merkkiä pääntilaa',
+  'ide.chat.context.openDetails': 'Napsauta nähdäksesi erittelyn, historian ja asetukset',
+  'ide.chat.context.refresh': 'Päivitä käyttö',
+  'ide.chat.context.settings': 'Chat-asetukset',
+  'ide.chat.context.windowSize': 'Mallikonteksti-ikkuna: {{tokens}} tokenia.',
+  'ide.chat.context.unavailable': 'Ei saatavilla',
+  'ide.chat.context.loading': 'Ladataan…',
+  'ide.chat.context.session': 'Nykyinen istunto',
+  'ide.chat.context.sessionTotal': '{{tokens}} tokenia',
+  'ide.chat.context.sessionDetail': '{{input}} tuloa (mukaan lukien välimuisti) · {{output}} lähtö',
+  'ide.chat.context.live': 'Elää',
+  'ide.chat.context.allowance': 'Kokonaismääräinen tekoälyvara',
+  'ide.chat.context.remainingPercent': '~ {{percent}} % jäljellä',
+  'ide.chat.context.unmetered': 'Rajaton',
+  'ide.chat.context.usageError':
+    'Käyttötietoja ei voitu päivittää. Avaa tiedot yrittääksesi uudelleen.',
+  'ide.chat.context.ownerAllowance': 'Jaettu projektin omistajan projektien kesken.',
+  'ide.chat.context.monthly': 'Kuukausittainen korvaus.',
+  'ide.chat.context.daily': 'Päiväraha.',
+  'ide.chat.context.resets': 'Nollaa {{at}} .',
 }

@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for ms. */
 export const ms: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'Tunjukkan fail yang diubah',
+  'ide.chat.commitFileCount_one': 'Fail {{count}} komitmen',
+  'ide.chat.commitFileCount_other': 'Komit {{count}} fail',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} dalam {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -746,4 +750,27 @@ export const ms: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'Pada sasaran pemadatan',
+  'ide.chat.context.nearTarget': 'Konteks hampir penuh',
+  'ide.chat.context.healthy': 'Konteks mempunyai ruang',
+  'ide.chat.context.headroom': '{{tokens}} token ruang kepala',
+  'ide.chat.context.openDetails': 'Klik untuk pecahan, sejarah dan tetapan',
+  'ide.chat.context.refresh': 'Penggunaan semula',
+  'ide.chat.context.settings': 'Tetapan sembang',
+  'ide.chat.context.windowSize': 'Tetingkap konteks model: {{tokens}} token.',
+  'ide.chat.context.unavailable': 'Tidak tersedia',
+  'ide.chat.context.loading': 'Memuatkan…',
+  'ide.chat.context.session': 'Sesi semasa',
+  'ide.chat.context.sessionTotal': '{{tokens}} token',
+  'ide.chat.context.sessionDetail': '{{input}} input (termasuk cache) · {{output}} output',
+  'ide.chat.context.live': 'Langsung',
+  'ide.chat.context.allowance': 'Elaun AI keseluruhan',
+  'ide.chat.context.remainingPercent': '~ {{percent}} % baki',
+  'ide.chat.context.unmetered': 'Tidak bermeter',
+  'ide.chat.context.usageError':
+    'Penggunaan tidak dapat disegarkan semula. Buka butiran untuk mencuba semula.',
+  'ide.chat.context.ownerAllowance': 'Dikongsi merentasi projek pemilik projek.',
+  'ide.chat.context.monthly': 'Elaun bulanan.',
+  'ide.chat.context.daily': 'Elaun harian.',
+  'ide.chat.context.resets': 'Menetapkan semula {{at}} .',
 }

@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for ro. */
 export const ro: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'Afișează fișierele modificate',
+  'ide.chat.commitFileCount_one': 'Validare fișier {{count}}',
+  'ide.chat.commitFileCount_other': 'Validare {{count}} fișiere',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} în {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -755,4 +759,28 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'La ținta de compactare',
+  'ide.chat.context.nearTarget': 'Context aproape plin',
+  'ide.chat.context.healthy': 'Contextul are loc',
+  'ide.chat.context.headroom': '{{tokens}} jetoane de spațiu liber',
+  'ide.chat.context.openDetails': 'Faceți clic pentru detalii, istoric și setări',
+  'ide.chat.context.refresh': 'Reîmprospătează utilizarea',
+  'ide.chat.context.settings': 'Setări de chat',
+  'ide.chat.context.windowSize': 'Fereastra contextului modelului: {{tokens}} token-uri.',
+  'ide.chat.context.unavailable': 'Indisponibil',
+  'ide.chat.context.loading': 'Încărcare…',
+  'ide.chat.context.session': 'Sesiunea curentă',
+  'ide.chat.context.sessionTotal': '{{tokens}} jetoane',
+  'ide.chat.context.sessionDetail':
+    '{{input}} intrări (inclusiv memorie cache) · {{output}} ieșire',
+  'ide.chat.context.live': 'Trăi',
+  'ide.chat.context.allowance': 'Alocație totală pentru inteligența artificială',
+  'ide.chat.context.remainingPercent': '~ {{percent}} % rămas',
+  'ide.chat.context.unmetered': 'Necontorizat',
+  'ide.chat.context.usageError':
+    'Utilizarea nu a putut fi actualizată. Deschideți detaliile pentru a încerca din nou.',
+  'ide.chat.context.ownerAllowance': 'Partajat între proiectele proprietarului proiectului.',
+  'ide.chat.context.monthly': 'Indemnizație lunară.',
+  'ide.chat.context.daily': 'Alocație zilnică.',
+  'ide.chat.context.resets': 'Resetează {{at}} .',
 }

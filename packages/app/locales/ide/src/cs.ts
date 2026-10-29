@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for cs. */
 export const cs: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'Zobrazit změněné soubory',
+  'ide.chat.commitFileCount_one': 'Soubor Commit {{count}}',
+  'ide.chat.commitFileCount_other': 'Zapsat {{count}} souborů',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} v {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -747,4 +751,27 @@ export const cs: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'Na cílové úrovni zhutnění',
+  'ide.chat.context.nearTarget': 'Kontext je téměř plný',
+  'ide.chat.context.healthy': 'Kontext má prostor',
+  'ide.chat.context.headroom': '{{tokens}} žetonů prostoru nad hlavou',
+  'ide.chat.context.openDetails': 'Klikněte pro rozpis, historii a nastavení',
+  'ide.chat.context.refresh': 'Obnovit využití',
+  'ide.chat.context.settings': 'Nastavení chatu',
+  'ide.chat.context.windowSize': 'Kontextové okno modelu: {{tokens}} tokenů.',
+  'ide.chat.context.unavailable': 'Nedostupné',
+  'ide.chat.context.loading': 'Načítání…',
+  'ide.chat.context.session': 'Aktuální relace',
+  'ide.chat.context.sessionTotal': '{{tokens}} žetonů',
+  'ide.chat.context.sessionDetail': '{{input}} vstupů (včetně mezipaměti) · {{output}} výstup',
+  'ide.chat.context.live': 'Žít',
+  'ide.chat.context.allowance': 'Celkový příspěvek na AI',
+  'ide.chat.context.remainingPercent': 'Zbývá ~ {{percent}} %',
+  'ide.chat.context.unmetered': 'Neměřené',
+  'ide.chat.context.usageError':
+    'Použití se nepodařilo obnovit. Otevřete podrobnosti a zkuste to znovu.',
+  'ide.chat.context.ownerAllowance': 'Sdíleno mezi projekty vlastníka projektu.',
+  'ide.chat.context.monthly': 'Měsíční příspěvek.',
+  'ide.chat.context.daily': 'Denní kapesné.',
+  'ide.chat.context.resets': 'Resetuje {{at}} .',
 }

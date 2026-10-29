@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for ig. */
 export const ig: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'Gosi faịlụ ndị agbanwere',
+  'ide.chat.commitFileCount_one': 'Kwenye faịlụ {{count}}',
+  'ide.chat.commitFileCount_other': 'Kwenye faịlụ {{count}}',
+  'ide.chat.autoCommit.countedBadge': "{{commit}} n'ime {{countdown}}",
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -740,4 +744,26 @@ export const ig: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'Na ebumnuche mkpakọ',
+  'ide.chat.context.nearTarget': 'Ọdịnaya ahụ fọrọ nke nta ka ọ jupụta',
+  'ide.chat.context.healthy': "Ihe dị n'ime ya nwere ohere",
+  'ide.chat.context.headroom': '{{tokens}} ihe nrịbama nke isi ụlọ',
+  'ide.chat.context.openDetails': 'Pịa maka nkwụsịtụ, akụkọ ihe mere eme na ntọala',
+  'ide.chat.context.refresh': 'Mmelite ojiji',
+  'ide.chat.context.settings': 'Ntọala nkata',
+  'ide.chat.context.windowSize': 'Windo ihe nlereanya: {{tokens}} tokens.',
+  'ide.chat.context.unavailable': 'Adịghị',
+  'ide.chat.context.loading': 'Na-ebugo…',
+  'ide.chat.context.session': 'Nzukọ dị ugbu a',
+  'ide.chat.context.sessionTotal': '{{tokens}} tokens',
+  'ide.chat.context.sessionDetail': 'Ntinye {{input}} (gụnyere cache) · {{output}} mmepụta',
+  'ide.chat.context.live': 'Ndụ',
+  'ide.chat.context.allowance': "Enyemaka AI n'ozuzu ya",
+  'ide.chat.context.remainingPercent': '~ {{percent}} % fọdụrụ',
+  'ide.chat.context.unmetered': 'Enweghị nha',
+  'ide.chat.context.usageError': 'Enweghị ike imelite ojiji ahụ. Mepee nkọwa iji nwaa ọzọ.',
+  'ide.chat.context.ownerAllowance': "Kesara ọrụ ndị nwe ọrụ ahụ n'ofe ọrụ ndị nwe ya.",
+  'ide.chat.context.monthly': 'Ego enyemaka kwa ọnwa.',
+  'ide.chat.context.daily': 'Ego kwa ụbọchị.',
+  'ide.chat.context.resets': 'Na-emegharị {{at}} .',
 }

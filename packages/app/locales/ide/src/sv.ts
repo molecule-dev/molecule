@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for sv. */
 export const sv: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'Visa ändrade filer',
+  'ide.chat.commitFileCount_one': 'Bekräfta {{count}} filen',
+  'ide.chat.commitFileCount_other': 'Spara {{count}} filer',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} i {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -751,4 +755,27 @@ export const sv: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'Vid komprimeringsmålet',
+  'ide.chat.context.nearTarget': 'Kontexten är nästan full',
+  'ide.chat.context.healthy': 'Kontexten har plats',
+  'ide.chat.context.headroom': '{{tokens}} tokens av headroom',
+  'ide.chat.context.openDetails': 'Klicka för översikt, historik och inställningar',
+  'ide.chat.context.refresh': 'Uppdatera användning',
+  'ide.chat.context.settings': 'Chattinställningar',
+  'ide.chat.context.windowSize': 'Modellkontextfönster: {{tokens}} tokens.',
+  'ide.chat.context.unavailable': 'Inte tillgänglig',
+  'ide.chat.context.loading': 'Belastning…',
+  'ide.chat.context.session': 'Nuvarande session',
+  'ide.chat.context.sessionTotal': '{{tokens}} polletter',
+  'ide.chat.context.sessionDetail': '{{input}} ingångar (inkl. cache) · {{output}} utgångar',
+  'ide.chat.context.live': 'Bo',
+  'ide.chat.context.allowance': 'Total AI-ersättning',
+  'ide.chat.context.remainingPercent': '~ {{percent}} % kvar',
+  'ide.chat.context.unmetered': 'Obegränsad',
+  'ide.chat.context.usageError':
+    'Det gick inte att uppdatera användningen. Öppna informationen för att försöka igen.',
+  'ide.chat.context.ownerAllowance': 'Delas mellan projektägarens projekt.',
+  'ide.chat.context.monthly': 'Månadsbidrag.',
+  'ide.chat.context.daily': 'Dagtraktamente.',
+  'ide.chat.context.resets': 'Återställer {{at}} .',
 }

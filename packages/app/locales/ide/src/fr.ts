@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for fr. */
 export const fr: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'Afficher les fichiers modifiés',
+  'ide.chat.commitFileCount_one': 'Fichier de validation {{count}}',
+  'ide.chat.commitFileCount_other': 'Commit {{count}} fichiers',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} sur {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -764,4 +768,27 @@ export const fr: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'Objectif de compactage',
+  'ide.chat.context.nearTarget': 'Contexte presque complet',
+  'ide.chat.context.healthy': 'Le contexte a de la place',
+  'ide.chat.context.headroom': '{{tokens}} jetons de marge de manœuvre',
+  'ide.chat.context.openDetails': "Cliquez pour afficher le détail, l'historique et les paramètres",
+  'ide.chat.context.refresh': "Actualiser l'utilisation",
+  'ide.chat.context.settings': 'Paramètres de chat',
+  'ide.chat.context.windowSize': 'Fenêtre de contexte du modèle : {{tokens}} jetons.',
+  'ide.chat.context.unavailable': 'Indisponible',
+  'ide.chat.context.loading': 'Chargement…',
+  'ide.chat.context.session': 'Session actuelle',
+  'ide.chat.context.sessionTotal': '{{tokens}} jetons',
+  'ide.chat.context.sessionDetail': '{{input}} entrée (cache inclus) · {{output}} sortie',
+  'ide.chat.context.live': 'En direct',
+  'ide.chat.context.allowance': "Allocation globale pour l'IA",
+  'ide.chat.context.remainingPercent': '~ {{percent}} % restant',
+  'ide.chat.context.unmetered': 'Non mesuré',
+  'ide.chat.context.usageError':
+    "Impossible d'actualiser les données. Ouvrez les détails pour réessayer.",
+  'ide.chat.context.ownerAllowance': 'Partagé entre les projets du propriétaire du projet.',
+  'ide.chat.context.monthly': 'Allocation mensuelle.',
+  'ide.chat.context.daily': 'Allocation journalière.',
+  'ide.chat.context.resets': 'Réinitialise {{at}} .',
 }

@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for it. */
 export const it: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'Mostra i file modificati',
+  'ide.chat.commitFileCount_one': 'Conferma {{count}} file',
+  'ide.chat.commitFileCount_other': 'Conferma {{count}} file',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} su {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -763,4 +767,27 @@ export const it: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'Al livello di compattazione desiderato',
+  'ide.chat.context.nearTarget': 'Contesto quasi completo',
+  'ide.chat.context.healthy': 'Il contesto ha spazio',
+  'ide.chat.context.headroom': '{{tokens}} token di margine',
+  'ide.chat.context.openDetails': 'Fai clic per dettagli, cronologia e impostazioni',
+  'ide.chat.context.refresh': 'Utilizzo rinnovato',
+  'ide.chat.context.settings': 'Impostazioni della chat',
+  'ide.chat.context.windowSize': 'Finestra del contesto del modello: {{tokens}} token.',
+  'ide.chat.context.unavailable': 'Non disponibile',
+  'ide.chat.context.loading': 'Caricamento…',
+  'ide.chat.context.session': 'Sessione corrente',
+  'ide.chat.context.sessionTotal': '{{tokens}} token',
+  'ide.chat.context.sessionDetail': '{{input}} input (incl. cache) · {{output}} output',
+  'ide.chat.context.live': 'Vivere',
+  'ide.chat.context.allowance': "Concessione complessiva per l'IA",
+  'ide.chat.context.remainingPercent': '~ {{percent}} % rimanente',
+  'ide.chat.context.unmetered': 'Non fatturato',
+  'ide.chat.context.usageError':
+    "Impossibile aggiornare le informazioni sull'utilizzo. Apri i dettagli per riprovare.",
+  'ide.chat.context.ownerAllowance': 'Condiviso tra i progetti del responsabile del progetto.',
+  'ide.chat.context.monthly': 'Indennità mensile.',
+  'ide.chat.context.daily': 'Indennità giornaliera.',
+  'ide.chat.context.resets': 'Ripristino {{at}} .',
 }

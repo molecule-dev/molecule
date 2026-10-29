@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for uk. */
 export const uk: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'Показати змінені файли',
+  'ide.chat.commitFileCount_one': 'Файл Commit {{count}}',
+  'ide.chat.commitFileCount_other': 'Зафіксувати {{count}} файлів',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} в {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -757,4 +761,28 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'На цільовому рівні ущільнення',
+  'ide.chat.context.nearTarget': 'Контекст майже повний',
+  'ide.chat.context.healthy': 'Контекст має місце',
+  'ide.chat.context.headroom': '{{tokens}} жетонів вільного простору',
+  'ide.chat.context.openDetails': 'Натисніть, щоб переглянути розбивку, історію та налаштування',
+  'ide.chat.context.refresh': 'Оновити використання',
+  'ide.chat.context.settings': 'Налаштування чату',
+  'ide.chat.context.windowSize': 'Вікно контексту моделі: {{tokens}} токенів.',
+  'ide.chat.context.unavailable': 'Недоступно',
+  'ide.chat.context.loading': 'Завантаження…',
+  'ide.chat.context.session': 'Поточний сеанс',
+  'ide.chat.context.sessionTotal': '{{tokens}} токенів',
+  'ide.chat.context.sessionDetail':
+    '{{input}} вхідних даних (вкл. кеш) · {{output}} вихідних даних',
+  'ide.chat.context.live': 'Живий',
+  'ide.chat.context.allowance': 'Загальний допуск ШІ',
+  'ide.chat.context.remainingPercent': '~ {{percent}} % залишилося',
+  'ide.chat.context.unmetered': 'Безлімітний',
+  'ide.chat.context.usageError':
+    'Не вдалося оновити дані про використання. Відкрийте деталі, щоб повторити спробу.',
+  'ide.chat.context.ownerAllowance': 'Спільно для проектів власника проекту.',
+  'ide.chat.context.monthly': 'Щомісячна допомога.',
+  'ide.chat.context.daily': 'Добова норма.',
+  'ide.chat.context.resets': 'Скидає {{at}} .',
 }

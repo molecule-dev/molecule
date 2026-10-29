@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for tr. */
 export const tr: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'Değiştirilen dosyaları göster',
+  'ide.chat.commitFileCount_one': 'Commit {{count}} dosyası',
+  'ide.chat.commitFileCount_other': '{{count}} dosya taahhüt edildi',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -753,4 +757,27 @@ export const tr: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'Sıkıştırma hedefinde',
+  'ide.chat.context.nearTarget': 'Bağlam neredeyse dolu',
+  'ide.chat.context.healthy': 'Bağlamın yeri var',
+  'ide.chat.context.headroom': '{{tokens}} jeton baş mesafesi',
+  'ide.chat.context.openDetails': 'Ayrıntılı bilgi, geçmiş ve ayarlar için tıklayın.',
+  'ide.chat.context.refresh': 'Yenileme kullanımı',
+  'ide.chat.context.settings': 'Sohbet ayarları',
+  'ide.chat.context.windowSize': 'Model bağlam penceresi: {{tokens}} belirteç.',
+  'ide.chat.context.unavailable': 'Mevcut değil',
+  'ide.chat.context.loading': 'Yükleniyor…',
+  'ide.chat.context.session': 'Mevcut oturum',
+  'ide.chat.context.sessionTotal': '{{tokens}} belirteç',
+  'ide.chat.context.sessionDetail': '{{input}} giriş (önbellek dahil) · {{output}} çıkış',
+  'ide.chat.context.live': 'Canlı',
+  'ide.chat.context.allowance': 'Genel yapay zeka ödeneği',
+  'ide.chat.context.remainingPercent': '~ % {{percent}} kaldı',
+  'ide.chat.context.unmetered': 'Ölçülmemiş',
+  'ide.chat.context.usageError':
+    'Kullanım bilgileri yenilenemedi. Tekrar denemek için ayrıntıları açın.',
+  'ide.chat.context.ownerAllowance': 'Proje sahibinin tüm projelerinde paylaşılır.',
+  'ide.chat.context.monthly': 'Aylık ödenek.',
+  'ide.chat.context.daily': 'Günlük ödenek.',
+  'ide.chat.context.resets': 'Sıfırlar {{at}} .',
 }

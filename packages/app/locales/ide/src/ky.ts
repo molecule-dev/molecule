@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for ky. */
 export const ky: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'Өзгөртүлгөн файлдарды көрсөтүү',
+  'ide.chat.commitFileCount_one': '{{count}} файлды бекитүү',
+  'ide.chat.commitFileCount_other': '{{count}} файлды бекитүү',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -745,4 +749,26 @@ export const ky: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'Тыгыздоо максатына жеткенде',
+  'ide.chat.context.nearTarget': 'Контекст дээрлик толук',
+  'ide.chat.context.healthy': 'Контекстте орун бар',
+  'ide.chat.context.headroom': 'Баштын боштугунун {{tokens}} белгиси',
+  'ide.chat.context.openDetails': 'Бөлүштүрүү, тарых жана жөндөөлөр үчүн чыкылдатыңыз',
+  'ide.chat.context.refresh': 'Колдонууну жаңыртуу',
+  'ide.chat.context.settings': 'Чат жөндөөлөрү',
+  'ide.chat.context.windowSize': 'Моделдин контексттик терезеси: {{tokens}} токен.',
+  'ide.chat.context.unavailable': 'Жеткиликсиз',
+  'ide.chat.context.loading': 'Жүктөлүүдө…',
+  'ide.chat.context.session': 'Учурдагы сессия',
+  'ide.chat.context.sessionTotal': '{{tokens}} токен',
+  'ide.chat.context.sessionDetail': '{{input}} киргизүү (кэшти кошо алганда) · {{output}} чыгаруу',
+  'ide.chat.context.live': 'Түз эфирде',
+  'ide.chat.context.allowance': 'Жалпы AI жөлөкпулу',
+  'ide.chat.context.remainingPercent': '~ {{percent}} % калды',
+  'ide.chat.context.unmetered': 'Чектелбеген',
+  'ide.chat.context.usageError': 'Колдонуу жаңыртылган жок. Кайталап көрүү үчүн чоо-жайын ачыңыз.',
+  'ide.chat.context.ownerAllowance': 'Долбоордун ээсинин долбоорлору боюнча бөлүшүлгөн.',
+  'ide.chat.context.monthly': 'Ай сайын төлөнүүчү жөлөкпул.',
+  'ide.chat.context.daily': 'Күнүмдүк жөлөкпул.',
+  'ide.chat.context.resets': '{{at}} баштапкы абалга келтирет.',
 }

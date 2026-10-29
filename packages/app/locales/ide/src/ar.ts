@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for ar. */
 export const ar: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'عرض الملفات المتغيرة',
+  'ide.chat.commitFileCount_one': 'قم بتثبيت الملف {{count}}',
+  'ide.chat.commitFileCount_other': 'تم حفظ {{count}} ملف',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} في {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -744,4 +748,27 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'عند هدف الدمك',
+  'ide.chat.context.nearTarget': 'السياق شبه ممتلئ',
+  'ide.chat.context.healthy': 'للسياق مساحة',
+  'ide.chat.context.headroom': '{{tokens}} رموز للمساحة المتاحة',
+  'ide.chat.context.openDetails': 'انقر لعرض التفاصيل والسجل والإعدادات',
+  'ide.chat.context.refresh': 'تحديث الاستخدام',
+  'ide.chat.context.settings': 'إعدادات الدردشة',
+  'ide.chat.context.windowSize': 'نافذة سياق النموذج: {{tokens}} رمز.',
+  'ide.chat.context.unavailable': 'غير متاح',
+  'ide.chat.context.loading': 'تحميل…',
+  'ide.chat.context.session': 'الجلسة الحالية',
+  'ide.chat.context.sessionTotal': '{{tokens}} رمز مميز',
+  'ide.chat.context.sessionDetail':
+    '{{input}} مدخلات (بما في ذلك ذاكرة التخزين المؤقت) · {{output}} مخرجات',
+  'ide.chat.context.live': 'يعيش',
+  'ide.chat.context.allowance': 'مخصصات الذكاء الاصطناعي الإجمالية',
+  'ide.chat.context.remainingPercent': 'النسبة المتبقية ~ {{percent}} %',
+  'ide.chat.context.unmetered': 'غير محدود',
+  'ide.chat.context.usageError': 'تعذر تحديث بيانات الاستخدام. افتح التفاصيل لإعادة المحاولة.',
+  'ide.chat.context.ownerAllowance': 'يتم مشاركتها عبر مشاريع مالك المشروع.',
+  'ide.chat.context.monthly': 'البدل الشهري.',
+  'ide.chat.context.daily': 'بدل يومي.',
+  'ide.chat.context.resets': 'إعادة الضبط {{at}} .',
 }

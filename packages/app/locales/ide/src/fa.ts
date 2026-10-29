@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for fa. */
 export const fa: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'نمایش فایل‌های تغییر یافته',
+  'ide.chat.commitFileCount_one': 'ثبت {{count}} فایل',
+  'ide.chat.commitFileCount_other': 'ثبت {{count}} فایل',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} در {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -742,4 +746,27 @@ export const fa: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'در هدف تراکم',
+  'ide.chat.context.nearTarget': 'متن تقریباً کامل است',
+  'ide.chat.context.healthy': 'زمینه جا دارد',
+  'ide.chat.context.headroom': '{{tokens}} توکن فضای سر',
+  'ide.chat.context.openDetails': 'برای مشاهده جزئیات، تاریخچه و تنظیمات کلیک کنید',
+  'ide.chat.context.refresh': 'استفاده از تازه‌سازی',
+  'ide.chat.context.settings': 'تنظیمات چت',
+  'ide.chat.context.windowSize': 'پنجره‌ی زمینه‌ی مدل: {{tokens}} توکن.',
+  'ide.chat.context.unavailable': 'موجود نیست',
+  'ide.chat.context.loading': 'در حال بارگذاری…',
+  'ide.chat.context.session': 'جلسه فعلی',
+  'ide.chat.context.sessionTotal': '{{tokens}} توکن',
+  'ide.chat.context.sessionDetail': '{{input}} ورودی (شامل حافظه پنهان) · {{output}} خروجی',
+  'ide.chat.context.live': 'زنده',
+  'ide.chat.context.allowance': 'کمک هزینه کلی هوش مصنوعی',
+  'ide.chat.context.remainingPercent': '~ {{percent}} ٪ باقی مانده',
+  'ide.chat.context.unmetered': 'بدون اندازه گیری',
+  'ide.chat.context.usageError':
+    'استفاده قابل به‌روزرسانی نبود. برای امتحان مجدد، جزئیات را باز کنید.',
+  'ide.chat.context.ownerAllowance': 'در پروژه‌های مالک پروژه به اشتراک گذاشته می‌شود.',
+  'ide.chat.context.monthly': 'کمک هزینه ماهانه.',
+  'ide.chat.context.daily': 'کمک هزینه روزانه.',
+  'ide.chat.context.resets': '{{at}} را بازنشانی می‌کند.',
 }

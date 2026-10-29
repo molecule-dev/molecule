@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for th. */
 export const th: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'แสดงไฟล์ที่เปลี่ยนแปลง',
+  'ide.chat.commitFileCount_one': 'คอมมิตไฟล์ {{count}}',
+  'ide.chat.commitFileCount_other': 'บันทึก {{count}} ไฟล์',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} ใน {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -743,4 +747,27 @@ export const th: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'ที่เป้าหมายการบดอัด',
+  'ide.chat.context.nearTarget': 'บริบทเกือบเต็ม',
+  'ide.chat.context.healthy': 'บริบทมีพื้นที่ว่าง',
+  'ide.chat.context.headroom': 'มีพื้นที่ว่าง {{tokens}} โทเค็น',
+  'ide.chat.context.openDetails': 'คลิกเพื่อดูรายละเอียด ประวัติ และการตั้งค่า',
+  'ide.chat.context.refresh': 'รีเฟรชการใช้งาน',
+  'ide.chat.context.settings': 'การตั้งค่าแชท',
+  'ide.chat.context.windowSize': 'หน้าต่างบริบทโมเดล: {{tokens}} โทเค็น',
+  'ide.chat.context.unavailable': 'ไม่พร้อมใช้งาน',
+  'ide.chat.context.loading': 'กำลังโหลด…',
+  'ide.chat.context.session': 'เซสชั่นปัจจุบัน',
+  'ide.chat.context.sessionTotal': '{{tokens}} โทเค็น',
+  'ide.chat.context.sessionDetail': '{{input}} อินพุต (รวมแคช) · {{output}} เอาต์พุต',
+  'ide.chat.context.live': 'สด',
+  'ide.chat.context.allowance': 'ค่าเผื่อ AI โดยรวม',
+  'ide.chat.context.remainingPercent': 'เหลือประมาณ {{percent}} %',
+  'ide.chat.context.unmetered': 'ไม่วัดปริมาณ',
+  'ide.chat.context.usageError':
+    'ไม่สามารถรีเฟรชข้อมูลการใช้งานได้ โปรดเปิดรายละเอียดเพื่อลองใหม่อีกครั้ง',
+  'ide.chat.context.ownerAllowance': 'ใช้ร่วมกันในโครงการต่างๆ ของเจ้าของโครงการ',
+  'ide.chat.context.monthly': 'เงินช่วยเหลือรายเดือน',
+  'ide.chat.context.daily': 'ค่าเบี้ยเลี้ยงรายวัน',
+  'ide.chat.context.resets': 'รีเซ็ต {{at}}',
 }

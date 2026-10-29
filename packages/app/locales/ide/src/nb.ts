@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for nb. */
 export const nb: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'Vis endrede filer',
+  'ide.chat.commitFileCount_one': 'Lagre {{count}} fil',
+  'ide.chat.commitFileCount_other': 'Lagre {{count}} filer',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} i {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -747,4 +751,26 @@ export const nb: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'Ved komprimeringsmålet',
+  'ide.chat.context.nearTarget': 'Konteksten er nesten full',
+  'ide.chat.context.healthy': 'Kontekst har plass',
+  'ide.chat.context.headroom': '{{tokens}} tokens med takhøyde',
+  'ide.chat.context.openDetails': 'Klikk for oversikt, historikk og innstillinger',
+  'ide.chat.context.refresh': 'Oppdater bruk',
+  'ide.chat.context.settings': 'Chatinnstillinger',
+  'ide.chat.context.windowSize': 'Modellkontekstvindu: {{tokens}} tokens.',
+  'ide.chat.context.unavailable': 'Utilgjengelig',
+  'ide.chat.context.loading': 'Laster inn…',
+  'ide.chat.context.session': 'Gjeldende økt',
+  'ide.chat.context.sessionTotal': '{{tokens}} tokens',
+  'ide.chat.context.sessionDetail': '{{input}} innganger (inkl. hurtigbuffer) · {{output}} utgang',
+  'ide.chat.context.live': 'Bo',
+  'ide.chat.context.allowance': 'Total AI-kvote',
+  'ide.chat.context.remainingPercent': '~ {{percent}} % gjenstår',
+  'ide.chat.context.unmetered': 'Umålt',
+  'ide.chat.context.usageError': 'Kunne ikke oppdatere bruken. Åpne detaljene for å prøve på nytt.',
+  'ide.chat.context.ownerAllowance': 'Delt på tvers av prosjekteierens prosjekter.',
+  'ide.chat.context.monthly': 'Månedlig godtgjørelse.',
+  'ide.chat.context.daily': 'Dagpenger.',
+  'ide.chat.context.resets': 'Tilbakestiller {{at}} .',
 }

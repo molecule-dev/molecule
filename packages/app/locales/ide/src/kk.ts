@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for kk. */
 export const kk: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'Өзгертілген файлдарды көрсету',
+  'ide.chat.commitFileCount_one': '{{count}} файлды тапсыру',
+  'ide.chat.commitFileCount_other': '{{count}} файлды тапсыру',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} ден {{countdown}} ге дейін',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -742,4 +746,27 @@ export const kk: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'Тығыздау нысанасында',
+  'ide.chat.context.nearTarget': 'Контекст толық дерлік',
+  'ide.chat.context.healthy': 'Контекстте орын бар',
+  'ide.chat.context.headroom': 'Бас кеңістігінің {{tokens}} белгісі',
+  'ide.chat.context.openDetails': 'Бөлшектеу, тарих және параметрлер үшін басыңыз',
+  'ide.chat.context.refresh': 'Жаңарту пайдаланылуы',
+  'ide.chat.context.settings': 'Чат параметрлері',
+  'ide.chat.context.windowSize': 'Модель контексті терезесі: {{tokens}} токен.',
+  'ide.chat.context.unavailable': 'Қолжетімді емес',
+  'ide.chat.context.loading': 'Жүктелуде…',
+  'ide.chat.context.session': 'Ағымдағы сессия',
+  'ide.chat.context.sessionTotal': '{{tokens}} токен',
+  'ide.chat.context.sessionDetail': '{{input}} кіріс (кэшті қоса алғанда) · {{output}} шығыс',
+  'ide.chat.context.live': 'Тікелей эфир',
+  'ide.chat.context.allowance': 'Жалпы жасанды интеллект жәрдемақысы',
+  'ide.chat.context.remainingPercent': '~ {{percent}} % қалды',
+  'ide.chat.context.unmetered': 'Өлшенбеген',
+  'ide.chat.context.usageError':
+    'Пайдалануды жаңарту мүмкін болмады. Қайталау үшін мәліметтерді ашыңыз.',
+  'ide.chat.context.ownerAllowance': 'Жоба иесінің жобалары арасында бөлісіледі.',
+  'ide.chat.context.monthly': 'Ай сайынғы жәрдемақы.',
+  'ide.chat.context.daily': 'Күнделікті жәрдемақы.',
+  'ide.chat.context.resets': '{{at}} қалпына келтіреді.',
 }

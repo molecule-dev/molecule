@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for te. */
 export const te: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'మార్చబడిన ఫైల్‌లను చూపించు',
+  'ide.chat.commitFileCount_one': 'కమిట్ {{count}} ఫైల్',
+  'ide.chat.commitFileCount_other': '{{count}} ఫైళ్లను కమిట్ చేయండి',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} లో {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -744,4 +748,28 @@ export const te: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'సంపీడన లక్ష్యం వద్ద',
+  'ide.chat.context.nearTarget': 'సందర్భం దాదాపు పూర్తి',
+  'ide.chat.context.healthy': 'సందర్భానికి చోటు ఉంది',
+  'ide.chat.context.headroom': '{{tokens}} టోకెన్ల హెడ్‌రూమ్',
+  'ide.chat.context.openDetails': 'విశ్లేషణ, చరిత్ర మరియు సెట్టింగ్‌ల కోసం క్లిక్ చేయండి',
+  'ide.chat.context.refresh': 'వినియోగాన్ని రిఫ్రెష్ చేయండి',
+  'ide.chat.context.settings': 'చాట్ సెట్టింగ్‌లు',
+  'ide.chat.context.windowSize': 'మోడల్ కాంటెక్స్ట్ విండో: {{tokens}} టోకెన్లు.',
+  'ide.chat.context.unavailable': 'అందుబాటులో లేదు',
+  'ide.chat.context.loading': 'లోడ్ అవుతోంది…',
+  'ide.chat.context.session': 'ప్రస్తుత సెషన్',
+  'ide.chat.context.sessionTotal': '{{tokens}} టోకెన్లు',
+  'ide.chat.context.sessionDetail': '{{input}} ఇన్‌పుట్ (కాష్‌తో సహా) · {{output}} అవుట్‌పుట్',
+  'ide.chat.context.live': 'ప్రత్యక్ష ప్రసారం',
+  'ide.chat.context.allowance': 'మొత్తం AI అనుమతి',
+  'ide.chat.context.remainingPercent': '~ {{percent}} % మిగిలి ఉంది',
+  'ide.chat.context.unmetered': 'అన్‌మీటర్డ్',
+  'ide.chat.context.usageError':
+    'వినియోగాన్ని రిఫ్రెష్ చేయలేకపోయింది. మళ్లీ ప్రయత్నించడానికి వివరాలను తెరవండి.',
+  'ide.chat.context.ownerAllowance':
+    'ప్రాజెక్ట్ యజమాని యొక్క ప్రాజెక్ట్‌లన్నింటిలోనూ పంచుకోబడుతుంది.',
+  'ide.chat.context.monthly': 'నెలవారీ భత్యం.',
+  'ide.chat.context.daily': 'రోజువారీ భత్యం.',
+  'ide.chat.context.resets': '{{at}} ని రీసెట్ చేస్తుంది.',
 }

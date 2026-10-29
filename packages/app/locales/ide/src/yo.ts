@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for yo. */
 export const yo: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'Fi àwọn fáìlì tí a ti yípadà hàn',
+  'ide.chat.commitFileCount_one': 'Ṣe ìfipamọ́ fáìlì {{count}}',
+  'ide.chat.commitFileCount_other': 'Ṣe ìfipamọ́ àwọn fáìlì {{count}}',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} nínú {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -777,4 +781,26 @@ export const yo: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'Ní ibi tí a fẹ́ ṣe ìfọwọ́sowọ́pọ̀',
+  'ide.chat.context.nearTarget': 'Àyíká náà fẹ́rẹ̀ kún tán',
+  'ide.chat.context.healthy': 'Àyíká náà ní àyè',
+  'ide.chat.context.headroom': 'Àwọn àmì {{tokens}} ti headroom',
+  'ide.chat.context.openDetails': 'Tẹ fun alaye, itan-akọọlẹ ati awọn eto',
+  'ide.chat.context.refresh': 'Ṣe àtúnṣe lílò',
+  'ide.chat.context.settings': 'Àwọn ètò ìfọ̀rọ̀wérọ̀',
+  'ide.chat.context.windowSize': 'Fèrèsé àtúnṣe àwòṣe: {{tokens}} àmì.',
+  'ide.chat.context.unavailable': 'Kò sí nílẹ̀',
+  'ide.chat.context.loading': 'N n gbe…',
+  'ide.chat.context.session': 'Àkókò ìsinsìnyí',
+  'ide.chat.context.sessionTotal': 'Àwọn àmì {{tokens}}',
+  'ide.chat.context.sessionDetail': '{{input}} ìtẹ̀síwájú (pẹ̀lú àkáṣe) · {{output}} ìtẹ̀síwájú',
+  'ide.chat.context.live': 'Lóògbé',
+  'ide.chat.context.allowance': 'Ipese AI gbogbogbo',
+  'ide.chat.context.remainingPercent': '~ {{percent}} % tó kù',
+  'ide.chat.context.unmetered': 'Àìwọ̀n tí a kò wọ̀n',
+  'ide.chat.context.usageError': 'A ko le tun lilo ṣe. Ṣí àwọn kúlẹ̀kúlẹ̀ láti tún gbìyànjú.',
+  'ide.chat.context.ownerAllowance': 'A pín gbogbo awọn iṣẹ akanṣe oniwun iṣẹ naa.',
+  'ide.chat.context.monthly': 'Iyọọda oṣooṣu.',
+  'ide.chat.context.daily': 'Iyọọda ojoojumọ.',
+  'ide.chat.context.resets': 'Àtúntò {{at}} .',
 }

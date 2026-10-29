@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for he. */
 export const he: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'הצג קבצים שהשתנו',
+  'ide.chat.commitFileCount_one': 'שמור קובץ {{count}}',
+  'ide.chat.commitFileCount_other': 'שמור {{count}} קבצים',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} ב {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -736,4 +740,26 @@ export const he: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'ביעד הדחיסה',
+  'ide.chat.context.nearTarget': 'ההקשר כמעט מלא',
+  'ide.chat.context.healthy': 'יש מקום להקשר',
+  'ide.chat.context.headroom': '{{tokens}} אסימוני מרווח ראש',
+  'ide.chat.context.openDetails': 'לחץ לפירוט, היסטוריה והגדרות',
+  'ide.chat.context.refresh': 'רענון השימוש',
+  'ide.chat.context.settings': "הגדרות צ'אט",
+  'ide.chat.context.windowSize': 'חלון הקשר של המודל: {{tokens}} אסימונים.',
+  'ide.chat.context.unavailable': 'לא זמין',
+  'ide.chat.context.loading': 'טְעִינָה…',
+  'ide.chat.context.session': 'ההפעלה הנוכחית',
+  'ide.chat.context.sessionTotal': '{{tokens}} אסימונים',
+  'ide.chat.context.sessionDetail': '{{input}} קלט (כולל מטמון) · {{output}} פלט',
+  'ide.chat.context.live': 'לִחיוֹת',
+  'ide.chat.context.allowance': 'קצבת בינה מלאכותית כוללת',
+  'ide.chat.context.remainingPercent': '~ {{percent}} % נותרו',
+  'ide.chat.context.unmetered': 'ללא מדידה',
+  'ide.chat.context.usageError': 'לא ניתן היה לרענן את השימוש. פתח את הפרטים כדי לנסות שוב.',
+  'ide.chat.context.ownerAllowance': 'משותף בין הפרויקטים של בעל הפרויקט.',
+  'ide.chat.context.monthly': 'קצבה חודשית.',
+  'ide.chat.context.daily': 'קצבה יומית.',
+  'ide.chat.context.resets': 'מאפס {{at}} .',
 }

@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for si. */
 export const si: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'වෙනස් කළ ගොනු පෙන්වන්න',
+  'ide.chat.commitFileCount_one': '{{count}} ගොනුව කැප කරන්න',
+  'ide.chat.commitFileCount_other': 'ගොනු {{count}} කැප කරන්න',
+  'ide.chat.autoCommit.countedBadge': '{{countdown}} න් {{commit}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -743,4 +747,27 @@ export const si: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'සංයුක්ත ඉලක්කයේදී',
+  'ide.chat.context.nearTarget': 'සන්දර්භය බොහෝ දුරට පිරී ඇත',
+  'ide.chat.context.healthy': 'සන්දර්භයට ඉඩ තිබේ',
+  'ide.chat.context.headroom': 'ප්‍රධාන කාමරයේ ටෝකන {{tokens}}',
+  'ide.chat.context.openDetails': 'විස්තර, ඉතිහාසය සහ සැකසුම් සඳහා ක්ලික් කරන්න.',
+  'ide.chat.context.refresh': 'භාවිතය නැවුම් කරන්න',
+  'ide.chat.context.settings': 'කතාබස් සැකසුම්',
+  'ide.chat.context.windowSize': 'ආකෘති සන්දර්භ කවුළුව: ටෝකන {{tokens}} .',
+  'ide.chat.context.unavailable': 'නොමැත',
+  'ide.chat.context.loading': 'පූරණය වෙමින්...',
+  'ide.chat.context.session': 'වත්මන් සැසිය',
+  'ide.chat.context.sessionTotal': 'ටෝකන {{tokens}}',
+  'ide.chat.context.sessionDetail': '{{input}} ආදානය (හැඹිලිය ඇතුළුව) · {{output}} ප්‍රතිදානය',
+  'ide.chat.context.live': 'සජීවී',
+  'ide.chat.context.allowance': 'සමස්ත AI දීමනාව',
+  'ide.chat.context.remainingPercent': '~ {{percent}} % ඉතිරියි',
+  'ide.chat.context.unmetered': 'මනුගත නොකළ',
+  'ide.chat.context.usageError':
+    'භාවිතය නැවුම් කළ නොහැකි විය. නැවත උත්සාහ කිරීමට විස්තර විවෘත කරන්න.',
+  'ide.chat.context.ownerAllowance': 'ව්‍යාපෘති හිමිකරුගේ ව්‍යාපෘති හරහා බෙදා ගන්නා ලදී.',
+  'ide.chat.context.monthly': 'මාසික දීමනාව.',
+  'ide.chat.context.daily': 'දෛනික දීමනාව.',
+  'ide.chat.context.resets': '{{at}} නැවත සකසයි.',
 }

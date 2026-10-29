@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for bg. */
 export const bg: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'Показване на променените файлове',
+  'ide.chat.commitFileCount_one': 'Комит {{count}} файл',
+  'ide.chat.commitFileCount_other': 'Комитирай {{count}} файла',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} в {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -759,4 +763,27 @@ export const bg: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'При целта за уплътняване',
+  'ide.chat.context.nearTarget': 'Контекстът е почти пълен',
+  'ide.chat.context.healthy': 'Контекстът има място',
+  'ide.chat.context.headroom': '{{tokens}} жетона за свобода на място',
+  'ide.chat.context.openDetails': 'Кликнете за разбивка, история и настройки',
+  'ide.chat.context.refresh': 'Обновяване на употребата',
+  'ide.chat.context.settings': 'Настройки за чат',
+  'ide.chat.context.windowSize': 'Контекстен прозорец на модела: {{tokens}} маркера.',
+  'ide.chat.context.unavailable': 'Не е налично',
+  'ide.chat.context.loading': 'Зареждане…',
+  'ide.chat.context.session': 'Текуща сесия',
+  'ide.chat.context.sessionTotal': '{{tokens}} токена',
+  'ide.chat.context.sessionDetail': '{{input}} вход (вкл. кеш) · {{output}} изход',
+  'ide.chat.context.live': 'На живо',
+  'ide.chat.context.allowance': 'Обща надбавка за ИИ',
+  'ide.chat.context.remainingPercent': '~ {{percent}} % остава',
+  'ide.chat.context.unmetered': 'Без ограничение',
+  'ide.chat.context.usageError':
+    'Използването не можа да бъде обновено. Отворете подробностите, за да опитате отново.',
+  'ide.chat.context.ownerAllowance': 'Споделено между проектите на собственика на проекта.',
+  'ide.chat.context.monthly': 'Месечна надбавка.',
+  'ide.chat.context.daily': 'Дневна надбавка.',
+  'ide.chat.context.resets': 'Нулира {{at}} .',
 }

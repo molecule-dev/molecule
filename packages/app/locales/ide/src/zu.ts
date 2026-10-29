@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for zu. */
 export const zu: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'Bonisa amafayela ashintshiwe',
+  'ide.chat.commitFileCount_one': 'Faka ifayela elingu {{count}}',
+  'ide.chat.commitFileCount_other': 'Faka amafayela angu {{count}}',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} ku- {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -749,4 +753,29 @@ export const zu: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'Ekuhlosweni kokuqiniswa',
+  'ide.chat.context.nearTarget': 'Umongo ucishe ugcwele',
+  'ide.chat.context.healthy': 'Umongo unesikhala',
+  'ide.chat.context.headroom': 'Amathokheni angu {{tokens}} ekhanda',
+  'ide.chat.context.openDetails':
+    'Chofoza ukuze uthole ukuhlukaniswa, umlando kanye nezilungiselelo',
+  'ide.chat.context.refresh': 'Vuselela ukusetshenziswa',
+  'ide.chat.context.settings': 'Izilungiselelo zengxoxo',
+  'ide.chat.context.windowSize': 'Iwindi lomongo wemodeli: amathokheni {{tokens}} .',
+  'ide.chat.context.unavailable': 'Akutholakali',
+  'ide.chat.context.loading': 'Iyalayisha…',
+  'ide.chat.context.session': 'Iseshini yamanje',
+  'ide.chat.context.sessionTotal': 'Amathokheni angu {{tokens}}',
+  'ide.chat.context.sessionDetail':
+    '{{input}} okokufaka (kufaka phakathi i-cache) · {{output}} okukhiphayo',
+  'ide.chat.context.live': 'Bukhoma',
+  'ide.chat.context.allowance': 'Isibonelelo se-AI esiphelele',
+  'ide.chat.context.remainingPercent': '~ {{percent}} % okusele',
+  'ide.chat.context.unmetered': 'Akulinganisiwe',
+  'ide.chat.context.usageError':
+    'Ukusetshenziswa akukwazanga ukuvuselelwa. Vula imininingwane ukuze uzame futhi.',
+  'ide.chat.context.ownerAllowance': 'Kwabelwana ngawo wonke amaphrojekthi omnikazi wephrojekthi.',
+  'ide.chat.context.monthly': 'Isibonelelo sanyanga zonke.',
+  'ide.chat.context.daily': 'Isibonelelo sansuku zonke.',
+  'ide.chat.context.resets': 'Isetha kabusha {{at}} .',
 }

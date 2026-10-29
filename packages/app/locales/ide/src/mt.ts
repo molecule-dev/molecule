@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for mt. */
 export const mt: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'Uri l-fajls mibdula',
+  'ide.chat.commitFileCount_one': 'Impenja {{count}} fajl',
+  'ide.chat.commitFileCount_other': 'Impenja {{count}} fajls',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -744,4 +748,27 @@ export const mt: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'Fil-mira tal-kompattazzjoni',
+  'ide.chat.context.nearTarget': 'Kuntest kważi mimli',
+  'ide.chat.context.healthy': 'Il-kuntest għandu lok',
+  'ide.chat.context.headroom': "{{tokens}} tokens ta' spazju żejjed",
+  'ide.chat.context.openDetails': 'Ikklikkja għat-tqassim, l-istorja u s-settings',
+  'ide.chat.context.refresh': 'Aġġorna l-użu',
+  'ide.chat.context.settings': 'Is-settings taċ-chat',
+  'ide.chat.context.windowSize': 'Tieqa tal-kuntest tal-mudell: {{tokens}} tokens.',
+  'ide.chat.context.unavailable': 'Mhux disponibbli',
+  'ide.chat.context.loading': 'Qed jitgħabba…',
+  'ide.chat.context.session': 'Sessjoni kurrenti',
+  'ide.chat.context.sessionTotal': '{{tokens}} tokens',
+  'ide.chat.context.sessionDetail': '{{input}} input (inkluż il-cache) · {{output}} output',
+  'ide.chat.context.live': 'Ħaj',
+  'ide.chat.context.allowance': 'Allowance ġenerali tal-AI',
+  'ide.chat.context.remainingPercent': '~ {{percent}} % li fadal',
+  'ide.chat.context.unmetered': 'Mhux imkejjel',
+  'ide.chat.context.usageError':
+    "L-użu ma setax jiġi aġġornat. Iftaħ id-dettalji biex terġa' tipprova.",
+  'ide.chat.context.ownerAllowance': 'Maqsum bejn il-proġetti tas-sid tal-proġett.',
+  'ide.chat.context.monthly': "Allowance ta' kull xahar.",
+  'ide.chat.context.daily': "Allowance ta' kuljum.",
+  'ide.chat.context.resets': 'Jirrisettja {{at}} .',
 }

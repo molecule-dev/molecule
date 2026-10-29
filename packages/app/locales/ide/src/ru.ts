@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for ru. */
 export const ru: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'Показать измененные файлы',
+  'ide.chat.commitFileCount_one': 'Фиксация {{count}} файлов',
+  'ide.chat.commitFileCount_other': 'Зафиксировано {{count}} файлов',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} из {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -756,4 +760,29 @@ export const ru: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'При достижении целевого уровня уплотнения',
+  'ide.chat.context.nearTarget': 'Контекст почти полный',
+  'ide.chat.context.healthy': 'В контексте есть место',
+  'ide.chat.context.headroom': '{{tokens}} токенов запаса высоты',
+  'ide.chat.context.openDetails':
+    'Нажмите, чтобы просмотреть подробную информацию, историю и настройки.',
+  'ide.chat.context.refresh': 'Обновить использование',
+  'ide.chat.context.settings': 'Настройки чата',
+  'ide.chat.context.windowSize': 'Окно контекста модели: {{tokens}} токенов.',
+  'ide.chat.context.unavailable': 'Недоступно',
+  'ide.chat.context.loading': 'Загрузка…',
+  'ide.chat.context.session': 'Текущая сессия',
+  'ide.chat.context.sessionTotal': '{{tokens}} токенов',
+  'ide.chat.context.sessionDetail':
+    '{{input}} входных данных (включая кэш) · {{output}} выходной сигнал',
+  'ide.chat.context.live': 'Жить',
+  'ide.chat.context.allowance': 'Общий лимит на ИИ',
+  'ide.chat.context.remainingPercent': 'Осталось ~ {{percent}} %',
+  'ide.chat.context.unmetered': 'Без учета',
+  'ide.chat.context.usageError':
+    'Не удалось обновить страницу использования. Откройте подробности, чтобы повторить попытку.',
+  'ide.chat.context.ownerAllowance': 'Используется во всех проектах владельца проекта.',
+  'ide.chat.context.monthly': 'Ежемесячное пособие.',
+  'ide.chat.context.daily': 'Суточные.',
+  'ide.chat.context.resets': 'Сбрасывает {{at}} .',
 }

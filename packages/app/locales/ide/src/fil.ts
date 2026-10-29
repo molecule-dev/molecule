@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for fil. */
 export const fil: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'Ipakita ang mga binagong file',
+  'ide.chat.commitFileCount_one': 'I-commit ang {{count}} na file',
+  'ide.chat.commitFileCount_other': 'Mag-commit ng {{count}} na file',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} sa {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -751,4 +755,28 @@ export const fil: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'Sa target na compaction',
+  'ide.chat.context.nearTarget': 'Halos puno na ang konteksto',
+  'ide.chat.context.healthy': 'May espasyo ang konteksto',
+  'ide.chat.context.headroom': '{{tokens}} token ng headroom',
+  'ide.chat.context.openDetails':
+    'Mag-click para sa detalyadong impormasyon, kasaysayan, at mga setting',
+  'ide.chat.context.refresh': 'Paggamit ng pag-refresh',
+  'ide.chat.context.settings': 'Mga setting ng chat',
+  'ide.chat.context.windowSize': 'Window ng konteksto ng modelo: {{tokens}} token.',
+  'ide.chat.context.unavailable': 'Hindi magagamit',
+  'ide.chat.context.loading': 'Naglo-load…',
+  'ide.chat.context.session': 'Kasalukuyang sesyon',
+  'ide.chat.context.sessionTotal': '{{tokens}} token',
+  'ide.chat.context.sessionDetail': '{{input}} input (kasama ang cache) · {{output}} output',
+  'ide.chat.context.live': 'Mabuhay',
+  'ide.chat.context.allowance': 'Kabuuang allowance ng AI',
+  'ide.chat.context.remainingPercent': '~ {{percent}} % na natitira',
+  'ide.chat.context.unmetered': 'Hindi nakametro',
+  'ide.chat.context.usageError':
+    'Hindi ma-refresh ang paggamit. Buksan ang mga detalye para subukan muli.',
+  'ide.chat.context.ownerAllowance': 'Ibinabahagi sa mga proyekto ng may-ari ng proyekto.',
+  'ide.chat.context.monthly': 'Buwanang allowance.',
+  'ide.chat.context.daily': 'Pang-araw-araw na allowance.',
+  'ide.chat.context.resets': 'Nire-reset {{at}} .',
 }

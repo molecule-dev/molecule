@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for ja. */
 export const ja: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': '変更されたファイルを表示する',
+  'ide.chat.commitFileCount_one': 'コミット{{count}}ファイル',
+  'ide.chat.commitFileCount_other': 'コミットファイル数{{count}}',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} in {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -752,4 +756,26 @@ export const ja: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': '圧縮目標において',
+  'ide.chat.context.nearTarget': 'コンテキストはほぼ完全です',
+  'ide.chat.context.healthy': '文脈には余地がある',
+  'ide.chat.context.headroom': '余裕のあるトークンは{{tokens}}',
+  'ide.chat.context.openDetails': 'クリックすると、詳細、履歴、設定が表示されます。',
+  'ide.chat.context.refresh': '使用状況の更新',
+  'ide.chat.context.settings': 'チャット設定',
+  'ide.chat.context.windowSize': 'モデルコンテキストウィンドウ：トークン数： {{tokens}} 。',
+  'ide.chat.context.unavailable': '利用不可',
+  'ide.chat.context.loading': '読み込み中…',
+  'ide.chat.context.session': '現在のセッション',
+  'ide.chat.context.sessionTotal': 'トークン{{tokens}}個',
+  'ide.chat.context.sessionDetail': '入力{{input}} （キャッシュ含む）・出力{{output}}',
+  'ide.chat.context.live': 'ライブ',
+  'ide.chat.context.allowance': '総AI手当',
+  'ide.chat.context.remainingPercent': '残り約{{percent}} ％',
+  'ide.chat.context.unmetered': '無制限',
+  'ide.chat.context.usageError': '使用状況を更新できませんでした。詳細を開いて再試行してください。',
+  'ide.chat.context.ownerAllowance': 'プロジェクトオーナーのプロジェクト全体で共有されます。',
+  'ide.chat.context.monthly': '月額手当。',
+  'ide.chat.context.daily': '日当。',
+  'ide.chat.context.resets': 'リセット回数{{at}} 。',
 }

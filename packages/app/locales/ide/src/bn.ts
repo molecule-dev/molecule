@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for bn. */
 export const bn: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'পরিবর্তিত ফাইলগুলি দেখান',
+  'ide.chat.commitFileCount_one': '{{count}} ফাইল কমিট করুন',
+  'ide.chat.commitFileCount_other': '{{count}} ফাইল কমিট করুন',
+  'ide.chat.autoCommit.countedBadge': '{{countdown}} এর মধ্যে {{commit}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -742,4 +746,27 @@ export const bn: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'সংকোচন লক্ষ্যমাত্রায়',
+  'ide.chat.context.nearTarget': 'প্রসঙ্গ প্রায় পূর্ণ',
+  'ide.chat.context.healthy': 'প্রসঙ্গের অবকাশ আছে',
+  'ide.chat.context.headroom': 'হেডরুমের {{tokens}} টোকেন',
+  'ide.chat.context.openDetails': 'বিস্তারিত বিবরণ, ইতিহাস এবং সেটিংসের জন্য ক্লিক করুন',
+  'ide.chat.context.refresh': 'রিফ্রেশ ব্যবহার',
+  'ide.chat.context.settings': 'চ্যাট সেটিংস',
+  'ide.chat.context.windowSize': 'মডেল কনটেক্সট উইন্ডো: {{tokens}} টোকেন।',
+  'ide.chat.context.unavailable': 'অনুপলব্ধ',
+  'ide.chat.context.loading': 'লোড হচ্ছে…',
+  'ide.chat.context.session': 'বর্তমান অধিবেশন',
+  'ide.chat.context.sessionTotal': '{{tokens}} টোকেন',
+  'ide.chat.context.sessionDetail': '{{input}} ইনপুট (ক্যাশ সহ) · {{output}} আউটপুট',
+  'ide.chat.context.live': 'সরাসরি',
+  'ide.chat.context.allowance': 'সামগ্রিক এআই ভাতা',
+  'ide.chat.context.remainingPercent': '~ {{percent}} % বাকি',
+  'ide.chat.context.unmetered': 'অপরিমিত',
+  'ide.chat.context.usageError':
+    'ব্যবহারবিধি রিফ্রেশ করা যায়নি। পুনরায় চেষ্টা করতে বিস্তারিত বিবরণ খুলুন।',
+  'ide.chat.context.ownerAllowance': 'প্রকল্প মালিকের প্রকল্পগুলোর মধ্যে ভাগ করা।',
+  'ide.chat.context.monthly': 'মাসিক ভাতা।',
+  'ide.chat.context.daily': 'দৈনিক ভাতা।',
+  'ide.chat.context.resets': '{{at}} রিসেট করে।',
 }

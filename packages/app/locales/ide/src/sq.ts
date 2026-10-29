@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for sq. */
 export const sq: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'Shfaq skedarët e ndryshuar',
+  'ide.chat.commitFileCount_one': 'Kryej skedarin {{count}}',
+  'ide.chat.commitFileCount_other': 'Kryej {{count}} skedarë',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} në {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -749,4 +753,28 @@ export const sq: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'Në objektivin e ngjeshjes',
+  'ide.chat.context.nearTarget': 'Konteksti pothuajse i plotë',
+  'ide.chat.context.healthy': 'Konteksti ka vend',
+  'ide.chat.context.headroom': '{{tokens}} shenja hapësire koke',
+  'ide.chat.context.openDetails': 'Klikoni për analiza, historikun dhe cilësimet',
+  'ide.chat.context.refresh': 'Rifresko përdorimin',
+  'ide.chat.context.settings': 'Cilësimet e bisedës',
+  'ide.chat.context.windowSize': 'Dritarja e kontekstit të modelit: {{tokens}} tokena.',
+  'ide.chat.context.unavailable': 'I padisponueshëm',
+  'ide.chat.context.loading': 'Duke u ngarkuar…',
+  'ide.chat.context.session': 'Sesioni aktual',
+  'ide.chat.context.sessionTotal': '{{tokens}} tokena',
+  'ide.chat.context.sessionDetail':
+    '{{input}} hyrje (përfshirë memorien e përkohshme) · {{output}} dalje',
+  'ide.chat.context.live': 'Drejtpërdrejt',
+  'ide.chat.context.allowance': 'Ndihma e përgjithshme për inteligjencën artificiale',
+  'ide.chat.context.remainingPercent': '~ {{percent}} % e mbetur',
+  'ide.chat.context.unmetered': 'Pa matje',
+  'ide.chat.context.usageError':
+    'Përdorimi nuk mund të rifreskohej. Hap detajet për të provuar përsëri.',
+  'ide.chat.context.ownerAllowance': 'I ndarë në të gjitha projektet e pronarit të projektit.',
+  'ide.chat.context.monthly': 'Pagesë mujore.',
+  'ide.chat.context.daily': 'Pagesa ditore.',
+  'ide.chat.context.resets': 'Rivendos {{at}} .',
 }

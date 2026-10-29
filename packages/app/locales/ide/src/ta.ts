@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for ta. */
 export const ta: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'மாற்றப்பட்ட கோப்புகளைக் காட்டு',
+  'ide.chat.commitFileCount_one': 'கமிட் {{count}} கோப்பு',
+  'ide.chat.commitFileCount_other': '{{count}} கோப்புகளைச் சமர்ப்பிக்கவும்',
+  'ide.chat.autoCommit.countedBadge': '{{countdown}} இல் {{commit}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -747,4 +751,28 @@ export const ta: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'சுருக்க இலக்கில்',
+  'ide.chat.context.nearTarget': 'சூழல் கிட்டத்தட்ட நிரம்பிவிட்டது',
+  'ide.chat.context.healthy': 'சூழலுக்கு இடம் இருக்கிறது',
+  'ide.chat.context.headroom': '{{tokens}} டோக்கன்கள் தலைக்கு மேல் இடம்',
+  'ide.chat.context.openDetails': 'விவரங்கள், வரலாறு மற்றும் அமைப்புகளைக் காண கிளிக் செய்யவும்.',
+  'ide.chat.context.refresh': 'பயன்பாட்டைப் புதுப்பிக்கவும்',
+  'ide.chat.context.settings': 'அரட்டை அமைப்புகள்',
+  'ide.chat.context.windowSize': 'மாதிரி சூழல் சாளரம்: {{tokens}} டோக்கன்கள்.',
+  'ide.chat.context.unavailable': 'கிடைக்கவில்லை',
+  'ide.chat.context.loading': 'ஏற்றப்படுகிறது…',
+  'ide.chat.context.session': 'தற்போதைய அமர்வு',
+  'ide.chat.context.sessionTotal': '{{tokens}} டோக்கன்கள்',
+  'ide.chat.context.sessionDetail':
+    '{{input}} உள்ளீடு (தற்காலிக நினைவகம் உட்பட) · {{output}} வெளியீடு',
+  'ide.chat.context.live': 'நேரலை',
+  'ide.chat.context.allowance': 'ஒட்டுமொத்த AI கொடுப்பனவு',
+  'ide.chat.context.remainingPercent': '~ {{percent}} % மீதமுள்ளது',
+  'ide.chat.context.unmetered': 'அளவிடப்படாத',
+  'ide.chat.context.usageError':
+    'பயன்பாட்டைப் புதுப்பிக்க முடியவில்லை. மீண்டும் முயற்சிக்க விவரங்களைத் திறக்கவும்.',
+  'ide.chat.context.ownerAllowance': 'திட்ட உரிமையாளரின் திட்டங்கள் முழுவதும் பகிரப்பட்டது.',
+  'ide.chat.context.monthly': 'மாதாந்திர உதவித்தொகை.',
+  'ide.chat.context.daily': 'தினசரி கொடுப்பனவு.',
+  'ide.chat.context.resets': 'மீட்டமைப்புகள் {{at}} .',
 }

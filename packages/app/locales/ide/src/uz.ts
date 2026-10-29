@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for uz. */
 export const uz: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': "O'zgartirilgan fayllarni ko'rsatish",
+  'ide.chat.commitFileCount_one': '{{count}} ta faylni topshirish',
+  'ide.chat.commitFileCount_other': '{{count}} ta faylni topshirish',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} ta {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -747,4 +751,27 @@ export const uz: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'Siqilish maqsadida',
+  'ide.chat.context.nearTarget': "Kontekst deyarli to'la",
+  'ide.chat.context.healthy': 'Kontekstda joy bor',
+  'ide.chat.context.headroom': '{{tokens}} bosh maydoni tokenlari',
+  'ide.chat.context.openDetails': 'Tahlil, tarix va sozlamalar uchun bosing',
+  'ide.chat.context.refresh': 'Foydalanishni yangilash',
+  'ide.chat.context.settings': 'Chat sozlamalari',
+  'ide.chat.context.windowSize': 'Model kontekst oynasi: {{tokens}} ta token.',
+  'ide.chat.context.unavailable': 'Mavjud emas',
+  'ide.chat.context.loading': 'Yuklanmoqda…',
+  'ide.chat.context.session': 'Joriy sessiya',
+  'ide.chat.context.sessionTotal': '{{tokens}} ta token',
+  'ide.chat.context.sessionDetail': '{{input}} kirish (kesh bilan) · {{output}} chiqish',
+  'ide.chat.context.live': 'Jonli',
+  'ide.chat.context.allowance': 'Umumiy AI ruxsatnomasi',
+  'ide.chat.context.remainingPercent': '~ {{percent}} % qoldi',
+  'ide.chat.context.unmetered': 'Cheklanmagan',
+  'ide.chat.context.usageError':
+    "Foydalanish tarixini yangilab bo'lmadi. Qayta urinish uchun tafsilotlarni oching.",
+  'ide.chat.context.ownerAllowance': "Loyiha egasining loyihalari bo'yicha taqsimlangan.",
+  'ide.chat.context.monthly': 'Oylik nafaqa.',
+  'ide.chat.context.daily': 'Kundalik nafaqa.',
+  'ide.chat.context.resets': '{{at}} ni qayta tiklaydi.',
 }

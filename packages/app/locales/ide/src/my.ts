@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for my. */
 export const my: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'ပြောင်းလဲထားသောဖိုင်များကိုပြပါ',
+  'ide.chat.commitFileCount_one': 'ကတိပြုချက် {{count}} ဖိုင်',
+  'ide.chat.commitFileCount_other': 'ဖိုင် {{count}} ကို ကတိပြုပါ',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} မှာ {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -751,4 +755,27 @@ export const my: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'ဖိသိပ်မှုပစ်မှတ်တွင်',
+  'ide.chat.context.nearTarget': 'အကြောင်းအရာ အပြည့်အစုံနီးပါးရှိပါပြီ',
+  'ide.chat.context.healthy': 'အခြေအနေမှာ နေရာလွတ်ရှိတယ်',
+  'ide.chat.context.headroom': 'ဦးခေါင်းနေရာလွတ် {{tokens}} တိုကင်များ',
+  'ide.chat.context.openDetails': 'ခွဲခြမ်းစိတ်ဖြာချက်၊ မှတ်တမ်းနှင့် ဆက်တင်များအတွက် နှိပ်ပါ',
+  'ide.chat.context.refresh': 'အသုံးပြုမှုကို ပြန်လည်စတင်ပါ',
+  'ide.chat.context.settings': 'ချတ်ဆက်တင်များ',
+  'ide.chat.context.windowSize': 'မော်ဒယ်ဆက်စပ်ဝင်းဒိုး- တိုကင် {{tokens}} ခု။',
+  'ide.chat.context.unavailable': 'မရနိုင်ပါ',
+  'ide.chat.context.loading': 'တင်နေသည်…',
+  'ide.chat.context.session': 'လက်ရှိအစည်းအဝေး',
+  'ide.chat.context.sessionTotal': '{{tokens}} တိုကင်များ',
+  'ide.chat.context.sessionDetail': 'အဝင် {{input}} (ကက်ရှ် အပါအဝင်) · အထွက် {{output}}',
+  'ide.chat.context.live': 'တိုက်ရိုက်ထုတ်လွှင့်မှု',
+  'ide.chat.context.allowance': 'စုစုပေါင်း AI ထောက်ပံ့ကြေး',
+  'ide.chat.context.remainingPercent': '~ {{percent}} % ကျန်ရှိသည်',
+  'ide.chat.context.unmetered': 'မီတာမသတ်မှတ်ရသေးပါ',
+  'ide.chat.context.usageError':
+    'အသုံးပြုမှုကို ပြန်လည်ဆန်းသစ်၍မရပါ။ ပြန်လည်ကြိုးစားရန် အသေးစိတ်အချက်အလက်များကို ဖွင့်ပါ။',
+  'ide.chat.context.ownerAllowance': 'ပရောဂျက်ပိုင်ရှင်၏ ပရောဂျက်များတစ်လျှောက် မျှဝေထားသည်။',
+  'ide.chat.context.monthly': 'လစဉ်ထောက်ပံ့ကြေး။',
+  'ide.chat.context.daily': 'နေ့စဉ်ထောက်ပံ့ကြေး။',
+  'ide.chat.context.resets': '{{at}} ပြန်လည်သတ်မှတ်သည်။',
 }

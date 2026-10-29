@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for lv. */
 export const lv: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'Rādīt mainītos failus',
+  'ide.chat.commitFileCount_one': '{{count}} faila apstiprināšana',
+  'ide.chat.commitFileCount_other': 'Pievienot {{count}} failus',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -750,4 +754,27 @@ export const lv: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'Sasniegts sablīvēšanas mērķis',
+  'ide.chat.context.nearTarget': 'Konteksts gandrīz pilns',
+  'ide.chat.context.healthy': 'Kontekstam ir vieta',
+  'ide.chat.context.headroom': '{{tokens}} brīvas vietas žetoni',
+  'ide.chat.context.openDetails': 'Noklikšķiniet, lai skatītu sadalījumu, vēsturi un iestatījumus',
+  'ide.chat.context.refresh': 'Atsvaidzināt lietojumu',
+  'ide.chat.context.settings': 'Tērzēšanas iestatījumi',
+  'ide.chat.context.windowSize': 'Modeļa konteksta logs: {{tokens}} žetoni.',
+  'ide.chat.context.unavailable': 'Nav pieejams',
+  'ide.chat.context.loading': 'Notiek ielāde…',
+  'ide.chat.context.session': 'Pašreizējā sesija',
+  'ide.chat.context.sessionTotal': '{{tokens}} žetoni',
+  'ide.chat.context.sessionDetail': '{{input}} ieejas (ieskaitot kešatmiņu) · {{output}} izejas',
+  'ide.chat.context.live': 'Tiešraide',
+  'ide.chat.context.allowance': 'Kopējais mākslīgā intelekta pabalsts',
+  'ide.chat.context.remainingPercent': '~ {{percent}} % atlikuši',
+  'ide.chat.context.unmetered': 'Neierobežots',
+  'ide.chat.context.usageError':
+    'Nevarēja atsvaidzināt lietojumu. Atveriet informāciju, lai mēģinātu vēlreiz.',
+  'ide.chat.context.ownerAllowance': 'Koplietots projekta īpašnieka projektos.',
+  'ide.chat.context.monthly': 'Mēneša pabalsts.',
+  'ide.chat.context.daily': 'Dienas nauda.',
+  'ide.chat.context.resets': 'Atiestata {{at}} .',
 }

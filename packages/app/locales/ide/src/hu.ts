@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for hu. */
 export const hu: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'Módosított fájlok megjelenítése',
+  'ide.chat.commitFileCount_one': '{{count}} fájl véglegesítése',
+  'ide.chat.commitFileCount_other': '{{count}} fájl véglegesítése',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -753,4 +757,29 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'A tömörítési célnál',
+  'ide.chat.context.nearTarget': 'A kontextus majdnem teljes',
+  'ide.chat.context.healthy': 'A kontextusnak van helye',
+  'ide.chat.context.headroom': '{{tokens}} zsetonnyi szabad magasság',
+  'ide.chat.context.openDetails':
+    'Kattintson a részletes leírásért, az előzményekért és a beállításokért',
+  'ide.chat.context.refresh': 'Használat frissítése',
+  'ide.chat.context.settings': 'Csevegési beállítások',
+  'ide.chat.context.windowSize': 'Modell kontextus ablaka: {{tokens}} token.',
+  'ide.chat.context.unavailable': 'Nem elérhető',
+  'ide.chat.context.loading': 'Terhelés…',
+  'ide.chat.context.session': 'Jelenlegi munkamenet',
+  'ide.chat.context.sessionTotal': '{{tokens}} token',
+  'ide.chat.context.sessionDetail':
+    '{{input}} bemenet (gyorsítótárral együtt) · {{output}} kimenet',
+  'ide.chat.context.live': 'Élő',
+  'ide.chat.context.allowance': 'Teljes mesterséges intelligencia-juttatás',
+  'ide.chat.context.remainingPercent': '~ {{percent}} % maradt',
+  'ide.chat.context.unmetered': 'Nem mért',
+  'ide.chat.context.usageError':
+    'A használati adatokat nem sikerült frissíteni. Nyissa meg a részleteket az újrapróbálkozáshoz.',
+  'ide.chat.context.ownerAllowance': 'Megosztva a projekt tulajdonosának projektjei között.',
+  'ide.chat.context.monthly': 'Havi juttatás.',
+  'ide.chat.context.daily': 'Napi juttatás.',
+  'ide.chat.context.resets': 'Visszaállítja {{at}} .',
 }

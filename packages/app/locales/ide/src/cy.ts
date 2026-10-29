@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for cy. */
 export const cy: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': "Dangos ffeiliau wedi'u newid",
+  'ide.chat.commitFileCount_one': 'Cyflawni ffeil {{count}}',
+  'ide.chat.commitFileCount_other': 'Cyflawni {{count}} ffeil',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} mewn {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -742,4 +746,26 @@ export const cy: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'Ar darged cywasgu',
+  'ide.chat.context.nearTarget': 'Cyd-destun bron yn llawn',
+  'ide.chat.context.healthy': "Mae lle i'r cyd-destun",
+  'ide.chat.context.headroom': '{{tokens}} tocyn o le pen',
+  'ide.chat.context.openDetails': 'Cliciwch am ddadansoddiad, hanes a gosodiadau',
+  'ide.chat.context.refresh': 'Ail-lwythwch y defnydd',
+  'ide.chat.context.settings': 'Gosodiadau sgwrsio',
+  'ide.chat.context.windowSize': 'Ffenestr cyd-destun model: {{tokens}} tocyn.',
+  'ide.chat.context.unavailable': 'Heb fod ar gael',
+  'ide.chat.context.loading': 'Yn llwytho…',
+  'ide.chat.context.session': 'Sesiwn gyfredol',
+  'ide.chat.context.sessionTotal': '{{tokens}} tocyn',
+  'ide.chat.context.sessionDetail': '{{input}} mewnbwn (gan gynnwys storfa) · {{output}} allbwn',
+  'ide.chat.context.live': 'Byw',
+  'ide.chat.context.allowance': 'Lwfans AI cyffredinol',
+  'ide.chat.context.remainingPercent': '~ {{percent}} % yn weddill',
+  'ide.chat.context.unmetered': 'Heb fesurydd',
+  'ide.chat.context.usageError': "Ni ellid adnewyddu'r defnydd. Agorwch y manylion i geisio eto.",
+  'ide.chat.context.ownerAllowance': "Wedi'i rannu ar draws prosiectau perchennog y prosiect.",
+  'ide.chat.context.monthly': 'Lwfans misol.',
+  'ide.chat.context.daily': 'Lwfans dyddiol.',
+  'ide.chat.context.resets': 'Yn ailosod {{at}} .',
 }

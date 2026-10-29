@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for hi. */
 export const hi: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'परिवर्तित फ़ाइलें दिखाएँ',
+  'ide.chat.commitFileCount_one': 'कमिट {{count}} फ़ाइल',
+  'ide.chat.commitFileCount_other': '{{count}} फ़ाइलें कमिट की गईं',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} में {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -741,4 +745,27 @@ export const hi: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'संघनन लक्ष्य पर',
+  'ide.chat.context.nearTarget': 'संदर्भ लगभग पूर्ण',
+  'ide.chat.context.healthy': 'संदर्भ में गुंजाइश है',
+  'ide.chat.context.headroom': 'हेडरूम के {{tokens}} टोकन',
+  'ide.chat.context.openDetails': 'विवरण, इतिहास और सेटिंग्स के लिए क्लिक करें',
+  'ide.chat.context.refresh': 'उपयोग को रीफ़्रेश करें',
+  'ide.chat.context.settings': 'चैट सेटिंग्स',
+  'ide.chat.context.windowSize': 'मॉडल संदर्भ विंडो: {{tokens}} टोकन।',
+  'ide.chat.context.unavailable': 'अनुपलब्ध',
+  'ide.chat.context.loading': 'लोड हो रहा है…',
+  'ide.chat.context.session': 'वर्तमान सत्र',
+  'ide.chat.context.sessionTotal': '{{tokens}} टोकन',
+  'ide.chat.context.sessionDetail': '{{input}} इनपुट (कैश सहित) · {{output}} आउटपुट',
+  'ide.chat.context.live': 'रहना',
+  'ide.chat.context.allowance': 'कुल एआई भत्ता',
+  'ide.chat.context.remainingPercent': '~ {{percent}} % शेष',
+  'ide.chat.context.unmetered': 'बिना मीटर',
+  'ide.chat.context.usageError':
+    'उपयोग की जानकारी रीफ़्रेश नहीं हो सकी। पुनः प्रयास करने के लिए विवरण खोलें।',
+  'ide.chat.context.ownerAllowance': 'प्रोजेक्ट के मालिक के सभी प्रोजेक्टों में साझा किया गया।',
+  'ide.chat.context.monthly': 'मासिक भत्ता।',
+  'ide.chat.context.daily': 'दैनिक भत्ता।',
+  'ide.chat.context.resets': 'रीसेट {{at}} .',
 }

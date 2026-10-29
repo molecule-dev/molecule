@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for mn. */
 export const mn: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'Өөрчлөгдсөн файлуудыг харуулах',
+  'ide.chat.commitFileCount_one': '{{count}} файлыг оруулах',
+  'ide.chat.commitFileCount_other': '{{count}} файл оруулах',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} - {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -747,4 +751,27 @@ export const mn: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'Нягтралын зорилтот түвшинд',
+  'ide.chat.context.nearTarget': 'Хам сэдэв бараг дүүрэн байна',
+  'ide.chat.context.healthy': 'Контекст зайтай',
+  'ide.chat.context.headroom': 'Толгой зайны {{tokens}} жетон',
+  'ide.chat.context.openDetails': 'Задаргаа, түүх болон тохиргоог харахын тулд дарна уу',
+  'ide.chat.context.refresh': 'Дахин ачаалах хэрэглээ',
+  'ide.chat.context.settings': 'Чатын тохиргоо',
+  'ide.chat.context.windowSize': 'Загварын контекст цонх: {{tokens}} жетон.',
+  'ide.chat.context.unavailable': 'Боломжгүй',
+  'ide.chat.context.loading': 'Ачааллаж байна…',
+  'ide.chat.context.session': 'Одоогийн хуралдаан',
+  'ide.chat.context.sessionTotal': '{{tokens}} токен',
+  'ide.chat.context.sessionDetail': '{{input}} оролт (кэшийг оруулаад) · {{output}} гаралт',
+  'ide.chat.context.live': 'Шууд',
+  'ide.chat.context.allowance': 'Нийт хиймэл оюун ухааны тэтгэмж',
+  'ide.chat.context.remainingPercent': '~ {{percent}} % үлдсэн',
+  'ide.chat.context.unmetered': 'Хязгааргүй',
+  'ide.chat.context.usageError':
+    'Ашиглалтыг сэргээж чадсангүй. Дахин оролдохын тулд дэлгэрэнгүй мэдээллийг нээнэ үү.',
+  'ide.chat.context.ownerAllowance': 'Төслийн эзэмшигчийн төслүүд дээр хуваалцсан.',
+  'ide.chat.context.monthly': 'Сарын тэтгэмж.',
+  'ide.chat.context.daily': 'Өдөр тутмын тэтгэмж.',
+  'ide.chat.context.resets': '{{at}} дахин тохируулна.',
 }

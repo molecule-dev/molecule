@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for ca. */
 export const ca: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'Mostra els fitxers modificats',
+  'ide.chat.commitFileCount_one': 'Commit {{count}} fitxer',
+  'ide.chat.commitFileCount_other': 'Commit {{count}} fitxers',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} en {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -746,4 +750,29 @@ export const ca: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': "A l'objectiu de compactació",
+  'ide.chat.context.nearTarget': 'Context gairebé ple',
+  'ide.chat.context.healthy': 'El context té espai',
+  'ide.chat.context.headroom': "{{tokens}} fitxes d'espai lliure",
+  'ide.chat.context.openDetails':
+    "Feu clic per veure el desglossament, l'historial i la configuració",
+  'ide.chat.context.refresh': "Actualitza l'ús",
+  'ide.chat.context.settings': 'Configuració del xat',
+  'ide.chat.context.windowSize': 'Finestra de context del model: {{tokens}} tokens.',
+  'ide.chat.context.unavailable': 'No disponible',
+  'ide.chat.context.loading': "S'està carregant…",
+  'ide.chat.context.session': 'Sessió actual',
+  'ide.chat.context.sessionTotal': '{{tokens}} fitxes',
+  'ide.chat.context.sessionDetail':
+    '{{input}} entrades (inclosa la memòria cau) · {{output}} sortida',
+  'ide.chat.context.live': 'En directe',
+  'ide.chat.context.allowance': "Subsidi total d'IA",
+  'ide.chat.context.remainingPercent': '~ {{percent}} % restant',
+  'ide.chat.context.unmetered': 'Sense comptador',
+  'ide.chat.context.usageError':
+    "No s'ha pogut actualitzar l'ús. Obre els detalls per tornar-ho a intentar.",
+  'ide.chat.context.ownerAllowance': 'Compartit entre els projectes del propietari del projecte.',
+  'ide.chat.context.monthly': 'Assignació mensual.',
+  'ide.chat.context.daily': 'Sumpció diària.',
+  'ide.chat.context.resets': 'Reinicialitza {{at}} .',
 }

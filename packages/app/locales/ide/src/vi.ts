@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for vi. */
 export const vi: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'Hiển thị các tệp đã thay đổi',
+  'ide.chat.commitFileCount_one': 'Cam kết tệp {{count}}',
+  'ide.chat.commitFileCount_other': 'Cam kết {{count}} tệp',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} trong {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -749,4 +753,26 @@ export const vi: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'Tại mục tiêu nén chặt',
+  'ide.chat.context.nearTarget': 'Ngữ cảnh gần như đầy đủ',
+  'ide.chat.context.healthy': 'Bối cảnh có chỗ đứng',
+  'ide.chat.context.headroom': '{{tokens}} token khoảng trống',
+  'ide.chat.context.openDetails': 'Nhấp chuột để xem chi tiết, lịch sử và cài đặt.',
+  'ide.chat.context.refresh': 'Làm mới cách sử dụng',
+  'ide.chat.context.settings': 'Cài đặt trò chuyện',
+  'ide.chat.context.windowSize': 'Cửa sổ ngữ cảnh mô hình: {{tokens}} token.',
+  'ide.chat.context.unavailable': 'Không khả dụng',
+  'ide.chat.context.loading': 'Đang tải…',
+  'ide.chat.context.session': 'Phiên hiện tại',
+  'ide.chat.context.sessionTotal': '{{tokens}} mã thông báo',
+  'ide.chat.context.sessionDetail': '{{input}} đầu vào (bao gồm bộ nhớ đệm) · {{output}} đầu ra',
+  'ide.chat.context.live': 'Sống',
+  'ide.chat.context.allowance': 'Tổng số tiền trợ cấp AI',
+  'ide.chat.context.remainingPercent': '~ {{percent}} % còn lại',
+  'ide.chat.context.unmetered': 'Không đo lường',
+  'ide.chat.context.usageError': 'Không thể làm mới thông tin sử dụng. Mở chi tiết để thử lại.',
+  'ide.chat.context.ownerAllowance': 'Được chia sẻ giữa các dự án của chủ đầu tư.',
+  'ide.chat.context.monthly': 'Trợ cấp hàng tháng.',
+  'ide.chat.context.daily': 'Tiền tiêu vặt hàng ngày.',
+  'ide.chat.context.resets': 'Đặt lại về {{at}} .',
 }

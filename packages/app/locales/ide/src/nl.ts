@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for nl. */
 export const nl: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'Toon gewijzigde bestanden',
+  'ide.chat.commitFileCount_one': 'Commit {{count}} bestand',
+  'ide.chat.commitFileCount_other': 'Commit {{count}} bestanden',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} op {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -760,4 +764,27 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'Bij verdichtingsdoel',
+  'ide.chat.context.nearTarget': 'De context is vrijwel volledig.',
+  'ide.chat.context.healthy': 'De context biedt ruimte.',
+  'ide.chat.context.headroom': '{{tokens}} tokens aan hoofdruimte',
+  'ide.chat.context.openDetails': 'Klik hier voor een overzicht, geschiedenis en instellingen.',
+  'ide.chat.context.refresh': 'Gebruik vernieuwen',
+  'ide.chat.context.settings': 'Chatinstellingen',
+  'ide.chat.context.windowSize': 'Modelcontextvenster: {{tokens}} tokens.',
+  'ide.chat.context.unavailable': 'Niet beschikbaar',
+  'ide.chat.context.loading': 'Laden…',
+  'ide.chat.context.session': 'Huidige sessie',
+  'ide.chat.context.sessionTotal': '{{tokens}} tokens',
+  'ide.chat.context.sessionDetail': '{{input}} invoer (incl. cache) · {{output}} uitvoer',
+  'ide.chat.context.live': 'Live',
+  'ide.chat.context.allowance': 'Totale AI-toelage',
+  'ide.chat.context.remainingPercent': '~ {{percent}} % resterend',
+  'ide.chat.context.unmetered': 'Onbemeten',
+  'ide.chat.context.usageError':
+    'Het gebruik kon niet worden vernieuwd. Open de details om het opnieuw te proberen.',
+  'ide.chat.context.ownerAllowance': 'Gedeeld over alle projecten van de projecteigenaar.',
+  'ide.chat.context.monthly': 'Maandelijkse toelage.',
+  'ide.chat.context.daily': 'Dagelijkse hoeveelheid.',
+  'ide.chat.context.resets': 'Reset {{at}} .',
 }

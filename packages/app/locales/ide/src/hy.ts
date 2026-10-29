@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for hy. */
 export const hy: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'Ցուցադրել փոփոխված ֆայլերը',
+  'ide.chat.commitFileCount_one': 'Կատարել {{count}} ֆայլ',
+  'ide.chat.commitFileCount_other': '{{count}} ֆայլի հաստատում',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} {{countdown}} ում',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -745,4 +749,28 @@ export const hy: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'Խտացման նպատակակետում',
+  'ide.chat.context.nearTarget': 'Համատեքստը գրեթե լիքն է',
+  'ide.chat.context.healthy': 'Համատեքստը տեղ ունի',
+  'ide.chat.context.headroom': '{{tokens}} տոկեն գլխի ազատ տարածք',
+  'ide.chat.context.openDetails':
+    'Սեղմեք՝ մանրամասն նկարագրությունը, պատմությունը և կարգավորումները տեսնելու համար',
+  'ide.chat.context.refresh': 'Թարմացնել օգտագործումը',
+  'ide.chat.context.settings': 'Զրույցի կարգավորումներ',
+  'ide.chat.context.windowSize': 'Մոդելի համատեքստի պատուհան՝ {{tokens}} տոկեն։',
+  'ide.chat.context.unavailable': 'Անհասանելի է',
+  'ide.chat.context.loading': 'Բեռնվում է…',
+  'ide.chat.context.session': 'Ընթացիկ նիստ',
+  'ide.chat.context.sessionTotal': '{{tokens}} թոքեն',
+  'ide.chat.context.sessionDetail': '{{input}} մուտք (ներառյալ քեշը) · {{output}} ելք',
+  'ide.chat.context.live': 'Ուղիղ',
+  'ide.chat.context.allowance': 'Ընդհանուր արհեստական բանականության նպաստ',
+  'ide.chat.context.remainingPercent': 'Մնացել է ~ {{percent}} %',
+  'ide.chat.context.unmetered': 'Անսահմանափակ',
+  'ide.chat.context.usageError':
+    'Օգտագործումը չհաջողվեց թարմացնել: Բացեք մանրամասները՝ կրկին փորձելու համար:',
+  'ide.chat.context.ownerAllowance': 'Համօգտագործվում է նախագծի սեփականատիրոջ նախագծերի միջև։',
+  'ide.chat.context.monthly': 'Ամսական նպաստ։',
+  'ide.chat.context.daily': 'Օրական նպաստ։',
+  'ide.chat.context.resets': 'Վերագործարկում է {{at}} ։',
 }

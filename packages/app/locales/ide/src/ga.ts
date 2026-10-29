@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for ga. */
 export const ga: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'Taispeáin comhaid athraithe',
+  'ide.chat.commitFileCount_one': 'Comhad Tiomnaithe {{count}}',
+  'ide.chat.commitFileCount_other': 'Tiomnaigh {{count}} comhad',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} i {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -746,4 +750,28 @@ export const ga: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'Ag an sprioc dlúthaithe',
+  'ide.chat.context.nearTarget': 'Comhthéacs beagnach lán',
+  'ide.chat.context.healthy': 'Tá spás ann don chomhthéacs',
+  'ide.chat.context.headroom': '{{tokens}} comharthaí spáis ceann',
+  'ide.chat.context.openDetails': 'Cliceáil le haghaidh miondealú, stair agus socruithe',
+  'ide.chat.context.refresh': 'Athnuachan úsáid',
+  'ide.chat.context.settings': 'Socruithe comhrá',
+  'ide.chat.context.windowSize': 'Fuinneog chomhthéacs samhail: {{tokens}} comharthaí.',
+  'ide.chat.context.unavailable': 'Gan a bheith ar fáil',
+  'ide.chat.context.loading': 'Ag lódáil…',
+  'ide.chat.context.session': 'Seisiún reatha',
+  'ide.chat.context.sessionTotal': '{{tokens}} comharthaí',
+  'ide.chat.context.sessionDetail':
+    '{{input}} ionchur (lena n-áirítear taisce) · {{output}} aschur',
+  'ide.chat.context.live': 'Beo',
+  'ide.chat.context.allowance': 'Liúntas foriomlán AI',
+  'ide.chat.context.remainingPercent': '~ {{percent}} % fágtha',
+  'ide.chat.context.unmetered': 'Gan mhéadar',
+  'ide.chat.context.usageError':
+    'Níorbh fhéidir an úsáid a athnuachan. Oscail na sonraí le hathiarracht a dhéanamh.',
+  'ide.chat.context.ownerAllowance': 'Roinnte ar fud thionscadail úinéir an tionscadail.',
+  'ide.chat.context.monthly': 'Liúntas míosúil.',
+  'ide.chat.context.daily': 'Liúntas laethúil.',
+  'ide.chat.context.resets': 'Athshocraíonn {{at}} .',
 }

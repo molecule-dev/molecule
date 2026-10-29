@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for ur. */
 export const ur: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'تبدیل شدہ فائلیں دکھائیں۔',
+  'ide.chat.commitFileCount_one': '{{count}} فائل کا ارتکاب کریں۔',
+  'ide.chat.commitFileCount_other': '{{count}} فائلوں کا ارتکاب کریں۔',
+  'ide.chat.autoCommit.countedBadge': '{{countdown}} میں {{commit}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -741,4 +745,27 @@ export const ur: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'کومپیکشن ہدف پر',
+  'ide.chat.context.nearTarget': 'سیاق و سباق تقریباً بھرا ہوا ہے۔',
+  'ide.chat.context.healthy': 'سیاق و سباق کی گنجائش ہے۔',
+  'ide.chat.context.headroom': 'ہیڈ روم کے {{tokens}} ٹوکن',
+  'ide.chat.context.openDetails': 'بریک ڈاؤن، تاریخ اور ترتیبات کے لیے کلک کریں۔',
+  'ide.chat.context.refresh': 'استعمال کو تازہ کریں۔',
+  'ide.chat.context.settings': 'چیٹ کی ترتیبات',
+  'ide.chat.context.windowSize': 'ماڈل سیاق و سباق کی ونڈو: {{tokens}} ٹوکن۔',
+  'ide.chat.context.unavailable': 'دستیاب نہیں۔',
+  'ide.chat.context.loading': 'لوڈ ہو رہا ہے…',
+  'ide.chat.context.session': 'موجودہ سیشن',
+  'ide.chat.context.sessionTotal': '{{tokens}} ٹوکن',
+  'ide.chat.context.sessionDetail': '{{input}} ان پٹ (کیشے سمیت) · {{output}} آؤٹ پٹ',
+  'ide.chat.context.live': 'جیو',
+  'ide.chat.context.allowance': 'مجموعی طور پر AI الاؤنس',
+  'ide.chat.context.remainingPercent': '~ {{percent}} % باقی ہے۔',
+  'ide.chat.context.unmetered': 'بغیر میٹر کے',
+  'ide.chat.context.usageError':
+    'استعمال کو ریفریش نہیں کیا جا سکا۔ دوبارہ کوشش کرنے کے لیے تفصیلات کھولیں۔',
+  'ide.chat.context.ownerAllowance': 'پروجیکٹ کے مالک کے پروجیکٹس میں اشتراک کیا گیا۔',
+  'ide.chat.context.monthly': 'ماہانہ الاؤنس۔',
+  'ide.chat.context.daily': 'ڈیلی الاؤنس۔',
+  'ide.chat.context.resets': '{{at}} کو ری سیٹ کرتا ہے۔',
 }

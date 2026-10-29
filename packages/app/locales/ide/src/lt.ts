@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for lt. */
 export const lt: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'Rodyti pakeistus failus',
+  'ide.chat.commitFileCount_one': 'Įkelti {{count}} failą',
+  'ide.chat.commitFileCount_other': 'Įkelti {{count}} failų',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -756,4 +760,28 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'Pasiekus tankinimo tikslą',
+  'ide.chat.context.nearTarget': 'Kontekstas beveik pilnas',
+  'ide.chat.context.healthy': 'Kontekstas turi vietos',
+  'ide.chat.context.headroom': '{{tokens}} laisvos galvos žetonų',
+  'ide.chat.context.openDetails':
+    'Spustelėkite, jei norite peržiūrėti suskirstymą, istoriją ir nustatymus',
+  'ide.chat.context.refresh': 'Atnaujinti naudojimą',
+  'ide.chat.context.settings': 'Pokalbių nustatymai',
+  'ide.chat.context.windowSize': 'Modelio konteksto langas: {{tokens}} žetonų.',
+  'ide.chat.context.unavailable': 'Nepasiekiama',
+  'ide.chat.context.loading': 'Kraunama…',
+  'ide.chat.context.session': 'Dabartinė sesija',
+  'ide.chat.context.sessionTotal': '{{tokens}} žetonų',
+  'ide.chat.context.sessionDetail': '{{input}} įvesčių (įskaitant podėlį) · {{output}} išvestis',
+  'ide.chat.context.live': 'Tiesiogiai',
+  'ide.chat.context.allowance': 'Bendras dirbtinio intelekto limitas',
+  'ide.chat.context.remainingPercent': '~ {{percent}} % liko',
+  'ide.chat.context.unmetered': 'Neišmatuotas',
+  'ide.chat.context.usageError':
+    'Nepavyko atnaujinti naudojimo. Atidarykite išsamią informaciją, kad bandytumėte dar kartą.',
+  'ide.chat.context.ownerAllowance': 'Bendrinama visuose projekto savininko projektuose.',
+  'ide.chat.context.monthly': 'Mėnesinė išmoka.',
+  'ide.chat.context.daily': 'Dienpinigiai.',
+  'ide.chat.context.resets': 'Atstato {{at}} .',
 }

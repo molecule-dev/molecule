@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for eu. */
 export const eu: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'Erakutsi aldatutako fitxategiak',
+  'ide.chat.commitFileCount_one': '{{count}} fitxategia bidali',
+  'ide.chat.commitFileCount_other': '{{count}} fitxategi bidali',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -745,4 +749,27 @@ export const eu: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'Trinkotze-helburuan',
+  'ide.chat.context.nearTarget': 'Testuingurua ia beteta',
+  'ide.chat.context.healthy': 'Testuinguruak badu tokirik',
+  'ide.chat.context.headroom': '{{tokens}} token buru-tarte',
+  'ide.chat.context.openDetails': 'Egin klik xehetasunak, historia eta ezarpenak ikusteko',
+  'ide.chat.context.refresh': 'Freskatu erabilera',
+  'ide.chat.context.settings': 'Txat ezarpenak',
+  'ide.chat.context.windowSize': 'Ereduaren testuinguru-leihoa: {{tokens}} token.',
+  'ide.chat.context.unavailable': 'Ez dago eskuragarri',
+  'ide.chat.context.loading': 'Kargatzen…',
+  'ide.chat.context.session': 'Uneko saioa',
+  'ide.chat.context.sessionTotal': '{{tokens}} token',
+  'ide.chat.context.sessionDetail': '{{input}} sarrera (katxea barne) · {{output}} irteera',
+  'ide.chat.context.live': 'Zuzenean',
+  'ide.chat.context.allowance': 'AI hobaria guztira',
+  'ide.chat.context.remainingPercent': '~ % {{percent}} geratzen da',
+  'ide.chat.context.unmetered': 'Neurtu gabekoa',
+  'ide.chat.context.usageError':
+    'Ezin izan da erabilera freskatu. Ireki xehetasunak berriro saiatzeko.',
+  'ide.chat.context.ownerAllowance': 'Proiektuaren jabearen proiektuetan partekatua.',
+  'ide.chat.context.monthly': 'Hileroko diru-laguntza.',
+  'ide.chat.context.daily': 'Eguneko diru-laguntza.',
+  'ide.chat.context.resets': '{{at}} berrezartzen du.',
 }

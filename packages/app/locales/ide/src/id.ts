@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for id. */
 export const id: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'Tampilkan file yang diubah',
+  'ide.chat.commitFileCount_one': 'Commit file {{count}}',
+  'ide.chat.commitFileCount_other': 'Komit {{count}} file',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} dari {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -754,4 +758,27 @@ export const id: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'Pada target pemadatan',
+  'ide.chat.context.nearTarget': 'Konteks hampir penuh',
+  'ide.chat.context.healthy': 'Konteks memiliki ruang.',
+  'ide.chat.context.headroom': '{{tokens}} token ruang kepala',
+  'ide.chat.context.openDetails': 'Klik untuk rincian, riwayat, dan pengaturan.',
+  'ide.chat.context.refresh': 'Penyegaran penggunaan',
+  'ide.chat.context.settings': 'Pengaturan obrolan',
+  'ide.chat.context.windowSize': 'Jendela konteks model: {{tokens}} token.',
+  'ide.chat.context.unavailable': 'Tidak tersedia',
+  'ide.chat.context.loading': 'Memuat…',
+  'ide.chat.context.session': 'Sesi saat ini',
+  'ide.chat.context.sessionTotal': '{{tokens}} token',
+  'ide.chat.context.sessionDetail': '{{input}} input (termasuk cache) · {{output}} output',
+  'ide.chat.context.live': 'Hidup',
+  'ide.chat.context.allowance': 'Tunjangan AI secara keseluruhan',
+  'ide.chat.context.remainingPercent': '~ {{percent}} % tersisa',
+  'ide.chat.context.unmetered': 'Tidak terukur',
+  'ide.chat.context.usageError':
+    'Penggunaan tidak dapat diperbarui. Buka detail untuk mencoba lagi.',
+  'ide.chat.context.ownerAllowance': 'Dibagikan di seluruh proyek pemilik proyek.',
+  'ide.chat.context.monthly': 'Uang saku bulanan.',
+  'ide.chat.context.daily': 'Tunjangan harian.',
+  'ide.chat.context.resets': 'Mengatur ulang {{at}} .',
 }

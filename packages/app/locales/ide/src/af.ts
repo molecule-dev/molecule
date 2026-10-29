@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for af. */
 export const af: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'Wys veranderde lêers',
+  'ide.chat.commitFileCount_one': 'Bevestig {{count}} lêer',
+  'ide.chat.commitFileCount_other': '{{count}} lêers toedien',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} in {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -741,4 +745,27 @@ export const af: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'By verdigtingsteiken',
+  'ide.chat.context.nearTarget': 'Konteks amper vol',
+  'ide.chat.context.healthy': 'Konteks het ruimte',
+  'ide.chat.context.headroom': '{{tokens}} tekens van kopruimte',
+  'ide.chat.context.openDetails': 'Klik vir uiteensetting, geskiedenis en instellings',
+  'ide.chat.context.refresh': 'Verfris gebruik',
+  'ide.chat.context.settings': 'Kletsinstellings',
+  'ide.chat.context.windowSize': 'Modelkonteksvenster: {{tokens}} tokens.',
+  'ide.chat.context.unavailable': 'Nie beskikbaar nie',
+  'ide.chat.context.loading': 'Laai tans…',
+  'ide.chat.context.session': 'Huidige sessie',
+  'ide.chat.context.sessionTotal': '{{tokens}} tekens',
+  'ide.chat.context.sessionDetail': '{{input}} invoer (insl. kasgeheue) · {{output}} uitvoer',
+  'ide.chat.context.live': 'Lewendig',
+  'ide.chat.context.allowance': 'Algehele KI-toelaag',
+  'ide.chat.context.remainingPercent': '~ {{percent}} % oorblywend',
+  'ide.chat.context.unmetered': 'Ongemeter',
+  'ide.chat.context.usageError':
+    'Gebruik kon nie verfris word nie. Maak besonderhede oop om weer te probeer.',
+  'ide.chat.context.ownerAllowance': 'Gedeel oor die projekeienaar se projekte.',
+  'ide.chat.context.monthly': 'Maandelikse toelaag.',
+  'ide.chat.context.daily': 'Daaglikse toelaag.',
+  'ide.chat.context.resets': 'Stel {{at}} terug.',
 }

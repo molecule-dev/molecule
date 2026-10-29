@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for de. */
 export const de: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'Geänderte Dateien anzeigen',
+  'ide.chat.commitFileCount_one': 'Datei {{count}} festschreiben',
+  'ide.chat.commitFileCount_other': '{{count}} Dateien übertragen',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} von {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -768,4 +772,28 @@ export const de: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'Am Verdichtungsziel',
+  'ide.chat.context.nearTarget': 'Kontext nahezu vollständig',
+  'ide.chat.context.healthy': 'Der Kontext bietet Raum',
+  'ide.chat.context.headroom': '{{tokens}} Tokens Kopffreiheit',
+  'ide.chat.context.openDetails': 'Klicken Sie hier für Aufschlüsselung, Verlauf und Einstellungen',
+  'ide.chat.context.refresh': 'Aktualisierungsnutzung',
+  'ide.chat.context.settings': 'Chat-Einstellungen',
+  'ide.chat.context.windowSize': 'Modellkontextfenster: {{tokens}} Tokens.',
+  'ide.chat.context.unavailable': 'Nicht verfügbar',
+  'ide.chat.context.loading': 'Laden…',
+  'ide.chat.context.session': 'Aktuelle Sitzung',
+  'ide.chat.context.sessionTotal': '{{tokens}} Token',
+  'ide.chat.context.sessionDetail': '{{input}} Eingänge (inkl. Cache) · {{output}} Ausgang',
+  'ide.chat.context.live': 'Live',
+  'ide.chat.context.allowance': 'Gesamt-KI-Zulage',
+  'ide.chat.context.remainingPercent': '~ {{percent}} % verbleibend',
+  'ide.chat.context.unmetered': 'Unbegrenzt',
+  'ide.chat.context.usageError':
+    'Die Nutzung konnte nicht aktualisiert werden. Öffnen Sie die Details, um es erneut zu versuchen.',
+  'ide.chat.context.ownerAllowance':
+    'Wird von allen Projekten des Projektinhabers gemeinsam genutzt.',
+  'ide.chat.context.monthly': 'Monatliches Taschengeld.',
+  'ide.chat.context.daily': 'Tagesgeld.',
+  'ide.chat.context.resets': 'Resets {{at}} .',
 }

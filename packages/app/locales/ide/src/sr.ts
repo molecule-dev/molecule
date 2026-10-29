@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for sr. */
 export const sr: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'Прикажи измењене датотеке',
+  'ide.chat.commitFileCount_one': 'Коммит {{count}} фајл',
+  'ide.chat.commitFileCount_other': 'Потврди {{count}} датотека',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} у {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -743,4 +747,27 @@ export const sr: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'На циљу збијања',
+  'ide.chat.context.nearTarget': 'Контекст је скоро пун',
+  'ide.chat.context.healthy': 'Контекст има простора',
+  'ide.chat.context.headroom': '{{tokens}} жетона простора за главу',
+  'ide.chat.context.openDetails': 'Кликните за детаљан преглед, историју и подешавања',
+  'ide.chat.context.refresh': 'Освежи коришћење',
+  'ide.chat.context.settings': 'Подешавања ћаскања',
+  'ide.chat.context.windowSize': 'Контекстни прозор модела: {{tokens}} токена.',
+  'ide.chat.context.unavailable': 'Недоступно',
+  'ide.chat.context.loading': 'Учитавање…',
+  'ide.chat.context.session': 'Тренутна сесија',
+  'ide.chat.context.sessionTotal': '{{tokens}} токена',
+  'ide.chat.context.sessionDetail': '{{input}} улаза (укљ. кеш) · {{output}} излаз',
+  'ide.chat.context.live': 'Уживо',
+  'ide.chat.context.allowance': 'Укупан додатак за вештачку интелигенцију',
+  'ide.chat.context.remainingPercent': '~ {{percent}} % преостало',
+  'ide.chat.context.unmetered': 'Без ограничења',
+  'ide.chat.context.usageError':
+    'Освежавање коришћења није успело. Отворите детаље да бисте покушали поново.',
+  'ide.chat.context.ownerAllowance': 'Дељено међу пројектима власника пројекта.',
+  'ide.chat.context.monthly': 'Месечни додатак.',
+  'ide.chat.context.daily': 'Дневни додатак.',
+  'ide.chat.context.resets': 'Ресетује {{at}} .',
 }

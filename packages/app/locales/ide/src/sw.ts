@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for sw. */
 export const sw: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'Onyesha faili zilizobadilishwa',
+  'ide.chat.commitFileCount_one': 'Weka faili {{count}}',
+  'ide.chat.commitFileCount_other': 'Weka faili {{count}}',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} katika {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -745,4 +749,28 @@ export const sw: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'Katika shabaha ya mgandamizo',
+  'ide.chat.context.nearTarget': 'Muktadha karibu umejaa',
+  'ide.chat.context.healthy': 'Muktadha una nafasi',
+  'ide.chat.context.headroom': 'Tokeni {{tokens}} za chumba cha kichwa',
+  'ide.chat.context.openDetails': 'Bonyeza kwa uchanganuzi, historia na mipangilio',
+  'ide.chat.context.refresh': 'Onyesha matumizi upya',
+  'ide.chat.context.settings': 'Mipangilio ya gumzo',
+  'ide.chat.context.windowSize': 'Dirisha la muktadha wa modeli: tokeni {{tokens}} .',
+  'ide.chat.context.unavailable': 'Haipatikani',
+  'ide.chat.context.loading': 'Inapakia…',
+  'ide.chat.context.session': 'Kipindi cha sasa',
+  'ide.chat.context.sessionTotal': 'Tokeni {{tokens}}',
+  'ide.chat.context.sessionDetail':
+    'Ingizo {{input}} (ikiwa ni pamoja na akiba) · Tokeo {{output}}',
+  'ide.chat.context.live': 'Moja kwa Moja',
+  'ide.chat.context.allowance': 'Posho ya jumla ya akili bandia',
+  'ide.chat.context.remainingPercent': '~ {{percent}} % iliyobaki',
+  'ide.chat.context.unmetered': 'Haijapimwa',
+  'ide.chat.context.usageError':
+    'Matumizi hayakuweza kuonyeshwa upya. Fungua maelezo ili ujaribu tena.',
+  'ide.chat.context.ownerAllowance': 'Imeshirikiwa katika miradi yote ya mmiliki wa mradi.',
+  'ide.chat.context.monthly': 'Posho ya kila mwezi.',
+  'ide.chat.context.daily': 'Posho ya kila siku.',
+  'ide.chat.context.resets': 'Huweka upya {{at}} .',
 }

@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for gu. */
 export const gu: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'બદલાયેલી ફાઇલો બતાવો',
+  'ide.chat.commitFileCount_one': '{{count}} ફાઇલ કમિટ કરો',
+  'ide.chat.commitFileCount_other': '{{count}} ફાઇલો કમિટ કરો',
+  'ide.chat.autoCommit.countedBadge': '{{countdown}} માં {{commit}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -740,4 +744,26 @@ export const gu: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'કોમ્પેક્શન લક્ષ્ય પર',
+  'ide.chat.context.nearTarget': 'સંદર્ભ લગભગ પૂર્ણ થઈ ગયો છે',
+  'ide.chat.context.healthy': 'સંદર્ભમાં જગ્યા છે',
+  'ide.chat.context.headroom': 'હેડરૂમના {{tokens}} ટોકન',
+  'ide.chat.context.openDetails': 'બ્રેકડાઉન, ઇતિહાસ અને સેટિંગ્સ માટે ક્લિક કરો',
+  'ide.chat.context.refresh': 'ઉપયોગ રિફ્રેશ કરો',
+  'ide.chat.context.settings': 'ચેટ સેટિંગ્સ',
+  'ide.chat.context.windowSize': 'મોડેલ સંદર્ભ વિન્ડો: {{tokens}} ટોકન્સ.',
+  'ide.chat.context.unavailable': 'અનુપલબ્ધ',
+  'ide.chat.context.loading': 'લોડ કરી રહ્યું છે...',
+  'ide.chat.context.session': 'વર્તમાન સત્ર',
+  'ide.chat.context.sessionTotal': '{{tokens}} ટોકન',
+  'ide.chat.context.sessionDetail': '{{input}} ઇનપુટ (કેશ સહિત) · {{output}} આઉટપુટ',
+  'ide.chat.context.live': 'જીવંત',
+  'ide.chat.context.allowance': 'કુલ AI ભથ્થું',
+  'ide.chat.context.remainingPercent': '~ {{percent}} % બાકી',
+  'ide.chat.context.unmetered': 'મીટર વગરનું',
+  'ide.chat.context.usageError': 'ઉપયોગ તાજો કરી શકાયો નથી. ફરી પ્રયાસ કરવા માટે વિગતો ખોલો.',
+  'ide.chat.context.ownerAllowance': 'પ્રોજેક્ટ માલિકના પ્રોજેક્ટ્સમાં શેર કરેલ.',
+  'ide.chat.context.monthly': 'માસિક ભથ્થું.',
+  'ide.chat.context.daily': 'દૈનિક ભથ્થું.',
+  'ide.chat.context.resets': '{{at}} રીસેટ કરે છે.',
 }

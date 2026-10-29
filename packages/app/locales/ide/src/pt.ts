@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for pt. */
 export const pt: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'Mostrar arquivos alterados',
+  'ide.chat.commitFileCount_one': 'Commit {{count}} arquivo',
+  'ide.chat.commitFileCount_other': 'Confirme {{count}} arquivos',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} em {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -755,4 +759,27 @@ export const pt: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'Na meta de compactação',
+  'ide.chat.context.nearTarget': 'Contexto quase completo',
+  'ide.chat.context.healthy': 'O contexto tem espaço',
+  'ide.chat.context.headroom': '{{tokens}} fichas de espaço livre',
+  'ide.chat.context.openDetails': 'Clique para ver detalhes, histórico e configurações.',
+  'ide.chat.context.refresh': 'Atualizar uso',
+  'ide.chat.context.settings': 'Configurações de bate-papo',
+  'ide.chat.context.windowSize': 'Janela de contexto do modelo: {{tokens}} tokens.',
+  'ide.chat.context.unavailable': 'Indisponível',
+  'ide.chat.context.loading': 'Carregando…',
+  'ide.chat.context.session': 'Sessão atual',
+  'ide.chat.context.sessionTotal': '{{tokens}} tokens',
+  'ide.chat.context.sessionDetail': '{{input}} entradas (incluindo cache) · {{output}} saída',
+  'ide.chat.context.live': 'Ao vivo',
+  'ide.chat.context.allowance': 'subsídio total de IA',
+  'ide.chat.context.remainingPercent': '~ {{percent}} % restante',
+  'ide.chat.context.unmetered': 'Sem limite de uso',
+  'ide.chat.context.usageError':
+    'Não foi possível atualizar o uso. Abra os detalhes para tentar novamente.',
+  'ide.chat.context.ownerAllowance': 'Compartilhado entre os projetos do proprietário do projeto.',
+  'ide.chat.context.monthly': 'Subsídio mensal.',
+  'ide.chat.context.daily': 'Diária.',
+  'ide.chat.context.resets': 'Reinicia {{at}} .',
 }

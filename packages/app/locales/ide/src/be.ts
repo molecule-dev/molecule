@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for be. */
 export const be: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'Паказаць змененыя файлы',
+  'ide.chat.commitFileCount_one': 'Зафіксаваць файл {{count}}',
+  'ide.chat.commitFileCount_other': 'Зафіксаваць {{count}} файлаў',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} у {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -746,4 +750,29 @@ export const be: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'На мэтавым узроўні ўшчыльнення',
+  'ide.chat.context.nearTarget': 'Кантэкст амаль запоўнены',
+  'ide.chat.context.healthy': 'Кантэкст мае месца',
+  'ide.chat.context.headroom': '{{tokens}} токенаў прасторы',
+  'ide.chat.context.openDetails':
+    'Націсніце, каб убачыць падрабязную інфармацыю, гісторыю і налады',
+  'ide.chat.context.refresh': 'Абнавіць выкарыстанне',
+  'ide.chat.context.settings': 'Налады чата',
+  'ide.chat.context.windowSize': 'Акно кантэксту мадэлі: {{tokens}} токенаў.',
+  'ide.chat.context.unavailable': 'Недаступна',
+  'ide.chat.context.loading': 'Загрузка…',
+  'ide.chat.context.session': 'Бягучы сеанс',
+  'ide.chat.context.sessionTotal': '{{tokens}} токенаў',
+  'ide.chat.context.sessionDetail':
+    '{{input}} уваходных дадзеных (у тым ліку кэш) · {{output}} выхадных дадзеных',
+  'ide.chat.context.live': 'Жывы эфір',
+  'ide.chat.context.allowance': 'Агульная колькасць шкоды для штучнага інтэлекту',
+  'ide.chat.context.remainingPercent': '~ {{percent}} % засталося',
+  'ide.chat.context.unmetered': 'Безлімітны',
+  'ide.chat.context.usageError':
+    'Не ўдалося абнавіць выкарыстанне. Адкрыйце падрабязную інфармацыю, каб паўтарыць спробу.',
+  'ide.chat.context.ownerAllowance': 'Агульны для праектаў уладальніка праекта.',
+  'ide.chat.context.monthly': 'Штомесячная дапамога.',
+  'ide.chat.context.daily': 'Дзённыя дапаможнікі.',
+  'ide.chat.context.resets': 'Скідае {{at}} .',
 }

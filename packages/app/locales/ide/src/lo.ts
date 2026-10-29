@@ -2,6 +2,10 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for lo. */
 export const lo: Partial<IdeTranslations> = {
+  'ide.chat.showChangedFiles': 'ສະແດງໄຟລ໌ທີ່ຖືກປ່ຽນແປງ',
+  'ide.chat.commitFileCount_one': 'ໄຟລ໌ Commit {{count}}',
+  'ide.chat.commitFileCount_other': 'ດຳເນີນການ {{count}} ໄຟລ໌',
+  'ide.chat.autoCommit.countedBadge': '{{commit}} ໃນ {{countdown}}',
   'ide.chat.teamMessagesUnavailable': 'Team messaging is unavailable in this workspace.',
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
@@ -739,4 +743,26 @@ export const lo: Partial<IdeTranslations> = {
   'ide.chat.context.category.images': 'Images',
   'ide.chat.context.category.attachments': 'Attachments',
   'ide.chat.context.category.structuralOverhead': 'Request structure',
+  'ide.chat.context.atTarget': 'ຢູ່ທີ່ເປົ້າໝາຍການບີບອັດ',
+  'ide.chat.context.nearTarget': 'ບໍລິບົດເກືອບເຕັມແລ້ວ',
+  'ide.chat.context.healthy': 'ບໍລິບົດມີພື້ນທີ່',
+  'ide.chat.context.headroom': '{{tokens}} ໂທເຄັນຂອງ headroom',
+  'ide.chat.context.openDetails': 'ຄລິກເພື່ອເບິ່ງລາຍລະອຽດ, ປະຫວັດ ແລະ ການຕັ້ງຄ່າ',
+  'ide.chat.context.refresh': 'ໂຫຼດຂໍ້ມູນການນຳໃຊ້ຄືນໃໝ່',
+  'ide.chat.context.settings': 'ການຕັ້ງຄ່າການສົນທະນາ',
+  'ide.chat.context.windowSize': 'ໜ້າຕ່າງສະພາບການຂອງຮູບແບບ: {{tokens}} ໂທເຄັນ.',
+  'ide.chat.context.unavailable': 'ບໍ່ສາມາດໃຊ້ໄດ້',
+  'ide.chat.context.loading': 'ກຳລັງໂຫຼດ…',
+  'ide.chat.context.session': 'ເຊດຊັນປັດຈຸບັນ',
+  'ide.chat.context.sessionTotal': '{{tokens}} ໂທເຄັນ',
+  'ide.chat.context.sessionDetail': '{{input}} ອິນພຸດ (ລວມທັງແຄສ) · {{output}} ຜົນຜະລິດ',
+  'ide.chat.context.live': 'ສົດ',
+  'ide.chat.context.allowance': 'ເງິນອຸດໜູນ AI ໂດຍລວມ',
+  'ide.chat.context.remainingPercent': 'ເຫຼືອ ~ {{percent}} %',
+  'ide.chat.context.unmetered': 'ບໍ່ມີການວັດແທກ',
+  'ide.chat.context.usageError': 'ບໍ່ສາມາດໂຫຼດຂໍ້ມູນການນຳໃຊ້ຄືນໃໝ່ໄດ້. ເປີດລາຍລະອຽດເພື່ອລອງໃໝ່.',
+  'ide.chat.context.ownerAllowance': 'ແບ່ງປັນໃນທົ່ວໂຄງການຂອງເຈົ້າຂອງໂຄງການ.',
+  'ide.chat.context.monthly': 'ເງິນອຸດໜູນປະຈຳເດືອນ.',
+  'ide.chat.context.daily': 'ເງິນອຸດໜູນປະຈຳວັນ.',
+  'ide.chat.context.resets': 'ຕັ້ງຄ່າຄືນໃໝ່ {{at}} .',
 }
