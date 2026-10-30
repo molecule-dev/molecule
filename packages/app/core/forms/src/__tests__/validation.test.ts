@@ -230,3 +230,43 @@ describe('validateValue — early termination', () => {
     expect(await validateValue(1, { min: 5, max: 3 })).toBe('Value must be at least 5')
   })
 })
+
+describe('validateValue — empty or non-string messages', () => {
+  it('keeps a rule on when its own message is empty, and shows the built-in text', async () => {
+    expect(await validateValue('', { required: '' })).toBe('This field is required')
+    expect(await validateValue('not-an-email', { email: '' })).toBe('Invalid email address')
+    expect(await validateValue('not a url', { url: '' })).toBe('Invalid URL')
+    expect(await validateValue('ab', { minLength: { value: 3, message: '' } })).toBe(
+      'Must be at least 3 characters',
+    )
+    expect(await validateValue(1, { min: { value: 2, message: '' } })).toBe(
+      'Value must be at least 2',
+    )
+    expect(await validateValue('x', { pattern: { value: /y/, message: '' } })).toBe(
+      'Invalid format',
+    )
+  })
+
+  it('still turns a rule off with false', async () => {
+    expect(await validateValue('', { required: false })).toBeUndefined()
+    expect(await validateValue('not-an-email', { email: false })).toBeUndefined()
+    expect(await validateValue('not a url', { url: false })).toBeUndefined()
+  })
+
+  it('fails a custom validator that returns an empty string or a non-string', async () => {
+    expect(await validateValue('x', { validate: () => '' })).toBe('Invalid value')
+    // i18next with returnDetails answers t() with an object.
+    const details = { res: 'Bad', usedKey: 'k' } as unknown as string
+    expect(await validateValue('x', { validate: () => details })).toBe('Invalid value')
+    expect(await validateValue('x', { validate: () => true })).toBeUndefined()
+  })
+
+  it('uses the built-in message when the translation is empty or not a string', async () => {
+    const empty = vi.fn(() => '')
+    expect(await validateValue('', { required: true }, empty)).toBe('This field is required')
+    const details = vi.fn(() => ({ res: 'Ungültig' }) as unknown as string)
+    expect(await validateValue('not-an-email', { email: true }, details)).toBe(
+      'Invalid email address',
+    )
+  })
+})

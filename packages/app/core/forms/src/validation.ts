@@ -32,21 +32,32 @@ export const validateValue = async (
   schema: ValidationSchema,
   t?: TranslateFn,
 ): Promise<string | undefined> => {
-  // An empty translation must never read as "valid": fall back to the built-in message.
-  const msg = (key: string, defaultValue: string, values?: InterpolationValues): string =>
-    (t ? t(key, values, { defaultValue }) : '') || defaultValue
+  // A failure must always carry visible text: an empty or non-string translation (i18next's
+  // returnDetails gives an object) falls back to the built-in English message.
+  const msg = (key: string, defaultValue: string, values?: InterpolationValues): string => {
+    const translated: unknown = t?.(key, values, { defaultValue })
+    return typeof translated === 'string' && translated ? translated : defaultValue
+  }
+  // A rule's own message, or the built-in one when it is not usable text.
+  const text = (
+    message: unknown,
+    key: string,
+    defaultValue: string,
+    values?: InterpolationValues,
+  ): string => (typeof message === 'string' && message ? message : msg(key, defaultValue, values))
+  // A rule is on whenever it is set, whatever its message: `required: t(...)` that translates to
+  // '' must still require the value.
+  const on = (rule: unknown): boolean => rule !== undefined && rule !== null && rule !== false
 
   // Required check
-  if (schema.required) {
+  if (on(schema.required)) {
     const isEmpty =
       value === undefined ||
       value === null ||
       value === '' ||
       (Array.isArray(value) && value.length === 0)
     if (isEmpty) {
-      return typeof schema.required === 'string'
-        ? schema.required
-        : msg('forms.required', 'This field is required')
+      return text(schema.required, 'forms.required', 'This field is required')
     }
   }
 
@@ -58,10 +69,12 @@ export const validateValue = async (
   // Min check (numbers)
   if (schema.min !== undefined) {
     const minValue = typeof schema.min === 'object' ? schema.min.value : schema.min
-    const message =
-      typeof schema.min === 'object'
-        ? schema.min.message
-        : msg('forms.min', `Value must be at least ${minValue}`, { min: minValue })
+    const message = text(
+      typeof schema.min === 'object' ? schema.min.message : undefined,
+      'forms.min',
+      `Value must be at least ${minValue}`,
+      { min: minValue },
+    )
     if (typeof value === 'number' && value < minValue) {
       return message
     }
@@ -70,10 +83,12 @@ export const validateValue = async (
   // Max check (numbers)
   if (schema.max !== undefined) {
     const maxValue = typeof schema.max === 'object' ? schema.max.value : schema.max
-    const message =
-      typeof schema.max === 'object'
-        ? schema.max.message
-        : msg('forms.max', `Value must be at most ${maxValue}`, { max: maxValue })
+    const message = text(
+      typeof schema.max === 'object' ? schema.max.message : undefined,
+      'forms.max',
+      `Value must be at most ${maxValue}`,
+      { max: maxValue },
+    )
     if (typeof value === 'number' && value > maxValue) {
       return message
     }
@@ -83,10 +98,12 @@ export const validateValue = async (
   if (schema.minLength !== undefined) {
     const minLength =
       typeof schema.minLength === 'object' ? schema.minLength.value : schema.minLength
-    const message =
-      typeof schema.minLength === 'object'
-        ? schema.minLength.message
-        : msg('forms.minLength', `Must be at least ${minLength} characters`, { minLength })
+    const message = text(
+      typeof schema.minLength === 'object' ? schema.minLength.message : undefined,
+      'forms.minLength',
+      `Must be at least ${minLength} characters`,
+      { minLength },
+    )
     const length =
       typeof value === 'string' ? value.length : Array.isArray(value) ? value.length : 0
     if (length < minLength) {
@@ -98,10 +115,12 @@ export const validateValue = async (
   if (schema.maxLength !== undefined) {
     const maxLength =
       typeof schema.maxLength === 'object' ? schema.maxLength.value : schema.maxLength
-    const message =
-      typeof schema.maxLength === 'object'
-        ? schema.maxLength.message
-        : msg('forms.maxLength', `Must be at most ${maxLength} characters`, { maxLength })
+    const message = text(
+      typeof schema.maxLength === 'object' ? schema.maxLength.message : undefined,
+      'forms.maxLength',
+      `Must be at most ${maxLength} characters`,
+      { maxLength },
+    )
     const length =
       typeof value === 'string' ? value.length : Array.isArray(value) ? value.length : 0
     if (length > maxLength) {
@@ -112,31 +131,28 @@ export const validateValue = async (
   // Pattern check
   if (schema.pattern !== undefined) {
     const pattern = schema.pattern instanceof RegExp ? schema.pattern : schema.pattern.value
-    const message =
-      schema.pattern instanceof RegExp
-        ? msg('forms.invalidFormat', 'Invalid format')
-        : schema.pattern.message
+    const message = text(
+      schema.pattern instanceof RegExp ? undefined : schema.pattern.message,
+      'forms.invalidFormat',
+      'Invalid format',
+    )
     if (typeof value === 'string' && !pattern.test(value)) {
       return message
     }
   }
 
   // Email check
-  if (schema.email) {
+  if (on(schema.email)) {
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    const message =
-      typeof schema.email === 'string'
-        ? schema.email
-        : msg('forms.invalidEmail', 'Invalid email address')
+    const message = text(schema.email, 'forms.invalidEmail', 'Invalid email address')
     if (typeof value === 'string' && !emailPattern.test(value)) {
       return message
     }
   }
 
   // URL check
-  if (schema.url) {
-    const message =
-      typeof schema.url === 'string' ? schema.url : msg('forms.invalidUrl', 'Invalid URL')
+  if (on(schema.url)) {
+    const message = text(schema.url, 'forms.invalidUrl', 'Invalid URL')
     try {
       new URL(value as string)
     } catch (_error) {
@@ -149,12 +165,11 @@ export const validateValue = async (
 
   // Custom validation
   if (schema.validate) {
-    const result = await schema.validate(value)
-    if (typeof result === 'string') {
-      return result
-    }
-    if (result === false) {
-      return msg('forms.invalidValue', 'Invalid value')
+    // Only `true` (or no answer) passes. Any string is a failure, as in react-hook-form, and an
+    // empty or non-string one (a translation object) shows the built-in message.
+    const result: unknown = await schema.validate(value)
+    if (result !== true && result !== undefined && result !== null) {
+      return text(result, 'forms.invalidValue', 'Invalid value')
     }
   }
 

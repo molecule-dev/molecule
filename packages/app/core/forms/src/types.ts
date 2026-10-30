@@ -30,7 +30,8 @@ export interface ValidationRule {
  */
 export interface ValidationSchema {
   /**
-   * Whether the field is required.
+   * Whether the field is required. A string turns the rule on and is its message; an empty
+   * string (an untranslated `t(...)`) still turns it on and shows the built-in message.
    */
   required?: boolean | string
 
@@ -60,17 +61,18 @@ export interface ValidationSchema {
   pattern?: RegExp | { value: RegExp; message: string }
 
   /**
-   * Validate as email.
+   * Validate as email. A string turns the rule on and is its message (empty: the built-in one).
    */
   email?: boolean | string
 
   /**
-   * Validate as URL.
+   * Validate as URL. A string turns the rule on and is its message (empty: the built-in one).
    */
   url?: boolean | string
 
   /**
-   * Custom validation function.
+   * Custom validation function. Return `true` to pass; `false` or any string fails, and a
+   * non-empty string is the message shown.
    */
   validate?: (value: unknown) => boolean | string | Promise<boolean | string>
 }
