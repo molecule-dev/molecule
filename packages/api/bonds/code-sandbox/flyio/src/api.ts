@@ -78,7 +78,7 @@ export class FlyApiError extends Error {
 }
 
 /** Options for a single Fly API request. */
-export interface FlyRequestOptions {
+export interface FlyRequestOptions<T = unknown> {
   /** HTTP method. Defaults to `GET`. */
   method?: string
   /** JSON request body. Omitted entirely when undefined. */
@@ -105,6 +105,13 @@ export interface FlyRequestOptions {
    * transport, 429 and 5xx retries are unaffected.
    */
   retryWhen?: (error: FlyApiError) => boolean
+  /**
+   * Reconciles a retryable failure before the client backs off or throws.
+   * Returning a value completes the request; `undefined` keeps the normal
+   * retry/exhaustion path. This lets an ambiguous write look for the resource
+   * it may have created without adding a second POST retry loop.
+   */
+  reconcile?: (error: FlyApiError) => Promise<T | undefined>
 }
 
 /**
@@ -282,7 +289,7 @@ export class FlyApiClient {
    * @throws {FlyApiError} On a non-2xx status that is not listed in `nullOn`,
    *   or when every retryable attempt is exhausted.
    */
-  async request<T>(path: string, options: FlyRequestOptions = {}): Promise<T | null> {
+  async request<T>(path: string, options: FlyRequestOptions<T> = {}): Promise<T | null> {
     const method = options.method ?? 'GET'
     const attempts = options.attempts ?? DEFAULT_ATTEMPTS
     const token = this.token()
@@ -354,6 +361,10 @@ export class FlyApiClient {
         (options.retryWhen?.(lastError) ?? true),
       )
       const retryable = isRetryableStatus(status) || extraRetry
+      if (retryable && lastError && options.reconcile) {
+        const recovered = await options.reconcile(lastError)
+        if (recovered !== undefined) return recovered
+      }
       if (!retryable || attempt === attempts) break
       const delay = retryDelayMs(attempt, retryAfter)
       logger.warn(`Fly API transient failure on ${method} ${path} — retrying`, {

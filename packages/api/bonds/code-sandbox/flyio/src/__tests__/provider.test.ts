@@ -104,9 +104,9 @@ describe('create — app provisioning and tenant isolation', () => {
     expect(double.matching('POST /apps').filter((call) => call.path === '/apps')).toHaveLength(0)
   })
 
-  it('deletes the app it just created when the Machine cannot be created', async () => {
-    // Production 2026-09-28: the org hit its Machine limit, every POST
-    // /machines answered 422, and each attempt left an empty app behind (34).
+  it('keeps the app it just created when the Machine cannot be created', async () => {
+    // Another create can already have adopted this per-name app and its volume.
+    // A later create of the same name adopts the empty app after a real failure.
     const double = createFetchDouble()
       .on(`GET /apps/${APP}`, { status: 404, body: {} })
       .on('POST /apps', { status: 201, body: {} })
@@ -114,11 +114,10 @@ describe('create — app provisioning and tenant isolation', () => {
         status: 422,
         body: { error: 'Your organization has reached its machine limit.' },
       })
-      .on(`DELETE /apps/${APP}`, { status: 202, body: {} })
 
     await expect(makeProvider({}, double).create({ projectId: PROJECT_ID })).rejects.toThrow()
 
-    expect(double.matching(`DELETE /apps/${APP}`)).toHaveLength(1)
+    expect(double.matching(`DELETE /apps/${APP}`)).toHaveLength(0)
   })
 
   it('never deletes an app that existed before a failed create', async () => {
@@ -134,21 +133,17 @@ describe('create — app provisioning and tenant isolation', () => {
     expect(double.matching(`DELETE /apps/${APP}`)).toHaveLength(0)
   })
 
-  it('destroys the Machine it created when the boot never reaches started, then discards the app', async () => {
+  it('destroys the Machine it created when the boot never reaches started, but keeps the app', async () => {
     // The Machine was created but never came up (state `failed` on the
-    // re-read). Nothing else ever adopts it — the caller got a rejection, not
-    // a handle — and the created-app discard below can only delete an EMPTY
-    // app, so the Machine must be destroyed before the app is.
+    // re-read). The caller got a rejection, not a handle, so this Machine is
+    // safe to destroy; the app and its volume may already have another adopter.
     const double = createFetchDouble()
       .on(`GET /apps/${APP}`, { status: 404, body: {} })
       .on('POST /apps', { status: 201, body: {} })
       .on(`POST /apps/${APP}/machines`, { body: { id: 'm1', state: 'created' } })
       .on(`GET /apps/${APP}/machines/m1/wait`, { status: 500, body: {} })
       .on(`GET /apps/${APP}/machines/m1`, { body: { id: 'm1', state: 'failed' } })
-      // Queued BEFORE the app delete: both route prefixes match the machine
-      // delete's path, and the queues answer in insertion order.
       .on(`DELETE /apps/${APP}/machines/m1?force=true`, { status: 204, body: {} })
-      .on(`DELETE /apps/${APP}`, { status: 202, body: {} })
 
     await expect(makeProvider({}, double).create({ projectId: PROJECT_ID })).rejects.toThrow()
 
@@ -157,7 +152,7 @@ describe('create — app provisioning and tenant isolation', () => {
     // path starts with `/apps/${APP}` too.
     expect(
       double.calls.filter((c) => c.method === 'DELETE' && c.path === `/apps/${APP}`),
-    ).toHaveLength(1)
+    ).toHaveLength(0)
   })
 
   it('destroys the Machine on a failed boot but never the app that existed before it', async () => {
@@ -698,9 +693,10 @@ describe('create — volumes', () => {
     expect(machines[1].body).toMatchObject({ config: { mounts: [{ volume: 'vol_new_1' }] } })
   })
 
-  it('never deletes a freshly created volume that a concurrent create has adopted', async () => {
+  it('never deletes an app or volume a concurrent create has adopted', async () => {
     const double = createFetchDouble()
-      .on(`GET /apps/${APP}`, { body: { name: APP, network: APP } })
+      .on(`GET /apps/${APP}`, { status: 404, body: {} })
+      .on('POST /apps', { status: 201, body: {} })
       .on(`GET /apps/${APP}`, { body: { name: APP, network: APP } })
       .on(`GET /apps/${APP}/volumes`, { body: [] })
       .on(`GET /apps/${APP}/volumes`, {
@@ -718,7 +714,8 @@ describe('create — volumes', () => {
 
     // Hold A's capacity answer while B finds A's volume by name, boots a
     // Machine that may write to it, and then destroys only that Machine after
-    // a failed boot. A's local `created` flag must not authorize deleting V.
+    // a failed boot. A created the app, but its local `created` flag still must
+    // not authorize deleting the app or V after B adopted them.
     const baseFetch = double.fetch
     let machinePosts = 0
     let notifyFirstMachine!: () => void
@@ -752,20 +749,80 @@ describe('create — volumes', () => {
 
     expect(firstError).toBeInstanceOf(Error)
     expect(double.matching(`DELETE /apps/${APP}/machines/m2?force=true`)).toHaveLength(1)
+    expect(
+      double.calls.filter((call) => call.method === 'DELETE' && call.path === `/apps/${APP}`),
+    ).toHaveLength(0)
     expect(double.matching(`DELETE /apps/${APP}/volumes/vol_new_1`)).toHaveLength(0)
     expect(double.matching(`POST /apps/${APP}/volumes`)).toHaveLength(1)
   })
 
-  it('does not blindly replay a volume create whose response was lost', async () => {
+  it('retries a single connection reset on volume create', async () => {
     const double = createFetchDouble()
       .on(`GET /apps/${APP}`, { body: { name: APP, network: APP } })
       .on(`GET /apps/${APP}/volumes`, { body: [] })
+      .on(`POST /apps/${APP}/volumes`, { body: { id: 'vol_reset', name: 'mol_abc' } })
+      .on(`POST /apps/${APP}/machines`, { body: { id: 'm_reset', state: 'started' } })
+
+    const baseFetch = double.fetch
+    let volumePosts = 0
+    double.fetch = vi.fn(async (input: string | URL | Request, init?: RequestInit) => {
+      const volumeCreate =
+        String(input).endsWith(`/apps/${APP}/volumes`) &&
+        (init?.method ?? 'GET').toUpperCase() === 'POST'
+      if (volumeCreate && ++volumePosts === 1) throw new Error('connection reset')
+      return baseFetch(input, init)
+    }) as unknown as typeof fetch
+
+    const sandbox = await makeProvider({}, double).create({
+      projectId: PROJECT_ID,
+      volumeName: 'mol-abc',
+    })
+
+    expect(sandbox.id).toBe(`${APP}:m_reset`)
+    expect(volumePosts).toBe(2)
+    // Initial lookup plus the bounded reconciliation before the second POST.
+    expect(double.matching(`GET /apps/${APP}/volumes`)).toHaveLength(4)
+  })
+
+  it('retries a single 429 rejection on volume create with the client backoff', async () => {
+    const double = createFetchDouble()
+      .on(`GET /apps/${APP}`, { body: { name: APP, network: APP } })
+      .on(`GET /apps/${APP}/volumes`, { body: [] })
+      .on(`POST /apps/${APP}/volumes`, {
+        status: 429,
+        body: { error: 'rate limited' },
+        headers: { 'retry-after': '0' },
+      })
+      .on(`POST /apps/${APP}/volumes`, { body: { id: 'vol_429', name: 'mol_abc' } })
+      .on(`POST /apps/${APP}/machines`, { body: { id: 'm_429', state: 'started' } })
+
+    const sandbox = await makeProvider({}, double).create({
+      projectId: PROJECT_ID,
+      volumeName: 'mol-abc',
+    })
+
+    expect(sandbox.id).toBe(`${APP}:m_429`)
+    expect(double.matching(`POST /apps/${APP}/volumes`)).toHaveLength(2)
+    // A 429 did not execute the create, so no ambiguous reconciliation is needed.
+    expect(double.matching(`GET /apps/${APP}/volumes`)).toHaveLength(1)
+  })
+
+  it('adopts a volume whose create response was lost, without a duplicate POST', async () => {
+    const double = createFetchDouble()
+      .on(`GET /apps/${APP}`, { body: { name: APP, network: APP } })
+      .on(`GET /apps/${APP}/volumes`, { body: [] })
+      // The first reconciliation can lag the successful create; a later one
+      // finds V2 by name before any second POST is allowed.
+      .on(`GET /apps/${APP}/volumes`, { body: [] })
+      .on(`GET /apps/${APP}/volumes`, {
+        body: [{ id: 'vol_new_2', name: 'mol_abc', state: 'created' }],
+      })
       .on(`POST /apps/${APP}/volumes`, { body: { id: 'vol_new_2', name: 'mol_abc' } })
       .on(`POST /apps/${APP}/volumes`, { body: { id: 'vol_new_3', name: 'mol_abc' } })
       .on(`POST /apps/${APP}/machines`, { body: { id: 'm3', state: 'started' } })
 
     // Fly creates V2 and its response is lost. Replaying the same-name POST
-    // creates V3; the safe outcome is one ambiguous failure and no second POST.
+    // would create V3; reconciliation must adopt V2 instead.
     const baseFetch = double.fetch
     let volumePosts = 0
     double.fetch = vi.fn(async (input: string | URL | Request, init?: RequestInit) => {
@@ -777,16 +834,16 @@ describe('create — volumes', () => {
       return response
     }) as unknown as typeof fetch
 
-    const result = await makeProvider({}, double)
-      .create({ projectId: PROJECT_ID, volumeName: 'mol-abc' })
-      .then(
-        () => null,
-        (error: unknown) => error,
-      )
+    const sandbox = await makeProvider({}, double).create({
+      projectId: PROJECT_ID,
+      volumeName: 'mol-abc',
+    })
 
+    expect(sandbox.id).toBe(`${APP}:m3`)
     expect(double.matching(`POST /apps/${APP}/volumes`)).toHaveLength(1)
-    expect(result).toMatchObject({ name: 'FlyApiError', status: 0 })
-    expect(double.matching(`POST /apps/${APP}/machines`)).toHaveLength(0)
+    expect(double.matching(`GET /apps/${APP}/volumes`)).toHaveLength(3)
+    const machine = double.matching(`POST /apps/${APP}/machines`)[0]
+    expect(machine.body).toMatchObject({ config: { mounts: [{ volume: 'vol_new_2' }] } })
   })
 
   it('never destroys a pre-existing volume when Fly cannot place it', async () => {
@@ -2089,17 +2146,15 @@ describe('selfDeliveredEnv', () => {
 describe('private routes (Flycast)', () => {
   it('releases the address it already allocated when a later service cannot be allocated', async () => {
     // The addresses live on OTHER apps (the tenant database, the egress proxy),
-    // not on the sandbox app being discarded — and Fly's own listing does not
-    // report which network an address belongs to, so one left behind at this
-    // point can never be found again: it points into a 6PN with no apps in it,
-    // forever. The second service allocates NOTHING (the allocation it cannot
-    // verify is refused), which is what strands the first service's address.
+    // not on the sandbox app — and Fly's own listing does not report which
+    // network an address belongs to, so one left behind at this point can never
+    // be found again. The second service allocates NOTHING (the allocation it
+    // cannot verify is refused), which is what strands the first address.
     const double = createFetchDouble()
       .on(`GET /apps/${APP}`, { status: 404, body: {} })
       .on('POST /apps', { status: 201, body: {} })
       .on('POST /apps/svc-db/ip_assignments', { body: { ip: 'fdaa::1' } })
       .on('POST /apps/svc-proxy/ip_assignments', { body: {} })
-      .on(`DELETE /apps/${APP}`, { status: 202, body: {} })
 
     await expect(
       makeProvider(
@@ -2115,8 +2170,8 @@ describe('private routes (Flycast)', () => {
 
     expect(double.matching('POST /apps/svc-db/ip_assignments')).toHaveLength(1)
     expect(double.matching('DELETE /apps/svc-db/ip_assignments')).toHaveLength(1)
-    // The app this call created is still discarded, as before.
-    expect(double.matching(`DELETE /apps/${APP}`)).toHaveLength(1)
+    // Releasing this call's addresses never requires deleting the shared-name app.
+    expect(double.matching(`DELETE /apps/${APP}`)).toHaveLength(0)
   })
 
   it('releases the addresses it allocated when the boot fails AFTER allocating them on an app that pre-existed', async () => {

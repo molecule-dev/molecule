@@ -31,7 +31,7 @@ import type {
 } from '@molecule/api-code-sandbox'
 import { t } from '@molecule/api-i18n'
 
-import { FlyApiClient, FlyApiError, normalizeApiUrl } from './api.js'
+import { FlyApiClient, FlyApiError, normalizeApiUrl, retryDelayMs } from './api.js'
 import {
   buildEgressProbeCommand,
   DEFAULT_EGRESS_POLICY_NAME,
@@ -165,6 +165,9 @@ const WORKSPACE_PATH = '/workspace'
 
 /** Default volume size in GB when `SandboxConfig.resources.diskMB` is unset. */
 const DEFAULT_VOLUME_GB = 10
+
+/** Name lookups allowed after an ambiguous volume create before it may be replayed. */
+const VOLUME_CREATE_LOOKUP_ATTEMPTS = 3
 
 /** Page size for the org-wide Machine listing. */
 const LIST_PAGE_SIZE = 200
@@ -615,9 +618,8 @@ class FlyioSandboxProvider implements SandboxProvider {
    * @returns `routes`: target app name → allocated private address, for
    *   recording in the Machine's metadata (empty when no private services are
    *   declared); `allocated`: the subset of `routes` this call created, which
-   *   the caller releases when the boot fails and the app is NOT discarded
-   *   (an app that pre-existed is kept, and with it the addresses it already
-   *   held — only this call's own allocations are safe to take back).
+   *   the caller releases when the boot fails. The app itself always survives:
+   *   another create can adopt it by name while this call is still failing.
    */
   private async ensureApp(
     app: string,
@@ -625,7 +627,6 @@ class FlyioSandboxProvider implements SandboxProvider {
   ): Promise<{
     routes: Record<string, string>
     allocated: Record<string, string>
-    created: boolean
   }> {
     const existing = await this.client.request<{ name: string }>(`/apps/${app}`, { nullOn: [404] })
     let createdHere = false
@@ -653,45 +654,10 @@ class FlyioSandboxProvider implements SandboxProvider {
       createdHere = created
     }
 
-    try {
-      if (createdHere && this.config.assignSharedIpv4) await this.assignSharedIpv4(app)
-      await this.applyEgressPolicy(app)
-      if (options.privateRoutes === false)
-        return { routes: {}, allocated: {}, created: createdHere }
-      return {
-        ...(await this.ensurePrivateRoutes(app, Boolean(existing))),
-        created: createdHere,
-      }
-    } catch (error) {
-      if (createdHere) await this.discardCreatedApp(app, {})
-      throw error
-    }
-  }
-
-  /**
-   * Deletes an app THIS call created, after a later step of the same create
-   * failed. Without it every failed create leaves an app behind with its
-   * addresses and volume: on 2026-09-28, 34 empty `mol-prod-*` apps had piled
-   * up in production, one per deploy that hit the organization's Machine limit
-   * (`POST /machines` → 422) after its app was already made. An app that
-   * existed before the call is never touched — it may hold a working Machine.
-   * @param app - The app this call created.
-   * @param privateRoutes - Flycast addresses already allocated for it.
-   */
-  private async discardCreatedApp(
-    app: string,
-    privateRoutes: Record<string, string>,
-  ): Promise<void> {
-    try {
-      await this.client.request(`/apps/${app}`, { method: 'DELETE', nullOn: [404] })
-      logger.info('Deleted a Fly sandbox app whose create failed', { app })
-    } catch (error) {
-      logger.error('Failed to delete a Fly sandbox app after its create failed — it leaks', {
-        app,
-        error,
-      })
-    }
-    await this.releasePrivateRoutes(privateRoutes)
+    if (createdHere && this.config.assignSharedIpv4) await this.assignSharedIpv4(app)
+    await this.applyEgressPolicy(app)
+    if (options.privateRoutes === false) return { routes: {}, allocated: {} }
+    return this.ensurePrivateRoutes(app, Boolean(existing))
   }
 
   /**
@@ -733,12 +699,9 @@ class FlyioSandboxProvider implements SandboxProvider {
 
     const routes = appExisted ? await this.recordedPrivateRoutes(app) : {}
     // The addresses THIS call allocated, tracked apart from `routes` so a
-    // failure part-way down the next list can release exactly them. The caller's
-    // failure path can only discard the APP (`discardCreatedApp(app, {})`), and
-    // these addresses live on OTHER apps — so without this, an address already
-    // allocated for an earlier service stays behind on its target app, inside a
-    // 6PN whose app is gone, and Fly's listing does not report which network an
-    // address belongs to: nothing could ever find it there to release it.
+    // failure part-way down the next list can release exactly them. These
+    // addresses live on OTHER apps, so deleting this project's app would not
+    // release them; Fly's listing also cannot reconstruct their target network.
     const allocated: Record<string, string> = {}
     try {
       for (const service of services) {
@@ -1196,7 +1159,10 @@ class FlyioSandboxProvider implements SandboxProvider {
   }
 
   /**
-   * Creates a new volume with the expected Machine's guest as its placement hint.
+   * Creates a volume with the expected Machine's guest as its placement hint.
+   * A 429 is safe to replay directly. After a transport failure or 5xx, bounded
+   * lookups by name run before the client's next POST; a response Fly lost is
+   * therefore adopted rather than duplicated.
    * @param app - The Fly app name.
    * @param name - The caller's volume name.
    * @param sizeGB - Size to create the volume with, in whole GB.
@@ -1212,16 +1178,26 @@ class FlyioSandboxProvider implements SandboxProvider {
     const flyName = this.volumeName(name)
     const created = await this.client.request<FlyVolume>(`/apps/${app}/volumes`, {
       method: 'POST',
-      // Same-name volumes are allowed, so replaying this POST after a lost
-      // response can create a second, untracked volume. Surface the ambiguous
-      // failure; the caller's next create safely finds the first one by name.
-      attempts: 1,
       body: {
         name: flyName,
         region: this.region(),
         size_gb: sizeGB,
         encrypted: true,
         compute,
+      },
+      reconcile: async (error) => {
+        // A 429 is Fly's confirmation that this request was rejected. Every
+        // other retryable outcome is ambiguous: never replay it until a few
+        // name lookups have had a chance to find the volume Fly may have made.
+        if (error.status !== 0 && error.status < 500) return undefined
+        for (let lookup = 1; lookup <= VOLUME_CREATE_LOOKUP_ATTEMPTS; lookup++) {
+          const existing = await this.findVolume(app, flyName)
+          if (existing) return existing
+          if (lookup < VOLUME_CREATE_LOOKUP_ATTEMPTS) {
+            await this.client.sleep(retryDelayMs(lookup))
+          }
+        }
+        return undefined
       },
     })
     if (!created?.id) {
@@ -1309,24 +1285,14 @@ class FlyioSandboxProvider implements SandboxProvider {
     assertPrivateRoutesForEnv({ ...config.env, ...config.selfDeliveredEnv }, this.privateServices())
 
     const app = this.resolveApp(config.projectId)
-    const { routes: privateRoutes, allocated, created } = await this.ensureApp(app)
+    const { routes: privateRoutes, allocated } = await this.ensureApp(app)
     try {
       return await this.createInApp(app, privateRoutes, config, manifest)
     } catch (error) {
-      if (created && this.appPerProject()) {
-        // The whole app goes, addresses included — discardCreatedApp releases
-        // every route it was handed (a created app holds only this call's).
-        await this.discardCreatedApp(app, privateRoutes)
-      } else {
-        // The app SURVIVES this failure (it pre-existed, or it is the shared
-        // app), so the addresses this call allocated would otherwise stay
-        // behind on their target apps with nothing recording them: the
-        // Machine that would have carried the metadata was never created, and
-        // Fly's listing cannot say which network an address belongs to. Take
-        // back exactly this call's own allocations — never the routes an
-        // earlier boot recorded, whose Machines may still be running.
-        await this.releasePrivateRoutes(allocated)
-      }
+      // Never delete the app here: another create can have adopted it and its
+      // volume while this call was in flight. Only this call's private-address
+      // allocations have no other owner and are safe to release.
+      await this.releasePrivateRoutes(allocated)
       throw error
     }
   }
@@ -1470,13 +1436,11 @@ class FlyioSandboxProvider implements SandboxProvider {
       // that reached `started` bills compute until it is reaped, and one that
       // did not keeps the app's single-attach volume claimed (the next
       // create's stale-Machine sweep only runs if this project is retried).
-      // The created-app failure path below cannot do this either: it deletes
-      // the APP, and `discardCreatedApp` deliberately has no Machine-delete
-      // step — an app delete that runs under a live Machine either fails or
-      // hides the Machine. Destroy the Machine first (the same order
-      // `restoreTemplate`'s failure path and `destroy()` use), then rethrow
-      // the boot failure. Best-effort: the boot failure is what the caller
-      // must see; a failed cleanup is logged like every other cleanup here.
+      // Keeping the app and volume safe for another create does not require
+      // keeping a Machine this call never returned. Destroy that Machine (the
+      // same order `restoreTemplate`'s failure path and `destroy()` use), then
+      // rethrow the boot failure. Best-effort: the boot failure is what the
+      // caller must see; a failed cleanup is logged like every other cleanup.
       try {
         await this.client.request(`/apps/${app}/machines/${machine.id}?force=true`, {
           method: 'DELETE',

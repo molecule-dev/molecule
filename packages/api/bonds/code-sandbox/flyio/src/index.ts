@@ -233,11 +233,13 @@
  * `compute` placement hint, so Fly can choose a volume host that can run that
  * Machine. If Machine creation still answers `412 volume_placement_capacity`,
  * the provider preserves the volume and propagates the error for the caller's
- * bounded retry, which finds it by name; it never deletes and replaces a volume
- * that another create could have adopted. Volume-create POSTs are single-attempt
- * because Fly permits same-name volumes and a blind replay after a lost response
- * could create an untracked duplicate. Fly documents that "a volume can be
- * attached to only one Machine", which matches one sandbox per project. Fly does
+ * bounded retry, which finds it by name. A failed create never deletes its app
+ * or volume, because another create could have adopted either one; explicit
+ * `destroy()` remains the teardown path. Volume creates retain transport and
+ * 429 backoff. After an ambiguous failure, bounded lookups by name adopt a
+ * volume whose response was lost before any POST replay, preventing duplicates.
+ * Fly documents that "a volume can be attached to only one Machine", which
+ * matches one sandbox per project. Fly does
  * not document the legal character set for volume names, so names are
  * conservatively reduced to `[A-Za-z0-9_]` — an assumption, flagged as such.
  *
