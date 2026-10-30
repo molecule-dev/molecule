@@ -1765,6 +1765,24 @@ class FlyioSandboxProvider implements SandboxProvider {
   }
 
   /**
+   * Deletes the per-project Fly app derived from a project id without requiring
+   * a recorded Machine id. Deleting the app also removes its volumes and custom
+   * 6PN network.
+   *
+   * Only for names the caller exclusively owns — for example, a per-deploy name
+   * after every create attempt has settled. A failed {@link create} never calls
+   * this itself: dev sandboxes use per-project names a concurrent boot may adopt.
+   * @param projectId - The project id whose exclusively owned app should be deleted.
+   */
+  async destroyApp(projectId: string): Promise<void> {
+    if (!this.appPerProject()) {
+      throw new Error('Refusing to delete a shared Fly app as though a caller exclusively owned it')
+    }
+    const app = appNameForProject(this.appPrefix(), projectId)
+    await this.client.request(`/apps/${app}`, { method: 'DELETE', nullOn: [404] })
+  }
+
+  /**
    * Destroys a sandbox.
    *
    * In per-project mode the whole Fly app is deleted after the Machine, which

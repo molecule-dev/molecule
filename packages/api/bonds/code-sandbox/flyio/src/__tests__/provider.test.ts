@@ -120,6 +120,19 @@ describe('create — app provisioning and tenant isolation', () => {
     expect(double.matching(`DELETE /apps/${APP}`)).toHaveLength(0)
   })
 
+  it('deletes an exclusively owned per-project app without a recorded Machine id', async () => {
+    const double = createFetchDouble().on(`DELETE /apps/${APP}`, { status: 204, body: {} })
+    const provider = makeProvider({}, double) as ReturnType<typeof makeProvider> & {
+      destroyApp(projectId: string): Promise<void>
+    }
+
+    await provider.destroyApp(PROJECT_ID)
+
+    expect(
+      double.calls.filter((call) => call.method === 'DELETE' && call.path === `/apps/${APP}`),
+    ).toHaveLength(1)
+  })
+
   it('never deletes an app that existed before a failed create', async () => {
     const double = createFetchDouble()
       .on(`GET /apps/${APP}`, { body: { name: APP, network: APP } })
