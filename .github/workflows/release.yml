@@ -202,16 +202,17 @@ jobs:
       # There is deliberately no override input. A gate with an escape hatch gets used
       # reflexively under exactly the pressure it exists for; re-running CI on a ref
       # costs minutes and is always available.
+      #
+      # The verdict is the newest CONCLUSIVE ci.yml run for the commit, not the newest
+      # run: a scheduled run still in progress must not hide a push run that passed
+      # (scripts/ci-green-for-commit.mjs says exactly which runs count).
       - name: Guard — CI is green for this commit
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -eu
-          conclusion="$(gh api \
-            "repos/${GITHUB_REPOSITORY}/actions/workflows/ci.yml/runs?head_sha=${GITHUB_SHA}&per_page=1" \
-            --jq '.workflow_runs[0].conclusion // "none"')"
-          if [ "$conclusion" != "success" ]; then
-            echo "::error::CI has not passed for ${GITHUB_SHA} (status: ${conclusion})." >&2
+          if ! node scripts/ci-green-for-commit.mjs "${GITHUB_REPOSITORY}" "${GITHUB_SHA}"; then
+            echo "::error::CI has not passed for ${GITHUB_SHA}." >&2
             echo "  Publishing installs these packages into every sandbox, scaffolded app" >&2
             echo "  and molecule-dev deploy, so it requires a green CI run for THIS commit." >&2
             echo "  Run the CI workflow on this ref, then re-dispatch Release." >&2
