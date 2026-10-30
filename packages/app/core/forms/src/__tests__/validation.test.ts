@@ -261,6 +261,12 @@ describe('validateValue — empty or non-string messages', () => {
     expect(await validateValue('x', { validate: () => true })).toBeUndefined()
   })
 
+  it('treats a blank message like an empty one', async () => {
+    expect(await validateValue('', { required: '   ' })).toBe('This field is required')
+    expect(await validateValue('x', { validate: () => '\t' })).toBe('Invalid value')
+    expect(await validateValue('', { required: true }, () => '  ')).toBe('This field is required')
+  })
+
   it('uses the built-in message when the translation is empty or not a string', async () => {
     const empty = vi.fn(() => '')
     expect(await validateValue('', { required: true }, empty)).toBe('This field is required')

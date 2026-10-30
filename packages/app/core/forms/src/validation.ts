@@ -32,11 +32,13 @@ export const validateValue = async (
   schema: ValidationSchema,
   t?: TranslateFn,
 ): Promise<string | undefined> => {
-  // A failure must always carry visible text: an empty or non-string translation (i18next's
-  // returnDetails gives an object) falls back to the built-in English message.
+  // A failure must always carry visible text: an empty, blank or non-string translation
+  // (i18next's returnDetails gives an object) falls back to the built-in English message.
+  const visible = (message: unknown): message is string =>
+    typeof message === 'string' && message.trim().length > 0
   const msg = (key: string, defaultValue: string, values?: InterpolationValues): string => {
     const translated: unknown = t?.(key, values, { defaultValue })
-    return typeof translated === 'string' && translated ? translated : defaultValue
+    return visible(translated) ? translated : defaultValue
   }
   // A rule's own message, or the built-in one when it is not usable text.
   const text = (
@@ -44,7 +46,7 @@ export const validateValue = async (
     key: string,
     defaultValue: string,
     values?: InterpolationValues,
-  ): string => (typeof message === 'string' && message ? message : msg(key, defaultValue, values))
+  ): string => (visible(message) ? message : msg(key, defaultValue, values))
   // A rule is on whenever it is set, whatever its message: `required: t(...)` that translates to
   // '' must still require the value.
   const on = (rule: unknown): boolean => rule !== undefined && rule !== null && rule !== false
