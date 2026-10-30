@@ -58,13 +58,31 @@ describe('ciVerdict', () => {
     expect(ciVerdict([failed, pushGreen], SHA)).toMatchObject({ passed: true, runId: pushGreen.id })
   })
 
-  it('does not let a cancelled or skipped run decide either way', () => {
-    const cancelled = run(5, '2026-10-30T14:00:00Z', 'completed', 'cancelled')
-    expect(ciVerdict([cancelled, pushGreen], SHA).passed).toBe(true)
-    expect(ciVerdict([cancelled], SHA)).toEqual({
-      passed: false,
-      reason: `no CI run reached a verdict for ${SHA}`,
-    })
+  it('lets every newer finished non-passing run block an earlier pass, unknown ones included', () => {
+    for (const conclusion of [
+      'action_required',
+      'neutral',
+      'startup_failure',
+      'some_future_value',
+    ]) {
+      const blocked = run(6, '2026-10-30T14:00:00Z', 'completed', conclusion)
+      expect(ciVerdict([pushGreen, blocked], SHA), conclusion).toEqual({
+        passed: false,
+        reason: `CI run 6 for ${SHA} ended ${conclusion}`,
+        runId: 6,
+      })
+    }
+  })
+
+  it('does not let a cancelled, skipped or stale run decide either way', () => {
+    for (const conclusion of ['cancelled', 'skipped', 'stale']) {
+      const withdrawn = run(5, '2026-10-30T14:00:00Z', 'completed', conclusion)
+      expect(ciVerdict([withdrawn, pushGreen], SHA).passed, conclusion).toBe(true)
+      expect(ciVerdict([withdrawn], SHA)).toEqual({
+        passed: false,
+        reason: `no CI run reached a verdict for ${SHA}`,
+      })
+    }
   })
 })
 

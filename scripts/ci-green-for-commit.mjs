@@ -7,10 +7,11 @@
  * scheduled run, a manual re-run. Reading only the NEWEST run let a scheduled run
  * that was still in progress hide a push run that had already passed, and the
  * release refused a green commit. The verdict is the newest CONCLUSIVE run for
- * the commit instead: `success` passes; `failure`, `timed_out` and
- * `startup_failure` refuse; runs still in progress and runs that reached no
- * verdict (`cancelled`, `skipped`, `neutral`, `stale`) are ignored. So a re-run
- * that passes after a failure is accepted, a later conclusive failure blocks an
+ * the commit instead: `success` passes; runs still in progress and runs that were
+ * withdrawn before a verdict (`cancelled`, `skipped`, `stale`) are ignored; every
+ * other finished run refuses — `failure`, `timed_out`, `startup_failure`,
+ * `action_required`, `neutral` and any conclusion GitHub adds later. So a re-run
+ * that passes after a failure is accepted, a later non-passing run blocks an
  * earlier pass, and a commit with no conclusive run refuses.
  *
  * Usage (from the workflow, with GH_TOKEN set):
@@ -24,8 +25,8 @@ import { execFile } from 'node:child_process'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
-/** Conclusions that are a verdict on the commit. */
-const CONCLUSIVE = new Set(['success', 'failure', 'timed_out', 'startup_failure'])
+/** Conclusions of a run withdrawn before it judged the commit; every other one is a verdict. */
+const WITHDRAWN = new Set(['cancelled', 'skipped', 'stale'])
 
 /**
  * The CI verdict for one commit from its `ci.yml` workflow runs.
@@ -37,7 +38,7 @@ const CONCLUSIVE = new Set(['success', 'failure', 'timed_out', 'startup_failure'
 export function ciVerdict(runs, sha) {
   const decisive = runs
     .filter(
-      (run) => run.head_sha === sha && run.status === 'completed' && CONCLUSIVE.has(run.conclusion),
+      (run) => run.head_sha === sha && run.status === 'completed' && !WITHDRAWN.has(run.conclusion),
     )
     .sort((a, b) => Date.parse(b.created_at ?? '') - Date.parse(a.created_at ?? ''))[0]
   if (!decisive) {
