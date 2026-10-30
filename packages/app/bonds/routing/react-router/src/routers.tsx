@@ -15,13 +15,13 @@ import {
   type MemoryRouterProps as ReactRouterMemoryRouterProps,
   Router as ReactRouter,
   type RouterProps as ReactRouterProps,
+  type RouterProviderProps as ReactRouterProviderProps,
   unstable_HistoryRouter as ReactRouterHistoryRouter,
 } from 'react-router'
 import {
   HydratedRouter as ReactRouterHydratedRouter,
   type HydratedRouterProps as ReactRouterHydratedRouterProps,
   RouterProvider as ReactRouterProvider,
-  type RouterProviderProps as ReactRouterProviderProps,
 } from 'react-router/dom'
 
 import type { Router as MoleculeRouter } from '@molecule/app-routing'

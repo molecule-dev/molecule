@@ -1,4 +1,6 @@
 import { expectTypeOf } from 'expect-type'
+import type { JSX } from 'react'
+import type { RouterProviderProps as CoreRouterProviderProps } from 'react-router'
 import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('react/jsx-runtime', () => ({
@@ -116,6 +118,15 @@ describe('synchronous React Router components', () => {
     ]) as MockElement
 
     expect(element.props).toMatchObject({ children: 'app', useTransitions: false })
+  })
+
+  it('accepts the core provider flushSync prop but not useTransitions', () => {
+    const r = {} as CoreRouterProviderProps['router']
+    const flushSync: NonNullable<CoreRouterProviderProps['flushSync']> = (callback) => callback()
+
+    expectTypeOf(<RouterProvider router={r} flushSync={flushSync} />).toEqualTypeOf<JSX.Element>()
+    // @ts-expect-error -- the bond owns synchronous commits.
+    expectTypeOf(<RouterProvider router={r} useTransitions={false} />).toEqualTypeOf<JSX.Element>()
   })
 
   it('omits useTransitions from every public props type', () => {
