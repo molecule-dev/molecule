@@ -466,6 +466,24 @@ export function mergeTestRunResults(
   return results === shown.results ? shown : { ...shown, results }
 }
 
+/** Latest result receipt in a run, used to replay retained runs in arrival order. */
+function latestResultSequence(run: TestsRunState): number {
+  return Object.values(run.results).reduce(
+    (latest, entry) => Math.max(latest, entry.sequence ?? 0),
+    0,
+  )
+}
+
+/** Merge every completed run, oldest result receipt first, without reserving pending files. */
+function mergeCompletedOtherRuns(shown: TestsRunState, others: OtherTestRuns): TestsRunState {
+  const completed = Object.values(others)
+    .filter((run) => !run.running)
+    .sort((a, b) => latestResultSequence(a) - latestResultSequence(b))
+  let next = shown
+  for (const run of completed) next = mergeTestRunResults(next, run)
+  return next
+}
+
 /**
  * What the card shows after a feed event of a run this panel did not start.
  *
@@ -479,17 +497,23 @@ export function mergeTestRunResults(
  * @param context - What else is happening.
  * @param context.ownBusy - Whether this panel's own run is in flight.
  * @param context.live - The other runs still going, besides this one ({@link liveOtherRuns}).
+ * @param context.others - Retained runs, whose completed verdicts settle when the run on show ends.
  * @returns What the card shows next.
  */
 export function presentOtherRun(
   shown: TestsRunState,
   run: TestsRunState,
-  { ownBusy, live }: { ownBusy: boolean; live: readonly TestsRunState[] },
+  {
+    ownBusy,
+    live,
+    others,
+  }: { ownBusy: boolean; live: readonly TestsRunState[]; others?: OtherTestRuns },
 ): TestsRunState {
   if (ownBusy) return mergeTestRunResults(shown, run)
   const onShow = shown.external === true && shown.runId === run.runId
   if (onShow || !shown.running) {
-    const next = showOtherRun(shown, run)
+    let next = showOtherRun(shown, run)
+    if (!run.running && others) next = mergeCompletedOtherRuns(next, others)
     const successor = live.at(-1)
     return !run.running && successor ? showOtherRun(next, successor) : next
   }
@@ -506,10 +530,7 @@ export function presentOtherRun(
  * @returns What the card shows next.
  */
 export function settleOwnRun(shown: TestsRunState, others: OtherTestRuns): TestsRunState {
-  let next = shown
-  for (const run of Object.values(others)) {
-    if (!run.running) next = mergeTestRunResults(next, run)
-  }
+  const next = mergeCompletedOtherRuns(shown, others)
   const successor = liveOtherRuns(others).at(-1)
   return successor ? showOtherRun(next, successor) : next
 }

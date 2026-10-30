@@ -2839,6 +2839,23 @@ export interface ChatInnerProps {
   skipToolCall?: ChatPanelProps['skipToolCall']
 }
 
+/** Recent own runs whose delayed feed copies must not become watched runs. */
+const OWN_TEST_RUN_ID_LIMIT = 32
+
+/** Remember an own run, evicting the least recently echoed id beyond the bound. */
+function rememberOwnTestRunId(ids: Set<string>, runId: string): void {
+  ids.delete(runId)
+  ids.add(runId)
+  if (ids.size <= OWN_TEST_RUN_ID_LIMIT) return
+  const oldest = ids.values().next()
+  if (!oldest.done) ids.delete(oldest.value)
+}
+
+/** Completed runs stay replayable while a live run can still withhold their verdicts. */
+function pruneSettledOtherRuns(others: OtherTestRuns): OtherTestRuns {
+  return liveOtherRuns(others).length > 0 ? others : keepLiveOtherRuns(others)
+}
+
 /**
  * Inner chat component that owns useChat state, message rendering, and input handling.
  * @param props - Component props (see {@link MessageItemProps}).
@@ -4609,7 +4626,7 @@ function ChatInner({
           if (event.type === 'start') {
             // The feed may have delivered this run's start first, as a run of
             // someone else's; from here on it is known to be this panel's own.
-            ownTestRunIdsRef.current.add(event.runId)
+            rememberOwnTestRunId(ownTestRunIdsRef.current, event.runId)
             const { [event.runId]: _own, ...others } = otherTestRunsRef.current
             otherTestRunsRef.current = others
           }
@@ -4632,7 +4649,7 @@ function ChatInner({
           ownTestRunRef.current = null
           const others = otherTestRunsRef.current
           setTestsRun((prev) => settleOwnRun(applyTestRunEvent(prev, event, sequence), others))
-          otherTestRunsRef.current = keepLiveOtherRuns(others)
+          otherTestRunsRef.current = pruneSettledOtherRuns(others)
           // A run cannot create a test, but it CAN finish after the agent wrote
           // one — re-list once it settles so the card is current.
           void refreshTests()
@@ -4664,7 +4681,7 @@ function ChatInner({
             others,
           ),
         )
-        otherTestRunsRef.current = keepLiveOtherRuns(others)
+        otherTestRunsRef.current = pruneSettledOtherRuns(others)
       }
     },
     [runTests, canRunTests, canEdit, testsAvailable, refreshTests],
@@ -4709,7 +4726,7 @@ function ChatInner({
         others,
       ),
     )
-    otherTestRunsRef.current = keepLiveOtherRuns(others)
+    otherTestRunsRef.current = pruneSettledOtherRuns(others)
     invocation.handle?.cancel()
   }, [])
 
@@ -4727,17 +4744,21 @@ function ChatInner({
       unsubscribe = watchTestRuns((event) => {
         if (!testsMountedRef.current) return
         // This panel's own run, echoed by the feed: its own stream has it.
-        if (ownTestRunIdsRef.current.has(event.runId)) return
+        if (ownTestRunIdsRef.current.has(event.runId)) {
+          if (event.type === 'done') ownTestRunIdsRef.current.delete(event.runId)
+          else rememberOwnTestRunId(ownTestRunIdsRef.current, event.runId)
+          return
+        }
         const sequence = ++testsEventSequenceRef.current
         const others = foldOtherRunEvent(otherTestRunsRef.current, event, sequence)
         const run = others[event.runId]
         const ownBusy = ownTestRunRef.current !== null
         const live = liveOtherRuns(others, event.runId)
-        setTestsRun((prev) => presentOtherRun(prev, run, { ownBusy, live }))
-        // An ended run's verdicts are on the rows now, unless the own run holds
-        // the card: then they wait for `settleOwnRun`.
+        setTestsRun((prev) => presentOtherRun(prev, run, { ownBusy, live, others }))
+        // A live run can still withhold an ended run's verdicts. Keep those
+        // runs until the card settles, then their results are on the rows.
         otherTestRunsRef.current =
-          event.type === 'done' && !ownBusy ? keepLiveOtherRuns(others) : others
+          event.type === 'done' && !ownBusy ? pruneSettledOtherRuns(others) : others
         if (event.type === 'done') {
           // A replay can end several runs at once; list once for all of them.
           if (relist) clearTimeout(relist)

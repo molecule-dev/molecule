@@ -579,6 +579,23 @@ describe('every test run in the project reaches the test view', () => {
     expect(molId(container, 'tests-bar')?.getAttribute('data-tests-tone')).toBe('passing')
   })
 
+  it('keeps a completed watched run’s verdict when the displayed run ends without one', async () => {
+    const feed = fakeFeed()
+    const { container } = render(
+      renderPanel({ listTests: async () => LIST, watchTestRuns: feed.watchTestRuns }),
+    )
+    await openTests(container)
+    feed.emit({ type: 'start', runId: 'agent-a', ids: [HOME], source: 'agent' })
+    feed.emit({ type: 'start', runId: 'platform-b', ids: [HOME], source: 'platform' })
+    feed.emit({ type: 'result', runId: 'platform-b', id: HOME, status: 'passed', passed: 1 })
+    feed.emit({ type: 'done', runId: 'platform-b', outcome: 'completed' })
+    // B's verdict must not paint a file that A still owes, but must survive A.
+    expect(molId(container, `tests-card-status-${HOME}`)?.textContent).toBe('Running…')
+    feed.emit({ type: 'done', runId: 'agent-a', outcome: 'cancelled' })
+    expect(molId(container, `tests-card-status-${HOME}`)?.textContent).toBe('Passed')
+    expect((molId(container, `tests-card-run-${HOME}`) as HTMLButtonElement).disabled).toBe(false)
+  })
+
   it('shows both live discovered files instead of inherited verdicts when a watched run names no ids', async () => {
     const feed = fakeFeed([
       { type: 'start', runId: 'previous', ids: [HOME, ROUTES], source: 'platform' },
@@ -841,6 +858,44 @@ describe('every test run in the project reaches the test view', () => {
     await waitFor(() => expect(molId(container, 'tests-card-running')).toBeNull())
     expect(molId(container, 'tests-card-summary')?.textContent).toContain('1 passed')
     expect(molId(container, 'tests-card-summary')?.textContent).not.toContain('failed')
+  })
+
+  it('bounds own-run ids when no feed echo arrives but still suppresses recent echoes', async () => {
+    const feed = fakeFeed()
+    const emitters: Array<(event: TestRunEvent) => void> = []
+    const { container } = render(
+      renderPanel({
+        listTests: async () => LIST,
+        watchTestRuns: feed.watchTestRuns,
+        runTests: (_selection, onEvent) => {
+          emitters.push(onEvent)
+          return { cancel: () => {} }
+        },
+      }),
+    )
+    await openTests(container)
+    // The panel retains 32 recent ids as a delayed-echo guard, not every run
+    // for its whole lifetime. None of these runs receives a feed echo.
+    for (let index = 0; index < 33; index += 1) {
+      fireEvent.click(molId(container, `tests-card-run-${HOME}`)!)
+      act(() => {
+        emitters[index]!({ type: 'start', runId: `own-${index}`, ids: [HOME] })
+        emitters[index]!({ type: 'result', id: HOME, status: 'passed', passed: 1 })
+        emitters[index]!({ type: 'done', outcome: 'completed', passed: 1 })
+      })
+    }
+    // The oldest id has been evicted, so a replay under that id is watchable.
+    feed.emit({
+      type: 'start',
+      runId: 'own-0',
+      ids: [HOME],
+      source: 'platform',
+      command: 'replayed oldest run',
+    })
+    expect(molId(container, 'tests-card-command')?.textContent).toBe('replayed oldest run')
+    // The newest own run remains guarded against its delayed feed copy.
+    feed.emit({ type: 'result', runId: 'own-32', id: HOME, status: 'failed', failed: 1 })
+    expect(molId(container, `tests-card-status-${HOME}`)?.textContent).toBe('Running…')
   })
 
   it('an agent run that starts during the person’s run waits for it, then takes the card', async () => {
