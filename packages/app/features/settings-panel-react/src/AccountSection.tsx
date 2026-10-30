@@ -17,7 +17,16 @@ type AccountValues = {
   email: string
 }
 
-/** Account fields over the shared profile lifecycle; local refresh stays best-effort. */
+/**
+ * Account fields over the shared profile lifecycle; local refresh stays best-effort.
+ *
+ * `UserProfile.email` is optional (phone/handle accounts have none), so email is
+ * validated only when non-empty and a blank email is never sent: clearing the
+ * field leaves the stored address untouched, and a name-only account can still
+ * save its name.
+ *
+ * @returns The account settings section.
+ */
 export function AccountSection(): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
@@ -26,7 +35,7 @@ export function AccountSection(): JSX.Element {
   const profile = useProfileForm<UserProfile, AccountValues>({
     defaultValues: { name: '', email: '' },
     toValues: (user) => ({ name: user.name ?? '', email: user.email ?? '' }),
-    toPatch: (changes) => changes,
+    toPatch: ({ email, ...changes }) => (email ? { ...changes, email } : changes),
   })
 
   useEffect(() => {
@@ -48,10 +57,8 @@ export function AccountSection(): JSX.Element {
   }, [http, authClient])
 
   const name = profile.register('name')
-  const email = profile.register('email', {
-    required: t('forms.required', undefined, { defaultValue: 'This field is required' }),
-    email: true,
-  })
+  const email = profile.register('email', { email: true })
+  const emailError = profile.getError('email')
   const saveOnBlur =
     (onBlur: () => void): (() => void) =>
     () => {
@@ -90,7 +97,18 @@ export function AccountSection(): JSX.Element {
             onBlur={saveOnBlur(email.onBlur)}
             autoComplete="email"
             size="sm"
+            aria-invalid={emailError ? true : undefined}
+            aria-describedby={emailError ? 'settings-email-error' : undefined}
           />
+          {emailError ? (
+            <p
+              id="settings-email-error"
+              role="alert"
+              className={cm.cn(cm.textSize('xs'), cm.textError, cm.sp('mt', 1))}
+            >
+              {emailError}
+            </p>
+          ) : null}
           {profile.error ? (
             <p role="alert" className={cm.cn(cm.textSize('xs'), cm.textError, cm.sp('mt', 1))}>
               {profile.error instanceof Error

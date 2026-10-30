@@ -132,6 +132,57 @@ describe('AccountSection actual caller', () => {
     expect(http.patch).not.toHaveBeenCalled()
     expect(control('Name').value).toBe('Alice edited')
   })
+
+  it('saves a changed name for a name-only account that has no email', async () => {
+    const client = clientFor<UserProfile>({ id: 'phone-account', name: 'Pat' })
+    const update = publishUpdates(client)
+    render(
+      <AuthProvider client={client}>
+        <AccountSection />
+      </AuthProvider>,
+    )
+    expect(control('settings.email').value).toBe('')
+    fireEvent.change(control('Name'), { target: { value: 'Pat renamed' } })
+    fireEvent.blur(control('Name'))
+    await waitFor(() => expect(update).toHaveBeenCalledWith({ name: 'Pat renamed' }))
+    expect(client.getUser()).toEqual({ id: 'phone-account', name: 'Pat renamed' })
+    expect(screen.queryByRole('alert')).toBeNull()
+  })
+
+  it('refuses a malformed non-empty email with a field error, then saves the corrected one', async () => {
+    const client = clientFor<UserProfile>(first)
+    const update = publishUpdates(client)
+    render(
+      <AuthProvider client={client}>
+        <AccountSection />
+      </AuthProvider>,
+    )
+    fireEvent.change(control('settings.email'), { target: { value: 'not-an-email' } })
+    fireEvent.blur(control('settings.email'))
+    expect(await screen.findByRole('alert')).toHaveProperty('textContent', 'Invalid email address')
+    expect(control('settings.email').getAttribute('aria-invalid')).toBe('true')
+    expect(update).not.toHaveBeenCalled()
+
+    fireEvent.change(control('settings.email'), { target: { value: 'alice@new.example.test' } })
+    fireEvent.blur(control('settings.email'))
+    await waitFor(() => expect(update).toHaveBeenCalledWith({ email: 'alice@new.example.test' }))
+  })
+
+  it('never sends a blank email: clearing it keeps the stored address while the name saves', async () => {
+    const client = clientFor<UserProfile>(first)
+    const update = publishUpdates(client)
+    render(
+      <AuthProvider client={client}>
+        <AccountSection />
+      </AuthProvider>,
+    )
+    fireEvent.change(control('settings.email'), { target: { value: '' } })
+    fireEvent.change(control('Name'), { target: { value: 'Alice cleared' } })
+    fireEvent.blur(control('Name'))
+    await waitFor(() => expect(update).toHaveBeenCalledWith({ name: 'Alice cleared' }))
+    expect(update).toHaveBeenCalledTimes(1)
+    expect(client.getUser()?.email).toBe('alice@example.test')
+  })
 })
 
 interface HandleUser {
