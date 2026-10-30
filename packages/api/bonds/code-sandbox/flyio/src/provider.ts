@@ -288,9 +288,6 @@ const MACHINE_CREATE_ATTEMPTS = 6
  */
 const MACHINE_CREATE_RETRY_STATUSES = [404, 412]
 
-/** Fresh, empty volumes replaced when Fly cannot place them for their Machine. */
-const VOLUME_PLACEMENT_REPLACEMENTS = 2
-
 /**
  * What Fly answers when it reached the exec endpoint but the connection to the
  * Machine's exec agent died before the command ran: `412 {"error":
@@ -1215,6 +1212,10 @@ class FlyioSandboxProvider implements SandboxProvider {
     const flyName = this.volumeName(name)
     const created = await this.client.request<FlyVolume>(`/apps/${app}/volumes`, {
       method: 'POST',
+      // Same-name volumes are allowed, so replaying this POST after a lost
+      // response can create a second, untracked volume. Surface the ambiguous
+      // failure; the caller's next create safely finds the first one by name.
+      attempts: 1,
       body: {
         name: flyName,
         region: this.region(),
@@ -1403,14 +1404,17 @@ class FlyioSandboxProvider implements SandboxProvider {
     if (config.command?.length) machineConfig.init = { exec: [...config.command] }
 
     const volumeName = config.volumeName
-    let volumeSizeGB = 0
-    let volume: { id: string; created: boolean } | undefined
     if (volumeName) {
       metadata[`${this.metadataPrefix}.volumeName`] = volumeName
-      volumeSizeGB = config.resources?.diskMB
+      const volumeSizeGB = config.resources?.diskMB
         ? Math.max(1, Math.ceil(config.resources.diskMB / 1024))
         : (this.config.defaultVolumeGB ?? DEFAULT_VOLUME_GB)
-      volume = await this.ensureVolume(app, volumeName, volumeSizeGB, machineConfig.guest ?? {})
+      const volume = await this.ensureVolume(
+        app,
+        volumeName,
+        volumeSizeGB,
+        machineConfig.guest ?? {},
+      )
       // The caller may scope the volume to a subtree (e.g. /workspace/<appDir>)
       // so regenerable tooling (node_modules) stays on the fast image-backed
       // rootfs and only durable state pays the volume's small-file IO cost.
@@ -1420,60 +1424,20 @@ class FlyioSandboxProvider implements SandboxProvider {
     const service = this.previewService(config.idleAction)
     if (service) machineConfig.services = [service]
 
-    let machine: FlyMachine | null
-    let replacements = 0
-    for (;;) {
-      try {
-        machine = await this.client.request<FlyMachine>(`/apps/${app}/machines`, {
-          method: 'POST',
-          body: { region: this.region(), config: machineConfig },
-          // A just-created app propagates to the Machines API asynchronously, so this
-          // POST can 404 "app not found" for a few seconds. Retry the 404 (safe: no
-          // Machine is created when the app is not found) across the client's backoff.
-          attempts: MACHINE_CREATE_ATTEMPTS,
-          retryStatuses: MACHINE_CREATE_RETRY_STATUSES,
-          // A 412 is transient only for the specific released-volume-claim lag.
-          // Placement capacity must reach the bounded recovery below at once;
-          // every other 412 remains a real rejection.
-          retryWhen: (error) =>
-            error.status !== 412 || /volume already claimed by machine/i.test(error.body),
-        })
-        break
-      } catch (error) {
-        const placementCapacity =
-          error instanceof FlyApiError &&
-          error.status === 412 &&
-          /volume_placement_capacity/i.test(error.body)
-        // A volume found before this call may hold an app's data. Never delete
-        // it: surface Fly's original error (whose message carries the capacity
-        // marker) so the caller can wait for capacity and retry safely.
-        if (!placementCapacity || !volumeName || !volume?.created) throw error
-        if (replacements >= VOLUME_PLACEMENT_REPLACEMENTS) throw error
-
-        const previousVolumeId = volume.id
-        replacements++
-        logger.warn(
-          'Fly could not place the new volume for its Machine; replacing the empty volume',
-          { app, volumeId: previousVolumeId, replacement: replacements, error },
-        )
-        await this.client.request(`/apps/${app}/volumes/${previousVolumeId}`, {
-          method: 'DELETE',
-          nullOn: [404],
-        })
-        volume = {
-          id: await this.createFreshVolume(
-            app,
-            volumeName,
-            volumeSizeGB,
-            machineConfig.guest ?? {},
-          ),
-          created: true,
-        }
-        machineConfig.mounts = [
-          { volume: volume.id, path: config.volumeMountPath ?? WORKSPACE_PATH },
-        ]
-      }
-    }
+    const machine = await this.client.request<FlyMachine>(`/apps/${app}/machines`, {
+      method: 'POST',
+      body: { region: this.region(), config: machineConfig },
+      // A just-created app propagates to the Machines API asynchronously, so this
+      // POST can 404 "app not found" for a few seconds. Retry the 404 (safe: no
+      // Machine is created when the app is not found) across the client's backoff.
+      attempts: MACHINE_CREATE_ATTEMPTS,
+      retryStatuses: MACHINE_CREATE_RETRY_STATUSES,
+      // A 412 is transient only for the specific released-volume-claim lag.
+      // Placement capacity must reach the caller's bounded retry at once,
+      // with the volume preserved; every other 412 remains a real rejection.
+      retryWhen: (error) =>
+        error.status !== 412 || /volume already claimed by machine/i.test(error.body),
+    })
     if (!machine?.id) {
       throw new Error(
         t(

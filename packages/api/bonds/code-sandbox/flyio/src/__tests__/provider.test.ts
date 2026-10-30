@@ -651,12 +651,15 @@ describe('create — volumes', () => {
     expect(body.config.mounts[0].volume).toBe('vol_live')
   })
 
-  it('replaces a fresh volume when Fly cannot place it for the Machine', async () => {
+  it('keeps a fresh volume on placement capacity so a single caller retry can recover', async () => {
     const double = createFetchDouble()
       .on(`GET /apps/${APP}`, { body: { name: APP, network: APP } })
+      .on(`GET /apps/${APP}`, { body: { name: APP, network: APP } })
       .on(`GET /apps/${APP}/volumes`, { body: [] })
+      .on(`GET /apps/${APP}/volumes`, {
+        body: [{ id: 'vol_new_1', name: 'mol_abc', state: 'created' }],
+      })
       .on(`POST /apps/${APP}/volumes`, { body: { id: 'vol_new_1', name: 'mol_abc' } })
-      .on(`POST /apps/${APP}/volumes`, { body: { id: 'vol_new_2', name: 'mol_abc' } })
       .on(`POST /apps/${APP}/machines`, {
         status: 412,
         body: {
@@ -665,25 +668,125 @@ describe('create — volumes', () => {
         },
       })
       .on(`POST /apps/${APP}/machines`, { body: { id: 'm1', state: 'started' } })
-      .on(`DELETE /apps/${APP}/volumes/vol_new_1`, { status: 200, body: {} })
 
-    await makeProvider({}, double).create({
+    const provider = makeProvider({}, double)
+    await expect(
+      provider.create({
+        projectId: PROJECT_ID,
+        volumeName: 'mol-abc',
+        resources: { cpu: 2, memoryMB: 2048 },
+      }),
+    ).rejects.toThrow('volume_placement_capacity')
+
+    // This is the bounded caller retry, not a concurrent deployment. It finds
+    // the preserved volume by name and can still finish the first deploy.
+    const sandbox = await provider.create({
       projectId: PROJECT_ID,
       volumeName: 'mol-abc',
       resources: { cpu: 2, memoryMB: 2048 },
     })
 
+    expect(sandbox.id).toBe(`${APP}:m1`)
     const volumes = double.matching(`POST /apps/${APP}/volumes`)
-    expect(volumes).toHaveLength(2)
-    for (const call of volumes) {
-      expect(call.body).toMatchObject({
-        compute: { cpus: 2, cpu_kind: 'shared', memory_mb: 2048 },
-      })
-    }
-    expect(double.matching(`DELETE /apps/${APP}/volumes/vol_new_1`)).toHaveLength(1)
+    expect(volumes).toHaveLength(1)
+    expect(volumes[0].body).toMatchObject({
+      compute: { cpus: 2, cpu_kind: 'shared', memory_mb: 2048 },
+    })
+    expect(double.matching(`DELETE /apps/${APP}/volumes/vol_new_1`)).toHaveLength(0)
     const machines = double.matching(`POST /apps/${APP}/machines`)
     expect(machines).toHaveLength(2)
-    expect(machines[1].body).toMatchObject({ config: { mounts: [{ volume: 'vol_new_2' }] } })
+    expect(machines[1].body).toMatchObject({ config: { mounts: [{ volume: 'vol_new_1' }] } })
+  })
+
+  it('never deletes a freshly created volume that a concurrent create has adopted', async () => {
+    const double = createFetchDouble()
+      .on(`GET /apps/${APP}`, { body: { name: APP, network: APP } })
+      .on(`GET /apps/${APP}`, { body: { name: APP, network: APP } })
+      .on(`GET /apps/${APP}/volumes`, { body: [] })
+      .on(`GET /apps/${APP}/volumes`, {
+        body: [{ id: 'vol_new_1', name: 'mol_abc', state: 'created' }],
+      })
+      .on(`POST /apps/${APP}/volumes`, { body: { id: 'vol_new_1', name: 'mol_abc' } })
+      .on(`POST /apps/${APP}/machines`, {
+        status: 412,
+        body: { error: 'failed_precondition', status: 'volume_placement_capacity' },
+      })
+      .on(`POST /apps/${APP}/machines`, { body: { id: 'm2', state: 'created' } })
+      .on(`GET /apps/${APP}/machines/m2/wait`, { status: 500, body: {} })
+      .on(`GET /apps/${APP}/machines/m2`, { body: { id: 'm2', state: 'failed' } })
+      .on(`DELETE /apps/${APP}/machines/m2?force=true`, { status: 204, body: {} })
+
+    // Hold A's capacity answer while B finds A's volume by name, boots a
+    // Machine that may write to it, and then destroys only that Machine after
+    // a failed boot. A's local `created` flag must not authorize deleting V.
+    const baseFetch = double.fetch
+    let machinePosts = 0
+    let notifyFirstMachine!: () => void
+    let releaseFirstMachine!: () => void
+    const firstMachineRequested = new Promise<void>((resolve) => {
+      notifyFirstMachine = resolve
+    })
+    const firstMachineAnswer = new Promise<void>((resolve) => {
+      releaseFirstMachine = resolve
+    })
+    double.fetch = vi.fn(async (input: string | URL | Request, init?: RequestInit) => {
+      const machineCreate =
+        String(input).endsWith(`/apps/${APP}/machines`) &&
+        (init?.method ?? 'GET').toUpperCase() === 'POST'
+      const postNumber = machineCreate ? ++machinePosts : 0
+      const response = await baseFetch(input, init)
+      if (postNumber === 1) {
+        notifyFirstMachine()
+        await firstMachineAnswer
+      }
+      return response
+    }) as unknown as typeof fetch
+
+    const provider = makeProvider({}, double)
+    const config = { projectId: PROJECT_ID, volumeName: 'mol-abc' }
+    const first = provider.create(config).catch((error: unknown) => error)
+    await firstMachineRequested
+    await expect(provider.create(config)).rejects.toThrow('did not reach "started"')
+    releaseFirstMachine()
+    const firstError = await first
+
+    expect(firstError).toBeInstanceOf(Error)
+    expect(double.matching(`DELETE /apps/${APP}/machines/m2?force=true`)).toHaveLength(1)
+    expect(double.matching(`DELETE /apps/${APP}/volumes/vol_new_1`)).toHaveLength(0)
+    expect(double.matching(`POST /apps/${APP}/volumes`)).toHaveLength(1)
+  })
+
+  it('does not blindly replay a volume create whose response was lost', async () => {
+    const double = createFetchDouble()
+      .on(`GET /apps/${APP}`, { body: { name: APP, network: APP } })
+      .on(`GET /apps/${APP}/volumes`, { body: [] })
+      .on(`POST /apps/${APP}/volumes`, { body: { id: 'vol_new_2', name: 'mol_abc' } })
+      .on(`POST /apps/${APP}/volumes`, { body: { id: 'vol_new_3', name: 'mol_abc' } })
+      .on(`POST /apps/${APP}/machines`, { body: { id: 'm3', state: 'started' } })
+
+    // Fly creates V2 and its response is lost. Replaying the same-name POST
+    // creates V3; the safe outcome is one ambiguous failure and no second POST.
+    const baseFetch = double.fetch
+    let volumePosts = 0
+    double.fetch = vi.fn(async (input: string | URL | Request, init?: RequestInit) => {
+      const volumeCreate =
+        String(input).endsWith(`/apps/${APP}/volumes`) &&
+        (init?.method ?? 'GET').toUpperCase() === 'POST'
+      const response = await baseFetch(input, init)
+      if (volumeCreate && ++volumePosts === 1) throw new Error('response lost')
+      return response
+    }) as unknown as typeof fetch
+
+    const result = await makeProvider({}, double)
+      .create({ projectId: PROJECT_ID, volumeName: 'mol-abc' })
+      .then(
+        () => null,
+        (error: unknown) => error,
+      )
+
+    expect(double.matching(`POST /apps/${APP}/volumes`)).toHaveLength(1)
+    expect(result).toMatchObject({ name: 'FlyApiError', status: 0 })
+    expect(double.matching(`POST /apps/${APP}/machines`)).toHaveLength(0)
   })
 
   it('never destroys a pre-existing volume when Fly cannot place it', async () => {
@@ -709,7 +812,7 @@ describe('create — volumes', () => {
     expect(double.matching(`POST /apps/${APP}/machines`)).toHaveLength(1)
   })
 
-  it.each([412, 422])('does not replace a fresh volume for an unrelated %i', async (status) => {
+  it.each([412, 422])('does not delete a fresh volume for an unrelated %i', async (status) => {
     const double = createFetchDouble()
       .on(`GET /apps/${APP}`, { body: { name: APP, network: APP } })
       .on(`GET /apps/${APP}/volumes`, { body: [] })
@@ -725,34 +828,6 @@ describe('create — volumes', () => {
 
     expect(double.matching(`POST /apps/${APP}/machines`)).toHaveLength(1)
     expect(double.matching(`DELETE /apps/${APP}/volumes/vol_new`)).toHaveLength(0)
-  })
-
-  it('bounds recovery at two volume replacements', async () => {
-    const double = createFetchDouble()
-      .on(`GET /apps/${APP}`, { body: { name: APP, network: APP } })
-      .on(`GET /apps/${APP}/volumes`, { body: [] })
-    for (const id of ['vol_new_1', 'vol_new_2', 'vol_new_3']) {
-      double.on(`POST /apps/${APP}/volumes`, { body: { id, name: 'mol_abc' } })
-    }
-    for (let attempt = 0; attempt < 3; attempt++) {
-      double.on(`POST /apps/${APP}/machines`, {
-        status: 412,
-        body: { error: 'failed_precondition', status: 'volume_placement_capacity' },
-      })
-    }
-    double
-      .on(`DELETE /apps/${APP}/volumes/vol_new_1`, { status: 200, body: {} })
-      .on(`DELETE /apps/${APP}/volumes/vol_new_2`, { status: 200, body: {} })
-
-    await expect(
-      makeProvider({}, double).create({ projectId: PROJECT_ID, volumeName: 'mol-abc' }),
-    ).rejects.toThrow('volume_placement_capacity')
-
-    expect(double.matching(`POST /apps/${APP}/machines`)).toHaveLength(3)
-    expect(double.matching(`POST /apps/${APP}/volumes`)).toHaveLength(3)
-    expect(double.matching(`DELETE /apps/${APP}/volumes/vol_new_1`)).toHaveLength(1)
-    expect(double.matching(`DELETE /apps/${APP}/volumes/vol_new_2`)).toHaveLength(1)
-    expect(double.matching(`DELETE /apps/${APP}/volumes/vol_new_3`)).toHaveLength(0)
   })
 
   it('does not implement the optional volume methods — they carry no app or region', () => {

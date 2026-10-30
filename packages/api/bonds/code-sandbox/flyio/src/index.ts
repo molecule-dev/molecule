@@ -229,10 +229,17 @@
  * needs an app, a region and a size, and a volume created in the wrong app can
  * never be mounted. So passing `SandboxConfig.volumeName` provisions the volume
  * inside the project's app, mounted at `/workspace`; `resources.diskMB` is
- * rounded UP to whole GB. Fly documents that "a volume can be attached to only
- * one Machine", which matches one sandbox per project. Fly does not document the
- * legal character set for volume names, so names are conservatively reduced to
- * `[A-Za-z0-9_]` — an assumption, flagged as such.
+ * rounded UP to whole GB. Creation sends the Machine's exact guest as Fly's
+ * `compute` placement hint, so Fly can choose a volume host that can run that
+ * Machine. If Machine creation still answers `412 volume_placement_capacity`,
+ * the provider preserves the volume and propagates the error for the caller's
+ * bounded retry, which finds it by name; it never deletes and replaces a volume
+ * that another create could have adopted. Volume-create POSTs are single-attempt
+ * because Fly permits same-name volumes and a blind replay after a lost response
+ * could create an untracked duplicate. Fly documents that "a volume can be
+ * attached to only one Machine", which matches one sandbox per project. Fly does
+ * not document the legal character set for volume names, so names are
+ * conservatively reduced to `[A-Za-z0-9_]` — an assumption, flagged as such.
  *
  * **Warm start: templates are tar archives in object storage.** Fly cannot
  * `commit` a running Machine — it PULLS images from a registry — and the
