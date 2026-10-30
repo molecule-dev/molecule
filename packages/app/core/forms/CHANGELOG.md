@@ -1,5 +1,11 @@
 # @molecule/app-forms
 
+## 2.1.1
+
+### Patch Changes
+
+- Requires `@molecule/app-i18n` 1.1.2 or later.
+
 ## 2.1.0
 
 ### Minor Changes
