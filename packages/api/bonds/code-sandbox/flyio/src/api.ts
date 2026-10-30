@@ -99,6 +99,12 @@ export interface FlyRequestOptions {
    * under exec-burst load, not a real absence, so it is worth repeating.
    */
   retryStatuses?: number[]
+  /**
+   * Restricts retries opted into by `retryStatuses` using the response error.
+   * Return false to surface that response immediately. The client's standard
+   * transport, 429 and 5xx retries are unaffected.
+   */
+  retryWhen?: (error: FlyApiError) => boolean
 }
 
 /**
@@ -342,8 +348,12 @@ export class FlyApiClient {
         clearTimeout(timer)
       }
 
-      const retryable =
-        isRetryableStatus(status) || (options.retryStatuses?.includes(status) ?? false)
+      const extraRetry = Boolean(
+        options.retryStatuses?.includes(status) &&
+        lastError &&
+        (options.retryWhen?.(lastError) ?? true),
+      )
+      const retryable = isRetryableStatus(status) || extraRetry
       if (!retryable || attempt === attempts) break
       const delay = retryDelayMs(attempt, retryAfter)
       logger.warn(`Fly API transient failure on ${method} ${path} — retrying`, {

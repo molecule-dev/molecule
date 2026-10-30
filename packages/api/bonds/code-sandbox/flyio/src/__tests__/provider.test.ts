@@ -577,6 +577,7 @@ describe('create — volumes', () => {
       region: 'iad',
       size_gb: 10,
       encrypted: true,
+      compute: { cpus: 1, cpu_kind: 'shared', memory_mb: 1024 },
     })
 
     const body = double.matching(`POST /apps/${APP}/machines`)[0].body as {
@@ -648,6 +649,110 @@ describe('create — volumes', () => {
       config: { mounts: Array<{ volume: string }> }
     }
     expect(body.config.mounts[0].volume).toBe('vol_live')
+  })
+
+  it('replaces a fresh volume when Fly cannot place it for the Machine', async () => {
+    const double = createFetchDouble()
+      .on(`GET /apps/${APP}`, { body: { name: APP, network: APP } })
+      .on(`GET /apps/${APP}/volumes`, { body: [] })
+      .on(`POST /apps/${APP}/volumes`, { body: { id: 'vol_new_1', name: 'mol_abc' } })
+      .on(`POST /apps/${APP}/volumes`, { body: { id: 'vol_new_2', name: 'mol_abc' } })
+      .on(`POST /apps/${APP}/machines`, {
+        status: 412,
+        body: {
+          error: 'failed_precondition: insufficient resources',
+          status: 'volume_placement_capacity',
+        },
+      })
+      .on(`POST /apps/${APP}/machines`, { body: { id: 'm1', state: 'started' } })
+      .on(`DELETE /apps/${APP}/volumes/vol_new_1`, { status: 200, body: {} })
+
+    await makeProvider({}, double).create({
+      projectId: PROJECT_ID,
+      volumeName: 'mol-abc',
+      resources: { cpu: 2, memoryMB: 2048 },
+    })
+
+    const volumes = double.matching(`POST /apps/${APP}/volumes`)
+    expect(volumes).toHaveLength(2)
+    for (const call of volumes) {
+      expect(call.body).toMatchObject({
+        compute: { cpus: 2, cpu_kind: 'shared', memory_mb: 2048 },
+      })
+    }
+    expect(double.matching(`DELETE /apps/${APP}/volumes/vol_new_1`)).toHaveLength(1)
+    const machines = double.matching(`POST /apps/${APP}/machines`)
+    expect(machines).toHaveLength(2)
+    expect(machines[1].body).toMatchObject({ config: { mounts: [{ volume: 'vol_new_2' }] } })
+  })
+
+  it('never destroys a pre-existing volume when Fly cannot place it', async () => {
+    const double = createFetchDouble()
+      .on(`GET /apps/${APP}`, { body: { name: APP, network: APP } })
+      .on(`GET /apps/${APP}/volumes`, {
+        body: [{ id: 'vol_existing', name: 'mol_abc', state: 'created' }],
+      })
+      .on(`POST /apps/${APP}/machines`, {
+        status: 412,
+        body: {
+          error: 'failed_precondition: insufficient resources',
+          status: 'volume_placement_capacity',
+        },
+      })
+
+    await expect(
+      makeProvider({}, double).create({ projectId: PROJECT_ID, volumeName: 'mol-abc' }),
+    ).rejects.toThrow('volume_placement_capacity')
+
+    expect(double.matching(`POST /apps/${APP}/volumes`)).toHaveLength(0)
+    expect(double.matching(`DELETE /apps/${APP}/volumes/vol_existing`)).toHaveLength(0)
+    expect(double.matching(`POST /apps/${APP}/machines`)).toHaveLength(1)
+  })
+
+  it.each([412, 422])('does not replace a fresh volume for an unrelated %i', async (status) => {
+    const double = createFetchDouble()
+      .on(`GET /apps/${APP}`, { body: { name: APP, network: APP } })
+      .on(`GET /apps/${APP}/volumes`, { body: [] })
+      .on(`POST /apps/${APP}/volumes`, { body: { id: 'vol_new', name: 'mol_abc' } })
+      .on(`POST /apps/${APP}/machines`, {
+        status,
+        body: { error: 'failed_precondition: a different create rejection' },
+      })
+
+    await expect(
+      makeProvider({}, double).create({ projectId: PROJECT_ID, volumeName: 'mol-abc' }),
+    ).rejects.toThrow('a different create rejection')
+
+    expect(double.matching(`POST /apps/${APP}/machines`)).toHaveLength(1)
+    expect(double.matching(`DELETE /apps/${APP}/volumes/vol_new`)).toHaveLength(0)
+  })
+
+  it('bounds recovery at two volume replacements', async () => {
+    const double = createFetchDouble()
+      .on(`GET /apps/${APP}`, { body: { name: APP, network: APP } })
+      .on(`GET /apps/${APP}/volumes`, { body: [] })
+    for (const id of ['vol_new_1', 'vol_new_2', 'vol_new_3']) {
+      double.on(`POST /apps/${APP}/volumes`, { body: { id, name: 'mol_abc' } })
+    }
+    for (let attempt = 0; attempt < 3; attempt++) {
+      double.on(`POST /apps/${APP}/machines`, {
+        status: 412,
+        body: { error: 'failed_precondition', status: 'volume_placement_capacity' },
+      })
+    }
+    double
+      .on(`DELETE /apps/${APP}/volumes/vol_new_1`, { status: 200, body: {} })
+      .on(`DELETE /apps/${APP}/volumes/vol_new_2`, { status: 200, body: {} })
+
+    await expect(
+      makeProvider({}, double).create({ projectId: PROJECT_ID, volumeName: 'mol-abc' }),
+    ).rejects.toThrow('volume_placement_capacity')
+
+    expect(double.matching(`POST /apps/${APP}/machines`)).toHaveLength(3)
+    expect(double.matching(`POST /apps/${APP}/volumes`)).toHaveLength(3)
+    expect(double.matching(`DELETE /apps/${APP}/volumes/vol_new_1`)).toHaveLength(1)
+    expect(double.matching(`DELETE /apps/${APP}/volumes/vol_new_2`)).toHaveLength(1)
+    expect(double.matching(`DELETE /apps/${APP}/volumes/vol_new_3`)).toHaveLength(0)
   })
 
   it('does not implement the optional volume methods — they carry no app or region', () => {
