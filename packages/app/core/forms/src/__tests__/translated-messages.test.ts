@@ -49,6 +49,25 @@ describe('native form controller default messages', () => {
     expect(form.getState().errors.email).toBe('Invalid email address')
   })
 
+  it('still rejects the value when a locale translates the message to an empty string', async () => {
+    setProvider(
+      createSimpleI18nProvider('fr', [
+        { code: 'fr', name: 'Français', translations: { 'forms.invalidEmail': '' } },
+      ]),
+    )
+    const form = nativeProvider.createForm<{ email: string }>({ defaultValues: { email: '' } })
+    form.register({ name: 'email', email: true })
+    form.setValue('email', 'bad')
+    let submitted = false
+    await form.handleSubmit(() => {
+      submitted = true
+    })()
+
+    expect(await form.validateField('email')).toBe(false)
+    expect(form.getState().errors.email).toBe('Invalid email address')
+    expect(submitted).toBe(false)
+  })
+
   it("shows a rule's own message as written, untranslated", async () => {
     french()
     const form = nativeProvider.createForm<{ email: string }>({ defaultValues: { email: '' } })

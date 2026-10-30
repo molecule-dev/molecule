@@ -32,8 +32,9 @@ export const validateValue = async (
   schema: ValidationSchema,
   t?: TranslateFn,
 ): Promise<string | undefined> => {
+  // An empty translation must never read as "valid": fall back to the built-in message.
   const msg = (key: string, defaultValue: string, values?: InterpolationValues): string =>
-    t ? t(key, values, { defaultValue }) : defaultValue
+    (t ? t(key, values, { defaultValue }) : '') || defaultValue
 
   // Required check
   if (schema.required) {

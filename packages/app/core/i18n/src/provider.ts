@@ -4,7 +4,7 @@
  * @module
  */
 
-import { getLogger } from '@molecule/app-logger'
+import { getLogger, type Logger } from '@molecule/app-logger'
 
 import { getPluralForm } from './plural.js'
 import { t } from './translator.js'
@@ -67,7 +67,10 @@ export const createSimpleI18nProvider = (
   initialLocale: string = 'en',
   initialLocales: LocaleConfig[] = [],
 ): I18nProvider => {
-  const logger = getLogger('i18n')
+  // Looked up on first use: constructing a provider (the module-level `simpleProvider`
+  // included) must not bond a default logger before the app bonds its own.
+  let logger: Logger | undefined
+  const log = (): Logger => (logger ??= getLogger('i18n'))
   let currentLocale = initialLocale
   const locales = new Map<string, LocaleConfig>()
   const listeners = new Set<(locale: string) => void>()
@@ -128,12 +131,12 @@ export const createSimpleI18nProvider = (
 
       // Reload all registered content modules for the new locale
       if (contentLoaders.size > 0) {
-        logger.debug('Reloading content modules', contentLoaders.size, locale)
+        log().debug('Reloading content modules', contentLoaders.size, locale)
         await Promise.all(Array.from(contentLoaders.values()).map((loader) => loader(locale)))
       }
 
       currentLocale = locale
-      logger.debug('Locale changed', locale)
+      log().debug('Locale changed', locale)
       notify()
     },
 
@@ -241,7 +244,7 @@ export const createSimpleI18nProvider = (
 
       if (text === undefined) {
         if (!options?.defaultValue) {
-          logger.debug('Missing translation key', key, currentLocale)
+          log().debug('Missing translation key', key, currentLocale)
         }
         const fallback = options?.defaultValue || key
         const allValues =
@@ -368,7 +371,7 @@ export const createSimpleI18nProvider = (
     registerContent(module: string, loader: (locale: string) => Promise<void>): void {
       if (contentLoaders.has(module)) return
       contentLoaders.set(module, loader)
-      logger.debug('Registered content module', module)
+      log().debug('Registered content module', module)
     },
   }
 
