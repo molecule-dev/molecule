@@ -58,6 +58,8 @@ export interface TestResultEntry {
   skipped: number
   /** The runner's output, kept for a FAILURE so the row can keep showing it. */
   output?: string
+  /** Receipt order across this panel's own stream and the project feed. */
+  sequence?: number
 }
 
 /** Everything the card knows about the run it is showing. */
@@ -229,9 +231,26 @@ export function summarizeResults(
  *
  * @param state - The current state.
  * @param event - The event just received.
+ * @param sequence - Receipt order assigned by the caller across all run streams.
  * @returns The next state (a new object whenever anything changed).
  */
-export function applyTestRunEvent(state: TestsRunState, event: TestRunEvent): TestsRunState {
+export function applyTestRunEvent(
+  state: TestsRunState,
+  event: TestRunEvent,
+  sequence?: number,
+): TestsRunState {
+  // Some hosts discover files as they run. The first event naming a file makes
+  // it part of THIS run and invalidates any inherited verdict. Keeping it in
+  // the queue also keeps parallel files live when currentId moves elsewhere.
+  const id =
+    event.type === 'case' || event.type === 'result' || event.type === 'output'
+      ? event.id
+      : undefined
+  if (id != null && !state.queued.includes(id)) {
+    const results = { ...state.results }
+    delete results[id]
+    state = { ...state, queued: [...state.queued, id], results }
+  }
   switch (event.type) {
     case 'start': {
       // A new run clears the previous run's verdicts for the ids it covers, so
@@ -262,7 +281,7 @@ export function applyTestRunEvent(state: TestsRunState, event: TestRunEvent): Te
       const output = [...state.output, ...event.chunk.split('\n')]
       return {
         ...state,
-        currentId: event.id ?? state.currentId,
+        currentId: event.id != null && state.results[event.id] == null ? event.id : state.currentId,
         output: output.length > MAX_OUTPUT_LINES ? output.slice(-MAX_OUTPUT_LINES) : output,
       }
     }
@@ -308,6 +327,7 @@ export function applyTestRunEvent(state: TestsRunState, event: TestRunEvent): Te
       return {
         ...state,
         cases,
+        currentId: state.currentId === event.id ? null : state.currentId,
         // Whatever the verdict, the run answered — the Skip the person asked
         // for has either landed or been overtaken.
         skipPending: false,
@@ -320,6 +340,7 @@ export function applyTestRunEvent(state: TestsRunState, event: TestRunEvent): Te
             failed: event.failed ?? progress?.failed ?? 0,
             skipped: event.skipped ?? progress?.skipped ?? 0,
             ...(event.output ? { output: event.output } : {}),
+            ...(sequence != null ? { sequence } : {}),
           },
         },
       }
@@ -351,16 +372,21 @@ export type OtherTestRuns = Readonly<Record<string, TestsRunState>>
  *
  * @param others - The other runs so far.
  * @param event - The feed event.
+ * @param sequence - Receipt order assigned by the caller across all run streams.
  * @returns The other runs with this one advanced.
  */
-export function foldOtherRunEvent(others: OtherTestRuns, event: TestRunFeedEvent): OtherTestRuns {
+export function foldOtherRunEvent(
+  others: OtherTestRuns,
+  event: TestRunFeedEvent,
+  sequence?: number,
+): OtherTestRuns {
   const base: TestsRunState = others[event.runId] ?? {
     ...EMPTY_RUN_STATE,
     runId: event.runId,
     running: event.type !== 'done',
   }
   const next: TestsRunState = {
-    ...applyTestRunEvent(base, event),
+    ...applyTestRunEvent(base, event, sequence),
     runId: event.runId,
     // Watched, never steered: this panel holds no handle to stop or skip it.
     external: true,
@@ -399,29 +425,45 @@ export function liveOtherRuns(others: OtherTestRuns, except?: string): TestsRunS
  */
 export function showOtherRun(shown: TestsRunState, other: TestsRunState): TestsRunState {
   const results = { ...shown.results }
-  for (const id of other.queued) delete results[id]
-  return { ...other, results: { ...results, ...other.results } }
+  for (const id of pendingRunIds(other)) delete results[id]
+  return mergeTestRunResults({ ...other, results }, other, [])
 }
 
 /**
- * Lays the verdicts of a run that ENDED off screen onto the rows, except the
- * files the run on show is still going to report.
+ * The files a live run still owes a verdict for.
+ *
+ * @param run - The run on show.
+ * @returns Pending file ids, or none after the run ends.
+ */
+function pendingRunIds(run: TestsRunState): string[] {
+  return run.running ? run.queued.filter((id) => run.results[id] == null) : []
+}
+
+/**
+ * Lays a run's newer verdicts onto the rows without changing which run owns
+ * the progress and controls. Protect only files still awaiting a verdict, and
+ * compare result receipt order so re-presenting a folded snapshot cannot undo
+ * a newer result from another stream.
  *
  * @param shown - What the card shows now.
- * @param ended - The run that ended.
- * @param keep - File ids whose verdict belongs to the run on show.
+ * @param run - The run whose verdicts are being merged.
+ * @param keep - File ids to protect; defaults to the displayed run's pending files.
  * @returns What the card shows next.
  */
-function mergeEndedRun(
+export function mergeTestRunResults(
   shown: TestsRunState,
-  ended: TestsRunState,
-  keep: readonly string[],
+  run: TestsRunState,
+  keep: readonly string[] = pendingRunIds(shown),
 ): TestsRunState {
-  const results = { ...shown.results }
-  for (const [id, entry] of Object.entries(ended.results)) {
-    if (!keep.includes(id)) results[id] = entry
+  let results = shown.results
+  for (const [id, entry] of Object.entries(run.results)) {
+    const previous = results[id]
+    if (keep.includes(id) || previous === entry) continue
+    if (previous && (previous.sequence ?? 0) > (entry.sequence ?? 0)) continue
+    if (results === shown.results) results = { ...results }
+    results[id] = entry
   }
-  return { ...shown, results }
+  return results === shown.results ? shown : { ...shown, results }
 }
 
 /**
@@ -430,7 +472,7 @@ function mergeEndedRun(
  * The panel's own run in flight always keeps the card. Otherwise the card
  * shows this run when nothing live is on show (or it already is), and hands
  * over to another run still going when the one on show ends. A run that ends
- * behind another still leaves its verdicts on the rows.
+ * behind another still leaves its newer verdicts on completed rows.
  *
  * @param shown - What the card shows now.
  * @param run - The event's run, folded by {@link foldOtherRunEvent}.
@@ -444,20 +486,20 @@ export function presentOtherRun(
   run: TestsRunState,
   { ownBusy, live }: { ownBusy: boolean; live: readonly TestsRunState[] },
 ): TestsRunState {
-  if (ownBusy) return shown
+  if (ownBusy) return mergeTestRunResults(shown, run)
   const onShow = shown.external === true && shown.runId === run.runId
   if (onShow || !shown.running) {
     const next = showOtherRun(shown, run)
     const successor = live.at(-1)
     return !run.running && successor ? showOtherRun(next, successor) : next
   }
-  return run.running ? shown : mergeEndedRun(shown, run, shown.queued)
+  return mergeTestRunResults(shown, run)
 }
 
 /**
  * What the card shows once this panel's OWN run has ended: the verdicts other
- * runs reported meanwhile (never over a file the own run covered), then any
- * other run still going.
+ * runs reported meanwhile, in result receipt order, then any other run still
+ * going. A completed file is never reserved for the run that covered it.
  *
  * @param shown - What the card shows, with the own run's end applied.
  * @param others - The other runs.
@@ -466,7 +508,7 @@ export function presentOtherRun(
 export function settleOwnRun(shown: TestsRunState, others: OtherTestRuns): TestsRunState {
   let next = shown
   for (const run of Object.values(others)) {
-    if (!run.running) next = mergeEndedRun(next, run, shown.queued)
+    if (!run.running) next = mergeTestRunResults(next, run)
   }
   const successor = liveOtherRuns(others).at(-1)
   return successor ? showOtherRun(next, successor) : next
@@ -492,7 +534,7 @@ export function keepLiveOtherRuns(others: OtherTestRuns): OtherTestRuns {
  * @returns The next state, or the same one when there is nothing to skip.
  */
 export function requestSkip(state: TestsRunState): TestsRunState {
-  if (!state.running || state.skipPending || state.skipUnavailable) return state
+  if (!canSkipRun(state) || state.skipPending) return state
   return { ...state, skipPending: true }
 }
 
@@ -515,7 +557,7 @@ export function markSkipUnavailable(state: TestsRunState): TestsRunState {
  * @returns True when a Skip control belongs on screen.
  */
 export function canSkipRun(state: TestsRunState): boolean {
-  return state.running && !state.skipUnavailable
+  return state.running && !state.external && !state.skipUnavailable
 }
 
 /**
@@ -578,7 +620,7 @@ export function failRun(state: TestsRunState, message: string): TestsRunState {
  * @returns True when the row is part of the live run and still undecided.
  */
 export function isRowRunning(state: TestsRunState, id: string): boolean {
-  if (!state.running) return false
+  if (!state.running || state.results[id] != null) return false
   if (state.currentId === id) return true
   return state.queued.includes(id) && state.results[id] == null
 }

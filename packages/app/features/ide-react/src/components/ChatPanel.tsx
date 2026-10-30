@@ -212,6 +212,7 @@ import {
   keepLiveOtherRuns,
   liveOtherRuns,
   markSkipUnavailable,
+  mergeTestRunResults,
   parseTestCommand,
   presentOtherRun,
   requestSkip,
@@ -4513,7 +4514,13 @@ function ChatInner({
   const [testsList, setTestsList] = useState<TestItem[]>([])
   const [testsStatus, setTestsStatus] = useState<TestsStatus>('loading')
   const [testsRun, setTestsRun] = useState<TestsRunState>(EMPTY_RUN_STATE)
-  const testsRunHandleRef = useRef<TestRunHandle | null>(null)
+  // Each callback closes over its own folded run. Only this invocation owns
+  // controls; stopped/completed invocations can still report trailing verdicts.
+  const ownTestRunRef = useRef<{
+    state: TestsRunState
+    handle: TestRunHandle | null
+  } | null>(null)
+  const testsEventSequenceRef = useRef(0)
   // Live "is a run in flight?" for the dispatchers, so `startTestsRun` keeps a
   // stable identity — the command callbacks that hold it carry hand-written
   // dependency lists, and a value that changes every run transition is one they
@@ -4524,8 +4531,7 @@ function ChatInner({
   // each folded from the project's run feed. The card shows them when its own
   // run is not in flight; the own run's copy on the feed is recognised by id.
   const otherTestRunsRef = useRef<OtherTestRuns>({})
-  const ownTestRunIdRef = useRef<string | null>(null)
-  const ownTestRunBusyRef = useRef(false)
+  const ownTestRunIdsRef = useRef(new Set<string>())
   // Whether a TURN is in flight — a fix is a real message, so it waits its turn.
   const testsBusyRef = useRef(false)
   // Live for the async callbacks, so a list resolving after an unmount, or a
@@ -4537,7 +4543,9 @@ function ChatInner({
     testsMountedRef.current = true
     return () => {
       testsMountedRef.current = false
-      testsRunHandleRef.current?.cancel()
+      const own = ownTestRunRef.current
+      ownTestRunRef.current = null
+      own?.handle?.cancel()
     }
   }, [])
 
@@ -4571,53 +4579,68 @@ function ChatInner({
     (selection: TestSelection): void => {
       if (!runTests) return
       if (canRunTests === false || canEdit === false) return
-      if (testsAvailable === false || testsRunningRef.current) return
+      if (testsAvailable === false || testsRunningRef.current || ownTestRunRef.current) return
       if (selection.ids?.length === 0) return
       // Seed a running state immediately: the host's `start` event may be a
       // round trip away, and a Run button that appears to do nothing is the
       // failure this feature exists to remove.
-      setTestsRun((prev) => ({
-        ...prev,
+      const initial: TestsRunState = {
+        ...EMPTY_RUN_STATE,
         running: true,
-        outcome: null,
-        error: null,
-        output: [],
-        currentId: null,
-        queued: selection.ids ?? [],
+        queued: [...(selection.ids ?? [])],
         startedAt: Date.now(),
-        durationMs: null,
         external: false,
-        source: null,
-        command: null,
-      }))
-      ownTestRunIdRef.current = null
-      ownTestRunBusyRef.current = true
+      }
+      const invocation: { state: TestsRunState; handle: TestRunHandle | null } = {
+        state: initial,
+        handle: null,
+      }
+      ownTestRunRef.current = invocation
+      setTestsRun((prev) => {
+        const results = { ...prev.results }
+        for (const id of initial.queued) delete results[id]
+        return { ...initial, results }
+      })
       try {
         const handle = runTests(selection, (event) => {
           if (!testsMountedRef.current) return
+          const sequence = ++testsEventSequenceRef.current
+          invocation.state = applyTestRunEvent(invocation.state, event, sequence)
           if (event.type === 'start') {
             // The feed may have delivered this run's start first, as a run of
             // someone else's; from here on it is known to be this panel's own.
-            ownTestRunIdRef.current = event.runId
+            ownTestRunIdsRef.current.add(event.runId)
             const { [event.runId]: _own, ...others } = otherTestRunsRef.current
             otherTestRunsRef.current = others
           }
+          if (ownTestRunRef.current !== invocation) {
+            // A delayed callback belongs to its original run, never to the
+            // watched run (or the next own invocation) now holding the card.
+            if (event.type === 'result') {
+              const run = invocation.state
+              setTestsRun((prev) => mergeTestRunResults(prev, run))
+            }
+            if (event.type === 'done') void refreshTests()
+            return
+          }
           if (event.type !== 'done') {
-            setTestsRun((prev) => applyTestRunEvent(prev, event))
+            setTestsRun((prev) => applyTestRunEvent(prev, event, sequence))
             return
           }
           // Ended: the verdicts other runs reported meanwhile land on the rows,
           // and a run of someone else's still going takes the card.
-          ownTestRunBusyRef.current = false
+          ownTestRunRef.current = null
           const others = otherTestRunsRef.current
-          setTestsRun((prev) => settleOwnRun(applyTestRunEvent(prev, event), others))
+          setTestsRun((prev) => settleOwnRun(applyTestRunEvent(prev, event, sequence), others))
           otherTestRunsRef.current = keepLiveOtherRuns(others)
-          testsRunHandleRef.current = null
           // A run cannot create a test, but it CAN finish after the agent wrote
           // one — re-list once it settles so the card is current.
           void refreshTests()
         })
-        testsRunHandleRef.current = handle
+        // The host is allowed to finish synchronously, before returning its
+        // handle. It no longer owns controls after handing the card onward.
+        if (ownTestRunRef.current !== invocation) return
+        invocation.handle = handle
         // Whether a Skip control belongs on screen is decided HERE, by whether
         // this host's handle serves one — not by the card guessing, and not by
         // a button that would do nothing when clicked.
@@ -4625,17 +4648,23 @@ function ChatInner({
         setTestsRun((prev) => ({ ...prev, skipPending: false, skipUnavailable: !skips }))
       } catch (error) {
         logger.warn('Failed to start a test run', { error })
-        ownTestRunBusyRef.current = false
+        if (ownTestRunRef.current !== invocation) return
+        ownTestRunRef.current = null
+        const others = otherTestRunsRef.current
         setTestsRun((prev) =>
-          failRun(
-            prev,
-            error instanceof Error
-              ? error.message
-              : t('ide.tests.runError', undefined, {
-                  defaultValue: 'The test run could not start.',
-                }),
+          settleOwnRun(
+            failRun(
+              prev,
+              error instanceof Error
+                ? error.message
+                : t('ide.tests.runError', undefined, {
+                    defaultValue: 'The test run could not start.',
+                  }),
+            ),
+            others,
           ),
         )
+        otherTestRunsRef.current = keepLiveOtherRuns(others)
       }
     },
     [runTests, canRunTests, canEdit, testsAvailable, refreshTests],
@@ -4660,10 +4689,11 @@ function ChatInner({
   const cancelTestsRun = useCallback((): void => {
     // Only this panel's own run can be stopped from here; the controls are not
     // offered on a run it is only watching.
-    if (!ownTestRunBusyRef.current) return
-    testsRunHandleRef.current?.cancel()
-    testsRunHandleRef.current = null
-    ownTestRunBusyRef.current = false
+    const invocation = ownTestRunRef.current
+    if (!invocation) return
+    // Relinquish ownership before cancel(), which may synchronously call back.
+    ownTestRunRef.current = null
+    invocation.state = applyTestRunEvent(invocation.state, { type: 'done', outcome: 'cancelled' })
     const others = otherTestRunsRef.current
     setTestsRun((prev) =>
       settleOwnRun(
@@ -4680,6 +4710,7 @@ function ChatInner({
       ),
     )
     otherTestRunsRef.current = keepLiveOtherRuns(others)
+    invocation.handle?.cancel()
   }, [])
 
   // Every run in the project, however it was started, reaches the same bar and
@@ -4696,10 +4727,11 @@ function ChatInner({
       unsubscribe = watchTestRuns((event) => {
         if (!testsMountedRef.current) return
         // This panel's own run, echoed by the feed: its own stream has it.
-        if (event.runId === ownTestRunIdRef.current) return
-        const others = foldOtherRunEvent(otherTestRunsRef.current, event)
+        if (ownTestRunIdsRef.current.has(event.runId)) return
+        const sequence = ++testsEventSequenceRef.current
+        const others = foldOtherRunEvent(otherTestRunsRef.current, event, sequence)
         const run = others[event.runId]
-        const ownBusy = ownTestRunBusyRef.current
+        const ownBusy = ownTestRunRef.current !== null
         const live = liveOtherRuns(others, event.runId)
         setTestsRun((prev) => presentOtherRun(prev, run, { ownBusy, live }))
         // An ended run's verdicts are on the rows now, unless the own run holds
@@ -4750,21 +4782,31 @@ function ChatInner({
   // cause: the control goes away, no error line.
   const skipCurrentTest = useCallback((): void => {
     if (canEdit === false || canRunTests === false) return
-    const skip = testsRunHandleRef.current?.skipCurrent
+    const invocation = ownTestRunRef.current
+    if (!invocation) return
+    const skip = invocation.handle?.skipCurrent
     if (!skip) {
       setTestsRun((prev) => markSkipUnavailable(prev))
       return
     }
     setTestsRun((prev) => requestSkip(prev))
     const unavailable = (): void => {
-      if (testsMountedRef.current) setTestsRun((prev) => markSkipUnavailable(prev))
+      if (testsMountedRef.current && ownTestRunRef.current === invocation) {
+        setTestsRun((prev) => markSkipUnavailable(prev))
+      }
     }
     try {
-      const outcome = skip.call(testsRunHandleRef.current)
+      const outcome = skip.call(invocation.handle)
       if (outcome) {
-        void outcome.then((accepted) => {
-          if (accepted === false) unavailable()
-        }, unavailable)
+        void outcome.then(
+          (accepted) => {
+            if (accepted === false) unavailable()
+          },
+          (error: unknown) => {
+            logger.warn('Failed to skip the running test', { error })
+            unavailable()
+          },
+        )
       }
     } catch (error) {
       logger.warn('Failed to skip the running test', { error })

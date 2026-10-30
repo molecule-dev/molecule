@@ -187,10 +187,7 @@ function buildThemeProvider(): ThemeProviderType {
  */
 function renderPanel(options: {
   listTests: () => Promise<TestList>
-  runTests?: (
-    selection: TestSelection,
-    onEvent: (e: TestRunEvent) => void,
-  ) => { cancel: () => void }
+  runTests?: ChatPanelProps['runTests']
   canRunTests?: boolean
   watchTestRuns?: ChatPanelProps['watchTestRuns']
 }): ReactElement {
@@ -468,6 +465,297 @@ describe('every test run in the project reaches the test view', () => {
       unsubscribed: () => unsubscribes,
     }
   }
+
+  /** Open the browser and wait for its discovered rows. */
+  async function openTests(container: HTMLElement): Promise<void> {
+    submit(container, '/test')
+    await waitFor(() => expect(molId(container, `tests-card-run-${HOME}`)).not.toBeNull())
+  }
+
+  it('a cancelled own run’s delayed done cannot cancel a finished watched run', async () => {
+    const feed = fakeFeed()
+    let emit: (event: TestRunEvent) => void = () => {}
+    const cancel = vi.fn()
+    const { container } = render(
+      renderPanel({
+        listTests: async () => LIST,
+        watchTestRuns: feed.watchTestRuns,
+        runTests: (_selection, onEvent) => {
+          emit = onEvent
+          return { cancel }
+        },
+      }),
+    )
+    await openTests(container)
+    fireEvent.click(molId(container, `tests-card-run-${HOME}`)!)
+    act(() => emit({ type: 'start', runId: 'own-1', ids: [HOME] }))
+    feed.emit({ type: 'start', runId: 'agent-1', ids: [ROUTES], source: 'agent' })
+    fireEvent.click(molId(container, 'tests-card-cancel')!)
+    expect(cancel).toHaveBeenCalledTimes(1)
+    expect(molId(container, 'tests-card-running')?.textContent).toContain('is running tests')
+    expect(molId(container, 'tests-card-cancel')).toBeNull()
+    feed.emit({ type: 'result', runId: 'agent-1', id: ROUTES, status: 'passed' })
+    feed.emit({ type: 'done', runId: 'agent-1', outcome: 'completed' })
+    const completed = molId(container, 'tests-card-summary')?.textContent
+    act(() => emit({ type: 'done', outcome: 'cancelled' }))
+    expect(molId(container, 'tests-card-summary')?.textContent).toBe(completed)
+    expect(molId(container, 'tests-card-cancelled')).toBeNull()
+    expect(molId(container, `tests-card-status-${ROUTES}`)?.textContent).toBe('Passed')
+    expect((molId(container, `tests-card-run-${HOME}`) as HTMLButtonElement).disabled).toBe(false)
+    fireEvent.click(molId(container, 'panel-overlay-close')!)
+    expect(molId(container, 'tests-bar')?.getAttribute('data-tests-tone')).toBe('passing')
+  })
+
+  it('late events from a stopped invocation cannot finish or take controls from the next own run', async () => {
+    const emitters: Array<(event: TestRunEvent) => void> = []
+    const cancels = [vi.fn(), vi.fn()]
+    const skips = [vi.fn(), vi.fn()]
+    const { container } = render(
+      renderPanel({
+        listTests: async () => LIST,
+        runTests: (_selection, onEvent) => {
+          const index = emitters.push(onEvent) - 1
+          return { cancel: cancels[index], skipCurrent: skips[index] }
+        },
+      }),
+    )
+    await openTests(container)
+    fireEvent.click(molId(container, `tests-card-run-${HOME}`)!)
+    act(() => emitters[0]({ type: 'start', runId: 'own-1', ids: [HOME] }))
+    fireEvent.click(molId(container, 'tests-card-cancel')!)
+    fireEvent.click(molId(container, `tests-card-run-${ROUTES}`)!)
+    act(() => {
+      emitters[1]({ type: 'start', runId: 'own-2', ids: [ROUTES] })
+      emitters[0]({ type: 'output', id: HOME, chunk: 'late old output' })
+      emitters[0]({ type: 'result', id: HOME, status: 'skipped', skipped: 1 })
+      emitters[0]({ type: 'done', outcome: 'cancelled' })
+    })
+    expect(molId(container, 'tests-card-running')).not.toBeNull()
+    expect(molId(container, `tests-card-case-${HOME}`)).toBeNull()
+    expect(molId(container, `tests-card-status-${HOME}`)?.textContent).toBe('Skipped')
+    fireEvent.click(molId(container, `tests-card-skip-${ROUTES}`)!)
+    expect(skips[1]).toHaveBeenCalledTimes(1)
+    expect(skips[0]).not.toHaveBeenCalled()
+    fireEvent.click(molId(container, 'tests-card-cancel')!)
+    expect(cancels[0]).toHaveBeenCalledTimes(1)
+    expect(cancels[1]).toHaveBeenCalledTimes(1)
+  })
+
+  it('keeps a newer outside verdict for a file the own run already finished', async () => {
+    const feed = fakeFeed()
+    let emit: (event: TestRunEvent) => void = () => {}
+    const { container } = render(
+      renderPanel({
+        listTests: async () => LIST,
+        watchTestRuns: feed.watchTestRuns,
+        runTests: (_selection, onEvent) => {
+          emit = onEvent
+          return { cancel: () => {} }
+        },
+      }),
+    )
+    await openTests(container)
+    fireEvent.click(molId(container, 'tests-card-run-all')!)
+    act(() => {
+      emit({ type: 'start', runId: 'own-1', ids: [HOME, ROUTES] })
+      emit({ type: 'result', id: HOME, status: 'failed', output: 'old failure' })
+      emit({ type: 'output', id: ROUTES, chunk: 'still running' })
+    })
+    feed.emit({ type: 'start', runId: 'platform-1', ids: [HOME], source: 'platform' })
+    feed.emit({ type: 'result', runId: 'platform-1', id: HOME, status: 'passed' })
+    expect(molId(container, `tests-card-status-${HOME}`)?.textContent).toBe('Passed')
+    expect(molId(container, 'tests-card-cancel')).not.toBeNull()
+    feed.emit({ type: 'result', runId: 'platform-1', id: ROUTES, status: 'failed' })
+    expect(molId(container, `tests-card-status-${ROUTES}`)?.textContent).toBe('Running…')
+    feed.emit({ type: 'done', runId: 'platform-1', outcome: 'completed' })
+    act(() => {
+      emit({ type: 'result', id: ROUTES, status: 'passed' })
+      emit({ type: 'done', outcome: 'completed' })
+    })
+    expect(molId(container, `tests-card-status-${HOME}`)?.textContent).toBe('Passed')
+    expect(molId(container, 'tests-card-summary')?.textContent).toContain('2 passed')
+    expect(molId(container, `tests-card-fix-${HOME}`)).toBeNull()
+    fireEvent.click(molId(container, 'panel-overlay-close')!)
+    expect(molId(container, 'tests-bar')?.getAttribute('data-tests-tone')).toBe('passing')
+  })
+
+  it('shows both live discovered files instead of inherited verdicts when a watched run names no ids', async () => {
+    const feed = fakeFeed([
+      { type: 'start', runId: 'previous', ids: [HOME, ROUTES], source: 'platform' },
+      { type: 'result', runId: 'previous', id: HOME, status: 'passed' },
+      { type: 'result', runId: 'previous', id: ROUTES, status: 'failed' },
+      { type: 'done', runId: 'previous', outcome: 'completed' },
+    ])
+    const { container } = render(
+      renderPanel({ listTests: async () => LIST, watchTestRuns: feed.watchTestRuns }),
+    )
+    await openTests(container)
+    feed.emit({ type: 'start', runId: 'agent-1', ids: [], source: 'agent' })
+    feed.emit({ type: 'case', runId: 'agent-1', id: HOME, title: 'opens home', status: 'running' })
+    feed.emit({
+      type: 'case',
+      runId: 'agent-1',
+      id: ROUTES,
+      title: 'serves routes',
+      status: 'running',
+    })
+    expect(molId(container, `tests-card-status-${HOME}`)?.textContent).toBe('Running…')
+    expect(molId(container, `tests-card-case-title-${HOME}`)?.textContent).toBe('opens home')
+    expect(molId(container, `tests-card-status-${ROUTES}`)?.textContent).toBe('Running…')
+    feed.emit({ type: 'result', runId: 'agent-1', id: ROUTES, status: 'passed' })
+    expect(molId(container, `tests-card-status-${ROUTES}`)?.textContent).toBe('Passed')
+    expect(molId(container, `tests-card-status-${HOME}`)?.textContent).toBe('Running…')
+    feed.emit({ type: 'done', runId: 'agent-1', outcome: 'completed' })
+    expect((molId(container, `tests-card-run-${HOME}`) as HTMLButtonElement).disabled).toBe(false)
+  })
+
+  it('hands a failed own start to a synchronously buffered live outside run and prunes ended runs', async () => {
+    const feed = fakeFeed()
+    const runTests = vi.fn(() => {
+      feed.emit({ type: 'start', runId: 'ended', ids: [HOME], source: 'platform' })
+      feed.emit({ type: 'result', runId: 'ended', id: HOME, status: 'failed' })
+      feed.emit({ type: 'done', runId: 'ended', outcome: 'completed' })
+      feed.emit({ type: 'start', runId: 'agent-1', ids: [ROUTES], source: 'agent' })
+      throw new Error('own start failed')
+    })
+    const { container } = render(
+      renderPanel({ listTests: async () => LIST, runTests, watchTestRuns: feed.watchTestRuns }),
+    )
+    await openTests(container)
+    fireEvent.click(molId(container, `tests-card-run-${HOME}`)!)
+    expect(molId(container, 'tests-card-running')?.textContent).toContain('is running tests')
+    expect(molId(container, 'tests-card-cancel')).toBeNull()
+    expect((molId(container, `tests-card-run-${HOME}`) as HTMLButtonElement).disabled).toBe(true)
+    submit(container, '/test all')
+    await act(async () => {})
+    expect(runTests).toHaveBeenCalledTimes(1)
+    feed.emit({ type: 'result', runId: 'agent-1', id: HOME, status: 'passed' })
+    feed.emit({ type: 'done', runId: 'agent-1', outcome: 'completed' })
+    expect(molId(container, `tests-card-status-${HOME}`)?.textContent).toBe('Passed')
+    // A pruned run can receive a trailing done, but must not replay its old failure.
+    feed.emit({ type: 'done', runId: 'ended', outcome: 'completed' })
+    expect(molId(container, `tests-card-status-${HOME}`)?.textContent).toBe('Passed')
+  })
+
+  it('does not install a completed own run’s returned handle onto a watched run', async () => {
+    const feed = fakeFeed()
+    const cancel = vi.fn()
+    const skipCurrent = vi.fn()
+    const { container, unmount } = render(
+      renderPanel({
+        listTests: async () => LIST,
+        watchTestRuns: feed.watchTestRuns,
+        runTests: (_selection, onEvent) => {
+          onEvent({ type: 'start', runId: 'own-1', ids: [HOME] })
+          feed.emit({ type: 'start', runId: 'agent-1', ids: [ROUTES], source: 'agent' })
+          onEvent({ type: 'result', id: HOME, status: 'passed' })
+          onEvent({ type: 'done', outcome: 'completed' })
+          return { cancel, skipCurrent }
+        },
+      }),
+    )
+    await openTests(container)
+    fireEvent.click(molId(container, `tests-card-run-${HOME}`)!)
+    expect(molId(container, 'tests-card-running')?.textContent).toContain('is running tests')
+    expect(molId(container, `tests-card-skip-${ROUTES}`)).toBeNull()
+    expect(molId(container, 'tests-card-cancel')).toBeNull()
+    feed.emit({ type: 'result', runId: 'agent-1', id: ROUTES, status: 'passed' })
+    feed.emit({ type: 'done', runId: 'agent-1', outcome: 'completed' })
+    expect((molId(container, `tests-card-run-${HOME}`) as HTMLButtonElement).disabled).toBe(false)
+    unmount()
+    expect(cancel).not.toHaveBeenCalled()
+    expect(skipCurrent).not.toHaveBeenCalled()
+  })
+
+  it('keeps an isolated start failure visible and lets the person retry, Skip, and Stop', async () => {
+    let emit: (event: TestRunEvent) => void = () => {}
+    const cancel = vi.fn()
+    const skipCurrent = vi.fn()
+    const runTests = vi
+      .fn((_selection: TestSelection, onEvent: typeof emit) => {
+        emit = onEvent
+        return { cancel, skipCurrent }
+      })
+      .mockImplementationOnce(() => {
+        throw new Error('own start failed')
+      })
+    const { container } = render(renderPanel({ listTests: async () => LIST, runTests }))
+    await openTests(container)
+    fireEvent.click(molId(container, 'tests-card-run-all')!)
+    expect(molId(container, 'tests-card-run-error')?.textContent).toBe('own start failed')
+    expect(molId(container, 'tests-card-running')).toBeNull()
+    fireEvent.click(molId(container, 'tests-card-run-all')!)
+    act(() => emit({ type: 'start', runId: 'retry', ids: [HOME, ROUTES] }))
+    act(() => emit({ type: 'case', id: HOME, title: 'opens home', status: 'running' }))
+    fireEvent.click(molId(container, `tests-card-skip-${HOME}`)!)
+    expect(skipCurrent).toHaveBeenCalledTimes(1)
+    expect(molId(container, `tests-card-skip-${HOME}`)?.textContent).toBe('Skipping…')
+    act(() => {
+      emit({ type: 'result', id: HOME, status: 'skipped', skipped: 1 })
+      emit({ type: 'case', id: ROUTES, title: 'serves routes', status: 'running' })
+    })
+    expect(molId(container, `tests-card-status-${HOME}`)?.textContent).toBe('Skipped')
+    expect(molId(container, `tests-card-skip-${ROUTES}`)?.textContent).toBe('Skip')
+    fireEvent.click(molId(container, 'tests-card-cancel')!)
+    expect(cancel).toHaveBeenCalledTimes(1)
+    expect(molId(container, 'tests-card-cancelled')?.textContent).toBe('Run stopped.')
+  })
+
+  it('a synchronous cancel callback cannot overwrite the watched run handed the card', async () => {
+    const feed = fakeFeed()
+    let emit: (event: TestRunEvent) => void = () => {}
+    const cancel = vi.fn(() => emit({ type: 'done', outcome: 'cancelled' }))
+    const { container } = render(
+      renderPanel({
+        listTests: async () => LIST,
+        watchTestRuns: feed.watchTestRuns,
+        runTests: (_selection, onEvent) => {
+          emit = onEvent
+          return { cancel }
+        },
+      }),
+    )
+    await openTests(container)
+    fireEvent.click(molId(container, `tests-card-run-${HOME}`)!)
+    act(() => emit({ type: 'start', runId: 'own-1', ids: [HOME] }))
+    feed.emit({ type: 'start', runId: 'agent-1', ids: [ROUTES], source: 'agent' })
+    fireEvent.click(molId(container, 'tests-card-cancel')!)
+    expect(cancel).toHaveBeenCalledTimes(1)
+    expect(molId(container, 'tests-card-running')?.textContent).toContain('is running tests')
+    expect(molId(container, 'tests-card-cancel')).toBeNull()
+    feed.emit({ type: 'done', runId: 'agent-1', outcome: 'completed' })
+    expect(molId(container, 'tests-card-cancelled')).toBeNull()
+  })
+
+  it('a previous invocation’s delayed Skip refusal cannot disable Skip on the next own run', async () => {
+    const emitters: Array<(event: TestRunEvent) => void> = []
+    let refuseSkip: (accepted: boolean) => void = () => {}
+    const skipped = new Promise<boolean>((resolve) => {
+      refuseSkip = resolve
+    })
+    const skipCurrent = vi.fn(() => skipped)
+    const { container } = render(
+      renderPanel({
+        listTests: async () => LIST,
+        runTests: (_selection, onEvent) => {
+          emitters.push(onEvent)
+          return { cancel: () => {}, skipCurrent }
+        },
+      }),
+    )
+    await openTests(container)
+    fireEvent.click(molId(container, `tests-card-run-${HOME}`)!)
+    act(() => emitters[0]({ type: 'start', runId: 'own-1', ids: [HOME] }))
+    fireEvent.click(molId(container, `tests-card-skip-${HOME}`)!)
+    fireEvent.click(molId(container, 'tests-card-cancel')!)
+    fireEvent.click(molId(container, `tests-card-run-${ROUTES}`)!)
+    act(() => emitters[1]({ type: 'start', runId: 'own-2', ids: [ROUTES] }))
+    await act(async () => {
+      refuseSkip(false)
+      await skipped
+    })
+    expect(molId(container, `tests-card-skip-${ROUTES}`)?.textContent).toBe('Skip')
+  })
 
   it('shows a run the agent started, says who started it, and offers no Stop', async () => {
     const feed = fakeFeed()
