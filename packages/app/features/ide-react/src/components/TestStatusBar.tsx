@@ -26,6 +26,7 @@ import { DockStrip, StatusMark, type StatusMarkState } from './DockStrip.js'
 import type { TestsBarSummary, TestsBarTone } from './tests-bar-utilities.js'
 import { summariseTestsBar } from './tests-bar-utilities.js'
 import type { TestsRunState } from './tests-card-utilities.js'
+import { runningLabel } from './TestsCard.js'
 
 /**
  * The one-line summary the collapsed bar shows.
@@ -124,6 +125,8 @@ export interface TestStatusBarProps {
   onOpen: () => void
   /** Stop the run in flight, when one is running. */
   onStop?: (() => void) | undefined
+  /** The agent's display name, for a run the agent started. */
+  agentName?: string
 }
 
 /**
@@ -132,10 +135,17 @@ export interface TestStatusBarProps {
  * @param props - See {@link TestStatusBarProps}.
  * @returns The bar.
  */
-export function TestStatusBar({ run, tests, onOpen, onStop }: TestStatusBarProps): JSX.Element {
+export function TestStatusBar({
+  run,
+  tests,
+  onOpen,
+  onStop,
+  agentName,
+}: TestStatusBarProps): JSX.Element {
   const cm = getClassMap()
   const summary = summariseTestsBar(run, tests)
-  const label = testsBarLabel(summary)
+  // A run this panel only watches says who started it; the counts are in the browser.
+  const label = run.running && run.external ? runningLabel(run, agentName) : testsBarLabel(summary)
 
   return (
     <DockStrip
@@ -147,8 +157,9 @@ export function TestStatusBar({ run, tests, onOpen, onStop }: TestStatusBarProps
       onActivate={onOpen}
       label={<span data-mol-id="tests-bar-label">{label}</span>}
       hint={
-        summary.tone === 'running' && (summary.currentTest ?? summary.currentFile) ? (
-          <span data-mol-id="tests-bar-current">{`· ${summary.currentTest ?? summary.currentFile}`}</span>
+        summary.tone === 'running' &&
+        (summary.currentTest ?? summary.currentFile ?? run.command) ? (
+          <span data-mol-id="tests-bar-current">{`· ${summary.currentTest ?? summary.currentFile ?? run.command}`}</span>
         ) : undefined
       }
       actions={
@@ -170,7 +181,7 @@ export function TestStatusBar({ run, tests, onOpen, onStop }: TestStatusBarProps
         ) : undefined
       }
       icon={<StatusMark state={TONE_MARK[summary.tone]} size={14} />}
-      chipLabel={testsChipLabel(summary)}
+      chipLabel={run.running && run.external ? label : testsChipLabel(summary)}
     />
   )
 }

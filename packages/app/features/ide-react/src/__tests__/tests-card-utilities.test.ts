@@ -15,17 +15,23 @@ import {
   EMPTY_RUN_STATE,
   failRun,
   filterTests,
+  foldOtherRunEvent,
   groupTests,
   isRowRunning,
+  keepLiveOtherRuns,
+  liveOtherRuns,
   markSkipUnavailable,
   MAX_OUTPUT_LINES,
+  type OtherTestRuns,
   parseTestCommand,
+  presentOtherRun,
   requestSkip,
+  settleOwnRun,
   summarizeResults,
   testCaseLabel,
   testRowLabel,
 } from '../components/tests-card-utilities.js'
-import type { TestItem } from '../types.js'
+import type { TestItem, TestRunFeedEvent } from '../types.js'
 
 const TESTS: TestItem[] = [
   {
@@ -502,5 +508,153 @@ describe('testCaseLabel', () => {
     expect(testCaseLabel({ title: '' })).toBe('')
     expect(testCaseLabel(null)).toBe('')
     expect(testCaseLabel(undefined)).toBe('')
+  })
+})
+
+describe('runs this panel did not start (the project run feed)', () => {
+  const fold = (events: TestRunFeedEvent[], others: OtherTestRuns = {}): OtherTestRuns =>
+    events.reduce((acc, event) => foldOtherRunEvent(acc, event), others)
+  const agentStart: TestRunFeedEvent = {
+    type: 'start',
+    runId: 'agent-1',
+    ids: [],
+    startedAt: '2026-10-30T19:00:00.000Z',
+    source: 'agent',
+    command: 'npx vitest run src/routes.test.ts',
+  }
+  const routesPassed: TestRunFeedEvent = {
+    type: 'result',
+    runId: 'agent-1',
+    id: 'api:src/routes.test.ts',
+    status: 'passed',
+    passed: 3,
+    failed: 0,
+    skipped: 0,
+  }
+  const agentDone: TestRunFeedEvent = { type: 'done', runId: 'agent-1', outcome: 'completed' }
+
+  it('folds each run on its own, watched and never steerable, on its own clock', () => {
+    const others = fold([agentStart, routesPassed])
+    const run = others['agent-1']
+    expect(run.running).toBe(true)
+    expect(run.external).toBe(true)
+    expect(run.skipUnavailable).toBe(true)
+    expect(run.source).toBe('agent')
+    expect(run.command).toBe('npx vitest run src/routes.test.ts')
+    expect(run.startedAt).toBe(Date.parse('2026-10-30T19:00:00.000Z'))
+    expect(run.results['api:src/routes.test.ts'].status).toBe('passed')
+  })
+
+  it('still lands the verdicts of a run joined part-way, with no start seen', () => {
+    const run = fold([routesPassed])['agent-1']
+    expect(run.running).toBe(true)
+    expect(run.runId).toBe('agent-1')
+    expect(run.results['api:src/routes.test.ts'].status).toBe('passed')
+  })
+
+  it('shows another run when nothing live is on show, keeping the verdicts already there', () => {
+    const shown = {
+      ...EMPTY_RUN_STATE,
+      runId: 'own-0',
+      results: {
+        'app:e2e/home.spec.ts': { status: 'failed' as const, passed: 0, failed: 1, skipped: 0 },
+      },
+    }
+    const others = fold([agentStart, routesPassed])
+    const next = presentOtherRun(shown, others['agent-1'], { ownBusy: false, live: [] })
+    expect(next.running).toBe(true)
+    expect(next.external).toBe(true)
+    expect(next.runId).toBe('agent-1')
+    expect(next.results['app:e2e/home.spec.ts'].status).toBe('failed')
+    expect(next.results['api:src/routes.test.ts'].status).toBe('passed')
+  })
+
+  it('never takes the card from the panel’s own run in flight', () => {
+    const own = {
+      ...EMPTY_RUN_STATE,
+      runId: 'own-1',
+      running: true,
+      queued: ['app:e2e/home.spec.ts'],
+    }
+    const others = fold([agentStart, routesPassed])
+    expect(presentOtherRun(own, others['agent-1'], { ownBusy: true, live: [] })).toBe(own)
+  })
+
+  it('a run ending behind the one on show leaves its verdicts, except files that run still owes', () => {
+    const shownRun = fold([
+      { type: 'start', runId: 'platform-1', ids: ['api:src/routes.test.ts'], source: 'platform' },
+    ])['platform-1']
+    const shown = presentOtherRun(EMPTY_RUN_STATE, shownRun, { ownBusy: false, live: [] })
+    const behind = fold([
+      { type: 'start', runId: 'agent-2', ids: [], source: 'agent' },
+      { ...routesPassed, runId: 'agent-2' },
+      { type: 'result', runId: 'agent-2', id: 'app:src/format.test.ts', status: 'failed' },
+      { type: 'done', runId: 'agent-2', outcome: 'completed' },
+    ])['agent-2']
+    const next = presentOtherRun(shown, behind, { ownBusy: false, live: [shownRun] })
+    expect(next.runId).toBe('platform-1')
+    expect(next.running).toBe(true)
+    expect(next.results['app:src/format.test.ts'].status).toBe('failed')
+    // The platform run is still going to report this file: no stale verdict on it.
+    expect(next.results['api:src/routes.test.ts']).toBeUndefined()
+  })
+
+  it('hands the card to another live run when the one on show ends', () => {
+    const others = fold([
+      agentStart,
+      {
+        type: 'start',
+        runId: 'platform-1',
+        ids: [],
+        source: 'platform',
+        startedAt: '2026-10-30T19:01:00.000Z',
+      },
+    ])
+    const shown = presentOtherRun(EMPTY_RUN_STATE, others['agent-1'], { ownBusy: false, live: [] })
+    const ended = fold([routesPassed, agentDone], others)
+    const next = presentOtherRun(shown, ended['agent-1'], {
+      ownBusy: false,
+      live: liveOtherRuns(ended, 'agent-1'),
+    })
+    expect(next.runId).toBe('platform-1')
+    expect(next.running).toBe(true)
+    expect(next.results['api:src/routes.test.ts'].status).toBe('passed')
+  })
+
+  it('after the own run ends: other verdicts land, never over the own run’s files, then a live run shows', () => {
+    const own = applyTestRunEvent(
+      applyTestRunEvent(
+        { ...EMPTY_RUN_STATE, running: true },
+        { type: 'start', runId: 'own-1', ids: ['api:src/routes.test.ts'] },
+      ),
+      { type: 'result', id: 'api:src/routes.test.ts', status: 'failed', failed: 1 },
+    )
+    const ownEnded = applyTestRunEvent(own, { type: 'done', outcome: 'completed' })
+    const others = fold([
+      agentStart,
+      routesPassed,
+      { type: 'result', runId: 'agent-1', id: 'app:src/format.test.ts', status: 'passed' },
+      agentDone,
+    ])
+    const settled = settleOwnRun(ownEnded, others)
+    expect(settled.runId).toBe('own-1')
+    expect(settled.results['api:src/routes.test.ts'].status).toBe('failed')
+    expect(settled.results['app:src/format.test.ts'].status).toBe('passed')
+    const withLive = settleOwnRun(
+      ownEnded,
+      fold([{ type: 'start', runId: 'platform-1', ids: [], source: 'platform' }], others),
+    )
+    expect(withLive.runId).toBe('platform-1')
+    expect(withLive.running).toBe(true)
+    expect(withLive.results['api:src/routes.test.ts'].status).toBe('failed')
+  })
+
+  it('keeps only the live runs once ended ones are on the rows', () => {
+    const others = fold([
+      agentStart,
+      agentDone,
+      { type: 'start', runId: 'platform-1', ids: [], source: 'platform' },
+    ])
+    expect(Object.keys(keepLiveOtherRuns(others))).toEqual(['platform-1'])
   })
 })

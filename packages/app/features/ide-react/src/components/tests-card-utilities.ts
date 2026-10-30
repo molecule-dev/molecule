@@ -12,7 +12,9 @@ import type {
   TestItem,
   TestKind,
   TestRunEvent,
+  TestRunFeedEvent,
   TestRunOutcome,
+  TestRunSource,
   TestStatus,
   TestWorkspace,
 } from '../types.js'
@@ -89,6 +91,16 @@ export interface TestsRunState {
   error: string | null
   startedAt: number | null
   durationMs: number | null
+  /**
+   * The run on show was NOT started by this panel (the agent, the platform, or
+   * another tab): it can be watched but not stopped or skipped from here.
+   * Absent on the panel's own runs.
+   */
+  external?: boolean
+  /** Who started the run, when the host said. */
+  source?: TestRunSource | null
+  /** The command a run this panel did not start is running, when the host said. */
+  command?: string | null
 }
 
 /** Live output lines retained — enough to read, bounded so a chatty run cannot grow forever. */
@@ -242,6 +254,8 @@ export function applyTestRunEvent(state: TestsRunState, event: TestRunEvent): Te
         error: null,
         startedAt: Date.now(),
         durationMs: null,
+        source: event.source ?? null,
+        command: event.command ?? null,
       }
     }
     case 'output': {
@@ -325,6 +339,148 @@ export function applyTestRunEvent(state: TestsRunState, event: TestRunEvent): Te
     default:
       return state
   }
+}
+
+/** The runs this panel did not start, each folded from its own events, by run id. */
+export type OtherTestRuns = Readonly<Record<string, TestsRunState>>
+
+/**
+ * Folds one feed event of a run this panel did NOT start into that run's own
+ * state. A run joined part-way (its `start` was no longer held by the host) is
+ * folded from an empty running state, so its later verdicts still land.
+ *
+ * @param others - The other runs so far.
+ * @param event - The feed event.
+ * @returns The other runs with this one advanced.
+ */
+export function foldOtherRunEvent(others: OtherTestRuns, event: TestRunFeedEvent): OtherTestRuns {
+  const base: TestsRunState = others[event.runId] ?? {
+    ...EMPTY_RUN_STATE,
+    runId: event.runId,
+    running: event.type !== 'done',
+  }
+  const next: TestsRunState = {
+    ...applyTestRunEvent(base, event),
+    runId: event.runId,
+    // Watched, never steered: this panel holds no handle to stop or skip it.
+    external: true,
+    skipPending: false,
+    skipUnavailable: true,
+  }
+  // A replayed run started before this panel subscribed: its own clock, not now.
+  if (event.type === 'start' && event.startedAt) {
+    const at = Date.parse(event.startedAt)
+    if (Number.isFinite(at)) next.startedAt = at
+  }
+  return { ...others, [event.runId]: next }
+}
+
+/**
+ * The other runs still going, latest started last.
+ *
+ * @param others - The other runs.
+ * @param except - A run id to leave out.
+ * @returns The live runs.
+ */
+export function liveOtherRuns(others: OtherTestRuns, except?: string): TestsRunState[] {
+  return Object.values(others)
+    .filter((run) => run.running && run.runId !== except)
+    .sort((a, b) => (a.startedAt ?? 0) - (b.startedAt ?? 0))
+}
+
+/**
+ * Puts a run this panel did not start on show: its progress and outcome over
+ * the verdicts already on the rows. A file it re-runs loses its old verdict
+ * until this run reports it again, the same as a run started here.
+ *
+ * @param shown - What the card shows now.
+ * @param other - The other run, folded.
+ * @returns What the card shows next.
+ */
+export function showOtherRun(shown: TestsRunState, other: TestsRunState): TestsRunState {
+  const results = { ...shown.results }
+  for (const id of other.queued) delete results[id]
+  return { ...other, results: { ...results, ...other.results } }
+}
+
+/**
+ * Lays the verdicts of a run that ENDED off screen onto the rows, except the
+ * files the run on show is still going to report.
+ *
+ * @param shown - What the card shows now.
+ * @param ended - The run that ended.
+ * @param keep - File ids whose verdict belongs to the run on show.
+ * @returns What the card shows next.
+ */
+function mergeEndedRun(
+  shown: TestsRunState,
+  ended: TestsRunState,
+  keep: readonly string[],
+): TestsRunState {
+  const results = { ...shown.results }
+  for (const [id, entry] of Object.entries(ended.results)) {
+    if (!keep.includes(id)) results[id] = entry
+  }
+  return { ...shown, results }
+}
+
+/**
+ * What the card shows after a feed event of a run this panel did not start.
+ *
+ * The panel's own run in flight always keeps the card. Otherwise the card
+ * shows this run when nothing live is on show (or it already is), and hands
+ * over to another run still going when the one on show ends. A run that ends
+ * behind another still leaves its verdicts on the rows.
+ *
+ * @param shown - What the card shows now.
+ * @param run - The event's run, folded by {@link foldOtherRunEvent}.
+ * @param context - What else is happening.
+ * @param context.ownBusy - Whether this panel's own run is in flight.
+ * @param context.live - The other runs still going, besides this one ({@link liveOtherRuns}).
+ * @returns What the card shows next.
+ */
+export function presentOtherRun(
+  shown: TestsRunState,
+  run: TestsRunState,
+  { ownBusy, live }: { ownBusy: boolean; live: readonly TestsRunState[] },
+): TestsRunState {
+  if (ownBusy) return shown
+  const onShow = shown.external === true && shown.runId === run.runId
+  if (onShow || !shown.running) {
+    const next = showOtherRun(shown, run)
+    const successor = live.at(-1)
+    return !run.running && successor ? showOtherRun(next, successor) : next
+  }
+  return run.running ? shown : mergeEndedRun(shown, run, shown.queued)
+}
+
+/**
+ * What the card shows once this panel's OWN run has ended: the verdicts other
+ * runs reported meanwhile (never over a file the own run covered), then any
+ * other run still going.
+ *
+ * @param shown - What the card shows, with the own run's end applied.
+ * @param others - The other runs.
+ * @returns What the card shows next.
+ */
+export function settleOwnRun(shown: TestsRunState, others: OtherTestRuns): TestsRunState {
+  let next = shown
+  for (const run of Object.values(others)) {
+    if (!run.running) next = mergeEndedRun(next, run, shown.queued)
+  }
+  const successor = liveOtherRuns(others).at(-1)
+  return successor ? showOtherRun(next, successor) : next
+}
+
+/**
+ * The other runs still worth keeping: the live ones. An ended run's verdicts
+ * are on the rows already ({@link presentOtherRun}, {@link settleOwnRun}).
+ *
+ * @param others - The other runs.
+ * @returns Only the live ones.
+ */
+export function keepLiveOtherRuns(others: OtherTestRuns): OtherTestRuns {
+  return Object.fromEntries(Object.entries(others).filter(([, run]) => run.running))
 }
 
 /**

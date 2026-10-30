@@ -36,7 +36,13 @@ import { classMap } from '@molecule/app-ui-tailwind'
 
 import { COMMANDS } from '../command-metadata.js'
 import { ChatPanel } from '../components/ChatPanel.js'
-import type { TestList, TestRunEvent, TestSelection } from '../types.js'
+import type {
+  ChatPanelProps,
+  TestList,
+  TestRunEvent,
+  TestRunFeedEvent,
+  TestSelection,
+} from '../types.js'
 
 const PROJECT_ID = 'proj-test-command'
 
@@ -186,6 +192,7 @@ function renderPanel(options: {
     onEvent: (e: TestRunEvent) => void,
   ) => { cancel: () => void }
   canRunTests?: boolean
+  watchTestRuns?: ChatPanelProps['watchTestRuns']
 }): ReactElement {
   const wrap = (children: ReactNode): ReactElement => (
     <I18nProvider provider={createSimpleI18nProvider('en')}>
@@ -204,6 +211,7 @@ function renderPanel(options: {
       listTests={options.listTests}
       runTests={options.runTests ?? (() => ({ cancel: () => {} }))}
       canRunTests={options.canRunTests ?? true}
+      watchTestRuns={options.watchTestRuns}
       testsAvailable
     />,
   )
@@ -432,5 +440,168 @@ describe('the /test command', () => {
         'Passed',
       )
     })
+  })
+})
+
+describe('every test run in the project reaches the test view', () => {
+  const ROUTES = 'my-app/api:src/routes.test.ts'
+  const HOME = 'my-app/app:e2e/home.spec.ts'
+
+  /** A host feed the test drives by hand; it records unsubscribes. */
+  function fakeFeed(replay: TestRunFeedEvent[] = []): {
+    watchTestRuns: NonNullable<ChatPanelProps['watchTestRuns']>
+    emit: (event: TestRunFeedEvent) => void
+    unsubscribed: () => number
+  } {
+    let listener: ((event: TestRunFeedEvent) => void) | null = null
+    let unsubscribes = 0
+    return {
+      watchTestRuns: (onEvent) => {
+        listener = onEvent
+        for (const event of replay) onEvent(event)
+        return () => {
+          unsubscribes++
+          listener = null
+        }
+      },
+      emit: (event) => act(() => listener?.(event)),
+      unsubscribed: () => unsubscribes,
+    }
+  }
+
+  it('shows a run the agent started, says who started it, and offers no Stop', async () => {
+    const feed = fakeFeed()
+    const listTests = vi.fn(async () => LIST)
+    const { container } = render(renderPanel({ listTests, watchTestRuns: feed.watchTestRuns }))
+    await waitFor(() => expect(molId(container, 'tests-bar-toggle')).not.toBeNull())
+    feed.emit({
+      type: 'start',
+      runId: 'agent-1',
+      ids: [],
+      source: 'agent',
+      command: 'cd api && npx vitest run src/routes.test.ts',
+    })
+    feed.emit({ type: 'result', runId: 'agent-1', id: ROUTES, status: 'passed', passed: 4 })
+    await waitFor(() =>
+      expect(molId(container, 'tests-bar-toggle')?.textContent).toContain('is running tests'),
+    )
+    expect(molId(container, 'tests-bar-stop')).toBeNull()
+    fireEvent.click(molId(container, 'tests-bar-toggle')!)
+    await waitFor(() => expect(molId(container, 'tests-card')).not.toBeNull())
+    expect(molId(container, 'tests-card-running')?.textContent).toContain('is running tests')
+    expect(molId(container, 'tests-card-command')?.textContent).toBe(
+      'cd api && npx vitest run src/routes.test.ts',
+    )
+    expect(molId(container, 'tests-card-cancel')).toBeNull()
+    // Nothing to start while it runs.
+    expect((molId(container, `tests-card-run-${HOME}`) as HTMLButtonElement).disabled).toBe(true)
+    const listedBefore = listTests.mock.calls.length
+    feed.emit({ type: 'done', runId: 'agent-1', outcome: 'completed', passed: 4 })
+    await waitFor(() => expect(molId(container, 'tests-card-running')).toBeNull())
+    expect(molId(container, 'tests-card-summary')?.textContent).toContain('1 passed')
+    expect((molId(container, `tests-card-run-${HOME}`) as HTMLButtonElement).disabled).toBe(false)
+    // An ended run may have followed a newly written spec: the list is refreshed.
+    await waitFor(() => expect(listTests.mock.calls.length).toBeGreaterThan(listedBefore))
+    expect(sent).toEqual([])
+  })
+
+  it('shows the runs the host replays on subscribe', async () => {
+    const feed = fakeFeed([
+      { type: 'start', runId: 'platform-1', ids: [ROUTES], source: 'platform' },
+      { type: 'result', runId: 'platform-1', id: ROUTES, status: 'failed', failed: 1 },
+      { type: 'done', runId: 'platform-1', outcome: 'completed', failed: 1 },
+    ])
+    const { container } = render(
+      renderPanel({ listTests: vi.fn(async () => LIST), watchTestRuns: feed.watchTestRuns }),
+    )
+    await waitFor(() =>
+      expect(molId(container, 'tests-bar-toggle')?.textContent).toContain('1 failing'),
+    )
+  })
+
+  it('ignores the feed’s copy of its own run, even when the copy arrives first', async () => {
+    const feed = fakeFeed()
+    let emit: (event: TestRunEvent) => void = () => {}
+    const cancel = vi.fn()
+    const runTests = vi.fn((_selection: TestSelection, onEvent: typeof emit) => {
+      emit = onEvent
+      return { cancel }
+    })
+    const { container } = render(
+      renderPanel({
+        listTests: vi.fn(async () => LIST),
+        runTests,
+        watchTestRuns: feed.watchTestRuns,
+      }),
+    )
+    submit(container, '/test')
+    const run = await waitFor(() => {
+      const button = molId(container, `tests-card-run-${HOME}`)
+      expect(button).not.toBeNull()
+      return button!
+    })
+    fireEvent.click(run)
+    // The echo of this very run reaches the panel before its own stream does.
+    feed.emit({ type: 'start', runId: 'own-1', ids: [HOME], source: 'person' })
+    act(() => emit({ type: 'start', runId: 'own-1', ids: [HOME] }))
+    feed.emit({ type: 'result', runId: 'own-1', id: HOME, status: 'failed', failed: 1 })
+    act(() => {
+      emit({ type: 'result', id: HOME, status: 'passed', passed: 1 })
+      emit({ type: 'done', outcome: 'completed', passed: 1 })
+    })
+    feed.emit({ type: 'done', runId: 'own-1', outcome: 'completed', failed: 1 })
+    await waitFor(() => expect(molId(container, 'tests-card-running')).toBeNull())
+    expect(molId(container, 'tests-card-summary')?.textContent).toContain('1 passed')
+    expect(molId(container, 'tests-card-summary')?.textContent).not.toContain('failed')
+  })
+
+  it('an agent run that starts during the person’s run waits for it, then takes the card', async () => {
+    const feed = fakeFeed()
+    let emit: (event: TestRunEvent) => void = () => {}
+    const runTests = vi.fn((_selection: TestSelection, onEvent: typeof emit) => {
+      emit = onEvent
+      return { cancel: () => {} }
+    })
+    const { container } = render(
+      renderPanel({
+        listTests: vi.fn(async () => LIST),
+        runTests,
+        watchTestRuns: feed.watchTestRuns,
+      }),
+    )
+    submit(container, '/test')
+    fireEvent.click(
+      await waitFor(() => {
+        const button = molId(container, `tests-card-run-${HOME}`)
+        expect(button).not.toBeNull()
+        return button!
+      }),
+    )
+    act(() => emit({ type: 'start', runId: 'own-1', ids: [HOME] }))
+    feed.emit({ type: 'start', runId: 'agent-1', ids: [], source: 'agent' })
+    feed.emit({ type: 'result', runId: 'agent-1', id: ROUTES, status: 'passed', passed: 2 })
+    // The person's own run keeps the card, and its Stop.
+    expect(molId(container, 'tests-card-running')?.textContent).not.toContain('is running tests')
+    expect(molId(container, 'tests-card-cancel')).not.toBeNull()
+    act(() => {
+      emit({ type: 'result', id: HOME, status: 'passed', passed: 1 })
+      emit({ type: 'done', outcome: 'completed', passed: 1 })
+    })
+    await waitFor(() =>
+      expect(molId(container, 'tests-card-running')?.textContent).toContain('is running tests'),
+    )
+    expect(molId(container, 'tests-card-cancel')).toBeNull()
+    feed.emit({ type: 'done', runId: 'agent-1', outcome: 'completed', passed: 2 })
+    await waitFor(() => expect(molId(container, 'tests-card-running')).toBeNull())
+    expect(molId(container, 'tests-card-summary')?.textContent).toContain('2 passed')
+  })
+
+  it('unsubscribes when the panel unmounts', async () => {
+    const feed = fakeFeed()
+    const { unmount } = render(
+      renderPanel({ listTests: vi.fn(async () => LIST), watchTestRuns: feed.watchTestRuns }),
+    )
+    unmount()
+    expect(feed.unsubscribed()).toBe(1)
   })
 })

@@ -156,7 +156,20 @@ export type TestRunOutcome = 'completed' | 'cancelled' | 'timeout' | 'error' | '
  * interleaved `output`/`case`/`result`, then exactly one `done`.
  */
 export type TestRunEvent =
-  | { type: 'start'; runId: string; ids: string[]; startedAt?: string }
+  | {
+      type: 'start'
+      runId: string
+      ids: string[]
+      startedAt?: string
+      /** Who started the run — what the test view says about a run it did not start. */
+      source?: TestRunSource
+      /**
+       * The command a run the test view did not start is running (masked by the
+       * host). An agent's own command names no test ids up front, so this is
+       * what the view can show while its results arrive.
+       */
+      command?: string
+    }
   | { type: 'output'; id?: string; stream?: 'stdout' | 'stderr'; chunk: string }
   /**
    * One TEST within a file — the runner's own title and group, so the person
@@ -192,6 +205,20 @@ export type TestRunEvent =
       durationMs?: number
       error?: string
     }
+
+/**
+ * Who started a test run: the person (the Run buttons, in this tab or another),
+ * the agent (its test tool or its own shell commands), or the platform (its
+ * checks of a deploy).
+ */
+export type TestRunSource = 'person' | 'agent' | 'platform'
+
+/**
+ * One event of the project's test-run feed: any {@link TestRunEvent}, stamped
+ * with the run it belongs to, since the feed interleaves every run in the
+ * project.
+ */
+export type TestRunFeedEvent = TestRunEvent & { runId: string }
 
 /** Handle to a run in flight, so the bar can stop it. */
 export interface TestRunHandle {
@@ -585,6 +612,19 @@ export interface ChatPanelProps {
    * while the browser is closed and is still there when it is re-opened.
    */
   runTests?: (selection: TestSelection, onEvent: (event: TestRunEvent) => void) => TestRunHandle
+  /**
+   * Subscribes to EVERY test run in the project, however it was started: the
+   * Run buttons in any tab, the agent's test tool and its own shell test
+   * commands, and the platform's checks. The host first replays the runs it
+   * still holds, then streams new events; `ChatPanel` shows them in the same
+   * tests bar and browser as its own runs, labelled by who started them, and
+   * keeps Run disabled while one is live. Returns the unsubscribe function.
+   *
+   * The panel's own runs come back through the feed too; it recognises them by
+   * `runId` and ignores the copy. molecule.dev implements it over
+   * `GET /projects/:id/tests/runs` (server-sent events).
+   */
+  watchTestRuns?: (onEvent: (event: TestRunFeedEvent) => void) => () => void
   /**
    * Whether this viewer may RUN tests. `false` still lets them open `/test`
    * and read what the project tests (the platform serves the listing to

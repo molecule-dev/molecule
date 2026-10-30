@@ -37,6 +37,7 @@ import type { CSSProperties, JSX } from 'react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { t } from '@molecule/app-i18n'
+import { DEFAULT_AGENT_NAME } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { TestItem, TestKind, TestSelection, TestStatus } from '../types.js'
@@ -152,6 +153,8 @@ export interface TestsCardProps {
   isLight: boolean
   /** Chrome-less inside the command overlay; full card chrome in the timeline. */
   embedded?: boolean
+  /** The agent's display name, for a run the agent started. */
+  agentName?: string
 }
 
 /**
@@ -191,6 +194,27 @@ function statusLabel(status: TestStatus): string {
 }
 
 /**
+ * What the header says while a run is going: who started it, when it was not
+ * this panel.
+ *
+ * @param run - The run on show.
+ * @param agentName - The agent's display name.
+ * @returns The translated label.
+ */
+export function runningLabel(run: TestsRunState, agentName?: string): string {
+  if (!run.external) return t('ide.tests.running', undefined, { defaultValue: 'Running…' })
+  if (run.source === 'agent')
+    return t(
+      'ide.tests.runningAgent',
+      { agent: agentName ?? DEFAULT_AGENT_NAME },
+      { defaultValue: '{{agent}} is running tests…' },
+    )
+  if (run.source === 'platform')
+    return t('ide.tests.runningPlatform', undefined, { defaultValue: 'Checking the deploy…' })
+  return t('ide.tests.runningElsewhere', undefined, { defaultValue: 'Running in another tab…' })
+}
+
+/**
  * The tests browser shown by `/test`.
  *
  * @param props - See {@link TestsCardProps}.
@@ -209,6 +233,7 @@ export function TestsCard({
   fixDisabledReason,
   isLight,
   embedded,
+  agentName,
 }: TestsCardProps): JSX.Element {
   const cm = getClassMap()
   const [query, setQuery] = useState(initialQuery)
@@ -306,7 +331,7 @@ export function TestsCard({
               style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}
             >
               <span className={cm.spinner({ size: 'xs' })} aria-hidden="true" />
-              {t('ide.tests.running', undefined, { defaultValue: 'Running…' })}
+              {runningLabel(run, agentName)}
             </span>
           ) : (
             summary.reported > 0 && (
@@ -397,33 +422,55 @@ export function TestsCard({
                   )}
             </button>
           )}
-          {run.running ? (
-            <button
-              type="button"
-              data-mol-id="tests-card-cancel"
-              onClick={onCancel}
-              className={cm.cn(DESTRUCTIVE_ACTION(cm))}
-              style={{ flexShrink: 0 }}
-            >
-              {t('ide.tests.stop', undefined, { defaultValue: 'Stop' })}
-            </button>
-          ) : (
-            filtered.length > 0 && (
-              <button
-                type="button"
-                data-mol-id="tests-card-run-all"
-                onClick={() => onRun({ ids: filtered.map((test) => test.id) })}
-                disabled={!runnable}
-                title={disabledReason ?? undefined}
-                className={cm.cn(PRIMARY_ACTION(cm))}
-                style={{ flexShrink: 0 }}
-              >
-                {t('ide.tests.runAll', undefined, { defaultValue: 'Run all' })}
-              </button>
-            )
-          )}
+          {run.running
+            ? // A run this panel only watches (the agent's, the platform's, another
+              // tab's) cannot be stopped from here, so no Stop is offered.
+              !run.external && (
+                <button
+                  type="button"
+                  data-mol-id="tests-card-cancel"
+                  onClick={onCancel}
+                  className={cm.cn(DESTRUCTIVE_ACTION(cm))}
+                  style={{ flexShrink: 0 }}
+                >
+                  {t('ide.tests.stop', undefined, { defaultValue: 'Stop' })}
+                </button>
+              )
+            : filtered.length > 0 && (
+                <button
+                  type="button"
+                  data-mol-id="tests-card-run-all"
+                  onClick={() => onRun({ ids: filtered.map((test) => test.id) })}
+                  disabled={!runnable}
+                  title={disabledReason ?? undefined}
+                  className={cm.cn(PRIMARY_ACTION(cm))}
+                  style={{ flexShrink: 0 }}
+                >
+                  {t('ide.tests.runAll', undefined, { defaultValue: 'Run all' })}
+                </button>
+              )}
         </div>
       </div>
+
+      {/* The command a run this panel did not start is running: an agent's own
+          command names no tests up front, so this says what is going on while
+          its results arrive. */}
+      {run.external && run.command && (
+        <div
+          data-mol-id="tests-card-command"
+          className={cm.cn(cm.textMuted, cm.textSize('xs'))}
+          title={run.command}
+          style={{
+            fontFamily: 'var(--mol-font-mono, monospace)',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            marginBottom: 6,
+          }}
+        >
+          {run.command}
+        </div>
+      )}
 
       {/* Search / filter */}
       <input

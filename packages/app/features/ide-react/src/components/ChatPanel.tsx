@@ -202,15 +202,20 @@ import {
   setTestsBarVisible,
   shouldShowTestsBar,
 } from './tests-bar-utilities.js'
-import type { TestFailure, TestsRunState } from './tests-card-utilities.js'
+import type { OtherTestRuns, TestFailure, TestsRunState } from './tests-card-utilities.js'
 import {
   applyTestRunEvent,
   buildTestFixMessage,
   EMPTY_RUN_STATE,
   failRun,
+  foldOtherRunEvent,
+  keepLiveOtherRuns,
+  liveOtherRuns,
   markSkipUnavailable,
   parseTestCommand,
+  presentOtherRun,
   requestSkip,
+  settleOwnRun,
 } from './tests-card-utilities.js'
 import type { TestsStatus } from './TestsCard.js'
 import { TestsCard } from './TestsCard.js'
@@ -2823,6 +2828,8 @@ export interface ChatInnerProps {
   listTests?: ChatPanelProps['listTests']
   /** Runs the selected tests, streaming events — see {@link ChatPanelProps.runTests}. */
   runTests?: ChatPanelProps['runTests']
+  /** Every test run in the project, streamed — see {@link ChatPanelProps.watchTestRuns}. */
+  watchTestRuns?: ChatPanelProps['watchTestRuns']
   /** Whether this viewer may run tests — see {@link ChatPanelProps.canRunTests}. */
   canRunTests?: boolean
   /** Whether the environment that runs them is up — see {@link ChatPanelProps.testsAvailable}. */
@@ -2895,6 +2902,7 @@ function ChatInner({
   extraCommands,
   listTests,
   runTests,
+  watchTestRuns,
   canRunTests,
   testsAvailable,
   skipToolCall,
@@ -4512,6 +4520,12 @@ function ChatInner({
   // would eventually capture stale.
   const testsRunningRef = useRef(false)
   testsRunningRef.current = testsRun.running
+  // Runs this panel did NOT start (the agent's, the platform's, another tab's),
+  // each folded from the project's run feed. The card shows them when its own
+  // run is not in flight; the own run's copy on the feed is recognised by id.
+  const otherTestRunsRef = useRef<OtherTestRuns>({})
+  const ownTestRunIdRef = useRef<string | null>(null)
+  const ownTestRunBusyRef = useRef(false)
   // Whether a TURN is in flight — a fix is a real message, so it waits its turn.
   const testsBusyRef = useRef(false)
   // Live for the async callbacks, so a list resolving after an unmount, or a
@@ -4572,17 +4586,36 @@ function ChatInner({
         queued: selection.ids ?? [],
         startedAt: Date.now(),
         durationMs: null,
+        external: false,
+        source: null,
+        command: null,
       }))
+      ownTestRunIdRef.current = null
+      ownTestRunBusyRef.current = true
       try {
         const handle = runTests(selection, (event) => {
           if (!testsMountedRef.current) return
-          setTestsRun((prev) => applyTestRunEvent(prev, event))
-          if (event.type === 'done') {
-            testsRunHandleRef.current = null
-            // A run cannot create a test, but it CAN finish after the agent wrote
-            // one — re-list once it settles so the card is current.
-            void refreshTests()
+          if (event.type === 'start') {
+            // The feed may have delivered this run's start first, as a run of
+            // someone else's; from here on it is known to be this panel's own.
+            ownTestRunIdRef.current = event.runId
+            const { [event.runId]: _own, ...others } = otherTestRunsRef.current
+            otherTestRunsRef.current = others
           }
+          if (event.type !== 'done') {
+            setTestsRun((prev) => applyTestRunEvent(prev, event))
+            return
+          }
+          // Ended: the verdicts other runs reported meanwhile land on the rows,
+          // and a run of someone else's still going takes the card.
+          ownTestRunBusyRef.current = false
+          const others = otherTestRunsRef.current
+          setTestsRun((prev) => settleOwnRun(applyTestRunEvent(prev, event), others))
+          otherTestRunsRef.current = keepLiveOtherRuns(others)
+          testsRunHandleRef.current = null
+          // A run cannot create a test, but it CAN finish after the agent wrote
+          // one — re-list once it settles so the card is current.
+          void refreshTests()
         })
         testsRunHandleRef.current = handle
         // Whether a Skip control belongs on screen is decided HERE, by whether
@@ -4592,6 +4625,7 @@ function ChatInner({
         setTestsRun((prev) => ({ ...prev, skipPending: false, skipUnavailable: !skips }))
       } catch (error) {
         logger.warn('Failed to start a test run', { error })
+        ownTestRunBusyRef.current = false
         setTestsRun((prev) =>
           failRun(
             prev,
@@ -4624,18 +4658,72 @@ function ChatInner({
   )
 
   const cancelTestsRun = useCallback((): void => {
+    // Only this panel's own run can be stopped from here; the controls are not
+    // offered on a run it is only watching.
+    if (!ownTestRunBusyRef.current) return
     testsRunHandleRef.current?.cancel()
     testsRunHandleRef.current = null
-    setTestsRun((prev) => ({
-      ...prev,
-      running: false,
-      currentId: null,
-      cases: {},
-      skipPending: false,
-      skipUnavailable: true,
-      outcome: 'cancelled',
-    }))
+    ownTestRunBusyRef.current = false
+    const others = otherTestRunsRef.current
+    setTestsRun((prev) =>
+      settleOwnRun(
+        {
+          ...prev,
+          running: false,
+          currentId: null,
+          cases: {},
+          skipPending: false,
+          skipUnavailable: true,
+          outcome: 'cancelled',
+        },
+        others,
+      ),
+    )
+    otherTestRunsRef.current = keepLiveOtherRuns(others)
   }, [])
+
+  // Every run in the project, however it was started, reaches the same bar and
+  // browser: the host replays the runs it still holds, then streams new ones.
+  // The ref keeps the subscription from restarting (and replaying) each time
+  // `refreshTests` changes identity.
+  const refreshTestsRef = useRef(refreshTests)
+  refreshTestsRef.current = refreshTests
+  useEffect(() => {
+    if (!watchTestRuns) return
+    let relist: ReturnType<typeof setTimeout> | null = null
+    let unsubscribe: (() => void) | null = null
+    try {
+      unsubscribe = watchTestRuns((event) => {
+        if (!testsMountedRef.current) return
+        // This panel's own run, echoed by the feed: its own stream has it.
+        if (event.runId === ownTestRunIdRef.current) return
+        const others = foldOtherRunEvent(otherTestRunsRef.current, event)
+        const run = others[event.runId]
+        const ownBusy = ownTestRunBusyRef.current
+        const live = liveOtherRuns(others, event.runId)
+        setTestsRun((prev) => presentOtherRun(prev, run, { ownBusy, live }))
+        // An ended run's verdicts are on the rows now, unless the own run holds
+        // the card: then they wait for `settleOwnRun`.
+        otherTestRunsRef.current =
+          event.type === 'done' && !ownBusy ? keepLiveOtherRuns(others) : others
+        if (event.type === 'done') {
+          // A replay can end several runs at once; list once for all of them.
+          if (relist) clearTimeout(relist)
+          relist = setTimeout(() => {
+            relist = null
+            void refreshTestsRef.current()
+          }, 500)
+        }
+      })
+    } catch (error) {
+      logger.warn('Failed to watch the project test runs', { error })
+    }
+    return () => {
+      if (relist) clearTimeout(relist)
+      unsubscribe?.()
+      otherTestRunsRef.current = {}
+    }
+  }, [watchTestRuns])
 
   // Skip the executor's in-flight tool call WITHOUT ending the turn — the
   // model is told the command did not run and carries on. The card owns its own
@@ -8667,6 +8755,7 @@ function ChatInner({
                           tests={testsList}
                           status={testsStatus}
                           run={testsRun}
+                          agentName={agentName}
                           initialQuery={item.card.query ?? ''}
                           canRun={(canRunTests ?? canEdit !== false) && canEdit !== false}
                           onRun={startTestsRun}
@@ -11132,6 +11221,7 @@ function ChatInner({
                   tests={testsList}
                   status={testsStatus}
                   run={testsRun}
+                  agentName={agentName}
                   initialQuery={panelOverlayQuery}
                   canRun={(canRunTests ?? canEdit !== false) && canEdit !== false}
                   onRun={startTestsRun}
@@ -11532,9 +11622,10 @@ function ChatInner({
             {showTests && (
               <TestStatusBar
                 run={testsRun}
+                agentName={agentName}
                 tests={testsList}
                 onOpen={() => openTestsBrowser('')}
-                onStop={testsRun.running ? cancelTestsRun : undefined}
+                onStop={testsRun.running && !testsRun.external ? cancelTestsRun : undefined}
               />
             )}
             {/* Commit bar — anchored above the textarea (hidden when a popup menu is open).
@@ -12453,6 +12544,7 @@ export function ChatPanel({
   feedbackUrl,
   listTests,
   runTests,
+  watchTestRuns,
   canRunTests,
   testsAvailable,
   skipToolCall,
@@ -12921,6 +13013,7 @@ export function ChatPanel({
         feedbackUrl={feedbackUrl}
         listTests={listTests}
         runTests={runTests}
+        watchTestRuns={watchTestRuns}
         canRunTests={canRunTests}
         testsAvailable={testsAvailable}
         skipToolCall={skipToolCall}
