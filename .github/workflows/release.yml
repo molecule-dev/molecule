@@ -75,6 +75,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read # checkout only — this workflow makes NO commits
+      actions: read # the CI-green guard reads this commit's ci.yml runs
       id-token: write # npm provenance (signed attestations) + OIDC publish
     steps:
       # ---- 0. Fail fast if there is no way to publish -----------------------

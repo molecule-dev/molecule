@@ -23,6 +23,14 @@ const run = (id, created, status, conclusion, sha = SHA) => ({
 // The observed 2026-10-30 race: the push run passed, then the daily scheduled run
 // started on the same commit and was still running when Release read the newest run.
 const pushGreen = run(41065086468, '2026-10-30T13:25:02Z', 'completed', 'success')
+// A re-run keeps its id and created_at; only run_attempt and run_started_at move.
+const attempt = (base, n, started, status, conclusion) => ({
+  ...base,
+  run_attempt: n,
+  run_started_at: started,
+  status,
+  conclusion,
+})
 const schedulePending = run(41065610090, '2026-10-30T13:43:37Z', 'in_progress', null)
 
 describe('ciVerdict', () => {
@@ -86,6 +94,96 @@ describe('ciVerdict', () => {
   })
 })
 
+describe('re-runs', () => {
+  const pushFailed = attempt(
+    run(7, '2026-10-30T10:00:00Z', 'completed', 'failure'),
+    1,
+    '2026-10-30T10:00:00Z',
+    'completed',
+    'failure',
+  )
+  const scheduledGreen = attempt(
+    run(8, '2026-10-30T11:00:00Z', 'completed', 'success'),
+    1,
+    '2026-10-30T11:00:00Z',
+    'completed',
+    'success',
+  )
+
+  it('orders attempts by when they started, not by the run created_at a re-run keeps', () => {
+    const rerunFailed = attempt(pushFailed, 2, '2026-10-30T12:00:00Z', 'completed', 'failure')
+    expect(ciVerdict([rerunFailed, scheduledGreen], SHA)).toEqual({
+      passed: false,
+      reason: `CI run 7 attempt 2 for ${SHA} ended failure`,
+      runId: 7,
+    })
+    const rerunGreen = attempt(pushFailed, 2, '2026-10-30T12:00:00Z', 'completed', 'success')
+    const scheduledFailed = { ...scheduledGreen, conclusion: 'failure' }
+    expect(ciVerdict([rerunGreen, scheduledFailed], SHA)).toMatchObject({ passed: true, runId: 7 })
+  })
+
+  /** A fake `gh api` serving the run list and individual earlier attempts. */
+  const ghServing = (runs, attempts) => {
+    const calls = []
+    const exec = (_cmd, args, _options, done) => {
+      calls.push(args[2])
+      const match = /actions\/runs\/(\d+)\/attempts\/(\d+)$/.exec(args[2])
+      if (!match) return done(null, runs.map((r) => JSON.stringify(r)).join('\n'))
+      const found = attempts.find(
+        (a) => a.id === Number(match[1]) && a.run_attempt === Number(match[2]),
+      )
+      done(null, found ? JSON.stringify(found) : '')
+    }
+    return { exec, calls }
+  }
+
+  it('a cancelled or still-running retry of a failed run does not hide that failure', async () => {
+    for (const [status, conclusion] of [
+      ['completed', 'cancelled'],
+      ['in_progress', null],
+    ]) {
+      const retry = attempt(pushFailed, 2, '2026-10-30T12:00:00Z', status, conclusion)
+      const olderGreen = { ...scheduledGreen, run_started_at: '2026-10-30T09:00:00Z' }
+      const { exec, calls } = ghServing([retry, olderGreen], [pushFailed])
+      const runs = await readCiRuns('molecule-dev/molecule', SHA, { exec })
+      expect(calls).toContain('repos/molecule-dev/molecule/actions/runs/7/attempts/1')
+      expect(ciVerdict(runs, SHA), String(conclusion)).toEqual({
+        passed: false,
+        reason: `CI run 7 for ${SHA} ended failure`,
+        runId: 7,
+      })
+    }
+  })
+
+  it('reads back past withdrawn attempts to the newest conclusive one, and passes when it passed', async () => {
+    const first = attempt(pushFailed, 1, '2026-10-30T10:00:00Z', 'completed', 'success')
+    const second = attempt(pushFailed, 2, '2026-10-30T10:30:00Z', 'completed', 'cancelled')
+    const third = attempt(pushFailed, 3, '2026-10-30T11:30:00Z', 'completed', 'cancelled')
+    const { exec, calls } = ghServing([third], [first, second])
+    const runs = await readCiRuns('molecule-dev/molecule', SHA, { exec })
+    expect(calls.filter((c) => c.includes('/attempts/'))).toEqual([
+      'repos/molecule-dev/molecule/actions/runs/7/attempts/2',
+      'repos/molecule-dev/molecule/actions/runs/7/attempts/1',
+    ])
+    expect(ciVerdict(runs, SHA)).toMatchObject({ passed: true, runId: 7 })
+  })
+
+  it('does not read earlier attempts of a run whose latest attempt is conclusive', async () => {
+    const rerunGreen = attempt(pushFailed, 2, '2026-10-30T12:00:00Z', 'completed', 'success')
+    const { exec, calls } = ghServing([rerunGreen], [pushFailed])
+    await readCiRuns('molecule-dev/molecule', SHA, { exec })
+    expect(calls).toHaveLength(1)
+  })
+
+  it('refuses rather than guesses when an earlier attempt cannot be read', async () => {
+    const retry = attempt(pushFailed, 2, '2026-10-30T12:00:00Z', 'completed', 'cancelled')
+    const { exec } = ghServing([retry], [])
+    await expect(readCiRuns('molecule-dev/molecule', SHA, { exec })).rejects.toThrow(
+      /run 7 attempt 1 is missing/,
+    )
+  })
+})
+
 describe('readCiRuns', () => {
   it('reads every page for the exact commit and parses one run per line', async () => {
     let call
@@ -123,11 +221,12 @@ describe('Release workflow guard step', () => {
     )
 
   /** Run a guard step's shell with a fake `gh` serving `runs` (newest first). */
-  function runGuard(guard, runs, { ghExit = 0 } = {}) {
+  function runGuard(guard, runs, { ghExit = 0, attempts = [] } = {}) {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'release-guard-'))
     dirs.push(dir)
     fs.mkdirSync(path.join(dir, 'bin'))
     fs.writeFileSync(path.join(dir, 'runs.json'), JSON.stringify(runs))
+    fs.writeFileSync(path.join(dir, 'attempts.json'), JSON.stringify(attempts))
     // --paginate --jq '.workflow_runs[]' prints one run per line; the original
     // guard's per_page=1 query printed the newest run's conclusion, or "none".
     fs.writeFileSync(
@@ -135,7 +234,11 @@ describe('Release workflow guard step', () => {
       `#!/usr/bin/env node
 const runs = JSON.parse(require('fs').readFileSync(${JSON.stringify(path.join(dir, 'runs.json'))}, 'utf8'))
 if (${ghExit}) process.exit(${ghExit})
-if (process.argv.includes('--paginate')) for (const r of runs) console.log(JSON.stringify(r))
+const attempts = JSON.parse(require('fs').readFileSync(${JSON.stringify(path.join(dir, 'attempts.json'))}, 'utf8'))
+const parts = (process.argv[4] ?? '').split('/')
+const one = parts.at(-2) === 'attempts' ? [Number(parts.at(-3)), Number(parts.at(-1))] : null
+if (one) console.log(JSON.stringify(attempts.find((a) => a.id === one[0] && a.run_attempt === one[1]) ?? null))
+else if (process.argv.includes('--paginate')) for (const r of runs) console.log(JSON.stringify(r))
 else console.log(runs[0]?.conclusion ?? 'none')
 `,
       { mode: 0o755 },
@@ -174,6 +277,20 @@ fi`,
     const result = runGuard(current, [schedulePending, pushGreen])
     expect(result.status).toBe(0)
     expect(result.stdout).toContain(`CI passed for ${SHA}`)
+  })
+
+  it('refuses when a cancelled retry would hide the failed attempt before it', () => {
+    const failed = attempt(
+      run(9, '2026-10-30T14:00:00Z', 'completed', 'failure'),
+      1,
+      '2026-10-30T14:00:00Z',
+      'completed',
+      'failure',
+    )
+    const cancelledRetry = attempt(failed, 2, '2026-10-30T14:30:00Z', 'completed', 'cancelled')
+    const result = runGuard(current, [cancelledRetry, pushGreen], { attempts: [failed] })
+    expect(result.status).toBe(1)
+    expect(result.stderr).toContain(`CI run 9 for ${SHA} ended failure`)
   })
 
   it('refuses a failed, missing or unreadable CI result', () => {
