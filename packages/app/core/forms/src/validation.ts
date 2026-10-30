@@ -4,6 +4,8 @@
  * @module
  */
 
+import type { InterpolationValues } from '@molecule/app-i18n'
+
 import type { ValidationSchema } from './types.js'
 
 /**
@@ -11,7 +13,7 @@ import type { ValidationSchema } from './types.js'
  */
 type TranslateFn = (
   key: string,
-  values?: Record<string, unknown>,
+  values?: InterpolationValues,
   options?: { defaultValue?: string },
 ) => string
 
@@ -30,7 +32,7 @@ export const validateValue = async (
   schema: ValidationSchema,
   t?: TranslateFn,
 ): Promise<string | undefined> => {
-  const msg = (key: string, defaultValue: string, values?: Record<string, unknown>): string =>
+  const msg = (key: string, defaultValue: string, values?: InterpolationValues): string =>
     t ? t(key, values, { defaultValue }) : defaultValue
 
   // Required check

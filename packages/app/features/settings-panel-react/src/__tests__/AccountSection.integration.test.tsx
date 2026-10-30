@@ -10,6 +10,7 @@ import {
   type StorageAdapter,
   type UserProfile,
 } from '@molecule/app-auth'
+import { createSimpleI18nProvider, setProvider as setI18nProvider } from '@molecule/app-i18n'
 import type * as AppReact from '@molecule/app-react'
 import { AuthProvider, useProfileForm } from '@molecule/app-react'
 
@@ -85,6 +86,7 @@ beforeEach(() => {
 afterEach(() => {
   cleanup()
   vi.restoreAllMocks()
+  setI18nProvider(createSimpleI18nProvider())
 })
 
 describe('AccountSection actual caller', () => {
@@ -166,6 +168,32 @@ describe('AccountSection actual caller', () => {
     fireEvent.change(control('settings.email'), { target: { value: 'alice@new.example.test' } })
     fireEvent.blur(control('settings.email'))
     await waitFor(() => expect(update).toHaveBeenCalledWith({ email: 'alice@new.example.test' }))
+  })
+
+  it('shows the malformed-email error in the active locale', async () => {
+    setI18nProvider(
+      createSimpleI18nProvider('fr', [
+        {
+          code: 'fr',
+          name: 'Français',
+          translations: { 'forms.invalidEmail': 'Adresse e-mail invalide' },
+        },
+      ]),
+    )
+    const client = clientFor<UserProfile>(first)
+    const update = publishUpdates(client)
+    render(
+      <AuthProvider client={client}>
+        <AccountSection />
+      </AuthProvider>,
+    )
+    fireEvent.change(control('settings.email'), { target: { value: 'not-an-email' } })
+    fireEvent.blur(control('settings.email'))
+    expect(await screen.findByRole('alert')).toHaveProperty(
+      'textContent',
+      'Adresse e-mail invalide',
+    )
+    expect(update).not.toHaveBeenCalled()
   })
 
   it('never sends a blank email: clearing it keeps the stored address while the name saves', async () => {

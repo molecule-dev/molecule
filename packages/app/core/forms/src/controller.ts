@@ -4,6 +4,8 @@
  * @module
  */
 
+import { t } from '@molecule/app-i18n'
+
 import type {
   FieldRegistration,
   FieldState,
@@ -21,6 +23,9 @@ import { validateValue } from './validation.js'
  * Creates a native form provider that manages form state, validation,
  * and field registration without any external library. This is the
  * built-in default used when no form library bond is configured.
+ *
+ * Default validation messages are translated through `@molecule/app-i18n`'s `t` when they
+ * are produced, so they follow the bonded locale.
  *
  * @returns A `FormProvider` backed by vanilla JavaScript state management.
  */
@@ -211,7 +216,7 @@ export const createNativeFormProvider = (): FormProvider => {
           const schema = fieldSchemas.get(name as string)
           if (!schema) return true
 
-          const error = await validateValue(values[name as string], schema)
+          const error = await validateValue(values[name as string], schema, t)
           if (error) {
             errors = { ...errors, [name]: error }
             notify()
@@ -230,7 +235,7 @@ export const createNativeFormProvider = (): FormProvider => {
           const newErrors: Partial<Record<keyof T, string>> = {}
 
           for (const [name, schema] of fieldSchemas) {
-            const error = await validateValue(values[name], schema)
+            const error = await validateValue(values[name], schema, t)
             if (error) {
               newErrors[name as keyof T] = error
               isValid = false

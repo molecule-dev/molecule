@@ -35,6 +35,9 @@
  *   give instant feedback, but the SERVER must re-validate every field it receives — a request
  *   can skip the form entirely (curl, a tampered client). Never trust a value because the
  *   client "validated" it, and never enforce authorization in the form.
+ * - The built-in rules' default messages (`required: true`, `email: true`, …) go through the
+ *   bonded i18n provider's `t` under `forms.*` keys, so bond `@molecule/app-locales-forms` to
+ *   show them in the active locale. A rule's own message string is shown as written.
  * - Keep secrets out of any form state you persist (see `@molecule/app-storage`), and submit
  *   through the HTTP client (`@molecule/app-http`) with a relative path — never a hardcoded URL.
  *
