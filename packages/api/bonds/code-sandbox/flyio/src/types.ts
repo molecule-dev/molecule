@@ -576,6 +576,8 @@ export interface FlyVolume {
   size_gb?: number
   region?: string
   attached_machine_id?: string
+  /** RFC 3339 creation time; required as proof before an old attempt is reaped. */
+  created_at?: string
 }
 
 /** Response body of `POST /v1/apps/{app}/machines/{id}/exec` (`flydv1.ExecResponse`). */

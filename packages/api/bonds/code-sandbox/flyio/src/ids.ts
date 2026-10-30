@@ -12,6 +12,8 @@
  * @module
  */
 
+import { createHash } from 'node:crypto'
+
 import { t } from '@molecule/api-i18n'
 
 import type { FlyMachineState } from './types.js'
@@ -60,9 +62,10 @@ export function parseSandboxId(id: string): { app: string; machineId: string } {
  *
  * Fly app names are globally unique DNS labels: lowercase alphanumerics and
  * hyphens, no leading/trailing hyphen, at most 63 characters (they become
- * `<app>.fly.dev`). Project ids are uuids, so `<prefix>-<uuid>` fits with room
- * to spare; longer ids are truncated rather than rejected, and the trailing
- * hyphen that truncation can leave is stripped.
+ * `<app>.fly.dev`). Names that fit retain their readable `<prefix>-<project>`
+ * form. A longer identity gets a digest of the COMPLETE prefix and project id:
+ * truncating the readable name alone would let two deploy tags or project ids
+ * address (and potentially delete) the same app.
  * @param prefix - Configured app-name prefix.
  * @param projectId - The project id from `SandboxConfig`.
  * @returns A syntactically valid Fly app name.
@@ -88,7 +91,11 @@ export function appNameForProject(prefix: string, projectId: string): string {
       ),
     )
   }
-  return `${safePrefix}-${safeProject}`.slice(0, 63).replace(/-+$/, '')
+  const readable = `${safePrefix}-${safeProject}`
+  if (readable.length <= 63) return readable
+  const digest = createHash('sha256').update(`${prefix}\0${projectId}`).digest('hex').slice(0, 20)
+  const prefixLength = Math.min(safePrefix.length, 63 - digest.length - 1)
+  return `${safePrefix.slice(0, prefixLength).replace(/-+$/, '')}-${digest}`
 }
 
 /**

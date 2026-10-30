@@ -86,6 +86,13 @@
  * setuid/setgid dropped by `--no-same-permissions` — were verified by running
  * GNU tar 1.35 against crafted archives rather than inferred from its manual.
  *
+ * **Lifecycle serialization.** Callers MUST serialize create, adoption,
+ * replacement and deletion per app across every process that shares it (for
+ * example with a database advisory lock). The bond's stale-Machine and
+ * stale-volume reaping is only a backstop: it also requires a valid creation
+ * timestamp older than the configured create timeout, so consumers that cannot
+ * hold that lock still never reap a live create merely because it is managed.
+ *
  * **Absence vs failure: `get()` only answers `null` for a REAL absence.**
  * `get()` (and each read shaped like it — `list()`, `find()`, `getTemplate()`)
  * reserves `null`/`[]` for a positive not-found answer — Fly answered 404 for

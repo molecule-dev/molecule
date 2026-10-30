@@ -52,6 +52,22 @@ describe('appNameForProject', () => {
     expect(name.endsWith('-')).toBe(false)
   })
 
+  it('preserves distinct deploy identities when a long prefix would truncate their tags', () => {
+    const project = 'a3f1c0de-0000-4000-8000-000000000001'
+    const first = appNameForProject('molecule-production', `${project}-vmvvmww00`)
+    const second = appNameForProject('molecule-production', `${project}-vmvvmwwrs`)
+    expect(first).not.toBe(second)
+    expect(first.length).toBeLessThanOrEqual(63)
+    expect(second.length).toBeLessThanOrEqual(63)
+  })
+
+  it('preserves distinct project identities with long prefixes', () => {
+    const prefix = 'molecule-production-with-a-very-long-prefix'
+    const first = appNameForProject(prefix, 'a3f1c0de-0000-4000-8000-000000000001')
+    const second = appNameForProject(prefix, 'a3f1c0de-0000-4000-8000-000000000002')
+    expect(first).not.toBe(second)
+  })
+
   it('throws when a project id has no DNS-safe characters', () => {
     expect(() => appNameForProject('mol-sandbox', '///')).toThrow(/no DNS-safe characters/)
   })

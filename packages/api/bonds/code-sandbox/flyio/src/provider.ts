@@ -7,7 +7,7 @@
  * @module
  */
 
-import { createHash } from 'node:crypto'
+import { createHash, randomUUID } from 'node:crypto'
 import { promisify } from 'node:util'
 import { gzip } from 'node:zlib'
 
@@ -166,8 +166,8 @@ const WORKSPACE_PATH = '/workspace'
 /** Default volume size in GB when `SandboxConfig.resources.diskMB` is unset. */
 const DEFAULT_VOLUME_GB = 10
 
-/** Name lookups allowed after an ambiguous volume create before it may be replayed. */
-const VOLUME_CREATE_LOOKUP_ATTEMPTS = 3
+/** Exact-identity reads allowed after an ambiguous create before its outcome is declared unknown. */
+const CREATE_RECONCILE_ATTEMPTS = 3
 
 /** Page size for the org-wide Machine listing. */
 const LIST_PAGE_SIZE = 200
@@ -289,7 +289,7 @@ const MACHINE_CREATE_ATTEMPTS = 6
  * minute later succeeded). Only these two are added on top of the client's
  * default retryable set; neither retry can double-create.
  */
-const MACHINE_CREATE_RETRY_STATUSES = [404, 412]
+const MACHINE_CREATE_RETRY_STATUSES = [400, 404, 412]
 
 /**
  * What Fly answers when it reached the exec endpoint but the connection to the
@@ -765,6 +765,8 @@ class FlyioSandboxProvider implements SandboxProvider {
    * @param app - The Fly app name.
    */
   private async destroyStaleMachines(app: string): Promise<void> {
+    const createTimeoutMs =
+      Math.max(1, this.config.startTimeoutSeconds ?? DEFAULT_START_TIMEOUT_SECONDS) * 1000
     const managedKey = `${this.metadataPrefix}.managed`
     let machines: FlyMachine[] | null
     try {
@@ -783,6 +785,15 @@ class FlyioSandboxProvider implements SandboxProvider {
     }
     for (const machine of Array.isArray(machines) ? machines : []) {
       if (machine.config?.metadata?.[managedKey] !== 'true') continue
+      const createdAt = Date.parse(machine.created_at ?? '')
+      if (!Number.isFinite(createdAt) || Date.now() - createdAt <= createTimeoutMs) {
+        // A managed Machine is not proof of abandonment. In particular, another
+        // API process can be waiting for this exact Machine to boot. Callers
+        // serialize lifecycle operations per app; this age check also protects
+        // other consumers that cannot hold that lock. Missing/invalid timestamps
+        // are not expiry evidence and are therefore never reaped here.
+        continue
+      }
       try {
         await this.client.request(`/apps/${app}/machines/${machine.id}?force=true`, {
           method: 'DELETE',
@@ -1114,23 +1125,24 @@ class FlyioSandboxProvider implements SandboxProvider {
   }
 
   /**
-   * Sanitizes a caller-supplied volume name into a valid Fly volume name.
-   *
-   * Fly requires `[a-z0-9_]` (lowercase only) and at most 30 characters — it
-   * rejects anything else with `400 "name only allows lowercase alphanumeric
-   * characters and underscores with at most 30 characters"`. Callers pass names
-   * like `mol-<uuid>` (40 chars, hyphens): lowercase, map every other character
-   * to `_`, and when the result is too long, keep a readable prefix plus a
-   * deterministic hash suffix so the name stays stable (`findVolume` re-derives
-   * the same name on the idempotent path) and unique.
-   * @param name - The caller's volume name.
-   * @returns A sanitized Fly volume name, `[a-z0-9_]` and <= 30 chars.
+   * Return the readable, sanitized identity shared by attempts for one caller label.
+   * @param name - The caller's volume label.
+   * @returns The `[a-z0-9_]` stem used by {@link volumeName} and stale-attempt reconciliation.
    */
-  private volumeName(name: string): string {
+  private volumeNameStem(name: string): string {
     const sanitized = name.toLowerCase().replace(/[^a-z0-9_]/g, '_')
-    if (sanitized.length <= 30) return sanitized
-    const hash = createHash('sha256').update(name).digest('hex').slice(0, 12)
-    return `${sanitized.slice(0, 17)}_${hash}`
+    return `${sanitized.slice(0, 17)}_`
+  }
+
+  /**
+   * Give one create attempt a unique Fly volume name (Fly permits duplicate names).
+   * @param name - The caller's volume label.
+   * @param attemptId - The Machine create attempt's identity.
+   * @returns A sanitized name of at most 30 characters, including the full attempt's digest.
+   */
+  private volumeName(name: string, attemptId: string): string {
+    const digest = createHash('sha256').update(`${name}\0${attemptId}`).digest('hex').slice(0, 12)
+    return `${this.volumeNameStem(name)}${digest}`
   }
 
   /**
@@ -1141,41 +1153,37 @@ class FlyioSandboxProvider implements SandboxProvider {
    * size are all known — rather than through the core's optional
    * `createVolume(name)`; see the module `@remarks`.
    * @param app - The Fly app name.
-   * @param name - The caller's volume name.
+   * @param flyName - This create attempt's unique, already-sanitized volume name.
    * @param sizeGB - Size to create the volume with, in whole GB.
    * @param compute - The exact guest sent with the Machine create.
    * @returns The Fly volume id and whether this call created the volume.
    */
   private async ensureVolume(
     app: string,
-    name: string,
+    flyName: string,
     sizeGB: number,
     compute: NonNullable<FlyMachineConfig['guest']>,
-  ): Promise<{ id: string; created: boolean }> {
-    const flyName = this.volumeName(name)
-    const existing = await this.findVolume(app, flyName)
-    if (existing) return { id: existing.id, created: false }
-    return { id: await this.createFreshVolume(app, name, sizeGB, compute), created: true }
+  ): Promise<string> {
+    return this.createFreshVolume(app, flyName, sizeGB, compute)
   }
 
   /**
    * Creates a volume with the expected Machine's guest as its placement hint.
    * A 429 is safe to replay directly. After a transport failure or 5xx, bounded
-   * lookups by name run before the client's next POST; a response Fly lost is
-   * therefore adopted rather than duplicated.
+   * lookups reconcile the attempt's unique name; if it stays invisible the create
+   * fails rather than replaying an ambiguous POST that could duplicate the volume.
    * @param app - The Fly app name.
-   * @param name - The caller's volume name.
+   * @param flyName - This create attempt's unique, already-sanitized volume name.
    * @param sizeGB - Size to create the volume with, in whole GB.
    * @param compute - The exact guest sent with the Machine create.
    * @returns The new Fly volume id.
    */
   private async createFreshVolume(
     app: string,
-    name: string,
+    flyName: string,
     sizeGB: number,
     compute: NonNullable<FlyMachineConfig['guest']>,
   ): Promise<string> {
-    const flyName = this.volumeName(name)
     const created = await this.client.request<FlyVolume>(`/apps/${app}/volumes`, {
       method: 'POST',
       body: {
@@ -1190,14 +1198,20 @@ class FlyioSandboxProvider implements SandboxProvider {
         // other retryable outcome is ambiguous: never replay it until a few
         // name lookups have had a chance to find the volume Fly may have made.
         if (error.status !== 0 && error.status < 500) return undefined
-        for (let lookup = 1; lookup <= VOLUME_CREATE_LOOKUP_ATTEMPTS; lookup++) {
+        for (let lookup = 1; lookup <= CREATE_RECONCILE_ATTEMPTS; lookup++) {
           const existing = await this.findVolume(app, flyName)
           if (existing) return existing
-          if (lookup < VOLUME_CREATE_LOOKUP_ATTEMPTS) {
+          if (lookup < CREATE_RECONCILE_ATTEMPTS) {
             await this.client.sleep(retryDelayMs(lookup))
           }
         }
-        return undefined
+        // Fly permits duplicate volume names. Negative reads therefore cannot
+        // authorize another POST: stop with the outcome unknown and let the
+        // owning app's durable reconciler reclaim anything the write made.
+        throw new Error(
+          `Fly volume create "${flyName}" has an unknown outcome; refusing to replay it`,
+          { cause: error },
+        )
       },
     })
     if (!created?.id) {
@@ -1210,6 +1224,43 @@ class FlyioSandboxProvider implements SandboxProvider {
       )
     }
     return created.id
+  }
+
+  /** Reap expired, unattached volumes from earlier attempts with the same caller identity. */
+  private async deleteExpiredAttemptVolumes(app: string, name: string): Promise<void> {
+    const volumes = await this.client.request<FlyVolume[]>(`/apps/${app}/volumes`, {
+      nullOn: [404],
+    })
+    const stem = this.volumeNameStem(name)
+    const timeoutMs =
+      Math.max(1, this.config.startTimeoutSeconds ?? DEFAULT_START_TIMEOUT_SECONDS) * 1000
+    for (const volume of Array.isArray(volumes) ? volumes : []) {
+      if (!volume.name.startsWith(stem) || volume.attached_machine_id) continue
+      const createdAt = Date.parse(volume.created_at ?? '')
+      if (!Number.isFinite(createdAt) || Date.now() - createdAt <= timeoutMs) continue
+      await this.client.request(`/apps/${app}/volumes/${volume.id}`, {
+        method: 'DELETE',
+        nullOn: [404],
+      })
+    }
+  }
+
+  /** Delete this attempt's volume only when Fly positively reports it unattached. */
+  private async deleteUnattachedAttemptVolume(app: string, flyName: string): Promise<void> {
+    try {
+      const volume = await this.findVolume(app, flyName)
+      if (!volume || volume.attached_machine_id) return
+      await this.client.request(`/apps/${app}/volumes/${volume.id}`, {
+        method: 'DELETE',
+        nullOn: [404],
+      })
+    } catch (error) {
+      logger.warn('Could not delete an unattached volume from a failed create attempt', {
+        app,
+        flyName,
+        error,
+      })
+    }
   }
 
   /**
@@ -1254,6 +1305,20 @@ class FlyioSandboxProvider implements SandboxProvider {
    * @param config - Project id, image, env, volume name, template, labels and resource limits.
    * @returns A `Sandbox` bound to the new Machine.
    */
+  /**
+   * Return the collision-free app name for a complete caller/project identity.
+   * @param projectId - The complete project or per-deploy identity.
+   * @returns The DNS-safe, at-most-63-character app name.
+   */
+  appNameForProject(projectId: string): string {
+    return appNameForProject(this.appPrefix(), projectId)
+  }
+
+  /**
+   * Create, reconcile and boot one uniquely identified Fly Machine attempt.
+   * @param config - The sandbox image, project, storage and resource configuration.
+   * @returns The running sandbox.
+   */
   async create(config: SandboxConfig): Promise<Sandbox> {
     // Resolved BEFORE anything is provisioned, so a bad template id costs no app,
     // no volume and no Machine.
@@ -1285,14 +1350,23 @@ class FlyioSandboxProvider implements SandboxProvider {
     assertPrivateRoutesForEnv({ ...config.env, ...config.selfDeliveredEnv }, this.privateServices())
 
     const app = this.resolveApp(config.projectId)
+    const createAttemptId = randomUUID()
     const { routes: privateRoutes, allocated } = await this.ensureApp(app)
     try {
-      return await this.createInApp(app, privateRoutes, config, manifest)
+      return await this.createInApp(app, privateRoutes, config, manifest, createAttemptId)
     } catch (error) {
       // Never delete the app here: another create can have adopted it and its
       // volume while this call was in flight. Only this call's private-address
-      // allocations have no other owner and are safe to release.
+      // allocations and uniquely named, positively unattached volume are ours.
+      // An ambiguous outcome gets no inline volume delete: its Machine may be
+      // alive but not visible yet, so the owning app's reconciler must settle it.
       await this.releasePrivateRoutes(allocated)
+      if (config.volumeName && !/unknown outcome/i.test(String(error))) {
+        await this.deleteUnattachedAttemptVolume(
+          app,
+          this.volumeName(config.volumeName, createAttemptId),
+        )
+      }
       throw error
     }
   }
@@ -1311,6 +1385,7 @@ class FlyioSandboxProvider implements SandboxProvider {
     privateRoutes: Record<string, string>,
     config: SandboxConfig,
     manifest: templates.TemplateManifest | null,
+    createAttemptId: string,
   ): Promise<Sandbox> {
     // Clear any stale Machine from a prior failed/partial create before
     // provisioning — otherwise it still holds the app's single-attach volume and
@@ -1321,6 +1396,7 @@ class FlyioSandboxProvider implements SandboxProvider {
     const metadata: Record<string, string> = {
       [`${this.metadataPrefix}.projectId`]: config.projectId,
       [`${this.metadataPrefix}.managed`]: 'true',
+      [`${this.metadataPrefix}.createAttempt`]: createAttemptId,
       // Recorded so `destroy()` can release exactly the addresses this project
       // allocated. Fly's IP listing does not report which network an address
       // belongs to, so nothing else can reconstruct this.
@@ -1375,16 +1451,17 @@ class FlyioSandboxProvider implements SandboxProvider {
       const volumeSizeGB = config.resources?.diskMB
         ? Math.max(1, Math.ceil(config.resources.diskMB / 1024))
         : (this.config.defaultVolumeGB ?? DEFAULT_VOLUME_GB)
+      await this.deleteExpiredAttemptVolumes(app, volumeName)
       const volume = await this.ensureVolume(
         app,
-        volumeName,
+        this.volumeName(volumeName, createAttemptId),
         volumeSizeGB,
         machineConfig.guest ?? {},
       )
       // The caller may scope the volume to a subtree (e.g. /workspace/<appDir>)
       // so regenerable tooling (node_modules) stays on the fast image-backed
       // rootfs and only durable state pays the volume's small-file IO cost.
-      machineConfig.mounts = [{ volume: volume.id, path: config.volumeMountPath ?? WORKSPACE_PATH }]
+      machineConfig.mounts = [{ volume, path: config.volumeMountPath ?? WORKSPACE_PATH }]
     }
 
     const service = this.previewService(config.idleAction)
@@ -1392,7 +1469,7 @@ class FlyioSandboxProvider implements SandboxProvider {
 
     const machine = await this.client.request<FlyMachine>(`/apps/${app}/machines`, {
       method: 'POST',
-      body: { region: this.region(), config: machineConfig },
+      body: { name: createAttemptId, region: this.region(), config: machineConfig },
       // A just-created app propagates to the Machines API asynchronously, so this
       // POST can 404 "app not found" for a few seconds. Retry the 404 (safe: no
       // Machine is created when the app is not found) across the client's backoff.
@@ -1401,8 +1478,42 @@ class FlyioSandboxProvider implements SandboxProvider {
       // A 412 is transient only for the specific released-volume-claim lag.
       // Placement capacity must reach the caller's bounded retry at once,
       // with the volume preserved; every other 412 remains a real rejection.
-      retryWhen: (error) =>
-        error.status !== 412 || /volume already claimed by machine/i.test(error.body),
+      retryWhen: (error) => {
+        if (error.status === 400) return /volume not found/i.test(error.body)
+        if (error.status !== 412) return true
+        return (
+          /volume already claimed by machine/i.test(error.body) ||
+          /volume_placement_capacity/i.test(error.body)
+        )
+      },
+      reconcile: async (error) => {
+        // Rate limiting and explicit precondition rejections did not create a
+        // Machine, so their normal bounded replay is safe. A transport/5xx
+        // result is ambiguous: reconcile ONLY this attempt's recorded identity
+        // and never issue another create when the reads cannot find it.
+        if (error.status === 429 || (error.status >= 400 && error.status < 500)) {
+          return undefined
+        }
+        for (let lookup = 1; lookup <= CREATE_RECONCILE_ATTEMPTS; lookup++) {
+          const machines = await this.client.request<FlyMachine[]>(`/apps/${app}/machines`, {
+            nullOn: [404],
+          })
+          const existing = (machines ?? []).find(
+            (candidate) =>
+              candidate.name === createAttemptId ||
+              candidate.config?.metadata?.[`${this.metadataPrefix}.createAttempt`] ===
+                createAttemptId,
+          )
+          if (existing) return existing
+          if (lookup < CREATE_RECONCILE_ATTEMPTS) {
+            await this.client.sleep(retryDelayMs(lookup))
+          }
+        }
+        throw new Error(
+          `Fly Machine create "${createAttemptId}" in app "${app}" has an unknown outcome; refusing to replay it`,
+          { cause: error },
+        )
+      },
     })
     if (!machine?.id) {
       throw new Error(
@@ -1774,12 +1885,21 @@ class FlyioSandboxProvider implements SandboxProvider {
    * this itself: dev sandboxes use per-project names a concurrent boot may adopt.
    * @param projectId - The project id whose exclusively owned app should be deleted.
    */
-  async destroyApp(projectId: string): Promise<void> {
+  async destroyApp(projectId: string, expectedAppName?: string): Promise<void> {
     if (!this.appPerProject()) {
       throw new Error('Refusing to delete a shared Fly app as though a caller exclusively owned it')
     }
     const app = appNameForProject(this.appPrefix(), projectId)
-    await this.client.request(`/apps/${app}`, { method: 'DELETE', nullOn: [404] })
+    if (expectedAppName !== undefined && expectedAppName !== app) {
+      throw new Error(
+        `Refusing to delete Fly app "${expectedAppName}": its durable identity resolves to "${app}"`,
+      )
+    }
+    // https://docs.fly.io/machines/api/apps-resource#delete-a-fly-app documents
+    // ?force=true as "stop and delete immediately". A bare DELETE requires the
+    // Machines to be stopped first and strands an app whose create response was
+    // lost after Fly launched one.
+    await this.client.request(`/apps/${app}?force=true`, { method: 'DELETE', nullOn: [404] })
   }
 
   /**
