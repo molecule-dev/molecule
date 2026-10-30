@@ -20,7 +20,8 @@
  *   // effect on mount), so @molecule/app-routing's navigate()/getRouter() drive THIS
  *   // real React Router — no manual setRouter wiring needed.
  *   return (
- *     <BrowserRouter>
+ *     // Disable transitions so immediate post-navigation checks never see the previous page.
+ *     <BrowserRouter useTransitions={false}>
  *       <MoleculeRouterProvider>
  *         <Routes>
  *           <Route path="/" element={<Home />} />

@@ -61,7 +61,8 @@ export interface MoleculeRouterProviderProps {
  * function App() {
  *   // Bonds automatically — molecule packages' navigate() now drive React Router.
  *   return (
- *     <BrowserRouter>
+ *     // Disable transitions so immediate post-navigation checks never see the previous page.
+ *     <BrowserRouter useTransitions={false}>
  *       <MoleculeRouterProvider>
  *         <Routes>
  *           <Route path="/" element={<Home />} />
