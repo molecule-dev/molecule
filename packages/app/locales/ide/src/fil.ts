@@ -2,6 +2,7 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for fil. */
 export const fil: Partial<IdeTranslations> = {
+  'ide.chat.commitBuildInProgress': 'Hintaying matapos ang build bago gumawa ng Git commit.',
   'ide.chat.showChangedFiles': 'Ipakita ang mga binagong file',
   'ide.chat.commitFileCount_one': 'I-commit ang {{count}} na file',
   'ide.chat.commitFileCount_other': 'Mag-commit ng {{count}} na file',

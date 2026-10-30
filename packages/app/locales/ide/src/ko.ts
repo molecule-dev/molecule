@@ -2,6 +2,7 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for ko. */
 export const ko: Partial<IdeTranslations> = {
+  'ide.chat.commitBuildInProgress': 'Git 커밋을 생성하기 전에 빌드가 완료될 때까지 기다리세요.',
   'ide.chat.showChangedFiles': '변경된 파일 표시',
   'ide.chat.commitFileCount_one': '{{count}} 개 파일 커밋',
   'ide.chat.commitFileCount_other': '{{count}} 개 파일 커밋',

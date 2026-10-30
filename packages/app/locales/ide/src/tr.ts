@@ -2,6 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for tr. */
 export const tr: Partial<IdeTranslations> = {
+  'ide.chat.commitBuildInProgress':
+    "Git commit'i oluşturmadan önce derleme işleminin tamamlanmasını bekleyin.",
   'ide.chat.showChangedFiles': 'Değiştirilen dosyaları göster',
   'ide.chat.commitFileCount_one': 'Commit {{count}} dosyası',
   'ide.chat.commitFileCount_other': '{{count}} dosya taahhüt edildi',

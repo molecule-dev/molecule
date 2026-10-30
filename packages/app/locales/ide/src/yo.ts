@@ -2,6 +2,7 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for yo. */
 export const yo: Partial<IdeTranslations> = {
+  'ide.chat.commitBuildInProgress': 'Dúró títí ìkọ́lé náà yóò fi parí kí o tó ṣẹ̀dá ìjẹ́wọ́ Git kan.',
   'ide.chat.showChangedFiles': 'Fi àwọn fáìlì tí a ti yípadà hàn',
   'ide.chat.commitFileCount_one': 'Ṣe ìfipamọ́ fáìlì {{count}}',
   'ide.chat.commitFileCount_other': 'Ṣe ìfipamọ́ àwọn fáìlì {{count}}',

@@ -2,6 +2,7 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for my. */
 export const my: Partial<IdeTranslations> = {
+  'ide.chat.commitBuildInProgress': 'Git commit တစ်ခု မဖန်တီးခင် build ပြီးတဲ့အထိ စောင့်ပါ။',
   'ide.chat.showChangedFiles': 'ပြောင်းလဲထားသောဖိုင်များကိုပြပါ',
   'ide.chat.commitFileCount_one': 'ကတိပြုချက် {{count}} ဖိုင်',
   'ide.chat.commitFileCount_other': 'ဖိုင် {{count}} ကို ကတိပြုပါ',

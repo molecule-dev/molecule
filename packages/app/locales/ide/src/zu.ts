@@ -2,6 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for zu. */
 export const zu: Partial<IdeTranslations> = {
+  'ide.chat.commitBuildInProgress':
+    'Linda ukwakhiwa kuqede ngaphambi kokudala isivumelwano se-Git.',
   'ide.chat.showChangedFiles': 'Bonisa amafayela ashintshiwe',
   'ide.chat.commitFileCount_one': 'Faka ifayela elingu {{count}}',
   'ide.chat.commitFileCount_other': 'Faka amafayela angu {{count}}',

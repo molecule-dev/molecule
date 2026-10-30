@@ -2,6 +2,7 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for en. */
 export const en: IdeTranslations = {
+  'ide.chat.commitBuildInProgress': 'Wait for the build to finish before creating a Git commit.',
   'ide.chat.showChangedFiles': 'Show changed files',
   'ide.chat.commitFileCount_one': 'Commit {{count}} file',
   'ide.chat.commitFileCount_other': 'Commit {{count}} files',

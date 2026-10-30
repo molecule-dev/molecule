@@ -2,6 +2,7 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for sv. */
 export const sv: Partial<IdeTranslations> = {
+  'ide.chat.commitBuildInProgress': 'Vänta tills bygget är klart innan du skapar en Git-commit.',
   'ide.chat.showChangedFiles': 'Visa ändrade filer',
   'ide.chat.commitFileCount_one': 'Bekräfta {{count}} filen',
   'ide.chat.commitFileCount_other': 'Spara {{count}} filer',

@@ -2,6 +2,7 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for ms. */
 export const ms: Partial<IdeTranslations> = {
+  'ide.chat.commitBuildInProgress': 'Tunggu sehingga binaan selesai sebelum mencipta komit Git.',
   'ide.chat.showChangedFiles': 'Tunjukkan fail yang diubah',
   'ide.chat.commitFileCount_one': 'Fail {{count}} komitmen',
   'ide.chat.commitFileCount_other': 'Komit {{count}} fail',

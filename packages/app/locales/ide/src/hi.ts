@@ -2,6 +2,7 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for hi. */
 export const hi: Partial<IdeTranslations> = {
+  'ide.chat.commitBuildInProgress': 'गिट कमिट करने से पहले बिल्ड के पूरा होने का इंतजार करें।',
   'ide.chat.showChangedFiles': 'परिवर्तित फ़ाइलें दिखाएँ',
   'ide.chat.commitFileCount_one': 'कमिट {{count}} फ़ाइल',
   'ide.chat.commitFileCount_other': '{{count}} फ़ाइलें कमिट की गईं',

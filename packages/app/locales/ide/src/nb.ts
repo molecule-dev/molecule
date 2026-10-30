@@ -2,6 +2,7 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for nb. */
 export const nb: Partial<IdeTranslations> = {
+  'ide.chat.commitBuildInProgress': 'Vent til byggingen er ferdig før du oppretter en Git-commit.',
   'ide.chat.showChangedFiles': 'Vis endrede filer',
   'ide.chat.commitFileCount_one': 'Lagre {{count}} fil',
   'ide.chat.commitFileCount_other': 'Lagre {{count}} filer',

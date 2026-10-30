@@ -2,6 +2,7 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for kn. */
 export const kn: Partial<IdeTranslations> = {
+  'ide.chat.commitBuildInProgress': 'Git ಕಮಿಟ್ ಅನ್ನು ರಚಿಸುವ ಮೊದಲು ನಿರ್ಮಾಣ ಮುಗಿಯುವವರೆಗೆ ಕಾಯಿರಿ.',
   'ide.chat.showChangedFiles': 'ಬದಲಾದ ಫೈಲ್‌ಗಳನ್ನು ತೋರಿಸಿ',
   'ide.chat.commitFileCount_one': '{{count}} ಫೈಲ್ ಅನ್ನು ಕಮಿಟ್ ಮಾಡಿ',
   'ide.chat.commitFileCount_other': '{{count}} ಫೈಲ್‌ಗಳನ್ನು ಕಮಿಟ್ ಮಾಡಿ',

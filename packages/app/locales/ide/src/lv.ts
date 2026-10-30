@@ -2,6 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for lv. */
 export const lv: Partial<IdeTranslations> = {
+  'ide.chat.commitBuildInProgress':
+    'Pirms Git commit izveides pagaidiet, līdz būvēšana ir pabeigta.',
   'ide.chat.showChangedFiles': 'Rādīt mainītos failus',
   'ide.chat.commitFileCount_one': '{{count}} faila apstiprināšana',
   'ide.chat.commitFileCount_other': 'Pievienot {{count}} failus',

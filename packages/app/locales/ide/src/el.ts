@@ -2,6 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for el. */
 export const el: Partial<IdeTranslations> = {
+  'ide.chat.commitBuildInProgress':
+    'Περιμένετε να ολοκληρωθεί η κατασκευή πριν δημιουργήσετε μια υποβολή Git.',
   'ide.chat.showChangedFiles': 'Εμφάνιση αλλαγμένων αρχείων',
   'ide.chat.commitFileCount_one': 'Αρχείο Commit {{count}}',
   'ide.chat.commitFileCount_other': 'Υποβολή {{count}} αρχείων',

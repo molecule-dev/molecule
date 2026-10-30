@@ -2,6 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for lt. */
 export const lt: Partial<IdeTranslations> = {
+  'ide.chat.commitBuildInProgress':
+    'Prieš kurdami „Git“ įvykį, palaukite, kol bus baigtas kūrimas.',
   'ide.chat.showChangedFiles': 'Rodyti pakeistus failus',
   'ide.chat.commitFileCount_one': 'Įkelti {{count}} failą',
   'ide.chat.commitFileCount_other': 'Įkelti {{count}} failų',

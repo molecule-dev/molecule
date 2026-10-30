@@ -2,6 +2,7 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for fa. */
 export const fa: Partial<IdeTranslations> = {
+  'ide.chat.commitBuildInProgress': 'قبل از ایجاد یک کامیت گیت، منتظر بمانید تا ساخت تمام شود.',
   'ide.chat.showChangedFiles': 'نمایش فایل‌های تغییر یافته',
   'ide.chat.commitFileCount_one': 'ثبت {{count}} فایل',
   'ide.chat.commitFileCount_other': 'ثبت {{count}} فایل',

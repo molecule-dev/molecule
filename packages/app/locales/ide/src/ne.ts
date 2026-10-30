@@ -2,6 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for ne. */
 export const ne: Partial<IdeTranslations> = {
+  'ide.chat.commitBuildInProgress':
+    'Git कमिट सिर्जना गर्नु अघि निर्माण समाप्त हुनको लागि पर्खनुहोस्।',
   'ide.chat.showChangedFiles': 'परिवर्तन गरिएका फाइलहरू देखाउनुहोस्',
   'ide.chat.commitFileCount_one': '{{count}} फाइल कमिट गर्नुहोस्',
   'ide.chat.commitFileCount_other': '{{count}} फाइलहरू कमिट गर्नुहोस्',

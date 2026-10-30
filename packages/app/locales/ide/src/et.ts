@@ -2,6 +2,7 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for et. */
 export const et: Partial<IdeTranslations> = {
+  'ide.chat.commitBuildInProgress': "Enne Giti commit'i loomist oota, kuni ehitus on lõppenud.",
   'ide.chat.showChangedFiles': 'Kuva muudetud failid',
   'ide.chat.commitFileCount_one': 'Kinnita {{count}} faili',
   'ide.chat.commitFileCount_other': 'Kinnita {{count}} faili',

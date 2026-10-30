@@ -2,6 +2,7 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for te. */
 export const te: Partial<IdeTranslations> = {
+  'ide.chat.commitBuildInProgress': 'గిట్ కమిట్ చేసే ముందు బిల్డ్ పూర్తయ్యే వరకు వేచి ఉండండి.',
   'ide.chat.showChangedFiles': 'మార్చబడిన ఫైల్‌లను చూపించు',
   'ide.chat.commitFileCount_one': 'కమిట్ {{count}} ఫైల్',
   'ide.chat.commitFileCount_other': '{{count}} ఫైళ్లను కమిట్ చేయండి',

@@ -2,6 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for gl. */
 export const gl: Partial<IdeTranslations> = {
+  'ide.chat.commitBuildInProgress':
+    'Agarde a que remate a compilación antes de crear unha confirmación de Git.',
   'ide.chat.showChangedFiles': 'Mostrar ficheiros modificados',
   'ide.chat.commitFileCount_one': 'Confirmar ficheiro {{count}}',
   'ide.chat.commitFileCount_other': 'Confirmar {{count}} ficheiros',

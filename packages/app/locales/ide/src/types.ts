@@ -1,5 +1,6 @@
 /** Translation keys for the ide locale package. */
 export type IdeTranslationKey =
+  | 'ide.chat.commitBuildInProgress'
   | 'ide.chat.context.atTarget'
   | 'ide.chat.context.nearTarget'
   | 'ide.chat.context.healthy'

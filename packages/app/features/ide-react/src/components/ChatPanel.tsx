@@ -5107,13 +5107,33 @@ function ChatInner({
   const [gitStatusTick, setGitStatusTick] = useState(0)
   const refreshGitStatus = useCallback(() => setGitStatusTick((n) => n + 1), [])
 
+  const gitScopeRef = useRef(0)
+  useLayoutEffect(() => {
+    gitScopeRef.current++
+    setPendingFiles(null)
+    setCommitState(null)
+    setCommitCards([])
+    setCommitBarExpanded(false)
+    return () => {
+      gitScopeRef.current++
+    }
+  }, [projectId])
+  const gitStatusRequestRef = useRef(0)
   const fetchPendingFiles = useCallback(() => {
-    http
+    const scope = gitScopeRef.current
+    const request = ++gitStatusRequestRef.current
+    return http
       .get<{ files: { path: string; status: string; additions?: number; deletions?: number }[] }>(
         `/projects/${projectId}/git-status`,
       )
-      .then((res) => setPendingFiles(res.data.files.length > 0 ? res.data.files : null))
-      .catch(() => setPendingFiles(null))
+      .then((res) => {
+        if (scope === gitScopeRef.current && request === gitStatusRequestRef.current)
+          setPendingFiles(res.data.files.length > 0 ? res.data.files : null)
+      })
+      .catch(() => {
+        if (scope === gitScopeRef.current && request === gitStatusRequestRef.current)
+          setPendingFiles(null)
+      })
   }, [http, projectId])
 
   // Debounced version — coalesces rapid ticks (e.g. save → format, or an AI
@@ -5142,6 +5162,24 @@ function ChatInner({
     if (!externalGitStatusTick) return
     debouncedFetchPendingFiles()
   }, [externalGitStatusTick, debouncedFetchPendingFiles])
+
+  // Startup repairs, another editor, or another client can commit without a
+  // local file event. Reconcile on return and while the workspace is visible.
+  useEffect(() => {
+    const refresh = (): void => {
+      if (document.visibilityState !== 'hidden') void fetchPendingFiles()
+    }
+    window.addEventListener('focus', refresh)
+    document.addEventListener('visibilitychange', refresh)
+    const interval = setInterval(refresh, 45_000)
+    return () => {
+      window.removeEventListener('focus', refresh)
+      document.removeEventListener('visibilitychange', refresh)
+      clearInterval(interval)
+      if (gitFetchTimerRef.current) clearTimeout(gitFetchTimerRef.current)
+      gitStatusRequestRef.current++
+    }
+  }, [fetchPendingFiles])
 
   // A user-side file mutation (edit/rename/delete) also restarts the auto-commit
   // countdown — the parent's externalGitStatusTick is the canonical "files moved"
@@ -5396,6 +5434,9 @@ function ChatInner({
 
   // ── Commit ─────────────────────────────────────────────────────────────────
   const handleCommit = useCallback(async () => {
+    const scope = gitScopeRef.current
+    // An older status response must not restore a pre-commit count.
+    gitStatusRequestRef.current++
     setCommitState({ status: 'committing' })
     const cardId = `commit-${Date.now()}`
     setCommitCards((prev) => [
@@ -5409,8 +5450,10 @@ function ChatInner({
         message?: string
         files?: string[]
         hash?: string
-      }>(`/projects/${projectId}/commit`, {})
+      }>(`/projects/${projectId}/commit`)
+      if (scope !== gitScopeRef.current) return
       if (result.data.committed) {
+        gitStatusRequestRef.current++
         const msg = result.data.message ?? t('ide.chat.committed')
         setCommitState({ status: 'committed', message: msg })
         setPendingFiles(null)
@@ -5429,12 +5472,26 @@ function ChatInner({
           ),
         )
         onCommit?.()
-        setTimeout(() => setCommitState(null), 3000)
+        setTimeout(() => {
+          if (scope === gitScopeRef.current) setCommitState(null)
+        }, 3000)
       } else {
         setCommitCards((prev) => prev.filter((c) => c.id !== cardId))
         setCommitState(null)
+        addSystemCard(
+          result.data.message === 'No changes to commit'
+            ? t('ide.chat.commitNoChanges', undefined, { defaultValue: 'No changes to commit.' })
+            : result.data.message === 'A build is in progress'
+              ? t('ide.chat.commitBuildInProgress', undefined, {
+                  defaultValue: 'Wait for the build to finish before creating a Git commit.',
+                })
+              : t('ide.chat.commitError', undefined, { defaultValue: 'Failed to commit changes.' }),
+        )
+        void fetchPendingFiles()
+        onCommit?.()
       }
     } catch (error) {
+      if (scope !== gitScopeRef.current) return
       logger.warn('Commit request failed', { error })
       setCommitCards((prev) =>
         prev.map((c) =>
@@ -5448,9 +5505,11 @@ function ChatInner({
         ),
       )
       setCommitState({ status: 'error' })
-      setTimeout(() => setCommitState(null), 3000)
+      setTimeout(() => {
+        if (scope === gitScopeRef.current) setCommitState(null)
+      }, 3000)
     }
-  }, [http, projectId, onCommit])
+  }, [http, projectId, onCommit, addSystemCard, fetchPendingFiles, t])
 
   // ── Revert commit ────────────────────────────────────────────────────────
   /** Reverts a commit by hash. Returns the new revert commit's hash on success. */
@@ -6546,43 +6605,7 @@ function ChatInner({
         }
       } else if (id === 'commit') {
         setInputValue('')
-        try {
-          const status = await http.get<{ files: { path: string }[] }>(
-            `/projects/${projectId}/git-status`,
-          )
-          if (!status.data.files.length) {
-            addSystemCard(
-              t('ide.chat.commitNoChanges', undefined, { defaultValue: 'No changes to commit.' }),
-            )
-            return
-          }
-          const res = await http.post<{
-            ok: boolean
-            committed: boolean
-            message?: string
-            files?: string[]
-            hash?: string
-          }>(`/projects/${projectId}/commit`)
-          if (res.data.committed) {
-            setCommitCards((prev) => [
-              ...prev,
-              {
-                id: crypto.randomUUID(),
-                message: res.data.message ?? '',
-                files: res.data.files ?? [],
-                timestamp: Date.now(),
-                status: 'done' as const,
-                hash: res.data.hash,
-              },
-            ])
-            refreshGitStatus()
-          }
-        } catch (error) {
-          logger.warn('Failed to commit changes via /commit command', { error })
-          addSystemCard(
-            t('ide.chat.commitError', undefined, { defaultValue: 'Failed to commit changes.' }),
-          )
-        }
+        await handleCommit()
       } else if (id === 'test') {
         setInputValue('')
         // Was: a natural-language "run npm test and report" message to the
@@ -6707,6 +6730,7 @@ function ChatInner({
       messages,
       sendMessage,
       refreshGitStatus,
+      handleCommit,
       openPanelOverlay,
       extraCommandIds,
       canEdit,

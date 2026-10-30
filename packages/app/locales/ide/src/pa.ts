@@ -2,6 +2,7 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for pa. */
 export const pa: Partial<IdeTranslations> = {
+  'ide.chat.commitBuildInProgress': 'Git ਕਮਿਟ ਬਣਾਉਣ ਤੋਂ ਪਹਿਲਾਂ ਬਿਲਡ ਦੇ ਪੂਰਾ ਹੋਣ ਦੀ ਉਡੀਕ ਕਰੋ।',
   'ide.chat.showChangedFiles': 'ਬਦਲੀਆਂ ਹੋਈਆਂ ਫਾਈਲਾਂ ਦਿਖਾਓ',
   'ide.chat.commitFileCount_one': '{{count}} ਫਾਈਲ ਕਮਿਟ ਕਰੋ',
   'ide.chat.commitFileCount_other': '{{count}} ਫਾਈਲਾਂ ਕਮਿਟ ਕਰੋ',

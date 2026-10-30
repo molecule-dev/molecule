@@ -2,6 +2,7 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for km. */
 export const km: Partial<IdeTranslations> = {
+  'ide.chat.commitBuildInProgress': 'រង់ចាំ​ការ​បង្កើត​បញ្ចប់​មុន​ពេល​បង្កើត Git commit។',
   'ide.chat.showChangedFiles': 'បង្ហាញឯកសារដែលបានផ្លាស់ប្តូរ',
   'ide.chat.commitFileCount_one': 'ឯកសារប្តេជ្ញាចិត្ត {{count}}',
   'ide.chat.commitFileCount_other': 'ប្តេជ្ញាចិត្តឯកសារ {{count}}',

@@ -2,6 +2,7 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for sw. */
 export const sw: Partial<IdeTranslations> = {
+  'ide.chat.commitBuildInProgress': 'Subiri ujenzi umalizike kabla ya kuunda ahadi ya Git.',
   'ide.chat.showChangedFiles': 'Onyesha faili zilizobadilishwa',
   'ide.chat.commitFileCount_one': 'Weka faili {{count}}',
   'ide.chat.commitFileCount_other': 'Weka faili {{count}}',

@@ -2,6 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for si. */
 export const si: Partial<IdeTranslations> = {
+  'ide.chat.commitBuildInProgress':
+    'Git commit එකක් සෑදීමට පෙර ගොඩනැගීම අවසන් වන තෙක් රැඳී සිටින්න.',
   'ide.chat.showChangedFiles': 'වෙනස් කළ ගොනු පෙන්වන්න',
   'ide.chat.commitFileCount_one': '{{count}} ගොනුව කැප කරන්න',
   'ide.chat.commitFileCount_other': 'ගොනු {{count}} කැප කරන්න',

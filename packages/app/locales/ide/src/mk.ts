@@ -2,6 +2,7 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for mk. */
 export const mk: Partial<IdeTranslations> = {
+  'ide.chat.commitBuildInProgress': 'Почекајте градењето да заврши пред да креирате Git commit.',
   'ide.chat.showChangedFiles': 'Прикажи променети датотеки',
   'ide.chat.commitFileCount_one': 'Изврши {{count}} датотека',
   'ide.chat.commitFileCount_other': 'Изврши {{count}} датотеки',

@@ -2,6 +2,7 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for ha. */
 export const ha: Partial<IdeTranslations> = {
+  'ide.chat.commitBuildInProgress': 'Jira har sai ginin ya ƙare kafin ƙirƙirar alƙawarin Git.',
   'ide.chat.showChangedFiles': 'Nuna fayilolin da aka canza',
   'ide.chat.commitFileCount_one': 'Yi alƙawarin fayil {{count}}',
   'ide.chat.commitFileCount_other': 'Yi aiki fayiloli {{count}}',

@@ -2,6 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for af. */
 export const af: Partial<IdeTranslations> = {
+  'ide.chat.commitBuildInProgress':
+    "Wag totdat die bou voltooi is voordat 'n Git-commit geskep word.",
   'ide.chat.showChangedFiles': 'Wys veranderde lêers',
   'ide.chat.commitFileCount_one': 'Bevestig {{count}} lêer',
   'ide.chat.commitFileCount_other': '{{count}} lêers toedien',

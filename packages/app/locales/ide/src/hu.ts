@@ -2,6 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for hu. */
 export const hu: Partial<IdeTranslations> = {
+  'ide.chat.commitBuildInProgress':
+    'Várd meg, amíg a build befejeződik, mielőtt Git commitot hozol létre.',
   'ide.chat.showChangedFiles': 'Módosított fájlok megjelenítése',
   'ide.chat.commitFileCount_one': '{{count}} fájl véglegesítése',
   'ide.chat.commitFileCount_other': '{{count}} fájl véglegesítése',

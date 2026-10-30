@@ -2,6 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for ta. */
 export const ta: Partial<IdeTranslations> = {
+  'ide.chat.commitBuildInProgress':
+    'Git commit-ஐ உருவாக்குவதற்கு முன், build முடிவடையும் வரை காத்திருக்கவும்.',
   'ide.chat.showChangedFiles': 'மாற்றப்பட்ட கோப்புகளைக் காட்டு',
   'ide.chat.commitFileCount_one': 'கமிட் {{count}} கோப்பு',
   'ide.chat.commitFileCount_other': '{{count}} கோப்புகளைச் சமர்ப்பிக்கவும்',

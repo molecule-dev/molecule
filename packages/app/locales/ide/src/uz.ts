@@ -2,6 +2,7 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for uz. */
 export const uz: Partial<IdeTranslations> = {
+  'ide.chat.commitBuildInProgress': 'Git commitini yaratishdan oldin, qurilish tugashini kuting.',
   'ide.chat.showChangedFiles': "O'zgartirilgan fayllarni ko'rsatish",
   'ide.chat.commitFileCount_one': '{{count}} ta faylni topshirish',
   'ide.chat.commitFileCount_other': '{{count}} ta faylni topshirish',

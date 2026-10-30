@@ -2,6 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for bg. */
 export const bg: Partial<IdeTranslations> = {
+  'ide.chat.commitBuildInProgress':
+    'Изчакайте компилацията да завърши, преди да създадете Git commit.',
   'ide.chat.showChangedFiles': 'Показване на променените файлове',
   'ide.chat.commitFileCount_one': 'Комит {{count}} файл',
   'ide.chat.commitFileCount_other': 'Комитирай {{count}} файла',

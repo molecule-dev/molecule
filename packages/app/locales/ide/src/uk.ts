@@ -2,6 +2,7 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for uk. */
 export const uk: Partial<IdeTranslations> = {
+  'ide.chat.commitBuildInProgress': 'Зачекайте завершення збірки, перш ніж створювати коміт Git.',
   'ide.chat.showChangedFiles': 'Показати змінені файли',
   'ide.chat.commitFileCount_one': 'Файл Commit {{count}}',
   'ide.chat.commitFileCount_other': 'Зафіксувати {{count}} файлів',

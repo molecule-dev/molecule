@@ -2,6 +2,7 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for lo. */
 export const lo: Partial<IdeTranslations> = {
+  'ide.chat.commitBuildInProgress': 'ລໍຖ້າໃຫ້ການສ້າງສຳເລັດກ່ອນທີ່ຈະສ້າງ Git commit.',
   'ide.chat.showChangedFiles': 'ສະແດງໄຟລ໌ທີ່ຖືກປ່ຽນແປງ',
   'ide.chat.commitFileCount_one': 'ໄຟລ໌ Commit {{count}}',
   'ide.chat.commitFileCount_other': 'ດຳເນີນການ {{count}} ໄຟລ໌',

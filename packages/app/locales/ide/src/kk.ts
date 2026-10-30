@@ -2,6 +2,7 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for kk. */
 export const kk: Partial<IdeTranslations> = {
+  'ide.chat.commitBuildInProgress': 'Git коммитін жасамас бұрын құрастырудың аяқталуын күтіңіз.',
   'ide.chat.showChangedFiles': 'Өзгертілген файлдарды көрсету',
   'ide.chat.commitFileCount_one': '{{count}} файлды тапсыру',
   'ide.chat.commitFileCount_other': '{{count}} файлды тапсыру',

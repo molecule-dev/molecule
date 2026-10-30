@@ -2,6 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for sr. */
 export const sr: Partial<IdeTranslations> = {
+  'ide.chat.commitBuildInProgress':
+    'Сачекајте да се изградња заврши пре него што креирате Гит commit.',
   'ide.chat.showChangedFiles': 'Прикажи измењене датотеке',
   'ide.chat.commitFileCount_one': 'Коммит {{count}} фајл',
   'ide.chat.commitFileCount_other': 'Потврди {{count}} датотека',

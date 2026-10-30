@@ -2,6 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for sq. */
 export const sq: Partial<IdeTranslations> = {
+  'ide.chat.commitBuildInProgress':
+    'Prisni që ndërtimi të përfundojë përpara se të krijoni një commit në Git.',
   'ide.chat.showChangedFiles': 'Shfaq skedarët e ndryshuar',
   'ide.chat.commitFileCount_one': 'Kryej skedarin {{count}}',
   'ide.chat.commitFileCount_other': 'Kryej {{count}} skedarë',

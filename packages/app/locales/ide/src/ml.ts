@@ -2,6 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for ml. */
 export const ml: Partial<IdeTranslations> = {
+  'ide.chat.commitBuildInProgress':
+    'ഒരു Git കമ്മിറ്റ് സൃഷ്ടിക്കുന്നതിന് മുമ്പ് ബിൽഡ് പൂർത്തിയാകുന്നതുവരെ കാത്തിരിക്കുക.',
   'ide.chat.showChangedFiles': 'മാറ്റിയ ഫയലുകൾ കാണിക്കുക',
   'ide.chat.commitFileCount_one': '{{count}} ഫയൽ കമ്മിറ്റ് ചെയ്യുക',
   'ide.chat.commitFileCount_other': '{{count}} ഫയലുകൾ കമ്മിറ്റ് ചെയ്യുക',

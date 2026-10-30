@@ -2,6 +2,7 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for gu. */
 export const gu: Partial<IdeTranslations> = {
+  'ide.chat.commitBuildInProgress': 'ગિટ કમિટ બનાવતા પહેલા બિલ્ડ પૂર્ણ થાય ત્યાં સુધી રાહ જુઓ.',
   'ide.chat.showChangedFiles': 'બદલાયેલી ફાઇલો બતાવો',
   'ide.chat.commitFileCount_one': '{{count}} ફાઇલ કમિટ કરો',
   'ide.chat.commitFileCount_other': '{{count}} ફાઇલો કમિટ કરો',

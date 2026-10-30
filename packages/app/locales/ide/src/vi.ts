@@ -2,6 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for vi. */
 export const vi: Partial<IdeTranslations> = {
+  'ide.chat.commitBuildInProgress':
+    'Hãy đợi quá trình biên dịch hoàn tất trước khi tạo commit Git.',
   'ide.chat.showChangedFiles': 'Hiển thị các tệp đã thay đổi',
   'ide.chat.commitFileCount_one': 'Cam kết tệp {{count}}',
   'ide.chat.commitFileCount_other': 'Cam kết {{count}} tệp',

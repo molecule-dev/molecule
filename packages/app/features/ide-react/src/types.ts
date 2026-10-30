@@ -233,7 +233,7 @@ export interface ChatPanelProps {
   onFileChange?: (path: string, content: string) => void
   /** Called when a file is removed from disk (e.g. reverting an untracked file). */
   onFileDeleted?: (path: string) => void
-  /** Called after a successful commit — should refresh file explorer git status. */
+  /** Called after a commit or no-op — should refresh file explorer git status. */
   onCommit?: () => void
   /** Called when an inline activity card is clicked — should open the Activity panel filtered to this activity. */
   onActivityClick?: (activity: ActivityFromCard) => void

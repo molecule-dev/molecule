@@ -2,6 +2,7 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for ur. */
 export const ur: Partial<IdeTranslations> = {
+  'ide.chat.commitBuildInProgress': 'گٹ کمٹ بنانے سے پہلے تعمیر کے ختم ہونے کا انتظار کریں۔',
   'ide.chat.showChangedFiles': 'تبدیل شدہ فائلیں دکھائیں۔',
   'ide.chat.commitFileCount_one': '{{count}} فائل کا ارتکاب کریں۔',
   'ide.chat.commitFileCount_other': '{{count}} فائلوں کا ارتکاب کریں۔',

@@ -2,6 +2,7 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for hy. */
 export const hy: Partial<IdeTranslations> = {
+  'ide.chat.commitBuildInProgress': 'Սպասեք կառուցման ավարտին, նախքան Git commit ստեղծելը։',
   'ide.chat.showChangedFiles': 'Ցուցադրել փոփոխված ֆայլերը',
   'ide.chat.commitFileCount_one': 'Կատարել {{count}} ֆայլ',
   'ide.chat.commitFileCount_other': '{{count}} ֆայլի հաստատում',

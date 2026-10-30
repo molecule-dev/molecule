@@ -2,6 +2,7 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for cy. */
 export const cy: Partial<IdeTranslations> = {
+  'ide.chat.commitBuildInProgress': "Arhoswch i'r adeiladwaith orffen cyn creu commit Git.",
   'ide.chat.showChangedFiles': "Dangos ffeiliau wedi'u newid",
   'ide.chat.commitFileCount_one': 'Cyflawni ffeil {{count}}',
   'ide.chat.commitFileCount_other': 'Cyflawni {{count}} ffeil',

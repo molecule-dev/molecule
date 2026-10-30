@@ -2,6 +2,7 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for ig. */
 export const ig: Partial<IdeTranslations> = {
+  'ide.chat.commitBuildInProgress': 'Chere ka ihe owuwu ahụ mechaa tupu ịmepụta nkwekọrịta Git.',
   'ide.chat.showChangedFiles': 'Gosi faịlụ ndị agbanwere',
   'ide.chat.commitFileCount_one': 'Kwenye faịlụ {{count}}',
   'ide.chat.commitFileCount_other': 'Kwenye faịlụ {{count}}',

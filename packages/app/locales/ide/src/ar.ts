@@ -2,6 +2,7 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for ar. */
 export const ar: Partial<IdeTranslations> = {
+  'ide.chat.commitBuildInProgress': 'انتظر حتى يكتمل البناء قبل إنشاء التزام Git.',
   'ide.chat.showChangedFiles': 'عرض الملفات المتغيرة',
   'ide.chat.commitFileCount_one': 'قم بتثبيت الملف {{count}}',
   'ide.chat.commitFileCount_other': 'تم حفظ {{count}} ملف',

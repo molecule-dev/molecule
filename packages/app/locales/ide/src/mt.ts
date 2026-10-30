@@ -2,6 +2,7 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for mt. */
 export const mt: Partial<IdeTranslations> = {
+  'ide.chat.commitBuildInProgress': 'Stenna li l-bini jitlesta qabel ma toħloq commit tal-Git.',
   'ide.chat.showChangedFiles': 'Uri l-fajls mibdula',
   'ide.chat.commitFileCount_one': 'Impenja {{count}} fajl',
   'ide.chat.commitFileCount_other': 'Impenja {{count}} fajls',

@@ -2,6 +2,7 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for am. */
 export const am: Partial<IdeTranslations> = {
+  'ide.chat.commitBuildInProgress': 'የጂት ውክልና ከመፍጠርዎ በፊት ግንባታው እስኪጠናቀቅ ይጠብቁ።',
   'ide.chat.showChangedFiles': 'የተቀየሩ ፋይሎችን አሳይ',
   'ide.chat.commitFileCount_one': 'ቃል መግባት {{count}} ፋይል',
   'ide.chat.commitFileCount_other': '{{count}} ፋይሎች ይዋጁ',

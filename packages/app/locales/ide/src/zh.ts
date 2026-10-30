@@ -2,6 +2,7 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for zh. */
 export const zh: Partial<IdeTranslations> = {
+  'ide.chat.commitBuildInProgress': '请等待构建完成再创建 Git 提交。',
   'ide.chat.showChangedFiles': '显示已更改的文件',
   'ide.chat.commitFileCount_one': '提交{{count}}文件',
   'ide.chat.commitFileCount_other': '提交{{count}}文件',

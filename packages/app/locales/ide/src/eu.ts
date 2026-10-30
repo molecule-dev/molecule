@@ -2,6 +2,7 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for eu. */
 export const eu: Partial<IdeTranslations> = {
+  'ide.chat.commitBuildInProgress': 'Itxaron eraikuntza amaitu arte Git commit bat sortu aurretik.',
   'ide.chat.showChangedFiles': 'Erakutsi aldatutako fitxategiak',
   'ide.chat.commitFileCount_one': '{{count}} fitxategia bidali',
   'ide.chat.commitFileCount_other': '{{count}} fitxategi bidali',

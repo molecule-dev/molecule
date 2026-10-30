@@ -2,6 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for ga. */
 export const ga: Partial<IdeTranslations> = {
+  'ide.chat.commitBuildInProgress':
+    'Fan go mbeidh an tógáil críochnaithe sula gcruthaíonn tú commit Git.',
   'ide.chat.showChangedFiles': 'Taispeáin comhaid athraithe',
   'ide.chat.commitFileCount_one': 'Comhad Tiomnaithe {{count}}',
   'ide.chat.commitFileCount_other': 'Tiomnaigh {{count}} comhad',

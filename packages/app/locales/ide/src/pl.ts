@@ -2,6 +2,8 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for pl. */
 export const pl: Partial<IdeTranslations> = {
+  'ide.chat.commitBuildInProgress':
+    'Poczekaj na zakończenie kompilacji, zanim zatwierdzisz operację Git.',
   'ide.chat.showChangedFiles': 'Pokaż zmienione pliki',
   'ide.chat.commitFileCount_one': 'Zatwierdź plik {{count}}',
   'ide.chat.commitFileCount_other': 'Zatwierdź {{count}} plików',
