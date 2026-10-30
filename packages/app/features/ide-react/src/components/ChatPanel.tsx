@@ -210,10 +210,10 @@ import {
   buildTestFixMessage,
   EMPTY_RUN_STATE,
   failRun,
-  foldTestRunEvents,
   markSkipUnavailable,
   parseTestCommand,
   requestSkip,
+  TestRunProjection,
 } from './tests-card-utilities.js'
 import type { TestsStatus } from './TestsCard.js'
 import { TestsCard } from './TestsCard.js'
@@ -4538,20 +4538,20 @@ function ChatInner({
   // would eventually capture stale.
   const testsRunningRef = useRef(false)
   testsRunningRef.current = testsRun.running
-  // The card is a fold of raw events, never a merge of retained run snapshots.
-  const testRunEventsRef = useRef<TestRunFeedEvent[]>([])
-  const ownTestRunEventsRef = useRef<TestRunFeedEvent[]>([])
+  // One incremental projection: per-file verdicts plus bounded live/latest run state. Server ids
+  // dedupe the direct stream and feed echo; legacy id-less custom hosts use the bounded id guard.
+  const testRunProjectionRef = useRef<TestRunProjection | null>(null)
+  if (!testRunProjectionRef.current) testRunProjectionRef.current = new TestRunProjection()
   const activeOwnTestRunIdsRef = useRef(new Set<string>())
   const completedOwnTestRunIdsRef = useRef(new Set<string>())
   const projectTestsRun = useCallback((): void => {
     const invocation = ownTestRunRef.current
-    if (invocation && invocation.state.runId == null) return
+    if (invocation && invocation.state.runId == null) {
+      setTestsRun(invocation.state)
+      return
+    }
     const activeOwnRunId = invocation?.state.runId ?? null
-    const ownRunIds = new Set([
-      ...activeOwnTestRunIdsRef.current,
-      ...completedOwnTestRunIdsRef.current,
-    ])
-    const next = foldTestRunEvents(testRunEventsRef.current, { activeOwnRunId, ownRunIds })
+    const next = testRunProjectionRef.current!.show(activeOwnRunId)
     setTestsRun(
       invocation && next.runId === invocation.state.runId
         ? {
@@ -4563,8 +4563,13 @@ function ChatInner({
     )
   }, [])
   const recordOwnTestRunEvent = useCallback((event: TestRunFeedEvent): void => {
-    ownTestRunEventsRef.current.push(event)
-    testRunEventsRef.current.push(event)
+    const legacy = !event.eventId
+    if (legacy) {
+      if (ownTestRunRef.current?.state.runId === event.runId)
+        activeOwnTestRunIdsRef.current.add(event.runId)
+      else rememberCompletedOwnTestRunId(completedOwnTestRunIdsRef.current, event.runId)
+    }
+    testRunProjectionRef.current!.apply(event, ownTestRunRef.current?.state.runId ?? null)
   }, [])
   // Whether a TURN is in flight — a fix is a real message, so it waits its turn.
   const testsBusyRef = useRef(false)
@@ -4642,38 +4647,33 @@ function ChatInner({
           const current = ownTestRunRef.current === invocation
           const ended = invocation.ended
           invocation.state = applyTestRunEvent(invocation.state, event)
+          const runId = invocation.state.runId
+
+          // Completion owns cleanup even when no start ever supplied an id. Otherwise one failed
+          // start leaves this invocation occupied and every later Run click returns early.
+          if (event.type === 'done') {
+            invocation.ended = event
+            if (current) ownTestRunRef.current = null
+            void refreshTests()
+          }
+
+          if (runId == null) {
+            if (current) setTestsRun(invocation.state)
+            return
+          }
           if (event.type === 'start') {
-            // The feed copy may arrive first; the own stream replaces it.
-            testRunEventsRef.current = testRunEventsRef.current.filter(
-              (candidate) => candidate.runId !== event.runId,
-            )
-            if (current && !ended) activeOwnTestRunIdsRef.current.add(event.runId)
-            else rememberCompletedOwnTestRunId(completedOwnTestRunIdsRef.current, event.runId)
             recordOwnTestRunEvent(event)
             if (ended) {
               // A start delayed past cancellation is history, never a live own run.
               invocation.state = applyTestRunEvent(invocation.state, ended)
-              recordOwnTestRunEvent({ ...ended, runId: event.runId })
+              recordOwnTestRunEvent({ ...ended, runId })
             }
-          } else if (invocation.state.runId != null) {
-            recordOwnTestRunEvent({ ...event, runId: invocation.state.runId })
-          } else if (current) {
-            setTestsRun((prev) => applyTestRunEvent(prev, event))
-            return
           } else {
-            return
+            recordOwnTestRunEvent({ ...event, runId })
           }
-          if (event.type === 'done') {
-            invocation.ended = event
-            if (invocation.state.runId != null) {
-              activeOwnTestRunIdsRef.current.delete(invocation.state.runId)
-              rememberCompletedOwnTestRunId(
-                completedOwnTestRunIdsRef.current,
-                invocation.state.runId,
-              )
-            }
-            if (current) ownTestRunRef.current = null
-            void refreshTests()
+          if (event.type === 'done' && !event.eventId) {
+            activeOwnTestRunIdsRef.current.delete(runId)
+            rememberCompletedOwnTestRunId(completedOwnTestRunIdsRef.current, runId)
           }
           projectTestsRun()
         })
@@ -4707,10 +4707,9 @@ function ChatInner({
           invocation.ended = done
           invocation.state = applyTestRunEvent(invocation.state, done)
           activeOwnTestRunIdsRef.current.delete(runId)
-          rememberCompletedOwnTestRunId(completedOwnTestRunIdsRef.current, runId)
           recordOwnTestRunEvent({ ...done, runId })
           projectTestsRun()
-        } else if (testRunEventsRef.current.length > 0) {
+        } else if (testRunProjectionRef.current!.show().running) {
           projectTestsRun()
         } else {
           setTestsRun((prev) => failRun(prev, message))
@@ -4757,10 +4756,7 @@ function ChatInner({
     const runId = invocation.state.runId
     if (runId != null) {
       activeOwnTestRunIdsRef.current.delete(runId)
-      rememberCompletedOwnTestRunId(completedOwnTestRunIdsRef.current, runId)
       recordOwnTestRunEvent({ ...done, runId })
-      projectTestsRun()
-    } else if (testRunEventsRef.current.length > 0) {
       projectTestsRun()
     } else {
       setTestsRun({ ...invocation.state, skipUnavailable: true })
@@ -4775,25 +4771,23 @@ function ChatInner({
   const refreshTestsRef = useRef(refreshTests)
   refreshTestsRef.current = refreshTests
   useEffect(() => {
-    const ownEvents = [...ownTestRunEventsRef.current]
-    testRunEventsRef.current = []
     if (!watchTestRuns) return
     let relist: ReturnType<typeof setTimeout> | null = null
     let unsubscribe: (() => void) | null = null
     try {
       unsubscribe = watchTestRuns((event) => {
         if (!testsMountedRef.current) return
-        // Active ids are pinned; only completed-id history has a bound.
+        // Only id-less legacy hosts need run-id suppression. Ordered copies dedupe by event id.
         if (
-          activeOwnTestRunIdsRef.current.has(event.runId) ||
-          completedOwnTestRunIdsRef.current.has(event.runId)
+          !event.eventId &&
+          (activeOwnTestRunIdsRef.current.has(event.runId) ||
+            completedOwnTestRunIdsRef.current.has(event.runId))
         ) {
           return
         }
-        testRunEventsRef.current.push(event)
+        testRunProjectionRef.current!.apply(event, ownTestRunRef.current?.state.runId ?? null)
         projectTestsRun()
         if (event.type === 'done') {
-          // A replay can end several runs at once; list once for all of them.
           if (relist) clearTimeout(relist)
           relist = setTimeout(() => {
             relist = null
@@ -4801,8 +4795,6 @@ function ChatInner({
           }, 500)
         }
       })
-      // Synchronous replay is authoritative; own-stream events then refold with it.
-      testRunEventsRef.current.push(...ownEvents)
       projectTestsRun()
     } catch (error) {
       logger.warn('Failed to watch the project test runs', { error })

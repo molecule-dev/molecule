@@ -981,24 +981,28 @@ describe('every test run in the project reaches the test view', () => {
     )
     await openTests(container)
     fireEvent.click(molId(container, `tests-card-run-${HOME}`)!)
-    act(() => emit({ type: 'start', runId: 'A', ids: [HOME] }))
-    first.emit({ type: 'start', runId: 'B', ids: [HOME], source: 'platform' })
-    first.emit({ type: 'done', runId: 'B', outcome: 'cancelled' })
+    act(() => emit({ type: 'start', runId: 'A', eventId: '1-0', ids: [HOME] }))
+    first.emit({ type: 'start', runId: 'B', eventId: '2-0', ids: [HOME], source: 'platform' })
+    first.emit({ type: 'done', runId: 'B', eventId: '3-0', outcome: 'cancelled' })
     act(() => {
-      emit({ type: 'result', id: HOME, status: 'passed', passed: 1 })
-      emit({ type: 'done', outcome: 'completed' })
+      emit({ type: 'result', eventId: '4-0', id: HOME, status: 'passed', passed: 1 })
+      emit({ type: 'done', eventId: '5-0', outcome: 'completed' })
     })
     expect(molId(container, `tests-card-status-${HOME}`)?.textContent).toBe('Passed')
 
-    const replay = fakeFeed([
-      { type: 'start', runId: 'B', ids: [HOME], source: 'platform' },
-      { type: 'done', runId: 'B', outcome: 'cancelled' },
-      { type: 'start', runId: 'A', ids: [HOME], source: 'person' },
-      { type: 'result', runId: 'A', id: HOME, status: 'passed', passed: 1 },
-      { type: 'done', runId: 'A', outcome: 'completed' },
-    ])
+    const replay = fakeFeed()
     rerender(renderPanel({ listTests, runTests, watchTestRuns: replay.watchTestRuns }))
     await waitFor(() => expect(first.unsubscribed()).toBe(1))
+    // Real replay is asynchronous: the old client appended own events first, then accepted B's
+    // older replay while suppressing A's. Ids must make both runs' replayed copies no-ops.
+    for (const event of [
+      { type: 'start', runId: 'B', eventId: '2-0', ids: [HOME], source: 'platform' },
+      { type: 'done', runId: 'B', eventId: '3-0', outcome: 'cancelled' },
+      { type: 'start', runId: 'A', eventId: '1-0', ids: [HOME], source: 'person' },
+      { type: 'result', runId: 'A', eventId: '4-0', id: HOME, status: 'passed', passed: 1 },
+      { type: 'done', runId: 'A', eventId: '5-0', outcome: 'completed' },
+    ] as TestRunFeedEvent[])
+      replay.emit(event)
     expect(molId(container, `tests-card-status-${HOME}`)?.textContent).toBe('Passed')
   })
 
@@ -1122,6 +1126,21 @@ describe('every test run in the project reaches the test view', () => {
     fireEvent.click(molId(container, 'tests-card-cancel')!)
     expect(molId(container, 'tests-card-running')).toBeNull()
     expect(molId(container, 'tests-card-cancelled')?.textContent).toBe('Run stopped.')
+  })
+
+  it('Sol ownership: a failure before start lets the next Run click invoke the host', async () => {
+    const runTests = vi.fn((_selection: TestSelection, onEvent: (event: TestRunEvent) => void) => {
+      if (runTests.mock.calls.length === 1) {
+        onEvent({ type: 'done', outcome: 'error', error: 'could not start' })
+      }
+      return { cancel: () => {} }
+    })
+    const { container } = render(renderPanel({ listTests: async () => LIST, runTests }))
+    await openTests(container)
+    fireEvent.click(molId(container, `tests-card-run-${HOME}`)!)
+    await waitFor(() => expect(molId(container, 'tests-card-run-error')).not.toBeNull())
+    fireEvent.click(molId(container, `tests-card-run-${HOME}`)!)
+    expect(runTests).toHaveBeenCalledTimes(2)
   })
 
   it('unsubscribes when the panel unmounts', async () => {

@@ -64,8 +64,10 @@ export interface TestResultEntry {
 export interface TestsRunState {
   runId: string | null
   running: boolean
-  /** The ids this run covers, in run order. */
+  /** The ids the run on show covers, in run order (its private Skip candidates). */
   queued: string[]
+  /** Files owed by ANY live covering run; row spinners use this aggregate, Skip never does. */
+  runningIds?: string[]
   /** The id whose output is streaming right now, when the host says which. */
   currentId: string | null
   /** The live output lines, newest last, capped at {@link MAX_OUTPUT_LINES}. */
@@ -354,86 +356,133 @@ export function applyTestRunEvent(state: TestsRunState, event: TestRunEvent): Te
   }
 }
 
-/**
- * Per file, show the latest verdict in event order unless a covering run started or discovered
- * the file after that verdict, in which case show running while that run is live and no verdict
- * if it ended without one.
- *
- * The input is the server's event order; a reconnect supplies a fresh replay instead of merging
- * retained run state. The active own run keeps the progress and controls, never a second feed copy.
- *
- * @param events - Own-stream and project-feed events in server receipt order.
- * @param options - The active own run, and every own id whose feed copy is suppressed.
- * @returns The complete visible card state, folded from scratch.
- */
-export function foldTestRunEvents(
-  events: readonly TestRunFeedEvent[],
-  {
-    activeOwnRunId = null,
-    ownRunIds = new Set<string>(),
-  }: {
-    activeOwnRunId?: string | null
-    ownRunIds?: ReadonlySet<string>
-  } = {},
-): TestsRunState {
-  const runs = new Map<string, TestsRunState>()
-  const lastActivity = new Map<string, number>()
-  const results: Record<string, TestResultEntry> = {}
-  const pending = new Map<string, string>()
+/** Compare Redis stream ids without converting their potentially large sequences to numbers. */
+function compareEventIds(a: string, b: string): number {
+  const parse = (id: string): [bigint, bigint] | null => {
+    const match = /^(\d+)-(\d+)$/.exec(id)
+    return match ? [BigInt(match[1]!), BigInt(match[2]!)] : null
+  }
+  const left = parse(a)
+  const right = parse(b)
+  if (!left || !right) return 0
+  return left[0] < right[0]
+    ? -1
+    : left[0] > right[0]
+      ? 1
+      : left[1] < right[1]
+        ? -1
+        : left[1] > right[1]
+          ? 1
+          : 0
+}
 
-  for (const [index, event] of events.entries()) {
-    const previous = runs.get(event.runId) ?? {
-      ...EMPTY_RUN_STATE,
-      runId: event.runId,
-      running: event.type !== 'done',
+interface ProjectedRun {
+  state: TestsRunState
+  covered: Set<string>
+  startOrder: number
+  lastOrder: number
+}
+
+/**
+ * Incremental card state. A server id is applied once, in order; completed runs are compacted
+ * while per-file verdicts survive. No raw event history is retained or replayed into a fold.
+ */
+export class TestRunProjection {
+  private readonly runs = new Map<string, ProjectedRun>()
+  private readonly results: Record<string, TestResultEntry> = {}
+  private readonly pending = new Map<string, string>()
+  private lastEventId: string | null = null
+  private order = 0
+
+  /** Apply one event and return the visible state. Missing ids support older custom hosts only. */
+  apply(event: TestRunFeedEvent, activeOwnRunId: string | null = null): TestsRunState {
+    if (event.eventId) {
+      if (this.lastEventId && compareEventIds(event.eventId, this.lastEventId) <= 0)
+        return this.show(activeOwnRunId)
+      this.lastEventId = event.eventId
     }
-    // A delayed duplicate completion cannot take progress or outcome from the next run.
-    if (previous.running === false && event.type === 'done') continue
+    const order = ++this.order
+    const previous = this.runs.get(event.runId) ?? {
+      state: { ...EMPTY_RUN_STATE, runId: event.runId, running: event.type !== 'done' },
+      covered: new Set<string>(),
+      startOrder: order,
+      lastOrder: order,
+    }
+    if (!previous.state.running && event.type === 'done') return this.show(activeOwnRunId)
+
     const id =
       event.type === 'case' || event.type === 'result' || event.type === 'output'
         ? event.id
         : undefined
-    const discovers = id != null && !previous.queued.includes(id)
-    const covered = event.type === 'start' ? event.ids : discovers && id != null ? [id] : []
+    const covered =
+      event.type === 'start' ? event.ids : id != null && !previous.covered.has(id) ? [id] : []
     for (const file of covered) {
-      delete results[file]
-      pending.set(file, event.runId)
+      previous.covered.add(file)
+      delete this.results[file]
+      this.pending.set(file, event.runId)
     }
 
-    let next = applyTestRunEvent(previous, event)
+    let next = applyTestRunEvent(previous.state, event)
     if (event.type === 'start' && event.startedAt) {
       const startedAt = Date.parse(event.startedAt)
       if (Number.isFinite(startedAt)) next = { ...next, startedAt }
     }
-    runs.set(event.runId, next)
-    lastActivity.set(event.runId, index)
     if (event.type === 'result') {
       const verdict = next.results[event.id]
-      if (verdict) results[event.id] = verdict
-      pending.delete(event.id)
+      if (verdict) this.results[event.id] = verdict
+      // The latest verdict is what counts, even when an older run produced it after a newer start.
+      this.pending.delete(event.id)
+    }
+    if (event.type === 'done') {
+      for (const [file, runId] of this.pending) {
+        if (runId === event.runId) this.pending.delete(file)
+      }
+    }
+    this.runs.set(event.runId, { ...previous, state: next, lastOrder: order })
+    this.compact()
+    return this.show(activeOwnRunId)
+  }
+
+  /** Keep every live run (including the active own run) and only the latest completed run. */
+  private compact(): void {
+    const completed = [...this.runs.values()]
+      .filter((run) => !run.state.running)
+      .sort((a, b) => b.lastOrder - a.lastOrder)
+    for (const run of completed.slice(1)) {
+      if (run.state.runId) this.runs.delete(run.state.runId)
     }
   }
 
-  const ordered = [...runs.values()].sort(
-    (a, b) =>
-      (a.startedAt ?? 0) - (b.startedAt ?? 0) || (a.runId ?? '').localeCompare(b.runId ?? ''),
-  )
-  const activeOwn = activeOwnRunId == null ? undefined : runs.get(activeOwnRunId)
-  const lastActive = [...runs.values()].sort(
-    (a, b) => (lastActivity.get(a.runId!) ?? 0) - (lastActivity.get(b.runId!) ?? 0),
-  )
-  const shown =
-    activeOwn ?? ordered.filter((run) => run.running).at(-1) ?? lastActive.at(-1) ?? EMPTY_RUN_STATE
-  const runningIds = new Set(
-    [...pending].filter(([, runId]) => runs.get(runId)?.running === true).map(([id]) => id),
-  )
-  const own = shown.runId != null && ownRunIds.has(shown.runId)
-  return {
-    ...shown,
-    queued: shown.running ? [...runningIds] : shown.queued,
-    results,
-    external: shown.runId == null ? undefined : !own,
-    skipUnavailable: own ? shown.skipUnavailable : true,
+  /** Render current per-file state, with progress and controls selected independently. */
+  show(activeOwnRunId: string | null = null): TestsRunState {
+    const activeOwn = activeOwnRunId ? this.runs.get(activeOwnRunId) : undefined
+    const running = [...this.runs.values()]
+      .filter((run) => run.state.running)
+      .sort((a, b) => a.startOrder - b.startOrder || a.lastOrder - b.lastOrder)
+    const latest = [...this.runs.values()].sort((a, b) => a.lastOrder - b.lastOrder).at(-1)
+    const shown = activeOwn?.state.running
+      ? activeOwn
+      : (running.at(-1) ?? latest ?? { state: EMPTY_RUN_STATE })
+    const runningIds = new Set(
+      [...this.pending]
+        .filter(([, runId]) => this.runs.get(runId)?.state.running === true)
+        .map(([id]) => id),
+    )
+    const own = shown.state.runId != null && shown.state.runId === activeOwnRunId
+    const currentId =
+      shown.state.currentId && runningIds.has(shown.state.currentId) ? shown.state.currentId : null
+    const cases = Object.fromEntries(
+      Object.entries(shown.state.cases).filter(([id]) => runningIds.has(id)),
+    )
+    return {
+      ...shown.state,
+      currentId,
+      cases,
+      runningIds: [...runningIds],
+      results: { ...this.results },
+      external: shown.state.runId == null ? undefined : !own,
+      skipUnavailable: own ? shown.state.skipUnavailable : true,
+    }
   }
 }
 
@@ -483,7 +532,8 @@ export function canSkipRun(state: TestsRunState): boolean {
 export function currentRunRowId(state: TestsRunState): string | null {
   if (!state.running) return null
   if (state.currentId) return state.currentId
-  const pending = state.queued.filter((id) => state.results[id] == null)
+  const runningIds = new Set(state.runningIds ?? state.queued)
+  const pending = state.queued.filter((id) => runningIds.has(id) && state.results[id] == null)
   return pending.length === 1 ? (pending[0] as string) : null
 }
 
@@ -534,7 +584,7 @@ export function failRun(state: TestsRunState, message: string): TestsRunState {
 export function isRowRunning(state: TestsRunState, id: string): boolean {
   if (!state.running || state.results[id] != null) return false
   if (state.currentId === id) return true
-  return state.queued.includes(id) && state.results[id] == null
+  return (state.runningIds ?? state.queued).includes(id) && state.results[id] == null
 }
 
 /**

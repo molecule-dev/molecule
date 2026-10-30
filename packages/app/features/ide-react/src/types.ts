@@ -155,7 +155,7 @@ export type TestRunOutcome = 'completed' | 'cancelled' | 'timeout' | 'error' | '
  * in molecule.dev) in the order the run produces them: one `start`, then
  * interleaved `output`/`case`/`result`, then exactly one `done`.
  */
-export type TestRunEvent =
+export type TestRunEvent = (
   | {
       type: 'start'
       runId: string
@@ -205,6 +205,10 @@ export type TestRunEvent =
       durationMs?: number
       error?: string
     }
+) & {
+  /** Server order on the direct stream too; optional only for older/custom hosts. */
+  eventId?: string
+}
 
 /**
  * Who started a test run: the person (the Run buttons, in this tab or another),

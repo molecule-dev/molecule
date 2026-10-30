@@ -15,7 +15,6 @@ import {
   EMPTY_RUN_STATE,
   failRun,
   filterTests,
-  foldTestRunEvents,
   groupTests,
   isRowRunning,
   markSkipUnavailable,
@@ -25,6 +24,7 @@ import {
   summarizeResults,
   testCaseLabel,
   testRowLabel,
+  TestRunProjection,
 } from '../components/tests-card-utilities.js'
 import type { TestItem, TestRunFeedEvent } from '../types.js'
 
@@ -515,6 +515,20 @@ describe('testCaseLabel', () => {
 })
 
 describe('runs this panel did not start (the project run feed)', () => {
+  function projectEvents(
+    events: readonly TestRunFeedEvent[],
+    options: { activeOwnRunId?: string | null; ownRunIds?: ReadonlySet<string> } = {},
+  ) {
+    const projection = new TestRunProjection()
+    for (const [index, event] of events.entries()) {
+      projection.apply(
+        { ...event, eventId: event.eventId ?? `${index + 1}-0` },
+        options.activeOwnRunId ?? null,
+      )
+    }
+    return projection.show(options.activeOwnRunId ?? null)
+  }
+
   const FILE = 'api:src/routes.test.ts'
   const OTHER = 'app:e2e/home.spec.ts'
   const start = (runId: string, ids: string[], second = 0): TestRunFeedEvent => ({
@@ -541,7 +555,7 @@ describe('runs this panel did not start (the project run feed)', () => {
   })
 
   it('folds a watched run on its server clock and never makes it steerable', () => {
-    const shown = foldTestRunEvents([
+    const shown = projectEvents([
       { ...start('agent', [FILE], 4), command: 'npx vitest run src/routes.test.ts' },
       pass('agent'),
     ])
@@ -558,19 +572,19 @@ describe('runs this panel did not start (the project run feed)', () => {
   })
 
   it('lands a verdict from a run joined part-way', () => {
-    const shown = foldTestRunEvents([pass('agent')])
+    const shown = projectEvents([pass('agent')])
     expect(shown.runId).toBe('agent')
     expect(shown.results[FILE]?.status).toBe('passed')
   })
 
   it('shows running only for files still owed by a live run', () => {
-    const live = foldTestRunEvents([start('agent', [FILE, OTHER])])
+    const live = projectEvents([start('agent', [FILE, OTHER])])
     expect(isRowRunning(live, FILE)).toBe(true)
     expect(isRowRunning(live, OTHER)).toBe(true)
-    const oneAnswered = foldTestRunEvents([start('agent', [FILE, OTHER]), pass('agent', FILE)])
+    const oneAnswered = projectEvents([start('agent', [FILE, OTHER]), pass('agent', FILE)])
     expect(isRowRunning(oneAnswered, FILE)).toBe(false)
     expect(isRowRunning(oneAnswered, OTHER)).toBe(true)
-    const ended = foldTestRunEvents([start('agent', [FILE, OTHER]), done('agent', 'cancelled')])
+    const ended = projectEvents([start('agent', [FILE, OTHER]), done('agent', 'cancelled')])
     expect(ended.results[FILE]).toBeUndefined()
     expect(isRowRunning(ended, OTHER)).toBe(false)
   })
@@ -580,7 +594,7 @@ describe('runs this panel did not start (the project run feed)', () => {
       type === 'case'
         ? { type, runId: 'agent', id: FILE, title: 'routes', status: 'running' }
         : { type, runId: 'agent', id: FILE, chunk: 'running routes' }
-    const shown = foldTestRunEvents([
+    const shown = projectEvents([
       start('old', [FILE]),
       pass('old'),
       done('old'),
@@ -593,7 +607,7 @@ describe('runs this panel did not start (the project run feed)', () => {
 
   it('keeps the active own run on show without counting its feed copy twice', () => {
     const ownEvents: TestRunFeedEvent[] = [start('own', [FILE]), pass('own')]
-    const shown = foldTestRunEvents(ownEvents, {
+    const shown = projectEvents(ownEvents, {
       activeOwnRunId: 'own',
       ownRunIds: new Set(['own']),
     })
@@ -602,7 +616,7 @@ describe('runs this panel did not start (the project run feed)', () => {
   })
 
   it('a later run covering a different file keeps this file verdict', () => {
-    const shown = foldTestRunEvents([
+    const shown = projectEvents([
       start('A', [FILE]),
       pass('A'),
       done('A'),
@@ -613,7 +627,7 @@ describe('runs this panel did not start (the project run feed)', () => {
   })
 
   it('the latest result wins even when its run started before another covering run', () => {
-    const shown = foldTestRunEvents([
+    const shown = projectEvents([
       start('A', [FILE]),
       start('B', [FILE], 1),
       pass('B'),
@@ -623,7 +637,7 @@ describe('runs this panel did not start (the project run feed)', () => {
   })
 
   it('a newer outside verdict lands while the own run keeps progress and controls', () => {
-    const shown = foldTestRunEvents(
+    const shown = projectEvents(
       [start('own', [FILE, OTHER]), start('agent', [FILE], 1), pass('agent')],
       { activeOwnRunId: 'own', ownRunIds: new Set(['own']) },
     )
@@ -633,7 +647,7 @@ describe('runs this panel did not start (the project run feed)', () => {
   })
 
   it('a later own verdict wins when the own run ends', () => {
-    const shown = foldTestRunEvents(
+    const shown = projectEvents(
       [start('own', [FILE]), start('agent', [FILE], 1), pass('agent'), pass('own'), done('own')],
       { ownRunIds: new Set(['own']) },
     )
@@ -643,7 +657,7 @@ describe('runs this panel did not start (the project run feed)', () => {
   })
 
   it('hands progress to the latest server-started live run', () => {
-    const shown = foldTestRunEvents([
+    const shown = projectEvents([
       start('later', [OTHER], 2),
       start('earlier', [FILE], 1),
       done('later', 'cancelled'),
@@ -651,39 +665,26 @@ describe('runs this panel did not start (the project run feed)', () => {
     expect(shown).toMatchObject({ runId: 'earlier', running: true, external: true })
   })
 
-  it('Sol 1: a cancelled background rerun leaves no stale verdict', () => {
-    const shown = foldTestRunEvents([
-      start('A', [OTHER]),
-      start('B', [FILE], 1),
-      pass('B'),
-      done('B'),
-      start('C', [FILE], 2),
-      done('C', 'cancelled'),
-      done('A'),
-    ])
-    expect(shown.results[FILE]).toBeUndefined()
-  })
-
-  it.each(['case', 'output'] as const)('Sol 1 also holds when C discovers F through %s', (type) => {
-    const discovery: TestRunFeedEvent =
-      type === 'case'
-        ? { type, runId: 'C', id: FILE, title: 'routes', status: 'running' }
-        : { type, runId: 'C', id: FILE, chunk: 'running routes' }
-    const shown = foldTestRunEvents([
-      start('A', [OTHER]),
-      start('B', [FILE], 1),
-      pass('B'),
-      done('B'),
-      start('C', [], 2),
-      discovery,
-      done('C', 'cancelled'),
-      done('A'),
-    ])
-    expect(shown.results[FILE]).toBeUndefined()
+  it('Sol 1: run-grouped replay cannot erase a later verdict', () => {
+    const a = [
+      { ...start('A', [FILE]), eventId: '1-0' },
+      { ...pass('A'), eventId: '4-0' },
+      { ...done('A'), eventId: '5-0' },
+    ]
+    const b = [
+      { ...start('B', [FILE], 1), eventId: '2-0' },
+      { ...done('B', 'cancelled'), eventId: '3-0' },
+    ]
+    const projection = new TestRunProjection()
+    for (const event of [a[0]!, b[0]!, b[1]!, a[1]!, a[2]!]) projection.apply(event)
+    expect(projection.show().results[FILE]?.status).toBe('passed')
+    // The old retained cache replayed whole runs, A then B, rather than server event order.
+    for (const event of [...a, ...b]) projection.apply(event)
+    expect(projection.show().results[FILE]?.status).toBe('passed')
   })
 
   it('the earlier A/B/C ordering cannot restore a retained verdict', () => {
-    const shown = foldTestRunEvents([
+    const shown = projectEvents([
       start('A', [OTHER]),
       start('B', [FILE], 1),
       pass('B'),
@@ -696,18 +697,88 @@ describe('runs this panel did not start (the project run feed)', () => {
   })
 
   it('Sol 2: reconnect replay preserves the later own verdict', () => {
-    const feed = [start('B', [FILE], 1), done('B', 'cancelled')]
-    const own = [start('A', [FILE]), pass('A'), done('A')]
-    const before = foldTestRunEvents([own[0]!, feed[0]!, feed[1]!, own[1]!, own[2]!], {
-      ownRunIds: new Set(['A']),
-    })
-    expect(before.results[FILE]?.status).toBe('passed')
-    const replayed = foldTestRunEvents([...feed, ...own], { ownRunIds: new Set(['A']) })
-    expect(replayed.results[FILE]?.status).toBe('passed')
+    const feed = [
+      { ...start('B', [FILE], 1), eventId: '2-0' },
+      { ...done('B', 'cancelled'), eventId: '3-0' },
+    ]
+    const own = [
+      { ...start('A', [FILE]), eventId: '1-0' },
+      { ...pass('A'), eventId: '4-0' },
+      { ...done('A'), eventId: '5-0' },
+    ]
+    const projection = new TestRunProjection()
+    for (const event of [own[0]!, feed[0]!, feed[1]!, own[1]!, own[2]!]) projection.apply(event)
+    expect(projection.show().results[FILE]?.status).toBe('passed')
+    // A real reconnect suppresses the own run's feed copy; only B's older replay arrives.
+    for (const event of feed) projection.apply(event)
+    expect(projection.show().results[FILE]?.status).toBe('passed')
   })
 
   it('a reconnect with no new events shows exactly the same card', () => {
     const events = [start('A', [FILE]), pass('A'), done('A'), start('B', [OTHER], 1)]
-    expect(foldTestRunEvents(events)).toEqual(foldTestRunEvents([...events]))
+    expect(projectEvents(events)).toEqual(projectEvents([...events]))
+  })
+
+  it('Sol replay: stable ids preserve a verdict delivered after a cancelled rerun', () => {
+    const events: TestRunFeedEvent[] = [
+      { ...start('A', [FILE]), eventId: '1-0' },
+      { ...start('B', [FILE], 1), eventId: '2-0' },
+      { ...done('B', 'cancelled'), eventId: '3-0' },
+      { ...pass('A'), eventId: '4-0' },
+      { ...done('A'), eventId: '5-0' },
+    ]
+    const projection = new TestRunProjection()
+    for (const event of events) projection.apply(event)
+    expect(projection.show().results[FILE]?.status).toBe('passed')
+    const before = projection.show()
+    // The legacy cache grouped A before B on reconnect; stable ids make every replay a no-op.
+    for (const event of [events[0]!, events[3]!, events[4]!, events[1]!, events[2]!])
+      projection.apply(event)
+    expect(projection.show()).toEqual(before)
+    expect(projectEvents(events).results[FILE]?.status).toBe('passed')
+  })
+
+  it('Sol progress: a cancelled superseding run leaves no older current case running', () => {
+    const shown = projectEvents([
+      start('A', [FILE]),
+      { type: 'case', runId: 'A', id: FILE, title: 'old case', status: 'running' },
+      start('B', [FILE], 1),
+      done('B', 'cancelled'),
+    ])
+    expect(isRowRunning(shown, FILE)).toBe(false)
+    expect(shown.currentId).toBeNull()
+    expect(shown.cases[FILE]).toBeUndefined()
+  })
+
+  it('Sol controls: an external row never becomes the own invocation skip target', () => {
+    const shown = projectEvents([start('A', [FILE]), pass('A'), start('B', [OTHER], 1)], {
+      activeOwnRunId: 'A',
+      ownRunIds: new Set(['A']),
+    })
+    expect(shown.runId).toBe('A')
+    expect(canSkipRun({ ...shown, skipUnavailable: false })).toBe(true)
+    expect(currentRunRowId(shown)).toBeNull()
+  })
+
+  it('Sol 5: 40 completed own runs leave no raw history and never evict the active run', () => {
+    const projection = new TestRunProjection()
+    for (let index = 0; index < 40; index++) {
+      const runId = `own-${index}`
+      for (const event of [
+        { ...start(runId, [FILE]), eventId: `${index * 3 + 1}-0` },
+        { ...pass(runId), eventId: `${index * 3 + 2}-0` },
+        { ...done(runId), eventId: `${index * 3 + 3}-0` },
+      ])
+        projection.apply(event, runId)
+    }
+    projection.apply({ ...start('active', [FILE]), eventId: '121-0' }, 'active')
+    const retained = projection as unknown as {
+      events?: readonly TestRunFeedEvent[]
+      runs: Map<string, unknown>
+    }
+    expect(retained.events ?? []).toHaveLength(0)
+    expect(retained.runs.size).toBeLessThanOrEqual(2)
+    expect(retained.runs.has('active')).toBe(true)
+    expect(projection.show('active').runId).toBe('active')
   })
 })
