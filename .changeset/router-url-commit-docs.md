@@ -1,5 +1,5 @@
 ---
-'@molecule/app-routing-react-router': patch
+'@molecule/app-routing-react-router': minor
 ---
 
-Document `useTransitions={false}` in the BrowserRouter examples.
+Provide React Router component wrappers that always disable transitions so the URL and rendered page commit together.

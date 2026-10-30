@@ -55,14 +55,13 @@ export interface MoleculeRouterProviderProps {
  * @returns The rendered provider wrapping children with the router context.
  * @example
  * ```tsx
- * import { BrowserRouter, Routes, Route } from 'react-router'
- * import { MoleculeRouterProvider } from '@molecule/app-routing-react-router'
+ * import { Routes, Route } from 'react-router'
+ * import { BrowserRouter, MoleculeRouterProvider } from '@molecule/app-routing-react-router'
  *
  * function App() {
  *   // Bonds automatically — molecule packages' navigate() now drive React Router.
  *   return (
- *     // Disable transitions so immediate post-navigation checks never see the previous page.
- *     <BrowserRouter useTransitions={false}>
+ *     <BrowserRouter>
  *       <MoleculeRouterProvider>
  *         <Routes>
  *           <Route path="/" element={<Home />} />

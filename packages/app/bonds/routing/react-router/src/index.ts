@@ -12,16 +12,15 @@
  *
  * @example
  * ```tsx
- * import { BrowserRouter, Routes, Route } from 'react-router'
- * import { MoleculeRouterProvider } from '@molecule/app-routing-react-router'
+ * import { Routes, Route } from 'react-router'
+ * import { BrowserRouter, MoleculeRouterProvider } from '@molecule/app-routing-react-router'
  *
  * function App() {
  *   // MoleculeRouterProvider bonds the adapter automatically (calls setRouter in an
  *   // effect on mount), so @molecule/app-routing's navigate()/getRouter() drive THIS
  *   // real React Router — no manual setRouter wiring needed.
  *   return (
- *     // Disable transitions so immediate post-navigation checks never see the previous page.
- *     <BrowserRouter useTransitions={false}>
+ *     <BrowserRouter>
  *       <MoleculeRouterProvider>
  *         <Routes>
  *           <Route path="/" element={<Home />} />
@@ -137,9 +136,9 @@
  *   no-hooks fallback (empty params, `window.location.href` navigation). Use
  *   `MoleculeRouterProvider` (or `createReactRouter` with hook values) instead.
  * - The provider must live INSIDE `<BrowserRouter>` (it calls React Router hooks).
- * - **Import from `'react-router'`, never `'react-router-dom'`.** The `-dom`
- *   package was discontinued after v7 (it was only a re-export shim); every API
- *   (`BrowserRouter`, `Routes`, `Route`, `Link`, hooks) lives in `react-router`.
+ * - **Import router components from this bond, never directly from React Router.**
+ *   Its wrappers disable transitions so the URL and rendered page commit together.
+ *   Import non-router APIs (`Routes`, `Route`, `Link`, hooks) from `'react-router'`.
  *
  * @module @molecule/app-routing-react-router
  */
@@ -147,6 +146,20 @@
 export * from './hooks.js'
 export * from './list-types.js'
 export * from './provider.js'
-export * from './types.js'
+export * from './routers.js'
+export type {
+  GuardResult,
+  NavigateOptions,
+  NavigationGuard,
+  QueryParams,
+  ReactRouterConfig,
+  ReactRouterHooks,
+  RouteChangeListener,
+  RouteDefinition,
+  RouteLocation,
+  RouteMatch,
+  RouteParams,
+  RouterConfig,
+} from './types.js'
 export * from './useListRoute.js'
 export * from './utilities.js'
