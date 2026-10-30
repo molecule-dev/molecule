@@ -1,5 +1,11 @@
 # @molecule/app-ide-react
 
+## 3.0.4
+
+### Patch Changes
+
+- Refresh stale commit counts and explain commits that are skipped.
+
 ## 3.0.3
 
 ### Patch Changes

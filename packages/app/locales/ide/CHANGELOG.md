@@ -1,5 +1,11 @@
 # @molecule/app-locales-ide
 
+## 1.10.13
+
+### Patch Changes
+
+- Refresh stale commit counts and explain commits that are skipped.
+
 ## 1.10.12
 
 ### Patch Changes

@@ -34,7 +34,7 @@
     "test:watch": "vitest"
   },
   "devDependencies": {
-    "@molecule/app-i18n": "1.1.1",
+    "@molecule/app-i18n": "1.1.2",
     "@molecule/app-logger": "1.0.3",
     "@molecule/app-storage": "1.1.0",
     "@types/node": "26.6.5",

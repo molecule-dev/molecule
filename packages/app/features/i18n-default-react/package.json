@@ -37,7 +37,7 @@
     "@types/node": "26.6.5",
     "typescript": "6.0.3",
     "vitest": "4.1.12",
-    "@molecule/app-i18n": "1.1.1",
+    "@molecule/app-i18n": "1.1.2",
     "@molecule/app-locales-common": "1.0.5",
     "@molecule/app-storage": "1.1.0"
   },

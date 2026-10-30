@@ -1,5 +1,11 @@
 # @molecule/app-i18n
 
+## 1.1.2
+
+### Patch Changes
+
+- Creating a provider no longer bonds a default logger before the provider has anything to log.
+
 ## 1.1.1
 
 ### Patch Changes

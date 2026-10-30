@@ -1,5 +1,15 @@
 # @molecule/app-forms
 
+## 2.1.0
+
+### Minor Changes
+
+- Default validation messages now go through the bonded i18n provider, so they show in the active locale.
+
+### Patch Changes
+
+- An empty or blank rule message, an empty, blank or non-string translation, or a custom validator's empty string no longer turns validation off.
+
 ## 2.0.0
 
 ### Major Changes

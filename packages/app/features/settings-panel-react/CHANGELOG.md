@@ -1,5 +1,11 @@
 # @molecule/app-settings-panel-react
 
+## 3.0.2
+
+### Patch Changes
+
+- AccountSection saves the name of accounts without an email, validates a non-empty email inline, and never sends a blank email.
+
 ## 3.0.1
 
 ### Patch Changes
