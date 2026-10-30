@@ -4745,8 +4745,9 @@ function ChatInner({
         if (!testsMountedRef.current) return
         // This panel's own run, echoed by the feed: its own stream has it.
         if (ownTestRunIdsRef.current.has(event.runId)) {
-          if (event.type === 'done') ownTestRunIdsRef.current.delete(event.runId)
-          else rememberOwnTestRunId(ownTestRunIdsRef.current, event.runId)
+          // A synthetic disconnect done is not the end of the invocation. Keep
+          // suppressing its replayed feed copy until the bounded cache evicts it.
+          rememberOwnTestRunId(ownTestRunIdsRef.current, event.runId)
           return
         }
         const sequence = ++testsEventSequenceRef.current

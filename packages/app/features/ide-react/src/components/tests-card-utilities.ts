@@ -74,6 +74,8 @@ export interface TestsRunState {
   output: string[]
   /** Per-id outcome from this run (and from earlier runs, until re-run). */
   results: Record<string, TestResultEntry>
+  /** Latest start/discovery receipt for each file; older verdicts are stale. */
+  invalidationSequence?: Record<string, number>
   /**
    * Per-id LIVE per-test progress, for the files that are running right now.
    * An entry exists only between a file's first `case` event and its `result`.
@@ -220,6 +222,18 @@ export function summarizeResults(
   return { passed, failed, skipped, reported: passed + failed + skipped }
 }
 
+/** Record the receipt at which a run invalidated each file's older verdict. */
+function recordInvalidation(
+  state: TestsRunState,
+  ids: readonly string[],
+  sequence?: number,
+): TestsRunState {
+  if (sequence == null || ids.length === 0) return state
+  const invalidationSequence = { ...state.invalidationSequence }
+  for (const id of ids) invalidationSequence[id] = sequence
+  return { ...state, invalidationSequence }
+}
+
 /**
  * Fold one streamed event into the run state.
  *
@@ -247,6 +261,7 @@ export function applyTestRunEvent(
       ? event.id
       : undefined
   if (id != null && !state.queued.includes(id)) {
+    state = recordInvalidation(state, [id], sequence)
     const results = { ...state.results }
     delete results[id]
     state = { ...state, queued: [...state.queued, id], results }
@@ -255,6 +270,7 @@ export function applyTestRunEvent(
     case 'start': {
       // A new run clears the previous run's verdicts for the ids it covers, so
       // a stale green pill never sits next to a row that is running again.
+      state = recordInvalidation(state, event.ids, sequence)
       const results = { ...state.results }
       for (const id of event.ids) delete results[id]
       return {
@@ -426,7 +442,8 @@ export function liveOtherRuns(others: OtherTestRuns, except?: string): TestsRunS
 export function showOtherRun(shown: TestsRunState, other: TestsRunState): TestsRunState {
   const results = { ...shown.results }
   for (const id of pendingRunIds(other)) delete results[id]
-  return mergeTestRunResults({ ...other, results }, other, [])
+  const invalidationSequence = mergeInvalidationSequences(shown, other)
+  return mergeTestRunResults({ ...other, results, invalidationSequence }, other, [])
 }
 
 /**
@@ -439,11 +456,27 @@ function pendingRunIds(run: TestsRunState): string[] {
   return run.running ? run.queued.filter((id) => run.results[id] == null) : []
 }
 
+/** Union per-file invalidation boundaries without letting an older snapshot lower one. */
+function mergeInvalidationSequences(
+  shown: TestsRunState,
+  run: TestsRunState,
+): Record<string, number> | undefined {
+  let merged: Record<string, number> | null = null
+  for (const [id, sequence] of Object.entries(run.invalidationSequence ?? {})) {
+    const previous = (merged ?? shown.invalidationSequence)?.[id] ?? -1
+    if (previous >= sequence) continue
+    if (!merged) merged = { ...shown.invalidationSequence }
+    merged[id] = sequence
+  }
+  return merged ?? shown.invalidationSequence
+}
+
 /**
  * Lays a run's newer verdicts onto the rows without changing which run owns
  * the progress and controls. Protect only files still awaiting a verdict, and
  * compare result receipt order so re-presenting a folded snapshot cannot undo
- * a newer result from another stream.
+ * a newer result from another stream. A rerun's start/discovery prevents an
+ * older verdict for that file from being merged back in from a retained run.
  *
  * @param shown - What the card shows now.
  * @param run - The run whose verdicts are being merged.
@@ -455,15 +488,19 @@ export function mergeTestRunResults(
   run: TestsRunState,
   keep: readonly string[] = pendingRunIds(shown),
 ): TestsRunState {
+  const invalidationSequence = mergeInvalidationSequences(shown, run)
   let results = shown.results
   for (const [id, entry] of Object.entries(run.results)) {
     const previous = results[id]
     if (keep.includes(id) || previous === entry) continue
+    if ((entry.sequence ?? 0) < (invalidationSequence?.[id] ?? 0)) continue
     if (previous && (previous.sequence ?? 0) > (entry.sequence ?? 0)) continue
     if (results === shown.results) results = { ...results }
     results[id] = entry
   }
-  return results === shown.results ? shown : { ...shown, results }
+  return results === shown.results && invalidationSequence === shown.invalidationSequence
+    ? shown
+    : { ...shown, results, invalidationSequence }
 }
 
 /** Latest result receipt in a run, used to replay retained runs in arrival order. */

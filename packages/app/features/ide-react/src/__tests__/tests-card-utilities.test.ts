@@ -748,6 +748,62 @@ describe('runs this panel did not start (the project run feed)', () => {
     expect(shown.results[id]?.status).toBe('passed')
   })
 
+  it('never replays a retained verdict invalidated by a later rerun of that file', () => {
+    const first = 'app:e2e/home.spec.ts'
+    const rerun = 'api:src/routes.test.ts'
+    let others: OtherTestRuns = {}
+    let shown = EMPTY_RUN_STATE
+    let sequence = 0
+    const deliver = (event: TestRunFeedEvent): void => {
+      others = foldOtherRunEvent(others, event, ++sequence)
+      shown = presentOtherRun(shown, others[event.runId]!, {
+        ownBusy: false,
+        live: liveOtherRuns(others, event.runId),
+        others,
+      })
+      if (event.type === 'done' && liveOtherRuns(others).length === 0) {
+        others = keepLiveOtherRuns(others)
+      }
+    }
+    deliver({ type: 'start', runId: 'A', ids: [first] })
+    deliver({ type: 'start', runId: 'B', ids: [rerun] })
+    deliver({ type: 'result', runId: 'B', id: rerun, status: 'passed', passed: 1 })
+    deliver({ type: 'done', runId: 'B', outcome: 'completed' })
+    deliver({ type: 'start', runId: 'C', ids: [rerun] })
+    deliver({ type: 'done', runId: 'A', outcome: 'completed' })
+    expect(shown.runId).toBe('C')
+    expect(shown.results[rerun]).toBeUndefined()
+    deliver({ type: 'done', runId: 'C', outcome: 'cancelled' })
+    expect(shown.results[rerun]).toBeUndefined()
+  })
+
+  it('still replays a retained verdict when the later run covers another file', () => {
+    const first = 'app:e2e/home.spec.ts'
+    const completed = 'api:src/routes.test.ts'
+    let others: OtherTestRuns = {}
+    let shown = EMPTY_RUN_STATE
+    let sequence = 0
+    const deliver = (event: TestRunFeedEvent): void => {
+      others = foldOtherRunEvent(others, event, ++sequence)
+      shown = presentOtherRun(shown, others[event.runId]!, {
+        ownBusy: false,
+        live: liveOtherRuns(others, event.runId),
+        others,
+      })
+      if (event.type === 'done' && liveOtherRuns(others).length === 0) {
+        others = keepLiveOtherRuns(others)
+      }
+    }
+    deliver({ type: 'start', runId: 'A', ids: [first] })
+    deliver({ type: 'start', runId: 'B', ids: [completed] })
+    deliver({ type: 'result', runId: 'B', id: completed, status: 'passed', passed: 1 })
+    deliver({ type: 'done', runId: 'B', outcome: 'completed' })
+    deliver({ type: 'start', runId: 'C', ids: [first] })
+    deliver({ type: 'done', runId: 'A', outcome: 'completed' })
+    deliver({ type: 'done', runId: 'C', outcome: 'cancelled' })
+    expect(shown.results[completed]?.status).toBe('passed')
+  })
+
   it('settles buffered results by result arrival, not run insertion or completion order', () => {
     const id = 'api:src/routes.test.ts'
     let own = applyTestRunEvent(EMPTY_RUN_STATE, { type: 'start', runId: 'own', ids: [id] })

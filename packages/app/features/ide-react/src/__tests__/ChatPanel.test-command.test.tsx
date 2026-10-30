@@ -860,6 +860,34 @@ describe('every test run in the project reaches the test view', () => {
     expect(molId(container, 'tests-card-summary')?.textContent).not.toContain('failed')
   })
 
+  it('keeps own-run suppression through a synthetic feed done and replayed start', async () => {
+    const feed = fakeFeed()
+    let emit: (event: TestRunEvent) => void = () => {}
+    const { container } = render(
+      renderPanel({
+        listTests: async () => LIST,
+        watchTestRuns: feed.watchTestRuns,
+        runTests: (_selection, onEvent) => {
+          emit = onEvent
+          return { cancel: () => {} }
+        },
+      }),
+    )
+    await openTests(container)
+    fireEvent.click(molId(container, `tests-card-run-${HOME}`)!)
+    act(() => emit({ type: 'start', runId: 'own-1', ids: [HOME] }))
+    feed.emit({ type: 'start', runId: 'own-1', ids: [HOME], source: 'person' })
+    // A disconnect ends the feed copy synthetically; reconnect replays its start.
+    feed.emit({ type: 'done', runId: 'own-1', outcome: 'error', error: 'feed disconnected' })
+    feed.emit({ type: 'start', runId: 'own-1', ids: [HOME], source: 'person' })
+    fireEvent.click(molId(container, 'tests-card-cancel')!)
+    act(() => emit({ type: 'done', outcome: 'cancelled' }))
+    expect(molId(container, 'tests-card-running')).toBeNull()
+    expect(molId(container, 'tests-card-cancelled')?.textContent).toBe('Run stopped.')
+    expect(molId(container, 'tests-card-cancel')).toBeNull()
+    expect((molId(container, `tests-card-run-${HOME}`) as HTMLButtonElement).disabled).toBe(false)
+  })
+
   it('bounds own-run ids when no feed echo arrives but still suppresses recent echoes', async () => {
     const feed = fakeFeed()
     const emitters: Array<(event: TestRunEvent) => void> = []
