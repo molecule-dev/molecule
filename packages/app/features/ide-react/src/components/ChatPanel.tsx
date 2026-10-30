@@ -81,6 +81,8 @@ import type {
   ChatUserIdentity,
   IdeClientAction,
   TestItem,
+  TestRunEvent,
+  TestRunFeedEvent,
   TestRunHandle,
   TestSelection,
 } from '../types.js'
@@ -202,21 +204,16 @@ import {
   setTestsBarVisible,
   shouldShowTestsBar,
 } from './tests-bar-utilities.js'
-import type { OtherTestRuns, TestFailure, TestsRunState } from './tests-card-utilities.js'
+import type { TestFailure, TestsRunState } from './tests-card-utilities.js'
 import {
   applyTestRunEvent,
   buildTestFixMessage,
   EMPTY_RUN_STATE,
   failRun,
-  foldOtherRunEvent,
-  keepLiveOtherRuns,
-  liveOtherRuns,
+  foldTestRunEvents,
   markSkipUnavailable,
-  mergeTestRunResults,
   parseTestCommand,
-  presentOtherRun,
   requestSkip,
-  settleOwnRun,
 } from './tests-card-utilities.js'
 import type { TestsStatus } from './TestsCard.js'
 import { TestsCard } from './TestsCard.js'
@@ -2839,21 +2836,22 @@ export interface ChatInnerProps {
   skipToolCall?: ChatPanelProps['skipToolCall']
 }
 
-/** Recent own runs whose delayed feed copies must not become watched runs. */
-const OWN_TEST_RUN_ID_LIMIT = 32
-
-/** Remember an own run, evicting the least recently echoed id beyond the bound. */
-function rememberOwnTestRunId(ids: Set<string>, runId: string): void {
-  ids.delete(runId)
-  ids.add(runId)
-  if (ids.size <= OWN_TEST_RUN_ID_LIMIT) return
-  const oldest = ids.values().next()
-  if (!oldest.done) ids.delete(oldest.value)
+type OwnTestRunInvocation = {
+  state: TestsRunState
+  handle: TestRunHandle | null
+  ended: Extract<TestRunEvent, { type: 'done' }> | null
 }
 
-/** Completed runs stay replayable while a live run can still withhold their verdicts. */
-function pruneSettledOtherRuns(others: OtherTestRuns): OtherTestRuns {
-  return liveOtherRuns(others).length > 0 ? others : keepLiveOtherRuns(others)
+/** Only COMPLETED own ids are bounded; active own ids are pinned separately. */
+const COMPLETED_OWN_TEST_RUN_ID_LIMIT = 32
+
+/** Remember a completed own run for its delayed feed copy. */
+function rememberCompletedOwnTestRunId(ids: Set<string>, runId: string): void {
+  ids.delete(runId)
+  ids.add(runId)
+  if (ids.size <= COMPLETED_OWN_TEST_RUN_ID_LIMIT) return
+  const oldest = ids.values().next()
+  if (!oldest.done) ids.delete(oldest.value)
 }
 
 /**
@@ -4533,22 +4531,41 @@ function ChatInner({
   const [testsRun, setTestsRun] = useState<TestsRunState>(EMPTY_RUN_STATE)
   // Each callback closes over its own folded run. Only this invocation owns
   // controls; stopped/completed invocations can still report trailing verdicts.
-  const ownTestRunRef = useRef<{
-    state: TestsRunState
-    handle: TestRunHandle | null
-  } | null>(null)
-  const testsEventSequenceRef = useRef(0)
+  const ownTestRunRef = useRef<OwnTestRunInvocation | null>(null)
   // Live "is a run in flight?" for the dispatchers, so `startTestsRun` keeps a
   // stable identity — the command callbacks that hold it carry hand-written
   // dependency lists, and a value that changes every run transition is one they
   // would eventually capture stale.
   const testsRunningRef = useRef(false)
   testsRunningRef.current = testsRun.running
-  // Runs this panel did NOT start (the agent's, the platform's, another tab's),
-  // each folded from the project's run feed. The card shows them when its own
-  // run is not in flight; the own run's copy on the feed is recognised by id.
-  const otherTestRunsRef = useRef<OtherTestRuns>({})
-  const ownTestRunIdsRef = useRef(new Set<string>())
+  // The card is a fold of raw events, never a merge of retained run snapshots.
+  const testRunEventsRef = useRef<TestRunFeedEvent[]>([])
+  const ownTestRunEventsRef = useRef<TestRunFeedEvent[]>([])
+  const activeOwnTestRunIdsRef = useRef(new Set<string>())
+  const completedOwnTestRunIdsRef = useRef(new Set<string>())
+  const projectTestsRun = useCallback((): void => {
+    const invocation = ownTestRunRef.current
+    if (invocation && invocation.state.runId == null) return
+    const activeOwnRunId = invocation?.state.runId ?? null
+    const ownRunIds = new Set([
+      ...activeOwnTestRunIdsRef.current,
+      ...completedOwnTestRunIdsRef.current,
+    ])
+    const next = foldTestRunEvents(testRunEventsRef.current, { activeOwnRunId, ownRunIds })
+    setTestsRun(
+      invocation && next.runId === invocation.state.runId
+        ? {
+            ...next,
+            skipPending: invocation.state.skipPending,
+            skipUnavailable: invocation.state.skipUnavailable,
+          }
+        : next,
+    )
+  }, [])
+  const recordOwnTestRunEvent = useCallback((event: TestRunFeedEvent): void => {
+    ownTestRunEventsRef.current.push(event)
+    testRunEventsRef.current.push(event)
+  }, [])
   // Whether a TURN is in flight — a fix is a real message, so it waits its turn.
   const testsBusyRef = useRef(false)
   // Live for the async callbacks, so a list resolving after an unmount, or a
@@ -4608,9 +4625,10 @@ function ChatInner({
         startedAt: Date.now(),
         external: false,
       }
-      const invocation: { state: TestsRunState; handle: TestRunHandle | null } = {
+      const invocation: OwnTestRunInvocation = {
         state: initial,
         handle: null,
+        ended: null,
       }
       ownTestRunRef.current = invocation
       setTestsRun((prev) => {
@@ -4621,38 +4639,43 @@ function ChatInner({
       try {
         const handle = runTests(selection, (event) => {
           if (!testsMountedRef.current) return
-          const sequence = ++testsEventSequenceRef.current
-          invocation.state = applyTestRunEvent(invocation.state, event, sequence)
+          const current = ownTestRunRef.current === invocation
+          const ended = invocation.ended
+          invocation.state = applyTestRunEvent(invocation.state, event)
           if (event.type === 'start') {
-            // The feed may have delivered this run's start first, as a run of
-            // someone else's; from here on it is known to be this panel's own.
-            rememberOwnTestRunId(ownTestRunIdsRef.current, event.runId)
-            const { [event.runId]: _own, ...others } = otherTestRunsRef.current
-            otherTestRunsRef.current = others
-          }
-          if (ownTestRunRef.current !== invocation) {
-            // A delayed callback belongs to its original run, never to the
-            // watched run (or the next own invocation) now holding the card.
-            if (event.type === 'result') {
-              const run = invocation.state
-              setTestsRun((prev) => mergeTestRunResults(prev, run))
+            // The feed copy may arrive first; the own stream replaces it.
+            testRunEventsRef.current = testRunEventsRef.current.filter(
+              (candidate) => candidate.runId !== event.runId,
+            )
+            if (current && !ended) activeOwnTestRunIdsRef.current.add(event.runId)
+            else rememberCompletedOwnTestRunId(completedOwnTestRunIdsRef.current, event.runId)
+            recordOwnTestRunEvent(event)
+            if (ended) {
+              // A start delayed past cancellation is history, never a live own run.
+              invocation.state = applyTestRunEvent(invocation.state, ended)
+              recordOwnTestRunEvent({ ...ended, runId: event.runId })
             }
-            if (event.type === 'done') void refreshTests()
+          } else if (invocation.state.runId != null) {
+            recordOwnTestRunEvent({ ...event, runId: invocation.state.runId })
+          } else if (current) {
+            setTestsRun((prev) => applyTestRunEvent(prev, event))
+            return
+          } else {
             return
           }
-          if (event.type !== 'done') {
-            setTestsRun((prev) => applyTestRunEvent(prev, event, sequence))
-            return
+          if (event.type === 'done') {
+            invocation.ended = event
+            if (invocation.state.runId != null) {
+              activeOwnTestRunIdsRef.current.delete(invocation.state.runId)
+              rememberCompletedOwnTestRunId(
+                completedOwnTestRunIdsRef.current,
+                invocation.state.runId,
+              )
+            }
+            if (current) ownTestRunRef.current = null
+            void refreshTests()
           }
-          // Ended: the verdicts other runs reported meanwhile land on the rows,
-          // and a run of someone else's still going takes the card.
-          ownTestRunRef.current = null
-          const others = otherTestRunsRef.current
-          setTestsRun((prev) => settleOwnRun(applyTestRunEvent(prev, event, sequence), others))
-          otherTestRunsRef.current = pruneSettledOtherRuns(others)
-          // A run cannot create a test, but it CAN finish after the agent wrote
-          // one — re-list once it settles so the card is current.
-          void refreshTests()
+          projectTestsRun()
         })
         // The host is allowed to finish synchronously, before returning its
         // handle. It no longer owns controls after handing the card onward.
@@ -4662,29 +4685,47 @@ function ChatInner({
         // this host's handle serves one — not by the card guessing, and not by
         // a button that would do nothing when clicked.
         const skips = typeof handle.skipCurrent === 'function'
+        invocation.state = {
+          ...invocation.state,
+          skipPending: false,
+          skipUnavailable: !skips,
+        }
         setTestsRun((prev) => ({ ...prev, skipPending: false, skipUnavailable: !skips }))
       } catch (error) {
         logger.warn('Failed to start a test run', { error })
         if (ownTestRunRef.current !== invocation) return
         ownTestRunRef.current = null
-        const others = otherTestRunsRef.current
-        setTestsRun((prev) =>
-          settleOwnRun(
-            failRun(
-              prev,
-              error instanceof Error
-                ? error.message
-                : t('ide.tests.runError', undefined, {
-                    defaultValue: 'The test run could not start.',
-                  }),
-            ),
-            others,
-          ),
-        )
-        otherTestRunsRef.current = pruneSettledOtherRuns(others)
+        const message =
+          error instanceof Error
+            ? error.message
+            : t('ide.tests.runError', undefined, {
+                defaultValue: 'The test run could not start.',
+              })
+        const runId = invocation.state.runId
+        if (runId != null) {
+          const done = { type: 'done', outcome: 'error', error: message } as const
+          invocation.ended = done
+          invocation.state = applyTestRunEvent(invocation.state, done)
+          activeOwnTestRunIdsRef.current.delete(runId)
+          rememberCompletedOwnTestRunId(completedOwnTestRunIdsRef.current, runId)
+          recordOwnTestRunEvent({ ...done, runId })
+          projectTestsRun()
+        } else if (testRunEventsRef.current.length > 0) {
+          projectTestsRun()
+        } else {
+          setTestsRun((prev) => failRun(prev, message))
+        }
       }
     },
-    [runTests, canRunTests, canEdit, testsAvailable, refreshTests],
+    [
+      runTests,
+      canRunTests,
+      canEdit,
+      testsAvailable,
+      refreshTests,
+      projectTestsRun,
+      recordOwnTestRunEvent,
+    ],
   )
 
   // Hand the failing tests to the agent as ONE ordinary user message — the same
@@ -4710,25 +4751,22 @@ function ChatInner({
     if (!invocation) return
     // Relinquish ownership before cancel(), which may synchronously call back.
     ownTestRunRef.current = null
-    invocation.state = applyTestRunEvent(invocation.state, { type: 'done', outcome: 'cancelled' })
-    const others = otherTestRunsRef.current
-    setTestsRun((prev) =>
-      settleOwnRun(
-        {
-          ...prev,
-          running: false,
-          currentId: null,
-          cases: {},
-          skipPending: false,
-          skipUnavailable: true,
-          outcome: 'cancelled',
-        },
-        others,
-      ),
-    )
-    otherTestRunsRef.current = pruneSettledOtherRuns(others)
+    const done = { type: 'done', outcome: 'cancelled' } as const
+    invocation.ended = done
+    invocation.state = applyTestRunEvent(invocation.state, done)
+    const runId = invocation.state.runId
+    if (runId != null) {
+      activeOwnTestRunIdsRef.current.delete(runId)
+      rememberCompletedOwnTestRunId(completedOwnTestRunIdsRef.current, runId)
+      recordOwnTestRunEvent({ ...done, runId })
+      projectTestsRun()
+    } else if (testRunEventsRef.current.length > 0) {
+      projectTestsRun()
+    } else {
+      setTestsRun({ ...invocation.state, skipUnavailable: true })
+    }
     invocation.handle?.cancel()
-  }, [])
+  }, [projectTestsRun, recordOwnTestRunEvent])
 
   // Every run in the project, however it was started, reaches the same bar and
   // browser: the host replays the runs it still holds, then streams new ones.
@@ -4737,29 +4775,23 @@ function ChatInner({
   const refreshTestsRef = useRef(refreshTests)
   refreshTestsRef.current = refreshTests
   useEffect(() => {
+    const ownEvents = [...ownTestRunEventsRef.current]
+    testRunEventsRef.current = []
     if (!watchTestRuns) return
     let relist: ReturnType<typeof setTimeout> | null = null
     let unsubscribe: (() => void) | null = null
     try {
       unsubscribe = watchTestRuns((event) => {
         if (!testsMountedRef.current) return
-        // This panel's own run, echoed by the feed: its own stream has it.
-        if (ownTestRunIdsRef.current.has(event.runId)) {
-          // A synthetic disconnect done is not the end of the invocation. Keep
-          // suppressing its replayed feed copy until the bounded cache evicts it.
-          rememberOwnTestRunId(ownTestRunIdsRef.current, event.runId)
+        // Active ids are pinned; only completed-id history has a bound.
+        if (
+          activeOwnTestRunIdsRef.current.has(event.runId) ||
+          completedOwnTestRunIdsRef.current.has(event.runId)
+        ) {
           return
         }
-        const sequence = ++testsEventSequenceRef.current
-        const others = foldOtherRunEvent(otherTestRunsRef.current, event, sequence)
-        const run = others[event.runId]
-        const ownBusy = ownTestRunRef.current !== null
-        const live = liveOtherRuns(others, event.runId)
-        setTestsRun((prev) => presentOtherRun(prev, run, { ownBusy, live, others }))
-        // A live run can still withhold an ended run's verdicts. Keep those
-        // runs until the card settles, then their results are on the rows.
-        otherTestRunsRef.current =
-          event.type === 'done' && !ownBusy ? pruneSettledOtherRuns(others) : others
+        testRunEventsRef.current.push(event)
+        projectTestsRun()
         if (event.type === 'done') {
           // A replay can end several runs at once; list once for all of them.
           if (relist) clearTimeout(relist)
@@ -4769,15 +4801,17 @@ function ChatInner({
           }, 500)
         }
       })
+      // Synchronous replay is authoritative; own-stream events then refold with it.
+      testRunEventsRef.current.push(...ownEvents)
+      projectTestsRun()
     } catch (error) {
       logger.warn('Failed to watch the project test runs', { error })
     }
     return () => {
       if (relist) clearTimeout(relist)
       unsubscribe?.()
-      otherTestRunsRef.current = {}
     }
-  }, [watchTestRuns])
+  }, [watchTestRuns, projectTestsRun])
 
   // Skip the executor's in-flight tool call WITHOUT ending the turn — the
   // model is told the command did not run and carries on. The card owns its own
@@ -4808,12 +4842,15 @@ function ChatInner({
     if (!invocation) return
     const skip = invocation.handle?.skipCurrent
     if (!skip) {
+      invocation.state = markSkipUnavailable(invocation.state)
       setTestsRun((prev) => markSkipUnavailable(prev))
       return
     }
+    invocation.state = requestSkip(invocation.state)
     setTestsRun((prev) => requestSkip(prev))
     const unavailable = (): void => {
       if (testsMountedRef.current && ownTestRunRef.current === invocation) {
+        invocation.state = markSkipUnavailable(invocation.state)
         setTestsRun((prev) => markSkipUnavailable(prev))
       }
     }

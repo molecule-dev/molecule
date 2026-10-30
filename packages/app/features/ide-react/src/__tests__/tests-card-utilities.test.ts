@@ -15,18 +15,13 @@ import {
   EMPTY_RUN_STATE,
   failRun,
   filterTests,
-  foldOtherRunEvent,
+  foldTestRunEvents,
   groupTests,
   isRowRunning,
-  keepLiveOtherRuns,
-  liveOtherRuns,
   markSkipUnavailable,
   MAX_OUTPUT_LINES,
-  type OtherTestRuns,
   parseTestCommand,
-  presentOtherRun,
   requestSkip,
-  settleOwnRun,
   summarizeResults,
   testCaseLabel,
   testRowLabel,
@@ -520,307 +515,199 @@ describe('testCaseLabel', () => {
 })
 
 describe('runs this panel did not start (the project run feed)', () => {
-  const fold = (events: TestRunFeedEvent[], others: OtherTestRuns = {}): OtherTestRuns =>
-    events.reduce((acc, event) => foldOtherRunEvent(acc, event), others)
-  const agentStart: TestRunFeedEvent = {
+  const FILE = 'api:src/routes.test.ts'
+  const OTHER = 'app:e2e/home.spec.ts'
+  const start = (runId: string, ids: string[], second = 0): TestRunFeedEvent => ({
     type: 'start',
-    runId: 'agent-1',
-    ids: [],
-    startedAt: '2026-10-30T19:00:00.000Z',
+    runId,
+    ids,
+    startedAt: `2026-10-30T19:00:${String(second).padStart(2, '0')}.000Z`,
     source: 'agent',
-    command: 'npx vitest run src/routes.test.ts',
-  }
-  const routesPassed: TestRunFeedEvent = {
+  })
+  const pass = (runId: string, id = FILE): TestRunFeedEvent => ({
     type: 'result',
-    runId: 'agent-1',
-    id: 'api:src/routes.test.ts',
+    runId,
+    id,
     status: 'passed',
-    passed: 3,
-    failed: 0,
-    skipped: 0,
-  }
-  const agentDone: TestRunFeedEvent = { type: 'done', runId: 'agent-1', outcome: 'completed' }
-
-  it('folds each run on its own, watched and never steerable, on its own clock', () => {
-    const others = fold([agentStart, routesPassed])
-    const run = others['agent-1']
-    expect(run.running).toBe(true)
-    expect(run.external).toBe(true)
-    expect(run.skipUnavailable).toBe(true)
-    expect(run.source).toBe('agent')
-    expect(run.command).toBe('npx vitest run src/routes.test.ts')
-    expect(run.startedAt).toBe(Date.parse('2026-10-30T19:00:00.000Z'))
-    expect(run.results['api:src/routes.test.ts'].status).toBe('passed')
+    passed: 1,
+  })
+  const done = (
+    runId: string,
+    outcome: 'completed' | 'cancelled' = 'completed',
+  ): TestRunFeedEvent => ({
+    type: 'done',
+    runId,
+    outcome,
   })
 
-  it('still lands the verdicts of a run joined part-way, with no start seen', () => {
-    const run = fold([routesPassed])['agent-1']
-    expect(run.running).toBe(true)
-    expect(run.runId).toBe('agent-1')
-    expect(run.results['api:src/routes.test.ts'].status).toBe('passed')
-  })
-
-  it('shows another run when nothing live is on show, keeping the verdicts already there', () => {
-    const shown = {
-      ...EMPTY_RUN_STATE,
-      runId: 'own-0',
-      results: {
-        'app:e2e/home.spec.ts': { status: 'failed' as const, passed: 0, failed: 1, skipped: 0 },
-      },
-    }
-    const others = fold([agentStart, routesPassed])
-    const next = presentOtherRun(shown, others['agent-1'], { ownBusy: false, live: [] })
-    expect(next.running).toBe(true)
-    expect(next.external).toBe(true)
-    expect(next.runId).toBe('agent-1')
-    expect(next.results['app:e2e/home.spec.ts'].status).toBe('failed')
-    expect(next.results['api:src/routes.test.ts'].status).toBe('passed')
-  })
-
-  it('never takes the card from the panel’s own run in flight', () => {
-    const own = {
-      ...EMPTY_RUN_STATE,
-      runId: 'own-1',
+  it('folds a watched run on its server clock and never makes it steerable', () => {
+    const shown = foldTestRunEvents([
+      { ...start('agent', [FILE], 4), command: 'npx vitest run src/routes.test.ts' },
+      pass('agent'),
+    ])
+    expect(shown).toMatchObject({
+      runId: 'agent',
       running: true,
-      queued: ['app:e2e/home.spec.ts'],
-    }
-    const others = fold([agentStart, routesPassed])
-    const next = presentOtherRun(own, others['agent-1'], { ownBusy: true, live: [] })
-    expect(next).toMatchObject({ runId: 'own-1', running: true, queued: own.queued })
-    expect(next.external).not.toBe(true)
-    expect(next.results['api:src/routes.test.ts']?.status).toBe('passed')
+      external: true,
+      skipUnavailable: true,
+      source: 'agent',
+      command: 'npx vitest run src/routes.test.ts',
+      startedAt: Date.parse('2026-10-30T19:00:04.000Z'),
+    })
+    expect(shown.results[FILE]?.status).toBe('passed')
   })
 
-  it('a run ending behind the one on show leaves its verdicts, except files that run still owes', () => {
-    const shownRun = fold([
-      { type: 'start', runId: 'platform-1', ids: ['api:src/routes.test.ts'], source: 'platform' },
-    ])['platform-1']
-    const shown = presentOtherRun(EMPTY_RUN_STATE, shownRun, { ownBusy: false, live: [] })
-    const behind = fold([
-      { type: 'start', runId: 'agent-2', ids: [], source: 'agent' },
-      { ...routesPassed, runId: 'agent-2' },
-      { type: 'result', runId: 'agent-2', id: 'app:src/format.test.ts', status: 'failed' },
-      { type: 'done', runId: 'agent-2', outcome: 'completed' },
-    ])['agent-2']
-    const next = presentOtherRun(shown, behind, { ownBusy: false, live: [shownRun] })
-    expect(next.runId).toBe('platform-1')
-    expect(next.running).toBe(true)
-    expect(next.results['app:src/format.test.ts'].status).toBe('failed')
-    // The platform run is still going to report this file: no stale verdict on it.
-    expect(next.results['api:src/routes.test.ts']).toBeUndefined()
+  it('lands a verdict from a run joined part-way', () => {
+    const shown = foldTestRunEvents([pass('agent')])
+    expect(shown.runId).toBe('agent')
+    expect(shown.results[FILE]?.status).toBe('passed')
   })
 
-  it('hands the card to another live run when the one on show ends', () => {
-    const others = fold([
-      agentStart,
-      {
-        type: 'start',
-        runId: 'platform-1',
-        ids: [],
-        source: 'platform',
-        startedAt: '2026-10-30T19:01:00.000Z',
-      },
+  it('shows running only for files still owed by a live run', () => {
+    const live = foldTestRunEvents([start('agent', [FILE, OTHER])])
+    expect(isRowRunning(live, FILE)).toBe(true)
+    expect(isRowRunning(live, OTHER)).toBe(true)
+    const oneAnswered = foldTestRunEvents([start('agent', [FILE, OTHER]), pass('agent', FILE)])
+    expect(isRowRunning(oneAnswered, FILE)).toBe(false)
+    expect(isRowRunning(oneAnswered, OTHER)).toBe(true)
+    const ended = foldTestRunEvents([start('agent', [FILE, OTHER]), done('agent', 'cancelled')])
+    expect(ended.results[FILE]).toBeUndefined()
+    expect(isRowRunning(ended, OTHER)).toBe(false)
+  })
+
+  it.each(['case', 'output'] as const)('discovers and invalidates a file through %s', (type) => {
+    const discovery: TestRunFeedEvent =
+      type === 'case'
+        ? { type, runId: 'agent', id: FILE, title: 'routes', status: 'running' }
+        : { type, runId: 'agent', id: FILE, chunk: 'running routes' }
+    const shown = foldTestRunEvents([
+      start('old', [FILE]),
+      pass('old'),
+      done('old'),
+      start('agent', [], 1),
+      discovery,
     ])
-    const shown = presentOtherRun(EMPTY_RUN_STATE, others['agent-1'], { ownBusy: false, live: [] })
-    const ended = fold([routesPassed, agentDone], others)
-    const next = presentOtherRun(shown, ended['agent-1'], {
-      ownBusy: false,
-      live: liveOtherRuns(ended, 'agent-1'),
-    })
-    expect(next.runId).toBe('platform-1')
-    expect(next.running).toBe(true)
-    expect(next.results['api:src/routes.test.ts'].status).toBe('passed')
+    expect(shown.results[FILE]).toBeUndefined()
+    expect(isRowRunning(shown, FILE)).toBe(true)
   })
 
-  it('after the own run ends: other verdicts land, a newer own verdict wins, then a live run shows', () => {
-    const others = fold([
-      agentStart,
-      routesPassed,
-      { type: 'result', runId: 'agent-1', id: 'app:src/format.test.ts', status: 'passed' },
-      agentDone,
+  it('keeps the active own run on show without counting its feed copy twice', () => {
+    const ownEvents: TestRunFeedEvent[] = [start('own', [FILE]), pass('own')]
+    const shown = foldTestRunEvents(ownEvents, {
+      activeOwnRunId: 'own',
+      ownRunIds: new Set(['own']),
+    })
+    expect(shown).toMatchObject({ runId: 'own', running: true, external: false })
+    expect(shown.results[FILE]?.status).toBe('passed')
+  })
+
+  it('a later run covering a different file keeps this file verdict', () => {
+    const shown = foldTestRunEvents([
+      start('A', [FILE]),
+      pass('A'),
+      done('A'),
+      start('B', [OTHER], 1),
+      done('B', 'cancelled'),
     ])
-    const own = applyTestRunEvent(
-      applyTestRunEvent(
-        { ...EMPTY_RUN_STATE, running: true },
-        { type: 'start', runId: 'own-1', ids: ['api:src/routes.test.ts'] },
-      ),
-      { type: 'result', id: 'api:src/routes.test.ts', status: 'failed', failed: 1 },
-      1,
-    )
-    const ownEnded = applyTestRunEvent(own, { type: 'done', outcome: 'completed' })
-    const settled = settleOwnRun(ownEnded, others)
-    expect(settled.runId).toBe('own-1')
-    expect(settled.results['api:src/routes.test.ts'].status).toBe('failed')
-    expect(settled.results['app:src/format.test.ts'].status).toBe('passed')
-    const withLive = settleOwnRun(
-      ownEnded,
-      fold([{ type: 'start', runId: 'platform-1', ids: [], source: 'platform' }], others),
-    )
-    expect(withLive.runId).toBe('platform-1')
-    expect(withLive.running).toBe(true)
-    expect(withLive.results['api:src/routes.test.ts'].status).toBe('failed')
+    expect(shown.results[FILE]?.status).toBe('passed')
   })
 
-  it('keeps only the live runs once ended ones are on the rows', () => {
-    const others = fold([
-      agentStart,
-      agentDone,
-      { type: 'start', runId: 'platform-1', ids: [], source: 'platform' },
+  it('the latest result wins even when its run started before another covering run', () => {
+    const shown = foldTestRunEvents([
+      start('A', [FILE]),
+      start('B', [FILE], 1),
+      pass('B'),
+      { ...pass('A'), status: 'failed', passed: 0, failed: 1 },
     ])
-    expect(Object.keys(keepLiveOtherRuns(others))).toEqual(['platform-1'])
+    expect(shown.results[FILE]?.status).toBe('failed')
   })
 
-  it.each(['case', 'output'] as const)(
-    'discovers files from %s events with no upfront ids and clears inherited verdicts',
-    (type) => {
-      const first = 'api:src/routes.test.ts'
-      const second = 'app:e2e/home.spec.ts'
-      let shown = applyTestRunEvent(EMPTY_RUN_STATE, {
-        type: 'result',
-        id: first,
-        status: 'failed',
-        output: 'old failure',
-      })
-      let others = fold([agentStart])
-      shown = presentOtherRun(shown, others['agent-1'], { ownBusy: false, live: [] })
-      for (const id of [first, second]) {
-        const event: TestRunFeedEvent =
-          type === 'case'
-            ? { type, runId: 'agent-1', id, title: id, status: 'running' }
-            : { type, runId: 'agent-1', id, chunk: `running ${id}` }
-        others = fold([event], others)
-        shown = presentOtherRun(shown, others['agent-1'], { ownBusy: false, live: [] })
-      }
-      expect(shown.results[first]).toBeUndefined()
-      expect(shown.queued).toEqual([first, second])
-      expect(isRowRunning(shown, first)).toBe(true)
-      expect(isRowRunning(shown, second)).toBe(true)
-      others = fold([routesPassed], others)
-      shown = presentOtherRun(shown, others['agent-1'], { ownBusy: false, live: [] })
-      expect(shown.results[first]?.status).toBe('passed')
-      expect(isRowRunning(shown, first)).toBe(false)
-      expect(isRowRunning(shown, second)).toBe(true)
-      others = fold(
-        [
-          { type: 'output', runId: 'agent-1', id: first, chunk: 'trailing output' },
-          { type: 'case', runId: 'agent-1', id: first, title: 'late case', status: 'running' },
-        ],
-        others,
-      )
-      shown = presentOtherRun(shown, others['agent-1'], { ownBusy: false, live: [] })
-      expect(isRowRunning(shown, first)).toBe(false)
-      expect(isRowRunning(shown, second)).toBe(true)
-      others = fold([agentDone], others)
-      shown = presentOtherRun(shown, others['agent-1'], { ownBusy: false, live: [] })
-      expect(shown.running).toBe(false)
-      expect(isRowRunning(shown, second)).toBe(false)
-    },
-  )
-
-  it('keeps the latest verdict when a completed row is also in a still-running run', () => {
-    const id = 'api:src/routes.test.ts'
-    let others = foldOtherRunEvent({}, { ...agentStart, ids: [id, 'pending'] })
-    others = foldOtherRunEvent(others, { ...routesPassed, status: 'failed' }, 1)
-    let shown = presentOtherRun(EMPTY_RUN_STATE, others['agent-1'], { ownBusy: false, live: [] })
-    others = foldOtherRunEvent(others, { ...agentStart, runId: 'platform-1', ids: [id] })
-    others = foldOtherRunEvent(others, { ...routesPassed, runId: 'platform-1' }, 2)
-    others = foldOtherRunEvent(others, { ...agentDone, runId: 'platform-1' })
-    shown = presentOtherRun(shown, others['platform-1'], {
-      ownBusy: false,
-      live: liveOtherRuns(others, 'platform-1'),
-    })
-    expect(shown.runId).toBe('agent-1')
-    expect(shown.running).toBe(true)
-    expect(shown.results[id]?.status).toBe('passed')
-    // Re-presenting A's folded snapshot must not restore its older failure.
-    others = foldOtherRunEvent(others, {
-      type: 'output',
-      runId: 'agent-1',
-      id: 'pending',
-      chunk: 'still running',
-    })
-    shown = presentOtherRun(shown, others['agent-1'], { ownBusy: false, live: [] })
-    expect(shown.results[id]?.status).toBe('passed')
-    shown = presentOtherRun(shown, fold([agentDone], others)['agent-1'], {
-      ownBusy: false,
-      live: [],
-    })
-    expect(shown.results[id]?.status).toBe('passed')
-  })
-
-  it('never replays a retained verdict invalidated by a later rerun of that file', () => {
-    const first = 'app:e2e/home.spec.ts'
-    const rerun = 'api:src/routes.test.ts'
-    let others: OtherTestRuns = {}
-    let shown = EMPTY_RUN_STATE
-    let sequence = 0
-    const deliver = (event: TestRunFeedEvent): void => {
-      others = foldOtherRunEvent(others, event, ++sequence)
-      shown = presentOtherRun(shown, others[event.runId]!, {
-        ownBusy: false,
-        live: liveOtherRuns(others, event.runId),
-        others,
-      })
-      if (event.type === 'done' && liveOtherRuns(others).length === 0) {
-        others = keepLiveOtherRuns(others)
-      }
-    }
-    deliver({ type: 'start', runId: 'A', ids: [first] })
-    deliver({ type: 'start', runId: 'B', ids: [rerun] })
-    deliver({ type: 'result', runId: 'B', id: rerun, status: 'passed', passed: 1 })
-    deliver({ type: 'done', runId: 'B', outcome: 'completed' })
-    deliver({ type: 'start', runId: 'C', ids: [rerun] })
-    deliver({ type: 'done', runId: 'A', outcome: 'completed' })
-    expect(shown.runId).toBe('C')
-    expect(shown.results[rerun]).toBeUndefined()
-    deliver({ type: 'done', runId: 'C', outcome: 'cancelled' })
-    expect(shown.results[rerun]).toBeUndefined()
-  })
-
-  it('still replays a retained verdict when the later run covers another file', () => {
-    const first = 'app:e2e/home.spec.ts'
-    const completed = 'api:src/routes.test.ts'
-    let others: OtherTestRuns = {}
-    let shown = EMPTY_RUN_STATE
-    let sequence = 0
-    const deliver = (event: TestRunFeedEvent): void => {
-      others = foldOtherRunEvent(others, event, ++sequence)
-      shown = presentOtherRun(shown, others[event.runId]!, {
-        ownBusy: false,
-        live: liveOtherRuns(others, event.runId),
-        others,
-      })
-      if (event.type === 'done' && liveOtherRuns(others).length === 0) {
-        others = keepLiveOtherRuns(others)
-      }
-    }
-    deliver({ type: 'start', runId: 'A', ids: [first] })
-    deliver({ type: 'start', runId: 'B', ids: [completed] })
-    deliver({ type: 'result', runId: 'B', id: completed, status: 'passed', passed: 1 })
-    deliver({ type: 'done', runId: 'B', outcome: 'completed' })
-    deliver({ type: 'start', runId: 'C', ids: [first] })
-    deliver({ type: 'done', runId: 'A', outcome: 'completed' })
-    deliver({ type: 'done', runId: 'C', outcome: 'cancelled' })
-    expect(shown.results[completed]?.status).toBe('passed')
-  })
-
-  it('settles buffered results by result arrival, not run insertion or completion order', () => {
-    const id = 'api:src/routes.test.ts'
-    let own = applyTestRunEvent(EMPTY_RUN_STATE, { type: 'start', runId: 'own', ids: [id] })
-    own = applyTestRunEvent(own, { type: 'result', id, status: 'failed' }, 1)
-    let others = fold([agentStart, { ...agentStart, runId: 'platform-1' }])
-    // The second inserted run reports first; the first inserted run reports last.
-    others = foldOtherRunEvent(
-      others,
-      { ...routesPassed, runId: 'platform-1', status: 'failed' },
-      2,
+  it('a newer outside verdict lands while the own run keeps progress and controls', () => {
+    const shown = foldTestRunEvents(
+      [start('own', [FILE, OTHER]), start('agent', [FILE], 1), pass('agent')],
+      { activeOwnRunId: 'own', ownRunIds: new Set(['own']) },
     )
-    others = foldOtherRunEvent(others, routesPassed, 3)
-    others = fold([agentDone, { ...agentDone, runId: 'platform-1' }], others)
-    const ended = applyTestRunEvent(own, { type: 'done', outcome: 'completed' })
-    expect(settleOwnRun(ended, others).results[id]?.status).toBe('passed')
-    // A genuinely newer result from the person's run still wins.
-    const newer = applyTestRunEvent(ended, { type: 'result', id, status: 'skipped' }, 4)
-    expect(settleOwnRun(newer, others).results[id]?.status).toBe('skipped')
+    expect(shown).toMatchObject({ runId: 'own', running: true, external: false })
+    expect(shown.results[FILE]?.status).toBe('passed')
+    expect(isRowRunning(shown, OTHER)).toBe(true)
+  })
+
+  it('a later own verdict wins when the own run ends', () => {
+    const shown = foldTestRunEvents(
+      [start('own', [FILE]), start('agent', [FILE], 1), pass('agent'), pass('own'), done('own')],
+      { ownRunIds: new Set(['own']) },
+    )
+    expect(shown.results[FILE]?.status).toBe('passed')
+    // The outside run is still live, so it owns progress after the own run ends.
+    expect(shown).toMatchObject({ runId: 'agent', running: true })
+  })
+
+  it('hands progress to the latest server-started live run', () => {
+    const shown = foldTestRunEvents([
+      start('later', [OTHER], 2),
+      start('earlier', [FILE], 1),
+      done('later', 'cancelled'),
+    ])
+    expect(shown).toMatchObject({ runId: 'earlier', running: true, external: true })
+  })
+
+  it('Sol 1: a cancelled background rerun leaves no stale verdict', () => {
+    const shown = foldTestRunEvents([
+      start('A', [OTHER]),
+      start('B', [FILE], 1),
+      pass('B'),
+      done('B'),
+      start('C', [FILE], 2),
+      done('C', 'cancelled'),
+      done('A'),
+    ])
+    expect(shown.results[FILE]).toBeUndefined()
+  })
+
+  it.each(['case', 'output'] as const)('Sol 1 also holds when C discovers F through %s', (type) => {
+    const discovery: TestRunFeedEvent =
+      type === 'case'
+        ? { type, runId: 'C', id: FILE, title: 'routes', status: 'running' }
+        : { type, runId: 'C', id: FILE, chunk: 'running routes' }
+    const shown = foldTestRunEvents([
+      start('A', [OTHER]),
+      start('B', [FILE], 1),
+      pass('B'),
+      done('B'),
+      start('C', [], 2),
+      discovery,
+      done('C', 'cancelled'),
+      done('A'),
+    ])
+    expect(shown.results[FILE]).toBeUndefined()
+  })
+
+  it('the earlier A/B/C ordering cannot restore a retained verdict', () => {
+    const shown = foldTestRunEvents([
+      start('A', [OTHER]),
+      start('B', [FILE], 1),
+      pass('B'),
+      done('B'),
+      start('C', [FILE], 2),
+      done('A'),
+      done('C', 'cancelled'),
+    ])
+    expect(shown.results[FILE]).toBeUndefined()
+  })
+
+  it('Sol 2: reconnect replay preserves the later own verdict', () => {
+    const feed = [start('B', [FILE], 1), done('B', 'cancelled')]
+    const own = [start('A', [FILE]), pass('A'), done('A')]
+    const before = foldTestRunEvents([own[0]!, feed[0]!, feed[1]!, own[1]!, own[2]!], {
+      ownRunIds: new Set(['A']),
+    })
+    expect(before.results[FILE]?.status).toBe('passed')
+    const replayed = foldTestRunEvents([...feed, ...own], { ownRunIds: new Set(['A']) })
+    expect(replayed.results[FILE]?.status).toBe('passed')
+  })
+
+  it('a reconnect with no new events shows exactly the same card', () => {
+    const events = [start('A', [FILE]), pass('A'), done('A'), start('B', [OTHER], 1)]
+    expect(foldTestRunEvents(events)).toEqual(foldTestRunEvents([...events]))
   })
 })

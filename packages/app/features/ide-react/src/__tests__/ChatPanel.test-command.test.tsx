@@ -41,6 +41,7 @@ import type {
   TestList,
   TestRunEvent,
   TestRunFeedEvent,
+  TestRunHandle,
   TestSelection,
 } from '../types.js'
 
@@ -566,7 +567,7 @@ describe('every test run in the project reaches the test view', () => {
     expect(molId(container, `tests-card-status-${HOME}`)?.textContent).toBe('Passed')
     expect(molId(container, 'tests-card-cancel')).not.toBeNull()
     feed.emit({ type: 'result', runId: 'platform-1', id: ROUTES, status: 'failed' })
-    expect(molId(container, `tests-card-status-${ROUTES}`)?.textContent).toBe('Running…')
+    expect(molId(container, `tests-card-status-${ROUTES}`)?.textContent).toBe('Failed')
     feed.emit({ type: 'done', runId: 'platform-1', outcome: 'completed' })
     act(() => {
       emit({ type: 'result', id: ROUTES, status: 'passed' })
@@ -589,8 +590,8 @@ describe('every test run in the project reaches the test view', () => {
     feed.emit({ type: 'start', runId: 'platform-b', ids: [HOME], source: 'platform' })
     feed.emit({ type: 'result', runId: 'platform-b', id: HOME, status: 'passed', passed: 1 })
     feed.emit({ type: 'done', runId: 'platform-b', outcome: 'completed' })
-    // B's verdict must not paint a file that A still owes, but must survive A.
-    expect(molId(container, `tests-card-status-${HOME}`)?.textContent).toBe('Running…')
+    // B reported after A started, so its verdict is already the latest one.
+    expect(molId(container, `tests-card-status-${HOME}`)?.textContent).toBe('Passed')
     feed.emit({ type: 'done', runId: 'agent-a', outcome: 'cancelled' })
     expect(molId(container, `tests-card-status-${HOME}`)?.textContent).toBe('Passed')
     expect((molId(container, `tests-card-run-${HOME}`) as HTMLButtonElement).disabled).toBe(false)
@@ -965,6 +966,162 @@ describe('every test run in the project reaches the test view', () => {
     feed.emit({ type: 'done', runId: 'agent-1', outcome: 'completed', passed: 2 })
     await waitFor(() => expect(molId(container, 'tests-card-running')).toBeNull())
     expect(molId(container, 'tests-card-summary')?.textContent).toContain('2 passed')
+  })
+
+  it('reconnect replay cannot erase a verdict the own stream reported after a cancelled run', async () => {
+    const first = fakeFeed()
+    const listTests = async (): Promise<TestList> => LIST
+    let emit: (event: TestRunEvent) => void = () => {}
+    const runTests = (_selection: TestSelection, onEvent: typeof emit): TestRunHandle => {
+      emit = onEvent
+      return { cancel: () => {} }
+    }
+    const { container, rerender } = render(
+      renderPanel({ listTests, runTests, watchTestRuns: first.watchTestRuns }),
+    )
+    await openTests(container)
+    fireEvent.click(molId(container, `tests-card-run-${HOME}`)!)
+    act(() => emit({ type: 'start', runId: 'A', ids: [HOME] }))
+    first.emit({ type: 'start', runId: 'B', ids: [HOME], source: 'platform' })
+    first.emit({ type: 'done', runId: 'B', outcome: 'cancelled' })
+    act(() => {
+      emit({ type: 'result', id: HOME, status: 'passed', passed: 1 })
+      emit({ type: 'done', outcome: 'completed' })
+    })
+    expect(molId(container, `tests-card-status-${HOME}`)?.textContent).toBe('Passed')
+
+    const replay = fakeFeed([
+      { type: 'start', runId: 'B', ids: [HOME], source: 'platform' },
+      { type: 'done', runId: 'B', outcome: 'cancelled' },
+      { type: 'start', runId: 'A', ids: [HOME], source: 'person' },
+      { type: 'result', runId: 'A', id: HOME, status: 'passed', passed: 1 },
+      { type: 'done', runId: 'A', outcome: 'completed' },
+    ])
+    rerender(renderPanel({ listTests, runTests, watchTestRuns: replay.watchTestRuns }))
+    await waitFor(() => expect(first.unsubscribed()).toBe(1))
+    expect(molId(container, `tests-card-status-${HOME}`)?.textContent).toBe('Passed')
+  })
+
+  it('a reconnect with no new events leaves the visible card unchanged', async () => {
+    const events: TestRunFeedEvent[] = [
+      { type: 'start', runId: 'A', ids: [HOME], source: 'agent' },
+      { type: 'result', runId: 'A', id: HOME, status: 'passed', passed: 1 },
+      { type: 'done', runId: 'A', outcome: 'completed' },
+    ]
+    const first = fakeFeed(events)
+    const listTests = async (): Promise<TestList> => LIST
+    const { container, rerender } = render(
+      renderPanel({ listTests, watchTestRuns: first.watchTestRuns }),
+    )
+    await openTests(container)
+    const before = molId(container, 'tests-card')?.textContent
+    const replay = fakeFeed(events)
+    rerender(renderPanel({ listTests, watchTestRuns: replay.watchTestRuns }))
+    await waitFor(() => expect(first.unsubscribed()).toBe(1))
+    expect(molId(container, 'tests-card')?.textContent).toBe(before)
+  })
+
+  it('40 completed own runs never evict the active own-run id', async () => {
+    const feed = fakeFeed()
+    const emitters: Array<(event: TestRunEvent) => void> = []
+    const { container } = render(
+      renderPanel({
+        listTests: async () => LIST,
+        watchTestRuns: feed.watchTestRuns,
+        runTests: (_selection, onEvent) => {
+          emitters.push(onEvent)
+          return { cancel: () => {} }
+        },
+      }),
+    )
+    await openTests(container)
+    for (let index = 0; index < 40; index += 1) {
+      fireEvent.click(molId(container, `tests-card-run-${HOME}`)!)
+      act(() => {
+        emitters[index]!({ type: 'start', runId: `own-${index}`, ids: [HOME] })
+        emitters[index]!({ type: 'result', id: HOME, status: 'passed', passed: 1 })
+        emitters[index]!({ type: 'done', outcome: 'completed' })
+      })
+    }
+    fireEvent.click(molId(container, `tests-card-run-${HOME}`)!)
+    act(() => emitters[40]!({ type: 'start', runId: 'active', ids: [HOME] }))
+    feed.emit({ type: 'start', runId: 'active', ids: [HOME], source: 'person' })
+    fireEvent.click(molId(container, 'tests-card-cancel')!)
+    expect(molId(container, 'tests-card-running')).toBeNull()
+    expect(molId(container, 'tests-card-cancelled')?.textContent).toBe('Run stopped.')
+  })
+
+  it('a start delayed past cancellation remains a completed own run', async () => {
+    const feed = fakeFeed()
+    let emit: (event: TestRunEvent) => void = () => {}
+    const { container } = render(
+      renderPanel({
+        listTests: async () => LIST,
+        watchTestRuns: feed.watchTestRuns,
+        runTests: (_selection, onEvent) => {
+          emit = onEvent
+          return { cancel: () => {} }
+        },
+      }),
+    )
+    await openTests(container)
+    fireEvent.click(molId(container, `tests-card-run-${HOME}`)!)
+    fireEvent.click(molId(container, 'tests-card-cancel')!)
+    act(() => emit({ type: 'start', runId: 'cancelled', ids: [HOME] }))
+    feed.emit({ type: 'start', runId: 'cancelled', ids: [HOME], source: 'person' })
+    expect(molId(container, 'tests-card-running')).toBeNull()
+    expect(molId(container, 'tests-card-cancel')).toBeNull()
+  })
+
+  it('a host failure after the own start retires the active id and ends the row', async () => {
+    const feed = fakeFeed()
+    const { container } = render(
+      renderPanel({
+        listTests: async () => LIST,
+        watchTestRuns: feed.watchTestRuns,
+        runTests: (_selection, onEvent) => {
+          onEvent({ type: 'start', runId: 'broken', ids: [HOME] })
+          throw new Error('stream failed after start')
+        },
+      }),
+    )
+    await openTests(container)
+    fireEvent.click(molId(container, `tests-card-run-${HOME}`)!)
+    expect(molId(container, 'tests-card-running')).toBeNull()
+    expect(molId(container, 'tests-card-run-error')?.textContent).toBe('stream failed after start')
+    feed.emit({ type: 'start', runId: 'broken', ids: [HOME], source: 'person' })
+    expect(molId(container, 'tests-card-running')).toBeNull()
+  })
+
+  it('Sol 3: delayed starts of cancelled runs cannot evict the active own-run id', async () => {
+    const feed = fakeFeed()
+    const emitters: Array<(event: TestRunEvent) => void> = []
+    const { container } = render(
+      renderPanel({
+        listTests: async () => LIST,
+        watchTestRuns: feed.watchTestRuns,
+        runTests: (_selection, onEvent) => {
+          emitters.push(onEvent)
+          return { cancel: () => {} }
+        },
+      }),
+    )
+    await openTests(container)
+    for (let index = 0; index < 32; index += 1) {
+      fireEvent.click(molId(container, `tests-card-run-${HOME}`)!)
+      fireEvent.click(molId(container, 'tests-card-cancel')!)
+    }
+    fireEvent.click(molId(container, `tests-card-run-${HOME}`)!)
+    act(() => emitters[32]!({ type: 'start', runId: 'active', ids: [HOME] }))
+    act(() => {
+      for (let index = 0; index < 32; index += 1) {
+        emitters[index]!({ type: 'start', runId: `cancelled-${index}`, ids: [HOME] })
+      }
+    })
+    feed.emit({ type: 'start', runId: 'active', ids: [HOME], source: 'person' })
+    fireEvent.click(molId(container, 'tests-card-cancel')!)
+    expect(molId(container, 'tests-card-running')).toBeNull()
+    expect(molId(container, 'tests-card-cancelled')?.textContent).toBe('Run stopped.')
   })
 
   it('unsubscribes when the panel unmounts', async () => {
