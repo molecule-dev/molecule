@@ -1,5 +1,11 @@
 # @molecule/app-settings-panel-react
 
+## 3.0.1
+
+### Patch Changes
+
+- Use the shared profile lifecycle for account edits.
+
 ## 3.0.0
 
 ### Patch Changes
