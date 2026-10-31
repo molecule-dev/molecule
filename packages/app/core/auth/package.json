@@ -29,11 +29,13 @@
   "license": "Apache-2.0",
   "peerDependencies": {
     "@molecule/app-bond": "^1.0.1",
+    "@molecule/app-http": "^1.5.2",
     "@molecule/app-i18n": "^1.0.1",
     "@molecule/app-logger": "^1.0.1"
   },
   "devDependencies": {
     "@molecule/app-bond": "1.0.4",
+    "@molecule/app-http": "1.5.1",
     "@molecule/app-i18n": "1.1.2",
     "@molecule/app-logger": "1.0.3",
     "@types/node": "26.6.5",

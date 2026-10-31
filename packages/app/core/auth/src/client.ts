@@ -6,6 +6,7 @@
  * @module
  */
 
+import { HttpError } from '@molecule/app-http'
 import { I18nError } from '@molecule/app-i18n'
 import { getLogger } from '@molecule/app-logger'
 
@@ -30,6 +31,17 @@ import type {
 } from './types.js'
 
 const HTTP_ERROR_BRAND = Symbol.for('@molecule/app-http/HttpError')
+const redactUrlCredentials = HttpError.redactUrlCredentials
+
+/** Keep an error's logging contract without retaining credentials from a URL in its message. */
+const urlSafeLogError = (error: unknown): unknown => {
+  if (!(error instanceof Error)) return error
+  const message = redactUrlCredentials(error.message)
+  if (message === error.message) return error
+  const safe = new Error(message)
+  safe.name = error.name
+  return safe
+}
 
 /**
  * Whether this app is running inside a CROSS-SITE iframe — i.e. the molecule.dev
@@ -463,7 +475,7 @@ export const createJWTAuthClient = <
           if (isNoRefreshTokenError(err)) {
             logger.debug(
               'Token refresh skipped — no refresh token stored; keeping the session until the API rejects the token',
-              err,
+              urlSafeLogError(err),
             )
             return
           }
@@ -472,11 +484,14 @@ export const createJWTAuthClient = <
           if (!operation.isCurrent()) return
           const httpStatus = (err as { status?: number }).status
           if ((httpStatus === 401 || httpStatus === 403) && operation.isCurrent()) {
-            logger.warn('Token refresh was rejected, signing out', err)
+            logger.warn('Token refresh was rejected, signing out', urlSafeLogError(err))
             await client.logout()
             return
           }
-          logger.warn('Token refresh failed; keeping the session and scheduling a retry', err)
+          logger.warn(
+            'Token refresh failed; keeping the session and scheduling a retry',
+            urlSafeLogError(err),
+          )
           scheduleRefresh(true)
         }
       })
@@ -546,7 +561,7 @@ export const createJWTAuthClient = <
     } catch (error) {
       logger.debug(
         'mapAuthResponse could not read the user in this answer; using it as given',
-        error,
+        urlSafeLogError(error),
       )
       return fallback
     }
@@ -618,11 +633,11 @@ export const createJWTAuthClient = <
         statusText: response.statusText,
         headers,
         // RequestInit bodies contain passwords and refresh tokens, and its
-        // headers contain bearer/cookie credentials. Method and URL are the
-        // complete request view an auth rejection may expose to callers/loggers.
+        // headers contain bearer/cookie credentials. Method and a credential-
+        // redacted URL are the complete request view an auth rejection may expose.
         config: {
           method: (options.method ?? 'GET').toUpperCase(),
-          url,
+          url: redactUrlCredentials(url),
         },
       }
       failure.errorKey = key
@@ -673,7 +688,7 @@ export const createJWTAuthClient = <
             : {},
         })
       } catch (error) {
-        logger.debug('Late session revocation failed (non-critical)', error)
+        logger.debug('Late session revocation failed (non-critical)', urlSafeLogError(error))
       } finally {
         if (cleanup.isCurrent() && !state.authenticated && getSignOutMarker()) {
           clearSessionHintCookie()
@@ -772,11 +787,14 @@ export const createJWTAuthClient = <
         // keep the hint so a later load can still restore the session.
         if (httpStatus === 404) {
           logger.warn(
-            `Session restore skipped — the current-user endpoint "${currentUserEndpoint}" was not found. Set currentUserEndpoint to your API's current-user route.`,
-            error,
+            `Session restore skipped — the current-user endpoint "${redactUrlCredentials(currentUserEndpoint)}" was not found. Set currentUserEndpoint to your API's current-user route.`,
+            urlSafeLogError(error),
           )
         } else {
-          logger.debug('Session restore skipped — the server could not confirm the cookie', error)
+          logger.debug(
+            'Session restore skipped — the server could not confirm the cookie',
+            urlSafeLogError(error),
+          )
         }
         return {
           user: null,
@@ -841,13 +859,13 @@ export const createJWTAuthClient = <
             // A network drop or a 5xx is not about the credential, and it used to
             // sign the user out here.
             if (httpStatus === 401 || httpStatus === 403) {
-              logger.warn('Initial token refresh was rejected; signing out', error)
+              logger.warn('Initial token refresh was rejected; signing out', urlSafeLogError(error))
               endLocalSession()
               return
             }
             logger.warn(
               'Initial token refresh failed; keeping the stored session until the API rejects it',
-              error,
+              urlSafeLogError(error),
             )
           }
         }
@@ -1090,7 +1108,7 @@ export const createJWTAuthClient = <
             credentials: 'include',
             headers: token ? { Authorization: `${config.authScheme ?? 'Bearer'} ${token}` } : {},
           }).catch((error) => {
-            logger.debug('Logout endpoint call failed (non-critical)', error)
+            logger.debug('Logout endpoint call failed (non-critical)', urlSafeLogError(error))
           })
         }
       })
@@ -1208,7 +1226,7 @@ export const createJWTAuthClient = <
           } catch (error) {
             logger.debug(
               'mapAuthResponse could not read the refresh answer; using it as given',
-              error,
+              urlSafeLogError(error),
             )
           }
         }
@@ -1422,8 +1440,8 @@ export const createJWTAuthClient = <
                 : 'Session could not be confirmed'
           if (httpStatus === 404) {
             logger.warn(
-              `validateSession could not verify the session — the current-user endpoint "${currentUserEndpoint}" was not found. Set currentUserEndpoint to your API's current-user route; the stored token was kept.`,
-              error,
+              `validateSession could not verify the session — the current-user endpoint "${redactUrlCredentials(currentUserEndpoint)}" was not found. Set currentUserEndpoint to your API's current-user route; the stored token was kept.`,
+              urlSafeLogError(error),
             )
           }
           setState({ status: 'unavailable', error: message })

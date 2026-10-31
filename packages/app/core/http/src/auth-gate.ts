@@ -55,6 +55,7 @@
 import { getLogger } from '@molecule/app-logger'
 
 import type { AuthGateRequest } from './types.js'
+import { redactUrlCredentials } from './url.js'
 
 const logger = getLogger('http')
 
@@ -165,7 +166,7 @@ export const setAuthGate = (next: (() => Promise<void>) | null): void => {
  */
 const describeRequest = (request?: AuthGateRequest): string =>
   request?.method || request?.url
-    ? `${request?.method ?? 'GET'} ${request?.url ?? ''}`.trim()
+    ? `${request?.method ?? 'GET'} ${redactUrlCredentials(request?.url ?? '')}`.trim()
     : 'a request'
 
 /**

@@ -495,7 +495,7 @@ export interface AuthError extends I18nError {
     statusText: string
     /** Response headers as a plain object, with credential headers omitted. */
     headers: Record<string, string>
-    /** Method and URL only: request bodies and credential headers are never retained. */
+    /** Method and credential-redacted URL only; request bodies and headers are never retained. */
     config: {
       method: string
       url: string

@@ -15,6 +15,7 @@ import type { ErrorInterceptor, RequestInterceptor, ResponseInterceptor } from '
 import { retryDelayMs, shouldRetryRequest } from './retry.js'
 import type { FullRequestConfig, HttpResponse, RequestConfig } from './types.js'
 import { HttpError } from './types.js'
+import { redactUrlCredentials } from './url.js'
 
 /** Wait for a retry backoff. */
 function sleep(ms: number): Promise<void> {
@@ -256,7 +257,7 @@ export const createFetchClient = (config: HttpClientConfig = {}): HttpClient => 
                     'http.error.requestFailed',
                   )
                 }
-                logger.debug('Response is not JSON, using raw text', url)
+                logger.debug('Response is not JSON, using raw text', redactUrlCredentials(url))
                 data = text as T
               }
               break
@@ -273,7 +274,12 @@ export const createFetchClient = (config: HttpClientConfig = {}): HttpClient => 
 
           // Handle error status codes
           if (!fetchResponse.ok) {
-            logger.warn('HTTP error', finalConfig.method, url, fetchResponse.status)
+            logger.warn(
+              'HTTP error',
+              finalConfig.method,
+              redactUrlCredentials(url),
+              fetchResponse.status,
+            )
             const error = new HttpError(
               t(
                 'http.error.requestFailed',
@@ -370,9 +376,18 @@ export const createFetchClient = (config: HttpClientConfig = {}): HttpClient => 
           if (isAbort) {
             // silent — not interesting
           } else if (isNavCancel) {
-            logger.warn('Network request cancelled by navigation', finalConfig.method, url)
+            logger.warn(
+              'Network request cancelled by navigation',
+              finalConfig.method,
+              redactUrlCredentials(url),
+            )
           } else {
-            logger.error('Network error', finalConfig.method, url, err)
+            logger.error(
+              'Network error',
+              finalConfig.method,
+              redactUrlCredentials(url),
+              redactUrlCredentials(err instanceof Error ? err.message : String(err)),
+            )
           }
           // An abort and a navigation cancellation are the SAME fact to a caller —
           // the request was cancelled before any response — and neither is a network

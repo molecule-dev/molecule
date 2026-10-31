@@ -2,4 +2,4 @@
 '@molecule/app-auth': patch
 ---
 
-Expose non-OK auth responses through an app-http-compatible view without retaining request bodies or credentials in errors.
+Redact URL credentials from auth errors and logs while preserving app-http-compatible failures without request credentials.

@@ -5,6 +5,7 @@
  */
 
 import type { RetryOptions } from './retry.js'
+import { redactUrlCredentials } from './url.js'
 
 // A global brand keeps failed-request classification working across realms and
 // duplicated package copies. It is deliberately not an exported runtime key.
@@ -120,8 +121,8 @@ export interface AuthGateRequest {
   method?: string
 
   /**
-   * The request's URL, for the message logged when the gate never settles. A URL may carry
-   * an id; it never carries a credential (tokens travel in headers).
+   * The request's URL, for the message logged when the gate never settles. Any userinfo or
+   * credential query/fragment values are redacted from that report; non-secret parts remain.
    */
   url?: string
 }
@@ -176,13 +177,38 @@ export interface HttpResponse<T = unknown> {
   config: FullRequestConfig
 }
 
+/** The boolean-only notification controls an error interceptor may read. */
+const ERROR_INTERCEPTOR_OPTIONS = [
+  'molSilentErrorNotification',
+  'molSilentRateLimitNotification',
+] as const
+
+/** Keep notification suppression without retaining arbitrary provider options. */
+const errorInterceptorOptions = (
+  options: Record<string, unknown> | undefined,
+): Record<string, unknown> | undefined => {
+  if (!options) return undefined
+  const safe = Object.fromEntries(
+    ERROR_INTERCEPTOR_OPTIONS.flatMap((key) => (options[key] === true ? [[key, true]] : [])),
+  )
+  return Object.keys(safe).length > 0 ? safe : undefined
+}
+
 /** Keep only non-credential request metadata on an error that may be logged. */
 const errorRequestConfig = (config: FullRequestConfig): FullRequestConfig => {
-  // Preserve the existing object for the already-minimal public construction
-  // form; anything richer is reduced so bodies, headers, params and custom
-  // provider options cannot carry credentials into a log entry.
-  if (Object.keys(config).every((key) => key === 'method' || key === 'url')) return config
-  return { method: config.method, url: config.url }
+  const url = redactUrlCredentials(config.url)
+  const options = errorInterceptorOptions(config.options)
+  // Preserve the existing object for the already-minimal, credential-free public
+  // construction form; anything richer is reduced so bodies, headers, params and
+  // arbitrary provider options cannot carry credentials into a log entry.
+  if (
+    url === config.url &&
+    options === undefined &&
+    Object.keys(config).every((key) => key === 'method' || key === 'url')
+  ) {
+    return config
+  }
+  return { method: config.method, url, ...(options ? { options } : {}) }
 }
 
 /** Response headers that can carry a credential into an error's log metadata. */
@@ -214,10 +240,11 @@ const errorResponse = (response: HttpResponse): HttpResponse => {
 /**
  * HTTP error with response details.
  *
- * Request metadata on `config` and `response.config` is limited to method and
- * URL. Request bodies, headers, params and custom provider options are omitted,
- * as are credential-bearing response headers, because errors are routinely
- * serialized by logging transports.
+ * Request metadata on `config` and `response.config` is limited to method, a
+ * credential-redacted URL, and the two boolean notification-suppression controls
+ * (`molSilentErrorNotification` and `molSilentRateLimitNotification`). Request bodies,
+ * headers, params and all other provider options are omitted, as are credential-bearing
+ * response headers, because errors are routinely serialized by logging transports.
  *
  * **`status` is an HTTP status when the server answered, and `0` when it did not.**
  * A `0` means NO response exists: the request was aborted (an `AbortController`, a
@@ -241,13 +268,21 @@ const errorResponse = (response: HttpResponse): HttpResponse => {
  */
 export class HttpError extends Error {
   /**
+   * Redacts URL userinfo and credential query/fragment values while preserving the path and
+   * non-secret parameters. Shared by compatible HTTP and auth error/log views.
+   */
+  static readonly redactUrlCredentials = redactUrlCredentials
+
+  /**
    * Builds a failed-request error.
    *
-   * @param message - Human-readable message (already translated where a key exists).
+   * @param message - Human-readable message (already translated where a key exists);
+   *   credentials in any URL it contains are redacted.
    * @param status - HTTP status, or `0` when no response was received (aborted / network failure).
    * @param response - Parsed response when the server answered, otherwise undefined;
    *   its request config and headers are sanitized for safe logging.
-   * @param config - The request config that failed; only its method and URL are retained.
+   * @param config - The request config that failed; only its method, redacted URL and
+   *   boolean notification-suppression controls are retained.
    * @param errorKey - Translation key for the failure (`http.error.aborted` for an
    *   aborted request, `http.error.networkError` for a real network failure).
    * @param aborted - Whether the request was aborted before a response: an
@@ -263,7 +298,7 @@ export class HttpError extends Error {
     public errorKey?: string,
     public aborted = false,
   ) {
-    super(message)
+    super(redactUrlCredentials(message))
     this.name = 'HttpError'
     this.response = response ? errorResponse(response) : undefined
     this.config = config ? errorRequestConfig(config) : undefined
