@@ -665,8 +665,13 @@ class FlyioSandboxProvider implements SandboxProvider {
         attempt.generation,
       )
       if (attempt.signal.aborted) throw attempt.signal.reason
-      dispatched = true
-      const result = await this.client.request<T>(path, { ...options, signal: attempt.signal })
+      const result = await this.client.request<T>(path, {
+        ...options,
+        signal: attempt.signal,
+        onDispatch: () => {
+          dispatched = true
+        },
+      })
       // A response can arrive after ownership was lost. The write may remain
       // unresolved, but a superseded worker must not journal/adopt its outcome.
       if (attempt.signal.aborted) throw attempt.signal.reason
@@ -2106,7 +2111,12 @@ class FlyioSandboxProvider implements SandboxProvider {
     snapshot: FlyCreateAttempt,
     signal: AbortSignal,
     generation: number,
-    options: { retire?: boolean; deleteApp?: boolean; forget?: boolean } = {},
+    options: {
+      retire?: boolean
+      deleteApp?: boolean
+      forget?: boolean
+      observedMachines?: FlyMachine[]
+    } = {},
   ): Promise<boolean> {
     const retire = options.retire ?? false
     const deleteApp = options.deleteApp ?? true
@@ -2191,6 +2201,14 @@ class FlyioSandboxProvider implements SandboxProvider {
 
     let intent = await fresh()
     let live = await this.readAttemptAppState(intent.appName)
+    const observed = ownMachine(options.observedMachines ?? [], intent)
+    if (observed) {
+      // destroyApp read this metadata before waiting for the attempt lock. Save
+      // that observation now; a later list omission cannot erase ownership.
+      intent = await fresh()
+      await adoptLegacyResources(observed)
+      intent = await fresh()
+    }
     const machine = ownMachine(live.machines, intent)
     if (!retire && machine && activeStates.includes(machine.state ?? 'created')) return false
     if (machine) {
@@ -2281,11 +2299,13 @@ class FlyioSandboxProvider implements SandboxProvider {
           candidate.targetApp === recorded.targetApp && candidate.network === recorded.network,
       )
       if (!address || (address.resolved && !address.owned)) continue
-      const assignments = await this.listPrivateAssignments(address.targetApp, signal)
-      if (!assignments) {
-        throw new Error(`Could not resolve Fly addresses on "${address.targetApp}"`)
-      }
       if (!address.resolved) {
+        // Only an unresolved create needs discovery. A known owned IP is its
+        // own DELETE capability, even when the target app no longer exists.
+        const assignments = await this.listPrivateAssignments(address.targetApp, signal)
+        if (!assignments) {
+          throw new Error(`Could not resolve Fly addresses on "${address.targetApp}"`)
+        }
         const assignment = assignments.find((candidate) => candidate.network === address?.network)
         if (!assignment?.ip) {
           throw new Error(`Fly address allocation for attempt "${intent.attemptId}" is unresolved`)
@@ -2408,7 +2428,11 @@ class FlyioSandboxProvider implements SandboxProvider {
    * Explicitly destroy an exclusively owned app and its workspace storage.
    * Recorded external addresses are released before any intent may be forgotten.
    */
-  async destroyApp(projectId: string, expectedAppName?: string): Promise<void> {
+  async destroyApp(
+    projectId: string,
+    expectedAppName?: string,
+    signal?: AbortSignal,
+  ): Promise<void> {
     if (!this.appPerProject()) {
       throw new Error('Refusing to delete a shared Fly app as though a caller exclusively owned it')
     }
@@ -2420,6 +2444,7 @@ class FlyioSandboxProvider implements SandboxProvider {
     }
     const listed = await this.client.request<FlyMachine[]>(`/apps/${app}/machines`, {
       nullOn: [404],
+      signal,
     })
     const machines = Array.isArray(listed) ? listed : []
     const routes: Record<string, string> = {}
@@ -2456,12 +2481,18 @@ class FlyioSandboxProvider implements SandboxProvider {
           for (const snapshot of durable.values()) {
             const current = await journal.get(snapshot.attemptId)
             if (!current) continue
-            await journal.withLock(current, (signal, generation) =>
-              this.settleCreateAttempt(current, signal, generation, {
-                retire: true,
-                deleteApp,
-                forget: deleteApp,
-              }),
+            await journal.withLock(current, (lockSignal, generation) =>
+              this.settleCreateAttempt(
+                current,
+                signal ? AbortSignal.any([signal, lockSignal]) : lockSignal,
+                generation,
+                {
+                  retire: true,
+                  deleteApp,
+                  forget: deleteApp,
+                  observedMachines: machines,
+                },
+              ),
             )
           }
         }
@@ -2479,9 +2510,14 @@ class FlyioSandboxProvider implements SandboxProvider {
       await this.client.request(`/apps/${targetApp}/ip_assignments/${encodeURIComponent(ip)}`, {
         method: 'DELETE',
         nullOn: [404],
+        signal,
       })
     }
-    await this.client.request(`/apps/${app}?force=true`, { method: 'DELETE', nullOn: [404] })
+    await this.client.request(`/apps/${app}?force=true`, {
+      method: 'DELETE',
+      nullOn: [404],
+      signal,
+    })
     for (const attemptId of attemptIds) await journal?.forget(attemptId)
   }
 

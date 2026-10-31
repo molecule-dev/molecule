@@ -1020,3 +1020,151 @@ describe('round-eight durable ownership counterexamples', () => {
     expect(journal.attempts.size).toBe(0)
   })
 })
+
+describe('round-ten ownership counterexamples', () => {
+  it('clears provisional volume protection when pacing cancellation prevents Machine dispatch', async () => {
+    const journal = new MemoryJournal()
+    const controller = new AbortController()
+    const double = createFetchDouble()
+      .fallback({ body: [] })
+      .on(`GET /apps/${APP}`, { body: { name: APP } })
+      .on(`GET /apps/${APP}/volumes`, { body: [] })
+      .on(`POST /apps/${APP}/volumes`, { body: { id: 'v1', name: 'attempt-volume' } })
+      .on(`DELETE /apps/${APP}/volumes/v1`, { status: 204 })
+    for (let read = 0; read < 12; read++) {
+      double.on(`GET /apps/${APP}/volumes`, {
+        body: [{ id: 'v1', name: 'attempt-volume', attached_machine_id: null }],
+      })
+    }
+    const baseFetch = double.fetch
+    double.fetch = vi.fn(async (input: string | URL | Request, init?: RequestInit) => {
+      if (init?.signal?.aborted) throw init.signal.reason
+      return baseFetch(input, init)
+    }) as unknown as typeof fetch
+    let cancelAtNextPacingWait = false
+    const client = new FlyApiClient({
+      token: () => 'tok',
+      baseUrl: 'https://api.machines.dev/v1',
+      fetchImpl: double.fetch,
+      sleep: async () => {
+        if (cancelAtNextPacingWait) {
+          cancelAtNextPacingWait = false
+          controller.abort(new Error('lock lost during rate-limit wait'))
+        }
+      },
+    })
+    const markWorkspace = journal.markVolumeWorkspace.bind(journal)
+    journal.markVolumeWorkspace = async (attemptId, name, workspace = true) => {
+      await markWorkspace(attemptId, name, workspace)
+      if (workspace) cancelAtNextPacingWait = true
+    }
+    const provider = createProvider(
+      {
+        orgSlug: 'acme',
+        region: 'iad',
+        appPerProject: false,
+        appName: APP,
+        createAttemptJournal: journal,
+      },
+      client,
+    )
+    const previousGap = process.env.FLY_API_MIN_REQUEST_GAP_MS
+    process.env.FLY_API_MIN_REQUEST_GAP_MS = '60000'
+    try {
+      await expect(
+        provider.create({ projectId: PROJECT_ID, volumeName: 'workspace' }, controller.signal),
+      ).rejects.toThrow('lock lost during rate-limit wait')
+    } finally {
+      if (previousGap === undefined) delete process.env.FLY_API_MIN_REQUEST_GAP_MS
+      else process.env.FLY_API_MIN_REQUEST_GAP_MS = previousGap
+    }
+    expect(double.matching(`POST /apps/${APP}/machines`)).toHaveLength(0)
+    expect(journal.attempts.get([...journal.attempts.keys()][0]!)?.volumes[0]?.workspace).toBe(
+      false,
+    )
+
+    await expect(provider.reconcileCreateAttempts()).resolves.toEqual({ deleted: 1, failed: 0 })
+    expect(double.matching(`DELETE /apps/${APP}/volumes/v1`)).toHaveLength(1)
+  })
+
+  it('journals initially observed legacy routes before later listings omit the Machine', async () => {
+    const attemptId = `legacy:${PROJECT_ID}`
+    const journal = new MemoryJournal()
+    journal.seed(failedIntent({ attemptId, state: 'serving', sandboxId: `${APP}:m1` }))
+    const routes = { 'tenant-db': 'fdaa::47' }
+    const machine = {
+      id: 'm1',
+      name: 'original-machine',
+      state: 'started',
+      config: {
+        metadata: {
+          'molecule-sandbox.privateRoutes': encodePrivateRoutes(routes),
+        },
+      },
+    }
+    let firstMachineListing = true
+    const double = createFetchDouble()
+    double.fetch = vi.fn(async (input: string | URL | Request, init?: RequestInit) => {
+      const method = (init?.method ?? 'GET').toUpperCase()
+      const url = String(input)
+      const path = url.replace('https://api.machines.dev/v1', '')
+      double.calls.push({ method, url, path, body: undefined })
+      let status = 200
+      let body: unknown = {}
+      if (method === 'GET' && path === `/apps/${APP}/machines`) {
+        body = firstMachineListing ? [machine] : []
+        firstMachineListing = false
+      } else if (method === 'GET' && path === `/apps/${APP}/volumes`) {
+        body = []
+      } else if (
+        method === 'DELETE' &&
+        path === `/apps/tenant-db/ip_assignments/${encodeURIComponent('fdaa::47')}`
+      ) {
+        status = 204
+      } else if (method === 'DELETE' && path === `/apps/${APP}?force=true`) {
+        status = 204
+      } else {
+        throw new Error(`Unexpected ${method} ${path}`)
+      }
+      return {
+        status,
+        headers: { get: () => null },
+        text: async () => JSON.stringify(body),
+      } as unknown as Response
+    }) as unknown as typeof fetch
+
+    await makeProvider(double, journal).destroyApp(PROJECT_ID)
+
+    const deletes = double.calls.filter((call) => call.method === 'DELETE').map((call) => call.path)
+    expect(deletes).toEqual([
+      `/apps/tenant-db/ip_assignments/${encodeURIComponent('fdaa::47')}`,
+      `/apps/${APP}?force=true`,
+    ])
+    expect(journal.attempts.size).toBe(0)
+  })
+
+  it('settles a resolved owned IP when its target app assignment listing is gone', async () => {
+    const journal = new MemoryJournal()
+    journal.seed(
+      failedIntent({
+        addresses: [
+          { targetApp: 'tenant-db', network: APP, ip: 'fdaa::48', owned: true, resolved: true },
+        ],
+      }),
+    )
+    const double = createFetchDouble()
+      .fallback({ body: [] })
+      .on('GET /apps/tenant-db/ip_assignments', { status: 404, body: { error: 'app gone' } })
+      .on('DELETE /apps/tenant-db/ip_assignments/fdaa%3A%3A48', { status: 204 })
+
+    await expect(
+      makeProvider(double, journal, {
+        appPerProject: false,
+        appName: APP,
+      }).reconcileCreateAttempts(),
+    ).resolves.toEqual({ deleted: 1, failed: 0 })
+    expect(double.matching('GET /apps/tenant-db/ip_assignments')).toHaveLength(0)
+    expect(double.matching('DELETE /apps/tenant-db/ip_assignments/fdaa%3A%3A48')).toHaveLength(1)
+    expect(journal.attempts.size).toBe(0)
+  })
+})

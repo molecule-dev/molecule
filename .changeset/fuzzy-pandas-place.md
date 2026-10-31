@@ -2,4 +2,4 @@
 '@molecule/api-code-sandbox-flyio': patch
 ---
 
-Survive transient Fly creates with durable exact-ID settlement, legacy ownership recovery and Flycast reconciliation.
+Survive transient Fly creates with dispatch-fenced durable ownership, exact-ID settlement and legacy Flycast recovery.

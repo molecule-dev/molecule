@@ -87,6 +87,8 @@ export interface FlyRequestOptions<T = unknown> {
   timeoutMs?: number
   /** Cancels in-flight provisioning when the owning lifecycle lock is lost. */
   signal?: AbortSignal
+  /** Runs synchronously after pacing, immediately before the fetch is dispatched. */
+  onDispatch?: () => void
   /** Max attempts for a retryable failure. Defaults to 4. Pass 1 to disable retries. */
   attempts?: number
   /**
@@ -310,6 +312,10 @@ export class FlyApiClient {
       // Pace EVERY network call (including retries) through the process-wide
       // limiter so a boot's burst of exec calls never trips Fly's account 429.
       await paceFlyRequest(this.sleep)
+      // Pacing is cancellable too: ownership protection starts only when this
+      // request really enters fetch, never while it is still waiting for a slot.
+      if (options.signal?.aborted) throw options.signal.reason
+      options.onDispatch?.()
       const controller = new AbortController()
       const timer = setTimeout(() => controller.abort(), options.timeoutMs ?? this.timeoutMs)
       // Initialized to 0 ("no answer received"), which is the value that
