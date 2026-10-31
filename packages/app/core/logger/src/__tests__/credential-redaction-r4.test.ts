@@ -113,7 +113,7 @@ describe('logger credential emission boundaries', () => {
     expect(output.url).toContain('view=full')
   })
 
-  it('walks cycles without overflowing and retains identity for a credential-free cycle', () => {
+  it('walks cycles without overflowing into a fresh tree, including for clean input', () => {
     const input: { self?: unknown; nested: { password: string }; safe: string } = {
       nested: { password: 'cycle-secret' },
       safe: 'unchanged',
@@ -123,11 +123,14 @@ describe('logger credential emission boundaries', () => {
     const output = redactCredentials(input)
 
     expect(output).not.toBe(input)
-    expect(output.self).toBe(output)
+    expect(output.self).toBe('[Circular]')
     expect(output.safe).toBe('unchanged')
     expect(JSON.stringify(output.nested)).not.toContain('cycle-secret')
     const clean: { self?: unknown; safe: string } = { safe: 'unchanged' }
     clean.self = clean
-    expect(redactCredentials(clean)).toBe(clean)
+    const cleanOutput = redactCredentials(clean)
+    expect(cleanOutput).not.toBe(clean)
+    expect(cleanOutput.self).toBe('[Circular]')
+    expect(cleanOutput.safe).toBe('unchanged')
   })
 })

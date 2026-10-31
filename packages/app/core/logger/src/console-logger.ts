@@ -35,14 +35,16 @@ export const createConsoleLogger = (config: LoggerConfig = {}): Logger => {
   ): void => {
     if (!shouldLog(entryLevel)) return
 
-    const entry: LogEntry = {
+    // Capture the complete entry as a fresh scrubbed tree BEFORE console or any transport can
+    // retain it. Later caller mutation therefore cannot change a buffered clean entry into a leak.
+    const entry = redactCredentials<LogEntry>({
       level: entryLevel,
-      message: redactCredentials(message),
-      args: redactCredentials(args),
+      message,
+      args,
       timestamp: new Date(),
       logger: name,
-      context: Object.keys(context).length > 0 ? redactCredentials(context) : undefined,
-    }
+      context: Object.keys(context).length > 0 ? context : undefined,
+    })
 
     // Console output
     const consoleMethod = entryLevel === 'trace' ? 'debug' : entryLevel

@@ -9,7 +9,15 @@
  */
 
 import { createConsoleLogger } from './console-logger.js'
-import type { Logger, LoggerConfig, LoggerProvider, LogLevel, LogTransport } from './types.js'
+import { redactCredentials } from './redaction.js'
+import type {
+  LogEntry,
+  Logger,
+  LoggerConfig,
+  LoggerProvider,
+  LogLevel,
+  LogTransport,
+} from './types.js'
 
 /**
  * Creates a console-based logger provider with configurable log level,
@@ -92,6 +100,86 @@ import { bond, get as bondGet, isBonded } from '@molecule/app-bond'
 
 const BOND_TYPE = 'app-logger'
 
+const providerWrappers = new WeakMap<LoggerProvider, LoggerProvider>()
+const wrappedProviders = new WeakSet<LoggerProvider>()
+const loggerWrappers = new WeakMap<Logger, Logger>()
+const transportWrappers = new WeakMap<LogTransport, LogTransport>()
+
+/** Scrub an entry immediately before ANY custom transport can retain or emit it. */
+const credentialSafeTransport = (transport: LogTransport): LogTransport => {
+  const cached = transportWrappers.get(transport)
+  if (cached) return cached
+  const wrapped: LogTransport = (entry) => transport(redactCredentials(entry))
+  transportWrappers.set(transport, wrapped)
+  return wrapped
+}
+
+/** Keep formatter/transport callbacks behind the same entry boundary as logger arguments. */
+const credentialSafeConfig = (config: LoggerConfig): LoggerConfig => {
+  const scrubbed = redactCredentials(config)
+  return {
+    ...scrubbed,
+    ...(config.format
+      ? { format: (entry: LogEntry) => config.format!(redactCredentials(entry)) }
+      : {}),
+    ...(config.transports ? { transports: config.transports.map(credentialSafeTransport) } : {}),
+  }
+}
+
+/** Wrap custom logger implementations too; identity caching preserves child/logger reuse. */
+const credentialSafeLogger = (logger: Logger): Logger => {
+  const cached = loggerWrappers.get(logger)
+  if (cached) return cached
+  const wrapped: Logger = {
+    trace: (message, ...args) =>
+      logger.trace(redactCredentials(message), ...redactCredentials(args)),
+    debug: (message, ...args) =>
+      logger.debug(redactCredentials(message), ...redactCredentials(args)),
+    info: (message, ...args) => logger.info(redactCredentials(message), ...redactCredentials(args)),
+    warn: (message, ...args) => logger.warn(redactCredentials(message), ...redactCredentials(args)),
+    error: (message, ...args) =>
+      logger.error(redactCredentials(message), ...redactCredentials(args)),
+    setLevel: (level) => logger.setLevel(level),
+    getLevel: () => logger.getLevel(),
+    child: (name, context) =>
+      credentialSafeLogger(logger.child(redactCredentials(name), redactCredentials(context))),
+    withContext: (context) => credentialSafeLogger(logger.withContext(redactCredentials(context))),
+    addTransport: (transport) => logger.addTransport(credentialSafeTransport(transport)),
+    removeTransport: (transport) => logger.removeTransport(credentialSafeTransport(transport)),
+  }
+  loggerWrappers.set(logger, wrapped)
+  return wrapped
+}
+
+/** Wrap whatever is bonded, including a direct bond that bypassed setProvider(). */
+const credentialSafeProvider = (provider: LoggerProvider): LoggerProvider => {
+  if (wrappedProviders.has(provider)) return provider
+  const cached = providerWrappers.get(provider)
+  if (cached) return cached
+  const wrapped: LoggerProvider = {
+    getLogger: (name) => credentialSafeLogger(provider.getLogger(redactCredentials(name))),
+    createLogger: (nameOrConfig, config) => {
+      const logger =
+        typeof nameOrConfig === 'string'
+          ? provider.createLogger(
+              redactCredentials(nameOrConfig),
+              config ? credentialSafeConfig(config) : undefined,
+            )
+          : provider.createLogger(credentialSafeConfig(nameOrConfig))
+      return credentialSafeLogger(logger)
+    },
+    setLevel: (level) => provider.setLevel(level),
+    getLevel: () => provider.getLevel(),
+    addTransport: (transport) => provider.addTransport(credentialSafeTransport(transport)),
+    enable: () => provider.enable(),
+    disable: () => provider.disable(),
+    isEnabled: () => provider.isEnabled(),
+  }
+  providerWrappers.set(provider, wrapped)
+  wrappedProviders.add(wrapped)
+  return wrapped
+}
+
 /**
  * Registers a logger provider as the active singleton.
  *
@@ -120,7 +208,7 @@ export const getProvider = (): LoggerProvider => {
 
     bond(BOND_TYPE, createConsoleLoggerProvider(defaultLevel))
   }
-  return bondGet<LoggerProvider>(BOND_TYPE)!
+  return credentialSafeProvider(bondGet<LoggerProvider>(BOND_TYPE)!)
 }
 
 /**

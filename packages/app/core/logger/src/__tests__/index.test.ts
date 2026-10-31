@@ -674,7 +674,7 @@ describe('@molecule/app-logger', () => {
       setProvider(null as unknown as LoggerProvider)
     })
 
-    it('should set and get custom provider', () => {
+    it('should wrap and cache a custom provider at retrieval', () => {
       const mockProvider: LoggerProvider = {
         getLogger: vi.fn().mockReturnValue(createConsoleLogger()),
         createLogger: vi.fn().mockReturnValue(createConsoleLogger()),
@@ -689,7 +689,8 @@ describe('@molecule/app-logger', () => {
       setProvider(mockProvider)
       const provider = getProvider()
 
-      expect(provider).toBe(mockProvider)
+      expect(provider).not.toBe(mockProvider)
+      expect(getProvider()).toBe(provider)
     })
 
     it('should auto-create provider if not set', () => {
