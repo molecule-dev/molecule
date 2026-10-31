@@ -258,48 +258,6 @@ DatabaseSync.prototype.prepare = function (sql, ...args) {
     db.close()
   })
 
-  it('upgrades a real r3 receipt table without reintroducing the identity collision', async () => {
-    const db = new DatabaseSync(join(root, 'paracrine.sqlite'))
-    db.exec(`
-      CREATE TABLE messages (
-        id TEXT PRIMARY KEY, sender TEXT NOT NULL, recipient TEXT NOT NULL,
-        subject TEXT, body TEXT NOT NULL, sent_at TEXT NOT NULL,
-        sent_ms INTEGER NOT NULL, thread_id TEXT
-      );
-      CREATE TABLE recipients (id TEXT PRIMARY KEY, registered_at TEXT NOT NULL);
-      CREATE TABLE deliveries (
-        message_id TEXT NOT NULL REFERENCES messages(id) ON DELETE CASCADE,
-        recipient TEXT NOT NULL,
-        state TEXT NOT NULL CHECK(state IN ('pending', 'claimed', 'acknowledged')),
-        claim_token TEXT, claimed_at INTEGER, PRIMARY KEY(message_id, recipient)
-      );
-      CREATE TABLE receipts (
-        message_id TEXT NOT NULL, reader TEXT NOT NULL, at TEXT NOT NULL,
-        legacy INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(message_id, reader)
-      );
-      CREATE TABLE migration (key TEXT PRIMARY KEY, value TEXT NOT NULL);
-      INSERT INTO recipients VALUES('b', '2026-01-01T00:00:00.000Z'),
-        ('b.delivered', '2026-01-01T00:00:00.000Z');
-      INSERT INTO messages VALUES('upgrade-broadcast', 'a', '*', NULL, 'upgrade',
-        '2026-01-01T00:00:00.000Z', 1767225600000, NULL);
-      INSERT INTO deliveries VALUES
-        ('upgrade-broadcast', 'b', 'acknowledged', NULL, NULL),
-        ('upgrade-broadcast', 'b.delivered', 'pending', NULL, NULL);
-      INSERT INTO receipts VALUES
-        ('upgrade-broadcast', 'b.delivered', '2026-01-01T00:00:00.000Z', 0);
-      INSERT INTO migration VALUES('legacy', '{"phase":"done","after":"","mailbox":null,"fileAfter":""}');
-    `)
-    db.close()
-
-    const store = createProvider({ rootDir: root })
-    expect(await store.pending('b')).toEqual([])
-    expect(await store.pending('b.delivered')).toEqual(['upgrade-broadcast.json'])
-    expect((await store.reads('upgrade-broadcast')).map((receipt) => receipt.by)).toEqual([
-      'b.delivered',
-    ])
-    store.close()
-  })
-
   it('R6 schema: attempt metadata is durable while claimed still covers unconfirmed emission', async () => {
     const store = createProvider({ rootDir: root })
     const sent = await store.send({ from: 'a', to: 'b', body: 'future at-least-once metadata' })

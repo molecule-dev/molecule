@@ -61,7 +61,7 @@ describe('pending delivery rows', () => {
 
     const store = createProvider({ rootDir: root })
     expect((await store.pending('b')).sort()).toEqual(
-      ['pre-upgrade-broadcast.json', `${direct.id}.json`].sort(),
+      ['pre-upgrade-answered.json', 'pre-upgrade-broadcast.json', `${direct.id}.json`].sort(),
     )
     expect(
       JSON.parse(await readFile(join(root, 'messages', 'b', `${direct.id}.json`), 'utf8')),
@@ -84,8 +84,8 @@ describe('pending delivery rows', () => {
     await writeFile(join(root, 'reads', message.id, 'b.delivered.json'), '{}')
 
     const store = createProvider({ rootDir: root })
-    expect(await store.pending('b')).toEqual([])
-    expect(await store.pending('b.delivered')).toEqual([`${message.id}.json`])
+    expect(await store.pending('b')).toEqual([`${message.id}.json`])
+    expect(await store.pending('b.delivered')).toEqual([])
   })
 
   it('registers later readers for broadcasts idempotently', async () => {

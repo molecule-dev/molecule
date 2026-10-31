@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto'
-import type { Dirent } from 'node:fs'
+import type { Dir, Dirent } from 'node:fs'
 import { chmodSync, mkdirSync, opendirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { DatabaseSync } from 'node:sqlite'
@@ -25,8 +25,8 @@ import type {
 import { legacyMessage, MESSAGE_ID } from './validation.js'
 
 const MIGRATION_BATCH = 4
+const MIGRATION_DEADLINE_MS = 50
 const DEFAULT_LEASE_MS = 30_000
-const CURSOR_VERSION = 2
 const DELIVERY_SUFFIX = '.delivered'
 const EPOCH = '1970-01-01T00:00:00.000Z'
 
@@ -49,7 +49,6 @@ interface ClaimRow extends MessageRow {
 }
 
 interface MessageCursor {
-  version: typeof CURSOR_VERSION
   phase: 'recipients' | 'messages' | 'done'
   after: string
   mailbox: string | null
@@ -57,7 +56,6 @@ interface MessageCursor {
 }
 
 interface ReceiptCursor {
-  version: typeof CURSOR_VERSION
   phase: 'receipts' | 'done'
   after: string
   messageId: string | null
@@ -65,7 +63,6 @@ interface ReceiptCursor {
 }
 
 const INITIAL_MESSAGE_CURSOR: MessageCursor = {
-  version: CURSOR_VERSION,
   phase: 'recipients',
   after: '',
   mailbox: null,
@@ -73,7 +70,6 @@ const INITIAL_MESSAGE_CURSOR: MessageCursor = {
 }
 
 const INITIAL_RECEIPT_CURSOR: ReceiptCursor = {
-  version: CURSOR_VERSION,
   phase: 'receipts',
   after: '',
   messageId: null,
@@ -90,47 +86,9 @@ const toMessage = (row: MessageRow): ParacrineMessage => ({
   ...(row.thread_id === null ? {} : { threadId: row.thread_id }),
 })
 
-interface DirectoryPage {
-  entries: Dirent[]
+interface DirectoryStep {
+  entry: Dirent | null
   done: boolean
-}
-
-/**
- * Read a small directory page without materializing or sorting the backlog.
- * Legacy trees are immutable, so the last raw directory entry is a resumable
- * cursor. If an external writer removed that entry, restart idempotently.
- */
-const directoryPage = (path: string, after: string, limit: number): DirectoryPage => {
-  let directory
-  try {
-    directory = opendirSync(path)
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return { entries: [], done: true }
-    throw error
-  }
-  let seeking = after.length > 0
-  let found = !seeking
-  const entries: Dirent[] = []
-  try {
-    while (entries.length < limit) {
-      const entry = directory.readSync()
-      if (entry === null) {
-        if (seeking && !found) return directoryPage(path, '', limit)
-        return { entries, done: true }
-      }
-      if (seeking) {
-        if (entry.name === after) {
-          seeking = false
-          found = true
-        }
-        continue
-      }
-      entries.push(entry)
-    }
-    return { entries, done: false }
-  } finally {
-    directory.closeSync()
-  }
 }
 
 const RECEIPTS_SCHEMA = `
@@ -147,6 +105,7 @@ const RECEIPTS_SCHEMA = `
 /** Synchronous SQLite operations, wrapped by the asynchronous public provider. */
 export class ParacrineDatabase {
   private readonly db: DatabaseSync
+  private readonly directories = new Map<string, Dir>()
   private messagesMigrationDone = false
   private receiptsMigrationDone = false
 
@@ -194,74 +153,62 @@ export class ParacrineDatabase {
           key TEXT PRIMARY KEY,
           value TEXT NOT NULL
         );
-      `)
-
-      const deliveryColumns = this.db
-        .prepare("PRAGMA table_info('deliveries')")
-        .all()
-        .map((column) => (column as unknown as { name: string }).name)
-      let backfillSelection = false
-      for (const [name, definition] of [
-        ['sent_ms', 'INTEGER NOT NULL DEFAULT 0'],
-        ['selection_group', 'INTEGER NOT NULL DEFAULT 0'],
-        ['emission_count', 'INTEGER NOT NULL DEFAULT 0'],
-        ['last_emitted_at', 'INTEGER'],
-      ] as const) {
-        if (!deliveryColumns.includes(name)) {
-          this.db.exec(`ALTER TABLE deliveries ADD COLUMN ${name} ${definition}`)
-          if (name === 'sent_ms' || name === 'selection_group') backfillSelection = true
-        }
-      }
-      if (backfillSelection) {
-        this.db.exec(`
-          UPDATE deliveries SET
-            sent_ms = (SELECT sent_ms FROM messages WHERE messages.id = deliveries.message_id),
-            selection_group = CASE WHEN EXISTS (
-              SELECT 1 FROM messages
-              WHERE messages.id = deliveries.message_id
-                AND messages.recipient = deliveries.recipient
-            ) THEN 0 ELSE 1 END
-        `)
-      }
-      this.db.exec(`
-        DROP INDEX IF EXISTS deliveries_recipient_state;
+        ${RECEIPTS_SCHEMA}
         CREATE INDEX IF NOT EXISTS deliveries_pending_selection
           ON deliveries(recipient, selection_group, sent_ms, message_id)
           WHERE state = 'pending';
         CREATE INDEX IF NOT EXISTS deliveries_stale_selection
           ON deliveries(recipient, selection_group, sent_ms, message_id, claimed_at)
           WHERE state = 'claimed';
+        PRAGMA user_version = 1;
       `)
-
-      const receiptColumns = this.db
-        .prepare("PRAGMA table_info('receipts')")
-        .all()
-        .map((column) => (column as unknown as { name: string }).name)
-      if (receiptColumns.includes('reader')) {
-        // The old encoding is ambiguous for an actual "*.delivered" reader.
-        // Interpret it once as the hook receipt it overwhelmingly represented;
-        // all new rows carry explicit kind and recipient instead.
-        this.db.exec('ALTER TABLE receipts RENAME TO receipts_legacy')
-        this.db.exec(RECEIPTS_SCHEMA)
-        this.db.exec(`
-          INSERT OR IGNORE INTO receipts(message_id, kind, recipient, at, legacy)
-          SELECT message_id,
-            CASE WHEN reader LIKE '%.delivered' THEN 'delivery' ELSE 'read' END,
-            CASE WHEN reader LIKE '%.delivered'
-              THEN substr(reader, 1, length(reader) - 10) ELSE reader END,
-            at, legacy
-          FROM receipts_legacy;
-          DROP TABLE receipts_legacy;
-        `)
-      } else {
-        this.db.exec(RECEIPTS_SCHEMA)
-      }
     })
   }
 
-  /** Close the underlying SQLite handle. */
+  /** Close directory streams before closing the underlying SQLite handle. */
   close(): void {
+    this.resetDirectories()
     this.db.close()
+  }
+
+  /** Reset non-transactional stream positions before an idempotent replay. */
+  private resetDirectories(): void {
+    for (const directory of this.directories.values()) directory.closeSync()
+    this.directories.clear()
+  }
+
+  /**
+   * Read at most one entry from a process-owned stream. Durable checkpoints
+   * record committed batches, while a reopened stream replays idempotently
+   * instead of synchronously seeking through every preceding directory entry.
+   */
+  private directoryEntry(path: string, deadline: number): DirectoryStep {
+    if (performance.now() >= deadline) return { entry: null, done: false }
+    let directory = this.directories.get(path)
+    if (directory === undefined) {
+      try {
+        directory = opendirSync(path)
+        this.directories.set(path, directory)
+      } catch (error) {
+        if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+          return { entry: null, done: true }
+        }
+        throw error
+      }
+    }
+    try {
+      const entry = directory.readSync()
+      if (entry === null) {
+        directory.closeSync()
+        this.directories.delete(path)
+        return { entry: null, done: true }
+      }
+      return { entry, done: false }
+    } catch (error) {
+      directory.closeSync()
+      this.directories.delete(path)
+      throw error
+    }
   }
 
   /** Run one synchronous state change atomically. */
@@ -277,13 +224,12 @@ export class ParacrineDatabase {
     }
   }
 
-  /** Read the durable message checkpoint, restarting the ambiguous r3 format. */
+  /** Read the durable JSON-import checkpoint without translating SQLite versions. */
   private messageCursor(): MessageCursor {
     const row = this.db.prepare("SELECT value FROM migration WHERE key = 'legacy'").get() as
       { value: string } | undefined
     if (row === undefined) return { ...INITIAL_MESSAGE_CURSOR }
-    const cursor = JSON.parse(row.value) as MessageCursor
-    return cursor.version === CURSOR_VERSION ? cursor : { ...INITIAL_MESSAGE_CURSOR }
+    return JSON.parse(row.value) as MessageCursor
   }
 
   /** Read the independent durable legacy-receipt checkpoint. */
@@ -387,11 +333,9 @@ export class ParacrineDatabase {
     this.applyReceiptsForMessage(message.id)
   }
 
-  /** Translate the legacy filename encoding once into explicit receipt columns. */
+  /** Import a 1.1.0 read receipt under its exact, case-sensitive identity. */
   private importReceipt(messageId: string, name: string): void {
-    const reader = name.slice(0, -5)
-    const delivered = reader.endsWith(DELIVERY_SUFFIX)
-    const recipient = delivered ? reader.slice(0, -DELIVERY_SUFFIX.length) : reader
+    const recipient = name.slice(0, -5)
     if (!isParacrineAgentId(recipient)) return
     const existing = this.db.prepare('SELECT sent_at FROM messages WHERE id = ?').get(messageId) as
       { sent_at: string } | undefined
@@ -407,13 +351,12 @@ export class ParacrineDatabase {
       if (!(error instanceof SyntaxError)) throw error
       // Existence is the receipt; malformed optional metadata is not an I/O retry.
     }
-    const kind = delivered ? 'delivery' : 'read'
     this.db
       .prepare(
         `INSERT OR IGNORE INTO receipts(message_id, kind, recipient, at, legacy)
-         VALUES(?, ?, ?, ?, 1)`,
+         VALUES(?, 'read', ?, ?, 1)`,
       )
-      .run(messageId, kind, recipient, at)
+      .run(messageId, recipient, at)
     this.db
       .prepare(
         `UPDATE deliveries SET state = 'acknowledged', claim_token = NULL, claimed_at = NULL
@@ -422,38 +365,44 @@ export class ParacrineDatabase {
       .run(messageId, recipient)
   }
 
-  /** Import and checkpoint at most four legacy directory entries. */
-  private migrateMessages(): boolean {
+  /** Check the clock between every directory entry and imported file. */
+  private migrateMessages(deadline: number): boolean {
     if (this.messagesMigrationDone) return true
     const done = this.transaction(() => {
       let cursor = this.messageCursor()
       if (cursor.phase === 'done') return true
       if (cursor.phase === 'recipients') {
-        const page = directoryPage(join(this.root, 'pending'), cursor.after, MIGRATION_BATCH)
-        for (const entry of page.entries) {
-          if (entry.isDirectory() && isParacrineAgentId(entry.name)) {
-            this.registerTransaction(entry.name)
+        let count = 0
+        while (count < MIGRATION_BATCH) {
+          const step = this.directoryEntry(join(this.root, 'pending'), deadline)
+          if (step.entry === null) {
+            if (step.done) cursor = { ...INITIAL_MESSAGE_CURSOR, phase: 'messages' }
+            break
+          }
+          count += 1
+          cursor.after = step.entry.name
+          if (step.entry.isDirectory() && isParacrineAgentId(step.entry.name)) {
+            this.registerTransaction(step.entry.name)
           }
         }
-        const after = page.entries.at(-1)?.name ?? cursor.after
-        if (!page.done || page.entries.length > 0) {
-          cursor = { ...cursor, after }
-          this.saveCursor('legacy', cursor)
-          return false
-        }
+        this.saveCursor('legacy', cursor)
+        if (cursor.phase === 'recipients' || count > 0) return false
         // An absent/empty pending tree is not a delivery attempt: continue to
-        // the first small message page in this same checkpoint transaction.
-        cursor = { ...INITIAL_MESSAGE_CURSOR, phase: 'messages' }
+        // the first small message step in this same checkpoint transaction.
       }
 
       const messagesRoot = join(this.root, 'messages')
       if (cursor.mailbox === null) {
-        const page = directoryPage(messagesRoot, cursor.after, 1)
-        if (page.entries.length === 0) {
+        const step = this.directoryEntry(messagesRoot, deadline)
+        if (step.entry === null) {
+          if (!step.done) {
+            this.saveCursor('legacy', cursor)
+            return false
+          }
           this.saveCursor('legacy', { ...INITIAL_MESSAGE_CURSOR, phase: 'done' })
           return true
         }
-        const entry = page.entries[0]!
+        const entry = step.entry
         if (
           !entry.isDirectory() ||
           !(entry.name === PARACRINE_BROADCAST || isParacrineAgentId(entry.name))
@@ -466,11 +415,20 @@ export class ParacrineDatabase {
       }
 
       const mailbox = cursor.mailbox
-      const page = directoryPage(join(messagesRoot, mailbox), cursor.fileAfter, MIGRATION_BATCH)
-      for (const entry of page.entries) {
+      let count = 0
+      let mailboxDone = false
+      while (count < MIGRATION_BATCH) {
+        const step = this.directoryEntry(join(messagesRoot, mailbox), deadline)
+        if (step.entry === null) {
+          mailboxDone = step.done
+          break
+        }
+        count += 1
+        cursor.fileAfter = step.entry.name
+        const entry = step.entry
         if (!entry.isFile() || !entry.name.endsWith('.json')) continue
         // Read failures deliberately escape: the transaction rolls back and the
-        // entry remains at the cursor. Only JSON syntax/content is skippable.
+        // stream is reset so the entry is retried. Only content is skippable.
         const raw = readFileSync(join(messagesRoot, mailbox, entry.name), 'utf8')
         let parsed: unknown
         try {
@@ -482,10 +440,7 @@ export class ParacrineDatabase {
         const message = legacyMessage(parsed)
         if (message !== null && message.to === mailbox) this.importMessage(message)
       }
-      const fileAfter = page.entries.at(-1)?.name ?? cursor.fileAfter
-      cursor = page.done
-        ? { ...cursor, after: mailbox, mailbox: null, fileAfter: '' }
-        : { ...cursor, fileAfter }
+      cursor = mailboxDone ? { ...cursor, after: mailbox, mailbox: null, fileAfter: '' } : cursor
       this.saveCursor('legacy', cursor)
       return false
     })
@@ -494,19 +449,23 @@ export class ParacrineDatabase {
   }
 
   /** Migrate orphaned and surviving receipts independently of message progress. */
-  private migrateReceipts(): boolean {
+  private migrateReceipts(deadline: number): boolean {
     if (this.receiptsMigrationDone) return true
     const done = this.transaction(() => {
       let cursor = this.receiptCursor()
       if (cursor.phase === 'done') return true
       const readsRoot = join(this.root, 'reads')
       if (cursor.messageId === null) {
-        const page = directoryPage(readsRoot, cursor.after, 1)
-        if (page.entries.length === 0) {
+        const step = this.directoryEntry(readsRoot, deadline)
+        if (step.entry === null) {
+          if (!step.done) {
+            this.saveCursor('legacy-receipts', cursor)
+            return false
+          }
           this.saveCursor('legacy-receipts', { ...INITIAL_RECEIPT_CURSOR, phase: 'done' })
           return true
         }
-        const entry = page.entries[0]!
+        const entry = step.entry
         if (!entry.isDirectory() || !MESSAGE_ID.test(entry.name)) {
           this.saveCursor('legacy-receipts', { ...cursor, after: entry.name })
           return false
@@ -516,16 +475,23 @@ export class ParacrineDatabase {
       }
 
       const messageId = cursor.messageId
-      const page = directoryPage(join(readsRoot, messageId), cursor.fileAfter, MIGRATION_BATCH)
-      for (const entry of page.entries) {
-        if (entry.isFile() && entry.name.endsWith('.json')) {
-          this.importReceipt(messageId, entry.name)
+      let count = 0
+      let receiptsDone = false
+      while (count < MIGRATION_BATCH) {
+        const step = this.directoryEntry(join(readsRoot, messageId), deadline)
+        if (step.entry === null) {
+          receiptsDone = step.done
+          break
+        }
+        count += 1
+        cursor.fileAfter = step.entry.name
+        if (step.entry.isFile() && step.entry.name.endsWith('.json')) {
+          this.importReceipt(messageId, step.entry.name)
         }
       }
-      const fileAfter = page.entries.at(-1)?.name ?? cursor.fileAfter
-      cursor = page.done
+      cursor = receiptsDone
         ? { ...cursor, after: messageId, messageId: null, fileAfter: '' }
-        : { ...cursor, fileAfter }
+        : cursor
       this.saveCursor('legacy-receipts', cursor)
       return false
     })
@@ -533,11 +499,38 @@ export class ParacrineDatabase {
     return done
   }
 
-  /** Advance both independent imports by one small checkpointed step each. */
+  /** Advance bounded steps and never reopen an import marked complete. */
   migrate(): boolean {
-    const messagesDone = this.migrateMessages()
-    const receiptsDone = this.migrateReceipts()
-    return messagesDone && receiptsDone
+    const completed = this.db
+      .prepare("SELECT value FROM migration WHERE key = 'legacy-complete'")
+      .get()
+    if (completed !== undefined) {
+      this.messagesMigrationDone = true
+      this.receiptsMigrationDone = true
+      return true
+    }
+
+    const deadline = performance.now() + MIGRATION_DEADLINE_MS
+    try {
+      const messagesDone = this.migrateMessages(deadline)
+      const receiptsDone = performance.now() < deadline ? this.migrateReceipts(deadline) : false
+      const done = messagesDone && receiptsDone
+      if (done) {
+        this.transaction(() => {
+          this.db
+            .prepare(
+              "INSERT OR IGNORE INTO migration(key, value) VALUES('legacy-complete', 'done')",
+            )
+            .run()
+        })
+      }
+      return done
+    } catch (error) {
+      // Directory position is not transactional: replay idempotently after any
+      // failed file or directory read so a transient error cannot skip an entry.
+      this.resetDirectories()
+      throw error
+    }
   }
 
   /** Whole-history mailbox APIs finish the one-time imports before reading. */
