@@ -46,7 +46,11 @@ on:
         required: false
         type: string
       hold:
-        description: 'Comma-separated @molecule packages to leave at their published version this run (a package npm refuses until its trust link is re-added). Their dependents are held with them.'
+        description: 'Comma-separated @molecule packages to try last after an npm trust failure. Their dependents are held with them.'
+        required: false
+        type: string
+      review_hold:
+        description: 'Comma-separated review-held @molecule packages to exclude from publishing. Committed .changeset/held.json packages are always excluded too.'
         required: false
         type: string
       requester:
@@ -228,6 +232,7 @@ jobs:
           MOL_PUBLISH_LIMIT: ${{ inputs.limit }}
           MOL_PUBLISH_DELAY: ${{ inputs.delay }}
           MOL_PUBLISH_HOLD: ${{ inputs.hold }}
+          MOL_REVIEW_HOLD: ${{ inputs.review_hold }}
 
       # npm's own reason for a refused publish lives only in its debug log (its
       # ENEEDAUTH line says nothing about why the OIDC exchange gave no

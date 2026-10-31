@@ -39,8 +39,8 @@ const git = (args) =>
     encoding: 'utf8',
   })
 const committed = (file) => git(['show', `HEAD:${file}`])
-const entries = git(['ls-tree', '-r', '--name-only', 'HEAD', '--', '.changeset'])
-  .split('\n')
+const entries = git(['ls-tree', '-rz', '--name-only', 'HEAD', '--', '.changeset'])
+  .split('\0')
   .filter(Boolean)
 const pending = entries
   .filter((file) => file.endsWith('.md') && file.toLowerCase() !== '.changeset/readme.md')

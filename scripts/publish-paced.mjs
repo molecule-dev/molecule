@@ -96,6 +96,16 @@ const HOLD = new Set(
     .map((n) => n.trim())
     .filter(Boolean),
 )
+// Review holds are hard exclusions, not publish ordering. The committed record
+// covers publish-only/resumed runs; this dispatch input covers --hold before a
+// record exists. MOL_PUBLISH_HOLD above remains the independent npm-recovery
+// mechanism whose packages are tried last.
+const REVIEW_HOLD = new Set(
+  (process.env.MOL_REVIEW_HOLD ?? '')
+    .split(',')
+    .map((name) => name.trim())
+    .filter(Boolean),
+)
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 
@@ -390,10 +400,10 @@ const discovered = discover()
 const heldRecord = existsSync(join(ROOT, HELD_CHANGESETS_FILE))
   ? parseHeldRecord(readFileSync(join(ROOT, HELD_CHANGESETS_FILE), 'utf8'))
   : null
-const all = withoutHeldPackages(discovered, heldRecord)
+const all = withoutHeldPackages(discovered, heldRecord, REVIEW_HOLD)
 process.stderr.write(
   `discovered ${all.length} publishable packages` +
-    (heldRecord ? ` | review-held: ${discovered.length - all.length}\n` : '\n'),
+    (heldRecord || REVIEW_HOLD.size ? ` | review-held: ${discovered.length - all.length}\n` : '\n'),
 )
 
 all.sort((a, b) => a.name.localeCompare(b.name))

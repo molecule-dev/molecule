@@ -1,5 +1,5 @@
 import { execFileSync, spawnSync } from 'node:child_process'
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 
@@ -72,6 +72,17 @@ describe('committed held-changeset guard', () => {
     expect(result.stderr).toContain('.changeset/mixed.md')
   })
 
+  it('refuses an unrecorded Unicode changeset that Git quotes in line output', () => {
+    const record = { packages: ['@molecule/a'], changesets: ['.changeset/a.md'] }
+    const { root } = fixture(record, {
+      'a.md': ['@molecule/a'],
+      'café.md': ['@molecule/other'],
+    })
+    const result = guard(root)
+    expect(result.status).toBe(1)
+    expect(result.stderr).toContain('.changeset/café.md')
+  })
+
   it('retains the old refusal with pending changesets and no hold record', () => {
     const { root } = fixture(null, { 'other.md': ['@molecule/other'] })
     const result = guard(root)
@@ -110,6 +121,20 @@ describe('held record and publish selection', () => {
     const candidates = [{ name: '@molecule/a' }, { name: '@molecule/b' }]
     expect(withoutHeldPackages(candidates, record)).toEqual([{ name: '@molecule/b' }])
     expect(withoutHeldPackages(candidates, null)).toBe(candidates)
+  })
+
+  it('hard-excludes a dispatch review hold even when no record exists', () => {
+    const candidates = [{ name: '@molecule/a' }, { name: '@molecule/b' }]
+    expect(withoutHeldPackages(candidates, null, new Set(['@molecule/b']))).toEqual([
+      { name: '@molecule/a' },
+    ])
+    const publisher = readFileSync(resolve(import.meta.dirname, '../publish-paced.mjs'), 'utf8')
+    expect(publisher).toContain('withoutHeldPackages(discovered, heldRecord, REVIEW_HOLD)')
+    const workflow = readFileSync(
+      resolve(import.meta.dirname, '../../.github/workflows/release.yml'),
+      'utf8',
+    )
+    expect(workflow).toContain('MOL_REVIEW_HOLD: ${{ inputs.review_hold }}')
   })
 
   it('rejects malformed records instead of turning them into publish permission', () => {

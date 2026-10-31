@@ -54,9 +54,9 @@ export function auditHeldChangesets({ pending, record, readPackages }) {
   }
 }
 
-/** Keep review-held packages out of every publish queue, including first publishes. */
-export function withoutHeldPackages(packages, record) {
-  if (!record) return packages
-  const held = new Set(record.packages)
+/** Keep committed and dispatch review holds out of every publish queue. */
+export function withoutHeldPackages(packages, record, dispatchHeld = new Set()) {
+  if (!record && !dispatchHeld.size) return packages
+  const held = new Set([...(record?.packages ?? []), ...dispatchHeld])
   return packages.filter((pkg) => !held.has(pkg.name))
 }
