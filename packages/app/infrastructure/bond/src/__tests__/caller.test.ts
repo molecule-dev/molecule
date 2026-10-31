@@ -22,10 +22,10 @@ describe('firstCallerOutsideMolecule()', () => {
       ),
       frame('getClient', 'file:///repo/molecule/packages/app/core/auth/src/provider.ts', 34, 10),
       frame('authState', 'file:///repo/molecule/packages/app/core/auth/src/state.ts', 20, 3),
-      frame('Object.<anonymous>', 'file:///workspace/app/src/conduit/session.ts', 85, 20),
+      frame('Object.<anonymous>', 'file:///workspace/app/src/session.ts', 85, 20),
     ].join('\n')
 
-    expect(firstCallerOutsideMolecule(stack)).toBe('/workspace/app/src/conduit/session.ts:85:20')
+    expect(firstCallerOutsideMolecule(stack)).toBe('/workspace/app/src/session.ts:85:20')
   })
 
   it('skips an installed @molecule package in node_modules', () => {
@@ -43,10 +43,10 @@ describe('firstCallerOutsideMolecule()', () => {
         12,
         4,
       ),
-      frame('Object.<anonymous>', 'file:///workspace/app/src/conduit/session.ts', 85, 20),
+      frame('Object.<anonymous>', 'file:///workspace/app/src/session.ts', 85, 20),
     ].join('\n')
 
-    expect(firstCallerOutsideMolecule(stack)).toBe('/workspace/app/src/conduit/session.ts:85:20')
+    expect(firstCallerOutsideMolecule(stack)).toBe('/workspace/app/src/session.ts:85:20')
   })
 
   it('skips a Vite dependency-bundle frame (@molecule_app-auth.js)', () => {
@@ -64,11 +64,11 @@ describe('firstCallerOutsideMolecule()', () => {
         1,
         412,
       ),
-      frame('authState', 'http://localhost:5173/src/conduit/session.ts?t=123', 85, 20),
+      frame('authState', 'http://localhost:5173/src/session.ts?t=123', 85, 20),
     ].join('\n')
 
     expect(firstCallerOutsideMolecule(stack)).toBe(
-      'http://localhost:5173/src/conduit/session.ts?t=123:85:20',
+      'http://localhost:5173/src/session.ts?t=123:85:20',
     )
   })
 
@@ -98,15 +98,10 @@ describe('firstCallerOutsideMolecule()', () => {
         96,
         11,
       ),
-      frame(
-        'Object.<anonymous>',
-        'http://localhost:5173/@fs/workspace/app/src/conduit/session.ts',
-        85,
-        20,
-      ),
+      frame('Object.<anonymous>', 'http://localhost:5173/@fs/workspace/app/src/session.ts', 85, 20),
     ].join('\n')
 
-    expect(firstCallerOutsideMolecule(stack)).toBe('/workspace/app/src/conduit/session.ts:85:20')
+    expect(firstCallerOutsideMolecule(stack)).toBe('/workspace/app/src/session.ts:85:20')
   })
 
   it('returns the bundle URL when the app is minified into one chunk', () => {

@@ -71,7 +71,7 @@ const normalizeLocation = (location: string): string => {
  * returns it as `path:line:column`.
  *
  * This is what lets a "no provider bonded" error say `Called from
- * /workspace/app/src/conduit/session.ts:85:20` instead of pointing the reader
+ * /workspace/app/src/session.ts:85:20` instead of pointing the reader
  * back at the package that threw.
  *
  * @param stack - Stack to inspect. Defaults to the current call stack.
