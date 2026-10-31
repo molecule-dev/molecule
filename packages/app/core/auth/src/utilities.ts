@@ -69,7 +69,7 @@ export const logout = (): Promise<void> => getClient().logout()
  * second one (`register<{ username: string }, SessionUser>(data)`).
  *
  * @template TExtra - The app's own registration fields, at the top level
- *   (`{ username: string }` for a RealWorld-shaped API); defaults to none.
+ *   (`{ username: string }` for an account API); defaults to none.
  * @template T - The user profile the bonded client returns. Pass the app's own
  *   profile when the client was created with one; defaults to
  *   {@link UserProfile}.

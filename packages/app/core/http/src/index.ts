@@ -47,7 +47,7 @@
  *   the author's machine, then fails cross-origin (CORS) in the preview and points at the wrong
  *   server in production. The base URL is configured ONCE (via `setClient`), not per call.
  * - **`getClient()` itself knows no baseURL.** The fallback client it mints when nothing is
- *   bonded has `baseURL: ''`, so `getClient().get('/articles')` requests the PAGE origin — in
+ *   bonded has `baseURL: ''`, so `getClient().get('/items')` requests the PAGE origin — in
  *   dev the Vite server answers its own `index.html` with a 200, and the HTML arrives as
  *   `data`, and the API then validates none of the fields it was sent. A scaffold bonds
  *   `'/api'`; an app that builds its own client must pass `{ baseURL }`.
@@ -67,8 +67,8 @@
  * error (TS2339) that changes no header. Do not hand-write a fetch wrapper for the scheme either.
  *
  * A request made while the session is still being restored WAITS for that restore, so a page
- * that fetches viewer-dependent data on mount (a profile's `following` flag, a feed, a
- * `favorited` state) cannot go out unauthenticated and answer for an anonymous viewer. The auth
+ * that fetches viewer-dependent data on mount (account settings, a dashboard, or a
+ * saved-item state) cannot go out unauthenticated and answer for an anonymous viewer. The auth
  * bond registers that wait with `setAuthGate`; apps that bond auth through
  * `@molecule/app-bonds-default-react` get it without doing anything. An app with its own session
  * module registers its own: `setAuthGate(() => session.whenRestored())`.

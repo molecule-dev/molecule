@@ -19,12 +19,12 @@ import {
 /**
  * Holds every HTTP request until this auth client's session restore has settled.
  *
- * Without it a page effect that fires on mount (fetching a profile's `following`
- * flag, a feed, a `favorited` state) sends its request before `initialize()` has
+ * Without it a page effect that fires on mount (fetching account settings, a
+ * dashboard, or a saved-item state) sends its request before `initialize()` has
  * restored the session, so it leaves with no `Authorization` header and the server
  * answers for an anonymous viewer. Localhost usually hides it — the restore wins
  * the race against the first effect there — and the deployed URL exposes it, where a
- * "Follow" button on a followed user reads as stale database state.
+ * saved item reads as unsaved because the request lacked its session.
  *
  * `whenRestored()` resolves immediately when no restore is in flight, so a request
  * made after boot never waits at all; it holds only while the restore is actually
@@ -148,19 +148,10 @@ export function createDefaultHttpClientWithAuthBearer(opts: {
  * argument — that is a 1.8 caller shape this major changes (see
  * `AuthClientConfig`'s migration note in `@molecule/app-auth`).
  *
- * `TRegister` is the app's own registration fields (`{ username: string }` for a
- * RealWorld-shaped API), passed on to `@molecule/app-auth`'s factory so
+ * `TRegister` is the app's own extra registration fields (for example
+ * `{ username: string }`), passed on to `@molecule/app-auth`'s factory so
  * `authClient.register({ username, email, password })` type-checks with no cast.
- *
- * **What this client already handles**
- * - `getAccessToken()` returns a stored token during restore; only 401/403 ends
- *   the session, while network/5xx failures retain it.
- * - `tokenKey`/`storagePrefix`, `authScheme`, `mapAuthResponse`,
- *   `currentUserEndpoint`, and `profileEndpoint`/`profileUpdateMethod` adapt the API.
- * - `logout()` settles local sign-out; `refresh()` uses a stored refresh token.
- *
- * This factory adds no render gate: `AuthProvider` renders children immediately.
- * The HTTP-sync variants gate requests during restore, not rendering.
+ * See the module guidance for the lifecycle and API adaptations already included.
  *
  * @example
  * ```ts
@@ -170,21 +161,6 @@ export function createDefaultHttpClientWithAuthBearer(opts: {
  *
  * export const { authClient, setupAuthDefault } =
  *   createDefaultAuthClient(authConfig)
- * ```
- *
- * @example Adapt a nested token and `Token` header without another session store.
- * ```ts
- * const { authClient, setupAuthDefault } = createDefaultAuthClient({
- *   tokenKey: 'app.jwt',
- *   authScheme: 'Token',
- *   currentUserEndpoint: '/user',
- *   profileEndpoint: '/user',
- *   profileUpdateMethod: 'PUT',
- *   mapAuthResponse: (data) => {
- *     const { token, ...user } = (data as { user: { token: string; id: string } }).user
- *     return { accessToken: token, user }
- *   },
- * })
  * ```
  */
 export function createDefaultAuthClient<

@@ -31,7 +31,7 @@ import { createJWTAuthClient } from '../client.js'
 import type { StorageAdapter } from '../types.js'
 
 /** Reads one auth source file. */
-function readSource(name: 'index.ts' | 'types.ts'): string {
+function readSource(name: 'index.ts' | 'types.ts' | 'client.ts' | 'utilities.ts'): string {
   return readFileSync(join(__dirname, '..', name), 'utf8')
 }
 
@@ -219,7 +219,7 @@ async function runMapper(mapper: ExampleMapper): Promise<{
 const moduleExamples = [
   ['MyUser', 'interface MyUser'],
   ['SessionUser', 'interface SessionUser'],
-  ['RealWorld', 'realWorldAuth'],
+  ['Nested account envelope', 'accountAuth'],
   ['Token envelope', "tokenKey: 'app.jwt'"],
 ] as const
 
@@ -276,6 +276,12 @@ describe('every module-doc mapper example', () => {
       expect(user).not.toBeNull()
       expect(user).not.toHaveProperty('token')
       expect(stored ?? '').not.toContain(wireToken)
+    }
+  })
+
+  it('uses generic API names throughout the public guidance', () => {
+    for (const name of ['index.ts', 'types.ts', 'client.ts', 'utilities.ts'] as const) {
+      expect(readSource(name), name).not.toMatch(/RealWorld|realWorld|jwtToken/)
     }
   })
 

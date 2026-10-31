@@ -243,8 +243,8 @@ export type RegisterExtraShape<T> = {
  * that type whole:
  *
  * ```typescript
- * interface RealWorldRegister { username: string }
- * const client = createJWTAuthClient<UserProfile, RealWorldRegister>({ … })
+ * interface RegistrationFields { username: string }
+ * const client = createJWTAuthClient<UserProfile, RegistrationFields>({ … })
  * ```
  *
  * A custom field may not change a built-in field's type: `email` and
@@ -920,7 +920,7 @@ export interface AuthClientConfigOptions<T extends object = UserProfile> {
    * `${storagePrefix}accessToken`).
    *
    * Set it when something outside this package reads the token at its own key —
-   * an e2e suite's contract (RealWorld's specs read `localStorage.jwtToken`), a
+   * an e2e suite's contract (for example, `localStorage.getItem('app.jwt')`), a
    * second library, a host page — instead of mirroring the token into
    * `localStorage` beside the client. The refresh token and the cached user keep
    * the prefix.
@@ -947,8 +947,8 @@ export interface AuthClientConfigOptions<T extends object = UserProfile> {
    * through `createJWTAuthClient<UserProfile, { username: string }>` — so the
    * body can be sent as-is under the envelope the API wants.
    *
-   * RealWorld, for example, nests the payload under `user` and registers with
-   * `{ user: { username, email, password } }`:
+   * A nested-account API, for example, nests the payload under `user` and registers
+   * with `{ user: { username, email, password } }`:
    *
    * ```typescript
    * const client = createJWTAuthClient<UserProfile, { username: string }>({
@@ -971,7 +971,7 @@ export interface AuthClientConfigOptions<T extends object = UserProfile> {
   /**
    * Turn an answer that carries a user into the client's
    * `{ accessToken, refreshToken?, user }` (default: the answer as given).
-   * RealWorld, for example — keep the wire bearer OUT of the profile, because
+   * For a nested user answer, keep the wire bearer OUT of the profile, because
    * the client caches `user` in Web Storage where a token copy is readable by
    * any script on the origin:
    *
@@ -1022,8 +1022,8 @@ export interface AuthClientConfigOptions<T extends object = UserProfile> {
    * configuration, because no script can read the cookie.
    *
    * **An app whose external contract requires the token at a specific key** — a
-   * supplied e2e suite (the RealWorld specs read `localStorage.jwtToken` in
-   * `SELECTORS.md`), a host page, a second library — sets `tokenKey: 'jwtToken'`;
+   * supplied e2e suite (for example, one that reads `localStorage.getItem('app.jwt')`),
+   * a host page, a second library — sets `tokenKey: 'app.jwt'`;
    * in a browser that is enough, because the default store is Web Storage. The
    * session (token AND user) is then restored synchronously in `initialize()` —
    * with no store of your own. `tokenKey` places the access token at that exact
@@ -1048,7 +1048,7 @@ export interface AuthClientConfigOptions<T extends object = UserProfile> {
    * // A suite/host page reads the token at its own key (the browser default
    * // already stores it; `storage` is shown for an explicit choice):
    * storage: createBrowserStorageAdapter()
-   * tokenKey: 'jwtToken'
+   * tokenKey: 'app.jwt'
    * // Only this tab's lifetime, at a narrower exposure than localStorage:
    * storage: createBrowserStorageAdapter({ kind: 'session' })
    * // An httpOnly cookie session — keep the bearer out of script-reachable storage:

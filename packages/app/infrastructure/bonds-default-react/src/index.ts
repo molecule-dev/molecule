@@ -30,6 +30,16 @@
  *   argument is given. The profile is never inferred from `authConfig`, so an
  *   untyped call keeps the default contract.
  *
+ * **What this client already handles**
+ * - `getAccessToken()` returns a stored token during restore; only 401/403 ends
+ *   the session, while network/5xx failures retain it.
+ * - `tokenKey`/`storagePrefix`, `authScheme`, `mapAuthResponse`,
+ *   `currentUserEndpoint`, and `profileEndpoint`/`profileUpdateMethod` adapt the API.
+ * - `logout()` settles local sign-out; `refresh()` uses a stored refresh token.
+ *
+ * This factory adds no render gate: `AuthProvider` renders children immediately.
+ * The HTTP-sync variants gate requests during restore, not rendering.
+ *
  * @example
  * ```tsx
  * // src/main.tsx
@@ -55,6 +65,23 @@
  *     setupAllDefaultBonds()
  *     setupAuthDefault()
  *     await setupAppCodeEditorMonaco() // only if the app uses the code editor
+ *   },
+ * })
+ * ```
+ *
+ * @example Adapt a nested token and `Token` header without another session store.
+ * ```ts
+ * import { createDefaultAuthClient } from '@molecule/app-bonds-default-react'
+ *
+ * const { authClient, setupAuthDefault } = createDefaultAuthClient({
+ *   tokenKey: 'app.jwt',
+ *   authScheme: 'Token',
+ *   currentUserEndpoint: '/user',
+ *   profileEndpoint: '/user',
+ *   profileUpdateMethod: 'PUT',
+ *   mapAuthResponse: (data) => {
+ *     const { token, ...user } = (data as { user: { token: string; id: string } }).user
+ *     return { accessToken: token, user }
  *   },
  * })
  * ```

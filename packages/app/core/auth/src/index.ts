@@ -278,8 +278,8 @@
  * for editable account forms instead of resetting every field on `user` changes.
  *
  * **A token another tool reads at its own key is a CONFIG field, not a mirror.**
- * An e2e suite or host page that expects `localStorage.jwtToken` (the RealWorld
- * specs do) is satisfied by `tokenKey: 'jwtToken'` — in a browser the client's
+ * An e2e suite or host page that expects `localStorage.getItem('app.jwt')` is
+ * satisfied by `tokenKey: 'app.jwt'` — in a browser the client's
  * storage default is already `createBrowserStorageAdapter()`, so with an explicit
  * `'memory'` store you must also pass
  * `storage: createBrowserStorageAdapter()`. Writing the token into that key from a
@@ -309,7 +309,7 @@
  *   `AuthClientConfig` the client is CONSTRUCTED with
  *   (`setClient(createJWTAuthClient({ authScheme: 'Token', … }))` in the auth bond), not
  *   properties of a client that already exists. Do not hand-write an auth client for a spec
- *   like RealWorld. **Registration fields the base payload lacks (`username`, …) are the
+ *   like this one. **Registration fields the base payload lacks (`username`, …) are the
  *   factory's second generic** — `createJWTAuthClient<UserProfile, { username: string }>(…)` —
  *   so `register({ username, email, password })` type-checks and the body goes out as
  *   `{ user: { username, email, password } }`. Do not pass them as `name`/`metadata` or
@@ -345,35 +345,35 @@
  * if (isAuthenticated()) console.log(getUser()?.email)
  * ```
  *
- * An API that wraps the payload and registers extra fields (RealWorld): type those
+ * An API that wraps the payload and registers extra fields: type those
  * fields with the factory's second generic, and `requestBody` receives exactly what
  * the form passed — `{ user: { username, email, password } }` goes out as-is.
  *
  * ```typescript
  * import { createJWTAuthClient } from '@molecule/app-auth'
  *
- * // RealWorld's user has no `id`. Name the shape the wire actually sends; the
+ * // This account API's user has no `id`. Name the shape the wire actually sends; the
  * // client reads no field of it, so nothing has to be invented for a base profile.
- * interface RealWorldUser {
+ * interface AccountProfile {
  *   username: string
  *   email: string
  *   bio: string
  *   image: string
  * }
  *
- * const realWorldAuth = createJWTAuthClient<RealWorldUser, { username: string }>({
+ * const accountAuth = createJWTAuthClient<AccountProfile, { username: string }>({
  *   baseURL: '/api',
  *   authScheme: 'Token',
  *   requestBody: (_kind, payload) => ({ user: payload }),
  *   mapAuthResponse: (data) => {
- *     const { user: wire } = data as { user: { token: string } & RealWorldUser }
+ *     const { user: wire } = data as { user: { token: string } & AccountProfile }
  *     // Keep every wire field; the bearer stays out of the cached profile.
  *     const { token, ...profile } = wire
  *     return { accessToken: token, user: profile }
  *   },
  * })
  *
- * await realWorldAuth.register({ username: 'alice', email: 'alice@example.com', password: 's3cret' })
+ * await accountAuth.register({ username: 'alice', email: 'alice@example.com', password: 's3cret' })
  * ```
  *
  * @e2e

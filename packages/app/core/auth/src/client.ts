@@ -201,7 +201,7 @@ const applyProfileAnswer = <T>(profile: T | null, answer: T): T => {
  *   fields (see {@link AuthProfileConstraint}), including a profile with no `id`.
  *   The default, `UserProfile`, requires `id: string`.
  * @template TRegister - The app's own registration fields, accepted at the top
- *   level of `register()` (e.g. `{ username: string }` for a RealWorld-shaped API).
+ *   level of `register()` (e.g. `{ username: string }` for an account API).
  *   An interface and a type alias are equally valid.
  * @param config - Auth client configuration including endpoints, storage, and refresh settings.
  * @returns A fully configured `AuthClient` instance.
@@ -421,7 +421,7 @@ export const createJWTAuthClient = <
     // keep the durable session in an httpOnly cookie the SERVER refreshes. A
     // timer here can only fail with `auth.error.noRefreshToken` — and it used to
     // LOG THE USER OUT on that failure while their access token was still valid
-    // (a RealWorld-shaped app signed itself out right after register). Leave the
+    // (an app without refresh tokens signed itself out right after register). Leave the
     // session alone; the API's next 401 (see `validateSession`) or an explicit
     // sign-out decides when it ends.
     if (!tokenStorage.getRefreshToken()) return
@@ -567,7 +567,7 @@ export const createJWTAuthClient = <
     if (!response.ok) {
       // The parsed answer, kept WHOLE: the client maps `errorKey`/`error`/
       // `message` into the I18nError it throws, but every other field — a
-      // RealWorld `{ errors: { credentials: ['is invalid'] } }` map, field
+      // structured `{ errors: { credentials: ['is invalid'] } }` map, field
       // arrays, a top-level array — is preserved on `body` so the app can show
       // the server's own messages. A non-JSON body
       // (HTML error page, empty) parses to `{}`, exactly as before.

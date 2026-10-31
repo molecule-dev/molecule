@@ -42,6 +42,14 @@ describe('the token wiring beside the gate (xr-molecule-flash-m152)', () => {
     expect(doc).toContain('setAuthGate` alone sends no `Authorization` header')
   })
 
+  it('uses generic API names in the public guidance', () => {
+    for (const file of ['src/index.ts', 'src/auth-gate.ts']) {
+      expect(moduleDoc(read(file)), file).not.toMatch(
+        /RealWorld|realWorld|jwtToken|\/articles|favorited|`following`/,
+      )
+    }
+  })
+
   it('serves that warning in the generated README, the doc read_molecule_doc returns', () => {
     const readme = read('README.md')
     expect(readme).toContain('Waiting for the restore does NOT attach the token')

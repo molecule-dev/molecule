@@ -123,13 +123,13 @@ describe('RealWorld registration payload (xr-molecule-flash-m146)', () => {
  * from the module JSDoc, and `read_molecule_doc @molecule/app-auth` serves it.
  * The `RegisterData` JSDoc is where the type reference points.
  */
-describe('the RealWorld registration guidance in the generated docs', () => {
+describe('the nested-account registration guidance in the generated docs', () => {
   const read = (file: string): string => readFileSync(join(__dirname, '../..', file), 'utf8')
 
   it('shows the typed factory and the exact body that registers', () => {
     const readme = read('README.md')
     expect(readme).toContain('createJWTAuthClient<UserProfile, { username: string }>')
-    expect(readme).toContain("await realWorldAuth.register({ username: 'alice'")
+    expect(readme).toContain("await accountAuth.register({ username: 'alice'")
     expect(readme).toContain('{ user: { username, email, password } }')
   })
 

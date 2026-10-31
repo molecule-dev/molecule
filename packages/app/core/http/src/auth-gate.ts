@@ -1,10 +1,10 @@
 /**
  * The one gate every HTTP request awaits before it is sent.
  *
- * A page that fetches viewer-dependent data on mount (`GET /profiles/:user`,
- * a feed, a "favorited" flag) can fire BEFORE the stored session has been
+ * A page that fetches viewer-dependent data on mount (`GET /accounts/:user`,
+ * a dashboard, a saved-item flag) can fire BEFORE the stored session has been
  * restored, so the request leaves with no `Authorization` header and the server
- * answers for an anonymous viewer — `following: false` on a user you follow.
+ * answers for an anonymous viewer — `saved: false` on an item you saved.
  * It is invisible on localhost, where the restore wins the race against the
  * first effect, and appears over the network as soon as the restore takes one
  * round trip: on a deployed URL it reads as stale server data rather than as a
