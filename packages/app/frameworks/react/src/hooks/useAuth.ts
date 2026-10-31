@@ -47,6 +47,10 @@ export function useAuthClient<
 /**
  * Hook for authentication state and actions.
  *
+ * `status === 'loading'` is undecided: wait for it and redirect only on
+ * `status === 'unauthenticated'`. `'unavailable'` is still signed in, and a
+ * restore failure other than 401/403 never signs out.
+ *
  * Pass the app's user type — the SAME type used for the auth client and its
  * config (`createJWTAuthClient<MyUser>`, `AuthClientConfig<MyUser>`) — so
  * `user` and `setSession`/`setUser` are typed for the pages:
@@ -72,13 +76,13 @@ export function useAuthClient<
  *
  * @example
  * ```tsx
- * const { user, isAuthenticated, login, logout } = useAuth<{ id: string; name?: string }>()
+ * const { user, status, login, logout } = useAuth<{ id: string; name?: string }>()
  * const { register } = useAuth<MyUser, { username: string }>()
  * await register({ email, password, username }) // `username` is typed
  *
- * if (isAuthenticated) {
- *   return <div>Welcome, {user?.name}!</div>
- * }
+ * if (status === 'loading') return <p>Restoring session...</p>
+ * if (status === 'unauthenticated') return <Navigate to="/login" replace />
+ * return <div>Welcome, {user?.name}!</div>
  * ```
  */
 export function useAuth<

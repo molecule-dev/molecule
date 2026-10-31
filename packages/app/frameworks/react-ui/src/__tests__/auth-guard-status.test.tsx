@@ -117,6 +117,7 @@ describe('AuthGuard reads the session status (xr-molecule-flash-m177)', () => {
 
     expect(document.querySelector('[data-mol-id="auth-guard-loading"]')).not.toBeNull()
     expect(screen.queryByText('protected page')).toBeNull()
+    expect(screen.queryByText('login page')).toBeNull()
   })
 
   it('redirects an unauthenticated visitor to the login path', () => {

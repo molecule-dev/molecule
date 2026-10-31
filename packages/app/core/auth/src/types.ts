@@ -338,6 +338,10 @@ export interface PasswordResetConfirm {
  * UI needs, derived from {@link AuthState} so no caller has to combine
  * `initialized`/`authenticated`/`loading`/`error` itself.
  *
+ * `status === 'loading'` is undecided: wait for it and redirect only on
+ * `status === 'unauthenticated'`. `'unavailable'` is still signed in, and a
+ * restore failure other than 401/403 never signs out.
+ *
  * - `'loading'`: no decision yet (before `initialize()` settles). An auth
  *   operation in flight is {@link AuthState.loading} and KEEPS the decided
  *   status, so a page guarded on `'loading'` stays mounted while a Login or
@@ -356,7 +360,9 @@ export type AuthStatus = 'loading' | 'authenticated' | 'unauthenticated' | 'unav
 export interface AuthState<T = UserProfile> {
   /**
    * The session's state as one value — render from this instead of combining
-   * `initialized`/`authenticated`/`loading`. See {@link AuthStatus}.
+   * `initialized`/`authenticated`/`loading`. `'loading'` is undecided, so wait
+   * and redirect only on `'unauthenticated'`; `'unavailable'` is still signed in.
+   * A restore failure other than 401/403 never signs out. See {@link AuthStatus}.
    */
   status: AuthStatus
 

@@ -15,6 +15,10 @@
  * from that response before navigating. Configure the endpoint, method and JSON
  * envelope once in `AuthClientConfig`; no page-local session store is needed.
  *
+ * **Session restore:** `useAuth().status === 'loading'` is undecided: wait for
+ * it and redirect only on `status === 'unauthenticated'`. `'unavailable'` is
+ * still signed in, and a restore failure other than 401/403 never signs out.
+ *
  * @example
  * ```tsx
  * const profile = useProfileForm<User, { name: string; email: string }>({
@@ -44,11 +48,14 @@
  * const authClient = createJWTAuthClient({ baseURL: '/api' })
  *
  * function Dashboard() {
- *   const { user, isAuthenticated, logout } = useAuth<{ name?: string }>()
+ *   const { user, status, logout } = useAuth<{ name?: string }>()
  *   const { t } = useTranslation()
  *   const { theme, toggleTheme } = useTheme()
  *
- *   if (!isAuthenticated) {
+ *   if (status === 'loading') {
+ *     return <p>{t('auth.restoring', undefined, { defaultValue: 'Restoring session...' })}</p>
+ *   }
+ *   if (status === 'unauthenticated') {
  *     return <p>{t('auth.required', undefined, { defaultValue: 'Please log in.' })}</p>
  *   }
  *   return (
