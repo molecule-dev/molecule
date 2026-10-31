@@ -419,7 +419,7 @@ export const createJWTAuthClient = <
   const isNoRefreshTokenError = (err: unknown): boolean =>
     err instanceof I18nError && err.i18nKey === 'auth.error.noRefreshToken'
 
-  const scheduleRefresh = (): void => {
+  const scheduleRefresh = (retryAfterTransient = false): void => {
     if (!autoRefresh) return
 
     const token = tokenStorage.getAccessToken()
@@ -438,7 +438,11 @@ export const createJWTAuthClient = <
     const expiresAt = getTokenExpiration(token)
     if (!expiresAt) return
 
-    const refreshTime = expiresAt - refreshBuffer * 1000 - Date.now()
+    // A transient failure must not consume the one timer permanently: the
+    // original expiry-based instant has already passed, so retry on a bounded
+    // delay while retaining the session as `unavailable`. A success replaces
+    // this retry with the new token's normal expiry-based schedule.
+    const refreshTime = retryAfterTransient ? 30_000 : expiresAt - refreshBuffer * 1000 - Date.now()
     if (refreshTime <= 0) return
 
     if (refreshTimer) {
@@ -470,10 +474,8 @@ export const createJWTAuthClient = <
             await client.logout()
             return
           }
-          logger.warn(
-            'Token refresh failed; keeping the session until the API rejects the token',
-            err,
-          )
+          logger.warn('Token refresh failed; keeping the session and scheduling a retry', err)
+          scheduleRefresh(true)
         }
       })
     }, refreshTime)

@@ -169,6 +169,38 @@ describe('bearer refresh ownership', () => {
     expect(auth.getState()).toMatchObject({ status: 'authenticated', user, error: null })
     expect(auth.getAccessToken()).toBe('new-access')
   })
+  it('a scheduled refresh retries a transient failure without another sign-in', async () => {
+    vi.useFakeTimers()
+    try {
+      document.cookie = ''
+      const fetch = vi
+        .fn()
+        .mockResolvedValueOnce(response(503))
+        .mockResolvedValueOnce(
+          response(200, { user, accessToken: 'new-access', refreshToken: 'new-refresh' }),
+        )
+      vi.stubGlobal('fetch', fetch)
+      const auth = make({ autoRefresh: true, refreshBuffer: 60 })
+      const jwt = [
+        btoa('{}'),
+        btoa(JSON.stringify({ exp: Math.floor(Date.now() / 1000) + 61 })),
+        'sig',
+      ].join('.')
+      auth.setSession({ accessToken: jwt, refreshToken: 'old-refresh', user })
+
+      await vi.advanceTimersByTimeAsync(1000)
+      expect(auth.getState()).toMatchObject({ status: 'unavailable', user })
+      expect(fetch).toHaveBeenCalledTimes(1)
+
+      await vi.advanceTimersByTimeAsync(60_000)
+      expect(fetch).toHaveBeenCalledTimes(2)
+      expect(auth.getState()).toMatchObject({ status: 'authenticated', user, error: null })
+      expect(auth.getAccessToken()).toBe('new-access')
+      expect(vi.getTimerCount()).toBe(0)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
   for (const status of [401, 403, 503])
     it(`timer ${status} respects a later explicit signout`, async () => {
       vi.useFakeTimers()
