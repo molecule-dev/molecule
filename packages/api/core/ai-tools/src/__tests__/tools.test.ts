@@ -3917,6 +3917,65 @@ cd /workspace/.mol-scratch/realworld-e2e && npx playwright test --config playwri
     expect(backend.readFile).toHaveBeenCalled()
   })
 
+  describe('wait budget', () => {
+    afterEach(() => vi.useRealTimers())
+
+    function simulatedBackend(taskId: string, finishAfterMs: number): ExecutionBackend {
+      const startedAt = Date.now()
+      const backend = backendWith({})
+      backend.readFile = vi.fn(async (path: string) => {
+        if (path === `/tmp/${taskId}.exit`) {
+          if (Date.now() - startedAt >= finishAfterMs) return '0\n'
+          throw new Error('still running')
+        }
+        if (path === `/tmp/${taskId}.log`) {
+          return Date.now() - startedAt >= finishAfterMs ? 'walk passed' : 'walking'
+        }
+        throw new Error(`ENOENT: ${path}`)
+      })
+      backend.run = vi.fn(async () => ({ stdout: '', stderr: '', exitCode: 0 }))
+      return backend
+    }
+
+    it('collects a 400 s task in one call with a 590 s wait budget', async () => {
+      vi.useFakeTimers()
+      const taskId = 'mol-bg-longwait-590'
+      const wait = buildTools(simulatedBackend(taskId, 400_000), {
+        commandBudgetMs: 290_000,
+        waitBudgetMs: 590_000,
+      }).find((t) => t.name === 'wait_for_task')!
+      const pending = wait.execute({ taskId, timeout: 900_000 })
+      await vi.advanceTimersByTimeAsync(400_000)
+      const result = (await pending) as { status?: string; exitCode?: number }
+      expect(result).toMatchObject({ status: 'completed', exitCode: 0 })
+    })
+
+    it('keeps the 280 s ceiling when waitBudgetMs is unset', async () => {
+      vi.useFakeTimers()
+      const taskId = 'mol-bg-longwait-old'
+      const wait = buildTools(simulatedBackend(taskId, 400_000), {
+        commandBudgetMs: 290_000,
+      }).find((t) => t.name === 'wait_for_task')!
+      const pending = wait.execute({ taskId, timeout: 900_000 })
+      await vi.advanceTimersByTimeAsync(280_000)
+      const result = (await pending) as { status?: string; waitedMs?: number }
+      expect(result).toMatchObject({ status: 'running', waitedMs: 280_000 })
+    })
+
+    it('honours a requested timeout below waitBudgetMs even above the exec ceiling', async () => {
+      vi.useFakeTimers()
+      const taskId = 'mol-bg-longwait-ask'
+      const wait = buildTools(simulatedBackend(taskId, Number.POSITIVE_INFINITY), {
+        commandBudgetMs: 290_000,
+        waitBudgetMs: 590_000,
+      }).find((t) => t.name === 'wait_for_task')!
+      const pending = wait.execute({ taskId, timeout: 400_000 })
+      await vi.advanceTimersByTimeAsync(400_000)
+      const result = (await pending) as { waitedMs?: number }
+      expect(result.waitedMs).toBe(400_000)
+    })
+  })
+
   it('says it is still running when the budget ends, without an error', async () => {
     const wait = buildTools(backendWith({})).find((t) => t.name === 'wait_for_task')!
     const r = (await wait.execute({ taskId: id, timeout: 30 })) as {
@@ -6686,7 +6745,7 @@ describe('opt-in first diagnostic progress from a deployed task', () => {
     finishOnLook: boolean
   }
   afterEach(() => vi.useRealTimers())
-  function fixture(): { backend: ExecutionBackend; state: State } {
+  function fixture(failureAtMs = 4000): { backend: ExecutionBackend; state: State } {
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-10-23T00:00:00Z'))
     const t0 = Date.now()
@@ -6697,7 +6756,7 @@ describe('opt-in first diagnostic progress from a deployed task', () => {
       finishCode: 0,
       finishOnLook: false,
     }
-    const log = (): string => pass + (Date.now() - t0 >= 4000 ? state.text : '')
+    const log = (): string => pass + (Date.now() - t0 >= failureAtMs ? state.text : '')
     const backend: ExecutionBackend = {
       projectRoot: '/test',
       readFile: vi.fn(async (path) => {
@@ -6778,6 +6837,19 @@ describe('opt-in first diagnostic progress from a deployed task', () => {
     expect(result.note).not.toContain('kill')
     expect(result).not.toHaveProperty('exitCode')
     expect(result).not.toHaveProperty('runReport')
+    expect(state.finishAt).toBe(Infinity)
+  })
+
+  it('still yields a suite failure at 30 s under the longer wait budget', async () => {
+    const { backend, state } = fixture(30_000)
+    const id = await launch(backend)
+    const pending = buildTools(backend, { ...enabled, waitBudgetMs: 590_000 })
+      .find((t) => t.name === 'wait_for_task')!
+      .execute({ taskId: id, timeout: 590_000 })
+    await vi.advanceTimersByTimeAsync(60_000)
+    const result = (await pending) as Record<string, unknown>
+    expect(result).toMatchObject({ status: 'running', waitedMs: 32_000 })
+    expect(result.note).toContain('not a completed result')
     expect(state.finishAt).toBe(Infinity)
   })
 

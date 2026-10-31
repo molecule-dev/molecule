@@ -154,6 +154,14 @@ export interface ToolBuildConfig {
   commandBudgetMs?: number
 
   /**
+   * Maximum time (ms) one `wait_for_task` call may wait, independently of the foreground
+   * {@link commandBudgetMs}. The caller's requested `timeout` is honoured up to this budget.
+   * Leave unset to keep the legacy ceiling: `commandBudgetMs` (or 290 s) less a 10 s result
+   * margin. A host that raises this must also give the tool call a longer outer watchdog.
+   */
+  waitBudgetMs?: number
+
+  /**
    * Opt in to one partial diagnostic return for a task driving this known deployed URL.
    * Return null when the task already returned a wait result or its history is unknown.
    * Only a real suite command with a complete inline failure report can yield; it remains

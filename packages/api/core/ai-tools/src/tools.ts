@@ -1331,6 +1331,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
     blockCommand,
     execTimeoutMs = 120_000,
     commandBudgetMs,
+    waitBudgetMs,
     overCeilingGraceMs = OVER_CEILING_GRACE_MS,
     searchExcludedDirs,
     outlineLargeHtml,
@@ -1341,6 +1342,12 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
     onFileDiff,
     onFileChange,
   } = config ?? {}
+  // A host may opt into a longer background wait without lengthening foreground commands.
+  // Unset is deliberately the old expression, so every other host keeps its exact ceiling.
+  const waitCeilingMs =
+    waitBudgetMs === undefined
+      ? Math.max(5_000, (commandBudgetMs ?? 290_000) - 10_000)
+      : Math.max(5_000, waitBudgetMs)
 
   // Directory URLs and backend callers can supply trailing slashes or dot
   // segments. Compare every lexical and realpath guard against the same root.
@@ -3192,12 +3199,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       // tool's own budget is the existing bound.
       const sleepPeek = leadingSleepPeek(command)
       const peekedTask = sleepPeek
-        ? await backgroundTaskState(
-            backend,
-            command,
-            sleepPeek.seconds,
-            Math.max(5_000, (commandBudgetMs ?? 290_000) - 10_000),
-          )
+        ? await backgroundTaskState(backend, command, sleepPeek.seconds, waitCeilingMs)
         : null
       const sleepNote = peekedTask?.note ?? null
       if (sleepPeek && peekedTask) {
@@ -3922,7 +3924,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       const exitFile = `/tmp/${taskId}.exit`
       // Leave the outer tool ceiling a margin so this returns a result rather
       // than being killed by it.
-      const ceiling = Math.max(5_000, (commandBudgetMs ?? 290_000) - 10_000)
+      const ceiling = waitCeilingMs
       const requested = Number(input.timeout)
       const budgetMs =
         Number.isFinite(requested) && requested > 0 ? Math.min(requested, ceiling) : ceiling
