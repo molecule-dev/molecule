@@ -186,6 +186,15 @@ export interface AiRateLimitEvent {
   retryInMs: number
   /** The response's parsed `Retry-After` header in seconds, when present and valid. */
   retryAfterSeconds?: number
+  /**
+   * The upstream's own explanation from the rejected response body, when it
+   * carried one: its error `type` (or `code`) and `message` (at most 500
+   * characters). A 429 is not always a rate limit — an account with no balance
+   * left is refused with 429 too (Moonshot `exceeded_current_quota_error`,
+   * OpenAI `insufficient_quota`) — so this is what tells an operator whether to
+   * wait or to recharge.
+   */
+  upstreamError?: { type?: string; message?: string }
 }
 
 /**

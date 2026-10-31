@@ -18,6 +18,14 @@ async function collect(provider: ReturnType<typeof createProvider>, params: Chat
 }
 
 const overloaded = () => jsonResponse(503, { error: { message: 'Kimi is overloaded' } })
+const quotaExhausted = () =>
+  jsonResponse(429, {
+    error: {
+      message:
+        'Your account is suspended due to insufficient balance, please recharge your account',
+      type: 'exceeded_current_quota_error',
+    },
+  })
 const toolSuccess = () =>
   jsonResponse(200, {
     choices: [
@@ -139,6 +147,84 @@ describe('configurable same-request overload retries', () => {
     const events = await result
     expect(fetch).toHaveBeenCalledTimes(4)
     expect(events.at(-1)).toMatchObject({ type: 'error', message: /overloaded/ })
+  })
+
+  it('fails an exhausted balance at once under a bounded budget and reports why', async () => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockImplementation(() => Promise.resolve(quotaExhausted()))
+    const rateLimits: unknown[] = []
+    const events = await collect(
+      createProvider({ apiKey: 'test-key', onRateLimit: (event) => rateLimits.push(event) }),
+      { messages: [{ role: 'user', content: 'hello' }], stream: false },
+    )
+    expect(fetch).toHaveBeenCalledTimes(1)
+    expect(rateLimits).toEqual([
+      expect.objectContaining({
+        status: 429,
+        willRetry: false,
+        upstreamError: {
+          type: 'exceeded_current_quota_error',
+          message: expect.stringMatching(/insufficient balance/),
+        },
+      }),
+    ])
+    expect(events.at(-1)).toMatchObject({ type: 'error', message: /unavailable right now/ })
+  })
+
+  it('keeps the same request pending through an exhausted balance under until-aborted', async () => {
+    vi.useFakeTimers()
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockImplementation(() =>
+      Promise.resolve(fetch.mock.calls.length <= 3 ? quotaExhausted() : toolSuccess()),
+    )
+    const rateLimits: { upstreamError?: { type?: string }; willRetry: boolean }[] = []
+    const result = collect(
+      createProvider({
+        apiKey: 'test-key',
+        rateLimitRetries: 'until-aborted',
+        onRateLimit: (event) => rateLimits.push(event),
+      }),
+      {
+        messages: [{ role: 'user', content: 'hello' }],
+        signal: new AbortController().signal,
+        stream: false,
+      },
+    )
+    await vi.runAllTimersAsync()
+    const events = await result
+    expect(fetch).toHaveBeenCalledTimes(4)
+    expect(new Set(fetch.mock.calls.map(([, init]) => (init as RequestInit).body)).size).toBe(1)
+    expect(rateLimits).toHaveLength(3)
+    expect(
+      rateLimits.every(
+        (e) => e.willRetry && e.upstreamError?.type === 'exceeded_current_quota_error',
+      ),
+    ).toBe(true)
+    expect(events.some((e) => e.type === 'tool_use')).toBe(true)
+  })
+
+  it('still retries an ordinary 429 rate limit with its reason attached', async () => {
+    vi.useFakeTimers()
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockImplementation(() =>
+      Promise.resolve(
+        jsonResponse(429, {
+          error: { type: 'rate_limit_reached_error', message: 'max RPM reached' },
+        }),
+      ),
+    )
+    const rateLimits: { upstreamError?: unknown }[] = []
+    const result = collect(
+      createProvider({ apiKey: 'test-key', onRateLimit: (event) => rateLimits.push(event) }),
+      { messages: [{ role: 'user', content: 'hello' }], stream: false },
+    )
+    await vi.runAllTimersAsync()
+    const events = await result
+    expect(fetch).toHaveBeenCalledTimes(4)
+    expect(rateLimits[0]).toMatchObject({
+      upstreamError: { type: 'rate_limit_reached_error', message: 'max RPM reached' },
+    })
+    expect(events.at(-1)).toMatchObject({ type: 'error', message: /rate limit exceeded/ })
   })
 
   it.each([401, 400])(
