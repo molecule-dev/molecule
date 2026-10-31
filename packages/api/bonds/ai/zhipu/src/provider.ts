@@ -92,6 +92,41 @@ function budgetToEffort(budgetTokens: number): string {
 }
 
 /**
+ * Read the upstream's explanation from a rejected response body: its error
+ * `type` (or `code`) and `message`, the message bounded to 500 characters.
+ *
+ * @param text - The rejected response's body text.
+ * @returns The upstream error, or `undefined` when the body carried neither field.
+ */
+function parseUpstreamError(text: string): { type?: string; message?: string } | undefined {
+  let error: { type?: unknown; code?: unknown; message?: unknown } | undefined
+  try {
+    error = (JSON.parse(text) as { error?: typeof error } | null)?.error
+  } catch (_error) {
+    // Not JSON (a proxy's error page, plain text): a short body is the message itself.
+    const trimmed = text.trim()
+    return trimmed && trimmed.length <= 500 ? { message: trimmed } : undefined
+  }
+  const type =
+    typeof error?.type === 'string'
+      ? error.type
+      : typeof error?.code === 'string'
+        ? error.code
+        : undefined
+  const message = typeof error?.message === 'string' ? error.message.slice(0, 500) : undefined
+  if (!type && !message) return undefined
+  return { ...(type ? { type } : {}), ...(message ? { message } : {}) }
+}
+
+/**
+ * Zhipu's business error code for an account whose balance is exhausted or
+ * has no resource package; it is answered with HTTP 429
+ * (https://docs.z.ai/api-reference/api-code). A short non-JSON body cannot be
+ * trusted to mean the same thing, so only the documented code counts.
+ */
+const QUOTA_EXHAUSTED_CODE = '1113'
+
+/**
  * Zhipu GLM AI provider that implements the `AIProvider` interface
  * using Zhipu's OpenAI-compatible Chat Completions API with support
  * for streaming, tool use, and reasoning.
@@ -209,7 +244,9 @@ class ZhipuAIProvider implements AIProvider {
     // Retry with exponential backoff for rate limits (429) and overloaded (503)
     const MAX_RETRIES = 3
     let response: Response | null = null
+    let rejectedBody: string | undefined
     for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+      rejectedBody = undefined
       response = await fetch(`${this.baseUrl}${this.completionsPath}`, {
         method: 'POST',
         headers,
@@ -218,7 +255,23 @@ class ZhipuAIProvider implements AIProvider {
       })
 
       if (response.status === 429 || response.status === 503) {
-        const willRetry = attempt < MAX_RETRIES
+        // Read the body once: an unread body pins its connection, and only the
+        // body says what the upstream actually refused the request for.
+        try {
+          rejectedBody = await response.text()
+        } catch (error) {
+          // Caller cancellation still ends the request; any other read failure
+          // only loses the reason, so the body counts as read and the retry
+          // policy goes on (the same guard the moonshot bond applies).
+          signal.throwIfAborted()
+          logger.debug('Zhipu rejected response body could not be read', { error })
+          rejectedBody = ''
+        }
+        const upstreamError = parseUpstreamError(rejectedBody)
+        // An exhausted balance does not recover by waiting (Zhipu code 1113 on
+        // 429), so a bounded budget fails at once instead of burning it.
+        const quotaExhausted = upstreamError?.type === QUOTA_EXHAUSTED_CODE
+        const willRetry = !quotaExhausted && attempt < MAX_RETRIES
         // Retry-After is equally-valid as delta-seconds or an HTTP-date;
         // parseInt on the date form yields NaN, degrading the backoff to a
         // ~0ms retry against an already rate-limiting API. Guard it.
@@ -242,17 +295,24 @@ class ZhipuAIProvider implements AIProvider {
             willRetry,
             retryInMs: delayMs,
             ...(hasRetryAfter ? { retryAfterSeconds: parsedRetryAfterSeconds } : {}),
+            ...(upstreamError ? { upstreamError } : {}),
           })
         } catch (error) {
           // Host-app telemetry; its failure must never break the request.
           logger.warn('onRateLimit callback threw', { error })
         }
         if (willRetry) {
-          logger.warn('Zhipu API rate limited, retrying', {
-            status: response.status,
-            attempt: attempt + 1,
-            delayMs,
-          })
+          logger.warn(
+            quotaExhausted
+              ? 'Zhipu account balance exhausted, retrying until recharged'
+              : 'Zhipu API rate limited, retrying',
+            {
+              status: response.status,
+              attempt: attempt + 1,
+              delayMs,
+              ...(upstreamError ? { upstreamError } : {}),
+            },
+          )
           await new Promise<void>((resolve) => {
             const timer = setTimeout(resolve, delayMs)
             signal.addEventListener(
@@ -272,7 +332,8 @@ class ZhipuAIProvider implements AIProvider {
     }
 
     if (!response!.ok) {
-      const errorBody = await response!.text()
+      // A 429/503 body was already read by the retry loop; a body reads only once.
+      const errorBody = rejectedBody ?? (await response!.text())
       let detail = `HTTP ${response!.status}`
       try {
         const parsed = JSON.parse(errorBody) as { error?: { message?: string } }
@@ -283,18 +344,20 @@ class ZhipuAIProvider implements AIProvider {
       }
       logger.error('Zhipu API error', { status: response!.status, detail, errorBody })
       const clientMessage =
-        response!.status === 429
-          ? 'AI rate limit exceeded. Please try again shortly.'
-          : response!.status === 401
-            ? 'AI service configuration error.'
-            : response!.status === 400 &&
-                /prompt is too long|too many tokens|token.*limit|context.*length/i.test(detail)
-              ? "Conversation too long for the model's context window. Use /compact to free space, or start a new conversation."
-              : response!.status === 400
-                ? 'AI request was invalid — check the model and request parameters.'
-                : response!.status === 503
-                  ? 'AI service is temporarily overloaded. Please try again in a moment.'
-                  : 'AI service error. Please try again.'
+        response!.status === 429 && parseUpstreamError(errorBody)?.type === QUOTA_EXHAUSTED_CODE
+          ? 'AI service is unavailable right now. Please try again later.'
+          : response!.status === 429
+            ? 'AI rate limit exceeded. Please try again shortly.'
+            : response!.status === 401
+              ? 'AI service configuration error.'
+              : response!.status === 400 &&
+                  /prompt is too long|too many tokens|token.*limit|context.*length/i.test(detail)
+                ? "Conversation too long for the model's context window. Use /compact to free space, or start a new conversation."
+                : response!.status === 400
+                  ? 'AI request was invalid — check the model and request parameters.'
+                  : response!.status === 503
+                    ? 'AI service is temporarily overloaded. Please try again in a moment.'
+                    : 'AI service error. Please try again.'
       yield { type: 'error', message: clientMessage, errorKey: 'ai.error.apiError' }
       return
     }
