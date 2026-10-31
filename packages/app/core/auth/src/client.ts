@@ -579,8 +579,10 @@ export const createJWTAuthClient = <
       })
     } catch (error) {
       // Native fetch failures can include the full userinfo URL in message/stack.
-      // Scrub before ANY caller copies the rejection into state, events or logs.
-      throw redactCredentials(error)
+      // Scrub before ANY caller copies the rejection into state, events or logs. A clean native
+      // rejection keeps its instance; a changed one is a readable plain Error, never a fake
+      // DOMException/TypeError prototype whose getters would throw during login's catch block.
+      throw redactCredentials(error, true)
     }
 
     if (!response.ok) {
