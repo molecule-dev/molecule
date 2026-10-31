@@ -1394,4 +1394,33 @@ describe('round-twelve destruction fencing counterexamples', () => {
     expect(double.matching(`DELETE /apps/${APP}/volumes/v1`)).toHaveLength(1)
     expect(journal.attempts.size).toBe(0)
   })
+
+  it('does not commit workspace ownership when fetch is never entered', async () => {
+    const journal = new MemoryJournal()
+    const transportRefusal = new Error('fetch entry refused')
+    const double = createFetchDouble()
+      .on(`GET /apps/${APP}`, { body: { name: APP } })
+      .on(`GET /apps/${APP}/volumes`, { body: [] })
+      .on(`POST /apps/${APP}/volumes`, { body: { id: 'v1', name: 'attempt-volume' } })
+    for (let read = 0; read < 16; read++) {
+      double.on(`GET /apps/${APP}/machines`, { body: [] })
+    }
+    const baseFetch = double.fetch
+    double.fetch = vi.fn((input: string | URL | Request, init?: RequestInit) => {
+      if ((init?.method ?? 'GET').toUpperCase() === 'POST') {
+        const path = String(input)
+        if (path.endsWith(`/apps/${APP}/machines`)) throw transportRefusal
+      }
+      return baseFetch(input, init)
+    }) as unknown as typeof fetch
+
+    await expect(
+      makeProvider(double, journal).create({ projectId: PROJECT_ID, volumeName: 'workspace' }),
+    ).rejects.toThrow('unknown outcome')
+    const attempt = [...journal.attempts.values()][0]
+    expect(attempt?.volumes[0]).toMatchObject({
+      workspace: false,
+      workspaceCommitted: false,
+    })
+  })
 })

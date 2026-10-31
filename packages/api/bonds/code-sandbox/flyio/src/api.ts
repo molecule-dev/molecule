@@ -87,7 +87,7 @@ export interface FlyRequestOptions<T = unknown> {
   timeoutMs?: number
   /** Cancels in-flight provisioning when the owning lifecycle lock is lost. */
   signal?: AbortSignal
-  /** Runs synchronously after pacing, immediately before the fetch is dispatched. */
+  /** Runs synchronously after pacing, immediately after fetch has been entered. */
   onDispatch?: () => void
   /** Max attempts for a retryable failure. Defaults to 4. Pass 1 to disable retries. */
   attempts?: number
@@ -315,7 +315,6 @@ export class FlyApiClient {
       // Pacing is cancellable too: ownership protection starts only when this
       // request really enters fetch, never while it is still waiting for a slot.
       if (options.signal?.aborted) throw options.signal.reason
-      options.onDispatch?.()
       const controller = new AbortController()
       const timer = setTimeout(() => controller.abort(), options.timeoutMs ?? this.timeoutMs)
       // Initialized to 0 ("no answer received"), which is the value that
@@ -323,7 +322,7 @@ export class FlyApiClient {
       let status = 0
       let retryAfter: string | null = null
       try {
-        const response = await this.fetchImpl(`${this.baseUrl}${path}`, {
+        const pendingResponse = this.fetchImpl(`${this.baseUrl}${path}`, {
           method,
           headers: {
             Authorization: `Bearer ${token}`,
@@ -334,6 +333,8 @@ export class FlyApiClient {
             ? AbortSignal.any([controller.signal, options.signal])
             : controller.signal,
         })
+        options.onDispatch?.()
+        const response = await pendingResponse
         status = response.status
         retryAfter = response.headers?.get?.('retry-after') ?? null
         const text = await response.text()
