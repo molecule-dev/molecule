@@ -119,12 +119,26 @@ function parseUpstreamError(text: string): { type?: string; message?: string } |
 }
 
 /**
- * Zhipu's business error code for an account whose balance is exhausted or
- * has no resource package; it is answered with HTTP 429
- * (https://docs.z.ai/api-reference/api-code). A short non-JSON body cannot be
- * trusted to mean the same thing, so only the documented code counts.
+ * Zhipu's documented balance, usage, and spend quota errors on HTTP 429
+ * (https://docs.z.ai/api-reference/api-code), distinct from ordinary 1302/1305
+ * rate/overload responses. Time-bounded retries cannot restore the quota.
  */
-const QUOTA_EXHAUSTED_CODE = '1113'
+const QUOTA_EXHAUSTED_CODES = new Set([
+  '1113',
+  '1308',
+  '1310',
+  '1316',
+  '1317',
+  '1318',
+  '1319',
+  '1320',
+  '1321',
+])
+
+/** Whether this is a documented account quota failure on its documented status. */
+function isQuotaExhausted(status: number, error: { type?: string } | undefined): boolean {
+  return status === 429 && error?.type !== undefined && QUOTA_EXHAUSTED_CODES.has(error.type)
+}
 
 /**
  * Zhipu GLM AI provider that implements the `AIProvider` interface
@@ -268,9 +282,9 @@ class ZhipuAIProvider implements AIProvider {
           rejectedBody = ''
         }
         const upstreamError = parseUpstreamError(rejectedBody)
-        // An exhausted balance does not recover by waiting (Zhipu code 1113 on
-        // 429), so a bounded budget fails at once instead of burning it.
-        const quotaExhausted = upstreamError?.type === QUOTA_EXHAUSTED_CODE
+        // An exhausted balance or usage quota does not recover during this
+        // bounded budget, so fail at once instead of burning the retries.
+        const quotaExhausted = isQuotaExhausted(response.status, upstreamError)
         const willRetry = !quotaExhausted && attempt < MAX_RETRIES
         // Retry-After is equally-valid as delta-seconds or an HTTP-date;
         // parseInt on the date form yields NaN, degrading the backoff to a
@@ -343,21 +357,20 @@ class ZhipuAIProvider implements AIProvider {
         if (errorBody.length > 0 && errorBody.length < 200) detail = errorBody
       }
       logger.error('Zhipu API error', { status: response!.status, detail, errorBody })
-      const clientMessage =
-        response!.status === 429 && parseUpstreamError(errorBody)?.type === QUOTA_EXHAUSTED_CODE
-          ? 'AI service is unavailable right now. Please try again later.'
-          : response!.status === 429
-            ? 'AI rate limit exceeded. Please try again shortly.'
-            : response!.status === 401
-              ? 'AI service configuration error.'
-              : response!.status === 400 &&
-                  /prompt is too long|too many tokens|token.*limit|context.*length/i.test(detail)
-                ? "Conversation too long for the model's context window. Use /compact to free space, or start a new conversation."
-                : response!.status === 400
-                  ? 'AI request was invalid — check the model and request parameters.'
-                  : response!.status === 503
-                    ? 'AI service is temporarily overloaded. Please try again in a moment.'
-                    : 'AI service error. Please try again.'
+      const clientMessage = isQuotaExhausted(response!.status, parseUpstreamError(errorBody))
+        ? 'AI service is unavailable right now. Please try again later.'
+        : response!.status === 429
+          ? 'AI rate limit exceeded. Please try again shortly.'
+          : response!.status === 401
+            ? 'AI service configuration error.'
+            : response!.status === 400 &&
+                /prompt is too long|too many tokens|token.*limit|context.*length/i.test(detail)
+              ? "Conversation too long for the model's context window. Use /compact to free space, or start a new conversation."
+              : response!.status === 400
+                ? 'AI request was invalid — check the model and request parameters.'
+                : response!.status === 503
+                  ? 'AI service is temporarily overloaded. Please try again in a moment.'
+                  : 'AI service error. Please try again.'
       yield { type: 'error', message: clientMessage, errorKey: 'ai.error.apiError' }
       return
     }

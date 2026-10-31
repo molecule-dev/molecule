@@ -602,6 +602,92 @@ describe('chat()', () => {
     }
   })
 
+  it.each(['1308', '1310', '1316', '1317', '1318', '1319', '1320', '1321'])(
+    'fails the documented exhausted usage quota %s at once and reports it',
+    async (code) => {
+      // Zhipu distinguishes these usage/balance/spend quotas from ordinary
+      // 1302 rate limits on the same HTTP 429 status.
+      vi.useFakeTimers()
+      try {
+        const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+        fetch.mockImplementation(() =>
+          Promise.resolve(
+            jsonResponse(429, {
+              error: { code, message: 'The documented usage quota is exhausted.' },
+            }),
+          ),
+        )
+        const rateLimits: unknown[] = []
+        const provider = createProvider({
+          apiKey: 'k',
+          onRateLimit: (event) => rateLimits.push(event),
+        })
+        const eventsPromise = (async () => {
+          const events: unknown[] = []
+          for await (const e of provider.chat({
+            messages: [{ role: 'user', content: 'h' }],
+            stream: false,
+          })) {
+            events.push(e)
+          }
+          return events
+        })()
+        await vi.runAllTimersAsync()
+        const events = await eventsPromise
+        expect(fetch).toHaveBeenCalledTimes(1)
+        expect(rateLimits).toEqual([
+          expect.objectContaining({
+            status: 429,
+            willRetry: false,
+            upstreamError: { type: code, message: expect.any(String) },
+          }),
+        ])
+        const err = events.find((e) => (e as { type: string }).type === 'error') as {
+          message: string
+        }
+        expect(err.message).toBe('AI service is unavailable right now. Please try again later.')
+      } finally {
+        vi.useRealTimers()
+      }
+    },
+  )
+
+  it('does not apply a 429-only balance classification to a 503 response', async () => {
+    vi.useFakeTimers()
+    try {
+      const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+      fetch
+        .mockResolvedValueOnce(
+          jsonResponse(503, {
+            error: { code: '1113', message: 'Unexpected proxy body.' },
+          }),
+        )
+        .mockResolvedValueOnce(jsonResponse(200, { choices: [{ message: { content: 'ok' } }] }))
+      const rateLimits: unknown[] = []
+      const provider = createProvider({
+        apiKey: 'k',
+        onRateLimit: (event) => rateLimits.push(event),
+      })
+      const eventsPromise = (async () => {
+        const events: unknown[] = []
+        for await (const e of provider.chat({
+          messages: [{ role: 'user', content: 'h' }],
+          stream: false,
+        })) {
+          events.push(e)
+        }
+        return events
+      })()
+      await vi.runAllTimersAsync()
+      const events = await eventsPromise
+      expect(fetch).toHaveBeenCalledTimes(2)
+      expect(rateLimits[0]).toMatchObject({ status: 503, willRetry: true })
+      expect(events).not.toContainEqual(expect.objectContaining({ type: 'error' }))
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
   it('an HTTP-date Retry-After falls back to exponential backoff instead of a ~0ms retry', async () => {
     vi.useFakeTimers()
     try {
