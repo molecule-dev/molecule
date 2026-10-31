@@ -47,6 +47,9 @@ interface AlibabaStreamState {
   cacheReadTokens: number
 }
 
+/** Alibaba's distinct exhausted-budget error on HTTP 429; TPS/TPM throttling codes remain retryable. */
+const QUOTA_EXHAUSTED_CODE = 'BudgetLimitExceeded'
+
 /**
  * Read the upstream's explanation from a rejected response body: its error
  * `type` (or `code`) and `message`, the message bounded to 500 characters.
@@ -236,7 +239,11 @@ class AlibabaAIProvider implements AIProvider {
           rejectedBody = ''
         }
         const upstreamError = parseUpstreamError(rejectedBody)
-        const willRetry = attempt < MAX_RETRIES
+        // https://help.aliyun.com/zh/model-studio/error-code documents this
+        // code on 429 only: calls fail until the budget is increased or reset.
+        const quotaExhausted =
+          response.status === 429 && upstreamError?.type === QUOTA_EXHAUSTED_CODE
+        const willRetry = !quotaExhausted && attempt < MAX_RETRIES
         // Retry-After is equally-valid as delta-seconds or an HTTP-date;
         // parseInt on the date form yields NaN, degrading the backoff to a
         // ~0ms retry against an already rate-limiting API. Guard it.
@@ -304,20 +311,22 @@ class AlibabaAIProvider implements AIProvider {
       }
       logger.error('Alibaba DashScope API error', { status: response!.status, detail, errorBody })
       const clientMessage =
-        response!.status === 429
-          ? 'AI rate limit exceeded. Please try again shortly.'
-          : response!.status === 401
-            ? 'AI service configuration error.'
-            : response!.status === 400 &&
-                /prompt is too long|too many tokens|token.*limit|context.*length|Range of input|InvalidParameter/i.test(
-                  detail,
-                )
-              ? 'Input too long for model context window.'
-              : response!.status === 400
-                ? 'AI request was invalid — check the model and request parameters.'
-                : response!.status === 503
-                  ? 'AI service is temporarily overloaded. Please try again in a moment.'
-                  : 'AI service error. Please try again.'
+        response!.status === 429 && parseUpstreamError(errorBody)?.type === QUOTA_EXHAUSTED_CODE
+          ? 'AI service is unavailable right now. Please try again later.'
+          : response!.status === 429
+            ? 'AI rate limit exceeded. Please try again shortly.'
+            : response!.status === 401
+              ? 'AI service configuration error.'
+              : response!.status === 400 &&
+                  /prompt is too long|too many tokens|token.*limit|context.*length|Range of input|InvalidParameter/i.test(
+                    detail,
+                  )
+                ? 'Input too long for model context window.'
+                : response!.status === 400
+                  ? 'AI request was invalid — check the model and request parameters.'
+                  : response!.status === 503
+                    ? 'AI service is temporarily overloaded. Please try again in a moment.'
+                    : 'AI service error. Please try again.'
       yield { type: 'error', message: clientMessage, errorKey: 'ai.error.apiError' }
       return
     }

@@ -468,6 +468,91 @@ describe('chat()', () => {
     }
   })
 
+  it('fails an exhausted budget at once under the default budget and reports why', async () => {
+    // Alibaba documents BudgetLimitExceeded on HTTP 429 as an exhausted budget:
+    // calls fail until the limit is increased or reset, so bounded retries cannot help.
+    vi.useFakeTimers()
+    try {
+      const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+      fetch.mockImplementation(() =>
+        Promise.resolve(
+          jsonResponse(429, {
+            error: { code: 'BudgetLimitExceeded', message: 'The configured budget is exhausted.' },
+          }),
+        ),
+      )
+      const rateLimits: unknown[] = []
+      const provider = createProvider({
+        apiKey: 'k',
+        onRateLimit: (event) => rateLimits.push(event),
+      })
+      const eventsPromise = (async () => {
+        const events: unknown[] = []
+        for await (const e of provider.chat({
+          messages: [{ role: 'user', content: 'h' }],
+          stream: false,
+        })) {
+          events.push(e)
+        }
+        return events
+      })()
+      await vi.runAllTimersAsync()
+      const events = await eventsPromise
+      expect(fetch).toHaveBeenCalledTimes(1)
+      expect(rateLimits).toEqual([
+        expect.objectContaining({
+          status: 429,
+          willRetry: false,
+          upstreamError: { type: 'BudgetLimitExceeded', message: expect.any(String) },
+        }),
+      ])
+      const err = events.find((e) => (e as { type: string }).type === 'error') as {
+        message: string
+      }
+      expect(err.message).toBe('AI service is unavailable right now. Please try again later.')
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('still retries the ambiguous insufficient_quota throttling code on an ordinary 429', async () => {
+    // The same Alibaba code also means TPS/TPM throttling, so it is not a
+    // distinct account-balance signal (unlike BudgetLimitExceeded).
+    vi.useFakeTimers()
+    try {
+      const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+      fetch
+        .mockResolvedValueOnce(
+          jsonResponse(429, {
+            error: { code: 'insufficient_quota', message: 'Allocated quota exceeded.' },
+          }),
+        )
+        .mockResolvedValueOnce(jsonResponse(200, { choices: [{ message: { content: 'ok' } }] }))
+      const rateLimits: unknown[] = []
+      const provider = createProvider({
+        apiKey: 'k',
+        onRateLimit: (event) => rateLimits.push(event),
+      })
+      const eventsPromise = (async () => {
+        const events: unknown[] = []
+        for await (const e of provider.chat({
+          messages: [{ role: 'user', content: 'h' }],
+          stream: false,
+        })) {
+          events.push(e)
+        }
+        return events
+      })()
+      await vi.runAllTimersAsync()
+      const events = await eventsPromise
+      expect(fetch).toHaveBeenCalledTimes(2)
+      expect(rateLimits[0]).toMatchObject({ status: 429, willRetry: true })
+      expect(events).not.toContainEqual(expect.objectContaining({ type: 'error' }))
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
   it('an HTTP-date Retry-After falls back to exponential backoff instead of a ~0ms retry', async () => {
     vi.useFakeTimers()
     try {
