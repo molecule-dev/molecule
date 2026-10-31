@@ -84,8 +84,8 @@ describe('pending delivery rows', () => {
     await writeFile(join(root, 'reads', message.id, 'b.delivered.json'), '{}')
 
     const store = createProvider({ rootDir: root })
-    expect(await store.pending('b')).toEqual([`${message.id}.json`])
-    expect(await store.pending('b.delivered')).toEqual([])
+    expect(await store.pending('b')).toEqual([])
+    expect(await store.pending('b.delivered')).toEqual([`${message.id}.json`])
   })
 
   it('registers later readers for broadcasts idempotently', async () => {

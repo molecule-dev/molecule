@@ -1,0 +1,365 @@
+import { spawn } from 'node:child_process'
+import { existsSync } from 'node:fs'
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+import { DatabaseSync } from 'node:sqlite'
+import { fileURLToPath } from 'node:url'
+
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+
+import { createProvider } from '../provider.js'
+
+const CLAIM_CHILD = fileURLToPath(new URL('./fixtures/claim-child.mjs', import.meta.url))
+const CLAIM_TWICE_CHILD = fileURLToPath(
+  new URL('./fixtures/claim-twice-child.mjs', import.meta.url),
+)
+const CLI = fileURLToPath(new URL('../../dist/cli-main.js', import.meta.url))
+
+interface ChildResult {
+  code: number | null
+  signal: NodeJS.Signals | null
+  stdout: string
+  stderr: string
+}
+
+const runChild = (args: string[], preload?: string): Promise<ChildResult> =>
+  new Promise((resolve, reject) => {
+    const child = spawn(process.execPath, [...(preload ? ['--import', preload] : []), ...args], {
+      stdio: ['ignore', 'pipe', 'pipe'],
+      env: { ...process.env, PARACRINE_DIR: root },
+    })
+    let stdout = ''
+    let stderr = ''
+    child.stdout.setEncoding('utf8')
+    child.stderr.setEncoding('utf8')
+    child.stdout.on('data', (chunk: string) => (stdout += chunk))
+    child.stderr.on('data', (chunk: string) => (stderr += chunk))
+    child.once('error', reject)
+    child.once('close', (code, signal) => resolve({ code, signal, stdout, stderr }))
+  })
+
+const legacy = async (id: string, body = id): Promise<void> => {
+  const mailbox = join(root, 'messages', 'b')
+  await mkdir(mailbox, { recursive: true })
+  await writeFile(
+    join(mailbox, `${id}.json`),
+    JSON.stringify({ id, from: 'a', to: 'b', body, sentAt: new Date().toISOString() }),
+  )
+}
+
+const readFault = async (mode: 'eio' | 'delay'): Promise<string> => {
+  const path = join(root, `read-${mode}.mjs`)
+  const marker = join(root, 'read-failed')
+  await writeFile(
+    path,
+    `import fs from 'node:fs'
+import { syncBuiltinESMExports } from 'node:module'
+const original = fs.readFileSync
+fs.readFileSync = function (path, ...args) {
+  if (String(path).includes(${JSON.stringify(join(root, 'messages'))}) && String(path).endsWith('.json')) {
+    if (${JSON.stringify(mode)} === 'eio') {
+      if (!fs.existsSync(${JSON.stringify(marker)})) {
+        fs.writeFileSync(${JSON.stringify(marker)}, 'failed')
+        const error = new Error('transient EIO')
+        error.code = 'EIO'
+        throw error
+      }
+    } else {
+      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 20)
+    }
+  }
+  return original.call(this, path, ...args)
+}
+syncBuiltinESMExports()
+`,
+  )
+  return path
+}
+
+let root: string
+
+beforeEach(async () => {
+  root = await mkdtemp(join(tmpdir(), 'paracrine-round4-test-'))
+})
+
+afterEach(async () => {
+  await rm(root, { recursive: true, force: true })
+})
+
+describe('round-4 delivery regressions', () => {
+  it('Sol 2: a delivery receipt for b cannot consume the real recipient b.delivered', async () => {
+    const store = createProvider({ rootDir: root })
+    await store.pending('b')
+    await store.pending('b.delivered')
+    const sent = await store.send({ from: 'a', to: '*', body: 'distinct identities' })
+
+    const delivered = await store.claimPending('b')
+    await store.acknowledgeClaims(delivered.claims, 'b.delivered')
+    expect(await store.pending('b')).toEqual([])
+    expect(await store.pending('b.delivered')).toEqual([`${sent.id}.json`])
+
+    const other = await store.claimPending('b.delivered')
+    await store.acknowledgeClaims(other.claims, 'b.delivered.delivered')
+    expect((await store.reads(sent.id)).map((receipt) => receipt.by)).toEqual([
+      'b.delivered',
+      'b.delivered.delivered',
+    ])
+    store.close()
+
+    const db = new DatabaseSync(join(root, 'paracrine.sqlite'))
+    const receipts = db
+      .prepare('SELECT kind, recipient FROM receipts WHERE message_id = ? ORDER BY recipient')
+      .all(sent.id)
+    expect(receipts).toEqual([
+      { kind: 'delivery', recipient: 'b' },
+      { kind: 'delivery', recipient: 'b.delivered' },
+    ])
+    db.close()
+  })
+
+  it('Sol 2 counterexample: an explicit read by b.delivered still acknowledges only that identity', async () => {
+    const store = createProvider({ rootDir: root })
+    await store.pending('b')
+    await store.pending('b.delivered')
+    const sent = await store.send({ from: 'a', to: '*', body: 'explicit read' })
+    await store.ack(sent.id, 'b.delivered')
+    expect(await store.pending('b')).toEqual([`${sent.id}.json`])
+    expect(await store.pending('b.delivered')).toEqual([])
+    store.close()
+  })
+
+  it('Sol 3: a real child retries EIO without advancing the WAL migration checkpoint', async () => {
+    await legacy('flaky', 'survives transient EIO')
+    const preload = await readFault('eio')
+    const output = join(root, 'claim.json')
+    await runChild([CLAIM_CHILD, root, 'b', output], preload)
+    expect(existsSync(join(root, 'read-failed'))).toBe(true)
+
+    const db = new DatabaseSync(join(root, 'paracrine.sqlite'))
+    expect(db.prepare('PRAGMA journal_mode').get()).toEqual({ journal_mode: 'wal' })
+    const checkpoint = db.prepare("SELECT value FROM migration WHERE key = 'legacy'").get() as
+      { value: string } | undefined
+    db.close()
+    expect(
+      checkpoint === undefined || JSON.parse(checkpoint.value).fileAfter !== 'flaky.json',
+    ).toBe(true)
+
+    const retried = await runChild([CLAIM_CHILD, root, 'b', output], preload)
+    expect(retried.code).toBe(0)
+    const claimed = JSON.parse(await readFile(output, 'utf8')) as {
+      claims: { message: { id: string; body: string } }[]
+    }
+    expect(claimed.claims.map((claim) => claim.message.id)).toContain('flaky')
+  })
+
+  it('Sol 3 counterexample: invalid JSON is corruption and does not block healthy legacy mail', async () => {
+    const mailbox = join(root, 'messages', 'b')
+    await mkdir(mailbox, { recursive: true })
+    await writeFile(join(mailbox, 'broken.json'), '{not json')
+    await legacy('healthy', 'healthy after corruption')
+    const store = createProvider({ rootDir: root })
+    expect(await store.pending('b')).toEqual(['healthy.json'])
+    store.close()
+  })
+
+  it('Sol 4: an orphaned legacy receipt migrates with its own durable checkpoint', async () => {
+    const receiptDir = join(root, 'reads', 'purged-message')
+    await mkdir(receiptDir, { recursive: true })
+    await writeFile(join(receiptDir, 'b.json'), JSON.stringify({ at: '2026-01-01T00:00:00.000Z' }))
+    const store = createProvider({ rootDir: root })
+    expect(await store.reads('purged-message')).toEqual([
+      { messageId: 'purged-message', by: 'b', at: '2026-01-01T00:00:00.000Z' },
+    ])
+    expect(await store.reads('purged-message')).toHaveLength(1)
+    store.close()
+
+    const db = new DatabaseSync(join(root, 'paracrine.sqlite'))
+    const checkpoint = db
+      .prepare("SELECT value FROM migration WHERE key = 'legacy-receipts'")
+      .get() as { value: string }
+    expect(JSON.parse(checkpoint.value).phase).toBe('done')
+    db.close()
+  })
+
+  it('Sol 5: 64 blocking legacy reads are checkpointed in small steps below the hook budget', async () => {
+    for (let index = 0; index < 64; index += 1) {
+      await legacy(`legacy-${String(index).padStart(3, '0')}`)
+    }
+    const preload = await readFault('delay')
+    const output = join(root, 'bounded.json')
+    const started = performance.now()
+    const run = await runChild([CLAIM_CHILD, root, 'b', output], preload)
+    const elapsed = performance.now() - started
+    expect(run.code).toBe(0)
+    expect(elapsed).toBeLessThan(1000)
+
+    const store = createProvider({ rootDir: root })
+    const first = JSON.parse(await readFile(output, 'utf8')) as {
+      claims: Parameters<typeof store.releaseClaims>[0]
+    }
+    await store.releaseClaims(first.claims)
+    expect(await store.pending('b')).toHaveLength(64)
+    store.close()
+  }, 15_000)
+
+  it('Sol 5: claim selection uses bounded lower-bound metadata and backfills a recipient once', async () => {
+    const store = createProvider({ rootDir: root })
+    const sent = await store.send({ from: 'a', to: '*', body: 'one broadcast' })
+    store.close()
+    const preload = join(root, 'count-backfill.mjs')
+    await writeFile(
+      preload,
+      `import { DatabaseSync } from 'node:sqlite'
+globalThis.backfills = 0
+const prepare = DatabaseSync.prototype.prepare
+DatabaseSync.prototype.prepare = function (sql, ...args) {
+  if (sql.includes("FROM messages WHERE recipient = '*'")) globalThis.backfills += 1
+  return prepare.call(this, sql, ...args)
+}
+`,
+    )
+    const output = join(root, 'twice.json')
+    const run = await runChild([CLAIM_TWICE_CHILD, root, 'b', output], preload)
+    expect(run.code).toBe(0)
+    const result = JSON.parse(await readFile(output, 'utf8')) as {
+      backfills: number
+      first: { claims: unknown[]; hidden: number }
+    }
+    expect(result.first.claims).toHaveLength(1)
+    expect(result.backfills).toBe(1)
+
+    const reopened = createProvider({ rootDir: root })
+    for (let index = 0; index < 100; index += 1) {
+      await reopened.send({ from: 'a', to: 'b', body: `bounded ${index}` })
+    }
+    const page = await reopened.claimPending('b', { limit: 5 })
+    expect(page.hidden).toBeGreaterThan(0)
+    expect(page.hidden).toBeLessThanOrEqual(20)
+    expect(page.claims.map((claim) => claim.message.id)).not.toContain(sent.id)
+    reopened.close()
+
+    const db = new DatabaseSync(join(root, 'paracrine.sqlite'))
+    const indexes = db.prepare("PRAGMA index_list('deliveries')").all() as { name: string }[]
+    expect(indexes.map((index) => index.name)).toEqual(
+      expect.arrayContaining(['deliveries_pending_selection', 'deliveries_stale_selection']),
+    )
+    const plan = db
+      .prepare(
+        `EXPLAIN QUERY PLAN
+         SELECT m.* FROM deliveries d JOIN messages m ON m.id = d.message_id
+         WHERE d.recipient = 'b' AND d.selection_group = 0 AND d.sent_ms >= 0
+           AND d.state = 'pending'
+         ORDER BY d.selection_group, d.sent_ms, d.message_id LIMIT 6`,
+      )
+      .all() as { detail: string }[]
+    expect(plan.some((step) => step.detail.includes('deliveries_pending_selection'))).toBe(true)
+    expect(plan.some((step) => step.detail.includes('TEMP B-TREE'))).toBe(false)
+    db.close()
+  })
+
+  it('upgrades a real r3 receipt table without reintroducing the identity collision', async () => {
+    const db = new DatabaseSync(join(root, 'paracrine.sqlite'))
+    db.exec(`
+      CREATE TABLE messages (
+        id TEXT PRIMARY KEY, sender TEXT NOT NULL, recipient TEXT NOT NULL,
+        subject TEXT, body TEXT NOT NULL, sent_at TEXT NOT NULL,
+        sent_ms INTEGER NOT NULL, thread_id TEXT
+      );
+      CREATE TABLE recipients (id TEXT PRIMARY KEY, registered_at TEXT NOT NULL);
+      CREATE TABLE deliveries (
+        message_id TEXT NOT NULL REFERENCES messages(id) ON DELETE CASCADE,
+        recipient TEXT NOT NULL,
+        state TEXT NOT NULL CHECK(state IN ('pending', 'claimed', 'acknowledged')),
+        claim_token TEXT, claimed_at INTEGER, PRIMARY KEY(message_id, recipient)
+      );
+      CREATE TABLE receipts (
+        message_id TEXT NOT NULL, reader TEXT NOT NULL, at TEXT NOT NULL,
+        legacy INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(message_id, reader)
+      );
+      CREATE TABLE migration (key TEXT PRIMARY KEY, value TEXT NOT NULL);
+      INSERT INTO recipients VALUES('b', '2026-01-01T00:00:00.000Z'),
+        ('b.delivered', '2026-01-01T00:00:00.000Z');
+      INSERT INTO messages VALUES('upgrade-broadcast', 'a', '*', NULL, 'upgrade',
+        '2026-01-01T00:00:00.000Z', 1767225600000, NULL);
+      INSERT INTO deliveries VALUES
+        ('upgrade-broadcast', 'b', 'acknowledged', NULL, NULL),
+        ('upgrade-broadcast', 'b.delivered', 'pending', NULL, NULL);
+      INSERT INTO receipts VALUES
+        ('upgrade-broadcast', 'b.delivered', '2026-01-01T00:00:00.000Z', 0);
+      INSERT INTO migration VALUES('legacy', '{"phase":"done","after":"","mailbox":null,"fileAfter":""}');
+    `)
+    db.close()
+
+    const store = createProvider({ rootDir: root })
+    expect(await store.pending('b')).toEqual([])
+    expect(await store.pending('b.delivered')).toEqual(['upgrade-broadcast.json'])
+    expect((await store.reads('upgrade-broadcast')).map((receipt) => receipt.by)).toEqual([
+      'b.delivered',
+    ])
+    store.close()
+  })
+
+  it('R6 schema: attempt metadata is durable while claimed still covers unconfirmed emission', async () => {
+    const store = createProvider({ rootDir: root })
+    const sent = await store.send({ from: 'a', to: 'b', body: 'future at-least-once metadata' })
+    const claimed = await store.claimPending('b')
+    expect(claimed.claims[0]?.message.id).toBe(sent.id)
+    store.close()
+
+    const db = new DatabaseSync(join(root, 'paracrine.sqlite'))
+    const row = db
+      .prepare(
+        'SELECT state, emission_count, last_emitted_at FROM deliveries WHERE message_id = ? AND recipient = ?',
+      )
+      .get(sent.id, 'b')
+    expect(row).toEqual({ state: 'claimed', emission_count: 0, last_emitted_at: null })
+    db.close()
+  })
+
+  it('Sol 6: engines and the launching runtime reject 23.0 but accept 23.4', async () => {
+    const manifest = JSON.parse(
+      await readFile(new URL('../../package.json', import.meta.url), 'utf8'),
+    ) as {
+      engines: { node: string }
+    }
+    expect(manifest.engines.node).toBe('^22.13.0 || >=23.4.0')
+    const preload = join(root, 'runtime.mjs')
+    await writeFile(
+      preload,
+      `Object.defineProperty(process.versions, 'node', { value: '23.0.0' })\n`,
+    )
+    const rejected = await runChild([CLI, 'recv', '--for', 'b'], preload)
+    expect(rejected.code).toBe(1)
+    expect(rejected.stderr).toContain('^22.13.0 || >=23.4.0')
+
+    await writeFile(
+      preload,
+      `Object.defineProperty(process.versions, 'node', { value: '23.4.0' })\n`,
+    )
+    const accepted = await runChild([CLI, 'recv', '--for', 'b'], preload)
+    expect(accepted.code).toBe(0)
+
+    const { supportsSqliteRuntime } = await import('../runtime.js')
+    expect([
+      supportsSqliteRuntime('22.12.0'),
+      supportsSqliteRuntime('22.13.0'),
+      supportsSqliteRuntime('23.0.0'),
+      supportsSqliteRuntime('23.3.0'),
+      supportsSqliteRuntime('23.4.0'),
+      supportsSqliteRuntime('24.0.0'),
+    ]).toEqual([false, true, false, false, true, true])
+
+    const library = fileURLToPath(new URL('../../dist/index.js', import.meta.url))
+    await writeFile(
+      preload,
+      `Object.defineProperty(process.versions, 'node', { value: '23.0.0' })\n`,
+    )
+    const libraryRejected = await runChild(
+      ['--input-type=module', '-e', `await import(${JSON.stringify(library)})`],
+      preload,
+    )
+    expect(libraryRejected.code).toBe(1)
+    expect(libraryRejected.stderr).toContain('^22.13.0 || >=23.4.0')
+  })
+})

@@ -78,7 +78,8 @@ describe('paracrine send/recv/ack/reads', () => {
     await writeFile(
       preload,
       `setImmediate(() => {
-  process.emitWarning('SQLite is an experimental feature', 'ExperimentalWarning')
+  process.emitWarning('SQLite is an experimental feature and might change at any time', 'ExperimentalWarning')
+  process.emitWarning('SQLite plugin has its own warning', 'ExperimentalWarning')
   process.emitWarning('another experimental feature', 'ExperimentalWarning')
   process.emitWarning('ordinary warning')
 })\n`,
@@ -89,7 +90,10 @@ describe('paracrine send/recv/ack/reads', () => {
       env: { ...process.env, PARACRINE_DIR: root },
     })
     expect(run.status).toBe(0)
-    expect(run.stderr).not.toContain('SQLite is an experimental feature')
+    expect(run.stderr).not.toContain(
+      'SQLite is an experimental feature and might change at any time',
+    )
+    expect(run.stderr).toContain('SQLite plugin has its own warning')
     expect(run.stderr).toContain('another experimental feature')
     expect(run.stderr).toContain('ordinary warning')
   })

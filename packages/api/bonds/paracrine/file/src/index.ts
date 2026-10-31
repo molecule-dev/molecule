@@ -40,5 +40,7 @@
  * @module
  */
 
+import './runtime.js'
+
 export { runCli } from './cli.js'
 export * from './provider.js'

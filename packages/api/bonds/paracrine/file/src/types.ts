@@ -22,9 +22,10 @@ export interface ParacrineFileClaimOptions {
   leaseMs?: number
 }
 
-/** A bounded set of claims and the number of eligible deliveries left waiting. */
+/** A bounded set of claims and a lower bound for additional eligible deliveries. */
 export interface ParacrineFileClaimedPending {
   claims: ParacrineFileClaim[]
+  /** Positive when bounded probes observed more work; never a whole-backlog count. */
   hidden: number
 }
 
@@ -37,7 +38,7 @@ export type ParacrineFileProvider = ParacrineProvider & {
     recipient: ParacrineAgentId,
     options?: ParacrineFileClaimOptions,
   ): Promise<ParacrineFileClaimedPending>
-  /** Acknowledge only claims still owned by their supplied tokens. */
+  /** Record explicit delivery receipts for only claims still owned by their tokens. */
   acknowledgeClaims(claims: ParacrineFileClaimReference[], by: ParacrineAgentId): Promise<void>
   /** Return only claims still owned by their supplied tokens to pending. */
   releaseClaims(claims: ParacrineFileClaimReference[]): Promise<void>

@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 /** The `paracrine` executable; all command behavior lives in {@link runCli}. */
+import { assertSqliteRuntime } from './runtime.js'
 import { suppressSqliteExperimentalWarning } from './warnings.js'
 
+assertSqliteRuntime()
 suppressSqliteExperimentalWarning()
 const { runCli } = await import('./cli.js')
 

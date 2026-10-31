@@ -4,7 +4,7 @@
   "description": "Zero-config file-backed paracrine store — messages between the AI agents on one machine, with a paracrine CLI any harness can use.",
   "type": "module",
   "engines": {
-    "node": ">=22.13"
+    "node": "^22.13.0 || >=23.4.0"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

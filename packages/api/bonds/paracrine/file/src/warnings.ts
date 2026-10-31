@@ -12,7 +12,11 @@ export const suppressSqliteExperimentalWarning = (): void => {
             ? options.type
             : undefined
     const text = typeof warning === 'string' ? warning : warning.message
-    if (name === 'ExperimentalWarning' && /(?:node:sqlite|\bSQLite\b)/.test(text)) return
+    if (
+      name === 'ExperimentalWarning' &&
+      text === 'SQLite is an experimental feature and might change at any time'
+    )
+      return
     return Reflect.apply(original, this, [warning, ...args])
   }
 }
