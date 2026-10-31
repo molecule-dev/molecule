@@ -15,6 +15,7 @@ vi.mock('react-router', () => ({
   unstable_HistoryRouter: vi.fn(),
   MemoryRouter: vi.fn(),
   Router: vi.fn(),
+  RouterProvider: vi.fn(),
 }))
 
 vi.mock('react-router/dom', () => ({
@@ -27,21 +28,26 @@ import {
   HashRouter as ReactRouterHashRouter,
   MemoryRouter as ReactRouterMemoryRouter,
   Router as ReactRouter,
+  RouterProvider as ReactRouterProvider,
   unstable_HistoryRouter as ReactRouterHistoryRouter,
 } from 'react-router'
 import {
   HydratedRouter as ReactRouterHydratedRouter,
-  RouterProvider as ReactRouterProvider,
+  RouterProvider as ReactRouterDomProvider,
 } from 'react-router/dom'
 
+import {
+  HydratedRouter,
+  type HydratedRouterProps,
+  RouterProvider as DomRouterProvider,
+  type RouterProviderProps as DomRouterProviderProps,
+} from '../dom.js'
 import {
   BrowserRouter,
   type BrowserRouterProps,
   HashRouter,
   type HashRouterProps,
   type HistoryRouterProps,
-  HydratedRouter,
-  type HydratedRouterProps,
   MemoryRouter,
   type MemoryRouterProps,
   Router,
@@ -82,16 +88,22 @@ const cases = [
     props: { location: '/app', navigator: {}, children: 'app' },
   },
   {
-    name: 'RouterProvider from react-router/dom',
+    name: 'RouterProvider from react-router',
     component: ReactRouterProvider,
     render: () => RouterProvider({ router: {} as never }),
     props: { router: {} },
   },
   {
-    name: 'HydratedRouter from react-router/dom',
+    name: 'RouterProvider from react-router/dom (the /dom entry)',
+    component: ReactRouterDomProvider,
+    render: () => DomRouterProvider({ router: {} as never }),
+    props: { router: {} },
+  },
+  {
+    name: 'HydratedRouter from react-router/dom (the /dom entry)',
     component: ReactRouterHydratedRouter,
-    render: () => HydratedRouter({}),
-    props: {},
+    render: () => HydratedRouter({ getContext: undefined }),
+    props: { getContext: undefined },
   },
   {
     name: 'unstable_HistoryRouter',
@@ -137,6 +149,7 @@ describe('synchronous React Router components', () => {
     expectTypeOf<TransitionKey<MemoryRouterProps>>().toEqualTypeOf<never>()
     expectTypeOf<TransitionKey<RouterProps>>().toEqualTypeOf<never>()
     expectTypeOf<TransitionKey<RouterProviderProps>>().toEqualTypeOf<never>()
+    expectTypeOf<TransitionKey<DomRouterProviderProps>>().toEqualTypeOf<never>()
     expectTypeOf<TransitionKey<HydratedRouterProps>>().toEqualTypeOf<never>()
     expectTypeOf<TransitionKey<HistoryRouterProps>>().toEqualTypeOf<never>()
   })

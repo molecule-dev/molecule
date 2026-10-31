@@ -137,13 +137,21 @@
  *   `MoleculeRouterProvider` (or `createReactRouter` with hook values) instead.
  * - The provider must live INSIDE `<BrowserRouter>` (it calls React Router hooks).
  * - **Import router components from this bond, never directly from React Router.**
- *   Its wrappers disable transitions so the URL and rendered page commit together.
- *   Import non-router APIs (`Routes`, `Route`, `Link`, hooks) from `'react-router'`.
+ *   Its wrappers turn transitions off, so a navigation renders the new route in the
+ *   same commit as the URL change. Import non-router APIs (`Routes`, `Route`, `Link`,
+ *   hooks) from `'react-router'`. A DOM data router's `RouterProvider` and the
+ *   framework-mode `HydratedRouter` come from `@molecule/app-routing-react-router/dom`.
+ * - **Declare pages loaded on demand with `lazyPage`, not `React.lazy`.** Each page then
+ *   has a Suspense boundary of its own, so navigating to a page whose code is still
+ *   loading removes the previous page at once. Under one shared `<Suspense>` around
+ *   `<Routes>`, React keeps the previous page mounted (hidden) until the new code
+ *   arrives, while the URL already names the new page.
  *
  * @module @molecule/app-routing-react-router
  */
 
 export * from './hooks.js'
+export * from './lazyPage.js'
 export * from './list-types.js'
 export * from './provider.js'
 export * from './routers.js'

@@ -1,5 +1,13 @@
 /**
- * React Router components with synchronous navigation commits.
+ * React Router components with transitions turned off.
+ *
+ * Each wrapper renders React Router's own router with `useTransitions={false}`, so a
+ * navigation renders the new route in the same commit that changes the URL instead of
+ * keeping the previous route on screen while the next one prepares. That alone does not
+ * cover a page whose code loads on demand: under one shared `<Suspense>` React keeps
+ * the previous page mounted (hidden) until the new page's code arrives. Declare such
+ * pages with {@link lazyPage}, which gives each page a boundary of its own. React Router
+ * versions without the `useTransitions` prop ignore it.
  *
  * @module
  */
@@ -15,14 +23,10 @@ import {
   type MemoryRouterProps as ReactRouterMemoryRouterProps,
   Router as ReactRouter,
   type RouterProps as ReactRouterProps,
+  RouterProvider as ReactRouterProvider,
   type RouterProviderProps as ReactRouterProviderProps,
   unstable_HistoryRouter as ReactRouterHistoryRouter,
 } from 'react-router'
-import {
-  HydratedRouter as ReactRouterHydratedRouter,
-  type HydratedRouterProps as ReactRouterHydratedRouterProps,
-  RouterProvider as ReactRouterProvider,
-} from 'react-router/dom'
 
 import type { Router as MoleculeRouter } from '@molecule/app-routing'
 
@@ -46,9 +50,6 @@ export type RouterProps = Omit<ReactRouterProps, 'useTransitions'>
 
 /** Props for {@link RouterProvider}, with transitions permanently disabled. */
 export type RouterProviderProps = Omit<ReactRouterProviderProps, 'useTransitions'>
-
-/** Props for {@link HydratedRouter}, with transitions permanently disabled. */
-export type HydratedRouterProps = Omit<ReactRouterHydratedRouterProps, 'useTransitions'>
 
 /**
  * Browser router that commits the URL and rendered page together.
@@ -107,31 +108,21 @@ export function Router(props: RouterProps): JSX.Element {
 }
 
 /**
- * DOM data-router provider that commits the URL and rendered page together.
+ * Data-router provider that commits the URL and rendered page together.
+ *
+ * This is React Router's renderer-neutral provider. In a DOM app, import
+ * `RouterProvider` from `@molecule/app-routing-react-router/dom` instead, which
+ * supplies `react-dom`'s `flushSync` the way `react-router/dom` does.
  *
  * @example
  * ```tsx
  * import { RouterProvider } from '@molecule/app-routing-react-router'
  *
- * const app = <RouterProvider router={router} />
+ * const app = <RouterProvider router={router} flushSync={flushSync} />
  * ```
  */
 export function RouterProvider(props: RouterProviderProps): JSX.Element {
   return <ReactRouterProvider {...props} useTransitions={false} />
-}
-
-/**
- * Framework-mode hydrated router that commits the URL and rendered page together.
- *
- * @example
- * ```tsx
- * import { HydratedRouter } from '@molecule/app-routing-react-router'
- *
- * const app = <HydratedRouter />
- * ```
- */
-export function HydratedRouter(props: HydratedRouterProps): JSX.Element {
-  return <ReactRouterHydratedRouter {...props} useTransitions={false} />
 }
 
 /**
