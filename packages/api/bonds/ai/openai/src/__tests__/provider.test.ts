@@ -873,6 +873,96 @@ describe('chat() — rejected 429/503 bodies are read once and their reason repo
       vi.useRealTimers()
     }
   })
+
+  it.each([
+    'credit_balance_exhausted',
+    'organization_spend_limit_exceeded',
+    'project_spend_limit_exceeded',
+    'organization_usage_limit_exceeded',
+  ])('fails the documented 429 quota code %s at once and reports it', async (code) => {
+    // OpenAI's error reference says to inspect error.code for these billing,
+    // spend, and quota failures; retrying cannot restore API access.
+    vi.useFakeTimers()
+    try {
+      const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+      fetch.mockImplementation(() =>
+        Promise.resolve(
+          jsonResponse(429, {
+            error: { code, message: 'Update the account credits or limits before retrying.' },
+          }),
+        ),
+      )
+      const rateLimits: unknown[] = []
+      const provider = createProvider({
+        apiKey: 'k',
+        api: 'chat-completions',
+        onRateLimit: (event) => rateLimits.push(event),
+      })
+      const eventsPromise = (async () => {
+        const events: unknown[] = []
+        for await (const e of provider.chat({
+          messages: [{ role: 'user', content: 'x' }],
+          stream: false,
+        })) {
+          events.push(e)
+        }
+        return events
+      })()
+      await vi.runAllTimersAsync()
+      const events = await eventsPromise
+      expect(fetch).toHaveBeenCalledTimes(1)
+      expect(rateLimits).toEqual([
+        expect.objectContaining({
+          status: 429,
+          willRetry: false,
+          upstreamError: { type: code, message: expect.any(String) },
+        }),
+      ])
+      const err = events.find((e) => (e as { type: string }).type === 'error') as {
+        message: string
+      }
+      expect(err.message).toBe('AI service is unavailable right now. Please try again later.')
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('does not apply a 429-only quota classification to a 503 response', async () => {
+    vi.useFakeTimers()
+    try {
+      const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+      fetch
+        .mockResolvedValueOnce(
+          jsonResponse(503, {
+            error: { code: 'insufficient_quota', message: 'Unexpected proxy body.' },
+          }),
+        )
+        .mockResolvedValueOnce(jsonResponse(200, { choices: [{ message: { content: 'ok' } }] }))
+      const rateLimits: unknown[] = []
+      const provider = createProvider({
+        apiKey: 'k',
+        api: 'chat-completions',
+        onRateLimit: (event) => rateLimits.push(event),
+      })
+      const eventsPromise = (async () => {
+        const events: unknown[] = []
+        for await (const e of provider.chat({
+          messages: [{ role: 'user', content: 'x' }],
+          stream: false,
+        })) {
+          events.push(e)
+        }
+        return events
+      })()
+      await vi.runAllTimersAsync()
+      const events = await eventsPromise
+      expect(fetch).toHaveBeenCalledTimes(2)
+      expect(rateLimits[0]).toMatchObject({ status: 503, willRetry: true })
+      expect(events).not.toContainEqual(expect.objectContaining({ type: 'error' }))
+    } finally {
+      vi.useRealTimers()
+    }
+  })
 })
 
 describe('chat() — streaming response parsing', () => {

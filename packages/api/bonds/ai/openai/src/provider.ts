@@ -58,15 +58,27 @@ function defaultApiFor(baseUrl: string): OpenaiApi {
 }
 
 /**
- * OpenAI's error code for an exhausted account quota; it is answered with HTTP
- * 429 (https://platform.openai.com/docs/guides/error-codes/api-errors), unlike
- * an ordinary rate limit, which shares the status.
+ * OpenAI's documented billing, spend, and quota errors on HTTP 429
+ * (https://platform.openai.com/docs/guides/error-codes/api-errors). Retrying
+ * cannot restore access; ordinary rate-limit codes on that status stay retryable.
  */
-const QUOTA_EXHAUSTED_CODE = 'insufficient_quota'
+const QUOTA_EXHAUSTED_CODES = new Set([
+  'insufficient_quota',
+  'credit_balance_exhausted',
+  'organization_spend_limit_exceeded',
+  'project_spend_limit_exceeded',
+  'organization_usage_limit_exceeded',
+])
+
+/** Whether this is a documented account quota failure on its documented status. */
+function isQuotaExhausted(status: number, error: { type?: string } | undefined): boolean {
+  return status === 429 && error?.type !== undefined && QUOTA_EXHAUSTED_CODES.has(error.type)
+}
 
 /**
  * Read the upstream's explanation from a rejected response body: its error
- * `type` (or `code`) and `message`, the message bounded to 500 characters.
+ * `code` (or broader `type`) and `message`, the message bounded to 500 characters.
+ * OpenAI directs callers to inspect the specific `code` for billing failures.
  *
  * @param text - The rejected response's body text.
  * @returns The upstream error, or `undefined` when the body carried neither field.
@@ -81,10 +93,10 @@ function parseUpstreamError(text: string): { type?: string; message?: string } |
     return trimmed && trimmed.length <= 500 ? { message: trimmed } : undefined
   }
   const type =
-    typeof error?.type === 'string'
-      ? error.type
-      : typeof error?.code === 'string'
-        ? error.code
+    typeof error?.code === 'string'
+      ? error.code
+      : typeof error?.type === 'string'
+        ? error.type
         : undefined
   const message = typeof error?.message === 'string' ? error.message.slice(0, 500) : undefined
   if (!type && !message) return undefined
@@ -279,10 +291,9 @@ export class OpenaiAIProvider implements AIProvider {
           rejectedBody = ''
         }
         const upstreamError = parseUpstreamError(rejectedBody)
-        // An exhausted quota does not recover by waiting: a bounded retry
-        // budget fails at once instead of burning it on a request that cannot
-        // succeed until the account is recharged.
-        const quotaExhausted = upstreamError?.type === QUOTA_EXHAUSTED_CODE
+        // Billing, spend, and quota failures do not recover by waiting: a
+        // bounded retry budget fails at once instead of burning its retries.
+        const quotaExhausted = isQuotaExhausted(response.status, upstreamError)
         const willRetry = !quotaExhausted && attempt < MAX_RETRIES
         // Retry-After is equally-valid as delta-seconds or an HTTP-date;
         // parseInt on the date form yields NaN, degrading the backoff to a
@@ -355,21 +366,20 @@ export class OpenaiAIProvider implements AIProvider {
         if (errorBody.length > 0 && errorBody.length < 200) detail = errorBody
       }
       logger.error('OpenAI API error', { status: response!.status, detail })
-      const clientMessage =
-        response!.status === 429 && parseUpstreamError(errorBody)?.type === QUOTA_EXHAUSTED_CODE
-          ? 'AI service is unavailable right now. Please try again later.'
-          : response!.status === 429
-            ? 'AI rate limit exceeded. Please try again shortly.'
-            : response!.status === 401
-              ? 'AI service configuration error.'
-              : response!.status === 400 &&
-                  /context.*length|maximum context|too many tokens|prompt is too long/i.test(detail)
-                ? "Conversation too long for the model's context window."
-                : response!.status === 400
-                  ? 'AI request was invalid — check the model and request parameters.'
-                  : response!.status === 503 || response!.status === 502
-                    ? 'AI service is temporarily overloaded. Please try again in a moment.'
-                    : 'AI service error. Please try again.'
+      const clientMessage = isQuotaExhausted(response!.status, parseUpstreamError(errorBody))
+        ? 'AI service is unavailable right now. Please try again later.'
+        : response!.status === 429
+          ? 'AI rate limit exceeded. Please try again shortly.'
+          : response!.status === 401
+            ? 'AI service configuration error.'
+            : response!.status === 400 &&
+                /context.*length|maximum context|too many tokens|prompt is too long/i.test(detail)
+              ? "Conversation too long for the model's context window."
+              : response!.status === 400
+                ? 'AI request was invalid — check the model and request parameters.'
+                : response!.status === 503 || response!.status === 502
+                  ? 'AI service is temporarily overloaded. Please try again in a moment.'
+                  : 'AI service error. Please try again.'
       yield { type: 'error', message: clientMessage, errorKey: 'ai.error.apiError' }
       return
     }
