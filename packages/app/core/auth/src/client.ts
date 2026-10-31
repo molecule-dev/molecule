@@ -29,6 +29,8 @@ import type {
   UserProfile,
 } from './types.js'
 
+const HTTP_ERROR_BRAND = Symbol.for('@molecule/app-http/HttpError')
+
 /**
  * Whether this app is running inside a CROSS-SITE iframe — i.e. the molecule.dev
  * live preview (the app at `127.0.0.1:<port>` embedded in the `localhost:3000`
@@ -599,6 +601,27 @@ export const createJWTAuthClient = <
       failure.status = response.status
       // The response body, exactly as parsed — see {@link AuthError}.
       failure.body = body
+      // Mirror app-http's failed-response view without importing it. Keep the
+      // original auth fields above intact: both documented readings now work on
+      // the SAME rejection, including across duplicated package copies.
+      const headers: Record<string, string> = {}
+      response.headers.forEach((value, name) => {
+        headers[name] = value
+      })
+      failure.response = {
+        data: body,
+        status: response.status,
+        statusText: response.statusText,
+        headers,
+        config: {
+          method: (options.method ?? 'GET').toUpperCase(),
+          url,
+          ...(options.body === undefined ? {} : { data: options.body }),
+        },
+      }
+      failure.errorKey = key
+      failure.aborted = false
+      Object.defineProperty(failure, HTTP_ERROR_BRAND, { value: true })
       throw failure
     }
 

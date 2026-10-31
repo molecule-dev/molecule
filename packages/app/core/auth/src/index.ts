@@ -130,7 +130,10 @@
  * `error`/`message` the message is built from, so a login form can render the
  * API's own validation payload (`{ errors: { credentials: ['is invalid'] } }`)
  * instead of re-implementing the call. A body that is not JSON arrives as `{}`;
- * the key, message, fallback and rejection are unchanged.
+ * the key, message, fallback and rejection are unchanged. That same rejection also
+ * satisfies `isHttpError(err)` from `@molecule/app-http`, with
+ * `response.data === body`, so an app-http error reader works without changing the
+ * `I18nError` contract.
  *
  * **`autoRefresh` does nothing without a refresh token.** The client schedules a refresh only when `refresh()` could actually
  * succeed, i.e. when a refresh token is stored. An API that issues none (the

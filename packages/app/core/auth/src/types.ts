@@ -457,6 +457,9 @@ export type AuthEventListener<T = UserProfile> = (event: AuthEvent<T>) => void
  *   map, a field map with arrays, or a top-level array of messages — without
  *   re-implementing the login call. A body that is not JSON (an HTML error
  *   page, an empty body) arrives as `{}`.
+ * - `response`: the same failed-response view as `@molecule/app-http`, with
+ *   `response.data === body`, so `isHttpError` and `response.data` readers work
+ *   on this rejection too.
  *
  * ```typescript
  * import { I18nError } from '@molecule/app-i18n'
@@ -481,6 +484,30 @@ export interface AuthError extends I18nError {
    * maps and arrays included. `{}` when the body is not JSON.
    */
   body: unknown
+
+  /** The app-http-compatible view of the failed response. */
+  response: {
+    /** The same parsed value as {@link AuthError.body}. */
+    data: unknown
+    /** The same HTTP status as {@link AuthError.status}. */
+    status: number
+    /** HTTP status text supplied by the server or fetch implementation. */
+    statusText: string
+    /** Response headers as a plain object. */
+    headers: Record<string, string>
+    /** The request that produced this failed response. */
+    config: {
+      method: string
+      url: string
+      data?: unknown
+    }
+  }
+
+  /** The same translation key as {@link I18nError.i18nKey}. */
+  errorKey: string
+
+  /** A server response was received, so a non-ok response is never an abort. */
+  aborted: false
 }
 
 /**

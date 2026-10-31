@@ -102,6 +102,10 @@
  * `err instanceof HttpError && err.status < 500` as a sign-out check** — it clears
  * the session on every aborted navigation request.
  *
+ * Every non-ok response rejected by `@molecule/app-auth` also satisfies
+ * `isHttpError(err)`: its `status` and `response.data` are the same HTTP status
+ * and parsed body exposed as `AuthError.status` and `AuthError.body`.
+ *
  * @module
  */
 

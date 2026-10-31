@@ -6,6 +6,10 @@
 
 import type { RetryOptions } from './retry.js'
 
+// A global brand keeps failed-request classification working across realms and
+// duplicated package copies. It is deliberately not an exported runtime key.
+const HTTP_ERROR_BRAND = Symbol.for('@molecule/app-http/HttpError')
+
 /**
  * HTTP request method.
  */
@@ -220,5 +224,6 @@ export class HttpError extends Error {
   ) {
     super(message)
     this.name = 'HttpError'
+    Object.defineProperty(this, HTTP_ERROR_BRAND, { value: true })
   }
 }
