@@ -13,7 +13,6 @@ import type {
 import { PARACRINE_BROADCAST } from '@molecule/api-paracrine'
 
 import { ParacrineDatabase } from './database.js'
-import { ensureLegacyImport } from './legacy-import.js'
 import type {
   ParacrineFileClaimedPending,
   ParacrineFileClaimOptions,
@@ -36,11 +35,13 @@ const resolveRoot = (config: ParacrineFileConfig): string =>
 export function createProvider(config: ParacrineFileConfig = {}): ParacrineFileProvider {
   const root = resolveRoot(config)
   const database = new ParacrineDatabase(root)
-  const ensureImport = (): void => ensureLegacyImport(database, root)
-  const registered = (recipient: ParacrineAgentId): void => {
-    ensureImport()
-    database.register(recipient)
+  try {
+    database.importLegacy()
+  } catch (error) {
+    database.close()
+    throw error
   }
+  const registered = (recipient: ParacrineAgentId): void => database.register(recipient)
 
   return {
     name: 'file',
@@ -48,7 +49,6 @@ export function createProvider(config: ParacrineFileConfig = {}): ParacrineFileP
     async send(input: ParacrineSendInput): Promise<ParacrineMessage> {
       assertAgentId(input.from, 'sender')
       if (input.to !== PARACRINE_BROADCAST) assertAgentId(input.to, 'recipient')
-      ensureImport()
       return database.send(input)
     },
 
@@ -70,13 +70,11 @@ export function createProvider(config: ParacrineFileConfig = {}): ParacrineFileP
     async ack(messageId: string, by: ParacrineAgentId): Promise<void> {
       assertAgentId(by, 'reader')
       assertMessageId(messageId)
-      ensureImport()
       database.acknowledge(messageId, by)
     },
 
     async reads(messageId: string): Promise<ParacrineRead[]> {
       assertMessageId(messageId)
-      ensureImport()
       return database.reads(messageId)
     },
 
@@ -86,7 +84,6 @@ export function createProvider(config: ParacrineFileConfig = {}): ParacrineFileP
           `Invalid paracrine purge 'before' instant: ${JSON.stringify(options.before)}`,
         )
       }
-      ensureImport()
       return database.purge(options)
     },
 
@@ -113,7 +110,6 @@ export function createProvider(config: ParacrineFileConfig = {}): ParacrineFileP
       by: ParacrineAgentId,
     ): Promise<void> {
       assertAgentId(by, 'reader')
-      ensureImport()
       for (const claim of claims) {
         assertMessageId(claim.messageId)
         assertAgentId(claim.recipientId, 'mailbox')
@@ -122,7 +118,6 @@ export function createProvider(config: ParacrineFileConfig = {}): ParacrineFileP
     },
 
     async releaseClaims(claims: ParacrineFileClaimReference[]): Promise<void> {
-      ensureImport()
       for (const claim of claims) {
         assertMessageId(claim.messageId)
         assertAgentId(claim.recipientId, 'mailbox')

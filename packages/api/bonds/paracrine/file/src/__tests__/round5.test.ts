@@ -10,7 +10,6 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import type { ParacrineMessage } from '@molecule/api-paracrine'
 
 import { createProvider } from '../provider.js'
-import { waitForLegacyImport } from './test-helpers.js'
 const PENDING_CHILD = fileURLToPath(new URL('./fixtures/pending-child.mjs', import.meta.url))
 const RETRY_CHILD = fileURLToPath(new URL('./fixtures/retry-claim-child.mjs', import.meta.url))
 
@@ -84,7 +83,6 @@ describe('published 1.1.0 JSON import', () => {
 
     const store = createProvider({ rootDir: root })
     await store.pending('b')
-    await waitForLegacyImport(root)
     expect((await store.pending('b')).sort()).toEqual([
       'legacy-broadcast.json',
       'legacy-direct.json',
@@ -123,7 +121,6 @@ describe('published 1.1.0 JSON import', () => {
 
     const store = createProvider({ rootDir: root })
     await store.pending('b')
-    await waitForLegacyImport(root)
     expect((await store.pending('b')).sort()).toEqual([
       'legacy-delivered-shaped.json',
       'legacy-pending.json',
@@ -139,7 +136,6 @@ describe('published 1.1.0 JSON import', () => {
     await legacyMessage(message('legacy-purged', 'b'))
     const store = createProvider({ rootDir: root })
     await store.pending('b')
-    await waitForLegacyImport(root)
     expect(await store.pending('b')).toEqual(['legacy-purged.json'])
     expect(await store.purge({ before: '2026-01-02T00:00:00.000Z' })).toBe(1)
     store.close()
@@ -204,8 +200,8 @@ describe('published 1.1.0 JSON import', () => {
   })
 })
 
-describe('retryable detached import', () => {
-  it('retries a transient read error with the same provider instead of skipping the file', async () => {
+describe('retryable synchronous import', () => {
+  it('fails the transient-read open and retries on the next open without skipping', async () => {
     await legacyMessage(message('legacy-flaky', 'b'))
     const preload = join(root, 'transient-read.mjs')
     await writeFile(
@@ -233,7 +229,7 @@ syncBuiltinESMExports()
       firstError: string
       second: { claims: { message: { id: string } }[] }
     }
-    expect(result.firstError).toBe('')
+    expect(result.firstError).toContain('EIO')
     expect(result.second.claims.map((claim) => claim.message.id)).toContain('legacy-flaky')
   })
 })

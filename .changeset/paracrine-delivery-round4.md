@@ -2,4 +2,4 @@
 '@molecule/api-paracrine-file': minor
 ---
 
-Use one fresh SQLite schema and a detached, crash-resumable JSON importer with exact receipts and durable completion.
+Use one fresh SQLite schema and import published JSON synchronously in one crash-atomic transaction before any provider operation.

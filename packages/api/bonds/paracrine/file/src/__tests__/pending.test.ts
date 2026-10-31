@@ -5,7 +5,6 @@ import { join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import { createProvider } from '../provider.js'
-import { waitForLegacyImport } from './test-helpers.js'
 
 let root: string
 
@@ -62,7 +61,6 @@ describe('pending delivery rows', () => {
 
     const store = createProvider({ rootDir: root })
     await store.pending('b')
-    await waitForLegacyImport(root)
     expect((await store.pending('b')).sort()).toEqual(
       ['pre-upgrade-answered.json', 'pre-upgrade-broadcast.json', `${direct.id}.json`].sort(),
     )
@@ -88,7 +86,6 @@ describe('pending delivery rows', () => {
 
     const store = createProvider({ rootDir: root })
     await store.pending('b')
-    await waitForLegacyImport(root)
     expect(await store.pending('b')).toEqual([`${message.id}.json`])
     expect(await store.pending('b.delivered')).toEqual([])
   })

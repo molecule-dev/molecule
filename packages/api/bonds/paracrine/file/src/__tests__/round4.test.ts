@@ -9,7 +9,6 @@ import { fileURLToPath } from 'node:url'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import { createProvider } from '../provider.js'
-import { waitForLegacyImport } from './test-helpers.js'
 
 const CLAIM_TWICE_CHILD = fileURLToPath(
   new URL('./fixtures/claim-twice-child.mjs', import.meta.url),
@@ -128,7 +127,7 @@ describe('round-4 delivery regressions', () => {
     store.close()
   })
 
-  it('Sol 3: a real detached worker retries EIO without skipping the file', async () => {
+  it('Sol 3: a failed open retries EIO without skipping the file', async () => {
     await legacy('flaky', 'survives transient EIO')
     const preload = await readFault()
     const output = join(root, 'claim.json')
@@ -139,7 +138,7 @@ describe('round-4 delivery regressions', () => {
       firstError: string
       second: { claims: { message: { id: string; body: string } }[] }
     }
-    expect(result.firstError).toBe('')
+    expect(result.firstError).toContain('EIO')
     expect(result.second.claims.map((claim) => claim.message.id)).toContain('flaky')
 
     const db = new DatabaseSync(join(root, 'paracrine.sqlite'))
@@ -147,25 +146,41 @@ describe('round-4 delivery regressions', () => {
     db.close()
   })
 
-  it('Sol 3 counterexample: invalid JSON is corruption and does not block healthy legacy mail', async () => {
+  it('Sol 3: partial JSON rolls back the open and retries after repair', async () => {
     const mailbox = join(root, 'messages', 'b')
     await mkdir(mailbox, { recursive: true })
     await writeFile(join(mailbox, 'broken.json'), '{not json')
-    await legacy('healthy', 'healthy after corruption')
+    await legacy('healthy', 'healthy after repair')
+    expect(() => createProvider({ rootDir: root })).toThrow(SyntaxError)
+
+    const db = new DatabaseSync(join(root, 'paracrine.sqlite'))
+    expect(db.prepare('SELECT COUNT(*) AS count FROM messages').get()).toEqual({ count: 0 })
+    expect(db.prepare("SELECT value FROM migration WHERE key = 'legacy-complete'").get()).toBe(
+      undefined,
+    )
+    db.close()
+
+    await writeFile(
+      join(mailbox, 'broken.json'),
+      JSON.stringify({
+        id: 'broken',
+        from: 'a',
+        to: 'b',
+        body: 'repaired',
+        sentAt: new Date().toISOString(),
+      }),
+    )
     const store = createProvider({ rootDir: root })
-    await store.pending('b')
-    await waitForLegacyImport(root)
-    expect(await store.pending('b')).toEqual(['healthy.json'])
+    expect((await store.pending('b')).sort()).toEqual(['broken.json', 'healthy.json'])
     store.close()
   })
 
-  it('Sol 4: an orphaned legacy receipt migrates with its own durable checkpoint', async () => {
+  it('Sol 4: an orphaned legacy receipt migrates in the same atomic import', async () => {
     const receiptDir = join(root, 'reads', 'purged-message')
     await mkdir(receiptDir, { recursive: true })
     await writeFile(join(receiptDir, 'b.json'), JSON.stringify({ at: '2026-01-01T00:00:00.000Z' }))
     const store = createProvider({ rootDir: root })
     await store.reads('purged-message')
-    await waitForLegacyImport(root)
     expect(await store.reads('purged-message')).toEqual([
       { messageId: 'purged-message', by: 'b', at: '2026-01-01T00:00:00.000Z' },
     ])
@@ -173,10 +188,9 @@ describe('round-4 delivery regressions', () => {
     store.close()
 
     const db = new DatabaseSync(join(root, 'paracrine.sqlite'))
-    const checkpoint = db
-      .prepare("SELECT value FROM migration WHERE key = 'legacy-receipts'")
-      .get() as { value: string }
-    expect(JSON.parse(checkpoint.value).phase).toBe('done')
+    expect(db.prepare('SELECT key FROM migration ORDER BY key').all()).toEqual([
+      { key: 'legacy-complete' },
+    ])
     db.close()
   })
 
