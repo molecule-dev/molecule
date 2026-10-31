@@ -4,6 +4,7 @@
  * @module
  */
 
+import { redactCredentials } from './redaction.js'
 import type { LogEntry, LogLevel, LogTransport } from './types.js'
 import { LOG_LEVEL_PRIORITY } from './types.js'
 
@@ -78,7 +79,7 @@ export const createRemoteTransport = (options: {
       return
     }
 
-    buffer.push(entry)
+    buffer.push(redactCredentials(entry))
 
     if (buffer.length >= batchSize) {
       flush()

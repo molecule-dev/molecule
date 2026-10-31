@@ -469,17 +469,17 @@ describe('@molecule/app-logger', () => {
         name: 'Parent',
         level: 'info',
         transports: [transport],
-        context: { parentKey: 'parentValue' },
+        context: { parentLabel: 'parentValue' },
       })
 
-      const child = parent.child('Child', { childKey: 'childValue' })
+      const child = parent.child('Child', { childLabel: 'childValue' })
       child.info('Test')
 
       expect(transport).toHaveBeenCalledWith(
         expect.objectContaining({
           context: expect.objectContaining({
-            parentKey: 'parentValue',
-            childKey: 'childValue',
+            parentLabel: 'parentValue',
+            childLabel: 'childValue',
           }),
         }),
       )

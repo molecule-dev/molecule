@@ -4,6 +4,7 @@
  * @module
  */
 
+import { redactCredentials } from './redaction.js'
 import type { LogEntry, Logger, LoggerConfig, LogLevel, LogTransport } from './types.js'
 import { LOG_LEVEL_PRIORITY } from './types.js'
 import { defaultFormat } from './utilities.js'
@@ -36,22 +37,22 @@ export const createConsoleLogger = (config: LoggerConfig = {}): Logger => {
 
     const entry: LogEntry = {
       level: entryLevel,
-      message,
-      args,
+      message: redactCredentials(message),
+      args: redactCredentials(args),
       timestamp: new Date(),
       logger: name,
-      context: Object.keys(context).length > 0 ? context : undefined,
+      context: Object.keys(context).length > 0 ? redactCredentials(context) : undefined,
     }
 
     // Console output
     const consoleMethod = entryLevel === 'trace' ? 'debug' : entryLevel
-    const formatted = showTimestamps ? format(entry) : message
+    const formatted = showTimestamps ? format(entry) : entry.message
     const prefix = name && !showTimestamps ? `[${name}]` : ''
 
     if (prefix) {
-      console[consoleMethod](prefix, formatted, ...args)
+      console[consoleMethod](prefix, formatted, ...entry.args)
     } else {
-      console[consoleMethod](formatted, ...args)
+      console[consoleMethod](formatted, ...entry.args)
     }
 
     // Send to transports

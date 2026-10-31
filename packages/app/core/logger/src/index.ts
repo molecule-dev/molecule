@@ -38,5 +38,6 @@
 
 export * from './console-logger.js'
 export * from './provider.js'
+export * from './redaction.js'
 export * from './types.js'
 export * from './utilities.js'
