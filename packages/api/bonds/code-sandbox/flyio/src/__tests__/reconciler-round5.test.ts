@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 
+import { encodePrivateRoutes } from '../flycast.js'
 import type {
   FlyCreateAddressIntent,
   FlyCreateAttempt,
@@ -699,7 +700,7 @@ describe('round-six ownership races', () => {
     expect(journal.attempts.get('attempt-2')?.addresses[0]?.owned).toBe(true)
   })
 
-  it('retains an owned address when the assignment list transiently omits it', async () => {
+  it('releases an owned exact address even when the assignment list omits it', async () => {
     const journal = new MemoryJournal()
     journal.seed(
       failedIntent({
@@ -711,13 +712,14 @@ describe('round-six ownership races', () => {
     const double = createFetchDouble()
       .fallback({ body: [] })
       .on('GET /apps/tenant-db/ip_assignments', { body: [] })
+      .on('DELETE /apps/tenant-db/ip_assignments/', { status: 204 })
 
     await expect(makeProvider(double, journal).reconcileCreateAttempts()).resolves.toEqual({
-      deleted: 0,
-      failed: 1,
+      deleted: 1,
+      failed: 0,
     })
-    expect(double.calls.filter((call) => call.method === 'DELETE')).toHaveLength(0)
-    expect(journal.attempts.get('attempt-1')?.addresses[0]?.owned).toBe(true)
+    expect(double.matching('DELETE /apps/tenant-db/ip_assignments/fdaa%3A%3A12')).toHaveLength(1)
+    expect(journal.attempts.size).toBe(0)
   })
 
   it('cancels an in-flight create and fences later mutations by generation', async () => {
@@ -749,5 +751,272 @@ describe('round-six ownership races', () => {
       'Stale generation',
     )
     expect(double.calls.filter((call) => call.method === 'POST')).toHaveLength(0)
+  })
+})
+
+describe('round-eight durable ownership counterexamples', () => {
+  it('clears a new volume’s provisional protection when cancellation prevents Machine dispatch', async () => {
+    const journal = new MemoryJournal()
+    const controller = new AbortController()
+    const double = createFetchDouble()
+      .fallback({ body: [] })
+      .on(`GET /apps/${APP}`, { body: { name: APP } })
+      .on(`GET /apps/${APP}/volumes`, { body: [] })
+      .on(`POST /apps/${APP}/volumes`, { body: { id: 'v1', name: 'attempt-volume' } })
+      .on(`DELETE /apps/${APP}/volumes/v1`, { status: 204 })
+    for (let read = 0; read < 12; read++) {
+      double.on(`GET /apps/${APP}/volumes`, {
+        body: [{ id: 'v1', name: 'attempt-volume', attached_machine_id: null }],
+      })
+    }
+    const markWorkspace = journal.markVolumeWorkspace.bind(journal)
+    journal.markVolumeWorkspace = async (attemptId, name, workspace = true) => {
+      await markWorkspace(attemptId, name, workspace)
+      if (workspace) controller.abort(new Error('advisory connection died'))
+    }
+    const provider = makeProvider(double, journal, { appPerProject: false, appName: APP })
+
+    await expect(
+      provider.create({ projectId: PROJECT_ID, volumeName: 'workspace' }, controller.signal),
+    ).rejects.toThrow('advisory connection died')
+    expect(double.matching(`POST /apps/${APP}/machines`)).toHaveLength(0)
+
+    await expect(provider.reconcileCreateAttempts()).resolves.toEqual({ deleted: 1, failed: 0 })
+    await expect(provider.reconcileCreateAttempts()).resolves.toEqual({ deleted: 0, failed: 0 })
+    expect(double.matching(`DELETE /apps/${APP}/volumes/v1`)).toHaveLength(1)
+  })
+
+  it('abandons a freshly expired creating attempt under its lock and settles its volume', async () => {
+    const journal = new MemoryJournal()
+    journal.seed(
+      failedIntent({
+        state: 'creating',
+        volumes: [{ id: 'v1', name: 'attempt-volume', workspace: false, resolved: true }],
+      }),
+    )
+    journal.reclaimable = async () => {
+      const current = journal.attempts.get('attempt-1')
+      return current ? [structuredClone(current)] : []
+    }
+    const double = createFetchDouble()
+      .fallback({ body: [] })
+      .on(`DELETE /apps/${APP}/volumes/v1`, { status: 204 })
+    for (let read = 0; read < 3; read++) {
+      double.on(`GET /apps/${APP}/volumes`, {
+        body: [{ id: 'v1', name: 'attempt-volume', attached_machine_id: null }],
+      })
+    }
+
+    await expect(
+      makeProvider(double, journal, {
+        appPerProject: false,
+        appName: APP,
+      }).reconcileCreateAttempts(),
+    ).resolves.toEqual({ deleted: 1, failed: 0 })
+    expect(double.matching(`DELETE /apps/${APP}/volumes/v1`)).toHaveLength(1)
+    expect(journal.attempts.size).toBe(0)
+  })
+
+  it('deletes a known-ID volume even when a shared-app listing temporarily omits it', async () => {
+    const journal = new MemoryJournal()
+    journal.seed(
+      failedIntent({
+        volumes: [{ id: 'v1', name: 'attempt-volume', workspace: false, resolved: true }],
+      }),
+    )
+    const double = createFetchDouble()
+      .fallback({ body: [] })
+      .on(`DELETE /apps/${APP}/volumes/v1`, { status: 204 })
+
+    await expect(
+      makeProvider(double, journal, {
+        appPerProject: false,
+        appName: APP,
+      }).reconcileCreateAttempts(),
+    ).resolves.toEqual({ deleted: 1, failed: 0 })
+    expect(double.matching(`DELETE /apps/${APP}/volumes/v1`)).toHaveLength(1)
+    expect(journal.attempts.size).toBe(0)
+  })
+
+  it('retires a migration-shaped legacy attempt from its sandbox, mounts and routes', async () => {
+    const journal = new MemoryJournal()
+    journal.seed(
+      failedIntent({
+        attemptId: `legacy:${PROJECT_ID}`,
+        state: 'serving',
+        sandboxId: `${APP}:m1`,
+      }),
+    )
+    const routes = { 'tenant-db': 'fdaa::44' }
+    const machine = {
+      id: 'm1',
+      name: 'original-machine',
+      state: 'started',
+      config: {
+        mounts: [{ volume: 'v1', path: '/workspace' }],
+        metadata: {
+          'molecule-sandbox.createAttempt': 'original-attempt',
+          'molecule-sandbox.volumeName': 'workspace',
+          'molecule-sandbox.privateRoutes': encodePrivateRoutes(routes),
+        },
+      },
+    }
+    let machineGone = false
+    let volumeGone = false
+    let addressGone = false
+    let appGone = false
+    const double = createFetchDouble()
+    double.fetch = vi.fn(async (input: string | URL | Request, init?: RequestInit) => {
+      const method = (init?.method ?? 'GET').toUpperCase()
+      const url = String(input)
+      const path = url.replace('https://api.machines.dev/v1', '')
+      double.calls.push({
+        method,
+        url,
+        path,
+        body: init?.body ? JSON.parse(String(init.body)) : undefined,
+      })
+      let status = 200
+      let body: unknown = {}
+      if (method === 'GET' && path === `/apps/${APP}/machines`) {
+        body = machineGone ? [] : [machine]
+      } else if (method === 'GET' && path === `/apps/${APP}/volumes`) {
+        body = volumeGone
+          ? []
+          : [
+              {
+                id: 'v1',
+                name: 'original-volume',
+                attached_machine_id: machineGone ? null : 'm1',
+              },
+            ]
+      } else if (method === 'GET' && path === '/apps/tenant-db/ip_assignments') {
+        body = addressGone ? [] : [{ ip: 'fdaa::44', network: APP }]
+      } else if (method === 'DELETE' && path === `/apps/${APP}/machines/m1?force=true`) {
+        machineGone = true
+        status = 204
+      } else if (method === 'DELETE' && path === `/apps/${APP}/volumes/v1`) {
+        volumeGone = true
+        status = 204
+      } else if (
+        method === 'DELETE' &&
+        path === `/apps/tenant-db/ip_assignments/${encodeURIComponent('fdaa::44')}`
+      ) {
+        addressGone = true
+        status = 204
+      } else if (method === 'DELETE' && path === `/apps/${APP}?force=true`) {
+        appGone = true
+        status = 204
+      } else {
+        throw new Error(`Unexpected ${method} ${path}`)
+      }
+      return {
+        status,
+        headers: { get: () => null },
+        text: async () => JSON.stringify(body),
+      } as unknown as Response
+    }) as unknown as typeof fetch
+
+    await makeProvider(double, journal).destroyApp(PROJECT_ID)
+
+    expect(machineGone).toBe(true)
+    expect(volumeGone).toBe(true)
+    expect(addressGone).toBe(true)
+    expect(appGone).toBe(true)
+    expect(journal.attempts.size).toBe(0)
+  })
+
+  it('recovers a lost allocation from Fly’s ips envelope and network object', async () => {
+    const journal = new MemoryJournal()
+    const double = createFetchDouble()
+      .on(`GET /apps/${APP}`, { body: { name: APP } })
+      .on('POST /apps/tenant-db/ip_assignments', { body: { ip: 'fdaa::9' } })
+      .on('POST /apps/tenant-db/ip_assignments', { status: 422, body: { error: 'taken' } })
+      .on('GET /apps/tenant-db/ip_assignments', {
+        body: { ips: [{ ip: 'fdaa::9', network: { name: APP, org_slug: 'acme' } }] },
+      })
+      .on(`POST /apps/${APP}/machines`, { body: { id: 'm1', state: 'started' } })
+    const baseFetch = double.fetch
+    let first = true
+    double.fetch = vi.fn(async (input: string | URL | Request, init?: RequestInit) => {
+      const response = await baseFetch(input, init)
+      if (first && (init?.method ?? 'GET').toUpperCase() === 'POST') {
+        first = false
+        throw new Error('allocation response lost')
+      }
+      return response
+    }) as unknown as typeof fetch
+
+    await makeProvider(double, journal, {
+      privateServices: [{ app: 'tenant-db', port: 5432 }],
+    }).create({ projectId: PROJECT_ID })
+    const attempt = [...journal.attempts.values()].find(
+      (candidate) => candidate.state === 'serving',
+    )
+    expect(attempt?.addresses).toEqual([
+      { targetApp: 'tenant-db', network: APP, ip: 'fdaa::9', owned: true, resolved: true },
+    ])
+  })
+
+  it('settles an owned address from Fly’s ips envelope and network object', async () => {
+    const journal = new MemoryJournal()
+    journal.seed(
+      failedIntent({
+        addresses: [
+          { targetApp: 'tenant-db', network: APP, ip: 'fdaa::45', owned: true, resolved: true },
+        ],
+      }),
+    )
+    const double = createFetchDouble()
+      .fallback({ body: [] })
+      .on('GET /apps/tenant-db/ip_assignments', {
+        body: { ips: [{ ip: 'fdaa::45', network: { name: APP, org_slug: 'acme' } }] },
+      })
+      .on('DELETE /apps/tenant-db/ip_assignments/', { status: 204 })
+
+    await expect(
+      makeProvider(double, journal, {
+        appPerProject: false,
+        appName: APP,
+      }).reconcileCreateAttempts(),
+    ).resolves.toEqual({ deleted: 1, failed: 0 })
+    expect(double.matching('DELETE /apps/tenant-db/ip_assignments/fdaa%3A%3A45')).toHaveLength(1)
+  })
+
+  it('retries an exact owned-address DELETE with 404 after its accepted response was lost', async () => {
+    const journal = new MemoryJournal()
+    journal.seed(
+      failedIntent({
+        addresses: [
+          { targetApp: 'tenant-db', network: APP, ip: 'fdaa::46', owned: true, resolved: true },
+        ],
+      }),
+    )
+    const double = createFetchDouble()
+      .fallback({ body: [] })
+      .on('GET /apps/tenant-db/ip_assignments', {
+        body: [{ ip: 'fdaa::46', network: APP }],
+      })
+      .on('DELETE /apps/tenant-db/ip_assignments/', { status: 404 })
+    const baseFetch = double.fetch
+    let loseResponses = true
+    let lostDeleteAttempts = 0
+    double.fetch = vi.fn(async (input: string | URL | Request, init?: RequestInit) => {
+      if (loseResponses && (init?.method ?? 'GET').toUpperCase() === 'DELETE') {
+        lostDeleteAttempts++
+        throw new Error('accepted DELETE response lost')
+      }
+      return baseFetch(input, init)
+    }) as unknown as typeof fetch
+    const provider = makeProvider(double, journal, { appPerProject: false, appName: APP })
+
+    await expect(provider.reconcileCreateAttempts()).resolves.toEqual({ deleted: 0, failed: 1 })
+    expect(journal.attempts.get('attempt-1')?.addresses[0]?.owned).toBe(true)
+    loseResponses = false
+
+    await expect(provider.reconcileCreateAttempts()).resolves.toEqual({ deleted: 1, failed: 0 })
+    expect(lostDeleteAttempts).toBeGreaterThan(0)
+    expect(double.matching('DELETE /apps/tenant-db/ip_assignments/fdaa%3A%3A46')).toHaveLength(1)
+    expect(journal.attempts.size).toBe(0)
   })
 })

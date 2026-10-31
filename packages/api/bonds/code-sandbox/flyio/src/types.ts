@@ -408,8 +408,12 @@ export interface FlyPrivateService {
 export interface FlyIpAssignment {
   /** The allocated address. Required for a later `DELETE .../ip_assignments/{ip}`. */
   ip?: string
-  /** Private 6PN to which a Flycast assignment belongs. */
-  network?: string
+  /**
+   * Private 6PN identity. GET returns `{name, org_slug}` (null for non-Flycast
+   * assignments); only the POST request body uses separate string fields.
+   * The string form remains accepted for older cached/test responses.
+   */
+  network?: string | { name?: string | null; org_slug?: string | null } | null
   /** Region the address was allocated in, when Fly reports one. */
   region?: string
   /** Service the address is bound to, when the assignment names one. */
