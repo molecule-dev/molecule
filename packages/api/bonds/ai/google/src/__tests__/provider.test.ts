@@ -796,6 +796,87 @@ describe('GoogleAIProvider — errors, retries, abort', () => {
     expect(events[0].errorKey).toBe('ai.error.apiError')
   })
 
+  it('reports the upstream reason on an ordinary 429 that is still retried', async () => {
+    // Google answers 429 with `RESOURCE_EXHAUSTED` for an ordinary rate limit
+    // AND an exhausted quota (the docs tell them apart only by message text),
+    // so the reason is reported but the retry budget is kept.
+    mockFetch.mockImplementation(() =>
+      Promise.resolve(
+        errorResponse(
+          429,
+          JSON.stringify({
+            error: {
+              code: 429,
+              message: 'Resource has been exhausted (e.g. check quota).',
+              status: 'RESOURCE_EXHAUSTED',
+            },
+          }),
+        ),
+      ),
+    )
+
+    const rateLimits: unknown[] = []
+    const listening = createProvider({
+      apiKey: '[REDACTED]',
+      baseUrl: 'https://test.api',
+      onRateLimit: (event) => rateLimits.push(event),
+    })
+    const promise = collectEvents(listening.chat(minimalParams))
+    await vi.advanceTimersByTimeAsync(60_000)
+    const events = await promise
+
+    // An ordinary rate limit keeps its budget: 1 initial + 3 retries.
+    expect(mockFetch).toHaveBeenCalledTimes(4)
+    expect(rateLimits[0]).toMatchObject({
+      status: 429,
+      willRetry: true,
+      upstreamError: {
+        type: 'RESOURCE_EXHAUSTED',
+        message: 'Resource has been exhausted (e.g. check quota).',
+      },
+    })
+    expect(events[0].message).toBe('AI rate limit exceeded. Please try again shortly.')
+  })
+
+  it('reads each rejected 429 body exactly once — a final 429 still yields the error event, not a "body already used" throw', async () => {
+    // One single-use body per attempt: the FIRST text() consumes it, any later
+    // text() on the same object rejects — the shape a real undici body has.
+    // Each attempt's read is recorded so the test can prove the loop consumed
+    // every rejected body (an unread one pins its connection) and that the
+    // error path never asked for it a second time.
+    const texts: Array<ReturnType<typeof vi.fn>> = []
+    mockFetch.mockImplementation(() => {
+      const text = vi.fn().mockResolvedValue(
+        JSON.stringify({
+          error: { code: 429, message: 'slow down', status: 'RESOURCE_EXHAUSTED' },
+        }),
+      )
+      texts.push(text)
+      return Promise.resolve({
+        ok: false,
+        status: 429,
+        statusText: 'Too Many Requests',
+        text,
+        json: vi.fn().mockRejectedValue(new Error('not json')),
+        headers: new Headers(),
+        body: null,
+      })
+    })
+
+    const promise = collectEventsCatch(provider.chat(minimalParams))
+    await vi.advanceTimersByTimeAsync(60_000)
+    const { events, error } = await promise
+
+    expect(mockFetch).toHaveBeenCalledTimes(4)
+    // Every rejected response's body was consumed exactly once — none pins its
+    // connection, none is re-read.
+    expect(texts).toHaveLength(4)
+    for (const text of texts) expect(text).toHaveBeenCalledTimes(1)
+    expect(error).toBeNull()
+    expect(events).toHaveLength(1)
+    expect(events[0].message).toBe('AI rate limit exceeded. Please try again shortly.')
+  })
+
   it('an HTTP-date Retry-After falls back to exponential backoff instead of a ~0ms retry', async () => {
     // Regression: parseInt() on an HTTP-date Retry-After ('Wed, 21 Oct ...
     // GMT') yields NaN, and setTimeout(resolve, NaN) coerces to a ~0ms delay

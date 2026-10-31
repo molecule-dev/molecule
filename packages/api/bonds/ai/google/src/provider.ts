@@ -166,6 +166,40 @@ function isAbortError(error: unknown): boolean {
 }
 
 /**
+ * Read the upstream's explanation from a rejected response body: its error
+ * code and `message`, the message bounded to 500 characters.
+ *
+ * Google's own rejected-body shape is `{ error: { code, message, status } }`
+ * (e.g. `RESOURCE_EXHAUSTED` during high load) — `code` is NUMERIC there and
+ * the semantic code lives in `status`, so that field is read through the same
+ * `type` slot the OpenAI-compatible bonds use.
+ *
+ * @param text - The rejected response's body text.
+ * @returns The upstream error, or `undefined` when the body carried neither field.
+ */
+function parseUpstreamError(text: string): { type?: string; message?: string } | undefined {
+  let error: { type?: unknown; code?: unknown; status?: unknown; message?: unknown } | undefined
+  try {
+    error = (JSON.parse(text) as { error?: typeof error } | null)?.error
+  } catch (_error) {
+    // Not JSON (a proxy's error page, plain text): a short body is the message itself.
+    const trimmed = text.trim()
+    return trimmed && trimmed.length <= 500 ? { message: trimmed } : undefined
+  }
+  const type =
+    typeof error?.type === 'string'
+      ? error.type
+      : typeof error?.code === 'string'
+        ? error.code
+        : typeof error?.status === 'string'
+          ? error.status
+          : undefined
+  const message = typeof error?.message === 'string' ? error.message.slice(0, 500) : undefined
+  if (!type && !message) return undefined
+  return { ...(type ? { type } : {}), ...(message ? { message } : {}) }
+}
+
+/**
  * Google Gemini AI provider that implements the `AIProvider` interface using
  * the Generative Language REST API with support for streaming, tool use,
  * multimodal content, and system instructions.
@@ -244,7 +278,12 @@ class GoogleAIProvider implements AIProvider {
     // server errors (500 INTERNAL / 503 UNAVAILABLE).
     const MAX_RETRIES = 3
     let response: Response | null = null
+    // The rejected body already read by the retry loop, when this attempt ended
+    // on a 429/500/503: a body reads only once, so the error path below must
+    // reuse it instead of calling `text()` a second time (which throws).
+    let rejectedBody: string | undefined
     for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+      rejectedBody = undefined
       response = await fetch(url, {
         method: 'POST',
         headers,
@@ -253,6 +292,23 @@ class GoogleAIProvider implements AIProvider {
       })
 
       if (response.status === 429 || response.status === 500 || response.status === 503) {
+        // Read the body once: an unread body pins its connection, and only the
+        // body says what the upstream actually refused the request for.
+        try {
+          rejectedBody = await response.text()
+        } catch (error) {
+          // Caller cancellation still ends the request; any other read failure
+          // only loses the reason, so the body counts as read and the retry
+          // policy goes on (the same guard the moonshot bond applies).
+          signal.throwIfAborted()
+          logger.debug('Google rejected response body could not be read', { error })
+          rejectedBody = ''
+        }
+        // Google's 429 carries `RESOURCE_EXHAUSTED` for BOTH an ordinary rate
+        // limit and an exhausted quota (the Gemini docs tell them apart only
+        // by message text), so no code here is distinct enough to stop
+        // retrying on: the reason is reported and the budget is kept.
+        const upstreamError = parseUpstreamError(rejectedBody)
         const willRetry = attempt < MAX_RETRIES
         // Retry-After is equally-valid as delta-seconds or an HTTP-date;
         // parseInt on the date form yields NaN, degrading the backoff to a
@@ -280,6 +336,7 @@ class GoogleAIProvider implements AIProvider {
               willRetry,
               retryInMs: delayMs,
               ...(hasRetryAfter ? { retryAfterSeconds: parsedRetryAfterSeconds } : {}),
+              ...(upstreamError ? { upstreamError } : {}),
             })
           } catch (error) {
             // Host-app telemetry; its failure must never break the request.
@@ -291,6 +348,7 @@ class GoogleAIProvider implements AIProvider {
             status: response.status,
             attempt: attempt + 1,
             delayMs,
+            ...(upstreamError ? { upstreamError } : {}),
           })
           await new Promise<void>((resolve) => {
             const timer = setTimeout(resolve, delayMs)
@@ -312,7 +370,8 @@ class GoogleAIProvider implements AIProvider {
     }
 
     if (!response!.ok) {
-      const errorBody = await response!.text()
+      // A 429/500/503 body was already read by the retry loop; a body reads only once.
+      const errorBody = rejectedBody ?? (await response!.text())
       let detail = `HTTP ${response!.status}`
       try {
         const parsed = JSON.parse(errorBody) as { error?: { message?: string } }
