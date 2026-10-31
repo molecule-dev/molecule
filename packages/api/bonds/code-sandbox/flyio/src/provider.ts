@@ -1451,9 +1451,10 @@ class FlyioSandboxProvider implements SandboxProvider {
     // is checked too — the host is unroutable however the value arrives, and
     // that env is exactly where a control plane puts the values it refuses to
     // leave in a Machine config.
+    const createRegion = this.region(config.region)
     assertPrivateRoutesForEnv(
       { ...config.env, ...config.selfDeliveredEnv },
-      this.privateServices(config.region),
+      this.privateServices(createRegion),
     )
 
     const app = this.resolveApp(config.projectId)
@@ -1469,7 +1470,7 @@ class FlyioSandboxProvider implements SandboxProvider {
     try {
       const { routes: privateRoutes } = await this.ensureApp(app, {
         attempt,
-        createRegion: config.region,
+        createRegion,
       })
       const sandbox = await this.createInApp(app, privateRoutes, config, manifest, attempt)
       if (signal.aborted) throw signal.reason

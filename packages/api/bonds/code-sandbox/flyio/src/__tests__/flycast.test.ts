@@ -359,6 +359,43 @@ describe('create — allocating the routes', () => {
     expect(double.matching(`POST /apps/${TENANT_DB}/ip_assignments`)).toHaveLength(0)
   })
 
+  it('uses the provider default region’s routes when create has no override', async () => {
+    const westernDb = 'molecule-pg-tenant-sjc'
+    const double = createFetchDouble()
+      .on(`POST /apps/${westernDb}/ip_assignments`, { body: { ip: DB_IP } })
+      .on(`POST /apps/${PROXY}/ip_assignments`, { body: { ip: PROXY_IP } })
+      .on(`POST /apps/${APP}/machines`, { body: { id: 'm1', state: 'started' } })
+      .on(`GET /apps/${APP}`, { status: 404, body: {} })
+      .on('POST /apps', { status: 201, body: {} })
+
+    await makeProvider(
+      {
+        region: 'sjc',
+        privateServices: SERVICES,
+        privateServicesByRegion: {
+          sjc: [
+            { app: westernDb, port: 5432 },
+            { app: PROXY, port: 3129 },
+          ],
+        },
+      },
+      double,
+    ).create({
+      projectId: PROJECT_ID,
+      selfDeliveredEnv: {
+        DATABASE_URL: `postgresql://${westernDb}.flycast:5432/mol_abc`,
+        HTTP_PROXY: `http://${PROXY}.flycast:3129`,
+      },
+    })
+
+    const machine = double.matching(`POST /apps/${APP}/machines`)[0].body as {
+      region: string
+    }
+    expect(machine.region).toBe('sjc')
+    expect(double.matching(`POST /apps/${westernDb}/ip_assignments`)).toHaveLength(1)
+    expect(double.matching(`POST /apps/${TENANT_DB}/ip_assignments`)).toHaveLength(0)
+  })
+
   it('refuses a non-default create region with no regional route declaration', async () => {
     const double = createFetchDouble()
     await expect(
