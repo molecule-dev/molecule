@@ -9,6 +9,7 @@
  */
 
 import { bond, get as bondGet, isBonded } from '@molecule/app-bond'
+import { redactCredentials } from '@molecule/app-logger'
 
 import type {
   AnalyticsEvent,
@@ -27,13 +28,29 @@ const noopProvider: AnalyticsProvider = {
   flush: async () => {},
 }
 
+/** Redact every payload at the provider boundary, including direct `getProvider()` emitters. */
+const credentialSafeProvider = (provider: AnalyticsProvider): AnalyticsProvider => ({
+  identify: (user) => provider.identify(redactCredentials(user)),
+  track: (event) => provider.track(redactCredentials(event)),
+  page: (pageView) => provider.page(redactCredentials(pageView)),
+  ...(provider.group
+    ? {
+        group: (groupId: string, traits?: Record<string, unknown>) =>
+          provider.group!(redactCredentials(groupId), redactCredentials(traits)),
+      }
+    : {}),
+  ...(provider.reset ? { reset: () => provider.reset!() } : {}),
+  ...(provider.flush ? { flush: () => provider.flush!() } : {}),
+})
+
 /**
- * Registers an analytics provider as the active singleton.
+ * Registers an analytics provider as the active singleton. Every payload is credential-redacted
+ * before the provider can emit it, regardless of which public analytics entrypoint produced it.
  *
  * @param provider - The analytics provider implementation to bond.
  */
 export const setProvider = (provider: AnalyticsProvider): void => {
-  bond(BOND_TYPE, provider)
+  bond(BOND_TYPE, credentialSafeProvider(provider))
 }
 
 /**

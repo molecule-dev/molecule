@@ -56,10 +56,17 @@ describe('@molecule/app-analytics', () => {
   })
 
   describe('setProvider', () => {
-    it('should bond the provider', () => {
+    it('should bond a credential-safe provider boundary', async () => {
       const provider = createMockProvider()
       setProvider(provider)
-      expect(mockBond).toHaveBeenCalledWith('app-analytics', provider)
+      expect(mockBond).toHaveBeenCalledWith(
+        'app-analytics',
+        expect.objectContaining({ track: expect.any(Function) }),
+      )
+      const bonded = mockBond.mock.calls[0][1] as AnalyticsProvider
+      const event = { name: 'safe.event', properties: { label: 'unchanged' } }
+      await bonded.track(event)
+      expect(provider.track).toHaveBeenCalledWith(event)
     })
   })
 
