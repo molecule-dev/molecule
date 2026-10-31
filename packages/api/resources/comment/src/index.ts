@@ -57,13 +57,15 @@
  *   `resourceType`/`resourceId`): validate that the target exists in your domain
  *   code if orphaned threads matter, and reuse the same canonical type slugs as
  *   your other polymorphic resources (bookmarks, activity feed).
- * - **Client: address the thread by the id the page already has, not by the loaded
- *   parent.** On a detail page the parent's id or slug is in the route
- *   (`useParams()`), so post, list and delete with that value. A handler that starts
- *   with `if (!parent) return` and posts `parent.slug` does nothing when the user
- *   submits before the parent finishes loading: no request, no error, the text still
- *   in the box. If a control truly cannot work yet, render it disabled with a visible
- *   state; never let a click silently do nothing.
+ * - **Client: address the thread with an identifier the page already has, not with the
+ *   loaded parent.** List and post with `/:resourceType/:resourceId/comments`, using the
+ *   parent identifier from the route when it is the one this API expects; when the route
+ *   carries something else (a slug where the API needs an id), resolve the id first and keep
+ *   the comment controls visibly disabled until it is known. Edit and delete a comment by its
+ *   own id (`PUT`/`DELETE /comments/:commentId`). A submit handler that starts with
+ *   `if (!parent) return` does nothing when the user submits before the parent finishes
+ *   loading: no request, no error, the text still in the box. Never let a click silently do
+ *   nothing.
  *
  * @e2e
  * Integration checklist — drive the real UI (live preview, no mocks), adapt
