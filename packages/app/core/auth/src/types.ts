@@ -911,6 +911,21 @@ export interface AuthClientConfigOptions<T extends object = UserProfile> {
   currentUserEndpoint?: string
 
   /**
+   * When to probe {@link currentUserEndpoint} for an HttpOnly cookie session.
+   * The default `'hint'` probes only when the readable `mol_auth=1` cookie is
+   * present or this client already holds a cookie-session candidate. The API
+   * must set that presence hint alongside its HttpOnly cookie for automatic
+   * restoration after a full page load.
+   *
+   * Choose `'always'` for an external cookie API without that hint. Pair it with
+   * `storage: 'memory'` and the API's current-user endpoint; the request includes
+   * credentials. An anonymous load then makes a probe too. A local sign-out
+   * suppresses probes until a successful sign-in establishes another session.
+   * Network/5xx/404 failures leave a retryable candidate; 401/403 ends it.
+   */
+  cookieRestore?: 'hint' | 'always'
+
+  /**
    * Storage key prefix.
    */
   storagePrefix?: string
@@ -1018,7 +1033,9 @@ export interface AuthClientConfigOptions<T extends object = UserProfile> {
    * (SSR, a Node test) the default is `'memory'`. Pass `'memory'` EXPLICITLY when
    * the API sets an httpOnly session cookie and you do not want a script-readable
    * copy: `'memory'` is a process-local store, and `initialize()` then restores
-   * through {@link AuthClientConfig.currentUserEndpoint} — the strongest
+   * through {@link AuthClientConfig.currentUserEndpoint}. The default
+   * {@link AuthClientConfig.cookieRestore} policy requires the readable
+   * `mol_auth=1` hint; choose `'always'` for an API without it. This is the strongest
    * configuration, because no script can read the cookie.
    *
    * **An app whose external contract requires the token at a specific key** — a
@@ -1053,6 +1070,8 @@ export interface AuthClientConfigOptions<T extends object = UserProfile> {
    * storage: createBrowserStorageAdapter({ kind: 'session' })
    * // An httpOnly cookie session — keep the bearer out of script-reachable storage:
    * storage: 'memory'
+   * // An external cookie API without a readable mol_auth=1 presence hint:
+   * cookieRestore: 'always'
    * ```
    */
   storage?: 'memory' | StorageAdapter

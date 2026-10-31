@@ -47,3 +47,7 @@ describe('the Authorization scheme guidance names the call that takes it (xr-fla
     expect(readme).toContain("`getClient()`'s result")
   })
 })
+
+it('keeps HTTP diagnostics guidance independent of a workload', () => {
+  expect(read('src/provider.ts')).not.toMatch(/RealWorld|jwtToken|xr-molecule-flash/)
+})

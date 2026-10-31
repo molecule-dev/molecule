@@ -1,7 +1,6 @@
 /**
  * Sequential integer numbers for comments, for APIs whose clients address a
- * comment by an integer (RealWorld's `comment.id` is one; so are most public
- * API specs). The comment keeps its UUID; the number lives in
+ * comment by an integer. The comment keeps its UUID; the number lives in
  * `comment_numbers` and is allocated once, at most one per comment.
  *
  * **Numbering is the default create path:** `createComment()` writes the

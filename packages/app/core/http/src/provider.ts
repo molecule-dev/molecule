@@ -237,8 +237,7 @@ export const createFetchClient = (config: HttpClientConfig = {}): HttpClient => 
                 // server answering a request that expected JSON — the Vite dev server's
                 // SPA fallback when a relative URL had no API baseURL. Resolving with the
                 // HTML as `data` turns that into a `Cannot read properties of undefined`
-                // crash far from the call (xr-molecule-flash-m126: 6.5 minutes and 22
-                // probe scripts to discover `getClient().baseURL` was `''`).
+                // crash far from the call, obscuring the missing API base URL.
                 const contentType = fetchResponse.headers.get('content-type') ?? ''
                 if (fetchResponse.ok && HTML_CONTENT_TYPE.test(contentType)) {
                   throw new HttpError(

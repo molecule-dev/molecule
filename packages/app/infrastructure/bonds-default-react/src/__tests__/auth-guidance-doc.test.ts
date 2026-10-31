@@ -8,7 +8,9 @@ const packageRoot = join(__dirname, '..', '..')
 describe('generated default-auth guidance', () => {
   it('uses generic API names in the public guidance', () => {
     const source = readFileSync(join(packageRoot, 'src', 'auth.ts'), 'utf8')
-    expect(source).not.toMatch(/RealWorld|realWorld|jwtToken|\/articles|favorited|`following`/)
+    expect(source).not.toMatch(
+      /RealWorld|realWorld|jwtToken|xr-molecule-flash|\/articles|favorited|`following`/,
+    )
   })
 
   it('keeps the capability list and nested-token example visible in the README', () => {

@@ -85,15 +85,16 @@ const warn = (message: string, error?: unknown): void => {
  * - **The trade, stated plainly.** A bearer token in Web Storage is readable by
  *   any script on the origin, so one XSS is one token theft — an account takeover
  *   for the token's whole lifetime, and `localStorage` keeps the copy after the
- *   tab closes. This is the model the RealWorld suite's own specs write
- *   (`localStorage.setItem('jwtToken', …)` before a reload) and the reason this
- *   adapter exists.
+ *   tab closes. Use this adapter when a host integration requires a stored
+ *   bearer, and configure its key through `tokenKey` instead of a second store.
  * - **An httpOnly cookie session is STRONGER, and is the first choice wherever
  *   your API supports it.** Script cannot read an httpOnly cookie, so an XSS
  *   cannot exfiltrate the credential; the token stays in memory and
  *   `initialize()` restores the session through `currentUserEndpoint`
  *   (`@molecule/api-resource-user` issues exactly this cookie — pass
- *   `storage: 'memory'` when it does). `'memory'` is then the strongest
+ *   `storage: 'memory'` when it does). The default restore requires its readable
+ *   `mol_auth=1` presence hint. An external API without that convention uses
+ *   `cookieRestore: 'always'` with its `currentUserEndpoint`. `'memory'` is then the strongest
  *   configuration. If the API sets no such cookie and you cannot change that,
  *   this adapter is the alternative — keep the token's lifetime short and rotate
  *   it on refresh.

@@ -45,11 +45,16 @@
  * from `@molecule/app-bonds-default-react`, then call `initialize()`. The bond's
  * HTTP-sync variants also register `whenRestored()` as the request gate.
  *
- * **`initialize()` restores the session BEFORE the first render, and no
- * hand-rolled token store may replace it.** With the token AND user in the
- * store the restore is synchronous and costs no request; with an httpOnly
- * session cookie the API sets at login it restores through
- * `currentUserEndpoint` (default `/users/me`). With only an access token,
+ * **`initialize()` restores a cached token AND user BEFORE the first render.**
+ * That restore is synchronous and costs no request. Cookie-only and token-only
+ * restoration need an asynchronous current-user request. An HttpOnly
+ * session cookie restores through `currentUserEndpoint` (default `/users/me`).
+ * The default `cookieRestore: 'hint'` requires a readable `mol_auth=1` cookie
+ * set by the API alongside the HttpOnly cookie. For an external cookie API
+ * without that convention, configure `storage: 'memory'`,
+ * `cookieRestore: 'always'`, and its `currentUserEndpoint`. Keep the HTTP
+ * client's `withCredentials: true`. This explicit policy also probes anonymous
+ * loads; a local sign-out suppresses further probes until sign-in succeeds. With only an access token,
  * it loads and maps the profile from that endpoint once before deciding the
  * session: 401/403 clears the token; network/5xx failures retain it as
  * `unavailable`. `AuthClientConfig.storage` is
@@ -70,8 +75,8 @@
  * **Never fetch viewer-dependent data before the restore settles.** A
  * component effect that runs on mount fires while `initialize()` is still
  * restoring, so its request leaves without the `Authorization` header and the
- * server answers for an anonymous viewer — a followed user renders "Follow", a
- * saved item renders unsaved. On localhost the restore usually wins this race;
+ * server answers for an anonymous viewer — saved preferences appear unset and
+ * account-specific controls show anonymous defaults. On localhost the restore usually wins this race;
  * over the network it does not, so the bug appears only on the deployed URL.
  * Gate the fetch on the auth state being settled (`state.initialized`), or let
  * the HTTP client do it: `@molecule/app-bonds-default-react` registers
@@ -91,8 +96,7 @@
  * `initialize()` sets that state synchronously, before any request, and every
  * verification settles behind that render. Never hold the first paint on
  * `validateSession()` or a `/me` request of your own — a protected page then pays
- * an API round trip on every navigation (~30 full page loads in one pagination
- * spec put four tests at 15.0–15.9 s of a 15 s budget, and two timed out). Route
+ * an API round trip on every navigation. Route
  * guards read this same `status`: wait only while it is `'loading'` — that
  * status means "no decision yet", so an auth request in flight
  * (`state.loading`) keeps the decided status and does not unmount a
@@ -106,8 +110,9 @@
  * plus its own listener set is a second session store, and it drifts from the
  * client's.
  *
- * **Only a 401/403 ENDS a session; no response at all never does.** Every path that
- * clears the stored session (`validateSession`, the cookie restore, the initial
+ * **Only a server 401/403 rejects a credential; no response never does.** Explicit
+ * sign-out and an application restore predicate can also end the local session.
+ * Every server-failure path that clears the stored session (`validateSession`, the cookie restore, the initial
  * refresh, the background refresh timer) keys on the server REJECTING the
  * credential. An aborted request, a dropped connection, or a 5xx arrives with no
  * HTTP status (or `status: 0` from `@molecule/app-http`) and says nothing about the
@@ -127,8 +132,7 @@
  * instead of re-implementing the call. A body that is not JSON arrives as `{}`;
  * the key, message, fallback and rejection are unchanged.
  *
- * **`autoRefresh` does nothing without a refresh token — and must never log the
- * user out.** The client schedules a refresh only when `refresh()` could actually
+ * **`autoRefresh` does nothing without a refresh token.** The client schedules a refresh only when `refresh()` could actually
  * succeed, i.e. when a refresh token is stored. An API that issues none (the
  * `@molecule/api-resource-user` model: login/register return `{ accessToken,
  * user }` and the durable session is an httpOnly cookie the SERVER refreshes)

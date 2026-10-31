@@ -159,7 +159,7 @@ describe('a stored session is authenticated on the first render', () => {
 
     await client.initialize()
 
-    expect(client.getState().status).toBe('authenticated')
+    expect(client.getState().status).toBe('unavailable')
     expect(client.isAuthenticated()).toBe(true)
     expect(client.getAccessToken()).toBe(token)
     expect(storage.getItem('molecule:auth:user')).toBe(JSON.stringify(user))

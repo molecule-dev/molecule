@@ -33,8 +33,8 @@ const TABLE = 'comments'
  *
  * The comment row and its `comment_numbers` row are written together: the
  * returned comment carries `number` (1, 2, 3, …) beside its UUID `id`. An API
- * whose clients address a comment by an integer (RealWorld's `comment.id`,
- * `DELETE /comments/:id`) returns `number` as that id and reads it back with
+ * whose clients address a comment by a stable integer
+ * returns `number` as that id and reads it back with
  * `getCommentByNumber(number)` — never hand-build an id from the UUID.
  * `createNumberedComment()` is this same create under the name that path reads
  * best; `numberComment(id)` numbers a row that was inserted without this
@@ -166,7 +166,7 @@ export async function updateComment(
  * Deletes a comment. Only the comment owner can delete.
  *
  * @param commentId - The comment's UUID. To delete by the integer number an
- *   API like RealWorld exposes (`DELETE /comments/:id`), look the row up with
+ *   API exposes, look the row up with
  *   `getCommentByNumber(number)` and pass its `id`.
  * @param userId - The requesting user's ID (must match comment owner).
  * @returns `true` if deleted, `false` if not found or unauthorized.

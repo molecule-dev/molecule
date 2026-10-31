@@ -296,7 +296,7 @@ export function createDefaultAuthClientWithFetchClient<
       })
       // Registered BEFORE the bond: `setHttpClient` applies the restored session's
       // token, and the same source reaches any client an app bonds later instead of
-      // this one (xr-molecule-flash-m156 — a client captured at setup cannot). The
+      // this one. A client captured at setup cannot track later replacements. The
       // client resolves the source on every request, so a session adopted by
       // `setSession()` or `setAccessToken()` after this point is sent immediately.
       setHttpAuthTokenSource(() => authClient.getAccessToken())

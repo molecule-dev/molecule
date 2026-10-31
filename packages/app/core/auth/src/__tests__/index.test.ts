@@ -1146,7 +1146,8 @@ describe('JWT Auth Client', () => {
       try {
         const error = await client.refresh().catch((e: unknown) => e)
         expect(error).toBeInstanceOf(I18nError)
-        expect((error as I18nError).i18nKey).toBe('auth.error.noRefreshToken')
+        expect((error as I18nError).i18nKey).toBe('auth.error.requestFailed')
+        expect((error as { status?: number }).status).toBe(401)
         expect(client.isAuthenticated()).toBe(false)
       } finally {
         delete (globalThis as { document?: unknown }).document
