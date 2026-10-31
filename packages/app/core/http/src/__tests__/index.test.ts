@@ -83,7 +83,8 @@ describe('@molecule/app-http', () => {
       const error = new HttpError('Server error', 500, mockResponse, mockConfig)
 
       expect(error.status).toBe(500)
-      expect(error.response).toBe(mockResponse)
+      expect(error.response).toEqual(mockResponse)
+      expect(error.response).not.toBe(mockResponse)
       expect(error.config).toBe(mockConfig)
     })
 

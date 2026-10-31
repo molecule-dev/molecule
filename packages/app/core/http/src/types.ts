@@ -213,11 +213,10 @@ const errorRequestConfig = (config: FullRequestConfig): FullRequestConfig => {
   return { method: config.method, url, ...(options ? { options } : {}) }
 }
 
-/** Scrub response headers/body and project request metadata, preserving safe response identity. */
+/** Scrub response headers/body into a new tree and project safe request metadata onto it. */
 const errorResponse = (response: HttpResponse): HttpResponse => {
   const config = errorRequestConfig(response.config)
   const scrubbed = redactCredentials(response)
-  if (config === response.config && scrubbed === response) return response
   return { ...scrubbed, config }
 }
 
