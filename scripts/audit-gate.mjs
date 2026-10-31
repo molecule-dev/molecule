@@ -89,8 +89,12 @@ const advisoryIdsFor = (name, seen = new Set()) => {
   seen.add(name)
   const ids = []
   for (const via of vulns[name]?.via ?? []) {
-    if (typeof via === 'object' && via.url) ids.push(via.url.split('/').pop())
-    else if (typeof via === 'string') ids.push(...advisoryIdsFor(via, seen))
+    // An advisory below the failing bar never fails the build on its own, so it
+    // needs no entry when it rides along a chain that fails for another reason.
+    if (typeof via === 'object' && via.url) {
+      if (!FAIL_AT.includes(via.severity ?? 'critical')) continue
+      ids.push(via.url.split('/').pop())
+    } else if (typeof via === 'string') ids.push(...advisoryIdsFor(via, seen))
   }
   return [...new Set(ids)]
 }
@@ -115,20 +119,23 @@ const accepted = []
 const blocking = []
 const lapsed = []
 for (const f of findings) {
-  // An entry covers a finding only if it names one of its advisory ids AND has
-  // not expired. A package-level wildcard is deliberately not supported: a new
-  // advisory in an already-accepted package must be re-decided.
-  const entry = allowlist.accepted?.find((a) => f.ids.some((id) => a.advisories.includes(id)))
-  if (!entry) blocking.push(f)
-  else if (entry.expires < today) lapsed.push({ ...f, entry })
-  else accepted.push({ ...f, entry })
+  // A finding passes only when EVERY advisory it is vulnerable through is named
+  // by an unexpired entry: accepting one advisory in a package must not wave
+  // through a second one reached the same way. A finding with no identifiable
+  // advisory is never accepted. A package-level wildcard is deliberately not
+  // supported: a new advisory in an already-accepted package must be re-decided.
+  const entries = f.ids.map((id) => allowlist.accepted?.find((a) => a.advisories.includes(id)))
+  const entry = entries.find((e) => e && e.expires < today)
+  if (!f.ids.length || entries.some((e) => !e))
+    blocking.push({ ...f, unaccepted: f.ids.filter((_id, i) => !entries[i]) })
+  else if (entry) lapsed.push({ ...f, entry })
+  else accepted.push({ ...f, entries: [...new Set(entries)] })
 }
 
 for (const a of accepted) {
-  console.log(
-    `· accepted ${a.severity} in ${a.name} (${a.ids.join(', ')}) — expires ${a.entry.expires}`,
-  )
-  console.log(`  ${a.entry.reason}`)
+  const expires = a.entries.map((e) => e.expires).sort()[0]
+  console.log(`· accepted ${a.severity} in ${a.name} (${a.ids.join(', ')}) — expires ${expires}`)
+  for (const e of a.entries) console.log(`  ${e.reason}`)
 }
 for (const l of lapsed) {
   console.error(
@@ -140,6 +147,7 @@ for (const l of lapsed) {
 }
 for (const b of blocking) {
   console.error(`\n✗ ${b.severity} advisory in ${b.name} (${b.ids.join(', ')})`)
+  if (b.unaccepted.length) console.error(`  unaccepted: ${b.unaccepted.join(', ')}`)
   console.error(`  fixAvailable: ${JSON.stringify(b.fixAvailable)}`)
 }
 

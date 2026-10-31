@@ -76,4 +76,66 @@ describe('audit-gate CLI', () => {
     expect(audit(vulnerable, 1, [exception]).status).toBe(0)
     expect(audit(vulnerable, 1, [{ ...exception, expires: '2000-01-01' }]).status).toBe(1)
   })
+
+  it('requires every advisory a package is vulnerable through to be accepted', () => {
+    const expires = new Date(Date.now() + 86_400_000).toISOString().slice(0, 10)
+    const twoAdvisories = {
+      vulnerabilities: {
+        matcher: {
+          severity: 'moderate',
+          via: [{ url: 'https://github.com/advisories/GHSA-first-control' }],
+          fixAvailable: false,
+        },
+        walker: {
+          severity: 'moderate',
+          via: ['matcher', { url: 'https://github.com/advisories/GHSA-second-control' }],
+          fixAvailable: false,
+        },
+      },
+      metadata: { vulnerabilities: { moderate: 2, total: 2 } },
+    }
+    const first = { advisories: ['GHSA-first-control'], reason: 'First control', expires }
+    const second = { advisories: ['GHSA-second-control'], reason: 'Second control', expires }
+    const onlyFirst = audit(twoAdvisories, 1, [first])
+    expect(onlyFirst.status).toBe(1)
+    expect(onlyFirst.stderr).toContain('advisory in walker')
+    expect(onlyFirst.stderr).toContain('unaccepted: GHSA-second-control')
+    expect(audit(twoAdvisories, 1, [first, second]).status).toBe(0)
+    expect(audit(twoAdvisories, 1, [first, { ...second, expires: '2000-01-01' }]).status).toBe(1)
+  })
+
+  it('needs no entry for a low advisory riding along an accepted chain', () => {
+    const expires = new Date(Date.now() + 86_400_000).toISOString().slice(0, 10)
+    const report = {
+      vulnerabilities: {
+        merger: {
+          severity: 'low',
+          via: [{ url: 'https://github.com/advisories/GHSA-low-control', severity: 'low' }],
+          fixAvailable: false,
+        },
+        builder: {
+          severity: 'moderate',
+          via: [
+            'merger',
+            { url: 'https://github.com/advisories/GHSA-moderate-control', severity: 'moderate' },
+          ],
+          fixAvailable: false,
+        },
+      },
+      metadata: { vulnerabilities: { low: 1, moderate: 1, total: 2 } },
+    }
+    const moderate = { advisories: ['GHSA-moderate-control'], reason: 'Moderate control', expires }
+    expect(audit(report, 1).status).toBe(1)
+    expect(audit(report, 1, [moderate]).status).toBe(0)
+  })
+
+  it('fails a finding whose advisory cannot be identified', () => {
+    const unidentified = {
+      vulnerabilities: {
+        orphan: { severity: 'high', via: ['missing-dependency'], fixAvailable: false },
+      },
+      metadata: { vulnerabilities: { high: 1, total: 1 } },
+    }
+    expect(audit(unidentified, 1).status).toBe(1)
+  })
 })
