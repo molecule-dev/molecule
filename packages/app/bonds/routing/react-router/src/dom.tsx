@@ -8,10 +8,9 @@
  * @module
  */
 
-import type { JSX } from 'react'
+import type { ComponentProps, JSX } from 'react'
 import {
   HydratedRouter as ReactRouterHydratedRouter,
-  type HydratedRouterProps as ReactRouterHydratedRouterProps,
   RouterProvider as ReactRouterDomProvider,
   type RouterProviderProps as ReactRouterDomProviderProps,
 } from 'react-router/dom'
@@ -19,8 +18,15 @@ import {
 /** Props for the DOM {@link RouterProvider}, with transitions permanently disabled. */
 export type RouterProviderProps = Omit<ReactRouterDomProviderProps, 'useTransitions'>
 
-/** Props for {@link HydratedRouter}, with transitions permanently disabled. */
-export type HydratedRouterProps = Omit<ReactRouterHydratedRouterProps, 'useTransitions'>
+/**
+ * Props for {@link HydratedRouter}, with transitions permanently disabled. Read from the
+ * component itself because `react-router/dom` 7.0.0 exports no `HydratedRouterProps`
+ * type, and this package supports every 7.x release.
+ */
+export type HydratedRouterProps = Omit<
+  ComponentProps<typeof ReactRouterHydratedRouter>,
+  'useTransitions'
+>
 
 /**
  * DOM data-router provider (`react-router/dom`'s, which supplies `react-dom`'s
