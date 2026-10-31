@@ -819,6 +819,47 @@ describe('chat() — rejected 429/503 bodies are read once and their reason repo
     }
   })
 
+  it('retries insufficient_quota as throttling on an OpenAI-compatible endpoint', async () => {
+    vi.useFakeTimers()
+    try {
+      const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+      fetch
+        .mockResolvedValueOnce(
+          jsonResponse(429, {
+            error: { code: 'insufficient_quota', message: 'TPS/TPM throttling.' },
+          }),
+        )
+        .mockResolvedValueOnce(jsonResponse(200, { choices: [{ message: { content: 'ok' } }] }))
+      const rateLimits: unknown[] = []
+      const provider = createProvider({
+        apiKey: 'k',
+        baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode',
+        onRateLimit: (event) => rateLimits.push(event),
+      })
+      const eventsPromise = (async () => {
+        const events: unknown[] = []
+        for await (const e of provider.chat({
+          messages: [{ role: 'user', content: 'x' }],
+          stream: false,
+        })) {
+          events.push(e)
+        }
+        return events
+      })()
+      await vi.runAllTimersAsync()
+      const events = await eventsPromise
+
+      expect(fetch).toHaveBeenCalledTimes(2)
+      expect(fetch.mock.calls[0][0]).toBe(
+        'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions',
+      )
+      expect(rateLimits[0]).toMatchObject({ status: 429, willRetry: true })
+      expect(events).not.toContainEqual(expect.objectContaining({ type: 'error' }))
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
   it('fails an exhausted quota at once under the default budget and reports why', async () => {
     vi.useFakeTimers()
     try {

@@ -41,6 +41,15 @@ const logger = getLogger()
 /** OpenAI's own API host — the only one assumed to serve `/v1/responses`. */
 const OPENAI_API_HOST = 'api.openai.com'
 
+/** Whether a base URL addresses OpenAI's own API rather than a compatible service. */
+function isOpenAIEndpoint(baseUrl: string): boolean {
+  try {
+    return new URL(baseUrl).host === OPENAI_API_HOST
+  } catch (_error) {
+    return false
+  }
+}
+
 /**
  * Pick the default endpoint for a base URL: Responses for OpenAI's own API,
  * chat/completions for anything else.
@@ -49,12 +58,7 @@ const OPENAI_API_HOST = 'api.openai.com'
  * @returns The endpoint to use.
  */
 function defaultApiFor(baseUrl: string): OpenaiApi {
-  try {
-    return new URL(baseUrl).host === OPENAI_API_HOST ? 'responses' : 'chat-completions'
-  } catch (_error) {
-    // An unparseable base URL is not OpenAI's; the request itself will report it.
-    return 'chat-completions'
-  }
+  return isOpenAIEndpoint(baseUrl) ? 'responses' : 'chat-completions'
 }
 
 /**
@@ -134,6 +138,7 @@ export class OpenaiAIProvider implements AIProvider {
   private baseUrl: string
   private onRateLimit?: AiRateLimitCallback
   private api: OpenaiApi
+  private openAIEndpoint: boolean
 
   constructor(config: OpenaiConfig = {}) {
     this.apiKey = config.apiKey ?? process.env.OPENAI_API_KEY ?? ''
@@ -142,6 +147,7 @@ export class OpenaiAIProvider implements AIProvider {
     this.baseUrl = config.baseUrl ?? process.env.OPENAI_BASE_URL ?? 'https://api.openai.com'
     this.onRateLimit = config.onRateLimit
     this.api = config.api ?? defaultApiFor(this.baseUrl)
+    this.openAIEndpoint = isOpenAIEndpoint(this.baseUrl)
 
     // Fail fast with an actionable local error rather than a cryptic 401 on the
     // first request. The default `provider` export constructs lazily on first
@@ -293,7 +299,8 @@ export class OpenaiAIProvider implements AIProvider {
         const upstreamError = parseUpstreamError(rejectedBody)
         // Billing, spend, and quota failures do not recover by waiting: a
         // bounded retry budget fails at once instead of burning its retries.
-        const quotaExhausted = isQuotaExhausted(response.status, upstreamError)
+        const quotaExhausted =
+          this.openAIEndpoint && isQuotaExhausted(response.status, upstreamError)
         const willRetry = !quotaExhausted && attempt < MAX_RETRIES
         // Retry-After is equally-valid as delta-seconds or an HTTP-date;
         // parseInt on the date form yields NaN, degrading the backoff to a
@@ -366,20 +373,21 @@ export class OpenaiAIProvider implements AIProvider {
         if (errorBody.length > 0 && errorBody.length < 200) detail = errorBody
       }
       logger.error('OpenAI API error', { status: response!.status, detail })
-      const clientMessage = isQuotaExhausted(response!.status, parseUpstreamError(errorBody))
-        ? 'AI service is unavailable right now. Please try again later.'
-        : response!.status === 429
-          ? 'AI rate limit exceeded. Please try again shortly.'
-          : response!.status === 401
-            ? 'AI service configuration error.'
-            : response!.status === 400 &&
-                /context.*length|maximum context|too many tokens|prompt is too long/i.test(detail)
-              ? "Conversation too long for the model's context window."
-              : response!.status === 400
-                ? 'AI request was invalid — check the model and request parameters.'
-                : response!.status === 503 || response!.status === 502
-                  ? 'AI service is temporarily overloaded. Please try again in a moment.'
-                  : 'AI service error. Please try again.'
+      const clientMessage =
+        this.openAIEndpoint && isQuotaExhausted(response!.status, parseUpstreamError(errorBody))
+          ? 'AI service is unavailable right now. Please try again later.'
+          : response!.status === 429
+            ? 'AI rate limit exceeded. Please try again shortly.'
+            : response!.status === 401
+              ? 'AI service configuration error.'
+              : response!.status === 400 &&
+                  /context.*length|maximum context|too many tokens|prompt is too long/i.test(detail)
+                ? "Conversation too long for the model's context window."
+                : response!.status === 400
+                  ? 'AI request was invalid — check the model and request parameters.'
+                  : response!.status === 503 || response!.status === 502
+                    ? 'AI service is temporarily overloaded. Please try again in a moment.'
+                    : 'AI service error. Please try again.'
       yield { type: 'error', message: clientMessage, errorKey: 'ai.error.apiError' }
       return
     }

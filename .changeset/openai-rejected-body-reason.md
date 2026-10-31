@@ -2,4 +2,4 @@
 '@molecule/api-ai-openai': minor
 ---
 
-Report the upstream reason with each rejected 429/503 body, read exactly once, and stop retrying OpenAI's documented billing, spend, and quota failures under a bounded retry budget.
+Report each rejected 429/503 body's upstream reason, read it exactly once, stop retrying OpenAI's own documented billing, spend, and quota failures, and preserve retries for compatible-endpoint throttling.
