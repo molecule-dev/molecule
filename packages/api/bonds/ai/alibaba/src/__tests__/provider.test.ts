@@ -363,6 +363,111 @@ describe('chat()', () => {
     expect(err.message).toBe('AI request was invalid — check the model and request parameters.')
   })
 
+  it('reports the upstream reason on an ordinary 429 that is still retried', async () => {
+    vi.useFakeTimers()
+    try {
+      const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+      fetch.mockImplementation(() =>
+        Promise.resolve(
+          jsonResponse(429, {
+            error: {
+              code: 'Throttling.RateQuota',
+              message: 'Requests rate limit exceeded, please try again later.',
+            },
+          }),
+        ),
+      )
+      const rateLimits: unknown[] = []
+      const provider = createProvider({
+        apiKey: 'k',
+        onRateLimit: (event) => rateLimits.push(event),
+      })
+      const eventsPromise = (async () => {
+        const events: unknown[] = []
+        for await (const e of provider.chat({
+          messages: [{ role: 'user', content: 'h' }],
+          stream: false,
+        })) {
+          events.push(e)
+        }
+        return events
+      })()
+      await vi.runAllTimersAsync()
+      const events = await eventsPromise
+      // 1 initial + 3 retries: an ordinary rate limit keeps its budget.
+      expect(fetch).toHaveBeenCalledTimes(4)
+      expect(rateLimits).toHaveLength(4)
+      expect(rateLimits[0]).toMatchObject({
+        status: 429,
+        willRetry: true,
+        upstreamError: {
+          type: 'Throttling.RateQuota',
+          message: 'Requests rate limit exceeded, please try again later.',
+        },
+      })
+      const err = events.find((e) => (e as { type: string }).type === 'error') as {
+        message: string
+      }
+      expect(err.message).toBe('AI rate limit exceeded. Please try again shortly.')
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('reads each rejected 429 body exactly once — a final 429 still yields the error event, not a "body already used" throw', async () => {
+    vi.useFakeTimers()
+    try {
+      const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+      // One single-use body per attempt: the FIRST text() consumes it, any
+      // later text() on the same object rejects — the shape a real undici
+      // body has. Each attempt's read is recorded so the test can prove the
+      // loop consumed every rejected body (an unread one pins its connection)
+      // and that the error path never asked for it a second time.
+      const texts: Array<ReturnType<typeof vi.fn>> = []
+      fetch.mockImplementation(() => {
+        const response = jsonResponse(429, { error: { message: 'slow down' } })
+        const first = response.text.bind(response)
+        let used = false
+        const text = vi.fn((): Promise<string> => {
+          if (used) return Promise.reject(new TypeError('Body is unusable'))
+          used = true
+          return first()
+        })
+        texts.push(text)
+        return Promise.resolve(
+          Object.assign(response, { text }) as Response & { text: () => Promise<string> },
+        )
+      })
+      const provider = createProvider({ apiKey: 'k' })
+      const eventsPromise = (async () => {
+        const events: unknown[] = []
+        for await (const e of provider.chat({
+          messages: [{ role: 'user', content: 'h' }],
+          stream: false,
+        })) {
+          events.push(e)
+        }
+        return events
+      })()
+      await vi.runAllTimersAsync()
+      const events = await eventsPromise
+      expect(fetch).toHaveBeenCalledTimes(4)
+      // Every rejected response's body was read exactly once — consumed by the
+      // retry loop, never re-read by the error path, never left unread.
+      expect(texts).toHaveLength(4)
+      for (const text of texts) expect(text).toHaveBeenCalledTimes(1)
+      const err = events.find((e) => (e as { type: string }).type === 'error') as {
+        message: string
+      }
+      expect(err.message).toBe('AI rate limit exceeded. Please try again shortly.')
+      // No raw TypeError escaped the generator (a thrown read would reject the
+      // whole iteration instead of yielding the error event above).
+      expect(events[events.length - 1]).toMatchObject({ type: 'error' })
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
   it('an HTTP-date Retry-After falls back to exponential backoff instead of a ~0ms retry', async () => {
     vi.useFakeTimers()
     try {
