@@ -12,6 +12,7 @@ import type {
   FormController,
   FormOptions,
   FormProvider,
+  FormResetOptions,
   FormState,
   FormValuesConstraint,
   RegisterOptions,
@@ -58,6 +59,9 @@ export interface CreateFormResult<T extends FormValuesConstraint<T>> {
   handleSubmit: (
     onSubmit: (values: T) => void | Promise<void>,
   ) => (event?: { preventDefault?: () => void }) => Promise<void>
+
+  /** Apply a newly loaded record without clearing submission state. */
+  updateValues: (values: Partial<T>, resetOptions?: FormResetOptions) => void
 
   /** Reset the form to initial or provided values. */
   reset: (values?: Partial<T>) => void
@@ -117,6 +121,14 @@ export function createForm<T extends FormValuesConstraint<T>>(
   options: FormOptions<T>,
 ): CreateFormResult<T> {
   const controller = provider.createForm<T>(options)
+  const updateValues = (values: Partial<T>, resetOptions = options.resetOptions): void => {
+    controller.updateValues(values, resetOptions)
+  }
+
+  createEffect(() => {
+    const loadedValues = options.values
+    if (loadedValues !== undefined) updateValues(loadedValues)
+  })
 
   const [formState, setFormState] = createSignal<FormState<T>>(controller.getState())
 
@@ -196,6 +208,7 @@ export function createForm<T extends FormValuesConstraint<T>>(
     setError,
     clearErrors,
     handleSubmit,
+    updateValues,
     reset,
     validate,
     controller,
@@ -349,6 +362,10 @@ export function createFormHelpers(provider: FormProvider): {
 export function createFormFromController<T extends FormValuesConstraint<T>>(
   controller: FormController<T>,
 ): CreateFormResult<T> {
+  const updateValues = (values: Partial<T>, resetOptions?: FormResetOptions): void => {
+    controller.updateValues(values, resetOptions)
+  }
+
   const [formState, setFormState] = createSignal<FormState<T>>(controller.getState())
 
   createEffect(() => {
@@ -422,6 +439,7 @@ export function createFormFromController<T extends FormValuesConstraint<T>>(
     setError,
     clearErrors,
     handleSubmit,
+    updateValues,
     reset,
     validate,
     controller,

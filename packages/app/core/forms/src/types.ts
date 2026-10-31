@@ -401,6 +401,16 @@ export interface FormController<T extends FormValuesConstraint<T> = Record<strin
   reset(values?: Partial<T>): void
 
   /**
+   * Applies externally loaded values without clearing submission state.
+   *
+   * The new clean baseline is the original `defaultValues` plus this latest
+   * record, never a merge of earlier records. With `keepDirtyValues`, edited
+   * fields retain their values while pristine fields take the loaded values.
+   * Equal-content baselines cause no update.
+   */
+  updateValues(values: Partial<T>, resetOptions?: FormResetOptions): void
+
+  /**
    * Handles form submission.
    */
   handleSubmit(
@@ -458,12 +468,12 @@ export interface FormOptions<T extends FormValuesConstraint<T>> {
 
   /**
    * Externally loaded values, merged over `defaultValues` as the clean
-   * baseline. React's `useForm` also applies later content changes; use
+   * baseline. Framework bindings also apply later content changes; use
    * `resetOptions.keepDirtyValues` to preserve edits while pristine fields fill.
    */
   values?: Partial<T>
 
-  /** Controls how the React binding applies changed `values`. */
+  /** Controls how framework bindings apply changed `values`. */
   resetOptions?: FormResetOptions
 
   /**

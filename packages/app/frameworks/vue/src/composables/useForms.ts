@@ -11,6 +11,7 @@ import {
   onUnmounted,
   type ShallowRef,
   shallowRef,
+  watch,
 } from 'vue'
 
 import type {
@@ -56,6 +57,7 @@ export interface UseFormReturn<T extends FormValuesConstraint<T>> {
     onSubmit: (values: T) => void | Promise<void>,
     onError?: (errors: Partial<Record<keyof T, string>>) => void,
   ) => (event?: { preventDefault?: () => void }) => Promise<void>
+  updateValues: (values: Partial<T>) => void
   reset: (values?: Partial<T>) => void
   validate: () => Promise<boolean>
 
@@ -170,6 +172,17 @@ export function useForm<T extends FormValuesConstraint<T>>(
     return form.handleSubmit(onSubmit, onError)
   }
 
+  const updateValues = (values: Partial<T>): void => {
+    form.updateValues(values, options.resetOptions)
+  }
+
+  watch(
+    () => options.values,
+    (values) => {
+      if (values !== undefined) updateValues(values)
+    },
+  )
+
   const reset = (values?: Partial<T>): void => form.reset(values)
 
   const validate = (): Promise<boolean> => form.validate()
@@ -186,6 +199,7 @@ export function useForm<T extends FormValuesConstraint<T>>(
     setError,
     clearErrors,
     handleSubmit,
+    updateValues,
     reset,
     validate,
     form,

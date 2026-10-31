@@ -80,4 +80,5 @@
 export * from './controller.js'
 export * from './provider.js'
 export * from './types.js'
+export * from './utilities.js'
 export * from './validation.js'

@@ -12,6 +12,7 @@ import type {
   FormController,
   FormOptions,
   FormProvider,
+  FormResetOptions,
   FormState,
   FormValuesConstraint,
   RegisterOptions,
@@ -94,7 +95,10 @@ export class MoleculeFormInstance<T extends FormValuesConstraint<T>> {
    */
   errors$: Observable<Partial<Record<keyof T, string>>>
 
-  constructor(private controller: FormController<T>) {
+  constructor(
+    private controller: FormController<T>,
+    private resetOptions: FormResetOptions = {},
+  ) {
     this.stateSubject = new BehaviorSubject<FormState<T>>(controller.getState())
 
     this.unsubscribe = controller.subscribe((state: FormState<T>) => {
@@ -236,6 +240,14 @@ export class MoleculeFormInstance<T extends FormValuesConstraint<T>> {
   }
 
   /**
+   * Apply a newly loaded record using this instance's `resetOptions`.
+   * Submission state is preserved; pristine fields fill when `keepDirtyValues` is set.
+   */
+  updateValues(values: Partial<T>): void {
+    this.controller.updateValues(values, this.resetOptions)
+  }
+
+  /**
    * Reset the form to initial values.
    *
    * @param values - Optional partial values to use as the new initial state.
@@ -332,7 +344,7 @@ export class MoleculeFormsService implements OnDestroy {
     options: FormOptions<T>,
   ): MoleculeFormInstance<T> {
     const controller = provider.createForm(options)
-    const instance = new MoleculeFormInstance<T>(controller)
+    const instance = new MoleculeFormInstance<T>(controller, options.resetOptions)
     this.instances.push(instance as MoleculeFormInstance<Record<string, unknown>>)
     return instance
   }

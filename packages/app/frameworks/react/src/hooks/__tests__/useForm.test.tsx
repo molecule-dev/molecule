@@ -118,6 +118,114 @@ describe('useForm late values', () => {
   })
 })
 
+describe('useForm late-value regressions', () => {
+  it('preserves an in-flight submission when late values arrive', async () => {
+    const { result, rerender } = renderHook(
+      ({ values }: { values: ArticleValues }) =>
+        useForm<ArticleValues>({
+          defaultValues: { title: '', body: '' },
+          values,
+          resetOptions: { keepDirtyValues: true },
+        }),
+      { initialProps: { values: { title: '', body: '' } } },
+    )
+    let release!: () => void
+    const gate = new Promise<void>((resolve) => {
+      release = resolve
+    })
+    let submission!: Promise<void>
+
+    act(() => {
+      submission = result.current.handleSubmit(() => gate)()
+    })
+    await vi.waitFor(() => expect(result.current.isSubmitting).toBe(true))
+    expect(result.current.formState.submitCount).toBe(1)
+
+    rerender({ values: { title: 'Loaded title', body: 'Loaded body' } })
+
+    expect(result.current.isSubmitting).toBe(true)
+    expect(result.current.formState.submitCount).toBe(1)
+
+    await act(async () => {
+      release()
+      await submission
+    })
+  })
+
+  it('drops fields removed by a replacement record', () => {
+    interface ReplacementValues {
+      title: string
+      subtitle?: string
+    }
+    const initialValues: Partial<ReplacementValues> = { title: 'A', subtitle: 'Old' }
+    const { result, rerender } = renderHook(
+      ({ values }: { values: Partial<ReplacementValues> }) =>
+        useForm<ReplacementValues>({
+          defaultValues: { title: '' },
+          values,
+          resetOptions: { keepDirtyValues: false },
+        }),
+      { initialProps: { values: initialValues } },
+    )
+
+    rerender({ values: { title: 'B' } })
+
+    expect(result.current.getValue('title')).toBe('B')
+    expect(result.current.getValue('subtitle')).toBeUndefined()
+  })
+
+  it('takes late composites after edited arrays and nested objects revert by content', () => {
+    interface CompositeValues {
+      tags: string[]
+      metadata: { category: string }
+    }
+    const initial: CompositeValues = { tags: [], metadata: { category: 'none' } }
+    const { result, rerender } = renderHook(
+      ({ values }: { values: CompositeValues }) =>
+        useForm<CompositeValues>({
+          defaultValues: initial,
+          values,
+          resetOptions: { keepDirtyValues: true },
+        }),
+      { initialProps: { values: initial } },
+    )
+
+    act(() => {
+      result.current.setValue('tags', ['draft'])
+      result.current.setValue('metadata', { category: 'draft' })
+      result.current.setValue('tags', [])
+      result.current.setValue('metadata', { category: 'none' })
+    })
+    expect(result.current.isDirty).toBe(false)
+
+    rerender({ values: { tags: ['loaded'], metadata: { category: 'loaded' } } })
+
+    expect(result.current.getValue('tags')).toEqual(['loaded'])
+    expect(result.current.getValue('metadata')).toEqual({ category: 'loaded' })
+  })
+
+  it('replaces a pristine file with a different file by identity', () => {
+    interface AttachmentValues {
+      attachment: File
+    }
+    const first = new File(['first'], 'first.txt')
+    const second = new File(['second'], 'second.txt')
+    const { result, rerender } = renderHook(
+      ({ values }: { values: AttachmentValues }) =>
+        useForm<AttachmentValues>({
+          defaultValues: { attachment: first },
+          values,
+          resetOptions: { keepDirtyValues: true },
+        }),
+      { initialProps: { values: { attachment: first } } },
+    )
+
+    rerender({ values: { attachment: second } })
+
+    expect(result.current.getValue('attachment')).toBe(second)
+  })
+})
+
 describe('useForm handleSubmit', () => {
   it('submits inventory values through a synchronous callback', async () => {
     const { result } = renderHook(() => useForm<InventoryValues>({ defaultValues }))

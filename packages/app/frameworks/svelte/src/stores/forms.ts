@@ -40,6 +40,7 @@ interface FormStores<T extends FormValuesConstraint<T>> {
     onSubmit: (values: T) => void | Promise<void>,
     onError?: (errors: Partial<Record<keyof T, string>>) => void,
   ) => (event?: { preventDefault?: () => void }) => Promise<void>
+  updateValues: (values: Partial<T>) => void
   reset: (values?: Partial<T>) => void
   validate: () => Promise<boolean>
   destroy: () => void
@@ -157,6 +158,10 @@ export function createFormStores<T extends FormValuesConstraint<T>>(
     return controller.handleSubmit(onSubmit, onError)
   }
 
+  const updateValues = (values: Partial<T>): void => {
+    controller.updateValues(values, options.resetOptions)
+  }
+
   const reset = (values?: Partial<T>): void => {
     controller.reset(values)
   }
@@ -182,6 +187,7 @@ export function createFormStores<T extends FormValuesConstraint<T>>(
     setError,
     clearErrors,
     handleSubmit,
+    updateValues,
     reset,
     validate,
     destroy,

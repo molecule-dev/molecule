@@ -49,33 +49,6 @@ function useFormSnapshot<T extends FormValuesConstraint<T>, S>(
   return useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot)
 }
 
-/** Compare loaded form values by content so a fresh equivalent object causes no reset. */
-function valuesEqual(left: unknown, right: unknown): boolean {
-  if (Object.is(left, right)) return true
-  if (typeof left !== 'object' || left === null || typeof right !== 'object' || right === null) {
-    return false
-  }
-  if (left instanceof Date || right instanceof Date) {
-    return left instanceof Date && right instanceof Date && left.getTime() === right.getTime()
-  }
-  if (Array.isArray(left) || Array.isArray(right)) {
-    if (!Array.isArray(left) || !Array.isArray(right) || left.length !== right.length) return false
-    return left.every((value, index) => valuesEqual(value, right[index]))
-  }
-  const leftRecord = left as Record<string, unknown>
-  const rightRecord = right as Record<string, unknown>
-  const leftKeys = Object.keys(leftRecord)
-  const rightKeys = Object.keys(rightRecord)
-  return (
-    leftKeys.length === rightKeys.length &&
-    leftKeys.every(
-      (key) =>
-        Object.prototype.hasOwnProperty.call(rightRecord, key) &&
-        valuesEqual(leftRecord[key], rightRecord[key]),
-    )
-  )
-}
-
 /**
  * Options for useForm hook.
  *
@@ -177,23 +150,10 @@ export function useForm<T extends FormValuesConstraint<T> = Record<string, unkno
   const form = formRef.current
   const values = options.values
   const keepDirtyValues = options.resetOptions?.keepDirtyValues === true
-  const previousValues = useRef(values)
 
   useLayoutEffect(() => {
-    if (valuesEqual(previousValues.current, values)) return
-    previousValues.current = values
-    if (values === undefined) return
-
-    const dirtyValues: [keyof T, T[keyof T]][] = []
-    if (keepDirtyValues) {
-      const current = form.getValues()
-      for (const key of Object.keys(current) as (keyof T)[]) {
-        if (form.getFieldState(key).dirty) dirtyValues.push([key, current[key]])
-      }
-    }
-    form.reset(values)
-    for (const [key, value] of dirtyValues) {
-      form.setValue(key as string, value, { shouldTouch: false })
+    if (values !== undefined) {
+      form.updateValues(values, { keepDirtyValues })
     }
   }, [form, keepDirtyValues, values])
 

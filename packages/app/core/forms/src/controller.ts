@@ -12,11 +12,13 @@ import type {
   FormController,
   FormOptions,
   FormProvider,
+  FormResetOptions,
   FormState,
   FormValuesConstraint,
   RegisterOptions,
   ValidationSchema,
 } from './types.js'
+import { formValuesEqual } from './utilities.js'
 import { validateValue } from './validation.js'
 
 /**
@@ -34,16 +36,17 @@ export const createNativeFormProvider = (): FormProvider => {
     createForm<T extends FormValuesConstraint<T>>(options: FormOptions<T>): FormController<T> {
       const mode = options.mode || 'onSubmit'
 
-      // The baseline is a snapshot of the caller's object: mutating that object
-      // after creation must not change what "clean" means. `reset` can replace
-      // the snapshot. The copy is shallow on purpose — object field values keep
-      // their identity, so an untouched field still compares clean.
-      // Runtime form values are always a plain string-keyed object; the
-      // caller's values TYPE may be an interface without an index signature, so
-      // the implementation holds the widened record view and casts back to `T`
+      // Baselines snapshot the caller's top-level objects. Late records always
+      // combine with these original defaults, never with an earlier record.
+      // Runtime form values are always a plain string-keyed object; the caller's
+      // values TYPE may be an interface without an index signature, so the
+      // implementation holds the widened record view and casts back to `T`
       // only where it hands values out.
-      let defaultValues: Record<string, unknown> = {
+      const originalDefaultValues: Record<string, unknown> = {
         ...((options.defaultValues ?? {}) as Record<string, unknown>),
+      }
+      let defaultValues: Record<string, unknown> = {
+        ...originalDefaultValues,
         ...((options.values ?? {}) as Record<string, unknown>),
       }
       let values: Record<string, unknown> = { ...defaultValues }
@@ -76,7 +79,7 @@ export const createNativeFormProvider = (): FormProvider => {
             errors,
             touched,
             isValid: Object.keys(errors).length === 0,
-            isDirty: JSON.stringify(values) !== JSON.stringify(defaultValues),
+            isDirty: !formValuesEqual(values, defaultValues),
             isSubmitting,
             submitCount,
           }
@@ -144,7 +147,7 @@ export const createNativeFormProvider = (): FormProvider => {
             value: values[name as string] as T[K],
             error: errors[name],
             touched: touched[name] || false,
-            dirty: values[name as string] !== defaultValues[name as string],
+            dirty: !formValuesEqual(values[name as string], defaultValues[name as string]),
             valid: !errors[name],
             validating: false,
           }
@@ -257,6 +260,31 @@ export const createNativeFormProvider = (): FormProvider => {
           errors = newErrors
           notify()
           return isValid
+        },
+
+        updateValues(newValues: Partial<T>, resetOptions: FormResetOptions = {}): void {
+          const nextDefaultValues: Record<string, unknown> = {
+            ...originalDefaultValues,
+            ...(newValues as Record<string, unknown>),
+          }
+          if (formValuesEqual(nextDefaultValues, defaultValues)) return
+
+          const currentValues = values
+          const previousDefaultValues = defaultValues
+          defaultValues = nextDefaultValues
+          values = { ...defaultValues }
+
+          if (resetOptions.keepDirtyValues) {
+            for (const key of Object.keys(currentValues)) {
+              if (!formValuesEqual(currentValues[key], previousDefaultValues[key])) {
+                values[key] = currentValues[key]
+              }
+            }
+          }
+
+          errors = {}
+          touched = {}
+          notify()
         },
 
         reset(newValues?: Partial<T>): void {
