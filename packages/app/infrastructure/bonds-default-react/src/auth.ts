@@ -152,6 +152,16 @@ export function createDefaultHttpClientWithAuthBearer(opts: {
  * RealWorld-shaped API), passed on to `@molecule/app-auth`'s factory so
  * `authClient.register({ username, email, password })` type-checks with no cast.
  *
+ * **What this client already handles**
+ * - `getAccessToken()` returns a stored token during restore; only 401/403 ends
+ *   the session, while network/5xx failures retain it.
+ * - `tokenKey`/`storagePrefix`, `authScheme`, `mapAuthResponse`,
+ *   `currentUserEndpoint`, and `profileEndpoint`/`profileUpdateMethod` adapt the API.
+ * - `logout()` settles local sign-out; `refresh()` uses a stored refresh token.
+ *
+ * This factory adds no render gate: `AuthProvider` renders children immediately.
+ * The HTTP-sync variants gate requests during restore, not rendering.
+ *
  * @example
  * ```ts
  * // bonds/auth-default.ts
@@ -160,6 +170,21 @@ export function createDefaultHttpClientWithAuthBearer(opts: {
  *
  * export const { authClient, setupAuthDefault } =
  *   createDefaultAuthClient(authConfig)
+ * ```
+ *
+ * @example Adapt a nested token and `Token` header without another session store.
+ * ```ts
+ * const { authClient, setupAuthDefault } = createDefaultAuthClient({
+ *   tokenKey: 'app.jwt',
+ *   authScheme: 'Token',
+ *   currentUserEndpoint: '/user',
+ *   profileEndpoint: '/user',
+ *   profileUpdateMethod: 'PUT',
+ *   mapAuthResponse: (data) => {
+ *     const { token, ...user } = (data as { user: { token: string; id: string } }).user
+ *     return { accessToken: token, user }
+ *   },
+ * })
  * ```
  */
 export function createDefaultAuthClient<

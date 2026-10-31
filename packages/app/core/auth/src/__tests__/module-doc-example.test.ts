@@ -220,9 +220,23 @@ const moduleExamples = [
   ['MyUser', 'interface MyUser'],
   ['SessionUser', 'interface SessionUser'],
   ['RealWorld', 'realWorldAuth'],
+  ['Token envelope', "tokenKey: 'app.jwt'"],
 ] as const
 
 describe('every module-doc mapper example', () => {
+  it('opens with the handled lifecycle and a twelve-line generic token API example', () => {
+    const source = readSource('index.ts')
+    const quickStart = source.slice(0, source.indexOf('**Calling `initialize()`'))
+    expect(quickStart).toContain('What this client already handles')
+    expect(quickStart).toContain('keep the generated auth bond')
+    expect(quickStart).not.toContain('wire it by hand')
+    expect(quickStart).toContain('getAccessToken()')
+    expect(quickStart).toContain('401/403')
+    expect(quickStart).toContain('logout()')
+    expect(quickStart).toContain('refresh()')
+    expect(readIndexExample("tokenKey: 'app.jwt'").split('\n')).toHaveLength(12)
+  })
+
   for (const [name, marker] of moduleExamples) {
     it(`compiles against the real source — ${name}`, () => {
       const example = toSourceImports(readIndexExample(marker))

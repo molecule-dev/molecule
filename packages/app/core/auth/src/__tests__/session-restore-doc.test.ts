@@ -56,9 +56,10 @@ describe('the restore-cost contract in @molecule/app-auth’s own docs (xr-molec
  * generated README renders after the entire API reference and a truncated read never reaches.
  */
 describe('the scaffolded-app wiring in the module description (xr-molecule-flash-m130)', () => {
-  it('says how to wire the package without `mlcl add`, and what races the restore', () => {
+  it('keeps the generated bond and names manual wiring for an existing app', () => {
     const doc = docFor(read('src/index.ts'), '@module')
-    expect(doc).toContain('mlcl add')
+    expect(doc).toContain('keep the generated auth bond')
+    expect(doc).toContain('app without that bond')
     expect(doc).toContain('createJWTAuthClient')
     expect(doc).toContain('initialize()')
     expect(doc).toContain('MoleculeProvider')
@@ -71,7 +72,11 @@ describe('the scaffolded-app wiring in the module description (xr-molecule-flash
 
   it('puts those sentences before the README’s API reference, where no truncation drops them', () => {
     const readme = read('README.md')
-    for (const sentence of ['mlcl add', 'MoleculeProvider', 'BEFORE the first render']) {
+    for (const sentence of [
+      'keep the generated auth bond',
+      'MoleculeProvider',
+      'BEFORE the first render',
+    ]) {
       const at = readme.indexOf(sentence)
       expect(at).toBeGreaterThan(-1)
       expect(at).toBeLessThan(readme.indexOf('## API'))

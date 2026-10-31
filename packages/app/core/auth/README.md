@@ -17,13 +17,43 @@ client; `setClient`/`getClient` bond it; `login`/`logout`/`register`/
 bindings (e.g. `AuthProvider`/`useAuth` in `@molecule/app-react`) wrap the
 same client.
 
-**In a scaffolded app, wire it by hand — the sandbox cannot run `mlcl add`.**
-The package is already installed; create the client once at startup with
+**What this client already handles**
+
+- `getAccessToken()` returns a stored token immediately, even while restore is pending.
+- Only 401/403 ends a session; network and 5xx restore failures retain it.
+- `tokenKey`/`storagePrefix`, `authScheme`, `mapAuthResponse`,
+  `currentUserEndpoint`, and `profileEndpoint`/`profileUpdateMethod` adapt the API.
+- `logout()` clears the local session even if revocation fails; `refresh()` and
+  optional auto-refresh use a stored refresh token.
+- `AuthProvider` renders children immediately and gates nothing; only a route guard
+  chooses to wait for `status === 'loading'`.
+
+A token nested in the user, a custom key and current-user route, a PUT update,
+and `Authorization: Token <jwt>` need configuration, not another session layer:
+
+```typescript
+import { createJWTAuthClient } from '@molecule/app-auth'
+const client = createJWTAuthClient({
+  tokenKey: 'app.jwt',
+  authScheme: 'Token',
+  currentUserEndpoint: '/user',
+  profileEndpoint: '/user',
+  profileUpdateMethod: 'PUT',
+  mapAuthResponse: (data) => {
+    const { token, ...user } = (data as { user: { token: string; id: string } }).user
+    return { accessToken: token, user }
+  },
+})
+```
+
+**In a scaffolded app, keep the generated auth bond.** It already creates and
+bonds one client from `authConfig`; adapt that config and read the session through
+`MoleculeProvider`/`useAuth()` instead of adding another session layer. In an existing
+app without that bond, create the client once at startup with
 `setClient(createJWTAuthClient({ baseURL, authScheme: 'Token', storage:
 createBrowserStorageAdapter() }))`, or `createDefaultAuthClient(authConfig)`
-from `@molecule/app-bonds-default-react` (which also registers
-`whenRestored()` as the HTTP gate), call `initialize()`, and read the session
-through `MoleculeProvider`/`useAuth()` in a React app.
+from `@molecule/app-bonds-default-react`, then call `initialize()`. The bond's
+HTTP-sync variants also register `whenRestored()` as the request gate.
 
 **`initialize()` restores the session BEFORE the first render, and no
 hand-rolled token store may replace it.** With the token AND user in the
@@ -794,8 +824,6 @@ interface AuthClient<
 
   /**
    * Re-checks a restored session against the server, in the background — the
-   * boot-time validation an app with a stored token needs when a revoked or
-   * expired token must sign the user out. Call it AFTER the first render
 // … truncated — the full declaration is in node_modules/@molecule/app-auth/dist/types.d.ts
 ```
 
