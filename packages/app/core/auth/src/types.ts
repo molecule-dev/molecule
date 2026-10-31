@@ -542,13 +542,15 @@ export interface AuthClient<
    * {@link register} for a credential exchange, or {@link setSession} when
    * the token was issued outside the client.
    *
-   * Passing `null` on a signed-in client ends the local session: it clears the
-   * access token, refresh token and cached user, stops automatic refresh, and
-   * settles `authenticated: false` with `status: 'unauthenticated'` in one
-   * notification. Clearing those credentials also prevents a reload from
-   * restoring the session. It does not call the server; use {@link logout}
-   * when the API offers session revocation. On an anonymous client, `null`
-   * only clears the cached profile and leaves tokens and auth state unchanged.
+   * Passing `null` on a signed-in client, or while restoration or authentication
+   * is pending, ends the local session: it clears the access token, refresh token
+   * and cached user, stops automatic refresh, and settles `authenticated: false`
+   * with `status: 'unauthenticated'` in one notification. The pending operation
+   * loses session ownership, so its late response cannot sign the client back in.
+   * Clearing those credentials also prevents a reload from restoring the session.
+   * It does not call the server; use {@link logout} when the API offers session
+   * revocation. On a settled anonymous client, `null` only clears the cached
+   * profile and leaves tokens and auth state unchanged.
    */
   setUser(user: T | null): void
 
@@ -604,7 +606,8 @@ export interface AuthClient<
    * logout route (404), any other HTTP failure, or a network error never makes
    * this method reject. It always clears the access token, refresh token and
    * cached user, stops automatic refresh, and settles with
-   * `authenticated: false` and `status: 'unauthenticated'`.
+   * `authenticated: false` and `status: 'unauthenticated'`. Pending authentication,
+   * restoration and refresh responses cannot re-establish the ended session.
    *
    * When the API has no logout route, set {@link AuthClientConfigOptions.logoutEndpoint}
    * to `null` (or `''`) to skip the request. Local sign-out still happens.

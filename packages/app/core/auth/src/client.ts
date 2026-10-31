@@ -577,14 +577,21 @@ export const createJWTAuthClient = <
       // The same adapter a sign-in's answer goes through — this answer is the
       // wire shape too, and storing it raw dropped the adapted identity.
       const restoredUser = mapCurrentUser(result, rawUser)
-      if (restoredUser && shouldRestoreUser && !shouldRestoreUser(restoredUser)) {
-        // The server DOES have a session (e.g. an anonymous/guest one), but the
-        // app says it must not count as a signed-in client. Stay logged out and
-        // drop the presence hint so later loads skip the probe entirely; the
-        // httpOnly session cookie is untouched and keeps authenticating API
-        // calls (a guest's projects still work).
-        clearSessionHintCookie()
-        return { user: null, attempted: true, rejected: false }
+      // The mapper and restore predicate are caller code and can end or replace
+      // the session synchronously. Re-check ownership after both, before any write.
+      if (!isCurrent()) return { user: null, attempted: false, rejected: false }
+      if (restoredUser && shouldRestoreUser) {
+        const restore = shouldRestoreUser(restoredUser)
+        if (!isCurrent()) return { user: null, attempted: false, rejected: false }
+        if (!restore) {
+          // The server DOES have a session (e.g. an anonymous/guest one), but the
+          // app says it must not count as a signed-in client. Stay logged out and
+          // drop the presence hint so later loads skip the probe entirely; the
+          // httpOnly session cookie is untouched and keeps authenticating API
+          // calls (a guest's projects still work).
+          clearSessionHintCookie()
+          return { user: null, attempted: true, rejected: false }
+        }
       }
       if (restoredUser) {
         tokenStorage.setUser(restoredUser)
@@ -790,10 +797,12 @@ export const createJWTAuthClient = <
     getSessionRevision: () => sessionRevision,
 
     setUser: (user: T | null) => {
-      if (user === null && state.authenticated) {
-        // A signed-in session without a user is not renderable. End the whole
-        // local session, including every credential a reload could restore.
-        // setState owns the single revision advance and subscriber notification.
+      if (user === null && (state.authenticated || state.loading || !state.initialized)) {
+        // A pending restore/authentication is a session candidate, not a settled
+        // anonymous client. End it and every credential a reload could restore.
+        // The signed-in transition owns its revision advance; the other paths
+        // need an explicit one because their authenticated flag is already false.
+        if (!state.authenticated) sessionRevision++
         if (refreshTimer) {
           clearTimeout(refreshTimer)
           refreshTimer = null
@@ -850,6 +859,7 @@ export const createJWTAuthClient = <
     getRefreshToken: () => tokenStorage.getRefreshToken(),
 
     async login(credentials: LoginCredentials): Promise<AuthResult<T>> {
+      const revision = sessionRevision
       setState({ loading: true, error: null })
 
       try {
@@ -859,6 +869,9 @@ export const createJWTAuthClient = <
             body: JSON.stringify(shapeBody('login', credentials)),
           }),
         )
+        // Mapping is caller code too: check after it, immediately before any
+        // state, credential, event, or timer publication.
+        if (revision !== sessionRevision) return result
 
         // Two-factor gate: the server answered 206 `{ twoFactorRequired: true }`
         // — no tokens/user issued. Surface the result WITHOUT marking the
@@ -886,6 +899,7 @@ export const createJWTAuthClient = <
 
         return result
       } catch (err) {
+        if (revision !== sessionRevision) throw err
         const error = err instanceof Error ? err.message : 'Login failed'
         setState({ loading: false, error })
         emitEvent({ type: 'error', error })
@@ -940,6 +954,7 @@ export const createJWTAuthClient = <
     },
 
     async register(data: RegisterData<TRegister>): Promise<AuthResult<T>> {
+      const revision = sessionRevision
       setState({ loading: true, error: null })
 
       try {
@@ -949,6 +964,7 @@ export const createJWTAuthClient = <
             body: JSON.stringify(shapeBody('register', data)),
           }),
         )
+        if (revision !== sessionRevision) return result
 
         sessionRevision++
         tokenStorage.setAccessToken(result.accessToken || null)
@@ -967,6 +983,7 @@ export const createJWTAuthClient = <
 
         return result
       } catch (err) {
+        if (revision !== sessionRevision) throw err
         const error = err instanceof Error ? err.message : 'Registration failed'
         setState({ loading: false, error })
         emitEvent({ type: 'error', error })
@@ -975,6 +992,7 @@ export const createJWTAuthClient = <
     },
 
     async refresh(): Promise<AuthResult<T>> {
+      const revision = sessionRevision
       const refreshToken = tokenStorage.getRefreshToken()
       if (!refreshToken) {
         // Cookie-session APIs (the @molecule/api-resource-user model) issue NO
@@ -987,7 +1005,7 @@ export const createJWTAuthClient = <
         // signup/login flow right after the account was created.
         const outcome = await restoreFromSessionCookie()
         if (outcome.user) {
-          emitEvent({ type: 'refresh' })
+          if (revision === sessionRevision) emitEvent({ type: 'refresh' })
           return { user: outcome.user }
         }
         throw new I18nError('auth.error.noRefreshToken', undefined, 'No refresh token available')
@@ -1002,6 +1020,8 @@ export const createJWTAuthClient = <
       // sign-in's does — route it through the same mapper so a token refresh
       // cannot replace the adapted profile with the raw one.
       const user = mapCurrentUser(result, (result?.user ?? null) as T | null)
+      const mappedResult = { ...result, user: user ?? result.user }
+      if (revision !== sessionRevision) return mappedResult
       tokenStorage.setAccessToken(result.accessToken || null)
       if (result.refreshToken) {
         tokenStorage.setRefreshToken(result.refreshToken)
@@ -1017,7 +1037,7 @@ export const createJWTAuthClient = <
       emitEvent({ type: 'refresh' })
       scheduleRefresh()
 
-      return { ...result, user: user ?? result.user }
+      return mappedResult
     },
 
     async requestPasswordReset(data: PasswordResetRequest): Promise<void> {
@@ -1147,6 +1167,7 @@ export const createJWTAuthClient = <
         // (xr-molecule-flash-m184 — a reload replaced the adapted user with the
         // raw one and the profile link disappeared).
         const user = mapCurrentUser(result, (result?.user ?? tokenStorage.getUser<T>()) as T | null)
+        if (!isCurrent()) return
         if (user) {
           tokenStorage.setUser(user)
           setState({

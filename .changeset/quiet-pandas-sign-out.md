@@ -2,4 +2,4 @@
 '@molecule/app-auth': minor
 ---
 
-Make `setUser(null)` end and persist local sign-out, and document endpoint-free `logout()` for APIs without a logout route.
+Make local sign-out settle pending restoration and block stale authentication responses, persist `setUser(null)` cleanup, and document endpoint-free `logout()` for APIs without a logout route.
