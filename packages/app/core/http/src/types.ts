@@ -176,8 +176,48 @@ export interface HttpResponse<T = unknown> {
   config: FullRequestConfig
 }
 
+/** Keep only non-credential request metadata on an error that may be logged. */
+const errorRequestConfig = (config: FullRequestConfig): FullRequestConfig => {
+  // Preserve the existing object for the already-minimal public construction
+  // form; anything richer is reduced so bodies, headers, params and custom
+  // provider options cannot carry credentials into a log entry.
+  if (Object.keys(config).every((key) => key === 'method' || key === 'url')) return config
+  return { method: config.method, url: config.url }
+}
+
+/** Response headers that can carry a credential into an error's log metadata. */
+const CREDENTIAL_RESPONSE_HEADERS = new Set([
+  'authorization',
+  'cookie',
+  'set-cookie',
+  'set-cookie2',
+])
+
+/** Remove credential headers and request secrets while preserving safe response identity. */
+const errorResponse = (response: HttpResponse): HttpResponse => {
+  const config = errorRequestConfig(response.config)
+  const headerNames = Object.keys(response.headers)
+  if (
+    config === response.config &&
+    !headerNames.some((name) => CREDENTIAL_RESPONSE_HEADERS.has(name.toLowerCase()))
+  ) {
+    return response
+  }
+  const headers = Object.fromEntries(
+    Object.entries(response.headers).filter(
+      ([name]) => !CREDENTIAL_RESPONSE_HEADERS.has(name.toLowerCase()),
+    ),
+  )
+  return { ...response, headers, config }
+}
+
 /**
  * HTTP error with response details.
+ *
+ * Request metadata on `config` and `response.config` is limited to method and
+ * URL. Request bodies, headers, params and custom provider options are omitted,
+ * as are credential-bearing response headers, because errors are routinely
+ * serialized by logging transports.
  *
  * **`status` is an HTTP status when the server answered, and `0` when it did not.**
  * A `0` means NO response exists: the request was aborted (an `AbortController`, a
@@ -205,8 +245,9 @@ export class HttpError extends Error {
    *
    * @param message - Human-readable message (already translated where a key exists).
    * @param status - HTTP status, or `0` when no response was received (aborted / network failure).
-   * @param response - Parsed response when the server answered, otherwise undefined.
-   * @param config - The request config that failed.
+   * @param response - Parsed response when the server answered, otherwise undefined;
+   *   its request config and headers are sanitized for safe logging.
+   * @param config - The request config that failed; only its method and URL are retained.
    * @param errorKey - Translation key for the failure (`http.error.aborted` for an
    *   aborted request, `http.error.networkError` for a real network failure).
    * @param aborted - Whether the request was aborted before a response: an
@@ -224,6 +265,8 @@ export class HttpError extends Error {
   ) {
     super(message)
     this.name = 'HttpError'
+    this.response = response ? errorResponse(response) : undefined
+    this.config = config ? errorRequestConfig(config) : undefined
     Object.defineProperty(this, HTTP_ERROR_BRAND, { value: true })
   }
 }

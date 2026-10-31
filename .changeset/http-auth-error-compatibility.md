@@ -2,4 +2,4 @@
 '@molecule/app-http': patch
 ---
 
-Recognize compatible branded request failures from `@molecule/app-auth` with `isHttpError`, including across realms and duplicated package copies.
+Recognize compatible auth failures with `isHttpError` while keeping request bodies and credentials out of `HttpError` logging metadata.

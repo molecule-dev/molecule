@@ -493,13 +493,12 @@ export interface AuthError extends I18nError {
     status: number
     /** HTTP status text supplied by the server or fetch implementation. */
     statusText: string
-    /** Response headers as a plain object. */
+    /** Response headers as a plain object, with credential headers omitted. */
     headers: Record<string, string>
-    /** The request that produced this failed response. */
+    /** Method and URL only: request bodies and credential headers are never retained. */
     config: {
       method: string
       url: string
-      data?: unknown
     }
   }
 

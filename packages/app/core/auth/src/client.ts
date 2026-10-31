@@ -606,17 +606,23 @@ export const createJWTAuthClient = <
       // the SAME rejection, including across duplicated package copies.
       const headers: Record<string, string> = {}
       response.headers.forEach((value, name) => {
-        headers[name] = value
+        // A failed credential exchange can still answer Set-Cookie. Response
+        // metadata is logged, so never copy credential headers into it.
+        if (!['authorization', 'cookie', 'set-cookie', 'set-cookie2'].includes(name)) {
+          headers[name] = value
+        }
       })
       failure.response = {
         data: body,
         status: response.status,
         statusText: response.statusText,
         headers,
+        // RequestInit bodies contain passwords and refresh tokens, and its
+        // headers contain bearer/cookie credentials. Method and URL are the
+        // complete request view an auth rejection may expose to callers/loggers.
         config: {
           method: (options.method ?? 'GET').toUpperCase(),
           url,
-          ...(options.body === undefined ? {} : { data: options.body }),
         },
       }
       failure.errorKey = key
