@@ -251,6 +251,18 @@ export const createJWTAuthClient = <
   }
 
   const tokenStorage = createTokenStorage(storage, storagePrefix, config.tokenKey)
+  const signOutMarkerKey = `${storagePrefix}signedOut`
+  let memorySignOutMarker: string | null = null
+  const getSignOutMarker = (): string | null =>
+    typeof storage === 'object' ? storage.getItem(signOutMarkerKey) : memorySignOutMarker
+  const setSignOutMarker = (): void => {
+    if (typeof storage === 'object') storage.setItem(signOutMarkerKey, '1')
+    else memorySignOutMarker = '1'
+  }
+  const clearSignOutMarker = (): void => {
+    if (typeof storage === 'object') storage.removeItem(signOutMarkerKey)
+    else memorySignOutMarker = null
+  }
   const stateListeners = new Set<(state: AuthState<T>) => void>()
   const eventListeners = new Set<AuthEventListener<T>>()
   let refreshTimer: ReturnType<typeof setTimeout> | null = null
@@ -266,6 +278,26 @@ export const createJWTAuthClient = <
   // Accepted profile writes also own the cached profile: a read captured before
   // one must not restore the older record after the save has been published.
   let profileRevision = 0
+  let pendingSessionOperations = 0
+  let lastSignOutRevision = -1
+
+  /**
+   * Runs every asynchronous session operation under the epoch that started it.
+   * The pending count makes an otherwise settled-looking anonymous client a
+   * session candidate for `setUser(null)`; the guard owns every later effect.
+   */
+  const runSessionOperation = async <R>(
+    callback: (operation: { revision: number; isCurrent: () => boolean }) => Promise<R>,
+  ): Promise<R> => {
+    const revision = sessionRevision
+    const operation = { revision, isCurrent: () => revision === sessionRevision }
+    pendingSessionOperations++
+    try {
+      return await callback(operation)
+    } finally {
+      pendingSessionOperations--
+    }
+  }
 
   let state: AuthState<T> = {
     status: 'loading',
@@ -320,10 +352,10 @@ export const createJWTAuthClient = <
     return 'unauthenticated'
   }
 
-  const setState = (updates: Partial<AuthState<T>>): void => {
+  const setState = (updates: Partial<AuthState<T>>, revisionAdvanced = false): void => {
     const previous = state
     const next = { ...previous, ...updates }
-    if (previous.authenticated && !next.authenticated) sessionRevision++
+    if (previous.authenticated && !next.authenticated && !revisionAdvanced) sessionRevision++
     // A user REFERENCE changes only when its data changes. A background verification
     // (`validateSession`, a reload's cookie restore) answers with a freshly parsed object that
     // usually carries exactly the data already in state; handing that new reference to every
@@ -345,6 +377,29 @@ export const createJWTAuthClient = <
       previous.loading === nextState.loading &&
       previous.error === nextState.error
     if (!unchanged) notify()
+  }
+
+  /** Ends local ownership before any cleanup, so older operations cannot publish. */
+  const endLocalSession = (): void => {
+    sessionRevision++
+    lastSignOutRevision = sessionRevision
+    setSignOutMarker()
+    if (refreshTimer) {
+      clearTimeout(refreshTimer)
+      refreshTimer = null
+    }
+    tokenStorage.clear()
+    clearSessionHintCookie()
+    setState(
+      {
+        initialized: true,
+        loading: false,
+        authenticated: false,
+        user: null,
+        status: 'unauthenticated',
+      },
+      true,
+    )
   }
 
   /**
@@ -382,32 +437,35 @@ export const createJWTAuthClient = <
     }
 
     refreshTimer = setTimeout(() => {
-      client.refresh().catch((err) => {
-        // The refresh token can disappear between scheduling and firing (a
-        // logout in another tab, a cleared store). That is not a failed refresh,
-        // so it must not sign the user out: keep the session and let the API
-        // reject the token if it really is dead.
-        if (isNoRefreshTokenError(err)) {
-          logger.debug(
-            'Token refresh skipped — no refresh token stored; keeping the session until the API rejects the token',
+      void runSessionOperation(async (operation) => {
+        try {
+          await client.refresh()
+        } catch (err) {
+          // The refresh token can disappear between scheduling and firing (a
+          // logout in another tab, a cleared store). That is not a failed refresh,
+          // so it must not sign the user out: keep the session and let the API
+          // reject the token if it really is dead.
+          if (isNoRefreshTokenError(err)) {
+            logger.debug(
+              'Token refresh skipped — no refresh token stored; keeping the session until the API rejects the token',
+              err,
+            )
+            return
+          }
+          // ONLY a current server rejection ends the session. An old timer's
+          // 401 must not destroy a login that replaced it while it was pending.
+          if (!operation.isCurrent()) return
+          const httpStatus = (err as { status?: number }).status
+          if ((httpStatus === 401 || httpStatus === 403) && operation.isCurrent()) {
+            logger.warn('Token refresh was rejected, signing out', err)
+            await client.logout()
+            return
+          }
+          logger.warn(
+            'Token refresh failed; keeping the session until the API rejects the token',
             err,
           )
-          return
         }
-        // ONLY the server rejecting the refresh token (401/403) ends the session.
-        // A network drop, an aborted request, or a 5xx says nothing about the
-        // credential — signing out here did exactly that on every flaky refresh.
-        // The API's next 401 (`validateSession`) or an explicit sign-out decides.
-        const httpStatus = (err as { status?: number }).status
-        if (httpStatus === 401 || httpStatus === 403) {
-          logger.warn('Token refresh was rejected, signing out', err)
-          void client.logout()
-          return
-        }
-        logger.warn(
-          'Token refresh failed; keeping the session until the API rejects the token',
-          err,
-        )
       })
     }, refreshTime)
   }
@@ -545,6 +603,46 @@ export const createJWTAuthClient = <
     return data
   }
 
+  /**
+   * A stale credential exchange can set an HttpOnly cookie even when its local
+   * result is ignored. If its sign-out still owns this client, revoke those late
+   * credentials without delaying the caller. Never revoke a replacement session.
+   */
+  const discardLateSession = (
+    operation: { revision: number; isCurrent: () => boolean },
+    result: AuthResult<T>,
+  ): void => {
+    if (
+      operation.isCurrent() ||
+      state.authenticated ||
+      lastSignOutRevision <= operation.revision ||
+      !getSignOutMarker() ||
+      result.twoFactorRequired
+    ) {
+      return
+    }
+    clearSessionHintCookie()
+    if (!logoutEndpoint) return
+    const accessToken = result.accessToken
+    void runSessionOperation(async (cleanup) => {
+      try {
+        await fetchAPI(logoutEndpoint, {
+          method: 'POST',
+          credentials: 'include',
+          headers: accessToken
+            ? { Authorization: `${config.authScheme ?? 'Bearer'} ${accessToken}` }
+            : {},
+        })
+      } catch (error) {
+        logger.debug('Late session revocation failed (non-critical)', error)
+      } finally {
+        if (cleanup.isCurrent() && !state.authenticated && getSignOutMarker()) {
+          clearSessionHintCookie()
+        }
+      }
+    })
+  }
+
   // [M1-1] Session restore from the httpOnly cookie. The bearer token is held
   // in memory (a localStorage copy is XSS-exfiltratable, so it is forbidden)
   // and is therefore lost on a full page load — but the httpOnly session cookie
@@ -560,186 +658,188 @@ export const createJWTAuthClient = <
   //
   // Shared by initialize() (reload/deep-link restore) and refresh() (see the
   // no-refresh-token fallback there).
-  const restoreFromSessionCookie = async (): Promise<SessionCookieRestore<T>> => {
-    const hasSessionHint =
-      typeof document !== 'undefined' && /(?:^|;\s*)mol_auth=1(?:;|$)/.test(document.cookie)
-    if (!hasSessionHint) return { user: null, attempted: false, rejected: false }
-    const revision = sessionRevision
-    const token = tokenStorage.getAccessToken()
-    const isCurrent = (): boolean =>
-      revision === sessionRevision && token === tokenStorage.getAccessToken()
-    try {
-      const result = await fetchAPI<{ user?: T }>(currentUserEndpoint, {
-        method: 'GET',
-        credentials: 'include',
-      })
-      // A sign-out or account switch while this GET was pending owns the new
-      // state. Neither an old profile nor an old rejection may replace it.
-      if (!isCurrent()) return { user: null, attempted: false, rejected: false }
-      const rawUser = (result?.user ?? null) as T | null
-      // The same adapter a sign-in's answer goes through — this answer is the
-      // wire shape too, and storing it raw dropped the adapted identity.
-      const restoredUser = mapCurrentUser(result, rawUser)
-      // The mapper and restore predicate are caller code and can end or replace
-      // the session synchronously. Re-check ownership after both, before any write.
-      if (!isCurrent()) return { user: null, attempted: false, rejected: false }
-      if (restoredUser && shouldRestoreUser) {
-        const restore = shouldRestoreUser(restoredUser)
+  const restoreFromSessionCookie = async (): Promise<SessionCookieRestore<T>> =>
+    runSessionOperation(async (operation) => {
+      if (getSignOutMarker()) {
+        clearSessionHintCookie()
+        return { user: null, attempted: false, rejected: false }
+      }
+      const hasSessionHint =
+        typeof document !== 'undefined' && /(?:^|;\s*)mol_auth=1(?:;|$)/.test(document.cookie)
+      if (!hasSessionHint) return { user: null, attempted: false, rejected: false }
+      const token = tokenStorage.getAccessToken()
+      const isCurrent = (): boolean =>
+        operation.isCurrent() && token === tokenStorage.getAccessToken()
+      try {
+        const result = await fetchAPI<{ user?: T }>(currentUserEndpoint, {
+          method: 'GET',
+          credentials: 'include',
+        })
+        // A sign-out or account switch while this GET was pending owns the new
+        // state. Neither an old profile nor an old rejection may replace it.
         if (!isCurrent()) return { user: null, attempted: false, rejected: false }
-        if (!restore) {
-          // The server DOES have a session (e.g. an anonymous/guest one), but the
-          // app says it must not count as a signed-in client. Stay logged out and
-          // drop the presence hint so later loads skip the probe entirely; the
-          // httpOnly session cookie is untouched and keeps authenticating API
-          // calls (a guest's projects still work).
+        const rawUser = (result?.user ?? null) as T | null
+        // The same adapter a sign-in's answer goes through — this answer is the
+        // wire shape too, and storing it raw dropped the adapted identity.
+        const restoredUser = mapCurrentUser(result, rawUser)
+        // The mapper and restore predicate are caller code and can end or replace
+        // the session synchronously. Re-check ownership after both, before any write.
+        if (!isCurrent()) return { user: null, attempted: false, rejected: false }
+        if (restoredUser && shouldRestoreUser) {
+          const restore = shouldRestoreUser(restoredUser)
+          if (!isCurrent()) return { user: null, attempted: false, rejected: false }
+          if (!restore) {
+            // The server DOES have a session (e.g. an anonymous/guest one), but the
+            // app says it must not count as a signed-in client. Stay logged out and
+            // drop the presence hint so later loads skip the probe entirely; the
+            // httpOnly session cookie is untouched and keeps authenticating API
+            // calls (a guest's projects still work).
+            clearSessionHintCookie()
+            return { user: null, attempted: true, rejected: false }
+          }
+        }
+        if (restoredUser) {
+          clearSignOutMarker()
+          tokenStorage.setUser(restoredUser)
+          setState({ status: 'authenticated', authenticated: true, user: restoredUser })
+          return { user: restoredUser, attempted: true, rejected: false }
+        }
+        return { user: null, attempted: true, rejected: false }
+      } catch (error) {
+        if (!isCurrent()) return { user: null, attempted: false, rejected: false }
+        const httpStatus = (error as { status?: number }).status
+        // Only a REJECTED cookie (401/403) proves the hint stale: the session
+        // expired server-side, or the database was reset. Drop the hint then, so
+        // later loads skip a guaranteed-401 probe; the next login re-sets it.
+        if (httpStatus === 401 || httpStatus === 403) {
           clearSessionHintCookie()
-          return { user: null, attempted: true, rejected: false }
+          return { user: null, attempted: true, rejected: true }
+        }
+        // Every other failure says nothing about the cookie. A 404 means the
+        // configured `currentUserEndpoint` does not exist (a config error the app
+        // fixes in source — the hint must survive to retry after the fix), and a
+        // 5xx or a network drop is transient. Stay logged out for THIS load, but
+        // keep the hint so a later load can still restore the session.
+        if (httpStatus === 404) {
+          logger.warn(
+            `Session restore skipped — the current-user endpoint "${currentUserEndpoint}" was not found. Set currentUserEndpoint to your API's current-user route.`,
+            error,
+          )
+        } else {
+          logger.debug('Session restore skipped — the server could not confirm the cookie', error)
+        }
+        return {
+          user: null,
+          attempted: true,
+          rejected: false,
+          error:
+            httpStatus === 404
+              ? 'The current-user endpoint was not found. Serve the route or set currentUserEndpoint to it; the stored session was kept.'
+              : error instanceof Error
+                ? error.message
+                : 'The session could not be confirmed',
         }
       }
-      if (restoredUser) {
-        tokenStorage.setUser(restoredUser)
-        setState({ status: 'authenticated', authenticated: true, user: restoredUser })
-        return { user: restoredUser, attempted: true, rejected: false }
-      }
-      return { user: null, attempted: true, rejected: false }
-    } catch (error) {
-      if (!isCurrent()) return { user: null, attempted: false, rejected: false }
-      const httpStatus = (error as { status?: number }).status
-      // Only a REJECTED cookie (401/403) proves the hint stale: the session
-      // expired server-side, or the database was reset. Drop the hint then, so
-      // later loads skip a guaranteed-401 probe; the next login re-sets it.
-      if (httpStatus === 401 || httpStatus === 403) {
-        clearSessionHintCookie()
-        return { user: null, attempted: true, rejected: true }
-      }
-      // Every other failure says nothing about the cookie. A 404 means the
-      // configured `currentUserEndpoint` does not exist (a config error the app
-      // fixes in source — the hint must survive to retry after the fix), and a
-      // 5xx or a network drop is transient. Stay logged out for THIS load, but
-      // keep the hint so a later load can still restore the session.
-      if (httpStatus === 404) {
-        logger.warn(
-          `Session restore skipped — the current-user endpoint "${currentUserEndpoint}" was not found. Set currentUserEndpoint to your API's current-user route.`,
-          error,
-        )
-      } else {
-        logger.debug('Session restore skipped — the server could not confirm the cookie', error)
-      }
-      return {
-        user: null,
-        attempted: true,
-        rejected: false,
-        error:
-          httpStatus === 404
-            ? 'The current-user endpoint was not found. Serve the route or set currentUserEndpoint to it; the stored session was kept.'
-            : error instanceof Error
-              ? error.message
-              : 'The session could not be confirmed',
-      }
-    }
-  }
+    })
 
   // The body of `initialize()`, kept separate so the client can record the in-flight
   // promise SYNCHRONOUSLY (see `restoreInFlight`): a caller that awaits `initialize()`
   // still sees a rejection, while `whenRestored()` hands out a promise that resolves.
-  const initializeSession = async (): Promise<void> => {
-    const revision = sessionRevision
-    const token = tokenStorage.getAccessToken()
-    const user = tokenStorage.getUser<T>()
-
-    if (token && user) {
-      // A stored token AND a stored user ARE the session this client holds: set
-      // it — synchronously, before the first `await` — so the first render is the
-      // signed-in UI and no page has to wait for a verification round trip. Every
-      // verification below settles BEHIND that render; only an explicit 401/403
-      // ends the session (the same classification `validateSession` uses). A page
-      // that waited on its own `/me` call before painting paid a full API round
-      // trip on every navigation (xr-molecule-flash-m177: ~30 page loads in one
-      // pagination spec, its four tests at 15.0–15.9 s of a 15 s budget).
-      setState({
-        initialized: true,
-        authenticated: true,
-        user,
-      })
-
-      if (!isTokenExpired(token)) {
-        scheduleRefresh()
+  const initializeSession = async (): Promise<void> =>
+    runSessionOperation(async (operation) => {
+      if (getSignOutMarker()) {
+        endLocalSession()
         return
       }
+      const token = tokenStorage.getAccessToken()
+      const user = tokenStorage.getUser<T>()
 
-      // The token is expired, or carries no readable `exp` (an opaque session
-      // token: `isTokenExpired` cannot tell). Confirm the session behind the
-      // render — never in front of it.
-      const refreshToken = tokenStorage.getRefreshToken()
-      if (refreshToken) {
-        try {
-          await client.refresh()
-          if (revision !== sessionRevision) return
-          setState({ initialized: true })
-          return
-        } catch (error) {
-          if (revision !== sessionRevision) return
-          const httpStatus = (error as { status?: number }).status
-          // Only the server REJECTING the refresh token proves the session dead.
-          // A network drop or a 5xx is not about the credential, and it used to
-          // sign the user out here (the m159 class).
-          if (httpStatus === 401 || httpStatus === 403) {
-            logger.warn('Initial token refresh was rejected; signing out', error)
-            tokenStorage.clear()
-            setState({
-              initialized: true,
-              authenticated: false,
-              user: null,
-              status: 'unauthenticated',
-            })
-            return
-          }
-          logger.warn(
-            'Initial token refresh failed; keeping the stored session until the API rejects it',
-            error,
-          )
-        }
-      }
-
-      // [M1-1] Cookie-restore — this is what keeps a refresh / deep-link logged
-      // in under the in-memory-token model. See restoreFromSessionCookie above.
-      const outcome = await restoreFromSessionCookie()
-      if (revision !== sessionRevision) return
-      if (outcome.rejected) {
-        // The only other proof of this session was rejected by the server.
-        tokenStorage.clear()
-        setState({ initialized: true, authenticated: false, user: null, status: 'unauthenticated' })
-        return
-      }
-      if (outcome.attempted && !outcome.user) {
-        // The server could not confirm the session — keep the stored token and
-        // user, and say the session is unconfirmed instead of signing out over a
-        // network failure, a 5xx, or a misplaced current-user route.
+      if (token && user) {
+        // A stored token AND a stored user ARE the session this client holds: set
+        // it — synchronously, before the first `await` — so the first render is the
+        // signed-in UI and no page has to wait for a verification round trip. Every
+        // verification below settles BEHIND that render; only an explicit 401/403
+        // ends the session (the same classification `validateSession` uses). A page
+        // that waited on its own `/me` call before painting paid a full API round
+        // trip on every navigation (xr-molecule-flash-m177: ~30 page loads in one
+        // pagination spec, its four tests at 15.0–15.9 s of a 15 s budget).
         setState({
           initialized: true,
-          status: 'unavailable',
-          error: outcome.error ?? 'The session could not be confirmed',
+          authenticated: true,
+          user,
         })
+
+        if (!isTokenExpired(token)) {
+          scheduleRefresh()
+          return
+        }
+
+        // The token is expired, or carries no readable `exp` (an opaque session
+        // token: `isTokenExpired` cannot tell). Confirm the session behind the
+        // render — never in front of it.
+        const refreshToken = tokenStorage.getRefreshToken()
+        if (refreshToken) {
+          try {
+            await client.refresh()
+            if (!operation.isCurrent()) return
+            setState({ initialized: true })
+            return
+          } catch (error) {
+            if (!operation.isCurrent()) return
+            const httpStatus = (error as { status?: number }).status
+            // Only the server REJECTING the refresh token proves the session dead.
+            // A network drop or a 5xx is not about the credential, and it used to
+            // sign the user out here (the m159 class).
+            if (httpStatus === 401 || httpStatus === 403) {
+              logger.warn('Initial token refresh was rejected; signing out', error)
+              endLocalSession()
+              return
+            }
+            logger.warn(
+              'Initial token refresh failed; keeping the stored session until the API rejects it',
+              error,
+            )
+          }
+        }
+
+        // [M1-1] Cookie-restore — this is what keeps a refresh / deep-link logged
+        // in under the in-memory-token model. See restoreFromSessionCookie above.
+        const outcome = await restoreFromSessionCookie()
+        if (!operation.isCurrent()) return
+        if (outcome.rejected) {
+          // The only other proof of this session was rejected by the server.
+          endLocalSession()
+          return
+        }
+        if (outcome.attempted && !outcome.user) {
+          // The server could not confirm the session — keep the stored token and
+          // user, and say the session is unconfirmed instead of signing out over a
+          // network failure, a 5xx, or a misplaced current-user route.
+          setState({
+            initialized: true,
+            status: 'unavailable',
+            error: outcome.error ?? 'The session could not be confirmed',
+          })
+          return
+        }
+        // Nothing to ask (no refresh token, no cookie hint) or the cookie restored
+        // the session: keep the optimistic state.
+        setState({ initialized: true })
         return
       }
-      // Nothing to ask (no refresh token, no cookie hint) or the cookie restored
-      // the session: keep the optimistic state.
-      setState({ initialized: true })
-      return
-    }
 
-    // A stored token without a cached profile needs the configured current-user read.
-    // Reuse its mapping, failure classification and session ownership guards.
-    if (token) {
-      await client.validateSession!()
-      if (revision !== sessionRevision) return
+      // A stored token without a cached profile needs the configured current-user read.
+      // Reuse its mapping, failure classification and session ownership guards.
+      if (token) {
+        await client.validateSession!()
+        if (!operation.isCurrent()) return
+        setState({ initialized: true })
+        return
+      }
+      await restoreFromSessionCookie()
+      if (!operation.isCurrent()) return
       setState({ initialized: true })
-      return
-    }
-    await restoreFromSessionCookie()
-    if (revision !== sessionRevision) return
-    setState({ initialized: true })
-  }
+    })
 
   /**
    * Starts the client's ONE session restore, or returns the one already running.
@@ -800,25 +900,12 @@ export const createJWTAuthClient = <
     getSessionRevision: () => sessionRevision,
 
     setUser: (user: T | null) => {
-      if (user === null && (state.authenticated || state.loading || !state.initialized)) {
-        // A pending restore/authentication is a session candidate, not a settled
-        // anonymous client. End it and every credential a reload could restore.
-        // The signed-in transition owns its revision advance; the other paths
-        // need an explicit one because their authenticated flag is already false.
-        if (!state.authenticated) sessionRevision++
-        if (refreshTimer) {
-          clearTimeout(refreshTimer)
-          refreshTimer = null
-        }
-        tokenStorage.clear()
-        clearSessionHintCookie()
-        setState({
-          initialized: true,
-          loading: false,
-          authenticated: false,
-          user: null,
-          status: 'unauthenticated',
-        })
+      if (
+        user === null &&
+        (state.authenticated || pendingSessionOperations > 0 || state.loading || !state.initialized)
+      ) {
+        // Settled-looking state can still have a refresh retry in flight.
+        endLocalSession()
         return
       }
       if (user === null) sessionRevision++
@@ -835,6 +922,7 @@ export const createJWTAuthClient = <
 
     setSession: (session) => {
       sessionRevision++
+      clearSignOutMarker()
       // NOT passed through `mapAuthResponse`: a seed is not an API answer, it is
       // the profile the caller already built in this client's shape. Mapping it
       // would adapt an adapted profile a second time.
@@ -862,185 +950,177 @@ export const createJWTAuthClient = <
     getRefreshToken: () => tokenStorage.getRefreshToken(),
 
     async login(credentials: LoginCredentials): Promise<AuthResult<T>> {
-      const revision = sessionRevision
-      setState({ loading: true, error: null })
+      return runSessionOperation(async (operation) => {
+        setState({ loading: true, error: null })
 
-      try {
-        const result = mapResult(
-          await fetchAPI<unknown>(loginEndpoint, {
-            method: 'POST',
-            body: JSON.stringify(shapeBody('login', credentials)),
-          }),
-        )
-        // Mapping is caller code too: check after it, immediately before any
-        // state, credential, event, or timer publication.
-        if (revision !== sessionRevision) return result
+        try {
+          const result = mapResult(
+            await fetchAPI<unknown>(loginEndpoint, {
+              method: 'POST',
+              body: JSON.stringify(shapeBody('login', credentials)),
+            }),
+          )
+          // Mapping is caller code too: check after it, immediately before any
+          // state, credential, event, or timer publication.
+          if (!operation.isCurrent()) {
+            discardLateSession(operation, result)
+            return result
+          }
 
-        // Two-factor gate: the server answered 206 `{ twoFactorRequired: true }`
-        // — no tokens/user issued. Surface the result WITHOUT marking the
-        // session authenticated; the caller re-prompts for the TOTP and retries.
-        if (result.twoFactorRequired) {
-          setState({ loading: false })
+          // Two-factor gate: the server answered 206 `{ twoFactorRequired: true }`
+          // — no tokens/user issued. Surface the result WITHOUT marking the
+          // session authenticated; the caller re-prompts for the TOTP and retries.
+          if (result.twoFactorRequired) {
+            setState({ loading: false })
+            return result
+          }
+
+          sessionRevision++
+          clearSignOutMarker()
+          tokenStorage.setAccessToken(result.accessToken || null)
+          tokenStorage.setRefreshToken(result.refreshToken || null)
+          tokenStorage.setUser(result.user)
+
+          setState({
+            status: 'authenticated',
+            loading: false,
+            authenticated: true,
+            user: result.user,
+          })
+
+          logger.debug('User logged in')
+          emitEvent({ type: 'login', user: result.user })
+          scheduleRefresh()
+
           return result
+        } catch (err) {
+          if (!operation.isCurrent()) throw err
+          const error = err instanceof Error ? err.message : 'Login failed'
+          setState({ loading: false, error })
+          emitEvent({ type: 'error', error })
+          throw err
         }
-
-        sessionRevision++
-        tokenStorage.setAccessToken(result.accessToken || null)
-        tokenStorage.setRefreshToken(result.refreshToken || null)
-        tokenStorage.setUser(result.user)
-
-        setState({
-          status: 'authenticated',
-          loading: false,
-          authenticated: true,
-          user: result.user,
-        })
-
-        logger.debug('User logged in')
-        emitEvent({ type: 'login', user: result.user })
-        scheduleRefresh()
-
-        return result
-      } catch (err) {
-        if (revision !== sessionRevision) throw err
-        const error = err instanceof Error ? err.message : 'Login failed'
-        setState({ loading: false, error })
-        emitEvent({ type: 'error', error })
-        throw err
-      }
+      })
     },
 
     async logout(): Promise<void> {
-      sessionRevision++
-      setState({ loading: true })
-
-      try {
-        // [M1-1] The persistent credential is the httpOnly session cookie, not
-        // the in-memory bearer token. The bearer does not survive a page reload
-        // (after a reload `initialize()` restores `authenticated` from the cookie
-        // but cannot repopulate the in-memory token), so guarding the server
-        // logout on `token` alone meant a reloaded session could never log out
-        // server-side and the httpOnly cookie lived on. Call the endpoint
-        // whenever we believe a session exists — token OR restored-authenticated —
-        // and send `credentials` so the cookie authenticates the device
-        // revocation and the server clears the httpOnly cookie.
+      await runSessionOperation(async (operation) => {
+        if (!operation.isCurrent()) return
+        // Capture revocation authority before local cleanup removes it. The
+        // cookie remains in the request; a bearer-only API gets the old token.
         const token = tokenStorage.getAccessToken()
-        if (logoutEndpoint && (token || state.authenticated)) {
-          await fetchAPI(logoutEndpoint, { method: 'POST', credentials: 'include' }).catch(
-            (err) => {
-              logger.debug('Logout endpoint call failed (non-critical)', err)
-            },
-          )
-        }
-      } finally {
-        if (refreshTimer) {
-          clearTimeout(refreshTimer)
-          refreshTimer = null
-        }
-
-        tokenStorage.clear()
-        // [M1-1] Drop the non-httpOnly session-presence hint so initialize()
-        // won't probe for cookie-restore on the next load even if the server
-        // logout call didn't complete (the server clears it too, on success).
-        clearSessionHintCookie()
-        setState({
-          initialized: true,
-          loading: false,
-          authenticated: false,
-          user: null,
-          // An explicit sign-out settles the question, whatever came before.
-          status: 'unauthenticated',
-        })
+        const revoke = logoutEndpoint && (token || state.authenticated)
+        endLocalSession()
         logger.debug('User logged out')
         emitEvent({ type: 'logout' })
-      }
+
+        if (revoke && logoutEndpoint) {
+          await fetchAPI(logoutEndpoint, {
+            method: 'POST',
+            credentials: 'include',
+            headers: token ? { Authorization: `${config.authScheme ?? 'Bearer'} ${token}` } : {},
+          }).catch((error) => {
+            logger.debug('Logout endpoint call failed (non-critical)', error)
+          })
+        }
+      })
     },
 
     async register(data: RegisterData<TRegister>): Promise<AuthResult<T>> {
-      const revision = sessionRevision
-      setState({ loading: true, error: null })
+      return runSessionOperation(async (operation) => {
+        setState({ loading: true, error: null })
 
-      try {
-        const result = mapResult(
-          await fetchAPI<unknown>(registerEndpoint, {
-            method: 'POST',
-            body: JSON.stringify(shapeBody('register', data)),
-          }),
-        )
-        if (revision !== sessionRevision) return result
+        try {
+          const result = mapResult(
+            await fetchAPI<unknown>(registerEndpoint, {
+              method: 'POST',
+              body: JSON.stringify(shapeBody('register', data)),
+            }),
+          )
+          if (!operation.isCurrent()) {
+            discardLateSession(operation, result)
+            return result
+          }
 
-        sessionRevision++
-        tokenStorage.setAccessToken(result.accessToken || null)
-        tokenStorage.setRefreshToken(result.refreshToken || null)
-        tokenStorage.setUser(result.user)
+          sessionRevision++
+          clearSignOutMarker()
+          tokenStorage.setAccessToken(result.accessToken || null)
+          tokenStorage.setRefreshToken(result.refreshToken || null)
+          tokenStorage.setUser(result.user)
 
-        setState({
-          status: 'authenticated',
-          loading: false,
-          authenticated: true,
-          user: result.user,
-        })
+          setState({
+            status: 'authenticated',
+            loading: false,
+            authenticated: true,
+            user: result.user,
+          })
 
-        emitEvent({ type: 'register', user: result.user })
-        scheduleRefresh()
+          emitEvent({ type: 'register', user: result.user })
+          scheduleRefresh()
 
-        return result
-      } catch (err) {
-        if (revision !== sessionRevision) throw err
-        const error = err instanceof Error ? err.message : 'Registration failed'
-        setState({ loading: false, error })
-        emitEvent({ type: 'error', error })
-        throw err
-      }
+          return result
+        } catch (err) {
+          if (!operation.isCurrent()) throw err
+          const error = err instanceof Error ? err.message : 'Registration failed'
+          setState({ loading: false, error })
+          emitEvent({ type: 'error', error })
+          throw err
+        }
+      })
     },
 
     async refresh(): Promise<AuthResult<T>> {
-      const revision = sessionRevision
-      const refreshToken = tokenStorage.getRefreshToken()
-      if (!refreshToken) {
-        // Cookie-session APIs (the @molecule/api-resource-user model) issue NO
-        // refresh token at all — login/register return only { accessToken, user }
-        // and the durable credential is the httpOnly session cookie. For them,
-        // "refresh" means re-deriving the session from that cookie, exactly like
-        // initialize()'s restore. Without this fallback every post-auth refresh
-        // (the auth modal's finishAuth, the upgrade-tab focus-return) threw
-        // 'No refresh token available' — which silently aborted the modal's
-        // signup/login flow right after the account was created.
-        const outcome = await restoreFromSessionCookie()
-        if (outcome.user) {
-          if (revision === sessionRevision) emitEvent({ type: 'refresh' })
-          return { user: outcome.user }
+      return runSessionOperation(async (operation) => {
+        const refreshToken = tokenStorage.getRefreshToken()
+        if (!refreshToken) {
+          // Cookie-session APIs (the @molecule/api-resource-user model) issue NO
+          // refresh token at all — login/register return only { accessToken, user }
+          // and the durable credential is the httpOnly session cookie. For them,
+          // "refresh" means re-deriving the session from that cookie, exactly like
+          // initialize()'s restore. Without this fallback every post-auth refresh
+          // (the auth modal's finishAuth, the upgrade-tab focus-return) threw
+          // 'No refresh token available' — which silently aborted the modal's
+          // signup/login flow right after the account was created.
+          const outcome = await restoreFromSessionCookie()
+          if (outcome.user) {
+            if (operation.isCurrent()) emitEvent({ type: 'refresh' })
+            return { user: outcome.user }
+          }
+          throw new I18nError('auth.error.noRefreshToken', undefined, 'No refresh token available')
         }
-        throw new I18nError('auth.error.noRefreshToken', undefined, 'No refresh token available')
-      }
 
-      const result = await fetchAPI<AuthResult<T>>(refreshEndpoint, {
-        method: 'POST',
-        body: JSON.stringify({ refreshToken }),
+        const result = await fetchAPI<AuthResult<T>>(refreshEndpoint, {
+          method: 'POST',
+          body: JSON.stringify({ refreshToken }),
+        })
+
+        // The refresh answer carries the user too, in the same wire shape a
+        // sign-in's does — route it through the same mapper so a token refresh
+        // cannot replace the adapted profile with the raw one.
+        const user = mapCurrentUser(result, (result?.user ?? null) as T | null)
+        const mappedResult = { ...result, user: user ?? result.user }
+        if (!operation.isCurrent()) {
+          discardLateSession(operation, mappedResult)
+          return mappedResult
+        }
+        clearSignOutMarker()
+        tokenStorage.setAccessToken(result.accessToken || null)
+        if (result.refreshToken) {
+          tokenStorage.setRefreshToken(result.refreshToken)
+        }
+        if (user) tokenStorage.setUser(user)
+
+        setState({
+          status: 'authenticated',
+          authenticated: true,
+          user,
+        })
+
+        emitEvent({ type: 'refresh' })
+        scheduleRefresh()
+
+        return mappedResult
       })
-
-      // The refresh answer carries the user too, in the same wire shape a
-      // sign-in's does — route it through the same mapper so a token refresh
-      // cannot replace the adapted profile with the raw one.
-      const user = mapCurrentUser(result, (result?.user ?? null) as T | null)
-      const mappedResult = { ...result, user: user ?? result.user }
-      if (revision !== sessionRevision) return mappedResult
-      tokenStorage.setAccessToken(result.accessToken || null)
-      if (result.refreshToken) {
-        tokenStorage.setRefreshToken(result.refreshToken)
-      }
-      if (user) tokenStorage.setUser(user)
-
-      setState({
-        status: 'authenticated',
-        authenticated: true,
-        user,
-      })
-
-      emitEvent({ type: 'refresh' })
-      scheduleRefresh()
-
-      return mappedResult
     },
 
     async requestPasswordReset(data: PasswordResetRequest): Promise<void> {
@@ -1147,90 +1227,85 @@ export const createJWTAuthClient = <
     },
 
     async validateSession(): Promise<void> {
-      const token = tokenStorage.getAccessToken()
-      if (!token) {
-        setState({
-          initialized: true,
-          authenticated: false,
-          user: null,
-          status: 'unauthenticated',
-        })
-        return
-      }
-      const revision = sessionRevision
-      const readProfileRevision = profileRevision
-      const isCurrent = (): boolean =>
-        revision === sessionRevision && token === tokenStorage.getAccessToken()
-      const isCurrentProfileRead = (): boolean =>
-        isCurrent() && readProfileRevision === profileRevision
-      try {
-        // `fetchAPI` sends the stored token, so this asks the server "is this
-        // session still valid?" — the background check `initialize()` does not do
-        // (it restores from storage without a request by design).
-        const result = await fetchAPI<{ user?: T }>(currentUserEndpoint, { method: 'GET' })
-        if (!isCurrent()) return
-        // The answer is the wire user, not the app's adapted profile: pass it
-        // through the same `mapAuthResponse` a sign-in uses before storing it
-        // (xr-molecule-flash-m184 — a reload replaced the adapted user with the
-        // raw one and the profile link disappeared).
-        const user = mapCurrentUser(result, (result?.user ?? tokenStorage.getUser<T>()) as T | null)
-        if (!isCurrentProfileRead()) return
-        if (user) {
-          tokenStorage.setUser(user)
-          setState({
-            initialized: true,
-            authenticated: true,
-            user,
-            status: 'authenticated',
-            error: null,
-          })
-        } else {
-          tokenStorage.clear()
-          setState({
-            initialized: true,
-            authenticated: false,
-            user: null,
-            status: 'unauthenticated',
-          })
-        }
-      } catch (error) {
-        if (!isCurrentProfileRead()) return
-        const httpStatus = (error as { status?: number }).status
-        // ONLY 401 and 403 are the server rejecting this token (revoked, expired,
-        // a reset database): drop the session rather than keep sending a header
-        // the server refuses. Any other status is not about the credential —
-        // most importantly a 404, which means `currentUserEndpoint` does not
-        // exist on this API. A route-not-found neither verifies nor rejects the
-        // token, so clearing it here signed every user out of a working session
-        // over a configuration mistake.
-        if (httpStatus === 401 || httpStatus === 403) {
-          tokenStorage.clear()
-          setState({
-            initialized: true,
-            authenticated: false,
-            user: null,
-            status: 'unauthenticated',
-          })
+      await runSessionOperation(async (operation) => {
+        const token = tokenStorage.getAccessToken()
+        if (!token) {
+          if (operation.isCurrent()) {
+            setState({
+              initialized: true,
+              authenticated: false,
+              user: null,
+              status: 'unauthenticated',
+            })
+          }
           return
         }
-        // The server could not confirm the session. Keep the token AND the user
-        // so a later reload or a retry can restore them; say so with
-        // `unavailable` instead of signing the user out over a network failure,
-        // a 5xx, or a misplaced current-user route.
-        const message =
-          httpStatus === 404
-            ? "The current-user endpoint was not found. Set currentUserEndpoint to your API's current-user route; the stored token was kept."
-            : error instanceof Error
-              ? error.message
-              : 'Session could not be confirmed'
-        if (httpStatus === 404) {
-          logger.warn(
-            `validateSession could not verify the session — the current-user endpoint "${currentUserEndpoint}" was not found. Set currentUserEndpoint to your API's current-user route; the stored token was kept.`,
-            error,
+        const readProfileRevision = profileRevision
+        const isCurrent = (): boolean =>
+          operation.isCurrent() && token === tokenStorage.getAccessToken()
+        const isCurrentProfileRead = (): boolean =>
+          isCurrent() && readProfileRevision === profileRevision
+        try {
+          // `fetchAPI` sends the stored token, so this asks the server "is this
+          // session still valid?" — the background check `initialize()` does not do
+          // (it restores from storage without a request by design).
+          const result = await fetchAPI<{ user?: T }>(currentUserEndpoint, { method: 'GET' })
+          if (!isCurrent()) return
+          // The answer is the wire user, not the app's adapted profile: pass it
+          // through the same `mapAuthResponse` a sign-in uses before storing it
+          // (xr-molecule-flash-m184 — a reload replaced the adapted user with the
+          // raw one and the profile link disappeared).
+          const user = mapCurrentUser(
+            result,
+            (result?.user ?? tokenStorage.getUser<T>()) as T | null,
           )
+          if (!isCurrentProfileRead()) return
+          if (user) {
+            clearSignOutMarker()
+            tokenStorage.setUser(user)
+            setState({
+              initialized: true,
+              authenticated: true,
+              user,
+              status: 'authenticated',
+              error: null,
+            })
+          } else {
+            endLocalSession()
+          }
+        } catch (error) {
+          if (!isCurrentProfileRead()) return
+          const httpStatus = (error as { status?: number }).status
+          // ONLY 401 and 403 are the server rejecting this token (revoked, expired,
+          // a reset database): drop the session rather than keep sending a header
+          // the server refuses. Any other status is not about the credential —
+          // most importantly a 404, which means `currentUserEndpoint` does not
+          // exist on this API. A route-not-found neither verifies nor rejects the
+          // token, so clearing it here signed every user out of a working session
+          // over a configuration mistake.
+          if (httpStatus === 401 || httpStatus === 403) {
+            endLocalSession()
+            return
+          }
+          // The server could not confirm the session. Keep the token AND the user
+          // so a later reload or a retry can restore them; say so with
+          // `unavailable` instead of signing the user out over a network failure,
+          // a 5xx, or a misplaced current-user route.
+          const message =
+            httpStatus === 404
+              ? "The current-user endpoint was not found. Set currentUserEndpoint to your API's current-user route; the stored token was kept."
+              : error instanceof Error
+                ? error.message
+                : 'Session could not be confirmed'
+          if (httpStatus === 404) {
+            logger.warn(
+              `validateSession could not verify the session — the current-user endpoint "${currentUserEndpoint}" was not found. Set currentUserEndpoint to your API's current-user route; the stored token was kept.`,
+              error,
+            )
+          }
+          setState({ status: 'unavailable', error: message })
         }
-        setState({ status: 'unavailable', error: message })
-      }
+      })
     },
 
     subscribe(callback: (state: AuthState<T>) => void): () => void {
