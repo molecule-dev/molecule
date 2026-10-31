@@ -705,6 +705,8 @@ class E2BSandbox implements Sandbox {
   async spawn(command: string, opts?: SpawnOptions): Promise<SpawnHandle> {
     const stdoutListeners: Array<(data: string) => void> = []
     const stderrListeners: Array<(data: string) => void> = []
+    const stdoutBacklog: string[] = []
+    const stderrBacklog: string[] = []
     const closeListeners: Array<() => void> = []
     let closed = false
     const fireClose = (): void => {
@@ -712,8 +714,28 @@ class E2BSandbox implements Sandbox {
       closed = true
       for (const cb of closeListeners) cb()
     }
-    const emit = (listeners: Array<(data: string) => void>, data: string): void => {
+    const emit = (
+      listeners: Array<(data: string) => void>,
+      backlog: string[],
+      data: string,
+    ): void => {
+      // The native SDK can deliver output before commands.run()/pty.create()
+      // returns our handle. Replay that backlog to the first subscriber instead
+      // of dropping the command's only output (and its verification status).
+      if (listeners.length === 0) {
+        backlog.push(data)
+        return
+      }
       for (const cb of listeners) cb(data)
+    }
+    const subscribe = (
+      listeners: Array<(data: string) => void>,
+      backlog: string[],
+      cb: (data: string) => void,
+    ): void => {
+      listeners.push(cb)
+      if (listeners.length > 1 || backlog.length === 0) return
+      for (const data of backlog.splice(0)) cb(data)
     }
 
     let handle: E2BCommandHandleLike
@@ -735,7 +757,8 @@ class E2BSandbox implements Sandbox {
         timeoutMs: opts.timeout ?? DEFAULT_PTY_TIMEOUT_MS,
         // A PTY merges stderr into the terminal stream by definition — there is
         // one file descriptor, which is why a terminal shows them interleaved.
-        onData: (data) => emit(stdoutListeners, decoder.decode(data, { stream: true })),
+        onData: (data) =>
+          emit(stdoutListeners, stdoutBacklog, decoder.decode(data, { stream: true })),
       })
       const pid = handle.pid
       resize = (size) => {
@@ -752,8 +775,8 @@ class E2BSandbox implements Sandbox {
         timeoutMs: opts?.timeout ?? DEFAULT_SPAWN_TIMEOUT_MS,
         background: true,
         stdin: true,
-        onStdout: (data) => emit(stdoutListeners, data),
-        onStderr: (data) => emit(stderrListeners, data),
+        onStdout: (data) => emit(stdoutListeners, stdoutBacklog, data),
+        onStderr: (data) => emit(stderrListeners, stderrBacklog, data),
       })
     }
 
@@ -785,10 +808,10 @@ class E2BSandbox implements Sandbox {
         })
       },
       onStdout: (cb) => {
-        stdoutListeners.push(cb)
+        subscribe(stdoutListeners, stdoutBacklog, cb)
       },
       onStderr: (cb) => {
-        stderrListeners.push(cb)
+        subscribe(stderrListeners, stderrBacklog, cb)
       },
       onClose: (cb) => {
         closeListeners.push(cb)

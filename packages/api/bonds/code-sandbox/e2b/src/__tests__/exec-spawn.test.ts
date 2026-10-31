@@ -51,6 +51,8 @@ function fakeSandbox(
     throws?: unknown
     /** Never settles — models a wait that outlives the assertion. */
     pending?: boolean
+    /** Native SDK output delivered before commands.run() returns its handle. */
+    immediateOutput?: { stdout: string; stderr: string }
   }> = [],
   opts: { pty?: E2BPtyLike | null } = {},
 ): { sbx: E2BSandboxLike; runs: RunCall[]; handles: E2BCommandHandleLike[] } {
@@ -71,6 +73,14 @@ function fakeSandbox(
           },
           sendStdin: vi.fn(async () => {}),
           kill: vi.fn(async () => true),
+        }
+        if (behaviour?.immediateOutput) {
+          const output = runOpts as {
+            onStdout?: (data: string) => void
+            onStderr?: (data: string) => void
+          }
+          output.onStdout?.(behaviour.immediateOutput.stdout)
+          output.onStderr?.(behaviour.immediateOutput.stderr)
         }
         handles.push(handle)
         return handle
@@ -308,6 +318,26 @@ describe('spawn() — the capability LSP and a cancellable terminal need', () =>
 
     handle.kill()
     expect(handles[0].kill).toHaveBeenCalled()
+  })
+
+  it('replays native SDK output emitted before the caller subscribes', async () => {
+    const { sbx } = fakeSandbox([
+      {
+        match: 'true',
+        result: { stdout: 'compiled\n', stderr: 'warning', exitCode: 0 },
+        immediateOutput: { stdout: 'compiled\n', stderr: 'warning' },
+      },
+    ])
+    const sandbox = await handleFor(sbx)
+
+    const handle = await sandbox.spawn!('true')
+    const out: string[] = []
+    const err: string[] = []
+    handle.onStdout((data) => out.push(data))
+    handle.onStderr((data) => err.push(data))
+
+    expect(out).toEqual(['compiled\n'])
+    expect(err).toEqual(['warning'])
   })
 
   it('keeps stdin open and outlives the SDK default command deadline', async () => {

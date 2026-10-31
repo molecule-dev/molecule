@@ -1202,6 +1202,40 @@ class DockerSandboxProvider implements SandboxProvider {
         const socket = await provider.dockerExecUpgrade(execCreate.Id, tty)
         const parser = new DockerMuxParser()
         let closeCb: (() => void) | null = null
+        let closed = false
+        let killRequested = false
+        let exitWatch: Promise<void> | null = null
+        const fireClose = (): void => {
+          if (closed) return
+          closed = true
+          closeCb?.()
+        }
+        const inspectExec = async (): Promise<{ Running?: boolean; Pid?: number }> =>
+          (await provider.dockerApi(`/exec/${execCreate.Id}/json`)) as {
+            Running?: boolean
+            Pid?: number
+          }
+        const watchExit = (): void => {
+          if (exitWatch) return
+          exitWatch = (async () => {
+            // Socket EOF says nothing about the remote process. Docker's exec
+            // inspect is the termination signal, including after our own kill.
+            while (!closed) {
+              try {
+                const inspected = await inspectExec()
+                if (inspected.Running === false) {
+                  fireClose()
+                  return
+                }
+              } catch (error) {
+                logger.debug('Spawn exit inspect failed', {
+                  error: error instanceof Error ? error.message : error,
+                })
+              }
+              await new Promise((resolve) => setTimeout(resolve, 25))
+            }
+          })()
+        }
 
         // Kill idle spawn sockets after 10 minutes to prevent descriptor leaks
         socket.setTimeout(600_000)
@@ -1230,12 +1264,12 @@ class DockerSandboxProvider implements SandboxProvider {
         })
         socket.on('close', () => {
           parser.clear()
-          closeCb?.()
+          watchExit()
         })
         socket.on('error', (err: Error) => {
           logger.debug('Spawn socket error', { error: err.message })
           parser.clear()
-          closeCb?.()
+          watchExit()
         })
 
         return {
@@ -1253,9 +1287,48 @@ class DockerSandboxProvider implements SandboxProvider {
           },
           onClose(cb: () => void): void {
             closeCb = cb
+            if (closed) cb()
           },
           kill(): void {
-            if (!socket.destroyed) socket.destroy()
+            if (killRequested) return
+            killRequested = true
+            void (async () => {
+              try {
+                const inspected = await inspectExec()
+                if (inspected.Running !== false) {
+                  const pid = inspected.Pid
+                  if (!Number.isInteger(pid) || (pid ?? 0) <= 0) {
+                    throw new Error('Docker exec inspect returned no running process id')
+                  }
+                  const killer = (await provider.dockerApi(
+                    `/containers/${containerId}/exec`,
+                    'POST',
+                    {
+                      // Use the shell builtin: minimal images need not carry procps.
+                      Cmd: ['sh', '-c', `kill -KILL ${pid}`],
+                      AttachStdin: false,
+                      AttachStdout: false,
+                      AttachStderr: false,
+                      Tty: false,
+                    },
+                  )) as { Id?: string }
+                  if (!killer.Id) throw new Error('Docker did not create the exec kill command')
+                  await provider.dockerApi(`/exec/${killer.Id}/start`, 'POST', {
+                    Detach: false,
+                    Tty: false,
+                  })
+                }
+              } catch (error) {
+                // Never turn a failed kill into a close event. The inspect watch
+                // still waits for real exit evidence rather than releasing work.
+                logger.debug('Spawn remote kill failed', {
+                  error: error instanceof Error ? error.message : error,
+                })
+              } finally {
+                if (!socket.destroyed) socket.destroy()
+                watchExit()
+              }
+            })()
           },
           ...(tty
             ? {
