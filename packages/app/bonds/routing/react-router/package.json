@@ -16,7 +16,9 @@
       "import": "./dist/dom.js",
       "default": "./dist/dom.js"
     },
-    "./dist/*": "./dist/*",
+    "./dist": "./dist/index.js",
+    "./dist/*": "./dist/*.js",
+    "./dist/*.js": "./dist/*.js",
     "./package.json": "./package.json"
   },
   "files": [
