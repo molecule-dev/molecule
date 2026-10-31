@@ -36,7 +36,9 @@ describe('analytics credential emission boundary', () => {
       .login({ email: 'alice@example.com', password: 'not-the-fixture-secret' })
       .catch((caught: unknown) => caught)
 
-    expect(error).toBeInstanceOf(TypeError)
+    expect(error).toBeInstanceOf(Error)
+    expect(error).not.toBeInstanceOf(TypeError)
+    expect((error as Error).name).toBe('TypeError')
     expect(client.getState().error).not.toContain(secret)
     expect(provider.track).toHaveBeenCalledTimes(1)
     const event = provider.track.mock.calls[0][0] as AnalyticsEvent

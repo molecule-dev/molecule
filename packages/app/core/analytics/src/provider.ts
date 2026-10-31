@@ -28,20 +28,31 @@ const noopProvider: AnalyticsProvider = {
   flush: async () => {},
 }
 
-/** Redact every payload at the provider boundary, including direct `getProvider()` emitters. */
-const credentialSafeProvider = (provider: AnalyticsProvider): AnalyticsProvider => ({
-  identify: (user) => provider.identify(redactCredentials(user)),
-  track: (event) => provider.track(redactCredentials(event)),
-  page: (pageView) => provider.page(redactCredentials(pageView)),
-  ...(provider.group
-    ? {
-        group: (groupId: string, traits?: Record<string, unknown>) =>
-          provider.group!(redactCredentials(groupId), redactCredentials(traits)),
-      }
-    : {}),
-  ...(provider.reset ? { reset: () => provider.reset!() } : {}),
-  ...(provider.flush ? { flush: () => provider.flush!() } : {}),
-})
+const providerWrappers = new WeakMap<AnalyticsProvider, AnalyticsProvider>()
+const wrappedProviders = new WeakSet<AnalyticsProvider>()
+
+/** Redact every payload at retrieval, including a provider bonded directly through app-bond. */
+const credentialSafeProvider = (provider: AnalyticsProvider): AnalyticsProvider => {
+  if (wrappedProviders.has(provider)) return provider
+  const cached = providerWrappers.get(provider)
+  if (cached) return cached
+  const wrapped: AnalyticsProvider = {
+    identify: (user) => provider.identify(redactCredentials(user)),
+    track: (event) => provider.track(redactCredentials(event)),
+    page: (pageView) => provider.page(redactCredentials(pageView)),
+    ...(provider.group
+      ? {
+          group: (groupId: string, traits?: Record<string, unknown>) =>
+            provider.group!(redactCredentials(groupId), redactCredentials(traits)),
+        }
+      : {}),
+    ...(provider.reset ? { reset: () => provider.reset!() } : {}),
+    ...(provider.flush ? { flush: () => provider.flush!() } : {}),
+  }
+  providerWrappers.set(provider, wrapped)
+  wrappedProviders.add(wrapped)
+  return wrapped
+}
 
 /**
  * Registers an analytics provider as the active singleton. Every payload is credential-redacted
@@ -50,7 +61,7 @@ const credentialSafeProvider = (provider: AnalyticsProvider): AnalyticsProvider 
  * @param provider - The analytics provider implementation to bond.
  */
 export const setProvider = (provider: AnalyticsProvider): void => {
-  bond(BOND_TYPE, credentialSafeProvider(provider))
+  bond(BOND_TYPE, provider)
 }
 
 /**
@@ -63,7 +74,7 @@ export const getProvider = (): AnalyticsProvider => {
   if (!isBonded(BOND_TYPE)) {
     return noopProvider
   }
-  return bondGet<AnalyticsProvider>(BOND_TYPE)!
+  return credentialSafeProvider(bondGet<AnalyticsProvider>(BOND_TYPE)!)
 }
 
 /**

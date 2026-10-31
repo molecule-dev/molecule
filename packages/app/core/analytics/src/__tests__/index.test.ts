@@ -56,16 +56,14 @@ describe('@molecule/app-analytics', () => {
   })
 
   describe('setProvider', () => {
-    it('should bond a credential-safe provider boundary', async () => {
+    it('should bond the provider for the credential-safe retrieval boundary', async () => {
       const provider = createMockProvider()
       setProvider(provider)
-      expect(mockBond).toHaveBeenCalledWith(
-        'app-analytics',
-        expect.objectContaining({ track: expect.any(Function) }),
-      )
-      const bonded = mockBond.mock.calls[0][1] as AnalyticsProvider
+      expect(mockBond).toHaveBeenCalledWith('app-analytics', provider)
+      mockIsBonded.mockReturnValue(true)
+      mockGet.mockReturnValue(provider)
       const event = { name: 'safe.event', properties: { label: 'unchanged' } }
-      await bonded.track(event)
+      await track(event)
       expect(provider.track).toHaveBeenCalledWith(event)
     })
   })
@@ -80,13 +78,14 @@ describe('@molecule/app-analytics', () => {
       expect(typeof provider.page).toBe('function')
     })
 
-    it('should return bonded provider', () => {
+    it('should wrap and cache the bonded provider at retrieval', () => {
       const mockProvider = createMockProvider()
       mockIsBonded.mockReturnValue(true)
       mockGet.mockReturnValue(mockProvider)
 
       const provider = getProvider()
-      expect(provider).toBe(mockProvider)
+      expect(provider).not.toBe(mockProvider)
+      expect(getProvider()).toBe(provider)
     })
 
     it('no-op provider methods should resolve without error', async () => {
