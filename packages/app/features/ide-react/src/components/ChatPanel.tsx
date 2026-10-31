@@ -1311,7 +1311,7 @@ function VerificationBadge({
         <span>
           {t('ide.chat.verificationPassed', undefined, { defaultValue: 'Checks passed' })}
           {renderCheckUnavailable && (
-            <span data-mol-id="render-check-unavailable" style={{ color: '#d4a017' }}>
+            <span data-mol-id="render-check-unavailable" className={cm.textWarning}>
               {' · '}
               {t('ide.chat.renderCheckUnavailable', undefined, {
                 defaultValue: 'Render check unavailable',

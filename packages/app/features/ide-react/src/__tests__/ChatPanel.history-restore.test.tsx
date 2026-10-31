@@ -308,6 +308,23 @@ describe('ChatPanel verification render advisory', () => {
     expect(container.textContent).toContain('Render check unavailable')
   })
 
+  it('uses the registered ClassMap warning token without an inline color', async () => {
+    setClassMap({ ...classMap, textWarning: 'review-warning-token' })
+    try {
+      const container = renderVerificationHistory(true)
+
+      await waitFor(() => expect(container.textContent).toContain('Render check unavailable'))
+      const advisory = container.querySelector<HTMLElement>(
+        '[data-mol-id="render-check-unavailable"]',
+      )
+      expect(advisory).not.toBeNull()
+      expect(advisory?.className).toBe('review-warning-token')
+      expect(advisory?.getAttribute('style')).toBeNull()
+    } finally {
+      setClassMap(classMap)
+    }
+  })
+
   it('renders no advisory for a clean pass', async () => {
     const container = renderVerificationHistory()
 
