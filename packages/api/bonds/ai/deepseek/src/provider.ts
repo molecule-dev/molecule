@@ -148,6 +148,33 @@ function budgetToEffort(budgetTokens: number): string {
   return budgetTokens >= 12_000 ? 'max' : 'high'
 }
 
+/**
+ * Read the upstream's explanation from a rejected response body: its error
+ * `type` (or `code`) and `message`, the message bounded to 500 characters.
+ *
+ * @param text - The rejected response's body text.
+ * @returns The upstream error, or `undefined` when the body carried neither field.
+ */
+function parseUpstreamError(text: string): { type?: string; message?: string } | undefined {
+  let error: { type?: unknown; code?: unknown; message?: unknown } | undefined
+  try {
+    error = (JSON.parse(text) as { error?: typeof error } | null)?.error
+  } catch (_error) {
+    // Not JSON (a proxy's error page, plain text): a short body is the message itself.
+    const trimmed = text.trim()
+    return trimmed && trimmed.length <= 500 ? { message: trimmed } : undefined
+  }
+  const type =
+    typeof error?.type === 'string'
+      ? error.type
+      : typeof error?.code === 'string'
+        ? error.code
+        : undefined
+  const message = typeof error?.message === 'string' ? error.message.slice(0, 500) : undefined
+  if (!type && !message) return undefined
+  return { ...(type ? { type } : {}), ...(message ? { message } : {}) }
+}
+
 /** How long a stream may wait for its first content event. */
 export const DEFAULT_FIRST_TOKEN_TIMEOUT_MS = 45_000
 
@@ -541,6 +568,9 @@ class DeepseekAIProviderImpl implements AIProvider {
       try {
         let response: Response
         let requestSentAt = 0
+        // Set when the dispatch's retry loop already read the rejected 429/503
+        // body; the `!response.ok` path reuses it instead of a second read.
+        let rejectedBody: string | undefined
         try {
           const dispatched = await this.requestWithRateLimitRetries({
             body,
@@ -557,6 +587,7 @@ class DeepseekAIProviderImpl implements AIProvider {
           })
           response = dispatched.response
           requestSentAt = dispatched.sentAt
+          rejectedBody = dispatched.rejectedBody
         } catch (error) {
           if (!(error instanceof FirstTokenHeaderTimeoutError) || params.signal?.aborted)
             throw error
@@ -590,7 +621,9 @@ class DeepseekAIProviderImpl implements AIProvider {
         if (traceId) call.meta.traceId = traceId
 
         if (!response.ok) {
-          const errorBody = await response.text()
+          // A 429/503 body was already read by the retry loop inside the
+          // dispatch; a body reads only once, so reuse that text.
+          const errorBody = rejectedBody ?? (await response.text())
           let detail = `HTTP ${response.status}`
           try {
             const parsed = JSON.parse(errorBody) as { error?: { message?: string } }
@@ -770,14 +803,20 @@ class DeepseekAIProviderImpl implements AIProvider {
      * stall it, so the window must not spend itself there.
      */
     firstTokenTimeoutMs?: number
-  }): Promise<{ response: Response; sentAt: number }> {
+  }): Promise<{ response: Response; sentAt: number; rejectedBody?: string }> {
     const { body, headers, model, controller, firstTokenTimeoutMs } = args
     const signal = controller.signal
     // Retry with exponential backoff for rate limits (429) and overloaded (503)
     const MAX_RETRIES = 3
     let response: Response | null = null
     let sentAt = 0
+    // The rejected body already read by this loop, when the final attempt ended
+    // on a 429/503: a body reads only once, so the caller must reuse this text
+    // instead of asking the response for it a second time (which throws).
+    let rejectedBody: string | undefined
     for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+      // Reset per attempt: only THIS attempt's rejection has been read.
+      rejectedBody = undefined
       // Bound THIS dispatch, not the retry loop: a deliberate backoff sleep is
       // this provider's own wait, so no window is running while it is spent.
       let headerDeadline: ReturnType<typeof setTimeout> | null = null
@@ -803,6 +842,19 @@ class DeepseekAIProviderImpl implements AIProvider {
       }
 
       if (response.status === 429 || response.status === 503) {
+        // Read the body once: an unread body pins its connection, and only the
+        // body says what the upstream actually refused the request for.
+        try {
+          rejectedBody = await response.text()
+        } catch (error) {
+          // Caller cancellation still ends the request; any other read failure
+          // only loses the reason, so the body counts as read and the retry
+          // policy goes on (the same guard the moonshot bond applies).
+          signal.throwIfAborted()
+          logger.debug('DeepSeek rejected response body could not be read', { error })
+          rejectedBody = ''
+        }
+        const upstreamError = parseUpstreamError(rejectedBody)
         const willRetry = attempt < MAX_RETRIES
         // Retry-After is equally-valid as delta-seconds or an HTTP-date;
         // parseInt on the date form yields NaN, degrading the backoff to a
@@ -827,6 +879,7 @@ class DeepseekAIProviderImpl implements AIProvider {
             willRetry,
             retryInMs: delayMs,
             ...(hasRetryAfter ? { retryAfterSeconds: parsedRetryAfterSeconds } : {}),
+            ...(upstreamError ? { upstreamError } : {}),
           })
         } catch (error) {
           // Host-app telemetry; its failure must never break the request.
@@ -837,6 +890,7 @@ class DeepseekAIProviderImpl implements AIProvider {
             status: response.status,
             attempt: attempt + 1,
             delayMs,
+            ...(upstreamError ? { upstreamError } : {}),
           })
           // A host may cancel inside onRateLimit, before a backoff listener exists.
           signal.throwIfAborted()
@@ -855,7 +909,7 @@ class DeepseekAIProviderImpl implements AIProvider {
       }
       break
     }
-    return { response: response!, sentAt }
+    return { response: response!, sentAt, ...(rejectedBody !== undefined ? { rejectedBody } : {}) }
   }
 
   /**
