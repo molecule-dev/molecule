@@ -59,6 +59,8 @@ export interface Project {
   envVars: Record<string, string>
   sandboxId: string | null
   sandboxStatus: 'creating' | 'queued' | 'running' | 'sleeping' | 'stopped'
+  /** Recorded production placement, when the host schema provides this column. */
+  productionRegion?: string
   lastActiveAt: string | null
   settings: Record<string, unknown>
   createdAt: string
@@ -72,6 +74,8 @@ export type CreateProjectInput = Pick<Project, 'name' | 'projectType'> & {
   framework?: string
   packages?: string[]
   template?: string
+  /** Server-assigned production placement; omitted unless the host sets it. */
+  productionRegion?: string
 }
 
 /**

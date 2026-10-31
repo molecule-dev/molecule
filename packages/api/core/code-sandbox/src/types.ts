@@ -46,6 +46,12 @@ export type SandboxIdleAction = 'off' | 'stop' | 'suspend'
  */
 export interface SandboxConfig {
   projectId: string
+  /**
+   * Provider region for resources created by THIS sandbox. A caller that has
+   * recorded placement passes it here; providers keep their configured default
+   * when it is omitted. Later operations address the created sandbox by id.
+   */
+  region?: string
   image?: string
   env?: Record<string, string>
   /** Docker volume name to mount at /sandbox/project for persistent storage. */

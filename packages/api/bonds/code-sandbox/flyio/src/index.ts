@@ -7,6 +7,10 @@
  * memory to disk, and a suspended Machine bills for storage only. Waking is a
  * resume from that snapshot rather than a cold boot.
  *
+ * `FLY_REGION` is the API Machine's own location and is IGNORED for tenant
+ * placement. Set the provider's `region` default, or pass one create's
+ * `SandboxConfig.region` for a project whose placement was recorded at creation.
+ *
  * @example
  * ```typescript
  * import { bond } from '@molecule/api-bond'

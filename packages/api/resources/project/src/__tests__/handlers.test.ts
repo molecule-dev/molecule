@@ -139,6 +139,23 @@ describe('@molecule/api-resource-project handlers', () => {
       expect(mockCreate).toHaveBeenCalledWith('projects', expect.objectContaining({ projectType }))
     })
 
+    it('persists a server-assigned production region in the same insert', async () => {
+      mockFindOne.mockResolvedValue(null)
+      mockCreate.mockResolvedValue({ data: { id: 'western', productionRegion: 'sjc' } })
+      const req = mockReq({
+        body: { name: 'Western', projectType: 'api', productionRegion: 'sjc' },
+      })
+      const res = mockRes()
+
+      await create(req, res)
+
+      expect(mockCreate).toHaveBeenCalledWith(
+        'projects',
+        expect.objectContaining({ productionRegion: 'sjc' }),
+      )
+      expect(res.status).toHaveBeenCalledWith(201)
+    })
+
     it('should create project with slugified name', async () => {
       mockFindOne.mockResolvedValue(null) // No slug collision
       mockCreate.mockResolvedValue({ data: { id: '1', slug: 'my-project' } })

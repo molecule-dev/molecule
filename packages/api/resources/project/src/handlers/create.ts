@@ -63,6 +63,7 @@ export async function create(req: MoleculeRequest, res: MoleculeResponse): Promi
       envVars: JSON.stringify({}),
       sandboxStatus: 'stopped',
       settings: JSON.stringify({}),
+      ...(input.productionRegion === undefined ? {} : { productionRegion: input.productionRegion }),
     })
 
     logger.debug('Project created', { projectId: result.data?.id, slug })

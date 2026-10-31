@@ -320,6 +320,56 @@ describe('create — allocating the routes', () => {
     )
   })
 
+  it('uses the create region’s tenant route, never the default region’s route', async () => {
+    const westernDb = 'molecule-pg-tenant-sjc'
+    const double = createFetchDouble()
+      .on(`POST /apps/${westernDb}/ip_assignments`, { body: { ip: DB_IP } })
+      .on(`POST /apps/${PROXY}/ip_assignments`, { body: { ip: PROXY_IP } })
+      .on(`POST /apps/${APP}/machines`, { body: { id: 'm1', state: 'started' } })
+      .on(`GET /apps/${APP}`, { status: 404, body: {} })
+      .on('POST /apps', { status: 201, body: {} })
+
+    await makeProvider(
+      {
+        privateServices: SERVICES,
+        privateServicesByRegion: {
+          sjc: [
+            { app: westernDb, port: 5432 },
+            { app: PROXY, port: 3129 },
+          ],
+        },
+      },
+      double,
+    ).create({
+      projectId: PROJECT_ID,
+      region: 'sjc',
+      selfDeliveredEnv: {
+        DATABASE_URL: `postgresql://${westernDb}.flycast:5432/mol_abc`,
+        HTTP_PROXY: `http://${PROXY}.flycast:3129`,
+      },
+    })
+
+    const allocations = double.calls.filter(
+      (call) => call.method === 'POST' && call.path.endsWith('/ip_assignments'),
+    )
+    expect(allocations.map((call) => call.path)).toEqual([
+      `/apps/${westernDb}/ip_assignments`,
+      `/apps/${PROXY}/ip_assignments`,
+    ])
+    expect(double.matching(`POST /apps/${TENANT_DB}/ip_assignments`)).toHaveLength(0)
+  })
+
+  it('refuses a non-default create region with no regional route declaration', async () => {
+    const double = createFetchDouble()
+    await expect(
+      makeProvider({ privateServices: SERVICES }, double).create({
+        projectId: PROJECT_ID,
+        region: 'sjc',
+      }),
+    ).rejects.toThrow(/FLY_SANDBOX_PRIVATE_SERVICES_SJC/)
+    expect(double.calls).toHaveLength(0)
+  })
+
   it('NEVER allocates on an app that was not declared — the control-plane cluster included', async () => {
     const double = queueCreateWithRoutes(createFetchDouble())
     await makeProvider({ privateServices: SERVICES }, double).create({

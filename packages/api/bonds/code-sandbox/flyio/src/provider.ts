@@ -490,8 +490,11 @@ class FlyioSandboxProvider implements SandboxProvider {
    * Resolves the Fly region for Machines and volumes.
    * @returns The region code.
    */
-  private region(): string {
-    return this.config.region ?? process.env.FLY_REGION ?? DEFAULT_REGION
+  private region(createRegion?: string): string {
+    // FLY_REGION is the API Machine's own location on Fly, not a tenant
+    // placement decision. Only provider configuration or this create's recorded
+    // region may choose where new project resources live.
+    return createRegion ?? this.config.region ?? DEFAULT_REGION
   }
 
   /**
@@ -615,11 +618,24 @@ class FlyioSandboxProvider implements SandboxProvider {
    * `<app>.internal` already resolves and Flycast would add nothing.
    * @returns The declared services, or `undefined` when none are configured.
    */
-  private privateServices(): FlyPrivateService[] | undefined {
+  private privateServices(createRegion?: string): FlyPrivateService[] | undefined {
     if (!this.appPerProject()) return undefined
-    return (
+    const fallback =
       this.config.privateServices ?? parsePrivateServices(process.env.FLY_SANDBOX_PRIVATE_SERVICES)
-    )
+    if (!createRegion || createRegion === DEFAULT_REGION) return fallback
+    const suffix = createRegion.replace(/-/g, '_').toUpperCase()
+    const variable = `FLY_SANDBOX_PRIVATE_SERVICES_${suffix}`
+    const regional =
+      this.config.privateServicesByRegion?.[createRegion] ??
+      parsePrivateServices(process.env[variable])
+    if (!regional && fallback?.length) {
+      throw new Error(
+        `No Fly private services are configured for create region "${createRegion}"; ` +
+          `set ${variable} (or config.privateServicesByRegion.${createRegion}). ` +
+          "Refusing to reuse another region's tenant route.",
+      )
+    }
+    return regional ?? fallback
   }
 
   /** Fence and cancel every provisioning mutation at its owning attempt. */
@@ -664,7 +680,7 @@ class FlyioSandboxProvider implements SandboxProvider {
    */
   private async ensureApp(
     app: string,
-    options: { privateRoutes?: boolean; attempt?: FlyAttemptContext } = {},
+    options: { privateRoutes?: boolean; attempt?: FlyAttemptContext; createRegion?: string } = {},
   ): Promise<{
     routes: Record<string, string>
     allocated: Record<string, string>
@@ -702,9 +718,9 @@ class FlyioSandboxProvider implements SandboxProvider {
     if (createdHere && this.config.assignSharedIpv4) {
       await this.assignSharedIpv4(app, options.attempt)
     }
-    await this.applyEgressPolicy(app, options.attempt)
+    await this.applyEgressPolicy(app, options.attempt, options.createRegion)
     if (options.privateRoutes === false) return { routes: {}, allocated: {} }
-    return this.ensurePrivateRoutes(app, Boolean(existing), options.attempt)
+    return this.ensurePrivateRoutes(app, Boolean(existing), options.attempt, options.createRegion)
   }
 
   /**
@@ -740,8 +756,9 @@ class FlyioSandboxProvider implements SandboxProvider {
     app: string,
     appExisted: boolean,
     attempt?: FlyAttemptContext,
+    createRegion?: string,
   ): Promise<{ routes: Record<string, string>; allocated: Record<string, string> }> {
-    const services = this.privateServices()
+    const services = this.privateServices(createRegion)
     const network = this.networkFor(app)
     if (!services?.length || !network) return { routes: {}, allocated: {} }
 
@@ -956,8 +973,8 @@ class FlyioSandboxProvider implements SandboxProvider {
    *   about a rule with no ports, so accepting `[]` would ship a security
    *   control whose behaviour is a guess.
    */
-  private egressAllowedPorts(): FlyNetworkPolicyPort[] | undefined {
-    return mergeEgressPorts(this.configuredEgressPorts(), this.privateServices())
+  private egressAllowedPorts(createRegion?: string): FlyNetworkPolicyPort[] | undefined {
+    return mergeEgressPorts(this.configuredEgressPorts(), this.privateServices(createRegion))
   }
 
   /**
@@ -995,8 +1012,12 @@ class FlyioSandboxProvider implements SandboxProvider {
    * @param app - The Fly app name.
    * @returns Nothing; resolves once the policy is in place (or none was configured).
    */
-  private async applyEgressPolicy(app: string, attempt?: FlyAttemptContext): Promise<void> {
-    const ports = this.egressAllowedPorts()
+  private async applyEgressPolicy(
+    app: string,
+    attempt?: FlyAttemptContext,
+    createRegion?: string,
+  ): Promise<void> {
+    const ports = this.egressAllowedPorts(createRegion)
     if (!ports) return
 
     const name = this.config.egressPolicyName ?? DEFAULT_EGRESS_POLICY_NAME
@@ -1196,6 +1217,7 @@ class FlyioSandboxProvider implements SandboxProvider {
     attempt: FlyAttemptContext,
     sizeGB: number,
     compute: NonNullable<FlyMachineConfig['guest']>,
+    region: string,
   ): Promise<{ id: string; name: string; workspace: boolean }> {
     const journal = this.config.createAttemptJournal
     const bound = await journal?.findWorkspace(projectId, name)
@@ -1245,7 +1267,7 @@ class FlyioSandboxProvider implements SandboxProvider {
       resolved: false,
     })
     try {
-      const id = await this.createFreshVolume(app, attemptName, attempt, sizeGB, compute)
+      const id = await this.createFreshVolume(app, attemptName, attempt, sizeGB, compute, region)
       await journal?.recordVolume(attempt.attemptId, {
         id,
         name: attemptName,
@@ -1293,12 +1315,13 @@ class FlyioSandboxProvider implements SandboxProvider {
     attempt: FlyAttemptContext,
     sizeGB: number,
     compute: NonNullable<FlyMachineConfig['guest']>,
+    region: string,
   ): Promise<string> {
     const created = await this.requestForAttempt<FlyVolume>(attempt, `/apps/${app}/volumes`, {
       method: 'POST',
       body: {
         name: flyName,
-        region: this.region(),
+        region,
         size_gb: sizeGB,
         encrypted: true,
         compute,
@@ -1428,7 +1451,10 @@ class FlyioSandboxProvider implements SandboxProvider {
     // is checked too — the host is unroutable however the value arrives, and
     // that env is exactly where a control plane puts the values it refuses to
     // leave in a Machine config.
-    assertPrivateRoutesForEnv({ ...config.env, ...config.selfDeliveredEnv }, this.privateServices())
+    assertPrivateRoutesForEnv(
+      { ...config.env, ...config.selfDeliveredEnv },
+      this.privateServices(config.region),
+    )
 
     const app = this.resolveApp(config.projectId)
     const createAttemptId = randomUUID()
@@ -1441,7 +1467,10 @@ class FlyioSandboxProvider implements SandboxProvider {
     })
     const attempt: FlyAttemptContext = { attemptId: createAttemptId, generation: 1, signal }
     try {
-      const { routes: privateRoutes } = await this.ensureApp(app, { attempt })
+      const { routes: privateRoutes } = await this.ensureApp(app, {
+        attempt,
+        createRegion: config.region,
+      })
       const sandbox = await this.createInApp(app, privateRoutes, config, manifest, attempt)
       if (signal.aborted) throw signal.reason
       await journal?.assertGeneration(attempt.attemptId, attempt.generation)
@@ -1543,6 +1572,7 @@ class FlyioSandboxProvider implements SandboxProvider {
         attempt,
         volumeSizeGB,
         machineConfig.guest ?? {},
+        this.region(config.region),
       )
       if (!volume.workspace) newAttemptVolumeName = volume.name
       // The caller may scope the volume to a subtree (e.g. /workspace/<appDir>)
@@ -1566,7 +1596,7 @@ class FlyioSandboxProvider implements SandboxProvider {
     try {
       machine = await this.requestForAttempt<FlyMachine>(attempt, `/apps/${app}/machines`, {
         method: 'POST',
-        body: { name: createAttemptId, region: this.region(), config: machineConfig },
+        body: { name: createAttemptId, region: this.region(config.region), config: machineConfig },
         // A just-created app propagates to the Machines API asynchronously, so this
         // POST can 404 "app not found" for a few seconds. Retry the 404 (safe: no
         // Machine is created when the app is not found) across the client's backoff.

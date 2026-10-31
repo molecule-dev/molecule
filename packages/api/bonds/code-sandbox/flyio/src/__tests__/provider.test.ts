@@ -94,6 +94,26 @@ describe('create — app provisioning and tenant isolation', () => {
     expect(createApp.body).toEqual({ name: APP, org_slug: 'acme', network: APP })
   })
 
+  it('uses one create’s region for its Machine instead of the API Machine’s FLY_REGION', async () => {
+    const double = queueCreate(createFetchDouble())
+    process.env.FLY_REGION = 'lax'
+
+    await makeProvider({ region: 'iad' }, double).create({ projectId: PROJECT_ID, region: 'sjc' })
+
+    const createMachine = double.matching(`POST /apps/${APP}/machines`)[0]
+    expect(createMachine.body).toMatchObject({ region: 'sjc' })
+  })
+
+  it('defaults to iad rather than inheriting the API Machine’s FLY_REGION', async () => {
+    const double = queueCreate(createFetchDouble())
+    process.env.FLY_REGION = 'sjc'
+
+    await makeProvider({ region: undefined }, double).create({ projectId: PROJECT_ID })
+
+    const createMachine = double.matching(`POST /apps/${APP}/machines`)[0]
+    expect(createMachine.body).toMatchObject({ region: 'iad' })
+  })
+
   it('reuses an app that already exists and never tries to change its network', async () => {
     const double = createFetchDouble()
       .on(`GET /apps/${APP}`, { body: { name: APP, network: 'legacy' } })
@@ -578,6 +598,21 @@ describe('create — Machine configuration', () => {
 })
 
 describe('create — volumes', () => {
+  it('creates the volume in the same per-create region as its Machine', async () => {
+    const double = queueCreate(createFetchDouble())
+      .on(`GET /apps/${APP}/volumes`, { body: [] })
+      .on(`POST /apps/${APP}/volumes`, { body: { id: 'vol_sjc', name: 'mol_abc' } })
+
+    await makeProvider({}, double).create({
+      projectId: PROJECT_ID,
+      volumeName: 'mol-abc',
+      region: 'sjc',
+    })
+
+    expect(double.matching(`POST /apps/${APP}/volumes`)[0].body).toMatchObject({ region: 'sjc' })
+    expect(double.matching(`POST /apps/${APP}/machines`)[0].body).toMatchObject({ region: 'sjc' })
+  })
+
   it('provisions the volume in the project app and mounts it at /workspace', async () => {
     const double = queueCreate(createFetchDouble())
       .on(`GET /apps/${APP}/volumes`, { body: [] })

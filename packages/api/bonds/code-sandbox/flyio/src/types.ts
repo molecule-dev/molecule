@@ -67,7 +67,11 @@ export interface FlyioConfig {
    * creation.
    */
   network?: string
-  /** Fly region for Machines and volumes (e.g. `iad`). Falls back to `FLY_REGION`, then `iad`. */
+  /**
+   * Default Fly region for Machines and volumes (e.g. `iad`). Defaults to
+   * `iad`; `SandboxConfig.region` overrides it for one recorded project create.
+   * The API Machine's own `FLY_REGION` is never a tenant-placement fallback.
+   */
   region?: string
   /**
    * OCI image every sandbox Machine runs. Must be pullable by Fly — a tag in
@@ -199,6 +203,12 @@ export interface FlyioConfig {
    */
   privateServices?: FlyPrivateService[]
   /**
+   * Per-create regional overrides for {@link FlyioConfig.privateServices}.
+   * Falls back to `FLY_SANDBOX_PRIVATE_SERVICES_<REGION>`; a non-default create
+   * region never silently reuses another region's tenant route.
+   */
+  privateServicesByRegion?: Record<string, FlyPrivateService[]>
+  /**
    * `type` sent to `POST /apps/{app}/ip_assignments` when allocating a Flycast
    * address. Defaults to `private_v6`, the value flyctl passes for
    * `fly ips allocate-v6 --private`. The field has no enum in Fly's OpenAPI
@@ -307,7 +317,11 @@ export interface ProcessEnv {
   FLY_SANDBOX_APP_PREFIX?: string
   /** `false` disables per-project apps (refused in production). */
   FLY_SANDBOX_APP_PER_PROJECT?: string
-  /** Fly region for Machines and volumes (default `iad`). */
+  /**
+   * The API Machine's own region, not a tenant-placement setting; ignored.
+   *
+   * @deprecated Use `FlyioConfig.region` or one create's `SandboxConfig.region`.
+   */
   FLY_REGION?: string
   /** OCI image for sandbox Machines. */
   FLY_SANDBOX_IMAGE?: string
