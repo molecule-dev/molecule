@@ -436,6 +436,16 @@ export interface FormProvider {
   createForm<T extends FormValuesConstraint<T>>(options: FormOptions<T>): FormController<T>
 }
 
+/** Options controlling how externally supplied values replace a form's baseline. */
+export interface FormResetOptions {
+  /**
+   * Keep fields whose current value differs from their baseline when `values`
+   * changes. Pristine fields still take the new values. False by default, so a
+   * new record can replace edits from the previous record.
+   */
+  keepDirtyValues?: boolean
+}
+
 /**
  * Form creation options.
  */
@@ -445,6 +455,16 @@ export interface FormOptions<T extends FormValuesConstraint<T>> {
    * is created. Mutating this object afterwards does not change the baseline.
    */
   defaultValues?: Partial<T>
+
+  /**
+   * Externally loaded values, merged over `defaultValues` as the clean
+   * baseline. React's `useForm` also applies later content changes; use
+   * `resetOptions.keepDirtyValues` to preserve edits while pristine fields fill.
+   */
+  values?: Partial<T>
+
+  /** Controls how the React binding applies changed `values`. */
+  resetOptions?: FormResetOptions
 
   /**
    * Validation mode.

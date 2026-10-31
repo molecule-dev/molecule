@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { act, renderHook } from '@testing-library/react'
+import { act, fireEvent, render, renderHook, screen } from '@testing-library/react'
 import type { FormEvent, FormEventHandler } from 'react'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -30,6 +30,93 @@ function assertPublicHandleSubmitContract(form: UseFormResult<InventoryValues>):
 void assertPublicHandleSubmitContract
 
 const defaultValues: InventoryValues = { sku: 'KIT-7', quantity: 2 }
+
+interface ArticleValues {
+  title: string
+  body: string
+}
+
+function ArticleEditor({
+  values,
+  keepDirtyValues = true,
+}: {
+  values?: ArticleValues
+  keepDirtyValues?: boolean
+}) {
+  const form = useForm<ArticleValues>({
+    defaultValues: { title: '', body: '' },
+    values,
+    resetOptions: { keepDirtyValues },
+  })
+  const title = form.register('title')
+  const body = form.register('body')
+
+  return (
+    <>
+      <input aria-label="Title" {...title} value={String(title.value ?? '')} />
+      <textarea aria-label="Body" {...body} value={String(body.value ?? '')} />
+      <button type="button" onClick={() => form.reset()}>
+        Reset
+      </button>
+    </>
+  )
+}
+
+describe('useForm late values', () => {
+  it('keeps an edited article field and fills pristine fields when its record loads', () => {
+    const { rerender } = render(<ArticleEditor values={{ title: '', body: '' }} />)
+
+    fireEvent.change(screen.getByLabelText('Title'), { target: { value: 'Draft title' } })
+    rerender(<ArticleEditor values={{ title: 'Loaded title', body: 'Loaded body' }} />)
+
+    expect(screen.getByLabelText('Title')).toHaveProperty('value', 'Draft title')
+    expect(screen.getByLabelText('Body')).toHaveProperty('value', 'Loaded body')
+  })
+
+  it('replaces edits for a new record when keepDirtyValues is false', () => {
+    const { rerender } = render(
+      <ArticleEditor values={{ title: 'First', body: 'First body' }} keepDirtyValues={false} />,
+    )
+    fireEvent.change(screen.getByLabelText('Title'), { target: { value: 'Draft title' } })
+
+    rerender(
+      <ArticleEditor values={{ title: 'Second', body: 'Second body' }} keepDirtyValues={false} />,
+    )
+
+    expect(screen.getByLabelText('Title')).toHaveProperty('value', 'Second')
+    expect(screen.getByLabelText('Body')).toHaveProperty('value', 'Second body')
+  })
+
+  it('uses the latest values as the baseline for reset()', () => {
+    const { rerender } = render(<ArticleEditor values={{ title: '', body: '' }} />)
+    rerender(<ArticleEditor values={{ title: 'Loaded title', body: 'Loaded body' }} />)
+    fireEvent.change(screen.getByLabelText('Title'), { target: { value: 'Draft title' } })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Reset' }))
+
+    expect(screen.getByLabelText('Title')).toHaveProperty('value', 'Loaded title')
+    expect(screen.getByLabelText('Body')).toHaveProperty('value', 'Loaded body')
+  })
+
+  it('does not reset for a new values reference with equal content', () => {
+    const { rerender } = render(<ArticleEditor values={{ title: 'Loaded', body: 'Body' }} />)
+    fireEvent.change(screen.getByLabelText('Title'), { target: { value: 'Draft title' } })
+
+    rerender(<ArticleEditor values={{ title: 'Loaded', body: 'Body' }} />)
+
+    expect(screen.getByLabelText('Title')).toHaveProperty('value', 'Draft title')
+  })
+
+  it('leaves a form without values unchanged across rerenders', () => {
+    const { rerender } = render(<ArticleEditor />)
+    fireEvent.change(screen.getByLabelText('Title'), { target: { value: 'Draft title' } })
+
+    rerender(<ArticleEditor />)
+
+    expect(screen.getByLabelText('Title')).toHaveProperty('value', 'Draft title')
+    expect(screen.getByLabelText('Body')).toHaveProperty('value', '')
+  })
+})
 
 describe('useForm handleSubmit', () => {
   it('submits inventory values through a synchronous callback', async () => {

@@ -462,6 +462,23 @@ describe('@molecule/app-forms', () => {
         expect(controller.getError('email')).toBeDefined()
       })
 
+      it('uses external values as the initial clean baseline over defaults', () => {
+        const form = nativeProvider.createForm({
+          defaultValues: { name: 'Default', email: 'default@example.test' },
+          values: { name: 'Loaded' },
+          resetOptions: { keepDirtyValues: true },
+        })
+
+        expect(form.getValues()).toEqual({ name: 'Loaded', email: 'default@example.test' })
+        expect(form.getState().isDirty).toBe(false)
+
+        form.setValue('name', 'Edited')
+        form.reset()
+
+        expect(form.getValue('name')).toBe('Loaded')
+        expect(form.getState().isDirty).toBe(false)
+      })
+
       it('should reset the form', () => {
         controller.setValue('name', 'John')
         controller.setError('name', 'Error')

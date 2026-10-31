@@ -44,6 +44,7 @@ export const createNativeFormProvider = (): FormProvider => {
       // only where it hands values out.
       let defaultValues: Record<string, unknown> = {
         ...((options.defaultValues ?? {}) as Record<string, unknown>),
+        ...((options.values ?? {}) as Record<string, unknown>),
       }
       let values: Record<string, unknown> = { ...defaultValues }
       let errors: Partial<Record<keyof T, string>> = {}
