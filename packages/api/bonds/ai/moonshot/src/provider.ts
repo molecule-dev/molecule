@@ -300,7 +300,15 @@ class MoonshotAIProvider implements AIProvider {
       if (response.status === 429 || response.status === 503) {
         // Read the body once: an unread body pins its connection, and only the
         // body says whether a 429 is a rate limit or an exhausted balance.
-        rejectedBody = await response.text()
+        try {
+          rejectedBody = await response.text()
+        } catch (error) {
+          // Caller cancellation still ends the request; any other read failure only
+          // loses the reason, so the body counts as read and the retry policy goes on.
+          signal.throwIfAborted()
+          logger.debug('Moonshot rejected response body could not be read', { error })
+          rejectedBody = ''
+        }
         const upstreamError = parseUpstreamError(rejectedBody)
         // An exhausted balance does not recover by waiting: a bounded retry
         // budget fails at once, while 'until-aborted' keeps the same request

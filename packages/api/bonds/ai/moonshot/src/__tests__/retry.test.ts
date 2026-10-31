@@ -227,6 +227,76 @@ describe('configurable same-request overload retries', () => {
     expect(events.at(-1)).toMatchObject({ type: 'error', message: /rate limit exceeded/ })
   })
 
+  it('keeps retrying under until-aborted when a rejected body cannot be read', async () => {
+    vi.useFakeTimers()
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    const unreadable = (status: number) =>
+      new Response(
+        new ReadableStream({
+          start(controller) {
+            controller.error(new Error('connection reset'))
+          },
+        }),
+        { status },
+      )
+    fetch.mockImplementation(() =>
+      Promise.resolve(
+        fetch.mock.calls.length === 1
+          ? unreadable(429)
+          : fetch.mock.calls.length === 2
+            ? unreadable(503)
+            : toolSuccess(),
+      ),
+    )
+    const rateLimits: unknown[] = []
+    const result = collect(
+      createProvider({
+        apiKey: 'test-key',
+        rateLimitRetries: 'until-aborted',
+        onRateLimit: (event) => rateLimits.push(event),
+      }),
+      {
+        messages: [{ role: 'user', content: 'hello' }],
+        signal: new AbortController().signal,
+        stream: false,
+      },
+    )
+    await vi.runAllTimersAsync()
+    const events = await result
+    expect(fetch).toHaveBeenCalledTimes(3)
+    expect(rateLimits).toEqual([
+      expect.not.objectContaining({ upstreamError: expect.anything() }),
+      expect.not.objectContaining({ upstreamError: expect.anything() }),
+    ])
+    expect(events.some((e) => e.type === 'tool_use')).toBe(true)
+  })
+
+  it('still ends the request when the caller aborts while a rejected body is read', async () => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    const controller = new AbortController()
+    fetch.mockImplementation(() =>
+      Promise.resolve(
+        new Response(
+          new ReadableStream({
+            start(stream) {
+              controller.abort(new Error('caller stopped'))
+              stream.error(new Error('aborted read'))
+            },
+          }),
+          { status: 429 },
+        ),
+      ),
+    )
+    await expect(
+      collect(createProvider({ apiKey: 'test-key', rateLimitRetries: 'until-aborted' }), {
+        messages: [{ role: 'user', content: 'hello' }],
+        signal: controller.signal,
+        stream: false,
+      }),
+    ).rejects.toThrow('caller stopped')
+    expect(fetch).toHaveBeenCalledTimes(1)
+  })
+
   it.each([401, 400])(
     'does not retry permanent HTTP %i failures in until-aborted mode',
     async (status) => {
