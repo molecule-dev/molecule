@@ -33,6 +33,11 @@
  * ignores `serverTools`. `extraBody` is merged into whichever endpoint's body is sent, so its
  * keys must be that endpoint's params (e.g. `reasoning`, not `reasoning_effort`, on Responses).
  *
+ * **Quota semantics**: OpenAI and Azure OpenAI hosts treat documented 429 billing, spend, and
+ * quota codes as exhausted without retrying; other hosts retry them as ordinary throttling.
+ * Set `quotaSemantics: 'openai'` when a proxy forwards those failures unchanged, or
+ * `quotaSemantics: 'retryable'` to preserve retries on a native host with different semantics.
+ *
  * **Missing `OPENAI_API_KEY` fails fast**: the provider throws naming the exact env var on
  * first use (the exported `provider` is a lazy proxy, so this fires on the first `chat()` call,
  * not at bond/module-load time) — it never silently sends an empty key.

@@ -16,6 +16,15 @@ export interface OpenaiConfig {
   maxTokens?: number
   /** Override the API base URL (for proxies / Azure). */
   baseUrl?: string
+  /**
+   * How the upstream uses OpenAI's documented 429 quota codes. `'openai'`
+   * treats them as exhausted billing/spend limits and stops without retrying;
+   * `'retryable'` treats them as ordinary throttling. Defaults to `'openai'`
+   * for `api.openai.com` and `*.openai.azure.com` (including explicit ports),
+   * and `'retryable'` for every other host. Set `'openai'` for a proxy that
+   * forwards OpenAI or Azure OpenAI quota failures unchanged.
+   */
+  quotaSemantics?: 'openai' | 'retryable'
   /** Called on each rate-limited/overloaded upstream response, before any retry sleep. */
   onRateLimit?: AiRateLimitCallback
   /**

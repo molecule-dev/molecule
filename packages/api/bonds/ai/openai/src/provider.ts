@@ -41,13 +41,20 @@ const logger = getLogger()
 /** OpenAI's own API host — the only one assumed to serve `/v1/responses`. */
 const OPENAI_API_HOST = 'api.openai.com'
 
+type OpenaiQuotaSemantics = NonNullable<OpenaiConfig['quotaSemantics']>
+
+/** The URL's normalized hostname, without a port or a trailing DNS root dot. */
+function normalizedHostname(baseUrl: string): string | undefined {
+  try {
+    return new URL(baseUrl).hostname.replace(/\.$/, '')
+  } catch (_error) {
+    return undefined
+  }
+}
+
 /** Whether a base URL addresses OpenAI's own API rather than a compatible service. */
 function isOpenAIEndpoint(baseUrl: string): boolean {
-  try {
-    return new URL(baseUrl).host === OPENAI_API_HOST
-  } catch (_error) {
-    return false
-  }
+  return normalizedHostname(baseUrl) === OPENAI_API_HOST
 }
 
 /**
@@ -59,6 +66,18 @@ function isOpenAIEndpoint(baseUrl: string): boolean {
  */
 function defaultApiFor(baseUrl: string): OpenaiApi {
   return isOpenAIEndpoint(baseUrl) ? 'responses' : 'chat-completions'
+}
+
+/**
+ * Pick the quota semantics native OpenAI and Azure OpenAI endpoints use.
+ * Compatible services retain ordinary 429 retries unless explicitly configured
+ * to forward OpenAI's billing/quota behavior.
+ */
+function defaultQuotaSemanticsFor(baseUrl: string): OpenaiQuotaSemantics {
+  const hostname = normalizedHostname(baseUrl)
+  return hostname === OPENAI_API_HOST || hostname?.endsWith('.openai.azure.com')
+    ? 'openai'
+    : 'retryable'
 }
 
 /**
@@ -138,7 +157,7 @@ export class OpenaiAIProvider implements AIProvider {
   private baseUrl: string
   private onRateLimit?: AiRateLimitCallback
   private api: OpenaiApi
-  private openAIEndpoint: boolean
+  private quotaSemantics: OpenaiQuotaSemantics
 
   constructor(config: OpenaiConfig = {}) {
     this.apiKey = config.apiKey ?? process.env.OPENAI_API_KEY ?? ''
@@ -147,7 +166,7 @@ export class OpenaiAIProvider implements AIProvider {
     this.baseUrl = config.baseUrl ?? process.env.OPENAI_BASE_URL ?? 'https://api.openai.com'
     this.onRateLimit = config.onRateLimit
     this.api = config.api ?? defaultApiFor(this.baseUrl)
-    this.openAIEndpoint = isOpenAIEndpoint(this.baseUrl)
+    this.quotaSemantics = config.quotaSemantics ?? defaultQuotaSemanticsFor(this.baseUrl)
 
     // Fail fast with an actionable local error rather than a cryptic 401 on the
     // first request. The default `provider` export constructs lazily on first
@@ -300,7 +319,7 @@ export class OpenaiAIProvider implements AIProvider {
         // Billing, spend, and quota failures do not recover by waiting: a
         // bounded retry budget fails at once instead of burning its retries.
         const quotaExhausted =
-          this.openAIEndpoint && isQuotaExhausted(response.status, upstreamError)
+          this.quotaSemantics === 'openai' && isQuotaExhausted(response.status, upstreamError)
         const willRetry = !quotaExhausted && attempt < MAX_RETRIES
         // Retry-After is equally-valid as delta-seconds or an HTTP-date;
         // parseInt on the date form yields NaN, degrading the backoff to a
@@ -374,7 +393,8 @@ export class OpenaiAIProvider implements AIProvider {
       }
       logger.error('OpenAI API error', { status: response!.status, detail })
       const clientMessage =
-        this.openAIEndpoint && isQuotaExhausted(response!.status, parseUpstreamError(errorBody))
+        this.quotaSemantics === 'openai' &&
+        isQuotaExhausted(response!.status, parseUpstreamError(errorBody))
           ? 'AI service is unavailable right now. Please try again later.'
           : response!.status === 429
             ? 'AI rate limit exceeded. Please try again shortly.'

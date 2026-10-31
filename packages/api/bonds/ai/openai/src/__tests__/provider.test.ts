@@ -34,6 +34,14 @@ function sseResponse(lines: string[]): Response {
   })
 }
 
+const DOCUMENTED_QUOTA_CODES = [
+  'insufficient_quota',
+  'credit_balance_exhausted',
+  'organization_spend_limit_exceeded',
+  'project_spend_limit_exceeded',
+  'organization_usage_limit_exceeded',
+] as const
+
 beforeEach(() => {
   vi.stubGlobal('fetch', vi.fn())
 })
@@ -963,6 +971,89 @@ describe('chat() — rejected 429/503 bodies are read once and their reason repo
         message: string
       }
       expect(err.message).toBe('AI service is unavailable right now. Please try again later.')
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it.each(
+    DOCUMENTED_QUOTA_CODES.flatMap((code) =>
+      ([true, false] as const).map((stream) => ({ code, stream })),
+    ),
+  )(
+    'stops a proxy-forwarded $code after one POST when stream=$stream and OpenAI quota semantics are configured',
+    async ({ code, stream }) => {
+      vi.useFakeTimers()
+      try {
+        const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+        fetch.mockImplementation(() =>
+          Promise.resolve(
+            jsonResponse(429, { error: { code, message: 'Forwarded OpenAI quota failure.' } }),
+          ),
+        )
+        const rateLimits: unknown[] = []
+        const provider = createProvider({
+          apiKey: 'k',
+          baseUrl: 'https://proxy.test/openai',
+          quotaSemantics: 'openai',
+          onRateLimit: (event) => rateLimits.push(event),
+        })
+        const eventsPromise = (async () => {
+          const events: unknown[] = []
+          for await (const event of provider.chat({
+            messages: [{ role: 'user', content: 'x' }],
+            stream,
+          })) {
+            events.push(event)
+          }
+          return events
+        })()
+        await vi.runAllTimersAsync()
+        const events = await eventsPromise
+
+        expect(fetch).toHaveBeenCalledTimes(1)
+        expect(rateLimits).toEqual([expect.objectContaining({ status: 429, willRetry: false })])
+        expect(events).toContainEqual(
+          expect.objectContaining({
+            type: 'error',
+            message: 'AI service is unavailable right now. Please try again later.',
+          }),
+        )
+      } finally {
+        vi.useRealTimers()
+      }
+    },
+  )
+
+  it.each([
+    { name: 'Azure OpenAI', baseUrl: 'https://resource.openai.azure.com/openai' },
+    { name: 'OpenAI on a non-default port', baseUrl: 'https://api.openai.com:8443/' },
+  ])('uses OpenAI quota semantics by default for $name', async ({ baseUrl }) => {
+    vi.useFakeTimers()
+    try {
+      const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+      fetch.mockImplementation(() =>
+        Promise.resolve(
+          jsonResponse(429, {
+            error: { code: 'insufficient_quota', message: 'Account quota exhausted.' },
+          }),
+        ),
+      )
+      const provider = createProvider({ apiKey: 'k', baseUrl, api: 'chat-completions' })
+      const eventsPromise = (async () => {
+        const events: unknown[] = []
+        for await (const event of provider.chat({
+          messages: [{ role: 'user', content: 'x' }],
+          stream: false,
+        })) {
+          events.push(event)
+        }
+        return events
+      })()
+      await vi.runAllTimersAsync()
+      await eventsPromise
+
+      expect(fetch).toHaveBeenCalledTimes(1)
     } finally {
       vi.useRealTimers()
     }
