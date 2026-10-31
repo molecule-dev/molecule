@@ -129,9 +129,9 @@ jobs:
       # package.json. npm workspaces hoist everything, so an undeclared import
       # builds here and breaks for pnpm / Yarn PnP consumers.
       - run: npm run check:undeclared-imports
-      # Versioning is local and lands with the change; a changeset still under
-      # .changeset/ on a pushed commit means a package was changed and never
-      # versioned, and the Release workflow refuses to run while one exists.
+      # Versioning is local and lands with the change. A changeset still under
+      # .changeset/ must belong exclusively to packages in the committed
+      # held.json review-hold record; every other pending changeset fails.
       - run: npm run check:changesets-consumed
       - run: npm run build
       # Type-check test files. Package builds exclude src/**/__tests__ and

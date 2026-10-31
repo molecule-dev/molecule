@@ -52,6 +52,11 @@ import { fileURLToPath } from 'node:url'
 
 import { assertPackComplete } from './lib/assert-pack-complete.mjs'
 import {
+  HELD_CHANGESETS_FILE,
+  parseHeldRecord,
+  withoutHeldPackages,
+} from './lib/held-changesets.mjs'
+import {
   dependencyOrder,
   exactMoleculeDeps,
   missingDependency,
@@ -381,8 +386,15 @@ function blockedFailure(pkg, missing, { error, cycle, unknown }) {
   }
 }
 
-const all = discover()
-process.stderr.write(`discovered ${all.length} publishable packages\n`)
+const discovered = discover()
+const heldRecord = existsSync(join(ROOT, HELD_CHANGESETS_FILE))
+  ? parseHeldRecord(readFileSync(join(ROOT, HELD_CHANGESETS_FILE), 'utf8'))
+  : null
+const all = withoutHeldPackages(discovered, heldRecord)
+process.stderr.write(
+  `discovered ${all.length} publishable packages` +
+    (heldRecord ? ` | review-held: ${discovered.length - all.length}\n` : '\n'),
+)
 
 all.sort((a, b) => a.name.localeCompare(b.name))
 

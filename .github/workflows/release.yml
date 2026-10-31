@@ -180,17 +180,11 @@ jobs:
           npm run check:package-metadata
           npm run check:syntax
 
+      # A selective local release may leave reviewed-later packages' changesets
+      # pending. The committed held.json record is exhaustive: every remaining
+      # file must be listed and every package it names must be held.
       - name: Guard — no unconsumed changesets (version locally first)
-        run: |
-          set -eu
-          if ls .changeset/*.md 2>/dev/null | grep -v README > /dev/null; then
-            echo "::error::Unconsumed changeset(s) present. Versioning is a LOCAL step now:" >&2
-            echo "  1. npm run version   # bump + CHANGELOG + consume changesets + lockfile" >&2
-            echo "  2. commit and push the result" >&2
-            echo "  3. re-trigger Release (it publishes; it does not version)" >&2
-            exit 1
-          fi
-          echo "No pending changesets — versions are committed; proceeding to publish."
+        run: bash scripts/check-release-changesets.sh
 
       # ---- 2b. Gate — CI must be GREEN for the exact commit being published --
       # Publishing is what makes a defect reachable: sandboxes, scaffolded apps and

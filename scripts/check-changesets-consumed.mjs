@@ -1,50 +1,103 @@
 #!/usr/bin/env node
 /**
- * No unconsumed changeset may exist on the branch that publishes.
+ * No unconsumed changeset may exist on the branch that publishes, except a
+ * review hold recorded exactly in `.changeset/held.json`.
  *
- * Versioning is a LOCAL step here: a change lands together with its version
- * bump and CHANGELOG line (`npm run version` consumes the changeset), and the
- * Release workflow only publishes what git already records. A changeset file
- * still under `.changeset/` therefore means a package was changed and never
- * versioned — and the Release workflow refuses to run at all while one exists
- * (its own guard), so every package in that wave waits behind it.
- *
- * On 2026-09-28 nine committed changesets sat unconsumed on main; a Release was
- * dispatched against them and failed, and the versioning had to be done by
- * whichever session noticed. This check turns that into a red CI run on the
- * push that carried the changeset, and a refusal in the release script before
- * anything is pushed or dispatched.
- *
- * Committed files only (HEAD's tree, not the index): an untracked OR merely
- * staged changeset belongs to a change that is not committed yet, and neither a
- * push nor CI ever sees it. Reading the index made one session's staged
- * changeset refuse another session's publish (2026-10-16).
+ * Versioning is local. A held record names the packages still awaiting review
+ * and every changeset allowed to remain; a mixed, unlisted, or stale entry is
+ * refused. Committed files only (HEAD, not the index) keep another session's
+ * staged work out of this release's verdict.
  *
  * Usage:
- *   node scripts/check-changesets-consumed.mjs        # exit 1 and list them
+ *   node scripts/check-changesets-consumed.mjs
+ *   node scripts/check-changesets-consumed.mjs --release-workflow
  */
 import { execFileSync } from 'node:child_process'
 import console from 'node:console'
+import { createRequire } from 'node:module'
 import { dirname, join } from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
-const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
+import {
+  auditHeldChangesets,
+  HELD_CHANGESETS_FILE,
+  parseHeldRecord,
+} from './lib/held-changesets.mjs'
 
-const pending = execFileSync('git', ['ls-tree', '-r', '--name-only', 'HEAD', '--', '.changeset'], {
-  cwd: ROOT,
-  encoding: 'utf8',
-})
+const ROOT = process.env.MOL_CHANGESET_ROOT ?? join(dirname(fileURLToPath(import.meta.url)), '..')
+const WORKFLOW = process.argv.includes('--release-workflow')
+const require = createRequire(import.meta.url)
+// Use the parser shipped with the declared Changesets CLI rather than a second
+// YAML implementation with different frontmatter rules.
+const changesetsRequire = createRequire(require.resolve('@changesets/cli/package.json'))
+const parseChangeset = changesetsRequire('@changesets/parse').default
+
+const git = (args) =>
+  execFileSync('git', args, {
+    cwd: ROOT,
+    encoding: 'utf8',
+  })
+const committed = (file) => git(['show', `HEAD:${file}`])
+const entries = git(['ls-tree', '-r', '--name-only', 'HEAD', '--', '.changeset'])
   .split('\n')
-  .map((p) => p.replace(/^\.changeset\//, ''))
-  .filter((f) => f.endsWith('.md') && f.toLowerCase() !== 'readme.md')
+  .filter(Boolean)
+const pending = entries
+  .filter((file) => file.endsWith('.md') && file.toLowerCase() !== '.changeset/readme.md')
+  .sort()
 
-if (pending.length) {
-  console.error(`✗ ${pending.length} unconsumed changeset(s) — version locally before pushing:`)
-  for (const f of pending) console.error(`    .changeset/${f}`)
-  console.error(
-    `\n  npm run version   # bump package.json + CHANGELOG, consume the changeset, refresh the lockfile\n  then commit the result with the change.`,
-  )
+let record = null
+let audit
+try {
+  if (entries.includes(HELD_CHANGESETS_FILE))
+    record = parseHeldRecord(committed(HELD_CHANGESETS_FILE))
+  audit = auditHeldChangesets({
+    pending,
+    record,
+    readPackages: (file) => parseChangeset(committed(file)).releases.map((release) => release.name),
+  })
+} catch (error) {
+  audit = { unheld: pending, problems: [error.message] }
+}
+
+if (audit.unheld.length || audit.problems.length) {
+  if (WORKFLOW) {
+    if (record) {
+      console.error('::error::Changesets outside the committed review hold are present.')
+      for (const file of audit.unheld) console.error(`  ${file}`)
+      for (const problem of audit.problems) console.error(`  ${problem}`)
+      console.error('  Only changesets whose packages are all held may remain unpublished.')
+    } else {
+      console.error('::error::Unconsumed changeset(s) present. Versioning is a LOCAL step now:')
+      console.error('  1. npm run version   # bump + CHANGELOG + consume changesets + lockfile')
+      console.error('  2. commit and push the result')
+      console.error('  3. re-trigger Release (it publishes; it does not version)')
+    }
+  } else {
+    console.error(
+      record
+        ? `✗ ${audit.unheld.length} unconsumed changeset(s) outside ${HELD_CHANGESETS_FILE}:`
+        : `✗ ${pending.length} unconsumed changeset(s) — version locally before pushing:`,
+    )
+    for (const file of audit.unheld) console.error(`    ${file}`)
+    for (const problem of audit.problems) console.error(`    ${problem}`)
+    console.error(
+      `\n  npm run version   # bump package.json + CHANGELOG, consume the changeset, refresh the lockfile\n  then commit the result with the change.`,
+    )
+  }
   process.exit(1)
 }
-console.log('✓ no unconsumed changesets')
+
+if (!pending.length) {
+  console.log(
+    WORKFLOW
+      ? 'No pending changesets — versions are committed; proceeding to publish.'
+      : '✓ no unconsumed changesets',
+  )
+} else {
+  console.log(
+    WORKFLOW
+      ? `${pending.length} held changeset(s) are recorded in ${HELD_CHANGESETS_FILE}; proceeding to publish.`
+      : `✓ no unconsumed changesets outside ${HELD_CHANGESETS_FILE} (${pending.length} held)`,
+  )
+}
