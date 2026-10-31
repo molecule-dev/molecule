@@ -358,8 +358,14 @@ describe('AnthropicAIProvider — error sanitization and timeout', () => {
       // consuming or cancelling its body — and the connection pool does not
       // take a connection back until the body is consumed or cancelled, so
       // every retry under a sustained rate-limit storm held one socket for its
-      // GC lifetime (the same leak the liquid-d1 bond's retry fixed).
-      const cancel = vi.fn().mockResolvedValue(undefined)
+      // GC lifetime (the same leak the liquid-d1 bond's retry fixed). The body
+      // is now READ (its text is also what tells a rate limit from an
+      // overloaded/billing refusal), which consumes and so releases it.
+      const text = vi
+        .fn()
+        .mockResolvedValue(
+          JSON.stringify({ error: { type: 'rate_limit_error', message: 'slow down' } }),
+        )
       let call = 0
       mockFetch.mockImplementation(() => {
         call += 1
@@ -368,10 +374,10 @@ describe('AnthropicAIProvider — error sanitization and timeout', () => {
             ok: false,
             status: 429,
             statusText: 'Too Many Requests',
-            text: vi.fn().mockResolvedValue('{}'),
+            text,
             json: vi.fn().mockRejectedValue(new Error('not json')),
             headers: new Headers(),
-            body: { cancel },
+            body: null,
           })
         }
         return Promise.resolve({
@@ -392,9 +398,9 @@ describe('AnthropicAIProvider — error sanitization and timeout', () => {
       await eventsPromise
 
       expect(mockFetch).toHaveBeenCalledTimes(2)
-      // The 429's body was cancelled BEFORE the retry fetch fired.
-      expect(cancel).toHaveBeenCalledTimes(1)
-      expect(cancel.mock.invocationCallOrder[0]).toBeLessThan(mockFetch.mock.invocationCallOrder[1])
+      // The 429's body was consumed BEFORE the retry fetch fired.
+      expect(text).toHaveBeenCalledTimes(1)
+      expect(text.mock.invocationCallOrder[0]).toBeLessThan(mockFetch.mock.invocationCallOrder[1])
     })
 
     it("rethrows the CALLER's abort during the backoff sleep, without reading the released body", async () => {
@@ -501,18 +507,19 @@ describe('AnthropicAIProvider — error sanitization and timeout', () => {
       // A signal that aborted BEFORE the sleep registers its listener never
       // fires another `abort` event, so the sleep must check `signal.aborted`
       // up front instead of waiting for an event that cannot come. The window
-      // is the `await response.body.cancel()` between the 429 arriving and the
-      // sleep: here the abort fires inside that release, so by the time the
+      // is the `await response.text()` between the 429 arriving and the
+      // sleep: here the abort fires inside that read, so by the time the
       // sleep starts the signal is already aborted — with the timer armed
       // anyway, the caller waits out the whole backoff (up to the 60 s
       // Retry-After cap) before the error event is yielded.
       const controller = new AbortController()
       mockFetch.mockImplementationOnce(async () => {
         const response = new Response('rate limited', { status: 429 })
-        const cancel = response.body!.cancel.bind(response.body)
-        response.body!.cancel = async () => {
+        const text = response.text.bind(response)
+        response.text = async () => {
           controller.abort()
-          await cancel()
+          await text()
+          return JSON.stringify({ error: { type: 'rate_limit_error' } })
         }
         return response
       })
@@ -564,6 +571,77 @@ describe('AnthropicAIProvider — error sanitization and timeout', () => {
       expect(hits[0].retryInMs).toBeLessThan(1_500)
       // The final attempt is exhausted: no retry, no delay.
       expect(hits[3]).toMatchObject({ attempt: 4, willRetry: false, retryInMs: 0 })
+    })
+
+    it('reports the upstream reason on an ordinary 429 that is still retried', async () => {
+      mockFetch.mockResolvedValue(
+        mockErrorResponse(
+          429,
+          JSON.stringify({
+            error: { type: 'rate_limit_error', message: 'Number of requests too high' },
+          }),
+        ),
+      )
+      const hits: AiRateLimitEvent[] = []
+      const observed = createProvider({
+        apiKey: 'test-key',
+        baseUrl: 'https://test.api',
+        onRateLimit: (event) => hits.push(event),
+      })
+
+      const events = await collectEventsWithRetries(observed.chat(minimalParams))
+      expect(events[0].type).toBe('error')
+
+      // MAX_RETRIES = 3 → four rejected attempts, each reporting the reason.
+      expect(mockFetch).toHaveBeenCalledTimes(4)
+      expect(hits).toHaveLength(4)
+      expect(hits[0]).toMatchObject({
+        status: 429,
+        willRetry: true,
+        upstreamError: { type: 'rate_limit_error', message: 'Number of requests too high' },
+      })
+    })
+
+    it('reads each rejected 429 body exactly once — a final 429 still yields the error event, not a "body already used" throw', async () => {
+      // One single-use body per attempt: the FIRST text() consumes it, any
+      // later text() on the same object rejects — the shape a real undici
+      // body has. Each attempt's read is recorded so the test can prove the
+      // loop consumed every rejected body (an unread one pins its connection)
+      // and that the error path never asked for it a second time.
+      const reads: Array<ReturnType<typeof vi.fn>> = []
+      mockFetch.mockImplementation(() => {
+        const text = vi.fn().mockImplementation(() => {
+          if (text.mock.calls.length > 1) {
+            return Promise.reject(new TypeError('Body is unusable'))
+          }
+          return Promise.resolve(
+            JSON.stringify({ error: { type: 'rate_limit_error', message: 'too high' } }),
+          )
+        })
+        reads.push(text)
+        return Promise.resolve({
+          ok: false,
+          status: 429,
+          statusText: 'Too Many Requests',
+          text,
+          json: vi.fn().mockRejectedValue(new Error('not json')),
+          headers: new Headers(),
+          body: null,
+        })
+      })
+
+      const events = await collectEventsWithRetries(provider.chat(minimalParams))
+
+      expect(mockFetch).toHaveBeenCalledTimes(4)
+      // Every rejected response's body was read exactly once — consumed by the
+      // retry loop, never re-read by the error path, never left unread.
+      expect(reads).toHaveLength(4)
+      for (const text of reads) expect(text).toHaveBeenCalledTimes(1)
+      expect(events).toHaveLength(1)
+      expect(events[0]).toMatchObject({
+        type: 'error',
+        message: 'AI rate limit exceeded. Please try again shortly.',
+      })
     })
 
     it('a throwing onRateLimit callback does not break the request or the retry loop', async () => {

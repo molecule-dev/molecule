@@ -115,6 +115,33 @@ function parseSpeed(
 }
 
 /**
+ * Read the upstream's explanation from a rejected response body: its error
+ * `type` (or `code`) and `message`, the message bounded to 500 characters.
+ *
+ * @param text - The rejected response's body text.
+ * @returns The upstream error, or `undefined` when the body carried neither field.
+ */
+function parseUpstreamError(text: string): { type?: string; message?: string } | undefined {
+  let error: { type?: unknown; code?: unknown; message?: unknown } | undefined
+  try {
+    error = (JSON.parse(text) as { error?: typeof error } | null)?.error
+  } catch (_error) {
+    // Not JSON (a proxy's error page, plain text): a short body is the message itself.
+    const trimmed = text.trim()
+    return trimmed && trimmed.length <= 500 ? { message: trimmed } : undefined
+  }
+  const type =
+    typeof error?.type === 'string'
+      ? error.type
+      : typeof error?.code === 'string'
+        ? error.code
+        : undefined
+  const message = typeof error?.message === 'string' ? error.message.slice(0, 500) : undefined
+  if (!type && !message) return undefined
+  return { ...(type ? { type } : {}), ...(message ? { message } : {}) }
+}
+
+/**
  * Anthropic Claude AI provider that implements the `AIProvider` interface
  * using Anthropic's Messages API with support for streaming, tool use,
  * and system prompts.
@@ -276,6 +303,10 @@ class AnthropicAIProvider implements AIProvider {
     // Retry with exponential backoff for rate limits (429) and overloaded (529/503)
     const MAX_RETRIES = 3
     let response: Response | null = null
+    // The rejected body already read by the retry loop, when this attempt ended
+    // on a 429/529/503: a body reads only once, so the error path below must
+    // reuse it instead of calling `text()` a second time (which throws).
+    let rejectedBody: string | undefined
     // Set when THIS attempt's response body was cancelled as retry bookkeeping:
     // the body is then disturbed, so reading it (`text()`) throws "Body is
     // unusable" — the error path below must not try. Reached when the caller's
@@ -311,8 +342,25 @@ class AnthropicAIProvider implements AIProvider {
         return
       }
       releasedBody = false
+      rejectedBody = undefined
 
       if (response.status === 429 || response.status === 529 || response.status === 503) {
+        // Read the body ONCE instead of cancelling it: consuming it also
+        // releases the connection (the pool takes a socket back only when the
+        // body is consumed or cancelled), and only the body says what the
+        // upstream refused the request for.
+        try {
+          rejectedBody = await response.text()
+        } catch (error) {
+          // Caller cancellation still ends the request; any other read failure
+          // only loses the reason, so the body counts as released and the
+          // retry policy goes on (the same guard the moonshot bond applies).
+          if (params.signal?.aborted) throw params.signal.reason
+          if (signal.aborted) break
+          logger.warn('Anthropic rejected response body could not be read', { error })
+          rejectedBody = ''
+        }
+        const upstreamError = parseUpstreamError(rejectedBody)
         const willRetry = attempt < MAX_RETRIES
         // Use Retry-After header if provided, otherwise exponential backoff.
         // Retry-After is equally-valid as delta-seconds ('30') or an
@@ -341,28 +389,22 @@ class AnthropicAIProvider implements AIProvider {
             willRetry,
             retryInMs: delayMs,
             ...(hasRetryAfter ? { retryAfterSeconds: parsedRetryAfterSeconds } : {}),
+            ...(upstreamError ? { upstreamError } : {}),
           })
         } catch (error) {
           // Host-app telemetry; its failure must never break the request.
           logger.warn('onRateLimit callback threw', { error })
         }
         if (willRetry) {
-          // Release the rejected response's body (and with it its socket)
-          // before retrying: the connection pool does not take a connection
-          // back until the body is consumed or cancelled, so every discarded
-          // rate-limited response would otherwise strand one socket for its
-          // GC lifetime — under a sustained 429 storm the retries themselves
-          // hold connections the pool needs for the next attempt (the same
-          // fix the liquid-d1 bond's retry applies).
+          // The rejected response's body was already read above, releasing its
+          // connection; this flag only keeps the error path from trying to
+          // read it a second time (a body reads only once).
           releasedBody = true
-          await response.body?.cancel().catch((_error: unknown) => {
-            // Best-effort release only — the retry proceeds on the already-
-            // known status, and a failed cancel merely delays connection reuse.
-          })
           logger.warn('Anthropic API rate limited, retrying', {
             status: response.status,
             attempt: attempt + 1,
             delayMs,
+            ...(upstreamError ? { upstreamError } : {}),
           })
           await new Promise<void>((resolve) => {
             // A signal that aborted BEFORE this wait began never fires another
@@ -425,7 +467,11 @@ class AnthropicAIProvider implements AIProvider {
       // escape this generator as a raw `TypeError: terminated`, which carries
       // no `errorKey` and so defeats the caller's error classification.
       let errorBody = ''
-      if (!releasedBody) {
+      if (rejectedBody !== undefined) {
+        // A 429/529/503 body was already read by the retry loop; a body reads
+        // only once, so reuse the text instead of asking the response again.
+        errorBody = rejectedBody
+      } else if (!releasedBody) {
         try {
           errorBody = await response!.text()
         } catch (error) {
