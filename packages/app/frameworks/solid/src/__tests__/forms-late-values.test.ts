@@ -3,7 +3,13 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { nativeProvider } from '@molecule/app-forms'
 
-import { createForm, type CreateFormResult } from '../primitives/forms.js'
+import {
+  createFieldSignal,
+  createForm,
+  createFormFromController,
+  type CreateFormResult,
+  createWatchSignal,
+} from '../primitives/forms.js'
 
 const effectCallbacks: (() => void)[] = []
 
@@ -63,6 +69,58 @@ describe('Solid late form values', () => {
 
     expect(form.getValue('title')).toBe('Draft title')
     expect(form.formState().values).toEqual({ title: 'Draft title', body: 'Loaded body' })
+    dispose()
+  })
+
+  it('refreshes createFormFromController after pre-effect delivery', () => {
+    const controller = nativeProvider.createForm<ArticleValues>({
+      defaultValues: { title: '', body: '' },
+    })
+    let form!: CreateFormResult<ArticleValues>
+    const dispose = createRoot((disposeRoot) => {
+      form = createFormFromController(controller)
+      return disposeRoot
+    })
+
+    controller.updateValues({ title: 'Loaded title', body: 'Loaded body' })
+    for (const callback of effectCallbacks) callback()
+
+    expect(form.getValue('title')).toBe('Loaded title')
+    expect(form.formState().values).toEqual({ title: 'Loaded title', body: 'Loaded body' })
+    dispose()
+  })
+
+  it('refreshes createWatchSignal after pre-effect delivery', () => {
+    const controller = nativeProvider.createForm<ArticleValues>({
+      defaultValues: { title: '', body: '' },
+    })
+    let title!: () => string
+    const dispose = createRoot((disposeRoot) => {
+      title = createWatchSignal(controller, 'title')
+      return disposeRoot
+    })
+
+    controller.updateValues({ title: 'Loaded title', body: 'Loaded body' })
+    for (const callback of effectCallbacks) callback()
+
+    expect(title()).toBe('Loaded title')
+    dispose()
+  })
+
+  it('refreshes createFieldSignal after pre-effect delivery', () => {
+    const controller = nativeProvider.createForm<ArticleValues>({
+      defaultValues: { title: '', body: '' },
+    })
+    let title!: () => { value: string }
+    const dispose = createRoot((disposeRoot) => {
+      title = createFieldSignal(controller, 'title') as () => { value: string }
+      return disposeRoot
+    })
+
+    controller.updateValues({ title: 'Loaded title', body: 'Loaded body' })
+    for (const callback of effectCallbacks) callback()
+
+    expect(title().value).toBe('Loaded title')
     dispose()
   })
 })

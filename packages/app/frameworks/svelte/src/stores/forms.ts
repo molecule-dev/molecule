@@ -18,9 +18,24 @@ import type {
   RegisterOptions,
 } from '@molecule/app-forms'
 
+/** Subscribe first, then publish state delivered before this readable started. */
+function subscribeAndRefresh<T extends FormValuesConstraint<T>, S>(
+  controller: FormController<T>,
+  read: () => S,
+  set: (value: S) => void,
+): () => void {
+  const refresh = (): void => set(read())
+  const unsubscribe = controller.subscribe(refresh)
+  refresh()
+  return unsubscribe
+}
+
 /**
- * Svelte form creation options. Deliver records loaded after creation through
- * `updateValues()`; store-backed getters are not observed by this factory.
+ * Svelte form creation options. Unlike `FormOptions`, this narrowed type does
+ * not accept `values` or `resetOptions`: store-backed getters are not observed.
+ * Deliver records after creation through the returned `updateValues(values,
+ * { keepDirtyValues })` method. The option defaults to false; pass true to retain
+ * edited fields while pristine fields take the record.
  */
 type SvelteFormOptions<T extends FormValuesConstraint<T>> = Omit<
   FormOptions<T>,
@@ -50,6 +65,7 @@ interface FormStores<T extends FormValuesConstraint<T>> {
     onSubmit: (values: T) => void | Promise<void>,
     onError?: (errors: Partial<Record<keyof T, string>>) => void,
   ) => (event?: { preventDefault?: () => void }) => Promise<void>
+  /** Deliver a record; `keepDirtyValues` retains edits while pristine fields fill. */
   updateValues: (values: Partial<T>, resetOptions?: FormResetOptions) => void
   reset: (values?: Partial<T>) => void
   validate: () => Promise<boolean>
@@ -61,8 +77,10 @@ interface FormStores<T extends FormValuesConstraint<T>> {
  * Create form stores from a form provider and options.
  *
  * @param provider - Form provider instance
- * @param options - Form creation options. Use `updateValues()` for late records.
- * @returns Form stores and actions
+ * @param options - Narrowed creation options; `values` and `resetOptions` are not accepted.
+ * @returns Form stores and actions, including `updateValues(values, { keepDirtyValues })`
+ * for explicit late-record delivery. `keepDirtyValues` defaults to false; true retains
+ * edited fields while pristine fields take the delivered record.
  *
  * @example
  * ```svelte
@@ -106,13 +124,8 @@ export function createFormStores<T extends FormValuesConstraint<T>>(
   // Main form state store
   const formState: Readable<FormState<T>> = readable(
     controller.getState(),
-    (set: (value: FormState<T>) => void) => {
-      const unsubscribe = controller.subscribe((state: FormState<T>) => {
-        set(state)
-      })
-      set(controller.getState())
-      return unsubscribe
-    },
+    (set: (value: FormState<T>) => void) =>
+      subscribeAndRefresh(controller, () => controller.getState(), set),
   )
 
   // Derived stores
@@ -233,11 +246,9 @@ export function createFieldStore<T extends FormValuesConstraint<T>, K extends ke
   controller: FormController<T>,
   name: K,
 ): Readable<FieldState<T[K]>> {
-  return readable(controller.getFieldState(name), (set: (value: FieldState<T[K]>) => void) => {
-    return controller.subscribe(() => {
-      set(controller.getFieldState(name))
-    })
-  })
+  return readable(controller.getFieldState(name), (set: (value: FieldState<T[K]>) => void) =>
+    subscribeAndRefresh(controller, () => controller.getFieldState(name), set),
+  )
 }
 
 /**
@@ -265,9 +276,7 @@ export function createWatchStore<T extends FormValuesConstraint<T>, K extends ke
   controller: FormController<T>,
   name: K,
 ): Readable<T[K]> {
-  return readable(controller.getValue(name), (set: (value: T[K]) => void) => {
-    return controller.subscribe(() => {
-      set(controller.getValue(name))
-    })
-  })
+  return readable(controller.getValue(name), (set: (value: T[K]) => void) =>
+    subscribeAndRefresh(controller, () => controller.getValue(name), set),
+  )
 }

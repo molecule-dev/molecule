@@ -148,9 +148,17 @@ export function useForm<T extends FormValuesConstraint<T> = Record<string, unkno
     formRef.current = createForm(formOptions)
   }
   const form = formRef.current
+  const mounted = useRef(true)
   const values = options.values
   const keepDirtyValues = options.resetOptions?.keepDirtyValues === true
   const lastExternalValues = useRef<{ values: Partial<T> } | null>(null)
+
+  useLayoutEffect(() => {
+    mounted.current = true
+    return () => {
+      mounted.current = false
+    }
+  }, [form])
 
   useLayoutEffect(() => {
     if (values === undefined) {
@@ -211,7 +219,9 @@ export function useForm<T extends FormValuesConstraint<T> = Record<string, unkno
 
   const handleSubmit = useCallback(
     (onSubmit: (values: T) => void | Promise<void>) => {
-      return form.handleSubmit(onSubmit)
+      return form.handleSubmit((values) => {
+        if (mounted.current) return onSubmit(values)
+      })
     },
     [form],
   )

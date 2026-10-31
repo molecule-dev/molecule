@@ -19,8 +19,11 @@ import type {
 } from '@molecule/app-forms'
 
 /**
- * Angular form creation options. Deliver records loaded after creation through
- * `MoleculeFormInstance.updateValues()`; signal-backed getters are not observed.
+ * Angular form creation options. Unlike `FormOptions`, this narrowed type does
+ * not accept `values` or `resetOptions`: signal-backed getters are not observed.
+ * Deliver records after creation through the returned instance's
+ * `updateValues(values, { keepDirtyValues })` method. The option defaults to
+ * false; pass true to retain edited fields while pristine fields take the record.
  */
 type AngularFormOptions<T extends FormValuesConstraint<T>> = Omit<
   FormOptions<T>,
@@ -344,9 +347,11 @@ export class MoleculeFormsService implements OnDestroy {
    * Create a form instance from a provider.
    *
    * @param provider - The form provider that creates form controllers.
-   * @param options - Form configuration including default values and validation mode.
-   * Use the returned instance's `updateValues()` for records loaded after creation.
-   * @returns A new form instance with RxJS observables for reactive state tracking.
+   * @param options - Narrowed `FormOptions` without `values` or `resetOptions`;
+   * includes default values and validation mode.
+   * @returns A new form instance with RxJS observables and explicit
+   * `updateValues(values, { keepDirtyValues })` delivery. The option defaults to
+   * false; pass true to retain edited fields while pristine fields take the record.
    */
   createForm<T extends FormValuesConstraint<T>>(
     provider: FormProvider,

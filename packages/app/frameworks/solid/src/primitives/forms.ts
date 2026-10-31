@@ -18,6 +18,18 @@ import type {
   RegisterOptions,
 } from '@molecule/app-forms'
 
+/** Subscribe first, then close the render-to-effect delivery gap synchronously. */
+function subscribeAndRefresh<T extends FormValuesConstraint<T>, S>(
+  controller: FormController<T>,
+  read: () => S,
+  publish: (value: S) => void,
+): () => void {
+  const refresh = (): void => publish(read())
+  const unsubscribe = controller.subscribe(refresh)
+  refresh()
+  return unsubscribe
+}
+
 /**
  * Result of createForm primitive.
  */
@@ -129,10 +141,11 @@ export function createForm<T extends FormValuesConstraint<T>>(
 
   // Subscribe before applying values so even the first loaded record is published.
   createEffect(() => {
-    const unsubscribe = controller.subscribe((newState: FormState<T>) => {
-      setFormState(newState)
-    })
-    setFormState(controller.getState())
+    const unsubscribe = subscribeAndRefresh(
+      controller,
+      () => controller.getState(),
+      (state) => setFormState(state),
+    )
 
     onCleanup(() => {
       unsubscribe()
@@ -251,9 +264,11 @@ export function createFieldSignal<T extends FormValuesConstraint<T>>(
   )
 
   createEffect(() => {
-    const unsubscribe = controller.subscribe(() => {
-      setFieldState(controller.getFieldState(name))
-    })
+    const unsubscribe = subscribeAndRefresh(
+      controller,
+      () => controller.getFieldState(name) as FieldState<T[keyof T]>,
+      (state) => setFieldState(state),
+    )
 
     onCleanup(unsubscribe)
   })
@@ -291,9 +306,11 @@ export function createWatchSignal<T extends FormValuesConstraint<T>, K extends k
   const [value, setValue] = createSignal<T[K]>(controller.getValue(name))
 
   createEffect(() => {
-    const unsubscribe = controller.subscribe(() => {
-      setValue(() => controller.getValue(name))
-    })
+    const unsubscribe = subscribeAndRefresh(
+      controller,
+      () => controller.getValue(name),
+      (next) => setValue(() => next),
+    )
 
     onCleanup(unsubscribe)
   })
@@ -370,9 +387,11 @@ export function createFormFromController<T extends FormValuesConstraint<T>>(
   const [formState, setFormState] = createSignal<FormState<T>>(controller.getState())
 
   createEffect(() => {
-    const unsubscribe = controller.subscribe((newState: FormState<T>) => {
-      setFormState(newState)
-    })
+    const unsubscribe = subscribeAndRefresh(
+      controller,
+      () => controller.getState(),
+      (state) => setFormState(state),
+    )
 
     onCleanup(unsubscribe)
   })

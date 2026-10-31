@@ -6,6 +6,7 @@
 
 import { t } from '@molecule/app-i18n'
 
+import { snapshotFormValue } from './snapshots.js'
 import type {
   FieldRegistration,
   FieldState,
@@ -36,29 +37,46 @@ export const createNativeFormProvider = (): FormProvider => {
     createForm<T extends FormValuesConstraint<T>>(options: FormOptions<T>): FormController<T> {
       const mode = options.mode || 'onSubmit'
 
-      // Baselines snapshot the caller's top-level objects. Late records always
-      // combine with these original defaults, never with an earlier record.
+      // Late records always combine with these original defaults, never with
+      // an earlier record. Detach each baseline and the live values so nested
+      // caller mutations cannot rewrite clean or validated snapshots.
       // Runtime form values are always a plain string-keyed object; the caller's
       // values TYPE may be an interface without an index signature, so the
       // implementation holds the widened record view and casts back to `T`
       // only where it hands values out.
-      const originalDefaultValues: Record<string, unknown> = {
-        ...((options.defaultValues ?? {}) as Record<string, unknown>),
-      }
-      let defaultValues: Record<string, unknown> = {
+      const originalDefaultValues = snapshotFormValue(
+        (options.defaultValues ?? {}) as Record<string, unknown>,
+      )
+      let defaultValues = snapshotFormValue({
         ...originalDefaultValues,
         ...((options.values ?? {}) as Record<string, unknown>),
-      }
-      let values: Record<string, unknown> = { ...defaultValues }
+      })
+      let values = snapshotFormValue(defaultValues)
       let errors: Partial<Record<keyof T, string>> = {}
       let touched: Partial<Record<keyof T, boolean>> = {}
       let submitCount = 0
       let isSubmitting = false
-      let rebaseVersion = 0
+      let submissionVersion = 0
+      let validationVersion = 0
 
       const fieldSchemas = new Map<string, ValidationSchema>()
+      const fieldValidationVersions = new Map<string, number>()
       const fieldRefs = new Map<string, HTMLElement>()
       const listeners = new Set<(state: FormState<T>) => void>()
+
+      // Validation ownership changes on a rebase; submission ownership changes
+      // only on a newer submission or disposal. Thus a rebase cancels stale
+      // validation without stranding the busy state owned by an active submit.
+      const invalidateValidationOperations = (): void => {
+        validationVersion++
+        for (const [name, version] of fieldValidationVersions) {
+          fieldValidationVersions.set(name, version + 1)
+        }
+      }
+      const invalidateAllAsyncOperations = (): void => {
+        submissionVersion++
+        invalidateValidationOperations()
+      }
 
       const notify = (): void => {
         const state = controller.getState()
@@ -191,13 +209,13 @@ export const createNativeFormProvider = (): FormProvider => {
           // the original defaults so later replacement records can restore it.
           if (defaultValue !== undefined) {
             if (originalDefaultValues[name] === undefined) {
-              originalDefaultValues[name] = defaultValue
+              originalDefaultValues[name] = snapshotFormValue(defaultValue)
             }
             if (defaultValues[name] === undefined) {
-              defaultValues = { ...defaultValues, [name]: defaultValue }
+              defaultValues = { ...defaultValues, [name]: snapshotFormValue(defaultValue) }
             }
             if (values[name] === undefined) {
-              values = { ...values, [name]: defaultValue }
+              values = { ...values, [name]: snapshotFormValue(defaultValue) }
             }
           }
 
@@ -239,6 +257,7 @@ export const createNativeFormProvider = (): FormProvider => {
         },
 
         unregister(name: string): void {
+          fieldValidationVersions.set(name, (fieldValidationVersions.get(name) ?? 0) + 1)
           fieldSchemas.delete(name)
           fieldRefs.delete(name)
           const newValues = { ...values }
@@ -254,12 +273,15 @@ export const createNativeFormProvider = (): FormProvider => {
         },
 
         async validateField<K extends keyof T>(name: K): Promise<boolean> {
-          const schema = fieldSchemas.get(name as string)
+          const key = name as string
+          const schema = fieldSchemas.get(key)
           if (!schema) return true
 
-          const validationRebaseVersion = rebaseVersion
-          const error = await validateValue(values[name as string], schema, t)
-          if (validationRebaseVersion !== rebaseVersion) return false
+          const validationToken = (fieldValidationVersions.get(key) ?? 0) + 1
+          fieldValidationVersions.set(key, validationToken)
+          const snapshot = snapshotFormValue(values[key])
+          const error = await validateValue(snapshot, schema, t)
+          if (validationToken !== fieldValidationVersions.get(key)) return false
           if (error) {
             errors = { ...errors, [name]: error }
             notify()
@@ -274,9 +296,9 @@ export const createNativeFormProvider = (): FormProvider => {
         },
 
         async validate(): Promise<boolean> {
-          const validationRebaseVersion = rebaseVersion
-          const result = await validateSnapshot({ ...values })
-          if (validationRebaseVersion !== rebaseVersion) return false
+          const validationToken = ++validationVersion
+          const result = await validateSnapshot(snapshotFormValue(values))
+          if (validationToken !== validationVersion) return false
 
           errors = result.errors
           notify()
@@ -284,22 +306,22 @@ export const createNativeFormProvider = (): FormProvider => {
         },
 
         updateValues(newValues: Partial<T>, resetOptions: FormResetOptions = {}): void {
-          const nextDefaultValues: Record<string, unknown> = {
+          const nextDefaultValues = snapshotFormValue({
             ...originalDefaultValues,
             ...(newValues as Record<string, unknown>),
-          }
+          })
           if (formValuesEqual(nextDefaultValues, defaultValues)) return
 
           const currentValues = values
           const previousDefaultValues = defaultValues
-          rebaseVersion++
+          invalidateValidationOperations()
           defaultValues = nextDefaultValues
-          values = { ...defaultValues }
+          values = snapshotFormValue(defaultValues)
 
           if (resetOptions.keepDirtyValues) {
             for (const key of Object.keys(currentValues)) {
               if (!formValuesEqual(currentValues[key], previousDefaultValues[key])) {
-                values[key] = currentValues[key]
+                values[key] = snapshotFormValue(currentValues[key])
               }
             }
           }
@@ -315,9 +337,12 @@ export const createNativeFormProvider = (): FormProvider => {
           // and makes the result the new one, so freshly loaded or saved values
           // read clean afterwards.
           if (newValues !== undefined) {
-            defaultValues = { ...defaultValues, ...(newValues as Record<string, unknown>) }
+            defaultValues = snapshotFormValue({
+              ...defaultValues,
+              ...(newValues as Record<string, unknown>),
+            })
           }
-          values = { ...defaultValues }
+          values = snapshotFormValue(defaultValues)
           errors = {}
           touched = {}
           submitCount = 0
@@ -334,18 +359,20 @@ export const createNativeFormProvider = (): FormProvider => {
               event.preventDefault()
             }
 
+            const submissionToken = ++submissionVersion
+            const validationToken = ++validationVersion
             submitCount++
             isSubmitting = true
             notify()
 
-            const submissionValues = { ...values }
-            const submissionRebaseVersion = rebaseVersion
+            const submissionValues = snapshotFormValue(values)
 
             try {
               const result = await validateSnapshot(submissionValues)
-              // A late record invalidates this validation run. It must neither
-              // publish stale errors nor submit the replacement against them.
-              if (submissionRebaseVersion !== rebaseVersion) return
+              // Only the newest owner may publish validation results or submit.
+              if (submissionToken !== submissionVersion || validationToken !== validationVersion) {
+                return
+              }
 
               errors = result.errors
               notify()
@@ -363,8 +390,10 @@ export const createNativeFormProvider = (): FormProvider => {
                 }
               }
             } finally {
-              isSubmitting = false
-              notify()
+              if (submissionToken === submissionVersion) {
+                isSubmitting = false
+                notify()
+              }
             }
           }
         },
@@ -382,6 +411,7 @@ export const createNativeFormProvider = (): FormProvider => {
         },
 
         destroy(): void {
+          invalidateAllAsyncOperations()
           listeners.clear()
           fieldSchemas.clear()
           fieldRefs.clear()

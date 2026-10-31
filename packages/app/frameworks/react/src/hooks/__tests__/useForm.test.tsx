@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { act, fireEvent, render, renderHook, screen } from '@testing-library/react'
-import type { FormEvent, FormEventHandler } from 'react'
+import { type FormEvent, type FormEventHandler, StrictMode } from 'react'
 import { describe, expect, it, vi } from 'vitest'
 
 import type { UseFormResult } from '../../index.js'
@@ -281,6 +281,40 @@ describe('useForm handleSubmit', () => {
     })
 
     expect(result.current.isSubmitting).toBe(false)
+  })
+})
+
+describe('useForm asynchronous disposal', () => {
+  it('does not invoke onSubmit after unmount while validation is pending', async () => {
+    let release!: (errors: Record<string, string>) => void
+    const gate = new Promise<Record<string, string>>((resolve) => {
+      release = resolve
+    })
+    const { result, unmount } = renderHook(() =>
+      useForm({ defaultValues: { title: 'Article' }, validate: () => gate }),
+    )
+    const onSubmit = vi.fn()
+    let submission!: Promise<void>
+    act(() => {
+      submission = result.current.handleSubmit(onSubmit)()
+    })
+
+    unmount()
+    release({})
+    await submission
+
+    expect(onSubmit).not.toHaveBeenCalled()
+  })
+
+  it('still submits after StrictMode replays the mounted effect', async () => {
+    const { result } = renderHook(() => useForm({ defaultValues: { title: 'Article' } }), {
+      wrapper: StrictMode,
+    })
+    const onSubmit = vi.fn()
+
+    await act(async () => result.current.handleSubmit(onSubmit)())
+
+    expect(onSubmit).toHaveBeenCalledWith({ title: 'Article' })
   })
 })
 

@@ -23,6 +23,7 @@ describe('native late form values', () => {
     expect(form.getState().submitCount).toBe(1)
     release()
     await submission
+    expect(form.getState().isSubmitting).toBe(false)
   })
 
   it('validates and submits the same snapshot', async () => {
@@ -188,7 +189,8 @@ describe('formValuesEqual', () => {
     expect(form.getFieldState('tags').dirty).toBe(true)
 
     form.updateValues({ tags: ['loaded'] }, { keepDirtyValues: true })
-    expect(form.getValue('tags')).toBe(sparse)
+    expect(form.getValue('tags')).toStrictEqual(sparse)
+    expect(0 in form.getValue('tags')).toBe(false)
   })
 
   it('compares opaque objects by identity', () => {
