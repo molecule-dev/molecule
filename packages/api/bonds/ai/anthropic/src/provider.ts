@@ -356,9 +356,12 @@ class AnthropicAIProvider implements AIProvider {
           // only loses the reason, so the body counts as released and the
           // retry policy goes on (the same guard the moonshot bond applies).
           if (params.signal?.aborted) throw params.signal.reason
+          // A native body is disturbed even when its pending read rejects.
+          // Cache an empty detail before the deadline exit so the terminal
+          // error path cannot call text() a second time.
+          rejectedBody = ''
           if (signal.aborted) break
           logger.warn('Anthropic rejected response body could not be read', { error })
-          rejectedBody = ''
         }
         const upstreamError = parseUpstreamError(rejectedBody)
         const willRetry = attempt < MAX_RETRIES

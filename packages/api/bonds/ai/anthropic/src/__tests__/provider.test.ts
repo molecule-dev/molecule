@@ -644,6 +644,52 @@ describe('AnthropicAIProvider — error sanitization and timeout', () => {
       })
     })
 
+    it('reads a rejected body only once when the request deadline interrupts the read', async () => {
+      const deadline = new AbortController()
+      const timeoutSpy = vi.spyOn(AbortSignal, 'timeout').mockReturnValue(deadline.signal)
+      const body = new ReadableStream<Uint8Array>({
+        start(controller) {
+          controller.enqueue(new TextEncoder().encode('{"error":'))
+          deadline.signal.addEventListener(
+            'abort',
+            () => controller.error(deadline.signal.reason),
+            {
+              once: true,
+            },
+          )
+        },
+      })
+      const response = new Response(body, { status: 429 })
+      const nativeText = response.text.bind(response)
+      let notifyRead!: () => void
+      const readStarted = new Promise<void>((resolve) => {
+        notifyRead = resolve
+      })
+      const text = vi.spyOn(response, 'text').mockImplementation(() => {
+        notifyRead()
+        return nativeText()
+      })
+      mockFetch.mockResolvedValue(response)
+
+      try {
+        const eventsPromise = collectEvents(provider.chat(minimalParams))
+        await readStarted
+        deadline.abort(new DOMException('The request timed out', 'TimeoutError'))
+        const events = await eventsPromise
+
+        expect(mockFetch).toHaveBeenCalledTimes(1)
+        expect(text).toHaveBeenCalledTimes(1)
+        expect(events).toEqual([
+          expect.objectContaining({
+            type: 'error',
+            message: 'AI rate limit exceeded. Please try again shortly.',
+          }),
+        ])
+      } finally {
+        timeoutSpy.mockRestore()
+      }
+    })
+
     it('a throwing onRateLimit callback does not break the request or the retry loop', async () => {
       let call = 0
       mockFetch.mockImplementation(() => {
