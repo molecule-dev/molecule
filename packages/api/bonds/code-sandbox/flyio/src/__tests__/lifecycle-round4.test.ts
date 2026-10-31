@@ -194,10 +194,14 @@ describe('round-four lifecycle regressions', () => {
   it('force-deletes an exclusively owned app so a running Machine cannot strand it', async () => {
     const double = createFetchDouble().on(`DELETE /apps/${APP}?force=true`, { status: 204 })
     const provider = makeProvider(double) as ReturnType<typeof makeProvider> & {
-      destroyApp(projectId: string): Promise<void>
+      destroyApp(
+        projectId: string,
+        expectedAppName: string | undefined,
+        signal: AbortSignal,
+      ): Promise<void>
     }
 
-    await provider.destroyApp(PROJECT_ID)
+    await provider.destroyApp(PROJECT_ID, undefined, new AbortController().signal)
 
     const deletion = double.calls.find(
       (call) => call.method === 'DELETE' && call.path.startsWith(`/apps/${APP}`),

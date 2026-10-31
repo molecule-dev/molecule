@@ -605,7 +605,10 @@ describe('destroy — releasing the routes', () => {
       },
     })
 
-    await makeProvider({ privateServices: SERVICES }, double).destroy(`${APP}:m1`)
+    await makeProvider({ privateServices: SERVICES }, double).destroy(
+      `${APP}:m1`,
+      new AbortController().signal,
+    )
 
     const released = double.calls.filter((call) => call.method === 'DELETE')
     expect(released.map((call) => call.path)).toEqual([
@@ -621,7 +624,10 @@ describe('destroy — releasing the routes', () => {
       body: { id: 'm1', config: { metadata: {} } },
     })
 
-    await makeProvider({ privateServices: SERVICES }, double).destroy(`${APP}:m1`)
+    await makeProvider({ privateServices: SERVICES }, double).destroy(
+      `${APP}:m1`,
+      new AbortController().signal,
+    )
 
     expect(
       double.calls.filter(
@@ -641,7 +647,10 @@ describe('destroy — releasing the routes', () => {
       .on(`DELETE /apps/${TENANT_DB}/ip_assignments`, { status: 403, body: { error: 'forbidden' } })
 
     await expect(
-      makeProvider({ privateServices: SERVICES }, double).destroy(`${APP}:m1`),
+      makeProvider({ privateServices: SERVICES }, double).destroy(
+        `${APP}:m1`,
+        new AbortController().signal,
+      ),
     ).resolves.toBeUndefined()
     expect(mockLogger.warn).toHaveBeenCalledWith(
       expect.stringContaining('Failed to release a Fly private'),

@@ -140,10 +140,14 @@ describe('round-five create safety regressions', () => {
       })
       .on(`DELETE /apps/${APP}`, { status: 204 })
     const provider = makeProvider(double) as ReturnType<typeof createProvider> & {
-      destroyApp(projectId: string): Promise<void>
+      destroyApp(
+        projectId: string,
+        expectedAppName: string | undefined,
+        signal: AbortSignal,
+      ): Promise<void>
     }
 
-    await provider.destroyApp(PROJECT_ID)
+    await provider.destroyApp(PROJECT_ID, undefined, new AbortController().signal)
 
     expect(double.matching(`DELETE /apps/${target}/ip_assignments/`)).toHaveLength(1)
     expect(double.matching(`DELETE /apps/${APP}`)).toHaveLength(1)

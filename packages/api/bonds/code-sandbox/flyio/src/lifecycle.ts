@@ -21,6 +21,8 @@ export interface FlyCreateVolumeIntent {
   logicalName?: string
   /** Once bound, only explicit sandbox destruction may delete this volume. */
   workspace: boolean
+  /** False for pre-dispatch protection; true once the Machine POST entered transport. */
+  workspaceCommitted?: boolean
   /** False until an ambiguous create is adopted or definitely rejected. */
   resolved?: boolean
 }
@@ -64,7 +66,12 @@ export interface FlyCreateAttemptJournal {
   findWorkspace(projectId: string, logicalName: string): Promise<FlyCreateVolumeIntent | null>
   /** Record an intent or transfer a Fly-ID binding to this attempt. */
   recordVolume(attemptId: string, volume: FlyCreateVolumeIntent): Promise<void>
-  markVolumeWorkspace(attemptId: string, name: string, workspace?: boolean): Promise<void>
+  markVolumeWorkspace(
+    attemptId: string,
+    name: string,
+    workspace?: boolean,
+    workspaceCommitted?: boolean,
+  ): Promise<void>
   recordAddress(attemptId: string, address: FlyCreateAddressIntent): Promise<void>
   markState(attemptId: string, state: FlyCreateAttemptState, sandboxId?: string): Promise<void>
   /** Throw unless this generation is still the attempt's durable fencing token. */
@@ -87,6 +94,14 @@ export interface FlyCreateReconcileSummary {
 
 /** Fly-specific lifecycle capabilities exposed by the provider. */
 export interface FlyCreateAttemptProvider {
+  /** Explicit retirement is fenced by the caller's live lifecycle lock. */
+  destroy(id: string, signal: AbortSignal): Promise<void>
+  /** Per-project app retirement is fenced by the caller's live lifecycle lock. */
+  destroyApp(
+    projectId: string,
+    expectedAppName: string | undefined,
+    signal: AbortSignal,
+  ): Promise<void>
   reconcileCreateAttempts(options?: {
     now?: number
     createTimeoutMs?: number

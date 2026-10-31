@@ -56,7 +56,11 @@ class MemoryJournal implements FlyCreateAttemptJournal {
   ): Promise<FlyCreateVolumeIntent | null> {
     for (const attempt of this.attempts.values()) {
       const volume = attempt.volumes.find(
-        (candidate) => candidate.workspace && candidate.logicalName === logicalName && candidate.id,
+        (candidate) =>
+          candidate.workspace &&
+          candidate.workspaceCommitted !== false &&
+          candidate.logicalName === logicalName &&
+          candidate.id,
       )
       if (volume) return structuredClone(volume)
     }
@@ -80,18 +84,30 @@ class MemoryJournal implements FlyCreateAttemptJournal {
     const index = attempt.volumes.findIndex((candidate) => candidate.name === volume.name)
     if (index < 0) attempt.volumes.push({ ...volume })
     else {
+      const previous = attempt.volumes[index]
       attempt.volumes[index] = {
         ...volume,
-        workspace: attempt.volumes[index].workspace || volume.workspace,
+        workspace: previous.workspace || volume.workspace,
+        workspaceCommitted:
+          (previous.workspaceCommitted ?? previous.workspace) ||
+          (volume.workspaceCommitted ?? volume.workspace),
       }
     }
   }
 
-  async markVolumeWorkspace(attemptId: string, name: string, workspace = true): Promise<void> {
+  async markVolumeWorkspace(
+    attemptId: string,
+    name: string,
+    workspace = true,
+    workspaceCommitted = workspace,
+  ): Promise<void> {
     const volume = this.attempts
       .get(attemptId)
       ?.volumes.find((candidate) => candidate.name === name)
-    if (volume) volume.workspace = workspace
+    if (volume) {
+      volume.workspace = workspace
+      volume.workspaceCommitted = workspaceCommitted
+    }
   }
 
   async recordAddress(attemptId: string, address: FlyCreateAddressIntent): Promise<void> {
@@ -386,7 +402,7 @@ describe('journaled create reconciliation', () => {
       .on(`DELETE /apps/${APP}/machines/m1`, { status: 204 })
       .on(`DELETE /apps/${APP}`, { status: 204 })
 
-    await makeProvider(double, journal).destroy(`${APP}:m1`)
+    await makeProvider(double, journal).destroy(`${APP}:m1`, new AbortController().signal)
 
     expect(double.matching(`DELETE /apps/${APP}/machines/m1`)).toHaveLength(1)
     expect(
@@ -648,11 +664,17 @@ describe('round-six ownership races', () => {
     }
     double.on('DELETE /apps/tenant-db/ip_assignments/', { status: 204 })
 
-    await expect(makeProvider(double, journal).destroyApp(PROJECT_ID)).rejects.toThrow('500')
+    await expect(
+      makeProvider(double, journal).destroyApp(PROJECT_ID, undefined, new AbortController().signal),
+    ).rejects.toThrow('500')
     expect(double.matching(`DELETE /apps/${APP}`)).toHaveLength(0)
     expect(journal.attempts.size).toBe(1)
 
-    await makeProvider(double, journal).destroyApp(PROJECT_ID)
+    await makeProvider(double, journal).destroyApp(
+      PROJECT_ID,
+      undefined,
+      new AbortController().signal,
+    )
     const deletes = double.calls.filter((call) => call.method === 'DELETE').map((call) => call.path)
     expect(deletes.indexOf('/apps/tenant-db/ip_assignments/fdaa%3A%3A10')).toBeLessThan(
       deletes.findIndex((path) => path.startsWith(`/apps/${APP}`)),
@@ -770,8 +792,13 @@ describe('round-eight durable ownership counterexamples', () => {
       })
     }
     const markWorkspace = journal.markVolumeWorkspace.bind(journal)
-    journal.markVolumeWorkspace = async (attemptId, name, workspace = true) => {
-      await markWorkspace(attemptId, name, workspace)
+    journal.markVolumeWorkspace = async (
+      attemptId,
+      name,
+      workspace = true,
+      workspaceCommitted = workspace,
+    ) => {
+      await markWorkspace(attemptId, name, workspace, workspaceCommitted)
       if (workspace) controller.abort(new Error('advisory connection died'))
     }
     const provider = makeProvider(double, journal, { appPerProject: false, appName: APP })
@@ -917,7 +944,11 @@ describe('round-eight durable ownership counterexamples', () => {
       } as unknown as Response
     }) as unknown as typeof fetch
 
-    await makeProvider(double, journal).destroyApp(PROJECT_ID)
+    await makeProvider(double, journal).destroyApp(
+      PROJECT_ID,
+      undefined,
+      new AbortController().signal,
+    )
 
     expect(machineGone).toBe(true)
     expect(volumeGone).toBe(true)
@@ -1054,8 +1085,13 @@ describe('round-ten ownership counterexamples', () => {
       },
     })
     const markWorkspace = journal.markVolumeWorkspace.bind(journal)
-    journal.markVolumeWorkspace = async (attemptId, name, workspace = true) => {
-      await markWorkspace(attemptId, name, workspace)
+    journal.markVolumeWorkspace = async (
+      attemptId,
+      name,
+      workspace = true,
+      workspaceCommitted = workspace,
+    ) => {
+      await markWorkspace(attemptId, name, workspace, workspaceCommitted)
       if (workspace) cancelAtNextPacingWait = true
     }
     const provider = createProvider(
@@ -1133,7 +1169,11 @@ describe('round-ten ownership counterexamples', () => {
       } as unknown as Response
     }) as unknown as typeof fetch
 
-    await makeProvider(double, journal).destroyApp(PROJECT_ID)
+    await makeProvider(double, journal).destroyApp(
+      PROJECT_ID,
+      undefined,
+      new AbortController().signal,
+    )
 
     const deletes = double.calls.filter((call) => call.method === 'DELETE').map((call) => call.path)
     expect(deletes).toEqual([
@@ -1165,6 +1205,193 @@ describe('round-ten ownership counterexamples', () => {
     ).resolves.toEqual({ deleted: 1, failed: 0 })
     expect(double.matching('GET /apps/tenant-db/ip_assignments')).toHaveLength(0)
     expect(double.matching('DELETE /apps/tenant-db/ip_assignments/fdaa%3A%3A48')).toHaveLength(1)
+    expect(journal.attempts.size).toBe(0)
+  })
+})
+
+describe('round-twelve destruction fencing counterexamples', () => {
+  it('stops the legacy fallback when its lock is lost during the Machine GET', async () => {
+    const controller = new AbortController()
+    const lockLoss = new Error('lock lost during legacy Machine GET')
+    const double = createFetchDouble()
+    const baseFetch = double.fetch
+    double.fetch = vi.fn(async (input: string | URL | Request, init?: RequestInit) => {
+      const response = await baseFetch(input, init)
+      if (
+        (init?.method ?? 'GET').toUpperCase() === 'GET' &&
+        String(input).endsWith(`/apps/${APP}/machines/m1`)
+      ) {
+        controller.abort(lockLoss)
+      }
+      return response
+    }) as unknown as typeof fetch
+
+    await expect(makeProvider(double).destroy(`${APP}:m1`, controller.signal)).rejects.toBe(
+      lockLoss,
+    )
+    expect(double.calls.filter((call) => call.method === 'DELETE')).toHaveLength(0)
+  })
+
+  it('does not abandon or delete a shared-app serving attempt after forApp loses the lock', async () => {
+    const journal = new MemoryJournal()
+    const attemptId = 'serving-shared'
+    journal.seed(
+      failedIntent({
+        attemptId,
+        state: 'serving',
+        sandboxId: `${APP}:m1`,
+        volumes: [{ id: 'v1', name: 'attempt-volume', workspace: false, resolved: true }],
+      }),
+    )
+    const controller = new AbortController()
+    const lockLoss = new Error('lock lost during forApp')
+    const forApp = journal.forApp.bind(journal)
+    journal.forApp = async (appName) => {
+      const attempts = await forApp(appName)
+      controller.abort(lockLoss)
+      return attempts
+    }
+    const double = createFetchDouble().fallback({ body: [] })
+
+    await expect(
+      makeProvider(double, journal, { appPerProject: false, appName: APP }).destroy(
+        `${APP}:m1`,
+        controller.signal,
+      ),
+    ).rejects.toBe(lockLoss)
+    expect(journal.attempts.get(attemptId)?.state).toBe('serving')
+    expect(double.calls.filter((call) => call.method === 'DELETE')).toHaveLength(0)
+  })
+
+  it('does not abandon a per-project serving app after forApp loses the lock', async () => {
+    const journal = new MemoryJournal()
+    const attemptId = `legacy:${PROJECT_ID}`
+    journal.seed(failedIntent({ attemptId, state: 'serving', sandboxId: `${APP}:m1` }))
+    const controller = new AbortController()
+    const lockLoss = new Error('lock lost during app retirement journal read')
+    const forApp = journal.forApp.bind(journal)
+    journal.forApp = async (appName) => {
+      const attempts = await forApp(appName)
+      controller.abort(lockLoss)
+      return attempts
+    }
+    const double = createFetchDouble().fallback({ body: [] })
+
+    await expect(
+      makeProvider(double, journal).destroyApp(PROJECT_ID, undefined, controller.signal),
+    ).rejects.toBe(lockLoss)
+    expect(journal.attempts.get(attemptId)?.state).toBe('serving')
+    expect(double.calls.filter((call) => call.method === 'DELETE')).toHaveLength(0)
+  })
+
+  it('settles destroy() from its initially observed legacy routes, not a later empty listing', async () => {
+    const attemptId = `legacy:${PROJECT_ID}`
+    const journal = new MemoryJournal()
+    journal.seed(failedIntent({ attemptId, state: 'serving', sandboxId: `${APP}:m1` }))
+    const routes = { 'tenant-db': 'fdaa::49' }
+    const observedMachine = {
+      id: 'm1',
+      name: 'original-machine',
+      state: 'started',
+      config: {
+        mounts: [{ volume: 'v1', path: '/workspace' }],
+        metadata: {
+          'molecule-sandbox.volumeName': 'workspace',
+          'molecule-sandbox.privateRoutes': encodePrivateRoutes(routes),
+        },
+      },
+    }
+    let volumeGone = false
+    const double = createFetchDouble()
+    double.fetch = vi.fn(async (input: string | URL | Request, init?: RequestInit) => {
+      const method = (init?.method ?? 'GET').toUpperCase()
+      const url = String(input)
+      const path = url.replace('https://api.machines.dev/v1', '')
+      double.calls.push({ method, url, path, body: undefined })
+      let status = 200
+      let body: unknown = {}
+      if (method === 'GET' && path === `/apps/${APP}/machines/m1`) {
+        body = observedMachine
+      } else if (method === 'GET' && path === `/apps/${APP}/machines`) {
+        body = []
+      } else if (method === 'GET' && path === `/apps/${APP}/volumes`) {
+        body = volumeGone ? [] : [{ id: 'v1', name: 'original-volume', attached_machine_id: null }]
+      } else if (method === 'DELETE' && path === `/apps/${APP}/volumes/v1`) {
+        volumeGone = true
+        status = 204
+      } else if (
+        method === 'DELETE' &&
+        path === `/apps/tenant-db/ip_assignments/${encodeURIComponent('fdaa::49')}`
+      ) {
+        status = 204
+      } else if (method === 'DELETE' && path === `/apps/${APP}?force=true`) {
+        status = 204
+      } else {
+        throw new Error(`Unexpected ${method} ${path}`)
+      }
+      return {
+        status,
+        headers: { get: () => null },
+        text: async () => JSON.stringify(body),
+      } as unknown as Response
+    }) as unknown as typeof fetch
+
+    await makeProvider(double, journal).destroy(`${APP}:m1`, new AbortController().signal)
+
+    const deletes = double.calls.filter((call) => call.method === 'DELETE').map((call) => call.path)
+    expect(deletes).toContain(`/apps/tenant-db/ip_assignments/${encodeURIComponent('fdaa::49')}`)
+    expect(
+      deletes.indexOf(`/apps/tenant-db/ip_assignments/${encodeURIComponent('fdaa::49')}`),
+    ).toBeLessThan(deletes.indexOf(`/apps/${APP}?force=true`))
+    expect(journal.attempts.size).toBe(0)
+  })
+
+  it('recovers provisional workspace protection left by a crash before Machine dispatch', async () => {
+    const journal = new MemoryJournal()
+    const attempt = failedIntent({
+      volumes: [
+        {
+          id: 'v1',
+          name: 'attempt-volume',
+          workspace: true,
+          workspaceCommitted: false,
+          resolved: true,
+        },
+      ],
+    } as Partial<FlyCreateAttempt>)
+    journal.seed(attempt)
+    let volumeGone = false
+    const double = createFetchDouble()
+    double.fetch = vi.fn(async (input: string | URL | Request, init?: RequestInit) => {
+      const method = (init?.method ?? 'GET').toUpperCase()
+      const url = String(input)
+      const path = url.replace('https://api.machines.dev/v1', '')
+      double.calls.push({ method, url, path, body: undefined })
+      let status = 200
+      let body: unknown = []
+      if (method === 'DELETE' && path === `/apps/${APP}/volumes/v1`) {
+        volumeGone = true
+        status = 204
+        body = {}
+      } else if (method === 'GET' && path === `/apps/${APP}/volumes` && !volumeGone) {
+        body = [{ id: 'v1', name: 'attempt-volume', attached_machine_id: null }]
+      } else if (method !== 'GET' && !(method === 'DELETE' && path === `/apps/${APP}/volumes/v1`)) {
+        throw new Error(`Unexpected ${method} ${path}`)
+      }
+      return {
+        status,
+        headers: { get: () => null },
+        text: async () => JSON.stringify(body),
+      } as unknown as Response
+    }) as unknown as typeof fetch
+
+    await expect(
+      makeProvider(double, journal, {
+        appPerProject: false,
+        appName: APP,
+      }).reconcileCreateAttempts(),
+    ).resolves.toEqual({ deleted: 1, failed: 0 })
+    expect(double.matching(`DELETE /apps/${APP}/volumes/v1`)).toHaveLength(1)
     expect(journal.attempts.size).toBe(0)
   })
 })

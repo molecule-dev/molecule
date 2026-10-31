@@ -143,10 +143,14 @@ describe('create — app provisioning and tenant isolation', () => {
   it('deletes an exclusively owned per-project app without a recorded Machine id', async () => {
     const double = createFetchDouble().on(`DELETE /apps/${APP}`, { status: 204, body: {} })
     const provider = makeProvider({}, double) as ReturnType<typeof makeProvider> & {
-      destroyApp(projectId: string): Promise<void>
+      destroyApp(
+        projectId: string,
+        expectedAppName: string | undefined,
+        signal: AbortSignal,
+      ): Promise<void>
     }
 
-    await provider.destroyApp(PROJECT_ID)
+    await provider.destroyApp(PROJECT_ID, undefined, new AbortController().signal)
 
     expect(
       double.calls.filter(
@@ -1216,7 +1220,7 @@ describe('get / list / destroy', () => {
 
   it('destroys the Machine AND the per-project app, which removes its volumes and 6PN', async () => {
     const double = createFetchDouble()
-    await makeProvider({}, double).destroy(`${APP}:m1`)
+    await makeProvider({}, double).destroy(`${APP}:m1`, new AbortController().signal)
 
     expect(double.matching(`DELETE /apps/${APP}/machines/m1`)[0].path).toContain('force=true')
     expect(double.matching(`DELETE /apps/${APP}`)).toHaveLength(2) // machine path is a prefix match
@@ -1225,9 +1229,9 @@ describe('get / list / destroy', () => {
 
   it('throws naming the machine step when the Machine delete fails', async () => {
     const double = createFetchDouble().fallback({ status: 500, text: 'boom' })
-    await expect(makeProvider({}, double).destroy(`${APP}:m1`)).rejects.toThrow(
-      /machine delete.*HTTP 500/,
-    )
+    await expect(
+      makeProvider({}, double).destroy(`${APP}:m1`, new AbortController().signal),
+    ).rejects.toThrow(/machine delete.*HTTP 500/)
   })
 
   it('throws naming the app step when the app delete fails', async () => {
@@ -1235,14 +1239,16 @@ describe('get / list / destroy', () => {
     double.on(`DELETE /apps/${APP}/machines/m1`, { status: 200, body: {} })
     double.on(`DELETE /apps/${APP}`, { status: 500, text: 'boom' })
     double.fallback({ status: 500, text: 'boom' })
-    await expect(makeProvider({}, double).destroy(`${APP}:m1`)).rejects.toThrow(
-      /app delete.*HTTP 500/,
-    )
+    await expect(
+      makeProvider({}, double).destroy(`${APP}:m1`, new AbortController().signal),
+    ).rejects.toThrow(/app delete.*HTTP 500/)
   })
 
   it('treats a 404 on both deletes as already gone', async () => {
     const double = createFetchDouble().fallback({ status: 404, text: 'not found' })
-    await expect(makeProvider({}, double).destroy(`${APP}:m1`)).resolves.toBeUndefined()
+    await expect(
+      makeProvider({}, double).destroy(`${APP}:m1`, new AbortController().signal),
+    ).resolves.toBeUndefined()
   })
 
   it('removes the Machine’s own volumes in shared-app mode', async () => {
@@ -1251,7 +1257,10 @@ describe('get / list / destroy', () => {
       body: { id: 'm1', state: 'stopped', config: { mounts: [{ volume: 'vol_1', path: '/w' }] } },
     })
 
-    await makeProvider({ appPerProject: false, appName: 'shared' }, double).destroy('shared:m1')
+    await makeProvider({ appPerProject: false, appName: 'shared' }, double).destroy(
+      'shared:m1',
+      new AbortController().signal,
+    )
 
     expect(double.matching('DELETE /apps/shared/volumes/vol_1')).toHaveLength(1)
     expect(
@@ -1260,7 +1269,9 @@ describe('get / list / destroy', () => {
   })
 
   it('refuses to destroy from a malformed id', async () => {
-    await expect(makeProvider().destroy('bare-id')).rejects.toThrow(/expected "<app>:<machineId>"/)
+    await expect(makeProvider().destroy('bare-id', new AbortController().signal)).rejects.toThrow(
+      /expected "<app>:<machineId>"/,
+    )
   })
 })
 

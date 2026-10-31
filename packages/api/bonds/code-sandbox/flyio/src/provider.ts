@@ -645,10 +645,12 @@ class FlyioSandboxProvider implements SandboxProvider {
     options: FlyRequestOptions<T>,
     hooks: {
       beforeDispatch?: () => Promise<void>
+      onDispatch?: () => Promise<void>
       withoutDispatch?: () => Promise<void>
     } = {},
   ): Promise<T | null> {
     let dispatched = false
+    let dispatchCommit: Promise<void> | undefined
     try {
       if (attempt.signal.aborted) throw attempt.signal.reason
       await this.config.createAttemptJournal?.assertGeneration(
@@ -670,8 +672,13 @@ class FlyioSandboxProvider implements SandboxProvider {
         signal: attempt.signal,
         onDispatch: () => {
           dispatched = true
+          dispatchCommit = hooks.onDispatch?.()
+          // The request may fail before this promise is awaited; its rejection
+          // is still observed by the success/error paths below.
+          dispatchCommit?.catch(() => {})
         },
       })
+      await dispatchCommit
       // A response can arrive after ownership was lost. The write may remain
       // unresolved, but a superseded worker must not journal/adopt its outcome.
       if (attempt.signal.aborted) throw attempt.signal.reason
@@ -681,11 +688,22 @@ class FlyioSandboxProvider implements SandboxProvider {
       )
       return result
     } catch (error) {
+      await dispatchCommit?.catch(() => {})
       // Provisional workspace protection is valid only once the Machine write
       // entered the transport. Before that point no Machine can have claimed it.
       if (!dispatched) await hooks.withoutDispatch?.()
       throw error
     }
+  }
+
+  /** The sole request dispatch for retirement and settlement, always lock-fenced. */
+  private async requestForDestruction<T>(
+    path: string,
+    options: FlyRequestOptions<T>,
+    signal: AbortSignal,
+  ): Promise<T | null> {
+    if (signal.aborted) throw signal.reason
+    return this.client.request<T>(path, { ...options, signal })
   }
 
   /**
@@ -868,9 +886,13 @@ class FlyioSandboxProvider implements SandboxProvider {
     app: string,
     signal?: AbortSignal,
   ): Promise<FlyIpAssignment[] | null> {
-    const listed = await this.client.request<
-      FlyIpAssignment[] | { ips?: FlyIpAssignment[]; ip_assignments?: FlyIpAssignment[] }
-    >(`/apps/${app}/ip_assignments`, { signal })
+    const listed = signal
+      ? await this.requestForDestruction<
+          FlyIpAssignment[] | { ips?: FlyIpAssignment[]; ip_assignments?: FlyIpAssignment[] }
+        >(`/apps/${app}/ip_assignments`, {}, signal)
+      : await this.client.request<
+          FlyIpAssignment[] | { ips?: FlyIpAssignment[]; ip_assignments?: FlyIpAssignment[] }
+        >(`/apps/${app}/ip_assignments`)
     const assignments = Array.isArray(listed) ? listed : (listed?.ips ?? listed?.ip_assignments)
     if (!assignments) return null
     return assignments.map((assignment) => {
@@ -989,16 +1011,21 @@ class FlyioSandboxProvider implements SandboxProvider {
    * a failed teardown. It routes into a 6PN that no longer has any app in it.
    * @param routes - Target app name → private address, from Machine metadata.
    */
-  private async releasePrivateRoutes(routes: Record<string, string>): Promise<boolean> {
+  private async releasePrivateRoutes(
+    routes: Record<string, string>,
+    signal: AbortSignal,
+  ): Promise<boolean> {
     let released = true
     for (const [target, ip] of Object.entries(routes)) {
       try {
-        await this.client.request(`/apps/${target}/ip_assignments/${encodeURIComponent(ip)}`, {
-          method: 'DELETE',
-          nullOn: [404],
-        })
+        await this.requestForDestruction(
+          `/apps/${target}/ip_assignments/${encodeURIComponent(ip)}`,
+          { method: 'DELETE', nullOn: [404] },
+          signal,
+        )
         logger.debug('Released a Fly private (Flycast) address', { target, ip })
       } catch (error) {
+        if (signal.aborted) throw signal.reason
         released = false
         logger.warn(
           'Failed to release a Fly private (Flycast) address — it will keep pointing at a 6PN ' +
@@ -1700,10 +1727,23 @@ class FlyioSandboxProvider implements SandboxProvider {
         newAttemptVolumeName
           ? {
               beforeDispatch: async () => {
-                // A lost Machine response may bind the new volume from this point.
+                // Provisional protection covers the tiny pre-transport window;
+                // reconciliation clears it if the process dies before dispatch.
                 await this.config.createAttemptJournal?.markVolumeWorkspace(
                   createAttemptId,
                   newAttemptVolumeName,
+                  true,
+                  false,
+                )
+              },
+              onDispatch: async () => {
+                // The POST entered transport. Durable workspace ownership is now
+                // committed even if its response is lost.
+                await this.config.createAttemptJournal?.markVolumeWorkspace(
+                  createAttemptId,
+                  newAttemptVolumeName,
+                  true,
+                  true,
                 )
               },
               withoutDispatch: async () => {
@@ -1711,6 +1751,7 @@ class FlyioSandboxProvider implements SandboxProvider {
                 await this.config.createAttemptJournal?.markVolumeWorkspace(
                   createAttemptId,
                   newAttemptVolumeName,
+                  false,
                   false,
                 )
               },
@@ -1727,6 +1768,7 @@ class FlyioSandboxProvider implements SandboxProvider {
         await this.config.createAttemptJournal?.markVolumeWorkspace(
           createAttemptId,
           newAttemptVolumeName,
+          false,
           false,
         )
       }
@@ -2068,14 +2110,17 @@ class FlyioSandboxProvider implements SandboxProvider {
   }
 
   /** Read an existing app's live state; a list 404 after the app read is an error, not absence. */
-  private async readAttemptAppState(app: string): Promise<{
+  private async readAttemptAppState(
+    app: string,
+    signal: AbortSignal,
+  ): Promise<{
     appGone: boolean
     machines: FlyMachine[]
     volumes: FlyVolume[]
   }> {
     const [machines, volumes] = await Promise.all([
-      this.client.request<FlyMachine[]>(`/apps/${app}/machines`, { nullOn: [404] }),
-      this.client.request<FlyVolume[]>(`/apps/${app}/volumes`, { nullOn: [404] }),
+      this.requestForDestruction<FlyMachine[]>(`/apps/${app}/machines`, { nullOn: [404] }, signal),
+      this.requestForDestruction<FlyVolume[]>(`/apps/${app}/volumes`, { nullOn: [404] }, signal),
     ])
     if (Array.isArray(machines) && Array.isArray(volumes)) {
       return {
@@ -2089,9 +2134,11 @@ class FlyioSandboxProvider implements SandboxProvider {
     // A Machines/Volumes-list 404 is not proof that a newly-created app is
     // gone. Confirm the app itself; if it exists, the list read was transient
     // and responsibility must remain durable.
-    const existing = await this.client.request<{ name: string }>(`/apps/${app}`, {
-      nullOn: [404],
-    })
+    const existing = await this.requestForDestruction<{ name: string }>(
+      `/apps/${app}`,
+      { nullOn: [404] },
+      signal,
+    )
     if (existing) throw new Error(`Fly app "${app}" exists but its live-state listing failed`)
     return { appGone: true, machines: [], volumes: [] }
   }
@@ -2127,6 +2174,7 @@ class FlyioSandboxProvider implements SandboxProvider {
       if (signal.aborted) throw signal.reason
       await journal.assertGeneration(snapshot.attemptId, generation)
       const current = await journal.get(snapshot.attemptId)
+      if (signal.aborted) throw signal.reason
       if (!current || (current.generation ?? 1) !== generation) {
         throw new Error(`Fly create attempt "${snapshot.attemptId}" was superseded`)
       }
@@ -2192,15 +2240,29 @@ class FlyioSandboxProvider implements SandboxProvider {
       'replacing',
       'migrated',
     ]
-    const hasActiveSibling = async (intent: FlyCreateAttempt): Promise<boolean> =>
-      (await journal.forApp(intent.appName)).some(
+    const hasActiveSibling = async (intent: FlyCreateAttempt): Promise<boolean> => {
+      if (signal.aborted) throw signal.reason
+      const siblings = await journal.forApp(intent.appName)
+      if (signal.aborted) throw signal.reason
+      return siblings.some(
         (candidate) =>
           candidate.attemptId !== intent.attemptId &&
           (candidate.state === 'creating' || candidate.state === 'serving'),
       )
+    }
 
     let intent = await fresh()
-    let live = await this.readAttemptAppState(intent.appName)
+    // A lifecycle lock excludes the dispatcher that wrote provisional state.
+    // If it never committed a Machine POST, no durable workspace binding may
+    // survive merely because the old process died before withoutDispatch ran.
+    for (const volume of intent.volumes) {
+      if (!volume.workspace || volume.workspaceCommitted !== false) continue
+      if (signal.aborted) throw signal.reason
+      await journal.assertGeneration(intent.attemptId, generation)
+      await journal.markVolumeWorkspace(intent.attemptId, volume.name, false, false)
+    }
+    intent = await fresh()
+    let live = await this.readAttemptAppState(intent.appName, signal)
     const observed = ownMachine(options.observedMachines ?? [], intent)
     if (observed) {
       // destroyApp read this metadata before waiting for the attempt lock. Save
@@ -2214,7 +2276,7 @@ class FlyioSandboxProvider implements SandboxProvider {
     if (machine) {
       // Re-read immediately before the destructive decision, not from the lock-wait snapshot.
       intent = await fresh()
-      live = await this.readAttemptAppState(intent.appName)
+      live = await this.readAttemptAppState(intent.appName, signal)
       const current = ownMachine(live.machines, intent)
       if (!retire && current && activeStates.includes(current.state ?? 'created')) return false
       if (current) {
@@ -2224,11 +2286,11 @@ class FlyioSandboxProvider implements SandboxProvider {
         await adoptLegacyResources(current)
         intent = await fresh()
         await journal.assertGeneration(intent.attemptId, generation)
-        await this.client.request(`/apps/${intent.appName}/machines/${current.id}?force=true`, {
-          method: 'DELETE',
-          nullOn: [404],
+        await this.requestForDestruction(
+          `/apps/${intent.appName}/machines/${current.id}?force=true`,
+          { method: 'DELETE', nullOn: [404] },
           signal,
-        })
+        )
       }
     }
 
@@ -2245,7 +2307,7 @@ class FlyioSandboxProvider implements SandboxProvider {
       ) {
         continue
       }
-      live = await this.readAttemptAppState(intent.appName)
+      live = await this.readAttemptAppState(intent.appName, signal)
       if (live.appGone) continue
       if (!volumeIntent.id) {
         const discovered = live.volumes.find((candidate) => candidate.name === volumeIntent?.name)
@@ -2265,7 +2327,7 @@ class FlyioSandboxProvider implements SandboxProvider {
       // ID, attachment, workspace flag and ownership are all re-read under the lock.
       intent = await fresh()
       volumeIntent = intent.volumes.find((candidate) => candidate.id === volumeIntent?.id)
-      live = await this.readAttemptAppState(intent.appName)
+      live = await this.readAttemptAppState(intent.appName, signal)
       const volume = live.volumes.find((candidate) => candidate.id === volumeIntent?.id)
       if (!volumeIntent?.id || (!retire && volumeIntent.workspace) || volume?.attached_machine_id) {
         continue
@@ -2275,16 +2337,16 @@ class FlyioSandboxProvider implements SandboxProvider {
       // authorizes forgetting it. Fly still rejects a really attached volume.
       const volumeId = volumeIntent.id
       await journal.assertGeneration(intent.attemptId, generation)
-      await this.client.request(`/apps/${intent.appName}/volumes/${volumeId}`, {
-        method: 'DELETE',
-        nullOn: [404],
+      await this.requestForDestruction(
+        `/apps/${intent.appName}/volumes/${volumeId}`,
+        { method: 'DELETE', nullOn: [404] },
         signal,
-      })
+      )
       releasedVolumeIds.add(volumeId)
     }
 
     intent = await fresh()
-    live = await this.readAttemptAppState(intent.appName)
+    live = await this.readAttemptAppState(intent.appName, signal)
     if (
       intent.addresses.length &&
       (live.machines.some((candidate) => candidate.id !== machine?.id) ||
@@ -2334,9 +2396,10 @@ class FlyioSandboxProvider implements SandboxProvider {
       if (!address?.owned) continue
       if (!address.ip) throw new Error(`Owned Fly address for "${intent.attemptId}" has no IP`)
       await journal.assertGeneration(intent.attemptId, generation)
-      await this.client.request(
+      await this.requestForDestruction(
         `/apps/${address.targetApp}/ip_assignments/${encodeURIComponent(address.ip)}`,
-        { method: 'DELETE', nullOn: [404], signal },
+        { method: 'DELETE', nullOn: [404] },
+        signal,
       )
       await journal.recordAddress(intent.attemptId, {
         ...address,
@@ -2346,7 +2409,7 @@ class FlyioSandboxProvider implements SandboxProvider {
     }
 
     intent = await fresh()
-    live = await this.readAttemptAppState(intent.appName)
+    live = await this.readAttemptAppState(intent.appName, signal)
     const ownedVolumesRemain = intent.volumes.some((volume) => {
       if (volume.resolved === true && !volume.id) return false
       if (live.appGone) return false
@@ -2363,14 +2426,14 @@ class FlyioSandboxProvider implements SandboxProvider {
     if (deleteApp && this.appPerProject() && !live.appGone) {
       // Addresses above are settled first. Re-read once more before app deletion.
       intent = await fresh()
-      live = await this.readAttemptAppState(intent.appName)
+      live = await this.readAttemptAppState(intent.appName, signal)
       if (live.machines.length || (!retire && live.volumes.length)) return false
       await journal.assertGeneration(intent.attemptId, generation)
-      await this.client.request(`/apps/${intent.appName}${retire ? '?force=true' : ''}`, {
-        method: 'DELETE',
-        nullOn: [404],
+      await this.requestForDestruction(
+        `/apps/${intent.appName}${retire ? '?force=true' : ''}`,
+        { method: 'DELETE', nullOn: [404] },
         signal,
-      })
+      )
     }
     if (!forget) return false
     await fresh()
@@ -2404,7 +2467,10 @@ class FlyioSandboxProvider implements SandboxProvider {
               (candidate) => candidate.attemptId === intent.attemptId,
             )
             if (!expired) return false
+            if (signal.aborted) throw signal.reason
+            await journal.assertGeneration(intent.attemptId, generation)
             await journal.markState(intent.attemptId, 'abandoned')
+            if (signal.aborted) throw signal.reason
           }
           return this.settleCreateAttempt(intent, signal, generation)
         })
@@ -2424,6 +2490,37 @@ class FlyioSandboxProvider implements SandboxProvider {
     return summary
   }
 
+  /** Re-read and abandon only while the attempt's current lifecycle lock is live. */
+  private async retireCreateAttempt(
+    snapshot: FlyCreateAttempt,
+    outerSignal: AbortSignal,
+    options: {
+      deleteApp: boolean
+      forget: boolean
+      observedMachines?: FlyMachine[]
+    },
+  ): Promise<boolean> {
+    const journal = this.config.createAttemptJournal
+    if (!journal?.withLock) throw new Error('Attempt settlement requires its lifecycle lock')
+    return journal.withLock(snapshot, async (lockSignal, generation) => {
+      const signal = AbortSignal.any([outerSignal, lockSignal])
+      if (signal.aborted) throw signal.reason
+      const current = await journal.get(snapshot.attemptId)
+      if (signal.aborted) throw signal.reason
+      if (!current) return false
+      if (current.state === 'creating' || current.state === 'serving') {
+        await journal.assertGeneration(current.attemptId, generation)
+        if (signal.aborted) throw signal.reason
+        await journal.markState(current.attemptId, 'abandoned')
+        if (signal.aborted) throw signal.reason
+      }
+      return this.settleCreateAttempt(current, signal, generation, {
+        retire: true,
+        ...options,
+      })
+    })
+  }
+
   /**
    * Explicitly destroy an exclusively owned app and its workspace storage.
    * Recorded external addresses are released before any intent may be forgotten.
@@ -2433,6 +2530,7 @@ class FlyioSandboxProvider implements SandboxProvider {
     expectedAppName?: string,
     signal?: AbortSignal,
   ): Promise<void> {
+    if (!signal) throw new Error('Fly app destruction requires its lifecycle lock signal')
     if (!this.appPerProject()) {
       throw new Error('Refusing to delete a shared Fly app as though a caller exclusively owned it')
     }
@@ -2442,10 +2540,11 @@ class FlyioSandboxProvider implements SandboxProvider {
         `Refusing to delete Fly app "${expectedAppName}": its durable identity resolves to "${app}"`,
       )
     }
-    const listed = await this.client.request<FlyMachine[]>(`/apps/${app}/machines`, {
-      nullOn: [404],
+    const listed = await this.requestForDestruction<FlyMachine[]>(
+      `/apps/${app}/machines`,
+      { nullOn: [404] },
       signal,
-    })
+    )
     const machines = Array.isArray(listed) ? listed : []
     const routes: Record<string, string> = {}
     const attemptIds = new Set<string>()
@@ -2462,13 +2561,13 @@ class FlyioSandboxProvider implements SandboxProvider {
     const journal = this.config.createAttemptJournal
     if (journal) {
       const durable = new Map<string, FlyCreateAttempt>()
-      for (const intent of await journal.forApp(app)) durable.set(intent.attemptId, intent)
+      const journaled = await journal.forApp(app)
+      if (signal.aborted) throw signal.reason
+      for (const intent of journaled) durable.set(intent.attemptId, intent)
       for (const attemptId of attemptIds) {
         const intent = await journal.get(attemptId)
+        if (signal.aborted) throw signal.reason
         if (intent) durable.set(attemptId, intent)
-      }
-      for (const intent of durable.values()) {
-        await journal.markState(intent.attemptId, 'abandoned')
       }
       if (durable.size && !journal.withLock) {
         throw new Error(`Refusing to retire Fly app "${app}" without its lifecycle lock`)
@@ -2480,25 +2579,19 @@ class FlyioSandboxProvider implements SandboxProvider {
         for (const deleteApp of [false, true]) {
           for (const snapshot of durable.values()) {
             const current = await journal.get(snapshot.attemptId)
+            if (signal.aborted) throw signal.reason
             if (!current) continue
-            await journal.withLock(current, (lockSignal, generation) =>
-              this.settleCreateAttempt(
-                current,
-                signal ? AbortSignal.any([signal, lockSignal]) : lockSignal,
-                generation,
-                {
-                  retire: true,
-                  deleteApp,
-                  forget: deleteApp,
-                  observedMachines: machines,
-                },
-              ),
-            )
+            await this.retireCreateAttempt(current, signal, {
+              deleteApp,
+              forget: deleteApp,
+              observedMachines: machines,
+            })
           }
         }
         const retained = (
           await Promise.all([...durable.keys()].map(async (attemptId) => journal.get(attemptId)))
         ).some(Boolean)
+        if (signal.aborted) throw signal.reason
         if (retained) throw new Error(`Fly app "${app}" retirement has not fully settled`)
         return
       }
@@ -2507,18 +2600,21 @@ class FlyioSandboxProvider implements SandboxProvider {
     // Legacy unjournaled apps retain explicit destruction. Even here, addresses
     // captured before Machine loss are released BEFORE the app is deleted.
     for (const [targetApp, ip] of Object.entries(routes)) {
-      await this.client.request(`/apps/${targetApp}/ip_assignments/${encodeURIComponent(ip)}`, {
-        method: 'DELETE',
-        nullOn: [404],
+      await this.requestForDestruction(
+        `/apps/${targetApp}/ip_assignments/${encodeURIComponent(ip)}`,
+        { method: 'DELETE', nullOn: [404] },
         signal,
-      })
+      )
     }
-    await this.client.request(`/apps/${app}?force=true`, {
-      method: 'DELETE',
-      nullOn: [404],
+    await this.requestForDestruction(
+      `/apps/${app}?force=true`,
+      { method: 'DELETE', nullOn: [404] },
       signal,
-    })
-    for (const attemptId of attemptIds) await journal?.forget(attemptId)
+    )
+    for (const attemptId of attemptIds) {
+      if (signal.aborted) throw signal.reason
+      await journal?.forget(attemptId)
+    }
   }
 
   /**
@@ -2538,16 +2634,21 @@ class FlyioSandboxProvider implements SandboxProvider {
    * other than a 404 (which counts as already gone), naming the failed step and
    * HTTP status, so the caller can retry instead of forgetting a billed app.
    */
-  async destroy(id: string): Promise<void> {
+  async destroy(id: string, signal?: AbortSignal): Promise<void> {
+    if (!signal) throw new Error('Fly destruction requires its lifecycle lock signal')
     const { app, machineId } = parseSandboxId(id)
 
     let volumeIds: string[] = []
     let privateRoutes: Record<string, string> = {}
     let createAttemptId: string | undefined
+    let observedMachine: FlyMachine | null = null
     try {
-      const machine = await this.client.request<FlyMachine>(`/apps/${app}/machines/${machineId}`, {
-        nullOn: [404],
-      })
+      const machine = await this.requestForDestruction<FlyMachine>(
+        `/apps/${app}/machines/${machineId}`,
+        { nullOn: [404] },
+        signal,
+      )
+      observedMachine = machine
       privateRoutes = decodePrivateRoutes(
         machine?.config?.metadata?.[`${this.metadataPrefix}.${PRIVATE_ROUTES_METADATA_SUFFIX}`],
       )
@@ -2558,6 +2659,7 @@ class FlyioSandboxProvider implements SandboxProvider {
           .filter((volume): volume is string => Boolean(volume))
       }
     } catch (error) {
+      if (signal.aborted) throw signal.reason
       // Best-effort metadata gathering; the Machine may already be gone.
       // Destruction proceeds either way — but say so, because an unread
       // metadata block means the private addresses below are NOT released.
@@ -2571,21 +2673,19 @@ class FlyioSandboxProvider implements SandboxProvider {
     const journal = this.config.createAttemptJournal
     if (journal) {
       const durable = await journal.forApp(app)
+      if (signal.aborted) throw signal.reason
       const intent =
         durable.find((candidate) => candidate.attemptId === createAttemptId) ??
         durable.find((candidate) => candidate.sandboxId === id)
       if (intent) {
-        await journal.markState(intent.attemptId, 'abandoned')
         const current = await journal.get(intent.attemptId)
+        if (signal.aborted) throw signal.reason
         if (!current) throw new Error(`Fly create attempt "${intent.attemptId}" disappeared`)
-        if (!journal.withLock) throw new Error('Attempt settlement requires its lifecycle lock')
-        const forgotten = await journal.withLock(current, (signal, generation) =>
-          this.settleCreateAttempt(current, signal, generation, {
-            retire: true,
-            deleteApp: this.appPerProject(),
-            forget: true,
-          }),
-        )
+        const forgotten = await this.retireCreateAttempt(current, signal, {
+          deleteApp: this.appPerProject(),
+          forget: true,
+          observedMachines: observedMachine ? [observedMachine] : [],
+        })
         if (!forgotten) {
           throw new Error(
             `Could not complete every cleanup step for "${id}"; its intent was retained`,
@@ -2601,11 +2701,13 @@ class FlyioSandboxProvider implements SandboxProvider {
     }
 
     try {
-      await this.client.request(`/apps/${app}/machines/${machineId}?force=true`, {
-        method: 'DELETE',
-        nullOn: [404],
-      })
+      await this.requestForDestruction(
+        `/apps/${app}/machines/${machineId}?force=true`,
+        { method: 'DELETE', nullOn: [404] },
+        signal,
+      )
     } catch (error) {
+      if (signal.aborted) throw signal.reason
       // The app delete is not attempted: removing the app under a Machine that
       // is still alive would hide it. The private addresses are left for the
       // retry, which re-reads them from the Machine's metadata.
@@ -2616,7 +2718,11 @@ class FlyioSandboxProvider implements SandboxProvider {
     if (this.appPerProject()) {
       let appError: unknown
       try {
-        await this.client.request(`/apps/${app}`, { method: 'DELETE', nullOn: [404] })
+        await this.requestForDestruction(
+          `/apps/${app}`,
+          { method: 'DELETE', nullOn: [404] },
+          signal,
+        )
       } catch (error) {
         appError = error
         logger.error('Failed to delete Fly sandbox app — its volumes and 6PN network may leak', {
@@ -2626,13 +2732,14 @@ class FlyioSandboxProvider implements SandboxProvider {
       }
       // Released even when the app delete failed: the Machine is gone, so a
       // retry could no longer read these addresses from its metadata.
-      const routesReleased = await this.releasePrivateRoutes(privateRoutes)
+      const routesReleased = await this.releasePrivateRoutes(privateRoutes, signal)
       if (appError !== undefined) {
         throw new Error(describeDestroyFailure('app delete', id, appError), { cause: appError })
       }
       if (!routesReleased && createAttemptId && this.config.createAttemptJournal) {
         throw new Error(`Could not release every external Flycast address for "${id}"`)
       }
+      if (signal.aborted) throw signal.reason
       if (createAttemptId) await this.config.createAttemptJournal?.forget(createAttemptId)
       return
     }
@@ -2640,19 +2747,22 @@ class FlyioSandboxProvider implements SandboxProvider {
     let cleanupFailed = false
     for (const volumeId of volumeIds) {
       try {
-        await this.client.request(`/apps/${app}/volumes/${volumeId}`, {
-          method: 'DELETE',
-          nullOn: [404],
-        })
+        await this.requestForDestruction(
+          `/apps/${app}/volumes/${volumeId}`,
+          { method: 'DELETE', nullOn: [404] },
+          signal,
+        )
       } catch (error) {
+        if (signal.aborted) throw signal.reason
         cleanupFailed = true
         logger.warn('Failed to remove Fly volume', { app, volumeId, error })
       }
     }
-    cleanupFailed = !(await this.releasePrivateRoutes(privateRoutes)) || cleanupFailed
+    cleanupFailed = !(await this.releasePrivateRoutes(privateRoutes, signal)) || cleanupFailed
     if (cleanupFailed && createAttemptId && this.config.createAttemptJournal) {
       throw new Error(`Could not complete every cleanup step for "${id}"; its intent was retained`)
     }
+    if (signal.aborted) throw signal.reason
     if (createAttemptId) await this.config.createAttemptJournal?.forget(createAttemptId)
   }
 
