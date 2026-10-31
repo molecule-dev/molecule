@@ -387,15 +387,15 @@ export interface FlyPrivateService {
  * An IP assignment, as returned by `POST`/`GET /v1/apps/{app}/ip_assignments`
  * (`IPAssignment` in https://docs.machines.dev/openapi.json).
  *
- * Note what is NOT here: the assignment's **network**. Fly's own schema is
- * `{created_at, ip, region, service_name, shared}`, so a listing cannot tell you
- * which 6PN a private address serves — which is why this provider records the
- * addresses it allocated in the sandbox Machine's metadata instead of
- * rediscovering them.
+ * Current Fly schema includes the assignment's network identity, allowing a
+ * lost allocation response to be resolved by target app and 6PN. Durable
+ * records remain authoritative for what this provider must release.
  */
 export interface FlyIpAssignment {
   /** The allocated address. Required for a later `DELETE .../ip_assignments/{ip}`. */
   ip?: string
+  /** Private 6PN to which a Flycast assignment belongs. */
+  network?: string
   /** Region the address was allocated in, when Fly reports one. */
   region?: string
   /** Service the address is bound to, when the assignment names one. */

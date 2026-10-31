@@ -13,9 +13,16 @@ export type FlyCreateAttemptState = 'creating' | 'serving' | 'failed' | 'abandon
 
 /** A volume name generated for one attempt, or an existing durable workspace. */
 export interface FlyCreateVolumeIntent {
+  /** Fly's resource ID. Once known, this—not the name—is the ownership key. */
+  id?: string
+  /** The current Fly name, unique for a newly-created attempt volume. */
   name: string
+  /** Caller-level workspace identity, stable across create attempts. */
+  logicalName?: string
   /** Once bound, only explicit sandbox destruction may delete this volume. */
   workspace: boolean
+  /** False until an ambiguous create is adopted or definitely rejected. */
+  resolved?: boolean
 }
 
 /** An address on another Fly app which must be released before forgetting intent. */
@@ -35,6 +42,8 @@ export interface FlyCreateAttempt {
   projectId: string
   appName: string
   state: FlyCreateAttemptState
+  /** Monotonic fencing token, incremented whenever lifecycle ownership is reacquired. */
+  generation?: number
   sandboxId?: string
   volumes: FlyCreateVolumeIntent[]
   addresses: FlyCreateAddressIntent[]
@@ -47,14 +56,24 @@ export interface FlyCreateAttemptJournal {
       ownerProjectId?: string
     },
   ): Promise<void>
+  /** Re-read one attempt, including after a lifecycle lock has been acquired. */
+  get(attemptId: string): Promise<FlyCreateAttempt | null>
+  /** Find the durable workspace binding for a logical caller workspace. */
+  findWorkspace(projectId: string, logicalName: string): Promise<FlyCreateVolumeIntent | null>
+  /** Record an intent or transfer a Fly-ID binding to this attempt. */
   recordVolume(attemptId: string, volume: FlyCreateVolumeIntent): Promise<void>
   markVolumeWorkspace(attemptId: string, name: string, workspace?: boolean): Promise<void>
   recordAddress(attemptId: string, address: FlyCreateAddressIntent): Promise<void>
   markState(attemptId: string, state: FlyCreateAttemptState, sandboxId?: string): Promise<void>
+  /** Throw unless this generation is still the attempt's durable fencing token. */
+  assertGeneration(attemptId: string, generation: number): Promise<void>
   /** Failed/abandoned attempts, plus creating attempts whose updatedAt is at/before cutoff. */
   reclaimable(cutoff: Date): Promise<FlyCreateAttempt[]>
   /** Acquire the same lifecycle lock the application uses for create/destroy. */
-  withLock?<T>(attempt: FlyCreateAttempt, body: (signal: AbortSignal) => Promise<T>): Promise<T>
+  withLock?<T>(
+    attempt: FlyCreateAttempt,
+    body: (signal: AbortSignal, generation: number) => Promise<T>,
+  ): Promise<T>
   forget(attemptId: string): Promise<void>
 }
 
@@ -69,7 +88,7 @@ export interface FlyCreateAttemptProvider {
   reconcileCreateAttempts(options?: {
     now?: number
     createTimeoutMs?: number
-    /** False only when the caller already holds every matching lifecycle lock. */
-    lock?: boolean
+    /** Restrict a pass to one durable attempt. Every attempt is still locked. */
+    attemptId?: string
   }): Promise<FlyCreateReconcileSummary>
 }

@@ -85,6 +85,8 @@ export interface FlyRequestOptions<T = unknown> {
   body?: unknown
   /** Per-request timeout in ms. Defaults to the client's configured timeout. */
   timeoutMs?: number
+  /** Cancels in-flight provisioning when the owning lifecycle lock is lost. */
+  signal?: AbortSignal
   /** Max attempts for a retryable failure. Defaults to 4. Pass 1 to disable retries. */
   attempts?: number
   /**
@@ -304,6 +306,7 @@ export class FlyApiClient {
 
     let lastError: FlyApiError | undefined
     for (let attempt = 1; attempt <= attempts; attempt++) {
+      if (options.signal?.aborted) throw options.signal.reason
       // Pace EVERY network call (including retries) through the process-wide
       // limiter so a boot's burst of exec calls never trips Fly's account 429.
       await paceFlyRequest(this.sleep)
@@ -321,11 +324,14 @@ export class FlyApiClient {
             ...(options.body === undefined ? {} : { 'Content-Type': 'application/json' }),
           },
           ...(options.body === undefined ? {} : { body: JSON.stringify(options.body) }),
-          signal: controller.signal,
+          signal: options.signal
+            ? AbortSignal.any([controller.signal, options.signal])
+            : controller.signal,
         })
         status = response.status
         retryAfter = response.headers?.get?.('retry-after') ?? null
         const text = await response.text()
+        if (options.signal?.aborted) throw options.signal.reason
 
         if (status >= 200 && status < 300) {
           if (!text.trim()) return null
@@ -341,6 +347,7 @@ export class FlyApiClient {
         if (options.nullOn?.includes(status)) return null
         lastError = new FlyApiError(method, path, status, text.slice(0, 500))
       } catch (error) {
+        if (options.signal?.aborted) throw options.signal.reason
         if (error instanceof FlyApiError) throw error
         // Transport-level failure (abort/timeout, DNS, connection reset) — no
         // status was ever received, so it is modelled as status 0 and retried.

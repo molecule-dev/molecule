@@ -387,9 +387,12 @@ describe('create — allocating the routes', () => {
     ).rejects.toThrow(/returned no address/)
   })
 
-  it('treats a conflict as "the route already exists" and still boots', async () => {
+  it('resolves a conflict by target app and network, journals the route and boots', async () => {
     const double = createFetchDouble()
       .on(`POST /apps/${TENANT_DB}/ip_assignments`, { status: 409, body: { error: 'taken' } })
+      .on(`GET /apps/${TENANT_DB}/ip_assignments`, {
+        body: [{ ip: 'fdaa::2', network: APP }],
+      })
       .on(`POST /apps/${APP}/machines`, { body: { id: 'm1', state: 'started' } })
       .on(`GET /apps/${APP}`, { status: 404, body: {} })
       .on('POST /apps', { status: 201, body: {} })
@@ -399,16 +402,10 @@ describe('create — allocating the routes', () => {
     })
 
     expect(sandbox.id).toBe(`${APP}:m1`)
-    expect(mockLogger.warn).toHaveBeenCalledWith(
-      expect.stringContaining('already exists on the target app'),
-      expect.anything(),
-    )
-    // Nothing was recorded, so nothing will be released — which is exactly what
-    // the warning says.
     const machine = double.matching(`POST /apps/${APP}/machines`)[0].body as {
       config: { metadata: Record<string, string> }
     }
-    expect(machine.config.metadata['molecule-sandbox.privateRoutes']).toBeUndefined()
+    expect(machine.config.metadata['molecule-sandbox.privateRoutes']).toContain('fdaa::2')
   })
 
   it('REFUSES a sandbox whose DATABASE_URL names an undeclared .flycast host', async () => {

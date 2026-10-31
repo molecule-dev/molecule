@@ -2,4 +2,4 @@
 '@molecule/api-code-sandbox-flyio': patch
 ---
 
-Make Fly creates deletion-free, preserve durable workspaces, discover shortened app prefixes, and reconcile journaled failed attempts and external addresses.
+Survive transient Fly volume-create failures with durable per-attempt adoption and ownership-safe cleanup.
