@@ -76,6 +76,37 @@ describe('native asynchronous operation ownership', () => {
     expect(form.getError('title')).toBeUndefined()
   })
 
+  it('keeps independent field validation results when validations overlap', async () => {
+    const form = nativeProvider.createForm({ defaultValues: { email: '', name: 'Valid' } })
+    form.register({ name: 'email', required: 'Email required' })
+    form.register({ name: 'name', required: 'Name required' })
+
+    const emailValidation = form.validateField('email')
+    const nameValidation = form.validateField('name')
+
+    await expect(emailValidation).resolves.toBe(false)
+    await expect(nameValidation).resolves.toBe(true)
+    expect(form.getState().errors).toEqual({ email: 'Email required' })
+    expect(form.getState().isValid).toBe(false)
+  })
+
+  it('keeps an unchanged field validation through a refresh of another field', async () => {
+    let release!: (result: string) => void
+    const gate = new Promise<string>((resolve) => {
+      release = resolve
+    })
+    const initial = { id: 'same-account', email: 'typed@example.test', name: 'Before' }
+    const form = nativeProvider.createForm({ defaultValues: initial, values: initial })
+    form.register({ name: 'email', validate: () => gate })
+
+    const validation = form.validateField('email')
+    form.updateValues({ ...initial, name: 'Refreshed' }, { keepDirtyValues: true })
+    release('Email invalid')
+
+    await expect(validation).resolves.toBe(false)
+    expect(form.getError('email')).toBe('Email invalid')
+  })
+
   it('does not let older whole-form validation replace newer errors', async () => {
     let releaseOld!: (errors: Record<string, string>) => void
     let releaseNew!: (errors: Record<string, string>) => void
@@ -243,5 +274,40 @@ describe('native deep form-value snapshots', () => {
 
     expect(validated).toEqual(['Valid A'])
     expect(onSubmit).toHaveBeenCalledWith({ details: { title: 'Valid A' } })
+  })
+
+  it('detaches Map entries and Sets from submission but preserves Attachment identity', async () => {
+    class Attachment {}
+    const attachment = new Attachment()
+    let release!: () => void
+    const gate = new Promise<void>((resolve) => {
+      release = resolve
+    })
+    const form = nativeProvider.createForm({
+      defaultValues: {
+        labels: new Map([['status', 'valid']]),
+        tags: new Set(['initial']),
+        attachment,
+      },
+      validate: async () => {
+        await gate
+        return {}
+      },
+    })
+    const onSubmit = vi.fn()
+    const submission = form.handleSubmit(onSubmit)()
+
+    form.getValue('labels').set('status', 'unvalidated')
+    form.getValue('tags').add('unvalidated')
+    release()
+    await submission
+
+    expect(onSubmit).toHaveBeenCalledTimes(1)
+    const submitted = onSubmit.mock.calls[0][0]
+    expect(submitted.labels).toEqual(new Map([['status', 'valid']]))
+    expect(submitted.tags).toEqual(new Set(['initial']))
+    expect(submitted.labels).not.toBe(form.getValue('labels'))
+    expect(submitted.tags).not.toBe(form.getValue('tags'))
+    expect(submitted.attachment).toBe(attachment)
   })
 })

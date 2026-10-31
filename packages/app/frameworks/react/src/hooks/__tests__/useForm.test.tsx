@@ -137,23 +137,28 @@ describe('useForm late-value regressions', () => {
   })
 
   it('preserves an in-flight submission when late values arrive', async () => {
+    let release!: () => void
+    const gate = new Promise<void>((resolve) => {
+      release = resolve
+    })
     const { result, rerender } = renderHook(
       ({ values }: { values: ArticleValues }) =>
         useForm<ArticleValues>({
           defaultValues: { title: '', body: '' },
           values,
           resetOptions: { keepDirtyValues: true },
+          validate: async () => {
+            await gate
+            return {}
+          },
         }),
       { initialProps: { values: { title: '', body: '' } } },
     )
-    let release!: () => void
-    const gate = new Promise<void>((resolve) => {
-      release = resolve
-    })
     let submission!: Promise<void>
+    const onSubmit = vi.fn()
 
     act(() => {
-      submission = result.current.handleSubmit(() => gate)()
+      submission = result.current.handleSubmit(onSubmit)()
     })
     await vi.waitFor(() => expect(result.current.isSubmitting).toBe(true))
     expect(result.current.formState.submitCount).toBe(1)
@@ -166,6 +171,80 @@ describe('useForm late-value regressions', () => {
     await act(async () => {
       release()
       await submission
+    })
+    expect(onSubmit).toHaveBeenCalledWith({ title: '', body: '' })
+  })
+
+  it('keeps a typed validated save through a same-account refresh', async () => {
+    interface AccountValues {
+      id: string
+      bio: string
+      name: string
+    }
+    let release!: (errors: Record<string, string>) => void
+    const gate = new Promise<Record<string, string>>((resolve) => {
+      release = resolve
+    })
+    const initial = { id: 'same-account', bio: 'Initial', name: 'Before' }
+    const { result, rerender } = renderHook(
+      ({ values }: { values: AccountValues }) =>
+        useForm<AccountValues>({
+          defaultValues: initial,
+          values,
+          resetOptions: { keepDirtyValues: true },
+          validate: () => gate,
+        }),
+      { initialProps: { values: initial } },
+    )
+    const onSubmit = vi.fn()
+    let submission!: Promise<void>
+
+    act(() => {
+      result.current.setValue('bio', 'Typed biography')
+      submission = result.current.handleSubmit(onSubmit)()
+    })
+    rerender({ values: { ...initial, name: 'Background refresh' } })
+    expect(result.current.getValue('bio')).toBe('Typed biography')
+    expect(result.current.isSubmitting).toBe(true)
+
+    await act(async () => {
+      release({})
+      await submission
+    })
+
+    expect(onSubmit).toHaveBeenCalledWith({ ...initial, bio: 'Typed biography' })
+    expect(result.current.isSubmitting).toBe(false)
+  })
+
+  it('preserves cleared populated tags and typed text on refresh', () => {
+    interface EditorValues {
+      title: string
+      tags: string[]
+      body: string
+    }
+    const initial = { title: 'Server title', tags: ['old'], body: '' }
+    const { result, rerender } = renderHook(
+      ({ values }: { values: EditorValues }) =>
+        useForm<EditorValues>({
+          defaultValues: { title: '', tags: [], body: '' },
+          values,
+          resetOptions: { keepDirtyValues: true },
+        }),
+      { initialProps: { values: initial } },
+    )
+
+    act(() => {
+      result.current.setValue('tags', [])
+      result.current.setValue('title', 'Typed title')
+    })
+    rerender({
+      values: { title: 'Refreshed title', tags: ['restored'], body: 'Loaded body' },
+    })
+
+    expect(result.current.formState.values).toEqual({
+      title: 'Typed title',
+      tags: [],
+      body: 'Loaded body',
     })
   })
 

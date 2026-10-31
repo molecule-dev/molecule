@@ -396,7 +396,8 @@ export interface FormController<T extends FormValuesConstraint<T> = Record<strin
    * `defaultValues`, or the values a previous `reset(values)` established.
    * Passing `values` merges them over the current baseline and makes the
    * result the new baseline, so a form reset to freshly loaded or saved data
-   * reads clean (`isDirty === false`).
+   * reads clean (`isDirty === false`). A changed non-null `id` replaces the
+   * record and cancels a pending submit.
    */
   reset(values?: Partial<T>): void
 
@@ -406,7 +407,8 @@ export interface FormController<T extends FormValuesConstraint<T> = Record<strin
    * The new clean baseline is the original `defaultValues` plus this latest
    * record, never a merge of earlier records. With `keepDirtyValues`, edited
    * fields retain their values while pristine fields take the loaded values.
-   * Equal-content baselines cause no update.
+   * A changed non-null `id` still replaces the record and cancels a pending
+   * submit. Equal-content baselines cause no update.
    */
   updateValues(values: Partial<T>, resetOptions?: FormResetOptions): void
 

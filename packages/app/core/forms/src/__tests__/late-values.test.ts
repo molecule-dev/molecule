@@ -26,6 +26,31 @@ describe('native late form values', () => {
     expect(form.getState().isSubmitting).toBe(false)
   })
 
+  it('keeps a validated submit through a same-record refresh with dirty values', async () => {
+    let release!: (errors: Record<string, string>) => void
+    const gate = new Promise<Record<string, string>>((resolve) => {
+      release = resolve
+    })
+    const initial = { id: 'same-account', bio: 'Initial', name: 'Before' }
+    const form = nativeProvider.createForm({
+      defaultValues: initial,
+      values: initial,
+      validate: () => gate,
+    })
+    const onSubmit = vi.fn()
+    form.setValue('bio', 'Typed biography')
+    const submission = form.handleSubmit(onSubmit)()
+
+    form.updateValues({ ...initial, name: 'Background refresh' }, { keepDirtyValues: true })
+    expect(form.getValue('bio')).toBe('Typed biography')
+    expect(form.getState().isSubmitting).toBe(true)
+    release({})
+    await submission
+
+    expect(onSubmit).toHaveBeenCalledWith({ ...initial, bio: 'Typed biography' })
+    expect(form.getState().isSubmitting).toBe(false)
+  })
+
   it('validates and submits the same snapshot', async () => {
     let release!: () => void
     const gate = new Promise<void>((resolve) => {
@@ -71,6 +96,46 @@ describe('native late form values', () => {
     expect(onSubmit).not.toHaveBeenCalled()
     expect(onError).not.toHaveBeenCalled()
     expect(form.getState().errors).toEqual({})
+  })
+
+  it('cancels a pending submit when the external record identity changes', async () => {
+    let release!: (errors: Record<string, string>) => void
+    const gate = new Promise<Record<string, string>>((resolve) => {
+      release = resolve
+    })
+    const form = nativeProvider.createForm({
+      defaultValues: { id: 'first', title: 'First' },
+      validate: () => gate,
+    })
+    const onSubmit = vi.fn()
+    const submission = form.handleSubmit(onSubmit)()
+
+    form.updateValues({ id: 'second', title: 'Second' }, { keepDirtyValues: true })
+    release({})
+    await submission
+
+    expect(onSubmit).not.toHaveBeenCalled()
+    expect(form.getState().isSubmitting).toBe(false)
+  })
+
+  it('cancels a pending submit when reset replaces the record identity', async () => {
+    let release!: (errors: Record<string, string>) => void
+    const gate = new Promise<Record<string, string>>((resolve) => {
+      release = resolve
+    })
+    const form = nativeProvider.createForm({
+      defaultValues: { id: 'first', title: 'First' },
+      validate: () => gate,
+    })
+    const onSubmit = vi.fn()
+    const submission = form.handleSubmit(onSubmit)()
+
+    form.reset({ id: 'second', title: 'Second' })
+    release({})
+    await submission
+
+    expect(onSubmit).not.toHaveBeenCalled()
+    expect(form.getState().isSubmitting).toBe(false)
   })
 
   it('discards stale public validation errors after a rebase', async () => {

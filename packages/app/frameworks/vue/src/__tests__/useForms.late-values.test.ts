@@ -71,6 +71,41 @@ describe('Vue late form values', () => {
     wrapper.unmount()
   })
 
+  it('preserves cleared populated tags and typed text on refresh', async () => {
+    interface EditorValues {
+      title: string
+      tags: string[]
+      body: string
+    }
+    const options = reactive<UseFormOptions<EditorValues>>({
+      createForm: (formOptions) => nativeProvider.createForm(formOptions),
+      defaultValues: { title: '', tags: [], body: '' },
+      values: { title: 'Server title', tags: ['old'], body: '' },
+      resetOptions: { keepDirtyValues: true },
+    })
+    let form!: UseFormReturn<EditorValues>
+    const wrapper = mount(
+      defineComponent({
+        setup() {
+          form = useForm(options)
+          return () => h('div')
+        },
+      }),
+    )
+    form.setValue('tags', [])
+    form.setValue('title', 'Typed title')
+
+    options.values = { title: 'Refreshed title', tags: ['restored'], body: 'Loaded body' }
+    await nextTick()
+
+    expect(form.formState.value.values).toEqual({
+      title: 'Typed title',
+      tags: [],
+      body: 'Loaded body',
+    })
+    wrapper.unmount()
+  })
+
   it('applies in-place reactive record changes from a detached snapshot', async () => {
     const options = reactive<UseFormOptions<ArticleValues>>({
       createForm: (formOptions) => nativeProvider.createForm(formOptions),
