@@ -59,6 +59,33 @@ function budgetToEffort(budgetTokens: number): string {
 }
 
 /**
+ * Read the upstream's explanation from a rejected response body: its error
+ * `type` (or `code`) and `message`, the message bounded to 500 characters.
+ *
+ * @param text - The rejected response's body text.
+ * @returns The upstream error, or `undefined` when the body carried neither field.
+ */
+function parseUpstreamError(text: string): { type?: string; message?: string } | undefined {
+  let error: { type?: unknown; code?: unknown; message?: unknown } | undefined
+  try {
+    error = (JSON.parse(text) as { error?: typeof error } | null)?.error
+  } catch (_error) {
+    // Not JSON (a proxy's error page, plain text): a short body is the message itself.
+    const trimmed = text.trim()
+    return trimmed && trimmed.length <= 500 ? { message: trimmed } : undefined
+  }
+  const type =
+    typeof error?.type === 'string'
+      ? error.type
+      : typeof error?.code === 'string'
+        ? error.code
+        : undefined
+  const message = typeof error?.message === 'string' ? error.message.slice(0, 500) : undefined
+  if (!type && !message) return undefined
+  return { ...(type ? { type } : {}), ...(message ? { message } : {}) }
+}
+
+/**
  * xAI Grok AI provider that implements the `AIProvider` interface
  * using xAI's OpenAI-compatible Chat Completions API with support
  * for streaming, tool use, and reasoning.
@@ -155,7 +182,9 @@ class XaiAIProvider implements AIProvider {
     // Retry with exponential backoff for rate limits (429) and overloaded (503)
     const MAX_RETRIES = 3
     let response: Response | null = null
+    let rejectedBody: string | undefined
     for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+      rejectedBody = undefined
       response = await fetch(`${this.baseUrl}/v1/chat/completions`, {
         method: 'POST',
         headers,
@@ -164,6 +193,19 @@ class XaiAIProvider implements AIProvider {
       })
 
       if (response.status === 429 || response.status === 503) {
+        // Read the body once: an unread body pins its connection, and only the
+        // body says what the upstream actually refused the request for.
+        try {
+          rejectedBody = await response.text()
+        } catch (error) {
+          // Caller cancellation still ends the request; any other read failure
+          // only loses the reason, so the body counts as read and the retry
+          // policy goes on (the same guard the moonshot bond applies).
+          signal.throwIfAborted()
+          logger.debug('xAI rejected response body could not be read', { error })
+          rejectedBody = ''
+        }
+        const upstreamError = parseUpstreamError(rejectedBody)
         const willRetry = attempt < MAX_RETRIES
         // Retry-After is equally-valid as delta-seconds or an HTTP-date;
         // parseInt on the date form yields NaN, degrading the backoff to a
@@ -188,6 +230,7 @@ class XaiAIProvider implements AIProvider {
             willRetry,
             retryInMs: delayMs,
             ...(hasRetryAfter ? { retryAfterSeconds: parsedRetryAfterSeconds } : {}),
+            ...(upstreamError ? { upstreamError } : {}),
           })
         } catch (error) {
           // Host-app telemetry; its failure must never break the request.
@@ -198,6 +241,7 @@ class XaiAIProvider implements AIProvider {
             status: response.status,
             attempt: attempt + 1,
             delayMs,
+            ...(upstreamError ? { upstreamError } : {}),
           })
           await new Promise<void>((resolve) => {
             const timer = setTimeout(resolve, delayMs)
@@ -218,7 +262,8 @@ class XaiAIProvider implements AIProvider {
     }
 
     if (!response!.ok) {
-      const errorBody = await response!.text()
+      // A 429/503 body was already read by the retry loop; a body reads only once.
+      const errorBody = rejectedBody ?? (await response!.text())
       let detail = `HTTP ${response!.status}`
       try {
         // xAI uses BOTH shapes: OpenAI-style { error: { message } } and its own
