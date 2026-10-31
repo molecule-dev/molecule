@@ -722,6 +722,159 @@ describe('chat() — Retry-After header parsing', () => {
   })
 })
 
+describe('chat() — rejected 429/503 bodies are read once and their reason reported', () => {
+  it('reports the upstream reason on an ordinary 429 that is still retried', async () => {
+    vi.useFakeTimers()
+    try {
+      const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+      fetch.mockImplementation(() =>
+        Promise.resolve(
+          jsonResponse(429, {
+            error: { type: 'rate_limit_error', message: 'max RPM reached' },
+          }),
+        ),
+      )
+      const rateLimits: unknown[] = []
+      const provider = createProvider({
+        apiKey: 'k',
+        api: 'chat-completions',
+        onRateLimit: (event) => rateLimits.push(event),
+      })
+      const eventsPromise = (async () => {
+        const events: unknown[] = []
+        for await (const e of provider.chat({
+          messages: [{ role: 'user', content: 'x' }],
+          stream: false,
+        })) {
+          events.push(e)
+        }
+        return events
+      })()
+      await vi.runAllTimersAsync()
+      const events = await eventsPromise
+      // 1 initial + 3 retries: an ordinary rate limit keeps its budget.
+      expect(fetch).toHaveBeenCalledTimes(4)
+      expect(rateLimits[0]).toMatchObject({
+        status: 429,
+        willRetry: true,
+        upstreamError: { type: 'rate_limit_error', message: 'max RPM reached' },
+      })
+      const err = events.find((e) => (e as { type: string }).type === 'error') as {
+        message: string
+      }
+      expect(err.message).toMatch(/rate limit/i)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('reads each rejected 429 body exactly once — a final 429 still yields the error event, not a "body already used" throw', async () => {
+    vi.useFakeTimers()
+    try {
+      const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+      // One single-use body per attempt: the FIRST text() consumes it, any
+      // later text() on the same object rejects — the shape a real undici
+      // body has. Each attempt's read is recorded so the test can prove the
+      // loop consumed every rejected body (an unread one pins its connection)
+      // and that the error path never asked for it a second time.
+      const texts: Array<ReturnType<typeof vi.fn>> = []
+      fetch.mockImplementation(() => {
+        const response = jsonResponse(429, { error: { message: 'slow down' } })
+        const first = response.text.bind(response)
+        let used = false
+        const text = vi.fn((): Promise<string> => {
+          if (used) return Promise.reject(new TypeError('Body is unusable'))
+          used = true
+          return first()
+        })
+        texts.push(text)
+        return Promise.resolve(
+          Object.assign(response, { text }) as Response & { text: () => Promise<string> },
+        )
+      })
+      const provider = createProvider({ apiKey: 'k', api: 'chat-completions' })
+      const eventsPromise = (async () => {
+        const events: unknown[] = []
+        for await (const e of provider.chat({
+          messages: [{ role: 'user', content: 'x' }],
+          stream: false,
+        })) {
+          events.push(e)
+        }
+        return events
+      })()
+      await vi.runAllTimersAsync()
+      const events = await eventsPromise
+      expect(fetch).toHaveBeenCalledTimes(4)
+      // Every rejected response's body was read exactly once — consumed by the
+      // retry loop, never re-read by the error path, never left unread.
+      expect(texts).toHaveLength(4)
+      for (const text of texts) expect(text).toHaveBeenCalledTimes(1)
+      const err = events.find((e) => (e as { type: string }).type === 'error') as {
+        message: string
+      }
+      expect(err.message).toMatch(/rate limit/i)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('fails an exhausted quota at once under the default budget and reports why', async () => {
+    vi.useFakeTimers()
+    try {
+      const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+      fetch.mockImplementation(() =>
+        Promise.resolve(
+          jsonResponse(429, {
+            error: {
+              type: 'insufficient_quota',
+              code: 'insufficient_quota',
+              message:
+                'You exceeded your current quota, please check your plan and billing details.',
+            },
+          }),
+        ),
+      )
+      const rateLimits: unknown[] = []
+      const provider = createProvider({
+        apiKey: 'k',
+        api: 'chat-completions',
+        onRateLimit: (event) => rateLimits.push(event),
+      })
+      const eventsPromise = (async () => {
+        const events: unknown[] = []
+        for await (const e of provider.chat({
+          messages: [{ role: 'user', content: 'x' }],
+          stream: false,
+        })) {
+          events.push(e)
+        }
+        return events
+      })()
+      await vi.runAllTimersAsync()
+      const events = await eventsPromise
+      // ONE POST: a quota that cannot recover by waiting never spends the budget.
+      expect(fetch).toHaveBeenCalledTimes(1)
+      expect(rateLimits).toEqual([
+        expect.objectContaining({
+          status: 429,
+          willRetry: false,
+          upstreamError: {
+            type: 'insufficient_quota',
+            message: expect.stringMatching(/current quota/),
+          },
+        }),
+      ])
+      const err = events.find((e) => (e as { type: string }).type === 'error') as {
+        message: string
+      }
+      expect(err.message).toBe('AI service is unavailable right now. Please try again later.')
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+})
+
 describe('chat() — streaming response parsing', () => {
   it('yields text events from data: lines and a final done event', async () => {
     const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
