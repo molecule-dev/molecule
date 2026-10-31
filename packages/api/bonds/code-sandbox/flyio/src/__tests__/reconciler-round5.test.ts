@@ -149,6 +149,21 @@ class MemoryJournal implements FlyCreateAttemptJournal {
     }
   }
 
+  async retire(attemptId: string, generation: number): Promise<void> {
+    const attempt = this.attempts.get(attemptId)
+    if (!attempt || (attempt.generation ?? 1) !== generation) {
+      throw new Error(`Stale generation for ${attemptId}`)
+    }
+    attempt.state = 'abandoned'
+  }
+
+  async authorizeDestruction(attemptId: string, generation: number): Promise<void> {
+    const attempt = this.attempts.get(attemptId)
+    if (!attempt || (attempt.generation ?? 1) !== generation || attempt.state !== 'abandoned') {
+      throw new Error(`Retired generation for ${attemptId} is not authorized`)
+    }
+  }
+
   async reclaimable(_cutoff: Date): Promise<FlyCreateAttempt[]> {
     return [...this.attempts.values()]
       .filter((attempt) => attempt.state === 'failed' || attempt.state === 'abandoned')
@@ -166,7 +181,14 @@ class MemoryJournal implements FlyCreateAttemptJournal {
     return body(new AbortController().signal, current.generation)
   }
 
-  async forget(attemptId: string): Promise<void> {
+  async forget(attemptId: string, generation?: number): Promise<void> {
+    const attempt = this.attempts.get(attemptId)
+    if (
+      generation !== undefined &&
+      (!attempt || (attempt.generation ?? 1) !== generation || attempt.state !== 'abandoned')
+    ) {
+      throw new Error(`Retired generation for ${attemptId} cannot be forgotten`)
+    }
     this.attempts.delete(attemptId)
   }
 
@@ -270,7 +292,7 @@ describe('journaled create reconciliation', () => {
     })
   })
 
-  it('reclaims the actual volume left by an unresolved create response', async () => {
+  it('retains an unresolved workspace volume for reuse instead of inferring deletion', async () => {
     const double = createFetchDouble()
       .on(`GET /apps/${APP}`, { body: { name: APP, network: APP } })
       .on(`GET /apps/${APP}/volumes`, { body: [] })
@@ -308,10 +330,10 @@ describe('journaled create reconciliation', () => {
     double
       .on(`DELETE /apps/${APP}/volumes/v1`, { status: 204 })
       .on(`DELETE /apps/${APP}`, { status: 204 })
-    await expect(provider.reconcileCreateAttempts()).resolves.toEqual({ deleted: 1, failed: 0 })
-    expect(double.matching(`DELETE /apps/${APP}/volumes/v1`)).toHaveLength(1)
+    await expect(provider.reconcileCreateAttempts()).resolves.toEqual({ deleted: 0, failed: 0 })
+    expect(double.calls.filter((call) => call.method === 'DELETE')).toHaveLength(0)
     expect(double.matching(`POST /apps/${APP}/volumes`)).toHaveLength(1)
-    expect(journal.attempts.size).toBe(0)
+    expect(journal.attempts.size).toBe(1)
   })
 
   it('records failure without deleting, then reclaims a failed empty app separately', async () => {
@@ -595,7 +617,7 @@ describe('round-six ownership races', () => {
     expect(journal.attempts.size).toBe(1)
   })
 
-  it('clears provisional workspace binding on a definite 412 Machine rejection', async () => {
+  it('keeps workspace ownership after a definite 412 Machine rejection', async () => {
     const journal = new MemoryJournal()
     const double = createFetchDouble()
       .on(`GET /apps/${APP}`, { body: { name: APP } })
@@ -610,7 +632,7 @@ describe('round-six ownership races', () => {
       makeProvider(double, journal).create({ projectId: PROJECT_ID, volumeName: 'workspace' }),
     ).rejects.toThrow('412')
     const attempt = [...journal.attempts.values()].find((candidate) => candidate.state === 'failed')
-    expect(attempt?.volumes[0]).toMatchObject({ id: 'v1', workspace: false, resolved: true })
+    expect(attempt?.volumes[0]).toMatchObject({ id: 'v1', workspace: true, resolved: true })
   })
 
   it('adopts a lost Flycast allocation by target app and network after a 422 retry', async () => {
@@ -777,7 +799,7 @@ describe('round-six ownership races', () => {
 })
 
 describe('round-eight durable ownership counterexamples', () => {
-  it('clears a new volume’s provisional protection when cancellation prevents Machine dispatch', async () => {
+  it('keeps a workspace volume owned when cancellation prevents Machine dispatch', async () => {
     const journal = new MemoryJournal()
     const controller = new AbortController()
     const double = createFetchDouble()
@@ -785,21 +807,11 @@ describe('round-eight durable ownership counterexamples', () => {
       .on(`GET /apps/${APP}`, { body: { name: APP } })
       .on(`GET /apps/${APP}/volumes`, { body: [] })
       .on(`POST /apps/${APP}/volumes`, { body: { id: 'v1', name: 'attempt-volume' } })
-      .on(`DELETE /apps/${APP}/volumes/v1`, { status: 204 })
-    for (let read = 0; read < 12; read++) {
-      double.on(`GET /apps/${APP}/volumes`, {
-        body: [{ id: 'v1', name: 'attempt-volume', attached_machine_id: null }],
-      })
-    }
-    const markWorkspace = journal.markVolumeWorkspace.bind(journal)
-    journal.markVolumeWorkspace = async (
-      attemptId,
-      name,
-      workspace = true,
-      workspaceCommitted = workspace,
-    ) => {
-      await markWorkspace(attemptId, name, workspace, workspaceCommitted)
-      if (workspace) controller.abort(new Error('advisory connection died'))
+    const assertGeneration = journal.assertGeneration.bind(journal)
+    let fences = 0
+    journal.assertGeneration = async (attemptId, generation) => {
+      if (++fences === 3) controller.abort(new Error('advisory connection died'))
+      return assertGeneration(attemptId, generation)
     }
     const provider = makeProvider(double, journal, { appPerProject: false, appName: APP })
 
@@ -808,9 +820,9 @@ describe('round-eight durable ownership counterexamples', () => {
     ).rejects.toThrow('advisory connection died')
     expect(double.matching(`POST /apps/${APP}/machines`)).toHaveLength(0)
 
-    await expect(provider.reconcileCreateAttempts()).resolves.toEqual({ deleted: 1, failed: 0 })
     await expect(provider.reconcileCreateAttempts()).resolves.toEqual({ deleted: 0, failed: 0 })
-    expect(double.matching(`DELETE /apps/${APP}/volumes/v1`)).toHaveLength(1)
+    expect(double.calls.filter((call) => call.method === 'DELETE')).toHaveLength(0)
+    expect([...journal.attempts.values()][0]?.volumes[0]?.workspace).toBe(true)
   })
 
   it('abandons a freshly expired creating attempt under its lock and settles its volume', async () => {
@@ -1053,7 +1065,7 @@ describe('round-eight durable ownership counterexamples', () => {
 })
 
 describe('round-ten ownership counterexamples', () => {
-  it('clears provisional volume protection when pacing cancellation prevents Machine dispatch', async () => {
+  it('retains per-project workspace ownership when lock loss prevents Machine dispatch', async () => {
     const journal = new MemoryJournal()
     const controller = new AbortController()
     const double = createFetchDouble()
@@ -1061,66 +1073,22 @@ describe('round-ten ownership counterexamples', () => {
       .on(`GET /apps/${APP}`, { body: { name: APP } })
       .on(`GET /apps/${APP}/volumes`, { body: [] })
       .on(`POST /apps/${APP}/volumes`, { body: { id: 'v1', name: 'attempt-volume' } })
-      .on(`DELETE /apps/${APP}/volumes/v1`, { status: 204 })
-    for (let read = 0; read < 12; read++) {
-      double.on(`GET /apps/${APP}/volumes`, {
-        body: [{ id: 'v1', name: 'attempt-volume', attached_machine_id: null }],
-      })
+    const assertGeneration = journal.assertGeneration.bind(journal)
+    let fences = 0
+    journal.assertGeneration = async (attemptId, generation) => {
+      if (++fences === 3) controller.abort(new Error('lock lost before Machine dispatch'))
+      return assertGeneration(attemptId, generation)
     }
-    const baseFetch = double.fetch
-    double.fetch = vi.fn(async (input: string | URL | Request, init?: RequestInit) => {
-      if (init?.signal?.aborted) throw init.signal.reason
-      return baseFetch(input, init)
-    }) as unknown as typeof fetch
-    let cancelAtNextPacingWait = false
-    const client = new FlyApiClient({
-      token: () => 'tok',
-      baseUrl: 'https://api.machines.dev/v1',
-      fetchImpl: double.fetch,
-      sleep: async () => {
-        if (cancelAtNextPacingWait) {
-          cancelAtNextPacingWait = false
-          controller.abort(new Error('lock lost during rate-limit wait'))
-        }
-      },
-    })
-    const markWorkspace = journal.markVolumeWorkspace.bind(journal)
-    journal.markVolumeWorkspace = async (
-      attemptId,
-      name,
-      workspace = true,
-      workspaceCommitted = workspace,
-    ) => {
-      await markWorkspace(attemptId, name, workspace, workspaceCommitted)
-      if (workspace) cancelAtNextPacingWait = true
-    }
-    const provider = createProvider(
-      {
-        orgSlug: 'acme',
-        region: 'iad',
-        appPerProject: false,
-        appName: APP,
-        createAttemptJournal: journal,
-      },
-      client,
-    )
-    const previousGap = process.env.FLY_API_MIN_REQUEST_GAP_MS
-    process.env.FLY_API_MIN_REQUEST_GAP_MS = '60000'
-    try {
-      await expect(
-        provider.create({ projectId: PROJECT_ID, volumeName: 'workspace' }, controller.signal),
-      ).rejects.toThrow('lock lost during rate-limit wait')
-    } finally {
-      if (previousGap === undefined) delete process.env.FLY_API_MIN_REQUEST_GAP_MS
-      else process.env.FLY_API_MIN_REQUEST_GAP_MS = previousGap
-    }
-    expect(double.matching(`POST /apps/${APP}/machines`)).toHaveLength(0)
-    expect(journal.attempts.get([...journal.attempts.keys()][0]!)?.volumes[0]?.workspace).toBe(
-      false,
-    )
+    const provider = makeProvider(double, journal)
 
-    await expect(provider.reconcileCreateAttempts()).resolves.toEqual({ deleted: 1, failed: 0 })
-    expect(double.matching(`DELETE /apps/${APP}/volumes/v1`)).toHaveLength(1)
+    await expect(
+      provider.create({ projectId: PROJECT_ID, volumeName: 'workspace' }, controller.signal),
+    ).rejects.toThrow('lock lost before Machine dispatch')
+    expect(double.matching(`POST /apps/${APP}/machines`)).toHaveLength(0)
+
+    await expect(provider.reconcileCreateAttempts()).resolves.toEqual({ deleted: 0, failed: 0 })
+    expect(double.calls.filter((call) => call.method === 'DELETE')).toHaveLength(0)
+    expect([...journal.attempts.values()][0]?.volumes[0]?.workspace).toBe(true)
   })
 
   it('journals initially observed legacy routes before later listings omit the Machine', async () => {
@@ -1346,7 +1314,7 @@ describe('round-twelve destruction fencing counterexamples', () => {
     expect(journal.attempts.size).toBe(0)
   })
 
-  it('recovers provisional workspace protection left by a crash before Machine dispatch', async () => {
+  it('retains crash-shaped workspace ownership for an explicit sweep or reuse', async () => {
     const journal = new MemoryJournal()
     const attempt = failedIntent({
       volumes: [
@@ -1390,12 +1358,12 @@ describe('round-twelve destruction fencing counterexamples', () => {
         appPerProject: false,
         appName: APP,
       }).reconcileCreateAttempts(),
-    ).resolves.toEqual({ deleted: 1, failed: 0 })
-    expect(double.matching(`DELETE /apps/${APP}/volumes/v1`)).toHaveLength(1)
-    expect(journal.attempts.size).toBe(0)
+    ).resolves.toEqual({ deleted: 0, failed: 0 })
+    expect(double.calls.filter((call) => call.method === 'DELETE')).toHaveLength(0)
+    expect(journal.attempts.size).toBe(1)
   })
 
-  it('does not commit workspace ownership when fetch is never entered', async () => {
+  it('keeps workspace ownership durable when fetch is never entered', async () => {
     const journal = new MemoryJournal()
     const transportRefusal = new Error('fetch entry refused')
     const double = createFetchDouble()
@@ -1419,8 +1387,166 @@ describe('round-twelve destruction fencing counterexamples', () => {
     ).rejects.toThrow('unknown outcome')
     const attempt = [...journal.attempts.values()][0]
     expect(attempt?.volumes[0]).toMatchObject({
-      workspace: false,
-      workspaceCommitted: false,
+      workspace: true,
+      workspaceCommitted: true,
     })
+  })
+
+  it('removes the dispatch journal commit whose failure could lose workspace protection', async () => {
+    const journal = new MemoryJournal()
+    const originalMark = journal.markVolumeWorkspace.bind(journal)
+    journal.markVolumeWorkspace = vi.fn(
+      async (attemptId: string, name: string, workspace = true, workspaceCommitted = workspace) => {
+        if (workspaceCommitted) throw new Error('database unavailable after Machine dispatch')
+        return originalMark(attemptId, name, workspace, workspaceCommitted)
+      },
+    )
+    const double = createFetchDouble()
+      .on(`GET /apps/${APP}`, { body: { name: APP, network: APP } })
+      .on(`GET /apps/${APP}/volumes`, { body: [] })
+      .on(`POST /apps/${APP}/volumes`, { body: { id: 'v1', name: 'attempt-volume' } })
+      .on(`POST /apps/${APP}/machines`, { body: { id: 'm1', state: 'created' } })
+    const provider = makeProvider(double, journal)
+
+    await expect(
+      provider.create({ projectId: PROJECT_ID, volumeName: 'workspace' }),
+    ).resolves.toMatchObject({ id: `${APP}:m1` })
+    expect(double.matching(`POST /apps/${APP}/machines`)).toHaveLength(1)
+    expect(journal.markVolumeWorkspace).not.toHaveBeenCalled()
+    const attempt = [...journal.attempts.values()][0]
+    expect(attempt?.volumes[0]).toMatchObject({ workspace: true })
+
+    // Replay Sol 1's crash-shaped state: the POST landed, but serving did not.
+    attempt!.state = 'failed'
+    double.fallback({ body: [] })
+    await provider.reconcileCreateAttempts()
+
+    expect(double.calls.filter((call) => call.method === 'DELETE')).toHaveLength(0)
+    expect(attempt?.volumes[0]?.workspace).toBe(true)
+  })
+
+  it.each([
+    ['shared-app', { appPerProject: false, appName: APP }],
+    ['per-project-app', {}],
+  ])(
+    'does not abandon a serving %s attempt when its lock dies during SQL',
+    async (_mode, config) => {
+      let started!: () => void
+      let released!: () => void
+      const entered = new Promise<void>((resolve) => {
+        started = resolve
+      })
+      const release = new Promise<void>((resolve) => {
+        released = resolve
+      })
+      const controller = new AbortController()
+      const lockLoss = new Error('lock connection lost during retirement UPDATE')
+
+      class BlockingRetirementJournal extends MemoryJournal {
+        override async withLock<T>(
+          attempt: FlyCreateAttempt,
+          body: (signal: AbortSignal, generation: number) => Promise<T>,
+        ): Promise<T> {
+          const current = this.attempts.get(attempt.attemptId)
+          if (!current) throw new Error('missing attempt')
+          current.generation = (current.generation ?? 1) + 1
+          return body(controller.signal, current.generation)
+        }
+
+        override async markState(
+          attemptId: string,
+          state: FlyCreateAttemptState,
+          sandboxId?: string,
+        ): Promise<void> {
+          if (state !== 'abandoned') return super.markState(attemptId, state, sandboxId)
+          // Old pooled behavior: the serving row commits before the lock-loss
+          // notification and the post-write signal check can no longer undo it.
+          await super.markState(attemptId, state, sandboxId)
+          started()
+          await release
+        }
+
+        override async retire(attemptId: string, generation: number): Promise<void> {
+          started()
+          await release
+          if (controller.signal.aborted) throw controller.signal.reason
+          return super.retire(attemptId, generation)
+        }
+      }
+
+      const journal = new BlockingRetirementJournal()
+      journal.seed(
+        failedIntent({
+          state: 'serving',
+          sandboxId: `${APP}:m1`,
+        }),
+      )
+      const double = createFetchDouble().on(`GET /apps/${APP}/machines/m1`, {
+        status: 404,
+        body: { error: 'not found' },
+      })
+      const destroying = makeProvider(double, journal, config).destroy(
+        `${APP}:m1`,
+        controller.signal,
+      )
+      await entered
+      controller.abort(lockLoss)
+      released()
+
+      await expect(destroying).rejects.toBe(lockLoss)
+      expect(journal.attempts.get('attempt-1')?.state).toBe('serving')
+    },
+  )
+
+  it('settles a journaled legacy Machine route after an accepted DELETE loses the lock', async () => {
+    const journal = new MemoryJournal()
+    const controller = new AbortController()
+    const lockLoss = new Error('lock lost after accepted legacy Machine DELETE')
+    const machine = {
+      id: 'm1',
+      state: 'stopped',
+      config: {
+        metadata: {
+          [`molecule-sandbox.projectId`]: PROJECT_ID,
+          [`molecule-sandbox.privateRoutes`]: encodePrivateRoutes({ 'tenant-db': 'fdaa::1' }),
+        },
+      },
+    }
+    const double = createFetchDouble()
+      .fallback({ body: [] })
+      .on(`GET /apps/${APP}/machines/m1`, { body: machine })
+      .on(`GET /apps/${APP}/machines/m1`, { status: 404, body: { error: 'gone' } })
+    double
+      .on(`GET /apps/${APP}/machines`, { body: [machine] })
+      .on(`GET /apps/${APP}/machines`, { body: [machine] })
+    const baseFetch = double.fetch
+    let loseLock = true
+    double.fetch = vi.fn(async (input: string | URL | Request, init?: RequestInit) => {
+      const response = await baseFetch(input, init)
+      const method = (init?.method ?? 'GET').toUpperCase()
+      if (loseLock && method === 'DELETE' && String(input).includes(`/machines/m1`)) {
+        loseLock = false
+        controller.abort(lockLoss)
+      }
+      return response
+    }) as unknown as typeof fetch
+    const provider = makeProvider(double, journal)
+
+    await expect(provider.destroy(`${APP}:m1`, controller.signal)).rejects.toBe(lockLoss)
+    expect([...journal.attempts.values()][0]?.addresses).toEqual([
+      { targetApp: 'tenant-db', network: APP, ip: 'fdaa::1', owned: true, resolved: true },
+    ])
+
+    await provider.destroy(`${APP}:m1`, new AbortController().signal)
+
+    const routeDeletes = double.matching('DELETE /apps/tenant-db/ip_assignments/fdaa%3A%3A1')
+    expect(routeDeletes).toHaveLength(1)
+    expect(double.matching(`DELETE /apps/${APP}?force=true`)).toHaveLength(1)
+    expect(double.calls.findIndex((call) => call === routeDeletes[0])).toBeLessThan(
+      double.calls.findIndex(
+        (call) => call.method === 'DELETE' && call.path === `/apps/${APP}?force=true`,
+      ),
+    )
+    expect(journal.attempts.size).toBe(0)
   })
 })

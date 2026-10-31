@@ -92,10 +92,13 @@
  *
  * **Lifecycle ownership.** Create NEVER deletes a Machine, volume, app or
  * address. Configure `createAttemptJournal` to record every intended resource
- * before its Fly write; the separate reconciler settles only failed/abandoned
- * attempt identities and skips serving Machines, attached volumes and every
- * bound workspace. Explicit sandbox/app destruction is the only workspace
- * deletion path. Callers must still serialize lifecycle operations per app.
+ * before its Fly write. Workspace ownership is durable immediately: an
+ * ambiguous create retains it for a later create or an explicit sweep, never
+ * infers deletion from a missing listing or an uncertain dispatch. The
+ * reconciler settles only retired attempt generations and skips serving
+ * Machines, attached volumes and every bound workspace. Explicit sandbox/app
+ * destruction is the only workspace deletion path; deployed callers must
+ * serialize lifecycle operations per app through their lifecycle-lock adapter.
  *
  * **Absence vs failure: `get()` only answers `null` for a REAL absence.**
  * `get()` (and each read shaped like it — `list()`, `find()`, `getTemplate()`)

@@ -87,8 +87,6 @@ export interface FlyRequestOptions<T = unknown> {
   timeoutMs?: number
   /** Cancels in-flight provisioning when the owning lifecycle lock is lost. */
   signal?: AbortSignal
-  /** Runs synchronously after pacing, immediately after fetch has been entered. */
-  onDispatch?: () => void
   /** Max attempts for a retryable failure. Defaults to 4. Pass 1 to disable retries. */
   attempts?: number
   /**
@@ -333,7 +331,6 @@ export class FlyApiClient {
             ? AbortSignal.any([controller.signal, options.signal])
             : controller.signal,
         })
-        options.onDispatch?.()
         const response = await pendingResponse
         status = response.status
         retryAfter = response.headers?.get?.('retry-after') ?? null

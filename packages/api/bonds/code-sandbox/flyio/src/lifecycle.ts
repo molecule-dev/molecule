@@ -21,7 +21,7 @@ export interface FlyCreateVolumeIntent {
   logicalName?: string
   /** Once bound, only explicit sandbox destruction may delete this volume. */
   workspace: boolean
-  /** False for pre-dispatch protection; true once the Machine POST entered transport. */
+  /** Legacy rolling-deploy column; workspace protection no longer has a provisional state. */
   workspaceCommitted?: boolean
   /** False until an ambiguous create is adopted or definitely rejected. */
   resolved?: boolean
@@ -76,6 +76,10 @@ export interface FlyCreateAttemptJournal {
   markState(attemptId: string, state: FlyCreateAttemptState, sandboxId?: string): Promise<void>
   /** Throw unless this generation is still the attempt's durable fencing token. */
   assertGeneration(attemptId: string, generation: number): Promise<void>
+  /** Atomically retire this exact generation while its lifecycle lock session is live. */
+  retire(attemptId: string, generation: number): Promise<void>
+  /** Re-authorize one destructive request against the retired row on the lock session. */
+  authorizeDestruction(attemptId: string, generation: number): Promise<void>
   /** Failed/abandoned attempts, plus creating attempts whose updatedAt is at/before cutoff. */
   reclaimable(cutoff: Date): Promise<FlyCreateAttempt[]>
   /** Acquire the same lifecycle lock the application uses for create/destroy. */
@@ -83,7 +87,7 @@ export interface FlyCreateAttemptJournal {
     attempt: FlyCreateAttempt,
     body: (signal: AbortSignal, generation: number) => Promise<T>,
   ): Promise<T>
-  forget(attemptId: string): Promise<void>
+  forget(attemptId: string, generation?: number): Promise<void>
 }
 
 /** Attempts forgotten after completed cleanup, and attempts retained after errors. */
