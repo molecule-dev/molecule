@@ -66,21 +66,34 @@ function budgetToEffort(budgetTokens: number): string {
  * @returns The upstream error, or `undefined` when the body carried neither field.
  */
 function parseUpstreamError(text: string): { type?: string; message?: string } | undefined {
-  let error: { type?: unknown; code?: unknown; message?: unknown } | undefined
+  let payload: {
+    error?: { type?: unknown; code?: unknown; message?: unknown } | string | null
+    code?: unknown
+  } | null
   try {
-    error = (JSON.parse(text) as { error?: typeof error } | null)?.error
+    payload = JSON.parse(text) as typeof payload
   } catch (_error) {
     // Not JSON (a proxy's error page, plain text): a short body is the message itself.
     const trimmed = text.trim()
     return trimmed && trimmed.length <= 500 ? { message: trimmed } : undefined
   }
+  // xAI uses both OpenAI-style nested errors and { code, error: '<message>' }.
+  const error =
+    typeof payload?.error === 'object' && payload.error !== null ? payload.error : undefined
   const type =
     typeof error?.type === 'string'
       ? error.type
       : typeof error?.code === 'string'
         ? error.code
+        : typeof payload?.code === 'string'
+          ? payload.code
+          : undefined
+  const message =
+    typeof error?.message === 'string'
+      ? error.message.slice(0, 500)
+      : typeof payload?.error === 'string'
+        ? payload.error.slice(0, 500)
         : undefined
-  const message = typeof error?.message === 'string' ? error.message.slice(0, 500) : undefined
   if (!type && !message) return undefined
   return { ...(type ? { type } : {}), ...(message ? { message } : {}) }
 }

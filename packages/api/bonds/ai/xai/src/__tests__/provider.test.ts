@@ -692,6 +692,44 @@ describe('chat() — HTTP error handling', () => {
     }
   })
 
+  it("reports xAI's top-level code and error-string shape on a rejected 429", async () => {
+    vi.useFakeTimers()
+    try {
+      const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+      fetch
+        .mockResolvedValueOnce(
+          jsonResponse(429, { code: 'rate_limit_exceeded', error: 'Too many requests' }),
+        )
+        .mockResolvedValueOnce(jsonResponse(200, { choices: [{ message: { content: 'ok' } }] }))
+      const rateLimits: unknown[] = []
+      const provider = createProvider({
+        apiKey: 'k',
+        onRateLimit: (event) => rateLimits.push(event),
+      })
+      const eventsPromise = (async () => {
+        const events: unknown[] = []
+        for await (const e of provider.chat({
+          messages: [{ role: 'user', content: 'x' }],
+          stream: false,
+        })) {
+          events.push(e)
+        }
+        return events
+      })()
+      await vi.runAllTimersAsync()
+      const events = await eventsPromise
+      expect(fetch).toHaveBeenCalledTimes(2)
+      expect(rateLimits[0]).toMatchObject({
+        status: 429,
+        willRetry: true,
+        upstreamError: { type: 'rate_limit_exceeded', message: 'Too many requests' },
+      })
+      expect(events).not.toContainEqual(expect.objectContaining({ type: 'error' }))
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
   it('reads each rejected 429 body exactly once — a final 429 still yields the error event, not a "body already used" throw', async () => {
     vi.useFakeTimers()
     try {
