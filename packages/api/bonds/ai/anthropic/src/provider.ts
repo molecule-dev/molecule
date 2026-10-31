@@ -141,6 +141,13 @@ function parseUpstreamError(text: string): { type?: string; message?: string } |
   return { ...(type ? { type } : {}), ...(message ? { message } : {}) }
 }
 
+/** Format a rejected-body read failure for bounded server-side diagnostics. */
+function formatBodyReadError(error: unknown): string {
+  const name = error instanceof Error ? error.name : 'Error'
+  const message = error instanceof Error ? error.message : String(error)
+  return `${name}: ${message}`.slice(0, 500)
+}
+
 /**
  * Anthropic Claude AI provider that implements the `AIProvider` interface
  * using Anthropic's Messages API with support for streaming, tool use,
@@ -307,6 +314,8 @@ class AnthropicAIProvider implements AIProvider {
     // on a 429/529/503: a body reads only once, so the error path below must
     // reuse it instead of calling `text()` a second time (which throws).
     let rejectedBody: string | undefined
+    // The bounded name/message when that single body read was interrupted.
+    let rejectedBodyReadError: string | undefined
     // Set when THIS attempt's response body was cancelled as retry bookkeeping:
     // the body is then disturbed, so reading it (`text()`) throws "Body is
     // unusable" — the error path below must not try. Reached when the caller's
@@ -343,6 +352,7 @@ class AnthropicAIProvider implements AIProvider {
       }
       releasedBody = false
       rejectedBody = undefined
+      rejectedBodyReadError = undefined
 
       if (response.status === 429 || response.status === 529 || response.status === 503) {
         // Read the body ONCE instead of cancelling it: consuming it also
@@ -360,6 +370,7 @@ class AnthropicAIProvider implements AIProvider {
           // Cache an empty detail before the deadline exit so the terminal
           // error path cannot call text() a second time.
           rejectedBody = ''
+          rejectedBodyReadError = formatBodyReadError(error)
           if (signal.aborted) break
           logger.warn('Anthropic rejected response body could not be read', { error })
         }
@@ -491,6 +502,9 @@ class AnthropicAIProvider implements AIProvider {
       } catch (_error) {
         // Best-effort: if the error body isn't valid JSON, use it as plain text
         if (errorBody.length > 0 && errorBody.length < 200) detail = errorBody
+      }
+      if (rejectedBodyReadError) {
+        detail = `${detail}; response body read failed: ${rejectedBodyReadError}`
       }
       // Log full detail server-side for debugging
       logger.error('Anthropic API error', { status: response!.status, detail })

@@ -6,14 +6,16 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 // Mocks
 // ---------------------------------------------------------------------------
 
+const mockLogger = vi.hoisted(() => ({
+  info: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
+  debug: vi.fn(),
+  trace: vi.fn(),
+}))
+
 vi.mock('@molecule/api-bond', () => ({
-  getLogger: () => ({
-    info: vi.fn(),
-    warn: vi.fn(),
-    error: vi.fn(),
-    debug: vi.fn(),
-    trace: vi.fn(),
-  }),
+  getLogger: () => mockLogger,
 }))
 
 vi.mock('@molecule/api-i18n', () => ({
@@ -644,50 +646,75 @@ describe('AnthropicAIProvider — error sanitization and timeout', () => {
       })
     })
 
-    it('reads a rejected body only once when the request deadline interrupts the read', async () => {
-      const deadline = new AbortController()
-      const timeoutSpy = vi.spyOn(AbortSignal, 'timeout').mockReturnValue(deadline.signal)
-      const body = new ReadableStream<Uint8Array>({
-        start(controller) {
-          controller.enqueue(new TextEncoder().encode('{"error":'))
-          deadline.signal.addEventListener(
-            'abort',
-            () => controller.error(deadline.signal.reason),
-            {
-              once: true,
-            },
-          )
-        },
-      })
-      const response = new Response(body, { status: 429 })
-      const nativeText = response.text.bind(response)
-      let notifyRead!: () => void
-      const readStarted = new Promise<void>((resolve) => {
-        notifyRead = resolve
-      })
-      const text = vi.spyOn(response, 'text').mockImplementation(() => {
-        notifyRead()
-        return nativeText()
-      })
-      mockFetch.mockResolvedValue(response)
+    it.each([true, false])(
+      'reads a rejected body only once and reports the deadline cause when stream=%s',
+      async (stream) => {
+        const deadline = new AbortController()
+        const timeoutSpy = vi.spyOn(AbortSignal, 'timeout').mockReturnValue(deadline.signal)
+        const body = new ReadableStream<Uint8Array>({
+          start(controller) {
+            controller.enqueue(new TextEncoder().encode('{"error":'))
+            deadline.signal.addEventListener(
+              'abort',
+              () => controller.error(deadline.signal.reason),
+              {
+                once: true,
+              },
+            )
+          },
+        })
+        const response = new Response(body, { status: 429 })
+        const nativeText = response.text.bind(response)
+        let notifyRead!: () => void
+        const readStarted = new Promise<void>((resolve) => {
+          notifyRead = resolve
+        })
+        const text = vi.spyOn(response, 'text').mockImplementation(() => {
+          notifyRead()
+          return nativeText()
+        })
+        mockFetch.mockResolvedValue(response)
 
-      try {
-        const eventsPromise = collectEvents(provider.chat(minimalParams))
-        await readStarted
-        deadline.abort(new DOMException('The request timed out', 'TimeoutError'))
-        const events = await eventsPromise
+        try {
+          const eventsPromise = collectEvents(provider.chat({ ...minimalParams, stream }))
+          await readStarted
+          deadline.abort(new DOMException('deadline-review-marker', 'TimeoutError'))
+          const events = await eventsPromise
 
-        expect(mockFetch).toHaveBeenCalledTimes(1)
-        expect(text).toHaveBeenCalledTimes(1)
-        expect(events).toEqual([
-          expect.objectContaining({
-            type: 'error',
-            message: 'AI rate limit exceeded. Please try again shortly.',
-          }),
-        ])
-      } finally {
-        timeoutSpy.mockRestore()
-      }
+          expect(mockFetch).toHaveBeenCalledTimes(1)
+          expect(text).toHaveBeenCalledTimes(1)
+          expect(events).toEqual([
+            expect.objectContaining({
+              type: 'error',
+              message: 'AI rate limit exceeded. Please try again shortly.',
+            }),
+          ])
+          expect(mockLogger.error).toHaveBeenCalledWith('Anthropic API error', {
+            status: 429,
+            detail: expect.stringMatching(/HTTP 429.*TimeoutError.*deadline-review-marker/),
+          })
+        } finally {
+          timeoutSpy.mockRestore()
+        }
+      },
+    )
+
+    it('keeps a completed rejected body reason in terminal server diagnostics', async () => {
+      mockFetch.mockImplementation(() =>
+        Promise.resolve(
+          mockErrorResponse(
+            429,
+            JSON.stringify({ error: { message: 'completed-body-review-marker' } }),
+          ),
+        ),
+      )
+
+      await collectEventsWithRetries(provider.chat({ ...minimalParams, stream: false }))
+
+      expect(mockLogger.error).toHaveBeenCalledWith('Anthropic API error', {
+        status: 429,
+        detail: 'completed-body-review-marker',
+      })
     })
 
     it('a throwing onRateLimit callback does not break the request or the retry loop', async () => {
