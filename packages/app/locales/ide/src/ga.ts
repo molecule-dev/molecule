@@ -23,6 +23,7 @@ export const ga: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': 'Smaoinigh go hachomair',
   'ide.chat.thinking': 'Ag smaoineamh',
   'ide.chat.verificationPassed': 'Seiceálacha rite',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': '1 earráid chineáil',
   'ide.chat.lintErrorCount': '1 earráid lint',
   'ide.chat.lintWarningCount': '1 rabhadh',

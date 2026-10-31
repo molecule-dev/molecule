@@ -257,6 +257,7 @@ export const ha: Partial<IdeTranslations> = {
   'ide.sidebar.files': 'Mai bincike',
   'ide.sidebar.search': 'Nema',
   'ide.chat.thoughtBriefly': 'An yi tunani a takaice',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': "Kuskuren nau'i 1",
   'ide.chat.lintErrorCount': 'Kuskuren lint 1',
   'ide.chat.lintWarningCount': 'Gargaɗi 1',

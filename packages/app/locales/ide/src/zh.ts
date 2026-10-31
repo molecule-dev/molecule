@@ -109,6 +109,7 @@ export const zh: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': '简要思考',
   'ide.chat.thinking': '思维',
   'ide.chat.verificationPassed': '检查通过',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': '1 个类型错误',
   'ide.chat.lintErrorCount': '1 个 lint 错误',
   'ide.chat.lintWarningCount': '1个警告',

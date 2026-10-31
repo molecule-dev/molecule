@@ -97,6 +97,7 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': 'Röviden átgondoltam',
   'ide.chat.thinking': 'Gondolkodás',
   'ide.chat.verificationPassed': 'Sikeres ellenőrzések',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': '1 típushiba',
   'ide.chat.lintErrorCount': '1 szöszhiba',
   'ide.chat.lintWarningCount': '1 figyelmeztetés',

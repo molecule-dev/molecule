@@ -1270,11 +1270,13 @@ function VerificationBadge({
   status,
   output,
   categories,
+  renderCheckUnavailable,
 }: {
   status: 'ok' | 'error'
   output?: string
   workspaces: string[]
   categories?: string[]
+  renderCheckUnavailable?: boolean
 }): JSX.Element {
   const cm = getClassMap()
   const [expanded, setExpanded] = useState(false)
@@ -1308,6 +1310,14 @@ function VerificationBadge({
         </svg>
         <span>
           {t('ide.chat.verificationPassed', undefined, { defaultValue: 'Checks passed' })}
+          {renderCheckUnavailable && (
+            <span data-mol-id="render-check-unavailable" style={{ color: '#d4a017' }}>
+              {' · '}
+              {t('ide.chat.renderCheckUnavailable', undefined, {
+                defaultValue: 'Render check unavailable',
+              })}
+            </span>
+          )}
         </span>
       </div>
     )
@@ -2460,6 +2470,7 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
                   output?: string
                   workspaces: string[]
                   categories?: string[]
+                  renderCheckUnavailable?: boolean
                 }
                 return (
                   <VerificationBadge
@@ -2468,6 +2479,7 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
                     output={vBlock.output}
                     workspaces={vBlock.workspaces}
                     categories={vBlock.categories}
+                    renderCheckUnavailable={vBlock.renderCheckUnavailable}
                   />
                 )
               }

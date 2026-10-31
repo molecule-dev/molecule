@@ -22,6 +22,7 @@ export const mn: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': 'Товчхон бодов',
   'ide.chat.thinking': 'Сэтгэлгээ',
   'ide.chat.verificationPassed': 'Шалгалтууд давсан',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': '1 төрлийн алдаа',
   'ide.chat.lintErrorCount': '1 хөвөнгийн алдаа',
   'ide.chat.lintWarningCount': '1 анхааруулга',

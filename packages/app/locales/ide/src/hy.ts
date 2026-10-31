@@ -22,6 +22,7 @@ export const hy: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': 'Կարճ մտածեց',
   'ide.chat.thinking': 'Մտածում',
   'ide.chat.verificationPassed': 'Հանձնված ստուգումներ',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': '1 տիպի սխալ',
   'ide.chat.lintErrorCount': '1 լինտի սխալ',
   'ide.chat.lintWarningCount': '1 նախազգուշացում',

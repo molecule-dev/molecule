@@ -102,6 +102,7 @@ export const id: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': 'Berpikir sejenak',
   'ide.chat.thinking': 'Pemikiran',
   'ide.chat.verificationPassed': 'Pemeriksaan berhasil',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': '1 kesalahan tipe',
   'ide.chat.lintErrorCount': '1 kesalahan lint',
   'ide.chat.lintWarningCount': '1 peringatan',

@@ -22,6 +22,7 @@ export const fa: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': 'مختصراً فکر کرد',
   'ide.chat.thinking': 'تفکر',
   'ide.chat.verificationPassed': 'چک‌ها پاس شدند',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': '۱ نوع خطا',
   'ide.chat.lintErrorCount': '۱ خطای پرز',
   'ide.chat.lintWarningCount': '۱ اخطار',

@@ -23,6 +23,7 @@ export const lv: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': 'Īsi pārdomāju',
   'ide.chat.thinking': 'Domāšana',
   'ide.chat.verificationPassed': 'Pārbaudes nokārtotas',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': '1 tipa kļūda',
   'ide.chat.lintErrorCount': '1 savārstījuma kļūda',
   'ide.chat.lintWarningCount': '1 brīdinājums',

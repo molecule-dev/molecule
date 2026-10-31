@@ -1814,6 +1814,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
           type: 'verification',
           status: event.status,
           ...(event.output ? { output: event.output } : {}),
+          ...(event.renderCheckUnavailable ? { renderCheckUnavailable: true } : {}),
           workspaces: event.workspaces,
           ...(event.categories ? { categories: event.categories } : {}),
         })

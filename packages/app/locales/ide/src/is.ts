@@ -22,6 +22,7 @@ export const is: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': 'Hugsaði stuttlega',
   'ide.chat.thinking': 'Hugsun',
   'ide.chat.verificationPassed': 'Ávísanir samþykktar',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': '1 tegundarvilla',
   'ide.chat.lintErrorCount': '1 lóvilla',
   'ide.chat.lintWarningCount': '1 viðvörun',

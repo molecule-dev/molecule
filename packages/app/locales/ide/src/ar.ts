@@ -108,6 +108,7 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': 'فكرة موجزة',
   'ide.chat.thinking': 'التفكير',
   'ide.chat.verificationPassed': 'اجتازت الفحوصات',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': 'خطأ في النوع 1',
   'ide.chat.lintErrorCount': 'خطأ واحد في التدقيق اللغوي',
   'ide.chat.lintWarningCount': 'تحذير واحد',

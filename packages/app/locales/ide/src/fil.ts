@@ -92,6 +92,7 @@ export const fil: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': 'Nag-isip nang maikli',
   'ide.chat.thinking': 'Pag-iisip',
   'ide.chat.verificationPassed': 'Mga tseke na naipasa',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': '1 uri ng error',
   'ide.chat.lintErrorCount': '1 error sa lint',
   'ide.chat.lintWarningCount': '1 babala',

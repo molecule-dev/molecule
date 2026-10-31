@@ -105,6 +105,7 @@ export const vi: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': 'Suy nghĩ ngắn gọn',
   'ide.chat.thinking': 'Suy nghĩ',
   'ide.chat.verificationPassed': 'Đã kiểm tra thành công.',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': '1 lỗi kiểu',
   'ide.chat.lintErrorCount': '1 lỗi lint',
   'ide.chat.lintWarningCount': '1 cảnh báo',

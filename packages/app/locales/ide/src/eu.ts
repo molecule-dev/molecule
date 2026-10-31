@@ -22,6 +22,7 @@ export const eu: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': 'Laburki pentsatu',
   'ide.chat.thinking': 'Pentsatzen',
   'ide.chat.verificationPassed': 'Txekeak gaindituta',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': '1 motako errorea',
   'ide.chat.lintErrorCount': 'Lint errore 1',
   'ide.chat.lintWarningCount': 'Abisu 1',

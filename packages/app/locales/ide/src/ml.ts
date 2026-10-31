@@ -23,6 +23,7 @@ export const ml: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': 'ചുരുക്കത്തിൽ ചിന്തിച്ചു',
   'ide.chat.thinking': 'ചിന്തിക്കുന്നു',
   'ide.chat.verificationPassed': 'പരിശോധനകൾ പാസായി',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': '1 തരം പിശക്',
   'ide.chat.lintErrorCount': '1 ലിന്റ് പിശക്',
   'ide.chat.lintWarningCount': '1 മുന്നറിയിപ്പ്',

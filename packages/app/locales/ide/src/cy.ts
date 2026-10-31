@@ -22,6 +22,7 @@ export const cy: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': 'Meddwl yn fyr',
   'ide.chat.thinking': 'Meddwl',
   'ide.chat.verificationPassed': "Sieciau wedi'u pasio",
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': '1 gwall math',
   'ide.chat.lintErrorCount': '1 gwall lint',
   'ide.chat.lintWarningCount': '1 rhybudd',

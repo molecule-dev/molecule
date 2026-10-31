@@ -22,6 +22,7 @@ export const te: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': 'క్లుప్తంగా ఆలోచించారు',
   'ide.chat.thinking': 'ఆలోచిస్తున్నాను',
   'ide.chat.verificationPassed': 'చెక్కులు ఆమోదించబడ్డాయి',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': '1 రకం లోపం',
   'ide.chat.lintErrorCount': '1 లింట్ లోపం',
   'ide.chat.lintWarningCount': '1 హెచ్చరిక',

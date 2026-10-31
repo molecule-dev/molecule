@@ -22,6 +22,7 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': 'Mõtlesin lühidalt',
   'ide.chat.thinking': 'Mõtlemine',
   'ide.chat.verificationPassed': 'Kontrollid sooritatud',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': '1 tüübi viga',
   'ide.chat.lintErrorCount': '1 ebemeviga',
   'ide.chat.lintWarningCount': '1 hoiatus',

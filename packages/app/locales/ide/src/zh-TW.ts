@@ -22,6 +22,7 @@ export const zhTW: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': '簡要思考',
   'ide.chat.thinking': '思維',
   'ide.chat.verificationPassed': '檢查通過',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': '1 個類型錯誤',
   'ide.chat.lintErrorCount': '1 個 lint 錯誤',
   'ide.chat.lintWarningCount': '1個警告',

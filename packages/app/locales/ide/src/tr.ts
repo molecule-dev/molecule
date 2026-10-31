@@ -109,6 +109,7 @@ export const tr: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': 'Kısaca düşündüm',
   'ide.chat.thinking': 'Düşünme',
   'ide.chat.verificationPassed': 'Kontroller başarılı.',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': '1 tür hatası',
   'ide.chat.lintErrorCount': '1 lint hatası',
   'ide.chat.lintWarningCount': '1 uyarı',

@@ -22,6 +22,7 @@ export const km: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': 'គិត​មួយ​ភ្លែត',
   'ide.chat.thinking': 'កំពុងគិត',
   'ide.chat.verificationPassed': 'ការត្រួតពិនិត្យបានឆ្លងកាត់',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': 'កំហុសប្រភេទទី 1',
   'ide.chat.lintErrorCount': 'កំហុសសរសៃអំបោះ ១',
   'ide.chat.lintWarningCount': 'ការព្រមានចំនួន 1',

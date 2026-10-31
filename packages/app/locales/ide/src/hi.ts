@@ -109,6 +109,7 @@ export const hi: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': 'संक्षेप में सोचा',
   'ide.chat.thinking': 'सोच',
   'ide.chat.verificationPassed': 'जाँच उत्तीर्ण हुई',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': '1 प्रकार की त्रुटि',
   'ide.chat.lintErrorCount': '1 लिंट त्रुटि',
   'ide.chat.lintWarningCount': '1 चेतावनी',

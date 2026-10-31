@@ -269,6 +269,53 @@ describe('ChatPanel history restore on refresh (loadOnMount)', () => {
   })
 })
 
+describe('ChatPanel verification render advisory', () => {
+  function renderVerificationHistory(renderCheckUnavailable?: boolean): HTMLElement {
+    const history: ChatMessage[] = [
+      {
+        id: 'a-verification',
+        role: 'assistant',
+        content: '',
+        timestamp: 2000,
+        blocks: [
+          {
+            type: 'verification',
+            status: 'ok',
+            workspaces: ['app'],
+            ...(renderCheckUnavailable ? { renderCheckUnavailable } : {}),
+          },
+        ],
+      },
+    ]
+    const wrap = (children: ReactNode): ReactElement => (
+      <I18nProvider provider={createSimpleI18nProvider('en')}>
+        <ThemeProvider provider={buildThemeProvider()}>
+          <HttpProvider client={buildHttpClient()}>
+            <ChatContextProvider provider={buildChatProvider(history)}>
+              {children}
+            </ChatContextProvider>
+          </HttpProvider>
+        </ThemeProvider>
+      </I18nProvider>
+    )
+    return render(wrap(<ChatPanel projectId="proj-verification" userAvatar={null} />)).container
+  }
+
+  it('renders the stored unavailable advisory in the actual success badge', async () => {
+    const container = renderVerificationHistory(true)
+
+    await waitFor(() => expect(container.textContent).toContain('Checks passed'))
+    expect(container.textContent).toContain('Render check unavailable')
+  })
+
+  it('renders no advisory for a clean pass', async () => {
+    const container = renderVerificationHistory()
+
+    await waitFor(() => expect(container.textContent).toContain('Checks passed'))
+    expect(container.textContent).not.toContain('Render check unavailable')
+  })
+})
+
 describe('ChatPanel resource-limit (OOM) upgrade banner', () => {
   const oomHistory = (): ChatMessage[] => [
     { id: 'u1', role: 'user', content: 'add 2fa', timestamp: 1000 },

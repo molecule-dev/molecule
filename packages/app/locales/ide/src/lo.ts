@@ -22,6 +22,7 @@ export const lo: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': 'ຄິດສັ້ນໆ',
   'ide.chat.thinking': 'ກຳລັງຄິດຢູ່',
   'ide.chat.verificationPassed': 'ການກວດສອບຜ່ານແລ້ວ',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': 'ຄວາມຜິດພາດປະເພດ 1',
   'ide.chat.lintErrorCount': '1 ຄວາມຜິດພາດຂອງເສັ້ນໃຍ',
   'ide.chat.lintWarningCount': 'ຄຳເຕືອນ 1 ຢ່າງ',

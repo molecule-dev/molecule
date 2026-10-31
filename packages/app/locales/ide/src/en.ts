@@ -34,6 +34,7 @@ export const en: IdeTranslations = {
   'ide.chat.streaming.almostThere': 'Crystallizing the answer...',
   'ide.chat.thinking': 'Thinking',
   'ide.chat.verificationPassed': 'Checks passed',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': '1 type error',
   'ide.chat.lintErrorCount': '1 lint error',
   'ide.chat.lintWarningCount': '1 warning',

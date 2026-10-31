@@ -22,6 +22,7 @@ export const kk: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': 'Қысқаша ойландым',
   'ide.chat.thinking': 'Ойлау',
   'ide.chat.verificationPassed': 'Тексерулерден өтті',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': '1 типті қате',
   'ide.chat.lintErrorCount': '1 түк қатесі',
   'ide.chat.lintWarningCount': '1 ескерту',

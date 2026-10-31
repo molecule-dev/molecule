@@ -127,6 +127,7 @@ export type IdeTranslationKey =
   | 'ide.chat.signUpRequired'
   | 'ide.chat.undoChange'
   | 'ide.chat.verificationPassed'
+  | 'ide.chat.renderCheckUnavailable'
   | 'ide.chat.verificationFailed'
   | 'ide.chat.verificationFixing'
   | 'ide.chat.autoFixEnabled'

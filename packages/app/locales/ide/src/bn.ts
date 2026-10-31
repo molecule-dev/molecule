@@ -23,6 +23,7 @@ export const bn: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': 'সংক্ষেপে ভেবেছিলাম',
   'ide.chat.thinking': 'চিন্তা',
   'ide.chat.verificationPassed': 'চেক পাস হয়েছে',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': '১ প্রকারের ত্রুটি',
   'ide.chat.lintErrorCount': '১টি লিন্ট ত্রুটি',
   'ide.chat.lintWarningCount': '১টি সতর্কতা',

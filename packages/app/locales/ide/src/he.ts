@@ -32,6 +32,7 @@ export const he: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': 'מחשבה קצרה',
   'ide.chat.thinking': 'חֲשִׁיבָה',
   'ide.chat.verificationPassed': "צ'קים שעברו",
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': 'שגיאת סוג 1',
   'ide.chat.lintErrorCount': 'שגיאת סיבים אחת',
   'ide.chat.lintWarningCount': 'אזהרה אחת',

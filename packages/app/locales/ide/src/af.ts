@@ -23,6 +23,7 @@ export const af: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': 'Kortliks gedink',
   'ide.chat.thinking': 'Denke',
   'ide.chat.verificationPassed': 'Tjeks geslaag',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': '1 tipe fout',
   'ide.chat.lintErrorCount': '1 pluisfout',
   'ide.chat.lintWarningCount': '1 waarskuwing',

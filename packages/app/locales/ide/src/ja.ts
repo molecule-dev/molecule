@@ -110,6 +110,7 @@ export const ja: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': '少し考えてみた',
   'ide.chat.thinking': '考え',
   'ide.chat.verificationPassed': 'チェックは合格しました',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': '1 型のエラー',
   'ide.chat.lintErrorCount': '1 リンティングエラー',
   'ide.chat.lintWarningCount': '警告1件',

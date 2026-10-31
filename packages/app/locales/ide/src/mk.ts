@@ -22,6 +22,7 @@ export const mk: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': 'Размислив накратко',
   'ide.chat.thinking': 'Размислување',
   'ide.chat.verificationPassed': 'Положени чекови',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': '1 типска грешка',
   'ide.chat.lintErrorCount': '1 грешка со влакненца',
   'ide.chat.lintWarningCount': '1 предупредување',

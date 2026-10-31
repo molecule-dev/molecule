@@ -97,6 +97,7 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': 'Gândit pe scurt',
   'ide.chat.thinking': 'Gândire',
   'ide.chat.verificationPassed': 'Verificări aprobate',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': 'Eroare de tip 1',
   'ide.chat.lintErrorCount': '1 eroare de scame',
   'ide.chat.lintWarningCount': '1 avertisment',

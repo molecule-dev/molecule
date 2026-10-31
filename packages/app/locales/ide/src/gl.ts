@@ -23,6 +23,7 @@ export const gl: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': 'Pensou brevemente',
   'ide.chat.thinking': 'Pensando',
   'ide.chat.verificationPassed': 'Comprobacións aprobadas',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': 'Erro de tipo 1',
   'ide.chat.lintErrorCount': '1 erro de pelusa',
   'ide.chat.lintWarningCount': '1 aviso',

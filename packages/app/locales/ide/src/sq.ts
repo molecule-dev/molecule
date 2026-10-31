@@ -23,6 +23,7 @@ export const sq: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': 'Mendova shkurt',
   'ide.chat.thinking': 'Të menduarit',
   'ide.chat.verificationPassed': 'Çekët e kaluar',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': '1 gabim tipi',
   'ide.chat.lintErrorCount': '1 gabim me fije',
   'ide.chat.lintWarningCount': '1 paralajmërim',

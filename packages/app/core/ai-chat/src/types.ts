@@ -110,6 +110,8 @@ export type MessageBlock =
       output?: string
       workspaces: string[]
       categories?: string[]
+      /** The browser render check was inconclusive; this is advisory, never an error. */
+      renderCheckUnavailable?: boolean
     }
   | { type: 'resource_limit'; resource: string; message: string }
 
@@ -430,6 +432,8 @@ export type ChatStreamEvent =
       type: 'verification_result'
       status: 'ok' | 'error'
       output?: string
+      /** The browser render check was inconclusive; this is advisory, never an error. */
+      renderCheckUnavailable?: boolean
       workspaces: string[]
       categories?: ('type' | 'lint' | 'runtime')[]
       changedPaths?: string[]

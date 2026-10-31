@@ -250,6 +250,7 @@ export const ig: Partial<IdeTranslations> = {
   'ide.sidebar.files': 'Nchọpụta',
   'ide.sidebar.search': 'Chọọ',
   'ide.chat.thoughtBriefly': 'Chee echiche obere oge',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': 'Ụdị njehie 1',
   'ide.chat.lintErrorCount': '1 njehie lint',
   'ide.chat.lintWarningCount': 'Ịdọ aka ná ntị 1',

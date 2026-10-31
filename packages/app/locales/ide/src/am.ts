@@ -22,6 +22,7 @@ export const am: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': 'በአጭሩ አሰብኩ',
   'ide.chat.thinking': 'ማሰብ',
   'ide.chat.verificationPassed': 'ቼኮች ተላልፈዋል',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': 'የ1 አይነት ስህተት',
   'ide.chat.lintErrorCount': '1 የሊንት ስህተት',
   'ide.chat.lintWarningCount': '1 ማስጠንቀቂያ',

@@ -23,6 +23,7 @@ export const ca: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': 'Pensament breu',
   'ide.chat.thinking': 'Pensant',
   'ide.chat.verificationPassed': 'Comprovacions aprovades',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': 'Error de tipus 1',
   'ide.chat.lintErrorCount': '1 error de pelussa',
   'ide.chat.lintWarningCount': '1 avís',

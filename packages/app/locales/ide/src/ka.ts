@@ -22,6 +22,7 @@ export const ka: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': 'მოკლედ დაფიქრდა',
   'ide.chat.thinking': 'ფიქრი',
   'ide.chat.verificationPassed': 'ჩეკები გავლილია',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': '1 ტიპის შეცდომა',
   'ide.chat.lintErrorCount': '1 შეცდომა ლინტის შემთხვევაში',
   'ide.chat.lintWarningCount': '1 გაფრთხილება',

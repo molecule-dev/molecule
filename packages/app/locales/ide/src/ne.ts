@@ -23,6 +23,7 @@ export const ne: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': 'छोटो सोचें',
   'ide.chat.thinking': 'सोच्दै',
   'ide.chat.verificationPassed': 'चेक पास गरियो',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': '१ प्रकारको त्रुटि',
   'ide.chat.lintErrorCount': '१ लिन्ट त्रुटि',
   'ide.chat.lintWarningCount': '१ चेतावनी',

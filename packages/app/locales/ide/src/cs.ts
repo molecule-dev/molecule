@@ -97,6 +97,7 @@ export const cs: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': 'krátce zamyšleno',
   'ide.chat.thinking': 'Myslící',
   'ide.chat.verificationPassed': 'Kontroly prošly',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': 'Chyba 1 typu',
   'ide.chat.lintErrorCount': '1 chyba lint',
   'ide.chat.lintWarningCount': '1 varování',

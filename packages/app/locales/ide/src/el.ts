@@ -97,6 +97,7 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': 'Σκέφτηκα για λίγο',
   'ide.chat.thinking': 'Σκέψη',
   'ide.chat.verificationPassed': 'Επιταγές που πέρασαν',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': '1 σφάλμα τύπου',
   'ide.chat.lintErrorCount': '1 σφάλμα χνούδις',
   'ide.chat.lintWarningCount': '1 προειδοποίηση',

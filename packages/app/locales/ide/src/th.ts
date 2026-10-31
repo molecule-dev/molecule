@@ -22,6 +22,7 @@ export const th: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': 'คิดคร่าวๆ',
   'ide.chat.thinking': 'การคิด',
   'ide.chat.verificationPassed': 'การตรวจสอบผ่านแล้ว',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': 'ข้อผิดพลาดประเภทที่ 1',
   'ide.chat.lintErrorCount': 'ข้อผิดพลาด Lint 1 รายการ',
   'ide.chat.lintWarningCount': 'คำเตือน 1 ข้อ',

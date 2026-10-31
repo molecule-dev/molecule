@@ -103,6 +103,7 @@ export const fr: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': 'Pensée brièvement',
   'ide.chat.thinking': 'Pensée',
   'ide.chat.verificationPassed': 'Contrôles réussis',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': '1 erreur de type',
   'ide.chat.lintErrorCount': '1 erreur de linting',
   'ide.chat.lintWarningCount': '1 avertissement',

@@ -23,6 +23,7 @@ export const ta: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': 'சுருக்கமாக சிந்தித்தேன்',
   'ide.chat.thinking': 'சிந்தனை',
   'ide.chat.verificationPassed': 'காசோலைகள் நிறைவேற்றப்பட்டன',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': '1 வகை பிழை',
   'ide.chat.lintErrorCount': '1 லின்ட் பிழை',
   'ide.chat.lintWarningCount': '1 எச்சரிக்கை',

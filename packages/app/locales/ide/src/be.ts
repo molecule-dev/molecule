@@ -258,6 +258,7 @@ export const be: Partial<IdeTranslations> = {
   'ide.sidebar.files': 'Правадыр',
   'ide.sidebar.search': 'Пошук',
   'ide.chat.thoughtBriefly': 'Коратка падумаў',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': 'Памылка 1 тыпу',
   'ide.chat.lintErrorCount': '1 памылка лінта',
   'ide.chat.lintWarningCount': '1 папярэджанне',

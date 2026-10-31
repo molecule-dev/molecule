@@ -253,6 +253,43 @@ describe('useChat', () => {
     expect(result.current.messages.find((m) => m.role === 'assistant')?.content).toBe('working')
   })
 
+  it('carries a render-check advisory into the live verification block', async () => {
+    const { provider, emit, complete, startMessage } = createMockProvider()
+    const { result } = renderHook(
+      () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
+      { wrapper: createWrapper(provider) },
+    )
+
+    await act(async () => {
+      result.current.sendMessage('build it')
+    })
+    await act(async () => {
+      startMessage(0)
+      emit(0, {
+        type: 'verification_result',
+        status: 'ok',
+        workspaces: ['app'],
+        renderCheckUnavailable: true,
+      })
+    })
+
+    await waitFor(() => {
+      expect(
+        result.current.messages.find((message) => message.role === 'assistant')?.blocks,
+      ).toEqual([
+        {
+          type: 'verification',
+          status: 'ok',
+          workspaces: ['app'],
+          renderCheckUnavailable: true,
+        },
+      ])
+    })
+    await act(async () => {
+      complete(0)
+    })
+  })
+
   it('accumulates text events into assistant content', async () => {
     const { provider, emitText, complete, startMessage } = createMockProvider()
     const { result } = renderHook(

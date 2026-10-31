@@ -108,6 +108,7 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': '잠깐 생각해 봤어요',
   'ide.chat.thinking': '생각',
   'ide.chat.verificationPassed': '검사 통과됨',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': '1 유형 오류',
   'ide.chat.lintErrorCount': '린트 오류 1개',
   'ide.chat.lintWarningCount': '경고 1건',

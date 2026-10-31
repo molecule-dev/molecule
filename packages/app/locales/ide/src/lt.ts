@@ -23,6 +23,7 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': 'Trumpai pagalvojau',
   'ide.chat.thinking': 'Mąstymas',
   'ide.chat.verificationPassed': 'Patikrinimai sėkmingi',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': '1 tipo klaida',
   'ide.chat.lintErrorCount': '1 pūkelių klaida',
   'ide.chat.lintWarningCount': '1 įspėjimas',

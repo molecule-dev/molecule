@@ -22,6 +22,7 @@ export const mt: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': 'Ħsieb fil-qosor',
   'ide.chat.thinking': 'Ħsieb',
   'ide.chat.verificationPassed': 'Verifiki għaddew',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': 'Żball tat-tip 1',
   'ide.chat.lintErrorCount': 'Żball wieħed tal-lint',
   'ide.chat.lintWarningCount': 'twissija waħda',

@@ -23,6 +23,7 @@ export const hr: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': 'Kratko razmišljanje',
   'ide.chat.thinking': 'Razmišljanje',
   'ide.chat.verificationPassed': 'Provjere su prošle',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': '1 tipska pogreška',
   'ide.chat.lintErrorCount': '1 pogreška u lintu',
   'ide.chat.lintWarningCount': '1 upozorenje',

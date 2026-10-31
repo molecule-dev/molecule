@@ -292,6 +292,7 @@ export const yo: Partial<IdeTranslations> = {
   'ide.sidebar.files': 'A\\u1E63\\u00E0w\\u00E1k\\u00EDr\\u00ED',
   'ide.sidebar.search': '\\u00CCw\\u00E1',
   'ide.chat.thoughtBriefly': 'Ronú ní kúkúrú',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': 'Àṣìṣe irú 1',
   'ide.chat.lintErrorCount': 'Àṣìṣe 1 lint',
   'ide.chat.lintWarningCount': 'Ìkìlọ̀ 1',

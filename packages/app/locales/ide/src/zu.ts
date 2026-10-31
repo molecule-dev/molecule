@@ -23,6 +23,7 @@ export const zu: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': 'Kucatshangwe kafushane',
   'ide.chat.thinking': 'Ukucabanga',
   'ide.chat.verificationPassed': 'Amasheke adlulisiwe',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': 'Iphutha lohlobo olulodwa',
   'ide.chat.lintErrorCount': 'Iphutha elilodwa elincane',
   'ide.chat.lintWarningCount': 'Isexwayiso esingu-1',

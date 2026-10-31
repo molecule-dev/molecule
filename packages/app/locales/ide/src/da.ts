@@ -60,6 +60,7 @@ export const da: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': 'Tænkte kort',
   'ide.chat.thinking': 'Tænkning',
   'ide.chat.verificationPassed': 'Beståede kontroller',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': '1 typefejl',
   'ide.chat.lintErrorCount': '1 fnugfejl',
   'ide.chat.lintWarningCount': '1 advarsel',

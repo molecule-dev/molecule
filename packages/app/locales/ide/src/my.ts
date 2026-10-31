@@ -22,6 +22,7 @@ export const my: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': 'ခဏလေး စဉ်းစားမိတယ်',
   'ide.chat.thinking': 'စဉ်းစားတွေးခေါ်ခြင်း',
   'ide.chat.verificationPassed': 'စစ်ဆေးမှုများ အောင်မြင်ပြီး',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': 'အမှားအမျိုးအစား ၁ ခု',
   'ide.chat.lintErrorCount': 'အမျှင်အမှား ၁ ခု',
   'ide.chat.lintWarningCount': 'သတိပေးချက် ၁ ခု',

@@ -22,6 +22,7 @@ export const gu: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': 'ટૂંકમાં વિચાર્યું',
   'ide.chat.thinking': 'વિચારવું',
   'ide.chat.verificationPassed': 'ચેક પાસ થયા',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': '૧ પ્રકારની ભૂલ',
   'ide.chat.lintErrorCount': '1 લિન્ટ ભૂલ',
   'ide.chat.lintWarningCount': '1 ચેતવણી',

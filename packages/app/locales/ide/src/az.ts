@@ -23,6 +23,7 @@ export const az: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': 'Qısaca düşündüm',
   'ide.chat.thinking': 'Düşünmək',
   'ide.chat.verificationPassed': 'Keçmiş yoxlamalar',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': '1 tipli səhv',
   'ide.chat.lintErrorCount': '1 lint xətası',
   'ide.chat.lintWarningCount': '1 xəbərdarlıq',

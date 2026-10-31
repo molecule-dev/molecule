@@ -102,6 +102,7 @@ export const sv: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': 'Tanke kort',
   'ide.chat.thinking': 'Tänkande',
   'ide.chat.verificationPassed': 'Kontroller godkända',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': '1 typfel',
   'ide.chat.lintErrorCount': '1 luddfel',
   'ide.chat.lintWarningCount': '1 varning',

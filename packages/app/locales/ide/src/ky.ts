@@ -258,6 +258,7 @@ export const ky: Partial<IdeTranslations> = {
   'ide.sidebar.files': 'Чалгындоочу',
   'ide.sidebar.search': 'Издөө',
   'ide.chat.thoughtBriefly': 'Кыскача ойлондум',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': '1 типтеги ката',
   'ide.chat.lintErrorCount': '1 түк катасы',
   'ide.chat.lintWarningCount': '1 эскертүү',

@@ -97,6 +97,7 @@ export const fi: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': 'Mietin lyhyesti',
   'ide.chat.thinking': 'Ajattelu',
   'ide.chat.verificationPassed': 'Läpäistyt tarkastukset',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': '1 tyyppivirhe',
   'ide.chat.lintErrorCount': '1 nukkavirhe',
   'ide.chat.lintWarningCount': '1 varoitus',

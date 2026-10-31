@@ -22,6 +22,7 @@ export const pa: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': 'ਸੰਖੇਪ ਵਿੱਚ ਸੋਚਿਆ',
   'ide.chat.thinking': 'ਸੋਚਣਾ',
   'ide.chat.verificationPassed': 'ਚੈੱਕ ਪਾਸ ਹੋਏ',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': '1 ਕਿਸਮ ਦੀ ਗਲਤੀ',
   'ide.chat.lintErrorCount': '1 ਲਿੰਟ ਗਲਤੀ',
   'ide.chat.lintWarningCount': '1 ਚੇਤਾਵਨੀ',

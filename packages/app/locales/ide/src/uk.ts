@@ -96,6 +96,7 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': 'Коротко подумав',
   'ide.chat.thinking': 'Мислення',
   'ide.chat.verificationPassed': 'Перевірки пройдено',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': 'Помилка 1 типу',
   'ide.chat.lintErrorCount': '1 помилка lint',
   'ide.chat.lintWarningCount': '1 попередження',

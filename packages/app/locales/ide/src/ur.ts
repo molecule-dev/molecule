@@ -22,6 +22,7 @@ export const ur: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': 'مختصراً سوچا۔',
   'ide.chat.thinking': 'سوچنا',
   'ide.chat.verificationPassed': 'چیک پاس ہو گئے۔',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': '1 قسم کی خرابی۔',
   'ide.chat.lintErrorCount': '1 لنٹ کی خرابی۔',
   'ide.chat.lintWarningCount': '1 وارننگ',

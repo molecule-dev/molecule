@@ -22,6 +22,7 @@ export const sw: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': 'Wazo fupi',
   'ide.chat.thinking': 'Kufikiri',
   'ide.chat.verificationPassed': 'Hundi zimepitishwa',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': 'Hitilafu ya aina 1',
   'ide.chat.lintErrorCount': 'Hitilafu 1 ndogo',
   'ide.chat.lintWarningCount': 'Onyo 1',

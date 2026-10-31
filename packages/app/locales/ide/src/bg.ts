@@ -23,6 +23,7 @@ export const bg: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': 'Помислих си накратко',
   'ide.chat.thinking': 'Мислене',
   'ide.chat.verificationPassed': 'Проверките са преминали',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': 'грешка от 1 тип',
   'ide.chat.lintErrorCount': '1 грешка при власинки',
   'ide.chat.lintWarningCount': '1 предупреждение',

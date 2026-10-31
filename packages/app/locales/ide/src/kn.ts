@@ -22,6 +22,7 @@ export const kn: Partial<IdeTranslations> = {
   'ide.chat.thoughtBriefly': 'ಸಂಕ್ಷಿಪ್ತವಾಗಿ ಯೋಚಿಸಿದೆ',
   'ide.chat.thinking': 'ಆಲೋಚನೆ',
   'ide.chat.verificationPassed': 'ಚೆಕ್‌ಗಳು ಪಾಸಾಗಿವೆ',
+  'ide.chat.renderCheckUnavailable': 'Render check unavailable',
   'ide.chat.typeErrorCount': '1 ವಿಧದ ದೋಷ',
   'ide.chat.lintErrorCount': '1 ಲಿಂಟ್ ದೋಷ',
   'ide.chat.lintWarningCount': '1 ಎಚ್ಚರಿಕೆ',
