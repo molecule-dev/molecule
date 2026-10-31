@@ -17,8 +17,10 @@
       "default": "./dist/dom.js"
     },
     "./dist": "./dist/index.js",
-    "./dist/*": "./dist/*.js",
+    "./dist/*.d.ts.map": "./dist/*.d.ts.map",
+    "./dist/*.d.ts": "./dist/*.d.ts",
     "./dist/*.js": "./dist/*.js",
+    "./dist/*": "./dist/*.js",
     "./package.json": "./package.json"
   },
   "files": [
