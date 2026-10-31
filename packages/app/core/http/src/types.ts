@@ -4,6 +4,8 @@
  * @module
  */
 
+import { redactCredentials } from '@molecule/app-logger'
+
 import type { RetryOptions } from './retry.js'
 import { redactUrlCredentials } from './url.js'
 
@@ -211,30 +213,12 @@ const errorRequestConfig = (config: FullRequestConfig): FullRequestConfig => {
   return { method: config.method, url, ...(options ? { options } : {}) }
 }
 
-/** Response headers that can carry a credential into an error's log metadata. */
-const CREDENTIAL_RESPONSE_HEADERS = new Set([
-  'authorization',
-  'cookie',
-  'set-cookie',
-  'set-cookie2',
-])
-
-/** Remove credential headers and request secrets while preserving safe response identity. */
+/** Scrub response headers/body and project request metadata, preserving safe response identity. */
 const errorResponse = (response: HttpResponse): HttpResponse => {
   const config = errorRequestConfig(response.config)
-  const headerNames = Object.keys(response.headers)
-  if (
-    config === response.config &&
-    !headerNames.some((name) => CREDENTIAL_RESPONSE_HEADERS.has(name.toLowerCase()))
-  ) {
-    return response
-  }
-  const headers = Object.fromEntries(
-    Object.entries(response.headers).filter(
-      ([name]) => !CREDENTIAL_RESPONSE_HEADERS.has(name.toLowerCase()),
-    ),
-  )
-  return { ...response, headers, config }
+  const scrubbed = redactCredentials(response)
+  if (config === response.config && scrubbed === response) return response
+  return { ...scrubbed, config }
 }
 
 /**
@@ -298,7 +282,7 @@ export class HttpError extends Error {
     public errorKey?: string,
     public aborted = false,
   ) {
-    super(redactUrlCredentials(message))
+    super(redactCredentials(message))
     this.name = 'HttpError'
     this.response = response ? errorResponse(response) : undefined
     this.config = config ? errorRequestConfig(config) : undefined

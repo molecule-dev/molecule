@@ -30,7 +30,7 @@
   "peerDependencies": {
     "@molecule/app-bond": "^1.0.1",
     "@molecule/app-i18n": "^1.0.1",
-    "@molecule/app-logger": "^1.0.1"
+    "@molecule/app-logger": "^1.0.4"
   },
   "devDependencies": {
     "@molecule/app-bond": "1.0.4",
