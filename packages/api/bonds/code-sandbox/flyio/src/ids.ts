@@ -57,29 +57,42 @@ export function parseSandboxId(id: string): { app: string; machineId: string } {
   return { app: id.slice(0, index), machineId: id.slice(index + 1) }
 }
 
+/** Normalize one prefix/project component for a Fly DNS label. */
+function sanitizeAppNamePart(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9-]+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+}
+
+/** The one namespace mapping shared by app naming and fleet discovery. */
+export function appNameNamespace(prefix: string): {
+  prefix: string
+  hashedPrefix: string
+  searchPrefixes: string[]
+} {
+  const safePrefix = sanitizeAppNamePart(prefix) || 'mol-sandbox'
+  // appNameForProject uses a 20-character digest, leaving 42 characters plus
+  // the separating hyphen inside Fly's 63-character DNS-label limit.
+  const hashedPrefix = safePrefix.slice(0, 42).replace(/-+$/, '')
+  return {
+    prefix: safePrefix,
+    hashedPrefix,
+    searchPrefixes: [...new Set([`${safePrefix}-`, `${hashedPrefix}-`])],
+  }
+}
+
 /**
- * Derives a Fly app name for a project.
- *
- * Fly app names are globally unique DNS labels: lowercase alphanumerics and
- * hyphens, no leading/trailing hyphen, at most 63 characters (they become
- * `<app>.fly.dev`). Names that fit retain their readable `<prefix>-<project>`
- * form. A longer identity gets a digest of the COMPLETE prefix and project id:
- * truncating the readable name alone would let two deploy tags or project ids
- * address (and potentially delete) the same app.
+ * Derive the collision-free app name for a complete prefix/project identity.
  * @param prefix - Configured app-name prefix.
- * @param projectId - The project id from `SandboxConfig`.
- * @returns A syntactically valid Fly app name.
- * @throws {Error} When `projectId` has no characters usable in a DNS label.
+ * @param projectId - Complete project or deploy identity.
+ * @returns A DNS-safe app name no longer than 63 characters.
  */
 export function appNameForProject(prefix: string, projectId: string): string {
-  const sanitize = (value: string): string =>
-    value
-      .toLowerCase()
-      .replace(/[^a-z0-9-]+/g, '-')
-      .replace(/-+/g, '-')
-      .replace(/^-|-$/g, '')
-  const safePrefix = sanitize(prefix) || 'mol-sandbox'
-  const safeProject = sanitize(projectId)
+  const namespace = appNameNamespace(prefix)
+  const safePrefix = namespace.prefix
+  const safeProject = sanitizeAppNamePart(projectId)
   if (!safeProject) {
     throw new Error(
       t(
@@ -94,8 +107,7 @@ export function appNameForProject(prefix: string, projectId: string): string {
   const readable = `${safePrefix}-${safeProject}`
   if (readable.length <= 63) return readable
   const digest = createHash('sha256').update(`${prefix}\0${projectId}`).digest('hex').slice(0, 20)
-  const prefixLength = Math.min(safePrefix.length, 63 - digest.length - 1)
-  return `${safePrefix.slice(0, prefixLength).replace(/-+$/, '')}-${digest}`
+  return `${namespace.hashedPrefix}-${digest}`
 }
 
 /**

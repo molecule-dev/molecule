@@ -86,12 +86,12 @@
  * setuid/setgid dropped by `--no-same-permissions` — were verified by running
  * GNU tar 1.35 against crafted archives rather than inferred from its manual.
  *
- * **Lifecycle serialization.** Callers MUST serialize create, adoption,
- * replacement and deletion per app across every process that shares it (for
- * example with a database advisory lock). The bond's stale-Machine and
- * stale-volume reaping is only a backstop: it also requires a valid creation
- * timestamp older than the configured create timeout, so consumers that cannot
- * hold that lock still never reap a live create merely because it is managed.
+ * **Lifecycle ownership.** Create NEVER deletes a Machine, volume, app or
+ * address. Configure `createAttemptJournal` to record every intended resource
+ * before its Fly write; the separate reconciler settles only failed/abandoned
+ * attempt identities and skips serving Machines, attached volumes and every
+ * bound workspace. Explicit sandbox/app destruction is the only workspace
+ * deletion path. Callers must still serialize lifecycle operations per app.
  *
  * **Absence vs failure: `get()` only answers `null` for a REAL absence.**
  * `get()` (and each read shaped like it — `list()`, `find()`, `getTemplate()`)
@@ -377,6 +377,7 @@ export * from './egress.js'
 export * from './exec.js'
 export * from './flycast.js'
 export * from './ids.js'
+export * from './lifecycle.js'
 export * from './provider.js'
 export * from './storage.js'
 export * from './templates.js'

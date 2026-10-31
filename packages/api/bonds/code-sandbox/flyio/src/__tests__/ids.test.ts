@@ -12,8 +12,14 @@ vi.mock('@molecule/api-i18n', () => ({
     opts?.defaultValue ?? key,
 }))
 
-const { appNameForProject, isFailedState, mapMachineState, parseSandboxId, toSandboxId } =
-  await import('../ids.js')
+const {
+  appNameForProject,
+  appNameNamespace,
+  isFailedState,
+  mapMachineState,
+  parseSandboxId,
+  toSandboxId,
+} = await import('../ids.js')
 
 const { shellQuote, renderEnvExports } = await import('../utilities.js')
 
@@ -66,6 +72,15 @@ describe('appNameForProject', () => {
     const first = appNameForProject(prefix, 'a3f1c0de-0000-4000-8000-000000000001')
     const second = appNameForProject(prefix, 'a3f1c0de-0000-4000-8000-000000000002')
     expect(first).not.toBe(second)
+  })
+
+  it('maps a 50-character prefix to both readable and shortened discovery names', () => {
+    const prefix = 'p'.repeat(50)
+    const namespace = appNameNamespace(prefix)
+    const name = appNameForProject(prefix, 'a3f1c0de-0000-4000-8000-000000000001')
+    expect(namespace.searchPrefixes).toContain(`${prefix}-`)
+    expect(namespace.searchPrefixes).toContain(`${'p'.repeat(42)}-`)
+    expect(namespace.searchPrefixes.some((candidate) => name.startsWith(candidate))).toBe(true)
   })
 
   it('throws when a project id has no DNS-safe characters', () => {

@@ -54,7 +54,18 @@ import {
   parsePrivateServices,
   PRIVATE_ROUTES_METADATA_SUFFIX,
 } from './flycast.js'
-import { appNameForProject, mapMachineState, parseSandboxId, toSandboxId } from './ids.js'
+import {
+  appNameForProject,
+  appNameNamespace,
+  mapMachineState,
+  parseSandboxId,
+  toSandboxId,
+} from './ids.js'
+import type {
+  FlyCreateAttempt,
+  FlyCreateAttemptProvider,
+  FlyCreateReconcileSummary,
+} from './lifecycle.js'
 import { createTemplateStore, MAX_PRESIGN_EXPIRY_SECONDS, type ObjectStore } from './storage.js'
 import * as templates from './templates.js'
 import type {
@@ -283,9 +294,9 @@ const MACHINE_CREATE_ATTEMPTS = 6
  * means no Machine was created — unlike a 5xx/timeout, where one might have
  * been. 412 is safe for the same reason: "volume already claimed by machine
  * <id>" refuses the create. It is what the create answers in the seconds after
- * {@link FlyioSandboxProvider.destroyStaleMachines} removed the Machine that
- * held the volume — Fly releases the claim asynchronously, and an immediate
- * create lost a production deploy to it (2026-10-14; the identical retry a
+ * an explicit destroy released the Machine that held the volume — Fly releases
+ * the claim asynchronously, and an immediate create lost a production deploy
+ * to it (2026-10-14; the identical retry a
  * minute later succeeded). Only these two are added on top of the client's
  * default retryable set; neither retry can double-create.
  */
@@ -623,7 +634,7 @@ class FlyioSandboxProvider implements SandboxProvider {
    */
   private async ensureApp(
     app: string,
-    options: { privateRoutes?: boolean } = {},
+    options: { privateRoutes?: boolean; attemptId?: string } = {},
   ): Promise<{
     routes: Record<string, string>
     allocated: Record<string, string>
@@ -657,7 +668,7 @@ class FlyioSandboxProvider implements SandboxProvider {
     if (createdHere && this.config.assignSharedIpv4) await this.assignSharedIpv4(app)
     await this.applyEgressPolicy(app)
     if (options.privateRoutes === false) return { routes: {}, allocated: {} }
-    return this.ensurePrivateRoutes(app, Boolean(existing))
+    return this.ensurePrivateRoutes(app, Boolean(existing), options.attemptId)
   }
 
   /**
@@ -692,6 +703,7 @@ class FlyioSandboxProvider implements SandboxProvider {
   private async ensurePrivateRoutes(
     app: string,
     appExisted: boolean,
+    attemptId?: string,
   ): Promise<{ routes: Record<string, string>; allocated: Record<string, string> }> {
     const services = this.privateServices()
     const network = this.networkFor(app)
@@ -703,21 +715,30 @@ class FlyioSandboxProvider implements SandboxProvider {
     // addresses live on OTHER apps, so deleting this project's app would not
     // release them; Fly's listing also cannot reconstruct their target network.
     const allocated: Record<string, string> = {}
-    try {
-      for (const service of services) {
-        if (routes[service.app]) continue
-        const ip = await this.allocatePrivateAddress(service, network)
-        if (ip) {
-          routes[service.app] = ip
-          allocated[service.app] = ip
-        }
+    for (const service of services) {
+      if (routes[service.app]) continue
+      if (attemptId && this.config.createAttemptJournal) {
+        await this.config.createAttemptJournal.recordAddress(attemptId, {
+          targetApp: service.app,
+          network,
+          owned: false,
+          resolved: false,
+        })
       }
-    } catch (error) {
-      // Only what this call allocated. An address recorded by an EARLIER boot
-      // (`appExisted`) is left alone: the app survived this failure and may
-      // still hold a Machine reaching through that route.
-      await this.releasePrivateRoutes(allocated)
-      throw error
+      const ip = await this.allocatePrivateAddress(service, network)
+      if (attemptId && this.config.createAttemptJournal) {
+        await this.config.createAttemptJournal.recordAddress(attemptId, {
+          targetApp: service.app,
+          network,
+          ...(ip ? { ip } : {}),
+          owned: Boolean(ip),
+          resolved: true,
+        })
+      }
+      if (ip) {
+        routes[service.app] = ip
+        allocated[service.app] = ip
+      }
     }
     return { routes, allocated }
   }
@@ -750,67 +771,6 @@ class FlyioSandboxProvider implements SandboxProvider {
       )
     }
     return {}
-  }
-
-  /**
-   * Destroys any Machine already in this project's app before a fresh create.
-   *
-   * A create that fails after the Machine exists — a mid-scaffold error, a
-   * retried queue job — leaves a Machine holding the app's single-attach volume.
-   * The next create's `POST /machines` then fails with `412 volume already
-   * claimed by machine <id>`, and the project can never recover on its own. The
-   * app is one-per-project and holds exactly one sandbox, so any managed Machine
-   * still here is a stale partial: destroy it (force covers running/suspended) to
-   * free the volume and make create idempotent per project.
-   * @param app - The Fly app name.
-   */
-  private async destroyStaleMachines(app: string): Promise<void> {
-    const createTimeoutMs =
-      Math.max(1, this.config.startTimeoutSeconds ?? DEFAULT_START_TIMEOUT_SECONDS) * 1000
-    const managedKey = `${this.metadataPrefix}.managed`
-    let machines: FlyMachine[] | null
-    try {
-      machines = await this.client.request<FlyMachine[]>(`/apps/${app}/machines`, {
-        nullOn: [404],
-      })
-    } catch (error) {
-      // A listing we cannot read is not proof the app is empty. A hidden Machine
-      // would fail the create with 412 regardless, so surface it and fall
-      // through rather than pretend the app is clean.
-      logger.warn(
-        'Could not list Machines before create; a stale Machine may still hold the volume',
-        { app, error },
-      )
-      return
-    }
-    for (const machine of Array.isArray(machines) ? machines : []) {
-      if (machine.config?.metadata?.[managedKey] !== 'true') continue
-      const createdAt = Date.parse(machine.created_at ?? '')
-      if (!Number.isFinite(createdAt) || Date.now() - createdAt <= createTimeoutMs) {
-        // A managed Machine is not proof of abandonment. In particular, another
-        // API process can be waiting for this exact Machine to boot. Callers
-        // serialize lifecycle operations per app; this age check also protects
-        // other consumers that cannot hold that lock. Missing/invalid timestamps
-        // are not expiry evidence and are therefore never reaped here.
-        continue
-      }
-      try {
-        await this.client.request(`/apps/${app}/machines/${machine.id}?force=true`, {
-          method: 'DELETE',
-          nullOn: [404],
-        })
-        logger.info('Destroyed a stale Machine before re-creating the sandbox', {
-          app,
-          machineId: machine.id,
-        })
-      } catch (error) {
-        logger.warn(
-          'Failed to destroy a stale Machine before create; create may fail with ' +
-            '412 volume already claimed',
-          { app, machineId: machine.id, error },
-        )
-      }
-    }
   }
 
   /**
@@ -915,7 +875,8 @@ class FlyioSandboxProvider implements SandboxProvider {
    * a failed teardown. It routes into a 6PN that no longer has any app in it.
    * @param routes - Target app name → private address, from Machine metadata.
    */
-  private async releasePrivateRoutes(routes: Record<string, string>): Promise<void> {
+  private async releasePrivateRoutes(routes: Record<string, string>): Promise<boolean> {
+    let released = true
     for (const [target, ip] of Object.entries(routes)) {
       try {
         await this.client.request(`/apps/${target}/ip_assignments/${encodeURIComponent(ip)}`, {
@@ -924,6 +885,7 @@ class FlyioSandboxProvider implements SandboxProvider {
         })
         logger.debug('Released a Fly private (Flycast) address', { target, ip })
       } catch (error) {
+        released = false
         logger.warn(
           'Failed to release a Fly private (Flycast) address — it will keep pointing at a 6PN ' +
             'with no apps in it until it is reconciled with `fly ips list`',
@@ -931,6 +893,7 @@ class FlyioSandboxProvider implements SandboxProvider {
         )
       }
     }
+    return released
   }
 
   /**
@@ -1127,7 +1090,7 @@ class FlyioSandboxProvider implements SandboxProvider {
   /**
    * Return the readable, sanitized identity shared by attempts for one caller label.
    * @param name - The caller's volume label.
-   * @returns The `[a-z0-9_]` stem used by {@link volumeName} and stale-attempt reconciliation.
+   * @returns The `[a-z0-9_]` stem used by {@link volumeName}.
    */
   private volumeNameStem(name: string): string {
     const sanitized = name.toLowerCase().replace(/[^a-z0-9_]/g, '_')
@@ -1145,6 +1108,14 @@ class FlyioSandboxProvider implements SandboxProvider {
     return `${this.volumeNameStem(name)}${digest}`
   }
 
+  /** The stable pre-attempt name under which durable workspaces were created. */
+  private workspaceVolumeName(name: string): string {
+    const sanitized = name.toLowerCase().replace(/[^a-z0-9_]/g, '_')
+    if (sanitized.length <= 30) return sanitized
+    const digest = createHash('sha256').update(name).digest('hex').slice(0, 12)
+    return `${sanitized.slice(0, 17)}_${digest}`
+  }
+
   /**
    * Idempotently ensures a volume exists in the app and returns its id.
    *
@@ -1160,11 +1131,31 @@ class FlyioSandboxProvider implements SandboxProvider {
    */
   private async ensureVolume(
     app: string,
-    flyName: string,
+    name: string,
+    attemptId: string,
     sizeGB: number,
     compute: NonNullable<FlyMachineConfig['guest']>,
-  ): Promise<string> {
-    return this.createFreshVolume(app, flyName, sizeGB, compute)
+  ): Promise<{ id: string; name: string; workspace: boolean }> {
+    const durableName = this.workspaceVolumeName(name)
+    const existing = await this.findVolume(app, durableName)
+    if (existing) {
+      await this.config.createAttemptJournal?.recordVolume(attemptId, {
+        name: durableName,
+        workspace: true,
+      })
+      return { id: existing.id, name: durableName, workspace: true }
+    }
+
+    const attemptName = this.volumeName(name, attemptId)
+    await this.config.createAttemptJournal?.recordVolume(attemptId, {
+      name: attemptName,
+      workspace: false,
+    })
+    return {
+      id: await this.createFreshVolume(app, attemptName, sizeGB, compute),
+      name: attemptName,
+      workspace: false,
+    }
   }
 
   /**
@@ -1224,43 +1215,6 @@ class FlyioSandboxProvider implements SandboxProvider {
       )
     }
     return created.id
-  }
-
-  /** Reap expired, unattached volumes from earlier attempts with the same caller identity. */
-  private async deleteExpiredAttemptVolumes(app: string, name: string): Promise<void> {
-    const volumes = await this.client.request<FlyVolume[]>(`/apps/${app}/volumes`, {
-      nullOn: [404],
-    })
-    const stem = this.volumeNameStem(name)
-    const timeoutMs =
-      Math.max(1, this.config.startTimeoutSeconds ?? DEFAULT_START_TIMEOUT_SECONDS) * 1000
-    for (const volume of Array.isArray(volumes) ? volumes : []) {
-      if (!volume.name.startsWith(stem) || volume.attached_machine_id) continue
-      const createdAt = Date.parse(volume.created_at ?? '')
-      if (!Number.isFinite(createdAt) || Date.now() - createdAt <= timeoutMs) continue
-      await this.client.request(`/apps/${app}/volumes/${volume.id}`, {
-        method: 'DELETE',
-        nullOn: [404],
-      })
-    }
-  }
-
-  /** Delete this attempt's volume only when Fly positively reports it unattached. */
-  private async deleteUnattachedAttemptVolume(app: string, flyName: string): Promise<void> {
-    try {
-      const volume = await this.findVolume(app, flyName)
-      if (!volume || volume.attached_machine_id) return
-      await this.client.request(`/apps/${app}/volumes/${volume.id}`, {
-        method: 'DELETE',
-        nullOn: [404],
-      })
-    } catch (error) {
-      logger.warn('Could not delete an unattached volume from a failed create attempt', {
-        app,
-        flyName,
-        error,
-      })
-    }
   }
 
   /**
@@ -1351,29 +1305,34 @@ class FlyioSandboxProvider implements SandboxProvider {
 
     const app = this.resolveApp(config.projectId)
     const createAttemptId = randomUUID()
-    const { routes: privateRoutes, allocated } = await this.ensureApp(app)
+    const journal = this.config.createAttemptJournal
+    await journal?.begin({
+      attemptId: createAttemptId,
+      projectId: config.projectId,
+      ownerProjectId: String(config.labels?.['molecule.production'] ?? config.projectId),
+      appName: app,
+    })
     try {
-      return await this.createInApp(app, privateRoutes, config, manifest, createAttemptId)
+      const { routes: privateRoutes } = await this.ensureApp(app, { attemptId: createAttemptId })
+      const sandbox = await this.createInApp(app, privateRoutes, config, manifest, createAttemptId)
+      await journal?.markState(createAttemptId, 'serving', sandbox.id)
+      return sandbox
     } catch (error) {
-      // Never delete the app here: another create can have adopted it and its
-      // volume while this call was in flight. Only this call's private-address
-      // allocations and uniquely named, positively unattached volume are ours.
-      // An ambiguous outcome gets no inline volume delete: its Machine may be
-      // alive but not visible yet, so the owning app's reconciler must settle it.
-      await this.releasePrivateRoutes(allocated)
-      if (config.volumeName && !/unknown outcome/i.test(String(error))) {
-        await this.deleteUnattachedAttemptVolume(
+      // Create has NO deletion path. The durable attempt is settled by the
+      // separate reconciler after this failure (or after its abandonment window).
+      await journal?.markState(createAttemptId, 'failed').catch((journalError: unknown) => {
+        logger.warn('Could not mark a Fly create attempt failed', {
           app,
-          this.volumeName(config.volumeName, createAttemptId),
-        )
-      }
+          createAttemptId,
+          error: journalError,
+        })
+      })
       throw error
     }
   }
 
   /**
-   * The part of {@link create} that runs once the app exists: clear stale
-   * Machines, provision the volume, create the Machine and wait for it.
+   * The part of {@link create} that provisions the volume, creates the Machine and waits for it.
    * @param app - The app.
    * @param privateRoutes - Flycast addresses allocated for the app.
    * @param config - The sandbox config.
@@ -1387,12 +1346,6 @@ class FlyioSandboxProvider implements SandboxProvider {
     manifest: templates.TemplateManifest | null,
     createAttemptId: string,
   ): Promise<Sandbox> {
-    // Clear any stale Machine from a prior failed/partial create before
-    // provisioning — otherwise it still holds the app's single-attach volume and
-    // `POST /machines` fails with `412 volume already claimed`. Makes create
-    // idempotent so a retried queue job (or a user re-clicking Start) recovers.
-    await this.destroyStaleMachines(app)
-
     const metadata: Record<string, string> = {
       [`${this.metadataPrefix}.projectId`]: config.projectId,
       [`${this.metadataPrefix}.managed`]: 'true',
@@ -1446,75 +1399,101 @@ class FlyioSandboxProvider implements SandboxProvider {
     if (config.command?.length) machineConfig.init = { exec: [...config.command] }
 
     const volumeName = config.volumeName
+    let newAttemptVolumeName: string | null = null
     if (volumeName) {
       metadata[`${this.metadataPrefix}.volumeName`] = volumeName
       const volumeSizeGB = config.resources?.diskMB
         ? Math.max(1, Math.ceil(config.resources.diskMB / 1024))
         : (this.config.defaultVolumeGB ?? DEFAULT_VOLUME_GB)
-      await this.deleteExpiredAttemptVolumes(app, volumeName)
       const volume = await this.ensureVolume(
         app,
-        this.volumeName(volumeName, createAttemptId),
+        volumeName,
+        createAttemptId,
         volumeSizeGB,
         machineConfig.guest ?? {},
       )
+      if (!volume.workspace) newAttemptVolumeName = volume.name
       // The caller may scope the volume to a subtree (e.g. /workspace/<appDir>)
       // so regenerable tooling (node_modules) stays on the fast image-backed
       // rootfs and only durable state pays the volume's small-file IO cost.
-      machineConfig.mounts = [{ volume, path: config.volumeMountPath ?? WORKSPACE_PATH }]
+      machineConfig.mounts = [{ volume: volume.id, path: config.volumeMountPath ?? WORKSPACE_PATH }]
     }
 
     const service = this.previewService(config.idleAction)
     if (service) machineConfig.services = [service]
 
-    const machine = await this.client.request<FlyMachine>(`/apps/${app}/machines`, {
-      method: 'POST',
-      body: { name: createAttemptId, region: this.region(), config: machineConfig },
-      // A just-created app propagates to the Machines API asynchronously, so this
-      // POST can 404 "app not found" for a few seconds. Retry the 404 (safe: no
-      // Machine is created when the app is not found) across the client's backoff.
-      attempts: MACHINE_CREATE_ATTEMPTS,
-      retryStatuses: MACHINE_CREATE_RETRY_STATUSES,
-      // A 412 is transient only for the specific released-volume-claim lag.
-      // Placement capacity must reach the caller's bounded retry at once,
-      // with the volume preserved; every other 412 remains a real rejection.
-      retryWhen: (error) => {
-        if (error.status === 400) return /volume not found/i.test(error.body)
-        if (error.status !== 412) return true
-        return (
-          /volume already claimed by machine/i.test(error.body) ||
-          /volume_placement_capacity/i.test(error.body)
-        )
-      },
-      reconcile: async (error) => {
-        // Rate limiting and explicit precondition rejections did not create a
-        // Machine, so their normal bounded replay is safe. A transport/5xx
-        // result is ambiguous: reconcile ONLY this attempt's recorded identity
-        // and never issue another create when the reads cannot find it.
-        if (error.status === 429 || (error.status >= 400 && error.status < 500)) {
-          return undefined
-        }
-        for (let lookup = 1; lookup <= CREATE_RECONCILE_ATTEMPTS; lookup++) {
-          const machines = await this.client.request<FlyMachine[]>(`/apps/${app}/machines`, {
-            nullOn: [404],
-          })
-          const existing = (machines ?? []).find(
-            (candidate) =>
-              candidate.name === createAttemptId ||
-              candidate.config?.metadata?.[`${this.metadataPrefix}.createAttempt`] ===
-                createAttemptId,
+    if (volumeName) {
+      // From this point a lost Machine response may have bound the volume. It is
+      // workspace storage forever unless Fly definitely rejects the POST.
+      await this.config.createAttemptJournal?.markVolumeWorkspace(
+        createAttemptId,
+        newAttemptVolumeName ?? this.workspaceVolumeName(volumeName),
+      )
+    }
+    let machine: FlyMachine | null
+    try {
+      machine = await this.client.request<FlyMachine>(`/apps/${app}/machines`, {
+        method: 'POST',
+        body: { name: createAttemptId, region: this.region(), config: machineConfig },
+        // A just-created app propagates to the Machines API asynchronously, so this
+        // POST can 404 "app not found" for a few seconds. Retry the 404 (safe: no
+        // Machine is created when the app is not found) across the client's backoff.
+        attempts: MACHINE_CREATE_ATTEMPTS,
+        retryStatuses: MACHINE_CREATE_RETRY_STATUSES,
+        // A 412 is transient only for the specific released-volume-claim lag.
+        // Placement capacity must reach the caller's bounded retry at once,
+        // with the volume preserved; every other 412 remains a real rejection.
+        retryWhen: (error) => {
+          if (error.status === 400) return /volume not found/i.test(error.body)
+          if (error.status !== 412) return true
+          return (
+            /volume already claimed by machine/i.test(error.body) ||
+            /volume_placement_capacity/i.test(error.body)
           )
-          if (existing) return existing
-          if (lookup < CREATE_RECONCILE_ATTEMPTS) {
-            await this.client.sleep(retryDelayMs(lookup))
+        },
+        reconcile: async (error) => {
+          // Rate limiting and explicit precondition rejections did not create a
+          // Machine, so their normal bounded replay is safe. A transport/5xx
+          // result is ambiguous: reconcile ONLY this attempt's recorded identity
+          // and never issue another create when the reads cannot find it.
+          if (error.status === 429 || (error.status >= 400 && error.status < 500)) {
+            return undefined
           }
-        }
-        throw new Error(
-          `Fly Machine create "${createAttemptId}" in app "${app}" has an unknown outcome; refusing to replay it`,
-          { cause: error },
+          for (let lookup = 1; lookup <= CREATE_RECONCILE_ATTEMPTS; lookup++) {
+            const machines = await this.client.request<FlyMachine[]>(`/apps/${app}/machines`, {
+              nullOn: [404],
+            })
+            const existing = (machines ?? []).find(
+              (candidate) =>
+                candidate.name === createAttemptId ||
+                candidate.config?.metadata?.[`${this.metadataPrefix}.createAttempt`] ===
+                  createAttemptId,
+            )
+            if (existing) return existing
+            if (lookup < CREATE_RECONCILE_ATTEMPTS) {
+              await this.client.sleep(retryDelayMs(lookup))
+            }
+          }
+          throw new Error(
+            `Fly Machine create "${createAttemptId}" in app "${app}" has an unknown outcome; refusing to replay it`,
+            { cause: error },
+          )
+        },
+      })
+    } catch (error) {
+      if (
+        newAttemptVolumeName &&
+        error instanceof FlyApiError &&
+        [400, 404, 422].includes(error.status)
+      ) {
+        await this.config.createAttemptJournal?.markVolumeWorkspace(
+          createAttemptId,
+          newAttemptVolumeName,
+          false,
         )
-      },
-    })
+      }
+      throw error
+    }
     if (!machine?.id) {
       throw new Error(
         t(
@@ -1538,34 +1517,7 @@ class FlyioSandboxProvider implements SandboxProvider {
     // `412 failed_precondition: machine not running` until the Machine is up.
     // Wait for `started` here so `create` always hands back a live sandbox, as
     // the JSDoc promises — the template path already does this via restore.
-    try {
-      await this.waitForStarted(app, machine.id)
-    } catch (error) {
-      // The boot failed after the Machine existed. This call created it and
-      // handed it to NOBODY — the caller got a rejection, not a handle — so
-      // leaving it behind strands state nothing else ever cleans up: a Machine
-      // that reached `started` bills compute until it is reaped, and one that
-      // did not keeps the app's single-attach volume claimed (the next
-      // create's stale-Machine sweep only runs if this project is retried).
-      // Keeping the app and volume safe for another create does not require
-      // keeping a Machine this call never returned. Destroy that Machine (the
-      // same order `restoreTemplate`'s failure path and `destroy()` use), then
-      // rethrow the boot failure. Best-effort: the boot failure is what the
-      // caller must see; a failed cleanup is logged like every other cleanup.
-      try {
-        await this.client.request(`/apps/${app}/machines/${machine.id}?force=true`, {
-          method: 'DELETE',
-          nullOn: [404],
-        })
-      } catch (cleanupError) {
-        logger.warn(
-          'Failed to destroy the Fly Machine whose boot did not reach started — it will keep ' +
-            'billing (and holding its volume) until it is reaped',
-          { app, machineId: machine.id, error: cleanupError },
-        )
-      }
-      throw error
-    }
+    await this.waitForStarted(app, machine.id)
     return this.buildSandbox(app, machine.id, 'running')
   }
 
@@ -1856,8 +1808,10 @@ class FlyioSandboxProvider implements SandboxProvider {
       )
     }
 
-    const prefix = `${this.appPrefix()}-`
-    const owned = apps.map((app) => app.name).filter((name) => name?.startsWith(prefix))
+    const namespace = appNameNamespace(this.appPrefix())
+    const owned = apps
+      .map((app) => app.name)
+      .filter((name) => namespace.searchPrefixes.some((prefix) => name?.startsWith(prefix)))
     if (owned.length > FIND_MAX_APPS) {
       throw new Error(
         t(
@@ -1875,15 +1829,159 @@ class FlyioSandboxProvider implements SandboxProvider {
     return owned
   }
 
+  /** Release only addresses this attempt provably allocated; unresolved intent stays durable. */
+  private async releaseAttemptAddresses(intent: FlyCreateAttempt): Promise<void> {
+    for (const address of intent.addresses) {
+      if (!address.resolved) {
+        throw new Error(`Fly address ownership for attempt "${intent.attemptId}" is unresolved`)
+      }
+      if (!address.owned) continue
+      if (!address.ip) {
+        throw new Error(`Fly address for attempt "${intent.attemptId}" has no recorded IP`)
+      }
+      await this.client.request(
+        `/apps/${address.targetApp}/ip_assignments/${encodeURIComponent(address.ip)}`,
+        { method: 'DELETE', nullOn: [404] },
+      )
+    }
+  }
+
   /**
-   * Deletes the per-project Fly app derived from a project id without requiring
-   * a recorded Machine id. Deleting the app also removes its volumes and custom
-   * 6PN network.
-   *
-   * Only for names the caller exclusively owns — for example, a per-deploy name
-   * after every create attempt has settled. A failed {@link create} never calls
-   * this itself: dev sandboxes use per-project names a concurrent boot may adopt.
-   * @param projectId - The project id whose exclusively owned app should be deleted.
+   * Settle failed/abandoned create intents. This is the ONLY automatic cleanup
+   * path: create itself never deletes. Identity comes from the durable journal,
+   * never from a resource's age, prefix or management metadata.
+   */
+  async reconcileCreateAttempts(
+    options: { now?: number; createTimeoutMs?: number; lock?: boolean } = {},
+  ): Promise<FlyCreateReconcileSummary> {
+    const journal = this.config.createAttemptJournal
+    if (!journal) return { deleted: 0, failed: 0 }
+    const now = options.now ?? Date.now()
+    const timeoutMs = options.createTimeoutMs ?? 15 * 60_000
+    const intents = await journal.reclaimable(new Date(now - timeoutMs))
+    const summary = { deleted: 0, failed: 0 }
+
+    for (const intent of intents) {
+      if (intent.state === 'serving') continue
+      try {
+        const settle = async (signal?: AbortSignal): Promise<void> => {
+          if (signal?.aborted) return
+          const machines = await this.client.request<FlyMachine[]>(
+            `/apps/${intent.appName}/machines`,
+            { nullOn: [404] },
+          )
+          const appAlreadyGone = machines === null
+          const machineList = Array.isArray(machines) ? machines : []
+          const ownMachine = machineList.find(
+            (machine) =>
+              machine.name === intent.attemptId ||
+              machine.config?.metadata?.[`${this.metadataPrefix}.createAttempt`] ===
+                intent.attemptId,
+          )
+          if (
+            ownMachine &&
+            [
+              'creating',
+              'starting',
+              'started',
+              'restarting',
+              'updating',
+              'replacing',
+              'migrated',
+            ].includes(ownMachine.state ?? 'created')
+          ) {
+            // A failed durable attempt does not make a running Machine safe to
+            // delete. Retain ownership until Fly reports a non-serving state.
+            return
+          }
+          if (signal?.aborted) return
+          if (ownMachine) {
+            await this.client.request(
+              `/apps/${intent.appName}/machines/${ownMachine.id}?force=true`,
+              { method: 'DELETE', nullOn: [404] },
+            )
+          }
+          const remainingMachines = machineList.filter((machine) => machine.id !== ownMachine?.id)
+
+          const listedVolumes = appAlreadyGone
+            ? null
+            : await this.client.request<FlyVolume[]>(`/apps/${intent.appName}/volumes`, {
+                nullOn: [404],
+              })
+          const volumes = (Array.isArray(listedVolumes) ? listedVolumes : []).filter(
+            (volume) => volume.state !== 'destroyed' && volume.state !== 'destroying',
+          )
+          const deletedVolumeIds = new Set<string>()
+          if (signal?.aborted) return
+          for (const volumeIntent of intent.volumes) {
+            for (const volume of volumes.filter(
+              (candidate) => candidate.name === volumeIntent.name,
+            )) {
+              // A volume which has ever been bound is workspace storage. Only an
+              // explicit sandbox/app destroy may reclaim it, never reconciliation.
+              if (volumeIntent.workspace || volume.attached_machine_id) continue
+              await this.client.request(`/apps/${intent.appName}/volumes/${volume.id}`, {
+                method: 'DELETE',
+                nullOn: [404],
+              })
+              deletedVolumeIds.add(volume.id)
+            }
+          }
+          const remainingVolumes = volumes.filter((volume) => !deletedVolumeIds.has(volume.id))
+          const ownedVolumesRemain = remainingVolumes.some((volume) =>
+            intent.volumes.some((candidate) => candidate.name === volume.name),
+          )
+
+          // Another Machine may be using this app's recorded routes. In that case
+          // retain this intent rather than releasing shared network state.
+          const routesSettled =
+            intent.addresses.length === 0 || remainingMachines.length === 0 || appAlreadyGone
+          if (signal?.aborted) return
+          if (routesSettled) await this.releaseAttemptAddresses(intent)
+
+          let appGone = appAlreadyGone
+          if (
+            this.appPerProject() &&
+            !appGone &&
+            remainingMachines.length === 0 &&
+            remainingVolumes.length === 0 &&
+            routesSettled
+          ) {
+            if (signal?.aborted) return
+            await this.client.request(`/apps/${intent.appName}`, {
+              method: 'DELETE',
+              nullOn: [404],
+            })
+            appGone = true
+          }
+
+          const appResourcesSettled = this.appPerProject() ? appGone : !ownedVolumesRemain
+          if (routesSettled && appResourcesSettled && !ownedVolumesRemain) {
+            if (signal?.aborted) return
+            await journal.forget(intent.attemptId)
+            summary.deleted++
+          }
+        }
+        if (journal.withLock && options.lock !== false) {
+          await journal.withLock(intent, settle)
+        } else {
+          await settle()
+        }
+      } catch (error) {
+        summary.failed++
+        logger.warn('Could not reconcile a Fly create attempt; retaining its durable intent', {
+          attemptId: intent.attemptId,
+          app: intent.appName,
+          error,
+        })
+      }
+    }
+    return summary
+  }
+
+  /**
+   * Explicitly destroy an exclusively owned app and its workspace storage.
+   * Recorded external addresses are released before any intent may be forgotten.
    */
   async destroyApp(projectId: string, expectedAppName?: string): Promise<void> {
     if (!this.appPerProject()) {
@@ -1895,11 +1993,35 @@ class FlyioSandboxProvider implements SandboxProvider {
         `Refusing to delete Fly app "${expectedAppName}": its durable identity resolves to "${app}"`,
       )
     }
-    // https://docs.fly.io/machines/api/apps-resource#delete-a-fly-app documents
-    // ?force=true as "stop and delete immediately". A bare DELETE requires the
-    // Machines to be stopped first and strands an app whose create response was
-    // lost after Fly launched one.
+    const listed = await this.client.request<FlyMachine[]>(`/apps/${app}/machines`, {
+      nullOn: [404],
+    })
+    const machines = Array.isArray(listed) ? listed : []
+    const routes: Record<string, string> = {}
+    const attemptIds = new Set<string>()
+    for (const machine of machines) {
+      Object.assign(
+        routes,
+        decodePrivateRoutes(
+          machine.config?.metadata?.[`${this.metadataPrefix}.${PRIVATE_ROUTES_METADATA_SUFFIX}`],
+        ),
+      )
+      const attemptId = machine.config?.metadata?.[`${this.metadataPrefix}.createAttempt`]
+      if (attemptId) attemptIds.add(attemptId)
+    }
+    for (const attemptId of attemptIds) {
+      await this.config.createAttemptJournal?.markState(attemptId, 'abandoned')
+    }
     await this.client.request(`/apps/${app}?force=true`, { method: 'DELETE', nullOn: [404] })
+    for (const [targetApp, ip] of Object.entries(routes)) {
+      await this.client.request(`/apps/${targetApp}/ip_assignments/${encodeURIComponent(ip)}`, {
+        method: 'DELETE',
+        nullOn: [404],
+      })
+    }
+    for (const attemptId of attemptIds) {
+      await this.config.createAttemptJournal?.forget(attemptId)
+    }
   }
 
   /**
@@ -1924,6 +2046,7 @@ class FlyioSandboxProvider implements SandboxProvider {
 
     let volumeIds: string[] = []
     let privateRoutes: Record<string, string> = {}
+    let createAttemptId: string | undefined
     try {
       const machine = await this.client.request<FlyMachine>(`/apps/${app}/machines/${machineId}`, {
         nullOn: [404],
@@ -1931,6 +2054,7 @@ class FlyioSandboxProvider implements SandboxProvider {
       privateRoutes = decodePrivateRoutes(
         machine?.config?.metadata?.[`${this.metadataPrefix}.${PRIVATE_ROUTES_METADATA_SUFFIX}`],
       )
+      createAttemptId = machine?.config?.metadata?.[`${this.metadataPrefix}.createAttempt`]
       if (!this.appPerProject()) {
         volumeIds = (machine?.config?.mounts ?? [])
           .map((mount) => mount.volume)
@@ -1945,6 +2069,10 @@ class FlyioSandboxProvider implements SandboxProvider {
           'addresses it recorded will not be cleaned up',
         { id, error },
       )
+    }
+
+    if (createAttemptId) {
+      await this.config.createAttemptJournal?.markState(createAttemptId, 'abandoned')
     }
 
     try {
@@ -1973,13 +2101,18 @@ class FlyioSandboxProvider implements SandboxProvider {
       }
       // Released even when the app delete failed: the Machine is gone, so a
       // retry could no longer read these addresses from its metadata.
-      await this.releasePrivateRoutes(privateRoutes)
+      const routesReleased = await this.releasePrivateRoutes(privateRoutes)
       if (appError !== undefined) {
         throw new Error(describeDestroyFailure('app delete', id, appError), { cause: appError })
       }
+      if (!routesReleased && createAttemptId && this.config.createAttemptJournal) {
+        throw new Error(`Could not release every external Flycast address for "${id}"`)
+      }
+      if (createAttemptId) await this.config.createAttemptJournal?.forget(createAttemptId)
       return
     }
 
+    let cleanupFailed = false
     for (const volumeId of volumeIds) {
       try {
         await this.client.request(`/apps/${app}/volumes/${volumeId}`, {
@@ -1987,10 +2120,15 @@ class FlyioSandboxProvider implements SandboxProvider {
           nullOn: [404],
         })
       } catch (error) {
+        cleanupFailed = true
         logger.warn('Failed to remove Fly volume', { app, volumeId, error })
       }
     }
-    await this.releasePrivateRoutes(privateRoutes)
+    cleanupFailed = !(await this.releasePrivateRoutes(privateRoutes)) || cleanupFailed
+    if (cleanupFailed && createAttemptId && this.config.createAttemptJournal) {
+      throw new Error(`Could not complete every cleanup step for "${id}"; its intent was retained`)
+    }
+    if (createAttemptId) await this.config.createAttemptJournal?.forget(createAttemptId)
   }
 
   // ---------------------------------------------------------------------------
@@ -2091,17 +2229,13 @@ class FlyioSandboxProvider implements SandboxProvider {
   }
 
   /**
-   * Restores a template into a freshly-created Machine.
-   *
-   * A failure here DESTROYS the Machine. The alternative is to hand back a
-   * sandbox that started cleanly and whose filesystem is not the one that was
-   * asked for — the same silent-wrong-contents failure that makes a missing
-   * template a hard error rather than a fallback to the base image.
+   * Restores a template into a freshly-created Machine. A failure is journaled
+   * by create and settled by the reconciler, never by an inline delete.
    * @param app - The Fly app name.
    * @param machineId - The Fly Machine id.
    * @param templateId - The caller's template identifier.
    * @param manifest - The CONTROL-PLANE manifest, whose `capturePaths` bound what is extracted.
-   * @throws {Error} When the restore fails; the Machine is destroyed first.
+   * @throws {Error} When the restore fails.
    */
   private async restoreTemplate(
     app: string,
@@ -2142,20 +2276,6 @@ class FlyioSandboxProvider implements SandboxProvider {
           ),
         )
       }
-    } catch (error) {
-      try {
-        await this.client.request(`/apps/${app}/machines/${machineId}?force=true`, {
-          method: 'DELETE',
-          nullOn: [404],
-        })
-      } catch (cleanupError) {
-        logger.warn(
-          'Failed to destroy the Fly Machine whose template restore failed — it will keep ' +
-            'billing until it is reaped',
-          { app, machineId, error: cleanupError },
-        )
-      }
-      throw error
     } finally {
       if (lease) await templates.releaseRestoreLease(ctx, lease)
     }
@@ -3166,6 +3286,6 @@ export function createProvider(
   config?: FlyioConfig,
   client?: FlyApiClient,
   store?: ObjectStore | null,
-): SandboxProvider {
+): SandboxProvider & FlyCreateAttemptProvider {
   return new FlyioSandboxProvider(config, client, store)
 }

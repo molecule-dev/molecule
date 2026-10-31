@@ -121,7 +121,7 @@ describe('round-four lifecycle regressions', () => {
     expect(double.matching(`POST /apps/${APP}/machines`)).toHaveLength(0)
   })
 
-  it('deletes expired unattached volumes from earlier attempts but preserves fresh ones', async () => {
+  it('never reaps old or fresh volumes from inside create', async () => {
     const double = createFetchDouble()
       .on(`GET /apps/${APP}`, { body: { name: APP, network: APP } })
       .on(`GET /apps/${APP}/volumes`, {
@@ -139,7 +139,7 @@ describe('round-four lifecycle regressions', () => {
 
     await makeProvider(double).create({ projectId: PROJECT_ID, volumeName: 'mol-abc' })
 
-    expect(double.matching(`DELETE /apps/${APP}/volumes/old`)).toHaveLength(1)
+    expect(double.matching(`DELETE /apps/${APP}/volumes/old`)).toHaveLength(0)
     expect(double.matching(`DELETE /apps/${APP}/volumes/fresh`)).toHaveLength(0)
     expect(double.matching(`POST /apps/${APP}/volumes`)).toHaveLength(1)
   })

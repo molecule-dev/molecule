@@ -148,7 +148,7 @@ describe('create — app provisioning and tenant isolation', () => {
     expect(double.matching(`DELETE /apps/${APP}`)).toHaveLength(0)
   })
 
-  it('destroys the Machine it created when the boot never reaches started, but keeps the app', async () => {
+  it('does not delete the Machine or app when the boot never reaches started', async () => {
     // The Machine was created but never came up (state `failed` on the
     // re-read). The caller got a rejection, not a handle, so this Machine is
     // safe to destroy; the app and its volume may already have another adopter.
@@ -162,7 +162,7 @@ describe('create — app provisioning and tenant isolation', () => {
 
     await expect(makeProvider({}, double).create({ projectId: PROJECT_ID })).rejects.toThrow()
 
-    expect(double.matching(`DELETE /apps/${APP}/machines/m1?force=true`)).toHaveLength(1)
+    expect(double.matching(`DELETE /apps/${APP}/machines/m1?force=true`)).toHaveLength(0)
     // Exact path — `matching()` is a prefix match and the Machine delete's
     // path starts with `/apps/${APP}` too.
     expect(
@@ -170,7 +170,7 @@ describe('create — app provisioning and tenant isolation', () => {
     ).toHaveLength(0)
   })
 
-  it('destroys the Machine on a failed boot but never the app that existed before it', async () => {
+  it('does not delete the Machine or pre-existing app after a failed boot', async () => {
     const double = createFetchDouble()
       .on(`GET /apps/${APP}`, { body: { name: APP, network: APP } })
       .on(`POST /apps/${APP}/machines`, { body: { id: 'm1', state: 'created' } })
@@ -180,7 +180,7 @@ describe('create — app provisioning and tenant isolation', () => {
 
     await expect(makeProvider({}, double).create({ projectId: PROJECT_ID })).rejects.toThrow()
 
-    expect(double.matching(`DELETE /apps/${APP}/machines/m1?force=true`)).toHaveLength(1)
+    expect(double.matching(`DELETE /apps/${APP}/machines/m1?force=true`)).toHaveLength(0)
     expect(
       double.calls.filter((c) => c.method === 'DELETE' && c.path === `/apps/${APP}`),
     ).toHaveLength(0)
@@ -201,7 +201,7 @@ describe('create — app provisioning and tenant isolation', () => {
     expect(sandbox.status).toBe('running')
   })
 
-  it('destroys a stale Machine from a prior failed create so the volume is freed', async () => {
+  it('never destroys a stale-looking Machine from inside create', async () => {
     // A prior partial create left a managed Machine holding the single-attach
     // volume; without this cleanup the new create fails 412 volume already
     // claimed and the project never recovers.
@@ -223,7 +223,7 @@ describe('create — app provisioning and tenant isolation', () => {
     const destroyed = double
       .matching(`DELETE /apps/${APP}/machines/stale1`)
       .filter((c) => c.method === 'DELETE')
-    expect(destroyed).toHaveLength(1)
+    expect(destroyed).toHaveLength(0)
   })
 
   it('leaves unmanaged Machines alone before create', async () => {
@@ -650,7 +650,7 @@ describe('create — volumes', () => {
     ).toBe(4)
   })
 
-  it('never adopts a volume from another create attempt by caller label', async () => {
+  it('adopts the deterministic durable workspace volume by caller label', async () => {
     const double = queueCreate(createFetchDouble())
       .on(`GET /apps/${APP}/volumes`, {
         body: [{ id: 'vol_old', name: 'mol_abc', state: 'created' }],
@@ -659,11 +659,11 @@ describe('create — volumes', () => {
 
     await makeProvider({}, double).create({ projectId: PROJECT_ID, volumeName: 'mol-abc' })
 
-    expect(double.matching(`POST /apps/${APP}/volumes`)).toHaveLength(1)
+    expect(double.matching(`POST /apps/${APP}/volumes`)).toHaveLength(0)
     const body = double.matching(`POST /apps/${APP}/machines`)[0].body as {
       config: { mounts: Array<{ volume: string }> }
     }
-    expect(body.config.mounts[0].volume).toBe('vol_new')
+    expect(body.config.mounts[0].volume).toBe('vol_old')
   })
 
   it('retries placement capacity against the same volume without another create call', async () => {
@@ -759,7 +759,7 @@ describe('create — volumes', () => {
     const firstError = await first
 
     expect(firstError).toBeInstanceOf(Error)
-    expect(double.matching(`DELETE /apps/${APP}/machines/m2?force=true`)).toHaveLength(1)
+    expect(double.matching(`DELETE /apps/${APP}/machines/m2?force=true`)).toHaveLength(0)
     expect(
       double.calls.filter(
         (call) => call.method === 'DELETE' && call.path === `/apps/${APP}?force=true`,
@@ -874,7 +874,7 @@ describe('create — volumes', () => {
       makeProvider({}, double).create({ projectId: PROJECT_ID, volumeName: 'mol-abc' }),
     ).rejects.toThrow('a different create rejection')
 
-    expect(double.matching(`POST /apps/${APP}/volumes`)).toHaveLength(1)
+    expect(double.matching(`POST /apps/${APP}/volumes`)).toHaveLength(0)
     expect(double.matching(`DELETE /apps/${APP}/volumes/vol_existing`)).toHaveLength(0)
     expect(double.matching(`POST /apps/${APP}/machines`)).toHaveLength(1)
   })
@@ -2154,7 +2154,7 @@ describe('selfDeliveredEnv', () => {
 })
 
 describe('private routes (Flycast)', () => {
-  it('releases the address it already allocated when a later service cannot be allocated', async () => {
+  it('does not release addresses inline when a later service cannot be allocated', async () => {
     // The addresses live on OTHER apps (the tenant database, the egress proxy),
     // not on the sandbox app — and Fly's own listing does not report which
     // network an address belongs to, so one left behind at this point can never
@@ -2179,12 +2179,12 @@ describe('private routes (Flycast)', () => {
     ).rejects.toThrow(/no address|private/i)
 
     expect(double.matching('POST /apps/svc-db/ip_assignments')).toHaveLength(1)
-    expect(double.matching('DELETE /apps/svc-db/ip_assignments')).toHaveLength(1)
+    expect(double.matching('DELETE /apps/svc-db/ip_assignments')).toHaveLength(0)
     // Releasing this call's addresses never requires deleting the shared-name app.
     expect(double.matching(`DELETE /apps/${APP}`)).toHaveLength(0)
   })
 
-  it('releases the addresses it allocated when the boot fails AFTER allocating them on an app that pre-existed', async () => {
+  it('does not release addresses inline when boot fails after allocation', async () => {
     // The window the allocation-loop guard above does not cover: the app
     // already exists, its Machines recorded no routes, this boot allocates the
     // missing ones, and the Machine create THEN fails (the org's Machine
@@ -2210,7 +2210,7 @@ describe('private routes (Flycast)', () => {
     ).rejects.toThrow()
 
     expect(double.matching('POST /apps/svc-db/ip_assignments')).toHaveLength(1)
-    expect(double.matching('DELETE /apps/svc-db/ip_assignments')).toHaveLength(1)
+    expect(double.matching('DELETE /apps/svc-db/ip_assignments')).toHaveLength(0)
     // The pre-existing app is never touched (pinned above too, but it is the
     // reason the release here is the address and not the app).
     expect(double.matching(`DELETE /apps/${APP}`)).toHaveLength(0)

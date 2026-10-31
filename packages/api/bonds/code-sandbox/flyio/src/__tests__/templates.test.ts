@@ -520,7 +520,7 @@ describe('create({ templateId }) — the contract that must never fall back', ()
     expect(script).not.toContain('etc/')
   })
 
-  it('DESTROYS the Machine and throws when the restore fails', async () => {
+  it('leaves Machine cleanup to reconciliation when the restore fails', async () => {
     const store = createStoreDouble()
     seedTemplate(store)
     const double = queueCreate(createFetchDouble(), { exit_code: 91, stderr: 'setuid survived' })
@@ -528,7 +528,7 @@ describe('create({ templateId }) — the contract that must never fall back', ()
     await expect(
       makeProvider(store, double).create({ projectId: PROJECT_ID, templateId: TEMPLATE }),
     ).rejects.toThrow(/Restoring template "react-postgres-v3".*exit 91/s)
-    expect(double.matching(`DELETE /apps/${APP}/machines/m1`).length).toBe(1)
+    expect(double.matching(`DELETE /apps/${APP}/machines/m1`).length).toBe(0)
   })
 
   it('releases the restore lease so the template is evictable again', async () => {

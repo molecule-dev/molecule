@@ -1,3 +1,5 @@
+import type { FlyCreateAttemptJournal } from './lifecycle.js'
+
 /**
  * Fly.io Machines sandbox provider configuration and wire types.
  *
@@ -131,6 +133,8 @@ export interface FlyioConfig {
   ipAssignmentType?: string
   /** Prefix for the Machine metadata keys this provider owns. Defaults to `molecule-sandbox`. */
   metadataPrefix?: string
+  /** Durable create-attempt ownership. Required for automatic failed-create reconciliation. */
+  createAttemptJournal?: FlyCreateAttemptJournal
   /** Timeout for a single Machines API request, in ms. Defaults to 30000. */
   requestTimeoutMs?: number
   /**
