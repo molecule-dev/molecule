@@ -15,7 +15,11 @@ import type {
   FormValuesConstraint,
   RegisterOptions,
 } from '@molecule/app-forms'
-import { createForm as createBondedForm, formValuesEqual } from '@molecule/app-forms'
+import {
+  createForm as createBondedForm,
+  formValuesEqual,
+  snapshotFormValue,
+} from '@molecule/app-forms'
 
 /**
  * Adapt controller notifications to React's stable snapshot contract. Providers
@@ -173,7 +177,7 @@ export function useForm<T extends FormValuesConstraint<T> = Record<string, unkno
     ) {
       return
     }
-    lastExternalValues.current = { values }
+    lastExternalValues.current = { values: snapshotFormValue(values) }
     form.updateValues(values, { keepDirtyValues })
   }, [form, keepDirtyValues, values])
 

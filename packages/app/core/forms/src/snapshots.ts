@@ -16,22 +16,29 @@ function isPlainObject(value: object): value is Record<string, unknown> {
  * they do for `formValuesEqual`.
  */
 export function snapshotFormValue<T>(value: T): T {
+  return snapshot(value, new WeakMap())
+}
+
+/** Clone one value, reusing copies already made in this object graph. */
+function snapshot<T>(value: T, seen: WeakMap<object, unknown>): T {
   if (value instanceof Date) return new Date(value.getTime()) as T
+  if (typeof value !== 'object' || value === null) return value
+  if (seen.has(value)) return seen.get(value) as T
   if (Array.isArray(value)) {
-    const snapshot = new Array(value.length)
+    const copy = new Array(value.length)
+    seen.set(value, copy)
     for (let index = 0; index < value.length; index++) {
       if (Object.prototype.hasOwnProperty.call(value, index)) {
-        snapshot[index] = snapshotFormValue(value[index])
+        copy[index] = snapshot(value[index], seen)
       }
     }
-    return snapshot as T
+    return copy as T
   }
-  if (typeof value === 'object' && value !== null && isPlainObject(value)) {
-    const snapshot = Object.create(Object.getPrototypeOf(value)) as Record<string, unknown>
-    for (const key of Object.keys(value)) {
-      snapshot[key] = snapshotFormValue(value[key])
-    }
-    return snapshot as T
+  if (!isPlainObject(value)) return value
+  const copy = Object.create(Object.getPrototypeOf(value)) as Record<string, unknown>
+  seen.set(value, copy)
+  for (const key of Object.keys(value)) {
+    copy[key] = snapshot(value[key], seen)
   }
-  return value
+  return copy as T
 }

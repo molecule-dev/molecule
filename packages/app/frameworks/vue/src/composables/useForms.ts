@@ -24,6 +24,19 @@ import type {
   RegisterOptions,
 } from '@molecule/app-forms'
 
+/** Subscribe first, then close the setup-to-mount delivery gap synchronously. */
+function subscribeAndRefresh<T extends FormValuesConstraint<T>>(
+  form: FormController<T>,
+  state: ShallowRef<FormState<T>>,
+): () => void {
+  const refresh = (): void => {
+    state.value = form.getState()
+  }
+  const unsubscribe = form.subscribe(refresh)
+  refresh()
+  return unsubscribe
+}
+
 /**
  * Options for useForm composable.
  */
@@ -122,9 +135,7 @@ export function useForm<T extends FormValuesConstraint<T>>(
   let unsubscribe: (() => void) | null = null
 
   onMounted(() => {
-    unsubscribe = form.subscribe(() => {
-      state.value = form.getState()
-    })
+    unsubscribe = subscribeAndRefresh(form, state)
   })
 
   onUnmounted(() => {
@@ -238,9 +249,7 @@ export function useWatch<T extends FormValuesConstraint<T>, K extends keyof T>(
   let unsubscribe: (() => void) | null = null
 
   onMounted(() => {
-    unsubscribe = form.subscribe(() => {
-      state.value = form.getState()
-    })
+    unsubscribe = subscribeAndRefresh(form, state)
   })
 
   onUnmounted(() => {
@@ -281,9 +290,7 @@ export function useFieldState<T extends FormValuesConstraint<T>>(
   let unsubscribe: (() => void) | null = null
 
   onMounted(() => {
-    unsubscribe = form.subscribe(() => {
-      state.value = form.getState()
-    })
+    unsubscribe = subscribeAndRefresh(form, state)
   })
 
   onUnmounted(() => {

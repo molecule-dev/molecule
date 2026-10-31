@@ -193,6 +193,21 @@ describe('formValuesEqual', () => {
     expect(0 in form.getValue('tags')).toBe(false)
   })
 
+  it('clones and compares circular values without overflowing', () => {
+    interface CircularValue {
+      self?: CircularValue
+    }
+    const node: CircularValue = {}
+    node.self = node
+
+    const form = nativeProvider.createForm({ defaultValues: { node } })
+
+    expect(form.getValue('node')).not.toBe(node)
+    expect(form.getValue('node').self).toBe(form.getValue('node'))
+    expect(form.getState().isDirty).toBe(false)
+    expect(formValuesEqual(node, form.getValue('node'))).toBe(true)
+  })
+
   it('compares opaque objects by identity', () => {
     class Attachment {}
     const pairs: [unknown, unknown][] = [

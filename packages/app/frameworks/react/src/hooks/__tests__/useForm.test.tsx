@@ -119,6 +119,23 @@ describe('useForm late values', () => {
 })
 
 describe('useForm late-value regressions', () => {
+  it('delivers a changed nested record behind a new outer reference', () => {
+    interface NestedValues {
+      details: { title: string }
+    }
+    const record: NestedValues = { details: { title: 'A' } }
+    const { result, rerender } = renderHook(
+      ({ values }: { values: NestedValues }) =>
+        useForm<NestedValues>({ defaultValues: record, values }),
+      { initialProps: { values: record } },
+    )
+
+    record.details.title = 'B'
+    rerender({ values: { ...record } })
+
+    expect(result.current.getValue('details')).toEqual({ title: 'B' })
+  })
+
   it('preserves an in-flight submission when late values arrive', async () => {
     const { result, rerender } = renderHook(
       ({ values }: { values: ArticleValues }) =>

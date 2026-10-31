@@ -146,6 +146,80 @@ describe('native deep form-value snapshots', () => {
     expect(form.getValue('attachment')).toBe(attachment)
   })
 
+  it('shares error ownership between whole-form and field validation', async () => {
+    let releaseWhole!: (errors: Record<string, string>) => void
+    let releaseField!: (result: string) => void
+    const wholeGate = new Promise<Record<string, string>>((resolve) => {
+      releaseWhole = resolve
+    })
+    const fieldGate = new Promise<string>((resolve) => {
+      releaseField = resolve
+    })
+    const form = nativeProvider.createForm({
+      defaultValues: { title: 'bad' },
+      validate: (values) => (values.title === 'bad' ? wholeGate : {}),
+    })
+    const wholeValidation = form.validate()
+    form.register({
+      name: 'title',
+      validate: (value) => (value === 'bad' ? fieldGate : true),
+    })
+    form.setValue('title', 'good')
+    await expect(form.validateField('title')).resolves.toBe(true)
+    releaseWhole({ title: 'Stale whole-form error' })
+    await expect(wholeValidation).resolves.toBe(false)
+    expect(form.getError('title')).toBeUndefined()
+
+    form.setValue('title', 'bad')
+    const fieldValidation = form.validateField('title')
+    form.setValue('title', 'good')
+    await expect(form.validate()).resolves.toBe(true)
+    releaseField('Stale field error')
+    await expect(fieldValidation).resolves.toBe(false)
+    expect(form.getError('title')).toBeUndefined()
+  })
+
+  it('rechecks submission ownership after notification destroys the form', async () => {
+    let release!: (errors: Record<string, string>) => void
+    const gate = new Promise<Record<string, string>>((resolve) => {
+      release = resolve
+    })
+    const form = nativeProvider.createForm({
+      defaultValues: { title: 'bad' },
+      validate: () => gate,
+    })
+    form.setError('title', 'Existing error')
+    form.subscribe((state) => {
+      if (state.isSubmitting && Object.keys(state.errors).length === 0) form.destroy()
+    })
+    const onSubmit = vi.fn()
+    const submission = form.handleSubmit(onSubmit)()
+
+    release({})
+    await submission
+
+    expect(onSubmit).not.toHaveBeenCalled()
+  })
+
+  it('invalidates pending validation when reset establishes new values', async () => {
+    let release!: (errors: Record<string, string>) => void
+    const gate = new Promise<Record<string, string>>((resolve) => {
+      release = resolve
+    })
+    const form = nativeProvider.createForm({
+      defaultValues: { title: 'A' },
+      validate: () => gate,
+    })
+
+    const validation = form.validate()
+    form.reset({ title: 'B' })
+    release({ title: 'A is invalid' })
+
+    await expect(validation).resolves.toBe(false)
+    expect(form.getValues()).toEqual({ title: 'B' })
+    expect(form.getState().errors).toEqual({})
+  })
+
   it('validates and submits the same deeply detached snapshot', async () => {
     let release!: (errors: Record<string, string>) => void
     const gate = new Promise<Record<string, string>>((resolve) => {

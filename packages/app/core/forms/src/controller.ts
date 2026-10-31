@@ -6,7 +6,6 @@
 
 import { t } from '@molecule/app-i18n'
 
-import { snapshotFormValue } from './snapshots.js'
 import type {
   FieldRegistration,
   FieldState,
@@ -19,7 +18,7 @@ import type {
   RegisterOptions,
   ValidationSchema,
 } from './types.js'
-import { formValuesEqual } from './utilities.js'
+import { formValuesEqual, snapshotFormValue } from './utilities.js'
 import { validateValue } from './validation.js'
 
 /**
@@ -56,26 +55,23 @@ export const createNativeFormProvider = (): FormProvider => {
       let touched: Partial<Record<keyof T, boolean>> = {}
       let submitCount = 0
       let isSubmitting = false
+      let valueRevision = 0
       let submissionVersion = 0
-      let validationVersion = 0
+      let submissionValidationVersion = 0
+      let destroyed = false
 
+      // Error results share value ownership. Submit callbacks and busy state
+      // also need independent ownership because validated snapshots deliberately
+      // survive edits/reset, while a delivered record invalidates validation only.
       const fieldSchemas = new Map<string, ValidationSchema>()
-      const fieldValidationVersions = new Map<string, number>()
       const fieldRefs = new Map<string, HTMLElement>()
       const listeners = new Set<(state: FormState<T>) => void>()
 
-      // Validation ownership changes on a rebase; submission ownership changes
-      // only on a newer submission or disposal. Thus a rebase cancels stale
-      // validation without stranding the busy state owned by an active submit.
-      const invalidateValidationOperations = (): void => {
-        validationVersion++
-        for (const [name, version] of fieldValidationVersions) {
-          fieldValidationVersions.set(name, version + 1)
-        }
-      }
-      const invalidateAllAsyncOperations = (): void => {
-        submissionVersion++
-        invalidateValidationOperations()
+      const isCurrent = (revision: number): boolean => !destroyed && revision === valueRevision
+      const isSubmissionCurrent = (submission: number, validation: number): boolean =>
+        !destroyed && submission === submissionVersion && validation === submissionValidationVersion
+      const advanceValueRevision = (): void => {
+        valueRevision++
       }
 
       const notify = (): void => {
@@ -93,12 +89,14 @@ export const createNativeFormProvider = (): FormProvider => {
 
       const validateSnapshot = async (
         snapshot: Record<string, unknown>,
-      ): Promise<{ isValid: boolean; errors: Partial<Record<keyof T, string>> }> => {
+        current: () => boolean,
+      ): Promise<{ isValid: boolean; errors: Partial<Record<keyof T, string>> } | null> => {
         let isValid = true
         const newErrors: Partial<Record<keyof T, string>> = {}
 
         for (const [name, schema] of fieldSchemas) {
           const error = await validateValue(snapshot[name], schema, t)
+          if (!current()) return null
           if (error) {
             newErrors[name as keyof T] = error
             isValid = false
@@ -107,6 +105,7 @@ export const createNativeFormProvider = (): FormProvider => {
 
         if (options.validate) {
           const formErrors = await options.validate(snapshot as T)
+          if (!current()) return null
           for (const [key, error] of Object.entries(formErrors)) {
             if (error) {
               newErrors[key as keyof T] = error as string
@@ -144,7 +143,8 @@ export const createNativeFormProvider = (): FormProvider => {
           value: unknown,
           opts: { shouldValidate?: boolean; shouldDirty?: boolean; shouldTouch?: boolean } = {},
         ): void {
-          values = { ...values, [name]: value }
+          advanceValueRevision()
+          values = { ...values, [name]: snapshotFormValue(value) }
 
           if (opts.shouldTouch !== false) {
             touched = { ...touched, [name as keyof T]: true }
@@ -158,7 +158,8 @@ export const createNativeFormProvider = (): FormProvider => {
         },
 
         setValues(newValues: Partial<T>, opts: { shouldValidate?: boolean } = {}): void {
-          values = { ...values, ...(newValues as Record<string, unknown>) }
+          advanceValueRevision()
+          values = { ...values, ...snapshotFormValue(newValues as Record<string, unknown>) }
 
           if (opts.shouldValidate) {
             this.validate()
@@ -215,6 +216,7 @@ export const createNativeFormProvider = (): FormProvider => {
               defaultValues = { ...defaultValues, [name]: snapshotFormValue(defaultValue) }
             }
             if (values[name] === undefined) {
+              advanceValueRevision()
               values = { ...values, [name]: snapshotFormValue(defaultValue) }
             }
           }
@@ -257,7 +259,7 @@ export const createNativeFormProvider = (): FormProvider => {
         },
 
         unregister(name: string): void {
-          fieldValidationVersions.set(name, (fieldValidationVersions.get(name) ?? 0) + 1)
+          advanceValueRevision()
           fieldSchemas.delete(name)
           fieldRefs.delete(name)
           const newValues = { ...values }
@@ -277,32 +279,33 @@ export const createNativeFormProvider = (): FormProvider => {
           const schema = fieldSchemas.get(key)
           if (!schema) return true
 
-          const validationToken = (fieldValidationVersions.get(key) ?? 0) + 1
-          fieldValidationVersions.set(key, validationToken)
+          advanceValueRevision()
+          const revision = valueRevision
           const snapshot = snapshotFormValue(values[key])
           const error = await validateValue(snapshot, schema, t)
-          if (validationToken !== fieldValidationVersions.get(key)) return false
+          if (!isCurrent(revision)) return false
           if (error) {
             errors = { ...errors, [name]: error }
-            notify()
-            return false
           } else {
             const newErrors = { ...errors }
             delete newErrors[name]
             errors = newErrors
-            notify()
-            return true
           }
+          notify()
+          return isCurrent(revision) && !error
         },
 
         async validate(): Promise<boolean> {
-          const validationToken = ++validationVersion
-          const result = await validateSnapshot(snapshotFormValue(values))
-          if (validationToken !== validationVersion) return false
+          advanceValueRevision()
+          const revision = valueRevision
+          const result = await validateSnapshot(snapshotFormValue(values), () =>
+            isCurrent(revision),
+          )
+          if (!result || !isCurrent(revision)) return false
 
           errors = result.errors
           notify()
-          return result.isValid
+          return isCurrent(revision) && result.isValid
         },
 
         updateValues(newValues: Partial<T>, resetOptions: FormResetOptions = {}): void {
@@ -314,7 +317,8 @@ export const createNativeFormProvider = (): FormProvider => {
 
           const currentValues = values
           const previousDefaultValues = defaultValues
-          invalidateValidationOperations()
+          submissionValidationVersion++
+          advanceValueRevision()
           defaultValues = nextDefaultValues
           values = snapshotFormValue(defaultValues)
 
@@ -332,6 +336,7 @@ export const createNativeFormProvider = (): FormProvider => {
         },
 
         reset(newValues?: Partial<T>): void {
+          advanceValueRevision()
           // A reset establishes a clean baseline: with no argument it restores
           // the current baseline; with values it merges them over that baseline
           // and makes the result the new one, so freshly loaded or saved values
@@ -359,28 +364,36 @@ export const createNativeFormProvider = (): FormProvider => {
               event.preventDefault()
             }
 
-            const submissionToken = ++submissionVersion
-            const validationToken = ++validationVersion
+            const submission = ++submissionVersion
+            const submissionValidation = ++submissionValidationVersion
+            advanceValueRevision()
+            const revision = valueRevision
             submitCount++
             isSubmitting = true
-            notify()
-
             const submissionValues = snapshotFormValue(values)
+            const currentSubmission = (): boolean =>
+              isSubmissionCurrent(submission, submissionValidation)
 
             try {
-              const result = await validateSnapshot(submissionValues)
-              // Only the newest owner may publish validation results or submit.
-              if (submissionToken !== submissionVersion || validationToken !== validationVersion) {
-                return
-              }
-
-              errors = result.errors
               notify()
+              if (!currentSubmission()) return
+              const result = await validateSnapshot(submissionValues, currentSubmission)
+              if (!result || !currentSubmission()) return
+
+              const valuesAreCurrent = isCurrent(revision)
+              if (valuesAreCurrent) {
+                errors = result.errors
+                notify()
+                if (!currentSubmission()) return
+              }
               if (result.isValid) {
                 await onSubmit(submissionValues as T)
+                if (!currentSubmission()) return
               } else {
+                if (!valuesAreCurrent || !isCurrent(revision)) return
                 if (onError) {
                   onError(result.errors)
+                  if (!currentSubmission() || !isCurrent(revision)) return
                 }
                 if (options.shouldFocusError !== false) {
                   const firstErrorField = Object.keys(result.errors)[0]
@@ -390,7 +403,7 @@ export const createNativeFormProvider = (): FormProvider => {
                 }
               }
             } finally {
-              if (submissionToken === submissionVersion) {
+              if (submission === submissionVersion) {
                 isSubmitting = false
                 notify()
               }
@@ -411,7 +424,10 @@ export const createNativeFormProvider = (): FormProvider => {
         },
 
         destroy(): void {
-          invalidateAllAsyncOperations()
+          destroyed = true
+          submissionVersion++
+          submissionValidationVersion++
+          advanceValueRevision()
           listeners.clear()
           fieldSchemas.clear()
           fieldRefs.clear()

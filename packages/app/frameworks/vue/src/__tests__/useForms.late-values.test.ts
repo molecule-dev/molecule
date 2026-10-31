@@ -1,11 +1,17 @@
 // @vitest-environment jsdom
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
-import { defineComponent, h, nextTick, reactive } from 'vue'
+import { defineComponent, h, nextTick, onBeforeMount, reactive } from 'vue'
 
 import { nativeProvider } from '@molecule/app-forms'
 
-import { useForm, type UseFormOptions, type UseFormReturn } from '../composables/useForms.js'
+import {
+  useFieldState,
+  useForm,
+  type UseFormOptions,
+  type UseFormReturn,
+  useWatch,
+} from '../composables/useForms.js'
 
 interface ArticleValues {
   title: string
@@ -13,6 +19,32 @@ interface ArticleValues {
 }
 
 describe('Vue late form values', () => {
+  it('refreshes form, watch and field views after delivery before mount', async () => {
+    let form!: UseFormReturn<ArticleValues>
+    let watched!: ReturnType<typeof useWatch<ArticleValues, 'title'>>
+    let field!: ReturnType<typeof useFieldState<ArticleValues>>
+    const wrapper = mount(
+      defineComponent({
+        setup() {
+          form = useForm({
+            createForm: (formOptions) => nativeProvider.createForm(formOptions),
+            defaultValues: { title: '', body: '' },
+          })
+          watched = useWatch(form.form, 'title')
+          field = useFieldState(form.form, 'title')
+          onBeforeMount(() => form.updateValues({ title: 'Loaded', body: 'Body' }))
+          return () => h('div')
+        },
+      }),
+    )
+    await nextTick()
+
+    expect(form.formState.value.values.title).toBe('Loaded')
+    expect(watched.value).toBe('Loaded')
+    expect(field.value.value).toBe('Loaded')
+    wrapper.unmount()
+  })
+
   it('keeps article edits and fills pristine fields when the record loads', async () => {
     const options = reactive<UseFormOptions<ArticleValues>>({
       createForm: (formOptions) => nativeProvider.createForm(formOptions),

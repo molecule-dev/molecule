@@ -110,9 +110,9 @@ export class MoleculeFormInstance<T extends FormValuesConstraint<T>> {
   constructor(private controller: FormController<T>) {
     this.stateSubject = new BehaviorSubject<FormState<T>>(controller.getState())
 
-    this.unsubscribe = controller.subscribe((state: FormState<T>) => {
-      this.stateSubject.next(state)
-    })
+    const refresh = (): void => this.stateSubject.next(controller.getState())
+    this.unsubscribe = controller.subscribe(refresh)
+    refresh()
 
     this.state$ = this.stateSubject.asObservable()
 
