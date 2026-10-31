@@ -58,6 +58,8 @@ export interface FlyCreateAttemptJournal {
   ): Promise<void>
   /** Re-read one attempt, including after a lifecycle lock has been acquired. */
   get(attemptId: string): Promise<FlyCreateAttempt | null>
+  /** Re-read every durable attempt for an app, including creating/serving attempts. */
+  forApp(appName: string): Promise<FlyCreateAttempt[]>
   /** Find the durable workspace binding for a logical caller workspace. */
   findWorkspace(projectId: string, logicalName: string): Promise<FlyCreateVolumeIntent | null>
   /** Record an intent or transfer a Fly-ID binding to this attempt. */

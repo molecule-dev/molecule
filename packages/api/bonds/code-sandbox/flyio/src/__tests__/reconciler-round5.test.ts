@@ -43,6 +43,12 @@ class MemoryJournal implements FlyCreateAttemptJournal {
     return attempt ? structuredClone(attempt) : null
   }
 
+  async forApp(appName: string): Promise<FlyCreateAttempt[]> {
+    return [...this.attempts.values()]
+      .filter((attempt) => attempt.appName === appName)
+      .map((attempt) => structuredClone(attempt))
+  }
+
   async findWorkspace(
     _projectId: string,
     logicalName: string,
@@ -90,6 +96,16 @@ class MemoryJournal implements FlyCreateAttemptJournal {
   async recordAddress(attemptId: string, address: FlyCreateAddressIntent): Promise<void> {
     const attempt = this.attempts.get(attemptId)
     if (!attempt) throw new Error('missing attempt')
+    if (address.owned && address.ip) {
+      for (const other of this.attempts.values()) {
+        if (other.attemptId === attemptId) continue
+        other.addresses = other.addresses.filter(
+          (candidate) =>
+            candidate.targetApp !== address.targetApp ||
+            (candidate.network !== address.network && candidate.ip !== address.ip),
+        )
+      }
+    }
     const index = attempt.addresses.findIndex(
       (candidate) =>
         candidate.targetApp === address.targetApp && candidate.network === address.network,
@@ -287,7 +303,9 @@ describe('journaled create reconciliation', () => {
       .on('POST /apps', { body: { name: APP } })
       .on(`POST /apps/${APP}/machines`, { status: 422, body: { error: 'invalid' } })
     for (let read = 0; read < 4; read++) {
-      double.on(`GET /apps/${APP}/machines`, { body: [] }).on(`GET /apps/${APP}/volumes`, { body: [] })
+      double
+        .on(`GET /apps/${APP}/machines`, { body: [] })
+        .on(`GET /apps/${APP}/volumes`, { body: [] })
     }
     double.on(`DELETE /apps/${APP}`, { status: 204 })
     const journal = new MemoryJournal()
@@ -351,12 +369,19 @@ describe('journaled create reconciliation', () => {
       }),
     )
     const double = createFetchDouble()
+      .fallback({ body: [] })
       .on(`GET /apps/${APP}/machines/m1`, {
         body: {
           id: 'm1',
           config: { metadata: { 'molecule-sandbox.createAttempt': 'attempt-1' } },
         },
       })
+    for (let read = 0; read < 2; read++) {
+      double.on(`GET /apps/${APP}/machines`, {
+        body: [{ id: 'm1', name: 'attempt-1', state: 'started' }],
+      })
+    }
+    double
       .on(`DELETE /apps/${APP}/machines/m1`, { status: 204 })
       .on(`DELETE /apps/${APP}`, { status: 204 })
 
@@ -364,7 +389,9 @@ describe('journaled create reconciliation', () => {
 
     expect(double.matching(`DELETE /apps/${APP}/machines/m1`)).toHaveLength(1)
     expect(
-      double.calls.filter((call) => call.method === 'DELETE' && call.path === `/apps/${APP}`),
+      double.calls.filter(
+        (call) => call.method === 'DELETE' && call.path === `/apps/${APP}?force=true`,
+      ),
     ).toHaveLength(1)
     expect(journal.attempts.size).toBe(0)
   })
@@ -397,7 +424,9 @@ describe('journaled create reconciliation', () => {
     )
     const double = createFetchDouble()
     for (let read = 0; read < 4; read++) {
-      double.on(`GET /apps/${APP}/machines`, { body: [] }).on(`GET /apps/${APP}/volumes`, { body: [] })
+      double
+        .on(`GET /apps/${APP}/machines`, { body: [] })
+        .on(`GET /apps/${APP}/volumes`, { body: [] })
     }
     double
       .on('GET /apps/tenant-db/ip_assignments', {
@@ -440,7 +469,7 @@ describe('round-six ownership races', () => {
     const journal = new MemoryJournal()
     journal.seed(failedIntent())
     const locked = journal.withLock.bind(journal)
-    journal.withLock = async <T,>(
+    journal.withLock = async <T>(
       attempt: FlyCreateAttempt,
       body: (signal: AbortSignal, generation: number) => Promise<T>,
     ): Promise<T> =>
@@ -527,7 +556,9 @@ describe('round-six ownership races', () => {
     )
     const absent = createFetchDouble()
     for (let read = 0; read < 2; read++) {
-      absent.on(`GET /apps/${APP}/machines`, { body: [] }).on(`GET /apps/${APP}/volumes`, { body: [] })
+      absent
+        .on(`GET /apps/${APP}/machines`, { body: [] })
+        .on(`GET /apps/${APP}/volumes`, { body: [] })
     }
     await expect(makeProvider(absent, journal).reconcileCreateAttempts()).resolves.toEqual({
       deleted: 0,
@@ -587,7 +618,9 @@ describe('round-six ownership races', () => {
     await makeProvider(double, journal, {
       privateServices: [{ app: 'tenant-db', port: 5432 }],
     }).create({ projectId: PROJECT_ID })
-    const attempt = [...journal.attempts.values()].find((candidate) => candidate.state === 'serving')
+    const attempt = [...journal.attempts.values()].find(
+      (candidate) => candidate.state === 'serving',
+    )
     expect(attempt?.addresses).toEqual([
       { targetApp: 'tenant-db', network: APP, ip: 'fdaa::9', owned: true, resolved: true },
     ])
@@ -597,7 +630,9 @@ describe('round-six ownership races', () => {
     const journal = new MemoryJournal()
     journal.seed(
       failedIntent({
-        state: 'abandoned',
+        // No Machine remains on the retry, so only forApp's durable lookup can
+        // find this serving record and its external-address responsibility.
+        state: 'serving',
         addresses: [
           { targetApp: 'tenant-db', network: APP, ip: 'fdaa::10', owned: true, resolved: true },
         ],
@@ -622,6 +657,67 @@ describe('round-six ownership races', () => {
       deletes.findIndex((path) => path.startsWith(`/apps/${APP}`)),
     )
     expect(journal.attempts.size).toBe(0)
+  })
+
+  it('does not delete an app while a serving sibling still has no visible Machine', async () => {
+    const journal = new MemoryJournal()
+    journal.seed(failedIntent())
+    journal.seed(
+      failedIntent({ attemptId: 'attempt-2', state: 'serving', volumes: [], addresses: [] }),
+    )
+    const double = createFetchDouble().fallback({ body: [] })
+
+    await expect(makeProvider(double, journal).reconcileCreateAttempts()).resolves.toEqual({
+      deleted: 0,
+      failed: 0,
+    })
+    expect(double.calls.filter((call) => call.method === 'DELETE')).toHaveLength(0)
+    expect(journal.attempts.size).toBe(2)
+  })
+
+  it('transfers a concrete Flycast address so an older attempt cannot release it', async () => {
+    const journal = new MemoryJournal()
+    journal.seed(
+      failedIntent({
+        addresses: [
+          { targetApp: 'tenant-db', network: APP, ip: 'fdaa::11', owned: true, resolved: true },
+        ],
+      }),
+    )
+    journal.seed(failedIntent({ attemptId: 'attempt-2' }))
+    await journal.recordAddress('attempt-2', {
+      targetApp: 'tenant-db',
+      network: APP,
+      ip: 'fdaa::11',
+      owned: true,
+      resolved: true,
+    })
+    const double = createFetchDouble().fallback({ body: [] })
+
+    await makeProvider(double, journal).reconcileCreateAttempts({ attemptId: 'attempt-1' })
+    expect(double.matching('DELETE /apps/tenant-db/ip_assignments/')).toHaveLength(0)
+    expect(journal.attempts.get('attempt-2')?.addresses[0]?.owned).toBe(true)
+  })
+
+  it('retains an owned address when the assignment list transiently omits it', async () => {
+    const journal = new MemoryJournal()
+    journal.seed(
+      failedIntent({
+        addresses: [
+          { targetApp: 'tenant-db', network: APP, ip: 'fdaa::12', owned: true, resolved: true },
+        ],
+      }),
+    )
+    const double = createFetchDouble()
+      .fallback({ body: [] })
+      .on('GET /apps/tenant-db/ip_assignments', { body: [] })
+
+    await expect(makeProvider(double, journal).reconcileCreateAttempts()).resolves.toEqual({
+      deleted: 0,
+      failed: 1,
+    })
+    expect(double.calls.filter((call) => call.method === 'DELETE')).toHaveLength(0)
+    expect(journal.attempts.get('attempt-1')?.addresses[0]?.owned).toBe(true)
   })
 
   it('cancels an in-flight create and fences later mutations by generation', async () => {
