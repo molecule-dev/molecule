@@ -68,12 +68,16 @@ function mount<Filter extends string, Selection extends string>(
   let go!: ReturnType<typeof useNavigate>
   const fetch = vi.fn(async (request: unknown) => request)
 
-  function Page(): ReactNode {
-    current = useListRoute(options)
+  function LocationMirror(): null {
     const location = useLocation()
-    go = useNavigate()
     currentUrl = location.pathname + location.search + location.hash
     currentState = location.state
+    return null
+  }
+
+  function Page(): ReactNode {
+    current = useListRoute(options)
+    go = useNavigate()
     const request = {
       selection: current.selection,
       filters: current.filters,
@@ -114,9 +118,13 @@ function mount<Filter extends string, Selection extends string>(
 
   function App(): ReactNode {
     const routes = (
-      <Routes>
-        <Route path="*" element={<Page />} />
-      </Routes>
+      <>
+        <LocationMirror />
+        <Routes>
+          <Route path="/sign-in" element={<output>Sign in</output>} />
+          <Route path="*" element={<Page />} />
+        </Routes>
+      </>
     )
     return browser ? (
       <BrowserRouter>{routes}</BrowserRouter>
@@ -330,5 +338,69 @@ describe('URL-backed list consumer transitions', () => {
     expect(app.url()).toBe('/browse?owner=8&page=2')
     expect(app.list().filters.sort).toBeUndefined()
     expect(() => app.list().href({ page: 0 })).toThrow('positive safe integer')
+  })
+
+  it('supports a catalog direct page, category pagination and atomic filter/view resets', async () => {
+    const app = mount<'category' | 'sort', 'catalog' | 'orders'>(
+      '/products/category/chairs?sort=price&page=3',
+      {
+        pageSize: 10,
+        filters: { category: { param: 'category' }, sort: { defaultValue: 'featured' } },
+        selections: {
+          catalog: { path: '/products/category/:category', query: { view: undefined } },
+          orders: {
+            path: '/products/category/:category',
+            query: { view: 'mine' },
+            requiresAuth: true,
+          },
+        },
+        defaultSelection: 'catalog',
+        auth: { status: 'authenticated', redirectTo: '/sign-in' },
+      },
+    )
+    await settle()
+    // A direct ?page=N load derives both the visible page and the request offset from the URL.
+    expect(app.list().page).toBe(3)
+    expect(app.data()).toMatchObject({
+      selection: 'catalog',
+      filters: { category: 'chairs', sort: 'price' },
+      offset: 20,
+    })
+    await act(async () => app.list().setFilters({ sort: 'newest' }))
+    await settle()
+    expect(app.url()).toBe('/products/category/chairs?sort=newest')
+    expect(app.list().page).toBe(1)
+    await app.click('next')
+    expect(app.url()).toBe('/products/category/chairs?sort=newest&page=2')
+    expect(app.data()).toMatchObject({ filters: { category: 'chairs' }, offset: 10 })
+    await app.click('orders')
+    expect(app.url()).toBe('/products/category/chairs?sort=newest&view=mine')
+    expect(app.list()).toMatchObject({ page: 1, selection: 'orders', canLoad: true })
+  })
+
+  it('redirects a signed-out catalog orders view without loading it', async () => {
+    const app = mount<'category', 'catalog' | 'orders'>(
+      '/products/category/chairs?view=mine&page=2',
+      {
+        filters: { category: { param: 'category' } },
+        selections: {
+          catalog: { path: '/products/category/:category', query: { view: undefined } },
+          orders: {
+            path: '/products/category/:category',
+            query: { view: 'mine' },
+            requiresAuth: true,
+          },
+        },
+        defaultSelection: 'catalog',
+        auth: { status: 'unauthenticated', redirectTo: '/sign-in' },
+      },
+    )
+    await settle()
+    expect(app.list().canLoad).toBe(false)
+    expect(app.fetch).not.toHaveBeenCalled()
+    expect(app.url()).toBe('/sign-in')
+    expect(app.state()).toEqual({
+      returnTo: '/products/category/chairs?view=mine&page=2',
+    })
   })
 })
