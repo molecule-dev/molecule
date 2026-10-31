@@ -6,9 +6,8 @@
  * @module
  */
 
-import { HttpError } from '@molecule/app-http'
 import { I18nError } from '@molecule/app-i18n'
-import { getLogger } from '@molecule/app-logger'
+import { getLogger, redactCredentials } from '@molecule/app-logger'
 
 import { createBrowserStorageAdapter } from './browser-storage.js'
 import { createTokenStorage, getTokenExpiration, isTokenExpired } from './token.js'
@@ -31,17 +30,6 @@ import type {
 } from './types.js'
 
 const HTTP_ERROR_BRAND = Symbol.for('@molecule/app-http/HttpError')
-const redactUrlCredentials = HttpError.redactUrlCredentials
-
-/** Keep an error's logging contract without retaining credentials from a URL in its message. */
-const urlSafeLogError = (error: unknown): unknown => {
-  if (!(error instanceof Error)) return error
-  const message = redactUrlCredentials(error.message)
-  if (message === error.message) return error
-  const safe = new Error(message)
-  safe.name = error.name
-  return safe
-}
 
 /**
  * Whether this app is running inside a CROSS-SITE iframe — i.e. the molecule.dev
@@ -475,7 +463,7 @@ export const createJWTAuthClient = <
           if (isNoRefreshTokenError(err)) {
             logger.debug(
               'Token refresh skipped — no refresh token stored; keeping the session until the API rejects the token',
-              urlSafeLogError(err),
+              err,
             )
             return
           }
@@ -484,14 +472,11 @@ export const createJWTAuthClient = <
           if (!operation.isCurrent()) return
           const httpStatus = (err as { status?: number }).status
           if ((httpStatus === 401 || httpStatus === 403) && operation.isCurrent()) {
-            logger.warn('Token refresh was rejected, signing out', urlSafeLogError(err))
+            logger.warn('Token refresh was rejected, signing out', err)
             await client.logout()
             return
           }
-          logger.warn(
-            'Token refresh failed; keeping the session and scheduling a retry',
-            urlSafeLogError(err),
-          )
+          logger.warn('Token refresh failed; keeping the session and scheduling a retry', err)
           scheduleRefresh(true)
         }
       })
@@ -561,7 +546,7 @@ export const createJWTAuthClient = <
     } catch (error) {
       logger.debug(
         'mapAuthResponse could not read the user in this answer; using it as given',
-        urlSafeLogError(error),
+        error,
       )
       return fallback
     }
@@ -585,20 +570,27 @@ export const createJWTAuthClient = <
     // same-origin behaves identically, and the fleet CORS bond pairs a strict
     // origin allowlist with credentials:true. True cross-SITE deployments
     // additionally need SameSite=None cookies — a server deployment concern.
-    const response = await fetch(url, {
-      credentials: 'include',
-      ...options,
-      headers,
-    })
+    let response: Response
+    try {
+      response = await fetch(url, {
+        credentials: 'include',
+        ...options,
+        headers,
+      })
+    } catch (error) {
+      // Native fetch failures can include the full userinfo URL in message/stack.
+      // Scrub before ANY caller copies the rejection into state, events or logs.
+      throw redactCredentials(error)
+    }
 
     if (!response.ok) {
-      // The parsed answer, kept WHOLE: the client maps `errorKey`/`error`/
-      // `message` into the I18nError it throws, but every other field — a
-      // structured `{ errors: { credentials: ['is invalid'] } }` map, field
-      // arrays, a top-level array — is preserved on `body` so the app can show
-      // the server's own messages. A non-JSON body
-      // (HTML error page, empty) parses to `{}`, exactly as before.
-      const body: unknown = await response.json().catch(() => ({}))
+      // The parsed answer keeps its complete shape: the client maps `errorKey`/`error`/
+      // `message` into the I18nError it throws, and every other field — a structured
+      // `{ errors: { credentials: ['is invalid'] } }` map, field arrays, a top-level array —
+      // remains on `body` so the app can show the server's own messages. Credential values
+      // are redacted in place; non-secret values are unchanged. A non-JSON body (HTML error
+      // page, empty) parses to `{}`, exactly as before.
+      const body: unknown = redactCredentials(await response.json().catch(() => ({})))
       const fields = (body ?? {}) as { errorKey?: unknown; error?: unknown; message?: unknown }
       // JSON is untyped: structured validation errors belong on `body`, never
       // in the translation key or its fallback text.
@@ -614,30 +606,26 @@ export const createJWTAuthClient = <
       // from "the server did not answer" (5xx, network) or "the route does not
       // exist" (404) — `validateSession` clears the session only on the first.
       failure.status = response.status
-      // The response body, exactly as parsed — see {@link AuthError}.
+      // The response body with credential values redacted — see {@link AuthError}.
       failure.body = body
       // Mirror app-http's failed-response view without importing it. Keep the
       // original auth fields above intact: both documented readings now work on
       // the SAME rejection, including across duplicated package copies.
       const headers: Record<string, string> = {}
       response.headers.forEach((value, name) => {
-        // A failed credential exchange can still answer Set-Cookie. Response
-        // metadata is logged, so never copy credential headers into it.
-        if (!['authorization', 'cookie', 'set-cookie', 'set-cookie2'].includes(name)) {
-          headers[name] = value
-        }
+        headers[name] = value
       })
       failure.response = {
         data: body,
         status: response.status,
         statusText: response.statusText,
-        headers,
+        headers: redactCredentials({ headers }).headers,
         // RequestInit bodies contain passwords and refresh tokens, and its
         // headers contain bearer/cookie credentials. Method and a credential-
         // redacted URL are the complete request view an auth rejection may expose.
         config: {
           method: (options.method ?? 'GET').toUpperCase(),
-          url: redactUrlCredentials(url),
+          url: redactCredentials(url),
         },
       }
       failure.errorKey = key
@@ -688,7 +676,7 @@ export const createJWTAuthClient = <
             : {},
         })
       } catch (error) {
-        logger.debug('Late session revocation failed (non-critical)', urlSafeLogError(error))
+        logger.debug('Late session revocation failed (non-critical)', error)
       } finally {
         if (cleanup.isCurrent() && !state.authenticated && getSignOutMarker()) {
           clearSessionHintCookie()
@@ -787,14 +775,11 @@ export const createJWTAuthClient = <
         // keep the hint so a later load can still restore the session.
         if (httpStatus === 404) {
           logger.warn(
-            `Session restore skipped — the current-user endpoint "${redactUrlCredentials(currentUserEndpoint)}" was not found. Set currentUserEndpoint to your API's current-user route.`,
-            urlSafeLogError(error),
+            `Session restore skipped — the current-user endpoint "${currentUserEndpoint}" was not found. Set currentUserEndpoint to your API's current-user route.`,
+            error,
           )
         } else {
-          logger.debug(
-            'Session restore skipped — the server could not confirm the cookie',
-            urlSafeLogError(error),
-          )
+          logger.debug('Session restore skipped — the server could not confirm the cookie', error)
         }
         return {
           user: null,
@@ -859,13 +844,13 @@ export const createJWTAuthClient = <
             // A network drop or a 5xx is not about the credential, and it used to
             // sign the user out here.
             if (httpStatus === 401 || httpStatus === 403) {
-              logger.warn('Initial token refresh was rejected; signing out', urlSafeLogError(error))
+              logger.warn('Initial token refresh was rejected; signing out', error)
               endLocalSession()
               return
             }
             logger.warn(
               'Initial token refresh failed; keeping the stored session until the API rejects it',
-              urlSafeLogError(error),
+              error,
             )
           }
         }
@@ -1108,7 +1093,7 @@ export const createJWTAuthClient = <
             credentials: 'include',
             headers: token ? { Authorization: `${config.authScheme ?? 'Bearer'} ${token}` } : {},
           }).catch((error) => {
-            logger.debug('Logout endpoint call failed (non-critical)', urlSafeLogError(error))
+            logger.debug('Logout endpoint call failed (non-critical)', error)
           })
         }
       })
@@ -1226,7 +1211,7 @@ export const createJWTAuthClient = <
           } catch (error) {
             logger.debug(
               'mapAuthResponse could not read the refresh answer; using it as given',
-              urlSafeLogError(error),
+              error,
             )
           }
         }
@@ -1440,8 +1425,8 @@ export const createJWTAuthClient = <
                 : 'Session could not be confirmed'
           if (httpStatus === 404) {
             logger.warn(
-              `validateSession could not verify the session — the current-user endpoint "${redactUrlCredentials(currentUserEndpoint)}" was not found. Set currentUserEndpoint to your API's current-user route; the stored token was kept.`,
-              urlSafeLogError(error),
+              `validateSession could not verify the session — the current-user endpoint "${currentUserEndpoint}" was not found. Set currentUserEndpoint to your API's current-user route; the stored token was kept.`,
+              error,
             )
           }
           setState({ status: 'unavailable', error: message })
