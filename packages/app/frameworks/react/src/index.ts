@@ -16,8 +16,9 @@
  * envelope once in `AuthClientConfig`; no page-local session store is needed.
  *
  * **Session restore:** `useAuth().status === 'loading'` is undecided: wait for
- * it and redirect only on `status === 'unauthenticated'`. `'unavailable'` is
- * still signed in, and a restore failure other than 401/403 never signs out.
+ * it and redirect only on `status === 'unauthenticated'`. `'unavailable'` keeps
+ * the session candidate for retry, but `isAuthenticated` can be false and `user`
+ * can be null. A restore failure other than 401/403 never signs out.
  *
  * @example
  * ```tsx
@@ -60,7 +61,7 @@
  *   }
  *   return (
  *     <div style={{ background: theme.colors.background }}>
- *       <h1>{t('greeting.welcome', { name: user?.name }, { defaultValue: 'Welcome, {{name}}!' })}</h1>
+ *       <h1>{t('greeting.welcome', { name: user?.name ?? '' }, { defaultValue: 'Welcome, {{name}}!' })}</h1>
  *       <button onClick={toggleTheme}>{t('theme.toggle', undefined, { defaultValue: 'Toggle theme' })}</button>
  *       <button onClick={() => logout()}>{t('auth.logout', undefined, { defaultValue: 'Log out' })}</button>
  *     </div>

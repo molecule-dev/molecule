@@ -339,8 +339,9 @@ export interface PasswordResetConfirm {
  * `initialized`/`authenticated`/`loading`/`error` itself.
  *
  * `status === 'loading'` is undecided: wait for it and redirect only on
- * `status === 'unauthenticated'`. `'unavailable'` is still signed in, and a
- * restore failure other than 401/403 never signs out.
+ * `status === 'unauthenticated'`. `'unavailable'` keeps the session candidate
+ * for retry; its profile can still be null. A restore failure other than
+ * 401/403 never signs out.
  *
  * - `'loading'`: no decision yet (before `initialize()` settles). An auth
  *   operation in flight is {@link AuthState.loading} and KEEPS the decided
@@ -348,9 +349,10 @@ export interface PasswordResetConfirm {
  *   Register request runs.
  * - `'authenticated'`: a session exists.
  * - `'unauthenticated'`: the client settled the question and nobody is signed in.
- * - `'unavailable'`: a stored session exists but the server could not confirm it
- *   (a network or 5xx failure in {@link AuthClient.validateSession}); the session
- *   is KEPT and the app can say "reconnecting" instead of signing the user out.
+ * - `'unavailable'`: a stored token or cookie-session candidate exists but the
+ *   server could not confirm it (for example a network, 404, or 5xx failure);
+ *   the candidate is KEPT and the app can say "reconnecting" instead of signing
+ *   the user out.
  */
 export type AuthStatus = 'loading' | 'authenticated' | 'unauthenticated' | 'unavailable'
 
@@ -361,8 +363,9 @@ export interface AuthState<T = UserProfile> {
   /**
    * The session's state as one value — render from this instead of combining
    * `initialized`/`authenticated`/`loading`. `'loading'` is undecided, so wait
-   * and redirect only on `'unauthenticated'`; `'unavailable'` is still signed in.
-   * A restore failure other than 401/403 never signs out. See {@link AuthStatus}.
+   * and redirect only on `'unauthenticated'`; `'unavailable'` keeps the candidate
+   * for retry and can have a null profile. A restore failure other than 401/403
+   * never signs out. See {@link AuthStatus}.
    */
   status: AuthStatus
 
@@ -372,12 +375,15 @@ export interface AuthState<T = UserProfile> {
   initialized: boolean
 
   /**
-   * Whether the user is authenticated.
+   * Whether the client has an authenticated session. This is not a server
+   * confirmation flag: during `'unavailable'` it can be false for a retained
+   * token/cookie-only candidate with no cached profile. Use `status` for redirects.
    */
   authenticated: boolean
 
   /**
-   * Current user (if authenticated).
+   * Current user, or null when none is cached. In particular, an `'unavailable'`
+   * token/cookie-only restore has a retained candidate but no profile yet.
    */
   user: T | null
 

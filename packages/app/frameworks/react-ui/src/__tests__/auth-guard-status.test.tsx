@@ -97,7 +97,13 @@ describe('AuthGuard reads the session status (xr-molecule-flash-m177)', () => {
   })
 
   it('renders the page while the session is `unavailable` (stored, unconfirmed)', () => {
-    mockAuth.state = { ...mockAuth.state, status: 'unavailable', initialized: true }
+    mockAuth.state = {
+      ...mockAuth.state,
+      status: 'unavailable',
+      initialized: true,
+      authenticated: false,
+      user: null,
+    }
 
     renderGuard()
 

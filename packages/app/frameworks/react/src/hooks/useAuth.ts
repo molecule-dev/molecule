@@ -48,8 +48,10 @@ export function useAuthClient<
  * Hook for authentication state and actions.
  *
  * `status === 'loading'` is undecided: wait for it and redirect only on
- * `status === 'unauthenticated'`. `'unavailable'` is still signed in, and a
- * restore failure other than 401/403 never signs out.
+ * `status === 'unauthenticated'`. `'unavailable'` keeps the session candidate
+ * for retry, but `isAuthenticated` can be false and `user` can be null while a
+ * token/cookie-only restore has no cached profile. A restore failure other than
+ * 401/403 never signs out.
  *
  * Pass the app's user type — the SAME type used for the auth client and its
  * config (`createJWTAuthClient<MyUser>`, `AuthClientConfig<MyUser>`) — so

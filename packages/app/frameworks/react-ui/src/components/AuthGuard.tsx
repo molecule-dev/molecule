@@ -31,9 +31,9 @@ export interface AuthGuardProps {
    */
   loadingDefault?: string
   /**
-   * Path to redirect to when the user is not authenticated. Defaults to
-   * `'/login'`. The current `useLocation()` is preserved as `state.from`
-   * for post-login restoration.
+   * Path to redirect to when `useAuth().status` is `'unauthenticated'`.
+   * Defaults to `'/login'`. The current `useLocation()` is preserved as
+   * `state.from` for post-login restoration.
    */
   loginPath?: string
   /**
@@ -56,15 +56,18 @@ export interface AuthGuardProps {
  *
  * - While `useAuth().status` is `'loading'` (no session decision yet), renders the
  *   `loadingFallback` (or the default `<div data-mol-id="auth-guard-loading">{t('common.loading')}</div>`).
- * - If the user is not authenticated, redirects to `loginPath` carrying
+ * - If the status is `'unauthenticated'`, redirects to `loginPath` carrying
  *   the attempted location in `state.from` for post-login restoration.
  * - Otherwise renders `children` (or `<Outlet />` if none).
  *
  * The guard reads `status`, not `initialized`: a stored token AND user make the
  * FIRST render `'authenticated'`, so a protected page paints immediately instead
  * of waiting for the background verification (`validateSession()`) or a
- * current-user round trip. `'unavailable'` (a stored session the server could not
- * confirm) counts as signed in — the page renders and the API decides.
+ * current-user round trip. `'unavailable'` (a retained candidate the server could
+ * not confirm) still renders the page and lets the API decide. It is not a
+ * confirmed-session boolean: `isAuthenticated` can be false and `user` can be null
+ * while a token/cookie-only candidate is unavailable, so never redirect on the
+ * boolean or require a profile in this state.
  *
  * The default loading tag carries `data-mol-id="auth-guard-loading"`
  * so AI agents and e2e tests can target it reliably. When the caller
@@ -103,7 +106,7 @@ export function AuthGuard({
       )
     )
   }
-  if (!isAuthenticated) {
+  if (status === 'unauthenticated') {
     return <Navigate to={loginPath} state={{ from: location }} replace />
   }
   return <>{children ?? <Outlet />}</>

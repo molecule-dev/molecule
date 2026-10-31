@@ -277,7 +277,7 @@ describe('lazy initialization — a dropped initialize() is no longer fatal', ()
     expect(mockFetch).not.toHaveBeenCalled()
   })
 
-  it('a restore that fails still settles the state instead of leaving it loading', async () => {
+  it('a transient restore failure settles unavailable instead of loading or signed out', async () => {
     ;(globalThis as { document?: { cookie: string } }).document = { cookie: 'mol_auth=1' }
     mockFetch.mockImplementation(() => Promise.reject(new Error('network down')))
     const client = createJWTAuthClient({ storage: createMockStorage(), autoRefresh: false })
@@ -286,6 +286,7 @@ describe('lazy initialization — a dropped initialize() is no longer fatal', ()
     client.getState()
     await client.whenRestored()
 
-    expect(client.getState()).toMatchObject({ status: 'unauthenticated', initialized: true })
+    expect(client.getState()).toMatchObject({ status: 'unavailable', initialized: true })
+    expect(document.cookie).toContain('mol_auth=1')
   })
 })

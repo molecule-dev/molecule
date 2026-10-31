@@ -178,7 +178,9 @@ export interface UseAuthResult<
    * The session state as one value — render from this instead of combining
    * `initialized`/`authenticated`/`loading`. A stored token AND user make it
    * `'authenticated'` on the first render; only `'loading'` means "no decision
-   * yet", so a route guard waits on that and nothing else.
+   * yet", so a route guard waits on that and nothing else. `'unavailable'` keeps
+   * a session candidate for retry and can have a null profile; redirect only on
+   * `'unauthenticated'`.
    */
   status: AuthState<T>['status']
   state: AuthState<T>
@@ -198,8 +200,10 @@ export interface UseAuthResult<
    * `authenticated` read signed out.
    */
   setSession: AuthClient<T>['setSession']
+  /** Whether a session is authenticated locally; this can be false while unavailable. */
   isAuthenticated: boolean
   isLoading: boolean
+  /** The cached profile, which can be null while an unavailable candidate is retained. */
   user: T | null
 }
 

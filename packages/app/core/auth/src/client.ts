@@ -836,8 +836,19 @@ export const createJWTAuthClient = <
         setState({ initialized: true })
         return
       }
-      await restoreFromSessionCookie()
+      const outcome = await restoreFromSessionCookie()
       if (!operation.isCurrent()) return
+      if (outcome.error) {
+        // A cookie-only candidate is still a session candidate. A transient
+        // failure (including a missing current-user route) leaves it available
+        // for retry; only 401/403 may classify it as signed out.
+        setState({
+          initialized: true,
+          status: 'unavailable',
+          error: outcome.error,
+        })
+        return
+      }
       setState({ initialized: true })
     })
 
