@@ -3,6 +3,9 @@
   "version": "1.1.0",
   "description": "Zero-config file-backed paracrine store — messages between the AI agents on one machine, with a paracrine CLI any harness can use.",
   "type": "module",
+  "engines": {
+    "node": ">=22.13"
+  },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
@@ -10,6 +13,7 @@
   },
   "scripts": {
     "build": "tsc",
+    "pretest": "npm run build",
     "test": "vitest run",
     "test:watch": "vitest"
   },

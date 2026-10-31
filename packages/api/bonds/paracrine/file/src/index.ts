@@ -2,21 +2,22 @@
  * File-backed paracrine store — messages between the AI agents on one machine.
  *
  * @remarks
- * **Zero config, zero daemon.** One directory (`~/.agents/paracrine`, or
- * `PARACRINE_DIR`) holds every message and receipt as plain files, written
- * atomically and read by path — so a bonded Node process, the `paracrine`
- * CLI, a shell one-liner or `cat` all see the same store with nothing to
- * start, and a machine that reboots forgets nothing.
+ * **Zero config, zero daemon.** One private SQLite database in
+ * `~/.agents/paracrine` (or `PARACRINE_DIR`) holds messages, per-recipient
+ * delivery state, and receipts. WAL transactions make sends, bounded claims,
+ * acknowledgements, and retries atomic across bonded processes and the CLI.
  *
  * **Bonds as the paracrine singleton.** `setProvider(createProvider())` at
  * startup; `requireProvider()` from `@molecule/api-paracrine` everywhere
  * else. Explicit `rootDir` config when a test or a platform wants an isolated
- * store.
+ * store. Existing plain-file stores are imported in checkpointed batches and
+ * left untouched.
  *
  * **Interoperability is the point.** A harness with no bond support
  * participates through the CLI (`npx @molecule/api-paracrine-file -- …` via
- * the `paracrine` bin): a CLI send is a bonded receive, and a bonded ack is
- * a CLI `reads`. Nothing in the directory is private to this package.
+ * the `paracrine` bin). Tool-boundary callers can claim pending deliveries,
+ * emit them, acknowledge successful claims, or release them for immediate
+ * retry. A claim lease permits recovery after a killed process.
  *
  * @example
  * ```typescript

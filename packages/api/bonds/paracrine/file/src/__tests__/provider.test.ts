@@ -1,14 +1,13 @@
 /**
  * File-backed paracrine store tests.
  *
- * Every case runs against a real temporary directory — the whole point of the
- * store is that plain files ARE the truth, so the tests read and write the
- * same way any foreign process would.
+ * Every case runs against a real temporary SQLite store through the public
+ * provider, with legacy files used only for migration counterexamples.
  *
  * @module
  */
 
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
+import { mkdtemp, rm, stat, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
@@ -201,11 +200,13 @@ describe('purge is retention, caller-owned', () => {
   })
 })
 
-describe('the store directory is plain files any process can read', () => {
-  it('writes a message as one readable JSON file under the recipient', async () => {
+describe('private on-disk storage', () => {
+  it('uses one 0600 SQLite database in a 0700 root', async () => {
     const store = createProvider({ rootDir: root })
-    const sent = await store.send({ from: 'a', to: 'b', subject: 's', body: 'plain truth' })
-    const raw = JSON.parse(await readFile(join(root, 'messages', 'b', `${sent.id}.json`), 'utf8'))
-    expect(raw).toEqual(sent)
+    await store.send({ from: 'a', to: 'b', subject: 's', body: 'transactional truth' })
+    expect((await stat(root)).mode & 0o777).toBe(0o700)
+    expect((await stat(join(root, 'paracrine.sqlite'))).mode & 0o777).toBe(0o600)
+    const journal = await store.send({ from: 'a', to: 'b', body: 'WAL' })
+    expect((await store.receive({ for: 'b' })).map((message) => message.id)).toContain(journal.id)
   })
 })

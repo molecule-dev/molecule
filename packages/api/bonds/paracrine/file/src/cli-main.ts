@@ -1,13 +1,9 @@
 #!/usr/bin/env node
-/**
- * The `paracrine` CLI entry (compiled to `dist/cli-main.js`, wired as the
- * package `bin`). All behavior lives in {@link runCli}; this file only
- * translates exit codes.
- *
- * @module
- */
+/** The `paracrine` executable; all command behavior lives in {@link runCli}. */
+import { suppressSqliteExperimentalWarning } from './warnings.js'
 
-import { runCli } from './cli.js'
+suppressSqliteExperimentalWarning()
+const { runCli } = await import('./cli.js')
 
 try {
   const lines = await runCli(process.argv.slice(2))

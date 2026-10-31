@@ -4,9 +4,11 @@
  * @module
  */
 
-import { mkdtemp, rm } from 'node:fs/promises'
+import { spawnSync } from 'node:child_process'
+import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
@@ -69,6 +71,27 @@ describe('paracrine send/recv/ack/reads', () => {
       rootDir: root,
     })
     expect(JSON.parse(narrowed[0]).body).toBe('lifted')
+  })
+
+  it('the executable suppresses only the node:sqlite ExperimentalWarning', async () => {
+    const preload = join(root, 'warnings.mjs')
+    await writeFile(
+      preload,
+      `setImmediate(() => {
+  process.emitWarning('SQLite is an experimental feature', 'ExperimentalWarning')
+  process.emitWarning('another experimental feature', 'ExperimentalWarning')
+  process.emitWarning('ordinary warning')
+})\n`,
+    )
+    const cli = fileURLToPath(new URL('../../dist/cli-main.js', import.meta.url))
+    const run = spawnSync(process.execPath, ['--import', preload, cli, 'recv', '--for', 'b'], {
+      encoding: 'utf8',
+      env: { ...process.env, PARACRINE_DIR: root },
+    })
+    expect(run.status).toBe(0)
+    expect(run.stderr).not.toContain('SQLite is an experimental feature')
+    expect(run.stderr).toContain('another experimental feature')
+    expect(run.stderr).toContain('ordinary warning')
   })
 
   it('usage errors name the fix and exit through the caller', async () => {
