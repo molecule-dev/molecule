@@ -2,4 +2,4 @@
 '@molecule/app-solid': minor
 ---
 
-Apply reactive late form values and expose `updateValues` through the shared non-destructive rebase.
+Publish reactive late values delivered before Solid's first subscription effect.

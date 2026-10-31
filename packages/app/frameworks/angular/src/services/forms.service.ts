@@ -19,6 +19,15 @@ import type {
 } from '@molecule/app-forms'
 
 /**
+ * Angular form creation options. Deliver records loaded after creation through
+ * `MoleculeFormInstance.updateValues()`; signal-backed getters are not observed.
+ */
+type AngularFormOptions<T extends FormValuesConstraint<T>> = Omit<
+  FormOptions<T>,
+  'values' | 'resetOptions'
+>
+
+/**
  * Wrapper around a FormController that provides RxJS observables and
  * synchronous accessors for use in Angular components.
  *
@@ -95,10 +104,7 @@ export class MoleculeFormInstance<T extends FormValuesConstraint<T>> {
    */
   errors$: Observable<Partial<Record<keyof T, string>>>
 
-  constructor(
-    private controller: FormController<T>,
-    private resetOptions: FormResetOptions = {},
-  ) {
+  constructor(private controller: FormController<T>) {
     this.stateSubject = new BehaviorSubject<FormState<T>>(controller.getState())
 
     this.unsubscribe = controller.subscribe((state: FormState<T>) => {
@@ -240,11 +246,13 @@ export class MoleculeFormInstance<T extends FormValuesConstraint<T>> {
   }
 
   /**
-   * Apply a newly loaded record using this instance's `resetOptions`.
-   * Submission state is preserved; pristine fields fill when `keepDirtyValues` is set.
+   * Apply a newly loaded record without clearing submission state.
+   *
+   * @param values - The newly loaded record.
+   * @param resetOptions - Set `keepDirtyValues` to retain edits and fill pristine fields.
    */
-  updateValues(values: Partial<T>): void {
-    this.controller.updateValues(values, this.resetOptions)
+  updateValues(values: Partial<T>, resetOptions: FormResetOptions = {}): void {
+    this.controller.updateValues(values, resetOptions)
   }
 
   /**
@@ -337,14 +345,15 @@ export class MoleculeFormsService implements OnDestroy {
    *
    * @param provider - The form provider that creates form controllers.
    * @param options - Form configuration including default values and validation mode.
+   * Use the returned instance's `updateValues()` for records loaded after creation.
    * @returns A new form instance with RxJS observables for reactive state tracking.
    */
   createForm<T extends FormValuesConstraint<T>>(
     provider: FormProvider,
-    options: FormOptions<T>,
+    options: AngularFormOptions<T>,
   ): MoleculeFormInstance<T> {
     const controller = provider.createForm(options)
-    const instance = new MoleculeFormInstance<T>(controller, options.resetOptions)
+    const instance = new MoleculeFormInstance<T>(controller)
     this.instances.push(instance as MoleculeFormInstance<Record<string, unknown>>)
     return instance
   }

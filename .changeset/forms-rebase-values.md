@@ -2,4 +2,4 @@
 '@molecule/app-forms': minor
 ---
 
-Add non-destructive late-value rebasing with content-aware dirty comparison and opaque-object identity.
+Make late-value rebasing validation-safe, symmetric for sparse arrays, and aware of registered defaults.

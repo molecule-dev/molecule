@@ -54,6 +54,7 @@ export const createNativeFormProvider = (): FormProvider => {
       let touched: Partial<Record<keyof T, boolean>> = {}
       let submitCount = 0
       let isSubmitting = false
+      let rebaseVersion = 0
 
       const fieldSchemas = new Map<string, ValidationSchema>()
       const fieldRefs = new Map<string, HTMLElement>()
@@ -70,6 +71,33 @@ export const createNativeFormProvider = (): FormProvider => {
         if (mode === 'onChange') return event === 'change' || event === 'submit'
         if (mode === 'onBlur') return event === 'blur' || event === 'submit'
         return false
+      }
+
+      const validateSnapshot = async (
+        snapshot: Record<string, unknown>,
+      ): Promise<{ isValid: boolean; errors: Partial<Record<keyof T, string>> }> => {
+        let isValid = true
+        const newErrors: Partial<Record<keyof T, string>> = {}
+
+        for (const [name, schema] of fieldSchemas) {
+          const error = await validateValue(snapshot[name], schema, t)
+          if (error) {
+            newErrors[name as keyof T] = error
+            isValid = false
+          }
+        }
+
+        if (options.validate) {
+          const formErrors = await options.validate(snapshot as T)
+          for (const [key, error] of Object.entries(formErrors)) {
+            if (error) {
+              newErrors[key as keyof T] = error as string
+              isValid = false
+            }
+          }
+        }
+
+        return { isValid, errors: newErrors }
       }
 
       const controller: FormController<T> = {
@@ -159,9 +187,18 @@ export const createNativeFormProvider = (): FormProvider => {
           // Store validation schema
           fieldSchemas.set(name, schema)
 
-          // Set default value if not already set
-          if (defaultValue !== undefined && values[name] === undefined) {
-            values = { ...values, [name]: defaultValue }
+          // A registered default is also clean baseline content. Keep it with
+          // the original defaults so later replacement records can restore it.
+          if (defaultValue !== undefined) {
+            if (originalDefaultValues[name] === undefined) {
+              originalDefaultValues[name] = defaultValue
+            }
+            if (defaultValues[name] === undefined) {
+              defaultValues = { ...defaultValues, [name]: defaultValue }
+            }
+            if (values[name] === undefined) {
+              values = { ...values, [name]: defaultValue }
+            }
           }
 
           return {
@@ -220,7 +257,9 @@ export const createNativeFormProvider = (): FormProvider => {
           const schema = fieldSchemas.get(name as string)
           if (!schema) return true
 
+          const validationRebaseVersion = rebaseVersion
           const error = await validateValue(values[name as string], schema, t)
+          if (validationRebaseVersion !== rebaseVersion) return false
           if (error) {
             errors = { ...errors, [name]: error }
             notify()
@@ -235,31 +274,13 @@ export const createNativeFormProvider = (): FormProvider => {
         },
 
         async validate(): Promise<boolean> {
-          let isValid = true
-          const newErrors: Partial<Record<keyof T, string>> = {}
+          const validationRebaseVersion = rebaseVersion
+          const result = await validateSnapshot({ ...values })
+          if (validationRebaseVersion !== rebaseVersion) return false
 
-          for (const [name, schema] of fieldSchemas) {
-            const error = await validateValue(values[name], schema, t)
-            if (error) {
-              newErrors[name as keyof T] = error
-              isValid = false
-            }
-          }
-
-          // Form-level validation
-          if (options.validate) {
-            const formErrors = await options.validate(values as T)
-            for (const [key, error] of Object.entries(formErrors)) {
-              if (error) {
-                newErrors[key as keyof T] = error as string
-                isValid = false
-              }
-            }
-          }
-
-          errors = newErrors
+          errors = result.errors
           notify()
-          return isValid
+          return result.isValid
         },
 
         updateValues(newValues: Partial<T>, resetOptions: FormResetOptions = {}): void {
@@ -271,6 +292,7 @@ export const createNativeFormProvider = (): FormProvider => {
 
           const currentValues = values
           const previousDefaultValues = defaultValues
+          rebaseVersion++
           defaultValues = nextDefaultValues
           values = { ...defaultValues }
 
@@ -316,16 +338,25 @@ export const createNativeFormProvider = (): FormProvider => {
             isSubmitting = true
             notify()
 
+            const submissionValues = { ...values }
+            const submissionRebaseVersion = rebaseVersion
+
             try {
-              const isValid = await this.validate()
-              if (isValid) {
-                await onSubmit(values as T)
+              const result = await validateSnapshot(submissionValues)
+              // A late record invalidates this validation run. It must neither
+              // publish stale errors nor submit the replacement against them.
+              if (submissionRebaseVersion !== rebaseVersion) return
+
+              errors = result.errors
+              notify()
+              if (result.isValid) {
+                await onSubmit(submissionValues as T)
               } else {
                 if (onError) {
-                  onError(errors)
+                  onError(result.errors)
                 }
                 if (options.shouldFocusError !== false) {
-                  const firstErrorField = Object.keys(errors)[0]
+                  const firstErrorField = Object.keys(result.errors)[0]
                   if (firstErrorField) {
                     this.setFocus(firstErrorField as keyof T)
                   }

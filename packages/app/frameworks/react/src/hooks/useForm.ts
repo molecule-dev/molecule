@@ -15,7 +15,7 @@ import type {
   FormValuesConstraint,
   RegisterOptions,
 } from '@molecule/app-forms'
-import { createForm as createBondedForm } from '@molecule/app-forms'
+import { createForm as createBondedForm, formValuesEqual } from '@molecule/app-forms'
 
 /**
  * Adapt controller notifications to React's stable snapshot contract. Providers
@@ -150,11 +150,23 @@ export function useForm<T extends FormValuesConstraint<T> = Record<string, unkno
   const form = formRef.current
   const values = options.values
   const keepDirtyValues = options.resetOptions?.keepDirtyValues === true
+  const lastExternalValues = useRef<{ values: Partial<T> } | null>(null)
 
   useLayoutEffect(() => {
-    if (values !== undefined) {
-      form.updateValues(values, { keepDirtyValues })
+    if (values === undefined) {
+      lastExternalValues.current = null
+      return
     }
+    // External content has its own history. A reset may change the controller
+    // baseline without making an unchanged record external again.
+    if (
+      lastExternalValues.current !== null &&
+      formValuesEqual(lastExternalValues.current.values, values)
+    ) {
+      return
+    }
+    lastExternalValues.current = { values }
+    form.updateValues(values, { keepDirtyValues })
   }, [form, keepDirtyValues, values])
 
   const readState = useCallback(() => form.getState(), [form])

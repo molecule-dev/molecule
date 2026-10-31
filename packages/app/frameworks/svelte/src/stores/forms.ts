@@ -12,10 +12,20 @@ import type {
   FormController,
   FormOptions,
   FormProvider,
+  FormResetOptions,
   FormState,
   FormValuesConstraint,
   RegisterOptions,
 } from '@molecule/app-forms'
+
+/**
+ * Svelte form creation options. Deliver records loaded after creation through
+ * `updateValues()`; store-backed getters are not observed by this factory.
+ */
+type SvelteFormOptions<T extends FormValuesConstraint<T>> = Omit<
+  FormOptions<T>,
+  'values' | 'resetOptions'
+>
 
 /**
  * Form stores and actions return type.
@@ -40,7 +50,7 @@ interface FormStores<T extends FormValuesConstraint<T>> {
     onSubmit: (values: T) => void | Promise<void>,
     onError?: (errors: Partial<Record<keyof T, string>>) => void,
   ) => (event?: { preventDefault?: () => void }) => Promise<void>
-  updateValues: (values: Partial<T>) => void
+  updateValues: (values: Partial<T>, resetOptions?: FormResetOptions) => void
   reset: (values?: Partial<T>) => void
   validate: () => Promise<boolean>
   destroy: () => void
@@ -51,7 +61,7 @@ interface FormStores<T extends FormValuesConstraint<T>> {
  * Create form stores from a form provider and options.
  *
  * @param provider - Form provider instance
- * @param options - Form creation options
+ * @param options - Form creation options. Use `updateValues()` for late records.
  * @returns Form stores and actions
  *
  * @example
@@ -89,7 +99,7 @@ interface FormStores<T extends FormValuesConstraint<T>> {
  */
 export function createFormStores<T extends FormValuesConstraint<T>>(
   provider: FormProvider,
-  options: FormOptions<T>,
+  options: SvelteFormOptions<T>,
 ): FormStores<T> {
   const controller = provider.createForm<T>(options)
 
@@ -97,9 +107,11 @@ export function createFormStores<T extends FormValuesConstraint<T>>(
   const formState: Readable<FormState<T>> = readable(
     controller.getState(),
     (set: (value: FormState<T>) => void) => {
-      return controller.subscribe((state: FormState<T>) => {
+      const unsubscribe = controller.subscribe((state: FormState<T>) => {
         set(state)
       })
+      set(controller.getState())
+      return unsubscribe
     },
   )
 
@@ -158,8 +170,8 @@ export function createFormStores<T extends FormValuesConstraint<T>>(
     return controller.handleSubmit(onSubmit, onError)
   }
 
-  const updateValues = (values: Partial<T>): void => {
-    controller.updateValues(values, options.resetOptions)
+  const updateValues = (values: Partial<T>, resetOptions: FormResetOptions = {}): void => {
+    controller.updateValues(values, resetOptions)
   }
 
   const reset = (values?: Partial<T>): void => {

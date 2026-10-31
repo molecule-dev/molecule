@@ -27,7 +27,13 @@ export function formValuesEqual(left: unknown, right: unknown): boolean {
   }
   if (Array.isArray(left) || Array.isArray(right)) {
     if (!Array.isArray(left) || !Array.isArray(right) || left.length !== right.length) return false
-    return left.every((value, index) => formValuesEqual(value, right[index]))
+    for (let index = 0; index < left.length; index++) {
+      const leftHasIndex = Object.prototype.hasOwnProperty.call(left, index)
+      const rightHasIndex = Object.prototype.hasOwnProperty.call(right, index)
+      if (leftHasIndex !== rightHasIndex) return false
+      if (leftHasIndex && !formValuesEqual(left[index], right[index])) return false
+    }
+    return true
   }
   if (!isPlainObject(left) || !isPlainObject(right)) return false
 

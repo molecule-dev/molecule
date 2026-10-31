@@ -2,4 +2,4 @@
 '@molecule/app-angular': minor
 ---
 
-Add `updateValues` so loaded records fill pristine fields without clearing edits or submission state.
+Deliver late records through explicit `updateValues()` options instead of ignored reactive creation options.

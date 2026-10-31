@@ -38,4 +38,31 @@ describe('Vue late form values', () => {
     expect(form.getValue('body')).toBe('Loaded body')
     wrapper.unmount()
   })
+
+  it('applies in-place reactive record changes from a detached snapshot', async () => {
+    const options = reactive<UseFormOptions<ArticleValues>>({
+      createForm: (formOptions) => nativeProvider.createForm(formOptions),
+      defaultValues: { title: '', body: '' },
+      values: { title: '', body: '' },
+      resetOptions: { keepDirtyValues: true },
+    })
+    let form!: UseFormReturn<ArticleValues>
+    const wrapper = mount(
+      defineComponent({
+        setup() {
+          form = useForm(options)
+          return () => h('div')
+        },
+      }),
+    )
+    form.setValue('title', 'Draft title')
+
+    Object.assign(options.values!, { title: 'Loaded title', body: 'Loaded body' })
+    await nextTick()
+
+    expect(form.getValue('title')).toBe('Draft title')
+    expect(form.getValue('body')).toBe('Loaded body')
+    expect(form.formState.value.values).toEqual({ title: 'Draft title', body: 'Loaded body' })
+    wrapper.unmount()
+  })
 })

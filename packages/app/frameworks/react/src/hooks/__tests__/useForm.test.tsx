@@ -283,3 +283,46 @@ describe('useForm handleSubmit', () => {
     expect(result.current.isSubmitting).toBe(false)
   })
 })
+
+describe('useForm external values versus reset baselines', () => {
+  it.each([true, false])(
+    'does not undo reset values with unchanged inline values (keepDirtyValues=%s)',
+    (keepDirtyValues) => {
+      const { result, rerender } = renderHook(() =>
+        useForm<ArticleValues>({
+          defaultValues: { title: '', body: '' },
+          values: { title: 'Server', body: 'Server body' },
+          resetOptions: { keepDirtyValues },
+        }),
+      )
+
+      act(() => result.current.reset({ title: 'Saved', body: 'Saved body' }))
+      rerender()
+
+      expect(result.current.getValue('title')).toBe('Saved')
+      expect(result.current.getValue('body')).toBe('Saved body')
+    },
+  )
+
+  it.each([true, false])(
+    'does not erase async defaults delivered through reset (keepDirtyValues=%s)',
+    async (keepDirtyValues) => {
+      const { result, rerender } = renderHook(() =>
+        useForm<ArticleValues>({
+          defaultValues: { title: '', body: '' },
+          values: { title: 'Server', body: 'Server body' },
+          resetOptions: { keepDirtyValues },
+        }),
+      )
+
+      await act(async () => {
+        const record = await Promise.resolve({ title: 'Async', body: 'Async body' })
+        result.current.reset(record)
+      })
+      rerender()
+
+      expect(result.current.getValue('title')).toBe('Async')
+      expect(result.current.getValue('body')).toBe('Async body')
+    },
+  )
+})

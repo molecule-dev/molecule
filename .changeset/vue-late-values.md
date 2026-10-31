@@ -2,4 +2,4 @@
 '@molecule/app-vue': minor
 ---
 
-Apply reactive late form values and expose `updateValues` through the shared non-destructive rebase.
+Apply in-place reactive record changes through a detached late-value snapshot.

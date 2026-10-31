@@ -179,8 +179,9 @@ export function useForm<T extends FormValuesConstraint<T>>(
   watch(
     () => options.values,
     (values) => {
-      if (values !== undefined) updateValues(values)
+      if (values !== undefined) updateValues({ ...values })
     },
+    { deep: true },
   )
 
   const reset = (values?: Partial<T>): void => form.reset(values)

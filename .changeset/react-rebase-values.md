@@ -2,4 +2,4 @@
 '@molecule/app-react': patch
 ---
 
-Preserve active submissions and apply replacement records safely when form values arrive late.
+Keep reset and async default baselines intact when unchanged external values render again.

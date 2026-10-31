@@ -125,23 +125,24 @@ export function createForm<T extends FormValuesConstraint<T>>(
     controller.updateValues(values, resetOptions)
   }
 
-  createEffect(() => {
-    const loadedValues = options.values
-    if (loadedValues !== undefined) updateValues(loadedValues)
-  })
-
   const [formState, setFormState] = createSignal<FormState<T>>(controller.getState())
 
-  // Subscribe to form state changes
+  // Subscribe before applying values so even the first loaded record is published.
   createEffect(() => {
     const unsubscribe = controller.subscribe((newState: FormState<T>) => {
       setFormState(newState)
     })
+    setFormState(controller.getState())
 
     onCleanup(() => {
       unsubscribe()
       controller.destroy()
     })
+  })
+
+  createEffect(() => {
+    const loadedValues = options.values
+    if (loadedValues !== undefined) updateValues(loadedValues)
   })
 
   // Derived accessors

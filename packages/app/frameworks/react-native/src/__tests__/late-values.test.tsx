@@ -27,4 +27,20 @@ describe('React Native inherited late form values', () => {
     expect(result.current.getValue('title')).toBe('Draft title')
     expect(result.current.getValue('body')).toBe('Loaded body')
   })
+
+  it('inherits React reset behavior without reapplying unchanged external values', () => {
+    const { result, rerender } = renderHook(() =>
+      useForm<ArticleValues>({
+        defaultValues: { title: '', body: '' },
+        values: { title: 'Server', body: 'Server body' },
+        resetOptions: { keepDirtyValues: true },
+      }),
+    )
+
+    act(() => result.current.reset({ title: 'Saved', body: 'Saved body' }))
+    rerender()
+
+    expect(result.current.getValue('title')).toBe('Saved')
+    expect(result.current.getValue('body')).toBe('Saved body')
+  })
 })
