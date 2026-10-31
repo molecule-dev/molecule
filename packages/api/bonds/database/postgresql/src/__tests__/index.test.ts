@@ -5,49 +5,51 @@ import type { createStore } from '../store.js'
 type Store = Awaited<ReturnType<typeof createStore>>
 
 // Use vi.hoisted to create shared mock instances
-const { mockPoolClass, mockClientClass, mockQuery, mockEnd, mockRelease } = vi.hoisted(() => {
-  const mockQuery = vi.fn()
-  const mockConnect = vi.fn()
-  const mockEnd = vi.fn()
-  const mockRelease = vi.fn()
-  const mockOn = vi.fn()
+const { mockPoolClass, mockClientClass, mockQuery, mockEnd, mockRelease, mockOn } = vi.hoisted(
+  () => {
+    const mockQuery = vi.fn()
+    const mockConnect = vi.fn()
+    const mockEnd = vi.fn()
+    const mockRelease = vi.fn()
+    const mockOn = vi.fn()
 
-  const mockClient = {
-    query: mockQuery,
-    connect: mockConnect,
-    end: mockEnd,
-    release: mockRelease,
-    on: mockOn,
-  }
+    const mockClient = {
+      query: mockQuery,
+      connect: mockConnect,
+      end: mockEnd,
+      release: mockRelease,
+      on: mockOn,
+    }
 
-  const mockPool = {
-    query: mockQuery,
-    connect: vi.fn().mockResolvedValue(mockClient),
-    end: mockEnd,
-    on: mockOn,
-    totalCount: 10,
-    idleCount: 5,
-    waitingCount: 0,
-  }
+    const mockPool = {
+      query: mockQuery,
+      connect: vi.fn().mockResolvedValue(mockClient),
+      end: mockEnd,
+      on: mockOn,
+      totalCount: 10,
+      idleCount: 5,
+      waitingCount: 0,
+    }
 
-  const mockPoolClass = vi.fn(function () {
-    return mockPool
-  })
-  const mockClientClass = vi.fn(function () {
-    return mockClient
-  })
+    const mockPoolClass = vi.fn(function () {
+      return mockPool
+    })
+    const mockClientClass = vi.fn(function () {
+      return mockClient
+    })
 
-  return {
-    mockClient,
-    mockPool,
-    mockPoolClass,
-    mockClientClass,
-    mockQuery,
-    mockEnd,
-    mockRelease,
-    mockOn,
-  }
-})
+    return {
+      mockClient,
+      mockPool,
+      mockPoolClass,
+      mockClientClass,
+      mockQuery,
+      mockEnd,
+      mockRelease,
+      mockOn,
+    }
+  },
+)
 
 // Mock pg before importing module
 vi.mock('pg', () => {
@@ -302,6 +304,31 @@ describe('@molecule/api-database-postgresql', () => {
       expect(result.rows).toEqual(mockRows)
       client.release()
       expect(mockRelease).toHaveBeenCalled()
+    })
+
+    it('exposes dedicated-client error/end to its holder between queries', async () => {
+      vi.resetModules()
+      const { pool } = await import('../index.js')
+      const client = await pool.connect()
+      const lost = vi.fn()
+
+      expect(client.onConnectionLoss).toBeTypeOf('function')
+      client.onConnectionLoss!(lost)
+      const errorHandler = mockOn.mock.calls.filter(([event]) => event === 'error').at(-1)?.[1]
+      const endHandler = mockOn.mock.calls.find(([event]) => event === 'end')?.[1]
+      expect(errorHandler).toBeTypeOf('function')
+      expect(endHandler).toBeTypeOf('function')
+
+      // No query/heartbeat is running: a native pg client emits these events
+      // directly. The bond must observe them without a process-level handler.
+      errorHandler(new Error('failover between queries'))
+      expect(lost).toHaveBeenCalledWith(
+        expect.objectContaining({ message: 'failover between queries' }),
+      )
+      endHandler()
+      expect(lost).toHaveBeenCalledTimes(2)
+      client.release()
+      expect(mockRelease).toHaveBeenCalledWith(expect.any(Error))
     })
   })
 

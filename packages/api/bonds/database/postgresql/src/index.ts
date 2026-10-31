@@ -180,6 +180,20 @@ function wrapPool(pgPool: pg.Pool): DatabasePool {
 
     async connect(): Promise<DatabaseConnection> {
       const client = await pgPool.connect()
+      const listeners = new Set<(error: Error) => void>()
+      let connectionLoss: Error | undefined
+      let released = false
+      // A checked-out pg client is outside the pool's idle-client error handler.
+      // Install OUR handler before returning it, so an error between queries is
+      // delivered to the holder instead of becoming an unhandled EventEmitter
+      // `error` (and therefore a process-level fatal exception).
+      const onError = (error: Error): void => {
+        connectionLoss ??= error
+        for (const listener of [...listeners]) listener(error)
+      }
+      const onEnd = (): void => onError(new Error('PostgreSQL connection ended'))
+      client.on('error', onError)
+      client.on('end', onEnd)
       return {
         async query<T = Record<string, unknown>>(text: string, values?: unknown[]) {
           const result = await client.query<T & pg.QueryResultRow>(text, values)
@@ -189,8 +203,24 @@ function wrapPool(pgPool: pg.Pool): DatabasePool {
             fields: result.fields?.map((f) => ({ name: f.name, dataTypeID: f.dataTypeID })),
           }
         },
+        onConnectionLoss(listener) {
+          // Do not lose an event emitted after checkout but before the holder
+          // subscribed. Normal events keep their one-call-per-event semantics.
+          if (connectionLoss) listener(connectionLoss)
+          else listeners.add(listener)
+          return () => {
+            listeners.delete(listener)
+          }
+        },
         release() {
-          client.release()
+          if (released) return
+          released = true
+          listeners.clear()
+          client.removeListener?.('error', onError)
+          client.removeListener?.('end', onEnd)
+          // A broken checked-out session must be destroyed, not returned to
+          // the pool for the next lock holder or query.
+          client.release(connectionLoss)
         },
       }
     },

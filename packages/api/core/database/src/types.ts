@@ -40,6 +40,16 @@ export interface DatabaseConnection {
   query<T = Record<string, unknown>>(text: string, values?: unknown[]): Promise<QueryResult<T>>
 
   /**
+   * Subscribes the holder of a dedicated connection to its transport `error`
+   * or `end`, including events emitted between queries. The returned function
+   * unsubscribes. Bonds without connection-level events may omit this method.
+   *
+   * @param listener - Called once for each observed connection-loss event.
+   * @returns An idempotent unsubscribe function.
+   */
+  onConnectionLoss?(listener: (error: Error) => void): () => void
+
+  /**
    * Releases the connection back to the pool.
    */
   release(): void
