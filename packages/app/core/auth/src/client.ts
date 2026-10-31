@@ -263,6 +263,9 @@ export const createJWTAuthClient = <
   // sign-in/sign-out invalidates older profile writes, even if token strings
   // happen to match. Background profile reads do not replace the session.
   let sessionRevision = 0
+  // Accepted profile writes also own the cached profile: a read captured before
+  // one must not restore the older record after the save has been published.
+  let profileRevision = 0
 
   let state: AuthState<T> = {
     status: 'loading',
@@ -1111,6 +1114,7 @@ export const createJWTAuthClient = <
       // refresh that landed during the save is kept — and store and publish the result
       // once, so no reader ever sees the partial answer.
       const user = applyProfileAnswer(state.user, mapped)
+      profileRevision++
       tokenStorage.setUser(user)
       setState({ user })
 
@@ -1154,8 +1158,11 @@ export const createJWTAuthClient = <
         return
       }
       const revision = sessionRevision
+      const readProfileRevision = profileRevision
       const isCurrent = (): boolean =>
         revision === sessionRevision && token === tokenStorage.getAccessToken()
+      const isCurrentProfileRead = (): boolean =>
+        isCurrent() && readProfileRevision === profileRevision
       try {
         // `fetchAPI` sends the stored token, so this asks the server "is this
         // session still valid?" — the background check `initialize()` does not do
@@ -1167,7 +1174,7 @@ export const createJWTAuthClient = <
         // (xr-molecule-flash-m184 — a reload replaced the adapted user with the
         // raw one and the profile link disappeared).
         const user = mapCurrentUser(result, (result?.user ?? tokenStorage.getUser<T>()) as T | null)
-        if (!isCurrent()) return
+        if (!isCurrentProfileRead()) return
         if (user) {
           tokenStorage.setUser(user)
           setState({
@@ -1187,7 +1194,7 @@ export const createJWTAuthClient = <
           })
         }
       } catch (error) {
-        if (!isCurrent()) return
+        if (!isCurrentProfileRead()) return
         const httpStatus = (error as { status?: number }).status
         // ONLY 401 and 403 are the server rejecting this token (revoked, expired,
         // a reset database): drop the session rather than keep sending a header

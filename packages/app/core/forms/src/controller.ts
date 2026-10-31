@@ -56,8 +56,7 @@ export const createNativeFormProvider = (): FormProvider => {
       let touched: Partial<Record<keyof T, boolean>> = {}
       let submitCount = 0
       let isSubmitting = false
-      let valueRevision = 0
-      let validationVersion = 0
+      let replacementRevision = 0
       let validationOrder = 0
       let submissionVersion = 0
       let submissionValidationVersion = 0
@@ -72,24 +71,26 @@ export const createNativeFormProvider = (): FormProvider => {
       const fieldRefs = new Map<string, HTMLElement>()
       const listeners = new Set<(state: FormState<T>) => void>()
 
-      const isCurrent = (revision: number): boolean => !destroyed && revision === valueRevision
-      const isFieldCurrent = (name: string, revision: number, validation: number): boolean =>
+      const isFieldRevisionCurrent = (
+        name: string,
+        revision: number,
+        replacement: number,
+      ): boolean =>
         !destroyed &&
-        revision === (fieldValueRevisions.get(name) ?? 0) &&
+        replacement === replacementRevision &&
+        revision === (fieldValueRevisions.get(name) ?? 0)
+      const isFieldCurrent = (
+        name: string,
+        revision: number,
+        replacement: number,
+        validation: number,
+      ): boolean =>
+        isFieldRevisionCurrent(name, revision, replacement) &&
         validation === fieldValidationOwners.get(name)
       const isSubmissionCurrent = (submission: number, validation: number): boolean =>
         !destroyed && submission === submissionVersion && validation === submissionValidationVersion
-      const advanceValueRevision = (names?: Iterable<string>): void => {
-        valueRevision++
-        const changedNames =
-          names ??
-          new Set([
-            ...Object.keys(values),
-            ...Object.keys(defaultValues),
-            ...fieldSchemas.keys(),
-            ...fieldValueRevisions.keys(),
-          ])
-        for (const name of changedNames) {
+      const advanceValueRevision = (names: Iterable<string>): void => {
+        for (const name of names) {
           fieldValueRevisions.set(name, (fieldValueRevisions.get(name) ?? 0) + 1)
         }
       }
@@ -114,6 +115,54 @@ export const createNativeFormProvider = (): FormProvider => {
         const validation = ++validationOrder
         for (const name of fields) fieldValidationOwners.set(name, validation)
         return validation
+      }
+      const publishValidationErrors = (
+        fields: Set<string>,
+        revisions: Map<string, number>,
+        replacement: number,
+        validation: number,
+        result: Partial<Record<keyof T, string>>,
+      ): {
+        errors: Partial<Record<keyof T, string>>
+        didPublish: boolean
+        isCurrent: () => boolean
+      } => {
+        const published: Partial<Record<keyof T, string>> = {}
+        const publishedNames: string[] = []
+        const newErrors = { ...errors }
+        let didPublish = fields.size === 0 && replacement === replacementRevision && !destroyed
+        const ownsValidation = (name: string): boolean =>
+          fields.has(name)
+            ? fieldValidationOwners.get(name) === validation
+            : !fieldValidationOwners.has(name)
+        for (const name of new Set([...fields, ...Object.keys(result)])) {
+          if (
+            !ownsValidation(name) ||
+            !isFieldRevisionCurrent(name, revisions.get(name) ?? 0, replacement)
+          ) {
+            continue
+          }
+          didPublish = true
+          publishedNames.push(name)
+          const error = result[name as keyof T]
+          if (error) {
+            newErrors[name as keyof T] = error
+            published[name as keyof T] = error
+          } else {
+            delete newErrors[name as keyof T]
+          }
+        }
+        errors = newErrors
+        return {
+          errors: published,
+          didPublish,
+          isCurrent: () =>
+            publishedNames.every(
+              (name) =>
+                ownsValidation(name) &&
+                isFieldRevisionCurrent(name, revisions.get(name) ?? 0, replacement),
+            ),
+        }
       }
 
       const notify = (): void => {
@@ -322,8 +371,9 @@ export const createNativeFormProvider = (): FormProvider => {
           if (!schema) return true
 
           const revision = fieldValueRevisions.get(key) ?? 0
+          const replacement = replacementRevision
           const validation = beginValidation([key])
-          const current = (): boolean => isFieldCurrent(key, revision, validation)
+          const current = (): boolean => isFieldCurrent(key, revision, replacement, validation)
           const snapshot = snapshotFormValue(values[key])
           const error = await validateValue(snapshot, schema, t)
           if (!current()) return false
@@ -339,28 +389,25 @@ export const createNativeFormProvider = (): FormProvider => {
         },
 
         async validate(): Promise<boolean> {
-          const validation = ++validationVersion
-          const revision = valueRevision
+          const replacement = replacementRevision
           const snapshot = snapshotFormValue(values)
           const fields = validationFields(snapshot)
+          const revisions = new Map(
+            [...fields].map((name) => [name, fieldValueRevisions.get(name) ?? 0]),
+          )
           const fieldValidation = beginValidation(fields)
-          const current = (): boolean => isCurrent(revision) && validation === validationVersion
-          const result = await validateSnapshot(snapshot, current)
-          if (!result || !current()) return false
+          const result = await validateSnapshot(snapshot, () => !destroyed)
+          if (!result || destroyed) return false
 
-          const newErrors = { ...errors }
-          for (const name of new Set([...fields, ...Object.keys(result.errors)])) {
-            const owned = fields.has(name)
-              ? fieldValidationOwners.get(name) === fieldValidation
-              : !fieldValidationOwners.has(name)
-            if (!owned) continue
-            const error = result.errors[name as keyof T]
-            if (error) newErrors[name as keyof T] = error
-            else delete newErrors[name as keyof T]
-          }
-          errors = newErrors
-          notify()
-          return current() && result.isValid
+          const publication = publishValidationErrors(
+            fields,
+            revisions,
+            replacement,
+            fieldValidation,
+            result.errors,
+          )
+          if (publication.didPublish) notify()
+          return result.isValid
         },
 
         updateValues(newValues: Partial<T>, resetOptions: FormResetOptions = {}): void {
@@ -377,6 +424,7 @@ export const createNativeFormProvider = (): FormProvider => {
             recordIdentityChanged(previousDefaultValues, nextDefaultValues)
           ) {
             submissionValidationVersion++
+            replacementRevision++
           }
           const nextValues = snapshotFormValue(nextDefaultValues)
           if (resetOptions.keepDirtyValues) {
@@ -411,6 +459,7 @@ export const createNativeFormProvider = (): FormProvider => {
             submissionValidationVersion++
           }
           const nextValues = snapshotFormValue(nextDefaultValues)
+          replacementRevision++
           reviseChangedValues(values, nextValues)
           defaultValues = nextDefaultValues
           values = nextValues
@@ -432,18 +481,17 @@ export const createNativeFormProvider = (): FormProvider => {
 
             const submission = ++submissionVersion
             const submissionValidation = ++submissionValidationVersion
-            const errorValidation = ++validationVersion
-            const revision = valueRevision
+            const replacement = replacementRevision
             submitCount++
             isSubmitting = true
             const submissionValues = snapshotSubmissionValue(values)
-            const errorOrder = beginValidation(validationFields(submissionValues))
+            const fields = validationFields(submissionValues)
+            const revisions = new Map(
+              [...fields].map((name) => [name, fieldValueRevisions.get(name) ?? 0]),
+            )
+            const fieldValidation = beginValidation(fields)
             const currentSubmission = (): boolean =>
               isSubmissionCurrent(submission, submissionValidation)
-            const canPublishErrors = (): boolean =>
-              isCurrent(revision) &&
-              errorValidation === validationVersion &&
-              errorOrder === validationOrder
 
             try {
               notify()
@@ -451,8 +499,14 @@ export const createNativeFormProvider = (): FormProvider => {
               const result = await validateSnapshot(submissionValues, currentSubmission)
               if (!result || !currentSubmission()) return
 
-              if (canPublishErrors()) {
-                errors = result.errors
+              const publication = publishValidationErrors(
+                fields,
+                revisions,
+                replacement,
+                fieldValidation,
+                result.errors,
+              )
+              if (publication.didPublish) {
                 notify()
                 if (!currentSubmission()) return
               }
@@ -460,13 +514,13 @@ export const createNativeFormProvider = (): FormProvider => {
                 await onSubmit(submissionValues as T)
                 if (!currentSubmission()) return
               } else {
-                if (!canPublishErrors()) return
+                if (Object.keys(publication.errors).length === 0 || !publication.isCurrent()) return
                 if (onError) {
-                  onError(result.errors)
-                  if (!currentSubmission() || !canPublishErrors()) return
+                  onError(publication.errors)
+                  if (!currentSubmission() || !publication.isCurrent()) return
                 }
                 if (options.shouldFocusError !== false) {
-                  const firstErrorField = Object.keys(result.errors)[0]
+                  const firstErrorField = Object.keys(publication.errors)[0]
                   if (firstErrorField) {
                     this.setFocus(firstErrorField as keyof T)
                   }
@@ -497,7 +551,7 @@ export const createNativeFormProvider = (): FormProvider => {
           destroyed = true
           submissionVersion++
           submissionValidationVersion++
-          advanceValueRevision()
+          replacementRevision++
           listeners.clear()
           fieldSchemas.clear()
           fieldRefs.clear()

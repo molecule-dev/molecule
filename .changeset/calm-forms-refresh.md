@@ -3,4 +3,4 @@
 '@molecule/app-react': patch
 ---
 
-Keep independent validation and same-record submissions correct, and declare React's required forms peer.
+Own validation and submit errors by field revisions, and preserve edited profile fields and composite values through late records.

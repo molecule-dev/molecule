@@ -7,22 +7,23 @@
 import { useCallback, useInsertionEffect, useLayoutEffect, useRef, useState } from 'react'
 
 import type { FieldRegistration, FormValuesConstraint } from '@molecule/app-forms'
+import { formValuesEqual, snapshotFormValue } from '@molecule/app-forms'
 
 import { useAuth, useAuthClient } from './useAuth.js'
 import { useForm, type UseFormOptions, type UseFormResult } from './useForm.js'
 
 /**
- * Copies the shallow value snapshot the hook keeps as its baseline.
+ * Detaches the value snapshot the hook keeps as its baseline.
  *
  * Form values are a plain string-keyed object at runtime; the caller's values
  * TYPE may be an `interface`, which has no index signature to spread from, so
  * the copy goes through the record view and comes back as `TValues`.
  *
  * @param values - The values object to snapshot.
- * @returns A new object with the same own fields.
+ * @returns A detached form-value snapshot.
  */
 function copyValues<T extends FormValuesConstraint<T>>(values: T): T {
-  return { ...(values as Record<string, unknown>) } as T
+  return snapshotFormValue(values as Record<string, unknown>) as T
 }
 
 /**
@@ -124,6 +125,9 @@ export function useProfileForm<TUser, TValues extends FormValuesConstraint<TValu
   const optionsRef = useRef(options)
   const committedClient = useRef(client)
   const baseline = useRef(copyValues(defaultValues))
+  // A late same-account record must not undo fields the person edited, even
+  // after those edits became the clean baseline of a completed save.
+  const editedFields = useRef<Set<keyof TValues>>(new Set())
   const owner = useRef<{
     client: typeof client
     revision: number | undefined
@@ -155,14 +159,21 @@ export function useProfileForm<TUser, TValues extends FormValuesConstraint<TValu
     (next: TValues, preserveAgainst?: TValues): void => {
       const current = readValues()
       baseline.current = copyValues(next)
-      form.reset(next)
       if (preserveAgainst) {
+        form.updateValues(next, { keepDirtyValues: true })
         for (const key of Object.keys(current) as (keyof TValues)[]) {
-          if (!Object.is(current[key], preserveAgainst[key])) form.setValue(key, current[key])
+          if (
+            editedFields.current.has(key) ||
+            !formValuesEqual(current[key], preserveAgainst[key])
+          ) {
+            form.setValue(key, current[key])
+          }
         }
+      } else {
+        form.reset(next)
       }
     },
-    [readValues, form.reset, form.setValue],
+    [readValues, form.reset, form.updateValues, form.setValue],
   )
 
   useLayoutEffect(() => {
@@ -171,6 +182,7 @@ export function useProfileForm<TUser, TValues extends FormValuesConstraint<TValu
       if (owner.current) {
         owner.current = null
         pendingPropagation.current = undefined
+        editedFields.current.clear()
         rebase(copyValues(config.defaultValues))
         setError(undefined)
       }
@@ -192,7 +204,10 @@ export function useProfileForm<TUser, TValues extends FormValuesConstraint<TValu
     const previousBaseline = baseline.current
     // Keep this token across same-account hydration, but replace it when the
     // account/client changes. A pending validation belongs to that exact owner.
-    if (!previous || !sameAccount) owner.current = { client, revision, identity }
+    if (!previous || !sameAccount) {
+      owner.current = { client, revision, identity }
+      editedFields.current.clear()
+    }
     rebase(config.toValues(user), sameAccount ? previousBaseline : undefined)
     if (!sameAccount) {
       pendingPropagation.current = undefined
@@ -223,7 +238,7 @@ export function useProfileForm<TUser, TValues extends FormValuesConstraint<TValu
     const before = copyValues(baseline.current)
     const changes: Partial<TValues> = {}
     for (const key of Object.keys(snapshot) as (keyof TValues)[]) {
-      if (!Object.is(snapshot[key], before[key])) changes[key] = snapshot[key]
+      if (!formValuesEqual(snapshot[key], before[key])) changes[key] = snapshot[key]
     }
     setError(undefined)
     setIsSaving(true)
@@ -243,7 +258,22 @@ export function useProfileForm<TUser, TValues extends FormValuesConstraint<TValu
               saved = undefined
               return
             }
-            if (mounted.current) rebase(config.toValues(saved), snapshot)
+            if (mounted.current) {
+              const savedValues = config.toValues(saved)
+              const current = readValues()
+              for (const key of editedFields.current) {
+                if (
+                  formValuesEqual(current[key], snapshot[key]) &&
+                  !formValuesEqual(savedValues[key], snapshot[key])
+                ) {
+                  // The accepted response intentionally transformed or cleared
+                  // this field (for example, a write-only password).
+                  editedFields.current.delete(key)
+                  form.setValue(key, savedValues[key])
+                }
+              }
+              rebase(savedValues, snapshot)
+            }
             pendingPropagation.current = saved
           }
           if (pendingPropagation.current !== undefined) {
@@ -275,13 +305,26 @@ export function useProfileForm<TUser, TValues extends FormValuesConstraint<TValu
       name: K,
       registerOptions?: Parameters<UseFormResult<TValues>['register']>[1],
     ): Omit<FieldRegistration, 'value'> & { value: TValues[K] } => {
-      return form.register(name, registerOptions) as Omit<FieldRegistration, 'value'> & {
-        value: TValues[K]
-      }
+      const registration = form.register(name, registerOptions)
+      return {
+        ...registration,
+        onChange: (event: Parameters<FieldRegistration['onChange']>[0]) => {
+          editedFields.current.add(name)
+          registration.onChange(event)
+        },
+      } as Omit<FieldRegistration, 'value'> & { value: TValues[K] }
     },
     [form.register],
   )
+  const setValue = useCallback(
+    <K extends keyof TValues>(name: K, value: TValues[K]): void => {
+      editedFields.current.add(name)
+      form.setValue(name, value)
+    },
+    [form.setValue],
+  )
   const reset = useCallback(() => {
+    editedFields.current.clear()
     form.reset(baseline.current)
     setError(undefined)
   }, [form.reset])
@@ -301,6 +344,7 @@ export function useProfileForm<TUser, TValues extends FormValuesConstraint<TValu
     ready: user !== null,
     error,
     register,
+    setValue,
     reset,
     submit,
     formProps: { onSubmit },

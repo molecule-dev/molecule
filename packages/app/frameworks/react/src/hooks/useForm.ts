@@ -11,6 +11,7 @@ import type {
   FieldState,
   FormController,
   FormOptions,
+  FormResetOptions,
   FormState,
   FormValuesConstraint,
   RegisterOptions,
@@ -95,6 +96,7 @@ export interface UseFormResult<T extends FormValuesConstraint<T>> {
     onSubmit: (values: T) => void | Promise<void>,
   ) => (event?: React.FormEvent) => Promise<void>
   reset: (values?: Partial<T>) => void
+  updateValues: (values: Partial<T>, resetOptions?: FormResetOptions) => void
   validate: () => Promise<boolean>
 }
 
@@ -219,6 +221,12 @@ export function useForm<T extends FormValuesConstraint<T> = Record<string, unkno
 
   const reset = useCallback((values?: Partial<T>) => form.reset(values), [form])
 
+  const updateValues = useCallback(
+    (newValues: Partial<T>, resetOptions?: FormResetOptions) =>
+      form.updateValues(newValues, resetOptions),
+    [form],
+  )
+
   const validate = useCallback(() => form.validate(), [form])
 
   const handleSubmit = useCallback(
@@ -243,6 +251,7 @@ export function useForm<T extends FormValuesConstraint<T> = Record<string, unkno
     clearErrors,
     handleSubmit,
     reset,
+    updateValues,
     validate,
   }
 }

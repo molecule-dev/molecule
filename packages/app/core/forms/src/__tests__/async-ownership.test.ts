@@ -107,6 +107,66 @@ describe('native asynchronous operation ownership', () => {
     expect(form.getError('email')).toBe('Email invalid')
   })
 
+  it('keeps submit name errors when independent email validation finishes first', async () => {
+    let release!: (errors: Record<string, string>) => void
+    const gate = new Promise<Record<string, string>>((resolve) => {
+      release = resolve
+    })
+    const form = nativeProvider.createForm({
+      defaultValues: { email: 'ok@example.test', name: '' },
+      validate: () => gate,
+    })
+    form.register({ name: 'email', required: true })
+    form.register({ name: 'name', required: 'Name required' })
+    const onSubmit = vi.fn()
+    const onError = vi.fn()
+
+    const submission = form.handleSubmit(onSubmit, onError)()
+    await expect(form.validateField('email')).resolves.toBe(true)
+    release({})
+    await submission
+
+    expect(onSubmit).not.toHaveBeenCalled()
+    expect(form.getState().errors).toEqual({ name: 'Name required' })
+    expect(onError).toHaveBeenCalledWith({ name: 'Name required' })
+    expect(form.getState().isSubmitting).toBe(false)
+  })
+
+  it('invalidates pending validation on reset even when defaults are unchanged', async () => {
+    let release!: (errors: Record<string, string>) => void
+    const gate = new Promise<Record<string, string>>((resolve) => {
+      release = resolve
+    })
+    const form = nativeProvider.createForm({
+      defaultValues: { title: '' },
+      validate: () => gate,
+    })
+
+    const validation = form.validate()
+    form.reset()
+    release({ title: 'Pre-reset error' })
+    await validation
+
+    expect(form.getState().errors).toEqual({})
+  })
+
+  it('invalidates unchanged fields when the record identity changes', async () => {
+    let release!: (error: string) => void
+    const gate = new Promise<string>((resolve) => {
+      release = resolve
+    })
+    const initial = { id: 'account-A', email: 'shared@example.test' }
+    const form = nativeProvider.createForm({ defaultValues: initial, values: initial })
+    form.register({ name: 'email', validate: () => gate })
+
+    const validation = form.validateField('email')
+    form.updateValues({ id: 'account-B', email: initial.email }, { keepDirtyValues: true })
+    release('Account A server error')
+    await validation
+
+    expect(form.getState().errors).toEqual({})
+  })
+
   it('does not let older whole-form validation replace newer errors', async () => {
     let releaseOld!: (errors: Record<string, string>) => void
     let releaseNew!: (errors: Record<string, string>) => void
