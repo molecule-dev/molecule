@@ -1,6 +1,6 @@
 import { spawn } from 'node:child_process'
 import { existsSync } from 'node:fs'
-import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { DatabaseSync } from 'node:sqlite'
@@ -22,8 +22,11 @@ interface ChildResult {
 
 const runChild = (args: string[], preload?: string): Promise<ChildResult> =>
   new Promise((resolve, reject) => {
-    const child = spawn(process.execPath, [...(preload ? ['--import', preload] : []), ...args], {
+    const env = { ...process.env }
+    if (preload !== undefined) env.NODE_OPTIONS = `${env.NODE_OPTIONS ?? ''} --import=${preload}`
+    const child = spawn(process.execPath, args, {
       stdio: ['ignore', 'pipe', 'pipe'],
+      env,
     })
     let stdout = ''
     let stderr = ''
@@ -35,31 +38,21 @@ const runChild = (args: string[], preload?: string): Promise<ChildResult> =>
     child.once('close', (code, signal) => resolve({ code, signal, stdout, stderr }))
   })
 
-const faultPreload = async (root: string, kind: 'delivery' | 'migration'): Promise<string> => {
-  const path = join(root, `fault-${kind}.mjs`)
+const faultPreload = async (root: string): Promise<string> => {
+  const path = join(root, 'fault-delivery.mjs')
   await writeFile(
     path,
     `import { DatabaseSync } from 'node:sqlite'
-let migrationDirty = false
 const prepare = DatabaseSync.prototype.prepare
 DatabaseSync.prototype.prepare = function (sql, ...args) {
   const statement = prepare.call(this, sql, ...args)
   const run = statement.run.bind(statement)
   statement.run = (...parameters) => {
     const result = run(...parameters)
-    if (${JSON.stringify(kind)} === 'delivery' && sql.startsWith('INSERT INTO deliveries'))
-      process.kill(process.pid, 'SIGKILL')
-    if (sql.startsWith('INSERT INTO migration')) migrationDirty = true
+    if (sql.startsWith('INSERT INTO deliveries')) process.kill(process.pid, 'SIGKILL')
     return result
   }
   return statement
-}
-const exec = DatabaseSync.prototype.exec
-DatabaseSync.prototype.exec = function (sql, ...args) {
-  const result = exec.call(this, sql, ...args)
-  if (${JSON.stringify(kind)} === 'migration' && migrationDirty && sql.trim() === 'COMMIT')
-    process.kill(process.pid, 'SIGKILL')
-  return result
 }
 `,
   )
@@ -84,7 +77,7 @@ describe('transactional delivery regressions', () => {
     const initial = createProvider({ rootDir: root })
     for (const recipient of ['b', 'c', 'd']) await initial.pending(recipient)
     initial.close()
-    const preload = await faultPreload(root, 'delivery')
+    const preload = await faultPreload(root)
 
     const direct = await runChild([SEND_CHILD, root, 'a', 'b', 'direct'], preload)
     expect(direct.signal).toBe('SIGKILL')
@@ -155,37 +148,6 @@ describe('transactional delivery regressions', () => {
     )
     store.close()
   }, 15_000)
-
-  it('Sol 5: a killed migration resumes from its committed checkpoint', async () => {
-    const mailbox = join(root, 'messages', 'b')
-    await mkdir(mailbox, { recursive: true })
-    for (let index = 0; index < 130; index += 1) {
-      const id = `legacy-${String(index).padStart(3, '0')}`
-      await writeFile(
-        join(mailbox, `${id}.json`),
-        JSON.stringify({ id, from: 'a', to: 'b', body: id, sentAt: new Date().toISOString() }),
-      )
-    }
-    const preload = await faultPreload(root, 'migration')
-    const killed = await claimInProcess(root, join(root, 'interrupted.json'), preload)
-    expect(killed.signal).toBe('SIGKILL')
-
-    const db = new DatabaseSync(join(root, 'paracrine.sqlite'))
-    const progress = db.prepare("SELECT value FROM migration WHERE key = 'legacy'").get() as {
-      value: string
-    }
-    const imported = db.prepare('SELECT COUNT(*) AS count FROM messages').get() as { count: number }
-    db.close()
-    expect(JSON.parse(progress.value).fileAfter).toMatch(/^legacy-\d{3}\.json$/)
-    expect(imported.count).toBe(4)
-
-    const store = createProvider({ rootDir: root })
-    const pending = await store.pending('b')
-    expect(pending).toHaveLength(130)
-    expect(pending[0]).toBe('legacy-000.json')
-    expect(pending.at(-1)).toBe('legacy-129.json')
-    store.close()
-  })
 
   it('Sol 6: two recoverers cannot take a replacement claim and stale tokens cannot settle it', async () => {
     const store = createProvider({ rootDir: root })

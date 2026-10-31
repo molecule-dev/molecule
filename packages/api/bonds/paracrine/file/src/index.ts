@@ -10,8 +10,9 @@
  * **Bonds as the paracrine singleton.** `setProvider(createProvider())` at
  * startup; `requireProvider()` from `@molecule/api-paracrine` everywhere
  * else. Explicit `rootDir` config when a test or a platform wants an isolated
- * store. Existing plain-file stores are imported in checkpointed batches and
- * left untouched.
+ * store. Existing plain-file stores are imported in sorted, checkpointed
+ * batches by one detached process and left untouched; hooks serve committed
+ * SQLite rows while that import runs.
  *
  * **Interoperability is the point.** A harness with no bond support
  * participates through the CLI (`npx @molecule/api-paracrine-file -- …` via

@@ -10,10 +10,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import type { ParacrineMessage } from '@molecule/api-paracrine'
 
 import { createProvider } from '../provider.js'
-
-const BUDGET_CHILD = fileURLToPath(
-  new URL('./fixtures/migration-budget-child.mjs', import.meta.url),
-)
+import { waitForLegacyImport } from './test-helpers.js'
 const PENDING_CHILD = fileURLToPath(new URL('./fixtures/pending-child.mjs', import.meta.url))
 const RETRY_CHILD = fileURLToPath(new URL('./fixtures/retry-claim-child.mjs', import.meta.url))
 
@@ -26,8 +23,11 @@ interface ChildResult {
 
 const runChild = (args: string[], preload?: string): Promise<ChildResult> =>
   new Promise((resolve, reject) => {
-    const child = spawn(process.execPath, [...(preload ? ['--import', preload] : []), ...args], {
+    const env = { ...process.env }
+    if (preload !== undefined) env.NODE_OPTIONS = `${env.NODE_OPTIONS ?? ''} --import=${preload}`
+    const child = spawn(process.execPath, args, {
       stdio: ['ignore', 'pipe', 'pipe'],
+      env,
     })
     let stdout = ''
     let stderr = ''
@@ -83,6 +83,8 @@ describe('published 1.1.0 JSON import', () => {
     }
 
     const store = createProvider({ rootDir: root })
+    await store.pending('b')
+    await waitForLegacyImport(root)
     expect((await store.pending('b')).sort()).toEqual([
       'legacy-broadcast.json',
       'legacy-direct.json',
@@ -120,6 +122,8 @@ describe('published 1.1.0 JSON import', () => {
     await legacyRead('legacy-delivered-shaped', 'b.delivered')
 
     const store = createProvider({ rootDir: root })
+    await store.pending('b')
+    await waitForLegacyImport(root)
     expect((await store.pending('b')).sort()).toEqual([
       'legacy-delivered-shaped.json',
       'legacy-pending.json',
@@ -134,6 +138,8 @@ describe('published 1.1.0 JSON import', () => {
   it('never resurrects a purged import after closing and reopening the store', async () => {
     await legacyMessage(message('legacy-purged', 'b'))
     const store = createProvider({ rootDir: root })
+    await store.pending('b')
+    await waitForLegacyImport(root)
     expect(await store.pending('b')).toEqual(['legacy-purged.json'])
     expect(await store.purge({ before: '2026-01-02T00:00:00.000Z' })).toBe(1)
     store.close()
@@ -198,36 +204,7 @@ describe('published 1.1.0 JSON import', () => {
   })
 })
 
-describe('bounded and retryable import steps', () => {
-  it('keeps every slow-directory hook call below one second, including after entry 60', async () => {
-    for (let index = 0; index < 64; index += 1) {
-      await legacyMessage(message(`legacy-${String(index).padStart(3, '0')}`, 'b'))
-    }
-    const preload = join(root, 'slow-directory.mjs')
-    await writeFile(
-      preload,
-      `import fs from 'node:fs'
-import { syncBuiltinESMExports } from 'node:module'
-const original = fs.Dir.prototype.readSync
-fs.Dir.prototype.readSync = function (...args) {
-  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 20)
-  return original.apply(this, args)
-}
-syncBuiltinESMExports()
-`,
-    )
-    const output = join(root, 'budget.json')
-    const run = await runChild([BUDGET_CHILD, root, 'b', output], preload)
-    expect(run, run.stderr).toMatchObject({ code: 0, signal: null })
-    const result = JSON.parse(await readFile(output, 'utf8')) as { durations: number[] }
-    expect(Math.max(...result.durations)).toBeLessThan(1000)
-    expect(result.durations.length).toBeGreaterThan(15)
-
-    const store = createProvider({ rootDir: root })
-    expect(await store.pending('b')).toHaveLength(64)
-    store.close()
-  }, 30_000)
-
+describe('retryable detached import', () => {
   it('retries a transient read error with the same provider instead of skipping the file', async () => {
     await legacyMessage(message('legacy-flaky', 'b'))
     const preload = join(root, 'transient-read.mjs')
@@ -236,10 +213,10 @@ syncBuiltinESMExports()
       `import fs from 'node:fs'
 import { syncBuiltinESMExports } from 'node:module'
 const original = fs.readFileSync
-let failed = false
+const marker = ${JSON.stringify(join(root, 'read-failed'))}
 fs.readFileSync = function (path, ...args) {
-  if (!failed && String(path).endsWith('legacy-flaky.json')) {
-    failed = true
+  if (!fs.existsSync(marker) && String(path).endsWith('legacy-flaky.json')) {
+    fs.writeFileSync(marker, 'failed')
     const error = new Error('transient EIO')
     error.code = 'EIO'
     throw error
@@ -256,7 +233,7 @@ syncBuiltinESMExports()
       firstError: string
       second: { claims: { message: { id: string } }[] }
     }
-    expect(result.firstError).toContain('transient EIO')
+    expect(result.firstError).toBe('')
     expect(result.second.claims.map((claim) => claim.message.id)).toContain('legacy-flaky')
   })
 })

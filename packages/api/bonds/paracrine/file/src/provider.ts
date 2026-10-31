@@ -13,6 +13,7 @@ import type {
 import { PARACRINE_BROADCAST } from '@molecule/api-paracrine'
 
 import { ParacrineDatabase } from './database.js'
+import { ensureLegacyImport } from './legacy-import.js'
 import type {
   ParacrineFileClaimedPending,
   ParacrineFileClaimOptions,
@@ -33,13 +34,11 @@ const resolveRoot = (config: ParacrineFileConfig): string =>
 
 /** Create the transactional paracrine store. */
 export function createProvider(config: ParacrineFileConfig = {}): ParacrineFileProvider {
-  const database = new ParacrineDatabase(resolveRoot(config))
-  const migrate = (): void => {
-    database.migrate()
-  }
-  const registered = (recipient: ParacrineAgentId, wholeHistory = false): void => {
-    if (wholeHistory) database.migrateAll()
-    else migrate()
+  const root = resolveRoot(config)
+  const database = new ParacrineDatabase(root)
+  const ensureImport = (): void => ensureLegacyImport(database, root)
+  const registered = (recipient: ParacrineAgentId): void => {
+    ensureImport()
     database.register(recipient)
   }
 
@@ -49,13 +48,13 @@ export function createProvider(config: ParacrineFileConfig = {}): ParacrineFileP
     async send(input: ParacrineSendInput): Promise<ParacrineMessage> {
       assertAgentId(input.from, 'sender')
       if (input.to !== PARACRINE_BROADCAST) assertAgentId(input.to, 'recipient')
-      migrate()
+      ensureImport()
       return database.send(input)
     },
 
     async pending(recipient: ParacrineAgentId): Promise<string[]> {
       assertAgentId(recipient, 'mailbox')
-      registered(recipient, true)
+      registered(recipient)
       return database.pending(recipient)
     },
 
@@ -64,20 +63,20 @@ export function createProvider(config: ParacrineFileConfig = {}): ParacrineFileP
       if (query.since !== undefined && Number.isNaN(Date.parse(query.since))) {
         throw new Error(`Invalid paracrine 'since' instant: ${JSON.stringify(query.since)}`)
       }
-      registered(query.for, true)
+      registered(query.for)
       return database.receive(query)
     },
 
     async ack(messageId: string, by: ParacrineAgentId): Promise<void> {
       assertAgentId(by, 'reader')
       assertMessageId(messageId)
-      migrate()
+      ensureImport()
       database.acknowledge(messageId, by)
     },
 
     async reads(messageId: string): Promise<ParacrineRead[]> {
       assertMessageId(messageId)
-      database.migrateAll()
+      ensureImport()
       return database.reads(messageId)
     },
 
@@ -87,7 +86,7 @@ export function createProvider(config: ParacrineFileConfig = {}): ParacrineFileP
           `Invalid paracrine purge 'before' instant: ${JSON.stringify(options.before)}`,
         )
       }
-      database.migrateAll()
+      ensureImport()
       return database.purge(options)
     },
 
@@ -114,6 +113,7 @@ export function createProvider(config: ParacrineFileConfig = {}): ParacrineFileP
       by: ParacrineAgentId,
     ): Promise<void> {
       assertAgentId(by, 'reader')
+      ensureImport()
       for (const claim of claims) {
         assertMessageId(claim.messageId)
         assertAgentId(claim.recipientId, 'mailbox')
@@ -122,6 +122,7 @@ export function createProvider(config: ParacrineFileConfig = {}): ParacrineFileP
     },
 
     async releaseClaims(claims: ParacrineFileClaimReference[]): Promise<void> {
+      ensureImport()
       for (const claim of claims) {
         assertMessageId(claim.messageId)
         assertAgentId(claim.recipientId, 'mailbox')

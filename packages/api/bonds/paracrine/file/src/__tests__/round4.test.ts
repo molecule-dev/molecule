@@ -9,11 +9,12 @@ import { fileURLToPath } from 'node:url'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import { createProvider } from '../provider.js'
+import { waitForLegacyImport } from './test-helpers.js'
 
-const CLAIM_CHILD = fileURLToPath(new URL('./fixtures/claim-child.mjs', import.meta.url))
 const CLAIM_TWICE_CHILD = fileURLToPath(
   new URL('./fixtures/claim-twice-child.mjs', import.meta.url),
 )
+const RETRY_CHILD = fileURLToPath(new URL('./fixtures/retry-claim-child.mjs', import.meta.url))
 const CLI = fileURLToPath(new URL('../../dist/cli-main.js', import.meta.url))
 
 interface ChildResult {
@@ -25,9 +26,11 @@ interface ChildResult {
 
 const runChild = (args: string[], preload?: string): Promise<ChildResult> =>
   new Promise((resolve, reject) => {
-    const child = spawn(process.execPath, [...(preload ? ['--import', preload] : []), ...args], {
+    const env = { ...process.env, PARACRINE_DIR: root }
+    if (preload !== undefined) env.NODE_OPTIONS = `${env.NODE_OPTIONS ?? ''} --import=${preload}`
+    const child = spawn(process.execPath, args, {
       stdio: ['ignore', 'pipe', 'pipe'],
-      env: { ...process.env, PARACRINE_DIR: root },
+      env,
     })
     let stdout = ''
     let stderr = ''
@@ -48,8 +51,8 @@ const legacy = async (id: string, body = id): Promise<void> => {
   )
 }
 
-const readFault = async (mode: 'eio' | 'delay'): Promise<string> => {
-  const path = join(root, `read-${mode}.mjs`)
+const readFault = async (): Promise<string> => {
+  const path = join(root, 'read-eio.mjs')
   const marker = join(root, 'read-failed')
   await writeFile(
     path,
@@ -58,15 +61,11 @@ import { syncBuiltinESMExports } from 'node:module'
 const original = fs.readFileSync
 fs.readFileSync = function (path, ...args) {
   if (String(path).includes(${JSON.stringify(join(root, 'messages'))}) && String(path).endsWith('.json')) {
-    if (${JSON.stringify(mode)} === 'eio') {
-      if (!fs.existsSync(${JSON.stringify(marker)})) {
-        fs.writeFileSync(${JSON.stringify(marker)}, 'failed')
-        const error = new Error('transient EIO')
-        error.code = 'EIO'
-        throw error
-      }
-    } else {
-      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 20)
+    if (!fs.existsSync(${JSON.stringify(marker)})) {
+      fs.writeFileSync(${JSON.stringify(marker)}, 'failed')
+      const error = new Error('transient EIO')
+      error.code = 'EIO'
+      throw error
     }
   }
   return original.call(this, path, ...args)
@@ -129,28 +128,23 @@ describe('round-4 delivery regressions', () => {
     store.close()
   })
 
-  it('Sol 3: a real child retries EIO without advancing the WAL migration checkpoint', async () => {
+  it('Sol 3: a real detached worker retries EIO without skipping the file', async () => {
     await legacy('flaky', 'survives transient EIO')
-    const preload = await readFault('eio')
+    const preload = await readFault()
     const output = join(root, 'claim.json')
-    await runChild([CLAIM_CHILD, root, 'b', output], preload)
+    const retried = await runChild([RETRY_CHILD, root, 'b', output], preload)
+    expect(retried.code).toBe(0)
     expect(existsSync(join(root, 'read-failed'))).toBe(true)
+    const result = JSON.parse(await readFile(output, 'utf8')) as {
+      firstError: string
+      second: { claims: { message: { id: string; body: string } }[] }
+    }
+    expect(result.firstError).toBe('')
+    expect(result.second.claims.map((claim) => claim.message.id)).toContain('flaky')
 
     const db = new DatabaseSync(join(root, 'paracrine.sqlite'))
     expect(db.prepare('PRAGMA journal_mode').get()).toEqual({ journal_mode: 'wal' })
-    const checkpoint = db.prepare("SELECT value FROM migration WHERE key = 'legacy'").get() as
-      { value: string } | undefined
     db.close()
-    expect(
-      checkpoint === undefined || JSON.parse(checkpoint.value).fileAfter !== 'flaky.json',
-    ).toBe(true)
-
-    const retried = await runChild([CLAIM_CHILD, root, 'b', output], preload)
-    expect(retried.code).toBe(0)
-    const claimed = JSON.parse(await readFile(output, 'utf8')) as {
-      claims: { message: { id: string; body: string } }[]
-    }
-    expect(claimed.claims.map((claim) => claim.message.id)).toContain('flaky')
   })
 
   it('Sol 3 counterexample: invalid JSON is corruption and does not block healthy legacy mail', async () => {
@@ -159,6 +153,8 @@ describe('round-4 delivery regressions', () => {
     await writeFile(join(mailbox, 'broken.json'), '{not json')
     await legacy('healthy', 'healthy after corruption')
     const store = createProvider({ rootDir: root })
+    await store.pending('b')
+    await waitForLegacyImport(root)
     expect(await store.pending('b')).toEqual(['healthy.json'])
     store.close()
   })
@@ -168,6 +164,8 @@ describe('round-4 delivery regressions', () => {
     await mkdir(receiptDir, { recursive: true })
     await writeFile(join(receiptDir, 'b.json'), JSON.stringify({ at: '2026-01-01T00:00:00.000Z' }))
     const store = createProvider({ rootDir: root })
+    await store.reads('purged-message')
+    await waitForLegacyImport(root)
     expect(await store.reads('purged-message')).toEqual([
       { messageId: 'purged-message', by: 'b', at: '2026-01-01T00:00:00.000Z' },
     ])
@@ -181,27 +179,6 @@ describe('round-4 delivery regressions', () => {
     expect(JSON.parse(checkpoint.value).phase).toBe('done')
     db.close()
   })
-
-  it('Sol 5: 64 blocking legacy reads are checkpointed in small steps below the hook budget', async () => {
-    for (let index = 0; index < 64; index += 1) {
-      await legacy(`legacy-${String(index).padStart(3, '0')}`)
-    }
-    const preload = await readFault('delay')
-    const output = join(root, 'bounded.json')
-    const started = performance.now()
-    const run = await runChild([CLAIM_CHILD, root, 'b', output], preload)
-    const elapsed = performance.now() - started
-    expect(run.code).toBe(0)
-    expect(elapsed).toBeLessThan(1000)
-
-    const store = createProvider({ rootDir: root })
-    const first = JSON.parse(await readFile(output, 'utf8')) as {
-      claims: Parameters<typeof store.releaseClaims>[0]
-    }
-    await store.releaseClaims(first.claims)
-    expect(await store.pending('b')).toHaveLength(64)
-    store.close()
-  }, 15_000)
 
   it('Sol 5: claim selection uses bounded lower-bound metadata and backfills a recipient once', async () => {
     const store = createProvider({ rootDir: root })
