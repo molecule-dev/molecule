@@ -790,6 +790,25 @@ export const createJWTAuthClient = <
     getSessionRevision: () => sessionRevision,
 
     setUser: (user: T | null) => {
+      if (user === null && state.authenticated) {
+        // A signed-in session without a user is not renderable. End the whole
+        // local session, including every credential a reload could restore.
+        // setState owns the single revision advance and subscriber notification.
+        if (refreshTimer) {
+          clearTimeout(refreshTimer)
+          refreshTimer = null
+        }
+        tokenStorage.clear()
+        clearSessionHintCookie()
+        setState({
+          initialized: true,
+          loading: false,
+          authenticated: false,
+          user: null,
+          status: 'unauthenticated',
+        })
+        return
+      }
       if (user === null) sessionRevision++
       tokenStorage.setUser(user)
       setState({ user })

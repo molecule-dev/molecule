@@ -536,12 +536,19 @@ export interface AuthClient<
    * Updates the cached user object (state + persistent storage) without
    * hitting the network. Intended for local refreshes after a per-app
    * mutation (e.g., the user just PATCHed their own profile and the
-   * server returned the canonical row). Does NOT change tokens.
+   * server returned the canonical row). A non-null profile does NOT change
+   * tokens or sign the client in: `authenticated` and `status` are unchanged,
+   * so an anonymous client stays anonymous. Use {@link login} /
+   * {@link register} for a credential exchange, or {@link setSession} when
+   * the token was issued outside the client.
    *
-   * This does not sign the client in: `authenticated` and `status` are
-   * unchanged, so an anonymous client stays anonymous. Use
-   * {@link login} / {@link register} for a credential exchange, or
-   * {@link setSession} when the token was issued outside the client.
+   * Passing `null` on a signed-in client ends the local session: it clears the
+   * access token, refresh token and cached user, stops automatic refresh, and
+   * settles `authenticated: false` with `status: 'unauthenticated'` in one
+   * notification. Clearing those credentials also prevents a reload from
+   * restoring the session. It does not call the server; use {@link logout}
+   * when the API offers session revocation. On an anonymous client, `null`
+   * only clears the cached profile and leaves tokens and auth state unchanged.
    */
   setUser(user: T | null): void
 
@@ -558,10 +565,13 @@ export interface AuthClient<
    * which would violate the storage contract and make a stored bearer token
    * JS-readable (XSS-exfiltratable). Pass `null` to clear it.
    *
-   * This changes token storage only; it does not sign the client in
-   * (`authenticated` and `status` are unchanged). Use {@link login} /
-   * {@link register} for a credential exchange, or call {@link setSession}
-   * with the token and the user to establish an already-issued session.
+   * This changes token storage only: passing `null` does not by itself sign a
+   * signed-in client out, and a non-null token does not sign an anonymous
+   * client in (`authenticated` and `status` are unchanged). Use {@link logout}
+   * to end a session, or {@link setUser} with `null` for local-only sign-out.
+   * Use {@link login} / {@link register} for a credential exchange, or call
+   * {@link setSession} with the token and user to establish an already-issued
+   * session.
    */
   setAccessToken(token: string | null): void
 
@@ -590,7 +600,14 @@ export interface AuthClient<
   login(credentials: LoginCredentials): Promise<AuthResult<T>>
 
   /**
-   * Logs out the current user.
+   * Logs out the current user. The server request is best-effort: a missing
+   * logout route (404), any other HTTP failure, or a network error never makes
+   * this method reject. It always clears the access token, refresh token and
+   * cached user, stops automatic refresh, and settles with
+   * `authenticated: false` and `status: 'unauthenticated'`.
+   *
+   * When the API has no logout route, set {@link AuthClientConfigOptions.logoutEndpoint}
+   * to `null` (or `''`) to skip the request. Local sign-out still happens.
    */
   logout(): Promise<void>
 
@@ -828,9 +845,11 @@ export interface AuthClientConfigOptions<T extends object = UserProfile> {
   loginEndpoint?: string
 
   /**
-   * Logout endpoint.
+   * Logout endpoint. Defaults to `/users/logout`. Set to `null` (or `''`) when
+   * the API has no logout route: {@link AuthClient.logout} skips the request
+   * and still clears the local session.
    */
-  logoutEndpoint?: string
+  logoutEndpoint?: string | null
 
   /**
    * Register endpoint.

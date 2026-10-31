@@ -262,6 +262,7 @@ describe('shared profile form: rendered controls → real HTTP → persisted pro
     edit('Bio', 'Typed biography')
     edit('Image', 'https://images.example.test/reader.png')
     act(() => client.setUser({ ...initial, name: 'Background refresh' }))
+    expect(client.getState()).toMatchObject({ authenticated: true, status: 'authenticated' })
     expect(control('Name').value).toBe('Background refresh')
     expect(control('Bio').value).toBe('Typed biography')
     expect(control('Image').value).toBe('https://images.example.test/reader.png')

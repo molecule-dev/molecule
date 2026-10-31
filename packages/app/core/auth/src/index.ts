@@ -114,7 +114,8 @@
  * (a form's own sign-in code wrote the token and the user with `setAccessToken`/`setUser`,
  * which change their field only — the UI stays signed out and the browser assertions that
  * expect it time out). `setAccessToken()` and `setUser()` are field setters, not a
- * sign-in: neither sets `authenticated`.
+ * sign-in: neither establishes an authenticated session. On a signed-in client,
+ * `setUser(null)` instead ends the local session and clears its stored credentials.
  *
  * **A custom user profile is typed once and used everywhere: `AuthClientConfig<MyUser>`,
  * `createJWTAuthClient<MyUser>` and `useAuth<MyUser>()`.** The config's generic makes
