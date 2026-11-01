@@ -6,33 +6,51 @@
 
 import { snapshotCredentials } from '@molecule/app-logger'
 
-const URL_PROPERTY = /(?:^|[_$])(?:url|referrer|pathname)(?:$|_)/i
-const PAYLOAD_CONTAINERS = new Set(['properties', '$set', '$set_once'])
+const URL_TEXT = /[?#]|(?:[a-z][a-z\d+.-]*:)?\/\//i
+const BARE_AUTHORITY = /^(\s*)[^\s@/]+:[^\s@/]*@([^\s@]+?)(\s*)$/
 
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  value !== null && typeof value === 'object' && !Array.isArray(value)
+const isRecord = (value: unknown): value is Record<string, unknown> => {
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) return false
+  const prototype = Object.getPrototypeOf(value)
+  return prototype === Object.prototype || prototype === null
+}
 
-const isUrlProperty = (name: string): boolean =>
-  name.startsWith('$initial_') || URL_PROPERTY.test(name)
+/** Scrub string syntax, never a property name, so SDK identifiers keep their ordinary values. */
+const snapshotString = (value: string): string => {
+  const scrubbed = URL_TEXT.test(value) ? snapshotCredentials(value) : value
+  const authority = BARE_AUTHORITY.exec(scrubbed)
+  return authority ? `${authority[1]}[REDACTED]@${authority[2]}${authority[3]}` : scrubbed
+}
 
 /**
- * Copy an SDK-built event and scrub URL-valued properties added AFTER molecule's input boundary.
- * Covers `$current_url`, `$referrer`, `$pathname`, every `$initial_*` property, session-entry and
- * provider-specific URL names, recursively inside `properties`, `$set` and `$set_once`. Required
- * SDK project tokens and all non-URL values retain their identities and bytes.
+ * Copy an SDK-built payload and scrub URL-shaped or authority-shaped strings added AFTER
+ * molecule's input boundary. Every nested plain-object and array string is covered, including
+ * DOM attributes, serialized element chains, person updates and referring domains. Project keys,
+ * distinct IDs, event names and other non-URL identifiers retain their identities and bytes.
  *
- * @param payload - A PostHog CaptureResult, Mixpanel BeforeSendHookPayload, or compatible record.
- * @returns A shallow-copied payload with fresh containers along the URL-property paths.
+ * @param payload - A PostHog CaptureResult, Mixpanel hook payload, or compatible value.
+ * @returns A detached payload with fresh plain objects and arrays and scrubbed URL strings.
  */
 export const snapshotAnalyticsSdkUrls = <T>(payload: T): T => {
-  if (!isRecord(payload)) return payload
-  const snapshot: Record<string, unknown> = { ...payload }
-  for (const [name, value] of Object.entries(snapshot)) {
-    if (PAYLOAD_CONTAINERS.has(name) && isRecord(value)) {
-      snapshot[name] = snapshotAnalyticsSdkUrls(value)
-    } else if (typeof value === 'string' && isUrlProperty(name)) {
-      snapshot[name] = snapshotCredentials(value)
+  const copies = new WeakMap<object, unknown>()
+
+  const snapshot = (value: unknown): unknown => {
+    if (typeof value === 'string') return snapshotString(value)
+    if (value === null || typeof value !== 'object') return value
+    if (!Array.isArray(value) && !isRecord(value)) return value
+    const existing = copies.get(value)
+    if (existing) return existing
+
+    const copy: Record<string, unknown> | unknown[] = Array.isArray(value)
+      ? new Array(value.length)
+      : {}
+    copies.set(value, copy)
+    for (const [name, child] of Object.entries(value)) {
+      if (Array.isArray(copy)) copy[Number(name)] = snapshot(child)
+      else copy[name] = snapshot(child)
     }
+    return copy
   }
-  return snapshot as T
+
+  return snapshot(payload) as T
 }
