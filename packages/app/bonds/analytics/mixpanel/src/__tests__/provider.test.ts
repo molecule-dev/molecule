@@ -60,7 +60,8 @@ describe('Mixpanel app analytics provider', () => {
         hooks: expect.objectContaining({
           before_send_events: [expect.any(Function)],
           before_send_people: [expect.any(Function)],
-          on_track: [expect.any(Function)],
+          before_send_groups: [expect.any(Function)],
+          on_track: expect.any(Function),
         }),
       })
     })

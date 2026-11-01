@@ -6,7 +6,7 @@
  * @module
  */
 
-import mixpanel, { type BeforeSendHookPayload, type Config } from 'mixpanel-browser'
+import mixpanel, { type Config } from 'mixpanel-browser'
 
 import type {
   AnalyticsEvent,
@@ -18,9 +18,8 @@ import { snapshotAnalyticsSdkUrls } from '@molecule/app-analytics'
 
 import type { MixpanelOptions } from './types.js'
 
-/** Runs after mixpanel-browser has merged automatic location/referrer and super-properties. */
-const scrubSdkUrls = (event: BeforeSendHookPayload): BeforeSendHookPayload =>
-  snapshotAnalyticsSdkUrls(event)
+/** One inert final capture shared by event, person and group transport hooks. */
+const scrubSdkPayload = <T>(payload: T): T => snapshotAnalyticsSdkUrls(payload)
 
 type EventHook = NonNullable<Config['hooks']['before_send_events']>
 type TrackHook = NonNullable<Config['hooks']['on_track']>
@@ -29,22 +28,48 @@ type PeopleHook = (payload: PeoplePayload) => PeoplePayload | null
 type RuntimeHooks = Omit<Config['hooks'], 'before_send_events' | 'on_track'> & {
   before_send_events?: EventHook | EventHook[]
   before_send_people?: PeopleHook | PeopleHook[]
+  before_send_groups?: PeopleHook | PeopleHook[]
   on_track?: TrackHook | TrackHook[]
 }
-
-/** Person updates use the same payload walk immediately before their own transport. */
-const scrubSdkPeople: PeopleHook = (payload) => snapshotAnalyticsSdkUrls(payload)
-
-/** `$identify` sets skip_hooks, but 2.84.0 deliberately still runs on_track for it. */
-const scrubSdkTrack: TrackHook = (eventName, properties) => [
-  eventName,
-  snapshotAnalyticsSdkUrls(properties),
-]
 
 /** The SDK accepts ordered hook arrays at runtime; append without duplicating on HMR/re-bonding. */
 const appendHook = <H>(configured: H | H[] | undefined, hook: H): H[] => {
   const previous = Array.isArray(configured) ? configured : configured ? [configured] : []
   return [...previous.filter((candidate) => candidate !== hook), hook]
+}
+
+const TRACK_HOOK_HISTORY = Symbol('molecule.mixpanelTrackHookHistory')
+type ComposedTrackHook = TrackHook & { [TRACK_HOOK_HISTORY]?: TrackHook[] }
+
+/**
+ * Preserve the original event name to recognize skip-hooks identify/alias events after app hooks.
+ * Ordinary events return their original property object and walk only in before_send_events.
+ */
+const composeTrackHook = (configured: TrackHook | TrackHook[] | undefined): TrackHook => {
+  const configuredHooks = Array.isArray(configured) ? configured : configured ? [configured] : []
+  const previous = configuredHooks.flatMap(
+    (candidate) => (candidate as ComposedTrackHook)[TRACK_HOOK_HISTORY] ?? [candidate],
+  )
+  const hook: ComposedTrackHook = (eventName, properties) => {
+    let name = eventName
+    let currentProperties = properties
+    for (const previousHook of previous) {
+      const result = previousHook(name, currentProperties)
+      if (result === null) return null
+      if (typeof result === 'string') name = result
+      else if (Array.isArray(result)) {
+        if (typeof result[0] === 'string') name = result[0]
+        if (result.length > 1) currentProperties = result[1] as typeof properties
+      }
+    }
+    if (eventName !== '$identify' && eventName !== '$create_alias') {
+      return [name, currentProperties]
+    }
+    const captured = scrubSdkPayload({ event: name, properties: currentProperties })
+    return [captured.event, captured.properties]
+  }
+  Object.defineProperty(hook, TRACK_HOOK_HISTORY, { value: previous })
+  return hook
 }
 
 /**
@@ -60,9 +85,10 @@ const appendHook = <H>(configured: H | H[] | undefined, hook: H): H[] => {
  * `provider` export without configuration degrades gracefully instead of
  * becoming a silent event black hole.
  *
- * SDK-added location/referrer properties are scrubbed by `on_track`, `before_send_events`
- * and `before_send_people`. Hooks are composed AFTER init so a pre-initialized singleton
- * keeps its existing hooks and the scrubber always runs last.
+ * SDK-added location/referrer properties are scrubbed at `before_send_events`,
+ * `before_send_people` and `before_send_groups`. Skip-hooks identify/alias tuples are captured
+ * at `on_track`; ordinary events walk only at their final event hook. Hooks are composed AFTER
+ * init so a pre-initialized singleton keeps its existing hooks and the scrubber always runs last.
  *
  * @param options - Mixpanel configuration including `token` and optional `debug` flag.
  * @returns An `AnalyticsProvider` backed by the Mixpanel browser SDK.
@@ -97,9 +123,10 @@ export const createProvider = (options?: MixpanelOptions): AnalyticsProvider => 
   const configuredHooks = mixpanel.get_config('hooks') as RuntimeHooks | undefined
   const hooks: RuntimeHooks = {
     ...configuredHooks,
-    before_send_events: appendHook(configuredHooks?.before_send_events, scrubSdkUrls),
-    before_send_people: appendHook(configuredHooks?.before_send_people, scrubSdkPeople),
-    on_track: appendHook(configuredHooks?.on_track, scrubSdkTrack),
+    before_send_events: appendHook(configuredHooks?.before_send_events, scrubSdkPayload),
+    before_send_people: appendHook(configuredHooks?.before_send_people, scrubSdkPayload),
+    before_send_groups: appendHook(configuredHooks?.before_send_groups, scrubSdkPayload),
+    on_track: composeTrackHook(configuredHooks?.on_track),
   }
   // mixpanel-browser 2.84.0 accepts hook arrays and before_send_people at runtime,
   // although its published Config declaration omits both.
