@@ -37,6 +37,13 @@ export const createConsoleLogger = (config: LoggerConfig = {}): Logger => {
   ): void => {
     if (!shouldLog(entryLevel)) return
 
+    // Which top-level arguments are errors, read before the snapshot replaces them with plain data.
+    const errorPositions = args.map(
+      (arg) =>
+        arg instanceof Error ||
+        (typeof DOMException !== 'undefined' && arg instanceof DOMException),
+    )
+
     // Capture the complete entry as a fresh scrubbed tree BEFORE console or any transport can
     // retain it. Later caller mutation therefore cannot change a buffered clean entry into a leak.
     const entry = snapshotCredentials<LogEntry>({
@@ -54,11 +61,11 @@ export const createConsoleLogger = (config: LoggerConfig = {}): Logger => {
         entry.message = String((errorData as { message: unknown }).message)
       }
     }
-    // Console readers retain Error-shaped arguments, rebuilt only from detached data.
-    const consoleArgs =
-      errorArgument && entry.args.length > 0
-        ? [errorFromSnapshot(entry.args[0]), ...entry.args.slice(1)]
-        : entry.args
+    // Console readers retain Error-shaped arguments in every position (`error(msg, err)` included),
+    // rebuilt only from detached data.
+    const consoleArgs = entry.args.map((arg, index) =>
+      errorPositions[index] ? errorFromSnapshot(arg) : arg,
+    )
     const consoleMethod = entryLevel === 'trace' ? 'debug' : entryLevel
     const formatted = showTimestamps ? format(entry) : entry.message
     const prefix = entry.logger && !showTimestamps ? `[${entry.logger}]` : ''
