@@ -155,9 +155,7 @@ describe('create — app provisioning and tenant isolation', () => {
     await provider.destroyApp(PROJECT_ID, undefined, new AbortController().signal)
 
     expect(
-      double.calls.filter(
-        (call) => call.method === 'DELETE' && call.path === `/apps/${APP}?force=true`,
-      ),
+      double.calls.filter((call) => call.method === 'DELETE' && call.path === `/apps/${APP}`),
     ).toHaveLength(1)
   })
 

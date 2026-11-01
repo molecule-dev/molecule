@@ -2,4 +2,4 @@
 '@molecule/api-code-sandbox-flyio': patch
 ---
 
-Survive transient Fly creates with provenance-gated cleanup, locked emergency creation, definitive POST-failure evidence, and recoverable legacy ownership.
+Require accepted Fly create provenance, non-forced retirement, exact-ID shared-app cleanup, and a drained-writer rollout fence.

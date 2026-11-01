@@ -153,9 +153,7 @@ describe('round-five create safety regressions', () => {
     expect(double.matching(`DELETE /apps/${target}/ip_assignments/`)).toHaveLength(1)
     expect(double.matching(`DELETE /apps/${APP}/machines/m1?force=true`)).toHaveLength(1)
     expect(
-      double.calls.filter(
-        (call) => call.method === 'DELETE' && call.path === `/apps/${APP}?force=true`,
-      ),
+      double.calls.filter((call) => call.method === 'DELETE' && call.path === `/apps/${APP}`),
     ).toHaveLength(1)
   })
 })

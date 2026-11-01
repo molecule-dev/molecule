@@ -26,6 +26,11 @@ const APP = `mol-sandbox-${PROJECT_ID}`
 class MemoryJournal implements FlyCreateAttemptJournal {
   readonly attempts = new Map<string, FlyCreateAttempt>()
   readonly lockCalls: string[] = []
+  createAllowed = true
+
+  async assertCreateAllowed(): Promise<void> {
+    if (!this.createAllowed) throw new Error('Fly unsafe-writer rollout fence is closed')
+  }
 
   async begin(
     attempt: Pick<FlyCreateAttempt, 'attemptId' | 'projectId' | 'appName'> & {
@@ -162,6 +167,19 @@ class MemoryJournal implements FlyCreateAttemptJournal {
     attempt.machineAdopted = true
   }
 
+  async recordMachineProvenance(
+    attemptId: string,
+    generation: number,
+    machineId: string,
+  ): Promise<void> {
+    const attempt = this.attempts.get(attemptId)
+    if (!attempt || (attempt.generation ?? 1) !== generation) {
+      throw new Error(`Stale generation for ${attemptId}`)
+    }
+    attempt.machineId = machineId
+    attempt.machineCreatedByAttemptId = attemptId
+  }
+
   async markMachineCreateFailed(attemptId: string, generation: number): Promise<void> {
     const attempt = this.attempts.get(attemptId)
     if (!attempt || (attempt.generation ?? 1) !== generation) {
@@ -252,6 +270,33 @@ function failedIntent(overrides: Partial<FlyCreateAttempt> = {}): FlyCreateAttem
     addresses: [],
     ...overrides,
   }
+}
+
+interface RouteRequestBody {
+  name?: string
+  config?: Record<string, unknown>
+}
+
+function installRoutes(
+  double: ReturnType<typeof createFetchDouble>,
+  route: (
+    method: string,
+    path: string,
+    body: RouteRequestBody,
+  ) => Promise<{ status?: number; body?: unknown }> | { status?: number; body?: unknown },
+): void {
+  double.fetch = vi.fn(async (input: string | URL | Request, init?: RequestInit) => {
+    const method = (init?.method ?? 'GET').toUpperCase()
+    const path = String(input).replace('https://api.machines.dev/v1', '')
+    const body = init?.body ? (JSON.parse(String(init.body)) as RouteRequestBody) : {}
+    double.calls.push({ method, path, url: String(input), body })
+    const response = await route(method, path, body)
+    return {
+      status: response.status ?? 200,
+      headers: { get: () => null },
+      text: async () => JSON.stringify(response.body ?? {}),
+    } as unknown as Response
+  }) as unknown as typeof fetch
 }
 
 describe('journaled create reconciliation', () => {
@@ -358,7 +403,7 @@ describe('journaled create reconciliation', () => {
     double
       .on(`DELETE /apps/${APP}/volumes/v1`, { status: 204 })
       .on(`DELETE /apps/${APP}`, { status: 204 })
-    await expect(provider.reconcileCreateAttempts()).resolves.toEqual({ deleted: 0, failed: 0 })
+    await expect(provider.reconcileCreateAttempts()).resolves.toEqual({ deleted: 0, failed: 1 })
     expect(double.calls.filter((call) => call.method === 'DELETE')).toHaveLength(0)
     expect(double.matching(`POST /apps/${APP}/volumes`)).toHaveLength(1)
     expect(journal.attempts.size).toBe(1)
@@ -383,7 +428,9 @@ describe('journaled create reconciliation', () => {
     expect(double.calls.filter((call) => call.method === 'DELETE')).toHaveLength(0)
 
     await expect(provider.reconcileCreateAttempts()).resolves.toEqual({ deleted: 1, failed: 0 })
-    expect(double.matching(`DELETE /apps/${APP}`)).toHaveLength(1)
+    expect(
+      double.calls.filter((call) => call.method === 'DELETE' && call.path === `/apps/${APP}`),
+    ).toHaveLength(1)
     expect(journal.attempts.size).toBe(0)
     expect(journal.lockCalls).toEqual([APP])
   })
@@ -405,7 +452,7 @@ describe('journaled create reconciliation', () => {
 
     await expect(makeProvider(unboundDouble, unbound).reconcileCreateAttempts()).resolves.toEqual({
       deleted: 0,
-      failed: 0,
+      failed: 1,
     })
     expect(unboundDouble.calls.filter((call) => call.method === 'DELETE')).toHaveLength(0)
     expect(unbound.attempts.size).toBe(1)
@@ -422,7 +469,7 @@ describe('journaled create reconciliation', () => {
       makeProvider(workspaceDouble, workspace).reconcileCreateAttempts(),
     ).resolves.toEqual({
       deleted: 0,
-      failed: 0,
+      failed: 1,
     })
     expect(workspaceDouble.calls.filter((call) => call.method === 'DELETE')).toHaveLength(0)
     expect(workspace.attempts.size).toBe(1)
@@ -457,9 +504,7 @@ describe('journaled create reconciliation', () => {
 
     expect(double.matching(`DELETE /apps/${APP}/machines/m1`)).toHaveLength(1)
     expect(
-      double.calls.filter(
-        (call) => call.method === 'DELETE' && call.path === `/apps/${APP}?force=true`,
-      ),
+      double.calls.filter((call) => call.method === 'DELETE' && call.path === `/apps/${APP}`),
     ).toHaveLength(1)
     expect(journal.attempts.size).toBe(0)
   })
@@ -475,7 +520,7 @@ describe('journaled create reconciliation', () => {
 
     await expect(makeProvider(double, journal).reconcileCreateAttempts()).resolves.toEqual({
       deleted: 0,
-      failed: 0,
+      failed: 1,
     })
     expect(double.calls.filter((call) => call.method === 'DELETE')).toHaveLength(0)
     expect(journal.attempts.size).toBe(1)
@@ -1053,7 +1098,7 @@ describe('round-eight durable ownership counterexamples', () => {
       ) {
         addressGone = true
         status = 204
-      } else if (method === 'DELETE' && path === `/apps/${APP}?force=true`) {
+      } else if (method === 'DELETE' && path === `/apps/${APP}`) {
         appGone = true
         status = 204
       } else {
@@ -1235,7 +1280,7 @@ describe('round-ten ownership counterexamples', () => {
         path === `/apps/tenant-db/ip_assignments/${encodeURIComponent('fdaa::47')}`
       ) {
         status = 204
-      } else if (method === 'DELETE' && path === `/apps/${APP}?force=true`) {
+      } else if (method === 'DELETE' && path === `/apps/${APP}`) {
         status = 204
       } else {
         throw new Error(`Unexpected ${method} ${path}`)
@@ -1256,7 +1301,7 @@ describe('round-ten ownership counterexamples', () => {
     const deletes = double.calls.filter((call) => call.method === 'DELETE').map((call) => call.path)
     expect(deletes).toEqual([
       `/apps/tenant-db/ip_assignments/${encodeURIComponent('fdaa::47')}`,
-      `/apps/${APP}?force=true`,
+      `/apps/${APP}`,
     ])
     expect(journal.attempts.size).toBe(0)
   })
@@ -1410,7 +1455,7 @@ describe('round-twelve destruction fencing counterexamples', () => {
         path === `/apps/tenant-db/ip_assignments/${encodeURIComponent('fdaa::49')}`
       ) {
         status = 204
-      } else if (method === 'DELETE' && path === `/apps/${APP}?force=true`) {
+      } else if (method === 'DELETE' && path === `/apps/${APP}`) {
         status = 204
       } else {
         throw new Error(`Unexpected ${method} ${path}`)
@@ -1428,7 +1473,7 @@ describe('round-twelve destruction fencing counterexamples', () => {
     expect(deletes).toContain(`/apps/tenant-db/ip_assignments/${encodeURIComponent('fdaa::49')}`)
     expect(
       deletes.indexOf(`/apps/tenant-db/ip_assignments/${encodeURIComponent('fdaa::49')}`),
-    ).toBeLessThan(deletes.indexOf(`/apps/${APP}?force=true`))
+    ).toBeLessThan(deletes.indexOf(`/apps/${APP}`))
     expect(journal.attempts.size).toBe(0)
   })
 
@@ -1475,7 +1520,7 @@ describe('round-twelve destruction fencing counterexamples', () => {
         appPerProject: false,
         appName: APP,
       }).reconcileCreateAttempts(),
-    ).resolves.toEqual({ deleted: 0, failed: 0 })
+    ).resolves.toEqual({ deleted: 0, failed: 1 })
     expect(double.calls.filter((call) => call.method === 'DELETE')).toHaveLength(0)
     expect(journal.attempts.size).toBe(1)
   })
@@ -1647,11 +1692,11 @@ describe('round-twelve destruction fencing counterexamples', () => {
 
     const routeDeletes = double.matching('DELETE /apps/tenant-db/ip_assignments/fdaa%3A%3A1')
     expect(routeDeletes).toHaveLength(1)
-    expect(double.matching(`DELETE /apps/${APP}?force=true`)).toHaveLength(1)
+    expect(
+      double.calls.filter((call) => call.method === 'DELETE' && call.path === `/apps/${APP}`),
+    ).toHaveLength(1)
     expect(double.calls.findIndex((call) => call === routeDeletes[0])).toBeLessThan(
-      double.calls.findIndex(
-        (call) => call.method === 'DELETE' && call.path === `/apps/${APP}?force=true`,
-      ),
+      double.calls.findIndex((call) => call.method === 'DELETE' && call.path === `/apps/${APP}`),
     )
     expect(journal.attempts.size).toBe(0)
   })
@@ -1837,7 +1882,7 @@ describe('round-fourteen failed-create sweep and legacy recovery', () => {
       } else if (method === 'DELETE' && path === `/apps/${APP}/machines/m1?force=true`) {
         machineGone = true
         status = 204
-      } else if (method === 'DELETE' && path === `/apps/${APP}?force=true`) {
+      } else if (method === 'DELETE' && path === `/apps/${APP}`) {
         status = 204
       } else {
         throw new Error(`Unexpected ${method} ${path}`)
@@ -1853,7 +1898,9 @@ describe('round-fourteen failed-create sweep and legacy recovery', () => {
     await makeProvider(double, journal).destroy(`${APP}:m1`, new AbortController().signal)
 
     expect(double.matching(`DELETE /apps/${APP}/machines/m1?force=true`)).toHaveLength(1)
-    expect(double.matching(`DELETE /apps/${APP}?force=true`)).toHaveLength(1)
+    expect(
+      double.calls.filter((call) => call.method === 'DELETE' && call.path === `/apps/${APP}`),
+    ).toHaveLength(1)
     expect(journal.attempts.size).toBe(0)
   })
 })
@@ -1906,7 +1953,7 @@ describe('round-fifteen recorded provenance and legacy adoption', () => {
         } else if (method === 'DELETE' && path === `/apps/${APP}/volumes/user-data`) {
           volumeExists = false
           status = 204
-        } else if (method === 'DELETE' && path === `/apps/${APP}?force=true`) status = 204
+        } else if (method === 'DELETE' && path === `/apps/${APP}`) status = 204
         else throw new Error(`Unexpected ${method} ${path}`)
         return {
           status,
@@ -1993,7 +2040,7 @@ describe('round-fifteen recorded provenance and legacy adoption', () => {
 
     await expect(provider.create({ projectId: PROJECT_ID })).rejects.toThrow('403')
     expect(machineAlive).toBe(true)
-    await expect(provider.reconcileCreateAttempts()).resolves.toEqual({ deleted: 0, failed: 0 })
+    await expect(provider.reconcileCreateAttempts()).resolves.toEqual({ deleted: 0, failed: 1 })
     expect(journal.attempts.size).toBe(1)
     expect(double.calls.filter((call) => call.method === 'DELETE')).toEqual([])
     expect(machineAlive).toBe(true)
@@ -2048,7 +2095,7 @@ describe('round-fifteen recorded provenance and legacy adoption', () => {
         path.startsWith(`/apps/${APP}/machines/new-user-machine/wait`)
       ) {
         body = machine
-      } else if (method === 'DELETE' && path === `/apps/${APP}?force=true`) {
+      } else if (method === 'DELETE' && path === `/apps/${APP}`) {
         machine = null
         appExists = false
         status = 204
@@ -2114,7 +2161,7 @@ describe('round-fifteen recorded provenance and legacy adoption', () => {
       } else if (method === 'DELETE' && path === `/apps/${APP}/volumes/older-volume`) {
         volumeAlive = false
         status = 204
-      } else if (method === 'DELETE' && path === `/apps/${APP}?force=true`) status = 204
+      } else if (method === 'DELETE' && path === `/apps/${APP}`) status = 204
       else throw new Error(`Unexpected ${method} ${path}`)
       return {
         status,
@@ -2151,5 +2198,408 @@ describe('round-fifteen recorded provenance and legacy adoption', () => {
       adoptedByAttemptId: `legacy:${APP}:older-writer`,
     })
     expect(adoptedVolumes[0]?.createdByAttemptId).toBeUndefined()
+  })
+})
+
+describe('round-sixteen accepted provenance and retirement', () => {
+  it('keeps and reports a suspended older-writer Machine with no accepted-POST provenance', async () => {
+    const journal = new MemoryJournal()
+    journal.seed(failedIntent({ attemptId: 'legacy:old-deploy', sandboxId: `${APP}:user-machine` }))
+    const machine = {
+      id: 'user-machine',
+      name: 'pre-journal-machine',
+      state: 'suspended',
+      config: { metadata: { 'molecule-sandbox.projectId': PROJECT_ID } },
+    }
+    const double = createFetchDouble()
+    installRoutes(double, (method, path) => {
+      if (method === 'GET' && path === `/apps/${APP}/machines`) return { body: [machine] }
+      if (method === 'GET' && path === `/apps/${APP}/volumes`) return { body: [] }
+      if (method === 'DELETE') return { status: 204 }
+      throw new Error(`Unexpected ${method} ${path}`)
+    })
+
+    await expect(makeProvider(double, journal).reconcileCreateAttempts()).resolves.toEqual({
+      deleted: 0,
+      failed: 1,
+    })
+    expect(double.calls.filter((call) => call.method === 'DELETE')).toEqual([])
+    expect(journal.attempts.size).toBe(1)
+  })
+
+  it('records a direct accepted Machine ID and deletes only that exact resource automatically', async () => {
+    const journal = new MemoryJournal()
+    const double = createFetchDouble()
+    let wait = true
+    let alive = true
+    installRoutes(double, (method, path, body) => {
+      if (method === 'GET' && path === `/apps/${APP}`) return { body: { name: APP } }
+      if (method === 'POST' && path === `/apps/${APP}/machines`) {
+        return {
+          body: { id: 'accepted-machine', name: body.name, state: 'created', config: body.config },
+        }
+      }
+      if (method === 'GET' && path.includes('/machines/accepted-machine/wait') && wait) {
+        wait = false
+        return { status: 503, body: { error: 'boot observation failed' } }
+      }
+      if (method === 'GET' && path === `/apps/${APP}/machines`) {
+        return {
+          body: alive
+            ? [
+                {
+                  id: 'accepted-machine',
+                  name: [...journal.attempts.keys()][0],
+                  state: 'suspended',
+                  config: { metadata: {} },
+                },
+              ]
+            : [],
+        }
+      }
+      if (method === 'GET' && path === `/apps/${APP}/volumes`) return { body: [] }
+      if (method === 'DELETE' && path === `/apps/${APP}/machines/accepted-machine?force=true`) {
+        alive = false
+        return { status: 204 }
+      }
+      throw new Error(`Unexpected ${method} ${path}`)
+    })
+    const provider = makeProvider(double, journal)
+    await expect(provider.create({ projectId: PROJECT_ID })).rejects.toThrow()
+    const attempt = [...journal.attempts.values()][0]
+    expect(attempt).toMatchObject({
+      machineId: 'accepted-machine',
+      machineCreatedByAttemptId: attempt.attemptId,
+    })
+
+    await provider.reconcileCreateAttempts()
+    expect(alive).toBe(false)
+    expect(
+      double.matching(`DELETE /apps/${APP}/machines/accepted-machine?force=true`),
+    ).toHaveLength(1)
+  })
+
+  it('does not forget an ambiguous volume POST after its lookup GET returns 403', async () => {
+    const journal = new MemoryJournal()
+    let accepted = false
+    let lookupFailed = false
+    const double = createFetchDouble()
+    installRoutes(double, (method, path) => {
+      if (method === 'GET' && path === `/apps/${APP}`) return { body: { name: APP } }
+      if (method === 'POST' && path === `/apps/${APP}/volumes`) {
+        accepted = true
+        return { status: 503, body: { error: 'accepted but response lost' } }
+      }
+      if (method === 'GET' && path === `/apps/${APP}/volumes`) {
+        if (accepted && !lookupFailed) {
+          lookupFailed = true
+          return { status: 403, body: { error: 'lookup denied' } }
+        }
+        return { body: [] }
+      }
+      if (method === 'GET' && path === `/apps/${APP}/machines`) return { body: [] }
+      throw new Error(`Unexpected ${method} ${path}`)
+    })
+    const provider = makeProvider(double, journal, { appPerProject: false, appName: APP })
+    await expect(
+      provider.create({ projectId: PROJECT_ID, volumeName: 'workspace' }),
+    ).rejects.toThrow('403')
+
+    await expect(provider.reconcileCreateAttempts()).resolves.toEqual({ deleted: 0, failed: 1 })
+    expect(journal.attempts.size).toBe(1)
+    expect([...journal.attempts.values()][0]?.volumes[0]?.resolved).toBe(false)
+  })
+
+  it('reports NULL-provenance KEEP rows and deliberately retires exact shared-app resources', async () => {
+    const journal = new MemoryJournal()
+    journal.seed(
+      failedIntent({
+        volumes: [{ id: 'older-volume', name: 'older-volume', workspace: false, resolved: true }],
+      }),
+    )
+    let externallyDeleted = false
+    const double = createFetchDouble()
+    installRoutes(double, (method, path) => {
+      if (method === 'GET' && path === `/apps/${APP}/machines`) return { body: [] }
+      if (method === 'GET' && path === `/apps/${APP}/machines/absent`) return { status: 404 }
+      if (method === 'GET' && path === `/apps/${APP}/volumes`) {
+        return { body: externallyDeleted ? [] : [{ id: 'older-volume', name: 'older-volume' }] }
+      }
+      if (method === 'DELETE' && path === `/apps/${APP}/volumes/older-volume`) {
+        return { status: externallyDeleted ? 404 : 204 }
+      }
+      throw new Error(`Unexpected ${method} ${path}`)
+    })
+    const provider = makeProvider(double, journal, { appPerProject: false, appName: APP })
+    await expect(provider.reconcileCreateAttempts()).resolves.toEqual({ deleted: 0, failed: 1 })
+    await expect(provider.reconcileCreateAttempts()).resolves.toEqual({ deleted: 0, failed: 1 })
+    expect(double.calls.filter((call) => call.method === 'DELETE')).toEqual([])
+    await expect(
+      provider.destroyApp(PROJECT_ID, APP, new AbortController().signal),
+    ).rejects.toThrow('shared Fly app')
+    await expect(provider.destroy(`${APP}:absent`, new AbortController().signal)).rejects.toThrow(
+      'durable ownership record',
+    )
+
+    externallyDeleted = true
+    await provider.destroyAttempt('attempt-1', new AbortController().signal)
+    expect(journal.attempts.size).toBe(0)
+    expect(double.matching(`DELETE /apps/${APP}/volumes/older-volume`)).toHaveLength(1)
+  })
+
+  it('retires expired creating siblings instead of letting their KEEP guards deadlock', async () => {
+    const journal = new MemoryJournal()
+    for (const id of ['crashed-one', 'crashed-two']) {
+      journal.seed(
+        failedIntent({
+          attemptId: id,
+          state: 'creating',
+          machineCreateFailed: true,
+          appCreatedByAttemptId: id === 'crashed-one' ? id : undefined,
+          appCreateResolved: id === 'crashed-one',
+        }),
+      )
+    }
+    journal.reclaimable = async () =>
+      [...journal.attempts.values()]
+        .filter((attempt) => attempt.state !== 'serving')
+        .map((attempt) => structuredClone(attempt))
+    const double = createFetchDouble()
+    installRoutes(double, (method, path) => {
+      if (
+        method === 'GET' &&
+        (path === `/apps/${APP}/machines` || path === `/apps/${APP}/volumes`)
+      ) {
+        return { body: [] }
+      }
+      if (method === 'DELETE' && path.startsWith(`/apps/${APP}`)) return { status: 204 }
+      throw new Error(`Unexpected ${method} ${path}`)
+    })
+    const provider = makeProvider(double, journal)
+    await provider.reconcileCreateAttempts()
+    await provider.reconcileCreateAttempts()
+
+    expect([...journal.attempts.values()].map((attempt) => attempt.state)).not.toEqual([
+      'creating',
+      'creating',
+    ])
+  })
+
+  it('does not let an unrelated serving shared-app project strand a fresh failed volume', async () => {
+    const journal = new MemoryJournal()
+    journal.seed(
+      failedIntent({
+        machineCreateFailed: true,
+        volumes: [
+          {
+            id: 'fresh-failed-volume',
+            name: 'fresh-failed-volume',
+            workspace: true,
+            resolved: true,
+            createdByAttemptId: 'attempt-1',
+          },
+        ],
+      }),
+    )
+    journal.seed(
+      failedIntent({
+        attemptId: 'unrelated-serving',
+        projectId: 'different-project',
+        state: 'serving',
+        sandboxId: `${APP}:other-user`,
+      }),
+    )
+    const other = {
+      id: 'other-user',
+      name: 'unrelated-serving',
+      state: 'started',
+      config: {
+        metadata: { 'molecule-sandbox.projectId': 'different-project' },
+        mounts: [{ volume: 'other-workspace' }],
+      },
+    }
+    let freshVolumeAlive = true
+    const double = createFetchDouble()
+    installRoutes(double, (method, path) => {
+      if (method === 'GET' && path === `/apps/${APP}/machines`) return { body: [other] }
+      if (method === 'GET' && path === `/apps/${APP}/volumes`) {
+        return {
+          body: freshVolumeAlive
+            ? [{ id: 'fresh-failed-volume', name: 'fresh-failed-volume' }]
+            : [],
+        }
+      }
+      if (method === 'DELETE' && path === `/apps/${APP}/volumes/fresh-failed-volume`) {
+        freshVolumeAlive = false
+        return { status: 204 }
+      }
+      throw new Error(`Unexpected ${method} ${path}`)
+    })
+    const provider = makeProvider(double, journal, { appPerProject: false, appName: APP })
+    await provider.reconcileCreateAttempts()
+    await provider.reconcileCreateAttempts()
+
+    expect(freshVolumeAlive).toBe(false)
+    expect(journal.attempts.get('unrelated-serving')?.state).toBe('serving')
+  })
+
+  it('refuses forced explicit app retirement over a racing older writer', async () => {
+    const journal = new MemoryJournal()
+    journal.seed(
+      failedIntent({ attemptId: 'old-attempt', state: 'serving', sandboxId: `${APP}:old-machine` }),
+    )
+    const oldMachine = {
+      id: 'old-machine',
+      name: 'old-attempt',
+      state: 'started',
+      config: {
+        metadata: {
+          'molecule-sandbox.projectId': PROJECT_ID,
+          'molecule-sandbox.createAttempt': 'old-attempt',
+        },
+      },
+    }
+    let oldAlive = true
+    let newMachine: Record<string, unknown> | null = null
+    let retiredEmptyListings = 0
+    let raced = false
+    const double = createFetchDouble()
+    installRoutes(double, async (method, path, body) => {
+      if (method === 'GET' && path === `/apps/${APP}/machines/old-machine`)
+        return { body: oldMachine }
+      if (method === 'GET' && path === `/apps/${APP}`) return { body: { name: APP } }
+      if (method === 'GET' && path === `/apps/${APP}/volumes`) return { body: [] }
+      if (method === 'GET' && path === `/apps/${APP}/machines`) {
+        if (!oldAlive && !raced && ++retiredEmptyListings === 3) {
+          raced = true
+          await provider.create({ projectId: PROJECT_ID })
+          return { body: [] }
+        }
+        return {
+          body: [...(oldAlive ? [oldMachine] : []), ...(newMachine ? [newMachine] : [])],
+        }
+      }
+      if (method === 'DELETE' && path === `/apps/${APP}/machines/old-machine?force=true`) {
+        oldAlive = false
+        return { status: 204 }
+      }
+      if (method === 'POST' && path === `/apps/${APP}/machines`) {
+        newMachine = { id: 'new-user', name: body.name, state: 'started', config: body.config }
+        return { body: newMachine }
+      }
+      if (method === 'GET' && path.startsWith(`/apps/${APP}/machines/new-user/wait`)) {
+        return { body: newMachine }
+      }
+      if (method === 'DELETE' && path === `/apps/${APP}?force=true`) {
+        newMachine = null
+        return { status: 204 }
+      }
+      if (method === 'DELETE' && path === `/apps/${APP}`) {
+        return newMachine ? { status: 409, body: { error: 'app has Machines' } } : { status: 204 }
+      }
+      throw new Error(`Unexpected ${method} ${path}`)
+    })
+    const provider = makeProvider(double, journal)
+
+    await provider.destroy(`${APP}:old-machine`, new AbortController().signal).catch(() => {})
+    expect(raced).toBe(true)
+    expect(newMachine).not.toBe(null)
+    expect(journal.attempts.get('old-attempt')?.state).toBe('abandoned')
+    expect(double.matching(`DELETE /apps/${APP}?force=true`)).toHaveLength(0)
+  })
+
+  it('keeps a racing Machine when automatic non-forced app deletion is refused', async () => {
+    const journal = new MemoryJournal()
+    journal.seed(
+      failedIntent({
+        machineCreateFailed: true,
+        appCreatedByAttemptId: 'attempt-1',
+        appCreateResolved: true,
+      }),
+    )
+    let retired = false
+    const retire = journal.retire.bind(journal)
+    journal.retire = async (id, generation) => {
+      await retire(id, generation)
+      retired = true
+    }
+    let machine: Record<string, unknown> | null = null
+    let listings = 0
+    const double = createFetchDouble()
+    installRoutes(double, (method, path) => {
+      if (method === 'GET' && path === `/apps/${APP}/volumes`) return { body: [] }
+      if (method === 'GET' && path === `/apps/${APP}/machines`) {
+        if (retired && ++listings === 4 && !machine) {
+          machine = { id: 'new-user', name: 'older-writer', state: 'started', config: {} }
+          return { body: [] }
+        }
+        return { body: machine ? [machine] : [] }
+      }
+      if (method === 'DELETE' && path === `/apps/${APP}`) {
+        return machine ? { status: 409, body: { error: 'app has Machines' } } : { status: 204 }
+      }
+      if (method === 'DELETE' && path === `/apps/${APP}?force=true`) {
+        machine = null
+        return { status: 204 }
+      }
+      throw new Error(`Unexpected ${method} ${path}`)
+    })
+    await makeProvider(double, journal).reconcileCreateAttempts()
+
+    expect(machine).not.toBe(null)
+    expect(journal.attempts.size).toBe(1)
+    expect(double.matching(`DELETE /apps/${APP}?force=true`)).toHaveLength(0)
+  })
+
+  it('can deliberately retire a NULL-provenance empty per-project app and detached volume', async () => {
+    const journal = new MemoryJournal()
+    journal.seed(
+      failedIntent({
+        volumes: [{ id: 'legacy-volume', name: 'legacy-volume', workspace: true, resolved: true }],
+      }),
+    )
+    let volumeAlive = true
+    let appAlive = true
+    const double = createFetchDouble()
+    installRoutes(double, (method, path) => {
+      if (method === 'GET' && path === `/apps/${APP}/machines`) {
+        return appAlive ? { body: [] } : { status: 404 }
+      }
+      if (method === 'GET' && path === `/apps/${APP}/volumes`) {
+        return appAlive
+          ? { body: volumeAlive ? [{ id: 'legacy-volume', name: 'legacy-volume' }] : [] }
+          : { status: 404 }
+      }
+      if (method === 'GET' && path === `/apps/${APP}`) {
+        return appAlive ? { body: { name: APP } } : { status: 404 }
+      }
+      if (method === 'DELETE' && path === `/apps/${APP}/volumes/legacy-volume`) {
+        volumeAlive = false
+        return { status: 204 }
+      }
+      if (method === 'DELETE' && (path === `/apps/${APP}` || path === `/apps/${APP}?force=true`)) {
+        appAlive = false
+        return { status: 204 }
+      }
+      throw new Error(`Unexpected ${method} ${path}`)
+    })
+    await makeProvider(double, journal).destroyApp(PROJECT_ID, APP, new AbortController().signal)
+
+    expect({ volumeAlive, appAlive, attempts: journal.attempts.size }).toEqual({
+      volumeAlive: false,
+      appAlive: false,
+      attempts: 0,
+    })
+  })
+
+  it('closes the create fence before journaling or calling Fly', async () => {
+    const journal = new MemoryJournal()
+    journal.createAllowed = false
+    const double = createFetchDouble()
+    const provider = makeProvider(double, journal)
+
+    await expect(provider.create({ projectId: PROJECT_ID })).rejects.toThrow('rollout fence')
+    expect(journal.attempts.size).toBe(0)
+    expect(double.calls).toEqual([])
   })
 })
