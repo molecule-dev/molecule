@@ -4,7 +4,7 @@
  * @module
  */
 
-import { redactCredentials } from './redaction.js'
+import { snapshotCredentials } from './redaction.js'
 import type { LogEntry, LogLevel, LogTransport } from './types.js'
 import { LOG_LEVEL_PRIORITY } from './types.js'
 
@@ -16,7 +16,10 @@ import { LOG_LEVEL_PRIORITY } from './types.js'
  */
 export const defaultFormat = (entry: LogEntry): string => {
   const prefix = entry.logger ? `[${entry.logger}]` : ''
-  const timestamp = entry.timestamp.toISOString()
+  const timestamp =
+    entry.timestamp instanceof Date
+      ? entry.timestamp.toISOString()
+      : new Date(String(entry.timestamp)).toISOString()
   return `${timestamp} ${entry.level.toUpperCase()}${prefix}: ${entry.message}`
 }
 
@@ -79,7 +82,7 @@ export const createRemoteTransport = (options: {
       return
     }
 
-    buffer.push(redactCredentials(entry))
+    buffer.push(snapshotCredentials(entry))
 
     if (buffer.length >= batchSize) {
       flush()

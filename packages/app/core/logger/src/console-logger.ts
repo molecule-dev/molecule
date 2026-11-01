@@ -4,7 +4,8 @@
  * @module
  */
 
-import { redactCredentials } from './redaction.js'
+import { errorFromSnapshot } from './error-snapshot.js'
+import { snapshotCredentials } from './redaction.js'
 import type { LogEntry, Logger, LoggerConfig, LogLevel, LogTransport } from './types.js'
 import { LOG_LEVEL_PRIORITY } from './types.js'
 import { defaultFormat } from './utilities.js'
@@ -31,13 +32,14 @@ export const createConsoleLogger = (config: LoggerConfig = {}): Logger => {
   const log = (
     entryLevel: Exclude<LogLevel, 'silent'>,
     message: string,
-    ...args: unknown[]
+    args: unknown[],
+    errorArgument = false,
   ): void => {
     if (!shouldLog(entryLevel)) return
 
     // Capture the complete entry as a fresh scrubbed tree BEFORE console or any transport can
     // retain it. Later caller mutation therefore cannot change a buffered clean entry into a leak.
-    const entry = redactCredentials<LogEntry>({
+    const entry = snapshotCredentials<LogEntry>({
       level: entryLevel,
       message,
       args,
@@ -46,15 +48,25 @@ export const createConsoleLogger = (config: LoggerConfig = {}): Logger => {
       context: Object.keys(context).length > 0 ? context : undefined,
     })
 
-    // Console output
+    if (errorArgument && entry.args.length > 0) {
+      const errorData = entry.args[0]
+      if (errorData && typeof errorData === 'object' && 'message' in errorData) {
+        entry.message = String((errorData as { message: unknown }).message)
+      }
+    }
+    // Console readers retain Error-shaped arguments, rebuilt only from detached data.
+    const consoleArgs =
+      errorArgument && entry.args.length > 0
+        ? [errorFromSnapshot(entry.args[0]), ...entry.args.slice(1)]
+        : entry.args
     const consoleMethod = entryLevel === 'trace' ? 'debug' : entryLevel
     const formatted = showTimestamps ? format(entry) : entry.message
-    const prefix = name && !showTimestamps ? `[${name}]` : ''
+    const prefix = entry.logger && !showTimestamps ? `[${entry.logger}]` : ''
 
     if (prefix) {
-      console[consoleMethod](prefix, formatted, ...entry.args)
+      console[consoleMethod](prefix, formatted, ...consoleArgs)
     } else {
-      console[consoleMethod](formatted, ...entry.args)
+      console[consoleMethod](formatted, ...consoleArgs)
     }
 
     // Send to transports
@@ -69,14 +81,14 @@ export const createConsoleLogger = (config: LoggerConfig = {}): Logger => {
   }
 
   const logger: Logger = {
-    trace: (message, ...args) => log('trace', message, ...args),
-    debug: (message, ...args) => log('debug', message, ...args),
-    info: (message, ...args) => log('info', message, ...args),
-    warn: (message, ...args) => log('warn', message, ...args),
+    trace: (message, ...args) => log('trace', message, args),
+    debug: (message, ...args) => log('debug', message, args),
+    info: (message, ...args) => log('info', message, args),
+    warn: (message, ...args) => log('warn', message, args),
     error: (message, ...args) => {
-      const msg = message instanceof Error ? message.message : message
-      const errorArgs = message instanceof Error ? [message, ...args] : args
-      log('error', msg, ...errorArgs)
+      const errorArgument = message instanceof Error
+      const errorArgs = errorArgument ? [message, ...args] : args
+      log('error', errorArgument ? '' : message, errorArgs, errorArgument)
     },
 
     setLevel: (newLevel) => {

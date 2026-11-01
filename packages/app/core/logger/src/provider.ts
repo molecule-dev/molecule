@@ -9,7 +9,7 @@
  */
 
 import { createConsoleLogger } from './console-logger.js'
-import { redactCredentials } from './redaction.js'
+import { redactCredentials, snapshotCredentials } from './redaction.js'
 import type {
   LogEntry,
   Logger,
@@ -18,6 +18,8 @@ import type {
   LogLevel,
   LogTransport,
 } from './types.js'
+
+const consoleProviders = new WeakSet<LoggerProvider>()
 
 /**
  * Creates a console-based logger provider with configurable log level,
@@ -34,7 +36,7 @@ export const createConsoleLoggerProvider = (defaultLevel: LogLevel = 'info'): Lo
 
   const rootLogger = createConsoleLogger({ level: globalLevel })
 
-  return {
+  const consoleProvider: LoggerProvider = {
     getLogger: (name?: string) => {
       if (!name) return rootLogger
       if (loggers.has(name)) return loggers.get(name)!
@@ -94,6 +96,8 @@ export const createConsoleLoggerProvider = (defaultLevel: LogLevel = 'info'): Lo
 
     isEnabled: () => enabled,
   }
+  consoleProviders.add(consoleProvider)
+  return consoleProvider
 }
 
 import { bond, get as bondGet, isBonded } from '@molecule/app-bond'
@@ -109,7 +113,7 @@ const transportWrappers = new WeakMap<LogTransport, LogTransport>()
 const credentialSafeTransport = (transport: LogTransport): LogTransport => {
   const cached = transportWrappers.get(transport)
   if (cached) return cached
-  const wrapped: LogTransport = (entry) => transport(redactCredentials(entry))
+  const wrapped: LogTransport = (entry) => transport(snapshotCredentials(entry))
   transportWrappers.set(transport, wrapped)
   return wrapped
 }
@@ -120,7 +124,7 @@ const credentialSafeConfig = (config: LoggerConfig): LoggerConfig => {
   return {
     ...scrubbed,
     ...(config.format
-      ? { format: (entry: LogEntry) => config.format!(redactCredentials(entry)) }
+      ? { format: (entry: LogEntry) => config.format!(snapshotCredentials(entry)) }
       : {}),
     ...(config.transports ? { transports: config.transports.map(credentialSafeTransport) } : {}),
   }
@@ -132,13 +136,15 @@ const credentialSafeLogger = (logger: Logger): Logger => {
   if (cached) return cached
   const wrapped: Logger = {
     trace: (message, ...args) =>
-      logger.trace(redactCredentials(message), ...redactCredentials(args)),
+      logger.trace(snapshotCredentials(message), ...snapshotCredentials(args)),
     debug: (message, ...args) =>
-      logger.debug(redactCredentials(message), ...redactCredentials(args)),
-    info: (message, ...args) => logger.info(redactCredentials(message), ...redactCredentials(args)),
-    warn: (message, ...args) => logger.warn(redactCredentials(message), ...redactCredentials(args)),
+      logger.debug(snapshotCredentials(message), ...snapshotCredentials(args)),
+    info: (message, ...args) =>
+      logger.info(snapshotCredentials(message), ...snapshotCredentials(args)),
+    warn: (message, ...args) =>
+      logger.warn(snapshotCredentials(message), ...snapshotCredentials(args)),
     error: (message, ...args) =>
-      logger.error(redactCredentials(message), ...redactCredentials(args)),
+      logger.error(snapshotCredentials(message), ...snapshotCredentials(args)),
     setLevel: (level) => logger.setLevel(level),
     getLevel: () => logger.getLevel(),
     child: (name, context) =>
@@ -153,7 +159,7 @@ const credentialSafeLogger = (logger: Logger): Logger => {
 
 /** Wrap whatever is bonded, including a direct bond that bypassed setProvider(). */
 const credentialSafeProvider = (provider: LoggerProvider): LoggerProvider => {
-  if (wrappedProviders.has(provider)) return provider
+  if (consoleProviders.has(provider) || wrappedProviders.has(provider)) return provider
   const cached = providerWrappers.get(provider)
   if (cached) return cached
   const wrapped: LoggerProvider = {
