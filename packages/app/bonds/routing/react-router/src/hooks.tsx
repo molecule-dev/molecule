@@ -9,9 +9,11 @@ import React, {
   type Dispatch,
   type ReactNode,
   type SetStateAction,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react'
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router'
@@ -240,11 +242,41 @@ export function useConsumedSearchParam(
   const navigate = useNavigate()
   const current = new URLSearchParams(location.search).get(name) ?? ''
   const [consumed, setConsumed] = useState(current)
+  const consumedByEntry = useRef(new Map<string, string>())
+  const pending = useRef<string | undefined>(undefined)
+  const latest = useRef(consumed)
+  latest.current = consumed
+
+  const updateConsumed = useCallback<Dispatch<SetStateAction<string>>>(
+    (action) => {
+      setConsumed((previous) => {
+        const next = typeof action === 'function' ? action(previous) : action
+        consumedByEntry.current.set(location.key, next)
+        return next
+      })
+    },
+    [location.key],
+  )
 
   useEffect(() => {
     const params = new URLSearchParams(location.search)
-    if (!params.has(name)) return
-    setConsumed(params.get(name) ?? '')
+    if (!params.has(name)) {
+      const pendingValue = pending.current
+      if (pendingValue !== undefined) {
+        consumedByEntry.current.set(location.key, pendingValue)
+        pending.current = undefined
+      } else if (consumedByEntry.current.has(location.key)) {
+        setConsumed(consumedByEntry.current.get(location.key) ?? '')
+      } else if (latest.current) {
+        // Query-only navigation creates a new key but not a new credential link.
+        consumedByEntry.current.set(location.key, latest.current)
+      }
+      return
+    }
+
+    const value = params.get(name) ?? ''
+    pending.current = value
+    setConsumed(value)
     params.delete(name)
     const search = params.toString()
     const previousHistoryState =
@@ -279,5 +311,8 @@ export function useConsumedSearchParam(
     }
   }, [location, navigate, name])
 
-  return [current || consumed, setConsumed] as const
+  return [
+    current || (consumedByEntry.current.get(location.key) ?? consumed),
+    updateConsumed,
+  ] as const
 }
