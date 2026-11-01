@@ -41,6 +41,75 @@ const appendHook = <H>(configured: H | H[] | undefined, hook: H): H[] => {
 const TRACK_HOOK_HISTORY = Symbol('molecule.mixpanelTrackHookHistory')
 type ComposedTrackHook = TrackHook & { [TRACK_HOOK_HISTORY]?: TrackHook[] }
 
+const REPLAY_FETCH_CAPTURE = Symbol.for('@molecule/app-analytics-mixpanel/replay-fetch-capture')
+type CapturedFetch = typeof fetch & { [REPLAY_FETCH_CAPTURE]?: boolean }
+
+/** Identify only this Mixpanel instance's replay endpoint, never an application's /record route. */
+const isReplayRequest = (input: RequestInfo | URL): boolean => {
+  const raw = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url
+  try {
+    const url = new URL(raw)
+    const instance = mixpanel as unknown as { get_api_host?: (route: string) => string }
+    const host = instance.get_api_host?.('record') ?? mixpanel.get_config('api_host')
+    return url.origin === new URL(host).origin && /\/record\/?$/.test(url.pathname)
+  } catch (_error) {
+    return false
+  }
+}
+
+/** Capture each decoded metadata value while retaining SDK identifiers and safe URL components. */
+const scrubReplayUrl = (input: RequestInfo | URL): string => {
+  const raw = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url
+  const url = new URL(raw)
+  const entries: Array<[string, string]> = []
+  url.searchParams.forEach((value, name) => entries.push([name, value]))
+  for (const [name, value] of entries) {
+    const captured = snapshotAnalyticsSdkUrls(value)
+    if (captured !== value) url.searchParams.set(name, captured)
+  }
+  return url.toString()
+}
+
+/** Scrub the recorder's JSON before fetch, including its optional gzip representation. */
+const scrubReplayBody = async (
+  body: BodyInit | null | undefined,
+  gzip: boolean,
+): Promise<BodyInit | null | undefined> => {
+  if (typeof body === 'string') return snapshotAnalyticsSdkUrls(body)
+  if (!gzip || typeof Blob === 'undefined' || !(body instanceof Blob)) return body
+  if (typeof DecompressionStream === 'undefined' || typeof CompressionStream === 'undefined') {
+    throw new Error('Mixpanel replay transport capture is unavailable')
+  }
+  const text = await new Response(body.stream().pipeThrough(new DecompressionStream('gzip'))).text()
+  const captured = snapshotAnalyticsSdkUrls(text)
+  if (captured === text) return body
+  const compressed = new Blob([captured]).stream().pipeThrough(new CompressionStream('gzip'))
+  return new Response(compressed).blob()
+}
+
+/** Session replay bypasses Mixpanel hooks; make fetch its final data-only capture point. */
+const installReplayTransportCapture = (): void => {
+  if (typeof window === 'undefined' || typeof window.fetch !== 'function') return
+  const original = window.fetch as CapturedFetch
+  if (original[REPLAY_FETCH_CAPTURE]) return
+  const captured: CapturedFetch = function (
+    this: unknown,
+    input: RequestInfo | URL,
+    init?: RequestInit,
+  ) {
+    if (!isReplayRequest(input)) return Reflect.apply(original, this, [input, init])
+    const gzip =
+      new URL(
+        typeof input === 'string' ? input : input instanceof URL ? input.href : input.url,
+      ).searchParams.get('format') === 'gzip'
+    return scrubReplayBody(init?.body, gzip).then((body) =>
+      Reflect.apply(original, this, [scrubReplayUrl(input), { ...init, body }]),
+    )
+  } as CapturedFetch
+  Object.defineProperty(captured, REPLAY_FETCH_CAPTURE, { value: true })
+  window.fetch = captured
+}
+
 /**
  * Preserve the original event name to recognize skip-hooks identify/alias events after app hooks.
  * Ordinary events return their original property object and walk only in before_send_events.
@@ -131,6 +200,7 @@ export const createProvider = (options?: MixpanelOptions): AnalyticsProvider => 
   // mixpanel-browser 2.84.0 accepts hook arrays and before_send_people at runtime,
   // although its published Config declaration omits both.
   mixpanel.set_config({ hooks } as unknown as Partial<Config>)
+  installReplayTransportCapture()
 
   return {
     async identify(user: AnalyticsUserProps): Promise<void> {
