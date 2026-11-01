@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { expectTypeOf } from 'expect-type'
-import { act, type ComponentType, type JSX, lazy, Suspense } from 'react'
+import { act, type ComponentProps, type ComponentType, type JSX, lazy, Suspense } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import {
   Link,
@@ -229,5 +229,24 @@ describe('lazyPage types', () => {
     expectTypeOf(<PostPage slug="first" />).toEqualTypeOf<JSX.Element>()
     // @ts-expect-error -- a required page prop stays required.
     expectTypeOf(<PostPage />).toEqualTypeOf<JSX.Element>()
+  })
+
+  it('accepts a page whose props parameter is optional, with or without its props', async () => {
+    function Draft({ initial }: { initial?: string } = {}): JSX.Element {
+      return <h1>{initial ?? 'empty draft'}</h1>
+    }
+    const DraftPage = lazyPage(async () => ({ default: Draft }))
+
+    // `undefined` in the props type makes the page an invalid JSX element type wherever
+    // React's types come from a second copy (TS2786 under `moduleResolution: bundler`).
+    expectTypeOf<ComponentProps<typeof DraftPage>>().toEqualTypeOf<{ initial?: string }>()
+    expectTypeOf(<DraftPage />).toEqualTypeOf<JSX.Element>()
+    expectTypeOf(<DraftPage initial="saved" />).toEqualTypeOf<JSX.Element>()
+    // @ts-expect-error -- a prop the page does not declare is still refused.
+    expectTypeOf(<DraftPage title="x" />).toEqualTypeOf<JSX.Element>()
+
+    await render(<DraftPage initial="saved" />)
+    await act(async () => {})
+    expect(headings()).toEqual(['saved'])
   })
 })

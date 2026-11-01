@@ -38,6 +38,9 @@ export interface LazyPageOptions {
  *   `() => import('./pages/Article.js').then((m) => ({ default: m.Article }))`.
  * @param options - Optional `fallback` shown in the page's area while its code loads.
  * @returns A component to use as a route's element: `<Route path="/article/:slug" element={<Article />} />`.
+ *   Its props are the page's own, without the `undefined` an optional props parameter
+ *   (`function Draft({ initial }: DraftProps = {})`) adds: a component type carrying it is
+ *   not a valid JSX element type wherever React's types resolve from a second copy.
  *
  * @example
  * ```tsx
@@ -62,7 +65,7 @@ export interface LazyPageOptions {
 export function lazyPage<Page extends LazyLoadableComponent>(
   load: () => Promise<{ default: Page }>,
   options: LazyPageOptions = {},
-): ComponentType<ComponentProps<Page>> {
+): ComponentType<NonNullable<ComponentProps<Page>>> {
   const Loaded = lazy(load)
   const fallback = options.fallback ?? null
   /**
@@ -71,7 +74,7 @@ export function lazyPage<Page extends LazyLoadableComponent>(
    * @param props - The page's props, passed through.
    * @returns The page, or `fallback` while its code loads.
    */
-  function LazyPage(props: ComponentProps<Page>): JSX.Element {
+  function LazyPage(props: NonNullable<ComponentProps<Page>>): JSX.Element {
     return (
       <Suspense fallback={fallback}>
         <Loaded {...props} />
