@@ -95,8 +95,8 @@ const isCredentialName = (name: string): boolean => {
 
 /** URL userinfo, confined to an authority and including its separating `@`. */
 const URL_USERINFO = /((?:[a-z][a-z\d+.-]*:)?\/\/)[^/?#\s]*@/gi
-/** A query or fragment span. A path's `&name=value` text has no such span. */
-const URL_PARAMETER_SPAN = /[?#][^\s]*/g
+/** A query or fragment span ends at whitespace, quoted-attribute and URL-text boundaries. */
+const URL_PARAMETER_SPAN = /[?#][^\s"'`<>]*/g
 /** HTTP field lines; the classifier, rather than a short denylist, decides whether to redact. */
 const HEADER_LINE = /(^|\r?\n)([\t ]*)([!#$%&'*+.^_`|~\dA-Za-z-]+):([\t ]*)([^\r\n]*)/g
 
@@ -170,11 +170,11 @@ const propertyDescriptor = (value: object, name: string): PropertyDescriptor | u
   return undefined
 }
 
-/** V8's own lazy stack formatter, not an application's safe custom stack accessor. */
+/** V8 reuses this exact getter; bound application functions only LOOK native in toString. */
+const NATIVE_LAZY_STACK_GETTER = Object.getOwnPropertyDescriptor(new Error(), 'stack')?.get
+
 const isNativeLazyStack = (descriptor: PropertyDescriptor): boolean =>
-  'get' in descriptor &&
-  typeof descriptor.get === 'function' &&
-  Function.prototype.toString.call(descriptor.get).includes('[native code]')
+  NATIVE_LAZY_STACK_GETTER !== undefined && descriptor.get === NATIVE_LAZY_STACK_GETTER
 
 const isBinary = (value: object): value is ArrayBuffer | ArrayBufferView =>
   value instanceof ArrayBuffer || ArrayBuffer.isView(value)
