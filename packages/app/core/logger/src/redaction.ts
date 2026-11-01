@@ -9,6 +9,7 @@ import { errorFromSnapshot } from './error-snapshot.js'
 const REDACTED = '[REDACTED]'
 const CIRCULAR = '[Circular]'
 const ACCESSOR_ERROR = '[ACCESSOR_ERROR]'
+const STACK_UNAVAILABLE = '[STACK_UNAVAILABLE]'
 const HTTP_ERROR_BRAND = Symbol.for('@molecule/app-http/HttpError')
 const DIAGNOSTIC_CODE = /^[A-Z][A-Z0-9_]{0,63}$/
 
@@ -297,6 +298,22 @@ const snapshotRoot = (value: unknown): unknown => {
           continue
         }
 
+        // V8's lazy Error.stack formatter reads name/message again. Never let that implicit
+        // native read re-enter an accessor after its one snapshot read; ordinary stacks are kept.
+        const sideEffectfulStack =
+          errorValue &&
+          name === 'stack' &&
+          descriptor !== undefined &&
+          !('value' in descriptor) &&
+          ['name', 'message'].some((field) => {
+            const fieldDescriptor = Object.getOwnPropertyDescriptor(current, field)
+            return fieldDescriptor !== undefined && !('value' in fieldDescriptor)
+          })
+        if (sideEffectfulStack) {
+          defineValue(clone, name, STACK_UNAVAILABLE)
+          continue
+        }
+
         let original: unknown
         if (descriptor && 'value' in descriptor) {
           original = descriptor.value
@@ -344,7 +361,8 @@ const snapshotRoot = (value: unknown): unknown => {
  * inert size/type markers. Dates and custom `toJSON` values become their snapshotted hook result.
  *
  * Each own property is read at most once. Credential-named accessors are not invoked; every other
- * accessor runs once in try/catch and a throw becomes `[ACCESSOR_ERROR]`. Path cycles become
+ * accessor runs once in try/catch and a throw becomes `[ACCESSOR_ERROR]`. A lazy native stack that
+ * would re-read an accessor-backed name/message becomes `[STACK_UNAVAILABLE]`. Path cycles become
  * `[Circular]`; shared references are captured independently. Under an Error/cause chain, upper-
  * case diagnostic `code`/`errorCode`/`errorKey` tokens up to 64 characters survive at any depth.
  * Direct string/string-array validation messages under `errors` retain their field names. OAuth

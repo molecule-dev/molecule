@@ -110,6 +110,25 @@ describe('round-six snapshot credential reproductions', () => {
     expect(output.cause?.code).toBe('ENOTFOUND')
   })
 
+  it('does not let lazy stack capture re-read an accessor-backed message', () => {
+    let reads = 0
+    const original = new Error('placeholder')
+    Object.defineProperty(original, 'message', {
+      configurable: true,
+      get() {
+        reads++
+        return reads === 1 ? 'offline' : '/auth?token=lazy-stack-secret'
+      },
+    })
+
+    const output = redactCredentials(original)
+
+    expect(reads).toBe(1)
+    expect(output).not.toBe(original)
+    expect(output.message).toBe('offline')
+    expect(String(output.stack)).not.toContain('lazy-stack-secret')
+  })
+
   it('decodes textual binary once and marks non-text binary without retaining live bytes', () => {
     const bytes = new TextEncoder().encode('{"password":"binary-secret","safe":"same"}')
     expect(redactCredentials(bytes)).toBe('{"password":"[REDACTED]","safe":"same"}')
