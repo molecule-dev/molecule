@@ -1,5 +1,11 @@
 # @molecule/app-ide-react
 
+## 3.2.0
+
+### Minor Changes
+
+- Allow hosts to show durable native test history in the existing Tests browser.
+
 ## 3.1.0
 
 ### Minor Changes

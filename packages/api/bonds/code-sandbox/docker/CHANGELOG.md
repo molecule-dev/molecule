@@ -1,5 +1,11 @@
 # @molecule/api-code-sandbox-docker
 
+## 1.3.0
+
+### Minor Changes
+
+- Add passive sandbox file access that preserves running state and existing lifecycle deadlines.
+
 ## 1.2.1
 
 ### Patch Changes

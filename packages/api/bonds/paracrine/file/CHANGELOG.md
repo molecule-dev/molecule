@@ -1,5 +1,11 @@
 # @molecule/api-paracrine-file
 
+## 1.3.0
+
+### Minor Changes
+
+- Quarantine aged malformed legacy JSON with visible status, and close SQLite handles when initialization fails.
+
 ## 1.2.0
 
 ### Minor Changes

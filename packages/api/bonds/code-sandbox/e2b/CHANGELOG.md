@@ -1,5 +1,15 @@
 # @molecule/api-code-sandbox-e2b
 
+## 1.3.0
+
+### Minor Changes
+
+- Add passive sandbox file access that preserves running state and existing lifecycle deadlines.
+
+### Patch Changes
+
+- Execute the requested command on native terminals and clean up failed terminal startup.
+
 ## 1.2.17
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.16.0
+
+### Minor Changes
+
+- `save_plan` accepts typed registry package decisions in a `packages` field and returns them with the saved plan.
+
 ## 1.15.0
 
 ### Minor Changes

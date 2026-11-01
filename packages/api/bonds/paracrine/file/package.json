@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-paracrine-file",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Zero-config file-backed paracrine store — messages between the AI agents on one machine, with a paracrine CLI any harness can use.",
   "type": "module",
   "engines": {
