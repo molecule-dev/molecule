@@ -2840,6 +2840,7 @@ export interface ChatInnerProps {
   runTests?: ChatPanelProps['runTests']
   /** Every test run in the project, streamed — see {@link ChatPanelProps.watchTestRuns}. */
   watchTestRuns?: ChatPanelProps['watchTestRuns']
+  nativeTests?: ChatPanelProps['nativeTests']
   /** Whether this viewer may run tests — see {@link ChatPanelProps.canRunTests}. */
   canRunTests?: boolean
   /** Whether the environment that runs them is up — see {@link ChatPanelProps.testsAvailable}. */
@@ -2931,6 +2932,7 @@ function ChatInner({
   listTests,
   runTests,
   watchTestRuns,
+  nativeTests,
   canRunTests,
   testsAvailable,
   skipToolCall,
@@ -8644,7 +8646,8 @@ function ChatInner({
   // Everything about the work in flight shares one card above the composer. The
   // tests strip also shows for a read-only viewer (watching is not editing); the
   // files strip does not (committing is editor work). Popups hide the card.
-  const showTests = testsBarVisible && shouldShowTestsBar(testsRun, testsList)
+  const showTests =
+    testsBarVisible && (nativeTests ? nativeTests.visible : shouldShowTestsBar(testsRun, testsList))
   const showFiles = canEdit !== false && pendingFiles != null && pendingFiles.length > 0
   const workVisible =
     !commandMenu &&
@@ -11322,31 +11325,34 @@ function ChatInner({
                 />
               )}
               {panelOverlay === 'tests' && (
-                <TestsCard
-                  tests={testsList}
-                  status={testsStatus}
-                  run={testsRun}
-                  agentName={agentName}
-                  initialQuery={panelOverlayQuery}
-                  canRun={(canRunTests ?? canEdit !== false) && canEdit !== false}
-                  onRun={startTestsRun}
-                  onCancel={cancelTestsRun}
-                  onSkipCurrent={skipCurrentTest}
-                  onFix={fixTests}
-                  fixDisabledReason={
-                    canEdit === false
-                      ? t('ide.tests.viewerCannotRun', undefined, {
-                          defaultValue: 'Only editors can run this project’s tests.',
-                        })
-                      : isLoading || isRemoteStreaming
-                        ? t('ide.tests.fixBusy', undefined, {
-                            defaultValue: 'Wait for the current turn to finish.',
+                <>
+                  {nativeTests?.history}
+                  <TestsCard
+                    tests={testsList}
+                    status={testsStatus}
+                    run={testsRun}
+                    agentName={agentName}
+                    initialQuery={panelOverlayQuery}
+                    canRun={(canRunTests ?? canEdit !== false) && canEdit !== false}
+                    onRun={startTestsRun}
+                    onCancel={cancelTestsRun}
+                    onSkipCurrent={skipCurrentTest}
+                    onFix={fixTests}
+                    fixDisabledReason={
+                      canEdit === false
+                        ? t('ide.tests.viewerCannotRun', undefined, {
+                            defaultValue: 'Only editors can run this project’s tests.',
                           })
-                        : null
-                  }
-                  isLight={isLight}
-                  embedded
-                />
+                        : isLoading || isRemoteStreaming
+                          ? t('ide.tests.fixBusy', undefined, {
+                              defaultValue: 'Wait for the current turn to finish.',
+                            })
+                          : null
+                    }
+                    isLight={isLight}
+                    embedded
+                  />
+                </>
               )}
             </div>
           </div>
@@ -11724,15 +11730,18 @@ function ChatInner({
                 its tool call, so its own card goes green while it still runs). */}
             <PlanCard todos={plan} live={planLive} awaitingUser={planAwaitingUser} />
             <BackgroundTasksStrip tasks={backgroundTasks} />
-            {showTests && (
-              <TestStatusBar
-                run={testsRun}
-                agentName={agentName}
-                tests={testsList}
-                onOpen={() => openTestsBrowser('')}
-                onStop={testsRun.running && !testsRun.external ? cancelTestsRun : undefined}
-              />
-            )}
+            {showTests &&
+              (nativeTests ? (
+                nativeTests.renderStatus(() => openTestsBrowser(''))
+              ) : (
+                <TestStatusBar
+                  run={testsRun}
+                  agentName={agentName}
+                  tests={testsList}
+                  onOpen={() => openTestsBrowser('')}
+                  onStop={testsRun.running && !testsRun.external ? cancelTestsRun : undefined}
+                />
+              ))}
             {/* Commit bar — anchored above the textarea (hidden when a popup menu is open).
             Hidden entirely for a read-only VIEWER: committing/reverting is editor work,
             so the bar is a dead control for them. */}
@@ -12650,6 +12659,7 @@ export function ChatPanel({
   listTests,
   runTests,
   watchTestRuns,
+  nativeTests,
   canRunTests,
   testsAvailable,
   skipToolCall,
@@ -13119,6 +13129,7 @@ export function ChatPanel({
         listTests={listTests}
         runTests={runTests}
         watchTestRuns={watchTestRuns}
+        nativeTests={nativeTests}
         canRunTests={canRunTests}
         testsAvailable={testsAvailable}
         skipToolCall={skipToolCall}

@@ -629,6 +629,12 @@ export interface ChatPanelProps {
    * `GET /projects/:id/tests/runs` (server-sent events).
    */
   watchTestRuns?: (onEvent: (event: TestRunFeedEvent) => void) => () => void
+  /** Host-owned durable native runs in the existing Tests browser and composer strip. */
+  nativeTests?: {
+    visible: boolean
+    history: ReactNode
+    renderStatus: (openTests: () => void) => ReactNode
+  }
   /**
    * Whether this viewer may RUN tests. `false` still lets them open `/test`
    * and read what the project tests (the platform serves the listing to

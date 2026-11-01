@@ -191,6 +191,7 @@ function renderPanel(options: {
   runTests?: ChatPanelProps['runTests']
   canRunTests?: boolean
   watchTestRuns?: ChatPanelProps['watchTestRuns']
+  nativeTests?: ChatPanelProps['nativeTests']
 }): ReactElement {
   const wrap = (children: ReactNode): ReactElement => (
     <I18nProvider provider={createSimpleI18nProvider('en')}>
@@ -210,6 +211,7 @@ function renderPanel(options: {
       runTests={options.runTests ?? (() => ({ cancel: () => {} }))}
       canRunTests={options.canRunTests ?? true}
       watchTestRuns={options.watchTestRuns}
+      nativeTests={options.nativeTests}
       testsAvailable
     />,
   )
@@ -250,6 +252,42 @@ beforeEach(() => {
 })
 
 describe('the /test command', () => {
+  it('opens durable host test history from its status strip for a viewer and retains it after remount', async () => {
+    const listTests = vi.fn(async () => LIST)
+    const panel = () =>
+      renderPanel({
+        listTests,
+        canRunTests: false,
+        nativeTests: {
+          visible: true,
+          history: (
+            <section data-testid="durable-native-history">
+              Native invocation · exit 0 · test results not recorded
+            </section>
+          ),
+          renderStatus: (open) => (
+            <button type="button" onClick={open}>
+              Native test history
+            </button>
+          ),
+        },
+      })
+    const first = render(panel())
+    fireEvent.click(first.getByRole('button', { name: 'Native test history' }))
+    await waitFor(() =>
+      expect(first.getByTestId('durable-native-history').textContent).toContain(
+        'test results not recorded',
+      ),
+    )
+    expect(sent).toEqual([])
+    first.unmount()
+    const second = render(panel())
+    fireEvent.click(second.getByRole('button', { name: 'Native test history' }))
+    await waitFor(() =>
+      expect(second.getByTestId('durable-native-history').textContent).toContain('exit 0'),
+    )
+    second.unmount()
+  })
   it('lists tests and accepts run events after effects reconnect', async () => {
     let emit: (event: TestRunEvent) => void = () => {}
     const cancel = vi.fn()
