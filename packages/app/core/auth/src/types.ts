@@ -308,6 +308,16 @@ export interface AuthResult<T = UserProfile> {
   twoFactorRequired?: boolean
 }
 
+/** A 206 challenge: control fields survive, but no authenticated session exists. */
+export interface AuthChallenge {
+  twoFactorRequired: true
+  user?: never
+  accessToken?: never
+  refreshToken?: never
+  expiresAt?: never
+  [controlField: string]: unknown
+}
+
 /**
  * Password reset request data.
  */
@@ -1048,7 +1058,7 @@ export interface AuthClientConfigOptions<T extends object = UserProfile> {
    * @param data - The parsed response body.
    * @returns The auth result.
    */
-  mapAuthResponse?: (data: unknown) => AuthResult<NoInfer<T>>
+  mapAuthResponse?: (data: unknown) => AuthResult<NoInfer<T>> | AuthChallenge
 
   /**
    * Where the access/refresh token and the cached user are kept — the field that
@@ -1142,9 +1152,13 @@ export interface AuthClientConfigOptions<T extends object = UserProfile> {
   resetPasswordEndpoint?: string
 
   /**
-   * Change password endpoint.
+   * Change password endpoint. A resource route may resolve the CURRENT signed-in
+   * user, using the same identity rule as {@link AuthClientConfigOptions.profileEndpoint}.
    */
-  changePasswordEndpoint?: string
+  changePasswordEndpoint?: string | ((user: Readonly<T>) => string)
+
+  /** HTTP method for `changePassword()` (default `'POST'`). */
+  changePasswordMethod?: 'POST' | 'PATCH'
 
   /**
    * Available OAuth providers (e.g., ['github', 'google', 'gitlab']).

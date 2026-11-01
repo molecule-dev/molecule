@@ -349,6 +349,7 @@ export const createJWTAuthClient = <
     forgotPasswordEndpoint = '/auth/password/reset',
     resetPasswordEndpoint = '/auth/password/reset/confirm',
     changePasswordEndpoint = '/auth/password/change',
+    changePasswordMethod = 'POST',
     currentUserEndpoint = '/users/me',
     cookieRestore = 'hint',
     storagePrefix = 'molecule:auth:',
@@ -631,7 +632,7 @@ export const createJWTAuthClient = <
       } catch (_error) {
         // Neither diagnostic inspection nor logging may change the auth operation's result.
       }
-      return mapped
+      return mapped as AuthResult<T>
     }
     // No mapper: the API already answers in the client's own shape. JSON is
     // untyped, so this is the one place a shape must be asserted.
@@ -1443,12 +1444,35 @@ export const createJWTAuthClient = <
       // reads `currentPassword`; legacy callers passed `oldPassword`,
       // so accept either name in the hook signature but translate to
       // the canonical `currentPassword` field when sending.
-      await runAuthOperation(() =>
-        fetchAPI(changePasswordEndpoint, {
-          method: 'POST',
+      await runAuthOperation(async () => {
+        const revision = sessionRevision
+        const user = state.user
+        if (typeof changePasswordEndpoint === 'function' && !user)
+          throw new I18nError(
+            'auth.error.unauthorized',
+            undefined,
+            'Sign in before changing a password',
+          )
+        const endpoint =
+          typeof changePasswordEndpoint === 'function'
+            ? changePasswordEndpoint(user!)
+            : changePasswordEndpoint
+        if (
+          typeof changePasswordEndpoint === 'function' &&
+          (typeof endpoint !== 'string' || !endpoint.trim())
+        )
+          throw new TypeError('changePasswordEndpoint must resolve to a nonempty route')
+        if (revision !== sessionRevision)
+          throw new I18nError(
+            'auth.error.unauthorized',
+            undefined,
+            'The password session changed before submission',
+          )
+        await fetchAPI(endpoint, {
+          method: changePasswordMethod,
           body: JSON.stringify({ currentPassword: oldPassword, newPassword }),
-        }),
-      )
+        })
+      })
     },
 
     async initialize(): Promise<void> {
