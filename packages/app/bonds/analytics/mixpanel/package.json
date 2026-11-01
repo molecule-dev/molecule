@@ -30,7 +30,7 @@
     "mixpanel-browser": "2.84.0"
   },
   "peerDependencies": {
-    "@molecule/app-analytics": "^1.0.1"
+    "@molecule/app-analytics": "^1.1.1"
   },
   "devDependencies": {
     "@molecule/app-analytics": "1.1.0",

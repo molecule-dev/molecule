@@ -6,7 +6,7 @@
  * @module
  */
 
-import mixpanel, { type BeforeSendHookPayload } from 'mixpanel-browser'
+import mixpanel, { type BeforeSendHookPayload, type Config } from 'mixpanel-browser'
 
 import type {
   AnalyticsEvent,
@@ -22,6 +22,31 @@ import type { MixpanelOptions } from './types.js'
 const scrubSdkUrls = (event: BeforeSendHookPayload): BeforeSendHookPayload =>
   snapshotAnalyticsSdkUrls(event)
 
+type EventHook = NonNullable<Config['hooks']['before_send_events']>
+type TrackHook = NonNullable<Config['hooks']['on_track']>
+type PeoplePayload = Record<string, unknown>
+type PeopleHook = (payload: PeoplePayload) => PeoplePayload | null
+type RuntimeHooks = Omit<Config['hooks'], 'before_send_events' | 'on_track'> & {
+  before_send_events?: EventHook | EventHook[]
+  before_send_people?: PeopleHook | PeopleHook[]
+  on_track?: TrackHook | TrackHook[]
+}
+
+/** Person updates use the same payload walk immediately before their own transport. */
+const scrubSdkPeople: PeopleHook = (payload) => snapshotAnalyticsSdkUrls(payload)
+
+/** `$identify` sets skip_hooks, but 2.84.0 deliberately still runs on_track for it. */
+const scrubSdkTrack: TrackHook = (eventName, properties) => [
+  eventName,
+  snapshotAnalyticsSdkUrls(properties),
+]
+
+/** The SDK accepts ordered hook arrays at runtime; append without duplicating on HMR/re-bonding. */
+const appendHook = <H>(configured: H | H[] | undefined, hook: H): H[] => {
+  const previous = Array.isArray(configured) ? configured : configured ? [configured] : []
+  return [...previous.filter((candidate) => candidate !== hook), hook]
+}
+
 /**
  * Creates a Mixpanel analytics provider using `mixpanel-browser`. Initializes the SDK
  * with the provided token and returns an `AnalyticsProvider` that maps molecule events to
@@ -35,7 +60,9 @@ const scrubSdkUrls = (event: BeforeSendHookPayload): BeforeSendHookPayload =>
  * `provider` export without configuration degrades gracefully instead of
  * becoming a silent event black hole.
  *
- * SDK-added location/referrer properties are scrubbed by `hooks.before_send_events`.
+ * SDK-added location/referrer properties are scrubbed by `on_track`, `before_send_events`
+ * and `before_send_people`. Hooks are composed AFTER init so a pre-initialized singleton
+ * keeps its existing hooks and the scrubber always runs last.
  *
  * @param options - Mixpanel configuration including `token` and optional `debug` flag.
  * @returns An `AnalyticsProvider` backed by the Mixpanel browser SDK.
@@ -65,8 +92,18 @@ export const createProvider = (options?: MixpanelOptions): AnalyticsProvider => 
   mixpanel.init(token, {
     debug: options?.debug ?? false,
     track_pageview: false, // We handle page views manually via auto-tracking
-    hooks: { before_send_events: scrubSdkUrls },
   })
+
+  const configuredHooks = mixpanel.get_config('hooks') as RuntimeHooks | undefined
+  const hooks: RuntimeHooks = {
+    ...configuredHooks,
+    before_send_events: appendHook(configuredHooks?.before_send_events, scrubSdkUrls),
+    before_send_people: appendHook(configuredHooks?.before_send_people, scrubSdkPeople),
+    on_track: appendHook(configuredHooks?.on_track, scrubSdkTrack),
+  }
+  // mixpanel-browser 2.84.0 accepts hook arrays and before_send_people at runtime,
+  // although its published Config declaration omits both.
+  mixpanel.set_config({ hooks } as unknown as Partial<Config>)
 
   return {
     async identify(user: AnalyticsUserProps): Promise<void> {

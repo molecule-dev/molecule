@@ -6,16 +6,27 @@
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const { mockInit, mockIdentify, mockTrack, mockPeopleSet, mockSetGroup, mockGetGroup, mockReset } =
-  vi.hoisted(() => ({
-    mockInit: vi.fn(),
-    mockIdentify: vi.fn(),
-    mockTrack: vi.fn(),
-    mockPeopleSet: vi.fn(),
-    mockSetGroup: vi.fn(),
-    mockGetGroup: vi.fn().mockReturnValue({ set: vi.fn() }),
-    mockReset: vi.fn(),
-  }))
+const {
+  mockInit,
+  mockIdentify,
+  mockTrack,
+  mockPeopleSet,
+  mockSetGroup,
+  mockGetGroup,
+  mockReset,
+  mockGetConfig,
+  mockSetConfig,
+} = vi.hoisted(() => ({
+  mockInit: vi.fn(),
+  mockIdentify: vi.fn(),
+  mockTrack: vi.fn(),
+  mockPeopleSet: vi.fn(),
+  mockSetGroup: vi.fn(),
+  mockGetGroup: vi.fn().mockReturnValue({ set: vi.fn() }),
+  mockReset: vi.fn(),
+  mockGetConfig: vi.fn().mockReturnValue(undefined),
+  mockSetConfig: vi.fn(),
+}))
 
 vi.mock('mixpanel-browser', () => ({
   default: {
@@ -26,6 +37,8 @@ vi.mock('mixpanel-browser', () => ({
     set_group: mockSetGroup,
     get_group: mockGetGroup,
     reset: mockReset,
+    get_config: mockGetConfig,
+    set_config: mockSetConfig,
   },
 }))
 
@@ -42,7 +55,13 @@ describe('Mixpanel app analytics provider', () => {
       expect(mockInit).toHaveBeenCalledWith('mp_test', {
         debug: true,
         track_pageview: false,
-        hooks: { before_send_events: expect.any(Function) },
+      })
+      expect(mockSetConfig).toHaveBeenCalledWith({
+        hooks: expect.objectContaining({
+          before_send_events: [expect.any(Function)],
+          before_send_people: [expect.any(Function)],
+          on_track: [expect.any(Function)],
+        }),
       })
     })
 
