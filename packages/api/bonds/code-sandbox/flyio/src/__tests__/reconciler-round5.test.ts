@@ -42,6 +42,7 @@ class MemoryJournal implements FlyCreateAttemptJournal {
       ...attempt,
       state: attempt.state ?? 'creating',
       generation: 1,
+      machineCreateOutcome: 'not-started',
       volumes: [],
       addresses: [],
     })
@@ -167,6 +168,36 @@ class MemoryJournal implements FlyCreateAttemptJournal {
     attempt.machineAdopted = true
   }
 
+  async recordMachineCreateOutcome(
+    attemptId: string,
+    generation: number,
+    outcome: 'pending' | 'unknown',
+  ): Promise<void> {
+    const attempt = this.attempts.get(attemptId)
+    if (!attempt || (attempt.generation ?? 1) !== generation) {
+      throw new Error(`Stale generation for ${attemptId}`)
+    }
+    attempt.machineCreateOutcome = outcome
+  }
+
+  async recordMachineObservation(
+    attemptId: string,
+    generation: number,
+    machineId: string,
+  ): Promise<void> {
+    const attempt = this.attempts.get(attemptId)
+    if (
+      !attempt ||
+      (attempt.generation ?? 1) !== generation ||
+      (attempt.machineId !== undefined && attempt.machineId !== machineId)
+    ) {
+      throw new Error(`Stale or conflicting Machine observation for ${attemptId}`)
+    }
+    attempt.machineId = machineId
+    attempt.machineCreatedByAttemptId = undefined
+    attempt.machineCreateOutcome ??= 'unknown'
+  }
+
   async recordMachineProvenance(
     attemptId: string,
     generation: number,
@@ -178,6 +209,7 @@ class MemoryJournal implements FlyCreateAttemptJournal {
     }
     attempt.machineId = machineId
     attempt.machineCreatedByAttemptId = attemptId
+    attempt.machineCreateOutcome = 'accepted'
   }
 
   async markMachineCreateFailed(attemptId: string, generation: number): Promise<void> {
@@ -186,6 +218,7 @@ class MemoryJournal implements FlyCreateAttemptJournal {
       throw new Error(`Stale generation for ${attemptId}`)
     }
     attempt.machineCreateFailed = true
+    attempt.machineCreateOutcome = 'rejected'
   }
 
   async assertGeneration(attemptId: string, generation: number): Promise<void> {
@@ -266,6 +299,7 @@ function failedIntent(overrides: Partial<FlyCreateAttempt> = {}): FlyCreateAttem
     projectId: PROJECT_ID,
     appName: APP,
     state: 'failed',
+    machineCreateOutcome: 'not-started',
     volumes: [],
     addresses: [],
     ...overrides,
@@ -409,12 +443,12 @@ describe('journaled create reconciliation', () => {
     expect(journal.attempts.size).toBe(1)
   })
 
-  it('records failure without deleting, then reclaims a failed empty app separately', async () => {
+  it('records failure, keeps the empty app, then deliberately retires it', async () => {
     const double = createFetchDouble()
       .on(`GET /apps/${APP}`, { status: 404 })
       .on('POST /apps', { body: { name: APP } })
       .on(`POST /apps/${APP}/machines`, { status: 422, body: { error: 'invalid' } })
-    for (let read = 0; read < 6; read++) {
+    for (let read = 0; read < 20; read++) {
       double
         .on(`GET /apps/${APP}/machines`, { body: [] })
         .on(`GET /apps/${APP}/volumes`, { body: [] })
@@ -427,12 +461,14 @@ describe('journaled create reconciliation', () => {
     expect([...journal.attempts.values()][0]?.state).toBe('failed')
     expect(double.calls.filter((call) => call.method === 'DELETE')).toHaveLength(0)
 
-    await expect(provider.reconcileCreateAttempts()).resolves.toEqual({ deleted: 1, failed: 0 })
-    expect(
-      double.calls.filter((call) => call.method === 'DELETE' && call.path === `/apps/${APP}`),
-    ).toHaveLength(1)
+    await expect(provider.reconcileCreateAttempts()).resolves.toEqual({ deleted: 0, failed: 1 })
+    expect(double.matching(`DELETE /apps/${APP}`)).toHaveLength(0)
+    expect(journal.attempts.size).toBe(1)
+
+    await provider.destroyApp(PROJECT_ID, APP, new AbortController().signal)
+    expect(double.matching(`DELETE /apps/${APP}`)).toHaveLength(1)
     expect(journal.attempts.size).toBe(0)
-    expect(journal.lockCalls).toEqual([APP])
+    expect(journal.lockCalls).toEqual([APP, APP, APP])
   })
 
   it('keeps an abandoned volume resolved only from a listing, and never a bound workspace', async () => {
@@ -538,7 +574,7 @@ describe('journaled create reconciliation', () => {
       }),
     )
     const double = createFetchDouble()
-    for (let read = 0; read < 4; read++) {
+    for (let read = 0; read < 20; read++) {
       double
         .on(`GET /apps/${APP}/machines`, { body: [] })
         .on(`GET /apps/${APP}/volumes`, { body: [] })
@@ -550,7 +586,10 @@ describe('journaled create reconciliation', () => {
       .on('DELETE /apps/tenant-db/ip_assignments/', { status: 204 })
       .on(`DELETE /apps/${APP}`, { status: 204 })
 
-    await makeProvider(double, journal).reconcileCreateAttempts()
+    const provider = makeProvider(double, journal)
+    await expect(provider.reconcileCreateAttempts()).resolves.toEqual({ deleted: 0, failed: 0 })
+    expect(journal.attempts.size).toBe(1)
+    await provider.destroyApp(PROJECT_ID, APP, new AbortController().signal)
     const deletes = double.calls.filter((call) => call.method === 'DELETE')
     expect(deletes.map((call) => call.path)).toEqual([
       '/apps/tenant-db/ip_assignments/fdaa%3A%3A2',
@@ -761,9 +800,25 @@ describe('round-six ownership races', () => {
         appCreateResolved: true,
       })
 
-      await expect(provider.reconcileCreateAttempts()).resolves.toEqual({ deleted: 1, failed: 0 })
+      const perProject = config.appPerProject !== false
+      if (perProject) {
+        await expect(provider.reconcileCreateAttempts()).resolves.toEqual({
+          deleted: 0,
+          failed: 1,
+        })
+        expect(
+          double.calls.filter((call) => call.method === 'DELETE' && call.path === `/apps/${APP}`),
+        ).toHaveLength(0)
+        expect(journal.attempts.size).toBe(1)
+        await provider.destroyApp(PROJECT_ID, APP, new AbortController().signal)
+      } else {
+        await expect(provider.reconcileCreateAttempts()).resolves.toEqual({
+          deleted: 1,
+          failed: 0,
+        })
+      }
       await expect(provider.reconcileCreateAttempts()).resolves.toEqual({ deleted: 0, failed: 0 })
-      expect(double.matching(`DELETE /apps/${APP}/volumes/v1`)).toHaveLength(1)
+      expect(double.matching(`DELETE /apps/${APP}/volumes/v1`).length).toBeGreaterThan(0)
       expect(
         double.calls.filter((call) => call.method === 'DELETE' && call.path === `/apps/${APP}`),
       ).toHaveLength(config.appPerProject === false ? 0 : 1)
@@ -897,10 +952,14 @@ describe('round-six ownership races', () => {
       .on('GET /apps/tenant-db/ip_assignments', { body: [] })
       .on('DELETE /apps/tenant-db/ip_assignments/', { status: 204 })
 
-    await expect(makeProvider(double, journal).reconcileCreateAttempts()).resolves.toEqual({
-      deleted: 1,
+    const provider = makeProvider(double, journal)
+    await expect(provider.reconcileCreateAttempts()).resolves.toEqual({
+      deleted: 0,
       failed: 0,
     })
+    expect(double.matching(`DELETE /apps/${APP}`)).toHaveLength(0)
+    expect(journal.attempts.size).toBe(1)
+    await provider.destroyApp(PROJECT_ID, APP, new AbortController().signal)
     expect(double.matching('DELETE /apps/tenant-db/ip_assignments/fdaa%3A%3A12')).toHaveLength(1)
     expect(journal.attempts.size).toBe(0)
   })
@@ -2508,7 +2567,7 @@ describe('round-sixteen accepted provenance and retirement', () => {
     expect(double.matching(`DELETE /apps/${APP}?force=true`)).toHaveLength(0)
   })
 
-  it('keeps a racing Machine when automatic non-forced app deletion is refused', async () => {
+  it('keeps a racing Machine and never automatically deletes its app', async () => {
     const journal = new MemoryJournal()
     journal.seed(
       failedIntent({
@@ -2529,7 +2588,7 @@ describe('round-sixteen accepted provenance and retirement', () => {
     installRoutes(double, (method, path) => {
       if (method === 'GET' && path === `/apps/${APP}/volumes`) return { body: [] }
       if (method === 'GET' && path === `/apps/${APP}/machines`) {
-        if (retired && ++listings === 4 && !machine) {
+        if (retired && ++listings === 3 && !machine) {
           machine = { id: 'new-user', name: 'older-writer', state: 'started', config: {} }
           return { body: [] }
         }
@@ -2549,6 +2608,7 @@ describe('round-sixteen accepted provenance and retirement', () => {
     expect(machine).not.toBe(null)
     expect(journal.attempts.size).toBe(1)
     expect(double.matching(`DELETE /apps/${APP}?force=true`)).toHaveLength(0)
+    expect(double.matching(`DELETE /apps/${APP}`)).toHaveLength(0)
   })
 
   it('can deliberately retire a NULL-provenance empty per-project app and detached volume', async () => {

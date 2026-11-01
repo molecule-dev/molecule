@@ -55,7 +55,12 @@ export interface FlyCreateAttempt {
   sandboxId?: string
   /** Fly definitively rejected the Machine POST; an unknown outcome is never marked. */
   machineCreateFailed?: boolean
-  /** The exact Machine ID returned by this attempt's accepted POST response. */
+  /**
+   * Durable Machine POST lifecycle. New attempts start at not-started; pending is
+   * written before dispatch. NULL is a legacy unknown, never proof of no POST.
+   */
+  machineCreateOutcome?: 'not-started' | 'pending' | 'rejected' | 'unknown' | 'accepted'
+  /** The exact Machine ID returned by this attempt's accepted POST response, or an observation without delete provenance. */
   machineId?: string
   /** Accepted-POST provenance; name, metadata, sandboxId and adoption never supply it. */
   machineCreatedByAttemptId?: string
@@ -105,6 +110,14 @@ export interface FlyCreateAttemptJournal {
   markState(attemptId: string, state: FlyCreateAttemptState, sandboxId?: string): Promise<void>
   /** Record that explicit destruction adopted this pre-journal Machine. */
   markMachineAdopted(attemptId: string): Promise<void>
+  /** Record POST intent before dispatch and an ambiguous outcome before recovery reads. */
+  recordMachineCreateOutcome(
+    attemptId: string,
+    generation: number,
+    outcome: 'pending' | 'unknown',
+  ): Promise<void>
+  /** Persist a recovered exact ID as observation only, never accepted-POST authority. */
+  recordMachineObservation(attemptId: string, generation: number, machineId: string): Promise<void>
   /** Record only the exact ID from this generation's accepted Machine POST response. */
   recordMachineProvenance(attemptId: string, generation: number, machineId: string): Promise<void>
   /** Record a definitive rejection only while this create generation still owns the attempt. */

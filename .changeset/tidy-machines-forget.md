@@ -2,4 +2,4 @@
 '@molecule/api-code-sandbox-flyio': patch
 ---
 
-Keep Fly create journals until exact-ID cleanup is authoritative and prevent copied metadata from retiring a different Machine.
+Scope Fly retirement to durable identities, preserve ambiguous Machine creates, and leave apps for deliberate cleanup.

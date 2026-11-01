@@ -1673,6 +1673,15 @@ class FlyioSandboxProvider implements SandboxProvider {
     const service = this.previewService(config.idleAction)
     if (service) machineConfig.services = [service]
 
+    // The POST intent must survive a crash before dispatch. A NULL outcome on
+    // an older row is unknown too; only a new not-started/rejected row proves
+    // that no accepted Machine identity can be hidden by a later empty list.
+    await this.config.createAttemptJournal?.recordMachineCreateOutcome(
+      createAttemptId,
+      attempt.generation,
+      'pending',
+    )
+
     let machine: FlyMachine | null
     let machineCreateResponseLost = false
     try {
@@ -1710,6 +1719,11 @@ class FlyioSandboxProvider implements SandboxProvider {
           // A Machine recovered by listing after a lost response is adoption
           // evidence, not an accepted POST response and never delete authority.
           machineCreateResponseLost = true
+          await this.config.createAttemptJournal?.recordMachineCreateOutcome(
+            createAttemptId,
+            attempt.generation,
+            'unknown',
+          )
           for (let lookup = 1; lookup <= CREATE_RECONCILE_ATTEMPTS; lookup++) {
             const machines = await this.client.request<FlyMachine[]>(`/apps/${app}/machines`, {
               nullOn: [404],
@@ -1721,7 +1735,14 @@ class FlyioSandboxProvider implements SandboxProvider {
                 candidate.config?.metadata?.[`${this.metadataPrefix}.createAttempt`] ===
                   createAttemptId,
             )
-            if (existing) return existing
+            if (existing) {
+              await this.config.createAttemptJournal?.recordMachineObservation(
+                createAttemptId,
+                attempt.generation,
+                existing.id,
+              )
+              return existing
+            }
             if (lookup < CREATE_RECONCILE_ATTEMPTS) {
               await this.client.sleep(retryDelayMs(lookup))
             }
@@ -2181,6 +2202,24 @@ class FlyioSandboxProvider implements SandboxProvider {
     return intent.sandboxId.slice(prefix.length) || undefined
   }
 
+  /** True when no exact durable Machine ID can settle a possibly-dispatched POST. */
+  private hasUnresolvedMachineIdentity(intent: FlyCreateAttempt): boolean {
+    if (this.recordedMachineId(intent)) return false
+    const legacyUnknown =
+      intent.machineCreateOutcome === undefined &&
+      intent.machineCreateFailed !== true &&
+      !intent.machineId &&
+      !intent.sandboxId &&
+      !intent.machineAdopted
+    return (
+      legacyUnknown ||
+      intent.machineCreateOutcome === 'pending' ||
+      intent.machineCreateOutcome === 'unknown' ||
+      intent.machineCreateOutcome === 'accepted' ||
+      Boolean(intent.machineId || intent.sandboxId || intent.machineAdopted)
+    )
+  }
+
   /**
    * The sole forgetting guard. A listing is never an absence proof: every
    * durable Machine/volume ID needs this pass's authorized DELETE success/404
@@ -2197,11 +2236,7 @@ class FlyioSandboxProvider implements SandboxProvider {
     // their own settled records below.
     const containerSettled = app.required && app.settled
     const machineId = this.recordedMachineId(intent)
-    if (
-      !containerSettled &&
-      (intent.machineId || intent.sandboxId || intent.machineAdopted) &&
-      !machineId
-    ) {
+    if (!containerSettled && this.hasUnresolvedMachineIdentity(intent)) {
       throw new Error(
         `Fly Machine identity for attempt "${intent.attemptId}" is unresolved; forgetting is KEEP`,
       )
@@ -2274,6 +2309,9 @@ class FlyioSandboxProvider implements SandboxProvider {
       expiredCreatingIds?: Set<string>
       /** Explicit attempt retirement may use exact durable IDs, never discovery. */
       recordedResourcesOnly?: boolean
+      /** Caller-validated scope, revalidated on every fresh read in the lock. */
+      expectedAppName?: string
+      expectedMachineId?: string
     } = {},
   ): Promise<boolean> {
     const automatic = options.automatic ?? false
@@ -2281,6 +2319,11 @@ class FlyioSandboxProvider implements SandboxProvider {
     const failedMachineSweep = options.failedMachineSweep ?? false
     const deleteApp = options.deleteApp ?? true
     const forget = options.forget ?? true
+    const appRequired = deleteApp && this.appPerProject()
+    // Automatic reconciliation never deletes an app: a container DELETE can
+    // cascade into any sibling's retained or not-yet-resolved user resources.
+    // An existing app remains a durable KEEP for deliberate retirement.
+    const mayDeleteApp = appRequired && !automatic
     const journal = this.config.createAttemptJournal
     if (!journal) throw new Error('A durable create-attempt journal is required for settlement')
     const fresh = async (): Promise<FlyCreateAttempt> => {
@@ -2293,6 +2336,14 @@ class FlyioSandboxProvider implements SandboxProvider {
       }
       if (current.state !== 'failed' && current.state !== 'abandoned') {
         throw new Error(`Fly create attempt "${snapshot.attemptId}" is no longer settleable`)
+      }
+      if (
+        (options.expectedAppName && current.appName !== options.expectedAppName) ||
+        (options.expectedMachineId && this.recordedMachineId(current) !== options.expectedMachineId)
+      ) {
+        throw new Error(
+          `Fly create attempt "${snapshot.attemptId}" changed outside the caller-validated scope`,
+        )
       }
       return current
     }
@@ -2404,9 +2455,13 @@ class FlyioSandboxProvider implements SandboxProvider {
     // the same state/provenance checks as a listed Machine.
     const machine =
       ownMachine(live.machines, intent) ??
-      (!forget || (deleteApp && this.appPerProject())
-        ? undefined
-        : ((await readRecordedMachine(intent)) ?? undefined))
+      (!forget || mayDeleteApp ? undefined : ((await readRecordedMachine(intent)) ?? undefined))
+    if (machine && !this.recordedMachineId(intent)) {
+      // A name/metadata match recovers an exact identity as observation only.
+      // It deliberately does not gain automatic deletion provenance.
+      await journal.recordMachineObservation(intent.attemptId, generation, machine.id)
+      intent = await fresh()
+    }
     if (
       automatic &&
       machine &&
@@ -2433,9 +2488,7 @@ class FlyioSandboxProvider implements SandboxProvider {
       live = await this.readAttemptAppState(intent.appName, signal)
       const current =
         ownMachine(live.machines, intent) ??
-        (!forget || (deleteApp && this.appPerProject())
-          ? undefined
-          : ((await readRecordedMachine(intent)) ?? undefined))
+        (!forget || mayDeleteApp ? undefined : ((await readRecordedMachine(intent)) ?? undefined))
       if (failedMachineSweep && current) {
         throw new Error(`Fly Machine "${current.id}" appeared during failed-create sweep; KEEP`)
       }
@@ -2636,7 +2689,10 @@ class FlyioSandboxProvider implements SandboxProvider {
       if (volume.id) return !releasedVolumeIds.has(volume.id)
       return live.volumes.some((candidate) => candidate.name === volume.name)
     })
-    const unsettledVolume = intent.volumes.some((volume) => volume.resolved !== true)
+    // Exact app 404 proves absence of every contained resource, including an
+    // unresolved volume. External addresses still settle independently below.
+    const unsettledVolume =
+      !live.appGone && intent.volumes.some((volume) => volume.resolved !== true)
     if (failedMachineSweep && this.appPerProject() && live.machines.length) {
       throw new Error(`Fly app "${intent.appName}" gained a Machine during sweep; KEEP`)
     }
@@ -2652,16 +2708,14 @@ class FlyioSandboxProvider implements SandboxProvider {
       return false
     }
     if (intent.addresses.some((address) => !address.resolved || address.owned)) return false
-    if (deleteApp && this.appPerProject() && !live.appGone && (await hasActiveSibling(intent))) {
+    if (mayDeleteApp && !live.appGone && (await hasActiveSibling(intent))) {
       return false
     }
 
     let appSettled = live.appGone
-    if (deleteApp && this.appPerProject() && !live.appGone) {
-      // Addresses above are settled first. Re-read provenance and every Machine
-      // under the lock immediately before deletion. An automatic pass deletes
-      // only an empty app whose own accepted POST was recorded; it never forces
-      // an app past an older writer that may still be creating outside the lock.
+    if (mayDeleteApp && !live.appGone) {
+      // Deliberate retirement alone may delete a container. Addresses above are
+      // settled first; provenance and every Machine are re-read under the lock.
       intent = await fresh()
       live = await this.readAttemptAppState(intent.appName, signal)
       if (failedMachineSweep && (live.machines.length || live.volumes.length)) {
@@ -2679,13 +2733,16 @@ class FlyioSandboxProvider implements SandboxProvider {
       await this.deleteRetired(intent, generation, `/apps/${intent.appName}`, signal)
       appSettled = true
     }
+    if (automatic && appRequired && !appSettled && !this.hasUnresolvedMachineIdentity(intent)) {
+      return false
+    }
     if (!forget) return false
     intent = await fresh()
     await this.assertAuthoritativeForget(
       intent,
       signal,
       { machineIds: releasedMachineIds, volumeIds: releasedVolumeIds },
-      { required: deleteApp && this.appPerProject(), settled: appSettled },
+      { required: appRequired, settled: appSettled },
     )
     await journal.forget(intent.attemptId, generation)
     return true
@@ -2765,6 +2822,8 @@ class FlyioSandboxProvider implements SandboxProvider {
       forget: boolean
       observedMachines?: FlyMachine[]
       recordedResourcesOnly?: boolean
+      expectedAppName?: string
+      expectedMachineId?: string
     },
   ): Promise<boolean> {
     const journal = this.config.createAttemptJournal
@@ -2775,6 +2834,14 @@ class FlyioSandboxProvider implements SandboxProvider {
       const current = await journal.get(snapshot.attemptId)
       if (signal.aborted) throw signal.reason
       if (!current) return false
+      if (
+        (options.expectedAppName && current.appName !== options.expectedAppName) ||
+        (options.expectedMachineId && this.recordedMachineId(current) !== options.expectedMachineId)
+      ) {
+        throw new Error(
+          `Fly create attempt "${snapshot.attemptId}" changed outside the caller-validated scope`,
+        )
+      }
       if (current.state !== 'abandoned') {
         if (signal.aborted) throw signal.reason
         await journal.retire(current.attemptId, generation)
@@ -2885,6 +2952,7 @@ class FlyioSandboxProvider implements SandboxProvider {
     const machines = Array.isArray(listed) ? listed : []
     const routes: Record<string, string> = {}
     const attemptIds = new Set<string>()
+    const metadataHints: Array<{ attemptId: string; machineId: string }> = []
     for (const machine of machines) {
       Object.assign(
         routes,
@@ -2893,24 +2961,40 @@ class FlyioSandboxProvider implements SandboxProvider {
         ),
       )
       const attemptId = machine.config?.metadata?.[`${this.metadataPrefix}.createAttempt`]
-      if (attemptId) attemptIds.add(attemptId)
+      if (attemptId) {
+        attemptIds.add(attemptId)
+        metadataHints.push({ attemptId, machineId: machine.id })
+      }
     }
     const journal = this.config.createAttemptJournal
     if (journal) {
       const durable = new Map<string, FlyCreateAttempt>()
+      const expectedMachineIds = new Map<string, string>()
       const journaled = await journal.forApp(app)
       if (signal.aborted) throw signal.reason
       for (const intent of journaled) durable.set(intent.attemptId, intent)
-      for (const attemptId of attemptIds) {
-        const intent = await journal.get(attemptId)
+      for (const hint of metadataHints) {
+        const intent = await journal.get(hint.attemptId)
         if (signal.aborted) throw signal.reason
-        if (intent) durable.set(attemptId, intent)
+        // Metadata is only a hint. Both the requested app and this listed
+        // Machine's exact durable identity must match before selection.
+        if (intent?.appName === app && this.recordedMachineId(intent) === hint.machineId) {
+          durable.set(intent.attemptId, intent)
+          expectedMachineIds.set(intent.attemptId, hint.machineId)
+        } else if (intent) {
+          throw new Error(
+            `Refusing copied createAttempt metadata for Machine "${hint.machineId}" in app "${app}"`,
+          )
+        }
       }
       for (const machine of machines) {
         const createAttemptId = machine.config?.metadata?.[`${this.metadataPrefix}.createAttempt`]
         const known = [...durable.values()].some(
           (intent) =>
-            intent.attemptId === createAttemptId || intent.sandboxId === `${app}:${machine.id}`,
+            intent.appName === app &&
+            ((intent.attemptId === createAttemptId &&
+              this.recordedMachineId(intent) === machine.id) ||
+              intent.sandboxId === `${app}:${machine.id}`),
         )
         if (known) continue
         const adopted = await this.journalLegacyMachine(app, machine, projectId)
@@ -2936,6 +3020,8 @@ class FlyioSandboxProvider implements SandboxProvider {
               deleteApp,
               forget: deleteApp,
               observedMachines: machines,
+              expectedAppName: app,
+              expectedMachineId: expectedMachineIds.get(current.attemptId),
             })
           }
         }
@@ -3088,6 +3174,8 @@ class FlyioSandboxProvider implements SandboxProvider {
           deleteApp: this.appPerProject(),
           forget: true,
           observedMachines: observedMachine ? [observedMachine] : [],
+          expectedAppName: app,
+          expectedMachineId: machineId,
         })
         if (!forgotten) {
           throw new Error(
