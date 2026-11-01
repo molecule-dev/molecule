@@ -346,7 +346,8 @@ export const TOOL_SCHEMAS: Record<string, ToolSchema> = {
 
   save_plan: {
     name: 'save_plan',
-    description: 'Save an implementation plan as a markdown file in .agents/plans/.',
+    description:
+      'Save an implementation plan as a markdown file in .agents/plans/. Record registry package decisions in the typed `packages` field, not as Markdown lines or tables: one entry per needed domain. `use` must name the exact package to use or add; `own` and `skip` require that package doc to have been read.',
     parameters: {
       type: 'object',
       properties: {
@@ -357,7 +358,42 @@ export const TOOL_SCHEMAS: Record<string, ToolSchema> = {
         content: {
           type: 'string',
           description:
-            'Full plan content in markdown. MUST be a checklist: every actionable step is a `- [ ]` checkbox (grouped under short headings) so each one can be flipped to `- [x]` in this file as it is completed.',
+            'Full plan content in markdown. MUST be a checklist: every actionable step is a `- [ ]` checkbox (grouped under short headings) so each one can be flipped to `- [x]` in this file as it is completed. This text is for people and is not parsed for package decisions.',
+        },
+        packages: {
+          type: 'array',
+          description:
+            'Typed registry decisions for every domain the request needs. Reasons are retained for people, not graded.',
+          items: {
+            type: 'object',
+            properties: {
+              domain: {
+                type: 'string',
+                description: 'Registry domain, for example `article` or `comment`.',
+              },
+              decision: {
+                type: 'string',
+                enum: ['use', 'own', 'skip'],
+                description: 'Use/add the package, implement the domain yourself, or skip it.',
+              },
+              package: {
+                type: 'string',
+                description:
+                  'Exact @molecule/* package identity. Required for `use`; optional for `own`/`skip`.',
+              },
+              reason: {
+                type: 'string',
+                description: 'Human-readable rationale in any language; its wording is not judged.',
+              },
+              config: {
+                type: 'array',
+                items: { type: 'string' },
+                description:
+                  'Documented configuration field names selected for a declared app capability.',
+              },
+            },
+            required: ['domain', 'decision', 'reason'],
+          },
         },
       },
       required: ['name', 'content'],

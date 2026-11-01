@@ -4422,6 +4422,9 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         input.plan ??
         input.markdown ??
         input.text) as string
+      // Decisions are structured data beside the human Markdown. Return them so the
+      // conversation can preserve the approved decisions even if a long tool input is folded.
+      const packages = Array.isArray(input.packages) ? input.packages : []
 
       // Genuinely empty content (wrong/missing field) — name the fix, don't blame the format.
       if (typeof content !== 'string' || content.trim() === '') {
@@ -4467,7 +4470,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         const filename = `${String(nextNum).padStart(2, '0')}-${slug}-${date}.md`
         const planPath = `${plansDir}/${filename}`
         await backend.writeFile(planPath, content)
-        return { path: planPath, ok: true, content, name }
+        return { path: planPath, ok: true, content, name, packages }
       } catch (e: unknown) {
         return { error: `Failed to save plan: ${(e as Error).message}` }
       }

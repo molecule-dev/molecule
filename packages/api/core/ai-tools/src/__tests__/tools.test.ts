@@ -989,6 +989,44 @@ describe('buildTools', () => {
     expect(backend.writeFile).toHaveBeenCalled()
   })
 
+  it('save_plan declares and round-trips typed package decisions beside the Markdown', async () => {
+    const backend = mockBackend()
+    const savePlan = buildTools(backend).find((t) => t.name === 'save_plan')!
+    const schema = savePlan.parameters as {
+      properties: {
+        packages: {
+          items: { required: string[]; properties: { decision: { enum: string[] } } }
+        }
+      }
+    }
+    expect(schema.properties.packages.items.required).toEqual(['domain', 'decision', 'reason'])
+    expect(schema.properties.packages.items.properties.decision.enum).toEqual([
+      'use',
+      'own',
+      'skip',
+    ])
+    expect(savePlan.description).toContain('not as Markdown lines or tables')
+    const packages = [
+      {
+        domain: 'article',
+        decision: 'use',
+        package: '@molecule/api-resource-article',
+        reason: 'パッケージのサービス',
+      },
+      { domain: 'follow', decision: 'skip', reason: '手順のみ' },
+    ]
+    const content = '# Plan\n\n- [ ] Wire the resource services\n'
+    const result = (await savePlan.execute({ name: 'Typed', content, packages })) as {
+      ok?: boolean
+      content?: string
+      packages?: unknown
+    }
+    expect(result.ok).toBe(true)
+    expect(result.content).toBe(content)
+    expect(result.packages).toEqual(packages)
+    expect(backend.writeFile).toHaveBeenCalledWith(expect.any(String), content)
+  })
+
   it('save_plan accepts the plan under the `body` alias the weak executor often uses', async () => {
     // Regression: deepseek sent the plan as `body`, not `content`; reading only `content`
     // left it undefined and a VALID checklist got the "not a checklist" error, looping the
