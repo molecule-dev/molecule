@@ -4,7 +4,16 @@
  * @module
  */
 
-import React, { createContext, type ReactNode, useContext, useEffect, useMemo } from 'react'
+import React, {
+  createContext,
+  type Dispatch,
+  type ReactNode,
+  type SetStateAction,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react'
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router'
 
 import { t } from '@molecule/app-i18n'
@@ -204,4 +213,71 @@ export function useMoleculeQuery(): QueryParams {
   const location = useLocation()
   // Re-evaluate when search changes
   return useMemo(() => router.getQuery(), [router, location.search])
+}
+
+/**
+ * Consume a credential query parameter into component state and remove only that parameter from
+ * the address through React Router. The value survives local rerenders, StrictMode, failed-submit
+ * retries and later query-only navigation; a newly arriving value on the same mounted route is
+ * consumed too. Path, hash, unrelated query values and router location state are retained.
+ *
+ * React Router owns the URL replacement, so `useLocation()` and `window.location` agree. A
+ * metadata-only history merge retains unrelated pre-existing top-level state fields that React
+ * Router does not model; it never changes the URL or the router's `usr`/`key`/`idx` fields.
+ *
+ * @param name - The credential query key to consume, for example `token` or `code`.
+ * @returns The consumed value and its state setter; the value is empty before first consumption.
+ * @example
+ * ```tsx
+ * const [resetToken] = useConsumedSearchParam('token')
+ * // The form submits resetToken after the address no longer contains it.
+ * ```
+ */
+export function useConsumedSearchParam(
+  name: string,
+): readonly [string, Dispatch<SetStateAction<string>>] {
+  const location = useLocation()
+  const navigate = useNavigate()
+  const current = new URLSearchParams(location.search).get(name) ?? ''
+  const [consumed, setConsumed] = useState(current)
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search)
+    if (!params.has(name)) return
+    setConsumed(params.get(name) ?? '')
+    params.delete(name)
+    const search = params.toString()
+    const previousHistoryState =
+      typeof window === 'undefined' ? undefined : (window.history.state as unknown)
+
+    navigate(
+      {
+        pathname: location.pathname,
+        search: search ? `?${search}` : '',
+        hash: location.hash,
+      },
+      { replace: true, state: location.state },
+    )
+
+    if (
+      previousHistoryState !== null &&
+      typeof previousHistoryState === 'object' &&
+      typeof window !== 'undefined'
+    ) {
+      const retained = Object.fromEntries(
+        Object.entries(previousHistoryState).filter(
+          ([key]) => !['usr', 'key', 'idx', 'masked'].includes(key),
+        ),
+      )
+      if (Object.keys(retained).length > 0) {
+        window.history.replaceState(
+          { ...retained, ...window.history.state },
+          '',
+          window.location.href,
+        )
+      }
+    }
+  }, [location, navigate, name])
+
+  return [current || consumed, setConsumed] as const
 }
