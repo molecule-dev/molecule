@@ -43,6 +43,7 @@ const CREDENTIAL_HEADERS = new Set([
   'set-cookie2',
 ])
 const NON_CREDENTIAL_NAMES = new Set(['errorkey', 'i18nkey', 'errorcode', 'i18ncode', 'statuscode'])
+const CREDENTIAL_NAME_CACHE = new Map<string, boolean>()
 
 /** Identifier positions written by posthog-js 1.438.21 or mixpanel-browser 2.84.0. */
 const SDK_IDENTIFIERS = new Set([
@@ -69,24 +70,28 @@ const decodedName = (name: string): string => {
   }
 }
 
-const collapsedName = (name: string): string =>
-  decodedName(name)
-    .toLowerCase()
-    .replace(/[^a-z\d]/g, '')
-
 const isCredentialName = (name: string): boolean => {
+  const cached = CREDENTIAL_NAME_CACHE.get(name)
+  if (cached !== undefined) return cached
   const decoded = decodedName(name)
-  const collapsed = collapsedName(name)
-  if (NON_CREDENTIAL_NAMES.has(collapsed)) return false
-  if (CREDENTIAL_HEADERS.has(decoded.toLowerCase())) return true
-  if (COMPACT_CREDENTIAL_NAMES.has(collapsed)) return true
-  const words = decoded
-    .replace(/([a-z\d])([A-Z])/g, '$1 $2')
-    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')
-    .toLowerCase()
-    .split(/[^a-z\d]+/)
-    .filter(Boolean)
-  return words.some((word) => CREDENTIAL_WORDS.has(word))
+  const collapsed = decoded.toLowerCase().replace(/[^a-z\d]/g, '')
+  let credential = false
+  if (!NON_CREDENTIAL_NAMES.has(collapsed)) {
+    credential =
+      CREDENTIAL_HEADERS.has(decoded.toLowerCase()) || COMPACT_CREDENTIAL_NAMES.has(collapsed)
+    if (!credential) {
+      const words = decoded
+        .replace(/([a-z\d])([A-Z])/g, '$1 $2')
+        .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')
+        .toLowerCase()
+        .split(/[^a-z\d]+/)
+        .filter(Boolean)
+      credential = words.some((word) => CREDENTIAL_WORDS.has(word))
+    }
+  }
+  if (CREDENTIAL_NAME_CACHE.size >= 512) CREDENTIAL_NAME_CACHE.clear()
+  CREDENTIAL_NAME_CACHE.set(name, credential)
+  return credential
 }
 
 const isPlainObject = (value: unknown): value is Record<string, unknown> => {
@@ -147,9 +152,13 @@ export const snapshotAnalyticsSdkUrls = <T>(payload: T): T => {
     if (typeof value !== 'object') return value
     if (copies.has(value)) return copies.get(value)
 
+    const array = Array.isArray(value)
+    const plain = array || isPlainObject(value)
     let toJSON: unknown
     try {
-      toJSON = Reflect.get(value, 'toJSON') as unknown
+      if (!plain || Object.prototype.hasOwnProperty.call(value, 'toJSON')) {
+        toJSON = Reflect.get(value, 'toJSON') as unknown
+      }
     } catch (_error) {
       return undefined
     }
@@ -166,14 +175,18 @@ export const snapshotAnalyticsSdkUrls = <T>(payload: T): T => {
         activeSerializers.delete(value)
       }
     }
-    if (!Array.isArray(value) && !isPlainObject(value)) return undefined
+    if (!plain) return undefined
 
-    if (Array.isArray(value)) {
+    if (array) {
       const copy: unknown[] = new Array(value.length)
       copies.set(value, copy)
       for (let index = 0; index < value.length; index++) {
         if (!(index in value)) continue
-        const original = Reflect.get(value, String(index)) as unknown
+        const descriptor = Object.getOwnPropertyDescriptor(value, String(index))
+        const original =
+          descriptor && 'value' in descriptor
+            ? descriptor.value
+            : (Reflect.get(value, String(index)) as unknown)
         const result = capture(original, scope)
         copy[index] = result === undefined && original !== undefined ? null : result
       }
@@ -200,7 +213,7 @@ export const snapshotAnalyticsSdkUrls = <T>(payload: T): T => {
           continue
         }
       }
-      const childScope = scope === 0 && name === 'properties' ? 1 : scope === 0 ? 2 : 2
+      const childScope = scope === 0 && name === 'properties' ? 1 : 2
       const result = capture(original, childScope, AUTHORITY_PROPERTIES.has(name))
       if (result === undefined && original !== undefined) continue
       defineValue(copy, name, result)
