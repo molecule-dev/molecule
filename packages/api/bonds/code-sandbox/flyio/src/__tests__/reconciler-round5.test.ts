@@ -66,27 +66,53 @@ class MemoryJournal implements FlyCreateAttemptJournal {
     return null
   }
 
+  async recordAppProvenance(
+    attemptId: string,
+    generation: number,
+    outcome: 'pending' | 'created' | 'adopted',
+  ): Promise<void> {
+    const attempt = this.attempts.get(attemptId)
+    if (!attempt || (attempt.generation ?? 1) !== generation) {
+      throw new Error(`Stale generation for ${attemptId}`)
+    }
+    if (outcome === 'adopted') {
+      attempt.appCreatedByAttemptId = undefined
+      attempt.appCreateResolved = false
+      return
+    }
+    if (outcome === 'created' && attempt.appCreatedByAttemptId !== attemptId) {
+      throw new Error(`Missing app-create intent for ${attemptId}`)
+    }
+    attempt.appCreatedByAttemptId = attemptId
+    attempt.appCreateResolved = outcome === 'created'
+  }
+
   async recordVolume(attemptId: string, volume: FlyCreateVolumeIntent): Promise<void> {
     const attempt = this.attempts.get(attemptId)
     if (!attempt) throw new Error('missing attempt')
-    if (volume.id) {
+    const recorded = {
+      ...volume,
+      createdByAttemptId: volume.createdByAttemptId === attemptId ? attemptId : undefined,
+      adoptedByAttemptId: volume.adoptedByAttemptId === attemptId ? attemptId : undefined,
+    }
+    if (recorded.id) {
       // Adoption transfers the durable Fly-ID binding; an older attempt keeps
       // no name-only capability that could later delete the workspace.
       for (const other of this.attempts.values()) {
         other.volumes = other.volumes.filter(
           (candidate) =>
-            candidate.id !== volume.id &&
-            !(!candidate.id && candidate.name === volume.name && other.attemptId !== attemptId),
+            candidate.id !== recorded.id &&
+            !(!candidate.id && candidate.name === recorded.name && other.attemptId !== attemptId),
         )
       }
     }
-    const index = attempt.volumes.findIndex((candidate) => candidate.name === volume.name)
-    if (index < 0) attempt.volumes.push({ ...volume })
+    const index = attempt.volumes.findIndex((candidate) => candidate.name === recorded.name)
+    if (index < 0) attempt.volumes.push({ ...recorded })
     else {
       const previous = attempt.volumes[index]
       attempt.volumes[index] = {
-        ...volume,
-        workspace: previous.workspace || volume.workspace,
+        ...recorded,
+        workspace: previous.workspace || recorded.workspace,
       }
     }
   }
@@ -128,6 +154,12 @@ class MemoryJournal implements FlyCreateAttemptJournal {
     if (!attempt) throw new Error('missing attempt')
     attempt.state = state
     if (sandboxId) attempt.sandboxId = sandboxId
+  }
+
+  async markMachineAdopted(attemptId: string): Promise<void> {
+    const attempt = this.attempts.get(attemptId)
+    if (!attempt) throw new Error('missing attempt')
+    attempt.machineAdopted = true
   }
 
   async markMachineCreateFailed(attemptId: string, generation: number): Promise<void> {
@@ -356,7 +388,7 @@ describe('journaled create reconciliation', () => {
     expect(journal.lockCalls).toEqual([APP])
   })
 
-  it('deletes an abandoned unbound attempt volume, but never a bound workspace', async () => {
+  it('keeps an abandoned volume resolved only from a listing, and never a bound workspace', async () => {
     const unbound = new MemoryJournal()
     unbound.seed(failedIntent({ volumes: [{ name: 'attempt-volume', workspace: false }] }))
     const unboundDouble = createFetchDouble()
@@ -372,10 +404,11 @@ describe('journaled create reconciliation', () => {
       .on(`DELETE /apps/${APP}`, { status: 204 })
 
     await expect(makeProvider(unboundDouble, unbound).reconcileCreateAttempts()).resolves.toEqual({
-      deleted: 1,
+      deleted: 0,
       failed: 0,
     })
-    expect(unboundDouble.matching(`DELETE /apps/${APP}/volumes/v1`)).toHaveLength(1)
+    expect(unboundDouble.calls.filter((call) => call.method === 'DELETE')).toHaveLength(0)
+    expect(unbound.attempts.size).toBe(1)
 
     const workspace = new MemoryJournal()
     workspace.seed(failedIntent({ volumes: [{ name: 'workspace', workspace: true }] }))
@@ -452,6 +485,8 @@ describe('journaled create reconciliation', () => {
     const journal = new MemoryJournal()
     journal.seed(
       failedIntent({
+        appCreatedByAttemptId: 'attempt-1',
+        appCreateResolved: true,
         addresses: [
           { targetApp: 'tenant-db', network: APP, ip: 'fdaa::2', owned: true, resolved: true },
         ],
@@ -623,6 +658,7 @@ describe('round-six ownership races', () => {
       const double = createFetchDouble()
       let volumeCreated = false
       let volumeGone = false
+      let appCreated = false
       let appGone = false
       double.fetch = vi.fn(async (input: string | URL | Request, init?: RequestInit) => {
         const method = (init?.method ?? 'GET').toUpperCase()
@@ -631,8 +667,11 @@ describe('round-six ownership races', () => {
         let status = 200
         let body: unknown = {}
         if (method === 'GET' && path === `/apps/${APP}`) {
-          if (appGone) status = 404
+          if (!appCreated || appGone) status = 404
           else body = { name: APP }
+        } else if (method === 'POST' && path === '/apps') {
+          appCreated = true
+          body = { name: APP }
         } else if (method === 'GET' && path === `/apps/${APP}/volumes`) {
           body = volumeCreated && !volumeGone ? [{ id: 'v1', name: 'attempt-volume' }] : []
         } else if (method === 'POST' && path === `/apps/${APP}/volumes`) {
@@ -646,7 +685,7 @@ describe('round-six ownership races', () => {
         } else if (method === 'DELETE' && path === `/apps/${APP}/volumes/v1`) {
           volumeGone = true
           status = 204
-        } else if (method === 'DELETE' && path === `/apps/${APP}?force=true`) {
+        } else if (method === 'DELETE' && path === `/apps/${APP}`) {
           appGone = true
           status = 204
         } else {
@@ -666,14 +705,24 @@ describe('round-six ownership races', () => {
       const attempt = [...journal.attempts.values()].find(
         (candidate) => candidate.state === 'failed',
       )
-      expect(attempt?.volumes[0]).toMatchObject({ id: 'v1', workspace: true, resolved: true })
+      expect(attempt?.volumes[0]).toMatchObject({
+        id: 'v1',
+        workspace: true,
+        resolved: true,
+        createdByAttemptId: attempt?.attemptId,
+      })
+      expect(attempt).toMatchObject({
+        appCreatedByAttemptId: attempt?.attemptId,
+        appCreateResolved: true,
+      })
 
       await expect(provider.reconcileCreateAttempts()).resolves.toEqual({ deleted: 1, failed: 0 })
       await expect(provider.reconcileCreateAttempts()).resolves.toEqual({ deleted: 0, failed: 0 })
       expect(double.matching(`DELETE /apps/${APP}/volumes/v1`)).toHaveLength(1)
-      expect(double.matching(`DELETE /apps/${APP}?force=true`)).toHaveLength(
-        config.appPerProject === false ? 0 : 1,
-      )
+      expect(
+        double.calls.filter((call) => call.method === 'DELETE' && call.path === `/apps/${APP}`),
+      ).toHaveLength(config.appPerProject === false ? 0 : 1)
+      expect(double.matching(`DELETE /apps/${APP}?force=true`)).toHaveLength(0)
       expect(journal.attempts.size).toBe(0)
     },
   )
@@ -791,6 +840,8 @@ describe('round-six ownership races', () => {
     const journal = new MemoryJournal()
     journal.seed(
       failedIntent({
+        appCreatedByAttemptId: 'attempt-1',
+        appCreateResolved: true,
         addresses: [
           { targetApp: 'tenant-db', network: APP, ip: 'fdaa::12', owned: true, resolved: true },
         ],
@@ -873,7 +924,15 @@ describe('round-eight durable ownership counterexamples', () => {
     journal.seed(
       failedIntent({
         state: 'creating',
-        volumes: [{ id: 'v1', name: 'attempt-volume', workspace: false, resolved: true }],
+        volumes: [
+          {
+            id: 'v1',
+            name: 'attempt-volume',
+            workspace: false,
+            resolved: true,
+            createdByAttemptId: 'attempt-1',
+          },
+        ],
       }),
     )
     journal.reclaimable = async () => {
@@ -903,7 +962,15 @@ describe('round-eight durable ownership counterexamples', () => {
     const journal = new MemoryJournal()
     journal.seed(
       failedIntent({
-        volumes: [{ id: 'v1', name: 'attempt-volume', workspace: false, resolved: true }],
+        volumes: [
+          {
+            id: 'v1',
+            name: 'attempt-volume',
+            workspace: false,
+            resolved: true,
+            createdByAttemptId: 'attempt-1',
+          },
+        ],
       }),
     )
     const double = createFetchDouble()
@@ -1251,7 +1318,15 @@ describe('round-twelve destruction fencing counterexamples', () => {
         attemptId,
         state: 'serving',
         sandboxId: `${APP}:m1`,
-        volumes: [{ id: 'v1', name: 'attempt-volume', workspace: false, resolved: true }],
+        volumes: [
+          {
+            id: 'v1',
+            name: 'attempt-volume',
+            workspace: false,
+            resolved: true,
+            createdByAttemptId: 'attempt-1',
+          },
+        ],
       }),
     )
     const controller = new AbortController()
@@ -1583,6 +1658,63 @@ describe('round-twelve destruction fencing counterexamples', () => {
 })
 
 describe('round-fourteen failed-create sweep and legacy recovery', () => {
+  it('keeps an adopted workspace while a previous attempt still serves', async () => {
+    const journal = new MemoryJournal()
+    journal.seed(
+      failedIntent({
+        attemptId: 'previous-serving',
+        state: 'serving',
+        sandboxId: `${APP}:old-machine`,
+        volumes: [
+          {
+            id: 'v1',
+            name: 'original-workspace',
+            logicalName: 'workspace',
+            workspace: true,
+            resolved: true,
+          },
+        ],
+      }),
+    )
+    const double = createFetchDouble()
+    let volumeGone = false
+    double.fetch = vi.fn(async (input: string | URL | Request, init?: RequestInit) => {
+      const method = (init?.method ?? 'GET').toUpperCase()
+      const path = String(input).replace('https://api.machines.dev/v1', '')
+      double.calls.push({ method, url: String(input), path, body: undefined })
+      let status = 200
+      let body: unknown = {}
+      if (method === 'GET' && path === `/apps/${APP}`) {
+        body = { name: APP }
+      } else if (method === 'GET' && path === `/apps/${APP}/volumes`) {
+        body = volumeGone ? [] : [{ id: 'v1', name: 'original-workspace' }]
+      } else if (method === 'GET' && path === `/apps/${APP}/machines`) {
+        body = []
+      } else if (method === 'POST' && path === `/apps/${APP}/machines`) {
+        status = 412
+        body = { error: 'failed_precondition: definite rejection' }
+      } else if (method === 'DELETE' && path === `/apps/${APP}/volumes/v1`) {
+        volumeGone = true
+        status = 204
+      } else {
+        throw new Error(`Unexpected ${method} ${path}`)
+      }
+      return {
+        status,
+        headers: { get: () => null },
+        text: async () => JSON.stringify(body),
+      } as unknown as Response
+    }) as unknown as typeof fetch
+    const provider = makeProvider(double, journal)
+
+    await expect(
+      provider.create({ projectId: PROJECT_ID, volumeName: 'workspace' }),
+    ).rejects.toThrow('412')
+    await expect(provider.reconcileCreateAttempts()).resolves.toEqual({ deleted: 0, failed: 1 })
+    expect(double.calls.filter((call) => call.method === 'DELETE')).toHaveLength(0)
+    expect(volumeGone).toBe(false)
+  })
+
   it('keeps and reports a shared-app volume still referenced by another Machine', async () => {
     const journal = new MemoryJournal()
     journal.seed(
@@ -1723,5 +1855,301 @@ describe('round-fourteen failed-create sweep and legacy recovery', () => {
     expect(double.matching(`DELETE /apps/${APP}/machines/m1?force=true`)).toHaveLength(1)
     expect(double.matching(`DELETE /apps/${APP}?force=true`)).toHaveLength(1)
     expect(journal.attempts.size).toBe(0)
+  })
+})
+
+describe('round-fifteen recorded provenance and legacy adoption', () => {
+  it.each(['journaled', 'legacy'])(
+    'keeps an adopted %s user workspace when the replacement POST is rejected',
+    async (kind) => {
+      const journal = new MemoryJournal()
+      if (kind === 'journaled') {
+        journal.seed(
+          failedIntent({
+            attemptId: 'old-serving',
+            state: 'serving',
+            sandboxId: `${APP}:old-machine`,
+            volumes: [
+              {
+                id: 'user-data',
+                name: 'workspace',
+                logicalName: 'workspace',
+                workspace: true,
+                resolved: true,
+              },
+            ],
+          }),
+        )
+      }
+      const double = createFetchDouble()
+      let volumeExists = true
+      double.fetch = vi.fn(async (input: string | URL | Request, init?: RequestInit) => {
+        const method = (init?.method ?? 'GET').toUpperCase()
+        const path = String(input).replace('https://api.machines.dev/v1', '')
+        double.calls.push({
+          method,
+          path,
+          url: String(input),
+          body: init?.body ? JSON.parse(String(init.body)) : undefined,
+        })
+        let status = 200
+        let body: unknown = {}
+        if (method === 'GET' && path === `/apps/${APP}`) body = { name: APP }
+        else if (method === 'GET' && path === `/apps/${APP}/volumes`) {
+          body = volumeExists
+            ? [{ id: 'user-data', name: 'workspace', attached_machine_id: null }]
+            : []
+        } else if (method === 'GET' && path === `/apps/${APP}/machines`) body = []
+        else if (method === 'POST' && path === `/apps/${APP}/machines`) {
+          status = 412
+          body = { error: 'failed_precondition: definite rejection' }
+        } else if (method === 'DELETE' && path === `/apps/${APP}/volumes/user-data`) {
+          volumeExists = false
+          status = 204
+        } else if (method === 'DELETE' && path === `/apps/${APP}?force=true`) status = 204
+        else throw new Error(`Unexpected ${method} ${path}`)
+        return {
+          status,
+          headers: { get: () => null },
+          text: async () => JSON.stringify(body),
+        } as unknown as Response
+      }) as unknown as typeof fetch
+      const provider = makeProvider(double, journal)
+
+      await expect(
+        provider.create({ projectId: PROJECT_ID, volumeName: 'workspace' }),
+      ).rejects.toThrow('412')
+      expect(double.matching(`POST /apps/${APP}/volumes`)).toHaveLength(0)
+      const newAttempt = [...journal.attempts.values()].find(
+        (attempt) => attempt.machineCreateFailed,
+      )
+      expect(newAttempt?.volumes[0]).toMatchObject({
+        id: 'user-data',
+        workspace: true,
+        adoptedByAttemptId: newAttempt?.attemptId,
+      })
+      expect(newAttempt?.volumes[0]?.createdByAttemptId).toBeUndefined()
+      await expect(provider.reconcileCreateAttempts()).resolves.toEqual({ deleted: 0, failed: 1 })
+      expect(double.calls.filter((call) => call.method === 'DELETE')).toEqual([])
+      expect(volumeExists).toBe(true)
+    },
+  )
+
+  it('does not record a reconciliation GET rejection as a definitive Machine POST rejection', async () => {
+    const journal = new MemoryJournal()
+    const double = createFetchDouble()
+      .on(`GET /apps/${APP}`, { body: { name: APP } })
+      .on(`POST /apps/${APP}/machines`, {
+        status: 503,
+        body: { error: 'POST accepted but upstream response failed' },
+      })
+      .on(`GET /apps/${APP}/machines`, {
+        status: 403,
+        body: { error: 'temporary listing access denied' },
+      })
+    const provider = makeProvider(double, journal)
+
+    await expect(provider.create({ projectId: PROJECT_ID })).rejects.toThrow('403')
+    expect(double.matching(`POST /apps/${APP}/machines`)).toHaveLength(1)
+    expect([...journal.attempts.values()][0]?.machineCreateFailed).not.toBe(true)
+  })
+
+  it('never turns an ambiguous POST plus GET error into authority to force-delete the app', async () => {
+    const journal = new MemoryJournal()
+    const double = createFetchDouble()
+    let accepted = false
+    let machineAlive = false
+    let firstLookup = true
+    double.fetch = vi.fn(async (input: string | URL | Request, init?: RequestInit) => {
+      const method = (init?.method ?? 'GET').toUpperCase()
+      const path = String(input).replace('https://api.machines.dev/v1', '')
+      double.calls.push({ method, path, url: String(input), body: undefined })
+      let status = 200
+      let body: unknown = {}
+      if (method === 'GET' && path === `/apps/${APP}`) body = { name: APP }
+      else if (method === 'POST' && path === `/apps/${APP}/machines`) {
+        accepted = true
+        machineAlive = true
+        status = 503
+        body = { error: 'upstream response failed after acceptance' }
+      } else if (method === 'GET' && path === `/apps/${APP}/machines`) {
+        if (firstLookup && accepted) {
+          firstLookup = false
+          status = 403
+          body = { error: 'listing permission blip' }
+        } else body = []
+      } else if (method === 'GET' && path === `/apps/${APP}/volumes`) body = []
+      else if (method === 'DELETE' && path === `/apps/${APP}?force=true`) {
+        machineAlive = false
+        status = 204
+      } else throw new Error(`Unexpected ${method} ${path}`)
+      return {
+        status,
+        headers: { get: () => null },
+        text: async () => JSON.stringify(body),
+      } as unknown as Response
+    }) as unknown as typeof fetch
+    const provider = makeProvider(double, journal)
+
+    await expect(provider.create({ projectId: PROJECT_ID })).rejects.toThrow('403')
+    expect(machineAlive).toBe(true)
+    await expect(provider.reconcileCreateAttempts()).resolves.toEqual({ deleted: 0, failed: 0 })
+    expect(journal.attempts.size).toBe(1)
+    expect(double.calls.filter((call) => call.method === 'DELETE')).toEqual([])
+    expect(machineAlive).toBe(true)
+  })
+
+  it('does not force-delete a new Machine created while an old retirement holds its app lock', async () => {
+    const journal = new MemoryJournal()
+    journal.seed(failedIntent({ machineCreateFailed: true }))
+    const double = createFetchDouble()
+    let machine: Record<string, unknown> | null = null
+    let appExists = true
+    let retired = false
+    let retiredListings = 0
+    let entered = false
+    double.fetch = vi.fn(async (input: string | URL | Request, init?: RequestInit) => {
+      const method = (init?.method ?? 'GET').toUpperCase()
+      const path = String(input).replace('https://api.machines.dev/v1', '')
+      double.calls.push({
+        method,
+        path,
+        url: String(input),
+        body: init?.body ? JSON.parse(String(init.body)) : undefined,
+      })
+      let status = 200
+      let body: unknown = {}
+      if (method === 'GET' && path === `/apps/${APP}`) {
+        if (!appExists) status = 404
+        else body = { name: APP }
+      } else if (method === 'GET' && path === `/apps/${APP}/volumes`) body = []
+      else if (method === 'GET' && path === `/apps/${APP}/machines`) {
+        body = machine ? [machine] : []
+        if (retired && ++retiredListings === 3 && !entered) {
+          entered = true
+          // This final listing was empty when Fly took its snapshot. The new
+          // create lands before the old attempt's subsequent app DELETE.
+          body = []
+          await expect(provider.create({ projectId: PROJECT_ID })).resolves.toMatchObject({
+            id: `${APP}:new-user-machine`,
+          })
+        }
+      } else if (method === 'POST' && path === `/apps/${APP}/machines`) {
+        const request = JSON.parse(String(init?.body))
+        machine = {
+          id: 'new-user-machine',
+          name: request.name,
+          state: 'started',
+          config: request.config,
+        }
+        body = machine
+      } else if (
+        method === 'GET' &&
+        path.startsWith(`/apps/${APP}/machines/new-user-machine/wait`)
+      ) {
+        body = machine
+      } else if (method === 'DELETE' && path === `/apps/${APP}?force=true`) {
+        machine = null
+        appExists = false
+        status = 204
+      } else throw new Error(`Unexpected ${method} ${path}`)
+      return {
+        status,
+        headers: { get: () => null },
+        text: async () => JSON.stringify(body),
+      } as unknown as Response
+    }) as unknown as typeof fetch
+    const provider = makeProvider(double, journal)
+    const retire = journal.retire.bind(journal)
+    journal.retire = async (attemptId, generation) => {
+      await retire(attemptId, generation)
+      retired = true
+    }
+
+    await provider.reconcileCreateAttempts()
+    expect([...journal.attempts.values()].some((attempt) => attempt.state === 'serving')).toBe(true)
+    expect(double.matching(`DELETE /apps/${APP}?force=true`)).toHaveLength(0)
+    expect(machine).not.toBe(null)
+  })
+
+  it('explicitly retires an older emergency Machine despite a newer failed journal row', async () => {
+    const journal = new MemoryJournal()
+    journal.seed(failedIntent({ machineCreateFailed: true }))
+    const machine = {
+      id: 'older-writer',
+      name: 'pre-journal-machine',
+      state: 'started',
+      config: {
+        mounts: [{ volume: 'older-volume', path: '/workspace' }],
+        metadata: {
+          'molecule-sandbox.projectId': PROJECT_ID,
+          'molecule-sandbox.volumeName': 'workspace',
+        },
+      },
+    }
+    const double = createFetchDouble()
+    let alive = true
+    let volumeAlive = true
+    double.fetch = vi.fn(async (input: string | URL | Request, init?: RequestInit) => {
+      const method = (init?.method ?? 'GET').toUpperCase()
+      const path = String(input).replace('https://api.machines.dev/v1', '')
+      double.calls.push({ method, path, url: String(input), body: undefined })
+      let status = 200
+      let body: unknown = {}
+      if (method === 'GET' && path === `/apps/${APP}/machines/older-writer`) body = machine
+      else if (method === 'GET' && path === `/apps/${APP}/machines`) body = alive ? [machine] : []
+      else if (method === 'GET' && path === `/apps/${APP}/volumes`) {
+        body = volumeAlive
+          ? [
+              {
+                id: 'older-volume',
+                name: 'older-workspace',
+                attached_machine_id: alive ? 'older-writer' : null,
+              },
+            ]
+          : []
+      } else if (method === 'DELETE' && path === `/apps/${APP}/machines/older-writer?force=true`) {
+        alive = false
+        status = 204
+      } else if (method === 'DELETE' && path === `/apps/${APP}/volumes/older-volume`) {
+        volumeAlive = false
+        status = 204
+      } else if (method === 'DELETE' && path === `/apps/${APP}?force=true`) status = 204
+      else throw new Error(`Unexpected ${method} ${path}`)
+      return {
+        status,
+        headers: { get: () => null },
+        text: async () => JSON.stringify(body),
+      } as unknown as Response
+    }) as unknown as typeof fetch
+    const provider = makeProvider(double, journal)
+    let machineAdoptionRecorded = false
+    const begin = journal.begin.bind(journal)
+    journal.begin = async (attempt) => {
+      if (attempt.attemptId === `legacy:${APP}:older-writer`) {
+        machineAdoptionRecorded = attempt.machineAdopted === true
+      }
+      await begin(attempt)
+    }
+    const adoptedVolumes: FlyCreateVolumeIntent[] = []
+    const recordVolume = journal.recordVolume.bind(journal)
+    journal.recordVolume = async (attemptId, volume) => {
+      adoptedVolumes.push(structuredClone(volume))
+      await recordVolume(attemptId, volume)
+    }
+
+    await expect(provider.reconcileCreateAttempts()).resolves.toEqual({ deleted: 0, failed: 1 })
+    expect(alive).toBe(true)
+    await expect(
+      provider.destroy(`${APP}:older-writer`, new AbortController().signal),
+    ).resolves.toBeUndefined()
+    expect(alive).toBe(false)
+    expect(volumeAlive).toBe(false)
+    expect(machineAdoptionRecorded).toBe(true)
+    expect(adoptedVolumes[0]).toMatchObject({
+      id: 'older-volume',
+      adoptedByAttemptId: `legacy:${APP}:older-writer`,
+    })
+    expect(adoptedVolumes[0]?.createdByAttemptId).toBeUndefined()
   })
 })

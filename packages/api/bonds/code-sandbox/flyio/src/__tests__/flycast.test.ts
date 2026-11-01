@@ -594,16 +594,18 @@ describe('create — the egress policy carries the declared ports', () => {
 
 describe('destroy — releasing the routes', () => {
   it('releases every address the Machine recorded, on the app that holds it', async () => {
-    const double = createFetchDouble().on(`GET /apps/${APP}/machines/m1`, {
-      body: {
-        id: 'm1',
-        config: {
-          metadata: {
-            'molecule-sandbox.privateRoutes': `${TENANT_DB}=${DB_IP},${PROXY}=${PROXY_IP}`,
+    const double = createFetchDouble()
+      .fallback({ body: [] })
+      .on(`GET /apps/${APP}/machines/m1`, {
+        body: {
+          id: 'm1',
+          config: {
+            metadata: {
+              'molecule-sandbox.privateRoutes': `${TENANT_DB}=${DB_IP},${PROXY}=${PROXY_IP}`,
+            },
           },
         },
-      },
-    })
+      })
 
     await makeProvider({ privateServices: SERVICES }, double).destroy(
       `${APP}:m1`,
@@ -620,9 +622,11 @@ describe('destroy — releasing the routes', () => {
   })
 
   it('releases nothing when the Machine recorded nothing', async () => {
-    const double = createFetchDouble().on(`GET /apps/${APP}/machines/m1`, {
-      body: { id: 'm1', config: { metadata: {} } },
-    })
+    const double = createFetchDouble()
+      .fallback({ body: [] })
+      .on(`GET /apps/${APP}/machines/m1`, {
+        body: { id: 'm1', config: { metadata: {} } },
+      })
 
     await makeProvider({ privateServices: SERVICES }, double).destroy(
       `${APP}:m1`,
@@ -638,6 +642,7 @@ describe('destroy — releasing the routes', () => {
 
   it('still tears the sandbox down when releasing an address fails', async () => {
     const double = createFetchDouble()
+      .fallback({ body: [] })
       .on(`GET /apps/${APP}/machines/m1`, {
         body: {
           id: 'm1',

@@ -23,6 +23,10 @@ export interface FlyCreateVolumeIntent {
   workspace: boolean
   /** False until an ambiguous create is adopted or definitely rejected. */
   resolved?: boolean
+  /** Recorded before this attempt's create POST; automatic deletion also requires a resolved Fly ID. */
+  createdByAttemptId?: string
+  /** Recorded when this attempt adopted an existing/listed volume; never automatic-delete authority. */
+  adoptedByAttemptId?: string
 }
 
 /** An address on another Fly app which must be released before forgetting intent. */
@@ -47,6 +51,12 @@ export interface FlyCreateAttempt {
   sandboxId?: string
   /** Fly definitively rejected the Machine POST; an unknown outcome is never marked. */
   machineCreateFailed?: boolean
+  /** This attempt's app-create intent, recorded before the POST. */
+  appCreatedByAttemptId?: string
+  /** True only when the app POST itself was accepted; a pending/unknown create cannot be deleted. */
+  appCreateResolved?: boolean
+  /** True when explicit destruction identity-validated and adopted a pre-journal Machine. */
+  machineAdopted?: boolean
   volumes: FlyCreateVolumeIntent[]
   addresses: FlyCreateAddressIntent[]
 }
@@ -59,6 +69,7 @@ export interface FlyCreateAttemptJournal {
       /** Legacy adoption persists its observed serving state and identity in the INSERT. */
       state?: FlyCreateAttemptState
       sandboxId?: string
+      machineAdopted?: boolean
     },
   ): Promise<void>
   /** Re-read one attempt, including after a lifecycle lock has been acquired. */
@@ -67,11 +78,19 @@ export interface FlyCreateAttemptJournal {
   forApp(appName: string): Promise<FlyCreateAttempt[]>
   /** Find the durable workspace binding for a logical caller workspace. */
   findWorkspace(projectId: string, logicalName: string): Promise<FlyCreateVolumeIntent | null>
+  /** Record app-create intent/acceptance, or clear it when the app was adopted. */
+  recordAppProvenance(
+    attemptId: string,
+    generation: number,
+    outcome: 'pending' | 'created' | 'adopted',
+  ): Promise<void>
   /** Record an intent or transfer a Fly-ID binding to this attempt. */
   recordVolume(attemptId: string, volume: FlyCreateVolumeIntent): Promise<void>
   markVolumeWorkspace(attemptId: string, name: string, workspace?: boolean): Promise<void>
   recordAddress(attemptId: string, address: FlyCreateAddressIntent): Promise<void>
   markState(attemptId: string, state: FlyCreateAttemptState, sandboxId?: string): Promise<void>
+  /** Record that explicit destruction adopted this pre-journal Machine. */
+  markMachineAdopted(attemptId: string): Promise<void>
   /** Record a definitive rejection only while this create generation still owns the attempt. */
   markMachineCreateFailed(attemptId: string, generation: number): Promise<void>
   /** Throw unless this generation is still the attempt's durable fencing token. */

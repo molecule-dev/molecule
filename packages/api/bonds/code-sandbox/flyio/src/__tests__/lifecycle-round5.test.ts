@@ -123,6 +123,7 @@ describe('round-five create safety regressions', () => {
     const target = 'tenant-database'
     const routes = { [target]: 'fdaa:0:1::2' }
     const double = createFetchDouble()
+      .fallback({ body: [] })
       .on(`GET /apps/${APP}/machines`, {
         body: [
           {
@@ -150,6 +151,11 @@ describe('round-five create safety regressions', () => {
     await provider.destroyApp(PROJECT_ID, undefined, new AbortController().signal)
 
     expect(double.matching(`DELETE /apps/${target}/ip_assignments/`)).toHaveLength(1)
-    expect(double.matching(`DELETE /apps/${APP}`)).toHaveLength(1)
+    expect(double.matching(`DELETE /apps/${APP}/machines/m1?force=true`)).toHaveLength(1)
+    expect(
+      double.calls.filter(
+        (call) => call.method === 'DELETE' && call.path === `/apps/${APP}?force=true`,
+      ),
+    ).toHaveLength(1)
   })
 })

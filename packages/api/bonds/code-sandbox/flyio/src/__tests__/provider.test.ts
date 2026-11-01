@@ -141,7 +141,9 @@ describe('create — app provisioning and tenant isolation', () => {
   })
 
   it('deletes an exclusively owned per-project app without a recorded Machine id', async () => {
-    const double = createFetchDouble().on(`DELETE /apps/${APP}`, { status: 204, body: {} })
+    const double = createFetchDouble()
+      .fallback({ body: [] })
+      .on(`DELETE /apps/${APP}`, { status: 204, body: {} })
     const provider = makeProvider({}, double) as ReturnType<typeof makeProvider> & {
       destroyApp(
         projectId: string,
@@ -1219,7 +1221,7 @@ describe('get / list / destroy', () => {
   })
 
   it('destroys the Machine AND the per-project app, which removes its volumes and 6PN', async () => {
-    const double = createFetchDouble()
+    const double = createFetchDouble().fallback({ body: [] })
     await makeProvider({}, double).destroy(`${APP}:m1`, new AbortController().signal)
 
     expect(double.matching(`DELETE /apps/${APP}/machines/m1`)[0].path).toContain('force=true')

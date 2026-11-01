@@ -191,8 +191,12 @@ describe('round-four lifecycle regressions', () => {
     expect(posts).toBe(1)
   })
 
-  it('force-deletes an exclusively owned app so a running Machine cannot strand it', async () => {
-    const double = createFetchDouble().on(`DELETE /apps/${APP}?force=true`, { status: 204 })
+  it('deletes each Machine before force-deleting an exclusively owned empty app', async () => {
+    const double = createFetchDouble()
+      .on(`GET /apps/${APP}/machines`, { body: [{ id: 'm1' }] })
+      .on(`GET /apps/${APP}/machines`, { body: [] })
+      .on(`GET /apps/${APP}/volumes`, { body: [] })
+      .on(`DELETE /apps/${APP}?force=true`, { status: 204 })
     const provider = makeProvider(double) as ReturnType<typeof makeProvider> & {
       destroyApp(
         projectId: string,
@@ -203,9 +207,10 @@ describe('round-four lifecycle regressions', () => {
 
     await provider.destroyApp(PROJECT_ID, undefined, new AbortController().signal)
 
-    const deletion = double.calls.find(
-      (call) => call.method === 'DELETE' && call.path.startsWith(`/apps/${APP}`),
-    )
-    expect(deletion?.path).toBe(`/apps/${APP}?force=true`)
+    const deletions = double.calls.filter((call) => call.method === 'DELETE')
+    expect(deletions.map((call) => call.path)).toEqual([
+      `/apps/${APP}/machines/m1?force=true`,
+      `/apps/${APP}?force=true`,
+    ])
   })
 })
