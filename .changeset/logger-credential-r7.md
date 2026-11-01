@@ -2,4 +2,4 @@
 '@molecule/app-logger': patch
 ---
 
-Scrub symbol descriptions and preserve safe custom stacks while preventing inherited accessor reads during credential snapshots.
+Scrub symbols and every serialized URL while preserving safe custom stacks and preventing inherited accessor reads during credential snapshots.

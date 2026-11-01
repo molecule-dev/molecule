@@ -80,6 +80,19 @@ describe('round-seven logger invariants', () => {
     expect(JSON.stringify(warn.mock.calls)).not.toContain('namespace-secret')
   })
 
+  it('scrubs every URL query in serialized multi-link text', () => {
+    const input =
+      'a:attr__href="/reset?token=first-link-secret&view=full"href="/reset?token=second-link-secret&view=full"'
+
+    const output = redactCredentials(input)
+
+    expect(output).toBe(
+      'a:attr__href="/reset?token=[REDACTED]&view=full"href="/reset?token=[REDACTED]&view=full"',
+    )
+    expect(output).not.toContain('first-link-secret')
+    expect(output).not.toContain('second-link-secret')
+  })
+
   it('scrubs a URL in a symbol description before real logger transport emission', () => {
     const bodies: string[] = []
     vi.stubGlobal(

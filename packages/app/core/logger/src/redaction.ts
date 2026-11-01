@@ -103,7 +103,7 @@ const HEADER_LINE = /(^|\r?\n)([\t ]*)([!#$%&'*+.^_`|~\dA-Za-z-]+):([\t ]*)([^\r
 /** Redact credential values inside real query/fragment spans, retaining safe bytes. */
 const redactParameterSpans = (value: string): string =>
   value.replace(URL_PARAMETER_SPAN, (span) =>
-    span.replace(/(^[?#]|[&#])([^&#]*)/g, (match, prefix: string, parameter: string) => {
+    span.replace(/(^[?#]|[&#?])([^&#?]*)/g, (match, prefix: string, parameter: string) => {
       const equals = parameter.indexOf('=')
       if (equals < 0) return match
       const name = parameter.slice(0, equals)
