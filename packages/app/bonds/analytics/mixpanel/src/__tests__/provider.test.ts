@@ -42,6 +42,7 @@ describe('Mixpanel app analytics provider', () => {
       expect(mockInit).toHaveBeenCalledWith('mp_test', {
         debug: true,
         track_pageview: false,
+        hooks: { before_send_events: expect.any(Function) },
       })
     })
 

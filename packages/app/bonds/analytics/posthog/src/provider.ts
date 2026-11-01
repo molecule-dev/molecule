@@ -6,7 +6,7 @@
  * @module
  */
 
-import { posthog } from 'posthog-js'
+import { type CaptureResult, posthog } from 'posthog-js'
 
 import type {
   AnalyticsEvent,
@@ -14,8 +14,12 @@ import type {
   AnalyticsProvider,
   AnalyticsUserProps,
 } from '@molecule/app-analytics'
+import { snapshotAnalyticsSdkUrls } from '@molecule/app-analytics'
 
 import type { PostHogOptions } from './types.js'
+
+/** Runs after posthog-js has added location, referrer, session and person properties. */
+const scrubSdkUrls = (event: CaptureResult): CaptureResult => snapshotAnalyticsSdkUrls(event)
 
 /**
  * Creates a PostHog analytics provider using `posthog-js`. Initializes the SDK with the
@@ -37,6 +41,8 @@ import type { PostHogOptions } from './types.js'
  * `posthog` export is a module-level singleton, so the second `.init()` call
  * is a no-op that keeps the FIRST configuration. This logs one actionable
  * warning naming the ignored call before the SDK's own generic warning fires.
+ *
+ * SDK-added location/referrer properties are scrubbed by the installed `before_send` hook.
  *
  * @param options - PostHog configuration including `apiKey`, optional `host`, and `autocapture`.
  * @returns An `AnalyticsProvider` backed by the PostHog browser SDK.
@@ -91,7 +97,21 @@ export const createProvider = (options?: PostHogOptions): AnalyticsProvider => {
     ...(options?.host ? { api_host: options.host } : {}),
     autocapture: options?.autocapture ?? false,
     capture_pageview: false, // We handle page views manually via auto-tracking
+    before_send: scrubSdkUrls,
   })
+  // A pre-initialized singleton keeps its first config. Compose in that case and put this hook
+  // LAST so another hook cannot re-add a location/referrer credential after the scrub.
+  const configuredBeforeSend = posthog.config?.before_send
+  if (configuredBeforeSend !== scrubSdkUrls && typeof posthog.set_config === 'function') {
+    const previous = Array.isArray(configuredBeforeSend)
+      ? configuredBeforeSend
+      : configuredBeforeSend
+        ? [configuredBeforeSend]
+        : []
+    posthog.set_config({
+      before_send: [...previous.filter((hook) => hook !== scrubSdkUrls), scrubSdkUrls],
+    })
+  }
 
   return {
     async identify(user: AnalyticsUserProps): Promise<void> {
@@ -106,7 +126,9 @@ export const createProvider = (options?: PostHogOptions): AnalyticsProvider => {
       // posthog-js supports a client-set timestamp via CaptureOptions — honor
       // the interface's `timestamp` field instead of silently dropping it.
       if (event.timestamp) {
-        posthog.capture(event.name, event.properties, { timestamp: event.timestamp })
+        const timestamp =
+          event.timestamp instanceof Date ? event.timestamp : new Date(String(event.timestamp))
+        posthog.capture(event.name, event.properties, { timestamp })
       } else {
         posthog.capture(event.name, event.properties)
       }

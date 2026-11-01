@@ -48,6 +48,7 @@ describe('PostHog app analytics provider', () => {
         api_host: 'https://ph.example.com',
         autocapture: true,
         capture_pageview: false,
+        before_send: expect.any(Function),
       })
     })
 
@@ -58,6 +59,7 @@ describe('PostHog app analytics provider', () => {
       expect(mockInit).toHaveBeenCalledWith('pk_test', {
         autocapture: false,
         capture_pageview: false,
+        before_send: expect.any(Function),
       })
     })
 

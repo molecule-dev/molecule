@@ -6,7 +6,7 @@
  * @module
  */
 
-import mixpanel from 'mixpanel-browser'
+import mixpanel, { type BeforeSendHookPayload } from 'mixpanel-browser'
 
 import type {
   AnalyticsEvent,
@@ -14,8 +14,13 @@ import type {
   AnalyticsProvider,
   AnalyticsUserProps,
 } from '@molecule/app-analytics'
+import { snapshotAnalyticsSdkUrls } from '@molecule/app-analytics'
 
 import type { MixpanelOptions } from './types.js'
+
+/** Runs after mixpanel-browser has merged automatic location/referrer and super-properties. */
+const scrubSdkUrls = (event: BeforeSendHookPayload): BeforeSendHookPayload =>
+  snapshotAnalyticsSdkUrls(event)
 
 /**
  * Creates a Mixpanel analytics provider using `mixpanel-browser`. Initializes the SDK
@@ -29,6 +34,8 @@ import type { MixpanelOptions } from './types.js'
  * VITE_MIXPANEL_TOKEN and returns a no-op provider, so bonding the lazy
  * `provider` export without configuration degrades gracefully instead of
  * becoming a silent event black hole.
+ *
+ * SDK-added location/referrer properties are scrubbed by `hooks.before_send_events`.
  *
  * @param options - Mixpanel configuration including `token` and optional `debug` flag.
  * @returns An `AnalyticsProvider` backed by the Mixpanel browser SDK.
@@ -58,6 +65,7 @@ export const createProvider = (options?: MixpanelOptions): AnalyticsProvider => 
   mixpanel.init(token, {
     debug: options?.debug ?? false,
     track_pageview: false, // We handle page views manually via auto-tracking
+    hooks: { before_send_events: scrubSdkUrls },
   })
 
   return {
