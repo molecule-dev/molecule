@@ -159,6 +159,23 @@ const defineValue = (target: object, key: string, value: unknown): void => {
 const isErrorValue = (value: object): value is Error =>
   value instanceof Error || (typeof DOMException !== 'undefined' && value instanceof DOMException)
 
+/** Find a data/accessor descriptor without invoking it, including class inheritance. */
+const propertyDescriptor = (value: object, name: string): PropertyDescriptor | undefined => {
+  let current: object | null = value
+  while (current) {
+    const descriptor = Object.getOwnPropertyDescriptor(current, name)
+    if (descriptor) return descriptor
+    current = Object.getPrototypeOf(current) as object | null
+  }
+  return undefined
+}
+
+/** V8's own lazy stack formatter, not an application's safe custom stack accessor. */
+const isNativeLazyStack = (descriptor: PropertyDescriptor): boolean =>
+  'get' in descriptor &&
+  typeof descriptor.get === 'function' &&
+  Function.prototype.toString.call(descriptor.get).includes('[native code]')
+
 const isBinary = (value: object): value is ArrayBuffer | ArrayBufferView =>
   value instanceof ArrayBuffer || ArrayBuffer.isView(value)
 
@@ -208,7 +225,7 @@ const snapshotRoot = (value: unknown): unknown => {
     if (current === null || current === undefined) return current
     if (typeof current === 'bigint') return String(current)
     if (typeof current === 'function') return '[Function]'
-    if (typeof current === 'symbol') return String(current)
+    if (typeof current === 'symbol') return scrubString(String(current))
     if (typeof current !== 'object') return current
     if (ancestors.has(current)) return CIRCULAR
 
@@ -298,15 +315,16 @@ const snapshotRoot = (value: unknown): unknown => {
           continue
         }
 
-        // V8's lazy Error.stack formatter reads name/message again. Never let that implicit
-        // native read re-enter an accessor after its one snapshot read; ordinary stacks are kept.
+        // V8's native lazy Error.stack formatter reads name/message again. Never let that
+        // implicit read re-enter an own or inherited accessor after its one snapshot read.
+        // A custom stack getter has no hidden native read and is safe to materialize once.
         const sideEffectfulStack =
           errorValue &&
           name === 'stack' &&
           descriptor !== undefined &&
-          !('value' in descriptor) &&
+          isNativeLazyStack(descriptor) &&
           ['name', 'message'].some((field) => {
-            const fieldDescriptor = Object.getOwnPropertyDescriptor(current, field)
+            const fieldDescriptor = propertyDescriptor(current, field)
             return fieldDescriptor !== undefined && !('value' in fieldDescriptor)
           })
         if (sideEffectfulStack) {
