@@ -95,21 +95,56 @@ const isCredentialName = (name: string): boolean => {
 
 /** URL userinfo, confined to an authority and including its separating `@`. */
 const URL_USERINFO = /((?:[a-z][a-z\d+.-]*:)?\/\/)[^/?#\s]*@/gi
-/** A query or fragment span ends at whitespace, quoted-attribute and URL-text boundaries. */
-const URL_PARAMETER_SPAN = /[?#][^\s"'`<>]*/g
+/** A query or fragment starts here; its surrounding quote determines where it ends. */
+const URL_PARAMETER_START = /[?#]/g
 /** HTTP field lines; the classifier, rather than a short denylist, decides whether to redact. */
 const HEADER_LINE = /(^|\r?\n)([\t ]*)([!#$%&'*+.^_`|~\dA-Za-z-]+):([\t ]*)([^\r\n]*)/g
 
+/** The unmatched quote around a URL, if this is a quoted attribute or chain value. */
+const surroundingQuote = (value: string, start: number): string => {
+  let quote = ''
+  for (let index = 0; index < start; index++) {
+    const character = value[index]
+    if (character !== '"' && character !== "'" && character !== '`') continue
+    quote = quote === character ? '' : quote === '' ? character : quote
+  }
+  return quote
+}
+
+/** Redact one query/fragment span without changing any safe parameter bytes. */
+const redactParameterSpan = (span: string): string =>
+  span.replace(/(^[?#]|[&#?])([^&#?]*)/g, (match, prefix: string, parameter: string) => {
+    const equals = parameter.indexOf('=')
+    if (equals < 0) return match
+    const name = parameter.slice(0, equals)
+    return isCredentialName(name) ? `${prefix}${name}=${REDACTED}` : match
+  })
+
 /** Redact credential values inside real query/fragment spans, retaining safe bytes. */
-const redactParameterSpans = (value: string): string =>
-  value.replace(URL_PARAMETER_SPAN, (span) =>
-    span.replace(/(^[?#]|[&#?])([^&#?]*)/g, (match, prefix: string, parameter: string) => {
-      const equals = parameter.indexOf('=')
-      if (equals < 0) return match
-      const name = parameter.slice(0, equals)
-      return isCredentialName(name) ? `${prefix}${name}=${REDACTED}` : match
-    }),
-  )
+const redactParameterSpans = (value: string): string => {
+  let output = ''
+  let cursor = 0
+  URL_PARAMETER_START.lastIndex = 0
+  let start: RegExpExecArray | null
+  while ((start = URL_PARAMETER_START.exec(value)) !== null) {
+    const quote = surroundingQuote(value, start.index)
+    let end = start.index + 1
+    while (end < value.length) {
+      const character = value[end]
+      if (
+        /[\s<>]/.test(character) ||
+        (quote ? character === quote : character === '"' || character === '`')
+      ) {
+        break
+      }
+      end++
+    }
+    output += value.slice(cursor, start.index) + redactParameterSpan(value.slice(start.index, end))
+    cursor = end
+    URL_PARAMETER_START.lastIndex = end
+  }
+  return output + value.slice(cursor)
+}
 
 const redactUrlText = (value: string): string =>
   redactParameterSpans(
@@ -176,11 +211,15 @@ const NATIVE_LAZY_STACK_GETTER = Object.getOwnPropertyDescriptor(new Error(), 's
 const isNativeLazyStack = (descriptor: PropertyDescriptor): boolean =>
   NATIVE_LAZY_STACK_GETTER !== undefined && descriptor.get === NATIVE_LAZY_STACK_GETTER
 
-const isBinary = (value: object): value is ArrayBuffer | ArrayBufferView =>
-  value instanceof ArrayBuffer || ArrayBuffer.isView(value)
+const isBuffer = (value: object): value is ArrayBuffer | SharedArrayBuffer =>
+  value instanceof ArrayBuffer ||
+  (typeof SharedArrayBuffer !== 'undefined' && value instanceof SharedArrayBuffer)
 
-const binaryBytes = (value: ArrayBuffer | ArrayBufferView): Uint8Array => {
-  if (value instanceof ArrayBuffer) return new Uint8Array(value)
+const isBinary = (value: object): value is ArrayBuffer | SharedArrayBuffer | ArrayBufferView =>
+  isBuffer(value) || ArrayBuffer.isView(value)
+
+const binaryBytes = (value: ArrayBuffer | SharedArrayBuffer | ArrayBufferView): Uint8Array => {
+  if (isBuffer(value)) return new Uint8Array(value)
   return new Uint8Array(value.buffer, value.byteOffset, value.byteLength)
 }
 
@@ -235,7 +274,12 @@ const snapshotRoot = (value: unknown): unknown => {
         return `[Blob ${current.size} bytes ${current.type}]`
       }
       if (isBinary(current)) {
-        const bytes = binaryBytes(current)
+        let bytes: Uint8Array
+        try {
+          bytes = binaryBytes(current)
+        } catch (_detached) {
+          return '[binary unavailable]'
+        }
         try {
           return scrubString(new TextDecoder('utf-8', { fatal: true }).decode(bytes))
         } catch (_error) {
