@@ -12,7 +12,12 @@ import axios, {
   type InternalAxiosRequestConfig,
 } from 'axios'
 
-import { awaitAuthGate, retryDelayMs, shouldRetryRequest } from '@molecule/app-http'
+import {
+  awaitAuthGate,
+  retryDelayMs,
+  shouldRetryRequest,
+  snapshotHttpErrorBody,
+} from '@molecule/app-http'
 
 import type {
   AuthTokenResolver,
@@ -337,6 +342,8 @@ export function createAxiosClient(config: AxiosHttpClientConfig = {}): HttpClien
       // caller can tell "aborted" from a real outage on the same `status === 0` and
       // never reads either as an auth failure.
       const aborted = error.code === 'ERR_CANCELED'
+
+      if (error.response) error.response.data = await snapshotHttpErrorBody(error.response.data)
 
       // Run error interceptors
       const httpError = new HttpError(
