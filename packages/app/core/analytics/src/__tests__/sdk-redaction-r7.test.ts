@@ -16,7 +16,8 @@ describe('round-seven analytics payload scrubbing', () => {
             attr__aria_label: 'Open recovery',
           },
         ],
-        $elements_chain: 'a:attr__href="/reset?token=chain-secret&view=full"attr__target="_blank"',
+        $elements_chain:
+          'a:attr__href="/reset?token=chain-secret&view=full"href="/reset?token=second-chain-secret&view=full"attr__target="_blank"',
         customEnvelope: [
           { value: '#access_token=fragment-secret&view=full' },
           `https://${userinfo}@example.test:8443/callback?code=query-secret&view=full`,
@@ -40,7 +41,8 @@ describe('round-seven analytics payload scrubbing', () => {
             attr__aria_label: 'Open recovery',
           },
         ],
-        $elements_chain: 'a:attr__href="/reset?token=[REDACTED]&view=full"attr__target="_blank"',
+        $elements_chain:
+          'a:attr__href="/reset?token=[REDACTED]&view=full"href="/reset?token=[REDACTED]&view=full"attr__target="_blank"',
         customEnvelope: [
           { value: '#access_token=[REDACTED]&view=full' },
           'https://[REDACTED]@example.test:8443/callback?code=[REDACTED]&view=full',
