@@ -243,8 +243,11 @@ const retainedBinaryBody = (original: unknown, snapshot: unknown): unknown => {
   if (original instanceof ArrayBuffer) return encoded.buffer
   if (original instanceof DataView) return new DataView(encoded.buffer)
   if (typeof Buffer !== 'undefined' && original instanceof Buffer) return Buffer.from(encoded)
-  const View = original.constructor as new (buffer: ArrayBuffer) => ArrayBufferView
-  return new View(encoded.buffer)
+  const View = original.constructor as (new (buffer: ArrayBuffer) => ArrayBufferView) & {
+    BYTES_PER_ELEMENT?: number
+  }
+  const width = View.BYTES_PER_ELEMENT ?? 1
+  return encoded.byteLength % width === 0 ? new View(encoded.buffer) : encoded
 }
 
 /** Scrub response headers/body into a new tree and project safe request metadata onto it. */
@@ -264,31 +267,57 @@ const errorResponse = (response: HttpResponse): HttpResponse => {
 }
 
 /**
- * Materialize a failed response Blob before the synchronous HttpError capture. Readable UTF-8
- * becomes a new Blob containing scrubbed text with the original type; non-text or unreadable
- * bytes stay binary in a fresh Blob. Successful responses never pass through this helper.
+ * Materialize a failed response body before the synchronous HttpError capture. Unchanged bytes
+ * are cloned directly, including a Blob's BOM and every typed-array kind. Changed textual bytes
+ * retain the BOM and use a Uint8Array fallback if the original view's alignment no longer fits.
+ * Successful responses never pass through this helper.
  *
  * @param body - A response body about to be retained on a failed request.
- * @returns The unchanged non-Blob body, or a new scrubbed Blob.
+ * @returns A scrubbed body with unchanged binary content preserved byte-for-byte.
  */
 export const snapshotHttpErrorBody = async <T>(body: T): Promise<T> => {
+  if (body instanceof ArrayBuffer || ArrayBuffer.isView(body)) {
+    return retainedBinaryBody(body, snapshotCredentials(body)) as T
+  }
   if (typeof Blob === 'undefined' || !(body instanceof Blob)) return body
   try {
-    const bytes = await body.arrayBuffer()
-    const text = new TextDecoder('utf-8', { fatal: true }).decode(bytes)
-    const snapshot = new Blob([snapshotCredentials(text)], { type: body.type })
+    const bytes = new Uint8Array(await body.arrayBuffer())
+    let snapshot: Blob
+    try {
+      const text = new TextDecoder('utf-8', { fatal: true }).decode(bytes)
+      const scrubbed = snapshotCredentials(text)
+      if (scrubbed === text) {
+        snapshot = new Blob([bytes], { type: body.type })
+      } else {
+        const hasUtf8Bom = bytes[0] === 0xef && bytes[1] === 0xbb && bytes[2] === 0xbf
+        const encoded = new TextEncoder().encode(hasUtf8Bom ? `\uFEFF${scrubbed}` : scrubbed)
+        snapshot = new Blob([encoded], { type: body.type })
+      }
+    } catch (_nonText) {
+      snapshot = new Blob([bytes], { type: body.type })
+    }
     retainedErrorBlobs.add(snapshot)
     return snapshot as T
-  } catch (_error) {
-    try {
-      const snapshot = new Blob([await body.arrayBuffer()], { type: body.type })
-      retainedErrorBlobs.add(snapshot)
-      return snapshot as T
-    } catch (_unreadable) {
-      retainedErrorBlobs.add(body)
-      return body
-    }
+  } catch (_unreadable) {
+    retainedErrorBlobs.add(body)
+    return body
   }
+}
+
+/**
+ * Read and scrub a failed response once for a retained-error reconstruction. The detached capture
+ * carries the original body kind, safe response metadata, and minimal request config, so callers
+ * such as auth never need to read the source response or its body again.
+ *
+ * @param response - The failed HTTP response to capture.
+ * @returns A detached, credential-scrubbed response preserving binary body bytes where safe.
+ */
+export const snapshotHttpErrorResponse = async <T extends HttpResponse>(
+  response: T,
+): Promise<T> => {
+  const captured = { ...response }
+  captured.data = await snapshotHttpErrorBody(captured.data)
+  return errorResponse(captured) as T
 }
 
 /**
