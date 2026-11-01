@@ -9,7 +9,7 @@
  */
 
 import { bond, get as bondGet, isBonded } from '@molecule/app-bond'
-import { redactCredentials } from '@molecule/app-logger'
+import { snapshotCredentials } from '@molecule/app-logger'
 
 import type {
   AnalyticsEvent,
@@ -37,13 +37,13 @@ const credentialSafeProvider = (provider: AnalyticsProvider): AnalyticsProvider 
   const cached = providerWrappers.get(provider)
   if (cached) return cached
   const wrapped: AnalyticsProvider = {
-    identify: (user) => provider.identify(redactCredentials(user)),
-    track: (event) => provider.track(redactCredentials(event)),
-    page: (pageView) => provider.page(redactCredentials(pageView)),
+    identify: (user) => provider.identify(snapshotCredentials(user)),
+    track: (event) => provider.track(snapshotCredentials(event)),
+    page: (pageView) => provider.page(snapshotCredentials(pageView)),
     ...(provider.group
       ? {
           group: (groupId: string, traits?: Record<string, unknown>) =>
-            provider.group!(redactCredentials(groupId), redactCredentials(traits)),
+            provider.group!(snapshotCredentials(groupId), snapshotCredentials(traits)),
         }
       : {}),
     ...(provider.reset ? { reset: () => provider.reset!() } : {}),
