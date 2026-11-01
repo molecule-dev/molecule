@@ -44,6 +44,7 @@ const CREDENTIAL_HEADERS = new Set([
 ])
 const NON_CREDENTIAL_NAMES = new Set(['errorkey', 'i18nkey', 'errorcode', 'i18ncode', 'statuscode'])
 const CREDENTIAL_NAME_CACHE = new Map<string, boolean>()
+const DEFAULT_OBJECT_TO_JSON = Reflect.get(Object.prototype, 'toJSON') as unknown
 
 /** Identifier positions written by posthog-js 1.438.21 or mixpanel-browser 2.84.0. */
 const SDK_IDENTIFIERS = new Set([
@@ -156,7 +157,11 @@ export const snapshotAnalyticsSdkUrls = <T>(payload: T): T => {
     const plain = array || isPlainObject(value)
     let toJSON: unknown
     try {
-      if (!plain || Object.prototype.hasOwnProperty.call(value, 'toJSON')) {
+      if (
+        !plain ||
+        Object.prototype.hasOwnProperty.call(value, 'toJSON') ||
+        Reflect.get(Object.prototype, 'toJSON') !== DEFAULT_OBJECT_TO_JSON
+      ) {
         toJSON = Reflect.get(value, 'toJSON') as unknown
       }
     } catch (_error) {

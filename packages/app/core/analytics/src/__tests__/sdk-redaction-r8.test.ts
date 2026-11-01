@@ -67,6 +67,23 @@ describe('round-eight data-only SDK capture', () => {
     expect(serialized).not.toContain('class-secret')
   })
 
+  it('materializes a later inherited serializer once', () => {
+    const inherited = vi.fn(() => '/callback?token=inherited-secret&view=full')
+    Object.defineProperty(Object.prototype, 'toJSON', {
+      value: inherited,
+      configurable: true,
+      writable: true,
+    })
+    try {
+      expect(snapshotAnalyticsSdkUrls({ event: 'click' })).toBe(
+        '/callback?token=[REDACTED]&view=full',
+      )
+      expect(inherited).toHaveBeenCalledTimes(1)
+    } finally {
+      delete Object.prototype.toJSON
+    }
+  })
+
   it('reads safe accessors once and never invokes credential-named accessors', () => {
     const safe = vi.fn(() => 'byte-for-byte')
     const password = vi.fn(() => 'accessor-secret')
