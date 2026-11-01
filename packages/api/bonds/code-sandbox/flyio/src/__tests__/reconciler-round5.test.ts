@@ -195,7 +195,7 @@ class MemoryJournal implements FlyCreateAttemptJournal {
     }
     attempt.machineId = machineId
     attempt.machineCreatedByAttemptId = undefined
-    attempt.machineCreateOutcome ??= 'unknown'
+    attempt.machineCreateOutcome = 'unknown'
   }
 
   async recordMachineProvenance(
