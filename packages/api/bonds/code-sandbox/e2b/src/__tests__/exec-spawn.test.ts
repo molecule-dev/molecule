@@ -389,7 +389,7 @@ describe('spawn() — the capability LSP and a cancellable terminal need', () =>
     expect(chunks).toEqual(['user@e2b:~$ '])
 
     handle.write('')
-    expect(Array.from(pty.inputs[0])).toEqual([3])
+    expect(Array.from(pty.inputs.at(-1)!)).toEqual([3])
 
     handle.resize?.({ cols: 200, rows: 50 })
     expect(pty.resizes).toEqual([{ cols: 200, rows: 50 }])
@@ -397,12 +397,34 @@ describe('spawn() — the capability LSP and a cancellable terminal need', () =>
     handle.kill()
     expect(pty.killed).toEqual([77])
   })
+  it('executes the requested command on the SDK login PTY without putting its contents into shell input', async () => {
+    const pty = fakePty(),
+      { sbx } = fakeSandbox([], { pty }),
+      sandbox = await handleFor(sbx)
+    const command = 'node /workspace/ordinary-test.cjs'
+    await sandbox.spawn!(command, { pty: { cols: 80, rows: 24 } })
+    expect(pty.created[0]).toMatchObject({ envs: { MOL_CODE_SANDBOX_PTY_COMMAND: command } })
+    expect(new TextDecoder().decode(pty.inputs[0])).toContain('$MOL_CODE_SANDBOX_PTY_COMMAND')
+    expect(new TextDecoder().decode(pty.inputs[0])).not.toContain(command)
+  })
 
   it('refuses a PTY request the SDK build cannot honour instead of returning pipes', async () => {
     const { sbx } = fakeSandbox([], { pty: null })
     const sandbox = await handleFor(sbx)
 
     await expect(sandbox.spawn!('bash', { pty: { cols: 80, rows: 24 } })).rejects.toThrow(/pty/i)
+  })
+  it('closes the native login PTY when sending the requested startup command fails', async () => {
+    const pty = fakePty(),
+      { sbx } = fakeSandbox([], { pty }),
+      sandbox = await handleFor(sbx)
+    pty.sendInput = async () => {
+      throw new Error('startup input unavailable')
+    }
+    await expect(sandbox.spawn!('node test.cjs', { pty: { cols: 80, rows: 24 } })).rejects.toThrow(
+      'startup input unavailable',
+    )
+    expect(pty.killed).toEqual([77])
   })
 
   it('exposes no resize on a non-PTY spawn, so a caller can feature-detect', async () => {

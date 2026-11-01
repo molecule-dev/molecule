@@ -786,7 +786,7 @@ class E2BSandbox implements Sandbox {
         cols: opts.pty.cols,
         rows: opts.pty.rows,
         cwd: opts.cwd,
-        envs: opts.env,
+        envs: { ...opts.env, MOL_CODE_SANDBOX_PTY_COMMAND: command },
         // A terminal must outlive the default 60 s command deadline; the caller
         // decides how long a session may sit idle.
         timeoutMs: opts.timeout ?? DEFAULT_PTY_TIMEOUT_MS,
@@ -796,6 +796,21 @@ class E2BSandbox implements Sandbox {
           emit(stdoutListeners, stdoutBacklog, decoder.decode(data, { stream: true })),
       })
       const pid = handle.pid
+      // The native SDK always opens bash -il. Execute the requested command on that PTY;
+      // keep its contents in the environment so neither terminal echo nor history exposes it.
+      try {
+        await pty.sendInput(
+          pid,
+          new TextEncoder().encode(
+            'mol_pty_command="$MOL_CODE_SANDBOX_PTY_COMMAND"; unset MOL_CODE_SANDBOX_PTY_COMMAND; exec /bin/sh -c "$mol_pty_command"\n',
+          ),
+        )
+      } catch (error) {
+        await pty.kill(pid).catch((_cleanupError) => {
+          /* A failed startup must not retain a live login shell. */
+        })
+        throw error
+      }
       resize = (size) => {
         void pty.resize(pid, size).catch((_error) => {
           // Best-effort: a resize races the process exiting, and a failed one
