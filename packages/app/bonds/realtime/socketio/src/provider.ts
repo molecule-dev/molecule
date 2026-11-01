@@ -18,6 +18,7 @@
 
 import { io, type ManagerOptions, type Socket, type SocketOptions } from 'socket.io-client'
 
+import { snapshotCredentials } from '@molecule/app-logger'
 import type {
   ConnectionOptions,
   ConnectionState,
@@ -237,7 +238,7 @@ function createConnectionInstance(
     const pending = pendingJoins.get(room)
     if (pending) {
       pendingJoins.delete(room)
-      pending.reject(new Error(reason ?? `Join denied for room "${room}"`))
+      pending.reject(new Error(snapshotCredentials(reason ?? `Join denied for room "${room}"`)))
     }
   }
 

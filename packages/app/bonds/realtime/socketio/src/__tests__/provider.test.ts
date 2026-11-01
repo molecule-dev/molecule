@@ -386,6 +386,20 @@ describe('@molecule/app-realtime-socketio', () => {
       expect(conn._getJoinedRooms().has('room-1')).toBe(false)
     })
 
+    it('redacts credentials retained in a join-denied diagnostic', async () => {
+      const { conn, socket } = await createConnection()
+      socket.fireConnect()
+      const join = conn.joinRoom('room-1')
+      socket.fireServerEvent('molecule:join-denied', {
+        room: 'room-1',
+        reason: '/callback?token=websocket-denial-credential&safe=1',
+      })
+      const failure = await join.catch((error: unknown) => error)
+      expect(failure).toBeInstanceOf(Error)
+      expect(failure.message).toBe('/callback?token=[REDACTED]&safe=1')
+      expect(failure.message).not.toContain('websocket-denial-credential')
+    })
+
     it('rejects with a default message when the denial has no reason', async () => {
       const { conn, socket } = await createConnection()
       socket.fireConnect()

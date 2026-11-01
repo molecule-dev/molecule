@@ -39,9 +39,11 @@
     ]
   },
   "peerDependencies": {
+    "@molecule/app-logger": "^1.0.1",
     "@molecule/app-realtime": ">=1.0.1"
   },
   "devDependencies": {
+    "@molecule/app-logger": "1.0.4",
     "@molecule/app-realtime": "1.0.4",
     "@types/node": "26.6.5",
     "socket.io": "4.8.4",
