@@ -648,4 +648,19 @@ describe('round-eighteen exact-read controls', () => {
       retirementError: '',
     })
   })
+
+  it('settles a shared-app unresolved volume after exact app 404 during deliberate retirement', async () => {
+    const journal = new MemoryJournal()
+    journal.seed(
+      failedIntent({ volumes: [{ name: 'unknown', workspace: false, resolved: false }] }),
+    )
+    const double = createFetchDouble()
+    installRoutes(double, (method, path) => {
+      if (method === 'GET' && path.startsWith(`/apps/${APP}`)) return { status: 404 }
+      throw new Error(`Unexpected ${method} ${path}`)
+    })
+    const provider = makeProvider(double, journal, { appPerProject: false, appName: APP })
+    await provider.destroyAttempt('attempt-1', new AbortController().signal)
+    expect(journal.attempts.has('attempt-1')).toBe(false)
+  })
 })

@@ -2234,7 +2234,7 @@ class FlyioSandboxProvider implements SandboxProvider {
     // A successful non-forced app DELETE (or exact app 404) is authoritative
     // for every resource contained by that app. External addresses still need
     // their own settled records below.
-    const containerSettled = app.required && app.settled
+    const containerSettled = app.settled
     const machineId = this.recordedMachineId(intent)
     if (!containerSettled && this.hasUnresolvedMachineIdentity(intent)) {
       throw new Error(
