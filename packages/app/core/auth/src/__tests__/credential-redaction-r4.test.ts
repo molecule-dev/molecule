@@ -36,8 +36,8 @@ describe('round-four auth credential leaks', () => {
       .login({ email: 'alice@example.com', password: 'not-the-fixture-secret' })
       .catch((caught: unknown) => caught)
 
-    expect(error).toBeInstanceOf(Error)
-    expect(error).not.toBeInstanceOf(TypeError)
+    expect(error).toBeInstanceOf(TypeError)
+    expect(error).not.toBe(native)
     expect((error as Error).name).toBe('TypeError')
     expect((error as Error).stack).toBeDefined()
     expect(isHttpError(error)).toBe(false)

@@ -6,8 +6,9 @@
  * @module
  */
 
+import { type FullRequestConfig, HttpError, type HttpResponse } from '@molecule/app-http'
 import { I18nError } from '@molecule/app-i18n'
-import { getLogger, redactCredentials } from '@molecule/app-logger'
+import { getLogger, redactCredentials, snapshotCredentials } from '@molecule/app-logger'
 
 import { createBrowserStorageAdapter } from './browser-storage.js'
 import { createTokenStorage, getTokenExpiration, isTokenExpired } from './token.js'
@@ -30,6 +31,69 @@ import type {
 } from './types.js'
 
 const HTTP_ERROR_BRAND = Symbol.for('@molecule/app-http/HttpError')
+const ERROR_DATA_FIELDS = new Set(['name', 'message', 'stack', 'cause', 'errors'])
+
+/** Copy only detached data onto the fresh error's public and diagnostic fields. */
+const copyFailureSnapshot = (error: Error, snapshot: Record<string, unknown>): void => {
+  for (const [key, value] of Object.entries(snapshot)) {
+    Object.defineProperty(error, key, {
+      value,
+      enumerable: !ERROR_DATA_FIELDS.has(key),
+      configurable: true,
+      writable: true,
+    })
+  }
+  if (
+    Object.getOwnPropertySymbols(snapshot).includes(HTTP_ERROR_BRAND) &&
+    Reflect.get(error, HTTP_ERROR_BRAND) !== true
+  ) {
+    Object.defineProperty(error, HTTP_ERROR_BRAND, { value: true })
+  }
+}
+
+/** Snapshot once, scrub the detached data, and never let the original failure escape. */
+const snapshotAuthFailure = (failure: unknown): Error => {
+  const snapshot = snapshotCredentials(failure)
+  const data = (
+    snapshot && typeof snapshot === 'object' && !Array.isArray(snapshot) ? snapshot : {}
+  ) as Record<string, unknown>
+  const message =
+    typeof data.message === 'string'
+      ? data.message
+      : typeof snapshot === 'string'
+        ? snapshot
+        : 'Authentication failed'
+  let error: Error
+  if (failure instanceof I18nError && typeof data.i18nKey === 'string') {
+    error = new I18nError(data.i18nKey, data.i18nValues as I18nError['i18nValues'], message)
+  } else if (Object.getOwnPropertySymbols(data).includes(HTTP_ERROR_BRAND)) {
+    error = new HttpError(
+      message,
+      typeof data.status === 'number' ? data.status : 0,
+      data.response as HttpResponse | undefined,
+      data.config as FullRequestConfig | undefined,
+      typeof data.errorKey === 'string' ? data.errorKey : undefined,
+      data.aborted === true,
+    )
+  } else if (failure instanceof AggregateError) {
+    error = new AggregateError(Array.isArray(data.errors) ? data.errors : [], message)
+  } else if (failure instanceof TypeError) {
+    error = new TypeError(message)
+  } else {
+    error = new Error(message)
+  }
+  copyFailureSnapshot(error, data)
+  return error
+}
+
+/** Give every auth operation the same detached, fresh-failure boundary. */
+const runAuthOperation = async <R>(operation: () => Promise<R>): Promise<R> => {
+  try {
+    return await operation()
+  } catch (error) {
+    throw snapshotAuthFailure(error)
+  }
+}
 
 /**
  * Whether this app is running inside a CROSS-SITE iframe — i.e. the molecule.dev
@@ -304,7 +368,7 @@ export const createJWTAuthClient = <
     const operation = { revision, isCurrent: () => revision === sessionRevision }
     pendingSessionOperations++
     try {
-      return await callback(operation)
+      return await runAuthOperation(() => callback(operation))
     } finally {
       pendingSessionOperations--
     }
@@ -552,100 +616,93 @@ export const createJWTAuthClient = <
     }
   }
 
-  const fetchAPI = async <R>(endpoint: string, options: RequestInit = {}): Promise<R> => {
-    const url = baseURL + endpoint
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-      ...(options.headers as Record<string, string>),
-    }
+  const fetchAPI = async <R>(endpoint: string, options: RequestInit = {}): Promise<R> =>
+    runAuthOperation(async () => {
+      const url = baseURL + endpoint
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        ...(options.headers as Record<string, string>),
+      }
 
-    const token = tokenStorage.getAccessToken()
-    if (token) {
-      headers['Authorization'] = `${config.authScheme ?? 'Bearer'} ${token}`
-    }
+      const token = tokenStorage.getAccessToken()
+      if (token) {
+        headers['Authorization'] = `${config.authScheme ?? 'Bearer'} ${token}`
+      }
 
-    // 'include' so httpOnly session cookies flow when the API is on another
-    // origin (fetch defaults to 'same-origin', which silently DROPS the login
-    // Set-Cookie cross-origin and breaks session restore). Safe both ways:
-    // same-origin behaves identically, and the fleet CORS bond pairs a strict
-    // origin allowlist with credentials:true. True cross-SITE deployments
-    // additionally need SameSite=None cookies — a server deployment concern.
-    let response: Response
-    try {
-      response = await fetch(url, {
+      // 'include' so httpOnly session cookies flow when the API is on another
+      // origin (fetch defaults to 'same-origin', which silently DROPS the login
+      // Set-Cookie cross-origin and breaks session restore). Safe both ways:
+      // same-origin behaves identically, and the fleet CORS bond pairs a strict
+      // origin allowlist with credentials:true. True cross-SITE deployments
+      // additionally need SameSite=None cookies — a server deployment concern.
+      const response = await fetch(url, {
         credentials: 'include',
         ...options,
         headers,
       })
-    } catch (error) {
-      // Native fetch failures can include the full userinfo URL in message/stack.
-      // Scrub before ANY caller copies the rejection into state, events or logs. A clean native
-      // rejection keeps its instance; a changed one is a readable plain Error, never a fake
-      // DOMException/TypeError prototype whose getters would throw during login's catch block.
-      throw redactCredentials(error, true)
-    }
 
-    if (!response.ok) {
-      // The parsed answer keeps its complete shape: the client maps `errorKey`/`error`/
-      // `message` into the I18nError it throws, and every other field — a structured
-      // `{ errors: { credentials: ['is invalid'] } }` map, field arrays, a top-level array —
-      // remains on `body` so the app can show the server's own messages. Credential values
-      // are redacted in place; non-secret values are unchanged. A non-JSON body (HTML error
-      // page, empty) parses to `{}`, exactly as before.
-      const body: unknown = redactCredentials(await response.json().catch(() => ({})))
-      const fields = (body ?? {}) as { errorKey?: unknown; error?: unknown; message?: unknown }
-      // JSON is untyped: structured validation errors belong on `body`, never
-      // in the translation key or its fallback text.
-      const key = typeof fields.errorKey === 'string' ? fields.errorKey : 'auth.error.requestFailed'
-      const fallback =
-        typeof fields.error === 'string'
-          ? fields.error
-          : typeof fields.message === 'string'
-            ? fields.message
-            : 'Request failed'
-      const failure = new I18nError(key, undefined, fallback) as AuthError
-      // The HTTP status, so a caller can tell "this token is dead" (401/403)
-      // from "the server did not answer" (5xx, network) or "the route does not
-      // exist" (404) — `validateSession` clears the session only on the first.
-      failure.status = response.status
-      // The response body with credential values redacted — see {@link AuthError}.
-      failure.body = body
-      // Mirror app-http's failed-response view without importing it. Keep the
-      // original auth fields above intact: both documented readings now work on
-      // the SAME rejection, including across duplicated package copies.
-      const headers: Record<string, string> = {}
-      response.headers.forEach((value, name) => {
-        headers[name] = value
-      })
-      failure.response = {
-        data: body,
-        status: response.status,
-        statusText: response.statusText,
-        headers: redactCredentials({ headers }).headers,
-        // RequestInit bodies contain passwords and refresh tokens, and its
-        // headers contain bearer/cookie credentials. Method and a credential-
-        // redacted URL are the complete request view an auth rejection may expose.
-        config: {
-          method: (options.method ?? 'GET').toUpperCase(),
-          url: redactCredentials(url),
-        },
+      if (!response.ok) {
+        // The parsed answer keeps its complete shape: the client maps `errorKey`/`error`/
+        // `message` into the I18nError it throws, and every other field — a structured
+        // `{ errors: { credentials: ['is invalid'] } }` map, field arrays, a top-level array —
+        // remains on `body` so the app can show the server's own messages. Credential values
+        // are redacted in place; non-secret values are unchanged. A non-JSON body (HTML error
+        // page, empty) parses to `{}`, exactly as before.
+        const body: unknown = redactCredentials(await response.json().catch(() => ({})))
+        const fields = (body ?? {}) as { errorKey?: unknown; error?: unknown; message?: unknown }
+        // JSON is untyped: structured validation errors belong on `body`, never
+        // in the translation key or its fallback text.
+        const key =
+          typeof fields.errorKey === 'string' ? fields.errorKey : 'auth.error.requestFailed'
+        const fallback =
+          typeof fields.error === 'string'
+            ? fields.error
+            : typeof fields.message === 'string'
+              ? fields.message
+              : 'Request failed'
+        const failure = new I18nError(key, undefined, fallback) as AuthError
+        // The HTTP status, so a caller can tell "this token is dead" (401/403)
+        // from "the server did not answer" (5xx, network) or "the route does not
+        // exist" (404) — `validateSession` clears the session only on the first.
+        failure.status = response.status
+        // The response body with credential values redacted — see {@link AuthError}.
+        failure.body = body
+        // Mirror app-http's failed-response view without importing it. Keep the
+        // original auth fields above intact: both documented readings now work on
+        // the SAME rejection, including across duplicated package copies.
+        const headers: Record<string, string> = {}
+        response.headers.forEach((value, name) => {
+          headers[name] = value
+        })
+        failure.response = {
+          data: body,
+          status: response.status,
+          statusText: response.statusText,
+          headers: redactCredentials({ headers }).headers,
+          // RequestInit bodies contain passwords and refresh tokens, and its
+          // headers contain bearer/cookie credentials. Method and a credential-
+          // redacted URL are the complete request view an auth rejection may expose.
+          config: {
+            method: (options.method ?? 'GET').toUpperCase(),
+            url: redactCredentials(url),
+          },
+        }
+        failure.errorKey = key
+        failure.aborted = false
+        Object.defineProperty(failure, HTTP_ERROR_BRAND, { value: true })
+        throw failure
       }
-      failure.errorKey = key
-      failure.aborted = false
-      Object.defineProperty(failure, HTTP_ERROR_BRAND, { value: true })
-      throw failure
-    }
 
-    const data = await response.json()
-    // Compatibility shim: many @molecule/api-resource-* handlers (notably
-    // the user resource) wrap the entity under `props` rather than `user`
-    // (the auth-client's expected shape). Surface either so login/register
-    // populate state correctly regardless of the API's wrapper convention.
-    if (data && typeof data === 'object' && data.user === undefined && data.props !== undefined) {
-      data.user = data.props
-    }
-    return data
-  }
+      const data = await response.json()
+      // Compatibility shim: many @molecule/api-resource-* handlers (notably
+      // the user resource) wrap the entity under `props` rather than `user`
+      // (the auth-client's expected shape). Surface either so login/register
+      // populate state correctly regardless of the API's wrapper convention.
+      if (data && typeof data === 'object' && data.user === undefined && data.props !== undefined) {
+        data.user = data.props
+      }
+      return data
+    })
 
   /**
    * A stale credential exchange can set an HttpOnly cookie even when its local
@@ -1069,11 +1126,11 @@ export const createJWTAuthClient = <
 
           return result
         } catch (err) {
-          if (!operation.isCurrent()) throw err
-          const error = err instanceof Error ? err.message : 'Login failed'
-          setState({ loading: false, error })
-          emitEvent({ type: 'error', error })
-          throw err
+          const failure = snapshotAuthFailure(err)
+          if (!operation.isCurrent()) throw failure
+          setState({ loading: false, error: failure.message })
+          emitEvent({ type: 'error', error: failure.message })
+          throw failure
         }
       })
     },
@@ -1136,11 +1193,11 @@ export const createJWTAuthClient = <
 
           return result
         } catch (err) {
-          if (!operation.isCurrent()) throw err
-          const error = err instanceof Error ? err.message : 'Registration failed'
-          setState({ loading: false, error })
-          emitEvent({ type: 'error', error })
-          throw err
+          const failure = snapshotAuthFailure(err)
+          if (!operation.isCurrent()) throw failure
+          setState({ loading: false, error: failure.message })
+          emitEvent({ type: 'error', error: failure.message })
+          throw failure
         }
       })
     },
@@ -1245,81 +1302,87 @@ export const createJWTAuthClient = <
     },
 
     async requestPasswordReset(data: PasswordResetRequest): Promise<void> {
-      await fetchAPI(forgotPasswordEndpoint, {
-        method: 'POST',
-        body: JSON.stringify(data),
-      })
+      await runAuthOperation(() =>
+        fetchAPI(forgotPasswordEndpoint, {
+          method: 'POST',
+          body: JSON.stringify(data),
+        }),
+      )
     },
 
     async confirmPasswordReset(data: PasswordResetConfirm): Promise<void> {
-      await fetchAPI(resetPasswordEndpoint, {
-        method: 'POST',
-        body: JSON.stringify(data),
-      })
+      await runAuthOperation(() =>
+        fetchAPI(resetPasswordEndpoint, {
+          method: 'POST',
+          body: JSON.stringify(data),
+        }),
+      )
     },
 
     async updateProfile(data: Partial<T>): Promise<T> {
-      const revision = sessionRevision
-      // The REQUEST transport is configurable (`profileUpdateMethod` /
-      // `profileRequestBody`); everything below — mapping the answer, storing
-      // the user, notifying subscribers — is the same session state for every
-      // transport, so a PUT/enveloped API does not need a hand-written client.
-      // Defaults keep the resource-style PATCH with bare data.
-      const profileUser = state.user
-      if (typeof profileEndpoint === 'function' && !profileUser)
-        throw new I18nError(
-          'auth.error.unauthorized',
-          undefined,
-          'Sign in before updating a profile',
+      return runAuthOperation(async () => {
+        const revision = sessionRevision
+        // The REQUEST transport is configurable (`profileUpdateMethod` /
+        // `profileRequestBody`); everything below — mapping the answer, storing
+        // the user, notifying subscribers — is the same session state for every
+        // transport, so a PUT/enveloped API does not need a hand-written client.
+        // Defaults keep the resource-style PATCH with bare data.
+        const profileUser = state.user
+        if (typeof profileEndpoint === 'function' && !profileUser)
+          throw new I18nError(
+            'auth.error.unauthorized',
+            undefined,
+            'Sign in before updating a profile',
+          )
+        const endpoint =
+          typeof profileEndpoint === 'function' ? profileEndpoint(profileUser!) : profileEndpoint
+        if (
+          typeof profileEndpoint === 'function' &&
+          (typeof endpoint !== 'string' || !endpoint.trim())
         )
-      const endpoint =
-        typeof profileEndpoint === 'function' ? profileEndpoint(profileUser!) : profileEndpoint
-      if (
-        typeof profileEndpoint === 'function' &&
-        (typeof endpoint !== 'string' || !endpoint.trim())
-      )
-        throw new TypeError('profileEndpoint must resolve to a nonempty route')
-      const body = profileRequestBody ? profileRequestBody(data) : data
-      // Body adapters may return custom serializers; finish caller code before
-      // checking which session will authorize the request.
-      const serializedBody = JSON.stringify(body)
-      if (revision !== sessionRevision)
-        throw new I18nError(
-          'auth.error.unauthorized',
-          undefined,
-          'The profile session changed before submission',
-        )
-      const answer = await fetchAPI<T>(endpoint, {
-        method: profileUpdateMethod,
-        body: serializedBody,
+          throw new TypeError('profileEndpoint must resolve to a nonempty route')
+        const body = profileRequestBody ? profileRequestBody(data) : data
+        // Body adapters may return custom serializers; finish caller code before
+        // checking which session will authorize the request.
+        const serializedBody = JSON.stringify(body)
+        if (revision !== sessionRevision)
+          throw new I18nError(
+            'auth.error.unauthorized',
+            undefined,
+            'The profile session changed before submission',
+          )
+        const answer = await fetchAPI<T>(endpoint, {
+          method: profileUpdateMethod,
+          body: serializedBody,
+        })
+
+        // The profile route answers in one of three shapes: a bare user, `{ user }`, or
+        // the resource envelope `{ props }` (which `fetchAPI` aliases onto `user`).
+        // The profile the app stores is the USER, never the envelope around it —
+        // caching the envelope meant every page reading `user.name` read `undefined`
+        // right after a successful save (the settings-edit class).
+        const unwrapped = answer as T & { user?: T }
+        const raw = unwrapped.user ?? answer
+        // The profile route answers the wire shape as well; map it like every
+        // other answer that replaces the cached user.
+        const mapped = mapCurrentUser(answer, raw) ?? raw
+        // The server may have accepted the old account's update, but that answer
+        // must never replace a signed-out or newly signed-in account's cached
+        // user. Return the request's result, applied to the profile it was sent
+        // for, while leaving the current session (storage and subscribers) untouched.
+        if (revision !== sessionRevision) return applyProfileAnswer(profileUser, mapped)
+        // A changed-fields answer stored as the user dropped every field the save did not
+        // touch from every `useAuth()` reader, the stored session and the next save's route
+        // (`/users/undefined`). Apply it to the session's CURRENT user — a same-session
+        // refresh that landed during the save is kept — and store and publish the result
+        // once, so no reader ever sees the partial answer.
+        const user = applyProfileAnswer(state.user, mapped)
+        profileRevision++
+        tokenStorage.setUser(user)
+        setState({ user })
+
+        return user
       })
-
-      // The profile route answers in one of three shapes: a bare user, `{ user }`, or
-      // the resource envelope `{ props }` (which `fetchAPI` aliases onto `user`).
-      // The profile the app stores is the USER, never the envelope around it —
-      // caching the envelope meant every page reading `user.name` read `undefined`
-      // right after a successful save (the settings-edit class).
-      const unwrapped = answer as T & { user?: T }
-      const raw = unwrapped.user ?? answer
-      // The profile route answers the wire shape as well; map it like every
-      // other answer that replaces the cached user.
-      const mapped = mapCurrentUser(answer, raw) ?? raw
-      // The server may have accepted the old account's update, but that answer
-      // must never replace a signed-out or newly signed-in account's cached
-      // user. Return the request's result, applied to the profile it was sent
-      // for, while leaving the current session (storage and subscribers) untouched.
-      if (revision !== sessionRevision) return applyProfileAnswer(profileUser, mapped)
-      // A changed-fields answer stored as the user dropped every field the save did not
-      // touch from every `useAuth()` reader, the stored session and the next save's route
-      // (`/users/undefined`). Apply it to the session's CURRENT user — a same-session
-      // refresh that landed during the save is kept — and store and publish the result
-      // once, so no reader ever sees the partial answer.
-      const user = applyProfileAnswer(state.user, mapped)
-      profileRevision++
-      tokenStorage.setUser(user)
-      setState({ user })
-
-      return user
     },
 
     async changePassword(oldPassword: string, newPassword: string): Promise<void> {
@@ -1327,10 +1390,12 @@ export const createJWTAuthClient = <
       // reads `currentPassword`; legacy callers passed `oldPassword`,
       // so accept either name in the hook signature but translate to
       // the canonical `currentPassword` field when sending.
-      await fetchAPI(changePasswordEndpoint, {
-        method: 'POST',
-        body: JSON.stringify({ currentPassword: oldPassword, newPassword }),
-      })
+      await runAuthOperation(() =>
+        fetchAPI(changePasswordEndpoint, {
+          method: 'POST',
+          body: JSON.stringify({ currentPassword: oldPassword, newPassword }),
+        }),
+      )
     },
 
     async initialize(): Promise<void> {

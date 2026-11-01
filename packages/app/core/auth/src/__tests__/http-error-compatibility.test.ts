@@ -245,7 +245,8 @@ describe('app-auth and app-http failed-request compatibility', () => {
     const network = new TypeError('fetch failed')
     const error = await rejectedLogin(network)
 
-    expect(error).toBe(network)
+    expect(error).toBeInstanceOf(TypeError)
+    expect(error).not.toBe(network)
     expect(isHttpError(error)).toBe(false)
     expect((error as AuthError).body).toBeUndefined()
   })

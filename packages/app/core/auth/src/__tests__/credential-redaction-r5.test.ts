@@ -40,7 +40,7 @@ describe('round-five native auth failures', () => {
     client.destroy()
   })
 
-  it('keeps a credential-free native rejection instance and still settles loading', async () => {
+  it('rebuilds a credential-free native rejection and still settles loading', async () => {
     const native = new TypeError('Failed to fetch')
     vi.stubGlobal(
       'fetch',
@@ -53,7 +53,8 @@ describe('round-five native auth failures', () => {
       .login({ email: 'alice@example.com', password: 'login-input-not-the-fixture' })
       .catch((error: unknown) => error)
 
-    expect(caught).toBe(native)
+    expect(caught).toBeInstanceOf(TypeError)
+    expect(caught).not.toBe(native)
     expect(client.getState().loading).toBe(false)
     expect(client.getState().error).toBe('Failed to fetch')
     client.destroy()

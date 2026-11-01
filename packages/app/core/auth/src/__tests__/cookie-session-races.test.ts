@@ -75,7 +75,7 @@ describe('cookie candidate ownership', () => {
       })
     }
   }
-  it('a cookie transient refresh exposes the exact rejection instance', async () => {
+  it('a cookie transient refresh exposes a fresh rejection with the same native name', async () => {
     const failure = new DOMException('', 'AbortError')
     vi.stubGlobal(
       'fetch',
@@ -83,7 +83,10 @@ describe('cookie candidate ownership', () => {
     )
     const auth = make()
     await auth.initialize()
-    await expect(auth.refresh()).rejects.toBe(failure)
+    const caught = await auth.refresh().catch((error: unknown) => error)
+    expect(caught).not.toBe(failure)
+    expect(caught).toBeInstanceOf(Error)
+    expect((caught as Error).name).toBe('AbortError')
     expect(auth.getState()).toMatchObject({ status: 'unavailable', user })
     document.cookie = ''
     vi.stubGlobal('fetch', vi.fn().mockResolvedValueOnce(response(200, { user })))

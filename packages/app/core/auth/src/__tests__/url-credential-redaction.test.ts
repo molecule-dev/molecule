@@ -144,9 +144,10 @@ describe('auth URL credential redaction', () => {
       entry.message.startsWith('Initial token refresh failed'),
     )
     expect(warning).toBeDefined()
-    expect(String(warning?.args[0])).toContain('view=full')
+    const snapshot = warning?.args[0] as Error
+    expect(snapshot.message).toContain('view=full')
     expect(remotePayloads).toHaveLength(1)
-    for (const output of [String(warning?.args[0]), JSON.stringify(warning), ...remotePayloads]) {
+    for (const output of [snapshot.message, JSON.stringify(warning), ...remotePayloads]) {
       expect(output).not.toContain(urlSecret)
       expect(output).not.toContain('network-refresh-body-secret')
       expect(output).not.toContain(accessToken)

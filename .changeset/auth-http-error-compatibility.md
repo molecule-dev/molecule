@@ -2,4 +2,4 @@
 '@molecule/app-auth': patch
 ---
 
-Scrub credentials from auth rejections, responses, state and events while preserving app-http-compatible failures.
+Snapshot and scrub every auth failure, rebuilding fresh app-http-compatible errors without retaining original instances or credentials.

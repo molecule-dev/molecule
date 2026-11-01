@@ -162,11 +162,12 @@ describe('@molecule/app-auth keeps the API error body on a rejected call (xr-mol
     expect(bodyOf(error)).toStrictEqual({})
   })
 
-  it('leaves a network failure as the original error — no I18nError, no fabricated body', async () => {
+  it('rebuilds a network failure without I18nError or a fabricated body', async () => {
     const network = new TypeError('fetch failed')
     const { error } = await rejectedLogin(() => Promise.reject(network))
 
-    expect(error).toBe(network)
+    expect(error).toBeInstanceOf(TypeError)
+    expect(error).not.toBe(network)
     expect(error).not.toBeInstanceOf(I18nError)
     expect((error as AuthError).body).toBeUndefined()
   })
