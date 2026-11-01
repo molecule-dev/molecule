@@ -1,5 +1,12 @@
 # @molecule/app-ui-react
 
+## 3.0.4
+
+### Patch Changes
+
+- Redirect guarded routes only for unauthenticated sessions, retaining unavailable candidates without requiring a profile.
+- Document the three-way session-restore decision and test guarded and public rendering during restore.
+
 ## 3.0.3
 
 ### Patch Changes

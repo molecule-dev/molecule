@@ -1,5 +1,11 @@
 # @molecule/app-http-axios
 
+## 1.2.1
+
+### Patch Changes
+
+- Snapshot and scrub credentials at HTTP, logger, analytics and browser-SDK emission boundaries while preserving safe data and notification controls.
+
 ## 1.2.0
 
 ### Minor Changes

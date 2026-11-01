@@ -1,5 +1,11 @@
 # @molecule/app-react-native
 
+## 3.0.2
+
+### Patch Changes
+
+- Inherit React's late-value fix so unchanged external records cannot undo reset baselines.
+
 ## 3.0.1
 
 ### Patch Changes

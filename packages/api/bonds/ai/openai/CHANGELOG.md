@@ -1,5 +1,11 @@
 # @molecule/api-ai-openai
 
+## 1.5.0
+
+### Minor Changes
+
+- Report each rejected 429/503 body's upstream reason, read it exactly once, and use configurable upstream quota semantics to stop OpenAI/Azure billing, spend, and quota failures while preserving compatible-endpoint throttling.
+
 ## 1.4.4
 
 ### Patch Changes

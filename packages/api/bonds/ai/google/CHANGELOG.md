@@ -1,5 +1,11 @@
 # @molecule/api-ai-google
 
+## 1.3.5
+
+### Patch Changes
+
+- Report the upstream reason with each rejected 429/500/503 body, read exactly once.
+
 ## 1.3.3
 
 ### Patch Changes

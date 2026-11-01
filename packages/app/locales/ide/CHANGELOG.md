@@ -1,5 +1,12 @@
 # @molecule/app-locales-ide
 
+## 1.10.14
+
+### Patch Changes
+
+- Verification badges now preserve and display non-blocking render-check-unavailable advisories.
+- `ChatPanel` accepts `watchTestRuns` and shows every test run in the project, labelled by who started it.
+
 ## 1.10.13
 
 ### Patch Changes

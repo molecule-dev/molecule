@@ -1,5 +1,13 @@
 # @molecule/api-paracrine-file
 
+## 1.2.0
+
+### Minor Changes
+
+- Use one fresh SQLite schema and import published JSON synchronously in one crash-atomic transaction before any provider operation.
+- Add a backfilled per-recipient pending index for cheap unread file-mail delivery.
+- Make paracrine delivery transactional and crash-safe with a bounded SQLite claim queue.
+
 ## 1.1.0
 
 ### Minor Changes

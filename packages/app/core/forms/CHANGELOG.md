@@ -1,5 +1,16 @@
 # @molecule/app-forms
 
+## 2.2.0
+
+### Minor Changes
+
+- Make late-value rebasing validation-safe, symmetric for sparse arrays, and aware of registered defaults.
+- Add external form values and reset options for filling pristine fields without replacing edits.
+
+### Patch Changes
+
+- Own validation and submit errors by field revisions, and preserve edited profile fields and composite values through late records.
+
 ## 2.1.1
 
 ### Patch Changes

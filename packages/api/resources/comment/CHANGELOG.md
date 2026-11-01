@@ -1,5 +1,12 @@
 # @molecule/api-resource-comment
 
+## 1.2.3
+
+### Patch Changes
+
+- Document that clients should address a comment thread by the parent id from the route, not by the loaded parent object.
+- Describe integer comment identifiers without workload-specific examples.
+
 ## 1.2.1
 
 ### Patch Changes

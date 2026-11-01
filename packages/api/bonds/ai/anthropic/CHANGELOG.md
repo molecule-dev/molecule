@@ -1,5 +1,11 @@
 # @molecule/api-ai-anthropic
 
+## 1.3.7
+
+### Patch Changes
+
+- Report each rejected 429/529/503 body's upstream reason or interrupted-read cause, and read the body exactly once.
+
 ## 1.3.5
 
 ### Patch Changes

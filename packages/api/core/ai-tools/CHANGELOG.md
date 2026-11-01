@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.15.0
+
+### Minor Changes
+
+- Add an optional `waitBudgetMs` so hosts can collect long background tasks in one `wait_for_task` call without changing foreground command budgets.
+
 ## 1.14.10
 
 ### Patch Changes

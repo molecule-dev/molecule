@@ -1,5 +1,12 @@
 # @molecule/api-database-postgresql
 
+## 1.4.2
+
+### Patch Changes
+
+- Deliver dedicated-client error/end events to lock holders and discard broken connections.
+- Update glob to 14.0.3.
+
 ## 1.4.1
 
 ### Patch Changes

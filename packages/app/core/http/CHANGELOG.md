@@ -1,5 +1,15 @@
 # @molecule/app-http
 
+## 1.5.2
+
+### Patch Changes
+
+- Snapshot and scrub credentials at HTTP, logger, analytics and browser-SDK emission boundaries while preserving safe data and notification controls.
+- Detach retained request configs and preserve unchanged binary bodies while reconstructing scrubbed views from encoded bytes.
+- Add a single response capture that preserves safe binary bodies, Blob BOMs, and defined views across retained errors.
+- Use generic resource examples in HTTP session and base-URL guidance.
+- Use portable examples in HTTP diagnostics guidance.
+
 ## 1.5.1
 
 ### Patch Changes

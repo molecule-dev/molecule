@@ -34,7 +34,7 @@
     "@molecule/app-i18n": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/app-bond": "1.0.4",
+    "@molecule/app-bond": "1.0.5",
     "@molecule/app-i18n": "1.1.2",
     "@types/node": "26.6.5",
     "typescript": "6.0.3",

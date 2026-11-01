@@ -60,7 +60,7 @@
     }
   },
   "devDependencies": {
-    "@molecule/app-bond": "1.0.4",
+    "@molecule/app-bond": "1.0.5",
     "@molecule/app-e2e": "1.2.5",
     "@molecule/app-e2e-fixtures-default": "1.2.5",
     "@playwright/test": "1.64.1",

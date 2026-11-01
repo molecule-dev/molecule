@@ -1,5 +1,13 @@
 # @molecule/app-logger
 
+## 1.0.4
+
+### Patch Changes
+
+- Snapshot and scrub credentials at HTTP, logger, analytics and browser-SDK emission boundaries while preserving safe data and notification controls.
+- Scrub symbols and every serialized URL while preserving safe custom stacks and preventing inherited accessor reads during credential snapshots.
+- Preserve quoted URL boundaries and safe bound stack getters while retaining native lazy-stack protection.
+
 ## 1.0.1
 
 ### Patch Changes

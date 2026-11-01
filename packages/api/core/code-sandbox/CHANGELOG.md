@@ -1,5 +1,11 @@
 # @molecule/api-code-sandbox
 
+## 1.5.1
+
+### Patch Changes
+
+- Record per-create sandbox and project production regions without inheriting the API Machine's Fly region.
+
 ## 1.5.0
 
 ### Minor Changes

@@ -1,5 +1,19 @@
 # @molecule/app-react
 
+## 3.1.0
+
+### Minor Changes
+
+- Apply changed form values to pristine fields while preserving dirty edits with `keepDirtyValues`.
+
+### Patch Changes
+
+- Own validation and submit errors by field revisions, and preserve edited profile fields and composite values through late records.
+- Verification badges now preserve and display non-blocking render-check-unavailable advisories.
+- Make the React quickstart strictly compilable and document nullable profiles during unavailable restores.
+- Document the three-way session-restore decision and test guarded and public rendering during restore.
+- Keep reset and async default baselines intact when unchanged external values render again.
+
 ## 3.0.2
 
 ### Patch Changes

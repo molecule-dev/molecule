@@ -1,5 +1,11 @@
 # @molecule/api-database
 
+## 1.2.2
+
+### Patch Changes
+
+- Expose optional dedicated-connection loss notifications in the database contract.
+
 ## 1.2.1
 
 ### Patch Changes

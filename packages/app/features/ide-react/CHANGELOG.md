@@ -1,5 +1,16 @@
 # @molecule/app-ide-react
 
+## 3.1.0
+
+### Minor Changes
+
+- `ChatPanel` accepts `watchTestRuns` and shows every test run in the project, labelled by who started it.
+
+### Patch Changes
+
+- Verification badges now preserve and display non-blocking render-check-unavailable advisories.
+- Use the shared warning ClassMap token for render-check-unavailable verification badges.
+
 ## 3.0.4
 
 ### Patch Changes

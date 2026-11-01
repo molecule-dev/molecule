@@ -1,5 +1,18 @@
 # @molecule/app-routing-react-router
 
+## 1.2.0
+
+### Minor Changes
+
+- Add router wrappers that keep the URL and rendered page in step, a `lazyPage` helper that gives each on-demand page its own Suspense boundary, and a `/dom` entry for `RouterProvider` and `HydratedRouter`.
+- Add a router-aware hook that retains consumed credential parameters in component state while removing them from the address.
+
+### Patch Changes
+
+- `lazyPage` accepts pages declared with an optional props parameter.
+- Verify `useListRoute` direct catalog pages, category pagination, filter/view resets, and signed-out protected-view redirects.
+- Preserve the main, `/dom`, and deep `dist` JavaScript and declaration paths for existing `import`, `require`, and TypeScript consumers.
+
 ## 1.1.3
 
 ### Patch Changes

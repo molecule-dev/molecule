@@ -33,7 +33,7 @@
     "directory": "packages/api/bonds/database/d1"
   },
   "devDependencies": {
-    "@molecule/api-database": "1.2.1",
+    "@molecule/api-database": "1.2.2",
     "@molecule/api-database-sqlite": "1.4.2",
     "@types/node": "26.6.5",
     "typescript": "6.0.3",

@@ -1,5 +1,13 @@
 # @molecule/app-bonds-default-react
 
+## 3.0.1
+
+### Patch Changes
+
+- Use portable examples in session and HTTP bond guidance.
+- Explain the default auth bond's session guarantees and token API configuration at its call site.
+- Expose the default auth client's capabilities and nested-token configuration in generated package guidance.
+
 ## 3.0.0
 
 ### Patch Changes

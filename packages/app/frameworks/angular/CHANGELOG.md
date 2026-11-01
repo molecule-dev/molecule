@@ -1,5 +1,11 @@
 # @molecule/app-angular
 
+## 3.1.0
+
+### Minor Changes
+
+- Deliver late records through explicit `updateValues()` options instead of ignored reactive creation options.
+
 ## 3.0.0
 
 ### Major Changes

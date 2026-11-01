@@ -1,5 +1,11 @@
 # @molecule/api-ai-alibaba
 
+## 1.2.0
+
+### Minor Changes
+
+- Report the upstream reason with each rejected 429/503 body, read exactly once, and stop retrying the documented `BudgetLimitExceeded` budget failure under a bounded retry budget.
+
 ## 1.1.4
 
 ### Patch Changes

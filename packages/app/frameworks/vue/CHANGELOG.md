@@ -1,5 +1,11 @@
 # @molecule/app-vue
 
+## 3.1.0
+
+### Minor Changes
+
+- Apply in-place reactive record changes through a detached late-value snapshot.
+
 ## 3.0.0
 
 ### Major Changes

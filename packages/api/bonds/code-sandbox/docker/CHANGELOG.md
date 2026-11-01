@@ -1,5 +1,11 @@
 # @molecule/api-code-sandbox-docker
 
+## 1.2.1
+
+### Patch Changes
+
+- Keep output a command prints before its handle is returned, and report a command as finished only when the sandbox says it exited.
+
 ## 1.2.0
 
 ### Minor Changes

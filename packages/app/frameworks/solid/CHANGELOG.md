@@ -1,5 +1,11 @@
 # @molecule/app-solid
 
+## 3.1.0
+
+### Minor Changes
+
+- Publish reactive late values delivered before Solid's first subscription effect.
+
 ## 3.0.0
 
 ### Major Changes

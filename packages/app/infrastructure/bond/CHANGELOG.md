@@ -1,5 +1,11 @@
 # @molecule/app-bond
 
+## 1.0.5
+
+### Patch Changes
+
+- Use a neutral example path in the missing-bond caller guidance.
+
 ## 1.0.4
 
 ### Patch Changes

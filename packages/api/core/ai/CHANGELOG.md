@@ -1,5 +1,11 @@
 # @molecule/api-ai
 
+## 1.5.0
+
+### Minor Changes
+
+- Add `upstreamError` to `AiRateLimitEvent` so callers can tell a rate limit from an exhausted account balance.
+
 ## 1.4.0
 
 ### Minor Changes

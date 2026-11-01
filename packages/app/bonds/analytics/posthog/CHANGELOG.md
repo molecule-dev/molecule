@@ -1,5 +1,12 @@
 # @molecule/app-analytics-posthog
 
+## 1.0.4
+
+### Patch Changes
+
+- Snapshot and scrub credentials at HTTP, logger, analytics and browser-SDK emission boundaries while preserving safe data and notification controls.
+- Scrub autocapture DOM URLs at SDK transport and require the analytics core that provides recursive payload scrubbing.
+
 ## 1.0.1
 
 ### Patch Changes

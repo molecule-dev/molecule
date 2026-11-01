@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-analytics",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Frontend analytics interface for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
@@ -33,8 +33,8 @@
     "@molecule/app-logger": "^1.0.4"
   },
   "devDependencies": {
-    "@molecule/app-bond": "1.0.4",
-    "@molecule/app-logger": "1.0.3",
+    "@molecule/app-bond": "1.0.5",
+    "@molecule/app-logger": "1.0.4",
     "@types/node": "26.6.5",
     "typescript": "6.0.3",
     "vitest": "4.1.12"

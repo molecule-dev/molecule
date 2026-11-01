@@ -1,5 +1,11 @@
 # @molecule/api-database-mysql
 
+## 1.4.2
+
+### Patch Changes
+
+- Document optional dedicated-connection loss notifications in the database contract.
+
 ## 1.4.1
 
 ### Patch Changes

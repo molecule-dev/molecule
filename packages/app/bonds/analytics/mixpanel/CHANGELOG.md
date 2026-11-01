@@ -1,5 +1,13 @@
 # @molecule/app-analytics-mixpanel
 
+## 1.0.4
+
+### Patch Changes
+
+- Snapshot and scrub credentials at HTTP, logger, analytics and browser-SDK emission boundaries while preserving safe data and notification controls.
+- Scrub identify and people SDK payloads across immediate, batched, and beacon transports while preserving existing hooks.
+- Scrub event, people, group, and skip-hook identify payloads at their final SDK hooks with one walk for ordinary events.
+
 ## 1.0.1
 
 ### Patch Changes

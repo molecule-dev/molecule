@@ -1,5 +1,11 @@
 # @molecule/api-code-sandbox-e2b
 
+## 1.2.17
+
+### Patch Changes
+
+- Keep output a command prints before its handle is returned, and report a command as finished only when the sandbox says it exited.
+
 ## 1.2.16
 
 ### Patch Changes

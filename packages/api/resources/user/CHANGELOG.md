@@ -1,5 +1,11 @@
 # @molecule/api-resource-user
 
+## 1.8.2
+
+### Patch Changes
+
+- Document the generated app-auth bond as the configured client for the API contract.
+
 ## 1.8.1
 
 ### Patch Changes

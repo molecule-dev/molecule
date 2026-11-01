@@ -1,5 +1,14 @@
 # @molecule/api-code-sandbox-flyio
 
+## 1.3.7
+
+### Patch Changes
+
+- Require accepted Fly create provenance, non-forced retirement, exact-ID shared-app cleanup, and a drained-writer rollout fence.
+- Record per-create sandbox and project production regions without inheriting the API Machine's Fly region.
+- Use the resolved provider region when validating and allocating Flycast private-service routes.
+- Scope Fly retirement to durable identities, preserve ambiguous Machine creates, and leave apps for deliberate cleanup.
+
 ## 1.3.6
 
 ### Patch Changes

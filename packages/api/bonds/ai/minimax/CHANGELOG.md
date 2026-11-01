@@ -1,5 +1,11 @@
 # @molecule/api-ai-minimax
 
+## 1.2.2
+
+### Patch Changes
+
+- Report the upstream reason with each rejected 429/503 body, read exactly once.
+
 ## 1.2.0
 
 ### Minor Changes

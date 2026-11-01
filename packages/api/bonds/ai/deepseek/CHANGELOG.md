@@ -1,5 +1,11 @@
 # @molecule/api-ai-deepseek
 
+## 1.1.2
+
+### Patch Changes
+
+- Report the upstream reason with each rejected 429/503 body, read exactly once.
+
 ## 1.1.1
 
 ### Patch Changes

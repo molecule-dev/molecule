@@ -1,5 +1,11 @@
 # @molecule/api-resource-project
 
+## 1.0.10
+
+### Patch Changes
+
+- Record per-create sandbox and project production regions without inheriting the API Machine's Fly region.
+
 ## 1.0.9
 
 ### Patch Changes

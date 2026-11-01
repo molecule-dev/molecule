@@ -1,5 +1,11 @@
 # @molecule/app-ai-chat
 
+## 1.7.2
+
+### Patch Changes
+
+- Verification badges now preserve and display non-blocking render-check-unavailable advisories.
+
 ## 1.7.0
 
 ### Minor Changes

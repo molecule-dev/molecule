@@ -1,5 +1,13 @@
 # @molecule/app-analytics
 
+## 1.1.1
+
+### Patch Changes
+
+- Scrub URL and authority credentials throughout SDK payloads without classifying property names or changing non-URL identifiers.
+- Capture SDK payloads as inert data and redact credential fields without changing SDK identifiers or safe URL components.
+- Snapshot and scrub credentials at HTTP, logger, analytics and browser-SDK emission boundaries while preserving safe data and notification controls.
+
 ## 1.1.0
 
 ### Minor Changes

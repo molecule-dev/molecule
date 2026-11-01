@@ -1,5 +1,11 @@
 # @molecule/api-ai-moonshot
 
+## 1.3.0
+
+### Minor Changes
+
+- Report the upstream reason with each 429/503 and stop retrying an exhausted balance under a bounded retry budget.
+
 ## 1.2.0
 
 ### Minor Changes

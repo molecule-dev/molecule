@@ -1,5 +1,11 @@
 # @molecule/api-ai-xai
 
+## 1.0.9
+
+### Patch Changes
+
+- Report the upstream reason with each rejected 429/503 body, read exactly once.
+
 ## 1.0.7
 
 ### Patch Changes

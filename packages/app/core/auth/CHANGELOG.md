@@ -1,5 +1,22 @@
 # @molecule/app-auth
 
+## 3.1.0
+
+### Minor Changes
+
+- Make local sign-out settle pending restoration and block stale authentication responses, persist `setUser(null)` cleanup, document endpoint-free `logout()`, and keep accepted profile saves ahead of older reads.
+
+### Patch Changes
+
+- Preserve cookie session candidates, expose refresh rejections, normalize mapped refresh credentials, support explicit cookie probes, and retry scheduled refreshes after transient failures.
+- Preserve binary HTTP response bodies when auth rebuilds branded failures without retaining original errors.
+- Reuse one body-preserving HTTP response capture so branded failures settle correctly without a second response read.
+- Snapshot and scrub every auth failure, rebuilding fresh app-http-compatible errors without retaining original instances or credentials.
+- Use generic account examples throughout the shared auth client's public guidance.
+- Keep cookie-only session candidates unavailable instead of signed out after transient restore failures.
+- Document the three-way session-restore decision and test guarded and public rendering during restore.
+- Document the shared token client's lifecycle guarantees and compact API adaptation example.
+
 ## 3.0.2
 
 ### Patch Changes
