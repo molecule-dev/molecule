@@ -208,8 +208,24 @@ const errorRequestConfig = (config: FullRequestConfig): FullRequestConfig => {
 /** Fresh Blobs already materialized by the async failure boundary; no native property is written. */
 const retainedErrorBlobs = new WeakSet<Blob>()
 
+const isBuffer = (value: unknown): value is ArrayBuffer | SharedArrayBuffer =>
+  value instanceof ArrayBuffer ||
+  (typeof SharedArrayBuffer !== 'undefined' && value instanceof SharedArrayBuffer)
+
+const sharedBuffer = (bytes: Uint8Array): SharedArrayBuffer => {
+  const copy = new SharedArrayBuffer(bytes.byteLength)
+  new Uint8Array(copy).set(bytes)
+  return copy
+}
+
 /** Clone a view over its exact bytes, retaining element width, offset-independent length and kind. */
-const cloneBinaryBody = (original: ArrayBuffer | ArrayBufferView, bytes: Uint8Array): unknown => {
+const cloneBinaryBody = (
+  original: ArrayBuffer | SharedArrayBuffer | ArrayBufferView,
+  bytes: Uint8Array,
+): unknown => {
+  if (typeof SharedArrayBuffer !== 'undefined' && original instanceof SharedArrayBuffer) {
+    return sharedBuffer(bytes)
+  }
   if (original instanceof ArrayBuffer) return original.slice(0)
   const copy = bytes.slice()
   if (original instanceof DataView) return new DataView(copy.buffer)
@@ -220,11 +236,15 @@ const cloneBinaryBody = (original: ArrayBuffer | ArrayBufferView, bytes: Uint8Ar
 
 /** Rebuild only changed textual bytes; unchanged and non-text bodies are cloned byte-for-byte. */
 const retainedBinaryBody = (original: unknown, snapshot: unknown): unknown => {
-  if (!(original instanceof ArrayBuffer) && !ArrayBuffer.isView(original)) return snapshot
-  const bytes =
-    original instanceof ArrayBuffer
+  if (!isBuffer(original) && !ArrayBuffer.isView(original)) return snapshot
+  let bytes: Uint8Array
+  try {
+    bytes = isBuffer(original)
       ? new Uint8Array(original)
       : new Uint8Array(original.buffer, original.byteOffset, original.byteLength)
+  } catch (_detached) {
+    return snapshot
+  }
 
   let decoded: string | undefined
   try {
@@ -240,6 +260,9 @@ const retainedBinaryBody = (original: unknown, snapshot: unknown): unknown => {
   // then construct typed/BigInt views over bytes rather than numeric elements.
   const hasUtf8Bom = bytes[0] === 0xef && bytes[1] === 0xbb && bytes[2] === 0xbf
   const encoded = new TextEncoder().encode(hasUtf8Bom ? `\uFEFF${snapshot}` : snapshot)
+  if (typeof SharedArrayBuffer !== 'undefined' && original instanceof SharedArrayBuffer) {
+    return sharedBuffer(encoded)
+  }
   if (original instanceof ArrayBuffer) return encoded.buffer
   if (original instanceof DataView) return new DataView(encoded.buffer)
   if (typeof Buffer !== 'undefined' && original instanceof Buffer) return Buffer.from(encoded)
@@ -276,7 +299,7 @@ const errorResponse = (response: HttpResponse): HttpResponse => {
  * @returns A scrubbed body with unchanged binary content preserved byte-for-byte.
  */
 export const snapshotHttpErrorBody = async <T>(body: T): Promise<T> => {
-  if (body instanceof ArrayBuffer || ArrayBuffer.isView(body)) {
+  if (isBuffer(body) || ArrayBuffer.isView(body)) {
     return retainedBinaryBody(body, snapshotCredentials(body)) as T
   }
   if (typeof Blob === 'undefined' || !(body instanceof Blob)) return body
@@ -315,7 +338,14 @@ export const snapshotHttpErrorBody = async <T>(body: T): Promise<T> => {
 export const snapshotHttpErrorResponse = async <T extends HttpResponse>(
   response: T,
 ): Promise<T> => {
-  const captured = { ...response }
+  const captured = {
+    ...response,
+    data: response.data,
+    status: response.status,
+    statusText: response.statusText,
+    headers: response.headers,
+    config: response.config,
+  }
   captured.data = await snapshotHttpErrorBody(captured.data)
   return errorResponse(captured) as T
 }
