@@ -6,7 +6,12 @@
  * @module
  */
 
-import { type FullRequestConfig, HttpError, type HttpResponse } from '@molecule/app-http'
+import {
+  type FullRequestConfig,
+  HttpError,
+  type HttpResponse,
+  snapshotHttpErrorBody,
+} from '@molecule/app-http'
 import { I18nError } from '@molecule/app-i18n'
 import { getLogger, redactCredentials, snapshotCredentials } from '@molecule/app-logger'
 
@@ -34,8 +39,13 @@ const HTTP_ERROR_BRAND = Symbol.for('@molecule/app-http/HttpError')
 const ERROR_DATA_FIELDS = new Set(['name', 'message', 'stack', 'cause', 'errors'])
 
 /** Copy only detached data onto the fresh error's public and diagnostic fields. */
-const copyFailureSnapshot = (error: Error, snapshot: Record<string, unknown>): void => {
+const copyFailureSnapshot = (
+  error: Error,
+  snapshot: Record<string, unknown>,
+  preserveHttpMetadata = false,
+): void => {
   for (const [key, value] of Object.entries(snapshot)) {
+    if (preserveHttpMetadata && (key === 'response' || key === 'config')) continue
     Object.defineProperty(error, key, {
       value,
       enumerable: !ERROR_DATA_FIELDS.has(key),
@@ -52,7 +62,7 @@ const copyFailureSnapshot = (error: Error, snapshot: Record<string, unknown>): v
 }
 
 /** Snapshot once, scrub the detached data, and never let the original failure escape. */
-const snapshotAuthFailure = (failure: unknown): Error => {
+const snapshotAuthFailure = async (failure: unknown): Promise<Error> => {
   const snapshot = snapshotCredentials(failure)
   const data = (
     snapshot && typeof snapshot === 'object' && !Array.isArray(snapshot) ? snapshot : {}
@@ -64,13 +74,23 @@ const snapshotAuthFailure = (failure: unknown): Error => {
         ? snapshot
         : 'Authentication failed'
   let error: Error
+  let httpFailure = false
   if (failure instanceof I18nError && typeof data.i18nKey === 'string') {
     error = new I18nError(data.i18nKey, data.i18nValues as I18nError['i18nValues'], message)
   } else if (Object.getOwnPropertySymbols(data).includes(HTTP_ERROR_BRAND)) {
+    httpFailure = true
+    const originalResponse = (failure as HttpError).response
+    const response =
+      originalResponse && data.response && typeof data.response === 'object'
+        ? {
+            ...(data.response as HttpResponse),
+            data: await snapshotHttpErrorBody(originalResponse.data),
+          }
+        : (data.response as HttpResponse | undefined)
     error = new HttpError(
       message,
       typeof data.status === 'number' ? data.status : 0,
-      data.response as HttpResponse | undefined,
+      response,
       data.config as FullRequestConfig | undefined,
       typeof data.errorKey === 'string' ? data.errorKey : undefined,
       data.aborted === true,
@@ -82,7 +102,7 @@ const snapshotAuthFailure = (failure: unknown): Error => {
   } else {
     error = new Error(message)
   }
-  copyFailureSnapshot(error, data)
+  copyFailureSnapshot(error, data, httpFailure)
   return error
 }
 
@@ -91,7 +111,7 @@ const runAuthOperation = async <R>(operation: () => Promise<R>): Promise<R> => {
   try {
     return await operation()
   } catch (error) {
-    throw snapshotAuthFailure(error)
+    throw await snapshotAuthFailure(error)
   }
 }
 
@@ -1126,7 +1146,7 @@ export const createJWTAuthClient = <
 
           return result
         } catch (err) {
-          const failure = snapshotAuthFailure(err)
+          const failure = await snapshotAuthFailure(err)
           if (!operation.isCurrent()) throw failure
           setState({ loading: false, error: failure.message })
           emitEvent({ type: 'error', error: failure.message })
@@ -1193,7 +1213,7 @@ export const createJWTAuthClient = <
 
           return result
         } catch (err) {
-          const failure = snapshotAuthFailure(err)
+          const failure = await snapshotAuthFailure(err)
           if (!operation.isCurrent()) throw failure
           setState({ loading: false, error: failure.message })
           emitEvent({ type: 'error', error: failure.message })
