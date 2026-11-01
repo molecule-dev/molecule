@@ -38,4 +38,5 @@
 
 export * from './auto-tracking.js'
 export * from './provider.js'
+export * from './sdk.js'
 export * from './types.js'
