@@ -40,6 +40,8 @@
  * accepts it, `logIn`/`create` return `accessToken`, `GET /users/me` echoes it, and a password
  * change revokes every OTHER device but keeps the caller's own session.
  *
+ * **Generated full-stack apps:** mlcl derives the app-auth composition root from this API contract; keep that bond and use its shared HTTP client.
+ *
  * **`handlers.*` return `{ statusCode, headers?, body }` and never write to `res`** — not through
  * `res.json`, not through `res.send`, not through `res.end`. The mounted routes apply that object
  * for you (`createRequestHandler` does `res.set(headers)`, `res.status(statusCode)`,
