@@ -66,39 +66,60 @@ const hasHttpErrorBrand = (failure: unknown): failure is object =>
   (typeof failure === 'object' || typeof failure === 'function') &&
   Object.getOwnPropertyDescriptor(failure, HTTP_ERROR_BRAND)?.value === true
 
-/** Copy descriptors without invoking the source response getter, then install its safe capture. */
-const withFailureResponse = (failure: object, response: HttpResponse | undefined): object => {
-  const shadow = Object.create(Object.getPrototypeOf(failure)) as object
-  for (const key of Reflect.ownKeys(failure)) {
+/** Capture every non-response field on the original error, preserving native stacks and receivers. */
+const snapshotHttpFailureFields = (
+  failure: object,
+  response: HttpResponse | undefined,
+): Record<string, unknown> => {
+  const originalFields = new Error() as unknown as Record<string, unknown>
+  const visited = new Set<string>()
+  for (const key of [...ERROR_DATA_FIELDS, ...Reflect.ownKeys(failure)]) {
     if (key === 'response') continue
-    const descriptor = Object.getOwnPropertyDescriptor(failure, key)
-    if (descriptor) Object.defineProperty(shadow, key, descriptor)
-  }
-  if (response !== undefined) {
-    Object.defineProperty(shadow, 'response', {
-      value: response,
+    if (typeof key === 'string') {
+      if (visited.has(key)) continue
+      visited.add(key)
+    }
+    let value: unknown
+    try {
+      value = Reflect.get(failure, key) as unknown
+    } catch (_error) {
+      value = '[ACCESSOR_ERROR]'
+    }
+    Object.defineProperty(originalFields, key, {
+      value,
       enumerable: true,
       configurable: true,
       writable: true,
     })
   }
-  return shadow
+  const snapshot = snapshotCredentials(originalFields) as Record<string, unknown>
+  Object.defineProperty(snapshot, 'response', {
+    value: response,
+    enumerable: true,
+    configurable: true,
+    writable: true,
+  })
+  return snapshot
 }
 
 /** Snapshot once, scrub the detached data, and never let the original failure escape. */
 const snapshotAuthFailure = async (failure: unknown): Promise<Error> => {
   const httpFailure = hasHttpErrorBrand(failure)
   let capturedResponse: HttpResponse | undefined
-  let source = failure
   if (httpFailure) {
-    const originalResponse = (failure as HttpError).response
-    capturedResponse = originalResponse
-      ? await snapshotHttpErrorResponse(originalResponse)
-      : undefined
-    source = withFailureResponse(failure, capturedResponse)
+    try {
+      const originalResponse = (failure as HttpError).response
+      capturedResponse = originalResponse
+        ? await snapshotHttpErrorResponse(originalResponse)
+        : undefined
+    } catch (_unreadableResponse) {
+      capturedResponse = undefined
+    }
   }
 
-  const snapshot = snapshotCredentials(source)
+  const snapshot = httpFailure
+    ? snapshotHttpFailureFields(failure, capturedResponse)
+    : snapshotCredentials(failure)
   const data = (
     snapshot && typeof snapshot === 'object' && !Array.isArray(snapshot) ? snapshot : {}
   ) as Record<string, unknown>
