@@ -100,7 +100,8 @@
  * is a durably recorded, definitive Machine-create rejection: under the same
  * lifecycle lock, a fresh listing must show no Machine reference (and no
  * Machines or untracked volumes in a per-project app) before the fenced sweep
- * deletes the failed attempt's volume and empty app. Ambiguous outcomes and
+ * deletes the failed attempt's volume. The empty app remains KEEP until
+ * deliberate retirement through `destroyApp()`. Ambiguous outcomes and
  * referenced resources stay KEPT and are reported. Deployed callers must
  * serialize lifecycle operations per app through their lifecycle-lock adapter.
  *

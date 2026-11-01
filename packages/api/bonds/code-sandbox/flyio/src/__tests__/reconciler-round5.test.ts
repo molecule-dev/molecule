@@ -1334,6 +1334,8 @@ describe('round-ten ownership counterexamples', () => {
         firstMachineListing = false
       } else if (method === 'GET' && path === `/apps/${APP}/volumes`) {
         body = []
+      } else if (method === 'GET' && path === '/apps/tenant-db/ip_assignments') {
+        body = [{ ip: 'fdaa::47', network: APP }]
       } else if (
         method === 'DELETE' &&
         path === `/apps/tenant-db/ip_assignments/${encodeURIComponent('fdaa::47')}`
@@ -1506,6 +1508,8 @@ describe('round-twelve destruction fencing counterexamples', () => {
         body = []
       } else if (method === 'GET' && path === `/apps/${APP}/volumes`) {
         body = volumeGone ? [] : [{ id: 'v1', name: 'original-volume', attached_machine_id: null }]
+      } else if (method === 'GET' && path === '/apps/tenant-db/ip_assignments') {
+        body = [{ ip: 'fdaa::49', network: APP }]
       } else if (method === 'DELETE' && path === `/apps/${APP}/volumes/v1`) {
         volumeGone = true
         status = 204
@@ -1724,6 +1728,9 @@ describe('round-twelve destruction fencing counterexamples', () => {
     }
     const double = createFetchDouble()
       .fallback({ body: [] })
+      .on('GET /apps/tenant-db/ip_assignments', {
+        body: [{ ip: 'fdaa::1', network: APP }],
+      })
       .on(`GET /apps/${APP}/machines/m1`, { body: machine })
       .on(`GET /apps/${APP}/machines/m1`, { status: 404, body: { error: 'gone' } })
     double

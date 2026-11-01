@@ -74,6 +74,23 @@ function makeProvider(
   return createProvider({ orgSlug: 'acme', region: 'iad', ...config }, client)
 }
 
+function freshProbeApp(double: ReturnType<typeof createFetchDouble>) {
+  const baseFetch = double.fetch
+  double.fetch = vi.fn(async (input: string | URL | Request, init?: RequestInit) => {
+    const method = (init?.method ?? 'GET').toUpperCase()
+    const path = String(input).replace('https://api.machines.dev/v1', '')
+    if (method === 'GET' && /^\/apps\/[^/]+$/.test(path)) {
+      return {
+        status: 404,
+        headers: { get: () => null },
+        text: async () => JSON.stringify({ error: 'not found' }),
+      } as unknown as Response
+    }
+    return baseFetch(input, init)
+  }) as unknown as typeof fetch
+  return double
+}
+
 /**
  * Queues the happy-path responses for a `create()` that allocates both routes.
  *
@@ -606,6 +623,12 @@ describe('destroy — releasing the routes', () => {
           },
         },
       })
+      .on(`GET /apps/${TENANT_DB}/ip_assignments`, {
+        body: [{ ip: DB_IP, network: APP }],
+      })
+      .on(`GET /apps/${PROXY}/ip_assignments`, {
+        body: [{ ip: PROXY_IP, network: APP }],
+      })
 
     await makeProvider({ privateServices: SERVICES }, double).destroy(
       `${APP}:m1`,
@@ -649,6 +672,9 @@ describe('destroy — releasing the routes', () => {
           config: { metadata: { 'molecule-sandbox.privateRoutes': `${TENANT_DB}=${DB_IP}` } },
         },
       })
+      .on(`GET /apps/${TENANT_DB}/ip_assignments`, {
+        body: [{ ip: DB_IP, network: APP }],
+      })
       .on(`DELETE /apps/${TENANT_DB}/ip_assignments`, { status: 403, body: { error: 'forbidden' } })
 
     await expect(
@@ -666,7 +692,9 @@ describe('destroy — releasing the routes', () => {
 
 describe('verifyEgress — the throwaway probe app', () => {
   it('allocates NO private address, so a probe every 15 minutes cannot leak one per run', async () => {
-    const double = createFetchDouble().fallback({ status: 200, body: { id: 'probe' } })
+    const double = freshProbeApp(
+      createFetchDouble().fallback({ status: 200, body: { id: 'probe' } }),
+    )
     const provider = makeProvider(
       { privateServices: SERVICES, egressProbeTargets: ['1.1.1.1:443'] },
       double,
@@ -678,7 +706,9 @@ describe('verifyEgress — the throwaway probe app', () => {
   })
 
   it('still applies the policy a real sandbox gets, including the declared ports', async () => {
-    const double = createFetchDouble().fallback({ status: 200, body: { id: 'probe' } })
+    const double = freshProbeApp(
+      createFetchDouble().fallback({ status: 200, body: { id: 'probe' } }),
+    )
     const provider = makeProvider(
       {
         privateServices: SERVICES,

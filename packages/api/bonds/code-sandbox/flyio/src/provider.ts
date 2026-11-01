@@ -703,13 +703,23 @@ class FlyioSandboxProvider implements SandboxProvider {
    */
   private async ensureApp(
     app: string,
-    options: { privateRoutes?: boolean; attempt?: FlyAttemptContext; createRegion?: string } = {},
+    options: {
+      privateRoutes?: boolean
+      attempt?: FlyAttemptContext
+      createRegion?: string
+      requireCreated?: boolean
+      ownership?: { created: boolean }
+    } = {},
   ): Promise<{
     routes: Record<string, string>
     allocated: Record<string, string>
+    created: boolean
   }> {
     const existing = await this.client.request<{ name: string }>(`/apps/${app}`, { nullOn: [404] })
     let createdHere = false
+    if (existing && options.requireCreated) {
+      return { routes: {}, allocated: {}, created: false }
+    }
 
     if (!existing) {
       const body: Record<string, unknown> = { name: app, org_slug: this.orgSlug() }
@@ -731,6 +741,9 @@ class FlyioSandboxProvider implements SandboxProvider {
         } else {
           await this.client.request(`/apps`, { method: 'POST', body })
         }
+        // Accepted POST provenance is established before later policy/route
+        // steps can fail, so diagnostic cleanup can still retire its own app.
+        if (options.ownership) options.ownership.created = true
         if (attempt && journal) {
           await journal.recordAppProvenance(attempt.attemptId, attempt.generation, 'created')
         }
@@ -752,12 +765,23 @@ class FlyioSandboxProvider implements SandboxProvider {
       createdHere = created
     }
 
+    if (options.requireCreated && !createdHere) {
+      return { routes: {}, allocated: {}, created: false }
+    }
     if (createdHere && this.config.assignSharedIpv4) {
       await this.assignSharedIpv4(app, options.attempt)
     }
     await this.applyEgressPolicy(app, options.attempt, options.createRegion)
-    if (options.privateRoutes === false) return { routes: {}, allocated: {} }
-    return this.ensurePrivateRoutes(app, Boolean(existing), options.attempt, options.createRegion)
+    if (options.privateRoutes === false) {
+      return { routes: {}, allocated: {}, created: createdHere }
+    }
+    const routes = await this.ensurePrivateRoutes(
+      app,
+      Boolean(existing),
+      options.attempt,
+      options.createRegion,
+    )
+    return { ...routes, created: createdHere }
   }
 
   /**
@@ -989,21 +1013,41 @@ class FlyioSandboxProvider implements SandboxProvider {
     return assignment.ip
   }
 
+  /** Validate the exact IP's current network; metadata alone is not DELETE authority. */
+  private async privateRouteMatchesNetwork(
+    target: string,
+    ip: string,
+    network: string | undefined,
+    signal?: AbortSignal,
+  ): Promise<boolean> {
+    if (!network) return false
+    const assignments = await this.listPrivateAssignments(target, signal)
+    return Boolean(
+      assignments?.some((candidate) => candidate.ip === ip && candidate.network === network),
+    )
+  }
+
   /**
-   * Releases the Flycast addresses a project's sandbox recorded.
-   *
-   * Best-effort: the sandbox is being destroyed either way, and an address left
-   * behind is a reconciliation item (`fly ips list --app <target>`) rather than
-   * a failed teardown. It routes into a 6PN that no longer has any app in it.
-   * @param routes - Target app name → private address, from Machine metadata.
+   * Releases only Flycast addresses independently validated for this network.
+   * Metadata identifies candidates; it never authorizes a cross-network DELETE.
    */
   private async releasePrivateRoutes(
     routes: Record<string, string>,
     signal: AbortSignal,
+    network: string | undefined,
   ): Promise<boolean> {
     let released = true
     for (const [target, ip] of Object.entries(routes)) {
       try {
+        if (!(await this.privateRouteMatchesNetwork(target, ip, network, signal))) {
+          released = false
+          logger.warn('Kept a Fly private (Flycast) address with unvalidated network ownership', {
+            target,
+            ip,
+            network,
+          })
+          continue
+        }
         await this.requestForDestruction(
           `/apps/${target}/ip_assignments/${encodeURIComponent(ip)}`,
           { method: 'DELETE', nullOn: [404] },
@@ -1503,7 +1547,7 @@ class FlyioSandboxProvider implements SandboxProvider {
 
   /**
    * Create, reconcile and boot one uniquely identified Fly Machine attempt.
-   * Automatic cleanup deletes only what this attempt recorded creating: an accepted app, volume, or exact Machine ID whose durable provenance names this attempt; adopted, inherited, listed, older-writer and ambiguous resources are KEPT for explicit destruction.
+   * Automatic cleanup deletes only a volume or exact Machine ID with this attempt's accepted-create provenance. Apps always remain KEEP for deliberate retirement; adopted, inherited, listed, older-writer and ambiguous resources are also KEPT.
    * @param config - The sandbox image, project, storage and resource configuration.
    * @returns The running sandbox.
    */
@@ -2387,21 +2431,51 @@ class FlyioSandboxProvider implements SandboxProvider {
       const routes = decodePrivateRoutes(
         metadata[`${this.metadataPrefix}.${PRIVATE_ROUTES_METADATA_SUFFIX}`],
       )
+      const network = this.networkFor(intent.appName)
       for (const [targetApp, ip] of Object.entries(routes)) {
+        // A durable exact binding for the intended network is authoritative.
+        // Otherwise validate the IP independently; copied metadata is only a hint.
         if (
-          intent.addresses.some((address) => address.targetApp === targetApp && address.ip === ip)
+          intent.addresses.some(
+            (address) =>
+              address.targetApp === targetApp &&
+              address.network === network &&
+              address.ip === ip &&
+              address.resolved,
+          )
         ) {
           continue
         }
+        const validated = await this.privateRouteMatchesNetwork(targetApp, ip, network, signal)
         await journal.recordAddress(intent.attemptId, {
           targetApp,
-          network: intent.appName,
+          network: network ?? intent.appName,
           ip,
-          owned: true,
-          resolved: true,
+          owned: validated,
+          resolved: validated,
         })
       }
     }
+    const assertObservedMachineUnreferenced = async (
+      intent: FlyCreateAttempt,
+      machineId: string,
+    ): Promise<void> => {
+      if (intent.machineCreatedByAttemptId === intent.attemptId) return
+      const siblings = await journal.forApp(intent.appName)
+      if (signal.aborted) throw signal.reason
+      const conflict = siblings.find(
+        (candidate) =>
+          candidate.attemptId !== intent.attemptId &&
+          candidate.state !== 'abandoned' &&
+          this.recordedMachineId(candidate) === machineId,
+      )
+      if (conflict) {
+        throw new Error(
+          `Fly Machine "${machineId}" is still referenced by ${conflict.state} attempt "${conflict.attemptId}"; observed retirement is KEEP`,
+        )
+      }
+    }
+
     const activeStates = [
       'creating',
       'starting',
@@ -2515,6 +2589,9 @@ class FlyioSandboxProvider implements SandboxProvider {
         // responsibilities before its metadata disappears on deletion.
         await adoptLegacyResources(current)
         intent = await fresh()
+        // Observation is not ownership. Recheck every other durable reference
+        // on this same app lock immediately before the irreversible request.
+        await assertObservedMachineUnreferenced(intent, current.id)
         await this.deleteRetired(
           intent,
           generation,
@@ -3045,6 +3122,14 @@ class FlyioSandboxProvider implements SandboxProvider {
       )
     }
     for (const [targetApp, ip] of Object.entries(routes)) {
+      if (!(await this.privateRouteMatchesNetwork(targetApp, ip, this.networkFor(app), signal))) {
+        logger.warn('Kept a Fly private (Flycast) address with unvalidated network ownership', {
+          targetApp,
+          ip,
+          app,
+        })
+        continue
+      }
       await this.requestForDestruction(
         `/apps/${targetApp}/ip_assignments/${encodeURIComponent(ip)}`,
         { method: 'DELETE', nullOn: [404] },
@@ -3230,7 +3315,11 @@ class FlyioSandboxProvider implements SandboxProvider {
       }
       // Released even when the app delete failed: the Machine is gone, so a
       // retry could no longer read these addresses from its metadata.
-      const routesReleased = await this.releasePrivateRoutes(privateRoutes, signal)
+      const routesReleased = await this.releasePrivateRoutes(
+        privateRoutes,
+        signal,
+        this.networkFor(app),
+      )
       if (appError !== undefined) {
         throw new Error(describeDestroyFailure('app delete', id, appError), { cause: appError })
       }
@@ -3256,7 +3345,9 @@ class FlyioSandboxProvider implements SandboxProvider {
         logger.warn('Failed to remove Fly volume', { app, volumeId, error })
       }
     }
-    cleanupFailed = !(await this.releasePrivateRoutes(privateRoutes, signal)) || cleanupFailed
+    cleanupFailed =
+      !(await this.releasePrivateRoutes(privateRoutes, signal, this.networkFor(app))) ||
+      cleanupFailed
     if (cleanupFailed && createAttemptId && this.config.createAttemptJournal) {
       throw new Error(`Could not complete every cleanup step for "${id}"; its intent was retained`)
     }
@@ -3482,17 +3573,30 @@ class FlyioSandboxProvider implements SandboxProvider {
 
     let app: string | null = null
     let machineId: string | null = null
+    let ownsProbeApp = false
     let policyPorts: FlyNetworkPolicyPort[] | undefined
     try {
       policyPorts = this.egressAllowedPorts()
-      app = this.resolveApp(this.probeProjectId())
-      // The SAME policy a real sandbox gets (private-service ports included, so
-      // the probe observes the real posture), but NO Flycast allocation: this
-      // app is deleted seconds from now, and allocating would leave one
-      // unreleasable address per probe on every target app — every 15 minutes.
-      // These disposable diagnostic app/Machine probes intentionally have no
-      // create-attempt journal and remain OUTSIDE the user-create rollout fence.
-      await this.ensureApp(app, { privateRoutes: false })
+      // A random name collision is an adoption, never DELETE authority. Retry
+      // fresh names in per-project mode; shared mode keeps its designated app.
+      for (let attempt = 0; attempt < 5; attempt++) {
+        app = this.resolveApp(this.probeProjectId())
+        const ownership = { created: false }
+        // The SAME policy a real sandbox gets (private-service ports included),
+        // but NO Flycast allocation. Accepted app-create ownership is captured
+        // before any later policy/Machine step can fail.
+        await this.ensureApp(app, {
+          privateRoutes: false,
+          requireCreated: this.appPerProject(),
+          ownership,
+        })
+        ownsProbeApp = ownership.created
+        if (!this.appPerProject() || ownsProbeApp) break
+      }
+      if (this.appPerProject() && !ownsProbeApp) {
+        throw new Error('Could not allocate a fresh Fly egress probe app name')
+      }
+      if (!app) throw new Error('Could not resolve a Fly egress probe app')
       machineId = await this.createProbeMachine(app)
       await this.waitForStarted(app, machineId)
 
@@ -3528,7 +3632,7 @@ class FlyioSandboxProvider implements SandboxProvider {
           'the probe image is pullable by Fly and contains `node` and `sleep`.',
       }
     } finally {
-      await this.destroyProbe(app, machineId)
+      await this.destroyProbe(app, machineId, ownsProbeApp)
     }
   }
 
@@ -3599,15 +3703,21 @@ class FlyioSandboxProvider implements SandboxProvider {
   }
 
   /**
-   * Removes the probe Machine and, in per-project mode, its throwaway app.
+   * Removes the accepted probe Machine and, in per-project mode, only an app
+   * whose create POST this probe itself had accepted. Adopted/unknown apps KEEP.
    *
    * Best-effort by design: a cleanup failure must not turn a completed
    * observation into an error, and `auto_destroy` plus the bounded init sleep
    * already reap the Machine on their own.
    * @param app - The probe app, or `null` when it was never resolved.
-   * @param machineId - The probe Machine id, or `null` when it was never created.
+   * @param machineId - The accepted probe Machine id, or `null` when none was created.
+   * @param appCreated - Accepted app-create provenance for this exact probe.
    */
-  private async destroyProbe(app: string | null, machineId: string | null): Promise<void> {
+  private async destroyProbe(
+    app: string | null,
+    machineId: string | null,
+    appCreated: boolean,
+  ): Promise<void> {
     if (!app) return
     if (machineId) {
       try {
@@ -3619,8 +3729,8 @@ class FlyioSandboxProvider implements SandboxProvider {
         logger.warn('Failed to remove the Fly egress probe Machine', { app, machineId, error })
       }
     }
-    // Never in shared-app mode: that app holds real sandboxes.
-    if (!this.appPerProject()) return
+    // Never in shared-app mode, nor for a colliding/adopted/unknown app.
+    if (!this.appPerProject() || !appCreated) return
     try {
       await this.client.request(`/apps/${app}`, { method: 'DELETE', nullOn: [404] })
     } catch (error) {

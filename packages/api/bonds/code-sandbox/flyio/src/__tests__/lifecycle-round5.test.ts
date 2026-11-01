@@ -136,6 +136,9 @@ describe('round-five create safety regressions', () => {
           },
         ],
       })
+      .on(`GET /apps/${target}/ip_assignments`, {
+        body: [{ ip: routes[target], network: APP }],
+      })
       .on(`DELETE /apps/${target}/ip_assignments/${encodeURIComponent(routes[target])}`, {
         status: 204,
       })
