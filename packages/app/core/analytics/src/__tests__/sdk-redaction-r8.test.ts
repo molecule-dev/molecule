@@ -61,7 +61,7 @@ describe('round-eight data-only SDK capture', () => {
       safe: 'byte-for-byte',
     })
     expect(output.properties).not.toHaveProperty('functionValue')
-    expect(output.properties).not.toHaveProperty('classValue')
+    expect(output.properties.classValue).toEqual({ password: '[REDACTED]' })
     expect(serialized).not.toContain('json-secret')
     expect(serialized).not.toContain('function-secret')
     expect(serialized).not.toContain('class-secret')

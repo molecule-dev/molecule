@@ -31,7 +31,7 @@ describe('round-seven analytics payload scrubbing', () => {
     const output = snapshotAnalyticsSdkUrls(input)
 
     expect(output).toEqual({
-      event: 'password=event-name',
+      event: 'password=[REDACTED]',
       token: 'required-project-token',
       properties: {
         distinct_id: 'user-1',
@@ -58,7 +58,7 @@ describe('round-seven analytics payload scrubbing', () => {
     expect(input.properties.$elements[0].attr__href).toContain('element-secret')
   })
 
-  it('keeps shared references and cycles without invoking non-URL identifiers', () => {
+  it('keeps shared references and cycles while capturing non-URL identifiers', () => {
     const shared = { identifier: 'password=event-name', safe: 'byte-for-byte' }
     const input: { first: unknown; second: unknown; self?: unknown } = {
       first: shared,
@@ -70,6 +70,6 @@ describe('round-seven analytics payload scrubbing', () => {
 
     expect(output.first).toBe(output.second)
     expect(output.self).toBe(output)
-    expect(output.first).toEqual(shared)
+    expect(output.first).toEqual({ ...shared, identifier: 'password=[REDACTED]' })
   })
 })
