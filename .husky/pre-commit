@@ -84,6 +84,11 @@ MLCL_TSX=""
 if [ -x ../mlcl/node_modules/.bin/tsx ]; then MLCL_TSX=node_modules/.bin/tsx
 elif [ -x ../node_modules/.bin/tsx ]; then MLCL_TSX=../node_modules/.bin/tsx
 fi
+# Published source/export changes need a pending changeset in THIS staged tree.
+# Run before the STAGED early exit too: that list intentionally excludes deletions,
+# but deleting published source also needs a changeset.
+node scripts/precommit-changeset.mjs
+
 if [ -z "$STAGED" ]; then
   exit 0
 fi
@@ -120,13 +125,12 @@ fi
 
 npm run check:lockfile
 
-# Internal @molecule version coherence: every package a workspace member, every
-# internal dep range matching the version actually in the repo, and the lockfiles
-# agreeing. check:lockfile above proves the lock RESOLVES; it does not notice a
-# package at 1.0.1 that still depends on 1.0.0. Skipped in a standalone clone
-# where the workspace root is absent.
+# Internal @molecule version coherence: refuse only findings THIS commit adds
+# to its parent. The ordinary workspace `npm run verify:molecule-versions` still
+# judges the whole tree; a release's version-to-pins window or a peer's existing
+# incoherence must not refuse an unrelated commit. Skipped in a standalone clone.
 if [ -f ../scripts/verify-molecule-versions.mjs ]; then
-  ( cd .. && node scripts/verify-molecule-versions.mjs --quiet ) || exit 1
+  ( cd .. && node scripts/verify-molecule-versions.mjs --quiet --staged ) || exit 1
 fi
 npm run check:peer-deps
 
