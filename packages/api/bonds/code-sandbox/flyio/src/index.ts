@@ -96,8 +96,12 @@
  * ambiguous create retains it for a later create or an explicit sweep, never
  * infers deletion from a missing listing or an uncertain dispatch. The
  * reconciler settles only retired attempt generations and skips serving
- * Machines, attached volumes and every bound workspace. Explicit sandbox/app
- * destruction is the only workspace deletion path; deployed callers must
+ * Machines, attached volumes and bound workspaces. The one automatic exception
+ * is a durably recorded, definitive Machine-create rejection: under the same
+ * lifecycle lock, a fresh listing must show no Machine reference (and no
+ * Machines or untracked volumes in a per-project app) before the fenced sweep
+ * deletes the failed attempt's volume and empty app. Ambiguous outcomes and
+ * referenced resources stay KEPT and are reported. Deployed callers must
  * serialize lifecycle operations per app through their lifecycle-lock adapter.
  *
  * **Absence vs failure: `get()` only answers `null` for a REAL absence.**
@@ -247,9 +251,9 @@
  * `compute` placement hint, so Fly can choose a volume host that can run that
  * Machine. If Machine creation still answers `412 volume_placement_capacity`,
  * the provider preserves the volume and propagates the error for the caller's
- * bounded retry, which finds it by name. A failed create never deletes its app
- * or volume, because another create could have adopted either one; explicit
- * `destroy()` remains the teardown path. Volume creates retain transport and
+ * bounded retry, which adopts it by its durable Fly ID. Create itself never
+ * deletes its app or volume; only explicit retirement or the reference-checked
+ * definitive-failure sweep above can do so. Volume creates retain transport and
  * 429 backoff. After an ambiguous failure, bounded lookups by name adopt a
  * volume whose response was lost before any POST replay, preventing duplicates.
  * Fly documents that "a volume can be attached to only one Machine", which

@@ -19,10 +19,8 @@ export interface FlyCreateVolumeIntent {
   name: string
   /** Caller-level workspace identity, stable across create attempts. */
   logicalName?: string
-  /** Once bound, only explicit sandbox destruction may delete this volume. */
+  /** Once bound, only explicit destruction or a reference-checked failed-create sweep may delete it. */
   workspace: boolean
-  /** Legacy rolling-deploy column; workspace protection no longer has a provisional state. */
-  workspaceCommitted?: boolean
   /** False until an ambiguous create is adopted or definitely rejected. */
   resolved?: boolean
 }
@@ -47,6 +45,8 @@ export interface FlyCreateAttempt {
   /** Monotonic fencing token, incremented whenever lifecycle ownership is reacquired. */
   generation?: number
   sandboxId?: string
+  /** Fly definitively rejected the Machine POST; an unknown outcome is never marked. */
+  machineCreateFailed?: boolean
   volumes: FlyCreateVolumeIntent[]
   addresses: FlyCreateAddressIntent[]
 }
@@ -56,6 +56,9 @@ export interface FlyCreateAttemptJournal {
   begin(
     attempt: Pick<FlyCreateAttempt, 'attemptId' | 'projectId' | 'appName'> & {
       ownerProjectId?: string
+      /** Legacy adoption persists its observed serving state and identity in the INSERT. */
+      state?: FlyCreateAttemptState
+      sandboxId?: string
     },
   ): Promise<void>
   /** Re-read one attempt, including after a lifecycle lock has been acquired. */
@@ -66,14 +69,11 @@ export interface FlyCreateAttemptJournal {
   findWorkspace(projectId: string, logicalName: string): Promise<FlyCreateVolumeIntent | null>
   /** Record an intent or transfer a Fly-ID binding to this attempt. */
   recordVolume(attemptId: string, volume: FlyCreateVolumeIntent): Promise<void>
-  markVolumeWorkspace(
-    attemptId: string,
-    name: string,
-    workspace?: boolean,
-    workspaceCommitted?: boolean,
-  ): Promise<void>
+  markVolumeWorkspace(attemptId: string, name: string, workspace?: boolean): Promise<void>
   recordAddress(attemptId: string, address: FlyCreateAddressIntent): Promise<void>
   markState(attemptId: string, state: FlyCreateAttemptState, sandboxId?: string): Promise<void>
+  /** Record a definitive rejection only while this create generation still owns the attempt. */
+  markMachineCreateFailed(attemptId: string, generation: number): Promise<void>
   /** Throw unless this generation is still the attempt's durable fencing token. */
   assertGeneration(attemptId: string, generation: number): Promise<void>
   /** Atomically retire this exact generation while its lifecycle lock session is live. */

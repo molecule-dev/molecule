@@ -28,11 +28,14 @@ class MemoryJournal implements FlyCreateAttemptJournal {
   readonly lockCalls: string[] = []
 
   async begin(
-    attempt: Pick<FlyCreateAttempt, 'attemptId' | 'projectId' | 'appName'>,
+    attempt: Pick<FlyCreateAttempt, 'attemptId' | 'projectId' | 'appName'> & {
+      state?: FlyCreateAttemptState
+      sandboxId?: string
+    },
   ): Promise<void> {
     this.attempts.set(attempt.attemptId, {
       ...attempt,
-      state: 'creating',
+      state: attempt.state ?? 'creating',
       generation: 1,
       volumes: [],
       addresses: [],
@@ -56,11 +59,7 @@ class MemoryJournal implements FlyCreateAttemptJournal {
   ): Promise<FlyCreateVolumeIntent | null> {
     for (const attempt of this.attempts.values()) {
       const volume = attempt.volumes.find(
-        (candidate) =>
-          candidate.workspace &&
-          candidate.workspaceCommitted !== false &&
-          candidate.logicalName === logicalName &&
-          candidate.id,
+        (candidate) => candidate.workspace && candidate.logicalName === logicalName && candidate.id,
       )
       if (volume) return structuredClone(volume)
     }
@@ -88,26 +87,15 @@ class MemoryJournal implements FlyCreateAttemptJournal {
       attempt.volumes[index] = {
         ...volume,
         workspace: previous.workspace || volume.workspace,
-        workspaceCommitted:
-          (previous.workspaceCommitted ?? previous.workspace) ||
-          (volume.workspaceCommitted ?? volume.workspace),
       }
     }
   }
 
-  async markVolumeWorkspace(
-    attemptId: string,
-    name: string,
-    workspace = true,
-    workspaceCommitted = workspace,
-  ): Promise<void> {
+  async markVolumeWorkspace(attemptId: string, name: string, workspace = true): Promise<void> {
     const volume = this.attempts
       .get(attemptId)
       ?.volumes.find((candidate) => candidate.name === name)
-    if (volume) {
-      volume.workspace = workspace
-      volume.workspaceCommitted = workspaceCommitted
-    }
+    if (volume) volume.workspace = workspace
   }
 
   async recordAddress(attemptId: string, address: FlyCreateAddressIntent): Promise<void> {
@@ -140,6 +128,14 @@ class MemoryJournal implements FlyCreateAttemptJournal {
     if (!attempt) throw new Error('missing attempt')
     attempt.state = state
     if (sandboxId) attempt.sandboxId = sandboxId
+  }
+
+  async markMachineCreateFailed(attemptId: string, generation: number): Promise<void> {
+    const attempt = this.attempts.get(attemptId)
+    if (!attempt || (attempt.generation ?? 1) !== generation) {
+      throw new Error(`Stale generation for ${attemptId}`)
+    }
+    attempt.machineCreateFailed = true
   }
 
   async assertGeneration(attemptId: string, generation: number): Promise<void> {
@@ -341,7 +337,7 @@ describe('journaled create reconciliation', () => {
       .on(`GET /apps/${APP}`, { status: 404 })
       .on('POST /apps', { body: { name: APP } })
       .on(`POST /apps/${APP}/machines`, { status: 422, body: { error: 'invalid' } })
-    for (let read = 0; read < 4; read++) {
+    for (let read = 0; read < 6; read++) {
       double
         .on(`GET /apps/${APP}/machines`, { body: [] })
         .on(`GET /apps/${APP}/volumes`, { body: [] })
@@ -617,23 +613,70 @@ describe('round-six ownership races', () => {
     expect(journal.attempts.size).toBe(1)
   })
 
-  it('keeps workspace ownership after a definite 412 Machine rejection', async () => {
-    const journal = new MemoryJournal()
-    const double = createFetchDouble()
-      .on(`GET /apps/${APP}`, { body: { name: APP } })
-      .on(`GET /apps/${APP}/volumes`, { body: [] })
-      .on(`POST /apps/${APP}/volumes`, { body: { id: 'v1', name: 'attempt-volume' } })
-      .on(`POST /apps/${APP}/machines`, {
-        status: 412,
-        body: { error: 'failed_precondition: definite rejection' },
-      })
+  it.each([
+    ['per-project-app', {}],
+    ['shared-app', { appPerProject: false, appName: APP }],
+  ])(
+    'sweeps a definite 412 Machine rejection in %s mode, then is idempotent',
+    async (_mode, config) => {
+      const journal = new MemoryJournal()
+      const double = createFetchDouble()
+      let volumeCreated = false
+      let volumeGone = false
+      let appGone = false
+      double.fetch = vi.fn(async (input: string | URL | Request, init?: RequestInit) => {
+        const method = (init?.method ?? 'GET').toUpperCase()
+        const path = String(input).replace('https://api.machines.dev/v1', '')
+        double.calls.push({ method, url: String(input), path, body: undefined })
+        let status = 200
+        let body: unknown = {}
+        if (method === 'GET' && path === `/apps/${APP}`) {
+          if (appGone) status = 404
+          else body = { name: APP }
+        } else if (method === 'GET' && path === `/apps/${APP}/volumes`) {
+          body = volumeCreated && !volumeGone ? [{ id: 'v1', name: 'attempt-volume' }] : []
+        } else if (method === 'POST' && path === `/apps/${APP}/volumes`) {
+          volumeCreated = true
+          body = { id: 'v1', name: 'attempt-volume' }
+        } else if (method === 'GET' && path === `/apps/${APP}/machines`) {
+          body = []
+        } else if (method === 'POST' && path === `/apps/${APP}/machines`) {
+          status = 412
+          body = { error: 'failed_precondition: definite rejection' }
+        } else if (method === 'DELETE' && path === `/apps/${APP}/volumes/v1`) {
+          volumeGone = true
+          status = 204
+        } else if (method === 'DELETE' && path === `/apps/${APP}?force=true`) {
+          appGone = true
+          status = 204
+        } else {
+          throw new Error(`Unexpected ${method} ${path}`)
+        }
+        return {
+          status,
+          headers: { get: () => null },
+          text: async () => JSON.stringify(body),
+        } as unknown as Response
+      }) as unknown as typeof fetch
+      const provider = makeProvider(double, journal, config)
 
-    await expect(
-      makeProvider(double, journal).create({ projectId: PROJECT_ID, volumeName: 'workspace' }),
-    ).rejects.toThrow('412')
-    const attempt = [...journal.attempts.values()].find((candidate) => candidate.state === 'failed')
-    expect(attempt?.volumes[0]).toMatchObject({ id: 'v1', workspace: true, resolved: true })
-  })
+      await expect(
+        provider.create({ projectId: PROJECT_ID, volumeName: 'workspace' }),
+      ).rejects.toThrow('412')
+      const attempt = [...journal.attempts.values()].find(
+        (candidate) => candidate.state === 'failed',
+      )
+      expect(attempt?.volumes[0]).toMatchObject({ id: 'v1', workspace: true, resolved: true })
+
+      await expect(provider.reconcileCreateAttempts()).resolves.toEqual({ deleted: 1, failed: 0 })
+      await expect(provider.reconcileCreateAttempts()).resolves.toEqual({ deleted: 0, failed: 0 })
+      expect(double.matching(`DELETE /apps/${APP}/volumes/v1`)).toHaveLength(1)
+      expect(double.matching(`DELETE /apps/${APP}?force=true`)).toHaveLength(
+        config.appPerProject === false ? 0 : 1,
+      )
+      expect(journal.attempts.size).toBe(0)
+    },
+  )
 
   it('adopts a lost Flycast allocation by target app and network after a 422 retry', async () => {
     const journal = new MemoryJournal()
@@ -1322,7 +1365,6 @@ describe('round-twelve destruction fencing counterexamples', () => {
           id: 'v1',
           name: 'attempt-volume',
           workspace: true,
-          workspaceCommitted: false,
           resolved: true,
         },
       ],
@@ -1386,21 +1428,11 @@ describe('round-twelve destruction fencing counterexamples', () => {
       makeProvider(double, journal).create({ projectId: PROJECT_ID, volumeName: 'workspace' }),
     ).rejects.toThrow('unknown outcome')
     const attempt = [...journal.attempts.values()][0]
-    expect(attempt?.volumes[0]).toMatchObject({
-      workspace: true,
-      workspaceCommitted: true,
-    })
+    expect(attempt?.volumes[0]).toMatchObject({ workspace: true })
   })
 
-  it('removes the dispatch journal commit whose failure could lose workspace protection', async () => {
+  it('keeps a dispatched workspace when the attempt never reaches serving', async () => {
     const journal = new MemoryJournal()
-    const originalMark = journal.markVolumeWorkspace.bind(journal)
-    journal.markVolumeWorkspace = vi.fn(
-      async (attemptId: string, name: string, workspace = true, workspaceCommitted = workspace) => {
-        if (workspaceCommitted) throw new Error('database unavailable after Machine dispatch')
-        return originalMark(attemptId, name, workspace, workspaceCommitted)
-      },
-    )
     const double = createFetchDouble()
       .on(`GET /apps/${APP}`, { body: { name: APP, network: APP } })
       .on(`GET /apps/${APP}/volumes`, { body: [] })
@@ -1412,7 +1444,6 @@ describe('round-twelve destruction fencing counterexamples', () => {
       provider.create({ projectId: PROJECT_ID, volumeName: 'workspace' }),
     ).resolves.toMatchObject({ id: `${APP}:m1` })
     expect(double.matching(`POST /apps/${APP}/machines`)).toHaveLength(1)
-    expect(journal.markVolumeWorkspace).not.toHaveBeenCalled()
     const attempt = [...journal.attempts.values()][0]
     expect(attempt?.volumes[0]).toMatchObject({ workspace: true })
 
@@ -1547,6 +1578,150 @@ describe('round-twelve destruction fencing counterexamples', () => {
         (call) => call.method === 'DELETE' && call.path === `/apps/${APP}?force=true`,
       ),
     )
+    expect(journal.attempts.size).toBe(0)
+  })
+})
+
+describe('round-fourteen failed-create sweep and legacy recovery', () => {
+  it('keeps and reports a shared-app volume still referenced by another Machine', async () => {
+    const journal = new MemoryJournal()
+    journal.seed(
+      failedIntent({
+        machineCreateFailed: true,
+        volumes: [{ id: 'v1', name: 'attempt-volume', workspace: true, resolved: true }],
+      } as Partial<FlyCreateAttempt>),
+    )
+    const otherMachine = {
+      id: 'm-other',
+      state: 'started',
+      config: { mounts: [{ volume: 'v1', path: '/workspace' }] },
+    }
+    const double = createFetchDouble()
+      .fallback({ body: [] })
+      .on(`GET /apps/${APP}/machines`, { body: [otherMachine] })
+      .on(`GET /apps/${APP}/machines`, { body: [otherMachine] })
+      .on(`GET /apps/${APP}/volumes`, {
+        body: [{ id: 'v1', name: 'attempt-volume', attached_machine_id: 'm-other' }],
+      })
+      .on(`GET /apps/${APP}/volumes`, {
+        body: [{ id: 'v1', name: 'attempt-volume', attached_machine_id: 'm-other' }],
+      })
+
+    await expect(
+      makeProvider(double, journal, {
+        appPerProject: false,
+        appName: APP,
+      }).reconcileCreateAttempts(),
+    ).resolves.toEqual({ deleted: 0, failed: 1 })
+    expect(double.calls.filter((call) => call.method === 'DELETE')).toHaveLength(0)
+    expect(journal.attempts.get('attempt-1')?.volumes).toHaveLength(1)
+  })
+
+  it('does not sweep a volume a later create adopted before reconciliation', async () => {
+    const journal = new MemoryJournal()
+    journal.seed(
+      failedIntent({
+        machineCreateFailed: true,
+        volumes: [
+          {
+            id: 'v1',
+            name: 'old-attempt-volume',
+            logicalName: 'workspace',
+            workspace: true,
+            resolved: true,
+          },
+        ],
+      } as Partial<FlyCreateAttempt>),
+    )
+    const double = createFetchDouble()
+    let machine: Record<string, unknown> | null = null
+    double.fetch = vi.fn(async (input: string | URL | Request, init?: RequestInit) => {
+      const method = (init?.method ?? 'GET').toUpperCase()
+      const path = String(input).replace('https://api.machines.dev/v1', '')
+      double.calls.push({ method, url: String(input), path, body: undefined })
+      let status = 200
+      let body: unknown = {}
+      if (method === 'GET' && path === `/apps/${APP}`) {
+        body = { name: APP }
+      } else if (method === 'GET' && path === `/apps/${APP}/volumes`) {
+        body = [{ id: 'v1', name: 'old-attempt-volume', attached_machine_id: null }]
+      } else if (method === 'POST' && path === `/apps/${APP}/machines`) {
+        const request = JSON.parse(String(init?.body)) as { config: Record<string, unknown> }
+        machine = { id: 'm2', state: 'started', config: request.config }
+        body = machine
+      } else if (method === 'GET' && path === `/apps/${APP}/machines`) {
+        body = machine ? [machine] : []
+      } else if (method === 'GET' && path.startsWith(`/apps/${APP}/machines/m2/wait`)) {
+        body = { ...machine, state: 'started' }
+      } else if (method === 'DELETE') {
+        status = 204
+      } else {
+        throw new Error(`Unexpected ${method} ${path}`)
+      }
+      return {
+        status,
+        headers: { get: () => null },
+        text: async () => JSON.stringify(body),
+      } as unknown as Response
+    }) as unknown as typeof fetch
+    const provider = makeProvider(double, journal)
+
+    await expect(
+      provider.create({ projectId: PROJECT_ID, volumeName: 'workspace' }),
+    ).resolves.toMatchObject({ id: `${APP}:m2` })
+    const oldAttempt = journal.attempts.get('attempt-1')
+    expect(oldAttempt?.volumes).toHaveLength(0)
+
+    await expect(provider.reconcileCreateAttempts()).resolves.toEqual({ deleted: 0, failed: 1 })
+    expect(double.calls.filter((call) => call.method === 'DELETE')).toHaveLength(0)
+    expect(journal.attempts.get('attempt-1')).toBeDefined()
+    expect([...journal.attempts.values()].some((attempt) => attempt.state === 'serving')).toBe(true)
+  })
+
+  it('repairs a crash-incomplete legacy adoption, then destroys it without an earlier DELETE', async () => {
+    const attemptId = `legacy:${APP}:m1`
+    const journal = new MemoryJournal()
+    journal.seed(failedIntent({ attemptId, state: 'creating' }))
+    const machine = {
+      id: 'm1',
+      name: 'pre-journal-machine',
+      state: 'started',
+      config: { metadata: { 'molecule-sandbox.projectId': PROJECT_ID } },
+    }
+    let machineGone = false
+    const double = createFetchDouble()
+    double.fetch = vi.fn(async (input: string | URL | Request, init?: RequestInit) => {
+      const method = (init?.method ?? 'GET').toUpperCase()
+      const path = String(input).replace('https://api.machines.dev/v1', '')
+      double.calls.push({ method, url: String(input), path, body: undefined })
+      let status = 200
+      let body: unknown = {}
+      if (method === 'GET' && path === `/apps/${APP}/machines/m1`) {
+        body = machine
+      } else if (method === 'GET' && path === `/apps/${APP}/machines`) {
+        body = machineGone ? [] : [machine]
+      } else if (method === 'GET' && path === `/apps/${APP}/volumes`) {
+        body = []
+      } else if (method === 'DELETE' && path === `/apps/${APP}/machines/m1?force=true`) {
+        machineGone = true
+        status = 204
+      } else if (method === 'DELETE' && path === `/apps/${APP}?force=true`) {
+        status = 204
+      } else {
+        throw new Error(`Unexpected ${method} ${path}`)
+      }
+      return {
+        status,
+        headers: { get: () => null },
+        text: async () => JSON.stringify(body),
+      } as unknown as Response
+    }) as unknown as typeof fetch
+
+    expect(double.calls.filter((call) => call.method === 'DELETE')).toHaveLength(0)
+    await makeProvider(double, journal).destroy(`${APP}:m1`, new AbortController().signal)
+
+    expect(double.matching(`DELETE /apps/${APP}/machines/m1?force=true`)).toHaveLength(1)
+    expect(double.matching(`DELETE /apps/${APP}?force=true`)).toHaveLength(1)
     expect(journal.attempts.size).toBe(0)
   })
 })
