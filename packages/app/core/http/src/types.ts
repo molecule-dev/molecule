@@ -4,7 +4,7 @@
  * @module
  */
 
-import { redactCredentials } from '@molecule/app-logger'
+import { snapshotCredentials } from '@molecule/app-logger'
 
 import type { RetryOptions } from './retry.js'
 import { redactUrlCredentials } from './url.js'
@@ -213,11 +213,89 @@ const errorRequestConfig = (config: FullRequestConfig): FullRequestConfig => {
   return { method: config.method, url, ...(options ? { options } : {}) }
 }
 
+/** Fresh Blobs already materialized by the async failure boundary; no native property is written. */
+const retainedErrorBlobs = new WeakSet<Blob>()
+
+/** Rebuild a scrubbed textual binary body as a new value of the original binary kind. */
+const retainedBinaryBody = (original: unknown, snapshot: unknown): unknown => {
+  if (!(original instanceof ArrayBuffer) && !ArrayBuffer.isView(original)) return snapshot
+  const bytes =
+    original instanceof ArrayBuffer
+      ? new Uint8Array(original)
+      : new Uint8Array(original.buffer, original.byteOffset, original.byteLength)
+  let text: string | undefined
+  if (typeof snapshot === 'string') {
+    if (snapshot !== `[binary ${bytes.byteLength} bytes]`) {
+      text = snapshot
+    } else {
+      try {
+        new TextDecoder('utf-8', { fatal: true }).decode(bytes)
+        text = snapshot
+      } catch (_error) {
+        // A genuine non-text body is retained byte-for-byte below.
+      }
+    }
+  }
+
+  if (text === undefined) {
+    if (original instanceof ArrayBuffer) return original.slice(0)
+    const copy = bytes.slice()
+    if (original instanceof DataView) return new DataView(copy.buffer)
+    if (typeof Buffer !== 'undefined' && original instanceof Buffer) return Buffer.from(copy)
+    const View = original.constructor as new (values: Uint8Array) => ArrayBufferView
+    return new View(copy)
+  }
+
+  const encoded = new TextEncoder().encode(text)
+  if (original instanceof ArrayBuffer) return encoded.buffer
+  if (original instanceof DataView) return new DataView(encoded.buffer)
+  if (typeof Buffer !== 'undefined' && original instanceof Buffer) return Buffer.from(encoded)
+  const View = original.constructor as new (values: Uint8Array) => ArrayBufferView
+  return new View(encoded)
+}
+
 /** Scrub response headers/body into a new tree and project safe request metadata onto it. */
 const errorResponse = (response: HttpResponse): HttpResponse => {
   const config = errorRequestConfig(response.config)
-  const scrubbed = redactCredentials(response)
-  return { ...scrubbed, config }
+  const scrubbed = snapshotCredentials(response)
+  return {
+    ...scrubbed,
+    data:
+      typeof Blob !== 'undefined' &&
+      response.data instanceof Blob &&
+      retainedErrorBlobs.has(response.data)
+        ? response.data
+        : retainedBinaryBody(response.data, scrubbed.data),
+    config,
+  }
+}
+
+/**
+ * Materialize a failed response Blob before the synchronous HttpError capture. Readable UTF-8
+ * becomes a new Blob containing scrubbed text with the original type; non-text or unreadable
+ * bytes stay binary in a fresh Blob. Successful responses never pass through this helper.
+ *
+ * @param body - A response body about to be retained on a failed request.
+ * @returns The unchanged non-Blob body, or a new scrubbed Blob.
+ */
+export const snapshotHttpErrorBody = async <T>(body: T): Promise<T> => {
+  if (typeof Blob === 'undefined' || !(body instanceof Blob)) return body
+  try {
+    const bytes = await body.arrayBuffer()
+    const text = new TextDecoder('utf-8', { fatal: true }).decode(bytes)
+    const snapshot = new Blob([snapshotCredentials(text)], { type: body.type })
+    retainedErrorBlobs.add(snapshot)
+    return snapshot as T
+  } catch (_error) {
+    try {
+      const snapshot = new Blob([await body.arrayBuffer()], { type: body.type })
+      retainedErrorBlobs.add(snapshot)
+      return snapshot as T
+    } catch (_unreadable) {
+      retainedErrorBlobs.add(body)
+      return body
+    }
+  }
 }
 
 /**
@@ -281,7 +359,7 @@ export class HttpError extends Error {
     public errorKey?: string,
     public aborted = false,
   ) {
-    super(redactCredentials(message))
+    super(snapshotCredentials(message))
     this.name = 'HttpError'
     this.response = response ? errorResponse(response) : undefined
     this.config = config ? errorRequestConfig(config) : undefined

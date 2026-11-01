@@ -14,7 +14,7 @@ import type { AuthTokenResolver, HttpClient, HttpClientConfig } from './client.j
 import type { ErrorInterceptor, RequestInterceptor, ResponseInterceptor } from './interceptors.js'
 import { retryDelayMs, shouldRetryRequest } from './retry.js'
 import type { FullRequestConfig, HttpResponse, RequestConfig } from './types.js'
-import { HttpError } from './types.js'
+import { HttpError, snapshotHttpErrorBody } from './types.js'
 
 /** Wait for a retry backoff. */
 function sleep(ms: number): Promise<void> {
@@ -273,6 +273,7 @@ export const createFetchClient = (config: HttpClientConfig = {}): HttpClient => 
 
           // Handle error status codes
           if (!fetchResponse.ok) {
+            response.data = await snapshotHttpErrorBody(response.data)
             logger.warn('HTTP error', finalConfig.method, url, fetchResponse.status)
             const error = new HttpError(
               t(
