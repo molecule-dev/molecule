@@ -25,7 +25,10 @@ vi.mock('e2b', () => ({
       state.failuresToServe -= 1
       throw new Error('transient: the e2b module failed to initialise')
     }
-    return { list: listSandbox, connect: vi.fn() }
+    return class Sandbox {
+      static list = listSandbox
+      static connect = vi.fn()
+    }
   },
   SandboxNotFoundError: class SandboxNotFoundError extends Error {
     override name = 'SandboxNotFoundError'

@@ -26,10 +26,10 @@ const { listSandbox, listSnapshotsStatic, connectSandbox } = vi.hoisted(() => ({
 }))
 
 vi.mock('e2b', () => ({
-  Sandbox: {
-    list: listSandbox,
-    connect: connectSandbox,
-    listSnapshots: listSnapshotsStatic,
+  Sandbox: class Sandbox {
+    static list = listSandbox
+    static connect = connectSandbox
+    static listSnapshots = listSnapshotsStatic
   },
   SandboxNotFoundError: class SandboxNotFoundError extends Error {
     override name = 'SandboxNotFoundError'

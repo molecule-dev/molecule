@@ -836,6 +836,25 @@ class DockerSandboxProvider implements SandboxProvider {
     }
   }
 
+  /** Read through Docker's archive endpoint, with no exec or lifecycle fallback. */
+  async readOnly(id: string): Promise<Pick<Sandbox, 'readFileBytes' | 'exportFiles'> | null> {
+    if ((await this.describe(id))?.status !== 'running') return null
+    return {
+      exportFiles: async (path: string) => {
+        if ((await this.describe(id))?.status !== 'running')
+          throw new Error('Passive sandbox files unavailable')
+        return exportContainerFiles(
+          {
+            download: (p, timeoutMs) => this.dockerDownload(p, timeoutMs),
+            upload: (p, archive, timeoutMs) => this.dockerUpload(p, archive, timeoutMs),
+          },
+          id,
+          path,
+        )
+      },
+    }
+  }
+
   /**
    * Lists all sandbox containers managed by this provider (filtered by the `managed=true` label).
    * @param _userId - Reserved for future per-user filtering; currently returns all managed containers.

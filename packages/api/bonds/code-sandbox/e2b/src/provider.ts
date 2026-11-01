@@ -9,6 +9,8 @@
  * @module
  */
 
+import type { Sandbox as NativeSandbox } from 'e2b'
+
 import type {
   CommitTemplateOptions,
   DirEntry,
@@ -175,9 +177,32 @@ async function raceWithClearedTimer<T>(promise: Promise<T>, ms: number): Promise
  * Adapt the real `e2b` SDK `Sandbox` class to {@link E2BSandboxClientLike}.
  * Imported lazily so the SDK is only required when the bond is actually used.
  */
+export function e2bPassiveSandboxClass(sdkSandbox: typeof NativeSandbox): typeof NativeSandbox {
+  /** Captures constructor facts without contacting or resuming the sandbox. */
+  class PassiveSandbox extends sdkSandbox {
+    private readonly version: string
+    constructor(opts: ConstructorParameters<typeof sdkSandbox>[0]) {
+      super(opts)
+      this.version = opts.envdVersion
+    }
+    /** Returns an opaque credential for encrypted provider-owned persistence. */
+    readDescriptor(): string {
+      return JSON.stringify({
+        sandboxId: this.sandboxId,
+        sandboxDomain: this.sandboxDomain,
+        envdAccessToken: this.envdAccessToken,
+        envdVersion: this.version,
+      })
+    }
+  }
+  return PassiveSandbox
+}
+
+/** Adapts the native SDK while keeping read-only reconstruction separate from connect. */
 async function defaultClient(apiKey: string): Promise<E2BSandboxClientLike> {
   const { Sandbox, SandboxNotFoundError, Volume: VolumeClass } = await import('e2b')
-  const S = Sandbox as unknown as {
+  const PassiveSandbox = e2bPassiveSandboxClass(Sandbox)
+  const S = PassiveSandbox as unknown as {
     create(template: string, opts?: Record<string, unknown>): Promise<E2BSandboxLike>
     connect(id: string, opts?: Record<string, unknown>): Promise<E2BSandboxLike>
     list(opts?: Record<string, unknown>): unknown
@@ -198,6 +223,16 @@ async function defaultClient(apiKey: string): Promise<E2BSandboxClientLike> {
   return {
     create: (templateId, opts) => S.create(templateId, { apiKey, ...opts }),
     connect: (id, opts) => S.connect(id, { apiKey, ...opts }),
+    readHandle: (serialized) => {
+      const native = new PassiveSandbox({
+        ...(JSON.parse(serialized) as ConstructorParameters<typeof Sandbox>[0]),
+        apiKey,
+      })
+      return {
+        sandboxId: native.sandboxId,
+        readFile: (path) => native.files.read(path, { format: 'bytes' }),
+      }
+    },
     kill: (id, opts) => S.kill(id, { apiKey, ...opts }),
     getInfo: (id, opts) => S.getInfo(id, { apiKey, ...opts }),
     createVolume: (name) => V.create(name, { apiKey }),
@@ -1200,7 +1235,11 @@ export class E2BSandboxProvider implements SandboxProvider {
     routable: false,
   }
 
-  private readonly config: Required<Omit<E2BConfig, 'apiKey'>> & { apiKey: string }
+  private readonly config: Required<Omit<E2BConfig, 'apiKey' | 'readHandleStore'>> & {
+    apiKey: string
+  }
+  private readonly readHandleStore: E2BConfig['readHandleStore']
+  private readonly readHandles = new Map<string, E2BSandboxLike>()
   private clientPromise: Promise<E2BSandboxClientLike> | null = null
   private readonly clientOverride?: E2BSandboxClientLike
 
@@ -1211,6 +1250,7 @@ export class E2BSandboxProvider implements SandboxProvider {
    * @param clientOverride - Inject a fake client (tests).
    */
   constructor(config: E2BConfig = {}, clientOverride?: E2BSandboxClientLike) {
+    this.readHandleStore = config.readHandleStore
     const apiKey = config.apiKey ?? process.env.E2B_API_KEY ?? ''
     this.config = {
       apiKey,
@@ -1317,12 +1357,13 @@ export class E2BSandboxProvider implements SandboxProvider {
       metadata: { projectId: config.projectId, ...(config.labels ?? {}) },
       lifecycle:
         onTimeout === 'kill'
-          ? { onTimeout: 'kill' }
-          : { onTimeout: { action: 'pause', keepMemory: true } },
+          ? { onTimeout: 'kill', autoResume: false }
+          : { onTimeout: { action: 'pause', keepMemory: true }, autoResume: false },
       ...(config.volumeName
         ? { volumeMounts: { [config.volumeMountPath as string]: config.volumeName } }
         : {}),
     })
+    await this.rememberReadHandle(sbx)
     const handle = new E2BSandbox(sbx, client, {
       previewPort: this.config.defaultPreviewPort,
       timeoutMs: this.config.defaultTimeoutMs,
@@ -1365,6 +1406,55 @@ export class E2BSandboxProvider implements SandboxProvider {
     return this.connectHandle(id, true)
   }
 
+  /** Keeps authorized local reads working even when optional shared persistence is unavailable. */
+  private async rememberReadHandle(sbx: E2BSandboxLike): Promise<void> {
+    this.readHandles.set(sbx.sandboxId, sbx)
+    if (this.readHandleStore && sbx.readDescriptor) {
+      try {
+        await this.readHandleStore.set(sbx.sandboxId, sbx.readDescriptor())
+      } catch (_error1) {
+        /* The live authorized handle remains usable; another API reports passive access unavailable. */
+      }
+    }
+  }
+
+  /** Direct native files GET only. Even a running auto-resuming sandbox is refused. */
+  async readOnly(id: string): Promise<Pick<Sandbox, 'readFileBytes' | 'exportFiles'> | null> {
+    const client = await this.client()
+    if (!client.getInfo) return null
+    const readable = async (): Promise<boolean> => {
+      const info = await client.getInfo!(id)
+      return info.state === 'running' && info.lifecycle?.autoResume === false
+    }
+    if (!(await readable())) return null
+    const handle = this.readHandles.get(id)
+    let readBytes = handle
+      ? (path: string) =>
+          handle.files.read(path, { format: 'bytes' as const, requestTimeoutMs: 10_000 })
+      : null
+    if (!readBytes && this.readHandleStore && client.readHandle) {
+      const serialized = await this.readHandleStore.get(id)
+      if (serialized) {
+        const restored = client.readHandle(serialized)
+        if (restored.sandboxId !== id) throw new Error('Passive sandbox handle identity mismatch')
+        readBytes = (path) => restored.readFile(path)
+      }
+    }
+    if (!readBytes) return null
+    return {
+      readFileBytes: async (path: string) => {
+        if (!(await readable())) throw new Error('Passive sandbox files unavailable')
+        try {
+          return await readBytes(path)
+        } catch (error) {
+          if (error instanceof Error && error.name === 'NotFoundError')
+            throw Object.assign(new Error('Sandbox file not found'), { code: 'ENOENT' })
+          throw error
+        }
+      },
+    }
+  }
+
   /**
    * Connect to `id` and wrap the live instance in a handle.
    *
@@ -1391,6 +1481,7 @@ export class E2BSandboxProvider implements SandboxProvider {
         id,
         resetDeadline ? { timeoutMs: this.config.defaultTimeoutMs } : undefined,
       )
+      await this.rememberReadHandle(sbx)
       return new E2BSandbox(sbx, client, {
         previewPort: this.config.defaultPreviewPort,
         timeoutMs: this.config.defaultTimeoutMs,

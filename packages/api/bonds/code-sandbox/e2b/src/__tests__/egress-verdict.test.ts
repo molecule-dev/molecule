@@ -123,9 +123,12 @@ describe('verifyEgress() end to end over a fake sandbox', () => {
     })
     await provider.verifyEgress()
     expect(createOpts).toHaveLength(1)
-    expect(createOpts[0]?.lifecycle).toEqual({ onTimeout: 'kill' })
+    expect(createOpts[0]?.lifecycle).toEqual({ onTimeout: 'kill', autoResume: false })
     // A project sandbox still pauses.
     await provider.create({ projectId: 'proj-1', env: {} })
-    expect(createOpts[1]?.lifecycle).toEqual({ onTimeout: { action: 'pause', keepMemory: true } })
+    expect(createOpts[1]?.lifecycle).toEqual({
+      onTimeout: { action: 'pause', keepMemory: true },
+      autoResume: false,
+    })
   })
 })

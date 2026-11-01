@@ -50,6 +50,11 @@ export interface E2BConfig {
    * boundary than a DNS-only policy.
    */
   defaultAllowOut?: string[]
+  /** Encrypted shared storage for passive handles across API instances. Never log its values. */
+  readHandleStore?: {
+    get(id: string): Promise<string | null>
+    set(id: string, serialized: string): Promise<void>
+  }
 }
 
 /** Result of an E2B command run (subset of the SDK's `CommandResult`). */
@@ -149,6 +154,8 @@ export interface E2BPtyLike {
 /** Subset of the SDK's `Sandbox` instance the bond uses. */
 export interface E2BSandboxLike {
   sandboxId: string
+  /** SDK adapter's opaque local connection facts; obtaining them performs no request. */
+  readDescriptor?(): string
   commands: E2BCommandsLike
   /** Present on SDK builds that support pseudo-terminals; absent means no PTY. */
   pty?: E2BPtyLike
@@ -177,6 +184,7 @@ export interface E2BSandboxLike {
  */
 export interface E2BSandboxInfoLike {
   sandboxId: string
+  lifecycle?: { autoResume?: boolean }
   templateId?: string
   /** `'running'` or `'paused'`; anything else is treated as running. */
   state?: string
@@ -229,6 +237,11 @@ export interface E2BSnapshotLike {
 export interface E2BSandboxClientLike {
   create(templateId: string, opts?: Record<string, unknown>): Promise<E2BSandboxLike>
   connect(sandboxId: string, opts?: Record<string, unknown>): Promise<E2BSandboxLike>
+  /** Reconstruct local file access without Sandbox.connect or a keepalive. */
+  readHandle?(serialized: string): {
+    sandboxId: string
+    readFile(path: string): Promise<Uint8Array>
+  }
   list(
     opts?: Record<string, unknown>,
   ): Promise<E2BSandboxListItem[] | { sandboxes?: E2BSandboxListItem[] }>

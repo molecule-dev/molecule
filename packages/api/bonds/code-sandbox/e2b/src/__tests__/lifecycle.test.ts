@@ -202,7 +202,10 @@ describe('create() — pause at the timeout, never kill', () => {
 
     // E2B's default is onTimeout:'kill' — which would destroy the only copy of
     // the project's files an hour after the last touch.
-    expect(opts?.lifecycle).toEqual({ onTimeout: { action: 'pause', keepMemory: true } })
+    expect(opts?.lifecycle).toEqual({
+      onTimeout: { action: 'pause', keepMemory: true },
+      autoResume: false,
+    })
     // keepMemory is what makes resume() honest about processesPreserved.
     expect(opts?.metadata).toMatchObject({ projectId: 'proj-1' })
   })

@@ -810,6 +810,14 @@ export interface SandboxProvider {
 
   create(config: SandboxConfig): Promise<Sandbox>
   get(id: string): Promise<Sandbox | null>
+
+  /**
+   * Passive file access to an already-running sandbox. Never connects, resumes,
+   * extends a deadline, or runs a command. Returns null when a passive handle is
+   * unavailable (including paused or traffic-auto-resuming sandboxes). A failed
+   * probe throws; it is never empty history. At least one byte/archive reader is present.
+   */
+  readOnly?(id: string): Promise<Pick<Sandbox, 'readFileBytes' | 'exportFiles'> | null>
   list(userId: string): Promise<Sandbox[]>
   destroy(id: string): Promise<void>
 
