@@ -12,8 +12,9 @@
  * else. Explicit `rootDir` config when a test or a platform wants an isolated
  * store. On the first open, an existing plain-file store is imported in one
  * SQLite transaction and left untouched. Every provider call therefore sees
- * the complete imported state; an unreadable or partial import fails that open
- * without a completion marker and is retried on the next open.
+ * the complete imported state. Transient I/O failures and JSON modified within
+ * the last minute fail that open for retry; older malformed JSON is preserved
+ * under `legacy-unreadable/` and listed by `status()` or `paracrine status`.
  *
  * **Interoperability is the point.** A harness with no bond support
  * participates through the CLI (`npx @molecule/api-paracrine-file -- …` via

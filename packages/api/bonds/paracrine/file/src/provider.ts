@@ -18,6 +18,7 @@ import type {
   ParacrineFileClaimOptions,
   ParacrineFileClaimReference,
   ParacrineFileProvider,
+  ParacrineFileStatus,
 } from './types.js'
 import { assertAgentId, assertMessageId } from './validation.js'
 
@@ -123,6 +124,10 @@ export function createProvider(config: ParacrineFileConfig = {}): ParacrineFileP
         assertAgentId(claim.recipientId, 'mailbox')
       }
       database.releaseClaims(claims)
+    },
+
+    async status(): Promise<ParacrineFileStatus> {
+      return { unreadableLegacyFiles: database.unreadableLegacyFiles() }
     },
 
     close(): void {

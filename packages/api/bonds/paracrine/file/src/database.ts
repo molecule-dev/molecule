@@ -1,7 +1,15 @@
 import { randomUUID } from 'node:crypto'
 import type { Dirent } from 'node:fs'
-import { chmodSync, mkdirSync, readdirSync, readFileSync } from 'node:fs'
-import { join } from 'node:path'
+import {
+  chmodSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  renameSync,
+  statSync,
+  unlinkSync,
+} from 'node:fs'
+import { dirname, join, relative } from 'node:path'
 import { DatabaseSync } from 'node:sqlite'
 
 import './runtime.js'
@@ -27,6 +35,9 @@ import { legacyMessage, MESSAGE_ID } from './validation.js'
 const DEFAULT_LEASE_MS = 30_000
 const DELIVERY_SUFFIX = '.delivered'
 const EPOCH = '1970-01-01T00:00:00.000Z'
+const LEGACY_UNREADABLE = 'legacy-unreadable'
+const RECENT_WRITE_MS = 60_000
+const UNREADABLE = Symbol('unreadable legacy JSON')
 
 interface MessageRow {
   id: string
@@ -76,13 +87,14 @@ export class ParacrineDatabase {
     chmodSync(root, 0o700)
     const filename = join(root, 'paracrine.sqlite')
     this.db = new DatabaseSync(filename)
-    chmodSync(filename, 0o600)
-    this.db.exec('PRAGMA busy_timeout = 5000')
-    this.db.exec('PRAGMA journal_mode = WAL')
-    this.db.exec('PRAGMA synchronous = FULL')
-    this.db.exec('PRAGMA foreign_keys = ON')
-    this.transaction(() => {
-      this.db.exec(`
+    try {
+      chmodSync(filename, 0o600)
+      this.db.exec('PRAGMA busy_timeout = 5000')
+      this.db.exec('PRAGMA journal_mode = WAL')
+      this.db.exec('PRAGMA synchronous = FULL')
+      this.db.exec('PRAGMA foreign_keys = ON')
+      this.transaction(() => {
+        this.db.exec(`
         CREATE TABLE IF NOT EXISTS messages (
           id TEXT PRIMARY KEY,
           sender TEXT NOT NULL,
@@ -115,6 +127,10 @@ export class ParacrineDatabase {
           key TEXT PRIMARY KEY,
           value TEXT NOT NULL
         );
+        CREATE TABLE IF NOT EXISTS legacy_unreadable (
+          path TEXT PRIMARY KEY,
+          original_path TEXT NOT NULL
+        );
         ${RECEIPTS_SCHEMA}
         CREATE INDEX IF NOT EXISTS deliveries_pending_selection
           ON deliveries(recipient, selection_group, sent_ms, message_id)
@@ -123,13 +139,29 @@ export class ParacrineDatabase {
           ON deliveries(recipient, selection_group, sent_ms, message_id, claimed_at)
           WHERE state = 'claimed';
         PRAGMA user_version = 1;
-      `)
-    })
+        `)
+      })
+    } catch (error) {
+      try {
+        this.db.close()
+      } catch (_error) {
+        // Preserve the initialization failure rather than a secondary close error.
+      }
+      throw error
+    }
   }
 
   /** Close this process's SQLite handle. */
   close(): void {
     this.db.close()
+  }
+
+  /** List quarantined files retained beside this store. */
+  unreadableLegacyFiles(): string[] {
+    const rows = this.db.prepare('SELECT path FROM legacy_unreadable ORDER BY path').all() as {
+      path: string
+    }[]
+    return rows.map((row) => join(this.root, row.path))
   }
 
   /** Only a confirmed ENOENT means a legacy tree is absent. */
@@ -141,6 +173,63 @@ export class ParacrineDatabase {
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code === 'ENOENT') return []
       throw error
+    }
+  }
+
+  /** Record both the retained path and its original legacy location. */
+  private recordUnreadable(path: string, originalPath: string): void {
+    this.db
+      .prepare('INSERT OR IGNORE INTO legacy_unreadable(path, original_path) VALUES(?, ?)')
+      .run(path, originalPath)
+  }
+
+  /** Recover records for renames that survived a crash before their transaction committed. */
+  private recordQuarantinedFiles(directory = join(this.root, LEGACY_UNREADABLE)): void {
+    for (const entry of this.directoryEntries(directory)) {
+      const path = join(directory, entry.name)
+      if (entry.isDirectory()) {
+        this.recordQuarantinedFiles(path)
+      } else if (entry.isFile()) {
+        this.recordUnreadable(
+          relative(this.root, path),
+          relative(join(this.root, LEGACY_UNREADABLE), path),
+        )
+      }
+    }
+  }
+
+  /** Retain malformed bytes without overwriting a different quarantined file. */
+  private quarantineLegacyFile(path: string, originalPath: string, raw: string): void {
+    const quarantinedPath = join(LEGACY_UNREADABLE, originalPath)
+    const destination = join(this.root, quarantinedPath)
+    mkdirSync(dirname(destination), { recursive: true, mode: 0o700 })
+    try {
+      const existing = readFileSync(destination, 'utf8')
+      if (existing !== raw) {
+        throw new Error(`Refusing to overwrite a different quarantined file: ${destination}`)
+      }
+      unlinkSync(path)
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT') renameSync(path, destination)
+      else throw error
+    }
+    this.recordUnreadable(quarantinedPath, originalPath)
+  }
+
+  /** Retry fresh partial writes; quarantine only permanently malformed, aged JSON. */
+  private readLegacyJson(path: string, originalPath: string): unknown | typeof UNREADABLE {
+    const raw = readFileSync(path, 'utf8')
+    try {
+      return JSON.parse(raw) as unknown
+    } catch (error) {
+      if (
+        !(error instanceof SyntaxError) ||
+        Date.now() - statSync(path).mtimeMs < RECENT_WRITE_MS
+      ) {
+        throw error
+      }
+      this.quarantineLegacyFile(path, originalPath, raw)
+      return UNREADABLE
     }
   }
 
@@ -239,13 +328,12 @@ export class ParacrineDatabase {
   }
 
   /** Import a 1.1.0 read receipt under its exact, case-sensitive identity. */
-  private importReceipt(messageId: string, name: string, raw: string): void {
+  private importReceipt(messageId: string, name: string, parsed: unknown): void {
     const recipient = name.slice(0, -5)
     if (!isParacrineAgentId(recipient)) return
     const existing = this.db.prepare('SELECT sent_at FROM messages WHERE id = ?').get(messageId) as
       { sent_at: string } | undefined
     let at = existing?.sent_at ?? EPOCH
-    const parsed = JSON.parse(raw) as unknown
     if (typeof parsed === 'object' && parsed !== null && 'at' in parsed) {
       const candidate = (parsed as { at?: unknown }).at
       if (typeof candidate === 'string') at = candidate
@@ -282,8 +370,10 @@ export class ParacrineDatabase {
       }
       for (const entry of this.directoryEntries(join(messagesRoot, mailbox.name))) {
         if (!entry.isFile() || !entry.name.endsWith('.json')) continue
-        const raw = readFileSync(join(messagesRoot, mailbox.name, entry.name), 'utf8')
-        const message = legacyMessage(JSON.parse(raw))
+        const path = join(messagesRoot, mailbox.name, entry.name)
+        const parsed = this.readLegacyJson(path, join('messages', mailbox.name, entry.name))
+        if (parsed === UNREADABLE) continue
+        const message = legacyMessage(parsed)
         if (message !== null && message.to === mailbox.name) this.importMessage(message)
       }
     }
@@ -296,8 +386,9 @@ export class ParacrineDatabase {
       if (!message.isDirectory() || !MESSAGE_ID.test(message.name)) continue
       for (const entry of this.directoryEntries(join(readsRoot, message.name))) {
         if (entry.isFile() && entry.name.endsWith('.json')) {
-          const raw = readFileSync(join(readsRoot, message.name, entry.name), 'utf8')
-          this.importReceipt(message.name, entry.name, raw)
+          const path = join(readsRoot, message.name, entry.name)
+          const parsed = this.readLegacyJson(path, join('reads', message.name, entry.name))
+          if (parsed !== UNREADABLE) this.importReceipt(message.name, entry.name, parsed)
         }
       }
     }
@@ -315,6 +406,7 @@ export class ParacrineDatabase {
   importLegacy(): void {
     this.transaction(() => {
       if (this.legacyImportComplete()) return
+      this.recordQuarantinedFiles()
       this.importMessages()
       this.importReceipts()
       this.db.prepare("INSERT INTO migration(key, value) VALUES('legacy-complete', 'done')").run()

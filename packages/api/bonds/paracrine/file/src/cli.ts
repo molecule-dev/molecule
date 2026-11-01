@@ -12,6 +12,7 @@
  * paracrine recv  --for <id> [--since <iso>] [--unread] [--prefix <subject-prefix>]
  * paracrine ack   --for <id> <message-id> [<message-id> …]
  * paracrine reads <message-id>
+ * paracrine status
  * ```
  *
  * @module
@@ -111,10 +112,18 @@ export async function runCli(argv: string[], config: ParacrineFileConfig = {}): 
       if (reads.length === 0) return [asText ? '(no receipts)' : '[]']
       return reads.map((read) => render(read, (r) => `read by ${r.by} at ${r.at}`, asText))
     }
+    case 'status': {
+      const status = await store.status()
+      const text =
+        status.unreadableLegacyFiles.length === 0
+          ? '(no unreadable legacy files)'
+          : status.unreadableLegacyFiles.join('\n')
+      return [render(status, () => text, asText)]
+    }
     default:
       throw new UsageError(
-        'usage: paracrine <send|recv|ack|reads> …  (send --from A --to B|--to * body; ' +
-          'recv --for A [--unread]; ack --for A <id…>; reads <id>)',
+        'usage: paracrine <send|recv|ack|reads|status> …  (send --from A --to B|--to * body; ' +
+          'recv --for A [--unread]; ack --for A <id…>; reads <id>; status)',
       )
   }
 }

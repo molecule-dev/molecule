@@ -29,6 +29,12 @@ export interface ParacrineFileClaimedPending {
   hidden: number
 }
 
+/** Diagnostics for legacy files retained outside the active mailbox. */
+export interface ParacrineFileStatus {
+  /** Absolute or root-relative paths of malformed legacy files preserved on disk. */
+  unreadableLegacyFiles: string[]
+}
+
 /** The file store's delivery operations; the core mailbox contract stays unchanged. */
 export type ParacrineFileProvider = ParacrineProvider & {
   /** List pending ids using the previous filename-shaped representation. */
@@ -42,6 +48,8 @@ export type ParacrineFileProvider = ParacrineProvider & {
   acknowledgeClaims(claims: ParacrineFileClaimReference[], by: ParacrineAgentId): Promise<void>
   /** Return only claims still owned by their supplied tokens to pending. */
   releaseClaims(claims: ParacrineFileClaimReference[]): Promise<void>
+  /** Report malformed legacy files retained under `legacy-unreadable/`. */
+  status(): Promise<ParacrineFileStatus>
   /** Close this provider's database handle. */
   close(): void
 }
