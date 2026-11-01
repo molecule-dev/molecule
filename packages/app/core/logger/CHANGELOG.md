@@ -1,5 +1,12 @@
 # @molecule/app-logger
 
+## 1.0.5
+
+### Patch Changes
+
+- Pass every Error argument to the console as a scrubbed Error, not only an error given first.
+- Redact complete credential values across quote boundaries and safely capture shared or detached binary bodies.
+
 ## 1.0.4
 
 ### Patch Changes

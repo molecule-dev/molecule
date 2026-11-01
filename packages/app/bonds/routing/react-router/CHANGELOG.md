@@ -1,5 +1,11 @@
 # @molecule/app-routing-react-router
 
+## 1.2.1
+
+### Patch Changes
+
+- Keep consumed credentials associated with their history entries during Back and Forward navigation.
+
 ## 1.2.0
 
 ### Minor Changes

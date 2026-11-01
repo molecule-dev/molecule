@@ -1,5 +1,11 @@
 # @molecule/app-http
 
+## 1.5.3
+
+### Patch Changes
+
+- Preserve non-enumerable responses and shared binary bodies without throwing on detached buffers.
+
 ## 1.5.2
 
 ### Patch Changes

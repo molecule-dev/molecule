@@ -1,5 +1,11 @@
 # @molecule/app-analytics-posthog
 
+## 1.0.5
+
+### Patch Changes
+
+- Prevent event observers from mutating captured transport data after credential redaction.
+
 ## 1.0.4
 
 ### Patch Changes

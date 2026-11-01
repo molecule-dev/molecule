@@ -1,5 +1,11 @@
 # @molecule/app-realtime-socketio
 
+## 1.1.2
+
+### Patch Changes
+
+- Redact credentials from retained Socket.io join-denied errors.
+
 ## 1.1.0
 
 ### Minor Changes

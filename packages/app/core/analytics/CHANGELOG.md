@@ -1,5 +1,11 @@
 # @molecule/app-analytics
 
+## 1.1.2
+
+### Patch Changes
+
+- Capture every serialized SDK string and preserve safe class data while neutralizing inherited serializers.
+
 ## 1.1.1
 
 ### Patch Changes

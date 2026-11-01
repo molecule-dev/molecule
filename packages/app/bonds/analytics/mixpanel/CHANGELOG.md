@@ -1,5 +1,11 @@
 # @molecule/app-analytics-mixpanel
 
+## 1.0.5
+
+### Patch Changes
+
+- Redact session replay URLs and recording bodies at the SDK transport boundary.
+
 ## 1.0.4
 
 ### Patch Changes

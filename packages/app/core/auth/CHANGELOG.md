@@ -1,5 +1,15 @@
 # @molecule/app-auth
 
+## 3.2.0
+
+### Minor Changes
+
+- Support API-driven two-factor challenges, password methods, and account-ID password endpoints in the shared auth client.
+
+### Patch Changes
+
+- Preserve native HTTP error diagnostics and settle authentication when response capture fails.
+
 ## 3.1.0
 
 ### Minor Changes

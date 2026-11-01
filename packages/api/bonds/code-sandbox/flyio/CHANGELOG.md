@@ -1,5 +1,11 @@
 # @molecule/api-code-sandbox-flyio
 
+## 1.3.8
+
+### Patch Changes
+
+- Require validated ownership before retiring Flycast routes, observed Machines, and diagnostic probe apps.
+
 ## 1.3.7
 
 ### Patch Changes
