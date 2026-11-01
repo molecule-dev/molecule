@@ -21,6 +21,39 @@ import type { PostHogOptions } from './types.js'
 /** Runs after posthog-js has added location, referrer, session and person properties. */
 const scrubSdkUrls = (event: CaptureResult): CaptureResult => snapshotAnalyticsSdkUrls(event)
 
+const DETACHED_OBSERVERS = Symbol.for('@molecule/app-analytics-posthog/detached-observers')
+type ObserverEmitter = {
+  emit: (event: string, ...args: unknown[]) => unknown
+  [DETACHED_OBSERVERS]?: boolean
+}
+
+/** The production ESM build minifies the emitter's field name, but not its public shape. */
+const captureObserverEmitter = (): ObserverEmitter | undefined =>
+  Object.values(Object.getOwnPropertyDescriptors(posthog))
+    .map((descriptor) => descriptor.value as unknown)
+    .find(
+      (value): value is ObserverEmitter =>
+        value !== null &&
+        typeof value === 'object' &&
+        typeof Reflect.get(value, 'emit') === 'function' &&
+        typeof Reflect.get(value, 'on') === 'function',
+    )
+
+/** eventCaptured is an observer API: mutations must not reach the already-captured request. */
+const detachCaptureObservers = (): void => {
+  const emitter = captureObserverEmitter()
+  if (!emitter || emitter[DETACHED_OBSERVERS]) return
+  const emit = emitter.emit
+  Object.defineProperty(emitter, DETACHED_OBSERVERS, { value: true })
+  emitter.emit = function (event: string, ...args: unknown[]): unknown {
+    const captured =
+      event === 'eventCaptured' && args.length > 0
+        ? [snapshotAnalyticsSdkUrls(args[0]), ...args.slice(1)]
+        : args
+    return Reflect.apply(emit, this, [event, ...captured])
+  }
+}
+
 /**
  * Creates a PostHog analytics provider using `posthog-js`. Initializes the SDK with the
  * provided API key and host, and returns an `AnalyticsProvider` that maps molecule events to
@@ -112,6 +145,7 @@ export const createProvider = (options?: PostHogOptions): AnalyticsProvider => {
       before_send: [...previous.filter((hook) => hook !== scrubSdkUrls), scrubSdkUrls],
     })
   }
+  detachCaptureObservers()
 
   return {
     async identify(user: AnalyticsUserProps): Promise<void> {
