@@ -200,58 +200,51 @@ const errorInterceptorOptions = (
 const errorRequestConfig = (config: FullRequestConfig): FullRequestConfig => {
   const url = redactUrlCredentials(config.url)
   const options = errorInterceptorOptions(config.options)
-  // Preserve the existing object for the already-minimal, credential-free public
-  // construction form; anything richer is reduced so bodies, headers, params and
-  // arbitrary provider options cannot carry credentials into a log entry.
-  if (
-    url === config.url &&
-    options === undefined &&
-    Object.keys(config).every((key) => key === 'method' || key === 'url')
-  ) {
-    return config
-  }
+  // Even the minimal public form is detached: a later caller mutation must not
+  // introduce credentials into the error's retained config or response.config.
   return { method: config.method, url, ...(options ? { options } : {}) }
 }
 
 /** Fresh Blobs already materialized by the async failure boundary; no native property is written. */
 const retainedErrorBlobs = new WeakSet<Blob>()
 
-/** Rebuild a scrubbed textual binary body as a new value of the original binary kind. */
+/** Clone a view over its exact bytes, retaining element width, offset-independent length and kind. */
+const cloneBinaryBody = (original: ArrayBuffer | ArrayBufferView, bytes: Uint8Array): unknown => {
+  if (original instanceof ArrayBuffer) return original.slice(0)
+  const copy = bytes.slice()
+  if (original instanceof DataView) return new DataView(copy.buffer)
+  if (typeof Buffer !== 'undefined' && original instanceof Buffer) return Buffer.from(copy)
+  const View = original.constructor as new (buffer: ArrayBuffer) => ArrayBufferView
+  return new View(copy.buffer)
+}
+
+/** Rebuild only changed textual bytes; unchanged and non-text bodies are cloned byte-for-byte. */
 const retainedBinaryBody = (original: unknown, snapshot: unknown): unknown => {
   if (!(original instanceof ArrayBuffer) && !ArrayBuffer.isView(original)) return snapshot
   const bytes =
     original instanceof ArrayBuffer
       ? new Uint8Array(original)
       : new Uint8Array(original.buffer, original.byteOffset, original.byteLength)
-  let text: string | undefined
-  if (typeof snapshot === 'string') {
-    if (snapshot !== `[binary ${bytes.byteLength} bytes]`) {
-      text = snapshot
-    } else {
-      try {
-        new TextDecoder('utf-8', { fatal: true }).decode(bytes)
-        text = snapshot
-      } catch (_error) {
-        // A genuine non-text body is retained byte-for-byte below.
-      }
-    }
+
+  let decoded: string | undefined
+  try {
+    decoded = new TextDecoder('utf-8', { fatal: true }).decode(bytes)
+  } catch (_error) {
+    // A genuine non-text body is retained byte-for-byte below.
+  }
+  if (decoded === undefined || snapshot === decoded || typeof snapshot !== 'string') {
+    return cloneBinaryBody(original, bytes)
   }
 
-  if (text === undefined) {
-    if (original instanceof ArrayBuffer) return original.slice(0)
-    const copy = bytes.slice()
-    if (original instanceof DataView) return new DataView(copy.buffer)
-    if (typeof Buffer !== 'undefined' && original instanceof Buffer) return Buffer.from(copy)
-    const View = original.constructor as new (values: Uint8Array) => ArrayBufferView
-    return new View(copy)
-  }
-
-  const encoded = new TextEncoder().encode(text)
+  // snapshotCredentials decodes without a BOM. Restore one on changed text too,
+  // then construct typed/BigInt views over bytes rather than numeric elements.
+  const hasUtf8Bom = bytes[0] === 0xef && bytes[1] === 0xbb && bytes[2] === 0xbf
+  const encoded = new TextEncoder().encode(hasUtf8Bom ? `\uFEFF${snapshot}` : snapshot)
   if (original instanceof ArrayBuffer) return encoded.buffer
   if (original instanceof DataView) return new DataView(encoded.buffer)
   if (typeof Buffer !== 'undefined' && original instanceof Buffer) return Buffer.from(encoded)
-  const View = original.constructor as new (values: Uint8Array) => ArrayBufferView
-  return new View(encoded)
+  const View = original.constructor as new (buffer: ArrayBuffer) => ArrayBufferView
+  return new View(encoded.buffer)
 }
 
 /** Scrub response headers/body into a new tree and project safe request metadata onto it. */

@@ -85,7 +85,9 @@ describe('@molecule/app-http', () => {
       expect(error.status).toBe(500)
       expect(error.response).toEqual(mockResponse)
       expect(error.response).not.toBe(mockResponse)
-      expect(error.config).toBe(mockConfig)
+      expect(error.config).toEqual(mockConfig)
+      expect(error.config).not.toBe(mockConfig)
+      expect(error.response?.config).not.toBe(mockResponse.config)
     })
 
     it('should have correct prototype chain', () => {
