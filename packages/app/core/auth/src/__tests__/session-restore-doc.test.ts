@@ -115,3 +115,16 @@ describe('the token wiring the restore does not provide (xr-molecule-flash-m152)
     expect(readme).toContain('setAuthGate(() => authClient.whenRestored())')
   })
 })
+
+describe('the session-adapter boundary in the module description', () => {
+  it.each(['src/index.ts', 'README.md'])(
+    'distinguishes a shared token key from a second session store in %s',
+    (file) => {
+      const doc = read(file)
+      expect(doc).toContain('Sharing `tokenKey`')
+      expect(doc).toContain('copied `user` and `status`')
+      expect(doc).toContain('second session store')
+      expect(doc).toContain('view adapters and debug bridges')
+    },
+  )
+})

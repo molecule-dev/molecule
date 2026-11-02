@@ -45,6 +45,13 @@
  * from `@molecule/app-bonds-default-react`, then call `initialize()`. The bond's
  * HTTP-sync variants also register `whenRestored()` as the request gate.
  *
+ * Sharing `tokenKey` with the bonded client does not make another context or
+ * provider an adapter. A context with copied `user` and `status`, local token
+ * helpers, or a separate restore effect is still a second session store, even
+ * when it uses the same storage key. Keep view adapters and debug bridges beside
+ * the bond, but have them read the bonded client or framework binding instead of
+ * mirroring session state.
+ *
  * **`initialize()` restores a cached token AND user BEFORE the first render.**
  * That restore is synchronous and costs no request. Cookie-only and token-only
  * restoration need an asynchronous current-user request. An HttpOnly
