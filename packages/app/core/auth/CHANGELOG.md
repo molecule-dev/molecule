@@ -1,5 +1,11 @@
 # @molecule/app-auth
 
+## 3.2.2
+
+### Patch Changes
+
+- Clarify that sharing a token key does not turn a separate context or provider with copied session state into an adapter. View and debug adapters should read the bonded client instead of maintaining a second session store.
+
 ## 3.2.1
 
 ### Patch Changes
