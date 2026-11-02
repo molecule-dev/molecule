@@ -23,6 +23,7 @@ import { readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
+import { runInNewContext } from 'node:vm'
 
 import ts from 'typescript'
 import { describe, expect, it, vi } from 'vitest'
@@ -105,6 +106,10 @@ function compileProbe(source: string): string[] {
  */
 function toSourceImports(example: string): string {
   return example
+    .replace(
+      /import \{ getClient \} from '@molecule\/app-auth'/g,
+      "import { getClient } from '../provider.js'",
+    )
     .replace(
       /import type \{([^}]+)\} from '@molecule\/app-auth'/g,
       "import type {$1} from '../types.js'",
@@ -224,6 +229,63 @@ const moduleExamples = [
 ] as const
 
 describe('every module-doc mapper example', () => {
+  it('compiles the synchronous integration reader against the real client', () => {
+    const example = codeBlocks(readSource('index.ts')).find((block) =>
+      block.includes('readSession'),
+    )
+    expect(example, 'a copyable session-reader adapter').toBeDefined()
+    expect(compileProbe(toSourceImports(example!)).join('\n')).toEqual('')
+  })
+
+  it.each([401, 503])(
+    'runs the documented reader through login and a %s recheck',
+    async (status) => {
+      const example = codeBlocks(readSource('index.ts')).find((block) =>
+        block.includes('readSession'),
+      )
+      expect(example, 'a copyable session-reader adapter').toBeDefined()
+      const client = createJWTAuthClient({ tokenKey: 'portal.jwt', autoRefresh: false })
+      const js = ts.transpileModule(example!.replace(/^import .*$/gm, ''), {
+        compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.None },
+      }).outputText
+      const readSession = runInNewContext(`${js}; readSession`, {
+        getClient: () => client,
+      }) as () => {
+        status: string
+        user: { id: string } | null
+        accessToken: string | null
+      }
+      expect(readSession()).toMatchObject({
+        status: 'loading',
+        user: null,
+        accessToken: null,
+      })
+      await client.initialize()
+      expect(readSession().status).toBe('unauthenticated')
+      client.setSession({ accessToken: 'portal-session', user: { id: 'member-42' } })
+      expect(readSession()).toMatchObject({
+        status: 'authenticated',
+        user: { id: 'member-42' },
+        accessToken: 'portal-session',
+      })
+      vi.stubGlobal(
+        'fetch',
+        vi.fn(async () => new Response('{}', { status })),
+      )
+      try {
+        await client.validateSession()
+        expect(readSession()).toMatchObject(
+          status === 401
+            ? { status: 'unauthenticated', user: null, accessToken: null }
+            : { status: 'unavailable', user: { id: 'member-42' }, accessToken: 'portal-session' },
+        )
+        if (status === 503) expect(client.getUser()).not.toHaveProperty('token')
+      } finally {
+        vi.unstubAllGlobals()
+      }
+    },
+  )
+
   it('opens with the handled lifecycle and a twelve-line generic token API example', () => {
     const source = readSource('index.ts')
     const quickStart = source.slice(0, source.indexOf('**Calling `initialize()`'))

@@ -304,6 +304,25 @@
  * `RequestConfig.skipAuthGate` in `@molecule/app-http`.
  *
  * @remarks
+ * **Synchronous getters for application integrations.** Read the shared client
+ * synchronously when an integration needs the raw token, auth state and current user.
+ * These reads create no second store: `getAccessToken()`
+ * returns the token, `getState().status` includes `unavailable`, and `getUser()` reads
+ * the mapped profile. The configured `tokenKey` also applies to these getters.
+ * Keep an integration's response shape local; do not persist another token or user.
+ *
+ * ```typescript
+ * import { getClient } from '@molecule/app-auth'
+ * const readSession = () => {
+ *   const client = getClient()
+ *   return {
+ *     status: client.getState().status,
+ *     user: client.getUser(),
+ *     accessToken: client.getAccessToken(),
+ *   }
+ * }
+ * ```
+ *
  * - **An API with its own auth envelope keeps this client.** `requestBody` wraps the
  *   login/register payload (`(kind, p) => ({ user: p })`), `mapAuthResponse` reads the
  *   token and user out of the answer — keeping the wire bearer OUT of the profile,
