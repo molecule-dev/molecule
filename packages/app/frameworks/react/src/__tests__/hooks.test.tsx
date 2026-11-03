@@ -978,6 +978,253 @@ describe('useHttp', () => {
     expect(result.current.data).toEqual({ id: 1 })
     expect(httpClient.get).toHaveBeenCalledWith('/api/test', expect.any(Object))
   })
+
+  /** A GET whose answers the test releases by hand, in any order. */
+  function heldGets(): {
+    client: HttpClient
+    answer: (index: number, data: unknown) => Promise<void>
+    fail: (index: number, error: Error) => Promise<void>
+  } {
+    const client = createMockHttpClient()
+    const pending: Array<{ resolve: (value: unknown) => void; reject: (error: Error) => void }> = []
+    vi.mocked(client.get).mockImplementation(
+      () =>
+        new Promise((resolve, reject) => {
+          pending.push({ resolve, reject })
+        }) as never,
+    )
+    return {
+      client,
+      answer: async (index, data) => {
+        await act(async () => {
+          pending[index].resolve({ data, status: 200, statusText: 'OK', headers: {} })
+        })
+      },
+      fail: async (index, error) => {
+        await act(async () => {
+          pending[index].reject(error)
+        })
+      },
+    }
+  }
+
+  it('shows the newest request when an older one answers after it', async () => {
+    const held = heldGets()
+    const seen: unknown[] = []
+    const wrapper = ({ children }: { children: ReactNode }): React.JSX.Element => (
+      <HttpProvider client={held.client}>{children}</HttpProvider>
+    )
+    const { result } = renderHook(
+      () => useHttp<string>('GET', '/api/tags', { onSuccess: (data) => seen.push(data) }),
+      { wrapper },
+    )
+    act(() => {
+      void result.current.execute()
+      void result.current.execute()
+    })
+    await held.answer(1, 'newer')
+    expect(result.current.data).toBe('newer')
+    expect(result.current.loading).toBe(false)
+    // The first load answers late: it must not replace what the newer one showed.
+    await held.answer(0, 'older')
+    expect(result.current.data).toBe('newer')
+    // Each request still reports its own outcome to its callback.
+    expect(seen).toEqual(['newer', 'older'])
+  })
+
+  it('keeps loading while a newer request is in flight after an older one answers', async () => {
+    const held = heldGets()
+    const wrapper = ({ children }: { children: ReactNode }): React.JSX.Element => (
+      <HttpProvider client={held.client}>{children}</HttpProvider>
+    )
+    const { result } = renderHook(() => useHttp<string>('GET', '/api/tags'), { wrapper })
+    act(() => {
+      void result.current.execute()
+      void result.current.execute()
+    })
+    await held.answer(0, 'older')
+    expect(result.current.loading).toBe(true)
+    expect(result.current.data).toBeNull()
+    await held.fail(1, new Error('offline'))
+    expect(result.current.loading).toBe(false)
+    expect(result.current.error?.message).toBe('offline')
+  })
+
+  it('does not let a request answered after reset repopulate the state', async () => {
+    const held = heldGets()
+    const wrapper = ({ children }: { children: ReactNode }): React.JSX.Element => (
+      <HttpProvider client={held.client}>{children}</HttpProvider>
+    )
+    const { result } = renderHook(() => useHttp<string>('GET', '/api/tags'), { wrapper })
+    act(() => {
+      void result.current.execute()
+    })
+    act(() => {
+      result.current.reset()
+    })
+    await held.answer(0, 'late')
+    expect(result.current).toMatchObject({ data: null, loading: false, error: null })
+  })
+
+  it('still shows a single request answered in order', async () => {
+    const held = heldGets()
+    const wrapper = ({ children }: { children: ReactNode }): React.JSX.Element => (
+      <HttpProvider client={held.client}>{children}</HttpProvider>
+    )
+    const { result } = renderHook(() => useHttp<string>('GET', '/api/tags'), { wrapper })
+    act(() => {
+      void result.current.execute()
+    })
+    expect(result.current.loading).toBe(true)
+    await held.answer(0, 'only')
+    expect(result.current).toMatchObject({ data: 'only', loading: false, error: null })
+  })
+
+  it('returns each request outcome while only the newest request owns state', async () => {
+    const held = heldGets()
+    const onError = vi.fn()
+    const wrapper = ({ children }: { children: ReactNode }): React.JSX.Element => (
+      <HttpProvider client={held.client}>{children}</HttpProvider>
+    )
+    const { result } = renderHook(() => useHttp<string>('GET', '/api/tags', { onError }), {
+      wrapper,
+    })
+    let older!: Promise<string | null>
+    let newer!: Promise<string | null>
+    act(() => {
+      older = result.current.execute()
+      newer = result.current.execute()
+    })
+    await held.answer(1, 'newer')
+    await expect(newer).resolves.toBe('newer')
+    const error = new Error('older request failed')
+    await held.fail(0, error)
+    await expect(older).resolves.toBeNull()
+    expect(onError).toHaveBeenCalledExactlyOnceWith(error)
+    expect(result.current).toMatchObject({ data: 'newer', loading: false, error: null })
+
+    act(() => {
+      older = result.current.execute()
+      newer = result.current.execute()
+    })
+    await held.answer(3, 'latest')
+    await held.answer(2, 'superseded')
+    await expect(older).resolves.toBe('superseded')
+    await expect(newer).resolves.toBe('latest')
+    expect(result.current.data).toBe('latest')
+  })
+
+  it('keeps each submit callback even when a newer submit owns state', async () => {
+    const held = heldGets()
+    vi.mocked(held.client.post).mockImplementation((_url, _data, config) =>
+      held.client.get('/api/items', config),
+    )
+    const navigate = vi.fn()
+    const wrapper = ({ children }: { children: ReactNode }): React.JSX.Element => (
+      <HttpProvider client={held.client}>{children}</HttpProvider>
+    )
+    const { result } = renderHook(
+      () => useHttp<string>('POST', '/api/items', { onSuccess: navigate }),
+      { wrapper },
+    )
+    act(() => {
+      void result.current.execute()
+      void result.current.execute()
+    })
+    await held.answer(1, 'second receipt')
+    await held.answer(0, 'first receipt')
+    expect(navigate.mock.calls).toEqual([['second receipt'], ['first receipt']])
+    expect(result.current.data).toBe('second receipt')
+  })
+
+  it.each(['success', 'failure'] as const)(
+    'reset supersedes a late %s without cancelling its callback or return value',
+    async (outcome) => {
+      const held = heldGets()
+      const onSuccess = vi.fn()
+      const onError = vi.fn()
+      const wrapper = ({ children }: { children: ReactNode }): React.JSX.Element => (
+        <HttpProvider client={held.client}>{children}</HttpProvider>
+      )
+      const { result } = renderHook(
+        () => useHttp<string>('GET', '/api/tags', { onSuccess, onError }),
+        { wrapper },
+      )
+      let pending!: Promise<string | null>
+      act(() => {
+        pending = result.current.execute()
+        result.current.reset()
+      })
+      if (outcome === 'success') {
+        await held.answer(0, 'late')
+        await expect(pending).resolves.toBe('late')
+        expect(onSuccess).toHaveBeenCalledExactlyOnceWith('late')
+        expect(onError).not.toHaveBeenCalled()
+      } else {
+        const error = new Error('late failure')
+        await held.fail(0, error)
+        await expect(pending).resolves.toBeNull()
+        expect(onError).toHaveBeenCalledExactlyOnceWith(error)
+        expect(onSuccess).not.toHaveBeenCalled()
+      }
+      expect(result.current).toMatchObject({ data: null, loading: false, error: null })
+      act(() => {
+        void result.current.execute()
+      })
+      await held.answer(1, 'after reset')
+      expect(result.current).toMatchObject({ data: 'after reset', loading: false, error: null })
+    },
+  )
+
+  it.each(['success', 'failure'] as const)(
+    'suppresses callbacks after unmount on %s while preserving the request return value',
+    async (outcome) => {
+      const held = heldGets()
+      const onSuccess = vi.fn()
+      const onError = vi.fn()
+      const wrapper = ({ children }: { children: ReactNode }): React.JSX.Element => (
+        <HttpProvider client={held.client}>{children}</HttpProvider>
+      )
+      const { result, unmount } = renderHook(
+        () => useHttp<string>('GET', '/api/tags', { onSuccess, onError }),
+        { wrapper },
+      )
+      const execute = result.current.execute
+      let pending!: Promise<string | null>
+      act(() => {
+        pending = execute()
+      })
+      unmount()
+      if (outcome === 'success') {
+        await held.answer(0, 'late')
+        await expect(pending).resolves.toBe('late')
+      } else {
+        await held.fail(0, new Error('late failure'))
+        await expect(pending).resolves.toBeNull()
+      }
+      expect(onSuccess).not.toHaveBeenCalled()
+      expect(onError).not.toHaveBeenCalled()
+      await expect(execute()).resolves.toBeNull()
+      expect(held.client.get).toHaveBeenCalledTimes(1)
+    },
+  )
+
+  it('shows the newest immediate request when StrictMode replays the mount effect', async () => {
+    const held = heldGets()
+    const onSuccess = vi.fn()
+    const wrapper = ({ children }: { children: ReactNode }): React.JSX.Element => (
+      <HttpProvider client={held.client}>{children}</HttpProvider>
+    )
+    const { result } = renderHook(
+      () => useHttp<string>('GET', '/api/tags', { immediate: true, onSuccess }),
+      { wrapper, reactStrictMode: true },
+    )
+    expect(held.client.get).toHaveBeenCalledTimes(2)
+    await held.answer(1, 'current mount')
+    await held.answer(0, 'replayed mount')
+    expect(result.current).toMatchObject({ data: 'current mount', loading: false, error: null })
+    expect(onSuccess.mock.calls).toEqual([['current mount'], ['replayed mount']])
+  })
 })
 
 describe('useStorageValue', () => {

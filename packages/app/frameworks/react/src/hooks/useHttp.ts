@@ -43,7 +43,8 @@ export interface UseHttpState<T> {
  */
 export interface UseHttpResult<T> extends UseHttpState<T> {
   /**
-   * Runs the request and resolves with its data, or `null` on failure.
+   * Runs the request and resolves with its own data, or `null` on failure,
+   * even when a newer request or `reset` has superseded its displayed state.
    *
    * This function is IDENTITY-STABLE for as long as `method`, `url` and the HTTP
    * client do not change, so it is safe in a `useEffect` dependency array. Its
@@ -67,11 +68,14 @@ export interface UseHttpOptions<T> extends RequestConfig {
    */
   immediate?: boolean
   /**
-   * Callback when request succeeds.
+   * Callback for each request that succeeds while mounted, including a request
+   * superseded by another `execute` or `reset`. Read `data` from the hook when
+   * only the newest request's result should drive the UI.
    */
   onSuccess?: (data: T) => void
   /**
-   * Callback when request fails.
+   * Callback for each request that fails while mounted, including a request
+   * superseded by another `execute` or `reset`.
    */
   onError?: (error: Error) => void
 }
@@ -129,6 +133,12 @@ export function useHttp<T>(
     }
   }, [])
 
+  // The newest request owns the state. Without this, an older request that
+  // answers after a newer one (a slow first load, then a refetch) overwrote the
+  // newer data and cleared `loading` while the newer request was still in flight.
+  // `reset` takes ownership too, so a request it superseded cannot repopulate.
+  const latestRequestRef = useRef(0)
+
   // Publish options during commit, before consumers' layout effects. A render
   // that suspends or is discarded must not change a mounted action's request.
   // This only updates our own ref: no DOM access or state update is involved.
@@ -144,6 +154,10 @@ export function useHttp<T>(
     // request being sent, while method/url/client decide WHICH request execute
     // performs. Reading them here keeps this action stable for effect deps.
     const { immediate: _immediate, onSuccess, onError, ...requestConfig } = optionsRef.current ?? {}
+    const request = ++latestRequestRef.current
+    // Callbacks report THIS request's outcome (a submit's onSuccess still runs);
+    // only the newest request may change what the hook shows.
+    const ownsState = (): boolean => mountedRef.current && request === latestRequestRef.current
 
     setState((prev) => ({ ...prev, loading: true, error: null }))
 
@@ -177,7 +191,7 @@ export function useHttp<T>(
       }
 
       if (mountedRef.current) {
-        setState({ data: response.data, loading: false, error: null })
+        if (ownsState()) setState({ data: response.data, loading: false, error: null })
         onSuccess?.(response.data)
       }
 
@@ -185,7 +199,7 @@ export function useHttp<T>(
     } catch (error) {
       const err = error instanceof Error ? error : new Error(String(error))
       if (mountedRef.current) {
-        setState({ data: null, loading: false, error: err })
+        if (ownsState()) setState({ data: null, loading: false, error: err })
         onError?.(err)
       }
       return null
@@ -193,6 +207,7 @@ export function useHttp<T>(
   }, [client, method, url])
 
   const reset = useCallback(() => {
+    latestRequestRef.current++
     setState({ data: null, loading: false, error: null })
   }, [])
 
