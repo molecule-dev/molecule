@@ -796,7 +796,7 @@ async function backgroundTaskState(
     slice,
   }
 }
-import { isPlatformProofLaunch, suiteCommandTarget } from './suite-overlap.js'
+import { isPlatformProofLaunch, type RunEnvSetting, suiteCommandTarget } from './suite-overlap.js'
 import { diagnosisTraceCommand, namesNoRetries } from './trace-artifacts.js'
 import type { ExecutionBackend, ToolBuildConfig } from './types.js'
 import {
@@ -1588,6 +1588,52 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
     let result = stripControlChars(s)
     if (doRedact) result = redactSecrets(result)
     return result
+  }
+
+  /**
+   * Build a finished command's causes before either output cut, using the same request scope
+   * and redaction for foreground, quick detached completions and completed waits.
+   *
+   * @param output - The command's whole diagnostic output.
+   * @param run - The original invocation and log path, when known.
+   * @returns A sanitized recap, or null when no recap is needed.
+   */
+  async function finishedFailureCauses(
+    output: string,
+    run?: { command: string; cwd: string; log?: string },
+  ): Promise<string | null> {
+    const excluded = excludedTestTitles?.() ?? []
+    let note = failureCausesNote(output, excluded, run)
+    if (note === null) return null
+    let env: readonly RunEnvSetting[] = []
+    if (run && requiredSuiteEnv) {
+      try {
+        env = (await requiredSuiteEnv(run.command, run.cwd)) ?? []
+      } catch (_error) {
+        // Request context is optional; an unreadable context leaves the original invocation.
+      }
+    }
+    if (run && env.length > 0) note = failureCausesNote(output, excluded, { ...run, env })
+    return note === null ? null : sanitizeOutput(note)
+  }
+
+  /**
+   * Keep a bounded failure recap whole when execution advice shares its result.
+   *
+   * @param notes - The result's notes, in their original order.
+   * @param causes - The failure recap, when present among the notes.
+   * @returns The note fields, separating execution advice if combining it would cut a re-run.
+   */
+  function finishedNotes(
+    notes: readonly (string | null | undefined)[],
+    causes: string | null,
+  ): { note?: string; executionNote?: string } {
+    const present = notes.filter((note): note is string => Boolean(note))
+    if (present.length === 0) return {}
+    const note = present.join(' ')
+    return causes !== null && note.length > TOOL_RESULT_CHARS
+      ? { note: causes, executionNote: present.filter((part) => part !== causes).join(' ') }
+      : { note }
   }
 
   /**
@@ -3465,6 +3511,11 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
                   streaming.reportPath === undefined
                     ? null
                     : await readPlaywrightRunReport(backend, streaming.reportPath, sanitizeOutput)
+                const causes = await finishedFailureCauses(output, {
+                  command: streaming.command,
+                  cwd,
+                  log: ownFile ?? log,
+                })
                 if (cut) {
                   return {
                     stdout,
@@ -3490,6 +3541,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
                               : SPLIT_WORK_ADVICE
                           }`),
                     ...(graceReport === null ? {} : { runReport: graceReport }),
+                    ...(causes === null ? {} : { note: causes }),
                   }
                 }
                 // The exit file holds the PIPELINE's code: when a stage this rewrite could not
@@ -3511,6 +3563,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
                   ...(budgetNote ? [budgetNote] : []),
                   ...streaming.changes,
                   ...(exitNote === null ? [] : [exitNote]),
+                  ...(causes === null ? [] : [causes]),
                 ]
                 return {
                   stdout,
@@ -3518,7 +3571,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
                   exitCode: reported,
                   ...(pipeNote === null ? {} : { exitCodeNote: pipeNote }),
                   ...(output.length > MAX_OUTPUT_SIZE ? { truncated: true, fullOutput: log } : {}),
-                  ...(notes.length ? { note: notes.join(' ') } : {}),
+                  ...finishedNotes(notes, causes),
                   ...suiteBudgetField(budget),
                   ...(graceReport === null ? {} : { runReport: graceReport }),
                 }
@@ -3647,6 +3700,9 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           : sanitizeOutput
         const stdout = grade(truncateMiddle(result.stdout, MAX_OUTPUT_SIZE))
         const stderr = sanitizeOutput(truncateMiddle(result.stderr, MAX_OUTPUT_SIZE))
+        const causes = isSuiteRunCommand(command)
+          ? await finishedFailureCauses(`${result.stdout}\n${result.stderr}`, { command, cwd })
+          : null
         // Whether the stdout above is a middle cut of what the command printed. Said on the
         // result because a reader that records what this call DELIVERED cannot otherwise tell
         // a whole file from a holed one, and must not point at a holed output as "already
@@ -3713,6 +3769,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
                       : SPLIT_WORK_ADVICE),
             ...(runReport === null ? {} : { runReport }),
             ...(stdoutTruncated ? { stdoutTruncated: true } : {}),
+            ...(causes === null ? {} : { note: causes }),
           }
         }
         // A pipeline reports its LAST stage's code: `tsc | head` says 0 beside a printed type
@@ -3731,11 +3788,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           ...(exitCodeNote === null ? {} : { exitCodeNote }),
           ...(peekedTask?.slice.trim() ? { outputSoFar: sanitizeOutput(peekedTask.slice) } : {}),
           ...suiteBudgetField(budget),
-          ...(sleepNote || ceilingNote || traced.change || budgetNote
-            ? {
-                note: [sleepNote, ceilingNote, traced.change, budgetNote].filter(Boolean).join(' '),
-              }
-            : {}),
+          ...finishedNotes([sleepNote, ceilingNote, traced.change, budgetNote, causes], causes),
           ...(runReport === null ? {} : { runReport }),
           ...(stdoutTruncated ? { stdoutTruncated: true } : {}),
         }
@@ -4323,19 +4376,14 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       // configuration again (m182: the request names `TEST_MODE=fullstack`, the run and its
       // re-run both omitted it, and the walk measured the `spa` suite). The consumer's reading,
       // asked once per finished run; a failure to read answers "nothing required".
-      const requiredEnv =
-        run && requiredSuiteEnv
-          ? ((await requiredSuiteEnv(run.command, run.cwd).catch(() => [])) ?? [])
-          : []
       // The tests the request excludes are not causes to fix, and the re-run below inverts them
       // out — a result must never ask the executor to fix a test it also says does not count.
       // The log's own path rides along so a recap that leaves causes out can hand over the ONE
       // grep that prints their bodies: the stdout above is cut in the middle, so the log is where
       // they still are whole.
-      const causes = failureCausesNote(
+      const causes = await finishedFailureCauses(
         output,
-        excludedTestTitles?.() ?? [],
-        run ? { ...run, log: ownFile ?? log, env: requiredEnv } : undefined,
+        run ? { ...run, log: ownFile ?? log } : undefined,
       )
       // A backgrounded run is under no tool budget, and the exit file hands back the PIPELINE's
       // code — so a suite killed at a `timeout 280` the command carried behind a `| tail` reports
@@ -4362,7 +4410,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           exitCode: cut.exitCode,
           waitedMs,
           cutRun: cut,
-          note: [cutRunSentence(cut), causes].filter((n): n is string => Boolean(n)).join(' '),
+          ...finishedNotes([cutRunSentence(cut), causes], causes),
           stdout: sanitizeOutput(truncateMiddle(output, MAX_OUTPUT_SIZE)),
           ...(output.length > MAX_OUTPUT_SIZE ? { truncated: true, fullOutput: log } : {}),
           ...(runReport === null ? {} : { runReport }),
@@ -4396,13 +4444,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         status: 'completed',
         exitCode: reported,
         waitedMs,
-        ...(causes || noCodeNote || endedNote
-          ? {
-              note: [causes, noCodeNote, endedNote]
-                .filter((n): n is string => Boolean(n))
-                .join(' '),
-            }
-          : {}),
+        ...finishedNotes([causes, noCodeNote, endedNote], causes),
         stdout: sanitizeOutput(truncateMiddle(output, MAX_OUTPUT_SIZE)),
         ...(output.length > MAX_OUTPUT_SIZE ? { truncated: true, fullOutput: log } : {}),
         ...(runReport === null ? {} : { runReport }),

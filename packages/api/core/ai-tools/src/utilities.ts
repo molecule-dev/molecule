@@ -4463,16 +4463,21 @@ function noBaseUrlConfigNote(
   // to find instead of repeating the mistake.
   const rerun = run && config ? rerunOfRunningSuite(run, locations, excluded) : null
   const command = rerun ?? (run && config ? withSuiteConfig(run.command, config) : null)
-  return (
-    `Every one of these ${total} failures is the same configuration failure, not a result about ` +
-    `the app: the run loaded no base URL, so every \`page.goto\` was refused with ` +
-    `\`Cannot navigate to invalid URL\` before a page opened. Nothing here is a defect to fix. ` +
-    (config
-      ? `\`${config}\` is the config that sets \`use.baseURL\`, and the run before this one loaded ` +
-        `it; this command left it out. `
-      : 'The app’s own Playwright config (the one that sets `use.baseURL`) has to be passed ' +
-        'with `--config`; this command names none. ') +
-    (command ? `Send exactly this: \`${command}\`` : '')
+  return boundedFailureRecap(
+    (total === 1
+      ? 'This failure is a configuration failure, not a result about '
+      : `Every one of these ${total} failures is the same configuration failure, not a result about `) +
+      `the app: the run loaded no base URL, so every \`page.goto\` was refused with ` +
+      `\`Cannot navigate to invalid URL\` before a page opened. Nothing here is a defect to fix. ` +
+      (config
+        ? `\`${config}\` is the config that sets \`use.baseURL\`, and the run before this one loaded ` +
+          `it; this command left it out. `
+        : 'The app’s own Playwright config (the one that sets `use.baseURL`) has to be passed ' +
+          'with `--config`; this command names none. ') +
+      (command !== null && command.length > FAILURE_CAUSES_CHARS && locations.length > 0
+        ? `Failing tests: ${locations.join(', ')}. `
+        : ''),
+    failureRerunSentence(command, 'Send exactly this: '),
   )
 }
 
@@ -4676,8 +4681,8 @@ export function missingHeaderNote(
 }
 
 /**
- * The one-line-per-cause summary of a finished run's failures, or null when the run named none,
- * or named one in a log short enough that the result shows its error whole.
+ * The one-line-per-cause summary of a run's failures, or null when the run named none,
+ * or named one in a short log returned whole to the reader.
  *
  * This is what makes a run worth finishing: every cause the run found, in the result the
  * executor reads, so one round of fixes covers all of them rather than the one cause a run
@@ -4695,11 +4700,16 @@ export function missingHeaderNote(
  * configuration failure, said in one line ({@link noBaseUrlConfigNote}) rather than a list that
  * reads as ten defects in the app.
  *
- * @param log - The finished run's output.
+ * @param log - The diagnostic log, which may be a running or explicitly clipped read.
  * @param excluded - The test titles the request carves out, if the caller knows them.
  * @param run - How the run was started, when the caller knows it: the narrowed re-run is built
  *   from `command`/`cwd`/`config`/`env`, and `log` (the path the output was written to) is what
  *   the "left out" sentence greps when more causes exist than the result has room for.
+ * @param pageErrors - Page evidence for the tests whose failures are being summarized.
+ * @param regressedSpecs - Specs whose selector contracts were broken by subsequent edits.
+ * @param displayedLog - The log text returned to the reader, when different from the diagnostic
+ *   log (for example a running task's failure headings and tail). A short diagnostic read does
+ *   not prove that this separate display delivered its error, so it also gets a single recap.
  * @returns The note, or null.
  */
 export function failureCausesNote(
@@ -4720,15 +4730,16 @@ export function failureCausesNote(
    * element the edit removed were never walked (a real tree shipped that).
    */
   regressedSpecs: readonly string[] = [],
+  displayedLog: string = log,
 ): string | null {
   const { causes, ignored, flaky } = groupFailures(log, excluded, pageErrors)
   const total = causes.reduce((n, c) => n + c.tests.length, 0)
-  // One failure is not a group, and a log that fits the tool-result cut already shows its error.
-  // A longer log loses its MIDDLE to that cut ({@link TOOL_RESULT_CHARS}) — and the middle is
-  // where a list run writes a failing test's error, as that test fails. So a run with ONE failure
-  // reached the executor as a title and nothing else: X1 l1162 and l1167 (2026-11-03) each had
-  // one test left after their first deploy, got no error for it, and read the spec to guess.
-  if (total === 0 || (total === 1 && log.length <= TOOL_RESULT_CHARS)) return null
+  // A short log needs no single recap only when it is also the displayed log. A long log MAY
+  // lose the inline error to the host's middle cut; the 100 KB formatter may instead preserve
+  // its failure blocks, and a mid-run caller displays a separate slice. Neither the log's length
+  // nor a single failure establishes where the displayed output was cut.
+  if (total === 0 || (total === 1 && log.length <= TOOL_RESULT_CHARS && displayedLog === log))
+    return null
   // One cause that is not in the app: every failure is the browser refusing a navigation with no
   // base URL. The list shape is what m113 read as ten causes, so it is never printed for this.
   if (causes.every((c) => c.message !== null && NO_BASE_URL_ERROR.test(c.message)))
@@ -4752,17 +4763,17 @@ export function failureCausesNote(
   // cause and it is the server — so the note leads with the browser's own line, not a fix round.
   const networkError = NETWORK_ERROR_TEXT.exec(log)?.[0]
   if (networkError !== undefined && everyCauseIsNavigationTimeout(causes)) {
-    return (
+    return boundedFailureRecap(
       `${total} failure${total === 1 ? '' : 's'} in this run, and every one is a \`page.goto\` ` +
-      `that never loaded while the browser reported \`${networkError}\` — the document request ` +
-      `itself failed, so none of these is the app’s code or a selector. Fix the server first` +
-      (networkError === 'net::ERR_CONTENT_DECODING_FAILED'
-        ? ': a body whose gzip `content-encoding` no longer matches its bytes does this, and a ' +
-          '`vite preview` over a build must be started with ' +
-          '`MOL_E2E_PREVIEW_PLUGIN=0 npx vite preview --host 127.0.0.1 --port 4173 --strictPort`'
-        : ' (what the run hit, and why it refused the connection)') +
-      (rerun ? `. Then send exactly this: \`${rerun}\`` : '') +
-      (locations.length > 0 ? `. Failing tests: ${locations.join(', ')}.` : '')
+        `that never loaded while the browser reported \`${networkError}\` — the document request ` +
+        `itself failed, so none of these is the app’s code or a selector. Fix the server first` +
+        (networkError === 'net::ERR_CONTENT_DECODING_FAILED'
+          ? ': a body whose gzip `content-encoding` no longer matches its bytes does this, and a ' +
+            '`vite preview` over a build must be started with ' +
+            '`MOL_E2E_PREVIEW_PLUGIN=0 npx vite preview --host 127.0.0.1 --port 4173 --strictPort`'
+          : ' (what the run hit, and why it refused the connection)') +
+        (locations.length > 0 ? `. Failing tests: ${locations.join(', ')}.` : ''),
+      failureRerunSentence(rerun, '. Then send exactly this: '),
     )
   }
   const ignoredTitles = [...new Set(ignored.map((t) => t.title || t.where).filter(Boolean))]
@@ -4774,12 +4785,12 @@ export function failureCausesNote(
   const connections = causes.filter((cause) => cause.kind === 'connection')
   if (causes.length > 0 && connections.length === causes.length) {
     const at = [...new Set(connections.flatMap((c) => c.tests.map((t) => t.where)).filter(Boolean))]
-    return (
+    return boundedFailureRecap(
       `${total} failure${total === 1 ? '' : 's'} in this run, and every one is a CONNECTION error — ` +
-      `the requests never reached the app, so nothing here is an app-code cause${at.length ? `: ${at.join(', ')}` : ''}. ` +
-      `Send the same file${at.length === 1 ? '' : 's'} once more as ${at.length === 1 ? 'it is' : 'they are'}; ` +
-      "if the failure repeats, read the app's own log (`read_logs`) — a connection error is never a " +
-      'handler shape, a header or CORS.'
+        `the requests never reached the app, so nothing here is an app-code cause${at.length ? `: ${at.join(', ')}` : ''}. ` +
+        `Send the same file${at.length === 1 ? '' : 's'} once more as ${at.length === 1 ? 'it is' : 'they are'}; ` +
+        "if the failure repeats, read the app's own log (`read_logs`) — a connection error is never a " +
+        'handler shape, a header or CORS.',
     )
   }
   // A text that is the TAIL of a longer log says so in its first line (`…(N earlier characters
@@ -4805,20 +4816,19 @@ export function failureCausesNote(
         `missing here. Fix every cause below${connections.length > 0 ? ' the app’s code can produce, and re-send the connection error once as it is' : ''}, ` +
         `and read the whole run log before concluding:\n`
       : total === 1
-        ? `1 failure in this run. The output is cut in the middle, where its error was printed, ` +
-          `so here it is — fix it before the next deploy:\n`
+        ? `1 failure in this run — fix this cause before the next deploy:\n`
         : `${total} failures in this run, grouped by cause — fix every cause ` +
           `below${connections.length > 0 ? ' the app’s code can produce, and re-send the connection error once as it is' : ' before the next deploy'}:\n`)
   // The flaky sentence sits before the ignored one: the ignored sentence is the LAST thing the
   // note says, and callers assert on that ending.
   const tail =
-    (rerun ? ` Re-run just these once they are fixed: \`${rerun}\`` : '') +
+    failureRerunSentence(rerun, ' Re-run just these once they are fixed: ') +
     (flakyTitles.length
       ? ' Flaky (failed once, passed on the config retry — the runner counts these as flaky, not ' +
-        `as failures): ${flakyTitles.join(', ')}.`
+        `as failures): ${failureTitlesRecap(flakyTitles)}.`
       : '') +
     (ignoredTitles.length
-      ? ` Ignored (excluded by the request): ${ignoredTitles.join(', ')}.`
+      ? ` Ignored (excluded by the request): ${failureTitlesRecap(ignoredTitles)}.`
       : '') +
     (connections.length > 0
       ? ` The connection error is not app code: send that file once more as it is, and if it repeats, ` +
@@ -4841,7 +4851,61 @@ export function failureCausesNote(
     lines.push(line)
     used += line.length + 1
   }
-  return `${header}${lines.join('\n')}${omittedCausesRecap(causes.slice(lines.length), run, excluded)}${tail}`
+  const recap = `${header}${lines.join('\n')}${omittedCausesRecap(causes.slice(lines.length), run, excluded)}`
+  return boundedFailureRecap(recap, tail)
+}
+
+/**
+ * Keep a recap and its complete re-run/annotations within the reader's string-field budget.
+ *
+ * @param recap - The error and diagnostic detail, shortened explicitly when necessary.
+ * @param tail - The bounded command and annotations, reserved whole.
+ * @returns The bounded note.
+ */
+function boundedFailureRecap(recap: string, tail = ''): string {
+  // One large signature or title can exceed the budget even on the first cause. Keep both ends
+  // of that recap (error and location/evidence), reserving the complete re-run and annotations.
+  const available = TOOL_RESULT_CHARS - tail.length
+  if (recap.length <= available) return `${recap}${tail}`
+  const marker = '\n… (recap shortened; read the full log for the remaining detail) …\n'
+  const head = Math.floor((available - marker.length) * 0.6)
+  return `${recap.slice(0, head)}${marker}${recap.slice(-(available - marker.length - head))}${tail}`
+}
+
+/**
+ * Deliver a complete narrowed command, or explicitly omit one too large for the recap's budget.
+ *
+ * @param command - The composed command, or null when no re-run can be composed.
+ * @param prefix - The sentence introducing a usable command.
+ * @returns The command sentence or an honest omission, never a partial shell command.
+ */
+function failureRerunSentence(command: string | null, prefix: string): string {
+  if (command === null) return ''
+  return command.length <= FAILURE_CAUSES_CHARS
+    ? `${prefix}\`${command}\``
+    : ' The narrowed re-run command was omitted to keep the recap within one tool result; ' +
+        'use the original invocation restricted to the failing locations.'
+}
+
+/**
+ * Bound ancillary flaky/excluded names so they cannot displace the actionable error or re-run.
+ *
+ * @param titles - The deduplicated names or locations, in log order.
+ * @returns Whole names that fit, followed by an explicit count of names left out.
+ */
+function failureTitlesRecap(titles: readonly string[]): string {
+  const kept: string[] = []
+  for (const title of titles) {
+    if ([...kept, title].join(', ').length > 700) break
+    kept.push(title)
+  }
+  const omitted = titles.length - kept.length
+  return (
+    kept.join(', ') +
+    (omitted
+      ? `${kept.length ? ', ' : ''}… (${omitted} ${kept.length ? 'more ' : ''}${omitted === 1 ? 'name' : 'names'} omitted)`
+      : '')
+  )
 }
 
 /**

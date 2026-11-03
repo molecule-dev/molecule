@@ -3254,7 +3254,7 @@ describe('repeatingFailure', () => {
       expect(at).toBeGreaterThan(TOOL_RESULT_CHARS * 0.4)
       expect(at).toBeLessThan(log.length - TOOL_RESULT_CHARS * 0.6)
       const note = failureCausesNote(log)!
-      expect(note).toContain('1 failure in this run. The output is cut in the middle')
+      expect(note).toContain('1 failure in this run — fix this cause before the next deploy')
       expect(note).toContain('`Error: expect(page).toHaveURL(expected) failed`')
       expect(note).toContain('url-navigation.spec.ts:206')
       expect(note).toContain('Received string: "https://example.test/?page=2"')
