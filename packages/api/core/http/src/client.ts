@@ -35,7 +35,11 @@ export const defaultClient: HttpClient = {
     if (options?.body !== undefined) {
       if (typeof options.body === 'object' && options.body !== null) {
         body = JSON.stringify(options.body)
-        headers['Content-Type'] = 'application/json'
+        // Header names are case-insensitive: adding `Content-Type` beside a caller's
+        // `content-type` makes fetch send `application/json, application/json`, which body
+        // parsers such as Express's reject, so the server sees no body at all.
+        if (!Object.keys(headers).some((name) => name.toLowerCase() === 'content-type'))
+          headers['Content-Type'] = 'application/json'
       } else if (typeof options.body === 'string') {
         body = options.body
       }

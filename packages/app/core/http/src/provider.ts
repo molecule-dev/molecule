@@ -21,6 +21,28 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
+/**
+ * Remove every spelling of a header name. Header names are case-insensitive, and fetch joins a
+ * `content-type` and a `Content-Type` key into one `application/json, application/json` value,
+ * which JSON body parsers reject — the server then sees no body.
+ */
+function deleteHeader(headers: Record<string, string>, name: string): void {
+  const lower = name.toLowerCase()
+  for (const key of Object.keys(headers)) if (key.toLowerCase() === lower) delete headers[key]
+}
+
+/** Set a header, replacing it under any spelling. */
+function setHeader(headers: Record<string, string>, name: string, value: string): void {
+  deleteHeader(headers, name)
+  headers[name] = value
+}
+
+/** Whether a header is present under any spelling. */
+function hasHeader(headers: Record<string, string>, name: string): boolean {
+  const lower = name.toLowerCase()
+  return Object.keys(headers).some((key) => key.toLowerCase() === lower)
+}
+
 /** A response whose body is an HTML document, not JSON. */
 const HTML_CONTENT_TYPE = /^text\/html\b/i
 
@@ -139,20 +161,23 @@ export const createFetchClient = (config: HttpClientConfig = {}): HttpClient => 
       }
 
       // Build headers
-      const headers: Record<string, string> = {
-        ...client.defaultHeaders,
-        ...finalConfig.headers,
-      }
+      // A request header replaces a default one of the same name in any spelling.
+      const headers: Record<string, string> = {}
+      for (const [name, value] of [
+        ...Object.entries(client.defaultHeaders),
+        ...Object.entries(finalConfig.headers ?? {}),
+      ])
+        setHeader(headers, name, value)
 
       // Add auth token. Resolved HERE, after the gate: the session this request belongs to is
       // the one the restore settled on, and it cannot have changed since a copy was taken.
       const token = resolveAuthToken()
       if (token) {
-        headers['Authorization'] = `${config.authScheme ?? 'Bearer'} ${token}`
+        setHeader(headers, 'Authorization', `${config.authScheme ?? 'Bearer'} ${token}`)
       }
 
       // Add content-type for JSON
-      if (finalConfig.data && !headers['Content-Type']) {
+      if (finalConfig.data && !hasHeader(headers, 'Content-Type')) {
         headers['Content-Type'] = 'application/json'
       }
 
@@ -171,7 +196,7 @@ export const createFetchClient = (config: HttpClientConfig = {}): HttpClient => 
           fetchOptions.body = finalConfig.data as BodyInit
           // Remove Content-Type for FormData (browser sets it with boundary)
           if (finalConfig.data instanceof FormData) {
-            delete headers['Content-Type']
+            deleteHeader(headers, 'Content-Type')
           }
         } else {
           fetchOptions.body = JSON.stringify(finalConfig.data)
