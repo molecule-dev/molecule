@@ -19,6 +19,13 @@
  * it and redirect only on `status === 'unauthenticated'`. `'unavailable'` keeps
  * the session candidate for retry, but `isAuthenticated` can be false and `user`
  * can be null. A restore failure other than 401/403 never signs out.
+ * `MoleculeProvider auth={authClient} awaitSession` (or `SessionReady` inside
+ * `AuthProvider`) holds public pages until that initial loading status ends,
+ * so their first render reads the restored user when restoration succeeds.
+ * `sessionFallback` remains inside the service providers. Unavailable sessions
+ * also render and can still have a null user. Synchronous SSR renders the
+ * fallback for a loading client: initialize a request-scoped client first,
+ * or leave the opt-in hold disabled for SSR.
  *
  * @example
  * ```tsx
@@ -171,4 +178,5 @@ export * from './contexts.js'
 export * from './hooks/index.js'
 export * from './hooks/useProfileForm.js'
 export * from './providers.js'
+export * from './session-ready.js'
 export * from './types.js'

@@ -27,6 +27,7 @@ import {
   ThemeContext,
   WorkspaceContext,
 } from './contexts.js'
+import { SessionReady } from './session-ready.js'
 import type {
   AuthProviderProps,
   ChatProviderProps,
@@ -284,9 +285,17 @@ export function MoleculeProvider({
   workspace,
   editor,
   preview,
+  awaitSession = false,
+  sessionFallback,
 }: MoleculeProviderProps): React.ReactElement {
-  // Build provider tree from inside out
-  let result: ReactNode = children
+  // Build provider tree from inside out. The session hold is innermost: its fallback still sees
+  // every service, and it reads the auth context provided below.
+  let result: ReactNode =
+    awaitSession && auth ? (
+      <SessionReady fallback={sessionFallback}>{children}</SessionReady>
+    ) : (
+      children
+    )
 
   if (preview) {
     result = <PreviewContext.Provider value={preview}>{result}</PreviewContext.Provider>
