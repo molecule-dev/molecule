@@ -11,12 +11,15 @@
  * **What this client already handles**
  * - `getAccessToken()` returns a stored token immediately, even while restore is pending.
  * - Only 401/403 ends a session; network and 5xx restore failures retain it.
+ * - `requestTimeout` bounds each complete auth request (default 10000 ms), including
+ *   its response body. A restore timeout retains the candidate as `'unavailable'`.
  * - `tokenKey`/`storagePrefix`, `authScheme`, `mapAuthResponse`,
  *   `currentUserEndpoint`, and `profileEndpoint`/`profileUpdateMethod` adapt the API.
  * - `logout()` clears the local session even if revocation fails; `refresh()` and
  *   optional auto-refresh use a stored refresh token.
- * - `AuthProvider` renders children immediately and gates nothing; only a route guard
- *   chooses to wait for `status === 'loading'`.
+ * - `AuthProvider` renders children immediately and gates nothing. A session-ready
+ *   boundary (e.g. React's `MoleculeProvider awaitSession`) can wait for initial
+ *   restoration on public pages; a route guard decides redirects.
  *
  * A token nested in the user, a custom key and current-user route, a PUT update,
  * and `Authorization: Token <jwt>` need configuration, not another session layer:

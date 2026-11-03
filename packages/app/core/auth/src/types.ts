@@ -962,6 +962,14 @@ export interface AuthClientConfigOptions<T extends object = UserProfile> {
   cookieRestore?: 'hint' | 'always'
 
   /**
+   * Maximum duration of an auth request, including reading its response body, in
+   * milliseconds (default `10000`). Must be finite, positive, and below `2147483648`.
+   * A restore timeout settles as `'unavailable'` and preserves the session for retry,
+   * so initial-session render holds cannot wait forever on an unresponsive server.
+   */
+  requestTimeout?: number
+
+  /**
    * Storage key prefix.
    */
   storagePrefix?: string

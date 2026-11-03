@@ -373,12 +373,19 @@ export const createJWTAuthClient = <
     changePasswordMethod = 'POST',
     currentUserEndpoint = '/users/me',
     cookieRestore = 'hint',
+    requestTimeout = 10_000,
     storagePrefix = 'molecule:auth:',
     storage: configuredStorage,
     shouldRestoreUser,
     autoRefresh = true,
     refreshBuffer = 60,
   } = config
+
+  if (!Number.isFinite(requestTimeout) || requestTimeout <= 0 || requestTimeout > 2_147_483_647) {
+    throw new RangeError(
+      'requestTimeout must be a positive number of milliseconds below 2147483648',
+    )
+  }
 
   const logger = getLogger('auth')
 
@@ -413,6 +420,7 @@ export const createJWTAuthClient = <
   const stateListeners = new Set<(state: AuthState<T>) => void>()
   const eventListeners = new Set<AuthEventListener<T>>()
   let refreshTimer: ReturnType<typeof setTimeout> | null = null
+  const pendingRequests = new Set<AbortController>()
   // The session restore `initialize()` started, or null when none is running.
   // Assigned SYNCHRONOUSLY, before that call's first await, so a component effect
   // running in the same tick (bootstrapApp calls initialize() and then renders)
@@ -691,92 +699,122 @@ export const createJWTAuthClient = <
     }
   }
 
+  const requestAPI = async <R>(endpoint: string, options: RequestInit): Promise<R> => {
+    const url = baseURL + endpoint
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      ...(options.headers as Record<string, string>),
+    }
+
+    const token = tokenStorage.getAccessToken()
+    if (token) {
+      headers['Authorization'] = `${config.authScheme ?? 'Bearer'} ${token}`
+    }
+
+    // 'include' so httpOnly session cookies flow when the API is on another
+    // origin (fetch defaults to 'same-origin', which silently DROPS the login
+    // Set-Cookie cross-origin and breaks session restore). Safe both ways:
+    // same-origin behaves identically, and the fleet CORS bond pairs a strict
+    // origin allowlist with credentials:true. True cross-SITE deployments
+    // additionally need SameSite=None cookies — a server deployment concern.
+    const response = await fetch(url, {
+      credentials: 'include',
+      ...options,
+      headers,
+    })
+
+    if (!response.ok) {
+      // The parsed answer keeps its complete shape: the client maps `errorKey`/`error`/
+      // `message` into the I18nError it throws, and every other field — a structured
+      // `{ errors: { credentials: ['is invalid'] } }` map, field arrays, a top-level array —
+      // remains on `body` so the app can show the server's own messages. Credential values
+      // are redacted in place; non-secret values are unchanged. A non-JSON body (HTML error
+      // page, empty) parses to `{}`, exactly as before.
+      const body: unknown = redactCredentials(await response.json().catch(() => ({})))
+      const fields = (body ?? {}) as { errorKey?: unknown; error?: unknown; message?: unknown }
+      // JSON is untyped: structured validation errors belong on `body`, never
+      // in the translation key or its fallback text.
+      const key = typeof fields.errorKey === 'string' ? fields.errorKey : 'auth.error.requestFailed'
+      const fallback =
+        typeof fields.error === 'string'
+          ? fields.error
+          : typeof fields.message === 'string'
+            ? fields.message
+            : 'Request failed'
+      const failure = new I18nError(key, undefined, fallback) as AuthError
+      // The HTTP status, so a caller can tell "this token is dead" (401/403)
+      // from "the server did not answer" (5xx, network) or "the route does not
+      // exist" (404) — `validateSession` clears the session only on the first.
+      failure.status = response.status
+      // The response body with credential values redacted — see {@link AuthError}.
+      failure.body = body
+      // Mirror app-http's failed-response view without importing it. Keep the
+      // original auth fields above intact: both documented readings now work on
+      // the SAME rejection, including across duplicated package copies.
+      const headers: Record<string, string> = {}
+      response.headers.forEach((value, name) => {
+        headers[name] = value
+      })
+      failure.response = {
+        data: body,
+        status: response.status,
+        statusText: response.statusText,
+        headers: redactCredentials({ headers }).headers,
+        // RequestInit bodies contain passwords and refresh tokens, and its
+        // headers contain bearer/cookie credentials. Method and a credential-
+        // redacted URL are the complete request view an auth rejection may expose.
+        config: {
+          method: (options.method ?? 'GET').toUpperCase(),
+          url: redactCredentials(url),
+        },
+      }
+      failure.errorKey = key
+      failure.aborted = false
+      Object.defineProperty(failure, HTTP_ERROR_BRAND, { value: true })
+      throw failure
+    }
+
+    const data = await response.json()
+    // Compatibility shim: many @molecule/api-resource-* handlers (notably
+    // the user resource) wrap the entity under `props` rather than `user`
+    // (the auth-client's expected shape). Surface either so login/register
+    // populate state correctly regardless of the API's wrapper convention.
+    if (data && typeof data === 'object' && data.user === undefined && data.props !== undefined) {
+      data.user = data.props
+    }
+    return data
+  }
+
+  // Bound the complete request, including its body. Aborting fetch alone is insufficient
+  // for a transport that ignores its signal, so race the operation as well. A timeout
+  // follows the existing transient-failure path and preserves the session candidate.
   const fetchAPI = async <R>(endpoint: string, options: RequestInit = {}): Promise<R> =>
     runAuthOperation(async () => {
-      const url = baseURL + endpoint
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-        ...(options.headers as Record<string, string>),
-      }
-
-      const token = tokenStorage.getAccessToken()
-      if (token) {
-        headers['Authorization'] = `${config.authScheme ?? 'Bearer'} ${token}`
-      }
-
-      // 'include' so httpOnly session cookies flow when the API is on another
-      // origin (fetch defaults to 'same-origin', which silently DROPS the login
-      // Set-Cookie cross-origin and breaks session restore). Safe both ways:
-      // same-origin behaves identically, and the fleet CORS bond pairs a strict
-      // origin allowlist with credentials:true. True cross-SITE deployments
-      // additionally need SameSite=None cookies — a server deployment concern.
-      const response = await fetch(url, {
-        credentials: 'include',
-        ...options,
-        headers,
-      })
-
-      if (!response.ok) {
-        // The parsed answer keeps its complete shape: the client maps `errorKey`/`error`/
-        // `message` into the I18nError it throws, and every other field — a structured
-        // `{ errors: { credentials: ['is invalid'] } }` map, field arrays, a top-level array —
-        // remains on `body` so the app can show the server's own messages. Credential values
-        // are redacted in place; non-secret values are unchanged. A non-JSON body (HTML error
-        // page, empty) parses to `{}`, exactly as before.
-        const body: unknown = redactCredentials(await response.json().catch(() => ({})))
-        const fields = (body ?? {}) as { errorKey?: unknown; error?: unknown; message?: unknown }
-        // JSON is untyped: structured validation errors belong on `body`, never
-        // in the translation key or its fallback text.
-        const key =
-          typeof fields.errorKey === 'string' ? fields.errorKey : 'auth.error.requestFailed'
-        const fallback =
-          typeof fields.error === 'string'
-            ? fields.error
-            : typeof fields.message === 'string'
-              ? fields.message
-              : 'Request failed'
-        const failure = new I18nError(key, undefined, fallback) as AuthError
-        // The HTTP status, so a caller can tell "this token is dead" (401/403)
-        // from "the server did not answer" (5xx, network) or "the route does not
-        // exist" (404) — `validateSession` clears the session only on the first.
-        failure.status = response.status
-        // The response body with credential values redacted — see {@link AuthError}.
-        failure.body = body
-        // Mirror app-http's failed-response view without importing it. Keep the
-        // original auth fields above intact: both documented readings now work on
-        // the SAME rejection, including across duplicated package copies.
-        const headers: Record<string, string> = {}
-        response.headers.forEach((value, name) => {
-          headers[name] = value
+      const controller = new AbortController()
+      const aborted = new Promise<never>((_resolve, reject) => {
+        controller.signal.addEventListener('abort', () => reject(controller.signal.reason), {
+          once: true,
         })
-        failure.response = {
-          data: body,
-          status: response.status,
-          statusText: response.statusText,
-          headers: redactCredentials({ headers }).headers,
-          // RequestInit bodies contain passwords and refresh tokens, and its
-          // headers contain bearer/cookie credentials. Method and a credential-
-          // redacted URL are the complete request view an auth rejection may expose.
-          config: {
-            method: (options.method ?? 'GET').toUpperCase(),
-            url: redactCredentials(url),
-          },
-        }
-        failure.errorKey = key
-        failure.aborted = false
-        Object.defineProperty(failure, HTTP_ERROR_BRAND, { value: true })
-        throw failure
+      })
+      const timer = setTimeout(() => {
+        controller.abort(
+          new I18nError(
+            'auth.error.requestFailed',
+            undefined,
+            'The authentication request timed out',
+          ),
+        )
+      }, requestTimeout)
+      pendingRequests.add(controller)
+      try {
+        return await Promise.race([
+          requestAPI<R>(endpoint, { ...options, signal: controller.signal }),
+          aborted,
+        ])
+      } finally {
+        clearTimeout(timer)
+        pendingRequests.delete(controller)
       }
-
-      const data = await response.json()
-      // Compatibility shim: many @molecule/api-resource-* handlers (notably
-      // the user resource) wrap the entity under `props` rather than `user`
-      // (the auth-client's expected shape). Surface either so login/register
-      // populate state correctly regardless of the API's wrapper convention.
-      if (data && typeof data === 'object' && data.user === undefined && data.props !== undefined) {
-        data.user = data.props
-      }
-      return data
     })
 
   /**
@@ -1189,6 +1227,7 @@ export const createJWTAuthClient = <
           tokenStorage.setUser(result.user)
 
           setState({
+            initialized: true,
             status: 'authenticated',
             loading: false,
             authenticated: true,
@@ -1257,6 +1296,7 @@ export const createJWTAuthClient = <
           tokenStorage.setUser(result.user)
 
           setState({
+            initialized: true,
             status: 'authenticated',
             loading: false,
             authenticated: true,
@@ -1630,6 +1670,9 @@ export const createJWTAuthClient = <
     },
 
     destroy(): void {
+      sessionRevision++
+      for (const controller of pendingRequests) controller.abort(new Error('Auth client destroyed'))
+      pendingRequests.clear()
       if (refreshTimer) {
         clearTimeout(refreshTimer)
         refreshTimer = null
