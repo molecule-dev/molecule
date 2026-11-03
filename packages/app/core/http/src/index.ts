@@ -66,6 +66,13 @@
  * `getClient()`'s result: that is a built client, and `client.authScheme = 'Token'` is a type
  * error (TS2339) that changes no header. Do not hand-write a fetch wrapper for the scheme either.
  *
+ * Header names are case-insensitive: request headers replace defaults with the same name.
+ * `createFetchClient` applies a nonempty static or resolved auth token AFTER request
+ * interceptors, replacing any default, request or interceptor `Authorization` header in any
+ * spelling. Clear the token (and any token resolver) or use a separate client to send another
+ * credential. The Axios bond retains Axios's precedence: explicit default/request headers and
+ * request interceptors can override the client's token.
+ *
  * A request made while the session is still being restored WAITS for that restore, so a page
  * that fetches viewer-dependent data on mount (account settings, a dashboard, or a
  * saved-item state) cannot go out unauthenticated and answer for an anonymous viewer. The auth

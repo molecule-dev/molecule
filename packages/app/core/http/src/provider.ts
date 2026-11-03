@@ -34,7 +34,9 @@ function deleteHeader(headers: Record<string, string>, name: string): void {
 /** Set a header, replacing it under any spelling. */
 function setHeader(headers: Record<string, string>, name: string, value: string): void {
   deleteHeader(headers, name)
-  headers[name] = value
+  // This valid header must avoid both Object.prototype's setter and native Headers' record
+  // conversion, which can discard the exact `__proto__` spelling. Its case is immaterial to HTTP.
+  headers[name === '__proto__' ? '__PROTO__' : name] = value
 }
 
 /** Whether a header is present under any spelling. */
