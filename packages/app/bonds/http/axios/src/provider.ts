@@ -6,6 +6,7 @@
 
 import axios, {
   type AxiosError,
+  AxiosHeaders,
   type AxiosInstance,
   type AxiosRequestConfig,
   type AxiosResponse,
@@ -14,6 +15,7 @@ import axios, {
 
 import {
   awaitAuthGate,
+  isIdempotentRequest,
   retryDelayMs,
   shouldRetryRequest,
   snapshotHttpErrorBody,
@@ -189,6 +191,47 @@ export function createAxiosClient(config: AxiosHttpClientConfig = {}): HttpClien
   // and, when the profile data is unchanged, no state notification either.
   let authTokenResolver: AuthTokenResolver | null = null
   const currentDefaultHeaders = { ...defaultHeaders }
+  let managedDefaultToken: string | null = null
+
+  /** The last spelling of each default wins, just as in Axios's native merge. */
+  const headerValues = (headers: Record<string, string>): Map<string, string> =>
+    new Map(Object.entries(headers).map(([name, value]) => [name.toLowerCase(), value]))
+
+  // axios.create already installed the constructor defaults. An existing instance has not.
+  let appliedDefaultHeaders = existingInstance
+    ? new Map<string, string>()
+    : headerValues(defaultHeaders)
+
+  /** Apply caller edits before Axios merges its defaults into the next attempt. */
+  const syncDefaultHeaders = (): void => {
+    const next = headerValues(client.defaultHeaders)
+    const defaults = axiosInstance.defaults.headers
+    for (const name of new Set([...appliedDefaultHeaders.keys(), ...next.keys()])) {
+      if (appliedDefaultHeaders.get(name) === next.get(name)) continue
+      for (const key of Object.keys(defaults)) {
+        if (key.toLowerCase() === name) delete defaults[key]
+      }
+      if (next.has(name)) {
+        Object.defineProperty(defaults, name, {
+          value: next.get(name),
+          enumerable: true,
+          writable: true,
+          configurable: true,
+        })
+      }
+    }
+    appliedDefaultHeaders = next
+  }
+
+  // HttpError intentionally omits request headers. Keep only these non-secret facts privately
+  // so retry decisions still describe the request that actually reached the transport.
+  const retryRequests = new WeakMap<
+    object,
+    {
+      method: FullRequestConfig['method']
+      hasIdempotencyKey: boolean
+    }
+  >()
 
   /** The bearer this request carries: the resolver's answer, else the static token. */
   const resolveAuthToken = (): string | null =>
@@ -218,6 +261,7 @@ export function createAxiosClient(config: AxiosHttpClientConfig = {}): HttpClien
     const retryOptions = requestConfig?.retry ?? config.retry
     for (let attempt = 0; ; attempt++) {
       try {
+        syncDefaultHeaders()
         return await run()
       } catch (error) {
         const httpError = error instanceof HttpError ? error : undefined
@@ -225,10 +269,16 @@ export function createAxiosClient(config: AxiosHttpClientConfig = {}): HttpClien
         const aborted = httpError?.aborted ?? (error as AxiosError).code === 'ERR_CANCELED'
         const retryAfter = httpError?.response?.headers['retry-after']
         const message = error instanceof Error ? error.message : String(error)
+        const sent =
+          error !== null && typeof error === 'object' ? retryRequests.get(error) : undefined
         if (
           shouldRetryRequest({
-            method,
-            headers: requestConfig?.headers ?? {},
+            method: sent?.method ?? method,
+            headers: sent
+              ? sent.hasIdempotencyKey
+                ? { 'idempotency-key': 'present' }
+                : {}
+              : (requestConfig?.headers ?? {}),
             status,
             attempt,
             errorMessage: message,
@@ -300,7 +350,8 @@ export function createAxiosClient(config: AxiosHttpClientConfig = {}): HttpClien
       axiosConfig.url = config.url
     }
     axiosConfig.method = config.method.toLowerCase()
-    axiosConfig.headers.set(config.headers ?? {})
+    // A replacement header object is authoritative, including removals by an interceptor.
+    axiosConfig.headers = AxiosHeaders.from(config.headers ?? {})
     axiosConfig.params = config.params
     axiosConfig.timeout = config.timeout
     axiosConfig.withCredentials = config.withCredentials
@@ -368,6 +419,15 @@ export function createAxiosClient(config: AxiosHttpClientConfig = {}): HttpClien
         aborted ? 'http.error.aborted' : 'http.error.networkError',
         aborted,
       )
+      if (error.config?.method) {
+        retryRequests.set(httpError, {
+          method: error.config.method.toUpperCase() as FullRequestConfig['method'],
+          hasIdempotencyKey: isIdempotentRequest(
+            'POST',
+            (error.config.headers ?? {}) as Record<string, string>,
+          ),
+        })
+      }
 
       for (const interceptor of errorInterceptors) {
         try {
@@ -521,14 +581,25 @@ export function createAxiosClient(config: AxiosHttpClientConfig = {}): HttpClien
     },
 
     setAuthToken(token: string | null): void {
+      syncDefaultHeaders()
       authToken = token
       if (token) {
         axiosInstance.defaults.headers.common['Authorization'] = `${authScheme} ${token}`
-        currentDefaultHeaders['Authorization'] = `${authScheme} ${token}`
       } else {
         delete axiosInstance.defaults.headers.common['Authorization']
-        delete currentDefaultHeaders['Authorization']
       }
+
+      // Mirror only our own token. Explicit caller defaults keep Axios's existing precedence.
+      if (managedDefaultToken && client.defaultHeaders['Authorization'] === managedDefaultToken) {
+        delete client.defaultHeaders['Authorization']
+      }
+      managedDefaultToken = null
+      if (token && !headerValues(client.defaultHeaders).has('authorization')) {
+        managedDefaultToken = `${authScheme} ${token}`
+        client.defaultHeaders['Authorization'] = managedDefaultToken
+      }
+      // The mirror belongs in common, not at Axios's higher-priority top level.
+      appliedDefaultHeaders = headerValues(client.defaultHeaders)
     },
 
     setAuthTokenResolver(resolver: AuthTokenResolver | null): void {

@@ -1,4 +1,7 @@
+import type * as AxiosModule from 'axios'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+
+import type * as HttpModule from '@molecule/app-http'
 
 // -------------------------------------------------------------------
 // Use vi.hoisted so the mock instance is available inside the hoisted
@@ -45,7 +48,8 @@ const { mockAxiosInstance, mockInterceptorsRequest, mockInterceptorsResponse, mo
     }
   })
 
-vi.mock('axios', () => ({
+vi.mock('axios', async () => ({
+  AxiosHeaders: (await vi.importActual<typeof AxiosModule>('axios')).AxiosHeaders,
   default: {
     create: vi.fn(() => mockAxiosInstance),
   },
@@ -59,7 +63,8 @@ vi.mock('axios', () => ({
   },
 }))
 
-vi.mock('@molecule/app-http', () => {
+vi.mock('@molecule/app-http', async () => {
+  const { isIdempotentRequest } = await vi.importActual<typeof HttpModule>('@molecule/app-http')
   class HttpError extends Error {
     status: number
     response: unknown
@@ -84,6 +89,7 @@ vi.mock('@molecule/app-http', () => {
     }
   }
   return {
+    isIdempotentRequest,
     HttpError,
     awaitAuthGate: mockAwaitAuthGate,
     // The retry policy has its own suite (retry.test.ts); here it only has to
