@@ -13,6 +13,12 @@
  *
  * - This is CLIENT/UI state — NOT the source of truth for server data. Fetch server data
  *   through the HTTP client (`@molecule/app-http`) and keep the store for UI/session state.
+ * - **A server-backed value the person toggles or sets (favorite, follow, like, bookmark,
+ *   rating, quantity, a setting switch) uses {@link createOptimisticValue}** (React:
+ *   `useOptimisticValue` from `@molecule/app-react`). It shows each change at once, saves one
+ *   change at a time in order, saves a change made during a save right after it, and goes back to
+ *   the server value only when the newest change fails. Do not ignore taps while a request is
+ *   pending, and do not let a refetch replace the value while a save runs.
  * - **{@link persistMiddleware} persists to storage — never persist a secret or auth token**
  *   there (client storage is XSS-exfiltratable; the bearer token is memory-only — see
  *   `@molecule/app-storage`). Persist only non-sensitive UI state, via the storage
@@ -54,6 +60,7 @@
 
 export * from './async.js'
 export * from './middleware.js'
+export * from './optimistic.js'
 export * from './provider.js'
 export * from './simple-provider.js'
 export * from './store.js'
