@@ -1,5 +1,11 @@
 # @molecule/app-solid
 
+## 3.2.0
+
+### Minor Changes
+
+- Add an optional session render hold and fallback to MoleculeProvider, with a SessionReady component.
+
 ## 3.1.0
 
 ### Minor Changes

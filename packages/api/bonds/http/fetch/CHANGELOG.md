@@ -1,5 +1,11 @@
 # @molecule/api-http-fetch
 
+## 1.0.3
+
+### Patch Changes
+
+- Respect caller Content-Type headers regardless of casing in the fetch provider.
+
 ## 1.0.1
 
 ### Patch Changes

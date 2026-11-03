@@ -1,5 +1,11 @@
 # @molecule/app-vue
 
+## 3.2.0
+
+### Minor Changes
+
+- Add SessionReady and a reactive auth status to hold rendering during session restoration.
+
 ## 3.1.0
 
 ### Minor Changes

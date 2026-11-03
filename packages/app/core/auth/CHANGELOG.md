@@ -1,5 +1,11 @@
 # @molecule/app-auth
 
+## 3.2.3
+
+### Patch Changes
+
+- Bound authentication requests and preserve completed sign-ins during pending session restoration.
+
 ## 3.2.2
 
 ### Patch Changes

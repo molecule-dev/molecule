@@ -1,5 +1,15 @@
 # @molecule/app-react
 
+## 3.2.0
+
+### Minor Changes
+
+- Add `SessionReady` and `MoleculeProvider` `awaitSession` to hold initial rendering while authentication status is loading.
+
+### Patch Changes
+
+- `useHttp` and its method hooks show only the newest request's answer, so an older response that arrives late no longer replaces newer data or clears `loading` early.
+
 ## 3.1.0
 
 ### Minor Changes

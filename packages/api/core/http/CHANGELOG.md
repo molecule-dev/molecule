@@ -1,5 +1,11 @@
 # @molecule/api-http
 
+## 1.0.5
+
+### Patch Changes
+
+- Send a single Content-Type when the caller already sets one in any letter case, so JSON bodies are not dropped by the server.
+
 ## 1.0.4
 
 ### Patch Changes

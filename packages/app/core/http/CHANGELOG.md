@@ -1,5 +1,12 @@
 # @molecule/app-http
 
+## 1.5.4
+
+### Patch Changes
+
+- Merge request headers case-insensitively, so a caller's lower-case header no longer produces a duplicated Content-Type or Authorization value.
+- Preserve all valid header names during case-insensitive merging and document authorization precedence.
+
 ## 1.5.3
 
 ### Patch Changes

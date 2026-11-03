@@ -1,5 +1,11 @@
 # @molecule/app-http-axios
 
+## 1.2.2
+
+### Patch Changes
+
+- Honor mutable default headers, interceptor header removals, and effective request headers when deciding retries.
+
 ## 1.2.1
 
 ### Patch Changes

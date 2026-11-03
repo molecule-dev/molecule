@@ -1,5 +1,11 @@
 # @molecule/app-angular
 
+## 3.2.0
+
+### Minor Changes
+
+- Add an optional bootstrap hold while the initial auth session status is loading.
+
 ## 3.1.0
 
 ### Minor Changes

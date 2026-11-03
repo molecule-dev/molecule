@@ -1,5 +1,11 @@
 # @molecule/app-svelte
 
+## 3.2.0
+
+### Minor Changes
+
+- Add a sessionReady auth store for rendering after the initial session decision.
+
 ## 3.1.0
 
 ### Minor Changes
