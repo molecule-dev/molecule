@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.16.1
+
+### Patch Changes
+
+- Preserve single-failure diagnostics across foreground and background tool results, with bounded, redacted recaps.
+
 ## 1.16.0
 
 ### Minor Changes
