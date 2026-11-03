@@ -38,12 +38,14 @@ export const fetchClient: HttpClient = {
       }
     }
 
+    const requestHeaders = { ...headers }
+    if (!Object.keys(requestHeaders).some((name) => name.toLowerCase() === 'content-type')) {
+      requestHeaders['Content-Type'] = 'application/json'
+    }
+
     const fetchOptions: RequestInit = {
       method,
-      headers: {
-        'Content-Type': 'application/json',
-        ...headers,
-      },
+      headers: requestHeaders,
       signal: options.signal,
     }
 
