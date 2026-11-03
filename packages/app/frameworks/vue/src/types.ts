@@ -35,6 +35,14 @@ export interface UseAuthReturn<
   T = unknown,
   TRegister extends RegisterExtraShape<TRegister> = Record<never, never>,
 > {
+  /**
+   * The session's state as one value — render from this instead of combining
+   * `initialized`/`authenticated`/`loading`. Only `'loading'` means "no decision
+   * yet", so `SessionReady` waits on that and nothing else. `'unavailable'` keeps
+   * a session candidate for retry and can have a null profile; redirect only on
+   * `'unauthenticated'`.
+   */
+  status: ComputedRef<AuthState<T>['status']>
   state: ComputedRef<AuthState<T>>
   user: ComputedRef<T | null>
   isAuthenticated: ComputedRef<boolean>

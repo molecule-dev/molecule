@@ -76,6 +76,9 @@ export function useAuth<
     unsubscribe = client.onAuthChange(() => {
       authState.value = client.getState()
     })
+    // A child (including the fallback slot) can decide auth before this parent
+    // mounts. Subscribe first, then reconcile that gap without another request.
+    authState.value = client.getState()
   })
 
   onUnmounted(() => {
@@ -84,6 +87,7 @@ export function useAuth<
 
   // Computed properties
   const state = computed(() => authState.value)
+  const status = computed(() => authState.value.status)
   const user = computed(() => authState.value.user)
   const isAuthenticated = computed(() => authState.value.authenticated)
   const isLoading = computed(() => authState.value.loading)
@@ -95,6 +99,7 @@ export function useAuth<
   const refresh: AuthClient<T>['refresh'] = () => client.refresh()
 
   return {
+    status,
     state,
     user,
     isAuthenticated,

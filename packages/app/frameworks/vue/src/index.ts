@@ -56,4 +56,5 @@
 export * from './composables/index.js'
 export * from './injection-keys.js'
 export * from './plugin.js'
+export * from './session-ready.js'
 export * from './types.js'
