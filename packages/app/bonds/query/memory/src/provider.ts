@@ -26,12 +26,12 @@ interface Entry<T> {
   stale: boolean
   gcMs: number
   gcTimer: ReturnType<typeof setTimeout> | null
-  inflight: { promise: Promise<T>; controller: AbortController } | null
-  /**
-   * How many callers of `fetch()` are still awaiting the in-flight result. An aborted fetch is
-   * never committed, so a direct caller must keep one running after its last observer leaves.
-   */
-  demands: number
+  inflight: {
+    promise: Promise<T>
+    controller: AbortController
+    /** How many direct `fetch()` callers still await this particular request. */
+    demands: number
+  } | null
   listeners: Set<(state: QueryState<T>) => void>
 }
 
@@ -40,6 +40,8 @@ interface Entry<T> {
  */
 class MemoryQueryClient implements QueryClient {
   private readonly entries = new Map<string, Entry<unknown>>()
+  /** Superseded requests kept alive for direct callers, retained so `clear()` can abort them. */
+  private readonly superseded = new Set<AbortController>()
   private readonly staleMs: number
   private readonly gcMs: number
 
@@ -77,7 +79,6 @@ class MemoryQueryClient implements QueryClient {
         gcMs: gcMs ?? this.gcMs,
         gcTimer: null,
         inflight: null,
-        demands: 0,
         listeners: new Set(),
       }
       this.entries.set(hash, entry as Entry<unknown>)
@@ -169,7 +170,7 @@ class MemoryQueryClient implements QueryClient {
         }
         throw error
       })
-    entry.inflight = { promise, controller }
+    entry.inflight = { promise, controller, demands: 0 }
     return promise
   }
 
@@ -183,7 +184,7 @@ class MemoryQueryClient implements QueryClient {
    * @param entry - The entry.
    */
   private abortUnwatched<T>(entry: Entry<T>): void {
-    if (entry.listeners.size > 0 || entry.demands > 0 || entry.inflight === null) return
+    if (entry.listeners.size > 0 || entry.inflight === null || entry.inflight.demands > 0) return
     const { controller } = entry.inflight
     entry.inflight = null
     entry.state = {
@@ -235,17 +236,14 @@ class MemoryQueryClient implements QueryClient {
     const entry = this.entry<T>(options.key, options.gcMs)
     if (this.isFresh(entry, options.staleMs ?? this.staleMs))
       return Promise.resolve(entry.state.data as T)
-    // A direct caller keeps the fetch alive after the last observer leaves: it awaits this
-    // result, so aborting it would reject a call nobody asked to cancel.
-    entry.demands += 1
-    try {
-      return this.start(entry, options).finally(() => {
-        entry.demands -= 1
-      })
-    } catch (error) {
-      entry.demands -= 1
-      throw error
-    }
+    // A direct caller keeps this particular fetch alive after the last observer leaves. Demand
+    // belongs to the request, not the entry: a superseded caller must not protect a later fetch.
+    const promise = this.start(entry, options)
+    const inflight = entry.inflight!
+    inflight.demands += 1
+    return promise.finally(() => {
+      inflight.demands -= 1
+    })
   }
 
   /**
@@ -269,15 +267,29 @@ class MemoryQueryClient implements QueryClient {
    */
   set<T>(key: QueryKey, data: T): void {
     const entry = this.entry<T>(key)
+    const inflight = entry.inflight
+    // This write is newer than any request already in flight. Detach it before publishing the
+    // value so neither its resolution nor its rejection can change the entry again. A direct
+    // caller still awaiting that request receives its own result; otherwise nobody needs it.
+    entry.inflight = null
     entry.stale = false
     entry.state = {
       data,
       status: 'success',
       error: undefined,
-      isFetching: entry.state.isFetching,
+      isFetching: false,
       updatedAt: Date.now(),
     }
     this.emit(entry)
+    if (inflight) {
+      if (inflight.demands === 0) {
+        inflight.controller.abort()
+      } else {
+        this.superseded.add(inflight.controller)
+        const release = (): boolean => this.superseded.delete(inflight.controller)
+        void inflight.promise.then(release, release)
+      }
+    }
     this.scheduleGc(entry)
   }
 
@@ -334,6 +346,8 @@ class MemoryQueryClient implements QueryClient {
       inflight?.controller.abort()
       if (entry.gcTimer) clearTimeout(entry.gcTimer)
     }
+    for (const controller of this.superseded) controller.abort()
+    this.superseded.clear()
     this.entries.clear()
   }
 }

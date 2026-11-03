@@ -129,7 +129,12 @@ class TanstackClient implements QueryClient {
    * @param data - The document.
    */
   set<T>(key: QueryKey, data: T): void {
-    this.qc.setQueryData<T>(key as TanstackKey, data)
+    const queryKey = key as TanstackKey
+    // Cancellation is synchronous even though the returned promise is not. Never revert: the
+    // state captured before this fetch would overwrite the mutation response written below.
+    // An existing fetch() caller receives query-core's cancellation; later reads use `data`.
+    void this.qc.cancelQueries({ queryKey, exact: true }, { revert: false })
+    this.qc.setQueryData<T>(queryKey, data)
   }
 
   /**

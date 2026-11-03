@@ -141,6 +141,74 @@ export function describeQueryClient(
       expect(seen.length).toBe(count)
     })
 
+    it('does not let an older fetch overwrite a newer set', async () => {
+      const c = createClient()
+      c.set(['doc'], 'before')
+      c.invalidate(['doc'])
+      let resolveFetch!: (value: string) => void
+      const fetch = vi.fn(
+        (_signal: AbortSignal) =>
+          new Promise<string>((resolve) => {
+            resolveFetch = resolve
+          }),
+      )
+      const pending = c.fetch({ key: ['doc'], fetch })
+      const settled = Promise.allSettled([pending])
+      const seen: string[] = []
+      const off = c.subscribe({ key: ['doc'], fetch }, (state) => seen.push(state.data ?? '-'))
+
+      c.set(['doc'], 'mutation')
+      expect(c.get(['doc'])).toBe('mutation')
+      expect(c.getState(['doc'])).toMatchObject({ data: 'mutation', status: 'success' })
+
+      resolveFetch('stale')
+      await settled
+      await tick()
+      expect(c.get(['doc'])).toBe('mutation')
+      expect(seen.at(-1)).toBe('mutation')
+      expect(c.getState(['doc'])).toMatchObject({ data: 'mutation', isFetching: false })
+      off()
+    })
+
+    it('leaves an in-flight fetch for a different key untouched by set', async () => {
+      const c = createClient()
+      let resolveTarget!: (value: string) => void
+      let resolveOther!: (value: string) => void
+      const target = c.fetch({
+        key: ['doc', 'a'],
+        fetch: () =>
+          new Promise<string>((resolve) => {
+            resolveTarget = resolve
+          }),
+      })
+      const targetSettled = Promise.allSettled([target])
+      const other = c.fetch({
+        key: ['doc', 'a', 'detail'],
+        fetch: () =>
+          new Promise<string>((resolve) => {
+            resolveOther = resolve
+          }),
+      })
+
+      c.set(['doc', 'a'], 'mutation')
+      resolveOther('other')
+      expect(await other).toBe('other')
+      expect(c.get(['doc', 'a', 'detail'])).toBe('other')
+      expect(c.getState(['doc', 'a', 'detail']).isFetching).toBe(false)
+
+      resolveTarget('stale')
+      await targetSettled
+      expect(c.get(['doc', 'a'])).toBe('mutation')
+    })
+
+    it('commits a new fetch after invalidate when set does not supersede it', async () => {
+      const c = createClient()
+      c.set(['doc'], 'before')
+      c.invalidate(['doc'])
+      expect(await c.fetch({ key: ['doc'], fetch: async () => 'after' })).toBe('after')
+      expect(c.get(['doc'])).toBe('after')
+    })
+
     it('clears everything', async () => {
       const c = createClient()
       await c.fetch({ key: ['k'], fetch: async () => 'a' })

@@ -140,6 +140,11 @@ export interface QueryClient {
    * Subscribed observers receive the document at once, and the next `fetch`
    * or `subscribe` treats it as fresh (no refetch) until it goes stale.
    *
+   * `set` supersedes a fetch already in flight for this exact key: that fetch cannot later
+   * overwrite this document or its state, and `isFetching` becomes false. A `fetch()` promise
+   * already returned still settles; depending on the bond, it yields its own older response or
+   * rejects as cancelled, so read {@link get} when the newest cached document is needed.
+   *
    * @param key - The document's key.
    * @param data - The document.
    */
