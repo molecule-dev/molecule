@@ -4676,8 +4676,8 @@ export function missingHeaderNote(
 }
 
 /**
- * The one-line-per-cause summary of a finished run's failures, or null when the run named fewer
- * than two of them.
+ * The one-line-per-cause summary of a finished run's failures, or null when the run named none,
+ * or named one in a log short enough that the result shows its error whole.
  *
  * This is what makes a run worth finishing: every cause the run found, in the result the
  * executor reads, so one round of fixes covers all of them rather than the one cause a run
@@ -4723,7 +4723,12 @@ export function failureCausesNote(
 ): string | null {
   const { causes, ignored, flaky } = groupFailures(log, excluded, pageErrors)
   const total = causes.reduce((n, c) => n + c.tests.length, 0)
-  if (total < 2) return null
+  // One failure is not a group, and a log that fits the tool-result cut already shows its error.
+  // A longer log loses its MIDDLE to that cut ({@link TOOL_RESULT_CHARS}) — and the middle is
+  // where a list run writes a failing test's error, as that test fails. So a run with ONE failure
+  // reached the executor as a title and nothing else: X1 l1162 and l1167 (2026-11-03) each had
+  // one test left after their first deploy, got no error for it, and read the spec to guess.
+  if (total === 0 || (total === 1 && log.length <= TOOL_RESULT_CHARS)) return null
   // One cause that is not in the app: every failure is the browser refusing a navigation with no
   // base URL. The list shape is what m113 read as ten causes, so it is never printed for this.
   if (causes.every((c) => c.message !== null && NO_BASE_URL_ERROR.test(c.message)))
@@ -4799,8 +4804,11 @@ export function failureCausesNote(
         `first ${clipped[1]} ${clipped[2]} were clipped, so a cause that failed earlier is ` +
         `missing here. Fix every cause below${connections.length > 0 ? ' the app’s code can produce, and re-send the connection error once as it is' : ''}, ` +
         `and read the whole run log before concluding:\n`
-      : `${total} failure${total === 1 ? '' : 's'} in this run, grouped by cause — fix every cause ` +
-        `below${connections.length > 0 ? ' the app’s code can produce, and re-send the connection error once as it is' : ' before the next deploy'}:\n`)
+      : total === 1
+        ? `1 failure in this run. The output is cut in the middle, where its error was printed, ` +
+          `so here it is — fix it before the next deploy:\n`
+        : `${total} failures in this run, grouped by cause — fix every cause ` +
+          `below${connections.length > 0 ? ' the app’s code can produce, and re-send the connection error once as it is' : ' before the next deploy'}:\n`)
   // The flaky sentence sits before the ignored one: the ignored sentence is the LAST thing the
   // note says, and callers assert on that ending.
   const tail =

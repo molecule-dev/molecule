@@ -3205,6 +3205,74 @@ describe('repeatingFailure', () => {
     })
 
     /**
+     * A whole-suite proof shaped like X1 l1167's first one (2026-11-03): 138 progress rows, ONE
+     * failure whose error the run printed inline where that test ran, then the tally. The result's
+     * stdout keeps only the start and the end of a log this long, so the error is not in it.
+     */
+    const longRun = (failures: number): string => {
+      const rows = (from: number, to: number): string[] =>
+        Array.from(
+          { length: to - from + 1 },
+          (_, i) =>
+            `[${from + i}/138] [chromium] › articles.spec.ts:${10 + from + i}:3 › Articles › walks row ${from + i} of the suite`,
+        )
+      const failure =
+        failures === 0
+          ? []
+          : [
+              '  1) [chromium] › url-navigation.spec.ts:206:3 › Pagination › page should reset when switching feeds ─────',
+              '',
+              '    Error: expect(page).toHaveURL(expected) failed',
+              '',
+              '    Expected string: "https://example.test/"',
+              '    Received string: "https://example.test/?page=2"',
+              '',
+              '       at url-navigation.spec.ts:229:24',
+              '',
+            ]
+      return [
+        'Running 138 tests using 1 worker',
+        '',
+        ...rows(1, 70),
+        ...failure,
+        ...rows(71, 138),
+        failures === 0 ? '  138 passed (3.7m)' : '  1 failed',
+        ...(failures === 0
+          ? []
+          : [
+              '    [chromium] › url-navigation.spec.ts:206:3 › Pagination › page should reset when switching feeds',
+              '  137 passed (3.7m)',
+            ]),
+      ].join('\n')
+    }
+
+    it('names a single failure’s error when the log is longer than the result keeps', () => {
+      const log = longRun(1)
+      expect(log.length).toBeGreaterThan(TOOL_RESULT_CHARS)
+      // The error sits in the part a start-and-end cut drops: the result shows the title only.
+      const at = log.indexOf('Error: expect(page).toHaveURL(expected) failed')
+      expect(at).toBeGreaterThan(TOOL_RESULT_CHARS * 0.4)
+      expect(at).toBeLessThan(log.length - TOOL_RESULT_CHARS * 0.6)
+      const note = failureCausesNote(log)!
+      expect(note).toContain('1 failure in this run. The output is cut in the middle')
+      expect(note).toContain('`Error: expect(page).toHaveURL(expected) failed`')
+      expect(note).toContain('url-navigation.spec.ts:206')
+      expect(note).toContain('Received string: "https://example.test/?page=2"')
+      expect(note.length).toBeLessThanOrEqual(TOOL_RESULT_CHARS)
+    })
+
+    it('still says nothing for one failure in a short log, or for a long clean log', () => {
+      // A short log reaches the executor whole, error included: a note would only repeat it.
+      const short = longRun(1)
+        .split('\n')
+        .filter((line) => !line.startsWith('['))
+        .join('\n')
+      expect(short.length).toBeLessThanOrEqual(TOOL_RESULT_CHARS)
+      expect(failureCausesNote(short)).toBeNull()
+      expect(failureCausesNote(longRun(0))).toBeNull()
+    })
+
+    /**
      * xr-molecule-flash-m101's +12:00 `wait_for_task` result, verbatim: 3 failures, one of them
      * the test the request carves out (`except "should require login to post comment"`).
      */
