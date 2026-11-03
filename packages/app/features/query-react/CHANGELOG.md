@@ -1,5 +1,11 @@
 # @molecule/app-query-react
 
+## 1.1.4
+
+### Patch Changes
+
+- Document that a mutation response written with `set()` cannot be undone by an older in-flight read.
+
 ## 1.1.3
 
 ### Patch Changes

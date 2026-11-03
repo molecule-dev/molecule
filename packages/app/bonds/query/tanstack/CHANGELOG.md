@@ -1,5 +1,11 @@
 # @molecule/app-query-tanstack
 
+## 1.0.3
+
+### Patch Changes
+
+- Prevent an older in-flight read from overwriting a newer value written with `set()`.
+
 ## 1.0.1
 
 ### Patch Changes

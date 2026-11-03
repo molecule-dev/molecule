@@ -1,5 +1,11 @@
 # @molecule/app-query
 
+## 1.1.2
+
+### Patch Changes
+
+- Document that `set()` supersedes an older in-flight read for the same key.
+
 ## 1.1.1
 
 ### Patch Changes

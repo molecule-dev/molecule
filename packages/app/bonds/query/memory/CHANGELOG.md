@@ -1,5 +1,11 @@
 # @molecule/app-query-memory
 
+## 1.0.4
+
+### Patch Changes
+
+- Prevent an older in-flight read from overwriting a newer value written with `set()`.
+
 ## 1.0.2
 
 ### Patch Changes
