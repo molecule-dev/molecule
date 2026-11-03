@@ -98,6 +98,7 @@ describe('Auth primitives', () => {
       logout: vi.fn(() => Promise.resolve()),
       register: vi.fn(() => Promise.resolve({ user: { name: 'New' }, token: 'def' })),
       refresh: vi.fn(() => Promise.resolve({ user: { name: 'Test' }, token: 'abc' })),
+      initialize: vi.fn(() => Promise.resolve()),
       getUser: vi.fn(() => null),
       getToken: vi.fn(() => null),
       isAuthenticated: vi.fn(() => false),

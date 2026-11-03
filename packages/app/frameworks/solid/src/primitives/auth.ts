@@ -62,13 +62,16 @@ export function createAuth<
       setState(newState)
     })
 
+    // A sibling can decide the session before this effect subscribes.
+    setState(client.getState())
     onCleanup(unsubscribe)
   })
 
   // Initialize auth state
   createEffect(() => {
-    client.refresh().catch(() => {
-      setState((prev: AuthState<T>) => ({ ...prev, loading: false }))
+    client.initialize().catch((_error: unknown) => {
+      // The client owns failure status. Read it without starting another request.
+      setState(client.getState())
     })
   })
 
@@ -171,12 +174,15 @@ export function createAuthFromClient<
       setState(newState)
     })
 
+    // Reconcile changes between the first snapshot and this deferred effect.
+    setState(client.getState())
     onCleanup(unsubscribe)
   })
 
   createEffect(() => {
-    client.refresh().catch(() => {
-      setState((prev: AuthState<T>) => ({ ...prev, loading: false }))
+    client.initialize().catch((_error: unknown) => {
+      // Initialization shares the client's restore; refresh would probe again.
+      setState(client.getState())
     })
   })
 

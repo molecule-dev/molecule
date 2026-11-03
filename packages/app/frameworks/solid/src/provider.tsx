@@ -4,7 +4,7 @@
  * @module
  */
 
-import type { JSX, ParentComponent } from 'solid-js'
+import { createComponent, type JSX, type ParentComponent } from 'solid-js'
 
 import {
   AuthContext,
@@ -16,10 +16,16 @@ import {
   StorageContext,
   ThemeContext,
 } from './context.js'
+import { SessionReady } from './session-ready.js'
 import type { MoleculeConfig } from './types.js'
 
 /**
  * MoleculeProvider component that provides all molecule services to the component tree.
+ *
+ * Providers are composed with explicit `createComponent` calls and getter props — the exact
+ * shape `vite-plugin-solid` compiles JSX to. Solid evaluates children eagerly, so the
+ * getter-`children` chain is what keeps each level lazy: a child component's `useContext`
+ * would otherwise read a context whose Provider has not run yet.
  *
  * @param props - Component props containing the molecule config.
  * @returns The nested provider tree wrapping children.
@@ -49,54 +55,122 @@ export const MoleculeProvider: ParentComponent<{ config: MoleculeConfig }> = (pr
   // useContext will find undefined (Solid evaluates children eagerly).
   let render: () => JSX.Element = () => props.children as JSX.Element
 
+  // Wrap the page first so every service provider also wraps the fallback.
+  if (props.config.auth && props.config.awaitSession) {
+    const inner = render
+    render = () =>
+      createComponent(SessionReady, {
+        get fallback() {
+          return props.config.sessionFallback
+        },
+        get children() {
+          return inner()
+        },
+      })
+  }
+
   if (props.config.logger) {
     const inner = render
-    render = () => (
-      <LoggerContext.Provider value={props.config.logger!}>{inner()}</LoggerContext.Provider>
-    )
+    render = () =>
+      createComponent(LoggerContext.Provider, {
+        get value() {
+          return props.config.logger!
+        },
+        get children() {
+          return inner()
+        },
+      })
   }
 
   if (props.config.storage) {
     const inner = render
-    render = () => (
-      <StorageContext.Provider value={props.config.storage!}>{inner()}</StorageContext.Provider>
-    )
+    render = () =>
+      createComponent(StorageContext.Provider, {
+        get value() {
+          return props.config.storage!
+        },
+        get children() {
+          return inner()
+        },
+      })
   }
 
   if (props.config.http) {
     const inner = render
-    render = () => <HttpContext.Provider value={props.config.http!}>{inner()}</HttpContext.Provider>
+    render = () =>
+      createComponent(HttpContext.Provider, {
+        get value() {
+          return props.config.http!
+        },
+        get children() {
+          return inner()
+        },
+      })
   }
 
   if (props.config.i18n) {
     const inner = render
-    render = () => <I18nContext.Provider value={props.config.i18n!}>{inner()}</I18nContext.Provider>
+    render = () =>
+      createComponent(I18nContext.Provider, {
+        get value() {
+          return props.config.i18n!
+        },
+        get children() {
+          return inner()
+        },
+      })
   }
 
   if (props.config.router) {
     const inner = render
-    render = () => (
-      <RouterContext.Provider value={props.config.router!}>{inner()}</RouterContext.Provider>
-    )
+    render = () =>
+      createComponent(RouterContext.Provider, {
+        get value() {
+          return props.config.router!
+        },
+        get children() {
+          return inner()
+        },
+      })
   }
 
   if (props.config.theme) {
     const inner = render
-    render = () => (
-      <ThemeContext.Provider value={props.config.theme!}>{inner()}</ThemeContext.Provider>
-    )
+    render = () =>
+      createComponent(ThemeContext.Provider, {
+        get value() {
+          return props.config.theme!
+        },
+        get children() {
+          return inner()
+        },
+      })
   }
 
   if (props.config.auth) {
     const inner = render
-    render = () => <AuthContext.Provider value={props.config.auth!}>{inner()}</AuthContext.Provider>
+    render = () =>
+      createComponent(AuthContext.Provider, {
+        get value() {
+          return props.config.auth!
+        },
+        get children() {
+          return inner()
+        },
+      })
   }
 
   if (props.config.state) {
     const inner = render
-    render = () => (
-      <StateContext.Provider value={props.config.state!}>{inner()}</StateContext.Provider>
-    )
+    render = () =>
+      createComponent(StateContext.Provider, {
+        get value() {
+          return props.config.state!
+        },
+        get children() {
+          return inner()
+        },
+      })
   }
 
   return render()

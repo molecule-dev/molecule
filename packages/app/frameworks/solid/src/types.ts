@@ -4,7 +4,7 @@
  * @module
  */
 
-import type { Accessor, Setter } from 'solid-js'
+import type { Accessor, JSX, Setter } from 'solid-js'
 
 import type { AuthClient, AuthState, RegisterExtraShape } from '@molecule/app-auth'
 import type { FormController, FormOptions } from '@molecule/app-forms'
@@ -22,12 +22,35 @@ import type { Theme, ThemeProvider } from '@molecule/app-theme'
 export interface MoleculeConfig {
   state?: StateProvider
   auth?: AuthClient<unknown>
+  /**
+   * Render the app only once `auth` has decided the session ({@link SessionReadyProps}).
+   * After a full page load a returning visitor's session is restored by one request, and
+   * until it answers `createAuth().user()` is `null` on every page — a public page's
+   * signed-in action (`if (!user()) return`, a redirect to `/login`) then treats a
+   * signed-in visitor as signed out. With this set, every page's first render reads the
+   * restored user when restoration succeeds. `'unavailable'` is unconfirmed and may still
+   * have a null user. Without a session hint, an anonymous visitor settles in microtasks
+   * without a request. Ignored without `auth`.
+   */
+  awaitSession?: boolean
+  /** Rendered instead of the app while {@link MoleculeConfig.awaitSession} waits; default nothing. */
+  sessionFallback?: JSX.Element
   theme?: ThemeProvider
   router?: Router
   i18n?: I18nProvider
   http?: HttpClient
   storage?: StorageProvider
   logger?: LoggerProvider
+}
+
+/**
+ * Props for the `SessionReady` component.
+ */
+export interface SessionReadyProps {
+  /** What renders once the session is decided — signed in, signed out, or unavailable. */
+  children: JSX.Element
+  /** What renders while the session restore is still undecided; default nothing. */
+  fallback?: JSX.Element
 }
 
 /**
