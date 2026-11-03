@@ -20,6 +20,18 @@ import type { Theme, ThemeProvider } from '@molecule/app-theme'
 export interface MoleculeModuleConfig {
   state?: StateProvider
   auth?: AuthClient<unknown>
+  /**
+   * Hold bootstrap (and so every page's first render) until `auth` has decided the
+   * session. After a full page load a returning visitor's session is restored by one
+   * request, and until it answers `MoleculeAuthService.user` is `null` everywhere — a
+   * public page's signed-in action (`if (!user) return`, a redirect to `/login`) then
+   * treats a signed-in visitor as signed out. With this set, Angular's app initializer
+   * waits only while status is `'loading'`, so a cached session can render while its
+   * verification continues in the background. `'unavailable'` also renders and may have a
+   * null user. Without a session hint, an anonymous visitor settles in microtasks without
+   * a request. Ignored without `auth`.
+   */
+  awaitSession?: boolean
   theme?: ThemeProvider
   router?: Router
   i18n?: I18nProvider

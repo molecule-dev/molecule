@@ -5,7 +5,11 @@
  */
 
 import type { EnvironmentProviders, Provider } from '@angular/core'
-import { ENVIRONMENT_INITIALIZER, makeEnvironmentProviders } from '@angular/core'
+import {
+  ENVIRONMENT_INITIALIZER,
+  makeEnvironmentProviders,
+  provideAppInitializer,
+} from '@angular/core'
 
 import type { AuthClient } from '@molecule/app-auth'
 import type { HttpClient } from '@molecule/app-http'
@@ -133,7 +137,7 @@ export function provideLogger(provider: LoggerProvider): EnvironmentProviders {
  * ```
  */
 export function provideMolecule(config: MoleculeModuleConfig): EnvironmentProviders {
-  const providers: Provider[] = []
+  const providers: (Provider | EnvironmentProviders)[] = []
 
   if (config.state) {
     providers.push({ provide: STATE_PROVIDER, useValue: config.state })
@@ -170,6 +174,35 @@ export function provideMolecule(config: MoleculeModuleConfig): EnvironmentProvid
   }
   if (config.logger) {
     providers.push({ provide: LOGGER_PROVIDER, useValue: config.logger })
+  }
+  if (config.awaitSession && config.auth) {
+    const client = config.auth
+    providers.push(
+      // The idiomatic hold: Angular creates no component (so no page renders) until
+      // app initializers settle.
+      provideAppInitializer(() => {
+        // Start or join the one restore. A stored user can already be decided
+        // while initialize()/whenRestored() still verify it in the background.
+        const joined = client.initialize().catch((_error: unknown) => {
+          // The client's status represents restore failure (including timeout).
+          // Bootstrap renders 'unavailable' rather than rejecting on that failure.
+        })
+        if (client.getState().status !== 'loading') return
+
+        let unsubscribe: (() => void) | undefined
+        const ready = new Promise<void>((resolve) => {
+          const check = (): void => {
+            if (client.getState().status !== 'loading') resolve()
+          }
+          unsubscribe = client.onAuthChange(check)
+          // Close the read/subscribe gap and include clients that settle only
+          // their initialization promise rather than emitting a final change.
+          check()
+          void joined.then(check)
+        })
+        return ready.finally(() => unsubscribe?.())
+      }),
+    )
   }
 
   return makeEnvironmentProviders(providers)
