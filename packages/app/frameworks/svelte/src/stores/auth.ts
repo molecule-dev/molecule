@@ -25,6 +25,15 @@ interface AuthStores<T, TRegister extends RegisterExtraShape<TRegister> = Record
   user: Readable<T | null>
   isAuthenticated: Readable<boolean>
   isLoading: Readable<boolean>
+  /**
+   * True once the auth status has left `'loading'` — the session is decided: signed in,
+   * signed out, or unavailable. Gate a public page's first render on it
+   * (`{#if $sessionReady}`) so a handler that checks `user` never runs against a session
+   * restore still in flight. `'unavailable'` also becomes ready and may still have a
+   * null user. Without a session hint, an anonymous visitor settles in microtasks without
+   * a request.
+   */
+  sessionReady: Readable<boolean>
   error?: Readable<string | null>
   login: (credentials: LoginCredentials) => Promise<AuthResult<T>>
   logout: () => Promise<void>
@@ -63,9 +72,12 @@ export function createAuthStores<
   const state: Readable<AuthState<T>> = readable(
     client.getState(),
     (set: (value: AuthState<T>) => void) => {
-      return client.onAuthChange(() => {
+      const unsubscribe = client.onAuthChange(() => {
         set(client.getState())
       })
+      // Refresh after subscribing, including after a period with no subscribers.
+      set(client.getState())
+      return unsubscribe
     },
   )
 
@@ -74,6 +86,11 @@ export function createAuthStores<
   const isAuthenticated = derived(state, ($state: AuthState<T>) => $state.authenticated)
   const isLoading = derived(state, ($state: AuthState<T>) => $state.loading)
   const error = derived(state, ($state: AuthState<T>) => $state.error)
+
+  // The session is decided — signed in, signed out, or unavailable. Derived from the SAME
+  // state store as `user`, so the flip and the user it decided land in one update: a page
+  // gated on `$sessionReady` reads the restored user when restoration succeeds.
+  const sessionReady = derived(state, ($state: AuthState<T>) => $state.status !== 'loading')
 
   // Actions
   const login = (credentials: LoginCredentials): Promise<AuthResult<T>> => {
@@ -97,6 +114,7 @@ export function createAuthStores<
     user,
     isAuthenticated,
     isLoading,
+    sessionReady,
     error,
     login,
     logout,
@@ -120,21 +138,26 @@ export function createAuthStoresFromClient<
   const state: Readable<AuthState<T>> = readable(
     client.getState(),
     (set: (value: AuthState<T>) => void) => {
-      return client.onAuthChange(() => {
+      const unsubscribe = client.onAuthChange(() => {
         set(client.getState())
       })
+      // A readable caches its last value while stopped; auth keeps changing.
+      set(client.getState())
+      return unsubscribe
     },
   )
 
   const user = derived(state, ($state: AuthState<T>) => $state.user)
   const isAuthenticated = derived(state, ($state: AuthState<T>) => $state.authenticated)
   const isLoading = derived(state, ($state: AuthState<T>) => $state.loading)
+  const sessionReady = derived(state, ($state: AuthState<T>) => $state.status !== 'loading')
 
   return {
     state,
     user,
     isAuthenticated,
     isLoading,
+    sessionReady,
     login: (credentials: LoginCredentials) => client.login(credentials),
     logout: () => client.logout(),
     register: (data: RegisterData<TRegister>) => client.register(data),
