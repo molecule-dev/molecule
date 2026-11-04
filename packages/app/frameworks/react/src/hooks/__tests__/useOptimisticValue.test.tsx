@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { act, fireEvent, render, renderHook, screen } from '@testing-library/react'
-import { createElement, type ReactElement } from 'react'
+import { createElement, type ReactElement, StrictMode, useLayoutEffect } from 'react'
 import { describe, expect, it, vi } from 'vitest'
 
 import { useOptimisticValue } from '../useOptimisticValue.js'
@@ -184,5 +184,97 @@ describe('useOptimisticValue', () => {
     expect(commit.mock.calls.map((call) => call[0])).toEqual([2, 4])
     await act(async () => saves[1].resolve())
     expect(result.current).toMatchObject({ value: 4, pending: false, error: null })
+  })
+
+  it('uses the committed callback when a layout effect makes a change', async () => {
+    const first = vi.fn(async (next: number) => next)
+    const second = vi.fn(async (next: number) => next)
+    const { result, rerender } = renderHook(
+      ({ commit }) => {
+        const value = useOptimisticValue({ value: 1, commit })
+        useLayoutEffect(() => {
+          if (commit === second) value.set(2)
+        }, [commit, value.set])
+        return value
+      },
+      { initialProps: { commit: first } },
+    )
+
+    rerender({ commit: second })
+    await act(async () => {})
+    expect(first).not.toHaveBeenCalled()
+    expect(second).toHaveBeenCalledWith(2, 1)
+    expect(result.current).toMatchObject({ value: 2, pending: false, error: null })
+  })
+
+  it('uses the committed callback in a descendant layout effect', async () => {
+    const first = vi.fn(async (next: number) => next)
+    const second = vi.fn(async (next: number) => next)
+    const Child = ({ set, active }: { set: (next: number) => void; active: boolean }): null => {
+      useLayoutEffect(() => {
+        if (active) set(2)
+      }, [set, active])
+      return null
+    }
+    const Parent = ({
+      commit,
+      active,
+    }: {
+      commit: typeof first
+      active: boolean
+    }): ReactElement => {
+      const value = useOptimisticValue({ value: 1, commit })
+      return createElement(Child, { set: value.set, active })
+    }
+    const view = render(createElement(Parent, { commit: first, active: false }))
+
+    view.rerender(createElement(Parent, { commit: second, active: true }))
+    await act(async () => {})
+    expect(first).not.toHaveBeenCalled()
+    expect(second).toHaveBeenCalledExactlyOnceWith(2, 1)
+  })
+
+  it('does not duplicate saves or replace saved props in StrictMode with an inline comparator', async () => {
+    const commit = vi.fn(async (next: Favorite) => next)
+    const { result, rerender } = renderHook(
+      () =>
+        useOptimisticValue({
+          value: { favorited: false, count: 2 },
+          equals: (a, b) => a.favorited === b.favorited && a.count === b.count,
+          commit,
+        }),
+      { wrapper: StrictMode },
+    )
+
+    expect(commit).not.toHaveBeenCalled()
+    await act(async () =>
+      result.current.update((current) => ({
+        favorited: !current.favorited,
+        count: current.count + 1,
+      })),
+    )
+    rerender()
+    expect(commit).toHaveBeenCalledTimes(1)
+    expect(result.current).toMatchObject({
+      value: { favorited: true, count: 3 },
+      pending: false,
+      error: null,
+    })
+  })
+
+  it('does not show a superseded save error when the next tap matches the server', async () => {
+    const reply = deferred<boolean>()
+    const onError = vi.fn()
+    const commit = vi.fn(() => reply.promise)
+    const { result } = renderHook(() => useOptimisticValue({ value: false, commit, onError }))
+
+    act(() => {
+      result.current.update((on) => !on)
+      result.current.update((on) => !on)
+    })
+    await act(async () => reply.reject(new Error('old request failed')))
+    expect(result.current).toMatchObject({ value: false, pending: false, error: null })
+    expect(onError).not.toHaveBeenCalled()
+    expect(commit).toHaveBeenCalledTimes(1)
   })
 })

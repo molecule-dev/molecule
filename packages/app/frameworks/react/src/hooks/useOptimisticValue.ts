@@ -3,7 +3,7 @@
  *
  * @module
  */
-import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
+import { useEffect, useInsertionEffect, useRef, useState, useSyncExternalStore } from 'react'
 
 import type { OptimisticValueOptions, OptimisticValueState } from '@molecule/app-state'
 import { createOptimisticValue, shallowEqual } from '@molecule/app-state'
@@ -78,7 +78,9 @@ export const useOptimisticValue = <T>(
   options: OptimisticValueOptions<T>,
 ): UseOptimisticValueResult<T> => {
   const latest = useRef(options)
-  useEffect(() => {
+  // Exposed actions may run in a descendant's layout effect, before this component's
+  // layout/passive effects. Publish options from committed renders before those actions.
+  useInsertionEffect(() => {
     latest.current = options
   })
 
