@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.16.3
+
+### Patch Changes
+
+- Preserve deployed test settings and resolve diagnostic tracing from the runner's own configuration.
+
 ## 1.16.2
 
 ### Patch Changes
