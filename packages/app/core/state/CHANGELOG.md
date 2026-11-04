@@ -1,5 +1,11 @@
 # @molecule/app-state
 
+## 1.1.1
+
+### Patch Changes
+
+- Retain diagnostic logs when a newer optimistic change supersedes a failed save.
+
 ## 1.1.0
 
 ### Minor Changes
