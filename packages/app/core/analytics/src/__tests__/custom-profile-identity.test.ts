@@ -320,6 +320,27 @@ declare const getRouter: () => { subscribe(listener: (location: { pathname: stri
 declare const getHttp: () => { addErrorInterceptor(interceptor: (error: { message: string; status: number }) => { message: string; status: number }): () => void }
 `
 
+  it('accepts the actual HTTP client without losing its concrete error type', () => {
+    expect(
+      diagnosticsFor(`
+import { getClient } from '@molecule/app-http'
+import { setupAutoTracking } from '../auto-tracking.js'
+
+export const cleanup = setupAutoTracking({ httpClient: getClient() })
+`).join('\n'),
+    ).toEqual('')
+  })
+
+  it('rejects an HTTP client whose errors do not supply an HTTP status', () => {
+    expect(
+      diagnosticsFor(`
+import { setupAutoTracking } from '../auto-tracking.js'
+declare const client: { addErrorInterceptor(interceptor: (error: Error) => Error): () => void }
+export const cleanup = setupAutoTracking({ httpClient: client })
+`).join('\n'),
+    ).toContain('No overload matches this call')
+  })
+
   it('accepts the verbatim Web-app example — an inline getClient()', () => {
     // Old-red: on the previous analytics this failed with
     // "Property 'identifyUser' is missing" because the inline call inferred

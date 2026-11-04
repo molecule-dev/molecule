@@ -88,7 +88,11 @@ interface HttpErrorLike {
  * Minimal HTTP client interface for auto-tracking.
  */
 interface HttpClientLike {
-  addErrorInterceptor(interceptor: (error: HttpErrorLike) => HttpErrorLike): () => void
+  // Tracking observes the error and returns the same concrete object. Preserve
+  // extra fields required by the client's own error type through the interceptor.
+  addErrorInterceptor(
+    interceptor: <TError extends HttpErrorLike>(error: TError) => TError,
+  ): () => void
 }
 
 // ============================================================================
