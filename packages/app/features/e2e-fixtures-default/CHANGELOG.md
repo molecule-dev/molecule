@@ -1,5 +1,11 @@
 # @molecule/app-e2e-fixtures-default
 
+## 1.2.6
+
+### Patch Changes
+
+- The README lists every member of long type declarations and keeps long descriptions whole.
+
 ## 1.2.5
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/api-server-default-express
 
+## 1.2.4
+
+### Patch Changes
+
+- The README lists every member of long type declarations and keeps long descriptions whole.
+
 ## 1.2.3
 
 ### Patch Changes

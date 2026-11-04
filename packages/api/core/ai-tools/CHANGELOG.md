@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.16.4
+
+### Patch Changes
+
+- The README lists every member of long type declarations and keeps long descriptions whole.
+
 ## 1.16.3
 
 ### Patch Changes

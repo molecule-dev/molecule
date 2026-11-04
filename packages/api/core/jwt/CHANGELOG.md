@@ -1,5 +1,11 @@
 # @molecule/api-jwt
 
+## 1.0.10
+
+### Patch Changes
+
+- The README lists every member of long type declarations and keeps long descriptions whole.
+
 ## 1.0.9
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/api-agent-runtime-pi
 
+## 1.0.8
+
+### Patch Changes
+
+- The README lists every member of long type declarations and keeps long descriptions whole.
+
 ## 1.0.7
 
 ### Patch Changes

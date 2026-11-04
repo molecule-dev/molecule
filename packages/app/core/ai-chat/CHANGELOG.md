@@ -1,5 +1,11 @@
 # @molecule/app-ai-chat
 
+## 1.7.3
+
+### Patch Changes
+
+- The README lists every member of long type declarations and keeps long descriptions whole.
+
 ## 1.7.2
 
 ### Patch Changes

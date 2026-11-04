@@ -1,5 +1,11 @@
 # @molecule/app-auth
 
+## 3.2.4
+
+### Patch Changes
+
+- The README lists every member of long type declarations and keeps long descriptions whole.
+
 ## 3.2.3
 
 ### Patch Changes

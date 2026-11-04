@@ -1,5 +1,11 @@
 # @molecule/app-ui
 
+## 1.3.9
+
+### Patch Changes
+
+- The README lists every member of long type declarations and keeps long descriptions whole.
+
 ## 1.3.7
 
 ### Patch Changes

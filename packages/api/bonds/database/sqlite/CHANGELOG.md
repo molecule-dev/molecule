@@ -1,5 +1,11 @@
 # @molecule/api-database-sqlite
 
+## 1.4.3
+
+### Patch Changes
+
+- The README lists every member of long type declarations and keeps long descriptions whole.
+
 ## 1.4.2
 
 ### Patch Changes

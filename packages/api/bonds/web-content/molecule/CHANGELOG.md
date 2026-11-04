@@ -1,5 +1,11 @@
 # @molecule/api-web-content-molecule
 
+## 1.1.2
+
+### Patch Changes
+
+- The README lists every member of long type declarations and keeps long descriptions whole.
+
 ## 1.1.0
 
 ### Minor Changes

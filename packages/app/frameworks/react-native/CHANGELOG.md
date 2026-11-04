@@ -1,5 +1,11 @@
 # @molecule/app-react-native
 
+## 3.0.3
+
+### Patch Changes
+
+- The README lists every member of long type declarations and keeps long descriptions whole.
+
 ## 3.0.2
 
 ### Patch Changes

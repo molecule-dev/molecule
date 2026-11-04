@@ -1,5 +1,11 @@
 # @molecule/app-ai-models
 
+## 1.4.4
+
+### Patch Changes
+
+- The README lists every member of long type declarations and keeps long descriptions whole.
+
 ## 1.4.2
 
 ### Patch Changes

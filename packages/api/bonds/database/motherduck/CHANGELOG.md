@@ -1,5 +1,12 @@
 # @molecule/api-database-motherduck
 
+## 1.1.3
+
+### Patch Changes
+
+- Updated dependencies
+  - @molecule/api-database-duckdb@1.1.3
+
 ## 1.1.2
 
 ### Patch Changes

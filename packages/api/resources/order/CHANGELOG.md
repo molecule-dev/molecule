@@ -1,5 +1,11 @@
 # @molecule/api-resource-order
 
+## 1.1.6
+
+### Patch Changes
+
+- The README lists every member of long type declarations and keeps long descriptions whole.
+
 ## 1.1.4
 
 ### Patch Changes

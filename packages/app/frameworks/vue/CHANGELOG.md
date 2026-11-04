@@ -1,5 +1,11 @@
 # @molecule/app-vue
 
+## 3.2.1
+
+### Patch Changes
+
+- The README lists every member of long type declarations and keeps long descriptions whole.
+
 ## 3.2.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # @molecule/app-react
 
+## 3.3.1
+
+### Patch Changes
+
+- The README lists every member of long type declarations and keeps long descriptions whole.
+
 ## 3.3.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # @molecule/api-ai-openai
 
+## 1.5.1
+
+### Patch Changes
+
+- The README lists every member of long type declarations and keeps long descriptions whole.
+
 ## 1.5.0
 
 ### Minor Changes

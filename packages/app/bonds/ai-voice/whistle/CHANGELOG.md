@@ -1,5 +1,11 @@
 # @molecule/app-ai-voice-whistle
 
+## 1.1.5
+
+### Patch Changes
+
+- The README lists every member of long type declarations and keeps long descriptions whole.
+
 ## 1.1.4
 
 ### Patch Changes

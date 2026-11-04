@@ -1,5 +1,11 @@
 # @molecule/api-ai-image-generation-stability
 
+## 1.0.5
+
+### Patch Changes
+
+- The README lists every member of long type declarations and keeps long descriptions whole.
+
 ## 1.0.3
 
 ### Patch Changes

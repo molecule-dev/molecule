@@ -1,5 +1,11 @@
 # @molecule/api-code-sandbox
 
+## 1.6.1
+
+### Patch Changes
+
+- The README lists every member of long type declarations and keeps long descriptions whole.
+
 ## 1.6.0
 
 ### Minor Changes

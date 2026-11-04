@@ -1,5 +1,11 @@
 # @molecule/api-code-sandbox-e2b
 
+## 1.3.1
+
+### Patch Changes
+
+- The README lists every member of long type declarations and keeps long descriptions whole.
+
 ## 1.3.0
 
 ### Minor Changes

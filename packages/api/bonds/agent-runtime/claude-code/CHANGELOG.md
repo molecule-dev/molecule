@@ -1,5 +1,11 @@
 # @molecule/api-agent-runtime-claude-code
 
+## 1.1.5
+
+### Patch Changes
+
+- The README lists every member of long type declarations and keeps long descriptions whole.
+
 ## 1.1.3
 
 ### Patch Changes

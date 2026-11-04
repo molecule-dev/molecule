@@ -1,5 +1,11 @@
 # @molecule/app-ai-image-generator-default
 
+## 1.0.4
+
+### Patch Changes
+
+- The README lists every member of long type declarations and keeps long descriptions whole.
+
 ## 1.0.1
 
 ### Patch Changes

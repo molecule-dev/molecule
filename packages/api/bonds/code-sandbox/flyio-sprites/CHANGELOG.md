@@ -1,5 +1,11 @@
 # @molecule/api-code-sandbox-flyio-sprites
 
+## 1.0.6
+
+### Patch Changes
+
+- The README lists every member of long type declarations and keeps long descriptions whole.
+
 ## 1.0.5
 
 ### Patch Changes
