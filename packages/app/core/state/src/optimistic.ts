@@ -208,12 +208,12 @@ export const createOptimisticValue = <T>(
           failure = { error }
           break
         }
+        // A newer change replaced this one; only its own outcome is shown.
+        getLogger('state').debug('optimistic value: a replaced change failed to save', { error })
         if (equals(desired, confirmed)) {
           desired = confirmed
           break
         }
-        // A newer change replaced this one; it is saved next and reports its own outcome.
-        getLogger('state').debug('optimistic value: a replaced change failed to save', { error })
       }
     }
     running = false

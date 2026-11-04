@@ -2,6 +2,11 @@ import { describe, expect, it, vi } from 'vitest'
 
 import { createOptimisticValue } from '../optimistic.js'
 
+const debug = vi.hoisted(() => vi.fn())
+vi.mock('@molecule/app-logger', () => ({
+  getLogger: () => ({ debug, error: vi.fn() }),
+}))
+
 interface Deferred<T> {
   promise: Promise<T>
   resolve: (value: T) => void
@@ -249,12 +254,18 @@ describe('createOptimisticValue', () => {
     const onError = vi.fn()
     const value = createOptimisticValue({ value: false, commit: server.commit, onError })
 
+    debug.mockClear()
     value.set(true)
     value.set(false)
-    server.calls[0].reply.reject(new Error('old request failed'))
+    const failure = new Error('old request failed')
+    server.calls[0].reply.reject(failure)
     expect(await value.settled()).toEqual({ value: false, pending: false, error: null })
     expect(onError).not.toHaveBeenCalled()
     expect(server.calls).toHaveLength(1)
+    expect(debug).toHaveBeenCalledExactlyOnceWith(
+      'optimistic value: a replaced change failed to save',
+      { error: failure },
+    )
   })
 
   it('does not report an older failure when the newer intent equals a refetched value', async () => {
