@@ -1,5 +1,11 @@
 # @molecule/app-state
 
+## 1.1.0
+
+### Minor Changes
+
+- Add `createOptimisticValue`, a server-backed value that shows each change at once and saves changes one at a time, in order.
+
 ## 1.0.5
 
 ### Patch Changes

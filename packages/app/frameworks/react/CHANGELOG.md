@@ -1,5 +1,11 @@
 # @molecule/app-react
 
+## 3.3.0
+
+### Minor Changes
+
+- Add `useOptimisticValue`, the React hook for `createOptimisticValue` from `@molecule/app-state`.
+
 ## 3.2.0
 
 ### Minor Changes
