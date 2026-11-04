@@ -31,7 +31,8 @@
  */
 
 import { locatedCommandSegments, statementArgumentEnd } from './command-position.js'
-import { suiteCommandTarget } from './suite-overlap.js'
+import { codeWithModuleSpecifiers } from './source-code.js'
+import { playwrightCommandTarget, suiteRunDirectory } from './suite-overlap.js'
 import { isPlaywrightRunCommand, redactSecrets } from './utilities.js'
 
 /** One request a traced page made, as `*.network` records it. */
@@ -5323,8 +5324,14 @@ const TRACE_SETTING =
  * @returns True when the config records traces for failures.
  */
 export function suiteRecordsTraces(configText: string): boolean {
-  const text = configText.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:])\/\/[^\n]*/g, '$1')
-  return [...text.matchAll(TRACE_SETTING)].some((m) => RECORDING_TRACE_MODES.includes(m[1] ?? ''))
+  const settings = traceSettings(configText)
+  return settings.length > 0 && settings.every((m) => RECORDING_TRACE_MODES.includes(m[1] ?? ''))
+}
+
+/** Only trace keys in code can establish recording, never examples in comments or strings. */
+function traceSettings(text: string): RegExpMatchArray[] {
+  const code = codeWithModuleSpecifiers(text)
+  return [...text.matchAll(TRACE_SETTING)].filter((m) => code.startsWith('trace:', m.index))
 }
 
 /** The trace modes that record only when a test is RETRIED (`on-first-retry`, `on-all-retries`). */
@@ -5342,8 +5349,7 @@ const RETRY_TRACE_MODES: readonly string[] = ['on-first-retry', 'on-all-retries'
  * @returns The mode as the config spells it, or null when it records no retry trace.
  */
 function suiteTracesOnRetry(configText: string): string | null {
-  const text = configText.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:])\/\/[^\n]*/g, '$1')
-  for (const m of text.matchAll(TRACE_SETTING)) {
+  for (const m of traceSettings(configText)) {
     const mode = m[1] ?? ''
     if (RETRY_TRACE_MODES.includes(mode)) return mode
   }
@@ -5359,7 +5365,30 @@ function suiteTracesOnRetry(configText: string): string | null {
  * @returns True when the run allows no retry.
  */
 export function namesNoRetries(command: string): boolean {
-  return /(?:^|[\s;&|(])--retries(?:=|\s+)['"]?0(?![\d.])/.test(command)
+  return playwrightOption(command, '--retries') === '0'
+}
+
+/** The last value a flag has in the runner's own argument list, never in another statement. */
+function playwrightOption(command: string, name: string): string | null {
+  const args =
+    locatedCommandSegments(command).find(
+      ({ segment }) => segment?.program === 'playwright' && segment.args[0] === 'test',
+    )?.segment?.args ?? []
+  const unquote = (word: string): string => word.replace(/^(['"])(.*)\1$/, '$2')
+  let value: string | null = null
+  for (let i = 1; i < args.length; i++) {
+    const word = unquote(args[i]!)
+    if (word === '--') break
+    if (word === name) value = unquote(args[++i] ?? '')
+    else if (word.startsWith(name + '=')) value = unquote(word.slice(name.length + 1))
+    else if (
+      /^(?:--config|-c|--grep|-g|--grep-invert|-G|--reporter|--project|--output|--timeout|--repeat-each|--browser|--trace|--retries|--workers|--global-timeout|--max-failures|--update-source-method)$/.test(
+        word,
+      )
+    )
+      i++
+  }
+  return value
 }
 
 /** The `--trace` flag this platform adds, and the only value it adds it with. */
@@ -5370,7 +5399,7 @@ export const DIAGNOSIS_TRACE_FLAG = '--trace=retain-on-failure'
  * A run that names one is left exactly as the executor wrote it.
  */
 function namesTraceMode(command: string): boolean {
-  return /(?:^|[\s;&|(])--trace(?:=|\s)/.test(command)
+  return playwrightOption(command, '--trace') !== null
 }
 
 /**
@@ -5406,57 +5435,77 @@ function playwrightOptionOffset(command: string): number | null {
   return null
 }
 
-/** The config paths a candidate directory could hold, in the order Playwright itself looks. */
-const CONFIG_NAMES: readonly string[] = [
+/** Default names in Playwright's own loader order. */
+const CONFIG_NAMES = [
   'playwright.config.ts',
-  'playwright.config.mts',
   'playwright.config.js',
+  'playwright.config.mts',
   'playwright.config.mjs',
+  'playwright.config.cts',
   'playwright.config.cjs',
 ]
 
-/** The directories a command changes into, in order, as it writes them. */
-function cdDirectories(command: string): string[] {
-  const out: string[] = []
-  for (const m of command.matchAll(/(?:^|[\s;&|(])cd\s+(?:'([^']+)'|"([^"]+)"|([^\s;&|)]+))/g)) {
-    const dir = m[1] ?? m[2] ?? m[3]
-    if (dir && !out.includes(dir)) out.push(dir)
-  }
-  return out
-}
+/** The backend's existing directory capability, when available. */
+type ReadConfigDirectory = (
+  path: string,
+) => Promise<Array<{ name: string; type: 'file' | 'directory' }>>
 
-/** A path joined under a base, unless it is already absolute. */
-function under(base: string, path: string): string {
-  if (path.startsWith('/')) return path
-  return `${base.replace(/\/+$/, '')}/${path.replace(/^\.\//, '')}`
-}
-
-/**
- * The relative modules a config's text imports — `import { baseConfig } from './playwright.base'`,
- * `require('../playwright.base.cjs')` — in the order it names them. A package import
- * (`@playwright/test`) is not a file of the suite and is never followed.
- *
- * @param text - A config's source.
- * @returns The relative specifiers.
- */
+/** Runtime imports only: comments, prose strings and type-only imports are inert. */
 function relativeImports(text: string): string[] {
+  const code = codeWithModuleSpecifiers(text)
   const out: string[] = []
-  for (const m of text.matchAll(
-    /\bfrom\s+['"](\.\.?\/[^'"\n]+)['"]|\b(?:require|import)\(\s*['"](\.\.?\/[^'"\n]+)['"]\s*\)/g,
+  for (const m of code.matchAll(
+    /\b(?:import|export)\s+(?!type\b)[^;'"`]*?\bfrom\s*['"](\.\.?\/[^'"\n]+)['"]|\b(?:require|import)\s*\(\s*['"](\.\.?\/[^'"\n]+)['"]\s*\)|\bimport\s*['"](\.\.?\/[^'"\n]+)['"]/g,
   )) {
-    const specifier = m[1] ?? m[2]
+    const specifier = m[1] ?? m[2] ?? m[3]
     if (specifier && !out.includes(specifier)) out.push(specifier)
   }
   return out
 }
 
-/** The file names an extensionless import can be, in the order Playwright's loader tries them. */
-const MODULE_SUFFIXES: readonly string[] = ['.ts', '.mts', '.js', '.mjs', '.cjs']
+/** Only a spread or direct exported pass-through establishes imported settings statically. */
+function usesImportedSettings(text: string, specifier: string): boolean {
+  const code = codeWithModuleSpecifiers(text)
+  const bindings: string[] = []
+  for (const m of code.matchAll(
+    /\b(import|export)\s+(?!type\b)([^;'"`]*?)\s+from\s*(['"])([^'"\n]+)\3/g,
+  )) {
+    if (m[4] !== specifier) continue
+    if (m[1] === 'export') return true
+    bindings.push(...(m[2]!.match(/[\w$]+/g) ?? []))
+  }
+  for (const m of code.matchAll(
+    /\b(?:const|let|var)\s+([\w$]+)\s*=\s*\(?\s*(?:await\s+)?(?:require|import)\s*\(\s*(['"])([^'"\n]+)\2/g,
+  )) {
+    if (m[3] === specifier) bindings.push(m[1]!)
+  }
+  return bindings.some((name) =>
+    new RegExp(
+      `(?:\\.\\.\\.\\s*|export\\s+default\\s+(?:defineConfig\\s*\\(\\s*)?|module\\.exports\\s*=\\s*)${name.replace(/[$]/g, '\\$')}\\b`,
+    ).test(code),
+  )
+}
 
-/** At most this many config candidates are read: the `.ts`, `.mts` and `.js` names in two directories. */
+/** Playwright's extension lookups, including NodeNext TypeScript fallbacks. */
+function moduleNames(target: string): string[] {
+  const replacements: Record<string, readonly string[]> = {
+    '.js': ['.jsx', '.ts', '.tsx'],
+    '.jsx': ['.tsx'],
+    '.cjs': ['.cts'],
+    '.mjs': ['.mts'],
+    '': ['.js', '.ts', '.jsx', '.tsx', '.cjs', '.mjs', '.cts', '.mts'],
+  }
+  const extension = /\.[cm]?[jt]sx?$/.exec(target)?.[0] ?? ''
+  return [
+    target,
+    ...(replacements[extension] ?? []).map(
+      (suffix) => `${extension ? target.slice(0, -extension.length) : target}${suffix}`,
+    ),
+  ]
+}
+
+/** File-read budgets for config candidates and imported modules, respectively. */
 const CONFIG_READS = 6
-
-/** At most this many reads are spent following a config's imports. */
 const IMPORT_READS = 6
 
 /** The directory part of an absolute path. */
@@ -5465,7 +5514,7 @@ function directoryOf(path: string): string {
   return at <= 0 ? '/' : path.slice(0, at)
 }
 
-/** An absolute path with its `.` and `..` segments resolved. */
+/** Resolve a literal path, clamping parent traversals at the filesystem root. */
 function normalizedPath(path: string): string {
   const out: string[] = []
   for (const part of path.split('/')) {
@@ -5476,95 +5525,156 @@ function normalizedPath(path: string): string {
   return `/${out.join('/')}`
 }
 
+/** Join a path against its actual runner or importer directory. */
+function under(base: string, path: string): string {
+  return normalizedPath(path.startsWith('/') ? path : `${base}/${path}`)
+}
+
 /**
- * The config a Playwright command reads, read from the backend — the file its own `--config`
- * names (resolved against the directory the command starts in, then against each `cd` it does
- * first), else the first `playwright.config.*` in those directories — followed by the text of
- * every relative module it imports, so a config that spreads a base it imports is read with that
- * base's settings in it.
- *
- * A config that imports its settings is the common shape, not an edge: a wrapper written beside an
- * app imports the supplied suite's base and spreads it (`...baseConfig`), so the wrapper's own text
- * carries no `trace:` at all. Read alone, a base that traces `on-first-retry` was reported as a
- * config that "sets none" (X1 xr-molecule-flash-l1255 +18.2, whose base sets
- * `trace: 'on-first-retry'`).
- *
- * Best-effort and bounded: at most {@link CONFIG_READS} candidate configs and {@link IMPORT_READS}
- * imported files are read, two levels deep, and a read that fails is a file that records nothing — the caller's
- * `--trace` flag is what makes a missing trace impossible either way.
- *
- * @param command - The shell command.
- * @param cwd - The directory the command starts in.
- * @param readFile - The backend's file read.
- * @returns The config's text with its imports' text after it, or '' when none could be read.
+ * Read the actual runner's config and its relative imports, two levels deep. Directory metadata
+ * reuses the backend's readDir capability: absent extensions cost no file reads, and directory
+ * imports can resolve their package main or index. Metadata reads are also capped at six.
+ * Without metadata, inspect bounded file candidates.
+ * No supplied source is executed. An unreadable or unresolved setting cannot establish tracing.
  */
 async function readRunConfig(
   command: string,
   cwd: string,
   readFile: (path: string) => Promise<string>,
+  readDir?: ReadConfigDirectory,
 ): Promise<string> {
-  // Playwright resolves its config from the directory it runs in — the one the command changes
-  // into — so that directory is tried first, then the one the command starts in. The names are
-  // tried name by name across both, so the budget below reaches `playwright.config.ts` in each
-  // instead of spending every read on the first directory's five spellings (a run that did
-  // `cd /srv/shop && npx playwright test` never had `/srv/shop/playwright.config.ts` read).
-  const changedInto = cdDirectories(command).map((dir) => under(cwd, dir))[0]
-  const bases = changedInto && changedInto !== cwd ? [changedInto, cwd] : [cwd]
-  const config = /(?:^|[\s;&|(])--config(?:=|\s+)(?:'([^']+)'|"([^"]+)"|([^\s;&|)]+))/.exec(command)
-  const explicit = config?.[1] ?? config?.[2] ?? config?.[3] ?? null
-  const candidates = [
-    ...new Set(
-      explicit
-        ? bases.map((base) => under(base, explicit))
-        : CONFIG_NAMES.flatMap((name) =>
-            bases.map((base) => `${base.replace(/\/+$/, '')}/${name}`),
-          ),
-    ),
-  ]
-  const read = async (path: string): Promise<string> => {
+  const base = suiteRunDirectory(command, cwd)
+  if (base === null) return ''
+  const args =
+    locatedCommandSegments(command).find(
+      ({ segment }) => segment?.program === 'playwright' && segment.args[0] === 'test',
+    )?.segment?.args ?? []
+  const unquote = (s: string): string => s.replace(/^(['"])(.*)\1$/, '$2')
+  let explicit: string | null = null
+  for (let i = 1; i < args.length; i++) {
+    const arg = unquote(args[i]!)
+    if (arg === '--') break
+    if (arg === '--config' || arg === '-c') explicit = unquote(args[++i] ?? '')
+    else if (arg.startsWith('--config=')) explicit = unquote(arg.slice('--config='.length))
+    else if (/^-c.+/.test(arg)) explicit = unquote(arg.slice(2))
+  }
+  const directories = new Map<string, Awaited<ReturnType<ReadConfigDirectory>> | null>()
+  const list = async (path: string): Promise<Awaited<ReturnType<ReadConfigDirectory>> | null> => {
+    if (!directories.has(path)) {
+      if (directories.size >= 6) return null
+      try {
+        directories.set(path, readDir ? await readDir(path) : null)
+      } catch (_error) {
+        // Unavailable metadata leaves the bounded file-only fallback.
+        directories.set(path, null)
+      }
+    }
+    return directories.get(path) ?? null
+  }
+  const seen = new Set<string>()
+  let configReads = 0,
+    importReads = 0
+  const read = async (
+    path: string,
+    imported: boolean,
+  ): Promise<{ path: string; text: string } | null> => {
+    path = normalizedPath(path)
+    if (seen.has(path) || (imported ? importReads >= IMPORT_READS : configReads >= CONFIG_READS))
+      return null
+    seen.add(path)
+    if (imported) importReads++
+    else configReads++
     try {
-      return (await readFile(path)) || ''
+      const text = await readFile(path)
+      return text ? { path, text } : null
     } catch (_error) {
-      // A file that cannot be read is one that records nothing (see above).
-      return ''
+      // Best-effort diagnosis: unreadable source is no evidence that a trace will exist.
+      return null
     }
   }
+  const existing = async (names: string[]): Promise<string[]> => {
+    const entries = await list(directoryOf(names[0]!))
+    return entries === null
+      ? names
+      : names.filter((name) =>
+          entries.some(
+            (entry) =>
+              entry.type === 'file' && entry.name === name.slice(name.lastIndexOf('/') + 1),
+          ),
+        )
+  }
+  const configPath = explicit ? under(base, explicit) : base
+  const isConfigDirectory =
+    !explicit ||
+    configPath === '/' ||
+    (await list(directoryOf(configPath)))?.some(
+      (entry) =>
+        entry.type === 'directory' &&
+        entry.name === configPath.slice(configPath.lastIndexOf('/') + 1),
+    )
+  const candidates = isConfigDirectory
+    ? CONFIG_NAMES.map((name) => under(configPath, name))
+    : [configPath]
   let found: { path: string; text: string } | null = null
-  for (const candidate of candidates.slice(0, CONFIG_READS)) {
-    const text = await read(candidate)
-    if (text) {
-      found = { path: normalizedPath(candidate), text }
-      break
-    }
+  for (const candidate of isConfigDirectory ? await existing(candidates) : candidates) {
+    found = await read(candidate, false)
+    if (found) break
   }
   if (!found) return ''
-  const texts = [found.text]
-  const seen = new Set([found.path])
-  let reads = 0
+  const resolve = async (
+    target: string,
+    depth = 0,
+  ): Promise<{ path: string; text: string } | null> => {
+    for (const name of await existing(moduleNames(target))) {
+      const file = await read(name, true)
+      if (file) return file
+    }
+    const entries = readDir ? await list(target) : null
+    if (!entries || depth > 1) return null
+    if (entries.some((entry) => entry.name === 'package.json' && entry.type === 'file')) {
+      const metadata = await read(under(target, 'package.json'), true)
+      let main: unknown
+      try {
+        main = metadata ? JSON.parse(metadata.text).main : null
+      } catch (_error) {
+        // Invalid package metadata cannot establish inherited tracing.
+        return null
+      }
+      if (typeof main === 'string' && main && under(target, main) !== target) {
+        const file = await resolve(under(target, main), depth + 1)
+        if (file) return file
+      }
+    }
+    for (const name of await existing(moduleNames(under(target, 'index')))) {
+      const file = await read(name, true)
+      if (file) return file
+    }
+    return null
+  }
+  const imports = new Map<string, { path: string; text: string }[]>()
   let level = [found]
-  for (let depth = 0; depth < 2 && level.length > 0; depth++) {
+  for (let depth = 0; depth < 2 && level.length; depth++) {
     const next: { path: string; text: string }[] = []
     for (const file of level) {
       for (const specifier of relativeImports(file.text)) {
-        const target = normalizedPath(`${directoryOf(file.path)}/${specifier}`)
-        const names = /\.[cm]?[jt]s$/.test(target)
-          ? [target]
-          : MODULE_SUFFIXES.map((suffix) => `${target}${suffix}`)
-        for (const name of names) {
-          if (seen.has(name) || reads >= IMPORT_READS) continue
-          reads++
-          const text = await read(name)
-          if (!text) continue
-          seen.add(name)
-          texts.push(text)
-          next.push({ path: name, text })
-          break
+        const imported = await resolve(under(directoryOf(file.path), specifier))
+        if (!imported) continue
+        if (usesImportedSettings(file.text, specifier)) {
+          const children = imports.get(file.path) ?? []
+          children.push(imported)
+          imports.set(file.path, children)
         }
+        next.push(imported)
       }
     }
     level = next
   }
-  return texts.join('\n')
+  const effective = (file: { path: string; text: string }): string => {
+    // Each wrapper's explicit trace wins over the base it spreads, at every import level.
+    if (traceSettings(file.text).length) return file.text
+    return [file.text, ...(imports.get(file.path) ?? []).map(effective)].join('\n')
+  }
+  return effective(found)
 }
 
 /** A command with the trace flag this platform decided to add, and the sentence to report it in. */
@@ -5619,6 +5729,7 @@ export async function diagnosisTraceCommand(args: {
   command: string
   cwd: string
   readFile: (path: string) => Promise<string>
+  readDir?: ReadConfigDirectory
 }): Promise<DiagnosisTraceRewrite> {
   const unchanged = { command: args.command, change: null }
   if (namesTraceMode(args.command)) return unchanged
@@ -5627,9 +5738,9 @@ export async function diagnosisTraceCommand(args: {
   // A proof-capable run keeps the suite's own tracing and retries: the graded measurement is the
   // suite's own settings, and a flag here would make the run's records unprovable (see above). No
   // config needs reading to know that.
-  if (suiteCommandTarget(args.command) !== 'local' && !namesNoRetries(args.command))
+  if (playwrightCommandTarget(args.command) !== 'local' && !namesNoRetries(args.command))
     return unchanged
-  const config = await readRunConfig(args.command, args.cwd, args.readFile)
+  const config = await readRunConfig(args.command, args.cwd, args.readFile, args.readDir)
   if (suiteRecordsTraces(config)) return unchanged
   const retryTrace = suiteTracesOnRetry(config)
   // The flag goes into the Playwright step's own argument list, at the end of it — an option of

@@ -86,6 +86,39 @@ export function suiteCommandTarget(command: string): string {
   return 'local'
 }
 
+/**
+ * The target of the actual Playwright step, including inherited exports. URLs and option names
+ * in another program or a quoted title cannot decide whether this step is deployed.
+ * @param command - The shell command.
+ * @param last - Read the last Playwright invocation, for the background launch rewrite.
+ * @returns The comparable target key, or local when no target setting is present.
+ */
+export function playwrightCommandTarget(command: string, last = false): string {
+  const steps = locatedCommandSegments(command)
+  const runners = steps.filter(
+    (step) => step.segment?.program === 'playwright' && step.segment.args[0] === 'test',
+  )
+  const runner = runners.at(last ? -1 : 0)
+  if (!runner) return suiteCommandTarget(command)
+  const inherited = steps
+    .slice(0, steps.indexOf(runner))
+    .filter(
+      (step) =>
+        (step.shellScope ?? []).every((scope, i) => scope === runner.shellScope?.[i]) &&
+        (step.segment === null || step.segment.program === 'export'),
+    )
+  const prefix =
+    runner.start !== null && runner.programOffset !== null
+      ? command.slice(runner.start, runner.programOffset)
+      : runner.assignments.join(' ')
+  return suiteCommandTarget(
+    [
+      prefix,
+      ...inherited.reverse().map((step) => step.segment?.text ?? step.assignments.join(' ')),
+    ].join('; '),
+  )
+}
+
 /** Whether a Playwright statement already names its own config (`-c`, `--config`, `--config=`). */
 const NAMES_CONFIG = /(?:^|\s)(?:-c|--config)(?:\s+|=)/
 
@@ -681,24 +714,39 @@ const unquoted = (word: string): string => word.replace(/^['"]|['"]$/g, '')
  * @param cwd - The `cwd` the tool was given, when it was.
  * @returns The absolute directory, or null.
  */
-function suiteRunDirectory(command: string, cwd?: string | null): string | null {
-  let dir = typeof cwd === 'string' && cwd.startsWith('/') ? posix.normalize(cwd) : null
-  for (const { segment } of locatedCommandSegments(command)) {
+export function suiteRunDirectory(command: string, cwd?: string | null): string | null {
+  const dirs = new Map<string, string | null>([
+    ['', typeof cwd === 'string' && cwd.startsWith('/') ? posix.normalize(cwd) : null],
+  ])
+  for (const located of locatedCommandSegments(command)) {
+    const scope = located.shellScope ?? []
+    const key = scope.join('\0')
+    if (!dirs.has(key)) {
+      let parent = scope.slice(0, -1)
+      while (!dirs.has(parent.join('\0'))) parent = parent.slice(0, -1)
+      dirs.set(key, dirs.get(parent.join('\0')) ?? null)
+    }
+    const { segment } = located
     if (segment === null) continue
     if (segment.program === 'cd') {
-      const target = unquoted(segment.args[0] ?? '').replace(/\/+$/, '')
-      if (!target || target.startsWith('-') || target.startsWith('~') || !LITERAL_DIR.test(target))
-        return null
-      // A shell `cd /abs` DISCARDS the directory before it; only a relative target resolves
-      // against the one the run started in.
-      if (target.startsWith('/')) dir = posix.normalize(target)
-      else if (dir === null) return null
-      else dir = posix.normalize(posix.join(dir, target))
-      continue
+      const words = segment.args.map(unquoted)
+      while (words[0] === '--' || words[0] === '-L' || words[0] === '-P') words.shift()
+      const target = words[0] ?? ''
+      const dir = dirs.get(key) ?? null
+      dirs.set(
+        key,
+        !target || target.startsWith('-') || target.startsWith('~') || !LITERAL_DIR.test(target)
+          ? null
+          : target.startsWith('/')
+            ? posix.normalize(target)
+            : dir === null
+              ? null
+              : posix.normalize(posix.join(dir, target)),
+      )
     }
-    if (segment.program === 'playwright' && segment.args[0] === 'test') break
+    if (segment.program === 'playwright' && segment.args[0] === 'test') return dirs.get(key) ?? null
   }
-  return dir
+  return null
 }
 
 /** A failure location's path and its `:line[:column]` suffix, split the way Playwright does. */

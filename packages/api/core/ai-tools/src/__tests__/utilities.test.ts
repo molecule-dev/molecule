@@ -1488,32 +1488,29 @@ describe('streamingBackgroundCommand — an approved exclusion keeps the proof�
     }
   })
 
-  it('still disables retries on a deployed run narrowed to a part of the suite', () => {
+  it('keeps retries on a deployed selection that can count as native proof', () => {
     for (const filter of ['--grep "should create a new article"', 'articles.spec.ts:32']) {
       const { command, changes } = streamingBackgroundCommand(deployed(filter), {
         approvedExclusions: APPROVED,
       })
-      expect(command, filter).toContain('--retries=0')
-      // The sentence names the diagnosis rather than calling a deployed run local.
-      expect(changes.join(' '), filter).toContain(
-        'a diagnosis or re-run walks each failure once; the suite’s retries apply on the deployed proof run',
-      )
+      expect(command, filter).not.toContain('--retries=0')
+      expect(changes.join(' '), filter).not.toContain('Added `--retries')
     }
   })
 
-  it('still disables retries when the inversion drops more than the approved exclusions', () => {
+  it('keeps retries when the deployed selection has an unapproved or unknown inversion', () => {
     const unapproved = streamingBackgroundCommand(
       deployed("--grep-invert 'should show an error'"),
       {
         approvedExclusions: APPROVED,
       },
     )
-    expect(unapproved.command).toContain('--retries=0')
+    expect(unapproved.command).not.toContain('--retries=0')
     // No approved titles in hand: the inversion cannot be shown to be the request's scope.
     const unknown = streamingBackgroundCommand(
       deployed("--grep-invert 'should require login to post comment'"),
     )
-    expect(unknown.command).toContain('--retries=0')
+    expect(unknown.command).not.toContain('--retries=0')
   })
 
   it('leaves the local whole run walking each failure once', () => {
@@ -1603,14 +1600,12 @@ describe('streamingBackgroundCommand — the platform’s own proof keeps the su
     expect(command).toContain('__PROOF_EXIT__ hurl=$__proof_fast playwright=$__proof_slow')
   })
 
-  it('still adds it to the identical command sent as the executor’s own', () => {
+  it('keeps the same native settings when the executor sends the identical command', () => {
     const { command, changes } = streamingBackgroundCommand(PROOF_2, {
       approvedExclusions: APPROVED,
     })
-    expect(command).toContain('--retries=0')
-    expect(changes.join(' ')).toContain(
-      'a diagnosis or re-run walks each failure once; the suite’s retries apply on the deployed proof run',
-    )
+    expect(command).not.toContain('--retries=0')
+    expect(changes.join(' ')).not.toContain('Added `--retries')
   })
 
   it('leaves the first deploy’s whole proof exactly as it was', () => {
@@ -1636,13 +1631,13 @@ describe('streamingBackgroundCommand — the host proof mark is scoped (l48 foll
     ['a cap', '--max-failures=5'],
     ['a title filter', "-g 'favorite'"],
     ['a last-failed set', '--last-failed'],
-  ])('keeps the diagnosis reading for a marked run with %s', (_what, tail) => {
+  ])('keeps native settings for a marked deployed run with %s', (_what, tail) => {
     const { command, changes } = streamingBackgroundCommand(deployed(tail), {
       approvedExclusions: APPROVED,
       platformProof: true,
     })
-    expect(command).toContain('--retries=0')
-    expect(changes.join(' ')).toContain('a diagnosis or re-run walks each failure once')
+    expect(command).not.toContain('--retries=0')
+    expect(changes.join(' ')).not.toContain('Added `--retries')
   })
 
   it('keeps the diagnosis reading for a marked LOCAL run', () => {

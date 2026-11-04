@@ -22,6 +22,7 @@ import { PLAYWRIGHT_REPORT_ENV } from './playwright-report.js'
 import {
   type DiagnosisRunContext,
   isDiagnosisRun,
+  playwrightCommandTarget,
   resolvePlaywrightSelectionPaths,
   type RunEnvSetting,
   scopedRerunCommand,
@@ -852,27 +853,13 @@ export function streamingBackgroundCommand(
     out = `${out.slice(0, at)} ${flag}${out.slice(at)}`
     return true
   }
-  // A diagnosis or a re-run (capped, last-failed, grepped, or named files) walks each failure
-  // once: the suite's own `retries` doubled every failure of X1 flash-m71's first whole run,
-  // which had dropped the `--retries=0` it used one command earlier. A whole run whose TARGET is
-  // local — its env names `localhost`/`127.0.0.1`/`0.0.0.0`, or names no URL at all, as the
-  // wrapper config's default does — is not the proof run either and walks them once too:
-  // xr-molecule-flash-m155 (+11:34) spent 10 minutes on its first local whole run, and the
-  // suite's `retries: 1` walked each of its 68 failures a second time (0 flaky) for nothing.
-  // The suite's retries are kept only for a run that names a non-local URL — the deployed proof
-  // (xr-molecule-flash-m89), where they absorb a network blip. Which runs are diagnoses is
-  // {@link isDiagnosisRun}'s answer and nobody else's: the platform's notes ask the same
-  // function, so a run cannot be a diagnosis to one of them and the whole suite to the other.
-  // Which targets are local is {@link suiteCommandTarget}'s answer.
-  //
-  // A run the PLATFORM composed and launched as the graded proof keeps the suite's retries for
-  // the selection it composed — the failures a redeploy re-runs, named as files and `file:line`
-  // ({@link isDiagnosisRun} reads the host mark). It does NOT excuse a cap, a title filter or a
-  // last-failed set: those read as a diagnosis on that same reading, so the mark cannot turn a
-  // walk of part of the suite into the graded measurement. A LOCAL target is never the graded
-  // deployed run either, whatever launched it.
+  // Local walks diagnose each failure once. Deployed walks retain the suite's retries even when
+  // narrowed or capped: a native test record hashes retries, so changing them would prevent proof
+  // credit. Explicit executor flags remain the executor's choice.
   const diagnosis = isDiagnosisRun(lastStep, context)
-  const localTarget = suiteCommandTarget(lastStep) === 'local'
+  // A narrowed deployed selection can count as native proof too. Its retries must remain the
+  // suite's own; only local diagnosis runs receive an automatic retry override.
+  const localTarget = playwrightCommandTarget(out, true) === 'local'
   // The last step's reporters: one printer, and it is `list`. Every branch below only ever moves
   // the command TO that shape — a reporter set is never left with two printers in it.
   const reporters = finalPlaywrightRun ? lastReporterFlag(lastStep) : null
@@ -981,7 +968,7 @@ export function streamingBackgroundCommand(
         'and you need not wait for it to end to start on them.',
     )
   }
-  if (finalPlaywrightRun && (diagnosis || localTarget) && !/--retries\b/.test(lastStep)) {
+  if (finalPlaywrightRun && localTarget && !/--retries\b/.test(lastStep)) {
     // The reason named is the one that fired: a narrowed diagnosis against a DEPLOYED URL is not a
     // local run, and calling it one (xr-molecule-flash-m170's note did) reads as the platform having
     // misread the target.

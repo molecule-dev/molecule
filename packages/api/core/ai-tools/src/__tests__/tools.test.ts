@@ -3393,7 +3393,7 @@ describe('exec_command run_in_background', () => {
     expect(r.note).not.toContain('Dropped')
   })
 
-  it('keeps the suite’s retries on a launch the platform marks as its own proof (l48)', async () => {
+  it('keeps native deployed settings with or without the platform proof mark (l48)', async () => {
     // molecule-dev's `runProofCommand` starts the platform's composed proof through this very
     // tool, marking the launch input object with the host-only `PLATFORM_PROOF` symbol. A
     // redeploy's proof names the failures it re-runs, so without the mark the rewrite reads the
@@ -3421,10 +3421,10 @@ describe('exec_command run_in_background', () => {
     expect(await launched({ [PLATFORM_PROOF]: true })).not.toContain('--retries')
     // A model's arguments are JSON: a `platform_proof` key it writes — as a boolean or as the
     // string a normalizer might salvage — is an unknown input key and cannot claim the purpose.
-    expect(await launched({ platform_proof: true })).toContain('--retries=0')
-    expect(await launched({ platform_proof: 'true' })).toContain('--retries=0')
+    expect(await launched({ platform_proof: true })).not.toContain('--retries')
+    expect(await launched({ platform_proof: 'true' })).not.toContain('--retries')
     // The identical command sent as the executor's own call is still a diagnosis.
-    expect(await launched({})).toContain('--retries=0')
+    expect(await launched({})).not.toContain('--retries')
   })
 
   it('reports a failure to start rather than throwing', async () => {

@@ -3223,17 +3223,13 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         }
       }
 
-      // A Playwright run of a suite whose config records no trace gets one recorded anyway
-      // (`diagnosisTraceCommand`, trace-artifacts.ts): the failing tests' own network log is what
-      // tells a swallowed request error from a selector, and X1 xr-molecule-flash-m100 spent the
-      // last minutes of its run hand-writing Chromium probes for what the trace it never wrote
-      // down would have said. The whole rule is that function's; the whole-suite proof run gets it
-      // too, since a trace is retained only for a failing test (m163's proof run left none and the
-      // executor hunted one that did not exist).
+      // Diagnostic runs need readable failure traces. A proof-capable deployed run retains its
+      // own settings; diagnosisTraceCommand owns both decisions and uses the backend's readers.
       const traced = await diagnosisTraceCommand({
         command: rawCommand,
         cwd,
         readFile: (path) => backend.readFile(path),
+        readDir: (path) => backend.readDir(path),
       })
       let command = traced.command
 
