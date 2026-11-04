@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.16.2
+
+### Patch Changes
+
+- Leave a deployed Playwright run's own tracing alone so its records can count as proof, and read a run config together with the base it imports, from the directory the run changes into.
+
 ## 1.16.1
 
 ### Patch Changes
