@@ -1657,6 +1657,21 @@ describe('diagnosisTraceCommand — the trace a run must record', () => {
     expect(seen).toContain('/workspace/my-app/app/e2e/realworld.config.ts')
   })
 
+  it('finds the default config in the directory the run changes into, not only where it starts', async () => {
+    const seen: string[] = []
+    const out = await diagnosisTraceCommand({
+      command: 'cd /srv/shop && npx playwright test checkout.spec.ts',
+      cwd: '/srv',
+      readFile: async (path) => {
+        seen.push(path)
+        return path === '/srv/shop/playwright.config.ts' ? "use: { trace: 'on' }" : ''
+      },
+    })
+    // Playwright runs in /srv/shop and loads its config from there; it is the first file read.
+    expect(seen[0]).toBe('/srv/shop/playwright.config.ts')
+    expect(out.change).toBeNull()
+  })
+
   it('adds the flag to the whole-suite proof run too (xr-molecule-flash-m163 +24:58)', async () => {
     const out = await diagnosisTraceCommand({
       command: PROOF,
@@ -1804,17 +1819,179 @@ describe('diagnosisTraceCommand — the trace a run must record', () => {
       expect(out.change).toContain('measure a timing budget once with `--trace=off`')
     })
 
-    it('still records a trace for a deployed run whose config sets no trace, or `off`', async () => {
+    /**
+     * `--trace` overrides every project's `use.trace`, and a test record carries the project
+     * settings it ran under, so a flagged deployed walk can never be the suite's own measurement.
+     * X1 P140–P173: 22 deployed walks the executor started, none moved the native proof counts.
+     */
+    it('leaves a deployed run to the suite whatever its config traces, without reading it', async () => {
       for (const text of ["use: { trace: 'off' }", 'use: {}', '']) {
+        const reads: string[] = []
         const out = await diagnosisTraceCommand({
           command: DEPLOYED_WHOLE,
           cwd: '/workspace/my-app/app',
+          readFile: async (path) => {
+            reads.push(path)
+            return text
+          },
+        })
+        expect(out.command).toBe(DEPLOYED_WHOLE)
+        expect(out.change).toBeNull()
+        expect(reads).toEqual([])
+      }
+    })
+
+    it('still records a trace for a LOCAL run whose config sets no trace, or `off`', async () => {
+      for (const text of ["use: { trace: 'off' }", 'use: {}', '']) {
+        const out = await diagnosisTraceCommand({
+          command: DIAGNOSIS,
+          cwd: '/workspace/my-app/app',
           readFile: config(text),
         })
-        expect(out.command).toBe(`${DEPLOYED_WHOLE} ${DIAGNOSIS_TRACE_FLAG}`)
+        expect(out.command).toBe(`${DIAGNOSIS} ${DIAGNOSIS_TRACE_FLAG}`)
         expect(out.change).toContain("the suite's config records no trace for a failure")
-        expect(out.change.includes('(it sets none)')).toBe(!/trace:/.test(text))
+        expect(out.change!.includes('(it sets none)')).toBe(!/trace:/.test(text))
       }
+    })
+  })
+
+  /**
+   * xr-molecule-flash-l1255 (+18.2): the platform's wrapper beside the app imports the supplied
+   * suite's base and spreads it, so the wrapper's own text has no `trace:` — and the base it imports
+   * sets `trace: 'on-first-retry'`. Read alone, the wrapper was reported as a config that "sets
+   * none".
+   */
+  describe('a config that imports its settings is read with them', () => {
+    /** The wrapper `suite-runner-config.ts` writes, verbatim in shape. */
+    const WRAPPER = [
+      '// Written by the platform, not the app.',
+      "import { baseConfig } from '../../realworld-spec/specs/e2e/playwright.base'",
+      '',
+      'export default {',
+      '  ...baseConfig,',
+      '  testDir: "/workspace/realworld-spec/specs/e2e",',
+      '  use: { ...baseConfig.use, baseURL: process.env.BASE_URL },',
+      '  webServer: undefined,',
+      '}',
+    ].join('\n')
+    /** The supplied suite's base (`playwright.base.ts`), in the lines that decide tracing. */
+    const BASE = [
+      "import type { PlaywrightTestConfig } from '@playwright/test'",
+      'export const baseConfig: PlaywrightTestConfig = {',
+      '  retries: process.env.CI ? 2 : 1,',
+      "  use: { trace: 'on-first-retry' },",
+      '}',
+    ].join('\n')
+    const LOCAL_WRAPPED =
+      'cd /workspace/realworld-spec/specs/e2e && TEST_MODE=fullstack npx playwright test ' +
+      '--config /workspace/my-app/app/e2e-suite.config.ts null-fields.spec.ts --retries=0'
+    /** l1255's own command at +18.2, verbatim. */
+    const L1255_DEPLOYED =
+      'cd /workspace/realworld-spec/specs/e2e && TEST_MODE=fullstack ' +
+      'BASE_URL=https://loopcheck-xr-molecule-flash-l1255.apps.mlcl.dev ' +
+      'API_BASE=https://loopcheck-xr-molecule-flash-l1255.apps.mlcl.dev/api npx playwright test ' +
+      "--config /workspace/my-app/app/e2e-suite.config.ts --grep-invert 'chromium comments\\.spec\\.ts " +
+      "Comments should require login to post comment'"
+    const files =
+      (map: Record<string, string>, reads: string[] = []) =>
+      async (path: string): Promise<string> => {
+        reads.push(path)
+        if (path in map) return map[path]!
+        throw new Error(`ENOENT ${path}`)
+      }
+
+    it('reads the base the wrapper imports, and names its retry trace instead of "none"', async () => {
+      const reads: string[] = []
+      const out = await diagnosisTraceCommand({
+        command: LOCAL_WRAPPED,
+        cwd: '/workspace',
+        readFile: files(
+          {
+            '/workspace/my-app/app/e2e-suite.config.ts': WRAPPER,
+            '/workspace/realworld-spec/specs/e2e/playwright.base.ts': BASE,
+          },
+          reads,
+        ),
+      })
+      expect(out.command).toBe(`${LOCAL_WRAPPED} ${DIAGNOSIS_TRACE_FLAG}`)
+      expect(out.change).toContain('the suite records traces only on a retry (`on-first-retry`)')
+      expect(out.change).not.toContain('(it sets none)')
+      // The extensionless specifier resolves the way Playwright's loader does, `.ts` first; the
+      // package import is not a file of the suite and is never read.
+      expect(reads).toContain('/workspace/realworld-spec/specs/e2e/playwright.base.ts')
+      expect(reads.some((path) => path.includes('@playwright'))).toBe(false)
+    })
+
+    it('leaves l1255’s deployed walk exactly as written — the walk its proof was refused for', async () => {
+      const reads: string[] = []
+      const out = await diagnosisTraceCommand({
+        command: L1255_DEPLOYED,
+        cwd: '/workspace',
+        readFile: files({ '/workspace/my-app/app/e2e-suite.config.ts': WRAPPER }, reads),
+      })
+      expect(out.command).toBe(L1255_DEPLOYED)
+      expect(out.change).toBeNull()
+      expect(reads).toEqual([])
+    })
+
+    it('leaves a local run alone when the imported base already records traces (non-X1)', async () => {
+      const out = await diagnosisTraceCommand({
+        command: 'cd /srv/shop && npx playwright test checkout.spec.ts',
+        cwd: '/srv',
+        readFile: files({
+          '/srv/shop/playwright.config.ts':
+            "import base from './config/playwright.shared.mjs'\nexport default { ...base, workers: 2 }",
+          '/srv/shop/config/playwright.shared.mjs':
+            "export default { use: { trace: 'retain-on-failure', viewport: null } }",
+        }),
+      })
+      expect(out.change).toBeNull()
+    })
+
+    it('still says "none" when nothing the config imports sets a trace (counterexample)', async () => {
+      const out = await diagnosisTraceCommand({
+        command: LOCAL_WRAPPED,
+        cwd: '/workspace',
+        readFile: files({
+          '/workspace/my-app/app/e2e-suite.config.ts': WRAPPER,
+          '/workspace/realworld-spec/specs/e2e/playwright.base.ts':
+            'export const baseConfig = { retries: 1, use: { viewport: { width: 1280, height: 720 } } }',
+        }),
+      })
+      expect(out.command).toBe(`${LOCAL_WRAPPED} ${DIAGNOSIS_TRACE_FLAG}`)
+      expect(out.change).toContain('(it sets none)')
+    })
+
+    it('stops at its read budget on a config whose imports never resolve', async () => {
+      const reads: string[] = []
+      const many = Array.from({ length: 9 }, (_, i) => `import x${i} from './missing${i}'`).join(
+        '\n',
+      )
+      await diagnosisTraceCommand({
+        command: LOCAL_WRAPPED,
+        cwd: '/workspace',
+        readFile: files({ '/workspace/my-app/app/e2e-suite.config.ts': many }, reads),
+      })
+      // One config read, then at most six import reads.
+      expect(reads.length).toBeLessThanOrEqual(7)
+    })
+
+    it('does not read a module twice when two configs import each other', async () => {
+      const reads: string[] = []
+      await diagnosisTraceCommand({
+        command: LOCAL_WRAPPED,
+        cwd: '/workspace',
+        readFile: files(
+          {
+            '/workspace/my-app/app/e2e-suite.config.ts': "import a from './a.ts'",
+            '/workspace/my-app/app/a.ts':
+              "import b from './e2e-suite.config.ts'\nexport default {}",
+          },
+          reads,
+        ),
+      })
+      expect(reads.filter((path) => path.endsWith('e2e-suite.config.ts'))).toHaveLength(1)
+      expect(reads.filter((path) => path.endsWith('/a.ts'))).toHaveLength(1)
     })
   })
 

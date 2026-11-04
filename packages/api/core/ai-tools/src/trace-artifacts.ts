@@ -5432,39 +5432,139 @@ function under(base: string, path: string): string {
 }
 
 /**
+ * The relative modules a config's text imports — `import { baseConfig } from './playwright.base'`,
+ * `require('../playwright.base.cjs')` — in the order it names them. A package import
+ * (`@playwright/test`) is not a file of the suite and is never followed.
+ *
+ * @param text - A config's source.
+ * @returns The relative specifiers.
+ */
+function relativeImports(text: string): string[] {
+  const out: string[] = []
+  for (const m of text.matchAll(
+    /\bfrom\s+['"](\.\.?\/[^'"\n]+)['"]|\b(?:require|import)\(\s*['"](\.\.?\/[^'"\n]+)['"]\s*\)/g,
+  )) {
+    const specifier = m[1] ?? m[2]
+    if (specifier && !out.includes(specifier)) out.push(specifier)
+  }
+  return out
+}
+
+/** The file names an extensionless import can be, in the order Playwright's loader tries them. */
+const MODULE_SUFFIXES: readonly string[] = ['.ts', '.mts', '.js', '.mjs', '.cjs']
+
+/** At most this many config candidates are read: the `.ts`, `.mts` and `.js` names in two directories. */
+const CONFIG_READS = 6
+
+/** At most this many reads are spent following a config's imports. */
+const IMPORT_READS = 6
+
+/** The directory part of an absolute path. */
+function directoryOf(path: string): string {
+  const at = path.lastIndexOf('/')
+  return at <= 0 ? '/' : path.slice(0, at)
+}
+
+/** An absolute path with its `.` and `..` segments resolved. */
+function normalizedPath(path: string): string {
+  const out: string[] = []
+  for (const part of path.split('/')) {
+    if (!part || part === '.') continue
+    if (part === '..') out.pop()
+    else out.push(part)
+  }
+  return `/${out.join('/')}`
+}
+
+/**
  * The config a Playwright command reads, read from the backend — the file its own `--config`
  * names (resolved against the directory the command starts in, then against each `cd` it does
- * first), else the first `playwright.config.*` in those directories.
+ * first), else the first `playwright.config.*` in those directories — followed by the text of
+ * every relative module it imports, so a config that spreads a base it imports is read with that
+ * base's settings in it.
  *
- * Best-effort and bounded: at most four candidate files are read, and a read that fails is a
- * config that records nothing — the caller's `--trace` flag is what makes a missing trace
- * impossible either way.
+ * A config that imports its settings is the common shape, not an edge: a wrapper written beside an
+ * app imports the supplied suite's base and spreads it (`...baseConfig`), so the wrapper's own text
+ * carries no `trace:` at all. Read alone, a base that traces `on-first-retry` was reported as a
+ * config that "sets none" (X1 xr-molecule-flash-l1255 +18.2, whose base sets
+ * `trace: 'on-first-retry'`).
+ *
+ * Best-effort and bounded: at most {@link CONFIG_READS} candidate configs and {@link IMPORT_READS}
+ * imported files are read, two levels deep, and a read that fails is a file that records nothing — the caller's
+ * `--trace` flag is what makes a missing trace impossible either way.
  *
  * @param command - The shell command.
  * @param cwd - The directory the command starts in.
  * @param readFile - The backend's file read.
- * @returns The config's text, or '' when none could be read.
+ * @returns The config's text with its imports' text after it, or '' when none could be read.
  */
 async function readRunConfig(
   command: string,
   cwd: string,
   readFile: (path: string) => Promise<string>,
 ): Promise<string> {
-  const bases = [cwd, ...cdDirectories(command).map((dir) => under(cwd, dir))].slice(0, 2)
+  // Playwright resolves its config from the directory it runs in — the one the command changes
+  // into — so that directory is tried first, then the one the command starts in. The names are
+  // tried name by name across both, so the budget below reaches `playwright.config.ts` in each
+  // instead of spending every read on the first directory's five spellings (a run that did
+  // `cd /srv/shop && npx playwright test` never had `/srv/shop/playwright.config.ts` read).
+  const changedInto = cdDirectories(command).map((dir) => under(cwd, dir))[0]
+  const bases = changedInto && changedInto !== cwd ? [changedInto, cwd] : [cwd]
   const config = /(?:^|[\s;&|(])--config(?:=|\s+)(?:'([^']+)'|"([^"]+)"|([^\s;&|)]+))/.exec(command)
   const explicit = config?.[1] ?? config?.[2] ?? config?.[3] ?? null
-  const candidates = explicit
-    ? bases.map((base) => under(base, explicit))
-    : bases.flatMap((base) => CONFIG_NAMES.map((name) => `${base.replace(/\/+$/, '')}/${name}`))
-  for (const candidate of candidates.slice(0, 4)) {
+  const candidates = [
+    ...new Set(
+      explicit
+        ? bases.map((base) => under(base, explicit))
+        : CONFIG_NAMES.flatMap((name) =>
+            bases.map((base) => `${base.replace(/\/+$/, '')}/${name}`),
+          ),
+    ),
+  ]
+  const read = async (path: string): Promise<string> => {
     try {
-      const text = await readFile(candidate)
-      if (text) return text
+      return (await readFile(path)) || ''
     } catch (_error) {
-      continue
+      // A file that cannot be read is one that records nothing (see above).
+      return ''
     }
   }
-  return ''
+  let found: { path: string; text: string } | null = null
+  for (const candidate of candidates.slice(0, CONFIG_READS)) {
+    const text = await read(candidate)
+    if (text) {
+      found = { path: normalizedPath(candidate), text }
+      break
+    }
+  }
+  if (!found) return ''
+  const texts = [found.text]
+  const seen = new Set([found.path])
+  let reads = 0
+  let level = [found]
+  for (let depth = 0; depth < 2 && level.length > 0; depth++) {
+    const next: { path: string; text: string }[] = []
+    for (const file of level) {
+      for (const specifier of relativeImports(file.text)) {
+        const target = normalizedPath(`${directoryOf(file.path)}/${specifier}`)
+        const names = /\.[cm]?[jt]s$/.test(target)
+          ? [target]
+          : MODULE_SUFFIXES.map((suffix) => `${target}${suffix}`)
+        for (const name of names) {
+          if (seen.has(name) || reads >= IMPORT_READS) continue
+          reads++
+          const text = await read(name)
+          if (!text) continue
+          seen.add(name)
+          texts.push(text)
+          next.push({ path: name, text })
+          break
+        }
+      }
+    }
+    level = next
+  }
+  return texts.join('\n')
 }
 
 /** A command with the trace flag this platform decided to add, and the sentence to report it in. */
@@ -5502,6 +5602,16 @@ export interface DiagnosisTraceRewrite {
  * `--retries=0` (`@molecule/api-ai-tools` `streamingBackgroundCommand`), so its retry trace would
  * never happen. A run that pins `--retries=0` itself is in the same position, whatever its target.
  *
+ * A proof-capable run is left alone WHATEVER its config traces. `--trace` is a per-run override of
+ * the suite's own `use.trace` (Playwright merges the CLI's `use` into every project's), and a test
+ * record carries the project settings it ran under: a run with the flag is not the suite's own
+ * measurement, so it can never count as deployed proof. Added to a deployed walk, the flag made the
+ * walk unprovable, and the platform's own answer — "run the current selection" — was a command this
+ * same rewrite then flagged again: X1 P140–P173 had 22 deployed walks the executor started, and
+ * not one moved the native proof counts (xr-molecule-flash-l1255 walked 73/73 green twice, at
+ * +18.2 and +22.9, and neither counted). A failure in a suite that keeps no trace at all is still
+ * readable: the platform's re-run note carries `--trace=on` for a run that left none.
+ *
  * @param args - The command, the directory it starts in, and the backend's file read.
  * @returns The command to run and the sentence to report, or the command unchanged.
  */
@@ -5514,17 +5624,14 @@ export async function diagnosisTraceCommand(args: {
   if (namesTraceMode(args.command)) return unchanged
   // Only a Playwright run leaves a trace to read.
   if (!isPlaywrightRunCommand(args.command)) return unchanged
+  // A proof-capable run keeps the suite's own tracing and retries: the graded measurement is the
+  // suite's own settings, and a flag here would make the run's records unprovable (see above). No
+  // config needs reading to know that.
+  if (suiteCommandTarget(args.command) !== 'local' && !namesNoRetries(args.command))
+    return unchanged
   const config = await readRunConfig(args.command, args.cwd, args.readFile)
   if (suiteRecordsTraces(config)) return unchanged
-  // A proof-capable run keeps the suite's own tracing and retries: its retry trace is the artifact
-  // a failure is read from, and recording every action would change what the measurement says.
   const retryTrace = suiteTracesOnRetry(config)
-  if (
-    retryTrace !== null &&
-    suiteCommandTarget(args.command) !== 'local' &&
-    !namesNoRetries(args.command)
-  )
-    return unchanged
   // The flag goes into the Playwright step's own argument list, at the end of it — an option of
   // the run itself, whatever the command opens with, whatever pipes or redirects its output, and
   // before the `)` that may close a subshell around it. Appended at the end of the whole command
