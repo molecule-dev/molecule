@@ -42,6 +42,7 @@ export interface OptimisticValueOptions<T> {
 
   /**
    * Called when the newest change fails and the value has gone back to the server's value.
+   * A thrown callback error is logged without replacing the save failure.
    *
    * @param error - The rejection from {@link OptimisticValueOptions.commit}.
    * @param value - The server's value now shown again.
@@ -102,6 +103,7 @@ export interface OptimisticValue<T> {
 
   /**
    * Observes changes. Does not call the listener for the current state.
+   * Listener errors are logged and do not interrupt saves or other listeners.
    *
    * @param listener - Called with each new state.
    * @returns Stops observing.
@@ -170,7 +172,13 @@ export const createOptimisticValue = <T>(
     )
       return
     state = next
-    for (const listener of [...listeners]) listener(state)
+    for (const listener of [...listeners]) {
+      try {
+        listener(state)
+      } catch (error) {
+        getLogger('state').error('optimistic value: a state listener threw', { error })
+      }
+    }
     if (!state.pending) {
       const settledWaiters = waiters
       waiters = []
@@ -184,6 +192,9 @@ export const createOptimisticValue = <T>(
     for (;;) {
       const sent = desired
       const sentIntent = intent
+      // Claim the run and capture this change before notifying listeners: a listener may
+      // synchronously set a newer intent or refetch the server value.
+      publish({ value: sent, pending: true, error: null })
       try {
         const result = await options.commit(sent, confirmed)
         confirmed = result === undefined ? sent : result
@@ -192,9 +203,13 @@ export const createOptimisticValue = <T>(
           break
         }
       } catch (error) {
-        if (sentIntent === intent || equals(desired, confirmed)) {
+        if (sentIntent === intent) {
           desired = confirmed
           failure = { error }
+          break
+        }
+        if (equals(desired, confirmed)) {
+          desired = confirmed
           break
         }
         // A newer change replaced this one; it is saved next and reports its own outcome.
@@ -203,7 +218,13 @@ export const createOptimisticValue = <T>(
     }
     running = false
     publish({ value: desired, pending: false, error: failure ? failure.error : null })
-    if (failure) options.onError?.(failure.error, confirmed)
+    if (failure) {
+      try {
+        options.onError?.(failure.error, confirmed)
+      } catch (error) {
+        getLogger('state').error('optimistic value: onError threw', { error })
+      }
+    }
   }
 
   const set = (next: T): void => {
@@ -214,8 +235,8 @@ export const createOptimisticValue = <T>(
       publish({ value: confirmed, pending: false, error: null })
       return
     }
-    publish({ value: next, pending: true, error: null })
-    if (!running) void run()
+    if (running) publish({ value: next, pending: true, error: null })
+    else void run()
   }
 
   return {

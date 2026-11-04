@@ -200,4 +200,152 @@ describe('createOptimisticValue', () => {
     value.set('weekly')
     expect(value.getState()).not.toBe(first)
   })
+
+  it('keeps a reentrant tap pending and saves both changes in order', async () => {
+    const server = manualServer<boolean>()
+    const value = createOptimisticValue({ value: false, commit: server.commit })
+    const seen: Array<[boolean, boolean]> = []
+    value.subscribe((state) => {
+      seen.push([state.value, state.pending])
+      if (state.value && state.pending) value.set(false)
+    })
+
+    value.set(true)
+    expect(value.getState()).toEqual({ value: false, pending: true, error: null })
+    expect(server.calls.map((call) => call.next)).toEqual([true])
+    expect(seen).toEqual([
+      [true, true],
+      [false, true],
+    ])
+
+    server.calls[0].reply.resolve(true)
+    await flush()
+    expect(server.calls.map((call) => [call.next, call.previous])).toEqual([
+      [true, false],
+      [false, true],
+    ])
+    server.calls[1].reply.resolve(false)
+    expect(await value.settled()).toEqual({ value: false, pending: false, error: null })
+    expect(server.mostAtOnce()).toBe(1)
+  })
+
+  it('records a refetch from a pending listener without replacing the tap', async () => {
+    const server = manualServer<number>()
+    const quantity = createOptimisticValue({ value: 1, commit: server.commit })
+    quantity.subscribe((state) => {
+      if (state.pending) quantity.sync(8)
+    })
+
+    quantity.set(2)
+    expect(quantity.getState()).toEqual({ value: 2, pending: true, error: null })
+    expect(server.calls.map((call) => call.next)).toEqual([2])
+    const failure = new Error('offline')
+    server.calls[0].reply.reject(failure)
+    expect(await quantity.settled()).toEqual({ value: 8, pending: false, error: failure })
+  })
+
+  it('does not report an older failure when a newer tap restores the server value', async () => {
+    const server = manualServer<boolean>()
+    const onError = vi.fn()
+    const value = createOptimisticValue({ value: false, commit: server.commit, onError })
+
+    value.set(true)
+    value.set(false)
+    server.calls[0].reply.reject(new Error('old request failed'))
+    expect(await value.settled()).toEqual({ value: false, pending: false, error: null })
+    expect(onError).not.toHaveBeenCalled()
+    expect(server.calls).toHaveLength(1)
+  })
+
+  it('does not report an older failure when the newer intent equals a refetched value', async () => {
+    const server = manualServer<number>()
+    const onError = vi.fn()
+    const quantity = createOptimisticValue({ value: 1, commit: server.commit, onError })
+
+    quantity.set(2)
+    quantity.set(5)
+    quantity.sync(5)
+    server.calls[0].reply.reject(new Error('old request failed'))
+    expect(await quantity.settled()).toEqual({ value: 5, pending: false, error: null })
+    expect(onError).not.toHaveBeenCalled()
+    expect(server.calls).toHaveLength(1)
+  })
+
+  it('retries an equal newer intent after the request it replaced fails', async () => {
+    const server = manualServer<boolean>()
+    const onError = vi.fn()
+    const value = createOptimisticValue({ value: false, commit: server.commit, onError })
+
+    value.set(true)
+    value.set(true)
+    server.calls[0].reply.reject(new Error('old request failed'))
+    await flush()
+    expect(server.calls.map((call) => call.next)).toEqual([true, true])
+    server.calls[1].reply.resolve(true)
+    expect(await value.settled()).toEqual({ value: true, pending: false, error: null })
+    expect(onError).not.toHaveBeenCalled()
+    expect(server.mostAtOnce()).toBe(1)
+  })
+
+  it('settles every waiter after a listener starts another save on completion', async () => {
+    const server = manualServer<number>()
+    const quantity = createOptimisticValue({ value: 1, commit: server.commit })
+    quantity.subscribe((state) => {
+      if (!state.pending && state.value === 2) quantity.set(3)
+    })
+
+    quantity.set(2)
+    const first = vi.fn()
+    const second = vi.fn()
+    const waiters = [quantity.settled().then(first), quantity.settled().then(second)]
+    server.calls[0].reply.resolve(2)
+    await flush()
+    expect(quantity.getState()).toEqual({ value: 3, pending: true, error: null })
+    expect(first).not.toHaveBeenCalled()
+    expect(second).not.toHaveBeenCalled()
+    expect(server.calls.map((call) => call.next)).toEqual([2, 3])
+
+    server.calls[1].reply.resolve(3)
+    await Promise.all(waiters)
+    expect(first).toHaveBeenCalledWith({ value: 3, pending: false, error: null })
+    expect(second).toHaveBeenCalledWith({ value: 3, pending: false, error: null })
+    expect(server.mostAtOnce()).toBe(1)
+  })
+
+  it('handles a synchronous commit throw and lets onError start a new save', async () => {
+    const failure = new Error('synchronous failure')
+    const commit = vi.fn(async (next: number) => next)
+    commit.mockImplementationOnce(() => {
+      throw failure
+    })
+    const quantity = createOptimisticValue({
+      value: 1,
+      commit,
+      onError: () => quantity.set(3),
+    })
+
+    quantity.set(2)
+    expect(await quantity.settled()).toEqual({ value: 3, pending: false, error: null })
+    expect(commit.mock.calls.map((call) => call[0])).toEqual([2, 3])
+  })
+
+  it('can save undefined as a value while undefined replies keep the requested value', async () => {
+    const server = manualServer<string | undefined>()
+    const value = createOptimisticValue<string | undefined>({
+      value: 'weekly',
+      commit: server.commit,
+    })
+
+    value.set(undefined)
+    server.calls[0].reply.resolve(undefined)
+    expect(await value.settled()).toEqual({ value: undefined, pending: false, error: null })
+
+    value.set('daily')
+    expect(server.calls.map((call) => [call.next, call.previous])).toEqual([
+      [undefined, 'weekly'],
+      ['daily', undefined],
+    ])
+    server.calls[1].reply.resolve(undefined)
+    expect((await value.settled()).value).toBe('daily')
+  })
 })
