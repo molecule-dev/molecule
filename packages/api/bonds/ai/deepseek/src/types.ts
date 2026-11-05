@@ -36,6 +36,19 @@ export interface DeepseekConfig {
   modelMap?: Record<string, string>
   /** Called on each rate-limited/overloaded upstream response, before any retry sleep. */
   onRateLimit?: AiRateLimitCallback
+  /**
+   * Keep a request whose account has no balance left (HTTP 402) and send it
+   * again until the account is topped up, instead of failing it. Defaults to
+   * false: a 402 ends the request with "provider credit balance too low".
+   *
+   * The wait lasts until the CALLER cancels, so it applies only to a call that
+   * passes `params.signal`; a call without one still fails at once, because
+   * nothing could end its wait. The same serialized request is re-sent, so a
+   * long-running caller loses no conversation or tool result. Each wait is
+   * reported, before it starts, to `onRateLimit` and to the call's
+   * `params.onProviderWait` (status 402), backing off up to 30 s between tries.
+   */
+  waitForCredit?: boolean
   /** Called when a stream accepts the request and then produces no content for the whole first-token window. */
   onStreamStall?: AiStreamStallCallback
   /**

@@ -467,6 +467,147 @@ describe('chat() — errors', () => {
     expect(err.message).toBe('AI service is unavailable — provider credit balance too low.')
   })
 
+  describe('waitForCredit', () => {
+    // The body a zero-balance DeepSeek account returns (2026-10-20). P178 lost all
+    // eight benchmark runs to it in their first request (2026-11-04), each turn
+    // failed outright instead of resuming once the account was topped up.
+    const empty = () =>
+      jsonResponse(402, {
+        error: {
+          message: 'Insufficient Balance (request_id: 5a5f2962)',
+          type: 'unknown_error',
+          code: 'invalid_request_error',
+        },
+      })
+
+    it('holds the same request through 402s until the account is topped up, telling the call each time', async () => {
+      vi.useFakeTimers()
+      try {
+        const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+        let calls = 0
+        // Ten minutes of 402s: past the bond's rate-limit budget (3 retries)
+        // and past its five-minute attempt ceiling, then credit arrives.
+        fetch.mockImplementation(() => {
+          calls += 1
+          return Promise.resolve(calls <= 25 ? empty() : sseResponse([sseText('resumed')]))
+        })
+        const waits: Array<{ status: number; attempt: number; willRetry: boolean }> = []
+        const rateLimits: Array<{ status: number }> = []
+        const provider = createProvider({
+          apiKey: 'k',
+          waitForCredit: true,
+          onRateLimit: (event) => rateLimits.push(event),
+        })
+        const eventsPromise = drain(
+          provider.chat({
+            messages: [{ role: 'user', content: 'hi' }],
+            signal: new AbortController().signal,
+            onProviderWait: (event) => waits.push(event),
+          }),
+        )
+        await vi.advanceTimersByTimeAsync(15 * 60_000)
+        const events = await eventsPromise
+
+        expect(
+          events.filter((e) => e.type === 'text').map((e) => (e as { content: string }).content),
+        ).toEqual(['resumed'])
+        expect(events.some((e) => e.type === 'error')).toBe(false)
+        expect(fetch).toHaveBeenCalledTimes(26)
+        // The identical serialized request every time: nothing of the conversation is lost.
+        const bodies = new Set(fetch.mock.calls.map((call) => (call[1] as RequestInit).body))
+        expect(bodies.size).toBe(1)
+        expect(waits).toHaveLength(25)
+        expect(waits[0]).toMatchObject({ status: 402, attempt: 1, willRetry: true })
+        expect(waits[24]).toMatchObject({ status: 402, attempt: 25, willRetry: true })
+        expect(rateLimits).toHaveLength(25)
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+
+    it('ends the wait when the caller cancels', async () => {
+      vi.useFakeTimers()
+      try {
+        const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+        fetch.mockImplementation(() => Promise.resolve(empty()))
+        const controller = new AbortController()
+        const eventsPromise = drain(
+          createProvider({ apiKey: 'k', waitForCredit: true }).chat({
+            messages: [{ role: 'user', content: 'hi' }],
+            signal: controller.signal,
+          }),
+        )
+        const settled = eventsPromise.then(
+          () => 'resolved',
+          (error: unknown) => (error as Error).name,
+        )
+        await vi.advanceTimersByTimeAsync(2 * 60_000)
+        const before = fetch.mock.calls.length
+        controller.abort()
+        await vi.advanceTimersByTimeAsync(60_000)
+        expect(await settled).toBe('AbortError')
+        expect(before).toBeGreaterThan(4)
+        expect(fetch.mock.calls.length).toBe(before)
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+
+    it('fails a 402 at once when the call cannot be cancelled, or when the option is off', async () => {
+      const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+      fetch.mockImplementation(() => Promise.resolve(empty()))
+      const waits: unknown[] = []
+      for (const [config, params] of [
+        [{ waitForCredit: true }, {}],
+        [{}, { signal: new AbortController().signal }],
+      ] as const) {
+        fetch.mockClear()
+        const events = await drain(
+          createProvider({ apiKey: 'k', ...config }).chat({
+            messages: [{ role: 'user', content: 'hi' }],
+            onProviderWait: (event) => waits.push(event),
+            ...params,
+          }),
+        )
+        const err = events.find((e) => e.type === 'error') as { message: string }
+        expect(err.message).toBe('AI service is unavailable — provider credit balance too low.')
+        expect(fetch).toHaveBeenCalledTimes(1)
+      }
+      expect(waits).toEqual([])
+    })
+
+    it('tells the call about rate-limit waits too, but not the final refusal it gives up on', async () => {
+      vi.useFakeTimers()
+      try {
+        const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+        fetch.mockImplementation(() =>
+          Promise.resolve(jsonResponse(429, { error: { message: 'rate limit reached' } })),
+        )
+        const waits: Array<{ status: number; attempt: number }> = []
+        const eventsPromise = drain(
+          createProvider({ apiKey: 'k', waitForCredit: true }).chat({
+            messages: [{ role: 'user', content: 'hi' }],
+            stream: false,
+            signal: new AbortController().signal,
+            onProviderWait: (event) => waits.push(event),
+          }),
+        )
+        await vi.advanceTimersByTimeAsync(40_000)
+        const events = await eventsPromise
+        expect(fetch).toHaveBeenCalledTimes(4)
+        expect(waits.map((w) => [w.status, w.attempt])).toEqual([
+          [429, 1],
+          [429, 2],
+          [429, 3],
+        ])
+        const err = events.find((e) => e.type === 'error') as { message: string }
+        expect(err.message).toBe('AI rate limit exceeded. Please try again shortly.')
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+  })
+
   it('a 400 whose detail names an exhausted account → the balance message, not "invalid request"', async () => {
     // Some OpenAI-compatible hosts report the same billing state on 400; the
     // account condition must win over the invalid-request reading.

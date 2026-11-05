@@ -176,7 +176,11 @@ export interface AiRateLimitEvent {
   provider: string
   /** Model the rejected request targeted. */
   model: string
-  /** HTTP status the upstream returned (429, 503, or 529). */
+  /**
+   * HTTP status the upstream returned: 429, 503 or 529 — or 402 when a provider
+   * configured to wait for credit is holding a request while the account has no
+   * balance left.
+   */
   status: number
   /** 1-based attempt number that was rejected. */
   attempt: number
@@ -346,6 +350,16 @@ export interface ChatParams {
   cacheControl?: { type: 'ephemeral' }
   /** Abort signal to cancel in-flight API requests when the client disconnects. */
   signal?: AbortSignal
+  /**
+   * Called for THIS request each time the provider holds it back and will send it
+   * again: a rate limit or overload backoff, or (for a provider configured to wait
+   * for credit) an account with no balance left. Fires before each wait, with the
+   * same event a config-level `onRateLimit` receives. A caller with its own
+   * inactivity timer uses it as liveness — the request is waiting on purpose, not
+   * stalled — and can tell the user why the reply is late. Must not throw
+   * (providers guard it anyway). Providers without a retry loop never call it.
+   */
+  onProviderWait?: AiRateLimitCallback
   /**
    * Control whether the model must call a tool. 'auto' (default) lets the model
    * decide; 'required' forces at least one tool call (any tool); `{ type: 'tool',

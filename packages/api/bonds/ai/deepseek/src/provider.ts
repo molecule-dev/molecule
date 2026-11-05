@@ -399,6 +399,7 @@ class DeepseekAIProviderImpl implements AIProvider {
   private onStreamStall?: AiStreamStallCallback
   private firstTokenTimeoutMs: number
   private streamSilenceTimeoutMs: number
+  private waitForCredit: boolean
 
   constructor(config: DeepseekConfig = {}) {
     this.apiKey = config.apiKey ?? process.env.DEEPSEEK_API_KEY ?? ''
@@ -412,6 +413,7 @@ class DeepseekAIProviderImpl implements AIProvider {
     this.onStreamStall = config.onStreamStall
     this.firstTokenTimeoutMs = resolveFirstTokenTimeoutMs(config.firstTokenTimeoutMs)
     this.streamSilenceTimeoutMs = resolveStreamSilenceTimeoutMs(config.streamSilenceTimeoutMs)
+    this.waitForCredit = config.waitForCredit === true
 
     // Fail fast with an actionable local error rather than a cryptic 401 on the
     // first request. The default `provider` export constructs lazily on first
@@ -561,9 +563,18 @@ class DeepseekAIProviderImpl implements AIProvider {
       if (params.signal?.aborted) controller.abort()
       else params.signal?.addEventListener('abort', forwardAbort, { once: true })
       // The provider's own ceiling bounds each ATTEMPT; the caller's signal, when
-      // present, still wins over it (both abort this one controller).
-      const ceiling = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT_MS)
-      ceiling.unref?.()
+      // present, still wins over it (both abort this one controller). It restarts
+      // with every dispatch of the request: a retry's backoff sleep is this
+      // provider's own deliberate wait, and a credit wait can last until the
+      // account is topped up, so neither may spend the ceiling of the dispatch
+      // that follows it.
+      let ceiling: ReturnType<typeof setTimeout> | undefined
+      const restartCeiling = (): void => {
+        if (ceiling) clearTimeout(ceiling)
+        ceiling = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT_MS)
+        ceiling.unref?.()
+      }
+      restartCeiling()
 
       try {
         let response: Response
@@ -577,6 +588,11 @@ class DeepseekAIProviderImpl implements AIProvider {
             headers,
             model,
             controller,
+            restartCeiling,
+            // A credit wait lasts until the caller cancels, so only a call that
+            // CAN be cancelled waits; any other 402 still fails at once.
+            waitForCredit: this.waitForCredit && params.signal !== undefined,
+            onProviderWait: params.onProviderWait,
             // The first-token window covers an attempt that never receives
             // response HEADERS too, not only one that receives them and then
             // sends no content: a window that started at the headers left the
@@ -740,7 +756,7 @@ class DeepseekAIProviderImpl implements AIProvider {
         }
         return
       } finally {
-        clearTimeout(ceiling)
+        if (ceiling) clearTimeout(ceiling)
         params.signal?.removeEventListener('abort', forwardAbort)
       }
     }
@@ -803,8 +819,14 @@ class DeepseekAIProviderImpl implements AIProvider {
      * stall it, so the window must not spend itself there.
      */
     firstTokenTimeoutMs?: number
+    /** Restarts the attempt's ceiling; called before every dispatch after the first. */
+    restartCeiling?: () => void
+    /** Hold a 402 (no balance left) and send the request again until the caller cancels. */
+    waitForCredit?: boolean
+    /** The call's own `params.onProviderWait`, told about each wait before it starts. */
+    onProviderWait?: AiRateLimitCallback
   }): Promise<{ response: Response; sentAt: number; rejectedBody?: string }> {
-    const { body, headers, model, controller, firstTokenTimeoutMs } = args
+    const { body, headers, model, controller, firstTokenTimeoutMs, restartCeiling } = args
     const signal = controller.signal
     // Retry with exponential backoff for rate limits (429) and overloaded (503)
     const MAX_RETRIES = 3
@@ -814,7 +836,12 @@ class DeepseekAIProviderImpl implements AIProvider {
     // on a 429/503: a body reads only once, so the caller must reuse this text
     // instead of asking the response for it a second time (which throws).
     let rejectedBody: string | undefined
-    for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    // Credit waits are counted apart from the rate-limit budget: an empty account
+    // recovers only when someone tops it up, so its wait is bounded by the
+    // caller's signal, never by MAX_RETRIES.
+    let creditWaits = 0
+    for (let attempt = 0, dispatches = 0; attempt <= MAX_RETRIES; dispatches++) {
+      if (dispatches > 0) restartCeiling?.()
       // Reset per attempt: only THIS attempt's rejection has been read.
       rejectedBody = undefined
       // Bound THIS dispatch, not the retry loop: a deliberate backoff sleep is
@@ -841,7 +868,10 @@ class DeepseekAIProviderImpl implements AIProvider {
         if (headerDeadline) clearTimeout(headerDeadline)
       }
 
-      if (response.status === 429 || response.status === 503) {
+      // An empty account (402) is held only under waitForCredit; otherwise it
+      // falls through to the caller's "provider credit balance too low" error.
+      const creditWait = response.status === 402 && args.waitForCredit === true
+      if (response.status === 429 || response.status === 503 || creditWait) {
         // Read the body once: an unread body pins its connection, and only the
         // body says what the upstream actually refused the request for.
         try {
@@ -855,7 +885,10 @@ class DeepseekAIProviderImpl implements AIProvider {
           rejectedBody = ''
         }
         const upstreamError = parseUpstreamError(rejectedBody)
-        const willRetry = attempt < MAX_RETRIES
+        const willRetry = creditWait || attempt < MAX_RETRIES
+        // The backoff step: this wait's own count, so credit waits and rate
+        // limits never lengthen each other's delays.
+        const step = creditWait ? creditWaits : attempt
         // Retry-After is equally-valid as delta-seconds or an HTTP-date;
         // parseInt on the date form yields NaN, degrading the backoff to a
         // ~0ms retry against an already rate-limiting API. Guard it.
@@ -868,30 +901,44 @@ class DeepseekAIProviderImpl implements AIProvider {
         const delayMs = willRetry
           ? (hasRetryAfter
               ? Math.min(parsedRetryAfterSeconds * 1000, 60_000)
-              : Math.min(1000 * 2 ** attempt, 30_000)) + Math.floor(Math.random() * 500)
+              : Math.min(1000 * 2 ** step, 30_000)) + Math.floor(Math.random() * 500)
           : 0
+        const event = {
+          provider: this.name,
+          model,
+          status: response.status,
+          attempt: step + 1,
+          willRetry,
+          retryInMs: delayMs,
+          ...(hasRetryAfter ? { retryAfterSeconds: parsedRetryAfterSeconds } : {}),
+          ...(upstreamError ? { upstreamError } : {}),
+        }
         try {
-          this.onRateLimit?.({
-            provider: this.name,
-            model,
-            status: response.status,
-            attempt: attempt + 1,
-            willRetry,
-            retryInMs: delayMs,
-            ...(hasRetryAfter ? { retryAfterSeconds: parsedRetryAfterSeconds } : {}),
-            ...(upstreamError ? { upstreamError } : {}),
-          })
+          this.onRateLimit?.(event)
         } catch (error) {
           // Host-app telemetry; its failure must never break the request.
           logger.warn('onRateLimit callback threw', { error })
         }
         if (willRetry) {
-          logger.warn('DeepSeek API rate limited, retrying', {
-            status: response.status,
-            attempt: attempt + 1,
-            delayMs,
-            ...(upstreamError ? { upstreamError } : {}),
-          })
+          try {
+            args.onProviderWait?.(event)
+          } catch (error) {
+            // The caller's liveness/status hook; its failure must never break the request.
+            logger.warn('onProviderWait callback threw', { error })
+          }
+          logger.warn(
+            creditWait
+              ? 'DeepSeek account balance exhausted, waiting for credit'
+              : 'DeepSeek API rate limited, retrying',
+            {
+              status: response.status,
+              attempt: step + 1,
+              delayMs,
+              ...(upstreamError ? { upstreamError } : {}),
+            },
+          )
+          if (creditWait) creditWaits++
+          else attempt++
           // A host may cancel inside onRateLimit, before a backoff listener exists.
           signal.throwIfAborted()
           await new Promise<void>((resolve) => {
