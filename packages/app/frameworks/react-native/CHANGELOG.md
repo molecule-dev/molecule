@@ -1,5 +1,11 @@
 # @molecule/app-react-native
 
+## 3.0.4
+
+### Patch Changes
+
+- Declare the peers this package loads on start-up as required instead of optional.
+
 ## 3.0.3
 
 ### Patch Changes

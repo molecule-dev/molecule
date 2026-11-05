@@ -1,5 +1,11 @@
 # @molecule/app-ui-react-native
 
+## 1.0.4
+
+### Patch Changes
+
+- Declare the peers this package loads on start-up as required instead of optional.
+
 ## 1.0.1
 
 ### Patch Changes

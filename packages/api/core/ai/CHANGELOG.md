@@ -1,5 +1,11 @@
 # @molecule/api-ai
 
+## 1.6.0
+
+### Minor Changes
+
+- Add `ChatParams.onProviderWait`, called for a request each time the provider holds it back before sending it again.
+
 ## 1.5.0
 
 ### Minor Changes

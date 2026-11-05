@@ -1,5 +1,11 @@
 # @molecule/api-resource-order
 
+## 1.1.7
+
+### Patch Changes
+
+- Declare the peers this package loads on start-up as required instead of optional.
+
 ## 1.1.6
 
 ### Patch Changes

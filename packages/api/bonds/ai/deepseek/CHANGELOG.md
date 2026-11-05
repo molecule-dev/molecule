@@ -1,5 +1,11 @@
 # @molecule/api-ai-deepseek
 
+## 1.2.0
+
+### Minor Changes
+
+- Add a `waitForCredit` option that holds a cancellable request through HTTP 402 until the account is topped up, and report each wait to `params.onProviderWait`.
+
 ## 1.1.2
 
 ### Patch Changes

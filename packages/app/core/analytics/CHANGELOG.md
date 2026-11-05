@@ -1,5 +1,11 @@
 # @molecule/app-analytics
 
+## 1.1.3
+
+### Patch Changes
+
+- Preserve concrete HTTP error types when configuring automatic analytics tracking.
+
 ## 1.1.2
 
 ### Patch Changes

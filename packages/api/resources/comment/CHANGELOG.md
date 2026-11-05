@@ -1,5 +1,11 @@
 # @molecule/api-resource-comment
 
+## 1.2.4
+
+### Patch Changes
+
+- Declare the peers this package loads on start-up as required instead of optional.
+
 ## 1.2.3
 
 ### Patch Changes

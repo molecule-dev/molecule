@@ -36,7 +36,7 @@
     "directory": "packages/api/resources/forum-thread"
   },
   "devDependencies": {
-    "@molecule/api-slug": "1.0.2",
+    "@molecule/api-slug": "1.0.3",
     "@types/express": "5.0.6",
     "@types/node": "26.6.5",
     "express": "5.3.0",

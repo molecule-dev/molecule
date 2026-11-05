@@ -1,5 +1,11 @@
 # @molecule/api-resource-workspace
 
+## 1.0.9
+
+### Patch Changes
+
+- Declare the peers this package loads on start-up as required instead of optional.
+
 ## 1.0.8
 
 ### Patch Changes

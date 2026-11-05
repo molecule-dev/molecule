@@ -39,8 +39,8 @@
     "@molecule/api-ai-translation": ">=1.1.0"
   },
   "devDependencies": {
-    "@molecule/api-ai": "1.5.0",
-    "@molecule/api-ai-deepseek": "1.1.2",
+    "@molecule/api-ai": "1.6.0",
+    "@molecule/api-ai-deepseek": "1.2.0",
     "@molecule/api-ai-translation": "1.1.1",
     "@types/node": "26.6.5",
     "typescript": "6.0.3",

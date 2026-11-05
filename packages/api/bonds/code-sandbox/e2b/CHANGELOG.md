@@ -1,5 +1,12 @@
 # @molecule/api-code-sandbox-e2b
 
+## 1.3.2
+
+### Patch Changes
+
+- Calls on a sandbox now wait for a snapshot of it in progress instead of failing as "sandbox not found".
+- Coordinate all sandbox SDK requests with snapshots and bound snapshot waits without replaying commands.
+
 ## 1.3.1
 
 ### Patch Changes

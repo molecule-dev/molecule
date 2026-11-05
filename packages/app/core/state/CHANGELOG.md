@@ -1,5 +1,11 @@
 # @molecule/app-state
 
+## 1.2.0
+
+### Minor Changes
+
+- Keep acknowledged changes when a later request in an optimistic commit fails.
+
 ## 1.1.1
 
 ### Patch Changes

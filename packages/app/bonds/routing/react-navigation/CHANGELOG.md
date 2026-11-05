@@ -1,5 +1,11 @@
 # @molecule/app-routing-react-navigation
 
+## 1.0.5
+
+### Patch Changes
+
+- Declare the peers this package loads on start-up as required instead of optional.
+
 ## 1.0.4
 
 ### Patch Changes

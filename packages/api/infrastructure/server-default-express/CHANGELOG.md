@@ -1,5 +1,13 @@
 # @molecule/api-server-default-express
 
+## 1.2.5
+
+### Patch Changes
+
+- Preserve nonzero fatal exits and capture startup errors for editor feedback.
+- Updated dependencies
+  - @molecule/api-process-lifecycle-express@1.3.3
+
 ## 1.2.4
 
 ### Patch Changes

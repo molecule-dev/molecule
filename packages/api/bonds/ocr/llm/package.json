@@ -34,7 +34,7 @@
     "@molecule/api-ocr": ">=1.0.0"
   },
   "devDependencies": {
-    "@molecule/api-ai": "1.5.0",
+    "@molecule/api-ai": "1.6.0",
     "@molecule/api-ocr": "1.1.1",
     "@types/node": "26.6.5",
     "typescript": "6.0.3",

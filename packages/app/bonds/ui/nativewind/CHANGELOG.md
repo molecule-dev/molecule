@@ -1,5 +1,11 @@
 # @molecule/app-ui-nativewind
 
+## 1.2.2
+
+### Patch Changes
+
+- Declare the peers this package loads on start-up as required instead of optional.
+
 ## 1.2.0
 
 ### Minor Changes

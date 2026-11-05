@@ -1,5 +1,11 @@
 # @molecule/app-react
 
+## 3.4.0
+
+### Minor Changes
+
+- Keep acknowledged changes when a later request in an optimistic commit fails.
+
 ## 3.3.1
 
 ### Patch Changes

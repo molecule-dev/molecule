@@ -1,5 +1,11 @@
 # @molecule/api-process-lifecycle-express
 
+## 1.3.3
+
+### Patch Changes
+
+- Declare the peers this package loads on start-up as required instead of optional.
+
 ## 1.3.2
 
 ### Patch Changes

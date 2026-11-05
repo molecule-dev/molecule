@@ -1,5 +1,11 @@
 # @molecule/api-resource-template
 
+## 1.0.8
+
+### Patch Changes
+
+- Declare the peers this package loads on start-up as required instead of optional.
+
 ## 1.0.7
 
 ### Patch Changes

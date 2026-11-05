@@ -1,5 +1,11 @@
 # @molecule/api-resource-follow
 
+## 1.0.11
+
+### Patch Changes
+
+- Declare the peers this package loads on start-up as required instead of optional.
+
 ## 1.0.9
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/api-resource-ai-models
 
+## 1.19.2
+
+### Patch Changes
+
+- Declare the peers this package loads on start-up as required instead of optional.
+
 ## 1.19.1
 
 ### Patch Changes

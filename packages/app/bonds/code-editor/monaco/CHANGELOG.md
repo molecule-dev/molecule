@@ -1,5 +1,11 @@
 # @molecule/app-code-editor-monaco
 
+## 1.0.6
+
+### Patch Changes
+
+- Declare the peers this package loads on start-up as required instead of optional.
+
 ## 1.0.5
 
 ### Patch Changes
