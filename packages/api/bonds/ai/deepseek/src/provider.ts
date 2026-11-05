@@ -569,8 +569,12 @@ class DeepseekAIProviderImpl implements AIProvider {
       // account is topped up, so neither may spend the ceiling of the dispatch
       // that follows it.
       let ceiling: ReturnType<typeof setTimeout> | undefined
-      const restartCeiling = (): void => {
+      const pauseCeiling = (): void => {
         if (ceiling) clearTimeout(ceiling)
+        ceiling = undefined
+      }
+      const restartCeiling = (): void => {
+        pauseCeiling()
         ceiling = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT_MS)
         ceiling.unref?.()
       }
@@ -589,6 +593,7 @@ class DeepseekAIProviderImpl implements AIProvider {
             model,
             controller,
             restartCeiling,
+            pauseCeiling,
             // A credit wait lasts until the caller cancels, so only a call that
             // CAN be cancelled waits; any other 402 still fails at once.
             waitForCredit: this.waitForCredit && params.signal !== undefined,
@@ -756,7 +761,7 @@ class DeepseekAIProviderImpl implements AIProvider {
         }
         return
       } finally {
-        if (ceiling) clearTimeout(ceiling)
+        pauseCeiling()
         params.signal?.removeEventListener('abort', forwardAbort)
       }
     }
@@ -821,6 +826,8 @@ class DeepseekAIProviderImpl implements AIProvider {
     firstTokenTimeoutMs?: number
     /** Restarts the attempt's ceiling; called before every dispatch after the first. */
     restartCeiling?: () => void
+    /** Stops the completed dispatch's ceiling before a deliberate retry wait. */
+    pauseCeiling?: () => void
     /** Hold a 402 (no balance left) and send the request again until the caller cancels. */
     waitForCredit?: boolean
     /** The call's own `params.onProviderWait`, told about each wait before it starts. */
@@ -920,6 +927,10 @@ class DeepseekAIProviderImpl implements AIProvider {
           logger.warn('onRateLimit callback threw', { error })
         }
         if (willRetry) {
+          // The rejected body is consumed: this dispatch is over. A slow
+          // response may have used almost its whole ceiling; that old timer
+          // must not cancel the backoff before the next dispatch can re-arm it.
+          args.pauseCeiling?.()
           try {
             args.onProviderWait?.(event)
           } catch (error) {

@@ -525,6 +525,113 @@ describe('chat() — errors', () => {
       }
     })
 
+    it.each([402, 429])(
+      'does not spend the attempt ceiling during a backoff after a slow HTTP %i response',
+      async (status) => {
+        vi.useFakeTimers()
+        vi.spyOn(Math, 'random').mockReturnValue(0)
+        try {
+          const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+          fetch.mockImplementationOnce(
+            () =>
+              new Promise<Response>((resolve) => {
+                setTimeout(
+                  () =>
+                    resolve(
+                      jsonResponse(
+                        status,
+                        { error: { message: 'retry later' } },
+                        { 'retry-after': '30' },
+                      ),
+                    ),
+                  295_000,
+                )
+              }),
+          )
+          fetch.mockResolvedValue(
+            jsonResponse(200, {
+              choices: [{ message: { content: 'resumed' }, finish_reason: 'stop' }],
+            }),
+          )
+          const result = drain(
+            createProvider({ apiKey: 'k', waitForCredit: true }).chat({
+              messages: [{ role: 'user', content: 'Summarize my service logs' }],
+              stream: false,
+              signal: new AbortController().signal,
+            }),
+          ).then(
+            (events) => ({ events, error: null }),
+            (error: unknown) => ({ events: [], error }),
+          )
+          await vi.advanceTimersByTimeAsync(326_000)
+          const settled = await result
+          expect(settled.error).toBeNull()
+          expect(fetch).toHaveBeenCalledTimes(2)
+          expect(settled.events).toContainEqual({ type: 'text', content: 'resumed' })
+        } finally {
+          vi.restoreAllMocks()
+          vi.useRealTimers()
+        }
+      },
+    )
+
+    it('still bounds a network dispatch after a credit backoff to five minutes', async () => {
+      vi.useFakeTimers()
+      vi.spyOn(Math, 'random').mockReturnValue(0)
+      try {
+        const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+        fetch.mockResolvedValueOnce(
+          jsonResponse(
+            402,
+            { error: { message: 'Insufficient Balance' } },
+            { 'retry-after': '30' },
+          ),
+        )
+        fetch.mockImplementationOnce(
+          (_url: string, options: RequestInit) =>
+            new Promise<Response>((_resolve, reject) => {
+              options.signal!.addEventListener('abort', () => reject(options.signal!.reason), {
+                once: true,
+              })
+            }),
+        )
+        const result = drain(
+          createProvider({ apiKey: 'k', waitForCredit: true }).chat({
+            messages: [{ role: 'user', content: 'hi' }],
+            stream: false,
+            signal: new AbortController().signal,
+          }),
+        ).then(
+          () => 'completed',
+          (error: Error) => error.name,
+        )
+        await vi.advanceTimersByTimeAsync(329_999)
+        expect(fetch).toHaveBeenCalledTimes(2)
+        expect((fetch.mock.calls[1][1] as RequestInit).signal!.aborted).toBe(false)
+        await vi.advanceTimersByTimeAsync(1)
+        expect(await result).toBe('AbortError')
+      } finally {
+        vi.restoreAllMocks()
+        vi.useRealTimers()
+      }
+    })
+
+    it('honours cancellation inside the wait callback before installing a sleep listener', async () => {
+      const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+      fetch.mockResolvedValue(empty())
+      const controller = new AbortController()
+      await expect(
+        drain(
+          createProvider({ apiKey: 'k', waitForCredit: true }).chat({
+            messages: [{ role: 'user', content: 'hi' }],
+            signal: controller.signal,
+            onProviderWait: () => controller.abort(),
+          }),
+        ),
+      ).rejects.toMatchObject({ name: 'AbortError' })
+      expect(fetch).toHaveBeenCalledTimes(1)
+    })
+
     it('ends the wait when the caller cancels', async () => {
       vi.useFakeTimers()
       try {
@@ -544,7 +651,7 @@ describe('chat() — errors', () => {
         await vi.advanceTimersByTimeAsync(2 * 60_000)
         const before = fetch.mock.calls.length
         controller.abort()
-        await vi.advanceTimersByTimeAsync(60_000)
+        await vi.advanceTimersByTimeAsync(0)
         expect(await settled).toBe('AbortError')
         expect(before).toBeGreaterThan(4)
         expect(fetch.mock.calls.length).toBe(before)
