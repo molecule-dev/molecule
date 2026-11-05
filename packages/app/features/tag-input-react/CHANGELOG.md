@@ -1,5 +1,11 @@
 # @molecule/app-tag-input-react
 
+## 3.1.0
+
+### Minor Changes
+
+- Add `useTagInput`, the tag-entry behavior without markup, so apps can keep their own input and tag markup.
+
 ## 3.0.0
 
 ### Patch Changes

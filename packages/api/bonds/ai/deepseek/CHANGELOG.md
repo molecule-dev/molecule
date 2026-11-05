@@ -1,5 +1,11 @@
 # @molecule/api-ai-deepseek
 
+## 1.2.1
+
+### Patch Changes
+
+- Keep deliberate retry backoffs outside the network attempt timeout.
+
 ## 1.2.0
 
 ### Minor Changes
