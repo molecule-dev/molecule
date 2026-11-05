@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, renderHook, screen, within } from '@testing-library/react'
 import { useEffect, useRef, useState } from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
@@ -99,6 +99,110 @@ function fillAndEnter(input: HTMLInputElement, text: string): boolean {
 afterEach(cleanup)
 
 describe('useTagInput with app-owned markup', () => {
+  it('keeps every accepted addition in a single React batch', () => {
+    const { result } = renderHook(() => {
+      const [value, onChange] = useState<string[]>([])
+      return { tags: value, ...useTagInput({ value, onChange }) }
+    })
+    act(() => {
+      expect(result.current.add('one')).toBe(true)
+      expect(result.current.add('two')).toBe(true)
+      expect(result.current.add('one')).toBe(false)
+    })
+    expect(result.current.tags).toEqual(['one', 'two'])
+  })
+
+  it('checks maxTags against additions already accepted in the same batch', () => {
+    const { result } = renderHook(() => {
+      const [value, onChange] = useState<string[]>([])
+      return { tags: value, ...useTagInput({ value, onChange, maxTags: 1 }) }
+    })
+    act(() => {
+      expect(result.current.add('one')).toBe(true)
+      expect(result.current.add('two')).toBe(false)
+    })
+    expect(result.current.tags).toEqual(['one'])
+  })
+
+  it('composes removal and addition without restoring a removed tag', () => {
+    const { result } = renderHook(() => {
+      const [value, onChange] = useState(['one', 'two'])
+      return { tags: value, ...useTagInput({ value, onChange }) }
+    })
+    act(() => {
+      result.current.remove(0)
+      result.current.add('three')
+    })
+    expect(result.current.tags).toEqual(['two', 'three'])
+  })
+
+  it('consumes the draft once when Enter and blur run before React renders', () => {
+    const onChange = vi.fn()
+    const normalize = vi.fn((raw: string) => raw)
+    const { result } = renderHook(() => useTagInput({ value: [], onChange, normalize }))
+    act(() => result.current.setDraft('one'))
+    act(() => {
+      result.current.inputProps.onKeyDown({
+        key: 'Enter',
+        nativeEvent: { isComposing: false },
+        preventDefault: vi.fn(),
+      } as Parameters<typeof result.current.inputProps.onKeyDown>[0])
+      result.current.inputProps.onBlur()
+    })
+    expect(onChange).toHaveBeenCalledTimes(1)
+    expect(normalize).toHaveBeenCalledTimes(1)
+    expect(result.current.draft).toBe('')
+  })
+
+  it('commits a programmatic draft set in the same batch', () => {
+    const onChange = vi.fn()
+    const { result } = renderHook(() => useTagInput({ value: [], onChange }))
+    act(() => {
+      result.current.setDraft('one')
+      result.current.inputProps.onBlur()
+    })
+    expect(onChange).toHaveBeenCalledExactlyOnceWith(['one'])
+    expect(result.current.draft).toBe('')
+  })
+
+  it('respects controlled replacements and the latest rules through retained actions', () => {
+    const before = vi.fn()
+    const after = vi.fn()
+    const { result, rerender } = renderHook((props) => useTagInput(props), {
+      initialProps: { value: ['old'], onChange: before, maxTags: 2 },
+    })
+    const add = result.current.add
+    const remove = result.current.remove
+    rerender({ value: ['new'], onChange: after, maxTags: 1 })
+    act(() => expect(add('blocked')).toBe(false))
+    expect(before).not.toHaveBeenCalled()
+    expect(after).not.toHaveBeenCalled()
+    act(() => remove(0))
+    expect(after).toHaveBeenCalledExactlyOnceWith([])
+  })
+
+  it('does not retain tag changes that the controlled owner declined', () => {
+    const onChange = vi.fn()
+    const value: string[] = []
+    const { result } = renderHook(() => useTagInput({ value, onChange }))
+    act(() => result.current.add('declined'))
+    act(() => result.current.add('next'))
+    expect(onChange).toHaveBeenLastCalledWith(['next'])
+  })
+
+  it('adds a suggestion without consuming the independent text draft', () => {
+    const { result } = renderHook(() => {
+      const [value, onChange] = useState<string[]>([])
+      return { tags: value, ...useTagInput({ value, onChange }) }
+    })
+    act(() => result.current.setDraft('typed'))
+    act(() => result.current.add('suggested'))
+    expect(result.current.draft).toBe('typed')
+    expect(result.current.tags).toEqual(['suggested'])
+    act(() => result.current.inputProps.onBlur())
+    expect(result.current.tags).toEqual(['suggested', 'typed'])
+  })
+
   it('adds one tag per fill + Enter and never submits the form', () => {
     const { input, onSubmit } = mount()
     expect(fillAndEnter(input, 'dragons')).toBe(false)

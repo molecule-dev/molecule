@@ -1,5 +1,5 @@
 import type { ChangeEvent, KeyboardEvent } from 'react'
-import { useState } from 'react'
+import { useInsertionEffect, useRef, useState } from 'react'
 
 /** Options for {@link useTagInput}. */
 export interface UseTagInputOptions {
@@ -34,9 +34,9 @@ export interface UseTagInputResult {
   draft: string
   /** Replaces the draft text. */
   setDraft: (next: string) => void
-  /** Spread onto your own `<input>`: `<input {...inputProps} placeholder="Enter tags" />`. */
+  /** Spread onto your own `<input>`: `<input {...inputProps} placeholder={placeholder} />`. */
   inputProps: TagInputFieldProps
-  /** Normalizes and adds a tag; returns whether it was added. */
+  /** Normalizes and adds a tag without clearing the draft; returns whether it was added. */
   add: (raw: string) => boolean
   /** Removes the tag at `index`. */
   remove: (index: number) => void
@@ -79,7 +79,7 @@ function defaultNormalize(raw: string, current: string[]): string | null {
  *     <ul>
  *       {tags.map((tag, i) => (
  *         <li key={tag}>
- *           <i role="button" aria-label={removeLabel} onClick={() => remove(i)} /> {tag}
+ *           <button type="button" onClick={() => remove(i)}>{removeLabel}</button> {tag}
  *         </li>
  *       ))}
  *     </ul>
@@ -95,7 +95,37 @@ export function useTagInput({
   normalize = defaultNormalize,
   maxTags,
 }: UseTagInputOptions): UseTagInputResult {
-  const [draft, setDraft] = useState('')
+  const [{ draft }, setFieldState] = useState({ draft: '' })
+  const draftRef = useRef('')
+  const current = useRef({ value, onChange, normalize, maxTags })
+
+  // Reconcile with the committed controlled value before any consumer layout
+  // effect can call an action. Event-time updates below stay visible to the
+  // next action even when React batches the parent's onChange updates.
+  useInsertionEffect(() => {
+    current.current = { value, onChange, normalize, maxTags }
+  })
+
+  /**
+   * Replaces the draft immediately, including for another action in the same batch.
+   * @param next - The new draft text.
+   */
+  function setDraft(next: string): void {
+    draftRef.current = next
+    setFieldState({ draft: next })
+  }
+
+  /**
+   * Records a pending controlled change before notifying the parent.
+   * @param next - The next tag list.
+   */
+  function change(next: string[]): void {
+    current.current.value = next
+    // Reconcile even when the controlled owner declines this proposal and
+    // does not render. Pending tags are only shared within this React batch.
+    setFieldState({ draft: draftRef.current })
+    current.current.onChange(next)
+  }
 
   /**
    * Normalizes `raw` and appends it when accepted and under `maxTags`.
@@ -103,17 +133,19 @@ export function useTagInput({
    * @returns Whether a tag was added.
    */
   function add(raw: string): boolean {
-    if (maxTags !== undefined && value.length >= maxTags) return false
-    const next = normalize(raw, value)
+    const { value: tags, normalize, maxTags } = current.current
+    if (maxTags !== undefined && tags.length >= maxTags) return false
+    const next = normalize(raw, tags)
     if (next === null) return false
-    onChange([...value, next])
+    change([...tags, next])
     return true
   }
 
   /** Commits the draft (accepted or not) and clears it. */
   function commit(): void {
-    add(draft)
+    const raw = draftRef.current
     setDraft('')
+    add(raw)
   }
 
   /**
@@ -123,6 +155,8 @@ export function useTagInput({
   function onKeyDown(e: KeyboardEvent<HTMLInputElement>): void {
     // Enter can confirm an input-method composition before it is a tag delimiter.
     if (e.nativeEvent.isComposing) return
+    const draft = draftRef.current
+    const tags = current.current.value
     if (e.key === 'Enter') {
       // Always canceled: the browser's implicit submission would otherwise
       // submit the enclosing form while the user is only adding a tag.
@@ -133,9 +167,9 @@ export function useTagInput({
         e.preventDefault()
         commit()
       }
-    } else if (e.key === 'Backspace' && draft === '' && value.length > 0) {
+    } else if (e.key === 'Backspace' && draft === '' && tags.length > 0) {
       e.preventDefault()
-      onChange(value.slice(0, -1))
+      change(tags.slice(0, -1))
     }
   }
 
@@ -147,10 +181,10 @@ export function useTagInput({
       onChange: (e) => setDraft(e.target.value),
       onKeyDown,
       onBlur: () => {
-        if (draft.trim()) commit()
+        if (draftRef.current.trim()) commit()
       },
     },
     add,
-    remove: (index) => onChange(value.filter((_, j) => j !== index)),
+    remove: (index) => change(current.current.value.filter((_, j) => j !== index)),
   }
 }

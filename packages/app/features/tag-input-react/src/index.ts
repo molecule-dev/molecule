@@ -15,13 +15,14 @@
  * ```tsx
  * import { useState } from 'react'
  *
+ * import { useTranslation } from '@molecule/app-react'
  * import { TagChip, TagInput, useTagInput } from '@molecule/app-tag-input-react'
  *
  * function TagEditor() {
  *   const [tags, setTags] = useState<string[]>(['react'])
  *   return (
  *     <>
- *       <TagInput value={tags} onChange={setTags} placeholder="Add a tag…" maxTags={10} />
+ *       <TagInput value={tags} onChange={setTags} maxTags={10} />
  *       <TagChip onRemove={() => setTags(tags.filter((t) => t !== 'react'))}>react</TagChip>
  *     </>
  *   )
@@ -29,6 +30,7 @@
  *
  * // App-owned markup: the input and the tag list are siblings.
  * function ArticleTags({ tags, setTags }: { tags: string[]; setTags: (t: string[]) => void }) {
+ *   const { t } = useTranslation()
  *   const { inputProps, remove } = useTagInput({ value: tags, onChange: setTags })
  *   return (
  *     <>
@@ -36,7 +38,9 @@
  *       <ul>
  *         {tags.map((tag, i) => (
  *           <li key={tag}>
- *             <button type="button" onClick={() => remove(i)}>×</button> {tag}
+ *             <button type="button" onClick={() => remove(i)}>
+ *               {t('tagChip.remove', {}, { defaultValue: 'Remove' })}
+ *             </button> {tag}
  *           </li>
  *         ))}
  *       </ul>
@@ -46,8 +50,14 @@
  * ```
  *
  * @remarks
- * - Must render inside the app's i18n provider and with a ClassMap bond
- *   wired (`useTranslation()` / `getClassMap()` throw otherwise).
+ * - `<TagInput>` and `<TagChip>` need the app's i18n provider and a ClassMap
+ *   bond wired (`useTranslation()` / `getClassMap()` throw otherwise).
+ *   `useTagInput` itself needs neither; the app owns its markup and text.
+ * - `add(raw)` adds an independent value without changing the draft (for
+ *   example, a suggestion). A custom draft-commit control should call
+ *   `add(draft)` followed by `setDraft('')` to avoid a later blur reusing it.
+ *   Actions compose within one React batch and reconcile to the controlled
+ *   `value` on the next commit.
  * - Committing happens on Enter/comma/Tab AND on blur — clicking away
  *   with a non-empty draft adds a tag; keep that in mind in forms.
  * - Enter inside the field is always swallowed: a blank, rejected, or
