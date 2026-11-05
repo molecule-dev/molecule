@@ -13,6 +13,11 @@
  *
  * @remarks
  * - **`yieldOnFirstFailureFor`** can yield one still-running deployed task's concrete diagnostic; callers opt out after a prior wait result or unknown history.
+ * - **`wait_for_task` state probes report current progress without guessing log growth.**
+ *   A call shorter than one normal two-second poll omits both growth and no-growth
+ *   claims; task age, log counters and time-left estimates remain available.
+ *   Full waits still report whether the log grew. Hosts that cap a wait should
+ *   allow its final result read to finish before replacing it with a state probe.
  * - **This package only defines the tools — it runs no model loop.** Hand them to
  *   the bonded AI provider (`chat({ tools, … })`) or to an
  *   `@molecule/api-ai-agents` run.

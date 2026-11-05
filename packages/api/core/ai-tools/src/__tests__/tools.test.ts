@@ -5231,7 +5231,7 @@ describe('wait_for_task on a task that is still running', () => {
       const id = idStartedAgo(90_000)
       const slice = '✘ 41 [chromium] › e2e/tags.spec.ts:12:3 › popular tags\n[41/139] done so far\n'
       const wait = buildTools(runningBackend(slice, 900)).find((t) => t.name === 'wait_for_task')!
-      const r = (await wait.execute({ taskId: id, timeout: 200 })) as {
+      const r = (await wait.execute({ taskId: id, timeout: 2_000 })) as {
         status: string
         note: string
         outputSoFar?: string
@@ -5281,7 +5281,7 @@ describe('wait_for_task on a task that is still running', () => {
       const wait = buildTools(runningBackend(slice, 71_839)).find(
         (t) => t.name === 'wait_for_task',
       )!
-      const r = (await wait.execute({ taskId: id, timeout: 200 })) as {
+      const r = (await wait.execute({ taskId: id, timeout: 2_000 })) as {
         status: string
         note: string
       }
@@ -5770,15 +5770,13 @@ describe('the running note knows what the run measures (xr-molecule-flash-m122)'
       expect(r.note).toContain('Start fixing it now, while the run keeps walking')
       expect(r.note).not.toContain('its result no longer counts')
       expect(r.note).not.toContain('apply it when the run ends')
-      // Byte-identical to the note captured before the hl01 reword of the diagnostic yield's note
-      // (`lead.json`, 2026-10-25) — modulo the task id this launch mints and the elapsed seconds
-      // it prints, neither of which is wording.
+      // Preserve the diagnostic wording; this 60 ms state look cannot establish log growth.
       expect(
         r.note
           .replace(/mol-bg-[a-z0-9]+-[a-z0-9]+/g, 'TASK')
           .replace(/It has been running \d+ s/, 'It has been running N s'),
       ).toBe(
-        `It has been running N s; its output is still growing (900 bytes) — slow, not stuck. Call wait_for_task again to keep waiting — its result carries the log output. outputSoFar is the failure lines so far (up to 40) and then the end of the log, not the whole run — \`grep -n '✘' /tmp/TASK.log | head -40\` lists every failure, \`grep -n -A 20 '<test name>' /tmp/TASK.log\` reads one failure's error: this run writes each failure's own report into the log as that test fails, right under its ✘ line, not only in the summary at the end. Meanwhile fix what it has already named: this run tests the deployed build, so editing app/src or api/src now does not change what it tests — fix the causes it has already named while it walks, run nothing against the app until it ends, then deploy once. 3 different tests in this run have already failed the same way — every one with \`TimeoutError: page.waitForURL: Timeout <n> exceeded. — waiting for navigation until "load"\` — so one cause is repeating:
+        `It has been running N s. Call wait_for_task again to keep waiting — its result carries the log output. outputSoFar is the failure lines so far (up to 40) and then the end of the log, not the whole run — \`grep -n '✘' /tmp/TASK.log | head -40\` lists every failure, \`grep -n -A 20 '<test name>' /tmp/TASK.log\` reads one failure's error: this run writes each failure's own report into the log as that test fails, right under its ✘ line, not only in the summary at the end. Meanwhile fix what it has already named: this run tests the deployed build, so editing app/src or api/src now does not change what it tests — fix the causes it has already named while it walks, run nothing against the app until it ends, then deploy once. 3 different tests in this run have already failed the same way — every one with \`TimeoutError: page.waitForURL: Timeout <n> exceeded. — waiting for navigation until "load"\` — so one cause is repeating:
   ✘ ../../specs/specs/e2e/null-fields.spec.ts:71 › a
   ✘ ../../specs/specs/e2e/null-fields.spec.ts:88 › b
   ✘ ../../specs/specs/e2e/null-fields.spec.ts:117 › c

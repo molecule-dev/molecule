@@ -336,6 +336,9 @@ export async function taskStopCommand(backend: ExecutionBackend, taskId: string)
  */
 const TASK_END_LOOK_MS = 3_000
 
+/** A normal task poll; shorter state probes cannot establish log growth during their wait. */
+const TASK_POLL_MS = 2_000
+
 /** How much of a task's own output the end test reads — a runner's tally is its last lines. */
 const TASK_OUTPUT_END_BYTES = 4_000
 
@@ -607,8 +610,11 @@ function secondSuiteWalk(slice: string): { tally: string } | null {
  * @param o - The wait's facts: `taskId`, the `slice` of the log it read,
  *   `stillWriting` (the log grew during this wait), `bytes` (the log's size, null
  *   when unreadable), `ceilingMs` (this call's ceiling, for "one more wait"), and
- *   `waitedMs` (this call's own wait, the elapsed figure when the id carries no
- *   start stamp).
+ *   `waitedMs` (the elapsed floor when the id carries no start stamp), and
+ *   `observationMs` (this call's own polling interval, excluding earlier waits).
+ *   Growth clauses require at least one normal poll: a near-zero state probe
+ *   observes the log's contents, not whether it grew during the preceding wait.
+ *   Task age, progress counters and rate estimates remain valid for those probes.
  * @returns The clauses in reading order. The first states the elapsed time, so a
  *   sentence built from them always says something.
  */
@@ -619,6 +625,7 @@ function waitProgressClauses(o: {
   bytes: number | null
   ceilingMs: number
   waitedMs: number
+  observationMs: number
 }): string[] {
   const startedAt = taskStartedAt(o.taskId)
   const sinceStart = startedAt === null ? null : Math.max(0, Date.now() - startedAt)
@@ -633,10 +640,12 @@ function waitProgressClauses(o: {
   // A log that already finished one walk and started another says so instead of "slow, not
   // stuck": the growth is the SECOND walk printing, and its counter is not this run's progress.
   const secondWalk = secondSuiteWalk(o.slice)
-  if (o.stillWriting && !secondWalk)
-    clauses.push(`its output is still growing (${o.bytes} bytes) — slow, not stuck`)
-  else if (o.bytes !== null && !secondWalk)
-    clauses.push(`its log has not grown during this wait (${o.bytes} bytes)`)
+  if (o.observationMs >= TASK_POLL_MS && !secondWalk) {
+    if (o.stillWriting)
+      clauses.push(`its output is still growing (${o.bytes} bytes) — slow, not stuck`)
+    else if (o.bytes !== null)
+      clauses.push(`its log has not grown during this wait (${o.bytes} bytes)`)
+  }
   if (secondWalk)
     clauses.push(
       `the first walk in this command has finished (${secondWalk.tally}); the command started a ` +
@@ -772,6 +781,7 @@ async function backgroundTaskState(
       bytes: null,
       ceilingMs,
       waitedMs: 0,
+      observationMs: 0,
     })
     const failures = slice.trim() ? '; the failures already in its log are in outputSoFar' : ''
     return {
@@ -4050,7 +4060,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       let exitCode = await readExit()
       while (exitCode === null && Date.now() - startedAt < budgetMs) {
         await new Promise((r) =>
-          setTimeout(r, Math.min(2_000, budgetMs - (Date.now() - startedAt))),
+          setTimeout(r, Math.min(TASK_POLL_MS, budgetMs - (Date.now() - startedAt))),
         )
         exitCode = await readExit()
         // The exit file is read first, so a run that finishes between two looks still returns
@@ -4240,6 +4250,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
             bytes: grownTo,
             ceilingMs: ceiling,
             waitedMs: waitedBefore + waitedMs,
+            observationMs: Math.min(budgetMs, waitedMs),
           }),
         )
         const sliceField = soFar.trim() ? { outputSoFar: sanitizeOutput(soFar) } : {}
