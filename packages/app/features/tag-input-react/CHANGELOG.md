@@ -1,5 +1,11 @@
 # @molecule/app-tag-input-react
 
+## 3.1.1
+
+### Patch Changes
+
+- Preserve tag changes and draft commits within a React batch.
+
 ## 3.1.0
 
 ### Minor Changes
