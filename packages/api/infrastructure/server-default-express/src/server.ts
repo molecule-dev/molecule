@@ -1,3 +1,4 @@
+import { appendFileSync } from 'node:fs'
 import http from 'node:http'
 import https from 'node:https'
 import { createRequire } from 'node:module'
@@ -316,8 +317,9 @@ function loadPem(): PemModule {
  * - Bare-string `Unauthorized` / `Unauthorized.` errors normalized to 401.
  * - HTTPS in dev if `process.env.HTTPS` is set, using self-signed
  *   certs from optional dependency `pem`.
- * - `process.on('uncaughtException')` + `unhandledRejection` registered
- *   on first call (idempotent across multiple `create()` invocations).
+ * - Fatal errors observed with `uncaughtExceptionMonitor` on first call
+ *   (idempotent across multiple `create()` invocations). Node retains its nonzero
+ *   exit, and the IDE receives the stack in `/workspace/.api-errors.log`.
  */
 export function createServerFactory(
   opts: CreateServerOptions,
@@ -329,13 +331,19 @@ export function createServerFactory(
       processHandlersRegistered = true
       // Genuine unexpected errors — log AND report to the bonded error tracker
       // (captureException no-ops when no tracker is bonded and never throws).
-      process.on('uncaughtException', (error) => {
+      // Observing must not consume Node's fatal event: an unhandledRejection or
+      // uncaughtException listener that only logs leaves failed boots exiting 0.
+      process.on('uncaughtExceptionMonitor', (error, origin) => {
+        try {
+          appendFileSync(
+            '/workspace/.api-errors.log',
+            `[${new Date().toISOString()}] ${origin}: ${error.stack || error.message}\n`,
+          )
+        } catch (_error) {
+          // An unavailable IDE log must not replace the original fatal error.
+        }
         logger.error(error)
-        captureException(error, { tags: { source: 'uncaughtException' } })
-      })
-      process.on('unhandledRejection', (error) => {
-        logger.error(error)
-        captureException(error, { tags: { source: 'unhandledRejection' } })
+        captureException(error, { tags: { source: origin } })
       })
     }
 
