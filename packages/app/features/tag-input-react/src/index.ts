@@ -6,12 +6,16 @@
  * - `<TagInput>` — controlled tokenizer: Enter, comma, or Tab adds the
  *   draft; blur commits a non-empty draft; Backspace on an empty field
  *   removes the last token. Enter never submits an enclosing form.
+ * - `useTagInput()` — the same tag-entry behavior without markup, for an
+ *   app whose markup is already decided (a design system, a spec's selectors):
+ *   spread `inputProps` on your own `<input>`, render the tags yourself, and
+ *   call `remove(i)` from your own remove control.
  *
  * @example
  * ```tsx
  * import { useState } from 'react'
  *
- * import { TagChip, TagInput } from '@molecule/app-tag-input-react'
+ * import { TagChip, TagInput, useTagInput } from '@molecule/app-tag-input-react'
  *
  * function TagEditor() {
  *   const [tags, setTags] = useState<string[]>(['react'])
@@ -19,6 +23,23 @@
  *     <>
  *       <TagInput value={tags} onChange={setTags} placeholder="Add a tag…" maxTags={10} />
  *       <TagChip onRemove={() => setTags(tags.filter((t) => t !== 'react'))}>react</TagChip>
+ *     </>
+ *   )
+ * }
+ *
+ * // App-owned markup: the input and the tag list are siblings.
+ * function ArticleTags({ tags, setTags }: { tags: string[]; setTags: (t: string[]) => void }) {
+ *   const { inputProps, remove } = useTagInput({ value: tags, onChange: setTags })
+ *   return (
+ *     <>
+ *       <input {...inputProps} />
+ *       <ul>
+ *         {tags.map((tag, i) => (
+ *           <li key={tag}>
+ *             <button type="button" onClick={() => remove(i)}>×</button> {tag}
+ *           </li>
+ *         ))}
+ *       </ul>
  *     </>
  *   )
  * }
@@ -45,3 +66,4 @@
 
 export * from './TagChip.js'
 export * from './TagInput.js'
+export * from './useTagInput.js'

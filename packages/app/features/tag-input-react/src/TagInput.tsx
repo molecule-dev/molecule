@@ -1,10 +1,10 @@
-import type { JSX, KeyboardEvent } from 'react'
-import { useState } from 'react'
+import type { JSX } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import { TagChip } from './TagChip.js'
+import { useTagInput } from './useTagInput.js'
 
 /** Props for the {@link TagInput} component. */
 export interface TagInputProps {
@@ -26,18 +26,6 @@ export interface TagInputProps {
 }
 
 /**
- * Default normalization: trims whitespace, rejects empty strings and duplicates.
- * @param raw
- * @param current
- */
-function defaultNormalize(raw: string, current: string[]): string | null {
-  const v = raw.trim()
-  if (!v) return null
-  if (current.includes(v)) return null
-  return v
-}
-
-/**
  * Tokenized tag-input with chip display. Commits the draft on Enter,
  * comma, or Tab AND on blur (clicking away with a non-empty draft adds
  * a tag); Backspace on an empty field removes the last token.
@@ -46,59 +34,22 @@ function defaultNormalize(raw: string, current: string[]): string | null {
  * even when the draft is blank, whitespace-only, rejected, or past
  * `maxTags`. An empty Tab keeps normal browser focus traversal.
  *
- * Controlled component — callers own the `value` array.
+ * Controlled component — callers own the `value` array. For markup the
+ * app already decided (a design system, a spec's selectors), use
+ * {@link useTagInput} directly: this component is that hook plus default markup.
  * @param props - Component props (see {@link TagInputProps}).
  */
 export function TagInput({
   value,
   onChange,
   placeholder,
-  normalize = defaultNormalize,
+  normalize,
   maxTags,
   className,
 }: TagInputProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
-  const [draft, setDraft] = useState('')
-
-  /**
-   * Validates and commits the current draft value as a new tag.
-   */
-  function commit(): void {
-    if (maxTags !== undefined && value.length >= maxTags) {
-      setDraft('')
-      return
-    }
-    const next = normalize(draft, value)
-    if (next !== null) onChange([...value, next])
-    setDraft('')
-  }
-
-  /**
-   * Handles Enter/comma/Tab to commit a tag, and Backspace to remove the last tag.
-   *
-   * Enter's default is ALWAYS canceled, even when the draft is empty, whitespace,
-   * rejected, or past `maxTags`. Otherwise the browser's implicit form submission
-   * fires on Enter and submits the enclosing form (e.g. an editor's Publish
-   * action) while the user is only trying to leave the tag field.
-   * @param e
-   */
-  function onKeyDown(e: KeyboardEvent<HTMLInputElement>): void {
-    // Enter can confirm an input-method composition before it is a tag delimiter.
-    if (e.nativeEvent.isComposing) return
-    if (e.key === 'Enter') {
-      e.preventDefault()
-      if (draft.trim()) commit()
-    } else if (e.key === ',' || e.key === 'Tab') {
-      if (draft.trim()) {
-        e.preventDefault()
-        commit()
-      }
-    } else if (e.key === 'Backspace' && draft === '' && value.length > 0) {
-      e.preventDefault()
-      onChange(value.slice(0, -1))
-    }
-  }
+  const { inputProps, remove } = useTagInput({ value, onChange, normalize, maxTags })
 
   return (
     <div
@@ -109,16 +60,13 @@ export function TagInput({
       )}
     >
       {value.map((tag, i) => (
-        <TagChip key={`${tag}-${i}`} onRemove={() => onChange(value.filter((_, j) => j !== i))}>
+        <TagChip key={`${tag}-${i}`} onRemove={() => remove(i)}>
           {tag}
         </TagChip>
       ))}
       <input
         type="text"
-        value={draft}
-        onChange={(e) => setDraft(e.target.value)}
-        onKeyDown={onKeyDown}
-        onBlur={() => draft.trim() && commit()}
+        {...inputProps}
         placeholder={placeholder ?? t('tagInput.placeholder', {}, { defaultValue: 'Add a tag…' })}
         className={cm.cn(cm.flex1, cm.input())}
       />
