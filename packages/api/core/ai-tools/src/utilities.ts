@@ -3198,6 +3198,69 @@ function failureEvidence(body: string[], message: string | null): string[] {
 }
 
 /**
+ * A source frame can show that an awaited click returned before a state wait timed out.
+ * Keep that distinction: a successful browser click does not prove the handler accepted it.
+ * Only adjacent, straight-line statements on the same page qualify. Missing frames, control
+ * flow, multiline calls and negative waits stay unknown. No app vocabulary is inferred.
+ *
+ * @param block - One native Playwright failure block, including its source frame.
+ * @returns The completed click and its source location, or null without that evidence.
+ */
+function completedClickBeforeWait(block: string): FailureCause['precedingClick'] | null {
+  const error = failureErrorLine(failureBody(block)) ?? ''
+  if (
+    !/^(?:TimeoutError:|(?:Error: )?Test timeout of |Error: expect\().*(?:exceeded|failed)/.test(
+      error,
+    )
+  )
+    return null
+  const frame = block.split('\n').flatMap((line) => {
+    const match = /^\s*(>)?\s*(\d+)\s*\|\s?(.*)$/.exec(line)
+    return match ? [{ failed: !!match[1], line: Number(match[2]), code: match[3].trim() }] : []
+  })
+  const failed = frame.findIndex((row) => row.failed)
+  if (failed < 1) return null
+  // Single-line arguments with quoted selectors/options. Parentheses inside strings are data;
+  // nested calls, interpolations and multiple statements are deliberately not decided here.
+  const args = '(?:[^()\'"`;\n]|\'(?:\\\\.|[^\'\\\\])*\'|"(?:\\\\.|[^"\\\\])*"|`[^`$]*`)*'
+  const literal = '(?:\'(?:\\\\.|[^\'\\\\])*\'|"(?:\\\\.|[^"\\\\])*"|`[^`$]*`)'
+  const options = '\\{[^{};]*\\}'
+  const locator = `(?:locator|getByRole|getByText|getByTestId)\\(${args}\\)(?:\\.(?:first|last)\\(\\)|\\.nth\\(\\d+\\))?`
+  const page = '([$A-Z_a-z][$\\w]*)'
+  const waiting = frame[failed].code
+  const wait =
+    new RegExp(
+      `^await\\s+${page}\\.(?:waitForSelector\\(\\s*${literal}\\s*(?:,\\s*${options}\\s*)?\\)|${locator}\\.waitFor\\(\\s*(?:${options}\\s*)?\\));?$`,
+    ).exec(waiting) ??
+    new RegExp(
+      `^await\\s+expect\\(${page}\\.${locator}\\)\\.toBeVisible\\(\\s*(?:${options}\\s*)?\\);?$`,
+    ).exec(waiting)
+  if (!wait || waiting.includes('...')) return null
+  for (const state of waiting.matchAll(/(?:\bstate|['"]state['"])\s*:\s*([^,}]+)/g))
+    if (!/^['"](?:visible|attached)['"]$/.test(state[1].trim())) return null
+  let previous = failed - 1
+  while (previous >= 0) {
+    if (frame[previous].line !== frame[previous + 1].line - 1) return null
+    const action = frame[previous].code
+    if (!action || action.startsWith('//')) {
+      previous -= 1
+      continue
+    }
+    const click = new RegExp(
+      `^await\\s+${page}\\.(?:(?:click|dblclick|tap)\\(${args}\\)|${locator}\\.(?:click|dblclick|tap)\\(${args}\\));?$`,
+    ).exec(action)
+    if (!click || click[1] !== wait[1]) return null
+    const location = /^\s*at\s+(\S+?):(\d+)(?::\d+)?\s*$/m.exec(block)
+    const where =
+      location && Number(location[2]) === frame[failed].line
+        ? `${location[1]}:${frame[previous].line}`
+        : undefined
+    return { call: action.replace(/;$/, ''), ...(where ? { where } : {}) }
+  }
+  return null
+}
+
+/**
  * A cause signature with the values that differ between two tests of ONE cause replaced by `<n>`:
  * a duration, a generated id or timestamp, a host's port.
  *
@@ -4167,6 +4230,11 @@ export interface FailureCause {
    * before its values had loaded). Attached to the cause so the fix needs no `cat` of the file.
    */
   pageShowed?: string[]
+  /**
+   * An adjacent awaited click in this failure's source frame, before its positive state wait.
+   * This proves the browser action returned, not that the app accepted it or a request settled.
+   */
+  precedingClick?: { call: string; where?: string }
 }
 
 /** One failing test's page errors, as read from its `error-context.md`. */
@@ -4284,7 +4352,13 @@ function groupFailures(
   const flaky = new Set(flakyTests.map(testKey))
   const byMessage = new Map<
     string,
-    { tests: FailedTest[]; evidence: string[]; budgetMs: number | null; kind: RunFailureKind }
+    {
+      tests: FailedTest[]
+      evidence: string[]
+      budgetMs: number | null
+      kind: RunFailureKind
+      precedingClick?: FailureCause['precedingClick']
+    }
   >()
   const named: FailedTest[] = []
   for (const block of failureBlocks(text)) {
@@ -4310,6 +4384,7 @@ function groupFailures(
         evidence: failureEvidence(failureBody(block), message),
         budgetMs: failureBudgetMs(block),
         kind: classifyRunFailure(block)?.kind ?? 'assertion',
+        precedingClick: completedClickBeforeWait(block) ?? undefined,
       })
   }
   const causes: FailureCause[] = []
@@ -4336,6 +4411,7 @@ function groupFailures(
         kind: group.kind,
         ...(group.budgetMs === null ? {} : { budgetMs: group.budgetMs }),
         ...(showed === undefined ? {} : { pageShowed: [...showed] }),
+        ...(group.precedingClick ? { precedingClick: group.precedingClick } : {}),
       })
     }
   }
@@ -4935,12 +5011,20 @@ function failureCauseLine(cause: FailureCause, index: number): string {
         ? ' (the action ran before the form’s values had loaded)'
         : '')
     : ''
+  const click = cause.precedingClick
+  const afterClick = click
+    ? `\n     The preceding awaited click returned: \`${click.call.length > FAILURE_EVIDENCE_CHARS ? `${click.call.slice(0, FAILURE_EVIDENCE_CHARS - 1)}…` : click.call}\`${click.where ? ` (${click.where})` : ''}. ` +
+      'If this is an optimistic toggle, its label/class can change while the first request is still pending. ' +
+      'Check guards that ignore the next click: disable the control while pending or queue the next intent. ' +
+      'Re-test both directions with a delayed first response before redeploying.'
+    : ''
   return (
     `  ${index + 1}. ${cause.kind === 'connection' ? 'CONNECTION error, not the app’s — ' : ''}${signature} — ` +
     `${cause.tests.length} test${cause.tests.length === 1 ? '' : 's'} ` +
     `in ${files} file${files === 1 ? '' : 's'}: ${tests.join(', ')}${more}` +
     (shortened.length ? `\n     ${shortened.join(' · ')}` : '') +
-    showed
+    showed +
+    afterClick
   )
 }
 
