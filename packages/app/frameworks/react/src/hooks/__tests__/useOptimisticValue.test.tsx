@@ -162,7 +162,7 @@ describe('useOptimisticValue', () => {
       fireEvent.click(button())
     })
     expect(first).not.toHaveBeenCalled()
-    expect(second).toHaveBeenCalledWith({ favorited: true, count: 1 }, value)
+    expect(second.mock.calls[0]?.slice(0, 2)).toEqual([{ favorited: true, count: 1 }, value])
   })
 
   it('counts every press of a quantity stepper and saves the newest total', async () => {
@@ -203,7 +203,7 @@ describe('useOptimisticValue', () => {
     rerender({ commit: second })
     await act(async () => {})
     expect(first).not.toHaveBeenCalled()
-    expect(second).toHaveBeenCalledWith(2, 1)
+    expect(second.mock.calls[0]?.slice(0, 2)).toEqual([2, 1])
     expect(result.current).toMatchObject({ value: 2, pending: false, error: null })
   })
 
@@ -231,7 +231,8 @@ describe('useOptimisticValue', () => {
     view.rerender(createElement(Parent, { commit: second, active: true }))
     await act(async () => {})
     expect(first).not.toHaveBeenCalled()
-    expect(second).toHaveBeenCalledExactlyOnceWith(2, 1)
+    expect(second).toHaveBeenCalledTimes(1)
+    expect(second.mock.calls[0]?.slice(0, 2)).toEqual([2, 1])
   })
 
   it('does not duplicate saves or replace saved props in StrictMode with an inline comparator', async () => {
@@ -276,5 +277,27 @@ describe('useOptimisticValue', () => {
     expect(result.current).toMatchObject({ value: false, pending: false, error: null })
     expect(onError).not.toHaveBeenCalled()
     expect(commit).toHaveBeenCalledTimes(1)
+  })
+
+  it('keeps confirmed progress when a later request in the same commit fails', async () => {
+    const reply = deferred<void>()
+    const failure = new Error('second request failed')
+    type Flags = { first: boolean; second: boolean }
+    const { result } = renderHook(() =>
+      useOptimisticValue<Flags>({
+        value: { first: false, second: false },
+        commit: async (_next, _previous, confirm?: (change: (current: Flags) => Flags) => void) => {
+          confirm?.((current) => ({ ...current, first: true }))
+          await reply.promise
+        },
+      }),
+    )
+    act(() => result.current.set({ first: true, second: true }))
+    await act(async () => reply.reject(failure))
+    expect(result.current).toMatchObject({
+      value: { first: true, second: false },
+      pending: false,
+      error: failure,
+    })
   })
 })

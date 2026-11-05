@@ -87,7 +87,7 @@ export const useOptimisticValue = <T>(
   const [controller] = useState(() =>
     createOptimisticValue<T>({
       value: options.value,
-      commit: (next, previous) => latest.current.commit(next, previous),
+      commit: (next, previous, confirm) => latest.current.commit(next, previous, confirm),
       equals: (a, b) => (latest.current.equals ?? shallowEqual)(a, b),
       onError: (error, value) => latest.current.onError?.(error, value),
     }),

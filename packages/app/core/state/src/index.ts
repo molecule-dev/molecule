@@ -19,6 +19,10 @@
  *   change at a time in order, saves a change made during a save right after it, and goes back to
  *   the server value only when the newest change fails. Do not ignore taps while a request is
  *   pending, and do not let a refetch replace the value while a save runs.
+ *   A commit containing multiple requests must call its third argument, `confirm`, after each
+ *   successful request: `confirm((current) => ({ ...current, [id]: saved }))`. Return nothing
+ *   after recording progress. A later rejection then rolls back only unsaved changes, and a
+ *   queued intent is compared with what the server actually accepted.
  * - **{@link persistMiddleware} persists to storage — never persist a secret or auth token**
  *   there (client storage is XSS-exfiltratable; the bearer token is memory-only — see
  *   `@molecule/app-storage`). Persist only non-sensitive UI state, via the storage

@@ -90,6 +90,10 @@
  * ```
  *
  * @remarks
+ * - Server-backed switches and counters use `useOptimisticValue`. When one commit saves
+ *   several records, call its third argument after each accepted request:
+ *   `confirm((current) => ({ ...current, [id]: saved }))`, then return nothing. A later
+ *   rejection keeps those accepted records while rolling back the unsaved changes.
  * - `useProfileForm` needs `AuthProvider` (or `MoleculeProvider auth={client}`)
  *   and uses the bonded forms provider, just like `useForm`. `defaultValues`
  *   and `toValues` must cover every registered control; map nullable text to

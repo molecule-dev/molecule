@@ -13,10 +13,18 @@ import { shallowEqual } from './utilities.js'
  *
  * @param next - The value to save.
  * @param previous - The value the server held before this change, as far as the client knows.
+ * @param confirm - Records an acknowledged part of a multi-request save, without replacing the
+ * optimistic value. Pass an updater so unrelated refetched fields survive. If a later request
+ * fails, rollback and any queued save use this confirmed progress. Calls after this commit
+ * settles are ignored.
  * @returns The server's value after the change, or nothing to keep `next`. Reject when the save
- * fails.
+ * fails. After calling `confirm`, returning nothing keeps the confirmed progress instead.
  */
-export type OptimisticCommit<T> = (next: T, previous: T) => Promise<T | void>
+export type OptimisticCommit<T> = (
+  next: T,
+  previous: T,
+  confirm: (change: (current: T) => T) => void,
+) => Promise<T | void>
 
 /**
  * Options for {@link createOptimisticValue}.
@@ -195,14 +203,23 @@ export const createOptimisticValue = <T>(
       // Claim the run and capture this change before notifying listeners: a listener may
       // synchronously set a newer intent or refetch the server value.
       publish({ value: sent, pending: true, error: null })
+      let acceptingProgress = true
+      let hasProgress = false
+      const confirm = (change: (current: T) => T): void => {
+        if (!acceptingProgress) return
+        confirmed = change(confirmed)
+        hasProgress = true
+      }
       try {
-        const result = await options.commit(sent, confirmed)
-        confirmed = result === undefined ? sent : result
+        const result = await options.commit(sent, confirmed, confirm)
+        acceptingProgress = false
+        confirmed = result === undefined ? (hasProgress ? confirmed : sent) : result
         if (sentIntent === intent || equals(desired, confirmed)) {
           desired = confirmed
           break
         }
       } catch (error) {
+        acceptingProgress = false
         if (sentIntent === intent) {
           desired = confirmed
           failure = { error }
