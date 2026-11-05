@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.16.5
+
+### Patch Changes
+
+- Preserve completed-click evidence and diagnose pending toggle actions in failed test summaries.
+
 ## 1.16.4
 
 ### Patch Changes
