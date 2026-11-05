@@ -48,16 +48,10 @@
     "react-native-safe-area-context": ">=4.0.0"
   },
   "peerDependenciesMeta": {
-    "@molecule/app-react": {
-      "optional": true
-    },
     "@molecule/app-lifecycle": {
       "optional": true
     },
     "@molecule/app-keyboard": {
-      "optional": true
-    },
-    "react": {
       "optional": true
     },
     "react-native": {

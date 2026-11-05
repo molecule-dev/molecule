@@ -42,9 +42,6 @@
     "express": "^4.0.0 || ^5.0.0"
   },
   "peerDependenciesMeta": {
-    "@molecule/api-config": {
-      "optional": true
-    },
     "express": {
       "optional": true
     }

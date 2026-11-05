@@ -45,9 +45,6 @@
     "react-native": ">=0.72.0"
   },
   "peerDependenciesMeta": {
-    "@molecule/app-i18n": {
-      "optional": true
-    },
     "@molecule/app-status-bar": {
       "optional": true
     },

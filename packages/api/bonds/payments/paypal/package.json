@@ -36,11 +36,6 @@
     "@molecule/api-payments": "^1.1.0",
     "@molecule/api-secrets": "^1.0.1"
   },
-  "peerDependenciesMeta": {
-    "@molecule/api-payments": {
-      "optional": true
-    }
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/molecule-dev/molecule.git",

@@ -48,12 +48,6 @@
   "peerDependenciesMeta": {
     "@molecule/api-resource": {
       "optional": true
-    },
-    "@molecule/api-database": {
-      "optional": true
-    },
-    "@molecule/api-logger": {
-      "optional": true
     }
   },
   "repository": {

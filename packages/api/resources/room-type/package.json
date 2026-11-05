@@ -55,12 +55,6 @@
     "@molecule/api-resource-property": "^1.0.1"
   },
   "peerDependenciesMeta": {
-    "@molecule/api-database": {
-      "optional": true
-    },
-    "@molecule/api-logger": {
-      "optional": true
-    },
     "@molecule/api-permissions": {
       "optional": true
     },

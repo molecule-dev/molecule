@@ -44,9 +44,6 @@
     "@molecule/api-secrets": "^1.0.1"
   },
   "peerDependenciesMeta": {
-    "@molecule/api-payments": {
-      "optional": true
-    },
     "@molecule/api-jwt": {
       "optional": true
     }

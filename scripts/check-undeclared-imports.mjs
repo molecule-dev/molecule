@@ -22,9 +22,21 @@
  *   position, `declare module 'x'`, any import in a `.d.ts`) may also be
  *   satisfied by devDependencies, or by `@types/<name>` in any field.
  *
+ * - A peer marked optional (`peerDependenciesMeta[name].optional`) must not be
+ *   loaded when the package loads: no static `import … from`, `export … from`
+ *   or bare `import 'x'` of it may survive in the JavaScript TypeScript emits.
+ *   Type-only imports, and value imports used only as types, are elided by the
+ *   compiler and are fine; `import()` and `require()` run only when the code
+ *   holding them runs, which is how a peer stays optional. npm, pnpm and Yarn
+ *   never install an optional peer, and production installers that skip peers
+ *   leave it out, so a load-time import of one crashes the app on start-up.
+ *
  * Fix an offender by declaring the package: `dependencies` (exact pin) for a
  * library the package bundles, `peerDependencies` (range, plus an exact
  * devDependency) for express and `@molecule/*` packages the app must share.
+ * Fix a load-time optional peer by making the peer required (drop its
+ * `optional` flag), or by loading it lazily if the package truly works
+ * without it.
  *
  * Usage:
  *   node scripts/check-undeclared-imports.mjs            # check (exit 1 on any offender)
@@ -188,6 +200,115 @@ export function findUndeclared(pkg, imports) {
 }
 
 /**
+ * The compiler options that decide what a package's emitted JavaScript
+ * imports: its own tsconfig's JSX settings (`react-jsx` emits an import of
+ * `react/jsx-runtime`), with the module kept as ESM so imports stay visible.
+ *
+ * @param dir - The package directory.
+ * @returns Options for `ts.transpileModule`.
+ */
+export function emitOptionsFor(dir) {
+  const file = join(dir, 'tsconfig.json')
+  let jsx = ts.JsxEmit.Preserve
+  let jsxImportSource
+  if (existsSync(file)) {
+    const read = ts.readConfigFile(file, ts.sys.readFile)
+    if (read.error)
+      throw new Error(`${file}: ${ts.flattenDiagnosticMessageText(read.error.messageText, '\n')}`)
+    const { options } = ts.parseJsonConfigFileContent(read.config, ts.sys, dir)
+    jsx = options.jsx ?? jsx
+    jsxImportSource = options.jsxImportSource
+  }
+  return { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022, jsx, jsxImportSource }
+}
+
+/**
+ * The module specifiers a source file loads the moment it is imported: every
+ * static `import … from`, `export … from` and bare `import 'x'` left in the
+ * JavaScript TypeScript emits for it. Type-only imports and value imports used
+ * only as types are elided by the compiler; `import()` and `require()` are not
+ * counted, because they run only when the code holding them runs.
+ *
+ * @param text - Source text.
+ * @param fileName - File name (`.d.ts` emits nothing).
+ * @param compilerOptions - From {@link emitOptionsFor}.
+ * @returns The specifiers, in emitted order.
+ */
+export function loadTimeImports(
+  text,
+  fileName,
+  compilerOptions = {
+    module: ts.ModuleKind.ESNext,
+    target: ts.ScriptTarget.ES2022,
+    jsx: ts.JsxEmit.Preserve,
+  },
+) {
+  if (fileName.endsWith('.d.ts')) return []
+  const { outputText } = ts.transpileModule(text, {
+    fileName,
+    reportDiagnostics: false,
+    compilerOptions,
+  })
+  const js = ts.createSourceFile(
+    'emitted.js',
+    outputText,
+    ts.ScriptTarget.Latest,
+    false,
+    ts.ScriptKind.JS,
+  )
+  return js.statements
+    .filter(
+      (st) =>
+        (ts.isImportDeclaration(st) || ts.isExportDeclaration(st)) &&
+        st.moduleSpecifier &&
+        ts.isStringLiteral(st.moduleSpecifier),
+    )
+    .map((st) => st.moduleSpecifier.text)
+}
+
+/**
+ * Optional peers a package may load on start-up, each with the reason the app
+ * supplies the module some other way. Nothing else is exempt.
+ */
+export const OPTIONAL_PEERS_SUPPLIED_ELSEWHERE = {
+  '@molecule/app-ui-react-native': {
+    'react-native':
+      'react-native-web apps alias react-native to react-native-web in their bundler ' +
+      "(mlcl registry appFrameworks['react-native-web'].excludePeerDependencies), so the " +
+      'peer must not be installed there; native apps install react-native themselves.',
+  },
+}
+
+/**
+ * Find the peers a package marks optional but loads when it loads.
+ *
+ * @param pkg - The parsed package.json.
+ * @param imports - `{ specifier, file }` from {@link loadTimeImports} over its shipped source.
+ * @param exempt - Peers supplied some other way, by package name.
+ * @returns One entry per offending peer: `{ name, files }`.
+ */
+export function findOptionalPeersLoaded(pkg, imports, exempt = OPTIONAL_PEERS_SUPPLIED_ELSEWHERE) {
+  const supplied = exempt[pkg.name] ?? {}
+  const optional = new Set(
+    Object.entries(pkg.peerDependenciesMeta ?? {})
+      .filter(
+        ([name, meta]) =>
+          meta?.optional === true && name in (pkg.peerDependencies ?? {}) && !(name in supplied),
+      )
+      .map(([name]) => name),
+  )
+  const found = new Map()
+  for (const imp of imports) {
+    const name = packageNameOf(imp.specifier)
+    if (!name || !optional.has(name)) continue
+    found.set(name, (found.get(name) ?? new Set()).add(imp.file))
+  }
+  return [...found]
+    .map(([name, files]) => ({ name, files: [...files].sort() }))
+    .sort((a, b) => a.name.localeCompare(b.name))
+}
+
+/**
  * Collect shipped source files under a package's src dir.
  *
  * @param dir - Directory to walk.
@@ -228,22 +349,39 @@ function findPackages(dir, out = []) {
 /**
  * Scan the whole fleet.
  *
- * @returns One row per package with undeclared imports:
- *   `{ package, dir, missing }`.
+ * @param root - The monorepo root (its `packages/` is scanned).
+ * @returns One row per package with an offender:
+ *   `{ package, dir, missing, optionalLoaded }`.
  */
-export function scanFleet() {
+export function scanFleet(root = ROOT) {
   const rows = []
-  for (const dir of findPackages(join(ROOT, 'packages')).sort()) {
+  for (const dir of findPackages(join(root, 'packages')).sort()) {
     const pkg = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
     const srcRoot = join(dir, 'src')
-    const imports = collectSources(srcRoot, srcRoot).flatMap((file) =>
-      extractImports(readFileSync(file, 'utf8'), file).map((imp) => ({
-        ...imp,
-        file: relative(dir, file),
-      })),
+    const sources = collectSources(srcRoot, srcRoot).map((file) => ({
+      file: relative(dir, file),
+      text: readFileSync(file, 'utf8'),
+      path: file,
+    }))
+    const imports = sources.flatMap((s) =>
+      extractImports(s.text, s.path).map((imp) => ({ ...imp, file: s.file })),
     )
     const missing = findUndeclared(pkg, imports)
-    if (missing.length > 0) rows.push({ package: pkg.name, dir: relative(ROOT, dir), missing })
+    // Transpiling is the slow part, so only packages that mark a peer optional pay for it.
+    const marksOptional = Object.values(pkg.peerDependenciesMeta ?? {}).some(
+      (m) => m?.optional === true,
+    )
+    const emit = marksOptional ? emitOptionsFor(dir) : null
+    const optionalLoaded = marksOptional
+      ? findOptionalPeersLoaded(
+          pkg,
+          sources.flatMap((s) =>
+            loadTimeImports(s.text, s.path, emit).map((specifier) => ({ specifier, file: s.file })),
+          ),
+        )
+      : []
+    if (missing.length > 0 || optionalLoaded.length > 0)
+      rows.push({ package: pkg.name, dir: relative(root, dir), missing, optionalLoaded })
   }
   return rows
 }
@@ -254,12 +392,17 @@ if (isMain) {
   if (process.argv.includes('--json')) {
     console.log(JSON.stringify(rows, null, 2))
   } else if (rows.length === 0) {
-    console.log('✓ every package declares what its source imports')
+    console.log('✓ every package declares what its source imports, and loads no optional peer')
   } else {
     for (const row of rows) {
       for (const m of row.missing) {
         console.error(
           `✗ ${row.package} imports ${m.name}${m.typeOnly ? ' (types only)' : ''} without declaring it — ${m.files.join(', ')}`,
+        )
+      }
+      for (const m of row.optionalLoaded) {
+        console.error(
+          `✗ ${row.package} marks peer ${m.name} optional but loads it on start-up — ${m.files.join(', ')}`,
         )
       }
     }

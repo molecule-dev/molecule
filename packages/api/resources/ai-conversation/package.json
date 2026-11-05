@@ -45,16 +45,7 @@
     "@molecule/api-locales-ai-conversation": "^1.0.1"
   },
   "peerDependenciesMeta": {
-    "@molecule/api-ai": {
-      "optional": true
-    },
     "@molecule/api-resource": {
-      "optional": true
-    },
-    "@molecule/api-database": {
-      "optional": true
-    },
-    "@molecule/api-logger": {
       "optional": true
     }
   },

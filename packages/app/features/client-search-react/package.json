@@ -54,10 +54,5 @@
   },
   "publishConfig": {
     "access": "public"
-  },
-  "peerDependenciesMeta": {
-    "@molecule/app-storage": {
-      "optional": true
-    }
   }
 }

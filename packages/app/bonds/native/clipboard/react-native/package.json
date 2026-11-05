@@ -50,12 +50,6 @@
     "@molecule/app-clipboard": {
       "optional": true
     },
-    "@molecule/app-i18n": {
-      "optional": true
-    },
-    "@molecule/app-logger": {
-      "optional": true
-    },
     "@react-native-clipboard/clipboard": {
       "optional": true
     }

@@ -45,9 +45,6 @@
     "@molecule/app-code-editor": {
       "optional": true
     },
-    "@molecule/app-i18n": {
-      "optional": true
-    },
     "@molecule/app-logger": {
       "optional": true
     }

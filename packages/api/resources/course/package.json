@@ -52,15 +52,6 @@
   "peerDependenciesMeta": {
     "@molecule/api-resource": {
       "optional": true
-    },
-    "@molecule/api-database": {
-      "optional": true
-    },
-    "@molecule/api-i18n": {
-      "optional": true
-    },
-    "@molecule/api-locales-resource-course": {
-      "optional": true
     }
   }
 }

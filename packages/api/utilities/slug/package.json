@@ -45,10 +45,5 @@
   },
   "peerDependencies": {
     "@molecule/api-database": "^1.0.1"
-  },
-  "peerDependenciesMeta": {
-    "@molecule/api-database": {
-      "optional": true
-    }
   }
 }

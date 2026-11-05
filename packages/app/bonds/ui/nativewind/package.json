@@ -53,9 +53,6 @@
     },
     "@molecule/app-ui": {
       "optional": true
-    },
-    "@molecule/app-ui-tailwind": {
-      "optional": true
     }
   }
 }

@@ -48,12 +48,6 @@
     "@react-native-community/netinfo": ">=9.0.0"
   },
   "peerDependenciesMeta": {
-    "@molecule/app-i18n": {
-      "optional": true
-    },
-    "@molecule/app-logger": {
-      "optional": true
-    },
     "@molecule/app-network": {
       "optional": true
     },

@@ -48,12 +48,6 @@
     "@react-native-async-storage/async-storage": "^2.0.0"
   },
   "peerDependenciesMeta": {
-    "@molecule/app-i18n": {
-      "optional": true
-    },
-    "@molecule/app-logger": {
-      "optional": true
-    },
     "@molecule/app-storage": {
       "optional": true
     },

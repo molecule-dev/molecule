@@ -49,12 +49,6 @@
     "@molecule/api-resource": {
       "optional": true
     },
-    "@molecule/api-database": {
-      "optional": true
-    },
-    "@molecule/api-logger": {
-      "optional": true
-    },
     "@molecule/api-permissions": {
       "optional": true
     }
