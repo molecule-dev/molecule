@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.16.6
+
+### Patch Changes
+
+- Avoid misleading log-growth claims when briefly checking a background task's state.
+
 ## 1.16.5
 
 ### Patch Changes

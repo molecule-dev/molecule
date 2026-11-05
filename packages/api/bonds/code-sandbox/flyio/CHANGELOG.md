@@ -1,5 +1,11 @@
 # @molecule/api-code-sandbox-flyio
 
+## 1.4.0
+
+### Minor Changes
+
+- Activate a prepared sandbox command and idle policy together.
+
 ## 1.3.9
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/api-code-sandbox
 
+## 1.7.0
+
+### Minor Changes
+
+- Activate a prepared sandbox command and idle policy together.
+
 ## 1.6.1
 
 ### Patch Changes
