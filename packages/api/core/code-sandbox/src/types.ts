@@ -808,6 +808,18 @@ export interface SandboxProvider {
    */
   readonly defaultIdleAction?: SandboxIdleAction
 
+  /**
+   * Atomically install a prepared sandbox's startup command and steady idle policy, then start
+   * it and wait until it is running. A running sandbox may reboot. Its former command must not
+   * run the prepared workload: the new command can only execute with the new policy applied.
+   * Parked sandboxes are woken explicitly. Repeating identical options must not reboot again.
+   * Optional; callers without it retain their ordinary copy/policy/start sequence.
+   */
+  activate?(
+    id: string,
+    options: { command: string[]; idleAction: SandboxIdleAction },
+  ): Promise<void>
+
   create(config: SandboxConfig): Promise<Sandbox>
   get(id: string): Promise<Sandbox | null>
 

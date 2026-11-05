@@ -564,6 +564,7 @@ describe('create — Machine configuration', () => {
 
     const waitsBefore = double.matching(`GET /apps/${APP}/machines/m1/wait`).length
     await sandbox.setIdleAction?.('suspend')
+    expect(sandbox.status).toBe('sleeping')
 
     const body = double.matching(`POST /apps/${APP}/machines/m1`)[0].body as {
       skip_launch?: boolean
@@ -2473,6 +2474,135 @@ describe('exec — the two transient 412s (dropped connection; "machine not runn
     // The dropped connection needs no state at all — the body is the proof.
     expect(isTransientExecPrecondition(new FlyApiError('POST', '/x/exec', 412, EXEC_EOF))).toBe(
       true,
+    )
+  })
+})
+
+describe('activate — command and idle policy in one Machine update', () => {
+  it.each(['started', 'suspended'])(
+    'activates a %s prepared Machine without a separate empty reboot',
+    async (state) => {
+      const double = queueCreate(createFetchDouble())
+      const provider = makeProvider({ autostop: 'suspend' }, double)
+      const sandbox = await provider.create({
+        projectId: PROJECT_ID,
+        idleAction: 'off',
+        command: ['sleep', 'infinity'],
+      })
+      double.on(`GET /apps/${APP}/machines/m1`, {
+        body: {
+          id: 'm1',
+          state,
+          config: {
+            image: 'test-image',
+            env: { KEEP: 'yes' },
+            mounts: [{ volume: 'vol', path: '/workspace' }],
+            init: {
+              exec: ['sleep', 'infinity'],
+              cmd: ['old'],
+              entrypoint: ['old-entry'],
+              tty: true,
+            },
+            services: [
+              {
+                protocol: 'tcp',
+                internal_port: 4000,
+                ports: [],
+                autostop: 'off',
+                autostart: true,
+                min_machines_running: 0,
+              },
+            ],
+          },
+        },
+      })
+      const command = ['/bin/sh', '/workspace/.mol/boot.sh']
+      // The legacy caller is the known-bad control: it can change the idle policy and start the
+      // Machine, but cannot make that update boot the prepared workload.
+      if (provider.activate) await provider.activate(sandbox.id, { command, idleAction: 'suspend' })
+      else {
+        await sandbox.setIdleAction?.('suspend')
+        await sandbox.start()
+      }
+      const updates = double
+        .matching(`POST /apps/${APP}/machines/m1`)
+        .filter((c) => c.path === `/apps/${APP}/machines/m1`)
+      expect(updates).toHaveLength(1)
+      const body = updates[0].body as {
+        config: {
+          init: { exec: string[]; cmd?: string[]; entrypoint?: string[]; tty?: boolean }
+          env: unknown
+          mounts: unknown
+          services: Array<{ autostop: string; min_machines_running: number }>
+        }
+        skip_launch?: boolean
+      }
+      expect(body.config.init.exec).toEqual(command)
+      expect(body.config.init.cmd).toBeUndefined()
+      expect(body.config.init.entrypoint).toBeUndefined()
+      expect(body.config.init.tty).toBe(true)
+      expect(body.config.env).toEqual({ KEEP: 'yes' })
+      expect(body.config.mounts).toEqual([{ volume: 'vol', path: '/workspace' }])
+      expect(body.config.services[0]).toMatchObject({
+        autostop: 'suspend',
+        min_machines_running: 0,
+      })
+      expect(body.skip_launch).toBe(state === 'suspended' ? true : undefined)
+      expect(double.matching(`POST /apps/${APP}/machines/m1/start`)).toHaveLength(1)
+    },
+  )
+
+  it('does not reboot an already activated command and policy', async () => {
+    const double = queueCreate(createFetchDouble())
+    const provider = makeProvider({ autostop: 'suspend' }, double)
+    const sandbox = await provider.create({ projectId: PROJECT_ID })
+    const command = ['/bin/sh', '/workspace/.mol/boot.sh']
+    double.on(`GET /apps/${APP}/machines/m1`, {
+      body: {
+        id: 'm1',
+        state: 'started',
+        config: {
+          init: { exec: command },
+          services: [{ protocol: 'tcp', internal_port: 4000, ports: [], autostop: 'suspend' }],
+        },
+      },
+    })
+    if (provider.activate) await provider.activate(sandbox.id, { command, idleAction: 'suspend' })
+    else {
+      await sandbox.setIdleAction?.('suspend')
+      await sandbox.start()
+    }
+    expect(
+      double.calls.filter((c) => c.method === 'POST' && c.path === `/apps/${APP}/machines/m1`),
+    ).toHaveLength(0)
+  })
+
+  it('changes the command even if the policy already matches', async () => {
+    const double = queueCreate(createFetchDouble())
+    const provider = makeProvider({ autostop: 'suspend' }, double)
+    const sandbox = await provider.create({ projectId: PROJECT_ID })
+    double.on(`GET /apps/${APP}/machines/m1`, {
+      body: {
+        id: 'm1',
+        state: 'started',
+        config: {
+          init: { exec: ['sleep', 'infinity'] },
+          services: [{ protocol: 'tcp', internal_port: 4000, ports: [], autostop: 'suspend' }],
+        },
+      },
+    })
+    const command = ['/bin/sh', '/workspace/.mol/boot.sh']
+    if (provider.activate) await provider.activate(sandbox.id, { command, idleAction: 'suspend' })
+    else {
+      await sandbox.setIdleAction?.('suspend')
+      await sandbox.start()
+    }
+    const updates = double.calls.filter(
+      (c) => c.method === 'POST' && c.path === `/apps/${APP}/machines/m1`,
+    )
+    expect(updates).toHaveLength(1)
+    expect((updates[0].body as { config: { init: { exec: string[] } } }).config.init.exec).toEqual(
+      command,
     )
   })
 })

@@ -4058,6 +4058,22 @@ class FlyioSandboxProvider implements SandboxProvider {
   }
 
   /**
+   * Activate an already populated Machine with one full-config update: startup command and idle
+   * policy change together. The former command keeps the workload stopped, so the update's reboot
+   * is the workload's first boot. Fly preserves parked Machines with skip_launch; startMachine
+   * explicitly wakes those and waits, and is idempotent after a running Machine's update.
+   */
+  async activate(
+    id: string,
+    options: { command: string[]; idleAction: SandboxIdleAction },
+  ): Promise<void> {
+    if (!options.command.length) throw new Error('A sandbox activation needs a startup command')
+    const { app, machineId } = parseSandboxId(id)
+    await this.applyIdleAction(app, machineId, options.idleAction, options.command)
+    await this.startMachine(app, machineId)
+  }
+
+  /**
    * Applies an idle policy to a running Machine's public service, in place.
    *
    * Fly's update endpoint takes the ENTIRE Machine config — "we don't support
@@ -4077,6 +4093,7 @@ class FlyioSandboxProvider implements SandboxProvider {
    * @param app - The Fly app name.
    * @param machineId - The Fly Machine id.
    * @param action - The idle action to apply to every service.
+   * @param command - An activation command installed in the SAME update as the policy.
    * @throws {Error} When the Machine or its config cannot be read, the update is
    *   rejected, or a rebooted Machine does not come back to `started`.
    */
@@ -4084,7 +4101,8 @@ class FlyioSandboxProvider implements SandboxProvider {
     app: string,
     machineId: string,
     action: SandboxIdleAction,
-  ): Promise<void> {
+    command?: string[],
+  ): Promise<Sandbox['status']> {
     const machine = await this.client.request<FlyMachine>(`/apps/${app}/machines/${machineId}`, {
       nullOn: [404],
     })
@@ -4102,12 +4120,22 @@ class FlyioSandboxProvider implements SandboxProvider {
       )
     }
     const services = machine.config.services
-    if (!services?.length) return
-    if (services.every((service) => (service.autostop ?? 'off') === action)) return
+    const samePolicy =
+      !services?.length || services.every((service) => (service.autostop ?? 'off') === action)
+    const sameCommand =
+      !command || JSON.stringify(machine.config.init?.exec) === JSON.stringify(command)
+    if (samePolicy && sameCommand) return mapMachineState(machine.state ?? 'created')
 
     const config: FlyMachineConfig = {
       ...machine.config,
-      services: services.map((service) => ({ ...service, autostop: action })),
+      ...(services
+        ? { services: services.map((service) => ({ ...service, autostop: action })) }
+        : {}),
+    }
+    if (command) {
+      config.init = { ...machine.config.init, exec: [...command] }
+      delete config.init.entrypoint
+      delete config.init.cmd
     }
     // A running Machine reboots to apply the config, so wait for it; a parked
     // one is updated without being started (there is nothing to wait for).
@@ -4124,6 +4152,7 @@ class FlyioSandboxProvider implements SandboxProvider {
       },
     })
     if (wasRunning) await this.waitForStarted(app, machineId)
+    return wasRunning ? 'running' : mapMachineState(machine.state ?? 'created')
   }
 
   /**
@@ -4179,11 +4208,10 @@ class FlyioSandboxProvider implements SandboxProvider {
       /**
        * Applies an idle policy to this Machine's public service (see
        * {@link FlyioSandboxProvider.applyIdleAction} for the endpoint and the
-       * reboot it costs). Resolves with the Machine running again.
+       * reboot it costs). A parked Machine stays parked; a rebooted Machine is running again.
        */
       async setIdleAction(action: SandboxIdleAction): Promise<void> {
-        await provider.applyIdleAction(app, machineId, action)
-        this.status = 'running'
+        this.status = await provider.applyIdleAction(app, machineId, action)
       },
 
       async exec(command: string, opts?: ExecOptions): Promise<ExecResult> {
