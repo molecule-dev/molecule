@@ -1,5 +1,11 @@
 # @molecule/app-routing-react-router
 
+## 1.2.2
+
+### Patch Changes
+
+- Allow routing hooks to work inside any React Router router without MoleculeRouterProvider.
+
 ## 1.2.1
 
 ### Patch Changes
