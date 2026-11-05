@@ -4,6 +4,14 @@
  * This package provides a React Router implementation of the molecule Router interface,
  * allowing you to use molecule's routing abstractions with React Router.
  *
+ * `useMoleculeRouter`, `useMoleculeQuery`, `useMoleculeNavigate`, and `useIsActive`
+ * work inside any React Router router (BrowserRouter, HashRouter, MemoryRouter,
+ * Router, or RouterProvider), from this package or React Router itself. No
+ * MoleculeRouterProvider is required for these hooks. Mount MoleculeRouterProvider
+ * only to bond the adapter for non-React `@molecule/app-routing` navigate()/getRouter(),
+ * supply named routes, or receive onRouterReady. Hook-created adapters remain local
+ * so multiple consumers cannot overwrite the global router bond.
+ *
  * **Paginated or filtered page? Use `useListRoute` for its URL state.** It reads
  * page, filters and selected views from the current URL; builds links that retain
  * the current path/filters; and resets page when a filter or view changes. Declare
@@ -16,6 +24,7 @@
  * import { BrowserRouter, MoleculeRouterProvider } from '@molecule/app-routing-react-router'
  *
  * function App() {
+ *   // Optional: include this provider for non-React navigation or named routes.
  *   // MoleculeRouterProvider bonds the adapter automatically (calls setRouter in an
  *   // effect on mount), so @molecule/app-routing's navigate()/getRouter() drive THIS
  *   // real React Router — no manual setRouter wiring needed.
@@ -135,7 +144,7 @@
  * - **Do NOT wire the exported `provider` const** in a React Router app — it is a
  *   no-hooks fallback (empty params, `window.location.href` navigation). Use
  *   `MoleculeRouterProvider` (or `createReactRouter` with hook values) instead.
- * - The provider must live INSIDE `<BrowserRouter>` (it calls React Router hooks).
+ * - The provider must live INSIDE a React Router router (it calls React Router hooks).
  * - **Import router components from this bond, never directly from React Router.**
  *   Its wrappers turn transitions off, so a navigation renders the new route in the
  *   same commit as the URL change. Import non-router APIs (`Routes`, `Route`, `Link`,

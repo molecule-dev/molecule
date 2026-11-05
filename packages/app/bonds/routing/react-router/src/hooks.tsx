@@ -16,7 +16,13 @@ import React, {
   useRef,
   useState,
 } from 'react'
-import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router'
+import {
+  useInRouterContext,
+  useLocation,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from 'react-router'
 
 import { t } from '@molecule/app-i18n'
 import { setRouter } from '@molecule/app-routing'
@@ -56,7 +62,8 @@ export interface MoleculeRouterProviderProps {
  * Bonding happens in an effect on mount (and again whenever the location/params
  * change), so `@molecule/app-routing`'s `navigate()`/`getRouter()` drive THIS real
  * React Router adapter — no manual `setRouter` wiring required. Mount it once inside
- * `<BrowserRouter>`.
+ * any React Router router when non-React code needs the bond, named routes are
+ * configured, or `onRouterReady` is needed. The routing hooks work without this provider.
  *
  * @param props - The provider props (see {@link MoleculeRouterProviderProps}):
  *   `children` (rendered inside the router context), `routes` (optional named-route
@@ -119,10 +126,17 @@ export function MoleculeRouterProvider(props: MoleculeRouterProviderProps): Reac
 }
 
 /**
- * Hook to get the molecule Router.
+ * Hook to get the molecule Router inside any React Router router, including
+ * BrowserRouter, HashRouter, MemoryRouter, Router, or RouterProvider from this
+ * package or React Router itself. No MoleculeRouterProvider is required.
+ *
+ * When MoleculeRouterProvider is mounted, returns its exact router with its named
+ * routes. Otherwise creates a local adapter from React Router's hooks without
+ * bonding it globally. Mount MoleculeRouterProvider for the non-React
+ * `@molecule/app-routing` navigate()/getRouter() bond or onRouterReady.
  *
  * @returns The molecule Router instance
- * @throws {Error} If used outside MoleculeRouterProvider.
+ * @throws {Error} If used outside a React Router router; mount a router component.
  *
  * @example
  * ```tsx
@@ -139,18 +153,31 @@ export function MoleculeRouterProvider(props: MoleculeRouterProviderProps): Reac
  */
 export function useMoleculeRouter(): Router {
   const router = useContext(MoleculeRouterContext)
-  if (!router) {
+  const inRouter = useInRouterContext()
+  if (!inRouter) {
     throw new Error(
-      t('routing.error.useMoleculeRouterOutsideProvider', undefined, {
-        defaultValue: 'useMoleculeRouter must be used within a MoleculeRouterProvider',
+      t('routing.error.useMoleculeRouterOutsideRouter', undefined, {
+        defaultValue:
+          'useMoleculeRouter must be used within a React Router router. Mount BrowserRouter, HashRouter, MemoryRouter, Router, or RouterProvider.',
       }),
     )
   }
-  return router
+
+  // Always call the React Router hooks, including when the provider supplies the
+  // adapter. The guard above throws only for an invalid render outside any router.
+  const navigate = useNavigate()
+  const location = useLocation()
+  const params = useParams()
+  return useMemo(
+    () => router ?? createReactRouter({ navigate, location, params }),
+    [router, navigate, location, params],
+  )
 }
 
 /**
- * Hook to check if a path is currently active.
+ * Hook to check if a path is currently active inside any React Router router.
+ * MoleculeRouterProvider is optional; mount it only for named routes, the
+ * non-React navigate()/getRouter() bond, or onRouterReady.
  *
  * @param path - Path to check
  * @param exact - Whether to require exact match
@@ -176,7 +203,9 @@ export function useIsActive(path: string, exact?: boolean): boolean {
 }
 
 /**
- * Hook to get a navigate function with molecule Router options.
+ * Hook to get a navigate function with molecule Router options inside any React
+ * Router router. MoleculeRouterProvider is optional; mount it only for named
+ * routes, the non-React navigate()/getRouter() bond, or onRouterReady.
  *
  * @returns Navigate function
  *
@@ -198,7 +227,9 @@ export function useMoleculeNavigate(): Router['navigate'] {
 }
 
 /**
- * Hook to get current query params as an object.
+ * Hook to get current query params as an object inside any React Router router.
+ * MoleculeRouterProvider is optional; mount it only for named routes, the
+ * non-React navigate()/getRouter() bond, or onRouterReady.
  *
  * @returns Query params object
  *
