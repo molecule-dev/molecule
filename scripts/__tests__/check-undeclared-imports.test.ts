@@ -146,6 +146,47 @@ describe('findUndeclared', () => {
 })
 
 describe('loadTimeImports', () => {
+  it.each([
+    'const core = require("@molecule/api-core"); module.exports = core;',
+    'const core = __importStar(require("@molecule/api-core"));',
+    'const core = await import("@molecule/api-core");',
+  ])('rejects an optional peer loaded by an eager call: %s', (source) => {
+    expect(loadTimeImports(source, 'built.mts')).toEqual(['@molecule/api-core'])
+  })
+
+  it('keeps feature-guarded and caught calls optional', () => {
+    expect(
+      loadTimeImports(
+        [
+          'if (enabled) require("feature");',
+          'try { require("fallback") } catch {}',
+          'const lazy = () => require("lazy");',
+          'const optional = await import("optional").then(m => m, () => undefined);',
+        ].join('\n'),
+        'optional.ts',
+      ),
+    ).toEqual([])
+  })
+
+  it('respects a package that preserves unused value imports', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'verbatim-imports-'))
+    try {
+      writeFileSync(
+        join(dir, 'tsconfig.json'),
+        JSON.stringify({ compilerOptions: { verbatimModuleSyntax: true } }),
+      )
+      expect(
+        loadTimeImports(
+          "import { Shape } from 'runtime-peer'; export let shape: Shape",
+          'index.ts',
+          emitOptionsFor(dir),
+        ),
+      ).toEqual(['runtime-peer'])
+    } finally {
+      rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
   it('keeps what the emitted JavaScript loads and drops what the compiler elides', () => {
     const src = [
       "import { isConfigNotConfiguredError } from '@molecule/api-payments'",

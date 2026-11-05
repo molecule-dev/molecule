@@ -27,7 +27,7 @@
  *   or bare `import 'x'` of it may survive in the JavaScript TypeScript emits.
  *   Type-only imports, and value imports used only as types, are elided by the
  *   compiler and are fine; `import()` and `require()` run only when the code
- *   holding them runs, which is how a peer stays optional. npm, pnpm and Yarn
+ *   holding them runs. Unguarded top-level calls load the peer at start-up. npm, pnpm and Yarn
  *   never install an optional peer, and production installers that skip peers
  *   leave it out, so a load-time import of one crashes the app on start-up.
  *
@@ -50,6 +50,8 @@ import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
 import ts from 'typescript'
+
+import { moduleImports } from './lib/module-imports.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const EXT = new Set(['.ts', '.tsx', '.mts', '.cts'])
@@ -211,6 +213,7 @@ export function emitOptionsFor(dir) {
   const file = join(dir, 'tsconfig.json')
   let jsx = ts.JsxEmit.Preserve
   let jsxImportSource
+  let verbatimModuleSyntax
   if (existsSync(file)) {
     const read = ts.readConfigFile(file, ts.sys.readFile)
     if (read.error)
@@ -218,16 +221,24 @@ export function emitOptionsFor(dir) {
     const { options } = ts.parseJsonConfigFileContent(read.config, ts.sys, dir)
     jsx = options.jsx ?? jsx
     jsxImportSource = options.jsxImportSource
+    verbatimModuleSyntax = options.verbatimModuleSyntax
   }
-  return { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022, jsx, jsxImportSource }
+  return {
+    module: ts.ModuleKind.ESNext,
+    target: ts.ScriptTarget.ES2022,
+    jsx,
+    jsxImportSource,
+    verbatimModuleSyntax,
+  }
 }
 
 /**
  * The module specifiers a source file loads the moment it is imported: every
  * static `import … from`, `export … from` and bare `import 'x'` left in the
  * JavaScript TypeScript emits for it. Type-only imports and value imports used
- * only as types are elided by the compiler; `import()` and `require()` are not
- * counted, because they run only when the code holding them runs.
+ * only as types are elided unless the package preserves value imports.
+ * Unguarded top-level import()/require() calls are eager too. Function bodies
+ * and feature-guarded or caught calls remain optional.
  *
  * @param text - Source text.
  * @param fileName - File name (`.d.ts` emits nothing).
@@ -249,21 +260,7 @@ export function loadTimeImports(
     reportDiagnostics: false,
     compilerOptions,
   })
-  const js = ts.createSourceFile(
-    'emitted.js',
-    outputText,
-    ts.ScriptTarget.Latest,
-    false,
-    ts.ScriptKind.JS,
-  )
-  return js.statements
-    .filter(
-      (st) =>
-        (ts.isImportDeclaration(st) || ts.isExportDeclaration(st)) &&
-        st.moduleSpecifier &&
-        ts.isStringLiteral(st.moduleSpecifier),
-    )
-    .map((st) => st.moduleSpecifier.text)
+  return [...moduleImports(outputText, ts).eager]
 }
 
 /**
@@ -273,9 +270,9 @@ export function loadTimeImports(
 export const OPTIONAL_PEERS_SUPPLIED_ELSEWHERE = {
   '@molecule/app-ui-react-native': {
     'react-native':
-      'react-native-web apps alias react-native to react-native-web in their bundler ' +
-      "(mlcl registry appFrameworks['react-native-web'].excludePeerDependencies), so the " +
-      'peer must not be installed there; native apps install react-native themselves.',
+      'Web scaffolds alias react-native to their generated DOM shim ' +
+      "(mlcl registry appFrameworks['react-native-web'].viteExtraConfig); " +
+      "native scaffolds declare appFrameworks['react-native'].dependencies['react-native'].",
   },
 }
 
