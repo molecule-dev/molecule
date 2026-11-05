@@ -32,7 +32,7 @@ import type {
   VolumeInfo,
 } from '@molecule/api-code-sandbox'
 
-import { afterSnapshots, withSnapshotGate } from './snapshot-gate.js'
+import { afterSnapshots, observeSnapshotListing, withSnapshotGate } from './snapshot-gate.js'
 import type {
   E2BCommandHandleLike,
   E2BCommandResultLike,
@@ -1618,7 +1618,7 @@ export class E2BSandboxProvider implements SandboxProvider {
    */
   async list(_userId: string): Promise<Sandbox[]> {
     const client = await this.client()
-    const running = await client.list({})
+    const { value: running, snapshotIds } = await observeSnapshotListing(() => client.list({}))
     const items = Array.isArray(running) ? running : (running.sandboxes ?? [])
     // All the per-sandbox connects are issued through a bounded-concurrency
     // window, not one awaited after the next: each handle is a full connect
@@ -1633,10 +1633,10 @@ export class E2BSandboxProvider implements SandboxProvider {
       // connecting, and connecting resumes it. Enumerating an account would
       // otherwise wake — and start billing — every hibernated project on it.
       if (it.state === 'paused') {
-        // A snapshot can make a running sandbox appear paused in the listing.
-        // Re-read after its gate settles; a truly paused sandbox stays untouched.
-        if (!client.getInfo || (await this.describe(it.sandboxId))?.status !== 'running')
-          return null
+        // Re-read only rows a local snapshot could have made transiently paused.
+        // An ordinary paused sandbox must retain the no-info-read behavior.
+        if (!snapshotIds.has(it.sandboxId) || !client.getInfo) return null
+        if ((await this.describe(it.sandboxId))?.status !== 'running') return null
       }
       // `false`: no deadline reset. A poll is not an activity signal.
       return this.connectHandle(it.sandboxId, false)

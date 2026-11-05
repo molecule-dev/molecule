@@ -574,12 +574,38 @@ describe('all sandbox SDK entry points', () => {
     expect(w.refused).toEqual([])
   })
 
-  it('does not resume a genuinely paused sandbox found by list', async () => {
+  it('does not inspect or resume a genuinely paused sandbox when no local snapshot ran', async () => {
     const w = world()
     w.client.list = async () => [{ sandboxId: 'asleep', state: 'paused' }]
-    w.client.getInfo = async (sandboxId) => ({ sandboxId, state: 'paused' })
-    expect(await w.provider.list('owner')).toEqual([])
+    const getInfo = vi.fn(async () => {
+      throw new Error('info endpoint unavailable')
+    })
+    w.client.getInfo = getInfo
+    const result = await w.provider.list('owner').then(
+      (value) => ({ value }),
+      (error) => ({ error }),
+    )
+    expect(result).toEqual({ value: [] })
+    expect(getInfo).not.toHaveBeenCalled()
     expect(w.served).toEqual([])
+  })
+
+  it('rechecks a snapshot pause even when the snapshot starts and settles during the listing', async () => {
+    const w = world()
+    const list = w.client.list
+    w.client.list = async (options) => {
+      const commit = w.provider.commitTemplate({ sandboxId: 'sbx-a', templateId: 'cache' })
+      await w.snapshotStarted('sbx-a')
+      const rows = await list(options)
+      w.finish('sbx-a')
+      await commit
+      return rows
+    }
+    expect((await w.provider.list('owner')).map((sandbox) => sandbox.id)).toEqual([
+      'sbx-a',
+      'sbx-b',
+    ])
+    expect(w.refused).toEqual([])
   })
 })
 

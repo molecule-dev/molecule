@@ -10,6 +10,8 @@
 
 /** The current snapshot for each sandbox, settled without rejecting. */
 const inFlight = new Map<string, Promise<void>>()
+/** Snapshot IDs seen by account listings that are currently in flight. */
+const listingSnapshots = new Set<Set<string>>()
 /** Bound time spent waiting, without pretending an unfinished snapshot ended. */
 const SNAPSHOT_WAIT_MS = 60_000
 
@@ -76,6 +78,26 @@ export async function afterSnapshots<T>(sandboxId: string, call: () => Promise<T
 }
 
 /**
+ * Remember which sandboxes might appear transiently paused in an account read,
+ * including snapshots that both start and finish before its response arrives.
+ * Other paused rows retain their normal no-connect, no-info-read behavior.
+ *
+ * @param read - Starts the account listing.
+ * @returns Its value and sandbox IDs involved in local snapshots during the read.
+ */
+export async function observeSnapshotListing<T>(
+  read: () => Promise<T>,
+): Promise<{ value: T; snapshotIds: ReadonlySet<string> }> {
+  const snapshotIds = new Set(inFlight.keys())
+  listingSnapshots.add(snapshotIds)
+  try {
+    return { value: await read(), snapshotIds }
+  } finally {
+    listingSnapshots.delete(snapshotIds)
+  }
+}
+
+/**
  * Serialize snapshots of one sandbox and hold its new calls until work settles.
  * The callback must use the SDK directly, rather than wait on its own gate.
  *
@@ -93,6 +115,7 @@ export function withSnapshotGate<T>(sandboxId: string, take: () => Promise<T>): 
       },
     )
     inFlight.set(sandboxId, settled)
+    for (const ids of listingSnapshots) ids.add(sandboxId)
     void settled.then(() => {
       if (inFlight.get(sandboxId) === settled) inFlight.delete(sandboxId)
     })
