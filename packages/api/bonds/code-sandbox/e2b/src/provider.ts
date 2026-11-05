@@ -32,7 +32,7 @@ import type {
   VolumeInfo,
 } from '@molecule/api-code-sandbox'
 
-import { snapshotsSettled, withSnapshotGate } from './snapshot-gate.js'
+import { afterSnapshots, withSnapshotGate } from './snapshot-gate.js'
 import type {
   E2BCommandHandleLike,
   E2BCommandResultLike,
@@ -505,16 +505,13 @@ class E2BSandbox implements Sandbox {
   }
 
   /**
-   * The live SDK instance, once no snapshot this process is taking of the
-   * sandbox is in flight: a call that reaches E2B during a snapshot is refused
-   * as "sandbox not found" (see `snapshot-gate.ts`). Every call into the
-   * sandbox goes through here.
+   * Issue an SDK call atomically with its snapshot-gate check.
    *
-   * @returns The SDK sandbox to call.
+   * @param call - Starts the request using the latest SDK handle.
+   * @returns The SDK result, without replaying a request that already started.
    */
-  private async live(): Promise<E2BSandboxLike> {
-    await snapshotsSettled(this.id)
-    return this.sbx
+  private call<T>(call: (sbx: E2BSandboxLike) => Promise<T>): Promise<T> {
+    return afterSnapshots(this.id, () => call(this.sbx))
   }
 
   /** Resume the sandbox (E2B has no separate cold start). */
@@ -554,16 +551,16 @@ class E2BSandbox implements Sandbox {
   async hibernate(): Promise<HibernationOutcome> {
     // Prefer the supported method; `betaPause` is its deprecated alias and
     // delegates to the same endpoint.
-    const sbx = await this.live()
-    const pause = sbx.pause ?? sbx.betaPause
-    if (!pause) {
-      throw new Error(
-        'hibernate: this e2b SDK build exposes neither pause() nor betaPause(); the sandbox is still running',
-      )
-    }
-    // `false` means the API answered 409 — it was already paused. That is the
-    // requested end state, so it is a success, just not one this call caused.
-    const paused = await pause.call(sbx)
+    const paused = await this.call((sbx) => {
+      const pause = sbx.pause ?? sbx.betaPause
+      if (!pause) {
+        throw new Error(
+          'hibernate: this e2b SDK build exposes neither pause() nor betaPause(); the sandbox is still running',
+        )
+      }
+      // `false` means it was already paused, which is the requested end state.
+      return pause.call(sbx)
+    })
     this.status = 'sleeping'
     // E2B pause snapshots FS + memory, so the process tree survives resume.
     return {
@@ -581,8 +578,9 @@ class E2BSandbox implements Sandbox {
   async resume(): Promise<HibernationOutcome> {
     // Reconnect resolves a fresh live instance for the same id (a no-op if it is
     // already running); swap it in so subsequent calls hit the live sandbox.
-    await snapshotsSettled(this.id)
-    this.sbx = await this.client.connect(this.id, { timeoutMs: this.timeoutMs })
+    this.sbx = await afterSnapshots(this.id, () =>
+      this.client.connect(this.id, { timeoutMs: this.timeoutMs }),
+    )
     this.status = 'running'
     this.previewUrl = this.getPreviewUrl()
     return { processesPreserved: true, mechanism: 'resume' }
@@ -661,12 +659,15 @@ class E2BSandbox implements Sandbox {
    */
   private async isProcessAlive(pid: number): Promise<boolean> {
     try {
-      const probe = await (
-        await this.live()
-      ).commands.run(`kill -0 ${Math.floor(pid)} 2>/dev/null && echo MOL_ALIVE || echo MOL_GONE`, {
-        timeoutMs: 10_000,
-        background: true,
-      })
+      const probe = await this.call((sbx) =>
+        sbx.commands.run(
+          `kill -0 ${Math.floor(pid)} 2>/dev/null && echo MOL_ALIVE || echo MOL_GONE`,
+          {
+            timeoutMs: 10_000,
+            background: true,
+          },
+        ),
+      )
       const result = await probe.wait()
       return !result.stdout.includes('MOL_GONE')
     } catch (_error) {
@@ -708,14 +709,14 @@ class E2BSandbox implements Sandbox {
     // Verified live against E2B: a `nohup … >log 2>&1 &` launch returns in
     // ~200 ms with the child still running, and its deadline does not kill it.
     try {
-      const handle = await (
-        await this.live()
-      ).commands.run(command, {
-        cwd: opts?.cwd,
-        timeoutMs: opts?.timeout,
-        envs: opts?.env,
-        background: true,
-      })
+      const handle = await this.call((sbx) =>
+        sbx.commands.run(command, {
+          cwd: opts?.cwd,
+          timeoutMs: opts?.timeout,
+          envs: opts?.env,
+          background: true,
+        }),
+      )
       // The core contract is RETURN, not throw: a non-zero exit is data
       // (`exitCode`), not an error — control-plane code reads it to decide
       // (install sentinels, health probes, existence checks). E2B raises
@@ -796,59 +797,65 @@ class E2BSandbox implements Sandbox {
     let handle: E2BCommandHandleLike
     let resize: ((size: { cols: number; rows: number }) => void) | undefined
 
-    const sbx = await this.live()
+    const pty = this.sbx.pty
     if (opts?.pty) {
-      const pty = sbx.pty
+      const size = opts.pty
       if (!pty) {
         throw new Error('E2B SDK build does not expose a pty module; cannot spawn a terminal')
       }
       const decoder = new TextDecoder()
-      handle = await pty.create({
-        cols: opts.pty.cols,
-        rows: opts.pty.rows,
-        cwd: opts.cwd,
-        envs: { ...opts.env, MOL_CODE_SANDBOX_PTY_COMMAND: command },
-        // A terminal must outlive the default 60 s command deadline; the caller
-        // decides how long a session may sit idle.
-        timeoutMs: opts.timeout ?? DEFAULT_PTY_TIMEOUT_MS,
-        // A PTY merges stderr into the terminal stream by definition — there is
-        // one file descriptor, which is why a terminal shows them interleaved.
-        onData: (data) =>
-          emit(stdoutListeners, stdoutBacklog, decoder.decode(data, { stream: true })),
-      })
+      handle = await afterSnapshots(this.id, () =>
+        pty.create({
+          cols: size.cols,
+          rows: size.rows,
+          cwd: opts.cwd,
+          envs: { ...opts.env, MOL_CODE_SANDBOX_PTY_COMMAND: command },
+          // A terminal must outlive the default 60 s command deadline; the caller
+          // decides how long a session may sit idle.
+          timeoutMs: opts.timeout ?? DEFAULT_PTY_TIMEOUT_MS,
+          // A PTY merges stderr into the terminal stream by definition — there is
+          // one file descriptor, which is why a terminal shows them interleaved.
+          onData: (data) =>
+            emit(stdoutListeners, stdoutBacklog, decoder.decode(data, { stream: true })),
+        }),
+      )
       const pid = handle.pid
       // The native SDK always opens bash -il. Execute the requested command on that PTY;
       // keep its contents in the environment so neither terminal echo nor history exposes it.
       try {
-        await pty.sendInput(
-          pid,
-          new TextEncoder().encode(
-            'mol_pty_command="$MOL_CODE_SANDBOX_PTY_COMMAND"; unset MOL_CODE_SANDBOX_PTY_COMMAND; exec /bin/sh -c "$mol_pty_command"\n',
+        await afterSnapshots(this.id, () =>
+          pty.sendInput(
+            pid,
+            new TextEncoder().encode(
+              'mol_pty_command="$MOL_CODE_SANDBOX_PTY_COMMAND"; unset MOL_CODE_SANDBOX_PTY_COMMAND; exec /bin/sh -c "$mol_pty_command"\n',
+            ),
           ),
         )
       } catch (error) {
-        await pty.kill(pid).catch((_cleanupError) => {
+        await afterSnapshots(this.id, () => pty.kill(pid)).catch((_cleanupError) => {
           /* A failed startup must not retain a live login shell. */
         })
         throw error
       }
       resize = (size) => {
-        void pty.resize(pid, size).catch((_error) => {
+        void afterSnapshots(this.id, () => pty.resize(pid, size)).catch((_error) => {
           // Best-effort: a resize races the process exiting, and a failed one
           // only means the remote width is stale — never a reason to tear down
           // a live session.
         })
       }
     } else {
-      handle = await sbx.commands.run(command, {
-        cwd: opts?.cwd,
-        envs: opts?.env,
-        timeoutMs: opts?.timeout ?? DEFAULT_SPAWN_TIMEOUT_MS,
-        background: true,
-        stdin: true,
-        onStdout: (data) => emit(stdoutListeners, stdoutBacklog, data),
-        onStderr: (data) => emit(stderrListeners, stderrBacklog, data),
-      })
+      handle = await this.call((sbx) =>
+        sbx.commands.run(command, {
+          cwd: opts?.cwd,
+          envs: opts?.env,
+          timeoutMs: opts?.timeout ?? DEFAULT_SPAWN_TIMEOUT_MS,
+          background: true,
+          stdin: true,
+          onStdout: (data) => emit(stdoutListeners, stdoutBacklog, data),
+          onStderr: (data) => emit(stderrListeners, stderrBacklog, data),
+        }),
+      )
     }
 
     // `wait()` settles when the process exits, however it exited (including the
@@ -865,13 +872,13 @@ class E2BSandbox implements Sandbox {
 
     const encoder = new TextEncoder()
     const ptyPid = opts?.pty ? handle.pid : null
-    const pty = sbx.pty
     return {
       write: (data: string): void => {
-        const write =
+        const write = afterSnapshots(this.id, () =>
           ptyPid !== null && pty
             ? pty.sendInput(ptyPid, encoder.encode(data))
-            : handle.sendStdin(data)
+            : handle.sendStdin(data),
+        )
         void write.catch((_error) => {
           // The process may have exited between the caller's check and this
           // write; `onClose` is what tells them, so a lost keystroke on a dead
@@ -889,7 +896,9 @@ class E2BSandbox implements Sandbox {
         if (closed) cb()
       },
       kill: (): void => {
-        const killed = ptyPid !== null && pty ? pty.kill(ptyPid) : handle.kill()
+        const killed = afterSnapshots(this.id, () =>
+          ptyPid !== null && pty ? pty.kill(ptyPid) : handle.kill(),
+        )
         void killed.catch((_error) => {
           // Already gone / unreachable — kill is idempotent from the caller's
           // point of view, and `onClose` still fires from `wait()`.
@@ -906,7 +915,7 @@ class E2BSandbox implements Sandbox {
    * @returns The file contents.
    */
   async readFile(path: string): Promise<string> {
-    return (await this.live()).files.read(path)
+    return this.call((sbx) => sbx.files.read(path))
   }
 
   /**
@@ -916,7 +925,7 @@ class E2BSandbox implements Sandbox {
    * @param content - The text to write.
    */
   async writeFile(path: string, content: string): Promise<void> {
-    await (await this.live()).files.write(path, content)
+    await this.call((sbx) => sbx.files.write(path, content))
   }
 
   /**
@@ -927,7 +936,7 @@ class E2BSandbox implements Sandbox {
    * @returns The file's bytes.
    */
   async readFileBytes(path: string): Promise<Uint8Array> {
-    return (await this.live()).files.read(path, { format: 'bytes' })
+    return this.call((sbx) => sbx.files.read(path, { format: 'bytes' }))
   }
 
   /**
@@ -937,7 +946,7 @@ class E2BSandbox implements Sandbox {
    * @param data - The bytes to write.
    */
   async writeFileBytes(path: string, data: Uint8Array): Promise<void> {
-    await (await this.live()).files.write(path, data)
+    await this.call((sbx) => sbx.files.write(path, data))
   }
 
   /**
@@ -995,7 +1004,7 @@ class E2BSandbox implements Sandbox {
    * @param path - Absolute path inside the sandbox.
    */
   async deleteFile(path: string): Promise<void> {
-    await (await this.live()).files.remove(path)
+    await this.call((sbx) => sbx.files.remove(path))
   }
 
   /**
@@ -1029,7 +1038,7 @@ class E2BSandbox implements Sandbox {
    */
   private async runCommand(cmd: string, timeoutMs: number): Promise<E2BCommandResultLike> {
     try {
-      return await (await this.live()).commands.run(cmd, { timeoutMs })
+      return await this.call((sbx) => sbx.commands.run(cmd, { timeoutMs }))
     } catch (error) {
       // A non-zero exit arrives as CommandExitError carrying `.result` — map it
       // to data so the caller's exit-code check owns the failure. Anything else
@@ -1069,7 +1078,7 @@ class E2BSandbox implements Sandbox {
       const piece = Buffer.concat(pending)
       pending = []
       pendingBytes = 0
-      await (await this.live()).files.write(piecePath, new Blob([piece]))
+      await this.call((sbx) => sbx.files.write(piecePath, new Blob([piece])))
       const r = await this.runCommand(
         `cat ${piecePath} ${pieces === 0 ? '>' : '>>'} ${tarPath} && rm -f ${piecePath}`,
         120_000,
@@ -1128,11 +1137,11 @@ class E2BSandbox implements Sandbox {
         )
       }
     } finally {
-      await (
-        await this.live()
-      ).commands
-        .run(`rm -f ${tarPath} ${piecePath}`, { timeoutMs: 30_000 })
-        .catch(() => undefined)
+      await this.call((sbx) =>
+        sbx.commands.run(`rm -f ${tarPath} ${piecePath}`, { timeoutMs: 30_000 }),
+      ).catch((_error) => {
+        // Best-effort cleanup: an unremoved temporary archive is harmless.
+      })
     }
   }
 
@@ -1177,20 +1186,18 @@ class E2BSandbox implements Sandbox {
       // the link ran past it ("The operation was aborted due to timeout", every
       // failure in a burst of three concurrent deploys). Give the read the same
       // budget the tar itself gets.
-      bytes = await (
-        await this.live()
-      ).files.read(tarPath, {
-        format: 'bytes',
-        requestTimeoutMs: EXPORT_READ_TIMEOUT_MS,
-      })
+      bytes = await this.call((sbx) =>
+        sbx.files.read(tarPath, {
+          format: 'bytes',
+          requestTimeoutMs: EXPORT_READ_TIMEOUT_MS,
+        }),
+      )
     } finally {
-      await (
-        await this.live()
-      ).commands
-        .run(`rm -f ${tarPath}`, { timeoutMs: 20_000 })
-        .catch((_error) => {
+      await this.call((sbx) => sbx.commands.run(`rm -f ${tarPath}`, { timeoutMs: 20_000 })).catch(
+        (_error) => {
           // intentional noop — leftover /tmp tar is harmless; the sandbox is ephemeral.
-        })
+        },
+      )
     }
     return (async function* () {
       yield bytes
@@ -1203,7 +1210,7 @@ class E2BSandbox implements Sandbox {
    * @param ms - New lifetime in milliseconds from now.
    */
   async keepAlive(ms: number): Promise<void> {
-    await (await this.live()).setTimeout(ms)
+    await this.call((sbx) => sbx.setTimeout(ms))
   }
 
   /**
@@ -1229,26 +1236,27 @@ class E2BSandbox implements Sandbox {
    * @throws {Error} When a non-empty `allowOut` (or an open policy) cannot be enforced.
    */
   async applyNetwork(allowOut: string[], options: { open?: boolean } = {}): Promise<void> {
-    const sbx = await this.live()
-    if (options.open) {
+    await this.call(async (sbx) => {
+      if (options.open) {
+        if (!sbx.updateNetwork) {
+          throw new Error(
+            'e2b: this SDK build exposes no updateNetwork(), so the public-internet policy ' +
+              '(private ranges denied) CANNOT be applied — refusing to report success',
+          )
+        }
+        await sbx.updateNetwork(publicInternetOnly())
+        return
+      }
+      if (allowOut.length === 0) return
       if (!sbx.updateNetwork) {
         throw new Error(
-          'e2b: this SDK build exposes no updateNetwork(), so the public-internet policy ' +
-            '(private ranges denied) CANNOT be applied — refusing to report success',
+          `e2b: this SDK build exposes no updateNetwork(), so the egress allow-list ` +
+            `(${allowOut.join(', ')}) CANNOT be applied — refusing to report success for a ` +
+            'sandbox whose outbound traffic is still unrestricted',
         )
       }
-      await sbx.updateNetwork(publicInternetOnly())
-      return
-    }
-    if (allowOut.length === 0) return
-    if (!sbx.updateNetwork) {
-      throw new Error(
-        `e2b: this SDK build exposes no updateNetwork(), so the egress allow-list ` +
-          `(${allowOut.join(', ')}) CANNOT be applied — refusing to report success for a ` +
-          'sandbox whose outbound traffic is still unrestricted',
-      )
-    }
-    await sbx.updateNetwork(denyByDefault(allowOut))
+      await sbx.updateNetwork(denyByDefault(allowOut))
+    })
   }
 }
 
@@ -1468,8 +1476,7 @@ export class E2BSandboxProvider implements SandboxProvider {
     const client = await this.client()
     if (!client.getInfo) return null
     const readable = async (): Promise<boolean> => {
-      await snapshotsSettled(id)
-      const info = await client.getInfo!(id)
+      const info = await afterSnapshots(id, () => client.getInfo!(id))
       return info.state === 'running' && info.lifecycle?.autoResume === false
     }
     if (!(await readable())) return null
@@ -1491,7 +1498,7 @@ export class E2BSandboxProvider implements SandboxProvider {
       readFileBytes: async (path: string) => {
         if (!(await readable())) throw new Error('Passive sandbox files unavailable')
         try {
-          return await readBytes(path)
+          return await afterSnapshots(id, () => readBytes(path))
         } catch (error) {
           if (error instanceof Error && error.name === 'NotFoundError')
             throw Object.assign(new Error('Sandbox file not found'), { code: 'ENOENT' })
@@ -1524,11 +1531,9 @@ export class E2BSandboxProvider implements SandboxProvider {
     const client = await this.client()
     // A connect during this process's snapshot of the sandbox is refused as
     // "not found", which would read as the sandbox being gone.
-    await snapshotsSettled(id)
     try {
-      const sbx = await client.connect(
-        id,
-        resetDeadline ? { timeoutMs: this.config.defaultTimeoutMs } : undefined,
+      const sbx = await afterSnapshots(id, () =>
+        client.connect(id, resetDeadline ? { timeoutMs: this.config.defaultTimeoutMs } : undefined),
       )
       await this.rememberReadHandle(sbx)
       return new E2BSandbox(sbx, client, {
@@ -1573,9 +1578,8 @@ export class E2BSandboxProvider implements SandboxProvider {
     let info: E2BSandboxInfoLike
     // A sandbox this process is snapshotting is paused for that second; reading
     // it then would report a running project as `sleeping`.
-    await snapshotsSettled(id)
     try {
-      info = await client.getInfo(id)
+      info = await afterSnapshots(id, () => client.getInfo!(id))
     } catch (error) {
       if (isNotFound(client, error)) return null
       throw error
@@ -1628,7 +1632,12 @@ export class E2BSandboxProvider implements SandboxProvider {
       // A PAUSED sandbox is deliberately skipped: building its handle means
       // connecting, and connecting resumes it. Enumerating an account would
       // otherwise wake — and start billing — every hibernated project on it.
-      if (it.state === 'paused') return null
+      if (it.state === 'paused') {
+        // A snapshot can make a running sandbox appear paused in the listing.
+        // Re-read after its gate settles; a truly paused sandbox stays untouched.
+        if (!client.getInfo || (await this.describe(it.sandboxId))?.status !== 'running')
+          return null
+      }
       // `false`: no deadline reset. A poll is not an activity signal.
       return this.connectHandle(it.sandboxId, false)
     })
@@ -1643,15 +1652,18 @@ export class E2BSandboxProvider implements SandboxProvider {
   async destroy(id: string): Promise<void> {
     const client = await this.client()
     if (client.kill) {
-      await client.kill(id, {})
+      await afterSnapshots(id, () => client.kill!(id, {}))
       return
     }
-    const sbx = await client.connect(id, {}).catch((error: unknown) => {
-      // Already gone / unreachable — nothing to kill; destroy is idempotent.
-      void error
-      return null
-    })
-    if (sbx) await sbx.kill()
+    const sbx = await afterSnapshots(id, () =>
+      client.connect(id, {}).catch((error: unknown) => {
+        // Already gone / unreachable — preserve the fallback's existing idempotence.
+        // A gate timeout is outside this catch and must never report a successful destroy.
+        void error
+        return null
+      }),
+    )
+    if (sbx) await afterSnapshots(id, () => sbx.kill())
   }
 
   /**
@@ -1817,25 +1829,22 @@ export class E2BSandboxProvider implements SandboxProvider {
     if (!client.createSnapshot) {
       throw new Error('E2B client does not expose the snapshot API')
     }
-    if (options.capturePaths?.length && client.getInfo) {
-      const info = await client.getInfo(options.sandboxId)
-      for (const mount of info.volumeMounts ?? []) {
-        const shadowed = options.capturePaths.find(
-          (path) => path === mount.path || path.startsWith(`${mount.path}/`),
-        )
-        if (shadowed) {
-          throw new Error(
-            `Cannot capture "${shadowed}" into an E2B snapshot: it is on the mounted volume "${mount.name}", which the snapshot does not image`,
+    const snapshot = await withSnapshotGate(options.sandboxId, async () => {
+      if (options.capturePaths?.length && client.getInfo) {
+        const info = await client.getInfo(options.sandboxId)
+        for (const mount of info.volumeMounts ?? []) {
+          const shadowed = options.capturePaths.find(
+            (path) => path === mount.path || path.startsWith(`${mount.path}/`),
           )
+          if (shadowed) {
+            throw new Error(
+              `Cannot capture "${shadowed}" into an E2B snapshot: it is on the mounted volume "${mount.name}", which the snapshot does not image`,
+            )
+          }
         }
       }
-    }
-    // Held through the gate: E2B pauses the sandbox while it snapshots, and a call
-    // this process issued in that window would be refused as "sandbox not found".
-    const createSnapshot = client.createSnapshot.bind(client)
-    const snapshot = await withSnapshotGate(options.sandboxId, () =>
-      createSnapshot(options.sandboxId, options.templateId),
-    )
+      return client.createSnapshot!(options.sandboxId, options.templateId)
+    })
     return {
       id: options.templateId,
       ref: snapshot.snapshotId,

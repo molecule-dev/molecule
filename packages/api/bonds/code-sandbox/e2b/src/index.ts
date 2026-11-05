@@ -142,6 +142,13 @@
  * a per-project restore point is a fixed-size resource. It BRIEFLY pauses the
  * sandbox and drops open connections (PTYs, command streams, websockets), so
  * capture when a project goes quiet — never underneath a live terminal.
+ * New SDK requests wait for this process's snapshot of the same sandbox. Queue
+ * waits and snapshot calls reject after one minute, while unfinished snapshots
+ * keep the gate closed. Already-issued commands are never replayed. Separate
+ * processes need a common request owner to coordinate their calls.
+ * Snapshots include the whole filesystem and memory: `capturePaths` requires
+ * paths to be present, it does not exclude other paths. Capture shared templates
+ * only from clean, credential-free sources.
  *
  * **Sandboxes are created to PAUSE at their timeout, not to be killed.** E2B's
  * default is `onTimeout: 'kill'`, so a sandbox nothing touched for its lifetime
