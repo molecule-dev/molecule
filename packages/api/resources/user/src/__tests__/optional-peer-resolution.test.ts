@@ -171,6 +171,26 @@ function makeProductionFixture(): string {
 }
 
 /**
+ * Optional peers inherited from ancestors when TMPDIR is inside a checkout.
+ *
+ * Node has no project-boundary flag for its normal node_modules search. When this
+ * happens, bind the fixture under a private /tmp mount instead of modifying Node's
+ * resolver. Its actual files and writes remain in TMPDIR; a peer installed IN the
+ * fixture must still load (or throw its own initialization/dependency error).
+ */
+function inheritedOptionalPeerDirs(fixture: string): string[] {
+  const directories = new Set<string>()
+  for (let dir = dirname(fixture); ; dir = dirname(dir)) {
+    for (const name of OPTIONAL_PEERS) {
+      const candidate = join(dir, 'node_modules', ...name.split('/'))
+      if (existsSync(join(candidate, 'package.json'))) directories.add(realpathSync(candidate))
+    }
+    if (dirname(dir) === dir) break
+  }
+  return [...directories]
+}
+
+/**
  * Run a snippet as an ES module inside the fixture, in a CHILD process.
  *
  * A child is the point: this process's module cache (and the workspace's hoisted
@@ -186,7 +206,33 @@ function runInFixture(
   code: string,
 ): { ok: true; stdout: string } | { ok: false; stderr: string } {
   try {
-    const stdout = execFileSync(process.execPath, ['--input-type=module', '-e', code], {
+    const inherited = inheritedOptionalPeerDirs(fixture)
+    if (inherited.length && process.platform !== 'linux') {
+      throw new Error(
+        'Optional-peer isolation needs a TMPDIR outside ancestor node_modules on this platform',
+      )
+    }
+    const nodeArgs = ['--input-type=module', '-e', code]
+    const command = inherited.length ? 'bwrap' : process.execPath
+    const args = inherited.length
+      ? [
+          '--die-with-parent',
+          '--ro-bind',
+          '/',
+          '/',
+          '--tmpfs',
+          '/tmp',
+          '--bind',
+          fixture,
+          '/tmp/molecule-peer-fixture',
+          '--chdir',
+          '/tmp/molecule-peer-fixture',
+          '--',
+          process.execPath,
+          ...nodeArgs,
+        ]
+      : nodeArgs
+    const stdout = execFileSync(command, args, {
       cwd: fixture,
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'pipe'],
