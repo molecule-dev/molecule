@@ -1,5 +1,11 @@
 # @molecule/api-resource-user
 
+## 1.8.4
+
+### Patch Changes
+
+- Default custom authorization schemes to header-only sessions while allowing explicit cookie opt-in.
+
 ## 1.8.3
 
 ### Patch Changes

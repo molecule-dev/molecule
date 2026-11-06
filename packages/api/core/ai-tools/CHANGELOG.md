@@ -1,5 +1,12 @@
 # @molecule/api-ai-tools
 
+## 1.17.2
+
+### Patch Changes
+
+- Deliver native navigation timeouts with their test location and page snapshot during source feedback.
+- Cancel speculative browser feedback during foreground work so explicit tests and source edits can proceed immediately.
+
 ## 1.17.1
 
 ### Patch Changes
