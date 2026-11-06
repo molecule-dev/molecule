@@ -16,6 +16,10 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
+import semver from 'semver'
+
+import { unsatisfiedDependencies } from './lib/lockfile-ranges.mjs'
+
 const lock = JSON.parse(readFileSync('package-lock.json', 'utf-8'))
 const packages = lock.packages || {}
 
@@ -105,6 +109,28 @@ for (const [path, info] of Object.entries(packages)) {
       missing++
     }
   }
+}
+
+// Present is not enough: the entry a dependency resolves to must also satisfy its range (or the
+// root override that governs it). `npm ci` installs a wrong major without complaint
+// (scripts/lib/lockfile-ranges.mjs has the 2026-11-06 jsonfile case).
+const outOfRange = unsatisfiedDependencies(
+  packages,
+  (version, range) =>
+    semver.validRange(range) ? semver.satisfies(version, range, { includePrerelease: true }) : true,
+  JSON.parse(readFileSync('package.json', 'utf-8')).overrides ?? {},
+)
+for (const p of outOfRange)
+  console.error(`Invalid: ${p.from} needs ${p.dep}@${p.range} but resolves ${p.at}@${p.version}`)
+if (outOfRange.length) {
+  console.error(
+    `\n${outOfRange.length} out-of-range dependenc${outOfRange.length === 1 ? 'y' : 'ies'} in package-lock.json:`,
+    '`npm ci` installs them without complaint and the code fails when it runs. If the package is',
+    'a peer that `legacy-peer-deps` stops npm from managing, declare it as an exact devDependency',
+    'of the package that needs it, remove the stale subtree from the lock, and regenerate it with',
+    '`npm install --package-lock-only` from THIS repo.',
+  )
+  if (missing === 0) process.exit(1)
 }
 
 if (missing > 0) {
