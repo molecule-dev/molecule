@@ -4164,11 +4164,17 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         if ((commandPlan(executedCommand) && !step.command) || repeatingCauseNoted.has(taskId))
           continue
         const runTarget = suiteCommandTarget(step.command)
+        // An explicitly retry-free local diagnostic also has a definite failure
+        // on its first attempt. Return the evidence promptly without stopping
+        // the run or telling the caller to edit the mutable tree underneath it.
+        // Short status polls already return promptly with the full progress
+        // note. Only interrupt a long local wait for this new diagnostic.
+        const localDiagnostic =
+          budgetMs > 30_000 && runTarget === 'local' && namesNoRetries(step.command)
         const yieldDiagnostic =
-          diagnosticTarget !== null &&
           isSuiteRunCommand(step.command) &&
-          runTarget !== 'local' &&
-          runTarget === diagnosticTarget
+          (localDiagnostic ||
+            (diagnosticTarget !== null && runTarget !== 'local' && runTarget === diagnosticTarget))
         if (yieldDiagnostic && !taskRecord) {
           taskRecord = { command: executedCommand }
           runByTask.set(taskId, taskRecord)
@@ -4259,13 +4265,32 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
             // while the walk continues, and only talk to the app once the run has ended. Wording it
             // as patience alone cost 4 min 45 s of idle on an already-red run (xr-molecule-flash-
             // hl01), against ≈4.5 min saved when the same yield was acted on (l69).
-            note:
-              'A test in this run has failed on its final attempt, so this deployed run will not ' +
-              'pass. This is partial log output, not a completed result: leave the task running — ' +
-              "its end names the run's other failures. Local edits do not change this deployed " +
-              'build, so start on this failure now: read the failing spec and the code it drives, ' +
-              'and fix it while the run keeps walking. Send nothing against this app until the run ' +
-              'ends, then collect its final result with `wait_for_task`.',
+            note: localDiagnostic
+              ? 'A test in this local diagnostic has failed on its final attempt. This is partial ' +
+                'output, not a completed result; the task is still running against mutable local source. ' +
+                'While it runs, editing app/src or api/src now changes the code the run is testing, and its result no longer counts. ' +
+                'Read the failure and plan its fix now. Before editing app source, either collect the ' +
+                'completed run with `wait_for_task`, or stop this diagnostic and collect its stopped ' +
+                `result: \`exec_command: ${await taskStopCommand(backend, taskId)}\`. ` +
+                'A stopped diagnostic is not a passing suite proof. Do not start another test run ' +
+                'against this app until this task ends.' +
+                (found
+                  ? '\n' +
+                    repeatingFailureNote(found, {
+                      taskId,
+                      log: readLog,
+                      stop: '',
+                      universal: null,
+                      ...(started ? { run: started } : {}),
+                      editsInvalidateRun: true,
+                    })
+                  : '')
+              : 'A test in this run has failed on its final attempt, so this deployed run will not ' +
+                'pass. This is partial log output, not a completed result: leave the task running — ' +
+                "its end names the run's other failures. Local edits do not change this deployed " +
+                'build, so start on this failure now: read the failing spec and the code it drives, ' +
+                'and fix it while the run keeps walking. Send nothing against this app until the run ' +
+                'ends, then collect its final result with `wait_for_task`.',
           }
         }
         // A lead: this wait goes on, and the finding rides its result as a note — the executor has

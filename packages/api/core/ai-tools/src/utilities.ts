@@ -2893,7 +2893,24 @@ export function failureBlocks(s: string): string[] {
     }
   }
   if (current) blocks.push(current.join('\n').trimEnd())
-  return blocks
+  // A streaming reporter prints the same numbered heading again for each retry.
+  // Keep those attempts under their test (including its project), rather than
+  // creating another failure whose "cause" is the Retry separator.
+  const merged: string[] = []
+  const tests = new Map<string, number>()
+  for (const block of blocks) {
+    const newline = block.indexOf('\n')
+    const header = newline < 0 ? block : block.slice(0, newline)
+    const identity = header.replace(/^\s*\d+\)\s*/, '').replace(/[\s─]+$/, '')
+    const previous = tests.get(identity)
+    if (previous !== undefined && newline >= 0 && /^\s*Retry #\d+\b/.test(block.slice(newline + 1)))
+      merged[previous] += block.slice(newline)
+    else {
+      tests.set(identity, merged.length)
+      merged.push(block)
+    }
+  }
+  return merged
 }
 
 /** Failure lines shown from a log that is still being written. */
@@ -3133,23 +3150,40 @@ function failureErrorLine(body: string[]): string | null {
  * @returns The body's lines, ANSI stripped and trimmed.
  */
 function failureBody(block: string): string[] {
-  return block
-    .split('\n')
-    .slice(1)
-    .map((l) => l.replace(ANSI_SGR, '').trim())
-    .filter(
-      (l) =>
-        l &&
-        !LIST_RESULT_LINE.test(l) &&
-        // A SKIPPED test's own row (`  -  41 [chromium] › user-fetch-errors.spec.ts:88:3 › …`) is
-        // a progress line, never a failure's body: a block with no body of its own is followed by
-        // whatever the reporter printed next, and that row became the failure's "cause" when the
-        // wait's stitched display was read as one log (xr-molecule-flash-l07). A `- waiting for`
-        // call-log line stays — it names the locator, and the dash carries no index.
-        !/^\s*-\s+\d+\s+/.test(l) &&
-        !/^(?:at\s|\d+ \||>\s*\d+ \||\|)/.test(l) &&
-        !/^Error Context:/.test(l),
-    )
+  // Evidence and signature must come from ONE attempt. Prefer the first body;
+  // an empty first attempt can use its retry, but a later error must not replace
+  // or contribute a locator/diff to an already explained first failure.
+  const attempts = block.split(/^\s*Retry #\d+[^\n]*$/m)
+  const bodies = attempts.map((attempt, index) =>
+    attempt
+      .split('\n')
+      .slice(index === 0 ? 1 : 0)
+      .map((l) => l.replace(ANSI_SGR, '').trim())
+      .filter(
+        (l) =>
+          l &&
+          !LIST_RESULT_LINE.test(l) &&
+          // A SKIPPED test's own row (`  -  41 [chromium] › user-fetch-errors.spec.ts:88:3 › …`) is
+          // a progress line, never a failure's body: a block with no body of its own is followed by
+          // whatever the reporter printed next, and that row became the failure's "cause" when the
+          // wait's stitched display was read as one log (xr-molecule-flash-l07). A `- waiting for`
+          // call-log line stays — it names the locator, and the dash carries no index.
+          !/^\s*-\s+\d+\s+/.test(l) &&
+          !/^(?:at\s|\d+ \||>\s*\d+ \||\|)/.test(l) &&
+          !/^Error Context:/.test(l),
+      ),
+  )
+  return (
+    bodies.find((body) =>
+      body.some((line) =>
+        /^(?:(?:[A-Za-z_$][\w.$]*)?(?:Error|Exception)\b|Test timeout of \d+ms exceeded)/.test(
+          line,
+        ),
+      ),
+    ) ??
+    bodies.find((body) => body.length > 0) ??
+    []
+  )
 }
 
 /**

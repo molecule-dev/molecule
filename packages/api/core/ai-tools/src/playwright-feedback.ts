@@ -53,6 +53,7 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
     waiting: PlaywrightFeedbackResult[] = []
   const delivered = new Map<string, Set<string>>()
   const failing = new Set<string>()
+  const completed = new Set<string>()
   const start = (): void => {
     if (active || stopped || paused || changed.size === 0) return
     const version = revision,
@@ -72,9 +73,9 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
       if (!current()) return
       const sourcePaths = project.root ? paths.map((p) => posix.resolve(project.root!, p)) : paths
       // The native failures already name the files to rerun first after an edit.
-      const selected = selectFeedbackSpecs(project, sourcePaths).sort(
-        (a, b) => Number(failing.has(b.spec.path)) - Number(failing.has(a.spec.path)),
-      )
+      const selected = selectFeedbackSpecs(project, sourcePaths)
+        .filter(({ spec }) => !completed.has(spec.path))
+        .sort((a, b) => Number(failing.has(b.spec.path)) - Number(failing.has(a.spec.path)))
       for (const { spec, sourceFiles } of selected) {
         if (!current()) break
         const emit = (result: PlaywrightFeedbackResult): void => {
@@ -102,13 +103,14 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
         } finally {
           running = undefined
         } // runner availability is not a markup defect
+        options.onResult?.(current() ? result : { ...result, status: 'cancelled', failures: [] })
         if (!current()) break
         if (result.status === 'cancelled') {
           yielded = true
           for (const path of paths) changed.add(path)
           break
         }
-        options.onResult?.(result)
+        completed.add(spec.path)
         if (result.status === 'passed') failing.delete(spec.path)
         if (result.status !== 'failed') delivered.delete(spec.path)
         emit(result)
@@ -148,6 +150,7 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
       // A queued diagnosis can be invalidated before its host delivers it. A
       // new revision must be allowed to report the same still-failing locator.
       delivered.clear()
+      completed.clear()
       cancellation?.abort()
       if (!paused) schedule()
     },
