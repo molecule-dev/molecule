@@ -34,6 +34,8 @@
 
 import { posix } from 'path'
 
+import { boundedFailureText } from './failure-text.js'
+
 /**
  * The environment variable Playwright's built-in `json` reporter takes its output path from
  * (`resolveOutputFile("JSON", …)`), resolved against the runner's own working directory. An
@@ -173,6 +175,8 @@ export interface PlaywrightRunReport {
   failures: PlaywrightReportTest[]
   /** How many failing tests did not fit the bound above. */
   omittedFailures: number
+  /** Every identity past the detailed-record cap, never silently omitted from the model's copy. */
+  omittedFailureNames?: string[]
 }
 
 /** One plain record out of unknown JSON, or null when the value is not an object. */
@@ -327,15 +331,15 @@ function errorOf(
   sanitize: (text: string) => string,
 ): string | null {
   const errors = Array.isArray(result.errors) ? result.errors : []
-  const first = asRecord(errors[0])
-  const message = (first === null ? null : asString(first.message)) ?? null
+  const textOf = (error: Record<string, unknown> | null): string | null =>
+    error === null
+      ? null
+      : (asString(error.message) ?? asString(error.value) ?? asString(error.stack))
+  const messages = errors.map((error) => textOf(asRecord(error))).filter((text) => text !== null)
   const direct = asRecord(result.error)
-  const text = message ?? (direct === null ? null : asString(direct.message))
+  const text = messages.length ? messages.join('\n\n') : textOf(direct)
   if (text === null) return null
-  const plain = text.replace(ANSI_SEQUENCE, '')
-  const bounded =
-    plain.length > MAX_REPORTED_ERROR_CHARS ? `${plain.slice(0, MAX_REPORTED_ERROR_CHARS)}…` : plain
-  return sanitize(bounded)
+  return boundedFailureText(sanitize(text.replace(ANSI_SEQUENCE, '')), MAX_REPORTED_ERROR_CHARS)
 }
 
 /** Whether one test entry should be listed: a failure, a retried failure, or an interruption. */
@@ -512,6 +516,16 @@ export function summarizePlaywrightReport(
     stats,
     failures: failures.slice(0, MAX_REPORTED_FAILURES),
     omittedFailures,
+    ...(omittedFailures === 0
+      ? {}
+      : {
+          omittedFailureNames: failures
+            .slice(MAX_REPORTED_FAILURES)
+            .map(
+              (test) =>
+                `${test.project ? `[${test.project}] › ` : ''}${test.file}:${test.line}:${test.column} › ${test.titlePath.join(' › ')}`,
+            ),
+        }),
   }
 }
 

@@ -18,6 +18,7 @@ import {
   withoutTimeoutWrapper,
 } from './command-position.js'
 import { classifyRunFailure, type RunFailureKind } from './failure-kind.js'
+import { boundedFailureText } from './failure-text.js'
 import { commandRunsNoTests } from './no-test-run.js'
 import { PLAYWRIGHT_REPORT_ENV } from './playwright-report.js'
 import {
@@ -2764,7 +2765,11 @@ export function truncate(s: string, maxLength: number): string {
  *
  * @param s - Arbitrary text (typically stdout/stderr) to bound in size.
  * @param maxLength - Maximum characters to retain (excluding the elision notice).
- * @returns The original string, or head + an elision notice + tail.
+ * Failure identities always survive the cut; detail bodies are capped at 1,500 characters each
+ * and by the remaining total budget. An identity inventory larger than the budget is retained
+ * whole, with omitted details counted. Fitting logs and logs without failures pay no summary cost.
+ *
+ * @returns The original string, or bounded progress and failure details with every failure named.
  */
 export function truncateMiddle(s: string, maxLength: number): string {
   if (s.length <= maxLength) return s
@@ -2807,29 +2812,35 @@ function truncateMiddleBody(s: string, maxLength: number): string {
   // truncate that overshoots by its suffix length breaks that contract). 140 =
   // the fixed notice text (~124) + up to ~12 digits for the omitted count.
   const noticeReserve = 140
+  const failures = failureBlocks(s)
   // Cap too small to fit the notice + any head/tail → plain head slice (still
   // within maxLength; the middle-preserving form only helps at real sizes).
-  if (maxLength <= noticeReserve) return s.slice(0, maxLength)
-  const budget = maxLength - noticeReserve
+  if (maxLength <= noticeReserve && failures.length === 0) return s.slice(0, maxLength)
+  const budget = Math.max(0, maxLength - noticeReserve)
   // A test run's numbered failure blocks are what the reader needs, and in a long run they
   // sit in the middle, between per-test progress and the tally: keep them over progress
   // (X1 flash-m45: 31 failure bodies dropped, 8 KB of passing progress kept).
-  const failures = failureBlocks(s)
   if (failures.length > 0) {
-    const headLen = Math.min(800, Math.floor(budget * 0.1))
-    const tailLen = Math.min(1500, Math.floor(budget * 0.2))
-    let room = budget - headLen - tailLen
+    const headLen = Math.min(400, Math.floor(budget * 0.1))
+    const tailLen = Math.min(600, Math.floor(budget * 0.1))
+    const names = failures.map((block) => block.split('\n')[0]!)
+    // Identities are never dropped. When the inventory alone exceeds the budget it is the
+    // explicit exception to the text cap; only detail bodies and progress are capped.
+    let room = Math.max(0, budget - headLen - tailLen - names.join('\n').length - failures.length)
     const kept: string[] = []
-    for (const block of failures) {
-      const piece = block.length > 900 ? `${block.slice(0, 897)}...` : block
-      if (piece.length + 1 > room) break
-      kept.push(piece)
-      room -= piece.length + 1
+    let detailed = 0
+    for (const [index, block] of failures.entries()) {
+      const separator = block.indexOf('\n')
+      const body = separator < 0 ? '' : block.slice(separator + 1).trimEnd()
+      const details = body && room >= 200 ? boundedFailureText(body, Math.min(1500, room)) : ''
+      kept.push(names[index]! + (details ? '\n' + details : ''))
+      if (details) detailed++
+      room -= details.length
     }
-    const left = failures.length - kept.length
+    const left = failures.length - detailed
     return (
       s.slice(0, headLen) +
-      `\n\n... [middle truncated — progress lines left out; ${kept.length} of ${failures.length} failure blocks kept${left ? `, ${left} more not shown` : ''}] ...\n\n` +
+      `\n\n... [middle truncated — progress lines left out; all ${failures.length} failure blocks named${left ? `, ${left} with details omitted` : ''}] ...\n\n` +
       kept.join('\n') +
       '\n\n' +
       s.slice(s.length - tailLen)
@@ -2864,7 +2875,10 @@ const FAILURE_BLOCK_HEADER = /^\s*\d+\)\s+(?:\[[^\]\n]*\]\s*›\s*)?(?=[^\n]*›
  * @returns Each block, in order (empty when there are none).
  */
 export function failureBlocks(s: string): string[] {
-  const lines = s.split('\n')
+  // Strip the whole escape sequence before removing other controls: dropping ESC alone leaves
+  // `[2K`/`[1G` in line-reporter headings and hides their failure boundaries.
+  // eslint-disable-next-line no-control-regex -- terminal cursor and color sequences
+  const lines = stripControlChars(s.replace(/\u001b\[[0-?]*[ -/]*[@-~]/g, '')).split('\n')
   const blocks: string[] = []
   let current: string[] | null = null
   for (const line of lines) {

@@ -4138,7 +4138,7 @@ describe('truncateMiddle — test runs (flash-m45)', () => {
     expect(cut.length).toBeLessThanOrEqual(8000)
     for (let i = 0; i < 3; i++) expect(cut).toContain(`Error: expected thing ${i}`)
     expect(cut).toContain('3 failed')
-    expect(cut).toContain('3 of 3 failure blocks kept')
+    expect(cut).toContain('all 3 failure blocks named')
   })
 })
 
