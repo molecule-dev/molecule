@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.16.7
+
+### Patch Changes
+
+- Write and edit tools make fewer sandbox round trips.
+
 ## 1.16.6
 
 ### Patch Changes

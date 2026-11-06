@@ -1,5 +1,11 @@
 # @molecule/app-http
 
+## 1.5.5
+
+### Patch Changes
+
+- Recognize branded auth rejections and errors from duplicate package copies with instanceof HttpError while preserving subclass checks.
+
 ## 1.5.4
 
 ### Patch Changes

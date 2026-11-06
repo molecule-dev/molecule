@@ -1,5 +1,11 @@
 # @molecule/api-code-sandbox-e2b
 
+## 1.3.3
+
+### Patch Changes
+
+- Normalize missing passive sandbox files across E2B SDK error subclasses.
+
 ## 1.3.2
 
 ### Patch Changes

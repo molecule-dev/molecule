@@ -1,5 +1,11 @@
 # @molecule/app-react-native
 
+## 3.0.5
+
+### Patch Changes
+
+- Refresh generated documentation for optimistic values, queued updates, and server-confirmed state.
+
 ## 3.0.4
 
 ### Patch Changes

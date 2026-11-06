@@ -1,5 +1,11 @@
 # @molecule/app-react
 
+## 3.4.1
+
+### Patch Changes
+
+- Document optimistic toggles with server-confirmed counts, queued clicks, and loading boundaries.
+
 ## 3.4.0
 
 ### Minor Changes

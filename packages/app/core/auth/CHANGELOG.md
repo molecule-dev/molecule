@@ -1,5 +1,11 @@
 # @molecule/app-auth
 
+## 3.2.5
+
+### Patch Changes
+
+- Document and verify that non-ok auth responses support instanceof HttpError while retaining their I18nError contract.
+
 ## 3.2.4
 
 ### Patch Changes

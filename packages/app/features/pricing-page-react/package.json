@@ -44,7 +44,7 @@
   },
   "devDependencies": {
     "@molecule/app-billing-react": "3.0.0",
-    "@molecule/app-react": "3.4.0",
+    "@molecule/app-react": "3.4.1",
     "@molecule/app-subscription-plan-card-react": "3.0.0",
     "@molecule/app-ui": "1.3.9",
     "@molecule/app-ui-react": "3.0.4",

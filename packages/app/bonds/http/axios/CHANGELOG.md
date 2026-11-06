@@ -1,5 +1,11 @@
 # @molecule/app-http-axios
 
+## 1.2.3
+
+### Patch Changes
+
+- Document branded HttpError compatibility with auth responses and duplicated package copies.
+
 ## 1.2.2
 
 ### Patch Changes
