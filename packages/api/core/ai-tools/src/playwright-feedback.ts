@@ -8,8 +8,10 @@
  * @module
  */
 import { randomUUID } from 'node:crypto'
+import { tmpdir } from 'node:os'
 import { posix } from 'node:path'
 
+import { feedbackProcessSource } from './playwright-feedback-process.js'
 import { feedbackReporterSource, nativeFeedbackFailures } from './playwright-feedback-reporter.js'
 import { selectFeedbackSpecs } from './playwright-feedback-selection.js'
 import type {
@@ -43,16 +45,23 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
   let revision = 0,
     timer: ReturnType<typeof setTimeout> | undefined,
     active: Promise<void> | undefined
+  let running: Promise<PlaywrightFeedbackResult> | undefined
+  let cancellation: AbortController | undefined
+  let paused = 0
   let stopped = false
   const changed = new Set<string>(),
     waiting: PlaywrightFeedbackResult[] = []
   const delivered = new Map<string, Set<string>>()
   const failing = new Set<string>()
   const start = (): void => {
-    if (active || stopped || changed.size === 0) return
+    if (active || stopped || paused || changed.size === 0) return
     const version = revision,
       paths = [...changed]
     changed.clear()
+    const abort = new AbortController()
+    cancellation = abort
+    let yielded = false
+    const current = (): boolean => !stopped && !abort.signal.aborted && version === revision
     active = (async () => {
       let project: FeedbackProject
       try {
@@ -60,16 +69,16 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
       } catch (_error) {
         return
       }
-      if (stopped || version !== revision) return
+      if (!current()) return
       const sourcePaths = project.root ? paths.map((p) => posix.resolve(project.root!, p)) : paths
       // The native failures already name the files to rerun first after an edit.
       const selected = selectFeedbackSpecs(project, sourcePaths).sort(
         (a, b) => Number(failing.has(b.spec.path)) - Number(failing.has(a.spec.path)),
       )
       for (const { spec, sourceFiles } of selected) {
-        if (stopped || version !== revision) break
+        if (!current()) break
         const emit = (result: PlaywrightFeedbackResult): void => {
-          if (stopped || version !== revision || result.status !== 'failed') return
+          if (!current() || result.status !== 'failed') return
           failing.add(spec.path)
           const identities = delivered.get(spec.path) ?? new Set<string>()
           const failures = result.failures.filter((f) => {
@@ -86,11 +95,19 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
         }
         let result: PlaywrightFeedbackResult
         try {
-          result = await options.run(spec, sourceFiles, version, emit)
+          running = options.run(spec, sourceFiles, version, emit, abort.signal)
+          result = await running
         } catch (_error) {
           continue
+        } finally {
+          running = undefined
         } // runner availability is not a markup defect
-        if (stopped || version !== revision) break
+        if (!current()) break
+        if (result.status === 'cancelled') {
+          yielded = true
+          for (const path of paths) changed.add(path)
+          break
+        }
         options.onResult?.(result)
         if (result.status === 'passed') failing.delete(spec.path)
         if (result.status !== 'failed') delivered.delete(spec.path)
@@ -98,26 +115,28 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
       }
     })().finally(() => {
       active = undefined
-      if (!stopped && changed.size && !timer) schedule()
+      cancellation = undefined
+      if (abort.signal.aborted && !stopped) for (const path of paths) changed.add(path)
+      if (!stopped && !paused && changed.size && !timer) schedule(yielded ? 1000 : undefined)
     })
   }
-  const schedule = (): void => {
+  const schedule = (delay = options.debounceMs ?? 250): void => {
     if (timer) clearTimeout(timer)
     timer = setTimeout(() => {
       timer = undefined
       start()
-    }, options.debounceMs ?? 250)
+    }, delay)
     timer.unref?.()
   }
   const settled = async (): Promise<void> => {
-    while (timer || active || (!stopped && changed.size)) {
+    while (timer || active || (!stopped && !paused && changed.size)) {
       if (timer) {
         clearTimeout(timer)
         timer = undefined
         start()
       }
       if (active) await active
-      else if (!stopped && changed.size) start()
+      else if (!stopped && !paused && changed.size) start()
     }
   }
   return {
@@ -129,14 +148,31 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
       // A queued diagnosis can be invalidated before its host delivers it. A
       // new revision must be allowed to report the same still-failing locator.
       delivered.clear()
-      schedule()
+      cancellation?.abort()
+      if (!paused) schedule()
     },
     takeFailures() {
       return waiting.splice(0).filter((r) => r.revision === revision)
     },
+    async pause() {
+      paused++
+      if (timer) clearTimeout(timer)
+      timer = undefined
+      cancellation?.abort()
+      // Loading metadata is not native work and must not become a foreground barrier.
+      await running?.catch(() => undefined)
+      let released = false
+      return () => {
+        if (released) return
+        released = true
+        paused--
+        if (!paused && !stopped && changed.size) schedule()
+      }
+    },
     settled,
     async close() {
       stopped = true
+      cancellation?.abort()
       if (timer) clearTimeout(timer)
       timer = undefined
       changed.clear()
@@ -200,11 +236,13 @@ export async function runPlaywrightFeedback(
     timeoutMs?: number
     emit?: (result: PlaywrightFeedbackResult) => void
     pollMs?: number
+    signal?: AbortSignal
   },
 ): Promise<PlaywrightFeedbackResult> {
   const started = Date.now()
   const dir = posix.join(
-    options.scratchRoot ?? posix.join(backend.projectRoot, '.mol', 'test-feedback'),
+    options.scratchRoot ??
+      posix.join(backend.hostFs ? tmpdir() : '/tmp', 'molecule-playwright-feedback'),
     randomUUID(),
   )
   const reportPath = posix.join(dir, 'report.json')
@@ -227,7 +265,16 @@ export async function runPlaywrightFeedback(
   ])
   // The standard OS priority keeps background diagnosis behind the dev server
   // and builds when they share one CPU. Playwright owns its global deadline.
-  const command = `export PLAYWRIGHT_JSON_OUTPUT_FILE=${shellQuote(reportPath)} MOL_TEST_FEEDBACK_EVENTS=${shellQuote(eventsPath)}; nice -n 10 sh -c ${shellQuote(native)}`
+  const command = `export MOL_TEST_INTERNAL=1 PLAYWRIGHT_JSON_OUTPUT_FILE=${shellQuote(reportPath)} MOL_TEST_FEEDBACK_EVENTS=${shellQuote(eventsPath)}; node ${shellQuote(posix.join(dir, 'run.cjs'))}`
+  let cancelling: Promise<void> | undefined
+  const cancel = (): void => {
+    cancelling ??= backend.writeFile(posix.join(dir, 'stop'), '').catch(() => undefined)
+  }
+  const cancelled = (): PlaywrightFeedbackResult => ({
+    ...base,
+    status: 'cancelled',
+    durationMs: Date.now() - started,
+  })
   let poll: ReturnType<typeof setTimeout> | undefined,
     reading: Promise<void> | undefined,
     done = false
@@ -241,6 +288,7 @@ export async function runPlaywrightFeedback(
         nativeFailures.set(identity, failure)
         if (emitted.has(identity)) continue
         emitted.add(identity)
+        if (options.signal?.aborted) continue
         options.emit?.({
           ...base,
           failures: [failure],
@@ -262,13 +310,39 @@ export async function runPlaywrightFeedback(
     })
   }
   try {
+    if (options.signal?.aborted) return cancelled()
+    await backend.run(
+      `node -e ${shellQuote(`require('node:fs').mkdirSync(${JSON.stringify(dir)},{recursive:true,mode:0o700})`)}`,
+      { timeout: 5_000 },
+    )
     await backend.writeFile(reporterPath, feedbackReporterSource())
+    await backend.writeFile(
+      posix.join(dir, 'run.cjs'),
+      feedbackProcessSource({
+        command: native,
+        cwd: spec.cwd,
+        root: backend.projectRoot,
+        directory: dir,
+      }),
+    )
+    options.signal?.addEventListener('abort', cancel, { once: true })
+    if (options.signal?.aborted) cancel()
+    if (cancelling) {
+      await cancelling
+      return cancelled()
+    }
     if (options.emit) tick()
     const result = await backend.run(command, {
       cwd: spec.cwd,
       timeout: timeout + 10_000,
       budgetMs: timeout + 5_000,
     })
+    if (options.signal?.aborted) return cancelled()
+    try {
+      if ((await backend.readFile(posix.join(dir, 'yielded'))) === 'foreground') return cancelled()
+    } catch (_error1) {
+      /* the native run was not preempted */
+    }
     done = true
     if (poll) clearTimeout(poll)
     if (reading) await reading
@@ -327,6 +401,8 @@ export async function runPlaywrightFeedback(
     }
   } finally {
     done = true
+    options.signal?.removeEventListener('abort', cancel)
+    if (cancelling) await cancelling
     if (poll) clearTimeout(poll)
     if (reading) await reading
     // Only this run's private generated files; the supplied suite and its outputs stay untouched.

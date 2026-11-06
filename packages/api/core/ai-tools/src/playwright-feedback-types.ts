@@ -43,7 +43,7 @@ export interface PlaywrightFeedbackResult {
   spec: string
   revision: number
   durationMs: number
-  status: 'passed' | 'failed' | 'unavailable'
+  status: 'passed' | 'failed' | 'unavailable' | 'cancelled'
   failures: PlaywrightFeedbackFailure[]
   /** Native counts for this one diagnostic selection, never whole-suite proof. */
   nativeStats?: PlaywrightReportStats
@@ -58,6 +58,8 @@ export interface PlaywrightFeedbackOptions {
     sources: string[],
     revision: number,
     emit: (result: PlaywrightFeedbackResult) => void,
+    /** Stop the owned native process group when cancelled; never wait for the tests to finish. */
+    signal: AbortSignal,
   ) => Promise<PlaywrightFeedbackResult>
   /** Only current native failures are delivered. Passing apps receive no note. */
   onFailures?: (result: PlaywrightFeedbackResult) => void
@@ -70,6 +72,8 @@ export interface PlaywrightFeedbackOptions {
 export interface PlaywrightFeedback {
   changed: (paths: readonly string[]) => void
   takeFailures: () => PlaywrightFeedbackResult[]
+  /** Cancel speculation before foreground work. Release after that work; nested callers are safe. */
+  pause: () => Promise<() => void>
   /** Wait only in tests or shutdown; file writes and deploys must never await this. */
   settled: () => Promise<void>
   close: () => Promise<void>

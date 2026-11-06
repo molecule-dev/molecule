@@ -17,7 +17,12 @@
  *   to batch source reads over either backend and `runPlaywrightFeedback` to run each
  *   supplied spec through its native command. Its incremental reporter supplies exact
  *   locator failures and the failure-time page snapshot. Healthy runs emit no note;
- *   no suite schedules no runner. `settled()`/`close()` are for tests and shutdown,
+ *   no suite schedules no runner. Pass the runner's cancellation signal to
+ *   `runPlaywrightFeedback` in its options and call `pause()` before foreground tools,
+ *   then invoke its returned release function afterwards. Speculation yields to
+ *   independent native CLI tests/builds and uses OS idle CPU/I/O priority. Its
+ *   private temporary reports are not a user test result or something to poll.
+ *   New writes cancel stale native work. `settled()`/`close()` are for tests and shutdown,
  *   never a deployment barrier. Diagnoses are not whole-suite completion proof.
  * - **Opaque command plans:** prepare each logical step with `streamingBackgroundCommand`,
  *   call `createCommandPlan`, and attach it to the executed wrapper with `commandWithPlan`.
