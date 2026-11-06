@@ -21,6 +21,32 @@
  * Monkey-patching `res.json` (or `res.send`/`res.end`) to re-shape a handler's answer intercepts
  * nothing the handler produces, so the request it was meant to answer is left unanswered and hangs.
  *
+ * **A different request or response envelope is configuration.** Pass
+ * `mapRequest` and/or `mapResponse` as the second argument to `createRequestHandler`.
+ * Both may be asynchronous. The existing handler still validates and authorizes
+ * the adapted input. A response mapper sees the handler's errors and partial
+ * responses too: preserve them and its headers instead of treating every result
+ * as a success. `adaptHandler(handler, options)` offers the same mappings when
+ * another HTTP adapter will send the structured response.
+ * A request mapper can return `{ response: { statusCode, body } }` to answer
+ * before calling the handler, for example when extra validation fails or a
+ * filter lookup finds nothing. That response still passes through mapResponse.
+ *
+ * ```typescript
+ * import { createRequestHandler } from '@molecule/api-resource'
+ * import { handlers } from '@molecule/api-resource-user'
+ *
+ * const register = createRequestHandler(handlers.create({ name: 'User', tableName: 'users' }), {
+ *   // Return overrides. The adapter retains framework methods and getters.
+ *   mapRequest: (req) => ({ body: req.body?.account }),
+ *   mapResponse: (result) => result.statusCode === 201
+ *     ? { ...result, body: { account: result.body.props, accessToken: result.body.accessToken } }
+ *     : result,
+ * })
+ * // Keep the route's existing rate limiter and authorization around register.
+ * // No mapping is inferred: a flat-body API keeps createRequestHandler(handler).
+ * ```
+ *
  * @example
  * ```typescript
  * import { z } from 'zod'

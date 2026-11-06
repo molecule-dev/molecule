@@ -56,6 +56,16 @@
  * Monkey-patching `res.json` to re-shape a handler's answer intercepts nothing the handler
  * produces, so the request it was meant to answer is left unanswered and hangs.
  *
+ * **Adapt envelopes with `createRequestHandler(handler, options)` from
+ * `@molecule/api-resource` 1.1 or newer.** Keep `handlers.create(resource)` and
+ * `handlers.logIn(resource)` as the handler. `mapRequest: (req) =>
+ * ({ body: req.body?.account })` unwraps this API's account envelope before the
+ * existing validation runs. `mapResponse` can return `{ ...result, body }`
+ * for a successful result; preserve errors, the 206 two-factor response and
+ * session headers. Both mappings may be async. Read that package's adapter
+ * example for the full wiring, including early validation responses. Keep
+ * route rate limits and authorization around the configured wrapper.
+ *
  * **Re-shaping a success answer (RealWorld's `{ user: { …, token } }`, say)? Read the token from
  * `result.body.accessToken` — it is in the BODY.** The `Authorization` response header carries
  * the same token prefixed with the mount's scheme (`Bearer <token>`), so it is not the raw value
@@ -234,9 +244,12 @@
  * `invalidateDeviceExistsCache(deviceId)` (or `invalidateAllDeviceExistsCache()`) after the
  * delete; the built-in log-out route already does.
  *
- * On the CLIENT, the bearer token is held IN MEMORY only — a `localStorage` copy is
- * XSS-exfiltratable and is forbidden. The session is restored after a reload via the
- * httpOnly cookie + `GET /users/me`; don't persist the token yourself.
+ * On the CLIENT, use the bonded `@molecule/app-auth` client as the session store.
+ * `AuthClientConfig.storage` selects persistence. A cookie API can use `storage:
+ * 'memory'` and restore through the httpOnly cookie + `GET /users/me`. A header-only
+ * API sets no session cookie; the browser client's default or an explicit
+ * `createBrowserStorageAdapter()` retains its token across reloads. Keep that
+ * choice in the shared auth configuration, rather than adding another token store.
  *
  * **Client-facing endpoints** (mounted under the app's `/api` prefix → `/api/users/...`).
  * The auth CLIENT (`useAuth()` → `login` / `register` / `logout` / `refresh`) already wraps
@@ -289,8 +302,9 @@
  *   in its payload; never mock the flow or modify production code to expose it.
  * - [ ] Logging out and logging back in with the same credentials reaches the same
  *   account and its data.
- * - [ ] The session survives a full page reload (restored via the httpOnly cookie +
- *   `GET /users/me` — never from a token persisted in localStorage).
+ * - [ ] The session survives a full page reload through the configured shared client:
+ *   a cookie API restores via the httpOnly cookie + `GET /users/me`; a header-only
+ *   API uses its configured storage adapter.
  * - [ ] A wrong password shows a visible error and does NOT authenticate.
  * - [ ] Authenticated-only screens are unreachable when logged out (redirect to
  *   login or an explicit denial — never a blank page).

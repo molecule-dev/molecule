@@ -32,17 +32,27 @@
  *
  * @example
  * ```typescript
- * // An API with its own response shape (a spec you must match) uses the
- * // service and writes its own envelope:
- * import { createArticle, listArticles } from '@molecule/api-resource-article'
+ * // Configure a publishing API's envelopes without rewriting its operations:
+ * import { createArticleHandlers } from '@molecule/api-resource-article'
  *
- * router.post('/api/articles', authenticate, async (req, res) => {
- *   const article = await createArticle(userId, req.body.article)
- *   res.status(201).json({ article: { ...article, author: await profileOf(article.authorId) } })
+ * const publishing = createArticleHandlers({
+ *   mapRequest: (req) => ({ body: req.body?.entry }),
+ *   mapResponse: async (result) => {
+ *     // Preserve validation, authorization, missing rows and empty deletes.
+ *     if (result.statusCode >= 400 || result.statusCode === 204) return result
+ *     // The app owns its projection. A list can batch-load author profiles here.
+ *     return { ...result, body: { entry: result.body } }
+ *   },
  * })
+ * router.post('/entries', publishing.create) // authenticated session remains required
+ * router.get('/entries/:slug', publishing.read)
  *
- * const page = await listArticles({ tag: 'dragons', limit: 20, offset: 0, viewerId })
- * // page.data[0].favorited, page.data[0].favoritesCount, page.total
+ * // mapRequest can also resolve an external filter name to a user id in req.query.
+ * // If a lookup finds nothing, return { response: { statusCode, body } } with
+ * // this API's empty-page response before querying. Never drop the filter.
+ * // Keep extra domain validation in route middleware before these handlers.
+ * // For a different domain model or custom workflow, call createArticle/listArticles
+ * // from a local route instead. The default requestHandlerMap never adopts these mappings.
  * ```
  *
  * @example

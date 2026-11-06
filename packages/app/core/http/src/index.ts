@@ -56,9 +56,10 @@
  *   stay in YOUR API; the browser calls your API and the API uses the secret server-side.
  *   Only a publishable/public key may ever be client-side.
  *
- * Auth (the bearer token / session cookie) is attached by the client's interceptors — do not
- * read a token from `localStorage` or hand-attach it (the token is memory-only; see the user
- * resource).
+ * Auth (the bearer token / session cookie) is attached by the bonded client's
+ * interceptors and token source. Keep persistence in `@molecule/app-auth`'s
+ * `AuthClientConfig.storage`; use the bonded client instead of reading storage
+ * or hand-attaching headers in each component.
  * An API that wants another scheme than `Bearer` (`Authorization: Token <jwt>`) passes
  * `authScheme: 'Token'` to the client's CONSTRUCTOR — `setClient(createFetchClient({ baseURL,
  * authScheme: 'Token' }))`, or the bonded provider's constructor

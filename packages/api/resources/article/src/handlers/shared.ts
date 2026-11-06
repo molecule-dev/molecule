@@ -5,7 +5,7 @@
  */
 
 import { t } from '@molecule/api-i18n'
-import type { MoleculeResponse } from '@molecule/api-resource'
+import type { MoleculeResponse, Response } from '@molecule/api-resource'
 
 /**
  * The signed-in user's id, if any.
@@ -19,67 +19,71 @@ export const sessionUserId = (res: MoleculeResponse): string | undefined =>
 /**
  * Answer 401.
  *
- * @param res - The response.
+ * @returns The structured unauthorized response.
  */
-export const unauthorized = (res: MoleculeResponse): void => {
-  res.status(401).json({
+export const unauthorized = (): Response => ({
+  statusCode: 401,
+  body: {
     error: t('resource.error.unauthorized', undefined, { defaultValue: 'Unauthorized' }),
     errorKey: 'resource.error.unauthorized',
-  })
-}
+  },
+})
 
 /**
  * Answer 404 for a missing article.
  *
- * @param res - The response.
+ * @returns The structured not-found response.
  */
-export const notFound = (res: MoleculeResponse): void => {
-  res.status(404).json({
+export const notFound = (): Response => ({
+  statusCode: 404,
+  body: {
     error: t('article.error.notFound', undefined, { defaultValue: 'Article not found' }),
     errorKey: 'article.error.notFound',
-  })
-}
+  },
+})
 
 /**
  * Answer 403 for a change only the author may make.
  *
- * @param res - The response.
+ * @returns The structured forbidden response.
  */
-export const forbidden = (res: MoleculeResponse): void => {
-  res.status(403).json({
+export const forbidden = (): Response => ({
+  statusCode: 403,
+  body: {
     error: t('article.error.notAuthor', undefined, {
       defaultValue: 'Only the author can change this article',
     }),
     errorKey: 'article.error.notAuthor',
-  })
-}
+  },
+})
 
 /**
  * Answer 500 after logging.
  *
- * @param res - The response.
  * @param key - The i18n key (`article.error.*`).
  * @param fallback - The English message.
+ * @returns The structured failure response.
  */
-export const failed = (res: MoleculeResponse, key: string, fallback: string): void => {
-  res.status(500).json({ error: t(key, undefined, { defaultValue: fallback }), errorKey: key })
-}
+export const failed = (key: string, fallback: string): Response => ({
+  statusCode: 500,
+  body: { error: t(key, undefined, { defaultValue: fallback }), errorKey: key },
+})
 
 /**
  * Answer 400 for input that failed validation.
  *
- * @param res - The response.
  * @param issues - The schema's issues.
+ * @returns The structured validation response.
  */
 export const invalid = (
-  res: MoleculeResponse,
   issues: ReadonlyArray<{ path: PropertyKey[]; message: string }>,
-): void => {
-  res.status(400).json({
+): Response => ({
+  statusCode: 400,
+  body: {
     error: issues.map((e) => `${e.path.map(String).join('.')}: ${e.message}`).join(', '),
     errorKey: 'article.error.validationFailed',
-  })
-}
+  },
+})
 
 /**
  * A query-string number, or undefined.
