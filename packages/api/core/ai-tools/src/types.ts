@@ -186,8 +186,8 @@ export interface ToolBuildConfig {
   waitBudgetMs?: number
 
   /**
-   * Opt in to one partial diagnostic return for a task driving this known deployed URL.
-   * Return null when the task already returned a wait result or its history is unknown.
+   * Opt in to partial diagnostics for new final failure causes at this known deployed URL.
+   * Return null when the task has completed or its history is unknown. Repeated causes are silent.
    * Only a real suite command with a complete inline failure report can yield; it remains
    * running, with no exit code or completed proof. Absent leaves ordinary waits unchanged.
    */

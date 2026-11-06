@@ -3094,8 +3094,20 @@ function failedTests(log: string): FailedTest[] {
  * @returns The error line, or null when the block has no body.
  */
 function failureErrorLine(body: string[]): string | null {
-  const thrown = body.find((l) => /^[A-Za-z_$][\w.$]*(?:Error|Exception)\b/.test(l))
-  return thrown ?? body[0] ?? null
+  const timeout = body.find((line) => /^Test timeout of \d+ms exceeded/.test(line))
+  const thrown = body.find(
+    (line) =>
+      /^(?:[A-Za-z_$][\w.$]*)?(?:Error|Exception)\b/.test(line) &&
+      // Playwright closes the page when its test budget expires. That cancellation error is
+      // a consequence of the timeout, not a different failure to diagnose.
+      !(
+        timeout &&
+        /^Error: (?:page|locator)\.[^:]+: Target page, context or browser has been closed/.test(
+          line,
+        )
+      ),
+  )
+  return thrown ?? timeout ?? body.find((line) => !/^Retry #\d+\b/.test(line)) ?? null
 }
 
 /**
@@ -3509,19 +3521,37 @@ export function repeatingFailure(log: string): RepeatingFailure | null {
  * @param excluded - The test titles the request carves out, if the caller knows them.
  * @param options - `finalOnly` reads only a failure the run has finished with; `noRetries` says
  *   the command proves the run cannot retry (`--retries=0`), so its first failure is final.
+ *   `onCause` receives each distinct normalized native error from the matching bodies.
  * @returns True when a `✘` row's own test, outside the request's exclusions, has a failure body
  *   under it — and, with `finalOnly`, that failure is final in the log read so far.
  */
 export function logShowsInlineFailureBodies(
   log: string,
   excluded: readonly string[] = [],
-  options: { finalOnly?: boolean; noRetries?: boolean } = {},
+  options: { finalOnly?: boolean; noRetries?: boolean; onCause?: (cause: string) => void } = {},
 ): boolean {
+  const bodies = inlineFailureBodies(log, excluded, options)
+  if (options.onCause) {
+    const causes = new Set(
+      bodies.map(failureMessage).filter((message): message is string => message !== null),
+    )
+    for (const cause of causes) options.onCause(cause)
+  }
+  return bodies.length > 0
+}
+
+/** Native inline bodies whose own result rows establish the requested attempt state. */
+function inlineFailureBodies(
+  log: string,
+  excluded: readonly string[],
+  options: { finalOnly?: boolean; noRetries?: boolean },
+): string[] {
   const text = log.replace(ANSI_SGR, '')
   const failed = new Set(distinctTests(failedTests(text)).map(retrylessTestKey))
-  if (failed.size === 0) return false
+  if (failed.size === 0) return []
   const blocks = failureBlocks(text)
   const rows = options.finalOnly ? resultRows(text) : []
+  const matched: string[] = []
   for (const block of blocks) {
     const m = FAILURE_BLOCK_HEADER.exec(block.split('\n')[0] ?? '')
     if (m === null) continue
@@ -3530,10 +3560,13 @@ export function logShowsInlineFailureBodies(
     if (matchingExcludedTitles(heading, excluded).length > 0) continue
     const key = retrylessTestKey({ where, title, seconds: null })
     if (!failed.has(key)) continue
-    if (!options.finalOnly) return true
-    if (failureIsFinal({ rows, blocks, key, noRetries: options.noRetries === true })) return true
+    if (
+      !options.finalOnly ||
+      failureIsFinal({ rows, blocks, key, noRetries: options.noRetries === true })
+    )
+      matched.push(block)
   }
-  return false
+  return matched
 }
 
 /** The runner's retry marker on a `list`-reporter row (` (retry #1)`, `_retrySuffix`). */

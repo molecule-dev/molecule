@@ -6876,6 +6876,30 @@ describe('opt-in first diagnostic progress from a deployed task', () => {
     expect(state.finishAt).toBe(Infinity)
   })
 
+  it('yields a new final failure cause after the first diagnostic was collected', async () => {
+    const { backend, state } = fixture()
+    const id = await launch(backend, `${command} --retries=0`)
+    expect((await wait(backend, id, enabled)).waitedMs).toBe(12000)
+    const missingForm = [
+      '  ✘  4 [chromium] › accounts.spec.ts:15:3 › opens account (5.1s)',
+      '  1) [chromium] › accounts.spec.ts:15:3 › opens account ─────────',
+      '',
+      '    TimeoutError: page.fill: Timeout 5000ms exceeded.',
+      '    Call log:',
+      `      - waiting for locator('input[name="account"]')`,
+      '',
+    ].join('\n')
+    state.text += `\n${missingForm}`
+    const next = await wait(backend, id, enabled)
+    expect(next).toMatchObject({ status: 'running', waitedMs: 2000 })
+    expect(next.newFailureCauses).toEqual([expect.stringContaining('input[name="account"]')])
+    expect(next.note).toContain('start on this failure now')
+    expect(state.finishAt).toBe(Infinity)
+    // Repeated waits and another test with that same error do not spend another round trip.
+    state.text += `\n${missingForm.replaceAll('accounts.spec.ts:15', 'accounts.spec.ts:25')}`
+    expect((await wait(backend, id, enabled)).waitedMs).toBe(30000)
+  })
+
   it('still yields a suite failure at 30 s under the longer wait budget', async () => {
     const { backend, state } = fixture(30_000)
     const id = await launch(backend)

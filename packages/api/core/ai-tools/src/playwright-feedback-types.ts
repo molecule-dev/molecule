@@ -30,7 +30,7 @@ export interface PlaywrightFeedbackFailure {
   spec: string
   line: number
   error: string
-  /** The native runner's locator or assertion, verbatim apart from redaction. */
+  /** The native runner's locator, assertion or timed-out browser operation, apart from redaction. */
   locator: string
   /** Playwright's own failure-time accessibility snapshot, when recorded. */
   rendered?: string

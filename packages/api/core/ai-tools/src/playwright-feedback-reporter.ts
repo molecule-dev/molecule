@@ -45,7 +45,7 @@ module.exports = class FeedbackReporter {
  * Read native failure events; incomplete final lines wait for the next read.
  * @param text - Reporter JSONL, not runner-log inference.
  * @param sourceFiles - Triggering source files from the scheduler.
- * @returns Locator failures only, redacted and bounded.
+ * @returns Native locator/assertion failures and timed-out browser operations, redacted and bounded.
  */
 export function nativeFeedbackFailures(
   text: string,
@@ -71,7 +71,13 @@ export function nativeFeedbackFailures(
       const locator =
         /(?:Locator:\s*|waiting for )(locator\([^\n]+|getBy[^\n]+)/.exec(error)?.[1] ??
         /strict mode violation: ([^\n]+)/.exec(error)?.[1] ??
-        /(?:^|\n)((?:Error: )?expect\([^\n]+|AssertionError:[^\n]+)/.exec(error)?.[1]
+        /(?:^|\n)((?:Error: )?expect\([^\n]+|AssertionError:[^\n]+)/.exec(error)?.[1] ??
+        // A UI loop can exhaust the test budget between actions. Playwright then names
+        // page.waitForTimeout/locator.count rather than a locator. That is still the
+        // supplied test's real failure, with its native location and page snapshot.
+        (/Test timeout of \d+ms exceeded\./.test(error)
+          ? /(?:^|\n)Error: ((?:page|locator)\.[\w.]+):/.exec(error)?.[1]
+          : undefined)
       if (!locator) continue
       out.push({
         spec: event.spec,

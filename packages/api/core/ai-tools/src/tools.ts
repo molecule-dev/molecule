@@ -151,7 +151,10 @@ const inlineFailuresByTask = new Set<string>()
  * what the executor must not be handed for now, and a re-run narrowed for the wrong directory
  * resolves the failing test's `file:line` against the wrong suite.
  */
-const runByTask = new Map<string, { command: string; cwd?: string; diagnosticYielded?: boolean }>()
+const runByTask = new Map<
+  string,
+  { command: string; cwd?: string; diagnosticCauses?: Set<string> }
+>()
 /** Last observed logical step, so step changes also reset diagnostics between wait calls. */
 const diagnosticStepByTask = new Map<string, string>()
 
@@ -4151,6 +4154,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           midRunLeadNoted.delete(taskId)
           inlineFailuresByTask.delete(taskId)
           midRunNote = null
+          taskRecord?.diagnosticCauses?.clear()
         }
         diagnosticStepByTask.set(taskId, stepIdentity)
         started =
@@ -4208,13 +4212,20 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
             }),
           }
         }
+        const finalCauses: string[] = []
+        if (yieldDiagnostic)
+          logShowsInlineFailureBodies(causeLog, excludedTestTitles?.() ?? [], {
+            finalOnly: true,
+            noRetries: namesNoRetries(step.command),
+            onCause: (cause) => finalCauses.push(cause),
+          })
         if (
           yieldDiagnostic &&
           taskRecord &&
-          !taskRecord.diagnosticYielded &&
+          finalCauses.some((cause) => !taskRecord?.diagnosticCauses?.has(cause)) &&
           // A failure the request excludes by name is not a diagnostic to hand back — the same
           // matcher the finished run's causes note drops it with, so the wait keeps running and
-          // the one yield stays available for a failure that counts (xr-molecule-flash-h13).
+          // a diagnostic stays available for a failure that counts (xr-molecule-flash-h13).
           // Only a failure the run has FINISHED with is a diagnostic: a first attempt whose retry
           // has not printed yet may still pass, and handing it back sent the builder to fix a test
           // the retry absorbed while the deployed proof went green — the edit voided that proof
@@ -4229,9 +4240,11 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           // Completion during the log read still wins over a progress return.
           exitCode = await readExit()
           if (exitCode !== null) break
-          // Another wait can yield while this sandbox read is pending.
-          if (taskRecord.diagnosticYielded) continue
-          taskRecord.diagnosticYielded = true
+          // Another wait can deliver a cause while this sandbox read is pending.
+          const seen = (taskRecord.diagnosticCauses ??= new Set())
+          const fresh = finalCauses.filter((cause) => !seen.has(cause))
+          if (fresh.length === 0) continue
+          for (const cause of fresh) seen.add(cause)
           const earlyMs = Date.now() - startedAt
           waitedByTask.set(taskId, waitedBefore + earlyMs)
           return {
@@ -4239,6 +4252,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
             status: 'running',
             waitedMs: earlyMs,
             outputSoFar: sanitizeOutput(truncateMiddle(causeLog, MAX_OUTPUT_SIZE)),
+            newFailureCauses: fresh.map((cause) => sanitizeOutput(cause)),
             // This yield fires only on a FINAL failure (the `finalOnly` read above), so the
             // deployed run it belongs to can no longer pass and a local edit cannot void a green
             // proof. The note therefore spends its words on what to do with that: start the fix

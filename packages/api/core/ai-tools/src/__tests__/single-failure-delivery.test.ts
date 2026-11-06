@@ -46,6 +46,13 @@ function backendFor(log: string, exitCode = 1): ExecutionBackend {
 }
 
 describe('single-failure delivery', () => {
+  it('uses a retried assertion error rather than the retry separator as its cause', () => {
+    const block = BLOCK.replace('\n\n    Error:', '\n\n    Retry #1 ─────────\n\n    Error:')
+    const note = failureCausesNote(runLog(7000, block))!
+    expect(note).toContain(ERROR)
+    expect(note).not.toContain('`Retry #1')
+  })
+
   it('does not claim an error was cut when the error survives at the end', () => {
     const log = `${'progress\n'.repeat(1200)}${BLOCK}\n${TALLY}`
     expect(displayed(log)).toContain(ERROR)
