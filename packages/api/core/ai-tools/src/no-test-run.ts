@@ -191,9 +191,11 @@ const NO_TEST_PROGRAMS: ReadonlySet<string> = new Set([
 /**
  * A heredoc body is data a command writes, not what it runs: a `playwright test --list` inside
  * the config a command writes is not a run of this command either way. The pattern consumes the
- * writer's own line prefix, the same shape `outputRedirectTarget` reads.
+ * writer's own line prefix, the same shape `outputRedirectTarget` reads. Start only at a
+ * statement boundary: retrying that prefix at every character makes lines without heredocs
+ * quadratic (a 55 KiB comment delayed runner classification by seconds).
  */
-const HEREDOC = /[^\n;&|]*<<-?\s*(['"]?)(\w+)\1[\s\S]*?\n\s*\2\b/g
+const HEREDOC = /(?:^|(?<=[\n;&|]))[^\n;&|]*<<-?\s*(['"]?)(\w+)\1[\s\S]*?\n\s*\2\b/g
 
 /**
  * Whether this runner's invocation — the text from just after its name to the end of its
