@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.17.0
+
+### Minor Changes
+
+- Run native Playwright diagnostics in the background after source changes, with precise locator failures and rendered-page context.
+
 ## 1.16.8
 
 ### Patch Changes
