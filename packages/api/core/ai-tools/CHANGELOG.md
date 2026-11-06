@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.17.1
+
+### Patch Changes
+
+- Report timed-out browser operations and newly observed final test failures while background checks continue.
+
 ## 1.17.0
 
 ### Minor Changes
