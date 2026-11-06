@@ -30,7 +30,8 @@ export interface UseOptimisticValueResult<T> extends OptimisticValueState<T> {
 /**
  * A server-backed value — a favorite, follow, like or bookmark button, a rating, a quantity, a
  * setting switch — that changes on the first render after a tap and is saved one change at a
- * time, in order. A tap during a save is saved right after it; only a failure of the newest
+ * time, in order. Taps during a save update the desired value; the newest waiting value is
+ * saved after it (intermediate waiting values coalesce). Only a failure of the newest
  * change puts the server value back. See `createOptimisticValue` in `@molecule/app-state`.
  *
  * `value` is the server's value from props or a query. A new `value` is taken only when it
@@ -38,6 +39,18 @@ export interface UseOptimisticValueResult<T> extends OptimisticValueState<T> {
  * saved, so a parent re-render or a refetch of older data never flips the button mid-save. The
  * latest `commit` and `onError` are always used. Give the component a `key` per record, so one
  * record's pending change never shows on another.
+ * Keep related fields, such as a favorite flag and its count, in the SAME value. Return both
+ * from the server response in `commit`, and publish that response to parent/query caches there
+ * if needed. Let commit reject on failure: a catch that returns old data hides the failure.
+ * Replace display-state setters and prop-copy effects with this hook's value and `update`.
+ * `pending` is for feedback, never a reason to disable the toggle or drop a tap.
+ *
+ * Render/enable the keyed control only once its initial record exists. Keep that control
+ * mounted through refetches of the same record. This hook does not fix a click handler that
+ * returns on a still-null profile, or a remount that throws its controller away. Refetches
+ * during a save cannot replace pending intent; changed server snapshots arriving AFTER saving
+ * finishes are accepted and need query-layer ordering if they can be stale. See the module
+ * quickstart for a complete favorite button with a server-confirmed count.
  *
  * @param options - The server's current value and how to save a change.
  * @returns The value to render, whether a save is pending, the newest failure, and `set`/`update`.

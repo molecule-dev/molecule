@@ -27,6 +27,63 @@
  * fallback for a loading client: initialize a request-scoped client first,
  * or leave the opt-in hold disabled for SSR.
  *
+ * **Server-backed toggles:** use `useOptimisticValue` for a favorite/follow/like,
+ * bookmark or settings switch that changes immediately. Keep its flag and count
+ * in one value. Render that value, update it with a functional updater, and return
+ * both server fields from `commit`. Do not add a second `useState`, a prop-copy
+ * effect, or an `if (pending) return`/disabled-on-pending guard: the hook accepts
+ * taps while saving and serializes saves. It coalesces waiting changes to the
+ * newest value. Let commit reject on failure so the hook can roll back.
+ * Mount a keyed control only after its record loads. Keep it mounted through
+ * refetches of that record. The hook protects pending intent from refetches and
+ * unchanged old props after a save; it cannot order different server snapshots
+ * received after saving finishes, or make a missing record ready for a click.
+ *
+ * @example
+ * ```tsx
+ * import { useHttpClient, useOptimisticValue, useTranslation } from '@molecule/app-react'
+ *
+ * interface FavoriteRecord {
+ *   slug: string
+ *   favorited: boolean
+ *   favoritesCount: number
+ * }
+ *
+ * function FavoriteButton({ article, onChanged }: {
+ *   article: FavoriteRecord
+ *   onChanged?: (saved: FavoriteRecord) => void
+ * }) {
+ *   const http = useHttpClient()
+ *   const { t } = useTranslation()
+ *   const favorite = useOptimisticValue({
+ *     value: { favorited: article.favorited, count: article.favoritesCount },
+ *     commit: async (next) => {
+ *       const path = `/articles/${article.slug}/favorite`
+ *       const response = next.favorited
+ *         ? await http.post<{ article: FavoriteRecord }>(path)
+ *         : await http.delete<{ article: FavoriteRecord }>(path)
+ *       const saved = response.data.article
+ *       onChanged?.(saved)
+ *       return { favorited: saved.favorited, count: saved.favoritesCount }
+ *     },
+ *   })
+ *   return (
+ *     <button
+ *       aria-pressed={favorite.value.favorited}
+ *       aria-label={t('article.favorite', undefined, { defaultValue: 'Favorite article' })}
+ *       onClick={() => favorite.update((current) => ({
+ *         favorited: !current.favorited,
+ *         count: current.count + (current.favorited ? -1 : 1),
+ *       }))}
+ *     >{favorite.value.count}</button>
+ *   )
+ * }
+ *
+ * function FavoriteControl({ article }: { article: FavoriteRecord | null }) {
+ *   return article ? <FavoriteButton key={article.slug} article={article} /> : null
+ * }
+ * ```
+ *
  * @example
  * ```tsx
  * const profile = useProfileForm<User, { name: string; email: string }>({

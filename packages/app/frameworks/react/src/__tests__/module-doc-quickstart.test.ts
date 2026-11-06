@@ -5,7 +5,7 @@ import ts from 'typescript'
 import { describe, expect, it } from 'vitest'
 
 /** Extract the complete TSX quickstart from the module JSDoc. */
-function quickstart(): string {
+function quickstart(component = 'Dashboard'): string {
   const source = readFileSync(join(import.meta.dirname, '../index.ts'), 'utf8')
   const example = [...source.matchAll(/```tsx\n([\s\S]*?)```/g)]
     .map((match) =>
@@ -14,9 +14,9 @@ function quickstart(): string {
         .map((line) => line.replace(/^\s*\* ?/, ''))
         .join('\n'),
     )
-    .find((block) => block.includes('function Dashboard()'))
-  if (!example) throw new Error('The complete Dashboard quickstart is missing')
-  return example
+    .find((block) => block.includes(`function ${component}(`))
+  expect(example, `The complete ${component} quickstart`).toBeDefined()
+  return example ?? ''
 }
 
 /** Compile an example as a strict TSX consumer of the real public packages. */
@@ -53,5 +53,10 @@ function diagnosticsFor(source: string): string[] {
 describe('the app-react module quickstart', () => {
   it('compiles the complete example under strict TypeScript', () => {
     expect(diagnosticsFor(quickstart()).join('\n')).toBe('')
+  })
+
+  it('compiles the favorite button and count example against the public hook contract', () => {
+    const example = quickstart('FavoriteButton')
+    expect(diagnosticsFor(example).join('\n')).toBe('')
   })
 })
