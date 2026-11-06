@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.17.3
+
+### Patch Changes
+
+- Preserve every failure name and actionable diagnostics when test output is trimmed.
+
 ## 1.17.2
 
 ### Patch Changes
