@@ -1427,12 +1427,17 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
    * is ~50 ms; the executor sees the exact line while the edit is still in
    * front of it.
    */
-  async function syntaxErrorAfterWrite(path: string): Promise<{ syntaxError?: string }> {
+  async function syntaxErrorAfterWrite(
+    path: string,
+    checked?: { stdout: string; stderr: string; exitCode: number } | null,
+  ): Promise<{ syntaxError?: string }> {
     const command = parseCheckCommand(path)
     if (!command) return {}
-    const result = await backend
-      .run(command, { cwd: path.slice(0, path.lastIndexOf('/')) || '/', timeout: 15_000 })
-      .catch(() => null)
+    const result =
+      checked ??
+      (await backend
+        .run(command, { cwd: path.slice(0, path.lastIndexOf('/')) || '/', timeout: 15_000 })
+        .catch(() => null))
     const problem = result ? parseCheckProblem(result) : null
     // JSX in a `.ts` file parses as a type assertion and fails on the first
     // attribute — `Expected ">" but found "className"` — which does not say the
@@ -1525,7 +1530,10 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
    * @param path - Candidate filesystem path after `resolve()`.
    * @returns An error message when unsafe, otherwise `null`.
    */
-  async function checkSymlink(path: string): Promise<string | null> {
+  async function checkSymlink(
+    path: string,
+    probe?: () => Promise<{ stdout: string }>,
+  ): Promise<string | null> {
     if (!symlinkGuards) return null
     // The retry budget is failure-aware. A plain slow answer gets ONE quick retry
     // (X1 flash-m44: three paths refused in 332 ms, the same check passing a beat
@@ -1541,10 +1549,12 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       attempts++
       const started = Date.now()
       try {
-        const result = await backend.run(
-          `readlink -f ${shellQuote(path)} 2>/dev/null || echo ${shellQuote(path)}`,
-          { timeout: 5000 },
-        )
+        const result = probe
+          ? await probe()
+          : await backend.run(
+              `readlink -f ${shellQuote(path)} 2>/dev/null || echo ${shellQuote(path)}`,
+              { timeout: 5000 },
+            )
         const realPath = result.stdout.trim()
         if (
           realPath &&
@@ -1586,6 +1596,44 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       `Unable to verify path safety: the sandbox's command channel failed (${err?.name ?? 'Error'}: ${String(err?.message ?? err).slice(0, 160)}), ` +
       'so the path was refused to stay safe. Retry the call; if every file tool fails this way, the sandbox needs a restart.'
     )
+  }
+
+  /** Guard and old-text read share a transport when the backend offers it. */
+  async function readBeforeWrite(
+    path: string,
+  ): Promise<{ error: string | null; content?: string | null }> {
+    let content: string | null | undefined
+    if (!backend.readFileForUpdate) return { error: await checkSymlink(path) }
+    const probe = async (): Promise<{ stdout: string }> => {
+      const result = await backend.readFileForUpdate!(path, symlinkGuards ? root : undefined)
+      content = result.content
+      return { stdout: result.realPath }
+    }
+    if (symlinkGuards) return { error: await checkSymlink(path, probe), content }
+    try {
+      await probe()
+    } catch (_error) {
+      // No safety check was requested; a failed optimization leaves the native read in charge.
+    }
+    return { error: null, content }
+  }
+
+  /** A formatter needs its original write/hook/reread/check ordering. */
+  async function writeAndCheck(
+    path: string,
+    content: string,
+  ): Promise<{
+    stdout: string
+    stderr: string
+    exitCode: number
+  } | null> {
+    const command = parseCheckCommand(path)
+    if (!onAfterWrite && !onFileChange && command && backend.writeFileAndCheck) {
+      const result = await backend.writeFileAndCheck(path, content, command)
+      if (result !== null) return result
+    }
+    await backend.writeFile(path, content)
+    return null
   }
 
   /**
@@ -2302,12 +2350,12 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         return {
           error: `Content too large (${Math.round(content.length / 1024)}KB). Maximum is ${MAX_WRITE_SIZE / 1024 / 1024}MB.`,
         }
-      const symlinkErr = await checkSymlink(path)
-      if (symlinkErr) return { error: symlinkErr }
+      const before = await readBeforeWrite(path)
+      if (before.error) return { error: before.error }
       try {
         let oldContent: string | null = null
         try {
-          oldContent = await backend.readFile(path)
+          oldContent = before.content !== undefined ? before.content : await backend.readFile(path)
         } catch (_error) {
           /* file doesn't exist yet — oldContent stays null */
         }
@@ -2320,7 +2368,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
 
         if (onFileDiff) onFileDiff({ path, oldContent, newContent: content })
 
-        await backend.writeFile(path, content)
+        const checked = await writeAndCheck(path, content)
         if (onAfterWrite) await onAfterWrite(path).catch(() => {})
 
         // The text on disk is the text just written unless an after-write hook (a formatter)
@@ -2344,7 +2392,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           diff,
           totalLines: countLines(finalContent),
           ...(echo !== null ? { excerpt: sanitizeFileContent(echo, path) } : {}),
-          ...(await syntaxErrorAfterWrite(path)),
+          ...(await syntaxErrorAfterWrite(path, checked)),
         }
       } catch (e: unknown) {
         return { error: `Failed to write ${path}: ${(e as Error).message}` }
@@ -2410,10 +2458,10 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           error:
             'No replacements provided. Use { replacements: [{ old_string, new_string }] } or { old_string, new_string }.',
         }
-      const symlinkErr = await checkSymlink(path)
-      if (symlinkErr) return { error: symlinkErr }
+      const before = await readBeforeWrite(path)
+      if (before.error) return { error: before.error }
       try {
-        let content = await backend.readFile(path)
+        let content = before.content ?? (await backend.readFile(path))
         // A transiently-empty read here made every old_string "not found", which
         // steers the model to re-read and then rewrite a file it never saw. Same
         // verification as read_file: empty is only believed once it is confirmed.
@@ -2820,7 +2868,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
 
         if (onFileDiff) onFileDiff({ path, oldContent, newContent: content })
 
-        await backend.writeFile(path, content)
+        const checked = await writeAndCheck(path, content)
         if (onAfterWrite) await onAfterWrite(path).catch(() => {})
 
         if (onFileChange) onFileChange({ type: 'modified', path })
@@ -2856,7 +2904,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
               r.new_string !== '' &&
               !r.new_string.endsWith('\n'),
           )
-        const syntax = await syntaxErrorAfterWrite(path)
+        const syntax = await syntaxErrorAfterWrite(path, checked)
         // A parse error and a dropped line break are two OBSERVATIONS, not one
         // accident. A join only sometimes breaks the syntax (same-line JSX siblings
         // parse), and the diagnostic usually comes from something else in the same

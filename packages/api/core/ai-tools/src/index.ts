@@ -81,6 +81,11 @@
  *   to the model, and execute `catalog.loader` like any other tool. Loading only
  *   exposes schemas, never grants permission or runs a tool. Persist its loaded
  *   names with `onLoad` to keep them available across turns and compaction.
+ * - **Sandbox writes batch transport work.** The optional backend operations
+ *   `readFileForUpdate` and `writeFileAndCheck` combine path safety with the old-text
+ *   read, then the write with its parse check. Diff tracking and redaction checks
+ *   stay in the tools. Format and change hooks retain their ordering before parsing;
+ *   large files and backends without these operations use the native file APIs.
  * - **Scope the tool set per agent** with `include`/`exclude` — a read-only agent
  *   should not receive `write_file`/`exec_command`.
  * - Outputs are size-capped (`MAX_READ_SIZE`, `MAX_OUTPUT_SIZE`, …) and searches

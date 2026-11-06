@@ -7,6 +7,7 @@
 
 import type { ExecutionBackend } from '../types.js'
 import { shellQuote } from '../utilities.js'
+import { sandboxFileOperations } from './sandbox-file-operations.js'
 
 /** Minimal Sandbox shape to avoid hard dependency on `@molecule/api-code-sandbox`. */
 interface SandboxLike {
@@ -14,14 +15,14 @@ interface SandboxLike {
   writeFile(path: string, content: string): Promise<void>
   deleteFile(path: string): Promise<void>
   readDir(path: string): Promise<Array<{ name: string; type: 'file' | 'directory' }>>
-  /** Sandbox command execution — already sandboxed within Docker. */
+  /** Sandbox command execution — already isolated by the provider. */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any
 }
 
 /**
- * Create an ExecutionBackend that delegates to a Docker sandbox instance.
- * The sandbox.exec method is inherently safe — it runs inside an isolated Docker container.
+ * Create an ExecutionBackend that delegates to an isolated sandbox instance.
+ * The sandbox.exec method runs inside the provider's isolated environment.
  *
  * @param sandbox - A running Sandbox instance from `@molecule/api-code-sandbox`
  * @param projectRoot - Root directory inside the sandbox (default: '/workspace')
@@ -31,7 +32,7 @@ export function createSandboxBackend(
   sandbox: SandboxLike,
   projectRoot = '/workspace',
 ): ExecutionBackend {
-  return {
+  const backend: ExecutionBackend = {
     projectRoot,
 
     readFile(path: string) {
@@ -76,9 +77,13 @@ export function createSandboxBackend(
       const fullCommand = budgetSeconds
         ? `o=$(mktemp); e=$(mktemp); timeout -k 5 ${budgetSeconds} bash -c ${shellQuote(anchored)} > "$o" 2> "$e" < /dev/null; c=$?; cat "$o"; cat "$e" >&2; rm -f "$o" "$e"; exit $c`
         : anchored
-      // sandbox.exec is the Sandbox interface method — runs inside Docker, inherently sandboxed
+      // sandbox.exec is the Sandbox interface method — runs inside the provider's isolated environment
       const result = await sandbox.exec(fullCommand, { timeout: opts?.timeout })
       return { stdout: result.stdout, stderr: result.stderr, exitCode: result.exitCode }
     },
   }
+  return Object.assign(
+    backend,
+    typeof sandbox.exec === 'function' ? sandboxFileOperations(backend) : {},
+  )
 }

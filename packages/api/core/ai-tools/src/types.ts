@@ -27,6 +27,30 @@ export interface ExecutionBackend {
   /** Write content to a file. Creates parent directories as needed. */
   writeFile(path: string, content: string): Promise<void>
 
+  /**
+   * Optional single-call path check and bounded text read for write/edit tools.
+   * `realPath` must be resolved before reading; never read outside `symlinkRoot`.
+   * Null `content` means missing; omit it for a native read (large/unreadable text).
+   * Returned text must match readFile's decoding and honor any host file-method wrappers.
+   * Implementations must use this backend's `run` so host command wrappers still apply.
+   */
+  readFileForUpdate?(
+    path: string,
+    symlinkRoot?: string,
+  ): Promise<{ realPath: string; content?: string | null }>
+
+  /**
+   * Optional write followed by the supplied parse command in one transport call.
+   * Null means unsupported BEFORE a successful write; the caller uses writeFile/run.
+   * Never retry a transport error after a write may have landed. After-write and
+   * file-change hooks use the ordinary path so their ordering before parsing stays intact.
+   */
+  writeFileAndCheck?(
+    path: string,
+    content: string,
+    command: string,
+  ): Promise<{ stdout: string; stderr: string; exitCode: number } | null>
+
   /** Delete a file. */
   deleteFile(path: string): Promise<void>
 
