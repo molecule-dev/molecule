@@ -114,6 +114,22 @@ const MAX_RETRY_ATTEMPTS = 8
 const LIFECYCLE_STALE_STREAM_MS = 45_000
 
 /**
+ * How long (ms) an open stream may deliver no event before it is aborted as
+ * stalled (then the no-terminal path reloads history and resumes). The server
+ * writes `keep_alive` at least every ~25 s, on a relayed reconnect too, so a
+ * live stream never comes near it. Applies to a send AND a resume.
+ */
+const STREAM_STALL_MS = 180_000
+
+/**
+ * How long (ms) the client's own open stream may be silent while the push
+ * channel keeps delivering live frames of the same turn before the stream is
+ * treated as deaf and aborted. Both carry the same frames, written at the same
+ * moment, so a healthy stream is never this far behind its own echo.
+ */
+const STREAM_DEAF_MS = 20_000
+
+/**
  * Minimum time (ms) the page must have been hidden before a visibility return
  * triggers an idle-state history reconcile. Filters ordinary quick tab
  * switches so an idle, up-to-date transcript doesn't refetch on every one.
@@ -1025,6 +1041,12 @@ export function useChat(options: UseChatOptions): UseChatResult {
   // effect to distinguish a live-but-quiet stream from one whose socket died
   // while the page was frozen (mobile screen lock).
   const lastStreamEventAtRef = useRef(0)
+  // Whether this client's OWN stream is open and has delivered a server event
+  // (it got past the request — not waiting out a 409 or a resume's history
+  // poll). Only such a stream can be judged deaf by the pushed-frame check in
+  // applyRemoteEventImpl: before its first event, the turn whose frames arrive
+  // over the push channel may be someone else's.
+  const localStreamLiveRef = useRef(false)
   // When the page went hidden, or null while visible — lets the lifecycle
   // effect skip the idle reconcile after ordinary quick tab switches.
   const hiddenAtRef = useRef<number | null>(null)
@@ -1986,6 +2008,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
     const onEvent = (event: ChatStreamEvent): void => {
       if (getMessageStore(storageKey).generation !== streamGeneration) return
       lastStreamEventAtRef.current = Date.now()
+      localStreamLiveRef.current = true
       deps.resetStall()
       // Any non-error event proves the server accepted the turn (see
       // sawServerEvent) — an error can then safely retry as a resume.
@@ -2178,7 +2201,30 @@ export function useChat(options: UseChatOptions): UseChatResult {
     // Everything else is a live frame of the running turn. While THIS client
     // owns a stream, pushed frames are its own WS echo — drop them (the SSE
     // stream is authoritative for the sender).
-    if (store.streaming) return
+    if (store.streaming) {
+      // ...unless that stream has gone deaf. The echo is a copy of frames the
+      // server wrote to the stream at the same moment, so a live frame arriving
+      // here while the open stream has delivered nothing for STREAM_DEAF_MS
+      // means the stream is no longer being written to (a half-open socket, a
+      // relay that lost its turn) — and every frame was being thrown away while
+      // the chat looked frozen until a reload. Abort it: the no-terminal path
+      // reloads history and resumes, which re-attaches to the live turn. Hidden
+      // pages are skipped (timers there are throttled; the lifecycle check
+      // covers the return to the foreground).
+      if (
+        localStreamLiveRef.current &&
+        Date.now() - lastStreamEventAtRef.current > STREAM_DEAF_MS &&
+        (typeof document === 'undefined' || document.visibilityState !== 'hidden')
+      ) {
+        localStreamLiveRef.current = false
+        try {
+          provider.abort()
+        } catch (_error) {
+          // provider.abort() may throw when no stream is active — safe to ignore
+        }
+      }
+      return
+    }
     // A stale accumulator from a previous conversation must never absorb frames.
     if (remoteCtxRef.current && remoteCtxRef.current.generation !== store.generation) {
       remoteCtxRef.current = null
@@ -2575,7 +2621,6 @@ export function useChat(options: UseChatOptions): UseChatResult {
         // dropped stream (→ finalize + reconcile instead of an eternal spinner).
         let receivedTerminal = false
         let stalled = false
-        const STALL_MS = 180_000
         let stallTimer: ReturnType<typeof setTimeout> | null = null
         const resetStall = (): void => {
           if (stallTimer) clearTimeout(stallTimer)
@@ -2586,7 +2631,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
             } catch (_error) {
               // provider.abort() may throw when no stream is active — safe to ignore
             }
-          }, STALL_MS)
+          }, STREAM_STALL_MS)
         }
 
         // Per-message stream handler: one message per server `message_start` (no upfront
@@ -2626,6 +2671,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
           ...(current.userInitiated ? { userInitiated: true } : {}),
           ...(current.viaDictation ? { viaDictation: true } : {}),
         }
+        localStreamLiveRef.current = false
         try {
           await provider.sendMessage(currentMsg, sendConfig, onEvent, currentAttachments)
           resolvedCleanly = true
@@ -2649,6 +2695,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
           }
         } finally {
           if (stallTimer) clearTimeout(stallTimer)
+          localStreamLiveRef.current = false
         }
 
         // Stream closed WITHOUT a terminal (done/error) event — e.g. the server
@@ -2851,14 +2898,31 @@ export function useChat(options: UseChatOptions): UseChatResult {
       // event — a drop without one (another screen lock / background freeze
       // mid-turn) must reconcile + re-resume, not silently stop.
       let receivedTerminal = false
+      // The same liveness watchdog as sendMessage. A resume attaches to a turn
+      // that is usually already running, often through another instance's relay;
+      // without a watchdog a stream nothing writes to again held the chat frozen
+      // for good, because its pushed copy is dropped while this stream is open.
+      let stallTimer: ReturnType<typeof setTimeout> | null = null
+      const resetStall = (): void => {
+        if (stallTimer) clearTimeout(stallTimer)
+        stallTimer = setTimeout(() => {
+          try {
+            provider.abort()
+          } catch (_error) {
+            // provider.abort() may throw when no stream is active — safe to ignore
+          }
+        }, STREAM_STALL_MS)
+      }
       const { onEvent, finalizeCurrent } = createMessageStreamRef.current!({
-        resetStall: () => {},
+        resetStall,
         markTerminal: () => {
           receivedTerminal = true
         },
       })
 
       lastStreamEventAtRef.current = Date.now()
+      localStreamLiveRef.current = false
+      resetStall()
       try {
         await provider.sendMessage('', { ...config, resume: true }, onEvent)
       } catch (err) {
@@ -2871,6 +2935,9 @@ export function useChat(options: UseChatOptions): UseChatResult {
           // Stream is over — finalize the current (partial) message.
           finalizeCurrent()
         }
+      } finally {
+        if (stallTimer) clearTimeout(stallTimer)
+        localStreamLiveRef.current = false
       }
 
       // Same dropped-stream reconcile as sendMessage: the resume stream closed

@@ -3131,3 +3131,183 @@ describe('useChat — resumed turns', () => {
     expect(result.current.isLoading).toBe(false)
   })
 })
+
+// A stream nothing writes to any more must never freeze the chat. While this
+// client's own stream is open, the pushed copy of its turn is dropped as an echo,
+// so a silent stream showed nothing until a reload (the turn kept working
+// server-side the whole time).
+describe('useChat — a silent own stream recovers instead of freezing the chat', () => {
+  const ENDPOINT = '/projects/p1/chat'
+  const LOCAL_PROJECT = 'p1'
+  const history = [
+    { id: 'h1', role: 'user' as const, content: 'go', timestamp: 1000 },
+    { id: 'h2', role: 'assistant' as const, content: 'partial', timestamp: 1001 },
+  ]
+
+  beforeEach(() => {
+    sessionStorage.clear()
+    resetChatStoresForTests()
+    vi.useFakeTimers()
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
+  /** Calls to sendMessage that asked to resume. */
+  function resumeCalls(provider: ChatProvider): unknown[][] {
+    return (provider.sendMessage as ReturnType<typeof vi.fn>).mock.calls.filter(
+      (call) => (call[1] as { resume?: boolean }).resume === true,
+    )
+  }
+
+  it('aborts a silent RESUME stream after the stall window and resumes again', async () => {
+    const { provider, deferreds, emit, completeWithError } = createMockProvider()
+    ;(provider as unknown as { isServerStreaming: boolean }).isServerStreaming = true
+    ;(provider.loadHistory as ReturnType<typeof vi.fn>).mockResolvedValue(history)
+    const { result } = renderHook(
+      () => useChat({ endpoint: ENDPOINT, projectId: LOCAL_PROJECT, loadOnMount: false }),
+      { wrapper: createWrapper(provider) },
+    )
+
+    await act(async () => {
+      void result.current.sendMessage('go')
+    })
+    await act(async () => {
+      emit(0, { type: 'conversation', id: 'conv-1' })
+      completeWithError(0, 'Service Unavailable', 503)
+    })
+    // Countdown (5 s) → resume → one history read (1 s) → the resume request.
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(6_000)
+    })
+    expect(resumeCalls(provider)).toHaveLength(1)
+    const resumeIndex = deferreds.length - 1
+    // It attached to the live turn, then nothing was ever written to it again.
+    await act(async () => {
+      emit(resumeIndex, { type: 'attached' })
+    })
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(179_000)
+    })
+    expect(provider.abort).not.toHaveBeenCalled()
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(2_000)
+    })
+    expect(provider.abort).toHaveBeenCalledTimes(1)
+    // The no-terminal path reloaded history, saw the turn still running, and resumed.
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1_500)
+    })
+    expect(resumeCalls(provider)).toHaveLength(2)
+  })
+
+  it('aborts its own stream when it is silent while pushed frames of the turn keep arriving', async () => {
+    const { provider, emit, startMessage, emitText } = createMockProvider()
+    ;(provider as unknown as { isServerStreaming: boolean }).isServerStreaming = true
+    ;(provider.loadHistory as ReturnType<typeof vi.fn>).mockResolvedValue(history)
+    const { result } = renderHook(
+      () => useChat({ endpoint: ENDPOINT, projectId: LOCAL_PROJECT, loadOnMount: false }),
+      { wrapper: createWrapper(provider) },
+    )
+
+    await act(async () => {
+      void result.current.sendMessage('go')
+    })
+    await act(async () => {
+      emit(0, { type: 'conversation', id: 'conv-1' })
+      startMessage(0, 'own-1')
+      emitText(0, 'working')
+    })
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(21_000)
+    })
+    // Well inside the 180 s watchdog: only the pushed frame can reveal the deaf stream.
+    expect(provider.abort).not.toHaveBeenCalled()
+    await act(async () => {
+      result.current.applyRemoteEvent({ type: 'text', content: ' still working' })
+    })
+    expect(provider.abort).toHaveBeenCalledTimes(1)
+    // A second pushed frame before the recovery lands does not abort again.
+    await act(async () => {
+      result.current.applyRemoteEvent({ type: 'text', content: ' and more' })
+    })
+    expect(provider.abort).toHaveBeenCalledTimes(1)
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1_500)
+    })
+    expect(resumeCalls(provider)).toHaveLength(1)
+  })
+
+  it('leaves a healthy stream alone: its own frames keep arriving with the echo', async () => {
+    const { provider, emit, startMessage, emitText } = createMockProvider()
+    const { result } = renderHook(
+      () => useChat({ endpoint: ENDPOINT, projectId: LOCAL_PROJECT, loadOnMount: false }),
+      { wrapper: createWrapper(provider) },
+    )
+    await act(async () => {
+      void result.current.sendMessage('go')
+    })
+    await act(async () => {
+      emit(0, { type: 'conversation', id: 'conv-1' })
+      startMessage(0, 'own-1')
+    })
+    for (let i = 0; i < 6; i++) {
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(10_000)
+        emitText(0, `chunk ${i} `)
+        result.current.applyRemoteEvent({ type: 'text', content: `chunk ${i} ` })
+      })
+    }
+    expect(provider.abort).not.toHaveBeenCalled()
+  })
+
+  it('never aborts a send whose stream has delivered nothing yet (it may be waiting behind another turn)', async () => {
+    const { provider } = createMockProvider()
+    const { result } = renderHook(
+      () => useChat({ endpoint: ENDPOINT, projectId: LOCAL_PROJECT, loadOnMount: false }),
+      { wrapper: createWrapper(provider) },
+    )
+    await act(async () => {
+      void result.current.sendMessage('go')
+    })
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(30_000)
+    })
+    // A teammate's turn on the same conversation streams over the push channel.
+    await act(async () => {
+      result.current.applyRemoteEvent({ type: 'text', content: 'their turn' })
+    })
+    expect(provider.abort).not.toHaveBeenCalled()
+  })
+
+  it('does not judge a stream on a hidden page (its timers are throttled)', async () => {
+    const { provider, emit } = createMockProvider()
+    const { result } = renderHook(
+      () => useChat({ endpoint: ENDPOINT, projectId: LOCAL_PROJECT, loadOnMount: false }),
+      { wrapper: createWrapper(provider) },
+    )
+    await act(async () => {
+      void result.current.sendMessage('go')
+    })
+    await act(async () => {
+      emit(0, { type: 'conversation', id: 'conv-1' })
+    })
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(30_000)
+    })
+    const visibility = Object.getOwnPropertyDescriptor(Document.prototype, 'visibilityState')
+    Object.defineProperty(document, 'visibilityState', { value: 'hidden', configurable: true })
+    try {
+      await act(async () => {
+        result.current.applyRemoteEvent({ type: 'text', content: 'pushed' })
+      })
+      expect(provider.abort).not.toHaveBeenCalled()
+    } finally {
+      delete (document as unknown as { visibilityState?: string }).visibilityState
+      if (visibility) expect(document.visibilityState).toBe('visible')
+    }
+  })
+})
