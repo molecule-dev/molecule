@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.17.6
+
+### Patch Changes
+
+- Keep runner classification fast for long commands without heredocs.
+
 ## 1.17.5
 
 ### Patch Changes
