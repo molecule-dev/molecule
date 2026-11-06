@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.17.5
+
+### Patch Changes
+
+- Apply request-excluded test titles when preparing native Playwright runs.
+
 ## 1.17.4
 
 ### Patch Changes
