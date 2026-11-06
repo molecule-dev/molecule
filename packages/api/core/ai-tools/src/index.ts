@@ -12,6 +12,13 @@
  * (identity, tool listing, project docs, discovered skills).
  *
  * @remarks
+ * - **Background Playwright feedback:** `createPlaywrightFeedback({ load, run, onFailures })`
+ *   coalesces `changed(paths)` events without delaying writes. Use `readFeedbackSources`
+ *   to batch source reads over either backend and `runPlaywrightFeedback` to run each
+ *   supplied spec through its native command. Its incremental reporter supplies exact
+ *   locator failures and the failure-time page snapshot. Healthy runs emit no note;
+ *   no suite schedules no runner. `settled()`/`close()` are for tests and shutdown,
+ *   never a deployment barrier. Diagnoses are not whole-suite completion proof.
  * - **Opaque command plans:** prepare each logical step with `streamingBackgroundCommand`,
  *   call `createCommandPlan`, and attach it to the executed wrapper with `commandWithPlan`.
  *   The launcher prints each step's `startMarker` and `endMarker` on their own lines around
@@ -166,6 +173,9 @@ export * from './line-diff.js'
 export * from './no-test-run.js'
 export * from './output-filter.js'
 export * from './pipeline-exit-note.js'
+export * from './playwright-feedback.js'
+export * from './playwright-feedback-selection.js'
+export * from './playwright-feedback-types.js'
 export * from './playwright-report.js'
 export * from './schemas.js'
 export * from './server-command.js'

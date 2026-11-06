@@ -1,0 +1,196 @@
+import { once } from 'node:events'
+import { mkdir, mkdtemp, rm, symlink, writeFile } from 'node:fs/promises'
+import { createServer } from 'node:http'
+import { createRequire } from 'node:module'
+import { tmpdir } from 'node:os'
+import { dirname, join } from 'node:path'
+
+import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest'
+
+import { createLocalBackend } from '../backends/local.js'
+import { createPlaywrightFeedback, runPlaywrightFeedback } from '../playwright-feedback.js'
+import type { FeedbackSpec, PlaywrightFeedbackResult } from '../playwright-feedback-types.js'
+import { shellQuote } from '../utilities.js'
+
+const require = createRequire(import.meta.url)
+let root: string
+let broken = true
+let server: ReturnType<typeof createServer>
+let specs: FeedbackSpec[]
+let cli: string
+let backend: ReturnType<typeof createLocalBackend>
+const controllers: Array<ReturnType<typeof createPlaywrightFeedback>> = []
+
+beforeAll(async () => {
+  root = await mkdtemp(join(tmpdir(), 'native-feedback-'))
+  // The supplied tests run against a real browser and real HTTP server. The
+  // app state (including the edit route) is exercised by the supplied flow.
+  server = createServer((req, res) => {
+    if (req.url === '/slow') {
+      setTimeout(() => res.end('done'), 400)
+      return
+    }
+    const edit = req.url === '/notes/edit'
+    res.setHeader('Content-Type', 'text/html')
+    res.end(
+      `<main><h1>Field notebook</h1><section>${broken ? '<div>' : '<p>'}A long observation${broken ? '</div>' : '</p>'}</section><button>${broken && edit ? 'Update entry' : 'Publish entry'}</button><button class="${broken ? 'selected' : 'unselected'}">Save item</button><article class="item"><a class="owner">Reader</a>${broken ? '<a class="owner">Reader</a>' : ''}</article><aside><a href="/catalog">${broken ? 'See some items' : 'Browse the catalog'}</a></aside></main>`,
+    )
+  })
+  server.listen(0, '127.0.0.1')
+  await once(server, 'listening')
+  const port = (server.address() as { port: number }).port
+  cli = require.resolve('@playwright/test/cli')
+  const modules = dirname(dirname(dirname(cli)))
+  await symlink(modules, join(root, 'node_modules'), 'dir')
+  await mkdir(join(root, 'e2e'))
+  await writeFile(join(root, 'package.json'), '{"type":"module"}')
+  await writeFile(
+    join(root, 'playwright.config.mjs'),
+    `export default {testDir:'./e2e',workers:1,retries:0,timeout:5000,expect:{timeout:600},use:{baseURL:'http://127.0.0.1:${port}',actionTimeout:600}}`,
+  )
+  const bodies = [
+    [
+      'body.spec.ts',
+      "test('body is a paragraph', async ({page}) => { await page.goto('/notes'); await expect(page.locator('p').filter({hasText:'A long observation'})).toBeVisible() }); test('later work still runs', async ({request}) => { expect((await request.get('/slow')).ok()).toBe(true) })",
+    ],
+    [
+      'edit.spec.ts',
+      "test('edit uses the asserted submit label', async ({page}) => { await page.goto('/notes/edit'); await page.click('button:has-text(\"Publish entry\")') })",
+    ],
+    [
+      'button.spec.ts',
+      "test('button state matches its selector',async({page})=>{await page.goto('/notes');await page.locator('button.unselected:has-text(\"Save item\")').click()})",
+    ],
+    [
+      'owner.spec.ts',
+      "test('owner read is strict',async({page})=>{await page.goto('/notes');expect(await page.locator('.item').first().locator('.owner').textContent()).toBe('Reader')})",
+    ],
+    [
+      'empty.spec.ts',
+      "test('empty state copy matches',async({page})=>{await page.goto('/notes');await expect(page.getByRole('link',{name:'Browse the catalog'})).toBeVisible()})",
+    ],
+  ]
+  specs = await Promise.all(
+    bodies.map(async ([name, body]) => {
+      const file = join(root, 'e2e', name),
+        content = "import {test,expect} from '@playwright/test';\n" + body
+      await writeFile(file, content)
+      return {
+        path: file,
+        content,
+        cwd: root,
+        command: `node ${shellQuote(cli)} test --config playwright.config.mjs ${shellQuote(name)}`,
+      }
+    }),
+  )
+  backend = createLocalBackend(root)
+})
+afterAll(async () => {
+  await new Promise<void>((resolve) => server.close(() => resolve()))
+  await rm(root, { recursive: true, force: true })
+})
+afterEach(async () => {
+  await Promise.all(controllers.splice(0).map((c) => c.close()))
+}, 130_000)
+
+describe('native supplied-suite feedback before deploy', () => {
+  it('reports the real filtered-p locator, rendered body and component without waiting for a deploy', async () => {
+    broken = true
+    const early: PlaywrightFeedbackResult[] = []
+    let exited = false,
+      deliveredBeforeExit = false
+    const observing = {
+      ...backend,
+      run: async (...args: Parameters<typeof backend.run>) => {
+        const result = await backend.run(...args)
+        if (args[0].includes('MOL_TEST_FEEDBACK_EVENTS=')) exited = true
+        return result
+      },
+    }
+    const watcher = createPlaywrightFeedback({
+      load: async () => ({ sources: [], specs: [specs[0]] }),
+      run: (spec, files, revision, emit) =>
+        runPlaywrightFeedback(observing, spec, files, revision, {
+          command: (flags) => `${spec.command} ${flags.join(' ')}`,
+          pollMs: 20,
+          emit,
+        }),
+      onFailures: (r) => {
+        early.push(r)
+        deliveredBeforeExit ||= !exited
+      },
+    })
+    controllers.push(watcher)
+    watcher.changed([join(root, 'src/NoteBody.tsx')])
+    expect(watcher.takeFailures()).toEqual([])
+    await watcher.settled()
+    expect(early.length).toBeGreaterThan(0)
+    expect(deliveredBeforeExit).toBe(true)
+    expect(early).toHaveLength(1)
+    const failure = early[0].failures[0]
+    expect(failure.locator).toContain("locator('p').filter({ hasText: 'A long observation' })")
+    expect(failure.spec).toContain('body.spec.ts')
+    expect(failure.line).toBe(2)
+    expect(failure.rendered).toContain('A long observation')
+    expect(failure.sourceFiles).toEqual([join(root, 'src/NoteBody.tsx')])
+    await watcher.close()
+  }, 20_000)
+  it.each([
+    [2, 'button.unselected', 'Save item'],
+    [3, '.owner', 'Reader'],
+    [4, 'Browse the catalog', 'See some items'],
+  ])(
+    'reports state, strict duplicates and exact empty copy from native file %i',
+    async (index, locator, rendered) => {
+      broken = true
+      const spec = specs[index as number]
+      const result = await runPlaywrightFeedback(
+        backend,
+        spec,
+        [join(root, 'src/Notebook.tsx')],
+        1,
+        { command: (flags) => `${spec.command} ${flags.join(' ')}` },
+      )
+      expect(result.status).toBe('failed')
+      expect(result.failures[0].locator).toContain(locator)
+      expect(result.failures[0].rendered).toContain(rendered)
+    },
+    20_000,
+  )
+  it('detects a label that exists only in the branch the edit test does not drive', async () => {
+    broken = true
+    const result = await runPlaywrightFeedback(
+      backend,
+      specs[1],
+      [join(root, 'src/Editor.tsx')],
+      1,
+      { command: (flags) => `${specs[1].command} ${flags.join(' ')}` },
+    )
+    expect(result.status).toBe('failed')
+    expect(result.failures[0].locator).toContain('Publish entry')
+    expect(result.failures[0].rendered).toContain('Update entry')
+  }, 20_000)
+  it('gives a corrected app no note while running the same supplied tests', async () => {
+    broken = false
+    const results: PlaywrightFeedbackResult[] = []
+    const watcher = createPlaywrightFeedback({
+      load: async () => ({ sources: [], specs }),
+      run: (spec, files, revision, emit) =>
+        runPlaywrightFeedback(backend, spec, files, revision, {
+          command: (flags) => `${spec.command} ${flags.join(' ')}`,
+          pollMs: 20,
+          emit,
+        }),
+      onResult: (result) => results.push(result),
+    })
+    controllers.push(watcher)
+    watcher.changed([join(root, 'src/NoteBody.tsx')])
+    await watcher.settled()
+    expect(watcher.takeFailures()).toEqual([])
+    await watcher.close()
+    expect(results.map((r) => r.status)).toEqual(Array(specs.length).fill('passed'))
+    expect(results.reduce((sum, r) => sum + (r.nativeStats?.expected ?? 0), 0)).toBe(6)
+    // Five independent low-priority native runner startups share CPU with the
+    // package's other tests. Their own assertion budgets remain unchanged.
+  }, 60_000)
+})

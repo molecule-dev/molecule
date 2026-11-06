@@ -5,7 +5,7 @@
  * @module
  */
 
-import { execFile } from 'child_process'
+import { spawn } from 'child_process'
 import { mkdir, readdir, readFile, unlink, writeFile } from 'fs/promises'
 import { dirname } from 'path'
 
@@ -45,29 +45,68 @@ export function createLocalBackend(projectRoot: string): ExecutionBackend {
       }))
     },
 
-    run(command: string, opts?: { cwd?: string; timeout?: number }) {
+    run(command: string, opts?: { cwd?: string; timeout?: number; budgetMs?: number }) {
       return new Promise((resolve) => {
-        // Use shell: true for command strings (grep pipelines, find, etc.)
-        // Input is sanitized via shellQuote at the tool level
-        execFile(
-          'sh',
-          ['-c', command],
-          {
-            cwd: opts?.cwd || projectRoot,
-            timeout: opts?.timeout || 30000,
-            maxBuffer: 10 * 1024 * 1024,
-            encoding: 'utf8',
-          },
-          (error, stdout, stderr) => {
-            if (error && 'code' in error && typeof error.code === 'number') {
-              resolve({ stdout: stdout || '', stderr: stderr || '', exitCode: error.code })
-            } else if (error) {
-              resolve({ stdout: stdout || '', stderr: stderr || error.message, exitCode: 1 })
-            } else {
-              resolve({ stdout: stdout || '', stderr: stderr || '', exitCode: 0 })
-            }
-          },
-        )
+        // A native runner owns children. execFile's timeout killed only sh,
+        // leaving the runner/browser alive. Use the OS process group, with a
+        // graceful signal followed by a bounded forceful cleanup of that group.
+        const grouped = process.platform !== 'win32'
+        const child = spawn('sh', ['-c', command], {
+          cwd: opts?.cwd || projectRoot,
+          detached: grouped,
+          stdio: ['ignore', 'pipe', 'pipe'],
+        })
+        let stdout = '',
+          stderr = '',
+          closed = false,
+          code = 1
+        let stopped: 'timeout' | 'output' | undefined
+        let force: ReturnType<typeof setTimeout> | undefined
+        const finish = (): void => {
+          if (closed && !force)
+            resolve({ stdout, stderr, exitCode: stopped === 'timeout' ? 124 : stopped ? 1 : code })
+        }
+        const signal = (value: NodeJS.Signals): void => {
+          try {
+            if (grouped && child.pid) process.kill(-child.pid, value)
+            else child.kill(value)
+          } catch (_error) {
+            /* the owned group already exited */
+          }
+        }
+        const stop = (why: 'timeout' | 'output'): void => {
+          if (stopped) return
+          stopped = why
+          signal('SIGTERM')
+          force = setTimeout(() => {
+            signal('SIGKILL')
+            force = undefined
+            finish()
+          }, 1000)
+        }
+        const timeout = Math.min(opts?.timeout || 30_000, opts?.budgetMs || Infinity)
+        const deadline = setTimeout(() => stop('timeout'), timeout)
+        const collect = (text: string, channel: 'stdout' | 'stderr'): void => {
+          if (stopped) return
+          if (stdout.length + stderr.length + text.length > 10 * 1024 * 1024) {
+            stderr += '\nCommand exceeded the 10 MB output limit.'
+            stop('output')
+            return
+          }
+          if (channel === 'stdout') stdout += text
+          else stderr += text
+        }
+        child.stdout.setEncoding('utf8').on('data', (text: string) => collect(text, 'stdout'))
+        child.stderr.setEncoding('utf8').on('data', (text: string) => collect(text, 'stderr'))
+        child.on('error', (error) => {
+          stderr += error.message
+        })
+        child.on('close', (exitCode) => {
+          closed = true
+          code = exitCode ?? 1
+          clearTimeout(deadline)
+          finish()
+        })
       })
     },
   }
