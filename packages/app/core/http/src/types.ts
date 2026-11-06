@@ -353,6 +353,11 @@ export const snapshotHttpErrorResponse = async <T extends HttpResponse>(
 /**
  * HTTP error with response details.
  *
+ * `instanceof HttpError` also recognizes compatible failures carrying the shared
+ * `Symbol.for('@molecule/app-http/HttpError')` brand, including non-ok auth responses
+ * and errors from duplicated package copies. Branded producers must provide this
+ * class's instance fields. Subclasses retain ordinary prototype-based checks.
+ *
  * Request metadata on `config` and `response.config` is limited to method, a
  * credential-redacted URL, and the two boolean notification-suppression controls
  * (`molSilentErrorNotification` and `molSilentRateLimitNotification`). Request bodies,
@@ -380,6 +385,22 @@ export const snapshotHttpErrorResponse = async <T extends HttpResponse>(
  * ```
  */
 export class HttpError extends Error {
+  /**
+   * Recognizes the shared failed-request contract without widening subclass checks.
+   *
+   * @param value - Any value to test.
+   * @returns True for a prototype instance, or a compatible branded value checked against the base class.
+   */
+  static [Symbol.hasInstance](value: unknown): boolean {
+    return (
+      Function.prototype[Symbol.hasInstance].call(this, value) ||
+      (this === HttpError &&
+        typeof value === 'object' &&
+        value !== null &&
+        (value as Record<symbol, unknown>)[HTTP_ERROR_BRAND] === true)
+    )
+  }
+
   /**
    * Redacts URL userinfo and credential query/fragment values while preserving the path and
    * non-secret parameters. Shared by compatible HTTP and auth error/log views.

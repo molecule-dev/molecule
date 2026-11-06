@@ -26,24 +26,18 @@
 
 import { HttpError } from './types.js'
 
-const HTTP_ERROR_BRAND = Symbol.for('@molecule/app-http/HttpError')
-
 /**
  * Whether `err` is an {@link HttpError} or a compatible branded request failure.
  * `@molecule/app-auth` uses the same global brand for its non-ok responses, so
  * this also recognizes them across realms and duplicated package copies without
- * either package depending on the other.
+ * sharing the same prototype. Equivalent to `err instanceof HttpError`; subclass
+ * `instanceof` checks still require the subclass's own prototype.
  *
  * @param err - Any thrown value.
  * @returns True for an `HttpError` or a compatibly branded request failure.
  */
 export function isHttpError(err: unknown): err is HttpError {
-  return (
-    err instanceof HttpError ||
-    (typeof err === 'object' &&
-      err !== null &&
-      (err as Record<symbol, unknown>)[HTTP_ERROR_BRAND] === true)
-  )
+  return err instanceof HttpError
 }
 
 /**

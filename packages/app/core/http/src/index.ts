@@ -110,8 +110,11 @@
  * the session on every aborted navigation request.
  *
  * Every non-ok response rejected by `@molecule/app-auth` also satisfies
- * `isHttpError(err)`: its `status` and `response.data` are the same HTTP status
- * and parsed body exposed as `AuthError.status` and `AuthError.body`.
+ * `err instanceof HttpError` and `isHttpError(err)`: its `status` and `response.data`
+ * are the same HTTP status and parsed body exposed as `AuthError.status` and
+ * `AuthError.body`, while it remains an `I18nError`. Both checks accept the shared
+ * brand across duplicated package copies. Subclass checks keep their ordinary
+ * prototype semantics; a branded base error is not an instance of every subclass.
  *
  * @module
  */

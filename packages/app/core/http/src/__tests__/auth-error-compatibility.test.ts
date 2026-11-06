@@ -12,7 +12,7 @@ import { createJWTAuthClient } from '../../../auth/src/index.js'
 import { createFetchClient, HttpError, isAuthFailure, isHttpError, isNoResponse } from '../index.js'
 
 const errorsFrom = (caught: unknown): Record<string, string[]> | null => {
-  if (isHttpError(caught)) {
+  if (caught instanceof HttpError) {
     const body = caught.response?.data as { errors?: Record<string, string[]> } | undefined
     if (body?.errors) return body.errors
     return { unknown: [caught.message] }
@@ -51,16 +51,18 @@ describe('app-http reads app-auth failures', () => {
     expect(errorsFrom(error)).toStrictEqual(sent.errors)
   })
 
-  it('recognises a brand across package copies, not an instanceof prototype', () => {
+  it('recognises a compatible branded failure without the local prototype', () => {
     const original = new HttpError('Unprocessable Entity', 422)
-    const duplicate = new Error('Unprocessable Entity') as HttpError
-    duplicate.status = 422
+    const duplicate = Object.assign(new Error('Unprocessable Entity'), {
+      status: 422,
+      aborted: false,
+    })
     Object.defineProperty(duplicate, Symbol.for('@molecule/app-http/HttpError'), { value: true })
 
     expect(Object.getOwnPropertySymbols(original)).toContain(
       Symbol.for('@molecule/app-http/HttpError'),
     )
-    expect(duplicate).not.toBeInstanceOf(HttpError)
+    expect(duplicate).toBeInstanceOf(HttpError)
     expect(isHttpError(duplicate)).toBe(true)
   })
 

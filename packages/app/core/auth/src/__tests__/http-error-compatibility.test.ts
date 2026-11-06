@@ -9,12 +9,12 @@ import {
   setProvider,
 } from '@molecule/app-logger'
 
-import { isHttpError } from '../../../http/src/index.js'
+import { HttpError, isHttpError } from '../../../http/src/index.js'
 import { createJWTAuthClient } from '../index.js'
 import type { AuthError, UserProfile } from '../types.js'
 
 const errorsFrom = (caught: unknown): Record<string, string[]> | null => {
-  if (isHttpError(caught)) {
+  if (caught instanceof HttpError) {
     const body = caught.response?.data as { errors?: Record<string, string[]> } | undefined
     if (body?.errors) return body.errors
     return { unknown: [caught.message] }
@@ -50,6 +50,7 @@ describe('app-auth and app-http failed-request compatibility', () => {
     const error = await rejectedLogin(jsonResponse(sent, 422))
 
     expect(error).toBeInstanceOf(I18nError)
+    expect(error).toBeInstanceOf(HttpError)
     expect((error as I18nError).i18nKey).toBe('auth.error.requestFailed')
     expect((error as AuthError).status).toBe(422)
     expect((error as AuthError).body).toStrictEqual(sent)
@@ -67,11 +68,52 @@ describe('app-auth and app-http failed-request compatibility', () => {
     )
 
     expect(error).toBeInstanceOf(I18nError)
+    expect(error).toBeInstanceOf(HttpError)
     expect((error as AuthError).body).toStrictEqual({})
     expect(isHttpError(error)).toBe(true)
     expect(errorsFrom(error)).toStrictEqual({ unknown: ['Request failed'] })
     if (isHttpError(error)) expect(error.response?.data).toStrictEqual({})
   })
+
+  it.each([400, 401, 403, 422])(
+    'reads a registration %i through instanceof without reporting a network failure',
+    async (status) => {
+      const body = {
+        error: 'Email cannot be used',
+        errorKey: 'account.emailUnavailable',
+        errors: { email: ['Email cannot be used'] },
+      }
+      vi.stubGlobal(
+        'fetch',
+        vi.fn(() => Promise.resolve(jsonResponse(body, status))),
+      )
+      const client = createJWTAuthClient({ autoRefresh: false })
+      const error: unknown = await client
+        .register({ email: 'alice@example.com', password: 'registration-password-secret' })
+        .catch((caught: unknown) => caught)
+
+      expect(error).toBeInstanceOf(HttpError)
+      expect(error).toBeInstanceOf(I18nError)
+      expect(isHttpError(error)).toBe(true)
+      expect(errorsFrom(error)).toStrictEqual(body.errors)
+      if (error instanceof HttpError) {
+        expect(error.status).toBe(status)
+        expect(error.response?.status).toBe(status)
+        expect(error.response?.data).toStrictEqual(body)
+        expect(error.response?.config.method).toBe('POST')
+        expect(error.response?.config.url).toBe('/auth/register')
+        expect(error.response?.config).not.toHaveProperty('data')
+        expect(error.response?.config).not.toHaveProperty('headers')
+        expect(error.errorKey).toBe(body.errorKey)
+        expect(error.message).toBe(body.error)
+        expect(error.aborted).toBe(false)
+      }
+      expect((error as I18nError).i18nKey).toBe(body.errorKey)
+      expect((error as AuthError).body).toStrictEqual(body)
+      expect(JSON.stringify(error)).not.toContain('registration-password-secret')
+      client.destroy()
+    },
+  )
 
   it('never sends refresh credentials through the warning or remote logging transport', async () => {
     const refreshToken = 'refresh-token-secret-r2'
@@ -246,6 +288,7 @@ describe('app-auth and app-http failed-request compatibility', () => {
     const error = await rejectedLogin(network)
 
     expect(error).toBeInstanceOf(TypeError)
+    expect(error).not.toBeInstanceOf(HttpError)
     expect(error).not.toBe(network)
     expect(isHttpError(error)).toBe(false)
     expect((error as AuthError).body).toBeUndefined()
@@ -273,7 +316,7 @@ describe('app-auth and app-http failed-request compatibility', () => {
       vi.fn(() => Promise.resolve(jsonResponse({}, 401))),
     )
 
-    await client.validateSession()
+    await client.validateSession!()
 
     expect(client.getState().status).toBe('unauthenticated')
     expect(client.getAccessToken()).toBeNull()
