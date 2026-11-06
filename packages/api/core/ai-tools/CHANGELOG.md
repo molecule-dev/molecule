@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.16.8
+
+### Patch Changes
+
+- Track logical commands and active steps in wrapped test plans so background diagnostics can report final and repeated failures while tests run.
+
 ## 1.16.7
 
 ### Patch Changes
