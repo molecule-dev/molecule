@@ -1,5 +1,11 @@
 # @molecule/app-vite-config-default
 
+## 1.3.0
+
+### Minor Changes
+
+- Production builds fail with the file and line when app source names a root-relative image the build output does not contain.
+
 ## 1.2.3
 
 ### Patch Changes
