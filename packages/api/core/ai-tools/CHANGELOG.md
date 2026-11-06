@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.17.4
+
+### Patch Changes
+
+- Report Playwright retries once, resume interrupted background checks, and return definite local diagnostic failures promptly.
+
 ## 1.17.3
 
 ### Patch Changes
