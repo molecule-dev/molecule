@@ -30,6 +30,7 @@
  * @module
  */
 
+import { logicalCommandText } from './command-plan.js'
 import { locatedCommandSegments, statementArgumentEnd } from './command-position.js'
 import { codeWithModuleSpecifiers } from './source-code.js'
 import { playwrightCommandTarget, suiteRunDirectory } from './suite-overlap.js'
@@ -5365,7 +5366,7 @@ function suiteTracesOnRetry(configText: string): string | null {
  * @returns True when the run allows no retry.
  */
 export function namesNoRetries(command: string): boolean {
-  return playwrightOption(command, '--retries') === '0'
+  return playwrightOption(logicalCommandText(command), '--retries') === '0'
 }
 
 /** The last value a flag has in the runner's own argument list, never in another statement. */

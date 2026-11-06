@@ -12,6 +12,7 @@ import { posix } from 'path'
 import type { AITool } from '@molecule/api-ai'
 
 import { browserProbeOverBudgetAdvice, browserProbeRefusal } from './browser-probe.js'
+import { commandPlan, commandStepView, logicalCommandText } from './command-plan.js'
 import { endsInBackground } from './command-position.js'
 import {
   commandCutRun,
@@ -151,6 +152,8 @@ const inlineFailuresByTask = new Set<string>()
  * resolves the failing test's `file:line` against the wrong suite.
  */
 const runByTask = new Map<string, { command: string; cwd?: string; diagnosticYielded?: boolean }>()
+/** Last observed logical step, so step changes also reset diagnostics between wait calls. */
+const diagnosticStepByTask = new Map<string, string>()
 
 /**
  * The background task ids each backend launched. Every map above is keyed by task id alone and is
@@ -4078,25 +4081,22 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       // BEFORE the loop: the running answers below are built after it closes and still need it.
       let taskRecord = runByTask.get(taskId)
       // Recovery knows the script, not the original cwd. Keep existing rerun hints unknown.
-      const started =
+      let started =
         taskRecord?.cwd === undefined
           ? undefined
-          : { command: taskRecord.command, cwd: taskRecord.cwd }
-      let yieldDiagnostic = false
+          : { command: logicalCommandText(taskRecord.command), cwd: taskRecord.cwd }
+      const executedCommand = taskRecord?.command ?? recoveredCommand ?? ''
+      if (!taskRecord && commandPlan(executedCommand)) {
+        taskRecord = { command: executedCommand }
+        runByTask.set(taskId, taskRecord)
+      }
+      let diagnosticTarget: string | null = null
       try {
         const target = config?.yieldOnFirstFailureFor?.(taskId)
-        const command = taskRecord?.command ?? recoveredCommand
-        if (target && command && isSuiteRunCommand(command)) {
+        if (target) {
           const url = new URL(target)
-          const runTarget = suiteCommandTarget(command)
-          yieldDiagnostic =
-            (url.protocol === 'https:' || url.protocol === 'http:') &&
-            runTarget !== 'local' &&
-            runTarget === url.host.toLowerCase()
-          if (yieldDiagnostic && !taskRecord) {
-            taskRecord = { command }
-            runByTask.set(taskId, taskRecord)
-          }
+          if (url.protocol === 'https:' || url.protocol === 'http:')
+            diagnosticTarget = url.host.toLowerCase()
         }
       } catch (_error) {
         // Unknown consumer history/target does not change an ordinary wait.
@@ -4127,18 +4127,47 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
             break
           }
         }
-        if (repeatingCauseNoted.has(taskId)) continue
         if (Date.now() - lastCauseLookAt < repeatingCauseLookMs()) continue
         lastCauseLookAt = Date.now()
         let causeLog: string
         try {
-          const r = await backend.run(runningCauseCommand(log, outputFileByTask.get(taskId)), {
-            timeout: 10_000,
-          })
+          const r = await backend.run(
+            runningCauseCommand(log, outputFileByTask.get(taskId), executedCommand),
+            {
+              timeout: 10_000,
+            },
+          )
           causeLog = r.stdout ?? ''
         } catch (_error) {
           // No look at the log this tick; the next one asks again.
           continue
+        }
+        const step = commandStepView(executedCommand, causeLog)
+        causeLog = step.output
+        const stepIdentity = step.stepKey ?? step.command
+        const previousStep = diagnosticStepByTask.get(taskId)
+        if (previousStep !== undefined && previousStep !== stepIdentity) {
+          repeatingCauseNoted.delete(taskId)
+          midRunLeadNoted.delete(taskId)
+          inlineFailuresByTask.delete(taskId)
+          midRunNote = null
+        }
+        diagnosticStepByTask.set(taskId, stepIdentity)
+        started =
+          step.command && (taskRecord?.cwd !== undefined || commandPlan(executedCommand))
+            ? { command: step.command, cwd: taskRecord?.cwd ?? root }
+            : undefined
+        if ((commandPlan(executedCommand) && !step.command) || repeatingCauseNoted.has(taskId))
+          continue
+        const runTarget = suiteCommandTarget(step.command)
+        const yieldDiagnostic =
+          diagnosticTarget !== null &&
+          isSuiteRunCommand(step.command) &&
+          runTarget !== 'local' &&
+          runTarget === diagnosticTarget
+        if (yieldDiagnostic && !taskRecord) {
+          taskRecord = { command: executedCommand }
+          runByTask.set(taskId, taskRecord)
         }
         // The log is the evidence for what the wait may promise about it: a failure's own body
         // printed under a `✘` row means the run writes each failure's report as that test fails
@@ -4148,7 +4177,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         const found = repeatingFailure(causeLog)
         // The page-renders-nothing cause needs no repeated signature: every spec waits for its
         // own first element, so the failures differ while the cause does not (m141).
-        const universal = universalCause(causeLog, found, started?.command)
+        const universal = step.complete ? universalCause(causeLog, found, step.command) : null
         // The ONE predicate behind this decision and `repeatingFailureNote`'s wording, so the two
         // cannot come to different verdicts.
         const stopCause = earlyReturnCause(found, universal)
@@ -4194,7 +4223,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           // `--retries=0` has no retry to wait for, so its first failure is already final.
           logShowsInlineFailureBodies(causeLog, excludedTestTitles?.() ?? [], {
             finalOnly: true,
-            noRetries: namesNoRetries(taskRecord.command),
+            noRetries: namesNoRetries(step.command),
           })
         ) {
           // Completion during the log read still wins over a progress return.
@@ -4232,7 +4261,9 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         // Without a repeated signature there is no lead to note (the empty-page cause above is
         // the only reading that needs none).
         if (!found) continue
-        if (!midRunLeadNoted.has(taskId)) {
+        if (!midRunLeadNoted.has(taskId) || midRunNote !== null) {
+          // Emit the lead once per task, but refresh this wait's pending note as its log grows.
+          // Otherwise a long wait reports its first three failures even after many more repeat.
           midRunLeadNoted.add(taskId)
           // A run against the sandbox's own app is changed by an edit while it walks — the two
           // instructions the note and the wait's own sentence give must agree (xr-molecule-flash-
@@ -4415,7 +4446,9 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       // flash-m101 +12:13: 139 tests, ~4 minutes, to check two fixes).
       const record = runByTask.get(taskId)
       const run =
-        record?.cwd === undefined ? undefined : { command: record.command, cwd: record.cwd }
+        record?.cwd === undefined
+          ? undefined
+          : { command: logicalCommandText(record.command), cwd: record.cwd }
       // The standard machine report this launch wired, when it did (`reportByTask`). Read once per
       // finished wait: it is the runner's own record of each failing test's identity and of the
       // artifacts saved for that test, so a diagnosis can stop reconstructing them from the log.

@@ -7,6 +7,7 @@
 
 import { posix } from 'path'
 
+import { commandPlan, commandPlanLogRead, logicalCommandText } from './command-plan.js'
 import {
   type CommandSegment,
   commandSegments,
@@ -730,6 +731,9 @@ export function streamingBackgroundCommand(
   reportPath?: string
   error?: string
 } {
+  // Opaque launchers prepare each logical step with this same function before wrapping it.
+  // Rewriting the outer command cannot change an encoded payload and can corrupt its metadata.
+  if (commandPlan(command)) return { command, changes: [] }
   // A command that runs no test is not a run to keep a growing log for: nothing about it is
   // rewritten (flash-m79's `--list` was read as a whole-suite run end to end, and got a ~4 KB
   // refusal to send itself again with `--max-failures=15`).
@@ -1190,6 +1194,7 @@ const SUITE_RUN_COMMANDS: ReadonlyArray<RegExp> = [
  * @returns One entry per suite-running statement, as the parser read it (empty when none).
  */
 export function suiteRunStatements(command: string): string[] {
+  command = logicalCommandText(command)
   if (commandRunsNoTests(command)) return []
   return commandSegments(command)
     .filter(
@@ -2902,6 +2907,7 @@ export const RUNNING_FAILURE_LINE_RE =
  *
  * @param log - The task log path.
  * @param own - A file the command redirects its own output to, if any.
+ * @param command - Executed command, whose logical plan supplies live step boundaries if present.
  * @returns The shell command, safe to hand to the execution backend as-is.
  */
 export function runningOutputSliceCommand(log: string, own?: string): string {
@@ -2914,6 +2920,8 @@ export function runningOutputSliceCommand(log: string, own?: string): string {
 
 /** Bytes of a running log a repeating-cause look reads back. */
 export const REPEATING_CAUSE_TAIL_BYTES = 40_000
+/** Whole-step history retained for wrapped plans; ordinary diagnostic logs fit inside this bound. */
+export const COMMAND_PLAN_LOG_CHARS = 4_000_000
 
 /**
  * The shell command whose stdout is enough of a running log to tell whether one cause is
@@ -2929,8 +2937,10 @@ export const REPEATING_CAUSE_TAIL_BYTES = 40_000
  * @param own - A file the command redirects its own output to, if any.
  * @returns The shell command, safe to hand to the execution backend as-is.
  */
-export function runningCauseCommand(log: string, own?: string): string {
+export function runningCauseCommand(log: string, own?: string, command?: string): string {
   const read = `cat ${log}${own ? ` ${shellQuote(own)}` : ''} 2>/dev/null`
+  const plan = command ? commandPlan(command) : null
+  if (plan) return `${read} | awk ${shellQuote(commandPlanLogRead(plan, COMMAND_PLAN_LOG_CHARS))}`
   return `${read} | tail -c ${REPEATING_CAUSE_TAIL_BYTES}`
 }
 
@@ -3961,6 +3971,7 @@ const PLAYWRIGHT_VALUE_FLAGS: ReadonlySet<string> = new Set([
  *   suite) or the selection cannot be told.
  */
 export function specFilesSelected(command: string): number | null {
+  command = logicalCommandText(command)
   for (const segment of commandSegments(command)) {
     if (!/^playwright\s+test\b/.test(segment.text)) continue
     const files = new Set<string>()

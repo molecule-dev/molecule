@@ -31,6 +31,7 @@
 
 import { posix } from 'node:path'
 
+import { logicalCommandText } from './command-plan.js'
 import {
   commandSegments,
   type LocatedCommandSegment,
@@ -65,7 +66,7 @@ export function withoutHeredocs(command: string): string {
  * @returns The target key.
  */
 export function suiteCommandTarget(command: string): string {
-  const text = withoutHeredocs(command)
+  const text = withoutHeredocs(logicalCommandText(command))
   const named =
     /(?:\b(?:HOST|BASE_URL|PLAYWRIGHT_BASE_URL|E2E_BASE_URL)|--variable\s+host)\s*=\s*['"]?([^\s'"|;&]+)/i.exec(
       text,

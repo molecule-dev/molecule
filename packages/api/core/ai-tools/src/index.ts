@@ -12,6 +12,12 @@
  * (identity, tool listing, project docs, discovered skills).
  *
  * @remarks
+ * - **Opaque command plans:** prepare each logical step with `streamingBackgroundCommand`,
+ *   call `createCommandPlan`, and attach it to the executed wrapper with `commandWithPlan`.
+ *   The launcher prints each step's `startMarker` and `endMarker` on their own lines around
+ *   execution. `commandStepView` reads the active step for diagnostics; `logicalCommandText`
+ *   exposes the planned commands for static classification. Preserve the descriptor when
+ *   wrapping again. The metadata is advisory and never establishes a completed test result.
  * - **`yieldOnFirstFailureFor`** can yield one still-running deployed task's concrete diagnostic; callers opt out after a prior wait result or unknown history.
  * - **`wait_for_task` state probes report current progress without guessing log growth.**
  *   A call shorter than one normal two-second poll omits both growth and no-growth
@@ -150,6 +156,7 @@ export * from './backends/local.js'
 export * from './backends/sandbox.js'
 export * from './browser-guard.js'
 export * from './browser-probe.js'
+export * from './command-plan.js'
 export * from './command-position.js'
 export * from './cut-run.js'
 export * from './failure-kind.js'
