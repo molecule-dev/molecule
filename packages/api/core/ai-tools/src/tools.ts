@@ -45,6 +45,7 @@ import {
   summarizePlaywrightReport,
 } from './playwright-report.js'
 import { retainPlaywrightArtifacts } from './report-attachment-retention.js'
+import { requestScopedCommand } from './request-test-exclusions.js'
 import { TOOL_SCHEMAS } from './schemas.js'
 import {
   foregroundBrowserProbe,
@@ -3295,7 +3296,12 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         readFile: (path) => backend.readFile(path),
         readDir: (path) => backend.readDir(path),
       })
-      let command = traced.command
+      const requestScope = requestScopedCommand(
+        traced.command,
+        excludedTestTitles?.() ?? [],
+        shellQuote,
+      )
+      let command = requestScope.command
 
       // A leading `sleep N; <read of a background task's log>` is a hand-rolled poll, and the
       // platform knows the task's state better than the log's tail does (see
@@ -3484,6 +3490,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           // …and the trace flag this tool added (above), which the streaming rewrite never saw:
           // its changes are what this branch reports the run's own settings in.
           if (traced.change) streaming.changes.unshift(traced.change)
+          if (requestScope.note) streaming.changes.unshift(requestScope.note)
           // Said once, in the result that also hands back the task id or the run's output.
           if (lifted.seconds !== null) {
             streaming.changes.unshift(
@@ -3848,7 +3855,10 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           ...(exitCodeNote === null ? {} : { exitCodeNote }),
           ...(peekedTask?.slice.trim() ? { outputSoFar: sanitizeOutput(peekedTask.slice) } : {}),
           ...suiteBudgetField(budget),
-          ...finishedNotes([sleepNote, ceilingNote, traced.change, budgetNote, causes], causes),
+          ...finishedNotes(
+            [sleepNote, ceilingNote, traced.change, requestScope.note, budgetNote, causes],
+            causes,
+          ),
           ...(runReport === null ? {} : { runReport }),
           ...(stdoutTruncated ? { stdoutTruncated: true } : {}),
         }

@@ -1,6 +1,7 @@
 /**
  * Shared utilities for AI agent tools.
  * Extracted from molecule-dev/api/src/ai/tools.ts for reuse.
+ * Background Playwright preparation applies request-excluded titles before launch.
  *
  * @module
  */
@@ -21,6 +22,7 @@ import { classifyRunFailure, type RunFailureKind } from './failure-kind.js'
 import { boundedFailureText } from './failure-text.js'
 import { commandRunsNoTests } from './no-test-run.js'
 import { PLAYWRIGHT_REPORT_ENV } from './playwright-report.js'
+import { requestScopedCommand } from './request-test-exclusions.js'
 import {
   type DiagnosisRunContext,
   isDiagnosisRun,
@@ -709,7 +711,8 @@ function isStatusOnlyStep(step: string): boolean {
  * @param context - What the caller knows beyond the command: the tests the person's request
  *   excludes by name, and whether this command IS the platform's graded proof
  *   ({@link DiagnosisRunContext}). A `--grep-invert` of exactly those exclusions is the
- *   request's own scope, not a diagnosis, so it keeps the suite's retries on a deployed proof
+ *   request's own scope, not a diagnosis. Missing literal title exclusions are applied before
+ *   launch while preserving existing exclusions. This keeps the suite's retries on a deployed proof
  *   — and a proof the platform itself composed and launched
  *   keeps them whatever its scope, targeted set included.
  * @param reportPath - Where this run should write Playwright's standard `json` report, when the
@@ -981,6 +984,11 @@ export function streamingBackgroundCommand(
       ? 'a diagnosis or re-run walks each failure once; the suite’s retries apply on the deployed proof run'
       : 'a local run walks each failure once; the suite’s retries apply on the deployed proof run'
     if (addToRun('--retries=0')) changes.push(`Added \`--retries=0\`: ${why}.`)
+  }
+  if (finalPlaywrightRun) {
+    const scoped = requestScopedCommand(out, context?.approvedExclusions ?? [], shellQuote)
+    out = scoped.command
+    if (scoped.note) changes.push(scoped.note)
   }
   // Every EARLIER Playwright invocation writes the same log, so it is put on the progressive
   // reporter too — not only the invocation this launcher measures (see

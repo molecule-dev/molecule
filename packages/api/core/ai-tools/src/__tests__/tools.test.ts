@@ -3900,9 +3900,9 @@ cd /workspace/.mol-scratch/realworld-e2e && npx playwright test --config playwri
     )
     // The narrowed re-run: the two surviving locations, the exclusion inverted out.
     expect(r.note).toContain(
-      'playwright test navigation.spec.ts:200 social.spec.ts:115 --retries=0 ' +
-        "--grep-invert 'should require login to post comment'",
+      'playwright test navigation.spec.ts:200 social.spec.ts:115 --retries=0',
     )
+    expect(r.note).toContain("--grep-invert '(?:should require login to post comment)$'")
     expect(r.note).not.toContain('comments.spec.ts:102')
   })
 

@@ -12,6 +12,8 @@
  * (identity, tool listing, project docs, discovered skills).
  *
  * @remarks
+ * - Playwright commands apply `excludedTestTitles` before launch. Existing
+ *   literal filters remain in effect. Dynamic filters and opaque launchers stay unchanged.
  * - **Trimmed test output keeps every failure named.** Shared log cuts prioritize capped
  *   error, locator and expected/received details over passing progress. A detail budget never
  *   drops failure identities; native reports also name failures beyond their detailed-record cap.
