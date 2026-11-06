@@ -15,6 +15,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./assets": {
+      "types": "./dist/root-relative-assets.d.ts",
+      "import": "./dist/root-relative-assets.js"
     }
   },
   "files": [
@@ -28,6 +32,9 @@
     "default"
   ],
   "license": "Apache-2.0",
+  "dependencies": {
+    "@jridgewell/trace-mapping": "0.3.31"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/molecule-dev/molecule.git",

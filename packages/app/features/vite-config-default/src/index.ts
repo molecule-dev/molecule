@@ -89,6 +89,13 @@
  * notes come from the app directory's conventional commits (`feat:`, `fix:`,
  * `perf:`), so a build outside a git checkout simply ships no summary.
  *
+ * **Root-relative images must ship.** A production build fails with the original
+ * source file and line when an app module names `/image.svg` (or png, jpg, jpeg,
+ * gif, webp, avif, ico) but the output lacks that file. Put the file in `public/`
+ * or import it from `src/`. Files emitted by other plugins count too. Proxied
+ * routes, external URLs, comments and interpolated templates are excluded.
+ * `rootRelativeAssetsPlugin()` exports the same build check for custom configs.
+ *
  * The config also carries vitest's `test.exclude`, keeping the Playwright
  * suite under `e2e/` out of `npm test` (`vitest run`): Playwright specs are
  * `*.spec.ts`, which vitest's default include would otherwise collect and
@@ -101,3 +108,4 @@
 
 export * from './config.js'
 export * from './push-sw.js'
+export * from './root-relative-assets.js'

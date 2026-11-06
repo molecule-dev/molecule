@@ -4,7 +4,7 @@
  */
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { join, parse } from 'node:path'
 
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 
@@ -47,7 +47,9 @@ describe('singleReactAliases', () => {
   })
 
   it('pins nothing when React is not installed', () => {
-    expect(singleReactAliases(tmpdir())).toEqual({})
+    // TMPDIR can live below the checkout and inherit its React installation.
+    // This nonexistent path starts at the filesystem root, outside that tree.
+    expect(singleReactAliases(join(parse(root).root, 'vite-without-react'))).toEqual({})
   })
 })
 
