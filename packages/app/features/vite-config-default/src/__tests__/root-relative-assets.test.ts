@@ -180,6 +180,15 @@ describe('root-relative assets in real Vite builds', () => {
     )
   })
 
+  it('keeps the file and line diagnostic when the URL contains a literal percent sign', async () => {
+    const root = await fixture({
+      'src/main.ts': 'document.body.dataset.image = "/missing-10%.png"',
+    })
+    await expect(build(config(root))).rejects.toThrow(
+      diagnostic('src/main.ts', 1, '/missing-10%.png'),
+    )
+  })
+
   it('uses custom proxy prefixes and regular-expression proxy keys', async () => {
     const root = await fixture({
       'src/main.ts':

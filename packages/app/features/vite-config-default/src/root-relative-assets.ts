@@ -179,7 +179,14 @@ export function rootRelativeAssetsPlugin(): Plugin {
         }
         const missing: string[] = []
         for (const reference of paths.values()) {
-          const pathname = decodeURIComponent(new URL(reference.path, 'http://localhost').pathname)
+          let pathname = new URL(reference.path, 'http://localhost').pathname
+          try {
+            pathname = decodeURIComponent(pathname)
+          } catch (error) {
+            if (!(error instanceof URIError)) throw error
+            // A literal percent can be part of a filename. Check the raw path
+            // rather than losing the source diagnostic to a decoding exception.
+          }
           const present = [...directories].every((directory) => {
             const file = resolve(directory, `.${pathname}`)
             return inside(directory, file) && statSync(file, { throwIfNoEntry: false })?.isFile()
