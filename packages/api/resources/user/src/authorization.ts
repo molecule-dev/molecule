@@ -402,14 +402,15 @@ export type AuthSessionSource = 'header' | 'cookie'
  *
  * {@link verifyMiddleware} records its `allowCookieSession` option in `res.locals`
  * ({@link ALLOW_COOKIE_SESSION_LOCALS_KEY}); an ABSENT record means the request never
- * passed a mount that declares a policy, so the historical default applies (cookies on)
- * and a direct `set()` caller outside the scaffold is unchanged.
+ * passed a mount that declares a policy. In that case the configured scheme applies:
+ * Bearer keeps browser sessions; a custom header scheme defaults to header-only auth.
  *
  * @param res - The response object.
  * @returns `true` when the session cookies may be written.
  */
 const maySetSessionCookie = (res: MoleculeResponse): boolean =>
-  res.locals?.[ALLOW_COOKIE_SESSION_LOCALS_KEY] !== false
+  res.locals?.[ALLOW_COOKIE_SESSION_LOCALS_KEY] ??
+  resolveAuthScheme(res).toLowerCase() === DEFAULT_AUTH_SCHEME.toLowerCase()
 
 /**
  * Set authorization headers and cookie for a session, and RETURN the signed token.
@@ -597,8 +598,9 @@ export interface VerifyMiddlewareOptions {
   shouldRefreshSession?: (session: Session, req: MoleculeRequest) => boolean | Promise<boolean>
   /**
    * Whether the `token` cookie is a session on this mount, in BOTH directions.
-   * Defaults to `true` (browser clients sign in once and every page request carries
-   * the cookie).
+   * Defaults to `true` for Bearer (browser clients sign in once and every page request
+   * carries the cookie), and `false` for a custom header scheme such as Token.
+   * Pass `true` explicitly to combine a custom scheme with browser cookie sessions.
    *
    * Pass `false` for a token-only JSON API. Then the cookie is not a credential here:
    * the middleware does not resolve a session from it (and drops one an earlier, laxer
@@ -625,8 +627,9 @@ export interface VerifyMiddlewareOptions {
 /**
  * Middleware that verifies the JWT token from the `Authorization` header and sets `res.locals.session`.
  * Accepts `Bearer` and `Token` (Django REST / RealWorld) plus the configured scheme, on EVERY
- * route the mount covers. Falls back to cookie-based session for browser clients unless
- * `allowCookieSession` is `false` — which also stops `set()` writing the session cookie for this
+ * route the mount covers. Bearer falls back to cookie-based sessions; custom schemes default
+ * to header-only sessions. `allowCookieSession` overrides this default in both directions,
+ * including whether `set()` writes the session cookie for this
  * request. Records the scheme for `set()` and, when the token came from the header, records the
  * raw token in `res.locals[AUTH_TOKEN_LOCALS_KEY]`. Auto-refreshes tokens older than `JWT_REFRESH_TIME`.
  * @param options - {@link VerifyMiddlewareOptions} controlling the auto-refresh, cookie policy and scheme.
@@ -642,13 +645,14 @@ export const verifyMiddleware =
       // scheme) and a later, stricter mount reads it to know it may strip a session
       // an earlier one resolved out of the cookie. The sign-in request itself carries
       // no token, so the write cannot sit behind the token lookup below.
-      const allowCookieSession = options?.allowCookieSession !== false
-      res.locals[ALLOW_COOKIE_SESSION_LOCALS_KEY] = allowCookieSession
       const scheme = normalizeAuthScheme(
         options?.scheme ?? getConfiguredAuthScheme(),
         options?.scheme === undefined ? 'AUTH_SCHEME' : 'verifyMiddleware({ scheme })',
       )
       res.locals[AUTH_SCHEME_LOCALS_KEY] = scheme
+      const allowCookieSession =
+        options?.allowCookieSession ?? scheme.toLowerCase() === DEFAULT_AUTH_SCHEME.toLowerCase()
+      res.locals[ALLOW_COOKIE_SESSION_LOCALS_KEY] = allowCookieSession
 
       // Get token from Authorization header, falling back to the `token`
       // cookie that `set()` writes alongside the header. The JSDoc above

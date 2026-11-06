@@ -189,7 +189,11 @@
  * sent (letters, digits, `.`, `-`, `_`); anything else is answered 400
  * `user.error.usernameInvalid`, never rewritten.
  *
- * **A token-only JSON API:** by default the `token` cookie that login sets IS a session,
+ * **A token-only JSON API:** the default Bearer scheme permits cookie sessions;
+ * configuring a custom scheme (`AUTH_SCHEME=Token` or `verifyMiddleware({ scheme: 'Token' })`)
+ * defaults to header-only authentication and does not write session cookies. Pass
+ * `allowCookieSession: true` explicitly to use cookies with a custom scheme.
+ * With cookie sessions enabled, the `token` cookie that login sets IS a session,
  * and `authorization.set()` writes it on every sign-in — so a client that keeps a cookie
  * jar (an HTTP test runner, `curl -b`) stays signed in on a request that sends no
  * `Authorization` header, and gets 200 on the step the suite calls "no auth". Mount

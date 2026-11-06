@@ -7,6 +7,8 @@
  * @module
  */
 
+import { createServer } from 'node:http'
+
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const { mockSign, mockVerify, mockDecode, mockGetConfig, mockGet, mockLogger } = vi.hoisted(() => ({
@@ -1169,6 +1171,125 @@ describe('authorization — configurable Authorization scheme (RealWorld-style t
     expect(getConfiguredAuthScheme()).toBe(DEFAULT_AUTH_SCHEME)
     expect(DEFAULT_AUTH_SCHEME).toBe('Bearer')
   })
+
+  it.each(['Token', 'tOkEn', 'ServiceKey'])(
+    '%s defaults to header-only sessions',
+    async (scheme) => {
+      mockVerify.mockReturnValue(session)
+      mockDecode.mockReturnValue({ iat: Math.floor(Date.now() / 1000) })
+      const middleware = verifyMiddleware({ scheme })
+      const request = makeReq({ cookies: { token: 'valid-cookie' } })
+      const anonymous = makeRes()
+      await middleware(request as never, anonymous as never, vi.fn())
+      // The caller's protected route now returns 401 even with a warm cookie jar.
+      expect(anonymous.locals.session ? 200 : 401).toBe(401)
+      expect(mockVerify).not.toHaveBeenCalled()
+
+      const signedIn = makeRes()
+      await middleware(makeReq() as never, signedIn as never, vi.fn())
+      mockSign.mockReturnValue('header-token')
+      set(makeReq() as never, signedIn as never, session as never)
+      expect(signedIn.setHeader).toHaveBeenCalledWith('Authorization', `${scheme} header-token`)
+      expect(signedIn.cookie).not.toHaveBeenCalled()
+
+      const authenticated = makeRes()
+      await middleware(
+        makeReq({ headers: { authorization: `${scheme} header-token` } }) as never,
+        authenticated as never,
+        vi.fn(),
+      )
+      expect(authenticated.locals.session).toBe(session)
+    },
+  )
+
+  it('applies AUTH_SCHEME to every mount and direct sign-in cookie writes', async () => {
+    process.env.AUTH_SCHEME = 'Token'
+    mockVerify.mockReturnValue(session)
+    const res = makeRes()
+    await verifyMiddleware()(
+      makeReq({ cookies: { token: 'valid-cookie' } }) as never,
+      res as never,
+      vi.fn(),
+    )
+    expect(res.locals.session).toBeUndefined()
+    expect(res.locals[ALLOW_COOKIE_SESSION_LOCALS_KEY]).toBe(false)
+    mockSign.mockReturnValue('header-token')
+    const direct = makeRes()
+    set(makeReq() as never, direct as never, session as never)
+    expect(direct.cookie).not.toHaveBeenCalled()
+    expect(direct.setHeader).toHaveBeenCalledWith('Authorization', 'Token header-token')
+  })
+
+  it('keeps headerless GET and PUT anonymous after sign-in in an HTTP cookie jar', async () => {
+    process.env.AUTH_SCHEME = 'Token'
+    mockVerify.mockReturnValue(session)
+    mockDecode.mockReturnValue({ iat: Math.floor(Date.now() / 1000) })
+    mockSign.mockReturnValue('header-token')
+    const middleware = verifyMiddleware()
+    const server = createServer(async (request, response) => {
+      const req = makeReq({
+        headers: request.headers,
+        cookies: request.headers.cookie ? { token: 'header-token' } : {},
+      })
+      const res = makeRes()
+      await middleware(req as never, res as never, vi.fn())
+      if (request.url === '/login') {
+        set(req as never, res as never, session as never)
+        response.setHeader('Authorization', res.setHeader.mock.calls[0][1])
+        if (res.cookie.mock.calls.length) response.setHeader('Set-Cookie', 'token=header-token')
+        response.end('signed in')
+      } else {
+        response.statusCode = res.locals.session ? 200 : 401
+        response.end('account')
+      }
+    })
+    await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve))
+    const address = server.address()
+    if (!address || typeof address === 'string') throw new Error('HTTP fixture did not bind')
+    const origin = `http://127.0.0.1:${address.port}`
+    try {
+      const login = await fetch(`${origin}/login`, { method: 'POST' })
+      expect(login.headers.get('authorization')).toBe('Token header-token')
+      // Include a pre-existing jar too: the read side must not accept an old cookie.
+      const anonymousStatuses: number[] = []
+      const authenticatedStatuses: number[] = []
+      for (const method of ['GET', 'PUT']) {
+        const anonymous = await fetch(`${origin}/account`, {
+          method,
+          headers: { cookie: 'token=header-token' },
+        })
+        anonymousStatuses.push(anonymous.status)
+        const authenticated = await fetch(`${origin}/account`, {
+          method,
+          headers: { authorization: 'Token header-token' },
+        })
+        authenticatedStatuses.push(authenticated.status)
+      }
+      expect(anonymousStatuses).toEqual([401, 401])
+      expect(authenticatedStatuses).toEqual([200, 200])
+      expect(login.headers.get('set-cookie')).toBeNull()
+    } finally {
+      await new Promise<void>((resolve) => server.close(() => resolve()))
+    }
+  })
+
+  it.each(['Bearer', 'Token'])(
+    'preserves explicit cookie opt-in for %s browser apps',
+    async (scheme) => {
+      mockVerify.mockReturnValue(session)
+      mockDecode.mockReturnValue({ iat: Math.floor(Date.now() / 1000) })
+      const res = makeRes()
+      await verifyMiddleware({ scheme, allowCookieSession: true })(
+        makeReq({ cookies: { token: 'browser-session' } }) as never,
+        res as never,
+        vi.fn(),
+      )
+      expect(res.locals.session).toBe(session)
+      mockSign.mockReturnValue('browser-session')
+      set(makeReq() as never, res as never, session as never)
+      expect(res.cookie).toHaveBeenCalled()
+    },
+  )
 
   it('labels the sign-in Authorization header with the mount’s scheme', async () => {
     mockSign.mockReturnValue('jwt-token-xyz')
