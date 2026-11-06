@@ -1,3 +1,4 @@
+import type * as E2BModule from 'e2b'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { E2BSandboxProvider } from '../provider.js'
@@ -25,7 +26,8 @@ const { listSandbox, listSnapshotsStatic, connectSandbox } = vi.hoisted(() => ({
   connectSandbox: vi.fn(),
 }))
 
-vi.mock('e2b', () => ({
+vi.mock('e2b', async (importOriginal) => ({
+  NotFoundError: (await importOriginal<typeof E2BModule>()).NotFoundError,
   Sandbox: class Sandbox {
     static list = listSandbox
     static connect = connectSandbox

@@ -277,4 +277,6 @@ export interface E2BSandboxClientLike {
    * provider outage as a destroyed sandbox.
    */
   isNotFound?(error: unknown): boolean
+  /** Classify file 404s with this client's SDK NotFoundError class, including subclasses. */
+  isFileNotFound?(error: unknown): boolean
 }

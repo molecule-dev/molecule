@@ -1,3 +1,4 @@
+import { FileNotFoundError, NotFoundError, TimeoutError } from 'e2b'
 import { describe, expect, it, vi } from 'vitest'
 
 import { E2BSandboxProvider } from '../provider.js'
@@ -36,6 +37,7 @@ function fixture() {
     kill: async () => {
       calls.push('kill')
     },
+    isRunning: async () => true,
   }
   const client: E2BSandboxClientLike = {
     create: async () => native,
@@ -62,7 +64,7 @@ function fixture() {
   }
   const a = new E2BSandboxProvider({ apiKey: 'fixture', readHandleStore: store }, client),
     b = new E2BSandboxProvider({ apiKey: 'fixture', readHandleStore: store }, client)
-  return { a, b, info, calls, client, stored, store }
+  return { a, b, info, calls, client, native, stored, store }
 }
 describe('passive sandbox files', () => {
   it('reconstructs API B file access from persisted facts without connect, resume, exec or keepalive', async () => {
@@ -127,26 +129,65 @@ describe('passive sandbox files', () => {
     expect(await f.b.readOnly('sandbox')).toBeNull()
     expect(f.calls.filter((c) => c === 'connect')).toHaveLength(1)
   })
-  it('normalizes only a native missing file, retaining real outages as errors', async () => {
-    const f = fixture()
-    await f.a.get('sandbox')
-    f.client.readHandle = () => ({
-      sandboxId: 'sandbox',
-      readFile: async () => {
-        throw Object.assign(new Error('absent'), { name: 'NotFoundError' })
+  describe.each(['live', 'restored'] as const)('%s handle', (kind) => {
+    async function failingRead(error: Error) {
+      const f = fixture()
+      await f.a.get('sandbox')
+      if (kind === 'live') vi.spyOn(f.native.files, 'read').mockRejectedValue(error)
+      else
+        f.client.readHandle = () => ({
+          sandboxId: 'sandbox',
+          readFile: async () => {
+            throw error
+          },
+        })
+      const handle = await (kind === 'live' ? f.a : f.b).readOnly('sandbox')
+      f.calls.length = 0
+      return { f, read: () => handle!.readFileBytes!('/workspace/absent') }
+    }
+
+    it.each([
+      { name: 'NotFoundError', ErrorClass: NotFoundError },
+      { name: 'FileNotFoundError', ErrorClass: FileNotFoundError },
+      {
+        name: 'future subclass',
+        ErrorClass: class FutureNotFoundError extends FileNotFoundError {},
       },
+    ])('normalizes the SDK $name family to ENOENT', async ({ ErrorClass: errorClass }) => {
+      const native = new errorClass('absent')
+      const { f, read } = await failingRead(native)
+      await expect(read()).rejects.toMatchObject({
+        code: 'ENOENT',
+        cause: native,
+        message: 'Sandbox file not found: /workspace/absent',
+      })
+      expect(f.calls).toEqual(['describe'])
     })
-    const handle = await f.b.readOnly('sandbox')
-    await expect(handle!.readFileBytes!('/workspace/absent')).rejects.toMatchObject({
-      code: 'ENOENT',
+
+    it.each([
+      Object.assign(new Error('permission denied'), { code: 'EACCES', statusCode: 403 }),
+      new TimeoutError('read timed out'),
+      Object.assign(new Error('service unavailable'), { statusCode: 503 }),
+      Object.assign(new Error('lookalike'), { name: 'NotFoundError' }),
+    ])('retains non-missing errors unchanged: %s', async (native) => {
+      const { read } = await failingRead(native)
+      await expect(read()).rejects.toBe(native)
     })
-    f.client.readHandle = () => ({
-      sandboxId: 'sandbox',
-      readFile: async () => {
-        throw new Error('outage')
-      },
+
+    it('uses the client classifier when the client owns another SDK copy', async () => {
+      const native = new Error('file 404 from another SDK instance')
+      const { f, read } = await failingRead(native)
+      f.client.isFileNotFound = vi.fn((error) => error === native)
+      await expect(read()).rejects.toMatchObject({ code: 'ENOENT', cause: native })
+      expect(f.client.isFileNotFound).toHaveBeenCalledWith(native)
     })
-    const unavailable = await f.b.readOnly('sandbox')
-    await expect(unavailable!.readFileBytes!('/workspace/absent')).rejects.toThrow('outage')
+
+    it('preserves an error the client classifier rejects', async () => {
+      const native = new NotFoundError('not a file 404 in this client')
+      const { f, read } = await failingRead(native)
+      f.client.isFileNotFound = vi.fn(() => false)
+      await expect(read()).rejects.toBe(native)
+      expect(f.client.isFileNotFound).toHaveBeenCalledWith(native)
+    })
   })
 })

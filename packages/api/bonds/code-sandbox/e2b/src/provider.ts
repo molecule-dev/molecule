@@ -201,7 +201,7 @@ export function e2bPassiveSandboxClass(sdkSandbox: typeof NativeSandbox): typeof
 
 /** Adapts the native SDK while keeping read-only reconstruction separate from connect. */
 async function defaultClient(apiKey: string): Promise<E2BSandboxClientLike> {
-  const { Sandbox, SandboxNotFoundError, Volume: VolumeClass } = await import('e2b')
+  const { NotFoundError, Sandbox, SandboxNotFoundError, Volume: VolumeClass } = await import('e2b')
   const PassiveSandbox = e2bPassiveSandboxClass(Sandbox)
   const S = PassiveSandbox as unknown as {
     create(template: string, opts?: Record<string, unknown>): Promise<E2BSandboxLike>
@@ -254,6 +254,7 @@ async function defaultClient(apiKey: string): Promise<E2BSandboxClientLike> {
     // different class. That makes it a POSITIVE not-found, which is the whole
     // basis for `get()` returning null.
     isNotFound: (error) => error instanceof SandboxNotFoundError,
+    isFileNotFound: (error) => error instanceof NotFoundError,
     async list(opts) {
       // Sandbox.list returns a paginator; normalize to a flat array of running
       // sandboxes. Support the async-iterator, nextItems(), and array shapes so
@@ -1494,14 +1495,19 @@ export class E2BSandboxProvider implements SandboxProvider {
       }
     }
     if (!readBytes) return null
+    // A custom client can load another SDK copy. Prefer its class identity, with
+    // this SDK's not-found family as the fallback for existing structural clients.
+    const { NotFoundError } = await import('e2b')
     return {
       readFileBytes: async (path: string) => {
         if (!(await readable())) throw new Error('Passive sandbox files unavailable')
         try {
           return await afterSnapshots(id, () => readBytes(path))
         } catch (error) {
-          if (error instanceof Error && error.name === 'NotFoundError')
-            throw Object.assign(new Error('Sandbox file not found'), { code: 'ENOENT' })
+          if (client.isFileNotFound ? client.isFileNotFound(error) : error instanceof NotFoundError)
+            throw Object.assign(new Error(`Sandbox file not found: ${path}`, { cause: error }), {
+              code: 'ENOENT',
+            })
           throw error
         }
       },

@@ -1,3 +1,4 @@
+import type * as E2BModule from 'e2b'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // ---------------------------------------------------------------------------
@@ -19,7 +20,8 @@ const { listSandbox, state } = vi.hoisted(() => ({
   state: { failuresToServe: 1 },
 }))
 
-vi.mock('e2b', () => ({
+vi.mock('e2b', async (importOriginal) => ({
+  NotFoundError: (await importOriginal<typeof E2BModule>()).NotFoundError,
   get Sandbox(): unknown {
     if (state.failuresToServe > 0) {
       state.failuresToServe -= 1
