@@ -72,6 +72,11 @@ export function nativeFeedbackFailures(
         /(?:Locator:\s*|waiting for )(locator\([^\n]+|getBy[^\n]+)/.exec(error)?.[1] ??
         /strict mode violation: ([^\n]+)/.exec(error)?.[1] ??
         /(?:^|\n)((?:Error: )?expect\([^\n]+|AssertionError:[^\n]+)/.exec(error)?.[1] ??
+        // Navigation waits can expire before the overall test budget. They have no
+        // locator, but still carry the native operation, test line and page snapshot.
+        /(?:^|\n)TimeoutError: ((?:page|locator)\.[\w.]+): Timeout \d+ms exceeded\./.exec(
+          error,
+        )?.[1] ??
         // A UI loop can exhaust the test budget between actions. Playwright then names
         // page.waitForTimeout/locator.count rather than a locator. That is still the
         // supplied test's real failure, with its native location and page snapshot.
