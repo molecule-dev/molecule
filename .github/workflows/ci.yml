@@ -19,8 +19,12 @@ on:
 # the last of them answering a question nobody was asking any more.
 #
 # Only the newest commit's result is meaningful here, so cancel the older ones.
+#
+# The daily full run has its own group. Sharing one let a delayed `schedule` run
+# cancel the in-flight push run of the same commit (2026-11-06: the release's
+# version commit lost its 11-minute-old push run and waited on a full-suite run).
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name == 'schedule' && 'daily' || 'change' }}
   cancel-in-progress: true
 
 # onnxruntime-node (a transitive dependency of @huggingface/transformers, used
