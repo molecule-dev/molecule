@@ -910,6 +910,41 @@ describe('egress policy application', () => {
     expect(double.calls.some((call) => call.path.endsWith('/machines'))).toBe(false)
   })
 
+  it.each(['sjc', 'lhr'])(
+    'reconciles the private-service ports of the recorded %s region',
+    async (region) => {
+      const double = createFetchDouble().on(`GET /apps/${APP}/network_policies`, { body: [] })
+      const instance = provider(
+        {
+          egressAllowedPorts: [{ protocol: 'udp', port: 53 }],
+          privateServices: [{ app: 'tenant-iad', port: 5432 }],
+          privateServicesByRegion: {
+            [region]: [
+              { app: 'regional-tenant', port: 6432 },
+              { app: 'egress-proxy', port: 3129 },
+            ],
+          },
+        },
+        double,
+      ) as unknown as {
+        reconcileEgressPolicy(app: string, region?: string): Promise<unknown>
+        supportsRegionalEgressReconciliation?: boolean
+      }
+      const ports = await instance.reconcileEgressPolicy(APP, region)
+      expect(ports).toEqual([
+        { protocol: 'udp', port: 53 },
+        { protocol: 'tcp', port: 6432 },
+        { protocol: 'tcp', port: 3129 },
+      ])
+      expect(instance.supportsRegionalEgressReconciliation).toBe(true)
+      const applied = double.matching(`POST /apps/${APP}/network_policies`)
+      expect(applied).toHaveLength(1)
+      expect((applied[0].body as { rules: Array<{ ports: unknown }> }).rules[0].ports).toEqual(
+        ports,
+      )
+    },
+  )
+
   it('reconcileEgressPolicy writes NOTHING when no policy is configured', async () => {
     const double = createFetchDouble()
     const instance = provider({}, double) as unknown as {

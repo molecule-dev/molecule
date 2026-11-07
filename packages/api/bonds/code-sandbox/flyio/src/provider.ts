@@ -413,6 +413,9 @@ const PROBE_EXEC_HEADROOM_SECONDS = 10
  * | `exec` and all file ops | `POST /v1/apps/{app}/machines/{id}/exec` |
  */
 class FlyioSandboxProvider implements SandboxProvider {
+  /** Policy reconciliation honors the caller's recorded project placement. */
+  readonly supportsRegionalEgressReconciliation = true
+
   readonly name = 'flyio'
 
   /**
@@ -1200,6 +1203,7 @@ class FlyioSandboxProvider implements SandboxProvider {
    * Idempotent, and it updates the policy this provider owns in place rather
    * than stacking a second one.
    * @param app - The Fly app name.
+   * @param recordedRegion - The app placement; defaults to the provider region.
    * @returns The ports now allowed, or `undefined` when no policy is configured
    *   at all — in which case nothing was written, because turning "no policy"
    *   into one that Fly then uses to drop everything else is not something to
@@ -1208,10 +1212,14 @@ class FlyioSandboxProvider implements SandboxProvider {
    *   failed reconcile means; this never reports success for a write that did
    *   not happen.
    */
-  async reconcileEgressPolicy(app: string): Promise<FlyNetworkPolicyPort[] | undefined> {
-    const ports = this.egressAllowedPorts()
+  async reconcileEgressPolicy(
+    app: string,
+    recordedRegion?: string,
+  ): Promise<FlyNetworkPolicyPort[] | undefined> {
+    const region = this.region(recordedRegion)
+    const ports = this.egressAllowedPorts(region)
     if (!ports) return undefined
-    await this.applyEgressPolicy(app)
+    await this.applyEgressPolicy(app, undefined, region)
     return ports
   }
 
