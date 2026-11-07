@@ -1,5 +1,11 @@
 # @molecule/api-code-sandbox-flyio
 
+## 1.4.3
+
+### Patch Changes
+
+- `get()` returns null for a Machine Fly reports as destroyed, as it does for a 404.
+
 ## 1.4.2
 
 ### Patch Changes
