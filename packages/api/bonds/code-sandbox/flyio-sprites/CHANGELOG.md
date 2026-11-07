@@ -1,5 +1,11 @@
 # @molecule/api-code-sandbox-flyio-sprites
 
+## 1.0.7
+
+### Patch Changes
+
+- Preserve sandbox identity when lookups fail and reject incomplete recovery listings.
+
 ## 1.0.6
 
 ### Patch Changes

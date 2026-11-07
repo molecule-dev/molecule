@@ -1,5 +1,11 @@
 # @molecule/api-code-sandbox
 
+## 1.7.1
+
+### Patch Changes
+
+- Preserve sandbox identity when lookups fail and reject incomplete recovery listings.
+
 ## 1.7.0
 
 ### Minor Changes

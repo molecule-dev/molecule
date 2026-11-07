@@ -1,5 +1,11 @@
 # @molecule/api-code-sandbox-docker
 
+## 1.3.1
+
+### Patch Changes
+
+- Preserve sandbox identity when lookups fail and reject incomplete recovery listings.
+
 ## 1.3.0
 
 ### Minor Changes
