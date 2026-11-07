@@ -111,6 +111,21 @@ describe('retry policy', () => {
 })
 
 describe('FlyApiClient.request', () => {
+  it.each(['', 'null'])('rejects an ambiguous successful GET body %j', async (text) => {
+    const double = createFetchDouble().on('GET /apps/x/machines/m1', { status: 200, text })
+    await expect(
+      makeClient(double).client.request('/apps/x/machines/m1', {
+        nullOn: [404],
+        requireJson: true,
+      }),
+    ).rejects.toThrow(/response/i)
+  })
+
+  it('still permits an empty success on a bodyless endpoint', async () => {
+    const double = createFetchDouble().on('GET /apps/x/machines/m1/wait', { status: 200, text: '' })
+    await expect(makeClient(double).client.request('/apps/x/machines/m1/wait')).resolves.toBeNull()
+  })
+
   it('sends the bearer token and parses a JSON body', async () => {
     const double = createFetchDouble().on('GET /apps/x', { body: { name: 'x' } })
     const { client } = makeClient(double)

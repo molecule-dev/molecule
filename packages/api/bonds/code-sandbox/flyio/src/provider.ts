@@ -1895,6 +1895,7 @@ class FlyioSandboxProvider implements SandboxProvider {
     try {
       const machine = await this.client.request<FlyMachine>(`/apps/${app}/machines/${machineId}`, {
         nullOn: [404],
+        requireJson: true,
       })
       if (!machine) return null
       return this.buildSandbox(app, machine.id, mapMachineState(machine.state ?? 'created'))
@@ -2043,6 +2044,7 @@ class FlyioSandboxProvider implements SandboxProvider {
           // A 404 is the app itself being gone — a real absence (it was deleted
           // between the app listing and this call), not a failed query.
           nullOn: [404],
+          requireJson: true,
         })
       } catch (error) {
         throw new Error(
@@ -2116,10 +2118,9 @@ class FlyioSandboxProvider implements SandboxProvider {
     const org = this.orgSlug()
     let listing: FlyAppList | null
     try {
-      listing = await this.client.request<FlyAppList>(
-        `/apps?org_slug=${encodeURIComponent(org)}`,
-        {},
-      )
+      listing = await this.client.request<FlyAppList>(`/apps?org_slug=${encodeURIComponent(org)}`, {
+        requireJson: true,
+      })
     } catch (error) {
       throw new Error(
         t(
@@ -2135,8 +2136,26 @@ class FlyioSandboxProvider implements SandboxProvider {
       )
     }
 
-    const apps: FlyApp[] = listing?.apps ?? []
-    const total = listing?.total_apps
+    if (
+      !listing ||
+      !Array.isArray(listing.apps) ||
+      listing.apps.some((app) => !app || typeof app.name !== 'string' || !app.name.trim())
+    ) {
+      throw new Error(
+        `Cannot enumerate Fly sandboxes: invalid app listing response for org "${org}"`,
+      )
+    }
+    const apps: FlyApp[] = listing.apps
+    const total = listing.total_apps
+    if (
+      listing.next_cursor ||
+      new Set(apps.map((app) => app.name)).size !== apps.length ||
+      (total !== undefined && (!Number.isInteger(total) || total < 0))
+    ) {
+      throw new Error(
+        `Cannot enumerate Fly sandboxes: incomplete or invalid app listing for org "${org}"`,
+      )
+    }
     if (typeof total === 'number' && apps.length < total) {
       throw new Error(
         t(

@@ -2168,6 +2168,48 @@ describe('self-booting containers (SandboxConfig.command / restartPolicy)', () =
 
 // ─── Container-id validation + production plain-TCP DOCKER_HOST guard ────────
 
+describe('get absence contract', () => {
+  it('inspects a parked container without starting it', async () => {
+    const { createProvider } = await import('../provider.js')
+    enqueueJson(200, { Id: 'container-1', Config: { Labels: {} }, State: { Running: false } })
+    expect((await createProvider({ socketPath: '/test.sock' }).get('container-1'))?.status).toBe(
+      'stopped',
+    )
+    expect(httpRequestCalls.map(({ opts }) => opts.method)).toEqual(['GET'])
+  })
+
+  it.each([401, 403, 500, 503])(
+    'throws on HTTP %i instead of reporting absence',
+    async (status) => {
+      const { createProvider } = await import('../provider.js')
+      enqueueJson(status, { message: 'upstream not found; diagnostic 404' })
+      await expect(createProvider({ socketPath: '/test.sock' }).get('container-1')).rejects.toThrow(
+        String(status),
+      )
+    },
+  )
+
+  it('returns null on a positive HTTP 404', async () => {
+    const { createProvider } = await import('../provider.js')
+    enqueueJson(404, { message: 'no such container' })
+    expect(await createProvider({ socketPath: '/test.sock' }).get('container-1')).toBeNull()
+  })
+
+  it('propagates a network failure', async () => {
+    const { createProvider } = await import('../provider.js')
+    const attempt = createProvider({ socketPath: '/test.sock' }).get('container-1')
+    const rejected = expect(attempt).rejects.toThrow('ECONNRESET')
+    httpRequestCalls[0].req.emit('error', new Error('ECONNRESET'))
+    await rejected
+  })
+
+  it.each([null, {}, '', { Id: '' }])('rejects an invalid inspect response %j', async (body) => {
+    const { createProvider } = await import('../provider.js')
+    enqueueJson(200, body)
+    await expect(createProvider({ socketPath: '/test.sock' }).get('container-1')).rejects.toThrow()
+  })
+})
+
 describe('container id validation (Docker API path interpolation)', () => {
   it('get() returns null for an id carrying path structure — no request is made', async () => {
     const { createProvider } = await import('../provider.js')

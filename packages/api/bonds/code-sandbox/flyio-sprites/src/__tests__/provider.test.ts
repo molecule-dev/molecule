@@ -214,6 +214,18 @@ describe('create', () => {
 })
 
 describe('get', () => {
+  it.each([
+    new Error('upstream not found'),
+    Object.assign(new Error('upstream not found'), { statusCode: 503 }),
+    Object.assign(new Error('upstream not found'), { status: 500 }),
+  ])('throws an uncertain lookup failure: %s', async (error) => {
+    const client = fakeClient()
+    client.getSprite = async () => {
+      throw error
+    }
+    await expect(createProvider({}, client).get('mol-x')).rejects.toBe(error)
+  })
+
   it('returns a facade for an existing sprite', async () => {
     const client = fakeClient({
       sprites: {

@@ -94,6 +94,8 @@ export interface FlyRequestOptions<T = unknown> {
    * Used for idempotent deletes and existence checks (`[404]`).
    */
   nullOn?: number[]
+  /** Require a non-null JSON body on success; nullOn statuses still establish absence. */
+  requireJson?: boolean
   /**
    * Extra HTTP statuses to treat as transient (retry) beyond the default
    * `429`/`5xx`. The exec endpoint passes `[404]`: a machine-not-found for a
@@ -287,7 +289,7 @@ export class FlyApiClient {
    * @param path - API path relative to the base URL, e.g. `/apps/foo/machines`.
    * @param options - Method, body, timeout, attempts, and statuses to null on.
    * @returns The parsed body, or `null` for an empty body or a status listed in
-   *   `options.nullOn`.
+   *   `options.nullOn`. With requireJson, an empty or JSON-null success throws.
    * @throws {FlyApiError} On a non-2xx status that is not listed in `nullOn`,
    *   or when every retryable attempt is exhausted.
    */
@@ -338,14 +340,24 @@ export class FlyApiClient {
         if (options.signal?.aborted) throw options.signal.reason
 
         if (status >= 200 && status < 300) {
-          if (!text.trim()) return null
+          // Only an explicit nullOn status establishes absence. An empty successful read
+          // is an invalid response, not proof that an instance or fleet disappeared.
+          if (!text.trim() && !options.requireJson) return null
           try {
-            return JSON.parse(text) as T
+            const parsed = JSON.parse(text) as T | null
+            if (options.requireJson && parsed === null) throw new Error('Null JSON response')
+            return parsed
           } catch (error) {
             // A 2xx with a non-JSON body is a real protocol surprise (an
             // intercepting proxy, an HTML error page behind a 200). Refusing it
             // loudly beats handing the caller a silently-empty result.
-            throw new FlyApiError(method, path, status, text.slice(0, 500), { cause: error })
+            throw new FlyApiError(
+              method,
+              path,
+              status,
+              `Invalid JSON response: ${text.slice(0, 500)}`,
+              { cause: error },
+            )
           }
         }
         if (options.nullOn?.includes(status)) return null

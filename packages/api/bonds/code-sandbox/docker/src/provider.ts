@@ -818,12 +818,20 @@ class DockerSandboxProvider implements SandboxProvider {
       // Validate before interpolation into `/containers/${id}/json` — an
       // id carrying path structure could retarget the request.
       this.assertContainerId(id)
+    } catch (error) {
+      logger.debug('Cannot get sandbox container with an invalid id', { id, error })
+      return null
+    }
+    try {
       const info = (await this.dockerApi(`/containers/${id}/json`)) as {
         Id: string
-        Config: { Labels: Record<string, string> }
+        Config?: { Labels?: Record<string, string> }
         State?: { Running?: boolean; Status?: string }
       }
-      const projectId = info.Config.Labels[`${this.labelPrefix}.projectId`] ?? ''
+      if (!info || typeof info.Id !== 'string' || !info.Id) {
+        throw new Error(`Invalid Docker inspect response for sandbox ${id}`)
+      }
+      const projectId = info.Config?.Labels?.[`${this.labelPrefix}.projectId`] ?? ''
       // Derive the real status from Docker's container state rather than
       // hardcoding 'stopped'. Otherwise GET /sandbox/status reports a live
       // container as stopped, and the status handler syncs that bogus state
@@ -831,8 +839,9 @@ class DockerSandboxProvider implements SandboxProvider {
       const status: Sandbox['status'] = info.State?.Running ? 'running' : 'stopped'
       return this.buildSandbox(info.Id, projectId, status)
     } catch (error) {
-      logger.debug('Failed to get sandbox container', { id, error })
-      return null
+      // A failed lookup is unknown, not absent: recovery callers remove routing on null.
+      if ((error as { status?: number } | null)?.status === 404) return null
+      throw error
     }
   }
 
@@ -1783,12 +1792,15 @@ class DockerSandboxProvider implements SandboxProvider {
           const text = Buffer.concat(chunks).toString()
           if (res.statusCode && res.statusCode >= 400) {
             reject(
-              new Error(
-                t(
-                  'codeSandbox.docker.error.apiError',
-                  { method, path, status: String(res.statusCode), error: text },
-                  { defaultValue: `Docker API ${method} ${path}: ${res.statusCode} ${text}` },
+              Object.assign(
+                new Error(
+                  t(
+                    'codeSandbox.docker.error.apiError',
+                    { method, path, status: String(res.statusCode), error: text },
+                    { defaultValue: `Docker API ${method} ${path}: ${res.statusCode} ${text}` },
+                  ),
                 ),
+                { status: res.statusCode },
               ),
             )
             return

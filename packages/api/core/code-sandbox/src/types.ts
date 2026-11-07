@@ -821,6 +821,11 @@ export interface SandboxProvider {
   ): Promise<void>
 
   create(config: SandboxConfig): Promise<Sandbox>
+  /**
+   * Obtain a usable handle. May resume a paused sandbox or extend its deadline;
+   * use describe() for passive status checks. Null means a positive not-found
+   * response (or an invalid id); network, authorization and server failures throw.
+   */
   get(id: string): Promise<Sandbox | null>
 
   /**
@@ -968,6 +973,8 @@ export interface SandboxProvider {
    * currently using: is it alive, what ports did it get, what volume does it
    * pin, was it ever started. `get()` returns a handle whose `status` is a
    * summary; this returns the record.
+   * Must not connect, resume, start or extend the sandbox's deadline. Null means
+   * a positive absence; an unsuccessful lookup must throw.
    *
    * @param id - The sandbox id.
    * @returns The descriptor, or `null` if no such sandbox exists.

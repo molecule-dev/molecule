@@ -181,8 +181,8 @@ export function mapSpriteStatus(status: string | undefined): Sandbox['status'] {
  * @returns Whether it denotes a missing sprite/resource.
  */
 const isNotFound = (error: unknown): boolean => {
-  const e = error as { statusCode?: number; status?: number; message?: string }
-  return e?.statusCode === 404 || e?.status === 404 || /not found/i.test(String(e?.message ?? ''))
+  const e = error as { statusCode?: number; status?: number } | null
+  return (e?.statusCode ?? e?.status) === 404
 }
 
 /**

@@ -139,7 +139,14 @@ export async function describeContainer(
     // 404 is the answer "no such sandbox". Every other failure is a failure to
     // look, and a caller that reads it as absence will happily "clean up" a
     // sandbox that is alive and busy.
-    if (/\b404\b|no such container/i.test(message)) return null
+    const status = (error as { status?: number } | null)?.status
+    // Legacy injected transports used only this error envelope. Never classify its body
+    // (or a container id containing 404) as the HTTP status.
+    if (
+      status === 404 ||
+      (status === undefined && /^Docker API(?: GET [^\s:]+)?: 404\b/.test(message))
+    )
+      return null
     throw error
   }
 }

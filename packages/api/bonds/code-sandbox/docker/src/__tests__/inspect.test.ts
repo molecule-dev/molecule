@@ -116,6 +116,23 @@ describe('toDescriptor', () => {
 })
 
 describe('describeContainer', () => {
+  it('does not infer absence from a 500 body mentioning a missing container or 404', async () => {
+    const error = Object.assign(
+      new Error('Docker API GET /containers/404/json: 500 no such container'),
+      {
+        status: 500,
+      },
+    )
+    await expect(
+      describeContainer(
+        context(async () => {
+          throw error
+        }),
+        '404',
+      ),
+    ).rejects.toBe(error)
+  })
+
   it('returns null only for a genuine 404', async () => {
     const ctx = context(async () => {
       throw new Error('Docker API GET /containers/x/json: 404 no such container')

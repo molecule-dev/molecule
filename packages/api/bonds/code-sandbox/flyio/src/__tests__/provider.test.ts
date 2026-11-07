@@ -1049,6 +1049,15 @@ describe('lifecycle mapping', () => {
 })
 
 describe('get / list / destroy', () => {
+  it.each(['stopped', 'suspended'])('reads a %s Machine without waking it', async (state) => {
+    const double = createFetchDouble().on(`GET /apps/${APP}/machines/m1`, {
+      body: { id: 'm1', state },
+    })
+    const sandbox = await makeProvider({}, double).get(`${APP}:m1`)
+    expect(sandbox?.status).toBe(state === 'suspended' ? 'sleeping' : 'stopped')
+    expect(double.calls.map(({ method }) => method)).toEqual(['GET'])
+  })
+
   it('returns null for a Machine that no longer exists', async () => {
     const double = createFetchDouble().on(`GET /apps/${APP}/machines/gone`, {
       status: 404,
@@ -1956,6 +1965,46 @@ describe('self-booting sandboxes (SandboxConfig.command / restartPolicy)', () =>
 })
 
 describe('find()', () => {
+  it.each(['', 'null'])(
+    'does not turn an invalid successful direct read %j into absence',
+    async (text) => {
+      const double = createFetchDouble().on(`GET /apps/${APP}/machines/m1`, { text })
+      await expect(makeProvider({}, double).get(`${APP}:m1`)).rejects.toThrow()
+    },
+  )
+
+  it.each([
+    undefined,
+    null,
+    {},
+    { total_apps: 0 },
+    { apps: [], next_cursor: 'more' },
+    { apps: [{ name: 'mol-sandbox-p' }, { name: 'mol-sandbox-p' }], total_apps: 2 },
+    { apps: [{ name: '' }] },
+    { apps: [null] },
+  ])('refuses an invalid or incomplete org listing %j', async (body) => {
+    const double = createFetchDouble().on(
+      'GET /apps?org_slug=acme',
+      body === undefined ? { text: '' } : { body },
+    )
+    double.fallback({ body: [] })
+    await expect(makeProvider({}, double).find?.()).rejects.toThrow()
+  })
+
+  it('accepts a genuine empty org listing', async () => {
+    const double = createFetchDouble().on('GET /apps?org_slug=acme', {
+      body: { apps: [], total_apps: 0 },
+    })
+    expect(await makeProvider({}, double).find?.()).toEqual([])
+  })
+
+  it.each(['', 'null'])('refuses an ambiguous successful per-app listing %j', async (text) => {
+    const double = createFetchDouble()
+      .on('GET /apps?org_slug=acme', { body: { apps: [{ name: 'mol-sandbox-p' }], total_apps: 1 } })
+      .on('GET /apps/mol-sandbox-p/machines', { text })
+    await expect(makeProvider({}, double).find?.()).rejects.toThrow()
+  })
+
   const ORG = 'acme'
   const PROD_APP = 'mol-sandbox-proj-1-v1'
   const OTHER_APP = 'mol-sandbox-proj-2-v1'

@@ -560,6 +560,8 @@ export interface FlyAppList {
   /** Total apps in the org, which the returned page may not cover. */
   total_apps?: number
   apps?: FlyApp[]
+  /** A nonempty cursor means the response does not contain every app. */
+  next_cursor?: string
 }
 
 /** A Machine as returned by the org-wide list endpoint (`GET /orgs/{org}/machines`). */
