@@ -1,5 +1,11 @@
 # @molecule/app-react
 
+## 3.4.3
+
+### Patch Changes
+
+- Add payload-first `mapRequestBody(payload, kind)` auth serialization while preserving the legacy `requestBody(kind, payload)` callback. Prefer the one-argument payload adapter in authored examples and hook guidance.
+
 ## 3.4.2
 
 ### Patch Changes
