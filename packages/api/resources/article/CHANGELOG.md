@@ -1,5 +1,11 @@
 # @molecule/api-resource-article
 
+## 1.2.1
+
+### Patch Changes
+
+- Show configurable HTTP handlers and wire format mappings in the article documentation introduction.
+
 ## 1.2.0
 
 ### Minor Changes

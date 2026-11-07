@@ -1,5 +1,11 @@
 # @molecule/api-code-sandbox-flyio
 
+## 1.4.1
+
+### Patch Changes
+
+- Reconcile an existing app's egress policy with the private-service ports of its recorded region.
+
 ## 1.4.0
 
 ### Minor Changes
