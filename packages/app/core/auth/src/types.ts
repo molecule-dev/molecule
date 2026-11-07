@@ -226,7 +226,7 @@ export type RegisterExtraShape<T> = {
  * `TExtra` is what the app's sign-up form collects and its API expects
  * (`username`, `fullName`, …). Give the client the same type and the typed call
  * passes those fields straight through, so
- * {@link AuthClientConfig.requestBody} receives exactly what the form passed —
+ * {@link AuthClientConfig.mapRequestBody} receives exactly what the form passed —
  * no cast, and no stuffing them into `name` or `metadata`:
  *
  * ```typescript
@@ -235,7 +235,7 @@ export type RegisterExtraShape<T> = {
  * ```
  *
  * `TExtra` defaults to no extra fields, so an app that passes `name`/`metadata`
- * (and a `requestBody` that reads them) keeps type-checking unchanged; only a
+ * (and a `mapRequestBody` that reads them) keeps type-checking unchanged; only a
  * client constructed with a second generic accepts (and types) more fields.
  *
  * An ordinary `interface` works as well as a type literal or alias — the
@@ -1000,6 +1000,7 @@ export interface AuthClientConfigOptions<T extends object = UserProfile> {
   authScheme?: string
 
   /**
+   * Legacy kind-first adapter. Prefer `mapRequestBody(payload, kind)` below.
    * Shape the login/register request body for an API that expects another
    * envelope (default: the payload as given). `register()` hands this callback
    * exactly what the caller passed — including the app's own fields, typed
@@ -1021,11 +1022,22 @@ export interface AuthClientConfigOptions<T extends object = UserProfile> {
    * `(kind, p) => ({ user: { username: p.name, email: p.email, password: p.password } })`
    * with `register({ email, password, name: username })`.
    *
+   * @deprecated Prefer `mapRequestBody(payload, kind)`, whose one-argument form
+   * receives values. Existing kind-first callbacks retain their original order.
    * @param kind - Which request.
    * @param payload - The credentials or registration data.
    * @returns The JSON body to send.
    */
   requestBody?: (kind: 'login' | 'register', payload: Record<string, unknown>) => unknown
+
+  /**
+   * Shape a login/register body, with the payload FIRST. A one-argument adapter
+   * therefore receives the form values: `mapRequestBody: (data) => ({ user: data })`.
+   * The optional second argument names the operation when its envelope differs.
+   * Takes precedence over the legacy, kind-first `requestBody` callback; that
+   * callback remains supported unchanged for existing configurations.
+   */
+  mapRequestBody?: (payload: Record<string, unknown>, kind: 'login' | 'register') => unknown
 
   /**
    * Turn an answer that carries a user into the client's

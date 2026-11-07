@@ -70,7 +70,7 @@ export function useAuthClient<
  * An app whose API takes its OWN registration fields passes the client's
  * second generic here too — `useAuth<MyUser, { username: string }>()` — so
  * `register({ email, password, username })` is typed exactly like the client
- * call (and `requestBody` receives the same payload). Without it, `register`
+ * call (and `mapRequestBody` receives that payload as its first argument). Without it, `register`
  * accepts only the base fields.
  *
  * @param options - Hook options

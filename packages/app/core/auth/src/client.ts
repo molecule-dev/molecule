@@ -630,9 +630,14 @@ export const createJWTAuthClient = <
     }, refreshTime)
   }
 
-  // An API with its own auth envelope (config.requestBody / mapAuthResponse).
-  const shapeBody = (kind: 'login' | 'register', payload: object): unknown =>
-    config.requestBody ? config.requestBody(kind, payload as Record<string, unknown>) : payload
+  // New body adapters receive values first, just like profileRequestBody. Keep
+  // the old callback's order explicit: function.length is not a version signal
+  // (default/rest parameters and bound functions change it).
+  const shapeBody = (kind: 'login' | 'register', payload: object): unknown => {
+    const values = payload as Record<string, unknown>
+    if (config.mapRequestBody) return config.mapRequestBody(values, kind)
+    return config.requestBody ? config.requestBody(kind, values) : payload
+  }
   let misplacedTokenReported = false
   const mapResult = (data: unknown): AuthResult<T> => {
     // With `AuthClientConfig<T>` the mapper's answer is already `AuthResult<T>`:

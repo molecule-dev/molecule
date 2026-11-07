@@ -333,8 +333,8 @@
  * }
  * ```
  *
- * - **An API with its own auth envelope keeps this client.** `requestBody` wraps the
- *   login/register payload (`(kind, p) => ({ user: p })`), `mapAuthResponse` reads the
+ * - **An API with its own auth envelope keeps this client.** `mapRequestBody` wraps the
+ *   login/register payload (`(payload) => ({ user: payload })`), `mapAuthResponse` reads the
  *   token and user out of the answer — keeping the wire bearer OUT of the profile,
  *   because the client caches `user` in Web Storage (see the mapper example below) —
  *   and `authScheme: 'Token'` sends `Authorization: Token <jwt>`. `mapAuthResponse` is the
@@ -382,7 +382,7 @@
  * ```
  *
  * An API that wraps the payload and registers extra fields: type those
- * fields with the factory's second generic, and `requestBody` receives exactly what
+ * fields with the factory's second generic, and `mapRequestBody` receives exactly what
  * the form passed — `{ user: { username, email, password } }` goes out as-is.
  *
  * ```typescript
@@ -400,7 +400,7 @@
  * const accountAuth = createJWTAuthClient<AccountProfile, { username: string }>({
  *   baseURL: '/api',
  *   authScheme: 'Token',
- *   requestBody: (_kind, payload) => ({ user: payload }),
+ *   mapRequestBody: (payload) => ({ user: payload }),
  *   mapAuthResponse: (data) => {
  *     const { user: wire } = data as { user: { token: string } & AccountProfile }
  *     // Keep every wire field; the bearer stays out of the cached profile.
