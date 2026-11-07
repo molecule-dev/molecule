@@ -13,6 +13,31 @@
  * unique, and `article_tags.position` is the order the tags were given in). It also ships
  * `src/__setup__/reactions.sql` and `src/__setup__/follows.sql`, which create the `reactions` and `follows` tables it reads by name.
  *
+ * **HTTP format is configuration.** In the scaffold's `App/Resource/Article/index.ts`,
+ * export `requestHandlerMap = createArticleHandlers({ mapRequest, mapResponse })`.
+ * Keep `create`, `list`, `feed`, `read`, `update`, `del`, `favorite`, `unfavorite`
+ * and `tags` in the package.
+ * `mapRequest` can unwrap bodies and resolve query filters. Async `mapResponse`
+ * can batch-load author profiles, omit fields from list items, rename pagination
+ * keys, wrap results, or translate error statuses and bodies. It receives errors
+ * and empty deletes too. Set the authenticated user on `res.locals.session.userId`.
+ *
+ * ```typescript
+ * import { createArticleHandlers } from '@molecule/api-resource-article'
+ *
+ * export const requestHandlerMap = createArticleHandlers({
+ *   mapRequest: (req) => ({ body: req.body?.entry }),
+ *   mapResponse: (result) => result.statusCode >= 400 || result.statusCode === 204
+ *     ? result
+ *     : { ...result, body: { entry: result.body } },
+ * })
+ * ```
+ *
+ * Use the resulting map's handlers on the app's routes. For distinct route projections,
+ * create separate maps with separate options. The static `requestHandlerMap` keeps the
+ * native flat-body/raw-article format. Use service functions for a different domain workflow.
+ * Read Quick Start for filter mapping and early responses.
+ *
  * @module
  * @example
  * ```typescript
