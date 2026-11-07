@@ -1066,6 +1066,26 @@ describe('get / list / destroy', () => {
     await expect(makeProvider({}, double).get(`${APP}:gone`)).resolves.toBeNull()
   })
 
+  it('returns null for a destroyed Machine Fly still answers for by id', async () => {
+    // Fly answers 200 for a destroyed Machine's id after its app's listing has dropped it.
+    // Reported as `stopped`, a production recovery sweep read it as parked and kept the
+    // destroyed app's row live (2026-11-07, two X1 apps after their Machines were destroyed).
+    const double = createFetchDouble().on(`GET /apps/${APP}/machines/m1`, {
+      body: { id: 'm1', state: 'destroyed' },
+    })
+    await expect(makeProvider({}, double).get(`${APP}:m1`)).resolves.toBeNull()
+  })
+
+  it('still returns a handle for a Machine that is being destroyed', async () => {
+    // `destroying` can still be observed and settles on its own; only `destroyed` is final.
+    const double = createFetchDouble().on(`GET /apps/${APP}/machines/m1`, {
+      body: { id: 'm1', state: 'destroying' },
+    })
+    await expect(makeProvider({}, double).get(`${APP}:m1`)).resolves.toMatchObject({
+      status: 'stopped',
+    })
+  })
+
   it('returns null for a malformed sandbox id rather than guessing an app', async () => {
     const double = createFetchDouble()
     await expect(makeProvider({}, double).get('bare-machine-id')).resolves.toBeNull()
@@ -2503,7 +2523,12 @@ describe('exec — the two transient 412s (dropped connection; "machine not runn
     // The allow-list is the three states a refused exec was observed to
     // recover from. `stopped` is the real precondition `startMachine` answers.
     for (const state of ['stopped', 'suspended', 'destroyed', 'failed']) {
-      const { sandbox, calls } = await execScenario([{ status: 412, body: NOT_RUNNING }], [state])
+      // The handle is taken while the Machine is up (`get()` answers null for a destroyed one);
+      // the exec's own state read after the 412 is the one under test.
+      const { sandbox, calls } = await execScenario(
+        [{ status: 412, body: NOT_RUNNING }],
+        ['started', state],
+      )
       await expect(sandbox.exec('echo ok', { timeout: 5_000 })).rejects.toThrow(
         new RegExp(`machine not running.*machine m1 state: ${state}`, 's'),
       )

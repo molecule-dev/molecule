@@ -1879,7 +1879,8 @@ class FlyioSandboxProvider implements SandboxProvider {
    * billing with no row left to name them.
    * @param id - The sandbox id returned by `create`.
    * @returns The sandbox, or `null` when the id is malformed or Fly positively
-   *   answered that the app or Machine does not exist.
+   *   answered that the app or Machine does not exist (a 404, or a Machine in
+   *   the `destroyed` state).
    * @throws {Error} When the lookup itself failed — with `cause` carrying the
    *   `FlyApiError`. The Machine may still exist; this is not an absence answer.
    */
@@ -1898,6 +1899,11 @@ class FlyioSandboxProvider implements SandboxProvider {
         requireJson: true,
       })
       if (!machine) return null
+      // Fly keeps answering 200 for a destroyed Machine's id, with `state: 'destroyed'`, after
+      // the Machine listing has dropped it. It can never run again, so it is a positive absence
+      // like the 404: as a `stopped` handle it read as "parked", and a production recovery sweep
+      // kept a destroyed app's row live after its own `find()` no longer listed the Machine.
+      if (machine.state === 'destroyed') return null
       return this.buildSandbox(app, machine.id, mapMachineState(machine.state ?? 'created'))
     } catch (error) {
       // NOT an absence. Returning null here made molecule.dev's loss-recorder
