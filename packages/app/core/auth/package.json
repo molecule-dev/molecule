@@ -35,7 +35,7 @@
   },
   "devDependencies": {
     "@molecule/app-bond": "1.0.5",
-    "@molecule/app-http": "1.5.5",
+    "@molecule/app-http": "1.5.6",
     "@molecule/app-i18n": "1.1.2",
     "@molecule/app-logger": "1.0.5",
     "@types/node": "26.6.5",

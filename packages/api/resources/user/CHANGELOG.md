@@ -1,5 +1,11 @@
 # @molecule/api-resource-user
 
+## 1.8.5
+
+### Patch Changes
+
+- Clarify session storage configuration and document account-envelope adapters.
+
 ## 1.8.4
 
 ### Patch Changes

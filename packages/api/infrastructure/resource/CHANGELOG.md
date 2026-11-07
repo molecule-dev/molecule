@@ -1,5 +1,11 @@
 # @molecule/api-resource
 
+## 1.1.0
+
+### Minor Changes
+
+- Adapt resource request and response formats with async mappings while reusing article validation and authorization.
+
 ## 1.0.7
 
 ### Patch Changes

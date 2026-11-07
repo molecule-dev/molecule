@@ -1,5 +1,11 @@
 # @molecule/app-http
 
+## 1.5.6
+
+### Patch Changes
+
+- Clarify session storage configuration and document account-envelope adapters.
+
 ## 1.5.5
 
 ### Patch Changes
