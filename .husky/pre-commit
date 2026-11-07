@@ -191,9 +191,12 @@ index_tree() {
   fi
 }
 
-PKG_SRC=$(echo "$STAGED" | grep -E '^packages/.+/src/' || true)
+# A package.json counts too: its required @molecule peers are recorded in the registry
+# (`moleculePeers`), and a peer change with no src edit drifted it unseen until the
+# release's full sync check (2026-11-07, api-resource-article).
+PKG_SRC=$(echo "$STAGED" | grep -E '^packages/(.+/src/|.+/package\.json$)' | grep -v '/node_modules/' || true)
 if [ -n "$PKG_SRC" ]; then
-  PKG_DIRS=$(echo "$PKG_SRC" | while IFS= read -r f; do echo "${f%%/src/*}"; done | sort -u)
+  PKG_DIRS=$(echo "$PKG_SRC" | while IFS= read -r f; do case "$f" in */src/*) echo "${f%%/src/*}" ;; *) echo "${f%/package.json}" ;; esac; done | sort -u)
   if [ -n "$MLCL_TSX" ]; then
     index_tree
     ( cd ../mlcl && MOLECULE_PACKAGES_DIR="$INDEX_TREE/packages" "$MLCL_TSX" scripts/check-registry-exports.mjs $PKG_DIRS )
