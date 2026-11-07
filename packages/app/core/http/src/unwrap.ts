@@ -156,7 +156,10 @@ function isHttpResponseLike(res: unknown): boolean {
 }
 
 /**
- * Normalize an unknown response body into a single typed resource.
+ * Normalize a response's transport/data envelopes into a typed object.
+ * Named API fields remain intact: `{ record: value }` stays `{ record: value }`.
+ * Select that field explicitly, e.g. `unwrapSingle<{ record: Item }>(res)?.record`.
+ * The generic asserts the body's type; it does not validate its schema at runtime.
  *
  * Accepts:
  *   - a non-empty plain object → returned as-is (cast)

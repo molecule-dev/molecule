@@ -177,6 +177,13 @@ describe('unwrapSingle', () => {
     expect(unwrapSingle(undefined)).toBeNull()
   })
 
+  it('preserves a clinic API’s named resource field until the caller selects it', () => {
+    const record = { id: 7, name: 'Mira' }
+    const response = { data: { record }, status: 200, statusText: 'OK', headers: {}, config: {} }
+    expect(unwrapSingle<{ record: typeof record }>(response)).toEqual({ record })
+    expect(unwrapSingle<{ record: typeof record }>(response)?.record).toEqual(record)
+  })
+
   it('unwraps an HttpResponse wrapping a bare resource', () => {
     const httpResponse = {
       data: { id: 1, name: 'Mira' },

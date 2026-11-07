@@ -14,6 +14,12 @@
  * `skipAuthGate`) is the THIRD argument. Only `request({ method, url, data, … })` takes `data`
  * inside an options object, because there that object IS the config.
  *
+ * **Response helpers preserve API-specific field names.** `unwrapSingle<T>(response)` peels
+ * transport and `data` envelopes. It does not select a named resource such as `{ record: T }`.
+ * For that body, read `unwrapSingle<{ record: RecordType }>(response)?.record`, or
+ * `response.data.record` with a typed client call. For a bare resource body, keep the resource
+ * directly. The generic is a type assertion, not runtime validation of the server's schema.
+ *
  * @example
  * ```tsx
  * // In a React component, get the configured client from context and call it.
