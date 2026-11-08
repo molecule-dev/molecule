@@ -25,13 +25,14 @@ function cookieClient(): AuthClient<UserProfile> {
 }
 
 /** A real client with a Bearer candidate but no cached profile. */
-function bearerClient(): { client: AuthClient<UserProfile>; token: string } {
+function bearerClient(profile?: UserProfile): { client: AuthClient<UserProfile>; token: string } {
   const token = [
     btoa('{}'),
     btoa(JSON.stringify({ exp: Math.floor(Date.now() / 1000) + 3600 })),
     'signature',
   ].join('.')
   const values = new Map([['molecule:auth:accessToken', token]])
+  if (profile) values.set('molecule:auth:user', JSON.stringify(profile))
   const storage: StorageAdapter = {
     getItem: (key) => values.get(key) ?? null,
     setItem: (key, value) => values.set(key, value),
@@ -77,6 +78,30 @@ afterEach(() => {
 })
 
 describe('AuthGuard with a real restoring client', () => {
+  it('renders a protected section on the first render of a full-load client with a cached session', () => {
+    const fetch = vi.fn()
+    vi.stubGlobal('fetch', fetch)
+    const { client } = bearerClient({ id: 'account', email: 'reader@example.test' })
+    renderGuard(client)
+
+    expect(client.getState().status).toBe('authenticated')
+    expect(screen.getByText('Protected section')).toBeTruthy()
+    expect(document.querySelector('[data-mol-id="auth-guard-loading"]')).toBeNull()
+    expect(screen.queryByText('Login page')).toBeNull()
+    expect(fetch).not.toHaveBeenCalled()
+  })
+
+  it('redirects a real signed-out full-load client after its session decision', async () => {
+    const client = createJWTAuthClient<UserProfile>({ storage: 'memory', autoRefresh: false })
+    clients.push(client)
+    renderGuard(client)
+    await act(async () => client.whenRestored!())
+
+    expect(client.getState().status).toBe('unauthenticated')
+    expect(screen.getByText('Login page')).toBeTruthy()
+    expect(screen.queryByText('Protected section')).toBeNull()
+  })
+
   it('does not redirect a cookie-only candidate through a 503', async () => {
     vi.stubGlobal(
       'fetch',
