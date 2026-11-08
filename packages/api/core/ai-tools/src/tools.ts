@@ -56,6 +56,9 @@ import {
 } from './server-command.js'
 import { leadingSleepPeek } from './sleep-peek.js'
 
+/** Hosts can retain their script-write fallback when an older package lacks this hook. */
+export const supportsBackgroundScriptPreparation = true
+
 /**
  * Total waiting, per background task, after which wait_for_task reports it
  * stuck instead of waiting again. Env-tunable so a test can exercise it.
@@ -1356,6 +1359,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
     requiredSuiteEnv,
     suiteRunMs,
     onAfterWrite,
+    prepareBackgroundScript,
     onFileDiff,
     onFileChange,
   } = config ?? {}
@@ -3526,6 +3530,8 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           launched.add(id)
           launchedByBackend.set(backend, launched)
           await backend.writeFile(script, `${streaming.command}\n`)
+          if (prepareBackgroundScript)
+            await prepareBackgroundScript(script, `${streaming.command}\n`)
           // The clock the grace return below reports a stopped run against: the command is
           // started here, and how long it ran is what a stop at its own bound is read from.
           const launchedAt = Date.now()

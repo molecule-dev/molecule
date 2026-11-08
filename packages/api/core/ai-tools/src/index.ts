@@ -109,6 +109,11 @@
  *   read, then the write with its parse check. Diff tracking and redaction checks
  *   stay in the tools. Format and change hooks retain their ordering before parsing;
  *   large files and backends without these operations use the native file APIs.
+ *   Hosts that validate/compose background shell scripts use `prepareBackgroundScript`
+ *   instead of overriding the backend's ordinary `writeFile`: it runs after the script
+ *   is written and before launch, and a rejection prevents the command from starting.
+ *   `supportsBackgroundScriptPreparation` advertises this hook; hosts keep their existing
+ *   script-write preparation when running against older package versions.
  * - **Scope the tool set per agent** with `include`/`exclude` — a read-only agent
  *   should not receive `write_file`/`exec_command`.
  * - Outputs are size-capped (`MAX_READ_SIZE`, `MAX_OUTPUT_SIZE`, …) and searches

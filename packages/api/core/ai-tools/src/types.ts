@@ -291,6 +291,13 @@ export interface ToolBuildConfig {
   /** Post-write hook (e.g. auto-format via Prettier/ESLint). Called after every write_file/edit_file. */
   onAfterWrite?: (path: string) => Promise<void>
 
+  /**
+   * Prepare a background command script after it is written, before launching it.
+   * Hosts may validate or rewrite this script without overriding ordinary file writes
+   * (which would disable safe transport batching). A rejection prevents launch.
+   */
+  prepareBackgroundScript?: (path: string, content: string) => Promise<void>
+
   /** Diff tracking callback. Called before writes with old/new content. */
   onFileDiff?: (event: FileDiffEvent) => void
 
