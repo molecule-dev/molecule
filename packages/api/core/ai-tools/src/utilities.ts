@@ -3025,7 +3025,7 @@ export function runningLogReadCommand(log: string, own?: string): string {
  *   read did not run, so nothing may be said about the log).
  */
 export function parseRunningLogRead(stdout: string): RunningLogRead | null {
-  const sized = /^\s*(\d+)\s*\n/.exec(stdout)
+  const sized = /^[\t ]*(\d+)[\t ]*\r?\n/.exec(stdout)
   if (sized === null) return null
   return { text: stdout.slice(sized[0].length), bytes: Number(sized[1]) }
 }
