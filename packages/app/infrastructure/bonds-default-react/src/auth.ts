@@ -186,9 +186,9 @@ export function createDefaultAuthClient<
  * this wiring, authed endpoints return 401 after page reloads or token refresh.
  *
  * The sync is a LIVE read: `@molecule/app-http`'s `setAuthTokenSource` registers the auth
- * client's token, and every client the app bonds — one bonded after this setup too (the
- * scaffold wires auth BEFORE http, so a token copied into the client present at setup was
- * never sent) — reads it on each request. A session adopted with no
+ * client's token, and every client the app bonds, before or after this setup, reads it on
+ * each request — so the order of the `setup*()` calls in `bonds/index.ts` does not matter
+ * and never needs changing for auth. A session adopted with no
  * auth event (`useAuth().setSession()`, an OAuth callback's `setAccessToken()`, the same
  * profile under a new token) is therefore sent by the next request, not the previous
  * account's bearer. A transport without `setAuthTokenResolver` is followed through a request

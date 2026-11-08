@@ -168,8 +168,8 @@ describe('@molecule/app-http', () => {
     })
 
     it('hydrates a client bonded after the token source was registered', () => {
-      // The scaffold wires auth BEFORE http, so the auth bond's restored token has
-      // no client to land on at setup. The source is what reaches the client bonded
+      // When auth is wired BEFORE http, the auth bond's restored token has no client
+      // to land on at setup. The source is what reaches the client bonded
       // afterwards — reading a client reference at setup could not.
       unbondSingleton('http-client')
       setAuthTokenSource(() => 'restored-token')

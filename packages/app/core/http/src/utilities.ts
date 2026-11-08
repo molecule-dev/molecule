@@ -38,8 +38,8 @@ let unbondedFallback: HttpClient | null = null
  * or null.
  *
  * `setClient` installs it, which is the only moment that can reach a client created AFTER
- * the auth setup ran — the scaffold wires auth before http, so the auth bond's initial
- * token had no client to land on (`createDefaultAuthClientWithHttpSync` in
+ * the auth setup ran — when auth is wired before http, the auth bond's initial token has
+ * no client to land on (`createDefaultAuthClientWithHttpSync` in
  * `@molecule/app-bonds-default-react`). The client then reads the source itself for each
  * request instead of holding a token copied at bond time: a session adopted mid-page —
  * `setSession()`, the OAuth callback's `setAccessToken()` — changes the token with no auth
