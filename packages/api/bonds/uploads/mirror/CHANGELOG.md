@@ -1,5 +1,11 @@
 # @molecule/api-uploads-mirror
 
+## 1.1.5
+
+### Patch Changes
+
+- Align generated API documentation with source declarations and signatures.
+
 ## 1.1.3
 
 ### Patch Changes

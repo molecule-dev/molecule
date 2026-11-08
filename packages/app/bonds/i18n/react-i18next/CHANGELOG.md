@@ -1,5 +1,13 @@
 # @molecule/app-i18n-react-i18next
 
+## 1.0.6
+
+### Patch Changes
+
+- Align generated API documentation with source declarations and signatures.
+- Updated dependencies
+  - @molecule/app-i18n-i18next@1.0.5
+
 ## 1.0.5
 
 ### Patch Changes

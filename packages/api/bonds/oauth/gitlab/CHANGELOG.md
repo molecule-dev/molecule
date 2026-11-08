@@ -1,5 +1,11 @@
 # @molecule/api-oauth-gitlab
 
+## 1.2.2
+
+### Patch Changes
+
+- Align generated API documentation with source declarations and signatures.
+
 ## 1.2.0
 
 ### Minor Changes

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-rate-limit-redis",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Redis sliding-window rate-limit provider for molecule.dev",
   "type": "module",
   "main": "dist/index.js",

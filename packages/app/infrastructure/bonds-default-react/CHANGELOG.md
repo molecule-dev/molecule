@@ -1,5 +1,11 @@
 # @molecule/app-bonds-default-react
 
+## 3.0.3
+
+### Patch Changes
+
+- State that the auth and HTTP setup calls work in either order.
+
 ## 3.0.2
 
 ### Patch Changes

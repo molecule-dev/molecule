@@ -1,5 +1,11 @@
 # @molecule/api-resource-notification
 
+## 1.0.8
+
+### Patch Changes
+
+- Align generated API documentation with source declarations and signatures.
+
 ## 1.0.7
 
 ### Patch Changes

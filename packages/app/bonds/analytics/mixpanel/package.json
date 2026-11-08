@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-analytics-mixpanel",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Mixpanel analytics provider for molecule.dev frontend",
   "type": "module",
   "main": "dist/index.js",

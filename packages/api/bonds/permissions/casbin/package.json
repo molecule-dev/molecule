@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-permissions-casbin",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Casbin-based RBAC/ABAC permissions provider for molecule.dev",
   "type": "module",
   "main": "dist/index.js",

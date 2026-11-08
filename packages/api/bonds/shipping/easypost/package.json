@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-shipping-easypost",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "EasyPost shipping provider for molecule.dev.",
   "type": "module",
   "main": "dist/index.js",

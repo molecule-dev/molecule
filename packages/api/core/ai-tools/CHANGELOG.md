@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.17.9
+
+### Patch Changes
+
+- Preserve leading blank lines in task logs so complete output is not reported as clipped.
+
 ## 1.17.8
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/api-payments-paypal
 
+## 1.0.7
+
+### Patch Changes
+
+- Align generated API documentation with source declarations and signatures.
+
 ## 1.0.6
 
 ### Patch Changes

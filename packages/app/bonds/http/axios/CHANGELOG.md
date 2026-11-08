@@ -1,5 +1,11 @@
 # @molecule/app-http-axios
 
+## 1.2.4
+
+### Patch Changes
+
+- Align generated API documentation with source declarations and signatures.
+
 ## 1.2.3
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/app-solid
 
+## 3.2.2
+
+### Patch Changes
+
+- Align generated API documentation with source declarations and signatures.
+
 ## 3.2.1
 
 ### Patch Changes

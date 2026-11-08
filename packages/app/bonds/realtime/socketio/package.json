@@ -43,7 +43,7 @@
     "@molecule/app-realtime": ">=1.0.1"
   },
   "devDependencies": {
-    "@molecule/app-logger": "1.0.5",
+    "@molecule/app-logger": "1.0.6",
     "@molecule/app-realtime": "1.0.4",
     "@types/node": "26.6.5",
     "socket.io": "4.8.4",

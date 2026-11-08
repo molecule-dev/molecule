@@ -1,5 +1,11 @@
 # @molecule/api-emails-inbound-ses
 
+## 1.1.4
+
+### Patch Changes
+
+- Align generated API documentation with source declarations and signatures.
+
 ## 1.1.3
 
 ### Patch Changes

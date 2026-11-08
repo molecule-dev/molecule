@@ -1,5 +1,11 @@
 # @molecule/app-rich-text-quill
 
+## 1.0.8
+
+### Patch Changes
+
+- Align generated API documentation with source declarations and signatures.
+
 ## 1.0.6
 
 ### Patch Changes

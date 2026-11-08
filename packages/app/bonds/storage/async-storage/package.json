@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-storage-async-storage",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "AsyncStorage provider for @molecule/app-storage (React Native)",
   "homepage": "https://www.molecule.dev/packages/app-storage-async-storage",
   "type": "module",
@@ -35,7 +35,7 @@
   },
   "devDependencies": {
     "@molecule/app-i18n": "1.1.2",
-    "@molecule/app-logger": "1.0.5",
+    "@molecule/app-logger": "1.0.6",
     "@molecule/app-storage": "1.1.0",
     "@types/node": "26.6.5",
     "typescript": "6.0.3",

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-routing-react-navigation",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "React Navigation routing provider for molecule.dev",
   "homepage": "https://www.molecule.dev/packages/app-routing-react-navigation",
   "type": "module",

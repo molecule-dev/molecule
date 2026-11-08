@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-calendar-google",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Google Calendar bond for molecule.dev — read busy-blocks + write booking events via Google Calendar v3 REST API",
   "type": "module",
   "main": "dist/index.js",

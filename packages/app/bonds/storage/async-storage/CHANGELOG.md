@@ -1,5 +1,11 @@
 # @molecule/app-storage-async-storage
 
+## 1.0.5
+
+### Patch Changes
+
+- Align generated API documentation with source declarations and signatures.
+
 ## 1.0.4
 
 ### Patch Changes

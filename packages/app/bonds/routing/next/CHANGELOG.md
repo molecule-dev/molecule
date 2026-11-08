@@ -1,5 +1,11 @@
 # @molecule/app-routing-next
 
+## 1.0.4
+
+### Patch Changes
+
+- Align generated API documentation with source declarations and signatures.
+
 ## 1.0.1
 
 ### Patch Changes

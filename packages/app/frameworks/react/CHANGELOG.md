@@ -1,5 +1,11 @@
 # @molecule/app-react
 
+## 3.4.4
+
+### Patch Changes
+
+- Align generated API documentation with source declarations and signatures.
+
 ## 3.4.3
 
 ### Patch Changes

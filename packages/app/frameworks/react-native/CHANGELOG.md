@@ -1,5 +1,11 @@
 # @molecule/app-react-native
 
+## 3.0.6
+
+### Patch Changes
+
+- Align generated API documentation with source declarations and signatures.
+
 ## 3.0.5
 
 ### Patch Changes

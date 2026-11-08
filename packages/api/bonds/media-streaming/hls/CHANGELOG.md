@@ -1,5 +1,11 @@
 # @molecule/api-media-streaming-hls
 
+## 1.1.3
+
+### Patch Changes
+
+- Align generated API documentation with source declarations and signatures.
+
 ## 1.1.0
 
 ### Minor Changes

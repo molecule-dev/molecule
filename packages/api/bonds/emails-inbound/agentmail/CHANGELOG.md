@@ -1,5 +1,11 @@
 # @molecule/api-emails-inbound-agentmail
 
+## 1.0.4
+
+### Patch Changes
+
+- Align generated API documentation with source declarations and signatures.
+
 ## 1.0.3
 
 ### Patch Changes

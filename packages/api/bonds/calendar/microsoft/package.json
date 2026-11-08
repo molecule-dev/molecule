@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-calendar-microsoft",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Microsoft Outlook / Office 365 Calendar bond for molecule.dev — read busy-blocks + write booking events via Microsoft Graph v1.0 REST API",
   "type": "module",
   "main": "dist/index.js",

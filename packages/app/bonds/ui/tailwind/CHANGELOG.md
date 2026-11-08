@@ -1,5 +1,11 @@
 # @molecule/app-ui-tailwind
 
+## 1.2.9
+
+### Patch Changes
+
+- Align generated API documentation with source declarations and signatures.
+
 ## 1.2.8
 
 ### Patch Changes

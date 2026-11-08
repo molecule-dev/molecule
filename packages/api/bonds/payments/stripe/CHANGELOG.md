@@ -1,5 +1,11 @@
 # @molecule/api-payments-stripe
 
+## 1.2.10
+
+### Patch Changes
+
+- Align generated API documentation with source declarations and signatures.
+
 ## 1.2.9
 
 ### Patch Changes

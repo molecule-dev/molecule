@@ -1,5 +1,11 @@
 # @molecule/api-database-mysql
 
+## 1.4.3
+
+### Patch Changes
+
+- Align generated API documentation with source declarations and signatures.
+
 ## 1.4.2
 
 ### Patch Changes

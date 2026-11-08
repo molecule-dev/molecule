@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-media-streaming-hls",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "description": "HLS media streaming provider for molecule.dev — ffmpeg-based segmentation, transcoding, and M3U8 playlist generation",
   "type": "module",
   "main": "dist/index.js",

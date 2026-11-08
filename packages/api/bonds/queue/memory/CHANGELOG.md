@@ -1,5 +1,11 @@
 # @molecule/api-queue-memory
 
+## 1.0.5
+
+### Patch Changes
+
+- Align generated API documentation with source declarations and signatures.
+
 ## 1.0.2
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/api-resource-user
 
+## 1.8.6
+
+### Patch Changes
+
+- Align generated API documentation with source declarations and signatures.
+
 ## 1.8.5
 
 ### Patch Changes

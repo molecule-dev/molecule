@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-kyc-stripe-identity",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Stripe Identity KYC bond for molecule.dev — document + selfie verification, normalized status, signed webhooks.",
   "type": "module",
   "main": "dist/index.js",

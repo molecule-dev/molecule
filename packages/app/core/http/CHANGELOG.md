@@ -1,5 +1,11 @@
 # @molecule/app-http
 
+## 1.5.8
+
+### Patch Changes
+
+- State that the auth and HTTP setup calls work in either order.
+
 ## 1.5.7
 
 ### Patch Changes
