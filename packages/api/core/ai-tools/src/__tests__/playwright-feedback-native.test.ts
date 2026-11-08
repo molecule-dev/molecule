@@ -1,4 +1,6 @@
+import { spawn } from 'node:child_process'
 import { once } from 'node:events'
+import { existsSync } from 'node:fs'
 import { mkdir, mkdtemp, rm, symlink, writeFile } from 'node:fs/promises'
 import { createServer } from 'node:http'
 import { createRequire } from 'node:module'
@@ -154,6 +156,52 @@ describe('native supplied-suite feedback before deploy', () => {
       expect(result.status).toBe('failed')
       expect(result.failures[0].locator).toContain(locator)
       expect(result.failures[0].rendered).toContain(rendered)
+    },
+    20_000,
+  )
+  // A previous background run that is still being torn down must not cancel the next one; real foreground
+  // Playwright work in the project still does. Both use a process whose command line reads as the Playwright CLI.
+  it.each([
+    [
+      'a lingering background feedback run',
+      'failed',
+      { MOL_TEST_FEEDBACK_EVENTS: '/nonexistent/events' },
+    ],
+    ['foreground Playwright work', 'cancelled', {}],
+  ] as const)(
+    'with %s in the project, the native run reports %s',
+    async (_label, status, marker) => {
+      broken = true
+      const fake = join(root, 'lingering', 'node_modules', '@playwright', 'test')
+      await mkdir(fake, { recursive: true })
+      const ready = join(root, 'lingering', `ready-${status}`)
+      await writeFile(
+        join(fake, 'cli.js'),
+        `require('node:fs').writeFileSync(${JSON.stringify(ready)}, ''); setInterval(() => {}, 1000)\n`,
+      )
+      const { MOL_TEST_FEEDBACK_EVENTS: _inherited, ...env } = process.env
+      const lingering = spawn(process.execPath, [join(fake, 'cli.js'), 'test'], {
+        cwd: root,
+        env: { ...env, ...marker },
+        stdio: 'ignore',
+      })
+      try {
+        for (let i = 0; i < 200 && !existsSync(ready); i++)
+          await new Promise((r) => setTimeout(r, 25))
+        expect(existsSync(ready)).toBe(true)
+        const result = await runPlaywrightFeedback(
+          backend,
+          specs[3],
+          [join(root, 'src/Notebook.tsx')],
+          1,
+          { command: (flags) => `${specs[3].command} ${flags.join(' ')}` },
+        )
+        expect(result.status).toBe(status)
+        if (status === 'failed') expect(result.failures[0].locator).toContain('.owner')
+      } finally {
+        lingering.kill('SIGKILL')
+        await once(lingering, 'exit')
+      }
     },
     20_000,
   )

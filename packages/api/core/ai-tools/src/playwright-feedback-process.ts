@@ -119,6 +119,17 @@ function feedbackProcess(loadModule: NodeRequire, config: FeedbackProcessOptions
         // Separate mount namespaces can both call their project /workspace.
         const other = fs.statSync(`/proc/${pid}/root${config.root}`)
         if (other.dev !== project.dev || other.ino !== project.ino) continue
+        // Another background feedback run is not foreground work. A killed run keeps its idle CPU class, so on a
+        // saturated machine its Playwright processes can wait to be scheduled long after their supervisor exited,
+        // with their command line still readable; the next run then yielded to them and reported `cancelled`.
+        let environ = ''
+        try {
+          environ = fs.readFileSync(`/proc/${pid}/environ`, 'utf8')
+        } catch (_error) {
+          /* an unreadable environment leaves the decision to the command line below */
+        }
+        if (environ.split('\0').some((entry) => entry.startsWith('MOL_TEST_FEEDBACK_EVENTS=')))
+          continue
         const argv = fs.readFileSync(`/proc/${pid}/cmdline`, 'utf8').split('\0').filter(Boolean)
         const executable = path.basename(argv[0] || '')
         // npm replaces argv with its process title before it starts the script.
