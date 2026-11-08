@@ -4277,10 +4277,9 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
             newFailureCauses: fresh.map((cause) => sanitizeOutput(cause)),
             // This yield fires only on a FINAL failure (the `finalOnly` read above), so the
             // deployed run it belongs to can no longer pass and a local edit cannot void a green
-            // proof. The note therefore spends its words on what to do with that: start the fix
-            // while the walk continues, and only talk to the app once the run has ended. Wording it
-            // as patience alone cost 4 min 45 s of idle on an already-red run (xr-molecule-flash-
-            // hl01), against ≈4.5 min saved when the same yield was acted on (l69).
+            // proof. Keep discovering causes during the repair, then replace the failed build:
+            // waiting after its known causes were fixed cost l1671 another 295 s without learning
+            // another cause. Retirement must precede replacement so no walk mixes builds or data.
             note: localDiagnostic
               ? 'A test in this local diagnostic has failed on its final attempt. This is partial ' +
                 'output, not a completed result; the task is still running against mutable local source. ' +
@@ -4302,11 +4301,13 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
                     })
                   : '')
               : 'A test in this run has failed on its final attempt, so this deployed run will not ' +
-                'pass. This is partial log output, not a completed result: leave the task running — ' +
-                "its end names the run's other failures. Local edits do not change this deployed " +
+                'pass. This is partial log output, not a completed result: leave the task running while you fix ' +
+                'and collect any new causes it exposes. Local edits do not change this deployed ' +
                 'build, so start on this failure now: read the failing spec and the code it drives, ' +
-                'and fix it while the run keeps walking. Send nothing against this app until the run ' +
-                'ends, then collect its final result with `wait_for_task`.',
+                'and fix it while the run keeps walking. Once every known cause is fixed, deploy now ' +
+                'rather than waiting for this failed walk to finish. The deploy must retire this task before replacing the build; ' +
+                'collect its stopped or completed result with `wait_for_task`. Do not start a second test run while this task is running. ' +
+                'Its remaining tests stay unmeasured; hand-back still requires the full supplied suite against the new deployed build to pass with its own settings.',
           }
         }
         // A lead: this wait goes on, and the finding rides its result as a note — the executor has

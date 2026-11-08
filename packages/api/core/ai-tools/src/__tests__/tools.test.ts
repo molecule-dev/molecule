@@ -7015,20 +7015,20 @@ describe('opt-in first diagnostic progress from a deployed task', () => {
     expect(text).toContain('will not pass')
     // The partial-result framing callers already read stays.
     expect(text).toContain('not a completed result')
-    // (2) Leave it running: its end names the other failures.
-    expect(text).toContain('leave the task running')
-    expect(text).toContain("its end names the run's other failures")
+    // Continue collecting causes while repairs are in progress, without an idle full-walk wait.
+    expect(text).toContain('leave the task running while you fix')
     // (3) A local edit cannot change this build, so the fix starts now, during the walk.
     expect(text).toContain('Local edits do not change this deployed build')
     expect(text).toContain('start on this failure now')
     expect(text).toContain('read the failing spec and the code it drives')
     expect(text).toContain('while the run keeps walking')
-    // (4) Nothing new against the app until the run ends.
-    expect(text).toContain('Send nothing against this app until the run ends')
-    expect(text).toContain('collect its final result with `wait_for_task`')
-    // The wait owns the decision to end the task; the note never asks for it.
-    expect(text).not.toContain('kill')
-    expect(text.toLowerCase()).not.toContain('stop')
+    // Once known causes are repaired, the replacement can start; it must retire this walk.
+    expect(text).toContain('Once every known cause is fixed, deploy now')
+    expect(text).toContain('retire this task before replacing the build')
+    expect(text).toContain('Do not start a second test run while this task is running')
+    expect(text).toContain('remaining tests stay unmeasured')
+    expect(text).toContain('full supplied suite against the new deployed build')
+    expect(text).not.toContain('Send nothing against this app until the run ends')
   }
 
   it('says a spent retry will not pass, and to start fixing it while the run walks (hl01)', async () => {
