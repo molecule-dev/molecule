@@ -1,6 +1,7 @@
 import { execFile } from 'node:child_process'
 import { writeFileSync } from 'node:fs'
 import { mkdir, mkdtemp, readFile, rm, symlink, writeFile } from 'node:fs/promises'
+import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { promisify } from 'node:util'
@@ -268,6 +269,14 @@ describe('write/edit sandbox round trips and exact results', () => {
     ['invoice.mjs', 'export const amount = (\n', true],
   ] as const)('keeps the real parser verdict for %s', async (name, content, invalid) => {
     const f = await fixture()
+    // The TypeScript parse check requires `esbuild` from the project, as a real app has it in its own
+    // node_modules. The fixture lives under the OS temp dir, where nothing resolves it, so without this link
+    // the check reports "no parser" and the invalid case passed only when TMPDIR sat inside a checkout.
+    await mkdir(join(f.root, 'node_modules'), { recursive: true })
+    await symlink(
+      dirname(createRequire(import.meta.url).resolve('esbuild/package.json')),
+      join(f.root, 'node_modules', 'esbuild'),
+    )
     const path = join(f.root, name)
     const run = async (fast: boolean) => {
       await writeFile(path, 'export const amount = 10\n')
