@@ -111,6 +111,13 @@
  * status means "no decision yet", so an auth request in flight
  * (`state.loading`) keeps the decided status and does not unmount a
  * Login/Register page mid-request.
+ * Use the framework's shared route guard when available. For React Router,
+ * `AuthGuard` from `@molecule/app-ui-react` wraps protected routes with
+ * `<Route element={<AuthGuard />}>`. It restores lazily, waits only while
+ * `status === 'loading'`, and redirects only on `'unauthenticated'`.
+ * `'unavailable'` retains a session candidate and must not redirect to login.
+ * Do not replace this guard with `!isAuthenticated` or
+ * `status !== 'authenticated'`, or poll the session before painting the form.
  * `validateSession()` is the background re-check that produces the last two: call
  * it after the first render — a 401 or 403 clears the token (`'unauthenticated'`),
  * while a network failure, a 5xx, or a 404 from a wrong `currentUserEndpoint`
@@ -434,7 +441,8 @@
  *   `user: null`, tokens cleared); afterward every protected screen redirects
  *   back to login.
  * - [ ] Visiting a protected route while logged OUT redirects to login (the
- *   guard reads `isAuthenticated()`), and after authenticating you land back on
+ *   guard redirects only on `status === 'unauthenticated'`, after the initial
+ *   `'loading'` decision), and after authenticating you land back on
  *   the originally-requested screen rather than a generic home.
  * - [ ] The session survives a FULL page reload: after login, hard-reload → you
  *   stay signed in (the profile/sign-out UI a signed-in visitor sees is still
