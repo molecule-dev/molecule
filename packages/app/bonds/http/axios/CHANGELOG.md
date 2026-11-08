@@ -1,5 +1,11 @@
 # @molecule/app-http-axios
 
+## 1.2.5
+
+### Patch Changes
+
+- Add `keepalive` to `RequestConfig` so a request can outlive a navigation or page close; the Axios provider sends it through its fetch adapter.
+
 ## 1.2.4
 
 ### Patch Changes
