@@ -1,5 +1,11 @@
 # @molecule/app-auth
 
+## 3.3.1
+
+### Patch Changes
+
+- Document the shared route guard and redirect only after an unauthenticated session decision.
+
 ## 3.3.0
 
 ### Minor Changes

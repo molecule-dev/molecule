@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.17.8
+
+### Patch Changes
+
+- Avoid idle waits after repairing a final deployed-test failure while preserving full proof of the replacement build.
+
 ## 1.17.7
 
 ### Patch Changes
