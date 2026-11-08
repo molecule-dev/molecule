@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.17.7
+
+### Patch Changes
+
+- Add a background script preparation hook so hosts can validate and compose commands before launch while retaining batched file writes.
+
 ## 1.17.6
 
 ### Patch Changes

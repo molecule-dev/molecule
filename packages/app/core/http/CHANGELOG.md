@@ -1,5 +1,11 @@
 # @molecule/app-http
 
+## 1.5.7
+
+### Patch Changes
+
+- Document that `unwrapSingle` keeps named response fields such as `{ record: value }`, and how to select one.
+
 ## 1.5.6
 
 ### Patch Changes
