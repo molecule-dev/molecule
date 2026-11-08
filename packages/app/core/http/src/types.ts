@@ -78,6 +78,18 @@ export interface RequestConfig {
   signal?: AbortSignal
 
   /**
+   * Keep the request running when the page navigates away or closes before it finishes — fetch's
+   * own `keepalive`. Use it for a small mutation fired just before a navigation (a favorite or a
+   * save, then `navigate()`) or a beacon on `pagehide`, instead of writing your own `fetch`. The
+   * browser caps the bodies of in-flight keepalive requests at 64 KB in total, so not for uploads.
+   *
+   * ```typescript
+   * await http.post(`/articles/${slug}/favorite`, undefined, { keepalive: true })
+   * ```
+   */
+  keepalive?: boolean
+
+  /**
    * Request body data, as a field of THIS config object — the `request({ method, url, data })`
    * form. The verb methods take the body as their SECOND argument: `post(url, data, config)`,
    * `put(url, data, config)`, `patch(url, data, config)`. Never wrap it there as

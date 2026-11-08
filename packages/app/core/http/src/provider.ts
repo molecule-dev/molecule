@@ -190,6 +190,7 @@ export const createFetchClient = (config: HttpClientConfig = {}): HttpClient => 
         credentials:
           (finalConfig.withCredentials ?? config.withCredentials) ? 'include' : 'same-origin',
         signal: finalConfig.signal,
+        ...(finalConfig.keepalive ? { keepalive: true } : {}),
       }
 
       // Add body

@@ -58,8 +58,10 @@ function toAxiosConfig(config: RequestConfig): AxiosRequestConfig & WithSkipAuth
     signal: config.signal,
     data: config.data,
     ...config.options,
-    // After `config.options`, so the documented option wins over an implementation-specific one.
+    // After `config.options`, so the documented options win over implementation-specific ones.
     skipAuthGate: config.skipAuthGate,
+    // XHR cannot outlive the page; Axios's fetch adapter carries fetch's own keepalive.
+    ...(config.keepalive ? { adapter: 'fetch' as const, fetchOptions: { keepalive: true } } : {}),
   }
 }
 
