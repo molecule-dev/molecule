@@ -17,6 +17,7 @@ import { configureQueryClient, resetQueryClient, setProvider } from '@molecule/a
 import { provider as memoryQuery } from '@molecule/app-query-memory'
 import { useQuery } from '@molecule/app-query-react'
 
+import { useConsumedSearchParam } from '../hooks.js'
 import type { ListRouteOptions, ListRouteResult } from '../list-types.js'
 import { useListRoute } from '../useListRoute.js'
 
@@ -171,6 +172,84 @@ function mount<Filter extends string, Selection extends string>(
 }
 
 describe('URL-backed list consumer transitions', () => {
+  it('paginates a route-param path without selections, filters or a path option', async () => {
+    let list!: ListRouteResult
+    function Category(): ReactNode {
+      list = useListRoute()
+      return (
+        <Link id="next" to={list.href({ page: 2 })}>
+          Next
+        </Link>
+      )
+    }
+    root = createRoot(host)
+    act(() =>
+      root!.render(
+        <MemoryRouter initialEntries={['/category/books']}>
+          <Routes>
+            <Route path="/category/:slug" element={<Category />} />
+          </Routes>
+        </MemoryRouter>,
+      ),
+    )
+    await settle()
+    expect(list.params).toEqual({ slug: 'books' })
+    expect(list.filters).toEqual({})
+    expect(list.selection).toBeUndefined()
+    expect(host.querySelector('#next')!.getAttribute('href')).toBe('/category/books?page=2')
+    await act(async () => host.querySelector<HTMLElement>('#next')!.click())
+    expect(list).toMatchObject({ page: 2, offset: 20, params: { slug: 'books' } })
+    expect(list.href({ page: 1 })).toBe('/category/books')
+  })
+
+  it('puts page after existing query keys and resets it in a selection link', async () => {
+    const app = mount('/?view=mine&page=4', {
+      selections: { all: { path: '/' }, mine: { path: '/', query: { view: 'mine' } } },
+    })
+    await settle()
+    expect(app.list().href({ page: 2 })).toBe('/?view=mine&page=2')
+    expect(app.list().href({ selection: 'all' })).toBe('/')
+    await app.click('all')
+    expect(app.list()).toMatchObject({ page: 1, selection: 'all', offset: 0 })
+    expect(app.fetch.mock.calls.map(([request]) => request.offset)).toEqual([60, 0])
+  })
+
+  it('keeps a one-time token beside list pagination while removing it from the address', async () => {
+    let list!: ListRouteResult
+    let token: string | undefined
+    let url = ''
+    function Invitations(): ReactNode {
+      list = useListRoute()
+      const [consumed] = useConsumedSearchParam('token')
+      token = consumed
+      const location = useLocation()
+      url = location.pathname + location.search
+      return (
+        <Link id="next" to={list.href({ page: 3 })}>
+          Next
+        </Link>
+      )
+    }
+    root = createRoot(host)
+    act(() =>
+      root!.render(
+        <MemoryRouter initialEntries={['/invitations?view=mine&page=2&token=one-time&track=a']}>
+          <Invitations />
+        </MemoryRouter>,
+      ),
+    )
+    await settle()
+    expect(token).toBe('one-time')
+    expect(url).toBe('/invitations?view=mine&page=2&track=a')
+    expect(list).toMatchObject({ page: 2, offset: 20 })
+    expect(list.href({ page: 3 })).toBe('/invitations?view=mine&track=a&page=3')
+    await act(async () => host.querySelector<HTMLElement>('#next')!.click())
+    await settle()
+    expect(list.page).toBe(3)
+    expect(token).toBe('one-time')
+    expect(url).toBe('/invitations?view=mine&track=a&page=3')
+  })
+
   it('retains a path-backed filter, repeated/unrelated query values and hash in real page links', async () => {
     const app = mount('/topics/type%20systems?sort=oldest&track=a&track=b#results', {
       path: '/topics/:topic',

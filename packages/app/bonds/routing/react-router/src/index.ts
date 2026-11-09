@@ -14,8 +14,14 @@
  *
  * **Paginated or filtered page? Use `useListRoute` for its URL state.** It reads
  * page, filters and selected views from the current URL; builds links that retain
- * the current path/filters; and resets page when a filter or view changes. Declare
- * path variants explicitly instead of translating API filters into browser URLs.
+ * the current path/filters; and resets page when a filter or view changes.
+ * Start with `const pages = useListRoute()`; `filters` and `selections` are optional.
+ * On `/category/books` matched by `/category/:slug`, `pages.href({ page: 2 })` is
+ * `/category/books?page=2` and `pages.params.slug` is `'books'`. The route's path
+ * params need no extra config and never become duplicate query filters. On
+ * `/?view=mine`, the same call is `/?view=mine&page=2`: existing query keys keep
+ * their order, with page last. Page one omits `page`; unrelated queries and hash
+ * survive. Add `path` when changing path params, or `selections` when linking views.
  * It works under ordinary `BrowserRouter` without a data router or an extra provider.
  *
  * @example
