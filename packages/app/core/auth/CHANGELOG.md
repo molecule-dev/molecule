@@ -1,5 +1,11 @@
 # @molecule/app-auth
 
+## 3.3.2
+
+### Patch Changes
+
+- Keep saved profiles current in React auth hooks and account settings, guard against stale session reads, and revalidate access-only sessions.
+
 ## 3.3.1
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/app-react-native
 
+## 3.0.7
+
+### Patch Changes
+
+- Document access-only session revalidation and the current profile-save lifecycle in framework auth references.
+
 ## 3.0.6
 
 ### Patch Changes

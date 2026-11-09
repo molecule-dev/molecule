@@ -1,5 +1,11 @@
 # @molecule/app-settings-panel-react
 
+## 3.0.3
+
+### Patch Changes
+
+- Keep saved profiles current in React auth hooks and account settings, guard against stale session reads, and revalidate access-only sessions.
+
 ## 3.0.2
 
 ### Patch Changes

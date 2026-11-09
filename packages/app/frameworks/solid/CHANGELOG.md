@@ -1,5 +1,11 @@
 # @molecule/app-solid
 
+## 3.2.3
+
+### Patch Changes
+
+- Document access-only session revalidation and the current profile-save lifecycle in framework auth references.
+
 ## 3.2.2
 
 ### Patch Changes

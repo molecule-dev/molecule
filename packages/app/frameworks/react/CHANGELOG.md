@@ -1,5 +1,11 @@
 # @molecule/app-react
 
+## 3.5.0
+
+### Minor Changes
+
+- Keep saved profiles current in React auth hooks and account settings, guard against stale session reads, and revalidate access-only sessions.
+
 ## 3.4.4
 
 ### Patch Changes
