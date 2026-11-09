@@ -1,0 +1,15 @@
+{
+  "packages": [
+    "@molecule/app-fonts-caveat",
+    "@molecule/app-fonts-dm-mono",
+    "@molecule/app-fonts-eb-garamond",
+    "@molecule/app-fonts-inter-tight",
+    "@molecule/app-fonts-noto-serif",
+    "@molecule/app-fonts-public-sans",
+    "@molecule/app-fonts-sora",
+    "@molecule/app-fonts-space-mono"
+  ],
+  "changesets": [
+    ".changeset/new-local-fonts.md"
+  ]
+}
