@@ -19,6 +19,12 @@ export const font: FontDefinition = {
         weight: '200 900',
         variable: true,
       },
+      {
+        file: new URL('../fonts/SourceSerif4-Italic-VariableFont.ttf', import.meta.url).href,
+        weight: '200 900',
+        style: 'italic',
+        variable: true,
+      },
     ],
   },
 }

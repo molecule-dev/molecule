@@ -1,4 +1,4 @@
-import { existsSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -41,5 +41,11 @@ describe('@molecule/app-fonts-source-sans-3', () => {
       expect(dirname(path)).toBe(join(packageDir, 'fonts'))
       expect(existsSync(path)).toBe(true)
     }
+  })
+
+  it('should ship the font license with the font files', () => {
+    const license = readFileSync(new URL('../../fonts/OFL.txt', import.meta.url), 'utf8')
+    expect(license).toMatch(/SIL Open Font License/i)
+    expect(license).toMatch(/Copyright/)
   })
 })

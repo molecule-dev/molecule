@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs'
+
 import { describe, expect, it } from 'vitest'
 
 import { font } from '../index.js'
@@ -18,5 +20,11 @@ describe('@molecule/app-fonts-inter', () => {
   it('should have fallback fonts', () => {
     expect(font.fallbacks.length).toBeGreaterThan(0)
     expect(font.fallbacks).toContain('sans-serif')
+  })
+
+  it('should ship the font license with the font files', () => {
+    const license = readFileSync(new URL('../../fonts/OFL.txt', import.meta.url), 'utf8')
+    expect(license).toMatch(/SIL Open Font License/i)
+    expect(license).toMatch(/Copyright/)
   })
 })

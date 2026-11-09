@@ -19,6 +19,12 @@ export const font: FontDefinition = {
         weight: '400 900',
         variable: true,
       },
+      {
+        file: new URL('../fonts/PlayfairDisplay-Italic-VariableFont.ttf', import.meta.url).href,
+        weight: '400 900',
+        style: 'italic',
+        variable: true,
+      },
     ],
   },
 }

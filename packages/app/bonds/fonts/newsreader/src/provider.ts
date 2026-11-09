@@ -19,6 +19,12 @@ export const font: FontDefinition = {
         weight: '200 800',
         variable: true,
       },
+      {
+        file: new URL('../fonts/Newsreader-Italic-VariableFont.ttf', import.meta.url).href,
+        weight: '200 800',
+        style: 'italic',
+        variable: true,
+      },
     ],
   },
 }
