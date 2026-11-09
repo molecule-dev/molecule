@@ -1,5 +1,11 @@
 # @molecule/app-http
 
+## 1.6.1
+
+### Patch Changes
+
+- Recognize unambiguous named list envelopes in raw bodies and HTTP responses without mistaking resource array fields for lists.
+
 ## 1.6.0
 
 ### Minor Changes

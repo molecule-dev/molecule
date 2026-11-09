@@ -1,5 +1,11 @@
 # @molecule/app-fonts-ibm-plex-sans
 
+## 1.0.7
+
+### Patch Changes
+
+- Ship the font's SIL Open Font License text (`fonts/OFL.txt`) with the font files, as the license requires, and say so in the docs.
+
 ## 1.0.5
 
 ### Patch Changes

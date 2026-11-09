@@ -1,5 +1,11 @@
 # @molecule/app-fonts-inter
 
+## 1.0.6
+
+### Patch Changes
+
+- Ship the font's SIL Open Font License text (`fonts/OFL.txt`) with the font files, as the license requires, and say so in the docs.
+
 ## 1.0.4
 
 ### Patch Changes

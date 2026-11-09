@@ -1,5 +1,11 @@
 # @molecule/app-fonts-source-sans-3
 
+## 1.1.5
+
+### Patch Changes
+
+- Ship the font's SIL Open Font License text (`fonts/OFL.txt`) with the font files, as the license requires, and say so in the docs.
+
 ## 1.1.3
 
 ### Patch Changes

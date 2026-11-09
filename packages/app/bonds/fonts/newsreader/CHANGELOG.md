@@ -1,5 +1,11 @@
 # @molecule/app-fonts-newsreader
 
+## 1.1.0
+
+### Minor Changes
+
+- Add the italic variable face, and ship the font's SIL Open Font License text (`fonts/OFL.txt`) with the font files.
+
 ## 1.0.5
 
 ### Patch Changes
