@@ -403,4 +403,76 @@ describe('URL-backed list consumer transitions', () => {
       returnTo: '/products/category/chairs?view=mine&page=2',
     })
   })
+
+  // One page mounted on `/` and `/topics/:topic`, as in the package docs' feed example. When each
+  // route used its own options, the "all" link on a topic page could not come from `href` and
+  // hand-built links kept the topic (xr-molecule-flash-l1852, l1853, l1861).
+  it('serves query views and a path view from one config, so every view link is built by href', async () => {
+    let current!: ListRouteResult<never, 'all' | 'following' | 'topic'>
+    let currentUrl = ''
+    function Feed(): ReactNode {
+      current = useListRoute({
+        pageSize: 10,
+        selections: {
+          all: { path: '/', query: { view: undefined } },
+          following: { path: '/', query: { view: 'following' } },
+          topic: { path: '/topics/:topic' },
+        },
+        defaultSelection: 'all',
+      })
+      const location = useLocation()
+      currentUrl = location.pathname + location.search
+      return (
+        <>
+          <Link id="all" to={current.href({ selection: 'all' })}>
+            all
+          </Link>
+          <Link id="following" to={current.href({ selection: 'following' })}>
+            following
+          </Link>
+          <Link id="next" to={current.href({ page: current.page + 1 })}>
+            next
+          </Link>
+          <Link
+            id="topic-design"
+            to={current.href({ selection: 'topic', params: { topic: 'design' } })}
+          >
+            design
+          </Link>
+        </>
+      )
+    }
+    root = createRoot(host)
+    act(() =>
+      root!.render(
+        <MemoryRouter initialEntries={['/topics/design?page=2']}>
+          <Routes>
+            <Route path="/" element={<Feed />} />
+            <Route path="/topics/:topic" element={<Feed />} />
+          </Routes>
+        </MemoryRouter>,
+      ),
+    )
+    await settle()
+    const href = (id: string): string | null => host.querySelector(`#${id}`)!.getAttribute('href')
+    expect(current).toMatchObject({
+      selection: 'topic',
+      params: { topic: 'design' },
+      page: 2,
+      offset: 10,
+    })
+    expect(href('all')).toBe('/')
+    expect(href('following')).toBe('/?view=following')
+    expect(href('next')).toBe('/topics/design?page=3')
+    await act(async () => host.querySelector<HTMLElement>('#all')!.click())
+    await settle()
+    expect(currentUrl).toBe('/')
+    expect(current).toMatchObject({ selection: 'all', page: 1, params: {} })
+    // Counterexample: a query view's page links stay on `/`, and a topic link names its topic.
+    await act(async () => host.querySelector<HTMLElement>('#following')!.click())
+    await settle()
+    expect(href('next')).toBe('/?view=following&page=2')
+    expect(href('topic-design')).toBe('/topics/design')
+    expect(() => current.href({ selection: 'topic' })).toThrow('Missing required param "topic"')
+  })
 })

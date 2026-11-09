@@ -122,6 +122,26 @@
  * // onPageChange={topics.setPage}; custom links use topics.href({ page: next }).
  * ```
  *
+ * @example
+ * One feed page on `/`, `/?view=following` and `/topics/:topic`: mount it on both routes
+ * with ONE config, so every tab link comes from `href`. With a separate config per route,
+ * the topic page cannot build the "all" link, and a hand-written one tends to keep the topic.
+ *
+ * ```tsx
+ * const feed = useListRoute({
+ *   pageSize: 10,
+ *   selections: {
+ *     all: { path: '/', query: { view: undefined } },
+ *     following: { path: '/', query: { view: 'following' } },
+ *     topic: { path: '/topics/:topic' },
+ *   },
+ *   defaultSelection: 'all',
+ * })
+ * // On /topics/design?page=2: feed.selection is 'topic', feed.params.topic is 'design',
+ * // feed.href({ selection: 'all' }) is '/', feed.href({ page: 3 }) is '/topics/design?page=3'.
+ * // A topic link names its topic: feed.href({ selection: 'topic', params: { topic: name } }).
+ * ```
+ *
  * @remarks
  * - `useListRoute` derives state from the URL on every render, including Back/Forward.
  *   Do not mirror selection/page in local state or rewrite an explicit public view
