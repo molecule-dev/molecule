@@ -1,5 +1,11 @@
 # @molecule/api-resource-comment
 
+## 1.2.5
+
+### Patch Changes
+
+- Include stored comment numbers on paginated comments and replies so integer-addressed APIs preserve identities across sorting, pagination and deletion. UUID-only imports remain unnumbered until explicitly numbered.
+
 ## 1.2.4
 
 ### Patch Changes
