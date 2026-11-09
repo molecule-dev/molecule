@@ -205,6 +205,13 @@
  *   or a successful null response as missing; other errors stay load failures.
  *   The app's bonded HTTP client rejects non-2xx responses. Native `fetch`
  *   resolves them, so a custom fetcher must check `response.ok` before JSON.
+ * - **Mount a detail region and its actions only after its initial document arrives.**
+ *   A visible container is not a loaded document: a caller may wait for that container and
+ *   read its text once, or click its button, while `data` is still undefined. Put the loading
+ *   message outside the detail region, as in `PackagePage` above. Keep record-dependent
+ *   controls absent or natively disabled until the record exists; returning early inside
+ *   an enabled click handler loses that click. `client.set()` protects a cache mutation
+ *   from an older read, but cannot recover a click whose handler never sent the mutation.
  * - **The key is the identity.** Building `options` inline is fine; the
  *   hook resubscribes only when the key's value changes, not when the
  *   `fetch` closure does.
