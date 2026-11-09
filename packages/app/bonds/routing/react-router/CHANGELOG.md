@@ -1,5 +1,11 @@
 # @molecule/app-routing-react-router
 
+## 1.2.5
+
+### Patch Changes
+
+- Clarify minimal list pagination, path parameter preservation, and query ordering with exact URL examples.
+
 ## 1.2.4
 
 ### Patch Changes

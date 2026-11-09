@@ -60,7 +60,7 @@
     "@molecule/app-realtime": "1.0.4",
     "@molecule/app-realtime-socketio": "1.1.2",
     "@molecule/app-routing": "1.0.5",
-    "@molecule/app-routing-react-router": "1.2.4",
+    "@molecule/app-routing-react-router": "1.2.5",
     "@molecule/app-state": "1.2.0",
     "@molecule/app-storage": "1.1.0",
     "@molecule/app-storage-localstorage": "1.1.1",
