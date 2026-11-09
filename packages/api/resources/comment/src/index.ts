@@ -40,10 +40,10 @@
  * - **Integer comment ids — every comment is numbered by default.** `createComment()`
  *   writes the comment and its sequential `number` (1, 2, 3, …) together and returns both;
  *   `createNumberedComment()` is the same create under the name an integer-id API reads best.
- *   For an API whose clients address a comment by a stable integer,
  *   Paginated comments and replies also carry that stable `number`. Never derive an
  *   identity from the page index: sorting, pagination and deletion change positions.
- *   Return `number` as the id and read it back with
+ *   For an API whose clients address a comment by a stable integer,
+ *   return `number` as the id and read it back with
  *   `getCommentByNumber(n)` — never hand-build an id from the UUID, and never read a missing
  *   `commentNumbers(ids)` entry as `0` (a row inserted without `createComment()` has no number;
  *   `numberComment(id)` gives it one). Never build your own id-mapping table.
