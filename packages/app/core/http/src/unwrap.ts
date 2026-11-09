@@ -12,8 +12,8 @@
  * value, a `{ data }` envelope, and (for lists) the RICH pagination
  * envelope `{ data, total, limit, offset }` returned by the pre-built
  * `@molecule/api-resource-*` list endpoints (comment, review,
- * activity-feed, bookmark, …). Other bespoke envelopes are out of scope
- * — handle those in the caller.
+ * activity-feed, bookmark, …), and named list envelopes whose siblings
+ * contain only list metadata, such as `{ items: [...], count: 10 }`.
  *
  * @module
  */
@@ -23,15 +23,14 @@
  *
  * Accepts:
  *   - a bare array → returned as-is (cast)
- *   - `{ data: T[] }` envelope → the inner array
+ *   - `{ data: T[] }` with optional list metadata → the inner array
+ *   - a named list such as `{ articles: T[], articlesCount: number }` or
+ *     `{ items: T[], count: number }` → the named array
  *   - `HttpResponse<T[]>` (i.e. `{ data: T[], status, ... }`) → the inner array
  *   - `HttpResponse<{ data: T[] }>` (the response of an envelope-returning
  *     endpoint as it arrives from `@molecule/app-http`'s `HttpClient`) → the
  *     doubly-nested inner array
- *   - `HttpResponse<{ data: T[], total, limit, offset }>` (a RICH pagination
- *     envelope from a pre-built `@molecule/api-resource-*` list endpoint) → the
- *     inner `data` array (the numeric `total`/`limit`/`offset` make the shape
- *     unambiguous, so callers can pass the whole HttpResponse and still get the rows)
+ *   - `HttpResponse` wrapping any supported list envelope → the inner array
  *   - anything else → `[]`
  *
  * Callers commonly pass either the raw JSON body (e.g. from `fetch().then(r =>
@@ -39,53 +38,42 @@
  * Both shapes are handled here so pages don't have to remember to call
  * `unwrapList(res.data)` vs `unwrapList(res)`.
  *
- * A custom envelope such as `{ items: [...], count: 10 }` is not a `data`
- * envelope and returns `[]`. Read its named array directly: `body.items` for
- * raw JSON, or `response.data.items` for an `HttpResponse`. Passing that
- * array to `unwrapList` is also valid; passing the enclosing object is not.
+ * An envelope must have exactly one collection array; its other keys may only
+ * be pagination metadata (`count`, `total`, `page`, `limit`, cursors, `meta`,
+ * `links`, etc.) or a numeric count named after the collection (`itemsCount`
+ * or `items_count`). Metadata keys themselves are not collection names.
+ * Resource fields such as `id`, `name` or `subtotal`, and multiple collection
+ * arrays, make the body ambiguous and return `[]`. Select the intended array
+ * explicitly in those cases. No resource fields are discarded, even when a
+ * resource owns a `data` array. Raw bodies and HttpResponse bodies use the same
+ * rule; the generic casts the rows without validating their schema.
  *
  * @param res - Raw response body OR an `HttpResponse` envelope from `@molecule/app-http`.
  * @returns A typed array `T[]`; never `null`/`undefined`.
  */
 export function unwrapList<T>(res: unknown): T[] {
-  if (Array.isArray(res)) return res as T[]
-  if (res && typeof res === 'object' && 'data' in res) {
-    const inner = (res as { data: unknown }).data
-    if (Array.isArray(inner)) return inner as T[]
-    // `HttpResponse<{ data: T[] }>` — caller passed the whole response object
-    // (typeof `{ data, status, statusText, headers, config }`) and the inner
-    // JSON body is itself an envelope `{ data: T[] }`. Peel both layers, but
-    // only when the outer shape is unambiguously an `HttpResponse` (i.e. has
-    // the `status: number` field), so we don't mis-peel application objects.
-    if (
-      isHttpResponseLike(res) &&
-      inner &&
-      typeof inner === 'object' &&
-      // Only a PURE single-key `{ data: T[] }` envelope is a double-wrap to peel.
-      // A resource that legitimately carries its own `data` array field
-      // (`{ id, …, data: [...] }`) has >1 key — peeling it would return the
-      // resource's own array and drop the surrounding fields.
-      Object.keys(inner as object).length === 1 &&
-      'data' in inner &&
-      Array.isArray((inner as { data: unknown }).data)
-    ) {
-      return (inner as { data: T[] }).data
-    }
-    // `HttpResponse<PaginatedResult<T>>` — the pre-built `@molecule/api-resource-*`
-    // list endpoints return a RICH pagination envelope `{ data: T[], total, limit,
-    // offset }`. It has >1 key so the pure-`{ data }` branch above skips it, but the
-    // shape is unambiguous: a `data` array alongside numeric `total`, `limit`, AND
-    // `offset` is a pagination result, not an application object. Restricted to the
-    // HttpResponse case so a plain body is never second-guessed.
-    if (isHttpResponseLike(res) && isPaginationEnvelope(inner)) {
-      return inner.data as T[]
-    }
-  }
-  return []
+  const body = isHttpResponseLike(res) ? (res as { data: unknown }).data : res
+  if (Array.isArray(body)) return body as T[]
+  if (!body || typeof body !== 'object') return []
+
+  const entries = Object.entries(body)
+  // Metadata (including array-valued links) is never a candidate collection.
+  const collections = entries.filter(
+    ([key, value]) => !PAGINATION_KEYS.has(key) && Array.isArray(value),
+  )
+  if (collections.length !== 1) return []
+  const [listKey, rows] = collections[0]
+  const isEnvelope = entries.every(
+    ([key, value]) =>
+      key === listKey ||
+      PAGINATION_KEYS.has(key) ||
+      ((key === `${listKey}Count` || key === `${listKey}_count`) && typeof value === 'number'),
+  )
+  return isEnvelope ? (rows as T[]) : []
 }
 
 /**
- * Metadata keys a list endpoint may carry alongside its `data` array.
+ * Metadata keys a list endpoint may carry alongside its collection array.
  *
  * Covers both conventions in this fleet: `PaginatedResult` from the pre-built
  * `@molecule/api-resource-*` endpoints (`total`/`limit`/`offset`) and the
@@ -116,28 +104,6 @@ const PAGINATION_KEYS = new Set([
   'meta',
   'links',
 ])
-
-/**
- * Recognise a list envelope: a `data` array plus only pagination metadata.
- *
- * @param v - The inner JSON body of an `HttpResponse`.
- * @returns True when `v` is a paginated list rather than an application object.
- */
-function isPaginationEnvelope(v: unknown): v is { data: unknown[] } {
-  if (!v || typeof v !== 'object') return false
-  if (!Array.isArray((v as { data?: unknown }).data)) return false
-  // Every OTHER key must be recognised pagination metadata. Requiring the exact
-  // trio total+limit+offset — as this did — missed `{ data, page, limit }`, the
-  // shape hand-written list handlers return, and unwrapList then answered `[]`
-  // for a response carrying 20 rows. That is the worst possible failure mode
-  // here: silent, and indistinguishable from an empty collection, so a
-  // storefront rendered zero products with no error anywhere.
-  //
-  // Membership is still what keeps this unambiguous. An application object that
-  // merely owns a `data` array carries domain keys (`id`, `name`, …), none of
-  // which are in this set, so it is never mistaken for an envelope.
-  return Object.keys(v as object).every((k) => k === 'data' || PAGINATION_KEYS.has(k))
-}
 
 /**
  * Recognise an `HttpResponse` from `@molecule/app-http` without taking a
@@ -187,8 +153,8 @@ export function unwrapSingle<T>(res: unknown): T | null {
     // resource" branch below then turned into `null`, so the cart page rendered
     // empty while the API held the item and 20 tests failed on the empty page
     // instead of the cause. Only peel when the object is a PURE envelope: `data`
-    // plus recognised pagination metadata and nothing else. (isPaginationEnvelope
-    // covers the array case; the object case is guarded the same way here.)
+    // plus recognised pagination metadata and nothing else. The object case is
+    // guarded the same way here; named resource fields remain intact.
     const looksLikeResource =
       !isHttpResponseLike(res) &&
       Object.keys(res as object).some((k) => k !== 'data' && !PAGINATION_KEYS.has(k))

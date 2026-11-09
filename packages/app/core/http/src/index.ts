@@ -14,7 +14,17 @@
  * `skipAuthGate`) is the THIRD argument. Only `request({ method, url, data, … })` takes `data`
  * inside an options object, because there that object IS the config.
  *
- * **Response helpers preserve API-specific field names.** `unwrapSingle<T>(response)` peels
+ * **List responses:** `unwrapList<T>(response)` accepts a bare array, a `data` envelope,
+ * or a named list such as `{ articles: T[], articlesCount: number }` or
+ * `{ items: T[], count: number }`, in both raw-body and `HttpResponse` forms. It selects
+ * the single collection array only when every sibling is list metadata (pagination,
+ * `meta`, `links`, or a numeric `<collection>Count` / `<collection>_count`). Metadata keys
+ * are not collection names. Resource objects with fields such as `id` or `subtotal`,
+ * multiple collection arrays, and unsupported or empty mock responses return `[]`.
+ * For a resource containing an array, read its field explicitly; the generic casts
+ * the rows without validating the server's schema.
+ *
+ * **Single responses preserve API-specific field names.** `unwrapSingle<T>(response)` peels
  * transport and `data` envelopes. It does not select a named resource such as `{ record: T }`.
  * For that body, read `unwrapSingle<{ record: RecordType }>(response)?.record`, or
  * `response.data.record` with a typed client call. For a bare resource body, keep the resource

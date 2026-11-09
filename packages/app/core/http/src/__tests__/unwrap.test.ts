@@ -135,6 +135,76 @@ describe('unwrapList', () => {
   })
 })
 
+describe.each([
+  ['raw body', (body: unknown) => body],
+  [
+    'HttpResponse',
+    (body: unknown) => ({
+      data: body,
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      config: { method: 'GET', url: '/list' },
+    }),
+  ],
+] as const)('unwrapList — named list envelopes (%s)', (_name, wrap) => {
+  it('preserves articles from the l1913 articles/articlesCount response', () => {
+    const articles = [{ slug: 'first-post', title: 'First post' }]
+    expect(unwrapList(wrap({ articles, articlesCount: 1 }))).toBe(articles)
+  })
+
+  it('unwraps an inventory list with standard count and pagination metadata', () => {
+    const products = [{ sku: 'lamp', stock: 3 }]
+    expect(unwrapList(wrap({ products, count: 12, page: 1, limit: 10 }))).toBe(products)
+  })
+
+  it('unwraps a named list without metadata', () => {
+    const members = [{ id: 4 }]
+    expect(unwrapList(wrap({ members }))).toBe(members)
+  })
+
+  it('accepts a matching snake_case count', () => {
+    const tasks = [{ id: 9 }]
+    expect(unwrapList(wrap({ tasks, tasks_count: 1 }))).toBe(tasks)
+  })
+
+  it('accepts cursor, meta and link metadata', () => {
+    const events = [{ id: 2 }]
+    expect(
+      unwrapList(
+        wrap({ events, nextCursor: 'next', has_more: true, meta: { total: 2 }, links: {} }),
+      ),
+    ).toBe(events)
+  })
+
+  it('preserves an empty named list', () => {
+    const articles: unknown[] = []
+    expect(unwrapList(wrap({ articles, articlesCount: 0 }))).toBe(articles)
+  })
+
+  it.each(['data', 'items'])('keeps array-valued links separate from the %s collection', (key) => {
+    const rows = [{ id: 2 }]
+    expect(unwrapList(wrap({ [key]: rows, links: [{ rel: 'next', href: '/next' }] }))).toBe(rows)
+  })
+
+  it.each([
+    ['a resource with an id', { id: 7, articles: [1], articlesCount: 1 }],
+    ['a resource with a name', { name: 'Team', members: [1] }],
+    ['a resource with its own data array', { id: 7, data: [1], total: 1 }],
+    ['a cart resource', { data: [1], items: [1], subtotal: 10, delivery_fee: 2 }],
+    ['two candidate lists', { articles: [1], authors: [2], total: 2 }],
+    ['metadata without a list', { meta: [1], count: 1 }],
+    ['links without a list', { links: [1], count: 1 }],
+    ['an unrelated count field', { products: [1], articlesCount: 1 }],
+    ['a matching field that is not a count', { articles: [1], articlesCount: { id: 2 } }],
+    ['a resource with a status', { items: [1], status: 'draft' }],
+  ])('does not read %s as a list', (_description, body) => {
+    expect(unwrapList(wrap(body))).toEqual([])
+    // Resource selection remains the caller's responsibility.
+    expect(unwrapSingle(wrap(body))).toEqual(body)
+  })
+})
+
 describe('unwrapSingle', () => {
   it('returns a non-empty object as-is', () => {
     expect(unwrapSingle<{ id: number }>({ id: 1 })).toEqual({ id: 1 })
