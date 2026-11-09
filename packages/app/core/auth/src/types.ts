@@ -672,7 +672,12 @@ export interface AuthClient<
   register(data: RegisterData<TRegister>): Promise<AuthResult<T>>
 
   /**
-   * Refreshes the access token.
+   * Exchanges a stored refresh token, or re-reads `currentUserEndpoint` with the
+   * existing access token/session cookie when the API has no refresh credential.
+   * That fallback maps, stores and publishes the server user without renewing
+   * the access token. Failures reject; 401/403 ends the session and transient
+   * failures retain it as unavailable. Use {@link updateProfile} for a profile
+   * save, or {@link setUser} with the canonical row from an app-owned mutation.
    */
   refresh(): Promise<AuthResult<T>>
 

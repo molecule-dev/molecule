@@ -560,28 +560,14 @@ export const createJWTAuthClient = <
     )
   }
 
-  /**
-   * Whether `err` is the client's own "nothing to refresh with" error thrown by
-   * `refresh()` when no refresh token is stored (and the cookie-restore fallback
-   * found no session).
-   */
-  const isNoRefreshTokenError = (err: unknown): boolean =>
-    err instanceof I18nError && err.i18nKey === 'auth.error.noRefreshToken'
-
   const scheduleRefresh = (retryAfterTransient = false): void => {
     if (!autoRefresh) return
 
     const token = tokenStorage.getAccessToken()
     if (!token) return
 
-    // No refresh token means NOTHING to refresh with: cookie-session APIs (the
-    // `@molecule/api-resource-user` model) issue only `{ accessToken, user }` and
-    // keep the durable session in an httpOnly cookie the SERVER refreshes. A
-    // timer here can only fail with `auth.error.noRefreshToken` — and it used to
-    // LOG THE USER OUT on that failure while their access token was still valid
-    // (an app without refresh tokens signed itself out right after register). Leave the
-    // session alone; the API's next 401 (see `validateSession`) or an explicit
-    // sign-out decides when it ends.
+    // Automatic refresh renews credentials, so it needs a refresh token. An
+    // explicit refresh may instead re-read a cookie/access-only session's user.
     if (!tokenStorage.getRefreshToken()) return
 
     const expiresAt = getTokenExpiration(token)
@@ -599,21 +585,13 @@ export const createJWTAuthClient = <
     }
 
     refreshTimer = setTimeout(() => {
+      // A different tab may have removed the credential since scheduling. Do
+      // not turn this automatic renewal into a current-user polling request.
+      if (!tokenStorage.getRefreshToken()) return
       void runSessionOperation(async (operation) => {
         try {
           await client.refresh()
         } catch (err) {
-          // The refresh token can disappear between scheduling and firing (a
-          // logout in another tab, a cleared store). That is not a failed refresh,
-          // so it must not sign the user out: keep the session and let the API
-          // reject the token if it really is dead.
-          if (isNoRefreshTokenError(err)) {
-            logger.debug(
-              'Token refresh skipped — no refresh token stored; keeping the session until the API rejects the token',
-              err,
-            )
-            return
-          }
           // ONLY a current server rejection ends the session. An old timer's
           // 401 must not destroy a login that replaced it while it was pending.
           if (!operation.isCurrent()) return
@@ -862,20 +840,19 @@ export const createJWTAuthClient = <
     })
   }
 
-  // Session restore from the httpOnly cookie. The bearer token is held
-  // in memory (a localStorage copy is XSS-exfiltratable, so it is forbidden)
-  // and is therefore lost on a full page load — but the httpOnly session cookie
-  // persists. Probe the current-user endpoint with credentials; if the cookie
-  // is still valid the server returns the user, and we re-establish the
-  // authenticated session WITHOUT the token ever being exposed to JavaScript.
+  // Re-read the current user through the HttpOnly session cookie. The server
+  // can restore that session without exposing its cookie to JavaScript.
   //
   // By default, use the readable `mol_auth=1` hint to avoid probing every anonymous
   // load. External cookie APIs can opt into `cookieRestore: 'always'`. Once this
   // client has a candidate, retries do not depend on the hint remaining readable.
   //
-  // Shared by initialize() (reload/deep-link restore) and refresh() (see the
-  // no-refresh-token fallback there).
-  const restoreFromSessionCookie = async (): Promise<SessionCookieRestore<T>> =>
+  // Shared by initialize() (reload/deep-link restore) and refresh(). An explicit
+  // refresh may also authenticate this read with an access-only API's token:
+  // those APIs have neither a refresh credential nor a readable cookie hint.
+  const restoreFromSessionCookie = async (
+    allowAccessToken = false,
+  ): Promise<SessionCookieRestore<T>> =>
     runSessionOperation(async (operation) => {
       if (getSignOutMarker()) {
         clearSessionHintCookie()
@@ -883,11 +860,16 @@ export const createJWTAuthClient = <
       }
       const hasSessionHint =
         typeof document !== 'undefined' && /(?:^|;\s*)mol_auth=1(?:;|$)/.test(document.cookie)
-      if (!hasSessionHint && !cookieSessionCandidate && cookieRestore !== 'always') {
+      const token = tokenStorage.getAccessToken()
+      if (
+        !(allowAccessToken && token) &&
+        !hasSessionHint &&
+        !cookieSessionCandidate &&
+        cookieRestore !== 'always'
+      ) {
         return { user: null, attempted: false, rejected: false }
       }
       cookieSessionCandidate = true
-      const token = tokenStorage.getAccessToken()
       const readProfileRevision = profileRevision
       const isCurrent = (): boolean =>
         operation.isCurrent() &&
@@ -1158,6 +1140,9 @@ export const createJWTAuthClient = <
         return
       }
       if (user === null) sessionRevision++
+      // A canonical row from an app-owned save supersedes background reads just
+      // as updateProfile does. Otherwise a pending /me could undo this setter.
+      profileRevision++
       tokenStorage.setUser(user)
       setState({ user })
     },
@@ -1326,15 +1311,11 @@ export const createJWTAuthClient = <
       return runSessionOperation(async (operation) => {
         const refreshToken = tokenStorage.getRefreshToken()
         if (!refreshToken) {
-          // Cookie-session APIs (the @molecule/api-resource-user model) issue NO
-          // refresh token at all — login/register return only { accessToken, user }
-          // and the durable credential is the httpOnly session cookie. For them,
-          // "refresh" means re-deriving the session from that cookie, exactly like
-          // initialize()'s restore. Without this fallback every post-auth refresh
-          // (the auth modal's finishAuth, the upgrade-tab focus-return) threw
-          // 'No refresh token available' — which silently aborted the modal's
-          // signup/login flow right after the account was created.
-          const outcome = await restoreFromSessionCookie()
+          // APIs without a refresh credential re-read the configured current
+          // user, authenticated by the existing access token or session cookie.
+          // This publishes the server profile without pretending to renew a
+          // bearer token. Failures still reject; no credentials still cannot refresh.
+          const outcome = await restoreFromSessionCookie(true)
           if (outcome.user) {
             if (operation.isCurrent()) emitEvent({ type: 'refresh' })
             return { user: outcome.user }
@@ -1353,6 +1334,7 @@ export const createJWTAuthClient = <
           throw new I18nError('auth.error.noRefreshToken', undefined, 'No refresh token available')
         }
 
+        const readProfileRevision = profileRevision
         let raw: AuthResult<T>
         try {
           raw = await fetchAPI<AuthResult<T>>(refreshEndpoint, {
@@ -1394,11 +1376,14 @@ export const createJWTAuthClient = <
             )
           }
         }
-        const user = result?.user ?? null
         if (!operation.isCurrent()) {
           discardLateSession(operation, result)
           return result
         }
+        // Renewed credentials still belong to this session, but the response's
+        // profile predates a completed save/setUser. Keep that newer profile.
+        const user = readProfileRevision === profileRevision ? (result?.user ?? null) : state.user
+        if (user && readProfileRevision !== profileRevision) result = { ...result, user }
         clearSignOutMarker()
         cookieSessionCandidate = !result.accessToken
         tokenStorage.setAccessToken(result.accessToken || null)

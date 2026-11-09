@@ -57,6 +57,9 @@ export function useAuthClient<
  * config (`createJWTAuthClient<MyUser>`, `AuthClientConfig<MyUser>`) — so
  * `user` and `setSession`/`setUser` are typed for the pages:
  * `useAuth<MyUser>()`.
+ * Save profile edits with `updateProfile(patch)`: it uses the configured auth
+ * transport and publishes the saved user to every subscriber before resolving.
+ * An app-owned mutation instead passes its canonical response to `setUser`.
  *
  * For a sign-in the app runs itself (an OAuth redirect, a custom endpoint that
  * already issued the token), call `setSession({ accessToken, user })`: it
@@ -142,6 +145,8 @@ export function useAuth<
 
   const refresh = useCallback(() => client.refresh(), [client])
 
+  const updateProfile = useCallback((data: Partial<T>) => client.updateProfile(data), [client])
+
   const setUser = useCallback((user: T | null) => client.setUser(user), [client])
 
   const setSession = useCallback(
@@ -159,6 +164,7 @@ export function useAuth<
     logout,
     register,
     refresh,
+    updateProfile,
     setUser,
     setSession,
     isAuthenticated: state.authenticated,

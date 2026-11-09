@@ -212,6 +212,8 @@ export interface UseAuthResult<
   logout: AuthClient<T>['logout']
   register: AuthClient<T, TRegister>['register']
   refresh: AuthClient<T>['refresh']
+  /** Save through the configured auth transport and persist/publish its canonical profile. */
+  updateProfile: AuthClient<T>['updateProfile']
   setUser: AuthClient<T>['setUser']
   /**
    * Adopt a session an exchange outside the client already established (an

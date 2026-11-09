@@ -14,6 +14,12 @@
  * server's saved user. Use its `onSaved` callback to update other query caches
  * from that response before navigating. Configure the endpoint, method and JSON
  * envelope once in `AuthClientConfig`; no page-local session store is needed.
+ * For an existing form, `useAuth<MyUser>().updateProfile(changes)` uses that same
+ * transport and publishes the saved profile before resolving. If a mutation must
+ * use an app-owned API adapter, call `useAuth<MyUser>().setUser(savedUser)` with
+ * its canonical response before navigating. A one-time `useState(user?.field)`
+ * seed does not follow asynchronous restoration; use `useProfileForm` to hydrate
+ * pristine fields while preserving edits.
  *
  * **Session restore:** `useAuth().status === 'loading'` is undecided: wait for
  * it and redirect only on `status === 'unauthenticated'`. `'unavailable'` keeps

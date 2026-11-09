@@ -15,8 +15,14 @@
  *   its response body. A restore timeout retains the candidate as `'unavailable'`.
  * - `tokenKey`/`storagePrefix`, `authScheme`, `mapAuthResponse`,
  *   `currentUserEndpoint`, and `profileEndpoint`/`profileUpdateMethod` adapt the API.
- * - `logout()` clears the local session even if revocation fails; `refresh()` and
- *   optional auto-refresh use a stored refresh token.
+ * - `updateProfile(patch)` saves through the configured transport, then stores and
+ *   publishes the server profile. A custom HTTP save must call `setUser(savedUser)`
+ *   with its canonical response before navigating; otherwise `getUser()` and the
+ *   framework's `useAuth().user` still hold the old profile on the next visit.
+ * - `logout()` clears the local session even if revocation fails. `refresh()` exchanges
+ *   a refresh credential, or re-reads `currentUserEndpoint` with the existing bearer
+ *   or cookie. That read updates the profile but does not renew the bearer.
+ *   Optional auto-refresh requires a stored refresh token.
  * - `AuthProvider` renders children immediately and gates nothing. A session-ready
  *   boundary (e.g. React's `MoleculeProvider awaitSession`) can wait for initial
  *   restoration on public pages; a route guard decides redirects.
@@ -348,7 +354,10 @@
  *   ONE user-shape adapter: the client applies it to every answer that carries a user (login,
  *   register, `validateSession()`, the cookie restore, a token refresh, `updateProfile()`), so
  *   the adapted profile survives a reload instead of being replaced by the raw wire user.
- *   Both are fields of the
+ *   `mapAuthResponse` only maps requests the auth client makes. An unrelated HTTP
+ *   mutation bypasses it: save with `client.updateProfile(patch)`, or pass the
+ *   app's canonical saved row to `client.setUser(savedUser)` before navigation.
+ *   These request/response adapters are fields of the
  *   `AuthClientConfig` the client is CONSTRUCTED with
  *   (`setClient(createJWTAuthClient({ authScheme: 'Token', … }))` in the auth bond), not
  *   properties of a client that already exists. Do not hand-write an auth client for a spec

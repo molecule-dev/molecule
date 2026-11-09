@@ -1,16 +1,9 @@
 import { type JSX, useEffect } from 'react'
 
 import type { UserProfile } from '@molecule/app-auth'
-import { useAuthClient, useHttpClient, useProfileForm, useTranslation } from '@molecule/app-react'
+import { useAuthClient, useProfileForm, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Flex, Input, Spinner } from '@molecule/app-ui-react'
-
-interface ApiUserResponse {
-  props?: UserProfile
-  id?: string
-  email?: string
-  name?: string
-}
 
 type AccountValues = {
   name: string
@@ -18,7 +11,8 @@ type AccountValues = {
 }
 
 /**
- * Account fields over the shared profile lifecycle; local refresh stays best-effort.
+ * Account fields over the shared profile lifecycle. Background validation uses
+ * the auth client's configured route, mapping and session ownership guards.
  *
  * `UserProfile.email` is optional (phone/handle accounts have none), so email is
  * validated only when non-empty and a blank email is never sent: clearing the
@@ -31,7 +25,6 @@ export function AccountSection(): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
   const authClient = useAuthClient<UserProfile>()
-  const http = useHttpClient()
   const profile = useProfileForm<UserProfile, AccountValues>({
     defaultValues: { name: '', email: '' },
     toValues: (user) => ({ name: user.name ?? '', email: user.email ?? '' }),
@@ -39,22 +32,13 @@ export function AccountSection(): JSX.Element {
   })
 
   useEffect(() => {
-    let cancelled = false
-    http
-      .get<ApiUserResponse>('/api/users/me')
-      .then((res) => {
-        if (cancelled) return
-        const body = (res as { data?: ApiUserResponse }).data ?? (res as ApiUserResponse)
-        const next = (body.props ?? body) as UserProfile | undefined
-        if (next && typeof next === 'object' && next.id) authClient.setUser(next)
-      })
-      .catch(() => {
-        /* refresh is best-effort */
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [http, authClient])
+    // The auth client owns the route, response mapping and stale-read guards.
+    // An older account read must not publish over a save or a different session.
+    void authClient.validateSession?.().catch((_error) => {
+      // A provider's background validation must not cause an unhandled rejection:
+      // render its auth state while useProfileForm reports mutation failures.
+    })
+  }, [authClient])
 
   const name = profile.register('name')
   const email = profile.register('email', { email: true })
