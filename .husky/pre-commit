@@ -78,11 +78,11 @@ esac
 STAGED=$(staged_diff --name-only --diff-filter=AM)
 
 # mlcl is a workspace member of the parent checkout, so its bins hoist to the
-# workspace root; a standalone mlcl install keeps them local. Resolve once, as a
-# path valid from INSIDE mlcl (the cross-repo checks below cd there first).
+# workspace root; a standalone mlcl install keeps them local. Check availability
+# once, then use Node's tsx loader: these one-shot checks need no CLI IPC socket,
+# whose Unix path limit rejects long private TMPDIRs.
 MLCL_TSX=""
-if [ -x ../mlcl/node_modules/.bin/tsx ]; then MLCL_TSX=node_modules/.bin/tsx
-elif [ -x ../node_modules/.bin/tsx ]; then MLCL_TSX=../node_modules/.bin/tsx
+if [ -x ../mlcl/node_modules/.bin/tsx ] || [ -x ../node_modules/.bin/tsx ]; then MLCL_TSX=1
 fi
 # Published source/export changes need a pending changeset in THIS staged tree.
 # Run before the STAGED early exit too: that list intentionally excludes deletions,
@@ -199,7 +199,7 @@ if [ -n "$PKG_SRC" ]; then
   PKG_DIRS=$(echo "$PKG_SRC" | while IFS= read -r f; do case "$f" in */src/*) echo "${f%%/src/*}" ;; *) echo "${f%/package.json}" ;; esac; done | sort -u)
   if [ -n "$MLCL_TSX" ]; then
     index_tree
-    ( cd ../mlcl && MOLECULE_PACKAGES_DIR="$INDEX_TREE/packages" "$MLCL_TSX" scripts/check-registry-exports.mjs $PKG_DIRS )
+    ( cd ../mlcl && MOLECULE_PACKAGES_DIR="$INDEX_TREE/packages" node --import tsx scripts/check-registry-exports.mjs $PKG_DIRS )
   else
     echo "ℹ registry-export check skipped: mlcl deps not installed — run 'npm ci' in mlcl, then 'npm run verify:registry-exports' to verify"
   fi
@@ -269,7 +269,7 @@ if [ -n "$DOC_MANIFEST_PATHS" ] && [ -n "$MLCL_TSX" ]; then
   # Word-split on purpose (package paths carry no whitespace). On failure the
   # helper prints nothing, so keep EVERY manifest rather than silently narrowing.
   # shellcheck disable=SC2086
-  if DOC_MANIFEST_KEEP=$( cd ../mlcl && "$MLCL_TSX" scripts/doc-manifest-scope.mjs \
+  if DOC_MANIFEST_KEEP=$( cd ../mlcl && node --import tsx scripts/doc-manifest-scope.mjs \
       --staged --base="${DIFF_BASE:-HEAD}" --repo="$MOLECULE_REPO" $DOC_MANIFEST_PATHS ); then
     # `|| true`: an empty keep-list would otherwise leave the substitution's
     # while-loop status at 1 and `set -e` would fail the commit.
@@ -285,7 +285,7 @@ DOC_DIRS=$(printf '%s\n%s\n' "$DOC_SRC_DIRS" "$DOC_MANIFEST_DIRS" | grep -v '^$'
 if [ -n "$DOC_DIRS" ]; then
   if [ -n "$MLCL_TSX" ]; then
     index_tree
-    REGENERATED=$( cd ../mlcl && MOLECULE_PACKAGES_DIR="$INDEX_TREE/packages" "$MLCL_TSX" scripts/regen-molecule-docs.mjs $DOC_DIRS )
+    REGENERATED=$( cd ../mlcl && MOLECULE_PACKAGES_DIR="$INDEX_TREE/packages" node --import tsx scripts/regen-molecule-docs.mjs $DOC_DIRS )
     if [ -n "$REGENERATED" ]; then
       # Each generated doc enters THIS index as a blob object — `git hash-object`
       # + `update-index` honour a private index and a pathspec commit's temporary
