@@ -1,5 +1,11 @@
 # @molecule/app-routing-react-router
 
+## 1.2.4
+
+### Patch Changes
+
+- Document one `useListRoute` config serving `/`, query views and a path view such as `/topics/:topic`, so every tab link comes from `href`.
+
 ## 1.2.3
 
 ### Patch Changes
