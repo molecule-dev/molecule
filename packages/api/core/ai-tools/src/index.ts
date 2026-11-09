@@ -35,7 +35,11 @@
  *   execution. `commandStepView` reads the active step for diagnostics; `logicalCommandText`
  *   exposes the planned commands for static classification. Preserve the descriptor when
  *   wrapping again. The metadata is advisory and never establishes a completed test result.
- * - **`yieldOnFirstFailureFor`** can yield one still-running deployed task's concrete diagnostic; callers opt out after a prior wait result or unknown history.
+ * - **`yieldOnFirstFailureFor`** lets `wait_for_task` yield new final-failure causes from a
+ *   still-running deployed task. Fix while it walks; once every known cause is fixed, deploy
+ *   now, let the task keep finding causes until the deploy lands and stops it, then collect
+ *   its stopped or completed result with `wait_for_task`. A local diagnostic tests mutable
+ *   source: collect or stop it before editing that source, since edits invalidate its result.
  * - **`wait_for_task` state probes report current progress without guessing log growth.**
  *   A call shorter than one normal two-second poll omits both growth and no-growth
  *   claims; task age, log counters and time-left estimates remain available.

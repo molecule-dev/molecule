@@ -67,6 +67,8 @@ it('returns a definite local diagnostic promptly and requires the mutable run to
   expect(result.note).toContain('Before editing app source')
   expect(result.note).toContain('stop this diagnostic and collect its stopped result')
   expect(result.note).not.toContain('Local edits do not change this deployed build')
+  expect(result.note).not.toContain('deploy now')
+  expect(result.note).not.toContain('until the deploy lands')
   // Deliver each cause once; another wait can collect the rest without a busy loop.
   expect((await f.wait()).waitedMs).toBe(30000)
 })

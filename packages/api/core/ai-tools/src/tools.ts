@@ -4279,7 +4279,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
             // deployed run it belongs to can no longer pass and a local edit cannot void a green
             // proof. Keep discovering causes during the repair, then replace the failed build:
             // waiting after its known causes were fixed cost l1671 another 295 s without learning
-            // another cause. Retirement must precede replacement so no walk mixes builds or data.
+            // another cause. The landed deploy stops this walk before the next one starts.
             note: localDiagnostic
               ? 'A test in this local diagnostic has failed on its final attempt. This is partial ' +
                 'output, not a completed result; the task is still running against mutable local source. ' +
@@ -4304,9 +4304,9 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
                 'pass. This is partial log output, not a completed result: leave the task running while you fix ' +
                 'and collect any new causes it exposes. Local edits do not change this deployed ' +
                 'build, so start on this failure now: read the failing spec and the code it drives, ' +
-                'and fix it while the run keeps walking. Once every known cause is fixed, deploy now ' +
-                'rather than waiting for this failed walk to finish. The deploy must retire this task before replacing the build; ' +
-                'collect its stopped or completed result with `wait_for_task`. Do not start a second test run while this task is running. ' +
+                'and fix it while the run keeps walking. Once every known cause is fixed, deploy now; ' +
+                'the task keeps finding causes until the deploy lands and stops it, then collect its stopped or completed result ' +
+                'with `wait_for_task`. Do not start a second test run while this task is running. ' +
                 'Its remaining tests stay unmeasured; hand-back still requires the full supplied suite against the new deployed build to pass with its own settings.',
           }
         }

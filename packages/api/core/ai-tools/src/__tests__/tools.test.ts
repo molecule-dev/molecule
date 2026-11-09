@@ -7022,9 +7022,12 @@ describe('opt-in first diagnostic progress from a deployed task', () => {
     expect(text).toContain('start on this failure now')
     expect(text).toContain('read the failing spec and the code it drives')
     expect(text).toContain('while the run keeps walking')
-    // Once known causes are repaired, the replacement can start; it must retire this walk.
+    // Deploy first, keep discovery until landing, then collect: no idle pre-deploy wait (l1927).
     expect(text).toContain('Once every known cause is fixed, deploy now')
-    expect(text).toContain('retire this task before replacing the build')
+    expect(text).toContain(
+      'the task keeps finding causes until the deploy lands and stops it, then collect its stopped or completed result with `wait_for_task`',
+    )
+    expect(text).not.toContain('retire this task before replacing the build')
     expect(text).toContain('Do not start a second test run while this task is running')
     expect(text).toContain('remaining tests stay unmeasured')
     expect(text).toContain('full supplied suite against the new deployed build')
