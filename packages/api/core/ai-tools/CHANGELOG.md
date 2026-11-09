@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.17.10
+
+### Patch Changes
+
+- Clarify that fixes for failed deployed test runs can be deployed immediately and their old results collected after deployment.
+
 ## 1.17.9
 
 ### Patch Changes

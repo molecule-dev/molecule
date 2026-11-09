@@ -1,5 +1,11 @@
 # @molecule/app-query-react
 
+## 1.1.6
+
+### Patch Changes
+
+- Clarify how detail pages render data regions and enable actions after their initial document loads.
+
 ## 1.1.5
 
 ### Patch Changes
