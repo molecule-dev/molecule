@@ -16,7 +16,7 @@ import {
   updateById,
 } from '@molecule/api-database'
 
-import { allocateCommentNumber } from './numbering.js'
+import { allocateCommentNumber, numbersForComments } from './numbering.js'
 import type { NumberedComment } from './numbers.js'
 import type {
   Comment,
@@ -27,6 +27,15 @@ import type {
 } from './types.js'
 
 const TABLE = 'comments'
+
+/** Keep a page's stable integer identities beside its UUIDs without allocating on read. */
+async function withNumbers(comments: Comment[]): Promise<Comment[]> {
+  const numbers = await numbersForComments(comments.map((comment) => comment.id))
+  return comments.map((comment) => {
+    const number = numbers.get(comment.id)
+    return number === undefined ? comment : { ...comment, number }
+  })
+}
 
 /**
  * Creates a new comment on a resource, with its sequential number.
@@ -86,9 +95,10 @@ export async function createComment(
  * Retrieves paginated comments for a resource, ordered by creation date descending.
  * Only returns top-level comments (no replies).
  *
- * The rows carry each comment's UUID `id`; for an API that addresses comments by an
- * integer, map a page's ids with `commentNumbers()` — every comment `createComment()`
- * wrote is in that map, and a missing entry (a raw insert) is never `0`.
+ * The rows carry each comment's UUID `id` and its stable `number` when numbered.
+ * An integer-addressed API returns that number as its external id, never the page
+ * index. A raw import may have no number; call `numberComment(id)` explicitly
+ * before exposing it through an integer-addressed API.
  *
  * @param resourceType - The type of resource.
  * @param resourceId - The ID of the resource.
@@ -119,7 +129,7 @@ export async function getCommentsByResource(
     count(TABLE, where),
   ])
 
-  return { data, total, limit, offset }
+  return { data: await withNumbers(data), total, limit, offset }
 }
 
 /**
@@ -180,7 +190,8 @@ export async function deleteComment(commentId: string, userId: string): Promise<
 }
 
 /**
- * Retrieves paginated replies to a comment, ordered by creation date ascending.
+ * Retrieves paginated replies to a comment, ordered by creation date ascending,
+ * with each reply's stable `number` when numbered, like `getCommentsByResource`.
  *
  * @param commentId - The parent comment ID.
  * @param options - Pagination options.
@@ -205,7 +216,7 @@ export async function getReplies(
     count(TABLE, where),
   ])
 
-  return { data, total, limit, offset }
+  return { data: await withNumbers(data), total, limit, offset }
 }
 
 /**

@@ -26,7 +26,7 @@ import {
   getCommentByNumber,
   numberComment,
 } from '../numbers.js'
-import { createComment, deleteComment, getCommentsByResource } from '../service.js'
+import { createComment, deleteComment, getCommentsByResource, getReplies } from '../service.js'
 
 let dir: string
 let pool: DatabasePool
@@ -120,5 +120,45 @@ describe('comment numbers', () => {
     expect(new Set(numbers).size).toBe(5)
     // Deleted rows release their number, so just assert the sequence moved on.
     expect(Math.min(...numbers)).toBeGreaterThan(4)
+  })
+})
+
+describe('numbered read shapes', () => {
+  it('keeps integer identities on paginated ticket comments and their replies', async () => {
+    const first = await createComment('ticket', 'support-case', USER, { body: 'ticket first' })
+    const second = await createComment('ticket', 'support-case', USER, { body: 'ticket second' })
+    const reply = await createComment('ticket', 'support-case', USER, {
+      body: 'reply',
+      parentId: first.id,
+    })
+    const page = await getCommentsByResource('ticket', 'support-case', { limit: 1, offset: 1 })
+    expect(page.data).toHaveLength(1)
+    const expected = page.data[0]!.id === first.id ? first : second
+    expect(page.data[0]).toHaveProperty('number', expected.number)
+    const replies = await getReplies(first.id)
+    expect(replies.data[0]).toHaveProperty('number', reply.number)
+    const addressed = await getCommentByNumber((replies.data[0] as typeof reply).number)
+    expect(addressed?.id).toBe(reply.id)
+    expect(await deleteComment(addressed!.id, USER)).toBe(true)
+    expect((await getReplies(first.id)).data).toEqual([])
+    // Keep the existing sequential-number scenarios independent.
+    await deleteComment(first.id, USER)
+    await deleteComment(second.id, USER)
+  })
+
+  it('leaves unnumbered UUID-only imports unnumbered when reading', async () => {
+    const raw = await dbCreate<{ id: string }>('comments', {
+      resourceType: 'ticket',
+      resourceId: 'imported',
+      userId: USER,
+      parentId: null,
+      body: 'external import',
+      editedAt: null,
+    })
+    const page = await getCommentsByResource('ticket', 'imported')
+    expect(page.data[0]!.id).toBe(raw.data!.id)
+    expect(page.data[0]).not.toHaveProperty('number')
+    expect(await commentNumbers([raw.data!.id])).toEqual(new Map())
+    await deleteComment(raw.data!.id, USER)
   })
 })

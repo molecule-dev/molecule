@@ -13,6 +13,8 @@
 export interface Comment {
   /** Unique comment identifier. */
   id: string
+  /** Stable integer identity on creates and paginated reads; absent on unnumbered imports. */
+  number?: number
   /** The type of resource this comment is attached to (e.g. 'project', 'post'). */
   resourceType: string
   /** The ID of the resource this comment is attached to. */
