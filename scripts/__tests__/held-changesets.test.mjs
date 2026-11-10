@@ -139,5 +139,8 @@ describe('held record and publish selection', () => {
 
   it('rejects malformed records instead of turning them into publish permission', () => {
     expect(() => parseHeldRecord('{"packages":[],"changesets":[]}')).toThrow('non-empty')
+    expect(() => parseHeldRecord('{"packages":[],"changesets":[]}')).toThrow(
+      'when nothing is held, delete .changeset/held.json',
+    )
   })
 })

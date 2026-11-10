@@ -19,7 +19,9 @@ export function parseHeldRecord(text) {
   if (!record || typeof record !== 'object' || Array.isArray(record))
     throw Error('held changeset record must be a JSON object')
   if (!uniqueStrings(record.packages) || !record.packages.length)
-    throw Error('held changeset record packages must be non-empty unique package names')
+    throw Error(
+      'held changeset record packages must be non-empty unique package names (when nothing is held, delete .changeset/held.json)',
+    )
   if (
     !uniqueStrings(record.changesets) ||
     record.changesets.some(
