@@ -16,6 +16,7 @@ import { I18nError } from '@molecule/app-i18n'
 import { getLogger, redactCredentials, snapshotCredentials } from '@molecule/app-logger'
 
 import { createBrowserStorageAdapter } from './browser-storage.js'
+import { fieldsSentButReportedMissing } from './request-envelope.js'
 import { createTokenStorage, getTokenExpiration, isTokenExpired } from './token.js'
 import type {
   AuthClient,
@@ -627,6 +628,39 @@ export const createJWTAuthClient = <
     return config.requestBody ? config.requestBody(kind, values) : payload
   }
   let misplacedTokenReported = false
+  const envelopeReported = new Set<'login' | 'register'>()
+  /**
+   * After a failed login/register sent as given: when the answer reports as missing exactly the
+   * fields this request carried, the API reads them inside an envelope. Says so once, naming the
+   * option that fixes it; quiet for every other failure and whenever a body mapper is configured.
+   *
+   * @param kind - Which request failed.
+   * @param sent - The body as sent.
+   * @param failure - The snapshotted failure (its `status` and redacted `body`).
+   */
+  const reportUnwrappedBody = (
+    kind: 'login' | 'register',
+    sent: object,
+    failure: unknown,
+  ): void => {
+    try {
+      if (config.mapRequestBody || config.requestBody || envelopeReported.has(kind)) return
+      const status = (failure as { status?: unknown } | null)?.status
+      if (typeof status !== 'number' || status < 400 || status >= 500) return
+      const fields = fieldsSentButReportedMissing(sent, (failure as { body?: unknown }).body)
+      if (!fields.length) return
+      envelopeReported.add(kind)
+      logger.warn(
+        `[auth] The ${kind} request sent ${fields.join(', ')} at the top level of its body, ` +
+          `and the API (HTTP ${status}) reported ${fields.length === 1 ? 'it' : 'them'} missing: ` +
+          'it reads the fields inside an envelope. Set mapRequestBody in the auth config, for ' +
+          'example `mapRequestBody: (data) => ({ user: data })` for an API that reads ' +
+          '`{ user: { … } }`.',
+      )
+    } catch (_error) {
+      // A diagnostic never changes the auth operation's result.
+    }
+  }
   const mapResult = (data: unknown): AuthResult<T> => {
     // With `AuthClientConfig<T>` the mapper's answer is already `AuthResult<T>`:
     // the compiler checks its user against the profile this client (and the
@@ -1282,6 +1316,7 @@ export const createJWTAuthClient = <
           return result
         } catch (err) {
           const failure = await snapshotAuthFailure(err)
+          reportUnwrappedBody('login', credentials, failure)
           if (!operation.isCurrent()) throw failure
           setState({ loading: false, error: failure.message })
           emitEvent({ type: 'error', error: failure.message })
@@ -1350,6 +1385,7 @@ export const createJWTAuthClient = <
           return result
         } catch (err) {
           const failure = await snapshotAuthFailure(err)
+          reportUnwrappedBody('register', data, failure)
           if (!operation.isCurrent()) throw failure
           setState({ loading: false, error: failure.message })
           emitEvent({ type: 'error', error: failure.message })

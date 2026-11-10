@@ -939,7 +939,12 @@ export interface AuthClientConfigOptions<T extends object = UserProfile> {
   /** HTTP method for `updateProfile()` (default `'PATCH'`; `'PUT'` for a `PUT /api/user` route). */
   profileUpdateMethod?: 'PATCH' | 'PUT' | 'POST'
 
-  /** Request-body adapter for `updateProfile()` — default the `Partial<T>` as given, e.g. `(data) => ({ user: data })`; see the module docs. */
+  /**
+   * Request-body adapter for `updateProfile()` — default the `Partial<T>` as given, e.g.
+   * `(data) => ({ user: data })`; see the module docs. It shapes ONLY the profile save: an API
+   * that wraps the profile body usually wraps login and register too, which is
+   * {@link AuthClientConfigOptions.mapRequestBody}'s job — set both.
+   */
   profileRequestBody?: (data: Partial<T>) => unknown
 
   /**
