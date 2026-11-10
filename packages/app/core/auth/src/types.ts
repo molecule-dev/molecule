@@ -584,11 +584,17 @@ export interface AuthClient<
    * Updates the cached user object (state + persistent storage) without
    * hitting the network. Intended for local refreshes after a per-app
    * mutation (e.g., the user just PATCHed their own profile and the
-   * server returned the canonical row). A non-null profile does NOT change
-   * tokens or sign the client in: `authenticated` and `status` are unchanged,
-   * so an anonymous client stays anonymous. Use {@link login} /
-   * {@link register} for a credential exchange, or {@link setSession} when
-   * the token was issued outside the client.
+   * server returned the canonical row). On a signed-in client a non-null
+   * profile changes neither tokens nor the session.
+   *
+   * On a client that is not signed in, the pair an app's own sign-in exchange
+   * writes — {@link setAccessToken} with the issued token and `setUser` with
+   * its user, in either order, with no sign-in, sign-out or restore between
+   * them — adopts that session exactly as {@link setSession} does. A profile
+   * cached over a token the app did not hand over this way (one restored from
+   * storage) does not sign the client in. Prefer {@link setSession} (one call,
+   * and it can carry a refresh token), or {@link login} / {@link register} for
+   * a credential exchange.
    *
    * Passing `null` on a signed-in client, or while any session operation is
    * pending, ends the local session: it clears the access token, refresh token
@@ -617,13 +623,13 @@ export interface AuthClient<
    * which would violate the storage contract and make a stored bearer token
    * JS-readable (XSS-exfiltratable). Pass `null` to clear it.
    *
-   * This changes token storage only: passing `null` does not by itself sign a
-   * signed-in client out, and a non-null token does not sign an anonymous
-   * client in (`authenticated` and `status` are unchanged). Use {@link logout}
-   * to end a session, or {@link setUser} with `null` for local-only sign-out.
-   * Use {@link login} / {@link register} for a credential exchange, or call
-   * {@link setSession} with the token and user to establish an already-issued
-   * session.
+   * Passing `null` does not by itself sign a signed-in client out: use
+   * {@link logout} to end a session, or {@link setUser} with `null` for
+   * local-only sign-out. A non-null token on a client that is not signed in is
+   * the first or second half of the app's own sign-in pair: together with
+   * {@link setUser} it adopts the session (see there). Prefer {@link setSession}
+   * with the token and user, or {@link login} / {@link register} for a
+   * credential exchange.
    */
   setAccessToken(token: string | null): void
 
@@ -635,9 +641,9 @@ export interface AuthClient<
    * notification. Every hook reading the shared client sees the user as
    * signed in immediately.
    *
-   * This is the way to seed an OAuth/custom sign-in. Calling
-   * {@link setAccessToken} and {@link setUser} instead does NOT sign the
-   * client in.
+   * This is the way to seed an OAuth/custom sign-in. The field-setter pair
+   * ({@link setAccessToken} then {@link setUser}, or the reverse) on a client
+   * that is not signed in adopts the session the same way.
    */
   setSession(session: AuthSessionSeed<T>): void
 

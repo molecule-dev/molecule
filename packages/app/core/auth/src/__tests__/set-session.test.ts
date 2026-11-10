@@ -108,21 +108,85 @@ describe('AuthClient.setSession', () => {
     expect(client.getRefreshToken()).toBe('refresh')
   })
 
-  it('the setAccessToken + setUser pair does NOT sign the client in', () => {
-    // The documented contract: the field setters change their own field only. An app that adapts
-    // its own exchange must call setSession (or login/register) to adopt the session.
-    const client = createJWTAuthClient({ storage: createMockStorage() })
-    const listener = vi.fn()
-    client.subscribe(listener)
+  it.each([
+    ['setAccessToken, then setUser', ['token', 'user']],
+    ['setUser, then setAccessToken', ['user', 'token']],
+  ] as const)(
+    "the app's own sign-in pair (%s) signs the client in like setSession (xr-molecule-flash-l2064)",
+    async (_order, steps) => {
+      // An app that posts its own registration and publishes the answer with the two field
+      // setters: the header's profile link waited on a signed-out client (m178, l2064). The
+      // app's bootstrap restore had already settled signed out.
+      mockFetch.mockImplementation(() => createMockResponse({ error: 'no session' }, 401))
+      const storage = createMockStorage()
+      const token = createMockJWT()
+      const client = createJWTAuthClient({ storage })
+      await client.initialize()
+      expect(client.getState().status).toBe('unauthenticated')
+      const listener = vi.fn()
+      client.subscribe(listener)
 
-    client.setAccessToken('token')
+      for (const step of steps) {
+        if (step === 'token') client.setAccessToken(token)
+        else client.setUser(user)
+      }
+
+      expect(client.isAuthenticated()).toBe(true)
+      expect(client.getState().status).toBe('authenticated')
+      expect(client.getState().initialized).toBe(true)
+      expect(client.getUser()).toBe(user)
+      expect(client.getAccessToken()).toBe(token)
+      expect(storage.getItem('molecule:auth:user')).toBe(JSON.stringify(user))
+      expect(listener.mock.calls.at(-1)?.[0]).toMatchObject({ authenticated: true, user })
+    },
+  )
+
+  it('counterexample: a profile cached over a token restored from storage does not sign in', () => {
+    // The token was not handed over by the app this session: only the explicit pair adopts, and
+    // an expired stored token must not become a session because a profile was cached over it.
+    const storage = createMockStorage()
+    const expired = [
+      btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' })),
+      btoa(JSON.stringify({ exp: Math.floor(Date.now() / 1000) - 3600 })),
+      btoa('mock-signature'),
+    ].join('.')
+    storage.setItem('molecule:auth:accessToken', expired)
+    const client = createJWTAuthClient({ storage })
+    const revision = client.getSessionRevision?.()
+
+    client.setUser(user)
+
+    // Adopting a session always moves the revision; the restore this suite's fetch stub answers
+    // is the client's own path and is not under test here.
+    expect(client.getSessionRevision?.()).toBe(revision)
+    expect(client.getState().user).toBe(user)
+  })
+
+  it('counterexample: a session event between the two halves disarms the pair', async () => {
+    mockFetch.mockImplementation(() => createMockResponse({ error: 'no session' }, 401))
+    const client = createJWTAuthClient({ storage: createMockStorage() })
+    await client.initialize()
+
+    client.setAccessToken('first')
+    client.setAccessToken('second')
+    client.setAccessToken(null)
     client.setUser(user)
 
     expect(client.isAuthenticated()).toBe(false)
-    expect(client.getState().status).not.toBe('authenticated')
-    expect(client.getAccessToken()).toBe('token')
-    expect(client.getUser()).toBe(user)
-    expect(listener).toHaveBeenCalledTimes(1)
+    expect(client.getAccessToken()).toBeNull()
+  })
+
+  it('counterexample: a saved profile on a signed-in client is a profile update, not a new session', () => {
+    const client = createJWTAuthClient({ storage: createMockStorage() })
+    client.setSession({ accessToken: 'token', user })
+    const revision = client.getSessionRevision?.()
+    const saved = { ...user, name: 'Ann B' }
+
+    client.setUser(saved)
+
+    expect(client.isAuthenticated()).toBe(true)
+    expect(client.getUser()).toBe(saved)
+    expect(client.getSessionRevision?.()).toBe(revision)
   })
 
   it('logout clears an adopted session', async () => {

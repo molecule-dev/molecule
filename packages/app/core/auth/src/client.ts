@@ -25,6 +25,7 @@ import type {
   AuthEventListener,
   AuthProfileConstraint,
   AuthResult,
+  AuthSessionSeed,
   AuthState,
   AuthStatus,
   LoginCredentials,
@@ -438,6 +439,15 @@ export const createJWTAuthClient = <
   // A cookie can authenticate without a script-readable bearer or presence hint.
   // Keep its candidacy until a session decision, independently of token storage.
   let cookieSessionCandidate = false
+  // The first half of the field-setter pair an app's own sign-in exchange writes:
+  // `setAccessToken(token)` then `setUser(user)`, or the other way round, on a client
+  // whose restore has settled signed out. The second half adopts the session exactly as
+  // `setSession` does while no session event (sign-in, sign-out) has happened in between —
+  // the revision says so. Each pair otherwise left the client signed out for every
+  // shared hook after a successful registration (xr-molecule-flash-m178, l2064). Before
+  // the restore settles the pair needs no help: the restore reads both from storage. A
+  // token restored from storage or a profile saved on a signed-in client never arms it.
+  let fieldSeed: { revision: number; token: string } | { revision: number; user: T } | null = null
 
   /**
    * Runs every asynchronous session operation under the epoch that started it.
@@ -1105,6 +1115,41 @@ export const createJWTAuthClient = <
     return started
   }
 
+  /**
+   * Adopts a session an exchange outside the client already established: the token, the
+   * user and the COMPLETE signed-in state in one update and one notification.
+   *
+   * @param session - The issued token, the profile in this client's shape, and the refresh
+   *   token when the exchange issued one.
+   */
+  const pairMayAdopt = (): boolean => state.initialized && !state.authenticated
+
+  const adoptSession = (session: AuthSessionSeed<T>): void => {
+    fieldSeed = null
+    sessionRevision++
+    clearSignOutMarker()
+    cookieSessionCandidate = false
+    // NOT passed through `mapAuthResponse`: a seed is not an API answer, it is
+    // the profile the caller already built in this client's shape. Mapping it
+    // would adapt an adapted profile a second time.
+    tokenStorage.setAccessToken(session.accessToken)
+    if (session.refreshToken !== undefined) {
+      tokenStorage.setRefreshToken(session.refreshToken)
+    }
+    tokenStorage.setUser(session.user)
+    // An out-of-band exchange has already proved the session, so `authenticated`
+    // must flip with the token.
+    setState({
+      initialized: true,
+      authenticated: true,
+      loading: false,
+      user: session.user,
+      status: 'authenticated',
+      error: null,
+    })
+    scheduleRefresh()
+  }
+
   const client: AuthClient<T, TRegister> = {
     getState: () => {
       // A read is what every hook does first (`useAuth()`'s snapshot, a subscriber
@@ -1139,7 +1184,26 @@ export const createJWTAuthClient = <
         endLocalSession()
         return
       }
-      if (user === null) sessionRevision++
+      if (user === null) {
+        sessionRevision++
+        fieldSeed = null
+      } else if (pairMayAdopt()) {
+        // The second half of the app's own sign-in pair (`fieldSeed`).
+        const token = tokenStorage.getAccessToken()
+        if (
+          fieldSeed &&
+          'token' in fieldSeed &&
+          fieldSeed.revision === sessionRevision &&
+          token === fieldSeed.token
+        ) {
+          profileRevision++
+          adoptSession({ accessToken: token, user })
+          return
+        }
+        fieldSeed = { revision: sessionRevision, user }
+      } else {
+        fieldSeed = null
+      }
       // A canonical row from an app-owned save supersedes background reads just
       // as updateProfile does. Otherwise a pending /me could undo this setter.
       profileRevision++
@@ -1150,36 +1214,23 @@ export const createJWTAuthClient = <
     getAccessToken: () => tokenStorage.getAccessToken(),
 
     setAccessToken: (token: string | null) => {
+      // The second half of the app's own sign-in pair (`fieldSeed`): the profile came first.
+      if (
+        token !== null &&
+        pairMayAdopt() &&
+        fieldSeed &&
+        'user' in fieldSeed &&
+        fieldSeed.revision === sessionRevision
+      ) {
+        adoptSession({ accessToken: token, user: fieldSeed.user })
+        return
+      }
       if (token !== tokenStorage.getAccessToken()) sessionRevision++
       tokenStorage.setAccessToken(token)
+      fieldSeed = token !== null && pairMayAdopt() ? { revision: sessionRevision, token } : null
     },
 
-    setSession: (session) => {
-      sessionRevision++
-      clearSignOutMarker()
-      cookieSessionCandidate = false
-      // NOT passed through `mapAuthResponse`: a seed is not an API answer, it is
-      // the profile the caller already built in this client's shape. Mapping it
-      // would adapt an adapted profile a second time.
-      tokenStorage.setAccessToken(session.accessToken)
-      if (session.refreshToken !== undefined) {
-        tokenStorage.setRefreshToken(session.refreshToken)
-      }
-      tokenStorage.setUser(session.user)
-      // The COMPLETE state, in one update and one notification: an out-of-band exchange has
-      // already proved the session, so `authenticated` must flip with the token. Writing the
-      // token and the user with the two field setters leaves the client signed out for every
-      // shared hook, even after a successful registration.
-      setState({
-        initialized: true,
-        authenticated: true,
-        loading: false,
-        user: session.user,
-        status: 'authenticated',
-        error: null,
-      })
-      scheduleRefresh()
-    },
+    setSession: (session) => adoptSession(session),
 
     getRefreshToken: () => tokenStorage.getRefreshToken(),
 

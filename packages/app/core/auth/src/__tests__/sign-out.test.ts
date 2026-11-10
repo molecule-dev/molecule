@@ -74,6 +74,9 @@ describe('local sign-out', () => {
     const client = createJWTAuthClient({ storage: createStorage(), autoRefresh: false })
     await client.initialize()
     client.setAccessToken('out-of-band-token')
+    // Clearing the (absent) profile is a session event: it disarms the token half of the app's
+    // own sign-in pair, so the profile below is cached on an anonymous client that holds a token.
+    client.setUser(null)
     client.setUser(user)
 
     client.setUser(null)
