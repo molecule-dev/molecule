@@ -1,5 +1,11 @@
 # @molecule/api-code-sandbox-flyio
 
+## 1.5.1
+
+### Patch Changes
+
+- Stage a direct sandbox import in the configured object store so Machines behind an egress policy can pull it, and relay when the pull fails before extraction.
+
 ## 1.5.0
 
 ### Minor Changes

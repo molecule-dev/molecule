@@ -1,5 +1,11 @@
 # @molecule/api-code-sandbox
 
+## 1.8.1
+
+### Patch Changes
+
+- Document that a direct import may relay whenever the destination reports it stopped before writing.
+
 ## 1.8.0
 
 ### Minor Changes
