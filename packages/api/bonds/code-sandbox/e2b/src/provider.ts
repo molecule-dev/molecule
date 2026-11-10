@@ -9,6 +9,8 @@
  * @module
  */
 
+import { randomUUID } from 'node:crypto'
+
 import type { Sandbox as NativeSandbox } from 'e2b'
 
 import type {
@@ -23,7 +25,8 @@ import type {
   ListVolumesOptions,
   ProductionHostingCapabilities,
   Sandbox,
-  SandboxArchiveUploadOptions,
+  SandboxArchiveDownload,
+  SandboxArchiveExportOptions,
   SandboxConfig,
   SandboxDescriptor,
   SandboxProvider,
@@ -1207,51 +1210,93 @@ class E2BSandbox implements Sandbox {
   }
 
   /**
-   * Upload a rooted gzip tar directly from the sandbox in one command. The URL
-   * travels to the sandbox, but neither tar bytes nor HTTP response bodies come
-   * back to the control plane. curl obeys the sandbox's existing egress policy.
+   * Prepare a rooted gzip tar and sign a file-specific, expiring READ in the
+   * control plane. No storage credential or signed URL enters a source command.
    * @param path - Absolute directory below `/` to archive.
-   * @param options - Presigned destination, byte ceiling and total budget.
+   * @param options - Advisory source ceiling and whole-transfer budget.
+   * @returns A read lease whose scratch the caller must dispose.
    */
-  async uploadArchive(path: string, options: SandboxArchiveUploadOptions): Promise<void> {
+  async exportArchive(
+    path: string,
+    options: SandboxArchiveExportOptions,
+  ): Promise<SandboxArchiveDownload> {
     const trimmed = path.replace(/\/+$/, '')
     const slash = trimmed.lastIndexOf('/')
     const parent = slash <= 0 ? '/' : trimmed.slice(0, slash)
     const name = trimmed.slice(slash + 1)
     if (!trimmed.startsWith('/') || !name || name === '.' || name === '..') {
-      throw new Error('uploadArchive: path must be an absolute directory below "/"')
+      throw new Error('exportArchive: path must be an absolute directory below "/"')
     }
     if (
       !Number.isSafeInteger(options.maxBytes) ||
       options.maxBytes <= 0 ||
       !Number.isFinite(options.timeoutMs) ||
       options.timeoutMs <= 0
-    ) {
-      throw new Error('uploadArchive: positive size and timeout limits are required')
-    }
-    const seconds = Math.max(0.001, options.timeoutMs / 1000)
-    const script = [
-      'set -e',
-      'archive=$(mktemp /tmp/mol-upload-XXXXXX.tar.gz)',
-      'trap \'rm -f "$archive"\' EXIT',
-      "trap 'exit 124' HUP INT TERM",
-      `bytes=$(du -sb -- ${shellQuote(trimmed)})`,
-      `bytes=\${bytes%%[!0-9]*}`,
-      `[ "$bytes" -le ${options.maxBytes} ] || exit 65`,
-      `tar -czf "$archive" -C ${shellQuote(parent)} -- ${shellQuote(name)}`,
-      `[ "$(stat -c %s "$archive")" -le ${options.maxBytes} ] || exit 65`,
-      // No retry: a failed PUT is safe to retry through the existing relay. Do
-      // not print curl's stderr (which can contain the signed URL).
-      `curl --fail --silent --show-error --connect-timeout 10 --max-time ${seconds} -X PUT --upload-file "$archive" -o /dev/null ${shellQuote(options.url)} 2>/dev/null`,
-    ].join('\n')
-    // Bound compression as well as curl. The inner shell's EXIT trap runs on
-    // timeout's TERM too; the SDK timeout is a final infrastructure backstop.
-    const result = await this.runCommand(
-      `timeout --signal=TERM ${seconds}s sh -c ${shellQuote(script)}`,
-      options.timeoutMs + 5_000,
     )
-    if (result.exitCode !== 0) {
-      throw new Error(`uploadArchive: archive upload failed (exit ${result.exitCode})`)
+      throw new Error('exportArchive: positive size and timeout limits are required')
+    const deadline = Date.now() + options.timeoutMs
+    const archive = `/tmp/mol-export-${randomUUID()}.tar.gz`
+    let disposed = false
+    const dispose = async (): Promise<void> => {
+      if (disposed) return
+      try {
+        await this.deleteFile(archive)
+        disposed = true
+      } catch (_error) {
+        // SDK errors can contain credential-bearing request URLs.
+        // eslint-disable-next-line preserve-caught-error -- SDK causes can expose signed URLs.
+        throw new Error('exportArchive: source scratch cleanup failed')
+      }
+    }
+    try {
+      await this.call(async (sbx) => {
+        if (!sbx.downloadUrl) throw new Error('expiring file downloads unavailable')
+      })
+      const seconds = options.timeoutMs / 1000
+      const script = [
+        'set -e',
+        `archive=${shellQuote(archive)}`,
+        'trap \'rm -f "$archive"\' EXIT',
+        "trap 'exit 124' HUP INT TERM",
+        `bytes=$(du -sb -- ${shellQuote(trimmed)})`,
+        `bytes=\${bytes%%[!0-9]*}`,
+        `[ "$bytes" -le ${options.maxBytes} ] || exit 65`,
+        `tar -czf "$archive" -C ${shellQuote(parent)} -- ${shellQuote(name)}`,
+        `[ "$(stat -c %s "$archive")" -le ${options.maxBytes} ] || exit 65`,
+        // The file stays available until the caller disposes the read lease.
+        'trap - EXIT',
+      ].join('\n')
+      const result = await this.runCommand(
+        `timeout --signal=TERM ${seconds}s sh -c ${shellQuote(script)}`,
+        options.timeoutMs + 5_000,
+      )
+      if (result.exitCode !== 0) throw new Error('archive preparation failed')
+      // SDK option is SECONDS (the vendor docs' example currently shows ms).
+      // Round down, so a read capability never extends the caller's deadline.
+      const ttl = Math.floor((deadline - Date.now()) / 1000)
+      if (ttl < 1) throw new Error('archive preparation exhausted the deadline')
+      const url = await this.call((sbx) =>
+        sbx.downloadUrl!(archive, { useSignatureExpiration: ttl }),
+      )
+      const parsed = new URL(url)
+      const expiresAt = Number(parsed.searchParams.get('signature_expiration')) * 1000
+      if (
+        parsed.protocol !== 'https:' ||
+        !parsed.searchParams.get('signature') ||
+        !Number.isSafeInteger(expiresAt) ||
+        expiresAt <= Date.now() ||
+        expiresAt > deadline
+      ) {
+        throw new Error('expiring file downloads unavailable')
+      }
+      return { url, expiresAt, dispose }
+    } catch (_error) {
+      await dispose().catch((_cleanupError: unknown) => {
+        // Ephemeral source scratch only. No platform bucket object was created.
+      })
+      // Do not forward SDK errors, command output, or causes containing URLs.
+      // eslint-disable-next-line preserve-caught-error -- Do not retain credential-bearing SDK errors.
+      throw new Error('exportArchive: archive preparation or signed read unavailable')
     }
   }
 

@@ -474,26 +474,30 @@ export interface Sandbox {
   exportFiles?(path: string): Promise<AsyncIterable<Uint8Array>>
 
   /**
-   * Create a gzip-compressed tar with the same rooting as `exportFiles`, and PUT
-   * it from INSIDE the sandbox to a short-lived URL. No archive bytes pass
-   * through the control plane. Enforce the tree and compressed archive ceilings,
-   * bound the command by the timeout, and remove local scratch on every exit.
-   * Network policy still applies; an unreachable upload must fail.
+   * Create a gzip tar with the same rooting as `exportFiles` and expose only
+   * that file through an expiring, vendor-authorized READ URL. Never give the
+   * sandbox a storage write credential. The receiver MUST enforce its byte
+   * ceilings independently: source files, commands and size reports are untrusted.
    * @param path - Absolute directory below `/` to archive.
-   * @param options - Upload destination and resource limits.
+   * @param options - Advisory source limits and total preparation/download budget.
+   * @returns A read-only lease; the caller must dispose it on every path.
    */
-  uploadArchive?(path: string, options: SandboxArchiveUploadOptions): Promise<void>
+  exportArchive?(
+    path: string,
+    options: SandboxArchiveExportOptions,
+  ): Promise<SandboxArchiveDownload>
 
   /**
-   * Import directly from another sandbox through a temporary object, without
+   * Import directly from another sandbox through its expiring read URL, without
    * relaying archive bytes through the caller. Returns false ONLY before any
-   * destination exec when the transport is unavailable or the upload failed;
+   * destination exec when the transport is unavailable or preparation failed;
    * callers may then use `exportFiles`/`importFiles`. Once extraction is issued,
    * failures throw: retrying could repeat an ambiguously completed finalizer.
    * Drop archive ownership/privileged modes as `importFiles` does, and attempt
-   * temporary-object cleanup on EVERY path, including a failed upload.
+   * source-archive cleanup on EVERY path. Enforce compressed and expanded size
+   * bounds at the receiver, never by trusting the source's checks or reports.
    * @param path - Destination parent for the rooted archive.
-   * @param source - Sandbox with the optional `uploadArchive` capability.
+   * @param source - Sandbox with the optional `exportArchive` capability.
    * @param sourcePath - Absolute directory to transfer from that sandbox.
    * @param options - Size, deadline and optional in-exec finalization.
    * @returns Whether the direct transport completed; false permits a relay.
@@ -519,23 +523,31 @@ export interface Sandbox {
   importFiles?(path: string, archive: AsyncIterable<Uint8Array>): Promise<void>
 }
 
-/** Limits and destination for a sandbox-originated gzip tar upload. */
-export interface SandboxArchiveUploadOptions {
-  /** Short-lived presigned PUT URL; do not log it or include it in errors. */
-  url: string
-  /** Maximum bytes in both the source tree and the compressed archive. */
+/** Preparation limits for a sandbox-originated gzip tar download. */
+export interface SandboxArchiveExportOptions {
+  /** Advisory source-tree and archive ceiling; the receiver enforces its own. */
   maxBytes: number
-  /** Total command budget, including compression and upload, in milliseconds. */
+  /** Total budget including preparation and download, in milliseconds. */
   timeoutMs: number
+}
+
+/** A vendor-authorized read of exactly one prepared source archive. */
+export interface SandboxArchiveDownload {
+  /** Expiring READ URL, never a write credential. Never log it or include it in errors. */
+  url: string
+  /** Absolute expiry in Unix milliseconds, no later than the requested deadline. */
+  expiresAt: number
+  /** Remove source scratch. Call on success, failure and cancellation. */
+  dispose(): Promise<void>
 }
 
 /** Options shared by direct, provider-independent sandbox transfers. */
 export interface SandboxDirectTransferOptions {
-  /** Maximum source-tree and compressed-archive size in bytes. */
+  /** Receiver-enforced compressed, uncompressed tar and total member-byte ceiling. */
   maxBytes: number
-  /** Budget for the whole transfer, including its upload, in milliseconds. */
+  /** Budget for the whole transfer, including preparation, in milliseconds. */
   timeoutMs: number
-  /** Aborting prevents starting extraction or a relay after an abandoned upload. */
+  /** Aborting prevents starting extraction or a relay after abandoned preparation. */
   signal?: AbortSignal
   /**
    * Trusted idempotent shell script, run after extraction in the same exec (e.g.

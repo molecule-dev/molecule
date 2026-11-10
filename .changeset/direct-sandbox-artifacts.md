@@ -4,4 +4,4 @@
 '@molecule/api-code-sandbox-flyio': minor
 ---
 
-Transfer bounded deploy archives directly from the build sandbox to the destination through temporary storage, with relay fallback and combined import finalization.
+Transfer bounded deploy archives directly from the build sandbox to the destination through expiring source reads, with relay fallback and combined import finalization.

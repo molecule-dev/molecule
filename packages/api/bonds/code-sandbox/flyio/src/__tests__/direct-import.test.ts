@@ -30,15 +30,20 @@ async function fixture(withStore = true) {
   ).get('app:m1'))!
   const exec = vi.spyOn(sandbox, 'exec').mockResolvedValue({ stdout: '', stderr: '', exitCode: 0 })
   const remove = vi.spyOn(store, 'remove')
-  const upload = vi.fn(async () => {})
-  const source = { uploadArchive: upload } as unknown as Sandbox
-  return { sandbox, exec, store, remove, source, upload }
+  const dispose = vi.fn(async () => {})
+  const prepare = vi.fn(async () => ({
+    url: 'https://source.example/archive?signature=read-only',
+    expiresAt: Date.now() + 59_000,
+    dispose,
+  }))
+  const source = { exportArchive: prepare } as unknown as Sandbox
+  return { sandbox, exec, store, remove, source, prepare, dispose }
 }
 
 afterEach(() => vi.unstubAllGlobals())
 
 describe('direct sandbox import', () => {
-  it.each(['success', 'download', 'extract', 'oversized', 'finalize'])(
+  it.each(['success', 'download', 'extract', 'oversized', 'expanded', 'sparse', 'finalize'])(
     'runs the real bounded extraction script and cleans scratch on %s',
     async (failure) => {
       const f = await fixture()
@@ -47,8 +52,20 @@ describe('direct sandbox import', () => {
         const tree = join(root, 'dist')
         mkdirSync(tree)
         writeFileSync(join(tree, 'index.html'), '<h1>independent static project</h1>')
+        if (failure === 'expanded')
+          writeFileSync(join(tree, 'bomb'), Buffer.alloc(options.maxBytes + 1))
+        if (failure === 'sparse') {
+          execFileSync('truncate', ['-s', String(options.maxBytes + 1), join(tree, 'sparse')])
+        }
         const archive = join(root, 'artifact.tar.gz')
-        execFileSync('tar', ['-czf', archive, '-C', root, 'dist'])
+        execFileSync('tar', [
+          ...(failure === 'sparse' ? ['--sparse'] : []),
+          '-czf',
+          archive,
+          '-C',
+          root,
+          'dist',
+        ])
         if (failure === 'extract') writeFileSync(archive, 'not a tar')
         if (failure === 'oversized') writeFileSync(archive, Buffer.alloc(options.maxBytes + 1))
         const curl =
@@ -84,18 +101,19 @@ describe('direct sandbox import', () => {
           await expect(operation).resolves.toBe(true)
           expect(existsSync(join(root, 'live-dist/index.html'))).toBe(true)
         } else {
-          await expect(operation).rejects.toThrow('extraction/finalization failed')
+          await expect(operation).rejects.toThrow('download/extraction/finalization failed')
           expect(existsSync(join(root, 'live-dist'))).toBe(false)
         }
         expect(readdirSync(root).filter((n) => n.startsWith('mol-import-'))).toEqual([])
-        expect(f.remove).toHaveBeenCalledTimes(1)
+        expect(f.dispose).toHaveBeenCalledTimes(1)
+        expect(f.remove).not.toHaveBeenCalled()
       } finally {
         rmSync(root, { recursive: true, force: true })
       }
     },
   )
 
-  it('moves bytes source → object store → Machine and folds ownership/finalization into one exec', async () => {
+  it('moves bytes source → Machine without storage and folds ownership/finalization into one exec', async () => {
     const f = await fixture()
     const hostFetch = vi.fn()
     vi.stubGlobal('fetch', hostFetch)
@@ -106,12 +124,12 @@ describe('direct sandbox import', () => {
           'chown -R 1000:1000 /workspace/incoming\nmv /workspace/incoming/dist /workspace/app/dist',
       }),
     ).resolves.toBe(true)
-    expect(f.upload).toHaveBeenCalledTimes(1)
-    expect(f.upload.mock.calls[0]).toEqual([
+    expect(f.prepare).toHaveBeenCalledTimes(1)
+    expect(f.prepare.mock.calls[0]).toEqual([
       '/build/dist',
       expect.objectContaining({
         maxBytes: options.maxBytes,
-        url: expect.stringContaining('Signature=put'),
+        timeoutMs: options.timeoutMs,
       }),
     ])
     expect(hostFetch).not.toHaveBeenCalled()
@@ -121,28 +139,45 @@ describe('direct sandbox import', () => {
     expect(cmd).toContain('--max-filesize 1048576')
     expect(cmd.indexOf('tar -C')).toBeLessThan(cmd.indexOf('chown -R'))
     expect(cmd.indexOf('chown -R')).toBeLessThan(cmd.indexOf('mv /workspace'))
-    expect(f.remove).toHaveBeenCalledWith([expect.stringContaining('/.imports/')])
+    expect(f.dispose).toHaveBeenCalledTimes(1)
+    expect(f.remove).not.toHaveBeenCalled()
+    expect(f.exec.mock.calls[0][0]).toContain('signature=read-only')
   })
 
-  it.each(['no-source-capability', 'no-store', 'failed-upload', 'failed-presign'])(
+  it('supports direct reads without any object store', async () => {
+    const f = await fixture(false)
+    await expect(
+      f.sandbox.importFilesFrom!('/workspace', f.source, '/build/site', options),
+    ).resolves.toBe(true)
+    expect(f.prepare).toHaveBeenCalledTimes(1)
+    expect(f.exec).toHaveBeenCalledTimes(1)
+    expect(f.remove).not.toHaveBeenCalled()
+  })
+
+  it.each(['no-source-capability', 'failed-prepare', 'expired-read', 'overlong-read'])(
     'permits the relay before any destination mutation: %s',
     async (kind) => {
-      const f = await fixture(kind !== 'no-store')
-      if (kind === 'no-source-capability') delete f.source.uploadArchive
-      if (kind === 'failed-upload')
-        f.upload.mockRejectedValueOnce(new Error('network policy denied upload'))
-      if (kind === 'failed-presign')
-        vi.spyOn(f.store, 'presignGet').mockRejectedValueOnce(new Error('store unavailable'))
+      const f = await fixture()
+      if (kind === 'no-source-capability') delete f.source.exportArchive
+      if (kind === 'failed-prepare')
+        f.prepare.mockRejectedValueOnce(new Error('network policy denied upload'))
+      if (kind === 'expired-read' || kind === 'overlong-read')
+        f.prepare.mockResolvedValueOnce({
+          url: 'https://source.example/archive',
+          expiresAt: Date.now() + (kind === 'expired-read' ? -1 : 120_000),
+          dispose: f.dispose,
+        })
       await expect(
         f.sandbox.importFilesFrom!('/workspace', f.source, '/build/site', options),
       ).resolves.toBe(false)
       expect(f.exec).not.toHaveBeenCalled()
-      expect(f.remove).toHaveBeenCalledTimes(kind === 'failed-upload' ? 1 : 0)
+      expect(f.remove).not.toHaveBeenCalled()
+      expect(f.dispose).toHaveBeenCalledTimes(kind.endsWith('-read') ? 1 : 0)
     },
   )
 
   it.each(['nonzero-exec', 'lost-response'])(
-    'cleans objects and refuses a relay after an ambiguous import: %s',
+    'disposes source scratch and refuses a relay after an ambiguous import: %s',
     async (kind) => {
       const f = await fixture()
       if (kind === 'nonzero-exec')
@@ -152,32 +187,44 @@ describe('direct sandbox import', () => {
         f.sandbox.importFilesFrom!('/workspace', f.source, '/build/site', options),
       ).rejects.toThrow()
       expect(f.exec).toHaveBeenCalledTimes(1)
-      expect(f.remove).toHaveBeenCalledTimes(1)
+      expect(f.dispose).toHaveBeenCalledTimes(1)
+      expect(f.remove).not.toHaveBeenCalled()
     },
   )
 
-  it('does not start extraction or a relay when an upload settles after cancellation', async () => {
+  it('does not start extraction or a relay when preparation settles after cancellation', async () => {
     const f = await fixture()
     const controller = new AbortController()
-    f.upload.mockImplementationOnce(async () => {
+    f.prepare.mockImplementationOnce(async () => {
       controller.abort(new Error('deadline'))
+      return {
+        url: 'https://source.example/archive',
+        expiresAt: Date.now() + 1000,
+        dispose: f.dispose,
+      }
     })
     await expect(
       f.sandbox.importFilesFrom!('/workspace', f.source, '/build/site', {
         ...options,
         signal: controller.signal,
       }),
-    ).rejects.toThrow('deadline')
+    ).rejects.toThrow('transfer aborted')
     expect(f.exec).not.toHaveBeenCalled()
-    expect(f.remove).toHaveBeenCalledTimes(1)
+    expect(f.dispose).toHaveBeenCalledTimes(1)
+    expect(f.remove).not.toHaveBeenCalled()
   })
 
   it('passes only the remaining whole-transfer budget to extraction', async () => {
     const f = await fixture()
     vi.useFakeTimers()
     try {
-      f.upload.mockImplementationOnce(async () => {
+      f.prepare.mockImplementationOnce(async () => {
         vi.setSystemTime(Date.now() + 9000)
+        return {
+          url: 'https://source.example/archive',
+          expiresAt: Date.now() + 1000,
+          dispose: f.dispose,
+        }
       })
       await f.sandbox.importFilesFrom!('/workspace', f.source, '/build/site', {
         ...options,

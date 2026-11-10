@@ -1,11 +1,4 @@
 {
-  "packages": [
-    "@molecule/api-code-sandbox",
-    "@molecule/api-code-sandbox-e2b",
-    "@molecule/api-code-sandbox-flyio"
-  ],
-  "changesets": [
-    ".changeset/direct-sandbox-artifacts.md",
-    ".changeset/fly-activation-single-wait.md"
-  ]
+  "packages": [],
+  "changesets": []
 }

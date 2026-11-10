@@ -22,6 +22,7 @@ import type {
   ListTemplatesOptions,
   ProductionHostingCapabilities,
   Sandbox,
+  SandboxArchiveDownload,
   SandboxConfig,
   SandboxDescriptor,
   SandboxDirectTransferOptions,
@@ -4368,14 +4369,13 @@ class FlyioSandboxProvider implements SandboxProvider {
       },
 
       /**
-       * Move a source-originated archive through temporary storage, without
-       * buffering it here. Download, safe extraction and trusted finalization
-       * share one bounded exec. Failures before that exec permit the relay.
+       * Pull a vendor-authorized source read directly into the destination.
+       * No bucket write credential is minted or sent to untrusted source code.
        * @param path - Destination parent for the rooted archive.
-       * @param source - Sandbox that can upload a gzip tar.
+       * @param source - Sandbox exposing an expiring archive read.
        * @param sourcePath - Source directory to archive.
-       * @param options - Limits and trusted finalization.
-       * @returns True on direct success; false permits a relay.
+       * @param options - Receiver-enforced limits and trusted finalization.
+       * @returns True on direct success; false permits a relay before extraction.
        */
       async importFilesFrom(
         path: string,
@@ -4383,8 +4383,7 @@ class FlyioSandboxProvider implements SandboxProvider {
         sourcePath: string,
         options: SandboxDirectTransferOptions,
       ): Promise<boolean> {
-        const store = provider.templateContext().store
-        if (!store || !source.uploadArchive) return false
+        if (!source.exportArchive) return false
         if (
           !Number.isSafeInteger(options.maxBytes) ||
           options.maxBytes <= 0 ||
@@ -4392,40 +4391,46 @@ class FlyioSandboxProvider implements SandboxProvider {
           options.timeoutMs <= 0
         )
           throw new Error('importFilesFrom: positive size and timeout limits are required')
-        const expiresAt = Date.now() + options.timeoutMs
-        const key = `${store.prefix}/.imports/${machineId}-${randomUUID()}.tar.gz`
-        let uploadAttempted = false
+        const deadline = Date.now() + options.timeoutMs
+        let archive: SandboxArchiveDownload | undefined
         let extracting = false
         try {
           options.signal?.throwIfAborted()
-          const [putUrl, getUrl] = await Promise.all([
-            store.presignPut(key, IMPORT_PRESIGN_EXPIRY_SECONDS),
-            store.presignGet(key, IMPORT_PRESIGN_EXPIRY_SECONDS),
-          ])
-          options.signal?.throwIfAborted()
-          const uploadBudget = expiresAt - Date.now()
-          if (uploadBudget <= 0) throw new Error('importFilesFrom: upload deadline expired')
-          // A failed PUT may have created the object before its response was
-          // lost, so cleanup begins BEFORE the upload is called.
-          uploadAttempted = true
-          await source.uploadArchive(sourcePath, {
-            url: putUrl,
+          archive = await source.exportArchive(sourcePath, {
             maxBytes: options.maxBytes,
-            timeoutMs: uploadBudget,
+            timeoutMs: options.timeoutMs,
           })
           options.signal?.throwIfAborted()
-          const remaining = Math.min(IMPORT_EXTRACT_TIMEOUT_MS, expiresAt - Date.now())
-          if (remaining <= 0) throw new Error('importFilesFrom: extraction deadline expired')
+          if (!Number.isSafeInteger(archive.expiresAt) || archive.expiresAt > deadline) {
+            throw new Error('invalid read lease deadline')
+          }
+          const remaining = Math.min(
+            IMPORT_EXTRACT_TIMEOUT_MS,
+            deadline - Date.now(),
+            archive.expiresAt - Date.now(),
+          )
+          if (remaining <= 0) throw new Error('read lease expired')
           const seconds = remaining / 1000
+          // The source can replace its archive after any preflight. These are
+          // receiver-side checks, including unknown/chunked download lengths,
+          // decompression bombs and sparse members with tiny tar representations.
+          const blocks = Math.ceil(options.maxBytes / 512)
           const command = [
             'set -e',
-            `mkdir -p ${shellQuote(path)}`,
-            'archive=$(mktemp /tmp/mol-import-XXXXXX.tar.gz)',
-            'trap \'rm -f "$archive"\' EXIT',
+            'scratch=$(mktemp -d /tmp/mol-import-XXXXXX)',
+            'trap \'rm -rf "$scratch"\' EXIT',
             "trap 'exit 124' HUP INT TERM",
-            `curl --fail --silent --show-error --connect-timeout 10 --max-time ${seconds} --max-filesize ${options.maxBytes} -o "$archive" ${shellQuote(getUrl)} 2>/dev/null`,
+            'archive="$scratch/archive.gz"',
+            'unpacked="$scratch/archive.tar"',
+            `ulimit -f ${blocks}`,
+            `curl --fail --silent --show-error --connect-timeout 10 --max-time ${seconds} --max-filesize ${options.maxBytes} -o "$archive" ${shellQuote(archive.url)} 2>/dev/null`,
             `[ "$(stat -c %s "$archive")" -le ${options.maxBytes} ] || exit 65`,
-            `tar -C ${shellQuote(path)} --no-same-owner --no-same-permissions -xzf "$archive"`,
+            'gzip -dc "$archive" > "$unpacked"',
+            `[ "$(stat -c %s "$unpacked")" -le ${options.maxBytes} ] || exit 65`,
+            'LC_ALL=C tar --numeric-owner --quoting-style=escape -tvf "$unpacked" > "$scratch/members"',
+            `awk '$1 !~ /^[-dlh]/ || $3 !~ /^[0-9]+$/ { exit 65 } { bytes += $3; if (bytes > ${options.maxBytes}) exit 65 }' "$scratch/members"`,
+            `mkdir -p ${shellQuote(path)}`,
+            `tar -C ${shellQuote(path)} --no-same-owner --no-same-permissions -xf "$unpacked"`,
             options.afterExtract ?? ':',
           ].join('\n')
           extracting = true
@@ -4433,24 +4438,28 @@ class FlyioSandboxProvider implements SandboxProvider {
             `timeout --signal=TERM ${seconds}s sh -c ${shellQuote(command)}`,
             { timeout: remaining },
           )
-          if (result.exitCode !== 0) {
-            throw new Error(
-              `importFilesFrom: extraction/finalization failed (exit ${result.exitCode})`,
-            )
-          }
+          if (result.exitCode !== 0)
+            throw new Error('download, size check, extraction or finalization failed')
           return true
-        } catch (error) {
-          // After issuing an exec the finalizer may already have run. Never
-          // repeat it through a relay after a timeout or a lost response.
-          if (extracting || options.signal?.aborted) throw error
-          logger.warn('Direct archive upload unavailable; using the relay', { error })
+        } catch (_error) {
+          // Never echo source/SDK/exec errors: any of them can contain a URL or
+          // the entire command. A late exec response cannot authorize a relay.
+          if (options.signal?.aborted) {
+            // eslint-disable-next-line preserve-caught-error -- Abort reasons may contain signed URLs.
+            throw new Error('importFilesFrom: transfer aborted')
+          }
+          if (extracting) {
+            // eslint-disable-next-line preserve-caught-error -- Exec errors may echo the signed command.
+            throw new Error('importFilesFrom: download/extraction/finalization failed')
+          }
+          logger.warn('Direct archive read unavailable; using the relay')
           return false
         } finally {
-          if (uploadAttempted) {
-            await store.remove([key]).catch((error: unknown) => {
-              logger.warn('Could not remove the direct import temporary object', { key, error })
+          if (archive)
+            await archive.dispose().catch((_error: unknown) => {
+              // Only source scratch remains. Never log a credential-bearing SDK error.
+              logger.warn('Could not remove the direct import source archive')
             })
-          }
         }
       },
 

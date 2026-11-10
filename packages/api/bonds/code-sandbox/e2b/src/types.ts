@@ -160,6 +160,8 @@ export interface E2BSandboxLike {
   /** Present on SDK builds that support pseudo-terminals; absent means no PTY. */
   pty?: E2BPtyLike
   files: E2BFilesystemLike
+  /** File-specific READ signature. Expiration is in seconds, as in the native SDK. */
+  downloadUrl?(path: string, opts: { useSignatureExpiration: number }): Promise<string>
   getHost(port: number): string
   setTimeout(ms: number): Promise<void>
   kill(): Promise<void>
