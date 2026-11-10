@@ -23,6 +23,7 @@ import type {
   ListVolumesOptions,
   ProductionHostingCapabilities,
   Sandbox,
+  SandboxArchiveUploadOptions,
   SandboxConfig,
   SandboxDescriptor,
   SandboxProvider,
@@ -1203,6 +1204,55 @@ class E2BSandbox implements Sandbox {
     return (async function* () {
       yield bytes
     })()
+  }
+
+  /**
+   * Upload a rooted gzip tar directly from the sandbox in one command. The URL
+   * travels to the sandbox, but neither tar bytes nor HTTP response bodies come
+   * back to the control plane. curl obeys the sandbox's existing egress policy.
+   * @param path - Absolute directory below `/` to archive.
+   * @param options - Presigned destination, byte ceiling and total budget.
+   */
+  async uploadArchive(path: string, options: SandboxArchiveUploadOptions): Promise<void> {
+    const trimmed = path.replace(/\/+$/, '')
+    const slash = trimmed.lastIndexOf('/')
+    const parent = slash <= 0 ? '/' : trimmed.slice(0, slash)
+    const name = trimmed.slice(slash + 1)
+    if (!trimmed.startsWith('/') || !name || name === '.' || name === '..') {
+      throw new Error('uploadArchive: path must be an absolute directory below "/"')
+    }
+    if (
+      !Number.isSafeInteger(options.maxBytes) ||
+      options.maxBytes <= 0 ||
+      !Number.isFinite(options.timeoutMs) ||
+      options.timeoutMs <= 0
+    ) {
+      throw new Error('uploadArchive: positive size and timeout limits are required')
+    }
+    const seconds = Math.max(0.001, options.timeoutMs / 1000)
+    const script = [
+      'set -e',
+      'archive=$(mktemp /tmp/mol-upload-XXXXXX.tar.gz)',
+      'trap \'rm -f "$archive"\' EXIT',
+      "trap 'exit 124' HUP INT TERM",
+      `bytes=$(du -sb -- ${shellQuote(trimmed)})`,
+      `bytes=\${bytes%%[!0-9]*}`,
+      `[ "$bytes" -le ${options.maxBytes} ] || exit 65`,
+      `tar -czf "$archive" -C ${shellQuote(parent)} -- ${shellQuote(name)}`,
+      `[ "$(stat -c %s "$archive")" -le ${options.maxBytes} ] || exit 65`,
+      // No retry: a failed PUT is safe to retry through the existing relay. Do
+      // not print curl's stderr (which can contain the signed URL).
+      `curl --fail --silent --show-error --connect-timeout 10 --max-time ${seconds} -X PUT --upload-file "$archive" -o /dev/null ${shellQuote(options.url)} 2>/dev/null`,
+    ].join('\n')
+    // Bound compression as well as curl. The inner shell's EXIT trap runs on
+    // timeout's TERM too; the SDK timeout is a final infrastructure backstop.
+    const result = await this.runCommand(
+      `timeout --signal=TERM ${seconds}s sh -c ${shellQuote(script)}`,
+      options.timeoutMs + 5_000,
+    )
+    if (result.exitCode !== 0) {
+      throw new Error(`uploadArchive: archive upload failed (exit ${result.exitCode})`)
+    }
   }
 
   /**

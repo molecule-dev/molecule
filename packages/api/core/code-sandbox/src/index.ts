@@ -17,7 +17,9 @@
  * reconciliation, **hibernation fidelity** (`hibernate`/`resume`) for knowing
  * whether a woken sandbox's processes survived, **`setResources`** for applying
  * an entitlement after creation, **`exportFiles`/`importFiles`** for bulk
- * workspace transfer, **`readFileBytes`/`writeFileBytes`** for exact binary
+ * workspace transfer, **`uploadArchive`/`importFilesFrom`** for direct bulk
+ * transfer through a short-lived object (with a relay fallback),
+ * **`readFileBytes`/`writeFileBytes`** for exact binary
  * file I/O, and **`capacity`** for refusing a boot before it damages
  * the sandboxes already running.
  *

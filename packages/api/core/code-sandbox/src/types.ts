@@ -474,6 +474,38 @@ export interface Sandbox {
   exportFiles?(path: string): Promise<AsyncIterable<Uint8Array>>
 
   /**
+   * Create a gzip-compressed tar with the same rooting as `exportFiles`, and PUT
+   * it from INSIDE the sandbox to a short-lived URL. No archive bytes pass
+   * through the control plane. Enforce the tree and compressed archive ceilings,
+   * bound the command by the timeout, and remove local scratch on every exit.
+   * Network policy still applies; an unreachable upload must fail.
+   * @param path - Absolute directory below `/` to archive.
+   * @param options - Upload destination and resource limits.
+   */
+  uploadArchive?(path: string, options: SandboxArchiveUploadOptions): Promise<void>
+
+  /**
+   * Import directly from another sandbox through a temporary object, without
+   * relaying archive bytes through the caller. Returns false ONLY before any
+   * destination exec when the transport is unavailable or the upload failed;
+   * callers may then use `exportFiles`/`importFiles`. Once extraction is issued,
+   * failures throw: retrying could repeat an ambiguously completed finalizer.
+   * Drop archive ownership/privileged modes as `importFiles` does, and attempt
+   * temporary-object cleanup on EVERY path, including a failed upload.
+   * @param path - Destination parent for the rooted archive.
+   * @param source - Sandbox with the optional `uploadArchive` capability.
+   * @param sourcePath - Absolute directory to transfer from that sandbox.
+   * @param options - Size, deadline and optional in-exec finalization.
+   * @returns Whether the direct transport completed; false permits a relay.
+   */
+  importFilesFrom?(
+    path: string,
+    source: Sandbox,
+    sourcePath: string,
+    options: SandboxDirectTransferOptions,
+  ): Promise<boolean>
+
+  /**
    * Stream a POSIX tar archive into the sandbox, extracting it at `path`.
    *
    * The inverse of {@link Sandbox.exportFiles}. Implementations MUST NOT restore
@@ -485,6 +517,32 @@ export interface Sandbox {
    * @param archive - POSIX tar byte stream to extract there.
    */
   importFiles?(path: string, archive: AsyncIterable<Uint8Array>): Promise<void>
+}
+
+/** Limits and destination for a sandbox-originated gzip tar upload. */
+export interface SandboxArchiveUploadOptions {
+  /** Short-lived presigned PUT URL; do not log it or include it in errors. */
+  url: string
+  /** Maximum bytes in both the source tree and the compressed archive. */
+  maxBytes: number
+  /** Total command budget, including compression and upload, in milliseconds. */
+  timeoutMs: number
+}
+
+/** Options shared by direct, provider-independent sandbox transfers. */
+export interface SandboxDirectTransferOptions {
+  /** Maximum source-tree and compressed-archive size in bytes. */
+  maxBytes: number
+  /** Budget for the whole transfer, including its upload, in milliseconds. */
+  timeoutMs: number
+  /** Aborting prevents starting extraction or a relay after an abandoned upload. */
+  signal?: AbortSignal
+  /**
+   * Trusted idempotent shell script, run after extraction in the same exec (e.g.
+   * ownership). Keep activation outside a caller's timeout race: an abandoned
+   * exec may still run remotely after its response is lost.
+   */
+  afterExtract?: string
 }
 
 /**

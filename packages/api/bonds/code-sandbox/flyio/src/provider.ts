@@ -24,6 +24,7 @@ import type {
   Sandbox,
   SandboxConfig,
   SandboxDescriptor,
+  SandboxDirectTransferOptions,
   SandboxIdleAction,
   SandboxProvider,
   SandboxQuery,
@@ -4367,21 +4368,98 @@ class FlyioSandboxProvider implements SandboxProvider {
       },
 
       /**
-       * Streams a POSIX tar archive into the Machine and extracts it at `path`.
-       *
-       * The Fly Machines exec endpoint is a single request/response with no
-       * stdin, so the archive cannot be piped to `tar` directly. It is buffered,
-       * gzipped on the thread pool, never on the caller's event loop (fewer
-       * bytes = fewer exec round trips over the base64 channel),
-       * written to a temp file in `WRITE_CHUNK_BASE64`-sized pieces the same way
-       * `writeFile` does, then extracted.
-       *
-       * Ownership and setuid/setgid bits are NOT restored (`--no-same-owner
-       * --no-same-permissions`): the archive is caller/tenant-authored data, and
-       * honoring its mode bits is a privilege-escalation vector in whatever boots
-       * it next — see the {@link Sandbox.importFiles} contract.
-       * @param path - Absolute destination path inside the Machine.
-       * @param archive - POSIX tar byte stream to extract there.
+       * Move a source-originated archive through temporary storage, without
+       * buffering it here. Download, safe extraction and trusted finalization
+       * share one bounded exec. Failures before that exec permit the relay.
+       * @param path - Destination parent for the rooted archive.
+       * @param source - Sandbox that can upload a gzip tar.
+       * @param sourcePath - Source directory to archive.
+       * @param options - Limits and trusted finalization.
+       * @returns True on direct success; false permits a relay.
+       */
+      async importFilesFrom(
+        path: string,
+        source: Sandbox,
+        sourcePath: string,
+        options: SandboxDirectTransferOptions,
+      ): Promise<boolean> {
+        const store = provider.templateContext().store
+        if (!store || !source.uploadArchive) return false
+        if (
+          !Number.isSafeInteger(options.maxBytes) ||
+          options.maxBytes <= 0 ||
+          !Number.isFinite(options.timeoutMs) ||
+          options.timeoutMs <= 0
+        )
+          throw new Error('importFilesFrom: positive size and timeout limits are required')
+        const expiresAt = Date.now() + options.timeoutMs
+        const key = `${store.prefix}/.imports/${machineId}-${randomUUID()}.tar.gz`
+        let uploadAttempted = false
+        let extracting = false
+        try {
+          options.signal?.throwIfAborted()
+          const [putUrl, getUrl] = await Promise.all([
+            store.presignPut(key, IMPORT_PRESIGN_EXPIRY_SECONDS),
+            store.presignGet(key, IMPORT_PRESIGN_EXPIRY_SECONDS),
+          ])
+          options.signal?.throwIfAborted()
+          const uploadBudget = expiresAt - Date.now()
+          if (uploadBudget <= 0) throw new Error('importFilesFrom: upload deadline expired')
+          // A failed PUT may have created the object before its response was
+          // lost, so cleanup begins BEFORE the upload is called.
+          uploadAttempted = true
+          await source.uploadArchive(sourcePath, {
+            url: putUrl,
+            maxBytes: options.maxBytes,
+            timeoutMs: uploadBudget,
+          })
+          options.signal?.throwIfAborted()
+          const remaining = Math.min(IMPORT_EXTRACT_TIMEOUT_MS, expiresAt - Date.now())
+          if (remaining <= 0) throw new Error('importFilesFrom: extraction deadline expired')
+          const seconds = remaining / 1000
+          const command = [
+            'set -e',
+            `mkdir -p ${shellQuote(path)}`,
+            'archive=$(mktemp /tmp/mol-import-XXXXXX.tar.gz)',
+            'trap \'rm -f "$archive"\' EXIT',
+            "trap 'exit 124' HUP INT TERM",
+            `curl --fail --silent --show-error --connect-timeout 10 --max-time ${seconds} --max-filesize ${options.maxBytes} -o "$archive" ${shellQuote(getUrl)} 2>/dev/null`,
+            `[ "$(stat -c %s "$archive")" -le ${options.maxBytes} ] || exit 65`,
+            `tar -C ${shellQuote(path)} --no-same-owner --no-same-permissions -xzf "$archive"`,
+            options.afterExtract ?? ':',
+          ].join('\n')
+          extracting = true
+          const result = await this.exec(
+            `timeout --signal=TERM ${seconds}s sh -c ${shellQuote(command)}`,
+            { timeout: remaining },
+          )
+          if (result.exitCode !== 0) {
+            throw new Error(
+              `importFilesFrom: extraction/finalization failed (exit ${result.exitCode})`,
+            )
+          }
+          return true
+        } catch (error) {
+          // After issuing an exec the finalizer may already have run. Never
+          // repeat it through a relay after a timeout or a lost response.
+          if (extracting || options.signal?.aborted) throw error
+          logger.warn('Direct archive upload unavailable; using the relay', { error })
+          return false
+        } finally {
+          if (uploadAttempted) {
+            await store.remove([key]).catch((error: unknown) => {
+              logger.warn('Could not remove the direct import temporary object', { key, error })
+            })
+          }
+        }
+      },
+
+      /**
+       * Relay a tar through this process, gzip on the thread pool, and extract
+       * without restoring archive ownership or privileged permissions. Prefer
+       * a presigned download; retain chunked exec when storage is unavailable.
+       * @param path - Absolute destination directory.
+       * @param archive - POSIX tar stream.
        */
       async importFiles(path: string, archive: AsyncIterable<Uint8Array>): Promise<void> {
         const parts: Buffer[] = []

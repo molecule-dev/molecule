@@ -38,6 +38,9 @@
  * ```
  *
  * @remarks
+ * - `uploadArchive` creates and uploads a rooted gzip tar inside the sandbox in
+ *   one command, enforcing tree/archive limits and removing local scratch. It
+ *   obeys the sandbox's egress policy and never reads the archive into the API.
  * - `importFiles` spools an incoming archive into the sandbox in 8 MB pieces
  *   whatever the size of the chunks it is given; `exportFiles` reads the whole
  *   archive into memory once, so bound what you export.

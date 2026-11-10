@@ -320,6 +320,12 @@
  * exist for providers whose templates are host-local; object storage is already
  * the shared store, so there is nothing to publish or fetch.
  *
+ * **`importFilesFrom`** asks a source's optional `uploadArchive` to PUT directly
+ * to the configured object store, then pulls, extracts and finalizes in one
+ * exec. No payload enters the API heap. A missing capability/store or failed
+ * upload returns false for the relay; an ambiguous extraction throws rather
+ * than repeating a finalizer. Temporary objects are removed on every path.
+ *
  * **`importFiles` IS implemented; `exportFiles` is not.** Import takes the same
  * route the template restore does — a presigned object-store URL the Machine
  * pulls itself, falling back to chunked base64 over `exec` when no store is
