@@ -1,5 +1,11 @@
 # @molecule/api-code-sandbox-flyio
 
+## 1.4.4
+
+### Patch Changes
+
+- A long-budget command that finishes quickly now returns from its launch call, without polling.
+
 ## 1.4.3
 
 ### Patch Changes
