@@ -14,8 +14,10 @@
  * **The mapping.** Commands whose budget fits inside the ceiling run directly.
  * Anything longer is written to a script file inside the Machine, launched
  * detached with its stdout/stderr redirected to files and its exit status
- * written to a third file, and then POLLED with short direct execs until the
- * status file appears. The caller sees one `ExecResult` either way; the only
+ * written to a third file. The launch call waits up to {@link LAUNCH_WAIT_SECONDS}
+ * for that status file and returns it with the spool sizes, so a command that
+ * finishes quickly costs two calls; one still running is then POLLED with short
+ * direct execs until the status file appears. The caller sees one `ExecResult` either way; the only
  * observable difference is that output arrives at the end rather than streaming
  * (which the core `exec` contract does not offer anyway).
  *
@@ -50,6 +52,24 @@ const CONTROL_EXEC_TIMEOUT_SECONDS = 30
 
 /** Interval between status-file polls for a detached command, in ms. */
 const POLL_INTERVAL_MS = 2000
+
+/**
+ * How long the launch exec itself waits for a detached command to finish, in
+ * seconds, before handing over to polling.
+ *
+ * Commands get a long budget for their worst case, but most finish in seconds (a
+ * `chown` after an import, an install served from cache). Waiting inside the
+ * launch call returns their status and spool sizes in that same response, so a
+ * quick command costs the script write and the launch — instead of a fixed
+ * {@link POLL_INTERVAL_MS} sleep and separate poll, size and cleanup calls.
+ * Holding one call open also sends fewer requests than polling would. Kept well
+ * inside {@link CONTROL_EXEC_TIMEOUT_SECONDS}, so Fly never ends the launch exec
+ * while the command it started is still a child of that shell.
+ */
+export const LAUNCH_WAIT_SECONDS = 20
+
+/** The line the launcher prints when the command finished during the launch wait. */
+const LAUNCH_DONE_MARKER = 'mol-exec-done'
 
 /** Default wall-clock budget for a command with no `opts.timeout`, in ms. */
 const DEFAULT_TIMEOUT_MS = 600_000
@@ -190,24 +210,23 @@ function newRunId(): string {
  */
 async function writeScriptChunked(rawExec: RawExec, path: string, script: string): Promise<void> {
   const base64 = Buffer.from(script, 'utf8').toString('base64')
-  const ensure = toExecResult(
-    await rawExec(['sh', '-c', `mkdir -p ${WORK_DIR}`], CONTROL_EXEC_TIMEOUT_SECONDS),
-  )
-  if (ensure.exitCode !== 0) {
-    throw new Error(`Failed to create the Fly exec work dir: ${ensure.stderr || ensure.stdout}`)
-  }
-  for (let i = 0; i < base64.length; i += SCRIPT_SPILL_CHUNK_BASE64) {
-    const op = i === 0 ? '>' : '>>'
+  // The work dir is created by the first chunk's own exec: every Fly exec is one
+  // HTTP round trip, and a separate `mkdir` call cost one on every detached run.
+  for (let i = 0; i < base64.length || i === 0; i += SCRIPT_SPILL_CHUNK_BASE64) {
+    const first = i === 0
     const chunk = base64.slice(i, i + SCRIPT_SPILL_CHUNK_BASE64)
+    const write = `printf %s ${shellQuote(chunk)} | base64 -d ${first ? '>' : '>>'} ${path}`
     const written = toExecResult(
       await rawExec(
-        ['sh', '-c', `printf %s ${shellQuote(chunk)} | base64 -d ${op} ${path}`],
+        ['sh', '-c', first ? `mkdir -p ${WORK_DIR} && ${write}` : write],
         CONTROL_EXEC_TIMEOUT_SECONDS,
       ),
     )
     if (written.exitCode !== 0) {
       throw new Error(
-        `Failed to stage a Fly exec script chunk: ${written.stderr || written.stdout}`,
+        first
+          ? `Failed to create the Fly exec work dir or stage the script: ${written.stderr || written.stdout}`
+          : `Failed to stage a Fly exec script chunk: ${written.stderr || written.stdout}`,
       )
     }
   }
@@ -399,11 +418,19 @@ async function execDetached(
 
   // The `&` must apply to the nohup line ALONE. In POSIX sh, `a && b &`
   // backgrounds the whole AND-list, so these are separate statements.
+  // The wait loop is bounded by its iteration count, so a `sleep` that rejects a
+  // fraction (and returns at once) shortens the wait instead of extending it.
+  const waitSteps = LAUNCH_WAIT_SECONDS * 5
   const launcher = [
     `nohup sh -c 'sh ${scriptPath} > ${outPath} 2> ${errPath}; printf %s "$?" > ${rcPath}' > /dev/null 2>&1 < /dev/null &`,
     `printf %s ${runId}`,
+    `i=0; while [ ! -s ${rcPath} ] && [ "$i" -lt ${waitSteps} ]; do sleep 0.2; i=$((i+1)); done`,
+    `if [ -s ${rcPath} ]; then printf '\\n${LAUNCH_DONE_MARKER} %s %s %s\\n' "$(cat ${rcPath})" ` +
+      `"$(stat -c %s ${outPath} 2>/dev/null || echo 0)" "$(stat -c %s ${errPath} 2>/dev/null || echo 0)"; fi`,
   ].join('\n')
 
+  // The budget starts at the launch, and the launch's own wait spends it.
+  const deadline = Date.now() + budgetMs
   const launch = toExecResult(await rawExec(['sh', '-c', launcher], CONTROL_EXEC_TIMEOUT_SECONDS))
   if (launch.exitCode !== 0) {
     throw new Error(
@@ -417,9 +444,12 @@ async function execDetached(
     )
   }
 
-  const deadline = Date.now() + budgetMs
-  let rc: string | null = null
-  while (Date.now() < deadline) {
+  // Finished during the launch wait: the status and both spool sizes came back
+  // with the launch, so nothing is polled or measured again.
+  const done = new RegExp(`^${LAUNCH_DONE_MARKER} (\\S+) (\\d+) (\\d+)$`, 'm').exec(launch.stdout)
+  let rc: string | null = done ? done[1] : null
+  let sizes = done ? { stdout: Number(done[2]), stderr: Number(done[3]) } : null
+  while (rc === null && Date.now() < deadline) {
     await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL_MS))
     const poll = toExecResult(
       await rawExec(
@@ -437,7 +467,7 @@ async function execDetached(
   // Collect the spools in length-checked chunks BEFORE any cleanup: a single
   // raw read of a large stdout is exactly what came back shortened (exit 0)
   // in production, and the spool is the only copy there is.
-  const sizes = await spoolSizes(rawExec, outPath, errPath)
+  sizes ??= await spoolSizes(rawExec, outPath, errPath)
   const stdout = await collectSpool(
     rawExec,
     outPath,
@@ -459,14 +489,14 @@ async function execDetached(
     return { stdout, stderr, exitCode: INDETERMINATE_EXIT_CODE }
   }
 
-  try {
-    await rawExec(['sh', '-c', `rm -f ${WORK_DIR}/${runId}.*`], CONTROL_EXEC_TIMEOUT_SECONDS)
-  } catch (error) {
-    // Best-effort cleanup of four files under /tmp. The command itself already
-    // completed and its result is in hand; failing the call over leftover
-    // scratch files would turn a success into an error.
-    logger.debug('Failed to clean up Fly detached command scratch files', { runId, error })
-  }
+  // Best-effort cleanup of four files under /tmp, not awaited: the command
+  // already completed and its output is in hand, so the caller does not wait a
+  // round trip for it, and a failure would only leave scratch files behind.
+  void Promise.resolve()
+    .then(() => rawExec(['sh', '-c', `rm -f ${WORK_DIR}/${runId}.*`], CONTROL_EXEC_TIMEOUT_SECONDS))
+    .catch((error: unknown) => {
+      logger.debug('Failed to clean up Fly detached command scratch files', { runId, error })
+    })
 
   const parsed = Number.parseInt(rc, 10)
   return {

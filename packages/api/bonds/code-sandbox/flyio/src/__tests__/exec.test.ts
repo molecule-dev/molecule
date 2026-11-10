@@ -22,6 +22,7 @@ const {
   FLY_EXEC_MAX_ARG_BYTES,
   FLY_EXEC_MAX_TIMEOUT_SECONDS,
   INDETERMINATE_EXIT_CODE,
+  LAUNCH_WAIT_SECONDS,
   toExecResult,
 } = await import('../exec.js')
 
@@ -400,4 +401,123 @@ describe('execCommand — detached path (past Fly’s 60s exec ceiling)', () => 
     // delete what it could not read.
     expect(calls.some((call) => call.script.startsWith('rm -f'))).toBe(false)
   })
+})
+
+describe('execCommand — detached command that finishes during the launch', () => {
+  /**
+   * A launcher response for a command that finished inside the launch wait.
+   * @param rc - The command's exit status.
+   * @param out - Its stdout byte count.
+   * @param err - Its stderr byte count.
+   * @returns The launch exec's response.
+   */
+  const finished = (rc: number, out: number, err: number): FlyExecResponse => ({
+    stdout: `abc\nmol-exec-done ${rc} ${out} ${err}\n`,
+    exit_code: 0,
+  })
+
+  it('returns in two calls with no poll, no size read and no fixed sleep', async () => {
+    // Real timers: a fixed poll sleep would make this take seconds.
+    const { exec, calls } = makeExec((script) =>
+      script.includes('nohup') ? finished(0, 0, 0) : { exit_code: 0 },
+    )
+    const started = Date.now()
+
+    const result = await execCommand(
+      exec,
+      'chown -R app /workspace/app',
+      { timeout: 120_000 },
+      '/workspace',
+    )
+
+    expect(result).toEqual({ stdout: '', stderr: '', exitCode: 0 })
+    expect(Date.now() - started).toBeLessThan(500)
+    // The script write (which also creates the work dir) and the launch; cleanup follows unawaited.
+    const beforeCleanup = calls.filter((call) => !call.script.startsWith('rm -f'))
+    expect(beforeCleanup).toHaveLength(2)
+    expect(beforeCleanup[0].script).toMatch(
+      /^mkdir -p \/tmp\/\.mol-exec && printf %s .* \| base64 -d > /,
+    )
+    expect(calls.some((call) => call.script.startsWith('cat /tmp/.mol-exec/'))).toBe(false)
+    expect(
+      calls.some((call) => call.script.includes('|| echo 0') && !call.script.includes('nohup')),
+    ).toBe(false)
+  })
+
+  it('collects the spools whose sizes the launch reported and keeps the exit status', async () => {
+    const spool = spoolHandler({ stdout: 'hello', stderr: 'oops' })
+    const { exec, calls } = makeExec((script) =>
+      script.includes('nohup') ? finished(2, 5, 4) : (spool(script) ?? { exit_code: 0 }),
+    )
+
+    const result = await execCommand(exec, 'npm ci', { timeout: 600_000 }, '/workspace')
+
+    expect(result).toEqual({ stdout: 'hello', stderr: 'oops', exitCode: 2 })
+    expect(calls.some((call) => call.script.startsWith('cat /tmp/.mol-exec/'))).toBe(false)
+    expect(calls.filter((call) => call.script.includes('tail -c +'))).toHaveLength(2)
+  })
+
+  it('does not wait for the scratch cleanup before returning', async () => {
+    const { exec } = makeExec((script) => {
+      if (script.includes('nohup')) return finished(0, 0, 0)
+      if (script.startsWith('rm -f')) return new Promise<FlyExecResponse>(() => {}) as never
+      return { exit_code: 0 }
+    })
+    await expect(
+      execCommand(exec, 'true', { timeout: 120_000 }, '/workspace'),
+    ).resolves.toMatchObject({ exitCode: 0 })
+  })
+
+  it('bounds the launch wait well inside the launch call’s own timeout', async () => {
+    const { exec, calls } = makeExec((script) =>
+      script.includes('nohup') ? finished(0, 0, 0) : { exit_code: 0 },
+    )
+    await execCommand(exec, 'true', { timeout: 120_000 }, '/workspace')
+    const launch = calls.find((call) => call.script.includes('nohup'))!
+    expect(launch.script).toContain(`[ "$i" -lt ${LAUNCH_WAIT_SECONDS * 5} ]; do sleep 0.2`)
+    expect(launch.timeoutSeconds).toBeGreaterThanOrEqual(LAUNCH_WAIT_SECONDS + 5)
+    expect(launch.timeoutSeconds).toBeLessThanOrEqual(FLY_EXEC_MAX_TIMEOUT_SECONDS)
+  })
+
+  it.runIf(process.platform === 'linux')(
+    'runs end to end in a real shell: write, launch-and-wait, collect, clean up',
+    async () => {
+      const { execFile } = await import('node:child_process')
+      const { promisify } = await import('node:util')
+      const { readdir } = await import('node:fs/promises')
+      const run = promisify(execFile)
+      const seen: string[] = []
+      const exec = async (command: string[]): Promise<FlyExecResponse> => {
+        seen.push(command[command.length - 1])
+        try {
+          const { stdout, stderr } = await run(command[0], command.slice(1))
+          return { stdout, stderr, exit_code: 0 }
+        } catch (error) {
+          const failed = error as { stdout?: string; stderr?: string; code?: number }
+          return {
+            stdout: failed.stdout ?? '',
+            stderr: failed.stderr ?? '',
+            exit_code: failed.code ?? 1,
+          }
+        }
+      }
+
+      const result = await execCommand(
+        exec,
+        "printf 'it works'; printf 'to stderr' >&2; exit 3",
+        { timeout: 120_000 },
+        '/tmp',
+      )
+
+      expect(result).toEqual({ stdout: 'it works', stderr: 'to stderr', exitCode: 3 })
+      // Finished inside the launch wait: never polled.
+      expect(seen.some((script) => script.startsWith('cat /tmp/.mol-exec/'))).toBe(false)
+      const runId = /\/tmp\/\.mol-exec\/([0-9a-f]{16})\.sh/.exec(seen[0])![1]
+      await vi.waitFor(async () => {
+        expect((await readdir('/tmp/.mol-exec')).filter((name) => name.startsWith(runId))).toEqual(
+          [],
+        )
+      })
+    },
+  )
 })
