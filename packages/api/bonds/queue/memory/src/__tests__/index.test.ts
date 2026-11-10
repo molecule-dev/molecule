@@ -8,16 +8,21 @@ import { createProvider } from '../provider.js'
 const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms))
 
 /** Polls `check` every 5ms until truthy or the timeout elapses. */
-const waitFor = async (
-  check: () => boolean | Promise<boolean>,
-  timeoutMs = 2000,
-): Promise<void> => {
-  const deadline = Date.now() + timeoutMs
-  while (Date.now() < deadline) {
+/**
+ * Polls `check` until it holds. The budget is a number of polls, not a wall-clock deadline: on a loaded
+ * CI runner the process can be descheduled for seconds, and a deadline spends that stall without
+ * polling (a 50ms redelivery timed out a 2000ms deadline on 2026-11-10). A timer that came due during
+ * a stall fires before the next poll, so a stall never costs a poll.
+ * @param check - The condition to wait for.
+ * @param polls - How many 5ms polls to allow (400 is at least 2s of polling).
+ */
+const waitFor = async (check: () => boolean | Promise<boolean>, polls = 400): Promise<void> => {
+  for (let poll = 0; poll < polls; poll++) {
     if (await check()) return
     await sleep(5)
   }
-  throw new Error('waitFor timed out')
+  if (await check()) return
+  throw new Error(`waitFor: condition still false after ${polls} polls`)
 }
 
 describe('@molecule/api-queue-memory', () => {
@@ -145,12 +150,18 @@ describe('@molecule/api-queue-memory', () => {
     })
 
     it('delayed messages are invisible until delaySeconds elapses', async () => {
+      // Fake clock: on real time, a stall of 60ms between send and the first receive would make
+      // the message visible and fail the invisibility check.
+      vi.useFakeTimers()
+      vi.setSystemTime(0)
       const queue = makeProvider().queue('delayed')
       await queue.send({ body: 'later', delaySeconds: 0.06 })
 
       expect(await queue.receive()).toEqual([])
+      await vi.advanceTimersByTimeAsync(59)
+      expect(await queue.receive()).toEqual([])
 
-      await sleep(80)
+      await vi.advanceTimersByTimeAsync(1)
       const messages = await queue.receive()
       expect(messages).toHaveLength(1)
       expect(messages[0].body).toBe('later')
@@ -370,26 +381,33 @@ describe('@molecule/api-queue-memory', () => {
     })
 
     it('redelivers when the handler throws, then succeeds', async () => {
-      vi.spyOn(console, 'warn').mockImplementation(() => {})
       // The redelivery WINDOW is asserted by the test above, which keeps the
       // 1s default on purpose. This one is about the retry SEQUENCE — two
-      // failures then a success, and the queue drained — so it shortens the
-      // delay instead of budgeting for real seconds of wall clock. Waiting on
-      // ~2s of timers inside a fixed budget is a race against whatever else the
-      // machine is doing, and it lost on CI (2026-08-16) even at 4000ms.
+      // failures then a success, and the queue drained. It runs on fake timers:
+      // a wall-clock budget for real timers is a race against whatever else the
+      // machine is doing, and it lost on CI at 4000ms (2026-08-16) and again at
+      // 2000ms with a 50ms delay (2026-11-10, a full parallel run).
+      vi.useFakeTimers()
+      vi.setSystemTime(0)
+      vi.spyOn(console, 'warn').mockImplementation(() => {})
       const queue = makeProvider({ handlerFailureRedeliveryDelaySeconds: 0.05 }).queue('sub-retry')
-      let attempts = 0
+      const attempts: number[] = []
       const unsubscribe = queue.subscribe(async () => {
-        attempts += 1
-        if (attempts < 3) {
+        attempts.push(Date.now())
+        if (attempts.length < 3) {
           throw new Error('transient failure')
         }
       })
 
       await queue.send({ body: 'eventually' })
-      await waitFor(() => attempts === 3)
+      await vi.advanceTimersByTimeAsync(49)
+      expect(attempts).toEqual([0])
+      await vi.advanceTimersByTimeAsync(1)
+      expect(attempts).toEqual([0, 50])
+      await vi.advanceTimersByTimeAsync(50)
+      expect(attempts).toEqual([0, 50, 100])
 
-      await waitFor(async () => (await queue.size!()) === 0)
+      expect(await queue.size!()).toBe(0)
       unsubscribe()
     })
 
