@@ -1,5 +1,11 @@
 # @molecule/app-auth
 
+## 3.3.3
+
+### Patch Changes
+
+- Calling `setAccessToken` and `setUser` (in either order) on a signed-out client now signs it in, as `setSession` does.
+
 ## 3.3.2
 
 ### Patch Changes
