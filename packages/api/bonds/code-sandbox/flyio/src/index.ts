@@ -320,14 +320,20 @@
  * exist for providers whose templates are host-local; object storage is already
  * the shared store, so there is nothing to publish or fetch.
  *
- * **`importFilesFrom`** pulls an optional source `exportArchive` read URL
- * directly from the sandbox vendor into the Machine. It creates no store object
- * or PUT URL. Compression, expanded tar and total member sizes are capped at
- * the receiver. Download, safe extraction and idempotent ownership share one
- * bounded exec. Source scratch is disposed on every path. Missing or unavailable
- * signed reads permit the existing relay before extraction. Once the destination
- * exec is issued, failure propagates to avoid ambiguous finalization retries.
- * Signed URLs and provider error payloads never enter transfer logs or errors.
+ * **`importFilesFrom`** moves an optional source `exportArchive` read into the
+ * Machine without buffering it in this process. With the template store
+ * configured, this process streams the read into one store object with its own
+ * credentials (no PUT URL is minted) and the Machine pulls that object, the
+ * same host `importFiles` and template restores use: a Machine behind an egress
+ * policy (no tcp/443, a proxy that admits named hosts) cannot reach the source
+ * vendor's host. Without a store, the Machine pulls the source's read URL
+ * itself. Compression, expanded tar and total member sizes are capped at the
+ * receiver. Download, safe extraction and idempotent ownership share one
+ * bounded exec. Source scratch and the staged object are removed on every path.
+ * Any failure before the Machine writes the destination (including a pull it
+ * could not complete) permits the existing relay; once writing may have begun,
+ * failure propagates to avoid ambiguous finalization retries. Signed URLs and
+ * provider error payloads never enter transfer logs or errors.
  *
  * **`importFiles` IS implemented; `exportFiles` is not.** Import takes the same
  * route the template restore does — a presigned object-store URL the Machine

@@ -489,10 +489,11 @@ export interface Sandbox {
 
   /**
    * Import directly from another sandbox through its expiring read URL, without
-   * relaying archive bytes through the caller. Returns false ONLY before any
-   * destination exec when the transport is unavailable or preparation failed;
-   * callers may then use `exportFiles`/`importFiles`. Once extraction is issued,
-   * failures throw: retrying could repeat an ambiguously completed finalizer.
+   * buffering the archive in the caller. Returns false ONLY while the destination
+   * is untouched — the transport is unavailable, preparation failed, or the
+   * destination reported it stopped before writing; callers may then use
+   * `exportFiles`/`importFiles`. Once writing may have begun, failures throw:
+   * retrying could repeat an ambiguously completed finalizer.
    * Drop archive ownership/privileged modes as `importFiles` does, and attempt
    * source-archive cleanup on EVERY path. Enforce compressed and expanded size
    * bounds at the receiver, never by trusting the source's checks or reports.
