@@ -35,6 +35,8 @@
  * @module
  */
 
+import { Readable } from 'node:stream'
+
 import {
   DeleteObjectsCommand,
   GetObjectCommand,
@@ -109,6 +111,18 @@ export interface ObjectStore {
   presignPut(key: string, expiresInSeconds: number): Promise<string>
   /** A presigned URL a sandbox can `GET` an archive from. */
   presignGet(key: string, expiresInSeconds: number): Promise<string>
+  /**
+   * Stream a body of a known byte length into one object with this process's
+   * own credentials, so no write grant leaves the control plane. Optional, so a
+   * caller-supplied store written before it existed keeps working; without it
+   * a direct sandbox import pulls from the source's own read URL instead.
+   */
+  putStream?(
+    key: string,
+    body: AsyncIterable<Uint8Array>,
+    length: number,
+    signal?: AbortSignal,
+  ): Promise<void>
 }
 
 /** Resolved connection settings for the template object store. */
@@ -315,6 +329,25 @@ export function createTemplateStore(config: FlyioConfig): ObjectStore | null {
           Body: body,
           ContentType: contentType,
         }),
+      )
+    },
+
+    async putStream(
+      key: string,
+      body: AsyncIterable<Uint8Array>,
+      length: number,
+      signal?: AbortSignal,
+    ): Promise<void> {
+      // A known ContentLength lets the SDK send a plain streamed PUT: S3 refuses a
+      // body of unknown length, and buffering it here is what this method avoids.
+      await client.send(
+        new PutObjectCommand({
+          Bucket: settings.bucket,
+          Key: key,
+          Body: Readable.from(body, { objectMode: false }),
+          ContentLength: length,
+        }),
+        signal ? { abortSignal: signal } : undefined,
       )
     },
 

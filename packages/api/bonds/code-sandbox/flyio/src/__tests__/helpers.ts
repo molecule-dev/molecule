@@ -126,8 +126,13 @@ export interface StoreDouble extends ObjectStore {
   objects: Map<string, { body: string; lastModified: string }>
   /** Presigned URLs handed out, in order, as `METHOD <key>`. */
   presigned: string[]
+  /** Bodies written through `putStream`, in order, with the length each declared. */
+  streamed: Array<{ key: string; bytes: Buffer; length: number }>
   /** Make the next call to one operation reject. */
-  failNext(operation: 'list' | 'head' | 'getText' | 'putText' | 'remove', error: Error): void
+  failNext(
+    operation: 'list' | 'head' | 'getText' | 'putText' | 'putStream' | 'remove',
+    error: Error,
+  ): void
   /** Write an object directly, bypassing the failure queue. */
   seed(key: string, body: string, lastModified?: string): void
 }
@@ -145,6 +150,7 @@ export function createStoreDouble(
   const objects = new Map<string, { body: string; lastModified: string }>()
   const failures = new Map<string, Error>()
   const presigned: string[] = []
+  const streamed: Array<{ key: string; bytes: Buffer; length: number }> = []
 
   const trip = (operation: string): void => {
     const error = failures.get(operation)
@@ -164,6 +170,7 @@ export function createStoreDouble(
     prefix,
     objects,
     presigned,
+    streamed,
     failNext(operation, error) {
       failures.set(operation, error)
     },
@@ -185,6 +192,14 @@ export function createStoreDouble(
     async putText(key, body) {
       trip('putText')
       objects.set(key, { body, lastModified: new Date().toISOString() })
+    },
+    async putStream(key, body, length) {
+      trip('putStream')
+      const parts: Buffer[] = []
+      for await (const chunk of body) parts.push(Buffer.from(chunk))
+      const bytes = Buffer.concat(parts)
+      streamed.push({ key, bytes, length })
+      objects.set(key, { body: bytes.toString('latin1'), lastModified: new Date().toISOString() })
     },
     async remove(keys) {
       trip('remove')

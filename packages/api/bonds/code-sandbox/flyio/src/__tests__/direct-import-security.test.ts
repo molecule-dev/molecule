@@ -61,7 +61,14 @@ async function fixture() {
   } as unknown as Sandbox
   const sandbox = (await createProvider({ orgSlug: 'test' }, client, store).get('app:m1'))!
   const exec = vi.spyOn(sandbox, 'exec').mockResolvedValue({ stdout: '', stderr: '', exitCode: 0 })
+  // The source vendor's read endpoint, as this process sees it when staging.
+  const sourceRead = vi.fn(
+    async () =>
+      new Response(new Uint8Array(Buffer.from('gz')), { headers: { 'content-length': '2' } }),
+  )
+  vi.stubGlobal('fetch', sourceRead)
   return {
+    sourceRead,
     sandbox,
     source,
     store,
@@ -76,6 +83,7 @@ async function fixture() {
 afterEach(() => {
   vi.useRealTimers()
   vi.clearAllMocks()
+  vi.unstubAllGlobals()
 })
 
 describe('untrusted source storage abuse', () => {
@@ -109,13 +117,15 @@ describe('untrusted source storage abuse', () => {
     expect(f.store.objects.size).toBe(0)
   })
 
-  it.each(['prepare', 'exec', 'dispose'])(
+  it.each(['prepare', 'source-read', 'store-write', 'exec', 'dispose'])(
     'does not expose a signed URL from %s errors or logs',
     async (phase) => {
       const f = await fixture()
       const secret = 'https://source.example/archive?signature=must-never-appear'
       const error = new Error(secret, { cause: new Error(secret) })
       if (phase === 'prepare') vi.mocked(f.source.exportArchive!).mockRejectedValueOnce(error)
+      if (phase === 'source-read') f.sourceRead.mockRejectedValueOnce(error)
+      if (phase === 'store-write') f.store.failNext('putStream', error)
       if (phase === 'exec') f.exec.mockRejectedValueOnce(error)
       if (phase === 'dispose') f.dispose.mockRejectedValueOnce(error)
       const result = await f.sandbox.importFilesFrom!(
@@ -130,10 +140,11 @@ describe('untrusted source storage abuse', () => {
         expect(result).toBeInstanceOf(Error)
         expect(result.cause).toBeUndefined()
       } else expect(result).toBe(phase === 'dispose')
+      expect(f.store.objects.size).toBe(0)
     },
   )
 
-  it('keeps the single-command destination path with no control-plane payload hop', async () => {
+  it('grants the Machine only a store read: one exec, no write URL minted, no source URL sent', async () => {
     const f = await fixture()
     vi.useFakeTimers()
     const start = Date.now()
@@ -151,6 +162,9 @@ describe('untrusted source storage abuse', () => {
     expect(Date.now() - start).toBe(200)
     expect(f.exec).toHaveBeenCalledTimes(1)
     expect(f.store.presignPut).not.toHaveBeenCalled()
+    expect(f.exec.mock.calls[0][0]).not.toContain('source.example')
+    expect(f.exec.mock.calls[0][0]).toContain('X-Amz-Signature=get')
+    expect(f.store.objects.size).toBe(0)
     expect(f.dispose).toHaveBeenCalledTimes(1)
   })
 })

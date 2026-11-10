@@ -293,6 +293,41 @@ const DEFAULT_PROBE_TIMEOUT_MS = 3000
 const IMPORT_EXTRACT_TIMEOUT_MS = 55_000
 
 /**
+ * Exit status of a direct-import script that failed before it touched the
+ * destination (the pull, the decompression or the member listing), so the
+ * caller's relay is still safe. Read together with {@link IMPORT_EXTRACTING_MARKER}.
+ */
+const IMPORT_NOT_STARTED_EXIT = 75
+
+/**
+ * Printed by a direct-import script right before it first writes the
+ * destination. Present on stdout, a failure is ambiguous even when the
+ * caller's finalizer happened to exit {@link IMPORT_NOT_STARTED_EXIT}.
+ */
+const IMPORT_EXTRACTING_MARKER = 'mol-import-extracting'
+
+/**
+ * Pass a body through only when it is exactly the length it declared, so a
+ * streamed store write can never carry more than the size check allowed.
+ * @param body - The response body.
+ * @param length - Its declared byte length.
+ * @yields {Uint8Array} The body's chunks.
+ * @throws {Error} When the body runs past or ends short of `length`.
+ */
+async function* exactLength(
+  body: AsyncIterable<Uint8Array>,
+  length: number,
+): AsyncGenerator<Uint8Array> {
+  let seen = 0
+  for await (const chunk of body) {
+    seen += chunk.byteLength
+    if (seen > length) throw new Error('the source read ran past its declared length')
+    yield chunk
+  }
+  if (seen !== length) throw new Error('the source read ended before its declared length')
+}
+
+/**
  * Attempts for the create's `POST /machines`, retrying the app-propagation 404
  * (see {@link MACHINE_CREATE_RETRY_STATUSES}). Fly propagates a new app to its
  * sub-APIs asynchronously, so `POST /apps` can return before
@@ -4369,8 +4404,22 @@ class FlyioSandboxProvider implements SandboxProvider {
       },
 
       /**
-       * Pull a vendor-authorized source read directly into the destination.
-       * No bucket write credential is minted or sent to untrusted source code.
+       * Move a source sandbox's archive into this Machine without buffering it
+       * in this process. No bucket write credential is minted or sent to the
+       * untrusted source: it only grants an expiring READ of its own archive.
+       *
+       * With this bond's object store (and its {@link ObjectStore.putStream}),
+       * this process streams that read into the store and the Machine pulls the
+       * store object — the one host this bond's Machines are deployed to reach
+       * (`importFiles` and template restores pull from it too). A Machine behind
+       * an egress policy cannot reach an arbitrary source host: production Fly
+       * Machines allow no tcp/443 and their egress proxy admits named hosts
+       * only, so a pull from the source's own URL failed every deploy there.
+       * Without a store the Machine pulls the source's URL itself.
+       *
+       * Every failure before the Machine's destination is touched — including a
+       * pull the Machine could not complete, reported by the script's
+       * {@link IMPORT_NOT_STARTED_EXIT} — permits the relay.
        * @param path - Destination parent for the rooted archive.
        * @param source - Sandbox exposing an expiring archive read.
        * @param sourcePath - Source directory to archive.
@@ -4392,7 +4441,13 @@ class FlyioSandboxProvider implements SandboxProvider {
         )
           throw new Error('importFilesFrom: positive size and timeout limits are required')
         const deadline = Date.now() + options.timeoutMs
+        const store = provider.templateContext().store
+        const stagedKey = store?.putStream
+          ? `${store.prefix}/.imports/${machineId}-${randomUUID()}.tar.gz`
+          : undefined
         let archive: SandboxArchiveDownload | undefined
+        let stage: 'source' | 'store' | 'machine' = 'source'
+        let staging = false
         let extracting = false
         try {
           options.signal?.throwIfAborted()
@@ -4404,31 +4459,79 @@ class FlyioSandboxProvider implements SandboxProvider {
           if (!Number.isSafeInteger(archive.expiresAt) || archive.expiresAt > deadline) {
             throw new Error('invalid read lease deadline')
           }
+          if (archive.expiresAt <= Date.now()) throw new Error('read lease expired')
+          let pullUrl = archive.url
+          let pullExpiresAt = archive.expiresAt
+          if (store && stagedKey) {
+            stage = 'store'
+            const signal = AbortSignal.any([
+              AbortSignal.timeout(Math.max(1, deadline - Date.now())),
+              ...(options.signal ? [options.signal] : []),
+            ])
+            // The read URL is the source vendor's; a redirect from it is never
+            // followed into whatever this process can reach. `identity`: fetch
+            // asks for gzip by default, and E2B's file server then compresses the
+            // (already gzipped) archive on the fly and sends no Content-Length,
+            // which the sized store write needs (measured 2026-11-10).
+            const response = await fetch(archive.url, {
+              signal,
+              redirect: 'error',
+              headers: { 'accept-encoding': 'identity' },
+            })
+            const length = Number(response.headers.get('content-length') ?? NaN)
+            if (
+              !response.ok ||
+              !response.body ||
+              !Number.isSafeInteger(length) ||
+              length < 0 ||
+              length > options.maxBytes
+            ) {
+              await response.body?.cancel().catch((_error: unknown) => {
+                // The read is abandoned either way; the relay below starts afresh.
+              })
+              throw new Error('source read refused or over the size limit')
+            }
+            // Cleanup starts BEFORE the write: a failed PUT may still have stored it.
+            staging = true
+            await store.putStream!(stagedKey, exactLength(response.body, length), length, signal)
+            options.signal?.throwIfAborted()
+            pullUrl = await store.presignGet(stagedKey, Math.ceil((deadline - Date.now()) / 1000))
+            pullExpiresAt = deadline
+          }
+          stage = 'machine'
           const remaining = Math.min(
             IMPORT_EXTRACT_TIMEOUT_MS,
             deadline - Date.now(),
-            archive.expiresAt - Date.now(),
+            pullExpiresAt - Date.now(),
           )
           if (remaining <= 0) throw new Error('read lease expired')
           const seconds = remaining / 1000
           // The source can replace its archive after any preflight. These are
           // receiver-side checks, including unknown/chunked download lengths,
           // decompression bombs and sparse members with tiny tar representations.
+          // Each step before the marker leaves the destination untouched, so it
+          // exits IMPORT_NOT_STARTED_EXIT (a limit breach exits 65) and a relay
+          // stays safe; once the marker is printed, a failure is ambiguous.
           const blocks = Math.ceil(options.maxBytes / 512)
+          // A step killed by a signal (`ulimit -f` sends SIGXFSZ) or curl's own
+          // --max-filesize refusal (63) is a limit breach, not a failed pull.
+          const notStarted = '|| not_started $?'
           const command = [
             'set -e',
-            'scratch=$(mktemp -d /tmp/mol-import-XXXXXX)',
+            `not_started() { if [ "$1" -gt 128 ] || [ "$1" -eq 63 ]; then exit 65; fi; exit ${IMPORT_NOT_STARTED_EXIT}; }`,
+            `scratch=$(mktemp -d /tmp/mol-import-XXXXXX) ${notStarted}`,
             'trap \'rm -rf "$scratch"\' EXIT',
             "trap 'exit 124' HUP INT TERM",
             'archive="$scratch/archive.gz"',
             'unpacked="$scratch/archive.tar"',
-            `ulimit -f ${blocks}`,
-            `curl --fail --silent --show-error --connect-timeout 10 --max-time ${seconds} --max-filesize ${options.maxBytes} -o "$archive" ${shellQuote(archive.url)} 2>/dev/null`,
+            `ulimit -f ${blocks} ${notStarted}`,
+            `curl --fail --silent --show-error --connect-timeout 10 --max-time ${seconds} --max-filesize ${options.maxBytes} -o "$archive" ${shellQuote(pullUrl)} 2>/dev/null ${notStarted}`,
             `[ "$(stat -c %s "$archive")" -le ${options.maxBytes} ] || exit 65`,
-            'gzip -dc "$archive" > "$unpacked"',
+            `gzip -dc "$archive" > "$unpacked" ${notStarted}`,
             `[ "$(stat -c %s "$unpacked")" -le ${options.maxBytes} ] || exit 65`,
-            'LC_ALL=C tar --numeric-owner --quoting-style=escape -tvf "$unpacked" > "$scratch/members"',
-            `awk '$1 !~ /^[-dlh]/ || $3 !~ /^[0-9]+$/ { exit 65 } { bytes += $3; if (bytes > ${options.maxBytes}) exit 65 }' "$scratch/members"`,
+            `LC_ALL=C tar --numeric-owner --quoting-style=escape -tvf "$unpacked" > "$scratch/members" ${notStarted}`,
+            `awk '$1 !~ /^[-dlh]/ || $3 !~ /^[0-9]+$/ { exit 65 } { bytes += $3; if (bytes > ${options.maxBytes}) exit 65 }' "$scratch/members" || exit 65`,
+            `echo ${IMPORT_EXTRACTING_MARKER}`,
             `mkdir -p ${shellQuote(path)}`,
             `tar -C ${shellQuote(path)} --no-same-owner --no-same-permissions -xf "$unpacked"`,
             options.afterExtract ?? ':',
@@ -4438,10 +4541,19 @@ class FlyioSandboxProvider implements SandboxProvider {
             `timeout --signal=TERM ${seconds}s sh -c ${shellQuote(command)}`,
             { timeout: remaining },
           )
+          if (
+            result.exitCode === IMPORT_NOT_STARTED_EXIT &&
+            !result.stdout.includes(IMPORT_EXTRACTING_MARKER)
+          ) {
+            extracting = false
+            throw new Error('the Machine could not pull or read the archive')
+          }
+          if (result.exitCode === 65)
+            throw new Error('importFilesFrom: the archive exceeds the transfer size limit')
           if (result.exitCode !== 0)
-            throw new Error('download, size check, extraction or finalization failed')
+            throw new Error('importFilesFrom: download/extraction/finalization failed')
           return true
-        } catch (_error) {
+        } catch (error) {
           // Never echo source/SDK/exec errors: any of them can contain a URL or
           // the entire command. A late exec response cannot authorize a relay.
           if (options.signal?.aborted) {
@@ -4449,12 +4561,22 @@ class FlyioSandboxProvider implements SandboxProvider {
             throw new Error('importFilesFrom: transfer aborted')
           }
           if (extracting) {
+            if (error instanceof Error && error.message.startsWith('importFilesFrom: ')) throw error
             // eslint-disable-next-line preserve-caught-error -- Exec errors may echo the signed command.
             throw new Error('importFilesFrom: download/extraction/finalization failed')
           }
-          logger.warn('Direct archive read unavailable; using the relay')
+          logger.warn('Direct archive transfer unavailable before extraction; using the relay', {
+            stage,
+          })
           return false
         } finally {
+          if (staging && store && stagedKey)
+            await store.remove([stagedKey]).catch((error: unknown) => {
+              logger.warn('Could not remove the staged direct import object', {
+                key: stagedKey,
+                error,
+              })
+            })
           if (archive)
             await archive.dispose().catch((_error: unknown) => {
               // Only source scratch remains. Never log a credential-bearing SDK error.
