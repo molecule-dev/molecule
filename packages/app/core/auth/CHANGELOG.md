@@ -1,5 +1,11 @@
 # @molecule/app-auth
 
+## 3.3.4
+
+### Patch Changes
+
+- A failed login or register now warns once, naming `mapRequestBody`, when the API reports as missing exactly the fields the request sent at the top level of its body.
+
 ## 3.3.3
 
 ### Patch Changes
