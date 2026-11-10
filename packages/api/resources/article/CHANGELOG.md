@@ -1,5 +1,11 @@
 # @molecule/api-resource-article
 
+## 1.2.2
+
+### Patch Changes
+
+- Clarify raw and hydrated article lookups for custom API routes.
+
 ## 1.2.1
 
 ### Patch Changes
