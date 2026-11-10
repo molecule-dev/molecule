@@ -61,10 +61,10 @@ const POLL_INTERVAL_MS = 2000
  * `chown` after an import, an install served from cache). Waiting inside the
  * launch call returns their status and spool sizes in that same response, so a
  * quick command costs the script write and the launch — instead of a fixed
- * {@link POLL_INTERVAL_MS} sleep and separate poll, size and cleanup calls.
- * Holding one call open also sends fewer requests than polling would. Kept well
- * inside {@link CONTROL_EXEC_TIMEOUT_SECONDS}, so Fly never ends the launch exec
- * while the command it started is still a child of that shell.
+ * two-second poll sleep and separate poll, size and cleanup calls. Holding one
+ * call open also sends fewer requests than polling would. Kept well inside the
+ * launch call's own 30-second timeout, so Fly never ends the launch exec while
+ * the command it started is still a child of that shell.
  */
 export const LAUNCH_WAIT_SECONDS = 20
 
