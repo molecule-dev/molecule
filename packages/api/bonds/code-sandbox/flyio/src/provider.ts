@@ -4093,8 +4093,8 @@ class FlyioSandboxProvider implements SandboxProvider {
   /**
    * Activate an already populated Machine with one full-config update: startup command and idle
    * policy change together. The former command keeps the workload stopped, so the update's reboot
-   * is the workload's first boot. Fly preserves parked Machines with skip_launch; startMachine
-   * explicitly wakes those and waits, and is idempotent after a running Machine's update.
+   * is the workload's first boot. applyIdleAction already waits for a running Machine's reboot;
+   * only parked Machines need startMachine to wake them and wait for started.
    */
   async activate(
     id: string,
@@ -4102,8 +4102,8 @@ class FlyioSandboxProvider implements SandboxProvider {
   ): Promise<void> {
     if (!options.command.length) throw new Error('A sandbox activation needs a startup command')
     const { app, machineId } = parseSandboxId(id)
-    await this.applyIdleAction(app, machineId, options.idleAction, options.command)
-    await this.startMachine(app, machineId)
+    const status = await this.applyIdleAction(app, machineId, options.idleAction, options.command)
+    if (status !== 'running') await this.startMachine(app, machineId)
   }
 
   /**

@@ -2622,7 +2622,9 @@ describe('activate — command and idle policy in one Machine update', () => {
         min_machines_running: 0,
       })
       expect(body.skip_launch).toBe(state === 'suspended' ? true : undefined)
-      expect(double.matching(`POST /apps/${APP}/machines/m1/start`)).toHaveLength(1)
+      expect(double.matching(`POST /apps/${APP}/machines/m1/start`)).toHaveLength(
+        state === 'suspended' ? 1 : 0,
+      )
     },
   )
 
@@ -2649,6 +2651,7 @@ describe('activate — command and idle policy in one Machine update', () => {
     expect(
       double.calls.filter((c) => c.method === 'POST' && c.path === `/apps/${APP}/machines/m1`),
     ).toHaveLength(0)
+    expect(double.matching(`POST /apps/${APP}/machines/m1/start`)).toHaveLength(0)
   })
 
   it('changes the command even if the policy already matches', async () => {
@@ -2678,5 +2681,89 @@ describe('activate — command and idle policy in one Machine update', () => {
     expect((updates[0].body as { config: { init: { exec: string[] } } }).config.init.exec).toEqual(
       command,
     )
+  })
+
+  it.each(['started', 'starting', 'stopped', 'suspended', 'created'])(
+    'pays for one started wait when activating a %s Machine',
+    async (state) => {
+      const double = queueCreate(createFetchDouble())
+      let timed = false
+      const cost = { read: 400, update: 800, start: 600, wait: 3_000 }
+      const provider = makeProvider(
+        { autostop: 'suspend' },
+        {
+          ...double,
+          fetch: (async (input, init) => {
+            if (timed) {
+              const path = new URL(String(input)).pathname
+              const ms = path.endsWith('/wait')
+                ? cost.wait
+                : path.endsWith('/start')
+                  ? cost.start
+                  : init?.method === 'POST'
+                    ? cost.update
+                    : cost.read
+              await new Promise((resolve) => setTimeout(resolve, ms))
+            }
+            return double.fetch(input, init)
+          }) as typeof fetch,
+        },
+      )
+      const sandbox = await provider.create({ projectId: PROJECT_ID })
+      double.calls.length = 0
+      double.on(`GET /apps/${APP}/machines/m1`, {
+        body: {
+          id: 'm1',
+          state,
+          config: {
+            image: 'test-image',
+            init: { exec: ['sleep', 'infinity'] },
+            services: [{ protocol: 'tcp', internal_port: 4000, ports: [], autostop: 'off' }],
+          },
+        },
+      })
+      vi.useFakeTimers()
+      try {
+        timed = true
+        const began = Date.now()
+        const activation = provider.activate!(sandbox.id, {
+          command: ['/bin/sh', '/workspace/.mol/boot.sh'],
+          idleAction: 'suspend',
+        })
+        await vi.runAllTimersAsync()
+        await activation
+        const wasRunning = state === 'started' || state === 'starting'
+        expect(Date.now() - began).toBe(
+          cost.read + cost.update + cost.wait + (wasRunning ? 0 : cost.start),
+        )
+        expect(double.matching(`GET /apps/${APP}/machines/m1/wait?`)).toHaveLength(1)
+        expect(double.matching(`POST /apps/${APP}/machines/m1/start`)).toHaveLength(
+          wasRunning ? 0 : 1,
+        )
+      } finally {
+        vi.useRealTimers()
+      }
+    },
+  )
+
+  it('propagates an activation reboot failure without attempting another start', async () => {
+    const double = queueCreate(createFetchDouble())
+    const provider = makeProvider({ startTimeoutSeconds: 1 }, double)
+    const sandbox = await provider.create({ projectId: PROJECT_ID })
+    double.calls.length = 0
+    double
+      .on(`GET /apps/${APP}/machines/m1/wait?`, { status: 500, body: {} })
+      .on(`GET /apps/${APP}/machines/m1`, {
+        body: {
+          id: 'm1',
+          state: 'started',
+          config: { image: 'test-image', init: { exec: ['sleep', 'infinity'] } },
+        },
+      })
+      .on(`GET /apps/${APP}/machines/m1`, { body: { id: 'm1', state: 'stopped' } })
+    await expect(
+      provider.activate!(sandbox.id, { command: ['/bin/sh', 'boot.sh'], idleAction: 'suspend' }),
+    ).rejects.toThrow(/did not reach "started"/)
+    expect(double.matching(`POST /apps/${APP}/machines/m1/start`)).toHaveLength(0)
   })
 })
