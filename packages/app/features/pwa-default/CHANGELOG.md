@@ -1,5 +1,11 @@
 # @molecule/app-pwa-default
 
+## 1.1.1
+
+### Patch Changes
+
+- Keep a first visit open when a window error occurs during service worker installation.
+
 ## 1.1.0
 
 ### Minor Changes
