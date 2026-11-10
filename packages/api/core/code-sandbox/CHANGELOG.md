@@ -1,5 +1,15 @@
 # @molecule/api-code-sandbox
 
+## 1.8.0
+
+### Minor Changes
+
+- Transfer bounded deploy archives directly from the build sandbox to the destination through expiring source reads, with relay fallback and combined import finalization.
+
+### Patch Changes
+
+- Transfer archives through expiring source reads without exposing storage write credentials, and enforce archive size bounds at the receiver.
+
 ## 1.7.1
 
 ### Patch Changes

@@ -1,5 +1,16 @@
 # @molecule/api-code-sandbox-flyio
 
+## 1.5.0
+
+### Minor Changes
+
+- Transfer bounded deploy archives directly from the build sandbox to the destination through expiring source reads, with relay fallback and combined import finalization.
+
+### Patch Changes
+
+- Avoid a redundant start request and wait after activating a running Machine.
+- Transfer archives through expiring source reads without exposing storage write credentials, and enforce archive size bounds at the receiver.
+
 ## 1.4.4
 
 ### Patch Changes
