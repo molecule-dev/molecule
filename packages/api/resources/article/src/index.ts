@@ -38,6 +38,20 @@
  * native flat-body/raw-article format. Use service functions for a different domain workflow.
  * Read Quick Start for filter mapping and early responses.
  *
+ * **Need only a lookup in a custom route?** `findArticleRow(slug)` returns the stored
+ * `ArticleRow` or `null`. `getArticleBySlug(slug, viewerId?)` returns an `Article` or
+ * `null`, with ordered tags, favorite count and the viewer's `favorited` state.
+ * Both read this package's `articles` table. Keep your route, author-profile lookup
+ * and response projection local; call these functions instead of copying the slug query.
+ *
+ * ```typescript
+ * import { findArticleRow } from '@molecule/api-resource-article'
+ *
+ * const slug = 'release-notes'
+ * const row = await findArticleRow(slug)
+ * // Map row (or null) into this API's response. Use getArticleBySlug for hydrated fields.
+ * ```
+ *
  * @module
  * @example
  * ```typescript
