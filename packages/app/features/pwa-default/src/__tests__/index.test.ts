@@ -72,6 +72,45 @@ describe('@molecule/app-pwa-default', () => {
       expect(reload).toHaveBeenCalledTimes(1)
     })
 
+    it.each(['installing', 'waiting'])(
+      'does not recover a first visit from a window error while the worker is %s',
+      async (pending) => {
+        const { sw, reload } = setUp(null)
+        const unregister = vi.fn().mockResolvedValue(true)
+        Object.assign(sw, { ready: Promise.resolve({ [pending]: {}, unregister }) })
+        window.dispatchEvent(new Event('error'))
+        // First claim can arrive while an async error handler waits for ready.
+        sw.controller = {}
+        sw.dispatchEvent(new Event('controllerchange'))
+        await new Promise((resolve) => setTimeout(resolve, 0))
+        expect(unregister).not.toHaveBeenCalled()
+        expect(reload).not.toHaveBeenCalled()
+      },
+    )
+
+    it.each(['installing', 'waiting'])(
+      'recovers an existing controlled page when an update is %s',
+      async (pending) => {
+        const { sw, reload } = setUp({})
+        const unregister = vi.fn().mockResolvedValue(true)
+        Object.assign(sw, { ready: Promise.resolve({ [pending]: {}, unregister }) })
+        window.dispatchEvent(new Event('error'))
+        await new Promise((resolve) => setTimeout(resolve, 0))
+        expect(unregister).toHaveBeenCalledTimes(1)
+        expect(reload).toHaveBeenCalledTimes(1)
+      },
+    )
+
+    it('does not reload a controlled page for an error without a pending update', async () => {
+      const { sw, reload } = setUp({})
+      const unregister = vi.fn().mockResolvedValue(true)
+      Object.assign(sw, { ready: Promise.resolve({ installing: null, waiting: null, unregister }) })
+      window.dispatchEvent(new Event('error'))
+      await new Promise((resolve) => setTimeout(resolve, 0))
+      expect(unregister).not.toHaveBeenCalled()
+      expect(reload).not.toHaveBeenCalled()
+    })
+
     it('reloads once when a page already under a worker gets a new one', () => {
       const { sw, reload } = setUp({})
       sw.dispatchEvent(new Event('controllerchange'))

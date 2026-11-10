@@ -78,9 +78,10 @@ export function registerPWA(): void {
   // `controllerchange` listener registered above.)
 
   // Error recovery: if a fatal error occurs and a SW update is pending,
-  // unregister the broken SW and reload to get fresh code
+  // unregister the broken SW and reload to get fresh code. An uncontrolled first
+  // visit is installing its first worker, not updating a worker that served it.
   window.addEventListener('error', async () => {
-    if ('serviceWorker' in navigator) {
+    if (navigator.serviceWorker?.controller) {
       try {
         const registration = await navigator.serviceWorker.ready
         if (registration.installing || registration.waiting) {
