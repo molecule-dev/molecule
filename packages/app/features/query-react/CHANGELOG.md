@@ -1,5 +1,11 @@
 # @molecule/app-query-react
 
+## 1.2.0
+
+### Minor Changes
+
+- Add `createQueryResource`: list and detail reads as `useQuery` options, and writes that update the shared cache.
+
 ## 1.1.6
 
 ### Patch Changes
