@@ -1,5 +1,11 @@
 # @molecule/api-code-sandbox-e2b
 
+## 1.4.1
+
+### Patch Changes
+
+- Allow a separate bounded archive size limit while preserving the extracted file-content limit.
+
 ## 1.4.0
 
 ### Minor Changes

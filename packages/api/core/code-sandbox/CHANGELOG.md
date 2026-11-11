@@ -1,5 +1,11 @@
 # @molecule/api-code-sandbox
 
+## 1.9.0
+
+### Minor Changes
+
+- Allow a separate bounded archive size limit while preserving the extracted file-content limit.
+
 ## 1.8.1
 
 ### Patch Changes

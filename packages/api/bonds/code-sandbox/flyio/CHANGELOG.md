@@ -1,5 +1,11 @@
 # @molecule/api-code-sandbox-flyio
 
+## 1.5.2
+
+### Patch Changes
+
+- Allow a separate bounded archive size limit while preserving the extracted file-content limit.
+
 ## 1.5.1
 
 ### Patch Changes
