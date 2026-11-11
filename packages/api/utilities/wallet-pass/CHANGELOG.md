@@ -1,5 +1,11 @@
 # @molecule/api-wallet-pass
 
+## 1.0.6
+
+### Patch Changes
+
+- Update node-forge to 1.4.3 for three moderate advisories.
+
 ## 1.0.5
 
 ### Patch Changes

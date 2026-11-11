@@ -1,5 +1,11 @@
 # @molecule/app-http-axios
 
+## 1.3.0
+
+### Minor Changes
+
+- Keep small same-origin writes alive by default through the fetch adapter, with the page cookies.
+
 ## 1.2.5
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/app-http
 
+## 1.7.0
+
+### Minor Changes
+
+- Keep small same-origin writes alive by default so a navigation right after them cannot cancel them.
+
 ## 1.6.1
 
 ### Patch Changes
