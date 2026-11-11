@@ -1,5 +1,11 @@
 # @molecule/api-password
 
+## 1.0.4
+
+### Patch Changes
+
+- Point the `sign`, `hash` and `compare` docs at the user resource's account functions.
+
 ## 1.0.3
 
 ### Patch Changes

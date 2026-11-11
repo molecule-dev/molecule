@@ -1,5 +1,11 @@
 # @molecule/api-locales-user
 
+## 1.1.1
+
+### Patch Changes
+
+- Add the `user.error.twoFactorRequired` message in all 79 languages.
+
 ## 1.1.0
 
 ### Minor Changes

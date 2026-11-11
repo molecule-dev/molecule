@@ -1,5 +1,11 @@
 # @molecule/api-resource-user
 
+## 1.9.0
+
+### Minor Changes
+
+- Add `createAccount`, `signIn`, `checkPassword` and `issueSession`: account and session functions for routes an app writes itself.
+
 ## 1.8.8
 
 ### Patch Changes
