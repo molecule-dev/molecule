@@ -1,5 +1,11 @@
 # @molecule/app-ui-react
 
+## 3.1.0
+
+### Minor Changes
+
+- Add OptimisticToggleButton for immediate server-backed action labels with ordered saves and rollback.
+
 ## 3.0.5
 
 ### Patch Changes
