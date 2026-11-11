@@ -1,5 +1,11 @@
 # @molecule/app-auth
 
+## 3.3.5
+
+### Patch Changes
+
+- Expose validation response bodies through auth errors' data field for direct error readers.
+
 ## 3.3.4
 
 ### Patch Changes
