@@ -16,6 +16,8 @@ import axios, {
 import {
   awaitAuthGate,
   isIdempotentRequest,
+  type KeepaliveReservation,
+  reserveKeepalive,
   retryDelayMs,
   shouldRetryRequest,
   snapshotHttpErrorBody,
@@ -44,11 +46,35 @@ import { HttpError } from './types.js'
 type WithSkipAuthGate = { skipAuthGate?: boolean }
 
 /**
+ * One attempt's keepalive decision: the caller's `keepalive` choice goes in, and the request
+ * interceptor leaves the reservation it made for the attempt to release once it settles. A class
+ * instance, because Axios's config merge copies a plain object and the interceptor would then write
+ * to the copy.
+ */
+class KeepaliveAttempt {
+  reservation?: KeepaliveReservation
+
+  /**
+   * Start an attempt's holder.
+   *
+   * @param choice - The caller's own `keepalive`, or undefined for the default.
+   */
+  constructor(readonly choice: boolean | undefined) {}
+}
+
+/** The per-attempt keepalive holder `toAxiosConfig` passes to the request interceptor. */
+type WithKeepaliveAttempt = { moleculeKeepalive?: KeepaliveAttempt }
+
+/**
  * Converts a molecule `RequestConfig` to an Axios-compatible `AxiosRequestConfig`.
  * @param config - The molecule request configuration.
+ * @param keepalive - This attempt's keepalive holder.
  * @returns An `AxiosRequestConfig` with mapped headers, params, timeout, and other options.
  */
-function toAxiosConfig(config: RequestConfig): AxiosRequestConfig & WithSkipAuthGate {
+function toAxiosConfig(
+  config: RequestConfig,
+  keepalive?: KeepaliveAttempt,
+): AxiosRequestConfig & WithSkipAuthGate & WithKeepaliveAttempt {
   return {
     headers: config.headers,
     params: config.params,
@@ -60,9 +86,67 @@ function toAxiosConfig(config: RequestConfig): AxiosRequestConfig & WithSkipAuth
     ...config.options,
     // After `config.options`, so the documented options win over implementation-specific ones.
     skipAuthGate: config.skipAuthGate,
-    // XHR cannot outlive the page; Axios's fetch adapter carries fetch's own keepalive.
-    ...(config.keepalive ? { adapter: 'fetch' as const, fetchOptions: { keepalive: true } } : {}),
+    moleculeKeepalive: keepalive,
   }
+}
+
+/**
+ * The body Axios sends for `data`, as far as its size goes: Axios sends a plain object or array as
+ * JSON. Anything else is returned as is, and `@molecule/app-http`'s `requestBodyBytes` sizes it or answers null (a form, a
+ * stream, a class instance), which keeps the request off the keepalive default.
+ *
+ * @param data - The request data before Axios transforms it.
+ * @returns The body to size.
+ */
+function sentBody(data: unknown): unknown {
+  if (data === null || typeof data !== 'object') return data
+  const prototype = Object.getPrototypeOf(data)
+  if (!Array.isArray(data) && prototype !== Object.prototype && prototype !== null) return data
+  try {
+    return JSON.stringify(data)
+  } catch (_error) {
+    // Unserializable (a cycle, a BigInt): Axios will fail to send it too. The object itself sizes
+    // as null, so the request is left off the keepalive default and fails as it would have.
+    return data
+  }
+}
+
+let fetchAdapterAvailable: boolean | undefined
+
+/**
+ * Whether this Axios has a usable fetch adapter (1.7+, with `fetch` in the environment).
+ *
+ * @returns True when a request can be sent through Axios's fetch adapter.
+ */
+function hasFetchAdapter(): boolean {
+  if (fetchAdapterAvailable === undefined) {
+    try {
+      fetchAdapterAvailable =
+        typeof axios.getAdapter === 'function' && typeof axios.getAdapter('fetch') === 'function'
+    } catch (_error) {
+      // getAdapter throws for an adapter this Axios or environment lacks; the answer is "no".
+      fetchAdapterAvailable = false
+    }
+  }
+  return fetchAdapterAvailable
+}
+
+/**
+ * Whether the keepalive default may move a request to Axios's fetch adapter: the request uses one
+ * of Axios's own adapters (a custom adapter function is the caller's transport and is kept), it
+ * reports no upload progress (that needs a streamed body, which keepalive cannot send), and the
+ * fetch adapter exists.
+ *
+ * @param axiosConfig - The request's merged Axios config.
+ * @returns True when the default may apply.
+ */
+function keepaliveDefaultFits(axiosConfig: InternalAxiosRequestConfig): boolean {
+  const adapter = axiosConfig.adapter
+  const builtIn =
+    adapter === undefined ||
+    typeof adapter === 'string' ||
+    (Array.isArray(adapter) && adapter.every((name) => typeof name === 'string'))
+  return builtIn && !axiosConfig.onUploadProgress && hasFetchAdapter()
 }
 
 /**
@@ -296,6 +380,26 @@ export function createAxiosClient(config: AxiosHttpClientConfig = {}): HttpClien
     }
   }
 
+  /**
+   * One attempt, holding the keepalive budget the request interceptor reserved for it until the
+   * attempt settles (each retry reserves its own).
+   *
+   * @param requestConfig - The caller's config.
+   * @param run - Sends the attempt with its Axios config.
+   * @returns The attempt's result.
+   */
+  const sendAttempt = async <R>(
+    requestConfig: RequestConfig | undefined,
+    run: (axiosConfig: AxiosRequestConfig) => Promise<R>,
+  ): Promise<R> => {
+    const keepalive = new KeepaliveAttempt(requestConfig?.keepalive)
+    try {
+      return await run(toAxiosConfig(requestConfig ?? {}, keepalive))
+    } finally {
+      keepalive.reservation?.release()
+    }
+  }
+
   // Add Axios request interceptor to run molecule interceptors
   axiosInstance.interceptors.request.use(async (axiosConfig: InternalAxiosRequestConfig) => {
     let config: FullRequestConfig = {
@@ -358,6 +462,30 @@ export function createAxiosClient(config: AxiosHttpClientConfig = {}): HttpClien
     axiosConfig.timeout = config.timeout
     axiosConfig.withCredentials = config.withCredentials
     axiosConfig.data = config.data
+
+    // Decided last, on the request as it will be sent. XHR cannot outlive the page, so a write
+    // that has to survive a navigation goes through Axios's fetch adapter with fetch's own
+    // `keepalive` (see `@molecule/app-http` `reserveKeepalive` for which writes, and why).
+    const keepalive = (axiosConfig as InternalAxiosRequestConfig & WithKeepaliveAttempt)
+      .moleculeKeepalive
+    if (keepalive) {
+      keepalive.reservation?.release()
+      const reservation = reserveKeepalive({
+        method: config.method,
+        url: axiosInstance.getUri(axiosConfig),
+        body: sentBody(axiosConfig.data),
+        keepalive: keepalive.choice ?? (keepaliveDefaultFits(axiosConfig) ? undefined : false),
+      })
+      keepalive.reservation = reservation
+      if (reservation.keepalive) {
+        axiosConfig.adapter = 'fetch'
+        axiosConfig.fetchOptions = { ...axiosConfig.fetchOptions, keepalive: true }
+        // XHR sends the page's own cookies whatever `withCredentials` says; Axios's fetch adapter
+        // turns `false` into `credentials: 'omit'` and would drop them. Unset, it sends
+        // `same-origin`, which is what XHR does.
+        if (!axiosConfig.withCredentials) delete axiosConfig.withCredentials
+      }
+    }
 
     return axiosConfig
   })
@@ -452,16 +580,16 @@ export function createAxiosClient(config: AxiosHttpClientConfig = {}): HttpClien
     defaultHeaders: currentDefaultHeaders,
 
     async request<T = unknown>(config: FullRequestConfig): Promise<HttpResponse<T>> {
-      const axiosConfig: AxiosRequestConfig = {
-        method: config.method.toLowerCase(),
-        url: config.url,
-        data: config.data,
-        ...toAxiosConfig(config),
-      }
-
       const response = await withRetry(
         config.method,
-        () => axiosInstance.request<T>(axiosConfig),
+        () =>
+          sendAttempt(config, (axiosConfig) =>
+            axiosInstance.request<T>({
+              method: config.method.toLowerCase(),
+              url: config.url,
+              ...axiosConfig,
+            }),
+          ),
         config,
       )
       return toHttpResponse(response, config)
@@ -475,7 +603,7 @@ export function createAxiosClient(config: AxiosHttpClientConfig = {}): HttpClien
       }
       const response = await withRetry(
         'GET',
-        () => axiosInstance.get<T>(url, toAxiosConfig(config ?? {})),
+        () => sendAttempt(config, (axiosConfig) => axiosInstance.get<T>(url, axiosConfig)),
         config,
       )
       return toHttpResponse(response, fullConfig)
@@ -494,7 +622,7 @@ export function createAxiosClient(config: AxiosHttpClientConfig = {}): HttpClien
       }
       const response = await withRetry(
         'POST',
-        () => axiosInstance.post<T>(url, data, toAxiosConfig(config ?? {})),
+        () => sendAttempt(config, (axiosConfig) => axiosInstance.post<T>(url, data, axiosConfig)),
         config,
       )
       return toHttpResponse(response, fullConfig)
@@ -513,7 +641,7 @@ export function createAxiosClient(config: AxiosHttpClientConfig = {}): HttpClien
       }
       const response = await withRetry(
         'PUT',
-        () => axiosInstance.put<T>(url, data, toAxiosConfig(config ?? {})),
+        () => sendAttempt(config, (axiosConfig) => axiosInstance.put<T>(url, data, axiosConfig)),
         config,
       )
       return toHttpResponse(response, fullConfig)
@@ -532,7 +660,7 @@ export function createAxiosClient(config: AxiosHttpClientConfig = {}): HttpClien
       }
       const response = await withRetry(
         'PATCH',
-        () => axiosInstance.patch<T>(url, data, toAxiosConfig(config ?? {})),
+        () => sendAttempt(config, (axiosConfig) => axiosInstance.patch<T>(url, data, axiosConfig)),
         config,
       )
       return toHttpResponse(response, fullConfig)
@@ -546,7 +674,7 @@ export function createAxiosClient(config: AxiosHttpClientConfig = {}): HttpClien
       }
       const response = await withRetry(
         'DELETE',
-        () => axiosInstance.delete<T>(url, toAxiosConfig(config ?? {})),
+        () => sendAttempt(config, (axiosConfig) => axiosInstance.delete<T>(url, axiosConfig)),
         config,
       )
       return toHttpResponse(response, fullConfig)

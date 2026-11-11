@@ -55,6 +55,11 @@
  *   `client.authScheme = 'Token'` is a type error that changes no header. The option
  *   name is the same one `@molecule/app-http`'s `HttpClientConfig` declares, so the
  *   config reads the same whichever transport is bonded.
+ * - A small write to the page's own origin (at most 8 KB of body) is kept alive like on
+ *   `@molecule/app-http`'s fetch client, so a navigation right after it cannot cancel it:
+ *   XHR cannot outlive the page, so that request goes through Axios's fetch adapter with
+ *   `keepalive` and the page's cookies. A custom `adapter` function is never replaced, and
+ *   `keepalive: false` on a request opts it out (`RequestConfig.keepalive`).
  * - `instance`/`axiosConfig` accept raw Axios options — anything the app sets
  *   there couples it to Axios; keep app code on the `@molecule/app-http`
  *   interface so the bond stays swappable.

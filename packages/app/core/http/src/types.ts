@@ -79,12 +79,15 @@ export interface RequestConfig {
 
   /**
    * Keep the request running when the page navigates away or closes before it finishes — fetch's
-   * own `keepalive`. Use it for a small mutation fired just before a navigation (a favorite or a
-   * save, then `navigate()`) or a beacon on `pagehide`, instead of writing your own `fetch`. The
-   * browser caps the bodies of in-flight keepalive requests at 64 KB in total, so not for uploads.
+   * own `keepalive`. The bundled clients already do this for a write (POST, PUT, PATCH, DELETE) to
+   * the page's own origin with a body of at most 8 KB, so a favorite or a save followed at once by
+   * a navigation still reaches the API; nothing needs to be set for that. Pass `true` for anything
+   * else that must outlive the page (a cross-origin write, a beacon on `pagehide`) and `false` to
+   * let a navigation cancel a write. The browser caps the bodies of in-flight keepalive requests
+   * at 64 KB in total, so not for uploads.
    *
    * ```typescript
-   * await http.post(`/articles/${slug}/favorite`, undefined, { keepalive: true })
+   * await http.post('https://events.example.com/v1/track', event, { keepalive: true })
    * ```
    */
   keepalive?: boolean

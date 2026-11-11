@@ -12,6 +12,7 @@ import { getLogger } from '@molecule/app-logger'
 import { awaitAuthGate } from './auth-gate.js'
 import type { AuthTokenResolver, HttpClient, HttpClientConfig } from './client.js'
 import type { ErrorInterceptor, RequestInterceptor, ResponseInterceptor } from './interceptors.js'
+import { reserveKeepalive } from './keepalive.js'
 import { retryDelayMs, shouldRetryRequest } from './retry.js'
 import type { FullRequestConfig, HttpResponse, RequestConfig } from './types.js'
 import { HttpError, snapshotHttpErrorBody } from './types.js'
@@ -190,7 +191,6 @@ export const createFetchClient = (config: HttpClientConfig = {}): HttpClient => 
         credentials:
           (finalConfig.withCredentials ?? config.withCredentials) ? 'include' : 'same-origin',
         signal: finalConfig.signal,
-        ...(finalConfig.keepalive ? { keepalive: true } : {}),
       }
 
       // Add body
@@ -223,6 +223,17 @@ export const createFetchClient = (config: HttpClientConfig = {}): HttpClient => 
           fetchOptions.signal = controller.signal
           timeoutId = setTimeout(() => controller.abort(), timeout)
         }
+
+        // A small same-origin write outlives a navigation that starts right after it
+        // (keepalive.ts); the reservation is returned once this attempt settles.
+        const keepalive = reserveKeepalive({
+          method: finalConfig.method,
+          url,
+          body: fetchOptions.body,
+          keepalive: finalConfig.keepalive,
+        })
+        if (keepalive.keepalive) fetchOptions.keepalive = true
+        else delete fetchOptions.keepalive
 
         try {
           const fetchResponse = await fetch(url, fetchOptions)
@@ -449,6 +460,8 @@ export const createFetchClient = (config: HttpClientConfig = {}): HttpClient => 
           }
 
           throw finalError
+        } finally {
+          keepalive.release()
         }
       }
     },
