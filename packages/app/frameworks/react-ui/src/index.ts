@@ -4,6 +4,12 @@
  * Provides React implementations of the `@molecule/app-ui` component
  * interfaces using the UIClassMap abstraction from `@molecule/app-ui`.
  *
+ * Server-backed boolean actions use `OptimisticToggleButton`: pass a loaded `value`, a
+ * `commit(desired)` returning the confirmed boolean, and translated `activeLabel` and
+ * `inactiveLabel`. The label and pressed state change on the first tap; saves run in order
+ * and the newest failure rolls back. Mount after the initial record loads, key by record,
+ * and keep it mounted during refetches. Authorization and self-record checks stay in the app.
+ *
  * @example
  * ```tsx
  * import { setClassMap } from '@molecule/app-ui'
