@@ -46,6 +46,7 @@ export const am: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'ምንም በመጠባበቅ ላይ ያለ ባለሁለት ደረጃ ማዋቀር የለም። በ"setup" ድርጊት መጀመሪያ ይደውሉ።',
   'user.error.invalidToken': 'ልክ ያልሆነ ቶከን።',
+  'user.error.twoFactorRequired': 'ባለሁለት ደረጃ ኮድ ያስፈልጋል።',
   'user.error.twoFactorNotEnabled': 'ባለሁለት ደረጃ አልነቃም።',
   'user.error.invalidAction': 'ልክ ያልሆነ ድርጊት። "setup"፣ "enable" ወይም "disable" ይጠቀሙ።',
   'user.error.twoFactorOperationFailed': 'ባለሁለት ደረጃ ስራ አልተሳካም።',

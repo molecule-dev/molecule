@@ -48,6 +48,7 @@ export const th: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'ไม่มีการตั้งค่า two-factor ที่รออยู่ เรียกด้วย action "setup" ก่อน',
   'user.error.invalidToken': 'โทเค็นไม่ถูกต้อง',
+  'user.error.twoFactorRequired': 'ต้องระบุรหัส two-factor',
   'user.error.twoFactorNotEnabled': 'ยังไม่ได้เปิดใช้งาน two-factor',
   'user.error.invalidAction': 'Action ไม่ถูกต้อง ใช้ "setup", "enable" หรือ "disable"',
   'user.error.twoFactorOperationFailed': 'การดำเนินการ two-factor ล้มเหลว',

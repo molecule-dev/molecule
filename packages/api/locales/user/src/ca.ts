@@ -50,6 +50,7 @@ export const ca: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'No hi ha cap configuració de doble factor pendent. Crideu primer amb l\'acció "setup".',
   'user.error.invalidToken': 'Token no vàlid.',
+  'user.error.twoFactorRequired': 'Es requereix un codi de doble factor.',
   'user.error.twoFactorNotEnabled': 'El doble factor no està activat.',
   'user.error.invalidAction': 'Acció no vàlida. Utilitzeu "setup", "enable" o "disable".',
   'user.error.twoFactorOperationFailed': "L'operació de doble factor ha fallat.",

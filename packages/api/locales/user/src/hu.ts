@@ -48,6 +48,7 @@ export const hu: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'Nincs függőben lévő kétfaktoros beállítás. Hívja meg először a "setup" művelettel.',
   'user.error.invalidToken': 'Érvénytelen token.',
+  'user.error.twoFactorRequired': 'Kétfaktoros kód megadása kötelező.',
   'user.error.twoFactorNotEnabled': 'A kétfaktoros hitelesítés nincs engedélyezve.',
   'user.error.invalidAction': 'Érvénytelen művelet. Használja: "setup", "enable" vagy "disable".',
   'user.error.twoFactorOperationFailed': 'A kétfaktoros művelet sikertelen.',

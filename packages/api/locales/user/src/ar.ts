@@ -47,6 +47,7 @@ export const ar: UserTranslations = {
   'user.error.tokenRequired': 'الرمز مطلوب.',
   'user.error.noPendingTwoFactorSetup': 'لا يوجد إعداد ثنائي معلق. اتصل بإجراء "setup" أولاً.',
   'user.error.invalidToken': 'رمز غير صالح.',
+  'user.error.twoFactorRequired': 'رمز التحقق الثنائي مطلوب.',
   'user.error.twoFactorNotEnabled': 'المصادقة الثنائية غير مفعلة.',
   'user.error.invalidAction': 'إجراء غير صالح. استخدم "setup" أو "enable" أو "disable".',
   'user.error.twoFactorOperationFailed': 'فشلت عملية المصادقة الثنائية.',

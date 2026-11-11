@@ -48,6 +48,7 @@ export const ne: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'कुनै बाँकी दुई-कारक सेटअप छैन। पहिले "setup" कार्यसँग कल गर्नुहोस्।',
   'user.error.invalidToken': 'अमान्य टोकन।',
+  'user.error.twoFactorRequired': 'दुई-कारक कोड आवश्यक छ।',
   'user.error.twoFactorNotEnabled': 'दुई-कारक सक्रिय छैन।',
   'user.error.invalidAction': 'अमान्य कार्य। "setup", "enable", वा "disable" प्रयोग गर्नुहोस्।',
   'user.error.twoFactorOperationFailed': 'दुई-कारक अपरेसन असफल।',

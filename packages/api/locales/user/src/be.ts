@@ -47,6 +47,7 @@ export const be: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'Няма чакаючай наладкі двухфактарнай аўтэнтыфікацыі. Спачатку выклічце з дзеяннем "setup".',
   'user.error.invalidToken': 'Няправільны токен.',
+  'user.error.twoFactorRequired': 'Патрабуецца код двухфактарнай аўтэнтыфікацыі.',
   'user.error.twoFactorNotEnabled': 'Двухфактарная аўтэнтыфікацыя не ўключана.',
   'user.error.invalidAction':
     'Няправільнае дзеянне. Выкарыстоўвайце "setup", "enable" або "disable".',

@@ -48,6 +48,7 @@ export const sr: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'Нема двофакторског подешавања на чекању. Позовите са акцијом "setup" прво.',
   'user.error.invalidToken': 'Неважећи токен.',
+  'user.error.twoFactorRequired': 'Потребан је двофакторски код.',
   'user.error.twoFactorNotEnabled': 'Двофакторска аутентификација није омогућена.',
   'user.error.invalidAction': 'Неважећа радња. Користите "setup", "enable" или "disable".',
   'user.error.twoFactorOperationFailed': 'Двофакторска операција није успела.',

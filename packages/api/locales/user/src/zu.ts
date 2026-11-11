@@ -50,6 +50,7 @@ export const zu: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'Akukho ukumiswa kwezinyathelo ezimbili okulindile. Shayela ngesenzo se-"setup" kuqala.',
   'user.error.invalidToken': 'Ithokheni engavumelekile.',
+  'user.error.twoFactorRequired': 'Ikhodi yezinyathelo ezimbili iyadingeka.',
   'user.error.twoFactorNotEnabled': 'Izinyathelo ezimbili azivulwanga.',
   'user.error.invalidAction':
     'Isenzo esingavumelekile. Sebenzisa "setup", "enable", noma "disable".',

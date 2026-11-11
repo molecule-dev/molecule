@@ -49,6 +49,7 @@ export const ms: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'Tiada persediaan two-factor yang menunggu. Panggil dengan action "setup" dahulu.',
   'user.error.invalidToken': 'Token tidak sah.',
+  'user.error.twoFactorRequired': 'Kod two-factor diperlukan.',
   'user.error.twoFactorNotEnabled': 'Two-factor tidak diaktifkan.',
   'user.error.invalidAction': 'Action tidak sah. Gunakan "setup", "enable", atau "disable".',
   'user.error.twoFactorOperationFailed': 'Operasi two-factor gagal.',

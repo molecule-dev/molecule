@@ -48,6 +48,7 @@ export const sv: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'Ingen pågående tvåfaktorsinställning. Anropa med åtgärden "setup" först.',
   'user.error.invalidToken': 'Ogiltig token.',
+  'user.error.twoFactorRequired': 'En tvåfaktorskod krävs.',
   'user.error.twoFactorNotEnabled': 'Tvåfaktor är inte aktiverad.',
   'user.error.invalidAction': 'Ogiltig åtgärd. Använd "setup", "enable" eller "disable".',
   'user.error.twoFactorOperationFailed': 'Tvåfaktorsåtgärd misslyckades.',

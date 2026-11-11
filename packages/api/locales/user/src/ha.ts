@@ -48,6 +48,7 @@ export const ha: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'Babu saitin mataki biyu da ke jira. Fara kira da aikin "setup".',
   'user.error.invalidToken': 'Token mara inganci.',
+  'user.error.twoFactorRequired': 'Ana buƙatar lambar mataki biyu.',
   'user.error.twoFactorNotEnabled': 'Ba a kunna mataki biyu ba.',
   'user.error.invalidAction':
     'Aikin da ba shi da inganci. Yi amfani da "setup", "enable", ko "disable".',

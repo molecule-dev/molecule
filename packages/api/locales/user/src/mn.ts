@@ -47,6 +47,7 @@ export const mn: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'Хүлээгдэж буй хоёр хүчин зүйлийн тохиргоо байхгүй. Эхлээд "setup" үйлдлийг дуудна уу.',
   'user.error.invalidToken': 'Буруу токен.',
+  'user.error.twoFactorRequired': 'Хоёр хүчин зүйлийн код шаардлагатай.',
   'user.error.twoFactorNotEnabled': 'Хоёр хүчин зүйлийн баталгаажуулалт идэвхжээгүй.',
   'user.error.invalidAction': 'Буруу үйлдэл. "setup", "enable", эсвэл "disable" ашиглана уу.',
   'user.error.twoFactorOperationFailed': 'Хоёр хүчин зүйлийн үйлдэл амжилтгүй.',

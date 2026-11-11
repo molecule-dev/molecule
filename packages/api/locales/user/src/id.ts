@@ -48,6 +48,7 @@ export const id: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'Tidak ada pengaturan two-factor yang tertunda. Panggil dengan action "setup" terlebih dahulu.',
   'user.error.invalidToken': 'Token tidak valid.',
+  'user.error.twoFactorRequired': 'Kode two-factor diperlukan.',
   'user.error.twoFactorNotEnabled': 'Two-factor tidak diaktifkan.',
   'user.error.invalidAction': 'Action tidak valid. Gunakan "setup", "enable", atau "disable".',
   'user.error.twoFactorOperationFailed': 'Operasi two-factor gagal.',

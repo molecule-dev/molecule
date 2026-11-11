@@ -48,6 +48,7 @@ export const pl: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'Brak oczekującej konfiguracji dwuskładnikowej. Najpierw wywołaj z akcją "setup".',
   'user.error.invalidToken': 'Nieprawidłowy token.',
+  'user.error.twoFactorRequired': 'Wymagany jest kod dwuskładnikowy.',
   'user.error.twoFactorNotEnabled': 'Uwierzytelnianie dwuskładnikowe nie jest włączone.',
   'user.error.invalidAction': 'Nieprawidłowa akcja. Użyj "setup", "enable" lub "disable".',
   'user.error.twoFactorOperationFailed': 'Operacja dwuskładnikowa nie powiodła się.',

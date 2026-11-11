@@ -48,6 +48,7 @@ export const ig: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'Enweghị nhazi nzere abụọ na-eche. Buru ụzọ kpọọ na ọrụ "setup".',
   'user.error.invalidToken': 'Token ezighị ezi.',
+  'user.error.twoFactorRequired': 'A chọrọ koodu nzere abụọ.',
   'user.error.twoFactorNotEnabled': 'Emegheghị nzere abụọ.',
   'user.error.invalidAction': 'Ọrụ ezighị ezi. Jiri "setup", "enable", ma ọ bụ "disable".',
   'user.error.twoFactorOperationFailed': 'Ọrụ nzere abụọ agaghị.',

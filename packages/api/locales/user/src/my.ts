@@ -50,6 +50,7 @@ export const my: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'စောင့်ဆိုင်းနေသော two-factor setup မရှိပါ။ action "setup" ဖြင့် ဦးစွာ ခေါ်ပါ။',
   'user.error.invalidToken': 'Token မမှန်ကန်ပါ။',
+  'user.error.twoFactorRequired': 'Two-factor ကုဒ် လိုအပ်ပါသည်။',
   'user.error.twoFactorNotEnabled': 'Two-factor ဖွင့်မထားပါ။',
   'user.error.invalidAction':
     'Action မမှန်ကန်ပါ။ "setup", "enable", သို့မဟုတ် "disable" ကို အသုံးပြုပါ။',

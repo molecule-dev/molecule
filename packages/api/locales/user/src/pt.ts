@@ -49,6 +49,7 @@ export const pt: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'Nenhuma configuração de dois fatores pendente. Chame primeiro com a ação "setup".',
   'user.error.invalidToken': 'Token inválido.',
+  'user.error.twoFactorRequired': 'É necessário um código de dois fatores.',
   'user.error.twoFactorNotEnabled': 'A autenticação de dois fatores não está ativada.',
   'user.error.invalidAction': 'Ação inválida. Utilize "setup", "enable" ou "disable".',
   'user.error.twoFactorOperationFailed': 'A operação de dois fatores falhou.',

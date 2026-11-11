@@ -47,6 +47,7 @@ export const bn: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'কোনো মুলতুবি দ্বি-ফ্যাক্টর সেটআপ নেই। প্রথমে "setup" অ্যাকশন দিয়ে কল করুন।',
   'user.error.invalidToken': 'অবৈধ টোকেন।',
+  'user.error.twoFactorRequired': 'একটি দ্বি-ফ্যাক্টর কোড প্রয়োজন।',
   'user.error.twoFactorNotEnabled': 'দ্বি-ফ্যাক্টর সক্রিয় নয়।',
   'user.error.invalidAction': 'অবৈধ অ্যাকশন। "setup", "enable", বা "disable" ব্যবহার করুন।',
   'user.error.twoFactorOperationFailed': 'দ্বি-ফ্যাক্টর অপারেশন ব্যর্থ।',

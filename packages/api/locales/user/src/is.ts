@@ -48,6 +48,7 @@ export const is: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'Engin tveggja-þátta uppsetning í bið. Kallaðu fyrst með aðgerðinni "setup".',
   'user.error.invalidToken': 'Ógilt merki.',
+  'user.error.twoFactorRequired': 'Tveggja-þátta kóði er nauðsynlegur.',
   'user.error.twoFactorNotEnabled': 'Tveggja-þátta er ekki virkt.',
   'user.error.invalidAction': 'Ógild aðgerð. Notaðu "setup", "enable" eða "disable".',
   'user.error.twoFactorOperationFailed': 'Tveggja-þátta aðgerð mistókst.',

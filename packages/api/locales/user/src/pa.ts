@@ -47,6 +47,7 @@ export const pa: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'ਕੋਈ ਬਕਾਇਆ ਦੋ-ਕਾਰਕ ਸੈੱਟਅੱਪ ਨਹੀਂ। ਪਹਿਲਾਂ "setup" ਐਕਸ਼ਨ ਨਾਲ ਕਾਲ ਕਰੋ।',
   'user.error.invalidToken': 'ਅਵੈਧ ਟੋਕਨ।',
+  'user.error.twoFactorRequired': 'ਦੋ-ਕਾਰਕ ਕੋਡ ਲੋੜੀਂਦਾ ਹੈ।',
   'user.error.twoFactorNotEnabled': 'ਦੋ-ਕਾਰਕ ਸਕਿਰਿਆ ਨਹੀਂ ਹੈ।',
   'user.error.invalidAction': 'ਅਵੈਧ ਐਕਸ਼ਨ। "setup", "enable", ਜਾਂ "disable" ਵਰਤੋ।',
   'user.error.twoFactorOperationFailed': 'ਦੋ-ਕਾਰਕ ਕਾਰਵਾਈ ਅਸਫਲ।',

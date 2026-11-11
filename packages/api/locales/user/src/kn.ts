@@ -48,6 +48,7 @@ export const kn: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'ಬಾಕಿ ಎರಡು-ಅಂಶ ಸೆಟಪ್ ಇಲ್ಲ. ಮೊದಲು "setup" ಕ್ರಿಯೆಯೊಂದಿಗೆ ಕರೆ ಮಾಡಿ.',
   'user.error.invalidToken': 'ಅಮಾನ್ಯ ಟೋಕನ್.',
+  'user.error.twoFactorRequired': 'ಎರಡು-ಅಂಶ ಕೋಡ್ ಅಗತ್ಯ.',
   'user.error.twoFactorNotEnabled': 'ಎರಡು-ಅಂಶ ಸಕ್ರಿಯಗೊಂಡಿಲ್ಲ.',
   'user.error.invalidAction': 'ಅಮಾನ್ಯ ಕ್ರಿಯೆ. "setup", "enable", ಅಥವಾ "disable" ಬಳಸಿ.',
   'user.error.twoFactorOperationFailed': 'ಎರಡು-ಅಂಶ ಕಾರ್ಯಾಚರಣೆ ವಿಫಲ.',

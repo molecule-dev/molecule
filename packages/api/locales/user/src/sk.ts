@@ -48,6 +48,7 @@ export const sk: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'Žiadne čakajúce dvojfaktorové nastavenie. Najprv zavolajte s akciou "setup".',
   'user.error.invalidToken': 'Neplatný token.',
+  'user.error.twoFactorRequired': 'Vyžaduje sa dvojfaktorový kód.',
   'user.error.twoFactorNotEnabled': 'Dvojfaktorové overenie nie je povolené.',
   'user.error.invalidAction': 'Neplatná akcia. Použite "setup", "enable" alebo "disable".',
   'user.error.twoFactorOperationFailed': 'Dvojfaktorová operácia zlyhala.',

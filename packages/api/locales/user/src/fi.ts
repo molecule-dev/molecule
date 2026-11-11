@@ -48,6 +48,7 @@ export const fi: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'Ei odottavaa kaksivaiheista asetusta. Kutsu ensin toiminnolla "setup".',
   'user.error.invalidToken': 'Virheellinen tunniste.',
+  'user.error.twoFactorRequired': 'Kaksivaiheinen koodi vaaditaan.',
   'user.error.twoFactorNotEnabled': 'Kaksivaiheinen todennus ei ole käytössä.',
   'user.error.invalidAction': 'Virheellinen toiminto. Käytä "setup", "enable" tai "disable".',
   'user.error.twoFactorOperationFailed': 'Kaksivaiheisen todennuksen toiminto epäonnistui.',

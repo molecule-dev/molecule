@@ -50,6 +50,7 @@ export const ky: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'Күтүлүп жаткан эки факторлуу орнотуу жок. Адегенде "setup" аракети менен чакырыңыз.',
   'user.error.invalidToken': 'Жараксыз токен.',
+  'user.error.twoFactorRequired': 'Эки факторлуу код талап кылынат.',
   'user.error.twoFactorNotEnabled': 'Эки факторлуу аутентификация иштетилген эмес.',
   'user.error.invalidAction': 'Жараксыз аракет. "setup", "enable" же "disable" колдонуңуз.',
   'user.error.twoFactorOperationFailed': 'Эки факторлуу операция ишке ашкан жок.',

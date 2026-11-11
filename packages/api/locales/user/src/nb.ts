@@ -48,6 +48,7 @@ export const nb: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'Ingen ventende tofaktor-oppsett. Kall med handlingen "setup" først.',
   'user.error.invalidToken': 'Ugyldig token.',
+  'user.error.twoFactorRequired': 'En tofaktor-kode er påkrevd.',
   'user.error.twoFactorNotEnabled': 'Tofaktor er ikke aktivert.',
   'user.error.invalidAction': 'Ugyldig handling. Bruk "setup", "enable" eller "disable".',
   'user.error.twoFactorOperationFailed': 'Tofaktor-operasjon mislyktes.',

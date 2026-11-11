@@ -48,6 +48,7 @@ export const eu: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'Ez dago bi faktoreko konfigurazio zain. Deitu lehenik "setup" ekintzarekin.',
   'user.error.invalidToken': 'Token baliogabea.',
+  'user.error.twoFactorRequired': 'Bi faktoreko kodea beharrezkoa da.',
   'user.error.twoFactorNotEnabled': 'Bi faktorekoa ez dago gaituta.',
   'user.error.invalidAction': 'Ekintza baliogabea. Erabili "setup", "enable" edo "disable".',
   'user.error.twoFactorOperationFailed': 'Bi faktoreko eragiketak huts egin du.',

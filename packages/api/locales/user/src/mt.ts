@@ -48,6 +48,7 @@ export const mt: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'Ebda setup ta\' zewg fatturi pendenti. Sejjah bl-azzjoni "setup" l-ewwel.',
   'user.error.invalidToken': 'Token invalidu.',
+  'user.error.twoFactorRequired': "Kodiċi ta' zewg fatturi mehtieg.",
   'user.error.twoFactorNotEnabled': 'Zewg fatturi mhux attivati.',
   'user.error.invalidAction': 'Azzjoni invalida. Uza "setup", "enable", jew "disable".',
   'user.error.twoFactorOperationFailed': "Operazzjoni ta' zewg fatturi falliet.",

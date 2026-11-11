@@ -48,6 +48,7 @@ export const yo: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'Ko si eto igbesẹ-meji ti nduro. Pe pẹlu iṣe "setup" ni akọkọ.',
   'user.error.invalidToken': 'Tokini ti ko wulo.',
+  'user.error.twoFactorRequired': 'Koodu igbesẹ-meji nilo.',
   'user.error.twoFactorNotEnabled': 'A ko mu igbesẹ-meji ṣiṣẹ.',
   'user.error.invalidAction': 'Iṣe ti ko wulo. Lo "setup", "enable", tabi "disable".',
   'user.error.twoFactorOperationFailed': 'Iṣẹ igbesẹ-meji kuna.',

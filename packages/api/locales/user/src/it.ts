@@ -49,6 +49,7 @@ export const it: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'Nessuna configurazione a due fattori in sospeso. Chiamare prima con l\'azione "setup".',
   'user.error.invalidToken': 'Token non valido.',
+  'user.error.twoFactorRequired': 'È richiesto un codice a due fattori.',
   'user.error.twoFactorNotEnabled': "L'autenticazione a due fattori non è attivata.",
   'user.error.invalidAction': 'Azione non valida. Utilizzare "setup", "enable" o "disable".',
   'user.error.twoFactorOperationFailed': "L'operazione a due fattori è fallita.",

@@ -48,6 +48,7 @@ export const sq: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'Nuk ka vendosje dyfaktor ne pritje. Thirrni me veprimin "setup" fillimisht.',
   'user.error.invalidToken': 'Token i pavlefshem.',
+  'user.error.twoFactorRequired': 'Kerkohet nje kod dyfaktor.',
   'user.error.twoFactorNotEnabled': 'Dyfaktori nuk eshte i aktivizuar.',
   'user.error.invalidAction': 'Veprim i pavlefshem. Perdorni "setup", "enable" ose "disable".',
   'user.error.twoFactorOperationFailed': 'Veprimi dyfaktor deshtoi.',

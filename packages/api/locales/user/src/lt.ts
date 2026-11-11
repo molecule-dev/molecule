@@ -48,6 +48,7 @@ export const lt: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'Nėra laukiančio dviejų veiksnių nustatymo. Iškvieskite su veiksmu "setup".',
   'user.error.invalidToken': 'Netinkamas žetonas.',
+  'user.error.twoFactorRequired': 'Būtinas dviejų veiksnių kodas.',
   'user.error.twoFactorNotEnabled': 'Dviejų veiksnių autentifikacija neįjungta.',
   'user.error.invalidAction': 'Netinkamas veiksmas. Naudokite "setup", "enable" arba "disable".',
   'user.error.twoFactorOperationFailed': 'Dviejų veiksnių operacija nepavyko.',

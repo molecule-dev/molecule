@@ -50,6 +50,7 @@ export const ml: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'തീർപ്പാകാത്ത ടു-ഫാക്ടർ സെറ്റപ്പ് ഇല്ല. ആദ്യം "setup" ആക്ഷൻ ഉപയോഗിച്ച് വിളിക്കുക.',
   'user.error.invalidToken': 'അസാധുവായ ടോക്കൺ.',
+  'user.error.twoFactorRequired': 'ടു-ഫാക്ടർ കോഡ് ആവശ്യമാണ്.',
   'user.error.twoFactorNotEnabled': 'ടു-ഫാക്ടർ സജീവമല്ല.',
   'user.error.invalidAction':
     'അസാധുവായ ആക്ഷൻ. "setup", "enable", അല്ലെങ്കിൽ "disable" ഉപയോഗിക്കുക.',

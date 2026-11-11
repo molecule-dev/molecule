@@ -47,6 +47,7 @@ export const ja: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     '保留中の二要素認証設定がありません。まず「setup」アクションを呼び出してください。',
   'user.error.invalidToken': '無効なトークンです。',
+  'user.error.twoFactorRequired': '二要素認証コードが必要です。',
   'user.error.twoFactorNotEnabled': '二要素認証が有効になっていません。',
   'user.error.invalidAction':
     '無効なアクションです。「setup」、「enable」、または「disable」を使用してください。',

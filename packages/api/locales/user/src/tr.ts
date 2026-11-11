@@ -47,6 +47,7 @@ export const tr: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'Bekleyen iki faktörlü kurulum yok. Önce "setup" ile çağırın.',
   'user.error.invalidToken': 'Geçersiz jeton.',
+  'user.error.twoFactorRequired': 'İki faktörlü kod gereklidir.',
   'user.error.twoFactorNotEnabled': 'İki faktörlü etkin değil.',
   'user.error.invalidAction': 'Geçersiz işlem. "setup", "enable" veya "disable" kullanın.',
   'user.error.twoFactorOperationFailed': 'İki faktörlü işlem başarısız oldu.',

@@ -48,6 +48,7 @@ export const el: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'Δεν υπάρχει εκκρεμής ρύθμιση δύο παραγόντων. Καλέστε πρώτα με ενέργεια "setup".',
   'user.error.invalidToken': 'Μη έγκυρο token.',
+  'user.error.twoFactorRequired': 'Απαιτείται κωδικός δύο παραγόντων.',
   'user.error.twoFactorNotEnabled': 'Οι δύο παράγοντες δεν είναι ενεργοποιημένοι.',
   'user.error.invalidAction': 'Μη έγκυρη ενέργεια. Χρησιμοποιήστε "setup", "enable" ή "disable".',
   'user.error.twoFactorOperationFailed': 'Η λειτουργία δύο παραγόντων απέτυχε.',

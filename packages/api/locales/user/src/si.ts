@@ -48,6 +48,7 @@ export const si: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'බලාපොරොත්තු වන ද්වි-සාධක සැකසුමක් නැත. පළමුව "setup" ක්‍රියාව සමග ඇමතන්න.',
   'user.error.invalidToken': 'අවලංගු ටෝකනය.',
+  'user.error.twoFactorRequired': 'ද්වි-සාධක කේතයක් අවශ්‍යයි.',
   'user.error.twoFactorNotEnabled': 'ද්වි-සාධකය සක්‍රිය නැත.',
   'user.error.invalidAction': 'අවලංගු ක්‍රියාව. "setup", "enable", හෝ "disable" භාවිතා කරන්න.',
   'user.error.twoFactorOperationFailed': 'ද්වි-සාධක මෙහෙයුම අසාර්ථක විය.',

@@ -47,6 +47,7 @@ export const mr: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'प्रलंबित द्वि-घटक सेटअप नाही. प्रथम "setup" क्रियेसह कॉल करा.',
   'user.error.invalidToken': 'अवैध टोकन.',
+  'user.error.twoFactorRequired': 'द्वि-घटक कोड आवश्यक आहे.',
   'user.error.twoFactorNotEnabled': 'द्वि-घटक सक्रिय नाही.',
   'user.error.invalidAction': 'अवैध क्रिया. "setup", "enable", किंवा "disable" वापरा.',
   'user.error.twoFactorOperationFailed': 'द्वि-घटक ऑपरेशन अयशस्वी.',

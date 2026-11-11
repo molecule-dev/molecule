@@ -48,6 +48,7 @@ export const bg: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'Няма чакаща двуфакторна настройка. Извикайте с действие "setup" първо.',
   'user.error.invalidToken': 'Невалиден токен.',
+  'user.error.twoFactorRequired': 'Изисква се двуфакторен код.',
   'user.error.twoFactorNotEnabled': 'Двуфакторната автентикация не е активирана.',
   'user.error.invalidAction': 'Невалидно действие. Използвайте "setup", "enable" или "disable".',
   'user.error.twoFactorOperationFailed': 'Двуфакторната операция е неуспешна.',

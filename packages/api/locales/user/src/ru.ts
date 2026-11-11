@@ -47,6 +47,7 @@ export const ru: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'Нет ожидающей двухфакторной настройки. Сначала вызовите с действием "setup".',
   'user.error.invalidToken': 'Недействительный токен.',
+  'user.error.twoFactorRequired': 'Требуется двухфакторный код.',
   'user.error.twoFactorNotEnabled': 'Двухфакторная аутентификация не включена.',
   'user.error.invalidAction':
     'Недействительное действие. Используйте "setup", "enable" или "disable".',

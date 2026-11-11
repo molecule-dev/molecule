@@ -48,6 +48,7 @@ export const cy: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'Dim gosodiad dau-ffactor yn aros. Galwch gyda gweithred "setup" yn gyntaf.',
   'user.error.invalidToken': 'Tocyn annilys.',
+  'user.error.twoFactorRequired': 'Mae angen cod dau-ffactor.',
   'user.error.twoFactorNotEnabled': "Nid yw dau-ffactor wedi'i alluogi.",
   'user.error.invalidAction': 'Gweithred annilys. Defnyddiwch "setup", "enable", neu "disable".',
   'user.error.twoFactorOperationFailed': 'Gweithrediad dau-ffactor wedi methu.',

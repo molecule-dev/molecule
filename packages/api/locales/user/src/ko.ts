@@ -47,6 +47,7 @@ export const ko: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     '대기 중인 2단계 인증 설정이 없습니다. 먼저 "setup" 액션을 호출하세요.',
   'user.error.invalidToken': '유효하지 않은 토큰입니다.',
+  'user.error.twoFactorRequired': '2단계 인증 코드가 필요합니다.',
   'user.error.twoFactorNotEnabled': '2단계 인증이 활성화되지 않았습니다.',
   'user.error.invalidAction':
     '유효하지 않은 액션입니다. "setup", "enable" 또는 "disable"을 사용하세요.',

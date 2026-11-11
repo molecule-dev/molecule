@@ -47,6 +47,7 @@ export const fa: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'تنظیم دو مرحله‌ای در انتظاری وجود ندارد. ابتدا با "setup" فراخوانی کنید.',
   'user.error.invalidToken': 'توکن نامعتبر.',
+  'user.error.twoFactorRequired': 'کد دو مرحله‌ای الزامی است.',
   'user.error.twoFactorNotEnabled': 'دو مرحله‌ای فعال نیست.',
   'user.error.invalidAction': 'عملیات نامعتبر. از "setup"، "enable" یا "disable" استفاده کنید.',
   'user.error.twoFactorOperationFailed': 'عملیات دو مرحله‌ای ناموفق بود.',

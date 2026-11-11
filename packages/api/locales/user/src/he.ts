@@ -46,6 +46,7 @@ export const he: UserTranslations = {
   'user.error.tokenRequired': 'אסימון נדרש.',
   'user.error.noPendingTwoFactorSetup': 'אין הגדרה דו-שלבית ממתינה. התקשר עם פעולת "setup" תחילה.',
   'user.error.invalidToken': 'אסימון לא תקין.',
+  'user.error.twoFactorRequired': 'נדרש קוד דו-שלבי.',
   'user.error.twoFactorNotEnabled': 'אימות דו-שלבי אינו מופעל.',
   'user.error.invalidAction': 'פעולה לא תקינה. השתמש ב-"setup", "enable" או "disable".',
   'user.error.twoFactorOperationFailed': 'פעולת האימות הדו-שלבי נכשלה.',

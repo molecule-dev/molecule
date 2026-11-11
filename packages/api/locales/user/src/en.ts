@@ -47,6 +47,7 @@ export const en: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'No pending two-factor setup. Call with action "setup" first.',
   'user.error.invalidToken': 'Invalid token.',
+  'user.error.twoFactorRequired': 'A two-factor code is required.',
   'user.error.twoFactorNotEnabled': 'Two-factor is not enabled.',
   'user.error.invalidAction': 'Invalid action. Use "setup", "enable", or "disable".',
   'user.error.twoFactorOperationFailed': 'Two-factor operation failed.',

@@ -48,6 +48,7 @@ export const sl: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'Ni čakajočega dvofaktorskega nastavitve. Najprej pokličite z dejanjem "setup".',
   'user.error.invalidToken': 'Neveljaven žeton.',
+  'user.error.twoFactorRequired': 'Zahtevana je dvofaktorska koda.',
   'user.error.twoFactorNotEnabled': 'Dvofaktorsko preverjanje ni omogočeno.',
   'user.error.invalidAction': 'Neveljavno dejanje. Uporabite "setup", "enable" ali "disable".',
   'user.error.twoFactorOperationFailed': 'Dvofaktorska operacija ni uspela.',

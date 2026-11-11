@@ -48,6 +48,7 @@ export const hr: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'Nema dvofaktorskog postavljanja na čekanju. Pozovite s radnjom "setup" prvo.',
   'user.error.invalidToken': 'Nevažeći token.',
+  'user.error.twoFactorRequired': 'Potreban je dvofaktorski kod.',
   'user.error.twoFactorNotEnabled': 'Dvofaktorska autentifikacija nije omogućena.',
   'user.error.invalidAction': 'Nevažeća radnja. Koristite "setup", "enable" ili "disable".',
   'user.error.twoFactorOperationFailed': 'Dvofaktorska operacija nije uspjela.',

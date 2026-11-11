@@ -48,6 +48,7 @@ export const vi: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'Không có thiết lập two-factor đang chờ. Gọi với action "setup" trước.',
   'user.error.invalidToken': 'Token không hợp lệ.',
+  'user.error.twoFactorRequired': 'Yêu cầu mã two-factor.',
   'user.error.twoFactorNotEnabled': 'Two-factor chưa được bật.',
   'user.error.invalidAction': 'Action không hợp lệ. Sử dụng "setup", "enable" hoặc "disable".',
   'user.error.twoFactorOperationFailed': 'Thao tác two-factor thất bại.',

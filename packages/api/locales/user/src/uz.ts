@@ -47,6 +47,7 @@ export const uz: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'Kutilayotgan ikki bosqichli sozlash yo\'q. Avval "setup" bilan chaqiring.',
   'user.error.invalidToken': "Noto'g'ri token.",
+  'user.error.twoFactorRequired': 'Ikki bosqichli kod talab qilinadi.',
   'user.error.twoFactorNotEnabled': 'Ikki bosqichli yoqilmagan.',
   'user.error.invalidAction': 'Noto\'g\'ri amal. "setup", "enable" yoki "disable" dan foydalaning.',
   'user.error.twoFactorOperationFailed': "Ikki bosqichli operatsiya muvaffaqiyatsiz bo'ldi.",

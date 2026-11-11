@@ -47,6 +47,7 @@ export const az: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'Gözləyən iki faktorlu quraşdırma yoxdur. Əvvəlcə "setup" ilə çağırın.',
   'user.error.invalidToken': 'Yanlış token.',
+  'user.error.twoFactorRequired': 'İki faktorlu kod tələb olunur.',
   'user.error.twoFactorNotEnabled': 'İki faktorlu aktiv deyil.',
   'user.error.invalidAction': 'Yanlış əməliyyat. "setup", "enable" və ya "disable" istifadə edin.',
   'user.error.twoFactorOperationFailed': 'İki faktorlu əməliyyat uğursuz oldu.',

@@ -49,6 +49,7 @@ export const de: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'Keine ausstehende Zwei-Faktor-Einrichtung. Rufen Sie zuerst mit der Aktion "setup" auf.',
   'user.error.invalidToken': 'Ungültiges Token.',
+  'user.error.twoFactorRequired': 'Ein Zwei-Faktor-Code ist erforderlich.',
   'user.error.twoFactorNotEnabled': 'Zwei-Faktor ist nicht aktiviert.',
   'user.error.invalidAction': 'Ungültige Aktion. Verwenden Sie "setup", "enable" oder "disable".',
   'user.error.twoFactorOperationFailed': 'Zwei-Faktor-Vorgang fehlgeschlagen.',

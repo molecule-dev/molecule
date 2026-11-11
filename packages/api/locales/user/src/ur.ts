@@ -47,6 +47,7 @@ export const ur: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'کوئی زیر التوا دو عنصری سیٹ اپ نہیں۔ پہلے "setup" عمل کے ساتھ کال کریں۔',
   'user.error.invalidToken': 'غلط ٹوکن۔',
+  'user.error.twoFactorRequired': 'دو عنصری کوڈ درکار ہے۔',
   'user.error.twoFactorNotEnabled': 'دو عنصری فعال نہیں ہے۔',
   'user.error.invalidAction': 'غلط عمل۔ "setup"، "enable"، یا "disable" استعمال کریں۔',
   'user.error.twoFactorOperationFailed': 'دو عنصری آپریشن ناکام۔',

@@ -48,6 +48,7 @@ export const hy: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'Spasvog erkgorcony karumy chka. Kanchirecq skzbum "setup" gortsunov.',
   'user.error.invalidToken': 'Anvaverakan token.',
+  'user.error.twoFactorRequired': 'Erkgorcony kody pahanjvum e.',
   'user.error.twoFactorNotEnabled': 'Erkgorcony identifikatsiay miatsva che.',
   'user.error.invalidAction': 'Anvaverakan gortsunq. Ogtagorcec "setup", "enable" kam "disable".',
   'user.error.twoFactorOperationFailed': 'Erkgorcony gortsoghutyny dzakhogvec.',

@@ -50,6 +50,7 @@ export const fr: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'Aucune configuration à deux facteurs en attente. Appelez d\'abord avec l\'action "setup".',
   'user.error.invalidToken': 'Jeton invalide.',
+  'user.error.twoFactorRequired': 'Un code à deux facteurs est requis.',
   'user.error.twoFactorNotEnabled': "L'authentification à deux facteurs n'est pas activée.",
   'user.error.invalidAction': 'Action invalide. Utilisez "setup", "enable" ou "disable".',
   'user.error.twoFactorOperationFailed': "L'opération à deux facteurs a échoué.",

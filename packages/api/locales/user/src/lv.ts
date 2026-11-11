@@ -48,6 +48,7 @@ export const lv: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'Nav gaidošu divfaktoru iestatīšanu. Izsauciet ar darbību "setup".',
   'user.error.invalidToken': 'Nederīgs žetons.',
+  'user.error.twoFactorRequired': 'Nepieciešams divfaktoru kods.',
   'user.error.twoFactorNotEnabled': 'Divfaktoru autentifikācija nav iespējota.',
   'user.error.invalidAction': 'Nederīga darbība. Izmantojiet "setup", "enable" vai "disable".',
   'user.error.twoFactorOperationFailed': 'Divfaktoru operācija neizdevās.',

@@ -49,6 +49,7 @@ export const ka: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'Molodinis orpaqtoriani daqeneba ar arsebobs. Gamoizeniet "setup" moqmedobit.',
   'user.error.invalidToken': 'Aratsvalidi tokeni.',
+  'user.error.twoFactorRequired': 'Orpaqtoriani kodi sachiroa.',
   'user.error.twoFactorNotEnabled': 'Orpaqtoriani ar aris chartuli.',
   'user.error.invalidAction': 'Aratsvalidi moqmedeba. Gamoiqenet "setup", "enable" an "disable".',
   'user.error.twoFactorOperationFailed': 'Orpaqtoriani operatsia ver mokherkhda.',

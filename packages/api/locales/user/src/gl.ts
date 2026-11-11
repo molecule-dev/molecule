@@ -49,6 +49,7 @@ export const gl: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'Non hai configuración de dobre factor pendente. Chame primeiro coa acción "setup".',
   'user.error.invalidToken': 'Token non válido.',
+  'user.error.twoFactorRequired': 'Requírese un código de dobre factor.',
   'user.error.twoFactorNotEnabled': 'O dobre factor non está activado.',
   'user.error.invalidAction': 'Acción non válida. Use "setup", "enable" ou "disable".',
   'user.error.twoFactorOperationFailed': 'A operación de dobre factor fallou.',

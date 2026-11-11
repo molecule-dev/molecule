@@ -48,6 +48,7 @@ export const cs: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'Žádné čekající dvoufaktorové nastavení. Nejprve zavolejte s akcí "setup".',
   'user.error.invalidToken': 'Neplatný token.',
+  'user.error.twoFactorRequired': 'Je vyžadován dvoufaktorový kód.',
   'user.error.twoFactorNotEnabled': 'Dvoufaktorové ověření není povoleno.',
   'user.error.invalidAction': 'Neplatná akce. Použijte "setup", "enable" nebo "disable".',
   'user.error.twoFactorOperationFailed': 'Dvoufaktorová operace selhala.',

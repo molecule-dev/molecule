@@ -49,6 +49,7 @@ export const ta: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'நிலுவையில் இரு-காரணி அமைப்பு இல்லை. முதலில் "setup" செயலுடன் அழைக்கவும்.',
   'user.error.invalidToken': 'தவறான டோக்கன்.',
+  'user.error.twoFactorRequired': 'இரு-காரணி குறியீடு தேவை.',
   'user.error.twoFactorNotEnabled': 'இரு-காரணி இயக்கப்படவில்லை.',
   'user.error.invalidAction': 'தவறான செயல். "setup", "enable", அல்லது "disable" பயன்படுத்தவும்.',
   'user.error.twoFactorOperationFailed': 'இரு-காரணி செயல்பாடு தோல்வி.',

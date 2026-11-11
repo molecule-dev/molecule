@@ -47,6 +47,7 @@ export const uk: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'Немає очікуваного двофакторного налаштування. Спершу викличте з дією "setup".',
   'user.error.invalidToken': 'Недійсний токен.',
+  'user.error.twoFactorRequired': 'Потрібен двофакторний код.',
   'user.error.twoFactorNotEnabled': 'Двофакторна автентифікація не увімкнена.',
   'user.error.invalidAction': 'Недійсна дія. Використовуйте "setup", "enable" або "disable".',
   'user.error.twoFactorOperationFailed': 'Двофакторна операція не вдалася.',

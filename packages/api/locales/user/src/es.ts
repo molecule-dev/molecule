@@ -49,6 +49,7 @@ export const es: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'No hay configuración de doble factor pendiente. Llame primero con la acción "setup".',
   'user.error.invalidToken': 'Token no válido.',
+  'user.error.twoFactorRequired': 'Se requiere un código de doble factor.',
   'user.error.twoFactorNotEnabled': 'El doble factor no está activado.',
   'user.error.invalidAction': 'Acción no válida. Use "setup", "enable" o "disable".',
   'user.error.twoFactorOperationFailed': 'La operación de doble factor falló.',

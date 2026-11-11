@@ -45,6 +45,7 @@ export const zh: UserTranslations = {
   'user.error.tokenRequired': '令牌为必填项。',
   'user.error.noPendingTwoFactorSetup': '没有待处理的双重验证设置。请先调用 "setup" 操作。',
   'user.error.invalidToken': '无效的令牌。',
+  'user.error.twoFactorRequired': '需要双重验证码。',
   'user.error.twoFactorNotEnabled': '双重验证未启用。',
   'user.error.invalidAction': '无效的操作。请使用 "setup"、"enable" 或 "disable"。',
   'user.error.twoFactorOperationFailed': '双重验证操作失败。',

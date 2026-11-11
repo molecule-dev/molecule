@@ -48,6 +48,7 @@ export const km: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'គ្មានការដំឡើង two-factor កំពុងរង់ចាំ។ សូមហៅជាមួយ action "setup" ជាមុនសិន។',
   'user.error.invalidToken': 'Token មិនត្រឹមត្រូវ។',
+  'user.error.twoFactorRequired': 'ត្រូវការកូដ two-factor។',
   'user.error.twoFactorNotEnabled': 'Two-factor មិនត្រូវបានបើក។',
   'user.error.invalidAction': 'Action មិនត្រឹមត្រូវ។ សូមប្រើ "setup", "enable", ឬ "disable"។',
   'user.error.twoFactorOperationFailed': 'ប្រតិបត្តិការ two-factor បរាជ័យ។',

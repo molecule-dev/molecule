@@ -41,6 +41,7 @@ export type UserTranslationKey =
   | 'user.error.tokenRequired'
   | 'user.error.noPendingTwoFactorSetup'
   | 'user.error.invalidToken'
+  | 'user.error.twoFactorRequired'
   | 'user.error.twoFactorNotEnabled'
   | 'user.error.invalidAction'
   | 'user.error.twoFactorOperationFailed'

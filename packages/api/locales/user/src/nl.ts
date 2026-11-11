@@ -49,6 +49,7 @@ export const nl: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'Geen openstaande tweefactor-instelling. Roep eerst aan met de actie "setup".',
   'user.error.invalidToken': 'Ongeldig token.',
+  'user.error.twoFactorRequired': 'Een tweefactor-code is vereist.',
   'user.error.twoFactorNotEnabled': 'Tweefactor is niet ingeschakeld.',
   'user.error.invalidAction': 'Ongeldige actie. Gebruik "setup", "enable" of "disable".',
   'user.error.twoFactorOperationFailed': 'Tweefactor-operatie mislukt.',

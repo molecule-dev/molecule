@@ -48,6 +48,7 @@ export const mk: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'Нема двофакторско поставување на чекање. Повикајте со акција "setup" прво.',
   'user.error.invalidToken': 'Невалиден токен.',
+  'user.error.twoFactorRequired': 'Потребен е двофакторски код.',
   'user.error.twoFactorNotEnabled': 'Двофакторската автентикација не е овозможена.',
   'user.error.invalidAction': 'Невалидна акција. Користете "setup", "enable" или "disable".',
   'user.error.twoFactorOperationFailed': 'Двофакторската операција не успеа.',

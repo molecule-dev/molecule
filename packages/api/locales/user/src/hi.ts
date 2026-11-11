@@ -47,6 +47,7 @@ export const hi: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'कोई लंबित दो-कारक सेटअप नहीं। पहले "setup" एक्शन के साथ कॉल करें।',
   'user.error.invalidToken': 'अमान्य टोकन।',
+  'user.error.twoFactorRequired': 'दो-कारक कोड आवश्यक है।',
   'user.error.twoFactorNotEnabled': 'दो-कारक सक्षम नहीं है।',
   'user.error.invalidAction': 'अमान्य एक्शन। "setup", "enable", या "disable" उपयोग करें।',
   'user.error.twoFactorOperationFailed': 'दो-कारक ऑपरेशन विफल।',

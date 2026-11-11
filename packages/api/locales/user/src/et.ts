@@ -48,6 +48,7 @@ export const et: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'Ootel kaheastmelise seadistuse puudub. Kutsuge esmalt tegevusega "setup".',
   'user.error.invalidToken': 'Vigane token.',
+  'user.error.twoFactorRequired': 'Nõutav on kaheastmelise autentimise kood.',
   'user.error.twoFactorNotEnabled': 'Kaheastmeline autentimine pole lubatud.',
   'user.error.invalidAction': 'Vigane tegevus. Kasutage "setup", "enable" või "disable".',
   'user.error.twoFactorOperationFailed': 'Kaheastmelise autentimise toiming ebaõnnestus.',

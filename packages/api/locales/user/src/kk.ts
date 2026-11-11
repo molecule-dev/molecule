@@ -48,6 +48,7 @@ export const kk: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'Күтудегі екі факторлы орнату жоқ. Алдымен "setup" арқылы шақырыңыз.',
   'user.error.invalidToken': 'Жарамсыз токен.',
+  'user.error.twoFactorRequired': 'Екі факторлы код қажет.',
   'user.error.twoFactorNotEnabled': 'Екі факторлы қосылмаған.',
   'user.error.invalidAction': 'Жарамсыз әрекет. "setup", "enable" немесе "disable" пайдаланыңыз.',
   'user.error.twoFactorOperationFailed': 'Екі факторлы операция сәтсіз аяқталды.',

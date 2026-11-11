@@ -47,6 +47,7 @@ export const te: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'పెండింగ్ రెండు-కారకాల సెటప్ లేదు. మొదట "setup" చర్యతో కాల్ చేయండి.',
   'user.error.invalidToken': 'చెల్లని టోకన్.',
+  'user.error.twoFactorRequired': 'రెండు-కారకాల కోడ్ అవసరం.',
   'user.error.twoFactorNotEnabled': 'రెండు-కారకాలు ఎనేబుల్ కాలేదు.',
   'user.error.invalidAction': 'చెల్లని చర్య. "setup", "enable", లేదా "disable" వాడండి.',
   'user.error.twoFactorOperationFailed': 'రెండు-కారకాల ఆపరేషన్ విఫలమైంది.',

@@ -45,6 +45,7 @@ export const zhTW: UserTranslations = {
   'user.error.tokenRequired': '權杖為必填。',
   'user.error.noPendingTwoFactorSetup': '沒有待處理的雙重驗證設定。請先呼叫 "setup" 操作。',
   'user.error.invalidToken': '無效的權杖。',
+  'user.error.twoFactorRequired': '需要雙重驗證碼。',
   'user.error.twoFactorNotEnabled': '雙重驗證未啟用。',
   'user.error.invalidAction': '無效的操作。請使用 "setup"、"enable" 或 "disable"。',
   'user.error.twoFactorOperationFailed': '雙重驗證操作失敗。',

@@ -48,6 +48,7 @@ export const ga: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'Gan socrú dhá-fhachtóir ar feitheamh. Glaoigh le gníomh "setup" ar dtús.',
   'user.error.invalidToken': 'Comhartha neamhbhailí.',
+  'user.error.twoFactorRequired': 'Tá cód dhá-fhachtóir ag teastáil.',
   'user.error.twoFactorNotEnabled': 'Dhá-fhachtóir gan chumasú.',
   'user.error.invalidAction': 'Gníomh neamhbhailí. Úsáid "setup", "enable", nó "disable".',
   'user.error.twoFactorOperationFailed': 'Theip ar oibríocht dhá-fhachtóir.',

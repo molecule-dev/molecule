@@ -48,6 +48,7 @@ export const sw: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'Hakuna usanidi wa hatua mbili unaongojea. Piga simu kwa kitendo cha "setup" kwanza.',
   'user.error.invalidToken': 'Tokeni batili.',
+  'user.error.twoFactorRequired': 'Msimbo wa hatua mbili unahitajika.',
   'user.error.twoFactorNotEnabled': 'Hatua mbili haijawezeshwa.',
   'user.error.invalidAction': 'Kitendo batili. Tumia "setup", "enable", au "disable".',
   'user.error.twoFactorOperationFailed': 'Operesheni ya hatua mbili imeshindwa.',

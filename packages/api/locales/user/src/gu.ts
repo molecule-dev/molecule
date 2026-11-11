@@ -47,6 +47,7 @@ export const gu: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'કોઈ બાકી દ્વિ-પરિબળ સેટઅપ નથી. પહેલા "setup" ક્રિયા સાથે કૉલ કરો.',
   'user.error.invalidToken': 'અમાન્ય ટોકન.',
+  'user.error.twoFactorRequired': 'દ્વિ-પરિબળ કોડ જરૂરી છે.',
   'user.error.twoFactorNotEnabled': 'દ્વિ-પરિબળ સક્રિય નથી.',
   'user.error.invalidAction': 'અમાન્ય ક્રિયા. "setup", "enable", અથવા "disable" વાપરો.',
   'user.error.twoFactorOperationFailed': 'દ્વિ-પરિબળ ઓપરેશન નિષ્ફળ.',

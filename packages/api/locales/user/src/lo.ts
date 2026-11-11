@@ -48,6 +48,7 @@ export const lo: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'ບໍ່ມີການຕັ້ງຄ່າ two-factor ທີ່ລໍຖ້າ. ກະລຸນາເອີ້ນດ້ວຍ action "setup" ກ່ອນ.',
   'user.error.invalidToken': 'Token ບໍ່ຖືກຕ້ອງ.',
+  'user.error.twoFactorRequired': 'ຕ້ອງການລະຫັດ two-factor.',
   'user.error.twoFactorNotEnabled': 'Two-factor ບໍ່ໄດ້ເປີດໃຊ້ງານ.',
   'user.error.invalidAction': 'Action ບໍ່ຖືກຕ້ອງ. ໃຊ້ "setup", "enable", ຫຼື "disable".',
   'user.error.twoFactorOperationFailed': 'ການດຳເນີນການ two-factor ລົ້ມເຫຼວ.',

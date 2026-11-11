@@ -48,6 +48,7 @@ export const fil: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'Walang pending na two-factor setup. Tumawag muna gamit ang action na "setup".',
   'user.error.invalidToken': 'Hindi valid na token.',
+  'user.error.twoFactorRequired': 'Kailangan ang two-factor code.',
   'user.error.twoFactorNotEnabled': 'Hindi naka-enable ang two-factor.',
   'user.error.invalidAction': 'Hindi valid na action. Gamitin ang "setup", "enable", o "disable".',
   'user.error.twoFactorOperationFailed': 'Nabigo ang two-factor operation.',

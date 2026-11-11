@@ -48,6 +48,7 @@ export const ro: UserTranslations = {
   'user.error.noPendingTwoFactorSetup':
     'Nicio configurare cu doi factori în așteptare. Apelați mai întâi cu acțiunea "setup".',
   'user.error.invalidToken': 'Token invalid.',
+  'user.error.twoFactorRequired': 'Este necesar un cod cu doi factori.',
   'user.error.twoFactorNotEnabled': 'Autentificarea cu doi factori nu este activată.',
   'user.error.invalidAction': 'Acțiune invalidă. Utilizați "setup", "enable" sau "disable".',
   'user.error.twoFactorOperationFailed': 'Operațiunea cu doi factori a eșuat.',
