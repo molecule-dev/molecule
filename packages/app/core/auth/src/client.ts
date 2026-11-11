@@ -775,6 +775,9 @@ export const createJWTAuthClient = <
       failure.status = response.status
       // The response body with credential values redacted — see {@link AuthError}.
       failure.body = body
+      // Direct payload readers use `error.data ?? error`, while HTTP readers use
+      // `error.response.data`. Both must receive the redacted server validation body.
+      failure.data = body
       // Mirror app-http's failed-response view without importing it. Keep the
       // original auth fields above intact: both documented readings now work on
       // the SAME rejection, including across duplicated package copies.

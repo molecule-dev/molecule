@@ -495,6 +495,9 @@ export interface AuthError extends I18nError {
    */
   body: unknown
 
+  /** The same parsed payload as {@link AuthError.body}, for direct error-data readers. */
+  data: unknown
+
   /** The app-http-compatible view of the failed response. */
   response: {
     /** The same parsed value as {@link AuthError.body}. */
