@@ -28,6 +28,8 @@ export interface ResourceHttp {
   post(path: string, body?: unknown): Promise<ResourceResponse>
   /** Replaces at `path`. */
   put(path: string, body?: unknown): Promise<ResourceResponse>
+  /** Changes part of the record at `path`. */
+  patch(path: string, body?: unknown): Promise<ResourceResponse>
   /** Removes at `path`. */
   delete(path: string): Promise<ResourceResponse>
 }
@@ -42,6 +44,8 @@ export interface QueryResourceConfig<T> {
   http: () => ResourceHttp
   /** The field a record is addressed by in a URL. Defaults to `'id'`. */
   id?: keyof T & string
+  /** The HTTP method the API updates a record with. Defaults to `'put'`. */
+  updateMethod?: 'put' | 'patch'
   /** Reads the records out of a list response. Defaults to the body itself. */
   readList?: (response: ResourceResponse) => T[]
   /** Reads the record out of a detail or write response. Defaults to the body itself. */
@@ -167,7 +171,8 @@ export function createQueryResource<T, Create = Partial<T>, Update = Partial<T>>
             },
           },
     create: async (viewer, input) => saved(viewer, await config.http().post(base, input)),
-    update: async (viewer, id, input) => saved(viewer, await config.http().put(one(id), input)),
+    update: async (viewer, id, input) =>
+      saved(viewer, await config.http()[config.updateMethod ?? 'put'](one(id), input)),
     remove: async (viewer, id) => {
       await config.http().delete(one(id))
       getQueryClient().set<T | null>(detailKey(viewer, id), null)

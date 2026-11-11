@@ -72,6 +72,11 @@ function ticketApi(): { http: ResourceHttp; rows: Ticket[]; calls: string[] } {
       const row = Object.assign(find(path)!, body)
       return { data: { ticket: { ...row } } }
     },
+    patch: async (path, body) => {
+      calls.push(`PATCH ${path}`)
+      const row = Object.assign(find(path)!, body)
+      return { data: { ticket: { ...row } } }
+    },
     delete: async (path) => {
       calls.push(`DELETE ${path}`)
       const row = find(path)!
@@ -189,6 +194,19 @@ describe.each([
     // Another viewer's write refreshes that viewer's lists, not this one's.
     expect(api.calls.slice(before).filter((call) => call.startsWith('GET'))).toEqual([])
     expect(mine.value().data).toHaveLength(1)
+  })
+
+  it('updates with PATCH when the API does', async () => {
+    const tickets = createQueryResource<Ticket>({
+      name: 'tickets',
+      path: '/tickets/',
+      updateMethod: 'patch',
+      http: () => api.http,
+      readOne: (response) => (response.data as { ticket: Ticket }).ticket,
+    })
+    const saved = await tickets.update('agent-1', 't1', { subject: 'Scanner' })
+    expect(saved.subject).toBe('Scanner')
+    expect(api.calls).toContain('PATCH /tickets/t1')
   })
 
   it('rejects a write whose response holds no record', async () => {
