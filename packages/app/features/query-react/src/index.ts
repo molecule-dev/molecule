@@ -195,6 +195,55 @@
  * }
  * ```
  *
+ * @example
+ * One API resource described once, for every page that reads or changes it.
+ * `createQueryResource` returns the list and detail reads as `useQuery` options and the writes
+ * as functions that put the server's record into the cache and fetch the lists on screen again,
+ * so a page never mirrors a response into `useState`. A flag the API models as a sub-path
+ * (`POST /invoices/:id/flag`, `DELETE` to clear it) is `toggle`, which resolves with the saved
+ * record and is the `commit` of `useOptimisticValue`.
+ *
+ * ```tsx
+ * import { getClient, unwrapList, unwrapSingle } from '@molecule/app-http'
+ * import { createQueryResource, useQuery } from '@molecule/app-query-react'
+ * import { useAuth, useOptimisticValue } from '@molecule/app-react'
+ *
+ * interface Invoice {
+ *   id: string
+ *   number: string
+ *   flagged: boolean
+ * }
+ *
+ * export const invoices = createQueryResource<Invoice>({
+ *   name: 'invoices',
+ *   path: '/invoices',
+ *   http: getClient,
+ *   readList: (response) => unwrapList<Invoice>(response),
+ *   readOne: (response) => unwrapSingle<Invoice>(response),
+ * })
+ *
+ * function InvoicePage({ id }: { id: string }) {
+ *   const { user } = useAuth<{ id: string }>()
+ *   const viewer = user ? String(user.id) : 'anonymous'
+ *   const { data: invoice, status } = useQuery(invoices.detail(viewer, id))
+ *   if (status === 'idle' || status === 'loading') return <p role=status>…</p>
+ *   if (!invoice) return <p role=alert>…</p>
+ *   return <FlagButton key={invoice.id} invoice={invoice} viewer={viewer} />
+ * }
+ *
+ * function FlagButton({ invoice, viewer }: { invoice: Invoice; viewer: string }) {
+ *   const flag = useOptimisticValue({
+ *     value: invoice.flagged,
+ *     commit: async (on) => (await invoices.toggle(viewer, invoice.id, 'flag', on)).flagged,
+ *   })
+ *   return (
+ *     <button type=button aria-pressed={flag.value} onClick={() => flag.update((on) => !on)}>
+ *       {invoice.number}
+ *     </button>
+ *   )
+ * }
+ * ```
+ *
  * @remarks
  * - **`useQuery` reads the cache synchronously on the first render.** A
  *   document prefetched from a hovered link, or seeded with `client.set()`
@@ -262,5 +311,6 @@
  * @module
  */
 
+export * from './resource.js'
 export * from './usePrefetch.js'
 export * from './useQuery.js'
