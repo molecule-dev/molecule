@@ -39,7 +39,12 @@ describe('auth error data is available to direct payload readers', () => {
     )
     const client = createJWTAuthClient({ autoRefresh: false })
     client.setSession({ accessToken: 'opaque-token', user: { id: 'reader' } })
-    const error = await client.updateProfile({ id: 'reader' }).catch((error) => error as AuthError)
+    const error = await client.updateProfile({ id: 'reader' }).then(
+      () => {
+        throw new Error('Expected profile validation to reject')
+      },
+      (caught: unknown) => caught as AuthError,
+    )
     expect(flattenErrors(error.data)).toEqual(['displayName too long'])
     expect(error.data).toEqual(error.body)
     expect(error.data).toEqual(error.response.data)
