@@ -170,6 +170,10 @@ npm run check:locale-placeholders
 # the scanner subgraph imports no @molecule/* packages). Skips (does not block)
 # when mlcl is a non-sibling or its deps aren't installed — e.g. a standalone
 # molecule clone — where the registry simply isn't reachable.
+# The same check covers each resource's response record (the interface its API
+# returns, e.g. Article in src/types.ts): mlcl types the app module it writes
+# for a resource from the registry's copy, so a returned field that changes
+# here without `sync-registry --scan-records` types every new app wrong.
 # The gates below that read package SOURCE read the source this commit carries:
 # one export of the index (`git checkout-index`, which honours a private
 # GIT_INDEX_FILE and a pathspec commit's temporary index), made once, on first
