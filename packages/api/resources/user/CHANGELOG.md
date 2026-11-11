@@ -1,5 +1,11 @@
 # @molecule/api-resource-user
 
+## 1.8.7
+
+### Patch Changes
+
+- Report misplaced login credential envelopes as a body contract error with endpoint and request adapter guidance.
+
 ## 1.8.6
 
 ### Patch Changes
