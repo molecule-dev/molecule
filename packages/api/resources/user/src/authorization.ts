@@ -632,6 +632,14 @@ export interface VerifyMiddlewareOptions {
  * including whether `set()` writes the session cookie for this
  * request. Records the scheme for `set()` and, when the token came from the header, records the
  * raw token in `res.locals[AUTH_TOKEN_LOCALS_KEY]`. Auto-refreshes tokens older than `JWT_REFRESH_TIME`.
+ *
+ * **It never answers the request itself.** A request with no accepted credential, with a token
+ * that fails verification or has expired, or with a token whose device has been signed out
+ * continues to the next handler with NO `res.locals.session` — no 401 is sent here. So one mount
+ * in front of every route serves public and protected routes alike: a public route reads the
+ * optional viewer with `getUserId(res)` (from `@molecule/api-bonds-default-express`, `null`
+ * when signed out), and a route that requires sign-in answers 401 itself when that is `null`,
+ * in the app's own error shape. `authorizers.auth()` is the same check as route middleware.
  * @param options - {@link VerifyMiddlewareOptions} controlling the auto-refresh, cookie policy and scheme.
  * @returns An Express-compatible middleware function.
  */

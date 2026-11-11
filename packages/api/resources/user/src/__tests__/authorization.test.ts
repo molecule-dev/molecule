@@ -936,6 +936,49 @@ describe('authorization', () => {
       expect(next).toHaveBeenCalled()
     })
 
+    // The documented contract of the mount: it resolves a session or it does not, and it never
+    // answers. Runs that mounted it in front of their own routes read ~120 lines of the built
+    // middleware to learn this (X1 P314/P315: 19 shell reads of this package's dist in 14 runs).
+    it.each([
+      ['no credential', undefined, 'none'],
+      ['a scheme it does not accept', 'Basic abc123', 'none'],
+      ['a token that fails verification', 'Token forged', 'invalid'],
+      ['a token whose device has been signed out', 'Bearer revoked', 'revoked'],
+    ] as const)(
+      'never answers the request for %s: no session, next() with no error',
+      async (_what, header, kind) => {
+        if (kind === 'invalid')
+          mockVerify.mockImplementation(() => {
+            throw new Error('invalid signature')
+          })
+        if (kind === 'revoked') {
+          mockVerify.mockReturnValue({ userId: 'u1', deviceId: 'd-gone-' + String(Math.random()) })
+          mockGet.mockReturnValue({ exists: vi.fn().mockResolvedValue(false) })
+        }
+        const next = vi.fn()
+        const res = {
+          ...makeRes(),
+          status: vi.fn(),
+          send: vi.fn(),
+          json: vi.fn(),
+          end: vi.fn(),
+          sendStatus: vi.fn(),
+        }
+
+        await verifyMiddleware({ allowCookieSession: false })(
+          makeReq(header ? { headers: { authorization: header } } : {}) as never,
+          res as never,
+          next,
+        )
+
+        expect(next).toHaveBeenCalledTimes(1)
+        expect(next).toHaveBeenCalledWith()
+        expect(res.locals.session).toBeUndefined()
+        for (const answer of [res.status, res.send, res.json, res.end, res.sendStatus])
+          expect(answer).not.toHaveBeenCalled()
+      },
+    )
+
     it('accepts a valid JWT whose device still exists (legitimate session)', async () => {
       const session = { userId: 'u1', deviceId: 'd-active' }
       mockVerify.mockReturnValue(session)

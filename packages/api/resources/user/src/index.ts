@@ -157,8 +157,10 @@
  * **A JWT you sign yourself is NOT a session.** `verifyMiddleware` accepts a token only when
  * the bonded `@molecule/api-jwt` provider verifies it AND its `deviceId` names an ACTIVE row
  * in `devices`; anything else — another secret or algorithm, or an invented/placeholder
- * `deviceId` — is answered 401 on every request (a request with no credential at all answers
- * `{"errors":{"token":["is missing"]}}`). Mint sessions with `authorization.set()` after
+ * `deviceId` — resolves NO session, so every route that requires sign-in answers 401. The
+ * middleware never answers a request itself: one with no usable credential continues without
+ * `res.locals.session`, a public route serves it, and a protected route answers 401 in the
+ * app's own error shape (`getUserId(res)` is `null`). Mint sessions with `authorization.set()` after
  * `device.createOrUpdate()` (the sequence above) and mount `verifyMiddleware` once in front of
  * the routes — never hand-roll auth middleware or a second token scheme.
  *

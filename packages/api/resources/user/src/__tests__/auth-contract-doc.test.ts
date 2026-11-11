@@ -112,6 +112,19 @@ describe('the auth contracts in @molecule/api-resource-user’s own docs (m337/m
     expect(doc).toContain('Every OTHER session is revoked')
   })
 
+  it('says what the session middleware does with a request it cannot authenticate', () => {
+    // The behaviour itself is asserted in authorization.test.ts ("never answers the request").
+    const doc = docFor(read('src/authorization.ts'), 'export const verifyMiddleware')
+    expect(doc).toContain('It never answers the request itself')
+    expect(doc).toContain('continues to the next handler with NO `res.locals.session`')
+    expect(doc).toContain('a route that requires sign-in answers 401 itself')
+    const moduleText = moduleDoc(read('src/index.ts'))
+    expect(moduleText).toContain('middleware never answers a request itself')
+    // One application's own 401 body is not this package's behaviour.
+    expect(moduleText).not.toContain('"token":["is missing"]')
+    expect(moduleText).not.toContain('is answered 401 on every request')
+  })
+
   it('carries the contracts into the generated README, the doc read_molecule_doc serves', () => {
     const readme = read('README.md')
     const head = readme.slice(0, readme.indexOf('## Quick Start'))
@@ -121,5 +134,6 @@ describe('the auth contracts in @molecule/api-resource-user’s own docs (m337/m
     // The handler entries render in the API section.
     expect(readme).toContain('A change to `email` is re-authenticated')
     expect(readme).toContain('Body and results')
+    expect(readme).toContain('It never answers the request itself')
   })
 })
