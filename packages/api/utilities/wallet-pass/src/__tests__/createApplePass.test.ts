@@ -95,15 +95,16 @@ const samplePass: ApplePassData = {
 
 describe('createApplePass', () => {
   test('uses the patched Forge release on the actual signing resolution path', () => {
-    // The old 1.4.0 resolution must fail even when the source manifest was bumped.
-    // CVE-2026-85393 is fixed in 1.4.1; production here signs rather than verifies.
+    // An older resolution must fail even when the source manifest was bumped.
+    // CVE-2026-85393 is fixed in 1.4.1 and GHSA-w4xr-hqv8-ch44, GHSA-6cv4-p8m7-4r25 and
+    // GHSA-j8rw-jp99-435v in 1.4.3; production here signs rather than verifies.
     const declared = JSON.parse(
       readFileSync(new URL('../../package.json', import.meta.url), 'utf8'),
     )
     const require = createRequire(import.meta.url)
     const resolved = require.resolve('node-forge/package.json')
     const installed = JSON.parse(readFileSync(resolved, 'utf8'))
-    expect(declared.dependencies['node-forge']).toBe('1.4.1')
+    expect(declared.dependencies['node-forge']).toBe('1.4.3')
     expect(installed.version).toBe(declared.dependencies['node-forge'])
     expect(forge).toBe(require('node-forge'))
   })
