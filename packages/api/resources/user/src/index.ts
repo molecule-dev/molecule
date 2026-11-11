@@ -66,6 +66,15 @@
  * example for the full wiring, including early validation responses. Keep
  * route rate limits and authorization around the configured wrapper.
  *
+ * **Keep the login endpoint and request adapter together.** An adapted signup route
+ * does not change the generated login route. If the app sends an envelope, its
+ * `loginEndpoint` must name the route that unwraps that same envelope and formats
+ * its response. The native `handlers.logIn` reads flat credentials; an unadapted
+ * nested credential body answers 400 `user.error.credentialsNested` before any
+ * account lookup, with the envelope and adapter repair. It never means that the
+ * registered account has the wrong password. Keep both routes on these shared
+ * handlers so they use the same credential store.
+ *
  * **Re-shaping a success answer (RealWorld's `{ user: { …, token } }`, say)? Read the token from
  * `result.body.accessToken` — it is in the BODY.** The `Authorization` response header carries
  * the same token prefixed with the mount's scheme (`Bearer <token>`), so it is not the raw value
@@ -194,8 +203,9 @@
  *
  * **A different wire format** (RealWorld's `{ user: { … } }`): the route handlers read a
  * FLAT body (`req.body.username`, `req.body.password`) and are not a wire-format adapter —
- * a nested body is answered 400 `user.error.bodyNestedUnderUser`. Unwrap the envelope
- * before calling a handler, or write the route yourself. A username keeps exactly what was
+ * signup's nested `user` body is answered 400 `user.error.bodyNestedUnderUser`, and
+ * login's nested credentials answer 400 `user.error.credentialsNested`. Unwrap the envelope
+ * before calling a handler. A username keeps exactly what was
  * sent (letters, digits, `.`, `-`, `_`); anything else is answered 400
  * `user.error.usernameInvalid`, never rewritten.
  *

@@ -5,9 +5,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type * as BondModule from '@molecule/api-bond'
 import type * as DatabaseModule from '@molecule/api-database'
+import { adaptHandler } from '@molecule/api-resource'
 const state = vi.hoisted(() => ({
   tables: new Map<string, Map<string, Record<string, unknown>>>(),
   calls: [] as Array<{ table: string; row: Record<string, unknown> }>,
+  lookups: vi.fn(),
 }))
 vi.mock('@molecule/api-bond', async (original) => ({
   ...(await original<typeof BondModule>()),
@@ -25,10 +27,14 @@ vi.mock('@molecule/api-database', async (original) => ({
     state.calls.push({ table, row: copy })
     return { affected: 1, data: copy }
   },
-  findOne: async (table: string, where: Array<{ field: string; value: unknown }>) =>
-    [...(state.tables.get(table)?.values() ?? [])].find((row) =>
-      where.every((c) => row[c.field] === c.value),
-    ) ?? null,
+  findOne: async (table: string, where: Array<{ field: string; value: unknown }>) => {
+    state.lookups(table, where)
+    return (
+      [...(state.tables.get(table)?.values() ?? [])].find((row) =>
+        where.every((c) => row[c.field] === c.value),
+      ) ?? null
+    )
+  },
   findById: async (table: string, id: string) => state.tables.get(table)?.get(id) ?? null,
   updateById: async () => ({ affected: 1 }),
   updateMany: async () => ({ affected: 1 }),
@@ -46,7 +52,11 @@ vi.mock('@molecule/api-config', () => ({
   get: (key: string, fallback?: unknown) =>
     key === 'AUTH_SCHEME' ? 'Token' : key === 'NODE_ENV' ? 'test' : fallback,
 }))
-vi.mock('@molecule/api-i18n', () => ({ t: (key: string) => key }))
+vi.mock('@molecule/api-i18n', () => ({
+  t: (key: string, values?: Record<string, string>, options?: { defaultValue?: string }) =>
+    options?.defaultValue?.replace(/\{\{(\w+)\}\}/g, (_, name: string) => values?.[name] ?? '') ??
+    key,
+}))
 import { create } from '../handlers/create.js'
 import { logIn } from '../handlers/logIn.js'
 const resource = { name: 'User', tableName: 'users' }
@@ -78,6 +88,7 @@ function adapt(result: SignupResult): { statusCode: number; body: unknown } | un
 beforeEach(() => {
   state.tables.clear()
   state.calls.length = 0
+  state.lookups.mockClear()
 })
 describe('existing signup/login contract plus ordinary envelope adapter', () => {
   it('registers both rows with one id, then logs in by email without custom credential writes', async () => {
@@ -136,5 +147,83 @@ describe('existing signup/login contract plus ordinary envelope adapter', () => 
     expect(
       (await login({ email: 'reader@example.com', password: 'example-password' })).statusCode,
     ).toBe(403)
+  })
+
+  it.each(['user', 'account'])(
+    'diagnoses a %s envelope sent to the native login route before querying credentials',
+    async (envelope) => {
+      const ownResource =
+        envelope === 'account' ? { name: 'Member', tableName: 'members' } : resource
+      const fields = {
+        username: 'reader',
+        email: 'reader@example.com',
+        password: 'example-password',
+      }
+      // The retained run registered through an envelope adapter, then sent the same
+      // envelope to the scaffold's native, flat-body login route.
+      const register = adaptHandler(create(ownResource), {
+        mapRequest: (req) => ({ body: req.body[envelope] }),
+      })
+      const created = await register({ body: { [envelope]: fields } } as never, response() as never)
+      expect(created?.statusCode).toBe(201)
+      state.lookups.mockClear()
+      const rejected = await logIn(ownResource)(
+        { body: { [envelope]: fields } } as never,
+        response() as never,
+      )
+      expect(rejected.statusCode).toBe(400)
+      expect(rejected.body).toMatchObject({ errorKey: 'user.error.credentialsNested' })
+      expect(rejected.body.error).toContain(JSON.stringify(envelope))
+      expect(rejected.body.error).toContain('loginEndpoint')
+      expect(rejected.body.error).toContain('mapRequest')
+      expect(JSON.stringify(rejected)).not.toContain(fields.password)
+      expect(state.lookups).not.toHaveBeenCalled()
+
+      const adaptedLogin = adaptHandler(logIn(ownResource), {
+        mapRequest: (req) => ({ body: req.body[envelope] }),
+      })
+      const loggedIn = await adaptedLogin(
+        { body: { [envelope]: fields } } as never,
+        response() as never,
+      )
+      expect(loggedIn?.statusCode).toBe(200)
+      const refused = await adaptedLogin(
+        { body: { [envelope]: { ...fields, password: 'incorrect' } } } as never,
+        response() as never,
+      )
+      expect(refused?.statusCode).toBe(403)
+      expect(refused?.body.errorKey).toBe('user.error.invalidCredentials')
+    },
+  )
+
+  it('keeps native flat credentials authoritative when unrelated nested credentials exist', async () => {
+    const fields = { username: 'reader', email: 'reader@example.com', password: 'example-password' }
+    await signup(fields)
+    const nested = { account: { ...fields, password: 'incorrect' } }
+    expect((await login({ ...fields, ...nested })).statusCode).toBe(200)
+    expect((await login({ ...fields, password: 'incorrect', ...nested })).statusCode).toBe(403)
+    expect((await login({ ...fields, password: 'incorrect', account: fields })).statusCode).toBe(
+      403,
+    )
+  })
+
+  it('does not classify arbitrary nested business data as misplaced login credentials', async () => {
+    for (const body of [
+      { account: { email: 'reader@example.com' } },
+      { account: { password: 'example-password' } },
+      { account: [{ email: 'reader@example.com', password: 'example-password' }] },
+    ]) {
+      expect((await login(body)).statusCode).toBe(403)
+    }
+  })
+
+  it('diagnoses nested password-reset login input without spending or looking up its token', async () => {
+    const result = await login({
+      membership: { email: 'reader@example.com', passwordResetToken: 'reset-secret' },
+    })
+    expect(result.statusCode).toBe(400)
+    expect(result.body).toMatchObject({ errorKey: 'user.error.credentialsNested' })
+    expect(JSON.stringify(result)).not.toContain('reset-secret')
+    expect(state.lookups).not.toHaveBeenCalled()
   })
 })

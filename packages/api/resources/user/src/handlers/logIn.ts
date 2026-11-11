@@ -70,6 +70,27 @@ async function compareDummyHash(password: string): Promise<void> {
   }
 }
 
+/**
+ * Recognize an unadapted credential envelope without inspecting stored accounts.
+ * Native top-level fields always take precedence; arbitrary business objects and
+ * arrays do not establish that credentials were sent in the wrong wire format.
+ * @param body - The incoming JSON body.
+ * @returns The misplaced envelope's own key, or undefined for other body shapes.
+ */
+function nestedCredentialsEnvelope(body: unknown): string | undefined {
+  if (!body || typeof body !== 'object' || Array.isArray(body)) return undefined
+  if (
+    ['username', 'email', 'password', 'passwordResetToken'].some((key) => Object.hasOwn(body, key))
+  )
+    return undefined
+  return Object.entries(body).find(([, value]) => {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return false
+    const has = (key: string): boolean =>
+      Object.hasOwn(value, key) && typeof value[key] === 'string'
+    return (has('username') || has('email')) && (has('password') || has('passwordResetToken'))
+  })?.[0]
+}
+
 /** Request body for user login, supporting password, reset token, and 2FA flows. */
 export interface LogInRequest extends MoleculeRequest {
   body: {
@@ -94,6 +115,10 @@ export interface LogInRequest extends MoleculeRequest {
  * sent; 403 `user.error.invalidCredentials` (wrong password / unknown account / spent reset
  * token) or `user.error.invalidTwoFactorToken`; 500 `user.error.failedToCreateSession` /
  * `user.error.twoFactorVerificationUnavailable` / `user.error.loginFailed`.
+ * A credential envelope sent without a request adapter is a 400
+ * `user.error.credentialsNested`, before any account lookup. This handler reads
+ * flat fields; point the client's `loginEndpoint` at the adapted route, or unwrap
+ * the body with `createRequestHandler`'s `mapRequest` before calling it.
  * @param resource - The user resource configuration: `{ name, tableName, schema? }`.
  * @param resource.name - The resource name (unused by this handler).
  * @param resource.tableName - The database table name for users.
@@ -106,6 +131,24 @@ export const logIn = ({ tableName }: types.HandlerResource) => {
     const { body } = req
 
     try {
+      const envelope = nestedCredentialsEnvelope(body)
+      if (envelope !== undefined) {
+        return {
+          statusCode: 400,
+          body: {
+            error: t(
+              'user.error.credentialsNested',
+              { envelope: JSON.stringify(envelope) },
+              {
+                defaultValue:
+                  'This login endpoint reads credentials at the top level, but this body nests them under {{envelope}}. Set loginEndpoint to the route that unwraps this envelope, or use createRequestHandler with mapRequest to unwrap req.body[{{envelope}}] before handlers.logIn.',
+              },
+            ),
+            errorKey: 'user.error.credentialsNested',
+          },
+        }
+      }
+
       // Get the user by username or email.
       let user: types.Props | undefined
 
