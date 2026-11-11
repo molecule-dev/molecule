@@ -1,5 +1,11 @@
 # @molecule/api-resource-user
 
+## 1.8.8
+
+### Patch Changes
+
+- Document that `verifyMiddleware` never answers a request itself: one it cannot authenticate continues without a session.
+
 ## 1.8.7
 
 ### Patch Changes
