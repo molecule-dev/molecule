@@ -74,6 +74,27 @@ function signature(path: string, operation: string, expires: number) {
 }
 
 describe('sandbox archive read lease', () => {
+  it('enforces an independent archive ceiling without relaxing the source-tree ceiling', async () => {
+    const f = fixture()
+    try {
+      const sandbox = (await f.sandbox())!
+      await expect(
+        sandbox.exportArchive!(f.tree, { ...limits, maxArchiveBytes: 1 }),
+      ).rejects.toThrow('archive preparation or signed read unavailable')
+      expect(readdirSync(f.root).filter((name) => name.startsWith('mol-export-'))).toEqual([])
+      await expect(
+        sandbox.exportArchive!(f.tree, {
+          ...limits,
+          maxBytes: 1,
+          maxArchiveBytes: 2 * limits.maxBytes,
+        }),
+      ).rejects.toThrow('archive preparation or signed read unavailable')
+      expect(readdirSync(f.root).filter((name) => name.startsWith('mol-export-'))).toEqual([])
+    } finally {
+      rmSync(f.root, { recursive: true, force: true })
+    }
+  })
+
   it('prepares a rooted gzip tar with one command and uses the real file-specific read signer', async () => {
     const f = fixture()
     try {

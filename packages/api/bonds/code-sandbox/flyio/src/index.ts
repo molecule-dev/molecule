@@ -327,8 +327,12 @@
  * same host `importFiles` and template restores use: a Machine behind an egress
  * policy (no tcp/443, a proxy that admits named hosts) cannot reach the source
  * vendor's host. Without a store, the Machine pulls the source's read URL
- * itself. Compression, expanded tar and total member sizes are capped at the
- * receiver. Download, safe extraction and idempotent ownership share one
+ * itself. `maxBytes` caps total member bytes; `maxArchiveBytes` optionally sets
+ * a separate compressed and expanded tar ceiling for headers and padding. It
+ * defaults to `maxBytes`, preserving strict archive limits for existing callers.
+ * Both ceilings are enforced at the receiver, including sparse member sizes.
+ * Size refusals report the dimension and byte limits without exposing read URLs.
+ * Download, safe extraction and idempotent ownership share one
  * bounded exec. Source scratch and the staged object are removed on every path.
  * Any failure before the Machine writes the destination (including a pull it
  * could not complete) permits the existing relay; once writing may have begun,

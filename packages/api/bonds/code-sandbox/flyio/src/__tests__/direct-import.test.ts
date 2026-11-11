@@ -68,9 +68,17 @@ function stubSourceRead(body: Buffer, declared = body.length) {
 describe('direct sandbox import', () => {
   it.each(
     (['direct', 'store'] as const).flatMap((mode) =>
-      ['success', 'download', 'extract', 'oversized', 'expanded', 'sparse', 'finalize'].map(
-        (failure) => [mode, failure] as const,
-      ),
+      [
+        'success',
+        'metadata-overhead',
+        'download',
+        'source-killed',
+        'extract',
+        'oversized',
+        'expanded',
+        'sparse',
+        'finalize',
+      ].map((failure) => [mode, failure] as const),
     ),
   )(
     'runs the real bounded extraction script (%s pull) and cleans scratch on %s',
@@ -81,6 +89,9 @@ describe('direct sandbox import', () => {
         const tree = join(root, 'dist')
         mkdirSync(tree)
         writeFileSync(join(tree, 'index.html'), '<h1>independent static project</h1>')
+        if (failure === 'metadata-overhead') {
+          for (let i = 0; i < 2200; i++) writeFileSync(join(tree, `tiny-${i}.js`), '')
+        }
         if (failure === 'expanded')
           writeFileSync(join(tree, 'bomb'), Buffer.alloc(options.maxBytes + 1))
         if (failure === 'sparse') {
@@ -119,7 +130,8 @@ describe('direct sandbox import', () => {
                 ...process.env,
                 PATH: `${root}:${process.env.PATH}`,
                 DIRECT_ARTIFACT: mode === 'store' ? pulled : archive,
-                CURL_EXIT: failure === 'download' ? '22' : '0',
+                CURL_EXIT:
+                  failure === 'download' ? '22' : failure === 'source-killed' ? '137' : '0',
               },
             },
           )
@@ -131,11 +143,12 @@ describe('direct sandbox import', () => {
           '/build/dist',
           {
             ...options,
+            ...(failure === 'metadata-overhead' ? { maxArchiveBytes: options.maxBytes * 2 } : {}),
             afterExtract:
               failure === 'finalize' ? 'exit 9' : `mv '${root}/incoming/dist' '${root}/live-dist'`,
           },
         )
-        if (failure === 'success') {
+        if (failure === 'success' || failure === 'metadata-overhead') {
           await expect(operation).resolves.toBe(true)
           expect(existsSync(join(root, 'live-dist/index.html'))).toBe(true)
         } else if (
@@ -146,13 +159,14 @@ describe('direct sandbox import', () => {
           // Nothing reached the destination, so the caller's relay stays safe.
           await expect(operation).resolves.toBe(false)
           expect(existsSync(join(root, 'incoming'))).toBe(false)
-        } else if (failure === 'finalize') {
+        } else if (failure === 'finalize' || failure === 'source-killed') {
           await expect(operation).rejects.toThrow('download/extraction/finalization failed')
         } else {
           await expect(operation).rejects.toThrow('exceeds the transfer size limit')
           expect(existsSync(join(root, 'incoming'))).toBe(false)
         }
-        if (failure !== 'success') expect(existsSync(join(root, 'live-dist'))).toBe(false)
+        if (failure !== 'success' && failure !== 'metadata-overhead')
+          expect(existsSync(join(root, 'live-dist'))).toBe(false)
         expect(readdirSync(root).filter((n) => n.startsWith('mol-import-'))).toEqual([])
         expect(f.dispose).toHaveBeenCalledTimes(1)
         if (mode === 'direct') expect(f.remove).not.toHaveBeenCalled()
@@ -230,29 +244,32 @@ describe('direct sandbox import', () => {
     },
   )
 
-  it.each(['nonzero-exec', 'lost-response', 'finalizer-exit-75'])(
-    'disposes source scratch and refuses a relay after an ambiguous import: %s',
-    async (kind) => {
-      const f = await fixture(false)
-      if (kind === 'nonzero-exec')
-        f.exec.mockResolvedValueOnce({ stdout: '', stderr: '', exitCode: 2 })
-      else if (kind === 'finalizer-exit-75')
-        // The not-started status AFTER the extraction marker is the caller's own
-        // finalizer failing, not a pull failure: the destination is already written.
-        f.exec.mockResolvedValueOnce({
-          stdout: 'mol-import-extracting\n',
-          stderr: '',
-          exitCode: 75,
-        })
-      else f.exec.mockRejectedValueOnce(new Error('response lost'))
-      await expect(
-        f.sandbox.importFilesFrom!('/workspace', f.source, '/build/site', options),
-      ).rejects.toThrow()
-      expect(f.exec).toHaveBeenCalledTimes(1)
-      expect(f.dispose).toHaveBeenCalledTimes(1)
-      expect(f.remove).not.toHaveBeenCalled()
-    },
-  )
+  it.each([
+    'nonzero-exec',
+    'lost-response',
+    'finalizer-exit-75',
+    'finalizer-exit-65',
+    'finalizer-exit-66',
+  ])('disposes source scratch and refuses a relay after an ambiguous import: %s', async (kind) => {
+    const f = await fixture(false)
+    if (kind === 'nonzero-exec')
+      f.exec.mockResolvedValueOnce({ stdout: '', stderr: '', exitCode: 2 })
+    else if (kind.startsWith('finalizer-exit-'))
+      // The not-started status AFTER the extraction marker is the caller's own
+      // finalizer failing, not a pull failure: the destination is already written.
+      f.exec.mockResolvedValueOnce({
+        stdout: 'mol-import-extracting\n',
+        stderr: '',
+        exitCode: Number(kind.split('-').at(-1)),
+      })
+    else f.exec.mockRejectedValueOnce(new Error('response lost'))
+    await expect(
+      f.sandbox.importFilesFrom!('/workspace', f.source, '/build/site', options),
+    ).rejects.toThrow('download/extraction/finalization failed')
+    expect(f.exec).toHaveBeenCalledTimes(1)
+    expect(f.dispose).toHaveBeenCalledTimes(1)
+    expect(f.remove).not.toHaveBeenCalled()
+  })
 
   it('does not start extraction or a relay when preparation settles after cancellation', async () => {
     const f = await fixture()

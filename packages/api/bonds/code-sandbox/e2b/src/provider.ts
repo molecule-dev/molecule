@@ -1227,9 +1227,12 @@ class E2BSandbox implements Sandbox {
     if (!trimmed.startsWith('/') || !name || name === '.' || name === '..') {
       throw new Error('exportArchive: path must be an absolute directory below "/"')
     }
+    const maxArchiveBytes = options.maxArchiveBytes ?? options.maxBytes
     if (
       !Number.isSafeInteger(options.maxBytes) ||
       options.maxBytes <= 0 ||
+      !Number.isSafeInteger(maxArchiveBytes) ||
+      maxArchiveBytes <= 0 ||
       !Number.isFinite(options.timeoutMs) ||
       options.timeoutMs <= 0
     )
@@ -1262,7 +1265,7 @@ class E2BSandbox implements Sandbox {
         `bytes=\${bytes%%[!0-9]*}`,
         `[ "$bytes" -le ${options.maxBytes} ] || exit 65`,
         `tar -czf "$archive" -C ${shellQuote(parent)} -- ${shellQuote(name)}`,
-        `[ "$(stat -c %s "$archive")" -le ${options.maxBytes} ] || exit 65`,
+        `[ "$(stat -c %s "$archive")" -le ${maxArchiveBytes} ] || exit 65`,
         // The file stays available until the caller disposes the read lease.
         'trap - EXIT',
       ].join('\n')

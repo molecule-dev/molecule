@@ -15,6 +15,11 @@
  * per-boot `npm install`. The app template sources are not baked into the
  * image; they are copied in at boot.
  *
+ * Archive exports enforce `maxBytes` on the source tree. `maxArchiveBytes`
+ * optionally provides a separate gzip archive ceiling for tar metadata and
+ * padding; without it the archive also uses `maxBytes`. The destination still
+ * enforces both its archive and extracted file-content limits.
+ *
  * @example
  * ```typescript
  * import { bond } from '@molecule/api-bond'

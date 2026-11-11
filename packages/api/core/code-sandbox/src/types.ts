@@ -526,8 +526,10 @@ export interface Sandbox {
 
 /** Preparation limits for a sandbox-originated gzip tar download. */
 export interface SandboxArchiveExportOptions {
-  /** Advisory source-tree and archive ceiling; the receiver enforces its own. */
+  /** Advisory source-tree ceiling, also the default archive ceiling; the receiver enforces its own. */
   maxBytes: number
+  /** Optional archive-representation ceiling, including tar headers and padding. Defaults to maxBytes. */
+  maxArchiveBytes?: number
   /** Total budget including preparation and download, in milliseconds. */
   timeoutMs: number
 }
@@ -544,8 +546,10 @@ export interface SandboxArchiveDownload {
 
 /** Options shared by direct, provider-independent sandbox transfers. */
 export interface SandboxDirectTransferOptions {
-  /** Receiver-enforced compressed, uncompressed tar and total member-byte ceiling. */
+  /** Receiver-enforced total member-byte ceiling, also the default archive ceiling. */
   maxBytes: number
+  /** Compressed and uncompressed tar ceiling. May exceed maxBytes to allow bounded archive metadata. */
+  maxArchiveBytes?: number
   /** Budget for the whole transfer, including preparation, in milliseconds. */
   timeoutMs: number
   /** Aborting prevents starting extraction or a relay after abandoned preparation. */

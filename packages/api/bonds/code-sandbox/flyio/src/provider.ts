@@ -4433,9 +4433,12 @@ class FlyioSandboxProvider implements SandboxProvider {
         options: SandboxDirectTransferOptions,
       ): Promise<boolean> {
         if (!source.exportArchive) return false
+        const maxArchiveBytes = options.maxArchiveBytes ?? options.maxBytes
         if (
           !Number.isSafeInteger(options.maxBytes) ||
           options.maxBytes <= 0 ||
+          !Number.isSafeInteger(maxArchiveBytes) ||
+          maxArchiveBytes <= 0 ||
           !Number.isFinite(options.timeoutMs) ||
           options.timeoutMs <= 0
         )
@@ -4453,6 +4456,7 @@ class FlyioSandboxProvider implements SandboxProvider {
           options.signal?.throwIfAborted()
           archive = await source.exportArchive(sourcePath, {
             maxBytes: options.maxBytes,
+            ...(options.maxArchiveBytes === undefined ? {} : { maxArchiveBytes }),
             timeoutMs: options.timeoutMs,
           })
           options.signal?.throwIfAborted()
@@ -4484,7 +4488,7 @@ class FlyioSandboxProvider implements SandboxProvider {
               !response.body ||
               !Number.isSafeInteger(length) ||
               length < 0 ||
-              length > options.maxBytes
+              length > maxArchiveBytes
             ) {
               await response.body?.cancel().catch((_error: unknown) => {
                 // The read is abandoned either way; the relay below starts afresh.
@@ -4512,25 +4516,28 @@ class FlyioSandboxProvider implements SandboxProvider {
           // Each step before the marker leaves the destination untouched, so it
           // exits IMPORT_NOT_STARTED_EXIT (a limit breach exits 65) and a relay
           // stays safe; once the marker is printed, a failure is ambiguous.
-          const blocks = Math.ceil(options.maxBytes / 512)
+          // Archive representation includes headers, padding and long-name records.
+          // Its separate bound never increases the extracted file-content budget.
+          const blocks = Math.ceil(maxArchiveBytes / 512)
           // A step killed by a signal (`ulimit -f` sends SIGXFSZ) or curl's own
           // --max-filesize refusal (63) is a limit breach, not a failed pull.
           const notStarted = '|| not_started $?'
           const command = [
             'set -e',
-            `not_started() { if [ "$1" -gt 128 ] || [ "$1" -eq 63 ]; then exit 65; fi; exit ${IMPORT_NOT_STARTED_EXIT}; }`,
+            `limit() { printf 'mol-import-limit %s %s %s\\n' "$1" "$2" "$3"; exit 65; }`,
+            `not_started() { if [ "$1" -eq 153 ] || [ "$1" -eq 63 ]; then limit "$2" over ${maxArchiveBytes}; fi; if [ "$1" -gt 128 ]; then exit 74; fi; exit ${IMPORT_NOT_STARTED_EXIT}; }`,
             `scratch=$(mktemp -d /tmp/mol-import-XXXXXX) ${notStarted}`,
             'trap \'rm -rf "$scratch"\' EXIT',
             "trap 'exit 124' HUP INT TERM",
             'archive="$scratch/archive.gz"',
             'unpacked="$scratch/archive.tar"',
             `ulimit -f ${blocks} ${notStarted}`,
-            `curl --fail --silent --show-error --connect-timeout 10 --max-time ${seconds} --max-filesize ${options.maxBytes} -o "$archive" ${shellQuote(pullUrl)} 2>/dev/null ${notStarted}`,
-            `[ "$(stat -c %s "$archive")" -le ${options.maxBytes} ] || exit 65`,
-            `gzip -dc "$archive" > "$unpacked" ${notStarted}`,
-            `[ "$(stat -c %s "$unpacked")" -le ${options.maxBytes} ] || exit 65`,
+            `curl --fail --silent --show-error --connect-timeout 10 --max-time ${seconds} --max-filesize ${maxArchiveBytes} -o "$archive" ${shellQuote(pullUrl)} 2>/dev/null || not_started $? compressed`,
+            `bytes=$(stat -c %s "$archive") ${notStarted}; [ "$bytes" -le ${maxArchiveBytes} ] || limit compressed "$bytes" ${maxArchiveBytes}`,
+            `gzip -dc "$archive" > "$unpacked" || not_started $? tar`,
+            `bytes=$(stat -c %s "$unpacked") ${notStarted}; [ "$bytes" -le ${maxArchiveBytes} ] || limit tar "$bytes" ${maxArchiveBytes}`,
             `LC_ALL=C tar --numeric-owner --quoting-style=escape -tvf "$unpacked" > "$scratch/members" ${notStarted}`,
-            `awk '$1 !~ /^[-dlh]/ || $3 !~ /^[0-9]+$/ { exit 65 } { bytes += $3; if (bytes > ${options.maxBytes}) exit 65 }' "$scratch/members" || exit 65`,
+            `awk '$1 !~ /^[-dlh]/ || $3 !~ /^[0-9]+$/ { exit 66 } { bytes += $3; if (bytes > ${options.maxBytes}) { printf "mol-import-limit members %.0f ${options.maxBytes}\\n", bytes; exit 65 } }' "$scratch/members" || exit $?`,
             `echo ${IMPORT_EXTRACTING_MARKER}`,
             `mkdir -p ${shellQuote(path)}`,
             `tar -C ${shellQuote(path)} --no-same-owner --no-same-permissions -xf "$unpacked"`,
@@ -4548,8 +4555,28 @@ class FlyioSandboxProvider implements SandboxProvider {
             extracting = false
             throw new Error('the Machine could not pull or read the archive')
           }
-          if (result.exitCode === 65)
-            throw new Error('importFilesFrom: the archive exceeds the transfer size limit')
+          if (result.exitCode === 65 && !result.stdout.includes(IMPORT_EXTRACTING_MARKER)) {
+            // Only our numeric marker is safe to quote: exec errors can contain signed URLs.
+            const measured = /^mol-import-limit (compressed|tar|members) (over|\d+) (\d+)$/m.exec(
+              result.stdout,
+            )
+            const labels: Record<string, string> = {
+              compressed: 'compressed archive',
+              tar: 'uncompressed tar',
+              members: 'file content',
+            }
+            const detail = measured
+              ? `${labels[measured[1]]}: ${measured[2] === 'over' ? 'more than' : measured[2]} ${measured[2] === 'over' ? measured[3] + ' ' : ''}bytes; limit ${measured[3]} bytes; `
+              : ''
+            throw Object.assign(
+              new Error(
+                `importFilesFrom: the archive exceeds the transfer size limit (${detail}file-content limit ${options.maxBytes} bytes; archive limit ${maxArchiveBytes} bytes). Reduce the artifact or its file count before retrying.`,
+              ),
+              { code: 'SANDBOX_TRANSFER_SIZE_LIMIT' },
+            )
+          }
+          if (result.exitCode === 66 && !result.stdout.includes(IMPORT_EXTRACTING_MARKER))
+            throw new Error('importFilesFrom: unsupported archive member type')
           if (result.exitCode !== 0)
             throw new Error('importFilesFrom: download/extraction/finalization failed')
           return true
