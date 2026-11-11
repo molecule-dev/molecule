@@ -125,6 +125,31 @@ describe('the auth contracts in @molecule/api-resource-user’s own docs (m337/m
     expect(moduleText).not.toContain('is answered 401 on every request')
   })
 
+  it('leads an app with its own sign-up and sign-in routes to the account functions', () => {
+    // 12 of 14 clean X1 P314/P315 runs signed their own JWT; the doc offered only HTTP handlers.
+    const moduleText = moduleDoc(read('src/index.ts'))
+    expect(moduleText).toContain('createAccount({ username, email, password }, { req, res })')
+    expect(moduleText).toContain('{@link signIn}')
+    expect(moduleText).toContain(
+      'Never call `sign()`, `hash()` or `compare()` for accounts yourself',
+    )
+    // Above the HTTP handlers, so a doc read cut short still carries it.
+    expect(moduleText.indexOf('createAccount(')).toBeLessThan(
+      moduleText.indexOf('HTTP path: `handlers.create`'),
+    )
+    const readme = read('README.md')
+    const head = readme.slice(0, readme.indexOf('## Quick Start'))
+    expect(head).toContain('createAccount({ username, email, password }, { req, res })')
+    expect(readme).toContain('#### `createAccount(input, context, resource)`')
+    expect(readme).toContain('#### `signIn(input, context, resource)`')
+    expect(readme).toContain('#### `checkPassword(userId, password, resource)`')
+    expect(readme).toContain('#### `issueSession(userId, context, options)`')
+    // Inside the first 4,000 characters: what a whole-doc read returns before any section.
+    expect(readme.slice(0, 4000)).toContain(
+      'createAccount({ username, email, password }, { req, res })',
+    )
+  })
+
   it('carries the contracts into the generated README, the doc read_molecule_doc serves', () => {
     const readme = read('README.md')
     const head = readme.slice(0, readme.indexOf('## Quick Start'))

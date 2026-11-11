@@ -124,14 +124,16 @@ export const hasProvider = (): boolean => {
  * configured algorithm, expiry, and private key as defaults.
  *
  * This is the LOW-LEVEL signer: it signs whatever payload it is given, and a
- * token it mints is not by itself a session. For a session, use
- * `authorization.set()` from `@molecule/api-resource-user` — the app's global
- * `verifyMiddleware` accepts a JWT only when its payload also carries a
- * `deviceId` naming an active row in `devices` (see the module `@remarks`).
- * The sequence is device → session, and the device call RESOLVES TO THE ID:
- * `const deviceId = await get<DeviceService>('device')?.createOrUpdate(userId, deviceName)`
- * (`DeviceService` is exported by `@molecule/api-resource-device`), then
- * `authorization.set(req, res, { userId, deviceId })`.
+ * token it mints is not by itself a session. **To sign a user in from a route of
+ * your own, do not call this: `@molecule/api-resource-user` exports
+ * `createAccount({ username, email, password }, { req, res })` and
+ * `signIn({ email, password }, { req, res })`, which resolve to
+ * `{ ok: true, user, token }` — `token` is the session, signed by this provider —
+ * and `issueSession(userId, { req, res })` for an account authenticated some other
+ * way.** The app's global `verifyMiddleware` accepts a JWT only when its payload
+ * also carries a `deviceId` naming an active row in `devices` (see the module
+ * `@remarks`); those functions create that row, and a token signed here by hand
+ * names none, so every route answers it 401.
  *
  * **There is ONE JWT provider per app, and this signs with it.** The scaffold
  * bonds `@molecule/api-jwt-jsonwebtoken` once (the app's `api/src/bonds/`), keyed

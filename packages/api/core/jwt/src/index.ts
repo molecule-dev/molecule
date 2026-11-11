@@ -21,6 +21,11 @@
  *   and populates `res.locals.session`, so a handler calls `getUserId(res)` — do NOT call
  *   `verify()`/`sign()` by hand for the session (see the `auth` skill). Use these directly
  *   only for a CUSTOM token, e.g. a signed email/reset link.
+ * - **Signing a user in from a route of your own? Call `signIn({ email, password }, { req, res })`
+ *   or `createAccount({ username, email, password }, { req, res })` from
+ *   `@molecule/api-resource-user`: each resolves to `{ ok: true, user, token }`, and `token` is
+ *   the session, signed by this package's provider. `issueSession(userId, { req, res })` does the
+ *   same for an account authenticated some other way. None of them needs `sign()`.**
  * - **{@link sign} is the low-level signer; a token it mints is NOT a session.**
  *   `verifyMiddleware` (`@molecule/api-resource-user`) accepts a JWT only when its payload
  *   also carries a `deviceId` naming an ACTIVE row in the app's `devices` table, so a

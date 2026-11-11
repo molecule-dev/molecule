@@ -46,6 +46,9 @@ export const hasProvider = (): boolean => {
 /**
  * Hashes a plain-text password using the bonded provider.
  *
+ * For user accounts you do not call this: `createAccount({ username, email, password }, { req, res })` from `@molecule/api-resource-user` validates, hashes and stores the password and
+ * returns the signed-in session. Use `hash` for a secret of your own (an invite code, an API key).
+ *
  * @param password - The plain-text password to hash.
  * The env-derived default is clamped to a sane bcrypt-cost range of 10–16
  * (mirroring `@molecule/api-password-bcrypt`'s own default): the cost factor
@@ -68,6 +71,10 @@ export const hash = (
 
 /**
  * Compares a plain-text password against a stored hash using the bonded provider.
+ *
+ * For user accounts you do not call this: `signIn({ email, password }, { req, res })` and
+ * `checkPassword(userId, password)` from `@molecule/api-resource-user` read the stored hash and
+ * compare for you, and take the same time whether or not the account exists.
  *
  * @param password - The plain-text password to check.
  * @param passwordHash - The stored hash to compare against.

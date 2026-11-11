@@ -38,6 +38,8 @@ describe('the session contract in @molecule/api-jwt’s own docs (flash-m73)', (
     const doc = moduleDoc(read('src/index.ts'))
     expect(doc).toContain('low-level signer')
     expect(doc).toContain('NOT a session')
+    expect(doc).toContain('signIn({ email, password }, { req, res })')
+    expect(doc).toContain('issueSession(userId, { req, res })')
     // The function that mints one the middleware accepts, and the package it lives in.
     expect(doc).toContain('authorization.set()')
     expect(doc).toContain('@molecule/api-resource-user')
@@ -56,9 +58,13 @@ describe('the session contract in @molecule/api-jwt’s own docs (flash-m73)', (
     const doc = docFor(read('src/provider.ts'), 'export const sign')
     expect(doc).toContain('LOW-LEVEL signer')
     expect(doc).toContain('not by itself a session')
-    expect(doc).toContain('authorization.set()')
+    // The functions that sign a user in, by name and call shape: the three-step recipe this
+    // used to print was read past by 12 of 14 X1 P314/P315 runs, which signed by hand.
+    expect(doc).toContain('createAccount({ username, email, password }, { req, res })')
+    expect(doc).toContain('signIn({ email, password }, { req, res })')
+    expect(doc).toContain('issueSession(userId, { req, res })')
+    expect(doc).toContain('@molecule/api-resource-user')
     expect(doc).toContain('deviceId')
-    expect(doc).toContain("get<DeviceService>('device')")
   })
 
   it('carries it into the generated README, the doc read_molecule_doc serves', () => {

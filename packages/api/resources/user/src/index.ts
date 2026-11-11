@@ -29,16 +29,20 @@
  * answers `existing` and repairs nothing. **TRUSTED SERVER CALLERS ONLY:** it takes props
  * directly, so a public endpoint built on it is a mass-assignment hole.
  *
- * For the HTTP path use `handlers.create` (signup), `handlers.logIn`, `handlers.updatePassword`,
- * `handlers.forgotPassword` / `handlers.resetPassword`. To touch one secret yourself use the
- * datastore on the same key — `findById('usersSecrets', userId)` (or `${tableName}Secrets` for a
- * custom `tableName`) — never SQL.
+ * **Your own sign-up and sign-in routes call
+ * `createAccount({ username, email, password }, { req, res })` and {@link signIn}:** each
+ * resolves to `{ ok, user, token }`, and `token` is the session.
+ * Never call `sign()`, `hash()` or `compare()` for accounts yourself.
  *
- * **RealWorld-style token API (`Authorization: Token <jwt>`)? CONFIGURATION on this same auth
- * path — never a credentials table of your own** (`usersSecrets.passwordHash` is the password
- * store). Set `AUTH_SCHEME=Token` (or `verifyMiddleware({ scheme: 'Token' })`): every route
- * accepts it, `logIn`/`create` return `accessToken`, `GET /users/me` echoes it, and a password
- * change revokes every OTHER device but keeps the caller's own session.
+ * HTTP path: `handlers.create`, `handlers.logIn`, `handlers.updatePassword`. One secret:
+ * `findById('usersSecrets', userId)`.
+ *
+ * **Token API (`Authorization: Token <jwt>`)? CONFIGURATION,
+ * never a credentials table of your own** (`usersSecrets.passwordHash` is the store): set
+ * `AUTH_SCHEME=Token` (or `verifyMiddleware({ scheme: 'Token' })`) — every route accepts it,
+ * `logIn`/`create` return `accessToken`, `GET /users/me` echoes it, and a password change
+ * revokes every OTHER device but keeps the
+ * caller's own session.
  *
  * **Generated full-stack apps:** mlcl derives the app-auth composition root from this API contract; keep that bond and use its shared HTTP client.
  *
@@ -105,8 +109,8 @@
  * import { createResource, handlers } from '@molecule/api-resource-user'
  *
  * // Omit `schema`: create() validates new users with this package's propsSchema.
- * const signUp = createRequestHandler(handlers.create({ name: 'User', tableName: 'users' }))
- * const signIn = createRequestHandler(handlers.logIn({ name: 'User', tableName: 'users' }))
+ * const signUpRoute = createRequestHandler(handlers.create({ name: 'User', tableName: 'users' }))
+ * const signInRoute = createRequestHandler(handlers.logIn({ name: 'User', tableName: 'users' }))
  *
  * // A constrained schema, when the app restricts oauthServer / planKey.
  * const users = createResource({ oauthServers: ['google', 'github'] as const })
@@ -325,6 +329,7 @@
  * @module
  */
 
+export * from './accounts.js'
 export * as authorization from './authorization.js'
 export * as authorizers from './authorizers/index.js'
 export * from './browser-guard.js'
