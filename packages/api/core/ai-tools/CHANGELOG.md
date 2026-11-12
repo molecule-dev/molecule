@@ -1,5 +1,12 @@
 # @molecule/api-ai-tools
 
+## 1.17.14
+
+### Patch Changes
+
+- Expose bounded native Playwright action timings for failed-attempt evidence without browser tracing.
+- Allow callers to keep collecting quiet background tasks.
+
 ## 1.17.13
 
 ### Patch Changes
