@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.17.16
+
+### Patch Changes
+
+- Run explicit Playwright checkpoints for the known test inventory even before the first source write.
+
 ## 1.17.15
 
 ### Patch Changes
