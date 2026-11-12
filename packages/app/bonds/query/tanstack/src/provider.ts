@@ -123,17 +123,18 @@ class TanstackClient implements QueryClient {
   }
 
   /**
-   * Seeds the cache.
+   * Seeds the cache, superseding older reads without publishing a cancellation as an error.
    *
    * @param key - The document's key.
    * @param data - The document.
    */
   set<T>(key: QueryKey, data: T): void {
     const queryKey = key as TanstackKey
-    // Cancellation is synchronous even though the returned promise is not. Never revert: the
-    // state captured before this fetch would overwrite the mutation response written below.
-    // An existing fetch() caller receives query-core's cancellation; later reads use `data`.
-    void this.qc.cancelQueries({ queryKey, exact: true }, { revert: false })
+    // query-core restores the pre-fetch state synchronously, BEFORE the write below. Its
+    // asynchronous cancellation handler then returns the current data instead of publishing
+    // a CancelledError over the successful save. With revert:false that late error replaced
+    // the saved document's success state, even though the document itself stayed correct.
+    void this.qc.cancelQueries({ queryKey, exact: true }, { revert: true })
     this.qc.setQueryData<T>(queryKey, data)
   }
 

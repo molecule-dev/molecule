@@ -166,7 +166,38 @@ export function describeQueryClient(
       await tick()
       expect(c.get(['doc'])).toBe('mutation')
       expect(seen.at(-1)).toBe('mutation')
-      expect(c.getState(['doc'])).toMatchObject({ data: 'mutation', isFetching: false })
+      expect(c.getState(['doc'])).toMatchObject({
+        data: 'mutation',
+        status: 'success',
+        error: undefined,
+        isFetching: false,
+      })
+      off()
+    })
+
+    it('keeps a saved document successful after superseding its first pending read', async () => {
+      const c = createClient()
+      let finish!: (value: string) => void
+      const fetch = () =>
+        new Promise<string>((resolve) => {
+          finish = resolve
+        })
+      const states: string[] = []
+      const off = c.subscribe({ key: ['inventory', 'first-read'], fetch }, (state) =>
+        states.push(state.status),
+      )
+      await tick()
+      c.set(['inventory', 'first-read'], 'saved')
+      finish('old')
+      await tick()
+      await tick()
+      expect(c.getState(['inventory', 'first-read'])).toMatchObject({
+        data: 'saved',
+        status: 'success',
+        error: undefined,
+        isFetching: false,
+      })
+      expect(states.at(-1)).toBe('success')
       off()
     })
 
