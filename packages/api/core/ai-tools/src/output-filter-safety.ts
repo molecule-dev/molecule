@@ -35,14 +35,24 @@ const OUTPUT_REDIRECT = /^(?:\d*|&)>>?(?!&)/
 export function isOutputOnlyFilter(segment: CommandSegment): boolean {
   if (!OUTPUT_ONLY_FILTERS.has(segment.program)) return false
   if (segment.args.some((arg) => OUTPUT_REDIRECT.test(arg))) return false
+  // Filter arguments can run commands before the filter starts. Keep opaque expansions
+  // rather than erase their effects; a quoted literal containing the same syntax may stay too.
+  if (segment.args.some((arg) => /\$\(|`|[<>]\(/.test(arg))) return false
   if (
     segment.program === 'sed' &&
     segment.args.some((arg) => /^(?:--in-place\b|-[A-Za-z]*i)/.test(arg))
   )
     return false
   if (segment.program === 'awk' || segment.program === 'sed') {
+    // External programs cannot be proved output-only from this invocation's text.
+    if (segment.args.some((arg) => /^(?:-[fEiIl]|--(?:file|include|load))(?:=|$|[^-])/.test(arg)))
+      return false
     const program = segment.args.map((arg) => arg.replace(/^['"]|['"]$/g, '')).join(' ')
     if (/\bsystem\s*\(|>|\bw\s+\S/.test(program)) return false
+    // awk can execute a pipe through getline without system(). sed's e command/flag executes
+    // text too. Keep ambiguous sed programs containing e rather than parse its language here.
+    if (segment.program === 'awk' && /\||@/.test(program)) return false
+    if (segment.program === 'sed' && /e/.test(program)) return false
   }
   return true
 }

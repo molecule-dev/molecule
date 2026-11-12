@@ -7,6 +7,32 @@ const isHurl = (segment: { program: string }): boolean => segment.program === 'h
 
 describe('outputFilterAfterRunner — the command cut its own failure detail', () => {
   it.each([
+    'head -n "$(touch inventory.done; printf 2)"',
+    'grep "`touch inventory.done`"',
+    'grep <(touch inventory.done)',
+    'awk \'BEGIN { "touch inventory.done" | getline row }\'',
+    'awk -f filter.awk',
+    "sed 'e touch inventory.done'",
+    "sed 's/x/touch inventory.done/e'",
+    'sed -f filter.sed',
+  ])('retains executable or opaque filter arguments: %s', (stage) => {
+    expect(outputFilterAfterRunner(`hurl --test inventory.hurl | ${stage}`, isHurl)).toBeNull()
+  })
+
+  it('preserves the requested native shell write inside a filter argument', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'filter-effect-'))
+    try {
+      await writeFile(join(dir, 'hurl'), '#!/bin/sh\necho inventory\n', { mode: 0o755 })
+      const command = './hurl --test inventory.hurl | head -n "$(touch inventory.done; printf 2)"'
+      const filter = outputFilterAfterRunner(command, isHurl)
+      await promisify(execFile)('/bin/sh', ['-c', filter?.command ?? command], { cwd: dir })
+      expect(existsSync(join(dir, 'inventory.done'))).toBe(true)
+    } finally {
+      await rm(dir, { recursive: true, force: true })
+    }
+  })
+
+  it.each([
     'tail -12 > inventory.log',
     'head -20 >> inventory.log',
     "sed -i 's/old/new/' inventory.txt",
@@ -94,3 +120,9 @@ describe('outputFilterAfterRunner — the command cut its own failure detail', (
     expect(outputFilterAfterRunner('', isHurl)).toBeNull()
   })
 })
+import { execFile } from 'node:child_process'
+import { existsSync } from 'node:fs'
+import { mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+import { promisify } from 'node:util'
