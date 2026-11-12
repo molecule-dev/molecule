@@ -20,6 +20,13 @@
  * (`@molecule/app-query-memory`, or `@molecule/app-query-tanstack`) and call the bond's
  * `setProvider(provider)` once at startup (the scaffold's `app/src/bonds/` does this).
  *
+ * **Keep displayed records on the query cache.** Render `query.data` directly. A custom
+ * mutation handler publishes its saved response with `query.setData(saved)`; every observer
+ * and the next visit receive it, and subsequent refreshes still update the view. A local
+ * `useState` copy hydrated only once per record hides later query answers. Editable form
+ * drafts remain local until saved. Prefer {@link createQueryResource} for a complete resource;
+ * its writes already publish the response and refresh its tracked collections.
+ *
  * @example
  * ```tsx
  * import { Link } from 'react-router'

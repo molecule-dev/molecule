@@ -62,9 +62,14 @@ interface ObservedKey {
  * an endpoint that answers every viewer the same takes a viewer-free key with
  * `principal: 'public'`.
  *
+ * For custom mutation handlers, `setData(saved)` publishes the server's response to this
+ * key and every observer. Use `setData(current => next)` for a local cache update. Render
+ * `data` directly; a component-local copy stops observing later server responses. Prefer
+ * `createQueryResource` when the API's reads and writes can share one resource definition.
+ *
  * @param options - Key, fetch, freshness, and optionally `principal` with
  *   `keepPreviousData`; or `null`.
- * @returns The document's state and `refetch()`. `isPreviousData` is `true` while `data` is
+ * @returns The document's state, `setData()` and `refetch()`. `isPreviousData` is `true` while `data` is
  *   the previous key's document for the same principal.
  * @throws {Error} When `keepPreviousData` is set without `principal` — the
  *   hook cannot tell a route change from a principal switch, so it refuses
@@ -82,6 +87,18 @@ export function useQuery<T>(options: QueryOptions<T> | null): UseQueryResult<T> 
   // Options are read once per key: a fresh `fetch` closure every render must
   // not resubscribe.
   const stable = useMemo(() => options, [hash])
+  const setData = useCallback<UseQueryResult<T>['setData']>(
+    (value) => {
+      if (!stable) return
+      const client = getQueryClient()
+      const next =
+        typeof value === 'function'
+          ? (value as (previous: T | undefined) => T | undefined)(client.get<T>(stable.key))
+          : value
+      if (next !== undefined) client.set(stable.key, next)
+    },
+    [stable],
+  )
   const refetch = useCallback(async (): Promise<QueryState<T>> => {
     if (!stable) return IDLE as QueryState<T>
     const client = getQueryClient()
@@ -155,5 +172,5 @@ export function useQuery<T>(options: QueryOptions<T> | null): UseQueryResult<T> 
     return client.subscribe<T>(stable, (value) => setState({ hash, value }))
   }, [stable, hash])
 
-  return useMemo(() => ({ ...value, refetch }), [value, refetch])
+  return useMemo(() => ({ ...value, setData, refetch }), [value, setData, refetch])
 }
