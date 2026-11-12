@@ -45,6 +45,8 @@
  * caller's own session.
  *
  * **Generated full-stack apps:** mlcl derives the app-auth composition root from this API contract; keep that bond and use its shared HTTP client.
+ * Header-only mounts discard a session inherited from a cookie-enabled mount before
+ * verifying the header, including when that header is invalid or its device was revoked.
  *
  * **`handlers.*` return `{ statusCode, headers?, body }` and never write to `res`** — not through
  * `res.json`, not through `res.send`, not through `res.end`. The mounted routes apply that object

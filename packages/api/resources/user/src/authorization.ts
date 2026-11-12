@@ -604,7 +604,8 @@ export interface VerifyMiddlewareOptions {
    *
    * Pass `false` for a token-only JSON API. Then the cookie is not a credential here:
    * the middleware does not resolve a session from it (and drops one an earlier, laxer
-   * mount already resolved from it), and {@link set} does not write it either — so a
+   * mount already resolved from it, even when a supplied header fails verification),
+   * and {@link set} does not write it either — so a
    * client that keeps a cookie jar (an HTTP test runner, `curl -b`) never picks up a
    * session it should not have, and stops answering 200 on the step its spec calls
    * "no auth".
@@ -662,6 +663,14 @@ export const verifyMiddleware =
         options?.allowCookieSession ?? scheme.toLowerCase() === DEFAULT_AUTH_SCHEME.toLowerCase()
       res.locals[ALLOW_COOKIE_SESSION_LOCALS_KEY] = allowCookieSession
 
+      // Enforce this mount's policy before attempting a header credential. A later failure
+      // (invalid signature, missing device or revoked device) must not leave the earlier
+      // cookie session authenticated. Header-resolved sessions retain their existing policy.
+      if (!allowCookieSession && res.locals[AUTH_SESSION_SOURCE_LOCALS_KEY] === 'cookie') {
+        delete res.locals.session
+        delete res.locals[AUTH_SESSION_SOURCE_LOCALS_KEY]
+      }
+
       // Get token from Authorization header, falling back to the `token`
       // cookie that `set()` writes alongside the header. The JSDoc above
       // promises this fallback for browser clients; without it the cookie
@@ -685,19 +694,6 @@ export const verifyMiddleware =
         (allowCookieSession && typeof cookieToken === 'string' && cookieToken ? cookieToken : null)
 
       if (!token) {
-        // A token-only mount accepts NOTHING from the cookie — not even a session an
-        // earlier, laxer mount already resolved out of it. The scaffold mounts
-        // `verifyMiddleware` twice (server.ts's `preApiRouter` runs first, then
-        // App/router.ts), and the first one runs for every `/api` request: without
-        // this the app's own routes would still read `res.locals.session` off the
-        // cookie and answer 200 where the spec says 401. A header-resolved session is
-        // left alone — that client sent its credentials, which is what a token-only
-        // API accepts.
-        if (!allowCookieSession && res.locals[AUTH_SESSION_SOURCE_LOCALS_KEY] === 'cookie') {
-          delete res.locals.session
-          delete res.locals[AUTH_SESSION_SOURCE_LOCALS_KEY]
-        }
-
         return next()
       }
 

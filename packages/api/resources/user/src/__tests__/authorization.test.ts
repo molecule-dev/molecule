@@ -77,6 +77,90 @@ function makeRes(): Record<string, unknown> & {
   }
 }
 
+describe('a header-only mount after a cookie-authenticated mount', () => {
+  beforeEach(() => {
+    vi.resetAllMocks()
+    invalidateAllDeviceExistsCache()
+    mockGetConfig.mockReturnValue('test')
+    mockDecode.mockReturnValue({ iat: Math.floor(Date.now() / 1000) })
+  })
+
+  it.each(['invalid-signature', 'missing-device', 'revoked-device'])(
+    'rejects the inherited cookie session when the header has %s',
+    async (failure) => {
+      const browserSession = { userId: 'browser-user', deviceId: 'browser-device' }
+      mockVerify.mockImplementation((token: string) => {
+        if (token === 'browser-cookie') return browserSession
+        if (failure === 'invalid-signature') throw new Error('invalid signature')
+        return {
+          userId: 'header-user',
+          ...(failure === 'missing-device' ? {} : { deviceId: 'revoked' }),
+        }
+      })
+      mockGet.mockReturnValue({ exists: vi.fn(async (id: string) => id !== 'revoked') })
+      const req = makeReq({
+        headers: { authorization: 'ServiceKey rejected-header' },
+        cookies: { token: 'browser-cookie' },
+      })
+      const res = makeRes()
+      await verifyMiddleware({ allowCookieSession: true })(req as never, res as never, vi.fn())
+      expect(res.locals.session).toBe(browserSession)
+      expect(res.locals[AUTH_SESSION_SOURCE_LOCALS_KEY]).toBe('cookie')
+
+      const next = vi.fn()
+      await verifyMiddleware({ scheme: 'ServiceKey', allowCookieSession: false })(
+        req as never,
+        res as never,
+        next,
+      )
+      expect(res.locals.session).toBeUndefined()
+      expect(res.locals[AUTH_SESSION_SOURCE_LOCALS_KEY]).toBeUndefined()
+      expect(res.locals[ALLOW_COOKIE_SESSION_LOCALS_KEY]).toBe(false)
+      expect(next).toHaveBeenCalledOnce()
+      // The protected endpoint retains its own error envelope; authentication stays optional.
+      expect(res.locals.session ? 200 : 401).toBe(401)
+    },
+  )
+
+  it('replaces the inherited cookie with a valid header session', async () => {
+    const browser = { userId: 'browser-user', deviceId: 'browser-device' }
+    const header = { userId: 'service-user', deviceId: 'service-device' }
+    mockVerify.mockImplementation((token: string) =>
+      token === 'browser-cookie' ? browser : header,
+    )
+    mockGet.mockReturnValue({ exists: vi.fn(async () => true) })
+    const req = makeReq({
+      headers: { authorization: 'ServiceKey accepted-header' },
+      cookies: { token: 'browser-cookie' },
+    })
+    const res = makeRes()
+    await verifyMiddleware({ allowCookieSession: true })(req as never, res as never, vi.fn())
+    expect(res.locals.session).toBe(browser)
+    await verifyMiddleware({ scheme: 'ServiceKey', allowCookieSession: false })(
+      req as never,
+      res as never,
+      vi.fn(),
+    )
+    expect(res.locals.session).toBe(header)
+    expect(res.locals[AUTH_SESSION_SOURCE_LOCALS_KEY]).toBe('header')
+    expect(res.locals[AUTH_TOKEN_LOCALS_KEY]).toBe('accepted-header')
+  })
+
+  it('keeps explicit cookie authentication for a browser-only endpoint', async () => {
+    const browser = { userId: 'browser-user', deviceId: 'browser-device' }
+    mockVerify.mockReturnValue(browser)
+    mockGet.mockReturnValue({ exists: vi.fn(async () => true) })
+    const res = makeRes()
+    await verifyMiddleware({ allowCookieSession: true })(
+      makeReq({ cookies: { token: 'browser-cookie' } }) as never,
+      res as never,
+      vi.fn(),
+    )
+    expect(res.locals.session).toBe(browser)
+    expect(res.locals[AUTH_SESSION_SOURCE_LOCALS_KEY]).toBe('cookie')
+  })
+})
+
 describe('authorization', () => {
   beforeEach(() => {
     vi.clearAllMocks()
