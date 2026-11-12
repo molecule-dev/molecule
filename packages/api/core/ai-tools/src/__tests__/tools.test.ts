@@ -318,40 +318,49 @@ describe('buildTools', () => {
   })
 
   it('exec_command names the leak in the over-budget advice when only the cut-time read can see it (m257 +15:34)', async () => {
-    // A command that writes its own probe and then runs it: the preflight reads a file that does
-    // not exist yet, the probe leaks, and the tool's budget stops it. The result must NOT say
-    // "run it in the background" or "run a smaller unit" — it must name the close.
-    const backend = mockBackend()
-    ;(backend.readFile as ReturnType<typeof vi.fn>)
-      .mockResolvedValueOnce(
-        "import { chromium } from '@playwright/test'\n" +
-          'const browser = await chromium.launch()\n' +
-          'const page = await browser.newPage()\n',
+    let now = Date.now()
+    const clock = vi.spyOn(Date, 'now').mockImplementation(() => now)
+    try {
+      // A command that writes its own probe and then runs it: the preflight reads a file that does
+      // not exist yet, the probe leaks, and the tool's budget stops it. The result must NOT say
+      // "run it in the background" or "run a smaller unit" — it must name the close.
+      const backend = mockBackend()
+      ;(backend.readFile as ReturnType<typeof vi.fn>)
+        .mockResolvedValueOnce(
+          "import { chromium } from '@playwright/test'\n" +
+            'const browser = await chromium.launch()\n' +
+            'const page = await browser.newPage()\n',
+        )
+        .mockRejectedValueOnce(new Error('ENOENT: no such file yet'))
+        .mockResolvedValue(
+          "import { chromium } from '@playwright/test'\n" +
+            'const browser = await chromium.launch()\n' +
+            'const page = await browser.newPage()\n' +
+            "console.log('preview favorite buttons:', await page.locator('button').count())\n",
+        )
+      ;(backend.run as ReturnType<typeof vi.fn>).mockImplementation(async () => {
+        now += 294000
+        return {
+          stdout: '',
+          stderr: '',
+          exitCode: 124,
+        }
+      })
+      const tools = buildTools(backend, { blockDangerousCommands: true, commandBudgetMs: 290_000 })
+      const exec = tools.find((t) => t.name === 'exec_command')!
+      const result = (await exec.execute({
+        command: 'node /workspace/.mol-scratch/fav-probe.mjs 2>&1 | tail -5',
+      })) as { error?: string; status?: string }
+      expect(result.status).toBe('cut_at_budget')
+      expect(result.error).toContain('the browser (`browser`) is never closed')
+      expect(result.error).toContain(
+        'Put the page work in try { … } finally { await browser.close() }, or use a Playwright test whose browser fixture is cleaned up by the runner.',
       )
-      .mockRejectedValueOnce(new Error('ENOENT: no such file yet'))
-      .mockResolvedValue(
-        "import { chromium } from '@playwright/test'\n" +
-          'const browser = await chromium.launch()\n' +
-          'const page = await browser.newPage()\n' +
-          "console.log('preview favorite buttons:', await page.locator('button').count())\n",
-      )
-    ;(backend.run as ReturnType<typeof vi.fn>).mockResolvedValue({
-      stdout: '',
-      stderr: '',
-      exitCode: 124,
-    })
-    const tools = buildTools(backend, { blockDangerousCommands: true, commandBudgetMs: 290_000 })
-    const exec = tools.find((t) => t.name === 'exec_command')!
-    const result = (await exec.execute({
-      command: 'node /workspace/.mol-scratch/fav-probe.mjs 2>&1 | tail -5',
-    })) as { error?: string; status?: string }
-    expect(result.status).toBe('cut_at_budget')
-    expect(result.error).toContain('the browser (`browser`) is never closed')
-    expect(result.error).toContain(
-      'Put the page work in try { … } finally { await browser.close() }, or use a Playwright test whose browser fixture is cleaned up by the runner.',
-    )
-    expect(result.error).not.toContain('run it in the background (run_in_background')
-    expect(result.error).not.toContain('Run a smaller unit per command')
+      expect(result.error).not.toContain('run it in the background (run_in_background')
+      expect(result.error).not.toContain('Run a smaller unit per command')
+    } finally {
+      clock.mockRestore()
+    }
   })
 
   it('exec_command runs a one-shot script that starts no server', async () => {
@@ -2428,89 +2437,113 @@ describe('buildTools', () => {
   })
 
   it('exec_command with commandBudgetMs asks the backend for the budget and hands back the output an overrun produced', async () => {
-    // Without a budget the command runs as given, and no budget is requested.
-    const bare = mockBackend()
-    await buildTools(bare)
-      .find((t) => t.name === 'exec_command')!
-      .execute({ command: 'npm test' })
-    const bareCall = (bare.run as ReturnType<typeof vi.fn>).mock.calls[0]
-    expect(bareCall[0]).toBe('npm test')
-    expect(bareCall[1]).not.toHaveProperty('budgetMs')
+    let now = Date.now()
+    const clock = vi.spyOn(Date, 'now').mockImplementation(() => now)
+    try {
+      // Without a budget the command runs as given, and no budget is requested.
+      const bare = mockBackend()
+      await buildTools(bare)
+        .find((t) => t.name === 'exec_command')!
+        .execute({ command: 'npm test' })
+      const bareCall = (bare.run as ReturnType<typeof vi.fn>).mock.calls[0]
+      expect(bareCall[0]).toBe('npm test')
+      expect(bareCall[1]).not.toHaveProperty('budgetMs')
 
-    // With one, the BACKEND is asked to enforce it (inside its own shell, after
-    // any environment sourcing), and exit code 124 is read as "stopped at the
-    // budget": the partial output survives and the error names the remedy.
-    const backend = mockBackend()
-    const execCmd = buildTools(backend, { commandBudgetMs: 290_000 }).find(
-      (t) => t.name === 'exec_command',
-    )!
-    ;(backend.run as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-      stdout: '  ✓ home.spec.ts (4)\n  ✘ post.spec.ts (1)\n',
-      stderr: '',
-      exitCode: 124,
-    })
-    const result = (await execCmd.execute({
-      command: 'cd app && npm run build && npm run test:e2e',
-    })) as { stdout: string; exitCode: number; error?: string }
-    const call = (backend.run as ReturnType<typeof vi.fn>).mock.calls[0]
-    expect(call[0]).toBe('cd app && npm run build && npm run test:e2e')
-    expect(call[1]).toMatchObject({ budgetMs: 290_000 })
-    expect(result.stdout).toContain('post.spec.ts')
-    expect(result.exitCode).toBe(124)
-    expect(result.error).toMatch(/stopped after 290s/)
-    expect(result.error).toMatch(/one test file/)
-    expect(result.error).not.toMatch(/tail\/head/)
+      // With one, the BACKEND is asked to enforce it (inside its own shell, after
+      // any environment sourcing), and exit code 124 is read as "stopped at the
+      // budget": the partial output survives and the error names the remedy.
+      const backend = mockBackend()
+      const execCmd = buildTools(backend, { commandBudgetMs: 290_000 }).find(
+        (t) => t.name === 'exec_command',
+      )!
+      ;(backend.run as ReturnType<typeof vi.fn>).mockImplementationOnce(async () => {
+        now += 294000
+        return {
+          stdout: '  ✓ home.spec.ts (4)\n  ✘ post.spec.ts (1)\n',
+          stderr: '',
+          exitCode: 124,
+        }
+      })
+      const result = (await execCmd.execute({
+        command: 'cd app && npm run build && npm run test:e2e',
+      })) as { stdout: string; exitCode: number; error?: string }
+      const call = (backend.run as ReturnType<typeof vi.fn>).mock.calls[0]
+      expect(call[0]).toBe('cd app && npm run build && npm run test:e2e')
+      expect(call[1]).toMatchObject({ budgetMs: 290_000 })
+      expect(result.stdout).toContain('post.spec.ts')
+      expect(result.exitCode).toBe(124)
+      expect(result.error).toMatch(/stopped after 290s/)
+      expect(result.error).toMatch(/one test file/)
+      expect(result.error).not.toMatch(/tail\/head/)
 
-    // A pipe through tail/head buffers EVERYTHING until the command ends, so an
-    // overrun hands back nothing at all (X0 R64: `… | tail -40` → empty stdout,
-    // exit 124). The error has to say so, or the model retries the same pipe.
-    ;(backend.run as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-      stdout: '',
-      stderr: '',
-      exitCode: 124,
-    })
-    const piped = (await execCmd.execute({
-      // (A piped `playwright test` is backgrounded before it can overrun — see the flash-m29 test.)
-      command: 'cd app && npm run test:e2e 2>&1 | tail -40',
-    })) as { stdout: string; exitCode: number; error?: string }
-    expect(piped.stdout).toBe('')
-    expect(piped.error).toMatch(/pipe through tail\/head holds everything back/)
-    expect(piped.error).toMatch(/run it without the pipe/)
+      // A pipe through tail/head buffers EVERYTHING until the command ends, so an
+      // overrun hands back nothing at all (X0 R64: `… | tail -40` → empty stdout,
+      // exit 124). The error has to say so, or the model retries the same pipe.
+      ;(backend.run as ReturnType<typeof vi.fn>).mockImplementationOnce(async () => {
+        now += 294000
+        return {
+          stdout: '',
+          stderr: '',
+          exitCode: 124,
+        }
+      })
+      const piped = (await execCmd.execute({
+        // (A piped `playwright test` is backgrounded before it can overrun — see the flash-m29 test.)
+        command: 'cd app && npm run test:e2e 2>&1 | tail -40',
+      })) as { stdout: string; exitCode: number; error?: string }
+      expect(piped.stdout).toBe('')
+      expect(piped.error).toMatch(/pipe through tail\/head holds everything back/)
+      expect(piped.error).toMatch(/run it without the pipe/)
+    } finally {
+      clock.mockRestore()
+    }
   })
 
   it('the over-budget message sends a SUITE to the background, not to a smaller unit', async () => {
-    // xr-molecule-flash-m93 (+06:22, 2026-10-16): a Hurl suite whose one unanswered request held
-    // the run until the budget stopped it. "Run a smaller unit per command" is the wrong direction
-    // for a suite — splitting its files changes nothing about a request the app never answers, and
-    // a run stopped here reports no tally at all, so nothing says which one it was.
-    const backend = mockBackend()
-    ;(backend.run as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-      stdout: '',
-      stderr: '',
-      exitCode: 124,
-    })
-    const execCmd = buildTools(backend, { commandBudgetMs: 290_000 }).find(
-      (t) => t.name === 'exec_command',
-    )!
-    const result = (await execCmd.execute({
-      command: 'hurl --test --jobs 1 --variable host=http://localhost:4000 hurl/*.hurl',
-    })) as { exitCode: number; error?: string }
-    expect(result.exitCode).toBe(124)
-    expect(result.error).toContain(SUITE_OVER_BUDGET_ADVICE)
-    expect(result.error).toMatch(/run_in_background/)
-    expect(result.error).not.toContain(SPLIT_WORK_ADVICE)
+    let now = Date.now()
+    const clock = vi.spyOn(Date, 'now').mockImplementation(() => now)
+    try {
+      // xr-molecule-flash-m93 (+06:22, 2026-10-16): a Hurl suite whose one unanswered request held
+      // the run until the budget stopped it. "Run a smaller unit per command" is the wrong direction
+      // for a suite — splitting its files changes nothing about a request the app never answers, and
+      // a run stopped here reports no tally at all, so nothing says which one it was.
+      const backend = mockBackend()
+      ;(backend.run as ReturnType<typeof vi.fn>).mockImplementationOnce(async () => {
+        now += 294000
+        return {
+          stdout: '',
+          stderr: '',
+          exitCode: 124,
+        }
+      })
+      const execCmd = buildTools(backend, { commandBudgetMs: 290_000 }).find(
+        (t) => t.name === 'exec_command',
+      )!
+      const result = (await execCmd.execute({
+        command: 'hurl --test --jobs 1 --variable host=http://localhost:4000 hurl/*.hurl',
+      })) as { exitCode: number; error?: string }
+      expect(result.exitCode).toBe(124)
+      expect(result.error).toContain(SUITE_OVER_BUDGET_ADVICE)
+      expect(result.error).toMatch(/run_in_background/)
+      expect(result.error).not.toContain(SPLIT_WORK_ADVICE)
 
-    // A command that is NOT a suite keeps the advice that fits it — and so does a runner named
-    // only in an argument (`head -30 run-api-tests-hurl.sh` reads a file and starts nothing).
-    ;(backend.run as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-      stdout: 'building…\n',
-      stderr: '',
-      exitCode: 124,
-    })
-    const build = (await execCmd.execute({
-      command: 'cd app && npm run build && head -30 run-api-tests-hurl.sh',
-    })) as { error?: string }
-    expect(build.error).toContain(SPLIT_WORK_ADVICE)
+      // A command that is NOT a suite keeps the advice that fits it — and so does a runner named
+      // only in an argument (`head -30 run-api-tests-hurl.sh` reads a file and starts nothing).
+      ;(backend.run as ReturnType<typeof vi.fn>).mockImplementationOnce(async () => {
+        now += 294000
+        return {
+          stdout: 'building…\n',
+          stderr: '',
+          exitCode: 124,
+        }
+      })
+      const build = (await execCmd.execute({
+        command: 'cd app && npm run build && head -30 run-api-tests-hurl.sh',
+      })) as { error?: string }
+      expect(build.error).toContain(SPLIT_WORK_ADVICE)
+    } finally {
+      clock.mockRestore()
+    }
   })
 
   // xr-molecule-flash-m200 (+03:45, 2026-10-19): a `python3` heredoc rewriting a minified CSS file
@@ -2518,37 +2551,46 @@ describe('buildTools', () => {
   // turns a hang into a longer hang. An inline program that only touches local files finishes in
   // milliseconds or never ends, so it gets a short budget and a sentence that says it is stuck.
   it('gives an inline local-file interpreter program a short budget and the runaway sentence', async () => {
-    // m200's command shape, verbatim.
-    const command =
-      "cd app/public && python3 - <<'EOF'\n" +
-      'import re\n' +
-      "s = open('vendor/ionicons.min.css').read()\n" +
-      'rules = re.findall(r\'([^{}]*:before[^{}]*)\\{content:"[^"]*"\\}\', s)\n' +
-      "open('vendor/ionicons.min.css', 'w').write(s)\n" +
-      'EOF'
-    const backend = mockBackend()
-    ;(backend.run as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-      stdout: '',
-      stderr: '',
-      exitCode: 124,
-    })
-    const exec = buildTools(backend, { commandBudgetMs: 290_000, overCeilingGraceMs: 0 }).find(
-      (t) => t.name === 'exec_command',
-    )!
-    const result = (await exec.execute({ command })) as { error?: string; exitCode?: number }
+    let now = Date.now()
+    const clock = vi.spyOn(Date, 'now').mockImplementation(() => now)
+    try {
+      // m200's command shape, verbatim.
+      const command =
+        "cd app/public && python3 - <<'EOF'\n" +
+        'import re\n' +
+        "s = open('vendor/ionicons.min.css').read()\n" +
+        'rules = re.findall(r\'([^{}]*:before[^{}]*)\\{content:"[^"]*"\\}\', s)\n' +
+        "open('vendor/ionicons.min.css', 'w').write(s)\n" +
+        'EOF'
+      const backend = mockBackend()
+      ;(backend.run as ReturnType<typeof vi.fn>).mockImplementationOnce(async () => {
+        now += 21000
+        return {
+          stdout: '',
+          stderr: '',
+          exitCode: 124,
+        }
+      })
+      const exec = buildTools(backend, { commandBudgetMs: 290_000, overCeilingGraceMs: 0 }).find(
+        (t) => t.name === 'exec_command',
+      )!
+      const result = (await exec.execute({ command })) as { error?: string; exitCode?: number }
 
-    expect(backend.run).toHaveBeenLastCalledWith(
-      command,
-      expect.objectContaining({ budgetMs: 20_000 }),
-    )
-    expect(result.exitCode).toBe(124)
-    expect(result.error).toContain(
-      'python3 ran 20 s without finishing on a local text transform — that is a runaway',
-    )
-    expect(result.error).toContain('do not move it to the background')
-    expect(result.error).toContain('a plain string split')
-    expect(result.error).not.toContain('run it in the background (run_in_background')
-    expect(result.error).not.toContain(SPLIT_WORK_ADVICE)
+      expect(backend.run).toHaveBeenLastCalledWith(
+        command,
+        expect.objectContaining({ budgetMs: 20_000 }),
+      )
+      expect(result.exitCode).toBe(124)
+      expect(result.error).toContain(
+        'python3 ran 20 s without finishing on a local text transform — that is a runaway',
+      )
+      expect(result.error).toContain('do not move it to the background')
+      expect(result.error).toContain('a plain string split')
+      expect(result.error).not.toContain('run it in the background (run_in_background')
+      expect(result.error).not.toContain(SPLIT_WORK_ADVICE)
+    } finally {
+      clock.mockRestore()
+    }
   })
 
   it('keeps the full budget for a build and for an inline program that reaches the network', async () => {

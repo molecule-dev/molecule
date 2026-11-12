@@ -22,7 +22,8 @@
  *    not finish. This is the first shape.
  * 2. **This tool's budget** — the backend runs the command under `timeout` (see
  *    `backends/sandbox.ts`), which reports 124 whatever the pipeline did, and returns everything
- *    printed until then. The budget is the tool's own, so its number belongs to the tool.
+ *    printed until then. The measured elapsed time must reach that budget: a program or inner
+ *    timeout can return 124 sooner, so the exit code by itself does not establish the cause.
  *
  * A runner's closing summary is what separates "used the bound and finished" from "stopped at the
  * bound", but it is only half the evidence: Playwright prints one when its process is stopped too,
@@ -357,9 +358,9 @@ function runProgress(
  * - the runner's own summary, when it printed one: it is a finish only if it accounts for the total
  *   the runner announced. A summary that accounts for fewer is a walk a process stopped early, and
  *   falls through to the branches below with its own counts ({@link suiteSummary}).
- * - `timeout`'s own 124 (the code the backend's wrapper returns whenever the TOOL's budget fired,
- *   whatever the pipeline ended with) — and, when the clock says the command's own smaller bound
- *   ran out first and less than the budget, that bound instead.
+ * - exit code 124 together with the measured clock reaching the tool's bound, or the command's
+ *   own smaller bound when that elapsed first. An early 124 without either clock is preserved
+ *   as the command's own exit; it does not establish a tool-budget cut.
  * - the command carried its own `timeout <N>`, N is inside this tool's budget (a larger one never
  *   fires — the tool's does), the run used N, and no runner printed a closing summary: the run was
  *   killed at its own bound. Its exit code, when the pipeline handed one back, is the filter's.
@@ -422,15 +423,20 @@ export function commandCutRun(
       ownBoundStops &&
       elapsedMs >= atBoundMs(declared) &&
       elapsedMs < atBoundMs(budgetSeconds)
-    return {
-      seconds: ownFired ? declared : budgetSeconds,
-      stoppedBy: ownFired ? 'command-timeout' : 'tool-budget',
-      background,
-      exitCode,
-      ...progress,
-      doing,
-      inlineScript,
-    }
+    // An inner timeout, or an ordinary program, can return 124 before this
+    // tool's bound. Its code alone proves neither a whole-command timeout nor
+    // that the configured budget elapsed. Preserve that result unless the
+    // measured clock or the runner's own partial tally supplies the evidence.
+    if (ownFired || elapsedMs >= atBoundMs(budgetSeconds))
+      return {
+        seconds: ownFired ? declared : budgetSeconds,
+        stoppedBy: ownFired ? 'command-timeout' : 'tool-budget',
+        background,
+        exitCode,
+        ...progress,
+        doing,
+        inlineScript,
+      }
   }
   if (declared !== null && ownBoundStops && elapsedMs >= atBoundMs(declared)) {
     return {

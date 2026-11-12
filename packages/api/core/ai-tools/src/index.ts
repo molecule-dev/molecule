@@ -56,6 +56,10 @@
  *   rules via `blockCommand` (return an actionable error string to refuse — it is
  *   shown to the model verbatim) and enable `blockDangerousCommands` (default
  *   FALSE) where appropriate.
+ * - **An early exit code `124` is not proof that the tool budget elapsed.**
+ *   Programs and nested `timeout` calls may return it sooner. The cut-run
+ *   result requires the measured clock or the runner's own partial tally;
+ *   otherwise the command keeps its actual exit code without a guessed duration.
  * - **`read_file` takes `paths` as well as `path`.** An agent that issues one
  *   tool call per model round-trip pays a full round-trip per file, so a project
  *   survey costs minutes; batched, the same reads cost one call each 25 files
