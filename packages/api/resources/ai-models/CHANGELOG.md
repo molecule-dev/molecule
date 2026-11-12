@@ -1,5 +1,11 @@
 # @molecule/api-resource-ai-models
 
+## 1.19.3
+
+### Patch Changes
+
+- Notes that the DeepInfra US region for deepseek-flash now serves the DeepSeek-V4.1-Flash-1017 snapshot (pricing unchanged).
+
 ## 1.19.2
 
 ### Patch Changes

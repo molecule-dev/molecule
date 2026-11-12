@@ -1,5 +1,12 @@
 # @molecule/api-ai-tools
 
+## 1.17.11
+
+### Patch Changes
+
+- Preserve file writes and executable filter programs when identifying removable test-output pipelines.
+- Preserve early command exits instead of reporting an unelapsed tool timeout.
+
 ## 1.17.10
 
 ### Patch Changes
