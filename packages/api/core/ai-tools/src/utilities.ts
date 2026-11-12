@@ -21,6 +21,7 @@ import {
 import { classifyRunFailure, type RunFailureKind } from './failure-kind.js'
 import { boundedFailureText } from './failure-text.js'
 import { commandRunsNoTests } from './no-test-run.js'
+import { isOutputOnlyFilter } from './output-filter-safety.js'
 import { PLAYWRIGHT_REPORT_ENV } from './playwright-report.js'
 import { requestScopedCommand } from './request-test-exclusions.js'
 import {
@@ -1447,38 +1448,6 @@ export function isPlaywrightRunCommand(command: string): boolean {
   return commandSegments(command).some((segment) => /^playwright\s+test\b/.test(segment.text))
 }
 
-/**
- * The programs a pipeline may end with when all they do is read what the runner printed and print
- * it again — the filters a background suite may lose without changing what it ran.
- *
- * Everything else stays: `tee` writes a file, `xargs` runs a command, and an unknown program may
- * do either. Dropping a filter is only sound where the parse can PROVE it is output-only.
- */
-const OUTPUT_ONLY_FILTERS: ReadonlySet<string> = new Set([
-  'awk',
-  'cat',
-  'column',
-  'cut',
-  'egrep',
-  'fgrep',
-  'fmt',
-  'fold',
-  'grep',
-  'head',
-  'jq',
-  'nl',
-  'rg',
-  'sed',
-  'sort',
-  'tail',
-  'tr',
-  'uniq',
-  'wc',
-])
-
-/** A word that sends output to a file (`> f`, `>> f`, `2> f`); `2>&1` only joins stderr, so it is not one. */
-const OUTPUT_REDIRECT = /^(?:\d*|&)>>?(?!&)/
-
 /** One segment of the shell parse, and where it sits in the command. */
 interface LocatedSegment {
   segment: CommandSegment
@@ -1522,31 +1491,6 @@ function locatedSegments(command: string): LocatedSegment[] {
     })
   }
   return out
-}
-
-/**
- * Whether a pipeline stage only reads the output it is handed and prints it again.
- *
- * `sed`/`awk` are listed for the filters they usually are (`sed -n '1,20p'`, `awk '{print $1}'`),
- * but a program that can WRITE is not output-only: `-i` edits a file in place, and a program that
- * names `>`, `w <file>` or `system(` writes a file or runs a command. Those keep their pipe.
- *
- * @param segment - One pipeline stage of the shell parse.
- * @returns True when dropping the stage can only change what is printed.
- */
-function isOutputOnlyFilter(segment: CommandSegment): boolean {
-  if (!OUTPUT_ONLY_FILTERS.has(segment.program)) return false
-  if (segment.args.some((arg) => OUTPUT_REDIRECT.test(arg))) return false
-  if (
-    segment.program === 'sed' &&
-    segment.args.some((arg) => /^(?:--in-place\b|-[A-Za-z]*i)/.test(arg))
-  )
-    return false
-  if (segment.program === 'awk' || segment.program === 'sed') {
-    const program = segment.args.map((arg) => arg.replace(/^['"]|['"]$/g, '')).join(' ')
-    if (/\bsystem\s*\(|>|\bw\s+\S/.test(program)) return false
-  }
-  return true
 }
 
 /**

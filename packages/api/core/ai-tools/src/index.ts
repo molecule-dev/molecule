@@ -12,6 +12,8 @@
  * (identity, tool listing, project docs, discovered skills).
  *
  * @remarks
+ * - `outputFilterAfterRunner` returns only removable output cuts. File redirects, in-place
+ *   edits and filter programs with write or execution effects retain their pipelines.
  * - Playwright commands apply `excludedTestTitles` before launch. Existing
  *   literal filters remain in effect. Dynamic filters and opaque launchers stay unchanged.
  * - **Trimmed test output keeps every failure named.** Shared log cuts prioritize capped

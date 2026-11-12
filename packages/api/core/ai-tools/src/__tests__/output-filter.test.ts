@@ -6,6 +6,20 @@ import { outputFilterAfterRunner } from '../output-filter.js'
 const isHurl = (segment: { program: string }): boolean => segment.program === 'hurl'
 
 describe('outputFilterAfterRunner — the command cut its own failure detail', () => {
+  it.each([
+    'tail -12 > inventory.log',
+    'head -20 >> inventory.log',
+    "sed -i 's/old/new/' inventory.txt",
+    "sed -n 'w inventory.log'",
+    'awk \'{ system("touch inventory.done") }\'',
+    'awk \'{ print > "inventory.log" }\'',
+  ])('preserves a filter with write or execution effects: %s', (stage) => {
+    expect(outputFilterAfterRunner(`hurl --test inventory.hurl | ${stage}`, isHurl)).toBeNull()
+    expect(
+      outputFilterAfterRunner(`hurl --test inventory.hurl | grep error | ${stage}`, isHurl),
+    ).toBeNull()
+  })
+
   it('reads m147’s `| tail -6` and hands back the same command without it', () => {
     const command = 'hurl --variable uid=1 --test /tmp/t.hurl 2>&1 | tail -6'
     const filter = outputFilterAfterRunner(command, isHurl)

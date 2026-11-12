@@ -22,6 +22,7 @@ import {
   type LocatedCommandSegment,
   locatedCommandSegments,
 } from './command-position.js'
+import { isOutputOnlyFilter } from './output-filter-safety.js'
 
 /**
  * The programs whose job is to re-shape what an earlier stage printed and that can DROP lines —
@@ -92,7 +93,12 @@ export function outputFilterAfterRunner(
   for (let index = runnerAt + 1; index < entries.length; index++) {
     const entry = entries[index]
     if (!entry || entry.separator.trim() !== '|') break
-    if (!entry.segment || !CUTTING_FILTERS.has(entry.segment.program)) break
+    if (
+      !entry.segment ||
+      !CUTTING_FILTERS.has(entry.segment.program) ||
+      !isOutputOnlyFilter(entry.segment)
+    )
+      break
     chain.push(entry)
     if (entry.terminator.trim() !== '|') break
   }
