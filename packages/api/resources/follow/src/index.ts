@@ -3,6 +3,10 @@
  *
  * Polymorphic follow system for users or any resource type. Supports
  * followers list, following list, and follow status checks.
+ * Use `getFollowedIds(viewerId, targetType, ids)` once per displayed collection, then
+ * `followed.has(id)` for each item. It uses one query with no pagination truncation,
+ * deduplicates ids, and does no I/O for an empty page or an absent viewer. It works for
+ * any target type, including documents, topics and users. Use `isFollowing` for one target.
  *
  * @module
  * @example

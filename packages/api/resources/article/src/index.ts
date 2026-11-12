@@ -21,6 +21,11 @@
  * can batch-load author profiles, omit fields from list items, rename pagination
  * keys, wrap results, or translate error statuses and bodies. It receives errors
  * and empty deletes too. Set the authenticated user on `res.locals.session.userId`.
+ * For profile projection, pass the page's `authorId`s once to
+ * `getPublicProfiles(ids)` from `@molecule/api-resource-user` and
+ * `getFollowedIds(viewerId, 'user', ids)` from `@molecule/api-resource-follow`.
+ * Join those maps while projecting the page. This keeps the page at two relationship
+ * queries even when many entries share an author; per-entry lookups repeat the same work.
  *
  * ```typescript
  * import { createArticleHandlers } from '@molecule/api-resource-article'

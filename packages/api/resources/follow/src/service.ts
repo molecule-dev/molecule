@@ -149,6 +149,36 @@ export async function isFollowing(
 }
 
 /**
+ * Load a viewer's follow state for a collection in one query, rather than one per item.
+ *
+ * Targets are canonical ids, exactly as with `follow` and `isFollowing`. Repeated ids are
+ * deduplicated. An absent viewer or empty collection does no I/O. There is no cross-call cache.
+ * The result contains only followed ids from this collection, for this viewer and target type.
+ *
+ * @param followerId - The viewer's user id, or no viewer for public content.
+ * @param targetType - The resource type being followed.
+ * @param targetIds - Canonical ids referenced by the collection.
+ * @returns The subset of target ids this viewer follows.
+ */
+export async function getFollowedIds(
+  followerId: string | null | undefined,
+  targetType: string,
+  targetIds: readonly string[],
+): Promise<Set<string>> {
+  const ids = [...new Set(targetIds)]
+  if (!followerId || ids.length === 0) return new Set()
+  const rows = await findMany<{ targetId: string }>(TABLE, {
+    where: [
+      { field: 'followerId', operator: '=', value: followerId },
+      { field: 'targetType', operator: '=', value: targetType },
+      { field: 'targetId', operator: 'in', value: ids },
+    ],
+    select: ['targetId'],
+  })
+  return new Set(rows.map((row) => row.targetId))
+}
+
+/**
  * Gets the follower count for a target.
  *
  * @param targetType - The type of target.

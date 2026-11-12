@@ -44,10 +44,6 @@
  * revokes every OTHER device but keeps the
  * caller's own session.
  *
- * **Generated full-stack apps:** mlcl derives the app-auth composition root from this API contract; keep that bond and use its shared HTTP client.
- * Header-only mounts discard a session inherited from a cookie-enabled mount before
- * verifying the header, including when that header is invalid or its device was revoked.
- *
  * **`handlers.*` return `{ statusCode, headers?, body }` and never write to `res`** — not through
  * `res.json`, not through `res.send`, not through `res.end`. The mounted routes apply that object
  * for you (`createRequestHandler` does `res.set(headers)`, `res.status(statusCode)`,
@@ -61,6 +57,10 @@
  *
  * Monkey-patching `res.json` to re-shape a handler's answer intercepts nothing the handler
  * produces, so the request it was meant to answer is left unanswered and hangs.
+ *
+ * **Generated full-stack apps:** mlcl derives the app-auth composition root from this API contract; keep that bond and use its shared HTTP client.
+ * Header-only mounts discard a session inherited from a cookie-enabled mount before
+ * verifying the header, including when that header is invalid or its device was revoked.
  *
  * **Adapt envelopes with `createRequestHandler(handler, options)` from
  * `@molecule/api-resource` 1.1 or newer.** Keep `handlers.create(resource)` and
@@ -328,6 +328,12 @@
  *   login or an explicit denial — never a blank page).
  * - [ ] A profile/account edit (e.g. display name) persists across a reload.
  *
+ * **Public profiles for a list:** call `getPublicProfiles(userIds)` once for the page,
+ * then join its map by canonical id. It reads only public display columns in one query,
+ * deduplicates repeated ids, omits missing users and does no I/O for an empty page.
+ * Never serialize a complete account row beside public content: email, OAuth and plan fields
+ * are not public profile data. A renamed users table uses `getPublicProfiles(ids, { tableName })`.
+ *
  * @module
  */
 
@@ -337,6 +343,7 @@ export * as authorizers from './authorizers/index.js'
 export * from './browser-guard.js'
 export * as handlers from './handlers/index.js'
 export * from './i18n.js'
+export * from './profiles.js'
 export * from './provisioning.js'
 export * from './requestHandlerMap.js'
 export * from './resource.js'
