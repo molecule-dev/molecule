@@ -20,8 +20,8 @@
  * @remarks
  * - **Wire a bond at startup** — {@link requireProvider} throws until
  *   `setProvider(provider)` has been called.
- * - **`sanitize` defaults to `true` and is the XSS gate.** The result is an
- *   HTML STRING you inject via your framework's raw-HTML mechanism — that is
+ * - **`sanitize` defaults to `true` and is the XSS gate.** `render()` returns
+ *   `{ html, toc }`; inject only its `html` string via your framework's raw-HTML mechanism — that is
  *   only safe because it was sanitized. NEVER pass `sanitize: false` for
  *   user-supplied or model-generated markdown (chat replies, comments, notes);
  *   reserve it for fully trusted, app-authored content.
