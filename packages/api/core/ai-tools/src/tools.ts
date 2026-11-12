@@ -60,8 +60,8 @@ import { leadingSleepPeek } from './sleep-peek.js'
 export const supportsBackgroundScriptPreparation = true
 
 /**
- * Total waiting, per background task, after which wait_for_task reports it
- * stuck instead of waiting again. Env-tunable so a test can exercise it.
+ * Total waiting, per background task, after which a growing task receives
+ * an elapsed-time progress update. This never refuses an explicit wait.
  */
 const stuckAfterMs = (): number => Number(process.env.MOL_AI_BG_STUCK_AFTER_MS) || 5 * 60 * 1000
 /** Cumulative wait_for_task time per task id, this process. */
@@ -659,7 +659,7 @@ function waitProgressClauses(o: {
   if (secondWalk)
     clauses.push(
       `the first walk in this command has finished (${secondWalk.tally}); the command started a ` +
-        'SECOND walk of the same suite — stop it (it measures nothing new) and read the first tally',
+        'second run in this command; collect its result to compare the executions',
     )
   const counter = secondWalk ? null : logProgress(o.slice)
   if (counter) {
@@ -3979,13 +3979,9 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           // there is nothing to recover. The log stays the whole result.
         }
       }
-      // A command that has been waited on for stuckAfterMs() in total without
-      // exiting is not going to: on one run the executor waited five times,
-      // 120 s each, on an e2e suite that could never start (no browser page
-      // attached). Say so once, name the pid, and refuse to wait on it again.
-      let waitedBefore = waitedByTask.get(taskId) ?? 0
-      // Output since the last wait means the command is working: the stuck
-      // clock starts again from here.
+      // Elapsed time and silence alone do not establish a failed task. Always honor an
+      // explicit wait; use output and process state only to report what actually happened.
+      const waitedBefore = waitedByTask.get(taskId) ?? 0
       const logBytes = async (): Promise<number | null> => {
         if (!/^mol-bg-[a-z0-9]+-[a-z0-9]+$/.test(taskId)) return null
         let r: { stdout: string } | null | undefined
@@ -4002,26 +3998,6 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         }
         const n = Number.parseInt(r?.stdout?.trim() ?? '', 10)
         return Number.isFinite(n) ? n : null
-      }
-      if (taskId && waitedBefore >= stuckAfterMs()) {
-        const now = await logBytes()
-        const before = logBytesByTask.get(taskId)
-        if (now !== null && before !== undefined && now > before) {
-          logBytesByTask.set(taskId, now)
-          waitedByTask.set(taskId, 0)
-          waitedBefore = 0
-        }
-      }
-      if (taskId && waitedBefore >= stuckAfterMs()) {
-        return {
-          taskId,
-          status: 'stuck',
-          waitedMs: waitedBefore,
-          note:
-            `You have already waited ${Math.round(waitedBefore / 1000)}s on this command and it ` +
-            `has not exited — it is stuck, not slow. Kill it (\`exec_command: ` +
-            `${await taskStopCommand(backend, taskId)}\`) and move on; do not wait on it again.`,
-        }
       }
       // The id names files under /tmp; only an id this tool minted may be used
       // to read them, so a crafted id cannot turn this into a file reader.
@@ -4379,21 +4355,8 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           }),
         )
         const sliceField = soFar.trim() ? { outputSoFar: sanitizeOutput(soFar) } : {}
-        // What this wait found mid-run, when it was not a reason to end early: it rides the result
-        // the wait is about to hand back, because that result is where the executor decides what to
-        // do next and a lead it never saw is a lead it cannot weigh. Not on the `stuck` answer
-        // below — that verdict is about the command having stopped PRINTING and carries its own
-        // instruction — and not on a finished run's result, where `failureCausesNote` reads the
-        // whole log instead of the 40 KB tail a mid-run look is given.
+        // Report observed mid-run diagnostics without changing the requested task lifecycle.
         const midRun = midRunNote ? ` ${midRunNote}` : ''
-        // A log that already finished one walk and started a second is not a run to keep waiting
-        // on: the first walk's tally is the measurement and the second only repeats it, so the
-        // advice below hands over the stop instead of "keep waiting" (m157 +14:02).
-        const secondWalk = secondSuiteWalk(soFar) !== null
-        const stopInstead = secondWalk
-          ? ` Stop it (\`exec_command: ${await taskStopCommand(backend, taskId)}\`) and read the ` +
-            `first walk's tally in ${readLog} — the second walk measures nothing new.`
-          : null
         if (stillWriting && waitedBefore + waitedMs >= stuckAfterMs()) {
           waitedByTask.set(taskId, 0)
           return {
@@ -4403,24 +4366,12 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
             ...sliceField,
             note:
               `${progress}` +
-              (stopInstead ??
-                ` Call wait_for_task again to keep waiting — it returns the moment the ` +
-                  `command ends and reports the failures as they appear.`) +
+              ` Call wait_for_task again to keep waiting — it returns the moment the ` +
+              `command ends and reports the failures as they appear.` +
               `${midRun}`,
           }
         }
-        if (waitedBefore + waitedMs >= stuckAfterMs()) {
-          return {
-            taskId,
-            status: 'stuck',
-            waitedMs: waitedBefore + waitedMs,
-            note:
-              `${Math.round((waitedBefore + waitedMs) / 1000)}s of waiting and it has not exited — it is ` +
-              `stuck, not slow. See what it printed with exec_command (tail ${readLog} — ` +
-              `read_file cannot reach /tmp), kill it (\`exec_command: ` +
-              `${await taskStopCommand(backend, taskId)}\`) and move on; do not wait on it again.`,
-          }
-        }
+
         return {
           taskId,
           status: 'running',
@@ -4431,33 +4382,32 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           // the other format (X1 flash-m87 §+47:20).
           note:
             `${progress}` +
-            (stopInstead ??
-              ` Call wait_for_task again to ` +
-                `keep waiting — its result carries the log output. ` +
-                (soFar.trim()
-                  ? `outputSoFar is the failure lines so far (up to ${RUNNING_FAILURE_LINES}) and then the end of ` +
-                    `the log, not the whole run — \`grep -n '✘' ${readLog} | head -40\` lists every failure, ` +
-                    `\`grep -n -A 20 '<test name>' ${readLog}\` reads one failure's error: ` +
-                    // The promise is made only when the launch actually set the inline switch
-                    // (inlineFailuresByTask). A run whose shape withheld it prints each failure's
-                    // error in the end-of-run summary alone, and telling the model to grep under
-                    // the ✘ row sent it through greps that could not match (xr-molecule-flash-m173
-                    // +17:07, +39:14 — the m99 class, recurring).
-                    (inlineFailuresByTask.has(taskId)
-                      ? `this run writes each failure's own report into the log as that test fails, ` +
-                        `right under its ✘ line, not only in the summary at the end. `
-                      : `this run prints each failure's error only in the summary at the end; until ` +
-                        `then the ✘ rows are all there is. `)
-                  : `Nothing has been printed yet — \`grep -n '✘' ${readLog} | head -40\` lists failures as they appear. `) +
-                // What an edit does to this run depends on what the run MEASURES: the sandbox's own
-                // app is re-served from app/src as it is edited, so the run's result stops counting; a
-                // run against the deployed build is untouched by a local edit, and the executor can
-                // spend the rest of the run fixing (xr-molecule-flash-m122 +19:00: a deployed run was
-                // told editing changes what it tests, then handed "Start fixing it now" in the same
-                // result — it waited out 1 min 11 s of free fixing time).
-                (started !== undefined && suiteCommandTarget(started.command) !== 'local'
-                  ? `Meanwhile fix what it has already named: this run tests the deployed build, so editing app/src or api/src now does not change what it tests — fix the causes it has already named while it walks, run nothing against the app until it ends, then deploy once.`
-                  : `Meanwhile do work that leaves the code under test alone (read the failures so far, plan the fixes): editing app/src or api/src now changes the code the run is testing, and its result no longer counts.`)) +
+            (` Call wait_for_task again to ` +
+              `keep waiting — its result carries the log output. ` +
+              (soFar.trim()
+                ? `outputSoFar is the failure lines so far (up to ${RUNNING_FAILURE_LINES}) and then the end of ` +
+                  `the log, not the whole run — \`grep -n '✘' ${readLog} | head -40\` lists every failure, ` +
+                  `\`grep -n -A 20 '<test name>' ${readLog}\` reads one failure's error: ` +
+                  // The promise is made only when the launch actually set the inline switch
+                  // (inlineFailuresByTask). A run whose shape withheld it prints each failure's
+                  // error in the end-of-run summary alone, and telling the model to grep under
+                  // the ✘ row sent it through greps that could not match (xr-molecule-flash-m173
+                  // +17:07, +39:14 — the m99 class, recurring).
+                  (inlineFailuresByTask.has(taskId)
+                    ? `this run writes each failure's own report into the log as that test fails, ` +
+                      `right under its ✘ line, not only in the summary at the end. `
+                    : `this run prints each failure's error only in the summary at the end; until ` +
+                      `then the ✘ rows are all there is. `)
+                : `Nothing has been printed yet — \`grep -n '✘' ${readLog} | head -40\` lists failures as they appear. `) +
+              // What an edit does to this run depends on what the run MEASURES: the sandbox's own
+              // app is re-served from app/src as it is edited, so the run's result stops counting; a
+              // run against the deployed build is untouched by a local edit, and the executor can
+              // spend the rest of the run fixing (xr-molecule-flash-m122 +19:00: a deployed run was
+              // told editing changes what it tests, then handed "Start fixing it now" in the same
+              // result — it waited out 1 min 11 s of free fixing time).
+              (started !== undefined && suiteCommandTarget(started.command) !== 'local'
+                ? `Meanwhile fix what it has already named: this run tests the deployed build, so editing app/src or api/src now does not change what it tests — fix the causes it has already named while it walks, run nothing against the app until it ends, then deploy once.`
+                : `Meanwhile do work that leaves the code under test alone (read the failures so far, plan the fixes): editing app/src or api/src now changes the code the run is testing, and its result no longer counts.`)) +
             `${midRun}`,
         }
       }

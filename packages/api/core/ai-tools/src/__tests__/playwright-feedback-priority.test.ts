@@ -254,8 +254,10 @@ it('yields to an independent native Playwright command without stopping or refus
   try {
     expect((await run).status).toBe('cancelled')
     expect(performance.now() - time).toBeLessThan(1500)
-    expect(await alive(owned.pid)).toBe(false)
-    expect(await alive(owned.child)).toBe(false)
+    await vi.waitFor(async () => {
+      expect(await alive(owned.pid)).toBe(false)
+      expect(await alive(owned.child)).toBe(false)
+    })
     expect(await finished).toBe(0)
     expect(output).toContain('1 passed')
   } finally {

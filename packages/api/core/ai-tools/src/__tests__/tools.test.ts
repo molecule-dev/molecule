@@ -5245,14 +5245,13 @@ describe('wait_for_task on a task that is still running', () => {
     expect(r.status).toBe('running')
     expect(r.note).toContain('the first walk in this command has finished')
     expect(r.note).toContain('(4 failed / 65 skipped / 70 passed (4.5m))')
-    expect(r.note).toContain('started a SECOND walk of the same suite')
+    expect(r.note).toContain('second run in this command')
     // The growth is the second walk printing, not a slow first one — and its counter is not this
     // run's progress.
     expect(r.note).not.toContain('slow, not stuck')
     expect(r.note).not.toContain('its log is at')
-    // The advice follows the finding: stop the duplicate walk, do not wait it out.
-    expect(r.note).not.toContain('Call wait_for_task again')
-    expect(r.note).toContain('Stop it (')
+    expect(r.note).toContain('Call wait_for_task again')
+    expect(r.note).not.toContain('Stop it (')
   })
 
   it('carries the log slice on the "slow, not stuck" answer too, not just the plain one', async () => {
@@ -5350,43 +5349,7 @@ describe('wait_for_task on a task that is still running', () => {
   })
 })
 
-describe('wait_for_task on a stuck command', () => {
-  it('reports it stuck once the total waiting crosses the threshold, then refuses to wait again', async () => {
-    // Margins wide enough that a loaded test machine cannot flip the first
-    // answer: 40 ms against a 30 ms wait read 'stuck' under a full-suite run.
-    process.env.MOL_AI_BG_STUCK_AFTER_MS = '2000'
-    try {
-      const backend: ExecutionBackend = {
-        projectRoot: '/test',
-        readFile: vi.fn(async () => {
-          throw new Error('ENOENT')
-        }),
-        writeFile: vi.fn(),
-        deleteFile: vi.fn(),
-        readDir: vi.fn(),
-        run: vi.fn(),
-      }
-      const wait = buildTools(backend).find((t) => t.name === 'wait_for_task')!
-      const id = 'mol-bg-stuck00-abc123'
-      const first = (await wait.execute({ taskId: id, timeout: 1100 })) as { status: string }
-      expect(first.status).toBe('running')
-      const second = (await wait.execute({ taskId: id, timeout: 1100 })) as {
-        status: string
-        note: string
-      }
-      expect(second.status).toBe('stuck')
-      expect(second.note).toContain('kill')
-      expect(second.note).toContain(`${id}.pid`)
-      // A third call does not wait at all.
-      const t0 = Date.now()
-      const third = (await wait.execute({ taskId: id, timeout: 5000 })) as { status: string }
-      expect(third.status).toBe('stuck')
-      expect(Date.now() - t0).toBeLessThan(500)
-    } finally {
-      delete process.env.MOL_AI_BG_STUCK_AFTER_MS
-    }
-  })
-
+describe('wait_for_task task controls', () => {
   it('records the pid of a background command so a stuck one can be killed', async () => {
     const backend: ExecutionBackend = {
       projectRoot: '/test',
