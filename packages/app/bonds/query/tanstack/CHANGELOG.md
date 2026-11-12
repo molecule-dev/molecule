@@ -1,5 +1,11 @@
 # @molecule/app-query-tanstack
 
+## 1.0.4
+
+### Patch Changes
+
+- Keep saved documents successful when an older in-flight read is cancelled.
+
 ## 1.0.3
 
 ### Patch Changes

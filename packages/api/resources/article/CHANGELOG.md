@@ -1,5 +1,11 @@
 # @molecule/api-resource-article
 
+## 1.2.3
+
+### Patch Changes
+
+- Add batched public profile and follow-state reads for collection responses.
+
 ## 1.2.2
 
 ### Patch Changes

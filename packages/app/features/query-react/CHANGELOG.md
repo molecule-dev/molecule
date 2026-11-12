@@ -1,5 +1,16 @@
 # @molecule/app-query-react
 
+## 1.4.0
+
+### Minor Changes
+
+- Publish custom mutation responses through the query observer's typed setData action.
+- Keep paginated collection envelopes, alternate lists and pending reads current after resource mutations with listPage.
+
+### Patch Changes
+
+- Clarify that a superseded fetch promise settles independently of the saved cache document.
+
 ## 1.3.0
 
 ### Minor Changes

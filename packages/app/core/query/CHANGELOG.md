@@ -1,5 +1,12 @@
 # @molecule/app-query
 
+## 1.1.3
+
+### Patch Changes
+
+- Require a principal in the query type when retaining previous data, so missing viewer identity fails before rendering.
+- Clarify that a superseded fetch promise settles independently of the saved cache document.
+
 ## 1.1.2
 
 ### Patch Changes

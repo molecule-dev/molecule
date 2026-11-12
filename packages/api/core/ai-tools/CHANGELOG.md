@@ -1,5 +1,13 @@
 # @molecule/api-ai-tools
 
+## 1.17.13
+
+### Patch Changes
+
+- Report every native Playwright test failure and select tests without interpreting source or spec text.
+- Preserve configured test retries for local and deployed runs.
+- Allow explicit repeated test commands for reliability checks.
+
 ## 1.17.12
 
 ### Patch Changes

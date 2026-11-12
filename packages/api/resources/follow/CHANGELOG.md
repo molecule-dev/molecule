@@ -1,5 +1,11 @@
 # @molecule/api-resource-follow
 
+## 1.1.0
+
+### Minor Changes
+
+- Add batched public profile and follow-state reads for collection responses.
+
 ## 1.0.11
 
 ### Patch Changes

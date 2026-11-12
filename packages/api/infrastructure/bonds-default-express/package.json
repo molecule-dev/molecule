@@ -118,7 +118,7 @@
     "@molecule/api-resource": "1.1.1",
     "@molecule/api-resource-device": "1.1.2",
     "@molecule/api-resource-payment": "1.0.4",
-    "@molecule/api-resource-user": "1.9.0",
+    "@molecule/api-resource-user": "1.10.0",
     "@molecule/api-search": "1.0.4",
     "@molecule/api-search-meilisearch": "1.0.4",
     "@molecule/api-search-postgres": "1.0.4",

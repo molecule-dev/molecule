@@ -1,5 +1,15 @@
 # @molecule/api-resource-user
 
+## 1.10.0
+
+### Minor Changes
+
+- Add batched public profile and follow-state reads for collection responses.
+
+### Patch Changes
+
+- Discard inherited cookie sessions before verifying credentials on header-only mounts.
+
 ## 1.9.0
 
 ### Minor Changes
