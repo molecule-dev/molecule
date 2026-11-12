@@ -1,5 +1,12 @@
 # @molecule/api-ai-tools
 
+## 1.17.12
+
+### Patch Changes
+
+- Retain dynamic filter programs and unrecognized awk options when removing test-output filters.
+- Preserve command substitutions and opaque executable filters when removing test-output pipelines.
+
 ## 1.17.11
 
 ### Patch Changes

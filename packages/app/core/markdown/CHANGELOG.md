@@ -1,5 +1,11 @@
 # @molecule/app-markdown
 
+## 1.0.4
+
+### Patch Changes
+
+- Clarify that raw HTML consumers must use the rendered result's html field.
+
 ## 1.0.1
 
 ### Patch Changes
