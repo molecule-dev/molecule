@@ -1,5 +1,12 @@
 # @molecule/api-ai-tools
 
+## 1.17.17
+
+### Patch Changes
+
+- Playwright feedback reports a spec whose every test skips itself as `skipped`, and `check({ failedOnly: true })` re-runs only known native failures.
+- Report invalid navigation from native errors without claiming that the runner omitted a config or loaded no base URL.
+
 ## 1.17.16
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/api-ai-google
 
+## 1.3.6
+
+### Patch Changes
+
+- Defaults to gemini-4-hydrogen when no model is configured.
+
 ## 1.3.5
 
 ### Patch Changes

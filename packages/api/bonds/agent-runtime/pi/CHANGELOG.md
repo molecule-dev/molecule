@@ -1,5 +1,11 @@
 # @molecule/api-agent-runtime-pi
 
+## 1.0.9
+
+### Patch Changes
+
+- Maps gemini-4-hydrogen to Pi's google provider so the runtime resolves it without fuzzy matching.
+
 ## 1.0.8
 
 ### Patch Changes
