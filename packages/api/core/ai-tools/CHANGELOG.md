@@ -1,5 +1,12 @@
 # @molecule/api-ai-tools
 
+## 1.17.15
+
+### Patch Changes
+
+- Verify current Playwright results before an explicit action and preserve native failures from fail-fast runs.
+- Discard partial Playwright checkpoint results when source changes interrupt verification.
+
 ## 1.17.14
 
 ### Patch Changes

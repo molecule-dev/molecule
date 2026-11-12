@@ -1,5 +1,11 @@
 # @molecule/api-resource-article
 
+## 1.2.4
+
+### Patch Changes
+
+- Count every page of tags so complete catalogs and popularity counts remain correct beyond the database read cap.
+
 ## 1.2.3
 
 ### Patch Changes
