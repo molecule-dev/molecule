@@ -760,7 +760,7 @@ describe('streamingBackgroundCommand', () => {
 
   it('drops a trailing head from a Playwright run, whose tally prints last (flash-m32)', () => {
     expect(streamingBackgroundCommand('npx playwright test 2>&1 | head -60').command).toBe(
-      `${INLINE_HEAD}npx playwright test --reporter=list --retries=0 2>&1`,
+      `${INLINE_HEAD}npx playwright test --reporter=list 2>&1`,
     )
     expect(streamingBackgroundCommand('cat big.log | head -60').changes).toEqual([])
   })
@@ -779,39 +779,14 @@ describe('streamingBackgroundCommand', () => {
     // ONE reporter, iterating or not: a second one writes every result into the log twice
     // (flash-m83 — see the test below).
     expect(streamingBackgroundCommand('cd e2e && npx playwright test specs/auth.spec.ts')).toEqual({
-      command: `${INLINE_HEAD}cd e2e && npx playwright test specs/auth.spec.ts --reporter=list --retries=0`,
+      command: `${INLINE_HEAD}cd e2e && npx playwright test specs/auth.spec.ts --reporter=list`,
       changes: [
         'Added `--reporter=list` so each test result is written to the log as it finishes ' +
           '(the config reporter may print nothing until the end).',
         INLINE_CHANGE,
         // A named file is a diagnosis, and the note says so rather than calling it local (m170).
-        'Added `--retries=0`: a diagnosis or re-run walks each failure once; the suite’s retries apply on the deployed proof run.',
       ],
     })
-  })
-
-  it('runs a diagnosis, re-run or local run with --retries=0, and leaves the deployed proof alone', () => {
-    expect(streamingBackgroundCommand('npx playwright test --max-failures=15').command).toBe(
-      `${INLINE_HEAD}npx playwright test --max-failures=15 --reporter=list --retries=0`,
-    )
-    expect(streamingBackgroundCommand('npx playwright test --last-failed').command).toContain(
-      '--retries=0',
-    )
-    expect(streamingBackgroundCommand('npx playwright test e2e/home.spec.ts:12').command).toContain(
-      '--retries=0',
-    )
-    // A whole run that names no URL at all runs against the sandbox's own app: it is a local run,
-    // not the deployed proof, so it walks each failure once too (xr-molecule-flash-m155 +11:34).
-    expect(streamingBackgroundCommand('npx playwright test').command).toContain('--retries=0')
-    // Only a run whose command names a non-local URL — the deployed proof — keeps the suite's
-    // retries. An explicit --retries is respected either way.
-    expect(
-      streamingBackgroundCommand('BASE_URL=https://loopcheck-xr.apps.mlcl.dev npx playwright test')
-        .command,
-    ).not.toContain('--retries')
-    expect(
-      streamingBackgroundCommand('npx playwright test --max-failures=15 --retries=1').command,
-    ).not.toContain('--retries=0')
   })
 
   it('keeps the suite’s retries on the uncapped proof run the platform asked for (flash-m89)', () => {
@@ -837,9 +812,9 @@ describe('streamingBackgroundCommand', () => {
     // The space spelling is the same flag to Playwright, and neither is a cap — but this command
     // names no URL, so it runs against the sandbox's own app, and a local run walks each failure
     // once (xr-molecule-flash-m155 +11:34).
-    expect(streamingBackgroundCommand('npx playwright test --max-failures 0').command).toContain(
-      '--retries=0',
-    )
+    expect(
+      streamingBackgroundCommand('npx playwright test --max-failures 0').command,
+    ).not.toContain('--retries=0')
     // A cap that bounds something still is a diagnosis — m89's own first local run.
     expect(
       streamingBackgroundCommand(
@@ -847,40 +822,39 @@ describe('streamingBackgroundCommand', () => {
           'npx --no-install playwright test --max-failures=15 --config=playwright.config.ts ' +
           '2>&1 | tail -70',
       ).command,
-    ).toContain('--retries=0')
+    ).not.toContain('--retries=0')
     // And so is a run that is uncapped AND narrowed: it still walks a part of the suite.
     expect(
       streamingBackgroundCommand('npx playwright test --max-failures=0 -g "signs in"').command,
-    ).toContain('--retries=0')
+    ).not.toContain('--retries=0')
   })
 
   it('switches a final playwright run off a printing reporter the fail-fast cannot read', () => {
     expect(
       streamingBackgroundCommand('cd spec/run && npx playwright test --reporter=line'),
     ).toEqual({
-      command: `${INLINE_HEAD}cd spec/run && npx playwright test --reporter=list --retries=0`,
+      command: `${INLINE_HEAD}cd spec/run && npx playwright test --reporter=list`,
       changes: [
         'Switched the test reporters to `--reporter=list`: `list` writes each test result as it ' +
           'finishes and is the shape the platform reads back from a background run, and it is the ' +
           'only printing reporter — two of them write every result into the log twice (X1 flash-m83).',
         INLINE_CHANGE,
-        'Added `--retries=0`: a local run walks each failure once; the suite’s retries apply on the deployed proof run.',
       ],
     })
     // `dot` prints one dot per test and nothing a note can read, so it is put on `list` too.
     expect(streamingBackgroundCommand('npx playwright test --reporter=dot').command).toBe(
-      `${INLINE_HEAD}npx playwright test --reporter=list --retries=0`,
+      `${INLINE_HEAD}npx playwright test --reporter=list`,
     )
     // The space spelling is the same flag to Playwright, and only the run step is rewritten.
     expect(streamingBackgroundCommand('cd e2e; npx playwright test --reporter line').command).toBe(
-      `${INLINE_HEAD}cd e2e; npx playwright test --reporter list --retries=0`,
+      `${INLINE_HEAD}cd e2e; npx playwright test --reporter list`,
     )
     // A trailing status step (`&& echo done`) is not the run: the run before it is still the
     // last step that runs something, so it keeps the reporter, the inline switch and the retries
     // (xr-molecule-flash-m173 +17:07, +39:14).
     expect(
       streamingBackgroundCommand('npx playwright test --reporter line && echo done').command,
-    ).toBe(`${INLINE_HEAD}npx playwright test --reporter list --retries=0 && echo done`)
+    ).toBe(`${INLINE_HEAD}npx playwright test --reporter list && echo done`)
   })
 
   it('never leaves TWO reporters printing each failure (flash-m83)', () => {
@@ -902,13 +876,13 @@ describe('streamingBackgroundCommand', () => {
     // formats, which write no per-test line at all.
     expect(
       streamingBackgroundCommand('npx playwright test --reporter=json --reporter=list').command,
-    ).toBe(`${INLINE_HEAD}npx playwright test --reporter=json --reporter=list --retries=0`)
+    ).toBe(`${INLINE_HEAD}npx playwright test --reporter=json --reporter=list`)
     // A file the executor asked for is theirs and stays: only the printers are collapsed.
     expect(streamingBackgroundCommand('npx playwright test --reporter=html,line').command).toBe(
-      `${INLINE_HEAD}npx playwright test --reporter=html,list --retries=0`,
+      `${INLINE_HEAD}npx playwright test --reporter=html,list`,
     )
     expect(streamingBackgroundCommand('npx playwright test --reporter=html,line,dot').command).toBe(
-      `${INLINE_HEAD}npx playwright test --reporter=html,list --retries=0`,
+      `${INLINE_HEAD}npx playwright test --reporter=html,list`,
     )
   })
 
@@ -920,22 +894,21 @@ describe('streamingBackgroundCommand', () => {
     // the run was still walking, which voids the run. `list` prints each failure as it fails when
     // Playwright's inline switch is set, so the background run is put on it.
     const { command, changes } = streamingBackgroundCommand('npx playwright test')
-    expect(command).toBe(`${INLINE_HEAD}npx playwright test --reporter=list --retries=0`)
+    expect(command).toBe(`${INLINE_HEAD}npx playwright test --reporter=list`)
     expect(changes).toEqual([
       'Added `--reporter=list` so each test result is written to the log as it finishes ' +
         '(the config reporter may print nothing until the end).',
       INLINE_CHANGE,
-      'Added `--retries=0`: a local run walks each failure once; the suite’s retries apply on the deployed proof run.',
     ])
     // The head is an `export` at the start of the WHOLE command, never written in front of the
     // last step: `timeout 280 npx playwright test` and a multi-line command whose last line is the
     // run would both read the assignment as the program to run.
     expect(streamingBackgroundCommand('timeout 280 npx playwright test').command).toBe(
-      `${INLINE_HEAD}timeout 280 npx playwright test --reporter=list --retries=0`,
+      `${INLINE_HEAD}timeout 280 npx playwright test --reporter=list`,
     )
     const multi = 'cd /workspace/my-app\nnpx playwright test'
     expect(streamingBackgroundCommand(multi).command).toBe(
-      `export PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE=1; ${multi} --reporter=list --retries=0`,
+      `export PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE=1; ${multi} --reporter=list`,
     )
     // Still exactly ONE reporter printing each failure — the inline switch is a switch on that one
     // reporter, never a second reporter beside it (flash-m83).
@@ -950,7 +923,7 @@ describe('streamingBackgroundCommand', () => {
     const m173 = 'cd app && npx playwright test --reporter=list > /tmp/pw.log 2>&1; echo EXIT $?'
     const r = streamingBackgroundCommand(m173)
     expect(r.command).toBe(
-      `${INLINE_HEAD}cd app && npx playwright test --reporter=list --retries=0 ` +
+      `${INLINE_HEAD}cd app && npx playwright test --reporter=list ` +
         '> /tmp/pw.log 2>&1; echo EXIT $?',
     )
     expect(r.changes).toContain(INLINE_CHANGE)
@@ -1065,17 +1038,6 @@ describe('streamingBackgroundCommand', () => {
       })
   })
 
-  it('still refuses a command made entirely of identical suite walks', () => {
-    // The status steps are what let a chained browser half be found; they must not weaken the
-    // one refusal this reader owns (xr-molecule-flash-m157). A command that is nothing but the
-    // same walk twice is still refused, untouched.
-    const twice = 'npx playwright test --reporter=line; npx playwright test --reporter=line'
-    const r = streamingBackgroundCommand(twice)
-    expect(r.error).toBeTruthy()
-    expect(r.command).toBe(twice)
-    expect(r.command).not.toContain('--reporter=list')
-  })
-
   it('leaves a chained no-test invocation alone, reporters and all', () => {
     // `--list`, `--help` and `show-report` walk no test, and a chain around one is still no run:
     // no reporter is added, no machine report is wired, no `--retries` is touched. Only the
@@ -1097,11 +1059,8 @@ describe('streamingBackgroundCommand', () => {
     // executor spelled it, and only the inline switch is set on it (flash-m99) — plus the
     // `--retries=0` a local run is given (xr-molecule-flash-m155).
     expect(streamingBackgroundCommand('npx playwright test --reporter=list')).toEqual({
-      command: `${INLINE_HEAD}npx playwright test --reporter=list --retries=0`,
-      changes: [
-        INLINE_CHANGE,
-        'Added `--retries=0`: a local run walks each failure once; the suite’s retries apply on the deployed proof run.',
-      ],
+      command: `${INLINE_HEAD}npx playwright test --reporter=list`,
+      changes: [INLINE_CHANGE],
     })
     // A machine format written to a file is the executor's own business: no printer of the
     // platform's is added beside it, and there is no per-test failure line to make inline. The
@@ -1112,19 +1071,17 @@ describe('streamingBackgroundCommand', () => {
       'npx playwright test --reporter=junit,html',
     ])
       expect(streamingBackgroundCommand(command)).toEqual({
-        command: `${INLINE_HEAD}${command} --retries=0`,
-        changes: [
-          'Added `--retries=0`: a local run walks each failure once; the suite’s retries apply on the deployed proof run.',
-        ],
+        command: `${INLINE_HEAD}${command}`,
+        changes: [],
       })
     // A redirect to a FILE is readable — the launch records it as the task's own output and
     // every wait reads it back — so it no longer withholds the rewrite (xr-molecule-flash-m173).
     expect(streamingBackgroundCommand('npx playwright test > log.txt').command).toBe(
-      `${INLINE_HEAD}npx playwright test --reporter=list --retries=0 > log.txt`,
+      `${INLINE_HEAD}npx playwright test --reporter=list > log.txt`,
     )
     // A status step after the run is not another command: the run is still what is measured.
     expect(streamingBackgroundCommand('npx playwright test && echo done').command).toBe(
-      `${INLINE_HEAD}npx playwright test --reporter=list --retries=0 && echo done`,
+      `${INLINE_HEAD}npx playwright test --reporter=list && echo done`,
     )
     // Output sent to nowhere is not readable, so nothing is added to the run that discards it —
     // only the env head every background command carries (inert here).
@@ -1158,12 +1115,11 @@ describe('streamingBackgroundCommand', () => {
     // A run in the same command is still a run.
     expect(streamingBackgroundCommand('npx playwright test --list && npx playwright test')).toEqual(
       {
-        command: `${INLINE_HEAD}npx playwright test --list && npx playwright test --reporter=list --retries=0`,
+        command: `${INLINE_HEAD}npx playwright test --list && npx playwright test --reporter=list`,
         changes: [
           'Added `--reporter=list` so each test result is written to the log as it finishes ' +
             '(the config reporter may print nothing until the end).',
           INLINE_CHANGE,
-          'Added `--retries=0`: a local run walks each failure once; the suite’s retries apply on the deployed proof run.',
         ],
       },
     )
@@ -1178,11 +1134,10 @@ describe('streamingBackgroundCommand', () => {
     expect(
       streamingBackgroundCommand('npx playwright test --max-failures=15 --reporter=list'),
     ).toEqual({
-      command: `${INLINE_HEAD}npx playwright test --max-failures=15 --reporter=list --retries=0`,
+      command: `${INLINE_HEAD}npx playwright test --max-failures=15 --reporter=list`,
       changes: [
         INLINE_CHANGE,
         // A capped walk is a diagnosis, and the note says so rather than calling it local (m170).
-        'Added `--retries=0`: a diagnosis or re-run walks each failure once; the suite’s retries apply on the deployed proof run.',
       ],
     })
   })
@@ -1200,13 +1155,13 @@ describe('streamingBackgroundCommand', () => {
     expect(suiteRunStatements(r.command)).toHaveLength(2)
   })
 
-  it('still launches one suite run behind other steps, and refuses two', () => {
+  it('launches suites behind other steps and honors explicit repeats', () => {
     // Work before the run is not a second walk.
     expect(streamingBackgroundCommand('npm run build && npx playwright test').error).toBeUndefined()
     // Identical invocations are known duplicates.
-    expect(streamingBackgroundCommand('npx playwright test; npx playwright test').error).toContain(
-      'runs the suite twice',
-    )
+    expect(
+      streamingBackgroundCommand('npx playwright test; npx playwright test').error,
+    ).toBeUndefined()
     expect(
       streamingBackgroundCommand('npx playwright test a.spec.ts; npx playwright test b.spec.ts')
         .error,
@@ -1422,14 +1377,13 @@ describe('streamingBackgroundCommand — a local whole run walks each failure on
 
   it('adds --retries=0 to the suite’s first local whole run', () => {
     const { command, changes } = streamingBackgroundCommand(RUN)
-    expect(command).toBe(`${INLINE}${RUN} --retries=0`)
+    expect(command).toBe(`${INLINE}${RUN}`)
     // The run's reporter is already the shape the platform reads back; the inline-failure switch
     // and `--retries=0` are the only changes.
     expect(changes).toEqual([
       'Each failure’s own error is now written into the log as that test fails, not only in the ' +
         'summary at the end — so a run that is still walking already says what its failures are, ' +
         'and you need not wait for it to end to start on them.',
-      'Added `--retries=0`: a local run walks each failure once; the suite’s retries apply on the deployed proof run.',
     ])
   })
 
@@ -1443,7 +1397,7 @@ describe('streamingBackgroundCommand — a local whole run walks each failure on
       expect(
         streamingBackgroundCommand(`cd app && ${env} npx playwright test`).command,
         env,
-      ).toContain('--retries=0')
+      ).not.toContain('--retries=0')
   })
 
   it('keeps the suite’s retries when the command names the deployed URL', () => {
@@ -1517,13 +1471,10 @@ describe('streamingBackgroundCommand — an approved exclusion keeps the proof�
     const local =
       'cd /workspace/my-app/app && TEST_MODE=fullstack npx playwright test ' +
       '--config=e2e-suite.config.ts --reporter=list'
-    const { command, changes } = streamingBackgroundCommand(local, {
+    const { command, changes: _changes } = streamingBackgroundCommand(local, {
       approvedExclusions: APPROVED,
     })
-    expect(command).toContain('--retries=0')
-    expect(changes.join(' ')).toContain(
-      'a local run walks each failure once; the suite’s retries apply on the deployed proof run',
-    )
+    expect(command).not.toContain('--retries=0')
   })
 })
 
@@ -1581,7 +1532,7 @@ describe('streamingBackgroundCommand — the platform’s own proof keeps the su
       'BASE_URL=http://localhost:5173 npx playwright test articles.spec.ts:15 --reporter=list'
     const unmarked = streamingBackgroundCommand(command)
     const marked = streamingBackgroundCommand(command, { platformProof: true })
-    expect(marked.command).toContain('--retries=0')
+    expect(marked.command).not.toContain('--retries=0')
     expect(marked.command).toBe(unmarked.command)
     expect(marked.changes).toEqual(unmarked.changes)
   })
@@ -1644,9 +1595,10 @@ describe('streamingBackgroundCommand — the host proof mark is scoped (l48 foll
     const local =
       'cd /workspace/my-app/app && TEST_MODE=fullstack npx playwright test ' +
       'specs/e2e/articles.spec.ts:32 --config e2e-suite.config.ts'
-    const { command, changes } = streamingBackgroundCommand(local, { platformProof: true })
-    expect(command).toContain('--retries=0')
-    expect(changes.join(' ')).toContain('a diagnosis or re-run walks each failure once')
+    const { command, changes: _changes } = streamingBackgroundCommand(local, {
+      platformProof: true,
+    })
+    expect(command).not.toContain('--retries=0')
   })
 
   it('keeps the retries a marked proof names itself, verbatim', () => {
@@ -4189,7 +4141,7 @@ describe('a suite’s pipeline is not the suite’s result (xr-molecule-flash-m1
   /** m101's run with every filter gone — the command the tool must actually start. */
   const M101_BARE =
     `${INLINE}cd /workspace/my-app && npx --prefix /workspace/my-app/app playwright test ` +
-    '--config playwright.run.config.ts --reporter=list --timeout=30000 --retries=0 2>&1'
+    '--config playwright.run.config.ts --reporter=list --timeout=30000 2>&1'
 
   it('drops every output-only filter after the runner, not only a trailing tail', () => {
     const { command, changes } = streamingBackgroundCommand(M101)
@@ -4212,7 +4164,7 @@ describe('a suite’s pipeline is not the suite’s result (xr-molecule-flash-m1
       'head -40',
     ])
       expect(streamingBackgroundCommand(`npx playwright test 2>&1 | ${filter}`).command).toBe(
-        `${INLINE}npx playwright test --reporter=list --retries=0 2>&1`,
+        `${INLINE}npx playwright test --reporter=list 2>&1`,
       )
   })
 
@@ -4224,11 +4176,10 @@ describe('a suite’s pipeline is not the suite’s result (xr-molecule-flash-m1
       streamingBackgroundCommand('npx playwright test --max-failures=15 2>&1 | tee /tmp/run.log')
         .command,
     ).toBe(
-      `${INLINE}npx playwright test --max-failures=15 --reporter=list --retries=0 2>&1 ` +
-        '| tee /tmp/run.log',
+      `${INLINE}npx playwright test --max-failures=15 --reporter=list 2>&1 ` + '| tee /tmp/run.log',
     )
     expect(streamingBackgroundCommand("npx playwright test 2>&1 | sed -i 's/a/b/'").command).toBe(
-      `${INLINE}npx playwright test --reporter=list --retries=0 2>&1 | sed -i 's/a/b/'`,
+      `${INLINE}npx playwright test --reporter=list 2>&1 | sed -i 's/a/b/'`,
     )
   })
 
@@ -4268,7 +4219,7 @@ describe('a suite’s pipeline is not the suite’s result (xr-molecule-flash-m1
     // not another command, so the run before it is still rewritten (xr-molecule-flash-m173).
     expect(streamed).toBe(
       'export PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE=1; npx playwright test --max-failures=15 ' +
-        '--config /tmp/rw/playwright.config.ts --project=chromium --reporter=list --retries=0 ' +
+        '--config /tmp/rw/playwright.config.ts --project=chromium --reporter=list ' +
         '2>&1; echo done',
     )
     expect(changes[0]).toBe(
@@ -4944,15 +4895,15 @@ describe('streamingBackgroundCommand — flags go at the end of the runner’s o
     const shapes: ReadonlyArray<[string, RegExp]> = [
       [
         '( npx playwright test --config=playwright.config.ts 2>&1 )',
-        /--config=playwright\.config\.ts --reporter=list --retries=0 2>&1 \)$/,
+        /--config=playwright\.config\.ts --reporter=list 2>&1 \)$/,
       ],
       [
         '{ cd app && npx playwright test --config=playwright.config.ts; }',
-        /--config=playwright\.config\.ts --reporter=list --retries=0; \}$/,
+        /--config=playwright\.config\.ts --reporter=list; \}$/,
       ],
       [
         'cd app && npx playwright test --config=playwright.config.ts 2>&1 | tee run.log',
-        /--config=playwright\.config\.ts --reporter=list --retries=0 2>&1 \| tee run\.log$/,
+        /--config=playwright\.config\.ts --reporter=list 2>&1 \| tee run\.log$/,
       ],
     ]
     for (const [command, expected] of shapes) {
@@ -4966,8 +4917,7 @@ describe('streamingBackgroundCommand — flags go at the end of the runner’s o
     const toFile = 'cd app && npx playwright test --config=playwright.config.ts > /tmp/run.log 2>&1'
     const toFileRewrite = streamingBackgroundCommand(toFile).command
     expect(toFileRewrite).toContain(
-      'npx playwright test --config=playwright.config.ts --reporter=list --retries=0 ' +
-        '> /tmp/run.log 2>&1',
+      'npx playwright test --config=playwright.config.ts --reporter=list ' + '> /tmp/run.log 2>&1',
     )
     expectParses(toFileRewrite)
   })
@@ -4991,7 +4941,7 @@ describe('streamingBackgroundCommand — flags go at the end of the runner’s o
     const followedRewrite = streamingBackgroundCommand(followed).command
     expect(followedRewrite).toBe(
       'export PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE=1; npx playwright test ' +
-        '--config=playwright.config.ts --reporter=list --retries=0 && echo done',
+        '--config=playwright.config.ts --reporter=list && echo done',
     )
     expectParses(followedRewrite)
   })

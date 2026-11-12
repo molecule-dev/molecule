@@ -2030,7 +2030,7 @@ describe('diagnosisTraceCommand — the trace a run must record', () => {
     expect(streamed.command).toContain('--trace=retain-on-failure')
     expect(streamed.command).toContain('--config e2e-suite.config.ts --reporter=list')
     expect(streamed.changes.join(' ')).toContain('Switched the test reporters')
-    expect(streamed.command).toContain('--retries=0')
+    expect(streamed.command).not.toContain('--retries=0')
   })
 
   it('leaves the `echo`/`grep` after the step untouched (m102 +07:53)', async () => {

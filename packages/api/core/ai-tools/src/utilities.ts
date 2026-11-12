@@ -26,8 +26,6 @@ import { PLAYWRIGHT_REPORT_ENV } from './playwright-report.js'
 import { requestScopedCommand } from './request-test-exclusions.js'
 import {
   type DiagnosisRunContext,
-  isDiagnosisRun,
-  playwrightCommandTarget,
   resolvePlaywrightSelectionPaths,
   type RunEnvSetting,
   scopedRerunCommand,
@@ -694,28 +692,20 @@ function isStatusOnlyStep(step: string): boolean {
  *
  * Only the step that runs the suite is touched, and only its reporter, and only when that step
  * runs something: `npx playwright test --list` takes two seconds and writes nothing per test, so
- * neither reporter nor `--retries=0` is added to it ({@link isPlaywrightRunCommand}). A trailing
+ * no reporter is added to it ({@link isPlaywrightRunCommand}). A trailing
  * status step (`; echo EXIT $?`, `&& true`) is not the run and is skipped when the run step is
  * found ({@link isStatusOnlyStep}); a run whose output is redirected to a file is still readable
  * through that file, which the launch records as the task's own output.
  *
- * A command that starts the suite MORE THAN ONCE is not launched at all: every run it carries is
- * a whole walk of the same suite against the same app, and only the last step is rewritten, so the
- * earlier walks run unmeasured for nothing. Two whole walks of one 138-test suite chained with
- * `;` — 4.5 minutes each — measured nothing the first had not. The platform refuses a second CONCURRENT run against one app and database by the
- * ONE rule ({@link suiteRunInTheWay}) — for every pair, whatever uid a run mints — and this is the
- * same hazard inside one command ({@link suiteRunStatements}). `error` then carries the refusal,
- * naming each suite step and the ONE command to send instead (the last suite step, rewritten as
- * this function rewrites a run), and nothing is launched.
+ * Explicit repetitions and configured runner settings (retries, timeouts, workers and scope)
+ * are preserved. Each requested execution remains in the command.
  *
  * @param command - The command as the executor sent it.
  * @param context - What the caller knows beyond the command: the tests the person's request
  *   excludes by name, and whether this command IS the platform's graded proof
  *   ({@link DiagnosisRunContext}). A `--grep-invert` of exactly those exclusions is the
  *   request's own scope, not a diagnosis. Missing literal title exclusions are applied before
- *   launch while preserving existing exclusions. This keeps the suite's retries on a deployed proof
- *   — and a proof the platform itself composed and launched
- *   keeps them whatever its scope, targeted set included.
+ *   launch while preserving existing exclusions and the runner's configured settings.
  * @param reportPath - Where this run should write Playwright's standard `json` report, when the
  *   caller keeps one ({@link ./playwright-report.js}). The reporter is added to the run's own
  *   reporter set, never in place of one, and its output goes to that file through
@@ -724,7 +714,7 @@ function isStatusOnlyStep(step: string): boolean {
  *   (already names `json`, sets the variable itself, or whose runner cannot be located), leaves
  *   the command untouched and the result's `reportPath` unset.
  * @returns The command to run, one sentence per change made (empty when none), and the report path
- *   when one was actually wired — or `error` when the command starts the suite more than once.
+ *   when one was actually wired.
  */
 export function streamingBackgroundCommand(
   command: string,
@@ -853,13 +843,6 @@ export function streamingBackgroundCommand(
     out = `${out.slice(0, at)} ${flag}${out.slice(at)}`
     return true
   }
-  // Local walks diagnose each failure once. Deployed walks retain the suite's retries even when
-  // narrowed or capped: a native test record hashes retries, so changing them would prevent proof
-  // credit. Explicit executor flags remain the executor's choice.
-  const diagnosis = isDiagnosisRun(lastStep, context)
-  // A narrowed deployed selection can count as native proof too. Its retries must remain the
-  // suite's own; only local diagnosis runs receive an automatic retry override.
-  const localTarget = playwrightCommandTarget(out, true) === 'local'
   // The last step's reporters: one printer, and it is `list`. Every branch below only ever moves
   // the command TO that shape — a reporter set is never left with two printers in it.
   const reporters = finalPlaywrightRun ? lastReporterFlag(lastStep) : null
@@ -967,15 +950,6 @@ export function streamingBackgroundCommand(
         'summary at the end — so a run that is still walking already says what its failures are, ' +
         'and you need not wait for it to end to start on them.',
     )
-  }
-  if (finalPlaywrightRun && localTarget && !/--retries\b/.test(lastStep)) {
-    // The reason named is the one that fired: a narrowed diagnosis against a DEPLOYED URL is not a
-    // local run, and calling it one (xr-molecule-flash-m170's note did) reads as the platform having
-    // misread the target.
-    const why = diagnosis
-      ? 'a diagnosis or re-run walks each failure once; the suite’s retries apply on the deployed proof run'
-      : 'a local run walks each failure once; the suite’s retries apply on the deployed proof run'
-    if (addToRun('--retries=0')) changes.push(`Added \`--retries=0\`: ${why}.`)
   }
   if (finalPlaywrightRun) {
     const scoped = requestScopedCommand(out, context?.approvedExclusions ?? [], shellQuote)

@@ -192,7 +192,7 @@ describe('compound browser commands', () => {
     const { command: launched } = streamingBackgroundCommand(command)
     expect(launched).toBe(
       'export PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE=1; ' +
-        `${first} test --reporter=list e2e/auth.spec.ts --retries=0 2>&1`,
+        `${first} test --reporter=list e2e/auth.spec.ts 2>&1`,
     )
     expect(run(launched, app).output).toContain(FIRST_BODY)
   })
@@ -290,7 +290,7 @@ describe('compound browser commands — preserved shapes', () => {
       ).command,
     ).toBe(
       'export PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE=1; npx playwright test --reporter=json specs; ' +
-        'npx playwright test --reporter=html auth.spec.ts --retries=0',
+        'npx playwright test --reporter=html auth.spec.ts',
     )
     // A printing reporter beside a file reporter: only the printer moves, the artifact stays.
     expect(
@@ -299,7 +299,7 @@ describe('compound browser commands — preserved shapes', () => {
       ).command,
     ).toBe(
       'export PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE=1; npx playwright test --reporter=json,list ' +
-        'specs; npx playwright test --reporter=json,list auth.spec.ts --retries=0',
+        'specs; npx playwright test --reporter=json,list auth.spec.ts',
     )
   })
 
@@ -320,7 +320,7 @@ describe('compound browser commands — preserved shapes', () => {
 
   it('preserves heredocs, writes, &&/||, groups and quoted punctuation', () => {
     const INLINE = 'export PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE=1; '
-    const tail = ' npx playwright test --reporter=list auth.spec.ts --retries=0'
+    const tail = ' npx playwright test --reporter=list auth.spec.ts'
     // A heredoc body and the line after it are left where they are; the run after them is rewritten.
     expect(
       streamingBackgroundCommand(
@@ -361,9 +361,7 @@ describe('compound browser commands — preserved shapes', () => {
       streamingBackgroundCommand(
         'npx playwright test --reporter=line -g "signs in|logs out" specs 2>&1 | tail -5',
       ).command,
-    ).toBe(
-      `${INLINE}npx playwright test --reporter=list -g "signs in|logs out" specs --retries=0 2>&1`,
-    )
+    ).toBe(`${INLINE}npx playwright test --reporter=list -g "signs in|logs out" specs 2>&1`)
   })
 
   it('treats --list, --help and --dry-run as non-runs', () => {

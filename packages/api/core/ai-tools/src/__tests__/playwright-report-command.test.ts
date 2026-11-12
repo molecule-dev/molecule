@@ -100,15 +100,13 @@ describe('withPlaywrightRunReport (foreground)', () => {
 describe('streamingBackgroundCommand with a report path', () => {
   it('adds the machine report beside the list reporter it already installs', () => {
     expect(streamingBackgroundCommand('npx playwright test', undefined, REPORT)).toEqual({
-      command:
-        `${INLINE_HEAD}${REPORT_HEAD}` + 'npx playwright test --reporter=list,json --retries=0',
+      command: `${INLINE_HEAD}${REPORT_HEAD}` + 'npx playwright test --reporter=list,json',
       changes: [
         'Added `--reporter=list` so each test result is written to the log as it finishes ' +
           '(the config reporter may print nothing until the end).',
         'Each failure’s own error is now written into the log as that test fails, not only in the ' +
           'summary at the end — so a run that is still walking already says what its failures are, ' +
           'and you need not wait for it to end to start on them.',
-        'Added `--retries=0`: a local run walks each failure once; the suite’s retries apply on the deployed proof run.',
       ],
       reportPath: REPORT,
     })
@@ -118,7 +116,7 @@ describe('streamingBackgroundCommand with a report path', () => {
     const run = 'npx playwright test --reporter=list --workers=1'
     const result = streamingBackgroundCommand(run, undefined, REPORT)
     expect(result.command).toBe(
-      `${INLINE_HEAD}${REPORT_HEAD}npx playwright test --reporter=list,json --workers=1 --retries=0`,
+      `${INLINE_HEAD}${REPORT_HEAD}npx playwright test --reporter=list,json --workers=1`,
     )
     expect(result.reportPath).toBe(REPORT)
     // No reporter note: the executor's set was already the shape the platform reads.
@@ -132,7 +130,7 @@ describe('streamingBackgroundCommand with a report path', () => {
       REPORT,
     )
     expect(result.command).toBe(
-      `${INLINE_HEAD}${REPORT_HEAD}npx playwright test --reporter=html,list,json --retries=0`,
+      `${INLINE_HEAD}${REPORT_HEAD}npx playwright test --reporter=html,list,json`,
     )
     expect(result.reportPath).toBe(REPORT)
     expect(result.changes[0]).toContain('Switched the test reporters')
@@ -152,25 +150,24 @@ describe('streamingBackgroundCommand with a report path', () => {
   it('is unchanged when the caller keeps no report', () => {
     // The pre-existing shapes, byte for byte: adding a sideband must not move anything else.
     expect(streamingBackgroundCommand('npx playwright test')).toEqual({
-      command: `${INLINE_HEAD}npx playwright test --reporter=list --retries=0`,
+      command: `${INLINE_HEAD}npx playwright test --reporter=list`,
       changes: [
         'Added `--reporter=list` so each test result is written to the log as it finishes ' +
           '(the config reporter may print nothing until the end).',
         'Each failure’s own error is now written into the log as that test fails, not only in the ' +
           'summary at the end — so a run that is still walking already says what its failures are, ' +
           'and you need not wait for it to end to start on them.',
-        'Added `--retries=0`: a local run walks each failure once; the suite’s retries apply on the deployed proof run.',
       ],
     })
     expect(streamingBackgroundCommand('npx playwright test --reporter=list').command).toBe(
-      `${INLINE_HEAD}npx playwright test --reporter=list --retries=0`,
+      `${INLINE_HEAD}npx playwright test --reporter=list`,
     )
     expect(streamingBackgroundCommand('npm run build').changes).toEqual([])
   })
 
-  it('keeps a suite refusal and a non-Playwright command untouched', () => {
+  it('preserves intentional repeats and non-test commands', () => {
     const twice = 'npx playwright test; npx playwright test'
-    expect(streamingBackgroundCommand(twice, undefined, REPORT).error).toBeDefined()
+    expect(streamingBackgroundCommand(twice, undefined, REPORT).error).toBeUndefined()
     expect(
       streamingBackgroundCommand('npx playwright test --list', undefined, REPORT).changes,
     ).toEqual([])

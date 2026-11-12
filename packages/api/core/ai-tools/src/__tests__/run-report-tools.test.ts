@@ -213,7 +213,7 @@ describe('a background suite hands its report back on wait_for_task', () => {
       const script = files[`/tmp/${taskId}.sh`] ?? ''
       expect(script).toContain('--reporter=list,json')
       expect(script).toContain(`PLAYWRIGHT_JSON_OUTPUT_FILE='/tmp/${taskId}.playwright.json'`)
-      expect(script).toContain('--retries=0')
+      expect(script).not.toContain('--retries=0')
       // A finished run: the exit file, its log, and the report the launch would have written.
       files[`/tmp/${taskId}.exit`] = '1'
       files[`/tmp/${taskId}.log`] = '2 failed\n'

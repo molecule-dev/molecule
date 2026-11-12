@@ -3300,12 +3300,12 @@ describe('exec_command run_in_background', () => {
     expect(written).toBe(
       'export PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE=1; ' +
         `export PLAYWRIGHT_JSON_OUTPUT_FILE='/tmp/${r.taskId}.playwright.json'; ` +
-        'cd e2e && npx playwright test --trace=retain-on-failure --reporter=list,json --retries=0 2>&1\n',
+        'cd e2e && npx playwright test --trace=retain-on-failure --reporter=list,json 2>&1\n',
     )
     expect(r.note).toContain('Dropped the trailing `| tail -70`')
     expect(r.note).toContain('--reporter=list')
     // The run names no URL, so it measures the sandbox's own app: each failure walks once.
-    expect(r.note).toContain('--retries=0')
+    expect(r.note).not.toContain('--retries=0')
     // The run's failures are readable while it walks (flash-m99).
     expect(r.note).toContain('as that test fails')
   })
@@ -3418,7 +3418,7 @@ describe('exec_command run_in_background', () => {
       'export PLAYWRIGHT_LIST_PRINT_FAILURES_INLINE=1; ' +
         `export PLAYWRIGHT_JSON_OUTPUT_FILE='/tmp/${r.taskId}.playwright.json'; ` +
         'npx playwright test --reporter=list,json ' +
-        '--trace=retain-on-failure --retries=0 > out.txt\n',
+        '--trace=retain-on-failure > out.txt\n',
     )
     expect(r.note).not.toContain('Dropped')
   })

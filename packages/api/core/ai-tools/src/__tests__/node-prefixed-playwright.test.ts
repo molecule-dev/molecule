@@ -83,7 +83,7 @@ describe('the Playwright runner, however its launcher is spelled', () => {
     expect(streamed.changes.length).toBeGreaterThan(0)
     // The run itself is untouched apart from flags written on its own arguments.
     expect(streamed.command).toContain(command)
-    expect(streamed.command).toMatch(/--reporter=list --retries=0$/)
+    expect(streamed.command).toMatch(/--reporter=list$/)
   })
 
   it.each(LAUNCHERS)(
