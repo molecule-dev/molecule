@@ -14,7 +14,7 @@
  * @remarks
  * - `outputFilterAfterRunner` returns only removable output cuts. File redirects, in-place
  *   edits, command substitutions and filter programs with write or execution effects retain
- *   their pipelines. Opaque external filter scripts stay unchanged.
+ *   their pipelines. Dynamic/external filter scripts and unrecognized awk options stay unchanged.
  * - Playwright commands apply `excludedTestTitles` before launch. Existing
  *   literal filters remain in effect. Dynamic filters and opaque launchers stay unchanged.
  * - **Trimmed test output keeps every failure named.** Shared log cuts prioritize capped

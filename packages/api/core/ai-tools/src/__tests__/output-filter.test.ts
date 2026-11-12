@@ -12,9 +12,16 @@ describe('outputFilterAfterRunner — the command cut its own failure detail', (
     'grep <(touch inventory.done)',
     'awk \'BEGIN { "touch inventory.done" | getline row }\'',
     'awk -f filter.awk',
+    'awk --exec filter.awk',
+    'awk --custom-output=inventory.log /x/',
     "sed 'e touch inventory.done'",
     "sed 's/x/touch inventory.done/e'",
     'sed -f filter.sed',
+    "sed 'wstock.log'",
+    "sed 'Wstock.log'",
+    'sed "$FILTER"',
+    "sed $'\\167stock.log'",
+    'grep "${FILTER:=x}"',
   ])('retains executable or opaque filter arguments: %s', (stage) => {
     expect(outputFilterAfterRunner(`hurl --test inventory.hurl | ${stage}`, isHurl)).toBeNull()
   })

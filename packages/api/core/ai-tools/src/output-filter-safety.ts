@@ -39,20 +39,38 @@ export function isOutputOnlyFilter(segment: CommandSegment): boolean {
   // rather than erase their effects; a quoted literal containing the same syntax may stay too.
   if (segment.args.some((arg) => /\$\(|`|[<>]\(/.test(arg))) return false
   if (
+    segment.args.some((arg) => {
+      if (/^'[^']*'$/.test(arg)) return false
+      const word = arg.endsWith('"') ? arg.slice(0, -1) : arg
+      return /\$[A-Za-z0-9_('"{?$!#*@-]/.test(word) || word.includes('$[')
+    })
+  )
+    return false
+  if (
     segment.program === 'sed' &&
     segment.args.some((arg) => /^(?:--in-place\b|-[A-Za-z]*i)/.test(arg))
   )
     return false
   if (segment.program === 'awk' || segment.program === 'sed') {
+    // Implementation-specific awk options can load code or write auxiliary files. Only the
+    // ordinary field-separator/variable options are understood here; preserve all other flags.
+    if (
+      segment.program === 'awk' &&
+      segment.args.some(
+        (arg) =>
+          arg.startsWith('-') && !/^(?:-[Fv]|--(?:field-separator|assign)(?:=|$)|--$)/.test(arg),
+      )
+    )
+      return false
     // External programs cannot be proved output-only from this invocation's text.
     if (segment.args.some((arg) => /^(?:-[fEiIl]|--(?:file|include|load))(?:=|$|[^-])/.test(arg)))
       return false
     const program = segment.args.map((arg) => arg.replace(/^['"]|['"]$/g, '')).join(' ')
     if (/\bsystem\s*\(|>|\bw\s+\S/.test(program)) return false
-    // awk can execute a pipe through getline without system(). sed's e command/flag executes
-    // text too. Keep ambiguous sed programs containing e rather than parse its language here.
+    // awk can execute a pipe through getline without system(). sed can execute or write text.
+    // Keep ambiguous sed command letters rather than parse its language here.
     if (segment.program === 'awk' && /\||@/.test(program)) return false
-    if (segment.program === 'sed' && /e/.test(program)) return false
+    if (segment.program === 'sed' && /[ewW]/.test(program)) return false
   }
   return true
 }
