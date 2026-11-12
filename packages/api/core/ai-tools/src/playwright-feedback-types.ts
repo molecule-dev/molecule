@@ -11,7 +11,7 @@ export interface FeedbackSource {
   content: string
 }
 
-/** One supplied or scaffolded spec, with its normal, locally targeted runner command. */
+/** One project spec, with its normal, locally targeted runner command. */
 export interface FeedbackSpec extends FeedbackSource {
   command: string
   cwd: string
@@ -34,7 +34,7 @@ export interface PlaywrightFeedbackFailure {
   locator: string
   /** Playwright's own failure-time accessibility snapshot, when recorded. */
   rendered?: string
-  /** Route render dependencies affected by this write, or the triggering source paths. */
+  /** The paths that triggered this run. They do not establish a failure cause. */
   sourceFiles: string[]
 }
 

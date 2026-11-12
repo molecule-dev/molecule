@@ -23,9 +23,11 @@
  * - **Background Playwright feedback:** `createPlaywrightFeedback({ load, run, onFailures })`
  *   coalesces `changed(paths)` events without delaying writes. Use `readFeedbackSources`
  *   when a caller needs filesystem inventory and `runPlaywrightFeedback` to run each
- *   supplied spec through its native command. Its incremental reporter supplies exact
- *   locator failures and the failure-time page snapshot. Healthy runs emit no note;
- *   no suite schedules no runner. Pass the runner's cancellation signal to
+ *   project spec through its native command. Its incremental reporter supplies native
+ *   errors, locators and the failure-time page snapshot. Healthy runs emit no note;
+ *   no suite schedules no runner. Previously failing files run first, then inventory order.
+ *   Application and test source text never determine selection or a verdict.
+ *   Pass the runner's cancellation signal to
  *   `runPlaywrightFeedback` in its options and call `pause()` before foreground tools,
  *   then invoke its returned release function afterwards. Speculation yields to
  *   independent native CLI tests/builds and uses OS idle CPU/I/O priority. Its

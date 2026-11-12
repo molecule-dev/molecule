@@ -3,7 +3,7 @@
  *
  * The native runner, JSON reporter and error-context snapshot already answer what
  * failed and what rendered. The small scheduler only coalesces writes, prioritizes
- * route-related spec files, runs one at a time, and discards stale revisions.
+ * files that actually failed, runs one at a time, and discards stale revisions.
  * No correctness inference, foreground barrier, extra browser or passing-run note.
  * @module
  */
@@ -222,7 +222,7 @@ for(const f of ${JSON.stringify([...sourceRoots, ...suiteFiles])})read(f);proces
  * append these runner flags at composition time (rather than modifying shell text here).
  * Native failures are diagnosis, never proof that a complete supplied suite passed.
  * @param backend - Existing execution backend.
- * @param spec - The supplied spec and its normal per-file command.
+ * @param spec - The project spec and its normal per-file command.
  * @param sourceFiles - Triggering component files, known to the write/index.
  * @param revision - Source revision the scheduler will validate before delivery.
  * @param options - Output location, command composition and a bounded backend budget.
