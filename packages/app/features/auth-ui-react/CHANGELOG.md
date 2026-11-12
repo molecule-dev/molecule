@@ -1,5 +1,13 @@
 # @molecule/app-auth-ui-react
 
+## 4.0.0
+
+### Patch Changes
+
+- Updated dependencies
+  - @molecule/app-react@4.0.0
+  - @molecule/app-oauth-buttons-react@4.0.0
+
 ## 3.0.0
 
 ### Patch Changes

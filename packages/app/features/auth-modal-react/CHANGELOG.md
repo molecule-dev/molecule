@@ -1,5 +1,15 @@
 # @molecule/app-auth-modal-react
 
+## 4.0.0
+
+### Patch Changes
+
+- Updated dependencies
+  - @molecule/app-react@4.0.0
+  - @molecule/app-auth-shell-react@4.0.0
+  - @molecule/app-oauth-buttons-react@4.0.0
+  - @molecule/app-ui-react@4.0.0
+
 ## 3.0.0
 
 ### Patch Changes

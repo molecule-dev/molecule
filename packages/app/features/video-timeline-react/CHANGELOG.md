@@ -1,5 +1,13 @@
 # @molecule/app-feature-video-timeline-react
 
+## 4.0.0
+
+### Patch Changes
+
+- Updated dependencies
+  - @molecule/app-react@4.0.0
+  - @molecule/app-feature-track-lane-react@4.0.0
+
 ## 3.0.0
 
 ### Patch Changes

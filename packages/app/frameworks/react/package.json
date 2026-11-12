@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-react",
-  "version": "3.5.0",
+  "version": "4.0.0",
   "description": "React framework bindings for molecule.dev",
   "type": "module",
   "main": "dist/index.js",

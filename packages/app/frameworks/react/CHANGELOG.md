@@ -1,5 +1,11 @@
 # @molecule/app-react
 
+## 4.0.0
+
+### Major Changes
+
+- Wait for initial session restoration in React auth providers by default, with an explicit opt-out for public shells and synchronous server rendering.
+
 ## 3.5.0
 
 ### Minor Changes

@@ -1,5 +1,12 @@
 # @molecule/app-map-drawing-react
 
+## 4.0.0
+
+### Patch Changes
+
+- Updated dependencies
+  - @molecule/app-react@4.0.0
+
 ## 3.0.0
 
 ### Patch Changes
