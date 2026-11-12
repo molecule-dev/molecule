@@ -2231,7 +2231,8 @@ export const MODELS: readonly ModelDefinition[] = [
     // DeepSeek charges no cache-write premium — write bills at input.
     cacheWritePricePerMTok: 0.15,
     // Native first (the default region); the DeepInfra US re-host
-    // (`deepseek-ai/DeepSeek-V4.1-Flash`, molecule-dev region-model-maps.ts)
+    // (`deepseek-ai/DeepSeek-V4.1-Flash-1017` since 2026-11-12, was the undated
+    // `deepseek-ai/DeepSeek-V4.1-Flash`; molecule-dev region-model-maps.ts)
     // is offered as a SECOND region since 2026-09-14, when the native endpoint
     // queued every completion for hours (SSE keep-alives, no token, three
     // Synthase turns lost) while DeepInfra answered at once. Its card, read
@@ -2244,6 +2245,9 @@ export const MODELS: readonly ModelDefinition[] = [
     // not upgrade weights in place) at IDENTICAL rates — 0.00002/0.00006
     // cents, cache 3% — so bumping the us modelMap to it moves no price here;
     // a weights decision, not a pricing one (same as V4-Pro's `-0813`).
+    // Re-verified 2026-11-12 on both ids: still identical ($0.20/$0.60, cache
+    // 3%); the map moved to -1017, the weights DeepSeek's card says native
+    // `deepseek-flash` serves.
     regions: ['cn', 'us'],
     regionPricing: {
       us: { inputPricePerMTok: 0.2, outputPricePerMTok: 0.6, cacheReadPricePerMTok: 0.006 },
