@@ -138,6 +138,9 @@
  *   call `allTags()` for that endpoint, and pass a `limit` only where the caller
  *   asked for the N most-used. The package's own `GET /articles/tags` route does
  *   exactly this: no `?limit=` is the whole list.
+ *   Catalog counts scan bounded pages through the bonded database; a provider's
+ *   single-read safety cap never truncates the catalog or its popularity counts.
+ *
  * - **Lists are newest first and paginated** — `{ data, total, limit, offset }`,
  *   at most 100 per page. `createArticle` stamps `createdAt` strictly increasing
  *   and `updateArticle` always moves `updatedAt` forward, so newest-first order

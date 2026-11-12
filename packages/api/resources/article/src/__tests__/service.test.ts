@@ -240,4 +240,23 @@ describe('articles', () => {
     // Re-writing the tags replaces the rows, positions included.
     expect((await tagsInTable(article.id)).map((row) => row.tag)).toEqual(['apple', 'zebra'])
   })
+
+  it('enumerates and counts the entire catalog beyond the database single-read cap', async () => {
+    const labels = Array.from({ length: 10_005 }, (_, index) => `catalog-${index}`)
+    await createArticle(CAROL, { title: 'Complete catalog', body: 'Catalog', tagList: labels })
+    await createArticle(BOB, {
+      title: 'Repeated catalog label',
+      body: 'Catalog',
+      tagList: [labels[0]!],
+    })
+
+    const catalog = await allTags()
+    const counts = new Map(catalog.map(({ tag, count }) => [tag, count]))
+    expect(labels.filter((label) => !counts.has(label))).toEqual([])
+    expect(counts.get(labels[0]!)).toBe(2)
+    expect(counts.get(labels.at(-1)!)).toBe(1)
+    // Explicit leaderboards still select N, using complete counts rather than a
+    // truncated population. This does not turn bounded views into unbounded ones.
+    expect(await popularTags(3)).toEqual(catalog.slice(0, 3))
+  })
 })

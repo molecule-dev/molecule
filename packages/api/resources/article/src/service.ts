@@ -456,13 +456,21 @@ export async function popularTags(limit = 20): Promise<TagCount[]> {
  * @returns Every tag in use.
  */
 const countTagRows = async (): Promise<TagCount[]> => {
-  const rows = await findMany<{ tag: string }>(ARTICLE_TAGS, {
-    orderBy: TAGS_IN_ARTICLE_ORDER,
-    select: ['tag'],
-    limit: 50_000,
-  })
   const counts = new Map<string, number>()
-  for (const r of rows) counts.set(r.tag, (counts.get(r.tag) ?? 0) + 1)
+  // DataStore providers cap a single read. Count every page in a total order, so
+  // the complete catalog and leaderboard counts never silently become a prefix.
+  const pageSize = 1_000
+  for (let offset = 0; ;) {
+    const rows = await findMany<{ tag: string }>(ARTICLE_TAGS, {
+      orderBy: [{ field: 'id', direction: 'asc' }],
+      select: ['tag'],
+      limit: pageSize,
+      offset,
+    })
+    for (const row of rows) counts.set(row.tag, (counts.get(row.tag) ?? 0) + 1)
+    if (rows.length < pageSize) break
+    offset += rows.length
+  }
   return [...counts.entries()]
     .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
     .map(([tag, n]) => ({ tag, count: n }))
