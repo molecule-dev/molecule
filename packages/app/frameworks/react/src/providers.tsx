@@ -81,9 +81,13 @@ export function StateProvider({ provider, children }: StateProviderProps): React
 export function AuthProvider<T = unknown>({
   client,
   children,
+  awaitSession = true,
+  sessionFallback,
 }: AuthProviderProps<T>): React.ReactElement {
   return (
-    <AuthContext.Provider value={client as AuthClient<unknown>}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={client as AuthClient<unknown>}>
+      {awaitSession ? <SessionReady fallback={sessionFallback}>{children}</SessionReady> : children}
+    </AuthContext.Provider>
   )
 }
 
@@ -285,7 +289,7 @@ export function MoleculeProvider({
   workspace,
   editor,
   preview,
-  awaitSession = false,
+  awaitSession = true,
   sessionFallback,
 }: MoleculeProviderProps): React.ReactElement {
   // Build provider tree from inside out. The session hold is innermost: its fallback still sees

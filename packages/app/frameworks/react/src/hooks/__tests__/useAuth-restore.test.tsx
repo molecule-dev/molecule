@@ -72,7 +72,7 @@ function LibraryPage() {
 /** Render the page against a real auth client and provider. */
 function renderPage(client: AuthClient<UserProfile>) {
   return render(
-    <AuthProvider client={client}>
+    <AuthProvider client={client} awaitSession={false}>
       <LibraryPage />
     </AuthProvider>,
   )

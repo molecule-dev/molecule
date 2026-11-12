@@ -28,7 +28,7 @@ import { lightTheme, type ThemeProvider as ThemeProviderType } from '@molecule/a
 import { useAuth } from '../hooks/useAuth.js'
 import { useTheme } from '../hooks/useTheme.js'
 import { useTranslation } from '../hooks/useTranslation.js'
-import { MoleculeProvider } from '../providers.js'
+import { AuthProvider, MoleculeProvider } from '../providers.js'
 import { SessionReady } from '../session-ready.js'
 
 const reader: UserProfile = { id: 'reader', name: 'Reader' }
@@ -110,6 +110,68 @@ afterEach(() => {
 })
 
 describe('MoleculeProvider awaitSession', () => {
+  it.each(['auth', 'molecule'] as const)(
+    '%s provider waits by default so a returning inventory operator can use the first action',
+    async (provider) => {
+      const { client, answer } = returningVisitor(false)
+      const changed = vi.fn()
+      function InventoryAction() {
+        const { user, status } = useAuth<UserProfile>()
+        return (
+          <button
+            onClick={() => {
+              if (status !== 'authenticated' || !user) return
+              changed(user.id)
+            }}
+          >
+            Reserve stock
+          </button>
+        )
+      }
+      render(
+        provider === 'auth' ? (
+          <AuthProvider client={client}>
+            <InventoryAction />
+          </AuthProvider>
+        ) : (
+          <MoleculeProvider auth={client}>
+            <InventoryAction />
+          </MoleculeProvider>
+        ),
+      )
+      expect(screen.queryByRole('button', { name: 'Reserve stock' })).toBeNull()
+      await answer()
+      fireEvent.click(screen.getByRole('button', { name: 'Reserve stock' }))
+      expect(changed).toHaveBeenCalledExactlyOnceWith(reader.id)
+    },
+  )
+
+  it.each(['auth', 'molecule'] as const)(
+    '%s provider seeds a mounted profile form from the restored user by default',
+    async (provider) => {
+      const { client, answer } = returningVisitor(false)
+      function ProfileDraft() {
+        const { user } = useAuth<UserProfile>()
+        return <input aria-label="Display name" defaultValue={user?.name ?? ''} />
+      }
+      render(
+        provider === 'auth' ? (
+          <AuthProvider client={client} sessionFallback={<p>Restoring profile</p>}>
+            <ProfileDraft />
+          </AuthProvider>
+        ) : (
+          <MoleculeProvider auth={client} sessionFallback={<p>Restoring profile</p>}>
+            <ProfileDraft />
+          </MoleculeProvider>
+        ),
+      )
+      expect(screen.queryByRole('textbox')).toBeNull()
+      expect(screen.getByText('Restoring profile')).toBeTruthy()
+      await answer()
+      expect((screen.getByRole('textbox') as HTMLInputElement).value).toBe(reader.name)
+    },
+  )
+
   it('renders an existing stored session synchronously without a network request', () => {
     const fetchSpy = vi.fn()
     vi.stubGlobal('fetch', fetchSpy)
@@ -168,11 +230,11 @@ describe('MoleculeProvider awaitSession', () => {
     expect(screen.getByText('Public page')).toBeTruthy()
   })
 
-  it('leaves synchronous server rendering unchanged when the hold is omitted', () => {
+  it('allows an explicit ungated synchronous server shell without starting restoration', () => {
     const { client } = returningVisitor(false)
     expect(
       renderToString(
-        <MoleculeProvider auth={client}>
+        <MoleculeProvider auth={client} awaitSession={false}>
           <p>Server page</p>
         </MoleculeProvider>,
       ),
@@ -282,11 +344,11 @@ describe('MoleculeProvider awaitSession', () => {
     expect(onFollow).toHaveBeenCalledWith('reader')
   })
 
-  it('without it, the same click lands before the restore and is lost', async () => {
+  it('an explicit opt-out permits an early click, so the shell owns its action readiness', async () => {
     const { client, answer } = returningVisitor()
     const onFollow = vi.fn()
     render(
-      <MoleculeProvider auth={client}>
+      <MoleculeProvider auth={client} awaitSession={false}>
         <FollowButton onFollow={onFollow} />
       </MoleculeProvider>,
     )
@@ -358,7 +420,7 @@ describe('SessionReady', () => {
       return <p>{user ? `Signed in as ${user.name}` : 'Signed out'}</p>
     }
     render(
-      <MoleculeProvider auth={client}>
+      <MoleculeProvider auth={client} awaitSession={false}>
         <SessionReady fallback={<p>Restoring</p>}>
           <Name />
         </SessionReady>

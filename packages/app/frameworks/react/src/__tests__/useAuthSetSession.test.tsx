@@ -87,7 +87,9 @@ const renderAuth = (
 } => {
   const client = createJWTAuthClient<AppUser>({ storage })
   const wrapper = ({ children }: { children: ReactNode }) => (
-    <AuthProvider client={client}>{children}</AuthProvider>
+    <AuthProvider client={client} awaitSession={false}>
+      {children}
+    </AuthProvider>
   )
   const { result } = renderHook(() => useAuth<AppUser>(), { wrapper })
   return { result, client }

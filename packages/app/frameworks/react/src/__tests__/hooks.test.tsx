@@ -423,7 +423,9 @@ describe('useAuth', () => {
     } as unknown as AuthClient<{ id: string }>
 
     const wrapper = ({ children }: { children: ReactNode }): React.JSX.Element => (
-      <AuthProvider client={authClient}>{children}</AuthProvider>
+      <AuthProvider client={authClient} awaitSession={false}>
+        {children}
+      </AuthProvider>
     )
 
     const { result } = renderHook(() => useAuth<{ id: string }>(), { wrapper })

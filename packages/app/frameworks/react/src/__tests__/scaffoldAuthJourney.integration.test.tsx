@@ -304,10 +304,12 @@ describe('disposable scaffold auth journey', () => {
     vi.stubGlobal('fetch', fetchBoundary)
     const client = createDisposableClient()
 
-    render(
-      <AuthProvider client={client}>
-        <SignupPage client={client} />
-      </AuthProvider>,
+    await act(async () =>
+      render(
+        <AuthProvider client={client}>
+          <SignupPage client={client} />
+        </AuthProvider>,
+      ),
     )
 
     fireEvent.change(screen.getByRole('textbox', { name: 'Email' }), {
@@ -367,10 +369,12 @@ describe('disposable scaffold auth journey', () => {
     vi.stubGlobal('fetch', fetchBoundary)
     const client = createDisposableClient()
 
-    render(
-      <AuthProvider client={client}>
-        <LoginPage />
-      </AuthProvider>,
+    await act(async () =>
+      render(
+        <AuthProvider client={client}>
+          <LoginPage />
+        </AuthProvider>,
+      ),
     )
 
     const form = screen.getByRole('form', { name: 'Sign in' })
@@ -407,11 +411,13 @@ describe('disposable scaffold auth journey', () => {
     const client = createDisposableClient()
     client.setSession({ accessToken: 'access-token', user: seededUser })
 
-    render(
-      <AuthProvider client={client}>
-        <ProfileSummary />
-        <SettingsPage />
-      </AuthProvider>,
+    await act(async () =>
+      render(
+        <AuthProvider client={client}>
+          <ProfileSummary />
+          <SettingsPage />
+        </AuthProvider>,
+      ),
     )
 
     expect(screen.getByTestId('profile-name').textContent).toBe('Reader')
@@ -494,10 +500,12 @@ describe('known-bad controls (the journey’s guards have teeth)', () => {
     vi.stubGlobal('fetch', fetchBoundary)
     const client = createDisposableClient()
 
-    render(
-      <AuthProvider client={client}>
-        <SignupPage client={client} duplicate />
-      </AuthProvider>,
+    await act(async () =>
+      render(
+        <AuthProvider client={client}>
+          <SignupPage client={client} duplicate />
+        </AuthProvider>,
+      ),
     )
 
     fireEvent.change(screen.getByRole('textbox', { name: 'Email' }), {
@@ -553,10 +561,12 @@ describe('known-bad controls (the journey’s guards have teeth)', () => {
     fetchBoundary.mockReturnValue(new Promise<Response>(() => undefined))
     const client = createDisposableClient()
 
-    render(
-      <AuthProvider client={client}>
-        <RemountingGuard />
-      </AuthProvider>,
+    await act(async () =>
+      render(
+        <AuthProvider client={client}>
+          <RemountingGuard />
+        </AuthProvider>,
+      ),
     )
 
     const email = screen.getByRole('textbox', { name: 'Email' }) as HTMLInputElement
@@ -577,10 +587,12 @@ describe('known-bad controls (the journey’s guards have teeth)', () => {
     const client = createDisposableClient()
     client.setSession({ accessToken: 'access-token', user: seededUser })
 
-    render(
-      <AuthProvider client={client}>
-        <SettingsPage staleSubmit />
-      </AuthProvider>,
+    await act(async () =>
+      render(
+        <AuthProvider client={client}>
+          <SettingsPage staleSubmit />
+        </AuthProvider>,
+      ),
     )
 
     const name = screen.getByRole('textbox', { name: 'Name' }) as HTMLInputElement

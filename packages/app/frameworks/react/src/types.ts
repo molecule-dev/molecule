@@ -61,6 +61,10 @@ export interface StateProviderProps extends ProviderProps {
  */
 export interface AuthProviderProps<T = unknown> extends ProviderProps {
   client: AuthClient<T>
+  /** Wait for initial session restoration by default. Set false for a deliberately ungated shell or synchronous SSR. */
+  awaitSession?: boolean
+  /** Content shown while the initial session status is loading; default nothing. */
+  sessionFallback?: ReactNode
 }
 
 /**
@@ -141,7 +145,7 @@ export interface MoleculeProviderProps extends ProviderProps {
   state?: StateProvider
   auth?: AuthClient<unknown>
   /**
-   * Render the app only once `auth` leaves its initial loading status ({@link SessionReadyProps}).
+   * Render the app only once `auth` leaves its initial loading status ({@link SessionReadyProps}). Defaults to true.
    * After a full page load a returning visitor's session is restored by one request, and until
    * it answers `useAuth().user` is `null` on every page — a public page's signed-in action
    * (`if (!user) return`, a redirect to `/login`) then treats a signed-in visitor as signed out.
@@ -149,7 +153,7 @@ export interface MoleculeProviderProps extends ProviderProps {
    * `'unavailable'` session also renders, but remains unconfirmed and may have a null user.
    * A visitor with no session to restore settles in microtasks without a request.
    * Ignored without `auth`. Synchronous SSR renders the fallback for a loading client:
-   * initialize a request-scoped client first, or leave this disabled for SSR.
+   * initialize a request-scoped client first, or set this false for an ungated SSR shell.
    */
   awaitSession?: boolean
   /** Rendered instead of the app while {@link MoleculeProviderProps.awaitSession} waits; default nothing. */

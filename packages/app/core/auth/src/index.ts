@@ -23,9 +23,9 @@
  *   a refresh credential, or re-reads `currentUserEndpoint` with the existing bearer
  *   or cookie. That read updates the profile but does not renew the bearer.
  *   Optional auto-refresh requires a stored refresh token.
- * - `AuthProvider` renders children immediately and gates nothing. A session-ready
- *   boundary (e.g. React's `MoleculeProvider awaitSession`) can wait for initial
- *   restoration on public pages; a route guard decides redirects.
+ * - React's `AuthProvider` and `MoleculeProvider` wait for initial restoration
+ *   by default. `awaitSession={false}` opts into an ungated public shell or
+ *   synchronous SSR; a route guard decides redirects.
  *
  * A token nested in the user, a custom key and current-user route, a PUT update,
  * and `Authorization: Token <jwt>` need configuration, not another session layer:
