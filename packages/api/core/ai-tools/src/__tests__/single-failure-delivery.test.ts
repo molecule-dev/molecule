@@ -261,7 +261,7 @@ describe('single-failure delivery', () => {
     expect(result.executionNote).toContain('Added `--trace=retain-on-failure`')
   })
 
-  it('describes a lone missing-base-URL failure as configuration rather than an app fix', () => {
+  it('describes a lone invalid navigation without inferring the cause from its error', () => {
     const log = runLog(
       7000,
       BLOCK.replace(ERROR, 'Error: page.goto: Cannot navigate to invalid URL'),
@@ -271,8 +271,9 @@ describe('single-failure delivery', () => {
       `LABEL=${'long'.repeat(2500)} npx playwright test`,
     ]) {
       const note = failureCausesNote(log, [], { command, config: 'billing.config.ts' })!
-      expect(note).toContain('This failure is a configuration failure')
-      expect(note).toContain('Nothing here is a defect to fix')
+      expect(note).toContain('This failure is a navigation configuration failure')
+      expect(note).not.toContain('Nothing here is a defect to fix')
+      expect(note).toContain('effective `use.baseURL`')
       expect(note).toContain(WHERE)
       expect(note.length).toBeLessThanOrEqual(TOOL_RESULT_CHARS)
       if (command.length > TOOL_RESULT_CHARS) expect(note).toContain('command was omitted')

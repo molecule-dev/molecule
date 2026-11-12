@@ -26,6 +26,7 @@ import { PLAYWRIGHT_REPORT_ENV } from './playwright-report.js'
 import { requestScopedCommand } from './request-test-exclusions.js'
 import {
   type DiagnosisRunContext,
+  namesSuiteConfig,
   resolvePlaywrightSelectionPaths,
   type RunEnvSetting,
   scopedRerunCommand,
@@ -4478,11 +4479,10 @@ function groupFailures(
 }
 
 /**
- * The error every test of a Playwright run reports when the run loaded no base URL: `page.goto('/')`
- * has nothing to resolve against, so the browser refuses the navigation before any page loads.
- * One run got ten of these and a list that called them ten causes.
+ * Playwright refused an invalid navigation URL before loading the requested page. A missing
+ * baseURL is one possible cause; the error alone does not establish config or environment state.
  */
-const NO_BASE_URL_ERROR = /Cannot navigate to invalid URL/i
+const INVALID_NAVIGATION_URL_ERROR = /Cannot navigate to invalid URL/i
 
 /** The browser's own `net::ERR_*`, as Playwright prints it for a document that never loaded. */
 const NETWORK_ERROR_TEXT = /\bnet::ERR_[A-Z0-9_]+\b/
@@ -4506,21 +4506,17 @@ function everyCauseIsNavigationTimeout(causes: readonly FailureCause[]): boolean
 }
 
 /**
- * The one-line note for a run whose EVERY failure is {@link NO_BASE_URL_ERROR}: a configuration
- * failure, not a result about the app.
- *
- * A list of causes is the wrong shape here — there is one cause, and it is not in the app: the
- * command loaded no base URL. The line names the config the run should have loaded (the caller
- * passes the one the platform recorded for this suite) and hands over the exact narrowed command
- * with it, so the next run measures the app instead of spending another six minutes on the same
- * configuration mistake (one run sent four such runs in six minutes).
+ * Summarize repeated invalid navigations without diagnosing an omitted config or an unset
+ * baseURL from the error alone. Explicit flags, including a logical command plan's, are facts;
+ * config auto-discovery and effective environment values remain unknown. A previously recorded
+ * config can be offered for a diagnostic rerun only when this command does not already name one.
  *
  * @param causes - The run's failures, all carrying the same error.
  * @param run - How the run was started, when the caller knows it.
  * @param excluded - The test titles the request carves out (inverted out of the re-run).
  * @returns The one-line sentence.
  */
-function noBaseUrlConfigNote(
+function invalidNavigationConfigNote(
   causes: readonly FailureCause[],
   run:
     | { command: string; cwd?: string; config?: string | null; env?: readonly RunEnvSetting[] }
@@ -4530,22 +4526,28 @@ function noBaseUrlConfigNote(
   const total = causes.reduce((n, c) => n + c.tests.length, 0)
   const locations = [...new Set(causes.flatMap((c) => c.tests.map((t) => t.where)).filter(Boolean))]
   const config = run?.config ?? null
-  // The command is only worth handing over WITH the config: the same command without it is the
-  // run that just failed this way. Where the caller does not know the config, the line says what
-  // to find instead of repeating the mistake.
-  const rerun = run && config ? rerunOfRunningSuite(run, locations, excluded) : null
-  const command = rerun ?? (run && config ? withSuiteConfig(run.command, config) : null)
+  const namedConfig =
+    run &&
+    commandSegments(logicalCommandText(run.command)).some(
+      (segment) =>
+        /^(?:playwright|@playwright\/test)(?:@.+)?$/.test(segment.program) &&
+        namesSuiteConfig(segment.text),
+    )
+  // Do not repeat the unchanged invocation as a repair or append a second config.
+  const rerun = run && config && !namedConfig ? rerunOfRunningSuite(run, locations, excluded) : null
+  const command =
+    rerun ?? (run && config && !namedConfig ? withSuiteConfig(run.command, config) : null)
   return boundedFailureRecap(
     (total === 1
-      ? 'This failure is a configuration failure, not a result about '
-      : `Every one of these ${total} failures is the same configuration failure, not a result about `) +
-      `the app: the run loaded no base URL, so every \`page.goto\` was refused with ` +
-      `\`Cannot navigate to invalid URL\` before a page opened. Nothing here is a defect to fix. ` +
-      (config
-        ? `\`${config}\` is the config that sets \`use.baseURL\`, and the run before this one loaded ` +
-          `it; this command left it out. `
-        : 'The app’s own Playwright config (the one that sets `use.baseURL`) has to be passed ' +
-          'with `--config`; this command names none. ') +
+      ? 'This failure is a navigation configuration failure: '
+      : `Every one of these ${total} failures is the same navigation configuration failure: `) +
+      `Playwright reported \`Cannot navigate to invalid URL\` before loading the requested page. ` +
+      `Check the test's navigation URL, the runner's effective \`use.baseURL\` and its target environment. ` +
+      (namedConfig
+        ? 'The command already names a Playwright config; the error does not establish that it was omitted or that its base URL was unset. '
+        : config
+          ? `A previously recorded config is \`${config}\`; a diagnostic rerun with it is below. `
+          : 'The failure output does not establish whether a config was loaded; Playwright may discover one without a `--config` flag. ') +
       (command !== null && command.length > FAILURE_CAUSES_CHARS && locations.length > 0
         ? `Failing tests: ${locations.join(', ')}. `
         : ''),
@@ -4769,7 +4771,7 @@ export function missingHeaderNote(
  * whole suite.
  *
  * A run whose failures are ALL {@link NO_BASE_URL_ERROR} is not a set of causes at all: it is one
- * configuration failure, said in one line ({@link noBaseUrlConfigNote}) rather than a list that
+ * navigation configuration failure, said in one line ({@link invalidNavigationConfigNote}) rather than a list that
  * reads as ten defects in the app.
  *
  * @param log - The diagnostic log, which may be a running or explicitly clipped read.
@@ -4812,10 +4814,9 @@ export function failureCausesNote(
   // nor a single failure establishes where the displayed output was cut.
   if (total === 0 || (total === 1 && log.length <= TOOL_RESULT_CHARS && displayedLog === log))
     return null
-  // One cause that is not in the app: every failure is the browser refusing a navigation with no
-  // base URL. The list shape is what m113 read as ten causes, so it is never printed for this.
-  if (causes.every((c) => c.message !== null && NO_BASE_URL_ERROR.test(c.message)))
-    return noBaseUrlConfigNote(causes, run, excluded)
+  // Group the browser's repeated invalid navigations without inferring their configuration cause.
+  if (causes.every((c) => c.message !== null && INVALID_NAVIGATION_URL_ERROR.test(c.message)))
+    return invalidNavigationConfigNote(causes, run, excluded)
   // The narrowed run, so the next fix round costs two tests instead of the whole suite
   // (xr-molecule-flash-m101 +12:13 re-ran all 139, ~4 minutes, to check two). The command is the
   // run's own invocation narrowed by the ONE composer the mid-run note also uses

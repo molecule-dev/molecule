@@ -14,6 +14,7 @@ import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
+import { commandWithPlan, createCommandPlan } from '../command-plan.js'
 import { suiteRunExitCode } from '../cut-run.js'
 import {
   checkBlockedCommand,
@@ -4739,7 +4740,7 @@ describe('failureCausesNote — a run with no base URL is one configuration fail
 
   it('says it is a configuration failure in one line, not a list of causes', () => {
     const note = failureCausesNote(m113, [], { command, config })!
-    expect(note).toContain('same configuration failure')
+    expect(note).toContain('same navigation configuration failure')
     expect(note).toContain('Cannot navigate to invalid URL')
     // The list shape is exactly what m113 misread as ten defects.
     expect(note).not.toContain('grouped by cause')
@@ -4763,7 +4764,39 @@ describe('failureCausesNote — a run with no base URL is one configuration fail
     expect(note).toContain('configuration failure')
     // No command is handed back without the flag that caused the failure.
     expect(note).not.toContain('Send exactly this')
-    expect(note).toContain('passed with `--config`')
+    expect(note).toContain('does not establish whether a config was loaded')
+  })
+
+  it.each(['direct', 'command plan'])(
+    'does not blame an omitted config in a %s booking run',
+    (form) => {
+      const invocation =
+        'BASE_URL=https://booking.example npx playwright test --config playwright.booking.config.ts'
+      const command =
+        form === 'direct'
+          ? invocation
+          : commandWithPlan(
+              'node /tmp/native-run.cjs',
+              createCommandPlan([{ id: 'booking', command: invocation }]),
+            )
+      const note = failureCausesNote(m113, [], {
+        command,
+      })!
+      expect(note).toContain('already names a Playwright config')
+      expect(note).toContain('effective `use.baseURL`')
+      expect(note).not.toMatch(
+        /command names none|left it out|loaded no base URL|Nothing here is a defect/,
+      )
+      expect(note).not.toContain('Send exactly this')
+    },
+  )
+
+  it('leaves an auto-discovered booking config unknown without inferring that it was absent', () => {
+    const note = failureCausesNote(m113, [], {
+      command: 'cd /workspace/booking && npx playwright test',
+    })!
+    expect(note).toContain('may discover one without a `--config` flag')
+    expect(note).not.toMatch(/command names none|loaded no base URL|Nothing here is a defect/)
   })
 
   it('keeps the cause list for a run that DID navigate and failed in the app', () => {
@@ -4775,7 +4808,7 @@ describe('failureCausesNote — a run with no base URL is one configuration fail
     )
     const note = failureCausesNote(mixed, [], { command, config })!
     expect(note).toContain('grouped by cause')
-    expect(note).not.toContain('same configuration failure')
+    expect(note).not.toContain('same navigation configuration failure')
   })
 })
 
