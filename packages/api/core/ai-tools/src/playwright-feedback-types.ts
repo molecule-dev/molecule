@@ -60,6 +60,8 @@ export interface PlaywrightFeedbackOptions {
     emit: (result: PlaywrightFeedbackResult) => void,
     /** Stop the owned native process group when cancelled; never wait for the tests to finish. */
     signal: AbortSignal,
+    /** A checkpoint is explicit verification and must not yield to its caller's deploy/build. */
+    mode?: 'background' | 'foreground',
   ) => Promise<PlaywrightFeedbackResult>
   /** Only current native failures are delivered. Passing apps receive no note. */
   onFailures?: (result: PlaywrightFeedbackResult) => void
@@ -74,7 +76,13 @@ export interface PlaywrightFeedback {
   takeFailures: () => PlaywrightFeedbackResult[]
   /** Cancel speculation before foreground work. Release after that work; nested callers are safe. */
   pause: () => Promise<() => void>
-  /** Wait only in tests or shutdown; file writes and deploys must never await this. */
+  /**
+   * Verify the current revision before an explicit action, reusing completed native results.
+   * Stops at the first failing or unavailable spec. Source writes still cancel stale results.
+   * No source revision means no load or run. Concurrent checkpoints share the same work.
+   */
+  check: () => Promise<PlaywrightFeedbackResult[]>
+  /** Wait for speculative work in tests or shutdown. Use check for explicit verification. */
   settled: () => Promise<void>
   close: () => Promise<void>
 }

@@ -4,7 +4,7 @@
  * The native runner, JSON reporter and error-context snapshot already answer what
  * failed and what rendered. The small scheduler only coalesces writes, prioritizes
  * files that actually failed, runs one at a time, and discards stale revisions.
- * No correctness inference, foreground barrier, extra browser or passing-run note.
+ * Explicit checkpoints finish native verification before an action; background writes stay nonblocking.
  * @module
  */
 import { randomUUID } from 'node:crypto'
@@ -39,7 +39,7 @@ export function isPlaywrightFeedbackSource(path: string): boolean {
 /**
  * Subscribe to writes without making them wait for browser work.
  * @param options - Source loader, native runner and delivery callbacks.
- * @returns A source-change subscription; settle/close are for tests and shutdown only.
+ * @returns Nonblocking writes, cancellation and an explicit current-revision native checkpoint.
  */
 export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): PlaywrightFeedback {
   let revision = 0,
@@ -54,6 +54,9 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
   const delivered = new Map<string, Set<string>>()
   const failing = new Set<string>()
   const completed = new Set<string>()
+  const outcomes = new Map<string, PlaywrightFeedbackResult>()
+  const revisionSources = new Set<string>()
+  let checking: Promise<PlaywrightFeedbackResult[]> | undefined
   const start = (): void => {
     if (active || stopped || paused || changed.size === 0) return
     const version = revision,
@@ -111,6 +114,7 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
           break
         }
         completed.add(spec.path)
+        outcomes.set(spec.path, result)
         if (result.status === 'passed') failing.delete(spec.path)
         if (result.status !== 'failed') delivered.delete(spec.path)
         emit(result)
@@ -141,37 +145,93 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
       else if (!stopped && !paused && changed.size) start()
     }
   }
+  const pause = async (): Promise<() => void> => {
+    paused++
+    if (timer) clearTimeout(timer)
+    timer = undefined
+    cancellation?.abort()
+    // Metadata loads do not delay ordinary foreground tools.
+    await running?.catch(() => undefined)
+    let released = false
+    return () => {
+      if (released) return
+      released = true
+      paused--
+      if (!paused && !stopped && changed.size) schedule()
+    }
+  }
+  const check = (): Promise<PlaywrightFeedbackResult[]> => {
+    if (checking) return checking
+    if (stopped || revision === 0) return Promise.resolve([])
+    checking = (async () => {
+      const release = await pause()
+      const version = revision
+      const abort = new AbortController()
+      const results: PlaywrightFeedbackResult[] = []
+      try {
+        // Checkpoints are explicit runner work. Finish cancelling the speculative
+        // owner before taking its process slot, including an in-flight load.
+        await active
+        cancellation = abort
+        if (stopped || version !== revision) return results
+        const project = await options.load()
+        const paths = [...revisionSources].map((p) =>
+          project.root ? posix.resolve(project.root, p) : p,
+        )
+        const selected = selectFeedbackSpecs(project, paths).sort(
+          (a, b) => Number(failing.has(b.spec.path)) - Number(failing.has(a.spec.path)),
+        )
+        for (const { spec, sourceFiles } of selected) {
+          if (stopped || abort.signal.aborted || version !== revision) break
+          let result = outcomes.get(spec.path)
+          // Reuse passes only. A restart, fixture repair or transient failure
+          // can change a failed outcome without changing application source.
+          if (!result || result.status !== 'passed') {
+            running = options.run(spec, sourceFiles, version, () => {}, abort.signal, 'foreground')
+            result = await running
+            running = undefined
+            if (stopped || abort.signal.aborted || version !== revision) break
+            options.onResult?.(result)
+            outcomes.set(spec.path, result)
+          }
+          results.push(result)
+          if (result.status === 'failed') failing.add(spec.path)
+          if (result.status !== 'passed') break
+          completed.add(spec.path)
+          failing.delete(spec.path)
+        }
+        if (!abort.signal.aborted && version === revision) changed.clear()
+        return results
+      } finally {
+        running = undefined
+        if (cancellation === abort) cancellation = undefined
+        release()
+      }
+    })().finally(() => {
+      checking = undefined
+    })
+    return checking
+  }
   return {
     changed(paths) {
       if (stopped || paths.length === 0) return
       revision++
       for (const path of paths) changed.add(path)
+      for (const path of paths) revisionSources.add(path)
       waiting.length = 0
       // A queued diagnosis can be invalidated before its host delivers it. A
       // new revision must be allowed to report the same still-failing locator.
       delivered.clear()
       completed.clear()
+      outcomes.clear()
       cancellation?.abort()
       if (!paused) schedule()
     },
     takeFailures() {
       return waiting.splice(0).filter((r) => r.revision === revision)
     },
-    async pause() {
-      paused++
-      if (timer) clearTimeout(timer)
-      timer = undefined
-      cancellation?.abort()
-      // Loading metadata is not native work and must not become a foreground barrier.
-      await running?.catch(() => undefined)
-      let released = false
-      return () => {
-        if (released) return
-        released = true
-        paused--
-        if (!paused && !stopped && changed.size) schedule()
-      }
-    },
+    pause,
+    check,
     settled,
     async close() {
       stopped = true
@@ -181,6 +241,7 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
       changed.clear()
       waiting.length = 0
       if (active) await active
+      if (checking) await checking
     },
   }
 }
@@ -240,6 +301,8 @@ export async function runPlaywrightFeedback(
     emit?: (result: PlaywrightFeedbackResult) => void
     pollMs?: number
     signal?: AbortSignal
+    /** Explicit verification keeps the process slot instead of yielding to its own caller. */
+    foreground?: boolean
   },
 ): Promise<PlaywrightFeedbackResult> {
   const started = Date.now()
@@ -265,6 +328,7 @@ export async function runPlaywrightFeedback(
     '--retries=0',
     `--global-timeout=${timeout}`,
     `--output=${shellQuote(posix.join(dir, 'results'))}`,
+    ...(options.foreground ? ['--max-failures=1'] : []),
   ])
   // The standard OS priority keeps background diagnosis behind the dev server
   // and builds when they share one CPU. Playwright owns its global deadline.
@@ -326,6 +390,7 @@ export async function runPlaywrightFeedback(
         cwd: spec.cwd,
         root: backend.projectRoot,
         directory: dir,
+        foreground: options.foreground,
       }),
     )
     options.signal?.addEventListener('abort', cancel, { once: true })
@@ -354,6 +419,13 @@ export async function runPlaywrightFeedback(
     try {
       reportText = await backend.readFile(reportPath)
     } catch (_error) {
+      if (nativeFailures.size)
+        return {
+          ...base,
+          failures: [...nativeFailures.values()],
+          status: 'failed',
+          durationMs: Date.now() - started,
+        }
       return unavailable(
         `the native runner produced no JSON report: ${redactSecrets((result.stderr || result.stdout).trim().slice(0, 2000))}`,
       )
@@ -362,11 +434,20 @@ export async function runPlaywrightFeedback(
       path: reportPath,
       sanitize: redactSecrets,
     })
+    // Native failures remain actionable when fail-fast leaves later tests unrun,
+    // or the suite intentionally skips tests. Neither case erases a real failure.
+    base.failures = [...nativeFailures.values()]
+    if (base.failures.length)
+      return {
+        ...base,
+        ...(report.stats ? { nativeStats: report.stats } : {}),
+        status: 'failed',
+        durationMs: Date.now() - started,
+      }
     if (
       report.status !== 'complete' ||
       !report.stats ||
-      report.stats.expected + report.stats.unexpected + report.stats.flaky === 0 ||
-      report.stats.skipped > 0
+      report.stats.expected + report.stats.unexpected + report.stats.flaky === 0
     ) {
       let errors: Array<{ message?: string }> = []
       try {
@@ -386,14 +467,6 @@ export async function runPlaywrightFeedback(
         ...(report.stats ? { nativeStats: report.stats } : {}),
       }
     }
-    base.failures = [...nativeFailures.values()]
-    if (base.failures.length)
-      return {
-        ...base,
-        nativeStats: report.stats,
-        status: 'failed',
-        durationMs: Date.now() - started,
-      }
     if (result.exitCode !== 0 || report.stats.unexpected || report.stats.flaky)
       return unavailable('the native run failed outside a locator assertion')
     return {

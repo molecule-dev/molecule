@@ -12,6 +12,7 @@ interface FeedbackProcessOptions {
   cwd: string
   root: string
   directory: string
+  foreground?: boolean
 }
 
 /** Serialized into either execution backend; only standard Node/OS operations run there. */
@@ -22,11 +23,12 @@ function feedbackProcess(loadModule: NodeRequire, config: FeedbackProcessOptions
   const path: typeof Path = loadModule('node:path')
   const stopFile = path.join(config.directory, 'stop')
   const yielded = path.join(config.directory, 'yielded')
-  try {
-    os.setPriority(0, 19)
-  } catch (_error) {
-    /* best effort on platforms without POSIX priorities */
-  }
+  if (!config.foreground)
+    try {
+      os.setPriority(0, 19)
+    } catch (_error) {
+      /* best effort on platforms without POSIX priorities */
+    }
 
   let child: ReturnType<typeof cp.spawn> | undefined = undefined
   let done = false
@@ -101,6 +103,7 @@ function feedbackProcess(loadModule: NodeRequire, config: FeedbackProcessOptions
   // process identity and cwd, so they need no hook, lock or instruction to yield.
   // The host adapter cancels before its own tools; this catches independent CLI work.
   const foreground = (): boolean => {
+    if (config.foreground) return false
     if (process.platform !== 'linux') return false
     const project = fs.statSync(config.root)
     for (const pid of fs.readdirSync('/proc')) {
@@ -167,11 +170,15 @@ function feedbackProcess(loadModule: NodeRequire, config: FeedbackProcessOptions
   // Fall back to nice(19) where chrt/ionice are unavailable.
   const lowPriority =
     'if command -v ionice >/dev/null 2>&1; then ionice -c 3 -p $$ 2>/dev/null; fi; if command -v chrt >/dev/null 2>&1; then chrt --idle --pid 0 $$ 2>/dev/null; fi; exec sh -c "$1"'
-  child = cp.spawn('sh', ['-c', lowPriority, 'feedback', config.command], {
-    cwd: config.cwd,
-    detached: true,
-    stdio: 'inherit',
-  })
+  child = cp.spawn(
+    'sh',
+    config.foreground ? ['-c', config.command] : ['-c', lowPriority, 'feedback', config.command],
+    {
+      cwd: config.cwd,
+      detached: true,
+      stdio: 'inherit',
+    },
+  )
   const watch = fs.watch(config.directory, () => {
     if (fs.existsSync(stopFile)) stop()
   })
