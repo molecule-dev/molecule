@@ -337,8 +337,10 @@ describe('shared profile form: rendered controls → real HTTP → persisted pro
 
   it('hydrates asynchronous user data, keeps earlier edits, resets to the newest baseline, and sends no empty patch', async () => {
     const { api, client } = await setup(false)
+    // Edits before the user data arrives exist only in a shell that renders before the session is
+    // restored, so this case opts out of the default session hold.
     render(
-      <AuthProvider client={client}>
+      <AuthProvider client={client} awaitSession={false}>
         <ProfileForm />
       </AuthProvider>,
     )
