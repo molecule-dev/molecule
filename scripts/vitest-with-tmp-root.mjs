@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 /**
  * Run Vitest with its scratch confined to one recognizable root that is
- * removed when the run ends — including when the run fails or is killed.
+ * removed after the child settles, including failures and forwarded cancellation.
+ * POSIX runs own a process group so late descendants cannot keep writing after cleanup.
+ * Roots left by a hard-killed parent are reclaimed by the bounded stale-root sweep.
  *
  * Why: Vitest 4 writes every SSR-transformed module of a run to
  * `join(os.tmpdir(), nanoid())` (`<root>/ssr/<sha1>` — ~1,400 files and
@@ -180,36 +182,62 @@ export function runVitest(args = [], options = {}) {
     spawnImpl = spawn,
     createRoot = createRunRoot,
     trapSignals = true,
-    remove = (path) => fs.rmSync(path, { recursive: true, force: true }),
+    remove = (path) =>
+      fs.rmSync(path, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 }),
   } = options
   const root = createRoot()
 
   return new Promise((resolve) => {
     let child
+    let settled = false
+    const forwards = new Map()
+    const ownsGroup = () =>
+      process.platform !== 'win32' && Number.isInteger(child?.pid) && child.pid > 0
+    const signalGroup = (signal) => {
+      try {
+        process.kill(-child.pid, signal)
+      } catch (error) {
+        if (error.code !== 'ESRCH') throw error
+      }
+    }
+    const finish = (code) => {
+      if (settled) return
+      settled = true
+      for (const [signal, forward] of forwards) process.removeListener(signal, forward)
+      try {
+        // Descendants share the private process group. Stop their writes before removing scratch,
+        // including when the leader has exited but a nested native test runner is still alive.
+        if (ownsGroup()) signalGroup('SIGKILL')
+        remove(root)
+        resolve(code)
+      } catch (error) {
+        console.error(`[vitest-tmp-root] cleanup failed: ${error.message}`)
+        resolve(1)
+      }
+    }
     try {
       child = spawnImpl(process.execPath, [vitestBin(cwd), ...args], {
         cwd,
         stdio: 'inherit',
         env: { ...process.env },
+        detached: process.platform !== 'win32',
       })
     } catch (error) {
-      remove(root)
       console.error(`[vitest-tmp-root] could not start Vitest: ${error.message}`)
-      resolve(1)
+      finish(1)
       return
     }
 
-    const forward = (signal) => () => {
-      // Let Vitest close down; the root goes in the exit path below either way.
-      child.kill(signal)
-    }
     if (trapSignals) {
-      for (const signal of Object.keys(SIGNAL_EXIT_CODES)) process.once(signal, forward(signal))
-    }
-
-    const finish = (code) => {
-      remove(root)
-      resolve(code)
+      for (const signal of Object.keys(SIGNAL_EXIT_CODES)) {
+        const forward = () => {
+          if (settled) return
+          if (ownsGroup()) signalGroup(signal)
+          else child.kill(signal)
+        }
+        forwards.set(signal, forward)
+        process.once(signal, forward)
+      }
     }
     child.on('error', (error) => {
       console.error(`[vitest-tmp-root] Vitest failed to run: ${error.message}`)
