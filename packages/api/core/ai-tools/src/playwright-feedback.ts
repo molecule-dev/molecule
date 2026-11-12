@@ -200,7 +200,8 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
           completed.add(spec.path)
           failing.delete(spec.path)
         }
-        if (!abort.signal.aborted && version === revision) changed.clear()
+        if (stopped || abort.signal.aborted || version !== revision) return []
+        changed.clear()
         return results
       } finally {
         running = undefined

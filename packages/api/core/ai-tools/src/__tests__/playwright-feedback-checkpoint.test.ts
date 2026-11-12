@@ -169,3 +169,31 @@ it('keeps an emitted native failure when a hung teardown prevents the final JSON
     error: expect.stringContaining('Expected: Delivered'),
   })
 })
+
+it('discards a completed prefix when source changes during a later checkpoint spec', async () => {
+  const f = fixture()
+  let entered!: () => void
+  const second = new Promise<void>((resolve) => {
+    entered = resolve
+  })
+  f.run.mockImplementation(async (spec, _files, revision, _emit, signal) => {
+    if (spec.path.includes('shipping')) {
+      entered()
+      await new Promise<void>((done) =>
+        signal.addEventListener('abort', () => done(), { once: true }),
+      )
+    }
+    return {
+      spec: spec.path,
+      revision,
+      durationMs: 1,
+      status: signal.aborted ? 'cancelled' : 'passed',
+      failures: [],
+    }
+  })
+  f.watcher.changed(['/shop/src/Shipping.vue'])
+  const checking = f.watcher.check()
+  await second
+  f.watcher.changed(['/shop/src/Shipping.vue'])
+  expect(await checking).toEqual([])
+})
