@@ -2,8 +2,9 @@
  * Run the project's real Playwright files while an agent keeps writing.
  *
  * The native runner, JSON reporter and error-context snapshot already answer what
- * failed and what rendered. The small scheduler only coalesces writes, prioritizes
- * files that actually failed, runs one at a time, and discards stale revisions.
+ * failed and what rendered. The small scheduler only coalesces writes, runs the file that ran
+ * longest ago first, one at a time, lets a started file finish, keeps every finished failure
+ * known, and reports only results with no write during them.
  * Explicit checkpoints finish native verification before an action; background writes stay nonblocking.
  * @module
  */
@@ -79,6 +80,10 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
   const completed = new Set<string>()
   const outcomes = new Map<string, PlaywrightFeedbackResult>()
   const revisionSources = new Set<string>()
+  // Completion order of each spec's latest finished run, so a pass after a write starts with the
+  // spec that has waited longest instead of the first file in the inventory.
+  const lastRun = new Map<string, number>()
+  let finishedRuns = 0
   let checking: Promise<PlaywrightFeedbackResult[]> | undefined
   const start = (): void => {
     if (active || stopped || paused || changed.size === 0) return
@@ -88,7 +93,9 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
     const abort = new AbortController()
     cancellation = abort
     let yielded = false
-    const current = (): boolean => !stopped && !abort.signal.aborted && version === revision
+    // Live: not stopped by foreground work or close. Current: also no write since this pass began.
+    const live = (): boolean => !stopped && !abort.signal.aborted
+    const current = (): boolean => live() && version === revision
     active = (async () => {
       let project: FeedbackProject
       try {
@@ -98,10 +105,12 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
       }
       if (!current()) return
       const sourcePaths = project.root ? paths.map((p) => posix.resolve(project.root!, p)) : paths
-      // The native failures already name the files to rerun first after an edit.
+      // The spec whose latest run finished longest ago goes first (never-run specs first, in
+      // inventory order). A write mid-pass ends the pass, so under steady writes every spec still
+      // gets its turn; a known failure waits its turn too, and the deploy check re-runs it anyway.
       const selected = selectFeedbackSpecs(project, sourcePaths)
         .filter(({ spec }) => !completed.has(spec.path))
-        .sort((a, b) => Number(failing.has(b.spec.path)) - Number(failing.has(a.spec.path)))
+        .sort((a, b) => (lastRun.get(a.spec.path) ?? -1) - (lastRun.get(b.spec.path) ?? -1))
       for (const { spec, sourceFiles } of selected) {
         if (!current()) break
         const emit = (result: PlaywrightFeedbackResult): void => {
@@ -129,16 +138,22 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
         } finally {
           running = undefined
         } // runner availability is not a markup defect
-        options.onResult?.(current() ? result : { ...result, status: 'cancelled', failures: [] })
-        if (!current()) break
+        options.onResult?.(live() ? result : { ...result, status: 'cancelled', failures: [] })
+        if (!live()) break
         if (result.status === 'cancelled') {
           yielded = true
           for (const path of paths) changed.add(path)
           break
         }
+        // A finished run is that spec's latest native outcome even when a write landed while it
+        // ran: a failure stays known (the deploy check re-runs it on current source), a pass or
+        // self-skip clears it. Only a run with no write during it is reused or reported.
+        lastRun.set(spec.path, ++finishedRuns)
+        if (settledClean(result)) failing.delete(spec.path)
+        else if (result.status === 'failed') failing.add(spec.path)
+        if (!current()) break
         completed.add(spec.path)
         outcomes.set(spec.path, result)
-        if (settledClean(result)) failing.delete(spec.path)
         if (result.status !== 'failed') delivered.delete(spec.path)
         emit(result)
       }
@@ -252,7 +267,11 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
       delivered.clear()
       completed.clear()
       outcomes.clear()
-      cancellation?.abort()
+      // A started background spec finishes (bounded by its native deadline): writes arrive every
+      // few seconds while a spec takes tens of seconds, so cancelling here meant none ever finished.
+      // Its outcome updates the known failures; the next pass runs on this revision. An explicit
+      // checkpoint is different: it answers for the current source, so a write still interrupts it.
+      if (checking) cancellation?.abort()
       if (!paused) schedule()
     },
     takeFailures() {

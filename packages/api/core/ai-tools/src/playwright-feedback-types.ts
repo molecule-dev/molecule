@@ -85,14 +85,19 @@ export interface PlaywrightFeedbackCheckOptions {
 
 /** A nonblocking source-change subscription. */
 export interface PlaywrightFeedback {
+  /**
+   * Record source writes. A background spec already running finishes; its outcome still updates
+   * {@link PlaywrightFeedback.failingSpecs}, but only a run with no write during it is reported.
+   */
   changed: (paths: readonly string[]) => void
   takeFailures: () => PlaywrightFeedbackResult[]
   /** Cancel speculation before foreground work. Release after that work; nested callers are safe. */
   pause: () => Promise<() => void>
   /**
    * Verify the current revision before an explicit action, reusing completed native results.
-   * Stops at the first failing or unavailable spec; a skipped spec does not stop it. Source
-   * writes still cancel stale results. Concurrent checkpoints share the same work.
+   * Stops at the first failing or unavailable spec; a skipped spec does not stop it. A source
+   * write interrupts the checkpoint and discards its partial result. Concurrent checkpoints share
+   * the same work.
    */
   check: (options?: PlaywrightFeedbackCheckOptions) => Promise<PlaywrightFeedbackResult[]>
   /** Spec files whose latest native outcome failed and that have not passed or skipped since. */

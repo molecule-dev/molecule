@@ -96,36 +96,97 @@ describe('foreground work owns the clock', () => {
     expect(watcher.takeFailures()).toEqual([])
   })
 
-  it('cancels stale work on a source edit and never delivers its emitted failure', async () => {
+  it('lets a running spec finish through a source edit, keeps its failure known unreported, and reruns it', async () => {
     const signals: AbortSignal[] = []
+    let finish!: () => void
+    const onFailures = vi.fn()
+    const stale: PlaywrightFeedbackResult = {
+      ...passed(1),
+      status: 'failed',
+      failures: [{ spec: spec.path, line: 8, error: 'stale', locator: 'stale', sourceFiles: [] }],
+    }
     const watcher = createPlaywrightFeedback({
       load: async () => ({ sources: [], specs: [spec] }),
       debounceMs: 5,
+      onFailures,
       run: async (_s, _f, revision, emit, signal) => {
         signals.push(signal)
-        if (revision === 1) {
-          await new Promise<void>((done) =>
-            signal.addEventListener('abort', () => done(), { once: true }),
-          )
-          emit({
-            ...passed(revision),
-            status: 'failed',
-            failures: [
-              { spec: spec.path, line: 8, error: 'stale', locator: 'stale', sourceFiles: [] },
-            ],
-          })
-        }
-        return passed(revision)
+        if (revision !== 1) return { ...stale, revision }
+        await new Promise<void>((done) => (finish = done))
+        emit(stale)
+        return stale
       },
     })
     controllers.push(watcher)
     watcher.changed(['/app/src/Catalog.tsx'])
     await vi.waitFor(() => expect(signals).toHaveLength(1))
     watcher.changed(['/app/src/Catalog.tsx'])
-    expect(signals[0].aborted).toBe(true)
+    expect(signals[0].aborted).toBe(false)
+    finish()
+    await vi.waitFor(() => expect(signals).toHaveLength(2))
     await watcher.settled()
-    expect(signals).toHaveLength(2)
-    expect(watcher.takeFailures()).toEqual([])
+    // The first run described revision 1 only: never reported, but the spec is a known failure.
+    expect(onFailures).toHaveBeenCalledTimes(1)
+    expect(onFailures.mock.calls[0]?.[0]).toMatchObject({ revision: 2 })
+    expect(watcher.failingSpecs()).toEqual([spec.path])
+  })
+
+  it('finishes and rotates through every spec while a write lands during each run', async () => {
+    const specs = ['account', 'catalog', 'profile'].map((name) => ({
+      ...spec,
+      path: `/app/e2e/${name}.spec.ts`,
+    }))
+    const visits: string[] = []
+    const watcher = createPlaywrightFeedback({
+      load: async () => ({ sources: [], specs }),
+      debounceMs: 1,
+      run: async (s, _f, revision) => {
+        visits.push(s.path)
+        // The agent keeps writing: a save arrives while every spec runs.
+        if (visits.length < 6) watcher.changed(['/app/src/Profile.tsx'])
+        return s.path.includes('profile')
+          ? {
+              ...passed(revision),
+              spec: s.path,
+              status: 'failed',
+              failures: [
+                { spec: s.path, line: 4, error: 'not found', locator: '.bio', sourceFiles: [] },
+              ],
+            }
+          : { ...passed(revision), spec: s.path }
+      },
+    })
+    controllers.push(watcher)
+    watcher.changed(['/app/src/Profile.tsx'])
+    await vi.waitFor(() => expect(visits.length).toBeGreaterThanOrEqual(6))
+    await watcher.settled()
+    // Least recently run first, so the third file is reached under continuous writes.
+    expect(visits.slice(0, 3)).toEqual(specs.map((s) => s.path))
+    expect(watcher.failingSpecs()).toEqual(['/app/e2e/profile.spec.ts'])
+    // The rotation continues in turn: a known failure does not take every pass from the others.
+    expect(visits.slice(3, 6)).toEqual(specs.map((s) => s.path))
+  })
+
+  it('still interrupts an explicit checkpoint on a source edit', async () => {
+    const signals: AbortSignal[] = []
+    const watcher = createPlaywrightFeedback({
+      load: async () => ({ sources: [], specs: [spec] }),
+      debounceMs: 5,
+      run: async (_s, _f, revision, _emit, signal, mode) => {
+        if (mode !== 'foreground') return passed(revision)
+        signals.push(signal)
+        await new Promise<void>((done) =>
+          signal.addEventListener('abort', () => done(), { once: true }),
+        )
+        return cancelled(revision)
+      },
+    })
+    controllers.push(watcher)
+    const result = watcher.check()
+    await vi.waitFor(() => expect(signals).toHaveLength(1))
+    watcher.changed(['/app/src/Catalog.tsx'])
+    expect(signals[0].aborted).toBe(true)
+    expect(await result).toEqual([])
   })
 
   it('does not wait for an in-flight metadata load or start native work while paused', async () => {
