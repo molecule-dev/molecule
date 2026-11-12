@@ -446,18 +446,6 @@ describe('buildTools', () => {
     expect(background.run).toHaveBeenCalled()
   })
 
-  it('exec_command refuses simple identical foreground suite invocations', async () => {
-    const backend = mockBackend()
-    const tools = buildTools(backend, { blockDangerousCommands: true })
-    const exec = tools.find((t) => t.name === 'exec_command')!
-    const result = (await exec.execute({
-      command: 'bash run-api-tests-hurl.sh; bash run-api-tests-hurl.sh',
-    })) as { error?: string }
-    expect(result.error).toContain('runs the suite twice')
-    expect(result.error).toContain('run exactly one:')
-    expect(backend.run).not.toHaveBeenCalled()
-  })
-
   it('exec_command launches a mixed command with its write intact', async () => {
     const backend = mockBackend()
     const exec = buildTools(backend, { blockDangerousCommands: true }).find(

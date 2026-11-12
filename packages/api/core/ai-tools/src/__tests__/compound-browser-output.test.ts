@@ -236,14 +236,15 @@ describe('compound browser commands', () => {
 })
 
 describe('compound browser commands — preserved shapes', () => {
-  it('still refuses a duplicate-only chain, with or without output filters', () => {
+  it('preserves intentional repeats, with or without output filters', () => {
     for (const command of [
       'npx playwright test --reporter=list; npx playwright test --reporter=list',
       'npx playwright test --reporter=list | tail -5; npx playwright test --reporter=list | tail -5',
     ]) {
       const result = streamingBackgroundCommand(command)
-      expect(result.error).toContain('runs the suite twice')
-      // Nothing is launched, and no filter survives in the command the refusal quotes back.
+      expect(result.error).toBeUndefined()
+      // Both requested executions remain; diagnostics may remove output-only filters.
+      expect(result.command.match(/playwright test/g)).toHaveLength(2)
       expect(result.command).not.toContain('tail -')
     }
     // Distinct walks select different suites or targets: they run as written.
