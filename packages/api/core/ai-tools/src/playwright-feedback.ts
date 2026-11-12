@@ -19,6 +19,7 @@ import type {
   FeedbackSource,
   FeedbackSpec,
   PlaywrightFeedback,
+  PlaywrightFeedbackCheckOptions,
   PlaywrightFeedbackFailure,
   PlaywrightFeedbackOptions,
   PlaywrightFeedbackResult,
@@ -34,6 +35,28 @@ import { redactSecrets, shellQuote } from './utilities.js'
  */
 export function isPlaywrightFeedbackSource(path: string): boolean {
   return /\.(?:[cm]?[jt]sx?|vue|svelte|html?|css|json|mdx?)$/i.test(path)
+}
+
+/**
+ * A native outcome with nothing left to fix: every test passed, or every test skipped itself.
+ * @param result - One spec's native result.
+ * @returns True for `passed` and `skipped`.
+ */
+function settledClean(result: PlaywrightFeedbackResult): boolean {
+  return result.status === 'passed' || result.status === 'skipped'
+}
+
+/**
+ * Runner output for a diagnostic reason, without the package manager's own notices.
+ * @param text - The runner's stderr.
+ * @returns The remaining lines, trimmed; empty when only notices were printed.
+ */
+function runnerOutput(text: string): string {
+  return text
+    .split('\n')
+    .filter((line) => line.trim() && !/^npm (?:warn|notice)\b/i.test(line.trim()))
+    .join('\n')
+    .trim()
 }
 
 /**
@@ -115,7 +138,7 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
         }
         completed.add(spec.path)
         outcomes.set(spec.path, result)
-        if (result.status === 'passed') failing.delete(spec.path)
+        if (settledClean(result)) failing.delete(spec.path)
         if (result.status !== 'failed') delivered.delete(spec.path)
         emit(result)
       }
@@ -160,9 +183,13 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
       if (!paused && !stopped && changed.size) schedule()
     }
   }
-  const check = (): Promise<PlaywrightFeedbackResult[]> => {
+  const check = (
+    checkOptions: PlaywrightFeedbackCheckOptions = {},
+  ): Promise<PlaywrightFeedbackResult[]> => {
     if (checking) return checking
     if (stopped) return Promise.resolve([])
+    // Re-verifying known failures only: with none known there is nothing to load or run.
+    if (checkOptions.failedOnly && failing.size === 0) return Promise.resolve([])
     checking = (async () => {
       const release = await pause()
       const version = revision
@@ -178,15 +205,15 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
         const paths = [...revisionSources].map((p) =>
           project.root ? posix.resolve(project.root, p) : p,
         )
-        const selected = selectFeedbackSpecs(project, paths).sort(
-          (a, b) => Number(failing.has(b.spec.path)) - Number(failing.has(a.spec.path)),
-        )
+        const selected = selectFeedbackSpecs(project, paths)
+          .filter(({ spec }) => !checkOptions.failedOnly || failing.has(spec.path))
+          .sort((a, b) => Number(failing.has(b.spec.path)) - Number(failing.has(a.spec.path)))
         for (const { spec, sourceFiles } of selected) {
           if (stopped || abort.signal.aborted || version !== revision) break
           let result = outcomes.get(spec.path)
-          // Reuse passes only. A restart, fixture repair or transient failure
-          // can change a failed outcome without changing application source.
-          if (!result || result.status !== 'passed') {
+          // Reuse passes and self-skipped specs only. A restart, fixture repair or
+          // transient failure can change a failed outcome without changing application source.
+          if (!result || !settledClean(result)) {
             running = options.run(spec, sourceFiles, version, () => {}, abort.signal, 'foreground')
             result = await running
             running = undefined
@@ -196,7 +223,7 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
           }
           results.push(result)
           if (result.status === 'failed') failing.add(spec.path)
-          if (result.status !== 'passed') break
+          if (!settledClean(result)) break
           completed.add(spec.path)
           failing.delete(spec.path)
         }
@@ -233,6 +260,7 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
     },
     pause,
     check,
+    failingSpecs: () => [...failing],
     settled,
     async close() {
       stopped = true
@@ -445,10 +473,27 @@ export async function runPlaywrightFeedback(
         status: 'failed',
         durationMs: Date.now() - started,
       }
+    const stats = report.stats
+    // Every selected test skipped itself (a spec's own `test.skip(condition)`, e.g. tests for
+    // another mode) and the runner exited cleanly: nothing to verify here, and no outage either.
+    if (
+      report.status === 'complete' &&
+      stats &&
+      result.exitCode === 0 &&
+      stats.expected + stats.unexpected + stats.flaky === 0 &&
+      stats.skipped > 0
+    )
+      return {
+        ...base,
+        nativeStats: stats,
+        status: 'skipped',
+        durationMs: Date.now() - started,
+        reason: `every selected test skipped itself (${stats.skipped} skipped)`,
+      }
     if (
       report.status !== 'complete' ||
-      !report.stats ||
-      report.stats.expected + report.stats.unexpected + report.stats.flaky === 0
+      !stats ||
+      stats.expected + stats.unexpected + stats.flaky === 0
     ) {
       let errors: Array<{ message?: string }> = []
       try {
@@ -458,21 +503,23 @@ export async function runPlaywrightFeedback(
       }
       const detail =
         errors.map((e) => e.message ?? '').join('\n') ||
-        result.stderr ||
         report.reason ||
-        'zero executed tests or skipped tests'
+        runnerOutput(result.stderr) ||
+        (stats
+          ? `the runner executed no test (${stats.skipped} skipped, exit code ${result.exitCode})`
+          : 'zero executed tests')
       return {
         ...unavailable(
           `the native runner did not complete every selected test: ${redactSecrets(detail.slice(0, 2000))}`,
         ),
-        ...(report.stats ? { nativeStats: report.stats } : {}),
+        ...(stats ? { nativeStats: stats } : {}),
       }
     }
-    if (result.exitCode !== 0 || report.stats.unexpected || report.stats.flaky)
+    if (result.exitCode !== 0 || stats.unexpected || stats.flaky)
       return unavailable('the native run failed outside a locator assertion')
     return {
       ...base,
-      nativeStats: report.stats,
+      nativeStats: stats,
       status: 'passed',
       durationMs: Date.now() - started,
     }

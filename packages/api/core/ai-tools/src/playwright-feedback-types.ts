@@ -38,12 +38,16 @@ export interface PlaywrightFeedbackFailure {
   sourceFiles: string[]
 }
 
-/** A diagnosis of one spec file at one source revision. A pass is not whole-suite proof. */
+/**
+ * A diagnosis of one spec file at one source revision. A pass is not whole-suite proof.
+ * `skipped` means the runner completed and every selected test skipped itself (a spec's own
+ * `test.skip(condition)`): nothing to verify in this environment, neither a pass nor an outage.
+ */
 export interface PlaywrightFeedbackResult {
   spec: string
   revision: number
   durationMs: number
-  status: 'passed' | 'failed' | 'unavailable' | 'cancelled'
+  status: 'passed' | 'failed' | 'skipped' | 'unavailable' | 'cancelled'
   failures: PlaywrightFeedbackFailure[]
   /** Native counts for this one diagnostic selection, never whole-suite proof. */
   nativeStats?: PlaywrightReportStats
@@ -70,6 +74,15 @@ export interface PlaywrightFeedbackOptions {
   debounceMs?: number
 }
 
+/** What an explicit checkpoint runs. */
+export interface PlaywrightFeedbackCheckOptions {
+  /**
+   * Re-run only the spec files in {@link PlaywrightFeedback.failingSpecs}. With none, the
+   * checkpoint loads and runs nothing and returns no results.
+   */
+  failedOnly?: boolean
+}
+
 /** A nonblocking source-change subscription. */
 export interface PlaywrightFeedback {
   changed: (paths: readonly string[]) => void
@@ -78,10 +91,12 @@ export interface PlaywrightFeedback {
   pause: () => Promise<() => void>
   /**
    * Verify the current revision before an explicit action, reusing completed native results.
-   * Stops at the first failing or unavailable spec. Source writes still cancel stale results.
-   * No source revision means no load or run. Concurrent checkpoints share the same work.
+   * Stops at the first failing or unavailable spec; a skipped spec does not stop it. Source
+   * writes still cancel stale results. Concurrent checkpoints share the same work.
    */
-  check: () => Promise<PlaywrightFeedbackResult[]>
+  check: (options?: PlaywrightFeedbackCheckOptions) => Promise<PlaywrightFeedbackResult[]>
+  /** Spec files whose latest native outcome failed and that have not passed or skipped since. */
+  failingSpecs: () => string[]
   /** Wait for speculative work in tests or shutdown. Use check for explicit verification. */
   settled: () => Promise<void>
   close: () => Promise<void>

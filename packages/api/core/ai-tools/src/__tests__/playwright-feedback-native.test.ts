@@ -241,4 +241,39 @@ describe('native supplied-suite feedback before deploy', () => {
     // Five independent low-priority native runner startups share CPU with the
     // package's other tests. Their own assertion budgets remain unchanged.
   }, 60_000)
+  it('reports a spec whose every test skips itself in this mode as skipped, and walks past it', async () => {
+    const file = join(root, 'e2e', 'mocked-mode.spec.ts')
+    await writeFile(
+      file,
+      "import {test,expect} from '@playwright/test';\n" +
+        "test.beforeEach(({}, testInfo) => { testInfo.skip(!process.env.MOCKED_API, 'mocked-API mode only') });\n" +
+        "test('shows the mocked error', async ({page}) => { await page.goto('/notes'); await expect(page.getByText('Mocked')).toBeVisible() });\n" +
+        "test('shows the mocked retry', async ({page}) => { await page.goto('/notes') })\n",
+    )
+    const skipping: FeedbackSpec = {
+      path: file,
+      content: '',
+      cwd: root,
+      command: `node ${shellQuote(cli)} test --config playwright.config.mjs mocked-mode.spec.ts`,
+    }
+    broken = true
+    const watcher = createPlaywrightFeedback({
+      load: async () => ({ sources: [], specs: [skipping, specs[0]] }),
+      run: (spec, files, revision, emit, signal, mode) =>
+        runPlaywrightFeedback(backend, spec, files, revision, {
+          command: (flags) => `${spec.command} ${flags.join(' ')}`,
+          emit,
+          signal,
+          foreground: mode === 'foreground',
+        }),
+    })
+    controllers.push(watcher)
+    const results = await watcher.check()
+    expect(results.map((r) => r.status)).toEqual(['skipped', 'failed'])
+    expect(results[0]).toMatchObject({
+      nativeStats: { expected: 0, unexpected: 0, skipped: 2 },
+      reason: 'every selected test skipped itself (2 skipped)',
+    })
+    expect(watcher.failingSpecs()).toEqual([specs[0].path])
+  }, 60_000)
 })

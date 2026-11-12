@@ -204,3 +204,89 @@ it('discards a completed prefix when source changes during a later checkpoint sp
   f.watcher.changed(['/shop/src/Shipping.vue'])
   expect(await checking).toEqual([])
 })
+
+it('re-runs only known native failures when asked, and runs nothing when none is known', async () => {
+  const f = fixture()
+  f.status('passed')
+  f.watcher.changed(['/shop/src/Shipping.vue'])
+  expect(f.watcher.failingSpecs()).toEqual([])
+  expect(await f.watcher.check({ failedOnly: true })).toEqual([])
+  expect(f.load).not.toHaveBeenCalled()
+  expect(f.run).not.toHaveBeenCalled()
+  // A failure the background runner found is the one spec a failed-only checkpoint re-runs.
+  f.run.mockImplementationOnce(async (spec, sourceFiles, revision) => ({
+    spec: spec.path,
+    revision,
+    durationMs: 1,
+    status: 'failed',
+    failures: [{ spec: spec.path, line: 3, locator: 'button', error: 'x', sourceFiles }],
+  }))
+  await f.watcher.settled()
+  expect(f.watcher.failingSpecs()).toEqual(['/shop/e2e/cart.spec.ts'])
+  f.run.mockClear()
+  f.watcher.changed(['/shop/src/Cart.vue'])
+  const results = await f.watcher.check({ failedOnly: true })
+  expect(results.map((r) => [r.spec, r.status])).toEqual([['/shop/e2e/cart.spec.ts', 'passed']])
+  expect(f.run.mock.calls.map(([spec]) => spec.path)).toEqual(['/shop/e2e/cart.spec.ts'])
+  expect(f.watcher.failingSpecs()).toEqual([])
+})
+
+it('walks past a spec whose every test skipped itself instead of stopping the checkpoint', async () => {
+  const f = fixture()
+  f.run.mockImplementation(async (spec, _files, revision) => ({
+    spec: spec.path,
+    revision,
+    durationMs: 1,
+    status: spec.path.includes('cart') ? 'skipped' : 'failed',
+    failures: spec.path.includes('cart')
+      ? []
+      : [{ spec: spec.path, line: 9, locator: 'status', error: 'Queued', sourceFiles: [] }],
+  }))
+  f.watcher.changed(['/shop/src/Shipping.vue'])
+  expect((await f.watcher.check()).map((r) => r.status)).toEqual(['skipped', 'failed'])
+  expect(f.watcher.failingSpecs()).toEqual(['/shop/e2e/shipping.spec.ts'])
+})
+
+function reportBackend(stats: Record<string, number>, stderr: string, exitCode: number) {
+  return {
+    projectRoot: '/shop',
+    readFile: async (path: string) => {
+      if (!path.endsWith('report.json')) throw new Error('ENOENT')
+      return JSON.stringify({ suites: [], errors: [], stats: { ...stats, duration: 5 } })
+    },
+    writeFile: async () => {},
+    deleteFile: async () => {},
+    readDir: async () => [],
+    run: async () => ({ stdout: '', stderr, exitCode }),
+  }
+}
+const cart = { path: '/shop/e2e/cart.spec.ts', content: '', command: '', cwd: '/shop' }
+const npmNotice = 'npm warn config ignoring workspace config at /shop/app/.npmrc\n'
+
+it('reports a cleanly completed spec whose every test skipped itself as skipped, not unavailable', async () => {
+  const result = await runPlaywrightFeedback(
+    reportBackend({ expected: 0, unexpected: 0, flaky: 0, skipped: 31 }, npmNotice, 0),
+    cart,
+    [],
+    1,
+    { command: () => 'playwright test cart.spec.ts', foreground: true },
+  )
+  expect(result).toMatchObject({
+    status: 'skipped',
+    nativeStats: { expected: 0, skipped: 31 },
+    reason: 'every selected test skipped itself (31 skipped)',
+  })
+})
+
+it('names a run that executed no test by its counts, never by a package-manager notice', async () => {
+  const result = await runPlaywrightFeedback(
+    reportBackend({ expected: 0, unexpected: 0, flaky: 0, skipped: 0 }, npmNotice, 1),
+    cart,
+    [],
+    1,
+    { command: () => 'playwright test cart.spec.ts', foreground: true },
+  )
+  expect(result.status).toBe('unavailable')
+  expect(result.reason).toContain('the runner executed no test (0 skipped, exit code 1)')
+  expect(result.reason).not.toContain('npm warn')
+})

@@ -38,6 +38,10 @@
  *   private temporary reports are not a user test result or something to poll.
  *   New writes cancel stale native work. `settled()`/`close()` are for tests and shutdown,
  *   never a deployment barrier. Diagnoses are not whole-suite completion proof.
+ *   A spec whose every test skips itself (`test.skip(condition)`) is `skipped`: neither a
+ *   pass nor an outage. `check()` verifies the current revision before an explicit action;
+ *   `check({ failedOnly: true })` re-runs only `failingSpecs()` (files whose latest native
+ *   outcome failed) and does nothing when none is known.
  * - **Opaque command plans:** prepare each logical step with `streamingBackgroundCommand`,
  *   call `createCommandPlan`, and attach it to the executed wrapper with `commandWithPlan`.
  *   The launcher prints each step's `startMarker` and `endMarker` on their own lines around
