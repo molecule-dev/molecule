@@ -45,7 +45,7 @@ module.exports = class FeedbackReporter {
  * Read native failure events; incomplete final lines wait for the next read.
  * @param text - Reporter JSONL, not runner-log inference.
  * @param sourceFiles - Triggering source files from the scheduler.
- * @returns Native locator/assertion failures and timed-out browser operations, redacted and bounded.
+ * @returns Every completed native test failure, redacted and bounded.
  */
 export function nativeFeedbackFailures(
   text: string,
@@ -83,12 +83,15 @@ export function nativeFeedbackFailures(
         (/Test timeout of \d+ms exceeded\./.test(error)
           ? /(?:^|\n)Error: ((?:page|locator)\.[\w.]+):/.exec(error)?.[1]
           : undefined)
-      if (!locator) continue
+      // A native failed-test event is evidence even when an exception has no locator.
+      // Keep its own first error line rather than hiding it as runner unavailability.
+      const operation = locator ?? error.split('\n').find((line) => line.trim())
+      if (!operation) continue
       out.push({
         spec: event.spec,
         line: event.line,
         error,
-        locator,
+        locator: operation,
         ...(typeof event.rendered === 'string' && event.rendered
           ? { rendered: redactSecrets(event.rendered.slice(0, 2000)) }
           : {}),

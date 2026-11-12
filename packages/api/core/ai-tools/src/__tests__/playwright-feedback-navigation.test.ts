@@ -33,7 +33,7 @@ describe('native operation timeouts before the test budget expires', () => {
     'Error: page.close: Target page, context or browser has been closed',
     'Error: Cannot find module ./missing.js',
     'TimeoutError: connection to the test server timed out',
-  ])('keeps setup and browser cancellation separate: %s', (error) => {
-    expect(nativeFeedbackFailures(event(error), source)).toEqual([])
+  ])('reports the native test error without inventing a locator: %s', (error) => {
+    expect(nativeFeedbackFailures(event(error), source)).toMatchObject([{ error, locator: error }])
   })
 })

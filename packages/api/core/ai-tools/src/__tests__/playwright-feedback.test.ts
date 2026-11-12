@@ -43,43 +43,36 @@ const failure = (s: FeedbackSpec, files: string[], revision: number): Playwright
 })
 
 describe('native Playwright feedback selection', () => {
-  it('prioritizes the changed route, preserving every other spec for click/helper navigation', () => {
-    const selected = selectFeedbackSpecs(project(), ['/app/src/Notes.tsx'])
-    expect(selected.map((s) => s.spec.path)).toEqual([
-      '/app/e2e/notes.spec.ts',
-      '/app/e2e/catalog.spec.ts',
-    ])
-    expect(selected[0].sourceFiles).toEqual(['/app/src/Notes.tsx'])
-  })
-  it('follows local component imports and export barrels', () => {
+  it('uses the caller inventory order regardless of routes or spec prose', () => {
     const p = project()
-    p.sources[1].content = `import { NoteBody } from './body/index.js'; export const Notes = () => <NoteBody />`
-    p.sources.push(
-      { path: '/app/src/body/index.ts', content: "export * from './NoteBody.js'" },
-      {
-        path: '/app/src/body/NoteBody.tsx',
-        content: 'export const NoteBody = () => <div>{body}</div>',
-      },
+    const changed = ['/app/src/Notes.tsx']
+    const selected = selectFeedbackSpecs(p, changed)
+    expect(selected.map((s) => s.spec.path)).toEqual(p.specs.map((s) => s.path))
+    expect(selected.every((s) => JSON.stringify(s.sourceFiles) === JSON.stringify(changed))).toBe(
+      true,
     )
-    expect(selectFeedbackSpecs(p, ['/app/src/body/NoteBody.tsx'])[0].spec.path).toBe(
-      '/app/e2e/notes.spec.ts',
-    )
+    p.sources = []
+    p.specs.forEach((s) => {
+      s.content = 'arbitrary helper-driven navigation'
+    })
+    expect(selectFeedbackSpecs(p, changed)).toEqual(selected)
   })
-  it('matches parameterized routes and supplied route templates', () => {
-    const p = project()
-    p.sources[0].content = p.sources[0].content.replace('/notes', '/notes/:id')
-    p.specs[1].content = 'test("edit", async ({page}) => { await page.goto(`/notes/${id}`) })'
-    expect(selectFeedbackSpecs(p, ['/app/src/Notes.tsx'])[0].spec.path).toBe(
-      '/app/e2e/notes.spec.ts',
-    )
+  it('does not need source or spec text for a project with its own Playwright suite', () => {
+    const p: FeedbackProject = {
+      sources: [],
+      specs: [spec('/store/e2e/checkout.spec.ts'), spec('/store/e2e/shipping.spec.ts')],
+    }
+    p.specs.forEach((s) => {
+      s.content = ''
+    })
+    expect(
+      selectFeedbackSpecs(p, ['/store/src/Cart.vue']).map(({ spec, sourceFiles }) => ({
+        spec,
+        sourceFiles,
+      })),
+    ).toEqual(p.specs.map((s) => ({ spec: s, sourceFiles: ['/store/src/Cart.vue'] })))
   })
-  it('retains all specs for unknown routers, dynamic navigation and relative nested routes', () => {
-    const p = project()
-    p.sources[0].content = 'router.install(routesFromServer)'
-    p.specs[0].content = 'await page.goto(routeFromHelper)'
-    expect(selectFeedbackSpecs(p, ['/app/src/Notes.tsx'])).toHaveLength(2)
-  })
-  it('has no jobs without supplied or scaffolded specs', () => {
+  it('has no jobs without supplied or project-owned specs', () => {
     expect(selectFeedbackSpecs({ ...project(), specs: [] }, ['/app/src/Notes.tsx'])).toEqual([])
   })
 })

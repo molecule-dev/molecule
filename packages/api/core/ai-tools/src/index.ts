@@ -22,7 +22,7 @@
  *   drops failure identities; native reports also name failures beyond their detailed-record cap.
  * - **Background Playwright feedback:** `createPlaywrightFeedback({ load, run, onFailures })`
  *   coalesces `changed(paths)` events without delaying writes. Use `readFeedbackSources`
- *   to batch source reads over either backend and `runPlaywrightFeedback` to run each
+ *   when a caller needs filesystem inventory and `runPlaywrightFeedback` to run each
  *   supplied spec through its native command. Its incremental reporter supplies exact
  *   locator failures and the failure-time page snapshot. Healthy runs emit no note;
  *   no suite schedules no runner. Pass the runner's cancellation signal to

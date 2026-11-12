@@ -56,7 +56,7 @@ test('inventory settles', async ({page}) => {
   }
 }, 20_000)
 
-it('keeps an ordinary browser-close error separate from a test timeout', () => {
+it('preserves an ordinary browser-close failure as the native error', () => {
   const event =
     JSON.stringify({
       spec: 'inventory.spec.ts',
@@ -64,16 +64,21 @@ it('keeps an ordinary browser-close error separate from a test timeout', () => {
       error: 'Error: page.waitForTimeout: Target page, context or browser has been closed',
       rendered: '- generic: Inventory',
     }) + '\n'
-  expect(nativeFeedbackFailures(event, [])).toEqual([])
+  expect(nativeFeedbackFailures(event, [])).toMatchObject([
+    {
+      error: 'Error: page.waitForTimeout: Target page, context or browser has been closed',
+      locator: 'Error: page.waitForTimeout: Target page, context or browser has been closed',
+    },
+  ])
 })
 
-it('does not reinterpret setup timeouts or runner failures as UI diagnoses', () => {
+it('preserves native failed-test errors without a UI diagnosis', () => {
   for (const error of [
     'Test timeout of 800ms exceeded.',
     'beforeAll hook timeout of 800ms exceeded.',
     'Error: browserType.launch: browser executable missing',
   ]) {
     const event = JSON.stringify({ spec: 'inventory.spec.ts', line: 10, error }) + '\n'
-    expect(nativeFeedbackFailures(event, [])).toEqual([])
+    expect(nativeFeedbackFailures(event, [])).toMatchObject([{ error, locator: error }])
   }
 })
