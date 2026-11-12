@@ -77,11 +77,18 @@ it('reuses current native results but invalidates them on the next source revisi
   expect(f.run).toHaveBeenCalledTimes(3)
 })
 
-it('does no work without a source revision', async () => {
+it('checks the known inventory on an explicit request even without a preceding source write', async () => {
   const f = fixture()
-  expect(await f.watcher.check()).toEqual([])
-  expect(f.load).not.toHaveBeenCalled()
-  expect(f.run).not.toHaveBeenCalled()
+  expect((await f.watcher.check()).map((result) => result.status)).toEqual(['failed'])
+  expect(f.load).toHaveBeenCalledOnce()
+  expect(f.run).toHaveBeenCalledWith(
+    expect.objectContaining({ path: '/shop/e2e/cart.spec.ts' }),
+    [],
+    0,
+    expect.any(Function),
+    expect.any(AbortSignal),
+    'foreground',
+  )
 })
 
 it('rechecks a failed test after a restart or data repair even without a source write', async () => {

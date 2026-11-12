@@ -162,7 +162,7 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
   }
   const check = (): Promise<PlaywrightFeedbackResult[]> => {
     if (checking) return checking
-    if (stopped || revision === 0) return Promise.resolve([])
+    if (stopped) return Promise.resolve([])
     checking = (async () => {
       const release = await pause()
       const version = revision
