@@ -6,6 +6,9 @@
  * navigation, and observed by components. Bond a provider (e.g.
  * `@molecule/app-query-tanstack`) at startup, then use
  * {@link getQueryClient} anywhere; `@molecule/app-query-react` adds the hooks.
+ * A query with `keepPreviousData: true` must provide `principal`. The type rejects a missing
+ * principal before an observer can fail at runtime. Pass the viewer's stable ID (also in the
+ * query key), or `'public'` when the response is identical for every viewer.
  *
  * @example
  * ```typescript

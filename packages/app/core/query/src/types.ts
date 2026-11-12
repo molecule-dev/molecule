@@ -19,7 +19,7 @@ export type QueryKey = readonly unknown[]
 /**
  * How one document is fetched and how long it stays fresh.
  */
-export interface QueryOptions<T> {
+export type QueryOptions<T> = {
   /** What identifies the document. */
   key: QueryKey
 
@@ -57,11 +57,12 @@ export interface QueryOptions<T> {
    * Requires {@link principal}. Do not use it to carry one resource's document into another
    * resource; a different screen is a different component (and a different hook instance).
    *
+   * TypeScript requires `principal` whenever this can be `true`, including a dynamic boolean.
    * Applies to observers (`useQuery` in `@molecule/app-query-react`); the cache itself never
    * returns another key's document. Defaults to `false`.
    */
   keepPreviousData?: boolean
-}
+} & ({ keepPreviousData?: false } | { principal: string })
 
 /** Where a document stands. */
 export type QueryStatus = 'idle' | 'loading' | 'success' | 'error'
