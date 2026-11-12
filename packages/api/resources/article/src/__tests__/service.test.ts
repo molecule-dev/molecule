@@ -30,6 +30,7 @@ const BOB = '00000000-0000-4000-8000-00000000000b'
 const CAROL = '00000000-0000-4000-8000-00000000000c'
 
 let dir: string
+let pool: ReturnType<typeof createPool>
 
 /** The tags of an article as a reader of the join table sees them. */
 const tagsInTable = (articleId: string): Promise<{ tag: string; position: number }[]> =>
@@ -65,7 +66,8 @@ beforeAll(async () => {
   const path = join(dir, 'app.db')
   process.env.SQLITE_PATH = path
   await createMigrator(migrations)()
-  setStore(createStore(createPool({ path })))
+  pool = createPool({ path })
+  setStore(createStore(pool))
 })
 
 afterAll(() => {
@@ -243,7 +245,17 @@ describe('articles', () => {
 
   it('enumerates and counts the entire catalog beyond the database single-read cap', async () => {
     const labels = Array.from({ length: 10_005 }, (_, index) => `catalog-${index}`)
-    await createArticle(CAROL, { title: 'Complete catalog', body: 'Catalog', tagList: labels })
+    const article = await createArticle(CAROL, { title: 'Complete catalog', body: 'Catalog' })
+    // This is a reader boundary test. Seed the large population in one native
+    // statement; 10,005 sequential writes test writer throughput instead and
+    // can exhaust the test budget under concurrent CI load.
+    await pool.query(
+      `WITH RECURSIVE labels(n) AS (
+        SELECT 0 UNION ALL SELECT n + 1 FROM labels WHERE n < 10004
+      ) INSERT INTO "article_tags" ("articleId", "tag", "position")
+        SELECT $1, 'catalog-' || n, n FROM labels`,
+      [article.id],
+    )
     await createArticle(BOB, {
       title: 'Repeated catalog label',
       body: 'Catalog',
