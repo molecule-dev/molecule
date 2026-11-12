@@ -4,10 +4,12 @@
  * @module
  */
 
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import type { QueryOptions, QueryState } from '@molecule/app-query'
 import { getQueryClient, hashQueryKey } from '@molecule/app-query'
+
+import type { UseQueryResult } from './types.js'
 
 const IDLE: QueryState<never> = {
   data: undefined,
@@ -46,6 +48,8 @@ interface ObservedKey {
  * `useEffect` + `fetch`: an effect whose cleanup sets a `cancelled` flag, and
  * whose deps include a function rebuilt each render, cancels its own request
  * on every re-render and then skips the refetch.
+ * An explicit `refetch()` is an awaited cache fetch; it can finish after the observer unmounts,
+ * like an explicit `client.fetch(options)` caller.
  *
  * For a LIST, put the route's page, filter and selected view in the key and
  * pass `keepPreviousData` with a `principal`: a Next/Previous or filter change
@@ -60,13 +64,13 @@ interface ObservedKey {
  *
  * @param options - Key, fetch, freshness, and optionally `principal` with
  *   `keepPreviousData`; or `null`.
- * @returns The document's state. `isPreviousData` is `true` while `data` is
+ * @returns The document's state and `refetch()`. `isPreviousData` is `true` while `data` is
  *   the previous key's document for the same principal.
  * @throws {Error} When `keepPreviousData` is set without `principal` — the
  *   hook cannot tell a route change from a principal switch, so it refuses
  *   rather than risk showing one principal's document to another.
  */
-export function useQuery<T>(options: QueryOptions<T> | null): QueryState<T> {
+export function useQuery<T>(options: QueryOptions<T> | null): UseQueryResult<T> {
   const hash = options ? hashQueryKey(options.key) : ''
   const principal = options?.principal
   const keepPreviousData = options?.keepPreviousData === true
@@ -78,6 +82,18 @@ export function useQuery<T>(options: QueryOptions<T> | null): QueryState<T> {
   // Options are read once per key: a fresh `fetch` closure every render must
   // not resubscribe.
   const stable = useMemo(() => options, [hash])
+  const refetch = useCallback(async (): Promise<QueryState<T>> => {
+    if (!stable) return IDLE as QueryState<T>
+    const client = getQueryClient()
+    client.invalidate(stable.key)
+    try {
+      await client.fetch(stable)
+    } catch (_error) {
+      // The cache publishes the failure to every observer. Return that state just as the
+      // initial subscription does, so an event handler can safely use `void query.refetch()`.
+    }
+    return client.getState<T>(stable.key)
+  }, [stable])
   const [state, setState] = useState<{ hash: string; value: QueryState<T> }>(() => ({
     hash,
     value: stable ? getQueryClient().getState<T>(stable.key) : (IDLE as QueryState<T>),
@@ -139,5 +155,5 @@ export function useQuery<T>(options: QueryOptions<T> | null): QueryState<T> {
     return client.subscribe<T>(stable, (value) => setState({ hash, value }))
   }, [stable, hash])
 
-  return value
+  return useMemo(() => ({ ...value, refetch }), [value, refetch])
 }

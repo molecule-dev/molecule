@@ -295,6 +295,11 @@
  * - Prefetching respects the browser's data-saver setting and skips 2G
  *   connections (`shouldPrefetch()` in the core) — do not bypass that for
  *   "important" links; the person can still click.
+ * - **Refresh a mounted document with `query.refetch()`.** It fetches even a fresh cache
+ *   entry and updates every observer of that key. After a mutation whose response is not the
+ *   whole document, `await query.refetch()` reloads the displayed list. It resolves with the
+ *   resulting state (including `status: 'error'` on failure); a disabled query stays idle.
+ *   Prefer `client.set(key, response)` when the mutation already returned the whole document.
  * - Errors are not thrown from the hook; read `status === 'error'` and
  *   `error`. `client.invalidate()` does NOT refetch a mounted page — it only
  *   marks documents stale, so the page keeps its error (or its old document)
@@ -312,5 +317,6 @@
  */
 
 export * from './resource.js'
+export * from './types.js'
 export * from './usePrefetch.js'
 export * from './useQuery.js'
