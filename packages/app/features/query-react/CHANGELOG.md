@@ -1,5 +1,11 @@
 # @molecule/app-query-react
 
+## 1.3.0
+
+### Minor Changes
+
+- Provide a typed refetch action that refreshes mounted query data after mutations and retries failed reads.
+
 ## 1.2.0
 
 ### Minor Changes
