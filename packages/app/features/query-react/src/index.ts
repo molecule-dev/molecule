@@ -244,6 +244,30 @@
  * }
  * ```
  *
+ * @example
+ * A pager needs the whole response, including its total. Keep that read on the same resource
+ * as its mutations, including alternate list paths; a separate hand-written `QueryOptions`
+ * is outside the resource's refresh tracking.
+ *
+ * ```typescript
+ * import { getClient } from '@molecule/app-http'
+ * import { createQueryResource } from '@molecule/app-query-react'
+ *
+ * interface TicketPage { tickets: { id: string; subject: string }[]; total: number }
+ * const tickets = createQueryResource<TicketPage['tickets'][number]>({
+ *   name: 'tickets', path: '/tickets', http: getClient,
+ *   readOne: (response) => response.data as TicketPage['tickets'][number],
+ * })
+ * const page = tickets.listPage('agent-1', { limit: 10, offset: 20 },
+ *   (response) => response.data as TicketPage)
+ * // useQuery(page) observes both rows and total. tickets.create/update/remove/toggle
+ * // and tickets.refresh('agent-1') refresh this page too.
+ * // A second list can use tickets.listPage(viewer, params, readPage, '/tickets/open').
+ * // Use one canonical page reader per path; list() still returns only its own rows.
+ * ```
+ * A resource mutation also waits out a pre-mutation list request before fetching again;
+ * joining that older in-flight read alone would leave the new record absent.
+ *
  * @remarks
  * - **`useQuery` reads the cache synchronously on the first render.** A
  *   document prefetched from a hovered link, or seeded with `client.set()`

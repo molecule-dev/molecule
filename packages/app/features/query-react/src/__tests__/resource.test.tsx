@@ -125,6 +125,111 @@ describe.each([
     expect(api.calls.filter((call) => call.startsWith('GET /tickets {"page":1}'))).toHaveLength(2)
   })
 
+  it('refreshes after a pre-mutation list request already in flight settles', async () => {
+    const tickets = resource()
+    const get = api.http.get
+    let release!: () => void
+    const barrier = new Promise<void>((resolve) => {
+      release = resolve
+    })
+    let first = true
+    api.http.get = async (path, options) => {
+      const response = await get(path, options)
+      if (path === '/tickets' && first) {
+        first = false
+        await barrier
+      }
+      return response
+    }
+    const page = mount(() => useQuery(tickets.list('agent-1')))
+    await settle()
+    let write!: Promise<Ticket>
+    act(() => {
+      write = tickets.create('agent-1', { subject: 'Projector' })
+    })
+    await settle()
+    await act(async () => {
+      release()
+      await write
+    })
+    await settle()
+    expect(page.value().data?.map((row) => row.subject)).toEqual(['Printer', 'Projector'])
+  })
+
+  it('refreshes a whole page and its total after a create without a local array mirror', async () => {
+    const tickets = resource()
+    type Page = { tickets: Ticket[]; total: number }
+    const get = api.http.get
+    api.http.get = async (path, options) => {
+      const response = await get(path, options)
+      return path === '/tickets'
+        ? { data: { ...(response.data as object), total: api.rows.length } }
+        : response
+    }
+    const page = mount(() =>
+      useQuery(
+        tickets.listPage('agent-1', { limit: 10, offset: 0 }, (response) => response.data as Page),
+      ),
+    )
+    await settle()
+    expect(page.value().data?.total).toBe(1)
+    await act(async () => {
+      await tickets.create('agent-1', { subject: 'Projector' })
+    })
+    await settle()
+    expect(page.value().data?.tickets.map((row) => row.subject)).toEqual(['Printer', 'Projector'])
+    expect(page.value().data?.total).toBe(2)
+  })
+
+  it('refreshes an alternate collection path through its owning resource', async () => {
+    const tickets = resource()
+    const get = api.http.get
+    api.http.get = async (path, options) =>
+      path === '/tickets/escalated'
+        ? {
+            data: {
+              tickets: api.rows.filter((row) => row.escalated).map((row) => ({ ...row })),
+              total: api.rows.filter((row) => row.escalated).length,
+            },
+          }
+        : get(path, options)
+    type Page = { tickets: Ticket[]; total: number }
+    const page = mount(() =>
+      useQuery(
+        tickets.listPage('agent-1', {}, (response) => response.data as Page, '/tickets/escalated'),
+      ),
+    )
+    await settle()
+    expect(page.value().data?.total).toBe(0)
+    await act(async () => {
+      await tickets.toggle('agent-1', 't1', 'escalation', true)
+    })
+    await settle()
+    expect(page.value().data?.total).toBe(1)
+    expect(page.value().data?.tickets[0].id).toBe('t1')
+  })
+
+  it('keeps row-only reads, page envelopes and viewers in distinct cache entries', async () => {
+    const tickets = resource()
+    const rows = mount(() => useQuery(tickets.list('agent-1')))
+    const page = mount(() =>
+      useQuery(
+        tickets.listPage('agent-1', {}, (response) => response.data as { tickets: Ticket[] }),
+      ),
+    )
+    await settle()
+    expect(rows.value().data).toHaveLength(1)
+    expect(page.value().data?.tickets).toHaveLength(1)
+    const before = api.calls.length
+    await act(async () => {
+      await tickets.create('agent-2', { subject: 'Private' })
+    })
+    await settle()
+    expect(api.calls.length - before).toBe(1)
+    expect(rows.value().data).toHaveLength(1)
+    expect(page.value().data?.tickets).toHaveLength(1)
+  })
+
   it('paints the saved record into a mounted detail page and resolves a toggle with it', async () => {
     const tickets = resource()
     const page = mount(() => useQuery(tickets.detail('agent-1', 't1')))

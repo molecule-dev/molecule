@@ -60,6 +60,17 @@ export interface QueryResource<T, Create = Partial<T>, Update = Partial<T>> {
    */
   list(viewer: string, params?: Record<string, unknown>): QueryOptions<T[]>
   /**
+   * Options for a collection's whole page (rows plus totals), or a filtered collection path.
+   * Reads share this resource's mutation refresh and viewer isolation. `readPage` reads the
+   * canonical page response for `path`; row-only `list` reads keep a separate cache entry.
+   */
+  listPage<Page>(
+    viewer: string,
+    params: Record<string, unknown>,
+    readPage: (response: ResourceResponse) => Page,
+    path?: string,
+  ): QueryOptions<Page>
+  /**
    * `useQuery` options for one record, or null while `id` is not known yet (`useQuery(null)`
    * observes nothing). A missing record resolves to null, not to an error.
    */
@@ -111,7 +122,15 @@ export function createQueryResource<T, Create = Partial<T>, Update = Partial<T>>
   const detailKey = (viewer: string, id: string): QueryKey => [config.name, viewer, 'detail', id]
   // The lists handed out most recently, newest last: the ones a write fetches again. A list
   // nobody reads any more costs one request and is then dropped by the next ones.
-  const recent = new Map<string, { viewer: string; options: QueryOptions<T[]> }>()
+  const recent = new Map<string, { viewer: string; options: QueryOptions<unknown> }>()
+
+  const track = <Page>(viewer: string, options: QueryOptions<Page>): QueryOptions<Page> => {
+    const hash = hashQueryKey(options.key)
+    recent.delete(hash)
+    recent.set(hash, { viewer, options })
+    for (const stale of [...recent.keys()].slice(0, -REFRESHED_LISTS)) recent.delete(stale)
+    return options
+  }
 
   const list = (viewer: string, params: Record<string, unknown> = {}): QueryOptions<T[]> => {
     const options: QueryOptions<T[]> = {
@@ -120,11 +139,7 @@ export function createQueryResource<T, Create = Partial<T>, Update = Partial<T>>
       keepPreviousData: true,
       fetch: async (signal) => readList(await config.http().get(base, { signal, params })),
     }
-    const hash = hashQueryKey(options.key)
-    recent.delete(hash)
-    recent.set(hash, { viewer, options })
-    for (const stale of [...recent.keys()].slice(0, -REFRESHED_LISTS)) recent.delete(stale)
-    return options
+    return track(viewer, options)
   }
 
   const refresh = async (viewer: string): Promise<void> => {
@@ -133,12 +148,20 @@ export function createQueryResource<T, Create = Partial<T>, Update = Partial<T>>
     await Promise.all(
       [...recent.values()]
         .filter((entry) => entry.viewer === viewer)
-        .map((entry) =>
-          client.fetch(entry.options).catch((_error) => {
-            // The mounted `useQuery` of that list presents its own failure as `status: 'error'`;
-            // the write that asked for this refresh succeeded and must not reject over it.
-          }),
-        ),
+        .map(async (entry) => {
+          // fetch() deduplicates an existing request. It may have read before this write,
+          // so joining it alone cannot refresh the list after the mutation.
+          const pending = client.getState(entry.options.key).isFetching
+          const fetch = (): Promise<unknown> =>
+            client.fetch(entry.options).catch((_error) => {
+              // The mounted query presents its own failure; the mutation already succeeded.
+            })
+          await fetch()
+          if (pending) {
+            client.invalidate(entry.options.key)
+            await fetch()
+          }
+        }),
     )
   }
 
@@ -154,6 +177,13 @@ export function createQueryResource<T, Create = Partial<T>, Update = Partial<T>>
 
   return {
     list,
+    listPage: (viewer, params, readPage, path = base) =>
+      track(viewer, {
+        key: [config.name, viewer, 'list', 'page', path, params],
+        principal: viewer,
+        keepPreviousData: true,
+        fetch: async (signal) => readPage(await config.http().get(path, { signal, params })),
+      }),
     detail: (viewer, id) =>
       id == null || id === ''
         ? null
