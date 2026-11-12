@@ -1116,15 +1116,10 @@ const cmpVersion = (a: number[], b: number[]): number => {
 const INTENTIONAL_FAMILY_OVERLAPS: { older: string; newer: string; why: string }[] = [
   {
     older: 'gemini-3.1-pro-preview',
-    newer: 'gemini-3.8-flash',
-    why: "Google's only pro-tier id — no GA 3.x Pro exists; 3.8 is the flash tier.",
-  },
-  {
-    older: 'gemini-3.8-flash',
-    newer: 'gemini-4-argon',
+    newer: 'gemini-4-hydrogen',
     why:
-      'Flash is the fast/agentic tier ($1.50/$7.50 list) Google still recommends; ' +
-      'Gemini 4 ships no flash id — argon is the flagship-reasoning tier ($4/$20).',
+      "Google's only pro-tier id ($2/$12); hydrogen is the flash tier at $1.50/$7.50, " +
+      'not a pro successor — hiding pro would leave no mid-price Google option.',
   },
   {
     older: 'gemini-3.1-pro-preview',
@@ -1291,9 +1286,10 @@ describe('supersededBy', () => {
       'gpt-5.5': 'gpt-6.1-sol',
       'gpt-5.4': 'gpt-6.1-sol',
       'gpt-5.4-mini': 'gpt-6-luna',
-      'gemini-3.5-flash': 'gemini-3.8-flash',
-      'gemini-3.6-flash': 'gemini-3.8-flash',
-      'gemini-3.7-flash': 'gemini-3.8-flash',
+      'gemini-3.5-flash': 'gemini-4-hydrogen',
+      'gemini-3.6-flash': 'gemini-4-hydrogen',
+      'gemini-3.7-flash': 'gemini-4-hydrogen',
+      'gemini-3.8-flash': 'gemini-4-hydrogen',
       'grok-4.6': 'grok-4.7',
       'grok-4.5': 'grok-4.7',
       'grok-4.3': 'grok-4.7',

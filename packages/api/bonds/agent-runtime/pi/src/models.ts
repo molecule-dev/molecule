@@ -66,6 +66,7 @@ export const DEFAULT_MODEL_MAP: Readonly<Record<string, string>> = {
   'gpt-5.4-mini': 'openai/gpt-5.4-mini',
   // Released after pi 1.0.0's bundled catalog (see the claude-haiku-5-5 note);
   // a passthrough row — same google provider/host as the rows below.
+  'gemini-4-hydrogen': 'google/gemini-4-hydrogen',
   'gemini-4-argon': 'google/gemini-4-argon',
   'gemini-3.8-flash': 'google/gemini-3.8-flash',
   'gemini-3.7-flash': 'google/gemini-3.7-flash',

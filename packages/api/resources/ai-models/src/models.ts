@@ -283,6 +283,23 @@ const CHINA_PUBLIC_HOLIDAYS = [
  *   unpublished by Google — models.dev lead 2026-03. Does NOT supersede
  *   3.8-flash: different tier — flash is the $1.50/$7.50 fast/agentic line
  *   Google still recommends, and no Gemini 4 flash id exists yet.)
+ *   (verified 2026-11-12: gemini-4-hydrogen "Stable" — ADDED, the flash-tier
+ *   successor (the what's-new page: "Recommended upgrade from Gemini 3.8
+ *   Flash and earlier Gemini 3 and 2.5 models"), so gemini-3.8-flash is now
+ *   superseded and 3.7/3.6/3.5 repointed one hop. Verified on the provider's
+ *   own pages: /docs/pricing §Gemini 4 Hydrogen Standard $1.50/$7.50,
+ *   implicit cache read $0.075 (0.05× input, the Gemini 4 ratio; explicit
+ *   caching unsupported, no write premium), search grounding $14/1k after the
+ *   shared 5,000/month free allowance, NO launch-promo row (unlike the 3.x
+ *   flash launches — flat list rates, no KNOWN_DIVERGENCES needed);
+ *   /docs/models/gemini-4-hydrogen: 1M unified ctx / 65,536 synchronous out,
+ *   text+image+video+audio+PDF input, function calling + search grounding +
+ *   code execution + URL context, Stable id; /docs/thinking: thinking_level
+ *   low|medium|high|xhigh DEFAULT HIGH — hydrogen introduces xhigh, minimal
+ *   unsupported on Gemini 4. Knowledge cutoff unpublished by Google (model
+ *   page, what's-new page and model card all silent) — models.dev lead
+ *   2026-03, same policy as argon. gemini-4-carbon ($2/$10, 2026-11-10) also
+ *   exists but was NOT approved for the catalog.)
  * - xAI: https://docs.x.ai/developers/models + /developers/grok-4-7 +
  *   /developers/model-capabilities/text/reasoning (re-read 2026-09-30:
  *   grok-4.7 flagship: $2/$6, cached $0.50, 500K ctx, ≥200K prompts bill 2× —
@@ -1463,13 +1480,58 @@ export const MODELS: readonly ModelDefinition[] = [
   // Verified: https://ai.google.dev/gemini-api/docs/models
   //           https://ai.google.dev/gemini-api/docs/pricing
   //           https://ai.google.dev/gemini-api/docs/thinking
-  // Reasoning control is `thinking_level` (minimal|low|medium|high — cannot be
-  // fully off on 3.x; combining with legacy thinking_budget returns 400).
+  // Reasoning control is `thinking_level` (minimal|low|medium|high on 3.x —
+  // cannot be fully off; Gemini 4 adds xhigh and drops minimal. Combining with
+  // legacy thinking_budget returns 400).
   // NOTE: the previous catalog carried a fictional "gemini-3.1-pro" GA id — no
   // such model exists; the pro tier is (still) gemini-3.1-pro-preview. Safe to
   // replace outright: the google bond has never been implemented/wired, so no
   // historical usage can reference the old ids.
   // ---------------------------------------------------------------------------
+  {
+    id: 'gemini-4-hydrogen',
+    provider: 'google',
+    label: 'Gemini 4 Hydrogen',
+    description: 'Google fast agentic model — everyday coding & tool-using agents',
+    // Verified against /docs/models/gemini-4-hydrogen + /docs/pricing +
+    // /docs/thinking + /docs/whats-new-gemini-4-hydrogen (2026-11-12).
+    contextWindow: 1_048_576,
+    // "65,536 (default synchronous) / up to 1,048,576" via the long-decode
+    // feature Synthase never requests — the synchronous default is what a
+    // maxOutputTokens cap can rely on (same policy as gemini-4-argon).
+    maxOutputTokens: 65_536,
+    supportsThinking: true,
+    thinkingBudgetTokens: 10_000,
+    thinkingConfigurable: true,
+    // thinking_level low|medium|high|xhigh, DEFAULT HIGH — hydrogen is the
+    // model that introduces xhigh; minimal is not supported on Gemini 4
+    // (/docs/thinking, verified 2026-11-12).
+    supportedEffortLevels: ['low', 'medium', 'high', 'xhigh'],
+    defaultEffortLevel: 'high',
+    supportsVision: true,
+    supportsPromptCaching: true,
+    supportsTools: true,
+    webSearchToolType: 'google_search',
+    webSearchPricePer1k: 14,
+    codeExecutionToolType: 'code_execution',
+    webFetchToolType: 'url_context',
+    // "Stable" 2026-11-12 at $1.50/$7.50 — the flash-tier successor: Google's
+    // own what's-new page calls it the "Recommended upgrade from Gemini 3.8
+    // Flash and earlier Gemini 3 and 2.5 models". Implicit cache reads at
+    // $0.075 (0.05× input, the same Gemini 4 ratio as argon); explicit caching
+    // is UNSUPPORTED (implicit only); no write premium and no hourly storage
+    // fee. NO launch promo this time — the pricing page lists these as the
+    // flat rates (unlike the 3.x-flash launches), so no KNOWN_DIVERGENCES
+    // entry is needed.
+    inputPricePerMTok: 1.5,
+    outputPricePerMTok: 7.5,
+    cacheReadPricePerMTok: 0.075,
+    cacheWritePricePerMTok: 1.5,
+    // Published by neither Google's model page nor /docs/thinking — models.dev
+    // reports 2026-03 (lead, not authority), same carry-forward estimate policy
+    // as gemini-4-argon.
+    knowledgeCutoff: '2026-03-01',
+  },
   {
     id: 'gemini-4-argon',
     provider: 'google',
@@ -1509,10 +1571,11 @@ export const MODELS: readonly ModelDefinition[] = [
     // reports 2026-03 (lead, not authority), same carry-forward estimate policy
     // as the 3.7/3.8-flash entries.
     knowledgeCutoff: '2026-03-01',
-    // NOT superseding gemini-3.8-flash: argon is the flagship-REASONING tier
-    // ($4/$20 list, 2.7× flash) and Gemini 4 ships no flash id, so the flash
-    // tier stays the fast/cheap option Google itself still recommends — see
-    // INTENTIONAL_FAMILY_OVERLAPS in lookup.test.ts (same-tier rule).
+    // NOT superseding anything: argon is the flagship-REASONING tier ($4/$20
+    // list, 2.7× the flash card). The flash tier's successor is
+    // gemini-4-hydrogen — same version 4, different tier, no family conflict;
+    // hydrogen supersedes 3.8-flash. See INTENTIONAL_FAMILY_OVERLAPS in
+    // lookup.test.ts for the surviving pro-tier exception (same-tier rule).
   },
   {
     id: 'gemini-3.8-flash',
@@ -1551,6 +1614,12 @@ export const MODELS: readonly ModelDefinition[] = [
     // Published by neither Google's model page nor models.dev for this id —
     // carried from 3.7-flash (same generation) as a best-effort estimate.
     knowledgeCutoff: '2026-03-01',
+    // Superseded by gemini-4-hydrogen (2026-11-12) — the flash-tier successor
+    // at the same $1.50/$7.50 list price with four thinking levels; Google's
+    // own what's-new page names it the "Recommended upgrade from Gemini 3.8
+    // Flash". Still served upstream, so it stays priceable.
+    deprecatedAt: '2026-11-12',
+    supersededBy: 'gemini-4-hydrogen',
   },
   {
     id: 'gemini-3.7-flash',
@@ -1587,11 +1656,12 @@ export const MODELS: readonly ModelDefinition[] = [
     cacheWritePricePerMTok: 1.5,
     // Not on Google's docs — models.dev reports 2026-03 (lead, not authority).
     knowledgeCutoff: '2026-03-01',
-    // Superseded by gemini-3.8-flash (2026-09-02) — same flash tier, same list
-    // price; Google's own models page now calls 3.7 "previous-generation".
-    // Still served upstream, so it stays priceable.
+    // Superseded within the flash tier (first by 3.8-flash on 2026-09-02, now
+    // pointed one hop to gemini-4-hydrogen — supersededBy must target a
+    // SELECTABLE model, never a chain). Still served upstream, so it stays
+    // priceable.
     deprecatedAt: '2026-09-02',
-    supersededBy: 'gemini-3.8-flash',
+    supersededBy: 'gemini-4-hydrogen',
   },
   {
     id: 'gemini-3.6-flash',
@@ -1634,10 +1704,10 @@ export const MODELS: readonly ModelDefinition[] = [
     // Superseded by gemini-3.7-flash (2026-08-13) — same flash tier, same list
     // price; Google's own models page now calls 3.6 "previous-generation".
     // Still served upstream, so it stays priceable. Re-pointed to
-    // gemini-3.8-flash on 2026-09-02 when 3.7 was itself deprecated —
+    // gemini-4-hydrogen on 2026-11-12 when 3.8-flash was itself superseded —
     // supersededBy must target a SELECTABLE model, never a chain.
     deprecatedAt: '2026-08-13',
-    supersededBy: 'gemini-3.8-flash',
+    supersededBy: 'gemini-4-hydrogen',
   },
   {
     id: 'gemini-3.5-flash',
@@ -1669,11 +1739,11 @@ export const MODELS: readonly ModelDefinition[] = [
     cacheWritePricePerMTok: 1.5,
     knowledgeCutoff: '2025-01-01',
     // Superseded within the flash tier (first by 3.6-flash on 2026-07-21, now
-    // pointed one hop to gemini-3.8-flash — supersededBy must target a
+    // pointed one hop to gemini-4-hydrogen — supersededBy must target a
     // SELECTABLE model, never a chain). Still served upstream, so it stays
     // priceable.
     deprecatedAt: '2026-07-21',
-    supersededBy: 'gemini-3.8-flash',
+    supersededBy: 'gemini-4-hydrogen',
   },
   {
     id: 'gemini-3.1-pro-preview',

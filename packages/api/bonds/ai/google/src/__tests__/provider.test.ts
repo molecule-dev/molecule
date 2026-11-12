@@ -325,7 +325,7 @@ describe('GoogleAIProvider — streaming + request mapping', () => {
     mockFetch.mockResolvedValue(emptyStream())
     await collectEvents(provider.chat(minimalParams))
     expect(urlOf()).toBe(
-      'https://test.api/models/gemini-3.8-flash:streamGenerateContent?alt=sse&key=test-key',
+      'https://test.api/models/gemini-4-hydrogen:streamGenerateContent?alt=sse&key=test-key',
     )
   })
 
@@ -336,7 +336,7 @@ describe('GoogleAIProvider — streaming + request mapping', () => {
     mockFetch.mockResolvedValue(emptyStream())
     await collectEvents(keyless.chat(minimalParams))
     expect(urlOf()).toBe(
-      'https://gemini.local-proxy.test/models/gemini-3.8-flash:streamGenerateContent?alt=sse',
+      'https://gemini.local-proxy.test/models/gemini-4-hydrogen:streamGenerateContent?alt=sse',
     )
   })
 
@@ -675,7 +675,7 @@ describe('GoogleAIProvider — streaming + request mapping', () => {
 
     const events = await collectEvents(provider.chat({ ...minimalParams, stream: false }))
 
-    expect(urlOf()).toBe('https://test.api/models/gemini-3.8-flash:generateContent?key=test-key')
+    expect(urlOf()).toBe('https://test.api/models/gemini-4-hydrogen:generateContent?key=test-key')
     expect(events.find((e) => e.type === 'text')).toMatchObject({ content: 'Done' })
     expect(events.find((e) => e.type === 'tool_use')).toMatchObject({
       name: 'f',
@@ -695,7 +695,7 @@ describe('GoogleAIProvider — streaming + request mapping', () => {
       const p = createProvider({ apiKey: 'test-key' })
       await collectEvents(p.chat(minimalParams))
       expect(urlOf()).toBe(
-        'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:streamGenerateContent?alt=sse&key=test-key',
+        'https://generativelanguage.googleapis.com/v1beta/models/gemini-4-hydrogen:streamGenerateContent?alt=sse&key=test-key',
       )
     } finally {
       if (prev === undefined) delete process.env.GOOGLE_AI_BASE_URL

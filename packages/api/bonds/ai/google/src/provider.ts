@@ -213,7 +213,7 @@ class GoogleAIProvider implements AIProvider {
 
   constructor(config: GoogleConfig = {}) {
     this.apiKey = config.apiKey ?? process.env.GOOGLE_AI_API_KEY ?? ''
-    this.defaultModel = config.model ?? process.env.GOOGLE_AI_MODEL ?? 'gemini-3.8-flash'
+    this.defaultModel = config.model ?? process.env.GOOGLE_AI_MODEL ?? 'gemini-4-hydrogen'
     this.onRateLimit = config.onRateLimit
     this.baseUrl = (
       config.baseUrl ??
