@@ -131,8 +131,6 @@ if [ -n "$JSON_MD" ]; then
   echo "$JSON_MD" | xargs npx --no-install prettier --check
 fi
 
-npm run check:lockfile
-
 # Internal @molecule version coherence: refuse only findings THIS commit adds
 # to its parent. The ordinary workspace `npm run verify:molecule-versions` still
 # judges the whole tree; a release's version-to-pins window or a peer's existing
@@ -140,33 +138,39 @@ npm run check:lockfile
 if [ -f ../scripts/verify-molecule-versions.mjs ]; then
   ( cd .. && node scripts/verify-molecule-versions.mjs --quiet --staged ) || exit 1
 fi
-npm run check:peer-deps
 
-# Every publishable package must declare the CORRECT repository. With provenance
-# on, npm signs a Sigstore bundle naming the source repo and the registry rejects
-# the publish with E422 unless package.json agrees. 548 packages declared none at
-# all, and ten declared a wrong one — including a stranger's GitHub repo — which
-# nothing noticed for four months because nothing read the field.
-npm run check:package-repository
-# …and the rest of what a publish needs: Apache-2.0 license field, a LICENSE
-# copy in the package dir, the molecule.dev homepage, README.md in files. A
-# generated package shipped without any of them and the registry was the first
-# thing to notice (2026-09-28).
-npm run check:package-metadata
-# i18n parity (cross-cutting-i18n) — full-tree scan, but fast (~0.1s) and it
-# only fails on NEW missing keys vs the baseline, so a string shipped as an
-# inline defaultValue without its bond key is caught here at commit time, not
-# weeks later. (Whole-tree, not staged-only: a key added in package A must be
-# checked against its owning locale bond in package B.)
-npm run check:i18n-parity
-
-# Interpolation placeholders — a {{name}} in a translation is a VARIABLE, not
-# prose. An upstream machine-translation step translated the names themselves
-# ({{title}} -> {{titel}}) and leaked its own <x> markup, so 5,816 values across
-# 40 bonds rendered the raw token instead of the value — mostly in aria-labels,
-# i.e. squarely on screen-reader users. Key-presence tests cannot see it: the
-# value is a non-empty string either way. Whole-tree and ~0.3s.
-npm run check:locale-placeholders
+# The whole-tree checks judge the tree THIS commit carries: run-on-index.mjs exports
+# the index (a private GIT_INDEX_FILE and a pathspec commit's temporary index
+# included) and runs each check from the export. The worktree holds other sessions'
+# untracked packages and unstaged edits; on 2026-11-13 two untracked bond packages
+# with no lock entry and no LICENSE refused every commit in the repository. CI runs
+# the same scripts (`npm run check:*`) on its clean checkout, which is this tree.
+#
+# - check-lockfile: the lock is self-contained, in range and in sync (`npm ci`).
+# - check-peer-deps: every external peer is also a devDependency (CI installs alone).
+# - check-package-repository: the CORRECT repository on every publishable package.
+#   With provenance on, npm signs a Sigstore bundle naming the source repo and the
+#   registry rejects the publish with E422 unless package.json agrees. 548 packages
+#   declared none at all, and ten declared a wrong one — including a stranger's
+#   GitHub repo — which nothing noticed for four months because nothing read it.
+# - check-package-metadata: the rest of what a publish needs — Apache-2.0 license
+#   field, a LICENSE copy in the package dir, the molecule.dev homepage, README.md in
+#   files. A generated package shipped without any of them and the registry was the
+#   first thing to notice (2026-09-28).
+# - check-i18n-parity: only NEW missing keys vs the baseline, so a string shipped as
+#   an inline defaultValue without its bond key is caught at commit time. Whole-tree,
+#   not staged-only: a key added in package A is checked against its locale bond B.
+# - check-locale-placeholders: a {{name}} in a translation is a VARIABLE, not prose.
+#   An upstream machine-translation step translated the names ({{title}} ->
+#   {{titel}}) and leaked its own <x> markup, so 5,816 values across 40 bonds
+#   rendered the raw token — mostly aria-labels, squarely on screen-reader users.
+node scripts/run-on-index.mjs \
+  "scripts/check-lockfile.js" \
+  "scripts/check-peer-deps.js" \
+  "scripts/check-package-repository.js" \
+  "scripts/check-package-metadata.mjs" \
+  "scripts/check-i18n-parity.js --check" \
+  "scripts/check-locale-placeholders.js"
 
 # Registry export-drift gate (same spirit as i18n-parity, but cross-REPO). A
 # package's public exports are the source of truth, yet they are recorded in

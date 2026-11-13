@@ -169,10 +169,16 @@ if (missing > 0) {
 // exactly the way the check above did.
 const { spawnSync } = await import('node:child_process')
 
-const dryRun = spawnSync('npm', ['ci', '--dry-run', '--no-audit', '--no-fund'], {
-  encoding: 'utf8',
-  stdio: ['ignore', 'pipe', 'pipe'],
-})
+// --ignore-scripts: the dry run still runs the root `prepare` script (husky), which has
+// nothing to do with lock sync and is absent from a tree without dev installs.
+const dryRun = spawnSync(
+  'npm',
+  ['ci', '--dry-run', '--ignore-scripts', '--no-audit', '--no-fund'],
+  {
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  },
+)
 
 if (dryRun.error) {
   // "I could not look" is not "I looked and it is fine".
