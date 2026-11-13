@@ -41,7 +41,7 @@
     "directory": "packages/app/features/vite-config-default"
   },
   "devDependencies": {
-    "@molecule/app-version": "1.1.1",
+    "@molecule/app-version": "1.1.2",
     "@tailwindcss/vite": "4.3.3",
     "@types/node": "26.6.5",
     "@vitejs/plugin-react": "6.1.2",

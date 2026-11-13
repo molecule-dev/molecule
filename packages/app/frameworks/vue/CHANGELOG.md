@@ -1,5 +1,15 @@
 # @molecule/app-vue
 
+## 3.4.0
+
+### Minor Changes
+
+- Every hook, composable, store and service of `@molecule/app-react` now has a counterpart with the same name, options, results and errors, so an app can swap its framework binding without changing what it calls.
+
+### Patch Changes
+
+- Every error and label these packages show has one English text that matches its locale bond and is translated in every supported language; values are passed as {{placeholders}} instead of being written into the English.
+
 ## 3.3.0
 
 ### Minor Changes

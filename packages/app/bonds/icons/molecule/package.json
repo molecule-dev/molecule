@@ -30,7 +30,7 @@
     "@molecule/app-icons": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/app-icons": "1.0.3",
+    "@molecule/app-icons": "1.0.4",
     "@primer/octicons": "19.42.0",
     "@types/node": "26.6.5",
     "typescript": "6.0.3",

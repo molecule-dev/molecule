@@ -1,5 +1,11 @@
 # @molecule/app-locales-common
 
+## 1.0.7
+
+### Patch Changes
+
+- Texts that did not match what the IDE and the auth modal show are corrected and retranslated.
+
 ## 1.0.6
 
 ### Patch Changes

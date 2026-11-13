@@ -1,5 +1,13 @@
 # @molecule/api-ai-tools
 
+## 1.18.7
+
+### Patch Changes
+
+- Read the commands inside `if`, loop and `case` bodies and around arithmetic commands as the shell runs them, and run a background command in bash, as a foreground one is; `BACKGROUND_SCRIPT_SHELL` names that shell for a host's pre-launch check.
+- Background Playwright feedback re-runs a file's recorded known failures first after a source write (only those tests), so a later known-failure checkpoint reuses their pass instead of running them again.
+- Background Playwright feedback waits longer after each consecutive run that yields to the sandbox's own foreground work (doubling from `yieldRetryMs`, default 1 s, up to 16 s); a finished run resets it and a source write still retries at once.
+
 ## 1.18.6
 
 ### Patch Changes

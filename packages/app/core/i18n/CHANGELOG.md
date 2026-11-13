@@ -1,5 +1,11 @@
 # @molecule/app-i18n
 
+## 1.2.0
+
+### Minor Changes
+
+- A plural key's default can carry each English form (`defaultValue_one` beside `defaultValue`, as in i18next), and an `I18nError`'s message fills its placeholders from its values.
+
 ## 1.1.2
 
 ### Patch Changes

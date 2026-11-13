@@ -1,5 +1,11 @@
 # @molecule/app-ui-react
 
+## 4.1.2
+
+### Patch Changes
+
+- Components read translations through `useTranslation()`, so their text changes language the moment the locale switches instead of on their next unrelated re-render.
+
 ## 4.1.1
 
 ### Patch Changes

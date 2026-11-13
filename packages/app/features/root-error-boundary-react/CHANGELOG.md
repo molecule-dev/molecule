@@ -1,5 +1,11 @@
 # @molecule/app-root-error-boundary-react
 
+## 1.0.4
+
+### Patch Changes
+
+- Components read translations through `useTranslation()`, so their text changes language the moment the locale switches instead of on their next unrelated re-render.
+
 ## 1.0.1
 
 ### Patch Changes

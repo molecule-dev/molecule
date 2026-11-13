@@ -1,5 +1,16 @@
 # @molecule/app-ui-svelte
 
+## 1.1.0
+
+### Minor Changes
+
+- `@molecule/app-ui-svelte` ships real Svelte components with the same names, props, markup and behavior as `@molecule/app-ui-react`, each with generated type declarations; the page shell's sidebar toggle label is translated.
+
+### Patch Changes
+
+- UI components re-render their translated text on a locale switch, as `@molecule/app-ui-react` does; `@molecule/app-angular`'s `useTranslation().t` and `useT()` make the view that calls them follow a locale switch.
+- The Vue, Solid and Angular UI packages export every `@molecule/app-ui-react` component with the same names, props, markup and behavior, and each UI package declares its framework binding, and every package its types reference, as a peer.
+
 ## 1.0.5
 
 ### Patch Changes

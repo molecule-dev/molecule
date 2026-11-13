@@ -1,5 +1,15 @@
 # @molecule/app-react
 
+## 4.4.0
+
+### Minor Changes
+
+- `useTranslation()`, `useT()`, `useLocale()` and `useDirection()` read the bonded i18n provider when no `I18nProvider` is mounted, instead of throwing.
+
+### Patch Changes
+
+- Every error and label these packages show has one English text that matches its locale bond and is translated in every supported language; values are passed as {{placeholders}} instead of being written into the English.
+
 ## 4.3.1
 
 ### Patch Changes

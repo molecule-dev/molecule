@@ -1,5 +1,11 @@
 # @molecule/app-locales-vue
 
+## 1.0.5
+
+### Patch Changes
+
+- Every error the framework bindings raise is translated in all supported languages; a key no binding uses any more is removed.
+
 ## 1.0.4
 
 ### Patch Changes

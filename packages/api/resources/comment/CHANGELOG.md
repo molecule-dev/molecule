@@ -1,5 +1,11 @@
 # @molecule/api-resource-comment
 
+## 1.2.6
+
+### Patch Changes
+
+- Every error and label these packages show has one English text that matches its locale bond and is translated in every supported language; values are passed as {{placeholders}} instead of being written into the English.
+
 ## 1.2.5
 
 ### Patch Changes

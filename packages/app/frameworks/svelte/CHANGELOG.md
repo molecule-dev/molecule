@@ -1,5 +1,15 @@
 # @molecule/app-svelte
 
+## 3.4.0
+
+### Minor Changes
+
+- Every hook, composable, store and service of `@molecule/app-react` now has a counterpart with the same name, options, results and errors, so an app can swap its framework binding without changing what it calls.
+
+### Patch Changes
+
+- `useTranslation().t` and `useT()` called in markup now re-render on a locale switch, and `createI18nStores().t` passes the `defaultValue` option through to the provider.
+
 ## 3.3.0
 
 ### Minor Changes

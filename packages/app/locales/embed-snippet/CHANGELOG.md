@@ -1,5 +1,11 @@
 # @molecule/app-locales-embed-snippet
 
+## 1.0.4
+
+### Patch Changes
+
+- Every error and label these packages show has one English text that matches its locale bond and is translated in every supported language; values are passed as {{placeholders}} instead of being written into the English.
+
 ## 1.0.3
 
 ### Patch Changes

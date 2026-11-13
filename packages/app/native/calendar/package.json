@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-device-calendar",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Calendar access interface for molecule.dev",
   "type": "module",
   "main": "dist/index.js",

@@ -1,5 +1,11 @@
 # @molecule/app-cookie-banner-react
 
+## 4.0.1
+
+### Patch Changes
+
+- Every error and label these packages show has one English text that matches its locale bond and is translated in every supported language; values are passed as {{placeholders}} instead of being written into the English.
+
 ## 4.0.0
 
 ### Patch Changes

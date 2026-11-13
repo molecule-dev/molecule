@@ -1,5 +1,11 @@
 # @molecule/app-locales-ui
 
+## 1.1.2
+
+### Patch Changes
+
+- `@molecule/app-ui-svelte` ships real Svelte components with the same names, props, markup and behavior as `@molecule/app-ui-react`, each with generated type declarations; the page shell's sidebar toggle label is translated.
+
 ## 1.1.1
 
 ### Patch Changes

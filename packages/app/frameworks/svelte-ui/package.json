@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-ui-svelte",
-  "version": "1.0.5",
+  "version": "1.1.0",
   "description": "Svelte UI components for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
@@ -47,12 +47,12 @@
     "svelte": "^4.0.0 || ^5.0.0"
   },
   "devDependencies": {
-    "@molecule/app-auth": "3.4.1",
+    "@molecule/app-auth": "3.4.2",
     "@molecule/app-framework-conformance": "0.0.0",
-    "@molecule/app-i18n": "1.1.2",
-    "@molecule/app-icons": "1.0.3",
-    "@molecule/app-routing": "1.0.5",
-    "@molecule/app-svelte": "3.3.0",
+    "@molecule/app-i18n": "1.2.0",
+    "@molecule/app-icons": "1.0.4",
+    "@molecule/app-routing": "1.1.0",
+    "@molecule/app-svelte": "3.4.0",
     "@sveltejs/package": "3.0.2",
     "@sveltejs/vite-plugin-svelte": "7.1.2",
     "@types/node": "26.6.5",

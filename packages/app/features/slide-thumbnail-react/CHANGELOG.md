@@ -1,5 +1,11 @@
 # @molecule/app-slide-thumbnail-react
 
+## 4.0.1
+
+### Patch Changes
+
+- Components read translations through `useTranslation()`, so their text changes language the moment the locale switches instead of on their next unrelated re-render.
+
 ## 4.0.0
 
 ### Patch Changes

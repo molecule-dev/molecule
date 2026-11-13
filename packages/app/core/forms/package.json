@@ -32,7 +32,7 @@
   },
   "devDependencies": {
     "@molecule/app-bond": "1.0.5",
-    "@molecule/app-i18n": "1.1.2",
+    "@molecule/app-i18n": "1.2.0",
     "@types/node": "26.6.5",
     "typescript": "6.0.3",
     "vitest": "4.1.12"

@@ -1,5 +1,16 @@
 # @molecule/app-ui-angular
 
+## 1.1.0
+
+### Minor Changes
+
+- The Vue, Solid and Angular UI packages export every `@molecule/app-ui-react` component with the same names, props, markup and behavior, and each UI package declares its framework binding, and every package its types reference, as a peer.
+
+### Patch Changes
+
+- Table keeps each row's DOM when rows keyed by `rowKey` are reordered, and uncontrolled Tabs keep their active tab when the tabs are reordered.
+- UI components re-render their translated text on a locale switch, as `@molecule/app-ui-react` does; `@molecule/app-angular`'s `useTranslation().t` and `useT()` make the view that calls them follow a locale switch.
+
 ## 1.0.6
 
 ### Patch Changes

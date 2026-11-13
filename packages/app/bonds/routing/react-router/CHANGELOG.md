@@ -1,5 +1,11 @@
 # @molecule/app-routing-react-router
 
+## 1.2.6
+
+### Patch Changes
+
+- Components read translations through `useTranslation()`, so their text changes language the moment the locale switches instead of on their next unrelated re-render.
+
 ## 1.2.5
 
 ### Patch Changes

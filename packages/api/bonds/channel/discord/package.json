@@ -38,7 +38,7 @@
     }
   },
   "devDependencies": {
-    "@molecule/api-channel": "1.0.3",
+    "@molecule/api-channel": "1.0.4",
     "@types/node": "26.6.5",
     "discord.js": "14.27.0",
     "typescript": "6.0.3",

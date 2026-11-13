@@ -48,7 +48,7 @@
   },
   "devDependencies": {
     "@molecule/api-config": "1.0.4",
-    "@molecule/api-config-env": "1.0.3",
+    "@molecule/api-config-env": "1.0.4",
     "@molecule/api-process-lifecycle": "1.2.1",
     "@types/express": "5.0.6",
     "@types/node": "26.6.5",

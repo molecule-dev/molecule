@@ -1,5 +1,15 @@
 # @molecule/app-routing
 
+## 1.1.0
+
+### Minor Changes
+
+- Add `createHistoryRouter`, which builds a full `Router` on any native router's history. The browser and memory routers are built on it, so they now run navigation guards, honor `preserveQuery` and `preserveHash`, and notify each subscriber once per navigation.
+
+### Patch Changes
+
+- Every error and label these packages show has one English text that matches its locale bond and is translated in every supported language; values are passed as {{placeholders}} instead of being written into the English.
+
 ## 1.0.5
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/api-bonds-default-express
 
+## 1.1.5
+
+### Patch Changes
+
+- Every error and label these packages show has one English text that matches its locale bond and is translated in every supported language; values are passed as {{placeholders}} instead of being written into the English.
+
 ## 1.1.4
 
 ### Patch Changes

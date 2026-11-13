@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-react",
-  "version": "4.3.1",
+  "version": "4.4.0",
   "description": "React framework bindings for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
@@ -60,7 +60,7 @@
     "@molecule/app-ai-chat": "1.8.0",
     "@molecule/app-ai-models": "1.4.4",
     "@molecule/app-bonds-default-react": "3.0.3",
-    "@molecule/app-i18n": "1.1.2",
+    "@molecule/app-i18n": "1.2.0",
     "@testing-library/dom": "10.4.2",
     "@testing-library/react": "16.3.3",
     "@types/node": "26.6.5",

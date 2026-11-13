@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-channel",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Outbound messaging channel core interface (Slack/Discord/WhatsApp/Telegram/Messenger)",
   "type": "module",
   "main": "dist/index.js",
