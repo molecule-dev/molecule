@@ -1,5 +1,11 @@
 # @molecule/api-paracrine-file
 
+## 1.3.1
+
+### Patch Changes
+
+- Messages sent in the same millisecond now keep their send order.
+
 ## 1.3.0
 
 ### Minor Changes

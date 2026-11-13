@@ -1,5 +1,15 @@
 # @molecule/app-ui-react
 
+## 4.1.0
+
+### Minor Changes
+
+- Keep rejected submissions in form state and render accessible server error lists by default in React forms.
+
+### Patch Changes
+
+- ConfirmButton no longer leaks an unhandled rejection when `onConfirm` rejects, and PromptDialog accepts the next submit when its parent keeps it open after a successful one.
+
 ## 4.0.1
 
 ### Patch Changes

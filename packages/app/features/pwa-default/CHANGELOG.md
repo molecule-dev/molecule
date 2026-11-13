@@ -1,5 +1,11 @@
 # @molecule/app-pwa-default
 
+## 1.1.2
+
+### Patch Changes
+
+- The update banner marks itself `aria-busy` while updating instead of adding a CSS class.
+
 ## 1.1.1
 
 ### Patch Changes

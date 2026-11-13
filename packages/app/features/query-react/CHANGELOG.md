@@ -1,5 +1,11 @@
 # @molecule/app-query-react
 
+## 1.5.0
+
+### Minor Changes
+
+- Remove acknowledged deletions from cached lists immediately and preserve them across stale reads, with typed adapters for page envelopes.
+
 ## 1.4.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # @molecule/app-forms
 
+## 2.3.0
+
+### Minor Changes
+
+- Keep rejected submissions in form state and render accessible server error lists by default in React forms.
+
 ## 2.2.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # @molecule/app-maps-leaflet
 
+## 1.0.4
+
+### Patch Changes
+
+- The default marker pin no longer carries a CSS class of its own.
+
 ## 1.0.1
 
 ### Patch Changes

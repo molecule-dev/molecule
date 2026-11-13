@@ -1,5 +1,11 @@
 # @molecule/app-react-native
 
+## 4.0.1
+
+### Patch Changes
+
+- Export the `SafeAreaInsets` type returned by `useSafeArea`.
+
 ## 4.0.0
 
 ### Patch Changes

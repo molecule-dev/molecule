@@ -56,7 +56,7 @@
     "@molecule/app-icons-molecule": "1.0.3",
     "@molecule/app-keyboard-shortcuts": "1.0.3",
     "@molecule/app-keyboard-shortcuts-hotkeys": "1.0.3",
-    "@molecule/app-maps-leaflet": "1.0.3",
+    "@molecule/app-maps-leaflet": "1.0.4",
     "@molecule/app-realtime": "1.0.4",
     "@molecule/app-realtime-socketio": "1.1.2",
     "@molecule/app-routing": "1.0.5",

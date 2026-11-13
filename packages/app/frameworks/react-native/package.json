@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-react-native",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "React Native framework bindings for molecule.dev",
   "homepage": "https://www.molecule.dev/packages/app-react-native",
   "type": "module",

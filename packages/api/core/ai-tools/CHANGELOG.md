@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.18.0
+
+### Minor Changes
+
+- Native Playwright feedback can record a host's own local passes, so a checkpoint does not re-run a spec that just passed on the same source.
+
 ## 1.17.19
 
 ### Patch Changes
