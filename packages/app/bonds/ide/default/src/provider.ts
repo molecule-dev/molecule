@@ -72,6 +72,15 @@ export class DefaultWorkspaceProvider implements WorkspaceProvider {
   }
 
   /**
+   * Returns the full workspace state. Every change replaces the object, so it
+   * stays the same object until something changes.
+   * @returns The current workspace state.
+   */
+  getState(): WorkspaceState {
+    return this.state
+  }
+
+  /**
    * Replaces the workspace layout, persists it, and notifies subscribers.
    * @param layout - The new workspace layout.
    */

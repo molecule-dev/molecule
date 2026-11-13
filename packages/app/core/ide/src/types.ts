@@ -68,6 +68,14 @@ export interface WorkspaceProvider {
   /** Returns the current workspace layout. */
   getLayout(): WorkspaceLayout
 
+  /**
+   * Returns the full current workspace state (layout, active panel, collapsed
+   * panels, fullscreen), so a framework binding that mounts after earlier
+   * changes reads them without waiting for the next `subscribe` callback.
+   * Return the same object until the state changes.
+   */
+  getState?(): WorkspaceState
+
   /** Sets the entire workspace layout. */
   setLayout(layout: WorkspaceLayout): void
 

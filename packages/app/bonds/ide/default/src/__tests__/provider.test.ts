@@ -181,6 +181,31 @@ describe('@molecule/app-ide-default', () => {
     })
   })
 
+  describe('getState', () => {
+    it('reads changes made before anyone subscribed', () => {
+      const provider = new DefaultWorkspaceProvider()
+      provider.setActivePanel('editor')
+      provider.togglePanel('chat')
+
+      const state = provider.getState()
+      expect(state.activePanel).toBe('editor')
+      expect([...state.collapsedPanels]).toEqual(['chat'])
+      expect(state.layout).toBe(provider.getLayout())
+    })
+
+    it('returns the same object until the state changes, and what subscribers got after', () => {
+      const provider = new DefaultWorkspaceProvider()
+      const callback = vi.fn()
+      provider.subscribe(callback)
+      const before = provider.getState()
+      expect(provider.getState()).toBe(before)
+
+      provider.setActivePanel('preview')
+      expect(provider.getState()).not.toBe(before)
+      expect(provider.getState()).toBe(callback.mock.calls[0][0])
+    })
+  })
+
   describe('subscribe', () => {
     it('should return an unsubscribe function', () => {
       const provider = new DefaultWorkspaceProvider()
