@@ -30,11 +30,13 @@ const OSM_ATTRIBUTION = '&copy; OpenStreetMap contributors'
 /**
  * Default marker icon as an inline-SVG `divIcon`. Leaflet's PNG default icons
  * 404 under most bundlers (they resolve relative to the CSS), so a self-contained
- * SVG pin makes markers render out-of-the-box with zero asset wiring.
+ * SVG pin makes markers render out-of-the-box with zero asset wiring. The empty
+ * `className` replaces Leaflet's default `leaflet-div-icon` (a white box behind the
+ * pin) without adding a class of our own.
  */
 const defaultIcon = (color = '#2563eb'): L.DivIcon =>
   L.divIcon({
-    className: 'mol-map-marker',
+    className: '',
     html:
       `<svg width="26" height="38" viewBox="0 0 26 38" xmlns="http://www.w3.org/2000/svg">` +
       `<path d="M13 0C5.8 0 0 5.8 0 13c0 9.2 13 25 13 25s13-15.8 13-25C26 5.8 20.2 0 13 0z" fill="${color}"/>` +

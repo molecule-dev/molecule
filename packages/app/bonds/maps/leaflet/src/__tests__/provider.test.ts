@@ -97,6 +97,14 @@ describe('@molecule/app-maps-leaflet', () => {
     expect(map.getMarkers()).toEqual([])
   })
 
+  it('draws the default pin with no class of its own', () => {
+    const map = provider.createMap(cfg())
+    map.addMarker({ id: 'a', position: { lat: 1, lng: 2 } })
+    // An empty className keeps Leaflet's boxed `leaflet-div-icon` default off without
+    // adding a CSS class name of our own (styling classes belong to the ClassMap bonds).
+    expect(hoisted.L.divIcon).toHaveBeenCalledWith(expect.objectContaining({ className: '' }))
+  })
+
   it('reads the viewport from the live map', () => {
     const map = provider.createMap(cfg())
     expect(map.getViewport()).toEqual({ center: { lat: 1, lng: 2 }, zoom: 10 })
