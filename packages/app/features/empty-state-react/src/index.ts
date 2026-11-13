@@ -11,6 +11,13 @@
  * accent chrome (dashed borders, gradient CTAs, tinted backgrounds) on
  * top of the structural layout.
  *
+ * A selected list view passes `view={emptyByView[selection]}`. Each entry pairs
+ * its translated `title`, optional `description`, and required `action` element.
+ * Keep those entries beside the view definitions so a personal or filtered list
+ * does not reuse the whole collection's empty message. The action can be a router
+ * link to another view or a button that clears filters. General empty states keep
+ * the existing `title` and optional `action` props.
+ *
  * @example
  * ```tsx
  * import { EmptyState, CtaCard } from '@molecule/app-empty-state-react'

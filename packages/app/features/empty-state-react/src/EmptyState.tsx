@@ -1,24 +1,44 @@
-import type { JSX, ReactNode } from 'react'
+import type { JSX, ReactElement, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
 
 /** Props for {@link EmptyState}. */
-export interface EmptyStateProps {
+export type EmptyStateProps = {
   /** Visual — typically an `<Icon>` or `<img>`. Rendered in a circular badge above the heading. */
   icon?: ReactNode
-  /** Primary heading text (usually `t('...')`). */
-  title: ReactNode
-  /** Supporting description shown below the heading. */
-  description?: ReactNode
-  /** Action area — typically a `<Button>` or `<Link>`. */
-  action?: ReactNode
   /** `data-mol-id` for AI-agent selectors. */
   dataMolId?: string
   /** Override outer wrapper classes (for per-app dashed-border, background, padding, etc.). */
   className?: string
   /** Override the icon-badge wrapper classes. */
   iconWrapperClassName?: string
-}
+} & (
+  | {
+      /** Primary heading for a general, unselected collection. */
+      title: ReactNode
+      /** Supporting description shown below the heading. */
+      description?: ReactNode
+      /** Optional action for a general empty state. */
+      action?: ReactNode
+      view?: never
+    }
+  | {
+      /**
+       * The selected view owns its message AND recovery action. Store these
+       * together beside the view declaration and pass the selected entry.
+       * A filtered or personal view cannot silently inherit a generic empty
+       * message or omit the way back to another view. Translate text in the app.
+       */
+      view: {
+        title: ReactNode
+        description?: ReactNode
+        action: ReactElement
+      }
+      title?: never
+      description?: never
+      action?: never
+    }
+)
 
 /**
  * Generic centred empty-state panel for lists, feeds, boards, and tables.
@@ -44,11 +64,13 @@ export function EmptyState({
   title,
   description,
   action,
+  view,
   dataMolId,
   className,
   iconWrapperClassName,
 }: EmptyStateProps): JSX.Element {
   const cm = getClassMap()
+  const content = view ?? { title, description, action }
   return (
     <section
       data-mol-id={dataMolId}
@@ -73,11 +95,15 @@ export function EmptyState({
           {icon}
         </div>
       )}
-      <h3 className={cm.cn(cm.textSize('2xl'), cm.fontWeight('bold'), cm.sp('mb', 2))}>{title}</h3>
-      {description && (
-        <p className={cm.cn(cm.maxW('md'), cm.sp('mb', action ? 6 : 0))}>{description}</p>
+      <h3 className={cm.cn(cm.textSize('2xl'), cm.fontWeight('bold'), cm.sp('mb', 2))}>
+        {content.title}
+      </h3>
+      {content.description && (
+        <p className={cm.cn(cm.maxW('md'), cm.sp('mb', content.action ? 6 : 0))}>
+          {content.description}
+        </p>
       )}
-      {action}
+      {content.action}
     </section>
   )
 }
