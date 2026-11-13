@@ -308,7 +308,54 @@ const taskPidsCommand = (taskId: string): string =>
   'all "$R" | tr "\\n" " "'
 
 /**
- * The command that stops a running background task, read from the sandbox's own pid files.
+ * Where a background task's stop script lives, beside its `.sh`, `.log`, `.pid` and `.exit`.
+ *
+ * @param taskId - The task's `mol-bg-…` handle.
+ * @returns The script's path.
+ */
+export const taskStopFile = (taskId: string): string => `/tmp/${taskId}.stop`
+
+/**
+ * The script that stops a background task and every process under it, as they are when it RUNS.
+ *
+ * A pid list taken when a note is written goes stale: a test runner replaces a worker after a
+ * failure, and the new worker is in no list. Killing only the pid file's shell leaves the runner
+ * orphaned, still holding the sandbox's one Playwright slot, so the next walk is refused.
+ * So the walk happens here, at stop time: the kernel's own child lists
+ * (`/proc/<pid>/task/<tid>/children`) or `pgrep -P` where those are absent. Every process gets
+ * TERM, any still running a second later gets KILL, and a task that recorded no exit code is
+ * given 143 (the TERM status), so `wait_for_task` reports it stopped at once instead of waiting
+ * for a process test to notice.
+ *
+ * The executor runs it as `sh <file>`: a file name, so no kill pattern of its own matches the
+ * shell running it (`molecule-dev/api/src/ai/pattern-kill-guard.ts`).
+ *
+ * @param taskId - The task's `mol-bg-…` handle.
+ * @returns The script's text.
+ */
+export function taskStopScript(taskId: string): string {
+  return [
+    `# Stops background task ${taskId} and every process it started.`,
+    `R=$(cat /tmp/${taskId}.pid 2>/dev/null)`,
+    'all() {',
+    '  echo "$1"',
+    '  k=$(cat /proc/"$1"/task/*/children 2>/dev/null) || k=$(pgrep -P "$1" 2>/dev/null)',
+    '  for c in $k; do all "$c"; done',
+    '}',
+    'if [ -n "$R" ]; then',
+    '  P=$(all "$R")',
+    '  kill $P 2>/dev/null',
+    '  sleep 1',
+    '  kill -9 $P 2>/dev/null',
+    'fi',
+    `[ -s /tmp/${taskId}.exit ] || echo 143 > /tmp/${taskId}.exit`,
+    'exit 0',
+    '',
+  ].join('\n')
+}
+
+/**
+ * The command that stops a running background task, read from the sandbox's own files.
  *
  * THE one builder for it, so every note that hands the executor a way to stop a run hands over the
  * same pid-only form: a `pkill -f <something>` matches the shell running it (its argv IS the
@@ -319,14 +366,20 @@ const taskPidsCommand = (taskId: string): string =>
  *
  * @param backend - The execution backend.
  * @param taskId - The task's `mol-bg-…` handle.
- * @returns The command to hand the executor — `kill <pids>` — falling back to the task's own pid
- *   file when the walk comes back empty (a sandbox without `pgrep`, or a pid file already gone,
- *   in which case the pid-file form is still the one the platform's guard names).
+ * @returns `sh /tmp/<id>.stop` for a task this tool launched with its stop script
+ *   ({@link taskStopScript}); for an older task, `kill <pids>` from a walk made now, falling back
+ *   to the task's own pid file when the walk comes back empty (a sandbox without `pgrep`, or a pid
+ *   file already gone, in which case the pid-file form is still the one the platform's guard names).
  */
 export async function taskStopCommand(backend: ExecutionBackend, taskId: string): Promise<string> {
   const fallback = `kill $(cat /tmp/${taskId}.pid)`
+  const stopFile = taskStopFile(taskId)
   try {
-    const r = await backend.run(taskPidsCommand(taskId), { timeout: 10_000 })
+    const r = await backend.run(
+      `[ -s ${stopFile} ] && echo MOL_STOP_SCRIPT || { ${taskPidsCommand(taskId)}; }`,
+      { timeout: 10_000 },
+    )
+    if (String(r.stdout ?? '').trim() === 'MOL_STOP_SCRIPT') return `sh ${stopFile}`
     const pids = String(r.stdout ?? '')
       .split(/\s+/)
       .filter((p) => /^\d+$/.test(p))
@@ -3520,6 +3573,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           launched.add(id)
           launchedByBackend.set(backend, launched)
           await backend.writeFile(script, `${streaming.command}\n`)
+          await backend.writeFile(taskStopFile(id), taskStopScript(id))
           if (prepareBackgroundScript)
             await prepareBackgroundScript(script, `${streaming.command}\n`)
           // The clock the grace return below reports a stopped run against: the command is
@@ -4245,7 +4299,10 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
             // deployed run it belongs to can no longer pass and a local edit cannot void a green
             // proof. Keep discovering causes during the repair, then replace the failed build:
             // waiting after its known causes were fixed cost l1671 another 295 s without learning
-            // another cause. The landed deploy stops this walk before the next one starts.
+            // another cause. Nothing stops this walk for the executor: once the deploy lands it
+            // walks a build it was not started on and still holds the sandbox's one Playwright
+            // slot, so the note names the stop (X1 xr-molecule-flash-l2608: deployed as told, then
+            // two walks of the new build refused while the old one ran on).
             note: localDiagnostic
               ? 'A test in this local diagnostic has failed on its final attempt. This is partial ' +
                 'output, not a completed result; the task is still running against mutable local source. ' +
@@ -4270,9 +4327,11 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
                 'pass. This is partial log output, not a completed result: leave the task running while you fix ' +
                 'and collect any new causes it exposes. Local edits do not change this deployed ' +
                 'build, so start on this failure now: read the failing spec and the code it drives, ' +
-                'and fix it while the run keeps walking. Once every known cause is fixed, deploy now; ' +
-                'the task keeps finding causes until the deploy lands and stops it, then collect its stopped or completed result ' +
-                'with `wait_for_task`. Do not start a second test run while this task is running. ' +
+                'and fix it while the run keeps walking. Once every known cause is fixed, deploy now. ' +
+                'This task does not stop by itself when the deploy lands: from then on it walks a build it was not started on, ' +
+                'and the sandbox runs one Playwright walk at a time. So when the deploy lands, stop it ' +
+                `(\`exec_command: ${await taskStopCommand(backend, taskId)}\`), collect its stopped result with \`wait_for_task\`, ` +
+                'then start the walk of the new build. Do not start a second test run while this task is running. ' +
                 'Its remaining tests stay unmeasured; hand-back still requires the full supplied suite against the new deployed build to pass with its own settings.',
           }
         }

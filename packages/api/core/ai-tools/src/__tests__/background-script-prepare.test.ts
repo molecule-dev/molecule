@@ -10,7 +10,7 @@ function fixture() {
     projectRoot: '/workspace',
     readFile: async (path) => files.get(path) ?? '',
     writeFile: async (path, content) => {
-      events.push('write')
+      events.push(path.endsWith('.stop') ? 'write stop script' : 'write')
       files.set(path, content)
     },
     deleteFile: async () => {},
@@ -36,7 +36,7 @@ describe('background command preparation without a file-method override', () => 
     )!
     const result = await command.execute({ command: 'printf billing', run_in_background: true })
     expect(result).toMatchObject({ taskId: expect.any(String) })
-    expect(f.events).toEqual(['write', 'prepare', 'launch'])
+    expect(f.events).toEqual(['write', 'write stop script', 'prepare', 'launch'])
     expect(prepare).toHaveBeenCalledOnce()
   })
 

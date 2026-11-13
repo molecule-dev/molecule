@@ -771,7 +771,10 @@ describe('buildTools', () => {
     expect(r.taskId).toMatch(/^mol-bg-/)
     expect(r.note).toContain('Dropped your `timeout 280`')
     // The one reading that matters: the file the background runner executes.
-    const written = vi.mocked(backend.writeFile).mock.calls.at(-1)?.[1] as string
+    const written = vi
+      .mocked(backend.writeFile)
+      .mock.calls.filter(([path]) => String(path).endsWith('.sh'))
+      .at(-1)?.[1] as string
     expect(written).not.toContain('timeout 280')
     expect(written).toContain(
       'npx playwright test --config e2e-suite.config.ts auth.spec.ts navigation.spec.ts',
@@ -797,7 +800,10 @@ describe('buildTools', () => {
     })) as { taskId?: string; note?: string }
     expect(r.taskId).toMatch(/^mol-bg-/)
     expect(r.note).toContain('Dropped your `timeout 290`')
-    const written = vi.mocked(backend.writeFile).mock.calls.at(-1)?.[1] as string
+    const written = vi
+      .mocked(backend.writeFile)
+      .mock.calls.filter(([path]) => String(path).endsWith('.sh'))
+      .at(-1)?.[1] as string
     expect(written).not.toContain('timeout 290')
     expect(written).toContain('npx playwright test --config e2e-suite.config.ts')
   })
@@ -815,7 +821,10 @@ describe('buildTools', () => {
     })) as { taskId?: string; note?: string }
     expect(r.taskId).toMatch(/^mol-bg-/)
     expect(r.note).not.toContain('Dropped your `timeout')
-    const written = vi.mocked(backend.writeFile).mock.calls.at(-1)?.[1] as string
+    const written = vi
+      .mocked(backend.writeFile)
+      .mock.calls.filter(([path]) => String(path).endsWith('.sh'))
+      .at(-1)?.[1] as string
     expect(written).toContain('timeout 900 npx playwright test')
   })
 
@@ -835,7 +844,10 @@ describe('buildTools', () => {
     expect(r.taskId).toMatch(/^mol-bg-/)
     expect(r.note).toContain('Dropped your `timeout 360`')
     expect(r.note).toContain('a whole walk takes ~6 min 40 s')
-    const written = vi.mocked(backend.writeFile).mock.calls.at(-1)?.[1] as string
+    const written = vi
+      .mocked(backend.writeFile)
+      .mock.calls.filter(([path]) => String(path).endsWith('.sh'))
+      .at(-1)?.[1] as string
     expect(written).not.toContain('timeout 360')
   })
 
@@ -869,7 +881,10 @@ describe('buildTools', () => {
     })) as { taskId?: string; note?: string }
     expect(r.taskId).toMatch(/^mol-bg-/)
     expect(r.note).not.toContain('Dropped your `timeout')
-    const written = vi.mocked(backend.writeFile).mock.calls.at(-1)?.[1] as string
+    const written = vi
+      .mocked(backend.writeFile)
+      .mock.calls.filter(([path]) => String(path).endsWith('.sh'))
+      .at(-1)?.[1] as string
     expect(written).toContain('timeout 360 npx playwright test')
   })
 
@@ -884,7 +899,10 @@ describe('buildTools', () => {
     })) as { taskId?: string; note?: string }
     expect(r.taskId).toMatch(/^mol-bg-/)
     expect(r.note).toContain('Dropped your `timeout 280`')
-    const written = vi.mocked(backend.writeFile).mock.calls.at(-1)?.[1] as string
+    const written = vi
+      .mocked(backend.writeFile)
+      .mock.calls.filter(([path]) => String(path).endsWith('.sh'))
+      .at(-1)?.[1] as string
     expect(written).not.toContain('timeout -k')
     expect(written).toContain('npx playwright test')
   })
@@ -6802,7 +6820,11 @@ describe('opt-in first diagnostic progress from a deployed task', () => {
       readDir: vi.fn(async () => []),
       run: vi.fn(async (cmd) => {
         let stdout = ''
-        if (cmd.includes('MOL_OWN_TASKS_END')) {
+        // The stop-script probe, answered the way the sandbox's shell would: by the file.
+        const stopProbe = /^\[ -s (\S+) \] && echo MOL_STOP_SCRIPT/.exec(cmd)
+        if (stopProbe) {
+          stdout = state.files.get(stopProbe[1]) ? 'MOL_STOP_SCRIPT' : ''
+        } else if (cmd.includes('MOL_OWN_TASKS_END')) {
           const ids = [...cmd.matchAll(/\bmol-bg-[a-z0-9]+-[a-z0-9]+\b/g)].map((m) => m[0])
           stdout =
             ids
@@ -7017,8 +7039,12 @@ describe('opt-in first diagnostic progress from a deployed task', () => {
     expect(text).toContain('while the run keeps walking')
     // Deploy first, keep discovery until landing, then collect: no idle pre-deploy wait (l1927).
     expect(text).toContain('Once every known cause is fixed, deploy now')
-    expect(text).toContain(
-      'the task keeps finding causes until the deploy lands and stops it, then collect its stopped or completed result with `wait_for_task`',
+    // Nothing stops the walk at the landing, and it holds the one Playwright slot: the note says
+    // so and names the task's own stop script (xr-molecule-flash-l2608: two refused walks).
+    expect(text).not.toContain('until the deploy lands and stops it')
+    expect(text).toContain('This task does not stop by itself when the deploy lands')
+    expect(text).toMatch(
+      /when the deploy lands, stop it \(`exec_command: sh \/tmp\/mol-bg-[a-z0-9]+-[a-z0-9]+\.stop`\), collect its stopped result with `wait_for_task`, then start the walk of the new build/,
     )
     expect(text).not.toContain('retire this task before replacing the build')
     expect(text).toContain('Do not start a second test run while this task is running')

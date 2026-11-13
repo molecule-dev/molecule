@@ -50,9 +50,14 @@
  *   wrapping again. The metadata is advisory and never establishes a completed test result.
  * - **`yieldOnFirstFailureFor`** lets `wait_for_task` yield new final-failure causes from a
  *   still-running deployed task. Fix while it walks; once every known cause is fixed, deploy
- *   now, let the task keep finding causes until the deploy lands and stops it, then collect
- *   its stopped or completed result with `wait_for_task`. A local diagnostic tests mutable
- *   source: collect or stop it before editing that source, since edits invalidate its result.
+ *   now. The task does not stop when the deploy lands, and the sandbox runs one Playwright walk
+ *   at a time: stop it then with the command the note names, collect its stopped result with
+ *   `wait_for_task`, and walk the new build. A local diagnostic tests mutable source: collect
+ *   or stop it before editing that source, since edits invalidate its result.
+ * - **Every background task can be stopped whole.** `exec_command` writes `/tmp/<id>.stop` beside
+ *   the task (`taskStopScript`); `sh /tmp/<id>.stop` stops the task and every process under it as
+ *   they are when it runs, workers a runner started later included, and records exit 143.
+ *   `taskStopCommand` returns that command, or a pid walk for a task launched without one.
  * - **`wait_for_task` state probes report current progress without guessing log growth.**
  *   A call shorter than one normal two-second poll omits both growth and no-growth
  *   claims; task age, log counters and time-left estimates remain available.

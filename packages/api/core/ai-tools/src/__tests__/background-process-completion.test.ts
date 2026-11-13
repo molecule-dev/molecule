@@ -34,7 +34,7 @@ describe('background command completion through a real shell', () => {
         expect(result.exitCode).toBe(code)
       } finally {
         if (taskId) {
-          for (const suffix of ['.sh', '.pid', '.exit', '.log']) {
+          for (const suffix of ['.sh', '.stop', '.pid', '.exit', '.log']) {
             await rm(`/tmp/${taskId}${suffix}`, { force: true })
           }
         }
