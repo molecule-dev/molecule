@@ -169,6 +169,28 @@ describe('@molecule/app-pwa-default', () => {
       expect(button!.textContent).toContain('"><script>alert(2)</script>')
     })
 
+    it('marks the banner busy, with no class, and shows the updating label on Update', () => {
+      setProvider(
+        createSimpleI18nProvider('en', [
+          {
+            code: 'en',
+            name: 'English',
+            direction: 'ltr',
+            translations: { 'pwa.updating': 'Updating…' },
+          },
+        ]),
+      )
+      registerPWA()
+      swCallbacks.onNeedRefresh?.()
+
+      const banner = document.getElementById('pwa-update-banner')!
+      expect(banner.getAttribute('aria-busy')).toBeNull()
+      document.getElementById('pwa-update-btn')!.click()
+      expect(banner.getAttribute('aria-busy')).toBe('true')
+      expect(banner.className).toBe('')
+      expect(document.getElementById('pwa-update-title')!.textContent).toBe('Updating…')
+    })
+
     it('shows a one-line summary of what the update brings, as text', async () => {
       document.head.innerHTML = '<meta name="molecule-build-time" content="2026-10-01T00:00:00Z">'
       const fetchMock = vi.fn().mockResolvedValue({

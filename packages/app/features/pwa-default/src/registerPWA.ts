@@ -175,11 +175,11 @@ function showUpdateBanner(onUpdate: () => void): void {
     #pwa-update-btn:hover {
       opacity: 0.9;
     }
-    #pwa-update-banner.pwa-updating {
+    #pwa-update-banner[aria-busy='true'] {
       pointer-events: none;
       opacity: 0.7;
     }
-    #pwa-update-banner.pwa-updating #pwa-update-btn {
+    #pwa-update-banner[aria-busy='true'] #pwa-update-btn {
       opacity: 0.5;
     }
     @media (max-width: 600px) {
@@ -246,7 +246,8 @@ function showUpdateBanner(onUpdate: () => void): void {
   document.body.appendChild(banner)
 
   button.addEventListener('click', () => {
-    banner.classList.add('pwa-updating')
+    // A state attribute, not a class: the banner styles itself, and assistive tech hears it is busy.
+    banner.setAttribute('aria-busy', 'true')
     title.textContent = t('pwa.updating')
     onUpdate()
   })
