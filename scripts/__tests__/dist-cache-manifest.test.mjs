@@ -34,6 +34,17 @@ function fixture() {
   mkdirSync(join(root, 'node_modules/.bin'), { recursive: true })
   symlinkSync(dirname(compilerFile), join(root, 'node_modules/typescript'), 'dir')
   symlinkSync(join(dirname(compilerFile), compiler.bin.tsc), join(root, 'node_modules/.bin/tsc'))
+  // A second installed program, for build scripts that run two tools.
+  mkdirSync(join(root, 'node_modules/fake-check'))
+  writeFileSync(join(root, 'node_modules/fake-check/bin.js'), '// Checker\n')
+  writeFileSync(
+    join(root, 'node_modules/fake-check/package.json'),
+    JSON.stringify({ name: 'fake-check', version: '1.0.0', bin: { 'fake-check': 'bin.js' } }),
+  )
+  symlinkSync(
+    join(root, 'node_modules/fake-check/bin.js'),
+    join(root, 'node_modules/.bin/fake-check'),
+  )
   const manifest = { name: 'cache-regression', private: true, workspaces: ['packages/*'] }
   write('package.json', JSON.stringify(manifest))
   write('.npmrc', 'legacy-peer-deps=true\n')
@@ -44,6 +55,7 @@ function fixture() {
     packages: {
       '': manifest,
       'node_modules/typescript': { version: compiler.version, bin: compiler.bin },
+      'node_modules/fake-check': { version: '1.0.0', bin: { 'fake-check': 'bin.js' } },
     },
   }
   for (const name of ['leaf', 'client', 'unrelated']) {
@@ -66,6 +78,14 @@ function fixture() {
   write('package-lock.json', JSON.stringify(lock))
   expect(distCache(root, 'write')).toEqual({ written: 3 })
   return { root, write, lock }
+}
+
+/** Gives the leaf package a different build script, in its manifest and its lock record. */
+function setLeafBuild({ write, lock }, build) {
+  const pkg = { ...lock.packages['packages/leaf'], scripts: { build } }
+  write('packages/leaf/package.json', JSON.stringify(pkg))
+  lock.packages['packages/leaf'] = pkg
+  write('package-lock.json', JSON.stringify(lock))
 }
 
 afterEach(() => {
@@ -101,6 +121,33 @@ describe('CI dist proof', () => {
     else write(`packages/leaf/dist/${kind === 'added' ? 'extra.js' : 'index.js'}`, 'changed\n')
     expect(distCache(root, 'apply')).toEqual({ fresh: 1, rebuild: 2 })
     expect(existsSync(join(root, 'packages/leaf/dist'))).toBe(false)
+  })
+
+  it('verifies every program a compound build script runs', () => {
+    const fx = fixture()
+    setLeafBuild(fx, 'fake-check --tsconfig ./tsconfig.json --fail-on-warnings && tsc')
+    expect(distCache(fx.root, 'write')).toEqual({ written: 3 })
+    expect(distCache(fx.root, 'apply')).toEqual({ fresh: 3, rebuild: 0 })
+    fx.write('node_modules/fake-check/bin.js', '// Changed checker\n')
+    expect(distCache(fx.root, 'apply')).toEqual({ fresh: 0, rebuild: 3 })
+  })
+
+  it.each([
+    'tsc $FLAGS',
+    'tsc; rm -rf dist',
+    'tsc | tee build.log',
+    'tsc &&  fake-check',
+    'tsc > build.log',
+    'missing-tool && tsc',
+  ])('refuses to record a build script whose programs are not certain (%s)', (build) => {
+    const fx = fixture()
+    setLeafBuild(fx, build)
+    expect(() => distCache(fx.root, 'write')).toThrow(`unverified build command: ${build}`)
+    expect(distCache(fx.root, 'apply')).toEqual({
+      fresh: 0,
+      rebuild: 3,
+      reason: `unverified build command: ${build}`,
+    })
   })
 
   it('removes unverified restored output when the manifest is absent', () => {

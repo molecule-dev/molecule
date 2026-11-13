@@ -109,6 +109,25 @@ function builderInputs(root, ts) {
   return { 'build.js': [bytesHash(file), lstatSync(file).mode & 0o777] }
 }
 
+/**
+ * The programs a package's build script runs. npm hands the script to a shell, so
+ * only a shape whose programs are certain is accepted: `program args…` segments
+ * joined by ` && `, each word free of anything a shell would expand or redirect.
+ * Any other script is unverifiable and throws.
+ *
+ * @param command - A package's `scripts.build`.
+ * @returns The program each segment runs, in order.
+ */
+export function buildPrograms(command) {
+  return command.split(' && ').map((segment) => {
+    const words = segment.split(' ')
+    if (!words.every((word) => /^[\w./=:@-]+$/.test(word))) {
+      throw new Error(`unverified build command: ${command}`)
+    }
+    return words[0]
+  })
+}
+
 /** Read actual build inputs only; exported for the scoped mutation control. */
 export function readCacheInputs(root) {
   const packages = packagesAt(root)
@@ -120,17 +139,18 @@ export function readCacheInputs(root) {
     Object.entries(lock.packages).filter(([path]) => !paths.has(path)),
   )
   const commands = new Set([...packages.values()].map((pkg) => pkg.manifest.scripts.build))
+  const programs = new Set([...commands].flatMap(buildPrograms))
   const tools = {}
   const covered = new Set()
   for (const [path, entry] of Object.entries(external)) {
     const bins = typeof entry.bin === 'string' ? [basename(path)] : Object.keys(entry.bin ?? {})
-    if (!bins.some((name) => commands.has(name))) continue
+    if (!bins.some((name) => programs.has(name))) continue
     const dir = realpathSync(join(root, path))
     const installed = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
     if (installed.version !== entry.version)
       throw new Error(`installed build tool differs from lock: ${path}`)
     const nodeModules = path.slice(0, path.lastIndexOf('node_modules/') + 'node_modules/'.length)
-    for (const name of bins.filter((bin) => commands.has(bin))) {
+    for (const name of bins.filter((bin) => programs.has(bin))) {
       const target = typeof entry.bin === 'string' ? entry.bin : entry.bin[name]
       if (realpathSync(join(root, nodeModules, '.bin', name)) !== realpathSync(join(dir, target))) {
         throw new Error(`installed build command differs from lock: ${name}`)
@@ -140,7 +160,9 @@ export function readCacheInputs(root) {
     bins.forEach((name) => covered.add(name))
   }
   for (const command of commands) {
-    if (!covered.has(command)) throw new Error(`unverified build command: ${command}`)
+    if (!buildPrograms(command).every((program) => covered.has(program))) {
+      throw new Error(`unverified build command: ${command}`)
+    }
   }
   const require = createRequire(join(root, 'package.json'))
   const ts = require('typescript')
