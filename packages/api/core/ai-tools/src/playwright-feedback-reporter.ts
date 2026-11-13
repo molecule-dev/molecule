@@ -36,9 +36,29 @@ module.exports = class FeedbackReporter {
       }
     } catch {}
     if (process.env.MOL_TEST_FEEDBACK_EVENTS) fs.appendFileSync(process.env.MOL_TEST_FEEDBACK_EVENTS,
-      JSON.stringify({spec: location.file, line: location.line, error: error.slice(0, 6000), rendered}) + '\n');
+      JSON.stringify({id: test.id, spec: location.file, line: location.line, error: error.slice(0, 6000), rendered}) + '\n');
   }
 };`
+}
+
+/**
+ * The ids of the tests the reporter saw fail, in the form Playwright's own last-run record
+ * (`.last-run.json` `failedTests`) uses, so a run stopped before it finished still names them.
+ * @param text - Reporter JSONL; an incomplete final line waits for the next read.
+ * @returns Distinct test ids, in failure order.
+ */
+export function nativeFailedTestIds(text: string): string[] {
+  const ids = new Set<string>()
+  if (text.length > 1_000_000) return []
+  for (const line of text.split('\n').slice(0, -1)) {
+    try {
+      const id = (JSON.parse(line) as { id?: unknown }).id
+      if (typeof id === 'string' && id && id.length <= 200) ids.add(id)
+    } catch (_error) {
+      /* not a completed native event */
+    }
+  }
+  return [...ids]
 }
 
 /**

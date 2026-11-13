@@ -55,7 +55,8 @@ export interface PlaywrightFeedbackResult {
   /**
    * Playwright's own last-run record (`.last-run.json`: the ids of the tests that failed or did
    * not run) from a failed run, when the runner wrote one. A later checkpoint hands it back so
-   * the runner re-runs only those tests (`--last-failed`).
+   * the runner re-runs only those tests (`--last-failed`). A `cancelled` run carries one in the
+   * same shape naming only the tests it saw fail before it stopped, when there were any.
    */
   lastRun?: string
   /**

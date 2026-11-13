@@ -3,8 +3,9 @@
  *
  * The native runner, JSON reporter and error-context snapshot already answer what
  * failed and what rendered. The small scheduler only coalesces writes, runs the least recently
- * attempted file first, one at a time, lets a started file finish, keeps every finished failure
- * known, and reports only results with no write during them.
+ * attempted file first, one at a time, lets a started file finish, keeps every failure it saw
+ * known (by test id, even from a run stopped early), and reports only results with no write
+ * during them.
  * Explicit checkpoints finish native verification before an action; background writes stay nonblocking.
  * @module
  */
@@ -13,7 +14,11 @@ import { tmpdir } from 'node:os'
 import { posix } from 'node:path'
 
 import { feedbackProcessSource } from './playwright-feedback-process.js'
-import { feedbackReporterSource, nativeFeedbackFailures } from './playwright-feedback-reporter.js'
+import {
+  feedbackReporterSource,
+  nativeFailedTestIds,
+  nativeFeedbackFailures,
+} from './playwright-feedback-reporter.js'
 import { selectFeedbackSpecs } from './playwright-feedback-selection.js'
 import type {
   FeedbackProject,
@@ -67,19 +72,37 @@ function runnerOutput(text: string): string {
  *   or is not a record (a missing, oversized or malformed file).
  */
 function lastRunRecord(text: string): string | undefined {
-  if (text.length > 200_000) return undefined
+  return failedTestsRecord(recordedTestIds(text))
+}
+
+/**
+ * The test ids a last-run record names.
+ * @param text - A `.last-run.json` (`{ status, failedTests }`).
+ * @returns Its ids; none for a missing, oversized or malformed record.
+ */
+function recordedTestIds(text: string): string[] {
+  if (text.length > 200_000) return []
   try {
     const value = JSON.parse(text) as { failedTests?: unknown }
-    const ids = Array.isArray(value.failedTests)
+    return Array.isArray(value.failedTests)
       ? value.failedTests.filter((id): id is string => typeof id === 'string' && id.length <= 200)
       : []
-    return ids.length
-      ? JSON.stringify({ status: 'failed', failedTests: ids.slice(0, 1000) })
-      : undefined
   } catch (_error) {
     // Not JSON: no record, so the next checkpoint runs the whole file.
-    return undefined
+    return []
   }
+}
+
+/**
+ * A last-run record in Playwright's own shape, which `--last-failed` reads.
+ * @param ids - Test ids, as the runner's reporter API reports them (`TestCase.id`).
+ * @returns The record, or undefined when it would name no test.
+ */
+function failedTestsRecord(ids: readonly string[]): string | undefined {
+  const distinct = [...new Set(ids)]
+  return distinct.length
+    ? JSON.stringify({ status: 'failed', failedTests: distinct.slice(0, 1000) })
+    : undefined
 }
 
 /**
@@ -107,6 +130,18 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
   const remember = (path: string, result: PlaywrightFeedbackResult): void => {
     if (result.lastRun) failedRecords.set(path, result.lastRun)
     else failedRecords.delete(path)
+  }
+  // A run stopped before it finished names only the tests it saw fail. They join the spec's
+  // known failures; the tests it never reached keep whatever the older record said about them.
+  const rememberStopped = (path: string, result: PlaywrightFeedbackResult): void => {
+    if (!result.lastRun) return
+    failing.add(path)
+    const known = failedRecords.get(path)
+    const merged = failedTestsRecord([
+      ...(known ? recordedTestIds(known) : []),
+      ...recordedTestIds(result.lastRun),
+    ])
+    if (merged) failedRecords.set(path, merged)
   }
   const revisionSources = new Set<string>()
   // Attempts determine fairness, not coverage. A foreground tool may interrupt a long file
@@ -172,6 +207,9 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
         } finally {
           running = undefined
         } // runner availability is not a markup defect
+        // A pause (a checkpoint, a deploy, the sandbox's own build) stops a started file. The
+        // tests it already saw fail stay known by id, so the checkpoint re-runs those, not the file.
+        if (result.status === 'cancelled' && !stopped) rememberStopped(spec.path, result)
         options.onResult?.(live() ? result : { ...result, status: 'cancelled', failures: [] })
         if (!live()) break
         if (result.status === 'cancelled') {
@@ -527,9 +565,11 @@ export async function runPlaywrightFeedback(
     done = false
   const emitted = new Set<string>()
   const nativeFailures = new Map<string, PlaywrightFeedbackFailure>()
+  const failedIds = new Set<string>()
   const readEvents = async (): Promise<void> => {
     try {
       const text = await backend.readFile(eventsPath)
+      for (const id of nativeFailedTestIds(text)) failedIds.add(id)
       for (const failure of nativeFeedbackFailures(text, sourceFiles)) {
         const identity = JSON.stringify(failure)
         nativeFailures.set(identity, failure)
@@ -546,6 +586,17 @@ export async function runPlaywrightFeedback(
     } catch (_error) {
       /* the first failure has not arrived yet */
     }
+  }
+  // A run stopped before it finished (cancelled, or yielded to the sandbox's own foreground
+  // work) writes no last-run record. Its reporter already named each failed test, so the result
+  // carries a record of exactly those, in the runner's own shape.
+  const stoppedEarly = async (): Promise<PlaywrightFeedbackResult> => {
+    done = true
+    if (poll) clearTimeout(poll)
+    if (reading) await reading
+    await readEvents()
+    const record = failedTestsRecord([...failedIds])
+    return { ...cancelled(), ...(record ? { lastRun: record } : {}) }
   }
   const tick = (): void => {
     if (done) return
@@ -586,12 +637,14 @@ export async function runPlaywrightFeedback(
       timeout: timeout + 10_000,
       budgetMs: timeout + 5_000,
     })
-    if (options.signal?.aborted) return cancelled()
+    if (options.signal?.aborted) return await stoppedEarly()
+    let preempted = false
     try {
-      if ((await backend.readFile(posix.join(dir, 'yielded'))) === 'foreground') return cancelled()
+      preempted = (await backend.readFile(posix.join(dir, 'yielded'))) === 'foreground'
     } catch (_error1) {
       /* the native run was not preempted */
     }
+    if (preempted) return await stoppedEarly()
     done = true
     if (poll) clearTimeout(poll)
     if (reading) await reading
