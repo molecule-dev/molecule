@@ -9,4 +9,6 @@ export const de: Partial<SecretRowTranslations> = {
   'secretRow.rotate': 'Rotieren',
   'secretRow.delete': 'Löschen',
   'secretRow.expired': 'Abgelaufen',
+  'secretRow.lastRotated': 'Zuletzt gedreht',
+  'secretRow.rotateIn': 'Rotation in {{days}} d',
 }

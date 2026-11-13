@@ -11,4 +11,5 @@ export const lv: FormsTranslations = {
   'forms.invalidEmail': 'Nederīga e-pasta adrese',
   'forms.invalidUrl': 'Nederīgs URL',
   'forms.invalidValue': 'Nederīga vērtība',
+  'forms.submitError': 'Nevar iesniegt. Lūdzu, mēģiniet vēlreiz.',
 }

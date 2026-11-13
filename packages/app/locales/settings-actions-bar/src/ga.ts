@@ -5,4 +5,5 @@ export const ga: Partial<SettingsActionsBarTranslations> = {
   'settingsActions.cancel': 'Cealaigh',
   'settingsActions.saving': 'Ag sábháil…',
   'settingsActions.save': 'Sábháil athruithe',
+  'settingsActions.saved': 'Sábháilte {{at}}',
 }

@@ -6,4 +6,6 @@ export const ja: ClipboardTranslations = {
     '@molecule/app-clipboard: プロバイダーが設定されていません。ClipboardProviderの実装でsetProvider()を呼び出してください（例: @molecule/app-clipboard-react-nativeから）。',
   'clipboard.warn.onChangeNotSupported':
     '@molecule/app-clipboard: onChangeはプロバイダーでサポートされていません',
+  'clipboard.error.missingDependency':
+    '`{{library}}`が必要ですが、インストールされていません。以下のコマンドでインストールしてください: `npm install {{library}}`',
 }

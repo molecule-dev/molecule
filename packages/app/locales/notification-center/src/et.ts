@@ -6,4 +6,6 @@ export const et: Partial<NotificationCenterTranslations> = {
   'notifications.markAllRead': 'Märgi kõik loetuks',
   'notifications.empty': 'Teavitusi pole',
   'notifications.viewAll': 'Kuva kõik',
+  'notifications.loadError': 'Teavituste laadimine ebaõnnestus.',
+  'notifications.retry': 'Proovi uuesti',
 }

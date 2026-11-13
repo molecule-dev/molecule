@@ -5,4 +5,5 @@ export const lt: Partial<SettingsActionsBarTranslations> = {
   'settingsActions.cancel': 'Atšaukti',
   'settingsActions.saving': 'Įrašoma…',
   'settingsActions.save': 'Išsaugoti pakeitimus',
+  'settingsActions.saved': 'Išsaugota {{at}}',
 }

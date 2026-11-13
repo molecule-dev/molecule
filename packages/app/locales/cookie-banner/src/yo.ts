@@ -9,4 +9,5 @@ export const yo: Partial<CookieBannerTranslations> = {
   'cookieBanner.reject': 'Kọ̀ gbogbo rẹ̀ sílẹ̀',
   'cookieBanner.save': 'Fipamọ́ àwọn ohun tí a fẹ́',
   'cookieBanner.accept': 'Gba gbogbo rẹ̀',
+  'cookieBanner.learnMore': 'Kọ ẹkọ diẹ si',
 }

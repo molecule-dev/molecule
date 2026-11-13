@@ -8,4 +8,7 @@ export const fi: Partial<FooterTranslations> = {
   'footer.version': 'v {{version}}',
   'content.privacyPolicy': '',
   'content.termsOfService': '',
+  'footer.legalNotConfigured':
+    'Tätä sisältöä ei ole vielä määritetty. Sovelluksen omistajan on toimitettava se.',
+  'footer.about': 'Tietoja sovelluksesta {{appName}}',
 }

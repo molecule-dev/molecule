@@ -6,4 +6,6 @@ export const mk: Partial<NotificationCenterTranslations> = {
   'notifications.markAllRead': 'Означи ги сите како прочитани',
   'notifications.empty': 'Нема известувања',
   'notifications.viewAll': 'Прикажи ги сите',
+  'notifications.loadError': 'Не можеше да се вчитаат известувањата.',
+  'notifications.retry': 'Обидете се повторно',
 }

@@ -39,7 +39,6 @@ export const km: UiTranslations = {
   'ui.select.placeholder': 'ជ្រើសរើស…',
   'ui.select.title': 'ជ្រើសរើស',
   'ui.toast.dismiss': '\u1794\u17c6\u1794\u17b6\u178f\u17cb',
-  'ui.toast.error.noProvider': 'useToast ត្រូវតែប្រើនៅក្នុង ToastProvider',
   'confirm.cancel': 'បោះបង់',
   'confirm.confirm': 'បញ្ជាក់',
   'ui.select.clear': '--',
@@ -56,4 +55,5 @@ export const km: UiTranslations = {
   'userMenu.panelLabel': 'ម៉ឺនុយគណនី',
   'ui.error.noClassMap':
     'គ្មាន UIClassMap ត្រូវបានកំណត់ទេ។ ហៅ setClassMap() នៅពេលចាប់ផ្តើមកម្មវិធីជាមួយនឹងការអនុវត្តបណ្ណាល័យរចនាប័ទ្ម (ឧ. @molecule/app-ui-tailwind)។',
+  'ui.toast.error.noProvider': '`useToast` ត្រូវតែប្រើនៅក្នុង `ToastProvider`',
 }

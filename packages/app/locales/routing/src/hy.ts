@@ -6,4 +6,8 @@ export const hy: RoutingTranslations = {
   'routing.error.routeNotFound': '"{{name}}" երթուղին չի գտնվել',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter-ը պետք է օգտագործվի MoleculeRouterProvider-ի ներսում',
+  'routing.error.noNavigationRef':
+    'Նավիգացիայի հղումը սահմանված չէ: Համոզվեք, որ `MoleculeProvider` միացված է:',
+  'routing.error.useMoleculeRouterOutsideRouter':
+    'React Router ռաութերի ներսում պետք է օգտագործվի `useMoleculeRouter` : Տեղադրեք `BrowserRouter`, `HashRouter`, `MemoryRouter`, `Router` կամ `RouterProvider`:',
 }

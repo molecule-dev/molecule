@@ -9,4 +9,6 @@ export const ca: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'Còpia',
   'secretRow.rotate': 'Girar',
   'secretRow.delete': 'Suprimeix',
+  'secretRow.lastRotated': 'Última rotació',
+  'secretRow.rotateIn': 'Rota en {{days}} d',
 }

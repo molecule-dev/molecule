@@ -5,4 +5,5 @@ export const pa: Partial<SettingsActionsBarTranslations> = {
   'settingsActions.cancel': 'ਰੱਦ ਕਰੋ',
   'settingsActions.saving': 'ਸੇਵ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ...',
   'settingsActions.save': 'ਬਦਲਾਵਾਂ ਨੂੰ ਸੁਰੱਖਿਅਤ ਕਰੋ',
+  'settingsActions.saved': '{{at}} ਨੂੰ ਸੰਭਾਲਿਆ ਗਿਆ',
 }

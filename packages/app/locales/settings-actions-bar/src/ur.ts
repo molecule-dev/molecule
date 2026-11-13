@@ -5,4 +5,5 @@ export const ur: Partial<SettingsActionsBarTranslations> = {
   'settingsActions.cancel': 'منسوخ کریں۔',
   'settingsActions.saving': 'محفوظ ہو رہا ہے…',
   'settingsActions.save': 'تبدیلیاں محفوظ کریں۔',
+  'settingsActions.saved': 'محفوظ کیا گیا {{at}}',
 }

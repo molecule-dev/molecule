@@ -14,4 +14,5 @@ export const ig: Partial<BillingTranslations> = {
   'billing.pricing.tierEyebrow': 'Ọkwa',
   'billing.pricing.perSeat': 'kwa oche',
   'billing.pricing.upgradeCta': 'Kwalite na {{tierName}}',
+  'billing.pricing.currentCta': 'Atụmatụ dị ugbu a',
 }

@@ -15,4 +15,6 @@ export const az: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'Xəta',
   'audioRecorder.statusIdle': 'Qeyd etməyə hazırdır',
   'audioRecorder.group': 'Səs yazıcı',
+  'audioRecorder.record': 'Qeyd',
+  'audioRecorder.statusRecording': 'Yazma',
 }

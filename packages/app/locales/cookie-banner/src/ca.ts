@@ -10,4 +10,5 @@ export const ca: Partial<CookieBannerTranslations> = {
   'cookieBanner.reject': 'Rebutja-ho tot',
   'cookieBanner.save': 'Desa les preferències',
   'cookieBanner.accept': 'Accepta-ho tot',
+  'cookieBanner.learnMore': 'Més informació',
 }

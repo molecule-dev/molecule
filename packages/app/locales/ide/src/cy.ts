@@ -351,13 +351,9 @@ export const cy: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
-  'ide.chat.tip.getStarted':
-    'Awgrym: teipiwch / i weld pob gorchymyn, neu @ enw ffeil i roi{{agentName}} ffeil i weithio ohoni.',
   'ide.chat.tip.mention':
     'Awgrym: teipiwch @filename i atodi ffeil prosiect fel cyd-destun —{{agentName}} yn ei ddarllen yn uniongyrchol.',
   'ide.chat.tip.slash': 'Awgrym: teipiwch / i bori pob gorchymyn (commit, diff, model, a mwy).',
-  'ide.chat.tip.plan':
-    'Awgrym: defnyddiwch / cynlluniwch i gael{{agentName}} ymchwilio a chynnig cynllun cyn iddo olygu unrhyw ffeiliau.',
   'ide.chat.tip.undo':
     'Awgrym: defnyddiwch /undo i wrthdroi newidiadau ffeil y tro AI diwethaf ar unwaith os aeth y ffordd anghywir.',
   'ide.chat.tip.compact':
@@ -773,4 +769,10 @@ export const cy: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'Lwfans misol.',
   'ide.chat.context.daily': 'Lwfans dyddiol.',
   'ide.chat.context.resets': 'Yn ailosod {{at}} .',
+  'ide.error.noProvider':
+    'Darparwr gweithle IDE heb ei ffurfweddu. Cysylltwch ddarparwr IDE yn gyntaf.',
+  'ide.chat.tip.getStarted':
+    'Awgrym: teipiwch / i weld pob gorchymyn, neu @ enw ffeil i roi ffeil {{agentName}} weithio ohoni.',
+  'ide.chat.tip.plan':
+    'Awgrym: defnyddiwch /plan i gael {{agentName}} i ymchwilio a chynnig cynllun cyn iddo olygu unrhyw ffeiliau.',
 }

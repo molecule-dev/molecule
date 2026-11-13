@@ -15,4 +15,6 @@ export const zu: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'Iphutha',
   'audioRecorder.statusIdle': 'Ilungele ukurekhoda',
   'audioRecorder.group': 'Irekhoda yomsindo',
+  'audioRecorder.record': 'Irekhodi',
+  'audioRecorder.statusRecording': 'Ukurekhoda',
 }

@@ -5,4 +5,5 @@ export const af: Partial<SettingsActionsBarTranslations> = {
   'settingsActions.cancel': 'Kanselleer',
   'settingsActions.saving': 'Stoor …',
   'settingsActions.save': 'Stoor veranderinge',
+  'settingsActions.saved': 'Gestoor {{at}}',
 }

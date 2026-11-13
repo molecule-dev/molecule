@@ -15,4 +15,5 @@ export const eu: Partial<BillingTranslations> = {
   'billing.pricing.tierEyebrow': 'Maila',
   'billing.pricing.perSeat': 'eserleku bakoitzeko',
   'billing.pricing.upgradeCta': 'Berritu honetara {{tierName}}',
+  'billing.pricing.currentCta': 'Uneko plana',
 }

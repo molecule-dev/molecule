@@ -438,8 +438,6 @@ export const hu: Partial<IdeTranslations> = {
     'Felfedezés – itt kezdődnek az új beszélgetések. A „{{agentName}}” módszer tisztázó kérdéseket tesz fel a követelmények pontos meghatározása érdekében, még mielőtt egy sor kódot is írnánk.',
   'ide.chat.help.modeExecute':
     'Végrehajtás – az alapértelmezett működési mód. Az „{{agentName}}” kódot ír, eszközöket futtat, végrehajtja a módosításokat, majd ellenőrzi azok helyességét.',
-  'ide.chat.help.modePlan':
-    'Terv — Az `{{agentName}}` parancs átvizsgálja a kódbázist, és fájlok szerkesztése nélkül javasol egy tervet. A /plan kapcsolóval lehet be- és kikapcsolni. Leginkább nagy vagy kockázatos változtatásokhoz ajánlott.',
   'ide.chat.help.modesHeading': '── Módok ──',
   'ide.chat.help.shortcuts':
     'A Cmd+/ billentyűkombinációval (Windows/Linux esetén Ctrl+/) megtekintheted az összes billentyűparancsot.',
@@ -788,4 +786,8 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'Havi juttatás.',
   'ide.chat.context.daily': 'Napi juttatás.',
   'ide.chat.context.resets': 'Visszaállítja {{at}} .',
+  'ide.error.noProvider':
+    'IDE munkaterület-szolgáltató nincs konfigurálva. Először kössön össze egy IDE-szolgáltatót.',
+  'ide.chat.help.modePlan':
+    'Terv – {{agentName}} áttanulmányozza a kódbázist, és javaslatot tesz egy tervre FÁJLOK SZERKESZTÉSE NÉLKÜL. Kapcsolja ki a /plan kapcsolóval. Nagy vagy kockázatos változtatásokhoz a legmegfelelőbb.',
 }

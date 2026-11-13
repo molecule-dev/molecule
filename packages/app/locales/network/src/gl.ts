@@ -12,4 +12,8 @@ export const gl: NetworkTranslations = {
   'network.unknown': 'Descoñecido',
   'network.error.connectionTimeout': 'Tempo de espera da conexión de rede esgotado',
   'network.error.unavailable': 'Rede non dispoñible',
+  'network.error.missingDependency':
+    '`{{library}}` é necesario pero non está instalado. Instálao con: `npm install {{library}}`',
+  'network.error.noProvider':
+    '`@molecule/app-network`: Non se estableceu ningún provedor. Chama `setProvider()` cunha implementación `NetworkProvider` (por exemplo, desde `@molecule/app-network-react-native`).',
 }

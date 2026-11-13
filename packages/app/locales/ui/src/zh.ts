@@ -36,7 +36,6 @@ export const zh: Partial<UiTranslations> = {
   'ui.select.placeholder': '选择…',
   'ui.select.title': '选择',
   'ui.toast.dismiss': '关闭',
-  'ui.toast.error.noProvider': 'useToast 必须在 ToastProvider 中使用。',
   'confirm.cancel': '取消',
   'confirm.confirm': '确认',
   'ui.select.clear': '--',
@@ -53,4 +52,5 @@ export const zh: Partial<UiTranslations> = {
   'userMenu.panelLabel': '帐户菜单',
   'ui.error.noClassMap':
     '尚未设置 UIClassMap。请在应用启动时使用样式库实现（例如，@molecule/app-ui-tailwind）调用 setClassMap()。',
+  'ui.toast.error.noProvider': '`useToast`必须在`ToastProvider`中使用。',
 }

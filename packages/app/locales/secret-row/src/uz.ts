@@ -9,4 +9,6 @@ export const uz: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'Nusxalash',
   'secretRow.rotate': 'Aylantirish',
   'secretRow.delete': "O'chirish",
+  'secretRow.lastRotated': 'Oxirgi marta aylantirildi',
+  'secretRow.rotateIn': '{{days}} kun ichida aylantirish',
 }

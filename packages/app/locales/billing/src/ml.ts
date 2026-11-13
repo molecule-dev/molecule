@@ -15,4 +15,5 @@ export const ml: Partial<BillingTranslations> = {
   'billing.pricing.tierEyebrow': 'ടയർ',
   'billing.pricing.perSeat': 'സീറ്റ് അനുസരിച്ച്',
   'billing.pricing.upgradeCta': 'ഇതിലേക്ക് അപ്‌ഗ്രേഡ് ചെയ്യുക {{tierName}}',
+  'billing.pricing.currentCta': 'നിലവിലെ പ്ലാൻ',
 }

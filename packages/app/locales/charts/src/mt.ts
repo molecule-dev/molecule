@@ -4,4 +4,5 @@ import type { ChartsTranslations } from './types.js'
 export const mt: ChartsTranslations = {
   'charts.placeholder.label': 'Ċart {{type}}',
   'charts.placeholder.description': 'Uża fornitur taċ-ċarts xieraq',
+  'charts.error.noCanvasContext': 'Ma setax jinkiseb kuntest 2D tal-kanvas',
 }

@@ -36,7 +36,6 @@ export const gu: UiTranslations = {
   'ui.select.placeholder': 'પસંદ કરો...',
   'ui.select.title': 'પસંદ કરો',
   'ui.toast.dismiss': 'રદ કરો',
-  'ui.toast.error.noProvider': 'useToast નો ઉપયોગ ToastProvider માં થવો જોઈએ.',
   'confirm.cancel': 'રદ કરો',
   'confirm.confirm': 'પુષ્ટિ કરો',
   'ui.select.clear': '--',
@@ -53,4 +52,5 @@ export const gu: UiTranslations = {
   'userMenu.panelLabel': 'એકાઉન્ટ મેનૂ',
   'ui.error.noClassMap':
     'કોઈ UIClassMap સેટ કરવામાં આવ્યો નથી. સ્ટાઇલિંગ લાઇબ્રેરી અમલીકરણ (દા.ત., @molecule/app-ui-tailwind) સાથે એપ્લિકેશન સ્ટાર્ટઅપ પર setClassMap() ને કૉલ કરો.',
+  'ui.toast.error.noProvider': '`useToast` ઉપયોગ `ToastProvider` માં થવો જોઈએ.',
 }

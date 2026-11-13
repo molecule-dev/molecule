@@ -43,7 +43,6 @@ export const ka: UiTranslations = {
   'ui.select.placeholder': 'აირჩიეთ…',
   'ui.select.title': 'არჩევა',
   'ui.toast.dismiss': '\u10e3\u10d0\u10e0\u10e7\u10dd\u10e4\u10d0',
-  'ui.toast.error.noProvider': 'useToast უნდა იქნას გამოყენებული ToastProvider-ის ფარგლებში',
   'confirm.cancel': 'გაუქმება',
   'confirm.confirm': 'დადასტურება',
   'ui.select.clear': '--',
@@ -60,4 +59,5 @@ export const ka: UiTranslations = {
   'userMenu.panelLabel': 'ანგარიშის მენიუ',
   'ui.error.noClassMap':
     'UIClassMap არ არის დაყენებული. აპლიკაციის გაშვებისას გამოიძახეთ setClassMap() სტილის ბიბლიოთეკის იმპლემენტაციით (მაგ., @molecule/app-ui-tailwind).',
+  'ui.toast.error.noProvider': '`useToast` უნდა იქნას გამოყენებული `ToastProvider` ში',
 }

@@ -12,4 +12,8 @@ export const ms: Partial<NetworkTranslations> = {
   'network.unknown': 'Tidak diketahui',
   'network.error.connectionTimeout': 'Tamat masa sambungan rangkaian',
   'network.error.unavailable': 'Rangkaian tidak tersedia',
+  'network.error.missingDependency':
+    '`{{library}}` diperlukan tetapi tidak dipasang. Pasangkannya dengan: `npm install {{library}}`',
+  'network.error.noProvider':
+    '`@molecule/app-network`: Tiada pembekal ditetapkan. Panggil `setProvider()` dengan pelaksanaan `NetworkProvider` (cth., daripada `@molecule/app-network-react-native`).',
 }

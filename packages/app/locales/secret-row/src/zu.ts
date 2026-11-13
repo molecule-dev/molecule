@@ -9,4 +9,6 @@ export const zu: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'Kopisha',
   'secretRow.rotate': 'Zungezisa',
   'secretRow.delete': 'Susa',
+  'secretRow.lastRotated': 'Kugcine ukuzungeziswa',
+  'secretRow.rotateIn': 'Zungezisa ngo- {{days}} d',
 }

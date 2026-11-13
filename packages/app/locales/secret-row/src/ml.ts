@@ -9,4 +9,6 @@ export const ml: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'പകർത്തുക',
   'secretRow.rotate': 'തിരിക്കുക',
   'secretRow.delete': 'ഇല്ലാതാക്കുക',
+  'secretRow.lastRotated': 'അവസാനം തിരിച്ചത്',
+  'secretRow.rotateIn': '{{days}} d-യിൽ തിരിക്കുക',
 }

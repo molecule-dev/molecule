@@ -11,4 +11,5 @@ export const af: FormsTranslations = {
   'forms.invalidEmail': 'Ongeldige e-posadres',
   'forms.invalidUrl': 'Ongeldige URL',
   'forms.invalidValue': 'Ongeldige waarde',
+  'forms.submitError': 'Kon nie indien nie. Probeer asseblief weer.',
 }

@@ -15,4 +15,6 @@ export const ml: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'പിശക്',
   'audioRecorder.statusIdle': 'റെക്കോർഡ് ചെയ്യാൻ തയ്യാറാണ്',
   'audioRecorder.group': 'ഓഡിയോ റെക്കോർഡർ',
+  'audioRecorder.record': 'റെക്കോർഡ് ചെയ്യുക',
+  'audioRecorder.statusRecording': 'റെക്കോർഡിംഗ്',
 }

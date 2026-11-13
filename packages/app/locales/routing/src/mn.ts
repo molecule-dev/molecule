@@ -6,4 +6,8 @@ export const mn: RoutingTranslations = {
   'routing.error.routeNotFound': '"{{name}}" маршрут олдсонгүй',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter-ийг MoleculeRouterProvider дотор ашиглах ёстой',
+  'routing.error.noNavigationRef':
+    'Навигацийн лавлагаа тохируулагдаагүй байна. `MoleculeProvider` холбогдсон эсэхийг шалгана уу.',
+  'routing.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` React Router чиглүүлэгч дотор ашиглагдах ёстой. `BrowserRouter`, `HashRouter`, `MemoryRouter`, `Router`, эсвэл `RouterProvider` холбоно уу.',
 }

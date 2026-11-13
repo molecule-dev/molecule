@@ -11,4 +11,5 @@ export const ar: FormsTranslations = {
   'forms.invalidEmail': 'عنوان بريد إلكتروني غير صالح',
   'forms.invalidUrl': 'عنوان URL غير صالح',
   'forms.invalidValue': 'قيمة غير صالحة',
+  'forms.submitError': 'تعذر الإرسال. يرجى المحاولة مرة أخرى.',
 }

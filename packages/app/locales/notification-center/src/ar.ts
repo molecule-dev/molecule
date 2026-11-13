@@ -6,4 +6,6 @@ export const ar: Partial<NotificationCenterTranslations> = {
   'notifications.markAllRead': 'تعليم الكل كمقروء',
   'notifications.viewAll': 'عرض الكل',
   'notifications.empty': 'لا توجد إشعارات',
+  'notifications.loadError': 'تعذر تحميل الإشعارات.',
+  'notifications.retry': 'إعادة المحاولة',
 }

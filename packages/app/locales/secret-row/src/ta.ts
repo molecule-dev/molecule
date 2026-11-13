@@ -9,4 +9,6 @@ export const ta: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'நகல்',
   'secretRow.rotate': 'சுழற்று',
   'secretRow.delete': 'நீக்கு',
+  'secretRow.lastRotated': 'கடைசியாக சுழற்றப்பட்டது',
+  'secretRow.rotateIn': '{{days}} d-இல் சுழற்று',
 }

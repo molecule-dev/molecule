@@ -14,4 +14,6 @@ export const da: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'Fejl',
   'audioRecorder.statusIdle': 'Klar til optagelse',
   'audioRecorder.group': 'Lydoptager',
+  'audioRecorder.record': 'Optage',
+  'audioRecorder.statusRecording': 'Indspilning',
 }

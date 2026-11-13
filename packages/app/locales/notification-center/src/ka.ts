@@ -6,4 +6,6 @@ export const ka: Partial<NotificationCenterTranslations> = {
   'notifications.markAllRead': 'ყველას წაკითხულად მონიშვნა',
   'notifications.empty': 'შეტყობინებები არ არის',
   'notifications.viewAll': 'ყველას ნახვა',
+  'notifications.loadError': 'შეტყობინებების ჩატვირთვა ვერ მოხერხდა.',
+  'notifications.retry': 'ხელახლა ცდა',
 }

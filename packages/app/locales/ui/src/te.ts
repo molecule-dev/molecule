@@ -42,7 +42,6 @@ export const te: UiTranslations = {
   'ui.select.placeholder': 'ఎంచుకోండి…',
   'ui.select.title': 'ఎంచుకోండి',
   'ui.toast.dismiss': '\u0c24\u0c4a\u0c32\u0c17\u0c3f\u0c02\u0c1a\u0c02\u0c21\u0c3f',
-  'ui.toast.error.noProvider': 'useToast ను తప్పనిసరిగా ToastProvider లోపల ఉపయోగించాలి',
   'confirm.cancel': 'రద్దు చేయండి',
   'confirm.confirm': 'నిర్ధారించండి',
   'ui.select.clear': '--',
@@ -59,4 +58,5 @@ export const te: UiTranslations = {
   'userMenu.panelLabel': 'ఖాతా మెనూ',
   'ui.error.noClassMap':
     'UIClassMap ఏదీ సెట్ చేయబడలేదు. యాప్ ప్రారంభంలో స్టైలింగ్ లైబ్రరీ ఇంప్లిమెంటేషన్‌తో (ఉదా, @molecule/app-ui-tailwind) setClassMap()ని కాల్ చేయండి.',
+  'ui.toast.error.noProvider': '`useToast` తప్పనిసరిగా `ToastProvider` లోపల ఉపయోగించాలి.',
 }

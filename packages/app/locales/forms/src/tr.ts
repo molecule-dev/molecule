@@ -11,4 +11,5 @@ export const tr: FormsTranslations = {
   'forms.invalidEmail': 'Geçersiz e-posta adresi',
   'forms.invalidUrl': 'Geçersiz URL',
   'forms.invalidValue': 'Geçersiz değer',
+  'forms.submitError': 'Gönderilemedi. Lütfen tekrar deneyin.',
 }

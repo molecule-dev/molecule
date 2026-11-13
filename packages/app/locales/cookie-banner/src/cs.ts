@@ -10,4 +10,5 @@ export const cs: Partial<CookieBannerTranslations> = {
   'cookieBanner.customize': 'Přizpůsobit',
   'cookieBanner.reject': 'Odmítnout vše',
   'cookieBanner.accept': 'Přijmout vše',
+  'cookieBanner.learnMore': 'Zjistěte více',
 }

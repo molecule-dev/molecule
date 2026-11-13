@@ -10,4 +10,6 @@ export const mk: BatteryTranslations = {
   'battery.remainingUnknown': 'Непознато',
   'battery.remainingTime': '{{hours}}ч {{minutes}}м',
   'battery.remainingMinutes': '{{minutes}}м',
+  'battery.error.noProvider':
+    '`@molecule/app-battery`: Не е поставен провајдер. Повикајте `setProvider()` со имплементација на `BatteryProvider` — ниеден провајдер не се испорачува со флотата; имплементирајте го интерфејсот на вашето матичко извршување и поврзете го.',
 }

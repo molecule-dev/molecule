@@ -8,4 +8,6 @@ export const ko: Partial<FooterTranslations> = {
   'footer.version': '다섯 {{version}}',
   'content.privacyPolicy': '',
   'content.termsOfService': '',
+  'footer.legalNotConfigured': '이 콘텐츠는 아직 구성되지 않았습니다. 앱 소유자가 제공해야 합니다.',
+  'footer.about': '{{appName}} 소개',
 }

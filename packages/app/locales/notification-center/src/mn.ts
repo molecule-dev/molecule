@@ -6,4 +6,6 @@ export const mn: Partial<NotificationCenterTranslations> = {
   'notifications.markAllRead': 'Бүгдийг уншсан гэж тэмдэглэх',
   'notifications.empty': 'Мэдэгдэл алга',
   'notifications.viewAll': 'Бүгдийг харах',
+  'notifications.loadError': 'Мэдэгдлийг ачаалж чадсангүй.',
+  'notifications.retry': 'Дахин оролдох',
 }

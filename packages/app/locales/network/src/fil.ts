@@ -12,4 +12,8 @@ export const fil: Partial<NetworkTranslations> = {
   'network.unknown': 'Hindi Kilala',
   'network.error.connectionTimeout': 'Naubusan ng oras ang koneksyon sa network',
   'network.error.unavailable': 'Hindi magagamit ang network',
+  'network.error.missingDependency':
+    'Kinakailangan ang `{{library}}` ngunit hindi pa naka-install. I-install ito gamit ang: `npm install {{library}}`',
+  'network.error.noProvider':
+    '`@molecule/app-network`: Walang nakatakdang provider. Tawagin `setProvider()` gamit ang isang implementasyong `NetworkProvider` (hal., mula sa `@molecule/app-network-react-native`).',
 }

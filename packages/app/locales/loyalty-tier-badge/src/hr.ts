@@ -4,4 +4,6 @@ import type { LoyaltyTierBadgeTranslations } from './types.js'
 export const hr: Partial<LoyaltyTierBadgeTranslations> = {
   'loyaltyTierBadge.group': '{{tier}} sloj',
   'loyaltyTierBadge.progress': 'Napredak prema {{next}}',
+  'loyaltyTierBadge.topTier': 'Dostignuta najviša razina',
+  'loyaltyTierBadge.remaining': '{{remaining}} do {{next}}',
 }

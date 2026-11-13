@@ -6,4 +6,6 @@ export const ig: Partial<NotificationCenterTranslations> = {
   'notifications.markAllRead': "Kanye akara n'ihe niile dị ka agụọla",
   'notifications.empty': 'Enweghị ọkwa ọkwa',
   'notifications.viewAll': 'Lee ihe niile',
+  'notifications.loadError': 'Enweghị ike ibuli ọkwa.',
+  'notifications.retry': 'Nwaa ọzọ',
 }

@@ -36,7 +36,6 @@ export const eu: UiTranslations = {
   'ui.select.placeholder': 'Hautatu…',
   'ui.select.title': 'Hautatu',
   'ui.toast.dismiss': 'Baztertu',
-  'ui.toast.error.noProvider': 'useToast ToastProvider baten barruan erabili behar da',
   'confirm.cancel': 'Utzi',
   'confirm.confirm': 'Berretsi',
   'ui.select.clear': '--',
@@ -53,4 +52,5 @@ export const eu: UiTranslations = {
   'userMenu.panelLabel': 'Kontuaren menua',
   'ui.error.noClassMap':
     'Ez da UIClassMap-ik ezarri. Deitu setClassMap() aplikazioa abiaraztean estilo liburutegi baten inplementazio batekin (adibidez, @molecule/app-ui-tailwind).',
+  'ui.toast.error.noProvider': '`useToast` `ToastProvider` baten barruan erabili behar da',
 }

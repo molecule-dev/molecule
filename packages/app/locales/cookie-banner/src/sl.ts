@@ -10,4 +10,5 @@ export const sl: Partial<CookieBannerTranslations> = {
   'cookieBanner.reject': 'Zavrni vse',
   'cookieBanner.save': 'Shrani nastavitve',
   'cookieBanner.accept': 'Sprejmi vse',
+  'cookieBanner.learnMore': 'Več informacij',
 }

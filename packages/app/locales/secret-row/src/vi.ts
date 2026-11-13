@@ -9,4 +9,6 @@ export const vi: Partial<SecretRowTranslations> = {
   'secretRow.rotate': 'Xoay',
   'secretRow.delete': 'Xóa',
   'secretRow.expired': 'Hết hạn',
+  'secretRow.lastRotated': 'Lần xoay cuối cùng',
+  'secretRow.rotateIn': 'Xoay trong {{days}} d',
 }

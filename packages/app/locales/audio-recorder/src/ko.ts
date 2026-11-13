@@ -15,4 +15,6 @@ export const ko: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': '오류',
   'audioRecorder.statusIdle': '녹화 준비 완료',
   'audioRecorder.group': '오디오 레코더',
+  'audioRecorder.record': '기록',
+  'audioRecorder.statusRecording': '녹음',
 }

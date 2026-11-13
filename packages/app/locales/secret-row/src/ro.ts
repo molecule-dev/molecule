@@ -9,4 +9,6 @@ export const ro: Partial<SecretRowTranslations> = {
   'secretRow.expired': 'Expirat',
   'secretRow.hide': 'Ascunde',
   'secretRow.show': 'Spectacol',
+  'secretRow.lastRotated': 'Ultima rotire',
+  'secretRow.rotateIn': 'Rotește în {{days}} zile',
 }

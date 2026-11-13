@@ -4,4 +4,6 @@ import type { PushTranslations } from './types.js'
 export const ig: PushTranslations = {
   'push.error.notSupported': 'Ọkwa ndọtị anaghị akwado',
   'push.error.permissionNotGranted': 'Enyeghị ikike ịkpọsa ọkwa',
+  'push.error.missingDependency':
+    'A chọrọ `{{library}}` mana etinyereghị ya. Wụnye ya na: `npx expo install {{library}}`',
 }

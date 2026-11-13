@@ -4,4 +4,6 @@ import type { PushTranslations } from './types.js'
 export const mt: Partial<PushTranslations> = {
   'push.error.notSupported': 'Push notifications mhumiex supportati',
   'push.error.permissionNotGranted': "Permess ta' notifika mhux mogħti",
+  'push.error.missingDependency':
+    "`{{library}}` hija meħtieġa iżda mhux installata. Installaha b': `npx expo install {{library}}`",
 }

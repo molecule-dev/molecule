@@ -15,4 +15,5 @@ export const ms: Partial<BillingTranslations> = {
     'Batal pada bila-bila masa · Kad kredit tidak diperlukan untuk bermula',
   'billing.pricing.tierEyebrow': 'Peringkat',
   'billing.pricing.perSeat': 'setiap tempat duduk',
+  'billing.pricing.currentCta': 'Pelan semasa',
 }

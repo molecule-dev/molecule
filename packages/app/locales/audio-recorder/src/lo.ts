@@ -15,4 +15,6 @@ export const lo: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'ຜິດພາດ',
   'audioRecorder.statusIdle': 'ພ້ອມທີ່ຈະບັນທຶກແລ້ວ',
   'audioRecorder.group': 'ເຄື່ອງບັນທຶກສຽງ',
+  'audioRecorder.record': 'ບັນທຶກ',
+  'audioRecorder.statusRecording': 'ການບັນທຶກສຽງ',
 }

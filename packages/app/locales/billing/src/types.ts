@@ -12,6 +12,7 @@ export type BillingTranslationKey =
   | 'billing.pricing.tierEyebrow'
   | 'billing.pricing.perSeat'
   | 'billing.pricing.upgradeCta'
+  | 'billing.pricing.currentCta'
 
 /** Translation record mapping billing-react keys to translated strings. */
 export type BillingTranslations = Record<BillingTranslationKey, string>

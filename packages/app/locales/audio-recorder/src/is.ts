@@ -14,4 +14,6 @@ export const is: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'Villa',
   'audioRecorder.statusIdle': 'Tilbúinn til upptöku',
   'audioRecorder.group': 'Hljóðupptökutæki',
+  'audioRecorder.record': 'Upptaka',
+  'audioRecorder.statusRecording': 'Upptaka',
 }

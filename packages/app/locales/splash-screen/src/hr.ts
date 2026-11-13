@@ -5,4 +5,6 @@ export const hr: SplashScreenTranslations = {
   'splashScreen.error.noProvider': 'Pružatelj početnog zaslona nije konfiguriran.',
   'splashScreen.warn.configureNotSupported':
     'configure() nije podržan od strane ovog pružatelja početnog zaslona.',
+  'splashScreen.error.missingDependency':
+    '`{{library}}` je potreban, ali nije instaliran. Instalirajte ga s: `npx expo install {{library}}`',
 }

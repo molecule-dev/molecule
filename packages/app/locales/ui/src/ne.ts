@@ -46,7 +46,6 @@ export const ne: UiTranslations = {
   'ui.select.title': 'चयन गर्नुहोस्',
   'ui.toast.dismiss':
     '\u0916\u093e\u0930\u0947\u091c \u0917\u0930\u094d\u0928\u0941\u0939\u094b\u0938\u094d',
-  'ui.toast.error.noProvider': 'useToast ToastProvider भित्र प्रयोग गर्नुपर्छ।',
   'confirm.cancel': 'रद्द गर्नुहोस्',
   'confirm.confirm': 'पुष्टि गर्नुहोस्',
   'ui.select.clear': '--',
@@ -63,4 +62,5 @@ export const ne: UiTranslations = {
   'userMenu.panelLabel': 'खाता मेनु',
   'ui.error.noClassMap':
     'कुनै पनि UIClassMap सेट गरिएको छैन। स्टाइलिङ लाइब्रेरी कार्यान्वयन (जस्तै, @molecule/app-ui-tailwind) सँग एप स्टार्टअपमा setClassMap() लाई कल गर्नुहोस्।',
+  'ui.toast.error.noProvider': '`useToast` `ToastProvider` भित्र प्रयोग गर्नुपर्छ।',
 }

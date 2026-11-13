@@ -9,4 +9,6 @@ export const ne: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'प्रतिलिपि गर्नुहोस्',
   'secretRow.rotate': 'घुमाउनुहोस्',
   'secretRow.delete': 'मेटाउनुहोस्',
+  'secretRow.lastRotated': 'अन्तिम पटक घुमाइएको',
+  'secretRow.rotateIn': '{{days}} दिनमा घुमाउनुहोस्',
 }

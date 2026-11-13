@@ -11,4 +11,5 @@ export const fr: FormsTranslations = {
   'forms.invalidEmail': 'Adresse e-mail invalide',
   'forms.invalidUrl': 'URL invalide',
   'forms.invalidValue': 'Valeur invalide',
+  'forms.submitError': "Impossible d'envoyer. Veuillez réessayer.",
 }

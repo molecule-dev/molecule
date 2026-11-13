@@ -15,4 +15,6 @@ export const mr: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'त्रुटी',
   'audioRecorder.statusIdle': 'रेकॉर्ड करण्यासाठी तयार',
   'audioRecorder.group': 'ऑडिओ रेकॉर्डर',
+  'audioRecorder.record': 'रेकॉर्ड',
+  'audioRecorder.statusRecording': 'रेकॉर्डिंग',
 }

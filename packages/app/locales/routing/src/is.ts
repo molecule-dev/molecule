@@ -6,4 +6,8 @@ export const is: RoutingTranslations = {
   'routing.error.routeNotFound': 'Leið "{{name}}" fannst ekki',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter verður að nota innan MoleculeRouterProvider',
+  'routing.error.noNavigationRef':
+    'Tilvísun í flakkstillingu er ekki stillt. Gakktu úr skugga um að `MoleculeProvider` sé tengt.',
+  'routing.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` verður að nota innan React Router leiðara. Tengdu `BrowserRouter`, `HashRouter`, `MemoryRouter`, `Router` eða `RouterProvider`.',
 }

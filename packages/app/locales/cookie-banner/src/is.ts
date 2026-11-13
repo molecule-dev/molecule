@@ -9,4 +9,5 @@ export const is: Partial<CookieBannerTranslations> = {
   'cookieBanner.reject': 'Hafna öllu',
   'cookieBanner.save': 'Vista stillingar',
   'cookieBanner.accept': 'Samþykkja allt',
+  'cookieBanner.learnMore': 'Frekari upplýsingar',
 }

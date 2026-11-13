@@ -17,4 +17,21 @@ export const my: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'သင့်အစီအစဉ်ကို အဆင့်မြှင့်တင်ပါ',
   'settings.billing.noTiers': 'ငွေပေးချေသည့် အစီအစဉ်များကို ပြင်ဆင်သတ်မှတ်ခြင်း မရှိပါ။',
   'settings.billing.subscribe': 'စာရင်းသွင်းပါ',
+  'settings.failedToUpdateProfile': 'ပရိုဖိုင်ကို အပ်ဒိတ်လုပ်၍မရပါ',
+  'settings.name': 'အမည်',
+  'settings.twoFactorCode': 'အထောက်အထားစိစစ်ရေးကုဒ်',
+  'settings.twoFactorDisable': 'ပိတ်ရန်',
+  'settings.twoFactorDisableTitle': 'နှစ်ဆင့်အထောက်အထားစိစစ်ခြင်းကို ပိတ်ပါ',
+  'settings.twoFactorEnable': 'ဖွင့်ပါ',
+  'settings.twoFactorEnableTitle': 'နှစ်ဆင့်အထောက်အထားစိစစ်ခြင်းကို ဖွင့်ပါ',
+  'settings.twoFactorInvalidCode': 'ကုဒ် မမှန်ကန်ပါ',
+  'settings.twoFactorOn': 'ဖွင့်ထားသည်',
+  'settings.twoFactorQrAlt': 'နှစ်ဆင့် QR ကုဒ်',
+  'settings.twoFactorScan':
+    'ဤ QR ကုဒ်ကို သင်၏ အထောက်အထားစိစစ်ရေးအက်ပ်ဖြင့် စကင်ဖတ်ပြီးနောက် ဂဏန်း ၆ လုံးပါ ကုဒ်ကို ရိုက်ထည့်ပါ။',
+  'settings.twoFactorUnavailable': 'ဤအက်ပ်အတွက် နှစ်ဆင့်အထောက်အထားစိစစ်ခြင်း မရရှိနိုင်ပါ။',
+  'settings.twoFactorVerify': 'အတည်ပြုပြီး ဖွင့်ပါ',
+  'settings.revokeDeviceWarning':
+    'ဤစက်ပစ္စည်း၏ အသုံးပြုခွင့်ကို မကြာမီ ရုပ်သိမ်းပါမည်။ ထွက်လိုပါသလား။',
+  'settings.signOutDevice': 'ဆိုင်းအောက်',
 }

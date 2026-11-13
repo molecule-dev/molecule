@@ -19,4 +19,5 @@ export const my: FormsTranslations = {
   'forms.invalidUrl': '\u1019\u1019\u103e\u1014\u103a\u1000\u1014\u103a\u101e\u1031\u102c URL',
   'forms.invalidValue':
     '\u1019\u1019\u103e\u1014\u103a\u1000\u1014\u103a\u101e\u1031\u102c \u1010\u1014\u103a\u1016\u102d\u102f\u1038',
+  'forms.submitError': 'ပေးပို့၍မရပါ။ ထပ်မံကြိုးစားပါ။',
 }

@@ -357,14 +357,10 @@ export const zu: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
-  'ide.chat.tip.getStarted':
-    'Icebiso: thayipha / ukuze ubone yonke imiyalo, noma @ igama lefayela ukuze ulinikeze{{agentName}} ifayela ongasebenza kulo.',
   'ide.chat.tip.mention':
     'Icebiso: thayipha i-@filename ukuze unamathisele ifayela lephrojekthi njengomongo —{{agentName}} ikufunda ngqo.',
   'ide.chat.tip.slash':
     'Icebiso: thayipha / ukuze uphequlule yonke imiyalo (commit, diff, model, nokuningi).',
-  'ide.chat.tip.plan':
-    'Icebiso: sebenzisa/hlela ukuba nakho{{agentName}} cwaninga futhi uphakamise uhlelo ngaphambi kokuthi luhlele noma yimaphi amafayela.',
   'ide.chat.tip.undo':
     'Icebiso: sebenzisa i-/undo ukuze ubuyisele ngokushesha izinguquko zefayela le-AI lokugcina uma lihambe ngendlela engafanele.',
   'ide.chat.tip.compact':
@@ -784,4 +780,10 @@ export const zu: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'Isibonelelo sanyanga zonke.',
   'ide.chat.context.daily': 'Isibonelelo sansuku zonke.',
   'ide.chat.context.resets': 'Isetha kabusha {{at}} .',
+  'ide.error.noProvider':
+    'Umhlinzeki wendawo yokusebenza ye-IDE akalungiselelwanga. Bopha umhlinzeki we-IDE kuqala.',
+  'ide.chat.tip.getStarted':
+    'Icebiso: thayipha / ukuze ubone yonke imiyalo, noma @ igama lefayela ukuze unike {{agentName}} ifayela ozosebenza kulo.',
+  'ide.chat.tip.plan':
+    'Icebiso: sebenzisa i-/plan ukuze ucwaninge i {{agentName}} futhi uphakamise uhlelo ngaphambi kokuthi luhlele noma yimaphi amafayela.',
 }

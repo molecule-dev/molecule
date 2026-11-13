@@ -353,14 +353,10 @@ export const be: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
-  'ide.chat.tip.getStarted':
-    'Парада: увядзіце /, каб убачыць усе каманды, або @ перад назвай файла, каб даць{{agentName}} файл, з якім можна працаваць.',
   'ide.chat.tip.mention':
     'Парада: увядзіце @filename, каб далучыць файл праекта ў якасці кантэксту —{{agentName}} чытае яго непасрэдна.',
   'ide.chat.tip.slash':
     'Парада: увядзіце /, каб праглядзець усе каманды (commit, diff, model і іншыя).',
-  'ide.chat.tip.plan':
-    'Парада: выкарыстоўвайце /плануйце мець{{agentName}} даследаваць і прапанаваць план, перш чым рэдагаваць якія-небудзь файлы.',
   'ide.chat.tip.undo':
     'Парада: выкарыстоўвайце /undo, каб імгненна адмяніць змены ў файле апошняга ходу штучнага інтэлекту, калі ўсё пайшло не так.',
   'ide.chat.tip.compact':
@@ -780,4 +776,10 @@ export const be: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'Штомесячная дапамога.',
   'ide.chat.context.daily': 'Дзённыя дапаможнікі.',
   'ide.chat.context.resets': 'Скідае {{at}} .',
+  'ide.error.noProvider':
+    'Пастаўшчык працоўнай прасторы IDE не настроены. Спачатку падключыце пастаўшчыка IDE.',
+  'ide.chat.tip.getStarted':
+    'Парада: увядзіце /, каб убачыць кожную каманду, або @ перад назвай файла, каб даць {{agentName}} файл для працы.',
+  'ide.chat.tip.plan':
+    'Парада: выкарыстоўвайце /plan, каб {{agentName}} даследаваў сітуацыю і прапанаваў план, перш чым рэдагаваць якія-небудзь файлы.',
 }

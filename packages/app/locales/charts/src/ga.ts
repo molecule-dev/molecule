@@ -4,4 +4,5 @@ import type { ChartsTranslations } from './types.js'
 export const ga: ChartsTranslations = {
   'charts.placeholder.label': 'Cairt {{type}}',
   'charts.placeholder.description': 'Úsáid soláthraí cairteacha cuí',
+  'charts.error.noCanvasContext': 'Níorbh fhéidir comhthéacs 2T an chanbháis a fháil',
 }

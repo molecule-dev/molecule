@@ -6,4 +6,6 @@ export const th: Partial<NotificationCenterTranslations> = {
   'notifications.markAllRead': 'ทำเครื่องหมายว่าอ่านแล้วทั้งหมด',
   'notifications.empty': 'ไม่มีการแจ้งเตือน',
   'notifications.viewAll': 'ดูทั้งหมด',
+  'notifications.loadError': 'ไม่สามารถโหลดการแจ้งเตือนได้',
+  'notifications.retry': 'ลองใหม่อีกครั้ง',
 }

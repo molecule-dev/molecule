@@ -1,5 +1,9 @@
 /** Translation keys for the maps locale package. */
-export type MapsTranslationKey = 'maps.placeholder.title' | 'maps.placeholder.description'
+export type MapsTranslationKey =
+  | 'maps.placeholder.title'
+  | 'maps.placeholder.description'
+  | 'maps.error.emptyBoundsCoordinates'
+  | 'maps.error.emptyCenterCoordinates'
 
 /** Translation record mapping maps keys to translated strings. */
 export type MapsTranslations = Record<MapsTranslationKey, string>

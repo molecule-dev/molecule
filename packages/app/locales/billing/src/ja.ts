@@ -14,4 +14,5 @@ export const ja: Partial<BillingTranslations> = {
   'billing.status.cancelError': 'キャンセルできませんでした。もう一度お試しください。',
   'billing.pricing.reassurance': 'いつでもキャンセル可能 · クレジットカード不要で始められます',
   'billing.pricing.perSeat': '座席あたり',
+  'billing.pricing.currentCta': '現在の計画',
 }

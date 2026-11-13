@@ -278,6 +278,7 @@ export type IdeTranslationKey =
   | 'ide.sidebar.tabs'
   | 'ide.sidebar.files'
   | 'ide.sidebar.search'
+  | 'ide.error.noProvider'
 
   /** Translation record mapping ide keys to translated strings. */
   | 'ide.chat.thoughtBriefly'

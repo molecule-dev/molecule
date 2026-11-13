@@ -12,4 +12,8 @@ export const sw: NetworkTranslations = {
   'network.unknown': 'Haijulikani',
   'network.error.connectionTimeout': 'Muda wa muunganisho wa mtandao umeisha',
   'network.error.unavailable': 'Mtandao haupatikani',
+  'network.error.missingDependency':
+    '`{{library}}` inahitajika lakini haijasakinishwa. Isakinishe na: `npm install {{library}}`',
+  'network.error.noProvider':
+    '`@molecule/app-network`: Hakuna mtoa huduma aliyewekwa. Piga simu `setProvider()` kwa kutumia utekelezaji wa `NetworkProvider` (km, kutoka `@molecule/app-network-react-native`).',
 }

@@ -353,13 +353,9 @@ export const sw: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
-  'ide.chat.tip.getStarted':
-    'Kidokezo: andika / ili kuona kila amri, au @ jina la faili ili kutoa{{agentName}} faili ya kufanya kazi kutoka.',
   'ide.chat.tip.mention':
     'Kidokezo: andika @filename ili kuambatisha faili ya mradi kama muktadha —{{agentName}} anasoma moja kwa moja.',
   'ide.chat.tip.slash': 'Kidokezo: type / ili kuvinjari kila amri (commit, diff, model, na zaidi).',
-  'ide.chat.tip.plan':
-    'Ushauri: tumia/panga kuwa na{{agentName}} fanya utafiti na upendekeze mpango kabla ya kuhariri faili zozote.',
   'ide.chat.tip.undo':
     'Ushauri: tumia /tendua ili kurejesha mara moja mabadiliko ya faili ya zamu ya mwisho ya AI ikiwa ilienda vibaya.',
   'ide.chat.tip.compact':
@@ -778,4 +774,10 @@ export const sw: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'Posho ya kila mwezi.',
   'ide.chat.context.daily': 'Posho ya kila siku.',
   'ide.chat.context.resets': 'Huweka upya {{at}} .',
+  'ide.error.noProvider':
+    'Mtoa huduma wa nafasi ya kazi ya IDE hajasanidiwa. Weka mshirika wa mtoa huduma wa IDE kwanza.',
+  'ide.chat.tip.getStarted':
+    'Kidokezo: andika / ili kuona kila amri, au @ jina la faili ili kumpa {{agentName}} faili ya kufanya kazi kutoka kwake.',
+  'ide.chat.tip.plan':
+    'Ushauri: tumia /plan kufanya utafiti wa {{agentName}} na kupendekeza mpango kabla ya kuhariri faili zozote.',
 }

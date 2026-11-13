@@ -9,4 +9,6 @@ export const am: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'ቅጂ',
   'secretRow.rotate': 'አዙር',
   'secretRow.delete': 'ሰርዝ',
+  'secretRow.lastRotated': 'ለመጨረሻ ጊዜ የተሽከረከረው',
+  'secretRow.rotateIn': 'በ {{days}} ውስጥ አሽከርክር',
 }

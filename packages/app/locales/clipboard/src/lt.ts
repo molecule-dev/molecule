@@ -5,4 +5,6 @@ export const lt: ClipboardTranslations = {
   'clipboard.error.noProvider':
     '@molecule/app-clipboard: Teikėjas nenustatytas. Iškvieskite setProvider() su ClipboardProvider realizacija (pvz., iš @molecule/app-clipboard-react-native).',
   'clipboard.warn.onChangeNotSupported': '@molecule/app-clipboard: onChange nepalaikomas teikėjo',
+  'clipboard.error.missingDependency':
+    '`{{library}}` yra būtinas, bet neįdiegtas. Įdiekite jį naudodami: `npm install {{library}}`',
 }

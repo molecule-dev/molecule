@@ -5,4 +5,5 @@ export const eu: Partial<SettingsActionsBarTranslations> = {
   'settingsActions.cancel': 'Utzi',
   'settingsActions.saving': 'Gordetzen…',
   'settingsActions.save': 'Gorde aldaketak',
+  'settingsActions.saved': 'Gordeta {{at}}',
 }

@@ -11,4 +11,5 @@ export const ta: FormsTranslations = {
   'forms.invalidEmail': 'தவறான மின்னஞ்சல் முகவரி',
   'forms.invalidUrl': 'தவறான URL',
   'forms.invalidValue': 'தவறான மதிப்பு',
+  'forms.submitError': 'சமர்ப்பிக்க முடியவில்லை. மீண்டும் முயற்சிக்கவும்.',
 }

@@ -6,4 +6,6 @@ export const mt: Partial<ClipboardTranslations> = {
     '@molecule/app-clipboard: onChange mhux appoġġjat mill-fornitur',
   'clipboard.error.noProvider':
     "@molecule/app-clipboard: L-ebda fornitur ma ġie stabbilit. Sejħa setProvider() b'implimentazzjoni ta' ClipboardProvider (eż., minn @molecule/app-clipboard-react-native).",
+  'clipboard.error.missingDependency':
+    "`{{library}}` hija meħtieġa iżda mhux installata. Installaha b': `npm install {{library}}`",
 }

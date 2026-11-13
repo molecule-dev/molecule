@@ -6,4 +6,8 @@ export const mt: RoutingTranslations = {
   'routing.error.routeNotFound': 'Ir-rotta "{{name}}" ma nstabitx',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter irid jintuża ġo MoleculeRouterProvider',
+  'routing.error.noNavigationRef':
+    'Ir-referenza tan-navigazzjoni mhux issettjata. Kun żgur li `MoleculeProvider` huwa mmuntat.',
+  'routing.error.useMoleculeRouterOutsideRouter':
+    "`useMoleculeRouter` irid jintuża f'router ta' React Router. Immonta `BrowserRouter`, `HashRouter`, `MemoryRouter`, `Router`, jew `RouterProvider`.",
 }

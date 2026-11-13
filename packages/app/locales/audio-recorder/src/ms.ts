@@ -14,4 +14,6 @@ export const ms: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'Ralat',
   'audioRecorder.statusIdle': 'Bersedia untuk dirakam',
   'audioRecorder.group': 'Perakam audio',
+  'audioRecorder.record': 'Rekod',
+  'audioRecorder.statusRecording': 'Rakaman',
 }

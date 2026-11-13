@@ -8,4 +8,7 @@ export const kk: Partial<FooterTranslations> = {
   'footer.language': 'Тіл',
   'content.privacyPolicy': '',
   'content.termsOfService': '',
+  'footer.legalNotConfigured':
+    'Бұл мазмұн әлі конфигурацияланбаған. Қолданба иесі оны ұсынуы керек.',
+  'footer.about': '{{appName}} туралы',
 }

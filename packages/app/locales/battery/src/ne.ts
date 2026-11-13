@@ -10,4 +10,6 @@ export const ne: BatteryTranslations = {
   'battery.remainingUnknown': 'अज्ञात',
   'battery.remainingTime': '{{hours}}घण्टा {{minutes}}मि',
   'battery.remainingMinutes': '{{minutes}}मि',
+  'battery.error.noProvider':
+    '`@molecule/app-battery`: कुनै प्रदायक सेट गरिएको छैन। `BatteryProvider` कार्यान्वयनको साथ `setProvider()` लाई कल गर्नुहोस् — कुनै पनि प्रदायकले फ्लीटसँग पठाउँदैन; आफ्नो नेटिभ रनटाइममा इन्टरफेस लागू गर्नुहोस् र यसलाई बन्ड गर्नुहोस्।',
 }

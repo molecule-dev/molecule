@@ -12,4 +12,8 @@ export const lt: NetworkTranslations = {
   'network.unknown': 'Nežinoma',
   'network.error.connectionTimeout': 'Tinklo ryšio skirtasis laikas',
   'network.error.unavailable': 'Tinklas nepasiekiamas',
+  'network.error.missingDependency':
+    '`{{library}}` yra būtinas, bet neįdiegtas. Įdiekite jį naudodami: `npm install {{library}}`',
+  'network.error.noProvider':
+    '`@molecule/app-network`: Nenustatytas tiekėjas. Iškvieskite `setProvider()` su `NetworkProvider` įdiegimu (pvz., iš `@molecule/app-network-react-native`).',
 }

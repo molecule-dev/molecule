@@ -10,4 +10,5 @@ export const th: Partial<CookieBannerTranslations> = {
   'cookieBanner.reject': 'ปฏิเสธทั้งหมด',
   'cookieBanner.save': 'บันทึกการตั้งค่า',
   'cookieBanner.accept': 'ยอมรับทั้งหมด',
+  'cookieBanner.learnMore': 'เรียนรู้เพิ่มเติม',
 }

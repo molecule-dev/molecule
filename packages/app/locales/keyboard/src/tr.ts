@@ -4,4 +4,5 @@ import type { KeyboardTranslations } from './types.js'
 export const tr: Partial<KeyboardTranslations> = {
   'keyboard.error.noProvider':
     "@molecule/app-keyboard: Sağlayıcı ayarlanmadı. Bir KeyboardProvider uygulamasıyla (örneğin, @molecule/app-keyboard-react-native'dan) setProvider() işlevini çağırın.",
+  'keyboard.error.missingDependency': '`{{library}}` gerekli ancak yüklü değil.',
 }

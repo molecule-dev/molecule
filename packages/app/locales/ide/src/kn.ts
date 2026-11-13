@@ -777,4 +777,6 @@ export const kn: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'ಮಾಸಿಕ ಭತ್ಯೆ.',
   'ide.chat.context.daily': 'ದೈನಂದಿನ ಭತ್ಯೆ.',
   'ide.chat.context.resets': '{{at}} ಅನ್ನು ಮರುಹೊಂದಿಸುತ್ತದೆ.',
+  'ide.error.noProvider':
+    'IDE ಕಾರ್ಯಸ್ಥಳ ಪೂರೈಕೆದಾರರನ್ನು ಕಾನ್ಫಿಗರ್ ಮಾಡಲಾಗಿಲ್ಲ. ಮೊದಲು IDE ಪೂರೈಕೆದಾರರನ್ನು ಬಾಂಡ್ ಮಾಡಿ.',
 }

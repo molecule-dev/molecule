@@ -36,7 +36,6 @@ export const sw: UiTranslations = {
   'ui.select.placeholder': 'Chagua…',
   'ui.select.title': 'Chagua',
   'ui.toast.dismiss': 'Ondoa',
-  'ui.toast.error.noProvider': 'useToast lazima itumike ndani ya ToastProvider',
   'confirm.cancel': 'Ghairi',
   'confirm.confirm': 'Thibitisha',
   'ui.select.clear': '--',
@@ -53,4 +52,5 @@ export const sw: UiTranslations = {
   'userMenu.panelLabel': 'Menyu ya akaunti',
   'ui.error.noClassMap':
     'Hakuna UIClassMap iliyowekwa. Piga simu setClassMap() wakati programu inapoanza kwa kutumia usanidi wa maktaba (km, @molecule/app-ui-tailwind).',
+  'ui.toast.error.noProvider': '`useToast` lazima itumike ndani ya `ToastProvider`',
 }

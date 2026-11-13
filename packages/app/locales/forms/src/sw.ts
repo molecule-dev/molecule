@@ -11,4 +11,5 @@ export const sw: FormsTranslations = {
   'forms.invalidEmail': 'Anwani ya barua pepe batili',
   'forms.invalidUrl': 'URL batili',
   'forms.invalidValue': 'Thamani batili',
+  'forms.submitError': 'Haiwezi kuwasilisha. Tafadhali jaribu tena.',
 }

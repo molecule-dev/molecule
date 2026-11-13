@@ -5,7 +5,12 @@ import { fileURLToPath } from 'node:url'
 
 import { afterEach, describe, expect, it } from 'vitest'
 
-import { analyzeParity, newMissing, newUnowned } from '../check-i18n-parity.js'
+import {
+  analyzeParity,
+  newMissing,
+  newUnowned,
+  staleBaselineEntries,
+} from '../check-i18n-parity.js'
 
 const SCRIPTS_DIR = dirname(dirname(fileURLToPath(import.meta.url))) // .../scripts
 const ROOT = join(SCRIPTS_DIR, '..')
@@ -49,6 +54,17 @@ describe('i18n parity guard (cross-cutting-i18n)', () => {
     // package can ship text with no companion bond and every non-English locale
     // shows English for it.
     expect(newUnowned()).toEqual([])
+  })
+
+  it('keeps no fixed entry in the baseline, so a fixed key cannot go missing again unnoticed', () => {
+    expect(staleBaselineEntries()).toEqual([])
+    // The comparison itself: an entry the tree no longer reports is stale.
+    expect(
+      staleBaselineEntries(
+        { missing: ['app/x::x.a', 'app/x::x.b'], unowned: ['api::y.c'] },
+        { missing: ['app/x::x.b'], unowned: [] },
+      ),
+    ).toEqual(['app/x::x.a', 'api::y.c'])
   })
 
   describe('on a fixture tree', () => {

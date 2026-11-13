@@ -439,15 +439,11 @@ export const ja: Partial<IdeTranslations> = {
     'ディスカバリー — 新たな対話はここから始まります。{{agentName}}は、コードを書く前に要件を明確にするため、確認のための質問を行います。',
   'ide.chat.help.modeExecute':
     '実行 — デフォルトの動作モードです。{{agentName}}はコードを記述し、ツールを実行して変更を適用した後、その内容を確認します。',
-  'ide.chat.help.modePlan':
-    'プラン — `{{agentName}}` はコードベースを調査し、ファイルを編集せずにプランを提案します。`/plan` で切り替えられます。大規模な変更やリスクの高い変更に最適です。',
   'ide.chat.help.modesHeading': '── モード ──',
   'ide.chat.help.shortcuts':
     'すべてのキーボードショートカットを表示するには、Cmd+/（Windows/Linuxの場合はCtrl+/）を押してください。',
   'ide.chat.help.tipCompact':
     '• 会話が長くなった場合は、/compact コマンドを使って内容を圧縮してください。',
-  'ide.chat.help.tipPlan':
-    '• 変更を加える前に、`/plan` コマンドを使用して、{{agentName}}に調査を行わせてください。',
   'ide.chat.help.tipSlash': '• / と入力すると、上記のすべてのコマンドを表示できます。',
   'ide.chat.help.tipSpecific':
     '• 具体的に記述する — 「メールアドレスとパスワード、およびGoogle OAuthによるログインページを追加する」という記述は、「認証機能を追加する」という記述よりも優れています。',
@@ -784,4 +780,10 @@ export const ja: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': '月額手当。',
   'ide.chat.context.daily': '日当。',
   'ide.chat.context.resets': 'リセット回数{{at}} 。',
+  'ide.error.noProvider':
+    'IDEワークスペースプロバイダーが設定されていません。まずIDEプロバイダーをバインドしてください。',
+  'ide.chat.help.modePlan':
+    'プラン — {{agentName}}はコードベースを調査し、ファイルを編集せずにプランを提案します。/plan で切り替えられます。大規模な変更やリスクの高い変更に最適です。',
+  'ide.chat.help.tipPlan':
+    '• 変更を行う前に、/plan を使用して{{agentName}}に調査を依頼してください。',
 }

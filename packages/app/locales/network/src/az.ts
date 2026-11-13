@@ -12,4 +12,8 @@ export const az: NetworkTranslations = {
   'network.unknown': 'Naməlum',
   'network.error.connectionTimeout': 'Şəbəkə bağlantısı vaxtı keçdi',
   'network.error.unavailable': 'Şəbəkə əlçatmazdır',
+  'network.error.missingDependency':
+    '`{{library}}` tələb olunur, lakin quraşdırılmayıb. Bunu bu şəkildə quraşdırın: `npm install {{library}}`',
+  'network.error.noProvider':
+    '`@molecule/app-network`: Provayder təyin edilməyib. `NetworkProvider` implementasiyası ilə `setProvider()` çağırın (məsələn, `@molecule/app-network-react-native` dən).',
 }

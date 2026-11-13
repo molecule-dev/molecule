@@ -4,4 +4,5 @@ import type { StatusBarTranslations } from './types.js'
 export const lo: StatusBarTranslations = {
   'statusBar.error.noProvider':
     '@molecule/app-status-bar: ບໍ່ມີຜູ້ໃຫ້ບໍລິການຖືກຕັ້ງ. ເອີ້ນ setProvider() ດ້ວຍການປະຕິບັດ StatusBarProvider (ເຊັ່ນ, ຈາກ @molecule/app-status-bar-react-native).',
+  'statusBar.error.missingDependency': 'ຕ້ອງມີ `{{library}}` ແຕ່ຍັງບໍ່ໄດ້ຕິດຕັ້ງ.',
 }

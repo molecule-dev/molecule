@@ -3,4 +3,6 @@ import type { MedicationRowTranslations } from './types.js'
 /** MedicationRow translations for ur. */
 export const ur: Partial<MedicationRowTranslations> = {
   'medication.prescribedBy': 'کے ذریعہ تجویز کردہ',
+  'medication.refills': '{{refills}} دوبارہ بھرنا',
+  'medication.supplyDays': '{{days}} دن کی فراہمی',
 }

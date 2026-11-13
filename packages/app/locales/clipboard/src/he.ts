@@ -5,4 +5,6 @@ export const he: ClipboardTranslations = {
   'clipboard.error.noProvider':
     '@molecule/app-clipboard: לא הוגדר ספק. קרא ל-setProvider() עם מימוש של ClipboardProvider (למשל, מ-@molecule/app-clipboard-react-native).',
   'clipboard.warn.onChangeNotSupported': '@molecule/app-clipboard: onChange אינו נתמך על ידי הספק',
+  'clipboard.error.missingDependency':
+    '`{{library}}` נדרש אך אינו מותקן. התקן אותו באמצעות: `npm install {{library}}`',
 }

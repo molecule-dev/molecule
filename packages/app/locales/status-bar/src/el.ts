@@ -4,4 +4,5 @@ import type { StatusBarTranslations } from './types.js'
 export const el: StatusBarTranslations = {
   'statusBar.error.noProvider':
     '@molecule/app-status-bar: Δεν έχει οριστεί πάροχος. Καλέστε setProvider() με μια υλοποίηση StatusBarProvider (π.χ. από @molecule/app-status-bar-react-native).',
+  'statusBar.error.missingDependency': '`{{library}}` απαιτείται αλλά δεν είναι εγκατεστημένο.',
 }

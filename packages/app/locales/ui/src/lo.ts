@@ -37,7 +37,6 @@ export const lo: UiTranslations = {
   'ui.select.placeholder': 'ເລືອກ…',
   'ui.select.title': 'ເລືອກ',
   'ui.toast.dismiss': '\u0e9b\u0eb4\u0e94\u0ec0\u0e95\u0eb7\u0ead\u0e99',
-  'ui.toast.error.noProvider': 'useToast ຕ້ອງຖືກນໍາໃຊ້ພາຍໃນ ToastProvider',
   'confirm.cancel': 'ຍົກເລີກ',
   'confirm.confirm': 'ຢືນຢັນ',
   'ui.select.clear': '--',
@@ -54,4 +53,5 @@ export const lo: UiTranslations = {
   'userMenu.panelLabel': 'ເມນູບັນຊີ',
   'ui.error.noClassMap':
     'ບໍ່ມີການຕັ້ງຄ່າ UIClassMap. ໃຫ້ເອີ້ນໃຊ້ setClassMap() ເມື່ອເລີ່ມຕົ້ນແອັບດ້ວຍການຈັດຕັ້ງປະຕິບັດຫ້ອງສະໝຸດຮູບແບບ (ຕົວຢ່າງ, @molecule/app-ui-tailwind).',
+  'ui.toast.error.noProvider': 'ຕ້ອງໃຊ້ `useToast` ພາຍໃນ `ToastProvider`',
 }

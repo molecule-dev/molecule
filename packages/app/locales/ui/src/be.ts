@@ -36,7 +36,6 @@ export const be: UiTranslations = {
   'ui.select.placeholder': 'Выберыце…',
   'ui.select.title': 'Выберыце',
   'ui.toast.dismiss': 'Адхіліць',
-  'ui.toast.error.noProvider': 'useToast павінен выкарыстоўвацца ўнутры ToastProvider',
   'confirm.cancel': 'Адмена',
   'confirm.confirm': 'Пацвердзіць',
   'ui.select.clear': '--',
@@ -53,4 +52,5 @@ export const be: UiTranslations = {
   'userMenu.panelLabel': 'Меню ўліковага запісу',
   'ui.error.noClassMap':
     'UIClassMap не быў зададзены. Выклікайце setClassMap() пры запуску праграмы з рэалізацыяй бібліятэкі стыляў (напрыклад, @molecule/app-ui-tailwind).',
+  'ui.toast.error.noProvider': '`useToast` павінен выкарыстоўвацца ўнутры `ToastProvider`',
 }

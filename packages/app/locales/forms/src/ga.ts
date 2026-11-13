@@ -11,4 +11,5 @@ export const ga: FormsTranslations = {
   'forms.invalidEmail': 'Seoladh ríomhphoist neamhbhailí',
   'forms.invalidUrl': 'URL neamhbhailí',
   'forms.invalidValue': 'Luach neamhbhailí',
+  'forms.submitError': 'Ní féidir é a chur isteach. Déan iarracht arís.',
 }

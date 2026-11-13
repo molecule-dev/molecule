@@ -15,4 +15,6 @@ export const lt: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'Klaida',
   'audioRecorder.statusIdle': 'Paruošta įrašyti',
   'audioRecorder.group': 'Garso įrašymo įrenginys',
+  'audioRecorder.record': 'Įrašas',
+  'audioRecorder.statusRecording': 'Įrašymas',
 }

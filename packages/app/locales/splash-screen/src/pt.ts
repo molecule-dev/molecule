@@ -5,4 +5,6 @@ export const pt: SplashScreenTranslations = {
   'splashScreen.error.noProvider': 'O fornecedor de ecrã de arranque não está configurado.',
   'splashScreen.warn.configureNotSupported':
     'configure() não é suportado por este fornecedor de ecrã de arranque.',
+  'splashScreen.error.missingDependency':
+    'A `{{library}}` é necessária, mas não está instalada. Instale-a com: `npx expo install {{library}}`',
 }

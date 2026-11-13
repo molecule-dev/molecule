@@ -4,4 +4,5 @@ import type { ChartsTranslations } from './types.js'
 export const is: ChartsTranslations = {
   'charts.placeholder.label': '{{type}} graf',
   'charts.placeholder.description': 'Notaðu viðeigandi grafþjónustuveitu',
+  'charts.error.noCanvasContext': 'Gat ekki sótt 2D samhengi striga',
 }

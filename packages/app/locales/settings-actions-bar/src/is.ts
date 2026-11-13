@@ -5,4 +5,5 @@ export const is: Partial<SettingsActionsBarTranslations> = {
   'settingsActions.cancel': 'Hætta við',
   'settingsActions.saving': 'Vistar…',
   'settingsActions.save': 'Vista breytingar',
+  'settingsActions.saved': 'Vistað {{at}}',
 }

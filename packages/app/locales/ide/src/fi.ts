@@ -390,7 +390,6 @@ export const fi: Partial<IdeTranslations> = {
   'ide.chat.models.colName': 'Malli',
   'ide.chat.models.freeNo': '—',
   'ide.chat.models.freeYes': '✓ Ilmainen',
-  'ide.chat.models.sortBy': 'Lajittele seuraavien mukaan{{column}}',
   'ide.chat.modelsLoading': 'Malleja ladataan…',
   'ide.chat.modelsNone':
     'Malleja ei ole vielä saatavilla — pyydä järjestelmänvalvojaa ottamaan yhteyttä tekoälypalveluntarjoajaan.',
@@ -494,7 +493,6 @@ export const fi: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNotFound':
     'Käsikirjoitusta nimeltä ”{{name}}” ei löydy. Saatavilla: {{names}}',
   'ide.chat.scripts.cmdExitOk': '{{name}} päättyi 0',
-  'ide.chat.scripts.cmdExitFail': '{{name}} ohjelma päättyi virhekoodilla{{code}}',
   'ide.chat.scripts.exitOk': 'Lopetettu 0',
   'ide.chat.scripts.exitFail': 'Poistui sivustolta {{code}}',
   'ide.chat.scripts.noOutput': '(ei tulostetta)',
@@ -787,4 +785,7 @@ export const fi: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'Kuukausittainen korvaus.',
   'ide.chat.context.daily': 'Päiväraha.',
   'ide.chat.context.resets': 'Nollaa {{at}} .',
+  'ide.error.noProvider': 'IDE-työtilan tarjoajaa ei ole määritetty. Yhdistä ensin IDE-tarjoaja.',
+  'ide.chat.models.sortBy': 'Lajittele {{column}} mukaan',
+  'ide.chat.scripts.cmdExitFail': '{{name}} poistui koodilla {{code}}',
 }

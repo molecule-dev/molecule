@@ -6,4 +6,6 @@ export const ha: ClipboardTranslations = {
     '@molecule/app-clipboard: Ba a saita mai samarwa ba. Kira setProvider() tare da aiwatar ClipboardProvider (misali, daga @molecule/app-clipboard-react-native).',
   'clipboard.warn.onChangeNotSupported':
     '@molecule/app-clipboard: onChange bai da tallafin mai samarwa ba',
+  'clipboard.error.missingDependency':
+    'Ana buƙatar `{{library}}` amma ba a shigar da shi ba. Shigar da shi da: `npm install {{library}}`',
 }

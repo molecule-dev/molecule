@@ -15,4 +15,6 @@ export const ur: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'خرابی',
   'audioRecorder.statusIdle': 'ریکارڈ کرنے کے لیے تیار ہیں۔',
   'audioRecorder.group': 'آڈیو ریکارڈر',
+  'audioRecorder.record': 'ریکارڈ',
+  'audioRecorder.statusRecording': 'ریکارڈنگ',
 }

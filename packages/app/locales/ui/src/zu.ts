@@ -36,7 +36,6 @@ export const zu: UiTranslations = {
   'ui.select.placeholder': 'Khetha…',
   'ui.select.title': 'Khetha',
   'ui.toast.dismiss': 'Cashisa',
-  'ui.toast.error.noProvider': 'i-useToast kumele isetshenziswe ngaphakathi kwe-ToastProvider',
   'confirm.cancel': 'Khansela',
   'confirm.confirm': 'Qinisekisa',
   'ui.select.clear': '--',
@@ -53,4 +52,5 @@ export const zu: UiTranslations = {
   'userMenu.panelLabel': 'Imenyu ye-akhawunti',
   'ui.error.noClassMap':
     'Akukho UIClassMap esethiwe. Shayela i-setClassMap() ekuqaleni kohlelo lokusebenza ngokusetshenziswa kwelabhulali yesitayela (isb., @molecule/app-ui-tailwind).',
+  'ui.toast.error.noProvider': '`useToast` kumele isetshenziswe ngaphakathi kwe `ToastProvider`',
 }

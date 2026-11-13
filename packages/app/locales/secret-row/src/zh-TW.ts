@@ -9,4 +9,6 @@ export const zhTW: Partial<SecretRowTranslations> = {
   'secretRow.copy': '複製',
   'secretRow.rotate': '旋轉',
   'secretRow.delete': '刪除',
+  'secretRow.lastRotated': '上次輪換',
+  'secretRow.rotateIn': '以{{days}}天為週期旋轉',
 }

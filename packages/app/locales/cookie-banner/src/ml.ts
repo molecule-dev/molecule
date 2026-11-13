@@ -10,4 +10,5 @@ export const ml: Partial<CookieBannerTranslations> = {
   'cookieBanner.reject': 'എല്ലാം നിരസിക്കുക',
   'cookieBanner.save': 'മുൻഗണനകൾ സംരക്ഷിക്കുക',
   'cookieBanner.accept': 'എല്ലാം സ്വീകരിക്കുക',
+  'cookieBanner.learnMore': 'കൂടുതലറിയുക',
 }

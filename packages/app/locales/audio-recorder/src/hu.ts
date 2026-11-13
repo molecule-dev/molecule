@@ -15,4 +15,6 @@ export const hu: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'Hiba',
   'audioRecorder.statusIdle': 'Készen áll a felvételre',
   'audioRecorder.group': 'Hangrögzítő',
+  'audioRecorder.record': 'Rekord',
+  'audioRecorder.statusRecording': 'Felvétel',
 }

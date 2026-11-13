@@ -5,4 +5,5 @@ export const ja: Partial<SettingsActionsBarTranslations> = {
   'settingsActions.cancel': 'キャンセル',
   'settingsActions.saving': '保存中…',
   'settingsActions.save': '変更を保存',
+  'settingsActions.saved': '保存場所：{{at}}',
 }

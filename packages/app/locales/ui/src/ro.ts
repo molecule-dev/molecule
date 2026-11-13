@@ -36,7 +36,6 @@ export const ro: Partial<UiTranslations> = {
   'ui.select.placeholder': 'Selectați…',
   'ui.select.title': 'Selecta',
   'ui.toast.dismiss': 'Închide',
-  'ui.toast.error.noProvider': 'useToast trebuie utilizat în cadrul unui ToastProvider',
   'confirm.cancel': 'Anulați',
   'confirm.confirm': 'Confirma',
   'ui.select.clear': '--',
@@ -53,4 +52,5 @@ export const ro: Partial<UiTranslations> = {
   'userMenu.panelLabel': 'Meniul Cont',
   'ui.error.noClassMap':
     'Nu a fost setată nicio UIClassMap. Apelați setClassMap() la pornirea aplicației cu o implementare a unei biblioteci de stiluri (de exemplu, @molecule/app-ui-tailwind).',
+  'ui.toast.error.noProvider': '`useToast` trebuie utilizat în cadrul unui `ToastProvider`',
 }

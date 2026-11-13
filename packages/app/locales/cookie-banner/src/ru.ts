@@ -10,4 +10,5 @@ export const ru: Partial<CookieBannerTranslations> = {
   'cookieBanner.reject': 'Отвергнуть все',
   'cookieBanner.save': 'Сохранить настройки',
   'cookieBanner.accept': 'Принять все',
+  'cookieBanner.learnMore': 'Узнать больше',
 }

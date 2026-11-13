@@ -353,8 +353,6 @@ export const cs: Partial<IdeTranslations> = {
   'ide.chat.tip.dismiss': 'Zavřít tip',
   'ide.chat.tip.getStarted':
     'Tip: Zadejte / pro zobrazení všech příkazů nebo @ název souboru, abyste programu „{{agentName}}“ zadali soubor, se kterým má pracovat.',
-  'ide.chat.tip.mention':
-    'Tip: Zadejte @název_souboru, chcete-li připojit soubor projektu jako kontext – příkaz `{{agentName}}` jej přečte přímo.',
   'ide.chat.tip.slash':
     'Tip: Zadejte / a zobrazí se seznam všech příkazů (commit, diff, model a další).',
   'ide.chat.tip.plan':
@@ -368,7 +366,6 @@ export const cs: Partial<IdeTranslations> = {
   'ide.chat.tip.report':
     'Tip: Něco nefunguje? Pomocí příkazu /report můžete týmu nahlásit chybu nebo poskytnout zpětnou vazbu spolu s přiloženým záznamem z nedávného chatu.',
   'ide.chat.undoError': 'Vrátit změny se nepodařilo.',
-  'ide.chat.autoCommit.badge': 'Automatické potvrzení v{{countdown}}',
   'ide.chat.autoCommit.cancel': 'Zrušit automatické potvrzení',
   'ide.chat.autoCommit.cancelled': 'Automatické potvrzení bylo zrušeno.',
   'ide.chat.autoCommit.enabled':
@@ -388,7 +385,6 @@ export const cs: Partial<IdeTranslations> = {
   'ide.chat.models.colName': 'Model',
   'ide.chat.models.freeNo': '—',
   'ide.chat.models.freeYes': '✓ Zdarma',
-  'ide.chat.models.sortBy': 'Seřadit podle{{column}}',
   'ide.chat.modelsLoading': 'Načítání modelů…',
   'ide.chat.modelsNone':
     'Zatím nejsou k dispozici žádné modely – požádejte svého správce, aby připojil poskytovatele AI.',
@@ -437,15 +433,11 @@ export const cs: Partial<IdeTranslations> = {
     'Objevování — nové rozhovory začínají právě zde. Metoda „{{agentName}}“ klade upřesňující otázky, aby se před napsáním jakéhokoli kódu přesně definovaly požadavky.',
   'ide.chat.help.modeExecute':
     'Spustit – výchozí režim práce. Funkce „{{agentName}}“ napíše kód, spustí nástroje, provede změny a následně je ověří.',
-  'ide.chat.help.modePlan':
-    'Plán — Příkaz `{{agentName}}` prozkoumá zdrojový kód a navrhne plán BEZ úpravy souborů. Spustíte jej přepínačem `/plan`. Hodí se zejména pro rozsáhlé nebo riskantní změny.',
   'ide.chat.help.modesHeading': '── Režimy ──',
   'ide.chat.help.shortcuts':
     'Stiskněte klávesy Cmd+/ (Ctrl+/ ve Windows/Linuxu) pro zobrazení všech klávesových zkratek.',
   'ide.chat.help.tipCompact':
     '• Použijte příkaz /compact ke zkrácení kontextu, pokud se konverzace příliš rozroste.',
-  'ide.chat.help.tipPlan':
-    '• Před provedením změn použijte příkaz /plan, aby systém provedl analýzu pomocí nástroje{{agentName}}.',
   'ide.chat.help.tipSlash': '• Zadejte / a procházejte všechny výše uvedené příkazy.',
   'ide.chat.help.tipSpecific':
     '• Buďte konkrétní – „Přidejte přihlašovací stránku s e-mailem/heslem a Google OAuth“ je lepší než „přidejte ověření“.',
@@ -492,7 +484,6 @@ export const cs: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNotFound':
     'Skript s názvem „{{name}}“ nebyl nalezen. K dispozici na adrese: {{names}}',
   'ide.chat.scripts.cmdExitOk': '{{name}} ukončeno s kódem 0',
-  'ide.chat.scripts.cmdExitFail': '{{name}} ukončeno s kódem{{code}}',
   'ide.chat.scripts.exitOk': 'Ukončeno 0',
   'ide.chat.scripts.exitFail': 'Opuštěno {{code}}',
   'ide.chat.scripts.noOutput': '(žádný výstup)',
@@ -780,4 +771,14 @@ export const cs: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'Měsíční příspěvek.',
   'ide.chat.context.daily': 'Denní kapesné.',
   'ide.chat.context.resets': 'Resetuje {{at}} .',
+  'ide.error.noProvider':
+    'Poskytovatel pracovního prostoru IDE není nakonfigurován. Nejprve propojte poskytovatele IDE.',
+  'ide.chat.autoCommit.badge': 'Automatické potvrzení za {{countdown}}',
+  'ide.chat.models.sortBy': 'Seřadit podle {{column}}',
+  'ide.chat.help.tipPlan': '• Před provedením změn použijte /plánujte si průzkum {{agentName}} .',
+  'ide.chat.scripts.cmdExitFail': '{{name}} ukončeno s kódem {{code}}',
+  'ide.chat.tip.mention':
+    'Tip: pro připojení souboru projektu jako kontextu zadejte @filename – {{agentName}} jej přečte přímo.',
+  'ide.chat.help.modePlan':
+    'Plán — {{agentName}} prozkoumá kódovou základnu a navrhne plán BEZ úpravy souborů. Přepněte pomocí /plan. Nejlepší pro velké nebo riskantní změny.',
 }

@@ -17,4 +17,21 @@ export const vi: Partial<SettingsPanelTranslations> = {
   'settings.darkMode': 'Chế độ tối',
   'settings.billing.upgradeTitle': 'Nâng cấp gói dịch vụ của bạn',
   'settings.billing.noTiers': 'Chưa có gói trả phí nào được cấu hình.',
+  'settings.failedToUpdateProfile': 'Không thể cập nhật hồ sơ',
+  'settings.name': 'Tên',
+  'settings.twoFactorCode': 'Mã xác thực',
+  'settings.twoFactorDisable': 'Vô hiệu hóa',
+  'settings.twoFactorDisableTitle': 'Vô hiệu hóa xác thực hai yếu tố',
+  'settings.twoFactorEnable': 'Cho phép',
+  'settings.twoFactorEnableTitle': 'Kích hoạt xác thực hai yếu tố',
+  'settings.twoFactorInvalidCode': 'Mã không hợp lệ',
+  'settings.twoFactorOn': 'TRÊN',
+  'settings.twoFactorQrAlt': 'Mã QR hai yếu tố',
+  'settings.twoFactorScan':
+    'Quét mã QR này bằng ứng dụng xác thực của bạn, sau đó nhập mã 6 chữ số.',
+  'settings.twoFactorUnavailable': 'Ứng dụng này không hỗ trợ xác thực hai yếu tố.',
+  'settings.twoFactorVerify': 'Xác minh và kích hoạt',
+  'settings.revokeDeviceWarning':
+    'Quyền truy cập vào thiết bị này sẽ bị thu hồi trong thời gian ngắn. Vui lòng đăng xuất?',
+  'settings.signOutDevice': 'Đăng xuất',
 }

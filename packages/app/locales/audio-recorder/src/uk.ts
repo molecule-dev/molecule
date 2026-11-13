@@ -15,4 +15,6 @@ export const uk: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'Помилка',
   'audioRecorder.statusIdle': 'Готовий до запису',
   'audioRecorder.group': 'Аудіодиктофон',
+  'audioRecorder.record': 'Запис',
+  'audioRecorder.statusRecording': 'Запис',
 }

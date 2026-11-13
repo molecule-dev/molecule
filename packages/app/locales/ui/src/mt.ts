@@ -36,7 +36,6 @@ export const mt: UiTranslations = {
   'ui.select.placeholder': 'Agħżel…',
   'ui.select.title': 'Agħżel',
   'ui.toast.dismiss': 'Irrif\u017cuta',
-  'ui.toast.error.noProvider': 'useToast irid jintuża fi ħdan ToastProvider',
   'confirm.cancel': 'Ikkanċella',
   'confirm.confirm': 'Ikkonferma',
   'ui.select.clear': '--',
@@ -53,4 +52,5 @@ export const mt: UiTranslations = {
   'userMenu.panelLabel': 'Menù tal-Kont',
   'ui.error.noClassMap':
     "Ma ġiex issettjat UIClassMap. Sejjaħ setClassMap() fil-bidu tal-app b'implimentazzjoni ta' librerija tal-istil (eż., @molecule/app-ui-tailwind).",
+  'ui.toast.error.noProvider': '`useToast` irid jintuża fi ħdan `ToastProvider`',
 }

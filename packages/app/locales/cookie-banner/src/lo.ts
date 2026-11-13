@@ -9,4 +9,5 @@ export const lo: Partial<CookieBannerTranslations> = {
   'cookieBanner.reject': 'ປະຕິເສດທັງໝົດ',
   'cookieBanner.save': 'ບັນທຶກການຕັ້ງຄ່າ',
   'cookieBanner.accept': 'ຍອມຮັບທັງໝົດ',
+  'cookieBanner.learnMore': 'ຮຽນຮູ້ເພີ່ມເຕີມ',
 }

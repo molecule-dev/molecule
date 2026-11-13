@@ -10,4 +10,6 @@ export const en: BatteryTranslations = {
   'battery.remainingUnknown': 'Unknown',
   'battery.remainingTime': '{{hours}}h {{minutes}}m',
   'battery.remainingMinutes': '{{minutes}}m',
+  'battery.error.noProvider':
+    '`@molecule/app-battery`: No provider set. Call `setProvider()` with a `BatteryProvider` implementation — no provider ships with the fleet; implement the interface on your native runtime and bond it.',
 }

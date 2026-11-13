@@ -3,4 +3,5 @@ import type { StageTimelineTranslations } from './types.js'
 /** StageTimeline translations for cy. */
 export const cy: Partial<StageTimelineTranslations> = {
   'stageTimeline.group': 'Amserlen y llwyfan',
+  'stageTimeline.stage': 'Cam {{index}} o {{total}}: {{label}} ({{status}})',
 }

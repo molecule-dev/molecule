@@ -12,4 +12,8 @@ export const tr: Partial<NetworkTranslations> = {
   'network.other': 'Diğer',
   'network.error.connectionTimeout': 'Ağ bağlantısı zaman aşımı',
   'network.error.unavailable': 'Ağ kullanılamıyor.',
+  'network.error.missingDependency':
+    '`{{library}}` kütüphanesi gereklidir ancak yüklü değil. Şu komutla yükleyin: `npm install {{library}}`',
+  'network.error.noProvider':
+    '`@molecule/app-network`: Sağlayıcı ayarlanmadı. `setProvider()` bir `NetworkProvider` uygulamasıyla (örneğin, `@molecule/app-network-react-native`) çağırın.',
 }

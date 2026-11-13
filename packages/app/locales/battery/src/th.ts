@@ -10,4 +10,6 @@ export const th: BatteryTranslations = {
   'battery.remainingUnknown': 'ไม่ทราบ',
   'battery.remainingTime': '{{hours}}ชม. {{minutes}}น.',
   'battery.remainingMinutes': '{{minutes}}น.',
+  'battery.error.noProvider':
+    '`@molecule/app-battery`: ไม่ได้ตั้งค่าผู้ให้บริการ เรียกใช้ `setProvider()` ด้วยการใช้งาน `BatteryProvider` — ไม่มีผู้ให้บริการใด ๆ มาพร้อมกับกลุ่มอุปกรณ์ โปรดใช้งานอินเทอร์เฟซบนรันไทม์เนทีฟของคุณและเชื่อมต่อเข้าด้วยกัน',
 }

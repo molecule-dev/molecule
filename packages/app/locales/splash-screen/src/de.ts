@@ -5,4 +5,6 @@ export const de: SplashScreenTranslations = {
   'splashScreen.error.noProvider': 'Startbildschirm-Anbieter ist nicht konfiguriert.',
   'splashScreen.warn.configureNotSupported':
     'configure() wird von diesem Startbildschirm-Anbieter nicht unterstützt.',
+  'splashScreen.error.missingDependency':
+    '`{{library}}` wird benötigt, ist aber nicht installiert. Installieren Sie sie mit: `npx expo install {{library}}`',
 }

@@ -10,4 +10,5 @@ export const ms: Partial<CookieBannerTranslations> = {
   'cookieBanner.customize': 'Sesuaikan',
   'cookieBanner.reject': 'Tolak semua',
   'cookieBanner.accept': 'Terima semua',
+  'cookieBanner.learnMore': 'Ketahui lebih lanjut',
 }

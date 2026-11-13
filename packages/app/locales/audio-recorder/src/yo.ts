@@ -15,4 +15,6 @@ export const yo: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'Àṣìṣe',
   'audioRecorder.statusIdle': 'Ṣetán láti gba sílẹ̀',
   'audioRecorder.group': 'Agbohunsilẹ ohun',
+  'audioRecorder.record': 'Àkọsílẹ̀',
+  'audioRecorder.statusRecording': 'Gbigbasilẹ',
 }

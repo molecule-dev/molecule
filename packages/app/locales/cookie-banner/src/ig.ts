@@ -9,4 +9,5 @@ export const ig: Partial<CookieBannerTranslations> = {
   'cookieBanner.reject': 'Jụ ihe niile',
   'cookieBanner.save': 'Chekwaa mmasị',
   'cookieBanner.accept': 'Nabata ihe niile',
+  'cookieBanner.learnMore': 'Mụtakwuo',
 }

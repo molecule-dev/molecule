@@ -353,13 +353,9 @@ export const mt: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
-  'ide.chat.tip.getStarted':
-    "Tip: ittajpja / biex tara kull kmand, jew @ isem ta' fajl biex tagħti{{agentName}} fajl biex taħdem minnu.",
   'ide.chat.tip.mention':
     'Suġġeriment: ittajpja @filename biex tehmeż fajl tal-proġett bħala kuntest —{{agentName}} jaqraha direttament.',
   'ide.chat.tip.slash': 'Tip: ittajpja / biex tfittex kull kmand (commit, diff, model, u aktar).',
-  'ide.chat.tip.plan':
-    'Tip: uża /ippjana li jkollok{{agentName}} riċerka u tipproponi pjan qabel ma teditja xi fajls.',
   'ide.chat.tip.undo':
     "Tip: uża /undo biex treġġa' lura istantanjament il-bidliet fil-fajl tal-aħħar dawra tal-AI jekk marret fid-direzzjoni żbaljata.",
   'ide.chat.tip.compact':
@@ -776,4 +772,10 @@ export const mt: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': "Allowance ta' kull xahar.",
   'ide.chat.context.daily': "Allowance ta' kuljum.",
   'ide.chat.context.resets': 'Jirrisettja {{at}} .',
+  'ide.error.noProvider':
+    'Il-fornitur tal-ispazju tax-xogħol tal-IDE mhux ikkonfigurat. L-ewwel waħħal fornitur tal-IDE.',
+  'ide.chat.tip.getStarted':
+    "Suġġeriment: ittajpja / biex tara kull kmand, jew @ isem ta' fajl biex tagħti {{agentName}} fajl minn fejn jaħdem.",
+  'ide.chat.tip.plan':
+    'Suġġeriment: uża /plan biex {{agentName}} jirriċerka u jipproponi pjan qabel ma jeditja xi fajls.',
 }

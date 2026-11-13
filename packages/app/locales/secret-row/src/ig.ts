@@ -9,4 +9,6 @@ export const ig: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'Detuo',
   'secretRow.rotate': 'Gbanwee',
   'secretRow.delete': 'Hichapụ',
+  'secretRow.lastRotated': 'Agbagharịrị ikpeazụ',
+  'secretRow.rotateIn': "Gbanwee n'ime {{days}} d",
 }

@@ -15,4 +15,6 @@ export const fil: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'Mali',
   'audioRecorder.statusIdle': 'Handa nang i-record',
   'audioRecorder.group': 'Tagapagtala ng tunog',
+  'audioRecorder.record': 'Itala',
+  'audioRecorder.statusRecording': 'Pagre-record',
 }

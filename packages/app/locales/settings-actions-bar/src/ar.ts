@@ -5,4 +5,5 @@ export const ar: Partial<SettingsActionsBarTranslations> = {
   'settingsActions.cancel': 'إلغاء',
   'settingsActions.saving': 'جارٍ الحفظ…',
   'settingsActions.save': 'حفظ التغييرات',
+  'settingsActions.saved': 'تم الحفظ في {{at}}',
 }

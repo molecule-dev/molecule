@@ -12,4 +12,8 @@ export const hu: Partial<NetworkTranslations> = {
   'network.unknown': 'Ismeretlen',
   'network.error.connectionTimeout': 'Hálózati kapcsolat időtúllépése',
   'network.error.unavailable': 'Hálózat nem elérhető',
+  'network.error.missingDependency':
+    '`{{library}}` kötelező, de nincs telepítve. Telepítse a következő paranccsal: `npm install {{library}}`',
+  'network.error.noProvider':
+    '`@molecule/app-network`: Nincs beállítva szolgáltató. Hívjuk meg `setProvider()` függvényt egy `NetworkProvider` implementációval (pl. `@molecule/app-network-react-native` ből).',
 }

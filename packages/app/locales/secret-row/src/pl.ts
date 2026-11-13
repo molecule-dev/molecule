@@ -9,4 +9,6 @@ export const pl: Partial<SecretRowTranslations> = {
   'secretRow.rotate': 'Rotuj',
   'secretRow.delete': 'Usuń',
   'secretRow.expired': 'Wygasły',
+  'secretRow.lastRotated': 'Ostatni obrót',
+  'secretRow.rotateIn': 'Obróć w ciągu {{days}} dni',
 }

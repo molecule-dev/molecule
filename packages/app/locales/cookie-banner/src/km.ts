@@ -9,4 +9,5 @@ export const km: Partial<CookieBannerTranslations> = {
   'cookieBanner.reject': 'បដិសេធទាំងអស់',
   'cookieBanner.save': 'រក្សាទុកចំណូលចិត្ត',
   'cookieBanner.accept': 'ទទួលយកទាំងអស់',
+  'cookieBanner.learnMore': 'ស្វែងយល់បន្ថែម',
 }

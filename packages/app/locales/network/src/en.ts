@@ -12,4 +12,8 @@ export const en: NetworkTranslations = {
   'network.unknown': 'Unknown',
   'network.error.connectionTimeout': 'Network connection timeout',
   'network.error.unavailable': 'Network unavailable',
+  'network.error.missingDependency':
+    '`{{library}}` is required but not installed. Install it with: `npm install {{library}}`',
+  'network.error.noProvider':
+    '`@molecule/app-network`: No provider set. Call `setProvider()` with a `NetworkProvider` implementation (e.g., from `@molecule/app-network-react-native`).',
 }

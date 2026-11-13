@@ -781,4 +781,6 @@ export const ta: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'மாதாந்திர உதவித்தொகை.',
   'ide.chat.context.daily': 'தினசரி கொடுப்பனவு.',
   'ide.chat.context.resets': 'மீட்டமைப்புகள் {{at}} .',
+  'ide.error.noProvider':
+    'IDE பணிச்சூழல் வழங்குநர் உள்ளமைக்கப்படவில்லை. முதலில் ஒரு IDE வழங்குநரை இணைக்கவும்.',
 }

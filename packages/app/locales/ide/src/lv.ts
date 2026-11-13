@@ -506,7 +506,6 @@ export const lv: Partial<IdeTranslations> = {
   'ide.chat.settings.modelUnset': 'Nav iestatīts',
   'ide.chat.settings.off': 'Izslēgts',
   'ide.chat.settings.on': 'Par',
-  'ide.chat.settings.soundsSummary': '{{enabled}} {{total}}a pasākumi ir iespējoti',
   'ide.chat.share.heading': 'Dalīties ar projektu',
   'ide.chat.share.loading': 'Loading…',
   'ide.chat.share.none': 'No public link yet.',
@@ -704,7 +703,6 @@ export const lv: Partial<IdeTranslations> = {
   'ide.tests.empty': 'Šajā projektā pagaidām nav veikti testi.',
   'ide.tests.noMatch': 'Nav testu, kas atbilstu jūsu meklējumam.',
   'ide.tests.fixWithSynthase': 'Labot ar Synthase',
-  'ide.tests.fixFailures': '{{count}}a kļūdu novēršana',
   'ide.tests.fixBusy': 'Pagaidi, līdz beigsies pašreizējā kārta.',
   'ide.chat.skipToolCall': 'Pāriet tālāk',
   'ide.chat.skippingToolCall': 'Izlaižot…',
@@ -783,4 +781,8 @@ export const lv: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'Mēneša pabalsts.',
   'ide.chat.context.daily': 'Dienas nauda.',
   'ide.chat.context.resets': 'Atiestata {{at}} .',
+  'ide.error.noProvider':
+    'IDE darbvietas nodrošinātājs nav konfigurēts. Vispirms izveidojiet savienojumu ar IDE nodrošinātāju.',
+  'ide.chat.settings.soundsSummary': '{{enabled}} no {{total}} notikumiem ir iespējoti',
+  'ide.tests.fixFailures': 'Izlabojiet {{count}} kļūmes',
 }

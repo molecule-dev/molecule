@@ -5,4 +5,5 @@ export const mk: Partial<SettingsActionsBarTranslations> = {
   'settingsActions.cancel': 'Откажи',
   'settingsActions.saving': 'Се зачувува…',
   'settingsActions.save': 'Зачувај ги промените',
+  'settingsActions.saved': 'Зачувано {{at}}',
 }

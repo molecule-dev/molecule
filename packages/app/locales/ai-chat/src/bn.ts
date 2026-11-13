@@ -6,4 +6,7 @@ export const bn: ChatTranslations = {
   'chat.error.noResponseBody': 'কোনো প্রতিক্রিয়া বডি নেই',
   'chat.error.streamError': 'স্ট্রিম ত্রুটি',
   'chat.error.unknownError': 'অজানা ত্রুটি',
+  'chat.error.sendFailed': 'বার্তা পাঠাতে ব্যর্থ হয়েছে',
+  'chat.error.stalled':
+    '{{agentName}} সাড়া দেওয়া বন্ধ করে দিয়েছে। এটি হয়তো এখনও ব্যাকগ্রাউন্ডে শেষ হচ্ছে — সর্বশেষ আপডেট দেখতে রিলোড করুন, অথবা একটি নতুন বার্তা পাঠান।',
 }

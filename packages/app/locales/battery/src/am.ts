@@ -10,4 +10,6 @@ export const am: BatteryTranslations = {
   'battery.remainingUnknown': 'ያልታወቀ',
   'battery.remainingTime': '{{hours}}ሰ {{minutes}}ደ',
   'battery.remainingMinutes': '{{minutes}}ደ',
+  'battery.error.noProvider':
+    '`@molecule/app-battery`፦ ምንም አቅራቢ አልተዘጋጀም። `setProvider()`ን በ`BatteryProvider` ትግበራ ይጥሩ። አብሮ የሚመጣ አቅራቢ የለም፤ በይነገጹን በመሣሪያዎ የሩጫ አካባቢ ይተግብሩ እና ያገናኙት።',
 }

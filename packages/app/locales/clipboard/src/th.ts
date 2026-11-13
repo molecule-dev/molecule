@@ -6,4 +6,6 @@ export const th: ClipboardTranslations = {
     '@molecule/app-clipboard: ยังไม่ได้ตั้งค่าผู้ให้บริการ เรียก setProvider() พร้อมการใช้งาน ClipboardProvider (เช่น จาก @molecule/app-clipboard-react-native)',
   'clipboard.warn.onChangeNotSupported':
     '@molecule/app-clipboard: onChange ไม่ได้รับการสนับสนุนจากผู้ให้บริการ',
+  'clipboard.error.missingDependency':
+    '`{{library}}` เป็นสิ่งที่จำเป็น แต่ยังไม่ได้ติดตั้ง โปรดติดตั้งโดยใช้คำสั่ง: `npm install {{library}}`',
 }

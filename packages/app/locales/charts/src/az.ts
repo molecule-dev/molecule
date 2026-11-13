@@ -4,4 +4,5 @@ import type { ChartsTranslations } from './types.js'
 export const az: ChartsTranslations = {
   'charts.placeholder.label': '{{type}} qrafik',
   'charts.placeholder.description': 'Uyğun qrafik provayderi istifadə edin',
+  'charts.error.noCanvasContext': 'Kətan 2D kontekstini əldə etmək mümkün olmadı',
 }

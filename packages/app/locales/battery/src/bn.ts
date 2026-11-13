@@ -10,4 +10,6 @@ export const bn: BatteryTranslations = {
   'battery.remainingUnknown': 'অজানা',
   'battery.remainingTime': '{{hours}}ঘ {{minutes}}মি',
   'battery.remainingMinutes': '{{minutes}}মি',
+  'battery.error.noProvider':
+    '`@molecule/app-battery`: কোনো প্রোভাইডার সেট করা নেই। একটি `BatteryProvider` ইমপ্লিমেন্টেশন দিয়ে `setProvider()` কল করুন — ফ্লিটের সাথে কোনো প্রোভাইডার আসে না; আপনার নেটিভ রানটাইমে ইন্টারফেসটি ইমপ্লিমেন্ট করুন এবং এটিকে বন্ড করুন।',
 }

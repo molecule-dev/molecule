@@ -78,8 +78,6 @@ export const am: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
   'ide.chat.models.peakNow': 'አሁን ከፍተኛ ×{{multiplier}}',
   'ide.chat.models.peakLater': 'በከፍተኛ ሰዓታት ×{{multiplier}}',
-  'ide.chat.models.peakHint':
-    'ይህ ሞዴል በ{{windows}} መካከል ×{{multiplier}} ያስከፍላል። በቀሩት የቀኑ ሰዓታት መደበኛው ተመን ነው።',
   'ide.chat.undoNoChanges': 'የሚቀለበስ የፋይል ለውጦች የሉም።',
   'ide.chat.undoComplete': 'ለውጦችን መመለስ አልተሳካም።',
   'ide.chat.commitNoChanges': 'ምንም አይነት ለውጥ ለማድረግ ምንም አይነት ለውጥ የለም።',
@@ -347,13 +345,9 @@ export const am: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
-  'ide.chat.tip.getStarted':
-    'ጠቃሚ ምክር፡ እያንዳንዱን ትዕዛዝ ለማየት / ወይም የፋይል ስም @ ለመስጠት ይተይቡ{{agentName}} የሚሰራ ፋይል።',
   'ide.chat.tip.mention':
     'ጠቃሚ ምክር፡ የፕሮጀክት ፋይልን እንደ አውድ ለማያያዝ @filename ብለው ይተይቡ —{{agentName}} በቀጥታ ያነበዋል።',
   'ide.chat.tip.slash': 'ጠቃሚ ምክር፡ እያንዳንዱን ትዕዛዝ ለማሰስ / ይተይቡ (commit፣ diff፣ model፣ እና ሌሎችም)።',
-  'ide.chat.tip.plan':
-    'ጠቃሚ ምክር፡ ለመጠቀም/ለማቀድ እቅድ ማውጣት{{agentName}} ማንኛውንም ፋይል ከማስተካከልዎ በፊት አንድ ዕቅድ ይመርምሩ እና ያቅርቡ።',
   'ide.chat.tip.undo': 'ጠቃሚ ምክር፡ የመጨረሻውን የAI ተርን ፋይል ለውጦች በተሳሳተ መንገድ ከሄዱ ወዲያውኑ ለመመለስ /ቀልብሱ ይጠቀሙ።',
   'ide.chat.tip.compact': 'ጠቃሚ ምክር፡ ረጅም ውይይት? /ኮምፓክት አውዱን ስለሚያጨምቅ ለስራ ቦታ እንዲኖርዎት ያደርጋል።',
   'ide.chat.tip.commit':
@@ -763,4 +757,11 @@ export const am: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'ወርሃዊ አበል።',
   'ide.chat.context.daily': 'ዕለታዊ አበል።',
   'ide.chat.context.resets': 'ዳግም ያስጀምራል {{at}} .',
+  'ide.error.noProvider': 'የIDE የስራ ቦታ አቅራቢ አልተዋቀረም። በመጀመሪያ የIDE አቅራቢን ያስይዙ።',
+  'ide.chat.models.peakHint':
+    'ይህ ሞዴል በ {{windows}} መካከል × {{multiplier}} ያስከፍላል። በቀሪው ቀን የተለመደው ተመን ነው።',
+  'ide.chat.tip.getStarted':
+    'ጠቃሚ ምክር፦ እያንዳንዱን ትዕዛዝ ለማየት / ይተይቡ፣ ወይም {{agentName}} የሚሰራ ፋይል ለመስጠት የፋይል ስም @ ይተይቡ።',
+  'ide.chat.tip.plan':
+    'ጠቃሚ ምክር፦ {{agentName}} ምርምር እንዲያደርግ እና ማንኛውንም ፋይል ከማስተካከሉ በፊት እቅድ እንዲያቀርብ /ፕላን ይጠቀሙ።',
 }

@@ -8,4 +8,6 @@ export const uk: Partial<FooterTranslations> = {
   'footer.version': 'в {{version}}',
   'content.privacyPolicy': '',
   'content.termsOfService': '',
+  'footer.legalNotConfigured': 'Цей контент ще не налаштовано. Власник програми має його надати.',
+  'footer.about': 'Про {{appName}}',
 }

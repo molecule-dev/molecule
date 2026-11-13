@@ -770,4 +770,6 @@ export const lo: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'ເງິນອຸດໜູນປະຈຳເດືອນ.',
   'ide.chat.context.daily': 'ເງິນອຸດໜູນປະຈຳວັນ.',
   'ide.chat.context.resets': 'ຕັ້ງຄ່າຄືນໃໝ່ {{at}} .',
+  'ide.error.noProvider':
+    'ຜູ້ໃຫ້ບໍລິການພື້ນທີ່ເຮັດວຽກ IDE ບໍ່ໄດ້ຕັ້ງຄ່າ. ເຊື່ອມຕໍ່ຜູ້ໃຫ້ບໍລິການ IDE ກ່ອນ.',
 }

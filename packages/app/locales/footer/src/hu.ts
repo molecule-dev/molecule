@@ -8,4 +8,7 @@ export const hu: Partial<FooterTranslations> = {
   'footer.version': 'v {{version}}',
   'content.privacyPolicy': '',
   'content.termsOfService': '',
+  'footer.legalNotConfigured':
+    'Ez a tartalom még nincs konfigurálva. Az alkalmazás tulajdonosának kell megadnia.',
+  'footer.about': '{{appName}} alkalmazásról',
 }

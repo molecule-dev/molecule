@@ -782,4 +782,6 @@ export const ml: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'പ്രതിമാസ അലവൻസ്.',
   'ide.chat.context.daily': 'പ്രതിദിന അലവൻസ്.',
   'ide.chat.context.resets': '{{at}} പുനഃസജ്ജമാക്കുന്നു.',
+  'ide.error.noProvider':
+    'IDE വർക്ക്‌സ്‌പെയ്‌സ് ദാതാവിനെ കോൺഫിഗർ ചെയ്‌തിട്ടില്ല. ആദ്യം ഒരു IDE ദാതാവിനെ ബോണ്ട് ചെയ്യുക.',
 }

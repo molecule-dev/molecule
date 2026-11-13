@@ -42,7 +42,6 @@ export const sr: UiTranslations = {
   'ui.select.placeholder': 'Изаберите…',
   'ui.select.title': 'Изаберите',
   'ui.toast.dismiss': '\u041e\u0434\u0431\u0430\u0446\u0438',
-  'ui.toast.error.noProvider': 'useToast мора да се користи унутар ToastProvider-а',
   'confirm.cancel': 'Откажи',
   'confirm.confirm': 'Потврди',
   'ui.select.clear': '--',
@@ -59,4 +58,5 @@ export const sr: UiTranslations = {
   'userMenu.panelLabel': 'Мени налога',
   'ui.error.noClassMap':
     'Није подешен UIClassMap. Позовите setClassMap() при покретању апликације са имплементацијом библиотеке за стилизовање (нпр. @molecule/app-ui-tailwind).',
+  'ui.toast.error.noProvider': '`useToast` мора да се користи унутар `ToastProvider`',
 }

@@ -11,4 +11,5 @@ export const be: FormsTranslations = {
   'forms.invalidEmail': 'Няправільны адрас электроннай пошты',
   'forms.invalidUrl': 'Няправільны URL',
   'forms.invalidValue': 'Няправільнае значэнне',
+  'forms.submitError': 'Немагчыма адправіць. Паўтарыце спробу.',
 }

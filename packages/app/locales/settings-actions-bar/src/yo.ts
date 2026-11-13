@@ -5,4 +5,5 @@ export const yo: Partial<SettingsActionsBarTranslations> = {
   'settingsActions.cancel': 'Fagilee',
   'settingsActions.saving': 'Nfipamọ́…',
   'settingsActions.save': 'Fipamọ awọn iyipada',
+  'settingsActions.saved': 'Ti fipamọ́ {{at}}',
 }

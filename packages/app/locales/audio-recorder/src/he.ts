@@ -14,4 +14,6 @@ export const he: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'שְׁגִיאָה',
   'audioRecorder.statusIdle': 'מוכן להקלטה',
   'audioRecorder.group': 'מקליט שמע',
+  'audioRecorder.record': 'רְשׁוּמָה',
+  'audioRecorder.statusRecording': 'הַקלָטָה',
 }

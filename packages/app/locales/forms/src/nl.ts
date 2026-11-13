@@ -11,4 +11,5 @@ export const nl: FormsTranslations = {
   'forms.invalidEmail': 'Ongeldig e-mailadres',
   'forms.invalidUrl': 'Ongeldige URL',
   'forms.invalidValue': 'Ongeldige waarde',
+  'forms.submitError': 'Verzenden mislukt. Probeer het opnieuw.',
 }

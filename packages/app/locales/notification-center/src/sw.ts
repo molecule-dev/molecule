@@ -6,4 +6,6 @@ export const sw: Partial<NotificationCenterTranslations> = {
   'notifications.markAllRead': 'Tia alama zote kama zimesomwa',
   'notifications.empty': 'Hakuna arifa',
   'notifications.viewAll': 'Tazama zote',
+  'notifications.loadError': 'Haikuweza kupakia arifa.',
+  'notifications.retry': 'Jaribu tena',
 }

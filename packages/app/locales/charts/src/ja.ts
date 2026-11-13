@@ -4,4 +4,5 @@ import type { ChartsTranslations } from './types.js'
 export const ja: ChartsTranslations = {
   'charts.placeholder.label': '{{type}}チャート',
   'charts.placeholder.description': '適切なチャートプロバイダーを使用してください',
+  'charts.error.noCanvasContext': 'キャンバス2Dコンテキストを取得できませんでした',
 }

@@ -9,4 +9,6 @@ export const ru: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'Копия',
   'secretRow.rotate': 'Повернуть',
   'secretRow.delete': 'Удалить',
+  'secretRow.lastRotated': 'Последний поворот',
+  'secretRow.rotateIn': 'Поворот в {{days}} д',
 }

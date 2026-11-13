@@ -9,4 +9,6 @@ export const hi: Partial<SecretRowTranslations> = {
   'secretRow.rotate': 'घुमाएँ',
   'secretRow.delete': 'हटाएँ',
   'secretRow.expired': 'खत्म हो चुका',
+  'secretRow.lastRotated': 'अंतिम बार घुमाया गया',
+  'secretRow.rotateIn': '{{days}} में घुमाएँ',
 }

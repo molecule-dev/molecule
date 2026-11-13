@@ -6,4 +6,6 @@ export const ka: ClipboardTranslations = {
     '@molecule/app-clipboard: პროვაიდერი არ არის დაყენებული. გამოიძახეთ setProvider() ClipboardProvider იმპლემენტაციით (მაგ., @molecule/app-clipboard-react-native-იდან).',
   'clipboard.warn.onChangeNotSupported':
     '@molecule/app-clipboard: onChange არ არის მხარდაჭერილი პროვაიდერის მიერ',
+  'clipboard.error.missingDependency':
+    '`{{library}}` აუცილებელია, მაგრამ არ არის დაინსტალირებული. დააინსტალირეთ ის: `npm install {{library}}`',
 }

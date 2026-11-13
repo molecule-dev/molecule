@@ -15,4 +15,5 @@ export const zu: Partial<BillingTranslations> = {
   'billing.pricing.tierEyebrow': 'Izinga',
   'billing.pricing.perSeat': 'ngesihlalo ngasinye',
   'billing.pricing.upgradeCta': 'Thuthukela ku- {{tierName}}',
+  'billing.pricing.currentCta': 'Uhlelo lwamanje',
 }

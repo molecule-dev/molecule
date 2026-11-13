@@ -6,4 +6,6 @@ export const zh: Partial<NotificationCenterTranslations> = {
   'notifications.markAllRead': '全部标记为已读',
   'notifications.viewAll': '查看全部',
   'notifications.empty': '无通知',
+  'notifications.loadError': '无法加载通知。',
+  'notifications.retry': '重试',
 }

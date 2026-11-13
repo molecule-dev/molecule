@@ -8,4 +8,7 @@ export const be: Partial<FooterTranslations> = {
   'footer.language': 'Мова',
   'content.privacyPolicy': '',
   'content.termsOfService': '',
+  'footer.legalNotConfigured':
+    'Гэты кантэнт яшчэ не настроены. Уладальнік праграмы павінен яго забяспечыць.',
+  'footer.about': 'Пра праграму {{appName}}',
 }

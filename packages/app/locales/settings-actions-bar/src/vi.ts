@@ -5,4 +5,5 @@ export const vi: Partial<SettingsActionsBarTranslations> = {
   'settingsActions.cancel': 'Hủy',
   'settingsActions.saving': 'Đang lưu…',
   'settingsActions.save': 'Lưu thay đổi',
+  'settingsActions.saved': 'Đã lưu {{at}}',
 }

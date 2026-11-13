@@ -12,4 +12,8 @@ export const fa: NetworkTranslations = {
   'network.unknown': 'نامشخص',
   'network.error.connectionTimeout': 'مهلت اتصال شبکه به پایان رسید',
   'network.error.unavailable': 'شبکه در دسترس نیست',
+  'network.error.missingDependency':
+    '`{{library}}` مورد نیاز است اما نصب نشده است. آن را با دستور زیر نصب کنید: `npm install {{library}}`',
+  'network.error.noProvider':
+    '`@molecule/app-network`: هیچ ارائه‌دهنده‌ای تنظیم نشده است. `setProvider()` را با پیاده‌سازی `NetworkProvider` فراخوانی کنید (مثلاً از `@molecule/app-network-react-native`).',
 }

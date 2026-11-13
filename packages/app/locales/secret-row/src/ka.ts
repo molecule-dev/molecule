@@ -9,4 +9,6 @@ export const ka: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'კოპირება',
   'secretRow.rotate': 'შეტრიალება',
   'secretRow.delete': 'წაშლა',
+  'secretRow.lastRotated': 'ბოლოს შემოტრიალდა',
+  'secretRow.rotateIn': 'როტაცია {{days}} დღეში',
 }

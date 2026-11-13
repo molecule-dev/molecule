@@ -11,4 +11,5 @@ export const bn: FormsTranslations = {
   'forms.invalidEmail': 'অবৈধ ইমেল ঠিকানা',
   'forms.invalidUrl': 'অবৈধ URL',
   'forms.invalidValue': 'অবৈধ মান',
+  'forms.submitError': 'জমা দেওয়া সম্ভব হয়নি। অনুগ্রহ করে আবার চেষ্টা করুন।',
 }

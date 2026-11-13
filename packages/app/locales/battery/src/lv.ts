@@ -10,4 +10,6 @@ export const lv: BatteryTranslations = {
   'battery.remainingUnknown': 'Nezināms',
   'battery.remainingTime': '{{hours}}st {{minutes}}min',
   'battery.remainingMinutes': '{{minutes}}min',
+  'battery.error.noProvider':
+    '`@molecule/app-battery`: Nav iestatīts nodrošinātājs. Izsauciet `setProvider()` ar `BatteryProvider` ieviešanu — flotē nav nodrošinātāja; ieviesiet saskarni savā vietējā izpildlaikā un sasaistiet to.',
 }

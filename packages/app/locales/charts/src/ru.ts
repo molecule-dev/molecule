@@ -4,4 +4,5 @@ import type { ChartsTranslations } from './types.js'
 export const ru: ChartsTranslations = {
   'charts.placeholder.label': 'Диаграмма {{type}}',
   'charts.placeholder.description': 'Используйте подходящий провайдер диаграмм',
+  'charts.error.noCanvasContext': 'Не удалось получить 2D-контекст холста.',
 }

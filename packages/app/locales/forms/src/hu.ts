@@ -11,4 +11,5 @@ export const hu: FormsTranslations = {
   'forms.invalidEmail': 'Érvénytelen e-mail cím',
   'forms.invalidUrl': 'Érvénytelen URL',
   'forms.invalidValue': 'Érvénytelen érték',
+  'forms.submitError': 'Nem sikerült elküldeni. Próbáld újra.',
 }

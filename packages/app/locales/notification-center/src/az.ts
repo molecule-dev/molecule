@@ -6,4 +6,6 @@ export const az: Partial<NotificationCenterTranslations> = {
   'notifications.markAllRead': 'Hamısını oxunmuş kimi qeyd edin',
   'notifications.empty': 'Bildiriş yoxdur',
   'notifications.viewAll': 'Hamısına baxın',
+  'notifications.loadError': 'Bildirişləri yükləmək mümkün olmadı.',
+  'notifications.retry': 'Təkrar cəhd edin',
 }

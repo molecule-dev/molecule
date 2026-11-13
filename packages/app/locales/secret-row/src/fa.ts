@@ -9,4 +9,6 @@ export const fa: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'کپی',
   'secretRow.rotate': 'چرخش',
   'secretRow.delete': 'حذف',
+  'secretRow.lastRotated': 'آخرین چرخش',
+  'secretRow.rotateIn': 'چرخش در {{days}} d',
 }

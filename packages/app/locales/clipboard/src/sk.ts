@@ -6,4 +6,6 @@ export const sk: ClipboardTranslations = {
     '@molecule/app-clipboard: Poskytovateľ nie je nastavený. Zavolajte setProvider() s implementáciou ClipboardProvider (napr. z @molecule/app-clipboard-react-native).',
   'clipboard.warn.onChangeNotSupported':
     '@molecule/app-clipboard: onChange nie je podporovaný poskytovateľom',
+  'clipboard.error.missingDependency':
+    '`{{library}}` je povinný, ale nie je nainštalovaný. Nainštalujte ho pomocou: `npm install {{library}}`',
 }

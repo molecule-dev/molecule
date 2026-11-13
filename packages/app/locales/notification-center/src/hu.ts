@@ -6,4 +6,6 @@ export const hu: Partial<NotificationCenterTranslations> = {
   'notifications.markAllRead': 'Összes megjelölése olvasottként',
   'notifications.viewAll': 'Az összes megtekintése',
   'notifications.empty': 'Nincsenek értesítések',
+  'notifications.loadError': 'Nem sikerült betölteni az értesítéseket.',
+  'notifications.retry': 'Újrapróbálkozás',
 }

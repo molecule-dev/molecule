@@ -11,4 +11,5 @@ export const am: FormsTranslations = {
   'forms.invalidEmail': 'ልክ ያልሆነ የኢሜል አድራሻ',
   'forms.invalidUrl': 'ልክ ያልሆነ URL',
   'forms.invalidValue': 'ልክ ያልሆነ ዋጋ',
+  'forms.submitError': 'ማስገባት አልተቻለም። እባክዎ እንደገና ይሞክሩ።',
 }

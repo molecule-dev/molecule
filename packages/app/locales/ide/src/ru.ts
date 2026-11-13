@@ -495,7 +495,6 @@ export const ru: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNotFound':
     'Скрипт с именем «{{name}}» отсутствует. Доступно по адресу: {{names}}',
   'ide.chat.scripts.cmdExitOk': '{{name}} вышел с кодом 0',
-  'ide.chat.scripts.cmdExitFail': '{{name}} завершилось с кодом ошибки{{code}}',
   'ide.chat.scripts.exitOk': 'Выход 0',
   'ide.chat.scripts.exitFail': 'Вышел из {{code}}',
   'ide.chat.scripts.noOutput': '(без вывода)',
@@ -791,4 +790,7 @@ export const ru: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'Ежемесячное пособие.',
   'ide.chat.context.daily': 'Суточные.',
   'ide.chat.context.resets': 'Сбрасывает {{at}} .',
+  'ide.error.noProvider':
+    'Поставщик рабочей области IDE не настроен. Сначала подключите поставщика IDE.',
+  'ide.chat.scripts.cmdExitFail': '{{name}} завершился с кодом {{code}}',
 }

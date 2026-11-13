@@ -14,4 +14,6 @@ export const en: AudioRecorderTranslations = {
   'audioRecorder.statusError': 'Error',
   'audioRecorder.statusIdle': 'Ready to record',
   'audioRecorder.group': 'Audio recorder',
+  'audioRecorder.record': 'Record',
+  'audioRecorder.statusRecording': 'Recording',
 }

@@ -5,4 +5,8 @@ export const uz: Partial<MapsTranslations> = {
   'maps.placeholder.description':
     'Tegishli xarita provayderidan foydalaning (MapBox, Google Maps, va boshqalar)',
   'maps.placeholder.title': 'Xarita joy egasi',
+  'maps.error.emptyBoundsCoordinates':
+    "Bo'sh koordinatalar massivining chegaralarini hisoblab bo'lmaydi",
+  'maps.error.emptyCenterCoordinates':
+    "Bo'sh koordinatalar massivining markazini hisoblab bo'lmaydi",
 }

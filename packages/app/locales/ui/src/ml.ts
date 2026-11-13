@@ -45,7 +45,6 @@ export const ml: UiTranslations = {
   'ui.select.placeholder': 'തിരഞ്ഞെടുക്കുക...',
   'ui.select.title': 'തിരഞ്ഞെടുക്കുക',
   'ui.toast.dismiss': '\u0d28\u0d3f\u0d30\u0d38\u0d3f\u0d15\u0d4d\u0d15\u0d41\u0d15',
-  'ui.toast.error.noProvider': 'useToast ഒരു ToastProvider-ൽ തന്നെ ഉപയോഗിക്കണം.',
   'confirm.cancel': 'റദ്ദാക്കുക',
   'confirm.confirm': 'സ്ഥിരീകരിക്കുക',
   'ui.select.clear': '--',
@@ -62,4 +61,5 @@ export const ml: UiTranslations = {
   'userMenu.panelLabel': 'അക്കൗണ്ട് മെനു',
   'ui.error.noClassMap':
     'UIClassMap ഒന്നും സജ്ജീകരിച്ചിട്ടില്ല. ആപ്പ് സ്റ്റാർട്ടപ്പിൽ ഒരു സ്റ്റൈലിംഗ് ലൈബ്രറി ഇംപ്ലിമെന്റേഷൻ ഉപയോഗിച്ച് setClassMap() വിളിക്കുക (ഉദാ: @molecule/app-ui-tailwind).',
+  'ui.toast.error.noProvider': '`useToast` ഒരു `ToastProvider`-നുള്ളിൽ ഉപയോഗിക്കണം.',
 }

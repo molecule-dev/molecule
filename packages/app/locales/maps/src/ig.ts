@@ -5,4 +5,6 @@ export const ig: MapsTranslations = {
   'maps.placeholder.title': 'Ebe Nchekwa Maapụ',
   'maps.placeholder.description':
     'Jiri onye na-enye maapụ kwesịrị ekwesị (MapBox, Google Maps, wdg.)',
+  'maps.error.emptyBoundsCoordinates': 'Enweghị ike ịgbakọ oke nke usoro nhazi efu',
+  'maps.error.emptyCenterCoordinates': 'Enweghị ike ịgbakọ etiti nke usoro nhazi efu',
 }

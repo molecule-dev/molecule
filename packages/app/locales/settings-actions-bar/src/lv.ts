@@ -5,4 +5,5 @@ export const lv: Partial<SettingsActionsBarTranslations> = {
   'settingsActions.cancel': 'Atcelt',
   'settingsActions.saving': 'Saglabāšana…',
   'settingsActions.save': 'Saglabāt izmaiņas',
+  'settingsActions.saved': 'Saglabāts {{at}}',
 }

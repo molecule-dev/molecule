@@ -5,4 +5,5 @@ export const ka: Partial<SettingsActionsBarTranslations> = {
   'settingsActions.cancel': 'გაუქმება',
   'settingsActions.saving': 'შენახვა…',
   'settingsActions.save': 'ცვლილებების შენახვა',
+  'settingsActions.saved': 'შენახულია {{at}}',
 }

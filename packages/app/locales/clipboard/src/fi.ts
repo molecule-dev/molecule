@@ -6,4 +6,6 @@ export const fi: ClipboardTranslations = {
     '@molecule/app-clipboard: Palveluntarjoajaa ei ole asetettu. Kutsu setProvider() ClipboardProvider-toteutuksella (esim. @molecule/app-clipboard-react-native).',
   'clipboard.warn.onChangeNotSupported':
     '@molecule/app-clipboard: onChange ei ole palveluntarjoajan tukema',
+  'clipboard.error.missingDependency':
+    '`{{library}}` on pakollinen, mutta sitä ei ole asennettu. Asenna se komennolla: `npm install {{library}}`',
 }

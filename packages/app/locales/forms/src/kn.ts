@@ -11,4 +11,5 @@ export const kn: FormsTranslations = {
   'forms.invalidEmail': 'ಅಮಾನ್ಯ ಇಮೇಲ್ ವಿಳಾಸ',
   'forms.invalidUrl': 'ಅಮಾನ್ಯ URL',
   'forms.invalidValue': 'ಅಮಾನ್ಯ ಮೌಲ್ಯ',
+  'forms.submitError': 'ಸಲ್ಲಿಸಲು ಸಾಧ್ಯವಾಗುತ್ತಿಲ್ಲ. ದಯವಿಟ್ಟು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.',
 }

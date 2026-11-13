@@ -14,4 +14,5 @@ export const gu: Partial<BillingTranslations> = {
   'billing.pricing.tierEyebrow': 'ટાયર',
   'billing.pricing.perSeat': 'પ્રતિ સીટ',
   'billing.pricing.upgradeCta': 'અપગ્રેડ કરો {{tierName}}',
+  'billing.pricing.currentCta': 'વર્તમાન યોજના',
 }

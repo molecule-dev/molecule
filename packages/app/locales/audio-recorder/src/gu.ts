@@ -14,4 +14,6 @@ export const gu: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'ભૂલ',
   'audioRecorder.statusIdle': 'રેકોર્ડ કરવા માટે તૈયાર',
   'audioRecorder.group': 'ઓડિયો રેકોર્ડર',
+  'audioRecorder.record': 'રેકોર્ડ',
+  'audioRecorder.statusRecording': 'રેકોર્ડિંગ',
 }

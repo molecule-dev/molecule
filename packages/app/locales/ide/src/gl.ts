@@ -355,14 +355,10 @@ export const gl: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
-  'ide.chat.tip.getStarted':
-    'Consello: escribe / para ver todos os comandos ou @ para darlle un nome de ficheiro{{agentName}} un ficheiro desde o que traballar.',
   'ide.chat.tip.mention':
     'Consello: escribe @nome_do_ficheiro para anexar un ficheiro de proxecto como contexto —{{agentName}} léao directamente.',
   'ide.chat.tip.slash':
     'Consello: escribe / para explorar todos os comandos (commit, diff, model e moitos máis).',
-  'ide.chat.tip.plan':
-    'Consello: usa /plan para ter{{agentName}} investigar e propoñer un plan antes de editar calquera ficheiro.',
   'ide.chat.tip.undo':
     'Consello: usa /desfacer para reverter instantaneamente os cambios no ficheiro do último turno da IA se este foi na dirección incorrecta.',
   'ide.chat.tip.compact':
@@ -780,4 +776,10 @@ export const gl: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'Subsidio mensual.',
   'ide.chat.context.daily': 'Asignación diaria.',
   'ide.chat.context.resets': 'Reinicia {{at}} .',
+  'ide.error.noProvider':
+    'O provedor de espazo de traballo IDE non está configurado. Vincula primeiro un provedor IDE.',
+  'ide.chat.tip.getStarted':
+    'Consello: escribe / para ver todos os comandos ou @ un nome de ficheiro para darlle {{agentName}} un ficheiro co que traballar.',
+  'ide.chat.tip.plan':
+    'Consello: usa /plan para que {{agentName}} investigue e propoña un plan antes de editar os ficheiros.',
 }

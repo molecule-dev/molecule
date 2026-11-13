@@ -36,7 +36,6 @@ export const ko: Partial<UiTranslations> = {
   'ui.select.placeholder': '선택…',
   'ui.select.title': '선택',
   'ui.toast.dismiss': '닫기',
-  'ui.toast.error.noProvider': 'useToast는 ToastProvider 내에서 사용해야 합니다.',
   'confirm.cancel': '취소',
   'confirm.confirm': '확인',
   'ui.select.clear': '--',
@@ -53,4 +52,5 @@ export const ko: Partial<UiTranslations> = {
   'userMenu.panelLabel': '계정 메뉴',
   'ui.error.noClassMap':
     'UIClassMap이 설정되지 않았습니다. 스타일링 라이브러리 구현체(예: @molecule/app-ui-tailwind)를 사용하여 앱 시작 시 setClassMap()을 호출하세요.',
+  'ui.toast.error.noProvider': '`useToast` `ToastProvider` 내에서 사용해야 합니다.',
 }

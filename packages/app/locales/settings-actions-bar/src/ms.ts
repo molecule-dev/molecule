@@ -5,4 +5,5 @@ export const ms: Partial<SettingsActionsBarTranslations> = {
   'settingsActions.cancel': 'Batal',
   'settingsActions.saving': 'Menyimpan…',
   'settingsActions.save': 'Simpan perubahan',
+  'settingsActions.saved': 'Disimpan {{at}}',
 }

@@ -11,4 +11,5 @@ export const fi: FormsTranslations = {
   'forms.invalidEmail': 'Virheellinen sähköpostiosoite',
   'forms.invalidUrl': 'Virheellinen URL',
   'forms.invalidValue': 'Virheellinen arvo',
+  'forms.submitError': 'Lähetys epäonnistui. Yritä uudelleen.',
 }

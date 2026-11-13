@@ -12,4 +12,8 @@ export const am: NetworkTranslations = {
   'network.unknown': 'ያልታወቀ',
   'network.error.connectionTimeout': 'የአውታረ መረብ ግንኙነት ጊዜ አልፏል',
   'network.error.unavailable': 'አውታረ መረብ አይገኝም',
+  'network.error.missingDependency':
+    '`{{library}}` ያስፈልጋል ግን አልተጫነም። በሚከተለው ይጫኑት፦ `npm install {{library}}`',
+  'network.error.noProvider':
+    '`@molecule/app-network`፦ ምንም አቅራቢ አልተዘጋጀም። `setProvider()`ን በ`NetworkProvider` ትግበራ ይጥሩ (ለምሳሌ ከ`@molecule/app-network-react-native`)።',
 }

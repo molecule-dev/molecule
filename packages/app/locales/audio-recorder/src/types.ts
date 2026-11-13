@@ -12,6 +12,8 @@ export type AudioRecorderTranslationKey =
   | 'audioRecorder.statusError'
   | 'audioRecorder.statusIdle'
   | 'audioRecorder.group'
+  | 'audioRecorder.record'
+  | 'audioRecorder.statusRecording'
 
 /** Translation record mapping audio-recorder-react keys to translated strings. */
 export type AudioRecorderTranslations = Record<AudioRecorderTranslationKey, string>

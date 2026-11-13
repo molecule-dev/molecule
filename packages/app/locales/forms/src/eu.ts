@@ -11,4 +11,5 @@ export const eu: FormsTranslations = {
   'forms.invalidEmail': 'Helbide elektroniko baliogabea',
   'forms.invalidUrl': 'URL baliogabea',
   'forms.invalidValue': 'Balio baliogabea',
+  'forms.submitError': 'Ezin da bidali. Saiatu berriro.',
 }

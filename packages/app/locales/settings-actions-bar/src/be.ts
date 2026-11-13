@@ -5,4 +5,5 @@ export const be: Partial<SettingsActionsBarTranslations> = {
   'settingsActions.cancel': 'Адмена',
   'settingsActions.saving': 'Захаванне…',
   'settingsActions.save': 'Захаваць змены',
+  'settingsActions.saved': 'Захавана {{at}}',
 }

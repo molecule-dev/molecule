@@ -6,4 +6,8 @@ export const az: RoutingTranslations = {
   'routing.error.routeNotFound': '"{{name}}" marşrutu tapılmadı',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter MoleculeRouterProvider daxilində istifadə edilməlidir',
+  'routing.error.noNavigationRef':
+    'Naviqasiya istinadı təyin edilməyib. `MoleculeProvider` quraşdırıldığından əmin olun.',
+  'routing.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` React Router router daxilində istifadə olunmalıdır. `BrowserRouter`, `HashRouter`, `MemoryRouter`, `Router` və ya `RouterProvider` quraşdırın.',
 }

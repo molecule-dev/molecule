@@ -4,4 +4,6 @@ import type { LoyaltyTierBadgeTranslations } from './types.js'
 export const uz: Partial<LoyaltyTierBadgeTranslations> = {
   'loyaltyTierBadge.group': '{{tier}} daraja',
   'loyaltyTierBadge.progress': "Jarayonga o'tish {{next}}",
+  'loyaltyTierBadge.topTier': 'Yuqori darajaga yetildi',
+  'loyaltyTierBadge.remaining': '{{remaining}} dan {{next}} gacha',
 }

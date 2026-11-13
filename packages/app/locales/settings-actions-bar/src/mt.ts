@@ -5,4 +5,5 @@ export const mt: Partial<SettingsActionsBarTranslations> = {
   'settingsActions.cancel': 'Ikkanċella',
   'settingsActions.saving': 'Iffrankar…',
   'settingsActions.save': 'Issejvja l-bidliet',
+  'settingsActions.saved': 'Salvat {{at}}',
 }

@@ -9,4 +9,6 @@ export const hy: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'Պատճենել',
   'secretRow.rotate': 'Պտտել',
   'secretRow.delete': 'Ջնջել',
+  'secretRow.lastRotated': 'Վերջին անգամ պտտվել է',
+  'secretRow.rotateIn': 'Պտտել {{days}} օրում',
 }

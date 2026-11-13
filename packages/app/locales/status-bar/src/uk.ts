@@ -4,4 +4,5 @@ import type { StatusBarTranslations } from './types.js'
 export const uk: StatusBarTranslations = {
   'statusBar.error.noProvider':
     '@molecule/app-status-bar: Провайдер не встановлено. Викличте setProvider() з реалізацією StatusBarProvider (напр., з @molecule/app-status-bar-react-native).',
+  'statusBar.error.missingDependency': "`{{library}}` обов'язкова, але не встановлена.",
 }

@@ -4,4 +4,5 @@ import type { StatusBarTranslations } from './types.js'
 export const fi: StatusBarTranslations = {
   'statusBar.error.noProvider':
     '@molecule/app-status-bar: Palveluntarjoajaa ei ole asetettu. Kutsu setProvider() StatusBarProvider-toteutuksella (esim. @molecule/app-status-bar-react-native).',
+  'statusBar.error.missingDependency': '`{{library}}` on pakollinen, mutta sitä ei ole asennettu.',
 }

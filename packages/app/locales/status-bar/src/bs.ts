@@ -4,4 +4,5 @@ import type { StatusBarTranslations } from './types.js'
 export const bs: StatusBarTranslations = {
   'statusBar.error.noProvider':
     '@molecule/app-status-bar: Provajder nije postavljen. Pozovite setProvider() sa StatusBarProvider implementacijom (npr. iz @molecule/app-status-bar-react-native).',
+  'statusBar.error.missingDependency': '`{{library}}` je obavezna, ali nije instalirana.',
 }

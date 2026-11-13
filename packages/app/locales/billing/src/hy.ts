@@ -15,4 +15,5 @@ export const hy: Partial<BillingTranslations> = {
   'billing.pricing.tierEyebrow': 'Շերտ',
   'billing.pricing.perSeat': 'մեկ տեղի համար',
   'billing.pricing.upgradeCta': 'Թարմացնել մինչև {{tierName}}',
+  'billing.pricing.currentCta': 'Ընթացիկ պլան',
 }

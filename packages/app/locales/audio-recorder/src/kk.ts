@@ -15,4 +15,6 @@ export const kk: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'Қате',
   'audioRecorder.statusIdle': 'Жазуға дайын',
   'audioRecorder.group': 'Аудио жазғыш',
+  'audioRecorder.record': 'Жазба',
+  'audioRecorder.statusRecording': 'Жазу',
 }

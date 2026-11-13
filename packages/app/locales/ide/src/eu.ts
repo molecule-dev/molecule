@@ -353,14 +353,10 @@ export const eu: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
-  'ide.chat.tip.getStarted':
-    'Aholkua: idatzi / komando guztiak ikusteko, edo @ fitxategi-izen bat emateko{{agentName}} lan egiteko fitxategi bat.',
   'ide.chat.tip.mention':
     'Aholkua: idatzi @filename proiektu-fitxategi bat testuinguru gisa eransteko —{{agentName}} zuzenean irakurtzen du.',
   'ide.chat.tip.slash':
     'Aholkua: idatzi / komando guztiak arakatzeko (commit, diff, model eta gehiago).',
-  'ide.chat.tip.plan':
-    'Aholkua: erabili /planifikatu edukitzeko{{agentName}} fitxategiak editatu aurretik ikertu eta plan bat proposatu.',
   'ide.chat.tip.undo':
     'Aholkua: erabili /desegin azken AI txandaren fitxategi aldaketak berehala leheneratzeko, okerreko norabidean joan bada.',
   'ide.chat.tip.compact':
@@ -777,4 +773,10 @@ export const eu: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'Hileroko diru-laguntza.',
   'ide.chat.context.daily': 'Eguneko diru-laguntza.',
   'ide.chat.context.resets': '{{at}} berrezartzen du.',
+  'ide.error.noProvider':
+    'IDE lan-eremuaren hornitzailea ez dago konfiguratuta. Lehenik IDE hornitzaile bat lotu.',
+  'ide.chat.tip.getStarted':
+    'Aholkua: idatzi / komando guztiak ikusteko, edo @ fitxategi-izen bat {{agentName}} ri lan egiteko fitxategi bat emateko.',
+  'ide.chat.tip.plan':
+    'Aholkua: erabili /plan {{agentName}} k fitxategiak editatu aurretik plan bat ikertu eta proposa dezan.',
 }

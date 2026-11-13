@@ -6,4 +6,6 @@ export const pt: Partial<NotificationCenterTranslations> = {
   'notifications.markAllRead': 'Marcar todas como lidas',
   'notifications.viewAll': 'Ver tudo',
   'notifications.empty': 'Nenhuma notificação',
+  'notifications.loadError': 'Não foi possível carregar as notificações.',
+  'notifications.retry': 'Tentar novamente',
 }

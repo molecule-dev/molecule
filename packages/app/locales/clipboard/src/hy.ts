@@ -6,4 +6,6 @@ export const hy: ClipboardTranslations = {
     '@molecule/app-clipboard: Մատակարարը սահմանված չէ: Կանչեք setProvider() ClipboardProvider իրականացումով (օր.՝ @molecule/app-clipboard-react-native-ից):',
   'clipboard.warn.onChangeNotSupported':
     '@molecule/app-clipboard: onChange-ը չի աջակցվում մատակարարի կողմից',
+  'clipboard.error.missingDependency':
+    '`{{library}}` պարտադիր է, բայց տեղադրված չէ։ Տեղադրեք այն՝ `npm install {{library}}` ով։',
 }

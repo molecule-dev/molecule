@@ -9,4 +9,6 @@ export const yo: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'Dáakọ',
   'secretRow.rotate': 'Yípo',
   'secretRow.delete': 'Paarẹ́',
+  'secretRow.lastRotated': 'Yiyi kẹhin',
+  'secretRow.rotateIn': 'Yipo ni {{days}} d',
 }

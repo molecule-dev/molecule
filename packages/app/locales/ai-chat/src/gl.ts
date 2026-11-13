@@ -6,4 +6,7 @@ export const gl: ChatTranslations = {
   'chat.error.noResponseBody': 'Sen corpo de resposta',
   'chat.error.streamError': 'Erro de transmisión',
   'chat.error.unknownError': 'Erro descoñecido',
+  'chat.error.sendFailed': 'Non se puido enviar a mensaxe',
+  'chat.error.stalled':
+    '{{agentName}} deixou de responder. Pode que aínda estea a finalizar en segundo plano. Volva cargar a páxina para ver as últimas novidades ou envíe unha nova mensaxe.',
 }

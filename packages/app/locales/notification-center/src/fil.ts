@@ -6,4 +6,6 @@ export const fil: Partial<NotificationCenterTranslations> = {
   'notifications.markAllRead': 'Markahan lahat bilang nabasa',
   'notifications.viewAll': 'Tingnan lahat',
   'notifications.empty': 'Walang mga abiso',
+  'notifications.loadError': 'Hindi ma-load ang mga notification.',
+  'notifications.retry': 'Subukan muli',
 }

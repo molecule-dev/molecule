@@ -313,7 +313,6 @@ export const id: Partial<IdeTranslations> = {
   'ide.tabs.close': 'Menutup {{fileName}}',
   'ide.search.caseSensitive': 'Kotak Korek Api',
   'ide.search.noResults': 'Tidak ada hasil yang ditemukan',
-  'ide.search.resultsTruncated': '{{count}} menghasilkan berkas-berkas `{{files}}` (terpotong)',
   'ide.preview.back': 'Kembali',
   'ide.preview.forward': 'Lanjut',
   'ide.preview.urlBar': 'URL Pratinjau',
@@ -323,7 +322,6 @@ export const id: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'Aplikasi ini tidak merespons — loop tak berujung atau proses rendering yang tidak terkendali telah membuat tampilan pratinjau macet. IDE tidak terpengaruh.',
   'ide.preview.frozenReload': 'Muat ulang aplikasi',
-  'ide.search.results': '{{count}} menghasilkan berkas-berkas di direktori `{{files}}`',
   'ide.activity.cardAria': 'Lihat riwayat aktivitas',
   'ide.activity.type.email': 'Email',
   'ide.activity.type.sms': 'SMS',
@@ -354,14 +352,10 @@ export const id: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Daftar Riwayat Hidup',
   'ide.chat.openSettings': 'Pengaturan',
   'ide.chat.tip.dismiss': 'Abaikan saran',
-  'ide.chat.tip.getStarted':
-    'Tips: ketik / untuk melihat semua perintah, atau @ diikuti nama file untuk memberi tahu `{{agentName}}` file mana yang akan diproses.',
   'ide.chat.tip.mention':
     'Tips: ketik @nama_file untuk melampirkan berkas proyek sebagai konteks — {{agentName}} akan membacanya secara langsung.',
   'ide.chat.tip.slash':
     'Tips: ketik / untuk melihat daftar semua perintah (commit, diff, model, dan lainnya).',
-  'ide.chat.tip.plan':
-    'Tips: gunakan perintah /plan agar{{agentName}}meneliti dan mengusulkan rencana sebelum mengedit berkas apa pun.',
   'ide.chat.tip.undo':
     'Tips: Gunakan perintah /undo untuk langsung membatalkan perubahan file pada giliran AI terakhir jika hasilnya tidak sesuai harapan.',
   'ide.chat.tip.compact':
@@ -391,7 +385,6 @@ export const id: Partial<IdeTranslations> = {
   'ide.chat.models.colName': 'Model',
   'ide.chat.models.freeNo': '—',
   'ide.chat.models.freeYes': '✓ Gratis',
-  'ide.chat.models.sortBy': 'Urutkan berdasarkan{{column}}',
   'ide.chat.modelsLoading': 'Memuat model…',
   'ide.chat.modelsNone':
     'Belum ada model yang tersedia — mintalah admin Anda untuk mengintegrasikan penyedia AI.',
@@ -440,8 +433,6 @@ export const id: Partial<IdeTranslations> = {
     'Penemuan — percakapan baru dimulai di sini. Metode "{{agentName}}" mengajukan pertanyaan-pertanyaan klarifikasi untuk memastikan persyaratan telah jelas sebelum menulis kode apa pun.',
   'ide.chat.help.modeExecute':
     'Jalankan — mode kerja default. Fitur "{{agentName}}" menulis kode, menjalankan alat, menerapkan perubahan, lalu memverifikasinya.',
-  'ide.chat.help.modePlan':
-    'Rencana — Perintah `{{agentName}}` menganalisis basis kode dan mengusulkan rencana TANPA mengedit berkas. Aktifkan atau nonaktifkan dengan opsi `/plan`. Cocok untuk perubahan besar atau berisiko.',
   'ide.chat.help.modesHeading': '── Mode ──',
   'ide.chat.help.shortcuts':
     'Tekan Cmd+/ (Ctrl+/ di Windows/Linux) untuk melihat semua pintasan keyboard.',
@@ -493,7 +484,6 @@ export const id: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNone': 'Belum ada skrip yang disimpan. Buka /scripts untuk membuat skrip.',
   'ide.chat.scripts.runNotFound': 'Tidak ada skrip bernama "{{name}}". Tersedia di: {{names}}',
   'ide.chat.scripts.cmdExitOk': '{{name}} keluar dengan kode 0',
-  'ide.chat.scripts.cmdExitFail': '{{name}} keluar dengan kode{{code}}',
   'ide.chat.scripts.exitOk': 'Keluar 0',
   'ide.chat.scripts.exitFail': 'Keluar dari {{code}}',
   'ide.chat.scripts.noOutput': '(tidak ada keluaran)',
@@ -787,4 +777,16 @@ export const id: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'Uang saku bulanan.',
   'ide.chat.context.daily': 'Tunjangan harian.',
   'ide.chat.context.resets': 'Mengatur ulang {{at}} .',
+  'ide.error.noProvider':
+    'Penyedia ruang kerja IDE belum dikonfigurasi. Hubungkan penyedia IDE terlebih dahulu.',
+  'ide.chat.tip.plan':
+    'Tip: gunakan /plan agar {{agentName}} melakukan riset dan mengusulkan rencana sebelum mengedit file apa pun.',
+  'ide.chat.models.sortBy': 'Urutkan berdasarkan {{column}}',
+  'ide.chat.scripts.cmdExitFail': '{{name}} keluar dengan kode {{code}}',
+  'ide.search.resultsTruncated': '{{count}} menghasilkan {{files}} file (dipersingkat)',
+  'ide.search.results': '{{count}} menghasilkan {{files}} file',
+  'ide.chat.tip.getStarted':
+    'Tip: ketik / untuk melihat semua perintah, atau @ nama file untuk memberikan {{agentName}} file untuk dikerjakan.',
+  'ide.chat.help.modePlan':
+    'Rencana — {{agentName}} meneliti basis kode dan mengusulkan rencana TANPA mengedit file. Aktifkan/nonaktifkan dengan /plan. Terbaik untuk perubahan besar atau berisiko.',
 }

@@ -6,4 +6,6 @@ export const bg: Partial<NotificationCenterTranslations> = {
   'notifications.markAllRead': 'Маркирай всички като прочетени',
   'notifications.empty': 'Няма известия',
   'notifications.viewAll': 'Вижте всички',
+  'notifications.loadError': 'Не можаха да се заредят известията.',
+  'notifications.retry': 'Опитай отново',
 }

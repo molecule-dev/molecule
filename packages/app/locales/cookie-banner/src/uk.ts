@@ -10,4 +10,5 @@ export const uk: Partial<CookieBannerTranslations> = {
   'cookieBanner.customize': 'Налаштувати',
   'cookieBanner.reject': 'Відхилити все',
   'cookieBanner.accept': 'Прийняти все',
+  'cookieBanner.learnMore': 'Дізнатися більше',
 }

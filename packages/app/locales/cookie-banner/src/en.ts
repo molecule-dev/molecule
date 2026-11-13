@@ -9,4 +9,5 @@ export const en: CookieBannerTranslations = {
   'cookieBanner.reject': 'Reject all',
   'cookieBanner.save': 'Save preferences',
   'cookieBanner.accept': 'Accept all',
+  'cookieBanner.learnMore': 'Learn more',
 }

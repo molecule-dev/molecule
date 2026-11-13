@@ -15,4 +15,5 @@ export const ca: Partial<BillingTranslations> = {
   'billing.pricing.tierEyebrow': 'Nivell',
   'billing.pricing.perSeat': 'per seient',
   'billing.pricing.upgradeCta': 'Actualitza a {{tierName}}',
+  'billing.pricing.currentCta': 'Pla actual',
 }

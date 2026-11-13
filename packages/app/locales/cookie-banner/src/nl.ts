@@ -10,4 +10,5 @@ export const nl: Partial<CookieBannerTranslations> = {
     'We gebruiken cookies om uw ervaring te verbeteren en het verkeer te analyseren.',
   'cookieBanner.reject': 'Alles afwijzen',
   'cookieBanner.accept': 'Alles accepteren',
+  'cookieBanner.learnMore': 'Leer meer',
 }

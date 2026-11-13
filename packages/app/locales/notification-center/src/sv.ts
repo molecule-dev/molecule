@@ -6,4 +6,6 @@ export const sv: Partial<NotificationCenterTranslations> = {
   'notifications.markAllRead': 'Markera alla som lästa',
   'notifications.viewAll': 'Visa alla',
   'notifications.empty': 'Inga aviseringar',
+  'notifications.loadError': 'Kunde inte ladda aviseringar.',
+  'notifications.retry': 'Försöka igen',
 }

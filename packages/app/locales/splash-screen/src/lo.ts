@@ -5,4 +5,6 @@ export const lo: SplashScreenTranslations = {
   'splashScreen.error.noProvider': 'ຜູ້ໃຫ້ບໍລິການໜ້າຈໍເລີ່ມຕົ້ນຍັງບໍ່ໄດ້ຕັ້ງຄ່າ.',
   'splashScreen.warn.configureNotSupported':
     'configure() ບໍ່ຮອງຮັບໂດຍຜູ້ໃຫ້ບໍລິການໜ້າຈໍເລີ່ມຕົ້ນນີ້.',
+  'splashScreen.error.missingDependency':
+    'ຕ້ອງມີ `{{library}}` ແຕ່ຍັງບໍ່ໄດ້ຕິດຕັ້ງ. ຕິດຕັ້ງມັນດ້ວຍ: `npx expo install {{library}}`',
 }

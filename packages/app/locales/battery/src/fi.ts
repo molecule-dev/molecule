@@ -10,4 +10,6 @@ export const fi: BatteryTranslations = {
   'battery.remainingUnknown': 'Tuntematon',
   'battery.remainingTime': '{{hours}}t {{minutes}}m',
   'battery.remainingMinutes': '{{minutes}}m',
+  'battery.error.noProvider':
+    '`@molecule/app-battery`: Ei toimittajaa asetettu. Kutsu `setProvider()` -funktiota `BatteryProvider` -toteutuksella — toimittajaa ei toimiteta laivaston mukana; toteuta rajapinta natiivissa suoritusympäristössäsi ja sido se.',
 }

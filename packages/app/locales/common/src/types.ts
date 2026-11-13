@@ -521,6 +521,9 @@ export interface CommonTranslations {
   'nav.loadingActivity'?: string
   'nav.browseStays'?: string
   'nav.primaryNavigation'?: string
+  'common.done': string
+  'planUpdated.retry': string
+  'planUpdated.verifyFailed': string
 }
 
 /**

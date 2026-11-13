@@ -352,8 +352,6 @@ export const tr: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Özgeçmiş',
   'ide.chat.openSettings': 'Ayarlar',
   'ide.chat.tip.dismiss': 'İpucunu kapat',
-  'ide.chat.tip.getStarted':
-    "İpucu: Tüm komutları görmek için / yazın ya d{{agentName}}'a üzerinde çalışacağı bir dosya belirtmek için @ işareti ile dosya adını girin.",
   'ide.chat.tip.mention':
     'İpucu: Bir proje dosyasını bağlam olarak eklemek için @dosyaadı yazın — {{agentName}} bunu doğrudan okur.',
   'ide.chat.tip.slash':
@@ -786,4 +784,8 @@ export const tr: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'Aylık ödenek.',
   'ide.chat.context.daily': 'Günlük ödenek.',
   'ide.chat.context.resets': 'Sıfırlar {{at}} .',
+  'ide.error.noProvider':
+    'IDE çalışma alanı sağlayıcısı yapılandırılmamış. Öncelikle bir IDE sağlayıcısı bağlayın.',
+  'ide.chat.tip.getStarted':
+    'İpucu: Tüm komutları görmek için / yazın veya {{agentName}} e üzerinde çalışacağı bir dosya vermek için @ dosya adı yazın.',
 }

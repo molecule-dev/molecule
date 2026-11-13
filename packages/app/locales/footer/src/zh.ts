@@ -8,4 +8,6 @@ export const zh: Partial<FooterTranslations> = {
   'footer.version': 'v {{version}}',
   'content.privacyPolicy': '',
   'content.termsOfService': '',
+  'footer.legalNotConfigured': '此内容尚未配置，需由应用所有者提供。',
+  'footer.about': '关于{{appName}}',
 }

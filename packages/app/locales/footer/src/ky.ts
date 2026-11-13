@@ -8,4 +8,7 @@ export const ky: Partial<FooterTranslations> = {
   'footer.language': 'Тил',
   'content.privacyPolicy': '',
   'content.termsOfService': '',
+  'footer.legalNotConfigured':
+    'Бул мазмун азырынча конфигурациялана элек. Аны колдонмонун ээси бериши керек.',
+  'footer.about': '{{appName}} жөнүндө',
 }

@@ -429,8 +429,6 @@ export const nb: Partial<IdeTranslations> = {
   'ide.chat.lintWarningsCount': '{{count}} advarsler',
   'ide.chat.typeErrorsCount': '{{count}} skrivefeil',
   'ide.chat.help.commandsHeading': '── Kommandoer ──',
-  'ide.chat.help.intro':
-    '{{agentName}} er en AI-basert programmeringsassistent fr{{productName}}. Beskriv hva du ønsker å lage, så vil den hjelpe deg med å lage struktur, skrive kode og forbedre løsningen sammen med deg.',
   'ide.chat.help.introHeading': '── Kom i gang ──',
   'ide.chat.help.modeDiscovery':
     'Discovery – her starter nye samtaler. «{{agentName}}» stiller avklarende spørsmål for å avklare kravene før man begynner å skrive kode.',
@@ -488,7 +486,6 @@ export const nb: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNotFound':
     'Det finnes ikke noe skript med navnet «{{name}}». Tilgjengelig: {{names}}',
   'ide.chat.scripts.cmdExitOk': '{{name}} avsluttet 0',
-  'ide.chat.scripts.cmdExitFail': '{{name}} avsluttet med feilkode{{code}}',
   'ide.chat.scripts.exitOk': 'Avsluttet 0',
   'ide.chat.scripts.exitFail': 'Forlatt {{code}}',
   'ide.chat.scripts.noOutput': '(ingen utdata)',
@@ -778,4 +775,9 @@ export const nb: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'Månedlig godtgjørelse.',
   'ide.chat.context.daily': 'Dagpenger.',
   'ide.chat.context.resets': 'Tilbakestiller {{at}} .',
+  'ide.error.noProvider':
+    'IDE-arbeidsområdeleverandøren er ikke konfigurert. Koble til en IDE-leverandør først.',
+  'ide.chat.help.intro':
+    '{{agentName}} er {{productName}} sin AI-kodingsagent. Beskriv hva du ønsker å bygge, så vil den bygge, kode og iterere sammen med deg.',
+  'ide.chat.scripts.cmdExitFail': '{{name}} avsluttet med koden {{code}}',
 }

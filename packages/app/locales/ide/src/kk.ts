@@ -352,14 +352,10 @@ export const kk: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
-  'ide.chat.tip.getStarted':
-    'Кеңес: әрбір команданы көру үшін / пернесін басыңыз немесе @ файл атауын беріңіз{{agentName}} жұмыс істеуге арналған файл.',
   'ide.chat.tip.mention':
     'Кеңес: жоба файлын контекст ретінде тіркеу үшін @filename теріңіз —{{agentName}} оны тікелей оқиды.',
   'ide.chat.tip.slash':
     'Кеңес: әрбір команданы (commit, diff, model және т.б.) шолу үшін / теріңіз.',
-  'ide.chat.tip.plan':
-    'Кеңес: /plan пайдаланыңыз{{agentName}} кез келген файлдарды өңдемес бұрын зерттеу жүргізіп, жоспар ұсыныңыз.',
   'ide.chat.tip.undo':
     'Кеңес: егер қате кетсе, соңғы жасанды интеллект кезегінің файл өзгерістерін бірден қайтару үшін /undo пернесін пайдаланыңыз.',
   'ide.chat.tip.compact':
@@ -774,4 +770,10 @@ export const kk: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'Ай сайынғы жәрдемақы.',
   'ide.chat.context.daily': 'Күнделікті жәрдемақы.',
   'ide.chat.context.resets': '{{at}} қалпына келтіреді.',
+  'ide.error.noProvider':
+    'IDE жұмыс кеңістігі провайдері конфигурацияланбаған. Алдымен IDE провайдерін байланыстырыңыз.',
+  'ide.chat.tip.getStarted':
+    'Кеңес: әрбір команданы көру үшін / пернесін басыңыз, ал {{agentName}} жұмыс істейтін файлды беру үшін @ файл атауын теріңіз.',
+  'ide.chat.tip.plan':
+    'Кеңес: {{agentName}} кез келген файлдарды өңдемес бұрын зерттеу жүргізіп, жоспар ұсыну үшін /plan пайдаланыңыз.',
 }

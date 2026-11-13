@@ -4,4 +4,5 @@ import type { KeyboardTranslations } from './types.js'
 export const id: KeyboardTranslations = {
   'keyboard.error.noProvider':
     '@molecule/app-keyboard: Penyedia belum diatur. Panggil setProvider() dengan implementasi KeyboardProvider (mis., dari @molecule/app-keyboard-react-native).',
+  'keyboard.error.missingDependency': '`{{library}}` diperlukan tetapi belum diinstal.',
 }

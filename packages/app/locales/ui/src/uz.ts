@@ -36,7 +36,6 @@ export const uz: UiTranslations = {
   'ui.select.placeholder': 'Tanlang…',
   'ui.select.title': 'Tanlang',
   'ui.toast.dismiss': 'Rad etish',
-  'ui.toast.error.noProvider': 'useToast funksiyasi ToastProvider ichida ishlatilishi kerak',
   'confirm.cancel': 'Bekor qilish',
   'confirm.confirm': 'Tasdiqlash',
   'ui.select.clear': '--',
@@ -53,4 +52,5 @@ export const uz: UiTranslations = {
   'userMenu.panelLabel': 'Hisob menyusi',
   'ui.error.noClassMap':
     'UIClassMap sozlanmagan. Ilova ishga tushirilganda styling kutubxonasi implementatsiyasi (masalan, @molecule/app-ui-tailwind) bilan setClassMap() ni chaqiring.',
+  'ui.toast.error.noProvider': '`useToast` `ToastProvider` ichida ishlatilishi kerak',
 }

@@ -6,4 +6,6 @@ export const sl: Partial<NotificationCenterTranslations> = {
   'notifications.markAllRead': 'Označi vse kot prebrano',
   'notifications.empty': 'Brez obvestil',
   'notifications.viewAll': 'Ogled vseh',
+  'notifications.loadError': 'Obvestil ni bilo mogoče naložiti.',
+  'notifications.retry': 'Poskusi znova',
 }

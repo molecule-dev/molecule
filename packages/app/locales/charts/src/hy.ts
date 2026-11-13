@@ -4,4 +4,5 @@ import type { ChartsTranslations } from './types.js'
 export const hy: ChartsTranslations = {
   'charts.placeholder.label': '{{type}} գծապատկեր',
   'charts.placeholder.description': 'Օգտագործեք համապատասխան գծապատկերի մատակարար',
+  'charts.error.noCanvasContext': 'Չհաջողվեց ստանալ կտավի 2D համատեքստը',
 }

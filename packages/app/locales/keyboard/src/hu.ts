@@ -4,4 +4,5 @@ import type { KeyboardTranslations } from './types.js'
 export const hu: KeyboardTranslations = {
   'keyboard.error.noProvider':
     '@molecule/app-keyboard: Nincs szolgáltató beállítva. Hívja meg a setProvider()-t egy KeyboardProvider implementációval (pl. a @molecule/app-keyboard-react-native-ból).',
+  'keyboard.error.missingDependency': '`{{library}}` kötelező, de nincs telepítve.',
 }

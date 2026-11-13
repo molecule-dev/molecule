@@ -11,4 +11,5 @@ export const gu: FormsTranslations = {
   'forms.invalidEmail': 'અમાન્ય ઈમેલ સરનામું',
   'forms.invalidUrl': 'અમાન્ય URL',
   'forms.invalidValue': 'અમાન્ય મૂલ્ય',
+  'forms.submitError': 'સબમિટ કરવામાં અસમર્થ. કૃપા કરીને ફરી પ્રયાસ કરો.',
 }

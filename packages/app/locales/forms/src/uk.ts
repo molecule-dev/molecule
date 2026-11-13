@@ -11,4 +11,5 @@ export const uk: Partial<FormsTranslations> = {
   'forms.invalidUrl': 'Недійсний URL',
   'forms.invalidValue': 'Недійсне значення',
   'forms.required': "Це поле обов'язкове",
+  'forms.submitError': 'Не вдалося надіслати. Спробуйте ще раз.',
 }

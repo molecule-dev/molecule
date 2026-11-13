@@ -14,4 +14,6 @@ export const am: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'ስህተት',
   'audioRecorder.statusIdle': 'ለመቅዳት ዝግጁ',
   'audioRecorder.group': 'የድምጽ መቅጃ',
+  'audioRecorder.record': 'መዝገብ',
+  'audioRecorder.statusRecording': 'ቀረጻ',
 }

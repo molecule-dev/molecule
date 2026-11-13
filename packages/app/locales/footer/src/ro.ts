@@ -8,4 +8,7 @@ export const ro: Partial<FooterTranslations> = {
   'footer.version': 'v. {{version}}',
   'content.privacyPolicy': '',
   'content.termsOfService': '',
+  'footer.legalNotConfigured':
+    'Acest conținut nu a fost încă configurat. Proprietarul aplicației trebuie să îl furnizeze.',
+  'footer.about': 'Despre {{appName}}',
 }

@@ -5,4 +5,5 @@ export const gu: Partial<SettingsActionsBarTranslations> = {
   'settingsActions.cancel': 'રદ કરો',
   'settingsActions.saving': 'સાચવી રહ્યું છે...',
   'settingsActions.save': 'ફેરફારો સાચવો',
+  'settingsActions.saved': '{{at}} સાચવેલ',
 }

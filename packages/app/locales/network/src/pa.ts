@@ -12,4 +12,8 @@ export const pa: NetworkTranslations = {
   'network.unknown': 'ਅਣਜਾਣ',
   'network.error.connectionTimeout': 'ਨੈੱਟਵਰਕ ਕਨੈਕਸ਼ਨ ਟਾਈਮਆਊਟ',
   'network.error.unavailable': 'ਨੈੱਟਵਰਕ ਉਪਲਬਧ ਨਹੀਂ',
+  'network.error.missingDependency':
+    '`{{library}}` ਦੀ ਲੋੜ ਹੈ ਪਰ ਇੰਸਟਾਲ ਨਹੀਂ ਹੈ। ਇਸਨੂੰ ਇਸ ਨਾਲ ਇੰਸਟਾਲ ਕਰੋ: `npm install {{library}}`',
+  'network.error.noProvider':
+    '`@molecule/app-network`: ਕੋਈ ਪ੍ਰਦਾਤਾ ਸੈੱਟ ਨਹੀਂ ਹੈ। `setProvider()` ਨੂੰ `NetworkProvider` ਲਾਗੂਕਰਨ ਨਾਲ ਕਾਲ ਕਰੋ (ਜਿਵੇਂ ਕਿ, `@molecule/app-network-react-native` ਤੋਂ)।',
 }

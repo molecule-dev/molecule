@@ -9,4 +9,6 @@ export const gl: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'Copiar',
   'secretRow.rotate': 'Rotar',
   'secretRow.delete': 'Eliminar',
+  'secretRow.lastRotated': 'Última rotación',
+  'secretRow.rotateIn': 'Rotar en {{days}} días',
 }

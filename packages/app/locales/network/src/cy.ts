@@ -12,4 +12,8 @@ export const cy: NetworkTranslations = {
   'network.unknown': 'Anhysbys',
   'network.error.connectionTimeout': 'Cysylltiad rhwydwaith wedi dod i ben',
   'network.error.unavailable': 'Rhwydwaith ddim ar gael',
+  'network.error.missingDependency':
+    "Mae angen `{{library}}` ond nid yw wedi'i osod. Gosodwch ef gyda: `npm install {{library}}`",
+  'network.error.noProvider':
+    "`@molecule/app-network`: Dim darparwr wedi'i osod. Ffoniwch `setProvider()` gyda gweithrediad `NetworkProvider` (e.e., o `@molecule/app-network-react-native`).",
 }

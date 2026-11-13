@@ -11,4 +11,5 @@ export const ca: FormsTranslations = {
   'forms.invalidEmail': 'Adreça de correu electrònic no vàlida',
   'forms.invalidUrl': 'URL no vàlida',
   'forms.invalidValue': 'Valor no vàlid',
+  'forms.submitError': "No s'ha pogut enviar. Torna-ho a intentar.",
 }

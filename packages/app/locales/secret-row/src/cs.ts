@@ -9,4 +9,6 @@ export const cs: Partial<SecretRowTranslations> = {
   'secretRow.expired': 'Platnost vypršela',
   'secretRow.hide': 'Skrýt',
   'secretRow.show': 'Show',
+  'secretRow.lastRotated': 'Naposledy otočeno',
+  'secretRow.rotateIn': 'Střídat za {{days}} d',
 }

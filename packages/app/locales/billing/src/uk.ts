@@ -14,4 +14,5 @@ export const uk: Partial<BillingTranslations> = {
   'billing.pricing.reassurance': 'Скасувати будь-коли · Для початку не потрібна кредитна картка',
   'billing.pricing.tierEyebrow': 'Рівень',
   'billing.pricing.perSeat': 'за місце',
+  'billing.pricing.currentCta': 'Поточний план',
 }

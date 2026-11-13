@@ -9,4 +9,5 @@ export const zhTW: Partial<CookieBannerTranslations> = {
   'cookieBanner.reject': '全部拒絕',
   'cookieBanner.save': '儲存偏好設定',
   'cookieBanner.accept': '接受所有',
+  'cookieBanner.learnMore': '了解更多',
 }

@@ -9,4 +9,5 @@ export const am: Partial<CookieBannerTranslations> = {
   'cookieBanner.reject': 'ሁሉንም ውድቅ አድርግ',
   'cookieBanner.save': 'ምርጫዎችን አስቀምጥ',
   'cookieBanner.accept': 'ሁሉንም ተቀበል',
+  'cookieBanner.learnMore': 'ተጨማሪ ይወቁ',
 }

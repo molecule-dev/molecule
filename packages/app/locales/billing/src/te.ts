@@ -15,4 +15,5 @@ export const te: Partial<BillingTranslations> = {
   'billing.pricing.tierEyebrow': 'శ్రేణి',
   'billing.pricing.perSeat': 'ఒక్కో సీటుకు',
   'billing.pricing.upgradeCta': 'అప్‌గ్రేడ్ చేయండి {{tierName}}',
+  'billing.pricing.currentCta': 'ప్రస్తుత ప్రణాళిక',
 }

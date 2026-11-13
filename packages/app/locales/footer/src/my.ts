@@ -8,4 +8,6 @@ export const my: Partial<FooterTranslations> = {
   'footer.language': 'ဘာသာစကား',
   'content.privacyPolicy': '',
   'content.termsOfService': '',
+  'footer.legalNotConfigured': 'ဤအကြောင်းအရာကို မပြင်ဆင်ရသေးပါ။ အက်ပ်ပိုင်ရှင်က ၎င်းကို ပေးရမည်။',
+  'footer.about': '{{appName}} အကြောင်း',
 }

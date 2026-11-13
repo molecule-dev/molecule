@@ -9,4 +9,6 @@ export const bn: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'অনুলিপি',
   'secretRow.rotate': 'ঘোরান',
   'secretRow.delete': 'মুছে ফেলুন',
+  'secretRow.lastRotated': 'সর্বশেষ ঘোরানো হয়েছে',
+  'secretRow.rotateIn': '{{days}} d এ ঘোরান',
 }

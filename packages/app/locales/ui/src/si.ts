@@ -41,7 +41,6 @@ export const si: UiTranslations = {
   'ui.select.placeholder': 'තෝරන්න...',
   'ui.select.title': 'තෝරන්න',
   'ui.toast.dismiss': '\u0d89\u0dc0\u0dad \u0db4\u0dc3\u0dd4 \u0d9a\u0dbb\u0db1\u0dca\u0db1',
-  'ui.toast.error.noProvider': 'useToast ToastProvider එකක් තුළ භාවිතා කළ යුතුය.',
   'confirm.cancel': 'අවලංගු කරන්න',
   'confirm.confirm': 'තහවුරු කරන්න',
   'ui.select.clear': '--',
@@ -58,4 +57,5 @@ export const si: UiTranslations = {
   'userMenu.panelLabel': 'ගිණුම් මෙනුව',
   'ui.error.noClassMap':
     'UIClassMap සකසා නොමැත. යෙදුම් ආරම්භයේදී ස්ටයිලිං පුස්තකාල ක්‍රියාත්මක කිරීමක් සමඟින් setClassMap() අමතන්න (උදා: @molecule/app-ui-tailwind).',
+  'ui.toast.error.noProvider': '`useToast` `ToastProvider` එකක් තුළ භාවිතා කළ යුතුය.',
 }

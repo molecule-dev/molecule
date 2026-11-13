@@ -5,4 +5,6 @@ export const uz: Partial<SplashScreenTranslations> = {
   'splashScreen.error.noProvider': 'Ekranni ochish provayderi sozlanmagan.',
   'splashScreen.warn.configureNotSupported':
     "configure() funksiyasi ushbu ekran provayderi tomonidan qo'llab-quvvatlanmaydi.",
+  'splashScreen.error.missingDependency':
+    "`{{library}}` talab qilinadi, lekin o'rnatilmagan. Uni quyidagi bilan o'rnating: `npx expo install {{library}}`",
 }

@@ -3,4 +3,5 @@ import type { StageTimelineTranslations } from './types.js'
 /** StageTimeline translations for et. */
 export const et: Partial<StageTimelineTranslations> = {
   'stageTimeline.group': 'Etapi ajajoon',
+  'stageTimeline.stage': 'Etapp {{index}} / {{total}}: {{label}} ({{status}})',
 }

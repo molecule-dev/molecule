@@ -12,4 +12,8 @@ export const uk: Partial<NetworkTranslations> = {
   'network.unknown': 'Невідомо',
   'network.error.connectionTimeout': "Тайм-аут мережевого з'єднання",
   'network.error.unavailable': 'Мережа недоступна',
+  'network.error.missingDependency':
+    "`{{library}}` обов'язковий, але не встановлений. Встановіть його за допомогою: `npm install {{library}}`",
+  'network.error.noProvider':
+    '`@molecule/app-network`: Постачальника не встановлено. Викличте `setProvider()` з реалізацією `NetworkProvider` (наприклад, з `@molecule/app-network-react-native`).',
 }

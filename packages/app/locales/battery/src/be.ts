@@ -10,4 +10,6 @@ export const be: BatteryTranslations = {
   'battery.remainingUnknown': 'Невядома',
   'battery.remainingTime': '{{hours}}г {{minutes}}хв',
   'battery.remainingMinutes': '{{minutes}}хв',
+  'battery.error.noProvider':
+    '`@molecule/app-battery`: Пастаўшчык не ўстаноўлены. Выклічце `setProvider()` з рэалізацыяй `BatteryProvider` — пастаўшчык не пастаўляецца з аўтаматычным кіраваннем; рэалізуйце інтэрфейс у вашым родным асяроддзі выканання і падключыце яго.',
 }

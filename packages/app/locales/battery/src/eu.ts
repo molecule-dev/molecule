@@ -10,4 +10,6 @@ export const eu: BatteryTranslations = {
   'battery.remainingUnknown': 'Ezezaguna',
   'battery.remainingTime': '{{hours}}o {{minutes}}m',
   'battery.remainingMinutes': '{{minutes}}m',
+  'battery.error.noProvider':
+    '`@molecule/app-battery`: Ez da hornitzailerik ezarri. Deitu `setProvider()` `BatteryProvider` inplementazio batekin — ez dago hornitzailerik flotarekin batera; inplementatu interfazea zure jatorrizko exekuzio-denboran eta lotu ezazu.',
 }

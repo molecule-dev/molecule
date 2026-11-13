@@ -14,4 +14,6 @@ export const sq: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'Gabim',
   'audioRecorder.statusIdle': 'Gati për të regjistruar',
   'audioRecorder.group': 'Regjistrues audio',
+  'audioRecorder.record': 'Regjistro',
+  'audioRecorder.statusRecording': 'Regjistrimi',
 }

@@ -325,7 +325,6 @@ export const pl: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'Ta aplikacja przestała odpowiadać — pętla nieskończona lub niekontrolowane renderowanie spowodowały zawieszenie podglądu. Nie ma to wpływu na środowisko IDE.',
   'ide.preview.frozenReload': 'Odśwież aplikację',
-  'ide.search.results': '{{count}} powoduje utworzenie plików w katalogu `{{files}}`',
   'ide.activity.cardAria': 'Wyświetl zarejestrowaną aktywność',
   'ide.activity.type.email': 'E-mail',
   'ide.activity.type.sms': 'SMS',
@@ -393,7 +392,6 @@ export const pl: Partial<IdeTranslations> = {
   'ide.chat.models.colName': 'Model',
   'ide.chat.models.freeNo': '—',
   'ide.chat.models.freeYes': '✓ Bezpłatnie',
-  'ide.chat.models.sortBy': 'Sortuj według{{column}}',
   'ide.chat.modelsLoading': 'Ładowanie modeli…',
   'ide.chat.modelsNone':
     'Na razie nie ma dostępnych modeli — poproś administratora o podłączenie dostawcy usług AI.',
@@ -442,8 +440,6 @@ export const pl: Partial<IdeTranslations> = {
     'Odkrywanie — tu zaczynają się nowe rozmowy. Metoda „{{agentName}}” polega na zadawaniu pytań wyjaśniających w celu dokładnego określenia wymagań przed rozpoczęciem pisania kodu.',
   'ide.chat.help.modeExecute':
     'Wykonaj — domyślny tryb pracy. Funkcja „{{agentName}}” generuje kod, uruchamia narzędzia, wprowadza zmiany, a następnie je weryfikuje.',
-  'ide.chat.help.modePlan':
-    'Plan — opcja `{{agentName}}` analizuje kod źródłowy i proponuje plan BEZ wprowadzania zmian w plikach. Włącz/wyłącz za pomocą opcji `/plan`. Najlepiej sprawdza się w przypadku dużych lub ryzykownych zmian.',
   'ide.chat.help.modesHeading': '── Tryby ──',
   'ide.chat.help.shortcuts':
     'Naciśnij klawisze Cmd+/ (Ctrl+/ w systemie Windows/Linux), aby wyświetlić wszystkie skróty klawiaturowe.',
@@ -496,7 +492,6 @@ export const pl: Partial<IdeTranslations> = {
     'Nie ma jeszcze żadnych zapisanych skryptów. Otwórz katalog /scripts, aby utworzyć skrypt.',
   'ide.chat.scripts.runNotFound': 'Nie znaleziono pliku o nazwie „{{name}}”. Dostępne: {{names}}',
   'ide.chat.scripts.cmdExitOk': '{{name}} wynik 0',
-  'ide.chat.scripts.cmdExitFail': '{{name}} zakończono z kodem{{code}}',
   'ide.chat.scripts.exitOk': 'Wynik 0',
   'ide.chat.scripts.exitFail': 'Wyszedłem z serwisu {{code}}',
   'ide.chat.scripts.noOutput': '(brak wyników)',
@@ -792,4 +787,11 @@ export const pl: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'Kwota miesięczna.',
   'ide.chat.context.daily': 'Dzienna dieta.',
   'ide.chat.context.resets': 'Resetuje {{at}} .',
+  'ide.error.noProvider':
+    'Dostawca przestrzeni roboczej IDE nie został skonfigurowany. Najpierw należy połączyć dostawcę IDE.',
+  'ide.chat.models.sortBy': 'Sortuj według {{column}}',
+  'ide.chat.scripts.cmdExitFail': '{{name}} zakończył działanie z kodem {{code}}',
+  'ide.search.results': '{{count}} daje w rezultacie {{files}} plików',
+  'ide.chat.help.modePlan':
+    'Plan — {{agentName}} analizuje bazę kodu i proponuje plan BEZ edytowania plików. Przełączaj za pomocą /plan. Najlepiej sprawdza się w przypadku dużych lub ryzykownych zmian.',
 }

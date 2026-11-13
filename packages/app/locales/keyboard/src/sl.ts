@@ -4,4 +4,5 @@ import type { KeyboardTranslations } from './types.js'
 export const sl: KeyboardTranslations = {
   'keyboard.error.noProvider':
     '@molecule/app-keyboard: Ponudnik ni nastavljen. Pokličite setProvider() z implementacijo KeyboardProvider (npr. iz @molecule/app-keyboard-react-native).',
+  'keyboard.error.missingDependency': '`{{library}}` je obvezna, vendar ni nameščena.',
 }

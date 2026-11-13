@@ -4,4 +4,5 @@ import type { StatusBarTranslations } from './types.js'
 export const eu: StatusBarTranslations = {
   'statusBar.error.noProvider':
     '@molecule/app-status-bar: Ez da hornitzailerik ezarri. Deitu setProvider() StatusBarProvider inplementazio batekin (adib., @molecule/app-status-bar-react-native-etik).',
+  'statusBar.error.missingDependency': '`{{library}}` beharrezkoa da baina ez dago instalatuta.',
 }

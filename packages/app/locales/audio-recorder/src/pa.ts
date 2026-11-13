@@ -15,4 +15,6 @@ export const pa: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'ਗਲਤੀ',
   'audioRecorder.statusIdle': 'ਰਿਕਾਰਡ ਕਰਨ ਲਈ ਤਿਆਰ',
   'audioRecorder.group': 'ਆਡੀਓ ਰਿਕਾਰਡਰ',
+  'audioRecorder.record': 'ਰਿਕਾਰਡ',
+  'audioRecorder.statusRecording': 'ਰਿਕਾਰਡਿੰਗ',
 }

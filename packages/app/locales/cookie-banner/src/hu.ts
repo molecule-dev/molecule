@@ -10,4 +10,5 @@ export const hu: Partial<CookieBannerTranslations> = {
   'cookieBanner.customize': 'Testreszabás',
   'cookieBanner.reject': 'Összes elutasítása',
   'cookieBanner.accept': 'Összes elfogadása',
+  'cookieBanner.learnMore': 'Tudj meg többet',
 }

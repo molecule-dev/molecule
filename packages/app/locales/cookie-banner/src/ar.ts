@@ -9,4 +9,5 @@ export const ar: Partial<CookieBannerTranslations> = {
   'cookieBanner.description': 'نستخدم ملفات تعريف الارتباط لتحسين تجربتك وتحليل حركة المرور.',
   'cookieBanner.reject': 'رفض الكل',
   'cookieBanner.accept': 'قبول الكل',
+  'cookieBanner.learnMore': 'يتعلم أكثر',
 }

@@ -4,4 +4,6 @@ import type { LoyaltyTierBadgeTranslations } from './types.js'
 export const hy: Partial<LoyaltyTierBadgeTranslations> = {
   'loyaltyTierBadge.group': '{{tier}} շերտ',
   'loyaltyTierBadge.progress': 'Առաջընթաց դեպի {{next}}',
+  'loyaltyTierBadge.topTier': 'Հասել է ամենաբարձր մակարդակին',
+  'loyaltyTierBadge.remaining': '{{remaining}} մինչև {{next}}',
 }

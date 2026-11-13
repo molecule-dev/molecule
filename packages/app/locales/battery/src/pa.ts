@@ -10,4 +10,6 @@ export const pa: Partial<BatteryTranslations> = {
   'battery.remainingTime': '{{hours}}ਘੰ {{minutes}}ਮਿ',
   'battery.remainingMinutes': '{{minutes}}ਮਿ',
   'battery.discharging': "ਬੈਟਰੀ 'ਤੇ",
+  'battery.error.noProvider':
+    "`@molecule/app-battery`: ਕੋਈ ਪ੍ਰਦਾਤਾ ਸੈੱਟ ਨਹੀਂ ਹੈ। `BatteryProvider` ਲਾਗੂਕਰਨ ਨਾਲ `setProvider()` ਕਾਲ ਕਰੋ — ਕੋਈ ਪ੍ਰਦਾਤਾ ਫਲੀਟ ਨਾਲ ਨਹੀਂ ਭੇਜਦਾ; ਆਪਣੇ ਮੂਲ ਰਨਟਾਈਮ 'ਤੇ ਇੰਟਰਫੇਸ ਲਾਗੂ ਕਰੋ ਅਤੇ ਇਸਨੂੰ ਬਾਂਡ ਕਰੋ।",
 }

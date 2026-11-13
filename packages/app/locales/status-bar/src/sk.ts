@@ -4,4 +4,5 @@ import type { StatusBarTranslations } from './types.js'
 export const sk: StatusBarTranslations = {
   'statusBar.error.noProvider':
     '@molecule/app-status-bar: Poskytovateľ nie je nastavený. Zavolajte setProvider() s implementáciou StatusBarProvider (napr. z @molecule/app-status-bar-react-native).',
+  'statusBar.error.missingDependency': '`{{library}}` je povinný, ale nie je nainštalovaný.',
 }

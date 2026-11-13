@@ -3,4 +3,5 @@ import type { StageTimelineTranslations } from './types.js'
 /** StageTimeline translations for ro. */
 export const ro: Partial<StageTimelineTranslations> = {
   'stageTimeline.group': 'Cronologia etapei',
+  'stageTimeline.stage': 'Etapa {{index}} din {{total}}: {{label}} ({{status}})',
 }

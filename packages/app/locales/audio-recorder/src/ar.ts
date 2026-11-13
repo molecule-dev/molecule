@@ -15,4 +15,6 @@ export const ar: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'خطأ',
   'audioRecorder.statusIdle': 'جاهز للتسجيل',
   'audioRecorder.group': 'مسجل الصوت',
+  'audioRecorder.record': 'سِجِلّ',
+  'audioRecorder.statusRecording': 'تسجيل',
 }

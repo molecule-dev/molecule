@@ -12,4 +12,8 @@ export const sq: NetworkTranslations = {
   'network.unknown': 'E panjohur',
   'network.error.connectionTimeout': 'Lidhja e rrjetit ka skaduar',
   'network.error.unavailable': 'Rrjeti nuk eshte i disponueshem',
+  'network.error.missingDependency':
+    '`{{library}}` është e detyrueshme, por nuk është instaluar. Instalojeni me: `npm install {{library}}`',
+  'network.error.noProvider':
+    '`@molecule/app-network`: Nuk është caktuar asnjë ofrues. Thirrni `setProvider()` me një implementim `NetworkProvider` (p.sh., nga `@molecule/app-network-react-native`).',
 }

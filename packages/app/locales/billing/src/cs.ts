@@ -14,4 +14,5 @@ export const cs: Partial<BillingTranslations> = {
   'billing.pricing.reassurance': 'Zrušit kdykoli · K zahájení není nutná kreditní karta',
   'billing.pricing.tierEyebrow': 'Úroveň',
   'billing.pricing.perSeat': 'na sedadlo',
+  'billing.pricing.currentCta': 'Aktuální plán',
 }

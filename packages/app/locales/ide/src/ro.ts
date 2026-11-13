@@ -371,7 +371,6 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.tip.report':
     'Sfat: ceva nu e în regulă? Comanda /report trimite o sesizare sau un feedback către echipă, împreună cu istoricul conversației tale recente.',
   'ide.chat.undoError': 'Nu s-au putut reveni la modificările anterioare.',
-  'ide.chat.autoCommit.badge': 'Auto-commit în{{countdown}}',
   'ide.chat.autoCommit.cancel': 'Anulează salvarea automată',
   'ide.chat.autoCommit.cancelled': 'Salvarea automată a fost anulată.',
   'ide.chat.autoCommit.enabled':
@@ -391,7 +390,6 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.models.colName': 'Model',
   'ide.chat.models.freeNo': '—',
   'ide.chat.models.freeYes': '✓ Gratuit',
-  'ide.chat.models.sortBy': 'Sortează după{{column}}',
   'ide.chat.modelsLoading': 'Se încarcă modelele…',
   'ide.chat.modelsNone':
     'Nu sunt încă disponibile modele — cereți administratorului să conecteze un furnizor de servicii de IA.',
@@ -447,8 +445,6 @@ export const ro: Partial<IdeTranslations> = {
     'Apăsați Cmd+/ (Ctrl+/ pe Windows/Linux) pentru a afișa toate comenzile rapide de la tastatură.',
   'ide.chat.help.tipCompact':
     '• Folosește comanda /compact pentru a comprima conversația atunci când aceasta devine prea lungă.',
-  'ide.chat.help.tipPlan':
-    '• Folosiți comanda /plan pentru a efectua o analiză d{{agentName}}ă înainte de a efectua modificări.',
   'ide.chat.help.tipSlash': '• Tastați / pentru a parcurge toate comenzile de mai sus.',
   'ide.chat.help.tipSpecific':
     '• Fii concret — „Adaugă o pagină de autentificare cu adresă de e-mail/parolă și Google OAuth” este mai bine decât „adaugă autentificare”.',
@@ -495,9 +491,7 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNotFound':
     'Nu există niciun script cu numele „{{name}}”. Disponibil la: {{names}}',
   'ide.chat.scripts.cmdExitOk': '{{name}} a ieșit cu codul 0',
-  'ide.chat.scripts.cmdExitFail': '{{name}} s-a încheiat cu codul de eroare{{code}}',
   'ide.chat.scripts.exitOk': 'Ieșire 0',
-  'ide.chat.scripts.exitFail': 'Am ieșit d{{code}}',
   'ide.chat.scripts.noOutput': '(fără ieșire)',
   'ide.chat.settings.heading': 'Setări',
   'ide.chat.settings.commandsHeading': 'Comenzi cu bară oblică',
@@ -789,4 +783,12 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'Indemnizație lunară.',
   'ide.chat.context.daily': 'Alocație zilnică.',
   'ide.chat.context.resets': 'Resetează {{at}} .',
+  'ide.error.noProvider':
+    'Furnizorul spațiului de lucru IDE nu este configurat. Conectați mai întâi un furnizor IDE.',
+  'ide.chat.autoCommit.badge': 'Validare automată în {{countdown}}',
+  'ide.chat.models.sortBy': 'Sortează după {{column}}',
+  'ide.chat.help.tipPlan':
+    '• Folosește /plan pentru ca {{agentName}} să cerceteze înainte de a face modificări.',
+  'ide.chat.scripts.cmdExitFail': '{{name}} a ieșit cu codul {{code}}',
+  'ide.chat.scripts.exitFail': 'A ieșit din {{code}}',
 }

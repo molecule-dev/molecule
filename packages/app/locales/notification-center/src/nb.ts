@@ -6,4 +6,6 @@ export const nb: Partial<NotificationCenterTranslations> = {
   'notifications.markAllRead': 'Merk alle som lest',
   'notifications.viewAll': 'Vis alle',
   'notifications.empty': 'Ingen varsler',
+  'notifications.loadError': 'Kunne ikke laste inn varsler.',
+  'notifications.retry': 'Prøv på nytt',
 }

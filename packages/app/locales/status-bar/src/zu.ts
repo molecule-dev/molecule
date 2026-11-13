@@ -4,4 +4,5 @@ import type { StatusBarTranslations } from './types.js'
 export const zu: StatusBarTranslations = {
   'statusBar.error.noProvider':
     '@molecule/app-status-bar: Akukho mhlinzeki osetiwe. Shayela setProvider() ngenqubo ye-StatusBarProvider (isib., kusuka ku-@molecule/app-status-bar-react-native).',
+  'statusBar.error.missingDependency': '`{{library}}` iyadingeka kodwa ayifakiwe.',
 }

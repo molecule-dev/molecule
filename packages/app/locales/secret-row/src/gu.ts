@@ -9,4 +9,6 @@ export const gu: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'કૉપિ કરો',
   'secretRow.rotate': 'ફેરવો',
   'secretRow.delete': 'કાઢી નાખો',
+  'secretRow.lastRotated': 'છેલ્લે ફેરવ્યું',
+  'secretRow.rotateIn': '{{days}} દિવસમાં ફેરવો',
 }

@@ -9,4 +9,5 @@ export const ko: Partial<CookieBannerTranslations> = {
   'cookieBanner.description': '저희는 사용자 경험 개선 및 트래픽 분석을 위해 쿠키를 사용합니다.',
   'cookieBanner.reject': '모두 거부하세요',
   'cookieBanner.accept': '모두 수락',
+  'cookieBanner.learnMore': '더 알아보기',
 }

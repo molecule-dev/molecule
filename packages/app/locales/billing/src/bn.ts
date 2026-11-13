@@ -15,4 +15,5 @@ export const bn: Partial<BillingTranslations> = {
   'billing.pricing.tierEyebrow': 'স্তর',
   'billing.pricing.perSeat': 'প্রতি আসন',
   'billing.pricing.upgradeCta': 'আপগ্রেড করুন {{tierName}}',
+  'billing.pricing.currentCta': 'বর্তমান পরিকল্পনা',
 }

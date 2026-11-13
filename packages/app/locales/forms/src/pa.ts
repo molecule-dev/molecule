@@ -11,4 +11,5 @@ export const pa: FormsTranslations = {
   'forms.invalidEmail': 'ਅਵੈਧ ਈਮੇਲ ਪਤਾ',
   'forms.invalidUrl': 'ਅਵੈਧ URL',
   'forms.invalidValue': 'ਅਵੈਧ ਮੁੱਲ',
+  'forms.submitError': 'ਸਪੁਰਦ ਨਹੀਂ ਕੀਤਾ ਜਾ ਸਕਿਆ। ਕਿਰਪਾ ਕਰਕੇ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।',
 }

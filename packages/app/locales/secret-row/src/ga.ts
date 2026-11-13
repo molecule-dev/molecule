@@ -9,4 +9,6 @@ export const ga: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'Cóipeáil',
   'secretRow.rotate': 'Rothlaigh',
   'secretRow.delete': 'Scrios',
+  'secretRow.lastRotated': 'Rothlú deireanach',
+  'secretRow.rotateIn': 'Rothlaigh i {{days}} lá',
 }

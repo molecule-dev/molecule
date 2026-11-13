@@ -773,4 +773,6 @@ export const hi: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'मासिक भत्ता।',
   'ide.chat.context.daily': 'दैनिक भत्ता।',
   'ide.chat.context.resets': 'रीसेट {{at}} .',
+  'ide.error.noProvider':
+    'IDE वर्कस्पेस प्रदाता कॉन्फ़िगर नहीं किया गया है। कृपया पहले एक IDE प्रदाता को बॉन्ड करें।',
 }

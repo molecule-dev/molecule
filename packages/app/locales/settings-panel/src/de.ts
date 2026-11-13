@@ -17,4 +17,22 @@ export const de: Partial<SettingsPanelTranslations> = {
   'settings.darkMode': 'Dunkelmodus',
   'settings.billing.upgradeTitle': 'Aktualisieren Sie Ihren Tarif',
   'settings.billing.noTiers': 'Es sind keine kostenpflichtigen Tarife konfiguriert.',
+  'settings.failedToUpdateProfile': 'Profilaktualisierung fehlgeschlagen',
+  'settings.name': 'Name',
+  'settings.twoFactorCode': 'Authentifizierungscode',
+  'settings.twoFactorDisable': 'Deaktivieren',
+  'settings.twoFactorDisableTitle': 'Zwei-Faktor-Authentifizierung deaktivieren',
+  'settings.twoFactorEnable': 'Aktivieren',
+  'settings.twoFactorEnableTitle': 'Aktivieren Sie die Zwei-Faktor-Authentifizierung.',
+  'settings.twoFactorInvalidCode': 'Ungültiger Code',
+  'settings.twoFactorOn': 'An',
+  'settings.twoFactorQrAlt': 'Zwei-Faktor-QR-Code',
+  'settings.twoFactorScan':
+    'Scannen Sie diesen QR-Code mit Ihrer Authentifizierungs-App und geben Sie anschließend den 6-stelligen Code ein.',
+  'settings.twoFactorUnavailable':
+    'Die Zwei-Faktor-Authentifizierung ist für diese App nicht verfügbar.',
+  'settings.twoFactorVerify': 'Überprüfen und aktivieren',
+  'settings.revokeDeviceWarning':
+    'Die Zugriffsrechte dieses Geräts werden in Kürze gesperrt. Abmelden?',
+  'settings.signOutDevice': 'Abmelden',
 }

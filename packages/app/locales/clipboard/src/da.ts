@@ -6,4 +6,6 @@ export const da: ClipboardTranslations = {
     '@molecule/app-clipboard: Ingen udbyder angivet. Kald setProvider() med en ClipboardProvider-implementering (f.eks. fra @molecule/app-clipboard-react-native).',
   'clipboard.warn.onChangeNotSupported':
     '@molecule/app-clipboard: onChange understøttes ikke af udbyderen',
+  'clipboard.error.missingDependency':
+    '`{{library}}` er påkrævet, men ikke installeret. Installer det med: `npm install {{library}}`',
 }

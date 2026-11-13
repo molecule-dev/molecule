@@ -10,4 +10,5 @@ export const te: Partial<CookieBannerTranslations> = {
   'cookieBanner.reject': 'అన్నింటినీ తిరస్కరించండి',
   'cookieBanner.save': 'ప్రాధాన్యతలను సేవ్ చేయండి',
   'cookieBanner.accept': 'అన్నింటినీ అంగీకరించండి',
+  'cookieBanner.learnMore': 'మరింత తెలుసుకోండి',
 }

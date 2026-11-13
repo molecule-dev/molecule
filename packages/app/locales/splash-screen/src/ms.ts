@@ -5,4 +5,6 @@ export const ms: SplashScreenTranslations = {
   'splashScreen.error.noProvider': 'Pembekal skrin percikan tidak dikonfigurasi.',
   'splashScreen.warn.configureNotSupported':
     'configure() tidak disokong oleh pembekal skrin percikan ini.',
+  'splashScreen.error.missingDependency':
+    '`{{library}}` diperlukan tetapi tidak dipasang. Pasangkannya dengan: `npx expo install {{library}}`',
 }

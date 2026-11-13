@@ -361,14 +361,10 @@ export const vi: Partial<IdeTranslations> = {
     'Mẹo: gõ @filename để đính kèm tệp dự án làm ngữ cảnh —{{agentName}} Đọc trực tiếp.',
   'ide.chat.tip.slash':
     'Mẹo: gõ / để xem tất cả các lệnh (commit, diff, model, và nhiều lệnh khác).',
-  'ide.chat.tip.plan':
-    'Mẹo: sử dụng /plan để có{{agentName}} Hãy nghiên cứu và đề xuất kế hoạch trước khi chỉnh sửa bất kỳ tập tin nào.',
   'ide.chat.tip.undo':
     'Mẹo: Sử dụng lệnh /undo để hoàn tác ngay lập tức các thay đổi trong tệp của lượt chơi AI cuối cùng nếu nó diễn ra không như ý muốn.',
   'ide.chat.tip.compact':
     'Mẹo: Cuộc trò chuyện dài? /compact sẽ thu gọn ngữ cảnh để bạn có thêm không gian làm việc.',
-  'ide.chat.tip.commit':
-    'Mẹo: Sử dụng lệnh `/commit` để lưu các thay đổi của bạn dưới dạng một commit Git mà bạn có thể quay lại bất cứ lúc nào.',
   'ide.chat.tip.report':
     'Mẹo: Có vấn đề gì không ổn? Lệnh /report sẽ gửi báo cáo lỗi hoặc phản hồi đến nhóm kèm theo đoạn chat gần đây nhất của bạn.',
   'ide.chat.undoError': 'Failed to revert changes.',
@@ -781,4 +777,10 @@ export const vi: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'Trợ cấp hàng tháng.',
   'ide.chat.context.daily': 'Tiền tiêu vặt hàng ngày.',
   'ide.chat.context.resets': 'Đặt lại về {{at}} .',
+  'ide.error.noProvider':
+    'Trình cung cấp không gian làm việc IDE chưa được cấu hình. Hãy liên kết với trình cung cấp IDE trước.',
+  'ide.chat.tip.plan':
+    'Mẹo: Sử dụng /plan để {{agentName}} nghiên cứu và đề xuất kế hoạch trước khi chỉnh sửa bất kỳ tập tin nào.',
+  'ide.chat.tip.commit':
+    'Mẹo: dùng /commit để lưu các thay đổi của bạn thành một git commit mà bạn luôn có thể quay lại.',
 }

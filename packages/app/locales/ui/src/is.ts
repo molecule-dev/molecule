@@ -36,7 +36,6 @@ export const is: UiTranslations = {
   'ui.select.placeholder': 'Veldu…',
   'ui.select.title': 'Veldu',
   'ui.toast.dismiss': 'Hunsa',
-  'ui.toast.error.noProvider': 'useToast verður að vera notað innan ToastProvider',
   'confirm.cancel': 'Hætta við',
   'confirm.confirm': 'Staðfesta',
   'ui.select.clear': '--',
@@ -53,4 +52,5 @@ export const is: UiTranslations = {
   'userMenu.panelLabel': 'Reikningsvalmynd',
   'ui.error.noClassMap':
     'Engin UIClassMap hefur verið stillt. Kallaðu á setClassMap() við ræsingu forritsins með útfærslu á stílbókasafni (t.d. @molecule/app-ui-tailwind).',
+  'ui.toast.error.noProvider': '`useToast` verður að vera notað innan `ToastProvider`',
 }

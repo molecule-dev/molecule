@@ -357,8 +357,6 @@ export const fa: Partial<IdeTranslations> = {
     'نکته: برای پیوست کردن یک فایل پروژه به عنوان متن، ‎@filename‎ را تایپ کنید —{{agentName}} آن را مستقیماً می‌خواند.',
   'ide.chat.tip.slash':
     'نکته: برای مرور هر دستور (commit، diff، model و موارد دیگر) / را تایپ کنید.',
-  'ide.chat.tip.plan':
-    'نکته: از /plan to have استفاده کنید{{agentName}} قبل از ویرایش هر فایلی، تحقیق و طرحی ارائه دهد.',
   'ide.chat.tip.undo':
     'نکته: اگر آخرین نوبت هوش مصنوعی شما اشتباه پیش رفته باشد، می‌توانید از /undo برای برگرداندن فوری تغییرات فایل استفاده کنید.',
   'ide.chat.tip.compact':
@@ -774,4 +772,8 @@ export const fa: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'کمک هزینه ماهانه.',
   'ide.chat.context.daily': 'کمک هزینه روزانه.',
   'ide.chat.context.resets': '{{at}} را بازنشانی می‌کند.',
+  'ide.error.noProvider':
+    'ارائه دهنده فضای کاری IDE پیکربندی نشده است. ابتدا یک ارائه دهنده IDE را متصل کنید.',
+  'ide.chat.tip.plan':
+    'نکته: از /plan استفاده کنید تا {{agentName}} قبل از ویرایش هر فایلی، تحقیق کند و طرحی پیشنهاد دهد.',
 }

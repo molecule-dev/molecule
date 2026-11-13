@@ -783,4 +783,6 @@ export const my: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'လစဉ်ထောက်ပံ့ကြေး။',
   'ide.chat.context.daily': 'နေ့စဉ်ထောက်ပံ့ကြေး။',
   'ide.chat.context.resets': '{{at}} ပြန်လည်သတ်မှတ်သည်။',
+  'ide.error.noProvider':
+    'IDE workspace provider ကို configure မလုပ်ရသေးပါ။ IDE provider ကို ဦးစွာ ချည်နှောင်ပါ။',
 }

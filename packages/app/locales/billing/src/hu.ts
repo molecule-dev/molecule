@@ -14,4 +14,5 @@ export const hu: Partial<BillingTranslations> = {
   'billing.pricing.reassurance': 'Bármikor lemondható · Nem szükséges hitelkártya a kezdéshez',
   'billing.pricing.tierEyebrow': 'Szint',
   'billing.pricing.perSeat': 'ülésenként',
+  'billing.pricing.currentCta': 'Jelenlegi terv',
 }

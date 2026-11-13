@@ -5,4 +5,6 @@ export const sw: SplashScreenTranslations = {
   'splashScreen.error.noProvider': 'Mtoa huduma wa skrini ya kuanza haijasanidiwa.',
   'splashScreen.warn.configureNotSupported':
     'configure() haitumiki na mtoa huduma huyu wa skrini ya kuanza.',
+  'splashScreen.error.missingDependency':
+    '`{{library}}` inahitajika lakini haijasakinishwa. Isakinishe na: `npx expo install {{library}}`',
 }

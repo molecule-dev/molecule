@@ -771,4 +771,5 @@ export const gu: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'માસિક ભથ્થું.',
   'ide.chat.context.daily': 'દૈનિક ભથ્થું.',
   'ide.chat.context.resets': '{{at}} રીસેટ કરે છે.',
+  'ide.error.noProvider': 'IDE વર્કસ્પેસ પ્રદાતા ગોઠવેલ નથી. પહેલા IDE પ્રદાતાને બોન્ડ કરો.',
 }

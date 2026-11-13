@@ -6,4 +6,8 @@ export const ur: RoutingTranslations = {
   'routing.error.routeNotFound': '"{{name}}" راستہ نہیں ملا',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter کو MoleculeRouterProvider کے اندر استعمال کیا جانا چاہیے',
+  'routing.error.noNavigationRef':
+    'نیویگیشن ریفری سیٹ نہیں ہے۔ یقینی بنائیں کہ `MoleculeProvider` نصب ہے۔',
+  'routing.error.useMoleculeRouterOutsideRouter':
+    'React Router روٹر کے اندر `useMoleculeRouter` استعمال کرنا ضروری ہے۔ ماؤنٹ `BrowserRouter`, `HashRouter`, `MemoryRouter`, `Router`, یا `RouterProvider` ۔',
 }

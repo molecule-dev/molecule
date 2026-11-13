@@ -8,4 +8,7 @@ export const eu: Partial<FooterTranslations> = {
   'footer.language': 'Hizkuntza',
   'content.privacyPolicy': '',
   'content.termsOfService': '',
+  'footer.legalNotConfigured':
+    'Eduki hau ez da oraindik konfiguratu. Aplikazioaren jabeak eman behar du.',
+  'footer.about': '{{appName}} ri buruz',
 }

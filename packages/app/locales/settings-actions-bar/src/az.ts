@@ -5,4 +5,5 @@ export const az: Partial<SettingsActionsBarTranslations> = {
   'settingsActions.cancel': 'Ləğv et',
   'settingsActions.saving': 'Yadda saxlanılır…',
   'settingsActions.save': 'Dəyişiklikləri yadda saxla',
+  'settingsActions.saved': 'Yadda saxlanıldı {{at}}',
 }

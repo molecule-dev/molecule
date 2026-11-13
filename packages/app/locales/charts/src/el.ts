@@ -4,4 +4,5 @@ import type { ChartsTranslations } from './types.js'
 export const el: ChartsTranslations = {
   'charts.placeholder.label': 'Γράφημα {{type}}',
   'charts.placeholder.description': 'Χρησιμοποιήστε κατάλληλο πάροχο γραφημάτων',
+  'charts.error.noCanvasContext': 'Δεν ήταν δυνατή η λήψη του περιβάλλοντος 2D του καμβά',
 }

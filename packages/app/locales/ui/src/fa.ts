@@ -36,7 +36,6 @@ export const fa: UiTranslations = {
   'ui.select.placeholder': 'انتخاب کنید…',
   'ui.select.title': 'انتخاب کنید',
   'ui.toast.dismiss': 'رد کردن',
-  'ui.toast.error.noProvider': 'useToast باید درون یک ToastProvider استفاده شود.',
   'confirm.cancel': 'لغو',
   'confirm.confirm': 'تأیید',
   'ui.select.clear': '--',
@@ -53,4 +52,5 @@ export const fa: UiTranslations = {
   'userMenu.panelLabel': 'منوی حساب کاربری',
   'ui.error.noClassMap':
     'هیچ UIClassMap تنظیم نشده است. در هنگام راه‌اندازی برنامه با پیاده‌سازی کتابخانه استایل‌بندی (مثلاً @molecule/app-ui-tailwind)، تابع setClassMap() را فراخوانی کنید.',
+  'ui.toast.error.noProvider': '`useToast` باید درون یک `ToastProvider` استفاده شود.',
 }

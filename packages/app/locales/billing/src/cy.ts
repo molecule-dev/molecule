@@ -14,4 +14,5 @@ export const cy: Partial<BillingTranslations> = {
   'billing.pricing.tierEyebrow': 'Haen',
   'billing.pricing.perSeat': 'fesul sedd',
   'billing.pricing.upgradeCta': 'Uwchraddio i {{tierName}}',
+  'billing.pricing.currentCta': 'Cynllun cyfredol',
 }

@@ -14,4 +14,5 @@ export const sv: Partial<BillingTranslations> = {
   'billing.status.cancelError': 'Kunde inte avbryta. Försök igen.',
   'billing.pricing.reassurance': 'Avbryt när som helst · Inget kreditkort krävs för att starta',
   'billing.pricing.perSeat': 'per säte',
+  'billing.pricing.currentCta': 'Nuvarande plan',
 }

@@ -15,4 +15,5 @@ export const kn: Partial<BillingTranslations> = {
   'billing.pricing.tierEyebrow': 'ಶ್ರೇಣಿ',
   'billing.pricing.perSeat': 'ಪ್ರತಿ ಸೀಟಿಗೆ',
   'billing.pricing.upgradeCta': 'ಅಪ್‌ಗ್ರೇಡ್ ಮಾಡಿ {{tierName}}',
+  'billing.pricing.currentCta': 'ಪ್ರಸ್ತುತ ಯೋಜನೆ',
 }

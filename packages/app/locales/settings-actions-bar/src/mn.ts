@@ -5,4 +5,5 @@ export const mn: Partial<SettingsActionsBarTranslations> = {
   'settingsActions.cancel': 'Цуцлах',
   'settingsActions.saving': 'Хадгалж байна…',
   'settingsActions.save': 'Өөрчлөлтүүдийг хадгалах',
+  'settingsActions.saved': 'Хадгалсан {{at}}',
 }

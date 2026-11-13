@@ -6,4 +6,6 @@ export const fi: Partial<NotificationCenterTranslations> = {
   'notifications.markAllRead': 'Merkitse kaikki luetuiksi',
   'notifications.viewAll': 'Näytä kaikki',
   'notifications.empty': 'Ei ilmoituksia',
+  'notifications.loadError': 'Ilmoitusten lataaminen epäonnistui.',
+  'notifications.retry': 'Yritä uudelleen',
 }

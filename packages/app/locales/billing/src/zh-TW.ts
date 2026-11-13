@@ -14,4 +14,5 @@ export const zhTW: Partial<BillingTranslations> = {
   'billing.pricing.tierEyebrow': '層級',
   'billing.pricing.perSeat': '每座位',
   'billing.pricing.upgradeCta': '升級到{{tierName}}',
+  'billing.pricing.currentCta': '目前計劃',
 }

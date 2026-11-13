@@ -4,4 +4,6 @@ import type { PushTranslations } from './types.js'
 export const my: PushTranslations = {
   'push.error.notSupported': 'Push notification များ ပံ့ပိုးမထားပါ',
   'push.error.permissionNotGranted': 'Notification ခွင့်ပြုချက် မပေးထားပါ',
+  'push.error.missingDependency':
+    '`{{library}}` ကို လိုအပ်သော်လည်း ထည့်သွင်းထားခြင်း မရှိပါ။ အောက်ပါဖြင့် ထည့်သွင်းပါ- `npx expo install {{library}}`',
 }

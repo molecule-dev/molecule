@@ -15,4 +15,6 @@ export const ky: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'Ката',
   'audioRecorder.statusIdle': 'Жаздырууга даяр',
   'audioRecorder.group': 'Аудио жазгыч',
+  'audioRecorder.record': 'Жазуу',
+  'audioRecorder.statusRecording': 'Жаздыруу',
 }

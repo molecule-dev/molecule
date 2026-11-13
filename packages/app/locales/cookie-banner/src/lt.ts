@@ -10,4 +10,5 @@ export const lt: Partial<CookieBannerTranslations> = {
   'cookieBanner.reject': 'Atmesti viską',
   'cookieBanner.save': 'Išsaugoti nuostatas',
   'cookieBanner.accept': 'Priimti visus',
+  'cookieBanner.learnMore': 'Sužinokite daugiau',
 }

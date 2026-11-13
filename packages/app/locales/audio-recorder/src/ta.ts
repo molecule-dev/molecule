@@ -15,4 +15,6 @@ export const ta: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'பிழை',
   'audioRecorder.statusIdle': 'பதிவு செய்ய தயார்',
   'audioRecorder.group': 'ஆடியோ ரெக்கார்டர்',
+  'audioRecorder.record': 'பதிவு',
+  'audioRecorder.statusRecording': 'பதிவு',
 }

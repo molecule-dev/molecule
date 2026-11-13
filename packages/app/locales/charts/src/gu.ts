@@ -4,4 +4,5 @@ import type { ChartsTranslations } from './types.js'
 export const gu: ChartsTranslations = {
   'charts.placeholder.label': '{{type}} ચાર્ટ',
   'charts.placeholder.description': 'યોગ્ય ચાર્ટ પ્રદાતા વાપરો',
+  'charts.error.noCanvasContext': 'કેનવાસ 2D સંદર્ભ મેળવી શકાયો નથી',
 }

@@ -10,4 +10,5 @@ export const gl: Partial<CookieBannerTranslations> = {
   'cookieBanner.reject': 'Rexeitar todo',
   'cookieBanner.save': 'Gardar preferencias',
   'cookieBanner.accept': 'Aceptar todo',
+  'cookieBanner.learnMore': 'Máis información',
 }

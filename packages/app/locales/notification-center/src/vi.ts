@@ -6,4 +6,6 @@ export const vi: Partial<NotificationCenterTranslations> = {
   'notifications.markAllRead': 'Đánh dấu tất cả đã đọc',
   'notifications.viewAll': 'Xem tất cả',
   'notifications.empty': 'Không có thông báo',
+  'notifications.loadError': 'Không thể tải thông báo.',
+  'notifications.retry': 'Thử lại',
 }

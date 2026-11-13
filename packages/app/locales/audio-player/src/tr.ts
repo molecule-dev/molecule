@@ -3,4 +3,8 @@ import type { AudioPlayerTranslations } from './types.js'
 /** AudioPlayer translations for tr. */
 export const tr: Partial<AudioPlayerTranslations> = {
   'audio.seek': 'İleri sar',
+  'audio.play': 'Oynamak',
+  'audio.pause': 'Duraklat',
+  'audio.mute': 'Sesini kapatmak',
+  'audio.unmute': 'Sesini açmak',
 }

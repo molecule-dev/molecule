@@ -11,4 +11,5 @@ export const he: FormsTranslations = {
   'forms.invalidEmail': 'כתובת אימייל לא חוקית',
   'forms.invalidUrl': 'URL לא חוקי',
   'forms.invalidValue': 'ערך לא חוקי',
+  'forms.submitError': 'לא ניתן לשלוח. אנא נסה שוב.',
 }

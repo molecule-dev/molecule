@@ -5,4 +5,6 @@ export const mk: SplashScreenTranslations = {
   'splashScreen.error.noProvider': 'Провајдерот за почетен екран не е конфигуриран.',
   'splashScreen.warn.configureNotSupported':
     'configure() не е поддржан од овој провајдер за почетен екран.',
+  'splashScreen.error.missingDependency':
+    '`{{library}}` е задолжително, но не е инсталирано. Инсталирајте го со: `npx expo install {{library}}`',
 }

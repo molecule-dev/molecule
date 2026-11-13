@@ -9,4 +9,6 @@ export const id: Partial<SecretRowTranslations> = {
   'secretRow.rotate': 'Putar',
   'secretRow.delete': 'Hapus',
   'secretRow.expired': 'Kedaluwarsa',
+  'secretRow.lastRotated': 'Terakhir diputar',
+  'secretRow.rotateIn': 'Rotasi dalam {{days}} d',
 }

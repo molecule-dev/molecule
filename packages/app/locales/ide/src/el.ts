@@ -358,8 +358,6 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.tip.dismiss': 'Απόρριψη συμβουλής',
   'ide.chat.tip.getStarted':
     'Συμβουλή: πληκτρολογήστε / για να δείτε όλες τις εντολές ή @ ακολουθούμενο από ένα όνομα αρχείου για να ορίσετε ένα αρχείο ως βάση εργασίας για το «{{agentName}}».',
-  'ide.chat.tip.mention':
-    'Συμβουλή: πληκτρολογήστε @filename για να επισυνάψετε ένα αρχείο έργου ως πλαίσιο αναφοράς — το `{{agentName}}` το διαβάζει απευθείας.',
   'ide.chat.tip.slash':
     'Συμβουλή: πληκτρολογήστε / για να δείτε όλες τις εντολές (commit, diff, model κ.ά.).',
   'ide.chat.tip.plan':
@@ -393,7 +391,6 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.models.colName': 'Μοντέλο',
   'ide.chat.models.freeNo': '—',
   'ide.chat.models.freeYes': '✓ Δωρεάν',
-  'ide.chat.models.sortBy': 'Ταξινόμηση κατά{{column}}',
   'ide.chat.modelsLoading': 'Φόρτωση μοντέλων…',
   'ide.chat.modelsNone':
     'Δεν υπάρχουν ακόμη διαθέσιμα μοντέλα — ζητήστε από τον διαχειριστή σας να συνδέσει έναν πάροχο τεχνητής νοημοσύνης.',
@@ -435,22 +432,16 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.lintWarningsCount': '{{count}} προειδοποιήσεις',
   'ide.chat.typeErrorsCount': '{{count}} σφάλματα τύπου',
   'ide.chat.help.commandsHeading': '── Εντολές ──',
-  'ide.chat.help.intro':
-    '{{agentName}} είναι ο βοηθός προγραμματισμού με τεχνητή νοημοσύνη της{{productName}}. Περιγράψτε τι θέλετε να δημιουργήσετε και θα σας βοηθήσει στη δομή, τον προγραμματισμό και την βελτίωση του κώδικα.',
   'ide.chat.help.introHeading': '── Ξεκινώντας ──',
   'ide.chat.help.modeDiscovery':
     'Ανακάλυψη — εδώ ξεκινούν νέες συζητήσεις. Η μέθοδος «{{agentName}}» περιλαμβάνει την υποβολή διευκρινιστικών ερωτήσεων για τον ακριβή προσδιορισμό των απαιτήσεων πριν από τη συγγραφή οποιουδήποτε κώδικα.',
   'ide.chat.help.modeExecute':
     'Εκτέλεση — ο προεπιλεγμένος τρόπος λειτουργίας. Το «{{agentName}}» δημιουργεί κώδικα, εκτελεί εργαλεία, εφαρμόζει αλλαγές και στη συνέχεια τις επαληθεύει.',
-  'ide.chat.help.modePlan':
-    'Σχέδιο — Η εντολή `{{agentName}}` αναλύει τον κώδικα και προτείνει ένα σχέδιο ΧΩΡΙΣ να τροποποιήσει τα αρχεία. Ενεργοποιήστε τη λειτουργία με την εντολή `/plan`. Ιδανική για μεγάλες ή επικίνδυνες αλλαγές.',
   'ide.chat.help.modesHeading': '── Λειτουργίες ──',
   'ide.chat.help.shortcuts':
     'Πατήστε Cmd+/ (Ctrl+/ σε Windows/Linux) για να δείτε όλες τις συντομεύσεις πληκτρολογίου.',
   'ide.chat.help.tipCompact':
     '• Χρησιμοποιήστε την εντολή /compact για να συμπτύξετε το ιστορικό της συνομιλίας όταν αυτή γίνεται μεγάλη.',
-  'ide.chat.help.tipPlan':
-    '• Χρησιμοποιήστε την εντολή /plan για να ζητήσετε από το{{agentName}}να πραγματοποιήσει έλεγχο πριν από την εφαρμογή αλλαγών.',
   'ide.chat.help.tipSlash': '• Πληκτρολογήστε / για να δείτε όλες τις παραπάνω εντολές.',
   'ide.chat.help.tipSpecific':
     '• Να είστε συγκεκριμένοι — «Προσθέστε μια σελίδα σύνδεσης με email/κωδικό πρόσβασης και Google OAuth» είναι καλύτερο από το «προσθέστε έλεγχο ταυτότητας».',
@@ -498,7 +489,6 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNotFound':
     'Δεν υπάρχει σενάριο με το όνομα «{{name}}». Διαθέσιμο: {{names}}',
   'ide.chat.scripts.cmdExitOk': '{{name}} έξοδος 0',
-  'ide.chat.scripts.cmdExitFail': '{{name}} έξοδος με κωδικό{{code}}',
   'ide.chat.scripts.exitOk': 'Έξοδος 0',
   'ide.chat.scripts.exitFail': 'Έξοδος από το {{code}}',
   'ide.chat.scripts.noOutput': '(χωρίς έξοδο)',
@@ -626,7 +616,6 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.previewLinkTitle': 'Άνοιξε το αρχείο «{{path}}» στην προεπισκόπηση',
   'ide.chat.report.diagnosticsNote':
     'Συνημμένα θα βρείτε την έκδοση της εφαρμογής σας, το πρόγραμμα περιήγησης και το μέγεθος της οθόνης σας, ώστε να μας βοηθήσετε στον εντοπισμό σφαλμάτων.',
-  'ide.chat.skills.loadedCount': '🧠 Διαθέτω εκτεταμένες δεξιότητες στο{{count}}',
   'ide.chat.skills.waitingForSandbox': 'Αναμονή μέχρι να ολοκληρωθεί η εκκίνηση του sandbox…',
   'ide.chat.skills.resetDefaults': 'Προεπιλεγμένη φόρτωση όλων',
   'ide.search.excludedDirs':
@@ -799,4 +788,17 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'Μηνιαίο επίδομα.',
   'ide.chat.context.daily': 'Ημερήσια αποζημίωση.',
   'ide.chat.context.resets': 'Επαναφέρει {{at}} .',
+  'ide.error.noProvider':
+    'Δεν έχει ρυθμιστεί ο πάροχος χώρου εργασίας IDE. Συνδέστε πρώτα έναν πάροχο IDE.',
+  'ide.chat.models.sortBy': 'Ταξινόμηση κατά {{column}}',
+  'ide.chat.help.intro':
+    '{{agentName}} είναι ο παράγοντας κωδικοποίησης τεχνητής νοημοσύνης του {{productName}}. Περιγράψτε τι θέλετε να δημιουργήσετε και θα δημιουργήσει σκαλωσιά, θα κωδικοποιήσει και θα επαναλάβει μαζί σας.',
+  'ide.chat.help.tipPlan':
+    '• Χρησιμοποιήστε το /plan για να κάνετε έρευνα {{agentName}} πριν κάνετε αλλαγές.',
+  'ide.chat.scripts.cmdExitFail': 'Ο {{name}} εξήλθε με κωδικό {{code}}',
+  'ide.chat.skills.loadedCount': '🧠 Φορτώθηκαν {{count}} δεξιότητες',
+  'ide.chat.tip.mention':
+    'Συμβουλή: πληκτρολογήστε @filename για να επισυνάψετε ένα αρχείο έργου ως περιβάλλον — {{agentName}} το διαβάζει απευθείας.',
+  'ide.chat.help.modePlan':
+    'Σχέδιο — {{agentName}} ερευνά τη βάση κώδικα και προτείνει ένα σχέδιο ΧΩΡΙΣ επεξεργασία αρχείων. Εναλλαγή με /plan. Ιδανικό για μεγάλες ή επικίνδυνες αλλαγές.',
 }

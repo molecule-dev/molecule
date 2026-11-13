@@ -8,4 +8,7 @@ export const sl: Partial<FooterTranslations> = {
   'footer.language': 'Jezik',
   'content.privacyPolicy': '',
   'content.termsOfService': '',
+  'footer.legalNotConfigured':
+    'Ta vsebina še ni bila konfigurirana. Zagotoviti jo mora lastnik aplikacije.',
+  'footer.about': 'O aplikaciji {{appName}}',
 }

@@ -9,4 +9,5 @@ export const fa: Partial<CookieBannerTranslations> = {
   'cookieBanner.reject': 'همه را رد کنید',
   'cookieBanner.save': 'ذخیره تنظیمات برگزیده',
   'cookieBanner.accept': 'همه را بپذیرید',
+  'cookieBanner.learnMore': 'بیشتر بدانید',
 }

@@ -394,7 +394,6 @@ export const bg: Partial<IdeTranslations> = {
   'ide.chat.models.colName': 'Модел',
   'ide.chat.models.freeNo': '—',
   'ide.chat.models.freeYes': '✓ Безплатно',
-  'ide.chat.models.sortBy': 'Сортиране по{{column}}',
   'ide.chat.modelsLoading': 'Зареждане на модели…',
   'ide.chat.modelsNone':
     'Все още няма налични модели — помолете администратора си да свърже доставчик на изкуствен интелект.',
@@ -497,7 +496,6 @@ export const bg: Partial<IdeTranslations> = {
     'Все още няма запазени скриптове. Отворете /scripts, за да създадете такъв.',
   'ide.chat.scripts.runNotFound': 'Няма скрипт с име „{{name}}“. Наличен на: {{names}}',
   'ide.chat.scripts.cmdExitOk': '{{name}} излезе с код 0',
-  'ide.chat.scripts.cmdExitFail': '{{name}} завърши с код{{code}}',
   'ide.chat.scripts.exitOk': 'Излязъл 0',
   'ide.chat.scripts.exitFail': 'Излязох от {{code}}',
   'ide.chat.scripts.noOutput': '(няма изход)',
@@ -792,4 +790,8 @@ export const bg: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'Месечна надбавка.',
   'ide.chat.context.daily': 'Дневна надбавка.',
   'ide.chat.context.resets': 'Нулира {{at}} .',
+  'ide.error.noProvider':
+    'Доставчикът на IDE работно пространство не е конфигуриран. Първо свържете доставчик на IDE.',
+  'ide.chat.models.sortBy': 'Сортиране по {{column}}',
+  'ide.chat.scripts.cmdExitFail': '{{name}} приключи с код {{code}}',
 }

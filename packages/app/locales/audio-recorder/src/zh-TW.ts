@@ -14,4 +14,6 @@ export const zhTW: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': '錯誤',
   'audioRecorder.statusIdle': '準備錄製',
   'audioRecorder.group': '錄音機',
+  'audioRecorder.record': '記錄',
+  'audioRecorder.statusRecording': '記錄',
 }

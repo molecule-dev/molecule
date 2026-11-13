@@ -14,4 +14,5 @@ export const lo: Partial<BillingTranslations> = {
   'billing.pricing.tierEyebrow': 'ຊັ້ນ',
   'billing.pricing.perSeat': 'ຕໍ່ບ່ອນນັ່ງ',
   'billing.pricing.upgradeCta': 'ອັບເກຣດເປັນ {{tierName}}',
+  'billing.pricing.currentCta': 'ແຜນການປັດຈຸບັນ',
 }

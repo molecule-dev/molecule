@@ -6,4 +6,6 @@ export const fa: Partial<NotificationCenterTranslations> = {
   'notifications.markAllRead': 'علامت گذاری همه به عنوان خوانده شده',
   'notifications.empty': 'بدون اعلان',
   'notifications.viewAll': 'مشاهده همه',
+  'notifications.loadError': 'نتوانست اعلان‌ها را بارگیری کند.',
+  'notifications.retry': 'دوباره امتحان کنید',
 }

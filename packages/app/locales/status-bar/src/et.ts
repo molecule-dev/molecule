@@ -4,4 +4,5 @@ import type { StatusBarTranslations } from './types.js'
 export const et: StatusBarTranslations = {
   'statusBar.error.noProvider':
     '@molecule/app-status-bar: Teenusepakkuja pole määratud. Kutsuge setProvider() StatusBarProvideri teostusega (nt @molecule/app-status-bar-react-native).',
+  'statusBar.error.missingDependency': '`{{library}}` on nõutav, aga pole installitud.',
 }

@@ -283,7 +283,6 @@ export const si: Partial<IdeTranslations> = {
   'ide.chat.voiceEngineCurrent': 'වත්මන්',
   'ide.chat.voiceLangsAll': 'සියලු භාෂා',
   'ide.chat.voiceLangOnly': '{{language}} පමණි',
-  'ide.chat.voiceLangsCount': 'භාෂා {{count}}ක්',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'සැකසෙන්නේ: {{region}} — වෙනස් කිරීමට ක්ලික් කරන්න',
@@ -353,14 +352,10 @@ export const si: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
-  'ide.chat.tip.getStarted':
-    'ඉඟිය: සෑම විධානයක්ම බැලීමට / ටයිප් කරන්න, නැතහොත් ලබා දීමට ගොනු නාමයක් @ ටයිප් කරන්න{{agentName}} වැඩ කිරීමට ගොනුවක්.',
   'ide.chat.tip.mention':
     'ඉඟිය: ව්‍යාපෘති ගොනුවක් සන්දර්භය ලෙස ඇමිණීමට @filename ටයිප් කරන්න —{{agentName}} එය කෙලින්ම කියවයි.',
   'ide.chat.tip.slash':
     'ඉඟිය: සෑම විධානයක්ම (commit, diff, model, සහ තවත්) බ්‍රවුස් කිරීමට / ටයිප් කරන්න.',
-  'ide.chat.tip.plan':
-    'ඉඟිය: භාවිතා කරන්න /plan කිරීමට{{agentName}} ඕනෑම ගොනුවක් සංස්කරණය කිරීමට පෙර ඒ පිළිබඳව පර්යේෂණ කර සැලැස්මක් යෝජනා කරන්න.',
   'ide.chat.tip.undo':
     'ඉඟිය: අවසාන AI වාරයේ ගොනු වෙනස්කම් වැරදි මාර්ගයකට ගියහොත් ක්ෂණිකව ප්‍රතිවර්තනය කිරීමට /undo භාවිතා කරන්න.',
   'ide.chat.tip.compact':
@@ -776,4 +771,11 @@ export const si: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'මාසික දීමනාව.',
   'ide.chat.context.daily': 'දෛනික දීමනාව.',
   'ide.chat.context.resets': '{{at}} නැවත සකසයි.',
+  'ide.error.noProvider':
+    'IDE වැඩබිම් සැපයුම්කරු වින්‍යාස කර නොමැත. පළමුව IDE සැපයුම්කරුවෙකු බැඳ තබන්න.',
+  'ide.chat.voiceLangsCount': 'භාෂා {{count}}',
+  'ide.chat.tip.getStarted':
+    'ඉඟිය: සෑම විධානයක්ම බැලීමට / ටයිප් කරන්න, නැතහොත් {{agentName}} හට වැඩ කිරීමට ගොනුවක් ලබා දීමට @ ගොනු නාමයක් ටයිප් කරන්න.',
+  'ide.chat.tip.plan':
+    'ඉඟිය: ඕනෑම ගොනුවක් සංස්කරණය කිරීමට පෙර {{agentName}} පර්යේෂණ කර සැලැස්මක් යෝජනා කිරීමට /plan භාවිතා කරන්න.',
 }

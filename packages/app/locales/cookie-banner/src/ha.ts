@@ -10,4 +10,5 @@ export const ha: Partial<CookieBannerTranslations> = {
   'cookieBanner.reject': 'ƙin yarda da duk',
   'cookieBanner.save': 'Ajiye abubuwan da aka fi so',
   'cookieBanner.accept': 'Karɓi duk',
+  'cookieBanner.learnMore': 'Ƙara koyo',
 }

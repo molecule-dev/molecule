@@ -6,4 +6,7 @@ export const mt: ChatTranslations = {
   'chat.error.noResponseBody': 'Ebda korp tar-risposta',
   'chat.error.streamError': 'Zball tal-istreaming',
   'chat.error.unknownError': 'Zball mhux maghruf',
+  'chat.error.sendFailed': 'Ma rnexxiex nibgħat il-messaġġ',
+  'chat.error.stalled':
+    "{{agentName}} waqaf jirrispondi. Jista' jkun li għadu qed itemm fl-isfond — erġa' għabbi biex tara l-aħħar aħbarijiet, jew ibgħat messaġġ ġdid.",
 }

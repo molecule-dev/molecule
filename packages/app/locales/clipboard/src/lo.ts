@@ -6,4 +6,6 @@ export const lo: ClipboardTranslations = {
     '@molecule/app-clipboard: ບໍ່ມີຜູ້ໃຫ້ບໍລິການຖືກຕັ້ງ. ເອີ້ນ setProvider() ດ້ວຍການປະຕິບັດ ClipboardProvider (ເຊັ່ນ, ຈາກ @molecule/app-clipboard-react-native).',
   'clipboard.warn.onChangeNotSupported':
     '@molecule/app-clipboard: onChange ບໍ່ໄດ້ຮັບການສະໜັບສະໜູນຈາກຜູ້ໃຫ້ບໍລິການ',
+  'clipboard.error.missingDependency':
+    'ຕ້ອງມີ `{{library}}` ແຕ່ຍັງບໍ່ໄດ້ຕິດຕັ້ງ. ຕິດຕັ້ງມັນດ້ວຍ: `npm install {{library}}`',
 }

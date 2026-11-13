@@ -5,4 +5,5 @@ export const it: Partial<SettingsActionsBarTranslations> = {
   'settingsActions.cancel': 'Annulla',
   'settingsActions.saving': 'Salvataggio…',
   'settingsActions.save': 'Salva modifiche',
+  'settingsActions.saved': 'Salvato {{at}}',
 }

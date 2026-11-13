@@ -15,4 +15,5 @@ export const lt: Partial<BillingTranslations> = {
   'billing.pricing.tierEyebrow': 'Pakopa',
   'billing.pricing.perSeat': 'vienai vietai',
   'billing.pricing.upgradeCta': 'Atnaujinti į {{tierName}}',
+  'billing.pricing.currentCta': 'Dabartinis planas',
 }

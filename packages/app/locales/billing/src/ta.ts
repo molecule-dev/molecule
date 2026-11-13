@@ -16,4 +16,5 @@ export const ta: Partial<BillingTranslations> = {
   'billing.pricing.tierEyebrow': 'அடுக்கு',
   'billing.pricing.perSeat': 'ஒரு இருக்கைக்கு',
   'billing.pricing.upgradeCta': 'மேம்படுத்த {{tierName}}',
+  'billing.pricing.currentCta': 'தற்போதைய திட்டம்',
 }

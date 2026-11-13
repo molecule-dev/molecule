@@ -15,4 +15,5 @@ export const uz: Partial<BillingTranslations> = {
   'billing.pricing.tierEyebrow': 'Daraja',
   'billing.pricing.perSeat': "har bir o'rindiq uchun",
   'billing.pricing.upgradeCta': 'Yangilash {{tierName}}',
+  'billing.pricing.currentCta': 'Joriy reja',
 }

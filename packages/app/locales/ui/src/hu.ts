@@ -36,7 +36,6 @@ export const hu: Partial<UiTranslations> = {
   'ui.select.placeholder': 'Válasszon…',
   'ui.select.title': 'Válasszon',
   'ui.toast.dismiss': 'Bezárás',
-  'ui.toast.error.noProvider': 'A useToast paramétert egy ToastProvider-en belül kell használni.',
   'confirm.cancel': 'Mégse',
   'confirm.confirm': 'Megerősítés',
   'ui.select.clear': '--',
@@ -53,4 +52,5 @@ export const hu: Partial<UiTranslations> = {
   'userMenu.panelLabel': 'Fiók menü',
   'ui.error.noClassMap':
     'Nincs beállítva UIClassMap. Hívd meg a setClassMap() függvényt az alkalmazás indításakor egy stíluskönyvtár implementációjával (pl. @molecule/app-ui-tailwind).',
+  'ui.toast.error.noProvider': '`useToast` egy `ToastProvider` belül kell használni.',
 }

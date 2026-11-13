@@ -9,4 +9,6 @@ export const sq: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'Kopjo',
   'secretRow.rotate': 'Rrotullo',
   'secretRow.delete': 'Fshij',
+  'secretRow.lastRotated': 'Rrotulluar për herë të fundit',
+  'secretRow.rotateIn': 'Rrotullohuni në {{days}} ditë',
 }

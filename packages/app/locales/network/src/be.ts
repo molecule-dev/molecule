@@ -12,4 +12,8 @@ export const be: NetworkTranslations = {
   'network.unknown': 'Невядома',
   'network.error.connectionTimeout': 'Тайм-аўт сеткавага злучэння',
   'network.error.unavailable': 'Сетка недаступная',
+  'network.error.missingDependency':
+    '`{{library}}` абавязковы, але не ўсталяваны. Усталюйце яго з дапамогай: `npm install {{library}}`',
+  'network.error.noProvider':
+    '`@molecule/app-network`: Пастаўшчык не ўстаноўлены. Выклічце `setProvider()` з рэалізацыяй `NetworkProvider` (напрыклад, з `@molecule/app-network-react-native`).',
 }

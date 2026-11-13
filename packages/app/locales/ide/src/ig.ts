@@ -350,14 +350,10 @@ export const ig: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
-  'ide.chat.tip.getStarted':
-    'Ndụmọdụ: pịnye / iji hụ iwu ọ bụla, ma ọ bụ @ aha faịlụ iji nye{{agentName}} faịlụ iji rụọ ọrụ.',
   'ide.chat.tip.mention':
     'Ndụmọdụ: pịnye @filename iji tinye faịlụ ọrụ dịka ihe dị na ya —{{agentName}} na-agụ ya ozugbo.',
   'ide.chat.tip.slash':
     'Ndụmọdụ: pịnye / iji lelee iwu ọ bụla (nkwenye, mgbanwe, ụdị, na ihe ndị ọzọ).',
-  'ide.chat.tip.plan':
-    'Ndụmọdụ: iji/atụmatụ inwe{{agentName}} mee nnyocha ma tụọ aro atụmatụ tupu ọ dezie faịlụ ọ bụla.',
   'ide.chat.tip.undo':
     "Ndụmọdụ: jiri /megharịa iji weghachite mgbanwe faịlụ AI ikpeazụ ozugbo ma ọ bụrụ na ọ gara n'ụzọ na-ezighi ezi.",
   'ide.chat.tip.compact':
@@ -771,4 +767,9 @@ export const ig: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'Ego enyemaka kwa ọnwa.',
   'ide.chat.context.daily': 'Ego kwa ụbọchị.',
   'ide.chat.context.resets': 'Na-emegharị {{at}} .',
+  'ide.error.noProvider': 'Emebeghị nhazi onye na-enye ọrụ IDE. Jikọọ onye na-enye ọrụ IDE mbụ.',
+  'ide.chat.tip.getStarted':
+    'Ndụmọdụ: pịnye / iji hụ iwu ọ bụla, ma ọ bụ @ aha faịlụ iji nye {{agentName}} faịlụ iji rụọ ọrụ na ya.',
+  'ide.chat.tip.plan':
+    'Ndụmọdụ: jiri / mee atụmatụ ka {{agentName}} mee nchọpụta ma tụọ aro atụmatụ tupu ọ dezie faịlụ ọ bụla.',
 }

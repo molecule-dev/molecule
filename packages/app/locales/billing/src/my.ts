@@ -14,4 +14,5 @@ export const my: Partial<BillingTranslations> = {
   'billing.pricing.tierEyebrow': 'အဆင့်',
   'billing.pricing.perSeat': 'ထိုင်ခုံတစ်ခုလျှင်',
   'billing.pricing.upgradeCta': 'အဆင့်မြှင့်တင်ရန် {{tierName}}',
+  'billing.pricing.currentCta': 'လက်ရှိအစီအစဉ်',
 }

@@ -17,4 +17,22 @@ export const es: Partial<SettingsPanelTranslations> = {
   'settings.plan': 'Plan',
   'settings.billing.upgradeTitle': 'Mejora tu plan',
   'settings.billing.noTiers': 'No hay planes de pago configurados.',
+  'settings.failedToUpdateProfile': 'No se pudo actualizar el perfil.',
+  'settings.name': 'Nombre',
+  'settings.twoFactorCode': 'Código de autenticación',
+  'settings.twoFactorDisable': 'Desactivar',
+  'settings.twoFactorDisableTitle': 'Deshabilitar la autenticación de dos factores',
+  'settings.twoFactorEnable': 'Permitir',
+  'settings.twoFactorEnableTitle': 'Habilitar la autenticación de dos factores',
+  'settings.twoFactorInvalidCode': 'Código no válido',
+  'settings.twoFactorOn': 'En',
+  'settings.twoFactorQrAlt': 'Código QR de dos factores',
+  'settings.twoFactorScan':
+    'Escanea este código QR con tu aplicación de autenticación y, a continuación, introduce el código de 6 dígitos.',
+  'settings.twoFactorUnavailable':
+    'La autenticación de dos factores no está disponible para esta aplicación.',
+  'settings.twoFactorVerify': 'Verificar y habilitar',
+  'settings.revokeDeviceWarning':
+    'El acceso a este dispositivo se revocará en breve. ¿Cerrar sesión?',
+  'settings.signOutDevice': 'desconectar',
 }

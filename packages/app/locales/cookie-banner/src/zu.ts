@@ -10,4 +10,5 @@ export const zu: Partial<CookieBannerTranslations> = {
   'cookieBanner.reject': 'Yenqaba konke',
   'cookieBanner.save': 'Londoloza izintandokazi',
   'cookieBanner.accept': 'Yamukela konke',
+  'cookieBanner.learnMore': 'Funda kabanzi',
 }

@@ -15,4 +15,6 @@ export const nl: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'Fout',
   'audioRecorder.statusIdle': 'Klaar om op te nemen',
   'audioRecorder.group': 'Audio-recorder',
+  'audioRecorder.record': 'Dossier',
+  'audioRecorder.statusRecording': 'Opname',
 }

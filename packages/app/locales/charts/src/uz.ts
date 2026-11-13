@@ -4,4 +4,5 @@ import type { ChartsTranslations } from './types.js'
 export const uz: ChartsTranslations = {
   'charts.placeholder.label': '{{type}} diagramma',
   'charts.placeholder.description': 'Tegishli diagramma provayderidan foydalaning',
+  'charts.error.noCanvasContext': "2D tuval kontekstini olib bo'lmadi",
 }

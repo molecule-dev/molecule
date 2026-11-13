@@ -9,4 +9,6 @@ export const te: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'కాపీ',
   'secretRow.rotate': 'తిప్పండి',
   'secretRow.delete': 'తొలగించు',
+  'secretRow.lastRotated': 'చివరిగా తిప్పబడింది',
+  'secretRow.rotateIn': '{{days}} d లో తిప్పండి',
 }

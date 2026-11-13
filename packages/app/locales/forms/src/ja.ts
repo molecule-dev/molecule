@@ -11,4 +11,5 @@ export const ja: FormsTranslations = {
   'forms.invalidEmail': '無効なメールアドレスです',
   'forms.invalidUrl': '無効なURLです',
   'forms.invalidValue': '無効な値です',
+  'forms.submitError': '送信できませんでした。もう一度お試しください。',
 }

@@ -4,4 +4,5 @@ import type { KeyboardTranslations } from './types.js'
 export const zhTW: KeyboardTranslations = {
   'keyboard.error.noProvider':
     '@molecule/app-keyboard: 未設定提供者。請使用 KeyboardProvider 實作呼叫 setProvider()（例如，來自 @molecule/app-keyboard-react-native）。',
+  'keyboard.error.missingDependency': '需要`{{library}}`，但尚未安裝。',
 }

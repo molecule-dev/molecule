@@ -436,8 +436,6 @@ export const ar: Partial<IdeTranslations> = {
     'الاكتشاف — هنا تبدأ المحادثات الجديدة. يطرح كتاب «{{agentName}}» أسئلة توضيحية لتحديد المتطلبات بدقة قبل كتابة أي كود.',
   'ide.chat.help.modeExecute':
     'التنفيذ — وضع العمل الافتراضي. يقوم "{{agentName}}" بكتابة التعليمات البرمجية وتشغيل الأدوات وتطبيق التغييرات، ثم التحقق منها.',
-  'ide.chat.help.modePlan':
-    'الخطة — يقوم الأمر `{{agentName}}` بفحص قاعدة الكود ويقترح خطة دون تعديل الملفات. يمكن تشغيل هذه الميزة باستخدام الأمر `/plan`. يُنصح باستخدامها عند إجراء تغييرات كبيرة أو محفوفة بالمخاطر.',
   'ide.chat.help.modesHeading': '── الأوضاع ──',
   'ide.chat.help.shortcuts':
     'اضغط على Cmd+/ (Ctrl+/ في أنظمة ويندوز/لينكس) لعرض جميع اختصارات لوحة المفاتيح.',
@@ -488,7 +486,6 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNone': 'لا توجد نصوص برمجية محفوظة حتى الآن. افتح /scripts لإنشاء واحدة.',
   'ide.chat.scripts.runNotFound': 'لا يوجد ملف نصي باسم «{{name}}». متاح على الرابط: {{names}}',
   'ide.chat.scripts.cmdExitOk': '{{name}} تم الخروج من 0',
-  'ide.chat.scripts.cmdExitFail': '{{name}} تم الخروج من البرنامج برمز الخطأ{{code}}',
   'ide.chat.scripts.exitOk': 'تم الخروج 0',
   'ide.chat.scripts.exitFail': 'تم الخروج من {{code}}',
   'ide.chat.scripts.noOutput': '(لا يوجد إخراج)',
@@ -776,4 +773,9 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'البدل الشهري.',
   'ide.chat.context.daily': 'بدل يومي.',
   'ide.chat.context.resets': 'إعادة الضبط {{at}} .',
+  'ide.error.noProvider':
+    'لم يتم تكوين موفر مساحة عمل بيئة التطوير المتكاملة (IDE). قم بربط موفر بيئة التطوير المتكاملة أولاً.',
+  'ide.chat.scripts.cmdExitFail': 'خرج {{name}} بالرمز {{code}}',
+  'ide.chat.help.modePlan':
+    'الخطة — يقوم {{agentName}} بفحص قاعدة البيانات واقتراح خطة دون تعديل الملفات. فعّل/عطّل الخطة باستخدام /plan. الأفضل للتغييرات الكبيرة أو الخطيرة.',
 }

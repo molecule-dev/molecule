@@ -9,4 +9,6 @@ export const el: Partial<SecretRowTranslations> = {
   'secretRow.expired': 'Λήξη',
   'secretRow.hide': 'Κρύβω',
   'secretRow.show': 'Επίδειξη',
+  'secretRow.lastRotated': 'Τελευταία περιστροφή',
+  'secretRow.rotateIn': 'Περιστροφή σε {{days}} ημέρες',
 }

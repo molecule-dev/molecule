@@ -6,4 +6,6 @@ export const af: Partial<NotificationCenterTranslations> = {
   'notifications.markAllRead': 'Merk alles as gelees',
   'notifications.empty': 'Geen kennisgewings nie',
   'notifications.viewAll': 'Bekyk alles',
+  'notifications.loadError': 'Kon nie kennisgewings laai nie.',
+  'notifications.retry': 'Probeer weer',
 }

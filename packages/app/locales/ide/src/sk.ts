@@ -392,7 +392,6 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.models.colName': 'Model',
   'ide.chat.models.freeNo': '—',
   'ide.chat.models.freeYes': '✓ Zadarmo',
-  'ide.chat.models.sortBy': 'Zoradiť podľa{{column}}',
   'ide.chat.modelsLoading': 'Načítavanie modelov…',
   'ide.chat.modelsNone':
     'Zatiaľ nie sú k dispozícii žiadne modely – požiadajte svojho správcu, aby pripojil poskytovateľa umelej inteligencie.',
@@ -441,8 +440,6 @@ export const sk: Partial<IdeTranslations> = {
     'Objavovanie — tu začínajú nové diskusie. Metóda „{{agentName}}“ kladie objasňujúce otázky, aby sa presne stanovili požiadavky ešte pred napísaním akéhokoľvek kódu.',
   'ide.chat.help.modeExecute':
     'Spustiť — predvolený pracovný režim. Funkcia „{{agentName}}“ napíše kód, spustí nástroje, uplatní zmeny a následne ich overí.',
-  'ide.chat.help.modePlan':
-    'Plán — Príkaz `{{agentName}}` preskúma zdrojový kód a navrhne plán BEZ úpravy súborov. Prepínanie pomocou príkazu `/plan`. Najvhodnejšie pre rozsiahle alebo rizikové zmeny.',
   'ide.chat.help.modesHeading': '── Režimy ──',
   'ide.chat.help.shortcuts':
     'Stlačte klávesovú skratku Cmd+/ (Ctrl+/ vo Windows/Linux), aby ste zobrazenie všetky klávesové skratky.',
@@ -496,7 +493,6 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNotFound':
     'Skript s názvom „{{name}}“ nebol nájdený. K dispozícii: {{names}}',
   'ide.chat.scripts.cmdExitOk': '{{name}} ukončené s kódom 0',
-  'ide.chat.scripts.cmdExitFail': '{{name}} program sa ukončil s kódom chyby{{code}}',
   'ide.chat.scripts.exitOk': 'Ukončené 0',
   'ide.chat.scripts.exitFail': 'Opustil stránku {{code}}',
   'ide.chat.scripts.noOutput': '(bez výstupu)',
@@ -788,4 +784,10 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'Mesačný príspevok.',
   'ide.chat.context.daily': 'Denný príspevok.',
   'ide.chat.context.resets': 'Resetuje {{at}} .',
+  'ide.error.noProvider':
+    'Poskytovateľ pracovného priestoru IDE nie je nakonfigurovaný. Najprv prepojte poskytovateľa IDE.',
+  'ide.chat.models.sortBy': 'Zoradiť podľa {{column}}',
+  'ide.chat.scripts.cmdExitFail': '{{name}} ukončený s kódom {{code}}',
+  'ide.chat.help.modePlan':
+    'Plán — {{agentName}} preskúma kódovú základňu a navrhne plán BEZ úpravy súborov. Prepínajte pomocou /plan. Najlepšie pre veľké alebo riskantné zmeny.',
 }

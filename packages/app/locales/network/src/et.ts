@@ -12,4 +12,8 @@ export const et: NetworkTranslations = {
   'network.unknown': 'Teadmata',
   'network.error.connectionTimeout': 'Võrguühenduse ajalõpp',
   'network.error.unavailable': 'Võrk pole saadaval',
+  'network.error.missingDependency':
+    '`{{library}}` on kohustuslik, aga pole installitud. Installige see käsuga: `npm install {{library}}`',
+  'network.error.noProvider':
+    '`@molecule/app-network`: Pakkujat pole määratud. Kutsu `setProvider()` välja `NetworkProvider` implementatsiooniga (nt `@molecule/app-network-react-native`).',
 }

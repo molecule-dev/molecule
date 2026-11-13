@@ -14,4 +14,5 @@ export const km: Partial<BillingTranslations> = {
   'billing.pricing.tierEyebrow': 'កម្រិត',
   'billing.pricing.perSeat': 'ក្នុងមួយកៅអី',
   'billing.pricing.upgradeCta': 'ធ្វើឱ្យប្រសើរឡើងទៅ {{tierName}}',
+  'billing.pricing.currentCta': 'ផែនការបច្ចុប្បន្ន',
 }

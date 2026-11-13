@@ -6,4 +6,6 @@ export const uz: Partial<NotificationCenterTranslations> = {
   'notifications.markAllRead': "Hammasini o'qilgan deb belgilash",
   'notifications.empty': "Bildirishnomalar yo'q",
   'notifications.viewAll': "Barchasini ko'rish",
+  'notifications.loadError': 'Bildirishnomalar yuklanmadi.',
+  'notifications.retry': 'Qayta urinish',
 }

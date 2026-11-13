@@ -360,8 +360,6 @@ export const it: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Curriculum',
   'ide.chat.openSettings': 'Impostazioni',
   'ide.chat.tip.dismiss': 'Ignora il suggerimento',
-  'ide.chat.tip.getStarted':
-    'Suggerimento: digita / per visualizzare tutti i comandi, oppure @ seguito dal nome di un file per specificare un file su cui lavorare c{{agentName}}.',
   'ide.chat.tip.mention':
     'Suggerimento: digita @nomefile per allegare un file di progetto come contesto — {{agentName}} lo legge direttamente.',
   'ide.chat.tip.slash':
@@ -397,7 +395,6 @@ export const it: Partial<IdeTranslations> = {
   'ide.chat.models.colName': 'Modello',
   'ide.chat.models.freeNo': '—',
   'ide.chat.models.freeYes': '✓ Gratuito',
-  'ide.chat.models.sortBy': 'Ordina per{{column}}',
   'ide.chat.modelsLoading': 'Caricamento dei modelli in corso…',
   'ide.chat.modelsNone':
     'Non sono ancora disponibili modelli: chiedi al tuo amministratore di configurare un provider di IA.',
@@ -453,8 +450,6 @@ export const it: Partial<IdeTranslations> = {
     'Premi Cmd+/ (Ctrl+/ su Windows/Linux) per visualizzare tutte le scorciatoie da tastiera.',
   'ide.chat.help.tipCompact':
     '• Usa /compact per comprimere la conversazione quando diventa troppo lunga.',
-  'ide.chat.help.tipPlan':
-    "• Usa /plan per eseguire un'analisi dell{{agentName}}e prima di apportare modifiche.",
   'ide.chat.help.tipSlash': '• Digita / per visualizzare tutti i comandi sopra elencati.',
   'ide.chat.help.tipSpecific':
     '• Sii preciso: «Aggiungi una pagina di accesso con e-mail/password e Google OAuth» è meglio di «aggiungi autenticazione».',
@@ -500,7 +495,6 @@ export const it: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNotFound':
     "Non è presente alcun file denominato «{{name}}». Disponibile all'indirizzo: {{names}}",
   'ide.chat.scripts.cmdExitOk': '{{name}} uscita 0',
-  'ide.chat.scripts.cmdExitFail': '{{name}} uscita con codice di errore{{code}}',
   'ide.chat.scripts.exitOk': 'Uscito 0',
   'ide.chat.scripts.exitFail': 'Sono uscito da {{code}}',
   'ide.chat.scripts.noOutput': '(nessun risultato)',
@@ -796,4 +790,12 @@ export const it: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'Indennità mensile.',
   'ide.chat.context.daily': 'Indennità giornaliera.',
   'ide.chat.context.resets': 'Ripristino {{at}} .',
+  'ide.error.noProvider':
+    'Provider di spazio di lavoro IDE non configurato. Collegare prima un provider IDE.',
+  'ide.chat.tip.getStarted':
+    'Suggerimento: digita / per visualizzare tutti i comandi, oppure @ un nome file per fornire {{agentName}} un file da cui partire.',
+  'ide.chat.models.sortBy': 'Ordina per {{column}}',
+  'ide.chat.help.tipPlan':
+    '• Utilizzare /plan per far sì che {{agentName}} effettui delle ricerche prima di apportare modifiche.',
+  'ide.chat.scripts.cmdExitFail': '{{name}} è terminato con codice {{code}}',
 }

@@ -4,4 +4,5 @@ import type { ChartsTranslations } from './types.js'
 export const ml: ChartsTranslations = {
   'charts.placeholder.label': '{{type}} ചാർട്ട്',
   'charts.placeholder.description': 'ഉചിതമായ ചാർട്ട് ദാതാവിനെ ഉപയോഗിക്കുക',
+  'charts.error.noCanvasContext': 'ക്യാൻവാസ് 2D കോൺടെക്സ്റ്റ് ലഭിക്കില്ല.',
 }

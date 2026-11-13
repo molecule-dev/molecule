@@ -8,4 +8,7 @@ export const ur: Partial<FooterTranslations> = {
   'footer.language': 'زبان',
   'content.privacyPolicy': '',
   'content.termsOfService': '',
+  'footer.legalNotConfigured':
+    'یہ مواد ابھی تک کنفیگر نہیں ہوا ہے۔ ایپ کے مالک کو اسے فراہم کرنا ہوگا۔',
+  'footer.about': '{{appName}} کے بارے میں',
 }

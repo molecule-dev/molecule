@@ -9,4 +9,6 @@ export const be: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'Капіраваць',
   'secretRow.rotate': 'Павярнуць',
   'secretRow.delete': 'Выдаліць',
+  'secretRow.lastRotated': 'Апошні паварот',
+  'secretRow.rotateIn': 'Паварот праз {{days}} дзён',
 }

@@ -6,4 +6,8 @@ export const fr: Partial<RoutingTranslations> = {
   'routing.error.routeNotFound': 'Route "{{name}}" introuvable',
   'routing.error.useMoleculeRouterOutsideProvider':
     "La fonction useMoleculeRouter doit être utilisée au sein d'un MoleculeRouterProvider.",
+  'routing.error.noNavigationRef':
+    'Référence de navigation non définie. Assurez-vous que `MoleculeProvider` est monté.',
+  'routing.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` doit être utilisée dans un routeur React Router. Montez `BrowserRouter`, `HashRouter`, `MemoryRouter`, `Router` ou `RouterProvider`.',
 }

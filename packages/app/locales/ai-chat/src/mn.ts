@@ -6,4 +6,7 @@ export const mn: ChatTranslations = {
   'chat.error.noResponseBody': 'Хариултын бие байхгүй',
   'chat.error.streamError': 'Стримийн алдаа',
   'chat.error.unknownError': 'Тодорхойгүй алдаа',
+  'chat.error.sendFailed': 'Мессеж илгээж чадсангүй',
+  'chat.error.stalled':
+    '{{agentName}} хариу өгөхөө больсон. Энэ нь ард дуусаж байж магадгүй — хамгийн сүүлийн үеийн мэдээллийг харахын тулд дахин ачаална уу эсвэл шинэ мессеж илгээнэ үү.',
 }

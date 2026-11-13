@@ -8,4 +8,6 @@ export const ml: Partial<FooterTranslations> = {
   'footer.language': 'ഭാഷ',
   'content.privacyPolicy': '',
   'content.termsOfService': '',
+  'footer.legalNotConfigured': 'ഈ ഉള്ളടക്കം ഇതുവരെ കോൺഫിഗർ ചെയ്തിട്ടില്ല. ആപ്പ് ഉടമ ഇത് നൽകണം.',
+  'footer.about': '{{appName}} നെ കുറിച്ച്',
 }

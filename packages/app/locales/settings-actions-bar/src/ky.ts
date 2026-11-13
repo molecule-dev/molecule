@@ -5,4 +5,5 @@ export const ky: Partial<SettingsActionsBarTranslations> = {
   'settingsActions.cancel': 'Жокко чыгаруу',
   'settingsActions.saving': 'Сакталууда…',
   'settingsActions.save': 'Өзгөрүүлөрдү сактоо',
+  'settingsActions.saved': 'Сакталган {{at}}',
 }

@@ -5,4 +5,5 @@ export const cs: Partial<SettingsActionsBarTranslations> = {
   'settingsActions.cancel': 'Zrušit',
   'settingsActions.saving': 'Ukládání…',
   'settingsActions.save': 'Uložit změny',
+  'settingsActions.saved': 'Uloženo {{at}}',
 }

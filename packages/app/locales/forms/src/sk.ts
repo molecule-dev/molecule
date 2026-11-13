@@ -11,4 +11,5 @@ export const sk: FormsTranslations = {
   'forms.invalidEmail': 'Neplatná e-mailová adresa',
   'forms.invalidUrl': 'Neplatná URL',
   'forms.invalidValue': 'Neplatná hodnota',
+  'forms.submitError': 'Nepodarilo sa odoslať. Skúste to znova.',
 }

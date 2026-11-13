@@ -15,4 +15,6 @@ export const mn: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'Алдаа',
   'audioRecorder.statusIdle': 'Бичлэг хийхэд бэлэн',
   'audioRecorder.group': 'Аудио бичигч',
+  'audioRecorder.record': 'Бичлэг',
+  'audioRecorder.statusRecording': 'Бичлэг',
 }

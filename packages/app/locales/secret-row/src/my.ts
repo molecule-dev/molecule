@@ -9,4 +9,6 @@ export const my: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'မိတ္တူကူးပါ',
   'secretRow.rotate': 'လှည့်ပါ',
   'secretRow.delete': 'ဖျက်ရန်',
+  'secretRow.lastRotated': 'နောက်ဆုံးလှည့်ခဲ့သည်',
+  'secretRow.rotateIn': '{{days}} ရက် အတွင်း လှည့်ပါ',
 }

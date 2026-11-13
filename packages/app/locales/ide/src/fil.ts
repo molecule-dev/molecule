@@ -354,14 +354,10 @@ export const fil: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
-  'ide.chat.tip.getStarted':
-    'Tip: i-type ang / para makita ang bawat command, o @ isang filename para ibigay{{agentName}} isang file na mapagtatrabahuhan.',
   'ide.chat.tip.mention':
     'Tip: i-type ang @filename para ilakip ang isang project file bilang konteksto —{{agentName}} direktang binabasa ito.',
   'ide.chat.tip.slash':
     'Tip: i-type ang / para i-browse ang bawat command (commit, diff, model, at higit pa).',
-  'ide.chat.tip.plan':
-    'Tip: gamitin /planong magkaroon{{agentName}} magsaliksik at magmungkahi ng plano bago nito i-edit ang anumang mga file.',
   'ide.chat.tip.undo':
     'Tip: gamitin ang /undo para agad na ibalik ang mga pagbabago sa file ng huling AI turn kung mali ang naging resulta.',
   'ide.chat.tip.compact':
@@ -784,4 +780,10 @@ export const fil: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'Buwanang allowance.',
   'ide.chat.context.daily': 'Pang-araw-araw na allowance.',
   'ide.chat.context.resets': 'Nire-reset {{at}} .',
+  'ide.error.noProvider':
+    'Hindi na-configure ang IDE workspace provider. Makipag-ugnayan muna sa isang IDE provider.',
+  'ide.chat.tip.getStarted':
+    'Tip: i-type ang / para makita ang bawat command, o @ isang filename para bigyan {{agentName}} ng file na mapagtatrabahuhan.',
+  'ide.chat.tip.plan':
+    'Tip: gamitin ang /plan para magsaliksik {{agentName}} at magmungkahi ng plano bago nito i-edit ang anumang mga file.',
 }

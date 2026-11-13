@@ -14,4 +14,5 @@ export const et: Partial<BillingTranslations> = {
   'billing.pricing.tierEyebrow': 'Tasand',
   'billing.pricing.perSeat': 'istekoha kohta',
   'billing.pricing.upgradeCta': 'Uuenda versioonile {{tierName}}',
+  'billing.pricing.currentCta': 'Praegune plaan',
 }

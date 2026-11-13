@@ -36,7 +36,6 @@ export const bn: UiTranslations = {
   'ui.select.placeholder': 'নির্বাচন করুন…',
   'ui.select.title': 'নির্বাচন করুন',
   'ui.toast.dismiss': 'বাতিল করুন',
-  'ui.toast.error.noProvider': 'useToast অবশ্যই একটি ToastProvider-এর মধ্যে ব্যবহার করতে হবে।',
   'confirm.cancel': 'বাতিল করুন',
   'confirm.confirm': 'নিশ্চিত করুন',
   'ui.select.clear': '--',
@@ -53,4 +52,5 @@ export const bn: UiTranslations = {
   'userMenu.panelLabel': 'অ্যাকাউন্ট মেনু',
   'ui.error.noClassMap':
     'কোনো UIClassMap সেট করা হয়নি। অ্যাপ চালুর সময় একটি স্টাইলিং লাইব্রেরি ইমপ্লিমেন্টেশন (যেমন, @molecule/app-ui-tailwind) ব্যবহার করে setClassMap() কল করুন।',
+  'ui.toast.error.noProvider': '`useToast` অবশ্যই একটি `ToastProvider` মধ্যে ব্যবহার করতে হবে।',
 }

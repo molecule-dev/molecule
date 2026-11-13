@@ -12,4 +12,8 @@ export const ig: NetworkTranslations = {
   'network.unknown': 'Amaghị',
   'network.error.connectionTimeout': 'Oge njikọ netwọk agwụla',
   'network.error.unavailable': 'Netwọk adịghị',
+  'network.error.missingDependency':
+    'A chọrọ `{{library}}` mana etinyereghị ya. Wụnye ya na: `npm install {{library}}`',
+  'network.error.noProvider':
+    '`@molecule/app-network`: Enweghị ntọala onye na-enye ọrụ. Kpọọ `setProvider()` site na iji `NetworkProvider` eme ihe (dịka ọmụmaatụ, site na `@molecule/app-network-react-native`).',
 }

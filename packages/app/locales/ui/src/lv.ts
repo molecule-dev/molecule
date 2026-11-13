@@ -36,7 +36,6 @@ export const lv: UiTranslations = {
   'ui.select.placeholder': 'Izvēlieties…',
   'ui.select.title': 'Atlasīt',
   'ui.toast.dismiss': 'Nor\u0101d\u012bt',
-  'ui.toast.error.noProvider': 'useToast ir jāizmanto ToastProvider ietvaros.',
   'confirm.cancel': 'Atcelt',
   'confirm.confirm': 'Apstiprināt',
   'ui.select.clear': '--',
@@ -53,4 +52,5 @@ export const lv: UiTranslations = {
   'userMenu.panelLabel': 'Konta izvēlne',
   'ui.error.noClassMap':
     'Nav iestatīts UIClassMap. Lietotnes startēšanas laikā izsauciet funkciju setClassMap() ar stila bibliotēkas ieviešanu (piemēram, @molecule/app-ui-tailwind).',
+  'ui.toast.error.noProvider': '`useToast` ir jāizmanto `ToastProvider` ietvaros.',
 }

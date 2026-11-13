@@ -3,4 +3,6 @@ import type { FilterBarTranslations } from './types.js'
 /** FilterBar translations for gu. */
 export const gu: Partial<FilterBarTranslations> = {
   'filterBar.clear': 'ફિલ્ટર્સ સાફ કરો',
+  'filterBar.from': '{{label}} થી',
+  'filterBar.to': '{{label}} થી',
 }

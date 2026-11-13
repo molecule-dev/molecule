@@ -12,4 +12,8 @@ export const te: NetworkTranslations = {
   'network.unknown': 'తెలియదు',
   'network.error.connectionTimeout': 'నెట్‌వర్క్ కనెక్షన్ సమయం ముగిసింది',
   'network.error.unavailable': 'నెట్‌వర్క్ అందుబాటులో లేదు',
+  'network.error.missingDependency':
+    '`{{library}}` అవసరం, కానీ ఇన్‌స్టాల్ చేయబడలేదు. దీనిని `npm install {{library}}` తో ఇన్‌స్టాల్ చేయండి.',
+  'network.error.noProvider':
+    '`@molecule/app-network`: ప్రొవైడర్ ఏదీ సెట్ చేయబడలేదు. `NetworkProvider` ఇంప్లిమెంటేషన్‌తో `setProvider()` కాల్ చేయండి (ఉదాహరణకు, `@molecule/app-network-react-native` నుండి).',
 }

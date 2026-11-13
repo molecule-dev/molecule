@@ -15,4 +15,6 @@ export const ka: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'შეცდომა',
   'audioRecorder.statusIdle': 'ჩასაწერად მზადაა',
   'audioRecorder.group': 'აუდიო ჩამწერი',
+  'audioRecorder.record': 'ჩანაწერი',
+  'audioRecorder.statusRecording': 'ჩაწერა',
 }

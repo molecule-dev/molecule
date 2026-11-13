@@ -790,4 +790,6 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'Mėnesinė išmoka.',
   'ide.chat.context.daily': 'Dienpinigiai.',
   'ide.chat.context.resets': 'Atstato {{at}} .',
+  'ide.error.noProvider':
+    'IDE darbo srities teikėjas nesukonfigūruotas. Pirmiausia prijunkite IDE teikėją.',
 }

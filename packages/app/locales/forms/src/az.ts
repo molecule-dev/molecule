@@ -11,4 +11,5 @@ export const az: FormsTranslations = {
   'forms.invalidEmail': 'Yanlış e-poçt ünvanı',
   'forms.invalidUrl': 'Yanlış URL',
   'forms.invalidValue': 'Yanlış dəyər',
+  'forms.submitError': 'Təqdim etmək mümkün deyil. Zəhmət olmasa, yenidən cəhd edin.',
 }

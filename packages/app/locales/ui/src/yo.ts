@@ -36,7 +36,6 @@ export const yo: UiTranslations = {
   'ui.select.placeholder': 'Yan…',
   'ui.select.title': 'Yan',
   'ui.toast.dismiss': 'Kọ̀ sílẹ̀',
-  'ui.toast.error.noProvider': 'a gbọ́dọ̀ lo Toast nínú Olùpèsè Toast',
   'confirm.cancel': 'Fagilee',
   'confirm.confirm': 'Jẹ́rìísí',
   'ui.select.clear': '--',
@@ -53,4 +52,5 @@ export const yo: UiTranslations = {
   'userMenu.panelLabel': 'Àtòjọ àkọọ́lẹ̀',
   'ui.error.noClassMap':
     'Kò sí UIClassMap tí a ti ṣètò. Pe setClassMap() ní ìbẹ̀rẹ̀ ìṣàfilọ́lẹ̀ àpù pẹ̀lú ìgbékalẹ̀ ìkàwé àṣà (fún àpẹẹrẹ, @molecule/app-ui-tailwind).',
+  'ui.toast.error.noProvider': 'A gbọ́dọ̀ lo `useToast` nínú `ToastProvider` kan',
 }

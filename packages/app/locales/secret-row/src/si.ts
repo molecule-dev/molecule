@@ -9,4 +9,6 @@ export const si: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'පිටපත් කරන්න',
   'secretRow.rotate': 'කරකවන්න',
   'secretRow.delete': 'මකන්න',
+  'secretRow.lastRotated': 'අවසන් වරට කරකැවූයේ',
+  'secretRow.rotateIn': '{{days}} d තුළ කරකවන්න',
 }

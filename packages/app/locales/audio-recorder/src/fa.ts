@@ -15,4 +15,6 @@ export const fa: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'خطا',
   'audioRecorder.statusIdle': 'آماده ضبط',
   'audioRecorder.group': 'ضبط کننده صدا',
+  'audioRecorder.record': 'رکورد',
+  'audioRecorder.statusRecording': 'ضبط',
 }

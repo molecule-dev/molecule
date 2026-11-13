@@ -9,4 +9,6 @@ export const sk: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'Kopírovať',
   'secretRow.rotate': 'Otočiť',
   'secretRow.delete': 'Odstrániť',
+  'secretRow.lastRotated': 'Naposledy otočené',
+  'secretRow.rotateIn': 'Otočiť o {{days}} dní',
 }

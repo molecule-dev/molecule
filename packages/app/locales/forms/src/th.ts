@@ -11,4 +11,5 @@ export const th: FormsTranslations = {
   'forms.invalidEmail': 'ที่อยู่อีเมลไม่ถูกต้อง',
   'forms.invalidUrl': 'URL ไม่ถูกต้อง',
   'forms.invalidValue': 'ค่าไม่ถูกต้อง',
+  'forms.submitError': 'ไม่สามารถส่งข้อมูลได้ โปรดลองอีกครั้ง',
 }

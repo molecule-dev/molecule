@@ -4,4 +4,5 @@ import type { StatusBarTranslations } from './types.js'
 export const hy: StatusBarTranslations = {
   'statusBar.error.noProvider':
     '@molecule/app-status-bar: Մատակարարը սահմանված չէ: Կանչեք setProvider() StatusBarProvider իրականացումով (օր.՝ @molecule/app-status-bar-react-native-ից):',
+  'statusBar.error.missingDependency': '`{{library}}` պարտադիր է, բայց տեղադրված չէ։',
 }

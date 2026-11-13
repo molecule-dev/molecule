@@ -6,4 +6,6 @@ export const ig: Partial<ClipboardTranslations> = {
     '@molecule/app-clipboard: Enweghị onye na-eweta edobere. Kpọọ setProvider() na mmejupụta ClipboardProvider (dịka ọmụmaatụ, site na @molecule/app-clipboard-react-native).',
   'clipboard.warn.onChangeNotSupported':
     "@molecule/app-clipboard: onChange anaghị akwado ya site n'aka onye na-eweta ya",
+  'clipboard.error.missingDependency':
+    'A chọrọ `{{library}}` mana etinyereghị ya. Wụnye ya na: `npm install {{library}}`',
 }

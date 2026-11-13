@@ -6,4 +6,6 @@ export const kk: Partial<NotificationCenterTranslations> = {
   'notifications.markAllRead': 'Барлығын оқылған деп белгілеу',
   'notifications.empty': 'Хабарландырулар жоқ',
   'notifications.viewAll': 'Барлығын қарау',
+  'notifications.loadError': 'Хабарландырулар жүктелмеді.',
+  'notifications.retry': 'Қайталап көру',
 }

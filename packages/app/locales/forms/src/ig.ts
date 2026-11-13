@@ -11,4 +11,5 @@ export const ig: FormsTranslations = {
   'forms.invalidEmail': 'Adreesị ozi-e ezighi ezi',
   'forms.invalidUrl': 'URL ezighi ezi',
   'forms.invalidValue': 'Uru ezighi ezi',
+  'forms.submitError': 'Enweghị ike izipu. Biko nwaa ọzọ.',
 }

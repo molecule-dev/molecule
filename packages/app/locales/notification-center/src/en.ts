@@ -6,4 +6,6 @@ export const en: NotificationCenterTranslations = {
   'notifications.markAllRead': 'Mark all as read',
   'notifications.empty': 'No notifications',
   'notifications.viewAll': 'View all',
+  'notifications.loadError': 'Could not load notifications.',
+  'notifications.retry': 'Retry',
 }

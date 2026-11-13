@@ -14,4 +14,5 @@ export const vi: Partial<BillingTranslations> = {
   'billing.status.cancelError': 'Không thể hủy. Vui lòng thử lại.',
   'billing.pricing.reassurance': 'Hủy bất cứ lúc nào · Không cần thẻ tín dụng để bắt đầu',
   'billing.pricing.perSeat': 'mỗi chỗ ngồi',
+  'billing.pricing.currentCta': 'Kế hoạch hiện tại',
 }

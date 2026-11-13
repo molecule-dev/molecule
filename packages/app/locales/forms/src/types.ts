@@ -9,6 +9,7 @@ export type FormsTranslationKey =
   | 'forms.invalidEmail'
   | 'forms.invalidUrl'
   | 'forms.invalidValue'
+  | 'forms.submitError'
 
 /** Translation record mapping forms keys to translated strings. */
 export type FormsTranslations = Record<FormsTranslationKey, string>

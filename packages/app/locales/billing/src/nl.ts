@@ -14,4 +14,5 @@ export const nl: Partial<BillingTranslations> = {
   'billing.status.cancelError': 'Annuleren is niet gelukt. Probeer het opnieuw.',
   'billing.pricing.reassurance': 'Annuleer op elk moment · Geen creditcard nodig om te beginnen',
   'billing.pricing.perSeat': 'per stoel',
+  'billing.pricing.currentCta': 'Huidig plan',
 }

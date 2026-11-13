@@ -8,4 +8,7 @@ export const az: Partial<FooterTranslations> = {
   'footer.language': 'Dil',
   'content.privacyPolicy': '',
   'content.termsOfService': '',
+  'footer.legalNotConfigured':
+    'Bu məzmun hələ konfiqurasiya edilməyib. Tətbiq sahibi onu təqdim etməlidir.',
+  'footer.about': '{{appName}} haqqında',
 }

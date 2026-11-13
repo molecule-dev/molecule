@@ -774,4 +774,6 @@ export const mr: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'मासिक भत्ता.',
   'ide.chat.context.daily': 'दैनिक भत्ता.',
   'ide.chat.context.resets': 'रीसेट {{at}} .',
+  'ide.error.noProvider':
+    'आयडीई वर्कस्पेस प्रोव्हायडर कॉन्फिगर केलेला नाही. प्रथम आयडीई प्रोव्हायडर जोडा.',
 }

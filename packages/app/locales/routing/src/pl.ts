@@ -6,4 +6,8 @@ export const pl: RoutingTranslations = {
   'routing.error.routeNotFound': 'Trasa "{{name}}" nie została znaleziona',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter musi być używany wewnątrz MoleculeRouterProvider',
+  'routing.error.noNavigationRef':
+    'Odwołanie nawigacyjne nie zostało ustawione. Upewnij się, że `MoleculeProvider` jest zamontowany.',
+  'routing.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` musi być używany w routerze React Router. Zamontuj `BrowserRouter`, `HashRouter`, `MemoryRouter`, `Router` lub `RouterProvider`.',
 }

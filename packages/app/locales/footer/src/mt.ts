@@ -8,4 +8,7 @@ export const mt: Partial<FooterTranslations> = {
   'footer.language': 'Lingwa',
   'content.privacyPolicy': '',
   'content.termsOfService': '',
+  'footer.legalNotConfigured':
+    'Dan il-kontenut għadu ma ġiex ikkonfigurat. Is-sid tal-app irid jipprovdih.',
+  'footer.about': 'Dwar {{appName}}',
 }

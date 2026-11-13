@@ -8,4 +8,6 @@ export const te: Partial<FooterTranslations> = {
   'footer.language': 'భాష',
   'content.privacyPolicy': '',
   'content.termsOfService': '',
+  'footer.legalNotConfigured': 'ఈ కంటెంట్ ఇంకా కాన్ఫిగర్ చేయబడలేదు. యాప్ యజమాని దీనిని అందించాలి.',
+  'footer.about': '{{appName}} గురించి',
 }

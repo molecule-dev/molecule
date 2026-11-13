@@ -10,4 +10,5 @@ export const bn: Partial<CookieBannerTranslations> = {
   'cookieBanner.reject': 'সব প্রত্যাখ্যান করুন',
   'cookieBanner.save': 'পছন্দগুলি সংরক্ষণ করুন',
   'cookieBanner.accept': 'সব গ্রহণ করুন',
+  'cookieBanner.learnMore': 'আরও জানুন',
 }

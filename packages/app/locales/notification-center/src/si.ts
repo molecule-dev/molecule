@@ -6,4 +6,6 @@ export const si: Partial<NotificationCenterTranslations> = {
   'notifications.markAllRead': 'සියල්ල කියවූ ලෙස සලකුණු කරන්න',
   'notifications.empty': 'දැනුම්දීම් නැත',
   'notifications.viewAll': 'සියල්ල බලන්න',
+  'notifications.loadError': 'දැනුම්දීම් පූරණය කළ නොහැකි විය.',
+  'notifications.retry': 'නැවත උත්සාහ කරන්න',
 }

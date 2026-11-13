@@ -6,4 +6,6 @@ export const hu: ClipboardTranslations = {
     '@molecule/app-clipboard: Nincs szolgáltató beállítva. Hívja meg a setProvider()-t egy ClipboardProvider implementációval (pl. a @molecule/app-clipboard-react-native-ból).',
   'clipboard.warn.onChangeNotSupported':
     '@molecule/app-clipboard: az onChange-t a szolgáltató nem támogatja',
+  'clipboard.error.missingDependency':
+    '`{{library}}` kötelező, de nincs telepítve. Telepítse a következő paranccsal: `npm install {{library}}`',
 }

@@ -11,4 +11,5 @@ export const te: FormsTranslations = {
   'forms.invalidEmail': 'చెల్లని ఇమెయిల్ చిరునామా',
   'forms.invalidUrl': 'చెల్లని URL',
   'forms.invalidValue': 'చెల్లని విలువ',
+  'forms.submitError': 'సమర్పించలేకపోతున్నాము. దయచేసి మళ్ళీ ప్రయత్నించండి.',
 }

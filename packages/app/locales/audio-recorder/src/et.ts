@@ -15,4 +15,6 @@ export const et: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'Viga',
   'audioRecorder.statusIdle': 'Salvestamiseks valmis',
   'audioRecorder.group': 'Helisalvesti',
+  'audioRecorder.record': 'Rekord',
+  'audioRecorder.statusRecording': 'Salvestamine',
 }

@@ -10,4 +10,6 @@ export const sv: Partial<BatteryTranslations> = {
   'battery.full': 'Fulladdad',
   'battery.not-charging': 'Laddar inte',
   'battery.remainingTime': '{{hours}} h {{minutes}} m',
+  'battery.error.noProvider':
+    '`@molecule/app-battery`: Ingen provider angiven. Anropa `setProvider()` med en `BatteryProvider` -implementering — ingen provider levereras med flottan; implementera gränssnittet på din native runtime och koppla den.',
 }

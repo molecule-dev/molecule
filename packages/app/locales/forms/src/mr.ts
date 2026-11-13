@@ -11,4 +11,5 @@ export const mr: FormsTranslations = {
   'forms.invalidEmail': 'अवैध ईमेल पत्ता',
   'forms.invalidUrl': 'अवैध URL',
   'forms.invalidValue': 'अवैध मूल्य',
+  'forms.submitError': 'सबमिट करता आले नाही. कृपया पुन्हा प्रयत्न करा.',
 }

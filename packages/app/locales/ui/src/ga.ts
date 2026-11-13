@@ -36,7 +36,6 @@ export const ga: UiTranslations = {
   'ui.select.placeholder': 'Roghnaigh…',
   'ui.select.title': 'Roghnaigh',
   'ui.toast.dismiss': 'Díbir',
-  'ui.toast.error.noProvider': 'Ní mór useToast a úsáid laistigh de Sholáthraí Toast',
   'confirm.cancel': 'Cealaigh',
   'confirm.confirm': 'Deimhnigh',
   'ui.select.clear': '--',
@@ -53,4 +52,5 @@ export const ga: UiTranslations = {
   'userMenu.panelLabel': 'Roghchlár cuntais',
   'ui.error.noClassMap':
     'Níl UIClassMap socraithe. Glaoigh ar setClassMap() ag am tosaithe aip le cur i bhfeidhm leabharlainne stíle (m.sh., @molecule/app-ui-tailwind).',
+  'ui.toast.error.noProvider': 'Ní mór `useToast` a úsáid laistigh de `ToastProvider`',
 }

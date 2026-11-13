@@ -36,7 +36,6 @@ export const ja: Partial<UiTranslations> = {
   'ui.select.placeholder': '選択…',
   'ui.select.title': '選択',
   'ui.toast.dismiss': '閉じる',
-  'ui.toast.error.noProvider': 'useToastはToastProvider内で使用する必要があります。',
   'confirm.cancel': 'キャンセル',
   'confirm.confirm': '確認',
   'ui.select.clear': '--',
@@ -53,4 +52,5 @@ export const ja: Partial<UiTranslations> = {
   'userMenu.panelLabel': 'アカウントメニュー',
   'ui.error.noClassMap':
     'UIClassMapが設定されていません。アプリ起動時に、スタイリングライブラリの実装（例：@molecule/app-ui-tailwind）を使用してsetClassMap()を呼び出してください。',
+  'ui.toast.error.noProvider': '`useToast` は `ToastProvider` の内側で使用する必要があります。',
 }

@@ -12,4 +12,8 @@ export const uz: Partial<NetworkTranslations> = {
   'network.error.connectionTimeout': 'Tarmoq ulanishi vaqti tugadi',
   'network.error.unavailable': 'Tarmoq mavjud emas',
   'network.unknown': "Noma'lum",
+  'network.error.missingDependency':
+    "`{{library}}` talab qilinadi, lekin o'rnatilmagan. Uni quyidagi bilan o'rnating: `npm install {{library}}`",
+  'network.error.noProvider':
+    "`@molecule/app-network`: Provayder o'rnatilmagan. `NetworkProvider` implementatsiyasi bilan `setProvider()` chaqiring (masalan, `@molecule/app-network-react-native`).",
 }

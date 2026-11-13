@@ -15,4 +15,6 @@ export const gl: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'Erro',
   'audioRecorder.statusIdle': 'Listo para gravar',
   'audioRecorder.group': 'Gravador de son',
+  'audioRecorder.record': 'Rexistro',
+  'audioRecorder.statusRecording': 'Gravación',
 }

@@ -9,4 +9,6 @@ export const mt: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'Kopja',
   'secretRow.rotate': 'Dawwar',
   'secretRow.delete': 'Ħassar',
+  'secretRow.lastRotated': 'L-aħħar rotazzjoni',
+  'secretRow.rotateIn': 'Dawwar f {{days}} d',
 }

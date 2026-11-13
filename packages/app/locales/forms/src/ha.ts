@@ -11,4 +11,5 @@ export const ha: FormsTranslations = {
   'forms.invalidEmail': 'Adireshin imel mara inganci',
   'forms.invalidUrl': 'URL mara inganci',
   'forms.invalidValue': 'Ƙima mara inganci',
+  'forms.submitError': 'Ba za a iya ƙaddamar da shi ba. Da fatan a sake gwadawa.',
 }

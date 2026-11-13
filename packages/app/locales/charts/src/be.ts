@@ -4,4 +4,5 @@ import type { ChartsTranslations } from './types.js'
 export const be: ChartsTranslations = {
   'charts.placeholder.label': 'Дыяграма {{type}}',
   'charts.placeholder.description': 'Выкарыстоўвайце адпаведны правайдар дыяграм',
+  'charts.error.noCanvasContext': 'Не атрымалася атрымаць кантэкст 2D-карціны',
 }

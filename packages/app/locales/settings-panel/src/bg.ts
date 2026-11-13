@@ -17,4 +17,21 @@ export const bg: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'Надстройте плана си',
   'settings.billing.noTiers': 'Няма конфигурирани платени планове.',
   'settings.billing.subscribe': 'Абониране',
+  'settings.failedToUpdateProfile': 'Актуализирането на профила не бе успешно',
+  'settings.name': 'Име',
+  'settings.twoFactorCode': 'Код за удостоверяване',
+  'settings.twoFactorDisable': 'Деактивиране',
+  'settings.twoFactorDisableTitle': 'Деактивиране на двуфакторно удостоверяване',
+  'settings.twoFactorEnable': 'Активиране',
+  'settings.twoFactorEnableTitle': 'Активиране на двуфакторно удостоверяване',
+  'settings.twoFactorInvalidCode': 'Невалиден код',
+  'settings.twoFactorOn': 'Включено',
+  'settings.twoFactorQrAlt': 'Двуфакторен QR код',
+  'settings.twoFactorScan':
+    'Сканирайте този QR код с приложението си за удостоверяване, след което въведете 6-цифрения код.',
+  'settings.twoFactorUnavailable': 'Двуфакторното удостоверяване не е налично за това приложение.',
+  'settings.twoFactorVerify': 'Проверка и активиране',
+  'settings.revokeDeviceWarning':
+    'Достъпът на това устройство ще бъде отнет скоро. Искате ли да излезете от него?',
+  'settings.signOutDevice': 'Изход',
 }

@@ -6,4 +6,8 @@ export const si: RoutingTranslations = {
   'routing.error.routeNotFound': '"{{name}}" මාර්ගය හමු නොවීය',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter MoleculeRouterProvider තුළ භාවිතා කළ යුතුය',
+  'routing.error.noNavigationRef':
+    'සංචාලන යොමුව සකසා නැත. `MoleculeProvider` සවි කර ඇති බව සහතික කර ගන්න.',
+  'routing.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` React Router router එකක් තුළ භාවිතා කළ යුතුය. `BrowserRouter`, `HashRouter`, `MemoryRouter`, `Router`, හෝ `RouterProvider` සවි කරන්න.',
 }

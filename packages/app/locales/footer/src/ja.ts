@@ -8,4 +8,7 @@ export const ja: Partial<FooterTranslations> = {
   'footer.version': 'v{{version}}',
   'content.privacyPolicy': '',
   'content.termsOfService': '',
+  'footer.legalNotConfigured':
+    'このコンテンツはまだ設定されていません。アプリの所有者が提供する必要があります。',
+  'footer.about': '{{appName}}について',
 }

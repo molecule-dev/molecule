@@ -14,4 +14,5 @@ export const he: Partial<BillingTranslations> = {
   'billing.pricing.tierEyebrow': 'נִדבָּך',
   'billing.pricing.perSeat': 'לכל מושב',
   'billing.pricing.upgradeCta': 'שדרג ל {{tierName}}',
+  'billing.pricing.currentCta': 'התוכנית הנוכחית',
 }

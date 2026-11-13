@@ -352,14 +352,10 @@ export const ms: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
-  'ide.chat.tip.getStarted':
-    'Petua: taip / untuk melihat setiap arahan, atau @ nama fail untuk diberikan{{agentName}} fail untuk digunakan.',
   'ide.chat.tip.mention':
     'Petua: taip @namafail untuk melampirkan fail projek sebagai konteks —{{agentName}} membacanya secara langsung.',
   'ide.chat.tip.slash':
     'Petua: taip / untuk menyemak imbas setiap arahan (commit, diff, model dan banyak lagi).',
-  'ide.chat.tip.plan':
-    'Petua: gunakan /rancang untuk dimiliki{{agentName}} menyelidik dan mencadangkan pelan sebelum ia mengedit sebarang fail.',
   'ide.chat.tip.undo':
     'Petua: gunakan /undo untuk segera mengembalikan perubahan fail giliran AI terakhir jika ia salah arah.',
   'ide.chat.tip.compact':
@@ -778,4 +774,10 @@ export const ms: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'Elaun bulanan.',
   'ide.chat.context.daily': 'Elaun harian.',
   'ide.chat.context.resets': 'Menetapkan semula {{at}} .',
+  'ide.error.noProvider':
+    'Pembekal ruang kerja IDE tidak dikonfigurasikan. Hubungkan pembekal IDE terlebih dahulu.',
+  'ide.chat.tip.getStarted':
+    'Petua: taip / untuk melihat setiap arahan, atau @ nama fail untuk memberi {{agentName}} fail untuk digunakan.',
+  'ide.chat.tip.plan':
+    'Petua: gunakan /plan untuk meminta {{agentName}} membuat kajian dan mencadangkan pelan sebelum ia mengedit sebarang fail.',
 }

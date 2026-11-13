@@ -790,4 +790,6 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'Щомісячна допомога.',
   'ide.chat.context.daily': 'Добова норма.',
   'ide.chat.context.resets': 'Скидає {{at}} .',
+  'ide.error.noProvider':
+    'Постачальник робочої області IDE не налаштовано. Спочатку підключіть постачальника IDE.',
 }

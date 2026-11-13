@@ -454,8 +454,6 @@ export const fr: Partial<IdeTranslations> = {
     'Appuyez sur Cmd+/ (Ctrl+/ sous Windows/Linux) pour afficher tous les raccourcis clavier.',
   'ide.chat.help.tipCompact':
     '• Utilisez la commande /compact pour condenser le fil de discussion lorsque celui-ci devient trop long.',
-  'ide.chat.help.tipPlan':
-    "• Utilisez la commande /plan pour obtenir une analyse d'{{agentName}}s avant d'effectuer des modifications.",
   'ide.chat.help.tipSlash': '• Tapez / pour parcourir toutes les commandes ci-dessus.',
   'ide.chat.help.tipSpecific':
     '• Soyez précis — « Ajouter une page de connexion avec adresse e-mail/mot de passe et Google OAuth » est préférable à « ajouter une authentification ».',
@@ -797,4 +795,8 @@ export const fr: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'Allocation mensuelle.',
   'ide.chat.context.daily': 'Allocation journalière.',
   'ide.chat.context.resets': 'Réinitialise {{at}} .',
+  'ide.error.noProvider':
+    "Le fournisseur d'espace de travail IDE n'est pas configuré. Veuillez d'abord associer un fournisseur IDE.",
+  'ide.chat.help.tipPlan':
+    "• Utilisez /plan pour demander {{agentName}} de faire des recherches avant d'apporter des modifications.",
 }

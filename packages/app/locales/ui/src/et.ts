@@ -36,7 +36,6 @@ export const et: UiTranslations = {
   'ui.select.placeholder': 'Vali…',
   'ui.select.title': 'Vali',
   'ui.toast.dismiss': 'Lõpeta',
-  'ui.toast.error.noProvider': 'useToast peab olema kasutatud ToastProvideri sees.',
   'confirm.cancel': 'Tühista',
   'confirm.confirm': 'Kinnita',
   'ui.select.clear': '--',
@@ -53,4 +52,5 @@ export const et: UiTranslations = {
   'userMenu.panelLabel': 'Konto menüü',
   'ui.error.noClassMap':
     'UIClassMap-i pole määratud. Rakenda rakenduse käivitamisel funktsiooni setClassMap() abil, kasutades stiiliteegi implementatsiooni (nt @molecule/app-ui-tailwind).',
+  'ui.toast.error.noProvider': '`useToast` peab olema kasutatud `ToastProvider` sees',
 }

@@ -3,4 +3,6 @@ import type { FilterBarTranslations } from './types.js'
 /** FilterBar translations for be. */
 export const be: Partial<FilterBarTranslations> = {
   'filterBar.clear': 'Ачысціць фільтры',
+  'filterBar.from': '{{label}} ад',
+  'filterBar.to': '{{label}} да',
 }

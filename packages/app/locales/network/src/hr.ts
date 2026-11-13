@@ -12,4 +12,8 @@ export const hr: NetworkTranslations = {
   'network.unknown': 'Nepoznato',
   'network.error.connectionTimeout': 'Isteklo vrijeme mrežne veze',
   'network.error.unavailable': 'Mreža nedostupna',
+  'network.error.missingDependency':
+    '`{{library}}` je potreban, ali nije instaliran. Instalirajte ga s: `npm install {{library}}`',
+  'network.error.noProvider':
+    '`@molecule/app-network`: Nije postavljen pružatelj usluga. Pozovite `setProvider()` s implementacijom `NetworkProvider` (npr. iz `@molecule/app-network-react-native`).',
 }

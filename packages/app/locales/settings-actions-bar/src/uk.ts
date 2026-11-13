@@ -5,4 +5,5 @@ export const uk: Partial<SettingsActionsBarTranslations> = {
   'settingsActions.cancel': 'Скасувати',
   'settingsActions.saving': 'Збереження…',
   'settingsActions.save': 'Зберегти зміни',
+  'settingsActions.saved': 'Збережено {{at}}',
 }

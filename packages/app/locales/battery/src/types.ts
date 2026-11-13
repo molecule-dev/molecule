@@ -8,6 +8,7 @@ export type BatteryTranslationKey =
   | 'battery.remainingUnknown'
   | 'battery.remainingTime'
   | 'battery.remainingMinutes'
+  | 'battery.error.noProvider'
 
 /** Translation record mapping battery keys to translated strings. */
 export type BatteryTranslations = Record<BatteryTranslationKey, string>

@@ -9,4 +9,6 @@ export const lv: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'Kopēt',
   'secretRow.rotate': 'Pagriezt',
   'secretRow.delete': 'Dzēst',
+  'secretRow.lastRotated': 'Pēdējo reizi pagriezts',
+  'secretRow.rotateIn': 'Rotēt pēc {{days}} d',
 }

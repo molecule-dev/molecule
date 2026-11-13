@@ -6,4 +6,6 @@ export const bn: ClipboardTranslations = {
     '@molecule/app-clipboard: কোনো প্রদানকারী সেট করা হয়নি। একটি ClipboardProvider বাস্তবায়ন দিয়ে setProvider() কল করুন (যেমন @molecule/app-clipboard-react-native থেকে)।',
   'clipboard.warn.onChangeNotSupported':
     '@molecule/app-clipboard: onChange প্রদানকারী দ্বারা সমর্থিত নয়',
+  'clipboard.error.missingDependency':
+    '`{{library}}` প্রয়োজন কিন্তু এটি ইনস্টল করা নেই। এটি ইনস্টল করুন: `npm install {{library}}`',
 }

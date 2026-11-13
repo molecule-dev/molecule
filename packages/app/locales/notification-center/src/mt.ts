@@ -6,4 +6,6 @@ export const mt: Partial<NotificationCenterTranslations> = {
   'notifications.markAllRead': 'Immarka kollox bħala moqri',
   'notifications.empty': 'L-ebda notifika',
   'notifications.viewAll': 'Ara kollox',
+  'notifications.loadError': 'Ma setgħux jitgħabbew in-notifiki.',
+  'notifications.retry': "Erġa' pprova",
 }

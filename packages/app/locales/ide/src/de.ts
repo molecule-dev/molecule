@@ -380,8 +380,6 @@ export const de: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.badge': 'Auto-Commit in „{{countdown}}“',
   'ide.chat.autoCommit.cancel': 'Automatisches Speichern deaktivieren',
   'ide.chat.autoCommit.cancelled': 'Automatische Bestätigung abgebrochen.',
-  'ide.chat.autoCommit.enabled':
-    'Auto-Commit aktiviert: Nach der letzten Dateiänderung werden die Änderungen automatisch über{{seconds}}. Geben Sie „/autocommit 0“ ein, um diese Funktion zu deaktivieren.',
   'ide.chat.effort.error': 'Die Aktualisierung der Argumentation ist fehlgeschlagen.',
   'ide.chat.effort.fixedForModel':
     'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
@@ -802,4 +800,8 @@ export const de: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'Monatliches Taschengeld.',
   'ide.chat.context.daily': 'Tagesgeld.',
   'ide.chat.context.resets': 'Resets {{at}} .',
+  'ide.error.noProvider':
+    'Der IDE-Arbeitsbereichsanbieter ist nicht konfiguriert. Stellen Sie zuerst eine Verbindung zu einem IDE-Anbieter her.',
+  'ide.chat.autoCommit.enabled':
+    'Automatisches Commit: Die Änderungen werden {{seconds}} Sekunden nach der letzten Dateiänderung übernommen. Auf 0 setzen, um das automatische Commit zu deaktivieren.',
 }

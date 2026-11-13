@@ -353,14 +353,10 @@ export const hy: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
-  'ide.chat.tip.getStarted':
-    'Հուշում. մուտքագրեք /՝ յուրաքանչյուր հրամանը տեսնելու համար, կամ @՝ ֆայլի անունը տալու համար{{agentName}} ֆայլ՝ աշխատելու համար։',
   'ide.chat.tip.mention':
     'Հուշում. մուտքագրեք @filename՝ նախագծի ֆայլը որպես համատեքստ կցելու համար —{{agentName}} ուղղակիորեն կարդում է այն։',
   'ide.chat.tip.slash':
     'Հուշում. մուտքագրեք /՝ բոլոր հրամանները (commit, diff, model և այլն) դիտելու համար։',
-  'ide.chat.tip.plan':
-    'Հուշում. օգտագործեք /պլանավորեք ունենալ{{agentName}} որևէ ֆայլ խմբագրելուց առաջ ուսումնասիրել և ծրագիր առաջարկել։',
   'ide.chat.tip.undo':
     'Հուշում. օգտագործեք /undo՝ ակնթարթորեն չեղարկելու համար վերջին արհեստական ինտելեկտի շրջադարձի ֆայլի փոփոխությունները, եթե դրանք սխալ ուղղությամբ են ընթացել։',
   'ide.chat.tip.compact':
@@ -778,4 +774,10 @@ export const hy: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'Ամսական նպաստ։',
   'ide.chat.context.daily': 'Օրական նպաստ։',
   'ide.chat.context.resets': 'Վերագործարկում է {{at}} ։',
+  'ide.error.noProvider':
+    'IDE աշխատանքային տարածքի մատակարարը կարգավորված չէ: Նախ կապեք IDE մատակարարի հետ:',
+  'ide.chat.tip.getStarted':
+    'Հուշում. մուտքագրեք /՝ բոլոր հրամանները տեսնելու համար, կամ @՝ {{agentName}} -ին աշխատելու ֆայլ տրամադրելու համար։',
+  'ide.chat.tip.plan':
+    'Խորհուրդ. օգտագործեք /plan-ը, որպեսզի {{agentName}} ը հետազոտի և առաջարկի ծրագիր, նախքան որևէ ֆայլ խմբագրելը։',
 }

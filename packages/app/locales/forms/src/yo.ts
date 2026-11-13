@@ -11,4 +11,5 @@ export const yo: FormsTranslations = {
   'forms.invalidEmail': 'Adirẹsi imeeli ti ko tọ',
   'forms.invalidUrl': 'URL ti ko tọ',
   'forms.invalidValue': 'Iye ti ko tọ',
+  'forms.submitError': 'Kò le fi silẹ. Jọwọ gbiyanju lẹẹkansi.',
 }

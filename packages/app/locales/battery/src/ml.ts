@@ -10,4 +10,6 @@ export const ml: BatteryTranslations = {
   'battery.remainingUnknown': 'അജ്ഞാതം',
   'battery.remainingTime': '{{hours}}മ {{minutes}}മി',
   'battery.remainingMinutes': '{{minutes}}മി',
+  'battery.error.noProvider':
+    '`@molecule/app-battery`: ദാതാവിനെ സജ്ജമാക്കിയിട്ടില്ല. `BatteryProvider` നടപ്പിലാക്കൽ ഉപയോഗിച്ച് `setProvider()` എന്ന് വിളിക്കുക — ഫ്ലീറ്റിനൊപ്പം ഒരു ദാതാവും അയയ്ക്കുന്നില്ല; നിങ്ങളുടെ നേറ്റീവ് റൺടൈമിൽ ഇന്റർഫേസ് നടപ്പിലാക്കി അത് ബോണ്ട് ചെയ്യുക.',
 }

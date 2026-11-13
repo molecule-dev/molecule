@@ -14,4 +14,5 @@ export const en: BillingTranslations = {
   'billing.pricing.tierEyebrow': 'Tier',
   'billing.pricing.perSeat': 'per seat',
   'billing.pricing.upgradeCta': 'Upgrade to {{tierName}}',
+  'billing.pricing.currentCta': 'Current plan',
 }

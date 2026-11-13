@@ -10,4 +10,5 @@ export const eu: Partial<CookieBannerTranslations> = {
   'cookieBanner.reject': 'Guztiak baztertu',
   'cookieBanner.save': 'Gorde hobespenak',
   'cookieBanner.accept': 'Onartu guztiak',
+  'cookieBanner.learnMore': 'Informazio gehiago',
 }

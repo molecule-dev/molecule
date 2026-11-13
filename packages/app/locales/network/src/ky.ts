@@ -12,4 +12,8 @@ export const ky: NetworkTranslations = {
   'network.unknown': 'Белгисиз',
   'network.error.connectionTimeout': 'Тармак байланышынын мөөнөтү бүттү',
   'network.error.unavailable': 'Тармак жеткиликсиз',
+  'network.error.missingDependency':
+    '`{{library}}` талап кылынат, бирок орнотулган эмес. Аны төмөнкү менен орнотуңуз: `npm install {{library}}`',
+  'network.error.noProvider':
+    '`@molecule/app-network`: Провайдер орнотулган эмес. `NetworkProvider` реализациясы менен `setProvider()` чакырыңыз (мисалы, `@molecule/app-network-react-native` дан).',
 }

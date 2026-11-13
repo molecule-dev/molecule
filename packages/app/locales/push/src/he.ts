@@ -4,4 +4,6 @@ import type { PushTranslations } from './types.js'
 export const he: PushTranslations = {
   'push.error.notSupported': 'התראות דחיפה אינן נתמכות',
   'push.error.permissionNotGranted': 'הרשאת התראות לא ניתנה',
+  'push.error.missingDependency':
+    '`{{library}}` נדרש אך אינו מותקן. התקן אותו באמצעות: `npx expo install {{library}}`',
 }

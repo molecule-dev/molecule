@@ -4,4 +4,5 @@ import type { KeyboardTranslations } from './types.js'
 export const zu: KeyboardTranslations = {
   'keyboard.error.noProvider':
     '@molecule/app-keyboard: Akukho mhlinzeki osetiwe. Shayela setProvider() ngenqubo ye-KeyboardProvider (isib., kusuka ku-@molecule/app-keyboard-react-native).',
+  'keyboard.error.missingDependency': '`{{library}}` iyadingeka kodwa ayifakiwe.',
 }

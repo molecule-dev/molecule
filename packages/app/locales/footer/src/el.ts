@@ -8,4 +8,7 @@ export const el: Partial<FooterTranslations> = {
   'footer.version': 'v {{version}}',
   'content.privacyPolicy': '',
   'content.termsOfService': '',
+  'footer.legalNotConfigured':
+    'Αυτό το περιεχόμενο δεν έχει διαμορφωθεί ακόμη. Ο κάτοχος της εφαρμογής πρέπει να το παρέχει.',
+  'footer.about': 'Σχετικά με {{appName}}',
 }

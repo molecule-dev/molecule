@@ -15,4 +15,6 @@ export const my: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'အမှား',
   'audioRecorder.statusIdle': 'မှတ်တမ်းတင်ရန် အသင့်ဖြစ်ပါပြီ',
   'audioRecorder.group': 'အသံဖမ်းစက်',
+  'audioRecorder.record': 'မှတ်တမ်းတင်ပါ',
+  'audioRecorder.statusRecording': 'မှတ်တမ်းတင်ခြင်း',
 }

@@ -12,4 +12,8 @@ export const da: Partial<NetworkTranslations> = {
   'network.unknown': 'Ukendt',
   'network.error.connectionTimeout': 'Timeout for netværksforbindelse',
   'network.error.unavailable': 'Netværk utilgængeligt',
+  'network.error.missingDependency':
+    '`{{library}}` er påkrævet, men ikke installeret. Installer det med: `npm install {{library}}`',
+  'network.error.noProvider':
+    '`@molecule/app-network`: Ingen provider angivet. Kald `setProvider()` med en `NetworkProvider` implementering (f.eks. fra `@molecule/app-network-react-native`).',
 }

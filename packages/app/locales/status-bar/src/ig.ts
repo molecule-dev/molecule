@@ -4,4 +4,5 @@ import type { StatusBarTranslations } from './types.js'
 export const ig: StatusBarTranslations = {
   'statusBar.error.noProvider':
     '@molecule/app-status-bar: Enweghị onye na-eweta edobere. Kpọọ setProvider() na mmejupụta StatusBarProvider (dịka ọmụmaatụ, site na @molecule/app-status-bar-react-native).',
+  'statusBar.error.missingDependency': 'A chọrọ `{{library}}` mana etinyereghị ya.',
 }

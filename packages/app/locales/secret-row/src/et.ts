@@ -9,4 +9,6 @@ export const et: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'Kopeeri',
   'secretRow.rotate': 'Pööra',
   'secretRow.delete': 'Kustuta',
+  'secretRow.lastRotated': 'Viimati pööratud',
+  'secretRow.rotateIn': 'Vaheta {{days}} päeva pärast',
 }

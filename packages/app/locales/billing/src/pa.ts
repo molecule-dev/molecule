@@ -16,4 +16,5 @@ export const pa: Partial<BillingTranslations> = {
   'billing.pricing.tierEyebrow': 'ਟੀਅਰ',
   'billing.pricing.perSeat': 'ਪ੍ਰਤੀ ਸੀਟ',
   'billing.pricing.upgradeCta': 'ਇਸ ਵਿੱਚ ਅੱਪਗ੍ਰੇਡ ਕਰੋ {{tierName}}',
+  'billing.pricing.currentCta': 'ਮੌਜੂਦਾ ਯੋਜਨਾ',
 }

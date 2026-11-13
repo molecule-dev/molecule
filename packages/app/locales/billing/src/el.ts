@@ -16,4 +16,5 @@ export const el: Partial<BillingTranslations> = {
     'Ακύρωση οποιαδήποτε στιγμή · Δεν απαιτείται πιστωτική κάρτα για την έναρξη',
   'billing.pricing.tierEyebrow': 'Κερκίδα',
   'billing.pricing.perSeat': 'ανά θέση',
+  'billing.pricing.currentCta': 'Τρέχον πρόγραμμα',
 }

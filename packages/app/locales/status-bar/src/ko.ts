@@ -4,4 +4,5 @@ import type { StatusBarTranslations } from './types.js'
 export const ko: StatusBarTranslations = {
   'statusBar.error.noProvider':
     '@molecule/app-status-bar: 프로바이더가 설정되지 않았습니다. StatusBarProvider 구현으로 setProvider()를 호출하세요 (예: @molecule/app-status-bar-react-native에서).',
+  'statusBar.error.missingDependency': '`{{library}}` 가 필요하지만 설치되어 있지 않습니다.',
 }

@@ -11,4 +11,5 @@ export const en: FormsTranslations = {
   'forms.invalidEmail': 'Invalid email address',
   'forms.invalidUrl': 'Invalid URL',
   'forms.invalidValue': 'Invalid value',
+  'forms.submitError': 'Unable to submit. Please try again.',
 }

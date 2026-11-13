@@ -6,4 +6,6 @@ export const pa: Partial<NotificationCenterTranslations> = {
   'notifications.markAllRead': 'ਸਭ ਨੂੰ ਪੜ੍ਹੇ ਹੋਏ ਵਜੋਂ ਨਿਸ਼ਾਨਦੇਹੀ ਕਰੋ',
   'notifications.empty': 'ਕੋਈ ਸੂਚਨਾਵਾਂ ਨਹੀਂ',
   'notifications.viewAll': 'ਸਾਰੇ ਵੇਖੋ',
+  'notifications.loadError': 'ਸੂਚਨਾਵਾਂ ਲੋਡ ਨਹੀਂ ਕੀਤੀਆਂ ਜਾ ਸਕੀਆਂ।',
+  'notifications.retry': 'ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ',
 }

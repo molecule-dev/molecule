@@ -36,7 +36,6 @@ export const lt: UiTranslations = {
   'ui.select.placeholder': 'Pasirinkite…',
   'ui.select.title': 'Pasirinkite',
   'ui.toast.dismiss': 'Atmesti',
-  'ui.toast.error.noProvider': '„useToast“ turi būti naudojamas „ToastProvider“ viduje.',
   'confirm.cancel': 'Atšaukti',
   'confirm.confirm': 'Patvirtinti',
   'ui.select.clear': '--',
@@ -53,4 +52,5 @@ export const lt: UiTranslations = {
   'userMenu.panelLabel': 'Paskyros meniu',
   'ui.error.noClassMap':
     'Nenustatytas UIClassMap. Paleidžiant programą, iškvieskite setClassMap() funkciją su stiliaus bibliotekos įgyvendinimu (pvz., @molecule/app-ui-tailwind).',
+  'ui.toast.error.noProvider': '`useToast` turi būti naudojamas `ToastProvider` viduje',
 }

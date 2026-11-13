@@ -5,4 +5,6 @@ export const ko: SplashScreenTranslations = {
   'splashScreen.error.noProvider': '스플래시 스크린 공급자가 구성되지 않았습니다.',
   'splashScreen.warn.configureNotSupported':
     'configure()는 이 스플래시 스크린 공급자에서 지원되지 않습니다.',
+  'splashScreen.error.missingDependency':
+    '`{{library}}` 필요하지만 설치되어 있지 않습니다. 다음 명령으로 설치하세요: `npx expo install {{library}}`',
 }

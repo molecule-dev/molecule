@@ -8,4 +8,7 @@ export const km: Partial<FooterTranslations> = {
   'footer.language': 'ភាសា',
   'content.privacyPolicy': '',
   'content.termsOfService': '',
+  'footer.legalNotConfigured':
+    'ខ្លឹមសារនេះមិនទាន់ត្រូវបានកំណត់រចនាសម្ព័ន្ធនៅឡើយទេ។ ម្ចាស់កម្មវិធីត្រូវតែផ្តល់វា។',
+  'footer.about': 'អំពី {{appName}}',
 }

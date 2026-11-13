@@ -12,4 +12,8 @@ export const my: NetworkTranslations = {
   'network.unknown': 'မသိ',
   'network.error.connectionTimeout': 'ကွန်ရက်ချိတ်ဆက်မှု အချိန်ကုန်သွားသည်',
   'network.error.unavailable': 'ကွန်ရက် မရရှိနိုင်ပါ',
+  'network.error.missingDependency':
+    '`{{library}}` လိုအပ်သော်လည်း ထည့်သွင်းထားခြင်း မရှိပါ။ အောက်ပါဖြင့် ထည့်သွင်းပါ- `npm install {{library}}`',
+  'network.error.noProvider':
+    '`@molecule/app-network`: ပံ့ပိုးပေးသူ သတ်မှတ်မထားပါ။ `NetworkProvider` အကောင်အထည်ဖော်မှုဖြင့် `setProvider()` ကို ခေါ်ဆိုပါ (ဥပမာ၊ `@molecule/app-network-react-native` မှ)။',
 }

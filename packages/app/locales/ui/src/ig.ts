@@ -36,7 +36,6 @@ export const ig: UiTranslations = {
   'ui.select.placeholder': 'Họrọ…',
   'ui.select.title': 'Họrọ',
   'ui.toast.dismiss': 'Kagbuo',
-  'ui.toast.error.noProvider': "A ga-eji Toast mee ihe n'ime Onye Na-enye Toast",
   'confirm.cancel': 'Kagbuo',
   'confirm.confirm': 'Kwenye',
   'ui.select.clear': '--',
@@ -53,4 +52,5 @@ export const ig: UiTranslations = {
   'userMenu.panelLabel': 'Ndepụta akaụntụ',
   'ui.error.noClassMap':
     'E tinyebeghị UIClassMap ọ bụla. Kpọọ setClassMap() na mmalite ngwa site na iji usoro nhazi (dịka ọmụmaatụ, @molecule/app-ui-tailwind).',
+  'ui.toast.error.noProvider': "A ga-eji `useToast` mee ihe n'ime `ToastProvider`",
 }

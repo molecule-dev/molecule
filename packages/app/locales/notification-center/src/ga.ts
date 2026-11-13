@@ -6,4 +6,6 @@ export const ga: Partial<NotificationCenterTranslations> = {
   'notifications.markAllRead': 'Marcáil gach rud mar léite',
   'notifications.empty': 'Gan aon fhógraí',
   'notifications.viewAll': 'Féach ar gach rud',
+  'notifications.loadError': 'Níorbh fhéidir fógraí a lódáil.',
+  'notifications.retry': 'Déan iarracht eile',
 }

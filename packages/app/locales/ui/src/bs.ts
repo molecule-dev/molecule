@@ -36,7 +36,6 @@ export const bs: UiTranslations = {
   'ui.select.placeholder': 'Odaberite…',
   'ui.select.title': 'Odaberite',
   'ui.toast.dismiss': 'Odbaci',
-  'ui.toast.error.noProvider': 'useToast se mora koristiti unutar ToastProvider-a',
   'confirm.cancel': 'Otkaži',
   'confirm.confirm': 'Potvrdi',
   'ui.select.clear': '--',
@@ -53,4 +52,5 @@ export const bs: UiTranslations = {
   'userMenu.panelLabel': 'Meni računa',
   'ui.error.noClassMap':
     'Nije postavljen UIClassMap. Pozovite setClassMap() pri pokretanju aplikacije sa implementacijom biblioteke za stiliziranje (npr. @molecule/app-ui-tailwind).',
+  'ui.toast.error.noProvider': '`useToast` se mora koristiti unutar `ToastProvider`',
 }

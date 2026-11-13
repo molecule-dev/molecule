@@ -6,4 +6,6 @@ export const is: Partial<NotificationCenterTranslations> = {
   'notifications.markAllRead': 'Merkja allt sem lesið',
   'notifications.empty': 'Engar tilkynningar',
   'notifications.viewAll': 'Skoða allt',
+  'notifications.loadError': 'Ekki tókst að hlaða tilkynningum.',
+  'notifications.retry': 'Reyna aftur',
 }

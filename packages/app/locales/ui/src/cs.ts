@@ -36,7 +36,6 @@ export const cs: Partial<UiTranslations> = {
   'ui.select.placeholder': 'Vyberte…',
   'ui.select.title': 'Vybrat',
   'ui.toast.dismiss': 'Zavřít',
-  'ui.toast.error.noProvider': 'useToast musí být použit v rámci ToastProvider.',
   'confirm.cancel': 'Zrušit',
   'confirm.confirm': 'Potvrdit',
   'ui.select.clear': '--',
@@ -53,4 +52,5 @@ export const cs: Partial<UiTranslations> = {
   'userMenu.panelLabel': 'Nabídka účtu',
   'ui.error.noClassMap':
     'Nebyla nastavena žádná proměnná UIClassMap. Při spuštění aplikace volejte funkci setClassMap() s implementací stylingové knihovny (např. @molecule/app-ui-tailwind).',
+  'ui.toast.error.noProvider': '`useToast` musí být použit v rámci `ToastProvider`',
 }

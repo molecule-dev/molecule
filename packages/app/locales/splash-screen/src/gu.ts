@@ -5,4 +5,6 @@ export const gu: SplashScreenTranslations = {
   'splashScreen.error.noProvider': 'સ્પ્લેશ સ્ક્રીન પ્રોવાઇડર ગોઠવાયેલ નથી.',
   'splashScreen.warn.configureNotSupported':
     'configure() આ સ્પ્લેશ સ્ક્રીન પ્રોવાઇડર દ્વારા સમર્થિત નથી.',
+  'splashScreen.error.missingDependency':
+    '`{{library}}` જરૂરી છે પણ ઇન્સ્ટોલ કરેલું નથી. તેને આની સાથે ઇન્સ્ટોલ કરો: `npx expo install {{library}}`',
 }

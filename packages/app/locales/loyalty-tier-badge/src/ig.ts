@@ -4,4 +4,6 @@ import type { LoyaltyTierBadgeTranslations } from './types.js'
 export const ig: Partial<LoyaltyTierBadgeTranslations> = {
   'loyaltyTierBadge.group': '{{tier}} ọkwa',
   'loyaltyTierBadge.progress': 'Ọganihu ruo {{next}}',
+  'loyaltyTierBadge.topTier': 'Eruola ọkwa kachasị elu',
+  'loyaltyTierBadge.remaining': '{{remaining}} gaa na {{next}}',
 }

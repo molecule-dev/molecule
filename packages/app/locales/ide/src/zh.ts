@@ -347,8 +347,6 @@ export const zh: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': '简历',
   'ide.chat.openSettings': '设置',
   'ide.chat.tip.dismiss': '关闭提示',
-  'ide.chat.tip.getStarted':
-    '提示：输入 / 可查看所有命令，或在文件名前加 @ 符号，为 `{{agentName}}` 指定要处理的文件。',
   'ide.chat.tip.mention':
     '提示：输入 @filename 可将项目文件作为上下文附加——{{agentName}} 会直接读取该文件。',
   'ide.chat.tip.slash': '提示：输入 / 可浏览所有命令（commit、diff、model 等）。',
@@ -759,4 +757,7 @@ export const zh: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': '每月津贴。',
   'ide.chat.context.daily': '每日津贴。',
   'ide.chat.context.resets': '重置{{at}} 。',
+  'ide.error.noProvider': 'IDE 工作区提供程序未配置。请先绑定一个 IDE 提供程序。',
+  'ide.chat.tip.getStarted':
+    '提示：输入 / 可查看所有命令，或输入 @ 文件名可指定{{agentName}}需要处理的文件。',
 }

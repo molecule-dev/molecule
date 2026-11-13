@@ -6,4 +6,6 @@ export const cy: Partial<NotificationCenterTranslations> = {
   'notifications.markAllRead': "Marcio popeth fel wedi'i ddarllen",
   'notifications.empty': 'Dim hysbysiadau',
   'notifications.viewAll': 'Gweld y cyfan',
+  'notifications.loadError': 'Methwyd llwytho hysbysiadau.',
+  'notifications.retry': 'Ail-geisio',
 }

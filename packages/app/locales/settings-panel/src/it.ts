@@ -17,4 +17,22 @@ export const it: Partial<SettingsPanelTranslations> = {
   'settings.billing.cancelConfirm': "Vuoi annullare l'abbonamento?",
   'settings.billing.upgradeTitle': 'Passa a un piano superiore',
   'settings.billing.noTiers': 'Nessun piano a pagamento configurato.',
+  'settings.failedToUpdateProfile': 'Impossibile aggiornare il profilo',
+  'settings.name': 'Nome',
+  'settings.twoFactorCode': 'Codice di autenticazione',
+  'settings.twoFactorDisable': 'Disabilita',
+  'settings.twoFactorDisableTitle': "Disabilita l'autenticazione a due fattori",
+  'settings.twoFactorEnable': 'Abilitare',
+  'settings.twoFactorEnableTitle': "Abilita l'autenticazione a due fattori",
+  'settings.twoFactorInvalidCode': 'Codice non valido',
+  'settings.twoFactorOn': 'SU',
+  'settings.twoFactorQrAlt': "Codice QR per l'autenticazione a due fattori",
+  'settings.twoFactorScan':
+    'Scansiona questo codice QR con la tua app di autenticazione, quindi inserisci il codice di 6 cifre.',
+  'settings.twoFactorUnavailable':
+    "L'autenticazione a due fattori non è disponibile per questa app.",
+  'settings.twoFactorVerify': 'Verifica e abilita',
+  'settings.revokeDeviceWarning':
+    "L'accesso a questo dispositivo verrà revocato a breve. Vuoi disconnetterti?",
+  'settings.signOutDevice': 'disconnessione',
 }

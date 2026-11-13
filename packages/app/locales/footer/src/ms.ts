@@ -8,4 +8,7 @@ export const ms: Partial<FooterTranslations> = {
   'footer.version': 'v {{version}}',
   'content.privacyPolicy': '',
   'content.termsOfService': '',
+  'footer.legalNotConfigured':
+    'Kandungan ini belum dikonfigurasikan lagi. Pemilik apl mesti menyediakannya.',
+  'footer.about': 'Perihal {{appName}}',
 }

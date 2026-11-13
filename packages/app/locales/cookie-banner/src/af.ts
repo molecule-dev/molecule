@@ -10,4 +10,5 @@ export const af: Partial<CookieBannerTranslations> = {
   'cookieBanner.reject': 'Verwerp alles',
   'cookieBanner.save': 'Stoor voorkeure',
   'cookieBanner.accept': 'Aanvaar alles',
+  'cookieBanner.learnMore': 'Leer meer',
 }

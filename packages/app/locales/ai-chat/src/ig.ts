@@ -6,4 +6,7 @@ export const ig: ChatTranslations = {
   'chat.error.noResponseBody': 'Enweghị ahụ nzaghachi',
   'chat.error.streamError': 'Njehie iyi',
   'chat.error.unknownError': 'Njehie amaghị',
+  'chat.error.sendFailed': 'Izipu ozi agaghị adị',
+  'chat.error.stalled':
+    "{{agentName}} kwụsịrị ịza. O nwere ike ọ ka na-agwụ n'azụ — bugharịa ya iji hụ nke kachasị ọhụrụ, ma ọ bụ ziga ozi ọhụrụ.",
 }

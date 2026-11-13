@@ -3,4 +3,5 @@ import type { EmojiReactionsTranslations } from './types.js'
 /** EmojiReactions translations for sr. */
 export const sr: Partial<EmojiReactionsTranslations> = {
   'reactions.add': 'Додај реакцију',
+  'reactions.count': '{{count}} реакција',
 }

@@ -15,4 +15,5 @@ export const gl: Partial<BillingTranslations> = {
   'billing.pricing.tierEyebrow': 'Nivel',
   'billing.pricing.perSeat': 'por asento',
   'billing.pricing.upgradeCta': 'Actualizar a {{tierName}}',
+  'billing.pricing.currentCta': 'Plan actual',
 }

@@ -10,4 +10,6 @@ export const ja: Partial<BatteryTranslations> = {
   'battery.full': 'フル充電済み',
   'battery.not-charging': '充電していません',
   'battery.remainingTime': '{{hours}} h {{minutes}} m',
+  'battery.error.noProvider':
+    '`@molecule/app-battery`: プロバイダーが設定されていません。`BatteryProvider` の実装を渡して `setProvider()` を呼び出してください。同梱のプロバイダーはありません。ネイティブランタイムでインターフェースを実装し、ボンドしてください。',
 }

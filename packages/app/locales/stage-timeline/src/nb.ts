@@ -3,4 +3,5 @@ import type { StageTimelineTranslations } from './types.js'
 /** StageTimeline translations for nb. */
 export const nb: Partial<StageTimelineTranslations> = {
   'stageTimeline.group': 'Tidslinje for scenen',
+  'stageTimeline.stage': 'Fase {{index}} av {{total}}: {{label}} ({{status}})',
 }

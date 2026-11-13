@@ -9,4 +9,5 @@ export const cy: Partial<CookieBannerTranslations> = {
   'cookieBanner.reject': 'Gwrthod popeth',
   'cookieBanner.save': 'Cadw dewisiadau',
   'cookieBanner.accept': 'Derbyniwch y cyfan',
+  'cookieBanner.learnMore': 'Dysgu mwy',
 }

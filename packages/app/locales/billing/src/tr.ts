@@ -15,4 +15,5 @@ export const tr: Partial<BillingTranslations> = {
   'billing.pricing.reassurance':
     'İstediğiniz zaman iptal edebilirsiniz · Başlamak için kredi kartı gerekmez',
   'billing.pricing.perSeat': 'koltuk başına',
+  'billing.pricing.currentCta': 'Mevcut plan',
 }

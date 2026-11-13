@@ -15,4 +15,6 @@ export const th: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'ข้อผิดพลาด',
   'audioRecorder.statusIdle': 'พร้อมบันทึกแล้ว',
   'audioRecorder.group': 'เครื่องบันทึกเสียง',
+  'audioRecorder.record': 'บันทึก',
+  'audioRecorder.statusRecording': 'การบันทึก',
 }

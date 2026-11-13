@@ -41,7 +41,6 @@ export const pa: UiTranslations = {
   'ui.select.placeholder': 'ਚੁਣੋ...',
   'ui.select.title': 'ਚੁਣੋ',
   'ui.toast.dismiss': '\u0a16\u0a3e\u0a30\u0a1c \u0a15\u0a30\u0a4b',
-  'ui.toast.error.noProvider': 'useToast ਨੂੰ ToastProvider ਦੇ ਅੰਦਰ ਵਰਤਿਆ ਜਾਣਾ ਚਾਹੀਦਾ ਹੈ',
   'confirm.cancel': 'ਰੱਦ ਕਰੋ',
   'confirm.confirm': 'ਪੁਸ਼ਟੀ ਕਰੋ',
   'ui.select.clear': '--',
@@ -58,4 +57,5 @@ export const pa: UiTranslations = {
   'userMenu.panelLabel': 'ਖਾਤਾ ਮੀਨੂ',
   'ui.error.noClassMap':
     "ਕੋਈ UIClassMap ਸੈੱਟ ਨਹੀਂ ਕੀਤਾ ਗਿਆ ਹੈ। ਸਟਾਈਲਿੰਗ ਲਾਇਬ੍ਰੇਰੀ ਲਾਗੂਕਰਨ (ਜਿਵੇਂ ਕਿ, @molecule/app-ui-tailwind) ਦੇ ਨਾਲ ਐਪ ਸਟਾਰਟਅੱਪ 'ਤੇ setClassMap() ਨੂੰ ਕਾਲ ਕਰੋ।",
+  'ui.toast.error.noProvider': '`useToast` `ToastProvider` ਦੇ ਅੰਦਰ ਵਰਤਿਆ ਜਾਣਾ ਚਾਹੀਦਾ ਹੈ।',
 }

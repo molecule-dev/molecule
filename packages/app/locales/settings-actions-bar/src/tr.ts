@@ -5,4 +5,5 @@ export const tr: Partial<SettingsActionsBarTranslations> = {
   'settingsActions.cancel': 'İptal',
   'settingsActions.saving': 'Kaydediliyor…',
   'settingsActions.save': 'Değişiklikleri kaydet',
+  'settingsActions.saved': '{{at}} te kaydedildi',
 }

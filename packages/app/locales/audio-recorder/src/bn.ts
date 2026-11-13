@@ -15,4 +15,6 @@ export const bn: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'ত্রুটি',
   'audioRecorder.statusIdle': 'রেকর্ড করার জন্য প্রস্তুত',
   'audioRecorder.group': 'অডিও রেকর্ডার',
+  'audioRecorder.record': 'রেকর্ড',
+  'audioRecorder.statusRecording': 'রেকর্ডিং',
 }

@@ -10,4 +10,5 @@ export const ja: Partial<CookieBannerTranslations> = {
     '当サイトでは、お客様の利便性向上とトラフィック分析のためにクッキーを使用しています。',
   'cookieBanner.reject': 'すべて拒否',
   'cookieBanner.accept': 'すべて受け入れる',
+  'cookieBanner.learnMore': 'もっと詳しく知る',
 }

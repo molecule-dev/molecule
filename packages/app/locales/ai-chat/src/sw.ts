@@ -6,4 +6,7 @@ export const sw: ChatTranslations = {
   'chat.error.noResponseBody': 'Hakuna mwili wa jibu',
   'chat.error.streamError': 'Hitilafu ya utiririshaji',
   'chat.error.unknownError': 'Hitilafu isiyojulikana',
+  'chat.error.sendFailed': 'Imeshindwa kutuma ujumbe',
+  'chat.error.stalled':
+    '{{agentName}} iliacha kujibu. Huenda bado inaisha chinichini — pakia upya ili kuona ya hivi punde, au tuma ujumbe mpya.',
 }

@@ -4,4 +4,6 @@ import type { SplashScreenTranslations } from './types.js'
 export const am: SplashScreenTranslations = {
   'splashScreen.error.noProvider': 'የማስጀመሪያ ማያ ገጽ አቅራቢ አልተዋቀረም።',
   'splashScreen.warn.configureNotSupported': 'configure() በዚህ የማስጀመሪያ ማያ ገጽ አቅራቢ አይደገፍም።',
+  'splashScreen.error.missingDependency':
+    '`{{library}}` ያስፈልጋል ግን አልተጫነም። በሚከተለው ይጫኑት፦ `npx expo install {{library}}`',
 }

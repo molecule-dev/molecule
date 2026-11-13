@@ -15,4 +15,6 @@ export const mk: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'Грешка',
   'audioRecorder.statusIdle': 'Подготвено за снимање',
   'audioRecorder.group': 'Аудио рекордер',
+  'audioRecorder.record': 'Снимање',
+  'audioRecorder.statusRecording': 'Снимање',
 }

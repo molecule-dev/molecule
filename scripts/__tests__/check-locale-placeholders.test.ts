@@ -108,6 +108,34 @@ describe('classify', () => {
     expect(classify('{{count}}', 'MOLPH0')).toMatchObject({ klass: 'MALFORMED' })
     expect(classify('v{{version}}', 'vヒェンビション }}')).toMatchObject({ klass: 'MALFORMED' })
     expect(classify('{{count}} left', '{count} left')).toMatchObject({ klass: 'MALFORMED' })
+    expect(classify('{{count}}', '<span translate="no">{{count}}</span>')).toMatchObject({
+      klass: 'MALFORMED',
+    })
+  })
+
+  it('catches a CODE span the translation changed — the reader would type a command that does not exist', () => {
+    const en = '`{{library}}` is not installed. Install it with: `npm install {{library}}`'
+    // Google's Igbo translated the command itself.
+    expect(
+      classify(en, '`{{library}}` anaghị arụnye. Wụnye ya na: `npm wụnye {{library}}`'),
+    ).toMatchObject({ klass: 'CODE' })
+    // And dropped the code marks altogether.
+    expect(
+      classify(en, '{{library}} ist nicht installiert. Installieren mit: npm install {{library}}'),
+    ).toMatchObject({ klass: 'CODE' })
+    expect(
+      classify(
+        en,
+        '`{{library}}` ist nicht installiert. Installieren Sie es mit: `npm install {{library}}`',
+      ),
+    ).toBeNull()
+  })
+
+  it('catches a CODE span the translation added — UI text shows the backticks', () => {
+    // A machine translation's Polish for '{{count}} results in {{files}} files'.
+    expect(
+      classify('{{count}} results in {{files}} files', '{{count}} wyników w `{{files}}` plikach'),
+    ).toMatchObject({ klass: 'CODE', detail: expect.stringContaining('gains `{{files}}`') })
   })
 })
 

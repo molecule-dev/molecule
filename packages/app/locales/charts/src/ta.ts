@@ -4,4 +4,5 @@ import type { ChartsTranslations } from './types.js'
 export const ta: ChartsTranslations = {
   'charts.placeholder.label': '{{type}} விளக்கப்படம்',
   'charts.placeholder.description': 'பொருத்தமான விளக்கப்பட வழங்குநரைப் பயன்படுத்தவும்',
+  'charts.error.noCanvasContext': 'கேன்வாஸ் 2D சூழலைப் பெற முடியவில்லை',
 }

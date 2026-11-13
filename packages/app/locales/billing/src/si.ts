@@ -15,4 +15,5 @@ export const si: Partial<BillingTranslations> = {
   'billing.pricing.tierEyebrow': 'ස්ථරය',
   'billing.pricing.perSeat': 'ආසනයකට',
   'billing.pricing.upgradeCta': 'උත්ශ්‍රේණි කරන්න {{tierName}}',
+  'billing.pricing.currentCta': 'වත්මන් සැලැස්ම',
 }

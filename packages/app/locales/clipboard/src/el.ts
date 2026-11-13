@@ -6,4 +6,6 @@ export const el: ClipboardTranslations = {
     '@molecule/app-clipboard: Δεν έχει οριστεί πάροχος. Καλέστε setProvider() με μια υλοποίηση ClipboardProvider (π.χ. από @molecule/app-clipboard-react-native).',
   'clipboard.warn.onChangeNotSupported':
     '@molecule/app-clipboard: το onChange δεν υποστηρίζεται από τον πάροχο',
+  'clipboard.error.missingDependency':
+    '`{{library}}` απαιτείται αλλά δεν είναι εγκατεστημένο. Εγκαταστήστε το με: `npm install {{library}}`',
 }

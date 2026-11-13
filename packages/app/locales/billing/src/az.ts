@@ -15,4 +15,5 @@ export const az: Partial<BillingTranslations> = {
   'billing.pricing.tierEyebrow': 'Səviyyə',
   'billing.pricing.perSeat': 'hər oturacaq üçün',
   'billing.pricing.upgradeCta': 'Təkmilləşdirin {{tierName}}',
+  'billing.pricing.currentCta': 'Cari plan',
 }

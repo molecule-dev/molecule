@@ -6,4 +6,6 @@ export const it: Partial<ClipboardTranslations> = {
     '@molecule/app-clipboard: onChange non è supportato dal provider',
   'clipboard.error.noProvider':
     "@molecule/app-clipboard: Nessun provider impostato. Chiama setProvider() con un'implementazione di ClipboardProvider (ad esempio, da @molecule/app-clipboard-react-native).",
+  'clipboard.error.missingDependency':
+    '`{{library}}` è richiesto ma non installato. Installalo con: `npm install {{library}}`',
 }

@@ -15,4 +15,5 @@ export const pt: Partial<BillingTranslations> = {
   'billing.pricing.reassurance':
     'Cancele quando quiser · Não é necessário cartão de crédito para começar',
   'billing.pricing.perSeat': 'por assento',
+  'billing.pricing.currentCta': 'Plano atual',
 }

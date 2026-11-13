@@ -4,4 +4,5 @@ import type { ChartsTranslations } from './types.js'
 export const zhTW: ChartsTranslations = {
   'charts.placeholder.label': '{{type}}圖表',
   'charts.placeholder.description': '請使用合適的圖表提供者',
+  'charts.error.noCanvasContext': '無法取得畫布 2D 上下文',
 }

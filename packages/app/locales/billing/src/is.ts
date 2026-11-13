@@ -14,4 +14,5 @@ export const is: Partial<BillingTranslations> = {
   'billing.pricing.tierEyebrow': 'Stig',
   'billing.pricing.perSeat': 'á sæti',
   'billing.pricing.upgradeCta': 'Uppfæra í {{tierName}}',
+  'billing.pricing.currentCta': 'Núverandi áætlun',
 }

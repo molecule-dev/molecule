@@ -15,4 +15,5 @@ export const mt: Partial<BillingTranslations> = {
   'billing.pricing.tierEyebrow': 'Livell',
   'billing.pricing.perSeat': 'għal kull siġġu',
   'billing.pricing.upgradeCta': 'Aġġorna għal {{tierName}}',
+  'billing.pricing.currentCta': 'Pjan attwali',
 }

@@ -12,4 +12,8 @@ export const fi: Partial<NetworkTranslations> = {
   'network.unknown': 'Tuntematon',
   'network.error.connectionTimeout': 'Verkkoyhteyden aikakatkaisu',
   'network.error.unavailable': 'Verkko ei ole käytettävissä',
+  'network.error.missingDependency':
+    '`{{library}}` on pakollinen, mutta sitä ei ole asennettu. Asenna se komennolla: `npm install {{library}}`',
+  'network.error.noProvider':
+    '`@molecule/app-network`: Ei määritettyä toimittajaa. Kutsu `setProvider()` `NetworkProvider` -toteutuksella (esim. `@molecule/app-network-react-native`).',
 }

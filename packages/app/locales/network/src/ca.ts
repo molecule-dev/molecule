@@ -12,4 +12,8 @@ export const ca: Partial<NetworkTranslations> = {
   'network.unknown': 'Desconegut',
   'network.error.unavailable': 'Xarxa no disponible',
   'network.error.connectionTimeout': "Temps d'espera de la connexió de xarxa",
+  'network.error.missingDependency':
+    '`{{library}}` és obligatori però no està instal·lat. Instal·leu-lo amb: `npm install {{library}}`',
+  'network.error.noProvider':
+    "`@molecule/app-network`: No s'ha definit cap proveïdor. Crida `setProvider()` amb una implementació de `NetworkProvider` (per exemple, des de `@molecule/app-network-react-native`).",
 }

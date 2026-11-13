@@ -41,7 +41,6 @@ export const hy: UiTranslations = {
   'ui.select.placeholder': 'Ընտրեք…',
   'ui.select.title': 'Ընտրել',
   'ui.toast.dismiss': '\u0531\u0576\u057f\u0565\u057d\u0565\u056c',
-  'ui.toast.error.noProvider': 'useToast-ը պետք է օգտագործվի ToastProvider-ի ներսում',
   'confirm.cancel': 'Չեղարկել',
   'confirm.confirm': 'Հաստատել',
   'ui.select.clear': '--',
@@ -58,4 +57,5 @@ export const hy: UiTranslations = {
   'userMenu.panelLabel': 'Հաշվի ցանկ',
   'ui.error.noClassMap':
     'UIClassMap-ը սահմանված չէ: Կանչեք setClassMap() ֆունկցիան ծրագրի գործարկման ժամանակ՝ ոճավորման գրադարանի իրականացմամբ (օրինակ՝ @molecule/app-ui-tailwind):',
+  'ui.toast.error.noProvider': '`useToast` պետք է օգտագործվի `ToastProvider` ի ներսում',
 }

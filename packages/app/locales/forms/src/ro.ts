@@ -11,4 +11,5 @@ export const ro: FormsTranslations = {
   'forms.invalidEmail': 'Adresă de e-mail invalidă',
   'forms.invalidUrl': 'URL invalid',
   'forms.invalidValue': 'Valoare invalidă',
+  'forms.submitError': 'Nu se poate trimite. Vă rugăm să încercați din nou.',
 }

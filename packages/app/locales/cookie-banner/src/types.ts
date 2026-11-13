@@ -7,6 +7,7 @@ export type CookieBannerTranslationKey =
   | 'cookieBanner.reject'
   | 'cookieBanner.save'
   | 'cookieBanner.accept'
+  | 'cookieBanner.learnMore'
 
 /** Translation record mapping cookie-banner-react keys to translated strings. */
 export type CookieBannerTranslations = Record<CookieBannerTranslationKey, string>

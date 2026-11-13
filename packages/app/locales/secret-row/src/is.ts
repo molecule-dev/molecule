@@ -9,4 +9,6 @@ export const is: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'Afrita',
   'secretRow.rotate': 'Snúa',
   'secretRow.delete': 'Eyða',
+  'secretRow.lastRotated': 'Síðast snúið',
+  'secretRow.rotateIn': 'Snúa á {{days}} d',
 }

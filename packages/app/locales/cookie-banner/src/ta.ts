@@ -10,4 +10,5 @@ export const ta: Partial<CookieBannerTranslations> = {
   'cookieBanner.reject': 'அனைத்தையும் நிராகரிக்கவும்',
   'cookieBanner.save': 'விருப்பங்களைச் சேமிக்கவும்',
   'cookieBanner.accept': 'அனைத்தையும் ஏற்கவும்',
+  'cookieBanner.learnMore': 'மேலும் அறிக',
 }

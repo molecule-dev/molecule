@@ -6,4 +6,8 @@ export const kk: RoutingTranslations = {
   'routing.error.routeNotFound': '"{{name}}" маршруты табылмады',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter MoleculeRouterProvider ішінде қолданылуы керек',
+  'routing.error.noNavigationRef':
+    'Навигация сілтемесі орнатылмаған. `MoleculeProvider` орнатылғанына көз жеткізіңіз.',
+  'routing.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` React Router маршрутизаторында пайдаланылуы керек. `BrowserRouter`, `HashRouter`, `MemoryRouter`, `Router` немесе `RouterProvider` орнатыңыз.',
 }

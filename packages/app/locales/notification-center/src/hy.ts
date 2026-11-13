@@ -6,4 +6,6 @@ export const hy: Partial<NotificationCenterTranslations> = {
   'notifications.markAllRead': 'Նշել բոլորը որպես կարդացված',
   'notifications.empty': 'Ծանուցումներ չկան',
   'notifications.viewAll': 'Դիտել բոլորը',
+  'notifications.loadError': 'Չհաջողվեց բեռնել ծանուցումները։',
+  'notifications.retry': 'Կրկին փորձել',
 }

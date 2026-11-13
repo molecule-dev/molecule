@@ -10,4 +10,5 @@ export const ka: Partial<CookieBannerTranslations> = {
   'cookieBanner.reject': 'ყველას უარყოფა',
   'cookieBanner.save': 'პარამეტრების შენახვა',
   'cookieBanner.accept': 'ყველას მიღება',
+  'cookieBanner.learnMore': 'შეიტყვეთ მეტი',
 }

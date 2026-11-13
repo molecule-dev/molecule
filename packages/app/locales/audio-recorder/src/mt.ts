@@ -15,4 +15,6 @@ export const mt: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'Żball',
   'audioRecorder.statusIdle': 'Lest biex tirrekordja',
   'audioRecorder.group': 'Reġistratur tal-awdjo',
+  'audioRecorder.record': 'Rekord',
+  'audioRecorder.statusRecording': 'Reġistrazzjoni',
 }

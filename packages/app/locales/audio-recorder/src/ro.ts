@@ -15,4 +15,6 @@ export const ro: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'Eroare',
   'audioRecorder.statusIdle': 'Gata de înregistrare',
   'audioRecorder.group': 'Înregistrator audio',
+  'audioRecorder.record': 'Înregistra',
+  'audioRecorder.statusRecording': 'Înregistrare',
 }

@@ -4,4 +4,5 @@ import type { KeyboardTranslations } from './types.js'
 export const cy: Partial<KeyboardTranslations> = {
   'keyboard.error.noProvider':
     "@molecule/app-keyboard: Dim darparwr wedi'i osod. Galwch setProvider() gyda gweithrediad KeyboardProvider (e.e., o @molecule/app-keyboard-react-native).",
+  'keyboard.error.missingDependency': "Mae angen `{{library}}` ond nid yw wedi'i osod.",
 }

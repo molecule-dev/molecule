@@ -43,7 +43,6 @@ export const my: UiTranslations = {
   'ui.select.placeholder': 'ရွေးချယ်ပါ…',
   'ui.select.title': 'ရွေးချယ်ပါ',
   'ui.toast.dismiss': '\u1015\u101a\u103a\u1016\u103b\u1000\u103a',
-  'ui.toast.error.noProvider': 'useToast ကို ToastProvider အတွင်းတွင် အသုံးပြုရမည်',
   'confirm.cancel': 'ပယ်ဖျက်ရန်',
   'confirm.confirm': 'အတည်ပြုပါ',
   'ui.select.clear': '--',
@@ -60,4 +59,5 @@ export const my: UiTranslations = {
   'userMenu.panelLabel': 'အကောင့်မီနူး',
   'ui.error.noClassMap':
     'UIClassMap ကို မသတ်မှတ်ရသေးပါ။ အက်ပ်စတင်ချိန်တွင် styling library implementation (ဥပမာ၊ @molecule/app-ui-tailwind) ဖြင့် setClassMap() ကို ခေါ်ပါ။',
+  'ui.toast.error.noProvider': '`useToast` `ToastProvider` အတွင်းတွင် အသုံးပြုရမည်',
 }

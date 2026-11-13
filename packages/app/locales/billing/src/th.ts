@@ -14,4 +14,5 @@ export const th: Partial<BillingTranslations> = {
   'billing.pricing.tierEyebrow': 'ชั้น',
   'billing.pricing.perSeat': 'ต่อที่นั่ง',
   'billing.pricing.upgradeCta': 'อัปเกรดเป็น {{tierName}}',
+  'billing.pricing.currentCta': 'แผนปัจจุบัน',
 }

@@ -15,4 +15,5 @@ export const id: Partial<BillingTranslations> = {
   'billing.pricing.reassurance':
     'Batalkan kapan saja · Tidak diperlukan kartu kredit untuk memulai',
   'billing.pricing.perSeat': 'per kursi',
+  'billing.pricing.currentCta': 'Rencana saat ini',
 }

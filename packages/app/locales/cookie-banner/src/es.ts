@@ -10,4 +10,5 @@ export const es: Partial<CookieBannerTranslations> = {
     'Utilizamos cookies para mejorar su experiencia y analizar el tráfico.',
   'cookieBanner.reject': 'Rechazar todo',
   'cookieBanner.accept': 'Aceptar todo',
+  'cookieBanner.learnMore': 'Más información',
 }

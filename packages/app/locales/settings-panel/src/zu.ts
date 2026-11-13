@@ -17,4 +17,21 @@ export const zu: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'Thuthukisa uhlelo lwakho',
   'settings.billing.noTiers': 'Azikho izinhlelo ezikhokhelwayo ezihleliwe.',
   'settings.billing.subscribe': 'Bhalisa',
+  'settings.failedToUpdateProfile': 'Yehlulekile ukubuyekeza iphrofayela',
+  'settings.name': 'Igama',
+  'settings.twoFactorCode': 'Ikhodi yokuqinisekisa',
+  'settings.twoFactorDisable': 'Khubaza',
+  'settings.twoFactorDisableTitle': 'Khubaza ukuqinisekiswa kwezinto ezimbili',
+  'settings.twoFactorEnable': 'Nika amandla',
+  'settings.twoFactorEnableTitle': 'Nika amandla ukuqinisekiswa kwezinto ezimbili',
+  'settings.twoFactorInvalidCode': 'Ikhodi engavumelekile',
+  'settings.twoFactorOn': 'Kuvuliwe',
+  'settings.twoFactorQrAlt': 'Ikhodi ye-QR enezici ezimbili',
+  'settings.twoFactorScan':
+    'Skena le khodi ye-QR ngohlelo lwakho lokusebenza lokufakazela ubuqiniso, bese ufaka ikhodi enezinombolo ezingu-6.',
+  'settings.twoFactorUnavailable':
+    'Ukuqinisekiswa kwezinto ezimbili akutholakali kulolu hlelo lokusebenza.',
+  'settings.twoFactorVerify': 'Qinisekisa futhi unike amandla',
+  'settings.revokeDeviceWarning': 'Ukufinyelela kwale divayisi kuzohoxiswa maduze. Phuma ngemvume?',
+  'settings.signOutDevice': 'Phuma ngemvume',
 }

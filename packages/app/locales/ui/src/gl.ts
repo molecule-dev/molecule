@@ -36,7 +36,6 @@ export const gl: UiTranslations = {
   'ui.select.placeholder': 'Seleccionar…',
   'ui.select.title': 'Seleccionar',
   'ui.toast.dismiss': 'Descartar',
-  'ui.toast.error.noProvider': 'useToast debe usarse dentro dun ToastProvider',
   'confirm.cancel': 'Cancelar',
   'confirm.confirm': 'Confirmar',
   'ui.select.clear': '--',
@@ -53,4 +52,5 @@ export const gl: UiTranslations = {
   'userMenu.panelLabel': 'Menú da conta',
   'ui.error.noClassMap':
     'Non se estableceu ningún UIClassMap. Chama a setClassMap() ao iniciar a aplicación cunha implementación dunha biblioteca de estilos (por exemplo, @molecule/app-ui-tailwind).',
+  'ui.toast.error.noProvider': '`useToast` debe usarse dentro de `ToastProvider`',
 }

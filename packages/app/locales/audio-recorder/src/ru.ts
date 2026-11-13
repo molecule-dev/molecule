@@ -15,4 +15,6 @@ export const ru: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'Ошибка',
   'audioRecorder.statusIdle': 'Готов к записи',
   'audioRecorder.group': 'Аудиозапись',
+  'audioRecorder.record': 'Записывать',
+  'audioRecorder.statusRecording': 'Запись',
 }

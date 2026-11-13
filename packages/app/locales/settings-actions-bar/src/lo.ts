@@ -5,4 +5,5 @@ export const lo: Partial<SettingsActionsBarTranslations> = {
   'settingsActions.cancel': 'ຍົກເລີກ',
   'settingsActions.saving': 'ກຳລັງບັນທຶກ...',
   'settingsActions.save': 'ບັນທຶກການປ່ຽນແປງ',
+  'settingsActions.saved': 'ບັນທຶກໄວ້ແລ້ວ {{at}}',
 }

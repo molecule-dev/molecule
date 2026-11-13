@@ -4,4 +4,6 @@ import type { SplashScreenTranslations } from './types.js'
 export const ar: SplashScreenTranslations = {
   'splashScreen.error.noProvider': 'مزود شاشة البداية غير مهيأ.',
   'splashScreen.warn.configureNotSupported': 'configure() غير مدعوم من قبل مزود شاشة البداية هذا.',
+  'splashScreen.error.missingDependency':
+    '`{{library}}` مطلوبة ولكنها غير مثبتة. قم بتثبيتها باستخدام الأمر التالي: `npx expo install {{library}}`',
 }

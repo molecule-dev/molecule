@@ -15,4 +15,6 @@ export const cy: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'Gwall',
   'audioRecorder.statusIdle': 'Yn barod i recordio',
   'audioRecorder.group': 'Recordydd sain',
+  'audioRecorder.record': 'Record',
+  'audioRecorder.statusRecording': 'Recordio',
 }

@@ -17,4 +17,21 @@ export const bs: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'Nadogradite svoj plan',
   'settings.billing.noTiers': 'Nema konfiguriranih plaćenih planova.',
   'settings.billing.subscribe': 'Pretplatite se',
+  'settings.failedToUpdateProfile': 'Ažuriranje profila nije uspjelo',
+  'settings.name': 'Ime',
+  'settings.twoFactorCode': 'Autentifikacijski kod',
+  'settings.twoFactorDisable': 'Onemogući',
+  'settings.twoFactorDisableTitle': 'Onemogućite dvofaktorsku autentifikaciju',
+  'settings.twoFactorEnable': 'Omogući',
+  'settings.twoFactorEnableTitle': 'Omogući dvofaktorsku autentifikaciju',
+  'settings.twoFactorInvalidCode': 'Nevažeći kod',
+  'settings.twoFactorOn': 'Uključeno',
+  'settings.twoFactorQrAlt': 'Dvofaktorski QR kod',
+  'settings.twoFactorScan':
+    'Skenirajte ovaj QR kod pomoću aplikacije za autentifikaciju, a zatim unesite 6-cifreni kod.',
+  'settings.twoFactorUnavailable': 'Dvofaktorska autentifikacija nije dostupna za ovu aplikaciju.',
+  'settings.twoFactorVerify': 'Potvrdi i omogući',
+  'settings.revokeDeviceWarning':
+    'Pristup ovom uređaju će uskoro biti opozvan. Želite li ga odjaviti?',
+  'settings.signOutDevice': 'Odjava',
 }

@@ -1,5 +1,6 @@
 /** Translation keys for the keyboard locale package. */
-export type KeyboardTranslationKey = 'keyboard.error.noProvider'
+export type KeyboardTranslationKey =
+  'keyboard.error.noProvider' | 'keyboard.error.missingDependency'
 
 /** Translation record mapping keyboard keys to translated strings. */
 export type KeyboardTranslations = Record<KeyboardTranslationKey, string>

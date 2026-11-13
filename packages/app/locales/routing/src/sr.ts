@@ -6,4 +6,8 @@ export const sr: RoutingTranslations = {
   'routing.error.routeNotFound': 'Путања "{{name}}" није пронађена',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter мора да се користи унутар MoleculeRouterProvider',
+  'routing.error.noNavigationRef':
+    'Референца за навигацију није подешена. Уверите се да је `MoleculeProvider` монтиран.',
+  'routing.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` мора да се користи унутар React Router рутера. Монтирајте `BrowserRouter`, `HashRouter`, `MemoryRouter`, `Router` или `RouterProvider`.',
 }

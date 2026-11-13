@@ -11,4 +11,5 @@ export const si: FormsTranslations = {
   'forms.invalidEmail': 'වලංගු නොවන විද්‍යුත් තැපැල් ලිපිනය',
   'forms.invalidUrl': 'වලංගු නොවන URL',
   'forms.invalidValue': 'වලංගු නොවන අගය',
+  'forms.submitError': 'ඉදිරිපත් කළ නොහැක. කරුණාකර නැවත උත්සාහ කරන්න.',
 }

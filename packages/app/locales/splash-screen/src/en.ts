@@ -5,4 +5,6 @@ export const en: SplashScreenTranslations = {
   'splashScreen.error.noProvider': 'Splash screen provider is not configured.',
   'splashScreen.warn.configureNotSupported':
     'configure() is not supported by this splash screen provider.',
+  'splashScreen.error.missingDependency':
+    '`{{library}}` is required but not installed. Install it with: `npx expo install {{library}}`',
 }

@@ -6,4 +6,6 @@ export const ga: ClipboardTranslations = {
     '@molecule/app-clipboard: Níl aon soláthraí socraithe. Glaoigh ar setProvider() le feidhmiú ClipboardProvider (m.sh., ó @molecule/app-clipboard-react-native).',
   'clipboard.warn.onChangeNotSupported':
     '@molecule/app-clipboard: ní thacaíonn an soláthraí le onChange',
+  'clipboard.error.missingDependency':
+    'Tá `{{library}}` riachtanach ach níl sé suiteáilte. Suiteáil é le: `npm install {{library}}`',
 }

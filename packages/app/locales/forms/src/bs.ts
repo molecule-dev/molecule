@@ -11,4 +11,5 @@ export const bs: FormsTranslations = {
   'forms.invalidEmail': 'Neispravna email adresa',
   'forms.invalidUrl': 'Neispravan URL',
   'forms.invalidValue': 'Neispravna vrijednost',
+  'forms.submitError': 'Nije moguće poslati. Pokušajte ponovo.',
 }

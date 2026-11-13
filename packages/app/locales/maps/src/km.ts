@@ -4,4 +4,6 @@ import type { MapsTranslations } from './types.js'
 export const km: MapsTranslations = {
   'maps.placeholder.title': 'កន្លែងផែនទី',
   'maps.placeholder.description': 'ប្រើអ្នកផ្តល់ផែនទីត្រឹមត្រូវ (MapBox, Google Maps, ល។)',
+  'maps.error.emptyBoundsCoordinates': 'មិនអាចគណនាព្រំដែននៃអារេកូអរដោនេទទេបានទេ',
+  'maps.error.emptyCenterCoordinates': 'មិនអាចគណនាចំណុចកណ្តាលនៃអារេកូអរដោនេទទេបានទេ',
 }

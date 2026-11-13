@@ -11,4 +11,5 @@ export const vi: FormsTranslations = {
   'forms.invalidEmail': 'Địa chỉ email không hợp lệ',
   'forms.invalidUrl': 'URL không hợp lệ',
   'forms.invalidValue': 'Giá trị không hợp lệ',
+  'forms.submitError': 'Không thể gửi. Vui lòng thử lại.',
 }

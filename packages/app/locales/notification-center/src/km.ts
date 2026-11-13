@@ -6,4 +6,6 @@ export const km: Partial<NotificationCenterTranslations> = {
   'notifications.markAllRead': 'សម្គាល់ទាំងអស់ថាអានរួច',
   'notifications.empty': 'គ្មានការជូនដំណឹងទេ',
   'notifications.viewAll': 'មើលទាំងអស់',
+  'notifications.loadError': 'មិនអាចផ្ទុកការជូនដំណឹងបានទេ។',
+  'notifications.retry': 'សាកល្បងម្តងទៀត',
 }

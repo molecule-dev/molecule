@@ -5,4 +5,5 @@ export const hy: Partial<SettingsActionsBarTranslations> = {
   'settingsActions.cancel': 'Չեղարկել',
   'settingsActions.saving': 'Պահպանվում է…',
   'settingsActions.save': 'Պահպանել փոփոխությունները',
+  'settingsActions.saved': 'Պահպանվել է {{at}}',
 }

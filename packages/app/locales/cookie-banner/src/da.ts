@@ -10,4 +10,5 @@ export const da: Partial<CookieBannerTranslations> = {
   'cookieBanner.customize': 'Tilpas',
   'cookieBanner.reject': 'Afvis alle',
   'cookieBanner.accept': 'Accepter alle',
+  'cookieBanner.learnMore': 'Lær mere',
 }

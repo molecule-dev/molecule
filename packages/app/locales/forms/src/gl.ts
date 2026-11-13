@@ -11,4 +11,5 @@ export const gl: FormsTranslations = {
   'forms.invalidEmail': 'Enderezo de correo electrónico non válido',
   'forms.invalidUrl': 'URL non válido',
   'forms.invalidValue': 'Valor non válido',
+  'forms.submitError': 'Non se pode enviar. Téntao de novo.',
 }

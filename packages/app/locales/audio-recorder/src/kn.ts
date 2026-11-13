@@ -15,4 +15,6 @@ export const kn: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'ದೋಷ',
   'audioRecorder.statusIdle': 'ರೆಕಾರ್ಡ್ ಮಾಡಲು ಸಿದ್ಧವಾಗಿದೆ',
   'audioRecorder.group': 'ಆಡಿಯೋ ರೆಕಾರ್ಡರ್',
+  'audioRecorder.record': 'ದಾಖಲೆ',
+  'audioRecorder.statusRecording': 'ರೆಕಾರ್ಡಿಂಗ್',
 }

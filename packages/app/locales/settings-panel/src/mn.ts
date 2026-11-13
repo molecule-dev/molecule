@@ -17,4 +17,21 @@ export const mn: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'Төлөвлөгөөгөө сайжруулна уу',
   'settings.billing.noTiers': 'Төлбөртэй төлөвлөгөө тохируулагдаагүй байна.',
   'settings.billing.subscribe': 'Захиалах',
+  'settings.failedToUpdateProfile': 'Профайлыг шинэчилж чадсангүй',
+  'settings.name': 'Нэр',
+  'settings.twoFactorCode': 'Баталгаажуулах код',
+  'settings.twoFactorDisable': 'Идэвхгүй болгох',
+  'settings.twoFactorDisableTitle': 'Хоёр хүчин зүйлийн баталгаажуулалтыг идэвхгүй болгох',
+  'settings.twoFactorEnable': 'Идэвхжүүлэх',
+  'settings.twoFactorEnableTitle': 'Хоёр хүчин зүйлийн баталгаажуулалтыг идэвхжүүлэх',
+  'settings.twoFactorInvalidCode': 'Буруу код',
+  'settings.twoFactorOn': 'Асаалттай',
+  'settings.twoFactorQrAlt': 'Хоёр хүчин зүйлтэй QR код',
+  'settings.twoFactorScan':
+    'Энэ QR кодыг баталгаажуулагч аппаараа уншуулаад, дараа нь 6 оронтой кодыг оруулна уу.',
+  'settings.twoFactorUnavailable':
+    'Энэ аппликейшнд хоёр хүчин зүйлийн баталгаажуулалт боломжгүй байна.',
+  'settings.twoFactorVerify': 'Баталгаажуулах ба идэвхжүүлэх',
+  'settings.revokeDeviceWarning': 'Энэ төхөөрөмжийн хандалтыг удахгүй цуцлах болно. Гарах уу?',
+  'settings.signOutDevice': 'Гарах',
 }

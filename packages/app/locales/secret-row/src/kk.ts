@@ -9,4 +9,6 @@ export const kk: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'Көшіру',
   'secretRow.rotate': 'Айналдыру',
   'secretRow.delete': 'Жою',
+  'secretRow.lastRotated': 'Соңғы рет айналдырылған',
+  'secretRow.rotateIn': '{{days}} күн ішінде айналдыру',
 }

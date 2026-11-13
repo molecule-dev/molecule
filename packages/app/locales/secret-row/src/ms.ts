@@ -9,4 +9,6 @@ export const ms: Partial<SecretRowTranslations> = {
   'secretRow.expired': 'Tamat tempoh',
   'secretRow.hide': 'Sembunyikan',
   'secretRow.show': 'Tunjukkan',
+  'secretRow.lastRotated': 'Diputar terakhir',
+  'secretRow.rotateIn': 'Putar dalam {{days}} hari',
 }

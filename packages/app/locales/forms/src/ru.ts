@@ -11,4 +11,5 @@ export const ru: FormsTranslations = {
   'forms.invalidEmail': 'Неверный адрес электронной почты',
   'forms.invalidUrl': 'Неверный URL',
   'forms.invalidValue': 'Неверное значение',
+  'forms.submitError': 'Не удалось отправить. Пожалуйста, попробуйте еще раз.',
 }

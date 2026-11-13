@@ -40,7 +40,6 @@ export const kk: UiTranslations = {
   'ui.select.placeholder': 'Таңдау…',
   'ui.select.title': 'Таңдау',
   'ui.toast.dismiss': '\u0411\u0430\u0441 \u0442\u0430\u0440\u0442\u0443',
-  'ui.toast.error.noProvider': 'useToast функциясы ToastProvider ішінде пайдаланылуы керек',
   'confirm.cancel': 'Бас тарту',
   'confirm.confirm': 'Растау',
   'ui.select.clear': '--',
@@ -57,4 +56,5 @@ export const kk: UiTranslations = {
   'userMenu.panelLabel': 'Тіркелгі мәзірі',
   'ui.error.noClassMap':
     'UIClassMap орнатылмаған. Стильдеу кітапханасын іске қосу арқылы қолданба іске қосылғанда setClassMap() функциясын шақырыңыз (мысалы, @molecule/app-ui-tailwind).',
+  'ui.toast.error.noProvider': '`useToast` `ToastProvider` ішінде пайдаланылуы тиіс',
 }

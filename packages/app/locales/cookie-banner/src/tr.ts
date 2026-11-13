@@ -10,4 +10,5 @@ export const tr: Partial<CookieBannerTranslations> = {
     'Kullanıcı deneyiminizi iyileştirmek ve trafiği analiz etmek için çerezler kullanıyoruz.',
   'cookieBanner.reject': 'Tümünü reddet',
   'cookieBanner.accept': 'Tümünü kabul et',
+  'cookieBanner.learnMore': 'Daha fazla bilgi edin',
 }

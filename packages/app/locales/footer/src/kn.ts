@@ -8,4 +8,7 @@ export const kn: Partial<FooterTranslations> = {
   'footer.language': 'ಭಾಷೆ',
   'content.privacyPolicy': '',
   'content.termsOfService': '',
+  'footer.legalNotConfigured':
+    'ಈ ವಿಷಯವನ್ನು ಇನ್ನೂ ಕಾನ್ಫಿಗರ್ ಮಾಡಲಾಗಿಲ್ಲ. ಅಪ್ಲಿಕೇಶನ್ ಮಾಲೀಕರು ಅದನ್ನು ಒದಗಿಸಬೇಕು.',
+  'footer.about': '{{appName}} ಬಗ್ಗೆ',
 }

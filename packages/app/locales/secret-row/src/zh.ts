@@ -9,4 +9,6 @@ export const zh: Partial<SecretRowTranslations> = {
   'secretRow.rotate': '轮换',
   'secretRow.delete': '删除',
   'secretRow.expired': '已到期',
+  'secretRow.lastRotated': '上次轮换',
+  'secretRow.rotateIn': '以{{days}}天为周期旋转',
 }

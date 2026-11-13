@@ -5,4 +5,6 @@ export const ru: SplashScreenTranslations = {
   'splashScreen.error.noProvider': 'Провайдер экрана загрузки не настроен.',
   'splashScreen.warn.configureNotSupported':
     'configure() не поддерживается этим провайдером экрана загрузки.',
+  'splashScreen.error.missingDependency':
+    '`{{library}}` необходима, но не установлена. Установите её с помощью команды: `npx expo install {{library}}`',
 }

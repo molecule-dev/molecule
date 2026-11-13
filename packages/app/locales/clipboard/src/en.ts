@@ -6,4 +6,6 @@ export const en: ClipboardTranslations = {
     '@molecule/app-clipboard: No provider set. Call setProvider() with a ClipboardProvider implementation (e.g., from @molecule/app-clipboard-react-native).',
   'clipboard.warn.onChangeNotSupported':
     '@molecule/app-clipboard: onChange not supported by provider',
+  'clipboard.error.missingDependency':
+    '`{{library}}` is required but not installed. Install it with: `npm install {{library}}`',
 }

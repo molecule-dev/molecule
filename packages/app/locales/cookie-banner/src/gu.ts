@@ -10,4 +10,5 @@ export const gu: Partial<CookieBannerTranslations> = {
   'cookieBanner.reject': 'બધાને નકારો',
   'cookieBanner.save': 'પસંદગીઓ સાચવો',
   'cookieBanner.accept': 'બધા સ્વીકારો',
+  'cookieBanner.learnMore': 'વધુ જાણો',
 }

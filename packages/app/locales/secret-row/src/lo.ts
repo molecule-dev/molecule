@@ -9,4 +9,6 @@ export const lo: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'ສຳເນົາ',
   'secretRow.rotate': 'ໝຸນ',
   'secretRow.delete': 'ລຶບ',
+  'secretRow.lastRotated': 'ໝຸນຄັ້ງສຸດທ້າຍ',
+  'secretRow.rotateIn': 'ໝຸນໃນ {{days}} ມື້',
 }

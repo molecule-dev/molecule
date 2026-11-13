@@ -14,4 +14,5 @@ export const ga: Partial<BillingTranslations> = {
   'billing.pricing.tierEyebrow': 'Sraith',
   'billing.pricing.perSeat': 'in aghaidh an tsuíocháin',
   'billing.pricing.upgradeCta': 'Uasghrádaigh go {{tierName}}',
+  'billing.pricing.currentCta': 'Plean reatha',
 }

@@ -3,4 +3,5 @@ import type { DayTimelineTranslations } from './types.js'
 /** DayTimeline translations for lo. */
 export const lo: Partial<DayTimelineTranslations> = {
   'dayTimeline.group': 'ໄລຍະເວລາຂອງມື້',
+  'dayTimeline.event': '{{title}} ຈາກ {{start}} ຈົນເຖິງ {{end}}',
 }

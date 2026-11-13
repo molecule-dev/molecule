@@ -12,4 +12,8 @@ export const he: NetworkTranslations = {
   'network.unknown': 'לא ידוע',
   'network.error.connectionTimeout': 'זמן החיבור לרשת פג',
   'network.error.unavailable': 'הרשת אינה זמינה',
+  'network.error.missingDependency':
+    '`{{library}}` נדרש אך אינו מותקן. התקן אותו באמצעות: `npm install {{library}}`',
+  'network.error.noProvider':
+    '`@molecule/app-network`: לא הוגדר ספק. קריאה ל `setProvider()` עם מימוש של `NetworkProvider` (לדוגמה, מ- `@molecule/app-network-react-native`).',
 }

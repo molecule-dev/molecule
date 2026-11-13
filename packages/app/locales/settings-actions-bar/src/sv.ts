@@ -5,4 +5,5 @@ export const sv: Partial<SettingsActionsBarTranslations> = {
   'settingsActions.cancel': 'Avbryt',
   'settingsActions.saving': 'Sparar…',
   'settingsActions.save': 'Spara ändringar',
+  'settingsActions.saved': 'Sparad {{at}}',
 }

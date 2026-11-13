@@ -10,4 +10,6 @@ export const fil: BatteryTranslations = {
   'battery.remainingUnknown': 'Hindi Alam',
   'battery.remainingTime': '{{hours}}o {{minutes}}m',
   'battery.remainingMinutes': '{{minutes}}m',
+  'battery.error.noProvider':
+    '`@molecule/app-battery`: Walang nakatakdang provider. Tawagin ang `setProvider()` gamit ang isang implementasyong `BatteryProvider` — walang provider na kasama sa fleet; ipatupad ang interface sa iyong native runtime at i-bond ito.',
 }

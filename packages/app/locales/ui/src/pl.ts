@@ -36,7 +36,6 @@ export const pl: Partial<UiTranslations> = {
   'ui.select.placeholder': 'Wybierz…',
   'ui.select.title': 'Wybierz',
   'ui.toast.dismiss': 'Odrzuć',
-  'ui.toast.error.noProvider': 'useToast musi być używany w ramach ToastProvider',
   'confirm.cancel': 'Anuluj',
   'confirm.confirm': 'Potwierdź',
   'ui.select.clear': '--',
@@ -53,4 +52,5 @@ export const pl: Partial<UiTranslations> = {
   'userMenu.panelLabel': 'Menu konta',
   'ui.error.noClassMap':
     'Nie ustawiono UIClassMap. Wywołaj setClassMap() podczas uruchamiania aplikacji z implementacją biblioteki stylów (np. @molecule/app-ui-tailwind).',
+  'ui.toast.error.noProvider': '`useToast` musi być używane w ramach `ToastProvider`',
 }

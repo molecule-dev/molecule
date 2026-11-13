@@ -15,4 +15,6 @@ export const sw: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'Hitilafu',
   'audioRecorder.statusIdle': 'Tayari kurekodi',
   'audioRecorder.group': 'Kinasa sauti',
+  'audioRecorder.record': 'Rekodi',
+  'audioRecorder.statusRecording': 'Kurekodi',
 }

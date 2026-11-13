@@ -4,6 +4,8 @@ export type NotificationCenterTranslationKey =
   | 'notifications.markAllRead'
   | 'notifications.empty'
   | 'notifications.viewAll'
+  | 'notifications.loadError'
+  | 'notifications.retry'
 
 /** Translation record mapping notification-center-react keys to translated strings. */
 export type NotificationCenterTranslations = Record<NotificationCenterTranslationKey, string>

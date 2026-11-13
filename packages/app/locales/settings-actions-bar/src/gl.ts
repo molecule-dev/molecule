@@ -5,4 +5,5 @@ export const gl: Partial<SettingsActionsBarTranslations> = {
   'settingsActions.cancel': 'Cancelar',
   'settingsActions.saving': 'Gardando…',
   'settingsActions.save': 'Gardar cambios',
+  'settingsActions.saved': 'Gardado {{at}}',
 }

@@ -6,4 +6,6 @@ export const gl: Partial<NotificationCenterTranslations> = {
   'notifications.markAllRead': 'Marcar todo como lido',
   'notifications.empty': 'Sen notificacións',
   'notifications.viewAll': 'Ver todo',
+  'notifications.loadError': 'Non se puideron cargar as notificacións.',
+  'notifications.retry': 'Reintentar',
 }

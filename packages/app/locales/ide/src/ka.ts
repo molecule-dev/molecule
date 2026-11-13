@@ -352,14 +352,10 @@ export const ka: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
-  'ide.chat.tip.getStarted':
-    'რჩევა: აკრიფეთ / ყველა ბრძანების სანახავად, ან @ ფაილის სახელის მისაცემად{{agentName}} ფაილი, საიდანაც მუშაობა იქნება შესაძლებელი.',
   'ide.chat.tip.mention':
     'რჩევა: პროექტის ფაილის კონტექსტის სახით მისამაგრებლად აკრიფეთ @filename —{{agentName}} პირდაპირ კითხულობს.',
   'ide.chat.tip.slash':
     'რჩევა: აკრიფეთ / ყველა ბრძანების (commit, diff, model და სხვა) დასათვალიერებლად.',
-  'ide.chat.tip.plan':
-    'რჩევა: გამოიყენეთ /დაგეგმეთ რომ გქონდეთ{{agentName}} ნებისმიერი ფაილის რედაქტირებამდე, ჩაატაროს კვლევა და შესთავაზოს გეგმა.',
   'ide.chat.tip.undo':
     'რჩევა: თუ ხელოვნური ინტელექტის ბოლო რაუნდის ფაილის ცვლილებები არასწორად წავიდა, გამოიყენეთ /undo.',
   'ide.chat.tip.compact':
@@ -776,4 +772,10 @@ export const ka: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'ყოველთვიური შემწეობა.',
   'ide.chat.context.daily': 'დღიური შემწეობა.',
   'ide.chat.context.resets': 'გადატვირთავს {{at}} .',
+  'ide.error.noProvider':
+    'IDE სამუშაო სივრცის პროვაიდერი კონფიგურირებული არ არის. ჯერ IDE პროვაიდერთან დაკავშირება დააკავშირეთ.',
+  'ide.chat.tip.getStarted':
+    'რჩევა: აკრიფეთ / ყველა ბრძანების სანახავად, ან @ ფაილის სახელი, რათა მიანიჭოთ {{agentName}} ს ფაილი, საიდანაც იმუშავებს.',
+  'ide.chat.tip.plan':
+    'რჩევა: გამოიყენეთ /plan, რათა {{agentName}} მა გამოიკვლიოს და შესთავაზოს გეგმა, სანამ ფაილებს რედაქტირებას დაიწყებს.',
 }

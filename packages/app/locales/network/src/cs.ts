@@ -12,4 +12,8 @@ export const cs: Partial<NetworkTranslations> = {
   'network.unknown': 'Neznámý',
   'network.error.connectionTimeout': 'Časový limit síťového připojení',
   'network.error.unavailable': 'Síť není k dispozici',
+  'network.error.missingDependency':
+    '`{{library}}` je povinná, ale není nainstalovaná. Nainstalujte ji pomocí: `npm install {{library}}`',
+  'network.error.noProvider':
+    '`@molecule/app-network`: Není nastaven žádný poskytovatel. Zavolejte `setProvider()` s implementací `NetworkProvider` (např. z `@molecule/app-network-react-native`).',
 }

@@ -9,4 +9,6 @@ export const hu: Partial<SecretRowTranslations> = {
   'secretRow.expired': 'Lejárt',
   'secretRow.hide': 'Elrejt',
   'secretRow.show': 'Megmutat',
+  'secretRow.lastRotated': 'Utolsó forgatás',
+  'secretRow.rotateIn': 'Rotáció {{days}} nap múlva',
 }

@@ -12,4 +12,8 @@ export const fr: Partial<NetworkTranslations> = {
   'network.other': 'Autre',
   'network.error.connectionTimeout': "Délai d'attente de la connexion réseau",
   'network.error.unavailable': 'Réseau indisponible',
+  'network.error.missingDependency':
+    "`{{library}}` est requise mais n'est pas installée. Installez-la avec : `npm install {{library}}`",
+  'network.error.noProvider':
+    '`@molecule/app-network`: Aucun fournisseur défini. Appelez `setProvider()` avec une implémentation `NetworkProvider` (par exemple, depuis `@molecule/app-network-react-native`).',
 }

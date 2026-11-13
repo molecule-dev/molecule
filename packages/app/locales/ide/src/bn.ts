@@ -38,7 +38,6 @@ export const bn: Partial<IdeTranslations> = {
   'common.cancel': 'বাতিল করুন',
   'common.save': 'সংরক্ষণ করুন',
   'ide.chat.queued': 'সারিবদ্ধ',
-  'ide.chat.queuedCount': '{{count}}টি সারিতে',
   'ide.chat.editQueued': 'সম্পাদনা',
   'ide.chat.deleteQueued': 'মুছে ফেলুন',
   'ide.chat.sendQueued': 'পাঠান',
@@ -282,7 +281,6 @@ export const bn: Partial<IdeTranslations> = {
   'ide.chat.voiceEngineCurrent': 'বর্তমান',
   'ide.chat.voiceLangsAll': 'সব ভাষা',
   'ide.chat.voiceLangOnly': 'শুধু {{language}}',
-  'ide.chat.voiceLangsCount': '{{count}}টি ভাষা',
   'ide.chat.model.region.us': 'US',
   'ide.chat.model.region.cn': 'CN',
   'ide.chat.model.regionHint': 'প্রক্রিয়াকরণ হয়: {{region}} — পরিবর্তন করতে ক্লিক করুন',
@@ -358,8 +356,6 @@ export const bn: Partial<IdeTranslations> = {
     'পরামর্শ: প্রজেক্ট ফাইলটিকে কনটেক্সট হিসেবে সংযুক্ত করতে @filename টাইপ করুন —{{agentName}} সরাসরি পড়ে।',
   'ide.chat.tip.slash':
     'পরামর্শ: প্রতিটি কমান্ড (কমিট, ডিফারেন্স, মডেল এবং আরও অনেক কিছু) ব্রাউজ করতে / টাইপ করুন।',
-  'ide.chat.tip.plan':
-    'পরামর্শ: /plan to have ব্যবহার করুন{{agentName}} কোনো ফাইল সম্পাদনা করার আগে গবেষণা করে একটি পরিকল্পনা প্রস্তাব করুন।',
   'ide.chat.tip.undo':
     'পরামর্শ: শেষ AI টার্নের ফাইল পরিবর্তনগুলো ভুল হলে, তা তাৎক্ষণিকভাবে পূর্বাবস্থায় ফিরিয়ে আনতে /undo ব্যবহার করুন।',
   'ide.chat.tip.compact':
@@ -775,4 +771,10 @@ export const bn: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'মাসিক ভাতা।',
   'ide.chat.context.daily': 'দৈনিক ভাতা।',
   'ide.chat.context.resets': '{{at}} রিসেট করে।',
+  'ide.error.noProvider':
+    'IDE ওয়ার্কস্পেস প্রোভাইডার কনফিগার করা নেই। প্রথমে একটি IDE প্রোভাইডার বন্ড করুন।',
+  'ide.chat.queuedCount': '{{count}} টি সারিবদ্ধ',
+  'ide.chat.voiceLangsCount': '{{count}} টি ভাষা',
+  'ide.chat.tip.plan':
+    'পরামর্শ: কোনো ফাইল সম্পাদনা করার আগে {{agentName}} কে দিয়ে একটি পরিকল্পনা গবেষণা করিয়ে প্রস্তাব করানোর জন্য /plan ব্যবহার করুন।',
 }

@@ -4,4 +4,5 @@ import type { StatusBarTranslations } from './types.js'
 export const ha: StatusBarTranslations = {
   'statusBar.error.noProvider':
     '@molecule/app-status-bar: Ba a saita mai samarwa ba. Kira setProvider() tare da aiwatar StatusBarProvider (misali, daga @molecule/app-status-bar-react-native).',
+  'statusBar.error.missingDependency': 'Ana buƙatar `{{library}}` amma ba a shigar da shi ba.',
 }

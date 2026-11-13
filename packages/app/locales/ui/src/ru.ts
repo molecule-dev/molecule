@@ -42,8 +42,6 @@ export const ru: UiTranslations = {
   'ui.select.placeholder': 'Выбирать…',
   'ui.select.title': 'Выбирать',
   'ui.toast.dismiss': '\u041e\u0442\u043a\u043b\u043e\u043d\u0438\u0442\u044c',
-  'ui.toast.error.noProvider':
-    'Функция useToast должна использоваться внутри объекта ToastProvider.',
   'confirm.cancel': 'Отмена',
   'confirm.confirm': 'Подтверждать',
   'ui.select.clear': '--',
@@ -60,4 +58,5 @@ export const ru: UiTranslations = {
   'userMenu.panelLabel': 'Меню учетной записи',
   'ui.error.noClassMap':
     'Класс UIClassMap не установлен. Вызовите метод setClassMap() при запуске приложения, используя реализацию библиотеки стилей (например, @molecule/app-ui-tailwind).',
+  'ui.toast.error.noProvider': '`useToast` необходимо использовать внутри `ToastProvider`',
 }

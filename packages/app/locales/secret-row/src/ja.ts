@@ -9,4 +9,6 @@ export const ja: Partial<SecretRowTranslations> = {
   'secretRow.rotate': 'ローテート',
   'secretRow.delete': '削除',
   'secretRow.expired': '期限切れ',
+  'secretRow.lastRotated': '最終回転',
+  'secretRow.rotateIn': '{{days}}日後に回転します',
 }

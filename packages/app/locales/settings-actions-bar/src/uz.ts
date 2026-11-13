@@ -5,4 +5,5 @@ export const uz: Partial<SettingsActionsBarTranslations> = {
   'settingsActions.cancel': 'Bekor qilish',
   'settingsActions.saving': 'Saqlanmoqda…',
   'settingsActions.save': "O'zgarishlarni saqlash",
+  'settingsActions.saved': 'Saqlandi {{at}}',
 }

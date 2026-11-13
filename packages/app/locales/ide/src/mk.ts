@@ -353,14 +353,10 @@ export const mk: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
-  'ide.chat.tip.getStarted':
-    'Совет: напишете / за да ја видите секоја команда или @ за да го дадете името на датотеката{{agentName}} датотека од која ќе се работи.',
   'ide.chat.tip.mention':
     'Совет: напишете @именадатотека за да прикачите проектна датотека како контекст —{{agentName}} го чита директно.',
   'ide.chat.tip.slash':
     'Совет: напишете / за да ги прелистате сите команди (commit, diff, model и друго).',
-  'ide.chat.tip.plan':
-    'Совет: користете /планирајте да имате{{agentName}} истражува и предлага план пред да уредува какви било датотеки.',
   'ide.chat.tip.undo':
     'Совет: користете /undo за моментално враќање на промените во датотеката од последниот круг на вештачката интелигенција ако сè тргнало на погрешен пат.',
   'ide.chat.tip.compact':
@@ -777,4 +773,10 @@ export const mk: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'Месечен надоместок.',
   'ide.chat.context.daily': 'Дневен додаток.',
   'ide.chat.context.resets': 'Ресетира {{at}} .',
+  'ide.error.noProvider':
+    'Давателот на IDE работен простор не е конфигуриран. Прво поврзете го давателот на IDE.',
+  'ide.chat.tip.getStarted':
+    'Совет: напишете / за да ја видите секоја команда или @ име на датотека за да му дадете {{agentName}} датотека од која ќе работи.',
+  'ide.chat.tip.plan':
+    'Совет: користете /plan за да може {{agentName}} да истражува и да предложи план пред да уредува какви било датотеки.',
 }

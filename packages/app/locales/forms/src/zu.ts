@@ -11,4 +11,5 @@ export const zu: FormsTranslations = {
   'forms.invalidEmail': 'Ikheli le-imeyili elingavumelekile',
   'forms.invalidUrl': 'I-URL engavumelekile',
   'forms.invalidValue': 'Inani elingavumelekile',
+  'forms.submitError': 'Ayikwazi ukuthumela. Sicela uzame futhi.',
 }

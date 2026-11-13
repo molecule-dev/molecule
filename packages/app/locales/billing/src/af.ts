@@ -14,4 +14,5 @@ export const af: Partial<BillingTranslations> = {
   'billing.pricing.tierEyebrow': 'Vlak',
   'billing.pricing.perSeat': 'per sitplek',
   'billing.pricing.upgradeCta': 'Gradeer op na {{tierName}}',
+  'billing.pricing.currentCta': 'Huidige plan',
 }

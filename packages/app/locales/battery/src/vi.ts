@@ -10,4 +10,6 @@ export const vi: Partial<BatteryTranslations> = {
   'battery.full': 'Đã sạc đầy',
   'battery.not-charging': 'Không sạc',
   'battery.remainingTime': '{{hours}} h {{minutes}} m',
+  'battery.error.noProvider':
+    '`@molecule/app-battery`: Chưa thiết lập nhà cung cấp. Hãy gọi `setProvider()` với một triển khai `BatteryProvider` — không có nhà cung cấp nào được tích hợp sẵn; hãy triển khai giao diện trên môi trường chạy gốc của bạn và liên kết nó.',
 }

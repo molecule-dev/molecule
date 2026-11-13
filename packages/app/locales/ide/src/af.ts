@@ -353,13 +353,9 @@ export const af: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
-  'ide.chat.tip.getStarted':
-    "Wenk: tik / om elke opdrag te sien, of @ 'n lêernaam om te gee{{agentName}} 'n lêer om van te werk.",
   'ide.chat.tip.mention':
     "Wenk: tik @lêernaam om 'n projeklêer as konteks aan te heg —{{agentName}} lees dit direk.",
   'ide.chat.tip.slash': 'Wenk: tik / om deur elke opdrag te blaai (commit, diff, model, en meer).',
-  'ide.chat.tip.plan':
-    "Wenk: gebruik / beplan om te hê{{agentName}} navorsing doen en 'n plan voorstel voordat dit enige lêers wysig.",
   'ide.chat.tip.undo':
     'Wenk: gebruik /undo om die laaste KI-beurt se lêerveranderinge onmiddellik terug te keer as dit verkeerd gegaan het.',
   'ide.chat.tip.compact':
@@ -774,4 +770,10 @@ export const af: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'Maandelikse toelaag.',
   'ide.chat.context.daily': 'Daaglikse toelaag.',
   'ide.chat.context.resets': 'Stel {{at}} terug.',
+  'ide.error.noProvider':
+    "IDE-werkruimteverskaffer nie gekonfigureer nie. Koppel eers 'n IDE-verskaffer.",
+  'ide.chat.tip.getStarted':
+    "Wenk: tik / om elke opdrag te sien, of @ 'n lêernaam om {{agentName}} n lêer te gee om van te werk.",
+  'ide.chat.tip.plan':
+    "Wenk: gebruik /plan om {{agentName}} te laat ondersoek en 'n plan voor te stel voordat dit enige lêers wysig.",
 }

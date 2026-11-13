@@ -354,14 +354,10 @@ export const ca: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
-  'ide.chat.tip.getStarted':
-    'Consell: escriviu / per veure totes les ordres o @ un nom de fitxer per donar{{agentName}} un fitxer des del qual treballar.',
   'ide.chat.tip.mention':
     'Consell: escriviu @nom_fitxer per adjuntar un fitxer de projecte com a context —{{agentName}} ho llegeix directament.',
   'ide.chat.tip.slash':
     'Consell: escriviu / per navegar per totes les ordres (commit, diff, model i més).',
-  'ide.chat.tip.plan':
-    "Consell: feu servir /planificar per tenir{{agentName}} investigar i proposar un pla abans d'editar cap fitxer.",
   'ide.chat.tip.undo':
     "Consell: feu servir /desfés per revertir instantàniament els canvis de fitxer de l'últim torn de la IA si ha anat en la direcció incorrecta.",
   'ide.chat.tip.compact':
@@ -781,4 +777,10 @@ export const ca: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'Assignació mensual.',
   'ide.chat.context.daily': 'Sumpció diària.',
   'ide.chat.context.resets': 'Reinicialitza {{at}} .',
+  'ide.error.noProvider':
+    "Proveïdor d'espai de treball IDE no configurat. Primer, connecteu un proveïdor IDE.",
+  'ide.chat.tip.getStarted':
+    'Consell: escriviu / per veure totes les ordres o @ un nom de fitxer per donar {{agentName}} un fitxer des del qual treballar.',
+  'ide.chat.tip.plan':
+    "Consell: feu servir /plan perquè {{agentName}} investigui i proposi un pla abans d'editar cap fitxer.",
 }

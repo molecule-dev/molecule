@@ -5,4 +5,6 @@ export const am: ClipboardTranslations = {
   'clipboard.error.noProvider':
     '@molecule/app-clipboard: ምንም አቅራቢ አልተዘጋጀም። setProvider() ን ከ ClipboardProvider ትግበራ ጋር ይደውሉ (ለምሳሌ ከ @molecule/app-clipboard-react-native)።',
   'clipboard.warn.onChangeNotSupported': '@molecule/app-clipboard: onChange በአቅራቢው አይደገፍም',
+  'clipboard.error.missingDependency':
+    '`{{library}}` ያስፈልጋል ግን አልተጫነም። በሚከተለው ይጫኑት፦ `npm install {{library}}`',
 }

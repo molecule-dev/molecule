@@ -10,4 +10,6 @@ export const az: BatteryTranslations = {
   'battery.remainingUnknown': 'Naməlum',
   'battery.remainingTime': '{{hours}}s {{minutes}}d',
   'battery.remainingMinutes': '{{minutes}}d',
+  'battery.error.noProvider':
+    '`@molecule/app-battery`: Provayder təyin edilməyib. `setProvider()` `BatteryProvider` implementasiyası ilə çağırın — heç bir provayder donanma ilə göndərilmir; interfeysi öz doğma iş vaxtınızda tətbiq edin və onu bağlayın.',
 }

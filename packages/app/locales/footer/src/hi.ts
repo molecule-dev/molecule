@@ -8,4 +8,7 @@ export const hi: Partial<FooterTranslations> = {
   'footer.version': 'वी {{version}}',
   'content.privacyPolicy': '',
   'content.termsOfService': '',
+  'footer.legalNotConfigured':
+    'यह सामग्री अभी तक कॉन्फ़िगर नहीं की गई है। ऐप के मालिक को इसे उपलब्ध कराना होगा।',
+  'footer.about': '{{appName}} के बारे में',
 }

@@ -378,8 +378,6 @@ export const es: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.badge': 'Confirmación automática en {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Cancelar la grabación automática',
   'ide.chat.autoCommit.cancelled': 'Se ha cancelado la grabación automática.',
-  'ide.chat.autoCommit.enabled':
-    'Autocomprobación activada: se realiza la comprobación un{{seconds}}os después del último cambio en el archivo. Introduce /autocommit 0 para desactivarla.',
   'ide.chat.effort.error': 'No se ha podido actualizar el proceso de razonamiento.',
   'ide.chat.effort.fixedForModel':
     'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
@@ -395,7 +393,6 @@ export const es: Partial<IdeTranslations> = {
   'ide.chat.models.colName': 'Modelo',
   'ide.chat.models.freeNo': '—',
   'ide.chat.models.freeYes': '✓ Gratis',
-  'ide.chat.models.sortBy': 'Ordenar por{{column}}',
   'ide.chat.modelsLoading': 'Cargando modelos…',
   'ide.chat.modelsNone':
     'Aún no hay modelos disponibles; pide a tu administrador que conecte un proveedor de IA.',
@@ -498,7 +495,6 @@ export const es: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNotFound':
     'No hay ningún script llamado «{{name}}». Disponible en: {{names}}',
   'ide.chat.scripts.cmdExitOk': '{{name}} salió con 0',
-  'ide.chat.scripts.cmdExitFail': '{{name}} Se ha cerrado con el código de e{{code}}',
   'ide.chat.scripts.exitOk': 'Salida 0',
   'ide.chat.scripts.exitFail': 'Salí de {{code}}',
   'ide.chat.scripts.noOutput': '(sin salida)',
@@ -624,7 +620,6 @@ export const es: Partial<IdeTranslations> = {
   'ide.chat.previewLinkTitle': 'Abre {{path}} en la vista previa',
   'ide.chat.report.diagnosticsNote':
     'Te adjuntamos la versión de tu aplicación, el navegador y el tamaño de la pantalla para ayudarnos a solucionar el problema.',
-  'ide.chat.skills.loadedCount': '🧠 Amplios conocimientos de{{count}}',
   'ide.chat.skills.waitingForSandbox':
     'Esperando a que termine de iniciarse el entorno de pruebas…',
   'ide.chat.skills.resetDefaults': 'Cargar todo por defecto',
@@ -794,4 +789,11 @@ export const es: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'Asignación mensual.',
   'ide.chat.context.daily': 'Asignación diaria.',
   'ide.chat.context.resets': 'Reinicia {{at}} .',
+  'ide.error.noProvider':
+    'El proveedor del espacio de trabajo del IDE no está configurado. Primero, configure un proveedor de IDE.',
+  'ide.chat.autoCommit.enabled':
+    'Confirmación automática en: se confirmarán {{seconds}} s después del último cambio de archivo. Establezca en 0 para desactivar la confirmación automática.',
+  'ide.chat.models.sortBy': 'Ordenar por {{column}}',
+  'ide.chat.scripts.cmdExitFail': '{{name}} salió con el código {{code}}',
+  'ide.chat.skills.loadedCount': '🧠 Habilidades cargadas {{count}}',
 }

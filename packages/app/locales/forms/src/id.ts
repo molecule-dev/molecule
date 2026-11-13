@@ -11,4 +11,5 @@ export const id: FormsTranslations = {
   'forms.invalidEmail': 'Alamat email tidak valid',
   'forms.invalidUrl': 'URL tidak valid',
   'forms.invalidValue': 'Nilai tidak valid',
+  'forms.submitError': 'Tidak dapat mengirimkan. Silakan coba lagi.',
 }

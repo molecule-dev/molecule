@@ -351,14 +351,10 @@ export const is: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
-  'ide.chat.tip.getStarted':
-    'Ráð: sláðu inn / til að sjá allar skipanir eða @ til að gefa upp skráarnafn{{agentName}} skrá til að vinna úr.',
   'ide.chat.tip.mention':
     'Ráð: sláðu inn @skráarnafn til að hengja við verkefnisskrá sem samhengi —{{agentName}} les það beint.',
   'ide.chat.tip.slash':
     'Ráð: sláðu inn / til að skoða allar skipanir (commit, diff, model og fleira).',
-  'ide.chat.tip.plan':
-    'Ráð: nota / ætla að hafa{{agentName}} rannsaka og leggja til áætlun áður en það breytir neinum skrám.',
   'ide.chat.tip.undo':
     'Ráð: notaðu /undo til að afturkalla strax breytingar á skrá síðustu AI-beygju ef hún fór úrskeiðis.',
   'ide.chat.tip.compact':
@@ -775,4 +771,9 @@ export const is: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'Mánaðarleg greiðsla.',
   'ide.chat.context.daily': 'Dagpeningur.',
   'ide.chat.context.resets': 'Endurstillir {{at}} .',
+  'ide.error.noProvider': 'IDE vinnusvæðisveitan er ekki stillt. Tengdu fyrst IDE-veitu.',
+  'ide.chat.tip.getStarted':
+    'Ráð: Sláðu inn / til að sjá allar skipanir, eða @ skráarnafn til að gefa {{agentName}} skrá til að vinna úr.',
+  'ide.chat.tip.plan':
+    'Ráð: Notið /plan til að láta {{agentName}} rannsaka og leggja til áætlun áður en það breytir neinum skrám.',
 }

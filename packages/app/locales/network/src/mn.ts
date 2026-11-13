@@ -12,4 +12,8 @@ export const mn: NetworkTranslations = {
   'network.unknown': 'Тодорхойгүй',
   'network.error.connectionTimeout': 'Сүлжээний холболтын хугацаа дууссан',
   'network.error.unavailable': 'Сүлжээ боломжгүй',
+  'network.error.missingDependency':
+    '`{{library}}` шаардлагатай боловч суулгаагүй байна. Үүнийг дараах тушаалаар суулгана уу: `npm install {{library}}`',
+  'network.error.noProvider':
+    '`@molecule/app-network`: Үйлчилгээ үзүүлэгч тохируулагдаагүй байна. `NetworkProvider` хэрэгжүүлэлттэй (жишээ нь, `@molecule/app-network-react-native` аас) `setProvider()` дуудна уу.',
 }

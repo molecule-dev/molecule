@@ -12,4 +12,8 @@ export const bn: NetworkTranslations = {
   'network.unknown': 'অজানা',
   'network.error.connectionTimeout': 'নেটওয়ার্ক সংযোগ সময়সীমা অতিক্রান্ত',
   'network.error.unavailable': 'নেটওয়ার্ক অনুপলব্ধ',
+  'network.error.missingDependency':
+    '`{{library}}` প্রয়োজন কিন্তু এটি ইনস্টল করা নেই। এটি ইনস্টল করুন: `npm install {{library}}`',
+  'network.error.noProvider':
+    '`@molecule/app-network`: কোনো প্রোভাইডার সেট করা নেই। একটি `NetworkProvider` ইমপ্লিমেন্টেশন (যেমন, `@molecule/app-network-react-native` থেকে) দিয়ে `setProvider()` কল করুন।',
 }

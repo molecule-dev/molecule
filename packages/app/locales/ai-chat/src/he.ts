@@ -6,4 +6,7 @@ export const he: ChatTranslations = {
   'chat.error.noResponseBody': 'אין גוף תגובה',
   'chat.error.streamError': 'שגיאת הזרמה',
   'chat.error.unknownError': 'שגיאה לא ידועה',
+  'chat.error.sendFailed': 'שליחת ההודעה נכשלה',
+  'chat.error.stalled':
+    '{{agentName}} הפסיק להגיב. ייתכן שהוא עדיין מסתיים ברקע - טען מחדש כדי לראות את העדכונים האחרונים, או שלח הודעה חדשה.',
 }

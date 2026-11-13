@@ -14,4 +14,5 @@ export const zh: Partial<BillingTranslations> = {
   'billing.status.cancelError': '取消操作失败，请稍后再试。',
   'billing.pricing.reassurance': '随时取消 · 无需信用卡即可开始',
   'billing.pricing.perSeat': '每座位',
+  'billing.pricing.currentCta': '当前计划',
 }

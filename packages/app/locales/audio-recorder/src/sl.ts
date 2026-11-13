@@ -15,4 +15,6 @@ export const sl: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'Napaka',
   'audioRecorder.statusIdle': 'Pripravljeno za snemanje',
   'audioRecorder.group': 'Snemalnik zvoka',
+  'audioRecorder.record': 'Zapis',
+  'audioRecorder.statusRecording': 'Snemanje',
 }

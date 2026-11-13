@@ -5,4 +5,6 @@ export const et: SplashScreenTranslations = {
   'splashScreen.error.noProvider': 'Tervituskuva pakkuja pole seadistatud.',
   'splashScreen.warn.configureNotSupported':
     'configure() ei ole selle tervituskuva pakkuja poolt toetatud.',
+  'splashScreen.error.missingDependency':
+    '`{{library}}` on kohustuslik, aga pole installitud. Installige see käsuga: `npx expo install {{library}}`',
 }

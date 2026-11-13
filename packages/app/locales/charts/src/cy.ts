@@ -4,4 +4,5 @@ import type { ChartsTranslations } from './types.js'
 export const cy: ChartsTranslations = {
   'charts.placeholder.label': 'Siart {{type}}',
   'charts.placeholder.description': 'Defnyddiwch ddarparwr siartiau priodol',
+  'charts.error.noCanvasContext': 'Methwyd cael cyd-destun 2D y cynfas',
 }

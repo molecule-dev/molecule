@@ -6,4 +6,6 @@ export const sk: Partial<NotificationCenterTranslations> = {
   'notifications.markAllRead': 'Označiť všetko ako prečítané',
   'notifications.empty': 'Žiadne upozornenia',
   'notifications.viewAll': 'Zobraziť všetko',
+  'notifications.loadError': 'Nepodarilo sa načítať upozornenia.',
+  'notifications.retry': 'Skúsiť znova',
 }

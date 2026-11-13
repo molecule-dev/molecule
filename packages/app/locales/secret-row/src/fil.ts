@@ -9,4 +9,6 @@ export const fil: Partial<SecretRowTranslations> = {
   'secretRow.expired': 'Nag-expire na',
   'secretRow.hide': 'Itago',
   'secretRow.show': 'Ipakita',
+  'secretRow.lastRotated': 'Huling pinaikot',
+  'secretRow.rotateIn': 'I-rotate sa loob ng {{days}} araw',
 }

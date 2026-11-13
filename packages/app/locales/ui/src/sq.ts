@@ -36,7 +36,6 @@ export const sq: UiTranslations = {
   'ui.select.placeholder': 'Zgjidh…',
   'ui.select.title': 'Zgjidh',
   'ui.toast.dismiss': 'Hiq',
-  'ui.toast.error.noProvider': 'useToast duhet të përdoret brenda një ToastProvider',
   'confirm.cancel': 'Anulo',
   'confirm.confirm': 'Konfirmo',
   'ui.select.clear': '--',
@@ -53,4 +52,5 @@ export const sq: UiTranslations = {
   'userMenu.panelLabel': 'Menuja e llogarisë',
   'ui.error.noClassMap':
     'Nuk është vendosur UIClassMap. Thirrni setClassMap() në nisjen e aplikacionit me një implementim të bibliotekës së stilimit (p.sh., @molecule/app-ui-tailwind).',
+  'ui.toast.error.noProvider': '`useToast` duhet të përdoret brenda një `ToastProvider`',
 }

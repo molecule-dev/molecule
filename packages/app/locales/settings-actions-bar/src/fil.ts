@@ -5,4 +5,5 @@ export const fil: Partial<SettingsActionsBarTranslations> = {
   'settingsActions.cancel': 'Kanselahin',
   'settingsActions.saving': 'Sine-save…',
   'settingsActions.save': 'I-save ang mga pagbabago',
+  'settingsActions.saved': 'Na-save {{at}}',
 }

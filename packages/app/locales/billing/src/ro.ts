@@ -15,4 +15,5 @@ export const ro: Partial<BillingTranslations> = {
   'billing.pricing.reassurance': 'Anulați oricând · Nu este necesar card de credit pentru a începe',
   'billing.pricing.tierEyebrow': 'Nivel',
   'billing.pricing.perSeat': 'per loc',
+  'billing.pricing.currentCta': 'Planul actual',
 }

@@ -10,6 +10,8 @@ export type NetworkTranslationKey =
   | 'network.unknown'
   | 'network.error.connectionTimeout'
   | 'network.error.unavailable'
+  | 'network.error.missingDependency'
+  | 'network.error.noProvider'
 
 /** Translation record mapping network keys to translated strings. */
 export type NetworkTranslations = Record<NetworkTranslationKey, string>

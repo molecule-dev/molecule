@@ -3,4 +3,5 @@ import type { StageTimelineTranslations } from './types.js'
 /** StageTimeline translations for kk. */
 export const kk: Partial<StageTimelineTranslations> = {
   'stageTimeline.group': 'Сахна уақыт шкаласы',
+  'stageTimeline.stage': 'Кезең {{index}}/{{total}}: {{label}} ({{status}})',
 }

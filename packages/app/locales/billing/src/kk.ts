@@ -15,4 +15,5 @@ export const kk: Partial<BillingTranslations> = {
   'billing.pricing.tierEyebrow': 'Деңгей',
   'billing.pricing.perSeat': 'орынға',
   'billing.pricing.upgradeCta': 'Жаңарту {{tierName}}',
+  'billing.pricing.currentCta': 'Ағымдағы жоспар',
 }

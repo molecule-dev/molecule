@@ -4,4 +4,6 @@ import type { LoyaltyTierBadgeTranslations } from './types.js'
 export const hu: Partial<LoyaltyTierBadgeTranslations> = {
   'loyaltyTierBadge.group': '{{tier}} szint',
   'loyaltyTierBadge.progress': 'Haladás a következőhöz: {{next}}',
+  'loyaltyTierBadge.topTier': 'Elérte a legfelső szintet',
+  'loyaltyTierBadge.remaining': '{{remaining}} - {{next}}',
 }

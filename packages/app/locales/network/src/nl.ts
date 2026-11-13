@@ -12,4 +12,8 @@ export const nl: Partial<NetworkTranslations> = {
   'network.other': 'Ander',
   'network.error.connectionTimeout': 'Time-out van de netwerkverbinding',
   'network.error.unavailable': 'Netwerk niet beschikbaar',
+  'network.error.missingDependency':
+    '`{{library}}` is vereist, maar niet geïnstalleerd. Installeer het met: `npm install {{library}}`',
+  'network.error.noProvider':
+    '`@molecule/app-network`: Er is geen provider ingesteld. Roep `setProvider()` aan met een `NetworkProvider` implementatie (bijvoorbeeld van `@molecule/app-network-react-native`).',
 }

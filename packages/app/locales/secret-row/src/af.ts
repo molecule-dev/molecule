@@ -9,4 +9,6 @@ export const af: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'Kopieer',
   'secretRow.rotate': 'Roteer',
   'secretRow.delete': 'Vee uit',
+  'secretRow.lastRotated': 'Laas geroteer',
+  'secretRow.rotateIn': 'Roteer in {{days}} d',
 }

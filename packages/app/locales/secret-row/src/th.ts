@@ -9,4 +9,6 @@ export const th: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'สำเนา',
   'secretRow.rotate': 'หมุน',
   'secretRow.delete': 'ลบ',
+  'secretRow.lastRotated': 'หมุนครั้งล่าสุด',
+  'secretRow.rotateIn': 'หมุนเวียนใน {{days}} วัน',
 }

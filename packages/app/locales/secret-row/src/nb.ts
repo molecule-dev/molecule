@@ -9,4 +9,6 @@ export const nb: Partial<SecretRowTranslations> = {
   'secretRow.expired': 'Utløpt',
   'secretRow.hide': 'Gjemme',
   'secretRow.show': 'Vise',
+  'secretRow.lastRotated': 'Sist rotert',
+  'secretRow.rotateIn': 'Roter om {{days}} dager',
 }

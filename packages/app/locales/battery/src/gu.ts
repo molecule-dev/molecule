@@ -10,4 +10,6 @@ export const gu: BatteryTranslations = {
   'battery.remainingUnknown': 'અજ્ઞાત',
   'battery.remainingTime': '{{hours}}ક {{minutes}}મિ',
   'battery.remainingMinutes': '{{minutes}}મિ',
+  'battery.error.noProvider':
+    '`@molecule/app-battery`: કોઈ પ્રદાતા સેટ નથી. `BatteryProvider` અમલીકરણ સાથે `setProvider()` કૉલ કરો — કોઈ પ્રદાતા ફ્લીટ સાથે મોકલતો નથી; તમારા મૂળ રનટાઇમ પર ઇન્ટરફેસ લાગુ કરો અને તેને બોન્ડ કરો.',
 }

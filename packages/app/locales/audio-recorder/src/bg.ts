@@ -15,4 +15,6 @@ export const bg: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'Грешка',
   'audioRecorder.statusIdle': 'Готов за запис',
   'audioRecorder.group': 'Аудио рекордер',
+  'audioRecorder.record': 'Запис',
+  'audioRecorder.statusRecording': 'Запис',
 }

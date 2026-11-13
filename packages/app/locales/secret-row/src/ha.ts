@@ -9,4 +9,6 @@ export const ha: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'Kwafi',
   'secretRow.rotate': 'Juya',
   'secretRow.delete': 'Goge',
+  'secretRow.lastRotated': 'Juyawa ta ƙarshe',
+  'secretRow.rotateIn': 'Juya cikin {{days}} d',
 }

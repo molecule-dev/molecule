@@ -4,4 +4,5 @@ import type { KeyboardTranslations } from './types.js'
 export const lv: KeyboardTranslations = {
   'keyboard.error.noProvider':
     '@molecule/app-keyboard: Nav iestatīts pakalpojumu sniedzējs. Izsauciet setProvider() ar KeyboardProvider implementāciju (piem., no @molecule/app-keyboard-react-native).',
+  'keyboard.error.missingDependency': '`{{library}}` ir nepieciešama, bet nav instalēta.',
 }

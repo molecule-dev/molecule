@@ -36,7 +36,6 @@ export const tr: Partial<UiTranslations> = {
   'ui.select.placeholder': 'Seçin…',
   'ui.select.title': 'Seç',
   'ui.toast.dismiss': 'Kapat',
-  'ui.toast.error.noProvider': 'useToast, bir ToastProvider içinde kullanılmalıdır.',
   'confirm.cancel': 'İptal',
   'confirm.confirm': 'Onayla',
   'ui.select.clear': '--',
@@ -53,4 +52,5 @@ export const tr: Partial<UiTranslations> = {
   'userMenu.panelLabel': 'Hesap menüsü',
   'ui.error.noClassMap':
     'Hiçbir UIClassMap ayarlanmadı. Uygulama başlatılırken, bir stil kütüphanesi uygulamasıyla (örneğin, @molecule/app-ui-tailwind) setClassMap() işlevini çağırın.',
+  'ui.toast.error.noProvider': '`useToast` mutlaka bir `ToastProvider` içinde kullanılmalıdır.',
 }

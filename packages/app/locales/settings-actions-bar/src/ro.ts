@@ -5,4 +5,5 @@ export const ro: Partial<SettingsActionsBarTranslations> = {
   'settingsActions.cancel': 'Anulați',
   'settingsActions.saving': 'Se salvează…',
   'settingsActions.save': 'Salvați modificările',
+  'settingsActions.saved': 'Salvat {{at}}',
 }

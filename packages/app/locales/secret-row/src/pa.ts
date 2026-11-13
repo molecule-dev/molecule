@@ -9,4 +9,6 @@ export const pa: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'ਕਾਪੀ ਕਰੋ',
   'secretRow.rotate': 'ਘੁੰਮਾਓ',
   'secretRow.delete': 'ਮਿਟਾਓ',
+  'secretRow.lastRotated': 'ਆਖਰੀ ਵਾਰ ਘੁੰਮਾਇਆ ਗਿਆ',
+  'secretRow.rotateIn': '{{days}} ਦਿਨਾਂ ਵਿੱਚ ਘੁੰਮਾਓ',
 }

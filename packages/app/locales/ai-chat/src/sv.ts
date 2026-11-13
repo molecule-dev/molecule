@@ -6,4 +6,7 @@ export const sv: ChatTranslations = {
   'chat.error.noResponseBody': 'Inget svarsinnehåll',
   'chat.error.streamError': 'Strömningsfel',
   'chat.error.unknownError': 'Okänt fel',
+  'chat.error.sendFailed': 'Misslyckades med att skicka meddelandet',
+  'chat.error.stalled':
+    '{{agentName}} har slutat svara. Den kan fortfarande slutföras i bakgrunden — ladda om för att se det senaste eller skicka ett nytt meddelande.',
 }

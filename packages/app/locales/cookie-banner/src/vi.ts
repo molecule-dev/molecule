@@ -10,4 +10,5 @@ export const vi: Partial<CookieBannerTranslations> = {
     'Chúng tôi sử dụng cookie để cải thiện trải nghiệm của bạn và phân tích lưu lượng truy cập.',
   'cookieBanner.reject': 'Từ chối tất cả',
   'cookieBanner.accept': 'Chấp nhận tất cả',
+  'cookieBanner.learnMore': 'Tìm hiểu thêm',
 }

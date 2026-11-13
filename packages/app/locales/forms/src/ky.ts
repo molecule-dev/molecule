@@ -11,4 +11,5 @@ export const ky: FormsTranslations = {
   'forms.invalidEmail': 'Жараксыз электрондук почта дареги',
   'forms.invalidUrl': 'Жараксыз URL',
   'forms.invalidValue': 'Жараксыз маани',
+  'forms.submitError': 'Тапшыруу мүмкүн эмес. Кайра аракет кылып көрүңүз.',
 }

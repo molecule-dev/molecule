@@ -17,4 +17,22 @@ export const eu: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'Berritu zure plana',
   'settings.billing.noTiers': 'Ez dago ordainpeko planik konfiguratuta.',
   'settings.billing.subscribe': 'Harpidetu',
+  'settings.failedToUpdateProfile': 'Ezin izan da profila eguneratu',
+  'settings.name': 'Izena',
+  'settings.twoFactorCode': 'Autentifikazio kodea',
+  'settings.twoFactorDisable': 'Desgaitu',
+  'settings.twoFactorDisableTitle': 'Desgaitu bi faktoreko autentifikazioa',
+  'settings.twoFactorEnable': 'Gaitu',
+  'settings.twoFactorEnableTitle': 'Gaitu bi faktoreko autentifikazioa',
+  'settings.twoFactorInvalidCode': 'Kode baliogabea',
+  'settings.twoFactorOn': 'Piztuta',
+  'settings.twoFactorQrAlt': 'Bi faktoreko QR kodea',
+  'settings.twoFactorScan':
+    'Eskaneatu QR kode hau zure autentifikazio aplikazioarekin eta sartu 6 digituko kodea.',
+  'settings.twoFactorUnavailable':
+    'Bi faktoreko autentifikazioa ez dago erabilgarri aplikazio honetarako.',
+  'settings.twoFactorVerify': 'Egiaztatu eta gaitu',
+  'settings.revokeDeviceWarning':
+    'Gailu honen sarbidea laster ezeztatuko da. Saioa itxi nahi duzu?',
+  'settings.signOutDevice': 'Saioa itxi',
 }

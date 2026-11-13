@@ -14,4 +14,6 @@ export const ig: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'Njehie',
   'audioRecorder.statusIdle': 'Dị njikere ịdekọ',
   'audioRecorder.group': 'Ihe ndekọ ọdịyo',
+  'audioRecorder.record': 'Ndekọ',
+  'audioRecorder.statusRecording': 'Ndekọ',
 }

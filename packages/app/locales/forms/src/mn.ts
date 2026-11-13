@@ -11,4 +11,5 @@ export const mn: FormsTranslations = {
   'forms.invalidEmail': 'Буруу имэйл хаяг',
   'forms.invalidUrl': 'Буруу URL',
   'forms.invalidValue': 'Буруу утга',
+  'forms.submitError': 'Илгээх боломжгүй байна. Дахин оролдоно уу.',
 }

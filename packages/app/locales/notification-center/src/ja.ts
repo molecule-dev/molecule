@@ -6,4 +6,6 @@ export const ja: Partial<NotificationCenterTranslations> = {
   'notifications.markAllRead': 'すべて既読にする',
   'notifications.viewAll': 'すべて表示',
   'notifications.empty': '通知なし',
+  'notifications.loadError': '通知を読み込めませんでした。',
+  'notifications.retry': 'リトライ',
 }

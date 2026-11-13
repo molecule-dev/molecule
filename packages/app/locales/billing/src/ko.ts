@@ -14,4 +14,5 @@ export const ko: Partial<BillingTranslations> = {
   'billing.status.cancelError': '취소할 수 없습니다. 다시 시도해 주세요.',
   'billing.pricing.reassurance': '언제든지 취소 가능 · 신용카드 없이 시작 가능',
   'billing.pricing.perSeat': '좌석당',
+  'billing.pricing.currentCta': '현재 계획',
 }

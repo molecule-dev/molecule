@@ -6,4 +6,6 @@ export const ml: Partial<NotificationCenterTranslations> = {
   'notifications.markAllRead': 'എല്ലാം വായിച്ചതായി അടയാളപ്പെടുത്തുക',
   'notifications.empty': 'അറിയിപ്പുകളൊന്നുമില്ല',
   'notifications.viewAll': 'എല്ലാം കാണുക',
+  'notifications.loadError': 'അറിയിപ്പുകൾ ലോഡ് ചെയ്യാൻ കഴിഞ്ഞില്ല.',
+  'notifications.retry': 'വീണ്ടും ശ്രമിക്കുക',
 }

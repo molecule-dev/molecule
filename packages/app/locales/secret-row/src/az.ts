@@ -9,4 +9,6 @@ export const az: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'Kopyalayın',
   'secretRow.rotate': 'Döndür',
   'secretRow.delete': 'Sil',
+  'secretRow.lastRotated': 'Sonuncu dəfə fırladılıb',
+  'secretRow.rotateIn': '{{days}} gün ərzində fırladın',
 }

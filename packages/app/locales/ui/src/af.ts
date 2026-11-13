@@ -36,7 +36,6 @@ export const af: UiTranslations = {
   'ui.select.placeholder': 'Kies…',
   'ui.select.title': 'Kies',
   'ui.toast.dismiss': 'Verwerp',
-  'ui.toast.error.noProvider': "useToast moet binne 'n ToastProvider gebruik word",
   'confirm.cancel': 'Kanselleer',
   'confirm.confirm': 'Bevestig',
   'ui.select.clear': '--',
@@ -53,4 +52,5 @@ export const af: UiTranslations = {
   'userMenu.panelLabel': 'Rekeningkieslys',
   'ui.error.noClassMap':
     "Geen UIClassMap is gestel nie. Roep setClassMap() aan tydens die opstart van die toepassing met 'n stileringsbiblioteekimplementering (bv. @molecule/app-ui-tailwind).",
+  'ui.toast.error.noProvider': "`useToast` moet binne 'n `ToastProvider` gebruik word",
 }

@@ -19,4 +19,5 @@ export const ka: FormsTranslations = {
   'forms.invalidUrl': '\u10d0\u10e0\u10d0\u10e1\u10ec\u10dd\u10e0\u10d8 URL',
   'forms.invalidValue':
     '\u10d0\u10e0\u10d0\u10e1\u10ec\u10dd\u10e0\u10d8 \u10db\u10dc\u10d8\u10e8\u10d5\u10dc\u10d4\u10da\u10dd\u10d1\u10d0',
+  'forms.submitError': 'გაგზავნა შეუძლებელია. გთხოვთ, სცადოთ ხელახლა.',
 }

@@ -4,4 +4,5 @@ import type { KeyboardTranslations } from './types.js'
 export const sv: KeyboardTranslations = {
   'keyboard.error.noProvider':
     '@molecule/app-keyboard: Ingen leverantör har angetts. Anropa setProvider() med en KeyboardProvider-implementering (t.ex. från @molecule/app-keyboard-react-native).',
+  'keyboard.error.missingDependency': '`{{library}}` krävs men är inte installerat.',
 }

@@ -11,4 +11,5 @@ export const ml: FormsTranslations = {
   'forms.invalidEmail': 'അസാധുവായ ഇമെയിൽ വിലാസം',
   'forms.invalidUrl': 'അസാധുവായ URL',
   'forms.invalidValue': 'അസാധുവായ മൂല്യം',
+  'forms.submitError': 'സമർപ്പിക്കാൻ കഴിയുന്നില്ല. വീണ്ടും ശ്രമിക്കുക.',
 }

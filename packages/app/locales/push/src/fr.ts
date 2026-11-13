@@ -4,4 +4,6 @@ import type { PushTranslations } from './types.js'
 export const fr: PushTranslations = {
   'push.error.notSupported': 'Les notifications push ne sont pas prises en charge',
   'push.error.permissionNotGranted': 'Permission de notification non accordée',
+  'push.error.missingDependency':
+    "`{{library}}` est requise mais n'est pas installée. Installez-la avec : `npx expo install {{library}}`",
 }

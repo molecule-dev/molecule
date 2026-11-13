@@ -314,7 +314,6 @@ export const pt: Partial<IdeTranslations> = {
   'ide.tabs.close': 'Fechar {{fileName}}',
   'ide.search.caseSensitive': 'Caixa de fósforos',
   'ide.search.noResults': 'Nenhum resultado encontrado',
-  'ide.search.resultsTruncated': '{{count}} gera os arquivos `{{files}}` (truncados)',
   'ide.preview.back': 'Voltar',
   'ide.preview.forward': 'Avançar',
   'ide.preview.urlBar': 'URL da pré-visualização',
@@ -324,7 +323,6 @@ export const pt: Partial<IdeTranslations> = {
   'ide.preview.frozen':
     'Este aplicativo parou de responder — um loop infinito ou uma renderização descontrolada congelou a visualização. O IDE não foi afetado.',
   'ide.preview.frozenReload': 'Atualizar o aplicativo',
-  'ide.search.results': '{{count}} gera arquivos no formato `{{files}}`',
   'ide.activity.cardAria': 'Ver atividades registradas',
   'ide.activity.type.email': 'E-mail',
   'ide.activity.type.sms': 'SMS',
@@ -354,13 +352,7 @@ export const pt: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Currículo',
   'ide.chat.openSettings': 'Configurações',
   'ide.chat.tip.dismiss': 'Ignorar dica',
-  'ide.chat.tip.getStarted':
-    'Dica: digite / para ver todos os comandos ou @ seguido do nome de um arquivo para indicar ao `{{agentName}}` um arquivo a partir do qual trabalhar.',
-  'ide.chat.tip.mention':
-    'Dica: digite @nome_do_arquivo para anexar um arquivo de projeto como contexto — o `{{agentName}}` o lê diretamente.',
   'ide.chat.tip.slash': 'Dica: digite / para ver todos os comandos (commit, diff, model e outros).',
-  'ide.chat.tip.plan':
-    'Dica: use /plan para que o `{{agentName}}` analise a situação e sugira um plano antes de editar qualquer arquivo.',
   'ide.chat.tip.undo':
     'Dica: use /undo para reverter instantaneamente as alterações feitas no arquivo durante o último turno da IA, caso algo tenha dado errado.',
   'ide.chat.tip.compact':
@@ -370,11 +362,8 @@ export const pt: Partial<IdeTranslations> = {
   'ide.chat.tip.report':
     'Dica: algo errado? O comando /report envia um relatório de bug ou feedback para a equipe, anexando seu histórico recente de bate-papo.',
   'ide.chat.undoError': 'Não foi possível reverter as alterações.',
-  'ide.chat.autoCommit.badge': 'Auto-commit no `{{countdown}}`',
   'ide.chat.autoCommit.cancel': 'Cancelar a confirmação automática',
   'ide.chat.autoCommit.cancelled': 'A confirmação automática foi cancelada.',
-  'ide.chat.autoCommit.enabled':
-    'Auto-commit ativado: o commit será efetuado um{{seconds}}os após a última alteração no arquivo. Digite /autocommit 0 para cancelar.',
   'ide.chat.effort.error': 'Falha ao atualizar o esforço de raciocínio.',
   'ide.chat.effort.fixedForModel':
     'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
@@ -390,7 +379,6 @@ export const pt: Partial<IdeTranslations> = {
   'ide.chat.models.colName': 'Modelo',
   'ide.chat.models.freeNo': '—',
   'ide.chat.models.freeYes': '✓ Grátis',
-  'ide.chat.models.sortBy': 'Ordenar por{{column}}',
   'ide.chat.modelsLoading': 'Carregando modelos…',
   'ide.chat.modelsNone':
     'Ainda não há modelos disponíveis — peça ao seu administrador para integrar um provedor de IA.',
@@ -432,22 +420,14 @@ export const pt: Partial<IdeTranslations> = {
   'ide.chat.lintWarningsCount': '{{count}} avisos',
   'ide.chat.typeErrorsCount': '{{count}} erros de digitação',
   'ide.chat.help.commandsHeading': '── Comandos ──',
-  'ide.chat.help.intro':
-    '{{agentName}} é o agente de programação com IA d{{productName}}. Descreva o que você quer criar e ele criará a estrutura, programará e fará iterações junto com você.',
   'ide.chat.help.introHeading': '── Introdução ──',
   'ide.chat.help.modeDiscovery':
     'Descoberta — novas conversas começam aqui. O método “{{agentName}}” faz perguntas esclarecedoras para definir os requisitos antes de escrever qualquer código.',
-  'ide.chat.help.modeExecute':
-    'Executar — o modo de trabalho padrão. O `{{agentName}}` gera código, executa ferramentas e aplica as alterações, verificando-as em seguida.',
-  'ide.chat.help.modePlan':
-    'Plano — O comando `{{agentName}}` analisa o código-fonte e propõe um plano SEM editar os arquivos. Ative ou desative com o comando `/plan`. Ideal para alterações grandes ou arriscadas.',
   'ide.chat.help.modesHeading': '── Modos ──',
   'ide.chat.help.shortcuts':
     'Pressione Cmd+/ (Ctrl+/ no Windows/Linux) para ver todos os atalhos de teclado.',
   'ide.chat.help.tipCompact':
     '• Use /compact para compactar o histórico da conversa quando ela ficar muito longa.',
-  'ide.chat.help.tipPlan':
-    '• Use o comando /plan para realizar uma análise d{{agentName}}es antes de fazer alterações.',
   'ide.chat.help.tipSlash': '• Digite / para ver todos os comandos acima.',
   'ide.chat.help.tipSpecific':
     '• Seja específico — “Adicionar uma página de login com e-mail/senha e Google OAuth” é melhor do que “adicionar autenticação”.',
@@ -493,7 +473,6 @@ export const pt: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNotFound':
     'Não existe nenhum script chamado “{{name}}”. Disponível em: {{names}}',
   'ide.chat.scripts.cmdExitOk': '{{name}} saída 0',
-  'ide.chat.scripts.cmdExitFail': '{{name}} encerrado com o código de saí{{code}}',
   'ide.chat.scripts.exitOk': 'Saída 0',
   'ide.chat.scripts.exitFail': 'Saí do site {{code}}',
   'ide.chat.scripts.noOutput': '(sem saída)',
@@ -506,7 +485,6 @@ export const pt: Partial<IdeTranslations> = {
   'ide.chat.settings.modelUnset': 'Não definido',
   'ide.chat.settings.off': 'Desligado',
   'ide.chat.settings.on': 'Em',
-  'ide.chat.settings.soundsSummary': '{{enabled}} dos eventos do `{{total}}` ativados',
   'ide.chat.share.heading': 'Compartilhar projeto',
   'ide.chat.share.loading': 'Loading…',
   'ide.chat.share.none': 'No public link yet.',
@@ -619,7 +597,6 @@ export const pt: Partial<IdeTranslations> = {
   'ide.chat.previewLinkTitle': 'Abra {{path}} na visualização',
   'ide.chat.report.diagnosticsNote':
     'A versão do seu aplicativo, o navegador e o tamanho da tela estão anexados para nos ajudar na depuração.',
-  'ide.chat.skills.loadedCount': '🧠 Conhecimentos avançados em{{count}}',
   'ide.chat.skills.waitingForSandbox': 'Aguardando a inicialização da sandbox…',
   'ide.chat.skills.resetDefaults': 'Carregar tudo por padrão',
   'ide.search.excludedDirs':
@@ -707,7 +684,6 @@ export const pt: Partial<IdeTranslations> = {
   'ide.tests.empty': 'Ainda não há testes neste projeto.',
   'ide.tests.noMatch': 'Nenhum teste corresponde à sua pesquisa.',
   'ide.tests.fixWithSynthase': 'Correção com Synthase',
-  'ide.tests.fixFailures': 'Corrigir falhas no `{{count}}`',
   'ide.tests.fixBusy': 'Aguarde até que o turno atual termine.',
   'ide.chat.skipToolCall': 'Pular',
   'ide.chat.skippingToolCall': 'Pular…',
@@ -788,4 +764,29 @@ export const pt: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'Subsídio mensal.',
   'ide.chat.context.daily': 'Diária.',
   'ide.chat.context.resets': 'Reinicia {{at}} .',
+  'ide.error.noProvider':
+    'O provedor de espaço de trabalho IDE não está configurado. Primeiro, vincule um provedor IDE.',
+  'ide.chat.autoCommit.enabled':
+    'Confirmação automática ativada: confirmando {{seconds}} s após a última alteração do arquivo. Defina como 0 para desativar a confirmação automática.',
+  'ide.chat.models.sortBy': 'Ordenar por {{column}}',
+  'ide.chat.help.intro':
+    '{{agentName}} é o agente de programação com IA da {{productName}}. Descreva o que você deseja construir e ele criará a estrutura, programará e iterará junto com você.',
+  'ide.chat.help.tipPlan': '• Use /plan para que {{agentName}} pesquise antes de fazer alterações.',
+  'ide.chat.scripts.cmdExitFail': '{{name}} saiu com o código {{code}}',
+  'ide.chat.skills.loadedCount': '🧠 Habilidades {{count}} carregadas',
+  'ide.search.resultsTruncated': '{{count}} resulta em {{files}} arquivos (truncados)',
+  'ide.search.results': '{{count}} resulta em {{files}} arquivos',
+  'ide.chat.tip.getStarted':
+    'Dica: digite / para ver todos os comandos ou @ um nome de arquivo para fornecer {{agentName}} um arquivo para trabalhar.',
+  'ide.chat.tip.mention':
+    'Dica: digite @filename para anexar um arquivo de projeto como contexto — {{agentName}} o lê diretamente.',
+  'ide.chat.tip.plan':
+    'Dica: use /plan para que {{agentName}} pesquise e proponha um plano antes de editar qualquer arquivo.',
+  'ide.chat.autoCommit.badge': 'Confirmação automática em {{countdown}}',
+  'ide.chat.help.modeExecute':
+    'Executar — o modo de trabalho padrão. {{agentName}} escreve código, executa ferramentas, aplica alterações e, em seguida, as verifica.',
+  'ide.chat.help.modePlan':
+    'Plano — {{agentName}} analisa o código-fonte e propõe um plano SEM editar arquivos. Ative/desative com /plan. Ideal para mudanças grandes ou arriscadas.',
+  'ide.chat.settings.soundsSummary': '{{enabled}} de {{total}} eventos ativados',
+  'ide.tests.fixFailures': 'Corrigir {{count}} falhas',
 }

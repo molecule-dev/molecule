@@ -14,4 +14,5 @@ export const yo: Partial<BillingTranslations> = {
   'billing.pricing.tierEyebrow': 'Ipele',
   'billing.pricing.perSeat': 'fún ìjókòó kọ̀ọ̀kan',
   'billing.pricing.upgradeCta': 'Ṣe igbesoke si {{tierName}}',
+  'billing.pricing.currentCta': 'Ètò lọ́wọ́lọ́wọ́',
 }

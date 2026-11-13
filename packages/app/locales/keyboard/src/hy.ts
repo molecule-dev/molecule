@@ -4,4 +4,5 @@ import type { KeyboardTranslations } from './types.js'
 export const hy: KeyboardTranslations = {
   'keyboard.error.noProvider':
     '@molecule/app-keyboard: Մատակարարը սահմանված չէ: Կանչեք setProvider() KeyboardProvider իրականացումով (օր.՝ @molecule/app-keyboard-react-native-ից):',
+  'keyboard.error.missingDependency': '`{{library}}` պարտադիր է, բայց տեղադրված չէ։',
 }

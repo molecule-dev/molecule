@@ -10,4 +10,6 @@ export const id: Partial<BatteryTranslations> = {
   'battery.full': 'Terisi Penuh',
   'battery.not-charging': 'Tidak Menagih',
   'battery.remainingTime': '{{hours}}h {{minutes}}m',
+  'battery.error.noProvider':
+    '`@molecule/app-battery`: Tidak ada penyedia yang ditetapkan. Panggil `setProvider()` dengan implementasi `BatteryProvider` — tidak ada penyedia yang disertakan dalam armada; implementasikan antarmuka pada runtime asli Anda dan ikatlah.',
 }

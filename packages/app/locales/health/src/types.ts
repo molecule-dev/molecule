@@ -1,5 +1,6 @@
 /** Translation keys for the health locale package. */
-export type HealthTranslationKey = 'health.durationHoursMinutes' | 'health.durationMinutes'
+export type HealthTranslationKey =
+  'health.durationHoursMinutes' | 'health.durationMinutes' | 'health.error.noProvider'
 
 /** Translation record mapping health keys to translated strings. */
 export type HealthTranslations = Record<HealthTranslationKey, string>

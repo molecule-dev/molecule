@@ -778,4 +778,6 @@ export const km: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'ប្រាក់ឧបត្ថម្ភប្រចាំខែ។',
   'ide.chat.context.daily': 'ប្រាក់ឧបត្ថម្ភប្រចាំថ្ងៃ។',
   'ide.chat.context.resets': 'កំណត់ឡើងវិញ {{at}} ។',
+  'ide.error.noProvider':
+    'អ្នកផ្តល់សេវាកន្លែងធ្វើការ IDE មិនត្រូវបានកំណត់រចនាសម្ព័ន្ធទេ។ ភ្ជាប់អ្នកផ្តល់សេវា IDE ជាមុនសិន។',
 }

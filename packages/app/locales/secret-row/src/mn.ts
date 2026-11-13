@@ -9,4 +9,6 @@ export const mn: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'Хуулбарлах',
   'secretRow.rotate': 'Эргүүлэх',
   'secretRow.delete': 'Устгах',
+  'secretRow.lastRotated': 'Хамгийн сүүлд эргүүлсэн',
+  'secretRow.rotateIn': '{{days}} өдрийн дотор эргүүлэх',
 }

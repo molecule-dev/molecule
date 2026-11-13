@@ -4,4 +4,6 @@ import type { LoyaltyTierBadgeTranslations } from './types.js'
 export const vi: Partial<LoyaltyTierBadgeTranslations> = {
   'loyaltyTierBadge.group': '{{tier}} cấp',
   'loyaltyTierBadge.progress': 'Tiến tới {{next}}',
+  'loyaltyTierBadge.topTier': 'Đạt cấp bậc cao nhất',
+  'loyaltyTierBadge.remaining': '{{remaining}} đến {{next}}',
 }

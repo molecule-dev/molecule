@@ -357,8 +357,6 @@ export const pa: Partial<IdeTranslations> = {
   'ide.chat.tip.mention':
     'ਸੁਝਾਅ: ਪ੍ਰੋਜੈਕਟ ਫਾਈਲ ਨੂੰ ਸੰਦਰਭ ਵਜੋਂ ਜੋੜਨ ਲਈ @filename ਟਾਈਪ ਕਰੋ —{{agentName}} ਇਸਨੂੰ ਸਿੱਧਾ ਪੜ੍ਹਦਾ ਹੈ।',
   'ide.chat.tip.slash': 'ਸੁਝਾਅ: ਹਰੇਕ ਕਮਾਂਡ (ਕਮਿਟ, ਡਿਫ, ਮਾਡਲ, ਅਤੇ ਹੋਰ) ਬ੍ਰਾਊਜ਼ ਕਰਨ ਲਈ / ਟਾਈਪ ਕਰੋ।',
-  'ide.chat.tip.plan':
-    'ਸੁਝਾਅ: ਵਰਤੋਂ / ਯੋਜਨਾ ਬਣਾਓ{{agentName}} ਕਿਸੇ ਵੀ ਫਾਈਲ ਨੂੰ ਸੰਪਾਦਿਤ ਕਰਨ ਤੋਂ ਪਹਿਲਾਂ ਖੋਜ ਕਰੋ ਅਤੇ ਯੋਜਨਾ ਦਾ ਪ੍ਰਸਤਾਵ ਦਿਓ।',
   'ide.chat.tip.undo':
     'ਸੁਝਾਅ: ਜੇਕਰ ਆਖਰੀ AI ਮੋੜ ਦੀ ਫਾਈਲ ਤਬਦੀਲੀਆਂ ਗਲਤ ਹੋ ਗਈਆਂ ਹਨ ਤਾਂ ਉਹਨਾਂ ਨੂੰ ਤੁਰੰਤ ਵਾਪਸ ਕਰਨ ਲਈ /undo ਦੀ ਵਰਤੋਂ ਕਰੋ।',
   'ide.chat.tip.compact':
@@ -774,4 +772,8 @@ export const pa: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'ਮਹੀਨਾਵਾਰ ਭੱਤਾ।',
   'ide.chat.context.daily': 'ਰੋਜ਼ਾਨਾ ਭੱਤਾ।',
   'ide.chat.context.resets': '{{at}} ਨੂੰ ਰੀਸੈਟ ਕਰਦਾ ਹੈ।',
+  'ide.error.noProvider':
+    'IDE ਵਰਕਸਪੇਸ ਪ੍ਰਦਾਤਾ ਕੌਂਫਿਗਰ ਨਹੀਂ ਕੀਤਾ ਗਿਆ ਹੈ। ਪਹਿਲਾਂ ਇੱਕ IDE ਪ੍ਰਦਾਤਾ ਨੂੰ ਬਾਂਡ ਕਰੋ।',
+  'ide.chat.tip.plan':
+    'ਸੁਝਾਅ: ਕਿਸੇ ਵੀ ਫਾਈਲ ਨੂੰ ਸੰਪਾਦਿਤ ਕਰਨ ਤੋਂ ਪਹਿਲਾਂ {{agentName}} ਖੋਜ ਕਰਵਾਉਣ ਅਤੇ ਯੋਜਨਾ ਪ੍ਰਸਤਾਵਿਤ ਕਰਨ ਲਈ /plan ਦੀ ਵਰਤੋਂ ਕਰੋ।',
 }

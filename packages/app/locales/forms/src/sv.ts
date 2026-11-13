@@ -11,4 +11,5 @@ export const sv: FormsTranslations = {
   'forms.invalidEmail': 'Ogiltig e-postadress',
   'forms.invalidUrl': 'Ogiltig URL',
   'forms.invalidValue': 'Ogiltigt värde',
+  'forms.submitError': 'Det gick inte att skicka. Försök igen.',
 }

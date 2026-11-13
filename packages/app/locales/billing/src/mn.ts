@@ -14,4 +14,5 @@ export const mn: Partial<BillingTranslations> = {
   'billing.pricing.tierEyebrow': 'Түвшин',
   'billing.pricing.perSeat': 'суудал тутамд',
   'billing.pricing.upgradeCta': 'Шинэчлэх {{tierName}}',
+  'billing.pricing.currentCta': 'Одоогийн төлөвлөгөө',
 }

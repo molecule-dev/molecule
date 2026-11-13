@@ -5,4 +5,5 @@ export const kn: Partial<SettingsActionsBarTranslations> = {
   'settingsActions.cancel': 'ರದ್ದುಮಾಡಿ',
   'settingsActions.saving': 'ಉಳಿಸಲಾಗುತ್ತಿದೆ...',
   'settingsActions.save': 'ಬದಲಾವಣೆಗಳನ್ನು ಉಳಿಸಿ',
+  'settingsActions.saved': 'ಉಳಿಸಲಾಗಿದೆ {{at}}',
 }

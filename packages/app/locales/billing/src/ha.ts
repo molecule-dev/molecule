@@ -14,4 +14,5 @@ export const ha: Partial<BillingTranslations> = {
   'billing.pricing.tierEyebrow': 'Matsayi',
   'billing.pricing.perSeat': 'a kowace kujera',
   'billing.pricing.upgradeCta': 'Haɓakawa zuwa {{tierName}}',
+  'billing.pricing.currentCta': 'Tsarin yanzu',
 }

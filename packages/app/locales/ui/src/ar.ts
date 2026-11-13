@@ -36,7 +36,6 @@ export const ar: Partial<UiTranslations> = {
   'ui.select.placeholder': 'اختر…',
   'ui.select.title': 'اختيار',
   'ui.toast.dismiss': 'تجاهل',
-  'ui.toast.error.noProvider': 'يجب استخدام useToast داخل ToastProvider',
   'confirm.cancel': 'إلغاء',
   'confirm.confirm': 'تأكيد',
   'ui.select.clear': '--',
@@ -53,4 +52,5 @@ export const ar: Partial<UiTranslations> = {
   'userMenu.panelLabel': 'قائمة الحساب',
   'ui.error.noClassMap':
     'لم يتم تعيين أي UIClassMap. قم باستدعاء setClassMap() عند بدء تشغيل التطبيق باستخدام تطبيق مكتبة التنسيق (على سبيل المثال، @molecule/app-ui-tailwind).',
+  'ui.toast.error.noProvider': 'يجب استخدام `useToast` داخل `ToastProvider`',
 }

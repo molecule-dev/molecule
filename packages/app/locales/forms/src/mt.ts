@@ -11,4 +11,5 @@ export const mt: FormsTranslations = {
   'forms.invalidEmail': 'Indirizz tal-email invalidu',
   'forms.invalidUrl': 'URL invalidu',
   'forms.invalidValue': 'Valur invalidu',
+  'forms.submitError': "Ma tistax tissottometti. Jekk jogħġbok erġa' pprova.",
 }

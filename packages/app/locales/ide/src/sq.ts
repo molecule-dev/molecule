@@ -356,14 +356,10 @@ export const sq: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
-  'ide.chat.tip.getStarted':
-    'Këshillë: shkruani / për të parë çdo komandë, ose @ një emër skedari për të dhënë{{agentName}} një skedar për të punuar.',
   'ide.chat.tip.mention':
     'Këshillë: shkruani @emri i skedarit për të bashkëngjitur një skedar projekti si kontekst —{{agentName}} e lexon drejtpërdrejt.',
   'ide.chat.tip.slash':
     'Këshillë: shtypni / për të shfletuar çdo komandë (commit, diff, model dhe më shumë).',
-  'ide.chat.tip.plan':
-    'Këshillë: përdor /planifiko të kesh{{agentName}} të bëjë kërkime dhe të propozojë një plan përpara se të redaktojë ndonjë skedar.',
   'ide.chat.tip.undo':
     'Këshillë: përdor /undo për të rikthyer menjëherë ndryshimet e skedarit të raundit të fundit të IA-së nëse gjërat kanë shkuar keq.',
   'ide.chat.tip.compact':
@@ -783,4 +779,10 @@ export const sq: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'Pagesë mujore.',
   'ide.chat.context.daily': 'Pagesa ditore.',
   'ide.chat.context.resets': 'Rivendos {{at}} .',
+  'ide.error.noProvider':
+    'Ofruesi i hapësirës së punës IDE nuk është konfiguruar. Lidhni së pari një ofrues IDE.',
+  'ide.chat.tip.getStarted':
+    "Këshillë: shkruani / për të parë çdo komandë, ose @ një emër skedari për t'i dhënë {{agentName}} një skedar nga i cili të punojë.",
+  'ide.chat.tip.plan':
+    'Këshillë: përdorni /plan që {{agentName}} të bëjë kërkime dhe të propozojë një plan përpara se të modifikojë ndonjë skedar.',
 }

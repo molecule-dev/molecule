@@ -3,4 +3,5 @@ import type { BulkActionToolbarTranslations } from './types.js'
 /** BulkActionToolbar translations for ha. */
 export const ha: Partial<BulkActionToolbarTranslations> = {
   'bulkActions.clear': 'Share',
+  'bulkActions.selected': 'An zaɓi {{count}}',
 }

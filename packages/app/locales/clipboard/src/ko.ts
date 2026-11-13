@@ -6,4 +6,6 @@ export const ko: ClipboardTranslations = {
     '@molecule/app-clipboard: 프로바이더가 설정되지 않았습니다. ClipboardProvider 구현으로 setProvider()를 호출하세요 (예: @molecule/app-clipboard-react-native에서).',
   'clipboard.warn.onChangeNotSupported':
     '@molecule/app-clipboard: onChange는 프로바이더에서 지원되지 않습니다',
+  'clipboard.error.missingDependency':
+    '`{{library}}` 필요하지만 설치되어 있지 않습니다. 다음 명령으로 설치하세요: `npm install {{library}}`',
 }

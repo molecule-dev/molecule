@@ -14,4 +14,5 @@ export const ar: Partial<BillingTranslations> = {
   'billing.status.cancelError': 'تعذر الإلغاء. يرجى المحاولة مرة أخرى.',
   'billing.pricing.reassurance': 'يمكنك الإلغاء في أي وقت · لا يلزم وجود بطاقة ائتمان للبدء',
   'billing.pricing.perSeat': 'لكل مقعد',
+  'billing.pricing.currentCta': 'الخطة الحالية',
 }

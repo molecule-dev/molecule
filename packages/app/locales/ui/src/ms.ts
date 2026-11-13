@@ -36,7 +36,6 @@ export const ms: Partial<UiTranslations> = {
   'ui.select.placeholder': 'Pilih…',
   'ui.select.title': 'Pilih',
   'ui.toast.dismiss': 'Tutup',
-  'ui.toast.error.noProvider': 'useToast mesti digunakan dalam ToastProvider',
   'confirm.cancel': 'Batal',
   'confirm.confirm': 'Sahkan',
   'ui.select.clear': '--',
@@ -53,4 +52,5 @@ export const ms: Partial<UiTranslations> = {
   'userMenu.panelLabel': 'Menu akaun',
   'ui.error.noClassMap':
     'Tiada UIClassMap telah ditetapkan. Panggil setClassMap() semasa permulaan aplikasi dengan pelaksanaan pustaka penggayaan (cth., @molecule/app-ui-tailwind).',
+  'ui.toast.error.noProvider': '`useToast` mesti digunakan dalam `ToastProvider`',
 }

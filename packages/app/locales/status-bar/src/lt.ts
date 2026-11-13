@@ -4,4 +4,5 @@ import type { StatusBarTranslations } from './types.js'
 export const lt: StatusBarTranslations = {
   'statusBar.error.noProvider':
     '@molecule/app-status-bar: Teikėjas nenustatytas. Iškvieskite setProvider() su StatusBarProvider realizacija (pvz., iš @molecule/app-status-bar-react-native).',
+  'statusBar.error.missingDependency': '`{{library}}` yra būtina, bet neįdiegta.',
 }

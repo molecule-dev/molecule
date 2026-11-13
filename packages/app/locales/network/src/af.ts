@@ -12,4 +12,8 @@ export const af: NetworkTranslations = {
   'network.unknown': 'Onbekend',
   'network.error.connectionTimeout': 'Netwerkverbinding het uitgetel',
   'network.error.unavailable': 'Netwerk onbeskikbaar',
+  'network.error.missingDependency':
+    '`{{library}}` word vereis, maar is nie geïnstalleer nie. Installeer dit met: `npm install {{library}}`',
+  'network.error.noProvider':
+    "`@molecule/app-network`: Geen verskaffer gestel nie. Roep `setProvider()` met 'n `NetworkProvider` implementering (bv. vanaf `@molecule/app-network-react-native`).",
 }

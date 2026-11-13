@@ -12,4 +12,8 @@ export const id: Partial<NetworkTranslations> = {
   'network.other': 'Lainnya',
   'network.error.connectionTimeout': 'Waktu habis koneksi jaringan',
   'network.error.unavailable': 'Jaringan tidak tersedia',
+  'network.error.missingDependency':
+    '`{{library}}` diperlukan tetapi belum terpasang. Pasang dengan: `npm install {{library}}`',
+  'network.error.noProvider':
+    '`@molecule/app-network`: Tidak ada provider yang ditetapkan. Panggil `setProvider()` dengan implementasi `NetworkProvider` (misalnya, dari `@molecule/app-network-react-native`).',
 }

@@ -42,7 +42,6 @@ export const mn: UiTranslations = {
   'ui.select.placeholder': 'Сонгох...',
   'ui.select.title': 'Сонгох',
   'ui.toast.dismiss': '\u0425\u044d\u0440\u044d\u0433\u0441\u044d\u0445\u0433\u04af\u0439',
-  'ui.toast.error.noProvider': 'useToast нь ToastProvider дотор ашиглагдах ёстой',
   'confirm.cancel': 'Цуцлах',
   'confirm.confirm': 'Баталгаажуулах',
   'ui.select.clear': '--',
@@ -59,4 +58,5 @@ export const mn: UiTranslations = {
   'userMenu.panelLabel': 'Бүртгэлийн цэс',
   'ui.error.noClassMap':
     'UIClassMap тохируулагдаагүй байна. Апп эхлүүлэх үед загварчлалын сангийн хэрэгжүүлэлттэй (жишээ нь, @molecule/app-ui-tailwind) setClassMap() функцийг дуудна уу.',
+  'ui.toast.error.noProvider': '`useToast` `ToastProvider` дотор ашиглагдах ёстой',
 }

@@ -15,4 +15,6 @@ export const lv: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'Kļūda',
   'audioRecorder.statusIdle': 'Gatavs ierakstīšanai',
   'audioRecorder.group': 'Audio ierakstītājs',
+  'audioRecorder.record': 'Ieraksts',
+  'audioRecorder.statusRecording': 'Ierakstīšana',
 }

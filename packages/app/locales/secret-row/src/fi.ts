@@ -9,4 +9,6 @@ export const fi: Partial<SecretRowTranslations> = {
   'secretRow.expired': 'Vanhentunut',
   'secretRow.hide': 'Piilottaa',
   'secretRow.show': 'Show',
+  'secretRow.lastRotated': 'Viimeksi kierretty',
+  'secretRow.rotateIn': 'Kierrä {{days}} päivän kuluttua',
 }

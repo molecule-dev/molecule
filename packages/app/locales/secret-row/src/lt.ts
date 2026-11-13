@@ -9,4 +9,6 @@ export const lt: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'Kopijuoti',
   'secretRow.rotate': 'Pasukti',
   'secretRow.delete': 'Ištrinti',
+  'secretRow.lastRotated': 'Paskutinį kartą pasukta',
+  'secretRow.rotateIn': 'Pasukti po {{days}} d.',
 }

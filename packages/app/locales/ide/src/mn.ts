@@ -354,14 +354,10 @@ export const mn: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
-  'ide.chat.tip.getStarted':
-    'Зөвлөгөө: бүх командыг харахын тулд / гэж бичнэ үү, эсвэл @ файлын нэрийг өгнө үү{{agentName}} ажиллах файл.',
   'ide.chat.tip.mention':
     'Зөвлөгөө: төслийн файлыг контекст болгон хавсаргахын тулд @filename гэж бичнэ үү —{{agentName}} үүнийг шууд уншдаг.',
   'ide.chat.tip.slash':
     'Зөвлөгөө: бүх командыг (commit, diff, model гэх мэт) үзэхийн тулд / гэж бичнэ үү.',
-  'ide.chat.tip.plan':
-    'Зөвлөгөө: байхын тулд /plan ашиглана уу{{agentName}} ямар нэгэн файлыг засахаасаа өмнө судалгаа хийж, төлөвлөгөө санал болгох.',
   'ide.chat.tip.undo':
     'Зөвлөгөө: Хэрэв буруу чиглэлд явсан бол сүүлийн хиймэл оюун ухааны ээлжийн файлын өөрчлөлтийг шууд буцаахын тулд /undo товчийг ашиглана уу.',
   'ide.chat.tip.compact':
@@ -779,4 +775,10 @@ export const mn: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'Сарын тэтгэмж.',
   'ide.chat.context.daily': 'Өдөр тутмын тэтгэмж.',
   'ide.chat.context.resets': '{{at}} дахин тохируулна.',
+  'ide.error.noProvider':
+    'IDE ажлын талбарын үйлчилгээ үзүүлэгчийг тохируулаагүй байна. Эхлээд IDE үйлчилгээ үзүүлэгчийг холбоно уу.',
+  'ide.chat.tip.getStarted':
+    'Зөвлөгөө: бүх командыг харахын тулд / гэж бичнэ үү, эсвэл {{agentName}} д ажиллах файл өгөхийн тулд @ файлын нэрийг бичнэ үү.',
+  'ide.chat.tip.plan':
+    'Зөвлөгөө: {{agentName}} файлыг засварлахаасаа өмнө судалгаа хийж, төлөвлөгөө санал болгохын тулд /plan командыг ашиглана уу.',
 }

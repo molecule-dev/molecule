@@ -352,13 +352,9 @@ export const az: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
-  'ide.chat.tip.getStarted':
-    'İpucu: hər əmri görmək üçün / yazın və ya @ fayl adını verin{{agentName}} işləmək üçün bir fayl.',
   'ide.chat.tip.mention':
     'İpucu: layihə faylını kontekst kimi əlavə etmək üçün @filename yazın —{{agentName}} birbaşa oxuyur.',
   'ide.chat.tip.slash': 'Məsləhət: hər əmrə (commit, diff, model və daha çox) baxmaq üçün / yazın.',
-  'ide.chat.tip.plan':
-    'Məsləhət: sahib olmaq üçün /plan istifadə edin{{agentName}} hər hansı bir faylı redaktə etməzdən əvvəl araşdırma aparın və bir plan təklif edin.',
   'ide.chat.tip.undo':
     'İpucu: Əgər səhv getmişsə, son süni intellekt növbəsinin fayl dəyişikliklərini dərhal geri qaytarmaq üçün /undo istifadə edin.',
   'ide.chat.tip.compact':
@@ -775,4 +771,10 @@ export const az: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'Aylıq müavinət.',
   'ide.chat.context.daily': 'Gündəlik müavinət.',
   'ide.chat.context.resets': '{{at}} sıfırlayır.',
+  'ide.error.noProvider':
+    'IDE iş sahəsi provayderi konfiqurasiya edilməyib. Əvvəlcə IDE provayderini bağlayın.',
+  'ide.chat.tip.getStarted':
+    'Məsləhət: hər əmri görmək üçün / yazın və ya {{agentName}} ə işləmək üçün bir fayl vermək üçün @ bir fayl adı yazın.',
+  'ide.chat.tip.plan':
+    'Məsləhət: {{agentName}} faylları redaktə etməzdən əvvəl araşdırma aparıb plan təklif etmək üçün /plan istifadə edin.',
 }

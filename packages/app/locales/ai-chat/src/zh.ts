@@ -6,4 +6,7 @@ export const zh: ChatTranslations = {
   'chat.error.noResponseBody': '无响应正文',
   'chat.error.streamError': '流式传输错误',
   'chat.error.unknownError': '未知错误',
+  'chat.error.sendFailed': '消息发送失败',
+  'chat.error.stalled':
+    '{{agentName}}已停止响应。它可能仍在后台完成操作——请重新加载页面以查看最新信息，或发送新消息。',
 }

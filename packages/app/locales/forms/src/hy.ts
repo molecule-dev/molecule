@@ -18,4 +18,5 @@ export const hy: FormsTranslations = {
     '\u0531\u0576\u057e\u0561\u057e\u0565\u0580 \u0567\u056c\u0565\u056f\u057f\u0580\u0578\u0576\u0561\u0575\u056b\u0576 \u0583\u0578\u057d\u057f\u056b \u0570\u0561\u057d\u0581\u0565',
   'forms.invalidUrl': '\u0531\u0576\u057e\u0561\u057e\u0565\u0580 URL',
   'forms.invalidValue': '\u0531\u0576\u057e\u0561\u057e\u0565\u0580 \u0561\u0580\u056a\u0565\u0584',
+  'forms.submitError': 'Անհնար է ուղարկել։ Խնդրում ենք կրկին փորձել։',
 }

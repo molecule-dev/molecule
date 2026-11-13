@@ -11,4 +11,5 @@ export const bg: FormsTranslations = {
   'forms.invalidEmail': 'Невалиден имейл адрес',
   'forms.invalidUrl': 'Невалиден URL',
   'forms.invalidValue': 'Невалидна стойност',
+  'forms.submitError': 'Не може да се изпрати. Моля, опитайте отново.',
 }

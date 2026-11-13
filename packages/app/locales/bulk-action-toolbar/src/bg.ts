@@ -3,4 +3,5 @@ import type { BulkActionToolbarTranslations } from './types.js'
 /** BulkActionToolbar translations for bg. */
 export const bg: Partial<BulkActionToolbarTranslations> = {
   'bulkActions.clear': 'Изчисти',
+  'bulkActions.selected': 'Избрани са {{count}}',
 }

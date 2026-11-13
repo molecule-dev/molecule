@@ -8,4 +8,7 @@ export const ka: Partial<FooterTranslations> = {
   'footer.language': 'ენა',
   'content.privacyPolicy': '',
   'content.termsOfService': '',
+  'footer.legalNotConfigured':
+    'ეს კონტენტი ჯერ არ არის კონფიგურირებული. ის აპლიკაციის მფლობელმა უნდა მოგვაწოდოს.',
+  'footer.about': '{{appName}} -ის შესახებ',
 }

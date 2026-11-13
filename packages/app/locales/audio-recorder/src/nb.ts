@@ -14,4 +14,6 @@ export const nb: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'Feil',
   'audioRecorder.statusIdle': 'Klar til opptak',
   'audioRecorder.group': 'Lydopptaker',
+  'audioRecorder.record': 'Rekord',
+  'audioRecorder.statusRecording': 'Innspilling',
 }

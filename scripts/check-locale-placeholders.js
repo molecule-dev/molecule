@@ -237,12 +237,15 @@ const sameMultiset = (a, b) =>
  *   `LOST` — a token English defines is missing: the value the call site passed
  *     never appears.
  *   `MALFORMED` — broken braces or leaked masking markup.
+ *   `CODE` — a Markdown code span English carries is missing or changed (a
+ *     command or identifier the reader would type no longer exists), or the
+ *     translation adds one English does not have (the backticks render).
  */
 export function classify(englishValue, value) {
   const want = placeholders(englishValue)
   const have = placeholders(value)
-  if (/<\s*\/?\s*x\s*>/i.test(value)) {
-    return { klass: 'MALFORMED', detail: 'leaked <x> translation-tool markup' }
+  if (/<\s*\/?\s*(?:x|span)\b[^>]*>/i.test(value)) {
+    return { klass: 'MALFORMED', detail: 'leaked translation-tool markup' }
   }
   if (/MOLPH\d/i.test(value)) {
     return { klass: 'MALFORMED', detail: 'leaked MOLPH placeholder sentinel' }
@@ -258,11 +261,40 @@ export function classify(englishValue, value) {
       return { klass: 'MALFORMED', detail: `{${name}} has single braces` }
     }
   }
-  if (sameMultiset(want, have)) return null
-  const shape = `[${have.join(', ') || 'none'}] vs en's [${want.join(', ') || 'none'}]`
-  if (want.length === have.length) return { klass: 'RENAMED', detail: shape }
-  if (have.length > want.length) return { klass: 'GAINED', detail: shape }
-  return { klass: 'LOST', detail: shape }
+  if (!sameMultiset(want, have)) {
+    const shape = `[${have.join(', ') || 'none'}] vs en's [${want.join(', ') || 'none'}]`
+    if (want.length === have.length) return { klass: 'RENAMED', detail: shape }
+    if (have.length > want.length) return { klass: 'GAINED', detail: shape }
+    return { klass: 'LOST', detail: shape }
+  }
+  const codeWant = codeSpans(englishValue)
+  const codeHave = codeSpans(value)
+  if (!sameMultiset(codeWant, codeHave)) {
+    const missing = codeWant.filter((span) => !codeHave.includes(span))
+    const gained = codeHave.filter((span) => !codeWant.includes(span))
+    return {
+      klass: 'CODE',
+      detail: missing.length
+        ? `${missing.join(', ')} not kept verbatim`
+        : `gains ${gained.join(', ')}, which en does not mark as code: UI text does not render Markdown, so the backticks show`,
+    }
+  }
+  return null
+}
+
+/**
+ * Every Markdown code span (`` `npm install {{library}}` ``) in a value, in order.
+ *
+ * English marks a command, a package name or an identifier this way because the
+ * reader TYPES or searches for it, so a translation must carry it byte for byte:
+ * a machine translation that turns `npm install` into `npm wụnye` gives the
+ * reader a command that does not exist.
+ *
+ * @param value - A string value.
+ * @returns The code spans, backticks included.
+ */
+export function codeSpans(value) {
+  return value.match(/`[^`\n]+`/g) ?? []
 }
 
 /**

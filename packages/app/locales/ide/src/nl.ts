@@ -356,8 +356,6 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'CV',
   'ide.chat.openSettings': 'Instellingen',
   'ide.chat.tip.dismiss': 'Tip negeren',
-  'ide.chat.tip.getStarted':
-    'Tip: typ / om alle opdrachten te bekijken, of @ gevolgd door een bestandsnaam om `{{agentName}}` een bestand te geven om mee te werken.',
   'ide.chat.tip.mention':
     'Tip: typ @bestandsnaam om een projectbestand als context bij te voegen — {{agentName}} leest het direct.',
   'ide.chat.tip.slash': 'Tip: typ / om alle commando’s te bekijken (commit, diff, model en meer).',
@@ -439,8 +437,6 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.help.introHeading': '── Aan de slag ──',
   'ide.chat.help.modeDiscovery':
     'Ontdekking — hier beginnen nieuwe gesprekken. Bij ‘{{agentName}}’ worden verduidelijkende vragen gesteld om de vereisten vast te stellen voordat er ook maar één regel code wordt geschreven.',
-  'ide.chat.help.modeExecute':
-    'Uitvoeren — de standaardwerkmodus. De functie `{{agentName}}` schrijft code, voert tools uit, past wijzigingen toe en controleert deze vervolgens.',
   'ide.chat.help.modePlan':
     'Plan — {{agentName}} analyseert de codebase en stelt een plan voor ZONDER bestanden te bewerken. Schakel deze modus in met /plan. Het meest geschikt voor grote of risicovolle wijzigingen.',
   'ide.chat.help.modesHeading': '── Modi ──',
@@ -496,7 +492,6 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNotFound':
     'Er is geen script met de naam „{{name}}“. Beschikbaar: {{names}}',
   'ide.chat.scripts.cmdExitOk': '{{name}} uitgestapt 0',
-  'ide.chat.scripts.cmdExitFail': '{{name}} afgesloten met fout{{code}}',
   'ide.chat.scripts.exitOk': 'Afsluiten 0',
   'ide.chat.scripts.exitFail': '{{code}} afgesloten',
   'ide.chat.scripts.noOutput': '(geen uitvoer)',
@@ -624,7 +619,6 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.previewLinkTitle': 'Open {{path}} in het voorbeeldvenster',
   'ide.chat.report.diagnosticsNote':
     'De versie van je app, je browser en je schermgrootte zijn bijgevoegd om ons te helpen bij het opsporen van fouten.',
-  'ide.chat.skills.loadedCount': '🧠 Uitgebreide kennis v{{count}}',
   'ide.chat.skills.waitingForSandbox': 'Wachten tot de sandbox is opgestart…',
   'ide.chat.skills.resetDefaults': 'Standaard alles laden',
   'ide.search.excludedDirs':
@@ -793,4 +787,12 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'Maandelijkse toelage.',
   'ide.chat.context.daily': 'Dagelijkse hoeveelheid.',
   'ide.chat.context.resets': 'Reset {{at}} .',
+  'ide.error.noProvider':
+    'De IDE-werkruimteprovider is niet geconfigureerd. Koppel eerst een IDE-provider.',
+  'ide.chat.scripts.cmdExitFail': '{{name}} is afgesloten met code {{code}}',
+  'ide.chat.skills.loadedCount': '🧠 Volle {{count}} vaardigheden',
+  'ide.chat.tip.getStarted':
+    'Tip: typ / om alle opdrachten te zien, of @ een bestandsnaam om {{agentName}} een bestand te geven om mee te werken.',
+  'ide.chat.help.modeExecute':
+    'Uitvoeren — de standaard werkmodus. {{agentName}} schrijft code, voert tools uit, past wijzigingen toe en controleert deze vervolgens.',
 }

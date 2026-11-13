@@ -5,4 +5,6 @@ export const km: SplashScreenTranslations = {
   'splashScreen.error.noProvider': 'អ្នកផ្តល់អេក្រង់ចាប់ផ្តើមមិនត្រូវបានកំណត់រចនាសម្ព័ន្ធ។',
   'splashScreen.warn.configureNotSupported':
     'configure() មិនត្រូវបានគាំទ្រដោយអ្នកផ្តល់អេក្រង់ចាប់ផ្តើមនេះ។',
+  'splashScreen.error.missingDependency':
+    'តម្រូវឲ្យមាន `{{library}}` ប៉ុន្តែមិនទាន់បានដំឡើងនៅឡើយទេ។ សូមដំឡើងវាជាមួយ៖ `npx expo install {{library}}`',
 }

@@ -5,4 +5,5 @@ export const nl: Partial<SettingsActionsBarTranslations> = {
   'settingsActions.cancel': 'Annuleren',
   'settingsActions.saving': 'Opslaan…',
   'settingsActions.save': 'Wijzigingen opslaan',
+  'settingsActions.saved': 'Opgeslagen {{at}}',
 }

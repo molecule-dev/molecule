@@ -6,4 +6,6 @@ export const tr: Partial<NotificationCenterTranslations> = {
   'notifications.markAllRead': 'Tümünü okundu olarak işaretle',
   'notifications.viewAll': 'Tümünü görüntüle',
   'notifications.empty': 'Bildirim yok',
+  'notifications.loadError': 'Bildirimler yüklenemedi.',
+  'notifications.retry': 'Tekrar dene',
 }

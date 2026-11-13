@@ -14,4 +14,5 @@ export const sq: Partial<BillingTranslations> = {
   'billing.pricing.tierEyebrow': 'Shtresa',
   'billing.pricing.perSeat': 'për vend',
   'billing.pricing.upgradeCta': 'Përmirëso në {{tierName}}',
+  'billing.pricing.currentCta': 'Plani aktual',
 }

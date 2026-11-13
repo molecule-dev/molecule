@@ -370,7 +370,6 @@ export const sl: Partial<IdeTranslations> = {
   'ide.chat.tip.report':
     'Nasvet: nekaj ni v redu? S sporočilom /report lahko ekipi pošlješ poročilo o napaki ali povratne informacije, pri čemer se priloži tvoj zadnji pogovor.',
   'ide.chat.undoError': 'Povrnitev sprememb ni uspela.',
-  'ide.chat.autoCommit.badge': 'Samodejno potrjevanje v{{countdown}}',
   'ide.chat.autoCommit.cancel': 'Prekliči samodejno shranjevanje',
   'ide.chat.autoCommit.cancelled': 'Samodejno shranjevanje je bilo preklicano.',
   'ide.chat.autoCommit.enabled':
@@ -390,7 +389,6 @@ export const sl: Partial<IdeTranslations> = {
   'ide.chat.models.colName': 'Model',
   'ide.chat.models.freeNo': '—',
   'ide.chat.models.freeYes': '✓ Brezplačno',
-  'ide.chat.models.sortBy': 'Razvrsti po{{column}}',
   'ide.chat.modelsLoading': 'Nalaganje modelov…',
   'ide.chat.modelsNone':
     'Modeli še niso na voljo – prosite svojega skrbnika, naj vzpostavi povezavo z ponudnikom umetne inteligence.',
@@ -493,7 +491,6 @@ export const sl: Partial<IdeTranslations> = {
     'Zaenkrat še ni shranjenih skriptov. Odpri mapo /scripts, da ustvariš novega.',
   'ide.chat.scripts.runNotFound': 'Skripta z imenom »{{name}}« ni na voljo. Na voljo: {{names}}',
   'ide.chat.scripts.cmdExitOk': '{{name}} izhod 0',
-  'ide.chat.scripts.cmdExitFail': '{{name}} program se je zaključil s kodo{{code}}',
   'ide.chat.scripts.exitOk': 'Izhod 0',
   'ide.chat.scripts.exitFail': 'Izstopil iz {{code}}',
   'ide.chat.scripts.noOutput': '(brez izhoda)',
@@ -786,4 +783,9 @@ export const sl: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'Mesečni dodatek.',
   'ide.chat.context.daily': 'Dnevni dodatek.',
   'ide.chat.context.resets': 'Ponastavi {{at}} .',
+  'ide.error.noProvider':
+    'Ponudnik delovnega prostora IDE ni konfiguriran. Najprej povežite ponudnika IDE.',
+  'ide.chat.autoCommit.badge': 'Samodejno potrjevanje čez {{countdown}}',
+  'ide.chat.models.sortBy': 'Razvrsti po {{column}}',
+  'ide.chat.scripts.cmdExitFail': '{{name}} je končal s kodo {{code}}',
 }

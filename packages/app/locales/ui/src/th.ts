@@ -40,7 +40,6 @@ export const th: UiTranslations = {
   'ui.select.title': 'เลือก',
   'ui.toast.dismiss':
     '\u0e1b\u0e34\u0e14\u0e01\u0e32\u0e23\u0e41\u0e08\u0e49\u0e07\u0e40\u0e15\u0e37\u0e2d\u0e19',
-  'ui.toast.error.noProvider': 'ต้องใช้ useToast ภายใน ToastProvider',
   'confirm.cancel': 'ยกเลิก',
   'confirm.confirm': 'ยืนยัน',
   'ui.select.clear': '--',
@@ -57,4 +56,5 @@ export const th: UiTranslations = {
   'userMenu.panelLabel': 'เมนูบัญชี',
   'ui.error.noClassMap':
     'ยังไม่ได้ตั้งค่า UIClassMap โปรดเรียกใช้ setClassMap() เมื่อแอปเริ่มต้นทำงาน หากใช้ไลบรารีการจัดสไตล์ (เช่น @molecule/app-ui-tailwind)',
+  'ui.toast.error.noProvider': '`useToast` ต้องใช้ภายใน `ToastProvider`',
 }

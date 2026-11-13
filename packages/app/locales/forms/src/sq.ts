@@ -11,4 +11,5 @@ export const sq: FormsTranslations = {
   'forms.invalidEmail': 'Adresë emaili e pavlefshme',
   'forms.invalidUrl': 'URL e pavlefshme',
   'forms.invalidValue': 'Vlerë e pavlefshme',
+  'forms.submitError': 'Nuk mund të dërgohet. Ju lutemi provoni përsëri.',
 }

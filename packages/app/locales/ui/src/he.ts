@@ -36,7 +36,6 @@ export const he: Partial<UiTranslations> = {
   'ui.select.placeholder': 'לִבחוֹר…',
   'ui.select.title': 'לִבחוֹר',
   'ui.toast.dismiss': 'לְפַטֵר',
-  'ui.toast.error.noProvider': 'יש להשתמש ב-useToast בתוך ToastProvider',
   'confirm.cancel': 'לְבַטֵל',
   'confirm.confirm': 'לְאַשֵׁר',
   'ui.select.clear': '--',
@@ -53,4 +52,5 @@ export const he: Partial<UiTranslations> = {
   'userMenu.panelLabel': 'תפריט חשבון',
   'ui.error.noClassMap':
     'לא הוגדרה UIClassMap. קריאה לפונקציה setClassMap() בעת הפעלת האפליקציה באמצעות יישום ספריית עיצוב (למשל, @molecule/app-ui-tailwind).',
+  'ui.toast.error.noProvider': 'יש להשתמש ב `useToast` בתוך `ToastProvider`',
 }

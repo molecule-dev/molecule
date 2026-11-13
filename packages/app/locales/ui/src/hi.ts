@@ -36,7 +36,6 @@ export const hi: Partial<UiTranslations> = {
   'ui.select.placeholder': 'चुनें…',
   'ui.select.title': 'चुनें',
   'ui.toast.dismiss': 'खारिज करें',
-  'ui.toast.error.noProvider': 'useToast का उपयोग ToastProvider के भीतर ही किया जाना चाहिए।',
   'confirm.cancel': 'रद्द करें',
   'confirm.confirm': 'पुष्टि करें',
   'ui.select.clear': '--',
@@ -53,4 +52,5 @@ export const hi: Partial<UiTranslations> = {
   'userMenu.panelLabel': 'खाता मेनू',
   'ui.error.noClassMap':
     'कोई UIClassMap सेट नहीं किया गया है। ऐप स्टार्टअप पर स्टाइलिंग लाइब्रेरी इम्प्लीमेंटेशन (जैसे, @molecule/app-ui-tailwind) के साथ setClassMap() को कॉल करें।',
+  'ui.toast.error.noProvider': '`useToast` उपयोग `ToastProvider` के भीतर ही किया जाना चाहिए।',
 }

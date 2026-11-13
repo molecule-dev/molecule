@@ -15,4 +15,6 @@ export const km: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'កំហុស',
   'audioRecorder.statusIdle': 'រួចរាល់ដើម្បីថត',
   'audioRecorder.group': 'ឧបករណ៍ថតសំឡេង',
+  'audioRecorder.record': 'ថត',
+  'audioRecorder.statusRecording': 'ការថតសំឡេង',
 }

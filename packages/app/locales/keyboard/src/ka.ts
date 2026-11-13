@@ -4,4 +4,5 @@ import type { KeyboardTranslations } from './types.js'
 export const ka: KeyboardTranslations = {
   'keyboard.error.noProvider':
     '@molecule/app-keyboard: პროვაიდერი არ არის დაყენებული. გამოიძახეთ setProvider() KeyboardProvider იმპლემენტაციით (მაგ., @molecule/app-keyboard-react-native-იდან).',
+  'keyboard.error.missingDependency': '`{{library}}` აუცილებელია, მაგრამ არ არის დაინსტალირებული.',
 }

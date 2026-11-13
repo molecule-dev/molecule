@@ -36,7 +36,6 @@ export const sk: UiTranslations = {
   'ui.select.placeholder': 'Vyberte…',
   'ui.select.title': 'Vyberte',
   'ui.toast.dismiss': 'Odmietnu\u0165',
-  'ui.toast.error.noProvider': 'useToast sa musí použiť v rámci ToastProvider',
   'confirm.cancel': 'Zrušiť',
   'confirm.confirm': 'Potvrdiť',
   'ui.select.clear': '--',
@@ -53,4 +52,5 @@ export const sk: UiTranslations = {
   'userMenu.panelLabel': 'Ponuka účtu',
   'ui.error.noClassMap':
     'Nebola nastavená žiadna premenná UIClassMap. Pri spustení aplikácie zavolajte funkciu setClassMap() s implementáciou knižnice štýlov (napr. @molecule/app-ui-tailwind).',
+  'ui.toast.error.noProvider': '`useToast` musí byť použitý v rámci `ToastProvider`',
 }

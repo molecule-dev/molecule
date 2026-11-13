@@ -11,4 +11,5 @@ export const el: FormsTranslations = {
   'forms.invalidEmail': 'Μη έγκυρη διεύθυνση email',
   'forms.invalidUrl': 'Μη έγκυρο URL',
   'forms.invalidValue': 'Μη έγκυρη τιμή',
+  'forms.submitError': 'Δεν είναι δυνατή η υποβολή. Δοκιμάστε ξανά.',
 }

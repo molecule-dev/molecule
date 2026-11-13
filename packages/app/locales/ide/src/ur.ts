@@ -352,8 +352,6 @@ export const ur: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
-  'ide.chat.tip.getStarted':
-    'ٹپ: ہر کمانڈ کو دیکھنے کے لیے ٹائپ کریں، یا @ دینے کے لیے فائل کا نام{{agentName}} ایک فائل جس سے کام کرنا ہے۔',
   'ide.chat.tip.mention':
     'ٹپ: پروجیکٹ فائل کو سیاق و سباق کے طور پر منسلک کرنے کے لیے @filename ٹائپ کریں۔{{agentName}} اسے براہ راست پڑھتا ہے.',
   'ide.chat.tip.slash': 'ٹپ: ہر کمانڈ کو براؤز کرنے کے لیے ٹائپ کریں (کمٹ، ڈیف، ماڈل، اور مزید)۔',
@@ -773,4 +771,8 @@ export const ur: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'ماہانہ الاؤنس۔',
   'ide.chat.context.daily': 'ڈیلی الاؤنس۔',
   'ide.chat.context.resets': '{{at}} کو ری سیٹ کرتا ہے۔',
+  'ide.error.noProvider':
+    'IDE ورک اسپیس فراہم کنندہ کنفیگر نہیں ہے۔ پہلے IDE فراہم کنندہ کو بانڈ کریں۔',
+  'ide.chat.tip.getStarted':
+    'ٹپ: ہر کمانڈ کو دیکھنے کے لیے / ٹائپ کریں، یا @ ایک فائل کا نام {{agentName}} کو کام کرنے کے لیے ایک فائل دیں۔',
 }

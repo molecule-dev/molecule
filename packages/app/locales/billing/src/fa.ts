@@ -14,4 +14,5 @@ export const fa: Partial<BillingTranslations> = {
   'billing.pricing.tierEyebrow': 'ردیف',
   'billing.pricing.perSeat': 'به ازای هر صندلی',
   'billing.pricing.upgradeCta': 'ارتقا به {{tierName}}',
+  'billing.pricing.currentCta': 'طرح فعلی',
 }

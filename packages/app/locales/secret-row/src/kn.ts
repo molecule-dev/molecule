@@ -9,4 +9,6 @@ export const kn: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'ನಕಲಿಸಿ',
   'secretRow.rotate': 'ತಿರುಗಿಸಿ',
   'secretRow.delete': 'ಅಳಿಸಿ',
+  'secretRow.lastRotated': 'ಕೊನೆಯದಾಗಿ ತಿರುಗಿಸಿದ್ದು',
+  'secretRow.rotateIn': '{{days}} d ಗಳಲ್ಲಿ ತಿರುಗಿಸಿ',
 }

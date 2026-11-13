@@ -14,4 +14,5 @@ export const fi: Partial<BillingTranslations> = {
   'billing.pricing.reassurance': 'Peruuta milloin tahansa · Aloittamiseen ei tarvita luottokorttia',
   'billing.pricing.tierEyebrow': 'Taso',
   'billing.pricing.perSeat': 'istuinta kohden',
+  'billing.pricing.currentCta': 'Nykyinen suunnitelma',
 }

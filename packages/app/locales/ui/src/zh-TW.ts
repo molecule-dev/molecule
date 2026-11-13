@@ -36,7 +36,6 @@ export const zhTW: UiTranslations = {
   'ui.select.placeholder': '選擇…',
   'ui.select.title': '選擇',
   'ui.toast.dismiss': '\u95dc\u9589',
-  'ui.toast.error.noProvider': 'useToast 必須在 ToastProvider 中使用。',
   'confirm.cancel': '取消',
   'confirm.confirm': '確認',
   'ui.select.clear': '--',
@@ -53,4 +52,5 @@ export const zhTW: UiTranslations = {
   'userMenu.panelLabel': '帳戶選單',
   'ui.error.noClassMap':
     '尚未設定 UIClassMap。請在應用程式啟動時使用樣式庫實作（例如，@molecule/app-ui-tailwind）呼叫 setClassMap()。',
+  'ui.toast.error.noProvider': '`useToast`必須在`ToastProvider`中使用。',
 }

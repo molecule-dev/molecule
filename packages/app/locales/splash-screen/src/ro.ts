@@ -5,4 +5,6 @@ export const ro: SplashScreenTranslations = {
   'splashScreen.error.noProvider': 'Furnizorul ecranului de pornire nu este configurat.',
   'splashScreen.warn.configureNotSupported':
     'configure() nu este suportat de acest furnizor al ecranului de pornire.',
+  'splashScreen.error.missingDependency':
+    '`{{library}}` este obligatoriu, dar nu este instalat. Instalați-l cu: `npx expo install {{library}}`',
 }

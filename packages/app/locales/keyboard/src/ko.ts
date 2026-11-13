@@ -4,4 +4,5 @@ import type { KeyboardTranslations } from './types.js'
 export const ko: KeyboardTranslations = {
   'keyboard.error.noProvider':
     '@molecule/app-keyboard: 프로바이더가 설정되지 않았습니다. KeyboardProvider 구현으로 setProvider()를 호출하세요 (예: @molecule/app-keyboard-react-native에서).',
+  'keyboard.error.missingDependency': '`{{library}}` 가 필요하지만 설치되어 있지 않습니다.',
 }

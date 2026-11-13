@@ -10,4 +10,6 @@ export const zh: Partial<BatteryTranslations> = {
   'battery.full': '已充满电',
   'battery.not-charging': '无法充电',
   'battery.remainingTime': '{{hours}} h {{minutes}}米',
+  'battery.error.noProvider':
+    '`@molecule/app-battery`：未设置提供程序。请传入 `BatteryProvider` 实现并调用 `setProvider()`。没有随附的提供程序；请在原生运行时中实现该接口并绑定它。',
 }

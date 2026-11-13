@@ -15,4 +15,5 @@ export const fil: Partial<BillingTranslations> = {
     'Kanselahin anumang oras · Hindi kailangan ng credit card para makapagsimula',
   'billing.pricing.tierEyebrow': 'Antas',
   'billing.pricing.perSeat': 'bawat upuan',
+  'billing.pricing.currentCta': 'Kasalukuyang plano',
 }

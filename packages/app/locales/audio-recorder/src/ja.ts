@@ -15,4 +15,6 @@ export const ja: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'エラー',
   'audioRecorder.statusIdle': '録音準備完了',
   'audioRecorder.group': '音声レコーダー',
+  'audioRecorder.record': '記録',
+  'audioRecorder.statusRecording': '録音',
 }

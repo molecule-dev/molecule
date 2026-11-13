@@ -15,4 +15,6 @@ export const hy: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'Սխալ',
   'audioRecorder.statusIdle': 'Պատրաստ է ձայնագրման',
   'audioRecorder.group': 'Աուդիո ձայնագրիչ',
+  'audioRecorder.record': 'Ձայնագրություն',
+  'audioRecorder.statusRecording': 'Ձայնագրություն',
 }

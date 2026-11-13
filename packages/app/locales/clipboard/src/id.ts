@@ -6,4 +6,6 @@ export const id: ClipboardTranslations = {
     '@molecule/app-clipboard: Penyedia belum diatur. Panggil setProvider() dengan implementasi ClipboardProvider (mis., dari @molecule/app-clipboard-react-native).',
   'clipboard.warn.onChangeNotSupported':
     '@molecule/app-clipboard: onChange tidak didukung oleh penyedia',
+  'clipboard.error.missingDependency':
+    '`{{library}}` diperlukan tetapi belum terpasang. Pasang dengan: `npm install {{library}}`',
 }

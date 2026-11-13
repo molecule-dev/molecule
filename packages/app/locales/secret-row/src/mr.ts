@@ -9,4 +9,6 @@ export const mr: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'प्रत',
   'secretRow.rotate': 'फिरवा',
   'secretRow.delete': 'हटवा',
+  'secretRow.lastRotated': 'शेवटचे फिरवले',
+  'secretRow.rotateIn': '{{days}} मध्ये फिरवा',
 }

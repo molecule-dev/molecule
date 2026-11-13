@@ -4,4 +4,5 @@ import type { KeyboardTranslations } from './types.js'
 export const ml: KeyboardTranslations = {
   'keyboard.error.noProvider':
     '@molecule/app-keyboard: ദാതാവ് സജ്ജീകരിച്ചിട്ടില്ല. ഒരു KeyboardProvider ഇംപ്ലിമെന്റേഷനുമായി setProvider() വിളിക്കുക (ഉദാ., @molecule/app-keyboard-react-native-ൽ നിന്ന്).',
+  'keyboard.error.missingDependency': '`{{library}}` ആവശ്യമാണ്, പക്ഷേ ഇൻസ്റ്റാൾ ചെയ്തിട്ടില്ല.',
 }

@@ -5,4 +5,5 @@ export const ig: Partial<SettingsActionsBarTranslations> = {
   'settingsActions.cancel': 'Kagbuo',
   'settingsActions.saving': 'Na-echekwa…',
   'settingsActions.save': 'Chekwaa mgbanwe',
+  'settingsActions.saved': 'Echekwara {{at}}',
 }

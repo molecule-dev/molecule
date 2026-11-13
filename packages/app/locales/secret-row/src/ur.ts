@@ -9,4 +9,6 @@ export const ur: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'کاپی',
   'secretRow.rotate': 'گھمائیں۔',
   'secretRow.delete': 'حذف کریں۔',
+  'secretRow.lastRotated': 'آخری بار گھمایا گیا۔',
+  'secretRow.rotateIn': '{{days}} d میں گھمائیں۔',
 }

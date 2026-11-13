@@ -6,4 +6,6 @@ export const lo: Partial<NotificationCenterTranslations> = {
   'notifications.markAllRead': 'ໝາຍທັງໝົດວ່າອ່ານແລ້ວ',
   'notifications.empty': 'ບໍ່ມີການແຈ້ງເຕືອນ',
   'notifications.viewAll': 'ເບິ່ງທັງໝົດ',
+  'notifications.loadError': 'ບໍ່ສາມາດໂຫຼດການແຈ້ງເຕືອນໄດ້.',
+  'notifications.retry': 'ລອງໃໝ່',
 }

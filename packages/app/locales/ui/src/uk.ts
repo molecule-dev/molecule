@@ -36,7 +36,6 @@ export const uk: Partial<UiTranslations> = {
   'ui.select.placeholder': 'Оберіть…',
   'ui.select.title': 'Виберіть',
   'ui.toast.dismiss': 'Закрити',
-  'ui.toast.error.noProvider': 'useToast має використовуватися всередині ToastProvider',
   'confirm.cancel': 'Скасувати',
   'confirm.confirm': 'Підтвердити',
   'ui.select.clear': '--',
@@ -53,4 +52,5 @@ export const uk: Partial<UiTranslations> = {
   'userMenu.panelLabel': 'Меню облікового запису',
   'ui.error.noClassMap':
     'UIClassMap не встановлено. Викличте setClassMap() під час запуску програми з реалізацією бібліотеки стилів (наприклад, @molecule/app-ui-tailwind).',
+  'ui.toast.error.noProvider': '`useToast` має використовуватися всередині `ToastProvider`',
 }

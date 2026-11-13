@@ -12,4 +12,8 @@ export const lv: NetworkTranslations = {
   'network.unknown': 'Nezināms',
   'network.error.connectionTimeout': 'Tīkla savienojuma noildze',
   'network.error.unavailable': 'Tīkls nav pieejams',
+  'network.error.missingDependency':
+    '`{{library}}` ir obligāta, bet nav instalēta. Instalējiet to, izmantojot: `npm install {{library}}`',
+  'network.error.noProvider':
+    '`@molecule/app-network`: Nav iestatīts nodrošinātājs. Izsauciet `setProvider()` ar `NetworkProvider` ieviešanu (piemēram, no `@molecule/app-network-react-native`).',
 }

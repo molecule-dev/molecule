@@ -5,4 +5,5 @@ export const sq: Partial<SettingsActionsBarTranslations> = {
   'settingsActions.cancel': 'Anulo',
   'settingsActions.saving': 'Duke u ruajtur…',
   'settingsActions.save': 'Ruaj ndryshimet',
+  'settingsActions.saved': 'Ruajtur {{at}}',
 }

@@ -9,4 +9,6 @@ export const da: Partial<SecretRowTranslations> = {
   'secretRow.expired': 'Udløbet',
   'secretRow.hide': 'Skjule',
   'secretRow.show': 'Vise',
+  'secretRow.lastRotated': 'Sidst roteret',
+  'secretRow.rotateIn': 'Roter om {{days}} d',
 }

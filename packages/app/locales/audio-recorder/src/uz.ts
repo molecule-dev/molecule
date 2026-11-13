@@ -15,4 +15,6 @@ export const uz: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'Xato',
   'audioRecorder.statusIdle': 'Yozib olishga tayyor',
   'audioRecorder.group': 'Ovoz yozuvchisi',
+  'audioRecorder.record': 'Yozuv',
+  'audioRecorder.statusRecording': 'Yozib olish',
 }

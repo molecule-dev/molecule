@@ -357,8 +357,6 @@ export const sv: Partial<IdeTranslations> = {
   'ide.chat.tip.mention':
     'Tips: skriv @filnamn för att bifoga en projektfil som kontext — {{agentName}} läser den direkt.',
   'ide.chat.tip.slash': 'Tips: Skriv / för att se alla kommandon (commit, diff, model och fler).',
-  'ide.chat.tip.plan':
-    'Tips: Använd /plan för att låt{{agentName}}en undersöka situationen och föreslå en plan innan den redigerar några filer.',
   'ide.chat.tip.undo':
     'Tips: Använd /undo för att omedelbart ångra de senaste filändringarna från AI-turen om det gick snett.',
   'ide.chat.tip.compact':
@@ -430,8 +428,6 @@ export const sv: Partial<IdeTranslations> = {
   'ide.chat.lintWarningsCount': '{{count}} varningar',
   'ide.chat.typeErrorsCount': '{{count}} typfel',
   'ide.chat.help.commandsHeading': '── Kommandon ──',
-  'ide.chat.help.intro':
-    '{{agentName}} är en AI-baserad kodningsassistent fr{{productName}}. Beskriv vad du vill bygga så hjälper den dig att skapa en kodstruktur, skriva koden och göra justeringar tillsammans med dig.',
   'ide.chat.help.introHeading': '── Kom igång ──',
   'ide.chat.help.modeDiscovery':
     'Upptäckt – här tar nya samtal sin början. Metoden ”{{agentName}}” innebär att man ställer förtydligande frågor för att fastställa kraven innan man skriver en enda rad kod.',
@@ -444,8 +440,6 @@ export const sv: Partial<IdeTranslations> = {
     'Tryck på Cmd+/ (Ctrl+/ i Windows/Linux) för att visa alla kortkommandon.',
   'ide.chat.help.tipCompact':
     '• Använd /compact för att komprimera konversationen när den blir lång.',
-  'ide.chat.help.tipPlan':
-    '• Använd /plan för att låt{{agentName}}en göra en utvärdering innan du genomför ändringar.',
   'ide.chat.help.tipSlash': '• Skriv / för att bläddra bland alla kommandon ovan.',
   'ide.chat.help.tipSpecific':
     '• Var konkret – ”Lägg till en inloggningssida med e-postadress/lösenord och Google OAuth” är bättre än ”lägg till inloggning”.',
@@ -492,7 +486,6 @@ export const sv: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNotFound':
     'Det finns inget skript med namnet ”{{name}}”. Tillgängligt: {{names}}',
   'ide.chat.scripts.cmdExitOk': '{{name}} avslutades med 0',
-  'ide.chat.scripts.cmdExitFail': '{{name}} avslutades med felkod{{code}}',
   'ide.chat.scripts.exitOk': 'Avslutades med 0',
   'ide.chat.scripts.exitFail': 'Lämnade {{code}}',
   'ide.chat.scripts.noOutput': '(ingen utdata)',
@@ -618,7 +611,6 @@ export const sv: Partial<IdeTranslations> = {
   'ide.chat.previewLinkTitle': 'Öppna {{path}} i förhandsvisningen',
   'ide.chat.report.diagnosticsNote':
     'Din appversion, webbläsare och skärmstorlek bifogas för att hjälpa oss med felsökningen.',
-  'ide.chat.skills.loadedCount': '🧠 Avancerade kunskaper inom{{count}}',
   'ide.chat.skills.waitingForSandbox': 'Väntar på att sandlådan ska starta klart…',
   'ide.chat.skills.resetDefaults': 'Ladda alla som standard',
   'ide.search.excludedDirs': 'Uteslutna mappar (gäller alla sökningar, inklusive agenten)',
@@ -783,4 +775,14 @@ export const sv: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'Månadsbidrag.',
   'ide.chat.context.daily': 'Dagtraktamente.',
   'ide.chat.context.resets': 'Återställer {{at}} .',
+  'ide.error.noProvider':
+    'IDE-arbetsyteleverantören är inte konfigurerad. Koppla först en IDE-leverantör.',
+  'ide.chat.tip.plan':
+    'Tips: använd /plan för att låta {{agentName}} undersöka och föreslå en plan innan några filer redigeras.',
+  'ide.chat.help.intro':
+    '{{agentName}} är {{productName}} s AI-kodningsagent. Beskriv vad du vill bygga så kommer den att bygga, koda och iterera med dig.',
+  'ide.chat.help.tipPlan':
+    '• Använd /plan för att låta {{agentName}} undersöka saken innan ändringar görs.',
+  'ide.chat.scripts.cmdExitFail': '{{name}} avslutade med koden {{code}}',
+  'ide.chat.skills.loadedCount': '🧠 Laddade {{count}} färdigheter',
 }

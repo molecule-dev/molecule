@@ -6,4 +6,6 @@ export const am: Partial<NotificationCenterTranslations> = {
   'notifications.markAllRead': 'ሁሉንም እንደተነበቡ ምልክት ያድርጉባቸው',
   'notifications.empty': 'ምንም ማሳወቂያዎች የሉም',
   'notifications.viewAll': 'ሁሉንም ይመልከቱ',
+  'notifications.loadError': 'ማሳወቂያዎችን መጫን አልተቻለም።',
+  'notifications.retry': 'እንደገና ሞክር',
 }

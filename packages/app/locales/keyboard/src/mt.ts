@@ -4,4 +4,5 @@ import type { KeyboardTranslations } from './types.js'
 export const mt: Partial<KeyboardTranslations> = {
   'keyboard.error.noProvider':
     "@molecule/app-keyboard: L-ebda fornitur ma ġie stabbilit. Sejjaħ setProvider() b'implimentazzjoni ta' KeyboardProvider (eż., minn @molecule/app-keyboard-react-native).",
+  'keyboard.error.missingDependency': '`{{library}}` hija meħtieġa iżda mhux installata.',
 }

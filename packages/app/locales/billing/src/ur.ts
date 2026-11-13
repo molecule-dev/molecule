@@ -15,4 +15,5 @@ export const ur: Partial<BillingTranslations> = {
   'billing.pricing.tierEyebrow': 'ٹائر',
   'billing.pricing.perSeat': 'فی سیٹ',
   'billing.pricing.upgradeCta': 'میں اپ گریڈ کریں۔ {{tierName}}',
+  'billing.pricing.currentCta': 'موجودہ منصوبہ',
 }

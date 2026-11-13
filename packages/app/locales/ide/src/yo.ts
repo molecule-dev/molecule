@@ -387,13 +387,9 @@ export const yo: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
-  'ide.chat.tip.getStarted':
-    'Ìmọ̀ràn: tẹ / láti wo gbogbo àṣẹ, tàbí @ orúkọ fáìlì láti fúnni{{agentName}} fáìlì láti ṣiṣẹ́ láti.',
   'ide.chat.tip.mention':
     'Àmọ̀ràn: tẹ @filename láti so fáìlì iṣẹ́ àgbékalẹ̀ kan mọ́ gẹ́gẹ́ bí ìtumọ̀ —{{agentName}} kà á tààrà.',
   'ide.chat.tip.slash': 'Ìmọ̀ràn: tẹ / láti wo gbogbo àṣẹ (ìdámọ̀ràn, ìyàtọ̀, àwòṣe, àti bẹ́ẹ̀ bẹ́ẹ̀ lọ).',
-  'ide.chat.tip.plan':
-    'Ìmọ̀ràn: lo/gbero lati ni{{agentName}} ṣe ìwádìí kí o sì dábàá ètò kan kí ó tó ṣe àtúnṣe sí èyíkéyìí àwọn fáìlì.',
   'ide.chat.tip.undo':
     'Ìmọ̀ràn: lo /túnṣe láti dá àwọn àyípadà fáìlì AI tó kẹ́yìn padà lẹ́sẹ̀kẹsẹ̀ tí ó bá lọ lọ́nà tí kò tọ́.',
   'ide.chat.tip.compact':
@@ -808,4 +804,9 @@ export const yo: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'Iyọọda oṣooṣu.',
   'ide.chat.context.daily': 'Iyọọda ojoojumọ.',
   'ide.chat.context.resets': 'Àtúntò {{at}} .',
+  'ide.error.noProvider': 'A kò ṣètò olùpèsè ibi iṣẹ́ IDE. Ṣe ìsopọ̀ mọ́ olùpèsè IDE kan ní àkọ́kọ́.',
+  'ide.chat.tip.getStarted':
+    'Ìmọ̀ràn: tẹ / láti wo gbogbo àṣẹ, tàbí @ orúkọ fáìlì láti fún {{agentName}} fáìlì láti ṣiṣẹ́.',
+  'ide.chat.tip.plan':
+    'Ìmọ̀ràn: lo /gbèrò láti ṣe ìwádìí {{agentName}} kí o sì dábàá ètò kan kí ó tó ṣe àtúnṣe sí àwọn fáìlì kankan.',
 }

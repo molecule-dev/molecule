@@ -4,4 +4,6 @@ import type { PushTranslations } from './types.js'
 export const sr: PushTranslations = {
   'push.error.notSupported': 'Push обавештења нису подржана',
   'push.error.permissionNotGranted': 'Дозвола за обавештења није одобрена',
+  'push.error.missingDependency':
+    '`{{library}}` је потребна, али није инсталирана. Инсталирајте је помоћу: `npx expo install {{library}}`',
 }

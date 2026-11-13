@@ -6,4 +6,6 @@ export const mr: Partial<NotificationCenterTranslations> = {
   'notifications.markAllRead': 'सर्व वाचले म्हणून चिन्हांकित करा',
   'notifications.empty': 'कोणत्याही सूचना नाहीत',
   'notifications.viewAll': 'सर्व पहा',
+  'notifications.loadError': 'सूचना लोड होऊ शकल्या नाहीत.',
+  'notifications.retry': 'पुन्हा प्रयत्न करा',
 }

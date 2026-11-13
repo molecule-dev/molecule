@@ -12,4 +12,8 @@ export const ha: Partial<NetworkTranslations> = {
   'network.error.connectionTimeout': 'Lokacin haɗin hanyar sadarwa ya ƙare',
   'network.error.unavailable': 'Hanyar sadarwa ba ta samuwa',
   'network.cellular': 'Wayar salula',
+  'network.error.missingDependency':
+    'Ana buƙatar `{{library}}` amma ba a shigar da shi ba. Shigar da shi da: `npm install {{library}}`',
+  'network.error.noProvider':
+    '`@molecule/app-network`: Babu saitin mai bada sabis. Kira `setProvider()` tare da aiwatar da `NetworkProvider` (misali, daga `@molecule/app-network-react-native`).',
 }

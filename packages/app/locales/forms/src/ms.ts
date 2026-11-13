@@ -11,4 +11,5 @@ export const ms: FormsTranslations = {
   'forms.invalidEmail': 'Alamat e-mel tidak sah',
   'forms.invalidUrl': 'URL tidak sah',
   'forms.invalidValue': 'Nilai tidak sah',
+  'forms.submitError': 'Tidak dapat menghantar. Sila cuba lagi.',
 }

@@ -12,4 +12,8 @@ export const hy: NetworkTranslations = {
   'network.unknown': 'Anhayt',
   'network.error.connectionTimeout': 'Cancanyin kapy sparvel e',
   'network.error.unavailable': 'Cancanutyuny anhasaneli e',
+  'network.error.missingDependency':
+    '`{{library}}` պարտադիր է, բայց տեղադրված չէ։ Տեղադրեք այն՝ `npm install {{library}}` ով։',
+  'network.error.noProvider':
+    '`@molecule/app-network`: Մատակարար սահմանված չէ: Կանչեք `setProvider()` ը `NetworkProvider` իրականացմամբ (օրինակ՝ `@molecule/app-network-react-native` ից):',
 }

@@ -14,4 +14,5 @@ export const nb: Partial<BillingTranslations> = {
   'billing.pricing.reassurance': 'Avbryt når som helst · Ingen kredittkort kreves for å starte',
   'billing.pricing.tierEyebrow': 'Nivå',
   'billing.pricing.perSeat': 'per sete',
+  'billing.pricing.currentCta': 'Nåværende plan',
 }

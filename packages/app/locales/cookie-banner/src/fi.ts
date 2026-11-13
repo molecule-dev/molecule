@@ -10,4 +10,5 @@ export const fi: Partial<CookieBannerTranslations> = {
   'cookieBanner.customize': 'Mukauta',
   'cookieBanner.reject': 'Hylkää kaikki',
   'cookieBanner.accept': 'Hyväksy kaikki',
+  'cookieBanner.learnMore': 'Lue lisää',
 }

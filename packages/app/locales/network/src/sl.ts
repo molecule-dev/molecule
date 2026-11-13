@@ -12,4 +12,8 @@ export const sl: NetworkTranslations = {
   'network.unknown': 'Neznano',
   'network.error.connectionTimeout': 'Časovna omejitev omrežne povezave je potekla',
   'network.error.unavailable': 'Omrežje ni na voljo',
+  'network.error.missingDependency':
+    '`{{library}}` je obvezna, vendar ni nameščena. Namestite jo z: `npm install {{library}}`',
+  'network.error.noProvider':
+    '`@molecule/app-network`: Ponudnik ni nastavljen. Pokličite `setProvider()` z implementacijo `NetworkProvider` (npr. iz `@molecule/app-network-react-native`).',
 }

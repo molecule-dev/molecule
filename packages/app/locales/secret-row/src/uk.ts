@@ -9,4 +9,6 @@ export const uk: Partial<SecretRowTranslations> = {
   'secretRow.expired': 'Термін дії минув',
   'secretRow.hide': 'Приховати',
   'secretRow.show': 'Показати',
+  'secretRow.lastRotated': 'Остання обертання',
+  'secretRow.rotateIn': 'Ротація через {{days}} днів',
 }

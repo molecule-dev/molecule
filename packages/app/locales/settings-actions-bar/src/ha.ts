@@ -5,4 +5,5 @@ export const ha: Partial<SettingsActionsBarTranslations> = {
   'settingsActions.cancel': 'Soke',
   'settingsActions.saving': 'Ana adanawa…',
   'settingsActions.save': 'Ajiye canje-canje',
+  'settingsActions.saved': 'An adana {{at}}',
 }

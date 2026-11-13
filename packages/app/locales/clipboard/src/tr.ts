@@ -6,4 +6,6 @@ export const tr: Partial<ClipboardTranslations> = {
     '@molecule/app-clipboard: onChange sağlayıcı tarafından desteklenmiyor',
   'clipboard.error.noProvider':
     "@molecule/app-clipboard: Sağlayıcı ayarlanmadı. Lütfen bir ClipboardProvider uygulamasıyla (örneğin, @molecule/app-clipboard-react-native'dan) setProvider() işlevini çağırın.",
+  'clipboard.error.missingDependency':
+    '`{{library}}` kütüphanesi gereklidir ancak yüklü değil. Şu komutla yükleyin: `npm install {{library}}`',
 }

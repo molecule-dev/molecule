@@ -15,6 +15,21 @@ export type SettingsPanelTranslationKey =
   | 'settings.billing.upgradeTitle'
   | 'settings.billing.noTiers'
   | 'settings.billing.subscribe'
+  | 'settings.failedToUpdateProfile'
+  | 'settings.name'
+  | 'settings.twoFactorCode'
+  | 'settings.twoFactorDisable'
+  | 'settings.twoFactorDisableTitle'
+  | 'settings.twoFactorEnable'
+  | 'settings.twoFactorEnableTitle'
+  | 'settings.twoFactorInvalidCode'
+  | 'settings.twoFactorOn'
+  | 'settings.twoFactorQrAlt'
+  | 'settings.twoFactorScan'
+  | 'settings.twoFactorUnavailable'
+  | 'settings.twoFactorVerify'
+  | 'settings.revokeDeviceWarning'
+  | 'settings.signOutDevice'
 
 /** Translation record mapping settings-panel-react keys to translated strings. */
 export type SettingsPanelTranslations = Record<SettingsPanelTranslationKey, string>

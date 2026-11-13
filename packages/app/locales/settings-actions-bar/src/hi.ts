@@ -5,4 +5,5 @@ export const hi: Partial<SettingsActionsBarTranslations> = {
   'settingsActions.cancel': 'रद्द करें',
   'settingsActions.saving': 'सहेजा जा रहा है…',
   'settingsActions.save': 'परिवर्तन सहेजें',
+  'settingsActions.saved': '{{at}} पर सहेजा गया',
 }

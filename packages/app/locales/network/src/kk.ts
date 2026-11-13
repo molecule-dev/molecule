@@ -12,4 +12,8 @@ export const kk: NetworkTranslations = {
   'network.unknown': 'Белгісіз',
   'network.error.connectionTimeout': 'Желі қосылымының уақыты бітті',
   'network.error.unavailable': 'Желі қолжетімсіз',
+  'network.error.missingDependency':
+    '`{{library}}` қажет, бірақ орнатылмаған. Оны келесідей орнатыңыз: `npm install {{library}}`',
+  'network.error.noProvider':
+    '`@molecule/app-network`: Провайдер орнатылмаған. `setProvider()` `NetworkProvider` іске асыруымен шақырыңыз (мысалы, `@molecule/app-network-react-native` функциясынан).',
 }

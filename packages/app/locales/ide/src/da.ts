@@ -351,8 +351,6 @@ export const da: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'CV',
   'ide.chat.openSettings': 'Indstillinger',
   'ide.chat.tip.dismiss': 'Skjul tip',
-  'ide.chat.tip.getStarted':
-    'Tip: Skriv / for at se alle kommandoer, eller @ efterfulgt af et filnavn for at angive en fil, s{{agentName}}en skal arbejde ud fra.',
   'ide.chat.tip.mention':
     'Tip: Skriv @filnavn for at vedhæfte en projektfil som kontekst — {{agentName}} læser den direkte.',
   'ide.chat.tip.slash':
@@ -490,7 +488,6 @@ export const da: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNotFound':
     'Der findes ikke noget script med navnet »{{name}}«. Tilgængeligt: {{names}}',
   'ide.chat.scripts.cmdExitOk': '{{name}} afsluttet 0',
-  'ide.chat.scripts.cmdExitFail': '{{name}} afsluttet med fejlkode{{code}}',
   'ide.chat.scripts.exitOk': 'Afsluttet 0',
   'ide.chat.scripts.exitFail': '{{code}} er lukket',
   'ide.chat.scripts.noOutput': '(ingen udskrift)',
@@ -781,4 +778,9 @@ export const da: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'Månedlig godtgørelse.',
   'ide.chat.context.daily': 'Dagpenge.',
   'ide.chat.context.resets': 'Nulstiller {{at}} .',
+  'ide.error.noProvider':
+    'IDE-arbejdsområdeudbyder er ikke konfigureret. Tilknyt først en IDE-udbyder.',
+  'ide.chat.tip.getStarted':
+    'Tip: skriv / for at se alle kommandoer, eller @ et filnavn for at give {{agentName}} en fil at arbejde fra.',
+  'ide.chat.scripts.cmdExitFail': '{{name}} afsluttede med koden {{code}}',
 }

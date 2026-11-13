@@ -3,4 +3,6 @@ import type { MedicationRowTranslations } from './types.js'
 /** MedicationRow translations for nl. */
 export const nl: Partial<MedicationRowTranslations> = {
   'medication.prescribedBy': 'Voorgeschreven door',
+  'medication.refills': '{{refills}} navullingen',
+  'medication.supplyDays': '{{days}} dagvoorraad',
 }

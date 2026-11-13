@@ -10,4 +10,5 @@ export const hy: Partial<CookieBannerTranslations> = {
   'cookieBanner.reject': 'Մերժել բոլորը',
   'cookieBanner.save': 'Պահպանել նախընտրությունները',
   'cookieBanner.accept': 'Ընդունել բոլորը',
+  'cookieBanner.learnMore': 'Իմանալ ավելին',
 }

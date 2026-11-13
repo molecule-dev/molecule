@@ -6,4 +6,6 @@ export const be: ClipboardTranslations = {
     '@molecule/app-clipboard: Правайдар не ўсталяваны. Выклічце setProvider() з рэалізацыяй ClipboardProvider (напр., з @molecule/app-clipboard-react-native).',
   'clipboard.warn.onChangeNotSupported':
     '@molecule/app-clipboard: onChange не падтрымліваецца правайдарам',
+  'clipboard.error.missingDependency':
+    '`{{library}}` абавязковы, але не ўсталяваны. Усталюйце яго з дапамогай: `npm install {{library}}`',
 }

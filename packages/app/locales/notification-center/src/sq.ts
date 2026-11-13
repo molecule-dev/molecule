@@ -6,4 +6,6 @@ export const sq: Partial<NotificationCenterTranslations> = {
   'notifications.markAllRead': 'Shëno të gjitha si të lexuara',
   'notifications.empty': 'Asnjë njoftim',
   'notifications.viewAll': 'Shiko të gjitha',
+  'notifications.loadError': 'Nuk mund të ngarkoheshin njoftimet.',
+  'notifications.retry': 'Riprovo',
 }

@@ -11,4 +11,5 @@ export const zhTW: FormsTranslations = {
   'forms.invalidEmail': '電子郵件地址無效',
   'forms.invalidUrl': 'URL 無效',
   'forms.invalidValue': '值無效',
+  'forms.submitError': '提交失敗，請重試。',
 }

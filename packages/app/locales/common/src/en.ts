@@ -520,4 +520,7 @@ export const en: CommonTranslations = {
   'nav.loadingActivity': 'Loading activity…',
   'nav.browseStays': 'Browse stays',
   'nav.primaryNavigation': 'Primary navigation',
+  'common.done': 'Done',
+  'planUpdated.retry': 'Try again',
+  'planUpdated.verifyFailed': 'We could not confirm your payment yet.',
 }

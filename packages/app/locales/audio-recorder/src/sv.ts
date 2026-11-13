@@ -14,4 +14,6 @@ export const sv: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'Fel',
   'audioRecorder.statusIdle': 'Klar att spela in',
   'audioRecorder.group': 'Ljudinspelare',
+  'audioRecorder.record': 'Spela in',
+  'audioRecorder.statusRecording': 'Inspelning',
 }

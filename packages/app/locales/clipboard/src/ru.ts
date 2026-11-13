@@ -6,4 +6,6 @@ export const ru: ClipboardTranslations = {
     '@molecule/app-clipboard: Провайдер не установлен. Вызовите setProvider() с реализацией ClipboardProvider (например, из @molecule/app-clipboard-react-native).',
   'clipboard.warn.onChangeNotSupported':
     '@molecule/app-clipboard: onChange не поддерживается провайдером',
+  'clipboard.error.missingDependency':
+    '`{{library}}` необходима, но не установлена. Установите её с помощью команды: `npm install {{library}}`',
 }

@@ -10,4 +10,6 @@ export const cs: BatteryTranslations = {
   'battery.remainingUnknown': 'Neznámé',
   'battery.remainingTime': '{{hours}}h {{minutes}}m',
   'battery.remainingMinutes': '{{minutes}}m',
+  'battery.error.noProvider':
+    '`@molecule/app-battery`: Není nastaven žádný poskytovatel. Zavolejte `setProvider()` s implementací `BatteryProvider` – s vozovým parkem není dodáván žádný poskytovatel; implementujte rozhraní ve vašem nativním běhovém prostředí a propojte ho.',
 }

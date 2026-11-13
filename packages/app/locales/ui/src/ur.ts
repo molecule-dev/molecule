@@ -42,7 +42,6 @@ export const ur: UiTranslations = {
   'ui.select.placeholder': 'منتخب کریں…',
   'ui.select.title': 'منتخب کریں۔',
   'ui.toast.dismiss': '\u0628\u0631\u062e\u0627\u0633\u062a \u06a9\u0631\u06cc\u06ba',
-  'ui.toast.error.noProvider': 'useToast کا استعمال ToastProvider کے اندر ہونا چاہیے۔',
   'confirm.cancel': 'منسوخ کریں۔',
   'confirm.confirm': 'تصدیق کریں۔',
   'ui.select.clear': '--',
@@ -59,4 +58,5 @@ export const ur: UiTranslations = {
   'userMenu.panelLabel': 'اکاؤنٹ مینو',
   'ui.error.noClassMap':
     'کوئی UIClassMap سیٹ نہیں کیا گیا ہے۔ اسٹائلنگ لائبریری کے نفاذ کے ساتھ ایپ اسٹارٹ اپ پر setClassMap() کو کال کریں (جیسے @molecule/app-ui-tailwind)۔',
+  'ui.toast.error.noProvider': '`useToast` استعمال `ToastProvider` کے اندر ہونا چاہئے۔',
 }

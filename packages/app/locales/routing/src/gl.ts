@@ -6,4 +6,8 @@ export const gl: RoutingTranslations = {
   'routing.error.routeNotFound': 'Non se atopou a ruta "{{name}}"',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter debe usarse dentro dun MoleculeRouterProvider',
+  'routing.error.noNavigationRef':
+    'Referencia de navegación non definida. Asegúrate de que `MoleculeProvider` estea montado.',
+  'routing.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` debe usarse dentro dun enrutador React Router. Monte `BrowserRouter`, `HashRouter`, `MemoryRouter`, `Router` ou `RouterProvider`.',
 }

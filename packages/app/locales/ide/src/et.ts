@@ -372,8 +372,6 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.autoCommit.badge': '{{countdown}}i automaatne salvestamine',
   'ide.chat.autoCommit.cancel': 'Tühista automaatne salvestamine',
   'ide.chat.autoCommit.cancelled': 'Automaatne salvestamine tühistati.',
-  'ide.chat.autoCommit.enabled':
-    'Automaatne kinnitamine on sisse lülitatud: kinnitamis{{seconds}}i möödumisel viimasest failimuutusest. Tühista käskuga /autocommit 0.',
   'ide.chat.effort.error': 'Põhjenduse uuendamine ebaõnnestus.',
   'ide.chat.effort.fixedForModel':
     'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
@@ -389,7 +387,6 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.models.colName': 'Mudel',
   'ide.chat.models.freeNo': '—',
   'ide.chat.models.freeYes': '✓ Tasuta',
-  'ide.chat.models.sortBy': 'Järjesta järgi{{column}}',
   'ide.chat.modelsLoading': 'Mudeleid laaditakse…',
   'ide.chat.modelsNone':
     'Hetkel pole mudeleid saadaval – palun paluge oma administraatoril ühendada AI-teenusepakkuja.',
@@ -492,7 +489,6 @@ export const et: Partial<IdeTranslations> = {
     'Salvestatud skripte pole veel. Ava kataloog /scripts, et luua skript.',
   'ide.chat.scripts.runNotFound': 'Skriptit nimega „{{name}}“ ei leitud. Saadaval: {{names}}',
   'ide.chat.scripts.cmdExitOk': '{{name}} väljus 0',
-  'ide.chat.scripts.cmdExitFail': '{{name}} lõpetati koodiga{{code}}',
   'ide.chat.scripts.exitOk': 'Lõpetatud 0',
   'ide.chat.scripts.exitFail': 'Väljus {{code}}',
   'ide.chat.scripts.noOutput': '(väljund puudub)',
@@ -505,7 +501,6 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.settings.modelUnset': 'Ei ole määratud',
   'ide.chat.settings.off': 'Väljas',
   'ide.chat.settings.on': 'Kell',
-  'ide.chat.settings.soundsSummary': '{{enabled}} {{total}}i sündmused on lubatud',
   'ide.chat.share.heading': 'Jaga projekti',
   'ide.chat.share.loading': 'Loading…',
   'ide.chat.share.none': 'No public link yet.',
@@ -702,7 +697,6 @@ export const et: Partial<IdeTranslations> = {
   'ide.tests.empty': 'Selles projektis pole veel ühtegi testi.',
   'ide.tests.noMatch': 'Teie otsingule vastavaid teste ei leitud.',
   'ide.tests.fixWithSynthase': 'Parandamine Synthase’iga',
-  'ide.tests.fixFailures': '{{count}}i tõrgete parandamine',
   'ide.tests.fixBusy': 'Oota, kuni käesolev voor lõpeb.',
   'ide.chat.skipToolCall': 'Vaheta',
   'ide.chat.skippingToolCall': 'Vahelejätmine…',
@@ -782,4 +776,12 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'Kuutoetus.',
   'ide.chat.context.daily': 'Päevaraha.',
   'ide.chat.context.resets': 'Lähtestab {{at}} .',
+  'ide.error.noProvider':
+    'IDE tööruumi pakkujat pole konfigureeritud. Looge esmalt IDE pakkuja side.',
+  'ide.chat.autoCommit.enabled':
+    'Automaatne kinnitamine sees: kinnitatakse {{seconds}} sekundit pärast viimast failimuudatust. Automaatse kinnitamise keelamiseks määrake väärtuseks 0.',
+  'ide.chat.models.sortBy': 'Sorteeri {{column}} järgi',
+  'ide.chat.scripts.cmdExitFail': '{{name}} väljus koodiga {{code}}',
+  'ide.chat.settings.soundsSummary': '{{enabled}} / {{total}} sündmusest lubatud',
+  'ide.tests.fixFailures': 'Paranda {{count}} tõrget',
 }

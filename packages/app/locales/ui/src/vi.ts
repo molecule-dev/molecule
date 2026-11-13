@@ -36,7 +36,6 @@ export const vi: Partial<UiTranslations> = {
   'ui.select.placeholder': 'Chọn…',
   'ui.select.title': 'Chọn',
   'ui.toast.dismiss': 'Bỏ qua',
-  'ui.toast.error.noProvider': 'Hàm `useToast` phải được sử dụng trong phạm vi `ToastProvider`.',
   'confirm.cancel': 'Hủy',
   'confirm.confirm': 'Xác nhận',
   'ui.select.clear': '--',
@@ -53,4 +52,5 @@ export const vi: Partial<UiTranslations> = {
   'userMenu.panelLabel': 'Menu tài khoản',
   'ui.error.noClassMap':
     'Chưa có UIClassMap nào được thiết lập. Hãy gọi setClassMap() khi khởi chạy ứng dụng với một thư viện tạo kiểu (ví dụ: @molecule/app-ui-tailwind).',
+  'ui.toast.error.noProvider': '`useToast` phải được sử dụng trong `ToastProvider`',
 }

@@ -15,4 +15,6 @@ export const vi: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'Lỗi',
   'audioRecorder.statusIdle': 'Sẵn sàng ghi âm',
   'audioRecorder.group': 'Máy ghi âm',
+  'audioRecorder.record': 'Ghi',
+  'audioRecorder.statusRecording': 'Ghi âm',
 }

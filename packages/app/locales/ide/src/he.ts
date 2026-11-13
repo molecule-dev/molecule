@@ -348,13 +348,9 @@ export const he: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
-  'ide.chat.tip.getStarted':
-    'טיפ: הקלד / כדי לראות כל פקודה, או @ כדי לתת שם קובץ{{agentName}} קובץ לעבוד ממנו.',
   'ide.chat.tip.mention':
     'טיפ: הקלד @filename כדי לצרף קובץ פרויקט כהקשר —{{agentName}} קורא את זה ישירות.',
   'ide.chat.tip.slash': 'טיפ: הקלד / כדי לעיין בכל פקודה (commit, diff, model ועוד).',
-  'ide.chat.tip.plan':
-    'טיפ: השתמשו/תכננו שיהיה לכם{{agentName}} לחקור ולהציע תוכנית לפני שהוא עורך קבצים כלשהם.',
   'ide.chat.tip.undo':
     'טיפ: השתמשו בפונקציה /undo כדי לבטל באופן מיידי את השינויים בקובץ של תור הבינה המלאכותית האחרון אם זה הלך בכיוון הלא נכון.',
   'ide.chat.tip.compact': 'טיפ: שיחה ארוכה? /compact דוחס את ההקשר כך שיהיה מקום לעבודה.',
@@ -767,4 +763,9 @@ export const he: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'קצבה חודשית.',
   'ide.chat.context.daily': 'קצבה יומית.',
   'ide.chat.context.resets': 'מאפס {{at}} .',
+  'ide.error.noProvider': 'ספק סביבת העבודה של IDE לא הוגדר. חבר ספק IDE תחילה.',
+  'ide.chat.tip.getStarted':
+    'טיפ: הקלד / כדי לראות כל פקודה, או @ שם קובץ כדי לתת ל {{agentName}} קובץ לעבוד ממנו.',
+  'ide.chat.tip.plan':
+    'טיפ: השתמשו ב-/plan כדי ש- {{agentName}} יחקור ויציע תוכנית לפני עריכת קבצים כלשהם.',
 }

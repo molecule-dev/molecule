@@ -36,7 +36,6 @@ export const bg: UiTranslations = {
   'ui.select.placeholder': 'Изберете…',
   'ui.select.title': 'Изберете',
   'ui.toast.dismiss': 'Отхвърли',
-  'ui.toast.error.noProvider': 'useToast трябва да се използва в рамките на ToastProvider',
   'confirm.cancel': 'Отказ',
   'confirm.confirm': 'Потвърди',
   'ui.select.clear': '--',
@@ -53,4 +52,5 @@ export const bg: UiTranslations = {
   'userMenu.panelLabel': 'Меню на акаунта',
   'ui.error.noClassMap':
     'Не е зададен UIClassMap. Извикайте setClassMap() при стартиране на приложението с имплементация на библиотека за стилизиране (напр. @molecule/app-ui-tailwind).',
+  'ui.toast.error.noProvider': '`useToast` трябва да се използва в рамките на `ToastProvider`',
 }

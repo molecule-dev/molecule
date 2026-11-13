@@ -8,4 +8,7 @@ export const ga: Partial<FooterTranslations> = {
   'footer.language': 'Teanga',
   'content.privacyPolicy': '',
   'content.termsOfService': '',
+  'footer.legalNotConfigured':
+    "Níl an t-ábhar seo cumraithe fós. Ní mór d'úinéir an aip é a sholáthar.",
+  'footer.about': 'Maidir le {{appName}}',
 }

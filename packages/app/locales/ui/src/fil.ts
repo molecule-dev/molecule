@@ -36,7 +36,6 @@ export const fil: Partial<UiTranslations> = {
   'ui.select.placeholder': 'Pumili…',
   'ui.select.title': 'Piliin',
   'ui.toast.dismiss': 'Isara',
-  'ui.toast.error.noProvider': 'Dapat gamitin ang useToast sa loob ng isang ToastProvider',
   'confirm.cancel': 'Kanselahin',
   'confirm.confirm': 'Kumpirmahin',
   'ui.select.clear': '--',
@@ -53,4 +52,5 @@ export const fil: Partial<UiTranslations> = {
   'userMenu.panelLabel': 'Menu ng Account',
   'ui.error.noClassMap':
     'Walang naitakdang UIClassMap. Tawagin ang setClassMap() sa pagsisimula ng app gamit ang isang implementasyon ng styling library (hal., @molecule/app-ui-tailwind).',
+  'ui.toast.error.noProvider': 'Dapat gamitin `useToast` sa loob ng isang `ToastProvider`',
 }

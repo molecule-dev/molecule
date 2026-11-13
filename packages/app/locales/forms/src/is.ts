@@ -11,4 +11,5 @@ export const is: FormsTranslations = {
   'forms.invalidEmail': 'Ógilt netfang',
   'forms.invalidUrl': 'Ógild URL-slóð',
   'forms.invalidValue': 'Ógilt gildi',
+  'forms.submitError': 'Ekki tókst að senda inn. Reyndu aftur.',
 }

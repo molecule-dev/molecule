@@ -354,14 +354,10 @@ export const uz: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
-  'ide.chat.tip.getStarted':
-    "Maslahat: har bir buyruqni ko'rish uchun / ni kiriting yoki fayl nomini berish uchun @ ni kiriting{{agentName}} ishlash uchun fayl.",
   'ide.chat.tip.mention':
     "Maslahat: loyiha faylini kontekst sifatida biriktirish uchun @filename ni kiriting —{{agentName}} uni to'g'ridan-to'g'ri o'qiydi.",
   'ide.chat.tip.slash':
     "Maslahat: har bir buyruqni (commit, diff, model va boshqalar) ko'rib chiqish uchun / ni kiriting.",
-  'ide.chat.tip.plan':
-    "Maslahat: ega bo'lish uchun /plan dan foydalaning{{agentName}} biron bir faylni tahrirlashdan oldin tadqiqot o'tkazing va reja taklif qiling.",
   'ide.chat.tip.undo':
     "Maslahat: agar noto'g'ri yo'ldan ketgan bo'lsa, oxirgi AI navbati faylidagi o'zgarishlarni darhol qaytarish uchun /undo tugmasidan foydalaning.",
   'ide.chat.tip.compact':
@@ -779,4 +775,10 @@ export const uz: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'Oylik nafaqa.',
   'ide.chat.context.daily': 'Kundalik nafaqa.',
   'ide.chat.context.resets': '{{at}} ni qayta tiklaydi.',
+  'ide.error.noProvider':
+    "IDE ish maydoni provayderi sozlanmagan. Avval IDE provayderini bog'lang.",
+  'ide.chat.tip.getStarted':
+    "Maslahat: har bir buyruqni ko'rish uchun / ni kiriting, yoki {{agentName}} ga ishlash uchun fayl berish uchun @ fayl nomini kiriting.",
+  'ide.chat.tip.plan':
+    'Maslahat: {{agentName}} biron bir faylni tahrirlashdan oldin tadqiqot olib borishi va reja taklif qilishi uchun /plan dan foydalaning.',
 }

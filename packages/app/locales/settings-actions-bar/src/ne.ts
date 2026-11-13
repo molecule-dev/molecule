@@ -5,4 +5,5 @@ export const ne: Partial<SettingsActionsBarTranslations> = {
   'settingsActions.cancel': 'रद्द गर्नुहोस्',
   'settingsActions.saving': 'बचत गर्दै...',
   'settingsActions.save': 'परिवर्तनहरू बचत गर्नुहोस्',
+  'settingsActions.saved': '{{at}} मा सुरक्षित गरिएको',
 }

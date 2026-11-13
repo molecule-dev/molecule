@@ -6,4 +6,6 @@ export const ca: Partial<NotificationCenterTranslations> = {
   'notifications.markAllRead': 'Marca-ho tot com a llegit',
   'notifications.empty': 'Sense notificacions',
   'notifications.viewAll': 'Veure-ho tot',
+  'notifications.loadError': "No s'han pogut carregar les notificacions.",
+  'notifications.retry': 'Torna-ho a intentar',
 }

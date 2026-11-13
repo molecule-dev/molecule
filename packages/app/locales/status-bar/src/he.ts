@@ -4,4 +4,5 @@ import type { StatusBarTranslations } from './types.js'
 export const he: StatusBarTranslations = {
   'statusBar.error.noProvider':
     '@molecule/app-status-bar: לא הוגדר ספק. קרא ל-setProvider() עם מימוש של StatusBarProvider (למשל, מ-@molecule/app-status-bar-react-native).',
+  'statusBar.error.missingDependency': '`{{library}}` נדרש אך אינו מותקן.',
 }

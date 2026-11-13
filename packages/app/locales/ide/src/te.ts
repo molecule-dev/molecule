@@ -777,4 +777,6 @@ export const te: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'నెలవారీ భత్యం.',
   'ide.chat.context.daily': 'రోజువారీ భత్యం.',
   'ide.chat.context.resets': '{{at}} ని రీసెట్ చేస్తుంది.',
+  'ide.error.noProvider':
+    'IDE వర్క్‌స్పేస్ ప్రొవైడర్ కాన్ఫిగర్ చేయబడలేదు. ముందుగా ఒక IDE ప్రొవైడర్‌ను బాండ్ చేయండి.',
 }

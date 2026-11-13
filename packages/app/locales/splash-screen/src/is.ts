@@ -5,4 +5,6 @@ export const is: SplashScreenTranslations = {
   'splashScreen.error.noProvider': 'Upphafsskjár þjónustuaðili er ekki stilltur.',
   'splashScreen.warn.configureNotSupported':
     'configure() er ekki stutt af þessum upphafsskjár þjónustuaðila.',
+  'splashScreen.error.missingDependency':
+    '`{{library}}` er krafist en ekki uppsett. Setjið það upp með: `npx expo install {{library}}`',
 }

@@ -16,4 +16,5 @@ export const ka: Partial<BillingTranslations> = {
   'billing.pricing.tierEyebrow': 'იარუსი',
   'billing.pricing.perSeat': 'თითო ადგილზე',
   'billing.pricing.upgradeCta': 'განახლება {{tierName}}',
+  'billing.pricing.currentCta': 'მიმდინარე გეგმა',
 }

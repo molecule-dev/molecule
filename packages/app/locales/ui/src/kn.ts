@@ -43,7 +43,6 @@ export const kn: UiTranslations = {
   'ui.select.placeholder': 'ಆಯ್ಕೆ ಮಾಡಿ...',
   'ui.select.title': 'ಆಯ್ಕೆ ಮಾಡಿ',
   'ui.toast.dismiss': '\u0cb5\u0c9c\u0cbe\u0c97\u0cca\u0cb3\u0cbf\u0cb8\u0cbf',
-  'ui.toast.error.noProvider': 'useToast ಅನ್ನು ToastProvider ನಲ್ಲಿಯೇ ಬಳಸಬೇಕು.',
   'confirm.cancel': 'ರದ್ದುಮಾಡಿ',
   'confirm.confirm': 'ದೃಢೀಕರಿಸಿ',
   'ui.select.clear': '--',
@@ -60,4 +59,5 @@ export const kn: UiTranslations = {
   'userMenu.panelLabel': 'ಖಾತೆ ಮೆನು',
   'ui.error.noClassMap':
     'ಯಾವುದೇ UIClassMap ಅನ್ನು ಹೊಂದಿಸಲಾಗಿಲ್ಲ. ಅಪ್ಲಿಕೇಶನ್ ಪ್ರಾರಂಭದಲ್ಲಿ ಸ್ಟೈಲಿಂಗ್ ಲೈಬ್ರರಿ ಅನುಷ್ಠಾನದೊಂದಿಗೆ (ಉದಾ, @molecule/app-ui-tailwind) setClassMap() ಗೆ ಕರೆ ಮಾಡಿ.',
+  'ui.toast.error.noProvider': '`useToast` `ToastProvider` ಒಳಗೆ ಬಳಸಬೇಕು',
 }

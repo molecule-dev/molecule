@@ -11,4 +11,5 @@ export const cy: Partial<FormsTranslations> = {
   'forms.required': "Mae'r maes hwn yn ofynnol",
   'forms.min': "Rhaid i'r gwerth fod o leiaf {{min}}",
   'forms.max': "Rhaid i'r gwerth fod ar y mwyaf {{max}}",
+  'forms.submitError': 'Methu cyflwyno. Rhowch gynnig arall arni.',
 }

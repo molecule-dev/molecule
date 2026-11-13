@@ -7,7 +7,6 @@ export const ko: Partial<FileCardTranslations> = {
   'file-card.kind.folder': '폴더',
   'file-card.kind.other': '파일',
   'file-card.modified.just-now': '방금 전',
-  'file-card.modified.minute-other': '{{count}}분 전',
   'file-card.kind.image': '이미지 파일',
   'file-card.kind.video': '비디오 파일',
   'file-card.kind.audio': '오디오 파일',
@@ -24,4 +23,5 @@ export const ko: Partial<FileCardTranslations> = {
   'file-card.modified.week-other': '{{count}} 일주일 전',
   'file-card.modified.month-one': '1개월 전',
   'file-card.modified.month-other': '{{count}} 모 전',
+  'file-card.modified.minute-other': '{{count}} 분 전',
 }

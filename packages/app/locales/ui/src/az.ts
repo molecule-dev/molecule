@@ -36,7 +36,6 @@ export const az: UiTranslations = {
   'ui.select.placeholder': 'Seçin…',
   'ui.select.title': 'Seçin',
   'ui.toast.dismiss': 'Rədd et',
-  'ui.toast.error.noProvider': 'useToast funksiyası ToastProvider daxilində istifadə olunmalıdır',
   'confirm.cancel': 'Ləğv et',
   'confirm.confirm': 'Təsdiqləyin',
   'ui.select.clear': '--',
@@ -53,4 +52,5 @@ export const az: UiTranslations = {
   'userMenu.panelLabel': 'Hesab menyusu',
   'ui.error.noClassMap':
     'UIClassMap təyin edilməyib. Tətbiqin başlanğıcında stil kitabxanası tətbiqi ilə (məsələn, @molecule/app-ui-tailwind) setClassMap() funksiyasını çağırın.',
+  'ui.toast.error.noProvider': '`useToast` `ToastProvider` daxilində istifadə olunmalıdır',
 }

@@ -5,4 +5,5 @@ export const hr: Partial<SettingsActionsBarTranslations> = {
   'settingsActions.cancel': 'Otkazati',
   'settingsActions.saving': 'Spremanje…',
   'settingsActions.save': 'Spremi promjene',
+  'settingsActions.saved': 'Spremljeno na {{at}}',
 }

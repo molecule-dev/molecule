@@ -12,4 +12,8 @@ export const zu: NetworkTranslations = {
   'network.unknown': 'Akwaziwa',
   'network.error.connectionTimeout': 'Isikhathi sokuxhuma inethiwekhi siphelile',
   'network.error.unavailable': 'Inethiwekhi ayitholakali',
+  'network.error.missingDependency':
+    '`{{library}}` iyadingeka kodwa ayifakiwe. Faka nge: `npm install {{library}}`',
+  'network.error.noProvider':
+    '`@molecule/app-network`: Akukho umhlinzeki osethiwe. Shayela `setProvider()` ngokusetshenziswa kwe `NetworkProvider` (isb., kusuka ku `@molecule/app-network-react-native`).',
 }

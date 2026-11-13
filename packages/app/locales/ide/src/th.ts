@@ -775,4 +775,6 @@ export const th: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'เงินช่วยเหลือรายเดือน',
   'ide.chat.context.daily': 'ค่าเบี้ยเลี้ยงรายวัน',
   'ide.chat.context.resets': 'รีเซ็ต {{at}}',
+  'ide.error.noProvider':
+    'ผู้ให้บริการพื้นที่ทำงาน IDE ยังไม่ได้กำหนดค่า โปรดเชื่อมต่อผู้ให้บริการ IDE ก่อน',
 }

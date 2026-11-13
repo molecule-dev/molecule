@@ -3,4 +3,5 @@ import type { StageTimelineTranslations } from './types.js'
 /** StageTimeline translations for de. */
 export const de: Partial<StageTimelineTranslations> = {
   'stageTimeline.group': 'Phasenablauf',
+  'stageTimeline.stage': 'Phase {{index}} von {{total}}: {{label}} ({{status}})',
 }

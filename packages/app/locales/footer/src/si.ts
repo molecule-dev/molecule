@@ -8,4 +8,7 @@ export const si: Partial<FooterTranslations> = {
   'footer.language': 'භාෂාව',
   'content.privacyPolicy': '',
   'content.termsOfService': '',
+  'footer.legalNotConfigured':
+    'මෙම අන්තර්ගතය තවම වින්‍යාස කර නොමැත. යෙදුම් හිමිකරු එය සැපයිය යුතුය.',
+  'footer.about': '{{appName}} ගැන',
 }

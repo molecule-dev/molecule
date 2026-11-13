@@ -43,7 +43,6 @@ export const ta: UiTranslations = {
   'ui.select.placeholder': 'தேர்ந்தெடுக்கவும்…',
   'ui.select.title': 'தேர்ந்தெடுக்கவும்',
   'ui.toast.dismiss': '\u0ba8\u0bbf\u0bb0\u0bbe\u0b95\u0bb0\u0bbf',
-  'ui.toast.error.noProvider': 'useToast ஆனது ஒரு ToastProvider-க்குள் பயன்படுத்தப்பட வேண்டும்.',
   'confirm.cancel': 'ரத்துசெய்',
   'confirm.confirm': 'உறுதிப்படுத்து',
   'ui.select.clear': '--',
@@ -60,4 +59,5 @@ export const ta: UiTranslations = {
   'userMenu.panelLabel': 'கணக்கு மெனு',
   'ui.error.noClassMap':
     'UIClassMap எதுவும் அமைக்கப்படவில்லை. செயலி தொடங்கும் போது, ஒரு ஸ்டைலிங் லைப்ரரி செயலாக்கத்தைப் (எ.கா., @molecule/app-ui-tailwind) பயன்படுத்தி setClassMap()-ஐ அழைக்கவும்.',
+  'ui.toast.error.noProvider': '`useToast` `ToastProvider` க்குள் பயன்படுத்தப்பட வேண்டும்.',
 }

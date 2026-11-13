@@ -11,4 +11,5 @@ export const uz: Partial<FormsTranslations> = {
   'forms.invalidEmail': "Elektron pochta manzili noto'g'ri",
   'forms.invalidUrl': "URL noto'g'ri",
   'forms.invalidValue': "Noto'g'ri qiymat",
+  'forms.submitError': "Yuborib bo'lmadi. Qaytadan urinib ko'ring.",
 }

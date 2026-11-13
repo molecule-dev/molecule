@@ -4,4 +4,5 @@ import type { ChartsTranslations } from './types.js'
 export const sk: ChartsTranslations = {
   'charts.placeholder.label': '{{type}} graf',
   'charts.placeholder.description': 'Použite vhodného poskytovateľa grafov',
+  'charts.error.noCanvasContext': 'Nepodarilo sa získať kontext 2D plátna',
 }

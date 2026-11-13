@@ -9,4 +9,6 @@ export const km: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'ចម្លង',
   'secretRow.rotate': 'បង្វិល',
   'secretRow.delete': 'លុប',
+  'secretRow.lastRotated': 'បង្វិលចុងក្រោយ',
+  'secretRow.rotateIn': 'បង្វិលក្នុងរយៈពេល {{days}} ថ្ងៃ',
 }

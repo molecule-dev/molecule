@@ -19,11 +19,9 @@ export const ko: Partial<IdeTranslations> = {
     'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
   'ide.chat.viewPlans': '요금제 보기',
   'ide.chat.commitLabel': '커밋',
-  'ide.chat.fileCount': '{{count}}개 파일',
   'common.cancel': '취소',
   'common.save': '저장',
   'ide.chat.queued': '대기 중',
-  'ide.chat.queuedCount': '{{count}}개 대기 중',
   'ide.chat.editQueued': '편집',
   'ide.chat.deleteQueued': '삭제',
   'ide.chat.sendQueued': '보내기',
@@ -86,9 +84,6 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.askUserSubmit': '보내기',
   'ide.toolCall.statusRunning': '실행 중…',
   'ide.toolCall.statusFailed': '실패',
-  'ide.toolCall.entryCount': '{{count}}개 항목',
-  'ide.toolCall.matchCount': '일치 {{count}}개',
-  'ide.toolCall.fileCount': '{{count}}개 파일',
   'ide.chat.title': '채팅',
   'ide.chat.you': '회원님',
   'ide.chat.itemRenderError': '이 메시지를 표시할 수 없습니다.',
@@ -259,7 +254,6 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.error': '응답 중에 오류가 발생했습니다.',
   'ide.chat.soundEventDesc.tool_result': '도구 호출(파일 읽기, 명령 실행 등)이 완료되었습니다.',
   'ide.chat.soundEventDesc.file_diff': '파일이 생성되거나 수정되었습니다.',
-  'ide.chat.soundEventDesc.commit_suggestion': '{{agentName}}가 커밋할 파일을 제안하고 있습니다.',
   'ide.chat.soundEventDesc.mode': '계획 모드와 실행 모드 간 전환',
   'ide.chat.soundEventDesc.loop_limit_reached': '최대 도구 반복 횟수 제한에 도달했습니다.',
   'ide.chat.soundEventDesc.verification_result': '린트 검사 또는 타입 검사가 완료되었습니다.',
@@ -285,7 +279,6 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.voiceEngineCurrent': '현재',
   'ide.chat.voiceLangsAll': '모든 언어',
   'ide.chat.voiceLangOnly': '{{language}} 전용',
-  'ide.chat.voiceLangsCount': '{{count}}개 언어',
   'ide.chat.model.region.us': '미국',
   'ide.chat.model.region.cn': '중국',
   'ide.chat.model.regionHint': '처리 위치: {{region}} — 클릭하여 변경',
@@ -349,14 +342,8 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': '이력서',
   'ide.chat.openSettings': '설정',
   'ide.chat.tip.dismiss': '팁 닫기',
-  'ide.chat.tip.getStarted':
-    '팁: 모든 명령어를 보려면 /를 입력하거나, @와 파일 이름을 함께 입력하여 `{{agentName}}`에 처리할 파일을 지정하세요.',
-  'ide.chat.tip.mention':
-    '팁: @filename을 입력하면 프로젝트 파일을 컨텍스트로 첨부할 수 있습니다. — {{agentName}}에서 해당 파일을 직접 읽어옵니다.',
   'ide.chat.tip.slash':
     '팁: /을 입력하면 모든 명령어(commit, diff, model 등)를 확인할 수 있습니다.',
-  'ide.chat.tip.plan':
-    '팁: /plan 명령어를 사용하면 {{agentName}}가 파일을 수정하기 전에 계획을 조사하고 제안합니다.',
   'ide.chat.tip.undo':
     '팁: AI 턴에서 파일 변경 내용이 마음에 들지 않는다면 /undo 명령어를 사용해 즉시 되돌릴 수 있습니다.',
   'ide.chat.tip.compact':
@@ -435,14 +422,10 @@ export const ko: Partial<IdeTranslations> = {
     '디스커버리 — 새로운 대화가 여기서 시작됩니다. ‘{{agentName}}’는 코드를 작성하기 전에 요구 사항을 명확히 파악하기 위해 구체적인 질문을 던집니다.',
   'ide.chat.help.modeExecute':
     '실행 — 기본 작업 모드입니다. ‘{{agentName}}’ 명령어는 코드를 작성하고, 도구를 실행하며, 변경 사항을 적용한 후 이를 검증합니다.',
-  'ide.chat.help.modePlan':
-    '계획 — {{agentName}}는 코드베이스를 분석하여 파일을 수정하지 않고 계획을 제안합니다. /plan 명령어로 전환할 수 있습니다. 규모가 크거나 위험한 변경 사항에 가장 적합합니다.',
   'ide.chat.help.modesHeading': '── 모드 ──',
   'ide.chat.help.shortcuts':
     '모든 키보드 단축키를 보려면 Cmd+/ (Windows/Linux의 경우 Ctrl+/)를 누르세요.',
   'ide.chat.help.tipCompact': '• 대화가 길어지면 /compact 명령어를 사용하여 내용을 압축하세요.',
-  'ide.chat.help.tipPlan':
-    '• 변경을 적용하기 전에 /plan 명령어를 사용하여 {{agentName}}에서 사전 조사를 수행하십시오.',
   'ide.chat.help.tipSlash': '• /을 입력하면 위의 모든 명령어를 확인할 수 있습니다.',
   'ide.chat.help.tipSpecific':
     '• 구체적으로 작성하세요 — “이메일/비밀번호 및 Google OAuth를 지원하는 로그인 페이지 추가”가 “인증 기능 추가”보다 낫습니다.',
@@ -475,8 +458,6 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.scripts.saving': '저장 중…',
   'ide.chat.scripts.saveError': '스크립트를 저장할 수 없습니다. 다시 시도해 주세요.',
   'ide.chat.scripts.invalid': '스크립트에는 이름과 비어 있지 않은 본문이 필요합니다.',
-  'ide.chat.scripts.empty':
-    '아직 저장된 스크립트가 없습니다. 위에서 직접 작성하거나, {{agentName}}에 문의하여 작성 및 저장을 요청하세요.',
   'ide.chat.scripts.loading': '스크립트 불러오는 중…',
   'ide.chat.scripts.error': '이 프로젝트의 스크립트를 불러올 수 없습니다.',
   'ide.chat.scripts.noMatch': '“{{query}}”와 일치하는 스크립트가 없습니다.',
@@ -608,7 +589,6 @@ export const ko: Partial<IdeTranslations> = {
   'ide.preview.blankTitle': '미리보기가 비어 있습니다',
   'ide.preview.blankHint':
     '앱이 로드되었지만 아무것도 표시되지 않았습니다. 오류가 발생한 것일 수 있습니다. Synthase 측에 해당 사항이 전달되었습니다. 페이지를 다시 로드하거나 새 탭에서 미리보기를 열어보세요.',
-  'ide.chat.previewLinkTitle': '{{path}}를 미리보기에서 열기',
   'ide.chat.report.diagnosticsNote':
     '디버깅에 도움이 되도록 귀하의 앱 버전, 브라우저 및 화면 크기를 첨부했습니다.',
   'ide.chat.skills.loadedCount': '🧠{{count}} 관련 전문 기술 보유',
@@ -639,7 +619,6 @@ export const ko: Partial<IdeTranslations> = {
   'ide.tests.runGroup': '런 그룹',
   'ide.tests.stop': '중지',
   'ide.tests.running': '달리기…',
-  'ide.tests.runningAgent': '{{agent}}이(가) 테스트를 실행 중…',
   'ide.tests.runningPlatform': '배포 확인 중…',
   'ide.tests.runningElsewhere': '다른 탭에서 실행 중…',
   'ide.tests.passedCount': '{{count}} 통과했다',
@@ -776,4 +755,27 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': '월별 용돈.',
   'ide.chat.context.daily': '일일 용돈.',
   'ide.chat.context.resets': '{{at}} 재설정합니다.',
+  'ide.error.noProvider':
+    'IDE 워크스페이스 공급자가 구성되지 않았습니다. 먼저 IDE 공급자를 연결하십시오.',
+  'ide.chat.fileCount': '{{count}} 개 파일',
+  'ide.chat.queuedCount': '{{count}} 명이 대기 중입니다',
+  'ide.toolCall.entryCount': '{{count}} 개 항목',
+  'ide.toolCall.matchCount': '{{count}} 개 일치',
+  'ide.toolCall.fileCount': '{{count}} 개 파일',
+  'ide.chat.soundEventDesc.commit_suggestion': '{{agentName}} 이 커밋할 파일을 제안하고 있습니다.',
+  'ide.chat.voiceLangsCount': '{{count}} 개 언어',
+  'ide.chat.tip.mention':
+    '팁: @filename을 입력하면 프로젝트 파일을 컨텍스트로 첨부할 수 있습니다. {{agentName}} 해당 파일을 직접 읽습니다.',
+  'ide.chat.tip.plan':
+    '팁: /plan 명령어를 사용하면 {{agentName}} 이 파일을 수정하기 전에 먼저 조사하고 계획을 제안할 수 있습니다.',
+  'ide.chat.previewLinkTitle': '미리보기에서 {{path}} 엽니다.',
+  'ide.chat.help.modePlan':
+    '계획 수립 — {{agentName}} 코드베이스를 분석하고 파일을 수정하지 않고 계획을 제안합니다. /plan 명령어로 활성화/비활성화할 수 있습니다. 규모가 크거나 위험성이 높은 변경 작업에 가장 적합합니다.',
+  'ide.chat.help.tipPlan':
+    '• 변경 사항을 적용하기 전에 {{agentName}} 이 조사하도록 하려면 /plan 명령어를 사용하세요.',
+  'ide.chat.scripts.empty':
+    '아직 저장된 스크립트가 없습니다. 위에서 스크립트를 생성하거나 {{agentName}} 스크립트를 작성하고 저장해달라고 요청하세요.',
+  'ide.tests.runningAgent': '{{agent}} 가 테스트를 실행 중입니다…',
+  'ide.chat.tip.getStarted':
+    '팁: 모든 명령어를 보려면 /를 입력하거나, {{agentName}} 에게 작업할 파일을 제공하려면 파일 이름을 @로 입력하세요.',
 }

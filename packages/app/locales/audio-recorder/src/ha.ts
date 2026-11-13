@@ -15,4 +15,6 @@ export const ha: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'Kuskure',
   'audioRecorder.statusIdle': 'A shirye don yin rikodi',
   'audioRecorder.group': 'Mai rikodin sauti',
+  'audioRecorder.record': 'Rikodi',
+  'audioRecorder.statusRecording': 'Rikodi',
 }

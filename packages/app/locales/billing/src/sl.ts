@@ -14,4 +14,5 @@ export const sl: Partial<BillingTranslations> = {
   'billing.pricing.tierEyebrow': 'Stopnja',
   'billing.pricing.perSeat': 'na sedež',
   'billing.pricing.upgradeCta': 'Nadgradi na {{tierName}}',
+  'billing.pricing.currentCta': 'Trenutni načrt',
 }

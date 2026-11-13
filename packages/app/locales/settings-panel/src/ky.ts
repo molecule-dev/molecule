@@ -17,4 +17,22 @@ export const ky: Partial<SettingsPanelTranslations> = {
   'settings.billing.upgradeTitle': 'Планыңызды жаңыртыңыз',
   'settings.billing.noTiers': 'Акы төлөнүүчү пландар конфигурацияланган эмес.',
   'settings.billing.subscribe': 'Жазылуу',
+  'settings.failedToUpdateProfile': 'Профиль жаңыртылбай калды',
+  'settings.name': 'Аты',
+  'settings.twoFactorCode': 'Аутентификация коду',
+  'settings.twoFactorDisable': 'Өчүрүү',
+  'settings.twoFactorDisableTitle': 'Эки факторлуу аутентификацияны өчүрүү',
+  'settings.twoFactorEnable': 'Иштетүү',
+  'settings.twoFactorEnableTitle': 'Эки факторлуу аутентификацияны иштетүү',
+  'settings.twoFactorInvalidCode': 'Жараксыз код',
+  'settings.twoFactorOn': 'Күйүк',
+  'settings.twoFactorQrAlt': 'Эки факторлуу QR коду',
+  'settings.twoFactorScan':
+    'Бул QR кодун аутентификация колдонмоңуз менен сканерлеп, андан кийин 6 орундуу кодду киргизиңиз.',
+  'settings.twoFactorUnavailable':
+    'Бул колдонмо үчүн эки факторлуу аутентификация жеткиликтүү эмес.',
+  'settings.twoFactorVerify': 'Текшерүү жана иштетүү',
+  'settings.revokeDeviceWarning':
+    'Бул түзмөктүн кирүү мүмкүнчүлүгү жакында жокко чыгарылат. Чыгасызбы?',
+  'settings.signOutDevice': 'Чыгуу',
 }

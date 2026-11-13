@@ -8,4 +8,7 @@ export const ha: Partial<FooterTranslations> = {
   'footer.language': 'Harshe',
   'content.privacyPolicy': '',
   'content.termsOfService': '',
+  'footer.legalNotConfigured':
+    'Ba a saita wannan abun ciki ba tukuna. Dole ne mai manhajar ya samar da shi.',
+  'footer.about': 'Game da {{appName}}',
 }

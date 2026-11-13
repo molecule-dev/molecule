@@ -5,4 +5,8 @@ export const mr: StorageTranslations = {
   'storage.error.noProvider':
     'स्टोरेज प्रोव्हायडर कॉन्फिगर केलेला नाही. आधी setProvider() कॉल करा.',
   'storage.error.quotaExceeded': '"{{key}}" की सेट करताना स्टोरेज कोटा ओलांडला',
+  'storage.error.asyncStorageUnavailable':
+    '`@react-native-async-storage/async-storage` इन्स्टॉल केलेले नाही. ते या कमांडने इन्स्टॉल करा: `npm install @react-native-async-storage/async-storage`',
+  'storage.error.setFailed':
+    'AsyncStorage मध्ये " {{key}} " या की साठी मूल्य सेट करण्यात अयशस्वी झाले.',
 }

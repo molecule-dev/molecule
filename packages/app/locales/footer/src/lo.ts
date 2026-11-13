@@ -8,4 +8,7 @@ export const lo: Partial<FooterTranslations> = {
   'footer.language': 'ພາສາ',
   'content.privacyPolicy': '',
   'content.termsOfService': '',
+  'footer.legalNotConfigured':
+    'ເນື້ອຫານີ້ຍັງບໍ່ທັນໄດ້ຮັບການຕັ້ງຄ່າເທື່ອ. ເຈົ້າຂອງແອັບຕ້ອງສະໜອງມັນໃຫ້.',
+  'footer.about': 'ກ່ຽວກັບ {{appName}}',
 }

@@ -11,4 +11,5 @@ export const ur: FormsTranslations = {
   'forms.invalidEmail': 'غلط ای میل پتہ',
   'forms.invalidUrl': 'غلط URL',
   'forms.invalidValue': 'غلط قیمت',
+  'forms.submitError': 'جمع کرنے سے قاصر۔ براہ کرم دوبارہ کوشش کریں۔',
 }

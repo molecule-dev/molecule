@@ -4,4 +4,5 @@ import type { KeyboardTranslations } from './types.js'
 export const gu: KeyboardTranslations = {
   'keyboard.error.noProvider':
     '@molecule/app-keyboard: કોઈ પ્રદાતા સેટ નથી. KeyboardProvider અમલીકરણ સાથે setProvider() કૉલ કરો (દા.ત., @molecule/app-keyboard-react-native માંથી).',
+  'keyboard.error.missingDependency': '`{{library}}` જરૂરી છે પણ ઇન્સ્ટોલ કરેલું નથી.',
 }

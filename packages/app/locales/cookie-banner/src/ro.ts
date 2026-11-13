@@ -10,4 +10,5 @@ export const ro: Partial<CookieBannerTranslations> = {
   'cookieBanner.customize': 'Personalizare',
   'cookieBanner.reject': 'Respingeți toate',
   'cookieBanner.accept': 'Acceptă tot',
+  'cookieBanner.learnMore': 'Află mai multe',
 }

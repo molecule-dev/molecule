@@ -11,4 +11,5 @@ export const lt: FormsTranslations = {
   'forms.invalidEmail': 'Netinkamas el. pašto adresas',
   'forms.invalidUrl': 'Netinkamas URL',
   'forms.invalidValue': 'Netinkama reikšmė',
+  'forms.submitError': 'Nepavyko pateikti. Bandykite dar kartą.',
 }

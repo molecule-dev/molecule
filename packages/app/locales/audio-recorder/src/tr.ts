@@ -15,4 +15,6 @@ export const tr: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'Hata',
   'audioRecorder.statusIdle': 'Kayda hazır',
   'audioRecorder.group': 'Ses kaydedici',
+  'audioRecorder.record': 'Kayıt',
+  'audioRecorder.statusRecording': 'Kayıt',
 }

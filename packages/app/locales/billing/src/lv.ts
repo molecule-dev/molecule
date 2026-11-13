@@ -14,4 +14,5 @@ export const lv: Partial<BillingTranslations> = {
   'billing.pricing.tierEyebrow': 'Līmenis',
   'billing.pricing.perSeat': 'uz vienu vietu',
   'billing.pricing.upgradeCta': 'Jaunināt uz {{tierName}}',
+  'billing.pricing.currentCta': 'Pašreizējais plāns',
 }

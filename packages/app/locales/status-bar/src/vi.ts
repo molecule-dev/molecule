@@ -4,4 +4,5 @@ import type { StatusBarTranslations } from './types.js'
 export const vi: StatusBarTranslations = {
   'statusBar.error.noProvider':
     '@molecule/app-status-bar: Chưa thiết lập nhà cung cấp. Gọi setProvider() với triển khai StatusBarProvider (ví dụ, từ @molecule/app-status-bar-react-native).',
+  'statusBar.error.missingDependency': '`{{library}}` được yêu cầu nhưng chưa được cài đặt.',
 }

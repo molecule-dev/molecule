@@ -11,4 +11,5 @@ export const kk: FormsTranslations = {
   'forms.invalidEmail': 'Жарамсыз электрондық пошта мекенжайы',
   'forms.invalidUrl': 'Жарамсыз URL',
   'forms.invalidValue': 'Жарамсыз мән',
+  'forms.submitError': 'Жіберу мүмкін емес. Қайталап көріңіз.',
 }

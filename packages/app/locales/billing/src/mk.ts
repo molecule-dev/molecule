@@ -15,4 +15,5 @@ export const mk: Partial<BillingTranslations> = {
   'billing.pricing.tierEyebrow': 'Ниво',
   'billing.pricing.perSeat': 'по седиште',
   'billing.pricing.upgradeCta': 'Надгради на {{tierName}}',
+  'billing.pricing.currentCta': 'Тековен план',
 }

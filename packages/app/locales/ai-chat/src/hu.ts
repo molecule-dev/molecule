@@ -6,4 +6,7 @@ export const hu: ChatTranslations = {
   'chat.error.noResponseBody': 'Nincs válasz törzs',
   'chat.error.streamError': 'Streamelési hiba',
   'chat.error.unknownError': 'Ismeretlen hiba',
+  'chat.error.sendFailed': 'Nem sikerült elküldeni az üzenetet',
+  'chat.error.stalled':
+    '{{agentName}} nem válaszolt. Lehetséges, hogy a háttérben még befejeződik – töltse be újra az oldalt a legújabbak megtekintéséhez, vagy küldjön új üzenetet.',
 }

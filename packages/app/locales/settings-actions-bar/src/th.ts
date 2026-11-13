@@ -5,4 +5,5 @@ export const th: Partial<SettingsActionsBarTranslations> = {
   'settingsActions.cancel': 'ยกเลิก',
   'settingsActions.saving': 'ประหยัด…',
   'settingsActions.save': 'บันทึกการเปลี่ยนแปลง',
+  'settingsActions.saved': 'บันทึกเมื่อ {{at}}',
 }

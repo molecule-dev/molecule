@@ -4,4 +4,5 @@ import type { StatusBarTranslations } from './types.js'
 export const be: StatusBarTranslations = {
   'statusBar.error.noProvider':
     '@molecule/app-status-bar: Правайдар не ўсталяваны. Выклічце setProvider() з рэалізацыяй StatusBarProvider (напр., з @molecule/app-status-bar-react-native).',
+  'statusBar.error.missingDependency': 'Патрабуецца `{{library}}` , але яна не ўсталяваная.',
 }

@@ -12,4 +12,8 @@ export const lo: NetworkTranslations = {
   'network.unknown': 'ບໍ່ຮູ້',
   'network.error.connectionTimeout': 'ໝົດເວລາເຊື່ອມຕໍ່ເຄືອຂ່າຍ',
   'network.error.unavailable': 'ເຄືອຂ່າຍບໍ່ພ້ອມໃຊ້ງານ',
+  'network.error.missingDependency':
+    'ຕ້ອງມີ `{{library}}` ແຕ່ຍັງບໍ່ໄດ້ຕິດຕັ້ງ. ຕິດຕັ້ງມັນດ້ວຍ: `npm install {{library}}`',
+  'network.error.noProvider':
+    '`@molecule/app-network`: ບໍ່ໄດ້ຕັ້ງຜູ້ໃຫ້ບໍລິການໄວ້. ເອີ້ນໃຊ້ `setProvider()` ດ້ວຍການຈັດຕັ້ງປະຕິບັດ `NetworkProvider` (ຕົວຢ່າງ, ຈາກ `@molecule/app-network-react-native`).',
 }

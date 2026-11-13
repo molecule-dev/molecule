@@ -10,4 +10,6 @@ export const fa: BatteryTranslations = {
   'battery.remainingUnknown': 'نامشخص',
   'battery.remainingTime': '{{hours}} ساعت {{minutes}} دقیقه',
   'battery.remainingMinutes': '{{minutes}} دقیقه',
+  'battery.error.noProvider':
+    '`@molecule/app-battery`: هیچ ارائه‌دهنده‌ای تنظیم نشده است. `setProvider()` را با پیاده‌سازی `BatteryProvider` فراخوانی کنید — هیچ ارائه‌دهنده‌ای با ناوگان ارسال نمی‌شود؛ رابط را در زمان اجرای بومی خود پیاده‌سازی کرده و آن را پیوند دهید.',
 }

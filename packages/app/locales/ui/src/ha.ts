@@ -36,7 +36,6 @@ export const ha: UiTranslations = {
   'ui.select.placeholder': 'Zaɓi…',
   'ui.select.title': 'Zaɓi',
   'ui.toast.dismiss': 'Watsar',
-  'ui.toast.error.noProvider': 'Dole ne a yi amfani da Toast a cikin Mai Ba da Toast',
   'confirm.cancel': 'Soke',
   'confirm.confirm': 'Tabbatar',
   'ui.select.clear': '--',
@@ -53,4 +52,5 @@ export const ha: UiTranslations = {
   'userMenu.panelLabel': 'Menu na asusu',
   'ui.error.noClassMap':
     'Ba a saita UIClassMap ba. Kira setClassMap() a farkon aikace-aikacen tare da aiwatar da ɗakin karatu mai salo (misali, @molecule/app-ui-tailwind).',
+  'ui.toast.error.noProvider': 'Dole ne a yi amfani da `useToast` a cikin `ToastProvider`',
 }

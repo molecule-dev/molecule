@@ -10,4 +10,5 @@ export const sv: Partial<CookieBannerTranslations> = {
     'Vi använder cookies för att förbättra din upplevelse och analysera trafik.',
   'cookieBanner.reject': 'Avvisa alla',
   'cookieBanner.accept': 'Acceptera alla',
+  'cookieBanner.learnMore': 'Läs mer',
 }

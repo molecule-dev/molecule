@@ -36,7 +36,6 @@ export const cy: Partial<UiTranslations> = {
   'ui.select.placeholder': 'Dewiswch…',
   'ui.select.title': 'Dewis',
   'ui.toast.dismiss': 'Diystyru',
-  'ui.toast.error.noProvider': 'Rhaid defnyddio useToast o fewn Darparwr Toast',
   'confirm.cancel': 'Canslo',
   'confirm.confirm': 'Cadarnhau',
   'ui.select.clear': '--',
@@ -53,4 +52,5 @@ export const cy: Partial<UiTranslations> = {
   'userMenu.panelLabel': 'Dewislen cyfrif',
   'ui.error.noClassMap':
     "Nid oes UIClassMap wedi'i osod. Galwch setClassMap() wrth gychwyn yr ap gyda gweithrediad llyfrgell steilio (e.e., @molecule/app-ui-tailwind).",
+  'ui.toast.error.noProvider': 'Rhaid defnyddio `useToast` o fewn `ToastProvider`',
 }

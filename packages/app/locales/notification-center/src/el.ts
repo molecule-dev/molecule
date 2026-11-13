@@ -6,4 +6,6 @@ export const el: Partial<NotificationCenterTranslations> = {
   'notifications.markAllRead': 'Επισήμανση όλων ως αναγνωσμένων',
   'notifications.viewAll': 'Προβολή όλων',
   'notifications.empty': 'Δεν υπάρχουν ειδοποιήσεις',
+  'notifications.loadError': 'Δεν ήταν δυνατή η φόρτωση των ειδοποιήσεων.',
+  'notifications.retry': 'Δοκιμάζω πάλι',
 }

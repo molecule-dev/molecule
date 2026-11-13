@@ -9,4 +9,6 @@ export const cy: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'Copïo',
   'secretRow.rotate': 'Cylchdroi',
   'secretRow.delete': 'Dileu',
+  'secretRow.lastRotated': 'Cylchdroi ddiwethaf',
+  'secretRow.rotateIn': 'Cylchdroi mewn {{days}} d',
 }

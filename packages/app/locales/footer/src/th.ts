@@ -8,4 +8,6 @@ export const th: Partial<FooterTranslations> = {
   'footer.language': 'ภาษา',
   'content.privacyPolicy': '',
   'content.termsOfService': '',
+  'footer.legalNotConfigured': 'เนื้อหานี้ยังไม่ได้ถูกกำหนดค่า เจ้าของแอปต้องเป็นผู้กำหนดค่าเอง',
+  'footer.about': 'เกี่ยวกับ {{appName}}',
 }

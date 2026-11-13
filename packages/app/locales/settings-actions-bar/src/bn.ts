@@ -5,4 +5,5 @@ export const bn: Partial<SettingsActionsBarTranslations> = {
   'settingsActions.cancel': 'বাতিল করুন',
   'settingsActions.saving': 'সঞ্চয়…',
   'settingsActions.save': 'পরিবর্তনগুলি সংরক্ষণ করুন',
+  'settingsActions.saved': 'সংরক্ষিত {{at}}',
 }

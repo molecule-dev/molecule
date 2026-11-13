@@ -3,4 +3,5 @@ import type { BulkActionToolbarTranslations } from './types.js'
 /** BulkActionToolbar translations for nl. */
 export const nl: Partial<BulkActionToolbarTranslations> = {
   'bulkActions.clear': 'Wissen',
+  'bulkActions.selected': '{{count}} geselecteerd',
 }

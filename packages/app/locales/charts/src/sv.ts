@@ -4,4 +4,5 @@ import type { ChartsTranslations } from './types.js'
 export const sv: ChartsTranslations = {
   'charts.placeholder.label': '{{type}}-diagram',
   'charts.placeholder.description': 'Använd en lämplig diagramleverantör',
+  'charts.error.noCanvasContext': 'Kunde inte hämta 2D-kontext för arbetsytan',
 }

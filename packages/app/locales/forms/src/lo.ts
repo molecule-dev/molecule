@@ -11,4 +11,5 @@ export const lo: FormsTranslations = {
   'forms.invalidEmail': 'ທີ່ຢູ່ອີເມວບໍ່ຖືກຕ້ອງ',
   'forms.invalidUrl': 'URL ບໍ່ຖືກຕ້ອງ',
   'forms.invalidValue': 'ຄ່າບໍ່ຖືກຕ້ອງ',
+  'forms.submitError': 'ບໍ່ສາມາດສົ່ງໄດ້. ກະລຸນາລອງໃໝ່ອີກຄັ້ງ.',
 }

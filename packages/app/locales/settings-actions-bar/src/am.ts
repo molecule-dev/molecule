@@ -5,4 +5,5 @@ export const am: Partial<SettingsActionsBarTranslations> = {
   'settingsActions.cancel': 'ሰርዝ',
   'settingsActions.saving': 'በማስቀመጥ ላይ…',
   'settingsActions.save': 'ለውጦችን አስቀምጥ',
+  'settingsActions.saved': '{{at}} ተቀምጧል',
 }

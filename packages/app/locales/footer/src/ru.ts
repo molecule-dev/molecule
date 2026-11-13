@@ -8,4 +8,7 @@ export const ru: Partial<FooterTranslations> = {
   'footer.language': 'Язык',
   'content.privacyPolicy': '',
   'content.termsOfService': '',
+  'footer.legalNotConfigured':
+    'Этот контент ещё не настроен. Его должен предоставить владелец приложения.',
+  'footer.about': 'О приложении {{appName}}',
 }

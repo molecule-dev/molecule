@@ -347,8 +347,6 @@ export const zhTW: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': '履歷',
   'ide.chat.openSettings': '設定',
   'ide.chat.tip.dismiss': '關閉提示',
-  'ide.chat.tip.getStarted':
-    '提示：輸入 / 可查看所有指令，或輸入 @ 加上檔案名稱，讓 `{{agentName}}` 從該檔案開始處理。',
   'ide.chat.tip.mention':
     '提示：輸入 @filename 可將專案檔案作為參數附加 — {{agentName}} 會直接讀取該檔案。',
   'ide.chat.tip.slash': '提示：輸入 / 可瀏覽所有指令（commit、diff、model 等）。',
@@ -757,4 +755,7 @@ export const zhTW: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': '每月津貼。',
   'ide.chat.context.daily': '每日津貼。',
   'ide.chat.context.resets': '重置{{at}} 。',
+  'ide.error.noProvider': 'IDE 工作區提供者未配置。請先綁定一個 IDE 提供者。',
+  'ide.chat.tip.getStarted':
+    '提示：輸入 / 可查看所有指令，或輸入 @ 檔名可指定{{agentName}}需要處理的檔案。',
 }

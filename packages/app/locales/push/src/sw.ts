@@ -4,4 +4,6 @@ import type { PushTranslations } from './types.js'
 export const sw: PushTranslations = {
   'push.error.notSupported': 'Arifa za kushinikiza hazitumiki',
   'push.error.permissionNotGranted': 'Ruhusa ya arifa haijatolewa',
+  'push.error.missingDependency':
+    '`{{library}}` inahitajika lakini haijasakinishwa. Isakinishe na: `npx expo install {{library}}`',
 }

@@ -14,4 +14,5 @@ export const am: Partial<BillingTranslations> = {
   'billing.pricing.tierEyebrow': 'ደረጃ',
   'billing.pricing.perSeat': 'በአንድ መቀመጫ',
   'billing.pricing.upgradeCta': 'ወደ ያሻሽሉ {{tierName}}',
+  'billing.pricing.currentCta': 'የአሁኑ ዕቅድ',
 }

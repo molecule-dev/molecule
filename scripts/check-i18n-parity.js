@@ -235,6 +235,24 @@ export function loadBaseline() {
   return { missing: baseline.missing ?? [], unowned: baseline.unowned ?? [] }
 }
 
+/**
+ * Baseline entries that are no longer missing or unowned. The baseline only
+ * shrinks: an entry left behind after its key is fixed would let the same key
+ * go missing again without failing anything.
+ *
+ * @param baseline - The accepted debt (defaults to the committed baseline).
+ * @param current - The analysis to compare with (defaults to the live tree).
+ * @returns The fixed entries, `missing` ones first.
+ */
+export function staleBaselineEntries(baseline = loadBaseline(), current = analyzeParity()) {
+  const missing = new Set(current.missing)
+  const unowned = new Set(current.unowned)
+  return [
+    ...baseline.missing.filter((entry) => !missing.has(entry)),
+    ...baseline.unowned.filter((entry) => !unowned.has(entry)),
+  ]
+}
+
 /** Missing keys present now but NOT in the baseline — i.e. regressions. */
 export function newMissing() {
   const { missing } = analyzeParity()
@@ -270,9 +288,21 @@ if (isMain) {
   const baseline = loadBaseline()
   const regressions = missing.filter((m) => !new Set(baseline.missing).has(m))
   const unownedRegressions = unowned.filter((k) => !new Set(baseline.unowned).has(k))
+  const stale = staleBaselineEntries(baseline, { missing, unowned })
 
   if (mode === 'check') {
-    if (regressions.length === 0 && unownedRegressions.length === 0) {
+    if (stale.length > 0) {
+      console.error(
+        `✗ ${stale.length} baseline entr${stale.length === 1 ? 'y is' : 'ies are'} fixed but still listed, so the key`,
+      )
+      console.error(
+        '  could regress unnoticed. Run `node scripts/check-i18n-parity.js --update-baseline`',
+      )
+      console.error('  and commit scripts/i18n-parity-baseline.json. Fixed:')
+      for (const entry of stale.slice(0, 20)) console.error(`  - ${entry}`)
+      if (stale.length > 20) console.error(`  … and ${stale.length - 20} more`)
+    }
+    if (regressions.length === 0 && unownedRegressions.length === 0 && stale.length === 0) {
       console.log(
         `✓ i18n parity: no NEW missing or unowned keys (${missing.length} + ${unowned.length} baselined, ${orphans.length} orphans reported)`,
       )

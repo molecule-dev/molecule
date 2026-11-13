@@ -10,4 +10,5 @@ export const mt: Partial<CookieBannerTranslations> = {
   'cookieBanner.reject': 'Irrifjuta kollox',
   'cookieBanner.save': 'Issejvja l-preferenzi',
   'cookieBanner.accept': 'Aċċetta kollox',
+  'cookieBanner.learnMore': 'Tgħallem aktar',
 }

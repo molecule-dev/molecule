@@ -5,4 +5,6 @@ export const hy: SplashScreenTranslations = {
   'splashScreen.error.noProvider': 'Oghjuyn ekrani provaydern konfiguratsvac che.',
   'splashScreen.warn.configureNotSupported':
     'configure() chesupportavorvum ays oghjuyn ekrani provayderov.',
+  'splashScreen.error.missingDependency':
+    '`{{library}}` պարտադիր է, բայց տեղադրված չէ։ Տեղադրեք այն՝ `npx expo install {{library}}` ով։',
 }

@@ -15,4 +15,6 @@ export const ga: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'Earráid',
   'audioRecorder.statusIdle': 'Réidh le taifeadadh',
   'audioRecorder.group': 'Taifeadán fuaime',
+  'audioRecorder.record': 'Taifead',
+  'audioRecorder.statusRecording': 'Taifeadadh',
 }

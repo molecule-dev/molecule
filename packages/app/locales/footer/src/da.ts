@@ -8,4 +8,7 @@ export const da: Partial<FooterTranslations> = {
   'footer.version': 'en {{version}}',
   'content.privacyPolicy': '',
   'content.termsOfService': '',
+  'footer.legalNotConfigured':
+    'Dette indhold er ikke konfigureret endnu. Appens ejer skal levere det.',
+  'footer.about': 'Om {{appName}}',
 }

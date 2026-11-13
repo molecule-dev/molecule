@@ -6,4 +6,6 @@ export const et: ClipboardTranslations = {
     '@molecule/app-clipboard: Teenusepakkuja pole määratud. Kutsuge setProvider() ClipboardProvideri teostusega (nt @molecule/app-clipboard-react-native).',
   'clipboard.warn.onChangeNotSupported':
     '@molecule/app-clipboard: onChange pole teenusepakkuja poolt toetatud',
+  'clipboard.error.missingDependency':
+    '`{{library}}` on kohustuslik, aga pole installitud. Installige see käsuga: `npm install {{library}}`',
 }

@@ -14,4 +14,5 @@ export const sw: Partial<BillingTranslations> = {
   'billing.pricing.tierEyebrow': 'Ngazi',
   'billing.pricing.perSeat': 'kwa kila kiti',
   'billing.pricing.upgradeCta': 'Boresha hadi {{tierName}}',
+  'billing.pricing.currentCta': 'Mpango wa sasa',
 }

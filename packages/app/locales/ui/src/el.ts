@@ -36,7 +36,6 @@ export const el: Partial<UiTranslations> = {
   'ui.select.placeholder': 'Επιλέξτε…',
   'ui.select.title': 'Επιλέγω',
   'ui.toast.dismiss': 'Κλείσιμο',
-  'ui.toast.error.noProvider': 'Το useToast πρέπει να χρησιμοποιηθεί εντός ενός ToastProvider',
   'confirm.cancel': 'Ακύρωση',
   'confirm.confirm': 'Επιβεβαιώνω',
   'ui.select.clear': '--',
@@ -53,4 +52,5 @@ export const el: Partial<UiTranslations> = {
   'userMenu.panelLabel': 'Μενού λογαριασμού',
   'ui.error.noClassMap':
     'Δεν έχει οριστεί UIClassMap. Καλέστε την setClassMap() κατά την εκκίνηση της εφαρμογής με μια υλοποίηση βιβλιοθήκης στυλ (π.χ., @molecule/app-ui-tailwind).',
+  'ui.toast.error.noProvider': '`useToast` πρέπει να χρησιμοποιείται μέσα σε ένα `ToastProvider`',
 }

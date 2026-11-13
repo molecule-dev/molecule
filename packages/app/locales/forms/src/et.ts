@@ -11,4 +11,5 @@ export const et: FormsTranslations = {
   'forms.invalidEmail': 'Vigane e-posti aadress',
   'forms.invalidUrl': 'Vigane URL',
   'forms.invalidValue': 'Vigane väärtus',
+  'forms.submitError': 'Esitamine ebaõnnestus. Palun proovige uuesti.',
 }

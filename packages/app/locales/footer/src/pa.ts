@@ -8,4 +8,7 @@ export const pa: Partial<FooterTranslations> = {
   'footer.language': 'ਭਾਸ਼ਾ',
   'content.privacyPolicy': '',
   'content.termsOfService': '',
+  'footer.legalNotConfigured':
+    'ਇਸ ਸਮੱਗਰੀ ਨੂੰ ਅਜੇ ਤੱਕ ਕੌਂਫਿਗਰ ਨਹੀਂ ਕੀਤਾ ਗਿਆ ਹੈ। ਐਪ ਮਾਲਕ ਨੂੰ ਇਹ ਪ੍ਰਦਾਨ ਕਰਨਾ ਲਾਜ਼ਮੀ ਹੈ।',
+  'footer.about': '{{appName}} ਬਾਰੇ',
 }

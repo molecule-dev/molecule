@@ -11,4 +11,5 @@ export const nb: FormsTranslations = {
   'forms.invalidEmail': 'Ugyldig e-postadresse',
   'forms.invalidUrl': 'Ugyldig URL',
   'forms.invalidValue': 'Ugyldig verdi',
+  'forms.submitError': 'Kan ikke sende inn. Prøv på nytt.',
 }

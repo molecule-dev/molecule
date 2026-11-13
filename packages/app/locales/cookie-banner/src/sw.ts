@@ -10,4 +10,5 @@ export const sw: Partial<CookieBannerTranslations> = {
   'cookieBanner.reject': 'Kataa zote',
   'cookieBanner.save': 'Hifadhi mapendeleo',
   'cookieBanner.accept': 'Kubali yote',
+  'cookieBanner.learnMore': 'Pata maelezo zaidi',
 }

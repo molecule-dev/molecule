@@ -3,4 +3,5 @@ import type { EmojiReactionsTranslations } from './types.js'
 /** EmojiReactions translations for bs. */
 export const bs: Partial<EmojiReactionsTranslations> = {
   'reactions.add': 'Dodaj reakciju',
+  'reactions.count': '{{count}} reakcija',
 }

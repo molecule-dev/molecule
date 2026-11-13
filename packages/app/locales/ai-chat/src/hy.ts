@@ -6,4 +6,7 @@ export const hy: ChatTranslations = {
   'chat.error.noResponseBody': 'Patasxani marminy bakutyun',
   'chat.error.streamError': 'Hoshqi skhalmunk',
   'chat.error.unknownError': 'Anhayt skhalmunk',
+  'chat.error.sendFailed': 'Չհաջողվեց ուղարկել հաղորդագրությունը',
+  'chat.error.stalled':
+    '{{agentName}} դադարեց պատասխանել։ Հնարավոր է՝ այն դեռ աշխատում է ֆոնային ռեժիմով՝ վերաբեռնեք՝ վերջինը տեսնելու կամ նոր հաղորդագրություն ուղարկելու համար։',
 }

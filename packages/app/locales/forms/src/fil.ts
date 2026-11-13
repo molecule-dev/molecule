@@ -11,4 +11,5 @@ export const fil: FormsTranslations = {
   'forms.invalidEmail': 'Hindi wastong email address',
   'forms.invalidUrl': 'Hindi wastong URL',
   'forms.invalidValue': 'Hindi wastong halaga',
+  'forms.submitError': 'Hindi maisumite. Pakisubukang muli.',
 }

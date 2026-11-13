@@ -15,4 +15,5 @@ export const hi: Partial<BillingTranslations> = {
   'billing.pricing.reassurance':
     'कभी भी रद्द करें · शुरू करने के लिए क्रेडिट कार्ड की आवश्यकता नहीं है',
   'billing.pricing.perSeat': 'प्रति सीट',
+  'billing.pricing.currentCta': 'वर्तमान योजना',
 }

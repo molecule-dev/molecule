@@ -12,4 +12,8 @@ export const ka: NetworkTranslations = {
   'network.unknown': 'Uchnobi',
   'network.error.connectionTimeout': 'Kseluri kavshiris vadasvla',
   'network.error.unavailable': 'Kseli mkhelmisamisvdomia',
+  'network.error.missingDependency':
+    '`{{library}}` აუცილებელია, მაგრამ არ არის დაინსტალირებული. დააინსტალირეთ ის: `npm install {{library}}`',
+  'network.error.noProvider':
+    '`@molecule/app-network`: პროვაიდერი არ არის დაყენებული. გამოიძახეთ `setProvider()` `NetworkProvider` იმპლემენტაციით (მაგ., `@molecule/app-network-react-native` დან).',
 }

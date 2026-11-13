@@ -15,4 +15,6 @@ export const id: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'Kesalahan',
   'audioRecorder.statusIdle': 'Siap merekam',
   'audioRecorder.group': 'Perekam audio',
+  'audioRecorder.record': 'Catatan',
+  'audioRecorder.statusRecording': 'Rekaman',
 }

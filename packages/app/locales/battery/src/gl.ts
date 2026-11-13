@@ -10,4 +10,6 @@ export const gl: BatteryTranslations = {
   'battery.remainingUnknown': 'Descoñecido',
   'battery.remainingTime': '{{hours}}h {{minutes}}m',
   'battery.remainingMinutes': '{{minutes}}m',
+  'battery.error.noProvider':
+    '`@molecule/app-battery`: Non se estableceu ningún provedor. Chama `setProvider()` cunha implementación de `BatteryProvider` : ningún provedor se inclúe coa frota; implementa a interface no teu tempo de execución nativo e conéctaa.',
 }

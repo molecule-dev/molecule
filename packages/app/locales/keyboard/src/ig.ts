@@ -4,4 +4,5 @@ import type { KeyboardTranslations } from './types.js'
 export const ig: KeyboardTranslations = {
   'keyboard.error.noProvider':
     '@molecule/app-keyboard: Enweghị onye na-eweta edobere. Kpọọ setProvider() na mmejupụta KeyboardProvider (dịka ọmụmaatụ, site na @molecule/app-keyboard-react-native).',
+  'keyboard.error.missingDependency': 'A chọrọ `{{library}}` mana etinyereghị ya.',
 }

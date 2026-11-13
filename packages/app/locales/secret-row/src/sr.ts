@@ -9,4 +9,6 @@ export const sr: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'Копија',
   'secretRow.rotate': 'Ротирај',
   'secretRow.delete': 'Обриши',
+  'secretRow.lastRotated': 'Последња ротација',
+  'secretRow.rotateIn': 'Ротирај за {{days}} дана',
 }

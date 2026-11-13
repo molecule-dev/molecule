@@ -352,14 +352,10 @@ export const ga: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
-  'ide.chat.tip.getStarted':
-    'Leid: clóscríobh / chun gach ordú a fheiceáil, nó @ ainm comhaid chun é a thabhairt{{agentName}} comhad le hoibriú uaidh.',
   'ide.chat.tip.mention':
     'Leid: clóscríobh @filename chun comhad tionscadail a cheangal mar chomhthéacs —{{agentName}} léann sé go díreach é.',
   'ide.chat.tip.slash':
     'Leid: clóscríobh / chun gach ordú (commit, diff, model, agus tuilleadh) a bhrabhsáil.',
-  'ide.chat.tip.plan':
-    'Leid: bain úsáid as / pleanáil a bheith agat{{agentName}} taighde a dhéanamh agus plean a mholadh sula ndéanann sé aon chomhaid a chur in eagar.',
   'ide.chat.tip.undo':
     'Leid: bain úsáid as /undo chun athruithe comhaid an seal deireanach san AI a aisiompú láithreach má chuaigh sé sa treo mícheart.',
   'ide.chat.tip.compact':
@@ -780,4 +776,9 @@ export const ga: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'Liúntas míosúil.',
   'ide.chat.context.daily': 'Liúntas laethúil.',
   'ide.chat.context.resets': 'Athshocraíonn {{at}} .',
+  'ide.error.noProvider': 'Níl soláthraí spás oibre IDE cumraithe. Ceangail soláthraí IDE ar dtús.',
+  'ide.chat.tip.getStarted':
+    'Leid: clóscríobh / chun gach ordú a fheiceáil, nó @ ainm comhaid chun comhad a thabhairt {{agentName}} le hoibriú uaidh.',
+  'ide.chat.tip.plan':
+    'Leid: bain úsáid as /plan chun go ndéanfaidh {{agentName}} taighde agus plean a mholadh sula ndéanann sé aon chomhaid a chur in eagar.',
 }

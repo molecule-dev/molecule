@@ -5,4 +5,5 @@ export const si: Partial<SettingsActionsBarTranslations> = {
   'settingsActions.cancel': 'අවලංගු කරන්න',
   'settingsActions.saving': 'සුරකිමින්...',
   'settingsActions.save': 'වෙනස්කම් සුරකින්න',
+  'settingsActions.saved': '{{at}} සුරකින ලදී',
 }

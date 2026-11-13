@@ -12,4 +12,8 @@ export const bg: NetworkTranslations = {
   'network.unknown': 'Неизвестно',
   'network.error.connectionTimeout': 'Времето за мрежова връзка изтече',
   'network.error.unavailable': 'Мрежата е недостъпна',
+  'network.error.missingDependency':
+    '`{{library}}` е задължителна, но не е инсталирана. Инсталирайте я с: `npm install {{library}}`',
+  'network.error.noProvider':
+    '`@molecule/app-network`: Няма зададен доставчик. Извикайте `setProvider()` с имплементация на `NetworkProvider` (напр. от `@molecule/app-network-react-native`).',
 }

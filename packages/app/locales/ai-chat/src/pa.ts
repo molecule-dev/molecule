@@ -6,4 +6,7 @@ export const pa: ChatTranslations = {
   'chat.error.noResponseBody': 'ਕੋਈ ਜਵਾਬ ਬਾਡੀ ਨਹੀਂ',
   'chat.error.streamError': 'ਸਟ੍ਰੀਮ ਗਲਤੀ',
   'chat.error.unknownError': 'ਅਣਜਾਣ ਗਲਤੀ',
+  'chat.error.sendFailed': 'ਸੁਨੇਹਾ ਭੇਜਣਾ ਅਸਫਲ ਰਿਹਾ',
+  'chat.error.stalled':
+    '{{agentName}} ਨੇ ਜਵਾਬ ਦੇਣਾ ਬੰਦ ਕਰ ਦਿੱਤਾ। ਇਹ ਅਜੇ ਵੀ ਬੈਕਗ੍ਰਾਊਂਡ ਵਿੱਚ ਪੂਰਾ ਹੋ ਰਿਹਾ ਹੋ ਸਕਦਾ ਹੈ — ਨਵੀਨਤਮ ਦੇਖਣ ਲਈ ਰੀਲੋਡ ਕਰੋ, ਜਾਂ ਇੱਕ ਨਵਾਂ ਸੁਨੇਹਾ ਭੇਜੋ।',
 }

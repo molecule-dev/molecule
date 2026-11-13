@@ -14,4 +14,5 @@ export const mr: Partial<BillingTranslations> = {
   'billing.pricing.tierEyebrow': 'स्तर',
   'billing.pricing.perSeat': 'प्रति सीट',
   'billing.pricing.upgradeCta': 'अपग्रेड करा {{tierName}}',
+  'billing.pricing.currentCta': 'सध्याची योजना',
 }

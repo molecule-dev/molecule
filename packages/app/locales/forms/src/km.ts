@@ -20,4 +20,5 @@ export const km: FormsTranslations = {
     'URL \u1798\u17b7\u1793\u178f\u17d2\u179a\u17b9\u1798\u178f\u17d2\u179a\u17bc\u179c',
   'forms.invalidValue':
     '\u178f\u1798\u17d2\u179b\u17c3\u1798\u17b7\u1793\u178f\u17d2\u179a\u17b9\u1798\u178f\u17d2\u179a\u17bc\u179c',
+  'forms.submitError': 'មិនអាចដាក់ស្នើបានទេ។ សូមព្យាយាមម្តងទៀត។',
 }

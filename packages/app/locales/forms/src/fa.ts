@@ -11,4 +11,5 @@ export const fa: FormsTranslations = {
   'forms.invalidEmail': 'آدرس ایمیل نامعتبر',
   'forms.invalidUrl': 'URL نامعتبر',
   'forms.invalidValue': 'مقدار نامعتبر',
+  'forms.submitError': 'ارسال مقدور نیست. لطفا دوباره امتحان کنید.',
 }

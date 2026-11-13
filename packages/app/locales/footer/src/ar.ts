@@ -8,4 +8,6 @@ export const ar: Partial<FooterTranslations> = {
   'footer.version': 'v {{version}}',
   'content.privacyPolicy': '',
   'content.termsOfService': '',
+  'footer.legalNotConfigured': 'لم يتم إعداد هذا المحتوى بعد. يجب على مالك التطبيق توفيره.',
+  'footer.about': 'حول {{appName}}',
 }

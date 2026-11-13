@@ -15,4 +15,6 @@ export const sk: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'Chyba',
   'audioRecorder.statusIdle': 'Pripravené na nahrávanie',
   'audioRecorder.group': 'Zvukový záznamník',
+  'audioRecorder.record': 'Záznam',
+  'audioRecorder.statusRecording': 'Nahrávanie',
 }

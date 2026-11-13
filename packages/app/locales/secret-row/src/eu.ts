@@ -9,4 +9,6 @@ export const eu: Partial<SecretRowTranslations> = {
   'secretRow.copy': 'Kopiatu',
   'secretRow.rotate': 'Biratu',
   'secretRow.delete': 'Ezabatu',
+  'secretRow.lastRotated': 'Azken biratua',
+  'secretRow.rotateIn': 'Txandakatu {{days}} egunetan',
 }

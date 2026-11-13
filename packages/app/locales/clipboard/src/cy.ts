@@ -6,4 +6,6 @@ export const cy: Partial<ClipboardTranslations> = {
     '@molecule/app-clipboard: nid yw onChange yn cael ei gefnogi gan y darparwr',
   'clipboard.error.noProvider':
     "@molecule/app-clipboard: Dim darparwr wedi'i osod. Galwch setProvider() gyda gweithrediad ClipboardProvider (e.e., o @molecule/app-clipboard-react-native).",
+  'clipboard.error.missingDependency':
+    "Mae angen `{{library}}` ond nid yw wedi'i osod. Gosodwch ef gyda: `npm install {{library}}`",
 }

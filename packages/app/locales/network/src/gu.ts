@@ -12,4 +12,8 @@ export const gu: NetworkTranslations = {
   'network.unknown': 'અજ્ઞાત',
   'network.error.connectionTimeout': 'નેટવર્ક કનેક્શન ટાઇમઆઉટ',
   'network.error.unavailable': 'નેટવર્ક ઉપલબ્ધ નથી',
+  'network.error.missingDependency':
+    '`{{library}}` જરૂરી છે પણ ઇન્સ્ટોલ કરેલું નથી. તેને આની સાથે ઇન્સ્ટોલ કરો: `npm install {{library}}`',
+  'network.error.noProvider':
+    '`@molecule/app-network`: કોઈ પ્રદાતા સેટ નથી. `NetworkProvider` અમલીકરણ સાથે `setProvider()` કૉલ કરો (દા.ત., `@molecule/app-network-react-native` માંથી).',
 }

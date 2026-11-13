@@ -4,4 +4,6 @@ import type { PushTranslations } from './types.js'
 export const gl: PushTranslations = {
   'push.error.notSupported': 'As notificacións push non son compatibles',
   'push.error.permissionNotGranted': 'Permiso de notificación non concedido',
+  'push.error.missingDependency':
+    '`{{library}}` é necesario pero non está instalado. Instálao con: `npx expo install {{library}}`',
 }

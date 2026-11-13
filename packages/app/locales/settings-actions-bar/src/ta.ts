@@ -5,4 +5,5 @@ export const ta: Partial<SettingsActionsBarTranslations> = {
   'settingsActions.cancel': 'ரத்துசெய்',
   'settingsActions.saving': 'சேமிப்பு…',
   'settingsActions.save': 'மாற்றங்களைச் சேமிக்கவும்',
+  'settingsActions.saved': 'சேமிக்கப்பட்டது {{at}}',
 }

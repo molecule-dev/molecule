@@ -36,7 +36,7 @@ export const en: UiTranslations = {
   'ui.select.placeholder': 'Select…',
   'ui.select.title': 'Select',
   'ui.toast.dismiss': 'Dismiss',
-  'ui.toast.error.noProvider': 'useToast must be used within a ToastProvider',
+  'ui.toast.error.noProvider': '`useToast` must be used within a `ToastProvider`',
   'confirm.cancel': 'Cancel',
   'confirm.confirm': 'Confirm',
   'ui.select.clear': '--',

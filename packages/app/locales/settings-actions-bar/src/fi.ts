@@ -5,4 +5,5 @@ export const fi: Partial<SettingsActionsBarTranslations> = {
   'settingsActions.cancel': 'Peruuta',
   'settingsActions.saving': 'Tallennetaan…',
   'settingsActions.save': 'Tallenna muutokset',
+  'settingsActions.saved': 'Tallennettu {{at}}',
 }

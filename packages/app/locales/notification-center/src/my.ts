@@ -6,4 +6,6 @@ export const my: Partial<NotificationCenterTranslations> = {
   'notifications.markAllRead': 'အားလုံးကို ဖတ်ပြီးအဖြစ် မှတ်သားပါ',
   'notifications.empty': 'အကြောင်းကြားချက်များ မရှိပါ',
   'notifications.viewAll': 'အားလုံးကြည့်ရန်',
+  'notifications.loadError': 'အကြောင်းကြားချက်များကို တင်၍မရပါ။',
+  'notifications.retry': 'ပြန်ကြိုးစားပါ',
 }

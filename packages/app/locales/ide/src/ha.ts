@@ -353,14 +353,10 @@ export const ha: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
-  'ide.chat.tip.getStarted':
-    'Shawara: rubuta / don ganin kowane umarni, ko @ sunan fayil don bayarwa{{agentName}} fayil ɗin da za a yi aiki da shi.',
   'ide.chat.tip.mention':
     'Shawara: rubuta @filename don haɗa fayil ɗin aiki a matsayin mahallin -{{agentName}} yana karanta shi kai tsaye.',
   'ide.chat.tip.slash':
     'Shawara: rubuta / don bincika kowace umarni (alƙawari, bambanci, samfuri, da ƙari).',
-  'ide.chat.tip.plan':
-    'Shawara: amfani/shirin samun{{agentName}} bincike da kuma gabatar da wani shiri kafin ya gyara duk wani fayil.',
   'ide.chat.tip.undo':
     'Shawara: yi amfani da / gyara don dawo da canje-canjen fayil ɗin AI na ƙarshe idan ya tafi ba daidai ba.',
   'ide.chat.tip.compact':
@@ -778,4 +774,10 @@ export const ha: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'Izinin wata-wata.',
   'ide.chat.context.daily': 'Kudin yau da kullun.',
   'ide.chat.context.resets': 'Sake saitawa {{at}} .',
+  'ide.error.noProvider':
+    'Ba a saita mai bada wurin aiki na IDE ba. Da farko haɗa mai bada sabis na IDE.',
+  'ide.chat.tip.getStarted':
+    'Shawara: rubuta / don ganin kowace umarni, ko @ sunan fayil don ba wa {{agentName}} fayil don aiki daga.',
+  'ide.chat.tip.plan':
+    'Shawara: yi amfani da /shirya don yin bincike kan {{agentName}} da kuma gabatar da wani shiri kafin ya gyara duk wani fayil.',
 }

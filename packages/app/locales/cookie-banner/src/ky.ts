@@ -10,4 +10,5 @@ export const ky: Partial<CookieBannerTranslations> = {
   'cookieBanner.reject': 'Баарын четке кагуу',
   'cookieBanner.save': 'Параметрлерди сактоо',
   'cookieBanner.accept': 'Баарын кабыл алуу',
+  'cookieBanner.learnMore': 'Көбүрөөк билүү',
 }

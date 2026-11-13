@@ -10,4 +10,5 @@ export const ga: Partial<CookieBannerTranslations> = {
   'cookieBanner.reject': 'Diúltaigh do gach rud',
   'cookieBanner.save': 'Sábháil roghanna',
   'cookieBanner.accept': 'Glac leis na rudaí go léir',
+  'cookieBanner.learnMore': 'Foghlaim níos mó',
 }

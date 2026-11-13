@@ -10,4 +10,5 @@ export const sq: Partial<CookieBannerTranslations> = {
   'cookieBanner.reject': 'Refuzo të gjitha',
   'cookieBanner.save': 'Ruaj preferencat',
   'cookieBanner.accept': 'Prano të gjitha',
+  'cookieBanner.learnMore': 'Mëso më shumë',
 }

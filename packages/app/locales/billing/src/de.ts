@@ -14,4 +14,5 @@ export const de: Partial<BillingTranslations> = {
   'billing.status.cancelError': 'Stornierung fehlgeschlagen. Bitte versuchen Sie es erneut.',
   'billing.pricing.reassurance': 'Jederzeit kündbar · Keine Kreditkarte für den Start erforderlich',
   'billing.pricing.perSeat': 'pro Sitzplatz',
+  'billing.pricing.currentCta': 'Aktueller Plan',
 }

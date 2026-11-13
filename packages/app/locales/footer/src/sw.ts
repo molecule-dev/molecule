@@ -8,4 +8,7 @@ export const sw: Partial<FooterTranslations> = {
   'footer.language': 'Lugha',
   'content.privacyPolicy': '',
   'content.termsOfService': '',
+  'footer.legalNotConfigured':
+    'Maudhui haya hayajasanidiwa bado. Mmiliki wa programu lazima ayatoe.',
+  'footer.about': 'Kuhusu {{appName}}',
 }

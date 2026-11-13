@@ -9,4 +9,6 @@ export const ko: Partial<SecretRowTranslations> = {
   'secretRow.rotate': '교체',
   'secretRow.delete': '삭제',
   'secretRow.expired': '만료됨',
+  'secretRow.lastRotated': '마지막으로 회전됨',
+  'secretRow.rotateIn': '{{days}} 일 후에 회전하세요',
 }

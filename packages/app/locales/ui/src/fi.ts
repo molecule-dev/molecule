@@ -36,7 +36,6 @@ export const fi: Partial<UiTranslations> = {
   'ui.select.placeholder': 'Valitse…',
   'ui.select.title': 'Valitse',
   'ui.toast.dismiss': 'Sulje',
-  'ui.toast.error.noProvider': 'useToast-arvoa on käytettävä ToastProvider-kohteen sisällä.',
   'confirm.cancel': 'Peruuta',
   'confirm.confirm': 'Vahvistaa',
   'ui.select.clear': '--',
@@ -53,4 +52,5 @@ export const fi: Partial<UiTranslations> = {
   'userMenu.panelLabel': 'Tilivalikko',
   'ui.error.noClassMap':
     'UIClassMapia ei ole asetettu. Kutsu setClassMap()-funktiota sovelluksen käynnistyksen yhteydessä tyylikirjaston toteutuksella (esim. @molecule/app-ui-tailwind).',
+  'ui.toast.error.noProvider': '`useToast` on käytettävä `ToastProvider` kohteen sisällä.',
 }

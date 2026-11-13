@@ -4,4 +4,5 @@ import type { StatusBarTranslations } from './types.js'
 export const hu: StatusBarTranslations = {
   'statusBar.error.noProvider':
     '@molecule/app-status-bar: Nincs szolgáltató beállítva. Hívja meg a setProvider()-t egy StatusBarProvider implementációval (pl. a @molecule/app-status-bar-react-native-ból).',
+  'statusBar.error.missingDependency': '`{{library}}` kötelező, de nincs telepítve.',
 }

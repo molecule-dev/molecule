@@ -3,4 +3,5 @@ import type { DayTimelineTranslations } from './types.js'
 /** DayTimeline translations for bs. */
 export const bs: Partial<DayTimelineTranslations> = {
   'dayTimeline.group': 'Vremenska crta dana',
+  'dayTimeline.event': '{{title}} od {{start}} do {{end}}',
 }

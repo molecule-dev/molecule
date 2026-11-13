@@ -10,4 +10,5 @@ export const id: Partial<CookieBannerTranslations> = {
     'Kami menggunakan cookie untuk meningkatkan pengalaman Anda dan menganalisis lalu lintas.',
   'cookieBanner.reject': 'Tolak semuanya',
   'cookieBanner.accept': 'Terima semua',
+  'cookieBanner.learnMore': 'Pelajari selengkapnya',
 }

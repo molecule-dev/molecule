@@ -10,4 +10,6 @@ export const pl: Partial<BatteryTranslations> = {
   'battery.not-charging': 'Brak ładowania',
   'battery.remainingTime': '{{hours}} H {{minutes}} M',
   'battery.remainingMinutes': '{{minutes}} M',
+  'battery.error.noProvider':
+    '`@molecule/app-battery`: Nie ustawiono dostawcy. Wywołaj `setProvider()` z implementacją `BatteryProvider` — żaden dostawca nie jest dostarczany z flotą; zaimplementuj interfejs w swoim natywnym środowisku wykonawczym i powiąż go.',
 }

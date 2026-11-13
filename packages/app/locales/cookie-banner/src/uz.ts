@@ -10,4 +10,5 @@ export const uz: Partial<CookieBannerTranslations> = {
   'cookieBanner.reject': 'Hammasini rad etish',
   'cookieBanner.save': 'Sozlamalarni saqlash',
   'cookieBanner.accept': 'Hammasini qabul qilish',
+  'cookieBanner.learnMore': "Batafsil ma'lumot",
 }

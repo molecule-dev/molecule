@@ -352,14 +352,10 @@ export const bs: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
-  'ide.chat.tip.getStarted':
-    'Savjet: upišite / da biste vidjeli svaku naredbu ili @ u ime datoteke da biste dali{{agentName}} datoteka s koje se može raditi.',
   'ide.chat.tip.mention':
     'Savjet: upišite @filename da biste priložili datoteku projekta kao kontekst —{{agentName}} čita ga direktno.',
   'ide.chat.tip.slash':
     'Savjet: ukucajte / da biste pregledali svaku komandu (commit, diff, model i ostale).',
-  'ide.chat.tip.plan':
-    'Savjet: koristite /planirajte da imate{{agentName}} istražiti i predložiti plan prije nego što uredi bilo koje datoteke.',
   'ide.chat.tip.undo':
     'Savjet: koristite /undo da biste odmah vratili promjene u datoteci posljednjeg poteza umjetne inteligencije ako je sve krenulo po zlu.',
   'ide.chat.tip.compact':
@@ -776,4 +772,10 @@ export const bs: Partial<IdeTranslations> = {
   'ide.chat.context.monthly': 'Mjesečni dodatak.',
   'ide.chat.context.daily': 'Dnevni dodatak.',
   'ide.chat.context.resets': 'Resetuje {{at}} .',
+  'ide.error.noProvider':
+    'Pružatelj IDE radnog prostora nije konfiguriran. Prvo povežite IDE pružatelja.',
+  'ide.chat.tip.getStarted':
+    'Savjet: upišite / da biste vidjeli svaku naredbu ili @ ispred imena datoteke da biste {{agentName}} dali datoteku s koje će raditi.',
+  'ide.chat.tip.plan':
+    'Savjet: koristite /plan da bi {{agentName}} istražio i predložio plan prije nego što uredi bilo koje datoteke.',
 }

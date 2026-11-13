@@ -11,4 +11,5 @@ export const ne: FormsTranslations = {
   'forms.invalidEmail': 'अमान्य इमेल ठेगाना',
   'forms.invalidUrl': 'अमान्य URL',
   'forms.invalidValue': 'अमान्य मान',
+  'forms.submitError': 'पेश गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्।',
 }

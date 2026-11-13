@@ -4,4 +4,5 @@ import type { ChartsTranslations } from './types.js'
 export const am: ChartsTranslations = {
   'charts.placeholder.label': '{{type}} ቻርት',
   'charts.placeholder.description': 'ትክክለኛ የቻርት አቅራቢ ይጠቀሙ',
+  'charts.error.noCanvasContext': 'የሸራ 2D አውድ ማግኘት አልተቻለም',
 }

@@ -10,4 +10,5 @@ export const el: Partial<CookieBannerTranslations> = {
   'cookieBanner.customize': 'Προσαρμογή',
   'cookieBanner.reject': 'Απόρριψη όλων',
   'cookieBanner.accept': 'Αποδοχή όλων',
+  'cookieBanner.learnMore': 'Μάθετε περισσότερα',
 }

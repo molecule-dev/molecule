@@ -15,4 +15,6 @@ export const fi: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'Virhe',
   'audioRecorder.statusIdle': 'Valmis tallentamaan',
   'audioRecorder.group': 'Ääninauhuri',
+  'audioRecorder.record': 'Tallentaa',
+  'audioRecorder.statusRecording': 'Äänitys',
 }

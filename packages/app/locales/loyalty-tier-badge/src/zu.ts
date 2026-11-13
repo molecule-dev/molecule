@@ -4,4 +4,6 @@ import type { LoyaltyTierBadgeTranslations } from './types.js'
 export const zu: Partial<LoyaltyTierBadgeTranslations> = {
   'loyaltyTierBadge.group': '{{tier}} izinga',
   'loyaltyTierBadge.progress': 'Inqubekela phambili eya {{next}}',
+  'loyaltyTierBadge.topTier': 'Izinga eliphezulu lifinyelelwe',
+  'loyaltyTierBadge.remaining': '{{remaining}} kuya ku- {{next}}',
 }

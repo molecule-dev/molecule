@@ -6,4 +6,8 @@ export const fi: RoutingTranslations = {
   'routing.error.routeNotFound': 'Reittiä "{{name}}" ei löytynyt',
   'routing.error.useMoleculeRouterOutsideProvider':
     'useMoleculeRouter on käytettävä MoleculeRouterProvider-komponentin sisällä',
+  'routing.error.noNavigationRef':
+    'Navigointiviitettä ei ole asetettu. Varmista, että `MoleculeProvider` on liitetty.',
+  'routing.error.useMoleculeRouterOutsideRouter':
+    '`useMoleculeRouter` on käytettävä React Router -reitittimen sisällä. Liitä `BrowserRouter`, `HashRouter`, `MemoryRouter`, `Router` tai `RouterProvider`.',
 }

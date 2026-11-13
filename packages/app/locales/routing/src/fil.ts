@@ -6,4 +6,8 @@ export const fil: RoutingTranslations = {
   'routing.error.routeNotFound': 'Hindi nahanap ang ruta na "{{name}}"',
   'routing.error.useMoleculeRouterOutsideProvider':
     'Ang useMoleculeRouter ay dapat gamitin sa loob ng MoleculeRouterProvider',
+  'routing.error.noNavigationRef':
+    'Hindi nakatakda ang navigation ref. Tiyaking naka-mount `MoleculeProvider` .',
+  'routing.error.useMoleculeRouterOutsideRouter':
+    'Dapat gamitin `useMoleculeRouter` sa loob ng isang React Router router. I-mount ang `BrowserRouter`, `HashRouter`, `MemoryRouter`, `Router`, o `RouterProvider`.',
 }

@@ -826,4 +826,5 @@ export const en: IdeTranslations = {
   'ide.chat.context.monthly': 'Monthly allowance.',
   'ide.chat.context.daily': 'Daily allowance.',
   'ide.chat.context.resets': 'Resets {{at}}.',
+  'ide.error.noProvider': 'IDE workspace provider not configured. Bond an IDE provider first.',
 }

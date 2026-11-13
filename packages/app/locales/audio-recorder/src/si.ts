@@ -15,4 +15,6 @@ export const si: Partial<AudioRecorderTranslations> = {
   'audioRecorder.statusError': 'දෝෂය',
   'audioRecorder.statusIdle': 'පටිගත කිරීමට සූදානම්',
   'audioRecorder.group': 'ශ්‍රව්‍ය පටිගත කරන්නා',
+  'audioRecorder.record': 'වාර්තාව',
+  'audioRecorder.statusRecording': 'පටිගත කිරීම',
 }

@@ -16,4 +16,5 @@ export const ru: Partial<BillingTranslations> = {
   'billing.pricing.tierEyebrow': 'Уровень',
   'billing.pricing.perSeat': 'за место',
   'billing.pricing.upgradeCta': 'Обновить до {{tierName}}',
+  'billing.pricing.currentCta': 'Текущий план',
 }

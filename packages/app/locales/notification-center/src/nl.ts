@@ -6,4 +6,6 @@ export const nl: Partial<NotificationCenterTranslations> = {
   'notifications.markAllRead': 'Alles als gelezen markeren',
   'notifications.viewAll': 'Alles bekijken',
   'notifications.empty': 'Geen meldingen',
+  'notifications.loadError': 'Kon de meldingen niet laden.',
+  'notifications.retry': 'Opnieuw proberen',
 }
