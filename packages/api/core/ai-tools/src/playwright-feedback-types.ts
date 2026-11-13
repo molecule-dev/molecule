@@ -110,6 +110,13 @@ export interface PlaywrightFeedbackOptions {
   /** Operational state is separate from defect feedback. */
   onResult?: (result: PlaywrightFeedbackResult) => void
   debounceMs?: number
+  /**
+   * How long the background waits before trying again after a run yielded to the sandbox's own
+   * foreground work (a test run, build, deploy or install the host did not start). Each further
+   * consecutive yield doubles the wait, up to 16 times this; a run that finishes resets it, and a
+   * source write or a released pause still tries again at once. Default 1000 ms.
+   */
+  yieldRetryMs?: number
 }
 
 /** What an explicit checkpoint runs. */

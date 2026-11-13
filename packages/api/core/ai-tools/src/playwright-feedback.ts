@@ -185,6 +185,13 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
   // every time; repeating it first on every release would starve every later file forever.
   const lastAttempt = new Map<string, number>()
   let attemptedRuns = 0
+  // Runs in a row that yielded to the sandbox's own foreground work. A walk or build the host did
+  // not start holds the sandbox for minutes, and each attempt costs a native start and a process
+  // scan beside it; the wait before the next attempt doubles instead of repeating every second.
+  let yieldsInARow = 0
+  const yieldRetryMs = options.yieldRetryMs ?? 1000
+  const yieldRetryDelay = (): number =>
+    yieldRetryMs * 2 ** Math.min(Math.max(yieldsInARow - 1, 0), 4)
   let checking: Promise<PlaywrightFeedbackResult[]> | undefined
   const start = (): void => {
     if (active || stopped || paused || changed.size === 0) return
@@ -273,9 +280,11 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
         if (!live()) break
         if (result.status === 'cancelled') {
           yielded = true
+          yieldsInARow++
           for (const path of paths) changed.add(path)
           break
         }
+        yieldsInARow = 0
         // The rest of a resumed file. Its record selected nothing the runner could run (the file's
         // tests changed since it stopped): the whole file runs on the next pass.
         const resumed = resume !== undefined && result.selection === 'last-failed'
@@ -317,7 +326,8 @@ export function createPlaywrightFeedback(options: PlaywrightFeedbackOptions): Pl
       active = undefined
       cancellation = undefined
       if (abort.signal.aborted && !stopped) for (const path of paths) changed.add(path)
-      if (!stopped && !paused && changed.size && !timer) schedule(yielded ? 1000 : undefined)
+      if (!stopped && !paused && changed.size && !timer)
+        schedule(yielded ? yieldRetryDelay() : undefined)
     })
   }
   const schedule = (delay = options.debounceMs ?? 250): void => {

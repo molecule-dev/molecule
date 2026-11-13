@@ -106,7 +106,10 @@ it.each([true, false])(
         return runPlaywrightFeedback(f.backend, spec, files, revision, {
           command: (flags) => `${spec.command} ${flags.join(' ')}`,
           scratchRoot: join(f.root, 'feedback'),
-          timeoutMs: 15000,
+          // Playwright's global timeout. The broken app's four failures each restart the worker (a
+          // browser launch apiece); beside the rest of the suite's native runs that passed 15 s and
+          // left the counterexample unrun, counted as skipped.
+          timeoutMs: 40000,
           pollMs: 10,
           signal,
           emit,
@@ -127,9 +130,10 @@ it.each([true, false])(
     // Stop a repeated first file before asserting, so the known-bad control leaves no process.
     if (visits[1] !== f.specs[1].path) await controller.pause()
     expect(visits[1]).toBe(f.specs[1].path)
+    // Wait for as long as the runner may take, or a slow but valid run fails the test.
     await vi.waitFor(
       () => expect(results.some((result) => result.spec === f.specs[1].path)).toBe(true),
-      { timeout: 12000 },
+      { timeout: 45000 },
     )
     await controller.pause()
     const native = results.find((result) => result.spec === f.specs[1].path)!
@@ -156,5 +160,5 @@ it.each([true, false])(
       expect(controller.takeFailures()).toEqual([])
     }
   },
-  30000,
+  75000,
 )
