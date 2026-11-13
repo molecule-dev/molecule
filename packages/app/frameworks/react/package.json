@@ -39,7 +39,7 @@
     "@molecule/app-device": "^1.0.1",
     "@molecule/app-platform": "^1.0.1",
     "@molecule/app-push": "^1.0.1",
-    "@molecule/app-ai-chat": "^1.0.1",
+    "@molecule/app-ai-chat": "^1.8.0",
     "@molecule/app-ide": "^1.0.1",
     "@molecule/app-code-editor": "^1.0.1",
     "@molecule/app-live-preview": "^1.0.1",
