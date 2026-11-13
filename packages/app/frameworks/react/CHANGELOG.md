@@ -1,5 +1,11 @@
 # @molecule/app-react
 
+## 4.3.0
+
+### Minor Changes
+
+- `useChat` now wraps the shared `createChatSession` from `@molecule/app-ai-chat`, which is now a required peer.
+
 ## 4.2.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # @molecule/app-ai-chat
 
+## 1.8.0
+
+### Minor Changes
+
+- Adds `createChatSession`, a framework-free chat session (streaming, queueing, retries, history) that every framework's `useChat` binding wraps.
+
 ## 1.7.3
 
 ### Patch Changes
