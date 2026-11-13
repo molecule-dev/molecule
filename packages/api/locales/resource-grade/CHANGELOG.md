@@ -1,5 +1,11 @@
 # @molecule/api-locales-resource-grade
 
+## 1.0.3
+
+### Patch Changes
+
+- Translates values that still read English in other languages.
+
 ## 1.0.1
 
 ### Patch Changes

@@ -1,5 +1,17 @@
 # @molecule/app-locales-ide
 
+## 1.11.0
+
+### Minor Changes
+
+- Adds the plural forms languages such as Russian, Polish and Arabic use, and keeps slash commands and line breaks intact in translations.
+
+### Patch Changes
+
+- Attaches case suffixes to the value they follow and corrects several translations.
+- Translate every key into every supported language, keeping the spacing around interpolated values and the code names they mention.
+- Translates values that still read English in other languages.
+
 ## 1.10.14
 
 ### Patch Changes

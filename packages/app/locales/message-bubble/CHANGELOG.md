@@ -1,5 +1,15 @@
 # @molecule/app-locales-message-bubble
 
+## 1.1.0
+
+### Minor Changes
+
+- Adds the plural forms languages such as Russian, Polish and Arabic use, and keeps slash commands and line breaks intact in translations.
+
+### Patch Changes
+
+- Adds the remaining keys its package uses, in 79 languages.
+
 ## 1.0.3
 
 ### Patch Changes

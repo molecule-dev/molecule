@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.18.4
+
+### Patch Changes
+
+- Background Playwright feedback keeps running beside a type-check or lint, stops for package installs, and is the first process the kernel kills when memory runs out.
+
 ## 1.18.3
 
 ### Patch Changes

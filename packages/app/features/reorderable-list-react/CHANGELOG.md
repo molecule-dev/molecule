@@ -1,5 +1,11 @@
 # @molecule/app-reorderable-list-react
 
+## 4.0.1
+
+### Patch Changes
+
+- Documents the companion locale bond that translates its text.
+
 ## 4.0.0
 
 ### Patch Changes

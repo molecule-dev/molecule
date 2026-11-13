@@ -1,5 +1,12 @@
 # @molecule/app-locales-notifications-page
 
+## 1.0.5
+
+### Patch Changes
+
+- Attaches case suffixes to the value they follow and corrects several translations.
+- Translate every key into every supported language, keeping the spacing around interpolated values and the code names they mention.
+
 ## 1.0.4
 
 ### Patch Changes

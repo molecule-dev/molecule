@@ -1,5 +1,11 @@
 # @molecule/app-checklist-react
 
+## 4.0.1
+
+### Patch Changes
+
+- The progress line's default text is a `{{done}}`/`{{total}}` template the i18n core fills in.
+
 ## 4.0.0
 
 ### Patch Changes

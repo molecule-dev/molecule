@@ -62,7 +62,7 @@
     "@molecule/app-i18n": "1.1.2",
     "@molecule/app-icons": "1.0.3",
     "@molecule/app-live-preview": "1.0.3",
-    "@molecule/app-locales-ide": "1.10.14",
+    "@molecule/app-locales-ide": "1.11.0",
     "@molecule/app-logger": "1.0.6",
     "@molecule/app-react": "4.3.1",
     "@molecule/app-storage": "1.1.0",

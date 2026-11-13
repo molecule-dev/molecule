@@ -1,5 +1,11 @@
 # @molecule/app-webhook-inspector-react
 
+## 4.0.1
+
+### Patch Changes
+
+- Translates the remaining hardcoded labels through `t()`.
+
 ## 4.0.0
 
 ### Patch Changes

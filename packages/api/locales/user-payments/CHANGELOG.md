@@ -1,5 +1,11 @@
 # @molecule/api-locales-user-payments
 
+## 1.0.4
+
+### Patch Changes
+
+- Translates values that still read English in other languages.
+
 ## 1.0.2
 
 ### Patch Changes

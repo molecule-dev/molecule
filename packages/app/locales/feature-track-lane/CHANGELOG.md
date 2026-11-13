@@ -1,5 +1,11 @@
 # @molecule/app-locales-feature-track-lane
 
+## 1.0.5
+
+### Patch Changes
+
+- Translates values that still read English in other languages.
+
 ## 1.0.4
 
 ### Patch Changes

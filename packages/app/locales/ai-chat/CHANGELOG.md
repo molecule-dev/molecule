@@ -1,5 +1,12 @@
 # @molecule/app-locales-ai-chat
 
+## 1.0.4
+
+### Patch Changes
+
+- Adds the remaining keys its package uses, in 79 languages.
+- Translate every key into every supported language, keeping the spacing around interpolated values and the code names they mention.
+
 ## 1.0.3
 
 ### Patch Changes

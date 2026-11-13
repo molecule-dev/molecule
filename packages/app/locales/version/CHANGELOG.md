@@ -1,5 +1,12 @@
 # @molecule/app-locales-version
 
+## 1.1.1
+
+### Patch Changes
+
+- Translate every key into every supported language, keeping the spacing around interpolated values and the code names they mention.
+- Adds the plural forms languages such as Russian, Polish and Arabic use, and keeps slash commands and line breaks intact in translations.
+
 ## 1.1.0
 
 ### Minor Changes

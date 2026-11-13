@@ -1,5 +1,12 @@
 # @molecule/app-locales-common
 
+## 1.0.6
+
+### Patch Changes
+
+- Translate every key into every supported language, keeping the spacing around interpolated values and the code names they mention.
+- Translates values that still read English in other languages.
+
 ## 1.0.5
 
 ### Patch Changes

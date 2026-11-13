@@ -1,5 +1,11 @@
 # @molecule/app-locales-adjustment-slider
 
+## 1.0.4
+
+### Patch Changes
+
+- Translate every key into every supported language, keeping the spacing around interpolated values and the code names they mention.
+
 ## 1.0.3
 
 ### Patch Changes

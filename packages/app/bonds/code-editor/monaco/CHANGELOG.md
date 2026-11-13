@@ -1,5 +1,11 @@
 # @molecule/app-code-editor-monaco
 
+## 1.0.8
+
+### Patch Changes
+
+- The AI quick-fix labels use the `codeEditor.*` keys that `@molecule/app-locales-code-editor` translates.
+
 ## 1.0.7
 
 ### Patch Changes

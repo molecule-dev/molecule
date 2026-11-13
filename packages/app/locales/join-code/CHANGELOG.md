@@ -1,5 +1,12 @@
 # @molecule/app-locales-join-code
 
+## 1.0.4
+
+### Patch Changes
+
+- Attaches case suffixes to the value they follow and corrects several translations.
+- Translates values that still read English in other languages.
+
 ## 1.0.3
 
 ### Patch Changes

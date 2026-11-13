@@ -1,5 +1,11 @@
 # @molecule/app-file-upload-filepond
 
+## 1.0.4
+
+### Patch Changes
+
+- Documents the companion locale bond that translates its text.
+
 ## 1.0.1
 
 ### Patch Changes

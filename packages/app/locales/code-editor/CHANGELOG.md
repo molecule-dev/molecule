@@ -1,5 +1,11 @@
 # @molecule/app-locales-code-editor
 
+## 1.0.4
+
+### Patch Changes
+
+- Adds the remaining keys its package uses, in 79 languages.
+
 ## 1.0.3
 
 ### Patch Changes
