@@ -40,6 +40,9 @@ export const vueBindingAdapter: BindingAdapter = {
   name: 'vue',
   reset: () => {
     VueBindings.resetChatStoresForTests()
+    // React resets its models cache too; present once this binding ports useAIModels.
+    const resetModels = exportsOf.resetAIModelsCache
+    if (typeof resetModels === 'function') resetModels()
   },
   has: (name) => typeof exportsOf[name] !== 'undefined',
   async mount(hook, args, services, _shape, options = {}): Promise<MountedHook> {
