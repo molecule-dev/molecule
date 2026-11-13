@@ -12,6 +12,7 @@ import type {
   InterpolationValues,
   LocaleConfig,
   NumberFormatOptions,
+  TranslateOptions,
 } from '@molecule/app-i18n'
 
 import { getI18nProvider } from '../context.js'
@@ -23,7 +24,8 @@ interface I18nStores {
   locale: Readable<string>
   direction: Readable<'ltr' | 'rtl'>
   locales: Readable<LocaleConfig[]>
-  t: Readable<(key: string, values?: InterpolationValues) => string>
+  /** Translates a key; re-derived on every locale or translation change, so `$t(…)` follows a switch. */
+  t: Readable<I18nProvider['t']>
   setLocale: (code: string) => Promise<void>
   formatNumber: (value: number, options?: NumberFormatOptions) => string
   formatDate: (value: Date | number | string, options?: DateFormatOptions) => string
@@ -65,7 +67,8 @@ export function createI18nStores(): I18nStores {
     locales: derived(_version, () => provider.getLocales()),
     t: derived(
       _version,
-      () => (key: string, values?: InterpolationValues) => provider.t(key, values),
+      () => (key: string, values?: InterpolationValues, options?: TranslateOptions) =>
+        provider.t(key, values, options),
     ),
     setLocale: (code: string) => provider.setLocale(code),
     formatNumber: (value: number, options?: NumberFormatOptions) =>
@@ -93,7 +96,8 @@ export function createI18nStoresFromProvider(provider: I18nProvider): I18nStores
     locales: derived(_version, () => provider.getLocales()),
     t: derived(
       _version,
-      () => (key: string, values?: InterpolationValues) => provider.t(key, values),
+      () => (key: string, values?: InterpolationValues, options?: TranslateOptions) =>
+        provider.t(key, values, options),
     ),
     setLocale: (code: string) => provider.setLocale(code),
     formatNumber: (value: number, options?: NumberFormatOptions) =>

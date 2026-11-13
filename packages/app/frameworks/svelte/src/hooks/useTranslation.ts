@@ -7,7 +7,7 @@
  */
 
 import { onDestroy } from 'svelte'
-import { derived, type Readable, writable } from 'svelte/store'
+import { derived, fromStore, type Readable, writable } from 'svelte/store'
 
 import type {
   DateFormatOptions,
@@ -44,9 +44,10 @@ export type UseTFunction = I18nProvider['t'] & {
  */
 export interface UseTranslationResult {
   /**
-   * Translates a key in the active locale. Reads the provider at call time,
-   * so it always speaks the active locale (like React's `t`, which is rebuilt
-   * on every locale change).
+   * Translates a key in the active locale. A call made while markup, `$derived` or an
+   * effect evaluates re-runs on every locale switch (like React's `t`, which is
+   * rebuilt on every locale change), so `{t('key', {}, { defaultValue })}` needs no
+   * store read beside it.
    */
   t: I18nProvider['t']
   /** The active locale code. */
@@ -89,6 +90,20 @@ function localeVersionStore(provider: I18nProvider): Readable<string> {
 }
 
 /**
+ * A function that reads the locale version the way a rune does: calling it while a
+ * template, `$derived` or effect evaluates makes that evaluation re-run on every
+ * locale notification. A `t(…)` written straight into markup therefore follows a
+ * locale switch, as React's components do through `useTranslation()`.
+ *
+ * @param version - The store from {@link localeVersionStore}.
+ * @returns The reader.
+ */
+function trackVersion(version: Readable<string>): () => string {
+  const tracked = fromStore(version)
+  return () => tracked.current
+}
+
+/**
  * A locale-reactive value: re-read from the provider whenever the locale
  * version store changes.
  *
@@ -119,10 +134,13 @@ function localeValue<T>(version: Readable<string>, read: () => T): Readable<T> {
 export function useTranslation(): UseTranslationResult {
   const provider = useI18nProvider()
   const version = localeVersionStore(provider)
+  const readVersion = trackVersion(version)
 
   return {
-    t: (key: string, values?: InterpolationValues, options?: TranslateOptions) =>
-      provider.t(key, values, options),
+    t: (key: string, values?: InterpolationValues, options?: TranslateOptions) => {
+      readVersion()
+      return provider.t(key, values, options)
+    },
     locale: localeValue(version, () => provider.getLocale()),
     setLocale: (code: string) => provider.setLocale(code),
     locales: localeValue(version, () => provider.getLocales()),
@@ -146,18 +164,19 @@ export function useTranslation(): UseTranslationResult {
  */
 export function useT(): UseTFunction {
   const provider = useI18nProvider()
-  // The locale subscription keeps the component's `$store` reads (and any
-  // locale-derived render) current; the function itself reads the provider at
-  // call time, so its one identity is safe as a dependency either way.
-  localeVersionStore(provider)
+  // Each call reads the locale version, so markup that calls `t(…)` re-renders on a
+  // locale switch; the function keeps one identity, safe as a dependency.
+  const readVersion = trackVersion(localeVersionStore(provider))
   return ((
     key: string,
     valuesOrDefault?: InterpolationValues | string,
     options?: TranslateOptions,
-  ): string =>
-    typeof valuesOrDefault === 'string'
+  ): string => {
+    readVersion()
+    return typeof valuesOrDefault === 'string'
       ? provider.t(key, undefined, { ...options, defaultValue: valuesOrDefault })
-      : provider.t(key, valuesOrDefault, options)) as UseTFunction
+      : provider.t(key, valuesOrDefault, options)
+  }) as UseTFunction
 }
 
 /**

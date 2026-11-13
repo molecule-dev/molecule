@@ -443,8 +443,13 @@ describe('I18n stores', () => {
     const result = createI18nStoresFromProvider(mockI18nProvider)
 
     const tFn = getValue(result.t)
-    const translated = tFn('hello.world', { name: 'Test' })
-    expect(mockI18nProvider.t).toHaveBeenCalledWith('hello.world', { name: 'Test' })
+    const translated = tFn('hello.world', { name: 'Test' }, { defaultValue: 'Hello, Test' })
+    // The options (the English `defaultValue`) reach the provider unchanged.
+    expect(mockI18nProvider.t).toHaveBeenCalledWith(
+      'hello.world',
+      { name: 'Test' },
+      { defaultValue: 'Hello, Test' },
+    )
     expect(translated).toBe('translated:hello.world')
   })
 
