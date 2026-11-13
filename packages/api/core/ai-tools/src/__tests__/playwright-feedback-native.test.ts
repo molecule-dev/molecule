@@ -1,6 +1,6 @@
 import { spawn } from 'node:child_process'
 import { once } from 'node:events'
-import { existsSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { mkdir, mkdtemp, rm, symlink, writeFile } from 'node:fs/promises'
 import { createServer } from 'node:http'
 import { createRequire } from 'node:module'
@@ -201,6 +201,91 @@ describe('native supplied-suite feedback before deploy', () => {
       } finally {
         lingering.kill('SIGKILL')
         await once(lingering, 'exit')
+      }
+    },
+    20_000,
+  )
+  // What a process RUNS decides whether a background run stops beside it: a type-check or lint changes nothing
+  // the run reads, while a build or a package install does. npm shows its command as the process title, so
+  // `npm run --silent typecheck` reads `npm run typecheck` in /proc, which is the title used here.
+  it.each([
+    ['npm run typecheck', 'failed'],
+    ['npm run lint', 'failed'],
+    ['npm run build', 'cancelled'],
+    ['npm install', 'cancelled'],
+    ['npm ci', 'cancelled'],
+  ] as const)(
+    'with `%s` running in the project, the background run reports %s',
+    async (title, status) => {
+      broken = true
+      const ready = join(root, 'lingering', `title-${title.replace(/\W+/g, '-')}`)
+      await mkdir(dirname(ready), { recursive: true })
+      const { MOL_TEST_FEEDBACK_EVENTS: _inherited, ...env } = process.env
+      const titled = spawn(
+        process.execPath,
+        [
+          '-e',
+          `process.title = ${JSON.stringify(title)}; require('node:fs').writeFileSync(${JSON.stringify(ready)}, ''); setInterval(() => {}, 1000)`,
+        ],
+        { cwd: root, env, stdio: 'ignore' },
+      )
+      try {
+        for (let i = 0; i < 200 && !existsSync(ready); i++)
+          await new Promise((r) => setTimeout(r, 25))
+        expect(existsSync(ready)).toBe(true)
+        const result = await runPlaywrightFeedback(
+          backend,
+          specs[3],
+          [join(root, 'src/Notebook.tsx')],
+          1,
+          { command: (flags) => `${specs[3].command} ${flags.join(' ')}` },
+        )
+        expect(result.status).toBe(status)
+        if (status === 'failed') expect(result.failures[0].locator).toContain('.owner')
+      } finally {
+        titled.kill('SIGKILL')
+        await once(titled, 'exit')
+      }
+    },
+    20_000,
+  )
+  // A background run beside a foreground command is the one the kernel kills when memory runs out; an explicit
+  // checkpoint is the agent's own run and keeps the score it was started with.
+  it.each([
+    ['background', '1000', false],
+    ['explicit checkpoint', readFileSync('/proc/self/oom_score_adj', 'utf8').trim(), true],
+  ] as const)(
+    'the %s run carries OOM score %s into its test workers',
+    async (label, score, foreground) => {
+      const out = join(root, `oom-score-${label.replace(/\W+/g, '-')}`)
+      const file = join(root, 'e2e', `score-${foreground ? 'foreground' : 'background'}.spec.ts`)
+      const content =
+        "import {test} from '@playwright/test'; import {readFileSync, writeFileSync} from 'node:fs';\n" +
+        `test('records its score', () => { writeFileSync(${JSON.stringify(out)}, readFileSync('/proc/self/oom_score_adj', 'utf8').trim()) })`
+      await writeFile(file, content)
+      try {
+        const name = file.slice(join(root, 'e2e').length + 1)
+        const result = await runPlaywrightFeedback(
+          backend,
+          {
+            path: file,
+            content,
+            cwd: root,
+            command: `node ${shellQuote(cli)} test --config playwright.config.mjs ${shellQuote(name)}`,
+          },
+          [join(root, 'src/Notebook.tsx')],
+          1,
+          {
+            command: (flags) =>
+              `node ${shellQuote(cli)} test --config playwright.config.mjs ${shellQuote(name)} ${flags.join(' ')}`,
+            foreground,
+          },
+        )
+        expect(result.status).toBe('passed')
+        expect(readFileSync(out, 'utf8')).toBe(score)
+      } finally {
+        await rm(file, { force: true })
+        await rm(out, { force: true })
       }
     },
     20_000,

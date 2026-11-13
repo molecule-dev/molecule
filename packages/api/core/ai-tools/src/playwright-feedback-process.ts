@@ -101,7 +101,12 @@ function feedbackProcess(loadModule: NodeRequire, config: FeedbackProcessOptions
   }
   // CLI agents can launch native tests without using our backend. /proc supplies
   // process identity and cwd, so they need no hook, lock or instruction to yield.
-  // The host adapter cancels before its own tools; this catches independent CLI work.
+  // A host pauses the run before its own test and deploy tools; this scan covers every
+  // other command. The rule is what a process RUNS in this project: native tests,
+  // builds, deploys and package installs change or need what the run uses, so the run
+  // stops for them. A type-check or lint changes nothing the run reads and only competes
+  // for CPU, which idle scheduling already gives up, so the run keeps going during one;
+  // a test or build such a script starts is still found here by its own process.
   const foreground = (): boolean => {
     if (config.foreground) return false
     if (process.platform !== 'linux') return false
@@ -137,7 +142,7 @@ function feedbackProcess(loadModule: NodeRequire, config: FeedbackProcessOptions
         const executable = path.basename(argv[0] || '')
         // npm replaces argv with its process title before it starts the script.
         if (
-          /^(?:npm|npx|pnpm|yarn|bun)(?: run)? (?:test(?::[\w-]+)?|build|deploy|check|typecheck)(?: |$)/.test(
+          /^(?:npm|npx|pnpm|yarn|bun)(?: run)? (?:test(?::[\w-]+)?|build|deploy|install|ci|i|add)(?: |$)/.test(
             executable,
           )
         )
@@ -152,7 +157,7 @@ function feedbackProcess(loadModule: NodeRequire, config: FeedbackProcessOptions
           /^(?:npm|npx|pnpm|yarn|bun|corepack)(?:\.c?js)?$/.test(executable) ||
           argv.some((a) => /\/(?:npm|npx)-cli\.js$/.test(a))
         ) {
-          if (argv.some((a) => /^(?:test(?::[\w-]+)?|e2e|build|deploy|check|typecheck)$/.test(a)))
+          if (argv.some((a) => /^(?:test(?::[\w-]+)?|e2e|build|deploy|install|ci|i|add)$/.test(a)))
             return true
         }
       } catch (_error) {
@@ -167,9 +172,12 @@ function feedbackProcess(loadModule: NodeRequire, config: FeedbackProcessOptions
     return
   }
   // OS idle CPU and I/O scheduling are inherited by the runner and Chromium.
-  // Fall back to nice(19) where chrt/ionice are unavailable.
+  // Fall back to nice(19) where chrt/ionice are unavailable. The highest OOM score is
+  // inherited too: on a small machine running out of memory, the kernel kills this
+  // speculative run before the command it now runs beside. The supervisor keeps its own
+  // score, so it outlives a killed run and still owns its process group.
   const lowPriority =
-    'if command -v ionice >/dev/null 2>&1; then ionice -c 3 -p $$ 2>/dev/null; fi; if command -v chrt >/dev/null 2>&1; then chrt --idle --pid 0 $$ 2>/dev/null; fi; exec sh -c "$1"'
+    'if command -v ionice >/dev/null 2>&1; then ionice -c 3 -p $$ 2>/dev/null; fi; if command -v chrt >/dev/null 2>&1; then chrt --idle --pid 0 $$ 2>/dev/null; fi; if [ -w /proc/$$/oom_score_adj ]; then { echo 1000 > /proc/$$/oom_score_adj; } 2>/dev/null; fi; exec sh -c "$1"'
   child = cp.spawn(
     'sh',
     config.foreground ? ['-c', config.command] : ['-c', lowPriority, 'feedback', config.command],

@@ -37,7 +37,10 @@
  *   Pass the runner's cancellation signal to
  *   `runPlaywrightFeedback` in its options and call `pause()` before foreground tools,
  *   then invoke its returned release function afterwards. Speculation yields to
- *   independent native CLI tests/builds and uses OS idle CPU/I/O priority. Its
+ *   independent native CLI tests, builds, deploys and package installs in the project, but
+ *   not to a type-check or lint, which change nothing it reads. It uses OS idle CPU/I/O
+ *   priority and the highest OOM score, so a foreground command keeps the CPU and is not
+ *   the process the kernel kills when memory runs out. Its
  *   private temporary reports are not a user test result or something to poll.
  *   New writes let a started background file finish, retaining its outcome as a known failure
  *   when it fails, while withholding its stale diagnostic. `settled()`/`close()` are for tests and shutdown,
