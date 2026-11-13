@@ -58,4 +58,25 @@ export const ky: UserTranslations = {
   'user.error.oauthVerificationFailed': 'OAuth текшерүүсү ишке ашкан жок.',
   'user.error.failedToCreateUser': 'Колдонуучуну түзүү ишке ашкан жок.',
   'user.error.oauthLoginFailed': 'OAuth кирүү ишке ашкан жок.',
+  'user.error.unauthorized': 'Уруксатсыз',
+  'user.error.passwordTooLong': 'Сырсөз эң көп дегенде {{max}} белгиден турушу керек',
+  'user.error.passwordTooShort': 'Сырсөз кеминде {{min}} белгиден турушу керек',
+  'user.error.tooManyRequests': 'Өтө көп аракет жасалды. Күтө туруп, кайра аракет кылыңыз.',
+  'user.error.webhookUnauthorized': 'Уруксатсыз төлөм жөнүндө билдирүү',
+  'user.error.credentialsNested':
+    'Бул кирүү чекити жогорку деңгээлдеги ишеним грамоталарын окуйт, бирок бул дене аларды {{envelope}} астына жайгаштырат. Бул конвертти ачкан маршрутка loginEndpointти коюңуз же handlers.logIn алдында req.body[ {{envelope}}] ачуу үчүн mapRequest менен createRequestHandlerди колдонуңуз.',
+  'user.error.oauthStateMismatch': 'OAuth абалынын дал келбестиги — CSRF чабуулу болушу мүмкүн',
+  'user.error.avatarTooLarge': 'Аватар {{max}} же андан аз белгиден турушу керек.',
+  'user.error.bioTooLong': 'Өмүр баян {{max}} же андан аз белгиден турушу керек.',
+  'user.error.noUpdatableFields': 'Жаңыртыла турган талаалар берилген жок.',
+  'user.error.oauthDataInvalid': 'oauthData объект болушу керек.',
+  'user.error.subscriptionActivationRequiresVerification':
+    'Жазылууну активдештирүү үчүн квитанцияны текшерүү керек — POST /users /:id/verify-payment/:provider колдонуңуз.',
+  'user.payment.noBillingAccount':
+    'Бул колдонуучу үчүн {{provider}} эсеп-фактура аккаунту табылган жок.',
+  'user.payment.portalFailed': '{{provider}} эсеп-кысап порталын ачуу мүмкүн болгон жок.',
+  'user.payment.portalNotSupported': '{{provider}} эсеп-кысап порталын сунуштабайт.',
+  'user.payment.subscriptionOwnershipMismatch': 'Бул жазылуу сиздин аккаунтуңузга таандык эмес.',
+  'user.payment.transactionAlreadyClaimed':
+    'Бул сатып алуу мурунтан эле башка аккаунт менен байланышкан.',
 }

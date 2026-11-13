@@ -56,4 +56,25 @@ export const sw: UserTranslations = {
   'user.error.oauthVerificationFailed': 'Uthibitishaji wa OAuth umeshindwa.',
   'user.error.failedToCreateUser': 'Imeshindwa kuunda mtumiaji.',
   'user.error.oauthLoginFailed': 'Kuingia kwa OAuth kumeshindwa.',
+  'user.error.unauthorized': 'Hairuhusiwi',
+  'user.error.passwordTooLong': 'Nenosiri lazima liwe na herufi zisizozidi {{max}}',
+  'user.error.passwordTooShort': 'Nenosiri lazima liwe na angalau herufi {{min}}',
+  'user.error.tooManyRequests': 'Majaribio mengi mno. Tafadhali subiri na ujaribu tena.',
+  'user.error.webhookUnauthorized': 'Arifa ya malipo yasiyoidhinishwa',
+  'user.error.credentialsNested':
+    'Sehemu hii ya mwisho ya kuingia husoma vitambulisho katika kiwango cha juu, lakini mwili huu huviweka chini ya {{envelope}}. Weka sehemu ya kuingia kwenye njia inayofungua bahasha hii, au tumia createRequestHandler na mapRequest ili kufungua req.body[ {{envelope}}] kabla ya handlers.logIn.',
+  'user.error.oauthStateMismatch':
+    'Kutolingana kwa hali ya OAuth — shambulio linalowezekana la CSRF',
+  'user.error.avatarTooLarge': 'Avatar lazima iwe na herufi {{max}} au chache zaidi.',
+  'user.error.bioTooLong': 'Wasifu lazima uwe na herufi {{max}} au chache zaidi.',
+  'user.error.noUpdatableFields': 'Hakuna sehemu zinazoweza kusasisha zilizotolewa.',
+  'user.error.oauthDataInvalid': 'oauthData lazima iwe kitu.',
+  'user.error.subscriptionActivationRequiresVerification':
+    'Uanzishaji wa usajili lazima upitie uthibitisho wa risiti — tumia POST /users /:id/verify-payment/:provider.',
+  'user.payment.noBillingAccount':
+    'Hakuna akaunti ya malipo ya {{provider}} iliyopatikana kwa mtumiaji huyu.',
+  'user.payment.portalFailed': 'Haikuweza kufungua lango la malipo la {{provider}} .',
+  'user.payment.portalNotSupported': '{{provider}} haitoi lango la malipo.',
+  'user.payment.subscriptionOwnershipMismatch': 'Usajili huu si wa akaunti yako.',
+  'user.payment.transactionAlreadyClaimed': 'Ununuzi huu tayari umehusishwa na akaunti nyingine.',
 }

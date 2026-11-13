@@ -56,4 +56,24 @@ export const be: UserTranslations = {
   'user.error.oauthVerificationFailed': 'Верыфікацыя OAuth не ўдалася.',
   'user.error.failedToCreateUser': 'Не ўдалося стварыць карыстальніка.',
   'user.error.oauthLoginFailed': 'Уваход OAuth не ўдаўся.',
+  'user.error.unauthorized': 'Несанкцыянаваны',
+  'user.error.passwordTooLong': 'Пароль павінен утрымліваць не больш за {{max}} сімвалаў',
+  'user.error.passwordTooShort': 'Пароль павінен утрымліваць не менш за {{min}} сімвалаў',
+  'user.error.tooManyRequests': 'Занадта шмат спроб. Пачакайце і паспрабуйце яшчэ раз.',
+  'user.error.webhookUnauthorized': 'Паведамленне аб несанкцыянаваным плацяжы',
+  'user.error.credentialsNested':
+    'Гэтая канцавая кропка ўваходу зчытвае ўліковыя дадзеныя на самым высокім узроўні, але гэта цела змяшчае іх у {{envelope}}. Усталюйце loginEndpoint на маршрут, які разгортвае гэтую абалонку, або выкарыстоўвайце createRequestHandler з mapRequest, каб разгарнуць req.body[ {{envelope}}] перад handlers.logIn.',
+  'user.error.oauthStateMismatch': 'Неадпаведнасць стану OAuth — магчымая атака CSRF',
+  'user.error.avatarTooLarge': 'Аватар павінен утрымліваць не больш за {{max}} сімвалаў.',
+  'user.error.bioTooLong': 'Біяграфія павінна ўтрымліваць не больш за {{max}} сімвалаў.',
+  'user.error.noUpdatableFields': 'Абнаўляльныя палі не былі прадастаўлены.',
+  'user.error.oauthDataInvalid': "oauthData павінен быць аб'ектам.",
+  'user.error.subscriptionActivationRequiresVerification':
+    'Актывацыя падпіскі павінна прайсці праверку квітанцыі — выкарыстоўвайце POST /users /:id/verify-payment/:provider.',
+  'user.payment.noBillingAccount':
+    'Для гэтага карыстальніка не знойдзены плацежны рахунак {{provider}} .',
+  'user.payment.portalFailed': 'Не ўдалося адкрыць партал аплаты {{provider}} .',
+  'user.payment.portalNotSupported': '{{provider}} не прапануе партал для выстаўлення рахункаў.',
+  'user.payment.subscriptionOwnershipMismatch': 'Гэтая падпіска не належыць вашаму акаўнту.',
+  'user.payment.transactionAlreadyClaimed': 'Гэтая пакупка ўжо звязана з іншым акаўнтам.',
 }

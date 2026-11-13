@@ -55,4 +55,23 @@ export const ur: UserTranslations = {
   'user.error.oauthVerificationFailed': 'OAuth تصدیق ناکام۔',
   'user.error.failedToCreateUser': 'صارف بنانے میں ناکامی۔',
   'user.error.oauthLoginFailed': 'OAuth لاگ ان ناکام۔',
+  'user.error.unauthorized': 'غیر مجاز',
+  'user.error.passwordTooLong': 'پاس ورڈ زیادہ سے زیادہ {{max}} حروف کا ہونا چاہیے۔',
+  'user.error.passwordTooShort': 'پاس ورڈ کم از کم {{min}} حروف کا ہونا چاہیے۔',
+  'user.error.tooManyRequests': 'بہت زیادہ کوششیں براہ کرم انتظار کریں اور دوبارہ کوشش کریں۔',
+  'user.error.webhookUnauthorized': 'غیر مجاز ادائیگی کی اطلاع',
+  'user.error.credentialsNested':
+    'یہ لاگ ان اینڈ پوائنٹ اوپر کی سطح پر اسناد کو پڑھتا ہے، لیکن یہ باڈی انہیں {{envelope}} کے نیچے گھونسلا دیتی ہے۔ loginEndpoint کو اس راستے پر سیٹ کریں جو اس لفافے کو کھولتا ہے، یا handlers.logIn سے پہلے req.body[ {{envelope}}] کو کھولنے کے لیے mapRequest کے ساتھ createRequestHandler استعمال کریں۔',
+  'user.error.oauthStateMismatch': 'OAuth ریاست کی مماثلت - ممکنہ CSRF حملہ',
+  'user.error.avatarTooLarge': 'اوتار {{max}} حروف یا اس سے کم ہونا چاہیے۔',
+  'user.error.bioTooLong': 'بائیو {{max}} حروف یا اس سے کم ہونا چاہیے۔',
+  'user.error.noUpdatableFields': 'کوئی اپڈیٹ ایبل فیلڈز فراہم نہیں کیے گئے تھے۔',
+  'user.error.oauthDataInvalid': 'oauthData ایک آبجیکٹ ہونا چاہیے۔',
+  'user.error.subscriptionActivationRequiresVerification':
+    'سبسکرپشن ایکٹیویشن کو رسید کی تصدیق سے گزرنا چاہیے — POST /users /:id/verify-payment/:provider استعمال کریں۔',
+  'user.payment.noBillingAccount': 'اس صارف کے لیے کوئی {{provider}} بلنگ اکاؤنٹ نہیں ملا۔',
+  'user.payment.portalFailed': '{{provider}} بلنگ پورٹل نہیں کھول سکا۔',
+  'user.payment.portalNotSupported': '{{provider}} بلنگ پورٹل پیش نہیں کرتا ہے۔',
+  'user.payment.subscriptionOwnershipMismatch': 'اس رکنیت کا تعلق آپ کے اکاؤنٹ سے نہیں ہے۔',
+  'user.payment.transactionAlreadyClaimed': 'یہ خریداری پہلے ہی کسی دوسرے اکاؤنٹ سے وابستہ ہے۔',
 }

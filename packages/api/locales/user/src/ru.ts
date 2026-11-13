@@ -56,4 +56,24 @@ export const ru: UserTranslations = {
   'user.error.oauthVerificationFailed': 'Верификация OAuth не удалась.',
   'user.error.failedToCreateUser': 'Не удалось создать пользователя.',
   'user.error.oauthLoginFailed': 'Вход через OAuth не удался.',
+  'user.error.unauthorized': 'Несанкционированный доступ',
+  'user.error.passwordTooLong': 'Пароль должен содержать не более {{max}} символов',
+  'user.error.passwordTooShort': 'Пароль должен содержать не менее {{min}} символов',
+  'user.error.tooManyRequests': 'Слишком много попыток. Пожалуйста, подождите и попробуйте снова.',
+  'user.error.webhookUnauthorized': 'Уведомление о несанкционированном платеже',
+  'user.error.credentialsNested':
+    'Этот конечный пункт авторизации считывает учетные данные на верхнем уровне, но тело запроса вкладывается в {{envelope}}. Установите loginEndpoint на маршрут, который распаковывает этот конверт, или используйте createRequestHandler с mapRequest, чтобы распаковать req.body[ {{envelope}}] перед handlers.logIn.',
+  'user.error.oauthStateMismatch': 'Несоответствие состояния OAuth — возможная CSRF-атака',
+  'user.error.avatarTooLarge': 'Аватар должен содержать не более {{max}} символов.',
+  'user.error.bioTooLong': 'В описании профиля должно быть не более {{max}} символов.',
+  'user.error.noUpdatableFields': 'Поля, которые можно было бы обновлять, отсутствовали.',
+  'user.error.oauthDataInvalid': 'Объект oauthData должен быть объектом.',
+  'user.error.subscriptionActivationRequiresVerification':
+    'Для активации подписки необходимо пройти проверку квитанции — используйте POST /users /:id/verify-payment/:provider.',
+  'user.payment.noBillingAccount':
+    'Для этого пользователя не найден платежный аккаунт {{provider}} .',
+  'user.payment.portalFailed': 'Не удалось открыть платежный портал {{provider}} .',
+  'user.payment.portalNotSupported': '{{provider}} не предоставляет портал для выставления счетов.',
+  'user.payment.subscriptionOwnershipMismatch': 'Эта подписка не относится к вашему аккаунту.',
+  'user.payment.transactionAlreadyClaimed': 'Эта покупка уже связана с другим аккаунтом.',
 }

@@ -56,4 +56,24 @@ export const km: UserTranslations = {
   'user.error.oauthVerificationFailed': 'ការផ្ទៀងផ្ទាត់ OAuth បរាជ័យ។',
   'user.error.failedToCreateUser': 'បរាជ័យក្នុងការបង្កើតអ្នកប្រើ។',
   'user.error.oauthLoginFailed': 'ការចូល OAuth បរាជ័យ។',
+  'user.error.unauthorized': 'គ្មានការអនុញ្ញាត',
+  'user.error.passwordTooLong': 'ពាក្យសម្ងាត់ត្រូវតែមានតួអក្សរច្រើនបំផុត {{max}} តួអក្សរ',
+  'user.error.passwordTooShort': 'ពាក្យសម្ងាត់ត្រូវតែមានយ៉ាងហោចណាស់ {{min}} តួអក្សរ',
+  'user.error.tooManyRequests': 'ព្យាយាមច្រើនពេកហើយ។ សូមរង់ចាំ ហើយព្យាយាមម្តងទៀត។',
+  'user.error.webhookUnauthorized': 'ការជូនដំណឹងអំពីការទូទាត់ដែលគ្មានការអនុញ្ញាត',
+  'user.error.credentialsNested':
+    'ចំណុចបញ្ចប់ការចូលប្រើនេះអានព័ត៌មានសម្ងាត់នៅកម្រិតកំពូល ប៉ុន្តែតួនេះដាក់ពួកវានៅក្រោម {{envelope}} ។ កំណត់ loginEndpoint ទៅផ្លូវដែលស្រាយស្រោមសំបុត្រនេះ ឬប្រើ createRequestHandler ជាមួយ mapRequest ដើម្បីស្រាយ req.body[ {{envelope}}] មុន handlers.logIn។',
+  'user.error.oauthStateMismatch': 'ភាពមិនស៊ីគ្នានៃស្ថានភាព OAuth — ការវាយប្រហារ CSRF ដែលអាចកើតមាន',
+  'user.error.avatarTooLarge': 'រូបតំណាងត្រូវតែមានតួអក្សរ {{max}} ឬតិចជាងនេះ។',
+  'user.error.bioTooLong': 'ជីវប្រវត្តិត្រូវតែមានតួអក្សរ {{max}} ឬតិចជាងនេះ។',
+  'user.error.noUpdatableFields':
+    'គ្មាន​វាល​ដែល​អាច​ធ្វើ​បច្ចុប្បន្នភាព​បាន​ត្រូវ​បាន​ផ្តល់​ឲ្យ​ទេ។',
+  'user.error.oauthDataInvalid': 'oauthData ត្រូវតែជាវត្ថុមួយ។',
+  'user.error.subscriptionActivationRequiresVerification':
+    'ការធ្វើឱ្យការជាវសកម្មត្រូវតែឆ្លងកាត់ការផ្ទៀងផ្ទាត់បង្កាន់ដៃ — ប្រើ POST /users /:id/verify-payment/:provider។',
+  'user.payment.noBillingAccount': 'រកមិនឃើញគណនីគិតប្រាក់ {{provider}} សម្រាប់អ្នកប្រើប្រាស់នេះទេ។',
+  'user.payment.portalFailed': 'មិនអាចបើកវិបផតថលវិក្កយបត្រ {{provider}} បានទេ។',
+  'user.payment.portalNotSupported': '{{provider}} មិនផ្តល់ជូនវិបផតថលសម្រាប់គិតប្រាក់ទេ។',
+  'user.payment.subscriptionOwnershipMismatch': 'ការជាវនេះមិនមែនជារបស់គណនីរបស់អ្នកទេ។',
+  'user.payment.transactionAlreadyClaimed': 'ការទិញនេះត្រូវបានភ្ជាប់ជាមួយគណនីមួយផ្សេងទៀតរួចហើយ។',
 }

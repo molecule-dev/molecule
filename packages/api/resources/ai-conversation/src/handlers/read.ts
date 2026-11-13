@@ -36,7 +36,9 @@ export async function read(req: MoleculeRequest, res: MoleculeResponse): Promise
   } catch (error) {
     logger.error('Failed to read conversation', { projectId, error })
     res.status(500).json({
-      error: t('conversation.error.readFailed'),
+      error: t('conversation.error.readFailed', undefined, {
+        defaultValue: 'Failed to read conversation',
+      }),
       errorKey: 'conversation.error.readFailed',
     })
   }

@@ -56,4 +56,23 @@ export const bs: UserTranslations = {
   'user.error.oauthVerificationFailed': 'OAuth verifikacija neuspješna.',
   'user.error.failedToCreateUser': 'Neuspješno kreiranje korisnika.',
   'user.error.oauthLoginFailed': 'OAuth prijava neuspješna.',
+  'user.error.unauthorized': 'Neovlašteno',
+  'user.error.passwordTooLong': 'Lozinka mora imati najviše {{max}} znakova',
+  'user.error.passwordTooShort': 'Lozinka mora imati najmanje {{min}} znakova',
+  'user.error.tooManyRequests': 'Previše pokušaja. Molimo pričekajte i pokušajte ponovo.',
+  'user.error.webhookUnauthorized': 'Obavještenje o neovlaštenom plaćanju',
+  'user.error.credentialsNested':
+    'Ova krajnja tačka za prijavu čita akreditive na najvišem nivou, ali ovo tijelo ih ugnijezdi pod {{envelope}}. Postavite loginEndpoint na rutu koja raspakirava ovu omotač ili koristite createRequestHandler sa mapRequest da raspakujete req.body[ {{envelope}}] prije handlers.logIn.',
+  'user.error.oauthStateMismatch': 'Neusklađenost stanja OAuth-a — mogući CSRF napad',
+  'user.error.avatarTooLarge': 'Avatar mora imati {{max}} znakova ili manje.',
+  'user.error.bioTooLong': 'Biografija mora imati {{max}} znakova ili manje.',
+  'user.error.noUpdatableFields': 'Nisu navedena polja koja se mogu ažurirati.',
+  'user.error.oauthDataInvalid': 'oauthData mora biti objekat.',
+  'user.error.subscriptionActivationRequiresVerification':
+    'Aktivacija pretplate mora proći kroz verifikaciju računa — koristite POST /users /:id/verify-payment/:provider.',
+  'user.payment.noBillingAccount': 'Nije pronađen {{provider}} račun za naplatu za ovog korisnika.',
+  'user.payment.portalFailed': 'Nije moguće otvoriti portal za naplatu {{provider}} .',
+  'user.payment.portalNotSupported': '{{provider}} ne nudi portal za naplatu.',
+  'user.payment.subscriptionOwnershipMismatch': 'Ova pretplata ne pripada vašem računu.',
+  'user.payment.transactionAlreadyClaimed': 'Ova kupovina je već povezana s drugim računom.',
 }

@@ -57,4 +57,25 @@ export const de: UserTranslations = {
   'user.error.oauthVerificationFailed': 'OAuth-Verifizierung fehlgeschlagen.',
   'user.error.failedToCreateUser': 'Benutzer konnte nicht erstellt werden.',
   'user.error.oauthLoginFailed': 'OAuth-Anmeldung fehlgeschlagen.',
+  'user.error.unauthorized': 'Nicht autorisiert',
+  'user.error.passwordTooLong': 'Das Passwort darf maximal {{max}} Zeichen lang sein.',
+  'user.error.passwordTooShort': 'Das Passwort muss mindestens {{min}} Zeichen lang sein.',
+  'user.error.tooManyRequests': 'Zu viele Versuche. Bitte warten Sie und versuchen Sie es erneut.',
+  'user.error.webhookUnauthorized': 'Benachrichtigung über unautorisierte Zahlung',
+  'user.error.credentialsNested':
+    'Dieser Anmelde-Endpunkt liest die Anmeldeinformationen auf oberster Ebene, der Anfragetext verschachtelt sie jedoch unter {{envelope}}. Setzen Sie loginEndpoint auf die Route, die diesen Umschlag entpackt, oder verwenden Sie createRequestHandler mit mapRequest, um req.body[ {{envelope}}] vor handlers.logIn zu entpacken.',
+  'user.error.oauthStateMismatch': 'OAuth-Statuskonflikt – möglicher CSRF-Angriff',
+  'user.error.avatarTooLarge': 'Der Avatar darf {{max}} Zeichen oder weniger enthalten.',
+  'user.error.bioTooLong': 'Die Biografie darf {{max}} Zeichen lang sein.',
+  'user.error.noUpdatableFields': 'Es wurden keine aktualisierbaren Felder bereitgestellt.',
+  'user.error.oauthDataInvalid': 'oauthData muss ein Objekt sein.',
+  'user.error.subscriptionActivationRequiresVerification':
+    'Die Aktivierung des Abonnements muss über eine Zahlungsbestätigung erfolgen – verwenden Sie dazu POST /users /:id/verify-payment/:provider.',
+  'user.payment.noBillingAccount':
+    'Für diesen Benutzer wurde kein {{provider}} Abrechnungskonto gefunden.',
+  'user.payment.portalFailed': 'Das Abrechnungsportal {{provider}} konnte nicht geöffnet werden.',
+  'user.payment.portalNotSupported': '{{provider}} bietet kein Abrechnungsportal an.',
+  'user.payment.subscriptionOwnershipMismatch': 'Dieses Abonnement gehört nicht zu Ihrem Konto.',
+  'user.payment.transactionAlreadyClaimed':
+    'Dieser Kauf ist bereits einem anderen Konto zugeordnet.',
 }

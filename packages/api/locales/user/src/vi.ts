@@ -56,4 +56,25 @@ export const vi: UserTranslations = {
   'user.error.oauthVerificationFailed': 'Xác minh OAuth thất bại.',
   'user.error.failedToCreateUser': 'Tạo người dùng thất bại.',
   'user.error.oauthLoginFailed': 'Đăng nhập OAuth thất bại.',
+  'user.error.unauthorized': 'Không được phép',
+  'user.error.passwordTooLong': 'Mật khẩu phải có tối đa {{max}} ký tự.',
+  'user.error.passwordTooShort': 'Mật khẩu phải có ít nhất {{min}} ký tự.',
+  'user.error.tooManyRequests': 'Đã thử quá nhiều lần. Vui lòng chờ và thử lại.',
+  'user.error.webhookUnauthorized': 'Thông báo thanh toán trái phép',
+  'user.error.credentialsNested':
+    'Điểm cuối đăng nhập này đọc thông tin đăng nhập ở cấp cao nhất, nhưng phần thân này lại lồng chúng vào bên trong {{envelope}}. Hãy đặt loginEndpoint thành tuyến đường giải nén envelope này, hoặc sử dụng createRequestHandler với mapRequest để giải nén req.body[ {{envelope}}] trước khi handlers.logIn.',
+  'user.error.oauthStateMismatch': 'Lỗi không khớp trạng thái OAuth — khả năng tấn công CSRF',
+  'user.error.avatarTooLarge': 'Ảnh đại diện phải có tối đa {{max}} ký tự.',
+  'user.error.bioTooLong': 'Tiểu sử phải có tối đa {{max}} ký tự.',
+  'user.error.noUpdatableFields': 'Không có trường nào có thể cập nhật được.',
+  'user.error.oauthDataInvalid': 'oauthData phải là một đối tượng.',
+  'user.error.subscriptionActivationRequiresVerification':
+    'Việc kích hoạt đăng ký phải trải qua quá trình xác minh biên nhận — sử dụng POST /users /:id/verify-payment/:provider.',
+  'user.payment.noBillingAccount':
+    'Không tìm thấy tài khoản thanh toán {{provider}} nào cho người dùng này.',
+  'user.payment.portalFailed': 'Không thể mở cổng thanh toán {{provider}} .',
+  'user.payment.portalNotSupported': '{{provider}} không cung cấp cổng thanh toán.',
+  'user.payment.subscriptionOwnershipMismatch': 'Gói đăng ký này không thuộc về tài khoản của bạn.',
+  'user.payment.transactionAlreadyClaimed':
+    'Giao dịch mua này đã được liên kết với một tài khoản khác.',
 }

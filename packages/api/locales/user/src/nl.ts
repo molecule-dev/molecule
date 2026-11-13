@@ -57,4 +57,24 @@ export const nl: UserTranslations = {
   'user.error.oauthVerificationFailed': 'OAuth-verificatie mislukt.',
   'user.error.failedToCreateUser': 'Kon gebruiker niet aanmaken.',
   'user.error.oauthLoginFailed': 'OAuth-aanmelding mislukt.',
+  'user.error.unauthorized': 'Niet geautoriseerd',
+  'user.error.passwordTooLong': 'Het wachtwoord mag maximaal {{max}} tekens lang zijn.',
+  'user.error.passwordTooShort': 'Het wachtwoord moet minimaal {{min}} tekens lang zijn.',
+  'user.error.tooManyRequests': 'Te veel pogingen. Wacht even en probeer het opnieuw.',
+  'user.error.webhookUnauthorized': 'Melding van ongeautoriseerde betaling',
+  'user.error.credentialsNested':
+    'Dit inlog-eindpunt leest de inloggegevens op het hoogste niveau, maar deze body nestelt ze onder {{envelope}}. Stel loginEndpoint in op de route die deze envelope uitpakt, of gebruik createRequestHandler met mapRequest om req.body[ {{envelope}}] uit te pakken vóór handlers.logIn.',
+  'user.error.oauthStateMismatch': 'OAuth-status komt niet overeen — mogelijk een CSRF-aanval',
+  'user.error.avatarTooLarge': 'De avatar mag maximaal {{max}} tekens lang zijn.',
+  'user.error.bioTooLong': 'De bio mag maximaal {{max}} tekens lang zijn.',
+  'user.error.noUpdatableFields': 'Er zijn geen velden opgegeven die bijgewerkt kunnen worden.',
+  'user.error.oauthDataInvalid': 'oauthData moet een object zijn.',
+  'user.error.subscriptionActivationRequiresVerification':
+    'Abonnementsactivering vereist verificatie van de ontvangstbevestiging — gebruik POST /users /:id/verify-payment/:provider.',
+  'user.payment.noBillingAccount':
+    'Er is geen factureringsaccount {{provider}} gevonden voor deze gebruiker.',
+  'user.payment.portalFailed': 'Het factureringportaal {{provider}} kon niet worden geopend.',
+  'user.payment.portalNotSupported': '{{provider}} biedt geen factureringsportaal aan.',
+  'user.payment.subscriptionOwnershipMismatch': 'Dit abonnement hoort niet bij uw account.',
+  'user.payment.transactionAlreadyClaimed': 'Deze aankoop is al gekoppeld aan een ander account.',
 }

@@ -57,4 +57,24 @@ export const ms: UserTranslations = {
   'user.error.oauthVerificationFailed': 'Pengesahan OAuth gagal.',
   'user.error.failedToCreateUser': 'Gagal mencipta pengguna.',
   'user.error.oauthLoginFailed': 'Log masuk OAuth gagal.',
+  'user.error.unauthorized': 'Tidak dibenarkan',
+  'user.error.passwordTooLong': 'Kata laluan mesti paling banyak {{max}} aksara',
+  'user.error.passwordTooShort': 'Kata laluan mestilah sekurang-kurangnya {{min}} aksara',
+  'user.error.tooManyRequests': 'Terlalu banyak percubaan. Sila tunggu dan cuba lagi.',
+  'user.error.webhookUnauthorized': 'Pemberitahuan pembayaran tanpa kebenaran',
+  'user.error.credentialsNested':
+    'Titik akhir log masuk ini membaca kelayakan di peringkat atas, tetapi badan ini menyusunnya di bawah {{envelope}}. Tetapkan loginEndpoint kepada laluan yang membuka balutan sampul surat ini, atau gunakan createRequestHandler dengan mapRequest untuk membuka balutan req.body[ {{envelope}}] sebelum handlers.logIn.',
+  'user.error.oauthStateMismatch': 'Ketidakpadanan keadaan OAuth — kemungkinan serangan CSRF',
+  'user.error.avatarTooLarge': 'Avatar mestilah {{max}} aksara atau kurang.',
+  'user.error.bioTooLong': 'Bio mestilah {{max}} aksara atau kurang.',
+  'user.error.noUpdatableFields': 'Tiada medan yang boleh dikemas kini disediakan.',
+  'user.error.oauthDataInvalid': 'oauthData mestilah objek.',
+  'user.error.subscriptionActivationRequiresVerification':
+    'Pengaktifan langganan mesti melalui pengesahan resit — gunakan POST /users /:id/verify-payment/:provider.',
+  'user.payment.noBillingAccount':
+    'Tiada akaun pengebilan {{provider}} ditemui untuk pengguna ini.',
+  'user.payment.portalFailed': 'Tidak dapat membuka portal pengebilan {{provider}} .',
+  'user.payment.portalNotSupported': '{{provider}} tidak menawarkan portal pengebilan.',
+  'user.payment.subscriptionOwnershipMismatch': 'Langganan ini bukan milik akaun anda.',
+  'user.payment.transactionAlreadyClaimed': 'Pembelian ini sudah dikaitkan dengan akaun lain.',
 }

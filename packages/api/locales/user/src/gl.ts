@@ -57,4 +57,24 @@ export const gl: UserTranslations = {
   'user.error.oauthVerificationFailed': 'A verificación OAuth fallou.',
   'user.error.failedToCreateUser': 'Non se puido crear o usuario.',
   'user.error.oauthLoginFailed': 'O inicio de sesión OAuth fallou.',
+  'user.error.unauthorized': 'Non autorizado',
+  'user.error.passwordTooLong': 'O contrasinal debe ter como máximo {{max}} caracteres',
+  'user.error.passwordTooShort': 'O contrasinal debe ter polo menos {{min}} caracteres',
+  'user.error.tooManyRequests': 'Demasiados intentos. Agarde e inténteo de novo.',
+  'user.error.webhookUnauthorized': 'Notificación de pagamento non autorizado',
+  'user.error.credentialsNested':
+    'Este punto final de inicio de sesión le as credenciais no nivel superior, pero este corpo aniñaas en {{envelope}}. Define loginEndpoint na ruta que desembalaxe este sobre ou usa createRequestHandler con mapRequest para desembalaxe req.body[ {{envelope}}] antes de handlers.logIn.',
+  'user.error.oauthStateMismatch': 'Discordancia do estado de OAuth: posible ataque CSRF',
+  'user.error.avatarTooLarge': 'O avatar debe ter {{max}} caracteres ou menos.',
+  'user.error.bioTooLong': 'A biografía debe ter {{max}} caracteres ou menos.',
+  'user.error.noUpdatableFields': 'Non se proporcionaron campos actualizables.',
+  'user.error.oauthDataInvalid': 'oauthData debe ser un obxecto.',
+  'user.error.subscriptionActivationRequiresVerification':
+    'A activación da subscrición debe pasar pola verificación do recibo; use POST /users /:id/verify-payment/:provider.',
+  'user.payment.noBillingAccount':
+    'Non se atopou ningunha conta de facturación {{provider}} para este usuario.',
+  'user.payment.portalFailed': 'Non se puido abrir o portal de facturación de {{provider}} .',
+  'user.payment.portalNotSupported': '{{provider}} non ofrece un portal de facturación.',
+  'user.payment.subscriptionOwnershipMismatch': 'Esta subscrición non pertence á túa conta.',
+  'user.payment.transactionAlreadyClaimed': 'Esta compra xa está asociada a outra conta.',
 }

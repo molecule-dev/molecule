@@ -56,4 +56,23 @@ export const da: UserTranslations = {
   'user.error.oauthVerificationFailed': 'OAuth-verifikation mislykkedes.',
   'user.error.failedToCreateUser': 'Kunne ikke oprette bruger.',
   'user.error.oauthLoginFailed': 'OAuth-login mislykkedes.',
+  'user.error.unauthorized': 'Uberettiget',
+  'user.error.passwordTooLong': 'Adgangskoden må højst indeholde {{max}} tegn',
+  'user.error.passwordTooShort': 'Adgangskoden skal være mindst {{min}} tegn lang',
+  'user.error.tooManyRequests': 'For mange forsøg. Vent venligst og prøv igen.',
+  'user.error.webhookUnauthorized': 'Meddelelse om uautoriseret betaling',
+  'user.error.credentialsNested':
+    'Dette login-slutpunkt læser legitimationsoplysninger på øverste niveau, men denne krop indlejrer dem under {{envelope}}. Sæt loginEndpoint til den rute, der udpakker denne konvolut, eller brug createRequestHandler med mapRequest til at udpakke req.body[ {{envelope}}] før handlers.logIn.',
+  'user.error.oauthStateMismatch': 'OAuth-tilstandsmismatch — muligt CSRF-angreb',
+  'user.error.avatarTooLarge': 'Avataren skal være på højst {{max}} tegn.',
+  'user.error.bioTooLong': 'Biografien skal være på højst {{max}} tegn.',
+  'user.error.noUpdatableFields': 'Der blev ikke angivet nogen felter, der kunne opdateres.',
+  'user.error.oauthDataInvalid': 'oauthData skal være et objekt.',
+  'user.error.subscriptionActivationRequiresVerification':
+    'Aktivering af abonnement skal gennemgå en kvitteringsverifikation — brug POST /users /:id/verify-payment/:provider.',
+  'user.payment.noBillingAccount': 'Ingen {{provider}}-faktureringskonto fundet for denne bruger.',
+  'user.payment.portalFailed': 'Faktureringsportalen for {{provider}} kunne ikke åbnes.',
+  'user.payment.portalNotSupported': '{{provider}} tilbyder ikke en faktureringsportal.',
+  'user.payment.subscriptionOwnershipMismatch': 'Dette abonnement tilhører ikke din konto.',
+  'user.payment.transactionAlreadyClaimed': 'Dette køb er allerede knyttet til en anden konto.',
 }

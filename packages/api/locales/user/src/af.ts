@@ -55,4 +55,26 @@ export const af: UserTranslations = {
   'user.error.oauthVerificationFailed': 'OAuth-verifikasie het misluk.',
   'user.error.failedToCreateUser': 'Kon nie gebruiker skep nie.',
   'user.error.oauthLoginFailed': 'OAuth-aanmelding het misluk.',
+  'user.error.unauthorized': 'Ongemagtig',
+  'user.error.passwordTooLong': 'Wagwoord moet hoogstens {{max}} karakters wees',
+  'user.error.passwordTooShort': 'Wagwoord moet ten minste {{min}} karakters wees',
+  'user.error.tooManyRequests': 'Te veel pogings. Wag asseblief en probeer weer.',
+  'user.error.webhookUnauthorized': 'Kennisgewing van ongemagtigde betaling',
+  'user.error.credentialsNested':
+    'Hierdie aanmeld-eindpunt lees geloofsbriewe op die boonste vlak, maar hierdie liggaam nestel hulle onder {{envelope}}. Stel loginEndpoint na die roete wat hierdie koevert uitpak, of gebruik createRequestHandler met mapRequest om req.body[ {{envelope}}] uit te pak voor handlers.logIn.',
+  'user.error.oauthStateMismatch': 'OAuth-statuswanverhouding — moontlike CSRF-aanval',
+  'user.error.avatarTooLarge': 'Avatar moet {{max}} karakters of minder wees.',
+  'user.error.bioTooLong': 'Biografie moet {{max}} karakters of minder wees.',
+  'user.error.noUpdatableFields': 'Geen opdateerbare velde is verskaf nie.',
+  'user.error.oauthDataInvalid': "oauthData moet 'n objek wees.",
+  'user.error.subscriptionActivationRequiresVerification':
+    'Subskripsieaktivering moet deur kwitansieverifikasie gaan — gebruik POST /users /:id/verify-payment/:provider.',
+  'user.payment.noBillingAccount':
+    'Geen {{provider}}-faktureringsrekening vir hierdie gebruiker gevind nie.',
+  'user.payment.portalFailed': 'Kon nie die {{provider}}-faktureringportaal oopmaak nie.',
+  'user.payment.portalNotSupported': "{{provider}} bied nie 'n faktureringsportaal aan nie.",
+  'user.payment.subscriptionOwnershipMismatch':
+    'Hierdie intekening behoort nie aan jou rekening nie.',
+  'user.payment.transactionAlreadyClaimed':
+    "Hierdie aankoop is reeds met 'n ander rekening geassosieer.",
 }

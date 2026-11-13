@@ -54,4 +54,23 @@ export const he: UserTranslations = {
   'user.error.oauthVerificationFailed': 'אימות OAuth נכשל.',
   'user.error.failedToCreateUser': 'יצירת המשתמש נכשלה.',
   'user.error.oauthLoginFailed': 'התחברות OAuth נכשלה.',
+  'user.error.unauthorized': 'לא מורשה',
+  'user.error.passwordTooLong': 'הסיסמה חייבת להיות באורך של {{max}} תווים לכל היותר',
+  'user.error.passwordTooShort': 'הסיסמה חייבת להיות באורך של לפחות {{min}} תווים',
+  'user.error.tooManyRequests': 'יותר מדי ניסיונות. אנא המתן ונסה שוב.',
+  'user.error.webhookUnauthorized': 'הודעה על תשלום לא מורשה',
+  'user.error.credentialsNested':
+    'נקודת קצה זו של התחברות קוראת אישורים ברמה העליונה, אך גוף זה מקנן אותם תחת {{envelope}}. הגדר את loginEndpoint לנתיב שפותח את המעטפה הזו, או השתמש ב- createRequestHandler עם mapRequest כדי לפתוח את req.body[ {{envelope}}] לפני handlers.logIn.',
+  'user.error.oauthStateMismatch': 'אי התאמה במצב OAuth - מתקפת CSRF אפשרית',
+  'user.error.avatarTooLarge': 'אווטאר חייב להיות באורך {{max}} תווים או פחות.',
+  'user.error.bioTooLong': 'ביוגרפיה חייבת להיות באורך {{max}} תווים או פחות.',
+  'user.error.noUpdatableFields': 'לא סופקו שדות הניתנים לעדכון.',
+  'user.error.oauthDataInvalid': 'oauthData חייב להיות אובייקט.',
+  'user.error.subscriptionActivationRequiresVerification':
+    'הפעלת המנוי חייבת לעבור אימות קבלה - השתמשו ב-POST /users /:id/verify-payment/:provider.',
+  'user.payment.noBillingAccount': 'לא נמצא חשבון חיוב של {{provider}} עבור משתמש זה.',
+  'user.payment.portalFailed': 'לא ניתן היה לפתוח את פורטל החיוב {{provider}} .',
+  'user.payment.portalNotSupported': '{{provider}} אינו מציע פורטל חיוב.',
+  'user.payment.subscriptionOwnershipMismatch': 'מנוי זה אינו שייך לחשבונך.',
+  'user.payment.transactionAlreadyClaimed': 'רכישה זו כבר משויכת לחשבון אחר.',
 }

@@ -56,4 +56,25 @@ export const eu: UserTranslations = {
   'user.error.oauthVerificationFailed': 'OAuth egiaztapenak huts egin du.',
   'user.error.failedToCreateUser': 'Ezin izan da erabiltzailea sortu.',
   'user.error.oauthLoginFailed': 'OAuth saio-hasierak huts egin du.',
+  'user.error.unauthorized': 'Baimenik gabe',
+  'user.error.passwordTooLong': 'Pasahitzak gehienez {{max}} karaktere izan behar ditu',
+  'user.error.passwordTooShort': 'Pasahitzak gutxienez {{min}} karaktere izan behar ditu',
+  'user.error.tooManyRequests': 'Saiakera gehiegi. Itxaron eta saiatu berriro.',
+  'user.error.webhookUnauthorized': 'Ordainketa baimenik gabeko jakinarazpena',
+  'user.error.credentialsNested':
+    'Saioa hasteko amaiera-puntu honek kredentzialak maila gorenean irakurtzen ditu, baina gorputz honek {{envelope}} azpian kokatzen ditu. Ezarri loginEndpoint gutun-azal hau askatzen duen ibilbidean, edo erabili createRequestHandler mapRequest-ekin req.body[ {{envelope}}] askatzeko handlers.logIn aurretik.',
+  'user.error.oauthStateMismatch': 'OAuth egoeraren desadostasuna — CSRF eraso posiblea',
+  'user.error.avatarTooLarge': 'Avatarrak {{max}} karaktere edo gutxiago izan behar ditu.',
+  'user.error.bioTooLong': 'Biografiak {{max}} karaktere edo gutxiago izan behar ditu.',
+  'user.error.noUpdatableFields': 'Ez da eremu eguneraturik eman.',
+  'user.error.oauthDataInvalid': 'oauthData objektu bat izan behar da.',
+  'user.error.subscriptionActivationRequiresVerification':
+    'Harpidetzaren aktibazioa ordainagiriaren egiaztapen baten bidez egin behar da — erabili POST /users /:id/verify-payment/:provider.',
+  'user.payment.noBillingAccount':
+    'Ez da {{provider}} fakturazio konturik aurkitu erabiltzaile honetarako.',
+  'user.payment.portalFailed': 'Ezin izan da {{provider}} fakturazio ataria ireki.',
+  'user.payment.portalNotSupported': '{{provider}} k ez du fakturazio ataririk eskaintzen.',
+  'user.payment.subscriptionOwnershipMismatch': 'Harpidetza hau ez dagokio zure kontuari.',
+  'user.payment.transactionAlreadyClaimed':
+    'Erosketa hau beste kontu batekin lotuta dago dagoeneko.',
 }

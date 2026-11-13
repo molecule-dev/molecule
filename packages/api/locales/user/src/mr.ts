@@ -55,4 +55,25 @@ export const mr: UserTranslations = {
   'user.error.oauthVerificationFailed': 'OAuth सत्यापन अयशस्वी.',
   'user.error.failedToCreateUser': 'वापरकर्ता तयार करण्यात अयशस्वी.',
   'user.error.oauthLoginFailed': 'OAuth लॉगिन अयशस्वी.',
+  'user.error.unauthorized': 'अनधिकृत',
+  'user.error.passwordTooLong': 'पासवर्ड जास्तीत जास्त {{max}} अक्षरांचा असावा.',
+  'user.error.passwordTooShort': 'पासवर्ड किमान {{min}} अक्षरांचा असला पाहिजे.',
+  'user.error.tooManyRequests': 'खूप प्रयत्न झाले आहेत. कृपया थांबा आणि पुन्हा प्रयत्न करा.',
+  'user.error.webhookUnauthorized': 'अनधिकृत पेमेंटची सूचना',
+  'user.error.credentialsNested':
+    'हा लॉगिन एंडपॉइंट शीर्ष स्तरावर क्रेडेन्शियल्स वाचतो, परंतु ही बॉडी त्यांना {{envelope}} अंतर्गत नेस्ट करते. हा एनव्हलप अनरॅप करणाऱ्या रूटवर loginEndpoint सेट करा, किंवा handlers.logIn च्या आधी req.body[ {{envelope}}] अनरॅप करण्यासाठी mapRequest सह createRequestHandler वापरा.',
+  'user.error.oauthStateMismatch': 'OAuth स्थितीतील विसंगती — संभाव्य CSRF हल्ला',
+  'user.error.avatarTooLarge':
+    'अवतार {{max}} अक्षरांचा किंवा त्यापेक्षा कमी अक्षरांचा असला पाहिजे.',
+  'user.error.bioTooLong': 'बायो {{max}} अक्षरांचा किंवा त्यापेक्षा कमी असावा.',
+  'user.error.noUpdatableFields': 'अद्ययावत करण्यायोग्य कोणतीही फील्ड प्रदान केली नव्हती.',
+  'user.error.oauthDataInvalid': 'oauthData हा एक ऑब्जेक्ट असणे आवश्यक आहे.',
+  'user.error.subscriptionActivationRequiresVerification':
+    'सदस्यता सक्रियकरण पावती पडताळणीद्वारेच झाले पाहिजे — POST /users /:id/verify-payment/:provider वापरा.',
+  'user.payment.noBillingAccount':
+    'या वापरकर्त्यासाठी कोणतेही {{provider}} बिलिंग खाते आढळले नाही.',
+  'user.payment.portalFailed': '{{provider}} बिलिंग पोर्टल उघडता आले नाही.',
+  'user.payment.portalNotSupported': '{{provider}} बिलिंग पोर्टल देत नाही.',
+  'user.payment.subscriptionOwnershipMismatch': 'ही सदस्यता तुमच्या खात्याशी संबंधित नाही.',
+  'user.payment.transactionAlreadyClaimed': 'ही खरेदी आधीच दुसऱ्या खात्याशी जोडलेली आहे.',
 }

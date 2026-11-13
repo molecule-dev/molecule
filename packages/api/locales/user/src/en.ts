@@ -55,4 +55,25 @@ export const en: UserTranslations = {
   'user.error.oauthVerificationFailed': 'OAuth verification failed.',
   'user.error.failedToCreateUser': 'Failed to create user.',
   'user.error.oauthLoginFailed': 'OAuth login failed.',
+  'user.error.unauthorized': 'Unauthorized',
+  'user.error.passwordTooLong': 'Password must be at most {{max}} characters',
+  'user.error.passwordTooShort': 'Password must be at least {{min}} characters',
+  'user.error.tooManyRequests': 'Too many attempts. Please wait and try again.',
+  'user.error.webhookUnauthorized': 'Unauthorized payment notification',
+  'user.error.credentialsNested':
+    'This login endpoint reads credentials at the top level, but this body nests them under {{envelope}}. Set loginEndpoint to the route that unwraps this envelope, or use createRequestHandler with mapRequest to unwrap req.body[{{envelope}}] before handlers.logIn.',
+  'user.error.oauthStateMismatch': 'OAuth state mismatch — possible CSRF attack',
+  'user.error.avatarTooLarge': 'Avatar must be {{max}} characters or fewer.',
+  'user.error.bioTooLong': 'Bio must be {{max}} characters or fewer.',
+  'user.error.noUpdatableFields': 'No updatable fields were provided.',
+  'user.error.oauthDataInvalid': 'oauthData must be an object.',
+  'user.error.subscriptionActivationRequiresVerification':
+    'Subscription activation must go through receipt verification — use POST /users/:id/verify-payment/:provider.',
+  'user.payment.noBillingAccount': 'No {{provider}} billing account found for this user.',
+  'user.payment.portalFailed': 'Could not open the {{provider}} billing portal.',
+  'user.payment.portalNotSupported': '{{provider}} does not offer a billing portal.',
+  'user.payment.subscriptionOwnershipMismatch':
+    'This subscription does not belong to your account.',
+  'user.payment.transactionAlreadyClaimed':
+    'This purchase is already associated with another account.',
 }

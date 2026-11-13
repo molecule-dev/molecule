@@ -55,4 +55,24 @@ export const fa: UserTranslations = {
   'user.error.oauthVerificationFailed': 'تأیید OAuth ناموفق بود.',
   'user.error.failedToCreateUser': 'ایجاد کاربر ناموفق بود.',
   'user.error.oauthLoginFailed': 'ورود OAuth ناموفق بود.',
+  'user.error.unauthorized': 'غیرمجاز',
+  'user.error.passwordTooLong': 'رمز عبور باید حداکثر {{max}} کاراکتر باشد',
+  'user.error.passwordTooShort': 'رمز عبور باید حداقل {{min}} کاراکتر باشد',
+  'user.error.tooManyRequests':
+    'تعداد دفعات تلاش خیلی زیاد است. لطفاً صبر کنید و دوباره امتحان کنید.',
+  'user.error.webhookUnauthorized': 'هشدار پرداخت غیرمجاز',
+  'user.error.credentialsNested':
+    'این نقطه پایانی ورود، اطلاعات احراز هویت را در سطح بالا می‌خواند، اما این بدنه آنها را در زیر {{envelope}} قرار می‌دهد. loginEndpoint را روی مسیری که این پاکت را باز می‌کند تنظیم کنید، یا از createRequestHandler به همراه mapRequest برای باز کردن req.body[ {{envelope}}] قبل از handlers.logIn استفاده کنید.',
+  'user.error.oauthStateMismatch': 'عدم تطابق وضعیت OAuth - حمله CSRF احتمالی',
+  'user.error.avatarTooLarge': 'آواتار باید {{max}} کاراکتر یا کمتر باشد.',
+  'user.error.bioTooLong': 'بیوگرافی باید {{max}} کاراکتر یا کمتر باشد.',
+  'user.error.noUpdatableFields': 'هیچ فیلد قابل به‌روزرسانی ارائه نشده است.',
+  'user.error.oauthDataInvalid': 'oauthData باید یک شیء باشد.',
+  'user.error.subscriptionActivationRequiresVerification':
+    'فعال‌سازی اشتراک باید از طریق تأیید رسید انجام شود — از POST /users /:id/verify-payment/:provider استفاده کنید.',
+  'user.payment.noBillingAccount': 'هیچ حساب پرداختی {{provider}} برای این کاربر یافت نشد.',
+  'user.payment.portalFailed': 'نتوانستم پورتال صورتحساب {{provider}} را باز کنم.',
+  'user.payment.portalNotSupported': '{{provider}} درگاه پرداخت ارائه نمی‌دهد.',
+  'user.payment.subscriptionOwnershipMismatch': 'این اشتراک به حساب شما تعلق ندارد.',
+  'user.payment.transactionAlreadyClaimed': 'این خرید قبلاً با حساب دیگری مرتبط است.',
 }

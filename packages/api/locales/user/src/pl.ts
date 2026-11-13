@@ -56,4 +56,24 @@ export const pl: UserTranslations = {
   'user.error.oauthVerificationFailed': 'Weryfikacja OAuth nie powiodła się.',
   'user.error.failedToCreateUser': 'Nie udało się utworzyć użytkownika.',
   'user.error.oauthLoginFailed': 'Logowanie OAuth nie powiodło się.',
+  'user.error.unauthorized': 'Nieautoryzowane',
+  'user.error.passwordTooLong': 'Hasło musi mieć maksymalnie {{max}} znaków',
+  'user.error.passwordTooShort': 'Hasło musi mieć co najmniej {{min}} znaków',
+  'user.error.tooManyRequests': 'Zbyt wiele prób. Poczekaj i spróbuj ponownie.',
+  'user.error.webhookUnauthorized': 'Powiadomienie o nieautoryzowanej płatności',
+  'user.error.credentialsNested':
+    'Ten punkt końcowy logowania odczytuje dane uwierzytelniające na najwyższym poziomie, ale ten element zagnieżdża je w {{envelope}}. Ustaw loginEndpoint na trasę, która rozpakowuje tę kopertę, lub użyj createRequestHandler z mapRequest, aby rozpakować req.body[ {{envelope}}] przed handlers.logIn.',
+  'user.error.oauthStateMismatch': 'Niezgodność stanu OAuth — możliwy atak CSRF',
+  'user.error.avatarTooLarge': 'Awatar może mieć maksymalnie {{max}} znaków.',
+  'user.error.bioTooLong': 'Opis biograficzny musi mieć {{max}} znaków lub mniej.',
+  'user.error.noUpdatableFields': 'Nie podano pól możliwych do aktualizacji.',
+  'user.error.oauthDataInvalid': 'oauthData musi być obiektem.',
+  'user.error.subscriptionActivationRequiresVerification':
+    'Aktywacja subskrypcji musi przejść przez proces weryfikacji pokwitowania — użyj polecenia POST /users /:id/verify-payment/:provider.',
+  'user.payment.noBillingAccount':
+    'Nie znaleziono konta rozliczeniowego {{provider}} dla tego użytkownika.',
+  'user.payment.portalFailed': 'Nie można otworzyć portalu rozliczeniowego {{provider}} .',
+  'user.payment.portalNotSupported': '{{provider}} nie oferuje portalu rozliczeniowego.',
+  'user.payment.subscriptionOwnershipMismatch': 'Ta subskrypcja nie jest częścią Twojego konta.',
+  'user.payment.transactionAlreadyClaimed': 'Ten zakup jest już powiązany z innym kontem.',
 }

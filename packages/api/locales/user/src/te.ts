@@ -55,4 +55,23 @@ export const te: UserTranslations = {
   'user.error.oauthVerificationFailed': 'OAuth ధృవీకరణ విఫలమైంది.',
   'user.error.failedToCreateUser': 'వినియోగదారుని సృష్టించడంలో విఫలమైంది.',
   'user.error.oauthLoginFailed': 'OAuth లాగిన్ విఫలమైంది.',
+  'user.error.unauthorized': 'అనధికారిక',
+  'user.error.passwordTooLong': 'పాస్‌వర్డ్ గరిష్టంగా {{max}} అక్షరాల వరకు ఉండాలి',
+  'user.error.passwordTooShort': 'పాస్‌వర్డ్ కనీసం {{min}} అక్షరాల పొడవు ఉండాలి',
+  'user.error.tooManyRequests': 'చాలా సార్లు ప్రయత్నించారు. దయచేసి వేచి ఉండి మళ్ళీ ప్రయత్నించండి.',
+  'user.error.webhookUnauthorized': 'అనధికార చెల్లింపు నోటిఫికేషన్',
+  'user.error.credentialsNested':
+    'ఈ లాగిన్ ఎండ్‌పాయింట్ క్రెడెన్షియల్స్‌ను టాప్ లెవెల్‌లో చదువుతుంది, కానీ ఈ బాడీ వాటిని {{envelope}} కింద పొందుపరుస్తుంది. ఈ ఎన్వలప్‌ను అన్‌వ్రాప్ చేసే రూట్‌కు loginEndpointను సెట్ చేయండి, లేదా handlers.logInకు ముందు req.body[ {{envelope}}]ను అన్‌వ్రాప్ చేయడానికి mapRequestతో createRequestHandlerను ఉపయోగించండి.',
+  'user.error.oauthStateMismatch': 'OAuth స్థితి సరిపోలకపోవడం — CSRF దాడికి అవకాశం',
+  'user.error.avatarTooLarge': 'అవతార్ తప్పనిసరిగా {{max}} అక్షరాలు లేదా అంతకంటే తక్కువ ఉండాలి.',
+  'user.error.bioTooLong': 'బయో తప్పనిసరిగా {{max}} అక్షరాలు లేదా అంతకంటే తక్కువ ఉండాలి.',
+  'user.error.noUpdatableFields': 'నవీకరించదగిన ఫీల్డ్‌లు ఏవీ అందించబడలేదు.',
+  'user.error.oauthDataInvalid': 'oauthData ఒక ఆబ్జెక్ట్ అయి ఉండాలి.',
+  'user.error.subscriptionActivationRequiresVerification':
+    'సబ్‌స్క్రిప్షన్ యాక్టివేషన్ తప్పనిసరిగా రసీదు ధృవీకరణ ద్వారా జరగాలి — POST /users /:id/verify-payment/:provider ను ఉపయోగించండి.',
+  'user.payment.noBillingAccount': 'ఈ వినియోగదారునికి {{provider}} బిల్లింగ్ ఖాతా కనుగొనబడలేదు.',
+  'user.payment.portalFailed': '{{provider}} బిల్లింగ్ పోర్టల్‌ను తెరవలేకపోయాము.',
+  'user.payment.portalNotSupported': '{{provider}} బిల్లింగ్ పోర్టల్‌ను అందించదు.',
+  'user.payment.subscriptionOwnershipMismatch': 'ఈ సబ్‌స్క్రిప్షన్ మీ ఖాతాకు చెందినది కాదు.',
+  'user.payment.transactionAlreadyClaimed': 'ఈ కొనుగోలు ఇప్పటికే మరొక ఖాతాతో అనుసంధానించబడి ఉంది.',
 }

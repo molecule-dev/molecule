@@ -58,4 +58,24 @@ export const fr: UserTranslations = {
   'user.error.oauthVerificationFailed': 'La vérification OAuth a échoué.',
   'user.error.failedToCreateUser': "Impossible de créer l'utilisateur.",
   'user.error.oauthLoginFailed': 'La connexion OAuth a échoué.',
+  'user.error.unauthorized': 'Non autorisé',
+  'user.error.passwordTooLong': 'Le mot de passe doit contenir au maximum {{max}} caractères',
+  'user.error.passwordTooShort': 'Le mot de passe doit contenir au moins {{min}} caractères',
+  'user.error.tooManyRequests': 'Trop de tentatives. Veuillez patienter et réessayer.',
+  'user.error.webhookUnauthorized': 'Notification de paiement non autorisé',
+  'user.error.credentialsNested':
+    "Ce point de terminaison de connexion lit les informations d'identification au niveau supérieur, mais ce corps les imbrique sous {{envelope}}. Définissez loginEndpoint sur la route qui déballe cette enveloppe, ou utilisez createRequestHandler avec mapRequest pour déballer req.body[ {{envelope}}] avant handlers.logIn.",
+  'user.error.oauthStateMismatch': "Incohérence d'état OAuth — attaque CSRF possible",
+  'user.error.avatarTooLarge': "L'avatar doit comporter {{max}} caractères ou moins.",
+  'user.error.bioTooLong': 'La bio doit contenir {{max}} caractères ou moins.',
+  'user.error.noUpdatableFields': "Aucun champ modifiable n'a été fourni.",
+  'user.error.oauthDataInvalid': 'oauthData doit être un objet.',
+  'user.error.subscriptionActivationRequiresVerification':
+    "L'activation de l'abonnement doit passer par une vérification du reçu — utilisez POST /users /:id/verify-payment/:provider.",
+  'user.payment.noBillingAccount':
+    "Aucun compte de facturation {{provider}} n'a été trouvé pour cet utilisateur.",
+  'user.payment.portalFailed': "Impossible d'ouvrir le portail de facturation {{provider}} .",
+  'user.payment.portalNotSupported': '{{provider}} ne propose pas de portail de facturation.',
+  'user.payment.subscriptionOwnershipMismatch': "Cet abonnement n'est pas associé à votre compte.",
+  'user.payment.transactionAlreadyClaimed': 'Cet achat est déjà associé à un autre compte.',
 }

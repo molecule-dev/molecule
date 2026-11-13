@@ -55,4 +55,27 @@ export const bn: UserTranslations = {
   'user.error.oauthVerificationFailed': 'OAuth যাচাইকরণ ব্যর্থ।',
   'user.error.failedToCreateUser': 'ব্যবহারকারী তৈরি করতে ব্যর্থ।',
   'user.error.oauthLoginFailed': 'OAuth লগইন ব্যর্থ।',
+  'user.error.unauthorized': 'অননুমোদিত',
+  'user.error.passwordTooLong': 'পাসওয়ার্ডে সর্বাধিক {{max}} টি অক্ষর থাকতে হবে।',
+  'user.error.passwordTooShort': 'পাসওয়ার্ড অবশ্যই কমপক্ষে {{min}} অক্ষরের হতে হবে।',
+  'user.error.tooManyRequests':
+    'অনেকবার চেষ্টা করা হয়েছে। অনুগ্রহ করে অপেক্ষা করুন এবং আবার চেষ্টা করুন।',
+  'user.error.webhookUnauthorized': 'অননুমোদিত অর্থপ্রদানের বিজ্ঞপ্তি',
+  'user.error.credentialsNested':
+    'এই লগইন এন্ডপয়েন্টটি টপ লেভেল থেকে ক্রেডেনশিয়াল পড়ে, কিন্তু এর বডি সেগুলোকে {{envelope}} নিচে রাখে। loginEndpoint-কে সেই রাউটে সেট করুন যা এই এনভেলপটিকে আনর‍্যাপ করে, অথবা handlers.logIn-এর আগে req.body[ {{envelope}}] আনর‍্যাপ করতে mapRequest-এর সাথে createRequestHandler ব্যবহার করুন।',
+  'user.error.oauthStateMismatch': 'OAuth অবস্থার অমিল — সম্ভাব্য CSRF আক্রমণ',
+  'user.error.avatarTooLarge': 'অবতারটি অবশ্যই {{max}} অক্ষর বা তার কম হতে হবে।',
+  'user.error.bioTooLong': 'জীবনবৃত্তান্ত অবশ্যই {{max}} অক্ষর বা তার কম হতে হবে।',
+  'user.error.noUpdatableFields': 'আপডেটযোগ্য কোনো ফিল্ড প্রদান করা হয়নি।',
+  'user.error.oauthDataInvalid': 'oauthData অবশ্যই একটি অবজেক্ট হতে হবে।',
+  'user.error.subscriptionActivationRequiresVerification':
+    'সাবস্ক্রিপশন সক্রিয় করার জন্য রসিদ যাচাইকরণ আবশ্যক — এর জন্য POST /users /:id/verify-payment/:provider ব্যবহার করুন।',
+  'user.payment.noBillingAccount':
+    'এই ব্যবহারকারীর জন্য কোনো {{provider}} বিলিং অ্যাকাউন্ট খুঁজে পাওয়া যায়নি।',
+  'user.payment.portalFailed': '{{provider}} বিলিং পোর্টালটি খোলা যায়নি।',
+  'user.payment.portalNotSupported': '{{provider}} কোনো বিলিং পোর্টাল প্রদান করে না।',
+  'user.payment.subscriptionOwnershipMismatch':
+    'এই সাবস্ক্রিপশনটি আপনার অ্যাকাউন্টের অন্তর্ভুক্ত নয়।',
+  'user.payment.transactionAlreadyClaimed':
+    'এই কেনাকাটাটি ইতিমধ্যেই অন্য একটি অ্যাকাউন্টের সাথে যুক্ত আছে।',
 }

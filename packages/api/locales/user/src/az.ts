@@ -55,4 +55,24 @@ export const az: UserTranslations = {
   'user.error.oauthVerificationFailed': 'OAuth doğrulaması uğursuz oldu.',
   'user.error.failedToCreateUser': 'İstifadəçi yaradıla bilmədi.',
   'user.error.oauthLoginFailed': 'OAuth girişi uğursuz oldu.',
+  'user.error.unauthorized': 'İcazəsiz',
+  'user.error.passwordTooLong': 'Şifrə maksimum {{max}} simvoldan ibarət olmalıdır',
+  'user.error.passwordTooShort': 'Şifrə ən azı {{min}} simvoldan ibarət olmalıdır',
+  'user.error.tooManyRequests':
+    'Həddindən artıq cəhd. Zəhmət olmasa, gözləyin və yenidən cəhd edin.',
+  'user.error.webhookUnauthorized': 'İcazəsiz ödəniş bildirişi',
+  'user.error.credentialsNested':
+    'Bu giriş nöqtəsi etimadnamələri ən yuxarı səviyyədə oxuyur, lakin bu gövdə onları {{envelope}} altında yerləşdirir. Bu zərfi açan marşruta loginEndpoint təyin edin və ya handlers.logIn-dən əvvəl req.body[ {{envelope}}]-ni açmaq üçün mapRequest ilə createRequestHandler istifadə edin.',
+  'user.error.oauthStateMismatch': 'OAuth vəziyyət uyğunsuzluğu — mümkün CSRF hücumu',
+  'user.error.avatarTooLarge': 'Avatar {{max}} və ya daha az simvoldan ibarət olmalıdır.',
+  'user.error.bioTooLong': 'Bio {{max}} və ya daha az simvoldan ibarət olmalıdır.',
+  'user.error.noUpdatableFields': 'Yenilənə bilən sahələr təmin edilməyib.',
+  'user.error.oauthDataInvalid': 'oauthData obyekt olmalıdır.',
+  'user.error.subscriptionActivationRequiresVerification':
+    'Abunə aktivləşdirilməsi qəbz təsdiqindən keçməlidir — POST /users /:id/verify-payment/:provider istifadə edin.',
+  'user.payment.noBillingAccount': 'Bu istifadəçi üçün {{provider}} ödəniş hesabı tapılmadı.',
+  'user.payment.portalFailed': '{{provider}} ödəniş portalını açmaq mümkün olmadı.',
+  'user.payment.portalNotSupported': '{{provider}} ödəniş portalı təklif etmir.',
+  'user.payment.subscriptionOwnershipMismatch': 'Bu abunəlik hesabınıza aid deyil.',
+  'user.payment.transactionAlreadyClaimed': 'Bu alış artıq başqa bir hesabla əlaqələndirilib.',
 }

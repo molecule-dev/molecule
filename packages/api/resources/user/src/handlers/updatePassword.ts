@@ -6,6 +6,7 @@ import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 import type { DeviceService } from '@molecule/api-resource-device'
 
 import { invalidateAllDeviceExistsCache } from '../authorization.js'
+import { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH } from '../schema.js'
 import type * as types from '../types.js'
 
 const analytics = getAnalytics()
@@ -68,25 +69,33 @@ export const updatePassword = ({
         }
       }
 
-      if (newPassword.length < 8) {
+      if (newPassword.length < MIN_PASSWORD_LENGTH) {
         return {
           statusCode: 400,
           body: {
-            error: t('user.error.passwordTooShort', undefined, {
-              defaultValue: 'Password must be at least 8 characters',
-            }),
+            error: t(
+              'user.error.passwordTooShort',
+              { min: MIN_PASSWORD_LENGTH },
+              {
+                defaultValue: 'Password must be at least {{min}} characters',
+              },
+            ),
             errorKey: 'user.error.passwordTooShort',
           },
         }
       }
 
-      if (newPassword.length > 1024) {
+      if (newPassword.length > MAX_PASSWORD_LENGTH) {
         return {
           statusCode: 400,
           body: {
-            error: t('user.error.passwordTooLong', undefined, {
-              defaultValue: 'Password must be at most 1024 characters',
-            }),
+            error: t(
+              'user.error.passwordTooLong',
+              { max: MAX_PASSWORD_LENGTH },
+              {
+                defaultValue: 'Password must be at most {{max}} characters',
+              },
+            ),
             errorKey: 'user.error.passwordTooLong',
           },
         }

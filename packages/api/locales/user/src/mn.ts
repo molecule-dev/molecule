@@ -55,4 +55,25 @@ export const mn: UserTranslations = {
   'user.error.oauthVerificationFailed': 'OAuth баталгаажуулалт амжилтгүй.',
   'user.error.failedToCreateUser': 'Хэрэглэгч үүсгэхэд алдаа гарлаа.',
   'user.error.oauthLoginFailed': 'OAuth нэвтрэлт амжилтгүй.',
+  'user.error.unauthorized': 'Зөвшөөрөлгүй',
+  'user.error.passwordTooLong': 'Нууц үг хамгийн ихдээ {{max}} тэмдэгтээс бүрдэх ёстой',
+  'user.error.passwordTooShort': 'Нууц үг хамгийн багадаа {{min}} тэмдэгтээс бүрдэх ёстой',
+  'user.error.tooManyRequests': 'Хэт олон оролдлого байна. Түр хүлээгээд дахин оролдоно уу.',
+  'user.error.webhookUnauthorized': 'Зөвшөөрөлгүй төлбөрийн мэдэгдэл',
+  'user.error.credentialsNested':
+    'Энэ нэвтрэх төгсгөлийн цэг нь дээд түвшинд итгэмжлэлүүдийг уншдаг боловч энэ бие нь тэдгээрийг {{envelope}} дор байрлуулдаг. Энэ дугтуйг задлах маршрутад loginEndpoint-г тохируулна уу эсвэл handlers.logIn-ээс өмнө req.body[ {{envelope}}]-г задлахын тулд mapRequest-тэй хамт createRequestHandler-г ашиглана уу.',
+  'user.error.oauthStateMismatch': 'OAuth төлөвийн зөрүү — CSRF халдлагад өртөх магадлалтай',
+  'user.error.avatarTooLarge':
+    'Аватар нь {{max}} тэмдэгтээс бүрдэх эсвэл түүнээс бага тэмдэгттэй байх ёстой.',
+  'user.error.bioTooLong': 'Намтар нь {{max}} тэмдэгтээс бүрдэх ёстой.',
+  'user.error.noUpdatableFields': 'Шинэчлэх боломжтой талбарууд өгөгдөөгүй байна.',
+  'user.error.oauthDataInvalid': 'oauthData нь объект байх ёстой.',
+  'user.error.subscriptionActivationRequiresVerification':
+    'Захиалгыг идэвхжүүлэхийн тулд баримтын баталгаажуулалтыг хийх шаардлагатай — POST /users /:id/verify-payment/:provider ашиглана уу.',
+  'user.payment.noBillingAccount': 'Энэ хэрэглэгчийн хувьд {{provider}} төлбөрийн данс олдсонгүй.',
+  'user.payment.portalFailed': '{{provider}} төлбөрийн порталыг нээж чадсангүй.',
+  'user.payment.portalNotSupported': '{{provider}} нь төлбөр тооцооны портал санал болгодоггүй.',
+  'user.payment.subscriptionOwnershipMismatch': 'Энэ захиалга таны бүртгэлд хамаарахгүй.',
+  'user.payment.transactionAlreadyClaimed':
+    'Энэ худалдан авалт аль хэдийн өөр бүртгэлтэй холбогдсон байна.',
 }

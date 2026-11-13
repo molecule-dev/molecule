@@ -53,4 +53,23 @@ export const zh: UserTranslations = {
   'user.error.oauthVerificationFailed': 'OAuth 验证失败。',
   'user.error.failedToCreateUser': '创建用户失败。',
   'user.error.oauthLoginFailed': 'OAuth 登录失败。',
+  'user.error.unauthorized': '未经授权',
+  'user.error.passwordTooLong': '密码长度最多为{{max}}个字符',
+  'user.error.passwordTooShort': '密码长度必须至少为{{min}}个字符',
+  'user.error.tooManyRequests': '尝试次数过多，请稍候后重试。',
+  'user.error.webhookUnauthorized': '未经授权的付款通知',
+  'user.error.credentialsNested':
+    '此登录端点读取顶层凭据，但此请求体将其嵌套在{{envelope}}下。将 loginEndpoint 设置为解包此信封的路由，或者使用 mapRequest 和 createRequestHandler 在 handlers.logIn 之前解包 req.body[ {{envelope}}]。',
+  'user.error.oauthStateMismatch': 'OAuth 状态不匹配——可能存在 CSRF 攻击',
+  'user.error.avatarTooLarge': '头像长度必须为{{max}}个字符或更少。',
+  'user.error.bioTooLong': '个人简介必须不超过{{max}}个字符。',
+  'user.error.noUpdatableFields': '未提供可更新字段。',
+  'user.error.oauthDataInvalid': 'oauthData 必须是一个对象。',
+  'user.error.subscriptionActivationRequiresVerification':
+    '订阅激活必须通过收据验证——使用 POST /users /:id/verify-payment/:provider。',
+  'user.payment.noBillingAccount': '未找到该用户的{{provider}}账单帐户。',
+  'user.payment.portalFailed': '无法打开{{provider}}计费门户。',
+  'user.payment.portalNotSupported': '{{provider}}不提供账单门户。',
+  'user.payment.subscriptionOwnershipMismatch': '此订阅不属于您的帐户。',
+  'user.payment.transactionAlreadyClaimed': '此次购买已关联至其他账户。',
 }

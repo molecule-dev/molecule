@@ -55,4 +55,23 @@ export const uz: UserTranslations = {
   'user.error.oauthVerificationFailed': "OAuth tekshiruvi muvaffaqiyatsiz bo'ldi.",
   'user.error.failedToCreateUser': "Foydalanuvchini yaratib bo'lmadi.",
   'user.error.oauthLoginFailed': "OAuth kirish muvaffaqiyatsiz bo'ldi.",
+  'user.error.unauthorized': 'Ruxsatsiz',
+  'user.error.passwordTooLong': "Parol eng ko'pi bilan {{max}} ta belgidan iborat bo'lishi kerak",
+  'user.error.passwordTooShort': "Parol kamida {{min}} ta belgidan iborat bo'lishi kerak",
+  'user.error.tooManyRequests': "Juda ko'p urinishlar. Iltimos, kuting va qaytadan urinib ko'ring.",
+  'user.error.webhookUnauthorized': 'Ruxsatsiz toʻlov haqida bildirishnoma',
+  'user.error.credentialsNested':
+    "Ushbu kirish nuqtasi yuqori darajadagi hisob ma'lumotlarini o'qiydi, lekin bu tana ularni {{envelope}} ostida joylashtiradi. Ushbu konvertni ochadigan marshrutga loginEndpoint ni o'rnating yoki handlers.logIn dan oldin req.body[ {{envelope}}] ni ochish uchun mapRequest bilan createRequestHandler dan foydalaning.",
+  'user.error.oauthStateMismatch': "OAuth holati mos kelmasligi — mumkin bo'lgan CSRF hujumi",
+  'user.error.avatarTooLarge': "Avatar {{max}} yoki undan kam belgidan iborat bo'lishi kerak.",
+  'user.error.bioTooLong': "Biografiya {{max}} yoki undan kam belgidan iborat bo'lishi kerak.",
+  'user.error.noUpdatableFields': 'Yangilanadigan maydonlar taqdim etilmagan.',
+  'user.error.oauthDataInvalid': "oauthData obyekt bo'lishi kerak.",
+  'user.error.subscriptionActivationRequiresVerification':
+    'Obunani faollashtirish uchun chekni tekshirish kerak — POST /users /:id/verify-payment/:provider dan foydalaning.',
+  'user.payment.noBillingAccount': 'Bu foydalanuvchi uchun {{provider}} toʻlov hisobi topilmadi.',
+  'user.payment.portalFailed': '{{provider}} toʻlov portalini ochib boʻlmadi.',
+  'user.payment.portalNotSupported': '{{provider}} billing portalini taklif qilmaydi.',
+  'user.payment.subscriptionOwnershipMismatch': 'Bu obuna sizning hisobingizga tegishli emas.',
+  'user.payment.transactionAlreadyClaimed': "Bu xarid allaqachon boshqa hisob bilan bog'langan.",
 }

@@ -56,4 +56,23 @@ export const lt: UserTranslations = {
   'user.error.oauthVerificationFailed': 'OAuth patvirtinimas nepavyko.',
   'user.error.failedToCreateUser': 'Nepavyko sukurti naudotojo.',
   'user.error.oauthLoginFailed': 'OAuth prisijungimas nepavyko.',
+  'user.error.unauthorized': 'Neleistinas',
+  'user.error.passwordTooLong': 'Slaptažodis turi būti ne ilgesnis kaip {{max}} simbolių',
+  'user.error.passwordTooShort': 'Slaptažodis turi būti bent {{min}} simbolių ilgio',
+  'user.error.tooManyRequests': 'Per daug bandymų. Palaukite ir bandykite dar kartą.',
+  'user.error.webhookUnauthorized': 'Pranešimas apie neautorizuotą mokėjimą',
+  'user.error.credentialsNested':
+    'Šis prisijungimo galinis punktas nuskaito kredencialus aukščiausiu lygiu, tačiau šis tekstas juos įdeda po {{envelope}}. Nustatykite „loginEndpoint“ kaip maršrutą, kuris išpakuoja šį voką, arba naudokite „createRequestHandler“ su „mapRequest“, kad išpakuotumėte „req.body[ {{envelope}}] prieš „handlers.logIn“.',
+  'user.error.oauthStateMismatch': 'OAuth būsenos neatitikimas – galima CSRF ataka',
+  'user.error.avatarTooLarge': 'Avataras turi būti ne ilgesnis kaip {{max}} simbolių.',
+  'user.error.bioTooLong': 'Biografijoje gali būti ne daugiau kaip {{max}} simbolių.',
+  'user.error.noUpdatableFields': 'Nebuvo pateikta jokių atnaujinamų laukų.',
+  'user.error.oauthDataInvalid': '„oauthData“ turi būti objektas.',
+  'user.error.subscriptionActivationRequiresVerification':
+    'Prenumeratos aktyvinimas turi būti patvirtintas gavimu – naudokite POST /users /:id/verify-payment/:provider.',
+  'user.payment.noBillingAccount': 'Šiam vartotojui nerasta {{provider}} atsiskaitomoji sąskaita.',
+  'user.payment.portalFailed': 'Nepavyko atidaryti {{provider}} atsiskaitymo portalo.',
+  'user.payment.portalNotSupported': '{{provider}} nesiūlo atsiskaitymo portalo.',
+  'user.payment.subscriptionOwnershipMismatch': 'Ši prenumerata nepriklauso jūsų paskyrai.',
+  'user.payment.transactionAlreadyClaimed': 'Šis pirkinys jau susietas su kita paskyra.',
 }

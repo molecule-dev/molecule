@@ -56,4 +56,25 @@ export const ro: UserTranslations = {
   'user.error.oauthVerificationFailed': 'Verificarea OAuth a eșuat.',
   'user.error.failedToCreateUser': 'Nu s-a putut crea utilizatorul.',
   'user.error.oauthLoginFailed': 'Autentificarea OAuth a eșuat.',
+  'user.error.unauthorized': 'Neautorizat',
+  'user.error.passwordTooLong': 'Parola trebuie să aibă cel mult {{max}} caractere',
+  'user.error.passwordTooShort': 'Parola trebuie să aibă cel puțin {{min}} caractere',
+  'user.error.tooManyRequests':
+    'Prea multe încercări. Vă rugăm să așteptați și să încercați din nou.',
+  'user.error.webhookUnauthorized': 'Notificare de plată neautorizată',
+  'user.error.credentialsNested':
+    'Acest punct final de conectare citește acreditările la nivelul superior, dar acest body le imbrica sub {{envelope}}. Setați loginEndpoint la ruta care desface acest plic sau utilizați createRequestHandler cu mapRequest pentru a desface req.body[ {{envelope}}] înainte de handlers.logIn.',
+  'user.error.oauthStateMismatch': 'Neconcordanță de stare OAuth — posibil atac CSRF',
+  'user.error.avatarTooLarge': 'Avatarul trebuie să aibă maximum {{max}} caractere.',
+  'user.error.bioTooLong': 'Biografia trebuie să aibă maximum {{max}} caractere.',
+  'user.error.noUpdatableFields': 'Nu au fost furnizate câmpuri actualizabile.',
+  'user.error.oauthDataInvalid': 'oauthData trebuie să fie un obiect.',
+  'user.error.subscriptionActivationRequiresVerification':
+    'Activarea abonamentului trebuie să treacă prin verificarea chitanței — folosiți comanda POST /users /:id/verify-payment/:provider.',
+  'user.payment.noBillingAccount':
+    'Nu a fost găsit niciun cont de facturare {{provider}} pentru acest utilizator.',
+  'user.payment.portalFailed': 'Nu s-a putut deschide portalul de facturare {{provider}} .',
+  'user.payment.portalNotSupported': '{{provider}} nu oferă un portal de facturare.',
+  'user.payment.subscriptionOwnershipMismatch': 'Acest abonament nu aparține contului tău.',
+  'user.payment.transactionAlreadyClaimed': 'Această achiziție este deja asociată cu un alt cont.',
 }

@@ -56,4 +56,26 @@ export const sl: UserTranslations = {
   'user.error.oauthVerificationFailed': 'OAuth preverjanje ni uspelo.',
   'user.error.failedToCreateUser': 'Ustvarjanje uporabnika ni uspelo.',
   'user.error.oauthLoginFailed': 'OAuth prijava ni uspela.',
+  'user.error.unauthorized': 'Nepooblaščeno',
+  'user.error.passwordTooLong': 'Geslo mora imeti največ {{max}} znakov',
+  'user.error.passwordTooShort': 'Geslo mora imeti vsaj {{min}} znakov',
+  'user.error.tooManyRequests': 'Preveč poskusov. Počakajte in poskusite znova.',
+  'user.error.webhookUnauthorized': 'Obvestilo o nepooblaščenem plačilu',
+  'user.error.credentialsNested':
+    'Ta končna točka za prijavo bere poverilnice na najvišji ravni, vendar jih to telo ugnezdi pod {{envelope}}. Nastavite loginEndpoint na pot, ki odvije to ovojnico, ali pa uporabite createRequestHandler z mapRequest za odvijanje req.body[ {{envelope}}] pred handlers.logIn.',
+  'user.error.oauthStateMismatch': 'Neujemanje stanja OAuth – možen napad CSRF',
+  'user.error.avatarTooLarge': 'Avatar mora imeti {{max}} znakov ali manj.',
+  'user.error.bioTooLong': 'Življenjepis mora imeti največ {{max}} znakov.',
+  'user.error.noUpdatableFields':
+    'Ni bilo na voljo nobenih polj, ki bi jih bilo mogoče posodobiti.',
+  'user.error.oauthDataInvalid': 'oauthData mora biti objekt.',
+  'user.error.subscriptionActivationRequiresVerification':
+    'Aktivacija naročnine mora potekati s preverjanjem potrdila – uporabite POST /users /:id/verify-payment/:provider.',
+  'user.payment.noBillingAccount':
+    'Za tega uporabnika ni bil najden račun za obračunavanje {{provider}} .',
+  'user.payment.portalFailed':
+    'Portala za obračunavanje ponudnika {{provider}} ni bilo mogoče odpreti.',
+  'user.payment.portalNotSupported': '{{provider}} ne ponuja portala za obračunavanje.',
+  'user.payment.subscriptionOwnershipMismatch': 'Ta naročnina ne pripada vašemu računu.',
+  'user.payment.transactionAlreadyClaimed': 'Ta nakup je že povezan z drugim računom.',
 }

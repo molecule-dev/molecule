@@ -55,4 +55,24 @@ export const hi: UserTranslations = {
   'user.error.oauthVerificationFailed': 'OAuth सत्यापन विफल।',
   'user.error.failedToCreateUser': 'उपयोगकर्ता बनाने में विफल।',
   'user.error.oauthLoginFailed': 'OAuth लॉगिन विफल।',
+  'user.error.unauthorized': 'अनधिकृत',
+  'user.error.passwordTooLong': 'पासवर्ड अधिकतम {{max}} अक्षरों का होना चाहिए',
+  'user.error.passwordTooShort': 'पासवर्ड कम से कम {{min}} अक्षरों का होना चाहिए',
+  'user.error.tooManyRequests':
+    'बहुत अधिक प्रयास हो चुके हैं। कृपया प्रतीक्षा करें और पुनः प्रयास करें।',
+  'user.error.webhookUnauthorized': 'अनधिकृत भुगतान सूचना',
+  'user.error.credentialsNested':
+    'यह लॉगिन एंडपॉइंट शीर्ष स्तर पर क्रेडेंशियल पढ़ता है, लेकिन यह बॉडी उन्हें {{envelope}} के अंतर्गत नेस्ट करती है। loginEndpoint को उस रूट पर सेट करें जो इस एनवेलप को अनरैप करता है, या handlers.logIn से पहले req.body[ {{envelope}}] को अनरैप करने के लिए mapRequest के साथ createRequestHandler का उपयोग करें।',
+  'user.error.oauthStateMismatch': 'OAuth स्थिति में विसंगति — CSRF हमले की संभावना',
+  'user.error.avatarTooLarge': 'अवतार {{max}} अक्षरों का या उससे कम होना चाहिए।',
+  'user.error.bioTooLong': 'बायो {{max}} अक्षरों का या उससे कम होना चाहिए।',
+  'user.error.noUpdatableFields': 'कोई भी अद्यतन करने योग्य फ़ील्ड प्रदान नहीं की गई थी।',
+  'user.error.oauthDataInvalid': 'oauthData एक ऑब्जेक्ट होना चाहिए।',
+  'user.error.subscriptionActivationRequiresVerification':
+    'सदस्यता सक्रियण रसीद सत्यापन के माध्यम से होना चाहिए — POST /users /:id/verify-payment/:provider का उपयोग करें।',
+  'user.payment.noBillingAccount': 'इस उपयोगकर्ता के लिए कोई {{provider}} बिलिंग खाता नहीं मिला।',
+  'user.payment.portalFailed': '{{provider}} बिलिंग पोर्टल नहीं खुल सका।',
+  'user.payment.portalNotSupported': '{{provider}} बिलिंग पोर्टल की सुविधा प्रदान नहीं करता है।',
+  'user.payment.subscriptionOwnershipMismatch': 'यह सदस्यता आपके खाते से संबंधित नहीं है।',
+  'user.payment.transactionAlreadyClaimed': 'यह खरीदारी पहले से ही किसी अन्य खाते से जुड़ी हुई है।',
 }

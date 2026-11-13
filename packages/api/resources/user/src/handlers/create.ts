@@ -126,9 +126,13 @@ export const create = ({ name, tableName, schema = propsSchema }: types.HandlerR
         return {
           statusCode: 400,
           body: {
-            error: t('user.error.passwordTooLong', undefined, {
-              defaultValue: `Password must be at most ${MAX_PASSWORD_LENGTH} characters`,
-            }),
+            error: t(
+              'user.error.passwordTooLong',
+              { max: MAX_PASSWORD_LENGTH },
+              {
+                defaultValue: 'Password must be at most {{max}} characters',
+              },
+            ),
             errorKey: 'user.error.passwordTooLong',
           },
         }
@@ -138,9 +142,13 @@ export const create = ({ name, tableName, schema = propsSchema }: types.HandlerR
         return {
           statusCode: 400,
           body: {
-            error: t('user.error.passwordTooShort', undefined, {
-              defaultValue: `Password must be at least ${MIN_PASSWORD_LENGTH} characters`,
-            }),
+            error: t(
+              'user.error.passwordTooShort',
+              { min: MIN_PASSWORD_LENGTH },
+              {
+                defaultValue: 'Password must be at least {{min}} characters',
+              },
+            ),
             errorKey: 'user.error.passwordTooShort',
           },
         }

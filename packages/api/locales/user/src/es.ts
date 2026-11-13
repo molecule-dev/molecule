@@ -57,4 +57,24 @@ export const es: UserTranslations = {
   'user.error.oauthVerificationFailed': 'La verificación OAuth falló.',
   'user.error.failedToCreateUser': 'No se pudo crear el usuario.',
   'user.error.oauthLoginFailed': 'El inicio de sesión OAuth falló.',
+  'user.error.unauthorized': 'No autorizado',
+  'user.error.passwordTooLong': 'La contraseña debe tener como máximo {{max}} caracteres.',
+  'user.error.passwordTooShort': 'La contraseña debe tener al menos {{min}} caracteres.',
+  'user.error.tooManyRequests': 'Demasiados intentos. Por favor, espere e inténtelo de nuevo.',
+  'user.error.webhookUnauthorized': 'Notificación de pago no autorizado',
+  'user.error.credentialsNested':
+    'Este endpoint de inicio de sesión lee las credenciales en el nivel superior, pero este cuerpo las anida bajo {{envelope}}. Establezca loginEndpoint en la ruta que desenvuelve este sobre, o use createRequestHandler con mapRequest para desenvolver req.body[ {{envelope}}] antes de handlers.logIn.',
+  'user.error.oauthStateMismatch': 'Discrepancia en el estado de OAuth: posible ataque CSRF',
+  'user.error.avatarTooLarge': 'El avatar debe tener {{max}} caracteres o menos.',
+  'user.error.bioTooLong': 'La biografía debe tener {{max}} caracteres o menos.',
+  'user.error.noUpdatableFields': 'No se proporcionaron campos actualizables.',
+  'user.error.oauthDataInvalid': 'oauthData debe ser un objeto.',
+  'user.error.subscriptionActivationRequiresVerification':
+    'La activación de la suscripción debe pasar por la verificación del recibo; utilice POST /users /:id/verify-payment/:provider.',
+  'user.payment.noBillingAccount':
+    'No se encontró ninguna cuenta de facturación {{provider}} para este usuario.',
+  'user.payment.portalFailed': 'No se pudo abrir el portal de facturación {{provider}} .',
+  'user.payment.portalNotSupported': '{{provider}} no ofrece un portal de facturación.',
+  'user.payment.subscriptionOwnershipMismatch': 'Esta suscripción no pertenece a tu cuenta.',
+  'user.payment.transactionAlreadyClaimed': 'Esta compra ya está asociada a otra cuenta.',
 }

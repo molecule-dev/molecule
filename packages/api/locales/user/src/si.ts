@@ -56,4 +56,24 @@ export const si: UserTranslations = {
   'user.error.oauthVerificationFailed': 'OAuth සත්‍යාපනය අසාර්ථක විය.',
   'user.error.failedToCreateUser': 'පරිශීලකයා සෑදීමට අසමත් විය.',
   'user.error.oauthLoginFailed': 'OAuth පිවිසීම අසාර්ථක විය.',
+  'user.error.unauthorized': 'අනවසර',
+  'user.error.passwordTooLong': 'මුරපදය උපරිම වශයෙන් {{max}} අක්ෂර වලින් සමන්විත විය යුතුය.',
+  'user.error.passwordTooShort': 'මුරපදය අවම වශයෙන් අක්ෂර {{min}} ක් විය යුතුය.',
+  'user.error.tooManyRequests': 'උත්සාහයන් වැඩියි. කරුණාකර රැඳී සිට නැවත උත්සාහ කරන්න.',
+  'user.error.webhookUnauthorized': 'අනවසර ගෙවීම් දැනුම්දීම',
+  'user.error.credentialsNested':
+    'මෙම පිවිසුම් අන්ත ලක්ෂ්‍යය ඉහළ මට්ටමේ අක්තපත්‍ර කියවයි, නමුත් මෙම ශරීරය ඒවා {{envelope}} යටතේ තැන්පත් කරයි. මෙම ලියුම් කවරය දිග හරින මාර්ගයට loginEndpoint සකසන්න, නැතහොත් handlers.logIn ට පෙර req.body[ {{envelope}}] ඉවත් කිරීමට mapRequest සමඟ createRequestHandler භාවිතා කරන්න.',
+  'user.error.oauthStateMismatch': 'OAuth තත්ව නොගැලපීම — විය හැකි CSRF ප්‍රහාරයක්',
+  'user.error.avatarTooLarge': 'අවතාර් අක්ෂර {{max}} හෝ ඊට අඩු විය යුතුය.',
+  'user.error.bioTooLong': 'ජීව දත්ත පත්‍රිකාවේ අක්ෂර {{max}} හෝ ඊට අඩු විය යුතුය.',
+  'user.error.noUpdatableFields': 'යාවත්කාලීන කළ හැකි ක්ෂේත්‍ර සපයා නැත.',
+  'user.error.oauthDataInvalid': 'oauthData වස්තුවක් විය යුතුය.',
+  'user.error.subscriptionActivationRequiresVerification':
+    'දායකත්ව සක්‍රිය කිරීම රිසිට්පත් සත්‍යාපනය හරහා යා යුතුය — POST /users /:id/verify-payment/:provider භාවිතා කරන්න.',
+  'user.payment.noBillingAccount': 'මෙම පරිශීලකයා සඳහා {{provider}} බිල්පත් ගිණුමක් හමු නොවීය.',
+  'user.payment.portalFailed': '{{provider}} බිල්පත් ද්වාරය විවෘත කිරීමට නොහැකි විය.',
+  'user.payment.portalNotSupported': '{{provider}} බිල්පත් ද්වාරයක් පිරිනමන්නේ නැත.',
+  'user.payment.subscriptionOwnershipMismatch': 'මෙම දායකත්වය ඔබගේ ගිණුමට අයත් නොවේ.',
+  'user.payment.transactionAlreadyClaimed':
+    'මෙම මිලදී ගැනීම දැනටමත් වෙනත් ගිණුමක් සමඟ සම්බන්ධ වී ඇත.',
 }

@@ -39,7 +39,9 @@ export async function del(req: MoleculeRequest, res: MoleculeResponse): Promise<
   } catch (error) {
     logger.error('Failed to delete project', { id, error })
     res.status(500).json({
-      error: t('project.error.deleteFailed'),
+      error: t('project.error.deleteFailed', undefined, {
+        defaultValue: 'Failed to delete project',
+      }),
       errorKey: 'project.error.deleteFailed',
     })
   }

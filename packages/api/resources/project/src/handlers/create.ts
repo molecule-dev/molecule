@@ -22,9 +22,10 @@ export async function create(req: MoleculeRequest, res: MoleculeResponse): Promi
     (res.locals.session as { userId?: string } | undefined)?.userId ??
     (req as unknown as { userId?: string }).userId
   if (!userId) {
-    res
-      .status(401)
-      .json({ error: t('user.error.unauthorized'), errorKey: 'user.error.unauthorized' })
+    res.status(401).json({
+      error: t('user.error.unauthorized', undefined, { defaultValue: 'Unauthorized' }),
+      errorKey: 'user.error.unauthorized',
+    })
     return
   }
   const input = req.body as CreateProjectInput
@@ -87,7 +88,9 @@ export async function create(req: MoleculeRequest, res: MoleculeResponse): Promi
   } catch (error) {
     logger.error('Failed to create project', { userId, slug, error })
     res.status(500).json({
-      error: t('project.error.createFailed'),
+      error: t('project.error.createFailed', undefined, {
+        defaultValue: 'Failed to create project',
+      }),
       errorKey: 'project.error.createFailed',
     })
   }

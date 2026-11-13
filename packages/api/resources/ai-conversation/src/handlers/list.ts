@@ -34,7 +34,9 @@ export async function history(req: MoleculeRequest, res: MoleculeResponse): Prom
   } catch (error) {
     logger.error('Failed to load conversation history', { projectId, error })
     res.status(500).json({
-      error: t('conversation.error.historyFailed'),
+      error: t('conversation.error.historyFailed', undefined, {
+        defaultValue: 'Failed to load conversation history',
+      }),
       errorKey: 'conversation.error.historyFailed',
     })
   }

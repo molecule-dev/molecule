@@ -57,4 +57,24 @@ export const ka: UserTranslations = {
   'user.error.oauthVerificationFailed': 'OAuth veripikacia ver mokherkhda.',
   'user.error.failedToCreateUser': 'Momkhmareblis shektsra ver mokherkhda.',
   'user.error.oauthLoginFailed': 'OAuth shesvla ver mokherkhda.',
+  'user.error.unauthorized': 'არაავტორიზებული',
+  'user.error.passwordTooLong': 'პაროლი უნდა შეიცავდეს მაქსიმუმ {{max}} სიმბოლოს',
+  'user.error.passwordTooShort': 'პაროლი უნდა იყოს მინიმუმ {{min}} სიმბოლო',
+  'user.error.tooManyRequests': 'ძალიან ბევრი მცდელობაა. გთხოვთ, დაელოდოთ და ხელახლა სცადოთ.',
+  'user.error.webhookUnauthorized': 'არაავტორიზებული გადახდის შეტყობინება',
+  'user.error.credentialsNested':
+    'ეს შესვლის ბოლო წერტილი კითხულობს ავტორიზაციის მონაცემებს ზედა დონეზე, მაგრამ ეს body ათავსებს მათ {{envelope}} ქვეშ. დააყენეთ loginEndpoint იმ მარშრუტზე, რომელიც ხსნის ამ კონვერტს, ან გამოიყენეთ createRequestHandler mapRequest-თან ერთად req.body[ {{envelope}}]-ის გასახსნელად handlers.logIn-მდე.',
+  'user.error.oauthStateMismatch': 'OAuth-ის მდგომარეობის შეუსაბამობა — შესაძლო CSRF შეტევა',
+  'user.error.avatarTooLarge': 'ავატარის ზომა უნდა იყოს {{max}} ან ნაკლები სიმბოლო.',
+  'user.error.bioTooLong': 'ბიოგრაფია უნდა შეიცავდეს {{max}} ან ნაკლებ სიმბოლოს.',
+  'user.error.noUpdatableFields': 'განახლებადი ველები არ იყო მოცემული.',
+  'user.error.oauthDataInvalid': 'oauthData უნდა იყოს ობიექტი.',
+  'user.error.subscriptionActivationRequiresVerification':
+    'გამოწერის გააქტიურება უნდა გაიაროს ქვითრის დადასტურება — გამოიყენეთ POST /users /:id/verify-payment/:provider.',
+  'user.payment.noBillingAccount':
+    'ამ მომხმარებლისთვის {{provider}} გადახდის ანგარიში ვერ მოიძებნა.',
+  'user.payment.portalFailed': '{{provider}} გადახდის პორტალის გახსნა ვერ მოხერხდა.',
+  'user.payment.portalNotSupported': '{{provider}} არ გთავაზობთ გადახდის პორტალს.',
+  'user.payment.subscriptionOwnershipMismatch': 'ეს გამოწერა თქვენს ანგარიშს არ ეკუთვნის.',
+  'user.payment.transactionAlreadyClaimed': 'ეს შენაძენი უკვე დაკავშირებულია სხვა ანგარიშთან.',
 }

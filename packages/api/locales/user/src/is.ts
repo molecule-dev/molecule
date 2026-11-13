@@ -56,4 +56,24 @@ export const is: UserTranslations = {
   'user.error.oauthVerificationFailed': 'OAuth-staðfesting mistókst.',
   'user.error.failedToCreateUser': 'Mistókst að búa til notanda.',
   'user.error.oauthLoginFailed': 'OAuth-innskráning mistókst.',
+  'user.error.unauthorized': 'Óheimilt',
+  'user.error.passwordTooLong': 'Lykilorðið má ekki vera lengra en {{max}} stafir',
+  'user.error.passwordTooShort': 'Lykilorðið verður að vera að minnsta kosti {{min}} stafir',
+  'user.error.tooManyRequests': 'Of margar tilraunir. Vinsamlegast bíðið og reynið aftur.',
+  'user.error.webhookUnauthorized': 'Tilkynning um óheimilaða greiðslu',
+  'user.error.credentialsNested':
+    'Þessi innskráningarendapunktur les innskráningarupplýsingar á efsta stigi, en þessi meginmál setur þær undir {{envelope}}. Stilltu loginEndpoint á leiðina sem opnar þessa umslag, eða notaðu createRequestHandler með mapRequest til að opna req.body[ {{envelope}}] á undan handlers.logIn.',
+  'user.error.oauthStateMismatch': 'Ósamræmi í OAuth-stöðu — möguleg CSRF-árás',
+  'user.error.avatarTooLarge': 'Avatar má vera {{max}} stafir eða færri.',
+  'user.error.bioTooLong': 'Æviágrip verður að vera {{max}} stafir eða færri.',
+  'user.error.noUpdatableFields': 'Engir uppfæranlegir reitir voru gefnir upp.',
+  'user.error.oauthDataInvalid': 'oauthData verður að vera hlutur.',
+  'user.error.subscriptionActivationRequiresVerification':
+    'Virkjun áskriftar verður að fara í gegnum staðfestingu kvittunar — notið POST /users /:id/verify-payment/:provider.',
+  'user.payment.noBillingAccount':
+    'Enginn reikningur fyrir {{provider}} fannst fyrir þennan notanda.',
+  'user.payment.portalFailed': 'Ekki tókst að opna greiðslugáttina hjá {{provider}} .',
+  'user.payment.portalNotSupported': '{{provider}} býður ekki upp á greiðslugátt.',
+  'user.payment.subscriptionOwnershipMismatch': 'Þessi áskrift tilheyrir ekki reikningnum þínum.',
+  'user.payment.transactionAlreadyClaimed': 'Þessi kaup eru þegar tengd öðrum reikningi.',
 }

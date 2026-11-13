@@ -55,4 +55,23 @@ export const gu: UserTranslations = {
   'user.error.oauthVerificationFailed': 'OAuth ચકાસણી નિષ્ફળ.',
   'user.error.failedToCreateUser': 'વપરાશકર્તા બનાવવામાં નિષ્ફળ.',
   'user.error.oauthLoginFailed': 'OAuth લૉગિન નિષ્ફળ.',
+  'user.error.unauthorized': 'અનધિકૃત',
+  'user.error.passwordTooLong': 'પાસવર્ડ વધુમાં વધુ {{max}} અક્ષરોનો હોવો જોઈએ.',
+  'user.error.passwordTooShort': 'પાસવર્ડ ઓછામાં ઓછા {{min}} અક્ષરોનો હોવો જોઈએ.',
+  'user.error.tooManyRequests': 'ઘણા બધા પ્રયાસો થયા. કૃપા કરીને રાહ જુઓ અને ફરી પ્રયાસ કરો.',
+  'user.error.webhookUnauthorized': 'અનધિકૃત ચુકવણી સૂચના',
+  'user.error.credentialsNested':
+    'આ લોગિન એન્ડપોઇન્ટ ટોચના સ્તરે ઓળખપત્રો વાંચે છે, પરંતુ આ બોડી તેમને {{envelope}} હેઠળ રાખે છે. loginEndpoint ને તે રૂટ પર સેટ કરો જે આ પરબિડીયું ખોલે છે, અથવા handlers.logIn પહેલાં req.body[ {{envelope}}] ખોલવા માટે mapRequest સાથે createRequestHandler નો ઉપયોગ કરો.',
+  'user.error.oauthStateMismatch': 'OAuth સ્થિતિ મિસમેચ — શક્ય CSRF હુમલો',
+  'user.error.avatarTooLarge': 'અવતાર {{max}} અક્ષરો અથવા તેનાથી ઓછાનો હોવો જોઈએ.',
+  'user.error.bioTooLong': 'બાયો {{max}} અક્ષરો અથવા તેનાથી ઓછા હોવા જોઈએ.',
+  'user.error.noUpdatableFields': 'કોઈ અપડેટ કરી શકાય તેવા ક્ષેત્રો આપવામાં આવ્યા ન હતા.',
+  'user.error.oauthDataInvalid': 'oauthData એક ઑબ્જેક્ટ હોવો જોઈએ.',
+  'user.error.subscriptionActivationRequiresVerification':
+    'સબ્સ્ક્રિપ્શન સક્રિયકરણ રસીદ ચકાસણીમાંથી પસાર થવું આવશ્યક છે — POST /users /:id/verify-payment/:provider નો ઉપયોગ કરો.',
+  'user.payment.noBillingAccount': 'આ વપરાશકર્તા માટે કોઈ {{provider}} બિલિંગ એકાઉન્ટ મળ્યું નથી.',
+  'user.payment.portalFailed': '{{provider}} બિલિંગ પોર્ટલ ખોલી શકાયું નથી.',
+  'user.payment.portalNotSupported': '{{provider}} બિલિંગ પોર્ટલ ઓફર કરતું નથી.',
+  'user.payment.subscriptionOwnershipMismatch': 'આ સબ્સ્ક્રિપ્શન તમારા ખાતાનું નથી.',
+  'user.payment.transactionAlreadyClaimed': 'આ ખરીદી પહેલાથી જ બીજા એકાઉન્ટ સાથે સંકળાયેલી છે.',
 }

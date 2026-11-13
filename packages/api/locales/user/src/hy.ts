@@ -56,4 +56,23 @@ export const hy: UserTranslations = {
   'user.error.oauthVerificationFailed': 'OAuth stugumny dzakhogvec.',
   'user.error.failedToCreateUser': 'Ogtagorcoghy steghcely dzakhogvec.',
   'user.error.oauthLoginFailed': 'OAuth mutqy dzakhogvec.',
+  'user.error.unauthorized': 'Չարտոնված',
+  'user.error.passwordTooLong': 'Գաղտնաբառը պետք է պարունակի առավելագույնը {{max}} նիշ',
+  'user.error.passwordTooShort': 'Գաղտնաբառը պետք է լինի առնվազն {{min}} նիշ',
+  'user.error.tooManyRequests': 'Չափազանց շատ փորձեր։ Խնդրում ենք սպասել և կրկին փորձել։',
+  'user.error.webhookUnauthorized': 'Անօրինական վճարման մասին ծանուցում',
+  'user.error.credentialsNested':
+    'Այս մուտքի վերջնակետը կարդում է մուտքի տվյալները վերին մակարդակում, բայց այս մարմինը դրանք տեղադրում է {{envelope}} ի տակ։ Սահմանեք loginEndpoint-ը այն երթուղու վրա, որը բացում է այս ծրարը, կամ օգտագործեք createRequestHandler-ը mapRequest-ի հետ՝ handlers.logIn-ից առաջ req.body[ {{envelope}}]-ը բացելու համար։',
+  'user.error.oauthStateMismatch': 'OAuth վիճակի անհամապատասխանություն՝ հնարավոր CSRF հարձակում',
+  'user.error.avatarTooLarge': 'Ավատարը պետք է լինի {{max}} կամ պակաս նիշ։',
+  'user.error.bioTooLong': 'Կենսագրությունը պետք է լինի {{max}} կամ պակաս նիշ։',
+  'user.error.noUpdatableFields': 'Թարմացվող դաշտեր չեն տրամադրվել։',
+  'user.error.oauthDataInvalid': 'oauthData-ն պետք է օբյեկտ լինի։',
+  'user.error.subscriptionActivationRequiresVerification':
+    'Բաժանորդագրության ակտիվացումը պետք է անցնի կտրոնի ստուգման միջոցով՝ օգտագործեք POST /users /:id/verify-payment/:provider հրամանը։',
+  'user.payment.noBillingAccount': 'Այս օգտատիրոջ համար {{provider}} վճարային հաշիվ չի գտնվել։',
+  'user.payment.portalFailed': 'Հնարավոր չէ բացել {{provider}} վճարային պորտալը։',
+  'user.payment.portalNotSupported': '{{provider}} չի առաջարկում վճարման պորտալ։',
+  'user.payment.subscriptionOwnershipMismatch': 'Այս բաժանորդագրությունը չի պատկանում ձեր հաշվին։',
+  'user.payment.transactionAlreadyClaimed': 'Այս գնումն արդեն կապված է մեկ այլ հաշվի հետ։',
 }

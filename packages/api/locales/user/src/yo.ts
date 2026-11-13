@@ -56,4 +56,24 @@ export const yo: UserTranslations = {
   'user.error.oauthVerificationFailed': 'Ijẹrisi OAuth kuna.',
   'user.error.failedToCreateUser': 'Ṣiṣẹda olumulo kuna.',
   'user.error.oauthLoginFailed': 'Wiwọle OAuth kuna.',
+  'user.error.unauthorized': 'Àìní àṣẹ',
+  'user.error.passwordTooLong': 'Ọ̀rọ̀ìpamọ́ gbọ́dọ̀ jẹ́ ní iye àmì {{max}} tó pọ̀jù',
+  'user.error.passwordTooShort': 'Ọ̀rọ̀ìpamọ́ gbọ́dọ̀ jẹ́ ó kéré tán àwọn ohun kikọ {{min}}',
+  'user.error.tooManyRequests':
+    'Àwọn ìgbìyànjú tó pọ̀ jù. Jọ̀wọ́ dúró kí o sì tún gbìyànjú lẹ́ẹ̀kan síi.',
+  'user.error.webhookUnauthorized': 'Ìfitónilétí ìsanwó tí a kò fún ní àṣẹ',
+  'user.error.credentialsNested':
+    'Àkókò ìwọ̀lé yìí máa ń ka àwọn ìwé ẹ̀rí ní ìpele òkè, ṣùgbọ́n ara yìí máa ń gbé wọn sí abẹ́ {{envelope}}. Ṣètò loginEndpoint sí ipa ọ̀nà tí ó ń tú àpò ìwé yìí, tàbí lo createRequestHandler pẹ̀lú mapRequest láti tú req.body[ {{envelope}}] ṣáájú handlers.logIn.',
+  'user.error.oauthStateMismatch': 'Àìbáramu ìpínlẹ̀ OAuth — ó ṣeéṣe kí ìkọlù CSRF',
+  'user.error.avatarTooLarge': 'Àfàtá gbọ́dọ̀ jẹ́ àwọn ohun kikọ {{max}} tàbí kí ó dín sí i.',
+  'user.error.bioTooLong': 'Ìtàn ayélujára gbọ́dọ̀ jẹ́ àwọn ohun kikọ {{max}} tàbí kí ó dín sí i.',
+  'user.error.noUpdatableFields': 'A ko pese awọn aaye imudojuiwọn kankan.',
+  'user.error.oauthDataInvalid': 'oauthData gbọdọ jẹ́ ohun kan.',
+  'user.error.subscriptionActivationRequiresVerification':
+    'Ìmúṣiṣẹ́ ìforúkọsílẹ̀ gbọ́dọ̀ lọ nípasẹ̀ ìjẹ́rìísí rísí — lo POST /users /:id/verify-payment/:provider.',
+  'user.payment.noBillingAccount': 'A kò rí àkọọ́lẹ̀ ìsanwó {{provider}} fún olùlò yìí.',
+  'user.payment.portalFailed': 'Kò le ṣí ojú ọ̀nà ìsanwó {{provider}} .',
+  'user.payment.portalNotSupported': '{{provider}} ko funni ni oju opo wẹẹbu isanwo.',
+  'user.payment.subscriptionOwnershipMismatch': 'Iforukosile yii ko si ninu akoto re.',
+  'user.payment.transactionAlreadyClaimed': 'Rira yii ti ni asopọ pẹlu akọọlẹ miiran tẹlẹ.',
 }

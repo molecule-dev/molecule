@@ -56,4 +56,23 @@ export const ig: UserTranslations = {
   'user.error.oauthVerificationFailed': 'Nnyocha OAuth agaghị.',
   'user.error.failedToCreateUser': 'Enweghị ike ịmepụta onye ọrụ.',
   'user.error.oauthLoginFailed': 'Ịbanye OAuth agaghị.',
+  'user.error.unauthorized': 'Enweghị ikike',
+  'user.error.passwordTooLong': 'Paswọọdụ ga-abụrịrị mkpụrụedemede {{max}} kacha',
+  'user.error.passwordTooShort': 'Paswọọdụ ga-abụrịrị ma ọ dịkarịa ala mkpụrụedemede {{min}}',
+  'user.error.tooManyRequests': 'Mgbalị dị oke ukwuu. Biko chere ma nwaa ọzọ.',
+  'user.error.webhookUnauthorized': 'Ọkwa ịkwụ ụgwọ na-akwadoghị',
+  'user.error.credentialsNested':
+    "Ebe njedebe nbanye a na-agụ nzere dị na ọkwa kachasị elu, mana ahụ a na-etinye ha n'okpuru {{envelope}}. Debe loginEndpoint na ụzọ nke na-emeghe envelopu a, ma ọ bụ jiri createRequestHandler na mapRequest iji mepee req.body[ {{envelope}}] tupu handlers.logIn.",
+  'user.error.oauthStateMismatch': 'Enweghị nkwekọ na steeti OAuth — mwakpo CSRF nwere ike ime',
+  'user.error.avatarTooLarge': 'Avatar ga-abụrịrị mkpụrụedemede {{max}} ma ọ bụ pere mpe.',
+  'user.error.bioTooLong': 'Ihe odide ndụ ga-abụrịrị mkpụrụedemede {{max}} ma ọ bụ pere mpe.',
+  'user.error.noUpdatableFields': 'E nyeghị ubi emelitere.',
+  'user.error.oauthDataInvalid': 'oauthData ga-abụrịrị ihe.',
+  'user.error.subscriptionActivationRequiresVerification':
+    'Iji mee ka ndebanye aha rụọ ọrụ, a ga-enyocha nkwenye nnata — jiri POST /users /:id/verify-payment/:provider.',
+  'user.payment.noBillingAccount': 'A hụghị akaụntụ ịkwụ ụgwọ {{provider}} maka onye ọrụ a.',
+  'user.payment.portalFailed': 'Enweghị ike imepe ọnụ ụzọ ịkwụ ụgwọ {{provider}} .',
+  'user.payment.portalNotSupported': '{{provider}} anaghị enye ọnụ ụzọ ịkwụ ụgwọ.',
+  'user.payment.subscriptionOwnershipMismatch': 'Ndebanye aha a abụghị nke akaụntị gị.',
+  'user.payment.transactionAlreadyClaimed': 'Nzụta a ejikọtala na akaụntụ ọzọ.',
 }

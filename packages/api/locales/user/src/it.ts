@@ -57,4 +57,26 @@ export const it: UserTranslations = {
   'user.error.oauthVerificationFailed': 'La verifica OAuth è fallita.',
   'user.error.failedToCreateUser': "Impossibile creare l'utente.",
   'user.error.oauthLoginFailed': "L'accesso OAuth è fallito.",
+  'user.error.unauthorized': 'Non autorizzato',
+  'user.error.passwordTooLong': 'La password deve contenere al massimo {{max}} caratteri',
+  'user.error.passwordTooShort': 'La password deve essere lunga almeno {{min}} caratteri',
+  'user.error.tooManyRequests': 'Troppi tentativi. Attendi e riprova.',
+  'user.error.webhookUnauthorized': 'Notifica di pagamento non autorizzato',
+  'user.error.credentialsNested':
+    'Questo endpoint di login legge le credenziali al livello superiore, ma questo corpo le annida sotto {{envelope}}. Imposta loginEndpoint sulla rotta che estrae questo envelope, oppure usa createRequestHandler con mapRequest per estrarre req.body[ {{envelope}}] prima di handlers.logIn.',
+  'user.error.oauthStateMismatch':
+    'Mancata corrispondenza dello stato OAuth: possibile attacco CSRF.',
+  'user.error.avatarTooLarge': "L'avatar deve contenere al massimo {{max}} caratteri.",
+  'user.error.bioTooLong': 'La biografia deve contenere al massimo {{max}} caratteri.',
+  'user.error.noUpdatableFields': 'Non erano previsti campi aggiornabili.',
+  'user.error.oauthDataInvalid': 'oauthData deve essere un oggetto.',
+  'user.error.subscriptionActivationRequiresVerification':
+    "L'attivazione dell'abbonamento deve passare attraverso la verifica della ricevuta: utilizzare POST /users /:id/verify-payment/:provider.",
+  'user.payment.noBillingAccount':
+    'Nessun account di fatturazione {{provider}} trovato per questo utente.',
+  'user.payment.portalFailed': 'Impossibile aprire il portale di fatturazione {{provider}} .',
+  'user.payment.portalNotSupported': '{{provider}} non offre un portale di fatturazione.',
+  'user.payment.subscriptionOwnershipMismatch':
+    'Questo abbonamento non è associato al tuo account.',
+  'user.payment.transactionAlreadyClaimed': 'Questo acquisto è già associato a un altro account.',
 }

@@ -56,4 +56,24 @@ export const bg: UserTranslations = {
   'user.error.oauthVerificationFailed': 'OAuth верификацията е неуспешна.',
   'user.error.failedToCreateUser': 'Неуспешно създаване на потребител.',
   'user.error.oauthLoginFailed': 'OAuth влизането е неуспешно.',
+  'user.error.unauthorized': 'Неоторизирано',
+  'user.error.passwordTooLong': 'Паролата трябва да съдържа най-много {{max}} знака',
+  'user.error.passwordTooShort': 'Паролата трябва да е поне {{min}} знака',
+  'user.error.tooManyRequests': 'Твърде много опити. Моля, изчакайте и опитайте отново.',
+  'user.error.webhookUnauthorized': 'Известие за неоторизирано плащане',
+  'user.error.credentialsNested':
+    'Тази крайна точка за вход чете идентификационните данни на най-горно ниво, но това тяло ги влага под {{envelope}}. Задайте loginEndpoint на маршрута, който разопакова този плик, или използвайте createRequestHandler с mapRequest, за да разопаковате req.body[ {{envelope}}] преди handlers.logIn.',
+  'user.error.oauthStateMismatch': 'Несъответствие на състоянието на OAuth — възможна CSRF атака',
+  'user.error.avatarTooLarge': 'Аватарът трябва да съдържа {{max}} знака или по-малко.',
+  'user.error.bioTooLong': 'Биографията трябва да е {{max}} знака или по-малко.',
+  'user.error.noUpdatableFields': 'Не бяха предоставени полета за актуализиране.',
+  'user.error.oauthDataInvalid': 'oauthData трябва да е обект.',
+  'user.error.subscriptionActivationRequiresVerification':
+    'Активирането на абонамента трябва да премине през проверка на разписката — използвайте POST /users /:id/verify-payment/:provider.',
+  'user.payment.noBillingAccount':
+    'Не е намерен акаунт за фактуриране {{provider}} за този потребител.',
+  'user.payment.portalFailed': 'Не можа да се отвори порталът за фактуриране на {{provider}} .',
+  'user.payment.portalNotSupported': '{{provider}} не предлага портал за фактуриране.',
+  'user.payment.subscriptionOwnershipMismatch': 'Този абонамент не принадлежи към вашия акаунт.',
+  'user.payment.transactionAlreadyClaimed': 'Тази покупка вече е свързана с друг акаунт.',
 }

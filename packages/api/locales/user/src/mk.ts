@@ -56,4 +56,24 @@ export const mk: UserTranslations = {
   'user.error.oauthVerificationFailed': 'OAuth верификацијата не успеа.',
   'user.error.failedToCreateUser': 'Неуспешно создавање на корисник.',
   'user.error.oauthLoginFailed': 'OAuth најавата не успеа.',
+  'user.error.unauthorized': 'Неовластено',
+  'user.error.passwordTooLong': 'Лозинката мора да има најмногу {{max}} знаци',
+  'user.error.passwordTooShort': 'Лозинката мора да има најмалку {{min}} знаци',
+  'user.error.tooManyRequests': 'Премногу обиди. Ве молиме почекајте и обидете се повторно.',
+  'user.error.webhookUnauthorized': 'Известување за неовластено плаќање',
+  'user.error.credentialsNested':
+    'Оваа крајна точка за најавување ги чита акредитивите на највисоко ниво, но ова тело ги вгнездува под {{envelope}}. Поставете го loginEndpoint на рутата што го одмотува овој плик или користете createRequestHandler со mapRequest за да го одмотите req.body[ {{envelope}}] пред handlers.logIn.',
+  'user.error.oauthStateMismatch': 'Несовпаѓање на состојбата на OAuth — можен CSRF напад',
+  'user.error.avatarTooLarge': 'Аватарот мора да има {{max}} или помалку знаци.',
+  'user.error.bioTooLong': 'Биографијата мора да има {{max}} или помалку знаци.',
+  'user.error.noUpdatableFields': 'Не беа обезбедени полиња за ажурирање.',
+  'user.error.oauthDataInvalid': 'oauthData мора да биде објект.',
+  'user.error.subscriptionActivationRequiresVerification':
+    'Активирањето на претплатата мора да помине низ проверка на сметката — користете POST /users /:id/verify-payment/:provider.',
+  'user.payment.noBillingAccount':
+    'Не е пронајдена сметка за наплата {{provider}} за овој корисник.',
+  'user.payment.portalFailed': 'Не може да се отвори порталот за наплата {{provider}} .',
+  'user.payment.portalNotSupported': '{{provider}} не нуди портал за наплата.',
+  'user.payment.subscriptionOwnershipMismatch': 'Оваа претплата не припаѓа на вашата сметка.',
+  'user.payment.transactionAlreadyClaimed': 'Оваа купување е веќе поврзана со друга сметка.',
 }

@@ -56,4 +56,26 @@ export const ja: UserTranslations = {
   'user.error.oauthVerificationFailed': 'OAuth認証に失敗しました。',
   'user.error.failedToCreateUser': 'ユーザーの作成に失敗しました。',
   'user.error.oauthLoginFailed': 'OAuthログインに失敗しました。',
+  'user.error.unauthorized': '許可されていない',
+  'user.error.passwordTooLong': 'パスワードは最大{{max}}文字までです。',
+  'user.error.passwordTooShort': 'パスワードは少なくとも{{min}}文字である必要があります',
+  'user.error.tooManyRequests':
+    '試行回数が多すぎます。しばらくお待ちいただき、もう一度お試しください。',
+  'user.error.webhookUnauthorized': '不正支払い通知',
+  'user.error.credentialsNested':
+    'このログインエンドポイントは最上位レベルで認証情報を読み取りますが、このボディはそれらを{{envelope}}の下にネストします。loginEndpoint をこのエンベロープを展開するルートに設定するか、mapRequest で createRequestHandler を使用して、handlers.logIn の前に req.body[ {{envelope}}] を展開してください。',
+  'user.error.oauthStateMismatch': 'OAuthの状態不一致 - CSRF攻撃の可能性',
+  'user.error.avatarTooLarge': 'アバターは{{max}}文字以下でなければなりません。',
+  'user.error.bioTooLong': '自己紹介文は{{max}}文字以下でなければなりません。',
+  'user.error.noUpdatableFields': '更新可能なフィールドは提供されていません。',
+  'user.error.oauthDataInvalid': 'oauthDataはオブジェクトである必要があります。',
+  'user.error.subscriptionActivationRequiresVerification':
+    'サブスクリプションの有効化には領収書の検証が必要です。POST /users /:id/verify-payment/:provider を使用してください。',
+  'user.payment.noBillingAccount':
+    'このユーザーの{{provider}}請求アカウントが見つかりませんでした。',
+  'user.payment.portalFailed': '{{provider}}請求ポータルを開くことができませんでした。',
+  'user.payment.portalNotSupported': '{{provider}}は請求ポータルを提供していません。',
+  'user.payment.subscriptionOwnershipMismatch':
+    'このサブスクリプションはあなたのアカウントには紐づいていません。',
+  'user.payment.transactionAlreadyClaimed': 'この購入は既に別のアカウントに関連付けられています。',
 }

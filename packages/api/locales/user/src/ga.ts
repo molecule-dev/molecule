@@ -56,4 +56,24 @@ export const ga: UserTranslations = {
   'user.error.oauthVerificationFailed': 'Theip ar fhíorú OAuth.',
   'user.error.failedToCreateUser': 'Theip ar chruthú úsáideora.',
   'user.error.oauthLoginFailed': 'Theip ar logáil isteach OAuth.',
+  'user.error.unauthorized': 'Neamhúdaraithe',
+  'user.error.passwordTooLong': 'Ní mór an focal faire a bheith {{max}} carachtar ar a mhéad',
+  'user.error.passwordTooShort': 'Ní mór don phasfhocal {{min}} carachtar ar a laghad a bheith ann',
+  'user.error.tooManyRequests': 'An iomarca iarrachtaí. Fan agus déan iarracht arís.',
+  'user.error.webhookUnauthorized': 'Fógra íocaíochta neamhúdaraithe',
+  'user.error.credentialsNested':
+    'Léann an pointe deiridh logála isteach seo dintiúir ag an leibhéal is airde, ach neadaíonn an corp seo iad faoi {{envelope}}. Socraigh loginEndpoint chuig an mbealach a dhífhillfidh an clúdach seo, nó bain úsáid as createRequestHandler le mapRequest chun req.body[ {{envelope}}] a dhífhilleadh roimh handlers.logIn.',
+  'user.error.oauthStateMismatch': 'Neamhoiriúnacht stáit OAuth — ionsaí CSRF féideartha',
+  'user.error.avatarTooLarge': 'Ní mór don avatar {{max}} carachtar nó níos lú a bheith ann.',
+  'user.error.bioTooLong': 'Ní mór do bheathaisnéis a bheith {{max}} carachtar nó níos lú.',
+  'user.error.noUpdatableFields': 'Níor soláthraíodh aon réimsí in-nuashonraithe.',
+  'user.error.oauthDataInvalid': 'Ní mór do oauthData a bheith ina réad.',
+  'user.error.subscriptionActivationRequiresVerification':
+    'Ní mór fíorú admhála a dhéanamh chun an síntiús a ghníomhachtú — bain úsáid as POST /users /:id/verify-payment/:provider.',
+  'user.payment.noBillingAccount': 'Níor aimsíodh cuntas billeála {{provider}} don úsáideoir seo.',
+  'user.payment.portalFailed': 'Níorbh fhéidir tairseach billeála {{provider}} a oscailt.',
+  'user.payment.portalNotSupported': 'Ní thairgeann {{provider}} tairseach billeála.',
+  'user.payment.subscriptionOwnershipMismatch': 'Ní bhaineann an síntiús seo le do chuntas.',
+  'user.payment.transactionAlreadyClaimed':
+    'Tá an ceannachán seo ceangailte le cuntas eile cheana féin.',
 }

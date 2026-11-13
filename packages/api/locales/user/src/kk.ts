@@ -56,4 +56,25 @@ export const kk: UserTranslations = {
   'user.error.oauthVerificationFailed': 'OAuth тексеруі сәтсіз аяқталды.',
   'user.error.failedToCreateUser': 'Пайдаланушы жасау сәтсіз аяқталды.',
   'user.error.oauthLoginFailed': 'OAuth кіру сәтсіз аяқталды.',
+  'user.error.unauthorized': 'Рұқсат етілмеген',
+  'user.error.passwordTooLong': 'Құпия сөз ең көбі {{max}} таңбадан тұруы керек',
+  'user.error.passwordTooShort': 'Құпия сөз кемінде {{min}} таңбадан тұруы керек',
+  'user.error.tooManyRequests': 'Тым көп әрекет жасалды. Күте тұрып, қайталап көріңіз.',
+  'user.error.webhookUnauthorized': 'Рұқсат етілмеген төлем туралы хабарландыру',
+  'user.error.credentialsNested':
+    'Бұл кіру нүктесі жоғарғы деңгейде тіркелгі деректерін оқиды, бірақ бұл дене оларды {{envelope}} астында орналастырады. loginEndpoint функциясын осы конвертті ашатын маршрутқа орнатыңыз немесе handlers.logIn алдында req.body[ {{envelope}}] файлын ашу үшін mapRequest функциясымен бірге createRequestHandler функциясын пайдаланыңыз.',
+  'user.error.oauthStateMismatch': 'OAuth күйінің сәйкессіздігі — CSRF шабуылы болуы мүмкін',
+  'user.error.avatarTooLarge': 'Аватар {{max}} таңбадан немесе одан аз болуы керек.',
+  'user.error.bioTooLong': 'Өмірбаян {{max}} таңбадан тұруы керек немесе одан аз болуы керек.',
+  'user.error.noUpdatableFields': 'Жаңартылатын өрістер берілмеді.',
+  'user.error.oauthDataInvalid': 'oauthData нысан болуы керек.',
+  'user.error.subscriptionActivationRequiresVerification':
+    'Жазылымды белсендіру түбіртекті тексеруден өтуі керек — POST /users /:id/verify-payment/:provider пайдаланыңыз.',
+  'user.payment.noBillingAccount':
+    'Бұл пайдаланушы үшін {{provider}} төлем есептік жазбасы табылмады.',
+  'user.payment.portalFailed': '{{provider}} төлем порталын ашу мүмкін болмады.',
+  'user.payment.portalNotSupported': '{{provider}} төлем порталын ұсынбайды.',
+  'user.payment.subscriptionOwnershipMismatch': 'Бұл жазылым сіздің аккаунтыңызға тиесілі емес.',
+  'user.payment.transactionAlreadyClaimed':
+    'Бұл сатып алу басқа есептік жазбамен байланыстырылған.',
 }

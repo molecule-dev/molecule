@@ -56,4 +56,24 @@ export const hu: UserTranslations = {
   'user.error.oauthVerificationFailed': 'Az OAuth ellenőrzés sikertelen.',
   'user.error.failedToCreateUser': 'A felhasználó létrehozása sikertelen.',
   'user.error.oauthLoginFailed': 'Az OAuth bejelentkezés sikertelen.',
+  'user.error.unauthorized': 'Jogosulatlan',
+  'user.error.passwordTooLong': 'A jelszó legfeljebb {{max}} karakterből állhat',
+  'user.error.passwordTooShort': 'A jelszónak legalább {{min}} karakterből kell állnia',
+  'user.error.tooManyRequests': 'Túl sok próbálkozás. Kérjük, várjon, és próbálja újra.',
+  'user.error.webhookUnauthorized': 'Értesítés jogosulatlan fizetésről',
+  'user.error.credentialsNested':
+    'Ez a bejelentkezési végpont a legfelső szinten olvassa a hitelesítő adatokat, de ez a törzs {{envelope}} alá ágyazza be őket. Állítsa a loginEndpoint értéket arra az útvonalra, amely kibontja ezt a borítékot, vagy használja a createRequestHandler metódust a mapRequest-tel a req.body[ {{envelope}}] kicsomagolásához a handlers.logIn előtt.',
+  'user.error.oauthStateMismatch': 'OAuth állapoteltérés — lehetséges CSRF támadás',
+  'user.error.avatarTooLarge': 'Az avatar legfeljebb {{max}} karakterből állhat.',
+  'user.error.bioTooLong': 'Az életrajz legfeljebb {{max}} karakterből állhat.',
+  'user.error.noUpdatableFields': 'Nem adtak meg frissíthető mezőket.',
+  'user.error.oauthDataInvalid': 'Az oauthData-nak objektumnak kell lennie.',
+  'user.error.subscriptionActivationRequiresVerification':
+    'Az előfizetés aktiválásának nyugta-ellenőrzésen kell keresztülmennie — ehhez a POST /users /:id/verify-payment/:provider parancsot kell használnia.',
+  'user.payment.noBillingAccount':
+    'Nem található {{provider}} számlázási fiók ehhez a felhasználóhoz.',
+  'user.payment.portalFailed': 'Nem sikerült megnyitni a {{provider}} számlázási portált.',
+  'user.payment.portalNotSupported': '{{provider}} nem kínál számlázási portált.',
+  'user.payment.subscriptionOwnershipMismatch': 'Ez az előfizetés nem a fiókodhoz tartozik.',
+  'user.payment.transactionAlreadyClaimed': 'Ez a vásárlás már egy másik fiókhoz van társítva.',
 }

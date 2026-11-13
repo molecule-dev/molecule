@@ -56,4 +56,24 @@ export const sv: UserTranslations = {
   'user.error.oauthVerificationFailed': 'OAuth-verifiering misslyckades.',
   'user.error.failedToCreateUser': 'Kunde inte skapa användare.',
   'user.error.oauthLoginFailed': 'OAuth-inloggning misslyckades.',
+  'user.error.unauthorized': 'Obehörig',
+  'user.error.passwordTooLong': 'Lösenordet får vara högst {{max}} tecken långt',
+  'user.error.passwordTooShort': 'Lösenordet måste vara minst {{min}} tecken långt',
+  'user.error.tooManyRequests': 'För många försök. Vänta och försök igen.',
+  'user.error.webhookUnauthorized': 'Meddelande om obehörig betalning',
+  'user.error.credentialsNested':
+    'Denna inloggningsslutpunkt läser inloggningsuppgifter på den översta nivån, men den här brödtexten kapslar dem under {{envelope}}. Sätt loginEndpoint till den rutt som packar upp detta kuvert, eller använd createRequestHandler med mapRequest för att packa upp req.body[ {{envelope}}] före handlers.logIn.',
+  'user.error.oauthStateMismatch': 'OAuth-tillståndsmatchning – möjlig CSRF-attack',
+  'user.error.avatarTooLarge': 'Avataren måste vara högst {{max}} tecken lång.',
+  'user.error.bioTooLong': 'Biografin måste vara högst {{max}} tecken lång.',
+  'user.error.noUpdatableFields': 'Inga uppdateringsbara fält tillhandahölls.',
+  'user.error.oauthDataInvalid': 'oauthData måste vara ett objekt.',
+  'user.error.subscriptionActivationRequiresVerification':
+    'Prenumerationsaktivering måste gå igenom kvittoverifiering — använd POST /users /:id/verify-payment/:provider.',
+  'user.payment.noBillingAccount':
+    'Inget {{provider}} faktureringskonto hittades för den här användaren.',
+  'user.payment.portalFailed': 'Kunde inte öppna faktureringsportalen för {{provider}} .',
+  'user.payment.portalNotSupported': '{{provider}} erbjuder inte en faktureringsportal.',
+  'user.payment.subscriptionOwnershipMismatch': 'Den här prenumerationen tillhör inte ditt konto.',
+  'user.payment.transactionAlreadyClaimed': 'Detta köp är redan kopplat till ett annat konto.',
 }

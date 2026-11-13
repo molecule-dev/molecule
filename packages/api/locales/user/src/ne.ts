@@ -56,4 +56,23 @@ export const ne: UserTranslations = {
   'user.error.oauthVerificationFailed': 'OAuth प्रमाणीकरण असफल।',
   'user.error.failedToCreateUser': 'प्रयोगकर्ता सिर्जना गर्न असफल।',
   'user.error.oauthLoginFailed': 'OAuth लगइन असफल।',
+  'user.error.unauthorized': 'अनधिकृत',
+  'user.error.passwordTooLong': 'पासवर्ड बढीमा {{max}} वर्णको हुनुपर्छ।',
+  'user.error.passwordTooShort': 'पासवर्ड कम्तिमा {{min}} वर्णको हुनुपर्छ।',
+  'user.error.tooManyRequests': 'धेरै प्रयासहरू भए। कृपया पर्खनुहोस् र फेरि प्रयास गर्नुहोस्।',
+  'user.error.webhookUnauthorized': 'अनधिकृत भुक्तानी सूचना',
+  'user.error.credentialsNested':
+    'यो लगइन एन्डपोइन्टले माथिल्लो स्तरमा प्रमाणपत्रहरू पढ्छ, तर यो बडीले तिनीहरूलाई {{envelope}} अन्तर्गत राख्छ। loginEndpoint लाई यो खाम खोल्ने मार्गमा सेट गर्नुहोस्, वा handlers.logIn अघि req.body[ {{envelope}}] खोल्न mapRequest सँग createRequestHandler प्रयोग गर्नुहोस्।',
+  'user.error.oauthStateMismatch': 'OAuth अवस्था बेमेल — सम्भावित CSRF आक्रमण',
+  'user.error.avatarTooLarge': 'अवतार {{max}} वर्ण वा सोभन्दा कम हुनुपर्छ।',
+  'user.error.bioTooLong': 'बायो {{max}} वर्ण वा सोभन्दा कम हुनुपर्छ।',
+  'user.error.noUpdatableFields': 'कुनै पनि अद्यावधिक गर्न सकिने क्षेत्रहरू प्रदान गरिएको थिएन।',
+  'user.error.oauthDataInvalid': 'oauthData एउटा वस्तु हुनुपर्छ।',
+  'user.error.subscriptionActivationRequiresVerification':
+    'सदस्यता सक्रियता रसिद प्रमाणीकरण मार्फत जानुपर्छ — POST /users /:id/verify-payment/:provider प्रयोग गर्नुहोस्।',
+  'user.payment.noBillingAccount': 'यस प्रयोगकर्ताको लागि कुनै {{provider}} बिलिङ खाता फेला परेन।',
+  'user.payment.portalFailed': '{{provider}} बिलिङ पोर्टल खोल्न सकिएन।',
+  'user.payment.portalNotSupported': '{{provider}} बिलिङ पोर्टल प्रदान गर्दैन।',
+  'user.payment.subscriptionOwnershipMismatch': 'यो सदस्यता तपाईंको खातासँग सम्बन्धित छैन।',
+  'user.payment.transactionAlreadyClaimed': 'यो खरिद पहिले नै अर्को खातासँग सम्बन्धित छ।',
 }

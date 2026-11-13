@@ -7,6 +7,7 @@ import { hash } from '@molecule/api-password'
 import type { MoleculeRequest } from '@molecule/api-resource'
 
 import { invalidateAllDeviceExistsCache } from '../authorization.js'
+import { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH } from '../schema.js'
 import type * as types from '../types.js'
 import { hashResetToken } from '../utilities/hashResetToken.js'
 
@@ -81,25 +82,33 @@ export const resetPassword = ({
         }
       }
 
-      if (password.length < 8) {
+      if (password.length < MIN_PASSWORD_LENGTH) {
         return {
           statusCode: 400,
           body: {
-            error: t('user.error.passwordTooShort', undefined, {
-              defaultValue: 'Password must be at least 8 characters',
-            }),
+            error: t(
+              'user.error.passwordTooShort',
+              { min: MIN_PASSWORD_LENGTH },
+              {
+                defaultValue: 'Password must be at least {{min}} characters',
+              },
+            ),
             errorKey: 'user.error.passwordTooShort',
           },
         }
       }
 
-      if (password.length > 1024) {
+      if (password.length > MAX_PASSWORD_LENGTH) {
         return {
           statusCode: 400,
           body: {
-            error: t('user.error.passwordTooLong', undefined, {
-              defaultValue: 'Password must be at most 1024 characters',
-            }),
+            error: t(
+              'user.error.passwordTooLong',
+              { max: MAX_PASSWORD_LENGTH },
+              {
+                defaultValue: 'Password must be at most {{max}} characters',
+              },
+            ),
             errorKey: 'user.error.passwordTooLong',
           },
         }

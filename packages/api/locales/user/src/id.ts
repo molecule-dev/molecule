@@ -56,4 +56,24 @@ export const id: UserTranslations = {
   'user.error.oauthVerificationFailed': 'Verifikasi OAuth gagal.',
   'user.error.failedToCreateUser': 'Gagal membuat pengguna.',
   'user.error.oauthLoginFailed': 'Login OAuth gagal.',
+  'user.error.unauthorized': 'Tidak sah',
+  'user.error.passwordTooLong': 'Kata sandi harus paling banyak terdiri dari {{max}} karakter.',
+  'user.error.passwordTooShort': 'Kata sandi harus minimal {{min}} karakter.',
+  'user.error.tooManyRequests': 'Terlalu banyak percobaan. Mohon tunggu dan coba lagi.',
+  'user.error.webhookUnauthorized': 'Pemberitahuan pembayaran tidak sah',
+  'user.error.credentialsNested':
+    'Endpoint login ini membaca kredensial di tingkat atas, tetapi body ini membungkusnya di bawah {{envelope}}. Atur loginEndpoint ke rute yang membuka bungkus envelope ini, atau gunakan createRequestHandler dengan mapRequest untuk membuka bungkus req.body[ {{envelope}}] sebelum handlers.logIn.',
+  'user.error.oauthStateMismatch': 'Ketidaksesuaian status OAuth — kemungkinan serangan CSRF',
+  'user.error.avatarTooLarge': 'Avatar harus memiliki {{max}} karakter atau kurang.',
+  'user.error.bioTooLong': 'Bio harus berisi {{max}} karakter atau kurang.',
+  'user.error.noUpdatableFields': 'Tidak ada kolom yang dapat diperbarui yang disediakan.',
+  'user.error.oauthDataInvalid': 'oauthData harus berupa objek.',
+  'user.error.subscriptionActivationRequiresVerification':
+    'Aktivasi langganan harus melalui verifikasi tanda terima — gunakan POST /users /:id/verify-payment/:provider.',
+  'user.payment.noBillingAccount':
+    'Tidak ditemukan akun penagihan {{provider}} untuk pengguna ini.',
+  'user.payment.portalFailed': 'Tidak dapat membuka portal penagihan {{provider}} .',
+  'user.payment.portalNotSupported': '{{provider}} tidak menawarkan portal penagihan.',
+  'user.payment.subscriptionOwnershipMismatch': 'Langganan ini bukan milik akun Anda.',
+  'user.payment.transactionAlreadyClaimed': 'Pembelian ini sudah terkait dengan akun lain.',
 }

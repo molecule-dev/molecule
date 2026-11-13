@@ -56,4 +56,23 @@ export const ko: UserTranslations = {
   'user.error.oauthVerificationFailed': 'OAuth 인증에 실패했습니다.',
   'user.error.failedToCreateUser': '사용자 생성에 실패했습니다.',
   'user.error.oauthLoginFailed': 'OAuth 로그인에 실패했습니다.',
+  'user.error.unauthorized': '무단',
+  'user.error.passwordTooLong': '비밀번호는 최대 {{max}} 자여야 합니다.',
+  'user.error.passwordTooShort': '비밀번호는 최소 {{min}} 자 이상이어야 합니다.',
+  'user.error.tooManyRequests': '시도 횟수가 너무 많습니다. 잠시 기다렸다가 다시 시도해 주세요.',
+  'user.error.webhookUnauthorized': '승인되지 않은 결제 알림',
+  'user.error.credentialsNested':
+    '이 로그인 엔드포인트는 최상위 수준에서 자격 증명을 읽지만, 이 본문은 자격 증명을 {{envelope}} 아래에 중첩합니다. loginEndpoint를 이 봉투를 푸는 경로로 설정하거나, createRequestHandler를 mapRequest와 함께 사용하여 handlers.logIn 전에 req.body[ {{envelope}}]를 푸세요.',
+  'user.error.oauthStateMismatch': 'OAuth 상태 불일치 — CSRF 공격 가능성',
+  'user.error.avatarTooLarge': '아바타는 {{max}} 자 이하여야 합니다.',
+  'user.error.bioTooLong': '자기소개는 {{max}} 자 이하여야 합니다.',
+  'user.error.noUpdatableFields': '업데이트 가능한 필드가 제공되지 않았습니다.',
+  'user.error.oauthDataInvalid': 'oauthData는 객체여야 합니다.',
+  'user.error.subscriptionActivationRequiresVerification':
+    '구독 활성화는 영수증 확인을 거쳐야 합니다. POST /users /:id/verify-payment/:provider를 사용하세요.',
+  'user.payment.noBillingAccount': '이 사용자에 대한 {{provider}} 결제 계정을 찾을 수 없습니다.',
+  'user.payment.portalFailed': '{{provider}} 결제 포털을 열 수 없습니다.',
+  'user.payment.portalNotSupported': '{{provider}} 결제 포털을 제공하지 않습니다.',
+  'user.payment.subscriptionOwnershipMismatch': '이 구독은 귀하의 계정에 속하지 않습니다.',
+  'user.payment.transactionAlreadyClaimed': '이 구매는 이미 다른 계정과 연결되어 있습니다.',
 }

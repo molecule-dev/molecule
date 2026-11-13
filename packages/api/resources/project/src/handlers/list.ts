@@ -16,9 +16,10 @@ import type { Project } from '../types.js'
 export async function list(_req: MoleculeRequest, res: MoleculeResponse): Promise<void> {
   const userId = (res.locals.session as { userId?: string } | undefined)?.userId
   if (!userId) {
-    res
-      .status(401)
-      .json({ error: t('user.error.unauthorized'), errorKey: 'user.error.unauthorized' })
+    res.status(401).json({
+      error: t('user.error.unauthorized', undefined, { defaultValue: 'Unauthorized' }),
+      errorKey: 'user.error.unauthorized',
+    })
     return
   }
 
@@ -32,7 +33,9 @@ export async function list(_req: MoleculeRequest, res: MoleculeResponse): Promis
   } catch (error) {
     logger.error('Failed to list projects', { userId, error })
     res.status(500).json({
-      error: t('project.error.listFailed'),
+      error: t('project.error.listFailed', undefined, {
+        defaultValue: 'Failed to list projects',
+      }),
       errorKey: 'project.error.listFailed',
     })
   }

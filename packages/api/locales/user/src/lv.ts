@@ -56,4 +56,24 @@ export const lv: UserTranslations = {
   'user.error.oauthVerificationFailed': 'OAuth verifikācija neizdevās.',
   'user.error.failedToCreateUser': 'Neizdevās izveidot lietotāju.',
   'user.error.oauthLoginFailed': 'OAuth pieteikšanās neizdevās.',
+  'user.error.unauthorized': 'Neautorizēts',
+  'user.error.passwordTooLong': 'Parolei jābūt ne garākai par {{max}} rakstzīmēm',
+  'user.error.passwordTooShort': 'Parolei jābūt vismaz {{min}} rakstzīmju garai',
+  'user.error.tooManyRequests': 'Pārāk daudz mēģinājumu. Lūdzu, uzgaidiet un mēģiniet vēlreiz.',
+  'user.error.webhookUnauthorized': 'Paziņojums par neautorizētu maksājumu',
+  'user.error.credentialsNested':
+    'Šis pieteikšanās galapunkts nolasa akreditācijas datus augšējā līmenī, bet šis pamatteksts tos ligzdo zem {{envelope}}. Iestatiet loginEndpoint uz maršrutu, kas atver šo aploksni, vai izmantojiet createRequestHandler ar mapRequest, lai atvērtu req.body[ {{envelope}}] pirms handlers.logIn.',
+  'user.error.oauthStateMismatch': 'OAuth stāvokļa neatbilstība — iespējams CSRF uzbrukums',
+  'user.error.avatarTooLarge': 'Avatāram jābūt ne garākam par {{max}} rakstzīmēm.',
+  'user.error.bioTooLong': 'Biogrāfijas garums nedrīkst pārsniegt {{max}} rakstzīmes.',
+  'user.error.noUpdatableFields': 'Nav norādīti atjaunināmi lauki.',
+  'user.error.oauthDataInvalid': 'oauthData ir jābūt objektam.',
+  'user.error.subscriptionActivationRequiresVerification':
+    'Abonementa aktivizēšanai ir jāiziet cauri kvīts verifikācijai — izmantojiet POST /users /:id/verify-payment/:provider.',
+  'user.payment.noBillingAccount':
+    'Šim lietotājam nav atrasts neviens {{provider}} norēķinu konts.',
+  'user.payment.portalFailed': 'Nevarēja atvērt {{provider}} norēķinu portālu.',
+  'user.payment.portalNotSupported': '{{provider}} nepiedāvā norēķinu portālu.',
+  'user.payment.subscriptionOwnershipMismatch': 'Šis abonements nepieder jūsu kontam.',
+  'user.payment.transactionAlreadyClaimed': 'Šis pirkums jau ir saistīts ar citu kontu.',
 }

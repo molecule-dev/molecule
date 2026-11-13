@@ -631,9 +631,13 @@ export const provisionUser = async (
       return failed(
         'invalidPassword',
         'user.error.passwordTooLong',
-        t('user.error.passwordTooLong', undefined, {
-          defaultValue: `Password must be at most ${MAX_PASSWORD_LENGTH} characters`,
-        }),
+        t(
+          'user.error.passwordTooLong',
+          { max: MAX_PASSWORD_LENGTH },
+          {
+            defaultValue: 'Password must be at most {{max}} characters',
+          },
+        ),
       )
     }
 
@@ -641,9 +645,13 @@ export const provisionUser = async (
       return failed(
         'invalidPassword',
         'user.error.passwordTooShort',
-        t('user.error.passwordTooShort', undefined, {
-          defaultValue: `Password must be at least ${MIN_PASSWORD_LENGTH} characters`,
-        }),
+        t(
+          'user.error.passwordTooShort',
+          { min: MIN_PASSWORD_LENGTH },
+          {
+            defaultValue: 'Password must be at least {{min}} characters',
+          },
+        ),
       )
     }
   }

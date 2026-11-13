@@ -56,4 +56,23 @@ export const kn: UserTranslations = {
   'user.error.oauthVerificationFailed': 'OAuth ಪರಿಶೀಲನೆ ವಿಫಲ.',
   'user.error.failedToCreateUser': 'ಬಳಕೆದಾರರನ್ನು ರಚಿಸಲು ವಿಫಲ.',
   'user.error.oauthLoginFailed': 'OAuth ಲಾಗಿನ್ ವಿಫಲ.',
+  'user.error.unauthorized': 'ಅನಧಿಕೃತ',
+  'user.error.passwordTooLong': 'ಪಾಸ್‌ವರ್ಡ್ ಗರಿಷ್ಠ {{max}} ಅಕ್ಷರಗಳನ್ನು ಹೊಂದಿರಬೇಕು.',
+  'user.error.passwordTooShort': 'ಪಾಸ್‌ವರ್ಡ್ ಕನಿಷ್ಠ {{min}} ಅಕ್ಷರಗಳನ್ನು ಹೊಂದಿರಬೇಕು.',
+  'user.error.tooManyRequests': 'ತುಂಬಾ ಪ್ರಯತ್ನಗಳು. ದಯವಿಟ್ಟು ಕಾಯಿರಿ ಮತ್ತು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.',
+  'user.error.webhookUnauthorized': 'ಅನಧಿಕೃತ ಪಾವತಿ ಅಧಿಸೂಚನೆ',
+  'user.error.credentialsNested':
+    'ಈ ಲಾಗಿನ್ ಎಂಡ್‌ಪಾಯಿಂಟ್ ಉನ್ನತ ಮಟ್ಟದಲ್ಲಿ ರುಜುವಾತುಗಳನ್ನು ಓದುತ್ತದೆ, ಆದರೆ ಈ ದೇಹವು ಅವುಗಳನ್ನು {{envelope}} ಅಡಿಯಲ್ಲಿ ಇರಿಸುತ್ತದೆ. ಈ ಎನ್ವೆಲಪ್ ಅನ್ನು ಅನ್‌ವ್ರಾಪ್ ಮಾಡುವ ಮಾರ್ಗಕ್ಕೆ ಲಾಗಿನ್‌ಎಂಡ್‌ಪಾಯಿಂಟ್ ಅನ್ನು ಹೊಂದಿಸಿ, ಅಥವಾ handlers.logIn ಮೊದಲು req.body[ {{envelope}}] ಅನ್ನು ಅನ್‌ವ್ರಾಪ್ ಮಾಡಲು mapRequest ನೊಂದಿಗೆ createRequestHandler ಅನ್ನು ಬಳಸಿ.',
+  'user.error.oauthStateMismatch': 'OAuth ಸ್ಥಿತಿಯ ಹೊಂದಾಣಿಕೆಯಿಲ್ಲ — ಸಂಭಾವ್ಯ CSRF ದಾಳಿ',
+  'user.error.avatarTooLarge': 'ಅವತಾರ್ {{max}} ಅಥವಾ ಅದಕ್ಕಿಂತ ಕಡಿಮೆ ಅಕ್ಷರಗಳನ್ನು ಹೊಂದಿರಬೇಕು.',
+  'user.error.bioTooLong': 'ಜೀವನ ಚರಿತ್ರೆಯು {{max}} ಅಥವಾ ಅದಕ್ಕಿಂತ ಕಡಿಮೆ ಅಕ್ಷರಗಳನ್ನು ಹೊಂದಿರಬೇಕು.',
+  'user.error.noUpdatableFields': 'ನವೀಕರಿಸಬಹುದಾದ ಯಾವುದೇ ಕ್ಷೇತ್ರಗಳನ್ನು ಒದಗಿಸಲಾಗಿಲ್ಲ.',
+  'user.error.oauthDataInvalid': 'oauthData ಒಂದು ವಸ್ತುವಾಗಿರಬೇಕು.',
+  'user.error.subscriptionActivationRequiresVerification':
+    'ಚಂದಾದಾರಿಕೆ ಸಕ್ರಿಯಗೊಳಿಸುವಿಕೆಯು ರಶೀದಿ ಪರಿಶೀಲನೆಯ ಮೂಲಕ ಹೋಗಬೇಕು — POST /users /:id/verify-payment/:provider ಅನ್ನು ಬಳಸಿ.',
+  'user.payment.noBillingAccount': 'ಈ ಬಳಕೆದಾರರಿಗೆ ಯಾವುದೇ {{provider}} ಬಿಲ್ಲಿಂಗ್ ಖಾತೆ ಕಂಡುಬಂದಿಲ್ಲ.',
+  'user.payment.portalFailed': '{{provider}} ಬಿಲ್ಲಿಂಗ್ ಪೋರ್ಟಲ್ ತೆರೆಯಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ.',
+  'user.payment.portalNotSupported': '{{provider}} ಬಿಲ್ಲಿಂಗ್ ಪೋರ್ಟಲ್ ಅನ್ನು ನೀಡುವುದಿಲ್ಲ.',
+  'user.payment.subscriptionOwnershipMismatch': 'ಈ ಚಂದಾದಾರಿಕೆ ನಿಮ್ಮ ಖಾತೆಗೆ ಸೇರಿಲ್ಲ.',
+  'user.payment.transactionAlreadyClaimed': 'ಈ ಖರೀದಿಯು ಈಗಾಗಲೇ ಮತ್ತೊಂದು ಖಾತೆಯೊಂದಿಗೆ ಸಂಯೋಜಿತವಾಗಿದೆ.',
 }

@@ -93,7 +93,9 @@ export async function update(req: MoleculeRequest, res: MoleculeResponse): Promi
   } catch (error) {
     logger.error('Failed to update project', { id, error })
     res.status(500).json({
-      error: t('project.error.updateFailed'),
+      error: t('project.error.updateFailed', undefined, {
+        defaultValue: 'Failed to update project',
+      }),
       errorKey: 'project.error.updateFailed',
     })
   }

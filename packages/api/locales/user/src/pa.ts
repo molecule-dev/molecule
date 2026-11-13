@@ -55,4 +55,24 @@ export const pa: UserTranslations = {
   'user.error.oauthVerificationFailed': 'OAuth ਤਸਦੀਕ ਅਸਫਲ।',
   'user.error.failedToCreateUser': 'ਉਪਭੋਗਤਾ ਬਣਾਉਣ ਵਿੱਚ ਅਸਫਲ।',
   'user.error.oauthLoginFailed': 'OAuth ਲੌਗਇਨ ਅਸਫਲ।',
+  'user.error.unauthorized': 'ਅਣਅਧਿਕਾਰਤ',
+  'user.error.passwordTooLong': 'ਪਾਸਵਰਡ ਵੱਧ ਤੋਂ ਵੱਧ {{max}} ਅੱਖਰਾਂ ਦਾ ਹੋਣਾ ਚਾਹੀਦਾ ਹੈ।',
+  'user.error.passwordTooShort': 'ਪਾਸਵਰਡ ਘੱਟੋ-ਘੱਟ {{min}} ਅੱਖਰਾਂ ਦਾ ਹੋਣਾ ਚਾਹੀਦਾ ਹੈ।',
+  'user.error.tooManyRequests':
+    'ਬਹੁਤ ਜ਼ਿਆਦਾ ਕੋਸ਼ਿਸ਼ਾਂ। ਕਿਰਪਾ ਕਰਕੇ ਉਡੀਕ ਕਰੋ ਅਤੇ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।',
+  'user.error.webhookUnauthorized': 'ਅਣਅਧਿਕਾਰਤ ਭੁਗਤਾਨ ਸੂਚਨਾ',
+  'user.error.credentialsNested':
+    "ਇਹ ਲਾਗਇਨ ਐਂਡਪੁਆਇੰਟ ਸਿਖਰਲੇ ਪੱਧਰ 'ਤੇ ਪ੍ਰਮਾਣ ਪੱਤਰ ਪੜ੍ਹਦਾ ਹੈ, ਪਰ ਇਹ ਬਾਡੀ ਉਹਨਾਂ ਨੂੰ {{envelope}} ਦੇ ਹੇਠਾਂ ਰੱਖਦਾ ਹੈ। loginEndpoint ਨੂੰ ਉਸ ਰੂਟ 'ਤੇ ਸੈੱਟ ਕਰੋ ਜੋ ਇਸ ਲਿਫਾਫੇ ਨੂੰ ਖੋਲ੍ਹਦਾ ਹੈ, ਜਾਂ handlers.logIn ਤੋਂ ਪਹਿਲਾਂ req.body[ {{envelope}}] ਨੂੰ ਖੋਲ੍ਹਣ ਲਈ mapRequest ਨਾਲ createRequestHandler ਦੀ ਵਰਤੋਂ ਕਰੋ।",
+  'user.error.oauthStateMismatch': 'OAuth ਸਥਿਤੀ ਮੇਲ ਨਹੀਂ ਖਾਂਦੀ — ਸੰਭਵ CSRF ਹਮਲਾ',
+  'user.error.avatarTooLarge': 'ਅਵਤਾਰ {{max}} ਅੱਖਰਾਂ ਜਾਂ ਘੱਟ ਦਾ ਹੋਣਾ ਚਾਹੀਦਾ ਹੈ।',
+  'user.error.bioTooLong': 'ਬਾਇਓ {{max}} ਅੱਖਰਾਂ ਜਾਂ ਘੱਟ ਦਾ ਹੋਣਾ ਚਾਹੀਦਾ ਹੈ।',
+  'user.error.noUpdatableFields': 'ਕੋਈ ਅੱਪਡੇਟ ਕਰਨ ਯੋਗ ਖੇਤਰ ਪ੍ਰਦਾਨ ਨਹੀਂ ਕੀਤੇ ਗਏ ਸਨ।',
+  'user.error.oauthDataInvalid': 'oauthData ਇੱਕ ਵਸਤੂ ਹੋਣੀ ਚਾਹੀਦੀ ਹੈ।',
+  'user.error.subscriptionActivationRequiresVerification':
+    'ਸਬਸਕ੍ਰਿਪਸ਼ਨ ਐਕਟੀਵੇਸ਼ਨ ਰਸੀਦ ਤਸਦੀਕ ਵਿੱਚੋਂ ਲੰਘਣੀ ਚਾਹੀਦੀ ਹੈ — POST /users /:id/verify-payment/:provider ਦੀ ਵਰਤੋਂ ਕਰੋ।',
+  'user.payment.noBillingAccount': 'ਇਸ ਵਰਤੋਂਕਾਰ ਲਈ ਕੋਈ {{provider}} ਬਿਲਿੰਗ ਖਾਤਾ ਨਹੀਂ ਮਿਲਿਆ।',
+  'user.payment.portalFailed': '{{provider}} ਬਿਲਿੰਗ ਪੋਰਟਲ ਖੋਲ੍ਹਿਆ ਨਹੀਂ ਜਾ ਸਕਿਆ।',
+  'user.payment.portalNotSupported': '{{provider}} ਬਿਲਿੰਗ ਪੋਰਟਲ ਦੀ ਪੇਸ਼ਕਸ਼ ਨਹੀਂ ਕਰਦਾ।',
+  'user.payment.subscriptionOwnershipMismatch': 'ਇਹ ਗਾਹਕੀ ਤੁਹਾਡੇ ਖਾਤੇ ਨਾਲ ਸਬੰਧਤ ਨਹੀਂ ਹੈ।',
+  'user.payment.transactionAlreadyClaimed': 'ਇਹ ਖਰੀਦ ਪਹਿਲਾਂ ਹੀ ਕਿਸੇ ਹੋਰ ਖਾਤੇ ਨਾਲ ਜੁੜੀ ਹੋਈ ਹੈ।',
 }

@@ -56,4 +56,24 @@ export const th: UserTranslations = {
   'user.error.oauthVerificationFailed': 'การยืนยัน OAuth ล้มเหลว',
   'user.error.failedToCreateUser': 'สร้างผู้ใช้ไม่สำเร็จ',
   'user.error.oauthLoginFailed': 'เข้าสู่ระบบ OAuth ไม่สำเร็จ',
+  'user.error.unauthorized': 'ไม่ได้รับอนุญาต',
+  'user.error.passwordTooLong': 'รหัสผ่านต้องมีความยาวไม่เกิน {{max}} ตัวอักษร',
+  'user.error.passwordTooShort': 'รหัสผ่านต้องมีความยาวอย่างน้อย {{min}} ตัวอักษร',
+  'user.error.tooManyRequests': 'พยายามหลายครั้งเกินไป โปรดรอสักครู่แล้วลองใหม่อีกครั้ง',
+  'user.error.webhookUnauthorized': 'การแจ้งเตือนการชำระเงินที่ไม่ได้รับอนุญาต',
+  'user.error.credentialsNested':
+    'เอนด์พอยต์การเข้าสู่ระบบนี้อ่านข้อมูลประจำตัวที่ระดับบนสุด แต่เนื้อหาจะซ้อนข้อมูลเหล่านั้นไว้ภายใต้ {{envelope}} ตั้งค่า loginEndpoint เป็นเส้นทางที่คลายโครงสร้าง envelope นี้ หรือใช้ createRequestHandler ร่วมกับ mapRequest เพื่อคลายโครงสร้าง req.body[ {{envelope}}] ก่อน handlers.logIn',
+  'user.error.oauthStateMismatch': 'สถานะ OAuth ไม่ตรงกัน — อาจเสี่ยงต่อการโจมตี CSRF',
+  'user.error.avatarTooLarge': 'รูปประจำตัวต้องมีอักขระไม่เกิน {{max}} ตัว',
+  'user.error.bioTooLong': 'ข้อมูลชีวประวัติจะต้องมีความยาวไม่เกิน {{max}} ตัวอักษร',
+  'user.error.noUpdatableFields': 'ไม่มีช่องให้แก้ไขข้อมูล',
+  'user.error.oauthDataInvalid': 'oauthData ต้องเป็นอ็อบเจ็กต์',
+  'user.error.subscriptionActivationRequiresVerification':
+    'การเปิดใช้งานการสมัครสมาชิกต้องผ่านการตรวจสอบใบเสร็จรับเงิน — ใช้คำสั่ง POST /users /:id/verify-payment/:provider',
+  'user.payment.noBillingAccount': 'ไม่พบบัญชีการเรียกเก็บเงินของ {{provider}} สำหรับผู้ใช้รายนี้',
+  'user.payment.portalFailed': 'ไม่สามารถเปิดพอร์ทัลการเรียกเก็บเงิน {{provider}} ได้',
+  'user.payment.portalNotSupported': '{{provider}} ไม่มีระบบชำระเงินออนไลน์',
+  'user.payment.subscriptionOwnershipMismatch':
+    'การสมัครสมาชิกนี้ไม่ได้เป็นส่วนหนึ่งของบัญชีของคุณ',
+  'user.payment.transactionAlreadyClaimed': 'การซื้อครั้งนี้เชื่อมโยงกับบัญชีอื่นอยู่แล้ว',
 }

@@ -56,4 +56,24 @@ export const mt: UserTranslations = {
   'user.error.oauthVerificationFailed': 'Verifika OAuth falliet.',
   'user.error.failedToCreateUser': 'Ma rnexxiex tohlok utent.',
   'user.error.oauthLoginFailed': 'Dhul OAuth falla.',
+  'user.error.unauthorized': 'Mhux awtorizzat',
+  'user.error.passwordTooLong': 'Il-password trid tkun fiha massimu ta {{max}} karattri',
+  'user.error.passwordTooShort': "Il-password trid tkun ta' mill-inqas {{min}} karattri",
+  'user.error.tooManyRequests': "Wisq tentattivi. Jekk jogħġbok stenna u erġa' pprova.",
+  'user.error.webhookUnauthorized': "Notifika ta' ħlas mhux awtorizzat",
+  'user.error.credentialsNested':
+    "Dan l-endpoint tal-login jaqra l-kredenzjali fil-livell għoli, iżda dan il-body idaħħalhom taħt {{envelope}}. Issettja loginEndpoint għar-rotta li tiftaħ dan l-envelope, jew uża createRequestHandler ma' mapRequest biex tiftaħ req.body[ {{envelope}}] qabel handlers.logIn.",
+  'user.error.oauthStateMismatch': "Nuqqas ta' qbil fl-istat tal-OAuth — attakk possibbli tas-CSRF",
+  'user.error.avatarTooLarge': 'L-avatar irid ikun fih {{max}} karattri jew inqas.',
+  'user.error.bioTooLong': 'Il-bijografija trid tkun {{max}} karattri jew inqas.',
+  'user.error.noUpdatableFields': 'Ma ġew ipprovduti l-ebda oqsma aġġornabbli.',
+  'user.error.oauthDataInvalid': 'oauthData trid tkun oġġett.',
+  'user.error.subscriptionActivationRequiresVerification':
+    'L-attivazzjoni tal-abbonament trid tgħaddi minn verifika tal-irċevuta — uża POST /users /:id/verify-payment/:provider.',
+  'user.payment.noBillingAccount':
+    "Ma nstab l-ebda kont tal-kontijiet ta' {{provider}} għal dan l-utent.",
+  'user.payment.portalFailed': "Ma stajtx niftaħ il-portal tal-kontijiet ta' {{provider}} .",
+  'user.payment.portalNotSupported': '{{provider}} ma joffrix portal tal-kontijiet.',
+  'user.payment.subscriptionOwnershipMismatch': 'Din l-abbonament mhijiex tal-kont tiegħek.',
+  'user.payment.transactionAlreadyClaimed': "Din ix-xirija diġà hija assoċjata ma' kont ieħor.",
 }

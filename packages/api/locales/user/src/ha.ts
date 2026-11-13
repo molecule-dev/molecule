@@ -57,4 +57,25 @@ export const ha: UserTranslations = {
   'user.error.oauthVerificationFailed': 'Tabbatarwar OAuth ta gaza.',
   'user.error.failedToCreateUser': 'An kasa ƙirƙirar mai amfani.',
   'user.error.oauthLoginFailed': 'Shigar OAuth ya gaza.',
+  'user.error.unauthorized': 'Ba a ba da izini ba',
+  'user.error.passwordTooLong': 'Dole ne kalmar sirri ta kasance aƙalla haruffa {{max}}',
+  'user.error.passwordTooShort': 'Dole ne kalmar sirri ta kasance aƙalla haruffa {{min}}',
+  'user.error.tooManyRequests':
+    'Gwaje-gwaje da yawa sun yi yawa. Da fatan za a jira kuma a sake gwadawa.',
+  'user.error.webhookUnauthorized': 'Sanarwar biyan kuɗi ba tare da izini ba',
+  'user.error.credentialsNested':
+    'Wannan ƙarshen shiga yana karanta takardun shaidar shiga a matakin sama, amma wannan jikin yana sanya su a ƙarƙashin {{envelope}}. Saita loginEndpoint zuwa hanyar da ta buɗe wannan ambulan, ko amfani da createRequestHandler tare da mapRequest don buɗe req.body[ {{envelope}}] kafin handlers.logIn.',
+  'user.error.oauthStateMismatch': 'Rashin daidaiton yanayin OAuth — yiwuwar harin CSRF',
+  'user.error.avatarTooLarge': 'Dole ne Avatar ya zama haruffa {{max}} ko ƙasa da haka.',
+  'user.error.bioTooLong': 'Dole ne tarihin rayuwa ya zama haruffa {{max}} ko ƙasa da haka.',
+  'user.error.noUpdatableFields': 'Ba a bayar da filayen da za a iya sabunta su ba.',
+  'user.error.oauthDataInvalid': 'OauthData dole ne ya zama abu.',
+  'user.error.subscriptionActivationRequiresVerification':
+    'Dole ne a tabbatar da cewa an kunna biyan kuɗi ta hanyar amfani da POST /users /:id/verify-payment/:provider.',
+  'user.payment.noBillingAccount':
+    'Babu asusun biyan kuɗi na {{provider}} da aka samu ga wannan mai amfani.',
+  'user.payment.portalFailed': 'An kasa buɗe shafin biyan kuɗi na {{provider}} .',
+  'user.payment.portalNotSupported': '{{provider}} ba ya bayar da hanyar biyan kuɗi.',
+  'user.payment.subscriptionOwnershipMismatch': 'Wannan biyan kuɗin ba na asusunka bane.',
+  'user.payment.transactionAlreadyClaimed': 'An riga an haɗa wannan siyan da wani asusu.',
 }

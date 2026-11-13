@@ -20,9 +20,10 @@ export async function read(req: MoleculeRequest, res: MoleculeResponse): Promise
 
   const userId = (res.locals.session as { userId?: string } | undefined)?.userId
   if (!userId) {
-    res
-      .status(401)
-      .json({ error: t('user.error.unauthorized'), errorKey: 'user.error.unauthorized' })
+    res.status(401).json({
+      error: t('user.error.unauthorized', undefined, { defaultValue: 'Unauthorized' }),
+      errorKey: 'user.error.unauthorized',
+    })
     return
   }
 
@@ -47,7 +48,9 @@ export async function read(req: MoleculeRequest, res: MoleculeResponse): Promise
   } catch (error) {
     logger.error('Failed to read project', { id, error })
     res.status(500).json({
-      error: t('project.error.readFailed'),
+      error: t('project.error.readFailed', undefined, {
+        defaultValue: 'Failed to read project',
+      }),
       errorKey: 'project.error.readFailed',
     })
   }

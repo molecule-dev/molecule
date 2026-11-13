@@ -59,4 +59,25 @@ export const ml: UserTranslations = {
   'user.error.oauthVerificationFailed': 'OAuth സ്ഥിരീകരണം പരാജയപ്പെട്ടു.',
   'user.error.failedToCreateUser': 'ഉപയോക്താവിനെ സൃഷ്‌ടിക്കുന്നതിൽ പരാജയപ്പെട്ടു.',
   'user.error.oauthLoginFailed': 'OAuth ലോഗിൻ പരാജയപ്പെട്ടു.',
+  'user.error.unauthorized': 'അംഗീകൃതമല്ലാത്തത്',
+  'user.error.passwordTooLong': 'പാസ്‌വേഡിൽ പരമാവധി {{max}} പ്രതീകങ്ങൾ ഉണ്ടായിരിക്കണം.',
+  'user.error.passwordTooShort': 'പാസ്‌വേഡിൽ കുറഞ്ഞത് {{min}} പ്രതീകങ്ങൾ ഉണ്ടായിരിക്കണം.',
+  'user.error.tooManyRequests': 'വളരെയധികം ശ്രമങ്ങൾ. ദയവായി കാത്തിരുന്ന് വീണ്ടും ശ്രമിക്കുക.',
+  'user.error.webhookUnauthorized': 'അനധികൃത പേയ്‌മെന്റ് അറിയിപ്പ്',
+  'user.error.credentialsNested':
+    'ഈ ലോഗിൻ എൻഡ്‌പോയിന്റ് മുകളിലെ തലത്തിൽ ക്രെഡൻഷ്യലുകൾ വായിക്കുന്നു, പക്ഷേ ഈ ബോഡി അവയെ {{envelope}} കീഴിൽ നെസ്റ്റ് ചെയ്യുന്നു. ഈ എൻവലപ്പ് അൺറാപ്പ് ചെയ്യുന്ന റൂട്ടിലേക്ക് loginEndpoint സജ്ജമാക്കുക, അല്ലെങ്കിൽ handlers.logIn-ന് മുമ്പ് req.body[ {{envelope}}] അൺറാപ്പ് ചെയ്യാൻ mapRequest ഉപയോഗിച്ച് createRequestHandler ഉപയോഗിക്കുക.',
+  'user.error.oauthStateMismatch': 'OAuth സ്റ്റേറ്റ് പൊരുത്തക്കേട് — സാധ്യതയുള്ള CSRF ആക്രമണം',
+  'user.error.avatarTooLarge': 'അവതാറിൽ {{max}} പ്രതീകങ്ങളോ അതിൽ കുറവോ ഉണ്ടായിരിക്കണം.',
+  'user.error.bioTooLong': 'ബയോയിൽ {{max}} പ്രതീകങ്ങളോ അതിൽ കുറവോ ഉണ്ടായിരിക്കണം.',
+  'user.error.noUpdatableFields': 'അപ്ഡേറ്റ് ചെയ്യാവുന്ന ഫീൽഡുകളൊന്നും നൽകിയിട്ടില്ല.',
+  'user.error.oauthDataInvalid': 'oauthData ഒരു ഒബ്ജക്റ്റ് ആയിരിക്കണം.',
+  'user.error.subscriptionActivationRequiresVerification':
+    'സബ്‌സ്‌ക്രിപ്‌ഷൻ ആക്ടിവേഷൻ രസീത് പരിശോധനയിലൂടെ കടന്നുപോകണം — POST /users /:id/verify-payment/:provider ഉപയോഗിക്കുക.',
+  'user.payment.noBillingAccount':
+    'ഈ ഉപയോക്താവിന് {{provider}} ബില്ലിംഗ് അക്കൗണ്ട് കണ്ടെത്തിയില്ല.',
+  'user.payment.portalFailed': '{{provider}} ബില്ലിംഗ് പോർട്ടൽ തുറക്കാൻ കഴിഞ്ഞില്ല.',
+  'user.payment.portalNotSupported': '{{provider}} ഒരു ബില്ലിംഗ് പോർട്ടൽ വാഗ്ദാനം ചെയ്യുന്നില്ല.',
+  'user.payment.subscriptionOwnershipMismatch': 'ഈ സബ്‌സ്‌ക്രിപ്‌ഷൻ നിങ്ങളുടെ അക്കൗണ്ടിന്റേതല്ല.',
+  'user.payment.transactionAlreadyClaimed':
+    'ഈ വാങ്ങൽ ഇതിനകം തന്നെ മറ്റൊരു അക്കൗണ്ടുമായി ബന്ധപ്പെട്ടിരിക്കുന്നു.',
 }

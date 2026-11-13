@@ -55,4 +55,23 @@ export const ar: UserTranslations = {
   'user.error.oauthVerificationFailed': 'فشل التحقق من OAuth.',
   'user.error.failedToCreateUser': 'فشل إنشاء المستخدم.',
   'user.error.oauthLoginFailed': 'فشل تسجيل الدخول عبر OAuth.',
+  'user.error.unauthorized': 'غير مصرح به',
+  'user.error.passwordTooLong': 'يجب ألا يتجاوز طول كلمة المرور {{max}} حرفًا',
+  'user.error.passwordTooShort': 'يجب أن تتكون كلمة المرور من {{min}} حرفًا على الأقل',
+  'user.error.tooManyRequests': 'عدد المحاولات كبير جدًا. يرجى الانتظار والمحاولة مرة أخرى.',
+  'user.error.webhookUnauthorized': 'إشعار بالدفع غير المصرح به',
+  'user.error.credentialsNested':
+    'تقرأ نقطة نهاية تسجيل الدخول هذه بيانات الاعتماد في المستوى الأعلى، ولكن هذا المحتوى يُضمّنها ضمن {{envelope}}. عيّن loginEndpoint إلى المسار الذي يفكّ هذا الغلاف، أو استخدم createRequestHandler مع mapRequest لفكّ req.body[ {{envelope}}] قبل handlers.logIn.',
+  'user.error.oauthStateMismatch': 'عدم تطابق حالة OAuth - هجوم CSRF محتمل',
+  'user.error.avatarTooLarge': 'يجب ألا يتجاوز طول الصورة الرمزية {{max}} حرفًا.',
+  'user.error.bioTooLong': 'يجب ألا يتجاوز طول السيرة الذاتية {{max}} حرفًا.',
+  'user.error.noUpdatableFields': 'لم يتم توفير أي حقول قابلة للتحديث.',
+  'user.error.oauthDataInvalid': 'يجب أن يكون oauthData كائنًا.',
+  'user.error.subscriptionActivationRequiresVerification':
+    'يجب أن يمر تفعيل الاشتراك بعملية التحقق من الإيصال - استخدم POST /users /:id/verify-payment/:provider.',
+  'user.payment.noBillingAccount': 'لم يتم العثور على حساب فوترة {{provider}} لهذا المستخدم.',
+  'user.payment.portalFailed': 'تعذر فتح بوابة الفوترة الخاصة {{provider}} .',
+  'user.payment.portalNotSupported': 'لا يقدم {{provider}} بوابة للفواتير.',
+  'user.payment.subscriptionOwnershipMismatch': 'هذا الاشتراك لا ينتمي إلى حسابك.',
+  'user.payment.transactionAlreadyClaimed': 'هذه العملية الشرائية مرتبطة بالفعل بحساب آخر.',
 }

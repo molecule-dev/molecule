@@ -55,4 +55,25 @@ export const tr: UserTranslations = {
   'user.error.oauthVerificationFailed': 'OAuth doğrulaması başarısız oldu.',
   'user.error.failedToCreateUser': 'Kullanıcı oluşturulamadı.',
   'user.error.oauthLoginFailed': 'OAuth girişi başarısız oldu.',
+  'user.error.unauthorized': 'Yetkisiz',
+  'user.error.passwordTooLong': 'Parola en fazla {{max}} karakter uzunluğunda olmalıdır.',
+  'user.error.passwordTooShort': 'Parola en az {{min}} karakter uzunluğunda olmalıdır.',
+  'user.error.tooManyRequests': 'Çok fazla deneme yapıldı. Lütfen bekleyin ve tekrar deneyin.',
+  'user.error.webhookUnauthorized': 'Yetkisiz ödeme bildirimi',
+  'user.error.credentialsNested':
+    "Bu giriş uç noktası kimlik bilgilerini en üst düzeyde okur, ancak bu gövde bunları {{envelope}} içine yerleştirir. loginEndpoint'i bu zarfı açan rotaya ayarlayın veya handlers.logIn'den önce req.body[ {{envelope}}]'yi açmak için mapRequest ile createRequestHandler kullanın.",
+  'user.error.oauthStateMismatch': 'OAuth durum uyuşmazlığı — olası CSRF saldırısı',
+  'user.error.avatarTooLarge': 'Avatar en fazla {{max}} karakterden oluşmalıdır.',
+  'user.error.bioTooLong': 'Biyografi en fazla {{max}} karakter uzunluğunda olmalıdır.',
+  'user.error.noUpdatableFields': 'Güncellenebilir alan sağlanmadı.',
+  'user.error.oauthDataInvalid': 'oauthData bir nesne olmalıdır.',
+  'user.error.subscriptionActivationRequiresVerification':
+    'Abonelik aktivasyonu, ödeme makbuzunun doğrulanmasından geçmelidir — bunun için POST /users /:id/verify-payment/:provider adresini kullanın.',
+  'user.payment.noBillingAccount':
+    'Bu kullanıcı için hiçbir {{provider}} faturalandırma hesabı bulunamadı.',
+  'user.payment.portalFailed': '{{provider}} faturalama portalı açılamadı.',
+  'user.payment.portalNotSupported': '{{provider}} faturalandırma portalı sunmamaktadır.',
+  'user.payment.subscriptionOwnershipMismatch': 'Bu abonelik sizin hesabınıza ait değil.',
+  'user.payment.transactionAlreadyClaimed':
+    'Bu satın alma işlemi zaten başka bir hesapla ilişkilendirilmiş durumda.',
 }

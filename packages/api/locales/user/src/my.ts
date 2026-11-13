@@ -59,4 +59,24 @@ export const my: UserTranslations = {
   'user.error.oauthVerificationFailed': 'OAuth အတည်ပြုခြင်း မအောင်မြင်ပါ။',
   'user.error.failedToCreateUser': 'အသုံးပြုသူ ဖန်တီးရန် မအောင်မြင်ပါ။',
   'user.error.oauthLoginFailed': 'OAuth အကောင့်ဝင်ခြင်း မအောင်မြင်ပါ။',
+  'user.error.unauthorized': 'ခွင့်ပြုချက်မရှိသော',
+  'user.error.passwordTooLong': 'စကားဝှက်တွင် အများဆုံး စာလုံး {{max}} လုံး ပါဝင်ရမည်',
+  'user.error.passwordTooShort': 'စကားဝှက်တွင် အနည်းဆုံး စာလုံး {{min}} ပါရှိရမည်',
+  'user.error.tooManyRequests': 'ကြိုးစားမှု များလွန်းပါသည်။ ခဏစောင့်ပြီး ထပ်ကြိုးစားပါ။',
+  'user.error.webhookUnauthorized': 'ခွင့်ပြုချက်မရှိသော ငွေပေးချေမှုအကြောင်းကြားစာ',
+  'user.error.credentialsNested':
+    'ဤ login endpoint သည် အပေါ်ဆုံးအဆင့်တွင် အထောက်အထားများကို ဖတ်ရှုသော်လည်း ဤ body သည် ၎င်းတို့ကို {{envelope}} အောက်တွင် ထည့်သွင်းထားသည်။ loginEndpoint ကို ဤစာအိတ်ကို ဖွင့်သည့် လမ်းကြောင်းသို့ သတ်မှတ်ပါ၊ သို့မဟုတ် handlers.logIn မတိုင်မီ req.body[ {{envelope}}] ကို ဖွင့်ရန် mapRequest နှင့်အတူ createRequestHandler ကို အသုံးပြုပါ။',
+  'user.error.oauthStateMismatch': 'OAuth အခြေအနေ မကိုက်ညီမှု — CSRF တိုက်ခိုက်မှု ဖြစ်နိုင်သည်',
+  'user.error.avatarTooLarge': 'ရုပ်ပုံတွင် စာလုံး {{max}} လုံး သို့မဟုတ် ထို့ထက်နည်းရမည်။',
+  'user.error.bioTooLong': 'ကိုယ်ရေးအကျဉ်းတွင် စာလုံးရေ {{max}} လုံး သို့မဟုတ် ထို့ထက်နည်းရမည်။',
+  'user.error.noUpdatableFields': 'အပ်ဒိတ်လုပ်နိုင်သော အကွက်များကို ပေးမထားပါ။',
+  'user.error.oauthDataInvalid': 'oauthData သည် object တစ်ခု ဖြစ်ရမည်။',
+  'user.error.subscriptionActivationRequiresVerification':
+    'စာရင်းသွင်းမှုဖွင့်ခြင်းသည် ပြေစာအတည်ပြုခြင်းကို ဖြတ်သန်းရမည် — POST /users /:id/verify-payment/:provider ကို အသုံးပြုပါ။',
+  'user.payment.noBillingAccount': 'ဤအသုံးပြုသူအတွက် {{provider}} ငွေတောင်းခံလွှာအကောင့် မတွေ့ပါ။',
+  'user.payment.portalFailed': '{{provider}} ငွေတောင်းခံလွှာပို့သည့်ပေါ်တယ်ကို ဖွင့်၍မရပါ။',
+  'user.payment.portalNotSupported': '{{provider}} ငွေတောင်းခံလွှာပို့သည့် ပေါ်တယ်ကို မပေးဆောင်ပါ။',
+  'user.payment.subscriptionOwnershipMismatch': 'ဤစာရင်းသွင်းမှုသည် သင့်အကောင့်နှင့် မသက်ဆိုင်ပါ။',
+  'user.payment.transactionAlreadyClaimed':
+    'ဤဝယ်ယူမှုကို အခြားအကောင့်တစ်ခုနှင့် ချိတ်ဆက်ပြီးဖြစ်သည်။',
 }

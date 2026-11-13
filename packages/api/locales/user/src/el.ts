@@ -56,4 +56,27 @@ export const el: UserTranslations = {
   'user.error.oauthVerificationFailed': 'Η επαλήθευση OAuth απέτυχε.',
   'user.error.failedToCreateUser': 'Αποτυχία δημιουργίας χρήστη.',
   'user.error.oauthLoginFailed': 'Η σύνδεση OAuth απέτυχε.',
+  'user.error.unauthorized': 'Ανεξουσιοδότητος',
+  'user.error.passwordTooLong': 'Ο κωδικός πρόσβασης πρέπει να έχει το πολύ {{max}} χαρακτήρες',
+  'user.error.passwordTooShort':
+    'Ο κωδικός πρόσβασης πρέπει να έχει τουλάχιστον {{min}} χαρακτήρες',
+  'user.error.tooManyRequests':
+    'Πάρα πολλές προσπάθειες. Παρακαλώ περιμένετε και προσπαθήστε ξανά.',
+  'user.error.webhookUnauthorized': 'Ειδοποίηση μη εξουσιοδοτημένης πληρωμής',
+  'user.error.credentialsNested':
+    'Αυτό το τελικό σημείο σύνδεσης διαβάζει τα διαπιστευτήρια στο ανώτατο επίπεδο, αλλά αυτό το σώμα τα ενσωματώνει κάτω από {{envelope}}. Ορίστε το loginEndpoint στη διαδρομή που ξετυλίγει αυτόν τον φάκελο ή χρησιμοποιήστε το createRequestHandler με το mapRequest για να ξετυλίξετε το req.body[ {{envelope}}] πριν από το handlers.logIn.',
+  'user.error.oauthStateMismatch': 'Αναντιστοιχία κατάστασης OAuth — πιθανή επίθεση CSRF',
+  'user.error.avatarTooLarge': 'Το avatar πρέπει να έχει {{max}} ή λιγότερους χαρακτήρες.',
+  'user.error.bioTooLong': 'Το βιογραφικό πρέπει να έχει {{max}} ή λιγότερους χαρακτήρες.',
+  'user.error.noUpdatableFields': 'Δεν δόθηκαν πεδία με δυνατότητα ενημέρωσης.',
+  'user.error.oauthDataInvalid': 'Το oauthData πρέπει να είναι ένα αντικείμενο.',
+  'user.error.subscriptionActivationRequiresVerification':
+    'Η ενεργοποίηση της συνδρομής πρέπει να περάσει από επαλήθευση απόδειξης — χρησιμοποιήστε την εντολή POST /users /:id/verify-payment/:provider.',
+  'user.payment.noBillingAccount':
+    'Δεν βρέθηκε λογαριασμός χρέωσης {{provider}} για αυτόν τον χρήστη.',
+  'user.payment.portalFailed': 'Δεν ήταν δυνατό το άνοιγμα της πύλης χρέωσης {{provider}} .',
+  'user.payment.portalNotSupported': 'Ο πάροχος {{provider}} δεν προσφέρει πύλη χρέωσης.',
+  'user.payment.subscriptionOwnershipMismatch': 'Αυτή η συνδρομή δεν ανήκει στον λογαριασμό σας.',
+  'user.payment.transactionAlreadyClaimed':
+    'Αυτή η αγορά είναι ήδη συσχετισμένη με έναν άλλο λογαριασμό.',
 }

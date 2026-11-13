@@ -56,4 +56,25 @@ export const cy: UserTranslations = {
   'user.error.oauthVerificationFailed': 'Dilysu OAuth wedi methu.',
   'user.error.failedToCreateUser': 'Methwyd creu defnyddiwr.',
   'user.error.oauthLoginFailed': 'Mewngofnodi OAuth wedi methu.',
+  'user.error.unauthorized': 'Heb awdurdod',
+  'user.error.passwordTooLong': "Rhaid i'r cyfrinair fod yn {{max}} nod ar y mwyaf",
+  'user.error.passwordTooShort': "Rhaid i'r cyfrinair fod o leiaf {{min}} nod",
+  'user.error.tooManyRequests': 'Gormod o ymdrechion. Arhoswch a cheisiwch eto.',
+  'user.error.webhookUnauthorized': 'Hysbysiad taliad heb awdurdod',
+  'user.error.credentialsNested':
+    "Mae'r pwynt terfyn mewngofnodi hwn yn darllen manylion mewngofnodi ar y lefel uchaf, ond mae'r corff hwn yn eu nythu o dan {{envelope}}. Gosodwch loginEndpoint i'r llwybr sy'n dadlapio'r amlen hon, neu defnyddiwch createRequestHandler gyda mapRequest i ddadlapio req.body[ {{envelope}}] cyn handlers.logIn.",
+  'user.error.oauthStateMismatch': 'Anghysondeb cyflwr OAuth — ymosodiad CSRF posibl',
+  'user.error.avatarTooLarge': "Rhaid i'r avatar fod yn {{max}} nod neu lai.",
+  'user.error.bioTooLong': "Rhaid i'r bio fod yn {{max}} nod neu lai.",
+  'user.error.noUpdatableFields': 'Ni ddarparwyd unrhyw feysydd y gellir eu diweddaru.',
+  'user.error.oauthDataInvalid': 'Rhaid i oauthData fod yn wrthrych.',
+  'user.error.subscriptionActivationRequiresVerification':
+    'Rhaid i actifadu tanysgrifiad fynd trwy ddilysu derbynneb — defnyddiwch POST /users /:id/verify-payment/:provider.',
+  'user.payment.noBillingAccount':
+    'Ni chanfuwyd cyfrif bilio {{provider}} ar gyfer y defnyddiwr hwn.',
+  'user.payment.portalFailed': 'Methwyd agor porth bilio {{provider}} .',
+  'user.payment.portalNotSupported': 'Nid yw {{provider}} yn cynnig porth bilio.',
+  'user.payment.subscriptionOwnershipMismatch': "Nid yw'r tanysgrifiad hwn yn perthyn i'ch cyfrif.",
+  'user.payment.transactionAlreadyClaimed':
+    "Mae'r pryniant hwn eisoes wedi'i gysylltu â chyfrif arall.",
 }

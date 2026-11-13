@@ -56,4 +56,23 @@ export const et: UserTranslations = {
   'user.error.oauthVerificationFailed': 'OAuth kinnitamine ebaõnnestus.',
   'user.error.failedToCreateUser': 'Kasutaja loomine ebaõnnestus.',
   'user.error.oauthLoginFailed': 'OAuth sisselogimine ebaõnnestus.',
+  'user.error.unauthorized': 'Volitamata',
+  'user.error.passwordTooLong': 'Parool peab olema maksimaalselt {{max}} tähemärki pikk',
+  'user.error.passwordTooShort': 'Parool peab olema vähemalt {{min}} tähemärki pikk',
+  'user.error.tooManyRequests': 'Liiga palju katseid. Palun oota ja proovi uuesti.',
+  'user.error.webhookUnauthorized': 'Volitamata makse teatis',
+  'user.error.credentialsNested':
+    "See sisselogimise lõpp-punkt loeb volitusi kõrgeimal tasemel, kuid selle sisu pesastab need {{envelope}} alla. Määrake loginEndpoint marsruudile, mis selle ümbriku lahti pakib, või kasutage createRequestHandler funktsiooni koos mapRequest'iga, et lahti pakida req.body[ {{envelope}}] enne handlers.logIn funktsiooni.",
+  'user.error.oauthStateMismatch': 'OAuthi oleku mittevastavus — võimalik CSRF-rünnak',
+  'user.error.avatarTooLarge': 'Avatari pikkus võib olla kuni {{max}} tähemärki.',
+  'user.error.bioTooLong': 'Biograafia peab olema {{max}} tähemärki või vähem.',
+  'user.error.noUpdatableFields': 'Värskendatavaid välju ei esitatud.',
+  'user.error.oauthDataInvalid': 'oauthData peab olema objekt.',
+  'user.error.subscriptionActivationRequiresVerification':
+    'Tellimuse aktiveerimine peab läbima kviitungi kontrollimise – kasutage POST /users /:id/verify-payment/:provider käsku.',
+  'user.payment.noBillingAccount': 'Sellele kasutajale ei leitud {{provider}} arvelduskontot.',
+  'user.payment.portalFailed': 'Arveldusportaali {{provider}} avamine ebaõnnestus.',
+  'user.payment.portalNotSupported': '{{provider}} ei paku arveldusportaali.',
+  'user.payment.subscriptionOwnershipMismatch': 'See tellimus ei kuulu teie kontole.',
+  'user.payment.transactionAlreadyClaimed': 'See ost on juba seotud teise kontoga.',
 }

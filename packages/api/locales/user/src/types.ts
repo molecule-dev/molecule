@@ -49,6 +49,23 @@ export type UserTranslationKey =
   | 'user.error.oauthVerificationFailed'
   | 'user.error.failedToCreateUser'
   | 'user.error.oauthLoginFailed'
+  | 'user.error.unauthorized'
+  | 'user.error.passwordTooLong'
+  | 'user.error.passwordTooShort'
+  | 'user.error.tooManyRequests'
+  | 'user.error.webhookUnauthorized'
+  | 'user.error.credentialsNested'
+  | 'user.error.oauthStateMismatch'
+  | 'user.error.avatarTooLarge'
+  | 'user.error.bioTooLong'
+  | 'user.error.noUpdatableFields'
+  | 'user.error.oauthDataInvalid'
+  | 'user.error.subscriptionActivationRequiresVerification'
+  | 'user.payment.noBillingAccount'
+  | 'user.payment.portalFailed'
+  | 'user.payment.portalNotSupported'
+  | 'user.payment.subscriptionOwnershipMismatch'
+  | 'user.payment.transactionAlreadyClaimed'
 
 /** Translation record mapping user keys to translated strings. */
 export type UserTranslations = Record<UserTranslationKey, string>

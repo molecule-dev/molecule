@@ -56,4 +56,27 @@ export const fil: UserTranslations = {
   'user.error.oauthVerificationFailed': 'Nabigo ang OAuth verification.',
   'user.error.failedToCreateUser': 'Nabigo ang paglikha ng user.',
   'user.error.oauthLoginFailed': 'Nabigo ang OAuth login.',
+  'user.error.unauthorized': 'Hindi awtorisado',
+  'user.error.passwordTooLong': 'Ang password ay dapat na hindi hihigit sa {{max}} na karakter',
+  'user.error.passwordTooShort': 'Ang password ay dapat na hindi bababa sa {{min}} na karakter',
+  'user.error.tooManyRequests':
+    'Masyadong maraming pagsubok. Mangyaring maghintay at subukan muli.',
+  'user.error.webhookUnauthorized': 'Abiso sa hindi awtorisadong pagbabayad',
+  'user.error.credentialsNested':
+    'Binabasa ng login endpoint na ito ang mga kredensyal sa pinakamataas na antas, ngunit inilalagay ang mga ito sa ilalim ng {{envelope}}. Itakda ang loginEndpoint sa rutang magbubukas ng sobreng ito, o gamitin ang createRequestHandler gamit ang mapRequest para buksan ang req.body[ {{envelope}}] bago ang handlers.logIn.',
+  'user.error.oauthStateMismatch':
+    'Hindi pagtutugma ng estado ng OAuth — posibleng pag-atake ng CSRF',
+  'user.error.avatarTooLarge': 'Ang avatar ay dapat na {{max}} na karakter o mas kaunti pa.',
+  'user.error.bioTooLong': 'Ang bio ay dapat na {{max}} na karakter o mas kaunti pa.',
+  'user.error.noUpdatableFields': 'Walang ibinigay na mga field na maaaring i-update.',
+  'user.error.oauthDataInvalid': 'Ang oauthData ay dapat isang object.',
+  'user.error.subscriptionActivationRequiresVerification':
+    'Ang pag-activate ng subscription ay dapat dumaan sa beripikasyon ng resibo — gamitin ang POST /users /:id/verify-payment/:provider.',
+  'user.payment.noBillingAccount':
+    'Walang nakitang account sa pagsingil para sa {{provider}} para sa user na ito.',
+  'user.payment.portalFailed': 'Hindi mabuksan ang portal ng pagsingil ng {{provider}} .',
+  'user.payment.portalNotSupported': 'Walang iniaalok na billing portal ang {{provider}} .',
+  'user.payment.subscriptionOwnershipMismatch':
+    'Ang subscription na ito ay hindi pagmamay-ari ng iyong account.',
+  'user.payment.transactionAlreadyClaimed': 'Ang pagbiling ito ay nauugnay na sa isa pang account.',
 }

@@ -56,4 +56,23 @@ export const fi: UserTranslations = {
   'user.error.oauthVerificationFailed': 'OAuth-vahvistus epäonnistui.',
   'user.error.failedToCreateUser': 'Käyttäjän luonti epäonnistui.',
   'user.error.oauthLoginFailed': 'OAuth-kirjautuminen epäonnistui.',
+  'user.error.unauthorized': 'Luvaton',
+  'user.error.passwordTooLong': 'Salasanan enimmäispituus on {{max}} merkkiä',
+  'user.error.passwordTooShort': 'Salasanan on oltava vähintään {{min}} merkkiä pitkä',
+  'user.error.tooManyRequests': 'Liikaa yrityksiä. Odota ja yritä uudelleen.',
+  'user.error.webhookUnauthorized': 'Ilmoitus luvattomasta maksusta',
+  'user.error.credentialsNested':
+    'Tämä kirjautumispäätepiste lukee tunnistetiedot ylimmältä tasolta, mutta tämä runko sijoittaa ne {{envelope}} elementin alle. Aseta loginEndpoint reitille, joka purkaa tämän kirjekuoren paketin, tai käytä createRequestHandler-funktiota mapRequest-kyselyn kanssa purkaaksesi req.body[ {{envelope}}]-elementin ennen handlers.logIn-funktiota.',
+  'user.error.oauthStateMismatch': 'OAuth-tila ei täsmää – mahdollinen CSRF-hyökkäys',
+  'user.error.avatarTooLarge': 'Avatarin pituus saa olla enintään {{max}} merkkiä.',
+  'user.error.bioTooLong': 'Esittelytekstissä saa olla enintään {{max}} merkkiä.',
+  'user.error.noUpdatableFields': 'Päivitettäviä kenttiä ei annettu.',
+  'user.error.oauthDataInvalid': 'oauthDatan on oltava objekti.',
+  'user.error.subscriptionActivationRequiresVerification':
+    'Tilauksen aktivointi edellyttää kuitin vahvistusta — käytä POST /users /:id/verify-payment/:provider -komentoa.',
+  'user.payment.noBillingAccount': 'Tälle käyttäjälle ei löytynyt {{provider}} -laskutustiliä.',
+  'user.payment.portalFailed': '{{provider}} -laskutusportaalin avaaminen epäonnistui.',
+  'user.payment.portalNotSupported': '{{provider}} ei tarjoa laskutusportaalia.',
+  'user.payment.subscriptionOwnershipMismatch': 'Tämä tilaus ei kuulu tilillesi.',
+  'user.payment.transactionAlreadyClaimed': 'Tämä ostos on jo liitetty toiseen tiliin.',
 }

@@ -56,4 +56,23 @@ export const lo: UserTranslations = {
   'user.error.oauthVerificationFailed': 'ການຢືນຢັນ OAuth ລົ້ມເຫຼວ.',
   'user.error.failedToCreateUser': 'ບໍ່ສາມາດສ້າງຜູ້ໃຊ້ໄດ້.',
   'user.error.oauthLoginFailed': 'ການເຂົ້າສູ່ລະບົບ OAuth ລົ້ມເຫຼວ.',
+  'user.error.unauthorized': 'ບໍ່ໄດ້ຮັບອະນຸຍາດ',
+  'user.error.passwordTooLong': 'ລະຫັດຜ່ານຕ້ອງມີຕົວອັກສອນບໍ່ເກີນ {{max}} ຕົວອັກສອນ',
+  'user.error.passwordTooShort': 'ລະຫັດຜ່ານຕ້ອງມີຢ່າງໜ້ອຍ {{min}} ຕົວອັກສອນ',
+  'user.error.tooManyRequests': 'ພະຍາຍາມຫຼາຍເກີນໄປ. ກະລຸນາລໍຖ້າແລະລອງໃໝ່.',
+  'user.error.webhookUnauthorized': 'ການແຈ້ງເຕືອນການຈ່າຍເງິນທີ່ບໍ່ໄດ້ຮັບອະນຸຍາດ',
+  'user.error.credentialsNested':
+    'ຈຸດສິ້ນສຸດການເຂົ້າສູ່ລະບົບນີ້ອ່ານຂໍ້ມູນປະຈຳຕົວຢູ່ໃນລະດັບສູງສຸດ, ແຕ່ເນື້ອຫານີ້ເກັບພວກມັນໄວ້ພາຍໃຕ້ {{envelope}}. ຕັ້ງຄ່າ loginEndpoint ໄປຫາເສັ້ນທາງທີ່ແກະຊອງຈົດໝາຍນີ້, ຫຼືໃຊ້ createRequestHandler ກັບ mapRequest ເພື່ອແກະ req.body[ {{envelope}}] ກ່ອນ handlers.logIn.',
+  'user.error.oauthStateMismatch': 'ສະຖານະ OAuth ບໍ່ກົງກັນ — ອາດມີການໂຈມຕີ CSRF',
+  'user.error.avatarTooLarge': 'ຮູບແທນຕົວຕ້ອງມີຕົວອັກສອນ {{max}} ຫຼື ໜ້ອຍກວ່າ.',
+  'user.error.bioTooLong': 'ຊີວະປະຫວັດຕ້ອງມີຕົວອັກສອນ {{max}} ຫຼື ໜ້ອຍກວ່າ.',
+  'user.error.noUpdatableFields': 'ບໍ່ມີຊ່ອງຂໍ້ມູນທີ່ສາມາດອັບເດດໄດ້.',
+  'user.error.oauthDataInvalid': 'oauthData ຕ້ອງເປັນວັດຖຸ.',
+  'user.error.subscriptionActivationRequiresVerification':
+    'ການເປີດໃຊ້ການສະໝັກໃຊ້ຕ້ອງຜ່ານການຢືນຢັນໃບຮັບເງິນ — ໃຊ້ POST /users /:id/verify-payment/:provider.',
+  'user.payment.noBillingAccount': 'ບໍ່ພົບບັນຊີສຳລັບການຮຽກເກັບເງິນ {{provider}} ສຳລັບຜູ້ໃຊ້ນີ້.',
+  'user.payment.portalFailed': 'ບໍ່ສາມາດເປີດປະຕູການຮຽກເກັບເງິນຂອງ {{provider}} ໄດ້.',
+  'user.payment.portalNotSupported': '{{provider}} ບໍ່ມີລະບົບປະຕູເກັບເງິນ.',
+  'user.payment.subscriptionOwnershipMismatch': 'ການສະໝັກໃຊ້ນີ້ບໍ່ແມ່ນຂອງບັນຊີຂອງທ່ານ.',
+  'user.payment.transactionAlreadyClaimed': 'ການຊື້ນີ້ຖືກເຊື່ອມໂຍງກັບບັນຊີອື່ນແລ້ວ.',
 }

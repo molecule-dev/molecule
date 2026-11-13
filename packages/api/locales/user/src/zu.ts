@@ -59,4 +59,25 @@ export const zu: UserTranslations = {
   'user.error.oauthVerificationFailed': 'Ukuqinisekiswa kwe-OAuth kuhlulekile.',
   'user.error.failedToCreateUser': 'Yehlulekile ukwakha umsebenzisi.',
   'user.error.oauthLoginFailed': 'Ukungena nge-OAuth kuhlulekile.',
+  'user.error.unauthorized': 'Akugunyaziwe',
+  'user.error.passwordTooLong': 'Iphasiwedi kumele ibe nezinhlamvu ezingu {{max}} okungenani',
+  'user.error.passwordTooShort': 'Iphasiwedi kumele okungenani ibe nezinhlamvu ezingu {{min}}',
+  'user.error.tooManyRequests': 'Imizamo eminingi kakhulu. Sicela ulinde bese uzama futhi.',
+  'user.error.webhookUnauthorized': 'Isaziso sokukhokha esingagunyaziwe',
+  'user.error.credentialsNested':
+    'Le ndawo yokungena ngemvume ifunda iziqinisekiso ezingeni eliphezulu, kodwa lo mzimba uzigcina ngaphansi kwe {{envelope}}. Setha i-loginEndpoint endleleni evula le mvilophu, noma sebenzisa i-createRequestHandler ene-mapRequest ukuze u-unwrap req.body[ {{envelope}}] ngaphambi kwe-handlers.logIn.',
+  'user.error.oauthStateMismatch': 'Ukungafani kwesimo se-OAuth — ukuhlaselwa kwe-CSRF okungenzeka',
+  'user.error.avatarTooLarge': 'I-Avatar kumele ibe yizinhlamvu ezingu {{max}} noma ngaphansi.',
+  'user.error.bioTooLong': 'I-bio kumele ibe yizinhlamvu ezingu {{max}} noma ngaphansi.',
+  'user.error.noUpdatableFields': 'Azikho izinkambu ezingabuyekezwa ezinikeziwe.',
+  'user.error.oauthDataInvalid': 'I-oauthData kumele ibe yinto.',
+  'user.error.subscriptionActivationRequiresVerification':
+    'Ukwenza kusebenze ukubhalisa kumele kudlule ekuqinisekisweni kwerisidi — sebenzisa i-POST /users /:id/verify-payment/:provider.',
+  'user.payment.noBillingAccount':
+    'Ayikho i-akhawunti yokukhokha ye {{provider}} etholakele kulo msebenzisi.',
+  'user.payment.portalFailed': 'Ayikwazanga ukuvula iphothali yokukhokha ye {{provider}} .',
+  'user.payment.portalNotSupported': '{{provider}} ayinikezi iphothali yokukhokha.',
+  'user.payment.subscriptionOwnershipMismatch': 'Lokhu okubhaliselwe akuyona eye-akhawunti yakho.',
+  'user.payment.transactionAlreadyClaimed':
+    'Lokhu kuthenga sekuvele kuhlotshaniswa nenye i-akhawunti.',
 }

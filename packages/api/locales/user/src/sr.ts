@@ -56,4 +56,23 @@ export const sr: UserTranslations = {
   'user.error.oauthVerificationFailed': 'OAuth верификација није успела.',
   'user.error.failedToCreateUser': 'Креирање корисника није успело.',
   'user.error.oauthLoginFailed': 'OAuth пријава није успела.',
+  'user.error.unauthorized': 'Неовлашћено',
+  'user.error.passwordTooLong': 'Лозинка мора имати највише {{max}} знакова',
+  'user.error.passwordTooShort': 'Лозинка мора имати најмање {{min}} карактера',
+  'user.error.tooManyRequests': 'Превише покушаја. Молимо сачекајте и покушајте поново.',
+  'user.error.webhookUnauthorized': 'Обавештење о неовлашћеном плаћању',
+  'user.error.credentialsNested':
+    'Ова крајња тачка за пријаву чита акредитиве на највишем нивоу, али ово тело их угнежђује под {{envelope}}. Поставите loginEndpoint на руту која распакује ову коверту или користите createRequestHandler са mapRequest да бисте распаковали req.body[ {{envelope}}] пре handlers.logIn.',
+  'user.error.oauthStateMismatch': 'Неусклађеност стања OAuth-а — могући CSRF напад',
+  'user.error.avatarTooLarge': 'Аватар мора имати {{max}} знакова или мање.',
+  'user.error.bioTooLong': 'Биографија мора имати {{max}} карактера или мање.',
+  'user.error.noUpdatableFields': 'Нису наведена поља која се могу ажурирати.',
+  'user.error.oauthDataInvalid': 'oauthData мора бити објекат.',
+  'user.error.subscriptionActivationRequiresVerification':
+    'Активација претплате мора проћи кроз верификацију пријема — користите POST /users /:id/verify-payment/:provider.',
+  'user.payment.noBillingAccount': 'Није пронађен {{provider}} налог за обрачун за овог корисника.',
+  'user.payment.portalFailed': 'Није могуће отворити портал за наплату {{provider}} .',
+  'user.payment.portalNotSupported': '{{provider}} не нуди портал за наплату.',
+  'user.payment.subscriptionOwnershipMismatch': 'Ова претплата не припада вашем налогу.',
+  'user.payment.transactionAlreadyClaimed': 'Ова куповина је већ повезана са другим налогом.',
 }

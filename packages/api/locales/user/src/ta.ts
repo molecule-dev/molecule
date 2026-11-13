@@ -57,4 +57,26 @@ export const ta: UserTranslations = {
   'user.error.oauthVerificationFailed': 'OAuth சரிபார்ப்பு தோல்வி.',
   'user.error.failedToCreateUser': 'பயனரை உருவாக்க இயலவில்லை.',
   'user.error.oauthLoginFailed': 'OAuth உள்நுழைவு தோல்வி.',
+  'user.error.unauthorized': 'அங்கீகரிக்கப்படாத',
+  'user.error.passwordTooLong': 'கடவுச்சொல் அதிகபட்சம் {{max}} எழுத்துகள் கொண்டிருக்க வேண்டும்.',
+  'user.error.passwordTooShort': 'கடவுச்சொல் குறைந்தபட்சம் {{min}} எழுத்துகள் கொண்டிருக்க வேண்டும்',
+  'user.error.tooManyRequests':
+    'பலமுறை முயற்சித்துவிட்டீர்கள். தயவுசெய்து காத்திருந்து மீண்டும் முயற்சிக்கவும்.',
+  'user.error.webhookUnauthorized': 'அங்கீகரிக்கப்படாத கட்டண அறிவிப்பு',
+  'user.error.credentialsNested':
+    'இந்த லாகின் எண்ட்பாயிண்ட் மேல் மட்டத்தில் நற்சான்றிதழ்களைப் படிக்கிறது, ஆனால் இந்த பாடி அவற்றை {{envelope}} க்குள் உள்ளடக்கியுள்ளது. இந்த என்வலப்பை அவிழ்க்கும் ரூட்டிற்கு loginEndpoint-ஐ அமைக்கவும், அல்லது handlers.logIn-க்கு முன்பு req.body[ {{envelope}}]-ஐ அவிழ்க்க, mapRequest உடன் createRequestHandler-ஐப் பயன்படுத்தவும்.',
+  'user.error.oauthStateMismatch': 'OAuth நிலை பொருந்தாமை — CSRF தாக்குதலுக்கான சாத்தியம்',
+  'user.error.avatarTooLarge': 'அவதார் {{max}} எழுத்துகள் அல்லது அதற்கும் குறைவாக இருக்க வேண்டும்.',
+  'user.error.bioTooLong': 'சுயவிவரம் {{max}} எழுத்துகள் அல்லது அதற்கும் குறைவாக இருக்க வேண்டும்.',
+  'user.error.noUpdatableFields': 'புதுப்பிக்கக்கூடிய புலங்கள் எதுவும் வழங்கப்படவில்லை.',
+  'user.error.oauthDataInvalid': 'oauthData ஒரு ஆப்ஜெக்ட்டாக இருக்க வேண்டும்.',
+  'user.error.subscriptionActivationRequiresVerification':
+    'சந்தா செயல்படுத்தல் ரசீது சரிபார்ப்பு மூலம் நடைபெற வேண்டும் — இதற்கு POST /users /:id/verify-payment/:provider கட்டளையைப் பயன்படுத்தவும்.',
+  'user.payment.noBillingAccount':
+    'இந்தப் பயனருக்கு எந்த {{provider}} கட்டணக் கணக்கும் காணப்படவில்லை.',
+  'user.payment.portalFailed': '{{provider}} கட்டண இணையதளத்தைத் திறக்க முடியவில்லை.',
+  'user.payment.portalNotSupported': '{{provider}} கட்டணப் பட்டியல் தளத்தை வழங்குவதில்லை.',
+  'user.payment.subscriptionOwnershipMismatch': 'இந்தச் சந்தா உங்கள் கணக்கிற்குச் சொந்தமானது அல்ல.',
+  'user.payment.transactionAlreadyClaimed':
+    'இந்தக் கொள்முதல் ஏற்கனவே மற்றொரு கணக்குடன் இணைக்கப்பட்டுள்ளது.',
 }

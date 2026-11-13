@@ -58,4 +58,24 @@ export const ca: UserTranslations = {
   'user.error.oauthVerificationFailed': 'La verificació OAuth ha fallat.',
   'user.error.failedToCreateUser': "No s'ha pogut crear l'usuari.",
   'user.error.oauthLoginFailed': "L'inici de sessió OAuth ha fallat.",
+  'user.error.unauthorized': 'No autoritzat',
+  'user.error.passwordTooLong': 'La contrasenya ha de tenir com a màxim {{max}} caràcters',
+  'user.error.passwordTooShort': 'La contrasenya ha de tenir com a mínim {{min}} caràcters',
+  'user.error.tooManyRequests': 'Massa intents. Si us plau, espereu i torneu-ho a intentar.',
+  'user.error.webhookUnauthorized': 'Notificació de pagament no autoritzat',
+  'user.error.credentialsNested':
+    "Aquest punt final d'inici de sessió llegeix les credencials al nivell superior, però aquest cos les imbrica sota {{envelope}}. Defineix loginEndpoint a la ruta que desembolica aquest sobre o utilitza createRequestHandler amb mapRequest per desembolicar req.body[ {{envelope}}] abans de handlers.logIn.",
+  'user.error.oauthStateMismatch': "Discrepància d'estat d'OAuth: possible atac CSRF",
+  'user.error.avatarTooLarge': "L'avatar ha de tenir {{max}} caràcters o menys.",
+  'user.error.bioTooLong': 'La biografia ha de tenir {{max}} caràcters o menys.',
+  'user.error.noUpdatableFields': "No s'han proporcionat camps actualitzables.",
+  'user.error.oauthDataInvalid': 'oauthData ha de ser un objecte.',
+  'user.error.subscriptionActivationRequiresVerification':
+    "L'activació de la subscripció ha de passar per la verificació del rebut; utilitzeu POST /users /:id/verify-payment/:provider.",
+  'user.payment.noBillingAccount':
+    "No s'ha trobat cap compte de facturació {{provider}} per a aquest usuari.",
+  'user.payment.portalFailed': "No s'ha pogut obrir el portal de facturació {{provider}} .",
+  'user.payment.portalNotSupported': '{{provider}} no ofereix un portal de facturació.',
+  'user.payment.subscriptionOwnershipMismatch': 'Aquesta subscripció no pertany al teu compte.',
+  'user.payment.transactionAlreadyClaimed': 'Aquesta compra ja està associada a un altre compte.',
 }

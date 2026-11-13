@@ -56,4 +56,25 @@ export const sq: UserTranslations = {
   'user.error.oauthVerificationFailed': 'Verifikimi OAuth deshtoi.',
   'user.error.failedToCreateUser': 'Deshtoi krijimi i perdoruesit.',
   'user.error.oauthLoginFailed': 'Hyrja OAuth deshtoi.',
+  'user.error.unauthorized': 'I paautorizuar',
+  'user.error.passwordTooLong': 'Fjalëkalimi duhet të jetë maksimumi {{max}} karaktere',
+  'user.error.passwordTooShort': 'Fjalëkalimi duhet të jetë të paktën {{min}} karaktere',
+  'user.error.tooManyRequests': 'Shumë përpjekje. Ju lutemi prisni dhe provoni përsëri.',
+  'user.error.webhookUnauthorized': 'Njoftim për pagesë të paautorizuar',
+  'user.error.credentialsNested':
+    'Kjo pikë fundore e hyrjes lexon kredencialet në nivelin më të lartë, por ky trup i vendos ato nën {{envelope}}. Vendos loginEndpoint në rrugën që e hap këtë zarf, ose përdor createRequestHandler me mapRequest për të hapur req.body[ {{envelope}}] para handlers.logIn.',
+  'user.error.oauthStateMismatch': 'Mospërputhje e gjendjes OAuth — sulm i mundshëm CSRF',
+  'user.error.avatarTooLarge': 'Avatari duhet të ketë {{max}} karaktere ose më pak.',
+  'user.error.bioTooLong': 'Biografia duhet të ketë {{max}} karaktere ose më pak.',
+  'user.error.noUpdatableFields': 'Nuk u dhanë fusha të përditësueshme.',
+  'user.error.oauthDataInvalid': 'oauthData duhet të jetë një objekt.',
+  'user.error.subscriptionActivationRequiresVerification':
+    'Aktivizimi i abonimit duhet të kalojë nëpër verifikimin e faturës — përdorni POST /users /:id/verify-payment/:provider.',
+  'user.payment.noBillingAccount':
+    'Nuk u gjet asnjë llogari faturimi {{provider}} për këtë përdorues.',
+  'user.payment.portalFailed': 'Nuk mund të hapet portalin e faturimit {{provider}} .',
+  'user.payment.portalNotSupported': '{{provider}} nuk ofron një portal faturimi.',
+  'user.payment.subscriptionOwnershipMismatch': 'Ky abonim nuk i përket llogarisë suaj.',
+  'user.payment.transactionAlreadyClaimed':
+    'Kjo blerje është tashmë e lidhur me një llogari tjetër.',
 }

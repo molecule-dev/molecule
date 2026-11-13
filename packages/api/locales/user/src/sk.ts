@@ -56,4 +56,24 @@ export const sk: UserTranslations = {
   'user.error.oauthVerificationFailed': 'OAuth overenie zlyhalo.',
   'user.error.failedToCreateUser': 'Nepodarilo sa vytvoriť používateľa.',
   'user.error.oauthLoginFailed': 'OAuth prihlásenie zlyhalo.',
+  'user.error.unauthorized': 'Neoprávnené',
+  'user.error.passwordTooLong': 'Heslo musí mať maximálne {{max}} znakov',
+  'user.error.passwordTooShort': 'Heslo musí mať aspoň {{min}} znakov',
+  'user.error.tooManyRequests': 'Príliš veľa pokusov. Počkajte a skúste to znova.',
+  'user.error.webhookUnauthorized': 'Oznámenie o neoprávnenej platbe',
+  'user.error.credentialsNested':
+    'Tento prihlasovací koncový bod číta poverenia na najvyššej úrovni, ale toto telo ich vnoruje pod {{envelope}}. Nastavte loginEndpoint na trasu, ktorá rozbalí túto obálku, alebo použite createRequestHandler s mapRequest na rozbalenie req.body[ {{envelope}}] pred handlers.logIn.',
+  'user.error.oauthStateMismatch': 'Nezhoda stavu OAuth – možný útok CSRF',
+  'user.error.avatarTooLarge': 'Avatar musí mať {{max}} znakov alebo menej.',
+  'user.error.bioTooLong': 'Životopis musí mať {{max}} znakov alebo menej.',
+  'user.error.noUpdatableFields': 'Neboli poskytnuté žiadne aktualizovateľné polia.',
+  'user.error.oauthDataInvalid': 'oauthData musí byť objekt.',
+  'user.error.subscriptionActivationRequiresVerification':
+    'Aktivácia predplatného musí prejsť overením potvrdenky – použite POST /users /:id/verify-payment/:provider.',
+  'user.payment.noBillingAccount':
+    'Pre tohto používateľa sa nenašiel žiadny fakturačný účet {{provider}} .',
+  'user.payment.portalFailed': 'Nepodarilo sa otvoriť fakturačný portál {{provider}} .',
+  'user.payment.portalNotSupported': '{{provider}} neponúka fakturačný portál.',
+  'user.payment.subscriptionOwnershipMismatch': 'Toto predplatné nepatrí k vášmu účtu.',
+  'user.payment.transactionAlreadyClaimed': 'Tento nákup je už prepojený s iným účtom.',
 }

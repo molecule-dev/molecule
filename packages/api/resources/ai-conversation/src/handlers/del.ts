@@ -41,7 +41,10 @@ export async function clear(req: MoleculeRequest, res: MoleculeResponse): Promis
       })
       if (candidates.length > 1) {
         res.status(400).json({
-          error: t('conversation.error.idRequired'),
+          error: t('conversation.error.idRequired', undefined, {
+            defaultValue:
+              'conversationId is required when the project has more than one conversation',
+          }),
           errorKey: 'conversation.error.idRequired',
         })
         return
@@ -71,7 +74,9 @@ export async function clear(req: MoleculeRequest, res: MoleculeResponse): Promis
   } catch (error) {
     logger.error('Failed to clear conversation', { projectId, error })
     res.status(500).json({
-      error: t('conversation.error.clearFailed'),
+      error: t('conversation.error.clearFailed', undefined, {
+        defaultValue: 'Failed to clear conversation',
+      }),
       errorKey: 'conversation.error.clearFailed',
     })
   }

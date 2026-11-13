@@ -54,4 +54,23 @@ export const am: UserTranslations = {
   'user.error.oauthVerificationFailed': 'OAuth ማረጋገጫ አልተሳካም።',
   'user.error.failedToCreateUser': 'ተጠቃሚን መፍጠር አልተሳካም።',
   'user.error.oauthLoginFailed': 'OAuth መግቢያ አልተሳካም።',
+  'user.error.unauthorized': 'ያልተፈቀደ',
+  'user.error.passwordTooLong': 'የይለፍ ቃል ቢበዛ {{max}} ቁምፊዎች መሆን አለበት',
+  'user.error.passwordTooShort': 'የይለፍ ቃል ቢያንስ {{min}} ቁምፊዎች መሆን አለበት',
+  'user.error.tooManyRequests': 'በጣም ብዙ ሙከራዎች። እባክዎ ይጠብቁና እንደገና ይሞክሩ።',
+  'user.error.webhookUnauthorized': 'ያልተፈቀደ የክፍያ ማሳወቂያ',
+  'user.error.credentialsNested':
+    'ይህ የመግቢያ የመጨረሻ ነጥብ ከላይኛው ደረጃ ላይ ያሉ ምስክርነቶችን ያነባል፣ ነገር ግን ይህ አካል በ {{envelope}} ስር ያስቀምጣቸዋል። loginEndpointን ይህንን ኤንቨሎፕ የሚከፍተውን መንገድ ያቀናብሩ፣ ወይም handlers.logIn በፊት req.body[ {{envelope}}]ን ለማላቀቅ ከmapRequest ጋር createRequestHandlerን ይጠቀሙ።',
+  'user.error.oauthStateMismatch': 'የOAuth ሁኔታ አለመዛመድ — ሊሆን የሚችል የCSRF ጥቃት',
+  'user.error.avatarTooLarge': 'አምሳያ {{max}} ቁምፊዎች ወይም ከዚያ ያነሱ መሆን አለበት።',
+  'user.error.bioTooLong': 'የህይወት ታሪክ {{max}} ቁምፊዎች ወይም ከዚያ ያነሱ መሆን አለበት።',
+  'user.error.noUpdatableFields': 'ምንም ሊዘመኑ የሚችሉ መስኮች አልተሰጡም።',
+  'user.error.oauthDataInvalid': 'oauthData ነገር መሆን አለበት።',
+  'user.error.subscriptionActivationRequiresVerification':
+    'የደንበኝነት ምዝገባን ማግበር የደረሰኝ ማረጋገጫ ማለፍ አለበት — POST /users /:id/verify-payment/:provider ን ይጠቀሙ።',
+  'user.payment.noBillingAccount': 'ለዚህ ተጠቃሚ ምንም {{provider}} የክፍያ መለያ አልተገኘም።',
+  'user.payment.portalFailed': 'የ {{provider}} የክፍያ ፖርታልን መክፈት አልተቻለም።',
+  'user.payment.portalNotSupported': '{{provider}} የክፍያ መግቢያ በር አያቀርብም።',
+  'user.payment.subscriptionOwnershipMismatch': 'ይህ የደንበኝነት ምዝገባ የመለያዎ አካል አይደለም።',
+  'user.payment.transactionAlreadyClaimed': 'ይህ ግዢ አስቀድሞ ከሌላ መለያ ጋር ተያይዟል።',
 }

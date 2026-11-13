@@ -56,4 +56,24 @@ export const cs: UserTranslations = {
   'user.error.oauthVerificationFailed': 'OAuth ověření selhalo.',
   'user.error.failedToCreateUser': 'Nepodařilo se vytvořit uživatele.',
   'user.error.oauthLoginFailed': 'OAuth přihlášení selhalo.',
+  'user.error.unauthorized': 'Neoprávněný',
+  'user.error.passwordTooLong': 'Heslo musí mít maximálně {{max}} znaků',
+  'user.error.passwordTooShort': 'Heslo musí mít alespoň {{min}} znaků',
+  'user.error.tooManyRequests': 'Příliš mnoho pokusů. Počkejte a zkuste to znovu.',
+  'user.error.webhookUnauthorized': 'Oznámení o neoprávněné platbě',
+  'user.error.credentialsNested':
+    'Tento koncový bod pro přihlášení čte přihlašovací údaje na nejvyšší úrovni, ale toto tělo je vnořuje pod {{envelope}}. Nastavte loginEndpoint na trasu, která tuto obálku rozbalí, nebo použijte createRequestHandler s mapRequest k rozbalení req.body[ {{envelope}}] před handlers.logIn.',
+  'user.error.oauthStateMismatch': 'Neshoda stavu OAuth – možný útok CSRF',
+  'user.error.avatarTooLarge': 'Avatar musí mít {{max}} znaků nebo méně.',
+  'user.error.bioTooLong': 'Životopis musí mít {{max}} znaků nebo méně.',
+  'user.error.noUpdatableFields': 'Nebyla poskytnuta žádná aktualizovatelná pole.',
+  'user.error.oauthDataInvalid': 'oauthData musí být objekt.',
+  'user.error.subscriptionActivationRequiresVerification':
+    'Aktivace předplatného musí projít ověřením účtenky – použijte POST /users /:id/verify-payment/:provider.',
+  'user.payment.noBillingAccount':
+    'Pro tohoto uživatele nebyl nalezen žádný fakturační účet {{provider}} .',
+  'user.payment.portalFailed': 'Nepodařilo se otevřít fakturační portál {{provider}} .',
+  'user.payment.portalNotSupported': '{{provider}} nenabízí fakturační portál.',
+  'user.payment.subscriptionOwnershipMismatch': 'Toto předplatné nepatří k vašemu účtu.',
+  'user.payment.transactionAlreadyClaimed': 'Tento nákup je již přidružen k jinému účtu.',
 }
