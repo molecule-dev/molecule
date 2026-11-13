@@ -2606,6 +2606,9 @@ export function useChat(options: UseChatOptions): UseChatResult {
       let resumeAfterLoop: { id: string; content: string } | null = null
 
       const sendGeneration = store.generation
+      // False once a conversation switch orphans this loop: its turn belongs to
+      // the old conversation, so it must not write into the new one's view.
+      const ownsStore = (): boolean => getMessageStore(storageKey).generation === sendGeneration
       while (current) {
         if (!mountedRef.current) break
         resumeAfterLoop = null
@@ -2721,10 +2724,17 @@ export function useChat(options: UseChatOptions): UseChatResult {
         // ahead of that write and momentarily replace the streamed content with
         // stale history (C4 — the bug where stopping wiped the chat until a
         // refresh). Trust the local finalization; a later manual reload reconciles.
-        if (mountedRef.current && resolvedCleanly && !receivedTerminal && !userAbortedRef.current) {
+        if (
+          mountedRef.current &&
+          ownsStore() &&
+          resolvedCleanly &&
+          !receivedTerminal &&
+          !userAbortedRef.current
+        ) {
           finalizeCurrent()
           try {
             const history = await provider.loadHistory(config)
+            if (!ownsStore()) return
             // Converge — never replace. "Usually completed" is not always: the
             // server persists a turn's transcript when the turn ENDS, so a read
             // taken while it is still running returns the PRE-turn transcript,
@@ -2757,7 +2767,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
           }
         }
 
-        if (getMessageStore(storageKey).generation !== sendGeneration) return
+        if (!ownsStore()) return
         if (userAbortedRef.current || getMessageStore(storageKey).stoppedByUser) break
         // A durable entry stays editable until delivery; failed sends keep it queued.
         if (

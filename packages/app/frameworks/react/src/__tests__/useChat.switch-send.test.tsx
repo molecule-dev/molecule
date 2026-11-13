@@ -109,3 +109,53 @@ describe('useChat conversation switch during a stream', () => {
     },
   )
 })
+
+describe('useChat conversation switch when the old stream drops', () => {
+  it("does not merge the old conversation's history into the new one", async () => {
+    let dropOld = (): void => {}
+    const provider = {
+      name: 'dropping',
+      sendMessage: vi.fn(
+        (_message: string, _config: unknown, onEvent: ChatEventHandler) =>
+          new Promise<void>((resolve) => {
+            onEvent({ type: 'message_start', id: 'a-reply', timestamp: 1 })
+            // The connection closes with no done/error event.
+            dropOld = resolve
+          }),
+      ),
+      abort: vi.fn(),
+      clearHistory: vi.fn(async () => undefined),
+      loadHistory: vi.fn(async (config: { endpoint: string }) =>
+        config.endpoint.includes('conversationId=a')
+          ? [
+              { id: 'a-user', role: 'user', content: 'in conversation a', timestamp: 1 },
+              { id: 'a-reply', role: 'assistant', content: 'reply in a', timestamp: 2 },
+            ]
+          : [],
+      ),
+    } as unknown as ChatProvider
+    const { result, rerender } = renderHook(
+      ({ endpoint }: { endpoint: string }) =>
+        useChat({ endpoint, projectId: 'proj-1', loadOnMount: false }),
+      {
+        initialProps: { endpoint: '/chat?conversationId=a' },
+        wrapper: ({ children }: { children: ReactNode }) => (
+          <ChatContext.Provider value={provider}>{children}</ChatContext.Provider>
+        ),
+      },
+    )
+    await act(async () => {
+      void result.current.sendMessage('in conversation a')
+      await flush()
+    })
+
+    rerender({ endpoint: '/chat?conversationId=b' })
+    await act(async () => {
+      dropOld()
+      await flush()
+    })
+
+    expect(result.current.messages.map((m) => m.content)).toEqual([])
+    expect(provider.loadHistory).not.toHaveBeenCalled()
+  })
+})
