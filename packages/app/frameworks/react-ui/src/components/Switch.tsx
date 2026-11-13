@@ -19,7 +19,19 @@ const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffec
  */
 export const Switch = forwardRef<HTMLButtonElement, SwitchProps>(
   (
-    { label, checked, size = 'md', color, className, style, testId, disabled, onChange, ...rest },
+    {
+      label,
+      checked,
+      size = 'md',
+      color,
+      className,
+      style,
+      testId,
+      disabled,
+      onChange,
+      onClick,
+      ...rest
+    },
     ref,
   ) => {
     const cm = getClassMap()
@@ -58,8 +70,12 @@ export const Switch = forwardRef<HTMLButtonElement, SwitchProps>(
       return () => input.removeEventListener('change', listener)
     }, [])
 
-    const handleClick = (): void => {
-      if (!disabled) {
+    // A caller's onClick runs first and can veto the toggle with
+    // preventDefault(); it used to be spread over this handler, so passing
+    // one silently disabled the switch.
+    const handleClick = (event: React.MouseEvent<HTMLButtonElement>): void => {
+      ;(onClick as unknown as React.MouseEventHandler<HTMLButtonElement> | undefined)?.(event)
+      if (!disabled && !event.defaultPrevented) {
         hiddenInputRef.current?.click()
       }
     }

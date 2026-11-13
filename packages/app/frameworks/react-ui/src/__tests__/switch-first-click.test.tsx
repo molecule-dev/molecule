@@ -76,4 +76,25 @@ describe('Switch first click', () => {
     expect(first).not.toHaveBeenCalled()
     expect(second).toHaveBeenCalledTimes(1)
   })
+
+  it('still toggles when the caller passes an onClick, which runs first', () => {
+    const onClick = vi.fn()
+    const onChange = vi.fn()
+    flushSync(() => root.render(<Switch checked={false} onChange={onChange} onClick={onClick} />))
+    host.querySelector<HTMLButtonElement>('[role="switch"]')!.click()
+    expect(onClick).toHaveBeenCalledTimes(1)
+    expect(onChange).toHaveBeenCalledTimes(1)
+    expect(onClick.mock.invocationCallOrder[0]).toBeLessThan(onChange.mock.invocationCallOrder[0])
+  })
+
+  it('does not toggle when the caller onClick prevents the default', () => {
+    const onChange = vi.fn()
+    flushSync(() =>
+      root.render(
+        <Switch checked={false} onChange={onChange} onClick={(event) => event.preventDefault()} />,
+      ),
+    )
+    host.querySelector<HTMLButtonElement>('[role="switch"]')!.click()
+    expect(onChange).not.toHaveBeenCalled()
+  })
 })
