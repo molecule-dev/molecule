@@ -52,12 +52,22 @@ export interface AuthGuardProps {
 }
 
 /**
+ * The pathname part of a login path (`/login?next=x` → `/login`).
+ *
+ * @param loginPath - The guard's `loginPath`.
+ * @returns Its pathname.
+ */
+const loginPathname = (loginPath: string): string => loginPath.split(/[?#]/)[0] || '/'
+
+/**
  * Route-element guard for authenticated sections of a React Router tree.
  *
  * - While `useAuth().status` is `'loading'` (no session decision yet), renders the
  *   `loadingFallback` (or the default `<div data-mol-id="auth-guard-loading">{t('common.loading')}</div>`).
  * - If the status is `'unauthenticated'`, redirects to `loginPath` carrying
- *   the attempted location in `state.from` for post-login restoration.
+ *   the attempted location in `state.from` for post-login restoration. On
+ *   `loginPath` itself it renders its children instead, so a guard that wraps
+ *   the whole route tree (login page included) does not redirect in a loop.
  * - Otherwise renders `children` (or `<Outlet />` if none).
  *
  * The guard reads `status`, not `initialized`: a stored token AND user make the
@@ -106,7 +116,10 @@ export function AuthGuard({
       )
     )
   }
-  if (status === 'unauthenticated') {
+  // On the login path itself the guard renders its children: a guard wrapping
+  // the whole route tree contains the login page, and redirecting there again
+  // would re-navigate on every render.
+  if (status === 'unauthenticated' && location.pathname !== loginPathname(loginPath)) {
     return <Navigate to={loginPath} state={{ from: location }} replace />
   }
   return <>{children ?? <Outlet />}</>
