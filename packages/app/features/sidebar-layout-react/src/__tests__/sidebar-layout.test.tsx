@@ -195,7 +195,7 @@ describe('SidebarLayout', () => {
           navItems: [{ to: '/dashboard', key: 'dashboard', icon: 'dashboard', label: 'Dashboard' }],
         }),
       )
-      expect(markup).toContain('material-symbols-outlined')
+      expect(markup).toContain('iconGlyphFont')
       expect(markup).toContain('>dashboard<')
     })
   })

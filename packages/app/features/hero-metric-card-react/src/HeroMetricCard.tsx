@@ -136,7 +136,11 @@ export function HeroMetricCard({
             ) : (
               <div className={cm.flex({ align: 'baseline', gap: 'xs' })}>
                 <span
-                  className={cm.cn(cm.textSize('5xl'), cm.fontWeight('extrabold'), 'leading-none')}
+                  className={cm.cn(
+                    cm.textSize('5xl'),
+                    cm.fontWeight('extrabold'),
+                    cm.heroMetricCardValue,
+                  )}
                 >
                   {value}
                 </span>

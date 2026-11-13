@@ -38,7 +38,7 @@ export function ChatbotTesterMessages({
     )
   }
   return (
-    <div className={cm.cn(cm.flex1, cm.sp('px', 6), cm.sp('py', 4), 'overflow-y-auto')}>
+    <div className={cm.cn(cm.flex1, cm.sp('px', 6), cm.sp('py', 4), cm.chatbotTesterMessageList)}>
       <div className={cm.stack(3)}>
         {messages.map((msg) => {
           const isUser = msg.role === 'user'
@@ -49,10 +49,8 @@ export function ChatbotTesterMessages({
                   cm.sp('px', 4),
                   cm.sp('py', 2),
                   cm.textSize('sm'),
-                  'rounded-2xl max-w-[80%] whitespace-pre-wrap',
-                  isUser
-                    ? 'bg-primary text-on-primary'
-                    : 'bg-surface-container-high text-on-surface',
+                  cm.chatbotTesterMessageBubble,
+                  isUser ? cm.chatbotTesterMessageBubbleUser : cm.chatbotTesterMessageBubbleBot,
                 )}
               >
                 {msg.content}
@@ -61,7 +59,7 @@ export function ChatbotTesterMessages({
                     className={cm.cn(
                       cm.textSize('xs'),
                       cm.sp('mt', 1),
-                      isUser ? 'text-on-primary/70' : 'text-on-surface-variant',
+                      isUser ? cm.chatbotTesterMessageTimeUser : cm.chatbotTesterMessageTimeBot,
                     )}
                   >
                     {msg.timestamp}
@@ -72,9 +70,7 @@ export function ChatbotTesterMessages({
           )
         })}
         {loading ? (
-          <div className={cm.cn(cm.textSize('xs'), 'text-on-surface-variant animate-pulse')}>
-            ...
-          </div>
+          <div className={cm.cn(cm.textSize('xs'), cm.chatbotTesterTypingIndicator)}>...</div>
         ) : null}
         <div ref={endRef} />
       </div>

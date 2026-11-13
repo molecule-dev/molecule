@@ -79,13 +79,7 @@ export function StorefrontTopNav({
   }, [profileOpen])
 
   return (
-    <header
-      className={cm.cn(
-        'bg-white dark:bg-slate-900 sticky top-0 z-50 border-b border-gray-200 dark:border-slate-800 shadow-sm',
-        className,
-      )}
-      data-mol-id="nav-shell-01"
-    >
+    <header className={cm.cn(cm.storefrontChromeTopNav, className)} data-mol-id="nav-shell-01">
       <nav
         className={cm.cn(
           cm.flex({ justify: 'between', align: 'center' }),
@@ -93,13 +87,13 @@ export function StorefrontTopNav({
           cm.h(16),
           cm.mxAuto,
           cm.w('full'),
-          'max-w-[1280px]',
+          cm.storefrontChromeTopNavInner,
         )}
         data-mol-id="nav-layout-01"
       >
         <div className={cm.flex({ align: 'center' })} data-mol-id="brand-container-01">
           <Link
-            className={cm.cn(cm.textSize('2xl'), cm.textPrimary, 'font-black')}
+            className={cm.cn(cm.textSize('2xl'), cm.textPrimary, cm.storefrontChromeTopNavBrand)}
             data-mol-id="brand-logo-01"
             to={brandTo}
           >
@@ -109,7 +103,7 @@ export function StorefrontTopNav({
 
         {links.length > 0 ? (
           <ul
-            className={cm.cn(cm.flex({ align: 'center' }), 'hidden md:flex gap-6')}
+            className={cm.cn(cm.flex({ align: 'center' }), cm.storefrontChromeTopNavLinks)}
             data-mol-id="nav-links-list-01"
           >
             {links.map((link) => (
@@ -119,8 +113,8 @@ export function StorefrontTopNav({
                     cm.textSize('sm'),
                     cm.fontWeight('medium'),
                     link.active
-                      ? cm.cn(cm.textPrimary, cm.sp('pb', 1), 'font-sans border-b-2 border-primary')
-                      : 'font-sans text-gray-600 hover:text-primary transition-colors',
+                      ? cm.cn(cm.textPrimary, cm.sp('pb', 1), cm.storefrontChromeTopNavLinkActive)
+                      : cm.storefrontChromeTopNavLink,
                   )}
                   data-mol-id={link.dataMolId}
                   to={link.to}
@@ -136,14 +130,12 @@ export function StorefrontTopNav({
           {actions.map((action) => (
             <Link
               key={action.to}
-              className={cm.cn(
-                'p-2 text-gray-600 hover:text-primary transition-all scale-95 active:opacity-80 relative',
-              )}
+              className={cm.cn(cm.storefrontChromeTopNavAction)}
               data-mol-id={action.dataMolId}
               to={action.to}
               aria-label={action.ariaLabel}
             >
-              <span className={cm.cn('material-symbols-outlined')} data-icon={action.icon}>
+              <span className={cm.iconGlyphFont} data-icon={action.icon}>
                 {action.icon}
               </span>
               {action.badgeCount && action.badgeCount > 0 ? (
@@ -151,7 +143,7 @@ export function StorefrontTopNav({
                   className={cm.cn(
                     cm.roundedFull,
                     cm.fontWeight('bold'),
-                    'absolute -top-2 -right-2 bg-primary text-white text-[10px] px-1.5 py-0.5',
+                    cm.storefrontChromeTopNavBadge,
                   )}
                 >
                   {action.badgeCount}
@@ -163,7 +155,11 @@ export function StorefrontTopNav({
           {/* The account/sign-in menu ALWAYS renders so it is reachable for
               every user; the avatar image is an optional enhancement that
               falls back to initials, then a default avatar icon. */}
-          <div className={cm.cn('relative')} data-mol-id="profile-wrapper-01" ref={profileRef}>
+          <div
+            className={cm.cn(cm.position('relative'))}
+            data-mol-id="profile-wrapper-01"
+            ref={profileRef}
+          >
             <button
               type="button"
               aria-label={accountMenuLabel}
@@ -187,7 +183,7 @@ export function StorefrontTopNav({
               {profileImageUrl ? (
                 <img
                   alt={profileImageAlt}
-                  className={cm.cn(cm.w('full'), cm.h('full'), 'object-cover')}
+                  className={cm.cn(cm.w('full'), cm.h('full'), cm.objectCover)}
                   src={profileImageUrl}
                 />
               ) : profileInitials ? (
@@ -195,10 +191,7 @@ export function StorefrontTopNav({
                   {profileInitials}
                 </span>
               ) : (
-                <span
-                  className={cm.cn('material-symbols-outlined', cm.textMuted)}
-                  data-icon="person"
-                >
+                <span className={cm.cn(cm.iconGlyphFont, cm.textMuted)} data-icon="person">
                   person
                 </span>
               )}
@@ -209,7 +202,7 @@ export function StorefrontTopNav({
                   cm.sp('mt', 2),
                   cm.sp('py', 1),
                   cm.w(48),
-                  'absolute right-0 bg-white border border-gray-100 rounded-lg shadow-lg z-50',
+                  cm.storefrontChromeTopNavMenu,
                 )}
                 data-mol-id="profile-dropdown-01"
               >
@@ -220,7 +213,7 @@ export function StorefrontTopNav({
                       cm.sp('px', 4),
                       cm.sp('py', 2),
                       cm.textSize('sm'),
-                      'block text-gray-700 hover:bg-gray-50',
+                      cm.storefrontChromeTopNavMenuItem,
                     )}
                     data-mol-id={item.dataMolId}
                     onClick={() => setProfileOpen(false)}
@@ -231,7 +224,7 @@ export function StorefrontTopNav({
                 ))}
                 {isAuthenticated && onSignOut ? (
                   <>
-                    <hr className={cm.cn(cm.sp('my', 1), 'border-gray-100')} />
+                    <hr className={cm.cn(cm.sp('my', 1), cm.storefrontChromeTopNavMenuDivider)} />
                     <button
                       type="button"
                       // A menu row, not a CTA: the design system's dropdown-item

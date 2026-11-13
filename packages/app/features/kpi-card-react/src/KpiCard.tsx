@@ -87,7 +87,7 @@ export function KpiCard({
   trend,
   action,
   accentSide = 'none',
-  accentColor = 'border-primary',
+  accentColor,
   upperLabel = false,
   emphasizeValue = false,
   hoverLift = false,
@@ -95,13 +95,14 @@ export function KpiCard({
   dataMolId,
 }: KpiCardProps): JSX.Element {
   const cm = getClassMap()
+  const accent = accentColor ?? cm.kpiCardAccentColor
   const accentClass =
     accentSide === 'left'
-      ? cm.cn('border-l-4', accentColor)
+      ? cm.cn(cm.kpiCardAccentLeft, accent)
       : accentSide === 'top'
-        ? cm.cn('border-t-4', accentColor)
+        ? cm.cn(cm.kpiCardAccentTop, accent)
         : ''
-  const liftClass = hoverLift ? 'hover:-translate-y-0.5 transition-transform' : ''
+  const liftClass = hoverLift ? cm.kpiCardHoverLift : ''
   return (
     <Card className={cm.cn(accentClass, liftClass, className)} data-mol-id={dataMolId}>
       <div className={cm.stack(3)}>
@@ -111,11 +112,7 @@ export function KpiCard({
             <span
               className={cm.cn(
                 upperLabel
-                  ? cm.cn(
-                      cm.textSize('xs'),
-                      cm.fontWeight('bold'),
-                      'uppercase tracking-widest text-on-surface-variant',
-                    )
+                  ? cm.cn(cm.textSize('xs'), cm.fontWeight('bold'), cm.kpiCardTitleUppercase)
                   : cm.cn(cm.textSize('sm'), cm.fontWeight('medium')),
               )}
             >
@@ -127,7 +124,7 @@ export function KpiCard({
         <div
           className={cm.cn(
             cm.textSize('3xl'),
-            emphasizeValue ? 'font-extrabold' : cm.fontWeight('bold'),
+            emphasizeValue ? cm.fontWeight('extrabold') : cm.fontWeight('bold'),
           )}
         >
           {value}

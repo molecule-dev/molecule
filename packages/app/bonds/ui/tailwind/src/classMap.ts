@@ -982,6 +982,248 @@ export const classMap: UIClassMap = {
   resultAction,
   resultEmpty,
 
+  // ---- Feature component tokens ----
+
+  iconGlyphFont: 'material-symbols-outlined',
+
+  // -- auth-brand-header --
+
+  authBrandHeaderChipSquare: 'rounded-2xl',
+  authBrandHeaderChipShadow: 'shadow-md shadow-primary/30',
+  authBrandHeaderChipIcon: 'text-white',
+  authBrandHeaderWordmark: 'font-extrabold tracking-tighter text-on-surface',
+  authBrandHeaderTagline: 'text-on-surface-variant',
+
+  // -- auth-shell --
+
+  authShellContainer: 'relative overflow-hidden bg-background text-on-surface',
+  authShellDecoration: 'pointer-events-none absolute inset-0 -z-10 overflow-hidden',
+  authShellCardSurface:
+    'rounded-3xl border border-white/40 bg-surface-container-lowest/80 backdrop-blur-2xl shadow-[0_30px_80px_-20px_rgba(116,47,229,0.30)]',
+  authShellCardOuter: 'max-w-md relative z-10',
+  authShellHeadingEyebrow: 'uppercase tracking-widest text-on-surface-variant',
+  authShellHeadingTitle: 'tracking-tight text-on-surface text-center',
+  authShellHeadingSub: 'text-on-surface-variant text-center max-w-sm',
+  authShellFooter: 'text-on-surface-variant border-t border-outline-variant/10 pt-6',
+  authShellBackLink: 'text-on-surface-variant',
+  authShellBackLinkAnchor: 'hover:text-primary transition-colors',
+  authShellPanel: 'hidden lg:flex',
+
+  // -- chatbot-tester --
+
+  chatbotTesterBotBar: 'gap-3 border-b border-outline-variant/20',
+  chatbotTesterBotSelect:
+    'bg-surface-container-high border-none rounded-xl px-3 py-2 focus:ring-2 focus:ring-primary/40',
+  chatbotTesterInputRow: 'border-t border-outline-variant/20',
+  chatbotTesterInputField:
+    'border border-outline-variant rounded-xl focus:ring-2 focus:ring-primary/40 resize-none disabled:opacity-60',
+  chatbotTesterMessageList: 'overflow-y-auto',
+  chatbotTesterMessageBubble: 'rounded-2xl max-w-[80%] whitespace-pre-wrap',
+  chatbotTesterMessageBubbleUser: 'bg-primary text-on-primary',
+  chatbotTesterMessageBubbleBot: 'bg-surface-container-high text-on-surface',
+  chatbotTesterMessageTimeUser: 'text-on-primary/70',
+  chatbotTesterMessageTimeBot: 'text-on-surface-variant',
+  chatbotTesterTypingIndicator: 'text-on-surface-variant animate-pulse',
+
+  // -- data-table-ui --
+
+  dataTableCardShell: 'bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm',
+  dataTableCardTitle: 'text-on-surface',
+  dataTableCardScroller: 'overflow-x-auto',
+  dataTableCardTable: 'text-left border-collapse',
+  dataTableCardHead: 'bg-surface-container-low border-b border-outline-variant/10',
+  dataTableCardHeaderCell:
+    'text-[10px] font-black text-on-surface-variant uppercase tracking-widest',
+  dataTableCardBody: 'divide-y divide-surface-container',
+  dataTableCardSkeletonBar: 'bg-surface-container-low rounded animate-pulse',
+  dataTableCardEmptyCell: 'text-on-surface-variant',
+  dataTableCardRowHover: 'hover:bg-surface-container-low transition-colors',
+
+  // -- faceted-search --
+
+  facetedSearchBar: 'fixed z-40 border-b border-outline-variant/20 overflow-x-auto hide-scrollbar',
+  facetedSearchPillPanel:
+    'absolute top-full bg-surface-container-high rounded-xl shadow-lg min-w-[240px] z-50',
+  facetedSearchPillPanelRight: 'right-0',
+  facetedSearchPillPanelLeft: 'left-0',
+
+  // -- hero-metric-card --
+
+  heroMetricCardValue: 'leading-none',
+
+  // -- kpi-card --
+
+  kpiCardAccentLeft: 'border-l-4',
+  kpiCardAccentTop: 'border-t-4',
+  kpiCardAccentColor: 'border-primary',
+  kpiCardTitleUppercase: 'uppercase tracking-widest text-on-surface-variant',
+  kpiCardHoverLift: 'hover:-translate-y-0.5 transition-transform',
+
+  // -- legal-pages --
+
+  legalPagesShell: 'bg-background text-on-surface font-body',
+  legalPagesHero: 'relative overflow-hidden',
+  legalPagesHeroGlow:
+    'pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full blur-3xl',
+  legalPagesHeroContent: 'relative z-10',
+  legalPagesHeroEyebrow: 'font-label uppercase tracking-widest text-primary',
+  legalPagesHeroTitle: 'font-display tracking-tight',
+  legalPagesHeroSubtitle: 'font-body text-on-surface-variant',
+  legalPagesContentCard: 'rounded-2xl shadow-lg border border-outline-variant/40',
+
+  // -- message-preview --
+
+  messagePreviewAvatarWrap: 'relative shrink-0',
+  messagePreviewAvatar: 'bg-primary/15 text-primary',
+  messagePreviewPresenceDot:
+    'absolute -bottom-0.5 -right-0.5 ring-2 ring-[color:var(--color-surface)]',
+  messagePreviewPresenceOnline: 'bg-[#10b981]',
+  messagePreviewPresenceAway: 'bg-[#f59e0b]',
+  messagePreviewPresenceOffline: 'bg-[#9ca3af]',
+  messagePreviewName: 'text-on-surface truncate',
+  messagePreviewTimestamp: 'text-on-surface-variant shrink-0 tabular-nums',
+  messagePreviewChannelIcon: 'text-on-surface-variant',
+  messagePreviewText: 'text-on-surface-variant truncate flex-1',
+  messagePreviewUnreadPip:
+    'min-w-[18px] h-[18px] px-1.5 text-[10px] bg-primary text-white shrink-0',
+  messagePreviewRow:
+    'transition-colors relative border-b border-[color:var(--color-border-secondary)]',
+  messagePreviewRowActive: 'bg-primary/[0.08] border-l-[3px] border-l-primary',
+  messagePreviewRowHover: 'hover:bg-surface-secondary',
+
+  // -- node-editor-panel --
+
+  nodeEditorPanelAside: 'bg-surface-container-low border-l border-white/5',
+  nodeEditorPanelHeader: 'border-b border-white/5',
+  nodeEditorPanelTitle: 'font-headline text-on-surface',
+  nodeEditorPanelBody: 'overflow-y-auto',
+  nodeEditorPanelFooter: 'border-t border-white/5',
+  nodeEditorPanelOptionSelected:
+    'bg-surface-container-lowest rounded-xl hover:bg-surface-container-highest transition-colors group',
+  nodeEditorPanelOption:
+    'bg-surface-container-lowest/50 rounded-xl hover:bg-surface-container-highest transition-colors',
+  nodeEditorPanelOptionLabelSelected: 'text-on-surface',
+  nodeEditorPanelOptionLabel: 'text-on-surface-variant',
+  nodeEditorPanelRadioRing: 'w-4 h-4 rounded-full border-2 flex items-center justify-center',
+  nodeEditorPanelRadioRingSelected: 'border-primary',
+  nodeEditorPanelRadioRingIdle: 'border-outline-variant',
+  nodeEditorPanelSectionLabel: 'text-[11px] text-on-surface-variant uppercase tracking-widest',
+  nodeEditorPanelSliderValue: 'font-mono text-primary bg-primary/10 rounded',
+  nodeEditorPanelSliderTrack:
+    'bg-surface-container-lowest rounded-lg appearance-none accent-primary',
+  nodeEditorPanelToggleRow: 'bg-surface-container rounded-xl border border-primary/20',
+  nodeEditorPanelToggleGroup: 'gap-3',
+  nodeEditorPanelToggleIconTile: 'bg-primary/10 rounded-lg text-primary',
+  nodeEditorPanelToggleTitle: 'text-on-surface',
+  nodeEditorPanelToggleSubtitle: 'text-[10px] text-on-surface-variant',
+
+  // -- notification-feed --
+
+  notificationFeedList: 'space-y-2',
+  notificationFeedUnreadAccent: 'border-l-4 border-primary',
+  notificationFeedIconTile: 'h-10 w-10 bg-primary-container',
+  notificationFeedTimestamp: 'whitespace-nowrap',
+
+  // -- settings-panel --
+
+  settingsPanelTwoFactorSecret: 'text-center break-all',
+
+  // -- spreadsheet-grid --
+
+  spreadsheetGridRoot: 'bg-surface text-on-surface select-none',
+  spreadsheetGridRootBorder: 'border border-outline-variant/30',
+  spreadsheetGridCorner: 'bg-surface-container-low border-r border-b border-outline-variant/30',
+  spreadsheetGridLane: 'bg-surface-container-low',
+  spreadsheetGridHeaderCell: 'border-r border-b border-outline-variant/30 text-on-surface-variant',
+  spreadsheetGridCellBorder: 'border-r border-b border-outline-variant/20',
+  spreadsheetGridCellSelected: 'bg-primary/10',
+  spreadsheetGridCellAnchor: 'outline outline-2 outline-primary',
+  spreadsheetGridCellEditor: 'px-1 outline-none bg-surface',
+  spreadsheetGridCellContent: 'px-1 truncate text-on-surface',
+
+  // -- status-timeline --
+
+  statusTimelineList: 'space-y-2',
+  statusTimelineDot: 'h-2 w-2',
+  statusTimelineDotIdle: 'bg-outline-variant',
+
+  // -- storefront-chrome --
+
+  storefrontChromeAnnouncementBar: 'bg-slate-900 text-white py-2.5',
+  storefrontChromeAnnouncementLink:
+    'underline underline-offset-4 hover:text-green-400 transition-colors',
+  storefrontChromeFooter: 'bg-slate-900 dark:bg-black border-t border-slate-800 mt-20',
+  storefrontChromeFooterColumns: 'md:grid-cols-4',
+  storefrontChromeFooterBrandCol: 'col-span-1 md:col-span-1',
+  storefrontChromeFooterBrand: 'font-black text-white',
+  storefrontChromeFooterTagline: 'text-slate-400 font-sans leading-relaxed',
+  storefrontChromeFooterHeading: 'text-white',
+  storefrontChromeFooterLink: 'text-slate-400 hover:text-green-400 transition-colors',
+  storefrontChromeFooterDivider: 'border-t border-slate-800',
+  storefrontChromeFooterCopyright: 'text-slate-400',
+  storefrontChromeTopNav:
+    'bg-white dark:bg-slate-900 sticky top-0 z-50 border-b border-gray-200 dark:border-slate-800 shadow-sm',
+  storefrontChromeTopNavInner: 'max-w-[1280px]',
+  storefrontChromeTopNavBrand: 'font-black',
+  storefrontChromeTopNavLinks: 'hidden md:flex gap-6',
+  storefrontChromeTopNavLinkActive: 'font-sans border-b-2 border-primary',
+  storefrontChromeTopNavLink: 'font-sans text-gray-600 hover:text-primary transition-colors',
+  storefrontChromeTopNavAction:
+    'p-2 text-gray-600 hover:text-primary transition-all scale-95 active:opacity-80 relative',
+  storefrontChromeTopNavBadge:
+    'absolute -top-2 -right-2 bg-primary text-white text-[10px] px-1.5 py-0.5',
+  storefrontChromeTopNavMenu:
+    'absolute right-0 bg-white border border-gray-100 rounded-lg shadow-lg z-50',
+  storefrontChromeTopNavMenuItem: 'block text-gray-700 hover:bg-gray-50',
+  storefrontChromeTopNavMenuDivider: 'border-gray-100',
+
+  // -- top-nav-layout --
+
+  topNavLayoutRoot: 'bg-background text-on-surface antialiased',
+  topNavLayoutHeader: 'sticky top-0 z-40 bg-surface shadow-sm',
+  topNavLayoutNavItem: 'rounded-md transition-colors',
+  topNavLayoutNavItemIdle: 'hover:bg-surface-container hover:text-on-surface',
+  topNavLayoutNavItemLabel: 'hidden md:inline',
+
+  // -- transactions-table --
+
+  transactionsTableShell: 'bg-surface-container-lowest rounded-3xl overflow-hidden shadow-sm',
+  transactionsTableSkeletonRow: 'h-12 bg-surface-container-low rounded-lg animate-pulse',
+  transactionsTableTertiaryText: 'text-tertiary',
+  transactionsTableScroller: 'overflow-x-auto',
+  transactionsTableTable: 'text-left border-collapse',
+  transactionsTableHeadRow: 'bg-surface-container-low/50 border-none',
+  transactionsTableHeaderCell: 'font-headline uppercase tracking-widest text-slate-400',
+  transactionsTableBody: 'divide-y divide-transparent',
+  transactionsTableRow: 'group hover:bg-surface-container-low transition-colors duration-200',
+  transactionsTableDateCell: 'text-slate-500',
+  transactionsTableDescriptionRow: 'gap-3',
+  transactionsTableDescription: 'text-on-surface',
+  transactionsTableCategoryChip: 'text-[10px] uppercase tracking-wider',
+  transactionsTableAccountCell: 'text-slate-500 italic',
+  transactionsTableAmountCell: 'font-headline',
+
+  // -- weather-card --
+
+  weatherCardHero:
+    'min-h-[360px] bg-gradient-to-br from-primary via-primary-container to-tertiary-container rounded-[2rem] text-white relative overflow-hidden shadow-2xl shadow-primary/30',
+  weatherCardContent: 'relative z-10',
+  weatherCardEyebrow: 'uppercase tracking-widest text-primary-fixed/80',
+  weatherCardLocation: 'tracking-tight text-white',
+  weatherCardRegion: 'font-mono uppercase tracking-widest text-white/70',
+  weatherCardAlertWatch: 'bg-warning/30 text-white',
+  weatherCardAlertWarning: 'bg-error/30 text-white',
+  weatherCardAlertEmergency: 'bg-error/60 text-white',
+  weatherCardAlertBadge: 'text-[10px] uppercase tracking-widest backdrop-blur-md',
+  weatherCardTemperature: 'tabular-nums text-white',
+  weatherCardConditionPill: 'bg-white/20 backdrop-blur-md border border-white/15',
+  weatherCardFeelsLike: 'text-white/85',
+  weatherCardHighLowChip: 'bg-white/15 backdrop-blur-md tabular-nums',
+  weatherCardUpdated: 'font-mono uppercase tracking-widest text-white/60',
+  weatherCardGlowLarge: 'absolute -right-24 -bottom-24 w-72 h-72 rounded-full bg-white/10 blur-3xl',
+  weatherCardGlowSmall:
+    'absolute right-12 top-12 w-20 h-20 rounded-full bg-tertiary-fixed/30 blur-2xl',
+
   // ---- Display utilities ----
 
   displayBlock,

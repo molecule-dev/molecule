@@ -53,10 +53,10 @@ describe('AuthBrandHeader (preset mode)', () => {
     const withIcon = html(
       createElement(AuthBrandHeader, { appName: 'A', tagline: 'T', icon: 'rocket_launch' }),
     )
-    expect(withIcon).toContain('material-symbols-outlined')
+    expect(withIcon).toContain('iconGlyphFont')
     expect(withIcon).toContain('rocket_launch')
     const without = html(createElement(AuthBrandHeader, { appName: 'A', tagline: 'T' }))
-    expect(without).not.toContain('material-symbols-outlined')
+    expect(without).not.toContain('iconGlyphFont')
   })
 
   it('applies the wordmarkColor as an inline color on the <h1>', () => {
@@ -102,24 +102,24 @@ describe('AuthBrandHeaderChip', () => {
     )
     expect(markup).toContain('star')
     expect(markup).toContain('background:linear-gradient(red, blue)')
-    expect(markup).toContain('rounded-2xl')
+    expect(markup).toContain('authBrandHeaderChipSquare')
   })
 
-  it('falls back to bg-primary when no chipGradient is supplied so the white icon stays visible', () => {
+  it('falls back to the primary background when no chipGradient is supplied so the white icon stays visible', () => {
     const markup = html(createElement(AuthBrandHeaderChip, { icon: 'description' }))
     expect(markup).toContain('description')
-    expect(markup).toContain('bg-primary')
+    expect(markup).toContain('bgPrimary')
     expect(markup).not.toContain('background:')
   })
 
-  it('omits the bg-primary fallback when chipGradient supplies its own background', () => {
+  it('omits the primary background fallback when chipGradient supplies its own background', () => {
     const markup = html(
       createElement(AuthBrandHeaderChip, {
         icon: 'description',
         chipGradient: 'linear-gradient(red, blue)',
       }),
     )
-    expect(markup).not.toContain('bg-primary')
+    expect(markup).not.toContain('bgPrimary')
     expect(markup).toContain('background:linear-gradient(red, blue)')
   })
 })
@@ -139,9 +139,9 @@ describe('AuthBrandHeaderWordmark', () => {
     expect(markup).toContain('color:#7c3aed')
   })
 
-  it('includes text-on-surface by default so the wordmark stays legible in both themes', () => {
+  it('includes the wordmark ink by default so it stays legible in both themes', () => {
     const markup = html(createElement(AuthBrandHeaderWordmark, { children: 'Reverb' }))
-    expect(markup).toContain('text-on-surface')
+    expect(markup).toContain('authBrandHeaderWordmark')
   })
 })
 
@@ -152,7 +152,7 @@ describe('AuthBrandHeaderTagline', () => {
     )
     expect(markup).toContain('<p')
     expect(markup).toContain('Ship faster')
-    expect(markup).toContain('text-on-surface-variant')
+    expect(markup).toContain('authBrandHeaderTagline')
     expect(markup).toContain('font-mono')
   })
 })

@@ -40,28 +40,26 @@ export function NodeEditorRadioGroup<T extends string>({
               cm.flex({ align: 'center', justify: 'between' }),
               cm.sp('p', 3),
               cm.cursorPointer,
-              selected
-                ? 'bg-surface-container-lowest rounded-xl hover:bg-surface-container-highest transition-colors group'
-                : 'bg-surface-container-lowest/50 rounded-xl hover:bg-surface-container-highest transition-colors',
+              selected ? cm.nodeEditorPanelOptionSelected : cm.nodeEditorPanelOption,
             )}
             onClick={() => onChange(opt.value)}
           >
             <span
               className={cm.cn(
                 cm.textSize('xs'),
-                selected ? 'text-on-surface' : 'text-on-surface-variant',
+                selected ? cm.nodeEditorPanelOptionLabelSelected : cm.nodeEditorPanelOptionLabel,
               )}
             >
               {opt.label}
             </span>
             <div
               className={cm.cn(
-                'w-4 h-4 rounded-full border-2 flex items-center justify-center',
-                selected ? 'border-primary' : 'border-outline-variant',
+                cm.nodeEditorPanelRadioRing,
+                selected ? cm.nodeEditorPanelRadioRingSelected : cm.nodeEditorPanelRadioRingIdle,
               )}
             >
               {selected ? (
-                <div className={cm.cn(cm.w(2), cm.h(2), cm.roundedFull, 'bg-primary')} />
+                <div className={cm.cn(cm.w(2), cm.h(2), cm.roundedFull, cm.bgPrimary)} />
               ) : null}
             </div>
           </label>

@@ -48,7 +48,7 @@ export function AdminTableRowActions<T>({
           setOpen((v) => !v)
         }}
       >
-        <span className={cm.cn('material-symbols-outlined')} data-icon="more_vert">
+        <span className={cm.cn(cm.iconGlyphFont)} data-icon="more_vert">
           more_vert
         </span>
       </Button>

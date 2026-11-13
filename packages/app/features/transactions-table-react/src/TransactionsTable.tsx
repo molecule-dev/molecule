@@ -80,21 +80,14 @@ export function TransactionsTable({
   if (loading) {
     return (
       <div
-        className={cm.cn(
-          'bg-surface-container-lowest rounded-3xl overflow-hidden shadow-sm',
-          cm.sp('p', 6),
-          className,
-        )}
+        className={cm.cn(cm.transactionsTableShell, cm.sp('p', 6), className)}
         data-mol-id="transactions-table-loading"
       >
         {Array.from({ length: 6 }).map((_, i) => (
           <div
             key={i}
             aria-hidden="true"
-            className={cm.cn(
-              'h-12 bg-surface-container-low rounded-lg animate-pulse',
-              cm.sp('mb', 3),
-            )}
+            className={cm.cn(cm.transactionsTableSkeletonRow, cm.sp('mb', 3))}
           />
         ))}
       </div>
@@ -105,15 +98,12 @@ export function TransactionsTable({
     return (
       <div
         role="alert"
-        className={cm.cn(
-          'bg-surface-container-lowest rounded-3xl overflow-hidden shadow-sm',
-          cm.sp('p', 10),
-          cm.textCenter,
-          className,
-        )}
+        className={cm.cn(cm.transactionsTableShell, cm.sp('p', 10), cm.textCenter, className)}
         data-mol-id="transactions-table-error"
       >
-        <p className={cm.cn('text-tertiary', cm.textSize('sm'), cm.sp('mb', 3))}>{error}</p>
+        <p className={cm.cn(cm.transactionsTableTertiaryText, cm.textSize('sm'), cm.sp('mb', 3))}>
+          {error}
+        </p>
         {onRetry ? (
           <button
             type="button"
@@ -135,7 +125,7 @@ export function TransactionsTable({
     return (
       <div
         className={cm.cn(
-          'bg-surface-container-lowest rounded-3xl overflow-hidden shadow-sm',
+          cm.transactionsTableShell,
           cm.sp('p', 12),
           cm.textCenter,
           cm.stack(4),
@@ -149,16 +139,11 @@ export function TransactionsTable({
   }
 
   return (
-    <div
-      className={cm.cn(
-        'bg-surface-container-lowest rounded-3xl overflow-hidden shadow-sm',
-        className,
-      )}
-    >
-      <div className={cm.cn('overflow-x-auto')}>
-        <table className={cm.cn(cm.w('full'), 'text-left border-collapse')}>
+    <div className={cm.cn(cm.transactionsTableShell, className)}>
+      <div className={cm.cn(cm.transactionsTableScroller)}>
+        <table className={cm.cn(cm.w('full'), cm.transactionsTableTable)}>
           <thead>
-            <tr className={cm.cn('bg-surface-container-low/50 border-none')}>
+            <tr className={cm.cn(cm.transactionsTableHeadRow)}>
               {(
                 [
                   { key: 'date', label: headers?.date ?? 'Date', right: false },
@@ -179,7 +164,7 @@ export function TransactionsTable({
                     cm.sp('py', 5),
                     cm.textSize('xs'),
                     cm.fontWeight('bold'),
-                    'font-headline uppercase tracking-widest text-slate-400',
+                    cm.transactionsTableHeaderCell,
                     h.right ? cm.textRight : '',
                   )}
                 >
@@ -188,7 +173,7 @@ export function TransactionsTable({
               ))}
             </tr>
           </thead>
-          <tbody className={cm.cn('divide-y divide-transparent')}>
+          <tbody className={cm.cn(cm.transactionsTableBody)}>
             {transactions.map((tx) => {
               const catKey = tx.categoryKey.toLowerCase()
               const catStyle = categoryStyles?.[catKey] ?? NEUTRAL_STYLE
@@ -197,10 +182,7 @@ export function TransactionsTable({
                 <tr
                   key={tx.id}
                   data-mol-id="transactions-table-row"
-                  className={cm.cn(
-                    onRowClick ? cm.cursorPointer : '',
-                    'group hover:bg-surface-container-low transition-colors duration-200',
-                  )}
+                  className={cm.cn(onRowClick ? cm.cursorPointer : '', cm.transactionsTableRow)}
                   onClick={onRowClick ? () => onRowClick(tx) : undefined}
                 >
                   <td
@@ -208,13 +190,18 @@ export function TransactionsTable({
                       cm.sp('px', 6),
                       cm.sp('py', 5),
                       cm.textSize('sm'),
-                      'text-slate-500',
+                      cm.transactionsTableDateCell,
                     )}
                   >
                     {formatDate(tx.date)}
                   </td>
                   <td className={cm.cn(cm.sp('px', 6), cm.sp('py', 5))}>
-                    <div className={cm.cn(cm.flex({ align: 'center' }), 'gap-3')}>
+                    <div
+                      className={cm.cn(
+                        cm.flex({ align: 'center' }),
+                        cm.transactionsTableDescriptionRow,
+                      )}
+                    >
                       <div
                         className={cm.cn(
                           cm.w(10),
@@ -224,9 +211,11 @@ export function TransactionsTable({
                         )}
                         style={{ backgroundColor: catStyle.bg, color: catStyle.color }}
                       >
-                        <span className={cm.cn('material-symbols-outlined')}>{catStyle.icon}</span>
+                        <span className={cm.iconGlyphFont}>{catStyle.icon}</span>
                       </div>
-                      <span className={cm.cn(cm.fontWeight('bold'), 'text-on-surface')}>
+                      <span
+                        className={cm.cn(cm.fontWeight('bold'), cm.transactionsTableDescription)}
+                      >
                         {tx.description}
                       </span>
                     </div>
@@ -238,7 +227,7 @@ export function TransactionsTable({
                         cm.sp('py', 1),
                         cm.fontWeight('bold'),
                         cm.roundedFull,
-                        'text-[10px] uppercase tracking-wider',
+                        cm.transactionsTableCategoryChip,
                       )}
                       style={{ backgroundColor: catStyle.bg, color: catStyle.color }}
                     >
@@ -250,7 +239,7 @@ export function TransactionsTable({
                       cm.sp('px', 6),
                       cm.sp('py', 5),
                       cm.textSize('sm'),
-                      'text-slate-500 italic',
+                      cm.transactionsTableAccountCell,
                     )}
                   >
                     {tx.account}
@@ -261,8 +250,8 @@ export function TransactionsTable({
                       cm.sp('py', 5),
                       cm.textRight,
                       cm.fontWeight('bold'),
-                      'font-headline',
-                      isIncome ? 'text-primary' : 'text-tertiary',
+                      cm.transactionsTableAmountCell,
+                      isIncome ? cm.textPrimary : cm.transactionsTableTertiaryText,
                     )}
                   >
                     {isIncome ? '+' : '-'}

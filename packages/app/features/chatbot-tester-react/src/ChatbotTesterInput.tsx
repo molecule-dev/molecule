@@ -35,7 +35,7 @@ export function ChatbotTesterInput({
         cm.flex({ align: 'end', gap: 2 }),
         cm.sp('px', 6),
         cm.sp('py', 4),
-        'border-t border-outline-variant/20',
+        cm.chatbotTesterInputRow,
       )}
     >
       <textarea
@@ -56,7 +56,7 @@ export function ChatbotTesterInput({
           cm.sp('py', 2),
           cm.textSize('sm'),
           cm.surface,
-          'border border-outline-variant rounded-xl focus:ring-2 focus:ring-primary/40 resize-none disabled:opacity-60',
+          cm.chatbotTesterInputField,
         )}
       />
       <button

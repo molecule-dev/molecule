@@ -30,7 +30,7 @@ export function StorefrontAnnouncementBar({
         cm.sp('px', 4),
         cm.textSize('sm'),
         cm.fontWeight('medium'),
-        'bg-slate-900 text-white py-2.5',
+        cm.storefrontChromeAnnouncementBar,
         className,
       )}
     >
@@ -39,7 +39,7 @@ export function StorefrontAnnouncementBar({
         <>
           {' '}
           <Link
-            className={cm.cn('underline underline-offset-4 hover:text-green-400 transition-colors')}
+            className={cm.cn(cm.storefrontChromeAnnouncementLink)}
             data-mol-id="announcement-link"
             to={cta.to}
           >

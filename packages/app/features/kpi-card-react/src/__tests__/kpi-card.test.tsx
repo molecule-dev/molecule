@@ -14,11 +14,13 @@ vi.mock('@molecule/app-ui', () => ({
           return (...cls: unknown[]) =>
             cls
               .flat(Infinity)
+              .map((c) => (typeof c === 'function' ? c() : c))
               .filter((c) => typeof c === 'string' && c.length > 0)
               .join(' ')
         }
         const token = String(prop)
-        return (..._args: unknown[]) => token
+        // A method call carries its arguments (`fontWeight:extrabold`), so variants are assertable.
+        return (...args: unknown[]) => (args.length > 0 ? `${token}:${args.join(',')}` : token)
       },
     }
     return new Proxy({}, handler)
@@ -145,19 +147,19 @@ describe('KpiCard', () => {
 
   it('emits a left-edge accent class when accentSide="left"', () => {
     const markup = html(createElement(KpiCard, { title: 'T', value: 'V', accentSide: 'left' }))
-    expect(markup).toContain('border-l-4')
-    expect(markup).toContain('border-primary')
+    expect(markup).toContain('kpiCardAccentLeft')
+    expect(markup).toContain('kpiCardAccentColor')
   })
 
   it('emits a top-edge accent class when accentSide="top"', () => {
     const markup = html(createElement(KpiCard, { title: 'T', value: 'V', accentSide: 'top' }))
-    expect(markup).toContain('border-t-4')
+    expect(markup).toContain('kpiCardAccentTop')
   })
 
   it('emits no accent class by default (accentSide="none")', () => {
     const markup = html(createElement(KpiCard, { title: 'T', value: 'V' }))
-    expect(markup).not.toContain('border-l-4')
-    expect(markup).not.toContain('border-t-4')
+    expect(markup).not.toContain('kpiCardAccentLeft')
+    expect(markup).not.toContain('kpiCardAccentTop')
   })
 
   it('honours a custom accentColor', () => {
@@ -174,12 +176,12 @@ describe('KpiCard', () => {
 
   it('applies the hover-lift class when hoverLift is true', () => {
     const markup = html(createElement(KpiCard, { title: 'T', value: 'V', hoverLift: true }))
-    expect(markup).toContain('hover:-translate-y-0.5')
+    expect(markup).toContain('kpiCardHoverLift')
   })
 
   it('omits the hover-lift class by default', () => {
     expect(html(createElement(KpiCard, { title: 'T', value: 'V' }))).not.toContain(
-      'hover:-translate-y-0.5',
+      'kpiCardHoverLift',
     )
   })
 
@@ -198,11 +200,11 @@ describe('KpiCard', () => {
 
   it('emits the uppercase-label styling when upperLabel is true', () => {
     const markup = html(createElement(KpiCard, { title: 'T', value: 'V', upperLabel: true }))
-    expect(markup).toContain('uppercase tracking-widest')
+    expect(markup).toContain('kpiCardTitleUppercase')
   })
 
-  it('emits font-extrabold for the value when emphasizeValue is true', () => {
+  it('emits the extrabold weight for the value when emphasizeValue is true', () => {
     const markup = html(createElement(KpiCard, { title: 'T', value: 'V', emphasizeValue: true }))
-    expect(markup).toContain('font-extrabold')
+    expect(markup).toContain('fontWeight:extrabold')
   })
 })

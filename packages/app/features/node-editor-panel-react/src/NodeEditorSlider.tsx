@@ -38,24 +38,13 @@ export function NodeEditorSlider({
     <NodeEditorSection
       label={label}
       trailing={
-        <span
-          className={cm.cn(
-            cm.textSize('xs'),
-            cm.sp('px', 2),
-            'font-mono text-primary bg-primary/10 rounded',
-          )}
-        >
+        <span className={cm.cn(cm.textSize('xs'), cm.sp('px', 2), cm.nodeEditorPanelSliderValue)}>
           {valueDisplay ?? value}
         </span>
       }
     >
       <input
-        className={cm.cn(
-          cm.w('full'),
-          cm.h(1.5),
-          cm.cursorPointer,
-          'bg-surface-container-lowest rounded-lg appearance-none accent-primary',
-        )}
+        className={cm.cn(cm.w('full'), cm.h(1.5), cm.cursorPointer, cm.nodeEditorPanelSliderTrack)}
         min={min}
         max={max}
         step={step}

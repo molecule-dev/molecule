@@ -26,12 +26,6 @@ export interface MessagePreviewProps {
   className?: string
 }
 
-const PRESENCE_COLOR: Record<MessagePreviewPresence, string> = {
-  online: 'bg-[#10b981]',
-  away: 'bg-[#f59e0b]',
-  offline: 'bg-[#9ca3af]',
-}
-
 /** Derives up to two uppercase initials from a string ReactNode. */
 function deriveInitials(value: ReactNode): string {
   if (typeof value !== 'string') return ''
@@ -65,10 +59,16 @@ export function MessagePreview({
 }: MessagePreviewProps): JSX.Element {
   const cm = getClassMap()
   const initialsLabel = initials ?? deriveInitials(name)
+  const presenceFill =
+    presence === 'online'
+      ? cm.messagePreviewPresenceOnline
+      : presence === 'away'
+        ? cm.messagePreviewPresenceAway
+        : cm.messagePreviewPresenceOffline
 
   const body = (
     <>
-      <div className="relative shrink-0">
+      <div className={cm.messagePreviewAvatarWrap}>
         <div
           className={cm.cn(
             cm.flex({ align: 'center', justify: 'center' }),
@@ -77,7 +77,7 @@ export function MessagePreview({
             cm.roundedFull,
             cm.fontWeight('bold'),
             cm.textSize('xs'),
-            'bg-primary/15 text-primary',
+            cm.messagePreviewAvatar,
           )}
         >
           {initialsLabel}
@@ -86,45 +86,39 @@ export function MessagePreview({
           <span
             aria-hidden="true"
             className={cm.cn(
-              'absolute -bottom-0.5 -right-0.5 ring-2 ring-[color:var(--color-surface)]',
+              cm.messagePreviewPresenceDot,
               cm.w(2),
               cm.h(2),
               cm.roundedFull,
-              PRESENCE_COLOR[presence],
+              presenceFill,
             )}
           />
         ) : null}
       </div>
-      <div className={cm.cn(cm.flex({ direction: 'col', gap: 1 }), cm.flex1, 'min-w-0')}>
+      <div className={cm.cn(cm.flex({ direction: 'col', gap: 1 }), cm.flex1, cm.minW(0))}>
         <div className={cm.cn(cm.flex({ justify: 'between', align: 'center', gap: 2 }))}>
           <span
             className={cm.cn(
               cm.textSize('sm'),
               cm.fontWeight(unread > 0 ? 'bold' : 'semibold'),
-              'text-on-surface truncate',
+              cm.messagePreviewName,
             )}
           >
             {name}
           </span>
-          <span
-            className={cm.cn(cm.textSize('xs'), 'text-on-surface-variant shrink-0 tabular-nums')}
-          >
-            {timestamp}
-          </span>
+          <span className={cm.cn(cm.textSize('xs'), cm.messagePreviewTimestamp)}>{timestamp}</span>
         </div>
         <div className={cm.cn(cm.flex({ align: 'center', gap: 2 }))}>
           {channelIcon ? (
             <span
-              className={cm.cn('material-symbols-outlined text-on-surface-variant')}
+              className={cm.cn(cm.iconGlyphFont, cm.messagePreviewChannelIcon)}
               style={{ fontSize: 14 }}
               aria-hidden="true"
             >
               {channelIcon}
             </span>
           ) : null}
-          <p className={cm.cn(cm.textSize('xs'), 'text-on-surface-variant truncate flex-1')}>
-            {preview}
-          </p>
+          <p className={cm.cn(cm.textSize('xs'), cm.messagePreviewText)}>{preview}</p>
           {unread > 0 ? (
             <span
               aria-label={unreadAriaLabel ?? `${unread} unread`}
@@ -132,7 +126,7 @@ export function MessagePreview({
                 cm.flex({ align: 'center', justify: 'center' }),
                 cm.fontWeight('bold'),
                 cm.roundedFull,
-                'min-w-[18px] h-[18px] px-1.5 text-[10px] bg-primary text-white shrink-0',
+                cm.messagePreviewUnreadPip,
               )}
             >
               {unread}
@@ -147,8 +141,8 @@ export function MessagePreview({
     cm.flex({ gap: 3, align: 'center' }),
     cm.sp('px', 4),
     cm.sp('py', 3),
-    'transition-colors relative border-b border-[color:var(--color-border-secondary)]',
-    active ? 'bg-primary/[0.08] border-l-[3px] border-l-primary' : 'hover:bg-surface-secondary',
+    cm.messagePreviewRow,
+    active ? cm.messagePreviewRowActive : cm.messagePreviewRowHover,
     className,
   )
 

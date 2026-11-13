@@ -37,17 +37,17 @@ export function NodeEditorPanel({
       className={cm.cn(
         cm.flex({ direction: 'col' }),
         widthClass ? widthClass : cm.w(80),
-        'bg-surface-container-low border-l border-white/5',
+        cm.nodeEditorPanelAside,
       )}
     >
       <div
         className={cm.cn(
           cm.sp('p', 6),
           cm.flex({ align: 'center', justify: 'between' }),
-          'border-b border-white/5',
+          cm.nodeEditorPanelHeader,
         )}
       >
-        <h2 className={cm.cn(cm.fontWeight('bold'), 'font-headline text-on-surface')}>{title}</h2>
+        <h2 className={cm.cn(cm.fontWeight('bold'), cm.nodeEditorPanelTitle)}>{title}</h2>
         {onClose ? (
           <button
             type="button"
@@ -59,15 +59,15 @@ export function NodeEditorPanel({
             aria-label={closeAriaLabel}
             onClick={onClose}
           >
-            <span className={cm.cn('material-symbols-outlined')}>close</span>
+            <span className={cm.iconGlyphFont}>close</span>
           </button>
         ) : null}
       </div>
-      <div className={cm.cn(cm.flex1, cm.sp('p', 6), cm.stack(8), 'overflow-y-auto')}>
+      <div className={cm.cn(cm.flex1, cm.sp('p', 6), cm.stack(8), cm.nodeEditorPanelBody)}>
         {children}
       </div>
       {footer ? (
-        <div className={cm.cn(cm.sp('p', 6), 'border-t border-white/5')}>{footer}</div>
+        <div className={cm.cn(cm.sp('p', 6), cm.nodeEditorPanelFooter)}>{footer}</div>
       ) : null}
     </aside>
   )

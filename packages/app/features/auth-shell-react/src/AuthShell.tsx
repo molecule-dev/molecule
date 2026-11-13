@@ -35,16 +35,12 @@ export function AuthShellContainer({
   const cm = getClassMap()
   const base =
     layout === 'column'
-      ? cm.cn(
-          cm.flex({ direction: 'col' }),
-          cm.minH('screen'),
-          'relative overflow-hidden bg-background text-on-surface',
-        )
+      ? cm.cn(cm.flex({ direction: 'col' }), cm.minH('screen'), cm.authShellContainer)
       : cm.cn(
           cm.flex({ align: 'center', justify: 'center' }),
           cm.minH('screen'),
           cm.sp('p', 6),
-          'relative overflow-hidden bg-background text-on-surface',
+          cm.authShellContainer,
         )
   return (
     <div className={cm.cn(base, className)} style={style}>
@@ -60,11 +56,7 @@ export function AuthShellContainer({
  */
 export function AuthShellDecoration({ children }: { children: ReactNode }): JSX.Element {
   const cm = getClassMap()
-  return (
-    <div className={cm.cn('pointer-events-none absolute inset-0 -z-10 overflow-hidden')}>
-      {children}
-    </div>
-  )
+  return <div className={cm.cn(cm.authShellDecoration)}>{children}</div>
 }
 
 /**
@@ -88,9 +80,6 @@ export interface AuthShellCardProps {
   style?: CSSProperties
 }
 
-const DEFAULT_SURFACE_CLASSES =
-  'rounded-3xl border border-white/40 bg-surface-container-lowest/80 backdrop-blur-2xl shadow-[0_30px_80px_-20px_rgba(116,47,229,0.30)]'
-
 /**
  * Centered glassmorphic card surface with fixed flex-column layout and configurable surface treatment.
  */
@@ -103,14 +92,14 @@ export function AuthShellCard({
   style,
 }: AuthShellCardProps): JSX.Element {
   const cm = getClassMap()
-  const outer = outerClassName ?? cm.cn(cm.w('full'), 'max-w-md relative z-10')
+  const outer = outerClassName ?? cm.cn(cm.w('full'), cm.authShellCardOuter)
   return (
     <main className={outer}>
       <div
         className={cm.cn(
           cm.flex({ direction: 'col', gap: 'lg' }),
           cm.sp('p', 8),
-          surfaceClassName ?? DEFAULT_SURFACE_CLASSES,
+          surfaceClassName ?? cm.authShellCardSurface,
           className,
         )}
         style={style}
@@ -151,11 +140,7 @@ export function AuthShellHeading({
     <header className={cm.flex({ direction: 'col', align: 'center', gap: 'xs' })}>
       {eyebrow ? (
         <span
-          className={cm.cn(
-            cm.textSize('xs'),
-            cm.fontWeight('bold'),
-            'uppercase tracking-widest text-on-surface-variant',
-          )}
+          className={cm.cn(cm.textSize('xs'), cm.fontWeight('bold'), cm.authShellHeadingEyebrow)}
         >
           {eyebrow}
         </span>
@@ -164,7 +149,7 @@ export function AuthShellHeading({
         className={cm.cn(
           cm.textSize('2xl'),
           cm.fontWeight('bold'),
-          'tracking-tight text-on-surface text-center',
+          cm.authShellHeadingTitle,
           headingClassName,
         )}
         style={headingStyle}
@@ -172,9 +157,7 @@ export function AuthShellHeading({
         {heading}
       </h1>
       {subheading ? (
-        <p className={cm.cn(cm.textSize('sm'), 'text-on-surface-variant text-center max-w-sm')}>
-          {subheading}
-        </p>
+        <p className={cm.cn(cm.textSize('sm'), cm.authShellHeadingSub)}>{subheading}</p>
       ) : null}
     </header>
   )
@@ -186,13 +169,7 @@ export function AuthShellHeading({
 export function AuthShellFooter({ children }: { children: ReactNode }): JSX.Element {
   const cm = getClassMap()
   return (
-    <footer
-      className={cm.cn(
-        cm.textCenter,
-        cm.textSize('sm'),
-        'text-on-surface-variant border-t border-outline-variant/10 pt-6',
-      )}
-    >
+    <footer className={cm.cn(cm.textCenter, cm.textSize('sm'), cm.authShellFooter)}>
       {children}
     </footer>
   )
@@ -214,17 +191,12 @@ export function AuthShellBackLink({ to = '/', label }: AuthShellBackLinkProps): 
   const cm = getClassMap()
   const { t } = useTranslation()
   return (
-    <p
-      className={cm.cn(cm.textCenter, cm.textSize('xs'), cm.sp('mt', 6), 'text-on-surface-variant')}
-    >
+    <p className={cm.cn(cm.textCenter, cm.textSize('xs'), cm.sp('mt', 6), cm.authShellBackLink)}>
       <Link
         to={to}
-        className={cm.cn(
-          cm.flex({ align: 'center', gap: 'xs' }),
-          'hover:text-primary transition-colors',
-        )}
+        className={cm.cn(cm.flex({ align: 'center', gap: 'xs' }), cm.authShellBackLinkAnchor)}
       >
-        <span className={cm.cn('material-symbols-outlined')} style={{ fontSize: 14 }}>
+        <span className={cm.iconGlyphFont} style={{ fontSize: 14 }}>
           arrow_back
         </span>
         {label ?? t('auth.backHome', undefined, { defaultValue: 'Back to home' })}
@@ -323,7 +295,7 @@ export interface AuthShellPanelProps extends HTMLAttributes<HTMLElement> {
 export function AuthShellPanel({ children, className, ...rest }: AuthShellPanelProps): JSX.Element {
   const cm = getClassMap()
   return (
-    <aside className={cm.cn('hidden lg:flex', className)} {...rest}>
+    <aside className={cm.cn(cm.authShellPanel, className)} {...rest}>
       {children}
     </aside>
   )
@@ -369,7 +341,7 @@ export function AuthShellCardColumn({
         // width, so a wide form pushes the whole page past the viewport on
         // mobile (a 24-87px horizontal overflow). min-w-0 lets it shrink; the
         // card's own max-w-* still caps its width.
-        'min-w-0',
+        cm.minW(0),
         className,
       )}
       {...rest}

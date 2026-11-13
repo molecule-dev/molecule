@@ -35,7 +35,7 @@ export function StorefrontFooter({
         cm.w('full'),
         cm.sp('pt', 16),
         cm.sp('pb', 8),
-        'bg-slate-900 dark:bg-black border-t border-slate-800 mt-20',
+        cm.storefrontChromeFooter,
         className,
       )}
     >
@@ -45,17 +45,15 @@ export function StorefrontFooter({
           cm.mxAuto,
           cm.sp('px', 6),
           cm.grid({ cols: 1, gap: 'xl' }),
-          'md:grid-cols-4',
+          cm.storefrontChromeFooterColumns,
         )}
       >
-        <div className={cm.cn('col-span-1 md:col-span-1')}>
-          <div className={cm.cn(cm.textSize('xl'), cm.sp('mb', 4), 'font-black text-white')}>
+        <div className={cm.cn(cm.storefrontChromeFooterBrandCol)}>
+          <div className={cm.cn(cm.textSize('xl'), cm.sp('mb', 4), cm.storefrontChromeFooterBrand)}>
             {brand}
           </div>
           {tagline ? (
-            <p className={cm.cn(cm.textSize('sm'), 'text-slate-400 font-sans leading-relaxed')}>
-              {tagline}
-            </p>
+            <p className={cm.cn(cm.textSize('sm'), cm.storefrontChromeFooterTagline)}>{tagline}</p>
           ) : null}
         </div>
         {columns.map((col, i) => (
@@ -65,7 +63,7 @@ export function StorefrontFooter({
                 cm.fontWeight('bold'),
                 cm.sp('mb', 4),
                 cm.textSize('sm'),
-                'text-white',
+                cm.storefrontChromeFooterHeading,
               )}
             >
               {col.heading}
@@ -74,10 +72,7 @@ export function StorefrontFooter({
               {col.links.map((link) => (
                 <li key={link.to}>
                   <Link
-                    className={cm.cn(
-                      cm.textSize('sm'),
-                      'text-slate-400 hover:text-green-400 transition-colors',
-                    )}
+                    className={cm.cn(cm.textSize('sm'), cm.storefrontChromeFooterLink)}
                     to={link.to}
                   >
                     {link.label}
@@ -95,10 +90,10 @@ export function StorefrontFooter({
           cm.sp('px', 6),
           cm.sp('pt', 12),
           cm.sp('mt', 12),
-          'border-t border-slate-800',
+          cm.storefrontChromeFooterDivider,
         )}
       >
-        <p className={cm.cn(cm.textSize('sm'), 'text-slate-400')}>{copyright}</p>
+        <p className={cm.cn(cm.textSize('sm'), cm.storefrontChromeFooterCopyright)}>{copyright}</p>
       </div>
     </footer>
   )

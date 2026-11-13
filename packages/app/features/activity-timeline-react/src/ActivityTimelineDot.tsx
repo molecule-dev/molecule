@@ -36,7 +36,7 @@ export function ActivityTimelineDot({ tone, className }: ActivityTimelineDotProp
       )}
       style={{ left: 0, top: 0 }}
     >
-      <span className={cm.cn(cm.textSize('xs'), 'material-symbols-outlined')}>{tone.icon}</span>
+      <span className={cm.cn(cm.textSize('xs'), cm.iconGlyphFont)}>{tone.icon}</span>
     </div>
   )
 }

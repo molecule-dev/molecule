@@ -90,9 +90,9 @@ describe('NotificationFeed', () => {
 
   it('applies the unread accent class only on unread rows', () => {
     const unread = html(createElement(NotificationFeed, { items: [item('a', { unread: true })] }))
-    expect(unread).toContain('border-l-4')
+    expect(unread).toContain('notificationFeedUnreadAccent')
     const read = html(createElement(NotificationFeed, { items: [item('a')] }))
-    expect(read).not.toContain('border-l-4')
+    expect(read).not.toContain('notificationFeedUnreadAccent')
   })
 
   it('sets the aria-label on the <ul> and the data-mol-id', () => {

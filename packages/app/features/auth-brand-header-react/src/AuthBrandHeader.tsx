@@ -51,14 +51,14 @@ export function AuthBrandHeaderChip({
     chipShape === 'round' ? cm.roundedFull : '',
     cm.flex({ align: 'center', justify: 'center' }),
     cm.sp('mb', 2),
-    chipShape === 'square' ? 'rounded-2xl' : '',
-    chipGradient ? '' : 'bg-primary',
-    'shadow-md shadow-primary/30',
+    chipShape === 'square' ? cm.authBrandHeaderChipSquare : '',
+    chipGradient ? '' : cm.bgPrimary,
+    cm.authBrandHeaderChipShadow,
   )
   return (
     <div className={chipClass} style={chipGradient ? { background: chipGradient } : undefined}>
       <span
-        className={cm.cn(cm.textSize('3xl'), 'material-symbols-outlined text-white')}
+        className={cm.cn(cm.textSize('3xl'), cm.iconGlyphFont, cm.authBrandHeaderChipIcon)}
         style={{ fontVariationSettings: "'FILL' 1" }}
         aria-hidden="true"
       >
@@ -97,11 +97,7 @@ export function AuthBrandHeaderWordmark({
   // appends `className` last.
   return (
     <h1
-      className={cm.cn(
-        cm.textSize('4xl'),
-        'font-extrabold tracking-tighter text-on-surface',
-        className,
-      )}
+      className={cm.cn(cm.textSize('4xl'), cm.authBrandHeaderWordmark, className)}
       style={color ? { color } : undefined}
     >
       {children}
@@ -132,7 +128,7 @@ export function AuthBrandHeaderTagline({
       className={cm.cn(
         cm.textSize('sm'),
         cm.fontWeight('medium'),
-        'text-on-surface-variant',
+        cm.authBrandHeaderTagline,
         className,
       )}
     >

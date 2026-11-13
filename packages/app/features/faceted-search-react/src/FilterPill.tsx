@@ -49,7 +49,7 @@ export function FilterPill({
     return () => document.removeEventListener('mousedown', handler)
   }, [open])
   return (
-    <div className={cm.cn('relative')} ref={ref}>
+    <div className={cm.cn(cm.position('relative'))} ref={ref}>
       <button
         type="button"
         aria-haspopup="true"
@@ -68,15 +68,11 @@ export function FilterPill({
       >
         <span className={cm.flex({ align: 'center', gap: 'sm' })}>
           {leadingIcon ? (
-            <span className={cm.cn(cm.textSize('sm'), 'material-symbols-outlined')}>
-              {leadingIcon}
-            </span>
+            <span className={cm.cn(cm.textSize('sm'), cm.iconGlyphFont)}>{leadingIcon}</span>
           ) : null}
           {label}
           {!hideChevron ? (
-            <span className={cm.cn(cm.textSize('sm'), 'material-symbols-outlined')}>
-              expand_more
-            </span>
+            <span className={cm.cn(cm.textSize('sm'), cm.iconGlyphFont)}>expand_more</span>
           ) : null}
         </span>
       </button>
@@ -85,8 +81,8 @@ export function FilterPill({
           className={cm.cn(
             cm.sp('mt', 2),
             cm.sp('p', 4),
-            'absolute top-full bg-surface-container-high rounded-xl shadow-lg min-w-[240px] z-50',
-            panelAlign === 'right' ? 'right-0' : 'left-0',
+            cm.facetedSearchPillPanel,
+            panelAlign === 'right' ? cm.facetedSearchPillPanelRight : cm.facetedSearchPillPanelLeft,
           )}
         >
           {children}

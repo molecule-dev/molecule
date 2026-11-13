@@ -358,9 +358,9 @@ export function SpreadsheetGrid(props: SpreadsheetGridProps): ReactElement {
         data-mol-id={`spreadsheet-grid-cell-${ref}`}
         aria-selected={inSel || undefined}
         className={cm.cn(
-          'border-r border-b border-outline-variant/20',
-          inSel ? 'bg-primary/10' : 'bg-surface',
-          isAnchor ? 'outline outline-2 outline-primary' : '',
+          cm.spreadsheetGridCellBorder,
+          inSel ? cm.spreadsheetGridCellSelected : cm.surface,
+          isAnchor ? cm.spreadsheetGridCellAnchor : '',
         )}
         style={style}
         onMouseDown={(e) => handleMouseDown(row, col, e.shiftKey)}
@@ -371,7 +371,7 @@ export function SpreadsheetGrid(props: SpreadsheetGridProps): ReactElement {
           <input
             ref={editInputRef}
             data-mol-id={`spreadsheet-grid-editor-${ref}`}
-            className={cm.cn(cm.w('full'), cm.h('full'), 'px-1 outline-none bg-surface')}
+            className={cm.cn(cm.w('full'), cm.h('full'), cm.spreadsheetGridCellEditor)}
             value={editing.draft}
             onChange={(e) => setEditing({ ...editing, draft: e.target.value })}
             onBlur={commitEdit}
@@ -397,7 +397,7 @@ export function SpreadsheetGrid(props: SpreadsheetGridProps): ReactElement {
             className={cm.cn(
               cm.w('full'),
               cm.h('full'),
-              'px-1 truncate text-on-surface',
+              cm.spreadsheetGridCellContent,
               cm.textSize('sm'),
             )}
           >
@@ -417,10 +417,7 @@ export function SpreadsheetGrid(props: SpreadsheetGridProps): ReactElement {
       aria-rowcount={rows}
       aria-colcount={columns}
       aria-label={t('spreadsheetGrid.label', undefined, { defaultValue: 'Spreadsheet' })}
-      className={cm.cn(
-        'bg-surface text-on-surface select-none',
-        'border border-outline-variant/30',
-      )}
+      className={cm.cn(cm.spreadsheetGridRoot, cm.spreadsheetGridRootBorder)}
       style={containerStyle}
       onKeyDown={handleKeyDown}
       onPaste={handlePasteEvent}
@@ -429,7 +426,7 @@ export function SpreadsheetGrid(props: SpreadsheetGridProps): ReactElement {
       {/* Top-left corner (gutter × header). */}
       <div
         aria-hidden="true"
-        className="bg-surface-container-low border-r border-b border-outline-variant/30"
+        className={cm.spreadsheetGridCorner}
         style={{
           position: 'absolute',
           left: 0,
@@ -443,7 +440,7 @@ export function SpreadsheetGrid(props: SpreadsheetGridProps): ReactElement {
       <div
         role="row"
         aria-rowindex={1}
-        className="bg-surface-container-low"
+        className={cm.spreadsheetGridLane}
         style={{
           position: 'absolute',
           left: gutterWidth,
@@ -460,7 +457,7 @@ export function SpreadsheetGrid(props: SpreadsheetGridProps): ReactElement {
             role="columnheader"
             aria-colindex={col + 1}
             className={cm.cn(
-              'border-r border-b border-outline-variant/30 text-on-surface-variant',
+              cm.spreadsheetGridHeaderCell,
               cm.textCenter,
               cm.textSize('xs'),
               cm.fontWeight('semibold'),
@@ -493,7 +490,7 @@ export function SpreadsheetGrid(props: SpreadsheetGridProps): ReactElement {
               role="columnheader"
               aria-colindex={col + 1}
               className={cm.cn(
-                'border-r border-b border-outline-variant/30 text-on-surface-variant',
+                cm.spreadsheetGridHeaderCell,
                 cm.textCenter,
                 cm.textSize('xs'),
                 cm.fontWeight('semibold'),
@@ -516,7 +513,7 @@ export function SpreadsheetGrid(props: SpreadsheetGridProps): ReactElement {
       {/* Row-number gutter (frozen + scrollable). */}
       <div
         aria-hidden="true"
-        className="bg-surface-container-low"
+        className={cm.spreadsheetGridLane}
         style={{
           position: 'absolute',
           left: 0,
@@ -530,7 +527,7 @@ export function SpreadsheetGrid(props: SpreadsheetGridProps): ReactElement {
           <div
             key={`gutter-frozen-${row}`}
             className={cm.cn(
-              'border-r border-b border-outline-variant/30 text-on-surface-variant',
+              cm.spreadsheetGridHeaderCell,
               cm.textCenter,
               cm.textSize('xs'),
               cm.fontWeight('semibold'),
@@ -560,7 +557,7 @@ export function SpreadsheetGrid(props: SpreadsheetGridProps): ReactElement {
             <div
               key={`gutter-${row}`}
               className={cm.cn(
-                'border-r border-b border-outline-variant/30 text-on-surface-variant',
+                cm.spreadsheetGridHeaderCell,
                 cm.textCenter,
                 cm.textSize('xs'),
                 cm.fontWeight('semibold'),

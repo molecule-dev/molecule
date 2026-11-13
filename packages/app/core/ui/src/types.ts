@@ -2790,4 +2790,393 @@ export interface UIClassMap {
   resultAction: string
   /** A results empty state. */
   resultEmpty: string
+
+  // ---- Feature component tokens ----
+
+  /** Glyph-font icon (Material Symbols Outlined); the text content is the icon name. */
+  iconGlyphFont: string
+
+  // -- auth-brand-header --
+
+  /** AuthBrandHeaderChip square-corner variant (`chipShape="square"`). */
+  authBrandHeaderChipSquare: string
+  /** AuthBrandHeaderChip elevated shadow tinted with the primary color. */
+  authBrandHeaderChipShadow: string
+  /** AuthBrandHeaderChip glyph icon color (white on the colored backdrop). */
+  authBrandHeaderChipIcon: string
+  /** AuthBrandHeaderWordmark heading text: extra-bold, tight tracking, on-surface. */
+  authBrandHeaderWordmark: string
+  /** AuthBrandHeaderTagline text color (secondary surface-variant ink). */
+  authBrandHeaderTagline: string
+
+  // -- auth-shell --
+
+  /** AuthShellContainer full-screen base: relative, clipped, page background + on-surface ink. */
+  authShellContainer: string
+  /** AuthShellDecoration layer: absolute, full-inset, behind content, ignores pointer events. */
+  authShellDecoration: string
+  /** AuthShellCard default glass surface: rounded, translucent, blurred, elevated shadow. */
+  authShellCardSurface: string
+  /** AuthShellCard outer `<main>` wrapper: card max width, stacked above decoration. */
+  authShellCardOuter: string
+  /** AuthShellHeading eyebrow tag: small caps, wide tracking, secondary ink. */
+  authShellHeadingEyebrow: string
+  /** AuthShellHeading title: tight tracking, on-surface ink, centered. */
+  authShellHeadingTitle: string
+  /** AuthShellHeading subheading: secondary ink, centered, narrow measure. */
+  authShellHeadingSub: string
+  /** AuthShellFooter: secondary ink, hairline top divider, spaced off the card content. */
+  authShellFooter: string
+  /** AuthShellBackLink paragraph: secondary ink. */
+  authShellBackLink: string
+  /** AuthShellBackLink anchor: primary ink on hover with a color transition. */
+  authShellBackLinkAnchor: string
+  /** AuthShellPanel aside: hidden on phones, flex row from the lg breakpoint up. */
+  authShellPanel: string
+
+  // -- chatbot-tester --
+
+  /** ChatbotTester bot-picker header row: gap + hairline bottom divider. */
+  chatbotTesterBotBar: string
+  /** ChatbotTester bot-picker `<select>`: tonal surface, rounded, focus ring. */
+  chatbotTesterBotSelect: string
+  /** ChatbotTesterInput composer row: hairline top divider. */
+  chatbotTesterInputRow: string
+  /** ChatbotTesterInput textarea: border, rounded, focus ring, no resize, dimmed when disabled. */
+  chatbotTesterInputField: string
+  /** ChatbotTesterMessages scrollable transcript pane. */
+  chatbotTesterMessageList: string
+  /** ChatbotTesterMessages bubble shape: rounded, message-width cap, preserved whitespace. */
+  chatbotTesterMessageBubble: string
+  /** ChatbotTesterMessages user bubble fill + ink. */
+  chatbotTesterMessageBubbleUser: string
+  /** ChatbotTesterMessages assistant bubble fill + ink. */
+  chatbotTesterMessageBubbleBot: string
+  /** ChatbotTesterMessages timestamp inside a user bubble. */
+  chatbotTesterMessageTimeUser: string
+  /** ChatbotTesterMessages timestamp inside an assistant bubble. */
+  chatbotTesterMessageTimeBot: string
+  /** ChatbotTesterMessages typing indicator while a reply is pending. */
+  chatbotTesterTypingIndicator: string
+
+  // -- data-table-ui --
+
+  /** DataTableCard outer card shell: lowest surface, rounded, clipped, shadow. */
+  dataTableCardShell: string
+  /** DataTableCard title heading ink. */
+  dataTableCardTitle: string
+  /** DataTableCard horizontal scroll wrapper around the table. */
+  dataTableCardScroller: string
+  /** DataTableCard `<table>`: left-aligned cells, collapsed borders. */
+  dataTableCardTable: string
+  /** DataTableCard header row: low container surface, hairline bottom divider. */
+  dataTableCardHead: string
+  /** DataTableCard `<th>`: tiny heavy caps with wide tracking, secondary ink. */
+  dataTableCardHeaderCell: string
+  /** DataTableCard `<tbody>`: hairline row dividers in the container color. */
+  dataTableCardBody: string
+  /** DataTableCard skeleton loading bar: low surface, rounded, pulsing. */
+  dataTableCardSkeletonBar: string
+  /** DataTableCard empty-state cell ink. */
+  dataTableCardEmptyCell: string
+  /** DataTableCard row hover fill + transition (clickable rows). */
+  dataTableCardRowHover: string
+
+  // -- faceted-search --
+
+  /** FacetedSearchBar container: fixed under the top nav, hairline divider, scrollable without a scrollbar. */
+  facetedSearchBar: string
+  /** FilterPill dropdown panel: high container surface, rounded, shadowed, above the page. */
+  facetedSearchPillPanel: string
+  /** FilterPill dropdown panel docked to the trigger's right edge. */
+  facetedSearchPillPanelRight: string
+  /** FilterPill dropdown panel docked to the trigger's left edge. */
+  facetedSearchPillPanelLeft: string
+
+  // -- hero-metric-card --
+
+  /** HeroMetricCard value figure: single-line height for huge numerals. */
+  heroMetricCardValue: string
+
+  // -- kpi-card --
+
+  /** KpiCard 4px left-edge accent bar width. */
+  kpiCardAccentLeft: string
+  /** KpiCard 4px top-edge accent bar width. */
+  kpiCardAccentTop: string
+  /** KpiCard accent bar default color. */
+  kpiCardAccentColor: string
+  /** KpiCard title in uppercase-label mode: small caps, wide tracking, secondary ink. */
+  kpiCardTitleUppercase: string
+  /** KpiCard hover lift: slight rise + transform transition. */
+  kpiCardHoverLift: string
+
+  // -- legal-pages --
+
+  /** ContentPageShell page root: background, on-surface ink, body font. */
+  legalPagesShell: string
+  /** ContentPageShell hero band: relative, clipped. */
+  legalPagesHero: string
+  /** ContentPageShell hero decorative glow orb: off-corner, blurred, non-interactive. */
+  legalPagesHeroGlow: string
+  /** ContentPageShell hero content wrapper above the glow. */
+  legalPagesHeroContent: string
+  /** ContentPageShell hero eyebrow: label font, caps, wide tracking, primary ink. */
+  legalPagesHeroEyebrow: string
+  /** ContentPageShell hero title: display font, tight tracking. */
+  legalPagesHeroTitle: string
+  /** ContentPageShell hero subtitle: body font, secondary ink. */
+  legalPagesHeroSubtitle: string
+  /** ContentPageShell content surface card: rounded, elevated, hairline border. */
+  legalPagesContentCard: string
+
+  // -- message-preview --
+
+  /** MessagePreview avatar wrapper: relative, never shrinks. */
+  messagePreviewAvatarWrap: string
+  /** MessagePreview initials avatar: primary tint fill + primary ink. */
+  messagePreviewAvatar: string
+  /** MessagePreview presence dot: anchored to the avatar's corner, ringed in the surface color. */
+  messagePreviewPresenceDot: string
+  /** MessagePreview presence dot fill: online (green). */
+  messagePreviewPresenceOnline: string
+  /** MessagePreview presence dot fill: away (amber). */
+  messagePreviewPresenceAway: string
+  /** MessagePreview presence dot fill: offline (gray). */
+  messagePreviewPresenceOffline: string
+  /** MessagePreview contact name: on-surface ink, single line with ellipsis. */
+  messagePreviewName: string
+  /** MessagePreview timestamp: secondary ink, never shrinks, tabular figures. */
+  messagePreviewTimestamp: string
+  /** MessagePreview channel icon ink. */
+  messagePreviewChannelIcon: string
+  /** MessagePreview snippet line: secondary ink, single line, fills remaining width. */
+  messagePreviewText: string
+  /** MessagePreview unread pip: primary fill, white figures, fixed minimum footprint. */
+  messagePreviewUnreadPip: string
+  /** MessagePreview row: color transition, hairline bottom divider. */
+  messagePreviewRow: string
+  /** MessagePreview active row: primary tint fill + thick primary leading edge. */
+  messagePreviewRowActive: string
+  /** MessagePreview inactive row hover fill. */
+  messagePreviewRowHover: string
+
+  // -- node-editor-panel --
+
+  /** NodeEditorPanel aside: low container surface, hairline left divider. */
+  nodeEditorPanelAside: string
+  /** NodeEditorPanel header row: hairline bottom divider. */
+  nodeEditorPanelHeader: string
+  /** NodeEditorPanel title: headline font, on-surface ink. */
+  nodeEditorPanelTitle: string
+  /** NodeEditorPanel scrollable body. */
+  nodeEditorPanelBody: string
+  /** NodeEditorPanel footer row: hairline top divider. */
+  nodeEditorPanelFooter: string
+  /** NodeEditorRadioGroup selected option tile. */
+  nodeEditorPanelOptionSelected: string
+  /** NodeEditorRadioGroup unselected option tile. */
+  nodeEditorPanelOption: string
+  /** NodeEditorRadioGroup option label ink (selected). */
+  nodeEditorPanelOptionLabelSelected: string
+  /** NodeEditorRadioGroup option label ink (unselected). */
+  nodeEditorPanelOptionLabel: string
+  /** NodeEditorRadioGroup custom radio ring: bordered circle, centered contents. */
+  nodeEditorPanelRadioRing: string
+  /** NodeEditorRadioGroup ring border (selected). */
+  nodeEditorPanelRadioRingSelected: string
+  /** NodeEditorRadioGroup ring border (unselected). */
+  nodeEditorPanelRadioRingIdle: string
+  /** NodeEditorSection label: tiny caps, wide tracking, secondary ink. */
+  nodeEditorPanelSectionLabel: string
+  /** NodeEditorSlider value chip: mono font, primary ink on a primary tint. */
+  nodeEditorPanelSliderValue: string
+  /** NodeEditorSlider range track: lowest surface, rounded, primary accent thumb. */
+  nodeEditorPanelSliderTrack: string
+  /** NodeEditorToggle row: container surface, rounded, primary-tinted border. */
+  nodeEditorPanelToggleRow: string
+  /** NodeEditorToggle leading group (icon tile + text) gap. */
+  nodeEditorPanelToggleGroup: string
+  /** NodeEditorToggle icon tile: primary tint fill, rounded, primary ink. */
+  nodeEditorPanelToggleIconTile: string
+  /** NodeEditorToggle title ink. */
+  nodeEditorPanelToggleTitle: string
+  /** NodeEditorToggle subtitle: tiny, secondary ink. */
+  nodeEditorPanelToggleSubtitle: string
+
+  // -- notification-feed --
+
+  /** NotificationFeed list: vertical rhythm between cards. */
+  notificationFeedList: string
+  /** NotificationFeed unread card accent: thick primary leading edge. */
+  notificationFeedUnreadAccent: string
+  /** NotificationFeed icon tile: 40×40 primary container circle. */
+  notificationFeedIconTile: string
+  /** NotificationFeed timestamp: never wraps. */
+  notificationFeedTimestamp: string
+
+  // -- settings-panel --
+
+  /** SettingsPanel two-factor secret readout: centered, breaks anywhere. */
+  settingsPanelTwoFactorSecret: string
+
+  // -- spreadsheet-grid --
+
+  /** SpreadsheetGrid root: surface fill, on-surface ink, no text selection. */
+  spreadsheetGridRoot: string
+  /** SpreadsheetGrid root outer border. */
+  spreadsheetGridRootBorder: string
+  /** SpreadsheetGrid top-left corner box (gutter × header crossing). */
+  spreadsheetGridCorner: string
+  /** SpreadsheetGrid frozen lane strip (column-header row, row-number gutter). */
+  spreadsheetGridLane: string
+  /** SpreadsheetGrid header/gutter cell: hairline right+bottom dividers, secondary ink. */
+  spreadsheetGridHeaderCell: string
+  /** SpreadsheetGrid data cell: hairline right+bottom dividers. */
+  spreadsheetGridCellBorder: string
+  /** SpreadsheetGrid selected cell fill. */
+  spreadsheetGridCellSelected: string
+  /** SpreadsheetGrid selection anchor cell outline. */
+  spreadsheetGridCellAnchor: string
+  /** SpreadsheetGrid in-cell editor input. */
+  spreadsheetGridCellEditor: string
+  /** SpreadsheetGrid cell content: padded, single line with ellipsis. */
+  spreadsheetGridCellContent: string
+
+  // -- status-timeline --
+
+  /** StatusTimeline list: vertical rhythm between steps. */
+  statusTimelineList: string
+  /** StatusTimeline step dot: 8×8 circle. */
+  statusTimelineDot: string
+  /** StatusTimeline step dot fill (unreached steps). */
+  statusTimelineDotIdle: string
+
+  // -- storefront-chrome --
+
+  /** StorefrontAnnouncementBar strip: dark slate fill, white ink, slim vertical padding. */
+  storefrontChromeAnnouncementBar: string
+  /** StorefrontAnnouncementBar CTA link: underlined, green on hover. */
+  storefrontChromeAnnouncementLink: string
+  /** StorefrontFooter panel: slate fill (black in dark theme), top divider, offset below content. */
+  storefrontChromeFooter: string
+  /** StorefrontFooter link columns: four across from the md breakpoint. */
+  storefrontChromeFooterColumns: string
+  /** StorefrontFooter brand block column span. */
+  storefrontChromeFooterBrandCol: string
+  /** StorefrontFooter brand wordmark: black weight, white ink. */
+  storefrontChromeFooterBrand: string
+  /** StorefrontFooter tagline: slate ink, body font, relaxed leading. */
+  storefrontChromeFooterTagline: string
+  /** StorefrontFooter column heading ink. */
+  storefrontChromeFooterHeading: string
+  /** StorefrontFooter link: slate ink, green on hover. */
+  storefrontChromeFooterLink: string
+  /** StorefrontFooter copyright row divider. */
+  storefrontChromeFooterDivider: string
+  /** StorefrontFooter copyright ink. */
+  storefrontChromeFooterCopyright: string
+  /** StorefrontTopNav header: white surface (slate in dark theme), sticky, bordered, shadowed. */
+  storefrontChromeTopNav: string
+  /** StorefrontTopNav inner nav container max width. */
+  storefrontChromeTopNavInner: string
+  /** StorefrontTopNav brand wordmark weight. */
+  storefrontChromeTopNavBrand: string
+  /** StorefrontTopNav links row: hidden on phones, flex with wide gaps from md. */
+  storefrontChromeTopNavLinks: string
+  /** StorefrontTopNav link (active): body font, primary underline bar. */
+  storefrontChromeTopNavLinkActive: string
+  /** StorefrontTopNav link (inactive): body font, gray ink, primary on hover. */
+  storefrontChromeTopNavLink: string
+  /** StorefrontTopNav icon action: gray ink, primary on hover, pressed feedback, relative for the badge. */
+  storefrontChromeTopNavAction: string
+  /** StorefrontTopNav action badge: primary fill, white figures, anchored to the corner. */
+  storefrontChromeTopNavBadge: string
+  /** StorefrontTopNav profile dropdown menu: white surface, bordered, rounded, shadowed, above the page. */
+  storefrontChromeTopNavMenu: string
+  /** StorefrontTopNav profile menu item: block, gray ink, subtle hover fill. */
+  storefrontChromeTopNavMenuItem: string
+  /** StorefrontTopNav profile menu sign-out divider color. */
+  storefrontChromeTopNavMenuDivider: string
+
+  // -- top-nav-layout --
+
+  /** TopNavLayout page root: background, on-surface ink, antialiased. */
+  topNavLayoutRoot: string
+  /** TopNavLayout header: sticky, surface fill, subtle shadow. */
+  topNavLayoutHeader: string
+  /** TopNavLayout nav item pill: rounded, color transition. */
+  topNavLayoutNavItem: string
+  /** TopNavLayout nav item hover (inactive): container fill, on-surface ink. */
+  topNavLayoutNavItemIdle: string
+  /** TopNavLayout nav item label: hidden on phones, inline from md. */
+  topNavLayoutNavItemLabel: string
+
+  // -- transactions-table --
+
+  /** TransactionsTable outer card shell (also the loading/error/empty panels): lowest surface, rounded, clipped, shadow. */
+  transactionsTableShell: string
+  /** TransactionsTable skeleton loading row: low surface, rounded, pulsing. */
+  transactionsTableSkeletonRow: string
+  /** TransactionsTable tertiary ink (error text, outgoing amounts). */
+  transactionsTableTertiaryText: string
+  /** TransactionsTable horizontal scroll wrapper around the table. */
+  transactionsTableScroller: string
+  /** TransactionsTable `<table>`: left-aligned cells, collapsed borders. */
+  transactionsTableTable: string
+  /** TransactionsTable header row: half-tint container surface, no borders. */
+  transactionsTableHeadRow: string
+  /** TransactionsTable `<th>`: headline font, caps, wide tracking, slate ink. */
+  transactionsTableHeaderCell: string
+  /** TransactionsTable `<tbody>`: invisible row dividers. */
+  transactionsTableBody: string
+  /** TransactionsTable row hover fill + transition. */
+  transactionsTableRow: string
+  /** TransactionsTable date cell ink. */
+  transactionsTableDateCell: string
+  /** TransactionsTable description cell row gap. */
+  transactionsTableDescriptionRow: string
+  /** TransactionsTable description text ink. */
+  transactionsTableDescription: string
+  /** TransactionsTable category chip: tiny caps with wider tracking. */
+  transactionsTableCategoryChip: string
+  /** TransactionsTable account cell: slate ink, italic. */
+  transactionsTableAccountCell: string
+  /** TransactionsTable amount cell font. */
+  transactionsTableAmountCell: string
+
+  // -- weather-card --
+
+  /** WeatherCard hero: primary gradient fill, rounded, white ink, clipped, deep shadow. */
+  weatherCardHero: string
+  /** WeatherCard content wrapper above the decorative glows. */
+  weatherCardContent: string
+  /** WeatherCard eyebrow: caps, wide tracking, fixed-primary ink. */
+  weatherCardEyebrow: string
+  /** WeatherCard location title: tight tracking, white ink. */
+  weatherCardLocation: string
+  /** WeatherCard region line: mono, caps, wide tracking, softened white. */
+  weatherCardRegion: string
+  /** WeatherCard alert badge (watch tone): warning tint fill, white ink. */
+  weatherCardAlertWatch: string
+  /** WeatherCard alert badge (warning tone): error tint fill, white ink. */
+  weatherCardAlertWarning: string
+  /** WeatherCard alert badge (emergency tone): strong error fill, white ink. */
+  weatherCardAlertEmergency: string
+  /** WeatherCard alert badge text: tiny caps, wide tracking, frosted. */
+  weatherCardAlertBadge: string
+  /** WeatherCard temperature figure: tabular white numerals. */
+  weatherCardTemperature: string
+  /** WeatherCard condition pill: frosted white fill, blurred, hairline border. */
+  weatherCardConditionPill: string
+  /** WeatherCard feels-like label ink. */
+  weatherCardFeelsLike: string
+  /** WeatherCard high/low chip: frosted white fill, blurred, tabular numerals. */
+  weatherCardHighLowChip: string
+  /** WeatherCard updated stamp: mono, caps, wide tracking, dim white. */
+  weatherCardUpdated: string
+  /** WeatherCard large decorative glow orb. */
+  weatherCardGlowLarge: string
+  /** WeatherCard small decorative glow orb. */
+  weatherCardGlowSmall: string
 }

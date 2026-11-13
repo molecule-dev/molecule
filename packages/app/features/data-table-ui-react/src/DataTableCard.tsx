@@ -73,11 +73,7 @@ export function DataTableCard<Row>({
   return (
     <section
       data-mol-id={dataMolId}
-      className={cm.cn(
-        cm.stack(4),
-        'bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm',
-        className,
-      )}
+      className={cm.cn(cm.stack(4), cm.dataTableCardShell, className)}
     >
       {(title !== undefined || titleAction !== undefined) && (
         <div
@@ -88,24 +84,24 @@ export function DataTableCard<Row>({
           )}
         >
           {title !== undefined && (
-            <h3 className={cm.cn(cm.textSize('xl'), cm.fontWeight('bold'), 'text-on-surface')}>
+            <h3 className={cm.cn(cm.textSize('xl'), cm.fontWeight('bold'), cm.dataTableCardTitle)}>
               {title}
             </h3>
           )}
           {titleAction}
         </div>
       )}
-      <div className="overflow-x-auto">
-        <table className={cm.cn(cm.w('full'), 'text-left border-collapse')}>
+      <div className={cm.dataTableCardScroller}>
+        <table className={cm.cn(cm.w('full'), cm.dataTableCardTable)}>
           <thead>
-            <tr className="bg-surface-container-low border-b border-outline-variant/10">
+            <tr className={cm.dataTableCardHead}>
               {columns.map((col, idx) => (
                 <th
                   key={col.key}
                   className={cm.cn(
                     idx === 0 ? cm.sp('px', 8) : cm.sp('px', 4),
                     cm.sp('py', 4),
-                    'text-[10px] font-black text-on-surface-variant uppercase tracking-widest',
+                    cm.dataTableCardHeaderCell,
                     col.headerClassName,
                   )}
                 >
@@ -114,14 +110,12 @@ export function DataTableCard<Row>({
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-surface-container">
+          <tbody className={cm.dataTableCardBody}>
             {loading ? (
               Array.from({ length: 5 }).map((_, i) => (
                 <tr key={`skeleton-${i}`} aria-hidden="true">
                   <td colSpan={columns.length} className={cm.cn(cm.sp('px', 8), cm.sp('py', 5))}>
-                    <div
-                      className={cm.cn(cm.h(4), 'bg-surface-container-low rounded animate-pulse')}
-                    />
+                    <div className={cm.cn(cm.h(4), cm.dataTableCardSkeletonBar)} />
                   </td>
                 </tr>
               ))
@@ -133,7 +127,7 @@ export function DataTableCard<Row>({
                     cm.sp('px', 8),
                     cm.sp('py', 12),
                     cm.textCenter,
-                    'text-on-surface-variant',
+                    cm.dataTableCardEmptyCell,
                   )}
                 >
                   {emptyMessage}
@@ -144,10 +138,7 @@ export function DataTableCard<Row>({
                 <tr
                   key={rowKey(row)}
                   onClick={onRowClick ? () => onRowClick(row) : undefined}
-                  className={cm.cn(
-                    onRowClick ? cm.cursorPointer : '',
-                    'hover:bg-surface-container-low transition-colors',
-                  )}
+                  className={cm.cn(onRowClick ? cm.cursorPointer : '', cm.dataTableCardRowHover)}
                 >
                   {columns.map((col, idx) => (
                     <td

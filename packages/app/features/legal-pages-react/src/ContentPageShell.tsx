@@ -67,13 +67,7 @@ export function ContentPageShell({
   }
 
   return (
-    <div
-      className={cm.cn(
-        cm.flex({ direction: 'col' }),
-        cm.minH('screen'),
-        'bg-background text-on-surface font-body',
-      )}
-    >
+    <div className={cm.cn(cm.flex({ direction: 'col' }), cm.minH('screen'), cm.legalPagesShell)}>
       {header}
 
       {title ? (
@@ -82,24 +76,22 @@ export function ContentPageShell({
         // reads as a duplicated app bar to audits, users, and assistive tech.
         <section
           data-mol-id={dataMolId}
-          className={cm.cn('relative overflow-hidden', cm.sp('px', 6), cm.sp('py', 16))}
+          className={cm.cn(cm.legalPagesHero, cm.sp('px', 6), cm.sp('py', 16))}
           style={heroStyle}
         >
           <div
             aria-hidden="true"
-            className={cm.cn(
-              'pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full blur-3xl',
-            )}
+            className={cm.legalPagesHeroGlow}
             style={{ background: 'color-mix(in srgb, var(--mol-color-primary) 22%, transparent)' }}
           />
-          <div className={cm.cn(cm.container({ size: containerSize }), 'relative z-10')}>
+          <div className={cm.cn(cm.container({ size: containerSize }), cm.legalPagesHeroContent)}>
             {eyebrow ? (
               <p
                 className={cm.cn(
                   cm.textSize('xs'),
                   cm.fontWeight('bold'),
                   cm.sp('mb', 3),
-                  'font-label uppercase tracking-widest text-primary',
+                  cm.legalPagesHeroEyebrow,
                 )}
               >
                 {eyebrow}
@@ -109,19 +101,13 @@ export function ContentPageShell({
               className={cm.cn(
                 cm.textSize('4xl'),
                 cm.fontWeight('extrabold'),
-                'font-display tracking-tight',
+                cm.legalPagesHeroTitle,
               )}
             >
               {title}
             </h1>
             {subtitle ? (
-              <p
-                className={cm.cn(
-                  cm.textSize('base'),
-                  cm.sp('mt', 3),
-                  'font-body text-on-surface-variant',
-                )}
-              >
+              <p className={cm.cn(cm.textSize('base'), cm.sp('mt', 3), cm.legalPagesHeroSubtitle)}>
                 {subtitle}
               </p>
             ) : null}
@@ -134,13 +120,7 @@ export function ContentPageShell({
           {bare ? (
             children
           ) : (
-            <div
-              className={cm.cn(
-                cm.surface,
-                cm.sp('p', 8),
-                'rounded-2xl shadow-lg border border-outline-variant/40',
-              )}
-            >
+            <div className={cm.cn(cm.surface, cm.sp('p', 8), cm.legalPagesContentCard)}>
               {children}
             </div>
           )}

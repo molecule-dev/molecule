@@ -36,22 +36,26 @@ export function NodeEditorToggle({
       className={cm.cn(
         cm.sp('p', 4),
         cm.flex({ align: 'center', justify: 'between' }),
-        'bg-surface-container rounded-xl border border-primary/20',
+        cm.nodeEditorPanelToggleRow,
       )}
     >
-      <div className={cm.cn(cm.flex({ align: 'center' }), 'gap-3')}>
+      <div className={cm.cn(cm.flex({ align: 'center' }), cm.nodeEditorPanelToggleGroup)}>
         {icon ? (
-          <div className={cm.cn(cm.sp('p', 2), 'bg-primary/10 rounded-lg text-primary')}>
-            <span className={cm.cn(cm.textSize('sm'), 'material-symbols-outlined')}>{icon}</span>
+          <div className={cm.cn(cm.sp('p', 2), cm.nodeEditorPanelToggleIconTile)}>
+            <span className={cm.cn(cm.textSize('sm'), cm.iconGlyphFont)}>{icon}</span>
           </div>
         ) : null}
         <div>
-          <p className={cm.cn(cm.textSize('xs'), cm.fontWeight('semibold'), 'text-on-surface')}>
+          <p
+            className={cm.cn(
+              cm.textSize('xs'),
+              cm.fontWeight('semibold'),
+              cm.nodeEditorPanelToggleTitle,
+            )}
+          >
             {title}
           </p>
-          {subtitle ? (
-            <p className={cm.cn('text-[10px] text-on-surface-variant')}>{subtitle}</p>
-          ) : null}
+          {subtitle ? <p className={cm.cn(cm.nodeEditorPanelToggleSubtitle)}>{subtitle}</p> : null}
         </div>
       </div>
       {/* Shared accessible switch (role="switch", aria-checked, 40x40 touch

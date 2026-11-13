@@ -35,7 +35,7 @@ export function FacetedSearchBar({
         cm.sp('py', 3),
         cm.surface,
         cm.w('full'),
-        'fixed z-40 border-b border-outline-variant/20 overflow-x-auto hide-scrollbar',
+        cm.facetedSearchBar,
         className,
       )}
     >

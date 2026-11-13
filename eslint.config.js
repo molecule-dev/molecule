@@ -278,10 +278,14 @@ export default tseslint.config(
     },
   },
   {
-    // Rule 5 for the framework UI packages: each one styles through ClassMap
-    // tokens, so React, Vue, Solid, Svelte, Angular and React Native render the
-    // same classes from the same bond and a styling swap is one bond change.
-    files: ['packages/app/frameworks/*-ui/src/**/*.{ts,tsx}'],
+    // Rule 5 for the framework UI packages and the feature components built on
+    // them: each one styles through ClassMap tokens, so React, Vue, Solid, Svelte,
+    // Angular and React Native render the same classes from the same bond and a
+    // styling swap is one bond change.
+    files: [
+      'packages/app/frameworks/*-ui/src/**/*.{ts,tsx}',
+      'packages/app/features/*/src/**/*.{ts,tsx}',
+    ],
     ignores: ['**/__tests__/**', '**/*.test.{ts,tsx}', '**/*.spec.{ts,tsx}'],
     rules: {
       'molecule-local/no-raw-class-names': 'error',

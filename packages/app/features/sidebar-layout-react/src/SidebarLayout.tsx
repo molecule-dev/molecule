@@ -194,7 +194,7 @@ export function SidebarLayout({
                 )}
               >
                 {item.icon ? (
-                  <span className="material-symbols-outlined" aria-hidden="true">
+                  <span className={cm.cn(cm.iconGlyphFont)} aria-hidden="true">
                     {item.icon}
                   </span>
                 ) : null}

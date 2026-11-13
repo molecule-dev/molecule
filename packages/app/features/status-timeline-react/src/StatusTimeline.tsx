@@ -44,7 +44,7 @@ export function StatusTimeline({
   const currentIdx = steps.findIndex((s) => s.key === currentKey)
   return (
     <ol
-      className={cm.cn('space-y-2', cm.textSize('sm'), className)}
+      className={cm.cn(cm.statusTimelineList, cm.textSize('sm'), className)}
       aria-label={ariaLabel}
       data-mol-id={dataMolId}
     >
@@ -56,8 +56,8 @@ export function StatusTimeline({
             <span
               className={cm.cn(
                 cm.roundedFull,
-                'h-2 w-2',
-                reached ? 'bg-primary' : 'bg-outline-variant',
+                cm.statusTimelineDot,
+                reached ? cm.bgPrimary : cm.statusTimelineDotIdle,
               )}
               aria-hidden="true"
             />

@@ -253,10 +253,12 @@ export function AuthSection(): JSX.Element | null {
             <img
               src={tfSetup.QRImageUrl}
               alt={t('settings.twoFactorQrAlt', undefined, { defaultValue: 'Two-factor QR code' })}
-              className={cm.cn('mx-auto', cm.maxW('xs'))}
+              className={cm.cn(cm.mxAuto, cm.maxW('xs'))}
             />
             {tfSetup.secret ? (
-              <p className={cm.cn(cm.textSize('xs'), cm.textSubtle, 'text-center break-all')}>
+              <p
+                className={cm.cn(cm.textSize('xs'), cm.textSubtle, cm.settingsPanelTwoFactorSecret)}
+              >
                 {tfSetup.secret}
               </p>
             ) : null}

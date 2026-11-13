@@ -67,12 +67,12 @@ describe('AuthShellContainer', () => {
 })
 
 describe('AuthShellDecoration', () => {
-  it('renders its children inside a pointer-events-none layer', () => {
+  it('renders its children inside the non-interactive decoration layer', () => {
     const markup = html(
       createElement(AuthShellDecoration, { children: createElement('div', { 'data-orb': '' }) }),
     )
     expect(markup).toContain('data-orb=""')
-    expect(markup).toContain('pointer-events-none')
+    expect(markup).toContain('authShellDecoration')
   })
 })
 
@@ -90,12 +90,12 @@ describe('AuthShellCard', () => {
 
   it('uses the default glass surface unless surfaceClassName overrides it', () => {
     const def = html(createElement(AuthShellCard, { children: 'x' }))
-    expect(def).toContain('backdrop-blur-2xl')
+    expect(def).toContain('authShellCardSurface')
     const custom = html(
       createElement(AuthShellCard, { children: 'x', surfaceClassName: 'my-surface' }),
     )
     expect(custom).toContain('my-surface')
-    expect(custom).not.toContain('backdrop-blur-2xl')
+    expect(custom).not.toContain('authShellCardSurface')
   })
 })
 
@@ -182,21 +182,21 @@ describe('AuthShellSplitRow', () => {
 })
 
 describe('AuthShellPanel', () => {
-  it('renders its children inside a hidden lg:flex aside by default', () => {
+  it('renders its children inside the panel aside (hidden below lg) by default', () => {
     const markup = html(
       createElement(AuthShellPanel, { children: createElement('div', { 'data-brand': '' }) }),
     )
     expect(markup).toContain('<aside')
     expect(markup).toContain('data-brand=""')
-    expect(markup).toContain('hidden lg:flex')
+    expect(markup).toContain('authShellPanel')
   })
 
-  it('appends className alongside the shared hidden lg:flex collapse', () => {
+  it('appends className alongside the shared panel collapse', () => {
     const markup = html(createElement(AuthShellPanel, { children: 'x', className: 'my-panel' }))
     expect(markup).toContain('my-panel')
-    // `hidden lg:flex` is the one universally-shared concern and always
+    // The panel's below-lg collapse is the one universally-shared concern and always
     // applies; the app's className (width / gradient / padding) appends.
-    expect(markup).toContain('hidden lg:flex')
+    expect(markup).toContain('authShellPanel')
   })
 })
 

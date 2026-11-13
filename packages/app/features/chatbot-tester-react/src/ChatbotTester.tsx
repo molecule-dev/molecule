@@ -63,14 +63,14 @@ export function ChatbotTester({
   }
 
   return (
-    <div className={cm.cn(cm.flex({ direction: 'col' }), cm.flex1, 'min-w-0', className)}>
+    <div className={cm.cn(cm.flex({ direction: 'col' }), cm.flex1, cm.minW(0), className)}>
       {bots && bots.length > 1 ? (
         <div
           className={cm.cn(
             cm.flex({ align: 'center' }),
             cm.sp('px', 6),
             cm.sp('py', 3),
-            'gap-3 border-b border-outline-variant/20',
+            cm.chatbotTesterBotBar,
           )}
         >
           <label
@@ -83,10 +83,7 @@ export function ChatbotTester({
             id="chatbot-tester-bot-select"
             value={botId ?? ''}
             onChange={(e) => onBotChange?.(e.target.value)}
-            className={cm.cn(
-              cm.textSize('sm'),
-              'bg-surface-container-high border-none rounded-xl px-3 py-2 focus:ring-2 focus:ring-primary/40',
-            )}
+            className={cm.cn(cm.textSize('sm'), cm.chatbotTesterBotSelect)}
           >
             {bots.map((b) => (
               <option key={b.id} value={b.id}>
@@ -100,7 +97,7 @@ export function ChatbotTester({
       {error ? (
         <p
           role="alert"
-          className={cm.cn(cm.textSize('sm'), cm.sp('px', 6), cm.sp('py', 2), 'text-error')}
+          className={cm.cn(cm.textSize('sm'), cm.sp('px', 6), cm.sp('py', 2), cm.textError)}
         >
           {error}
         </p>

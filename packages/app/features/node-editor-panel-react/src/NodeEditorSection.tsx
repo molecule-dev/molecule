@@ -31,12 +31,7 @@ export function NodeEditorSection({
   return (
     <div className={cm.stack(gap)}>
       <div className={cm.flex({ justify: 'between', align: 'center' })}>
-        <label
-          className={cm.cn(
-            cm.fontWeight('bold'),
-            'text-[11px] text-on-surface-variant uppercase tracking-widest',
-          )}
-        >
+        <label className={cm.cn(cm.fontWeight('bold'), cm.nodeEditorPanelSectionLabel)}>
           {label}
         </label>
         {trailing ?? null}

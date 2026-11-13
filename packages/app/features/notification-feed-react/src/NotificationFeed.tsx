@@ -57,7 +57,11 @@ export function NotificationFeed({
 }: NotificationFeedProps): JSX.Element {
   const cm = getClassMap()
   return (
-    <ul className={cm.cn('space-y-2', className)} aria-label={ariaLabel} data-mol-id={dataMolId}>
+    <ul
+      className={cm.cn(cm.notificationFeedList, className)}
+      aria-label={ariaLabel}
+      data-mol-id={dataMolId}
+    >
       {items.map((item) => {
         const content = (
           <div
@@ -65,7 +69,7 @@ export function NotificationFeed({
               cm.card(),
               cm.sp('p', 4),
               cm.flex({ align: 'start', gap: 'md' }),
-              item.unread ? 'border-l-4 border-primary' : '',
+              item.unread ? cm.notificationFeedUnreadAccent : '',
             )}
           >
             <div
@@ -74,19 +78,21 @@ export function NotificationFeed({
                 cm.flex({ align: 'center', justify: 'center' }),
                 cm.roundedFull,
                 cm.textPrimary,
-                'h-10 w-10 bg-primary-container',
+                cm.notificationFeedIconTile,
               )}
             >
-              <span className="material-symbols-outlined" aria-hidden="true">
+              <span className={cm.iconGlyphFont} aria-hidden="true">
                 {item.icon}
               </span>
             </div>
-            <div className={cm.cn(cm.flex1, 'min-w-0')}>
+            <div className={cm.cn(cm.flex1, cm.minW(0))}>
               <div className={cm.flex({ align: 'center', justify: 'between', gap: 'sm' })}>
                 <h2 className={cm.cn(cm.textSize('base'), cm.fontWeight('semibold'))}>
                   {item.title}
                 </h2>
-                <span className={cm.cn(cm.textSize('xs'), cm.textMuted, 'whitespace-nowrap')}>
+                <span
+                  className={cm.cn(cm.textSize('xs'), cm.textMuted, cm.notificationFeedTimestamp)}
+                >
                   {fmtRelativeShort(item.createdAt)}
                 </span>
               </div>
@@ -97,7 +103,7 @@ export function NotificationFeed({
         return (
           <li key={item.id}>
             {item.href ? (
-              <Link to={item.href} className="block">
+              <Link to={item.href} className={cm.displayBlock}>
                 {content}
               </Link>
             ) : (

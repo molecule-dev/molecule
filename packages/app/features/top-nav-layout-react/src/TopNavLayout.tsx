@@ -50,10 +50,10 @@ export function TopNavLayout({
   const cm = getClassMap()
   return (
     <div
-      className={cm.cn(cm.minH('screen'), 'bg-background text-on-surface antialiased', className)}
+      className={cm.cn(cm.minH('screen'), cm.topNavLayoutRoot, className)}
       data-mol-id={dataMolId}
     >
-      <header className={cm.cn('sticky top-0 z-40 bg-surface shadow-sm')}>
+      <header className={cm.cn(cm.topNavLayoutHeader)}>
         <div
           className={cm.cn(
             cm.maxW('7xl'),
@@ -82,19 +82,19 @@ export function TopNavLayout({
                     cm.sp('py', 2),
                     cm.textSize('sm'),
                     cm.fontWeight('medium'),
-                    'rounded-md transition-colors',
+                    cm.topNavLayoutNavItem,
                     isActive
-                      ? cm.cn('bg-primary-container', cm.textPrimary)
-                      : cm.cn(cm.textMuted, 'hover:bg-surface-container hover:text-on-surface'),
+                      ? cm.cn(cm.bgPrimaryContainer, cm.textPrimary)
+                      : cm.cn(cm.textMuted, cm.topNavLayoutNavItemIdle),
                   )
                 }
               >
                 {item.icon ? (
-                  <span className="material-symbols-outlined" aria-hidden="true">
+                  <span className={cm.iconGlyphFont} aria-hidden="true">
                     {item.icon}
                   </span>
                 ) : null}
-                <span className="hidden md:inline">{item.label}</span>
+                <span className={cm.topNavLayoutNavItemLabel}>{item.label}</span>
               </NavLink>
             ))}
           </nav>

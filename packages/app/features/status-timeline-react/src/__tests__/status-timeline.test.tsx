@@ -44,9 +44,9 @@ describe('StatusTimeline', () => {
 
   it('marks steps at or before the current one as reached (filled dot)', () => {
     const markup = html(createElement(StatusTimeline, { steps, currentKey: 'review' }))
-    // created + review reached => 2 bg-primary dots, done => 1 bg-outline-variant
-    expect(markup.split('bg-primary').length - 1).toBe(2)
-    expect(markup.split('bg-outline-variant').length - 1).toBe(1)
+    // created + review reached => 2 primary dots, done => 1 idle dot
+    expect(markup.split('bgPrimary').length - 1).toBe(2)
+    expect(markup.split('statusTimelineDotIdle').length - 1).toBe(1)
   })
 
   it('bolds the current step label', () => {
