@@ -3,12 +3,28 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 // Shared framework mocks, defined before vi.mock hoisting.
 const { mockVueRouter, mockRoute } = vi.hoisted(() => {
   const mockVueRouter = {
-    push: vi.fn().mockResolvedValue(undefined),
-    replace: vi.fn().mockResolvedValue(undefined),
+    // The bond reads the live currentRoute (not a passed snapshot).
+    currentRoute: { value: null as unknown },
+    push: vi.fn(async (path: string) => {
+      mockVueRouter.currentRoute.value = {
+        ...mockVueRouter.currentRoute.value,
+        path,
+        fullPath: path,
+      }
+    }),
+    replace: vi.fn(async (path: string) => {
+      mockVueRouter.currentRoute.value = {
+        ...mockVueRouter.currentRoute.value,
+        path,
+        fullPath: path,
+      }
+    }),
     back: vi.fn(),
     forward: vi.fn(),
     go: vi.fn(),
     resolve: vi.fn((to: { name: string }) => ({ fullPath: `/${to.name}` })),
+    afterEach: vi.fn(() => () => {}),
+    options: { history: { state: { position: 0 }, listen: vi.fn(() => () => {}) } },
   }
   const mockRoute = {
     path: '/',
@@ -21,18 +37,24 @@ const { mockVueRouter, mockRoute } = vi.hoisted(() => {
     matched: [],
     redirectedFrom: undefined,
   }
+  mockVueRouter.currentRoute.value = mockRoute
   return { mockVueRouter, mockRoute }
 })
 
-// Minimal @molecule/app-routing bond so navigate() delegates to whatever is bonded.
+// @molecule/app-routing with only the bond overridden, so navigate() delegates to whatever
+// is bonded (the provider singleton needs the real createBrowserRouter at import time).
 let bonded: { navigate: (path: string, options?: unknown) => unknown } | null = null
-vi.mock('@molecule/app-routing', () => ({
-  setRouter: vi.fn((router: { navigate: (p: string, o?: unknown) => unknown }) => {
-    bonded = router
-  }),
-  getRouter: () => bonded,
-  navigate: (path: string, options?: unknown) => bonded?.navigate(path, options),
-}))
+vi.mock('@molecule/app-routing', async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    setRouter: vi.fn((router: { navigate: (p: string, o?: unknown) => unknown }) => {
+      bonded = router
+    }),
+    getRouter: () => bonded,
+    navigate: (path: string, options?: unknown) => bonded?.navigate(path, options),
+  }
+})
 
 vi.mock('vue-router', () => ({
   useRouter: () => mockVueRouter,

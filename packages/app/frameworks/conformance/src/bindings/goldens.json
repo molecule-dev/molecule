@@ -17,6 +17,7 @@
   "useChat",
   "useChatProvider",
   "useChildLogger",
+  "useConsumedSearchParam",
   "useCurrentTheme",
   "useDelete",
   "useDevice",
@@ -32,6 +33,7 @@
   "useI18nProvider",
   "useIsActive",
   "useIsAuthenticated",
+  "useListRoute",
   "useLocale",
   "useLocation",
   "useLogger",
@@ -30794,6 +30796,207 @@
     }
    }
   },
+  "useConsumedSearchParam": {
+   "consumes the parameter and keeps the rest of the URL": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": [
+       "abc",
+       "[function]"
+      ],
+      "route": "/reset?lang=fr"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "keeps the value through query-only navigation and consumes a new one": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": [
+       "abc",
+       "[function]"
+      ],
+      "route": "/reset"
+     },
+     {
+      "result": [
+       "abc",
+       "[function]"
+      ],
+      "route": "/reset?step=2"
+     },
+     {
+      "result": [
+       "def",
+       "[function]"
+      ],
+      "route": "/reset"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "Back restores the value consumed on that entry": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": [
+       "",
+       "[function]"
+      ],
+      "route": "/start"
+     },
+     {
+      "result": [
+       "abc",
+       "[function]"
+      ],
+      "route": "/reset"
+     },
+     {
+      "result": [
+       "def",
+       "[function]"
+      ],
+      "route": "/reset"
+     },
+     {
+      "result": [
+       "abc",
+       "[function]"
+      ],
+      "route": "/reset"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "the setter replaces the value": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": [
+       "abc",
+       "[function]"
+      ],
+      "route": "/reset"
+     },
+     {
+      "result": [
+       "",
+       "[function]"
+      ],
+      "route": "/reset"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> 1",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "empty when the parameter never appeared": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": [
+       "",
+       "[function]"
+      ],
+      "route": "/reset"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "unmount stops consuming": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": [
+       "",
+       "[function]"
+      ],
+      "route": "/start"
+     },
+     null,
+     null
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "without a router provider": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": {
+       "$threw": "Error"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   }
+  },
   "useCurrentTheme": {
    "the light theme by default": {
     "shape": {
@@ -43641,6 +43844,992 @@
     "snapshots": [
      {
       "result": false,
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   }
+  },
+  "useListRoute": {
+   "reads the page, offset and filters from the URL and builds links": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "canLoad": "value",
+      "filters": "value",
+      "href": "method",
+      "navigate": "method",
+      "offset": "value",
+      "page": "value",
+      "pageSize": "value",
+      "params": "value",
+      "redirectTo": "value",
+      "select": "method",
+      "selection": "value",
+      "setFilters": "method",
+      "setPage": "method",
+      "status": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "canLoad": true,
+       "filters": {
+        "sort": "new",
+        "tag": "news"
+       },
+       "href": "[method]",
+       "navigate": "[method]",
+       "offset": 20,
+       "page": 3,
+       "pageSize": 10,
+       "params": {},
+       "redirectTo": null,
+       "select": "[method]",
+       "selection": null,
+       "setFilters": "[method]",
+       "setPage": "[method]",
+       "status": "ready"
+      },
+      "route": "/articles?tag=news&page=3"
+     },
+     {
+      "result": {
+       "canLoad": true,
+       "filters": {
+        "sort": "new",
+        "tag": "news"
+       },
+       "href": "[method]",
+       "navigate": "[method]",
+       "offset": 20,
+       "page": 3,
+       "pageSize": 10,
+       "params": {},
+       "redirectTo": null,
+       "select": "[method]",
+       "selection": null,
+       "setFilters": "[method]",
+       "setPage": "[method]",
+       "status": "ready"
+      },
+      "route": "/articles?tag=news&page=3"
+     },
+     {
+      "result": {
+       "canLoad": true,
+       "filters": {
+        "sort": "new",
+        "tag": "news"
+       },
+       "href": "[method]",
+       "navigate": "[method]",
+       "offset": 20,
+       "page": 3,
+       "pageSize": 10,
+       "params": {},
+       "redirectTo": null,
+       "select": "[method]",
+       "selection": null,
+       "setFilters": "[method]",
+       "setPage": "[method]",
+       "status": "ready"
+      },
+      "route": "/articles?tag=news&page=3"
+     },
+     {
+      "result": {
+       "canLoad": true,
+       "filters": {
+        "sort": "new",
+        "tag": "news"
+       },
+       "href": "[method]",
+       "navigate": "[method]",
+       "offset": 20,
+       "page": 3,
+       "pageSize": 10,
+       "params": {},
+       "redirectTo": null,
+       "select": "[method]",
+       "selection": null,
+       "setFilters": "[method]",
+       "setPage": "[method]",
+       "status": "ready"
+      },
+      "route": "/articles?tag=news&page=3"
+     },
+     {
+      "result": {
+       "canLoad": true,
+       "filters": {
+        "sort": "new",
+        "tag": "news"
+       },
+       "href": "[method]",
+       "navigate": "[method]",
+       "offset": 20,
+       "page": 3,
+       "pageSize": 10,
+       "params": {},
+       "redirectTo": null,
+       "select": "[method]",
+       "selection": null,
+       "setFilters": "[method]",
+       "setPage": "[method]",
+       "status": "ready"
+      },
+      "route": "/articles?tag=news&page=3"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> href",
+      "args": [
+       {
+        "returned": "/articles?tag=news&page=4#top"
+       }
+      ]
+     },
+     {
+      "name": "=> href",
+      "args": [
+       {
+        "returned": "/articles?tag=news#top"
+       }
+      ]
+     },
+     {
+      "name": "=> href",
+      "args": [
+       {
+        "returned": "/articles?tag=tech#top"
+       }
+      ]
+     },
+     {
+      "name": "=> href",
+      "args": [
+       {
+        "returned": "/articles?tag=news&page=2#top"
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "a malformed page reads as page one": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "canLoad": "value",
+      "filters": "value",
+      "href": "method",
+      "navigate": "method",
+      "offset": "value",
+      "page": "value",
+      "pageSize": "value",
+      "params": "value",
+      "redirectTo": "value",
+      "select": "method",
+      "selection": "value",
+      "setFilters": "method",
+      "setPage": "method",
+      "status": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "canLoad": true,
+       "filters": {
+        "sort": "new"
+       },
+       "href": "[method]",
+       "navigate": "[method]",
+       "offset": 0,
+       "page": 1,
+       "pageSize": 10,
+       "params": {},
+       "redirectTo": null,
+       "select": "[method]",
+       "selection": null,
+       "setFilters": "[method]",
+       "setPage": "[method]",
+       "status": "ready"
+      },
+      "route": "/articles?page=2oops"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "setPage, setFilters and navigate move the URL": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "canLoad": "value",
+      "filters": "value",
+      "href": "method",
+      "navigate": "method",
+      "offset": "value",
+      "page": "value",
+      "pageSize": "value",
+      "params": "value",
+      "redirectTo": "value",
+      "select": "method",
+      "selection": "value",
+      "setFilters": "method",
+      "setPage": "method",
+      "status": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "canLoad": true,
+       "filters": {
+        "sort": "new",
+        "tag": "news"
+       },
+       "href": "[method]",
+       "navigate": "[method]",
+       "offset": 0,
+       "page": 1,
+       "pageSize": 10,
+       "params": {},
+       "redirectTo": null,
+       "select": "[method]",
+       "selection": null,
+       "setFilters": "[method]",
+       "setPage": "[method]",
+       "status": "ready"
+      },
+      "route": "/articles?tag=news&view=grid"
+     },
+     {
+      "result": {
+       "canLoad": true,
+       "filters": {
+        "sort": "new",
+        "tag": "news"
+       },
+       "href": "[method]",
+       "navigate": "[method]",
+       "offset": 10,
+       "page": 2,
+       "pageSize": 10,
+       "params": {},
+       "redirectTo": null,
+       "select": "[method]",
+       "selection": null,
+       "setFilters": "[method]",
+       "setPage": "[method]",
+       "status": "ready"
+      },
+      "route": "/articles?tag=news&view=grid&page=2"
+     },
+     {
+      "result": {
+       "canLoad": true,
+       "filters": {
+        "sort": "new",
+        "tag": "tech"
+       },
+       "href": "[method]",
+       "navigate": "[method]",
+       "offset": 0,
+       "page": 1,
+       "pageSize": 10,
+       "params": {},
+       "redirectTo": null,
+       "select": "[method]",
+       "selection": null,
+       "setFilters": "[method]",
+       "setPage": "[method]",
+       "status": "ready"
+      },
+      "route": "/articles?view=grid&tag=tech"
+     },
+     {
+      "result": {
+       "canLoad": true,
+       "filters": {
+        "sort": "new"
+       },
+       "href": "[method]",
+       "navigate": "[method]",
+       "offset": 40,
+       "page": 5,
+       "pageSize": 10,
+       "params": {},
+       "redirectTo": null,
+       "select": "[method]",
+       "selection": null,
+       "setFilters": "[method]",
+       "setPage": "[method]",
+       "status": "ready"
+      },
+      "route": "/articles?view=grid&page=5"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> setPage",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "=> setFilters",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     },
+     {
+      "name": "=> navigate",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "follows navigation from outside": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "canLoad": "value",
+      "filters": "value",
+      "href": "method",
+      "navigate": "method",
+      "offset": "value",
+      "page": "value",
+      "pageSize": "value",
+      "params": "value",
+      "redirectTo": "value",
+      "select": "method",
+      "selection": "value",
+      "setFilters": "method",
+      "setPage": "method",
+      "status": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "canLoad": true,
+       "filters": {
+        "sort": "new"
+       },
+       "href": "[method]",
+       "navigate": "[method]",
+       "offset": 0,
+       "page": 1,
+       "pageSize": 10,
+       "params": {},
+       "redirectTo": null,
+       "select": "[method]",
+       "selection": null,
+       "setFilters": "[method]",
+       "setPage": "[method]",
+       "status": "ready"
+      },
+      "route": "/articles"
+     },
+     {
+      "result": {
+       "canLoad": true,
+       "filters": {
+        "sort": "new",
+        "tag": "x"
+       },
+       "href": "[method]",
+       "navigate": "[method]",
+       "offset": 60,
+       "page": 7,
+       "pageSize": 10,
+       "params": {},
+       "redirectTo": null,
+       "select": "[method]",
+       "selection": null,
+       "setFilters": "[method]",
+       "setPage": "[method]",
+       "status": "ready"
+      },
+      "route": "/articles?page=7&tag=x"
+     },
+     {
+      "result": {
+       "canLoad": true,
+       "filters": {
+        "sort": "new"
+       },
+       "href": "[method]",
+       "navigate": "[method]",
+       "offset": 0,
+       "page": 1,
+       "pageSize": 10,
+       "params": {},
+       "redirectTo": null,
+       "select": "[method]",
+       "selection": null,
+       "setFilters": "[method]",
+       "setPage": "[method]",
+       "status": "ready"
+      },
+      "route": "/articles"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "a path filter comes from the route pattern": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "canLoad": "value",
+      "filters": "value",
+      "href": "method",
+      "navigate": "method",
+      "offset": "value",
+      "page": "value",
+      "pageSize": "value",
+      "params": "value",
+      "redirectTo": "value",
+      "select": "method",
+      "selection": "value",
+      "setFilters": "method",
+      "setPage": "method",
+      "status": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "canLoad": true,
+       "filters": {
+        "topic": "a b"
+       },
+       "href": "[method]",
+       "navigate": "[method]",
+       "offset": 20,
+       "page": 2,
+       "pageSize": 20,
+       "params": {
+        "topic": "a b"
+       },
+       "redirectTo": null,
+       "select": "[method]",
+       "selection": null,
+       "setFilters": "[method]",
+       "setPage": "[method]",
+       "status": "ready"
+      },
+      "route": "/topics/a%20b?page=2"
+     },
+     {
+      "result": {
+       "canLoad": true,
+       "filters": {
+        "topic": "a b"
+       },
+       "href": "[method]",
+       "navigate": "[method]",
+       "offset": 20,
+       "page": 2,
+       "pageSize": 20,
+       "params": {
+        "topic": "a b"
+       },
+       "redirectTo": null,
+       "select": "[method]",
+       "selection": null,
+       "setFilters": "[method]",
+       "setPage": "[method]",
+       "status": "ready"
+      },
+      "route": "/topics/a%20b?page=2"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> href",
+      "args": [
+       {
+        "returned": "/topics/c%20d"
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "selections pick the most specific view": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "canLoad": "value",
+      "filters": "value",
+      "href": "method",
+      "navigate": "method",
+      "offset": "value",
+      "page": "value",
+      "pageSize": "value",
+      "params": "value",
+      "redirectTo": "value",
+      "select": "method",
+      "selection": "value",
+      "setFilters": "method",
+      "setPage": "method",
+      "status": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "canLoad": true,
+       "filters": {},
+       "href": "[method]",
+       "navigate": "[method]",
+       "offset": 20,
+       "page": 2,
+       "pageSize": 20,
+       "params": {},
+       "redirectTo": null,
+       "select": "[method]",
+       "selection": "mine",
+       "setFilters": "[method]",
+       "setPage": "[method]",
+       "status": "ready"
+      },
+      "route": "/orders?view=mine&page=2"
+     },
+     {
+      "result": {
+       "canLoad": true,
+       "filters": {},
+       "href": "[method]",
+       "navigate": "[method]",
+       "offset": 20,
+       "page": 2,
+       "pageSize": 20,
+       "params": {},
+       "redirectTo": null,
+       "select": "[method]",
+       "selection": "mine",
+       "setFilters": "[method]",
+       "setPage": "[method]",
+       "status": "ready"
+      },
+      "route": "/orders?view=mine&page=2"
+     },
+     {
+      "result": {
+       "canLoad": true,
+       "filters": {},
+       "href": "[method]",
+       "navigate": "[method]",
+       "offset": 0,
+       "page": 1,
+       "pageSize": 20,
+       "params": {},
+       "redirectTo": null,
+       "select": "[method]",
+       "selection": "all",
+       "setFilters": "[method]",
+       "setPage": "[method]",
+       "status": "ready"
+      },
+      "route": "/orders"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> href",
+      "args": [
+       {
+        "returned": "/orders"
+       }
+      ]
+     },
+     {
+      "name": "=> select",
+      "args": [
+       {
+        "returned": null
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "a protected view waits for auth, then redirects a signed-out visitor": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "canLoad": "value",
+      "filters": "value",
+      "href": "method",
+      "navigate": "method",
+      "offset": "value",
+      "page": "value",
+      "pageSize": "value",
+      "params": "value",
+      "redirectTo": "value",
+      "select": "method",
+      "selection": "value",
+      "setFilters": "method",
+      "setPage": "method",
+      "status": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "canLoad": false,
+       "filters": {},
+       "href": "[method]",
+       "navigate": "[method]",
+       "offset": 0,
+       "page": 1,
+       "pageSize": 20,
+       "params": {},
+       "redirectTo": null,
+       "select": "[method]",
+       "selection": "mine",
+       "setFilters": "[method]",
+       "setPage": "[method]",
+       "status": "loading"
+      },
+      "route": "/orders?view=mine"
+     },
+     {
+      "result": {
+       "canLoad": true,
+       "filters": {},
+       "href": "[method]",
+       "navigate": "[method]",
+       "offset": 0,
+       "page": 1,
+       "pageSize": 20,
+       "params": {},
+       "redirectTo": null,
+       "select": "[method]",
+       "selection": "all",
+       "setFilters": "[method]",
+       "setPage": "[method]",
+       "status": "ready"
+      },
+      "route": "/login"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "an unavailable auth client never redirects": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "canLoad": "value",
+      "filters": "value",
+      "href": "method",
+      "navigate": "method",
+      "offset": "value",
+      "page": "value",
+      "pageSize": "value",
+      "params": "value",
+      "redirectTo": "value",
+      "select": "method",
+      "selection": "value",
+      "setFilters": "method",
+      "setPage": "method",
+      "status": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "canLoad": false,
+       "filters": {},
+       "href": "[method]",
+       "navigate": "[method]",
+       "offset": 0,
+       "page": 1,
+       "pageSize": 20,
+       "params": {},
+       "redirectTo": null,
+       "select": "[method]",
+       "selection": "mine",
+       "setFilters": "[method]",
+       "setPage": "[method]",
+       "status": "unavailable"
+      },
+      "route": "/orders?view=mine"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "unknown names and a bad page throw": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "canLoad": "value",
+      "filters": "value",
+      "href": "method",
+      "navigate": "method",
+      "offset": "value",
+      "page": "value",
+      "pageSize": "value",
+      "params": "value",
+      "redirectTo": "value",
+      "select": "method",
+      "selection": "value",
+      "setFilters": "method",
+      "setPage": "method",
+      "status": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "canLoad": true,
+       "filters": {},
+       "href": "[method]",
+       "navigate": "[method]",
+       "offset": 0,
+       "page": 1,
+       "pageSize": 20,
+       "params": {},
+       "redirectTo": null,
+       "select": "[method]",
+       "selection": "all",
+       "setFilters": "[method]",
+       "setPage": "[method]",
+       "status": "ready"
+      },
+      "route": "/orders"
+     },
+     {
+      "result": {
+       "canLoad": true,
+       "filters": {},
+       "href": "[method]",
+       "navigate": "[method]",
+       "offset": 0,
+       "page": 1,
+       "pageSize": 20,
+       "params": {},
+       "redirectTo": null,
+       "select": "[method]",
+       "selection": "all",
+       "setFilters": "[method]",
+       "setPage": "[method]",
+       "status": "ready"
+      },
+      "route": "/orders"
+     },
+     {
+      "result": {
+       "canLoad": true,
+       "filters": {},
+       "href": "[method]",
+       "navigate": "[method]",
+       "offset": 0,
+       "page": 1,
+       "pageSize": 20,
+       "params": {},
+       "redirectTo": null,
+       "select": "[method]",
+       "selection": "all",
+       "setFilters": "[method]",
+       "setPage": "[method]",
+       "status": "ready"
+      },
+      "route": "/orders"
+     }
+    ],
+    "calls": [
+     {
+      "name": "=> href",
+      "args": [
+       {
+        "threw": "useListRoute: unknown selection \"nope\""
+       }
+      ]
+     },
+     {
+      "name": "=> href",
+      "args": [
+       {
+        "threw": "useListRoute: page must be a positive safe integer"
+       }
+      ]
+     }
+    ],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "a page size of zero throws": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": {
+       "$threw": "I18nError"
+      },
+      "route": "/"
+     }
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "unmount removes the router listener": {
+    "shape": {
+     "kind": "object",
+     "fields": {
+      "canLoad": "value",
+      "filters": "value",
+      "href": "method",
+      "navigate": "method",
+      "offset": "value",
+      "page": "value",
+      "pageSize": "value",
+      "params": "value",
+      "redirectTo": "value",
+      "select": "method",
+      "selection": "value",
+      "setFilters": "method",
+      "setPage": "method",
+      "status": "value"
+     }
+    },
+    "snapshots": [
+     {
+      "result": {
+       "canLoad": true,
+       "filters": {
+        "sort": "new"
+       },
+       "href": "[method]",
+       "navigate": "[method]",
+       "offset": 0,
+       "page": 1,
+       "pageSize": 10,
+       "params": {},
+       "redirectTo": null,
+       "select": "[method]",
+       "selection": null,
+       "setFilters": "[method]",
+       "setPage": "[method]",
+       "status": "ready"
+      },
+      "route": "/"
+     },
+     {
+      "result": {
+       "canLoad": true,
+       "filters": {
+        "sort": "new"
+       },
+       "href": "[method]",
+       "navigate": "[method]",
+       "offset": 0,
+       "page": 1,
+       "pageSize": 10,
+       "params": {},
+       "redirectTo": null,
+       "select": "[method]",
+       "selection": null,
+       "setFilters": "[method]",
+       "setPage": "[method]",
+       "status": "ready"
+      },
+      "route": "/a"
+     },
+     null,
+     null
+    ],
+    "calls": [],
+    "listenersAfterUnmount": {
+     "auth": 0,
+     "i18n": 0,
+     "router": 0,
+     "theme": 0
+    }
+   },
+   "without a router provider": {
+    "shape": {
+     "kind": "value"
+    },
+    "snapshots": [
+     {
+      "result": {
+       "$threw": "Error"
+      },
       "route": "/"
      }
     ],

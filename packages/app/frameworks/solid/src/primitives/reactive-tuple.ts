@@ -17,8 +17,11 @@
  * @param actions - The action functions, in tuple order from index 1.
  * @returns The tuple.
  */
-export function liveStateTuple(state: () => unknown, actions: unknown[]): unknown[] {
-  const tuple: unknown[] = [undefined, ...actions]
+export function liveStateTuple<State, Actions extends unknown[]>(
+  state: () => State,
+  actions: [...Actions],
+): [State, ...Actions] {
+  const tuple: [State, ...Actions] = [state(), ...actions]
   Object.defineProperty(tuple, 0, { get: state, enumerable: true, configurable: true })
   return tuple
 }

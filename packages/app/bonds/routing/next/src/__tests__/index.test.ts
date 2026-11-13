@@ -1,51 +1,8 @@
 import { describe, expect, it, vi } from 'vitest'
 
-// Mock @molecule/app-routing since it's a peer dependency
-vi.mock('@molecule/app-routing', () => ({
-  parseQuery: (search: string) => {
-    const params: Record<string, string> = {}
-    const query = search.startsWith('?') ? search.slice(1) : search
-    if (!query) return params
-    query.split('&').forEach((part) => {
-      const [key, value] = part.split('=')
-      params[decodeURIComponent(key)] = decodeURIComponent(value ?? '')
-    })
-    return params
-  },
-  stringifyQuery: (params: Record<string, string | string[] | undefined>) => {
-    const entries = Object.entries(params)
-      .filter(([, v]) => v !== undefined)
-      .map(([k, v]) => {
-        if (Array.isArray(v)) {
-          return v.map((val) => `${encodeURIComponent(k)}=${encodeURIComponent(val)}`).join('&')
-        }
-        return `${encodeURIComponent(k)}=${encodeURIComponent(v as string)}`
-      })
-    return entries.length ? `?${entries.join('&')}` : ''
-  },
-  matchPath: <T extends Record<string, string>>(pattern: string, path: string, exact = false) => {
-    const regex = new RegExp(
-      '^' + pattern.replace(/\//g, '\\/').replace(/:([^/]+)/g, '([^/]+)') + (exact ? '$' : ''),
-    )
-    const match = path.match(regex)
-    if (!match) return null
-    const paramNames = (pattern.match(/:([^/]+)/g) ?? []).map((p) => p.slice(1))
-    const params: Record<string, string> = {}
-    paramNames.forEach((name, i) => {
-      params[name] = match[i + 1]
-    })
-    return { params, path: pattern, pathname: match[0], isExact: match[0] === path } as {
-      params: T
-      path: string
-      pathname: string
-      isExact: boolean
-    }
-  },
-  generatePath: (pattern: string, params: Record<string, string> = {}) => {
-    return pattern.replace(/:([^/]+)/g, (_, key) => params[key] ?? `:${key}`)
-  },
-}))
-
+// The bond is tested against the REAL core router (`createHistoryRouter`): the adapter
+// is only the history over Next's client surface, so mocking the core would test a
+// different router than the one apps get.
 import type { NextNavigation, RouteDefinition, RouteLocation } from '../index.js'
 import {
   createLinkHref,
@@ -442,25 +399,7 @@ describe('@molecule/app-routing-next', () => {
     })
 
     describe('back and forward', () => {
-      it('should call navigation.back', () => {
-        const navigation = createMockNavigation()
-        const router = createNextRouter({ navigation, pathname: '/' })
-
-        router.back()
-
-        expect(navigation.back).toHaveBeenCalled()
-      })
-
-      it('should call navigation.forward', () => {
-        const navigation = createMockNavigation()
-        const router = createNextRouter({ navigation, pathname: '/' })
-
-        router.forward()
-
-        expect(navigation.forward).toHaveBeenCalled()
-      })
-
-      it('should fall back to window.history.back when no navigation', () => {
+      it('should move the native history back', () => {
         const mockHistory = { back: vi.fn(), forward: vi.fn(), go: vi.fn() }
         Object.defineProperty(globalThis, 'window', {
           value: { history: mockHistory, location: { pathname: '/', hash: '' } },
@@ -470,7 +409,9 @@ describe('@molecule/app-routing-next', () => {
         const router = createNextRouter({ pathname: '/' })
         router.back()
 
-        expect(mockHistory.back).toHaveBeenCalled()
+        // `back()` is the native router's own history move (Next's `router.back()` is
+        // `window.history.back()` too), reported through `go`.
+        expect(mockHistory.go).toHaveBeenCalledWith(-1)
 
         Object.defineProperty(globalThis, 'window', {
           value: originalWindow,
@@ -478,7 +419,7 @@ describe('@molecule/app-routing-next', () => {
         })
       })
 
-      it('should fall back to window.history.forward when no navigation', () => {
+      it('should move the native history forward', () => {
         const mockHistory = { back: vi.fn(), forward: vi.fn(), go: vi.fn() }
         Object.defineProperty(globalThis, 'window', {
           value: { history: mockHistory, location: { pathname: '/', hash: '' } },
@@ -488,7 +429,44 @@ describe('@molecule/app-routing-next', () => {
         const router = createNextRouter({ pathname: '/' })
         router.forward()
 
-        expect(mockHistory.forward).toHaveBeenCalled()
+        expect(mockHistory.go).toHaveBeenCalledWith(1)
+
+        Object.defineProperty(globalThis, 'window', {
+          value: originalWindow,
+          writable: true,
+        })
+      })
+
+      it('should move the native history back when no navigation', () => {
+        const mockHistory = { back: vi.fn(), forward: vi.fn(), go: vi.fn() }
+        Object.defineProperty(globalThis, 'window', {
+          value: { history: mockHistory, location: { pathname: '/', hash: '' } },
+          writable: true,
+        })
+
+        const router = createNextRouter({ pathname: '/' })
+        router.back()
+
+        // `back()` is the native router's own history move (`window.history.go(-1)`).
+        expect(mockHistory.go).toHaveBeenCalledWith(-1)
+
+        Object.defineProperty(globalThis, 'window', {
+          value: originalWindow,
+          writable: true,
+        })
+      })
+
+      it('should move the native history forward when no navigation', () => {
+        const mockHistory = { back: vi.fn(), forward: vi.fn(), go: vi.fn() }
+        Object.defineProperty(globalThis, 'window', {
+          value: { history: mockHistory, location: { pathname: '/', hash: '' } },
+          writable: true,
+        })
+
+        const router = createNextRouter({ pathname: '/' })
+        router.forward()
+
+        expect(mockHistory.go).toHaveBeenCalledWith(1)
 
         Object.defineProperty(globalThis, 'window', {
           value: originalWindow,
@@ -770,7 +748,9 @@ describe('@molecule/app-routing-next', () => {
         router.addGuard((to) => (to.pathname === '/protected' ? '/login' : true))
         await router.navigate('/protected')
 
-        expect(navigation.replace).toHaveBeenCalledWith('/login')
+        // A redirect takes the place of the navigation it stopped: this navigation was a
+        // push, so the redirect pushes too (the core's conformant redirect behaviour).
+        expect(navigation.push).toHaveBeenCalledWith('/login')
       })
 
       it('should redirect when guard returns object with path', async () => {
@@ -1280,10 +1260,11 @@ describe('@molecule/app-routing-next', () => {
         locations.push(location)
       })
 
-      // Try to access protected route (should redirect)
+      // Try to access protected route (should redirect). The redirect takes the place of
+      // the push it stopped, so it pushes (the core's conformant redirect behaviour).
       router.navigateTo('protected')
       await flush()
-      expect(navigation.replace).toHaveBeenLastCalledWith('/login')
+      expect(navigation.push).toHaveBeenLastCalledWith('/login')
 
       // Authenticate and try again
       isAuthenticated = true

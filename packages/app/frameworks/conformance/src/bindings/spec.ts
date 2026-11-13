@@ -167,6 +167,8 @@ export type HookStep =
   | { type: 'theme'; mode: 'light' | 'dark' }
   /** Navigate the router from outside. */
   | { type: 'navigate'; to: string }
+  /** Move the router back one entry from outside, as the browser's Back button does. */
+  | { type: 'back' }
   /**
    * Write a storage key from outside (another tab): the case's storage
    * provider holds the value (an area provider with `subscribe` also notifies

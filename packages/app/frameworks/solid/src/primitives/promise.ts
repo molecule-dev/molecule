@@ -243,8 +243,5 @@ export const usePromise = <T extends (...args: never[]) => Promise<unknown>>(
     reset,
   })
 
-  return liveStateTuple(state, [callAsyncFn]) as [
-    UsePromiseState<V>,
-    (...args: Parameters<T>) => Promise<V>,
-  ]
+  return liveStateTuple(state, [callAsyncFn])
 }

@@ -1,13 +1,15 @@
+// @vitest-environment jsdom
 import { describe, expect, it, vi } from 'vitest'
 
-// Mock vue-router since it's a peer dependency
+// Mock vue-router's composables (the tests drive the bond through its own mock router).
 vi.mock('vue-router', () => ({
   useRouter: vi.fn(),
   useRoute: vi.fn(),
 }))
 
-// Mock @molecule/app-routing since it's a peer dependency
-vi.mock('@molecule/app-routing', () => ({}))
+// The REAL @molecule/app-routing: the bond builds on its createHistoryRouter /
+// createBrowserRouter, and the no-vue-router fallback IS the core browser router.
+vi.mock('@molecule/app-routing', async () => await vi.importActual('@molecule/app-routing'))
 
 // Mock vue
 vi.mock('vue', () => ({
@@ -17,7 +19,7 @@ vi.mock('vue', () => ({
   onUnmounted: vi.fn(),
 }))
 
-import type { RouteLocationNormalizedLoaded, Router as VueRouterInstance } from 'vue-router'
+import { type Router as VueRouterInstance, useRouter as useVueRouter } from 'vue-router'
 
 import type { RouteDefinition, RouteLocation } from '../index.js'
 import {
@@ -30,39 +32,24 @@ import {
   provider,
   stringifyQuery,
   toVueQuery,
+  useMoleculeRouter,
 } from '../index.js'
 
 // Flush microtasks so async navigate() calls complete
 const flush = (): Promise<unknown> => new Promise((resolve) => setTimeout(resolve, 0))
 
-// Save original window
-const originalWindow = globalThis.window
-
 describe('@molecule/app-routing-vue-router', () => {
-  // Helper to create a mock Vue Router instance
-  const createMockVueRouter = (): {
-    push: ReturnType<typeof vi.fn>
-    replace: ReturnType<typeof vi.fn>
-    back: ReturnType<typeof vi.fn>
-    forward: ReturnType<typeof vi.fn>
-    go: ReturnType<typeof vi.fn>
-    resolve: ReturnType<typeof vi.fn>
-    beforeEach: ReturnType<typeof vi.fn>
-    afterEach: ReturnType<typeof vi.fn>
-  } => ({
-    push: vi.fn().mockResolvedValue(undefined),
-    replace: vi.fn().mockResolvedValue(undefined),
-    back: vi.fn(),
-    forward: vi.fn(),
-    go: vi.fn(),
-    resolve: vi.fn(
-      (to: { name: string; params?: Record<string, string>; query?: Record<string, string> }) => ({
-        fullPath: `/${to.name}`,
-      }),
-    ),
-    beforeEach: vi.fn(),
-    afterEach: vi.fn(),
-  })
+  interface MockRoute {
+    path: string
+    fullPath: string
+    hash: string
+    query: Record<string, string | string[] | null>
+    params: Record<string, string | string[]>
+    meta: Record<string, unknown>
+    name: string | undefined
+    matched: never[]
+    redirectedFrom: undefined
+  }
 
   // Helper to create a mock Vue route
   const createMockRoute = (
@@ -75,17 +62,7 @@ describe('@molecule/app-routing-vue-router', () => {
       meta?: Record<string, unknown>
       name?: string
     },
-  ): {
-    path: string
-    fullPath: string
-    hash: string
-    query: Record<string, string | string[] | null>
-    params: Record<string, string | string[]>
-    meta: Record<string, unknown>
-    name: string | undefined
-    matched: never[]
-    redirectedFrom: undefined
-  } => ({
+  ): MockRoute => ({
     path,
     fullPath: options?.fullPath ?? path,
     hash: options?.hash ?? '',
@@ -96,6 +73,111 @@ describe('@molecule/app-routing-vue-router', () => {
     matched: [],
     redirectedFrom: undefined,
   })
+
+  // Parses a target path the way a real router's navigation would land on it.
+  const routeFromPath = (fullPath: string): MockRoute => {
+    const hashIndex = fullPath.indexOf('#')
+    const beforeHash = hashIndex === -1 ? fullPath : fullPath.slice(0, hashIndex)
+    const queryIndex = beforeHash.indexOf('?')
+    return {
+      path: queryIndex === -1 ? beforeHash : beforeHash.slice(0, queryIndex),
+      fullPath,
+      hash: hashIndex === -1 ? '' : fullPath.slice(hashIndex),
+      query: {},
+      params: {},
+      meta: {},
+      name: undefined,
+      matched: [],
+      redirectedFrom: undefined,
+    }
+  }
+
+  interface MockHistoryInfo {
+    type: 'push' | 'replace' | 'pop'
+    delta: number
+  }
+  type HistoryListener = (to: string, from: string, info: MockHistoryInfo) => void
+  type AfterHook = (to: MockRoute, from: MockRoute, failure: undefined) => void
+
+  interface MockVueRouter {
+    currentRoute: { readonly value: MockRoute }
+    push: ReturnType<typeof vi.fn>
+    replace: ReturnType<typeof vi.fn>
+    back: ReturnType<typeof vi.fn>
+    forward: ReturnType<typeof vi.fn>
+    go: ReturnType<typeof vi.fn>
+    resolve: ReturnType<typeof vi.fn>
+    afterEach: ReturnType<typeof vi.fn>
+    options: { history: { state: Record<string, unknown>; listen: ReturnType<typeof vi.fn> } }
+  }
+
+  // Helper to create a mock Vue Router instance that behaves like the real one where the
+  // bond depends on it: `push`/`replace` land on `currentRoute`, then the history listeners
+  // (with the move type) and the afterEach hooks fire, the way a committed navigation does.
+  const createMockVueRouter = (initialRoute: MockRoute = createMockRoute('/')): MockVueRouter => {
+    const historyListeners = new Set<HistoryListener>()
+    const afterHooks = new Set<AfterHook>()
+    const entryState: Record<string, unknown> = { position: 0 }
+    let current = initialRoute
+
+    const commit = (fullPath: string, type: 'push' | 'replace'): void => {
+      const from = current
+      current = routeFromPath(fullPath)
+      for (const listener of historyListeners) listener(fullPath, from.fullPath, { type, delta: 0 })
+      for (const hook of afterHooks) hook(current, from, undefined)
+      if (type === 'push') entryState.position += 1
+    }
+
+    return {
+      currentRoute: {
+        get value() {
+          return current
+        },
+      },
+      push: vi.fn(async (path: string) => {
+        commit(path, 'push')
+      }),
+      replace: vi.fn(async (path: string) => {
+        commit(path, 'replace')
+      }),
+      back: vi.fn(),
+      forward: vi.fn(),
+      go: vi.fn(),
+      resolve: vi.fn(
+        (to: {
+          name: string
+          params?: Record<string, string>
+          query?: Record<string, string>
+        }) => ({
+          fullPath: `/${to.name}`,
+        }),
+      ),
+      afterEach: vi.fn((hook: AfterHook) => {
+        afterHooks.add(hook)
+        return () => {
+          afterHooks.delete(hook)
+        }
+      }),
+      options: {
+        history: {
+          get state() {
+            return { ...entryState }
+          },
+          listen: vi.fn((listener: HistoryListener) => {
+            historyListeners.add(listener)
+            return () => {
+              historyListeners.delete(listener)
+            }
+          }),
+        },
+      },
+    }
+  }
+
+  const asVueRouter = (mock: MockVueRouter): VueRouterInstance =>
+    mock as unknown as VueRouterInstance
+  const asLoadedRoute = (route: MockRoute): RouteLocationNormalizedLoaded =>
+    route as unknown as RouteLocationNormalizedLoaded
 
   describe('createVueRouter', () => {
     describe('initialization', () => {
@@ -109,16 +191,14 @@ describe('@molecule/app-routing-vue-router', () => {
         expect(router.navigate).toBeInstanceOf(Function)
       })
 
-      it('should create a router with a provided route', () => {
+      it('should create a router reading the provided route', () => {
         const route = createMockRoute('/dashboard', {
           fullPath: '/dashboard?tab=settings',
           hash: '#section',
           query: { tab: 'settings' },
         })
 
-        const router = createVueRouter({
-          route: route as unknown as RouteLocationNormalizedLoaded,
-        })
+        const router = createVueRouter({ router: asVueRouter(createMockVueRouter(route)) })
 
         const location = router.getLocation()
         expect(location.pathname).toBe('/dashboard')
@@ -131,9 +211,7 @@ describe('@molecule/app-routing-vue-router', () => {
           params: { id: '123' },
         })
 
-        const router = createVueRouter({
-          route: route as unknown as RouteLocationNormalizedLoaded,
-        })
+        const router = createVueRouter({ router: asVueRouter(createMockVueRouter(route)) })
 
         const params = router.getParams<{ id: string }>()
         expect(params.id).toBe('123')
@@ -156,9 +234,7 @@ describe('@molecule/app-routing-vue-router', () => {
           params: { slug: ['2024', '01', 'hello'] },
         })
 
-        const router = createVueRouter({
-          route: route as unknown as RouteLocationNormalizedLoaded,
-        })
+        const router = createVueRouter({ router: asVueRouter(createMockVueRouter(route)) })
 
         const params = router.getParams<{ slug: string }>()
         expect(params.slug).toBe('2024/01/hello')
@@ -167,6 +243,8 @@ describe('@molecule/app-routing-vue-router', () => {
 
     describe('getLocation', () => {
       it('should return current location from provided route', () => {
+        // The entry state is read from the real history: give this entry a position.
+        window.history.replaceState({ position: 4 }, '', '/about?ref=home#top')
         const route = createMockRoute('/about', {
           fullPath: '/about?ref=home#top',
           hash: '#top',
@@ -174,17 +252,23 @@ describe('@molecule/app-routing-vue-router', () => {
           name: 'about',
         })
 
-        const router = createVueRouter({ route: route as unknown as RouteLocationNormalizedLoaded })
+        const router = createVueRouter({ router: asVueRouter(createMockVueRouter(route)) })
 
         const location = router.getLocation()
         expect(location.pathname).toBe('/about')
         expect(location.search).toBe('?ref=home')
         expect(location.hash).toBe('#top')
-        expect(location.state).toEqual({ from: 'nav' })
-        expect(location.key).toBe('about')
+        // State comes from the history entry, not from route.meta: Vue Router's own
+        // bookkeeping is stripped, so nothing is left.
+        expect(location.state).toBeUndefined()
+        // The key is written into the entry (next to Vue Router's own keys), so Back
+        // brings it back with the entry.
+        expect(window.history.state).toEqual({ position: 4, __moleculeKey: location.key })
+        expect(router.getLocation().key).toBe(location.key)
       })
 
       it('should return default location when no config provided', () => {
+        window.history.replaceState(null, '', '/')
         const router = createVueRouter()
 
         const location = router.getLocation()
@@ -193,13 +277,25 @@ describe('@molecule/app-routing-vue-router', () => {
         expect(location.hash).toBe('')
       })
 
-      it('should use route path as key when name is undefined', () => {
+      it('should keep the key an entry already carries', () => {
+        window.history.replaceState({ position: 0, __moleculeKey: 'entry-1' }, '', '/test')
         const route = createMockRoute('/test', { name: undefined })
 
-        const router = createVueRouter({ route: route as unknown as RouteLocationNormalizedLoaded })
+        const router = createVueRouter({ router: asVueRouter(createMockVueRouter(route)) })
 
-        const location = router.getLocation()
-        expect(location.key).toBe('/test')
+        expect(router.getLocation().key).toBe('entry-1')
+      })
+
+      it('should change the key when a navigation lands on a new entry', async () => {
+        const vueRouter = createMockVueRouter()
+        const router = createVueRouter({ router: asVueRouter(vueRouter) })
+
+        const before = router.getLocation().key
+        await router.navigate('/next')
+        const after = router.getLocation().key
+
+        expect(after).not.toBe(before)
+        expect(window.history.state).toMatchObject({ __moleculeKey: after })
       })
     })
 
@@ -220,7 +316,7 @@ describe('@molecule/app-routing-vue-router', () => {
           params: { id: '123', category: 'electronics' },
         })
 
-        const router = createVueRouter({ route: route as unknown as RouteLocationNormalizedLoaded })
+        const router = createVueRouter({ router: asVueRouter(createMockVueRouter(route)) })
 
         const params = router.getParams<ProductParams>()
         expect(params.id).toBe('123')
@@ -241,33 +337,33 @@ describe('@molecule/app-routing-vue-router', () => {
           query: { page: '1', limit: '10' },
         })
 
-        const router = createVueRouter({ route: route as unknown as RouteLocationNormalizedLoaded })
+        const router = createVueRouter({ router: asVueRouter(createMockVueRouter(route)) })
 
         const query = router.getQuery()
         expect(query.page).toBe('1')
         expect(query.limit).toBe('10')
       })
 
-      it('should filter null values from query', () => {
+      it('should only return what the query string carries', () => {
         const route = createMockRoute('/search', {
           fullPath: '/search?page=1',
           query: { page: '1', empty: null },
         })
 
-        const router = createVueRouter({ route: route as unknown as RouteLocationNormalizedLoaded })
+        const router = createVueRouter({ router: asVueRouter(createMockVueRouter(route)) })
 
         const query = router.getQuery()
         expect(query.page).toBe('1')
         expect('empty' in query).toBe(false)
       })
 
-      it('should handle array values in query, filtering nulls', () => {
+      it('should handle array values in query', () => {
         const route = createMockRoute('/search', {
           fullPath: '/search?tag=react&tag=vue',
           query: { tag: ['react', null, 'vue'] },
         })
 
-        const router = createVueRouter({ route: route as unknown as RouteLocationNormalizedLoaded })
+        const router = createVueRouter({ router: asVueRouter(createMockVueRouter(route)) })
 
         const query = router.getQuery()
         expect(query.tag).toEqual(['react', 'vue'])
@@ -287,7 +383,7 @@ describe('@molecule/app-routing-vue-router', () => {
           query: { page: '5' },
         })
 
-        const router = createVueRouter({ route: route as unknown as RouteLocationNormalizedLoaded })
+        const router = createVueRouter({ router: asVueRouter(createMockVueRouter(route)) })
 
         expect(router.getQueryParam('page')).toBe('5')
       })
@@ -298,7 +394,7 @@ describe('@molecule/app-routing-vue-router', () => {
           query: { tags: ['first', 'second'] },
         })
 
-        const router = createVueRouter({ route: route as unknown as RouteLocationNormalizedLoaded })
+        const router = createVueRouter({ router: asVueRouter(createMockVueRouter(route)) })
 
         expect(router.getQueryParam('tags')).toBe('first')
       })
@@ -309,7 +405,7 @@ describe('@molecule/app-routing-vue-router', () => {
           query: { empty: null },
         })
 
-        const router = createVueRouter({ route: route as unknown as RouteLocationNormalizedLoaded })
+        const router = createVueRouter({ router: asVueRouter(createMockVueRouter(route)) })
 
         expect(router.getQueryParam('empty')).toBeUndefined()
       })
@@ -321,7 +417,7 @@ describe('@molecule/app-routing-vue-router', () => {
           hash: '#section1',
         })
 
-        const router = createVueRouter({ route: route as unknown as RouteLocationNormalizedLoaded })
+        const router = createVueRouter({ router: asVueRouter(createMockVueRouter(route)) })
 
         expect(router.getHash()).toBe('#section1')
       })
@@ -329,7 +425,7 @@ describe('@molecule/app-routing-vue-router', () => {
       it('should return empty string when no hash', () => {
         const route = createMockRoute('/page')
 
-        const router = createVueRouter({ route: route as unknown as RouteLocationNormalizedLoaded })
+        const router = createVueRouter({ router: asVueRouter(createMockVueRouter(route)) })
 
         expect(router.getHash()).toBe('')
       })
@@ -338,12 +434,8 @@ describe('@molecule/app-routing-vue-router', () => {
     describe('navigate', () => {
       it('should call vueRouter.push for regular navigation', async () => {
         const vueRouter = createMockVueRouter()
-        const route = createMockRoute('/')
 
-        const router = createVueRouter({
-          router: vueRouter as unknown as VueRouterInstance,
-          route: route as unknown as RouteLocationNormalizedLoaded,
-        })
+        const router = createVueRouter({ router: asVueRouter(vueRouter) })
 
         await router.navigate('/products')
 
@@ -352,12 +444,8 @@ describe('@molecule/app-routing-vue-router', () => {
 
       it('should call vueRouter.replace when replace option is true', async () => {
         const vueRouter = createMockVueRouter()
-        const route = createMockRoute('/')
 
-        const router = createVueRouter({
-          router: vueRouter as unknown as VueRouterInstance,
-          route: route as unknown as RouteLocationNormalizedLoaded,
-        })
+        const router = createVueRouter({ router: asVueRouter(vueRouter) })
 
         await router.navigate('/products', { replace: true })
 
@@ -365,15 +453,12 @@ describe('@molecule/app-routing-vue-router', () => {
       })
 
       it('should preserve query when preserveQuery is true', async () => {
-        const vueRouter = createMockVueRouter()
         const route = createMockRoute('/search', {
           fullPath: '/search?q=test',
         })
+        const vueRouter = createMockVueRouter(route)
 
-        const router = createVueRouter({
-          router: vueRouter as unknown as VueRouterInstance,
-          route: route as unknown as RouteLocationNormalizedLoaded,
-        })
+        const router = createVueRouter({ router: asVueRouter(vueRouter) })
 
         await router.navigate('/results', { preserveQuery: true })
 
@@ -381,45 +466,48 @@ describe('@molecule/app-routing-vue-router', () => {
       })
 
       it('should preserve hash when preserveHash is true', async () => {
-        const vueRouter = createMockVueRouter()
         const route = createMockRoute('/', {
           hash: '#section',
         })
+        const vueRouter = createMockVueRouter(route)
 
-        const router = createVueRouter({
-          router: vueRouter as unknown as VueRouterInstance,
-          route: route as unknown as RouteLocationNormalizedLoaded,
-        })
+        const router = createVueRouter({ router: asVueRouter(vueRouter) })
 
         await router.navigate('/page', { preserveHash: true })
 
         expect(vueRouter.push).toHaveBeenCalledWith(expect.stringContaining('#section'))
       })
 
-      it('should notify listeners after navigation', async () => {
+      it('should carry state into the history entry', async () => {
+        window.history.replaceState(null, '', '/')
         const vueRouter = createMockVueRouter()
-        const route = createMockRoute('/')
+        const router = createVueRouter({ router: asVueRouter(vueRouter) })
 
-        const router = createVueRouter({
-          router: vueRouter as unknown as VueRouterInstance,
-          route: route as unknown as RouteLocationNormalizedLoaded,
-        })
+        await router.navigate('/new-page', { state: { from: 'list' } })
+
+        expect(router.getLocation().state).toEqual({ from: 'list' })
+      })
+
+      it('should notify listeners once the navigation landed', async () => {
+        const vueRouter = createMockVueRouter()
+
+        const router = createVueRouter({ router: asVueRouter(vueRouter) })
         const listener = vi.fn()
 
         router.subscribe(listener)
         await router.navigate('/new-page')
 
-        expect(listener).toHaveBeenCalledWith(expect.objectContaining({ pathname: '/' }), 'push')
+        expect(listener).toHaveBeenCalledTimes(1)
+        expect(listener).toHaveBeenCalledWith(
+          expect.objectContaining({ pathname: '/new-page' }),
+          'push',
+        )
       })
 
       it('should notify with replace action for replace navigation', async () => {
         const vueRouter = createMockVueRouter()
-        const route = createMockRoute('/')
 
-        const router = createVueRouter({
-          router: vueRouter as unknown as VueRouterInstance,
-          route: route as unknown as RouteLocationNormalizedLoaded,
-        })
+        const router = createVueRouter({ router: asVueRouter(vueRouter) })
         const listener = vi.fn()
 
         router.subscribe(listener)
@@ -428,36 +516,21 @@ describe('@molecule/app-routing-vue-router', () => {
         expect(listener).toHaveBeenCalledWith(expect.anything(), 'replace')
       })
 
-      it('should fall back to window.location when no vue router provided', async () => {
-        const mockLocation = { href: '', replace: vi.fn() }
-        Object.defineProperty(globalThis, 'window', {
-          value: {
-            location: mockLocation,
-            history: { back: vi.fn(), forward: vi.fn(), go: vi.fn() },
-          },
-          writable: true,
-        })
-
+      it('should fall back to the core browser router when no vue router is provided', async () => {
         const router = createVueRouter()
-        await router.navigate('/fallback-path')
+        router.navigate('/fallback-path')
+        await flush()
 
-        expect(mockLocation.href).toBe('/fallback-path')
-
-        Object.defineProperty(globalThis, 'window', {
-          value: originalWindow,
-          writable: true,
-        })
+        expect(window.location.pathname).toBe('/fallback-path')
       })
     })
 
     describe('navigateTo (named routes)', () => {
       it('should navigate to a named route', async () => {
         const vueRouter = createMockVueRouter()
-        const route = createMockRoute('/')
 
         const router = createVueRouter({
-          router: vueRouter as unknown as VueRouterInstance,
-          route: route as unknown as RouteLocationNormalizedLoaded,
+          router: asVueRouter(vueRouter),
           routes: [{ path: '/products', name: 'products' }],
         })
 
@@ -469,11 +542,9 @@ describe('@molecule/app-routing-vue-router', () => {
 
       it('should navigate to a named route with params', async () => {
         const vueRouter = createMockVueRouter()
-        const route = createMockRoute('/')
 
         const router = createVueRouter({
-          router: vueRouter as unknown as VueRouterInstance,
-          route: route as unknown as RouteLocationNormalizedLoaded,
+          router: asVueRouter(vueRouter),
           routes: [{ path: '/products/:id', name: 'product-detail' }],
         })
 
@@ -485,11 +556,9 @@ describe('@molecule/app-routing-vue-router', () => {
 
       it('should navigate to a named route with query params', async () => {
         const vueRouter = createMockVueRouter()
-        const route = createMockRoute('/')
 
         const router = createVueRouter({
-          router: vueRouter as unknown as VueRouterInstance,
-          route: route as unknown as RouteLocationNormalizedLoaded,
+          router: asVueRouter(vueRouter),
           routes: [{ path: '/products', name: 'products' }],
         })
 
@@ -500,29 +569,7 @@ describe('@molecule/app-routing-vue-router', () => {
         expect(vueRouter.push).toHaveBeenCalledWith(expect.stringContaining('order=asc'))
       })
 
-      it('should fall back to Vue Router named routes when not in molecule routes', async () => {
-        const vueRouter = createMockVueRouter()
-        const route = createMockRoute('/')
-
-        const router = createVueRouter({
-          router: vueRouter as unknown as VueRouterInstance,
-          route: route as unknown as RouteLocationNormalizedLoaded,
-          routes: [],
-        })
-
-        router.navigateTo('vue-route', { id: '1' }, { sort: 'name' })
-        await flush()
-
-        expect(vueRouter.push).toHaveBeenCalledWith(
-          expect.objectContaining({
-            name: 'vue-route',
-            params: { id: '1' },
-            query: { sort: 'name' },
-          }),
-        )
-      })
-
-      it('should throw error for unknown route name when no vue router', () => {
+      it('should throw error for unknown route name', () => {
         const router = createVueRouter({
           routes: [{ path: '/products', name: 'products' }],
         })
@@ -532,64 +579,48 @@ describe('@molecule/app-routing-vue-router', () => {
     })
 
     describe('back and forward', () => {
-      it('should call vueRouter.back', () => {
+      it('should call vueRouter.go(-1) for back', () => {
         const vueRouter = createMockVueRouter()
 
         const router = createVueRouter({
-          router: vueRouter as unknown as VueRouterInstance,
+          router: asVueRouter(vueRouter),
         })
 
         router.back()
 
-        expect(vueRouter.back).toHaveBeenCalled()
+        expect(vueRouter.go).toHaveBeenCalledWith(-1)
       })
 
-      it('should call vueRouter.forward', () => {
+      it('should call vueRouter.go(1) for forward', () => {
         const vueRouter = createMockVueRouter()
 
         const router = createVueRouter({
-          router: vueRouter as unknown as VueRouterInstance,
+          router: asVueRouter(vueRouter),
         })
 
         router.forward()
 
-        expect(vueRouter.forward).toHaveBeenCalled()
+        expect(vueRouter.go).toHaveBeenCalledWith(1)
       })
 
-      it('should fall back to window.history.back when no vue router', () => {
-        const mockHistory = { back: vi.fn(), forward: vi.fn(), go: vi.fn() }
-        Object.defineProperty(globalThis, 'window', {
-          value: { history: mockHistory, location: { pathname: '/', search: '', hash: '' } },
-          writable: true,
-        })
-
+      it('should fall back to window.history.go(-1) when no vue router', () => {
         const router = createVueRouter()
+        const go = vi.spyOn(window.history, 'go').mockImplementation(() => {})
+
         router.back()
 
-        expect(mockHistory.back).toHaveBeenCalled()
-
-        Object.defineProperty(globalThis, 'window', {
-          value: originalWindow,
-          writable: true,
-        })
+        expect(go).toHaveBeenCalledWith(-1)
+        go.mockRestore()
       })
 
-      it('should fall back to window.history.forward when no vue router', () => {
-        const mockHistory = { back: vi.fn(), forward: vi.fn(), go: vi.fn() }
-        Object.defineProperty(globalThis, 'window', {
-          value: { history: mockHistory, location: { pathname: '/', search: '', hash: '' } },
-          writable: true,
-        })
-
+      it('should fall back to window.history.go(1) when no vue router', () => {
         const router = createVueRouter()
+        const go = vi.spyOn(window.history, 'go').mockImplementation(() => {})
+
         router.forward()
 
-        expect(mockHistory.forward).toHaveBeenCalled()
-
-        Object.defineProperty(globalThis, 'window', {
-          value: originalWindow,
-          writable: true,
-        })
+        expect(go).toHaveBeenCalledWith(1)
+        go.mockRestore()
       })
     })
 
@@ -598,7 +629,7 @@ describe('@molecule/app-routing-vue-router', () => {
         const vueRouter = createMockVueRouter()
 
         const router = createVueRouter({
-          router: vueRouter as unknown as VueRouterInstance,
+          router: asVueRouter(vueRouter),
         })
 
         router.go(-2)
@@ -607,33 +638,21 @@ describe('@molecule/app-routing-vue-router', () => {
       })
 
       it('should fall back to window.history.go when no vue router', () => {
-        const mockHistory = { back: vi.fn(), forward: vi.fn(), go: vi.fn() }
-        Object.defineProperty(globalThis, 'window', {
-          value: { history: mockHistory, location: { pathname: '/', search: '', hash: '' } },
-          writable: true,
-        })
-
         const router = createVueRouter()
+        const go = vi.spyOn(window.history, 'go').mockImplementation(() => {})
+
         router.go(-3)
 
-        expect(mockHistory.go).toHaveBeenCalledWith(-3)
-
-        Object.defineProperty(globalThis, 'window', {
-          value: originalWindow,
-          writable: true,
-        })
+        expect(go).toHaveBeenCalledWith(-3)
+        go.mockRestore()
       })
     })
 
     describe('setQuery', () => {
       it('should update query params via navigate', async () => {
         const vueRouter = createMockVueRouter()
-        const route = createMockRoute('/search')
 
-        const router = createVueRouter({
-          router: vueRouter as unknown as VueRouterInstance,
-          route: route as unknown as RouteLocationNormalizedLoaded,
-        })
+        const router = createVueRouter({ router: asVueRouter(vueRouter) })
 
         router.setQuery({ q: 'test', page: '1' })
         await flush()
@@ -644,12 +663,8 @@ describe('@molecule/app-routing-vue-router', () => {
 
       it('should replace when replace option is true', async () => {
         const vueRouter = createMockVueRouter()
-        const route = createMockRoute('/search')
 
-        const router = createVueRouter({
-          router: vueRouter as unknown as VueRouterInstance,
-          route: route as unknown as RouteLocationNormalizedLoaded,
-        })
+        const router = createVueRouter({ router: asVueRouter(vueRouter) })
 
         router.setQuery({ q: 'test' }, { replace: true })
         await flush()
@@ -660,16 +675,13 @@ describe('@molecule/app-routing-vue-router', () => {
 
     describe('setQueryParam', () => {
       it('should update a single query param', async () => {
-        const vueRouter = createMockVueRouter()
         const route = createMockRoute('/search', {
           fullPath: '/search?existing=value',
           query: { existing: 'value' },
         })
+        const vueRouter = createMockVueRouter(route)
 
-        const router = createVueRouter({
-          router: vueRouter as unknown as VueRouterInstance,
-          route: route as unknown as RouteLocationNormalizedLoaded,
-        })
+        const router = createVueRouter({ router: asVueRouter(vueRouter) })
 
         router.setQueryParam('newParam', 'newValue')
         await flush()
@@ -680,16 +692,13 @@ describe('@molecule/app-routing-vue-router', () => {
       })
 
       it('should remove query param when value is undefined', async () => {
-        const vueRouter = createMockVueRouter()
         const route = createMockRoute('/search', {
           fullPath: '/search?toRemove=value&keep=this',
           query: { toRemove: 'value', keep: 'this' },
         })
+        const vueRouter = createMockVueRouter(route)
 
-        const router = createVueRouter({
-          router: vueRouter as unknown as VueRouterInstance,
-          route: route as unknown as RouteLocationNormalizedLoaded,
-        })
+        const router = createVueRouter({ router: asVueRouter(vueRouter) })
 
         router.setQueryParam('toRemove', undefined)
         await flush()
@@ -703,12 +712,8 @@ describe('@molecule/app-routing-vue-router', () => {
     describe('setHash', () => {
       it('should set hash with # prefix', async () => {
         const vueRouter = createMockVueRouter()
-        const route = createMockRoute('/page')
 
-        const router = createVueRouter({
-          router: vueRouter as unknown as VueRouterInstance,
-          route: route as unknown as RouteLocationNormalizedLoaded,
-        })
+        const router = createVueRouter({ router: asVueRouter(vueRouter) })
 
         router.setHash('section1')
         await flush()
@@ -718,12 +723,8 @@ describe('@molecule/app-routing-vue-router', () => {
 
       it('should handle hash already having # prefix', async () => {
         const vueRouter = createMockVueRouter()
-        const route = createMockRoute('/page')
 
-        const router = createVueRouter({
-          router: vueRouter as unknown as VueRouterInstance,
-          route: route as unknown as RouteLocationNormalizedLoaded,
-        })
+        const router = createVueRouter({ router: asVueRouter(vueRouter) })
 
         router.setHash('#section2')
         await flush()
@@ -738,7 +739,7 @@ describe('@molecule/app-routing-vue-router', () => {
       it('should return true for matching path', () => {
         const route = createMockRoute('/products/123')
 
-        const router = createVueRouter({ route: route as unknown as RouteLocationNormalizedLoaded })
+        const router = createVueRouter({ router: asVueRouter(createMockVueRouter(route)) })
 
         expect(router.isActive('/products/:id')).toBe(true)
       })
@@ -746,7 +747,7 @@ describe('@molecule/app-routing-vue-router', () => {
       it('should return false for non-matching path', () => {
         const route = createMockRoute('/about')
 
-        const router = createVueRouter({ route: route as unknown as RouteLocationNormalizedLoaded })
+        const router = createVueRouter({ router: asVueRouter(createMockVueRouter(route)) })
 
         expect(router.isActive('/products')).toBe(false)
       })
@@ -754,7 +755,7 @@ describe('@molecule/app-routing-vue-router', () => {
       it('should support exact matching', () => {
         const route = createMockRoute('/products')
 
-        const router = createVueRouter({ route: route as unknown as RouteLocationNormalizedLoaded })
+        const router = createVueRouter({ router: asVueRouter(createMockVueRouter(route)) })
 
         expect(router.isActive('/products', true)).toBe(true)
       })
@@ -811,24 +812,7 @@ describe('@molecule/app-routing-vue-router', () => {
         expect(path).toContain('sort=name')
       })
 
-      it('should fall back to Vue Router resolve for unknown molecule route', () => {
-        const vueRouter = createMockVueRouter()
-        vueRouter.resolve.mockReturnValue({ fullPath: '/resolved-path' })
-
-        const router = createVueRouter({
-          router: vueRouter as unknown as VueRouterInstance,
-          routes: [],
-        })
-
-        const path = router.generatePath('vue-route', { id: '1' })
-
-        expect(vueRouter.resolve).toHaveBeenCalledWith(
-          expect.objectContaining({ name: 'vue-route', params: { id: '1' } }),
-        )
-        expect(path).toBe('/resolved-path')
-      })
-
-      it('should throw for unknown route name when no vue router', () => {
+      it('should throw for unknown route name', () => {
         const router = createVueRouter({ routes: [] })
 
         expect(() => router.generatePath('unknown')).toThrow('Route "unknown" not found')
@@ -838,12 +822,8 @@ describe('@molecule/app-routing-vue-router', () => {
     describe('subscribe', () => {
       it('should add listener and return unsubscribe function', async () => {
         const vueRouter = createMockVueRouter()
-        const route = createMockRoute('/')
 
-        const router = createVueRouter({
-          router: vueRouter as unknown as VueRouterInstance,
-          route: route as unknown as RouteLocationNormalizedLoaded,
-        })
+        const router = createVueRouter({ router: asVueRouter(vueRouter) })
         const listener = vi.fn()
 
         const unsubscribe = router.subscribe(listener)
@@ -859,12 +839,8 @@ describe('@molecule/app-routing-vue-router', () => {
 
       it('should support multiple listeners', async () => {
         const vueRouter = createMockVueRouter()
-        const route = createMockRoute('/')
 
-        const router = createVueRouter({
-          router: vueRouter as unknown as VueRouterInstance,
-          route: route as unknown as RouteLocationNormalizedLoaded,
-        })
+        const router = createVueRouter({ router: asVueRouter(vueRouter) })
         const listener1 = vi.fn()
         const listener2 = vi.fn()
 
@@ -875,17 +851,28 @@ describe('@molecule/app-routing-vue-router', () => {
         expect(listener1).toHaveBeenCalled()
         expect(listener2).toHaveBeenCalled()
       })
+
+      it('should hear a navigation the vue router made itself', async () => {
+        const vueRouter = createMockVueRouter()
+        const router = createVueRouter({ router: asVueRouter(vueRouter) })
+        const listener = vi.fn()
+
+        router.subscribe(listener)
+        await vueRouter.push('/native-link')
+
+        expect(listener).toHaveBeenCalledTimes(1)
+        expect(listener).toHaveBeenCalledWith(
+          expect.objectContaining({ pathname: '/native-link' }),
+          'push',
+        )
+      })
     })
 
     describe('navigation guards', () => {
       it('should add guard and execute on navigation', async () => {
         const vueRouter = createMockVueRouter()
-        const route = createMockRoute('/')
 
-        const router = createVueRouter({
-          router: vueRouter as unknown as VueRouterInstance,
-          route: route as unknown as RouteLocationNormalizedLoaded,
-        })
+        const router = createVueRouter({ router: asVueRouter(vueRouter) })
         const guard = vi.fn().mockReturnValue(true)
 
         router.addGuard(guard)
@@ -900,12 +887,8 @@ describe('@molecule/app-routing-vue-router', () => {
 
       it('should prevent navigation when guard returns false', async () => {
         const vueRouter = createMockVueRouter()
-        const route = createMockRoute('/')
 
-        const router = createVueRouter({
-          router: vueRouter as unknown as VueRouterInstance,
-          route: route as unknown as RouteLocationNormalizedLoaded,
-        })
+        const router = createVueRouter({ router: asVueRouter(vueRouter) })
 
         router.addGuard(() => false)
         await router.navigate('/protected')
@@ -915,28 +898,21 @@ describe('@molecule/app-routing-vue-router', () => {
 
       it('should redirect when guard returns string', async () => {
         const vueRouter = createMockVueRouter()
-        const route = createMockRoute('/')
 
-        const router = createVueRouter({
-          router: vueRouter as unknown as VueRouterInstance,
-          route: route as unknown as RouteLocationNormalizedLoaded,
-        })
+        const router = createVueRouter({ router: asVueRouter(vueRouter) })
 
         router.addGuard((to) => (to.pathname === '/protected' ? '/login' : true))
         await router.navigate('/protected')
         await flush()
 
-        expect(vueRouter.replace).toHaveBeenCalledWith('/login')
+        // A redirect takes the place of the navigation it stopped: still a push.
+        expect(vueRouter.push).toHaveBeenCalledWith('/login')
       })
 
       it('should redirect when guard returns object with path', async () => {
         const vueRouter = createMockVueRouter()
-        const route = createMockRoute('/')
 
-        const router = createVueRouter({
-          router: vueRouter as unknown as VueRouterInstance,
-          route: route as unknown as RouteLocationNormalizedLoaded,
-        })
+        const router = createVueRouter({ router: asVueRouter(vueRouter) })
 
         router.addGuard((to) =>
           to.pathname === '/protected' ? { path: '/login', replace: false } : true,
@@ -949,12 +925,8 @@ describe('@molecule/app-routing-vue-router', () => {
 
       it('should support async guards', async () => {
         const vueRouter = createMockVueRouter()
-        const route = createMockRoute('/')
 
-        const router = createVueRouter({
-          router: vueRouter as unknown as VueRouterInstance,
-          route: route as unknown as RouteLocationNormalizedLoaded,
-        })
+        const router = createVueRouter({ router: asVueRouter(vueRouter) })
 
         router.addGuard(async () => {
           await new Promise((resolve) => setTimeout(resolve, 10))
@@ -968,12 +940,8 @@ describe('@molecule/app-routing-vue-router', () => {
 
       it('should remove guard when unsubscribe is called', async () => {
         const vueRouter = createMockVueRouter()
-        const route = createMockRoute('/')
 
-        const router = createVueRouter({
-          router: vueRouter as unknown as VueRouterInstance,
-          route: route as unknown as RouteLocationNormalizedLoaded,
-        })
+        const router = createVueRouter({ router: asVueRouter(vueRouter) })
         const guard = vi.fn().mockReturnValue(false)
 
         const removeGuard = router.addGuard(guard)
@@ -987,12 +955,8 @@ describe('@molecule/app-routing-vue-router', () => {
 
       it('should execute multiple guards in order', async () => {
         const vueRouter = createMockVueRouter()
-        const route = createMockRoute('/')
 
-        const router = createVueRouter({
-          router: vueRouter as unknown as VueRouterInstance,
-          route: route as unknown as RouteLocationNormalizedLoaded,
-        })
+        const router = createVueRouter({ router: asVueRouter(vueRouter) })
         const executionOrder: number[] = []
 
         router.addGuard(() => {
@@ -1011,12 +975,8 @@ describe('@molecule/app-routing-vue-router', () => {
 
       it('should stop at first failing guard', async () => {
         const vueRouter = createMockVueRouter()
-        const route = createMockRoute('/')
 
-        const router = createVueRouter({
-          router: vueRouter as unknown as VueRouterInstance,
-          route: route as unknown as RouteLocationNormalizedLoaded,
-        })
+        const router = createVueRouter({ router: asVueRouter(vueRouter) })
         const guard1 = vi.fn().mockReturnValue(false)
         const guard2 = vi.fn().mockReturnValue(true)
 
@@ -1043,12 +1003,8 @@ describe('@molecule/app-routing-vue-router', () => {
 
       it('should make newly registered routes navigable', async () => {
         const vueRouter = createMockVueRouter()
-        const route = createMockRoute('/')
 
-        const router = createVueRouter({
-          router: vueRouter as unknown as VueRouterInstance,
-          route: route as unknown as RouteLocationNormalizedLoaded,
-        })
+        const router = createVueRouter({ router: asVueRouter(vueRouter) })
 
         router.registerRoutes([{ path: '/dynamic/:id', name: 'dynamic' }])
 
@@ -1060,12 +1016,8 @@ describe('@molecule/app-routing-vue-router', () => {
 
       it('should index nested child routes', async () => {
         const vueRouter = createMockVueRouter()
-        const route = createMockRoute('/')
 
-        const router = createVueRouter({
-          router: vueRouter as unknown as VueRouterInstance,
-          route: route as unknown as RouteLocationNormalizedLoaded,
-        })
+        const router = createVueRouter({ router: asVueRouter(vueRouter) })
 
         router.registerRoutes([
           {
@@ -1085,12 +1037,8 @@ describe('@molecule/app-routing-vue-router', () => {
     describe('destroy', () => {
       it('should clear all listeners and guards', async () => {
         const vueRouter = createMockVueRouter()
-        const route = createMockRoute('/')
 
-        const router = createVueRouter({
-          router: vueRouter as unknown as VueRouterInstance,
-          route: route as unknown as RouteLocationNormalizedLoaded,
-        })
+        const router = createVueRouter({ router: asVueRouter(vueRouter) })
         const listener = vi.fn()
         const guard = vi.fn().mockReturnValue(true)
 
@@ -1105,6 +1053,19 @@ describe('@molecule/app-routing-vue-router', () => {
         expect(guard).not.toHaveBeenCalled()
         // But navigation should still work (guards are cleared)
         expect(vueRouter.push).toHaveBeenCalled()
+      })
+
+      it('should unregister the vue router hooks', async () => {
+        const vueRouter = createMockVueRouter()
+        const router = createVueRouter({ router: asVueRouter(vueRouter) })
+        const listener = vi.fn()
+
+        router.subscribe(listener)
+        router.destroy()
+        await vueRouter.push('/native-link')
+
+        expect(listener).not.toHaveBeenCalled()
+        expect(vueRouter.afterEach.mock.results[0]?.value).toBeTypeOf('function')
       })
     })
   })
@@ -1337,11 +1298,9 @@ describe('@molecule/app-routing-vue-router', () => {
   describe('Integration Tests', () => {
     it('should work end-to-end: create router -> add guard -> navigate -> subscribe', async () => {
       const vueRouter = createMockVueRouter()
-      const route = createMockRoute('/')
 
       const router = createVueRouter({
-        router: vueRouter as unknown as VueRouterInstance,
-        route: route as unknown as RouteLocationNormalizedLoaded,
+        router: asVueRouter(vueRouter),
         routes: [
           { path: '/public', name: 'public' },
           { path: '/protected', name: 'protected' },
@@ -1367,7 +1326,8 @@ describe('@molecule/app-routing-vue-router', () => {
       // Try to access protected route (should redirect)
       router.navigateTo('protected')
       await flush()
-      expect(vueRouter.replace).toHaveBeenLastCalledWith('/login')
+      // A redirect takes the place of the navigation it stopped: still a push.
+      expect(vueRouter.push).toHaveBeenLastCalledWith('/login')
 
       // Authenticate and try again
       isAuthenticated = true
@@ -1382,16 +1342,13 @@ describe('@molecule/app-routing-vue-router', () => {
     })
 
     it('should handle complex query manipulation', async () => {
-      const vueRouter = createMockVueRouter()
       const route = createMockRoute('/search', {
         fullPath: '/search?q=initial&page=1',
         query: { q: 'initial', page: '1' },
       })
+      const vueRouter = createMockVueRouter(route)
 
-      const router = createVueRouter({
-        router: vueRouter as unknown as VueRouterInstance,
-        route: route as unknown as RouteLocationNormalizedLoaded,
-      })
+      const router = createVueRouter({ router: asVueRouter(vueRouter) })
 
       // Get initial query
       expect(router.getQuery()).toEqual({ q: 'initial', page: '1' })
@@ -1411,11 +1368,9 @@ describe('@molecule/app-routing-vue-router', () => {
 
     it('should generate and use paths correctly', async () => {
       const vueRouter = createMockVueRouter()
-      const route = createMockRoute('/')
 
       const router = createVueRouter({
-        router: vueRouter as unknown as VueRouterInstance,
-        route: route as unknown as RouteLocationNormalizedLoaded,
+        router: asVueRouter(vueRouter),
         routes: [{ path: '/blog/:year/:month/:slug', name: 'blog-post' }],
       })
 
@@ -1432,6 +1387,26 @@ describe('@molecule/app-routing-vue-router', () => {
       router.navigate(generatedPath)
       await flush()
       expect(vueRouter.push).toHaveBeenCalledWith('/blog/2024/01/hello-world')
+    })
+
+    it('should keep composables on one router per vue router instance', () => {
+      const vueRouter = createMockVueRouter()
+      vi.mocked(useVueRouter).mockReturnValue(asVueRouter(vueRouter))
+
+      const first = useMoleculeRouter()
+      const second = useMoleculeRouter()
+
+      expect(second.value).toBe(first.value)
+    })
+  })
+
+  describe('route snapshot argument (deprecated)', () => {
+    it('should accept route without using it', () => {
+      const router = createVueRouter({ route: asLoadedRoute(createMockRoute('/unused')) })
+
+      // The router is functional; no snapshot is read (params come from the live router).
+      expect(router.getParams()).toEqual({})
+      expect(router.navigate).toBeInstanceOf(Function)
     })
   })
 })

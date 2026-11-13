@@ -8,9 +8,6 @@ vi.mock('react-router', () => ({
   useSearchParams: vi.fn(),
 }))
 
-// Mock @molecule/app-routing since it's a peer dependency
-vi.mock('@molecule/app-routing', () => ({}))
-
 // Mock react
 vi.mock('react', () => ({
   default: {},
@@ -828,9 +825,12 @@ describe('@molecule/app-routing-react-router', () => {
         await router.navigate('/protected')
         await flush()
 
+        // A redirect takes the place of the navigation it stopped: this was a push, so
+        // the redirect navigates as a push too (the shared `createHistoryRouter`
+        // semantics every routing bond's conformance suite enforces).
         expect(navigateFn).toHaveBeenCalledWith(
           '/login',
-          expect.objectContaining({ replace: true }),
+          expect.objectContaining({ replace: false }),
         )
       })
 
@@ -1257,12 +1257,14 @@ describe('@molecule/app-routing-react-router', () => {
         locations.push(location)
       })
 
-      // Try to access protected route (should redirect)
+      // Try to access protected route (should redirect). The redirect navigates as a
+      // push, like the navigation it stopped (the shared `createHistoryRouter`
+      // semantics every routing bond's conformance suite enforces).
       router.navigateTo('protected')
       await flush()
       expect(navigateFn).toHaveBeenLastCalledWith(
         '/login',
-        expect.objectContaining({ replace: true }),
+        expect.objectContaining({ replace: false }),
       )
 
       // Authenticate and try again

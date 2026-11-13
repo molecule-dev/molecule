@@ -5,12 +5,35 @@
  */
 
 import { computed, type ComputedRef, watch } from 'vue'
-import { useRoute, useRouter as useVueRouter } from 'vue-router'
+import { type Router as VueRouterInstance, useRouter as useVueRouter } from 'vue-router'
 
 import { setRouter } from '@molecule/app-routing'
 
 import { createVueRouter } from './provider.js'
 import type { QueryParams, RouteDefinition, RouteLocation, RouteParams, Router } from './types.js'
+
+/**
+ * One molecule `Router` per Vue Router instance. The router reads Vue Router's live
+ * `currentRoute`, so it never needs rebuilding when the route changes: every composable
+ * (and every `setRouter` bonding) shares the same instance for the app's lifetime.
+ */
+const moleculeRouters = new WeakMap<VueRouterInstance, Router>()
+
+/**
+ * Returns the molecule `Router` for a Vue Router instance, creating it on first use.
+ *
+ * @param vueRouter - The Vue Router instance.
+ * @param routes - Route definitions for molecule named routes; used when the router is
+ * first created (later calls with different routes return the existing router unchanged).
+ * @returns The molecule `Router` driving that Vue Router.
+ */
+const routerFor = (vueRouter: VueRouterInstance, routes?: RouteDefinition[]): Router => {
+  const existing = moleculeRouters.get(vueRouter)
+  if (existing) return existing
+  const router = createVueRouter({ router: vueRouter, routes })
+  moleculeRouters.set(vueRouter, router)
+  return router
+}
 
 /**
  * Composable to create and provide a molecule Router.
@@ -34,27 +57,21 @@ import type { QueryParams, RouteDefinition, RouteLocation, RouteParams, Router }
  */
 export function useMoleculeRouter(routes?: RouteDefinition[]): ComputedRef<Router> {
   const vueRouter = useVueRouter()
-  const route = useRoute()
 
-  return computed(() =>
-    createVueRouter({
-      router: vueRouter,
-      route,
-      routes,
-    }),
-  )
+  // The same Vue Router always gets the same molecule Router: one instance per app, whose
+  // subscriptions stay live for its lifetime.
+  return computed(() => routerFor(vueRouter, routes))
 }
 
 /**
  * Composable that builds the molecule Router from Vue Router AND bonds it as the
  * active singleton via `@molecule/app-routing`'s `setRouter`.
  *
- * Call this ONCE near the app root (e.g. in `App.vue`'s `setup`). It watches the
- * adapter with `{ immediate: true }`, so `setRouter` runs synchronously in setup and
- * re-runs whenever the route changes — meaning `@molecule/app-routing`'s
- * `navigate()`/`getRouter()` drive the REAL Vue Router (not the core's auto-created
- * fallback browser router) for the rest of the app. Returns the same reactive router
- * ref so you can also use it locally.
+ * Call this ONCE near the app root (e.g. in `App.vue`'s `setup`). One Vue Router gets one
+ * molecule Router for the app's lifetime, so `setRouter` runs once, synchronously in
+ * setup, and `@molecule/app-routing`'s `navigate()`/`getRouter()` drive the REAL Vue
+ * Router (not the core's auto-created fallback browser router) for the rest of the app.
+ * Returns the same reactive router ref so you can also use it locally.
  *
  * @param routes - Optional route definitions for molecule named routes.
  * @returns The reactive molecule Router ref (already bonded).

@@ -1,42 +1,22 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-// Minimal @molecule/app-routing bond (navigate() delegates to the bonded router) plus
-// the utility fns next's utilities.ts re-exports from core at runtime.
-let bonded: { navigate: (path: string, options?: unknown) => unknown } | null = null
-vi.mock('@molecule/app-routing', () => ({
-  setRouter: vi.fn((router: { navigate: (p: string, o?: unknown) => unknown }) => {
-    bonded = router
-  }),
-  getRouter: () => bonded,
-  navigate: (path: string, options?: unknown) => bonded?.navigate(path, options),
-  parseQuery: (search: string) => {
-    const params: Record<string, string> = {}
-    const query = search.startsWith('?') ? search.slice(1) : search
-    if (!query) return params
-    query.split('&').forEach((part) => {
-      const [key, value] = part.split('=')
-      params[decodeURIComponent(key)] = decodeURIComponent(value ?? '')
-    })
-    return params
-  },
-  stringifyQuery: (params: Record<string, string | string[] | undefined>) => {
-    const entries = Object.entries(params)
-      .filter(([, v]) => v !== undefined)
-      .map(([k, v]) =>
-        Array.isArray(v)
-          ? v.map((val) => `${encodeURIComponent(k)}=${encodeURIComponent(val)}`).join('&')
-          : `${encodeURIComponent(k)}=${encodeURIComponent(v as string)}`,
-      )
-    return entries.length ? `?${entries.join('&')}` : ''
-  },
-  matchPath: (pattern: string, path: string) =>
-    pattern === path ? { path, pathname: path } : null,
-  generatePath: (pattern: string) => pattern,
-}))
+// The REAL core router module, with `setRouter` wrapped so the test can observe the
+// bond while the real bond registry still receives the router — that is the wiring
+// under test: core navigate() must reach the bonded adapter.
+vi.mock('@molecule/app-routing', async (importOriginal) => {
+  const actual = await importOriginal()
+  return { ...actual, setRouter: vi.fn(actual.setRouter) }
+})
 
-// Run memos/effects synchronously so calling the hook performs the bond.
+// Run state/effect hooks synchronously so calling the hook performs the bond. The hook
+// now builds ONE router in `useState` (not a `useMemo` snapshot), so the mock provides
+// `useRef`/`useState` instead of `useMemo`.
 vi.mock('react', () => ({
-  useMemo: (fn: () => unknown) => fn(),
+  useRef: <T>(value: T) => ({ current: value }),
+  useState: <T>(init: () => T) => {
+    const value = init()
+    return [value, () => {}] as const
+  },
   useEffect: (fn: () => void) => {
     fn()
   },
@@ -60,7 +40,6 @@ const createMockNavigation = (): NextNavigation => ({
 
 describe('useMoleculeRouter wiring (next)', () => {
   beforeEach(() => {
-    bonded = null
     vi.mocked(setRouter).mockClear()
   })
 

@@ -17,17 +17,22 @@ import React, {
   useState,
 } from 'react'
 import {
+  type NavigationType,
   useInRouterContext,
   useLocation,
   useNavigate,
+  useNavigationType,
   useParams,
-  useSearchParams,
 } from 'react-router'
 
 import { I18nError } from '@molecule/app-i18n'
-import { setRouter } from '@molecule/app-routing'
+import { createHistoryRouter, type NavigationAction, setRouter } from '@molecule/app-routing'
 
-import { createReactRouter } from './provider.js'
+import {
+  createReactRouterHistory,
+  type ReactRouterHistory,
+  type ReactRouterSnapshot,
+} from './history.js'
 import type { QueryParams, RouteDefinition, Router } from './types.js'
 
 /**
@@ -56,20 +61,101 @@ export interface MoleculeRouterProviderProps {
 }
 
 /**
- * Provider component that creates a molecule Router from React Router hooks and
- * bonds it as the active singleton via `@molecule/app-routing`'s `setRouter`.
+ * Maps React Router's navigation type to the molecule action.
  *
- * Bonding happens in an effect on mount (and again whenever the location/params
- * change), so `@molecule/app-routing`'s `navigate()`/`getRouter()` drive THIS real
- * React Router adapter — no manual `setRouter` wiring required. Mount it once inside
- * any React Router router when non-React code needs the bond, named routes are
- * configured, or `onRouterReady` is needed. The routing hooks work without this provider.
+ * @param navigationType - The `useNavigationType()` value of the committed render.
+ * @returns The molecule `NavigationAction` for it.
+ */
+const navigationTypeToAction = (navigationType: NavigationType): NavigationAction => {
+  if (navigationType === 'POP') return 'pop'
+  if (navigationType === 'REPLACE') return 'replace'
+  return 'push'
+}
+
+/**
+ * Notifies the live history's subscribers once after each navigation React Router
+ * commits, however it started — a link, the back button, or a navigation through the
+ * molecule router. The effect runs when the committed location reaches the component;
+ * it is keyed on the location key, so a key React Router already reported (a StrictMode
+ * replay) is not reported twice, and the first run — the mount — reports nothing.
+ *
+ * @param history - The component's live history; `null` skips (a provider's router is already notified by the provider).
+ * @param locationKey - The location key of the committed render.
+ * @param navigationType - How React Router reached the current entry.
+ */
+function useNotifyCommittedNavigation(
+  history: ReactRouterHistory | null,
+  locationKey: string,
+  navigationType: NavigationType,
+): void {
+  const lastNotifiedKey = useRef<string | undefined>(undefined)
+
+  useEffect(() => {
+    if (!history || lastNotifiedKey.current === locationKey) return
+    const firstNotification = lastNotifiedKey.current === undefined
+    lastNotifiedKey.current = locationKey
+    if (firstNotification) return
+    history.notify(navigationTypeToAction(navigationType))
+  }, [history, locationKey, navigationType])
+}
+
+/**
+ * Builds the component-owned molecule router on the live history: the router is created
+ * once for the component's whole life, and the history reads a ref that every render
+ * refreshes with the latest `useNavigate()`/`useLocation()`/`useParams()`/
+ * `useNavigationType()` values, so its reads always answer for the committed render.
+ *
+ * @param routes - Route definitions the router is created with; later ones register through `router.registerRoutes`.
+ * @returns The router, its live history, and the committed location key with the navigation type of this render.
+ */
+function useMoleculeRouterInstance(routes: RouteDefinition[]): {
+  router: Router
+  history: ReactRouterHistory
+  locationKey: string
+  navigationType: NavigationType
+} {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const params = useParams()
+  const navigationType = useNavigationType()
+
+  const snapshot = useRef<ReactRouterSnapshot>(undefined)
+  snapshot.current = {
+    navigate,
+    location: {
+      pathname: location.pathname,
+      search: location.search,
+      hash: location.hash,
+      state: location.state,
+      key: location.key,
+    },
+    params,
+  }
+
+  const [history] = useState(() => createReactRouterHistory(snapshot))
+  const [router] = useState(() => createHistoryRouter(history, { routes }))
+
+  return { router, history, locationKey: location.key, navigationType }
+}
+
+/**
+ * Provider component that creates ONE molecule Router over React Router for its whole
+ * mounted life and bonds it as the active singleton via `@molecule/app-routing`'s
+ * `setRouter`. Subscribers and guards registered on the router survive navigation:
+ * `@molecule/app-routing`'s `getRouter()` keeps returning it, `onRouterReady` fires once,
+ * and React Router's own links and the back button reach `router.subscribe()`.
+ *
+ * Bonding happens in an effect on mount, so `@molecule/app-routing`'s
+ * `navigate()`/`getRouter()` drive THIS real React Router adapter — no manual `setRouter`
+ * wiring required. Mount it once inside any React Router router when non-React code needs
+ * the bond, named routes are configured, or `onRouterReady` is needed. The routing hooks
+ * work without this provider.
  *
  * @param props - The provider props (see {@link MoleculeRouterProviderProps}):
  *   `children` (rendered inside the router context), `routes` (optional named-route
- *   definitions), and `onRouterReady` (optional callback invoked with the router
- *   after it is bonded, e.g. to register guards — bonding via `setRouter` happens
- *   regardless).
+ *   definitions; pass a stable array — later identities register onto the same router),
+ *   and `onRouterReady` (optional callback invoked ONCE with the router after it is
+ *   bonded, e.g. to register guards — bonding via `setRouter` happens regardless).
  * @returns The rendered provider wrapping children with the router context.
  * @example
  * ```tsx
@@ -93,34 +179,29 @@ export interface MoleculeRouterProviderProps {
  */
 export function MoleculeRouterProvider(props: MoleculeRouterProviderProps): React.JSX.Element {
   const { children, routes = [], onRouterReady } = props
-  const navigate = useNavigate()
-  const location = useLocation()
-  const params = useParams()
-  useSearchParams() // Subscribe to search param changes
+  const { router, history, locationKey, navigationType } = useMoleculeRouterInstance(routes)
 
-  const router = useMemo(
-    () =>
-      createReactRouter({
-        navigate,
-        location: {
-          pathname: location.pathname,
-          search: location.search,
-          hash: location.hash,
-          state: location.state,
-          key: location.key,
-        },
-        params,
-        routes,
-      }),
-    [navigate, location, params, routes],
-  )
+  const readyCallback = useRef(onRouterReady)
+  readyCallback.current = onRouterReady
 
   useEffect(() => {
-    // Bond THIS adapter so @molecule/app-routing's navigate()/getRouter() drive the
-    // real React Router instead of the core's auto-created fallback browser router.
+    // Bonded once per router: `@molecule/app-routing`'s navigate()/getRouter() drive THIS
+    // real React Router adapter for the provider's whole life, and `onRouterReady` fires
+    // once instead of on every navigation.
     setRouter(router)
-    onRouterReady?.(router)
-  }, [router, onRouterReady])
+    readyCallback.current?.(router)
+  }, [router])
+
+  const registeredRoutes = useRef(routes)
+  useEffect(() => {
+    // The routes the router was created with are already registered; a later array
+    // registers onto THIS router instead of replacing it.
+    if (registeredRoutes.current === routes) return
+    registeredRoutes.current = routes
+    router.registerRoutes(routes)
+  }, [routes, router])
+
+  useNotifyCommittedNavigation(history, locationKey, navigationType)
 
   return <MoleculeRouterContext.Provider value={router}>{children}</MoleculeRouterContext.Provider>
 }
@@ -131,9 +212,11 @@ export function MoleculeRouterProvider(props: MoleculeRouterProviderProps): Reac
  * package or React Router itself. No MoleculeRouterProvider is required.
  *
  * When MoleculeRouterProvider is mounted, returns its exact router with its named
- * routes. Otherwise creates a local adapter from React Router's hooks without
- * bonding it globally. Mount MoleculeRouterProvider for the non-React
- * `@molecule/app-routing` navigate()/getRouter() bond or onRouterReady.
+ * routes. Otherwise creates ONE router for the calling component's whole life — its
+ * location, params and queries follow React Router through every navigation, and
+ * `subscribe()` hears React Router's own links and the back button — without bonding
+ * it globally. Mount MoleculeRouterProvider for the non-React `@molecule/app-routing`
+ * navigate()/getRouter() bond or onRouterReady.
  *
  * @returns The molecule Router instance
  * @throws {Error} If used outside a React Router router; mount a router component.
@@ -164,15 +247,15 @@ export function useMoleculeRouter(): Router {
     )
   }
 
-  // Always call the React Router hooks, including when the provider supplies the
-  // adapter. The guard above throws only for an invalid render outside any router.
-  const navigate = useNavigate()
-  const location = useLocation()
-  const params = useParams()
-  return useMemo(
-    () => router ?? createReactRouter({ navigate, location, params }),
-    [router, navigate, location, params],
-  )
+  const {
+    router: localRouter,
+    history,
+    locationKey,
+    navigationType,
+  } = useMoleculeRouterInstance([])
+  // The provider's router notifies through the provider; a locally created one is idle.
+  useNotifyCommittedNavigation(router ? null : history, locationKey, navigationType)
+  return router ?? localRouter
 }
 
 /**

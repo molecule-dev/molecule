@@ -5,11 +5,11 @@
  * @module
  */
 
-import { useEffect, useMemo } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
-import { type Router, setRouter } from '@molecule/app-routing'
+import { createHistoryRouter, type Router, setRouter } from '@molecule/app-routing'
 
-import { createNextRouter } from './provider.js'
+import { createNextHistory } from './history.js'
 import type { NextRouterConfig } from './types.js'
 
 /**
@@ -18,8 +18,11 @@ import type { NextRouterConfig } from './types.js'
  * App Router (not the core's auto-created fallback that does full-page reloads).
  *
  * Call it in a `'use client'` component near the root layout, passing the values from
- * `useRouter()`/`usePathname()`/`useSearchParams()`/`useParams()`. It rebuilds and
- * re-bonds on every route change so location/params stay current.
+ * `useRouter()`/`usePathname()`/`useSearchParams()`/`useParams()`. The component owns
+ * ONE router for its lifetime — the history reads a ref that every render refreshes
+ * with the latest hook values — and bonds it once on mount. Subscribers (guards, page
+ * transitions, `subscribe`) keep listening across navigations, and a click on a Next
+ * `<Link>` or the back button reaches them exactly once, after Next has committed.
  *
  * @param config - The Next.js router config (`navigation`, `pathname`, `searchParams`,
  *   `params`, optional `routes`) assembled from `next/navigation` hooks.
@@ -46,18 +49,50 @@ import type { NextRouterConfig } from './types.js'
  * ```
  */
 export function useMoleculeRouter(config: NextRouterConfig): Router {
-  const { navigation, pathname, searchParams, params, routes } = config
+  // The history reads this ref, so the router survives navigation-driven re-renders
+  // while its location/params/queries stay current at every call.
+  const configRef = useRef(config)
+  configRef.current = config
 
-  const router = useMemo(
-    () => createNextRouter({ navigation, pathname, searchParams, params, routes }),
-    [navigation, pathname, searchParams, params, routes],
-  )
+  const [created] = useState(() => {
+    const nextHistory = createNextHistory(() => configRef.current)
+    return {
+      router: createHistoryRouter(nextHistory, { routes: config.routes }),
+      history: nextHistory,
+    }
+  })
+  const { router, history } = created
 
+  // Bond THIS adapter once, so @molecule/app-routing's navigate()/getRouter() drive the
+  // real Next.js App Router instead of the core's fallback (window.location) router.
   useEffect(() => {
-    // Bond THIS adapter so @molecule/app-routing's navigate()/getRouter() drive the
-    // real Next.js App Router instead of the core's fallback (window.location) router.
     setRouter(router)
   }, [router])
+
+  // A back/forward move arrives as a popstate on window: mark it before the hook values
+  // catch up, so the notification below reports `'pop'`. Outside the browser (SSR)
+  // there is nothing to listen to.
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const onPop = (): void => {
+      history.markPop()
+    }
+    window.addEventListener('popstate', onPop)
+    return () => {
+      window.removeEventListener('popstate', onPop)
+    }
+  }, [history])
+
+  // Notify after commit: this effect re-runs whenever the location changed — every
+  // navigation Next commits changes it, whether this router started it (push/replace),
+  // a `<Link>` did, or the back button moved the entry (marked as a pop above). It runs
+  // after the re-render that made the hook values current; React batching reports the
+  // final location once. The first run (mount) notifies nothing, and a navigation whose
+  // URL matches the current one (Next skips its history write) does not re-run it.
+  const pathKey = history.pathKey()
+  useEffect(() => {
+    history.notifyAfterCommit()
+  }, [history, pathKey])
 
   return router
 }

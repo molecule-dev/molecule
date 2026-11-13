@@ -355,3 +355,153 @@ export const useIsActiveCases: HookCases = {
     },
   ],
 }
+
+const ARTICLES = { pageSize: 10, filters: { tag: {}, sort: { defaultValue: 'new' } } }
+
+/**
+ * A list of orders with a protected 'mine' view.
+ *
+ * @param status - The auth status.
+ * @returns The `useListRoute` options.
+ */
+const ORDERS = (
+  status: 'loading' | 'authenticated' | 'unauthenticated' | 'unavailable',
+): Record<string, unknown> => ({
+  selections: {
+    all: { path: '/orders' },
+    mine: { path: '/orders', query: { view: 'mine' }, requiresAuth: true },
+  },
+  defaultSelection: 'all',
+  auth: { status, redirectTo: '/login' },
+})
+
+/** `useListRoute(options)`: URL-backed pagination, filters and views. */
+export const useListRouteCases: HookCases = {
+  hook: 'useListRoute',
+  reactiveArgs: true,
+  cases: [
+    {
+      name: 'reads the page, offset and filters from the URL and builds links',
+      context: { route: '/articles?tag=news&page=3#top' },
+      args: [ARTICLES],
+      steps: [
+        { type: 'call', method: 'href', args: [{ page: 4 }] },
+        { type: 'call', method: 'href', args: [{ page: 1 }] },
+        { type: 'call', method: 'href', args: [{ filters: { tag: 'tech' } }] },
+        { type: 'call', method: 'href', args: [{ filters: { sort: 'new' }, page: 2 }] },
+      ],
+    },
+    {
+      name: 'a malformed page reads as page one',
+      context: { route: '/articles?page=2oops' },
+      args: [ARTICLES],
+    },
+    {
+      name: 'setPage, setFilters and navigate move the URL',
+      context: { route: '/articles?tag=news&view=grid' },
+      args: [ARTICLES],
+      steps: [
+        { type: 'call', method: 'setPage', args: [2] },
+        { type: 'call', method: 'setFilters', args: [{ tag: 'tech' }] },
+        { type: 'call', method: 'navigate', args: [{ page: 5, filters: { tag: undefined } }] },
+      ],
+    },
+    {
+      name: 'follows navigation from outside',
+      context: { route: '/articles' },
+      args: [ARTICLES],
+      steps: [{ type: 'navigate', to: '/articles?page=7&tag=x' }, { type: 'back' }],
+    },
+    {
+      name: 'a path filter comes from the route pattern',
+      context: { route: '/topics/a%20b?page=2' },
+      args: [{ path: '/topics/:topic', filters: { topic: { param: 'topic' } } }],
+      steps: [{ type: 'call', method: 'href', args: [{ filters: { topic: 'c d' } }] }],
+    },
+    {
+      name: 'selections pick the most specific view',
+      context: { route: '/orders?view=mine&page=2' },
+      args: [ORDERS('authenticated')],
+      steps: [
+        { type: 'call', method: 'href', args: [{ selection: 'all' }] },
+        { type: 'call', method: 'select', args: ['all'] },
+      ],
+    },
+    {
+      name: 'a protected view waits for auth, then redirects a signed-out visitor',
+      context: { route: '/orders?view=mine' },
+      args: [ORDERS('loading')],
+      steps: [{ type: 'args', args: [ORDERS('unauthenticated')] }],
+    },
+    {
+      name: 'an unavailable auth client never redirects',
+      context: { route: '/orders?view=mine' },
+      args: [ORDERS('unavailable')],
+    },
+    {
+      name: 'unknown names and a bad page throw',
+      context: { route: '/orders' },
+      args: [ORDERS('authenticated')],
+      steps: [
+        { type: 'call', method: 'href', args: [{ selection: 'nope' }] },
+        { type: 'call', method: 'href', args: [{ page: 0 }] },
+      ],
+    },
+    { name: 'a page size of zero throws', args: [{ pageSize: 0 }] },
+    {
+      name: 'unmount removes the router listener',
+      args: [ARTICLES],
+      steps: [{ type: 'navigate', to: '/a' }, { type: 'unmount' }, { type: 'navigate', to: '/b' }],
+    },
+    { name: 'without a router provider', args: [ARTICLES], context: { omitServices: ['router'] } },
+  ],
+}
+
+/** `useConsumedSearchParam(name)`: a one-time credential taken out of the URL. */
+export const useConsumedSearchParamCases: HookCases = {
+  hook: 'useConsumedSearchParam',
+  cases: [
+    {
+      name: 'consumes the parameter and keeps the rest of the URL',
+      context: { route: '/reset?token=abc&lang=fr' },
+      args: ['token'],
+    },
+    {
+      name: 'keeps the value through query-only navigation and consumes a new one',
+      context: { route: '/reset?token=abc' },
+      args: ['token'],
+      steps: [
+        { type: 'navigate', to: '/reset?step=2' },
+        { type: 'navigate', to: '/reset?token=def' },
+      ],
+    },
+    {
+      name: 'Back restores the value consumed on that entry',
+      context: { route: '/start' },
+      args: ['token'],
+      steps: [
+        { type: 'navigate', to: '/reset?token=abc' },
+        { type: 'navigate', to: '/reset?token=def' },
+        { type: 'back' },
+      ],
+    },
+    {
+      name: 'the setter replaces the value',
+      context: { route: '/reset?token=abc' },
+      args: ['token'],
+      steps: [{ type: 'call', method: '1', args: [''] }],
+    },
+    {
+      name: 'empty when the parameter never appeared',
+      context: { route: '/reset' },
+      args: ['token'],
+    },
+    {
+      name: 'unmount stops consuming',
+      context: { route: '/start' },
+      args: ['token'],
+      steps: [{ type: 'unmount' }, { type: 'navigate', to: '/reset?token=abc' }],
+    },
+    { name: 'without a router provider', args: ['token'], context: { omitServices: ['router'] } },
+  ],
+}

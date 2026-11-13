@@ -184,9 +184,5 @@ export function useAsyncState<T>(initialState: T): [T, AsyncSetState<T>, AsyncEx
     }
   }
 
-  return liveStateTuple(() => state(), [asyncSetState, asyncExtendState]) as [
-    T,
-    AsyncSetState<T>,
-    AsyncExtendState<T>,
-  ]
+  return liveStateTuple(() => state(), [asyncSetState, asyncExtendState])
 }

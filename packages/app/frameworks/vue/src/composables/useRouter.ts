@@ -4,15 +4,33 @@
  * @module
  */
 
-import { computed, type ComputedRef, inject, onMounted, onUnmounted, ref } from 'vue'
+import {
+  computed,
+  type ComputedRef,
+  inject,
+  type MaybeRefOrGetter,
+  onMounted,
+  onUnmounted,
+  ref,
+  toValue,
+  watch,
+} from 'vue'
 
 import { t } from '@molecule/app-i18n'
 import type {
+  ListRouteOptions,
+  ListRouteRedirect,
+  ListRouteResult,
   NavigateOptions,
   QueryParams,
   RouteLocation,
   RouteParams,
   Router,
+} from '@molecule/app-routing'
+import {
+  createConsumedSearchParam,
+  listRouteRedirect,
+  resolveListRoute,
 } from '@molecule/app-routing'
 
 import { RouterKey } from '../injection-keys.js'
@@ -186,4 +204,118 @@ export function useIsActive(path: string, exact = false): ComputedRef<boolean> {
     void location.value
     return router.isActive(path, exact)
   })
+}
+
+/**
+ * URL-backed pagination, filters and selected views, through whichever routing bond the
+ * app wired: the page, the filters and the view live in the URL only, so a reload, a
+ * shared link and Back all show the same list. Built on `resolveListRoute` from
+ * `@molecule/app-routing`, so every framework binding returns the same result.
+ *
+ * The options may be reactive (a ref or a getter): an auth status going from
+ * `loading` to `unauthenticated` performs the sign-in redirect on the same component,
+ * the way React re-renders `useListRoute` with new options.
+ *
+ * A signed-out visit to a view with `requiresAuth` replaces the entry with
+ * `options.auth.redirectTo`, carrying `state.returnTo`; until auth is confirmed
+ * `canLoad` is `false`.
+ *
+ * @param options - Filter sources, view paths, pagination and optional auth readiness.
+ * @returns A computed ref of the list state (`page`, `offset`, `filters`, `selection`,
+ * `canLoad`) and its link builder and navigation actions.
+ * @throws {Error} When `pageSize` is not a positive safe integer, or a protected view
+ * has no `auth`.
+ *
+ * @example
+ * ```vue
+ * <script setup>
+ * import { computed } from 'vue'
+ * import { useListRoute, useTranslation } from '@molecule/app-vue'
+ *
+ * const { t } = useTranslation()
+ * const list = useListRoute({ pageSize: 10, filters: { tag: {} } })
+ * // Load items from list.value.offset; the page and filters come from the URL.
+ * const nextPageHref = computed(() => list.value.href({ page: list.value.page + 1 }))
+ * </script>
+ *
+ * <template>
+ *   <a :href="nextPageHref">{{ t('list.nextPage') }}</a>
+ * </template>
+ * ```
+ */
+export function useListRoute<Filter extends string = string, Selection extends string = string>(
+  options: MaybeRefOrGetter<ListRouteOptions<Filter, Selection>> = {},
+): ComputedRef<ListRouteResult<Filter, Selection>> {
+  const { location, params, navigate } = useRouter()
+  const list = computed(() =>
+    resolveListRoute<Filter, Selection>(
+      { location: location.value, routeParams: params.value },
+      toValue(options),
+      navigate,
+    ),
+  )
+  // Resolve once in setup, like React's first render: a bad pageSize or a protected
+  // selection without `auth` throws from the composable call itself, not at the first
+  // read (which the renderer does after mount, where the throw would be unhandled).
+  void list.value
+  const redirect = computed(() => listRouteRedirect(list.value, location.value))
+  const performRedirect = (next: ListRouteRedirect | undefined): void => {
+    if (!next) return
+    navigate(next.to, next.options)
+  }
+  // React's redirect effect runs after every render the redirect target changed in;
+  // the watcher covers those changes, and the mounted hook covers a redirect already
+  // due at mount (it runs after `useRouter`'s subscription starts, so the navigation
+  // reaches this composable's reactive state).
+  watch(redirect, performRedirect)
+  onMounted(() => performRedirect(redirect.value))
+  return list
+}
+
+/**
+ * Takes a one-time credential (a reset `token`, an OAuth `code`) out of the URL and
+ * keeps it in memory, through whichever routing bond the app wired. The parameter is
+ * removed with a replace navigation that keeps the path, the hash, the other query
+ * values and the location state; the value survives re-renders and later query-only
+ * navigation, Back to an entry restores the value consumed there, and a new value
+ * arriving on the same mounted route is consumed too.
+ *
+ * @param name - The query key to consume, for example `token` or `code`.
+ * @returns A computed ref of the consumed value (`''` before the parameter was ever
+ * present) and a setter (a form clears it after a successful submit).
+ *
+ * @example
+ * ```vue
+ * <script setup>
+ * import { useConsumedSearchParam, useTranslation } from '@molecule/app-vue'
+ *
+ * const { t } = useTranslation()
+ * const token = useConsumedSearchParam('token')
+ * // The form submits token.value[0] after the address no longer contains it,
+ * // then clears it with token.value[1]('').
+ * </script>
+ *
+ * <template>
+ *   <input v-if="!token[0]" :placeholder="t('auth.resetPassword.token')" />
+ * </template>
+ * ```
+ */
+export function useConsumedSearchParam(
+  name: string,
+): ComputedRef<readonly [string, (value: string) => void]> {
+  const param = createConsumedSearchParam(useRouterInstance(), name)
+  const value = ref(param.get())
+  const unsubscribe = param.subscribe((next) => {
+    value.value = next
+  })
+  let disconnect: (() => void) | null = null
+  onMounted(() => {
+    disconnect = param.connect()
+  })
+  onUnmounted(() => {
+    unsubscribe()
+    disconnect?.()
+    disconnect = null
+  })
+  return computed(() => [value.value, param.set] as const)
 }

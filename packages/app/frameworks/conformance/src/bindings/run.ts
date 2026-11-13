@@ -295,6 +295,9 @@ export async function runHookCase(
         case 'navigate':
           await outside(step.type, () => services.router.navigate(step.to))
           break
+        case 'back':
+          await outside(step.type, () => services.router.back())
+          break
         case 'storage':
           await outside(step.type, () => controls.writeStorage(step.key, step.value))
           break

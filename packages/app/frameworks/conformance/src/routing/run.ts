@@ -40,6 +40,19 @@ export type RouterHarnessFactory = (initialPath: string) => RouterHarness | Prom
 const pathOf = (location: Pick<RouteLocation, 'pathname' | 'search' | 'hash'>): string =>
   location.pathname + location.search + location.hash
 
+/**
+ * A URL as its parts, with the query as decoded entries in order: `?q=x+y` and
+ * `?q=x%20y` hold the same value, and native routers differ in which they write
+ * (Angular Router serializes a space as `%20`, URLSearchParams as `+`).
+ *
+ * @param path - `pathname + search + hash`.
+ * @returns The pathname, the query entries and the hash.
+ */
+const urlParts = (path: string): { pathname: string; query: [string, string][]; hash: string } => {
+  const url = new URL(path, 'http://conformance.invalid')
+  return { pathname: url.pathname, query: [...url.searchParams], hash: url.hash }
+}
+
 const macrotasks = async (count: number): Promise<void> => {
   for (let i = 0; i < count; i++) await new Promise((resolve) => setTimeout(resolve, 0))
 }
@@ -211,6 +224,54 @@ export function runRouterConformance(name: string, createHarness: RouterHarnessF
     )
 
     it(
+      'state of any kind stays with its history entry',
+      withHarness('/start', async ({ router, harness, settle }) => {
+        router.navigate('/a', { state: 'note' })
+        await settle()
+        expect(router.getLocation().state).toBe('note')
+        router.navigate('/b', { state: ['x', 1] })
+        await settle()
+        expect(router.getLocation().state).toEqual(['x', 1])
+        router.navigate('/b', { state: { __moleculeState: 'mine', n: 2 }, replace: true })
+        await settle()
+        expect(router.getLocation().state).toEqual({ __moleculeState: 'mine', n: 2 })
+        router.navigate('/c')
+        await settle()
+        expect(router.getLocation().state).toBeUndefined()
+        await harness.nativeBack()
+        await settle()
+        expect(router.getLocation().pathname).toBe('/b')
+        expect(router.getLocation().state).toEqual({ __moleculeState: 'mine', n: 2 })
+        await harness.nativeBack()
+        await settle()
+        expect(router.getLocation().pathname).toBe('/a')
+        expect(router.getLocation().state).toBe('note')
+      }),
+    )
+
+    it(
+      'the location key names the history entry: Back returns the key it had',
+      withHarness('/start', async ({ router, harness, settle }) => {
+        router.navigate('/a')
+        await settle()
+        const first = router.getLocation().key
+        expect(router.getLocation().key, 'stable between reads').toBe(first)
+        router.navigate('/a?page=2')
+        await settle()
+        const second = router.getLocation().key
+        expect(second).not.toBe(first)
+        await harness.nativeBack()
+        await settle()
+        expect(router.getLocation().pathname + router.getLocation().search).toBe('/a')
+        expect(router.getLocation().key).toBe(first)
+        router.navigate('/a?page=3')
+        await settle()
+        expect(router.getLocation().key).not.toBe(first)
+        expect(router.getLocation().key).not.toBe(second)
+      }),
+    )
+
+    it(
       'preserveQuery and preserveHash keep the current query and hash',
       withHarness('/start?keep=1#here', async ({ router, harness, settle }) => {
         router.navigate('/next', { preserveQuery: true, preserveHash: true })
@@ -233,11 +294,11 @@ export function runRouterConformance(name: string, createHarness: RouterHarnessF
         expect(harness.nativePath()).toBe('/list?b=2')
         router.setQuery({ q: 'x y', tag: ['1', '2'] })
         await settle()
-        expect(harness.nativePath()).toBe('/list?q=x+y&tag=1&tag=2')
+        expect(urlParts(harness.nativePath())).toEqual(urlParts('/list?q=x+y&tag=1&tag=2'))
         expect(router.getQuery()).toEqual({ q: 'x y', tag: ['1', '2'] })
         router.setHash('section')
         await settle()
-        expect(harness.nativePath()).toBe('/list?q=x+y&tag=1&tag=2#section')
+        expect(urlParts(harness.nativePath())).toEqual(urlParts('/list?q=x+y&tag=1&tag=2#section'))
       }),
     )
 

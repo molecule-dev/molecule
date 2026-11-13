@@ -18,14 +18,19 @@
  * - framework bindings (every other package under packages/app/frameworks/,
  *   measured against `@molecule/app-react`): the same hooks with the same
  *   results, service calls and cleanup, through `runBindingConformance` from
- *   `${KIT}/bindings`.
+ *   `${KIT}/bindings`;
+ * - routing bonds (`@molecule/app-routing` and every package under
+ *   packages/app/bonds/routing/): the same `Router` behaviour over each bond's
+ *   real native router, through `runRouterConformance` from `${KIT}/routing`.
+ *   The cases state the behaviour directly, so there are no React goldens and
+ *   no known gaps: every bond passes every case.
  *
  * Rules, for every bond of a group except its exemptions:
- * - `src/__tests__/conformance.test.ts` exists, imports the group's kit entry
+ * - `src/__tests__/conformance.test.ts` (or `.tsx`) exists, imports the group's kit entry
  *   and calls the group's runner;
- * - `src/__tests__/conformance/known-gaps.json` is a JSON object whose values
- *   are arrays of case names (the kit runs listed cases as expected failures,
- *   so the list can only shrink);
+ * - for the UI and binding groups, `src/__tests__/conformance/known-gaps.json`
+ *   is a JSON object whose values are arrays of case names (the kit runs listed
+ *   cases as expected failures, so the list can only shrink);
  * - `devDependencies` lists `@molecule/app-framework-conformance` (so a change
  *   to the kit, its cases or its goldens re-runs this package's suite in CI's
  *   affected-package scope).
@@ -61,6 +66,12 @@ export const EXEMPT = {
     'renders native views, not DOM, so DOM conformance does not apply',
 }
 
+/** Routing bonds that do not run the router suite, and why. */
+export const ROUTING_EXEMPT = {
+  '@molecule/app-routing-react-navigation':
+    'React Native screen navigation: it has no URL hash and runs only under react-native, which does not load in a DOM test',
+}
+
 /** The React bindings every other framework binding is measured against. */
 export const BINDING_REFERENCE = '@molecule/app-react'
 
@@ -79,27 +90,46 @@ export const BINDING_EXEMPT = {
 export const GROUPS = [
   {
     kind: 'UI bond',
+    packages: (root) => frameworkPackages(root),
     member: (name) => name.startsWith('@molecule/app-ui-'),
     reference: REFERENCE,
     exempt: EXEMPT,
     entry: `${KIT}/ui`,
     runner: 'runUIConformance',
+    call: 'runUIConformance(adapter, { knownGaps })',
     goldensTest: 'goldens.test.ts',
     gapsKey: 'component',
   },
   {
     kind: 'framework binding',
+    packages: (root) => frameworkPackages(root),
     member: (name) => name !== KIT && !name.startsWith('@molecule/app-ui-'),
     reference: BINDING_REFERENCE,
     exempt: BINDING_EXEMPT,
     entry: `${KIT}/bindings`,
     runner: 'runBindingConformance',
+    call: 'runBindingConformance(adapter, { knownGaps })',
     goldensTest: 'bindings-goldens.test.ts',
     gapsKey: 'export',
+  },
+  {
+    kind: 'routing bond',
+    packages: (root) => routingPackages(root),
+    member: (name) => name === '@molecule/app-routing' || name.startsWith('@molecule/app-routing-'),
+    reference: null,
+    exempt: ROUTING_EXEMPT,
+    entry: `${KIT}/routing`,
+    runner: 'runRouterConformance',
+    call: "runRouterConformance('<bond>', createHarness)",
+    goldensTest: null,
+    gapsKey: null,
   },
 ]
 
 const readJson = (file) => JSON.parse(readFileSync(file, 'utf8'))
+
+/** The names a bond's conformance test may have, in the order they are looked up. */
+const TEST_FILE_NAMES = ['conformance.test.ts', 'conformance.test.tsx']
 
 /** A static `class="…"` attribute (a `{…}` binding inside it is an expression, not a class list). */
 const STATIC_CLASS = /(?:^|[\s<])class="([^"{]*)"/g
@@ -175,6 +205,30 @@ export function frameworkPackages(root = ROOT) {
 }
 
 /**
+ * Lists the routing core and the routing bonds under `packages/app/bonds/routing/`.
+ *
+ * @param root - The molecule repository root.
+ * @returns Each package dir (repo-relative) and its package.json.
+ */
+export function routingPackages(root = ROOT) {
+  const core = 'packages/app/core/routing'
+  const out = existsSync(join(root, core, 'package.json'))
+    ? [{ dir: core, pkg: readJson(join(root, core, 'package.json')) }]
+    : []
+  const base = join(root, 'packages', 'app', 'bonds', 'routing')
+  if (existsSync(base)) {
+    for (const e of readdirSync(base, { withFileTypes: true })) {
+      if (e.isDirectory() && existsSync(join(base, e.name, 'package.json')))
+        out.push({
+          dir: `packages/app/bonds/routing/${e.name}`,
+          pkg: readJson(join(base, e.name, 'package.json')),
+        })
+    }
+  }
+  return out.sort((a, b) => a.dir.localeCompare(b.dir))
+}
+
+/**
  * Checks one bond's conformance test, known-gaps file and kit dependency.
  *
  * @param root - The molecule repository root.
@@ -184,20 +238,29 @@ export function frameworkPackages(root = ROOT) {
  */
 function bondViolations(root, { dir, pkg }, group) {
   const out = []
-  const testFile = join(root, dir, 'src', '__tests__', 'conformance.test.ts')
-  if (!existsSync(testFile)) {
+  // A bond whose harness renders JSX (React Router, Next.js) names it conformance.test.tsx.
+  const testName = TEST_FILE_NAMES.find((name) =>
+    existsSync(join(root, dir, 'src', '__tests__', name)),
+  )
+  if (!testName) {
     out.push(
-      `${dir}: src/__tests__/conformance.test.ts is missing; it must call ${group.runner}(adapter, { knownGaps })`,
+      `${dir}: src/__tests__/conformance.test.ts (or .tsx) is missing; it must call ${group.call}`,
     )
   } else {
-    const text = readFileSync(testFile, 'utf8')
+    const text = readFileSync(join(root, dir, 'src', '__tests__', testName), 'utf8')
     if (!text.includes(`'${group.entry}'`))
-      out.push(`${dir}: conformance.test.ts does not import '${group.entry}'`)
+      out.push(`${dir}: ${testName} does not import '${group.entry}'`)
     if (!new RegExp(`\\b${group.runner}\\s*\\(`).test(text))
-      out.push(`${dir}: conformance.test.ts does not call ${group.runner}(`)
+      out.push(`${dir}: ${testName} does not call ${group.runner}(`)
   }
   const gapsFile = join(root, dir, 'src', '__tests__', 'conformance', 'known-gaps.json')
-  if (!existsSync(gapsFile)) {
+  if (!group.gapsKey) {
+    // The router suite takes no known gaps: every routing bond passes every case.
+    if (existsSync(gapsFile))
+      out.push(
+        `${dir}: src/__tests__/conformance/known-gaps.json must not exist (${group.runner} has no known gaps)`,
+      )
+  } else if (!existsSync(gapsFile)) {
     out.push(
       `${dir}: src/__tests__/conformance/known-gaps.json is missing (use {} when nothing is known to differ)`,
     )
@@ -238,6 +301,7 @@ export function findConformanceViolations(root = ROOT) {
     if (kit.pkg.private !== true)
       out.push(`${kit.dir}: the kit must be "private": true (it is never published)`)
     for (const group of GROUPS) {
+      if (!group.reference) continue
       if (!kit.pkg.devDependencies?.[group.reference] && !kit.pkg.dependencies?.[group.reference]) {
         out.push(
           `${kit.dir}: must depend on ${group.reference} so a React change re-checks the goldens`,
@@ -251,10 +315,11 @@ export function findConformanceViolations(root = ROOT) {
     }
   }
 
-  for (const bond of packages) {
-    const group = GROUPS.find((g) => bond.pkg.name && g.member(bond.pkg.name))
-    if (!group || group.exempt[bond.pkg.name]) continue
-    out.push(...bondViolations(root, bond, group))
+  for (const group of GROUPS) {
+    for (const bond of group.packages(root)) {
+      if (!bond.pkg.name || !group.member(bond.pkg.name) || group.exempt[bond.pkg.name]) continue
+      out.push(...bondViolations(root, bond, group))
+    }
   }
 
   for (const { dir, pkg } of packages) {
@@ -268,5 +333,7 @@ if (isMain) {
   const violations = findConformanceViolations()
   for (const v of violations) console.error(`framework-conformance: ${v}`)
   if (violations.length) process.exit(1)
-  console.log('framework-conformance: every UI bond and framework binding runs the conformance kit')
+  console.log(
+    'framework-conformance: every UI bond, framework binding and routing bond runs the conformance kit',
+  )
 }

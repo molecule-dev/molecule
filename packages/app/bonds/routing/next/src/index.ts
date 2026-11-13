@@ -14,9 +14,10 @@
  * import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
  * import { useMoleculeRouter } from '@molecule/app-routing-next'
  *
- * // Mount once near the root layout. useMoleculeRouter recreates + re-bonds on every
- * // route change (via setRouter in an effect) so location/params stay current and
- * // @molecule/app-routing's navigate() drives THIS App Router.
+ * // Mount once near the root layout. useMoleculeRouter builds ONE router for the
+ * // component's lifetime, bonds it via setRouter, and its location follows the
+ * // next/navigation hooks on every route change, so @molecule/app-routing's
+ * // navigate() drives THIS App Router.
  * export function MoleculeRouterBridge({ children }: { children: React.ReactNode }) {
  *   useMoleculeRouter({
  *     navigation: useRouter(),
@@ -32,12 +33,16 @@
  * @remarks
  * - **Use `useMoleculeRouter(...)` to bond the router** from a `'use client'`
  *   component near the root layout (the adapter cannot run in Server Components). It
- *   calls `@molecule/app-routing`'s `setRouter` in an effect, so molecule packages'
- *   `navigate()`/`getRouter()` drive the real App Router.
+ *   calls `@molecule/app-routing`'s `setRouter` once on mount, so molecule packages'
+ *   `navigate()`/`getRouter()` drive the real App Router; subscribers and guards set
+ *   through the bonded router keep working across navigations, and `<Link>` clicks or
+ *   the back button reach them exactly once per navigation.
  * - **Do NOT wire the exported `provider` const in a Next app.** It is a no-hooks
  *   fallback: its location is frozen at import time, `getParams()` is always empty,
  *   and `navigate()` falls back to `window.location.href` — a full page reload that
- *   bypasses the App Router.
+ *   bypasses the App Router. The same holds for a `createNextRouter(config)` router:
+ *   it is a snapshot of the one location the config holds; only
+ *   `useMoleculeRouter` follows Next's hooks.
  * - **Forgotten wiring never errors.** `@molecule/app-routing`'s `getRouter()`
  *   auto-creates a plain browser router when nothing is bonded, so molecule packages
  *   keep "working" with full-page reloads — check wiring first when SPA navigation
@@ -52,6 +57,7 @@
  * @module
  */
 
+export * from './history.js'
 export * from './hooks.js'
 export * from './middleware.js'
 export * from './provider.js'

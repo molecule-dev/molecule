@@ -44,8 +44,13 @@
  * @module
  */
 
+export * from './consumed-search-param.js'
 export * from './history-router.js'
+export * from './history-state.js'
+export * from './list-route.js'
+export * from './list-route-types.js'
 export * from './provider.js'
+export * from './route-pattern.js'
 export * from './router.js'
 export * from './types.js'
 export * from './utilities.js'

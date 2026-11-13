@@ -22,6 +22,7 @@ import {
 } from '@molecule/app-ai-chat'
 
 import { useChatProvider } from '../context.js'
+import { isReadableStore } from '../hooks/live-store.js'
 
 /** Options for {@link useChat} (the shared chat session's options). */
 export type UseChatOptions = ChatSessionOptions
@@ -65,17 +66,6 @@ export const resetChatStoresForTests: typeof coreResetChatStoresForTests =
   coreResetChatStoresForTests
 
 /**
- * Whether a value is a readable store of options.
- *
- * @param value - Options or a store of them.
- * @returns True for a store.
- */
-const isReadable = (
-  value: UseChatOptions | Readable<UseChatOptions>,
-): value is Readable<UseChatOptions> =>
-  typeof (value as { subscribe?: unknown }).subscribe === 'function'
-
-/**
  * AI chat with streaming: the transcript, loading and error state, mode, and
  * the controls (send, abort, queue edits, history). Call it during component
  * init.
@@ -100,7 +90,7 @@ const isReadable = (
  */
 export function useChat(options: UseChatOptions | Readable<UseChatOptions>): UseChatResult {
   const provider = useChatProvider()
-  let current = isReadable(options) ? get(options) : options
+  let current = isReadableStore(options) ? get(options) : options
   const session = createChatSession({ ...current, provider })
   const state = writable(session.getState())
   const unsubscribe = session.subscribe(() => state.set(session.getState()))
@@ -108,7 +98,7 @@ export function useChat(options: UseChatOptions | Readable<UseChatOptions>): Use
   // endpoint is a conversation change, which the session loads. The store
   // calls back at once with the options the session was created with.
   let stopOptions: (() => void) | null = null
-  if (isReadable(options)) {
+  if (isReadableStore(options)) {
     stopOptions = options.subscribe((next) => {
       if (next === current) return
       current = next

@@ -29,14 +29,14 @@
  *
  * @remarks
  * - **Use `useMoleculeRouterProvider()` once near the app root to bond the router.**
- *   It builds the adapter from `useRouter()`/`useRoute()` and calls
- *   `@molecule/app-routing`'s `setRouter` in an `{ immediate: true }` watch, so other
- *   molecule packages' `navigate()`/`getRouter()` drive the real Vue Router (SPA
- *   navigation). `useMoleculeRouter()` (non-bonding) still exists for local use; if you
+ *   It builds the adapter from `useRouter()` and calls `@molecule/app-routing`'s
+ *   `setRouter`, so other molecule packages' `navigate()`/`getRouter()` drive the real
+ *   Vue Router (SPA navigation). One Vue Router instance gets one molecule Router for the
+ *   app's lifetime. `useMoleculeRouter()` (non-bonding) still exists for local use; if you
  *   only ever call that, molecule packages silently get the core's auto-created
  *   fallback browser router and navigate with full-page reloads.
- * - **Do NOT wire the exported `provider` const** in a vue-router app — it is a
- *   no-hooks fallback (empty params, `window.location.href` navigation).
+ * - **Do NOT wire the exported `provider` const** in a vue-router app — without a Vue
+ *   Router instance it is the core's browser router, not Vue Router.
  * - Composables must run inside a component tree that has the vue-router plugin
  *   installed (`app.use(router)`), since they call `useRouter()`/`useRoute()`.
  *
@@ -44,6 +44,7 @@
  */
 
 export * from './composables.js'
+export * from './history.js'
 export * from './provider.js'
 export * from './types.js'
 export * from './utilities.js'

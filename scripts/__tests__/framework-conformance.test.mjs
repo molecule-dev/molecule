@@ -19,6 +19,7 @@ import {
   findConformanceViolations,
   KIT,
   REFERENCE,
+  ROUTING_EXEMPT,
 } from '../check-framework-conformance.mjs'
 
 const roots = []
@@ -122,7 +123,7 @@ describe('check-framework-conformance', () => {
     const violations = findConformanceViolations(root)
     expect(violations).toHaveLength(3)
     expect(violations.join('\n')).toMatch(
-      /foo-ui: src\/__tests__\/conformance\.test\.ts is missing/,
+      /foo-ui: src\/__tests__\/conformance\.test\.ts \(or \.tsx\) is missing/,
     )
     expect(violations.join('\n')).toMatch(
       /foo-ui: src\/__tests__\/conformance\/known-gaps\.json is missing/,
@@ -181,7 +182,7 @@ describe('check-framework-conformance', () => {
   it('fails a new framework binding that has no conformance test, no gaps file and no kit dependency', () => {
     const root = tree({ binding: { pkg: { devDependencies: {} }, test: null, gaps: null } })
     expect(findConformanceViolations(root)).toEqual([
-      'packages/app/frameworks/vue: src/__tests__/conformance.test.ts is missing; it must call runBindingConformance(adapter, { knownGaps })',
+      'packages/app/frameworks/vue: src/__tests__/conformance.test.ts (or .tsx) is missing; it must call runBindingConformance(adapter, { knownGaps })',
       'packages/app/frameworks/vue: src/__tests__/conformance/known-gaps.json is missing (use {} when nothing is known to differ)',
       'packages/app/frameworks/vue: devDependencies must list @molecule/app-framework-conformance',
     ])
@@ -249,6 +250,100 @@ describe('check-framework-conformance', () => {
       '@molecule/app-react-native',
     ])
     for (const reason of Object.values(BINDING_EXEMPT)) expect(reason.length).toBeGreaterThan(20)
+  })
+
+  describe('routing bonds', () => {
+    const ROUTER_TEST_FILE = `import { runRouterConformance } from '${KIT}/routing'
+runRouterConformance('foo-router', createHarness)
+`
+
+    /**
+     * The standard tree plus the routing core and one routing bond.
+     *
+     * @param [bond] - Overrides for the bond: its package.json fields, test (null for none),
+     *   test file name and other files.
+     * @returns The fixture root.
+     */
+    function routingTree(bond = {}) {
+      const root = tree()
+      const write = (file, text) => {
+        mkdirSync(dirname(join(root, file)), { recursive: true })
+        writeFileSync(join(root, file), text)
+      }
+      write(
+        'packages/app/core/routing/package.json',
+        JSON.stringify({ name: '@molecule/app-routing', devDependencies: { [KIT]: '0.0.0' } }),
+      )
+      write('packages/app/core/routing/src/__tests__/conformance.test.ts', ROUTER_TEST_FILE)
+      const dir = 'packages/app/bonds/routing/foo-router'
+      write(
+        `${dir}/package.json`,
+        JSON.stringify({
+          name: '@molecule/app-routing-foo-router',
+          devDependencies: { [KIT]: '0.0.0' },
+          ...bond.pkg,
+        }),
+      )
+      if (bond.test !== null)
+        write(
+          `${dir}/src/__tests__/${bond.testName ?? 'conformance.test.ts'}`,
+          bond.test ?? ROUTER_TEST_FILE,
+        )
+      for (const [file, text] of Object.entries(bond.files ?? {})) write(`${dir}/${file}`, text)
+      write(
+        'packages/app/bonds/routing/react-navigation/package.json',
+        JSON.stringify({ name: '@molecule/app-routing-react-navigation' }),
+      )
+      return root
+    }
+
+    it('passes the routing core and a bond that run the router suite', () => {
+      expect(findConformanceViolations(routingTree())).toEqual([])
+    })
+
+    it('fails a routing bond that has no conformance test and no kit dependency', () => {
+      const root = routingTree({ pkg: { devDependencies: {} }, test: null })
+      expect(findConformanceViolations(root)).toEqual([
+        "packages/app/bonds/routing/foo-router: src/__tests__/conformance.test.ts (or .tsx) is missing; it must call runRouterConformance('<bond>', createHarness)",
+        'packages/app/bonds/routing/foo-router: devDependencies must list @molecule/app-framework-conformance',
+      ])
+    })
+
+    it('fails a routing bond whose test runs another suite', () => {
+      const root = routingTree({ test: BINDING_TEST_FILE })
+      expect(findConformanceViolations(root)).toEqual([
+        `packages/app/bonds/routing/foo-router: conformance.test.ts does not import '${KIT}/routing'`,
+        'packages/app/bonds/routing/foo-router: conformance.test.ts does not call runRouterConformance(',
+      ])
+    })
+
+    it('accepts a conformance test named conformance.test.tsx (a JSX harness)', () => {
+      expect(findConformanceViolations(routingTree({ testName: 'conformance.test.tsx' }))).toEqual(
+        [],
+      )
+    })
+
+    it('checks a conformance.test.tsx the same way', () => {
+      const root = routingTree({ testName: 'conformance.test.tsx', test: BINDING_TEST_FILE })
+      expect(findConformanceViolations(root)).toEqual([
+        `packages/app/bonds/routing/foo-router: conformance.test.tsx does not import '${KIT}/routing'`,
+        'packages/app/bonds/routing/foo-router: conformance.test.tsx does not call runRouterConformance(',
+      ])
+    })
+
+    it('fails a routing bond that lists known gaps', () => {
+      const root = routingTree({
+        files: { 'src/__tests__/conformance/known-gaps.json': '{"router":["destroy"]}' },
+      })
+      expect(findConformanceViolations(root)).toEqual([
+        'packages/app/bonds/routing/foo-router: src/__tests__/conformance/known-gaps.json must not exist (runRouterConformance has no known gaps)',
+      ])
+    })
+
+    it('exempts only React Navigation, with its reason', () => {
+      expect(Object.keys(ROUTING_EXEMPT)).toEqual(['@molecule/app-routing-react-navigation'])
+      for (const reason of Object.values(ROUTING_EXEMPT)) expect(reason.length).toBeGreaterThan(20)
+    })
   })
 
   it('finds no violations in the real tree', () => {

@@ -1,0 +1,46 @@
+{
+  "name": "@molecule/app-routing-sveltekit",
+  "version": "1.0.0",
+  "description": "SvelteKit provider for @molecule/app-routing",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "author": "Molecule Dev, Inc. (https://molecule.dev)",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "peerDependencies": {
+    "@molecule/app-i18n": "^1.0.1",
+    "@molecule/app-routing": "^1.0.1",
+    "svelte": "^5.0.0"
+  },
+  "devDependencies": {
+    "@molecule/app-framework-conformance": "0.0.0",
+    "@molecule/app-i18n": "1.2.0",
+    "@types/node": "26.6.5",
+    "svelte": "5.57.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.12"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/app/bonds/routing/sveltekit"
+  },
+  "homepage": "https://www.molecule.dev/packages/app-routing-sveltekit",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}

@@ -34,6 +34,8 @@ export interface VueRouterConfig {
 
   /**
    * Current route (from useRoute).
+   * @deprecated The router's `currentRoute` is read instead, so the location stays current
+   * after every navigation. Accepted for existing apps; unused.
    */
   route?: RouteLocationNormalizedLoaded
 

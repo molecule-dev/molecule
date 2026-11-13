@@ -51,6 +51,22 @@ export function fieldStore<T, K extends keyof T>(state: Readable<T>, key: K): Re
   return derived(state, (current) => current[key])
 }
 
+/**
+ * Whether a hook's options were passed as a readable store (options that change
+ * without a remount) rather than as a plain value.
+ *
+ * @param value - The options, or a store of them.
+ * @returns True for a store.
+ */
+export function isReadableStore<T>(value: T | Readable<T>): value is Readable<T> {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'subscribe' in value &&
+    typeof value.subscribe === 'function'
+  )
+}
+
 /** The field-by-field view of a `usePromise` tracker, for hooks built on it. */
 export interface PromiseTrackerFields<T, A extends unknown[]> {
   /** The latest call's status. */

@@ -1,16 +1,21 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-// A minimal @molecule/app-routing bond: setRouter stores the adapter, navigate()
-// delegates to whatever is bonded — exactly like the real core, so we can prove the
-// provider's mount-time setRouter drives the REAL React Router (not a fallback).
+// A minimal @molecule/app-routing bond around the REAL core: the provider builds its
+// router with the actual createHistoryRouter, while setRouter stores the adapter and
+// navigate() delegates to whatever is bonded — so we can prove the provider's mount-time
+// setRouter drives the REAL React Router (not a fallback).
 let bonded: { navigate: (path: string, options?: unknown) => unknown } | null = null
-vi.mock('@molecule/app-routing', () => ({
-  setRouter: vi.fn((router: { navigate: (p: string, o?: unknown) => unknown }) => {
-    bonded = router
-  }),
-  getRouter: () => bonded,
-  navigate: (path: string, options?: unknown) => bonded?.navigate(path, options),
-}))
+vi.mock('@molecule/app-routing', async (importOriginal) => {
+  const actual = await importOriginal<Record<string, unknown>>()
+  return {
+    ...actual,
+    setRouter: vi.fn((router: { navigate: (p: string, o?: unknown) => unknown }) => {
+      bonded = router
+    }),
+    getRouter: () => bonded,
+    navigate: (path: string, options?: unknown) => bonded?.navigate(path, options),
+  }
+})
 
 // The real React Router navigate spy the adapter must ultimately call.
 const navigateFn = vi.fn()
@@ -18,6 +23,7 @@ vi.mock('react-router', () => ({
   useNavigate: () => navigateFn,
   useLocation: () => ({ pathname: '/', search: '', hash: '', state: undefined, key: 'k' }),
   useParams: () => ({}),
+  useNavigationType: () => 'PUSH',
   useSearchParams: () => [new URLSearchParams(''), vi.fn()],
 }))
 
@@ -26,6 +32,11 @@ vi.mock('react', () => ({
   default: {},
   createContext: () => ({ Provider: ({ children }: { children: unknown }) => children }),
   useContext: vi.fn(),
+  useState: (initial: unknown) => [
+    typeof initial === 'function' ? (initial as () => unknown)() : initial,
+    vi.fn(),
+  ],
+  useRef: (initial: unknown) => ({ current: initial }),
   useMemo: (fn: () => unknown) => fn(),
   useEffect: (fn: () => void) => {
     fn()
