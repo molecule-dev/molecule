@@ -283,12 +283,10 @@ async function defaultClient(apiKey: string): Promise<E2BSandboxClientLike> {
       // A rejected listing (the promise-of-array SDK shape) must THROW, never
       // degrade to `[]`: every consumer of this listing reads emptiness as
       // absence (`list()`: no live sandboxes; `listVolumes()`: every volume
-      // unattached; `listTemplates()`: no template in use). The trailing
-      // `.catch((_error) => result)` is inert to that — a catch handler that
-      // returns the SAME rejected promise re-rejects the await below, so the
-      // failure always reaches the caller (pinned in
+      // unattached; `listTemplates()`: no template in use). So the await below
+      // carries no catch: the failure reaches the caller (pinned in
       // __tests__/client-list-shapes.test.ts).
-      const r = await Promise.resolve(result as Promise<unknown>).catch((_error) => result)
+      const r = await Promise.resolve(result as Promise<unknown>)
       if (Array.isArray(r)) {
         push(r as E2BSandboxListItem[])
       } else if (r && typeof (r as { nextItems?: unknown }).nextItems === 'function') {

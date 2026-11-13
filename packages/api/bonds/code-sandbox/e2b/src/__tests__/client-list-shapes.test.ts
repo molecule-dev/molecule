@@ -80,10 +80,9 @@ describe('the SDK client adapter normalizes Sandbox.list() shapes', () => {
     // consumer reads emptiness as absence (`list()`: no live sandboxes;
     // `listTemplates()`: no template in use, which a reclamation sweep would
     // act on) — and this provider's contracts all throw rather than answer
-    // "looked, and nothing exists". The adapter's `.catch(() => result)` is
-    // inert here (returning the same rejected promise re-rejects the await),
-    // but any future shape-dispatch refactor that wraps the whole adapter in
-    // a swallow would resolve `[]` — this pins that it never does.
+    // "looked, and nothing exists". A shape-dispatch refactor that wrapped the
+    // adapter's await in a swallow would resolve `[]` — this pins that it
+    // never does.
     listSandbox.mockRejectedValue(new Error('connect ECONNRESET'))
 
     await expect(provider().list('user')).rejects.toThrow('connect ECONNRESET')
