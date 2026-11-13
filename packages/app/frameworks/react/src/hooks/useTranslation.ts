@@ -61,8 +61,9 @@ export function useI18nProvider(): I18nProvider {
  * this hook runs, remains unobservable — register translations at module scope
  * or in an effect, never while rendering.
  *
- * No hook-returned function is rebuilt, so an effect that depends on one stays
- * stable.
+ * The snapshot is a string, so subscribing rebuilds no function; each hook
+ * decides which of its functions follow the locale (`useTranslation`'s `t`
+ * does, so text memoized on it refreshes; `useT`'s keeps one identity).
  *
  * @param provider - The i18n provider from context.
  * @returns A value that changes on every notification, revision and locale switch.

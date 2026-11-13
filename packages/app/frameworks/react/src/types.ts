@@ -266,12 +266,23 @@ export interface UseRouterResult {
  * Hook result for useTranslation.
  */
 export interface UseTranslationResult {
+  /**
+   * Translates a key in the active locale. A new function after each locale
+   * change, so a value memoized on `[t]` refreshes; `useT()` returns one that
+   * keeps its identity across locale changes.
+   */
   t: I18nProvider['t']
+  /** The active locale code. */
   locale: string
+  /** Switches the active locale. Same function while the provider is unchanged. */
   setLocale: I18nProvider['setLocale']
+  /** The registered locales; a new list only after a locale notification. */
   locales: ReturnType<I18nProvider['getLocales']>
+  /** Formats a number for the active locale. Same function while the provider is unchanged. */
   formatNumber: I18nProvider['formatNumber']
+  /** Formats a date for the active locale. Same function while the provider is unchanged. */
   formatDate: I18nProvider['formatDate']
+  /** The active locale's text direction. */
   direction: 'ltr' | 'rtl'
 }
 
