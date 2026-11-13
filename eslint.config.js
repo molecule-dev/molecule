@@ -5,6 +5,7 @@ import simpleImportSort from 'eslint-plugin-simple-import-sort'
 import tseslint from 'typescript-eslint'
 
 import { noHandStyledButton } from './eslint-rules/no-hand-styled-button.mjs'
+import { noRawClassNames } from './eslint-rules/no-raw-class-names.mjs'
 
 /**
  * Local rules.
@@ -21,10 +22,15 @@ import { noHandStyledButton } from './eslint-rules/no-hand-styled-button.mjs'
  * `eslint-rules/` rather than inline because molecule-dev/app needs the exact
  * same rule and is checked out alone in CI — see `scripts/sync-eslint-rules.mjs`
  * in the workspace root for the canonical copy and the drift gate.
+ *
+ * `no-raw-class-names` enforces Rule 5 itself (CSS class names only in ClassMap
+ * bonds) where every framework must render the same classes: the framework UI
+ * packages. Same canonical/sync arrangement.
  */
 const moleculeLocal = {
   rules: {
     'no-hand-styled-button': noHandStyledButton,
+    'no-raw-class-names': noRawClassNames,
     'require-catch-binding': {
       meta: {
         type: 'problem',
@@ -269,6 +275,26 @@ export default tseslint.config(
           inlineTags: ['link', 'linkcode', 'linkplain', 'tutorial', 'html'],
         },
       ],
+    },
+  },
+  {
+    // Rule 5 for the framework UI packages: each one styles through ClassMap
+    // tokens, so React, Vue, Solid, Svelte, Angular and React Native render the
+    // same classes from the same bond and a styling swap is one bond change.
+    files: ['packages/app/frameworks/*-ui/src/**/*.{ts,tsx}'],
+    ignores: ['**/__tests__/**', '**/*.test.{ts,tsx}', '**/*.spec.{ts,tsx}'],
+    rules: {
+      'molecule-local/no-raw-class-names': 'error',
+    },
+  },
+  {
+    // The vendored lint rules are plain ESM JavaScript, typed through JSDoc
+    // (`@param {object} node`): a TS annotation is not valid there, so the
+    // return-type rule cannot be satisfied and JSDoc types are the only types.
+    files: ['eslint-rules/**/*.mjs'],
+    rules: {
+      '@typescript-eslint/explicit-function-return-type': 'off',
+      'jsdoc/no-types': 'off',
     },
   },
   {

@@ -288,7 +288,11 @@ function getAttribute(openingElement, name) {
   return null
 }
 
-/** @type {import('eslint').Rule.RuleModule} */
+/**
+ * The `molecule-local/no-hand-styled-button` rule.
+ *
+ * @type {import('eslint').Rule.RuleModule}
+ */
 export const noHandStyledButton = {
   meta: {
     type: 'problem',
