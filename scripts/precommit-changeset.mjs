@@ -66,6 +66,10 @@ for (const file of changed) {
   const manifestFile = file.match(/^(packages\/.+)\/package\.json$/)
   if (!publishedSource && !(manifestFile && exportsChanged(file))) continue
   const dir = source?.[1] ?? manifestFile[1]
+  // A package whose package.json leaves the index is removed by this commit: there is
+  // no next version to describe, and a changeset naming it would break `changeset
+  // version`. A deleted FILE in a package that stays still needs one.
+  if (blob('', `${dir}/package.json`) === null) continue
   const pkg = manifest(dir)
   if (pkg?.name?.startsWith('@molecule/') && !pkg.private) needingChangeset.add(pkg.name)
 }

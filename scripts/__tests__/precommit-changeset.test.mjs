@@ -93,6 +93,12 @@ describe('published-file changeset pre-commit gate', () => {
     expect(result.stderr).toContain('@molecule/a')
   })
 
+  it('accepts removing a whole package, which has no next version to describe', () => {
+    const root = fixture()
+    git(root, 'rm', '-rq', 'packages/a')
+    expect(run(root).status).toBe(0)
+  })
+
   it('is wired into the real pre-commit hook before its non-deletion early exit', () => {
     const hook = readFileSync(HOOK, 'utf8')
     expect(hook).toContain('node scripts/precommit-changeset.mjs')
