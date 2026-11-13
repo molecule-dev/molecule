@@ -138,6 +138,11 @@ export const ConfirmButton = forwardRef<HTMLButtonElement, ConfirmButtonProps>(
       setPhase('pending')
       try {
         await onConfirm()
+      } catch (_error) {
+        // A rejected confirm means the action failed: the caller owns that
+        // error and shows its own message, and the button returns to idle so
+        // the user can retry. Ignoring it here only stops it becoming an
+        // unhandled rejection.
       } finally {
         setPhase('idle')
       }

@@ -1,8 +1,9 @@
 // @vitest-environment jsdom
 /**
  * Render/behavior tests for PromptDialog: seeding + typing, cancel, submit
- * passing the entered value and closing on resolve, and STAYING OPEN on a
- * rejection (the documented contract — the caller renders the error).
+ * passing the entered value and closing on resolve (and accepting the next
+ * submit when the parent keeps it open), and STAYING OPEN on a rejection (the
+ * documented contract — the caller renders the error).
  *
  * @module
  */
@@ -107,6 +108,18 @@ describe('PromptDialog', () => {
     fireEvent.click(d.getByText('Confirm'))
     await waitFor(() => expect(d.onSubmit).toHaveBeenCalledWith('Sprint 5'))
     await waitFor(() => expect(d.onClose).toHaveBeenCalledTimes(1))
+  })
+
+  it('re-enables the form after a resolved submit when the parent keeps it open', async () => {
+    // A multi-stage flow advances its stage in onClose and leaves `open` true;
+    // the dialog must accept the next submit instead of staying disabled.
+    const d = renderDialog({ onSubmit: vi.fn().mockResolvedValue(undefined) })
+    fireEvent.click(d.getByText('Confirm'))
+    await waitFor(() => expect(d.onClose).toHaveBeenCalledTimes(1))
+    await waitFor(() =>
+      expect((d.getByLabelText('Rename board') as HTMLInputElement).disabled).toBe(false),
+    )
+    expect((d.getByText('Confirm') as HTMLButtonElement).disabled).toBe(false)
   })
 
   it('stays open with the value intact when onSubmit rejects', async () => {

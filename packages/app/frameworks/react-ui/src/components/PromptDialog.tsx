@@ -132,7 +132,12 @@ export function PromptDialog({
     if (pending) return
     setPending(true)
     void Promise.resolve(onSubmit(value))
-      .then(() => onClose())
+      .then(() => {
+        // A parent that keeps the dialog open (a multi-stage flow advancing in
+        // onClose) gets a form that accepts the next submit.
+        setPending(false)
+        onClose()
+      })
       .catch(() => {
         // Deliberate: a rejection keeps the dialog open (see @remarks);
         // the caller renders the error through `children`.
