@@ -3269,7 +3269,7 @@ describe('exec_command run_in_background', () => {
       `nohup sh -c ${shellQuote(
         `p=''; nice -n 10 true >/dev/null 2>&1 && p='nice -n 10'; ` +
           'ionice -c3 true >/dev/null 2>&1 && p="$p ionice -c3"; ' +
-          `$p sh /tmp/${r.taskId}.sh > /tmp/${r.taskId}.log 2>&1; ` +
+          `$p bash /tmp/${r.taskId}.sh > /tmp/${r.taskId}.log 2>&1; ` +
           `echo $? > /tmp/${r.taskId}.exit`,
       )} > /dev/null 2>&1 & echo $! > /tmp/${r.taskId}.pid`,
     )
@@ -3290,7 +3290,7 @@ describe('exec_command run_in_background', () => {
       taskId: string
     }
     const cmd = (backend.run as ReturnType<typeof vi.fn>).mock.calls[0][0] as string
-    expect(cmd).toContain(`sh -c 'sh /tmp/${r.taskId}.sh`)
+    expect(cmd).toContain(`sh -c 'bash /tmp/${r.taskId}.sh`)
     expect(cmd).not.toContain('nice')
     expect(cmd).not.toContain('ionice')
   })

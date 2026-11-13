@@ -3561,9 +3561,13 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           // every command the executor sends next, so it starts at lower CPU and
           // IO priority (see suiteRunPriorityLaunch). Foreground runs are never
           // touched, and a sandbox without the tools runs it unchanged.
+          // The command runs in bash, the shell a foreground command runs in (the backend's
+          // `bash -c`), so moving a command to the background never changes what its text means:
+          // under `sh` (dash in a Debian image) `&>` backgrounds, `[[` is not a command, and `((`
+          // opens two subshells instead of an arithmetic test.
           const prioritized = suiteRunPriorityLaunch(
             streaming.command,
-            `sh ${script} > ${log} 2>&1; echo $? > ${exitFile}`,
+            `bash ${script} > ${log} 2>&1; echo $? > ${exitFile}`,
           )
           // The target comes back without its shell quotes (`> '/tmp/x.log'` is `/tmp/x.log`);
           // `posix.resolve` leaves an absolute one absolute and places a relative one under the

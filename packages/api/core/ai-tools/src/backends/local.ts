@@ -6,10 +6,28 @@
  */
 
 import { spawn } from 'child_process'
+import { accessSync, constants } from 'fs'
 import { mkdir, readdir, readFile, unlink, writeFile } from 'fs/promises'
-import { dirname } from 'path'
+import { delimiter, dirname, join } from 'path'
 
 import type { ExecutionBackend } from '../types.js'
+
+/**
+ * The shell a command runs in: bash, as in a sandbox (its backend runs `bash -c`, and a background
+ * command runs its script with `bash`), so a command's text means the same here as there and in
+ * either mode. `sh` only where no bash is installed.
+ */
+const COMMAND_SHELL = (() => {
+  for (const dir of (process.env.PATH ?? '').split(delimiter).filter(Boolean)) {
+    try {
+      accessSync(join(dir, 'bash'), constants.X_OK)
+      return 'bash'
+    } catch (_error) {
+      // Not in this PATH entry; the next one may have it.
+    }
+  }
+  return 'sh'
+})()
 
 /**
  * Create an ExecutionBackend that operates on the local filesystem.
@@ -51,7 +69,7 @@ export function createLocalBackend(projectRoot: string): ExecutionBackend {
         // leaving the runner/browser alive. Use the OS process group, with a
         // graceful signal followed by a bounded forceful cleanup of that group.
         const grouped = process.platform !== 'win32'
-        const child = spawn('sh', ['-c', command], {
+        const child = spawn(COMMAND_SHELL, ['-c', command], {
           cwd: opts?.cwd || projectRoot,
           detached: grouped,
           stdio: ['ignore', 'pipe', 'pipe'],

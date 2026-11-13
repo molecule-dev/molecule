@@ -702,10 +702,11 @@ describe('statementBoundary — where a stage’s own text ends, and the group i
     expect(boundary).not.toBeNull()
     expect(command.slice(0, boundary?.textEnd)).toBe('(npx playwright test 2>&1 | tail -25')
     expect(boundary?.leavesGroupOpen).toBe(false)
-    // The shell's own reading keeps both closers of a nested subshell.
-    const nested = '((npx playwright test 2>&1 | tail -25))'
+    // The shell's own reading keeps both closers of a nested subshell. (Written `( (`: bash reads
+    // `((` as an arithmetic command, which runs nothing.)
+    const nested = '( (npx playwright test 2>&1 | tail -25) )'
     expect(nested.slice(0, boundaryFor(nested, 'tail')?.textEnd)).toBe(
-      '((npx playwright test 2>&1 | tail -25',
+      '( (npx playwright test 2>&1 | tail -25',
     )
     // Whitespace before the closer is not part of the last word either.
     const spaced = '(npx playwright test 2>&1 | tail -25 )'

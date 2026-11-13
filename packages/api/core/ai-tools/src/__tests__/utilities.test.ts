@@ -3866,7 +3866,7 @@ describe('failureCausesNote — a strict-mode violation keeps the elements it re
 })
 
 describe('suiteRunPriorityLaunch', () => {
-  const LAUNCH = 'sh /tmp/mol-bg-1.sh > /tmp/mol-bg-1.log 2>&1; echo $? > /tmp/mol-bg-1.exit'
+  const LAUNCH = 'bash /tmp/mol-bg-1.sh > /tmp/mol-bg-1.log 2>&1; echo $? > /tmp/mol-bg-1.exit'
 
   it('lowers a background suite run in CPU and IO priority (flash-m75)', () => {
     // flash-m75: a backgrounded 139-test Playwright run saturated the sandbox, and
@@ -4372,9 +4372,10 @@ EOF
       command: '(npx playwright test 2>&1)',
       dropped: '| tail -25',
     })
-    // Nested groups keep every closer the shell opened before the pipeline.
-    expect(stripTrailingSuiteFilters('((npx playwright test 2>&1 | tail -25))')).toEqual({
-      command: '((npx playwright test 2>&1))',
+    // Nested groups keep every closer the shell opened before the pipeline. (Written `( (`:
+    // bash reads `((` as an arithmetic command, which runs nothing.)
+    expect(stripTrailingSuiteFilters('( (npx playwright test 2>&1 | tail -25) )')).toEqual({
+      command: '( (npx playwright test 2>&1) )',
       dropped: '| tail -25',
     })
     // A closer written after a space keeps its own spacing.

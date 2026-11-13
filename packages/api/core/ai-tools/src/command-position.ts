@@ -50,6 +50,12 @@ export interface CommandSegment {
    * (`timeout 280 hurl --test …` → 280), or null when it carries none.
    */
   timeoutSeconds: number | null
+  /**
+   * True when the statement sits in a loop (`for`/`select`/`while`/`until` … `done`, its
+   * condition included), so it may run many times: its own `timeout` bounds each pass, not the
+   * command. Absent for a statement that runs once.
+   */
+  repeated?: true
 }
 
 /** One shell word: its text as written (quotes kept) and the offset it starts at. */
@@ -313,6 +319,33 @@ const MAX_NESTING = 3
 
 /** How many wrapper words one segment may carry before the parser gives up on it. */
 const MAX_WRAPPERS = 32
+
+/** The reserved words that open a compound command's condition or body list (`man bash`). */
+const COMPOUND_OPENERS = new Set(['if', 'then', 'else', 'elif', 'while', 'until', 'do'])
+
+/** The reserved words that open a loop, whose statements up to its `done` may run many times. */
+const LOOP_OPENERS = new Set(['for', 'select', 'while', 'until'])
+
+/**
+ * How many loops a statement opens: the loop keywords among its leading reserved words
+ * (`while`, `then while`, `do for`). A `for`/`select` header names its variable next, so the walk
+ * stops there.
+ *
+ * @param words - The statement's words, quotes kept.
+ * @returns The loops it opens.
+ */
+function loopsOpened(words: readonly string[]): number {
+  let opened = 0
+  for (const word of words) {
+    if (LOOP_OPENERS.has(word)) {
+      opened += 1
+      if (word === 'for' || word === 'select') break
+      continue
+    }
+    if (word !== '!' && !COMPOUND_OPENERS.has(word)) break
+  }
+  return opened
+}
 
 /**
  * Words that run in front of the real program: a scheduler, a privilege wrapper, a process
@@ -741,9 +774,17 @@ function commandStart(words: readonly string[]): {
       continue
     }
     const name = programName(word)
-    // `! cmd` inverts an exit status: what runs is still the word after it.
-    if (name === '!') {
+    // `! cmd` inverts an exit status, and a compound command's opener (`if`/`while`/`until` before
+    // its condition, `then`/`else`/`elif`/`do` before a body) only introduces a list: what runs is
+    // the word after it. A keyword is reserved only as an unquoted first word (`'if'` and
+    // `X=1 if` name a program called `if`), so only that spelling is stepped over. Before this,
+    // every reader took `do`/`then` as the program and missed each write and test run written in
+    // a loop or if body. A `for`/`select`/`case` header runs nothing and stays as it is.
+    if (name === '!' || (word === name && COMPOUND_OPENERS.has(name) && bound.length === 0)) {
       at += 1
+      // An assignment for the program goes after the keyword: `BASE_URL=… do npx …` makes `do`
+      // a program name and breaks the loop.
+      envInsert = at
       continue
     }
     if (SHELLS.has(name)) {
@@ -968,6 +1009,61 @@ function blankHeredocBodies(command: string): string {
 }
 
 /**
+ * Where an arithmetic command that opens at `at` closes: `(( n > 3 ))` is an expression the shell
+ * evaluates, not a statement, and its `>`, `<`, `&&` and `|` are operators of that expression.
+ * The shell reads `((` that way only when it closes with `))`; `((cd app && npm test) )` is two
+ * nested subshells, and so is any `((` whose parentheses close another way, so null is returned
+ * and the text is read as groups. Quotes and `$( … )`/`${ … }` bodies inside are stepped over.
+ *
+ * @param source - The command, heredoc bodies blanked.
+ * @param at - The offset of the first `(`.
+ * @returns The offset of the closing `))`'s second `)`, or null.
+ */
+function arithmeticCommandEnd(source: string, at: number): number | null {
+  let depth = 2
+  let nested = 0
+  for (let j = at + 2; j < source.length; j++) {
+    const char = source[j]
+    if (char === '\\') {
+      j += 1
+      continue
+    }
+    if (char === "'" || char === '"') {
+      const close = char === "'" ? source.indexOf("'", j + 1) : doubleQuoteEnd(source, j)
+      if (close < 0) return null
+      j = close
+      continue
+    }
+    if (char === '$' && (source[j + 1] === '(' || source[j + 1] === '{')) {
+      nested += 1
+      j += 1
+      continue
+    }
+    if (nested > 0) {
+      if (char === '(' || char === '{') nested += 1
+      else if (char === ')' || char === '}') nested -= 1
+      continue
+    }
+    if (char === '\n') return null
+    if (char === '(') depth += 1
+    else if (char === ')') {
+      depth -= 1
+      if (depth === 1) return source[j + 1] === ')' ? j + 1 : null
+    }
+  }
+  return null
+}
+
+/** The offset of the `"` that closes the double-quoted string opening at `at`, or -1. */
+function doubleQuoteEnd(source: string, at: number): number {
+  for (let j = at + 1; j < source.length; j++) {
+    if (source[j] === '\\') j += 1
+    else if (source[j] === '"') return j
+  }
+  return -1
+}
+
+/**
  * A command's statements and pipeline stages, split where the shell splits them — inside quotes
  * and inside a command substitution, a `|`, `;` or `&&` belongs to that command, not to this one.
  *
@@ -1006,6 +1102,8 @@ function splitCommand(command: string): {
      * inside a quote or a command substitution — neither writes to the command's own stdout.
      */
     depths: readonly number[]
+    /** True for an arithmetic command (`(( n > 3 ))`, {@link arithmeticCommandEnd}): it runs nothing. */
+    arithmetic?: true
   }>
   /** Each command substitution's body, as a start/end offset pair in `command`. */
   substitutions: Array<{ start: number; end: number }>
@@ -1013,7 +1111,17 @@ function splitCommand(command: string): {
   subshells: Array<{ start: number; end: number }>
 } {
   const source = blankHeredocBodies(command)
-  const parts: Array<{ text: string; start: number; after: string; depths: number[] }> = []
+  const parts: Array<{
+    text: string
+    start: number
+    after: string
+    depths: number[]
+    arithmetic: boolean
+  }> = []
+  /** The offset an arithmetic command being read closes at, or -1 outside one. */
+  let arithmeticEnd = -1
+  /** Whether the statement being read is an arithmetic command. */
+  let arithmetic = false
   const substitutions: Array<{ start: number; end: number }> = []
   const subshells: Array<{ start: number; end: number }> = []
   const subshellOpens: number[] = []
@@ -1039,12 +1147,24 @@ function splitCommand(command: string): {
   }
   /** Close the statement being read at `after`. */
   const end = (after: string): void => {
-    parts.push({ text: buffer, start: bufferStart, after, depths })
+    parts.push({ text: buffer, start: bufferStart, after, depths, arithmetic })
     buffer = ''
     depths = []
+    arithmetic = false
   }
   /** The nestings this position sits inside, outermost first. */
   const stack: Nesting[] = []
+  /**
+   * The `case … in … esac` statements open at this level, innermost last: whether the text being
+   * read is an item's pattern or its body, and the group depth the statement was opened at.
+   */
+  const cases: Array<{ mode: 'pattern' | 'body'; depth: number }> = []
+  /** The statement being read, as words, after any compound opener in front of it. */
+  const statementWords = (): string[] => {
+    const words = segmentWords(buffer.trim())
+    while (words[0] === '!' || COMPOUND_OPENERS.has(words[0] ?? '')) words.shift()
+    return words
+  }
   for (let i = 0; i < source.length; i++) {
     const char = source[i] ?? ''
     const next = source[i + 1]
@@ -1155,6 +1275,71 @@ function splitCommand(command: string): {
       put(char, -1)
       continue
     }
+    // A `case` statement's items (`man bash`: `case WORD in [(]PATTERN[|PATTERN]…) LIST ;; … esac`).
+    // A pattern is matched, never run: its `|` separates alternatives rather than piping, and its
+    // `)` closes it rather than a group, so its text is no statement of this command. Any
+    // substitution in it still runs, and the walk above has already recorded it. Each item's
+    // list is ordinary statements up to `;;`, `;&` or `;;&`. Read as plain shell, `a) cp x y`
+    // ran a program called `a`, and `c|d) cp …` piped `c` into a program called `d`.
+    // An arithmetic command's expression: none of its operators splits or groups this command.
+    if (i <= arithmeticEnd) {
+      put(char, -1)
+      continue
+    }
+    if (char === '(' && next === '(' && statementWords().length === 0) {
+      const close = arithmeticCommandEnd(source, i)
+      if (close !== null) {
+        arithmeticEnd = close
+        arithmetic = true
+        put(char, -1)
+        continue
+      }
+    }
+    const open = cases[cases.length - 1]
+    const atCase = open !== undefined && open.depth === groupDepth
+    const boundary = /[\s;&|)]/.test(char)
+    if (atCase && boundary && buffer.trim() === 'esac') {
+      // The statement ends here; the character after `esac` is read as it always is.
+      cases.pop()
+    } else if (atCase && open.mode === 'pattern') {
+      if (char === ')') {
+        buffer = ''
+        depths = []
+        bufferStart = i + 1
+        open.mode = 'body'
+        continue
+      }
+      if (char === '(' || char === '|') {
+        put(char, -1)
+        continue
+      }
+    } else if (atCase && char === ';' && (next === ';' || next === '&')) {
+      let operator = char + next
+      i += 1
+      if (operator === ';;' && source[i + 1] === '&') {
+        operator += '&'
+        i += 1
+      }
+      end(operator)
+      bufferStart = i + 1
+      open.mode = 'pattern'
+      continue
+    }
+    if (/\s/.test(char) && /(?:^|\s)case\s/.test(`${buffer} `)) {
+      const words = statementWords()
+      if (words.length === 3 && words[0] === 'case' && words[2] === 'in') {
+        // The header runs nothing but its word's expansion; the items after it are read above.
+        end(';')
+        bufferStart = i + 1
+        cases.push({ mode: 'pattern', depth: groupDepth })
+        continue
+      }
+      // `case WORD` with `in` on the next line is still one header.
+      if (char === '\n' && words.length === 2 && words[0] === 'case') {
+        put(' ')
+        continue
+      }
+    }
     // Grouping belongs to the shell, not to a word: a statement written inside `( … )` or
     // `{ … }` writes through that group, so the depth travels with every character a caller
     // reading a redirect may ask about.
@@ -1198,6 +1383,7 @@ function splitCommand(command: string): {
     after: string
     before: string
     depths: readonly number[]
+    arithmetic?: true
   }> = []
   // The separator of the last part, kept across the empty ones so a statement's own separator
   // survives the blank lines around it (`a &&\n b` and a heredoc's blanked body alike).
@@ -1215,6 +1401,7 @@ function splitCommand(command: string): {
       after: part.after,
       before: lastAfter ?? '',
       depths: part.depths.slice(trimStart),
+      ...(part.arithmetic ? { arithmetic: true as const } : {}),
     })
     lastAfter = part.after
   }
@@ -1434,6 +1621,8 @@ function executedCommandsOf(command: string, depth: number): ExecutedCommand[] {
   const out: ExecutedCommand[] = []
   const { parts, substitutions } = splitCommand(command)
   for (const part of parts) {
+    // An arithmetic command runs nothing itself; its substitutions are read below.
+    if (part.arithmetic) continue
     const words = segmentWords(part.text)
     const placed = withoutRedirects(words)
     const start = commandStart(placed.words)
@@ -1821,9 +2010,17 @@ function locatedSegmentsOf(command: string, depth: number): LocatedCommandSegmen
   if (typeof command !== 'string' || depth > MAX_NESTING) return []
   const out: LocatedCommandSegment[] = []
   const { parts, subshells } = splitCommand(command)
+  /** How many loops the statement being read sits in; each `done` closes the innermost. */
+  let loops = 0
   for (const part of parts) {
     const words = segmentWords(part.text)
     const start = commandStart(words)
+    loops += loopsOpened(words)
+    const repeated = loops > 0
+    if (words[start.at] === 'done' && start.nested === null) loops = Math.max(0, loops - 1)
+    // `(( n > 3 ))` evaluates an expression and runs nothing; a substitution inside it was
+    // recorded by the walk that split it ({@link executedCommands}).
+    if (part.arithmetic) continue
     const leading = leadingAssignments(part.text)
     // Every `NAME=value` bound for the program the statement runs: its leading words AND the ones
     // an `env` wrapper carries (`env -i PATH=$PATH BASE_URL=… npx playwright test`). A shell binds
@@ -1866,6 +2063,11 @@ function locatedSegmentsOf(command: string, depth: number): LocatedCommandSegmen
         if (!entry) continue
         out.push({
           ...entry,
+          // A shell started inside a loop body runs once per pass, and so does all it runs.
+          segment:
+            repeated && entry.segment !== null
+              ? { ...entry.segment, repeated: true }
+              : entry.segment,
           shellScope: [...shellScope, `shell:${part.start}`, ...(entry.shellScope ?? [])],
           // The variables this statement bound before the shell reached it are the nested
           // command's too: `env BASE_URL=… sh -c '… npx playwright test …'` passes them down.
@@ -1917,6 +2119,7 @@ function locatedSegmentsOf(command: string, depth: number): LocatedCommandSegmen
         args,
         text: [program, ...args].join(' '),
         timeoutSeconds: start.timeoutSeconds,
+        ...(repeated ? { repeated: true as const } : {}),
       },
       assignments,
       ...placed,
@@ -1936,7 +2139,9 @@ function locatedSegmentsOf(command: string, depth: number): LocatedCommandSegmen
  * finish, whatever the pipeline's own exit status says. It is read here, from the same parse every
  * other command reader uses, rather than matched as text: `timeout` in an argument
  * (`grep -n 'timeout 280' notes.md`) bounds nothing, and `-k 5` is the grace before the kill, not
- * the bound ({@link WRAPPER_VALUE_FLAGS}).
+ * the bound ({@link WRAPPER_VALUE_FLAGS}). A `timeout` on a statement in a loop bounds each pass, not
+ * the command ({@link CommandSegment.repeated}): three `timeout 25 curl …` passes can run 77 s and end
+ * in an inner 124 that no bound of the command's fired.
  *
  * @param command - The shell command.
  * @returns The seconds the command allows itself, or null.
@@ -1944,7 +2149,7 @@ function locatedSegmentsOf(command: string, depth: number): LocatedCommandSegmen
 export function commandTimeoutSeconds(command: string): number | null {
   let bound: number | null = null
   for (const segment of commandSegments(command)) {
-    if (segment.timeoutSeconds === null) continue
+    if (segment.timeoutSeconds === null || segment.repeated) continue
     bound = bound === null ? segment.timeoutSeconds : Math.max(bound, segment.timeoutSeconds)
   }
   return bound
