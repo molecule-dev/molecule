@@ -99,6 +99,10 @@ export interface UseOAuthReturn {
  * @param config.loginEndpoint - Path for the OAuth login POST endpoint (defaults to "/users/log-in/oauth").
  * @param config.onSuccess - Callback after successful OAuth login.
  * @param config.onError - Callback on OAuth login failure.
+ * @param config.navigate - How the page leaves for the provider: {@link UseOAuthReturn.redirect}
+ *   and the blocked-popup fallback call it with the provider URL. Defaults to a
+ *   full-page navigation (`window.location.href = url`); pass an in-app browser
+ *   opener on native, or a router's external navigation.
  *
  * @example
  * ```tsx
@@ -123,6 +127,7 @@ export function useOAuth(config?: {
   loginEndpoint?: string
   onSuccess?: () => void
   onError?: (error: string) => void
+  navigate?: (url: string) => void
 }): UseOAuthReturn {
   const authClient = useAuthClient()
 
@@ -201,12 +206,22 @@ export function useOAuth(config?: {
     [authClient],
   )
 
+  const navigateOption = config?.navigate
+  /** Leaves the page for the provider: the `navigate` option, else a full-page navigation. */
+  const leaveFor = useCallback(
+    (url: string): void => {
+      if (navigateOption) navigateOption(url)
+      else window.location.href = url
+    },
+    [navigateOption],
+  )
+
   const redirect = useCallback(
     (provider: string): void => {
       stashProvider(provider)
-      window.location.href = withReturnPath(getOAuthUrl(provider))
+      leaveFor(withReturnPath(getOAuthUrl(provider)))
     },
-    [getOAuthUrl],
+    [getOAuthUrl, leaveFor],
   )
 
   // The currently-open OAuth popup, so a second click focuses it instead of
@@ -239,7 +254,7 @@ export function useOAuth(config?: {
       // Popup blocked (or unavailable) → fall back to a full-page redirect so login
       // still works. No listener is registered in this branch.
       if (!popup) {
-        window.location.href = url
+        leaveFor(url)
         return
       }
       activePopupRef.current = popup
@@ -309,7 +324,7 @@ export function useOAuth(config?: {
         }
       }, OAUTH_POPUP_TIMEOUT_MS)
     },
-    [getOAuthUrl, establishSession, config],
+    [getOAuthUrl, establishSession, config, leaveFor],
   )
 
   // Handle OAuth callback — detect code + state in URL params
