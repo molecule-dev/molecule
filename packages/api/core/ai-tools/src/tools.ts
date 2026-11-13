@@ -60,6 +60,14 @@ import { leadingSleepPeek } from './sleep-peek.js'
 export const supportsBackgroundScriptPreparation = true
 
 /**
+ * The shell a background command's script runs in: bash, the shell a foreground command runs in
+ * (a sandbox backend's `bash -c`), so moving a command to the background never changes what its
+ * text means. A host that checks a script before launch (`prepareBackgroundScript`) asks this
+ * same shell, e.g. `${BACKGROUND_SCRIPT_SHELL} -n <path>`, so its answer is the launch's.
+ */
+export const BACKGROUND_SCRIPT_SHELL = 'bash'
+
+/**
  * Total waiting, per background task, after which a growing task receives
  * an elapsed-time progress update. This never refuses an explicit wait.
  */
@@ -3567,7 +3575,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           // opens two subshells instead of an arithmetic test.
           const prioritized = suiteRunPriorityLaunch(
             streaming.command,
-            `bash ${script} > ${log} 2>&1; echo $? > ${exitFile}`,
+            `${BACKGROUND_SCRIPT_SHELL} ${script} > ${log} 2>&1; echo $? > ${exitFile}`,
           )
           // The target comes back without its shell quotes (`> '/tmp/x.log'` is `/tmp/x.log`);
           // `posix.resolve` leaves an absolute one absolute and places a relative one under the

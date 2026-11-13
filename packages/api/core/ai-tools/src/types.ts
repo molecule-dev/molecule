@@ -295,6 +295,7 @@ export interface ToolBuildConfig {
    * Prepare a background command script after it is written, before launching it.
    * Hosts may validate or rewrite this script without overriding ordinary file writes
    * (which would disable safe transport batching). A rejection prevents launch.
+   * The script runs in `BACKGROUND_SCRIPT_SHELL` (bash); a parse check asks that same shell.
    */
   prepareBackgroundScript?: (path: string, content: string) => Promise<void>
 
