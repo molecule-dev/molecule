@@ -76,3 +76,36 @@ describe('TabFilter', () => {
     expect(markup).toContain('tf-cls')
   })
 })
+
+it.each(['notes', 'drafts'])(
+  'keeps the collection default reachable from selected %s tabs',
+  (activeId) => {
+    const onChange = vi.fn()
+    const props = {
+      tabs: [{ id: activeId, label: activeId }],
+      defaultTab: { id: 'all', label: 'All documents' },
+      activeId,
+      onChange,
+    }
+    const markup = html(createElement(TabFilter, props))
+    expect(markup).toContain('All documents')
+    expect(markup.match(/role="tab"/g)).toHaveLength(2)
+    const tree = TabFilter(props)
+    const children = (tree.props as { children: { props: { onClick: () => void } }[] }).children
+    children[0]!.props.onClick()
+    expect(onChange).toHaveBeenCalledWith('all')
+  },
+)
+
+it('keeps one default tab when the supplied tabs already contain it', () => {
+  const markup = html(
+    createElement(TabFilter, {
+      tabs,
+      defaultTab: { id: 'all', label: 'All documents' },
+      activeId: 'all',
+      onChange: () => {},
+    }),
+  )
+  expect(markup.match(/data-mol-id="tab-filter-all"/g)).toHaveLength(1)
+  expect(markup).toContain('All documents')
+})

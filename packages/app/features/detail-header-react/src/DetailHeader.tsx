@@ -12,8 +12,10 @@ export interface DetailHeaderProps {
   leading?: ReactNode
   /** Optional status indicator (e.g. `<StatusBadge>` or `<StatusPill>`). */
   status?: ReactNode
-  /** Right-aligned actions. */
+  /** Right-aligned contextual actions, such as owner-only editing. */
   actions?: ReactNode
+  /** Actions shared by every viewer, rendered independently of contextual actions. */
+  commonActions?: ReactNode
   /** Optional metadata row rendered below the main row (chips / secondary fields). */
   meta?: ReactNode
   /** Optional search slot (rendered to the left of the actions). */
@@ -40,6 +42,7 @@ export function DetailHeader({
   leading,
   status,
   actions,
+  commonActions,
   meta,
   search,
   sticky,
@@ -66,6 +69,7 @@ export function DetailHeader({
         </div>
         <div className={cm.flex({ align: 'center', gap: 'sm' })}>
           {search}
+          {commonActions}
           {actions}
         </div>
       </div>

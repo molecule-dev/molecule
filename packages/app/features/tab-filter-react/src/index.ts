@@ -4,7 +4,11 @@
  * Exports `<TabFilter>` — horizontally-scrolling pill-tabs with counts —
  * and the `TabFilterTab` type. Different from `<Tabs>` in
  * `@molecule/app-ui-react`: this one surfaces per-tab count badges and
- * scrolls horizontally on overflow.
+ * scrolls horizontally on overflow. Set `defaultTab` to the collection's unfiltered view:
+ * it remains reachable when `tabs` changes to a path/query-selected filter. A duplicate id
+ * appears once, using the default tab's definition. Pass its id to the same `onChange`
+ * navigation callback, which can use `useListRoute().select` or clear filters and page
+ * in one navigation. Applications without a default view can omit it.
  *
  * @example
  * ```tsx
@@ -19,7 +23,7 @@
  *     { id: 'open', label: 'Open', count: 8 },
  *     { id: 'closed', label: 'Closed', count: 34 },
  *   ]
- *   return <TabFilter tabs={tabs} activeId={activeTab} onChange={setActiveTab} />
+ *   return <TabFilter defaultTab={{id:'all', label:'All'}} tabs={tabs} activeId={activeTab} onChange={setActiveTab} />
  * }
  * ```
  *

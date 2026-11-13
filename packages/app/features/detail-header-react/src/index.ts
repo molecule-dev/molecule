@@ -6,6 +6,9 @@
  * slot. Different from `<PageHeader>` (top of list/index pages) in
  * prioritising status + search + stickiness for long-scrolling detail
  * screens. All slots are ReactNode props — compose any components.
+ * `commonActions` always renders beside `actions`: keep viewer-independent controls there
+ * while `actions` selects owner/reader controls. Ownership of a record need not remove
+ * actions the owner can still perform, such as bookmarking a document or exporting a task.
  *
  * @example
  * ```tsx
@@ -17,7 +20,8 @@
  *   title="Project Alpha"
  *   subtitle="Last updated 2 hours ago"
  *   status={<StatusBadge kind="success">Active</StatusBadge>}
- *   actions={<Button variant="solid" onClick={handleEdit}>Edit</Button>}
+ *   commonActions={<Button onClick={handleBookmark}>Bookmark</Button>}
+ *   actions={canEdit ? <Button variant="solid" onClick={handleEdit}>Edit</Button> : null}
  *   meta={<span>Owner: Alice</span>}
  *   sticky
  * />

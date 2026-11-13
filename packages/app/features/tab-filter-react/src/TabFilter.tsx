@@ -20,6 +20,8 @@ export interface TabFilterTab {
 export interface TabFilterProps {
   /** Tabs to render. */
   tabs: TabFilterTab[]
+  /** Persistent collection/default view, retained even when tabs contains only the active filter. */
+  defaultTab?: TabFilterTab
   /** Currently active tab id. */
   activeId: string
   /** Called when an enabled tab is clicked. */
@@ -48,6 +50,7 @@ export interface TabFilterProps {
  */
 export function TabFilter({
   tabs,
+  defaultTab,
   activeId,
   onChange,
   scrollable = true,
@@ -55,13 +58,16 @@ export function TabFilter({
   className,
 }: TabFilterProps): ReactElement {
   const cm = getClassMap()
+  const visibleTabs = defaultTab
+    ? [defaultTab, ...tabs.filter((tab) => tab.id !== defaultTab.id)]
+    : tabs
   return (
     <div
       role="tablist"
       className={cm.cn(cm.flex({ align: 'center', gap: 'xs' }), className)}
       style={scrollable ? { overflowX: 'auto', whiteSpace: 'nowrap' } : undefined}
     >
-      {tabs.map((t) => {
+      {visibleTabs.map((t) => {
         const active = t.id === activeId
         return (
           <button
